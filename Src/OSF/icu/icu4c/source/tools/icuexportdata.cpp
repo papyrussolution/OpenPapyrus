@@ -158,7 +158,7 @@ int main(int argc, char * argv[])
 	}
 	/* error handling, printing usage message */
 	if(argc<0) {
-		fprintf(stderr, "error in command line argument \"%s\"\n", argv[-argc]);
+		slfprintf_stderr("error in command line argument \"%s\"\n", argv[-argc]);
 	}
 	else if(argc<2) {
 		argc = -1;
@@ -213,7 +213,7 @@ int main(int argc, char * argv[])
 	}
 	const char * mode = options[OPT_MODE].value;
 	if(uprv_strcmp(mode, "uprops") != 0) {
-		fprintf(stderr, "Invalid option for --mode (must be uprops)\n");
+		slfprintf_stderr("Invalid option for --mode (must be uprops)\n");
 		return U_ILLEGAL_ARGUMENT_ERROR;
 	}
 	if(options[OPT_TRIE_TYPE].doesOccur) {
@@ -224,7 +224,7 @@ int main(int argc, char * argv[])
 			trieType = UCPTRIE_TYPE_SMALL;
 		}
 		else {
-			fprintf(stderr, "Invalid option for --trie-type (must be small or fast)\n");
+			slfprintf_stderr("Invalid option for --trie-type (must be small or fast)\n");
 			return U_ILLEGAL_ARGUMENT_ERROR;
 		}
 	}

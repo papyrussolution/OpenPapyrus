@@ -485,7 +485,7 @@ static struct SResource * parseTransliterator(ParseState* state,
 	size = utrans_stripRules(pSource, size, pTarget, status);
 #else
 	size = 0;
-	fprintf(stderr, " Warning: writing empty transliteration data ( UCONFIG_NO_TRANSLITERATION ) \n");
+	slfprintf_stderr(" Warning: writing empty transliteration data ( UCONFIG_NO_TRANSLITERATION ) \n");
 #endif
 	result = string_open(state->bundle, tag, pTarget, size, NULL, status);
 
@@ -717,11 +717,11 @@ void GenrbImporter::getRules(const char * localeID, const char * collationType,
 	LocalUCHARBUFPointer ucbuf(
 		ucbuf_open(openFileName.data(), &cp, getShowWarning(), TRUE, &errorCode));
 	if(errorCode == U_FILE_ACCESS_ERROR) {
-		fprintf(stderr, "couldn't open file %s\n", openFileName.data());
+		slfprintf_stderr("couldn't open file %s\n", openFileName.data());
 		return;
 	}
 	if(ucbuf.isNull() || U_FAILURE(errorCode)) {
-		fprintf(stderr, "An error occurred processing file %s. Error: %s\n", openFileName.data(), u_errorName(errorCode));
+		slfprintf_stderr("An error occurred processing file %s. Error: %s\n", openFileName.data(), u_errorName(errorCode));
 		return;
 	}
 
@@ -933,7 +933,7 @@ static TableResource * addCollation(ParseState* state, TableResource  * result, 
 	int32_t capacity = 100000;
 	uint8_t * dest = buffer.allocateInsteadAndCopy(capacity);
 	if(dest == NULL) {
-		fprintf(stderr, "memory allocation (%ld bytes) for file contents failed\n",
+		slfprintf_stderr("memory allocation (%ld bytes) for file contents failed\n",
 		    (long)capacity);
 		*status = U_MEMORY_ALLOCATION_ERROR;
 		res_close(result);
@@ -947,7 +947,7 @@ static TableResource * addCollation(ParseState* state, TableResource  * result, 
 		capacity = totalSize;
 		dest = buffer.allocateInsteadAndCopy(capacity);
 		if(dest == NULL) {
-			fprintf(stderr, "memory allocation (%ld bytes) for file contents failed\n",
+			slfprintf_stderr("memory allocation (%ld bytes) for file contents failed\n",
 			    (long)capacity);
 			*status = U_MEMORY_ALLOCATION_ERROR;
 			res_close(result);
@@ -957,7 +957,7 @@ static TableResource * addCollation(ParseState* state, TableResource  * result, 
 			*t, *t->settings, indexes, dest, capacity, intStatus);
 	}
 	if(U_FAILURE(intStatus)) {
-		fprintf(stderr, "CollationDataWriter::writeTailoring() failed: %s\n",
+		slfprintf_stderr("CollationDataWriter::writeTailoring() failed: %s\n",
 		    u_errorName(intStatus));
 		res_close(result);
 		return NULL;

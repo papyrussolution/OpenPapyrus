@@ -1,5 +1,5 @@
 // OBJBIZSC.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1114,7 +1114,8 @@ int CreateBizScGlblUserAcct()
 
 int GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSocket * pSock)
 {
-	int    ok = 1, stop = 0;
+	int    ok = 1;
+	int    stop = 0;
 	char   secret[64];
 	SString buf, db_symb, bizsc_path, msg_buf;
 	PPIniFile ini_file;

@@ -32,7 +32,6 @@
 #pragma hdrstop
 #include <google/protobuf/util/json_util.h>
 #include <google/protobuf/io/coded_stream.h>
-#include <google/protobuf/stubs/once.h>
 #include <google/protobuf/util/internal/default_value_objectwriter.h>
 #include <google/protobuf/util/internal/error_listener.h>
 #include <google/protobuf/util/internal/json_objectwriter.h>

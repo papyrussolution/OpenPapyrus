@@ -122,7 +122,7 @@ extern int main(int argc, char * argv[]) {
 
 	if(options[3].doesOccur) {
 		if(options[2].doesOccur) {
-			fprintf(stderr, "%s: Error: don't specify an encoding (-e) when writing to stdout (-c).\n", pname);
+			slfprintf_stderr("%s: Error: don't specify an encoding (-e) when writing to stdout (-c).\n", pname);
 			return 3;
 		}
 		tostdout = 1;

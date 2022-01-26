@@ -1462,11 +1462,11 @@ int LAssocArray::Remove(long key, int binary)
 		return 0;
 }
 
-int LAssocArray::Search(long key, long * pVal, uint * pPos/*, int binary*/) const
+bool LAssocArray::Search(long key, long * pVal, uint * pPos/*, int binary*/) const
 {
 	uint   pos = 0;
 	//int    ok = binary ? bsearch(&key, &pos, CMPF_LONG) : lsearch(&key, &pos, CMPF_LONG);
-	int    ok = lsearch(&key, &pos, CMPF_LONG);
+	bool   ok = lsearch(&key, &pos, CMPF_LONG);
 	if(ok) {
 		ASSIGN_PTR(pVal, at(pos).Val);
 		ASSIGN_PTR(pPos, pos);
@@ -1474,10 +1474,10 @@ int LAssocArray::Search(long key, long * pVal, uint * pPos/*, int binary*/) cons
 	return ok;
 }
 
-int LAssocArray::BSearch(long key, long * pVal, uint * pPos) const
+bool LAssocArray::BSearch(long key, long * pVal, uint * pPos) const
 {
 	uint   pos = 0;
-	int    ok = bsearch(&key, &pos, CMPF_LONG);
+	bool   ok = bsearch(&key, &pos, CMPF_LONG);
 	if(ok) {
 		ASSIGN_PTR(pVal, at(pos).Val);
 		ASSIGN_PTR(pPos, pos);
@@ -1485,10 +1485,10 @@ int LAssocArray::BSearch(long key, long * pVal, uint * pPos) const
 	return ok;
 }
 
-int LAssocArray::SearchByVal(long val, long * pKey, uint * pPos) const
+bool LAssocArray::SearchByVal(long val, long * pKey, uint * pPos) const
 {
 	uint   pos = 0;
-	int    ok  = lsearch(&val, &pos, CMPF_LONG, sizeof(long));
+	bool   ok  = lsearch(&val, &pos, CMPF_LONG, sizeof(long));
 	if(ok) {
 		ASSIGN_PTR(pKey, at(pos).Key);
 		ASSIGN_PTR(pPos, pos);
@@ -1496,7 +1496,7 @@ int LAssocArray::SearchByVal(long val, long * pKey, uint * pPos) const
 	return ok;
 }
 
-int LAssocArray::SearchPair(long key, long val, uint * pPos) const
+bool LAssocArray::SearchPair(long key, long val, uint * pPos) const
 {
 	LAssoc k(key, val);
 	// @v11.1.12 return lsearch(&k, pPos, PTR_CMPFUNC(_2long));
@@ -2210,7 +2210,7 @@ int StrAssocArray::GetListByParent(long parentId, int recursive, LongArray & rLi
 		const uint c = LAssocArray::getCount();
 		for(uint i = 0; i < c; i++) {
 			const long id = LAssocArray::at(i).Key;
-			if(ParentList.SearchPair(id, parentId, 0) > 0)
+			if(ParentList.SearchPair(id, parentId, 0))
 				temp_list.add(id); // @v10.7.9 addUnique-->add
 		}
 	}

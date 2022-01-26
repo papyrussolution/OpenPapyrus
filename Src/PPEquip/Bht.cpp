@@ -3194,7 +3194,7 @@ int PPObjBHT::PrepareBillData2(const PPBhtTerminalPacket * pPack, PPIDArray * pG
 	THROW_PP(pPack->Rec.BhtTypeID == PPObjBHT::btStyloBhtII && pPack->P_SBIICfg, PPERR_SBII_CFGNOTVALID);
 	PPWaitStart();
 	{
-		PPUserFuncProfiler ufp(PPUPRF_BHTPREPBILL); // @v9.4.11
+		PPUserFuncProfiler ufp(PPUPRF_BHTPREPBILL);
 		double prf_measure = 0.0;
 		for(i = 0; i < pPack->P_SBIICfg->P_OpList->getCount(); i++) {
 			const SBIIOpInfo & r_item = pPack->P_SBIICfg->P_OpList->at(i);
@@ -3560,7 +3560,7 @@ int PPObjBHT::PrepareGoodsData(PPID bhtID, const char * pPath, const char * pPat
 	BExtInsert * p_bei = 0;
 	DbfTable * p_dbf_tbl = 0; // AHTOXA
 	{
-		PPUserFuncProfiler ufp(PPUPRF_BHTPREPGOODS); // @v9.4.11
+		PPUserFuncProfiler ufp(PPUPRF_BHTPREPGOODS);
 		double prf_measure = 0.0;
 		PPLoadText(PPTXT_PREPAREBHTGOODS, msg_buf);
 		// ATHOXA {

@@ -28,7 +28,7 @@
 #ifdef U_DEBUG_CHNSECAL
 static void debug_chnsecal_loc(const char * f, int32_t l)
 {
-	fprintf(stderr, "%s:%d: ", f, l);
+	slfprintf_stderr("%s:%d: ", f, l);
 }
 
 static void debug_chnsecal_msg(const char * pat, ...)

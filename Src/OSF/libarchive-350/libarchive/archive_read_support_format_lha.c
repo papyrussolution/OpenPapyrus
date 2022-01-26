@@ -101,11 +101,11 @@ struct lzh_dec {
 		int tree_used;
 		int tree_avail;
 		/* Direct access table. */
-		uint16_t        * tbl;
+		uint16        * tbl;
 		/* Binary tree table for extra bits over the direct access. */
 		struct htree_t {
-			uint16_t left;
-			uint16_t right;
+			uint16 left;
+			uint16 right;
 		} * tree;
 	} lt, pt;
 
@@ -134,7 +134,7 @@ struct lha {
 	int64 entry_offset;
 	int64 entry_bytes_remaining;
 	int64 entry_unconsumed;
-	uint16_t entry_crc_calculated;
+	uint16 entry_crc_calculated;
 
 	size_t header_size; /* header size		    */
 	uchar level;                    /* header level		    */
@@ -157,8 +157,8 @@ struct lha {
 	int64 gid;
 	struct archive_string uname;
 	struct archive_string gname;
-	uint16_t header_crc;
-	uint16_t crc;
+	uint16 header_crc;
+	uint16 crc;
 	/* dirname and filename could be in different codepages */
 	struct archive_string_conv * sconv_dir;
 	struct archive_string_conv * sconv_fname;
@@ -211,7 +211,7 @@ static int lha_read_file_header_1(struct archive_read *, struct lha *);
 static int lha_read_file_header_2(struct archive_read *, struct lha *);
 static int lha_read_file_header_3(struct archive_read *, struct lha *);
 static int lha_read_file_extended_header(struct archive_read *,
-    struct lha *, uint16_t *, int, size_t, size_t *);
+    struct lha *, uint16 *, int, size_t, size_t *);
 static size_t   lha_check_header_format(const void *);
 static int lha_skip_sfx(struct archive_read *);
 static time_t   lha_dos_time(const uchar *);
@@ -225,7 +225,7 @@ static int lha_read_data_none(struct archive_read *, const void **,
 static int lha_read_data_lzh(struct archive_read *, const void **,
     size_t *, int64 *);
 static void     lha_crc16_init(void);
-static uint16_t lha_crc16(uint16_t, const void *, size_t);
+static uint16 lha_crc16(uint16, const void *, size_t);
 static int lzh_decode_init(struct lzh_stream *, const char *);
 static void     lzh_decode_free(struct lzh_stream *);
 static int lzh_decode(struct lzh_stream *, int);
@@ -233,7 +233,7 @@ static int lzh_br_fillup(struct lzh_stream *, struct lzh_dec::lzh_br *);
 static int lzh_huffman_init(struct lzh_dec::huffman *, size_t, int);
 static void     lzh_huffman_free(struct lzh_dec::huffman *);
 static int lzh_read_pt_bitlen(struct lzh_stream *, int start, int end);
-static int lzh_make_fake_table(struct lzh_dec::huffman *, uint16_t);
+static int lzh_make_fake_table(struct lzh_dec::huffman *, uint16);
 static int lzh_make_huffman_table(struct lzh_dec::huffman *);
 static inline int lzh_decode_huffman(struct lzh_dec::huffman *, unsigned);
 static int lzh_decode_huffman_tree(struct lzh_dec::huffman *, unsigned, int);
@@ -908,7 +908,7 @@ static int lha_read_file_header_2(struct archive_read * a, struct lha * lha)
 	const uchar * p;
 	size_t extdsize;
 	int err, padding;
-	uint16_t header_crc;
+	uint16 header_crc;
 	if((p = static_cast<const uchar *>(__archive_read_ahead(a, H2_FIXED_SIZE, NULL))) == NULL)
 		return (truncated_error(a));
 
@@ -978,7 +978,7 @@ static int lha_read_file_header_3(struct archive_read * a, struct lha * lha)
 	const uchar * p;
 	size_t extdsize;
 	int err;
-	uint16_t header_crc;
+	uint16 header_crc;
 	if((p = static_cast<const uchar *>(__archive_read_ahead(a, H3_FIXED_SIZE, NULL))) == NULL)
 		return (truncated_error(a));
 	if(archive_le16dec(p + H3_FIELD_LEN_OFFSET) != 4)
@@ -1026,7 +1026,7 @@ invalid:
  *
  */
 static int lha_read_file_extended_header(struct archive_read * a, struct lha * lha,
-    uint16_t * crc, int sizefield_length, size_t limitsize, size_t * total_size)
+    uint16 * crc, int sizefield_length, size_t limitsize, size_t * total_size)
 {
 	const void * h;
 	const uchar * extdheader;
@@ -1062,7 +1062,7 @@ static int lha_read_file_extended_header(struct archive_read * a, struct lha * l
 			return (truncated_error(a));
 		/* Check if the size is the zero indicates the end of the
 		 * extended header. */
-		if(sizefield_length == sizeof(uint16_t))
+		if(sizefield_length == sizeof(uint16))
 			extdsize = archive_le16dec(h);
 		else
 			extdsize = archive_le32dec(h);
@@ -1253,13 +1253,13 @@ static int lha_read_file_extended_header(struct archive_read * a, struct lha * l
 			    }
 			    break;
 			case EXT_UNIX_MODE:
-			    if(datasize == sizeof(uint16_t)) {
+			    if(datasize == sizeof(uint16)) {
 				    lha->mode = archive_le16dec(extdheader);
 				    lha->setflag |= UNIX_MODE_IS_SET;
 			    }
 			    break;
 			case EXT_UNIX_GID_UID:
-			    if(datasize == (sizeof(uint16_t) * 2)) {
+			    if(datasize == (sizeof(uint16) * 2)) {
 				    lha->gid = archive_le16dec(extdheader);
 				    lha->uid = archive_le16dec(extdheader+2);
 			    }
@@ -1612,7 +1612,7 @@ static uchar lha_calcsum(uchar sum, const void * pp, int offset, size_t size)
 	return (sum);
 }
 
-static uint16_t crc16tbl[2][256];
+static uint16 crc16tbl[2][256];
 static void lha_crc16_init(void)
 {
 	unsigned int i;
@@ -1622,7 +1622,7 @@ static void lha_crc16_init(void)
 	crc16init = 1;
 	for(i = 0; i < 256; i++) {
 		unsigned int j;
-		uint16_t crc = (uint16_t)i;
+		uint16 crc = (uint16)i;
 		for(j = 8; j; j--)
 			crc = (crc >> 1) ^ ((crc & 1) * 0xA001);
 		crc16tbl[0][i] = crc;
@@ -1632,10 +1632,10 @@ static void lha_crc16_init(void)
 	}
 }
 
-static uint16_t lha_crc16(uint16_t crc, const void * pp, size_t len)
+static uint16 lha_crc16(uint16 crc, const void * pp, size_t len)
 {
 	const uchar * p = (const uchar *)pp;
-	const uint16_t * buff;
+	const uint16 * buff;
 	const union {
 		uint32 i;
 		char c[4];
@@ -1647,7 +1647,7 @@ static uint16_t lha_crc16(uint16_t crc, const void * pp, size_t len)
 		crc = (crc >> 8) ^ crc16tbl[0][(crc ^ *p++) & 0xff];
 		len--;
 	}
-	buff = (const uint16_t*)p;
+	buff = (const uint16*)p;
 	/*
 	 * Modern C compiler such as GCC does not unroll automatically yet
 	 * without unrolling pragma, and Clang is so. So we should
@@ -1779,10 +1779,10 @@ static void lzh_decode_free(struct lzh_stream * strm)
 #define lzh_br_has(br, n)       ((br)->cache_avail >= n)
 /* Get compressed data by bit. */
 #define lzh_br_bits(br, n)                              \
-	(((uint16_t)((br)->cache_buffer >>              \
+	(((uint16)((br)->cache_buffer >>              \
 	((br)->cache_avail - (n)))) & cache_masks[n])
 #define lzh_br_bits_forced(br, n)                       \
-	(((uint16_t)((br)->cache_buffer <<              \
+	(((uint16)((br)->cache_buffer <<              \
 	((n) - (br)->cache_avail))) & cache_masks[n])
 /* Read ahead to make sure the cache buffer has enough compressed data we
  * will use.
@@ -1801,7 +1801,7 @@ static void lzh_decode_free(struct lzh_stream * strm)
 #define lzh_br_consume(br, n)   ((br)->cache_avail -= (n))
 #define lzh_br_unconsume(br, n) ((br)->cache_avail += (n))
 
-static const uint16_t cache_masks[] = {
+static const uint16 cache_masks[] = {
 	0x0000, 0x0001, 0x0003, 0x0007,
 	0x000F, 0x001F, 0x003F, 0x007F,
 	0x00FF, 0x01FF, 0x03FF, 0x07FF,
@@ -2386,7 +2386,7 @@ static int lzh_huffman_init(struct lzh_dec::huffman * hf, size_t len_size, int t
 			bits = tbl_bits;
 		else
 			bits = HTBL_BITS;
-		hf->tbl = static_cast<uint16_t *>(SAlloc::M(((size_t)1 << bits) * sizeof(hf->tbl[0])));
+		hf->tbl = static_cast<uint16 *>(SAlloc::M(((size_t)1 << bits) * sizeof(hf->tbl[0])));
 		if(hf->tbl == NULL)
 			return ARCHIVE_FATAL;
 	}
@@ -2514,7 +2514,7 @@ static int lzh_read_pt_bitlen(struct lzh_stream * strm, int start, int end)
 	return (i);
 }
 
-static int lzh_make_fake_table(struct lzh_dec::huffman * hf, uint16_t c)
+static int lzh_make_fake_table(struct lzh_dec::huffman * hf, uint16 c)
 {
 	if(c >= hf->len_size)
 		return 0;
@@ -2529,7 +2529,7 @@ static int lzh_make_fake_table(struct lzh_dec::huffman * hf, uint16_t c)
  */
 static int lzh_make_huffman_table(struct lzh_dec::huffman * hf)
 {
-	uint16_t * tbl;
+	uint16 * tbl;
 	const uchar * bitlen;
 	int bitptn[17], weight[17];
 	int i, maxbits = 0, ptn, tbl_size, w;
@@ -2565,7 +2565,7 @@ static int lzh_make_huffman_table(struct lzh_dec::huffman * hf)
 	}
 	if(maxbits > HTBL_BITS) {
 		unsigned htbl_max;
-		uint16_t * p;
+		uint16 * p;
 		diffbits = maxbits - HTBL_BITS;
 		for(i = 1; i <= HTBL_BITS; i++) {
 			bitptn[i] >>= diffbits;
@@ -2588,9 +2588,9 @@ static int lzh_make_huffman_table(struct lzh_dec::huffman * hf)
 	len_avail = hf->len_avail;
 	hf->tree_used = 0;
 	for(i = 0; i < len_avail; i++) {
-		uint16_t * p;
+		uint16 * p;
 		int len, cnt;
-		uint16_t bit;
+		uint16 bit;
 		int extlen;
 		struct lzh_dec::huffman::htree_t * ht;
 		if(bitlen[i] == 0)
@@ -2606,37 +2606,37 @@ static int lzh_make_huffman_table(struct lzh_dec::huffman * hf)
 			/* Update the table */
 			p = &(tbl[ptn]);
 			if(cnt > 7) {
-				uint16_t * pc;
+				uint16 * pc;
 
 				cnt -= 8;
 				pc = &p[cnt];
-				pc[0] = (uint16_t)i;
-				pc[1] = (uint16_t)i;
-				pc[2] = (uint16_t)i;
-				pc[3] = (uint16_t)i;
-				pc[4] = (uint16_t)i;
-				pc[5] = (uint16_t)i;
-				pc[6] = (uint16_t)i;
-				pc[7] = (uint16_t)i;
+				pc[0] = (uint16)i;
+				pc[1] = (uint16)i;
+				pc[2] = (uint16)i;
+				pc[3] = (uint16)i;
+				pc[4] = (uint16)i;
+				pc[5] = (uint16)i;
+				pc[6] = (uint16)i;
+				pc[7] = (uint16)i;
 				if(cnt > 7) {
 					cnt -= 8;
-					memcpy(&p[cnt], pc, 8 * sizeof(uint16_t));
+					memcpy(&p[cnt], pc, 8 * sizeof(uint16));
 					pc = &p[cnt];
 					while(cnt > 15) {
 						cnt -= 16;
-						memcpy(&p[cnt], pc, 16 * sizeof(uint16_t));
+						memcpy(&p[cnt], pc, 16 * sizeof(uint16));
 					}
 				}
 				if(cnt)
-					memcpy(p, pc, cnt * sizeof(uint16_t));
+					memcpy(p, pc, cnt * sizeof(uint16));
 			}
 			else {
 				while(cnt > 1) {
-					p[--cnt] = (uint16_t)i;
-					p[--cnt] = (uint16_t)i;
+					p[--cnt] = (uint16)i;
+					p[--cnt] = (uint16)i;
 				}
 				if(cnt)
-					p[--cnt] = (uint16_t)i;
+					p[--cnt] = (uint16)i;
 			}
 			continue;
 		}
@@ -2696,12 +2696,12 @@ static int lzh_make_huffman_table(struct lzh_dec::huffman * hf)
 		if(ptn & bit) {
 			if(ht->left != 0)
 				return 0; /* Invalid */
-			ht->left = (uint16_t)i;
+			ht->left = (uint16)i;
 		}
 		else {
 			if(ht->right != 0)
 				return 0; /* Invalid */
-			ht->right = (uint16_t)i;
+			ht->right = (uint16)i;
 		}
 	}
 	return 1;

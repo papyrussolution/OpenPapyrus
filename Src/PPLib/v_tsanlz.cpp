@@ -1,5 +1,5 @@
 // V_TSANLZ.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -42,7 +42,7 @@ struct TSessAnlzEntry { // @flat
 	{
 		THISZERO();
 	}
-	int    IsTotalRow() const { return (DtVal == MAXLONG && PrcID == MAXLONG && PrmrGoodsID == MAXLONG); }
+	bool   IsTotalRow() const { return (DtVal == MAXLONG && PrcID == MAXLONG && PrmrGoodsID == MAXLONG); }
 	long   DtVal;       // Дата операции
 	PPID   PrcID;
 	PPID   PrmrGoodsID; // Основной товар технологии, к которому относится движение товара GoodsID
@@ -453,7 +453,7 @@ int PPViewTSessAnlz::IsGoodsBelongToGen(PPID goodsID, PPID * pGenID)
 {
 	int    ok = -1;
 	PPID   gen_id = 0;
-	if(GenList.Search(goodsID, &gen_id, 0) > 0) {
+	if(GenList.Search(goodsID, &gen_id, 0)) {
 		ok = gen_id ? 1 : -1;
 	}
 	else if(GObj.P_Tbl->BelongToGen(goodsID, &(gen_id = 0)) > 0) {

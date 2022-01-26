@@ -294,7 +294,7 @@ U_CAPI int32_t U_EXPORT2 uprv_ebcdicFromAscii(const UDataSwapper * ds,
 	}
 
 	/* setup and swapping */
-	s = (const uint8*)inData;
+	s = (const uint8 *)inData;
 	t = (uint8 *)outData;
 	count = length;
 	while(count>0) {
@@ -330,7 +330,7 @@ U_CFUNC int32_t uprv_copyAscii(const UDataSwapper * ds,
 	}
 
 	/* setup and checking */
-	s = (const uint8*)inData;
+	s = (const uint8 *)inData;
 	count = length;
 	while(count>0) {
 		c = *s++;
@@ -369,7 +369,7 @@ U_CFUNC int32_t uprv_asciiFromEbcdic(const UDataSwapper * ds,
 	}
 
 	/* setup and swapping */
-	s = (const uint8*)inData;
+	s = (const uint8 *)inData;
 	t = (uint8 *)outData;
 	count = length;
 	while(count>0) {
@@ -405,7 +405,7 @@ U_CFUNC int32_t uprv_copyEbcdic(const UDataSwapper * ds,
 	}
 
 	/* setup and checking */
-	s = (const uint8*)inData;
+	s = (const uint8 *)inData;
 	count = length;
 	while(count>0) {
 		c = *s++;
@@ -557,7 +557,7 @@ U_CAPI char U_EXPORT2 uprv_ebcdicToLowercaseAscii(char c) {
 	return (char)lowercaseAsciiFromEbcdic[(uint8)c];
 }
 
-U_CAPI uint8* U_EXPORT2 uprv_aestrncpy(uint8 * dst, const uint8 * src, int32_t n)
+U_CAPI uint8 * U_EXPORT2 uprv_aestrncpy(uint8 * dst, const uint8 * src, int32_t n)
 {
 	uint8 * orig_dst = dst;
 
@@ -577,7 +577,7 @@ U_CAPI uint8* U_EXPORT2 uprv_aestrncpy(uint8 * dst, const uint8 * src, int32_t n
 	return orig_dst;
 }
 
-U_CAPI uint8* U_EXPORT2 uprv_eastrncpy(uint8 * dst, const uint8 * src, int32_t n)
+U_CAPI uint8 * U_EXPORT2 uprv_eastrncpy(uint8 * dst, const uint8 * src, int32_t n)
 {
 	uint8 * orig_dst = dst;
 

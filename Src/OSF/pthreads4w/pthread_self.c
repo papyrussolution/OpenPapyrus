@@ -51,7 +51,7 @@ pthread_t pthread_self()
 		self = sp->ptHandle;
 	}
 	else {
-		int fail =  __PTW32_FALSE;
+		int fail =  FALSE;
 		// Need to create an implicit 'self' for the currently executing thread.
 		self = __ptw32_new();
 		sp = (__ptw32_thread_t *)self.p;
@@ -78,7 +78,7 @@ pthread_t pthread_self()
 			sp->threadH = GetCurrentThread();
 #else
 			if(!DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &sp->threadH, 0, FALSE, DUPLICATE_SAME_ACCESS)) {
-				fail =  __PTW32_TRUE;
+				fail =  TRUE;
 			}
 #endif
 			if(!fail) {
@@ -95,11 +95,11 @@ pthread_t pthread_self()
 						if(SetThreadAffinityMask(sp->threadH, vThreadMask)) {
 							sp->cpuset = (size_t)vThreadMask;
 						}
-						else fail =  __PTW32_TRUE;
+						else fail =  TRUE;
 					}
-					else fail =  __PTW32_TRUE;
+					else fail =  TRUE;
 				}
-				else fail =  __PTW32_TRUE;
+				else fail =  TRUE;
 #endif
 				sp->sched_priority = GetThreadPriority(sp->threadH);
 				pthread_setspecific(__ptw32_selfThreadKey, (void *)sp);

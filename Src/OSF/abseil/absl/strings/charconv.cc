@@ -1,17 +1,6 @@
 // Copyright 2018 The Abseil Authors.
-//
 // Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
 //
-//      https://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #include "absl/absl-internal.h"
 #pragma hdrstop
 
@@ -122,27 +111,26 @@ struct FloatTraits<double> {
 // Specialization of floating point traits for the `float` type.  See the
 // FloatTraits<double> specialization above for meaning of each of the following
 // members and methods.
-template <>
-struct FloatTraits<float> {
+template <> struct FloatTraits<float> {
 	static constexpr int kTargetMantissaBits = 24;
 	static constexpr int kMaxExponent = 104;
 	static constexpr int kMinNormalExponent = -149;
-	static float MakeNan(const char* tagp) {
+	static float MakeNan(const char* tagp) 
+	{
 		// Support nanf no matter which namespace it's in.  Some platforms
 		// incorrectly don't put it in namespace std.
 		using namespace std; // NOLINT
 		return nanf(tagp);
 	}
-
-	static float Make(uint32_t mantissa, int exponent, bool sign) {
+	static float Make(uint32_t mantissa, int exponent, bool sign) 
+	{
 #ifndef ABSL_BIT_PACK_FLOATS
 		// Support ldexpf no matter which namespace it's in.  Some platforms
 		// incorrectly don't put it in namespace std.
 		using namespace std; // NOLINT
 		return sign ? -ldexpf(mantissa, exponent) : ldexpf(mantissa, exponent);
 #else
-		constexpr uint32_t kMantissaMask =
-		    (uint32_t{1} << (kTargetMantissaBits - 1)) - 1;
+		constexpr uint32_t kMantissaMask = (uint32_t{1} << (kTargetMantissaBits - 1)) - 1;
 		uint32_t flt = static_cast<uint32_t>(sign) << 31;
 		if(mantissa > kMantissaMask) {
 			// Normal value.
@@ -191,32 +179,21 @@ constexpr int kPower10TableMin = -342;
 // calculations, the end result is guaranteed to overflow.)
 constexpr int kPower10TableMax = 308;
 
-uint64_t Power10Mantissa(int n) {
-	return kPower10MantissaTable[n - kPower10TableMin];
-}
-
-int Power10Exponent(int n) {
-	return kPower10ExponentTable[n - kPower10TableMin];
-}
+uint64_t Power10Mantissa(int n) { return kPower10MantissaTable[n - kPower10TableMin]; }
+int Power10Exponent(int n) { return kPower10ExponentTable[n - kPower10TableMin]; }
 
 // Returns true if n is large enough that 10**n always results in an IEEE
 // overflow.
-bool Power10Overflow(int n) {
-	return n > kPower10TableMax;
-}
+bool Power10Overflow(int n) { return n > kPower10TableMax; }
 
 // Returns true if n is small enough that 10**n times a ParsedFloat mantissa
 // always results in an IEEE underflow.
-bool Power10Underflow(int n) {
-	return n < kPower10TableMin;
-}
+bool Power10Underflow(int n) { return n < kPower10TableMin; }
 
 // Returns true if Power10Mantissa(n) * 2**Power10Exponent(n) is exactly equal
 // to 10**n numerically.  Put another way, this returns true if there is no
 // truncation error in Power10Mantissa(n).
-bool Power10Exact(int n) {
-	return n >= 0 && n <= 27;
-}
+bool Power10Exact(int n) { return n >= 0 && n <= 27; }
 
 // Sentinel exponent values for representing numbers too large or too close to
 // zero to represent in a double.
@@ -240,11 +217,12 @@ struct CalculatedFloat {
 
 // Returns the bit width of the given uint128.  (Equivalently, returns 128
 // minus the number of leading zero bits.)
-unsigned BitWidth(uint128 value) {
+unsigned BitWidth(uint128 value) 
+{
 	if(Uint128High64(value) == 0) {
 		return static_cast<unsigned>(bit_width(Uint128Low64(value)));
 	}
-	return 128 - countl_zero(Uint128High64(value));
+	return (128 - countl_zero(Uint128High64(value)));
 }
 
 // Calculates how far to the right a mantissa needs to be shifted to create a
@@ -311,7 +289,7 @@ bool HandleEdgeCase(const strings_internal::ParsedFloat& input, bool negative,
 		return true;
 	}
 	if(input.mantissa == 0) {
-		*value = negative ? -0.0 : 0.0;
+		*value = static_cast<FloatType>(negative ? -0.0 : 0.0);
 		return true;
 	}
 	return false;
@@ -323,22 +301,19 @@ bool HandleEdgeCase(const strings_internal::ParsedFloat& input, bool negative,
 // CalculatedFloat can represent an underflow or overflow, in which case the
 // error code in *result is set.  Otherwise, the calculated floating point
 // number is stored in *value.
-template <typename FloatType>
-void EncodeResult(const CalculatedFloat& calculated, bool negative,
-    absl::from_chars_result* result, FloatType* value) {
+template <typename FloatType> void EncodeResult(const CalculatedFloat& calculated, bool negative, absl::from_chars_result* result, FloatType* value) 
+{
 	if(calculated.exponent == kOverflow) {
 		result->ec = std::errc::result_out_of_range;
-		*value = negative ? -std::numeric_limits<FloatType>::max()
-		    : std::numeric_limits<FloatType>::max();
+		*value = negative ? -std::numeric_limits<FloatType>::max() : std::numeric_limits<FloatType>::max();
 		return;
 	}
 	else if(calculated.mantissa == 0 || calculated.exponent == kUnderflow) {
 		result->ec = std::errc::result_out_of_range;
-		*value = negative ? -0.0 : 0.0;
+		*value = static_cast<FloatType>(negative ? -0.0 : 0.0);
 		return;
 	}
-	*value = FloatTraits<FloatType>::Make(calculated.mantissa,
-		calculated.exponent, negative);
+	*value = FloatTraits<FloatType>::Make(calculated.mantissa, calculated.exponent, negative);
 }
 
 // Returns the given uint128 shifted to the right by `shift` bits, and rounds
@@ -603,13 +578,11 @@ CalculatedFloat CalculateFromParsedDecimal(const strings_internal::ParsedFloat& 
 		   binary_exponent);
 }
 
-template <typename FloatType>
-from_chars_result FromCharsImpl(const char* first, const char* last,
-    FloatType& value, chars_format fmt_flags) {
+template <typename FloatType> from_chars_result FromCharsImpl(const char* first, const char* last, FloatType& value, chars_format fmt_flags) 
+{
 	from_chars_result result;
 	result.ptr = first; // overwritten on successful parse
 	result.ec = std::errc();
-
 	bool negative = false;
 	if(first != last && *first == '-') {
 		++first;
@@ -617,13 +590,10 @@ from_chars_result FromCharsImpl(const char* first, const char* last,
 	}
 	// If the `hex` flag is *not* set, then we will accept a 0x prefix and try
 	// to parse a hexadecimal float.
-	if((fmt_flags & chars_format::hex) == chars_format{} && last - first >= 2 &&
-	    *first == '0' && (first[1] == 'x' || first[1] == 'X')) {
+	if((fmt_flags & chars_format::hex) == chars_format{} && last - first >= 2 && *first == '0' && (first[1] == 'x' || first[1] == 'X')) {
 		const char* hex_first = first + 2;
-		strings_internal::ParsedFloat hex_parse =
-		    strings_internal::ParseFloat<16>(hex_first, last, fmt_flags);
-		if(hex_parse.end == nullptr ||
-		    hex_parse.type != strings_internal::FloatType::kNumber) {
+		strings_internal::ParsedFloat hex_parse = strings_internal::ParseFloat<16>(hex_first, last, fmt_flags);
+		if(hex_parse.end == nullptr || hex_parse.type != strings_internal::FloatType::kNumber) {
 			// Either we failed to parse a hex float after the "0x", or we read
 			// "0xinf" or "0xnan" which we don't want to match.
 			//
@@ -636,7 +606,7 @@ from_chars_result FromCharsImpl(const char* first, const char* last,
 			}
 			else {
 				result.ptr = first + 1;
-				value = negative ? -0.0 : 0.0;
+				value = static_cast<FloatType>(negative ? -0.0 : 0.0);
 			}
 			return result;
 		}
@@ -645,15 +615,13 @@ from_chars_result FromCharsImpl(const char* first, const char* last,
 		if(HandleEdgeCase(hex_parse, negative, &value)) {
 			return result;
 		}
-		CalculatedFloat calculated =
-		    CalculateFromParsedHexadecimal<FloatType>(hex_parse);
+		CalculatedFloat calculated = CalculateFromParsedHexadecimal<FloatType>(hex_parse);
 		EncodeResult(calculated, negative, &result, &value);
 		return result;
 	}
 	// Otherwise, we choose the number base based on the flags.
 	if((fmt_flags & chars_format::hex) == chars_format::hex) {
-		strings_internal::ParsedFloat hex_parse =
-		    strings_internal::ParseFloat<16>(first, last, fmt_flags);
+		strings_internal::ParsedFloat hex_parse = strings_internal::ParseFloat<16>(first, last, fmt_flags);
 		if(hex_parse.end == nullptr) {
 			result.ec = std::errc::invalid_argument;
 			return result;

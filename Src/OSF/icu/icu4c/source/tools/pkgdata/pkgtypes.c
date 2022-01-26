@@ -60,7 +60,7 @@ const char * pkg_writeCharList(FileStream * s, CharList * l, const char * delim,
 			uprv_strncpy(buffer, l->str, 1023);
 			buffer[1023] = 0;
 			if(uprv_strlen(l->str) >= 1023) {
-				fprintf(stderr, "%s:%d: Internal error, line too long (greater than 1023 chars)\n", __FILE__, __LINE__);
+				slfprintf_stderr("%s:%d: Internal error, line too long (greater than 1023 chars)\n", __FILE__, __LINE__);
 				exit(0);
 			}
 			if(quote < 0) { /* remove quotes */
@@ -181,7 +181,7 @@ CharList * pkg_appendUniqueDirToList(CharList * l, CharList** end, const char * 
 		return l; /* no dir path */
 	}
 	if((rPtr-strAlias) >= UPRV_LENGTHOF(aBuf)) {
-		fprintf(stderr, "## ERR: Path too long [%d chars]: %s\n", (int)sizeof(aBuf), strAlias);
+		slfprintf_stderr("## ERR: Path too long [%d chars]: %s\n", (int)sizeof(aBuf), strAlias);
 		return l;
 	}
 	strncpy(aBuf, strAlias, (rPtr-strAlias));
@@ -219,7 +219,7 @@ static CharList * pkg_appendFromStrings(CharList * l, CharList** end, const char
 			uprv_strncpy(t, s, p-s);
 			t[p-s] = 0;
 			l = pkg_appendToList(l, end, t);
-			fprintf(stderr, " P %s\n", t);
+			slfprintf_stderr(" P %s\n", t);
 		}
 		s = p;
 	}

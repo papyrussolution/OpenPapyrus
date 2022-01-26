@@ -157,7 +157,7 @@ U_CFUNC int32_t getCount(const UChar * source, int32_t srcLen,
 		}
 	}
 	if(option == UPC_TRANSLATE && count > 1) {
-		fprintf(stderr, "Multiple @translate tags cannot be supported.\n");
+		slfprintf_stderr("Multiple @translate tags cannot be supported.\n");
 		exit(U_UNSUPPORTED_ERROR);
 	}
 	return count;

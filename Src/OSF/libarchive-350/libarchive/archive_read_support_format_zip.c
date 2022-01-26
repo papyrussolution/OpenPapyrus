@@ -80,8 +80,8 @@ struct zip_entry {
 	time_t atime;
 	time_t ctime;
 	uint32 crc32;
-	uint16_t mode;
-	uint16_t zip_flags; /* From GP Flags Field */
+	uint16 mode;
+	uint16 zip_flags; /* From GP Flags Field */
 	uchar compression;
 	uchar system; /* From "version written by" */
 	uchar flags; /* Our extra markers. */
@@ -658,7 +658,7 @@ static int process_extra(struct archive_read * a, struct archive_entry * entry,
 					    break;
 				    external_attributes = archive_le32dec(p + offset);
 				    if(zip_entry->system == 3) {
-					    zip_entry->mode = static_cast<uint16_t>(external_attributes >> 16);
+					    zip_entry->mode = static_cast<uint16>(external_attributes >> 16);
 				    }
 				    else if(zip_entry->system == 0) {
 					    // Interpret MSDOS directory bit
@@ -1340,21 +1340,15 @@ static int zip_read_data_none(struct archive_read * a, const void ** _buff, size
 	}
 	if(zip->tctx_valid || zip->cctx_valid) {
 		size_t dec_size = bytes_avail;
-
 		if(dec_size > zip->decrypted_buffer_size)
 			dec_size = zip->decrypted_buffer_size;
 		if(zip->tctx_valid) {
-			trad_enc_decrypt_update(&zip->tctx,
-			    (const uint8*)buff, dec_size,
-			    zip->decrypted_buffer, dec_size);
+			trad_enc_decrypt_update(&zip->tctx, (const uint8 *)buff, dec_size, zip->decrypted_buffer, dec_size);
 		}
 		else {
 			size_t dsize = dec_size;
-			archive_hmac_sha1_update(&zip->hctx,
-			    (const uint8*)buff, dec_size);
-			archive_decrypto_aes_ctr_update(&zip->cctx,
-			    (const uint8*)buff, dec_size,
-			    zip->decrypted_buffer, &dsize);
+			archive_hmac_sha1_update(&zip->hctx, (const uint8 *)buff, dec_size);
+			archive_decrypto_aes_ctr_update(&zip->cctx, (const uint8 *)buff, dec_size, zip->decrypted_buffer, &dsize);
 		}
 		bytes_avail = dec_size;
 		buff = (const char *)zip->decrypted_buffer;
@@ -1423,7 +1417,7 @@ static int zipx_xz_init(struct archive_read * a, struct zip * zip)
 	zip->zipx_lzma_valid = 1;
 	SAlloc::F(zip->uncompressed_buffer);
 	zip->uncompressed_buffer_size = 256 * 1024;
-	zip->uncompressed_buffer = (uint8*)SAlloc::M(zip->uncompressed_buffer_size);
+	zip->uncompressed_buffer = (uint8 *)SAlloc::M(zip->uncompressed_buffer_size);
 	if(zip->uncompressed_buffer == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "No memory for xz decompression");
 		return ARCHIVE_FATAL;
@@ -1435,7 +1429,7 @@ static int zipx_xz_init(struct archive_read * a, struct zip * zip)
 static int zipx_lzma_alone_init(struct archive_read * a, struct zip * zip)
 {
 	lzma_ret r;
-	const uint8* p;
+	const uint8 * p;
 #pragma pack(push)
 #pragma pack(1)
 	struct _alone_header {
@@ -1522,7 +1516,7 @@ static int zipx_lzma_alone_init(struct archive_read * a, struct zip * zip)
 	if(!zip->uncompressed_buffer) {
 		zip->uncompressed_buffer_size = 256 * 1024;
 		zip->uncompressed_buffer =
-		    (uint8*)SAlloc::M(zip->uncompressed_buffer_size);
+		    (uint8 *)SAlloc::M(zip->uncompressed_buffer_size);
 
 		if(zip->uncompressed_buffer == NULL) {
 			archive_set_error(&a->archive, ENOMEM, "No memory for lzma decompression");
@@ -1795,7 +1789,7 @@ static int zipx_ppmd8_init(struct archive_read * a, struct zip * zip)
 
 	zip->uncompressed_buffer_size = 256 * 1024;
 	zip->uncompressed_buffer =
-	    (uint8*)SAlloc::M(zip->uncompressed_buffer_size);
+	    (uint8 *)SAlloc::M(zip->uncompressed_buffer_size);
 
 	if(zip->uncompressed_buffer == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "No memory for PPMd8 decompression");
@@ -1913,7 +1907,7 @@ static int zipx_bzip2_init(struct archive_read * a, struct zip * zip)
 
 	zip->uncompressed_buffer_size = 256 * 1024;
 	zip->uncompressed_buffer =
-	    (uint8*)SAlloc::M(zip->uncompressed_buffer_size);
+	    (uint8 *)SAlloc::M(zip->uncompressed_buffer_size);
 	if(zip->uncompressed_buffer == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "No memory for bzip2 decompression");
 		return ARCHIVE_FATAL;
@@ -2446,7 +2440,7 @@ static int init_WinZip_AES_decryption(struct archive_read * a)
 			return ARCHIVE_FAILED;
 		}
 		/* Check password verification value. */
-		pv = ((const uint8*)p) + salt_len;
+		pv = ((const uint8 *)p) + salt_len;
 		if(derived_key[key_len * 2] == pv[0] && derived_key[key_len * 2 + 1] == pv[1])
 			break; /* The passphrase is OK. */
 		if(retry > 10000) {
@@ -3330,7 +3324,7 @@ static int slurp_central_directory(struct archive_read * a, struct archive_entry
 		   when we read the local file header we might get
 		   more information. */
 		if(zip_entry->system == 3) {
-			zip_entry->mode = static_cast<uint16_t>(external_attributes >> 16);
+			zip_entry->mode = static_cast<uint16>(external_attributes >> 16);
 		}
 		else if(zip_entry->system == 0) {
 			// Interpret MSDOS directory bit

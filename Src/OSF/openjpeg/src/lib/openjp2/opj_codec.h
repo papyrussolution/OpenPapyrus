@@ -47,19 +47,19 @@ typedef struct opj_codec_private {
          */
         struct opj_decompression {
             /** Main header reading function handler */
-            OPJ_BOOL(*opj_read_header)(struct opj_stream_private * cio,
+            boolint(*opj_read_header)(struct opj_stream_private * cio,
                                        void * p_codec,
                                        opj_image_t **p_image,
                                        struct opj_event_mgr * p_manager);
 
             /** Decoding function */
-            OPJ_BOOL(*opj_decode)(void * p_codec,
+            boolint(*opj_decode)(void * p_codec,
                                   struct opj_stream_private * p_cio,
                                   opj_image_t * p_image,
                                   struct opj_event_mgr * p_manager);
 
             /** FIXME DOC */
-            OPJ_BOOL(*opj_read_tile_header)(void * p_codec,
+            boolint(*opj_read_tile_header)(void * p_codec,
                                             OPJ_UINT32 * p_tile_index,
                                             OPJ_UINT32 * p_data_size,
                                             OPJ_INT32 * p_tile_x0,
@@ -67,20 +67,20 @@ typedef struct opj_codec_private {
                                             OPJ_INT32 * p_tile_x1,
                                             OPJ_INT32 * p_tile_y1,
                                             OPJ_UINT32 * p_nb_comps,
-                                            OPJ_BOOL * p_should_go_on,
+                                            boolint * p_should_go_on,
                                             struct opj_stream_private * p_cio,
                                             struct opj_event_mgr * p_manager);
 
             /** FIXME DOC */
-            OPJ_BOOL(*opj_decode_tile_data)(void * p_codec,
+            boolint(*opj_decode_tile_data)(void * p_codec,
                                             OPJ_UINT32 p_tile_index,
-                                            OPJ_BYTE * p_data,
+                                            uint8 * p_data,
                                             OPJ_UINT32 p_data_size,
                                             struct opj_stream_private * p_cio,
                                             struct opj_event_mgr * p_manager);
 
             /** Reading function used after codestream if necessary */
-            OPJ_BOOL(* opj_end_decompress)(void *p_codec,
+            boolint(* opj_end_decompress)(void *p_codec,
                                            struct opj_stream_private * cio,
                                            struct opj_event_mgr * p_manager);
 
@@ -91,7 +91,7 @@ typedef struct opj_codec_private {
             void (*opj_setup_decoder)(void * p_codec, opj_dparameters_t * p_param);
 
             /** Set decode area function handler */
-            OPJ_BOOL(*opj_set_decode_area)(void * p_codec,
+            boolint(*opj_set_decode_area)(void * p_codec,
                                            opj_image_t * p_image,
                                            OPJ_INT32 p_start_x,
                                            OPJ_INT32 p_end_x,
@@ -100,19 +100,19 @@ typedef struct opj_codec_private {
                                            struct opj_event_mgr * p_manager);
 
             /** Get tile function */
-            OPJ_BOOL(*opj_get_decoded_tile)(void *p_codec,
+            boolint(*opj_get_decoded_tile)(void *p_codec,
                                             opj_stream_private_t * p_cio,
                                             opj_image_t *p_image,
                                             struct opj_event_mgr * p_manager,
                                             OPJ_UINT32 tile_index);
 
             /** Set the decoded resolution factor */
-            OPJ_BOOL(*opj_set_decoded_resolution_factor)(void * p_codec,
+            boolint(*opj_set_decoded_resolution_factor)(void * p_codec,
                     OPJ_UINT32 res_factor,
                     opj_event_mgr_t * p_manager);
 
             /** Set the decoded components */
-            OPJ_BOOL(*opj_set_decoded_components)(void * p_codec,
+            boolint(*opj_set_decoded_components)(void * p_codec,
                                                   OPJ_UINT32 num_comps,
                                                   const OPJ_UINT32* comps_indices,
                                                   opj_event_mgr_t * p_manager);
@@ -122,34 +122,34 @@ typedef struct opj_codec_private {
          * Compression handler. FIXME DOC
          */
         struct opj_compression {
-            OPJ_BOOL(* opj_start_compress)(void *p_codec,
+            boolint(* opj_start_compress)(void *p_codec,
                                            struct opj_stream_private * cio,
                                            struct opj_image * p_image,
                                            struct opj_event_mgr * p_manager);
 
-            OPJ_BOOL(* opj_encode)(void * p_codec,
+            boolint(* opj_encode)(void * p_codec,
                                    struct opj_stream_private *p_cio,
                                    struct opj_event_mgr * p_manager);
 
-            OPJ_BOOL(* opj_write_tile)(void * p_codec,
+            boolint(* opj_write_tile)(void * p_codec,
                                        OPJ_UINT32 p_tile_index,
-                                       OPJ_BYTE * p_data,
+                                       uint8 * p_data,
                                        OPJ_UINT32 p_data_size,
                                        struct opj_stream_private * p_cio,
                                        struct opj_event_mgr * p_manager);
 
-            OPJ_BOOL(* opj_end_compress)(void * p_codec,
+            boolint(* opj_end_compress)(void * p_codec,
                                          struct opj_stream_private * p_cio,
                                          struct opj_event_mgr * p_manager);
 
             void (* opj_destroy)(void * p_codec);
 
-            OPJ_BOOL(* opj_setup_encoder)(void * p_codec,
+            boolint(* opj_setup_encoder)(void * p_codec,
                                           opj_cparameters_t * p_param,
                                           struct opj_image * p_image,
                                           struct opj_event_mgr * p_manager);
 
-            OPJ_BOOL(* opj_encoder_set_extra_options)(void * p_codec,
+            boolint(* opj_encoder_set_extra_options)(void * p_codec,
                     const char* const* p_options,
                     struct opj_event_mgr * p_manager);
 
@@ -160,14 +160,14 @@ typedef struct opj_codec_private {
     /** Event handler */
     opj_event_mgr_t m_event_mgr;
     /** Flag to indicate if the codec is used to decode or encode*/
-    OPJ_BOOL is_decompressor;
+    boolint is_decompressor;
     void (*opj_dump_codec)(void * p_codec, OPJ_INT32 info_flag,
                            FILE* output_stream);
     opj_codestream_info_v2_t* (*opj_get_codec_info)(void * p_codec);
     opj_codestream_index_t* (*opj_get_codec_index)(void * p_codec);
 
     /** Set number of threads */
-    OPJ_BOOL(*opj_set_threads)(void * p_codec, OPJ_UINT32 num_threads);
+    boolint(*opj_set_threads)(void * p_codec, OPJ_UINT32 num_threads);
 }
 opj_codec_private_t;
 

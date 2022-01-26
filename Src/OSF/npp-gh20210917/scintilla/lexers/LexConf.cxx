@@ -67,19 +67,19 @@ static void ColouriseConfDoc(Sci_PositionU startPos, Sci_Position length, int, W
 				    state = SCE_CONF_STRING;
 				    styler.ColourTo(i, SCE_CONF_STRING);
 			    }
-			    else if(IsASCII(ch) && ispunct(ch) ) {
+			    else if(IsASCII(ch) && ispunct(ch)) {
 				    // signals an operator...
 				    // no state jump necessary for this
 				    // simple case...
 				    styler.ColourTo(i, SCE_CONF_OPERATOR);
 			    }
-			    else if(IsASCII(ch) && isalpha(ch) ) {
+			    else if(IsASCII(ch) && isalpha(ch)) {
 				    // signals the start of an identifier
 				    bufferCount = 0;
 				    buffer[bufferCount++] = static_cast<char>(tolower(ch));
 				    state = SCE_CONF_IDENTIFIER;
 			    }
-			    else if(IsASCII(ch) && isdigit(ch) ) {
+			    else if(IsASCII(ch) && isdigit(ch)) {
 				    // signals the start of a number
 				    bufferCount = 0;
 				    buffer[bufferCount++] = ch;
@@ -110,7 +110,7 @@ static void ColouriseConfDoc(Sci_PositionU startPos, Sci_Position length, int, W
 			    // else we're still dealing with an extension...
 			    if((IsASCII(ch) && isalnum(ch)) || (ch == '_') ||
 				(ch == '-') || (ch == '$') ||
-				(ch == '/') || (ch == '.') || (ch == '*') ) {
+				(ch == '/') || (ch == '.') || (ch == '*')) {
 				    styler.ColourTo(i, SCE_CONF_EXTENSION);
 			    }
 			    else {
@@ -122,7 +122,7 @@ static void ColouriseConfDoc(Sci_PositionU startPos, Sci_Position length, int, W
 			case SCE_CONF_STRING:
 			    // if we find the end of a string char, we simply go to default state
 			    // else we're still dealing with an string...
-			    if((ch == '"' && styler.SafeGetCharAt(i-1)!='\\') || (ch == '\n') || (ch == '\r') ) {
+			    if((ch == '"' && styler.SafeGetCharAt(i-1)!='\\') || (ch == '\n') || (ch == '\r')) {
 				    state = SCE_CONF_DEFAULT;
 			    }
 			    styler.ColourTo(i, SCE_CONF_STRING);
@@ -167,7 +167,7 @@ static void ColouriseConfDoc(Sci_PositionU startPos, Sci_Position length, int, W
 				    buffer[bufferCount] = '\0';
 
 				    // Colourize here...
-				    if(strchr(buffer, '.') ) {
+				    if(strchr(buffer, '.')) {
 					    // it is an IP address...
 					    styler.ColourTo(i-1, SCE_CONF_IP);
 				    }

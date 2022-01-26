@@ -1,22 +1,11 @@
 // Copyright 2017 The Abseil Authors.
-//
 // Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
 //
-//      https://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 // A low-level allocator that can be used by other low-level
 // modules without introducing dependency cycles.
 // This allocator is slow and wasteful of memory;
 // it should not be used when performance is key.
-
+//
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/base/internal/direct_mmap.h"
@@ -333,24 +322,19 @@ size_t RoundedUpBlockSize() {
 }
 }  // namespace
 
-LowLevelAlloc::Arena::Arena(uint32_t flags_value)
-	: mu(base_internal::SCHEDULE_KERNEL_ONLY),
-	allocation_count(0),
-	flags(flags_value),
-	pagesize(GetPageSize()),
-	round_up(RoundedUpBlockSize()),
-	min_size(2 * round_up),
-	random(0) {
+LowLevelAlloc::Arena::Arena(uint32_t flags_value) : mu(base_internal::SCHEDULE_KERNEL_ONLY), allocation_count(0),
+	flags(flags_value), pagesize(GetPageSize()), round_up(RoundedUpBlockSize()), min_size(2 * round_up), random(0) 
+{
 	freelist.header.size = 0;
-	freelist.header.magic =
-	    Magic(kMagicUnallocated, &freelist.header);
+	freelist.header.magic = Magic(kMagicUnallocated, &freelist.header);
 	freelist.header.arena = this;
 	freelist.levels = 0;
-	memset(freelist.next, 0, sizeof(freelist.next));
+	memzero(freelist.next, sizeof(freelist.next));
 }
 
 // L < meta_data_arena->mu
-LowLevelAlloc::Arena * LowLevelAlloc::NewArena(int32_t flags) {
+LowLevelAlloc::Arena * LowLevelAlloc::NewArena(int32_t flags) 
+{
 	Arena * meta_data_arena = DefaultArena();
 #ifndef ABSL_LOW_LEVEL_ALLOC_ASYNC_SIGNAL_SAFE_MISSING
 	if((flags & LowLevelAlloc::kAsyncSignalSafe) != 0) {
@@ -361,8 +345,7 @@ LowLevelAlloc::Arena * LowLevelAlloc::NewArena(int32_t flags) {
 	if((flags & LowLevelAlloc::kCallMallocHook) == 0) {
 		meta_data_arena = UnhookedArena();
 	}
-	Arena * result =
-	    new (AllocWithArena(sizeof(*result), meta_data_arena)) Arena(flags);
+	Arena * result = new (AllocWithArena(sizeof(*result), meta_data_arena)) Arena(flags);
 	return result;
 }
 

@@ -211,7 +211,7 @@ typedef struct opj_mct_data {
 	J2K_MCT_ELEMENT_TYPE m_element_type;
 	J2K_MCT_ARRAY_TYPE m_array_type;
 	OPJ_UINT32 m_index;
-	OPJ_BYTE *     m_data;
+	uint8 *     m_data;
 	OPJ_UINT32 m_data_size;
 }
 
@@ -231,7 +231,7 @@ typedef struct opj_simple_mcc_decorrelation_data {
 opj_simple_mcc_decorrelation_data_t;
 
 typedef struct opj_ppx_struct {
-	OPJ_BYTE*   m_data; /* m_data == NULL => Zppx not read yet */
+	uint8 *   m_data; /* m_data == NULL => Zppx not read yet */
 	OPJ_UINT32 m_data_size;
 } opj_ppx;
 
@@ -251,7 +251,7 @@ typedef struct opj_tcp {
 	/** multi-component transform identifier */
 	OPJ_UINT32 mct;
 	/** rates of layers */
-	OPJ_FLOAT32 rates[100];
+	float rates[100];
 	/** number of progression order changes */
 	OPJ_UINT32 numpocs;
 	/** progression order changes */
@@ -263,15 +263,15 @@ typedef struct opj_tcp {
 	opj_ppx* ppt_markers;
 
 	/** packet header store there for future use in t2_decode_packet */
-	OPJ_BYTE * ppt_data;
+	uint8 * ppt_data;
 	/** used to keep a track of the allocated memory */
-	OPJ_BYTE * ppt_buffer;
+	uint8 * ppt_buffer;
 	/** Number of bytes stored inside ppt_data*/
 	OPJ_UINT32 ppt_data_size;
 	/** size of ppt_data*/
 	OPJ_UINT32 ppt_len;
 	/** add fixed_quality */
-	OPJ_FLOAT32 distoratio[100];
+	float distoratio[100];
 	/** tile-component coding parameters */
 	opj_tccp_t * tccps;
 	/** current tile part number or -1 if first time into this tile */
@@ -279,15 +279,15 @@ typedef struct opj_tcp {
 	/** number of tile parts for the tile. */
 	OPJ_UINT32 m_nb_tile_parts;
 	/** data for the tile */
-	OPJ_BYTE *      m_data;
+	uint8 *      m_data;
 	/** size of data */
 	OPJ_UINT32 m_data_size;
 	/** encoding norms */
-	OPJ_FLOAT64 *   mct_norms;
+	double *   mct_norms;
 	/** the mct decoding matrix */
-	OPJ_FLOAT32 *   m_mct_decoding_matrix;
+	float *   m_mct_decoding_matrix;
 	/** the mct coding matrix */
-	OPJ_FLOAT32 *   m_mct_coding_matrix;
+	float *   m_mct_coding_matrix;
 	/** mct records */
 	opj_mct_data_t * m_mct_records;
 	/** the number of mct records. */
@@ -318,7 +318,7 @@ typedef struct opj_encoding_param {
 	/** fixed layer */
 	OPJ_INT32 * m_matrice;
 	/** Flag determining tile part generation*/
-	OPJ_BYTE m_tp_flag;
+	uint8 m_tp_flag;
 	/** allocation by rate/distortion */
 	OPJ_BITFIELD m_disto_alloc : 1;
 	/** allocation by fixed layer */
@@ -371,18 +371,18 @@ typedef struct opj_cp {
 	opj_ppx* ppm_markers;
 
 	/** packet header store there for future use in t2_decode_packet */
-	OPJ_BYTE * ppm_data;
+	uint8 * ppm_data;
 	/** size of the ppm_data*/
 	OPJ_UINT32 ppm_len;
 	/** size of the ppm_data*/
 	OPJ_UINT32 ppm_data_read;
 
-	OPJ_BYTE * ppm_data_current;
+	uint8 * ppm_data_current;
 
 	/** packet header storage original buffer */
-	OPJ_BYTE * ppm_buffer;
+	uint8 * ppm_buffer;
 	/** pointer remaining on the first byte of the first header if ppm is used */
-	OPJ_BYTE * ppm_data_first;
+	uint8 * ppm_data_first;
 	/** Number of bytes actually stored inside the ppm_data */
 	OPJ_UINT32 ppm_data_size;
 	/** use in case of multiple marker PPM (number of info already store) */
@@ -403,15 +403,15 @@ typedef struct opj_cp {
 	/* UniPG>> */
 #ifdef USE_JPWL
 	/** enables writing of EPC in MH, thus activating JPWL */
-	OPJ_BOOL epc_on;
+	boolint epc_on;
 	/** enables writing of EPB, in case of activated JPWL */
-	OPJ_BOOL epb_on;
+	boolint epb_on;
 	/** enables writing of ESD, in case of activated JPWL */
-	OPJ_BOOL esd_on;
+	boolint esd_on;
 	/** enables writing of informative techniques of ESD, in case of activated JPWL */
-	OPJ_BOOL info_on;
+	boolint info_on;
 	/** enables writing of RED, in case of activated JPWL */
-	OPJ_BOOL red_on;
+	boolint red_on;
 	/** error protection method for MH (0,1,16,32,37-128) */
 	int hprot_MH;
 	/** tile number of header protection specification (>=0) */
@@ -437,7 +437,7 @@ typedef struct opj_cp {
 	/** sensitivity methods for TPHs (-1,0-7) */
 	int sens_TPH[JPWL_MAX_NO_TILESPECS];
 	/** enables JPWL correction at the decoder */
-	OPJ_BOOL correct;
+	boolint correct;
 	/** expected number of components at the decoder */
 	int exp_comps;
 	/** maximum number of tiles at the decoder */
@@ -461,7 +461,7 @@ typedef struct opj_j2k_dec {
 	 * store decoding parameters common to all tiles (information like COD, COC in main header)
 	 */
 	opj_tcp_t * m_default_tcp;
-	OPJ_BYTE  * m_header_data;
+	uint8  * m_header_data;
 	OPJ_UINT32 m_header_data_size;
 	/** to tell the tile part length */
 	OPJ_UINT32 m_sot_length;
@@ -481,7 +481,7 @@ typedef struct opj_j2k_dec {
 	 * It is useful in the case of PSot is equal to zero. The sot length will be compute in the
 	 * SOD reader function. FIXME NOT USED for the moment
 	 */
-	OPJ_BOOL m_last_tile_part;
+	boolint m_last_tile_part;
 
 	OPJ_UINT32 m_numcomps_to_decode;
 	OPJ_UINT32  * m_comps_indices_to_decode;
@@ -512,31 +512,31 @@ typedef struct opj_j2k_enc {
 	/**
 	 * Stores the sizes of the tlm.
 	 */
-	OPJ_BYTE * m_tlm_sot_offsets_buffer;
+	uint8 * m_tlm_sot_offsets_buffer;
 	/**
 	 * The current offset of the tlm buffer.
 	 */
-	OPJ_BYTE * m_tlm_sot_offsets_current;
+	uint8 * m_tlm_sot_offsets_current;
 
 	/** Total num of tile parts in whole image = num tiles* num tileparts in each tile*/
 	/** used in TLMmarker*/
 	OPJ_UINT32 m_total_tile_parts; /* totnum_tp */
 
 	/* encoded data for a tile */
-	OPJ_BYTE * m_encoded_tile_data;
+	uint8 * m_encoded_tile_data;
 
 	/* size of the encoded_data */
 	OPJ_UINT32 m_encoded_tile_size;
 
 	/* encoded data for a tile */
-	OPJ_BYTE * m_header_tile_data;
+	uint8 * m_header_tile_data;
 
 	/* size of the encoded_data */
 
 	OPJ_UINT32 m_header_tile_data_size;
 
 	/* whether to generate PLT markers */
-	OPJ_BOOL m_PLT;
+	boolint m_PLT;
 
 	/* reserved bytes in m_encoded_tile_size for PLT markers */
 	OPJ_UINT32 m_reserved_bytes_for_PLT;
@@ -549,7 +549,7 @@ struct opj_tcd;
  */
 typedef struct opj_j2k {
 	/* J2K codestream is decoded*/
-	OPJ_BOOL m_is_decoder;
+	boolint m_is_decoder;
 
 	/* FIXME DOC*/
 	union {
@@ -583,7 +583,7 @@ typedef struct opj_j2k {
  */
 void opj_j2k_setup_decoder(opj_j2k_t * j2k, opj_dparameters_t * parameters);
 
-OPJ_BOOL opj_j2k_set_threads(opj_j2k_t * j2k, OPJ_UINT32 num_threads);
+boolint opj_j2k_set_threads(opj_j2k_t * j2k, OPJ_UINT32 num_threads);
 
 /**
  * Creates a J2K compression structure
@@ -591,7 +591,7 @@ OPJ_BOOL opj_j2k_set_threads(opj_j2k_t * j2k, OPJ_UINT32 num_threads);
  * @return Returns a handle to a J2K compressor if successful, returns NULL otherwise
  */
 opj_j2k_t* opj_j2k_create_compress(void);
-OPJ_BOOL opj_j2k_setup_encoder(opj_j2k_t * p_j2k, opj_cparameters_t * parameters, opj_image_t * image, opj_event_mgr_t * p_manager);
+boolint opj_j2k_setup_encoder(opj_j2k_t * p_j2k, opj_cparameters_t * parameters, opj_image_t * image, opj_event_mgr_t * p_manager);
 /**
    Converts an enum type progression order to string type
  */
@@ -606,7 +606,7 @@ const char * opj_j2k_convert_progression_order(OPJ_PROG_ORDER prg_order);
  * Ends the decompression procedures and possibiliy add data to be read after the
  * codestream.
  */
-OPJ_BOOL opj_j2k_end_decompress(opj_j2k_t * j2k,
+boolint opj_j2k_end_decompress(opj_j2k_t * j2k,
     opj_stream_private_t * p_stream,
     opj_event_mgr_t * p_manager);
 
@@ -620,7 +620,7 @@ OPJ_BOOL opj_j2k_end_decompress(opj_j2k_t * j2k,
  *
  * @return true if the box is valid.
  */
-OPJ_BOOL opj_j2k_read_header(opj_stream_private_t * p_stream, opj_j2k_t* p_j2k, opj_image_t** p_image, opj_event_mgr_t* p_manager);
+boolint opj_j2k_read_header(opj_stream_private_t * p_stream, opj_j2k_t* p_j2k, opj_image_t** p_image, opj_event_mgr_t* p_manager);
 /**
  * Destroys a jpeg2000 codec.
  *
@@ -644,8 +644,8 @@ void j2k_destroy_cstr_index(opj_codestream_index_t * p_cstr_ind);
  * @param   p_stream            the stream to write data to.
  * @param   p_manager   the user event manager.
  */
-OPJ_BOOL opj_j2k_decode_tile(opj_j2k_t * p_j2k, OPJ_UINT32 p_tile_index,
-    OPJ_BYTE * p_data,
+boolint opj_j2k_decode_tile(opj_j2k_t * p_j2k, OPJ_UINT32 p_tile_index,
+    uint8 * p_data,
     OPJ_UINT32 p_data_size,
     opj_stream_private_t * p_stream,
     opj_event_mgr_t * p_manager);
@@ -664,16 +664,9 @@ OPJ_BOOL opj_j2k_decode_tile(opj_j2k_t * p_j2k, OPJ_UINT32 p_tile_index,
  * @param   p_stream            the stream to write data to.
  * @param   p_manager   the user event manager.
  */
-OPJ_BOOL opj_j2k_read_tile_header(opj_j2k_t * p_j2k, OPJ_UINT32 * p_tile_index,
-    OPJ_UINT32 * p_data_size,
-    OPJ_INT32 * p_tile_x0,
-    OPJ_INT32 * p_tile_y0,
-    OPJ_INT32 * p_tile_x1,
-    OPJ_INT32 * p_tile_y1,
-    OPJ_UINT32 * p_nb_comps,
-    OPJ_BOOL * p_go_on,
-    opj_stream_private_t * p_stream,
-    opj_event_mgr_t * p_manager);
+boolint opj_j2k_read_tile_header(opj_j2k_t * p_j2k, OPJ_UINT32 * p_tile_index, OPJ_UINT32 * p_data_size, OPJ_INT32 * p_tile_x0,
+    OPJ_INT32 * p_tile_y0, OPJ_INT32 * p_tile_x1, OPJ_INT32 * p_tile_y1, OPJ_UINT32 * p_nb_comps, boolint * p_go_on,
+    opj_stream_private_t * p_stream, opj_event_mgr_t * p_manager);
 
 /** Sets the indices of the components to decode.
  *
@@ -683,9 +676,9 @@ OPJ_BOOL opj_j2k_read_tile_header(opj_j2k_t * p_j2k, OPJ_UINT32 * p_tile_index,
  *                corresponding to the components to decode.
  * @param p_manager     Event manager
  *
- * @return OPJ_TRUE in case of success.
+ * @return TRUE in case of success.
  */
-OPJ_BOOL opj_j2k_set_decoded_components(opj_j2k_t * p_j2k, OPJ_UINT32 numcomps, const OPJ_UINT32* comps_indices, opj_event_mgr_t * p_manager);
+boolint opj_j2k_set_decoded_components(opj_j2k_t * p_j2k, OPJ_UINT32 numcomps, const OPJ_UINT32* comps_indices, opj_event_mgr_t * p_manager);
 /**
  * Sets the given area to be decoded. This function should be called right after opj_read_header and before any tile
  *header reading.
@@ -700,7 +693,7 @@ OPJ_BOOL opj_j2k_set_decoded_components(opj_j2k_t * p_j2k, OPJ_UINT32 numcomps, 
  *
  * @return  true            if the area could be set.
  */
-OPJ_BOOL opj_j2k_set_decode_area(opj_j2k_t * p_j2k, opj_image_t* p_image, OPJ_INT32 p_start_x, OPJ_INT32 p_start_y, 
+boolint opj_j2k_set_decode_area(opj_j2k_t * p_j2k, opj_image_t* p_image, OPJ_INT32 p_start_x, OPJ_INT32 p_start_y, 
 	OPJ_INT32 p_end_x, OPJ_INT32 p_end_y, opj_event_mgr_t * p_manager);
 /**
  * Creates a J2K decompression structure.
@@ -726,7 +719,7 @@ void j2k_dump(opj_j2k_t* p_j2k, OPJ_INT32 flag, FILE* out_stream);
  *@param dev_dump_flag      flag to describe if we are in the case of this function is use outside j2k_dump function
  *@param out_stream         output stream where dump the elements.
  */
-void j2k_dump_image_header(opj_image_t* image, OPJ_BOOL dev_dump_flag,
+void j2k_dump_image_header(opj_image_t* image, boolint dev_dump_flag,
     FILE* out_stream);
 
 /**
@@ -736,7 +729,7 @@ void j2k_dump_image_header(opj_image_t* image, OPJ_BOOL dev_dump_flag,
  *@param dev_dump_flag      flag to describe if we are in the case of this function is use outside j2k_dump function
  *@param out_stream         output stream where dump the elements.
  */
-void j2k_dump_image_comp_header(opj_image_comp_t* comp, OPJ_BOOL dev_dump_flag,
+void j2k_dump_image_comp_header(opj_image_comp_t* comp, boolint dev_dump_flag,
     FILE* out_stream);
 
 /**
@@ -765,9 +758,9 @@ opj_codestream_index_t* j2k_get_cstr_index(opj_j2k_t* p_j2k);
  * @param p_manager FIXME DOC
  * @return FIXME DOC
  */
-OPJ_BOOL opj_j2k_decode(opj_j2k_t * j2k, opj_stream_private_t * p_stream, opj_image_t * p_image, opj_event_mgr_t * p_manager);
-OPJ_BOOL opj_j2k_get_tile(opj_j2k_t * p_j2k, opj_stream_private_t * p_stream, opj_image_t* p_image, opj_event_mgr_t * p_manager, OPJ_UINT32 tile_index);
-OPJ_BOOL opj_j2k_set_decoded_resolution_factor(opj_j2k_t * p_j2k, OPJ_UINT32 res_factor, opj_event_mgr_t * p_manager);
+boolint opj_j2k_decode(opj_j2k_t * j2k, opj_stream_private_t * p_stream, opj_image_t * p_image, opj_event_mgr_t * p_manager);
+boolint opj_j2k_get_tile(opj_j2k_t * p_j2k, opj_stream_private_t * p_stream, opj_image_t* p_image, opj_event_mgr_t * p_manager, OPJ_UINT32 tile_index);
+boolint opj_j2k_set_decoded_resolution_factor(opj_j2k_t * p_j2k, OPJ_UINT32 res_factor, opj_event_mgr_t * p_manager);
 
 /**
  * Specify extra options for the encoder.
@@ -778,7 +771,7 @@ OPJ_BOOL opj_j2k_set_decoded_resolution_factor(opj_j2k_t * p_j2k, OPJ_UINT32 res
  *
  * @see opj_encoder_set_extra_options() for more details.
  */
-OPJ_BOOL opj_j2k_encoder_set_extra_options(opj_j2k_t * p_j2k, const char* const* p_options, opj_event_mgr_t * p_manager);
+boolint opj_j2k_encoder_set_extra_options(opj_j2k_t * p_j2k, const char* const* p_options, opj_event_mgr_t * p_manager);
 /**
  * Writes a tile.
  * @param   p_j2k       the jpeg2000 codec.
@@ -788,12 +781,12 @@ OPJ_BOOL opj_j2k_encoder_set_extra_options(opj_j2k_t * p_j2k, const char* const*
  * @param   p_stream            the stream to write data to.
  * @param   p_manager   the user event manager.
  */
-OPJ_BOOL opj_j2k_write_tile(opj_j2k_t * p_j2k, OPJ_UINT32 p_tile_index, OPJ_BYTE * p_data, OPJ_UINT32 p_data_size,
+boolint opj_j2k_write_tile(opj_j2k_t * p_j2k, OPJ_UINT32 p_tile_index, uint8 * p_data, OPJ_UINT32 p_data_size,
     opj_stream_private_t * p_stream, opj_event_mgr_t * p_manager);
 /**
  * Encodes an image into a JPEG-2000 codestream
  */
-OPJ_BOOL opj_j2k_encode(opj_j2k_t * p_j2k, opj_stream_private_t * cio, opj_event_mgr_t * p_manager);
+boolint opj_j2k_encode(opj_j2k_t * p_j2k, opj_stream_private_t * cio, opj_event_mgr_t * p_manager);
 /**
  * Starts a compression scheme, i.e. validates the codec parameters, writes the header.
  *
@@ -804,12 +797,12 @@ OPJ_BOOL opj_j2k_encode(opj_j2k_t * p_j2k, opj_stream_private_t * cio, opj_event
  *
  * @return true if the codec is valid.
  */
-OPJ_BOOL opj_j2k_start_compress(opj_j2k_t * p_j2k, opj_stream_private_t * p_stream, opj_image_t * p_image, opj_event_mgr_t * p_manager);
+boolint opj_j2k_start_compress(opj_j2k_t * p_j2k, opj_stream_private_t * p_stream, opj_image_t * p_image, opj_event_mgr_t * p_manager);
 /**
  * Ends the compression procedures and possibiliy add data to be read after the
  * codestream.
  */
-OPJ_BOOL opj_j2k_end_compress(opj_j2k_t * p_j2k, opj_stream_private_t * cio, opj_event_mgr_t * p_manager);
-OPJ_BOOL opj_j2k_setup_mct_encoding(opj_tcp_t * p_tcp, opj_image_t * p_image);
+boolint opj_j2k_end_compress(opj_j2k_t * p_j2k, opj_stream_private_t * cio, opj_event_mgr_t * p_manager);
+boolint opj_j2k_setup_mct_encoding(opj_tcp_t * p_tcp, opj_image_t * p_image);
 
 #endif /* OPJ_J2K_H */

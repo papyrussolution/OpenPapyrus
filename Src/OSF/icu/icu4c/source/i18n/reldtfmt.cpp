@@ -65,7 +65,7 @@ RelativeDateFormat::RelativeDateFormat(UDateFormatStyle timeStyle, UDateFormatSt
 	fCapitalizationOfRelativeUnitsForUIListMenu(FALSE), fCapitalizationOfRelativeUnitsForStandAlone(FALSE),
 	fCapitalizationBrkIter(NULL)
 {
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		return;
 	}
 
@@ -167,7 +167,7 @@ UnicodeString & RelativeDateFormat::format(Calendar& cal,
 		if(u_islower(relativeDayString.char32At(0)) && fCapitalizationBrkIter!= NULL &&
 		    ( capitalizationContext==UDISPCTX_CAPITALIZATION_FOR_BEGINNING_OF_SENTENCE ||
 		    (capitalizationContext==UDISPCTX_CAPITALIZATION_FOR_UI_LIST_OR_MENU && fCapitalizationOfRelativeUnitsForUIListMenu) ||
-		    (capitalizationContext==UDISPCTX_CAPITALIZATION_FOR_STANDALONE && fCapitalizationOfRelativeUnitsForStandAlone) ) ) {
+		    (capitalizationContext==UDISPCTX_CAPITALIZATION_FOR_STANDALONE && fCapitalizationOfRelativeUnitsForStandAlone) )) {
 			// titlecase first word of relativeDayString
 			relativeDayString.toTitle(fCapitalizationBrkIter,
 			    fLocale,
@@ -421,7 +421,7 @@ void RelativeDateFormat::setContext(UDisplayContext value, UErrorCode & status)
 #if !UCONFIG_NO_BREAK_ITERATION
 		if(fCapitalizationBrkIter == NULL && (value==UDISPCTX_CAPITALIZATION_FOR_BEGINNING_OF_SENTENCE ||
 		    (value==UDISPCTX_CAPITALIZATION_FOR_UI_LIST_OR_MENU && fCapitalizationOfRelativeUnitsForUIListMenu) ||
-		    (value==UDISPCTX_CAPITALIZATION_FOR_STANDALONE && fCapitalizationOfRelativeUnitsForStandAlone)) ) {
+		    (value==UDISPCTX_CAPITALIZATION_FOR_STANDALONE && fCapitalizationOfRelativeUnitsForStandAlone))) {
 			status = U_ZERO_ERROR;
 			fCapitalizationBrkIter = BreakIterator::createSentenceInstance(fLocale, status);
 			if(U_FAILURE(status)) {

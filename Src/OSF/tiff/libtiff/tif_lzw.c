@@ -118,7 +118,7 @@ typedef struct code_ent {
 	uchar firstchar; /* first token of string */
 } code_t;
 
-typedef int (*decodeFunc)(TIFF*, uint8*, tmsize_t, uint16);
+typedef int (*decodeFunc)(TIFF*, uint8 *, tmsize_t, uint16);
 
 typedef struct {
 	LZWBaseState base;

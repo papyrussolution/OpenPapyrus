@@ -94,18 +94,18 @@ static void printUSeq(const UChar * a, int len)
 static void printSeqErr(const unsigned char * a, int len)
 {
 	int i = 0;
-	fprintf(stderr, "\n{");
-	while(i<len) fprintf(stderr, "0x%02X ", a[i++]);
-	fprintf(stderr, "}\n");
+	slfprintf_stderr("\n{");
+	while(i<len) slfprintf_stderr("0x%02X ", a[i++]);
+	slfprintf_stderr("}\n");
 }
 
 static void printUSeqErr(const UChar * a, int len)
 {
 	int i = 0;
-	fprintf(stderr, "\n{");
+	slfprintf_stderr("\n{");
 	while(i<len)
-		fprintf(stderr, "0x%04X ", a[i++]);
-	fprintf(stderr, "}\n");
+		slfprintf_stderr("0x%04X ", a[i++]);
+	slfprintf_stderr("}\n");
 }
 
 void addExtraTests(TestNode** root);
@@ -1279,7 +1279,7 @@ static bool testConvertFromU(const UChar * source, int sourceLen,  const uint8_t
 		return FALSE;
 	}
 
-	if(checkOffsets && (expectOffsets != 0) ) {
+	if(checkOffsets && (expectOffsets != 0)) {
 		log_verbose("comparing %d offsets..\n", targ-junkout);
 		if(memcmp(junokout, expectOffsets, (targ-junkout) * sizeof(int32_t) )) {
 			log_err("did not get the expected offsets. %s", gNuConvTestName);

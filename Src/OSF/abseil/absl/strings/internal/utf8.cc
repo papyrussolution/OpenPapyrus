@@ -10,7 +10,8 @@
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace strings_internal {
-size_t EncodeUTF8Char(char * buffer, char32_t utf8_char) {
+size_t EncodeUTF8Char(char * buffer, char32_t utf8_char) 
+{
 	if(utf8_char <= 0x7F) {
 		*buffer = static_cast<char>(utf8_char);
 		return 1;
@@ -18,7 +19,7 @@ size_t EncodeUTF8Char(char * buffer, char32_t utf8_char) {
 	else if(utf8_char <= 0x7FF) {
 		buffer[1] = 0x80 | (utf8_char & 0x3F);
 		utf8_char >>= 6;
-		buffer[0] = 0xC0 | utf8_char;
+		buffer[0] = static_cast<char>(0xC0 | utf8_char);
 		return 2;
 	}
 	else if(utf8_char <= 0xFFFF) {
@@ -26,7 +27,7 @@ size_t EncodeUTF8Char(char * buffer, char32_t utf8_char) {
 		utf8_char >>= 6;
 		buffer[1] = 0x80 | (utf8_char & 0x3F);
 		utf8_char >>= 6;
-		buffer[0] = 0xE0 | utf8_char;
+		buffer[0] = static_cast<char>(0xE0 | utf8_char);
 		return 3;
 	}
 	else {
@@ -36,7 +37,7 @@ size_t EncodeUTF8Char(char * buffer, char32_t utf8_char) {
 		utf8_char >>= 6;
 		buffer[1] = 0x80 | (utf8_char & 0x3F);
 		utf8_char >>= 6;
-		buffer[0] = 0xF0 | utf8_char;
+		buffer[0] = static_cast<char>(0xF0 | utf8_char);
 		return 4;
 	}
 }

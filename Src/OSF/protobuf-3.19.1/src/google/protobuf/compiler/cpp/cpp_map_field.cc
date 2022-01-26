@@ -199,35 +199,24 @@ static void GenerateSerializationLoop(const Formatter& format, bool string_key,
 
 void MapFieldGenerator::GenerateSerializeWithCachedSizesToArray(io::Printer* printer) const {
 	Formatter format(printer, variables_);
-	format("if (!this->_internal_$name$().empty()) {\n");
+	format("if(!this->_internal_$name$().empty()) {\n");
 	format.Indent();
-	const FieldDescriptor* key_field =
-	    descriptor_->message_type()->FindFieldByName("key");
-	const FieldDescriptor* value_field =
-	    descriptor_->message_type()->FindFieldByName("value");
+	const FieldDescriptor* key_field = descriptor_->message_type()->FindFieldByName("key");
+	const FieldDescriptor* value_field = descriptor_->message_type()->FindFieldByName("value");
 	const bool string_key = key_field->type() == FieldDescriptor::TYPE_STRING;
 	const bool string_value = value_field->type() == FieldDescriptor::TYPE_STRING;
-
-	format(
-		"typedef ::$proto_ns$::Map< $key_cpp$, $val_cpp$ >::const_pointer\n"
-		"    ConstPtr;\n");
+	format("typedef ::$proto_ns$::Map< $key_cpp$, $val_cpp$ >::const_pointer ConstPtr;\n");
 	if(string_key) {
-		format(
-			"typedef ConstPtr SortItem;\n"
-			"typedef ::$proto_ns$::internal::"
-			"CompareByDerefFirst<SortItem> Less;\n");
+		format("typedef ConstPtr SortItem;\n"
+			"typedef ::$proto_ns$::internal::CompareByDerefFirst<SortItem> Less;\n");
 	}
 	else {
-		format(
-			"typedef ::$proto_ns$::internal::SortItem< $key_cpp$, ConstPtr > "
-			"SortItem;\n"
-			"typedef ::$proto_ns$::internal::CompareByFirstField<SortItem> "
-			"Less;\n");
+		format("typedef ::$proto_ns$::internal::SortItem< $key_cpp$, ConstPtr > SortItem;\n"
+			"typedef ::$proto_ns$::internal::CompareByFirstField<SortItem> Less;\n");
 	}
 	bool utf8_check = string_key || string_value;
 	if(utf8_check) {
-		format(
-			"struct Utf8Check {\n"
+		format("struct Utf8Check {\n"
 			"  static void Check(ConstPtr p) {\n"
 			// p may be unused when GetUtf8CheckMode evaluates to kNone,
 			// thus disabling the validation.
@@ -235,32 +224,22 @@ void MapFieldGenerator::GenerateSerializeWithCachedSizesToArray(io::Printer* pri
 		format.Indent();
 		format.Indent();
 		if(string_key) {
-			GenerateUtf8CheckCodeForString(
-				key_field, options_, false,
-				"p->first.data(), static_cast<int>(p->first.length()),\n", format);
+			GenerateUtf8CheckCodeForString(key_field, options_, false, "p->first.data(), static_cast<int>(p->first.length()),\n", format);
 		}
 		if(string_value) {
-			GenerateUtf8CheckCodeForString(
-				value_field, options_, false,
-				"p->second.data(), static_cast<int>(p->second.length()),\n", format);
+			GenerateUtf8CheckCodeForString(value_field, options_, false, "p->second.data(), static_cast<int>(p->second.length()),\n", format);
 		}
 		format.Outdent();
 		format.Outdent();
-		format(
-			"  }\n"
-			"};\n");
+		format("  }\n};\n");
 	}
-
 	format(
 		"\n"
-		"if (stream->IsSerializationDeterministic() &&\n"
-		"    this->_internal_$name$().size() > 1) {\n"
-		"  ::std::unique_ptr<SortItem[]> items(\n"
-		"      new SortItem[this->_internal_$name$().size()]);\n"
-		"  typedef ::$proto_ns$::Map< $key_cpp$, $val_cpp$ >::size_type "
-		"size_type;\n"
+		"if(stream->IsSerializationDeterministic() && this->_internal_$name$().size() > 1) {\n"
+		"  ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_$name$().size()]);\n"
+		"  typedef ::$proto_ns$::Map< $key_cpp$, $val_cpp$ >::size_type size_type;\n"
 		"  size_type n = 0;\n"
-		"  for (::$proto_ns$::Map< $key_cpp$, $val_cpp$ >::const_iterator\n"
+		"  for(::$proto_ns$::Map< $key_cpp$, $val_cpp$ >::const_iterator\n"
 		"      it = this->_internal_$name$().begin();\n"
 		"      it != this->_internal_$name$().end(); ++it, ++n) {\n"
 		"    items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);\n"
@@ -284,7 +263,7 @@ void MapFieldGenerator::GenerateByteSize(io::Printer* printer) const {
 		"total_size += $tag_size$ *\n"
 		"    "
 		"::$proto_ns$::internal::FromIntSize(this->_internal_$name$_size());\n"
-		"for (::$proto_ns$::Map< $key_cpp$, $val_cpp$ >::const_iterator\n"
+		"for(::$proto_ns$::Map< $key_cpp$, $val_cpp$ >::const_iterator\n"
 		"    it = this->_internal_$name$().begin();\n"
 		"    it != this->_internal_$name$().end(); ++it) {\n"
 		"  total_size += $map_classname$::Funcs::ByteSizeLong(it->first, "
@@ -292,16 +271,16 @@ void MapFieldGenerator::GenerateByteSize(io::Printer* printer) const {
 		"}\n");
 }
 
-void MapFieldGenerator::GenerateIsInitialized(io::Printer* printer) const {
-	if(!has_required_fields_) return;
-
+void MapFieldGenerator::GenerateIsInitialized(io::Printer* printer) const 
+{
+	if(!has_required_fields_) 
+		return;
 	Formatter format(printer, variables_);
-	format(
-		"if (!::$proto_ns$::internal::AllAreInitialized($name$_)) return "
-		"false;\n");
+	format("if(!::$proto_ns$::internal::AllAreInitialized($name$_)) return false;\n");
 }
 
-void MapFieldGenerator::GenerateConstinitInitializer(io::Printer* printer) const {
+void MapFieldGenerator::GenerateConstinitInitializer(io::Printer* printer) const 
+{
 	Formatter format(printer, variables_);
 	if(HasDescriptorMethods(descriptor_->file(), options_)) {
 		format("$name$_(::$proto_ns$::internal::ConstantInitialized{})");

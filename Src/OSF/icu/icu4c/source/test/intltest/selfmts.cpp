@@ -223,7 +223,7 @@ void SelectFormatTest::selectFormatAPITest(/*char *par*/)
 	}
 
 	selFmt[0] = new SelectFormat(SIMPLE_PATTERN, status[0]);
-	if(U_FAILURE(status[0]) ) {
+	if(U_FAILURE(status[0])) {
 		errln("ERROR: SelectFormat API test constructor with pattern and status failed! with %s\n", u_errorName(status[0]));
 		return;
 	}
@@ -259,10 +259,10 @@ void SelectFormatTest::selectFormatAPITest(/*char *par*/)
 	// ======= Test assignment operator && == operator.
 	logln("SelectFormat API test: Testing assignment operator and == operator ...");
 	selFmt[2] = new SelectFormat(SIMPLE_PATTERN, status[2]);
-	if(U_SUCCESS(status[2]) ) {
+	if(U_SUCCESS(status[2])) {
 		*selFmt[1] = *selFmt[2];
 		if(selFmt[1]!=NULL) {
-			if((*selFmt[1] != *selFmt[2]) ) {
+			if((*selFmt[1] != *selFmt[2])) {
 				errln("ERROR: SelectFormat API test assignment operator test failed!");
 			}
 		}

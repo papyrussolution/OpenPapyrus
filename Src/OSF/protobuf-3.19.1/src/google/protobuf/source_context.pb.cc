@@ -92,7 +92,7 @@ SourceContext::SourceContext(const SourceContext& from)
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     file_name_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (!from._internal_file_name().empty()) {
+  if(!from._internal_file_name().empty()) {
     file_name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_file_name(), 
       GetArenaForAllocation());
   }
@@ -143,10 +143,10 @@ const char* SourceContext::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // string file_name = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           auto str = _internal_mutable_file_name();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "google.protobuf.SourceContext.file_name"));
@@ -158,7 +158,7 @@ const char* SourceContext::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -184,7 +184,7 @@ uint8_t* SourceContext::_InternalSerialize(
   (void) cached_has_bits;
 
   // string file_name = 1;
-  if (!this->_internal_file_name().empty()) {
+  if(!this->_internal_file_name().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_file_name().data(), static_cast<int>(this->_internal_file_name().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
@@ -193,7 +193,7 @@ uint8_t* SourceContext::_InternalSerialize(
         1, this->_internal_file_name(), target);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -210,7 +210,7 @@ size_t SourceContext::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // string file_name = 1;
-  if (!this->_internal_file_name().empty()) {
+  if(!this->_internal_file_name().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_file_name());
@@ -238,7 +238,7 @@ void SourceContext::MergeFrom(const SourceContext& from) {
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (!from._internal_file_name().empty()) {
+  if(!from._internal_file_name().empty()) {
     _internal_set_file_name(from._internal_file_name());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -246,7 +246,7 @@ void SourceContext::MergeFrom(const SourceContext& from) {
 
 void SourceContext::CopyFrom(const SourceContext& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:google.protobuf.SourceContext)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }

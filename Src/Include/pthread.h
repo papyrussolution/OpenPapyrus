@@ -155,10 +155,10 @@
  *
  * -------------------------------------------------------------
  */
-enum { /* Boolean values to make us independent of system includes. */
-	__PTW32_FALSE = 0,
-	__PTW32_TRUE = (!__PTW32_FALSE)
-};
+/* @v11.2.12 enum { // Boolean values to make us independent of system includes
+	__PTW32_FALSE__Removed = 0,
+	__PTW32_TRUE__Removed = (!__PTW32_FALSE__Removed)
+};*/
 
 #include <time.h>
 #include <sched.h>
@@ -437,7 +437,7 @@ enum { /* pthread_attr_{get,set}detachstate
  */
 #if  __PTW32_VERSION_MAJOR > 2
 
-#define PTHREAD_ONCE_INIT       { 0,  __PTW32_FALSE }
+#define PTHREAD_ONCE_INIT       { 0,  FALSE }
 
 struct pthread_once_t_ {
 	void * lock; /* MCS lock */
@@ -446,7 +446,7 @@ struct pthread_once_t_ {
 
 #else
 
-#define PTHREAD_ONCE_INIT       {  __PTW32_FALSE, 0, 0, 0 }
+#define PTHREAD_ONCE_INIT       {  FALSE, 0, 0, 0 }
 
 struct pthread_once_t_ {
 	int done; /* indicates if user function has been executed */
@@ -576,7 +576,7 @@ public:
 	}
 	~PThreadCleanup()
 	{
-		if(executeIt && ((void *)cleanUpRout != (void *)0) ) {
+		if(executeIt && ((void *)cleanUpRout != (void *)0)) {
 			(*cleanUpRout)(obj);
 		}
 	}

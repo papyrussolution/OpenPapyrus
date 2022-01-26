@@ -159,13 +159,13 @@ UChar32 U_CALLCONV utf8_caseContextIterator(void * context, int8_t dir) {
 
 	if(dir<0) {
 		if(csc->start<csc->index) {
-			U8_PREV((const uint8*)csc->p, csc->start, csc->index, c);
+			U8_PREV((const uint8 *)csc->p, csc->start, csc->index, c);
 			return c;
 		}
 	}
 	else {
 		if(csc->index<csc->limit) {
-			U8_NEXT((const uint8*)csc->p, csc->index, csc->limit, c);
+			U8_NEXT((const uint8 *)csc->p, csc->index, csc->limit, c);
 			return c;
 		}
 	}

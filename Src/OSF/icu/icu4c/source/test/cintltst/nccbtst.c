@@ -52,19 +52,19 @@ static void printUSeq(const UChar * a, int len)
 static void printSeqErr(const uint8_t* a, int len)
 {
 	int i = 0;
-	fprintf(stderr, "{");
+	slfprintf_stderr("{");
 	while(i<len)
-		fprintf(stderr, "  0x%02x, ", a[i++]);
-	fprintf(stderr, "}\n");
+		slfprintf_stderr("  0x%02x, ", a[i++]);
+	slfprintf_stderr("}\n");
 }
 
 static void printUSeqErr(const UChar * a, int len)
 {
 	int i = 0;
-	fprintf(stderr, "{");
+	slfprintf_stderr("{");
 	while(i<len)
-		fprintf(stderr, "0x%04x, ", a[i++]);
-	fprintf(stderr, "}\n");
+		slfprintf_stderr("0x%04x, ", a[i++]);
+	slfprintf_stderr("}\n");
 }
 
 static void setNuConvTestName(const char * codepage, const char * direction)
@@ -2714,7 +2714,7 @@ bool testConvertFromUnicode(const UChar * source, int sourceLen,  const uint8_t 
 		return FALSE;
 	}
 
-	if(checkOffsets && (expectOffsets != 0) ) {
+	if(checkOffsets && (expectOffsets != 0)) {
 		log_verbose("comparing %d offsets..\n", targ-junkout);
 		if(memcmp(junokout, expectOffsets, (targ-junkout) * sizeof(int32_t) )) {
 			log_err("did not get the expected offsets while %s \n", gNuConvTestName);
@@ -3067,7 +3067,7 @@ bool testConvertFromUnicodeWithContext(const UChar * source, int sourceLen,  con
 		return FALSE;
 	}
 
-	if(checkOffsets && (expectOffsets != 0) ) {
+	if(checkOffsets && (expectOffsets != 0)) {
 		log_verbose("comparing %d offsets..\n", targ-junkout);
 		if(memcmp(junokout, expectOffsets, (targ-junkout) * sizeof(int32_t) )) {
 			log_err("did not get the expected offsets while %s \n", gNuConvTestName);

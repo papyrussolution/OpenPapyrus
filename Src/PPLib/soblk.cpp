@@ -1,5 +1,5 @@
 // SOBLK.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2807,7 +2807,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					PPTransaction tra(1);
 					THROW(tra);
 					THROW(PsnObj.P_Tbl->GetRelList(P_PsnRelF->PrmrPersonID, &rel_list, 0));
-					if(rel_list.SearchPair(P_PsnRelF->ScndPersonID, P_PsnRelF->RelTypeID, 0) > 0)
+					if(rel_list.SearchPair(P_PsnRelF->ScndPersonID, P_PsnRelF->RelTypeID, 0))
 						found = 1;
 					else {
 						uint pos = 0;

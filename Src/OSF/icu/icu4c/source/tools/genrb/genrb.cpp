@@ -130,26 +130,26 @@ int main(int argc,
 
 	/* error handling, printing usage message */
 	if(argc<0) {
-		fprintf(stderr, "%s: error in command line argument \"%s\"\n", argv[0], argv[-argc]);
+		slfprintf_stderr("%s: error in command line argument \"%s\"\n", argv[0], argv[-argc]);
 		illegalArg = TRUE;
 	}
 	else if(argc<2) {
 		illegalArg = TRUE;
 	}
 	if(options[WRITE_POOL_BUNDLE].doesOccur && options[USE_POOL_BUNDLE].doesOccur) {
-		fprintf(stderr, "%s: cannot combine --writePoolBundle and --usePoolBundle\n", argv[0]);
+		slfprintf_stderr("%s: cannot combine --writePoolBundle and --usePoolBundle\n", argv[0]);
 		illegalArg = TRUE;
 	}
 	if(options[FORMAT_VERSION].doesOccur) {
 		const char * s = options[FORMAT_VERSION].value;
 		if(uprv_strlen(s) != 1 || (s[0] < '1' && '3' < s[0])) {
-			fprintf(stderr, "%s: unsupported --formatVersion %s\n", argv[0], s);
+			slfprintf_stderr("%s: unsupported --formatVersion %s\n", argv[0], s);
 			illegalArg = TRUE;
 		}
 		else if(s[0] == '1' &&
 		    (options[WRITE_POOL_BUNDLE].doesOccur || options[USE_POOL_BUNDLE].doesOccur)
 		    ) {
-			fprintf(stderr, "%s: cannot combine --formatVersion 1 with --writePoolBundle or --usePoolBundle\n", argv[0]);
+			slfprintf_stderr("%s: cannot combine --formatVersion 1 with --writePoolBundle or --usePoolBundle\n", argv[0]);
 			illegalArg = TRUE;
 		}
 		else {
@@ -269,7 +269,7 @@ int main(int argc,
 		 *       failures here are expected when building ICU from scratch.
 		 *       ignore them.
 		 */
-		fprintf(stderr, "%s: can not initialize ICU.  status = %s\n",
+		slfprintf_stderr("%s: can not initialize ICU.  status = %s\n",
 		    argv[0], u_errorName(status));
 		exit(1);
 	}
@@ -297,14 +297,14 @@ int main(int argc,
 	if(options[WRITE_POOL_BUNDLE].doesOccur) {
 		newPoolBundle.adoptInsteadAndCheckErrorCode(new SRBRoot(NULL, TRUE, status), status);
 		if(U_FAILURE(status)) {
-			fprintf(stderr, "unable to create an empty bundle for the pool keys: %s\n", u_errorName(status));
+			slfprintf_stderr("unable to create an empty bundle for the pool keys: %s\n", u_errorName(status));
 			return status;
 		}
 		else {
 			const char * poolResName = "pool.res";
 			char * nameWithoutSuffix = static_cast<char *>(uprv_malloc(uprv_strlen(poolResName) + 1));
 			if(nameWithoutSuffix == NULL) {
-				fprintf(stderr, "out of memory error\n");
+				slfprintf_stderr("out of memory error\n");
 				return U_MEMORY_ALLOCATION_ERROR;
 			}
 			uprv_strcpy(nameWithoutSuffix, poolResName);
@@ -339,17 +339,17 @@ int main(int argc,
 		}
 		poolFile = T_FileStream_open(poolFileName.data(), "rb");
 		if(poolFile == NULL) {
-			fprintf(stderr, "unable to open pool bundle file %s\n", poolFileName.data());
+			slfprintf_stderr("unable to open pool bundle file %s\n", poolFileName.data());
 			return 1;
 		}
 		poolFileSize = T_FileStream_size(poolFile);
 		if(poolFileSize < 32) {
-			fprintf(stderr, "the pool bundle file %s is too small\n", poolFileName.data());
+			slfprintf_stderr("the pool bundle file %s is too small\n", poolFileName.data());
 			return 1;
 		}
 		poolBundle.fBytes = new uint8_t[(poolFileSize + 15) & ~15];
 		if(poolFileSize > 0 && poolBundle.fBytes == NULL) {
-			fprintf(stderr, "unable to allocate memory for the pool bundle file %s\n", poolFileName.data());
+			slfprintf_stderr("unable to allocate memory for the pool bundle file %s\n", poolFileName.data());
 			return U_MEMORY_ALLOCATION_ERROR;
 		}
 
@@ -357,7 +357,7 @@ int main(int argc,
 		const DataHeader * header;
 		int32_t bytesRead = T_FileStream_read(poolFile, poolBundle.fBytes, poolFileSize);
 		if(bytesRead != poolFileSize) {
-			fprintf(stderr, "unable to read the pool bundle file %s\n", poolFileName.data());
+			slfprintf_stderr("unable to read the pool bundle file %s\n", poolFileName.data());
 			return 1;
 		}
 		/*
@@ -368,20 +368,20 @@ int main(int argc,
 		ds = udata_openSwapperForInputData(poolBundle.fBytes, bytesRead,
 			U_IS_BIG_ENDIAN, U_CHARSET_FAMILY, &status);
 		if(U_FAILURE(status)) {
-			fprintf(stderr, "udata_openSwapperForInputData(pool bundle %s) failed: %s\n",
+			slfprintf_stderr("udata_openSwapperForInputData(pool bundle %s) failed: %s\n",
 			    poolFileName.data(), u_errorName(status));
 			return status;
 		}
 		ures_swap(ds, poolBundle.fBytes, bytesRead, poolBundle.fBytes, &status);
 		udata_closeSwapper(ds);
 		if(U_FAILURE(status)) {
-			fprintf(stderr, "ures_swap(pool bundle %s) failed: %s\n",
+			slfprintf_stderr("ures_swap(pool bundle %s) failed: %s\n",
 			    poolFileName.data(), u_errorName(status));
 			return status;
 		}
 		header = (const DataHeader*)poolBundle.fBytes;
 		if(header->info.formatVersion[0] < 2) {
-			fprintf(stderr, "invalid format of pool bundle file %s\n", poolFileName.data());
+			slfprintf_stderr("invalid format of pool bundle file %s\n", poolFileName.data());
 			return U_INVALID_FORMAT_ERROR;
 		}
 		const int32_t * pRoot = (const int32_t*)(
@@ -389,7 +389,7 @@ int main(int argc,
 		poolBundle.fIndexes = pRoot + 1;
 		indexLength = poolBundle.fIndexes[URES_INDEX_LENGTH] & 0xff;
 		if(indexLength <= URES_INDEX_POOL_CHECKSUM) {
-			fprintf(stderr, "insufficient indexes[] in pool bundle file %s\n", poolFileName.data());
+			slfprintf_stderr("insufficient indexes[] in pool bundle file %s\n", poolFileName.data());
 			return U_INVALID_FORMAT_ERROR;
 		}
 		int32_t keysBottom = 1 + indexLength;
@@ -411,7 +411,7 @@ int main(int argc,
 		if(stringUnitsLength >= 2 && getFormatVersion() >= 3) {
 			poolBundle.fStrings = new PseudoListResource(NULL, status);
 			if(poolBundle.fStrings == NULL) {
-				fprintf(stderr, "unable to allocate memory for the pool bundle strings %s\n",
+				slfprintf_stderr("unable to allocate memory for the pool bundle strings %s\n",
 				    poolFileName.data());
 				return U_MEMORY_ALLOCATION_ERROR;
 			}
@@ -466,7 +466,7 @@ int main(int argc,
 					    new StringResource(poolStringIndex, numCharsForLength,
 						p, length, status);
 					if(sr == NULL) {
-						fprintf(stderr, "unable to allocate memory for a pool bundle string %s\n",
+						slfprintf_stderr("unable to allocate memory for a pool bundle string %s\n",
 						    poolFileName.data());
 						return U_MEMORY_ALLOCATION_ERROR;
 					}
@@ -550,7 +550,7 @@ int main(int argc,
 		char outputFileName[256];
 		newPoolBundle->write(writePoolDir, NULL, outputFileName, sizeof(outputFileName), status);
 		if(U_FAILURE(status)) {
-			fprintf(stderr, "unable to write the pool bundle: %s\n", u_errorName(status));
+			slfprintf_stderr("unable to write the pool bundle: %s\n", u_errorName(status));
 		}
 	}
 
@@ -634,11 +634,11 @@ void processFile(const char * filename, const char * cp,
 
 	ucbuf.adoptInstead(ucbuf_open(openFileName.data(), &cp, getShowWarning(), TRUE, &status));
 	if(status == U_FILE_ACCESS_ERROR) {
-		fprintf(stderr, "couldn't open file %s\n", openFileName.data());
+		slfprintf_stderr("couldn't open file %s\n", openFileName.data());
 		return;
 	}
 	if(ucbuf.isNull() || U_FAILURE(status)) {
-		fprintf(stderr, "An error occurred processing file %s. Error: %s\n",
+		slfprintf_stderr("An error occurred processing file %s. Error: %s\n",
 		    openFileName.data(), u_errorName(status));
 		return;
 	}
@@ -651,7 +651,7 @@ void processFile(const char * filename, const char * cp,
 	    !omitBinaryCollation, options[NO_COLLATION_RULES].doesOccur, &status));
 
 	if(data.isNull() || U_FAILURE(status)) {
-		fprintf(stderr, "couldn't parse the file %s. Error:%s\n", filename, u_errorName(status));
+		slfprintf_stderr("couldn't parse the file %s. Error:%s\n", filename, u_errorName(status));
 		return;
 	}
 
@@ -699,7 +699,7 @@ void processFile(const char * filename, const char * cp,
 		const char * newKeys = data->getKeyBytes(&newKeysLength);
 		newPoolBundle->addKeyBytes(newKeys, newKeysLength, status);
 		if(U_FAILURE(status)) {
-			fprintf(stderr, "bundle_compactKeys(%s) or bundle_getKeyBytes() failed: %s\n",
+			slfprintf_stderr("bundle_compactKeys(%s) or bundle_getKeyBytes() failed: %s\n",
 			    filename, u_errorName(status));
 			return;
 		}
@@ -718,7 +718,7 @@ void processFile(const char * filename, const char * cp,
 	/* Determine the target rb filename */
 	uprv_free(make_res_filename(filename, outputDir, packageName, status));
 	if(U_FAILURE(status)) {
-		fprintf(stderr, "couldn't make the res fileName for  bundle %s. Error:%s\n",
+		slfprintf_stderr("couldn't make the res fileName for  bundle %s. Error:%s\n",
 		    filename, u_errorName(status));
 		return;
 	}
@@ -737,7 +737,7 @@ void processFile(const char * filename, const char * cp,
 		data->write(outputDir, packageName, outputFileName, sizeof(outputFileName), status);
 	}
 	if(U_FAILURE(status)) {
-		fprintf(stderr, "couldn't write bundle %s. Error:%s\n", outputFileName, u_errorName(status));
+		slfprintf_stderr("couldn't write bundle %s. Error:%s\n", outputFileName, u_errorName(status));
 	}
 }
 

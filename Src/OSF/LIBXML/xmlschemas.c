@@ -13322,7 +13322,7 @@ static int xmlSchemaCheckCOSCTExtends(xmlSchemaParserCtxtPtr ctxt, xmlSchemaType
 			 // must be the same simple type definition" 
 			 // PASS
 		}
-		else if((type->contentType == XML_SCHEMA_CONTENT_EMPTY) && (base->contentType == XML_SCHEMA_CONTENT_EMPTY) ) {
+		else if((type->contentType == XML_SCHEMA_CONTENT_EMPTY) && (base->contentType == XML_SCHEMA_CONTENT_EMPTY)) {
 			/*
 			 * SPEC (1.4.2) "The {content type} of both the {base type
 			 * definition} and the complex type definition itself must

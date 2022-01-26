@@ -415,14 +415,14 @@ static UChar32 U_CALLCONV T_UConverter_getNextUChar_UTF32_BE(UConverterToUnicode
 	UChar32 myUChar;
 	int32_t length;
 
-	mySource = (const uint8*)args->source;
-	if(mySource >= (const uint8*)args->sourceLimit) {
+	mySource = (const uint8 *)args->source;
+	if(mySource >= (const uint8 *)args->sourceLimit) {
 		/* no input */
 		*err = U_INDEX_OUTOFBOUNDS_ERROR;
 		return 0xffff;
 	}
 
-	length = (int32_t)((const uint8*)args->sourceLimit - mySource);
+	length = (int32_t)((const uint8 *)args->sourceLimit - mySource);
 	if(length < 4) {
 		/* got a partial character */
 		uprv_memcpy(args->converter->toUBytes, mySource, length);
@@ -870,14 +870,14 @@ static UChar32 U_CALLCONV T_UConverter_getNextUChar_UTF32_LE(UConverterToUnicode
 	UChar32 myUChar;
 	int32_t length;
 
-	mySource = (const uint8*)args->source;
-	if(mySource >= (const uint8*)args->sourceLimit) {
+	mySource = (const uint8 *)args->source;
+	if(mySource >= (const uint8 *)args->sourceLimit) {
 		/* no input */
 		*err = U_INDEX_OUTOFBOUNDS_ERROR;
 		return 0xffff;
 	}
 
-	length = (int32_t)((const uint8*)args->sourceLimit - mySource);
+	length = (int32_t)((const uint8 *)args->sourceLimit - mySource);
 	if(length < 4) {
 		/* got a partial character */
 		uprv_memcpy(args->converter->toUBytes, mySource, length);

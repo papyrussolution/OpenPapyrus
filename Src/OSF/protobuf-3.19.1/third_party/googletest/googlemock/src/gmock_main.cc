@@ -27,19 +27,22 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 #include <iostream>
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 #ifdef ARDUINO
 void setup() {
-  // Since Google Mock depends on Google Test, InitGoogleMock() is
-  // also responsible for initializing Google Test.  Therefore there's
-  // no need for calling testing::InitGoogleTest() separately.
-  testing::InitGoogleMock();
+	// Since Google Mock depends on Google Test, InitGoogleMock() is
+	// also responsible for initializing Google Test.  Therefore there's
+	// no need for calling testing::InitGoogleTest() separately.
+	testing::InitGoogleMock();
 }
-void loop() { RUN_ALL_TESTS(); }
+
+void loop() {
+	RUN_ALL_TESTS();
+}
+
 #else
 
 // MS C++ compiler/linker has a bug on Windows (not on Windows CE), which
@@ -55,11 +58,12 @@ GTEST_API_ int _tmain(int argc, TCHAR** argv) {
 #else
 GTEST_API_ int main(int argc, char** argv) {
 #endif  // GTEST_OS_WINDOWS_MOBILE
-  std::cout << "Running main() from gmock_main.cc\n";
-  // Since Google Mock depends on Google Test, InitGoogleMock() is
-  // also responsible for initializing Google Test.  Therefore there's
-  // no need for calling testing::InitGoogleTest() separately.
-  testing::InitGoogleMock(&argc, argv);
-  return RUN_ALL_TESTS();
+	std::cout << "Running main() from gmock_main.cc\n";
+	// Since Google Mock depends on Google Test, InitGoogleMock() is
+	// also responsible for initializing Google Test.  Therefore there's
+	// no need for calling testing::InitGoogleTest() separately.
+	testing::InitGoogleMock(&argc, argv);
+	return RUN_ALL_TESTS();
 }
+
 #endif

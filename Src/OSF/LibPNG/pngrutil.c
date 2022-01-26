@@ -94,18 +94,14 @@ png_int_32 (PNGAPI
 }
 
 /* Grab an unsigned 16-bit integer from a buffer in big-endian format. */
-png_uint_16 (PNGAPI
-    png_get_uint_16)(png_const_bytep buf)
+png_uint_16 (PNGAPI png_get_uint_16)(png_const_bytep buf)
 {
 	/* ANSI-C requires an int value to accomodate at least 16 bits so this
 	 * works and allows the compiler not to worry about possible narrowing
 	 * on 32-bit systems.  (Pre-ANSI systems did not make integers smaller
 	 * than 16 bits either.)
 	 */
-	unsigned int val =
-	    ((uint)(*buf) << 8) +
-	    ((uint)(*(buf + 1)));
-
+	uint val = ((uint)(*buf) << 8) + ((uint)(*(buf + 1)));
 	return (png_uint_16)val;
 }
 
@@ -1015,7 +1011,7 @@ void /* PRIVATE */ png_handle_gAMA(png_structrp png_ptr, png_inforp info_ptr, ui
 #ifdef PNG_READ_sBIT_SUPPORTED
 void /* PRIVATE */ png_handle_sBIT(png_structrp png_ptr, png_inforp info_ptr, uint32 length)
 {
-	unsigned int truelen, i;
+	uint truelen, i;
 	uint8 sample_depth;
 	uint8 buf[4];
 	png_debug(1, "in png_handle_sBIT");
@@ -1641,7 +1637,7 @@ void /* PRIVATE */ png_handle_tRNS(png_structrp png_ptr, png_inforp info_ptr, ui
 #ifdef PNG_READ_bKGD_SUPPORTED
 void /* PRIVATE */ png_handle_bKGD(png_structrp png_ptr, png_inforp info_ptr, uint32 length)
 {
-	unsigned int truelen;
+	uint truelen;
 	uint8 buf[6];
 	png_color_16 background;
 	png_debug(1, "in png_handle_bKGD");
@@ -1712,7 +1708,7 @@ void /* PRIVATE */ png_handle_bKGD(png_structrp png_ptr, png_inforp info_ptr, ui
 #ifdef PNG_READ_hIST_SUPPORTED
 void /* PRIVATE */ png_handle_hIST(png_structrp png_ptr, png_inforp info_ptr, uint32 length)
 {
-	unsigned int num, i;
+	uint num, i;
 	png_uint_16 readbuf[PNG_MAX_PALETTE_LENGTH];
 	png_debug(1, "in png_handle_hIST");
 	if((png_ptr->mode & PNG_HAVE_IHDR) == 0)
@@ -2615,13 +2611,13 @@ void /* PRIVATE */ png_check_chunk_name(png_structrp png_ptr, uint32 chunk_name)
  */
 void /* PRIVATE */ png_combine_row(png_const_structrp png_ptr, png_bytep pDp, int display)
 {
-	unsigned int pixel_depth = png_ptr->transformed_pixel_depth;
+	uint pixel_depth = png_ptr->transformed_pixel_depth;
 	png_const_bytep sp = png_ptr->row_buf + 1;
 	png_alloc_size_t row_width = png_ptr->width;
-	unsigned int pass = png_ptr->pass;
+	uint pass = png_ptr->pass;
 	png_bytep end_ptr = 0;
 	uint8 end_byte = 0;
-	unsigned int end_mask;
+	uint end_mask;
 	png_debug(1, "in png_combine_row");
 	/* Added in 1.5.6: it should not be possible to enter this routine until at
 	 * least one row has been read from the PNG data and transformed.
@@ -2760,13 +2756,13 @@ void /* PRIVATE */ png_combine_row(png_const_structrp png_ptr, png_bytep pDp, in
 			/* Hence the pre-compiled masks indexed by PACKSWAP (or not), depth and
 			 * then pass:
 			 */
-			static PNG_CONST uint32 row_mask[2 /*PACKSWAP*/][3 /*depth*/][6] =
+			static const uint32 row_mask[2 /*PACKSWAP*/][3 /*depth*/][6] =
 			{
 				{ S_MASKS(1, 0), S_MASKS(2, 0), S_MASKS(4, 0) }, // Little-endian byte masks for PACKSWAP 
 				{ S_MASKS(1, 1), S_MASKS(2, 1), S_MASKS(4, 1) } // Normal (big-endian byte) masks - PNG format 
 			};
 			// display_mask has only three entries for the odd passes, so index by pass>>1.
-			static PNG_CONST uint32 display_mask[2][3][3] =
+			static const uint32 display_mask[2][3][3] =
 			{
 				{ B_MASKS(1, 0), B_MASKS(2, 0), B_MASKS(4, 0) }, // Little-endian byte masks for PACKSWAP 
 				{ B_MASKS(1, 1), B_MASKS(2, 1), B_MASKS(4, 1) } // Normal (big-endian byte) masks - PNG format 
@@ -2832,7 +2828,7 @@ void /* PRIVATE */ png_combine_row(png_const_structrp png_ptr, png_bytep pDp, in
 			 * different number of pixels to skip at the start though.
 			 */
 			{
-				unsigned int offset = PNG_PASS_START_COL(pass) * pixel_depth;
+				uint offset = PNG_PASS_START_COL(pass) * pixel_depth;
 				row_width -= offset;
 				pDp += offset;
 				sp += offset;
@@ -3015,7 +3011,7 @@ void /* PRIVATE */ png_do_read_interlace(png_row_infop row_info, png_bytep row, 
 {
 	/* Arrays to facilitate easy interlacing - use pass (0 - 6) as index */
 	/* Offset to next interlace block */
-	static PNG_CONST int png_pass_inc[7] = {8, 8, 4, 4, 2, 2, 1};
+	static const int png_pass_inc[7] = {8, 8, 4, 4, 2, 2, 1};
 	png_debug(1, "in png_do_read_interlace");
 	if(row && row_info) {
 		uint32 final_width = row_info->width * png_pass_inc[pass];
@@ -3053,24 +3049,20 @@ void /* PRIVATE */ png_do_read_interlace(png_row_infop row_info, png_bytep row, 
 			    for(i = 0; i < row_info->width; i++) {
 				    v = (uint8)((*sp >> sshift) & 0x01);
 				    for(j = 0; j < jstop; j++) {
-					    unsigned int tmp = *dp & (0x7f7f >> (7 - dshift));
+					    uint tmp = *dp & (0x7f7f >> (7 - dshift));
 					    tmp |= v << dshift;
 					    *dp = (uint8)(tmp & 0xff);
-
 					    if(dshift == s_end) {
 						    dshift = s_start;
 						    dp--;
 					    }
-
 					    else
 						    dshift += s_inc;
 				    }
-
 				    if(sshift == s_end) {
 					    sshift = s_start;
 					    sp--;
 				    }
-
 				    else
 					    sshift += s_inc;
 			    }
@@ -3104,37 +3096,29 @@ void /* PRIVATE */ png_do_read_interlace(png_row_infop row_info, png_bytep row, 
 				    s_end = 6;
 				    s_inc = 2;
 			    }
-
 			    for(i = 0; i < row_info->width; i++) {
-				    uint8 v;
 				    int j;
-
-				    v = (uint8)((*sp >> sshift) & 0x03);
+				    uint8 v = (uint8)((*sp >> sshift) & 0x03);
 				    for(j = 0; j < jstop; j++) {
-					    unsigned int tmp = *dp & (0x3f3f >> (6 - dshift));
+					    uint tmp = *dp & (0x3f3f >> (6 - dshift));
 					    tmp |= v << dshift;
 					    *dp = (uint8)(tmp & 0xff);
-
 					    if(dshift == s_end) {
 						    dshift = s_start;
 						    dp--;
 					    }
-
 					    else
 						    dshift += s_inc;
 				    }
-
 				    if(sshift == s_end) {
 					    sshift = s_start;
 					    sp--;
 				    }
-
 				    else
 					    sshift += s_inc;
 			    }
 			    break;
 		    }
-
 			case 4:
 		    {
 			    png_bytep sp = row + (size_t)((row_info->width - 1) >> 1);
@@ -3242,7 +3226,7 @@ static void png_read_filter_row_avg(png_row_infop row_info, png_bytep row, png_c
 	size_t i;
 	png_bytep rp = row;
 	png_const_bytep pp = prev_row;
-	unsigned int bpp = (row_info->pixel_depth + 7) >> 3;
+	uint bpp = (row_info->pixel_depth + 7) >> 3;
 	size_t istop = row_info->rowbytes - bpp;
 	for(i = 0; i < bpp; i++) {
 		*rp = (uint8)(((int)(*rp) + ((int)(*pp++) / 2 )) & 0xff);
@@ -3534,15 +3518,15 @@ void /* PRIVATE */ png_read_finish_row(png_structrp png_ptr)
 	/* Arrays to facilitate easy interlacing - use pass (0 - 6) as index */
 
 	/* Start of interlace block */
-	static PNG_CONST uint8 png_pass_start[7] = {0, 4, 0, 2, 0, 1, 0};
+	static const uint8 png_pass_start[7] = {0, 4, 0, 2, 0, 1, 0};
 
 	/* Offset to next interlace block */
-	static PNG_CONST uint8 png_pass_inc[7] = {8, 8, 4, 4, 2, 2, 1};
+	static const uint8 png_pass_inc[7] = {8, 8, 4, 4, 2, 2, 1};
 
 	/* Start of interlace block in the y direction */
-	static PNG_CONST uint8 png_pass_ystart[7] = {0, 0, 4, 0, 2, 0, 1};
+	static const uint8 png_pass_ystart[7] = {0, 0, 4, 0, 2, 0, 1};
 	/* Offset to next interlace block in the y direction */
-	static PNG_CONST uint8 png_pass_yinc[7] = {8, 8, 8, 4, 4, 2, 2};
+	static const uint8 png_pass_yinc[7] = {8, 8, 8, 4, 4, 2, 2};
 	png_debug(1, "in png_read_finish_row");
 	png_ptr->row_number++;
 	if(png_ptr->row_number < png_ptr->num_rows)
@@ -3577,48 +3561,28 @@ void /* PRIVATE */ png_read_finish_row(png_structrp png_ptr)
 void /* PRIVATE */ png_read_start_row(png_structrp png_ptr)
 {
 	/* Arrays to facilitate easy interlacing - use pass (0 - 6) as index */
-
-	/* Start of interlace block */
-	static PNG_CONST uint8 png_pass_start[7] = {0, 4, 0, 2, 0, 1, 0};
-
-	/* Offset to next interlace block */
-	static PNG_CONST uint8 png_pass_inc[7] = {8, 8, 4, 4, 2, 2, 1};
-
-	/* Start of interlace block in the y direction */
-	static PNG_CONST uint8 png_pass_ystart[7] = {0, 0, 4, 0, 2, 0, 1};
-
-	/* Offset to next interlace block in the y direction */
-	static PNG_CONST uint8 png_pass_yinc[7] = {8, 8, 8, 4, 4, 2, 2};
-
+	static const uint8 png_pass_start[7] = {0, 4, 0, 2, 0, 1, 0}; /* Start of interlace block */
+	static const uint8 png_pass_inc[7] = {8, 8, 4, 4, 2, 2, 1}; /* Offset to next interlace block */
+	static const uint8 png_pass_ystart[7] = {0, 0, 4, 0, 2, 0, 1}; /* Start of interlace block in the y direction */
+	static const uint8 png_pass_yinc[7] = {8, 8, 8, 4, 4, 2, 2}; /* Offset to next interlace block in the y direction */
 	int max_pixel_depth;
 	size_t row_bytes;
-
 	png_debug(1, "in png_read_start_row");
-
 #ifdef PNG_READ_TRANSFORMS_SUPPORTED
 	png_init_read_transformations(png_ptr);
 #endif
 	if(png_ptr->interlaced != 0) {
 		if((png_ptr->transformations & PNG_INTERLACE) == 0)
-			png_ptr->num_rows = (png_ptr->height + png_pass_yinc[0] - 1 -
-			    png_pass_ystart[0]) / png_pass_yinc[0];
-
+			png_ptr->num_rows = (png_ptr->height + png_pass_yinc[0] - 1 - png_pass_ystart[0]) / png_pass_yinc[0];
 		else
 			png_ptr->num_rows = png_ptr->height;
-
-		png_ptr->iwidth = (png_ptr->width +
-		    png_pass_inc[png_ptr->pass] - 1 -
-		    png_pass_start[png_ptr->pass]) /
-		    png_pass_inc[png_ptr->pass];
+		png_ptr->iwidth = (png_ptr->width + png_pass_inc[png_ptr->pass] - 1 - png_pass_start[png_ptr->pass]) / png_pass_inc[png_ptr->pass];
 	}
-
 	else {
 		png_ptr->num_rows = png_ptr->height;
 		png_ptr->iwidth = png_ptr->width;
 	}
-
 	max_pixel_depth = png_ptr->pixel_depth;
-
 	/* WARNING: * png_read_transform_info (pngrtran.c) performs a simpler set of
 	 * calculations to calculate the final pixel depth, then
 	 * png_do_read_transforms actually does the transforms.  This means that the
@@ -3639,19 +3603,15 @@ void /* PRIVATE */ png_read_start_row(png_structrp png_ptr)
 		if(png_ptr->color_type == PNG_COLOR_TYPE_PALETTE) {
 			if(png_ptr->num_trans != 0)
 				max_pixel_depth = 32;
-
 			else
 				max_pixel_depth = 24;
 		}
-
 		else if(png_ptr->color_type == PNG_COLOR_TYPE_GRAY) {
 			if(max_pixel_depth < 8)
 				max_pixel_depth = 8;
-
 			if(png_ptr->num_trans != 0)
 				max_pixel_depth *= 2;
 		}
-
 		else if(png_ptr->color_type == PNG_COLOR_TYPE_RGB) {
 			if(png_ptr->num_trans != 0) {
 				max_pixel_depth *= 4;

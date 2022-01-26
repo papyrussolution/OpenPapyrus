@@ -67,7 +67,7 @@ static INLINE int __ptw32_cancelable_wait(HANDLE waitHandle, DWORD timeout)
 	else {
 		handles[1] = NULL;
 	}
-	status = WaitForMultipleObjects(nHandles, handles,  __PTW32_FALSE, timeout);
+	status = WaitForMultipleObjects(nHandles, handles,  FALSE, timeout);
 	switch(status - WAIT_OBJECT_0) {
 		case 0:
 		    /*

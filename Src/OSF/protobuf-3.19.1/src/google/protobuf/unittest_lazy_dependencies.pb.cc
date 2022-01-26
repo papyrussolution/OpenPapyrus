@@ -132,7 +132,7 @@ ImportedMessage::_Internal::lazy_message(const ImportedMessage* msg) {
   return *msg->lazy_message_;
 }
 void ImportedMessage::clear_lazy_message() {
-  if (lazy_message_ != nullptr) lazy_message_->Clear();
+  if(lazy_message_ != nullptr) lazy_message_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 ImportedMessage::ImportedMessage(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -148,7 +148,7 @@ ImportedMessage::ImportedMessage(const ImportedMessage& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       _has_bits_(from._has_bits_) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if (from._internal_has_lazy_message()) {
+  if(from._internal_has_lazy_message()) {
     lazy_message_ = new ::protobuf_unittest::lazy_imports::LazyMessage(*from.lazy_message_);
   } else {
     lazy_message_ = nullptr;
@@ -169,7 +169,7 @@ ImportedMessage::~ImportedMessage() {
 
 inline void ImportedMessage::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  if (this != internal_default_instance()) delete lazy_message_;
+  if(this != internal_default_instance()) delete lazy_message_;
 }
 
 void ImportedMessage::ArenaDtor(void* object) {
@@ -189,7 +189,7 @@ void ImportedMessage::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000001u) {
     GOOGLE_DCHECK(lazy_message_ != nullptr);
     lazy_message_->Clear();
   }
@@ -203,10 +203,10 @@ const char* ImportedMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // optional .protobuf_unittest.lazy_imports.LazyMessage lazy_message = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr = ctx->ParseMessage(_internal_mutable_lazy_message(), ptr);
           CHK_(ptr);
         } else
@@ -216,7 +216,7 @@ const char* ImportedMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -244,14 +244,14 @@ uint8_t* ImportedMessage::_InternalSerialize(
 
   cached_has_bits = _has_bits_[0];
   // optional .protobuf_unittest.lazy_imports.LazyMessage lazy_message = 1;
-  if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000001u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
         1, _Internal::lazy_message(this), target, stream);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -269,7 +269,7 @@ size_t ImportedMessage::ByteSizeLong() const {
 
   // optional .protobuf_unittest.lazy_imports.LazyMessage lazy_message = 1;
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000001u) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *lazy_message_);
@@ -297,7 +297,7 @@ void ImportedMessage::MergeFrom(const ImportedMessage& from) {
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_has_lazy_message()) {
+  if(from._internal_has_lazy_message()) {
     _internal_mutable_lazy_message()->::protobuf_unittest::lazy_imports::LazyMessage::MergeFrom(from._internal_lazy_message());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -305,7 +305,7 @@ void ImportedMessage::MergeFrom(const ImportedMessage& from) {
 
 void ImportedMessage::CopyFrom(const ImportedMessage& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest.lazy_imports.ImportedMessage)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }

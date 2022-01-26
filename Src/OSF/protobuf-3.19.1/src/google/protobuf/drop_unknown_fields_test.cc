@@ -31,8 +31,6 @@
 #include <protobuf-internal.h>
 #pragma hdrstop
 #include <google/protobuf/unittest_drop_unknown_fields.pb.h>
-#include <google/protobuf/dynamic_message.h>
-#include <google/protobuf/message_lite.h>
 #include <gtest/gtest.h>
 
 using unittest_drop_unknown_fields::Foo;

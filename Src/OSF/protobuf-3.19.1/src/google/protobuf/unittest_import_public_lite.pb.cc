@@ -96,10 +96,10 @@ const char* PublicImportMessageLite::_InternalParse(const char* ptr, ::PROTOBUF_
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // optional int32 e = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
           _Internal::set_has_e(&has_bits);
           e_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -110,7 +110,7 @@ const char* PublicImportMessageLite::_InternalParse(const char* ptr, ::PROTOBUF_
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -138,12 +138,12 @@ uint8_t* PublicImportMessageLite::_InternalSerialize(
 
   cached_has_bits = _has_bits_[0];
   // optional int32 e = 1;
-  if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000001u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_e(), target);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = stream->WriteRaw(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).data(),
         static_cast<int>(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size()), target);
   }
@@ -161,11 +161,11 @@ size_t PublicImportMessageLite::ByteSizeLong() const {
 
   // optional int32 e = 1;
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000001u) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_e());
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     total_size += _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size();
   }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
@@ -185,7 +185,7 @@ void PublicImportMessageLite::MergeFrom(const PublicImportMessageLite& from) {
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_has_e()) {
+  if(from._internal_has_e()) {
     _internal_set_e(from._internal_e());
   }
   _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
@@ -193,7 +193,7 @@ void PublicImportMessageLite::MergeFrom(const PublicImportMessageLite& from) {
 
 void PublicImportMessageLite::CopyFrom(const PublicImportMessageLite& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest_import.PublicImportMessageLite)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }

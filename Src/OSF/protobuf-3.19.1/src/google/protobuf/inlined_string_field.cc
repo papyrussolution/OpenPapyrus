@@ -35,8 +35,6 @@
 #include <google/protobuf/arena.h>
 #include <google/protobuf/arenastring.h>
 #include <google/protobuf/generated_message_util.h>
-#include <google/protobuf/message_lite.h>
-
 // clang-format off
 #include <google/protobuf/port_def.inc>
 // clang-format on
@@ -44,68 +42,63 @@
 namespace google {
 namespace protobuf {
 namespace internal {
-
-
 std::string* InlinedStringField::Mutable(const LazyString& /*default_value*/,
-                                         Arena* arena, bool donated,
-                                         uint32_t* donating_states,
-                                         uint32_t mask) {
-  if (arena == nullptr || !donated) {
-    return UnsafeMutablePointer();
-  }
-  return MutableSlow(arena, donated, donating_states, mask);
+    Arena* arena, bool donated,
+    uint32_t* donating_states,
+    uint32_t mask) {
+	if(arena == nullptr || !donated) {
+		return UnsafeMutablePointer();
+	}
+	return MutableSlow(arena, donated, donating_states, mask);
 }
 
 std::string* InlinedStringField::Mutable(ArenaStringPtr::EmptyDefault,
-                                         Arena* arena, bool donated,
-                                         uint32_t* donating_states,
-                                         uint32_t mask) {
-  if (arena == nullptr || !donated) {
-    return UnsafeMutablePointer();
-  }
-  return MutableSlow(arena, donated, donating_states, mask);
+    Arena* arena, bool donated,
+    uint32_t* donating_states,
+    uint32_t mask) {
+	if(arena == nullptr || !donated) {
+		return UnsafeMutablePointer();
+	}
+	return MutableSlow(arena, donated, donating_states, mask);
 }
 
 std::string* InlinedStringField::MutableSlow(::google::protobuf::Arena* arena,
-                                             bool donated,
-                                             uint32_t* donating_states,
-                                             uint32_t mask) {
-  return UnsafeMutablePointer();
+    bool donated,
+    uint32_t* donating_states,
+    uint32_t mask) {
+	return UnsafeMutablePointer();
 }
 
 void InlinedStringField::SetAllocated(const std::string* default_value,
-                                      std::string* value, Arena* arena,
-                                      bool donated, uint32_t* donating_states,
-                                      uint32_t mask) {
-  SetAllocatedNoArena(default_value, value);
+    std::string* value, Arena* arena,
+    bool donated, uint32_t* donating_states,
+    uint32_t mask) {
+	SetAllocatedNoArena(default_value, value);
 }
 
 void InlinedStringField::Set(const std::string* default_value,
-                             std::string&& value, Arena* arena, bool donated,
-                             uint32_t* donating_states, uint32_t mask) {
-  SetNoArena(default_value, std::move(value));
+    std::string&& value, Arena* arena, bool donated,
+    uint32_t* donating_states, uint32_t mask) {
+	SetNoArena(default_value, std::move(value));
 }
 
 std::string* InlinedStringField::Release(const std::string* default_value,
-                                         Arena* arena, bool donated) {
-  if (arena == nullptr && !donated) {
-    return ReleaseNonDefaultNoArena(default_value);
-  }
-  return ReleaseNonDefault(default_value, arena);
+    Arena* arena, bool donated) {
+	if(arena == nullptr && !donated) {
+		return ReleaseNonDefaultNoArena(default_value);
+	}
+	return ReleaseNonDefault(default_value, arena);
 }
 
-std::string* InlinedStringField::ReleaseNonDefault(
-    const std::string* default_value, Arena* arena) {
-  return ReleaseNonDefaultNoArena(default_value);
+std::string* InlinedStringField::ReleaseNonDefault(const std::string* default_value, Arena* arena) {
+	return ReleaseNonDefaultNoArena(default_value);
 }
 
 void InlinedStringField::ClearToDefault(const LazyString& default_value,
-                                        Arena* arena, bool donated) {
-  (void)arena;
-  get_mutable()->assign(default_value.get());
+    Arena* arena, bool donated) {
+	(void)arena;
+	get_mutable()->assign(default_value.get());
 }
-
-
 }  // namespace internal
 }  // namespace protobuf
 }  // namespace google

@@ -247,7 +247,7 @@ static cairo_status_t _cairo_sub_font_create(cairo_scaled_font_subsets_t * paren
 	sub_font->use_latin_subset = parent->use_latin_subset;
 	/* latin subsets of Type 3 and CID CFF fonts are not supported */
 	if(sub_font->is_user || sub_font->is_scaled ||
-	    _cairo_cff_scaled_font_is_cid_cff(scaled_font) ) {
+	    _cairo_cff_scaled_font_is_cid_cff(scaled_font)) {
 		sub_font->use_latin_subset = FALSE;
 	}
 

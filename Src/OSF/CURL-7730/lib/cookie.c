@@ -1281,13 +1281,13 @@ struct Cookie * Curl_cookie_getlist(struct CookieInfo * c,
 			/* now check if the domain is correct */
 			if(!co->domain ||
 			    (co->tailmatch && !is_ip && tailmatch(co->domain, host)) ||
-			    ((!co->tailmatch || is_ip) && strcasecompare(host, co->domain)) ) {
+			    ((!co->tailmatch || is_ip) && strcasecompare(host, co->domain))) {
 				/* the right part of the host matches the domain stuff in the
 				   cookie data */
 
 				/* now check the left part of the path with the cookies path
 				   requirement */
-				if(!co->spath || pathmatch(co->spath, path) ) {
+				if(!co->spath || pathmatch(co->spath, path)) {
 					/* and now, we know this is a match and we should create an
 					   entry for the return-linked-list */
 

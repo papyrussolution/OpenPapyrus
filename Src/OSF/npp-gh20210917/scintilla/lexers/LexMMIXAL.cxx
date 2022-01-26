@@ -85,12 +85,12 @@ static void ColouriseMMIXALDoc(Sci_PositionU startPos, Sci_Position length, int 
 			}
 		}
 		else if(sc.state == SCE_MMIXAL_LABEL) {                         // LABEL
-			if(!IsAWordChar(sc.ch) ) {
+			if(!IsAWordChar(sc.ch)) {
 				sc.SetState(SCE_MMIXAL_OPCODE_PRE);
 			}
 		}
 		else if(sc.state == SCE_MMIXAL_REF) {                           // REF
-			if(!IsAWordChar(sc.ch) ) {
+			if(!IsAWordChar(sc.ch)) {
 				char s0[100];
 				sc.GetCurrent(s0, sizeof(s0));
 				const char * s = s0;
@@ -112,7 +112,7 @@ static void ColouriseMMIXALDoc(Sci_PositionU startPos, Sci_Position length, int 
 			}
 		}
 		else if(sc.state == SCE_MMIXAL_OPCODE) {                // OPCODE
-			if(!IsAWordChar(sc.ch) ) {
+			if(!IsAWordChar(sc.ch)) {
 				char s[100];
 				sc.GetCurrent(s, sizeof(s));
 				if(opcodes.InList(s)) {

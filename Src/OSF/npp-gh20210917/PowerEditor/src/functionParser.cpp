@@ -86,7 +86,7 @@ bool FunctionParsersManager::getZonePaserParameters(TiXmlNode * classRangeParser
 	functionExprStr = functionExpr;
 	TiXmlNode * functionNameParser = functionParser->FirstChild(TEXT("functionName"));
 	if(functionNameParser) {
-		for(TiXmlNode * childNode3 = functionNameParser->FirstChildElement(TEXT("funcNameExpr")); childNode3; childNode3 = childNode3->NextSibling(TEXT("funcNameExpr")) ) {
+		for(TiXmlNode * childNode3 = functionNameParser->FirstChildElement(TEXT("funcNameExpr")); childNode3; childNode3 = childNode3->NextSibling(TEXT("funcNameExpr"))) {
 			const TCHAR * expr = (childNode3->ToElement())->Attribute(TEXT("expr"));
 			if(expr && expr[0])
 				functionNameExprArray.push_back(expr);
@@ -106,7 +106,7 @@ bool FunctionParsersManager::getUnitPaserParameters(TiXmlNode * functionParser,
 	mainExprStr = mainExpr;
 	TiXmlNode * functionNameParser = functionParser->FirstChild(TEXT("functionName"));
 	if(functionNameParser) {
-		for(TiXmlNode * childNode = functionNameParser->FirstChildElement(TEXT("nameExpr")); childNode; childNode = childNode->NextSibling(TEXT("nameExpr")) ) {
+		for(TiXmlNode * childNode = functionNameParser->FirstChildElement(TEXT("nameExpr")); childNode; childNode = childNode->NextSibling(TEXT("nameExpr"))) {
 			const TCHAR * expr = (childNode->ToElement())->Attribute(TEXT("expr"));
 			if(expr && expr[0])
 				functionNameExprArray.push_back(expr);
@@ -114,7 +114,7 @@ bool FunctionParsersManager::getUnitPaserParameters(TiXmlNode * functionParser,
 	}
 	TiXmlNode * classNameParser = functionParser->FirstChild(TEXT("className"));
 	if(classNameParser) {
-		for(TiXmlNode * childNode = classNameParser->FirstChildElement(TEXT("nameExpr")); childNode; childNode = childNode->NextSibling(TEXT("nameExpr")) ) {
+		for(TiXmlNode * childNode = classNameParser->FirstChildElement(TEXT("nameExpr")); childNode; childNode = childNode->NextSibling(TEXT("nameExpr"))) {
 			const TCHAR * expr = (childNode->ToElement())->Attribute(TEXT("expr"));
 			if(expr && expr[0])
 				classNameExprArray.push_back(expr);
@@ -223,7 +223,7 @@ bool FunctionParsersManager::getOverrideMapFromXmlTree(generic_string & xmlDirPa
 	if(associationMapRoot) {
 		for(TiXmlNode * childNode = associationMapRoot->FirstChildElement(TEXT("association"));
 		    childNode;
-		    childNode = childNode->NextSibling(TEXT("association")) ) {
+		    childNode = childNode->NextSibling(TEXT("association"))) {
 			int langID;
 			const TCHAR * langIDStr = (childNode->ToElement())->Attribute(TEXT("langID"), &langID);
 			const TCHAR * id = (childNode->ToElement())->Attribute(TEXT("id"));

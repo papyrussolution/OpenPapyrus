@@ -1409,7 +1409,7 @@ static void Test_widestrs()
 	(void)cp; /* Suppress set but not used warning. */
 	if(U_FAILURE(err)) {
 		errname = u_errorName(err);
-		fprintf(stderr, "test_widestrs: ucnv_wcstombs error: %s!\n", errname);
+		slfprintf_stderr("test_widestrs: ucnv_wcstombs error: %s!\n", errname);
 	}
 	if(wl != rtl) {
 		log_err("u_strFromWCS: wcs = %S, wl = %d,rts = %s, rtl = %d!\n", wcs, wl, u_austrcpy(astr, rts), rtl);

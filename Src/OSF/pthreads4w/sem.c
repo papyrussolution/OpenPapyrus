@@ -87,7 +87,7 @@ int sem_init(sem_t * sem, int pshared, unsigned int value)
 			s->value = value;
 			s->lock = NULL;
 #if defined(NEED_SEM)
-			s->sem = CreateEvent(NULL, __PTW32_FALSE/* auto (not manual) reset */, __PTW32_FALSE/* initial state is unset */, NULL);
+			s->sem = CreateEvent(NULL, FALSE/* auto (not manual) reset */, FALSE/* initial state is unset */, NULL);
 			if(0 == s->sem) {
 				result = ENOSPC;
 			}

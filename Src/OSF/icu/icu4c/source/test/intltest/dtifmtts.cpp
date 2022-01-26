@@ -119,7 +119,7 @@ void DateIntervalFormatTest::testAPI() {
 	logln("Testing DateIntervalFormat clone");
 
 	DateIntervalFormat* another = dtitvfmt->clone();
-	if((*another) != (*dtitvfmt) ) {
+	if((*another) != (*dtitvfmt)) {
 		dataerrln("%s:%d ERROR: clone failed", __FILE__, __LINE__);
 	}
 
@@ -129,7 +129,7 @@ void DateIntervalFormatTest::testAPI() {
 	const DateIntervalInfo* inf = another->getDateIntervalInfo();
 	dtitvfmt->setDateIntervalInfo(*inf, status);
 	const DateIntervalInfo* anotherInf = dtitvfmt->getDateIntervalInfo();
-	if((*inf) != (*anotherInf) || U_FAILURE(status) ) {
+	if((*inf) != (*anotherInf) || U_FAILURE(status)) {
 		dataerrln("ERROR: getDateIntervalInfo/setDateIntervalInfo failed");
 	}
 
@@ -191,7 +191,7 @@ void DateIntervalFormatTest::testAPI() {
 	   DateIntervalInfo* nonConstInf = inf->clone();
 	   dtitvfmt->adoptDateIntervalInfo(nonConstInf, status);
 	   anotherInf = dtitvfmt->getDateIntervalInfo();
-	   if((*inf) != (*anotherInf) || U_FAILURE(status) ) {
+	   if((*inf) != (*anotherInf) || U_FAILURE(status)) {
 	    dataerrln("ERROR: adoptDateIntervalInfo failed");
 	   }
 	 */
@@ -204,7 +204,7 @@ void DateIntervalFormatTest::testAPI() {
 	   const DateFormat* fmt = another->getDateFormat();
 	   dtitvfmt->setDateFormat(*fmt, status);
 	   const DateFormat* anotherFmt = dtitvfmt->getDateFormat();
-	   if((*fmt) != (*anotherFmt) || U_FAILURE(status) ) {
+	   if((*fmt) != (*anotherFmt) || U_FAILURE(status)) {
 	    dataerrln("ERROR: getDateFormat/setDateFormat failed");
 	   }
 
@@ -212,7 +212,7 @@ void DateIntervalFormatTest::testAPI() {
 	   DateFormat* nonConstFmt = fmt->clone();
 	   dtitvfmt->adoptDateFormat(nonConstFmt, status);
 	   anotherFmt = dtitvfmt->getDateFormat();
-	   if((*fmt) != (*anotherFmt) || U_FAILURE(status) ) {
+	   if((*fmt) != (*anotherFmt) || U_FAILURE(status)) {
 	    dataerrln("ERROR: adoptDateFormat failed");
 	   }
 	   delete fmt;
@@ -244,7 +244,7 @@ void DateIntervalFormatTest::testAPI() {
 	   }
 
 	   DateIntervalFormat* dtifmt2 = new(dtifmt);
-	   if((*dtifmt) != (*dtifmt2) ) {
+	   if((*dtifmt) != (*dtifmt2)) {
 	    dataerrln("ERROR: Could not create DateIntervalFormat (default) - exiting");
 	    return;
 	   }
@@ -278,7 +278,7 @@ void DateIntervalFormatTest::testAPI() {
 	pos = 0;
 	status = U_ZERO_ERROR;
 	dtitvfmt->format(formattable, res, pos, status);
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		dataerrln("ERROR: format date interval failed - exiting");
 		return;
 	}
@@ -290,7 +290,7 @@ void DateIntervalFormatTest::testAPI() {
 	pos = 0;
 	status = U_ZERO_ERROR;
 	dtitvfmt->format(*fromCal, *toCal, res, pos, status);
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		dataerrln("ERROR: format date interval failed - exiting");
 		return;
 	}
@@ -312,7 +312,7 @@ void DateIntervalFormatTest::testAPI() {
 	logln("Testing DateIntervalFormat set & format with different time zones, get time zone");
 	status = U_ZERO_ERROR;
 	dtitvfmt = DateIntervalFormat::createInstance("MMMdHHmm", Locale::getEnglish(), status);
-	if(U_SUCCESS(status) ) {
+	if(U_SUCCESS(status)) {
 		UDate date1 = 1299090600000.0; // 2011-Mar-02 1030 in US/Pacific, 2011-Mar-03 0330 in Asia/Tokyo
 		UDate date2 = 1299115800000.0; // 2011-Mar-02 1730 in US/Pacific, 2011-Mar-03 1030 in Asia/Tokyo
 
@@ -327,7 +327,7 @@ void DateIntervalFormatTest::testAPI() {
 		pos = 0;
 		status = U_ZERO_ERROR;
 		dtitvfmt->format(dtitv12, res, pos, status);
-		if(U_SUCCESS(status) ) {
+		if(U_SUCCESS(status)) {
 			if(res.compare(fmtCalif) != 0) {
 				errln("ERROR: DateIntervalFormat::format for tzCalif, expect " + fmtCalif + ", get " + res);
 			}
@@ -341,7 +341,7 @@ void DateIntervalFormatTest::testAPI() {
 		pos = 0;
 		status = U_ZERO_ERROR;
 		dtitvfmt->format(dtitv12, res, pos, status);
-		if(U_SUCCESS(status) ) {
+		if(U_SUCCESS(status)) {
 			if(res.compare(fmtTokyo) != 0) {
 				errln("ERROR: DateIntervalFormat::format for fmtTokyo, expect " + fmtTokyo + ", get " + res);
 			}
@@ -1660,7 +1660,7 @@ void DateIntervalFormatTest::stress(const char ** data, int32_t data_length,
 		if(!assertSuccess("createInstance(skeleton,dtitvinf)", ec)) return;
 		FieldPosition pos(FieldPosition::DONT_CARE);
 		dtitvfmt->format(&dtitv, str.remove(), pos, ec);
-		if(uprv_strcmp(locName, "th") ) {
+		if(uprv_strcmp(locName, "th")) {
 			if(!assertSuccess("format", ec)) return;
 #ifdef DTIFMTTS_DEBUG
 			PRINTMESG("interval format using user defined DateIntervalInfo\n");

@@ -101,6 +101,7 @@
       <CompileAs>CompileAsCpp</CompileAs>
       <PrecompiledHeaderFile />
       <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;HAVE_QSORT_S;_FILE_OFFSET_BITS=64;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WIN32_WINNT=0x0600;SHA1DC_NO_STANDARD_INCLUDES=1;SHA1DC_CUSTOM_INCLUDE_SHA1_C=\"common.h\";SHA1DC_CUSTOM_INCLUDE_UBC_CHECK_C=\"common.h\";CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -142,6 +143,7 @@
       <CompileAs>CompileAsCpp</CompileAs>
       <PrecompiledHeaderFile />
       <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;HAVE_QSORT_S;_FILE_OFFSET_BITS=64;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WIN32_WINNT=0x0600;SHA1DC_NO_STANDARD_INCLUDES=1;SHA1DC_CUSTOM_INCLUDE_SHA1_C=\"common.h\";SHA1DC_CUSTOM_INCLUDE_UBC_CHECK_C=\"common.h\";CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -186,6 +188,7 @@
       <PrecompiledHeaderFile />
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;HAVE_QSORT_S;_FILE_OFFSET_BITS=64;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WIN32_WINNT=0x0600;SHA1DC_NO_STANDARD_INCLUDES=1;SHA1DC_CUSTOM_INCLUDE_SHA1_C=\"common.h\";SHA1DC_CUSTOM_INCLUDE_UBC_CHECK_C=\"common.h\";CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -230,6 +233,7 @@
       <PrecompiledHeaderFile />
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;HAVE_QSORT_S;_FILE_OFFSET_BITS=64;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WIN32_WINNT=0x0600;SHA1DC_NO_STANDARD_INCLUDES=1;SHA1DC_CUSTOM_INCLUDE_SHA1_C=\"common.h\";SHA1DC_CUSTOM_INCLUDE_UBC_CHECK_C=\"common.h\";CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>

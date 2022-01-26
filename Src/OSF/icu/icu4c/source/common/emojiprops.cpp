@@ -80,7 +80,7 @@ void EmojiProps::load(UErrorCode & errorCode) {
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
-	const uint8 * inBytes = (const uint8*)udata_getMemory(memory);
+	const uint8 * inBytes = (const uint8 *)udata_getMemory(memory);
 	const int32_t * inIndexes = (const int32_t*)inBytes;
 	int32_t indexesLength = inIndexes[IX_CPTRIE_OFFSET] / 4;
 	if(indexesLength <= IX_RGI_EMOJI_ZWJ_SEQUENCE_TRIE_OFFSET) {

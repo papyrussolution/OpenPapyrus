@@ -153,7 +153,7 @@ TestOptimizedForSize::_Internal::msg(const TestOptimizedForSize* msg) {
   return *msg->msg_;
 }
 void TestOptimizedForSize::clear_msg() {
-  if (msg_ != nullptr) msg_->Clear();
+  if(msg_ != nullptr) msg_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 TestOptimizedForSize::TestOptimizedForSize(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -171,7 +171,7 @@ TestOptimizedForSize::TestOptimizedForSize(const TestOptimizedForSize& from)
       _has_bits_(from._has_bits_) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   _extensions_.MergeFrom(internal_default_instance(), from._extensions_);
-  if (from._internal_has_msg()) {
+  if(from._internal_has_msg()) {
     msg_ = new ::protobuf_unittest::ForeignMessage(*from.msg_);
   } else {
     msg_ = nullptr;
@@ -211,8 +211,8 @@ TestOptimizedForSize::~TestOptimizedForSize() {
 
 inline void TestOptimizedForSize::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  if (this != internal_default_instance()) delete msg_;
-  if (has_foo()) {
+  if(this != internal_default_instance()) delete msg_;
+  if(has_foo()) {
     clear_foo();
   }
 }
@@ -349,7 +349,7 @@ TestOptionalOptimizedForSize::TestOptionalOptimizedForSize(const TestOptionalOpt
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       _has_bits_(from._has_bits_) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if (from._internal_has_o()) {
+  if(from._internal_has_o()) {
     o_ = new ::protobuf_unittest::TestRequiredOptimizedForSize(*from.o_);
   } else {
     o_ = nullptr;
@@ -370,7 +370,7 @@ TestOptionalOptimizedForSize::~TestOptionalOptimizedForSize() {
 
 inline void TestOptionalOptimizedForSize::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  if (this != internal_default_instance()) delete o_;
+  if(this != internal_default_instance()) delete o_;
 }
 
 void TestOptionalOptimizedForSize::ArenaDtor(void* object) {

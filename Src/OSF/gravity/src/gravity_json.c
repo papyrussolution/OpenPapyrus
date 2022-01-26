@@ -412,7 +412,7 @@ static int FASTCALL new_value(json_state * state, json_value ** top, json_value 
 			case json_array:
 			    if(value->u.array.length == 0)
 				    break;
-			    if(!(value->u.array.values = (json_value **)json_alloc(state, value->u.array.length * sizeof(json_value *), 0)) ) {
+			    if(!(value->u.array.values = (json_value **)json_alloc(state, value->u.array.length * sizeof(json_value *), 0))) {
 				    return 0;
 			    }
 			    value->u.array.length = 0;
@@ -421,7 +421,7 @@ static int FASTCALL new_value(json_state * state, json_value ** top, json_value 
 			    if(value->u.object.length == 0)
 				    break;
 			    values_size = sizeof(*value->u.object.values) * value->u.object.length;
-			    if(!(value->u.object.values = (json_object_entry *)json_alloc(state, values_size + ((ulong)value->u.object.values), 0)) ) {
+			    if(!(value->u.object.values = (json_object_entry *)json_alloc(state, values_size + ((ulong)value->u.object.values), 0))) {
 				    return 0;
 			    }
 			    value->_reserved.object_mem = (*(char **)&value->u.object.values) + values_size;
@@ -429,7 +429,7 @@ static int FASTCALL new_value(json_state * state, json_value ** top, json_value 
 			    break;
 
 			case json_string:
-			    if(!(value->u.string.ptr = (json_char *)json_alloc(state, (value->u.string.length + 1) * sizeof(json_char), 0)) ) {
+			    if(!(value->u.string.ptr = (json_char *)json_alloc(state, (value->u.string.length + 1) * sizeof(json_char), 0))) {
 				    return 0;
 			    }
 			    value->u.string.length = 0;

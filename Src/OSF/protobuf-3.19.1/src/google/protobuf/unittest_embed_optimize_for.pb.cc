@@ -95,7 +95,7 @@ TestEmbedOptimizedForSize::_Internal::optional_message(const TestEmbedOptimizedF
   return *msg->optional_message_;
 }
 void TestEmbedOptimizedForSize::clear_optional_message() {
-  if (optional_message_ != nullptr) optional_message_->Clear();
+  if(optional_message_ != nullptr) optional_message_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 void TestEmbedOptimizedForSize::clear_repeated_message() {
@@ -116,7 +116,7 @@ TestEmbedOptimizedForSize::TestEmbedOptimizedForSize(const TestEmbedOptimizedFor
       _has_bits_(from._has_bits_),
       repeated_message_(from.repeated_message_) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if (from._internal_has_optional_message()) {
+  if(from._internal_has_optional_message()) {
     optional_message_ = new ::protobuf_unittest::TestOptimizedForSize(*from.optional_message_);
   } else {
     optional_message_ = nullptr;
@@ -137,7 +137,7 @@ TestEmbedOptimizedForSize::~TestEmbedOptimizedForSize() {
 
 inline void TestEmbedOptimizedForSize::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  if (this != internal_default_instance()) delete optional_message_;
+  if(this != internal_default_instance()) delete optional_message_;
 }
 
 void TestEmbedOptimizedForSize::ArenaDtor(void* object) {
@@ -158,7 +158,7 @@ void TestEmbedOptimizedForSize::Clear() {
 
   repeated_message_.Clear();
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000001u) {
     GOOGLE_DCHECK(optional_message_ != nullptr);
     optional_message_->Clear();
   }
@@ -172,10 +172,10 @@ const char* TestEmbedOptimizedForSize::_InternalParse(const char* ptr, ::PROTOBU
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // optional .protobuf_unittest.TestOptimizedForSize optional_message = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr = ctx->ParseMessage(_internal_mutable_optional_message(), ptr);
           CHK_(ptr);
         } else
@@ -183,7 +183,7 @@ const char* TestEmbedOptimizedForSize::_InternalParse(const char* ptr, ::PROTOBU
         continue;
       // repeated .protobuf_unittest.TestOptimizedForSize repeated_message = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -198,7 +198,7 @@ const char* TestEmbedOptimizedForSize::_InternalParse(const char* ptr, ::PROTOBU
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -226,7 +226,7 @@ uint8_t* TestEmbedOptimizedForSize::_InternalSerialize(
 
   cached_has_bits = _has_bits_[0];
   // optional .protobuf_unittest.TestOptimizedForSize optional_message = 1;
-  if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000001u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -241,7 +241,7 @@ uint8_t* TestEmbedOptimizedForSize::_InternalSerialize(
       InternalWriteMessage(2, this->_internal_repeated_message(i), target, stream);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -259,14 +259,13 @@ size_t TestEmbedOptimizedForSize::ByteSizeLong() const {
 
   // repeated .protobuf_unittest.TestOptimizedForSize repeated_message = 2;
   total_size += 1UL * this->_internal_repeated_message_size();
-  for (const auto& msg : this->repeated_message_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  for(const auto& msg : this->repeated_message_) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // optional .protobuf_unittest.TestOptimizedForSize optional_message = 1;
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000001u) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *optional_message_);
@@ -295,7 +294,7 @@ void TestEmbedOptimizedForSize::MergeFrom(const TestEmbedOptimizedForSize& from)
   (void) cached_has_bits;
 
   repeated_message_.MergeFrom(from.repeated_message_);
-  if (from._internal_has_optional_message()) {
+  if(from._internal_has_optional_message()) {
     _internal_mutable_optional_message()->::protobuf_unittest::TestOptimizedForSize::MergeFrom(from._internal_optional_message());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -303,15 +302,15 @@ void TestEmbedOptimizedForSize::MergeFrom(const TestEmbedOptimizedForSize& from)
 
 void TestEmbedOptimizedForSize::CopyFrom(const TestEmbedOptimizedForSize& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest.TestEmbedOptimizedForSize)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
 bool TestEmbedOptimizedForSize::IsInitialized() const {
-  if (!::PROTOBUF_NAMESPACE_ID::internal::AllAreInitialized(repeated_message_))
+  if(!::PROTOBUF_NAMESPACE_ID::internal::AllAreInitialized(repeated_message_))
     return false;
-  if (_internal_has_optional_message()) {
+  if(_internal_has_optional_message()) {
     if (!optional_message_->IsInitialized()) return false;
   }
   return true;

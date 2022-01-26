@@ -367,21 +367,21 @@ void MessageFieldGenerator::GenerateInternalAccessorDefinitions(io::Printer* pri
 	}
 }
 
-void MessageFieldGenerator::GenerateClearingCode(io::Printer* printer) const {
+void MessageFieldGenerator::GenerateClearingCode(io::Printer* printer) const 
+{
 	GOOGLE_CHECK(!IsFieldStripped(descriptor_, options_));
-
 	Formatter format(printer, variables_);
 	if(!HasHasbit(descriptor_)) {
 		// If we don't have has-bits, message presence is indicated only by ptr !=
 		// NULL. Thus on clear, we need to delete the object.
 		format(
-			"if (GetArenaForAllocation() == nullptr && $name$_ != nullptr) {\n"
+			"if(GetArenaForAllocation() == nullptr && $name$_ != nullptr) {\n"
 			"  delete $name$_;\n"
 			"}\n"
 			"$name$_ = nullptr;\n");
 	}
 	else {
-		format("if ($name$_ != nullptr) $name$_->Clear();\n");
+		format("if($name$_ != nullptr) $name$_->Clear();\n");
 	}
 }
 
@@ -393,7 +393,7 @@ void MessageFieldGenerator::GenerateMessageClearingCode(io::Printer* printer) co
 		// If we don't have has-bits, message presence is indicated only by ptr !=
 		// NULL. Thus on clear, we need to delete the object.
 		format(
-			"if (GetArenaForAllocation() == nullptr && $name$_ != nullptr) {\n"
+			"if(GetArenaForAllocation() == nullptr && $name$_ != nullptr) {\n"
 			"  delete $name$_;\n"
 			"}\n"
 			"$name$_ = nullptr;\n");
@@ -438,7 +438,7 @@ void MessageFieldGenerator::GenerateDestructorCode(io::Printer* printer) const {
 		// don't need to worry about that but in opensource protobuf default
 		// instances are deleted in shutdown process and we need to take special
 		// care when handling them.
-		format("if (this != internal_default_instance()) ");
+		format("if(this != internal_default_instance()) ");
 	}
 	format("delete $name$_;\n");
 }
@@ -454,8 +454,7 @@ void MessageFieldGenerator::GenerateCopyConstructorCode(io::Printer* printer) co
 	GOOGLE_CHECK(!IsFieldStripped(descriptor_, options_));
 
 	Formatter format(printer, variables_);
-	format(
-		"if (from._internal_has_$name$()) {\n"
+	format("if(from._internal_has_$name$()) {\n"
 		"  $name$_ = new $type$(*from.$name$_);\n"
 		"} else {\n"
 		"  $name$_ = nullptr;\n"
@@ -483,14 +482,12 @@ void MessageFieldGenerator::GenerateByteSize(io::Printer* printer) const {
 		"    *$field_member$);\n");
 }
 
-void MessageFieldGenerator::GenerateIsInitialized(io::Printer* printer) const {
+void MessageFieldGenerator::GenerateIsInitialized(io::Printer* printer) const 
+{
 	GOOGLE_CHECK(!IsFieldStripped(descriptor_, options_));
-
 	if(!has_required_fields_) return;
-
 	Formatter format(printer, variables_);
-	format(
-		"if (_internal_has_$name$()) {\n"
+	format("if(_internal_has_$name$()) {\n"
 		"  if (!$name$_->IsInitialized()) return false;\n"
 		"}\n");
 }
@@ -626,7 +623,7 @@ void MessageOneofFieldGenerator::GenerateClearingCode(io::Printer* printer) cons
 
 	Formatter format(printer, variables_);
 	format(
-		"if (GetArenaForAllocation() == nullptr) {\n"
+		"if(GetArenaForAllocation() == nullptr) {\n"
 		"  delete $field_member$;\n"
 		"}\n");
 }
@@ -649,25 +646,19 @@ void MessageOneofFieldGenerator::GenerateConstructorCode(io::Printer* printer) c
 	// space only when this field is used.
 }
 
-void MessageOneofFieldGenerator::GenerateIsInitialized(io::Printer* printer) const {
+void MessageOneofFieldGenerator::GenerateIsInitialized(io::Printer* printer) const 
+{
 	if(!has_required_fields_) return;
-
 	Formatter format(printer, variables_);
-	format(
-		"if (_internal_has_$name$()) {\n"
-		"  if (!$field_member$->IsInitialized()) return false;\n"
-		"}\n");
+	format("if(_internal_has_$name$()) {\n  if(!$field_member$->IsInitialized()) return false;\n}\n");
 }
 
 // ===================================================================
 
 RepeatedMessageFieldGenerator::RepeatedMessageFieldGenerator(const FieldDescriptor* descriptor, const Options& options,
-    MessageSCCAnalyzer* scc_analyzer)
-	: FieldGenerator(descriptor, options),
-	implicit_weak_field_(
-		IsImplicitWeakField(descriptor, options, scc_analyzer)),
-	has_required_fields_(
-		scc_analyzer->HasRequiredFields(descriptor->message_type())) {
+    MessageSCCAnalyzer* scc_analyzer) : FieldGenerator(descriptor, options), implicit_weak_field_(IsImplicitWeakField(descriptor, options, scc_analyzer)),
+	has_required_fields_(scc_analyzer->HasRequiredFields(descriptor->message_type())) 
+{
 	SetMessageVariables(descriptor, options, implicit_weak_field_, &variables_);
 }
 
@@ -843,27 +834,22 @@ void RepeatedMessageFieldGenerator::GenerateByteSize(io::Printer* printer) const
 	Formatter format(printer, variables_);
 	format(
 		"total_size += $tag_size$UL * this->_internal_$name$_size();\n"
-		"for (const auto& msg : this->$name$_) {\n"
-		"  total_size +=\n"
-		"    ::$proto_ns$::internal::WireFormatLite::$declared_type$Size(msg);\n"
+		"for(const auto& msg : this->$name$_) {\n"
+		"  total_size += ::$proto_ns$::internal::WireFormatLite::$declared_type$Size(msg);\n"
 		"}\n");
 }
 
-void RepeatedMessageFieldGenerator::GenerateIsInitialized(io::Printer* printer) const {
+void RepeatedMessageFieldGenerator::GenerateIsInitialized(io::Printer* printer) const 
+{
 	GOOGLE_CHECK(!IsFieldStripped(descriptor_, options_));
-
 	if(!has_required_fields_) return;
-
 	Formatter format(printer, variables_);
 	if(implicit_weak_field_) {
 		format(
-			"if (!::$proto_ns$::internal::AllAreInitializedWeak($name$_.weak))\n"
-			"  return false;\n");
+			"if(!::$proto_ns$::internal::AllAreInitializedWeak($name$_.weak))\n  return false;\n");
 	}
 	else {
-		format(
-			"if (!::$proto_ns$::internal::AllAreInitialized($name$_))\n"
-			"  return false;\n");
+		format("if(!::$proto_ns$::internal::AllAreInitialized($name$_))\n  return false;\n");
 	}
 }
 

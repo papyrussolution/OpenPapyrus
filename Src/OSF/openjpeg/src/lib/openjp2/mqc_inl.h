@@ -268,7 +268,7 @@ Renormalize mqc->a and mqc->c while encoding, so that mqc->a stays between 0x800
     ct--;\
     c = c + ((d) << ct);\
     if (ct == 0) {\
-        *mqc->bp = (OPJ_BYTE)c;\
+        *mqc->bp = (uint8)c;\
         ct = 8;\
         /* If the previous byte was 0xff, make sure that the next msb is 0 */ \
         if (*mqc->bp == 0xff) {\

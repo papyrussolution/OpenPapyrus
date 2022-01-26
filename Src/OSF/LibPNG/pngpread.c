@@ -658,29 +658,24 @@ void /* PRIVATE */ png_push_process_row(png_structrp png_ptr)
 				    png_push_have_row(png_ptr, png_ptr->row_buf + 1);
 				    png_read_push_finish_row(png_ptr); /* Updates png_ptr->pass */
 			    }
-
 			    if(png_ptr->pass == 2) { /* Pass 1 might be empty */
 				    for(i = 0; i < 4 && png_ptr->pass == 2; i++) {
 					    png_push_have_row(png_ptr, 0);
 					    png_read_push_finish_row(png_ptr);
 				    }
 			    }
-
 			    if(png_ptr->pass == 4 && png_ptr->height <= 4) {
 				    for(i = 0; i < 2 && png_ptr->pass == 4; i++) {
 					    png_push_have_row(png_ptr, 0);
 					    png_read_push_finish_row(png_ptr);
 				    }
 			    }
-
 			    if(png_ptr->pass == 6 && png_ptr->height <= 4) {
 				    png_push_have_row(png_ptr, 0);
 				    png_read_push_finish_row(png_ptr);
 			    }
-
 			    break;
 		    }
-
 			case 1:
 		    {
 			    int i;
@@ -688,108 +683,85 @@ void /* PRIVATE */ png_push_process_row(png_structrp png_ptr)
 				    png_push_have_row(png_ptr, png_ptr->row_buf + 1);
 				    png_read_push_finish_row(png_ptr);
 			    }
-
 			    if(png_ptr->pass == 2) { /* Skip top 4 generated rows */
 				    for(i = 0; i < 4 && png_ptr->pass == 2; i++) {
 					    png_push_have_row(png_ptr, 0);
 					    png_read_push_finish_row(png_ptr);
 				    }
 			    }
-
 			    break;
 		    }
-
 			case 2:
 		    {
 			    int i;
-
 			    for(i = 0; i < 4 && png_ptr->pass == 2; i++) {
 				    png_push_have_row(png_ptr, png_ptr->row_buf + 1);
 				    png_read_push_finish_row(png_ptr);
 			    }
-
 			    for(i = 0; i < 4 && png_ptr->pass == 2; i++) {
 				    png_push_have_row(png_ptr, 0);
 				    png_read_push_finish_row(png_ptr);
 			    }
-
 			    if(png_ptr->pass == 4) { /* Pass 3 might be empty */
 				    for(i = 0; i < 2 && png_ptr->pass == 4; i++) {
 					    png_push_have_row(png_ptr, 0);
 					    png_read_push_finish_row(png_ptr);
 				    }
 			    }
-
 			    break;
 		    }
-
 			case 3:
 		    {
 			    int i;
-
 			    for(i = 0; i < 4 && png_ptr->pass == 3; i++) {
 				    png_push_have_row(png_ptr, png_ptr->row_buf + 1);
 				    png_read_push_finish_row(png_ptr);
 			    }
-
 			    if(png_ptr->pass == 4) { /* Skip top two generated rows */
 				    for(i = 0; i < 2 && png_ptr->pass == 4; i++) {
 					    png_push_have_row(png_ptr, 0);
 					    png_read_push_finish_row(png_ptr);
 				    }
 			    }
-
 			    break;
 		    }
-
 			case 4:
 		    {
 			    int i;
-
 			    for(i = 0; i < 2 && png_ptr->pass == 4; i++) {
 				    png_push_have_row(png_ptr, png_ptr->row_buf + 1);
 				    png_read_push_finish_row(png_ptr);
 			    }
-
 			    for(i = 0; i < 2 && png_ptr->pass == 4; i++) {
 				    png_push_have_row(png_ptr, 0);
 				    png_read_push_finish_row(png_ptr);
 			    }
-
 			    if(png_ptr->pass == 6) { /* Pass 5 might be empty */
 				    png_push_have_row(png_ptr, 0);
 				    png_read_push_finish_row(png_ptr);
 			    }
-
 			    break;
 		    }
-
 			case 5:
 		    {
 			    int i;
-
 			    for(i = 0; i < 2 && png_ptr->pass == 5; i++) {
 				    png_push_have_row(png_ptr, png_ptr->row_buf + 1);
 				    png_read_push_finish_row(png_ptr);
 			    }
-
 			    if(png_ptr->pass == 6) { /* Skip top generated row */
 				    png_push_have_row(png_ptr, 0);
 				    png_read_push_finish_row(png_ptr);
 			    }
-
 			    break;
 		    }
-
 			default:
 			case 6:
 		    {
 			    png_push_have_row(png_ptr, png_ptr->row_buf + 1);
 			    png_read_push_finish_row(png_ptr);
-
 			    if(png_ptr->pass != 6)
 				    break;
-
 			    png_push_have_row(png_ptr, 0);
 			    png_read_push_finish_row(png_ptr);
 		    }
@@ -807,22 +779,13 @@ void /* PRIVATE */ png_read_push_finish_row(png_structrp png_ptr)
 {
 #ifdef PNG_READ_INTERLACING_SUPPORTED
 	/* Arrays to facilitate easy interlacing - use pass (0 - 6) as index */
-
-	/* Start of interlace block */
-	static PNG_CONST uint8 png_pass_start[] = {0, 4, 0, 2, 0, 1, 0};
-
-	/* Offset to next interlace block */
-	static PNG_CONST uint8 png_pass_inc[] = {8, 8, 4, 4, 2, 2, 1};
-
-	/* Start of interlace block in the y direction */
-	static PNG_CONST uint8 png_pass_ystart[] = {0, 0, 4, 0, 2, 0, 1};
-
-	/* Offset to next interlace block in the y direction */
-	static PNG_CONST uint8 png_pass_yinc[] = {8, 8, 8, 4, 4, 2, 2};
-
+	static const uint8 png_pass_start[] = {0, 4, 0, 2, 0, 1, 0}; /* Start of interlace block */
+	static const uint8 png_pass_inc[] = {8, 8, 4, 4, 2, 2, 1}; /* Offset to next interlace block */
+	static const uint8 png_pass_ystart[] = {0, 0, 4, 0, 2, 0, 1}; /* Start of interlace block in the y direction */
+	static const uint8 png_pass_yinc[] = {8, 8, 8, 4, 4, 2, 2}; /* Offset to next interlace block in the y direction */
 	/* Height of interlace block.  This is not currently used - if you need
 	 * it, uncomment it here and in png.h
-	   static PNG_CONST uint8 png_pass_height[] = {8, 8, 4, 4, 2, 2, 1};
+	   static const uint8 png_pass_height[] = {8, 8, 4, 4, 2, 2, 1};
 	 */
 #endif
 

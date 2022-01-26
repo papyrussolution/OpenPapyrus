@@ -917,7 +917,7 @@ static int _TIFFVGetField(TIFF * tif, uint32 tag, va_list ap)
 					    assert(tv->count == 1);
 					    switch(fip->field_type) {
 						    case TIFF_BYTE:
-						    case TIFF_UNDEFINED: *va_arg(ap, uint8*) = *(uint8 *)val; ret_val = 1; break;
+						    case TIFF_UNDEFINED: *va_arg(ap, uint8 *) = *(uint8 *)val; ret_val = 1; break;
 						    case TIFF_SBYTE: *va_arg(ap, int8*) = *(int8 *)val; ret_val = 1; break;
 						    case TIFF_SHORT: *va_arg(ap, uint16*) = *(uint16 *)val; ret_val = 1; break;
 						    case TIFF_SSHORT: *va_arg(ap, int16*) = *(int16 *)val; ret_val = 1; break;

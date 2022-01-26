@@ -1,17 +1,6 @@
 // Copyright 2017 The Abseil Authors.
-//
 // Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
 //
-//      https://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #include "absl/absl-internal.h"
 #pragma hdrstop
 
@@ -53,40 +42,35 @@ cctz_parts Split(absl::Time t) {
 
 // Joins the given seconds and femtoseconds into a Time. See duration.cc for
 // details about rep_hi and rep_lo.
-absl::Time Join(const cctz_parts& parts) {
+absl::Time Join(const cctz_parts& parts) 
+{
 	const int64_t rep_hi = (parts.sec - unix_epoch()).count();
-	const uint32_t rep_lo = parts.fem.count() / (1000 * 1000 / 4);
+	const uint32_t rep_lo = static_cast<uint32_t>(parts.fem.count() / (1000 * 1000 / 4));
 	const auto d = time_internal::MakeDuration(rep_hi, rep_lo);
 	return time_internal::FromUnixDuration(d);
 }
 }  // namespace
 
-std::string FormatTime(absl::string_view format, absl::Time t,
-    absl::TimeZone tz) {
+std::string FormatTime(absl::string_view format, absl::Time t, absl::TimeZone tz) 
+{
 	if(t == absl::InfiniteFuture()) return std::string(kInfiniteFutureStr);
 	if(t == absl::InfinitePast()) return std::string(kInfinitePastStr);
 	const auto parts = Split(t);
-	return cctz::detail::format(std::string(format), parts.sec, parts.fem,
-		   cctz::time_zone(tz));
+	return cctz::detail::format(std::string(format), parts.sec, parts.fem, cctz::time_zone(tz));
 }
 
-std::string FormatTime(absl::Time t, absl::TimeZone tz) {
-	return FormatTime(RFC3339_full, t, tz);
-}
+std::string FormatTime(absl::Time t, absl::TimeZone tz) { return FormatTime(RFC3339_full, t, tz); }
+std::string FormatTime(absl::Time t) { return absl::FormatTime(RFC3339_full, t, absl::LocalTimeZone()); }
 
-std::string FormatTime(absl::Time t) {
-	return absl::FormatTime(RFC3339_full, t, absl::LocalTimeZone());
-}
-
-bool ParseTime(absl::string_view format, absl::string_view input,
-    absl::Time* time, std::string* err) {
+bool ParseTime(absl::string_view format, absl::string_view input, absl::Time* time, std::string* err) 
+{
 	return absl::ParseTime(format, input, absl::UTCTimeZone(), time, err);
 }
 
 // If the input string does not contain an explicit UTC offset, interpret
 // the fields with respect to the given TimeZone.
-bool ParseTime(absl::string_view format, absl::string_view input,
-    absl::TimeZone tz, absl::Time* time, std::string* err) {
+bool ParseTime(absl::string_view format, absl::string_view input, absl::TimeZone tz, absl::Time* time, std::string* err) 
+{
 	auto strip_leading_space = [](absl::string_view* sv) {
 		    while(!sv->empty()) {
 			    if(!std::isspace(sv->front())) return;
@@ -117,7 +101,6 @@ bool ParseTime(absl::string_view format, absl::string_view input,
 			}
 		}
 	}
-
 	std::string error;
 	cctz_parts parts;
 	const bool b =
@@ -133,21 +116,10 @@ bool ParseTime(absl::string_view format, absl::string_view input,
 }
 
 // Functions required to support absl::Time flags.
-bool AbslParseFlag(absl::string_view text, absl::Time* t, std::string* error) {
-	return absl::ParseTime(RFC3339_full, text, absl::UTCTimeZone(), t, error);
-}
-
-std::string AbslUnparseFlag(absl::Time t) {
-	return absl::FormatTime(RFC3339_full, t, absl::UTCTimeZone());
-}
-
-bool ParseFlag(const std::string& text, absl::Time* t, std::string* error) {
-	return absl::ParseTime(RFC3339_full, text, absl::UTCTimeZone(), t, error);
-}
-
-std::string UnparseFlag(absl::Time t) {
-	return absl::FormatTime(RFC3339_full, t, absl::UTCTimeZone());
-}
+bool AbslParseFlag(absl::string_view text, absl::Time* t, std::string* error) { return absl::ParseTime(RFC3339_full, text, absl::UTCTimeZone(), t, error); }
+std::string AbslUnparseFlag(absl::Time t) { return absl::FormatTime(RFC3339_full, t, absl::UTCTimeZone()); }
+bool ParseFlag(const std::string& text, absl::Time* t, std::string* error) { return absl::ParseTime(RFC3339_full, text, absl::UTCTimeZone(), t, error); }
+std::string UnparseFlag(absl::Time t) { return absl::FormatTime(RFC3339_full, t, absl::UTCTimeZone()); }
 
 ABSL_NAMESPACE_END
 }  // namespace absl

@@ -1328,10 +1328,10 @@ static void TestConvertSafeCloneCallback()
 		log_err("FAIL! from3 is null \n");
 		return;
 	}
-	if(from3 != (&from1) ) {
+	if(from3 != (&from1)) {
 		log_err("FAIL! conv1's FROM context changed!\n");
 	}
-	if(from2 == (&from1) ) {
+	if(from2 == (&from1)) {
 		log_err("FAIL! conv1's FROM context is the same as conv2's!\n");
 	}
 	if(from1.wasClosed) {
@@ -1354,11 +1354,11 @@ static void TestConvertSafeCloneCallback()
 		return;
 	}
 
-	if(to3 != (&to1) ) {
+	if(to3 != (&to1)) {
 		log_err("FAIL! conv1's TO context changed!\n");
 	}
 
-	if(to2 == (&to1) ) {
+	if(to2 == (&to1)) {
 		log_err("FAIL! conv1's TO context is the same as conv2's!\n");
 	}
 
@@ -1850,7 +1850,7 @@ static void bug3()
 		sizeof(char_in),
 		&err);
 
-	if(size != sizeof(char_in) ) {
+	if(size != sizeof(char_in)) {
 		/*
 		 * bug2: size is 0x2805 (CHUNK_SIZE*2+5 - maybe 5 is the size of the overflow buffer
 		 * in the converter?), should be CHUNK_SIZE*4

@@ -2301,7 +2301,7 @@ struct __db_env {
 	int  (*get_lg_filemode)(DB_ENV*, int *);
 	int  (*get_lg_max)(DB_ENV*, uint32 *);
 	int  (*get_lg_regionmax)(DB_ENV*, uint32 *);
-	int  (*get_lk_conflicts)(DB_ENV*, const uint8**, int *);
+	int  (*get_lk_conflicts)(DB_ENV*, const uint8 **, int *);
 	int  (*get_lk_detect)(DB_ENV*, uint32 *);
 	int  (*get_lk_max_lockers)(DB_ENV*, uint32 *);
 	int  (*get_lk_max_locks)(DB_ENV*, uint32 *);
@@ -2430,7 +2430,7 @@ struct __db_env {
 	int  (*set_lg_filemode)(DB_ENV*, int);
 	int  (*set_lg_max)(DB_ENV*, uint32);
 	int  (*set_lg_regionmax)(DB_ENV*, uint32);
-	int  (*set_lk_conflicts)(DB_ENV*, uint8*, int);
+	int  (*set_lk_conflicts)(DB_ENV*, uint8 *, int);
 	int  (*set_lk_detect)(DB_ENV*, uint32);
 	int  (*set_lk_max_lockers)(DB_ENV*, uint32);
 	int  (*set_lk_max_locks)(DB_ENV*, uint32);

@@ -1,5 +1,5 @@
 // PPMQC.CPP
-// Copyright (c) A.Sobolev 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2019, 2020, 2021, 2022
 //
 #include <pp.h>
 #pragma hdrstop
@@ -391,6 +391,11 @@ PPMqbClient::PPMqbClient() : P_Conn(0), P_Sock(0), Port(0), ChannelN(0)
 PPMqbClient::~PPMqbClient()
 {
 	Disconnect();
+}
+
+bool PPMqbClient::IsHostEqual(const char * pHost, int port) const
+{
+	return (Host.IsEqiAscii(pHost) && Port == port);
 }
 
 int PPMqbClient::Connect(const char * pHost, int port)
@@ -885,8 +890,20 @@ int PPMqbClient::QueueUnbind(const char * pQueue, const char * pExchange, const 
 /*static*/int PPMqbClient::InitClient(PPMqbClient & rC, const PPMqbClient::InitParam & rP)
 {
 	int    ok = 1;
-	THROW(rC.Connect(rP.Host, NZOR(rP.Port, InetUrl::GetDefProtocolPort(InetUrl::protAMQP)/*5672*/)));
+	// @v11.2.12 {
+	SString host(rP.Host);
+	InetUrl url(host);
+	const  int prot = url.GetProtocol();
+	THROW(oneof3(prot, 0, InetUrl::protAMQP, InetUrl::protAMQPS));
+	if(prot) {
+		url.SetProtocol(0);
+		url.Composite(0, host);
+	}
+	// } @v11.2.12 
+	THROW(rC.Connect(host, NZOR(rP.Port, InetUrl::GetDefProtocolPort(InetUrl::protAMQP)/*5672*/)));
 	THROW(rC.Login(rP));
+	rC.Host = rP.Host; // @v11.2.12
+	rC.Port = rP.Port; // @v11.2.12
 	if(rP.ConsumeParamList.getCount()) {
 		for(uint i = 0; i < rP.ConsumeParamList.getCount(); i++) {
 			const RoutingParamEntry * p_entry = rP.ConsumeParamList.at(i);
@@ -1391,14 +1408,15 @@ public:
 		if(Helper_InitRun(mqc)) {
 			int    stop = 0;
 			SString temp_buf;
-			PPLogMessage(log_file_name, "OK: Helper_InitRun", LOGMSGF_TIME|LOGMSGF_DBINFO);
+			SString msg_buf;
+			PPLogMessage(log_file_name, msg_buf.Z().Cat("OK").CatDiv(':', 2).Cat("Helper_InitRun"), LOGMSGF_TIME|LOGMSGF_DBINFO);
 			{
 				THROW(mqc.QueueDeclare(QueueName, 0));
-				PPLogMessage(log_file_name, "OK: QueueDeclare", LOGMSGF_TIME|LOGMSGF_DBINFO);
+				PPLogMessage(log_file_name, msg_buf.Z().Cat("OK").CatDiv(':', 2).Cat("QueueDeclare"), LOGMSGF_TIME|LOGMSGF_DBINFO);
 				THROW(mqc.ExchangeDeclare(p_exchange_name, mqc.exgtFanout, 0));
-				PPLogMessage(log_file_name, "OK: ExchangeDeclare", LOGMSGF_TIME|LOGMSGF_DBINFO);
+				PPLogMessage(log_file_name, msg_buf.Z().Cat("OK").CatDiv(':', 2).Cat("ExchangeDeclare"), LOGMSGF_TIME|LOGMSGF_DBINFO);
 				THROW(mqc.QueueBind(QueueName, p_exchange_name, ""));
-				PPLogMessage(log_file_name, "OK: QueueBind", LOGMSGF_TIME|LOGMSGF_DBINFO);
+				PPLogMessage(log_file_name, msg_buf.Z().Cat("OK").CatDiv(':', 2).Cat("QueueBind"), LOGMSGF_TIME|LOGMSGF_DBINFO);
 			}
 			SDelay(1000);
 			do {
@@ -1407,17 +1425,15 @@ public:
 				//THROW(mqc.Publish("", P_TestQueueName, temp_buf.cptr(), temp_buf.Len()));
 				PPMqbClient::MessageProperties props;
 				if(mqc.Publish(p_exchange_name, /*P_TestQueueName*/"", 0 /*props*/, temp_buf.cptr(), temp_buf.Len())) {
-					PPLogMessage(log_file_name, "OK: Publish", LOGMSGF_TIME|LOGMSGF_DBINFO);
+					PPLogMessage(log_file_name, msg_buf.Z().Cat("OK").CatDiv(':', 2).Cat("Publish"), LOGMSGF_TIME|LOGMSGF_DBINFO);
 					SDelay(100);
 				}
 				else {
-					PPLogMessage(log_file_name, "ERR: Publish", LOGMSGF_TIME|LOGMSGF_DBINFO);
+					PPLogMessage(log_file_name, msg_buf.Z().Cat("ERR").CatDiv(':', 2).Cat("Publish"), LOGMSGF_TIME|LOGMSGF_DBINFO);
 				}
 			} while(!stop);
 		}
-		CATCH
-			ok = 0;
-		ENDCATCH
+		CATCHZOK
 	}
 	const SString QueueName;
 };
@@ -1436,26 +1452,25 @@ public:
 		if(Helper_InitRun(mqc)) {
 			int    stop = 0;
 			SString consume_tag;
-			PPLogMessage(log_file_name, "OK: Helper_InitRun", LOGMSGF_TIME|LOGMSGF_DBINFO);
+			SString msg_buf;
+			PPLogMessage(log_file_name, msg_buf.Z().Cat("OK").CatDiv(':', 2).Cat("Helper_InitRun"), LOGMSGF_TIME|LOGMSGF_DBINFO);
 			THROW(mqc.QueueDeclare(QueueName, 0));
-			PPLogMessage(log_file_name, "OK: QueueDeclare", LOGMSGF_TIME|LOGMSGF_DBINFO);
+			PPLogMessage(log_file_name, msg_buf.Z().Cat("OK").CatDiv(':', 2).Cat("QueueDeclare"), LOGMSGF_TIME|LOGMSGF_DBINFO);
 			THROW(mqc.Consume(QueueName, &consume_tag, 0));
-			PPLogMessage(log_file_name, "OK: Consume", LOGMSGF_TIME|LOGMSGF_DBINFO);
+			PPLogMessage(log_file_name, msg_buf.Z().Cat("OK").CatDiv(':', 2).Cat("Consume"), LOGMSGF_TIME|LOGMSGF_DBINFO);
 			SDelay(1500);
 			do {
 				PPMqbClient::Envelope env;
 				int cmr = mqc.ConsumeMessage(env, 10);
 				if(cmr > 0) {
-					PPLogMessage(log_file_name, "OK: ConsumeMessage", LOGMSGF_TIME|LOGMSGF_DBINFO);
+					PPLogMessage(log_file_name, msg_buf.Z().Cat("OK").CatDiv(':', 2).Cat("ConsumeMessage"), LOGMSGF_TIME|LOGMSGF_DBINFO);
 				}
 				else if(cmr == 0) {
-					PPLogMessage(log_file_name, "ERR: ConsumeMessage", LOGMSGF_TIME|LOGMSGF_DBINFO);
+					PPLogMessage(log_file_name, msg_buf.Z().Cat("ERR").CatDiv(':', 2).Cat("ConsumeMessage"), LOGMSGF_TIME|LOGMSGF_DBINFO);
 				}
 			} while(!stop);
 		}
-		CATCH
-			ok = 0;
-		ENDCATCH
+		CATCHZOK
 	}
 	const SString QueueName;
 };

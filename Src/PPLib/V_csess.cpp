@@ -1,5 +1,5 @@
 // V_CSESS.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -259,11 +259,10 @@ int PPViewCSess::Init_(const PPBaseFilt * pBaseFilt)
 			PPCashNode cn_rec;
 			PPIDArray temp_list;
 			for(uint i = 0; i < temp_node_list.GetCount(); i++) {
-				PPID   cn_id = temp_node_list.Get().get(i);
+				const PPID cn_id = temp_node_list.Get().get(i);
 				if(cn_obj.Fetch(cn_id, &cn_rec) > 0 && r_rt.CheckPosNodeID(cn_id, 0)) {
 					if(cn_rec.CashType == PPCMT_CASHNGROUP) {
-						temp_list.clear();
-						cn_obj.GetListByGroup(cn_id, temp_list);
+						cn_obj.GetListByGroup(cn_id, temp_list.Z());
 						for(uint j = 0; j < temp_list.getCount(); j++) {
 							const PPID inner_cn_id = temp_list.get(j);
 							PPCashNode inner_cn_rec;

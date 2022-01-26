@@ -85,7 +85,7 @@ pthread_t __ptw32_new()
 #if defined(HAVE_CPU_AFFINITY)
 	CPU_ZERO(reinterpret_cast<cpu_set_t *>(&tp->cpuset));
 #endif
-	tp->cancelEvent = CreateEvent(0, (int)__PTW32_TRUE/* manualReset  */, (int)__PTW32_FALSE/* setSignaled  */, NULL);
+	tp->cancelEvent = CreateEvent(0, (int)TRUE/* manualReset  */, (int)FALSE/* setSignaled  */, NULL);
 	if(tp->cancelEvent == NULL) {
 		__ptw32_threadReusePush(tp->ptHandle);
 		return nil;
@@ -411,7 +411,7 @@ INLINE void __ptw32_mcs_flag_wait(HANDLE * flag)
 {
 	if((__PTW32_INTERLOCKED_SIZE)0 == __PTW32_INTERLOCKED_EXCHANGE_ADD_SIZE((__PTW32_INTERLOCKED_SIZEPTR)flag, (__PTW32_INTERLOCKED_SIZE)0)) { /* MBR fence */
 		/* the flag is not set. create event. */
-		HANDLE e = CreateEvent(NULL,  __PTW32_FALSE,  __PTW32_FALSE, NULL);
+		HANDLE e = CreateEvent(NULL,  FALSE,  FALSE, NULL);
 		if((__PTW32_INTERLOCKED_SIZE)0 ==  __PTW32_INTERLOCKED_COMPARE_EXCHANGE_SIZE((__PTW32_INTERLOCKED_SIZEPTR)flag, (__PTW32_INTERLOCKED_SIZE)e, (__PTW32_INTERLOCKED_SIZE)0)) {
 			/* stored handle in the flag. wait on it now. */
 			WaitForSingleObject(e, INFINITE);
@@ -589,7 +589,7 @@ INLINE int __ptw32_mutex_check_need_init(pthread_mutex_t * mutex)
 int __ptw32_processInitialize()
 {
 	if(__ptw32_processInitialized) {
-		return __PTW32_TRUE;
+		return TRUE;
 	}
 	/*
 	 * Explicitly initialise all variables from global.c
@@ -623,7 +623,7 @@ int __ptw32_processInitialize()
   #if defined(_UWIN)
 	pthread_count = 0; // Keep a count of the number of threads.
   #endif
-	__ptw32_processInitialized =  __PTW32_TRUE;
+	__ptw32_processInitialized =  TRUE;
 	/*
 	 * Initialize Keys
 	 */
@@ -679,7 +679,7 @@ void __ptw32_processTerminate()
 			tp = tpNext;
 		}
 		__ptw32_mcs_lock_release(&node);
-		__ptw32_processInitialized =  __PTW32_FALSE;
+		__ptw32_processInitialized =  FALSE;
 	}
 }
 

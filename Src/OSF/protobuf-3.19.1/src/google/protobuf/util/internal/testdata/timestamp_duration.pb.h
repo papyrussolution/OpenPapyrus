@@ -1136,7 +1136,7 @@ inline bool TimestampDurationTestCases::has_epoch() const {
   return _internal_has_epoch();
 }
 inline void TimestampDurationTestCases::clear_epoch() {
-  if (GetArenaForAllocation() == nullptr && epoch_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && epoch_ != nullptr) {
     delete epoch_;
   }
   epoch_ = nullptr;
@@ -1226,7 +1226,7 @@ inline bool TimestampDurationTestCases::has_epoch2() const {
   return _internal_has_epoch2();
 }
 inline void TimestampDurationTestCases::clear_epoch2() {
-  if (GetArenaForAllocation() == nullptr && epoch2_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && epoch2_ != nullptr) {
     delete epoch2_;
   }
   epoch2_ = nullptr;
@@ -1316,7 +1316,7 @@ inline bool TimestampDurationTestCases::has_mintime() const {
   return _internal_has_mintime();
 }
 inline void TimestampDurationTestCases::clear_mintime() {
-  if (GetArenaForAllocation() == nullptr && mintime_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && mintime_ != nullptr) {
     delete mintime_;
   }
   mintime_ = nullptr;
@@ -1406,7 +1406,7 @@ inline bool TimestampDurationTestCases::has_maxtime() const {
   return _internal_has_maxtime();
 }
 inline void TimestampDurationTestCases::clear_maxtime() {
-  if (GetArenaForAllocation() == nullptr && maxtime_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && maxtime_ != nullptr) {
     delete maxtime_;
   }
   maxtime_ = nullptr;
@@ -1496,7 +1496,7 @@ inline bool TimestampDurationTestCases::has_timeval1() const {
   return _internal_has_timeval1();
 }
 inline void TimestampDurationTestCases::clear_timeval1() {
-  if (GetArenaForAllocation() == nullptr && timeval1_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && timeval1_ != nullptr) {
     delete timeval1_;
   }
   timeval1_ = nullptr;
@@ -1586,7 +1586,7 @@ inline bool TimestampDurationTestCases::has_timeval2() const {
   return _internal_has_timeval2();
 }
 inline void TimestampDurationTestCases::clear_timeval2() {
-  if (GetArenaForAllocation() == nullptr && timeval2_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && timeval2_ != nullptr) {
     delete timeval2_;
   }
   timeval2_ = nullptr;
@@ -1676,7 +1676,7 @@ inline bool TimestampDurationTestCases::has_timeval3() const {
   return _internal_has_timeval3();
 }
 inline void TimestampDurationTestCases::clear_timeval3() {
-  if (GetArenaForAllocation() == nullptr && timeval3_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && timeval3_ != nullptr) {
     delete timeval3_;
   }
   timeval3_ = nullptr;
@@ -1766,7 +1766,7 @@ inline bool TimestampDurationTestCases::has_timeval4() const {
   return _internal_has_timeval4();
 }
 inline void TimestampDurationTestCases::clear_timeval4() {
-  if (GetArenaForAllocation() == nullptr && timeval4_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && timeval4_ != nullptr) {
     delete timeval4_;
   }
   timeval4_ = nullptr;
@@ -1856,7 +1856,7 @@ inline bool TimestampDurationTestCases::has_timeval5() const {
   return _internal_has_timeval5();
 }
 inline void TimestampDurationTestCases::clear_timeval5() {
-  if (GetArenaForAllocation() == nullptr && timeval5_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && timeval5_ != nullptr) {
     delete timeval5_;
   }
   timeval5_ = nullptr;
@@ -1946,7 +1946,7 @@ inline bool TimestampDurationTestCases::has_timeval6() const {
   return _internal_has_timeval6();
 }
 inline void TimestampDurationTestCases::clear_timeval6() {
-  if (GetArenaForAllocation() == nullptr && timeval6_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && timeval6_ != nullptr) {
     delete timeval6_;
   }
   timeval6_ = nullptr;
@@ -2036,7 +2036,7 @@ inline bool TimestampDurationTestCases::has_timeval7() const {
   return _internal_has_timeval7();
 }
 inline void TimestampDurationTestCases::clear_timeval7() {
-  if (GetArenaForAllocation() == nullptr && timeval7_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && timeval7_ != nullptr) {
     delete timeval7_;
   }
   timeval7_ = nullptr;
@@ -2212,7 +2212,7 @@ inline bool TimestampDurationTestCases::has_zero_duration() const {
   return _internal_has_zero_duration();
 }
 inline void TimestampDurationTestCases::clear_zero_duration() {
-  if (GetArenaForAllocation() == nullptr && zero_duration_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && zero_duration_ != nullptr) {
     delete zero_duration_;
   }
   zero_duration_ = nullptr;
@@ -2302,7 +2302,7 @@ inline bool TimestampDurationTestCases::has_min_duration() const {
   return _internal_has_min_duration();
 }
 inline void TimestampDurationTestCases::clear_min_duration() {
-  if (GetArenaForAllocation() == nullptr && min_duration_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && min_duration_ != nullptr) {
     delete min_duration_;
   }
   min_duration_ = nullptr;
@@ -2392,7 +2392,7 @@ inline bool TimestampDurationTestCases::has_max_duration() const {
   return _internal_has_max_duration();
 }
 inline void TimestampDurationTestCases::clear_max_duration() {
-  if (GetArenaForAllocation() == nullptr && max_duration_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && max_duration_ != nullptr) {
     delete max_duration_;
   }
   max_duration_ = nullptr;
@@ -2482,7 +2482,7 @@ inline bool TimestampDurationTestCases::has_duration1() const {
   return _internal_has_duration1();
 }
 inline void TimestampDurationTestCases::clear_duration1() {
-  if (GetArenaForAllocation() == nullptr && duration1_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && duration1_ != nullptr) {
     delete duration1_;
   }
   duration1_ = nullptr;
@@ -2572,7 +2572,7 @@ inline bool TimestampDurationTestCases::has_duration2() const {
   return _internal_has_duration2();
 }
 inline void TimestampDurationTestCases::clear_duration2() {
-  if (GetArenaForAllocation() == nullptr && duration2_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && duration2_ != nullptr) {
     delete duration2_;
   }
   duration2_ = nullptr;
@@ -2662,7 +2662,7 @@ inline bool TimestampDurationTestCases::has_duration3() const {
   return _internal_has_duration3();
 }
 inline void TimestampDurationTestCases::clear_duration3() {
-  if (GetArenaForAllocation() == nullptr && duration3_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && duration3_ != nullptr) {
     delete duration3_;
   }
   duration3_ = nullptr;
@@ -2752,7 +2752,7 @@ inline bool TimestampDurationTestCases::has_duration4() const {
   return _internal_has_duration4();
 }
 inline void TimestampDurationTestCases::clear_duration4() {
-  if (GetArenaForAllocation() == nullptr && duration4_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && duration4_ != nullptr) {
     delete duration4_;
   }
   duration4_ = nullptr;

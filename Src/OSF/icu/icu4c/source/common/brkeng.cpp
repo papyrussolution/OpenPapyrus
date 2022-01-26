@@ -1,8 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-	Copyright (C) 2006-2016, International Business Machines Corporation and others. All Rights Reserved.
-*/
+// Copyright (C) 2006-2016, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -101,7 +100,7 @@ const LanguageBreakEngine * ICULanguageBreakFactory::getEngineFor(UChar32 c)
 	Mutex m(&gBreakEngineMutex);
 	if(fEngines == nullptr) {
 		LocalPointer<UStack>  engines(new UStack(_deleteEngine, nullptr, status), status);
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			// Note: no way to return error code to caller.
 			return nullptr;
 		}
@@ -163,13 +162,11 @@ const LanguageBreakEngine * ICULanguageBreakFactory::loadEngineFor(UChar32 c)
 				case USCRIPT_KHMER:
 				    engine = new KhmerBreakEngine(m, status);
 				    break;
-
 #if !UCONFIG_NO_NORMALIZATION
 				// CJK not available w/o normalization
 				case USCRIPT_HANGUL:
 				    engine = new CjkBreakEngine(m, kKorean, status);
 				    break;
-
 				// use same BreakEngine and dictionary for both Chinese and Japanese
 				case USCRIPT_HIRAGANA:
 				case USCRIPT_KATAKANA:
@@ -231,7 +228,7 @@ DictionaryMatcher * ICULanguageBreakFactory::loadDictionaryMatcherFor(UScriptCod
 	UDataMemory * file = udata_open(U_ICUDATA_BRKITR, ext.data(), dictnbuf.data(), &status);
 	if(U_SUCCESS(status)) {
 		// build trie
-		const uint8 * data = (const uint8*)udata_getMemory(file);
+		const uint8 * data = (const uint8 *)udata_getMemory(file);
 		const int32_t * indexes = (const int32_t*)data;
 		const int32_t offset = indexes[DictionaryData::IX_STRING_TRIE_OFFSET];
 		const int32_t trieType = indexes[DictionaryData::IX_TRIE_TYPE] & DictionaryData::TRIE_TYPE_MASK;

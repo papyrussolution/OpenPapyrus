@@ -14,7 +14,7 @@ static int __cdsgroup_commit(DB_TXN * txn, uint32 flags);
 static int __cdsgroup_discard(DB_TXN * txn, uint32 flags);
 static uint32 __cdsgroup_id(DB_TXN * txn);
 static int FASTCALL __cdsgroup_notsup(ENV * env, const char * meth);
-static int __cdsgroup_prepare(DB_TXN * txn, uint8*gid);
+static int __cdsgroup_prepare(DB_TXN * txn, uint8 *gid);
 static int __cdsgroup_get_name(DB_TXN * txn, const char ** namep);
 static int __cdsgroup_set_name(DB_TXN * txn, const char * name);
 static int __cdsgroup_set_timeout(DB_TXN * txn, db_timeout_t timeout, uint32 flags);

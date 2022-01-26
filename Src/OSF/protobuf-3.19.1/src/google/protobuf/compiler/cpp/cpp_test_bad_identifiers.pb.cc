@@ -757,10 +757,10 @@ const char* TestConflictingSymbolNames_Data1::_InternalParse(const char* ptr, ::
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // repeated int32 data = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -778,7 +778,7 @@ const char* TestConflictingSymbolNames_Data1::_InternalParse(const char* ptr, ::
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -804,12 +804,12 @@ uint8_t* TestConflictingSymbolNames_Data1::_InternalSerialize(
   (void) cached_has_bits;
 
   // repeated int32 data = 1;
-  for (int i = 0, n = this->_internal_data_size(); i < n; i++) {
+  for(int i = 0, n = this->_internal_data_size(); i < n; i++) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_data(i), target);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -862,7 +862,7 @@ void TestConflictingSymbolNames_Data1::MergeFrom(const TestConflictingSymbolName
 
 void TestConflictingSymbolNames_Data1::CopyFrom(const TestConflictingSymbolNames_Data1& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest.TestConflictingSymbolNames.Data1)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -945,16 +945,16 @@ const char* TestConflictingSymbolNames_Data2::_InternalParse(const char* ptr, ::
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // repeated .protobuf_unittest.TestConflictingSymbolNames.TestEnum data = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
           ptr -= 1;
           do {
             ptr += 1;
             uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
             CHK_(ptr);
-            if (PROTOBUF_PREDICT_TRUE(::protobuf_unittest::TestConflictingSymbolNames_TestEnum_IsValid(val))) {
+            if(PROTOBUF_PREDICT_TRUE(::protobuf_unittest::TestConflictingSymbolNames_TestEnum_IsValid(val))) {
               _internal_add_data(static_cast<::protobuf_unittest::TestConflictingSymbolNames_TestEnum>(val));
             } else {
               ::PROTOBUF_NAMESPACE_ID::internal::WriteVarint(1, val, mutable_unknown_fields());
@@ -971,7 +971,7 @@ const char* TestConflictingSymbolNames_Data2::_InternalParse(const char* ptr, ::
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -1003,7 +1003,7 @@ uint8_t* TestConflictingSymbolNames_Data2::_InternalSerialize(
         1, this->_internal_data(i), target);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -1022,9 +1022,8 @@ size_t TestConflictingSymbolNames_Data2::ByteSizeLong() const {
   // repeated .protobuf_unittest.TestConflictingSymbolNames.TestEnum data = 1;
   {
     size_t data_size = 0;
-    unsigned int count = static_cast<unsigned int>(this->_internal_data_size());for (unsigned int i = 0; i < count; i++) {
-      data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(
-        this->_internal_data(static_cast<int>(i)));
+    unsigned int count = static_cast<unsigned int>(this->_internal_data_size());for(unsigned int i = 0; i < count; i++) {
+      data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_data(static_cast<int>(i)));
     }
     total_size += (1UL * count) + data_size;
   }
@@ -1057,7 +1056,7 @@ void TestConflictingSymbolNames_Data2::MergeFrom(const TestConflictingSymbolName
 
 void TestConflictingSymbolNames_Data2::CopyFrom(const TestConflictingSymbolNames_Data2& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest.TestConflictingSymbolNames.Data2)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -1140,10 +1139,10 @@ const char* TestConflictingSymbolNames_Data3::_InternalParse(const char* ptr, ::
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // repeated string data = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -1162,7 +1161,7 @@ const char* TestConflictingSymbolNames_Data3::_InternalParse(const char* ptr, ::
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -1197,7 +1196,7 @@ uint8_t* TestConflictingSymbolNames_Data3::_InternalSerialize(
     target = stream->WriteString(1, s, target);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -1249,7 +1248,7 @@ void TestConflictingSymbolNames_Data3::MergeFrom(const TestConflictingSymbolName
 
 void TestConflictingSymbolNames_Data3::CopyFrom(const TestConflictingSymbolNames_Data3& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest.TestConflictingSymbolNames.Data3)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -1332,10 +1331,10 @@ const char* TestConflictingSymbolNames_Data4::_InternalParse(const char* ptr, ::
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // repeated .protobuf_unittest.TestConflictingSymbolNames.Data4 data = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -1350,7 +1349,7 @@ const char* TestConflictingSymbolNames_Data4::_InternalParse(const char* ptr, ::
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -1383,7 +1382,7 @@ uint8_t* TestConflictingSymbolNames_Data4::_InternalSerialize(
       InternalWriteMessage(1, this->_internal_data(i), target, stream);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -1401,9 +1400,8 @@ size_t TestConflictingSymbolNames_Data4::ByteSizeLong() const {
 
   // repeated .protobuf_unittest.TestConflictingSymbolNames.Data4 data = 1;
   total_size += 1UL * this->_internal_data_size();
-  for (const auto& msg : this->data_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  for(const auto& msg : this->data_) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -1434,7 +1432,7 @@ void TestConflictingSymbolNames_Data4::MergeFrom(const TestConflictingSymbolName
 
 void TestConflictingSymbolNames_Data4::CopyFrom(const TestConflictingSymbolNames_Data4& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest.TestConflictingSymbolNames.Data4)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -1517,10 +1515,10 @@ const char* TestConflictingSymbolNames_Data5::_InternalParse(const char* ptr, ::
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // repeated string data = 1 [ctype = STRING_PIECE];
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -1539,7 +1537,7 @@ const char* TestConflictingSymbolNames_Data5::_InternalParse(const char* ptr, ::
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -1574,7 +1572,7 @@ uint8_t* TestConflictingSymbolNames_Data5::_InternalSerialize(
     target = stream->WriteString(1, s, target);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -1626,7 +1624,7 @@ void TestConflictingSymbolNames_Data5::MergeFrom(const TestConflictingSymbolName
 
 void TestConflictingSymbolNames_Data5::CopyFrom(const TestConflictingSymbolNames_Data5& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest.TestConflictingSymbolNames.Data5)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -1709,10 +1707,10 @@ const char* TestConflictingSymbolNames_Data6::_InternalParse(const char* ptr, ::
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // repeated string data = 1 [ctype = CORD];
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -1731,7 +1729,7 @@ const char* TestConflictingSymbolNames_Data6::_InternalParse(const char* ptr, ::
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -1766,7 +1764,7 @@ uint8_t* TestConflictingSymbolNames_Data6::_InternalSerialize(
     target = stream->WriteString(1, s, target);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -1818,7 +1816,7 @@ void TestConflictingSymbolNames_Data6::MergeFrom(const TestConflictingSymbolName
 
 void TestConflictingSymbolNames_Data6::CopyFrom(const TestConflictingSymbolNames_Data6& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest.TestConflictingSymbolNames.Data6)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -2109,7 +2107,7 @@ TestConflictingSymbolNames::TestConflictingSymbolNames(const TestConflictingSymb
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     length_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (from._internal_has_length()) {
+  if(from._internal_has_length()) {
     length_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_length(), 
       GetArenaForAllocation());
   }
@@ -2117,7 +2115,7 @@ TestConflictingSymbolNames::TestConflictingSymbolNames(const TestConflictingSymb
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     string_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (from._internal_has_string()) {
+  if(from._internal_has_string()) {
     string_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_string(), 
       GetArenaForAllocation());
   }
@@ -2125,7 +2123,7 @@ TestConflictingSymbolNames::TestConflictingSymbolNames(const TestConflictingSymb
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     some_cord_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (from._internal_has_some_cord()) {
+  if(from._internal_has_some_cord()) {
     some_cord_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_some_cord(), 
       GetArenaForAllocation());
   }
@@ -2133,7 +2131,7 @@ TestConflictingSymbolNames::TestConflictingSymbolNames(const TestConflictingSymb
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     some_string_piece_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (from._internal_has_some_string_piece()) {
+  if(from._internal_has_some_string_piece()) {
     some_string_piece_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_some_string_piece(), 
       GetArenaForAllocation());
   }
@@ -2141,7 +2139,7 @@ TestConflictingSymbolNames::TestConflictingSymbolNames(const TestConflictingSymb
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     release_length_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (from._internal_has_release_length()) {
+  if(from._internal_has_release_length()) {
     release_length_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_release_length(), 
       GetArenaForAllocation());
   }
@@ -2149,16 +2147,16 @@ TestConflictingSymbolNames::TestConflictingSymbolNames(const TestConflictingSymb
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     target_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (from._internal_has_target()) {
+  if(from._internal_has_target()) {
     target_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_target(), 
       GetArenaForAllocation());
   }
-  if (from._internal_has_do_()) {
+  if(from._internal_has_do_()) {
     do__ = new ::protobuf_unittest::TestConflictingSymbolNames_DO(*from.do__);
   } else {
     do__ = nullptr;
   }
-  if (from._internal_has_release_do()) {
+  if(from._internal_has_release_do()) {
     release_do_ = new ::protobuf_unittest::TestConflictingSymbolNames_DO(*from.release_do_);
   } else {
     release_do_ = nullptr;
@@ -2215,8 +2213,8 @@ inline void TestConflictingSymbolNames::SharedDtor() {
   some_string_piece_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   release_length_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   target_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (this != internal_default_instance()) delete do__;
-  if (this != internal_default_instance()) delete release_do_;
+  if(this != internal_default_instance()) delete do__;
+  if(this != internal_default_instance()) delete release_do_;
 }
 
 void TestConflictingSymbolNames::ArenaDtor(void* object) {
@@ -2240,51 +2238,51 @@ void TestConflictingSymbolNames::Clear() {
   new_element_.Clear();
   index_.Clear();
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x000000ffu) {
-    if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x000000ffu) {
+    if(cached_has_bits & 0x00000001u) {
       length_.ClearNonDefaultToEmpty();
     }
-    if (cached_has_bits & 0x00000002u) {
+    if(cached_has_bits & 0x00000002u) {
       string_.ClearNonDefaultToEmpty();
     }
-    if (cached_has_bits & 0x00000004u) {
+    if(cached_has_bits & 0x00000004u) {
       some_cord_.ClearNonDefaultToEmpty();
     }
-    if (cached_has_bits & 0x00000008u) {
+    if(cached_has_bits & 0x00000008u) {
       some_string_piece_.ClearNonDefaultToEmpty();
     }
-    if (cached_has_bits & 0x00000010u) {
+    if(cached_has_bits & 0x00000010u) {
       release_length_.ClearNonDefaultToEmpty();
     }
-    if (cached_has_bits & 0x00000020u) {
+    if(cached_has_bits & 0x00000020u) {
       target_.ClearNonDefaultToEmpty();
     }
-    if (cached_has_bits & 0x00000040u) {
+    if(cached_has_bits & 0x00000040u) {
       GOOGLE_DCHECK(do__ != nullptr);
       do__->Clear();
     }
-    if (cached_has_bits & 0x00000080u) {
+    if(cached_has_bits & 0x00000080u) {
       GOOGLE_DCHECK(release_do_ != nullptr);
       release_do_->Clear();
     }
   }
-  if (cached_has_bits & 0x0000ff00u) {
+  if(cached_has_bits & 0x0000ff00u) {
     ::memset(&input_, 0, static_cast<size_t>(
         reinterpret_cast<char*>(&from_) -
         reinterpret_cast<char*>(&input_)) + sizeof(from_));
   }
-  if (cached_has_bits & 0x00ff0000u) {
+  if(cached_has_bits & 0x00ff0000u) {
     ::memset(&handle_uninterpreted_, 0, static_cast<size_t>(
         reinterpret_cast<char*>(&int64_) -
         reinterpret_cast<char*>(&handle_uninterpreted_)) + sizeof(int64_));
   }
-  if (cached_has_bits & 0xff000000u) {
+  if(cached_has_bits & 0xff000000u) {
     ::memset(&cached_size_, 0, static_cast<size_t>(
         reinterpret_cast<char*>(&friend__) -
         reinterpret_cast<char*>(&cached_size_)) + sizeof(friend__));
   }
   cached_has_bits = _has_bits_[1];
-  if (cached_has_bits & 0x0000001fu) {
+  if(cached_has_bits & 0x0000001fu) {
     ::memset(&field_type_, 0, static_cast<size_t>(
         reinterpret_cast<char*>(&auto__) -
         reinterpret_cast<char*>(&field_type_)) + sizeof(auto__));
@@ -2298,10 +2296,10 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // optional int32 input = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
           _Internal::set_has_input(&_has_bits_);
           input_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -2310,7 +2308,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional int32 output = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
           _Internal::set_has_output(&_has_bits_);
           output_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -2319,7 +2317,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional string length = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           auto str = _internal_mutable_length();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           #ifndef NDEBUG
@@ -2331,7 +2329,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // repeated int32 i = 4;
       case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 32)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 32)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -2347,7 +2345,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // repeated string new_element = 5 [ctype = STRING_PIECE];
       case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -2364,7 +2362,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional int32 total_size = 6;
       case 6:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 48)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 48)) {
           _Internal::set_has_total_size(&_has_bits_);
           total_size_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -2373,7 +2371,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional int32 tag = 7;
       case 7:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 56)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 56)) {
           _Internal::set_has_tag(&_has_bits_);
           tag_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -2382,7 +2380,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional int32 source = 8;
       case 8:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 64)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 64)) {
           _Internal::set_has_source(&_has_bits_);
           source_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -2391,7 +2389,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional int32 value = 9;
       case 9:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 72)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 72)) {
           _Internal::set_has_value(&_has_bits_);
           value_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -2400,7 +2398,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional int32 file = 10;
       case 10:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 80)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 80)) {
           _Internal::set_has_file(&_has_bits_);
           file_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -2409,7 +2407,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional int32 from = 11;
       case 11:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 88)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 88)) {
           _Internal::set_has_from(&_has_bits_);
           from_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -2418,7 +2416,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional int32 handle_uninterpreted = 12;
       case 12:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 96)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 96)) {
           _Internal::set_has_handle_uninterpreted(&_has_bits_);
           handle_uninterpreted_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -2427,7 +2425,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // repeated int32 index = 13;
       case 13:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 104)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 104)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -2443,7 +2441,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional int32 controller = 14;
       case 14:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 112)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 112)) {
           _Internal::set_has_controller(&_has_bits_);
           controller_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -2452,7 +2450,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional int32 already_here = 15;
       case 15:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 120)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 120)) {
           _Internal::set_has_already_here(&_has_bits_);
           already_here_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -2461,7 +2459,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional uint32 uint32 = 16;
       case 16:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 128)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 128)) {
           _Internal::set_has_uint32(&_has_bits_);
           uint32_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -2470,7 +2468,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional uint64 uint64 = 17;
       case 17:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 136)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 136)) {
           _Internal::set_has_uint64(&_has_bits_);
           uint64_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
@@ -2479,7 +2477,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional string string = 18;
       case 18:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 146)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 146)) {
           auto str = _internal_mutable_string();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           #ifndef NDEBUG
@@ -2491,7 +2489,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional int32 memset = 19;
       case 19:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 152)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 152)) {
           _Internal::set_has_memset(&_has_bits_);
           memset_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -2500,7 +2498,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional int32 int32 = 20;
       case 20:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 160)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 160)) {
           _Internal::set_has_int32(&_has_bits_);
           int32_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -2509,7 +2507,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional int64 int64 = 21;
       case 21:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 168)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 168)) {
           _Internal::set_has_int64(&_has_bits_);
           int64_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
@@ -2518,7 +2516,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional uint32 cached_size = 22;
       case 22:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 176)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 176)) {
           _Internal::set_has_cached_size(&_has_bits_);
           cached_size_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -2527,7 +2525,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional uint32 extensions = 23;
       case 23:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 184)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 184)) {
           _Internal::set_has_extensions(&_has_bits_);
           extensions_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -2536,7 +2534,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional uint32 bit = 24;
       case 24:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 192)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 192)) {
           _Internal::set_has_bit(&_has_bits_);
           bit_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -2545,7 +2543,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional uint32 bits = 25;
       case 25:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 200)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 200)) {
           _Internal::set_has_bits(&_has_bits_);
           bits_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -2554,7 +2552,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional uint32 offsets = 26;
       case 26:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 208)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 208)) {
           _Internal::set_has_offsets(&_has_bits_);
           offsets_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -2563,7 +2561,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional uint32 reflection = 27;
       case 27:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 216)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 216)) {
           _Internal::set_has_reflection(&_has_bits_);
           reflection_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -2572,7 +2570,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional string some_cord = 28 [ctype = CORD];
       case 28:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 226)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 226)) {
           auto str = _internal_mutable_some_cord();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           #ifndef NDEBUG
@@ -2584,7 +2582,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional string some_string_piece = 29 [ctype = STRING_PIECE];
       case 29:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 234)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 234)) {
           auto str = _internal_mutable_some_string_piece();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           #ifndef NDEBUG
@@ -2596,7 +2594,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional uint32 int = 30;
       case 30:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 240)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 240)) {
           _Internal::set_has_int_(&_has_bits_);
           int__ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -2605,7 +2603,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional uint32 friend = 31;
       case 31:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 248)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 248)) {
           _Internal::set_has_friend_(&_has_bits_);
           friend__ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -2614,7 +2612,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional .protobuf_unittest.TestConflictingSymbolNames.DO do = 32;
       case 32:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 2)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 2)) {
           ptr = ctx->ParseMessage(_internal_mutable_do_(), ptr);
           CHK_(ptr);
         } else
@@ -2622,7 +2620,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional int32 field_type = 33;
       case 33:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
           _Internal::set_has_field_type(&_has_bits_);
           field_type_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -2631,7 +2629,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional bool is_packed = 34;
       case 34:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
           _Internal::set_has_is_packed(&_has_bits_);
           is_packed_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
@@ -2640,7 +2638,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional string release_length = 35;
       case 35:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           auto str = _internal_mutable_release_length();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           #ifndef NDEBUG
@@ -2652,7 +2650,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional .protobuf_unittest.TestConflictingSymbolNames.DO release_do = 36;
       case 36:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
           ptr = ctx->ParseMessage(_internal_mutable_release_do(), ptr);
           CHK_(ptr);
         } else
@@ -2660,7 +2658,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional uint32 class = 37;
       case 37:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 40)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 40)) {
           _Internal::set_has_class_(&_has_bits_);
           class__ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -2669,7 +2667,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional string target = 38;
       case 38:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
           auto str = _internal_mutable_target();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           #ifndef NDEBUG
@@ -2681,7 +2679,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional uint32 typedecl = 39;
       case 39:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 56)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 56)) {
           _Internal::set_has_typedecl(&_has_bits_);
           typedecl_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -2690,7 +2688,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // optional uint32 auto = 40;
       case 40:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 64)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 64)) {
           _Internal::set_has_auto_(&_has_bits_);
           auto__ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -2701,12 +2699,12 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    if ((8000u <= tag)) {
+    if((8000u <= tag)) {
       ptr = _extensions_.ParseField(tag, ptr, internal_default_instance(), &_internal_metadata_, ctx);
       CHK_(ptr != nullptr);
       continue;
@@ -2733,19 +2731,19 @@ uint8_t* TestConflictingSymbolNames::_InternalSerialize(
 
   cached_has_bits = _has_bits_[0];
   // optional int32 input = 1;
-  if (cached_has_bits & 0x00000100u) {
+  if(cached_has_bits & 0x00000100u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_input(), target);
   }
 
   // optional int32 output = 2;
-  if (cached_has_bits & 0x00000200u) {
+  if(cached_has_bits & 0x00000200u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(2, this->_internal_output(), target);
   }
 
   // optional string length = 3;
-  if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000001u) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
       this->_internal_length().data(), static_cast<int>(this->_internal_length().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
@@ -2755,7 +2753,7 @@ uint8_t* TestConflictingSymbolNames::_InternalSerialize(
   }
 
   // repeated int32 i = 4;
-  for (int i = 0, n = this->_internal_i_size(); i < n; i++) {
+  for(int i = 0, n = this->_internal_i_size(); i < n; i++) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(4, this->_internal_i(i), target);
   }
@@ -2771,79 +2769,79 @@ uint8_t* TestConflictingSymbolNames::_InternalSerialize(
   }
 
   // optional int32 total_size = 6;
-  if (cached_has_bits & 0x00000400u) {
+  if(cached_has_bits & 0x00000400u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(6, this->_internal_total_size(), target);
   }
 
   // optional int32 tag = 7;
-  if (cached_has_bits & 0x00000800u) {
+  if(cached_has_bits & 0x00000800u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(7, this->_internal_tag(), target);
   }
 
   // optional int32 source = 8;
-  if (cached_has_bits & 0x00001000u) {
+  if(cached_has_bits & 0x00001000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(8, this->_internal_source(), target);
   }
 
   // optional int32 value = 9;
-  if (cached_has_bits & 0x00002000u) {
+  if(cached_has_bits & 0x00002000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(9, this->_internal_value(), target);
   }
 
   // optional int32 file = 10;
-  if (cached_has_bits & 0x00004000u) {
+  if(cached_has_bits & 0x00004000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(10, this->_internal_file(), target);
   }
 
   // optional int32 from = 11;
-  if (cached_has_bits & 0x00008000u) {
+  if(cached_has_bits & 0x00008000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(11, this->_internal_from(), target);
   }
 
   // optional int32 handle_uninterpreted = 12;
-  if (cached_has_bits & 0x00010000u) {
+  if(cached_has_bits & 0x00010000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(12, this->_internal_handle_uninterpreted(), target);
   }
 
   // repeated int32 index = 13;
-  for (int i = 0, n = this->_internal_index_size(); i < n; i++) {
+  for(int i = 0, n = this->_internal_index_size(); i < n; i++) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(13, this->_internal_index(i), target);
   }
 
   // optional int32 controller = 14;
-  if (cached_has_bits & 0x00020000u) {
+  if(cached_has_bits & 0x00020000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(14, this->_internal_controller(), target);
   }
 
   // optional int32 already_here = 15;
-  if (cached_has_bits & 0x00040000u) {
+  if(cached_has_bits & 0x00040000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(15, this->_internal_already_here(), target);
   }
 
   // optional uint32 uint32 = 16;
-  if (cached_has_bits & 0x00080000u) {
+  if(cached_has_bits & 0x00080000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(16, this->_internal_uint32(), target);
   }
 
   // optional uint64 uint64 = 17;
-  if (cached_has_bits & 0x00100000u) {
+  if(cached_has_bits & 0x00100000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(17, this->_internal_uint64(), target);
   }
 
   // optional string string = 18;
-  if (cached_has_bits & 0x00000002u) {
+  if(cached_has_bits & 0x00000002u) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
       this->_internal_string().data(), static_cast<int>(this->_internal_string().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
@@ -2853,61 +2851,61 @@ uint8_t* TestConflictingSymbolNames::_InternalSerialize(
   }
 
   // optional int32 memset = 19;
-  if (cached_has_bits & 0x00200000u) {
+  if(cached_has_bits & 0x00200000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(19, this->_internal_memset(), target);
   }
 
   // optional int32 int32 = 20;
-  if (cached_has_bits & 0x00400000u) {
+  if(cached_has_bits & 0x00400000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(20, this->_internal_int32(), target);
   }
 
   // optional int64 int64 = 21;
-  if (cached_has_bits & 0x00800000u) {
+  if(cached_has_bits & 0x00800000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt64ToArray(21, this->_internal_int64(), target);
   }
 
   // optional uint32 cached_size = 22;
-  if (cached_has_bits & 0x01000000u) {
+  if(cached_has_bits & 0x01000000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(22, this->_internal_cached_size(), target);
   }
 
   // optional uint32 extensions = 23;
-  if (cached_has_bits & 0x02000000u) {
+  if(cached_has_bits & 0x02000000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(23, this->_internal_extensions(), target);
   }
 
   // optional uint32 bit = 24;
-  if (cached_has_bits & 0x04000000u) {
+  if(cached_has_bits & 0x04000000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(24, this->_internal_bit(), target);
   }
 
   // optional uint32 bits = 25;
-  if (cached_has_bits & 0x08000000u) {
+  if(cached_has_bits & 0x08000000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(25, this->_internal_bits(), target);
   }
 
   // optional uint32 offsets = 26;
-  if (cached_has_bits & 0x10000000u) {
+  if(cached_has_bits & 0x10000000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(26, this->_internal_offsets(), target);
   }
 
   // optional uint32 reflection = 27;
-  if (cached_has_bits & 0x20000000u) {
+  if(cached_has_bits & 0x20000000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(27, this->_internal_reflection(), target);
   }
 
   // optional string some_cord = 28 [ctype = CORD];
-  if (cached_has_bits & 0x00000004u) {
+  if(cached_has_bits & 0x00000004u) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
       this->_internal_some_cord().data(), static_cast<int>(this->_internal_some_cord().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
@@ -2917,7 +2915,7 @@ uint8_t* TestConflictingSymbolNames::_InternalSerialize(
   }
 
   // optional string some_string_piece = 29 [ctype = STRING_PIECE];
-  if (cached_has_bits & 0x00000008u) {
+  if(cached_has_bits & 0x00000008u) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
       this->_internal_some_string_piece().data(), static_cast<int>(this->_internal_some_string_piece().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
@@ -2927,19 +2925,19 @@ uint8_t* TestConflictingSymbolNames::_InternalSerialize(
   }
 
   // optional uint32 int = 30;
-  if (cached_has_bits & 0x40000000u) {
+  if(cached_has_bits & 0x40000000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(30, this->_internal_int_(), target);
   }
 
   // optional uint32 friend = 31;
-  if (cached_has_bits & 0x80000000u) {
+  if(cached_has_bits & 0x80000000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(31, this->_internal_friend_(), target);
   }
 
   // optional .protobuf_unittest.TestConflictingSymbolNames.DO do = 32;
-  if (cached_has_bits & 0x00000040u) {
+  if(cached_has_bits & 0x00000040u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -2948,20 +2946,20 @@ uint8_t* TestConflictingSymbolNames::_InternalSerialize(
 
   cached_has_bits = _has_bits_[1];
   // optional int32 field_type = 33;
-  if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000001u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(33, this->_internal_field_type(), target);
   }
 
   // optional bool is_packed = 34;
-  if (cached_has_bits & 0x00000002u) {
+  if(cached_has_bits & 0x00000002u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(34, this->_internal_is_packed(), target);
   }
 
   cached_has_bits = _has_bits_[0];
   // optional string release_length = 35;
-  if (cached_has_bits & 0x00000010u) {
+  if(cached_has_bits & 0x00000010u) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
       this->_internal_release_length().data(), static_cast<int>(this->_internal_release_length().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
@@ -2971,7 +2969,7 @@ uint8_t* TestConflictingSymbolNames::_InternalSerialize(
   }
 
   // optional .protobuf_unittest.TestConflictingSymbolNames.DO release_do = 36;
-  if (cached_has_bits & 0x00000080u) {
+  if(cached_has_bits & 0x00000080u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -2980,14 +2978,14 @@ uint8_t* TestConflictingSymbolNames::_InternalSerialize(
 
   cached_has_bits = _has_bits_[1];
   // optional uint32 class = 37;
-  if (cached_has_bits & 0x00000004u) {
+  if(cached_has_bits & 0x00000004u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(37, this->_internal_class_(), target);
   }
 
   cached_has_bits = _has_bits_[0];
   // optional string target = 38;
-  if (cached_has_bits & 0x00000020u) {
+  if(cached_has_bits & 0x00000020u) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
       this->_internal_target().data(), static_cast<int>(this->_internal_target().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
@@ -2998,13 +2996,13 @@ uint8_t* TestConflictingSymbolNames::_InternalSerialize(
 
   cached_has_bits = _has_bits_[1];
   // optional uint32 typedecl = 39;
-  if (cached_has_bits & 0x00000008u) {
+  if(cached_has_bits & 0x00000008u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(39, this->_internal_typedecl(), target);
   }
 
   // optional uint32 auto = 40;
-  if (cached_has_bits & 0x00000010u) {
+  if(cached_has_bits & 0x00000010u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(40, this->_internal_auto_(), target);
   }
@@ -3013,7 +3011,7 @@ uint8_t* TestConflictingSymbolNames::_InternalSerialize(
   target = _extensions_._InternalSerialize(
   internal_default_instance(), 1000, 536870912, target, stream);
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -3058,210 +3056,210 @@ size_t TestConflictingSymbolNames::ByteSizeLong() const {
   }
 
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x000000ffu) {
+  if(cached_has_bits & 0x000000ffu) {
     // optional string length = 3;
-    if (cached_has_bits & 0x00000001u) {
+    if(cached_has_bits & 0x00000001u) {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
           this->_internal_length());
     }
 
     // optional string string = 18;
-    if (cached_has_bits & 0x00000002u) {
+    if(cached_has_bits & 0x00000002u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
           this->_internal_string());
     }
 
     // optional string some_cord = 28 [ctype = CORD];
-    if (cached_has_bits & 0x00000004u) {
+    if(cached_has_bits & 0x00000004u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
           this->_internal_some_cord());
     }
 
     // optional string some_string_piece = 29 [ctype = STRING_PIECE];
-    if (cached_has_bits & 0x00000008u) {
+    if(cached_has_bits & 0x00000008u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
           this->_internal_some_string_piece());
     }
 
     // optional string release_length = 35;
-    if (cached_has_bits & 0x00000010u) {
+    if(cached_has_bits & 0x00000010u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
           this->_internal_release_length());
     }
 
     // optional string target = 38;
-    if (cached_has_bits & 0x00000020u) {
+    if(cached_has_bits & 0x00000020u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
           this->_internal_target());
     }
 
     // optional .protobuf_unittest.TestConflictingSymbolNames.DO do = 32;
-    if (cached_has_bits & 0x00000040u) {
+    if(cached_has_bits & 0x00000040u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
           *do__);
     }
 
     // optional .protobuf_unittest.TestConflictingSymbolNames.DO release_do = 36;
-    if (cached_has_bits & 0x00000080u) {
+    if(cached_has_bits & 0x00000080u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
           *release_do_);
     }
 
   }
-  if (cached_has_bits & 0x0000ff00u) {
+  if(cached_has_bits & 0x0000ff00u) {
     // optional int32 input = 1;
-    if (cached_has_bits & 0x00000100u) {
+    if(cached_has_bits & 0x00000100u) {
       total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_input());
     }
 
     // optional int32 output = 2;
-    if (cached_has_bits & 0x00000200u) {
+    if(cached_has_bits & 0x00000200u) {
       total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_output());
     }
 
     // optional int32 total_size = 6;
-    if (cached_has_bits & 0x00000400u) {
+    if(cached_has_bits & 0x00000400u) {
       total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_total_size());
     }
 
     // optional int32 tag = 7;
-    if (cached_has_bits & 0x00000800u) {
+    if(cached_has_bits & 0x00000800u) {
       total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_tag());
     }
 
     // optional int32 source = 8;
-    if (cached_has_bits & 0x00001000u) {
+    if(cached_has_bits & 0x00001000u) {
       total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_source());
     }
 
     // optional int32 value = 9;
-    if (cached_has_bits & 0x00002000u) {
+    if(cached_has_bits & 0x00002000u) {
       total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_value());
     }
 
     // optional int32 file = 10;
-    if (cached_has_bits & 0x00004000u) {
+    if(cached_has_bits & 0x00004000u) {
       total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_file());
     }
 
     // optional int32 from = 11;
-    if (cached_has_bits & 0x00008000u) {
+    if(cached_has_bits & 0x00008000u) {
       total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_from());
     }
 
   }
-  if (cached_has_bits & 0x00ff0000u) {
+  if(cached_has_bits & 0x00ff0000u) {
     // optional int32 handle_uninterpreted = 12;
-    if (cached_has_bits & 0x00010000u) {
+    if(cached_has_bits & 0x00010000u) {
       total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_handle_uninterpreted());
     }
 
     // optional int32 controller = 14;
-    if (cached_has_bits & 0x00020000u) {
+    if(cached_has_bits & 0x00020000u) {
       total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_controller());
     }
 
     // optional int32 already_here = 15;
-    if (cached_has_bits & 0x00040000u) {
+    if(cached_has_bits & 0x00040000u) {
       total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_already_here());
     }
 
     // optional uint32 uint32 = 16;
-    if (cached_has_bits & 0x00080000u) {
+    if(cached_has_bits & 0x00080000u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
           this->_internal_uint32());
     }
 
     // optional uint64 uint64 = 17;
-    if (cached_has_bits & 0x00100000u) {
+    if(cached_has_bits & 0x00100000u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
           this->_internal_uint64());
     }
 
     // optional int32 memset = 19;
-    if (cached_has_bits & 0x00200000u) {
+    if(cached_has_bits & 0x00200000u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
           this->_internal_memset());
     }
 
     // optional int32 int32 = 20;
-    if (cached_has_bits & 0x00400000u) {
+    if(cached_has_bits & 0x00400000u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
           this->_internal_int32());
     }
 
     // optional int64 int64 = 21;
-    if (cached_has_bits & 0x00800000u) {
+    if(cached_has_bits & 0x00800000u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int64Size(
           this->_internal_int64());
     }
 
   }
-  if (cached_has_bits & 0xff000000u) {
+  if(cached_has_bits & 0xff000000u) {
     // optional uint32 cached_size = 22;
-    if (cached_has_bits & 0x01000000u) {
+    if(cached_has_bits & 0x01000000u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
           this->_internal_cached_size());
     }
 
     // optional uint32 extensions = 23;
-    if (cached_has_bits & 0x02000000u) {
+    if(cached_has_bits & 0x02000000u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
           this->_internal_extensions());
     }
 
     // optional uint32 bit = 24;
-    if (cached_has_bits & 0x04000000u) {
+    if(cached_has_bits & 0x04000000u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
           this->_internal_bit());
     }
 
     // optional uint32 bits = 25;
-    if (cached_has_bits & 0x08000000u) {
+    if(cached_has_bits & 0x08000000u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
           this->_internal_bits());
     }
 
     // optional uint32 offsets = 26;
-    if (cached_has_bits & 0x10000000u) {
+    if(cached_has_bits & 0x10000000u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
           this->_internal_offsets());
     }
 
     // optional uint32 reflection = 27;
-    if (cached_has_bits & 0x20000000u) {
+    if(cached_has_bits & 0x20000000u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
           this->_internal_reflection());
     }
 
     // optional uint32 int = 30;
-    if (cached_has_bits & 0x40000000u) {
+    if(cached_has_bits & 0x40000000u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
           this->_internal_int_());
     }
 
     // optional uint32 friend = 31;
-    if (cached_has_bits & 0x80000000u) {
+    if(cached_has_bits & 0x80000000u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
           this->_internal_friend_());
@@ -3269,35 +3267,35 @@ size_t TestConflictingSymbolNames::ByteSizeLong() const {
 
   }
   cached_has_bits = _has_bits_[1];
-  if (cached_has_bits & 0x0000001fu) {
+  if(cached_has_bits & 0x0000001fu) {
     // optional int32 field_type = 33;
-    if (cached_has_bits & 0x00000001u) {
+    if(cached_has_bits & 0x00000001u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
           this->_internal_field_type());
     }
 
     // optional bool is_packed = 34;
-    if (cached_has_bits & 0x00000002u) {
+    if(cached_has_bits & 0x00000002u) {
       total_size += 2 + 1;
     }
 
     // optional uint32 class = 37;
-    if (cached_has_bits & 0x00000004u) {
+    if(cached_has_bits & 0x00000004u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
           this->_internal_class_());
     }
 
     // optional uint32 typedecl = 39;
-    if (cached_has_bits & 0x00000008u) {
+    if(cached_has_bits & 0x00000008u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
           this->_internal_typedecl());
     }
 
     // optional uint32 auto = 40;
-    if (cached_has_bits & 0x00000010u) {
+    if(cached_has_bits & 0x00000010u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
           this->_internal_auto_());
@@ -3330,128 +3328,128 @@ void TestConflictingSymbolNames::MergeFrom(const TestConflictingSymbolNames& fro
   new_element_.MergeFrom(from.new_element_);
   index_.MergeFrom(from.index_);
   cached_has_bits = from._has_bits_[0];
-  if (cached_has_bits & 0x000000ffu) {
-    if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x000000ffu) {
+    if(cached_has_bits & 0x00000001u) {
       _internal_set_length(from._internal_length());
     }
-    if (cached_has_bits & 0x00000002u) {
+    if(cached_has_bits & 0x00000002u) {
       _internal_set_string(from._internal_string());
     }
-    if (cached_has_bits & 0x00000004u) {
+    if(cached_has_bits & 0x00000004u) {
       _internal_set_some_cord(from._internal_some_cord());
     }
-    if (cached_has_bits & 0x00000008u) {
+    if(cached_has_bits & 0x00000008u) {
       _internal_set_some_string_piece(from._internal_some_string_piece());
     }
-    if (cached_has_bits & 0x00000010u) {
+    if(cached_has_bits & 0x00000010u) {
       _internal_set_release_length(from._internal_release_length());
     }
-    if (cached_has_bits & 0x00000020u) {
+    if(cached_has_bits & 0x00000020u) {
       _internal_set_target(from._internal_target());
     }
-    if (cached_has_bits & 0x00000040u) {
+    if(cached_has_bits & 0x00000040u) {
       _internal_mutable_do_()->::protobuf_unittest::TestConflictingSymbolNames_DO::MergeFrom(from._internal_do_());
     }
-    if (cached_has_bits & 0x00000080u) {
+    if(cached_has_bits & 0x00000080u) {
       _internal_mutable_release_do()->::protobuf_unittest::TestConflictingSymbolNames_DO::MergeFrom(from._internal_release_do());
     }
   }
-  if (cached_has_bits & 0x0000ff00u) {
-    if (cached_has_bits & 0x00000100u) {
+  if(cached_has_bits & 0x0000ff00u) {
+    if(cached_has_bits & 0x00000100u) {
       input_ = from.input_;
     }
-    if (cached_has_bits & 0x00000200u) {
+    if(cached_has_bits & 0x00000200u) {
       output_ = from.output_;
     }
-    if (cached_has_bits & 0x00000400u) {
+    if(cached_has_bits & 0x00000400u) {
       total_size_ = from.total_size_;
     }
-    if (cached_has_bits & 0x00000800u) {
+    if(cached_has_bits & 0x00000800u) {
       tag_ = from.tag_;
     }
-    if (cached_has_bits & 0x00001000u) {
+    if(cached_has_bits & 0x00001000u) {
       source_ = from.source_;
     }
-    if (cached_has_bits & 0x00002000u) {
+    if(cached_has_bits & 0x00002000u) {
       value_ = from.value_;
     }
-    if (cached_has_bits & 0x00004000u) {
+    if(cached_has_bits & 0x00004000u) {
       file_ = from.file_;
     }
-    if (cached_has_bits & 0x00008000u) {
+    if(cached_has_bits & 0x00008000u) {
       from_ = from.from_;
     }
     _has_bits_[0] |= cached_has_bits;
   }
-  if (cached_has_bits & 0x00ff0000u) {
-    if (cached_has_bits & 0x00010000u) {
+  if(cached_has_bits & 0x00ff0000u) {
+    if(cached_has_bits & 0x00010000u) {
       handle_uninterpreted_ = from.handle_uninterpreted_;
     }
-    if (cached_has_bits & 0x00020000u) {
+    if(cached_has_bits & 0x00020000u) {
       controller_ = from.controller_;
     }
-    if (cached_has_bits & 0x00040000u) {
+    if(cached_has_bits & 0x00040000u) {
       already_here_ = from.already_here_;
     }
-    if (cached_has_bits & 0x00080000u) {
+    if(cached_has_bits & 0x00080000u) {
       uint32_ = from.uint32_;
     }
-    if (cached_has_bits & 0x00100000u) {
+    if(cached_has_bits & 0x00100000u) {
       uint64_ = from.uint64_;
     }
-    if (cached_has_bits & 0x00200000u) {
+    if(cached_has_bits & 0x00200000u) {
       memset_ = from.memset_;
     }
-    if (cached_has_bits & 0x00400000u) {
+    if(cached_has_bits & 0x00400000u) {
       int32_ = from.int32_;
     }
-    if (cached_has_bits & 0x00800000u) {
+    if(cached_has_bits & 0x00800000u) {
       int64_ = from.int64_;
     }
     _has_bits_[0] |= cached_has_bits;
   }
-  if (cached_has_bits & 0xff000000u) {
-    if (cached_has_bits & 0x01000000u) {
+  if(cached_has_bits & 0xff000000u) {
+    if(cached_has_bits & 0x01000000u) {
       cached_size_ = from.cached_size_;
     }
-    if (cached_has_bits & 0x02000000u) {
+    if(cached_has_bits & 0x02000000u) {
       extensions_ = from.extensions_;
     }
-    if (cached_has_bits & 0x04000000u) {
+    if(cached_has_bits & 0x04000000u) {
       bit_ = from.bit_;
     }
-    if (cached_has_bits & 0x08000000u) {
+    if(cached_has_bits & 0x08000000u) {
       bits_ = from.bits_;
     }
-    if (cached_has_bits & 0x10000000u) {
+    if(cached_has_bits & 0x10000000u) {
       offsets_ = from.offsets_;
     }
-    if (cached_has_bits & 0x20000000u) {
+    if(cached_has_bits & 0x20000000u) {
       reflection_ = from.reflection_;
     }
-    if (cached_has_bits & 0x40000000u) {
+    if(cached_has_bits & 0x40000000u) {
       int__ = from.int__;
     }
-    if (cached_has_bits & 0x80000000u) {
+    if(cached_has_bits & 0x80000000u) {
       friend__ = from.friend__;
     }
     _has_bits_[0] |= cached_has_bits;
   }
   cached_has_bits = from._has_bits_[1];
-  if (cached_has_bits & 0x0000001fu) {
-    if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x0000001fu) {
+    if(cached_has_bits & 0x00000001u) {
       field_type_ = from.field_type_;
     }
-    if (cached_has_bits & 0x00000002u) {
+    if(cached_has_bits & 0x00000002u) {
       is_packed_ = from.is_packed_;
     }
-    if (cached_has_bits & 0x00000004u) {
+    if(cached_has_bits & 0x00000004u) {
       class__ = from.class__;
     }
-    if (cached_has_bits & 0x00000008u) {
+    if(cached_has_bits & 0x00000008u) {
       typedecl_ = from.typedecl_;
     }
-    if (cached_has_bits & 0x00000010u) {
+    if(cached_has_bits & 0x00000010u) {
       auto__ = from.auto__;
     }
     _has_bits_[1] |= cached_has_bits;
@@ -3462,13 +3460,13 @@ void TestConflictingSymbolNames::MergeFrom(const TestConflictingSymbolNames& fro
 
 void TestConflictingSymbolNames::CopyFrom(const TestConflictingSymbolNames& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest.TestConflictingSymbolNames)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
 bool TestConflictingSymbolNames::IsInitialized() const {
-  if (!_extensions_.IsInitialized()) {
+  if(!_extensions_.IsInitialized()) {
     return false;
   }
 
@@ -3638,13 +3636,13 @@ const char* TestConflictingEnumNames::_InternalParse(const char* ptr, ::PROTOBUF
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // optional .protobuf_unittest.TestConflictingEnumNames.while conflicting_enum = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
           uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
-          if (PROTOBUF_PREDICT_TRUE(::protobuf_unittest::TestConflictingEnumNames_while_IsValid(val))) {
+          if(PROTOBUF_PREDICT_TRUE(::protobuf_unittest::TestConflictingEnumNames_while_IsValid(val))) {
             _internal_set_conflicting_enum(static_cast<::protobuf_unittest::TestConflictingEnumNames_while>(val));
           } else {
             ::PROTOBUF_NAMESPACE_ID::internal::WriteVarint(1, val, mutable_unknown_fields());
@@ -3656,7 +3654,7 @@ const char* TestConflictingEnumNames::_InternalParse(const char* ptr, ::PROTOBUF
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -3684,12 +3682,12 @@ uint8_t* TestConflictingEnumNames::_InternalSerialize(
 
   cached_has_bits = _has_bits_[0];
   // optional .protobuf_unittest.TestConflictingEnumNames.while conflicting_enum = 1;
-  if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000001u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(1, this->_internal_conflicting_enum(), target);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -3707,7 +3705,7 @@ size_t TestConflictingEnumNames::ByteSizeLong() const {
 
   // optional .protobuf_unittest.TestConflictingEnumNames.while conflicting_enum = 1;
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000001u) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_conflicting_enum());
   }
@@ -3734,7 +3732,7 @@ void TestConflictingEnumNames::MergeFrom(const TestConflictingEnumNames& from) {
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_has_conflicting_enum()) {
+  if(from._internal_has_conflicting_enum()) {
     _internal_set_conflicting_enum(from._internal_conflicting_enum());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -3742,7 +3740,7 @@ void TestConflictingEnumNames::MergeFrom(const TestConflictingEnumNames& from) {
 
 void TestConflictingEnumNames::CopyFrom(const TestConflictingEnumNames& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest.TestConflictingEnumNames)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -3872,10 +3870,10 @@ const char* NULL_::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inte
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // optional int32 int = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
           _Internal::set_has_int_(&has_bits);
           int__ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -3886,7 +3884,7 @@ const char* NULL_::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inte
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -3914,12 +3912,12 @@ uint8_t* NULL_::_InternalSerialize(
 
   cached_has_bits = _has_bits_[0];
   // optional int32 int = 1;
-  if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000001u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_int_(), target);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -3937,7 +3935,7 @@ size_t NULL_::ByteSizeLong() const {
 
   // optional int32 int = 1;
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000001u) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_int_());
   }
 
@@ -3963,7 +3961,7 @@ void NULL_::MergeFrom(const NULL_& from) {
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_has_int_()) {
+  if(from._internal_has_int_()) {
     _internal_set_int_(from._internal_int_());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -3971,7 +3969,7 @@ void NULL_::MergeFrom(const NULL_& from) {
 
 void NULL_::CopyFrom(const NULL_& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest.NULL)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }

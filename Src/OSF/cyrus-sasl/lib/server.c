@@ -141,7 +141,7 @@ int sasl_setpass(sasl_conn_t * conn,
 	}
 
 	if((flags & SASL_SET_CURMECH_ONLY) &&
-	    (current_mech == NULL) ) {
+	    (current_mech == NULL)) {
 		sasl_seterror(conn, SASL_NOLOG,
 		    "No current SASL mechanism available");
 		RETURN(conn, SASL_BADPARAM);

@@ -188,7 +188,7 @@ static bool MBCSStartMappings(MBCSData * mbcsData) {
 	if(sum>0) {
 		mbcsData->unicodeCodeUnits = (uint16_t*)uprv_malloc(sum*sizeof(uint16_t));
 		if(mbcsData->unicodeCodeUnits==NULL) {
-			fprintf(stderr, "error: out of memory allocating %ld 16-bit code units\n",
+			slfprintf_stderr("error: out of memory allocating %ld 16-bit code units\n",
 			    (long)sum);
 			return FALSE;
 		}
@@ -211,7 +211,7 @@ static bool MBCSStartMappings(MBCSData * mbcsData) {
 	}
 	mbcsData->fromUBytes = (uint8_t*)uprv_malloc(sum);
 	if(mbcsData->fromUBytes==NULL) {
-		fprintf(stderr, "error: out of memory allocating %ld B for target mappings\n", (long)sum);
+		slfprintf_stderr("error: out of memory allocating %ld B for target mappings\n", (long)sum);
 		return FALSE;
 	}
 	memzero(mbcsData->fromUBytes, sum);
@@ -310,7 +310,7 @@ static bool setFallback(MBCSData * mbcsData, uint32_t offset, UChar32 c) {
 		/* if there is no fallback for this offset, then add one */
 		i = mbcsData->countToUFallbacks;
 		if(i>=MBCS_MAX_FALLBACK_COUNT) {
-			fprintf(stderr, "error: too many toUnicode fallbacks, currently at: U+%x\n", (int)c);
+			slfprintf_stderr("error: too many toUnicode fallbacks, currently at: U+%x\n", (int)c);
 			return FALSE;
 		}
 		else {
@@ -360,7 +360,7 @@ static bool MBCSAddToUnicode(MBCSData * mbcsData,
 	uint8_t state = 0;
 
 	if(mbcsData->ucm->states.countStates==0) {
-		fprintf(stderr, "error: there is no state information!\n");
+		slfprintf_stderr("error: there is no state information!\n");
 		return FALSE;
 	}
 
@@ -378,7 +378,7 @@ static bool MBCSAddToUnicode(MBCSData * mbcsData,
 		entry = mbcsData->ucm->states.stateTable[state][bytes[i++]];
 		if(MBCS_ENTRY_IS_TRANSITION(entry)) {
 			if(i==length) {
-				fprintf(stderr, "error: byte sequence too short, ends in non-final state %hu: 0x%s (U+%x)\n",
+				slfprintf_stderr("error: byte sequence too short, ends in non-final state %hu: 0x%s (U+%x)\n",
 				    (short)state, printBytes(buffer, bytes, length), (int)c);
 				return FALSE;
 			}
@@ -387,21 +387,21 @@ static bool MBCSAddToUnicode(MBCSData * mbcsData,
 		}
 		else {
 			if(i<length) {
-				fprintf(stderr, "error: byte sequence too long by %d bytes, final state %u: 0x%s (U+%x)\n",
+				slfprintf_stderr("error: byte sequence too long by %d bytes, final state %u: 0x%s (U+%x)\n",
 				    (int)(length-i), state, printBytes(buffer, bytes, length), (int)c);
 				return FALSE;
 			}
 			switch(MBCS_ENTRY_FINAL_ACTION(entry)) {
 				case MBCS_STATE_ILLEGAL:
-				    fprintf(stderr, "error: byte sequence ends in illegal state at U+%04x<->0x%s\n",
+				    slfprintf_stderr("error: byte sequence ends in illegal state at U+%04x<->0x%s\n",
 					(int)c, printBytes(buffer, bytes, length));
 				    return FALSE;
 				case MBCS_STATE_CHANGE_ONLY:
-				    fprintf(stderr, "error: byte sequence ends in state-change-only at U+%04x<->0x%s\n",
+				    slfprintf_stderr("error: byte sequence ends in state-change-only at U+%04x<->0x%s\n",
 					(int)c, printBytes(buffer, bytes, length));
 				    return FALSE;
 				case MBCS_STATE_UNASSIGNED:
-				    fprintf(stderr, "error: byte sequence ends in unassigned state at U+%04x<->0x%s\n",
+				    slfprintf_stderr("error: byte sequence ends in unassigned state at U+%04x<->0x%s\n",
 					(int)c, printBytes(buffer, bytes, length));
 				    return FALSE;
 				case MBCS_STATE_FALLBACK_DIRECT_16:
@@ -419,12 +419,12 @@ static bool MBCSAddToUnicode(MBCSData * mbcsData,
 						    old = 0x10000+MBCS_ENTRY_FINAL_VALUE(entry);
 					    }
 					    if(flag>=0) {
-						    fprintf(stderr, "error: duplicate codepage byte sequence at U+%04x<->0x%s see U+%04x\n",
+						    slfprintf_stderr("error: duplicate codepage byte sequence at U+%04x<->0x%s see U+%04x\n",
 							(int)c, printBytes(buffer, bytes, length), (int)old);
 						    return FALSE;
 					    }
 					    else if(VERBOSE) {
-						    fprintf(stderr, "duplicate codepage byte sequence at U+%04x<->0x%s see U+%04x\n",
+						    slfprintf_stderr("duplicate codepage byte sequence at U+%04x<->0x%s see U+%04x\n",
 							(int)c, printBytes(buffer, bytes, length), (int)old);
 					    }
 					    /*
@@ -453,17 +453,17 @@ static bool MBCSAddToUnicode(MBCSData * mbcsData,
 				    /* check that this byte sequence is still unassigned */
 				    if((old = mbcsData->unicodeCodeUnits[offset])!=0xfffe || (old = removeFallback(mbcsData, offset))!=-1) {
 					    if(flag>=0) {
-						    fprintf(stderr, "error: duplicate codepage byte sequence at U+%04x<->0x%s see U+%04x\n",
+						    slfprintf_stderr("error: duplicate codepage byte sequence at U+%04x<->0x%s see U+%04x\n",
 							(int)c, printBytes(buffer, bytes, length), (int)old);
 						    return FALSE;
 					    }
 					    else if(VERBOSE) {
-						    fprintf(stderr, "duplicate codepage byte sequence at U+%04x<->0x%s see U+%04x\n",
+						    slfprintf_stderr("duplicate codepage byte sequence at U+%04x<->0x%s see U+%04x\n",
 							(int)c, printBytes(buffer, bytes, length), (int)old);
 					    }
 				    }
 				    if(c>=0x10000) {
-					    fprintf(stderr, "error: code point does not fit into valid-16-bit state at U+%04x<->0x%s\n",
+					    slfprintf_stderr("error: code point does not fit into valid-16-bit state at U+%04x<->0x%s\n",
 						(int)c, printBytes(buffer, bytes, length));
 					    return FALSE;
 				    }
@@ -495,12 +495,12 @@ static bool MBCSAddToUnicode(MBCSData * mbcsData,
 						    real = mbcsData->unicodeCodeUnits[offset+1];
 					    }
 					    if(flag>=0) {
-						    fprintf(stderr, "error: duplicate codepage byte sequence at U+%04x<->0x%s see U+%04x\n",
+						    slfprintf_stderr("error: duplicate codepage byte sequence at U+%04x<->0x%s see U+%04x\n",
 							(int)c, printBytes(buffer, bytes, length), (int)real);
 						    return FALSE;
 					    }
 					    else if(VERBOSE) {
-						    fprintf(stderr, "duplicate codepage byte sequence at U+%04x<->0x%s see U+%04x\n",
+						    slfprintf_stderr("duplicate codepage byte sequence at U+%04x<->0x%s see U+%04x\n",
 							(int)c, printBytes(buffer, bytes, length), (int)real);
 					    }
 				    }
@@ -607,7 +607,7 @@ static bool MBCSSingleAddFromUnicode(MBCSData * mbcsData,
 		newTop = newBlock+MBCS_STAGE_2_BLOCK_SIZE;
 
 		if(newTop>MBCS_MAX_STAGE_2_TOP) {
-			fprintf(stderr, "error: too many stage 2 entries at U+%04x<->0x%02x\n", (int)c, b);
+			slfprintf_stderr("error: too many stage 2 entries at U+%04x<->0x%02x\n", (int)c, b);
 			return FALSE;
 		}
 
@@ -642,7 +642,7 @@ static bool MBCSSingleAddFromUnicode(MBCSData * mbcsData,
 		newTop = newBlock+blockSize;
 
 		if(newTop>MBCS_STAGE_3_SBCS_SIZE) {
-			fprintf(stderr, "error: too many code points at U+%04x<->0x%02x\n", (int)c, b);
+			slfprintf_stderr("error: too many code points at U+%04x<->0x%02x\n", (int)c, b);
 			return FALSE;
 		}
 		/* each block has 16 uint16_t entries */
@@ -670,12 +670,12 @@ static bool MBCSSingleAddFromUnicode(MBCSData * mbcsData,
 	/* check that this Unicode code point was still unassigned */
 	if(old>=0x100) {
 		if(flag>=0) {
-			fprintf(stderr, "error: duplicate Unicode code point at U+%04x<->0x%02x see 0x%02x\n",
+			slfprintf_stderr("error: duplicate Unicode code point at U+%04x<->0x%02x see 0x%02x\n",
 			    (int)c, b, old&0xff);
 			return FALSE;
 		}
 		else if(VERBOSE) {
-			fprintf(stderr, "duplicate Unicode code point at U+%04x<->0x%02x see 0x%02x\n",
+			slfprintf_stderr("duplicate Unicode code point at U+%04x<->0x%02x see 0x%02x\n",
 			    (int)c, b, old&0xff);
 		}
 		/* continue after the above warning if the precision of the mapping is unspecified */
@@ -701,13 +701,13 @@ static bool MBCSAddFromUnicode(MBCSData * mbcsData,
 	if(mbcsData->ucm->states.outputType==MBCS_OUTPUT_2_SISO &&
 	    (!IGNORE_SISO_CHECK && (*bytes==0xe || *bytes==0xf))
 	    ) {
-		fprintf(stderr, "error: illegal mapping to SI or SO for SI/SO codepage: U+%04x<->0x%s\n",
+		slfprintf_stderr("error: illegal mapping to SI or SO for SI/SO codepage: U+%04x<->0x%s\n",
 		    (int)c, printBytes(buffer, bytes, length));
 		return FALSE;
 	}
 
 	if(flag==1 && length==1 && *bytes==0) {
-		fprintf(stderr, "error: unable to encode a |1 fallback from U+%04x to 0x%02x\n",
+		slfprintf_stderr("error: unable to encode a |1 fallback from U+%04x to 0x%02x\n",
 		    (int)c, *bytes);
 		return FALSE;
 	}
@@ -741,7 +741,7 @@ static bool MBCSAddFromUnicode(MBCSData * mbcsData,
 		newTop = newBlock+MBCS_STAGE_2_BLOCK_SIZE;
 
 		if(newTop>MBCS_MAX_STAGE_2_TOP) {
-			fprintf(stderr, "error: too many stage 2 entries at U+%04x<->0x%s\n",
+			slfprintf_stderr("error: too many stage 2 entries at U+%04x<->0x%s\n",
 			    (int)c, printBytes(buffer, bytes, length));
 			return FALSE;
 		}
@@ -791,7 +791,7 @@ static bool MBCSAddFromUnicode(MBCSData * mbcsData,
 		newTop = newBlock+blockSize;
 
 		if(newTop>MBCS_STAGE_3_MBCS_SIZE*(uint32_t)maxCharLength) {
-			fprintf(stderr, "error: too many code points at U+%04x<->0x%s\n",
+			slfprintf_stderr("error: too many code points at U+%04x<->0x%s\n",
 			    (int)c, printBytes(buffer, bytes, length));
 			return FALSE;
 		}
@@ -887,12 +887,12 @@ static bool MBCSAddFromUnicode(MBCSData * mbcsData,
 	/* check that this Unicode code point was still unassigned */
 	if((mbcsData->stage2[idx+(nextOffset>>MBCS_STAGE_2_SHIFT)]&(1UL<<(16+(c&0xf))))!=0 || old!=0) {
 		if(flag>=0) {
-			fprintf(stderr, "error: duplicate Unicode code point at U+%04x<->0x%s see 0x%02x\n",
+			slfprintf_stderr("error: duplicate Unicode code point at U+%04x<->0x%s see 0x%02x\n",
 			    (int)c, printBytes(buffer, bytes, length), (int)old);
 			return FALSE;
 		}
 		else if(VERBOSE) {
-			fprintf(stderr, "duplicate Unicode code point at U+%04x<->0x%s see 0x%02x\n",
+			slfprintf_stderr("duplicate Unicode code point at U+%04x<->0x%s see 0x%02x\n",
 			    (int)c, printBytes(buffer, bytes, length), (int)old);
 		}
 		/* continue after the above warning if the precision of the mapping is
@@ -962,7 +962,7 @@ static bool MBCSAddTable(NewConverter * cnvData, UCMTable * table, UConverterSta
 
 	staticData->unicodeMask = table->unicodeMask;
 	if(staticData->unicodeMask==3) {
-		fprintf(stderr, "error: contains mappings for both supplementary and surrogate code points\n");
+		slfprintf_stderr("error: contains mappings for both supplementary and surrogate code points\n");
 		return FALSE;
 	}
 
@@ -1081,7 +1081,7 @@ static bool MBCSAddTable(NewConverter * cnvData, UCMTable * table, UConverterSta
 			    break;
 			default:
 			    /* will not occur because the parser checked it already */
-			    fprintf(stderr, "error: illegal fallback indicator %d\n", f);
+			    slfprintf_stderr("error: illegal fallback indicator %d\n", f);
 			    return FALSE;
 		}
 	}
@@ -1574,7 +1574,7 @@ static uint32_t MBCSWrite(NewConverter * cnvData, const UConverterStaticData * s
 
 	if(tableType&TABLE_EXT) {
 		if(top>0xffffff) {
-			fprintf(stderr, "error: offset 0x%lx to extension table exceeds 0xffffff\n", (long)top);
+			slfprintf_stderr("error: offset 0x%lx to extension table exceeds 0xffffff\n", (long)top);
 			return 0;
 		}
 

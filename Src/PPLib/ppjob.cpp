@@ -1,5 +1,5 @@
 // PPJOB.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // @Kernel
 //
@@ -3218,7 +3218,7 @@ int RFIDDevPrcssr::IsWait(uint devPos)
 	long   v = 0;
 	uint   pos = 0;
 	LTIME  cur_tm = getcurtime_();
-	if(WaitList.Search(devPos, &v, &pos) > 0) {
+	if(WaitList.Search(devPos, &v, &pos)) {
 		LTIME tm;
 		tm.v = v;
 		if(labs(DiffTime(cur_tm, tm, 3)) >= 15)

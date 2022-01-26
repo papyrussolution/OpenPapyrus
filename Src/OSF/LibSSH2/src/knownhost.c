@@ -385,7 +385,7 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS * hosts,
 				   - if key_type is set to zero, ignore it an match always
 				   - otherwise match when both key types are equal
 				 */
-				if((host_key_type != LIBSSH2_KNOWNHOST_KEY_UNKNOWN ) && ((host_key_type == 0) || (host_key_type == known_key_type) ) ) {
+				if((host_key_type != LIBSSH2_KNOWNHOST_KEY_UNKNOWN ) && ((host_key_type == 0) || (host_key_type == known_key_type) )) {
 					/* host name and key type match, now compare the keys */
 					if(sstreq(key, node->key)) {
 						/* they match! */

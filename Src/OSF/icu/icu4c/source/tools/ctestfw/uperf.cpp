@@ -221,7 +221,7 @@ ULine* UPerfTest::getLines(UErrorCode & status) {
 			maxLines += MAXLINES;
 			ULine * newLines = new ULine[maxLines];
 			if(newLines == NULL) {
-				fprintf(stderr, "Out of memory reading line %d.\n", (int)numLines);
+				slfprintf_stderr("Out of memory reading line %d.\n", (int)numLines);
 				status = U_MEMORY_ALLOCATION_ERROR;
 				delete []lines;
 				return NULL;
@@ -323,7 +323,7 @@ UPerfFunction* UPerfTest::runIndexedTest(int32_t /*index*/, bool /*exec*/, const
 	    default: name = ""; break;
 	   }
 	 */
-	fprintf(stderr, "*** runIndexedTest needs to be overridden! ***");
+	slfprintf_stderr("*** runIndexedTest needs to be overridden! ***");
 	return NULL;
 }
 
@@ -355,12 +355,12 @@ bool UPerfTest::runTestLoop(char * testname, char * par)
 			execCount++;
 			rval = TRUE;
 			if(testFunction==NULL) {
-				fprintf(stderr, "%s function returned NULL", name);
+				slfprintf_stderr("%s function returned NULL", name);
 				return FALSE;
 			}
 			ops = testFunction->getOperationsPerIteration();
 			if(ops < 1) {
-				fprintf(stderr, "%s returned an illegal operations/iteration()\n", name);
+				slfprintf_stderr("%s returned an illegal operations/iteration()\n", name);
 				return FALSE;
 			}
 			if(iterations == 0) {
@@ -383,7 +383,7 @@ bool UPerfTest::runTestLoop(char * testname, char * par)
 						//System.out.println("# " + meth.getName() + " x " + loops + " = " + t);
 						loops = (int)((double)n / t * loops + 0.5);
 						if(loops == 0) {
-							fprintf(stderr, "Unable to converge on desired duration");
+							slfprintf_stderr("Unable to converge on desired duration");
 							return FALSE;
 						}
 					}
@@ -452,7 +452,7 @@ bool UPerfTest::runTestLoop(char * testname, char * par)
 			if(verbose && U_SUCCESS(status)) {
 				double avg_t = sum_t/passes;
 				if(loops == 0 || ops == 0) {
-					fprintf(stderr, "%s did not run\n", name);
+					slfprintf_stderr("%s did not run\n", name);
 				}
 				else if(events == -1) {
 					fprintf(stdout, "%%= %s avg: %.4g loops: %i avg/op: %.4g ns\n",

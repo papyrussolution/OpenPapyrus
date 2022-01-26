@@ -229,13 +229,13 @@ static UDate getUTCtime_fake() {
 		if((fake_start!=NULL) && (fake_start[0]!=0)) {
 			sscanf(fake_start, "%lf", &fakeClock_t0);
 			fakeClock_dt = fakeClock_t0 - real;
-			fprintf(stderr, "U_DEBUG_FAKETIME was set at compile time, so the ICU clock will start at a preset value\n"
+			slfprintf_stderr("U_DEBUG_FAKETIME was set at compile time, so the ICU clock will start at a preset value\n"
 			    "env variable U_FAKETIME_START=%.0f (%s) for an offset of %.0f ms from the current time %.0f\n",
 			    fakeClock_t0, fake_start, fakeClock_dt, real);
 		}
 		else {
 			fakeClock_dt = 0;
-			fprintf(stderr, "U_DEBUG_FAKETIME was set at compile time, but U_FAKETIME_START was not set.\n"
+			slfprintf_stderr("U_DEBUG_FAKETIME was set at compile time, but U_FAKETIME_START was not set.\n"
 			    "Set U_FAKETIME_START to the number of milliseconds since 1/1/1970 to set the ICU clock.\n");
 		}
 		fakeClock_set = TRUE;
@@ -813,7 +813,7 @@ static const char * remapShortTimeZone(const char * stdID, const char * dstID, i
 {
 	int32_t idx;
 #ifdef DEBUG_TZNAME
-	fprintf(stderr, "TZ=%s std=%s dst=%s daylight=%d offset=%d\n", getenv("TZ"), stdID, dstID, daylightType, offset);
+	slfprintf_stderr("TZ=%s std=%s dst=%s daylight=%d offset=%d\n", getenv("TZ"), stdID, dstID, daylightType, offset);
 #endif
 	for(idx = 0; idx < UPRV_LENGTHOF(OFFSET_ZONE_MAPPINGS); idx++) {
 		if(offset == OFFSET_ZONE_MAPPINGS[idx].offsetSeconds

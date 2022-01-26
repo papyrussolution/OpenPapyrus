@@ -174,7 +174,7 @@ const char * TiXmlBaseA::SkipWhiteSpace(const char * p)
 
 /*static*/ bool TiXmlBaseA::StreamTo(TIXMLA_ISTREAM * in, int character, TIXMLA_STRING * tag)
 {
-	while(in->good() ) {
+	while(in->good()) {
 		int c = in->peek();
 		if(c == character)
 			return true;
@@ -203,7 +203,7 @@ const char * TiXmlBaseA::ReadName(const char * p, TIXMLA_STRING * name)
 		    || *p == '_'
 		    || *p == '-'
 		    || *p == '.'
-		    || *p == ':' ) ) {
+		    || *p == ':' )) {
 			(*name) += *p;
 			++p;
 		}
@@ -273,7 +273,7 @@ bool TiXmlBaseA::StringEqual(const char * p,
 		return false;
 	}
 
-	if(tolower(*p) == tolower(*tag) ) {
+	if(tolower(*p) == tolower(*tag)) {
 		const char * q = p;
 
 		if(ignoreCase) {
@@ -287,7 +287,7 @@ bool TiXmlBaseA::StringEqual(const char * p,
 			}
 		}
 		else {
-			while(*q && *tag && tolower(*q) == tolower(*tag) ) {
+			while(*q && *tag && tolower(*q) == tolower(*tag)) {
 				++q;
 				++tag;
 			}
@@ -324,12 +324,12 @@ const char * TiXmlBaseA::ReadText(const char * p,
 		// Remove leading white space:
 		p = SkipWhiteSpace(p);
 		while(p && *p
-		 && !StringEqual(p, endTag, caseInsensitive) ) {
+		 && !StringEqual(p, endTag, caseInsensitive)) {
 			if(*p == '\r' || *p == '\n') {
 				whitespace = true;
 				++p;
 			}
-			else if(isspace(*p) ) {
+			else if(isspace(*p)) {
 				whitespace = true;
 				++p;
 			}
@@ -360,19 +360,19 @@ void TiXmlDocumentA::StreamIn(TIXMLA_ISTREAM * in, TIXMLA_STRING * tag)
 	// This "pre-streaming" will never read the closing ">" so the
 	// sub-tag can orient itself.
 
-	if(!StreamTo(in, '<', tag) ) {
+	if(!StreamTo(in, '<', tag)) {
 		SetError(TIXMLA_ERROR_PARSING_EMPTY, 0, 0);
 		return;
 	}
 
-	while(in->good() ) {
+	while(in->good()) {
 		size_t tagIndex = tag->length();
 		while(in->good() && in->peek() != '>') {
 			int c = in->get();
 			(*tag) += static_cast<char>(c);
 		}
 
-		if(in->good() ) {
+		if(in->good()) {
 			// We now have something we presume to be a node of
 			// some sort. Identify it, and call the node to
 			// continue streaming.
@@ -496,7 +496,7 @@ TiXmlNodeA* TiXmlNodeA::Identify(const char * p)
 	const char * xmlHeader = { "<?xml" };
 	const char * commentHeader = { "<!--" };
 
-	if(StringEqual(p, xmlHeader, true) ) {
+	if(StringEqual(p, xmlHeader, true)) {
 		#ifdef DEBUG_PARSER
 		TIXMLA_LOG("XML parsing Declaration\n");
 		#endif
@@ -509,7 +509,7 @@ TiXmlNodeA* TiXmlNodeA::Identify(const char * p)
 		#endif
 		returnNode = new TiXmlElementA("");
 	}
-	else if(StringEqual(p, commentHeader, false) ) {
+	else if(StringEqual(p, commentHeader, false)) {
 		#ifdef DEBUG_PARSER
 		TIXMLA_LOG("XML parsing Comment\n");
 		#endif
@@ -539,7 +539,7 @@ void TiXmlElementA::StreamIn(TIXMLA_ISTREAM * in, TIXMLA_STRING * tag)
 {
 	// We're called with some amount of pre-parsing. That is, some of "this"
 	// element is in "tag". Go ahead and stream to the closing ">"
-	while(in->good() ) {
+	while(in->good()) {
 		int c = in->get();
 		(*tag) += static_cast<char>(c);
 
@@ -597,7 +597,7 @@ void TiXmlElementA::StreamIn(TIXMLA_ISTREAM * in, TIXMLA_STRING * tag)
 				*tag += static_cast<char>(c);
 				in->get();
 
-				if(!firstCharFound && c != '<' && !IsWhiteSpace(c) ) {
+				if(!firstCharFound && c != '<' && !IsWhiteSpace(c)) {
 					firstCharFound = true;
 					if(c == '/')
 						closingTag = true;
@@ -696,7 +696,7 @@ const char * TiXmlElementA::Parse(const char * p, TiXmlParsingDataA* data)
 				return 0;
 
 			// We should find the end tag now
-			if(StringEqual(p, endTag.c_str(), false) ) {
+			if(StringEqual(p, endTag.c_str(), false)) {
 				p += endTag.length();
 				return p;
 			}
@@ -763,7 +763,7 @@ const char * TiXmlElementA::ReadValue(const char * p, TiXmlParsingDataA* data)
 		else {
 			// We hit a '<'
 			// Have we hit a new element or an end tag?
-			if(StringEqual(p, "</", false) ) {
+			if(StringEqual(p, "</", false)) {
 				return p;
 			}
 			else {
@@ -789,7 +789,7 @@ const char * TiXmlElementA::ReadValue(const char * p, TiXmlParsingDataA* data)
 #ifdef TIXMLA_USE_STL
 void TiXmlUnknownA::StreamIn(TIXMLA_ISTREAM * in, TIXMLA_STRING * tag)
 {
-	while(in->good() ) {
+	while(in->good()) {
 		int c = in->get();
 		(*tag) += static_cast<char>(c);
 
@@ -835,7 +835,7 @@ const char * TiXmlUnknownA::Parse(const char * p, TiXmlParsingDataA* data)
 #ifdef TIXMLA_USE_STL
 void TiXmlCommentA::StreamIn(TIXMLA_ISTREAM * in, TIXMLA_STRING * tag)
 {
-	while(in->good() ) {
+	while(in->good()) {
 		int c = in->get();
 		(*tag) += static_cast<char>(c);
 
@@ -865,7 +865,7 @@ const char * TiXmlCommentA::Parse(const char * p, TiXmlParsingDataA* data)
 	const char * startTag = "<!--";
 	const char * endTag   = "-->";
 
-	if(!StringEqual(p, startTag, false) ) {
+	if(!StringEqual(p, startTag, false)) {
 		document->SetError(TIXMLA_ERROR_PARSING_COMMENT, p, data);
 		return 0;
 	}
@@ -938,7 +938,7 @@ const char * TiXmlAttributeA::Parse(const char * p, TiXmlParsingDataA* data)
 #ifdef TIXMLA_USE_STL
 void TiXmlTextA::StreamIn(TIXMLA_ISTREAM * in, TIXMLA_STRING * tag)
 {
-	while(in->good() ) {
+	while(in->good()) {
 		int c = in->peek();
 		if(c == '<')
 			return;
@@ -970,7 +970,7 @@ const char * TiXmlTextA::Parse(const char * p, TiXmlParsingDataA* data)
 #ifdef TIXMLA_USE_STL
 void TiXmlDeclarationA::StreamIn(TIXMLA_ISTREAM * in, TIXMLA_STRING * tag)
 {
-	while(in->good() ) {
+	while(in->good()) {
 		int c = in->get();
 		(*tag) += static_cast<char>(c);
 
@@ -989,7 +989,7 @@ const char * TiXmlDeclarationA::Parse(const char * p, TiXmlParsingDataA* data)
 	// Find the beginning, find the end, and look for
 	// the stuff in-between.
 	TiXmlDocumentA* document = GetDocument();
-	if(!p || !*p || !StringEqual(p, "<?xml", true) ) {
+	if(!p || !*p || !StringEqual(p, "<?xml", true)) {
 		if(document) document->SetError(TIXMLA_ERROR_PARSING_DECLARATION, 0, 0);
 		return 0;
 	}
@@ -1011,17 +1011,17 @@ const char * TiXmlDeclarationA::Parse(const char * p, TiXmlParsingDataA* data)
 		}
 
 		p = SkipWhiteSpace(p);
-		if(StringEqual(p, "version", true) ) {
+		if(StringEqual(p, "version", true)) {
 			TiXmlAttributeA attrib;
 			p = attrib.Parse(p, data);
 			version = attrib.Value();
 		}
-		else if(StringEqual(p, "encoding", true) ) {
+		else if(StringEqual(p, "encoding", true)) {
 			TiXmlAttributeA attrib;
 			p = attrib.Parse(p, data);
 			encoding = attrib.Value();
 		}
-		else if(StringEqual(p, "standalone", true) ) {
+		else if(StringEqual(p, "standalone", true)) {
 			TiXmlAttributeA attrib;
 			p = attrib.Parse(p, data);
 			standalone = attrib.Value();

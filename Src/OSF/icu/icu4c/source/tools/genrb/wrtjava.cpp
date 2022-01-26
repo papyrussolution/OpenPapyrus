@@ -221,7 +221,7 @@ static int32_t getColumnCount(int32_t len) {
 	 * calculate the number of lines that
 	 * may be required if column count is 80
 	 */
-	if(maxLines  < (adjustedLen / columnCount) ) {
+	if(maxLines  < (adjustedLen / columnCount)) {
 		columnCount = adjustedLen / maxLines;
 	}
 	return columnCount;

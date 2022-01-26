@@ -691,7 +691,7 @@ bool NFSubstitution::doParse(const UnicodeString & text,
     Formattable& result) const
 {
 #ifdef RBNF_DEBUG
-	fprintf(stderr, "<nfsubs> %x bv: %g ub: %g\n", this, baseValue, upperBound);
+	slfprintf_stderr("<nfsubs> %x bv: %g ub: %g\n", this, baseValue, upperBound);
 #endif
 	// figure out the highest base value a rule can have and match
 	// the text being parsed (this varies according to the type of

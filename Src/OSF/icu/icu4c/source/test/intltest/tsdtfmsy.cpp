@@ -193,7 +193,7 @@ void IntlTestDateFormatSymbols::TestSymbols(/* char *par */)
 		return;
 	}
 
-	if(en == fr || !(en != fr) ) {
+	if(en == fr || !(en != fr)) {
 		errln("ERROR: English DateFormatSymbols equal to French");
 	}
 
@@ -210,7 +210,7 @@ void IntlTestDateFormatSymbols::TestSymbols(/* char *par */)
 	if(eraNamesCount == 0) {
 		errln("ERROR: 0 english eraNames\n");
 	}
-	else if(eraNames[0].length() <= eras[0].length() ) {
+	else if(eraNames[0].length() <= eras[0].length()) {
 		// At least for English we know a wide eraName should be longer than an abbrev era
 		errln("ERROR: english eraNames[0] not longer than eras[0]\n");
 	}
@@ -219,7 +219,7 @@ void IntlTestDateFormatSymbols::TestSymbols(/* char *par */)
 	if(narrowErasCount == 0) {
 		errln("ERROR: 0 english narrowEras\n");
 	}
-	else if(narrowEras[0].length() >= eras[0].length() ) {
+	else if(narrowEras[0].length() >= eras[0].length()) {
 		// At least for English we know a narrowEra should be shorter than an abbrev era
 		errln("ERROR: english narrowEras[0] not shorter than eras[0]\n");
 	}

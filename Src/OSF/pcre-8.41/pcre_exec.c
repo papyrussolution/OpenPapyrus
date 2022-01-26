@@ -1241,8 +1241,7 @@ POSSESSIVE_NON_CAPTURE:
 			    /* Test the various possible conditions */
 
 			    condition = FALSE;
-			    switch(condcode = *ecode)
-			    {
+			    switch(condcode = *ecode) {
 				    case OP_RREF: /* Numbered group recursion test */
 					if(md->recursive) { /* Not recursing => FALSE */
 						uint recno = GET2(ecode, 1); /* Recursion group number*/
@@ -1504,9 +1503,7 @@ POSSESSIVE_NON_CAPTURE:
 			    do {
 				    RMATCH(eptr, ecode + 1 + LINK_SIZE, offset_top, md, NULL, RM5);
 				    md->mark = save_mark; /* Always restore the mark setting */
-
-				    switch(rrc)
-				    {
+				    switch(rrc) {
 					    case MATCH_MATCH: /* A successful match means */
 					    case MATCH_ACCEPT: /* the assertion has failed. */
 						RRETURN(MATCH_NOMATCH);
@@ -2288,8 +2285,7 @@ ASSERT_NL_OR_EOS:
 				    RRETURN(MATCH_NOMATCH);
 			    }
 			    GETCHARINCTEST(c, eptr);
-			    switch(c)
-			    {
+			    switch(c) {
 				    default: RRETURN(MATCH_NOMATCH);
 
 				    case CHAR_CR:
@@ -2321,8 +2317,7 @@ ASSERT_NL_OR_EOS:
 				    RRETURN(MATCH_NOMATCH);
 			    }
 			    GETCHARINCTEST(c, eptr);
-			    switch(c)
-			    {
+			    switch(c) {
 HSPACE_CASES: RRETURN(MATCH_NOMATCH); /* Byte and multibyte cases */
 				    default: break;
 			    }
@@ -2335,8 +2330,7 @@ HSPACE_CASES: RRETURN(MATCH_NOMATCH); /* Byte and multibyte cases */
 				    RRETURN(MATCH_NOMATCH);
 			    }
 			    GETCHARINCTEST(c, eptr);
-			    switch(c)
-			    {
+			    switch(c) {
 HSPACE_CASES: break; /* Byte and multibyte cases */
 				    default: RRETURN(MATCH_NOMATCH);
 			    }
@@ -2349,8 +2343,7 @@ HSPACE_CASES: break; /* Byte and multibyte cases */
 				    RRETURN(MATCH_NOMATCH);
 			    }
 			    GETCHARINCTEST(c, eptr);
-			    switch(c)
-			    {
+			    switch(c) {
 VSPACE_CASES: RRETURN(MATCH_NOMATCH);
 				    default: break;
 			    }
@@ -2363,8 +2356,7 @@ VSPACE_CASES: RRETURN(MATCH_NOMATCH);
 				    RRETURN(MATCH_NOMATCH);
 			    }
 			    GETCHARINCTEST(c, eptr);
-			    switch(c)
-			    {
+			    switch(c) {
 VSPACE_CASES: break;
 				    default: RRETURN(MATCH_NOMATCH);
 			    }
@@ -2385,9 +2377,7 @@ VSPACE_CASES: break;
 			    {
 				    const uint32 * cp;
 				    const ucd_record * prop = GET_UCD(c);
-
-				    switch(ecode[1])
-				    {
+				    switch(ecode[1]) {
 					    case PT_ANY:
 						if(op == OP_NOTPROP) RRETURN(MATCH_NOMATCH);
 						break;
@@ -2428,8 +2418,7 @@ VSPACE_CASES: break;
 
 					    case PT_SPACE: /* Perl space */
 					    case PT_PXSPACE: /* POSIX space */
-						switch(c)
-						{
+						switch(c) {
 HSPACE_CASES:
 VSPACE_CASES:
 							if(op == OP_NOTPROP) RRETURN(MATCH_NOMATCH);
@@ -2564,9 +2553,7 @@ VSPACE_CASES:
 				    length = (md->jscript_compat) ? 0 : -1;
 			    else
 				    length = md->offset_vector[offset+1] - md->offset_vector[offset];
-
 			    /* Set up for repetition, or handle the non-repeated case */
-
 REF_REPEAT:
 			    switch(*ecode) {
 				    case OP_CRSTAR:
@@ -2694,9 +2681,7 @@ REF_REPEAT:
 #define BYTE_MAP ((pcre_uint8*)data)
 				    data = ecode + 1; /* Save for matching */
 				    ecode += 1 + (32 / sizeof(pcre_uchar)); /* Advance past the item */
-
-				    switch(*ecode)
-				    {
+				    switch(*ecode) {
 					    case OP_CRSTAR:
 					    case OP_CRMINSTAR:
 					    case OP_CRPLUS:
@@ -2892,9 +2877,7 @@ REF_REPEAT:
 			    {
 				    data = ecode + 1 + LINK_SIZE; /* Save for matching */
 				    ecode += GET(ecode, 1); /* Advance past the item */
-
-				    switch(*ecode)
-				    {
+				    switch(*ecode) {
 					    case OP_CRSTAR:
 					    case OP_CRMINSTAR:
 					    case OP_CRPLUS:
@@ -3848,8 +3831,7 @@ REPEATTYPE:
 			    if(min > 0) {
 #ifdef SUPPORT_UCP
 				    if(prop_type >= 0) {
-					    switch(prop_type)
-					    {
+					    switch(prop_type) {
 						    case PT_ANY:
 							if(prop_fail_result) RRETURN(MATCH_NOMATCH);
 							for(i = 1; i <= min; i++) {
@@ -3940,8 +3922,7 @@ REPEATTYPE:
 									RRETURN(MATCH_NOMATCH);
 								}
 								GETCHARINCTEST(c, eptr);
-								switch(c)
-								{
+								switch(c) {
 HSPACE_CASES:
 VSPACE_CASES:
 									if(prop_fail_result) RRETURN(MATCH_NOMATCH);
@@ -4046,8 +4027,8 @@ VSPACE_CASES:
 /* Handle all other cases when the coding is UTF-8 */
 
 #ifdef SUPPORT_UTF
-				    if(utf) switch(ctype)
-					    {
+				    if(utf) 
+						switch(ctype) {
 						    case OP_ANY:
 							for(i = 1; i <= min; i++) {
 								if(eptr >= md->end_subject) {
@@ -4091,10 +4072,8 @@ VSPACE_CASES:
 									RRETURN(MATCH_NOMATCH);
 								}
 								GETCHARINC(c, eptr);
-								switch(c)
-								{
+								switch(c) {
 									default: RRETURN(MATCH_NOMATCH);
-
 									case CHAR_CR:
 									    if(eptr < md->end_subject && UCHAR21(eptr) == CHAR_LF) eptr++;
 									    break;
@@ -4122,8 +4101,7 @@ VSPACE_CASES:
 									RRETURN(MATCH_NOMATCH);
 								}
 								GETCHARINC(c, eptr);
-								switch(c)
-								{
+								switch(c) {
 HSPACE_CASES: RRETURN(MATCH_NOMATCH); /* Byte and multibyte cases */
 									default: break;
 								}
@@ -4137,8 +4115,7 @@ HSPACE_CASES: RRETURN(MATCH_NOMATCH); /* Byte and multibyte cases */
 									RRETURN(MATCH_NOMATCH);
 								}
 								GETCHARINC(c, eptr);
-								switch(c)
-								{
+								switch(c) {
 HSPACE_CASES: break; /* Byte and multibyte cases */
 									default: RRETURN(MATCH_NOMATCH);
 								}
@@ -4152,8 +4129,7 @@ HSPACE_CASES: break; /* Byte and multibyte cases */
 									RRETURN(MATCH_NOMATCH);
 								}
 								GETCHARINC(c, eptr);
-								switch(c)
-								{
+								switch(c) {
 VSPACE_CASES: RRETURN(MATCH_NOMATCH);
 									default: break;
 								}
@@ -4167,8 +4143,7 @@ VSPACE_CASES: RRETURN(MATCH_NOMATCH);
 									RRETURN(MATCH_NOMATCH);
 								}
 								GETCHARINC(c, eptr);
-								switch(c)
-								{
+								switch(c) {
 VSPACE_CASES: break;
 									default: RRETURN(MATCH_NOMATCH);
 								}
@@ -4274,9 +4249,7 @@ VSPACE_CASES: break;
 
 			            /* Code for the non-UTF-8 case for minimum matching of operators other
 			               than OP_PROP and OP_NOTPROP. */
-
-				    switch(ctype)
-				    {
+				    switch(ctype) {
 					    case OP_ANY:
 						for(i = 1; i <= min; i++) {
 							if(eptr >= md->end_subject) {
@@ -4318,14 +4291,11 @@ VSPACE_CASES: break;
 								SCHECK_PARTIAL();
 								RRETURN(MATCH_NOMATCH);
 							}
-							switch(*eptr++)
-							{
+							switch(*eptr++) {
 								default: RRETURN(MATCH_NOMATCH);
-
 								case CHAR_CR:
 								    if(eptr < md->end_subject && *eptr == CHAR_LF) eptr++;
 								    break;
-
 								case CHAR_LF:
 								    break;
 
@@ -4348,8 +4318,7 @@ VSPACE_CASES: break;
 								SCHECK_PARTIAL();
 								RRETURN(MATCH_NOMATCH);
 							}
-							switch(*eptr++)
-							{
+							switch(*eptr++) {
 								default: break;
 HSPACE_BYTE_CASES:
 #if defined COMPILE_PCRE16 || defined COMPILE_PCRE32
@@ -4366,8 +4335,7 @@ HSPACE_MULTIBYTE_CASES:
 								SCHECK_PARTIAL();
 								RRETURN(MATCH_NOMATCH);
 							}
-							switch(*eptr++)
-							{
+							switch(*eptr++) {
 								default: RRETURN(MATCH_NOMATCH);
 HSPACE_BYTE_CASES:
 #if defined COMPILE_PCRE16 || defined COMPILE_PCRE32
@@ -4384,8 +4352,7 @@ HSPACE_MULTIBYTE_CASES:
 								SCHECK_PARTIAL();
 								RRETURN(MATCH_NOMATCH);
 							}
-							switch(*eptr++)
-							{
+							switch(*eptr++) {
 VSPACE_BYTE_CASES:
 #if defined COMPILE_PCRE16 || defined COMPILE_PCRE32
 VSPACE_MULTIBYTE_CASES:
@@ -4402,8 +4369,7 @@ VSPACE_MULTIBYTE_CASES:
 								SCHECK_PARTIAL();
 								RRETURN(MATCH_NOMATCH);
 							}
-							switch(*eptr++)
-							{
+							switch(*eptr++) {
 								default: RRETURN(MATCH_NOMATCH);
 VSPACE_BYTE_CASES:
 #if defined COMPILE_PCRE16 || defined COMPILE_PCRE32
@@ -4502,8 +4468,7 @@ VSPACE_MULTIBYTE_CASES:
 			    if(minimize) {
 #ifdef SUPPORT_UCP
 				    if(prop_type >= 0) {
-					    switch(prop_type)
-					    {
+					    switch(prop_type) {
 						    case PT_ANY:
 							for(fi = min;; fi++) {
 								RMATCH(eptr, ecode, offset_top, md, eptrb, RM36);
@@ -4615,8 +4580,7 @@ VSPACE_MULTIBYTE_CASES:
 									RRETURN(MATCH_NOMATCH);
 								}
 								GETCHARINCTEST(c, eptr);
-								switch(c)
-								{
+								switch(c) {
 HSPACE_CASES:
 VSPACE_CASES:
 									if(prop_fail_result) RRETURN(MATCH_NOMATCH);
@@ -4741,8 +4705,7 @@ VSPACE_CASES:
 						    if(ctype == OP_ANY && IS_NEWLINE(eptr))
 							    RRETURN(MATCH_NOMATCH);
 						    GETCHARINC(c, eptr);
-						    switch(ctype)
-						    {
+						    switch(ctype) {
 							    case OP_ANY: /* This is the non-NL case */
 								if(md->partial != 0 && /* Take care with CRLF partial */
 							    eptr >= md->end_subject &&
@@ -4759,8 +4722,7 @@ VSPACE_CASES:
 								break;
 
 							    case OP_ANYNL:
-								switch(c)
-								{
+								switch(c) {
 									default: RRETURN(MATCH_NOMATCH);
 									case CHAR_CR:
 									    if(eptr < md->end_subject && UCHAR21(eptr) == CHAR_LF) eptr++;
@@ -4782,32 +4744,28 @@ VSPACE_CASES:
 								break;
 
 							    case OP_NOT_HSPACE:
-								switch(c)
-								{
+								switch(c) {
 HSPACE_CASES: RRETURN(MATCH_NOMATCH);
 									default: break;
 								}
 								break;
 
 							    case OP_HSPACE:
-								switch(c)
-								{
+								switch(c) {
 HSPACE_CASES: break;
 									default: RRETURN(MATCH_NOMATCH);
 								}
 								break;
 
 							    case OP_NOT_VSPACE:
-								switch(c)
-								{
+								switch(c) {
 VSPACE_CASES: RRETURN(MATCH_NOMATCH);
 									default: break;
 								}
 								break;
 
 							    case OP_VSPACE:
-								switch(c)
-								{
+								switch(c) {
 VSPACE_CASES: break;
 									default: RRETURN(MATCH_NOMATCH);
 								}
@@ -4863,8 +4821,7 @@ VSPACE_CASES: break;
 						    if(ctype == OP_ANY && IS_NEWLINE(eptr))
 							    RRETURN(MATCH_NOMATCH);
 						    c = *eptr++;
-						    switch(ctype)
-						    {
+						    switch(ctype) {
 							    case OP_ANY: /* This is the non-NL case */
 								if(md->partial != 0 && /* Take care with CRLF partial */
 							    eptr >= md->end_subject && NLBLOCK->nltype == NLTYPE_FIXED && NLBLOCK->nllen == 2 && c == NLBLOCK->nl[0]) {
@@ -4878,8 +4835,7 @@ VSPACE_CASES: break;
 								break;
 
 							    case OP_ANYNL:
-								switch(c)
-								{
+								switch(c) {
 									default: RRETURN(MATCH_NOMATCH);
 									case CHAR_CR:
 									    if(eptr < md->end_subject && *eptr == CHAR_LF) eptr++;
@@ -4901,8 +4857,7 @@ VSPACE_CASES: break;
 								break;
 
 							    case OP_NOT_HSPACE:
-								switch(c)
-								{
+								switch(c) {
 									default: break;
 HSPACE_BYTE_CASES:
 #if defined COMPILE_PCRE16 || defined COMPILE_PCRE32
@@ -4913,8 +4868,7 @@ HSPACE_MULTIBYTE_CASES:
 								break;
 
 							    case OP_HSPACE:
-								switch(c)
-								{
+								switch(c) {
 									default: RRETURN(MATCH_NOMATCH);
 HSPACE_BYTE_CASES:
 #if defined COMPILE_PCRE16 || defined COMPILE_PCRE32
@@ -4925,8 +4879,7 @@ HSPACE_MULTIBYTE_CASES:
 								break;
 
 							    case OP_NOT_VSPACE:
-								switch(c)
-								{
+								switch(c) {
 									default: break;
 VSPACE_BYTE_CASES:
 #if defined COMPILE_PCRE16 || defined COMPILE_PCRE32
@@ -4937,8 +4890,7 @@ VSPACE_MULTIBYTE_CASES:
 								break;
 
 							    case OP_VSPACE:
-								switch(c)
-								{
+								switch(c) {
 									default: RRETURN(MATCH_NOMATCH);
 VSPACE_BYTE_CASES:
 #if defined COMPILE_PCRE16 || defined COMPILE_PCRE32
@@ -4989,8 +4941,7 @@ VSPACE_MULTIBYTE_CASES:
 
 #ifdef SUPPORT_UCP
 				    if(prop_type >= 0) {
-					    switch(prop_type)
-					    {
+					    switch(prop_type) {
 						    case PT_ANY:
 							for(i = min; i < max; i++) {
 								int len = 1;
@@ -5091,8 +5042,7 @@ VSPACE_MULTIBYTE_CASES:
 									break;
 								}
 								GETCHARLENTEST(c, eptr, len);
-								switch(c)
-								{
+								switch(c) {
 HSPACE_CASES:
 VSPACE_CASES:
 									if(prop_fail_result) goto ENDLOOP99; /* Break
@@ -5333,8 +5283,7 @@ GOT_MAX:
 									break;
 								}
 								GETCHARLEN(c, eptr, len);
-								switch(c)
-								{
+								switch(c) {
 HSPACE_CASES: gotspace = TRUE; break;
 									default: gotspace = FALSE; break;
 								}
@@ -5353,8 +5302,7 @@ HSPACE_CASES: gotspace = TRUE; break;
 									break;
 								}
 								GETCHARLEN(c, eptr, len);
-								switch(c)
-								{
+								switch(c) {
 VSPACE_CASES: gotspace = TRUE; break;
 									default: gotspace = FALSE; break;
 								}
@@ -5460,8 +5408,7 @@ VSPACE_CASES: gotspace = TRUE; break;
 #endif  /* SUPPORT_UTF */
 			/* Not UTF mode */
 				    {
-					    switch(ctype)
-					    {
+					    switch(ctype) {
 						    case OP_ANY:
 							for(i = min; i < max; i++) {
 								if(eptr >= md->end_subject) {
@@ -5520,8 +5467,7 @@ VSPACE_CASES: gotspace = TRUE; break;
 									SCHECK_PARTIAL();
 									break;
 								}
-								switch(*eptr)
-								{
+								switch(*eptr) {
 									default: eptr++; break;
 HSPACE_BYTE_CASES:
 #if defined COMPILE_PCRE16 || defined COMPILE_PCRE32
@@ -5539,8 +5485,7 @@ ENDLOOP00:
 									SCHECK_PARTIAL();
 									break;
 								}
-								switch(*eptr)
-								{
+								switch(*eptr) {
 									default: goto ENDLOOP01;
 HSPACE_BYTE_CASES:
 #if defined COMPILE_PCRE16 || defined COMPILE_PCRE32
@@ -5558,8 +5503,7 @@ ENDLOOP01:
 									SCHECK_PARTIAL();
 									break;
 								}
-								switch(*eptr)
-								{
+								switch(*eptr) {
 									default: eptr++; break;
 VSPACE_BYTE_CASES:
 #if defined COMPILE_PCRE16 || defined COMPILE_PCRE32
@@ -5577,8 +5521,7 @@ ENDLOOP02:
 									SCHECK_PARTIAL();
 									break;
 								}
-								switch(*eptr)
-								{
+								switch(*eptr) {
 									default: goto ENDLOOP03;
 VSPACE_BYTE_CASES:
 #if defined COMPILE_PCRE16 || defined COMPILE_PCRE32
@@ -5695,8 +5638,7 @@ ENDLOOP03:
 #ifdef NO_RECURSE
 #define LBL(val) case val: goto L_RM ## val;
 HEAP_RETURN:
-	switch(frame->Xwhere)
-	{
+	switch(frame->Xwhere) {
 		LBL(1) LBL(2) LBL(3) LBL(4) LBL(5) LBL(6) LBL(7) LBL(8)
 		LBL(9) LBL(10) LBL(11) LBL(12) LBL(13) LBL(14) LBL(15) LBL(17)
 		LBL(19) LBL(24) LBL(25) LBL(26) LBL(27) LBL(29) LBL(31) LBL(33)
@@ -6296,9 +6238,7 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_exec(const pcre32 * argument_re, c
 			start_partial = md->start_used_ptr;
 			match_partial = start_match;
 		}
-
-		switch(rc)
-		{
+		switch(rc) {
 			/* If MATCH_SKIP_ARG reaches this level it means that a MARK that matched
 			   the SKIP's arg was not found. In this circumstance, Perl ignores the SKIP
 			   entirely. The only way we can do that is to re-do the match at the same

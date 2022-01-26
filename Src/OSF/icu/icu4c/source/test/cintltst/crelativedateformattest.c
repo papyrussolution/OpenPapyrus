@@ -405,7 +405,7 @@ static void TestRelDateFmt()
 
 		if(itemPtr->decPlaces >= 0) {
 			nfToAdopt = unum_open(UNUM_DECIMAL, NULL, 0, itemPtr->locale, NULL, &status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				log_data_err("FAIL: unum_open(UNUM_DECIMAL, ...) for locale %s: %s\n", itemPtr->locale,
 				    myErrorName(status));
 				continue;
@@ -415,7 +415,7 @@ static void TestRelDateFmt()
 			unum_setAttribute(nfToAdopt, UNUM_ROUNDING_MODE, UNUM_ROUND_DOWN);
 		}
 		reldatefmt = ureldatefmt_open(itemPtr->locale, nfToAdopt, itemPtr->width, itemPtr->capContext, &status);
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			log_data_err("FAIL: ureldatefmt_open() for locale %s, decPlaces %d, width %d, capContext %d: %s\n",
 			    itemPtr->locale, itemPtr->decPlaces, (int)itemPtr->width, (int)itemPtr->capContext,
 			    myErrorName(status));
@@ -433,7 +433,7 @@ static void TestRelDateFmt()
 
 			status = U_ZERO_ERROR;
 			ulenget = ureldatefmt_format(reldatefmt, offsets[iOffset], itemPtr->unit, ubufget, kUBufMax, &status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				log_err(
 					"FAIL: ureldatefmt_format() for locale %s, decPlaces %d, width %d, capContext %d, offset %.2f, unit %d: %s\n",
 					itemPtr->locale,
@@ -469,7 +469,7 @@ static void TestRelDateFmt()
 
 			status = U_ZERO_ERROR;
 			ulenget = ureldatefmt_formatNumeric(reldatefmt, offsets[iOffset], itemPtr->unit, ubufget, kUBufMax, &status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				log_err(
 					"FAIL: ureldatefmt_formatNumeric() for locale %s, decPlaces %d, width %d, capContext %d, offset %.2f, unit %d: %s\n",
 					itemPtr->locale,
@@ -517,7 +517,7 @@ static void TestNumericField()
 
 		if(itemPtr->decPlaces >= 0) {
 			nfToAdopt = unum_open(UNUM_DECIMAL, NULL, 0, itemPtr->locale, NULL, &status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				log_data_err("FAIL: unum_open(UNUM_DECIMAL, ...) for locale %s: %s\n", itemPtr->locale,
 				    myErrorName(status));
 				continue;
@@ -527,7 +527,7 @@ static void TestNumericField()
 			unum_setAttribute(nfToAdopt, UNUM_ROUNDING_MODE, UNUM_ROUND_DOWN);
 		}
 		reldatefmt = ureldatefmt_open(itemPtr->locale, nfToAdopt, itemPtr->width, itemPtr->capContext, &status);
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			log_data_err("FAIL: ureldatefmt_open() for locale %s, decPlaces %d, width %d, capContext %d: %s\n",
 			    itemPtr->locale, itemPtr->decPlaces, (int)itemPtr->width, (int)itemPtr->capContext,
 			    myErrorName(status));
@@ -543,12 +543,12 @@ static void TestNumericField()
 			/* Depend on the next one to verify the data */
 			status = U_ZERO_ERROR;
 			UFormattedRelativeDateTime * fv = ureldatefmt_openResult(&status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				log_err("ureldatefmt_openResult fails, status %s\n", u_errorName(status));
 				continue;
 			}
 			ureldatefmt_formatToResult(reldatefmt, offsets[iOffset], itemPtr->unit, fv, &status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				log_err(
 					"FAIL: ureldatefmt_formatForFields() for locale %s, decPlaces %d, width %d, capContext %d, offset %.2f, unit %d: %s\n",
 					itemPtr->locale,
@@ -615,7 +615,7 @@ static void TestNumericField()
 			/* Depend on the next one to verify the data */
 			status = U_ZERO_ERROR;
 			ureldatefmt_formatNumericToResult(reldatefmt, offsets[iOffset], itemPtr->unit, fv, &status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				log_err(
 					"FAIL: ureldatefmt_formatNumericForFields() for locale %s, decPlaces %d, width %d, capContext %d, offset %.2f, unit %d: %s\n",
 					itemPtr->locale,
@@ -706,7 +706,7 @@ static void TestCombineDateTime()
 		UChar ubufget[kUBufMax];
 		int32_t ulenreldate, ulentime, ulenget;
 		reldatefmt = ureldatefmt_open(itemPtr->locale, NULL, itemPtr->width, itemPtr->capContext, &status);
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			log_data_err("FAIL: ureldatefmt_open() for locale %s, width %d, capContext %d: %s\n",
 			    itemPtr->locale, (int)itemPtr->width, (int)itemPtr->capContext, myErrorName(status));
 			continue;
@@ -714,7 +714,7 @@ static void TestCombineDateTime()
 		ulenreldate = u_unescape(itemPtr->relativeDateString, ubufreldate, kUBufMax);
 		ulentime    = u_unescape(itemPtr->timeString,         ubuftime,    kUBufMax);
 		ulenget     = ureldatefmt_combineDateAndTime(reldatefmt, ubufreldate, ulenreldate, ubuftime, ulentime, ubufget, kUBufMax, &status);
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			log_err("FAIL: ureldatefmt_combineDateAndTime() for locale %s, width %d, capContext %d: %s\n",
 			    itemPtr->locale, (int)itemPtr->width, (int)itemPtr->capContext, myErrorName(status));
 		}

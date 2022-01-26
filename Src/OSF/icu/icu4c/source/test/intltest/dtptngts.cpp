@@ -467,7 +467,7 @@ void IntlTestDateTimePatternGeneratorAPI::testAPI(/*char *par*/)
 	if(decimalSymbol != newDecimalSymbol) {
 		errln("ERROR: inconsistency is found in cloned object.");
 	}
-	if(!(*cloneDTPatternGen == *instFromLocale) ) {
+	if(!(*cloneDTPatternGen == *instFromLocale)) {
 		errln("ERROR: inconsistency is found in cloned object.");
 	}
 
@@ -826,7 +826,7 @@ void IntlTestDateTimePatternGeneratorAPI::testAPI(/*char *par*/)
 	if(output != NULL) {
 		output->reset(status);
 		const UnicodeString * dupPattern = output->snext(status);
-		if((dupPattern==NULL) || (*dupPattern != expectedResult) ) {
+		if((dupPattern==NULL) || (*dupPattern != expectedResult)) {
 			errln("ERROR: Fail in getRedundants !\n");
 		}
 	}

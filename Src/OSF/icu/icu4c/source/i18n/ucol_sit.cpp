@@ -135,7 +135,7 @@ static UColAttributeValue ucol_sit_letterToAttributeValue(char letter, UErrorCod
 	}
 	*status = U_ILLEGAL_ARGUMENT_ERROR;
 #ifdef UCOL_TRACE_SIT
-	fprintf(stderr, "%s:%d: unknown letter %c: %s\n", __FILE__, __LINE__, letter, u_errorName(*status));
+	slfprintf_stderr("%s:%d: unknown letter %c: %s\n", __FILE__, __LINE__, letter, u_errorName(*status));
 #endif
 	return UCOL_DEFAULT;
 }
@@ -191,7 +191,7 @@ static const char * U_CALLCONV _processCollatorOption(CollatorSpec * spec, uint3
 	spec->options[option] = ucol_sit_letterToAttributeValue(*string, status);
 	if((*(++string) != '_' && *string) || U_FAILURE(*status)) {
 #ifdef UCOL_TRACE_SIT
-		fprintf(stderr, "%s:%d: unknown collator option at '%s': %s\n", __FILE__, __LINE__, string, u_errorName(*status));
+		slfprintf_stderr("%s:%d: unknown collator option at '%s': %s\n", __FILE__, __LINE__, string, u_errorName(*status));
 #endif
 		*status = U_ILLEGAL_ARGUMENT_ERROR;
 	}
@@ -219,7 +219,7 @@ static UChar readHexCodeUnit(const char ** string, UErrorCode * status)
 		else {
 			*status = U_ILLEGAL_ARGUMENT_ERROR;
 #ifdef UCOL_TRACE_SIT
-			fprintf(stderr, "%s:%d: Bad hex char at '%s': %s\n", __FILE__, __LINE__, *string, u_errorName(*status));
+			slfprintf_stderr("%s:%d: Bad hex char at '%s': %s\n", __FILE__, __LINE__, *string, u_errorName(*status));
 #endif
 			return 0;
 		}
@@ -231,7 +231,7 @@ static UChar readHexCodeUnit(const char ** string, UErrorCode * status)
 	if(noDigits < 4) {
 		*status = U_ILLEGAL_ARGUMENT_ERROR;
 #ifdef UCOL_TRACE_SIT
-		fprintf(stderr, "%s:%d: Short (only %d digits, wanted 4) at '%s': %s\n", __FILE__, __LINE__, noDigits, *string,
+		slfprintf_stderr("%s:%d: Short (only %d digits, wanted 4) at '%s': %s\n", __FILE__, __LINE__, noDigits, *string,
 		    u_errorName(*status));
 #endif
 	}
@@ -306,7 +306,7 @@ const char * ucol_sit_readOption(const char * start, CollatorSpec * spec,
 		if(*start == options[i].optionStart) {
 			const char * end = options[i].action(spec, options[i].attr, start+1, status);
 #ifdef UCOL_TRACE_SIT
-			fprintf(stderr, "***Set %d to %s...\n", i, start);
+			slfprintf_stderr("***Set %d to %s...\n", i, start);
 #endif
 			// assume 'start' does not go away through all this
 			spec->entries[i].copyFrom(CharString(start, (int32_t)(end - start), *status), *status);
@@ -315,7 +315,7 @@ const char * ucol_sit_readOption(const char * start, CollatorSpec * spec,
 	}
 	*status = U_ILLEGAL_ARGUMENT_ERROR;
 #ifdef UCOL_TRACE_SIT
-	fprintf(stderr, "%s:%d: Unknown option at '%s': %s\n", __FILE__, __LINE__, start, u_errorName(*status));
+	slfprintf_stderr("%s:%d: Unknown option at '%s': %s\n", __FILE__, __LINE__, start, u_errorName(*status));
 #endif
 	return start;
 }
@@ -508,7 +508,7 @@ U_CAPI UCollator* U_EXPORT2 ucol_openFromShortString(const char * definition,
 	char buffer[internalBufferSize];
 	memzero(buffer, internalBufferSize);
 #ifdef UCOL_TRACE_SIT
-	fprintf(stderr, "DEF %s, DATA %s, ERR %s\n", definition, s.locale.data(), u_errorName(*status));
+	slfprintf_stderr("DEF %s, DATA %s, ERR %s\n", definition, s.locale.data(), u_errorName(*status));
 #endif
 	uloc_canonicalize(s.locale.data(), buffer, internalBufferSize, status);
 

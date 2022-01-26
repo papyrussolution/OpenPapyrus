@@ -245,8 +245,8 @@ static void U_CALLCONV _SCSUToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs
 	cnv = pArgs->converter;
 	scsu = (SCSUData*)cnv->extraInfo;
 
-	source = (const uint8*)pArgs->source;
-	sourceLimit = (const uint8*)pArgs->sourceLimit;
+	source = (const uint8 *)pArgs->source;
+	sourceLimit = (const uint8 *)pArgs->sourceLimit;
 	target = pArgs->target;
 	targetLimit = pArgs->targetLimit;
 	offsets = pArgs->offsets;
@@ -620,8 +620,8 @@ static void U_CALLCONV _SCSUToUnicode(UConverterToUnicodeArgs * pArgs,
 	cnv = pArgs->converter;
 	scsu = (SCSUData*)cnv->extraInfo;
 
-	source = (const uint8*)pArgs->source;
-	sourceLimit = (const uint8*)pArgs->sourceLimit;
+	source = (const uint8 *)pArgs->source;
+	sourceLimit = (const uint8 *)pArgs->sourceLimit;
 	target = pArgs->target;
 	targetLimit = pArgs->targetLimit;
 

@@ -267,8 +267,7 @@ int ACS_SHTRIHMFRK::ExportData(int updOnly)
 			f_str.Semicol();											  // #11 - Код налоговой схемы (пока не используем)
 			f_str.Semicol();                                              // #12 - Артикул
 			f_str.CatCharN(';', 3);                                       // #13-#15 - Не используем
-			if(load_groups && gds_info.ParentID &&
-				grp_n_level_ary.Search(gds_info.ParentID, &level, 0) > 0)
+			if(load_groups && gds_info.ParentID && grp_n_level_ary.Search(gds_info.ParentID, &level, 0))
 				f_str.Cat(gds_info.ParentID).Semicol();                   // #16 - ИД группы товаров
 			else
 				f_str.CatChar('0').Semicol();

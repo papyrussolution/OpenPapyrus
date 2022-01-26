@@ -93,9 +93,9 @@ void  opj_procedure_list_destroy(opj_procedure_list_t * p_list);
  * @param   p_procedure     the procedure to add.
  * @param   p_manager the user event manager.
  *
- * @return  OPJ_TRUE if the procedure could be added.
+ * @return  TRUE if the procedure could be added.
  */
-OPJ_BOOL FASTCALL opj_procedure_list_add_procedure(opj_procedure_list_t * p_validation_list, opj_procedure p_procedure, opj_event_mgr_t* p_manager);
+boolint FASTCALL opj_procedure_list_add_procedure(opj_procedure_list_t * p_validation_list, opj_procedure p_procedure, opj_event_mgr_t* p_manager);
 /**
  * Gets the number of validation procedures.
  *

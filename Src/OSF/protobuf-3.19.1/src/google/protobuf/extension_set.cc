@@ -34,16 +34,12 @@
 
 #include <protobuf-internal.h>
 #pragma hdrstop
-#include <google/protobuf/extension_set.h>
 #include <google/protobuf/stubs/common.h>
 #include <google/protobuf/extension_set_inl.h>
 #include <google/protobuf/parse_context.h>
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl_lite.h>
 #include <google/protobuf/arena.h>
-#include <google/protobuf/message_lite.h>
-#include <google/protobuf/metadata_lite.h>
-#include <google/protobuf/repeated_field.h>
 #include <google/protobuf/stubs/map_util.h>
 #include <google/protobuf/stubs/hash.h>
 

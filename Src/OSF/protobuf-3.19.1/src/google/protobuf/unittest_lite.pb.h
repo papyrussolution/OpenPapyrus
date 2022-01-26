@@ -9519,7 +9519,7 @@ inline bool TestAllTypesLite::has_optionalgroup() const {
   return _internal_has_optionalgroup();
 }
 inline void TestAllTypesLite::clear_optionalgroup() {
-  if (optionalgroup_ != nullptr) optionalgroup_->Clear();
+  if(optionalgroup_ != nullptr) optionalgroup_->Clear();
   _has_bits_[0] &= ~0x00000100u;
 }
 inline const ::protobuf_unittest::TestAllTypesLite_OptionalGroup& TestAllTypesLite::_internal_optionalgroup() const {
@@ -9609,7 +9609,7 @@ inline bool TestAllTypesLite::has_optional_nested_message() const {
   return _internal_has_optional_nested_message();
 }
 inline void TestAllTypesLite::clear_optional_nested_message() {
-  if (optional_nested_message_ != nullptr) optional_nested_message_->Clear();
+  if(optional_nested_message_ != nullptr) optional_nested_message_->Clear();
   _has_bits_[0] &= ~0x00000200u;
 }
 inline const ::protobuf_unittest::TestAllTypesLite_NestedMessage& TestAllTypesLite::_internal_optional_nested_message() const {
@@ -9699,7 +9699,7 @@ inline bool TestAllTypesLite::has_optional_foreign_message() const {
   return _internal_has_optional_foreign_message();
 }
 inline void TestAllTypesLite::clear_optional_foreign_message() {
-  if (optional_foreign_message_ != nullptr) optional_foreign_message_->Clear();
+  if(optional_foreign_message_ != nullptr) optional_foreign_message_->Clear();
   _has_bits_[0] &= ~0x00000400u;
 }
 inline const ::protobuf_unittest::ForeignMessageLite& TestAllTypesLite::_internal_optional_foreign_message() const {
@@ -10184,7 +10184,7 @@ inline bool TestAllTypesLite::has_optional_lazy_message() const {
   return _internal_has_optional_lazy_message();
 }
 inline void TestAllTypesLite::clear_optional_lazy_message() {
-  if (optional_lazy_message_ != nullptr) optional_lazy_message_->Clear();
+  if(optional_lazy_message_ != nullptr) optional_lazy_message_->Clear();
   _has_bits_[0] &= ~0x00002000u;
 }
 inline const ::protobuf_unittest::TestAllTypesLite_NestedMessage& TestAllTypesLite::_internal_optional_lazy_message() const {
@@ -12203,7 +12203,7 @@ inline void TestAllTypesLite::set_has_oneof_uint32() {
   _oneof_case_[0] = kOneofUint32;
 }
 inline void TestAllTypesLite::clear_oneof_uint32() {
-  if (_internal_has_oneof_uint32()) {
+  if(_internal_has_oneof_uint32()) {
     oneof_field_.oneof_uint32_ = 0u;
     clear_has_oneof_field();
   }
@@ -12241,8 +12241,8 @@ inline void TestAllTypesLite::set_has_oneof_nested_message() {
   _oneof_case_[0] = kOneofNestedMessage;
 }
 inline void TestAllTypesLite::clear_oneof_nested_message() {
-  if (_internal_has_oneof_nested_message()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_oneof_nested_message()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete oneof_field_.oneof_nested_message_;
     }
     clear_has_oneof_field();
@@ -12315,7 +12315,7 @@ inline void TestAllTypesLite::set_has_oneof_string() {
   _oneof_case_[0] = kOneofString;
 }
 inline void TestAllTypesLite::clear_oneof_string() {
-  if (_internal_has_oneof_string()) {
+  if(_internal_has_oneof_string()) {
     oneof_field_.oneof_string_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_oneof_field();
   }
@@ -12397,7 +12397,7 @@ inline void TestAllTypesLite::set_has_oneof_bytes() {
   _oneof_case_[0] = kOneofBytes;
 }
 inline void TestAllTypesLite::clear_oneof_bytes() {
-  if (_internal_has_oneof_bytes()) {
+  if(_internal_has_oneof_bytes()) {
     oneof_field_.oneof_bytes_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_oneof_field();
   }
@@ -12479,8 +12479,8 @@ inline void TestAllTypesLite::set_has_oneof_lazy_nested_message() {
   _oneof_case_[0] = kOneofLazyNestedMessage;
 }
 inline void TestAllTypesLite::clear_oneof_lazy_nested_message() {
-  if (_internal_has_oneof_lazy_nested_message()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_oneof_lazy_nested_message()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete oneof_field_.oneof_lazy_nested_message_;
     }
     clear_has_oneof_field();
@@ -12553,8 +12553,8 @@ inline void TestAllTypesLite::set_has_oneof_nested_message2() {
   _oneof_case_[0] = kOneofNestedMessage2;
 }
 inline void TestAllTypesLite::clear_oneof_nested_message2() {
-  if (_internal_has_oneof_nested_message2()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_oneof_nested_message2()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete oneof_field_.oneof_nested_message2_;
     }
     clear_has_oneof_field();
@@ -13560,7 +13560,7 @@ inline bool TestDeprecatedLite::has_deprecated_field4() const {
   return _internal_has_deprecated_field4();
 }
 inline void TestDeprecatedLite::clear_deprecated_field4() {
-  if (deprecated_field4_ != nullptr) deprecated_field4_->Clear();
+  if(deprecated_field4_ != nullptr) deprecated_field4_->Clear();
   _has_bits_[0] &= ~0x00000002u;
 }
 inline const ::protobuf_unittest::TestDeprecatedLite& TestDeprecatedLite::_internal_deprecated_field4() const {
@@ -13654,7 +13654,7 @@ inline bool TestParsingMergeLite_RepeatedFieldsGenerator_Group1::has_field1() co
   return _internal_has_field1();
 }
 inline void TestParsingMergeLite_RepeatedFieldsGenerator_Group1::clear_field1() {
-  if (field1_ != nullptr) field1_->Clear();
+  if(field1_ != nullptr) field1_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::TestAllTypesLite& TestParsingMergeLite_RepeatedFieldsGenerator_Group1::_internal_field1() const {
@@ -13748,7 +13748,7 @@ inline bool TestParsingMergeLite_RepeatedFieldsGenerator_Group2::has_field1() co
   return _internal_has_field1();
 }
 inline void TestParsingMergeLite_RepeatedFieldsGenerator_Group2::clear_field1() {
-  if (field1_ != nullptr) field1_->Clear();
+  if(field1_ != nullptr) field1_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::TestAllTypesLite& TestParsingMergeLite_RepeatedFieldsGenerator_Group2::_internal_field1() const {
@@ -14126,7 +14126,7 @@ inline bool TestParsingMergeLite_OptionalGroup::has_optional_group_all_types() c
   return _internal_has_optional_group_all_types();
 }
 inline void TestParsingMergeLite_OptionalGroup::clear_optional_group_all_types() {
-  if (optional_group_all_types_ != nullptr) optional_group_all_types_->Clear();
+  if(optional_group_all_types_ != nullptr) optional_group_all_types_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::TestAllTypesLite& TestParsingMergeLite_OptionalGroup::_internal_optional_group_all_types() const {
@@ -14220,7 +14220,7 @@ inline bool TestParsingMergeLite_RepeatedGroup::has_repeated_group_all_types() c
   return _internal_has_repeated_group_all_types();
 }
 inline void TestParsingMergeLite_RepeatedGroup::clear_repeated_group_all_types() {
-  if (repeated_group_all_types_ != nullptr) repeated_group_all_types_->Clear();
+  if(repeated_group_all_types_ != nullptr) repeated_group_all_types_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::TestAllTypesLite& TestParsingMergeLite_RepeatedGroup::_internal_repeated_group_all_types() const {
@@ -14314,7 +14314,7 @@ inline bool TestParsingMergeLite::has_required_all_types() const {
   return _internal_has_required_all_types();
 }
 inline void TestParsingMergeLite::clear_required_all_types() {
-  if (required_all_types_ != nullptr) required_all_types_->Clear();
+  if(required_all_types_ != nullptr) required_all_types_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::TestAllTypesLite& TestParsingMergeLite::_internal_required_all_types() const {
@@ -14404,7 +14404,7 @@ inline bool TestParsingMergeLite::has_optional_all_types() const {
   return _internal_has_optional_all_types();
 }
 inline void TestParsingMergeLite::clear_optional_all_types() {
-  if (optional_all_types_ != nullptr) optional_all_types_->Clear();
+  if(optional_all_types_ != nullptr) optional_all_types_->Clear();
   _has_bits_[0] &= ~0x00000002u;
 }
 inline const ::protobuf_unittest::TestAllTypesLite& TestParsingMergeLite::_internal_optional_all_types() const {
@@ -14534,7 +14534,7 @@ inline bool TestParsingMergeLite::has_optionalgroup() const {
   return _internal_has_optionalgroup();
 }
 inline void TestParsingMergeLite::clear_optionalgroup() {
-  if (optionalgroup_ != nullptr) optionalgroup_->Clear();
+  if(optionalgroup_ != nullptr) optionalgroup_->Clear();
   _has_bits_[0] &= ~0x00000004u;
 }
 inline const ::protobuf_unittest::TestParsingMergeLite_OptionalGroup& TestParsingMergeLite::_internal_optionalgroup() const {
@@ -15143,7 +15143,7 @@ inline bool TestHugeFieldNumbersLite::has_optional_message() const {
   return _internal_has_optional_message();
 }
 inline void TestHugeFieldNumbersLite::clear_optional_message() {
-  if (optional_message_ != nullptr) optional_message_->Clear();
+  if(optional_message_ != nullptr) optional_message_->Clear();
   _has_bits_[0] &= ~0x00000004u;
 }
 inline const ::protobuf_unittest::ForeignMessageLite& TestHugeFieldNumbersLite::_internal_optional_message() const {
@@ -15233,7 +15233,7 @@ inline bool TestHugeFieldNumbersLite::has_optionalgroup() const {
   return _internal_has_optionalgroup();
 }
 inline void TestHugeFieldNumbersLite::clear_optionalgroup() {
-  if (optionalgroup_ != nullptr) optionalgroup_->Clear();
+  if(optionalgroup_ != nullptr) optionalgroup_->Clear();
   _has_bits_[0] &= ~0x00000008u;
 }
 inline const ::protobuf_unittest::TestHugeFieldNumbersLite_OptionalGroup& TestHugeFieldNumbersLite::_internal_optionalgroup() const {
@@ -15353,7 +15353,7 @@ inline void TestHugeFieldNumbersLite::set_has_oneof_uint32() {
   _oneof_case_[0] = kOneofUint32;
 }
 inline void TestHugeFieldNumbersLite::clear_oneof_uint32() {
-  if (_internal_has_oneof_uint32()) {
+  if(_internal_has_oneof_uint32()) {
     oneof_field_.oneof_uint32_ = 0u;
     clear_has_oneof_field();
   }
@@ -15391,8 +15391,8 @@ inline void TestHugeFieldNumbersLite::set_has_oneof_test_all_types() {
   _oneof_case_[0] = kOneofTestAllTypes;
 }
 inline void TestHugeFieldNumbersLite::clear_oneof_test_all_types() {
-  if (_internal_has_oneof_test_all_types()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_oneof_test_all_types()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete oneof_field_.oneof_test_all_types_;
     }
     clear_has_oneof_field();
@@ -15465,7 +15465,7 @@ inline void TestHugeFieldNumbersLite::set_has_oneof_string() {
   _oneof_case_[0] = kOneofString;
 }
 inline void TestHugeFieldNumbersLite::clear_oneof_string() {
-  if (_internal_has_oneof_string()) {
+  if(_internal_has_oneof_string()) {
     oneof_field_.oneof_string_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_oneof_field();
   }
@@ -15547,7 +15547,7 @@ inline void TestHugeFieldNumbersLite::set_has_oneof_bytes() {
   _oneof_case_[0] = kOneofBytes;
 }
 inline void TestHugeFieldNumbersLite::clear_oneof_bytes() {
-  if (_internal_has_oneof_bytes()) {
+  if(_internal_has_oneof_bytes()) {
     oneof_field_.oneof_bytes_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_oneof_field();
   }
@@ -15642,7 +15642,7 @@ inline void TestOneofParsingLite::set_has_oneof_int32() {
   _oneof_case_[0] = kOneofInt32;
 }
 inline void TestOneofParsingLite::clear_oneof_int32() {
-  if (_internal_has_oneof_int32()) {
+  if(_internal_has_oneof_int32()) {
     oneof_field_.oneof_int32_ = 0;
     clear_has_oneof_field();
   }
@@ -15680,8 +15680,8 @@ inline void TestOneofParsingLite::set_has_oneof_submessage() {
   _oneof_case_[0] = kOneofSubmessage;
 }
 inline void TestOneofParsingLite::clear_oneof_submessage() {
-  if (_internal_has_oneof_submessage()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_oneof_submessage()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete oneof_field_.oneof_submessage_;
     }
     clear_has_oneof_field();
@@ -15754,7 +15754,7 @@ inline void TestOneofParsingLite::set_has_oneof_string() {
   _oneof_case_[0] = kOneofString;
 }
 inline void TestOneofParsingLite::clear_oneof_string() {
-  if (_internal_has_oneof_string()) {
+  if(_internal_has_oneof_string()) {
     oneof_field_.oneof_string_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_oneof_field();
   }
@@ -15836,7 +15836,7 @@ inline void TestOneofParsingLite::set_has_oneof_bytes() {
   _oneof_case_[0] = kOneofBytes;
 }
 inline void TestOneofParsingLite::clear_oneof_bytes() {
-  if (_internal_has_oneof_bytes()) {
+  if(_internal_has_oneof_bytes()) {
     oneof_field_.oneof_bytes_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::NonEmptyDefault{}, GetArenaForAllocation());
     clear_has_oneof_field();
   }
@@ -15918,7 +15918,7 @@ inline void TestOneofParsingLite::set_has_oneof_string_cord() {
   _oneof_case_[0] = kOneofStringCord;
 }
 inline void TestOneofParsingLite::clear_oneof_string_cord() {
-  if (_internal_has_oneof_string_cord()) {
+  if(_internal_has_oneof_string_cord()) {
     oneof_field_.oneof_string_cord_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::NonEmptyDefault{}, GetArenaForAllocation());
     clear_has_oneof_field();
   }
@@ -16000,7 +16000,7 @@ inline void TestOneofParsingLite::set_has_oneof_bytes_cord() {
   _oneof_case_[0] = kOneofBytesCord;
 }
 inline void TestOneofParsingLite::clear_oneof_bytes_cord() {
-  if (_internal_has_oneof_bytes_cord()) {
+  if(_internal_has_oneof_bytes_cord()) {
     oneof_field_.oneof_bytes_cord_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_oneof_field();
   }
@@ -16082,7 +16082,7 @@ inline void TestOneofParsingLite::set_has_oneof_string_string_piece() {
   _oneof_case_[0] = kOneofStringStringPiece;
 }
 inline void TestOneofParsingLite::clear_oneof_string_string_piece() {
-  if (_internal_has_oneof_string_string_piece()) {
+  if(_internal_has_oneof_string_string_piece()) {
     oneof_field_.oneof_string_string_piece_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_oneof_field();
   }
@@ -16164,7 +16164,7 @@ inline void TestOneofParsingLite::set_has_oneof_bytes_string_piece() {
   _oneof_case_[0] = kOneofBytesStringPiece;
 }
 inline void TestOneofParsingLite::clear_oneof_bytes_string_piece() {
-  if (_internal_has_oneof_bytes_string_piece()) {
+  if(_internal_has_oneof_bytes_string_piece()) {
     oneof_field_.oneof_bytes_string_piece_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::NonEmptyDefault{}, GetArenaForAllocation());
     clear_has_oneof_field();
   }
@@ -16246,7 +16246,7 @@ inline void TestOneofParsingLite::set_has_oneof_enum() {
   _oneof_case_[0] = kOneofEnum;
 }
 inline void TestOneofParsingLite::clear_oneof_enum() {
-  if (_internal_has_oneof_enum()) {
+  if(_internal_has_oneof_enum()) {
     oneof_field_.oneof_enum_ = 1;
     clear_has_oneof_field();
   }
@@ -16505,7 +16505,7 @@ inline bool RecursiveMessage::has_recurse() const {
   return _internal_has_recurse();
 }
 inline void RecursiveMessage::clear_recurse() {
-  if (recurse_ != nullptr) recurse_->Clear();
+  if(recurse_ != nullptr) recurse_->Clear();
   _has_bits_[0] &= ~0x00000002u;
 }
 inline const ::protobuf_unittest::RecursiveMessage& RecursiveMessage::_internal_recurse() const {

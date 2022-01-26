@@ -16,7 +16,7 @@
 #endif
 
 static void __aes_err(ENV*, int);
-static int __aes_derivekeys(ENV*, DB_CIPHER*, uint8*, size_t);
+static int __aes_derivekeys(ENV*, DB_CIPHER*, uint8 *, size_t);
 
 /*
  * __aes_setup --

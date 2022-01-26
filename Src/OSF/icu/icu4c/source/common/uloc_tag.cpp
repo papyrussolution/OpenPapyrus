@@ -1712,7 +1712,7 @@ static void _appendLDMLExtensionAsKeywords(const char * ldmlext,
 
 				/* Special handling for u-va-posix, since we want to treat this as a variant,
 				   not as a keyword */
-				if(!variantExists && !uprv_strcmp(pKey, POSIX_KEY) && !uprv_strcmp(pType, POSIX_VALUE) ) {
+				if(!variantExists && !uprv_strcmp(pKey, POSIX_KEY) && !uprv_strcmp(pType, POSIX_VALUE)) {
 					*posixVariant = TRUE;
 				}
 				else {

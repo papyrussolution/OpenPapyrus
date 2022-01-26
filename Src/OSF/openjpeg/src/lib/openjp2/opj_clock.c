@@ -37,7 +37,7 @@
 #include <sys/times.h>
 #endif /* _WIN32 */
 
-OPJ_FLOAT64 opj_clock(void)
+double opj_clock(void)
 {
 #ifdef _WIN32
 	/* _WIN32: use QueryPerformance (very accurate) */
@@ -47,17 +47,17 @@ OPJ_FLOAT64 opj_clock(void)
 	/* cout << "freq = " << ((double) freq.QuadPart) << endl; */
 	/* t is the high resolution performance counter (see MSDN) */
 	QueryPerformanceCounter(&t);
-	return ((OPJ_FLOAT64)t.QuadPart / (OPJ_FLOAT64)freq.QuadPart);
+	return ((double)t.QuadPart / (double)freq.QuadPart);
 #else
 	/* Unix or Linux: use resource usage */
 	struct rusage t;
-	OPJ_FLOAT64 procTime;
+	double procTime;
 	/* (1) Get the rusage data structure at this moment (man getrusage) */
 	getrusage(0, &t);
 	/* (2) What is the elapsed time ? - CPU time = User time + System time */
 	/* (2a) Get the seconds */
-	procTime = (OPJ_FLOAT64)(t.ru_utime.tv_sec + t.ru_stime.tv_sec);
+	procTime = (double)(t.ru_utime.tv_sec + t.ru_stime.tv_sec);
 	/* (2b) More precisely! Get the microseconds part ! */
-	return (procTime + (OPJ_FLOAT64)(t.ru_utime.tv_usec + t.ru_stime.tv_usec) * 1e-6);
+	return (procTime + (double)(t.ru_utime.tv_usec + t.ru_stime.tv_usec) * 1e-6);
 #endif
 }

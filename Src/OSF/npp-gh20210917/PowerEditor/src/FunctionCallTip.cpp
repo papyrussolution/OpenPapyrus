@@ -311,7 +311,7 @@ bool FunctionCallTip::loadFunction()
 
 	TiXmlElement * overloadNode = _curFunction->FirstChildElement(TEXT("Overload"));
 	TiXmlElement * paramNode = NULL;
-	for(; overloadNode; overloadNode = overloadNode->NextSiblingElement(TEXT("Overload")) ) {
+	for(; overloadNode; overloadNode = overloadNode->NextSiblingElement(TEXT("Overload"))) {
 		const TCHAR * retVal = overloadNode->Attribute(TEXT("retVal"));
 		if(!retVal)
 			continue;       //malformed node
@@ -324,7 +324,7 @@ bool FunctionCallTip::loadFunction()
 			_descriptions.push_back(TEXT(""));      //"no description available"
 
 		paramNode = overloadNode->FirstChildElement(TEXT("Param"));
-		for(; paramNode; paramNode = paramNode->NextSiblingElement(TEXT("Param")) ) {
+		for(; paramNode; paramNode = paramNode->NextSiblingElement(TEXT("Param"))) {
 			const TCHAR * param = paramNode->Attribute(TEXT("name"));
 			if(!param)
 				continue;       //malformed node

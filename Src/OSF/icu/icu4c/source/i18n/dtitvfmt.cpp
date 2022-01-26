@@ -278,7 +278,7 @@ UnicodeString &DateIntervalFormat::format(const Formattable& obj,
     UnicodeString & appendTo,
     FieldPosition& fieldPosition,
     UErrorCode & status) const {
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		return appendTo;
 	}
 
@@ -297,7 +297,7 @@ UnicodeString &DateIntervalFormat::format(const DateInterval* dtInterval,
     UnicodeString & appendTo,
     FieldPosition& fieldPosition,
     UErrorCode & status) const {
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		return appendTo;
 	}
 	if(fDateFormat == nullptr || fInfo == nullptr) {
@@ -420,7 +420,7 @@ UnicodeString &DateIntervalFormat::formatImpl(Calendar& fromCalendar,
     int8_t& firstIndex,
     FieldPositionHandler& fphandler,
     UErrorCode & status) const {
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		return appendTo;
 	}
 
@@ -428,8 +428,8 @@ UnicodeString &DateIntervalFormat::formatImpl(Calendar& fromCalendar,
 	firstIndex = -1;
 
 	// not support different calendar types and time zones
-	//if( fromCalendar.getType() != toCalendar.getType() ) {
-	if(!fromCalendar.isEquivalentTo(toCalendar) ) {
+	//if( fromCalendar.getType() != toCalendar.getType()) {
+	if(!fromCalendar.isEquivalentTo(toCalendar)) {
 		status = U_ILLEGAL_ARGUMENT_ERROR;
 		return appendTo;
 	}
@@ -441,39 +441,39 @@ UnicodeString &DateIntervalFormat::formatImpl(Calendar& fromCalendar,
 		field = UCAL_ERA;
 	}
 	else if(fromCalendar.get(UCAL_YEAR, status) !=
-	    toCalendar.get(UCAL_YEAR, status) ) {
+	    toCalendar.get(UCAL_YEAR, status)) {
 		field = UCAL_YEAR;
 	}
 	else if(fromCalendar.get(UCAL_MONTH, status) !=
-	    toCalendar.get(UCAL_MONTH, status) ) {
+	    toCalendar.get(UCAL_MONTH, status)) {
 		field = UCAL_MONTH;
 	}
 	else if(fromCalendar.get(UCAL_DATE, status) !=
-	    toCalendar.get(UCAL_DATE, status) ) {
+	    toCalendar.get(UCAL_DATE, status)) {
 		field = UCAL_DATE;
 	}
 	else if(fromCalendar.get(UCAL_AM_PM, status) !=
-	    toCalendar.get(UCAL_AM_PM, status) ) {
+	    toCalendar.get(UCAL_AM_PM, status)) {
 		field = UCAL_AM_PM;
 	}
 	else if(fromCalendar.get(UCAL_HOUR, status) !=
-	    toCalendar.get(UCAL_HOUR, status) ) {
+	    toCalendar.get(UCAL_HOUR, status)) {
 		field = UCAL_HOUR;
 	}
 	else if(fromCalendar.get(UCAL_MINUTE, status) !=
-	    toCalendar.get(UCAL_MINUTE, status) ) {
+	    toCalendar.get(UCAL_MINUTE, status)) {
 		field = UCAL_MINUTE;
 	}
 	else if(fromCalendar.get(UCAL_SECOND, status) !=
-	    toCalendar.get(UCAL_SECOND, status) ) {
+	    toCalendar.get(UCAL_SECOND, status)) {
 		field = UCAL_SECOND;
 	}
 	else if(fromCalendar.get(UCAL_MILLISECOND, status) !=
-	    toCalendar.get(UCAL_MILLISECOND, status) ) {
+	    toCalendar.get(UCAL_MILLISECOND, status)) {
 		field = UCAL_MILLISECOND;
 	}
 
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		return appendTo;
 	}
 	UErrorCode tempStatus = U_ZERO_ERROR; // for setContext, ignored
@@ -497,8 +497,8 @@ UnicodeString &DateIntervalFormat::formatImpl(Calendar& fromCalendar,
 	const PatternInfo& intervalPattern = fIntervalPatterns[itvPtnIndex];
 
 	if(intervalPattern.firstPart.isEmpty() &&
-	    intervalPattern.secondPart.isEmpty() ) {
-		if(fDateFormat->isFieldUnitIgnored(field) ) {
+	    intervalPattern.secondPart.isEmpty()) {
+		if(fDateFormat->isFieldUnitIgnored(field)) {
 			/* the largest different calendar field is small than
 			 * the smallest calendar field in pattern,
 			 * return single date format.
@@ -510,7 +510,7 @@ UnicodeString &DateIntervalFormat::formatImpl(Calendar& fromCalendar,
 	// If the first part in interval pattern is empty,
 	// the 2nd part of it saves the full-pattern used in fall-back.
 	// For a 'real' interval pattern, the first part will never be empty.
-	if(intervalPattern.firstPart.isEmpty() ) {
+	if(intervalPattern.firstPart.isEmpty()) {
 		// fall back
 		UnicodeString originalPattern;
 		fDateFormat->toPattern(originalPattern);
@@ -538,7 +538,7 @@ UnicodeString &DateIntervalFormat::formatImpl(Calendar& fromCalendar,
 	fDateFormat->applyPattern(intervalPattern.firstPart);
 	fDateFormat->_format(*firstCal, appendTo, fphandler, status);
 
-	if(!intervalPattern.secondPart.isEmpty() ) {
+	if(!intervalPattern.secondPart.isEmpty()) {
 		fDateFormat->applyPattern(intervalPattern.secondPart);
 		// No capitalization for second part of interval
 		tempStatus = U_ZERO_ERROR;
@@ -677,7 +677,7 @@ DateIntervalFormat::DateIntervalFormat(const Locale & locale,
 	}
 	fInfo = info.orphan();
 	fDateFormat = dtfmt.orphan();
-	if(fDateFormat->getCalendar() ) {
+	if(fDateFormat->getCalendar()) {
 		fFromCalendar = fDateFormat->getCalendar()->clone();
 		fToCalendar = fDateFormat->getCalendar()->clone();
 	}
@@ -694,7 +694,7 @@ DateIntervalFormat* U_EXPORT2 DateIntervalFormat::create(const Locale & locale,
 		status = U_MEMORY_ALLOCATION_ERROR;
 		delete dtitvinf;
 	}
-	else if(U_FAILURE(status) ) {
+	else if(U_FAILURE(status)) {
 		// safe to delete f, although nothing actually is saved
 		delete f;
 		f = 0;
@@ -737,11 +737,11 @@ DateIntervalFormat* U_EXPORT2 DateIntervalFormat::create(const Locale & locale,
  * @stable ICU 4.0
  */
 void DateIntervalFormat::initializePattern(UErrorCode & status) {
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		return;
 	}
 	const Locale & locale = fDateFormat->getSmpFmtLocale();
-	if(fSkeleton.isEmpty() ) {
+	if(fSkeleton.isEmpty()) {
 		UnicodeString fullPattern;
 		fDateFormat->toPattern(fullPattern);
 #ifdef DTITVFMT_DEBUG
@@ -756,7 +756,7 @@ void DateIntervalFormat::initializePattern(UErrorCode & status) {
 		// or by createInstance(UnicodeString skeleton, .... )
 		fSkeleton = DateTimePatternGenerator::staticGetSkeleton(
 			fullPattern, status);
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			return;
 		}
 	}
@@ -840,7 +840,7 @@ void DateIntervalFormat::initializePattern(UErrorCode & status) {
 				timeSkeleton.insert(0, gDateFormatSkeleton[DateFormat::kShort], -1);
 				UnicodeString pattern = DateFormat::getBestPattern(
 					locale, timeSkeleton, status);
-				if(U_FAILURE(status) ) {
+				if(U_FAILURE(status)) {
 					return;
 				}
 				// for fall back interval patterns,
@@ -854,7 +854,7 @@ void DateIntervalFormat::initializePattern(UErrorCode & status) {
 				timeSkeleton.insert(0, CAP_G);
 				pattern = DateFormat::getBestPattern(
 					locale, timeSkeleton, status);
-				if(U_FAILURE(status) ) {
+				if(U_FAILURE(status)) {
 					return;
 				}
 				setPatternInfo(UCAL_ERA, nullptr, &pattern, fInfo->getDefaultOrder());
@@ -877,7 +877,7 @@ void DateIntervalFormat::initializePattern(UErrorCode & status) {
 		timeSkeleton.insert(0, gDateFormatSkeleton[DateFormat::kShort], -1);
 		UnicodeString pattern = DateFormat::getBestPattern(
 			locale, timeSkeleton, status);
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			return;
 		}
 		// for fall back interval patterns,
@@ -891,7 +891,7 @@ void DateIntervalFormat::initializePattern(UErrorCode & status) {
 		timeSkeleton.insert(0, CAP_G);
 		pattern = DateFormat::getBestPattern(
 			locale, timeSkeleton, status);
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			return;
 		}
 		setPatternInfo(UCAL_ERA, nullptr, &pattern, fInfo->getDefaultOrder());
@@ -909,22 +909,22 @@ void DateIntervalFormat::initializePattern(UErrorCode & status) {
 		 */
 		// if field exists, use fall back
 		UnicodeString skeleton = fSkeleton;
-		if(!fieldExistsInSkeleton(UCAL_DATE, dateSkeleton) ) {
+		if(!fieldExistsInSkeleton(UCAL_DATE, dateSkeleton)) {
 			// prefix skeleton with 'd'
 			skeleton.insert(0, LOW_D);
 			setFallbackPattern(UCAL_DATE, skeleton, status);
 		}
-		if(!fieldExistsInSkeleton(UCAL_MONTH, dateSkeleton) ) {
+		if(!fieldExistsInSkeleton(UCAL_MONTH, dateSkeleton)) {
 			// then prefix skeleton with 'M'
 			skeleton.insert(0, CAP_M);
 			setFallbackPattern(UCAL_MONTH, skeleton, status);
 		}
-		if(!fieldExistsInSkeleton(UCAL_YEAR, dateSkeleton) ) {
+		if(!fieldExistsInSkeleton(UCAL_YEAR, dateSkeleton)) {
 			// then prefix skeleton with 'y'
 			skeleton.insert(0, LOW_Y);
 			setFallbackPattern(UCAL_YEAR, skeleton, status);
 		}
-		if(!fieldExistsInSkeleton(UCAL_ERA, dateSkeleton) ) {
+		if(!fieldExistsInSkeleton(UCAL_ERA, dateSkeleton)) {
 			// then prefix skeleton with 'G'
 			skeleton.insert(0, CAP_G);
 			setFallbackPattern(UCAL_ERA, skeleton, status);
@@ -1296,12 +1296,12 @@ bool DateIntervalFormat::setSeparateDateTimePtn(const UnicodeString & dateSkelet
 void DateIntervalFormat::setFallbackPattern(UCalendarDateFields field,
     const UnicodeString & skeleton,
     UErrorCode & status) {
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		return;
 	}
 	UnicodeString pattern = DateFormat::getBestPattern(
 		fLocale, skeleton, status);
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		return;
 	}
 	setPatternInfo(field, nullptr, &pattern, fInfo->getDefaultOrder());
@@ -1319,7 +1319,7 @@ void DateIntervalFormat::setPatternInfo(UCalendarDateFields field,
 	// following should not set any wrong status.
 	int32_t itvPtnIndex = DateIntervalInfo::calendarFieldToIntervalIndex(field,
 		status);
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		return;
 	}
 	PatternInfo& ptn = fIntervalPatterns[itvPtnIndex];
@@ -1347,7 +1347,7 @@ void DateIntervalFormat::setIntervalPattern(UCalendarDateFields field,
 	int8_t prefixLength = UPRV_LENGTHOF(gLaterFirstPrefix);
 	int8_t earliestFirstLength = UPRV_LENGTHOF(gEarlierFirstPrefix);
 	UnicodeString realPattern;
-	if(intervalPattern.startsWith(gLaterFirstPrefix, prefixLength) ) {
+	if(intervalPattern.startsWith(gLaterFirstPrefix, prefixLength)) {
 		order = true;
 		intervalPattern.extract(prefixLength,
 		    intervalPattern.length() - prefixLength,
@@ -1355,7 +1355,7 @@ void DateIntervalFormat::setIntervalPattern(UCalendarDateFields field,
 		pattern = &realPattern;
 	}
 	else if(intervalPattern.startsWith(gEarlierFirstPrefix,
-	    earliestFirstLength) ) {
+	    earliestFirstLength)) {
 		order = false;
 		intervalPattern.extract(earliestFirstLength,
 		    intervalPattern.length() - earliestFirstLength,
@@ -1368,7 +1368,7 @@ void DateIntervalFormat::setIntervalPattern(UCalendarDateFields field,
 	UnicodeString firstPart;
 	UnicodeString secondPart;
 	pattern->extract(0, splitPoint, firstPart);
-	if(splitPoint < pattern->length() ) {
+	if(splitPoint < pattern->length()) {
 		pattern->extract(splitPoint, pattern->length()-splitPoint, secondPart);
 	}
 	setPatternInfo(field, &firstPart, &secondPart, order);
@@ -1408,9 +1408,9 @@ bool DateIntervalFormat::setIntervalPattern(UCalendarDateFields field,
 	// following getIntervalPattern() should not generate error status
 	UnicodeString pattern;
 	fInfo->getIntervalPattern(*bestSkeleton, field, pattern, status);
-	if(pattern.isEmpty() ) {
+	if(pattern.isEmpty()) {
 		// single date
-		if(SimpleDateFormat::isFieldUnitIgnored(*bestSkeleton, field) ) {
+		if(SimpleDateFormat::isFieldUnitIgnored(*bestSkeleton, field)) {
 			// do nothing, format will handle it
 			return false;
 		}
@@ -1421,7 +1421,7 @@ bool DateIntervalFormat::setIntervalPattern(UCalendarDateFields field,
 		// add it here for simplicity
 		if(field == UCAL_AM_PM) {
 			fInfo->getIntervalPattern(*bestSkeleton, UCAL_HOUR, pattern, status);
-			if(!pattern.isEmpty() ) {
+			if(!pattern.isEmpty()) {
 				bool suppressDayPeriodField = fSkeleton.indexOf(CAP_J) != -1;
 				UnicodeString adjustIntervalPattern;
 				adjustFieldWidth(*skeleton, *bestSkeleton, pattern, differenceInfo,
@@ -1457,7 +1457,7 @@ bool DateIntervalFormat::setIntervalPattern(UCalendarDateFields field,
 			}
 		}
 	}
-	if(!pattern.isEmpty() ) {
+	if(!pattern.isEmpty()) {
 		bool suppressDayPeriodField = fSkeleton.indexOf(CAP_J) != -1;
 		if(differenceInfo != 0 || suppressDayPeriodField) {
 			UnicodeString adjustIntervalPattern;
@@ -1468,7 +1468,7 @@ bool DateIntervalFormat::setIntervalPattern(UCalendarDateFields field,
 		else {
 			setIntervalPattern(field, pattern);
 		}
-		if(extendedSkeleton && !extendedSkeleton->isEmpty() ) {
+		if(extendedSkeleton && !extendedSkeleton->isEmpty()) {
 			return TRUE;
 		}
 	}
@@ -1597,7 +1597,7 @@ UnicodeString &DateIntervalFormat::fallbackFormat(Calendar& fromCalendar,
     int8_t& firstIndex,
     FieldPositionHandler& fphandler,
     UErrorCode & status) const {
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		return appendTo;
 	}
 
@@ -1827,17 +1827,17 @@ void DateIntervalFormat::concatSingleDate2TimeInterval(UnicodeString & format,
 	// following should not set wrong status
 	int32_t itvPtnIndex = DateIntervalInfo::calendarFieldToIntervalIndex(field,
 		status);
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		return;
 	}
 	PatternInfo&  timeItvPtnInfo = fIntervalPatterns[itvPtnIndex];
-	if(!timeItvPtnInfo.firstPart.isEmpty() ) {
+	if(!timeItvPtnInfo.firstPart.isEmpty()) {
 		UnicodeString timeIntervalPattern(timeItvPtnInfo.firstPart);
 		timeIntervalPattern.append(timeItvPtnInfo.secondPart);
 		UnicodeString combinedPattern;
 		SimpleFormatter(format, 2, 2, status).
 		format(timeIntervalPattern, datePattern, combinedPattern, status);
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			return;
 		}
 		setIntervalPattern(field, combinedPattern, timeItvPtnInfo.laterDateFirst);

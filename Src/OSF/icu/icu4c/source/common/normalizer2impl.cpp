@@ -2794,7 +2794,7 @@ U_CAPI int32_t U_EXPORT2 unorm2_swap(const UDataSwapper * ds,
 		return 0;
 	}
 
-	inBytes = (const uint8*)inData+headerSize;
+	inBytes = (const uint8 *)inData+headerSize;
 	outBytes = (uint8 *)outData+headerSize;
 
 	inIndexes = (const int32_t*)inBytes;

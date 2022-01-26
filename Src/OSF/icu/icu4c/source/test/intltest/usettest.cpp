@@ -369,7 +369,7 @@ void UnicodeSetTest::TestCloneEqualHash() {
 	    set2->hashCode() != set2equal.hashCode() || set2->hashCode() != set2clone->hashCode() ||
 	    set1copy->hashCode() != set1equal.hashCode() || set1copy->hashCode() != set1clone->hashCode() ||
 	    set1->hashCode() == set2->hashCode() || set1copy->hashCode() == set2->hashCode() ||
-	    set2->hashCode() == set1clone->hashCode() || set2->hashCode() == set1equal.hashCode() ) {
+	    set2->hashCode() == set1clone->hashCode() || set2->hashCode() == set1equal.hashCode()) {
 		errln("FAIL: Error in hashCode()");
 	}
 

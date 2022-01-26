@@ -159,7 +159,7 @@ struct logLuvState {
 	int pixel_size;                         /* bytes per pixel */
 	uint8 * tbuf; /* translation buffer */
 	tmsize_t tbuflen; /* buffer length */
-	void (* tfunc)(LogLuvState*, uint8*, tmsize_t);
+	void (* tfunc)(LogLuvState*, uint8 *, tmsize_t);
 	TIFFVSetMethod vgetparent; /* super-class method */
 	TIFFVSetMethod vsetparent; /* super-class method */
 };

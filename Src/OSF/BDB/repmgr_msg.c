@@ -11,8 +11,8 @@
 static int dispatch_app_message __P((ENV*, REPMGR_MESSAGE *));
 static int finish_gmdb_update __P((ENV*, DB_THREAD_INFO*, DBT*, uint32, uint32, __repmgr_member_args *));
 static int incr_gm_version __P((ENV*, DB_THREAD_INFO*, DB_TXN *));
-static void marshal_site_data __P((ENV*, uint32, uint8*, DBT *));
-static void marshal_site_key __P((ENV*, repmgr_netaddr_t*, uint8*, DBT*, __repmgr_member_args *));
+static void marshal_site_data __P((ENV*, uint32, uint8 *, DBT *));
+static void marshal_site_key __P((ENV*, repmgr_netaddr_t*, uint8 *, DBT*, __repmgr_member_args *));
 static int message_loop __P((ENV*, REPMGR_RUNNABLE *));
 static int process_message __P((ENV*, DBT*, DBT*, int));
 static int reject_fwd __P((ENV*, REPMGR_CONNECTION *));

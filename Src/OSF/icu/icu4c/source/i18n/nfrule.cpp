@@ -912,23 +912,23 @@ bool NFRule::doParse(const UnicodeString & text,
 	prefix.setTo(fRuleText, 0, sub1Pos);
 
 #ifdef RBNF_DEBUG
-	fprintf(stderr, "doParse %p ", this);
+	slfprintf_stderr("doParse %p ", this);
 	{
 		UnicodeString rt;
 		_appendRuleText(rt);
 		dumpUS(stderr, rt);
 	}
 
-	fprintf(stderr, " text: '");
+	slfprintf_stderr(" text: '");
 	dumpUS(stderr, text);
-	fprintf(stderr, "' prefix: '");
+	slfprintf_stderr("' prefix: '");
 	dumpUS(stderr, prefix);
 #endif
 	stripPrefix(workText, prefix, pp);
 	int32_t prefixLength = text.length() - workText.length();
 
 #ifdef RBNF_DEBUG
-	fprintf(stderr, "' pl: %d ppi: %d s1p: %d\n", prefixLength, pp.getIndex(), sub1Pos);
+	slfprintf_stderr("' pl: %d ppi: %d s1p: %d\n", prefixLength, pp.getIndex(), sub1Pos);
 #endif
 
 	if(pp.getIndex() == 0 && sub1Pos != 0) {
@@ -1387,7 +1387,7 @@ int32_t NFRule::prefixLength(const UnicodeString & str, const UnicodeString & pr
 		}
 
 #ifdef RBNF_DEBUG
-		fprintf(stderr, "prefix length: %d\n", result);
+		slfprintf_stderr("prefix length: %d\n", result);
 #endif
 		return result;
 #if 0
@@ -1412,7 +1412,7 @@ int32_t NFRule::prefixLength(const UnicodeString & str, const UnicodeString & pr
 			temp.setTo(str, 0, prefix.length());
 			if(collator->equals(temp, prefix)) {
 #ifdef RBNF_DEBUG
-				fprintf(stderr, "returning: %d\n", prefix.length());
+				slfprintf_stderr("returning: %d\n", prefix.length());
 #endif
 				return prefix.length();
 			}

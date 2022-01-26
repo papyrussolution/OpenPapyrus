@@ -818,7 +818,7 @@ void DateTimePatternGenerator::addICUPatterns(const Locale & locale, UErrorCode 
 
 			// TODO: C++ and Java are inconsistent (see #12568).
 			// C++ uses MEDIUM, but Java uses SHORT.
-			if(i==DateFormat::kShort && !dfPattern.isEmpty() ) {
+			if(i==DateFormat::kShort && !dfPattern.isEmpty()) {
 				consumeShortTimePattern(dfPattern, status);
 			}
 		}
@@ -838,7 +838,7 @@ void DateTimePatternGenerator::hackTimes(const UnicodeString & hackPattern, UErr
 	bool gotMm = FALSE;
 	for(int32_t i = 0; i<fp->itemNumber; ++i) {
 		UnicodeString field = fp->items[i];
-		if(fp->isQuoteLiteral(field) ) {
+		if(fp->isQuoteLiteral(field)) {
 			if(gotMm) {
 				UnicodeString quoteLiteral;
 				fp->getQuoteLiteral(quoteLiteral, &i);
@@ -879,7 +879,7 @@ void DateTimePatternGenerator::hackTimes(const UnicodeString & hackPattern, UErr
 
 void DateTimePatternGenerator::getCalendarTypeToUse(const Locale & locale, CharString& destination, UErrorCode & err) {
 	destination.clear().append(DT_DateTimeGregorianTag, -1, err); // initial default
-	if(U_SUCCESS(err) ) {
+	if(U_SUCCESS(err)) {
 		UErrorCode localStatus = U_ZERO_ERROR;
 		char localeWithCalendarKey[ULOC_LOCALE_IDENTIFIER_CAPACITY];
 		// obtain a locale that always has the calendar key value that should be used
@@ -1036,7 +1036,7 @@ struct DateTimePatternGenerator::AvailableFormatsSink : public ResourceSink {
 	virtual void put(const char * key, ResourceValue &value, bool isRoot,
 	    UErrorCode & errorCode) override {
 		const UnicodeString formatKey(key, -1, US_INV);
-		if(!dtpg.isAvailableFormatSet(formatKey) ) {
+		if(!dtpg.isAvailableFormatSet(formatKey)) {
 			dtpg.setAvailableFormat(formatKey, errorCode);
 			// Add pattern with its associated skeleton. Override any duplicate
 			// derived from std patterns, but not a previous availableFormats entry:
@@ -1617,7 +1617,7 @@ UnicodeString DateTimePatternGenerator::adjustFieldTypes(const UnicodeString & p
 	fp->set(pattern);
 	for(int32_t i = 0; i < fp->itemNumber; i++) {
 		UnicodeString field = fp->items[i];
-		if(fp->isQuoteLiteral(field) ) {
+		if(fp->isQuoteLiteral(field)) {
 			UnicodeString quoteLiteral;
 			fp->getQuoteLiteral(quoteLiteral, &i);
 			newPattern += quoteLiteral;
@@ -1678,7 +1678,7 @@ UnicodeString DateTimePatternGenerator::adjustFieldTypes(const UnicodeString & p
 				int32_t adjFieldLen = reqFieldLen;
 				if((typeValue==UDATPG_HOUR_FIELD && (options & UDATPG_MATCH_HOUR_FIELD_LENGTH)==0) ||
 				    (typeValue==UDATPG_MINUTE_FIELD && (options & UDATPG_MATCH_MINUTE_FIELD_LENGTH)==0) ||
-				    (typeValue==UDATPG_SECOND_FIELD && (options & UDATPG_MATCH_SECOND_FIELD_LENGTH)==0) ) {
+				    (typeValue==UDATPG_SECOND_FIELD && (options & UDATPG_MATCH_SECOND_FIELD_LENGTH)==0)) {
 					adjFieldLen = field.length();
 				}
 				else if(specifiedSkeleton && reqFieldChar != LOW_C && reqFieldChar != LOW_E) {
@@ -1922,7 +1922,7 @@ StringEnumeration * DateTimePatternGenerator::getRedundants(UErrorCode & status)
 	for(it.set(*patternMap); it.hasNext();) {
 		DateTimeMatcher current = it.next();
 		pattern = patternMap->getPatternFromSkeleton(*(it.getSkeleton()));
-		if(isCanonicalItem(*pattern) ) {
+		if(isCanonicalItem(*pattern)) {
 			continue;
 		}
 		if(skipMatcher == nullptr) {
@@ -2019,11 +2019,11 @@ void PatternMap::copyFrom(const PatternMap& other, UErrorCode & status) {
 PtnElem* PatternMap::getHeader(UChar baseChar) const {
 	PtnElem* curElem;
 
-	if((baseChar >= CAP_A) && (baseChar <= CAP_Z) ) {
+	if((baseChar >= CAP_A) && (baseChar <= CAP_Z)) {
 		curElem = boot[baseChar-CAP_A];
 	}
 	else {
-		if((baseChar >=LOW_A) && (baseChar <= LOW_Z) ) {
+		if((baseChar >=LOW_A) && (baseChar <= LOW_Z)) {
 			curElem = boot[26+baseChar-LOW_A];
 		}
 		else {
@@ -2204,7 +2204,7 @@ bool PatternMap::equals(const PatternMap& other) const {
 				return FALSE;
 			}
 			if((myElem->basePattern != otherElem->basePattern) ||
-			    (myElem->pattern != otherElem->pattern) ) {
+			    (myElem->pattern != otherElem->pattern)) {
 				return FALSE;
 			}
 			if((myElem->skeleton.getAlias() != otherElem->skeleton.getAlias()) &&
@@ -2285,7 +2285,7 @@ void DateTimeMatcher::set(const UnicodeString & pattern, FormatParser* fp, PtnSk
 		const UnicodeString & value = fp->items[i];
 		// don't skip 'a' anymore, dayPeriod handled specially below
 
-		if(fp->isQuoteLiteral(value) ) {
+		if(fp->isQuoteLiteral(value)) {
 			UnicodeString quoteLiteral;
 			fp->getQuoteLiteral(quoteLiteral, &i);
 			continue;
@@ -2453,7 +2453,7 @@ FormatParser::TokenStatus FormatParser::setTokens(const UnicodeString & pattern,
 	// check the current char is between A-Z or a-z
 	do {
 		UChar c = pattern.charAt(curLoc);
-		if((c>=CAP_A && c<=CAP_Z) || (c>=LOW_A && c<=LOW_Z) ) {
+		if((c>=CAP_A && c<=CAP_Z) || (c>=LOW_A && c<=LOW_Z)) {
 			curLoc++;
 		}
 		else {
@@ -2462,7 +2462,7 @@ FormatParser::TokenStatus FormatParser::setTokens(const UnicodeString & pattern,
 			return ADD_TOKEN;
 		}
 
-		if(pattern.charAt(curLoc)!= pattern.charAt(startPos) ) {
+		if(pattern.charAt(curLoc)!= pattern.charAt(startPos)) {
 			break; // not the same token
 		}
 	} while(curLoc <= pattern.length());
@@ -2560,7 +2560,7 @@ bool FormatParser::isPatternSeparator(const UnicodeString & field) const {
 	for(int32_t i = 0; i<field.length(); ++i) {
 		UChar c = field.charAt(i);
 		if((c==SINGLE_QUOTE) || (c==BACKSLASH) || (c==SPACE) || (c==COLON) ||
-		    (c==QUOTATION_MARK) || (c==COMMA) || (c==HYPHEN) ||(items[i].charAt(0)==DOT) ) {
+		    (c==QUOTATION_MARK) || (c==COMMA) || (c==HYPHEN) ||(items[i].charAt(0)==DOT)) {
 			continue;
 		}
 		else {
@@ -2830,7 +2830,7 @@ DTSkeletonEnumeration::DTSkeletonEnumeration(PatternMap& patternMap, dtStrEnum t
 				    s = curSkeleton->getSkeleton();
 				    break;
 			}
-			if(!isCanonicalItem(s) ) {
+			if(!isCanonicalItem(s)) {
 				LocalPointer<UnicodeString> newElem(new UnicodeString(s), status);
 				if(U_FAILURE(status)) {
 					return;
@@ -2845,7 +2845,7 @@ DTSkeletonEnumeration::DTSkeletonEnumeration(PatternMap& patternMap, dtStrEnum t
 			curElem = curElem->next.getAlias();
 		}
 	}
-	if((bootIndex==MAX_PATTERN_ENTRIES) && (curElem!=nullptr) ) {
+	if((bootIndex==MAX_PATTERN_ENTRIES) && (curElem!=nullptr)) {
 		status = U_BUFFER_OVERFLOW_ERROR;
 	}
 }

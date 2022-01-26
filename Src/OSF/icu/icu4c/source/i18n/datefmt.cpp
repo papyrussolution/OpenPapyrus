@@ -1,21 +1,15 @@
+// DATEFMT.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
  * Copyright (C) 1997-2015, International Business Machines Corporation and others. All Rights Reserved.
- *******************************************************************************
- *
- * File DATEFMT.CPP
- *
  * Modification History:
- *
  *   Date        Name        Description
  *   02/19/97    aliu        Converted from java.
  *   03/31/97    aliu        Modified extensively to work with 50 locales.
  *   04/01/97    aliu        Added support for centuries.
  *   08/12/97    aliu        Fixed operator== to use Calendar::equivalentTo.
  *   07/20/98    stephen     Changed ParsePosition initialization
- ********************************************************************************
  */
 #include <icu-internal.h>
 #pragma hdrstop
@@ -26,11 +20,9 @@
 #include "sharedobject.h"
 #include "unifiedcache.h"
 #include "windtfmt.h"
-
-// *****************************************************************************
+//
 // class DateFormat
-// *****************************************************************************
-
+//
 U_NAMESPACE_BEGIN
 
 class U_I18N_API DateFmtBestPattern : public SharedObject {
@@ -63,36 +55,27 @@ protected:
 		return operator == (static_cast<const DateFmtBestPatternKey &>(other));
 	}
 public:
-	DateFmtBestPatternKey(const Locale &loc,
-	    const UnicodeString & skeleton,
-	    UErrorCode & status)
-		: LocaleCacheKey<DateFmtBestPattern>(loc),
-		fSkeleton(DateTimePatternGenerator::staticGetSkeleton(skeleton, status)) {
+	DateFmtBestPatternKey(const Locale &loc, const UnicodeString & skeleton, UErrorCode & status) : 
+		LocaleCacheKey<DateFmtBestPattern>(loc), fSkeleton(DateTimePatternGenerator::staticGetSkeleton(skeleton, status)) 
+	{
 	}
-	DateFmtBestPatternKey(const DateFmtBestPatternKey &other) :
-		LocaleCacheKey<DateFmtBestPattern>(other),
-		fSkeleton(other.fSkeleton) {
+	DateFmtBestPatternKey(const DateFmtBestPatternKey &other) : LocaleCacheKey<DateFmtBestPattern>(other), fSkeleton(other.fSkeleton) 
+	{
 	}
 	virtual ~DateFmtBestPatternKey();
-	virtual int32_t hashCode() const override {
+	virtual int32_t hashCode() const override 
+	{
 		return (int32_t)(37u * (uint32_t)LocaleCacheKey<DateFmtBestPattern>::hashCode() + (uint32_t)fSkeleton.hashCode());
 	}
-	inline bool operator == (const DateFmtBestPatternKey &other) const {
-		return fSkeleton == other.fSkeleton;
-	}
-	virtual CacheKeyBase * clone() const override {
-		return new DateFmtBestPatternKey(*this);
-	}
-	virtual const DateFmtBestPattern * createObject(const void * /*unused*/, UErrorCode & status) const override {
-		LocalPointer<DateTimePatternGenerator> dtpg(
-			DateTimePatternGenerator::createInstance(fLoc, status));
+	inline bool operator == (const DateFmtBestPatternKey &other) const { return fSkeleton == other.fSkeleton; }
+	virtual CacheKeyBase * clone() const override { return new DateFmtBestPatternKey(*this); }
+	virtual const DateFmtBestPattern * createObject(const void * /*unused*/, UErrorCode & status) const override 
+	{
+		LocalPointer<DateTimePatternGenerator> dtpg(DateTimePatternGenerator::createInstance(fLoc, status));
 		if(U_FAILURE(status)) {
 			return NULL;
 		}
-		LocalPointer<DateFmtBestPattern> pattern(
-			new DateFmtBestPattern(
-				dtpg->getBestPattern(fSkeleton, status)),
-			status);
+		LocalPointer<DateFmtBestPattern> pattern(new DateFmtBestPattern(dtpg->getBestPattern(fSkeleton, status)), status);
 		if(U_FAILURE(status)) {
 			return NULL;
 		}
@@ -106,10 +89,7 @@ DateFmtBestPatternKey::~DateFmtBestPatternKey()
 {
 }
 
-DateFormat::DateFormat()
-	:   fCalendar(0),
-	fNumberFormat(0),
-	fCapitalizationContext(UDISPCTX_CAPITALIZATION_NONE)
+DateFormat::DateFormat() :   fCalendar(0), fNumberFormat(0), fCapitalizationContext(UDISPCTX_CAPITALIZATION_NONE)
 {
 }
 
@@ -145,9 +125,7 @@ bool DateFormat::operator == (const Format& other) const
 
 	// Format::operator== guarantees that this cast is safe
 	DateFormat* fmt = (DateFormat*)&other;
-
-	return (this == fmt) ||
-	       (Format::operator == (other) &&
+	return (this == fmt) || (Format::operator == (other) &&
 	       fCalendar&&(fCalendar->isEquivalentTo(*fmt->fCalendar)) &&
 	       (fNumberFormat && *fNumberFormat == *fmt->fNumberFormat) &&
 	       (fCapitalizationContext == fmt->fCapitalizationContext));
@@ -273,7 +251,7 @@ UDate DateFormat::parse(const UnicodeString & text, UErrorCode & status) const
 	UDate result = parse(text, pos);
 	if(pos.getIndex() == 0) {
 #if defined (U_DEBUG_CAL)
-		fprintf(stderr, "%s:%d - - failed to parse  - err index %d\n"
+		slfprintf_stderr("%s:%d - - failed to parse  - err index %d\n"
 		    , __FILE__, __LINE__, pos.getErrorIndex());
 #endif
 		status = U_ILLEGAL_ARGUMENT_ERROR;
@@ -511,9 +489,7 @@ UDisplayContext DateFormat::getContext(UDisplayContextType type, UErrorCode & st
 	return fCapitalizationContext;
 }
 
-//----------------------------------------------------------------------
-
-DateFormat&DateFormat::setBooleanAttribute(UDateFormatBooleanAttribute attr, bool newValue, UErrorCode & status) 
+DateFormat & DateFormat::setBooleanAttribute(UDateFormatBooleanAttribute attr, bool newValue, UErrorCode & status) 
 {
 	if(!fBoolFlags.isValidValue(newValue)) {
 		status = U_ILLEGAL_ARGUMENT_ERROR;
@@ -523,8 +499,6 @@ DateFormat&DateFormat::setBooleanAttribute(UDateFormatBooleanAttribute attr, boo
 	}
 	return *this;
 }
-
-//----------------------------------------------------------------------
 
 bool DateFormat::getBooleanAttribute(UDateFormatBooleanAttribute attr, UErrorCode & /*status*/) const 
 {

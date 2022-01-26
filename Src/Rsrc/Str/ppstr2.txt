@@ -2128,6 +2128,7 @@ PPERR_SQ_UNDEFSESSPUBKEY            "Не определен публичный 
 PPERR_SQ_UNDEFSESSSECRET            "Не определен секрет сессии"
 PPERR_SQ_UNDEFSESSPUBKEY_INNER      "@{err_internal}: не определен публичный ключ сессии" // ошибка не может возникнуть, если вдруг, то значит у нас проблемы с внутренним состоянием
 PPERR_SQ_UNDEFSESSSECRET_INNER      "@{err_internal}: не определен секрет сессии" // ошибка не может возникнуть, если вдруг, то значит у нас проблемы с внутренним состоянием
+PPERR_SQ_UNDEFOWNCFG                "StyloQ: не определена собственная конфигурация"
 PPERR_SQ_UNDEFOTHERPUBKEY           "Не определен публичный ключ другой стороны обмена"
 PPERR_SQ_UNDEFPRIVKEY               "Не определен собственный приватный ключ"
 PPERR_SQ_UNDEFCLIID                 "Не определен идентификатор клиента"
@@ -3957,6 +3958,7 @@ PPTXT_LOG_CMDGRPREFCVG_DTSETTLED          "Для объекта {%s} устан
 PPTXT_LOG_CMDGRPREFCVG_MENUSETTLED        "Для объекта {%s} установлен новый идентификатор меню (%s)"
 PPTXT_LOG_CMDGRPREFCVG_DTNOSUBSTFOUND     "Для объекта {%s} не удалось найти подстановку для старого идентификатора рабочего стола (%s)"
 PPTXT_LOG_CMDGRPREFCVG_MENUNOSUBSTFOUND   "Для объекта {%s} не удалось найти подстановку для старого идентификатора меню (%s)"
+PPTXT_LOG_CCTAXSYSTEMSET                  "Для кассового чека установлена система налогообложения %s"
 
 PPTXT_IMPKLADR_KLADR                      "Импорт справочника КЛАДР (регионы и города)"
 PPTXT_IMPKLADR_STREET                     "Импорт справочника КЛАДР (улицы)"
@@ -4210,7 +4212,8 @@ PPTXT_ERRACCEPTPSNRELTYPE                 "Ошибка акцепта типа 
 PPTXT_ERREXTRACTION_BILLPRP_VALXCL        "Ошибка при извлечении контейнера валидации расширенных кодов документа '%s'"
 PPTXT_UNITELIKEWORLDS                     "Объединение похожих географических объектов"
 PPTXT_UNITELIKEUNITS                      "Объединение похожих единиц измерения"
-PPTXT_PPTHREADKINDTITLES                  "Неизвестный;JobServer;NetServer;Задача;Сессия;Диспетчер;Сборщик событий;Диспетчер журналов;DLL сессия;Сервер NGINX;Командная сессия;Рабочая сессия NGINX"
+PPTXT_PPTHREADKINDTITLES                  "Неизвестный;JobServer;NetServer;Задача;Сессия;Диспетчер;Сборщик событий;Диспетчер журналов;DLL сессия;\
+	Поток поддержки обмена автономного кассового узла;Сервер NGINX;Командная сессия;Рабочая сессия NGINX;MQB-сервер StyloQ;MQB-сессия StyloQ"
 PPTXT_BROWSEDIR                           "Выберите директорию"
 PPTXT_SERVERTHREADSTOPPED                 "Поток был остановлен командой сервера (ThreadKind=@zstr; ThreadText=@zstr; ComputerName=@zstr; UserName=@zstr)"
 PPTXT_CROSSTABMAKING                      "Построение кросс-таблицы"
@@ -4942,6 +4945,7 @@ PPTXT_SQ_GOODBYE                    "До свидания!"
 89 "Удалена привязка документа к другому документу"
 90 "Идентификация уведомительного события"
 91 "Версия последнего выполненного сеанса"
+92 "Собственная регистрация сервиса Stylo-Q у медиатора"
 
 [119]
 1  "Объект получен"
@@ -17270,6 +17274,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 74  "Поиск в полном списке наименований товаров"
 75  "Сохранение временной серии"
 76  "Обработка StakeEnvironment"
+77  "StyloQ: подготовка данных для заказов" //PPUPRF_STYLOQ_CMD_ORDERPREREQ
 
 [122]
 1   "@{err_curl}: не поддерживаемый протокол"

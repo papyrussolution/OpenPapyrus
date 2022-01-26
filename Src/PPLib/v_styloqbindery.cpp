@@ -1,5 +1,6 @@
 // V_STYLOQBINDERY.CPP
-// Copyright (c) A.Sobolev 2021
+// Copyright (c) A.Sobolev 2021, 2022
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -96,7 +97,7 @@ int PPViewStyloQBindery::MakeList(PPViewBrowser * pBrw)
 						temp_buf.Z().CatN(static_cast<const char *>(face_chunk.PtrC()), face_chunk.Len());
 						if(face_pack.FromJson(temp_buf) && face_pack.GetRepresentation(0, temp_buf)) {
 							assert(temp_buf.NotEmpty()); // face_pack.GetRepresentation() != 0 garantees this assertion
-							temp_buf.Transf(CTRANSF_UTF8_TO_INNER); // в базе данных лик хранится в utf-8
+							temp_buf.Transf(CTRANSF_UTF8_TO_INNER); // РІ Р±Р°Р·Рµ РґР°РЅРЅС‹С… Р»РёРє С…СЂР°РЅРёС‚СЃСЏ РІ utf-8
 							StrPool.AddS(temp_buf, &new_entry.FaceP);
 						}
 					}
@@ -269,9 +270,9 @@ int PPViewStyloQBindery::Invitation()
 	THROW(ic.GetOwnPeerEntry(&sp) > 0);
 	{ 
 		//
-		// Инициализация сервера для обработки AMQ-запросов
+		// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ СЃРµСЂРІРµСЂР° РґР»СЏ РѕР±СЂР°Р±РѕС‚РєРё AMQ-Р·Р°РїСЂРѕСЃРѕРІ
 		//
-		THROW(ic.SetupMqbParam(sp, PPStyloQInterchange::smqbpfInitAccessPoint|PPStyloQInterchange::smqbpfLocalMachine, rsparam));
+		THROW(PPStyloQInterchange::SetupMqbParam(sp, PPStyloQInterchange::smqbpfInitAccessPoint|PPStyloQInterchange::smqbpfLocalMachine, rsparam));
 		//sp.Pool.Get(SSecretTagPool::tagSvcIdent, &rsparam.SvcIdent);
 		//THROW(PPMqbClient::SetupInitParam(rsparam.MqbInitParam, "styloq", 0));
 		//{
@@ -292,7 +293,7 @@ int PPViewStyloQBindery::Invitation()
 				ASSIGN_PTR(p_new_entry, rpe);
 			}
 		}
-		int rsr = ic.RunStyloQServer(rsparam, 0);
+		int rsr = ic.RunStyloQLocalMqbServer(rsparam, 0);
 		if(rsr != 0) {
 			PPStyloQInterchange::InterchangeParam inv(rsparam);
 			{
@@ -339,7 +340,7 @@ int PPViewStyloQBindery::Invitation()
 							if(Obj.P_Tbl->GetOwnPeerEntry(&own_pack) > 0) {
 								assert(own_pack.Rec.ID == own_id);
 								Obj.EditFace(own_id);
-								ok = 1; // Так как мы (скорее всего) создали собственную запись, то безусловно обновляем список
+								ok = 1; // РўР°Рє РєР°Рє РјС‹ (СЃРєРѕСЂРµРµ РІСЃРµРіРѕ) СЃРѕР·РґР°Р»Рё СЃРѕР±СЃС‚РІРµРЅРЅСѓСЋ Р·Р°РїРёСЃСЊ, С‚Рѕ Р±РµР·СѓСЃР»РѕРІРЅРѕ РѕР±РЅРѕРІР»СЏРµРј СЃРїРёСЃРѕРє
 							}
 						}
 					}
@@ -366,7 +367,7 @@ int PPViewStyloQBindery::Invitation()
 							if(Obj.P_Tbl->GetOwnPeerEntry(&own_pack) > 0) {
 								assert(own_pack.Rec.ID == own_id);
 								Obj.EditConfig(own_id);
-								ok = 1; // Так как мы (скорее всего) создали собственную запись, то безусловно обновляем список
+								ok = 1; // РўР°Рє РєР°Рє РјС‹ (СЃРєРѕСЂРµРµ РІСЃРµРіРѕ) СЃРѕР·РґР°Р»Рё СЃРѕР±СЃС‚РІРµРЅРЅСѓСЋ Р·Р°РїРёСЃСЊ, С‚Рѕ Р±РµР·СѓСЃР»РѕРІРЅРѕ РѕР±РЅРѕРІР»СЏРµРј СЃРїРёСЃРѕРє
 							}
 						}
 					}
@@ -374,6 +375,12 @@ int PPViewStyloQBindery::Invitation()
 				break;
 			case PPVCMD_INVITATION:
 				Invitation();
+				break;
+			case PPVCMD_SYSJ: // @v11.2.12
+				if(id) {
+					ViewSysJournal(PPOBJ_STYLOQBINDERY, id, 0);
+					ok = -1;
+				}
 				break;
 			case PPVCMD_REFRESH:
 				ok = 1;
@@ -547,8 +554,8 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData)
 	class StyloQCommandDialog : public TDialog {
 		DECL_DIALOG_DATA(StyloQCommandList::Item);
 		PPNamedFiltMngr * P_NfMgr;
-		StrAssocArray CmdSymbList; // Список ассоциаций для обьектов PPView {id, символ}
-		StrAssocArray CmdTextList; // Список ассоциаций для обьектов PPView {id, описание} (упорядоченный по возрастанию)
+		StrAssocArray CmdSymbList; // РЎРїРёСЃРѕРє Р°СЃСЃРѕС†РёР°С†РёР№ РґР»СЏ РѕР±СЊРµРєС‚РѕРІ PPView {id, СЃРёРјРІРѕР»}
+		StrAssocArray CmdTextList; // РЎРїРёСЃРѕРє Р°СЃСЃРѕС†РёР°С†РёР№ РґР»СЏ РѕР±СЊРµРєС‚РѕРІ PPView {id, РѕРїРёСЃР°РЅРёРµ} (СѓРїРѕСЂСЏРґРѕС‡РµРЅРЅС‹Р№ РїРѕ РІРѕР·СЂР°СЃС‚Р°РЅРёСЋ)
 		PPObjPersonEvent PsnEvObj;
 	public:
 		StyloQCommandDialog(PPNamedFiltMngr * pNfMgr) : TDialog(DLG_STQCMD), P_NfMgr(pNfMgr)
@@ -693,7 +700,7 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData)
 						THROW(PPView::ReadFiltPtr(Data.Param, &p_filt));
 						if(p_view && p_view->GetBaseFilt()) {
 							if(p_filt->GetSignature() != p_view->GetBaseFilt()->GetSignature()) {
-								// Путаница в фильтрах - убиваем считанный фильтр чтобы создать новый.
+								// РџСѓС‚Р°РЅРёС†Р° РІ С„РёР»СЊС‚СЂР°С… - СѓР±РёРІР°РµРј СЃС‡РёС‚Р°РЅРЅС‹Р№ С„РёР»СЊС‚СЂ С‡С‚РѕР±С‹ СЃРѕР·РґР°С‚СЊ РЅРѕРІС‹Р№.
 								ZDELETE(p_filt);
 							}
 						}

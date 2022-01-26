@@ -417,7 +417,7 @@ static void TestRelativeDateFormat()
 	const UChar ** monthPtnPtr;
 	UErrorCode status = U_ZERO_ERROR;
 	UCalendar * ucal = ucal_open(trdfZone, -1, trdfLocale, UCAL_GREGORIAN, &status);
-	if(U_SUCCESS(status) ) {
+	if(U_SUCCESS(status)) {
 		int32_t year, month, day;
 		ucal_setMillis(ucal, ucal_getNow(), &status);
 		year = ucal_get(ucal, UCAL_YEAR, &status);
@@ -444,21 +444,21 @@ static void TestRelativeDateFormat()
 		int32_t dtpatLen;
 
 		fmtRelDateTime = udat_open(UDAT_SHORT, (UDateFormatStyle)(*stylePtr | UDAT_RELATIVE), trdfLocale, trdfZone, -1, NULL, 0, &status);
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			log_data_err("udat_open timeStyle SHORT dateStyle (%d | UDAT_RELATIVE) fails, error %s (Are you missing data?)\n",
 			    *stylePtr,
 			    myErrorName(status));
 			continue;
 		}
 		fmtRelDate = udat_open(UDAT_NONE, (UDateFormatStyle)(*stylePtr | UDAT_RELATIVE), trdfLocale, trdfZone, -1, NULL, 0, &status);
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			log_err("udat_open timeStyle NONE dateStyle (%d | UDAT_RELATIVE) fails, error %s\n", *stylePtr,
 			    myErrorName(status));
 			udat_close(fmtRelDateTime);
 			continue;
 		}
 		fmtTime = udat_open(UDAT_SHORT, UDAT_NONE, trdfLocale, trdfZone, -1, NULL, 0, &status);
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			log_err("udat_open timeStyle SHORT dateStyle NONE fails, error %s\n", myErrorName(status));
 			udat_close(fmtRelDateTime);
 			udat_close(fmtRelDate);
@@ -466,39 +466,39 @@ static void TestRelativeDateFormat()
 		}
 
 		dtpatLen = udat_toPatternRelativeDate(fmtRelDateTime, strDate, kDateAndTimeOutMax, &status);
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			log_err("udat_toPatternRelativeDate timeStyle SHORT dateStyle (%d | UDAT_RELATIVE) fails, error %s\n",
 			    *stylePtr,
 			    myErrorName(status));
 			status = U_ZERO_ERROR;
 		}
-		else if(u_strstr(strDate, *monthPtnPtr) == NULL || dtpatLen != u_strlen(strDate) ) {
+		else if(u_strstr(strDate, *monthPtnPtr) == NULL || dtpatLen != u_strlen(strDate)) {
 			log_err("udat_toPatternRelativeDate timeStyle SHORT dateStyle (%d | UDAT_RELATIVE) date pattern incorrect\n",
 			    *stylePtr);
 		}
 		dtpatLen = udat_toPatternRelativeTime(fmtRelDateTime, strTime, kDateAndTimeOutMax, &status);
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			log_err("udat_toPatternRelativeTime timeStyle SHORT dateStyle (%d | UDAT_RELATIVE) fails, error %s\n",
 			    *stylePtr,
 			    myErrorName(status));
 			status = U_ZERO_ERROR;
 		}
-		else if(u_strstr(strTime, minutesPatn) == NULL || dtpatLen != u_strlen(strTime) ) {
+		else if(u_strstr(strTime, minutesPatn) == NULL || dtpatLen != u_strlen(strTime)) {
 			log_err("udat_toPatternRelativeTime timeStyle SHORT dateStyle (%d | UDAT_RELATIVE) time pattern incorrect\n",
 			    *stylePtr);
 		}
 		dtpatLen = udat_toPattern(fmtRelDateTime, FALSE, strDateTime, kDateAndTimeOutMax, &status);
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			log_err("udat_toPattern timeStyle SHORT dateStyle (%d | UDAT_RELATIVE) fails, error %s\n", *stylePtr,
 			    myErrorName(status));
 			status = U_ZERO_ERROR;
 		}
 		else if(u_strstr(strDateTime,
-		    strDate) == NULL || u_strstr(strDateTime, strTime) == NULL || dtpatLen != u_strlen(strDateTime) ) {
+		    strDate) == NULL || u_strstr(strDateTime, strTime) == NULL || dtpatLen != u_strlen(strDateTime)) {
 			log_err("udat_toPattern timeStyle SHORT dateStyle (%d | UDAT_RELATIVE) dateTime pattern incorrect\n", *stylePtr);
 		}
 		udat_applyPatternRelative(fmtRelDateTime, strDate, u_strlen(strDate), newTimePatn, u_strlen(newTimePatn), &status);
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			log_err("udat_applyPatternRelative timeStyle SHORT dateStyle (%d | UDAT_RELATIVE) fails, error %s\n",
 			    *stylePtr,
 			    myErrorName(status));
@@ -506,7 +506,7 @@ static void TestRelativeDateFormat()
 		}
 		else {
 			udat_toPattern(fmtRelDateTime, FALSE, strDateTime, kDateAndTimeOutMax, &status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				log_err("udat_toPattern timeStyle SHORT dateStyle (%d | UDAT_RELATIVE) fails, error %s\n",
 				    *stylePtr,
 				    myErrorName(status));
@@ -528,7 +528,7 @@ static void TestRelativeDateFormat()
 			UDate dateToUse = today + (float)dayOffset*dayInterval;
 
 			udat_format(fmtRelDateTime, dateToUse, strDateTime, kDateAndTimeOutMax, &fp, &status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				log_err("udat_format timeStyle SHORT dateStyle (%d | UDAT_RELATIVE) fails, error %s\n",
 				    *stylePtr,
 				    myErrorName(status));
@@ -550,7 +550,7 @@ static void TestRelativeDateFormat()
 				}
 
 				udat_format(fmtRelDate, dateToUse, strDate, kDateOrTimeOutMax, NULL, &status);
-				if(U_FAILURE(status) ) {
+				if(U_FAILURE(status)) {
 					log_err("udat_format timeStyle NONE dateStyle (%d | UDAT_RELATIVE) fails, error %s\n",
 					    *stylePtr,
 					    myErrorName(status));
@@ -578,7 +578,7 @@ static void TestRelativeDateFormat()
 				}
 
 				udat_format(fmtTime, dateToUse, strTime, kDateOrTimeOutMax, NULL, &status);
-				if(U_FAILURE(status) ) {
+				if(U_FAILURE(status)) {
 					log_err("udat_format timeStyle SHORT dateStyle NONE fails, error %s\n", myErrorName(status));
 					status = U_ZERO_ERROR;
 				}
@@ -1336,7 +1336,7 @@ static void TestRelativeCrash()
 	UErrorCode status = U_ZERO_ERROR;
 	UErrorCode expectStatus = U_ILLEGAL_ARGUMENT_ERROR;
 	UDateFormat * icudf = udat_open(UDAT_NONE, UDAT_SHORT_RELATIVE, "en", tzName, -1, NULL, 0, &status); // @sobolev (UDateFormat)-->(UDateFormat *)
-	if(U_SUCCESS(status) ) {
+	if(U_SUCCESS(status)) {
 		const char * what = "???";
 		{
 			UErrorCode subStatus = U_ZERO_ERROR;
@@ -1565,10 +1565,10 @@ static void TestContext() {
 	for(textContextItemPtr = textContextItems; textContextItemPtr->locale != NULL; ++textContextItemPtr) {
 		UErrorCode status = U_ZERO_ERROR;
 		UDateTimePatternGenerator* udtpg = udatpg_open(textContextItemPtr->locale, &status);
-		if(U_SUCCESS(status) ) {
+		if(U_SUCCESS(status)) {
 			UChar ubuf[kUbufMax];
 			int32_t len = udatpg_getBestPattern(udtpg, textContextItemPtr->skeleton, -1, ubuf, kUbufMax, &status);
-			if(U_SUCCESS(status) ) {
+			if(U_SUCCESS(status)) {
 				UDateFormat* udfmt = udat_open(UDAT_PATTERN,
 					UDAT_PATTERN,
 					textContextItemPtr->locale,
@@ -1577,12 +1577,12 @@ static void TestContext() {
 					ubuf,
 					len,
 					&status);
-				if(U_SUCCESS(status) ) {
+				if(U_SUCCESS(status)) {
 					udat_setContext(udfmt, textContextItemPtr->capitalizationContext, &status);
-					if(U_SUCCESS(status) ) {
+					if(U_SUCCESS(status)) {
 						UDisplayContext getContext;
 						len = udat_format(udfmt, july022008, ubuf, kUbufMax, NULL, &status);
-						if(U_FAILURE(status) ) {
+						if(U_FAILURE(status)) {
 							log_err("FAIL: udat_format for locale %s, capitalizationContext %d, status %s\n",
 							    textContextItemPtr->locale,
 							    (int)textContextItemPtr->capitalizationContext,
@@ -1600,7 +1600,7 @@ static void TestContext() {
 								u_austrncpy(bbuf2, ubuf, kUbufMax));
 						}
 						getContext = udat_getContext(udfmt, UDISPCTX_TYPE_CAPITALIZATION, &status);
-						if(U_FAILURE(status) ) {
+						if(U_FAILURE(status)) {
 							log_err(
 								"FAIL: udat_getContext for locale %s, capitalizationContext %d, status %s\n",
 								textContextItemPtr->locale,
@@ -1640,7 +1640,7 @@ static void TestContext() {
 	for(textRelContextItemPtr = textContextRelativeItems; textRelContextItemPtr->locale != NULL; ++textRelContextItemPtr) {
 		UErrorCode status = U_ZERO_ERROR;
 		UCalendar* ucal = ucal_open(zoneGMT, -1, "root", UCAL_GREGORIAN, &status);
-		if(U_SUCCESS(status) ) {
+		if(U_SUCCESS(status)) {
 			UDateFormat* udfmt = udat_open(UDAT_NONE,
 				UDAT_LONG_RELATIVE,
 				textRelContextItemPtr->locale,
@@ -1649,16 +1649,16 @@ static void TestContext() {
 				NULL,
 				0,
 				&status);
-			if(U_SUCCESS(status) ) {
+			if(U_SUCCESS(status)) {
 				udat_setContext(udfmt, textRelContextItemPtr->capitalizationContext, &status);
-				if(U_SUCCESS(status) ) {
+				if(U_SUCCESS(status)) {
 					UDate yesterday, today = ucal_getNow();
 					UChar ubuf[kUbufMax];
 					char bbuf1[kBbufMax];
 					char bbuf2[kBbufMax];
 					int32_t len = udat_format(udfmt, today, ubuf, kUbufMax, NULL, &status);
 					(void)len;
-					if(U_FAILURE(status) ) {
+					if(U_FAILURE(status)) {
 						log_err("FAIL: udat_format today for locale %s, capitalizationContext %d, status %s\n",
 						    textRelContextItemPtr->locale,
 						    (int)textRelContextItemPtr->capitalizationContext,
@@ -1676,9 +1676,9 @@ static void TestContext() {
 					ucal_setMillis(ucal, today, &status);
 					ucal_add(ucal, UCAL_DATE, -1, &status);
 					yesterday = ucal_getMillis(ucal, &status);
-					if(U_SUCCESS(status) ) {
+					if(U_SUCCESS(status)) {
 						len = udat_format(udfmt, yesterday, ubuf, kUbufMax, NULL, &status);
-						if(U_FAILURE(status) ) {
+						if(U_FAILURE(status)) {
 							log_err(
 								"FAIL: udat_format yesterday for locale %s, capitalizationContext %d, status %s\n",
 								textRelContextItemPtr->locale,
@@ -1910,13 +1910,13 @@ static void TestFormatForFields()
 {
 	UErrorCode status = U_ZERO_ERROR;
 	UFieldPositionIterator* fpositer = ufieldpositer_open(&status);
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		log_err("ufieldpositer_open fails, status %s\n", u_errorName(status));
 	}
 	else {
 		UDateFormat* udfmt = udat_open(UDAT_LONG, UDAT_FULL, localeForFields, zoneGMT, -1, NULL, 0, &status);
 		UCalendar* ucal = ucal_open(zoneGMT, -1, localeForFields, UCAL_DEFAULT, &status);
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			log_data_err("udat_open or ucal_open fails for locale %s, status %s (Are you missing data?)\n",
 			    localeForFields,
 			    u_errorName(status));
@@ -1928,7 +1928,7 @@ static void TestFormatForFields()
 
 			status = U_ZERO_ERROR;
 			ulen = udat_formatForFields(udfmt, date2015Feb25, ubuf, kUBufFieldsLen, fpositer, &status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				log_err("udat_formatForFields fails, status %s\n", u_errorName(status));
 			}
 			else {
@@ -1965,7 +1965,7 @@ static void TestFormatForFields()
 			ucal_setMillis(ucal, date2015Feb25, &status);
 			status = U_ZERO_ERROR;
 			ulen = udat_formatCalendarForFields(udfmt, ucal, ubuf, kUBufFieldsLen, fpositer, &status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				log_err("udat_formatCalendarForFields fails, status %s\n", u_errorName(status));
 			}
 			else {
@@ -2001,7 +2001,7 @@ static void TestFormatForFields()
 			udat_applyPattern(udfmt, FALSE, patNoFields, -1);
 			status = U_ZERO_ERROR;
 			ulen = udat_formatForFields(udfmt, date2015Feb25, ubuf, kUBufFieldsLen, fpositer, &status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				log_err("udat_formatForFields with no-field pattern fails, status %s\n", u_errorName(status));
 			}
 			else {

@@ -590,7 +590,7 @@ CURLFORMcode FormAdd(struct curl_httppost ** httppost,
 					break;
 			}
 			if(!(form->flags & HTTPPOST_PTRNAME) &&
-			    (form == first_form) ) {
+			    (form == first_form)) {
 				/* Note that there's small risk that form->name is NULL here if the
 				   app passed in a bad combo, so we better check for that first. */
 				if(form->name) {

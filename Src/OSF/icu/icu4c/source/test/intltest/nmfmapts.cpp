@@ -101,7 +101,7 @@ void IntlTestNumberFormatAPI::testAPI(/* char * par */)
 	if(per_fr != NULL && cur_fr != NULL) {
 		logln("Testing equality operator");
 
-		if(*per_fr == *cur_fr || !(*per_fr != *cur_fr) ) {
+		if(*per_fr == *cur_fr || !(*per_fr != *cur_fr)) {
 			errln("ERROR: == failed");
 		}
 	}
@@ -190,32 +190,32 @@ void IntlTestNumberFormatAPI::testAPI(/* char * par */)
 		}
 
 		fr->setParseIntegerOnly(def->isParseIntegerOnly());
-		if(fr->isParseIntegerOnly() != def->isParseIntegerOnly() ) {
+		if(fr->isParseIntegerOnly() != def->isParseIntegerOnly()) {
 			errln("ERROR: setParseIntegerOnly() failed");
 		}
 
 		fr->setGroupingUsed(def->isGroupingUsed());
-		if(fr->isGroupingUsed() != def->isGroupingUsed() ) {
+		if(fr->isGroupingUsed() != def->isGroupingUsed()) {
 			errln("ERROR: setGroupingUsed() failed");
 		}
 
 		fr->setMaximumIntegerDigits(def->getMaximumIntegerDigits());
-		if(fr->getMaximumIntegerDigits() != def->getMaximumIntegerDigits() ) {
+		if(fr->getMaximumIntegerDigits() != def->getMaximumIntegerDigits()) {
 			errln("ERROR: setMaximumIntegerDigits() failed");
 		}
 
 		fr->setMinimumIntegerDigits(def->getMinimumIntegerDigits());
-		if(fr->getMinimumIntegerDigits() != def->getMinimumIntegerDigits() ) {
+		if(fr->getMinimumIntegerDigits() != def->getMinimumIntegerDigits()) {
 			errln("ERROR: setMinimumIntegerDigits() failed");
 		}
 
 		fr->setMaximumFractionDigits(def->getMaximumFractionDigits());
-		if(fr->getMaximumFractionDigits() != def->getMaximumFractionDigits() ) {
+		if(fr->getMaximumFractionDigits() != def->getMaximumFractionDigits()) {
 			errln("ERROR: setMaximumFractionDigits() failed");
 		}
 
 		fr->setMinimumFractionDigits(def->getMinimumFractionDigits());
-		if(fr->getMinimumFractionDigits() != def->getMinimumFractionDigits() ) {
+		if(fr->getMinimumFractionDigits() != def->getMinimumFractionDigits()) {
 			errln("ERROR: setMinimumFractionDigits() failed");
 		}
 	}

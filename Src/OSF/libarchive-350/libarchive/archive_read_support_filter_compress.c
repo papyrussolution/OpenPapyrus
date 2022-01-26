@@ -105,7 +105,7 @@ struct private_data {
 	/* Dictionary. */
 	int free_ent;                            /* Next dictionary entry. */
 	uchar suffix[65536];
-	uint16_t prefix[65536];
+	uint16 prefix[65536];
 
 	/*
 	 * Scratch area for expanding dictionary entries.  Note:

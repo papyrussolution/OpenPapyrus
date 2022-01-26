@@ -55,7 +55,7 @@ static void ColouriseForthDoc(Sci_PositionU startPos, Sci_Position length, int i
 		else if(sc.state == SCE_FORTH_IDENTIFIER || sc.state == SCE_FORTH_NUMBER) {
 			// handle numbers here too, because what we thought was a number might
 			// turn out to be a keyword e.g. 2DUP
-			if(IsASpaceChar(sc.ch) ) {
+			if(IsASpaceChar(sc.ch)) {
 				char s[100];
 				sc.GetCurrentLowered(s, sizeof(s));
 				int newState = sc.state == SCE_FORTH_NUMBER ? SCE_FORTH_NUMBER : SCE_FORTH_DEFAULT;
@@ -115,13 +115,13 @@ static void ColouriseForthDoc(Sci_PositionU startPos, Sci_Position length, int i
 			    (sc.atLineEnd   || IsASpaceChar(sc.chNext))) {
 				sc.SetState(SCE_FORTH_COMMENT_ML);
 			}
-			else if(     (sc.ch == '$' && (IsASCII(sc.chNext) && isxdigit(sc.chNext))) ) {
+			else if(     (sc.ch == '$' && (IsASCII(sc.chNext) && isxdigit(sc.chNext)))) {
 				// number starting with $ is a hex number
 				sc.SetState(SCE_FORTH_NUMBER);
 				while(sc.More() && IsASCII(sc.chNext) && isxdigit(sc.chNext))
 					sc.Forward();
 			}
-			else if((sc.ch == '%' && (IsASCII(sc.chNext) && (sc.chNext == '0' || sc.chNext == '1'))) ) {
+			else if((sc.ch == '%' && (IsASCII(sc.chNext) && (sc.chNext == '0' || sc.chNext == '1')))) {
 				// number starting with % is binary
 				sc.SetState(SCE_FORTH_NUMBER);
 				while(sc.More() && IsASCII(sc.chNext) && (sc.chNext == '0' || sc.chNext == '1'))

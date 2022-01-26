@@ -24317,7 +24317,7 @@ inline bool TestAllTypes::has_optionalgroup() const {
   return _internal_has_optionalgroup();
 }
 inline void TestAllTypes::clear_optionalgroup() {
-  if (optionalgroup_ != nullptr) optionalgroup_->Clear();
+  if(optionalgroup_ != nullptr) optionalgroup_->Clear();
   _has_bits_[0] &= ~0x00000100u;
 }
 inline const ::protobuf_unittest::TestAllTypes_OptionalGroup& TestAllTypes::_internal_optionalgroup() const {
@@ -24407,7 +24407,7 @@ inline bool TestAllTypes::has_optional_nested_message() const {
   return _internal_has_optional_nested_message();
 }
 inline void TestAllTypes::clear_optional_nested_message() {
-  if (optional_nested_message_ != nullptr) optional_nested_message_->Clear();
+  if(optional_nested_message_ != nullptr) optional_nested_message_->Clear();
   _has_bits_[0] &= ~0x00000200u;
 }
 inline const ::protobuf_unittest::TestAllTypes_NestedMessage& TestAllTypes::_internal_optional_nested_message() const {
@@ -24497,7 +24497,7 @@ inline bool TestAllTypes::has_optional_foreign_message() const {
   return _internal_has_optional_foreign_message();
 }
 inline void TestAllTypes::clear_optional_foreign_message() {
-  if (optional_foreign_message_ != nullptr) optional_foreign_message_->Clear();
+  if(optional_foreign_message_ != nullptr) optional_foreign_message_->Clear();
   _has_bits_[0] &= ~0x00000400u;
 }
 inline const ::protobuf_unittest::ForeignMessage& TestAllTypes::_internal_optional_foreign_message() const {
@@ -24982,7 +24982,7 @@ inline bool TestAllTypes::has_optional_lazy_message() const {
   return _internal_has_optional_lazy_message();
 }
 inline void TestAllTypes::clear_optional_lazy_message() {
-  if (optional_lazy_message_ != nullptr) optional_lazy_message_->Clear();
+  if(optional_lazy_message_ != nullptr) optional_lazy_message_->Clear();
   _has_bits_[0] &= ~0x00002000u;
 }
 inline const ::protobuf_unittest::TestAllTypes_NestedMessage& TestAllTypes::_internal_optional_lazy_message() const {
@@ -27001,7 +27001,7 @@ inline void TestAllTypes::set_has_oneof_uint32() {
   _oneof_case_[0] = kOneofUint32;
 }
 inline void TestAllTypes::clear_oneof_uint32() {
-  if (_internal_has_oneof_uint32()) {
+  if(_internal_has_oneof_uint32()) {
     oneof_field_.oneof_uint32_ = 0u;
     clear_has_oneof_field();
   }
@@ -27039,8 +27039,8 @@ inline void TestAllTypes::set_has_oneof_nested_message() {
   _oneof_case_[0] = kOneofNestedMessage;
 }
 inline void TestAllTypes::clear_oneof_nested_message() {
-  if (_internal_has_oneof_nested_message()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_oneof_nested_message()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete oneof_field_.oneof_nested_message_;
     }
     clear_has_oneof_field();
@@ -27113,7 +27113,7 @@ inline void TestAllTypes::set_has_oneof_string() {
   _oneof_case_[0] = kOneofString;
 }
 inline void TestAllTypes::clear_oneof_string() {
-  if (_internal_has_oneof_string()) {
+  if(_internal_has_oneof_string()) {
     oneof_field_.oneof_string_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_oneof_field();
   }
@@ -27195,7 +27195,7 @@ inline void TestAllTypes::set_has_oneof_bytes() {
   _oneof_case_[0] = kOneofBytes;
 }
 inline void TestAllTypes::clear_oneof_bytes() {
-  if (_internal_has_oneof_bytes()) {
+  if(_internal_has_oneof_bytes()) {
     oneof_field_.oneof_bytes_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_oneof_field();
   }
@@ -27289,7 +27289,7 @@ inline bool NestedTestAllTypes::has_child() const {
   return _internal_has_child();
 }
 inline void NestedTestAllTypes::clear_child() {
-  if (child_ != nullptr) child_->Clear();
+  if(child_ != nullptr) child_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::NestedTestAllTypes& NestedTestAllTypes::_internal_child() const {
@@ -27379,7 +27379,7 @@ inline bool NestedTestAllTypes::has_payload() const {
   return _internal_has_payload();
 }
 inline void NestedTestAllTypes::clear_payload() {
-  if (payload_ != nullptr) payload_->Clear();
+  if(payload_ != nullptr) payload_->Clear();
   _has_bits_[0] &= ~0x00000002u;
 }
 inline const ::protobuf_unittest::TestAllTypes& NestedTestAllTypes::_internal_payload() const {
@@ -27542,7 +27542,7 @@ inline void TestDeprecatedFields::set_has_deprecated_int32_in_oneof() {
   _oneof_case_[0] = kDeprecatedInt32InOneof;
 }
 inline void TestDeprecatedFields::clear_deprecated_int32_in_oneof() {
-  if (_internal_has_deprecated_int32_in_oneof()) {
+  if(_internal_has_deprecated_int32_in_oneof()) {
     oneof_fields_.deprecated_int32_in_oneof_ = 0;
     clear_has_oneof_fields();
   }
@@ -27760,7 +27760,7 @@ inline bool TestGroup::has_optionalgroup() const {
   return _internal_has_optionalgroup();
 }
 inline void TestGroup::clear_optionalgroup() {
-  if (optionalgroup_ != nullptr) optionalgroup_->Clear();
+  if(optionalgroup_ != nullptr) optionalgroup_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::TestGroup_OptionalGroup& TestGroup::_internal_optionalgroup() const {
@@ -28059,7 +28059,7 @@ inline bool TestChildExtension::has_optional_extension() const {
   return _internal_has_optional_extension();
 }
 inline void TestChildExtension::clear_optional_extension() {
-  if (optional_extension_ != nullptr) optional_extension_->Clear();
+  if(optional_extension_ != nullptr) optional_extension_->Clear();
   _has_bits_[0] &= ~0x00000004u;
 }
 inline const ::protobuf_unittest::TestAllExtensions& TestChildExtension::_internal_optional_extension() const {
@@ -29081,7 +29081,7 @@ inline bool TestRequiredForeign::has_optional_message() const {
   return _internal_has_optional_message();
 }
 inline void TestRequiredForeign::clear_optional_message() {
-  if (optional_message_ != nullptr) optional_message_->Clear();
+  if(optional_message_ != nullptr) optional_message_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::TestRequired& TestRequiredForeign::_internal_optional_message() const {
@@ -29243,7 +29243,7 @@ inline bool TestRequiredMessage::has_optional_message() const {
   return _internal_has_optional_message();
 }
 inline void TestRequiredMessage::clear_optional_message() {
-  if (optional_message_ != nullptr) optional_message_->Clear();
+  if(optional_message_ != nullptr) optional_message_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::TestRequired& TestRequiredMessage::_internal_optional_message() const {
@@ -29373,7 +29373,7 @@ inline bool TestRequiredMessage::has_required_message() const {
   return _internal_has_required_message();
 }
 inline void TestRequiredMessage::clear_required_message() {
-  if (required_message_ != nullptr) required_message_->Clear();
+  if(required_message_ != nullptr) required_message_->Clear();
   _has_bits_[0] &= ~0x00000002u;
 }
 inline const ::protobuf_unittest::TestRequired& TestRequiredMessage::_internal_required_message() const {
@@ -29467,7 +29467,7 @@ inline bool TestForeignNested::has_foreign_nested() const {
   return _internal_has_foreign_nested();
 }
 inline void TestForeignNested::clear_foreign_nested() {
-  if (foreign_nested_ != nullptr) foreign_nested_->Clear();
+  if(foreign_nested_ != nullptr) foreign_nested_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::TestAllTypes_NestedMessage& TestForeignNested::_internal_foreign_nested() const {
@@ -29701,7 +29701,7 @@ inline bool TestRecursiveMessage::has_a() const {
   return _internal_has_a();
 }
 inline void TestRecursiveMessage::clear_a() {
-  if (a_ != nullptr) a_->Clear();
+  if(a_ != nullptr) a_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::TestRecursiveMessage& TestRecursiveMessage::_internal_a() const {
@@ -29823,7 +29823,7 @@ inline bool TestMutualRecursionA_SubMessage::has_b() const {
   return _internal_has_b();
 }
 inline void TestMutualRecursionA_SubMessage::clear_b() {
-  if (b_ != nullptr) b_->Clear();
+  if(b_ != nullptr) b_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::TestMutualRecursionB& TestMutualRecursionA_SubMessage::_internal_b() const {
@@ -29917,7 +29917,7 @@ inline bool TestMutualRecursionA_SubGroup::has_sub_message() const {
   return _internal_has_sub_message();
 }
 inline void TestMutualRecursionA_SubGroup::clear_sub_message() {
-  if (sub_message_ != nullptr) sub_message_->Clear();
+  if(sub_message_ != nullptr) sub_message_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::TestMutualRecursionA_SubMessage& TestMutualRecursionA_SubGroup::_internal_sub_message() const {
@@ -30007,7 +30007,7 @@ inline bool TestMutualRecursionA_SubGroup::has_not_in_this_scc() const {
   return _internal_has_not_in_this_scc();
 }
 inline void TestMutualRecursionA_SubGroup::clear_not_in_this_scc() {
-  if (not_in_this_scc_ != nullptr) not_in_this_scc_->Clear();
+  if(not_in_this_scc_ != nullptr) not_in_this_scc_->Clear();
   _has_bits_[0] &= ~0x00000002u;
 }
 inline const ::protobuf_unittest::TestAllTypes& TestMutualRecursionA_SubGroup::_internal_not_in_this_scc() const {
@@ -30101,7 +30101,7 @@ inline bool TestMutualRecursionA::has_bb() const {
   return _internal_has_bb();
 }
 inline void TestMutualRecursionA::clear_bb() {
-  if (bb_ != nullptr) bb_->Clear();
+  if(bb_ != nullptr) bb_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::TestMutualRecursionB& TestMutualRecursionA::_internal_bb() const {
@@ -30191,7 +30191,7 @@ inline bool TestMutualRecursionA::has_subgroup() const {
   return _internal_has_subgroup();
 }
 inline void TestMutualRecursionA::clear_subgroup() {
-  if (subgroup_ != nullptr) subgroup_->Clear();
+  if(subgroup_ != nullptr) subgroup_->Clear();
   _has_bits_[0] &= ~0x00000002u;
 }
 inline const ::protobuf_unittest::TestMutualRecursionA_SubGroup& TestMutualRecursionA::_internal_subgroup() const {
@@ -30285,7 +30285,7 @@ inline bool TestMutualRecursionB::has_a() const {
   return _internal_has_a();
 }
 inline void TestMutualRecursionB::clear_a() {
-  if (a_ != nullptr) a_->Clear();
+  if(a_ != nullptr) a_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::TestMutualRecursionA& TestMutualRecursionB::_internal_a() const {
@@ -30439,7 +30439,7 @@ inline bool TestIsInitialized_SubMessage::has_subgroup() const {
   return _internal_has_subgroup();
 }
 inline void TestIsInitialized_SubMessage::clear_subgroup() {
-  if (subgroup_ != nullptr) subgroup_->Clear();
+  if(subgroup_ != nullptr) subgroup_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::TestIsInitialized_SubMessage_SubGroup& TestIsInitialized_SubMessage::_internal_subgroup() const {
@@ -30533,7 +30533,7 @@ inline bool TestIsInitialized::has_sub_message() const {
   return _internal_has_sub_message();
 }
 inline void TestIsInitialized::clear_sub_message() {
-  if (sub_message_ != nullptr) sub_message_->Clear();
+  if(sub_message_ != nullptr) sub_message_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::TestIsInitialized_SubMessage& TestIsInitialized::_internal_sub_message() const {
@@ -30719,7 +30719,7 @@ inline bool TestDupFieldNumber::has_foo() const {
   return _internal_has_foo();
 }
 inline void TestDupFieldNumber::clear_foo() {
-  if (foo_ != nullptr) foo_->Clear();
+  if(foo_ != nullptr) foo_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::TestDupFieldNumber_Foo& TestDupFieldNumber::_internal_foo() const {
@@ -30809,7 +30809,7 @@ inline bool TestDupFieldNumber::has_bar() const {
   return _internal_has_bar();
 }
 inline void TestDupFieldNumber::clear_bar() {
-  if (bar_ != nullptr) bar_->Clear();
+  if(bar_ != nullptr) bar_->Clear();
   _has_bits_[0] &= ~0x00000002u;
 }
 inline const ::protobuf_unittest::TestDupFieldNumber_Bar& TestDupFieldNumber::_internal_bar() const {
@@ -30903,7 +30903,7 @@ inline bool TestEagerMessage::has_sub_message() const {
   return _internal_has_sub_message();
 }
 inline void TestEagerMessage::clear_sub_message() {
-  if (sub_message_ != nullptr) sub_message_->Clear();
+  if(sub_message_ != nullptr) sub_message_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::TestAllTypes& TestEagerMessage::_internal_sub_message() const {
@@ -30997,7 +30997,7 @@ inline bool TestLazyMessage::has_sub_message() const {
   return _internal_has_sub_message();
 }
 inline void TestLazyMessage::clear_sub_message() {
-  if (sub_message_ != nullptr) sub_message_->Clear();
+  if(sub_message_ != nullptr) sub_message_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::TestAllTypes& TestLazyMessage::_internal_sub_message() const {
@@ -31182,7 +31182,7 @@ inline bool TestNestedMessageHasBits::has_optional_nested_message() const {
   return _internal_has_optional_nested_message();
 }
 inline void TestNestedMessageHasBits::clear_optional_nested_message() {
-  if (optional_nested_message_ != nullptr) optional_nested_message_->Clear();
+  if(optional_nested_message_ != nullptr) optional_nested_message_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::TestNestedMessageHasBits_NestedMessage& TestNestedMessageHasBits::_internal_optional_nested_message() const {
@@ -31400,7 +31400,7 @@ inline bool TestCamelCaseFieldNames::has_messagefield() const {
   return _internal_has_messagefield();
 }
 inline void TestCamelCaseFieldNames::clear_messagefield() {
-  if (messagefield_ != nullptr) messagefield_->Clear();
+  if(messagefield_ != nullptr) messagefield_->Clear();
   _has_bits_[0] &= ~0x00000008u;
 }
 inline const ::protobuf_unittest::ForeignMessage& TestCamelCaseFieldNames::_internal_messagefield() const {
@@ -32174,7 +32174,7 @@ inline bool TestFieldOrderings::has_optional_nested_message() const {
   return _internal_has_optional_nested_message();
 }
 inline void TestFieldOrderings::clear_optional_nested_message() {
-  if (optional_nested_message_ != nullptr) optional_nested_message_->Clear();
+  if(optional_nested_message_ != nullptr) optional_nested_message_->Clear();
   _has_bits_[0] &= ~0x00000002u;
 }
 inline const ::protobuf_unittest::TestFieldOrderings_NestedMessage& TestFieldOrderings::_internal_optional_nested_message() const {
@@ -34100,7 +34100,7 @@ inline void TestOneof::set_has_foo_int() {
   _oneof_case_[0] = kFooInt;
 }
 inline void TestOneof::clear_foo_int() {
-  if (_internal_has_foo_int()) {
+  if(_internal_has_foo_int()) {
     foo_.foo_int_ = 0;
     clear_has_foo();
   }
@@ -34138,7 +34138,7 @@ inline void TestOneof::set_has_foo_string() {
   _oneof_case_[0] = kFooString;
 }
 inline void TestOneof::clear_foo_string() {
-  if (_internal_has_foo_string()) {
+  if(_internal_has_foo_string()) {
     foo_.foo_string_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_foo();
   }
@@ -34220,8 +34220,8 @@ inline void TestOneof::set_has_foo_message() {
   _oneof_case_[0] = kFooMessage;
 }
 inline void TestOneof::clear_foo_message() {
-  if (_internal_has_foo_message()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_foo_message()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete foo_.foo_message_;
     }
     clear_has_foo();
@@ -34294,8 +34294,8 @@ inline void TestOneof::set_has_foogroup() {
   _oneof_case_[0] = kFoogroup;
 }
 inline void TestOneof::clear_foogroup() {
-  if (_internal_has_foogroup()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_foogroup()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete foo_.foogroup_;
     }
     clear_has_foo();
@@ -34578,7 +34578,7 @@ inline bool TestOneofBackwardsCompatible::has_foo_message() const {
   return _internal_has_foo_message();
 }
 inline void TestOneofBackwardsCompatible::clear_foo_message() {
-  if (foo_message_ != nullptr) foo_message_->Clear();
+  if(foo_message_ != nullptr) foo_message_->Clear();
   _has_bits_[0] &= ~0x00000002u;
 }
 inline const ::protobuf_unittest::TestAllTypes& TestOneofBackwardsCompatible::_internal_foo_message() const {
@@ -34668,7 +34668,7 @@ inline bool TestOneofBackwardsCompatible::has_foogroup() const {
   return _internal_has_foogroup();
 }
 inline void TestOneofBackwardsCompatible::clear_foogroup() {
-  if (foogroup_ != nullptr) foogroup_->Clear();
+  if(foogroup_ != nullptr) foogroup_->Clear();
   _has_bits_[0] &= ~0x00000004u;
 }
 inline const ::protobuf_unittest::TestOneofBackwardsCompatible_FooGroup& TestOneofBackwardsCompatible::_internal_foogroup() const {
@@ -34943,7 +34943,7 @@ inline void TestOneof2::set_has_foo_int() {
   _oneof_case_[0] = kFooInt;
 }
 inline void TestOneof2::clear_foo_int() {
-  if (_internal_has_foo_int()) {
+  if(_internal_has_foo_int()) {
     foo_.foo_int_ = 0;
     clear_has_foo();
   }
@@ -34981,7 +34981,7 @@ inline void TestOneof2::set_has_foo_string() {
   _oneof_case_[0] = kFooString;
 }
 inline void TestOneof2::clear_foo_string() {
-  if (_internal_has_foo_string()) {
+  if(_internal_has_foo_string()) {
     foo_.foo_string_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_foo();
   }
@@ -35063,7 +35063,7 @@ inline void TestOneof2::set_has_foo_cord() {
   _oneof_case_[0] = kFooCord;
 }
 inline void TestOneof2::clear_foo_cord() {
-  if (_internal_has_foo_cord()) {
+  if(_internal_has_foo_cord()) {
     foo_.foo_cord_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_foo();
   }
@@ -35145,7 +35145,7 @@ inline void TestOneof2::set_has_foo_string_piece() {
   _oneof_case_[0] = kFooStringPiece;
 }
 inline void TestOneof2::clear_foo_string_piece() {
-  if (_internal_has_foo_string_piece()) {
+  if(_internal_has_foo_string_piece()) {
     foo_.foo_string_piece_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_foo();
   }
@@ -35227,7 +35227,7 @@ inline void TestOneof2::set_has_foo_bytes() {
   _oneof_case_[0] = kFooBytes;
 }
 inline void TestOneof2::clear_foo_bytes() {
-  if (_internal_has_foo_bytes()) {
+  if(_internal_has_foo_bytes()) {
     foo_.foo_bytes_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_foo();
   }
@@ -35309,7 +35309,7 @@ inline void TestOneof2::set_has_foo_enum() {
   _oneof_case_[0] = kFooEnum;
 }
 inline void TestOneof2::clear_foo_enum() {
-  if (_internal_has_foo_enum()) {
+  if(_internal_has_foo_enum()) {
     foo_.foo_enum_ = 1;
     clear_has_foo();
   }
@@ -35348,8 +35348,8 @@ inline void TestOneof2::set_has_foo_message() {
   _oneof_case_[0] = kFooMessage;
 }
 inline void TestOneof2::clear_foo_message() {
-  if (_internal_has_foo_message()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_foo_message()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete foo_.foo_message_;
     }
     clear_has_foo();
@@ -35422,8 +35422,8 @@ inline void TestOneof2::set_has_foogroup() {
   _oneof_case_[0] = kFoogroup;
 }
 inline void TestOneof2::clear_foogroup() {
-  if (_internal_has_foogroup()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_foogroup()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete foo_.foogroup_;
     }
     clear_has_foo();
@@ -35496,8 +35496,8 @@ inline void TestOneof2::set_has_foo_lazy_message() {
   _oneof_case_[0] = kFooLazyMessage;
 }
 inline void TestOneof2::clear_foo_lazy_message() {
-  if (_internal_has_foo_lazy_message()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_foo_lazy_message()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete foo_.foo_lazy_message_;
     }
     clear_has_foo();
@@ -35570,7 +35570,7 @@ inline void TestOneof2::set_has_bar_int() {
   _oneof_case_[1] = kBarInt;
 }
 inline void TestOneof2::clear_bar_int() {
-  if (_internal_has_bar_int()) {
+  if(_internal_has_bar_int()) {
     bar_.bar_int_ = 5;
     clear_has_bar();
   }
@@ -35608,7 +35608,7 @@ inline void TestOneof2::set_has_bar_string() {
   _oneof_case_[1] = kBarString;
 }
 inline void TestOneof2::clear_bar_string() {
-  if (_internal_has_bar_string()) {
+  if(_internal_has_bar_string()) {
     bar_.bar_string_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::NonEmptyDefault{}, GetArenaForAllocation());
     clear_has_bar();
   }
@@ -35690,7 +35690,7 @@ inline void TestOneof2::set_has_bar_cord() {
   _oneof_case_[1] = kBarCord;
 }
 inline void TestOneof2::clear_bar_cord() {
-  if (_internal_has_bar_cord()) {
+  if(_internal_has_bar_cord()) {
     bar_.bar_cord_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::NonEmptyDefault{}, GetArenaForAllocation());
     clear_has_bar();
   }
@@ -35772,7 +35772,7 @@ inline void TestOneof2::set_has_bar_string_piece() {
   _oneof_case_[1] = kBarStringPiece;
 }
 inline void TestOneof2::clear_bar_string_piece() {
-  if (_internal_has_bar_string_piece()) {
+  if(_internal_has_bar_string_piece()) {
     bar_.bar_string_piece_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::NonEmptyDefault{}, GetArenaForAllocation());
     clear_has_bar();
   }
@@ -35854,7 +35854,7 @@ inline void TestOneof2::set_has_bar_bytes() {
   _oneof_case_[1] = kBarBytes;
 }
 inline void TestOneof2::clear_bar_bytes() {
-  if (_internal_has_bar_bytes()) {
+  if(_internal_has_bar_bytes()) {
     bar_.bar_bytes_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::NonEmptyDefault{}, GetArenaForAllocation());
     clear_has_bar();
   }
@@ -35936,7 +35936,7 @@ inline void TestOneof2::set_has_bar_enum() {
   _oneof_case_[1] = kBarEnum;
 }
 inline void TestOneof2::clear_bar_enum() {
-  if (_internal_has_bar_enum()) {
+  if(_internal_has_bar_enum()) {
     bar_.bar_enum_ = 2;
     clear_has_bar();
   }
@@ -35975,7 +35975,7 @@ inline void TestOneof2::set_has_bar_string_with_empty_default() {
   _oneof_case_[1] = kBarStringWithEmptyDefault;
 }
 inline void TestOneof2::clear_bar_string_with_empty_default() {
-  if (_internal_has_bar_string_with_empty_default()) {
+  if(_internal_has_bar_string_with_empty_default()) {
     bar_.bar_string_with_empty_default_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_bar();
   }
@@ -36057,7 +36057,7 @@ inline void TestOneof2::set_has_bar_cord_with_empty_default() {
   _oneof_case_[1] = kBarCordWithEmptyDefault;
 }
 inline void TestOneof2::clear_bar_cord_with_empty_default() {
-  if (_internal_has_bar_cord_with_empty_default()) {
+  if(_internal_has_bar_cord_with_empty_default()) {
     bar_.bar_cord_with_empty_default_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_bar();
   }
@@ -36139,7 +36139,7 @@ inline void TestOneof2::set_has_bar_string_piece_with_empty_default() {
   _oneof_case_[1] = kBarStringPieceWithEmptyDefault;
 }
 inline void TestOneof2::clear_bar_string_piece_with_empty_default() {
-  if (_internal_has_bar_string_piece_with_empty_default()) {
+  if(_internal_has_bar_string_piece_with_empty_default()) {
     bar_.bar_string_piece_with_empty_default_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_bar();
   }
@@ -36221,7 +36221,7 @@ inline void TestOneof2::set_has_bar_bytes_with_empty_default() {
   _oneof_case_[1] = kBarBytesWithEmptyDefault;
 }
 inline void TestOneof2::clear_bar_bytes_with_empty_default() {
-  if (_internal_has_bar_bytes_with_empty_default()) {
+  if(_internal_has_bar_bytes_with_empty_default()) {
     bar_.bar_bytes_with_empty_default_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_bar();
   }
@@ -36445,7 +36445,7 @@ inline void TestRequiredOneof::set_has_foo_int() {
   _oneof_case_[0] = kFooInt;
 }
 inline void TestRequiredOneof::clear_foo_int() {
-  if (_internal_has_foo_int()) {
+  if(_internal_has_foo_int()) {
     foo_.foo_int_ = 0;
     clear_has_foo();
   }
@@ -36483,7 +36483,7 @@ inline void TestRequiredOneof::set_has_foo_string() {
   _oneof_case_[0] = kFooString;
 }
 inline void TestRequiredOneof::clear_foo_string() {
-  if (_internal_has_foo_string()) {
+  if(_internal_has_foo_string()) {
     foo_.foo_string_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_foo();
   }
@@ -36565,8 +36565,8 @@ inline void TestRequiredOneof::set_has_foo_message() {
   _oneof_case_[0] = kFooMessage;
 }
 inline void TestRequiredOneof::clear_foo_message() {
-  if (_internal_has_foo_message()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_foo_message()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete foo_.foo_message_;
     }
     clear_has_foo();
@@ -38093,7 +38093,7 @@ inline bool TestDynamicExtensions::has_message_extension() const {
   return _internal_has_message_extension();
 }
 inline void TestDynamicExtensions::clear_message_extension() {
-  if (message_extension_ != nullptr) message_extension_->Clear();
+  if(message_extension_ != nullptr) message_extension_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::ForeignMessage& TestDynamicExtensions::_internal_message_extension() const {
@@ -38183,7 +38183,7 @@ inline bool TestDynamicExtensions::has_dynamic_message_extension() const {
   return _internal_has_dynamic_message_extension();
 }
 inline void TestDynamicExtensions::clear_dynamic_message_extension() {
-  if (dynamic_message_extension_ != nullptr) dynamic_message_extension_->Clear();
+  if(dynamic_message_extension_ != nullptr) dynamic_message_extension_->Clear();
   _has_bits_[0] &= ~0x00000002u;
 }
 inline const ::protobuf_unittest::TestDynamicExtensions_DynamicMessageType& TestDynamicExtensions::_internal_dynamic_message_extension() const {
@@ -38685,7 +38685,7 @@ inline bool TestParsingMerge_RepeatedFieldsGenerator_Group1::has_field1() const 
   return _internal_has_field1();
 }
 inline void TestParsingMerge_RepeatedFieldsGenerator_Group1::clear_field1() {
-  if (field1_ != nullptr) field1_->Clear();
+  if(field1_ != nullptr) field1_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::TestAllTypes& TestParsingMerge_RepeatedFieldsGenerator_Group1::_internal_field1() const {
@@ -38779,7 +38779,7 @@ inline bool TestParsingMerge_RepeatedFieldsGenerator_Group2::has_field1() const 
   return _internal_has_field1();
 }
 inline void TestParsingMerge_RepeatedFieldsGenerator_Group2::clear_field1() {
-  if (field1_ != nullptr) field1_->Clear();
+  if(field1_ != nullptr) field1_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::TestAllTypes& TestParsingMerge_RepeatedFieldsGenerator_Group2::_internal_field1() const {
@@ -39157,7 +39157,7 @@ inline bool TestParsingMerge_OptionalGroup::has_optional_group_all_types() const
   return _internal_has_optional_group_all_types();
 }
 inline void TestParsingMerge_OptionalGroup::clear_optional_group_all_types() {
-  if (optional_group_all_types_ != nullptr) optional_group_all_types_->Clear();
+  if(optional_group_all_types_ != nullptr) optional_group_all_types_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::TestAllTypes& TestParsingMerge_OptionalGroup::_internal_optional_group_all_types() const {
@@ -39251,7 +39251,7 @@ inline bool TestParsingMerge_RepeatedGroup::has_repeated_group_all_types() const
   return _internal_has_repeated_group_all_types();
 }
 inline void TestParsingMerge_RepeatedGroup::clear_repeated_group_all_types() {
-  if (repeated_group_all_types_ != nullptr) repeated_group_all_types_->Clear();
+  if(repeated_group_all_types_ != nullptr) repeated_group_all_types_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::TestAllTypes& TestParsingMerge_RepeatedGroup::_internal_repeated_group_all_types() const {
@@ -39345,7 +39345,7 @@ inline bool TestParsingMerge::has_required_all_types() const {
   return _internal_has_required_all_types();
 }
 inline void TestParsingMerge::clear_required_all_types() {
-  if (required_all_types_ != nullptr) required_all_types_->Clear();
+  if(required_all_types_ != nullptr) required_all_types_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::TestAllTypes& TestParsingMerge::_internal_required_all_types() const {
@@ -39435,7 +39435,7 @@ inline bool TestParsingMerge::has_optional_all_types() const {
   return _internal_has_optional_all_types();
 }
 inline void TestParsingMerge::clear_optional_all_types() {
-  if (optional_all_types_ != nullptr) optional_all_types_->Clear();
+  if(optional_all_types_ != nullptr) optional_all_types_->Clear();
   _has_bits_[0] &= ~0x00000002u;
 }
 inline const ::protobuf_unittest::TestAllTypes& TestParsingMerge::_internal_optional_all_types() const {
@@ -39565,7 +39565,7 @@ inline bool TestParsingMerge::has_optionalgroup() const {
   return _internal_has_optionalgroup();
 }
 inline void TestParsingMerge::clear_optionalgroup() {
-  if (optionalgroup_ != nullptr) optionalgroup_->Clear();
+  if(optionalgroup_ != nullptr) optionalgroup_->Clear();
   _has_bits_[0] &= ~0x00000004u;
 }
 inline const ::protobuf_unittest::TestParsingMerge_OptionalGroup& TestParsingMerge::_internal_optionalgroup() const {
@@ -40336,7 +40336,7 @@ inline bool TestHugeFieldNumbers::has_optional_message() const {
   return _internal_has_optional_message();
 }
 inline void TestHugeFieldNumbers::clear_optional_message() {
-  if (optional_message_ != nullptr) optional_message_->Clear();
+  if(optional_message_ != nullptr) optional_message_->Clear();
   _has_bits_[0] &= ~0x00000004u;
 }
 inline const ::protobuf_unittest::ForeignMessage& TestHugeFieldNumbers::_internal_optional_message() const {
@@ -40426,7 +40426,7 @@ inline bool TestHugeFieldNumbers::has_optionalgroup() const {
   return _internal_has_optionalgroup();
 }
 inline void TestHugeFieldNumbers::clear_optionalgroup() {
-  if (optionalgroup_ != nullptr) optionalgroup_->Clear();
+  if(optionalgroup_ != nullptr) optionalgroup_->Clear();
   _has_bits_[0] &= ~0x00000008u;
 }
 inline const ::protobuf_unittest::TestHugeFieldNumbers_OptionalGroup& TestHugeFieldNumbers::_internal_optionalgroup() const {
@@ -40546,7 +40546,7 @@ inline void TestHugeFieldNumbers::set_has_oneof_uint32() {
   _oneof_case_[0] = kOneofUint32;
 }
 inline void TestHugeFieldNumbers::clear_oneof_uint32() {
-  if (_internal_has_oneof_uint32()) {
+  if(_internal_has_oneof_uint32()) {
     oneof_field_.oneof_uint32_ = 0u;
     clear_has_oneof_field();
   }
@@ -40584,8 +40584,8 @@ inline void TestHugeFieldNumbers::set_has_oneof_test_all_types() {
   _oneof_case_[0] = kOneofTestAllTypes;
 }
 inline void TestHugeFieldNumbers::clear_oneof_test_all_types() {
-  if (_internal_has_oneof_test_all_types()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_oneof_test_all_types()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete oneof_field_.oneof_test_all_types_;
     }
     clear_has_oneof_field();
@@ -40658,7 +40658,7 @@ inline void TestHugeFieldNumbers::set_has_oneof_string() {
   _oneof_case_[0] = kOneofString;
 }
 inline void TestHugeFieldNumbers::clear_oneof_string() {
-  if (_internal_has_oneof_string()) {
+  if(_internal_has_oneof_string()) {
     oneof_field_.oneof_string_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_oneof_field();
   }
@@ -40740,7 +40740,7 @@ inline void TestHugeFieldNumbers::set_has_oneof_bytes() {
   _oneof_case_[0] = kOneofBytes;
 }
 inline void TestHugeFieldNumbers::clear_oneof_bytes() {
-  if (_internal_has_oneof_bytes()) {
+  if(_internal_has_oneof_bytes()) {
     oneof_field_.oneof_bytes_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_oneof_field();
   }

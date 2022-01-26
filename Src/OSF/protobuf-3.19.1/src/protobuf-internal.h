@@ -1,5 +1,7 @@
 // PROTOBUF-INTERNAL.H
 //
+#ifndef PROTOBUF_INTERNAL_H
+#define PROTOBUF_INTERNAL_H
 //#include <slib.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -88,4 +90,14 @@
 #include <google/protobuf/wire_format.h>
 #include <google/protobuf/wire_format_lite.h>
 #include <google/protobuf/extension_set.h>
+#include <google/protobuf/reflection.h>
+#include <google/protobuf/message_lite.h>
+#include <google/protobuf/port.h>
+#include <google/protobuf/repeated_ptr_field.h>
+#include <google/protobuf/explicitly_constructed.h>
+#include <google/protobuf/metadata_lite.h>
+#include <google/protobuf/stubs/once.h>
+#include <google/protobuf/repeated_field.h>
+#include <google/protobuf/dynamic_message.h>
 
+#endif // PROTOBUF_INTERNAL_H

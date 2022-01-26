@@ -1853,10 +1853,10 @@ const char* TestMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // map<int32, int32> map_int32_int32 = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -1869,7 +1869,7 @@ const char* TestMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
         continue;
       // map<int64, int64> map_int64_int64 = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -1882,7 +1882,7 @@ const char* TestMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
         continue;
       // map<uint32, uint32> map_uint32_uint32 = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -1895,7 +1895,7 @@ const char* TestMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
         continue;
       // map<uint64, uint64> map_uint64_uint64 = 4;
       case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -1908,7 +1908,7 @@ const char* TestMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
         continue;
       // map<sint32, sint32> map_sint32_sint32 = 5;
       case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -1921,7 +1921,7 @@ const char* TestMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
         continue;
       // map<sint64, sint64> map_sint64_sint64 = 6;
       case 6:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -1934,7 +1934,7 @@ const char* TestMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
         continue;
       // map<fixed32, fixed32> map_fixed32_fixed32 = 7;
       case 7:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -1947,7 +1947,7 @@ const char* TestMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
         continue;
       // map<fixed64, fixed64> map_fixed64_fixed64 = 8;
       case 8:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -1960,7 +1960,7 @@ const char* TestMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
         continue;
       // map<sfixed32, sfixed32> map_sfixed32_sfixed32 = 9;
       case 9:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -1973,7 +1973,7 @@ const char* TestMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
         continue;
       // map<sfixed64, sfixed64> map_sfixed64_sfixed64 = 10;
       case 10:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 82)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 82)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -1986,7 +1986,7 @@ const char* TestMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
         continue;
       // map<int32, float> map_int32_float = 11;
       case 11:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 90)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 90)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -1999,7 +1999,7 @@ const char* TestMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
         continue;
       // map<int32, double> map_int32_double = 12;
       case 12:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 98)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 98)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -2012,7 +2012,7 @@ const char* TestMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
         continue;
       // map<bool, bool> map_bool_bool = 13;
       case 13:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 106)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 106)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -2025,7 +2025,7 @@ const char* TestMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
         continue;
       // map<string, string> map_string_string = 14;
       case 14:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 114)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 114)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -2038,7 +2038,7 @@ const char* TestMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
         continue;
       // map<int32, bytes> map_int32_bytes = 15;
       case 15:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 122)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 122)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -2051,7 +2051,7 @@ const char* TestMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
         continue;
       // map<int32, .protobuf_unittest.MapEnum> map_int32_enum = 16;
       case 16:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 130)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 130)) {
           ptr -= 2;
           do {
             ptr += 2;
@@ -2064,7 +2064,7 @@ const char* TestMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
         continue;
       // map<int32, .protobuf_unittest.ForeignMessage> map_int32_foreign_message = 17;
       case 17:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 138)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 138)) {
           ptr -= 2;
           do {
             ptr += 2;
@@ -2077,7 +2077,7 @@ const char* TestMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
         continue;
       // map<string, .protobuf_unittest.ForeignMessage> map_string_foreign_message = 18;
       case 18:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 146)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 146)) {
           ptr -= 2;
           do {
             ptr += 2;
@@ -2090,7 +2090,7 @@ const char* TestMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
         continue;
       // map<int32, .protobuf_unittest.TestAllTypes> map_int32_all_types = 19;
       case 19:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 154)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 154)) {
           ptr -= 2;
           do {
             ptr += 2;
@@ -2105,7 +2105,7 @@ const char* TestMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -2131,19 +2131,16 @@ uint8_t* TestMap::_InternalSerialize(
   (void) cached_has_bits;
 
   // map<int32, int32> map_int32_int32 = 1;
-  if (!this->_internal_map_int32_int32().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_int32_int32().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_int32_int32().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_int32_int32().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_int32_int32().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_int32_int32().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
           it = this->_internal_map_int32_int32().begin();
           it != this->_internal_map_int32_int32().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -2162,19 +2159,16 @@ uint8_t* TestMap::_InternalSerialize(
   }
 
   // map<int64, int64> map_int64_int64 = 2;
-  if (!this->_internal_map_int64_int64().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_int64_int64().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int64_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_int64_int64().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_int64_int64().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_int64_int64().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_int64_int64().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
           it = this->_internal_map_int64_int64().begin();
           it != this->_internal_map_int64_int64().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -2193,19 +2187,16 @@ uint8_t* TestMap::_InternalSerialize(
   }
 
   // map<uint32, uint32> map_uint32_uint32 = 3;
-  if (!this->_internal_map_uint32_uint32().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_uint32_uint32().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< uint32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_uint32_uint32().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_uint32_uint32().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_uint32_uint32().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_uint32_uint32().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator
           it = this->_internal_map_uint32_uint32().begin();
           it != this->_internal_map_uint32_uint32().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -2224,19 +2215,16 @@ uint8_t* TestMap::_InternalSerialize(
   }
 
   // map<uint64, uint64> map_uint64_uint64 = 4;
-  if (!this->_internal_map_uint64_uint64().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_uint64_uint64().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< uint64_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_uint64_uint64().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_uint64_uint64().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_uint64_uint64().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_uint64_uint64().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator
           it = this->_internal_map_uint64_uint64().begin();
           it != this->_internal_map_uint64_uint64().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -2255,19 +2243,16 @@ uint8_t* TestMap::_InternalSerialize(
   }
 
   // map<sint32, sint32> map_sint32_sint32 = 5;
-  if (!this->_internal_map_sint32_sint32().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_sint32_sint32().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_sint32_sint32().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_sint32_sint32().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_sint32_sint32().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_sint32_sint32().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
           it = this->_internal_map_sint32_sint32().begin();
           it != this->_internal_map_sint32_sint32().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -2286,19 +2271,16 @@ uint8_t* TestMap::_InternalSerialize(
   }
 
   // map<sint64, sint64> map_sint64_sint64 = 6;
-  if (!this->_internal_map_sint64_sint64().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_sint64_sint64().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int64_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_sint64_sint64().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_sint64_sint64().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_sint64_sint64().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_sint64_sint64().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
           it = this->_internal_map_sint64_sint64().begin();
           it != this->_internal_map_sint64_sint64().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -2317,19 +2299,16 @@ uint8_t* TestMap::_InternalSerialize(
   }
 
   // map<fixed32, fixed32> map_fixed32_fixed32 = 7;
-  if (!this->_internal_map_fixed32_fixed32().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_fixed32_fixed32().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< uint32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_fixed32_fixed32().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_fixed32_fixed32().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_fixed32_fixed32().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_fixed32_fixed32().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator
           it = this->_internal_map_fixed32_fixed32().begin();
           it != this->_internal_map_fixed32_fixed32().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -2348,19 +2327,16 @@ uint8_t* TestMap::_InternalSerialize(
   }
 
   // map<fixed64, fixed64> map_fixed64_fixed64 = 8;
-  if (!this->_internal_map_fixed64_fixed64().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_fixed64_fixed64().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< uint64_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_fixed64_fixed64().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_fixed64_fixed64().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_fixed64_fixed64().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_fixed64_fixed64().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator
           it = this->_internal_map_fixed64_fixed64().begin();
           it != this->_internal_map_fixed64_fixed64().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -2379,19 +2355,16 @@ uint8_t* TestMap::_InternalSerialize(
   }
 
   // map<sfixed32, sfixed32> map_sfixed32_sfixed32 = 9;
-  if (!this->_internal_map_sfixed32_sfixed32().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_sfixed32_sfixed32().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_sfixed32_sfixed32().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_sfixed32_sfixed32().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_sfixed32_sfixed32().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_sfixed32_sfixed32().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
           it = this->_internal_map_sfixed32_sfixed32().begin();
           it != this->_internal_map_sfixed32_sfixed32().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -2410,19 +2383,16 @@ uint8_t* TestMap::_InternalSerialize(
   }
 
   // map<sfixed64, sfixed64> map_sfixed64_sfixed64 = 10;
-  if (!this->_internal_map_sfixed64_sfixed64().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_sfixed64_sfixed64().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int64_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_sfixed64_sfixed64().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_sfixed64_sfixed64().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_sfixed64_sfixed64().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_sfixed64_sfixed64().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
           it = this->_internal_map_sfixed64_sfixed64().begin();
           it != this->_internal_map_sfixed64_sfixed64().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -2441,19 +2411,16 @@ uint8_t* TestMap::_InternalSerialize(
   }
 
   // map<int32, float> map_int32_float = 11;
-  if (!this->_internal_map_int32_float().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_int32_float().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_int32_float().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_int32_float().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_int32_float().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_int32_float().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >::const_iterator
           it = this->_internal_map_int32_float().begin();
           it != this->_internal_map_int32_float().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -2472,19 +2439,16 @@ uint8_t* TestMap::_InternalSerialize(
   }
 
   // map<int32, double> map_int32_double = 12;
-  if (!this->_internal_map_int32_double().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_int32_double().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_int32_double().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_int32_double().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_int32_double().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_int32_double().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >::const_iterator
           it = this->_internal_map_int32_double().begin();
           it != this->_internal_map_int32_double().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -2503,19 +2467,16 @@ uint8_t* TestMap::_InternalSerialize(
   }
 
   // map<bool, bool> map_bool_bool = 13;
-  if (!this->_internal_map_bool_bool().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< bool, bool >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_bool_bool().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< bool, bool >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< bool, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_bool_bool().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_bool_bool().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_bool_bool().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_bool_bool().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< bool, bool >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< bool, bool >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< bool, bool >::const_iterator
           it = this->_internal_map_bool_bool().begin();
           it != this->_internal_map_bool_bool().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -2534,9 +2495,8 @@ uint8_t* TestMap::_InternalSerialize(
   }
 
   // map<string, string> map_string_string = 14;
-  if (!this->_internal_map_string_string().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_string_string().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_pointer ConstPtr;
     typedef ConstPtr SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
     struct Utf8Check {
@@ -2553,13 +2513,11 @@ uint8_t* TestMap::_InternalSerialize(
       }
     };
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_string_string().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_string_string().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_string_string().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_string_string().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
           it = this->_internal_map_string_string().begin();
           it != this->_internal_map_string_string().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -2580,19 +2538,16 @@ uint8_t* TestMap::_InternalSerialize(
   }
 
   // map<int32, bytes> map_int32_bytes = 15;
-  if (!this->_internal_map_int32_bytes().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_int32_bytes().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_int32_bytes().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_int32_bytes().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_int32_bytes().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_int32_bytes().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_iterator
           it = this->_internal_map_int32_bytes().begin();
           it != this->_internal_map_int32_bytes().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -2611,19 +2566,16 @@ uint8_t* TestMap::_InternalSerialize(
   }
 
   // map<int32, .protobuf_unittest.MapEnum> map_int32_enum = 16;
-  if (!this->_internal_map_int32_enum().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnum >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_int32_enum().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnum >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_int32_enum().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_int32_enum().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_int32_enum().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_int32_enum().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnum >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnum >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnum >::const_iterator
           it = this->_internal_map_int32_enum().begin();
           it != this->_internal_map_int32_enum().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -2642,19 +2594,16 @@ uint8_t* TestMap::_InternalSerialize(
   }
 
   // map<int32, .protobuf_unittest.ForeignMessage> map_int32_foreign_message = 17;
-  if (!this->_internal_map_int32_foreign_message().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessage >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_int32_foreign_message().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessage >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_int32_foreign_message().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_int32_foreign_message().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_int32_foreign_message().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_int32_foreign_message().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessage >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessage >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessage >::const_iterator
           it = this->_internal_map_int32_foreign_message().begin();
           it != this->_internal_map_int32_foreign_message().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -2673,9 +2622,8 @@ uint8_t* TestMap::_InternalSerialize(
   }
 
   // map<string, .protobuf_unittest.ForeignMessage> map_string_foreign_message = 18;
-  if (!this->_internal_map_string_foreign_message().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::ForeignMessage >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_string_foreign_message().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::ForeignMessage >::const_pointer ConstPtr;
     typedef ConstPtr SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
     struct Utf8Check {
@@ -2688,13 +2636,11 @@ uint8_t* TestMap::_InternalSerialize(
       }
     };
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_string_foreign_message().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_string_foreign_message().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_string_foreign_message().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_string_foreign_message().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::ForeignMessage >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::ForeignMessage >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::ForeignMessage >::const_iterator
           it = this->_internal_map_string_foreign_message().begin();
           it != this->_internal_map_string_foreign_message().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -2715,19 +2661,16 @@ uint8_t* TestMap::_InternalSerialize(
   }
 
   // map<int32, .protobuf_unittest.TestAllTypes> map_int32_all_types = 19;
-  if (!this->_internal_map_int32_all_types().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypes >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_int32_all_types().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypes >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_int32_all_types().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_int32_all_types().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_int32_all_types().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_int32_all_types().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypes >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypes >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypes >::const_iterator
           it = this->_internal_map_int32_all_types().begin();
           it != this->_internal_map_int32_all_types().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -2745,7 +2688,7 @@ uint8_t* TestMap::_InternalSerialize(
     }
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -2764,7 +2707,7 @@ size_t TestMap::ByteSizeLong() const {
   // map<int32, int32> map_int32_int32 = 1;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_int32_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
       it = this->_internal_map_int32_int32().begin();
       it != this->_internal_map_int32_int32().end(); ++it) {
     total_size += TestMap_MapInt32Int32Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -2773,7 +2716,7 @@ size_t TestMap::ByteSizeLong() const {
   // map<int64, int64> map_int64_int64 = 2;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int64_int64_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
       it = this->_internal_map_int64_int64().begin();
       it != this->_internal_map_int64_int64().end(); ++it) {
     total_size += TestMap_MapInt64Int64Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -2782,7 +2725,7 @@ size_t TestMap::ByteSizeLong() const {
   // map<uint32, uint32> map_uint32_uint32 = 3;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_uint32_uint32_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator
       it = this->_internal_map_uint32_uint32().begin();
       it != this->_internal_map_uint32_uint32().end(); ++it) {
     total_size += TestMap_MapUint32Uint32Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -2791,7 +2734,7 @@ size_t TestMap::ByteSizeLong() const {
   // map<uint64, uint64> map_uint64_uint64 = 4;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_uint64_uint64_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator
       it = this->_internal_map_uint64_uint64().begin();
       it != this->_internal_map_uint64_uint64().end(); ++it) {
     total_size += TestMap_MapUint64Uint64Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -2800,7 +2743,7 @@ size_t TestMap::ByteSizeLong() const {
   // map<sint32, sint32> map_sint32_sint32 = 5;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_sint32_sint32_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
       it = this->_internal_map_sint32_sint32().begin();
       it != this->_internal_map_sint32_sint32().end(); ++it) {
     total_size += TestMap_MapSint32Sint32Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -2809,7 +2752,7 @@ size_t TestMap::ByteSizeLong() const {
   // map<sint64, sint64> map_sint64_sint64 = 6;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_sint64_sint64_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
       it = this->_internal_map_sint64_sint64().begin();
       it != this->_internal_map_sint64_sint64().end(); ++it) {
     total_size += TestMap_MapSint64Sint64Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -2818,7 +2761,7 @@ size_t TestMap::ByteSizeLong() const {
   // map<fixed32, fixed32> map_fixed32_fixed32 = 7;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_fixed32_fixed32_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator
       it = this->_internal_map_fixed32_fixed32().begin();
       it != this->_internal_map_fixed32_fixed32().end(); ++it) {
     total_size += TestMap_MapFixed32Fixed32Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -2827,7 +2770,7 @@ size_t TestMap::ByteSizeLong() const {
   // map<fixed64, fixed64> map_fixed64_fixed64 = 8;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_fixed64_fixed64_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator
       it = this->_internal_map_fixed64_fixed64().begin();
       it != this->_internal_map_fixed64_fixed64().end(); ++it) {
     total_size += TestMap_MapFixed64Fixed64Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -2836,7 +2779,7 @@ size_t TestMap::ByteSizeLong() const {
   // map<sfixed32, sfixed32> map_sfixed32_sfixed32 = 9;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_sfixed32_sfixed32_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
       it = this->_internal_map_sfixed32_sfixed32().begin();
       it != this->_internal_map_sfixed32_sfixed32().end(); ++it) {
     total_size += TestMap_MapSfixed32Sfixed32Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -2845,7 +2788,7 @@ size_t TestMap::ByteSizeLong() const {
   // map<sfixed64, sfixed64> map_sfixed64_sfixed64 = 10;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_sfixed64_sfixed64_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
       it = this->_internal_map_sfixed64_sfixed64().begin();
       it != this->_internal_map_sfixed64_sfixed64().end(); ++it) {
     total_size += TestMap_MapSfixed64Sfixed64Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -2854,7 +2797,7 @@ size_t TestMap::ByteSizeLong() const {
   // map<int32, float> map_int32_float = 11;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_float_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >::const_iterator
       it = this->_internal_map_int32_float().begin();
       it != this->_internal_map_int32_float().end(); ++it) {
     total_size += TestMap_MapInt32FloatEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -2863,7 +2806,7 @@ size_t TestMap::ByteSizeLong() const {
   // map<int32, double> map_int32_double = 12;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_double_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >::const_iterator
       it = this->_internal_map_int32_double().begin();
       it != this->_internal_map_int32_double().end(); ++it) {
     total_size += TestMap_MapInt32DoubleEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -2872,7 +2815,7 @@ size_t TestMap::ByteSizeLong() const {
   // map<bool, bool> map_bool_bool = 13;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_bool_bool_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< bool, bool >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< bool, bool >::const_iterator
       it = this->_internal_map_bool_bool().begin();
       it != this->_internal_map_bool_bool().end(); ++it) {
     total_size += TestMap_MapBoolBoolEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -2881,7 +2824,7 @@ size_t TestMap::ByteSizeLong() const {
   // map<string, string> map_string_string = 14;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_string_string_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
       it = this->_internal_map_string_string().begin();
       it != this->_internal_map_string_string().end(); ++it) {
     total_size += TestMap_MapStringStringEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -2890,7 +2833,7 @@ size_t TestMap::ByteSizeLong() const {
   // map<int32, bytes> map_int32_bytes = 15;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_bytes_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_iterator
       it = this->_internal_map_int32_bytes().begin();
       it != this->_internal_map_int32_bytes().end(); ++it) {
     total_size += TestMap_MapInt32BytesEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -2899,7 +2842,7 @@ size_t TestMap::ByteSizeLong() const {
   // map<int32, .protobuf_unittest.MapEnum> map_int32_enum = 16;
   total_size += 2 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_enum_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnum >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnum >::const_iterator
       it = this->_internal_map_int32_enum().begin();
       it != this->_internal_map_int32_enum().end(); ++it) {
     total_size += TestMap_MapInt32EnumEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -2908,7 +2851,7 @@ size_t TestMap::ByteSizeLong() const {
   // map<int32, .protobuf_unittest.ForeignMessage> map_int32_foreign_message = 17;
   total_size += 2 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_foreign_message_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessage >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessage >::const_iterator
       it = this->_internal_map_int32_foreign_message().begin();
       it != this->_internal_map_int32_foreign_message().end(); ++it) {
     total_size += TestMap_MapInt32ForeignMessageEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -2917,7 +2860,7 @@ size_t TestMap::ByteSizeLong() const {
   // map<string, .protobuf_unittest.ForeignMessage> map_string_foreign_message = 18;
   total_size += 2 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_string_foreign_message_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::ForeignMessage >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::ForeignMessage >::const_iterator
       it = this->_internal_map_string_foreign_message().begin();
       it != this->_internal_map_string_foreign_message().end(); ++it) {
     total_size += TestMap_MapStringForeignMessageEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -2926,7 +2869,7 @@ size_t TestMap::ByteSizeLong() const {
   // map<int32, .protobuf_unittest.TestAllTypes> map_int32_all_types = 19;
   total_size += 2 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_all_types_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypes >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypes >::const_iterator
       it = this->_internal_map_int32_all_types().begin();
       it != this->_internal_map_int32_all_types().end(); ++it) {
     total_size += TestMap_MapInt32AllTypesEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -2978,7 +2921,7 @@ void TestMap::MergeFrom(const TestMap& from) {
 
 void TestMap::CopyFrom(const TestMap& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest.TestMap)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -3040,7 +2983,7 @@ TestMapSubmessage::TestMapSubmessage(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 TestMapSubmessage::TestMapSubmessage(const TestMapSubmessage& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if (from._internal_has_test_map()) {
+  if(from._internal_has_test_map()) {
     test_map_ = new ::protobuf_unittest::TestMap(*from.test_map_);
   } else {
     test_map_ = nullptr;
@@ -3061,7 +3004,7 @@ TestMapSubmessage::~TestMapSubmessage() {
 
 inline void TestMapSubmessage::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  if (this != internal_default_instance()) delete test_map_;
+  if(this != internal_default_instance()) delete test_map_;
 }
 
 void TestMapSubmessage::ArenaDtor(void* object) {
@@ -3080,7 +3023,7 @@ void TestMapSubmessage::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  if (GetArenaForAllocation() == nullptr && test_map_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && test_map_ != nullptr) {
     delete test_map_;
   }
   test_map_ = nullptr;
@@ -3092,10 +3035,10 @@ const char* TestMapSubmessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // .protobuf_unittest.TestMap test_map = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr = ctx->ParseMessage(_internal_mutable_test_map(), ptr);
           CHK_(ptr);
         } else
@@ -3105,7 +3048,7 @@ const char* TestMapSubmessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -3131,14 +3074,14 @@ uint8_t* TestMapSubmessage::_InternalSerialize(
   (void) cached_has_bits;
 
   // .protobuf_unittest.TestMap test_map = 1;
-  if (this->_internal_has_test_map()) {
+  if(this->_internal_has_test_map()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
         1, _Internal::test_map(this), target, stream);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -3155,7 +3098,7 @@ size_t TestMapSubmessage::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // .protobuf_unittest.TestMap test_map = 1;
-  if (this->_internal_has_test_map()) {
+  if(this->_internal_has_test_map()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *test_map_);
@@ -3183,7 +3126,7 @@ void TestMapSubmessage::MergeFrom(const TestMapSubmessage& from) {
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_has_test_map()) {
+  if(from._internal_has_test_map()) {
     _internal_mutable_test_map()->::protobuf_unittest::TestMap::MergeFrom(from._internal_test_map());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -3191,7 +3134,7 @@ void TestMapSubmessage::MergeFrom(const TestMapSubmessage& from) {
 
 void TestMapSubmessage::CopyFrom(const TestMapSubmessage& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest.TestMapSubmessage)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -3295,10 +3238,10 @@ const char* TestMessageMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // map<int32, .protobuf_unittest.TestAllTypes> map_int32_message = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -3313,7 +3256,7 @@ const char* TestMessageMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -3339,19 +3282,16 @@ uint8_t* TestMessageMap::_InternalSerialize(
   (void) cached_has_bits;
 
   // map<int32, .protobuf_unittest.TestAllTypes> map_int32_message = 1;
-  if (!this->_internal_map_int32_message().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypes >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_int32_message().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypes >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_int32_message().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_int32_message().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_int32_message().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_int32_message().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypes >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypes >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypes >::const_iterator
           it = this->_internal_map_int32_message().begin();
           it != this->_internal_map_int32_message().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -3369,7 +3309,7 @@ uint8_t* TestMessageMap::_InternalSerialize(
     }
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -3388,7 +3328,7 @@ size_t TestMessageMap::ByteSizeLong() const {
   // map<int32, .protobuf_unittest.TestAllTypes> map_int32_message = 1;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_message_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypes >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypes >::const_iterator
       it = this->_internal_map_int32_message().begin();
       it != this->_internal_map_int32_message().end(); ++it) {
     total_size += TestMessageMap_MapInt32MessageEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -3422,7 +3362,7 @@ void TestMessageMap::MergeFrom(const TestMessageMap& from) {
 
 void TestMessageMap::CopyFrom(const TestMessageMap& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest.TestMessageMap)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -3541,10 +3481,10 @@ const char* TestSameTypeMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // map<int32, int32> map1 = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -3557,7 +3497,7 @@ const char* TestSameTypeMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // map<int32, int32> map2 = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -3572,7 +3512,7 @@ const char* TestSameTypeMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -3598,19 +3538,16 @@ uint8_t* TestSameTypeMap::_InternalSerialize(
   (void) cached_has_bits;
 
   // map<int32, int32> map1 = 1;
-  if (!this->_internal_map1().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map1().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map1().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map1().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map1().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map1().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
           it = this->_internal_map1().begin();
           it != this->_internal_map1().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -3629,19 +3566,16 @@ uint8_t* TestSameTypeMap::_InternalSerialize(
   }
 
   // map<int32, int32> map2 = 2;
-  if (!this->_internal_map2().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map2().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map2().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map2().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map2().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map2().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
           it = this->_internal_map2().begin();
           it != this->_internal_map2().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -3659,7 +3593,7 @@ uint8_t* TestSameTypeMap::_InternalSerialize(
     }
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -3678,7 +3612,7 @@ size_t TestSameTypeMap::ByteSizeLong() const {
   // map<int32, int32> map1 = 1;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map1_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
       it = this->_internal_map1().begin();
       it != this->_internal_map1().end(); ++it) {
     total_size += TestSameTypeMap_Map1Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -3687,7 +3621,7 @@ size_t TestSameTypeMap::ByteSizeLong() const {
   // map<int32, int32> map2 = 2;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map2_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
       it = this->_internal_map2().begin();
       it != this->_internal_map2().end(); ++it) {
     total_size += TestSameTypeMap_Map2Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -3722,7 +3656,7 @@ void TestSameTypeMap::MergeFrom(const TestSameTypeMap& from) {
 
 void TestSameTypeMap::CopyFrom(const TestSameTypeMap& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest.TestSameTypeMap)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -3827,10 +3761,10 @@ const char* TestRequiredMessageMap::_InternalParse(const char* ptr, ::PROTOBUF_N
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // map<int32, .protobuf_unittest.TestRequired> map_field = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -3845,7 +3779,7 @@ const char* TestRequiredMessageMap::_InternalParse(const char* ptr, ::PROTOBUF_N
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -3871,19 +3805,16 @@ uint8_t* TestRequiredMessageMap::_InternalSerialize(
   (void) cached_has_bits;
 
   // map<int32, .protobuf_unittest.TestRequired> map_field = 1;
-  if (!this->_internal_map_field().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestRequired >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_field().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestRequired >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_field().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_field().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_field().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_field().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestRequired >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestRequired >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestRequired >::const_iterator
           it = this->_internal_map_field().begin();
           it != this->_internal_map_field().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -3901,7 +3832,7 @@ uint8_t* TestRequiredMessageMap::_InternalSerialize(
     }
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -3920,7 +3851,7 @@ size_t TestRequiredMessageMap::ByteSizeLong() const {
   // map<int32, .protobuf_unittest.TestRequired> map_field = 1;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_field_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestRequired >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestRequired >::const_iterator
       it = this->_internal_map_field().begin();
       it != this->_internal_map_field().end(); ++it) {
     total_size += TestRequiredMessageMap_MapFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -3954,13 +3885,13 @@ void TestRequiredMessageMap::MergeFrom(const TestRequiredMessageMap& from) {
 
 void TestRequiredMessageMap::CopyFrom(const TestRequiredMessageMap& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest.TestRequiredMessageMap)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
 bool TestRequiredMessageMap::IsInitialized() const {
-  if (!::PROTOBUF_NAMESPACE_ID::internal::AllAreInitialized(map_field_)) return false;
+  if(!::PROTOBUF_NAMESPACE_ID::internal::AllAreInitialized(map_field_)) return false;
   return true;
 }
 
@@ -4347,10 +4278,10 @@ const char* TestArenaMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // map<int32, int32> map_int32_int32 = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4363,7 +4294,7 @@ const char* TestArenaMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         continue;
       // map<int64, int64> map_int64_int64 = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4376,7 +4307,7 @@ const char* TestArenaMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         continue;
       // map<uint32, uint32> map_uint32_uint32 = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4389,7 +4320,7 @@ const char* TestArenaMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         continue;
       // map<uint64, uint64> map_uint64_uint64 = 4;
       case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4402,7 +4333,7 @@ const char* TestArenaMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         continue;
       // map<sint32, sint32> map_sint32_sint32 = 5;
       case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4415,7 +4346,7 @@ const char* TestArenaMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         continue;
       // map<sint64, sint64> map_sint64_sint64 = 6;
       case 6:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4428,7 +4359,7 @@ const char* TestArenaMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         continue;
       // map<fixed32, fixed32> map_fixed32_fixed32 = 7;
       case 7:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4441,7 +4372,7 @@ const char* TestArenaMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         continue;
       // map<fixed64, fixed64> map_fixed64_fixed64 = 8;
       case 8:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4454,7 +4385,7 @@ const char* TestArenaMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         continue;
       // map<sfixed32, sfixed32> map_sfixed32_sfixed32 = 9;
       case 9:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4467,7 +4398,7 @@ const char* TestArenaMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         continue;
       // map<sfixed64, sfixed64> map_sfixed64_sfixed64 = 10;
       case 10:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 82)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 82)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4480,7 +4411,7 @@ const char* TestArenaMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         continue;
       // map<int32, float> map_int32_float = 11;
       case 11:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 90)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 90)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4493,7 +4424,7 @@ const char* TestArenaMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         continue;
       // map<int32, double> map_int32_double = 12;
       case 12:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 98)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 98)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4506,7 +4437,7 @@ const char* TestArenaMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         continue;
       // map<bool, bool> map_bool_bool = 13;
       case 13:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 106)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 106)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4519,7 +4450,7 @@ const char* TestArenaMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         continue;
       // map<string, string> map_string_string = 14;
       case 14:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 114)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 114)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4532,7 +4463,7 @@ const char* TestArenaMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         continue;
       // map<int32, bytes> map_int32_bytes = 15;
       case 15:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 122)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 122)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4545,7 +4476,7 @@ const char* TestArenaMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         continue;
       // map<int32, .protobuf_unittest.MapEnum> map_int32_enum = 16;
       case 16:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 130)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 130)) {
           ptr -= 2;
           do {
             ptr += 2;
@@ -4558,7 +4489,7 @@ const char* TestArenaMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         continue;
       // map<int32, .protobuf_unittest.ForeignMessage> map_int32_foreign_message = 17;
       case 17:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 138)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 138)) {
           ptr -= 2;
           do {
             ptr += 2;
@@ -4573,7 +4504,7 @@ const char* TestArenaMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -4599,19 +4530,16 @@ uint8_t* TestArenaMap::_InternalSerialize(
   (void) cached_has_bits;
 
   // map<int32, int32> map_int32_int32 = 1;
-  if (!this->_internal_map_int32_int32().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_int32_int32().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_int32_int32().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_int32_int32().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_int32_int32().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_int32_int32().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
           it = this->_internal_map_int32_int32().begin();
           it != this->_internal_map_int32_int32().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -4630,19 +4558,16 @@ uint8_t* TestArenaMap::_InternalSerialize(
   }
 
   // map<int64, int64> map_int64_int64 = 2;
-  if (!this->_internal_map_int64_int64().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_int64_int64().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int64_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_int64_int64().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_int64_int64().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_int64_int64().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_int64_int64().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
           it = this->_internal_map_int64_int64().begin();
           it != this->_internal_map_int64_int64().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -4661,19 +4586,16 @@ uint8_t* TestArenaMap::_InternalSerialize(
   }
 
   // map<uint32, uint32> map_uint32_uint32 = 3;
-  if (!this->_internal_map_uint32_uint32().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_uint32_uint32().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< uint32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_uint32_uint32().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_uint32_uint32().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_uint32_uint32().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_uint32_uint32().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator
           it = this->_internal_map_uint32_uint32().begin();
           it != this->_internal_map_uint32_uint32().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -4692,19 +4614,16 @@ uint8_t* TestArenaMap::_InternalSerialize(
   }
 
   // map<uint64, uint64> map_uint64_uint64 = 4;
-  if (!this->_internal_map_uint64_uint64().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_uint64_uint64().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< uint64_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_uint64_uint64().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_uint64_uint64().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_uint64_uint64().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_uint64_uint64().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator
           it = this->_internal_map_uint64_uint64().begin();
           it != this->_internal_map_uint64_uint64().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -4723,19 +4642,16 @@ uint8_t* TestArenaMap::_InternalSerialize(
   }
 
   // map<sint32, sint32> map_sint32_sint32 = 5;
-  if (!this->_internal_map_sint32_sint32().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_sint32_sint32().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_sint32_sint32().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_sint32_sint32().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_sint32_sint32().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_sint32_sint32().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
           it = this->_internal_map_sint32_sint32().begin();
           it != this->_internal_map_sint32_sint32().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -4754,19 +4670,16 @@ uint8_t* TestArenaMap::_InternalSerialize(
   }
 
   // map<sint64, sint64> map_sint64_sint64 = 6;
-  if (!this->_internal_map_sint64_sint64().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_sint64_sint64().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int64_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_sint64_sint64().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_sint64_sint64().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_sint64_sint64().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_sint64_sint64().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
           it = this->_internal_map_sint64_sint64().begin();
           it != this->_internal_map_sint64_sint64().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -4785,19 +4698,16 @@ uint8_t* TestArenaMap::_InternalSerialize(
   }
 
   // map<fixed32, fixed32> map_fixed32_fixed32 = 7;
-  if (!this->_internal_map_fixed32_fixed32().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_fixed32_fixed32().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< uint32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_fixed32_fixed32().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_fixed32_fixed32().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_fixed32_fixed32().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_fixed32_fixed32().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator
           it = this->_internal_map_fixed32_fixed32().begin();
           it != this->_internal_map_fixed32_fixed32().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -4816,19 +4726,16 @@ uint8_t* TestArenaMap::_InternalSerialize(
   }
 
   // map<fixed64, fixed64> map_fixed64_fixed64 = 8;
-  if (!this->_internal_map_fixed64_fixed64().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_fixed64_fixed64().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< uint64_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_fixed64_fixed64().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_fixed64_fixed64().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_fixed64_fixed64().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_fixed64_fixed64().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator
           it = this->_internal_map_fixed64_fixed64().begin();
           it != this->_internal_map_fixed64_fixed64().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -4847,19 +4754,16 @@ uint8_t* TestArenaMap::_InternalSerialize(
   }
 
   // map<sfixed32, sfixed32> map_sfixed32_sfixed32 = 9;
-  if (!this->_internal_map_sfixed32_sfixed32().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_sfixed32_sfixed32().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_sfixed32_sfixed32().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_sfixed32_sfixed32().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_sfixed32_sfixed32().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_sfixed32_sfixed32().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
           it = this->_internal_map_sfixed32_sfixed32().begin();
           it != this->_internal_map_sfixed32_sfixed32().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -4878,19 +4782,16 @@ uint8_t* TestArenaMap::_InternalSerialize(
   }
 
   // map<sfixed64, sfixed64> map_sfixed64_sfixed64 = 10;
-  if (!this->_internal_map_sfixed64_sfixed64().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_sfixed64_sfixed64().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int64_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_sfixed64_sfixed64().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_sfixed64_sfixed64().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_sfixed64_sfixed64().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_sfixed64_sfixed64().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
           it = this->_internal_map_sfixed64_sfixed64().begin();
           it != this->_internal_map_sfixed64_sfixed64().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -4909,19 +4810,16 @@ uint8_t* TestArenaMap::_InternalSerialize(
   }
 
   // map<int32, float> map_int32_float = 11;
-  if (!this->_internal_map_int32_float().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_int32_float().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_int32_float().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_int32_float().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_int32_float().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_int32_float().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >::const_iterator
           it = this->_internal_map_int32_float().begin();
           it != this->_internal_map_int32_float().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -4940,19 +4838,16 @@ uint8_t* TestArenaMap::_InternalSerialize(
   }
 
   // map<int32, double> map_int32_double = 12;
-  if (!this->_internal_map_int32_double().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_int32_double().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_int32_double().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_int32_double().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_int32_double().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_int32_double().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >::const_iterator
           it = this->_internal_map_int32_double().begin();
           it != this->_internal_map_int32_double().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -4971,19 +4866,16 @@ uint8_t* TestArenaMap::_InternalSerialize(
   }
 
   // map<bool, bool> map_bool_bool = 13;
-  if (!this->_internal_map_bool_bool().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< bool, bool >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_bool_bool().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< bool, bool >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< bool, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_bool_bool().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_bool_bool().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_bool_bool().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_bool_bool().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< bool, bool >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< bool, bool >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< bool, bool >::const_iterator
           it = this->_internal_map_bool_bool().begin();
           it != this->_internal_map_bool_bool().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -5002,9 +4894,8 @@ uint8_t* TestArenaMap::_InternalSerialize(
   }
 
   // map<string, string> map_string_string = 14;
-  if (!this->_internal_map_string_string().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_string_string().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_pointer ConstPtr;
     typedef ConstPtr SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
     struct Utf8Check {
@@ -5021,13 +4912,11 @@ uint8_t* TestArenaMap::_InternalSerialize(
       }
     };
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_string_string().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_string_string().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_string_string().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_string_string().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
           it = this->_internal_map_string_string().begin();
           it != this->_internal_map_string_string().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -5048,19 +4937,16 @@ uint8_t* TestArenaMap::_InternalSerialize(
   }
 
   // map<int32, bytes> map_int32_bytes = 15;
-  if (!this->_internal_map_int32_bytes().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_int32_bytes().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_int32_bytes().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_int32_bytes().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_int32_bytes().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_int32_bytes().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_iterator
           it = this->_internal_map_int32_bytes().begin();
           it != this->_internal_map_int32_bytes().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -5079,19 +4965,16 @@ uint8_t* TestArenaMap::_InternalSerialize(
   }
 
   // map<int32, .protobuf_unittest.MapEnum> map_int32_enum = 16;
-  if (!this->_internal_map_int32_enum().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnum >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_int32_enum().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnum >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_int32_enum().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_int32_enum().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_int32_enum().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_int32_enum().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnum >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnum >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnum >::const_iterator
           it = this->_internal_map_int32_enum().begin();
           it != this->_internal_map_int32_enum().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -5110,19 +4993,16 @@ uint8_t* TestArenaMap::_InternalSerialize(
   }
 
   // map<int32, .protobuf_unittest.ForeignMessage> map_int32_foreign_message = 17;
-  if (!this->_internal_map_int32_foreign_message().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessage >::const_pointer
-        ConstPtr;
+  if(!this->_internal_map_int32_foreign_message().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessage >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_map_int32_foreign_message().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_map_int32_foreign_message().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_map_int32_foreign_message().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_map_int32_foreign_message().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessage >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessage >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessage >::const_iterator
           it = this->_internal_map_int32_foreign_message().begin();
           it != this->_internal_map_int32_foreign_message().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -5140,7 +5020,7 @@ uint8_t* TestArenaMap::_InternalSerialize(
     }
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -5159,7 +5039,7 @@ size_t TestArenaMap::ByteSizeLong() const {
   // map<int32, int32> map_int32_int32 = 1;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_int32_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
       it = this->_internal_map_int32_int32().begin();
       it != this->_internal_map_int32_int32().end(); ++it) {
     total_size += TestArenaMap_MapInt32Int32Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5168,7 +5048,7 @@ size_t TestArenaMap::ByteSizeLong() const {
   // map<int64, int64> map_int64_int64 = 2;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int64_int64_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
       it = this->_internal_map_int64_int64().begin();
       it != this->_internal_map_int64_int64().end(); ++it) {
     total_size += TestArenaMap_MapInt64Int64Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5177,7 +5057,7 @@ size_t TestArenaMap::ByteSizeLong() const {
   // map<uint32, uint32> map_uint32_uint32 = 3;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_uint32_uint32_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator
       it = this->_internal_map_uint32_uint32().begin();
       it != this->_internal_map_uint32_uint32().end(); ++it) {
     total_size += TestArenaMap_MapUint32Uint32Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5186,7 +5066,7 @@ size_t TestArenaMap::ByteSizeLong() const {
   // map<uint64, uint64> map_uint64_uint64 = 4;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_uint64_uint64_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator
       it = this->_internal_map_uint64_uint64().begin();
       it != this->_internal_map_uint64_uint64().end(); ++it) {
     total_size += TestArenaMap_MapUint64Uint64Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5195,7 +5075,7 @@ size_t TestArenaMap::ByteSizeLong() const {
   // map<sint32, sint32> map_sint32_sint32 = 5;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_sint32_sint32_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
       it = this->_internal_map_sint32_sint32().begin();
       it != this->_internal_map_sint32_sint32().end(); ++it) {
     total_size += TestArenaMap_MapSint32Sint32Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5204,7 +5084,7 @@ size_t TestArenaMap::ByteSizeLong() const {
   // map<sint64, sint64> map_sint64_sint64 = 6;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_sint64_sint64_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
       it = this->_internal_map_sint64_sint64().begin();
       it != this->_internal_map_sint64_sint64().end(); ++it) {
     total_size += TestArenaMap_MapSint64Sint64Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5213,7 +5093,7 @@ size_t TestArenaMap::ByteSizeLong() const {
   // map<fixed32, fixed32> map_fixed32_fixed32 = 7;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_fixed32_fixed32_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator
       it = this->_internal_map_fixed32_fixed32().begin();
       it != this->_internal_map_fixed32_fixed32().end(); ++it) {
     total_size += TestArenaMap_MapFixed32Fixed32Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5222,7 +5102,7 @@ size_t TestArenaMap::ByteSizeLong() const {
   // map<fixed64, fixed64> map_fixed64_fixed64 = 8;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_fixed64_fixed64_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator
       it = this->_internal_map_fixed64_fixed64().begin();
       it != this->_internal_map_fixed64_fixed64().end(); ++it) {
     total_size += TestArenaMap_MapFixed64Fixed64Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5231,7 +5111,7 @@ size_t TestArenaMap::ByteSizeLong() const {
   // map<sfixed32, sfixed32> map_sfixed32_sfixed32 = 9;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_sfixed32_sfixed32_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
       it = this->_internal_map_sfixed32_sfixed32().begin();
       it != this->_internal_map_sfixed32_sfixed32().end(); ++it) {
     total_size += TestArenaMap_MapSfixed32Sfixed32Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5240,7 +5120,7 @@ size_t TestArenaMap::ByteSizeLong() const {
   // map<sfixed64, sfixed64> map_sfixed64_sfixed64 = 10;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_sfixed64_sfixed64_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
       it = this->_internal_map_sfixed64_sfixed64().begin();
       it != this->_internal_map_sfixed64_sfixed64().end(); ++it) {
     total_size += TestArenaMap_MapSfixed64Sfixed64Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5249,7 +5129,7 @@ size_t TestArenaMap::ByteSizeLong() const {
   // map<int32, float> map_int32_float = 11;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_float_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >::const_iterator
       it = this->_internal_map_int32_float().begin();
       it != this->_internal_map_int32_float().end(); ++it) {
     total_size += TestArenaMap_MapInt32FloatEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5258,7 +5138,7 @@ size_t TestArenaMap::ByteSizeLong() const {
   // map<int32, double> map_int32_double = 12;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_double_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >::const_iterator
       it = this->_internal_map_int32_double().begin();
       it != this->_internal_map_int32_double().end(); ++it) {
     total_size += TestArenaMap_MapInt32DoubleEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5267,7 +5147,7 @@ size_t TestArenaMap::ByteSizeLong() const {
   // map<bool, bool> map_bool_bool = 13;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_bool_bool_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< bool, bool >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< bool, bool >::const_iterator
       it = this->_internal_map_bool_bool().begin();
       it != this->_internal_map_bool_bool().end(); ++it) {
     total_size += TestArenaMap_MapBoolBoolEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5276,7 +5156,7 @@ size_t TestArenaMap::ByteSizeLong() const {
   // map<string, string> map_string_string = 14;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_string_string_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
       it = this->_internal_map_string_string().begin();
       it != this->_internal_map_string_string().end(); ++it) {
     total_size += TestArenaMap_MapStringStringEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5285,7 +5165,7 @@ size_t TestArenaMap::ByteSizeLong() const {
   // map<int32, bytes> map_int32_bytes = 15;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_bytes_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_iterator
       it = this->_internal_map_int32_bytes().begin();
       it != this->_internal_map_int32_bytes().end(); ++it) {
     total_size += TestArenaMap_MapInt32BytesEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5294,7 +5174,7 @@ size_t TestArenaMap::ByteSizeLong() const {
   // map<int32, .protobuf_unittest.MapEnum> map_int32_enum = 16;
   total_size += 2 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_enum_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnum >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnum >::const_iterator
       it = this->_internal_map_int32_enum().begin();
       it != this->_internal_map_int32_enum().end(); ++it) {
     total_size += TestArenaMap_MapInt32EnumEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5303,7 +5183,7 @@ size_t TestArenaMap::ByteSizeLong() const {
   // map<int32, .protobuf_unittest.ForeignMessage> map_int32_foreign_message = 17;
   total_size += 2 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_foreign_message_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessage >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessage >::const_iterator
       it = this->_internal_map_int32_foreign_message().begin();
       it != this->_internal_map_int32_foreign_message().end(); ++it) {
     total_size += TestArenaMap_MapInt32ForeignMessageEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5353,7 +5233,7 @@ void TestArenaMap::MergeFrom(const TestArenaMap& from) {
 
 void TestArenaMap::CopyFrom(const TestArenaMap& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest.TestArenaMap)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -5470,10 +5350,10 @@ const char* MessageContainingEnumCalledType::_InternalParse(const char* ptr, ::P
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // map<string, .protobuf_unittest.MessageContainingEnumCalledType> type = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -5488,7 +5368,7 @@ const char* MessageContainingEnumCalledType::_InternalParse(const char* ptr, ::P
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -5514,9 +5394,8 @@ uint8_t* MessageContainingEnumCalledType::_InternalSerialize(
   (void) cached_has_bits;
 
   // map<string, .protobuf_unittest.MessageContainingEnumCalledType> type = 1;
-  if (!this->_internal_type().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::MessageContainingEnumCalledType >::const_pointer
-        ConstPtr;
+  if(!this->_internal_type().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::MessageContainingEnumCalledType >::const_pointer ConstPtr;
     typedef ConstPtr SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
     struct Utf8Check {
@@ -5529,13 +5408,11 @@ uint8_t* MessageContainingEnumCalledType::_InternalSerialize(
       }
     };
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_type().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_type().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_type().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_type().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::MessageContainingEnumCalledType >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::MessageContainingEnumCalledType >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::MessageContainingEnumCalledType >::const_iterator
           it = this->_internal_type().begin();
           it != this->_internal_type().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -5555,7 +5432,7 @@ uint8_t* MessageContainingEnumCalledType::_InternalSerialize(
     }
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -5574,7 +5451,7 @@ size_t MessageContainingEnumCalledType::ByteSizeLong() const {
   // map<string, .protobuf_unittest.MessageContainingEnumCalledType> type = 1;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_type_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::MessageContainingEnumCalledType >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::MessageContainingEnumCalledType >::const_iterator
       it = this->_internal_type().begin();
       it != this->_internal_type().end(); ++it) {
     total_size += MessageContainingEnumCalledType_TypeEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5608,7 +5485,7 @@ void MessageContainingEnumCalledType::MergeFrom(const MessageContainingEnumCalle
 
 void MessageContainingEnumCalledType::CopyFrom(const MessageContainingEnumCalledType& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest.MessageContainingEnumCalledType)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -5709,10 +5586,10 @@ const char* MessageContainingMapCalledEntry::_InternalParse(const char* ptr, ::P
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // map<int32, int32> entry = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -5727,7 +5604,7 @@ const char* MessageContainingMapCalledEntry::_InternalParse(const char* ptr, ::P
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -5753,19 +5630,16 @@ uint8_t* MessageContainingMapCalledEntry::_InternalSerialize(
   (void) cached_has_bits;
 
   // map<int32, int32> entry = 1;
-  if (!this->_internal_entry().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_pointer
-        ConstPtr;
+  if(!this->_internal_entry().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_entry().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_entry().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_entry().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_entry().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
           it = this->_internal_entry().begin();
           it != this->_internal_entry().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -5783,7 +5657,7 @@ uint8_t* MessageContainingMapCalledEntry::_InternalSerialize(
     }
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -5802,7 +5676,7 @@ size_t MessageContainingMapCalledEntry::ByteSizeLong() const {
   // map<int32, int32> entry = 1;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_entry_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
       it = this->_internal_entry().begin();
       it != this->_internal_entry().end(); ++it) {
     total_size += MessageContainingMapCalledEntry_EntryEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5836,7 +5710,7 @@ void MessageContainingMapCalledEntry::MergeFrom(const MessageContainingMapCalled
 
 void MessageContainingMapCalledEntry::CopyFrom(const MessageContainingMapCalledEntry& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest.MessageContainingMapCalledEntry)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -5937,10 +5811,10 @@ const char* TestRecursiveMapMessage::_InternalParse(const char* ptr, ::PROTOBUF_
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // map<string, .protobuf_unittest.TestRecursiveMapMessage> a = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -5955,7 +5829,7 @@ const char* TestRecursiveMapMessage::_InternalParse(const char* ptr, ::PROTOBUF_
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -5981,9 +5855,8 @@ uint8_t* TestRecursiveMapMessage::_InternalSerialize(
   (void) cached_has_bits;
 
   // map<string, .protobuf_unittest.TestRecursiveMapMessage> a = 1;
-  if (!this->_internal_a().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::TestRecursiveMapMessage >::const_pointer
-        ConstPtr;
+  if(!this->_internal_a().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::TestRecursiveMapMessage >::const_pointer ConstPtr;
     typedef ConstPtr SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
     struct Utf8Check {
@@ -5996,13 +5869,11 @@ uint8_t* TestRecursiveMapMessage::_InternalSerialize(
       }
     };
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_a().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_a().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_a().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_a().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::TestRecursiveMapMessage >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::TestRecursiveMapMessage >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::TestRecursiveMapMessage >::const_iterator
           it = this->_internal_a().begin();
           it != this->_internal_a().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -6022,7 +5893,7 @@ uint8_t* TestRecursiveMapMessage::_InternalSerialize(
     }
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -6041,7 +5912,7 @@ size_t TestRecursiveMapMessage::ByteSizeLong() const {
   // map<string, .protobuf_unittest.TestRecursiveMapMessage> a = 1;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_a_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::TestRecursiveMapMessage >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::protobuf_unittest::TestRecursiveMapMessage >::const_iterator
       it = this->_internal_a().begin();
       it != this->_internal_a().end(); ++it) {
     total_size += TestRecursiveMapMessage_AEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -6075,7 +5946,7 @@ void TestRecursiveMapMessage::MergeFrom(const TestRecursiveMapMessage& from) {
 
 void TestRecursiveMapMessage::CopyFrom(const TestRecursiveMapMessage& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest.TestRecursiveMapMessage)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }

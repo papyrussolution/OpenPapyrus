@@ -1321,7 +1321,7 @@ static UMutex gCurrencyCacheMutex;
 // Cache deletion
 static void deleteCurrencyNames(CurrencyNameStruct* currencyNames, int32_t count) {
 	for(int32_t index = 0; index < count; ++index) {
-		if((currencyNames[index].flag & NEED_TO_BE_DELETED) ) {
+		if((currencyNames[index].flag & NEED_TO_BE_DELETED)) {
 			uprv_free(currencyNames[index].currencyName);
 		}
 	}

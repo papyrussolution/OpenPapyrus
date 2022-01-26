@@ -245,7 +245,7 @@ static void ColouriseTALDoc(Sci_PositionU startPos, Sci_Position length, int ini
 				}
 			}
 			else if(state == SCE_C_COMMENT) {
-				if(ch == '!' || (ch == '\r' || ch == '\n') ) {
+				if(ch == '!' || (ch == '\r' || ch == '\n')) {
 					ColourTo(styler, i, state, bInAsm);
 					state = SCE_C_DEFAULT;
 				}

@@ -739,13 +739,13 @@ char * getpass(const char * prompt)
 	char * p;
 	int c;
 	static char pbuf[PASSWORD_MAX];
-	fprintf(stderr, "%s", prompt); (void)fflush(stderr);
+	slfprintf_stderr("%s", prompt); (void)fflush(stderr);
 	for(p = pbuf; (c = _getch())!=13 && c!=EOF;) {
 		if(p < &pbuf[sizeof(pbuf)-1])
 			*p++ = (char)c;
 	}
 	*p = '\0';
-	fprintf(stderr, "\n"); (void)fflush(stderr);
+	slfprintf_stderr("\n"); (void)fflush(stderr);
 	return(pbuf);
 }
 #endif /* WIN32 */

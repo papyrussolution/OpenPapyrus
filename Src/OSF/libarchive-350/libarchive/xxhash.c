@@ -82,7 +82,7 @@ static unsigned int       XXH32_intermediateDigest(void *);
 #if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L   /* C99 */
 # include <stdint.h>
 typedef uint8 BYTE;
-typedef uint16_t U16;
+typedef uint16 U16;
 typedef uint32 U32;
 typedef  int32_t S32;
 typedef uint64 U64;

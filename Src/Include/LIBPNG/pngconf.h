@@ -52,7 +52,7 @@
  * PNG_NO_CONST; this is no longer supported except for data declarations which
  * apparently still cause problems in 2011 on some compilers.
  */
-#define PNG_CONST const /* backward compatibility only */
+// #define PNG_CONST_Removed const /* backward compatibility only */
 
 /* This controls optimization of the reading of 16-bit and 32-bit values
  * from PNG files.  It can be set on a per-app-file basis - it

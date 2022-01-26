@@ -174,7 +174,7 @@ private:
 };
 } // anonymous namespace
 
-///////////////////////////////////////////////////////////////////////////////
+//
 
 class FileDialogEventHandler : public IFileDialogEvents, public IFileDialogControlEvents {
 public:
@@ -562,7 +562,7 @@ private:
 	bool _monitorKeyboard = true;
 };
 
-///////////////////////////////////////////////////////////////////////////////
+//
 
 // Private implementation to avoid pollution with includes and defines in header.
 class CustomFileDialog::Impl {
@@ -775,7 +775,7 @@ private:
 	com_ptr<FileDialogEventHandler, IFileDialogEvents> _events;
 };
 
-///////////////////////////////////////////////////////////////////////////////
+//
 
 CustomFileDialog::CustomFileDialog(HWND hwnd) : _impl{std::make_unique<Impl>()}
 {

@@ -222,7 +222,7 @@ static double * cp_binomial(int points)
 {
 	int k;
 	int e = points; /* well we're going from k=0 to k=p_count-1 */
-	double * coeff = (double*)SAlloc::M(e * sizeof(double));
+	double * coeff = (double *)SAlloc::M(e * sizeof(double));
 	int n = points - 1;
 	e = n / 2;
 	// HBB 990205: calculate these in 'logarithmic space', as they become _very_ large, with growing n (4^n) 

@@ -319,7 +319,7 @@ typedef struct {
 	uint8 * subsampling_convert_cbbuf;
 	uint8 * subsampling_convert_crbuf;
 	uint32 subsampling_convert_ycbcrimagelen;
-	uint8** subsampling_convert_ycbcrimage;
+	uint8 ** subsampling_convert_ycbcrimage;
 	uint32 subsampling_convert_clinelenout;
 	uint32 subsampling_convert_state;
 	uint32 bytes_per_line; /* if the codec outputs subsampled data, a 'line' in bytes_per_line */
@@ -1106,7 +1106,7 @@ static int OJPEGWriteHeaderInfo(TIFF* tif)
 {
 	static const char module[] = __FUNCTION__;
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
-	uint8** m;
+	uint8 ** m;
 	uint32 n;
 	/* if a previous attempt failed, don't try again */
 	if(sp->libjpeg_session_active != 0)

@@ -33,30 +33,30 @@
 /**
  * LUP decomposition
  */
-static OPJ_BOOL opj_lupDecompose(OPJ_FLOAT32 * matrix,
+static boolint opj_lupDecompose(float * matrix,
     OPJ_UINT32 * permutations,
-    OPJ_FLOAT32 * p_swap_area,
+    float * p_swap_area,
     OPJ_UINT32 nb_compo);
 /**
  * LUP solving
  */
-static void opj_lupSolve(OPJ_FLOAT32 * pResult,
-    OPJ_FLOAT32* pMatrix,
-    OPJ_FLOAT32* pVector,
+static void opj_lupSolve(float * pResult,
+    float* pMatrix,
+    float* pVector,
     OPJ_UINT32* pPermutations,
     OPJ_UINT32 nb_compo,
-    OPJ_FLOAT32 * p_intermediate_data);
+    float * p_intermediate_data);
 
 /**
  * LUP inversion (call with the result of lupDecompose)
  */
-static void opj_lupInvert(OPJ_FLOAT32 * pSrcMatrix,
-    OPJ_FLOAT32 * pDestMatrix,
+static void opj_lupInvert(float * pSrcMatrix,
+    float * pDestMatrix,
     OPJ_UINT32 nb_compo,
     OPJ_UINT32 * pPermutations,
-    OPJ_FLOAT32 * p_src_temp,
-    OPJ_FLOAT32 * p_dest_temp,
-    OPJ_FLOAT32 * p_swap_area);
+    float * p_src_temp,
+    float * p_dest_temp,
+    float * p_swap_area);
 
 /*
    ==========================================================
@@ -66,28 +66,27 @@ static void opj_lupInvert(OPJ_FLOAT32 * pSrcMatrix,
 /**
  * Matrix inversion.
  */
-OPJ_BOOL opj_matrix_inversion_f(OPJ_FLOAT32 * pSrcMatrix, OPJ_FLOAT32 * pDestMatrix, OPJ_UINT32 nb_compo)
+boolint opj_matrix_inversion_f(float * pSrcMatrix, float * pDestMatrix, OPJ_UINT32 nb_compo)
 {
-	OPJ_BYTE * l_data = 00;
 	OPJ_UINT32 l_permutation_size = nb_compo * (OPJ_UINT32)sizeof(OPJ_UINT32);
-	OPJ_UINT32 l_swap_size = nb_compo * (OPJ_UINT32)sizeof(OPJ_FLOAT32);
+	OPJ_UINT32 l_swap_size = nb_compo * (OPJ_UINT32)sizeof(float);
 	OPJ_UINT32 l_total_size = l_permutation_size + 3 * l_swap_size;
 	OPJ_UINT32 * lPermutations = 00;
-	OPJ_FLOAT32 * l_double_data = 00;
-	l_data = (OPJ_BYTE*)SAlloc::M(l_total_size);
+	float * l_double_data = 00;
+	uint8 * l_data = (uint8 *)SAlloc::M(l_total_size);
 	if(l_data == 0) {
-		return OPJ_FALSE;
+		return FALSE;
 	}
 	lPermutations = (OPJ_UINT32*)l_data;
-	l_double_data = (OPJ_FLOAT32*)(l_data + l_permutation_size);
+	l_double_data = (float *)(l_data + l_permutation_size);
 	memzero(lPermutations, l_permutation_size);
 	if(!opj_lupDecompose(pSrcMatrix, lPermutations, l_double_data, nb_compo)) {
 		SAlloc::F(l_data);
-		return OPJ_FALSE;
+		return FALSE;
 	}
 	opj_lupInvert(pSrcMatrix, pDestMatrix, nb_compo, lPermutations, l_double_data, l_double_data + nb_compo, l_double_data + 2 * nb_compo);
 	SAlloc::F(l_data);
-	return OPJ_TRUE;
+	return TRUE;
 }
 
 /*
@@ -95,21 +94,21 @@ OPJ_BOOL opj_matrix_inversion_f(OPJ_FLOAT32 * pSrcMatrix, OPJ_FLOAT32 * pDestMat
    Local functions
    ==========================================================
  */
-static OPJ_BOOL opj_lupDecompose(OPJ_FLOAT32 * matrix,
+static boolint opj_lupDecompose(float * matrix,
     OPJ_UINT32 * permutations,
-    OPJ_FLOAT32 * p_swap_area,
+    float * p_swap_area,
     OPJ_UINT32 nb_compo)
 {
 	OPJ_UINT32 * tmpPermutations = permutations;
 	OPJ_UINT32 * dstPermutations;
 	OPJ_UINT32 k2 = 0, t;
-	OPJ_FLOAT32 temp;
+	float temp;
 	OPJ_UINT32 i, j, k;
-	OPJ_FLOAT32 p;
+	float p;
 	OPJ_UINT32 lLastColum = nb_compo - 1;
-	OPJ_UINT32 lSwapSize = nb_compo * (OPJ_UINT32)sizeof(OPJ_FLOAT32);
-	OPJ_FLOAT32 * lTmpMatrix = matrix;
-	OPJ_FLOAT32 * lColumnMatrix, * lDestMatrix;
+	OPJ_UINT32 lSwapSize = nb_compo * (OPJ_UINT32)sizeof(float);
+	float * lTmpMatrix = matrix;
+	float * lColumnMatrix, * lDestMatrix;
 	OPJ_UINT32 offset = 1;
 	OPJ_UINT32 lStride = nb_compo - 1;
 
@@ -138,7 +137,7 @@ static OPJ_BOOL opj_lupDecompose(OPJ_FLOAT32 * matrix,
 
 		/* a whole rest of 0 -> non singular */
 		if(p == 0.0) {
-			return OPJ_FALSE;
+			return FALSE;
 		}
 
 		/* should we permute ? */
@@ -193,27 +192,27 @@ static OPJ_BOOL opj_lupDecompose(OPJ_FLOAT32 * matrix,
 		/* next permutation element */
 		++tmpPermutations;
 	}
-	return OPJ_TRUE;
+	return TRUE;
 }
 
-static void opj_lupSolve(OPJ_FLOAT32 * pResult,
-    OPJ_FLOAT32 * pMatrix,
-    OPJ_FLOAT32 * pVector,
+static void opj_lupSolve(float * pResult,
+    float * pMatrix,
+    float * pVector,
     OPJ_UINT32* pPermutations,
-    OPJ_UINT32 nb_compo, OPJ_FLOAT32 * p_intermediate_data)
+    OPJ_UINT32 nb_compo, float * p_intermediate_data)
 {
 	OPJ_INT32 k;
 	OPJ_UINT32 i, j;
-	OPJ_FLOAT32 sum;
-	OPJ_FLOAT32 u;
+	float sum;
+	float u;
 	OPJ_UINT32 lStride = nb_compo + 1;
-	OPJ_FLOAT32 * lCurrentPtr;
-	OPJ_FLOAT32 * lIntermediatePtr;
-	OPJ_FLOAT32 * lDestPtr;
-	OPJ_FLOAT32 * lTmpMatrix;
-	OPJ_FLOAT32 * lLineMatrix = pMatrix;
-	OPJ_FLOAT32 * lBeginPtr = pResult + nb_compo - 1;
-	OPJ_FLOAT32 * lGeneratedData;
+	float * lCurrentPtr;
+	float * lIntermediatePtr;
+	float * lDestPtr;
+	float * lTmpMatrix;
+	float * lLineMatrix = pMatrix;
+	float * lBeginPtr = pResult + nb_compo - 1;
+	float * lGeneratedData;
 	OPJ_UINT32 * lCurrentPermutationPtr = pPermutations;
 
 	lIntermediatePtr = p_intermediate_data;
@@ -254,18 +253,18 @@ static void opj_lupSolve(OPJ_FLOAT32 * pResult,
 	}
 }
 
-static void opj_lupInvert(OPJ_FLOAT32 * pSrcMatrix,
-    OPJ_FLOAT32 * pDestMatrix,
+static void opj_lupInvert(float * pSrcMatrix,
+    float * pDestMatrix,
     OPJ_UINT32 nb_compo,
     OPJ_UINT32 * pPermutations,
-    OPJ_FLOAT32 * p_src_temp,
-    OPJ_FLOAT32 * p_dest_temp,
-    OPJ_FLOAT32 * p_swap_area)
+    float * p_src_temp,
+    float * p_dest_temp,
+    float * p_swap_area)
 {
 	OPJ_UINT32 j, i;
-	OPJ_FLOAT32 * lCurrentPtr;
-	OPJ_FLOAT32 * lLineMatrix = pDestMatrix;
-	OPJ_UINT32 lSwapSize = nb_compo * (OPJ_UINT32)sizeof(OPJ_FLOAT32);
+	float * lCurrentPtr;
+	float * lLineMatrix = pDestMatrix;
+	OPJ_UINT32 lSwapSize = nb_compo * (OPJ_UINT32)sizeof(float);
 	for(j = 0; j < nb_compo; ++j) {
 		lCurrentPtr = lLineMatrix++;
 		memzero(p_src_temp, lSwapSize);

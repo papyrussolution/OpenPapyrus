@@ -1606,7 +1606,7 @@ void GnuPlot::ShowPalette_Fit2RgbFormulae()
 	for(i = 1; i <= maxFormula; i++)
 		formulaeSeq[maxFormula+i] = -i;
 	// allocate and fill all +-formulae on the interval of given number of points 
-	formulae = (double **)SAlloc::M((2*maxFormula+1) * sizeof(double*));
+	formulae = (double **)SAlloc::M((2*maxFormula+1) * sizeof(double *));
 	for(i = 0; i < 2*maxFormula+1; i++) {
 		formulae[i] = (double *)SAlloc::M(pts * sizeof(double));
 		for(p = 0; p < pts; p++) {

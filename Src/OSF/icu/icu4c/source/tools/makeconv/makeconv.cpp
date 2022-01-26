@@ -122,7 +122,7 @@ static void writeConverterData(ConvData * data, const char * cnvName, const char
 	mem = udata_create(cnvDir, "cnv", cnvName, &dataInfo, haveCopyright ? U_COPYRIGHT_STRING : NULL, status);
 
 	if(U_FAILURE(*status)) {
-		fprintf(stderr, "Couldn't create the udata %s.%s: %s\n",
+		slfprintf_stderr("Couldn't create the udata %s.%s: %s\n",
 		    cnvName,
 		    "cnv",
 		    u_errorName(*status));
@@ -146,7 +146,7 @@ static void writeConverterData(ConvData * data, const char * cnvName, const char
 
 	sz2 = udata_finish(mem, status);
 	if(size != sz2) {
-		fprintf(stderr, "error: wrote %u bytes to the .cnv file but counted %u bytes\n", (int)sz2, (int)size);
+		slfprintf_stderr("error: wrote %u bytes to the .cnv file but counted %u bytes\n", (int)sz2, (int)size);
 		*status = U_INTERNAL_PROGRAM_ERROR;
 	}
 	if(VERBOSE) {
@@ -306,7 +306,7 @@ int main(int argc, char * argv[])
 
 		/* the basename without extension is the converter name */
 		if((outFileName.length() - outBasenameStart) >= UPRV_LENGTHOF(cnvName)) {
-			fprintf(stderr, "converter name %s too long\n", outFileName.data() + outBasenameStart);
+			slfprintf_stderr("converter name %s too long\n", outFileName.data() + outBasenameStart);
 			return U_BUFFER_OVERFLOW_ERROR;
 		}
 		uprv_strcpy(cnvName, outFileName.data() + outBasenameStart);
@@ -326,7 +326,7 @@ int main(int argc, char * argv[])
 
 		if(U_FAILURE(localError)) {
 			/* if an error is found, print out an error msg and keep going */
-			fprintf(stderr, "Error creating converter for \"%s\" file for \"%s\" (%s)\n",
+			slfprintf_stderr("Error creating converter for \"%s\" file for \"%s\" (%s)\n",
 			    outFileName.data(), arg, u_errorName(localError));
 			if(U_SUCCESS(err)) {
 				err = localError;
@@ -349,7 +349,7 @@ int main(int argc, char * argv[])
 				p++; /* If found separator, don't include it in compare */
 			}
 			if(uprv_stricmp(p, data.staticData.name) && !QUIET) {
-				fprintf(stderr, "Warning: %s%s claims to be '%s'\n",
+				slfprintf_stderr("Warning: %s%s claims to be '%s'\n",
 				    cnvName,  CONVERTER_FILE_EXTENSION,
 				    data.staticData.name);
 			}
@@ -371,7 +371,7 @@ int main(int argc, char * argv[])
 
 			if(U_FAILURE(localError)) {
 				/* if an error is found, print out an error msg and keep going*/
-				fprintf(stderr, "Error writing \"%s\" file for \"%s\" (%s)\n", outFileName.data(), arg,
+				slfprintf_stderr("Error writing \"%s\" file for \"%s\" (%s)\n", outFileName.data(), arg,
 				    u_errorName(localError));
 				if(U_SUCCESS(err)) {
 					err = localError;
@@ -453,7 +453,7 @@ static void readHeader(ConvData * data,
 				uprv_memcpy(staticData->subChar, bytes, length);
 			}
 			else {
-				fprintf(stderr, "error: illegal <subchar> %s\n", value);
+				slfprintf_stderr("error: illegal <subchar> %s\n", value);
 				*pErrorCode = U_INVALID_TABLE_FORMAT;
 				return;
 			}
@@ -466,7 +466,7 @@ static void readHeader(ConvData * data,
 				staticData->subChar1 = bytes[0];
 			}
 			else {
-				fprintf(stderr, "error: illegal <subchar1> %s\n", value);
+				slfprintf_stderr("error: illegal <subchar1> %s\n", value);
 				*pErrorCode = U_INVALID_TABLE_FORMAT;
 				return;
 			}
@@ -479,7 +479,7 @@ static void readHeader(ConvData * data,
 	staticData->conversionType = data->ucm->states.conversionType;
 
 	if(staticData->conversionType==UCNV_UNSUPPORTED_CONVERTER) {
-		fprintf(stderr, "ucm error: missing conversion type (<uconv_class>)\n");
+		slfprintf_stderr("ucm error: missing conversion type (<uconv_class>)\n");
 		*pErrorCode = U_INVALID_TABLE_FORMAT;
 		return;
 	}
@@ -533,7 +533,7 @@ static void readHeader(ConvData * data,
 	    (staticData->conversionType!=UCNV_MBCS &&
 	    staticData->conversionType!=UCNV_EBCDIC_STATEFUL))
 	    ) {
-		fprintf(stderr, "error: <subchar1> defined for a type other than MBCS or EBCDIC_STATEFUL\n");
+		slfprintf_stderr("error: <subchar1> defined for a type other than MBCS or EBCDIC_STATEFUL\n");
 		*pErrorCode = U_INVALID_TABLE_FORMAT;
 	}
 }
@@ -599,7 +599,7 @@ static bool readFile(ConvData * data, const char * converterName,
 			ucm_readTable(data->ucm, convFile, FALSE, baseStates, pErrorCode);
 		}
 		else {
-			fprintf(stderr, "unexpected text after the base mapping table\n");
+			slfprintf_stderr("unexpected text after the base mapping table\n");
 		}
 		break;
 	}
@@ -607,7 +607,7 @@ static bool readFile(ConvData * data, const char * converterName,
 	T_FileStream_close(convFile);
 
 	if(data->ucm->base->flagsType==UCM_FLAGS_MIXED || data->ucm->ext->flagsType==UCM_FLAGS_MIXED) {
-		fprintf(stderr, "error: some entries have the mapping precision (with '|'), some do not\n");
+		slfprintf_stderr("error: some entries have the mapping precision (with '|'), some do not\n");
 		*pErrorCode = U_INVALID_TABLE_FORMAT;
 	}
 
@@ -643,11 +643,11 @@ static void createConverter(ConvData * data, const char * converterName, UErrorC
 			*pErrorCode = U_MEMORY_ALLOCATION_ERROR;
 		}
 		else if(!data->cnvData->isValid(data->cnvData, staticData->subChar, staticData->subCharLen)) {
-			fprintf(stderr, "       the substitution character byte sequence is illegal in this codepage structure!\n");
+			slfprintf_stderr("       the substitution character byte sequence is illegal in this codepage structure!\n");
 			*pErrorCode = U_INVALID_TABLE_FORMAT;
 		}
 		else if(staticData->subChar1!=0 && !data->cnvData->isValid(data->cnvData, &staticData->subChar1, 1)) {
-			fprintf(stderr, "       the subchar1 byte is illegal in this codepage structure!\n");
+			slfprintf_stderr("       the subchar1 byte is illegal in this codepage structure!\n");
 			*pErrorCode = U_INVALID_TABLE_FORMAT;
 		}
 		else if(data->ucm->ext->mappingsLength>0 && !ucm_checkBaseExt(states, data->ucm->base, data->ucm->ext, data->ucm->ext, false)) {
@@ -711,7 +711,7 @@ static void createConverter(ConvData * data, const char * converterName, UErrorC
 			return;
 		}
 		else if(!dataIsBase) {
-			fprintf(stderr, "error: the <icu:base> file \"%s\" is not a base table file\n", baseFilename);
+			slfprintf_stderr("error: the <icu:base> file \"%s\" is not a base table file\n", baseFilename);
 			*pErrorCode = U_INVALID_TABLE_FORMAT;
 		}
 		else {
@@ -766,11 +766,11 @@ static void createConverter(ConvData * data, const char * converterName, UErrorC
 					staticData->hasToUnicodeFallback = TRUE;
 				}
 				if(1!=ucm_countChars(baseStates, staticData->subChar, staticData->subCharLen)) {
-					fprintf(stderr, "       the substitution character byte sequence is illegal in this codepage structure!\n");
+					slfprintf_stderr("       the substitution character byte sequence is illegal in this codepage structure!\n");
 					*pErrorCode = U_INVALID_TABLE_FORMAT;
 				}
 				else if(staticData->subChar1!=0 && 1!=ucm_countChars(baseStates, &staticData->subChar1, 1)) {
-					fprintf(stderr, "       the subchar1 byte is illegal in this codepage structure!\n");
+					slfprintf_stderr("       the subchar1 byte is illegal in this codepage structure!\n");
 					*pErrorCode = U_INVALID_TABLE_FORMAT;
 				}
 				else if(!ucm_checkValidity(data->ucm->ext, baseStates) || !ucm_checkBaseExt(baseStates, baseData.ucm->base, data->ucm->ext, data->ucm->ext, false)) {

@@ -123,12 +123,12 @@ Arg::Arg(Hex hex) {
 	else {
 		beg = writer;
 	}
-
 	piece_ = absl::string_view(beg, end - beg);
 }
 
 // TODO(jorg): Don't duplicate so much code between here and str_cat.cc
-Arg::Arg(Dec dec) {
+Arg::Arg(Dec dec) 
+{
 	assert(dec.width <= numbers_internal::kFastToBufferSize);
 	char* const end = &scratch_[numbers_internal::kFastToBufferSize];
 	char* const minfill = end - dec.width;
@@ -139,7 +139,7 @@ Arg::Arg(Dec dec) {
 		*--writer = '0' + (value % 10);
 		value /= 10;
 	}
-	*--writer = '0' + value;
+	*--writer = static_cast<char>('0' + value);
 	if(neg) *--writer = '-';
 
 	ptrdiff_t fillers = writer - minfill;

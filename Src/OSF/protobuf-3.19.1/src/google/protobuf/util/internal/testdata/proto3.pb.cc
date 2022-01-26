@@ -159,10 +159,10 @@ const char* Proto3Message::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // .proto_util_converter.testing.Proto3Message.NestedEnum enum_value = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
           uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
           _internal_set_enum_value(static_cast<::proto_util_converter::testing::Proto3Message_NestedEnum>(val));
@@ -173,7 +173,7 @@ const char* Proto3Message::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -199,12 +199,12 @@ uint8_t* Proto3Message::_InternalSerialize(
   (void) cached_has_bits;
 
   // .proto_util_converter.testing.Proto3Message.NestedEnum enum_value = 1;
-  if (this->_internal_enum_value() != 0) {
+  if(this->_internal_enum_value() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(1, this->_internal_enum_value(), target);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -221,7 +221,7 @@ size_t Proto3Message::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // .proto_util_converter.testing.Proto3Message.NestedEnum enum_value = 1;
-  if (this->_internal_enum_value() != 0) {
+  if(this->_internal_enum_value() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_enum_value());
   }
@@ -248,7 +248,7 @@ void Proto3Message::MergeFrom(const Proto3Message& from) {
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_enum_value() != 0) {
+  if(from._internal_enum_value() != 0) {
     _internal_set_enum_value(from._internal_enum_value());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -256,7 +256,7 @@ void Proto3Message::MergeFrom(const Proto3Message& from) {
 
 void Proto3Message::CopyFrom(const Proto3Message& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:proto_util_converter.testing.Proto3Message)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }

@@ -472,7 +472,7 @@ extern const uchar * TIFFGetBitRevTable(int);
 #define UVSCALE		410.
 extern double LogL16toY(int);
 extern double LogL10toY(int);
-extern void XYZtoRGB24(float*, uint8*);
+extern void XYZtoRGB24(float*, uint8 *);
 extern int uv_decode(double*, double*, int);
 extern void LogLuv24toXYZ(uint32, float*);
 extern void LogLuv32toXYZ(uint32, float*);

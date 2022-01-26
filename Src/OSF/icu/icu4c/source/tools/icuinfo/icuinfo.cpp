@@ -75,7 +75,7 @@ void cmd_version(bool /* noLoad */, UErrorCode &errorCode)
 		//printf("U_IS_BIG_ENDIAN: %d\n", U_IS_BIG_ENDIAN);
 	}
 	else {
-		fprintf(stderr, "  error: U_IS_BIG_ENDIAN=%d != %d=actual 'is big endian'\n",
+		slfprintf_stderr("  error: U_IS_BIG_ENDIAN=%d != %d=actual 'is big endian'\n",
 		    U_IS_BIG_ENDIAN, u.byte);
 		errorCode = U_INTERNAL_PROGRAM_ERROR;
 	}
@@ -90,7 +90,7 @@ void cmd_version(bool /* noLoad */, UErrorCode &errorCode)
 		//printf("U_SIZEOF_WCHAR_T: %d\n", U_SIZEOF_WCHAR_T);
 	}
 	else {
-		fprintf(stderr, "  error: U_SIZEOF_WCHAR_T=%d != %d=sizeof(wchar_t)\n",
+		slfprintf_stderr("  error: U_SIZEOF_WCHAR_T=%d != %d=sizeof(wchar_t)\n",
 		    U_SIZEOF_WCHAR_T, (int)sizeof(wchar_t));
 		errorCode = U_INTERNAL_PROGRAM_ERROR;
 	}
@@ -109,7 +109,7 @@ void cmd_version(bool /* noLoad */, UErrorCode &errorCode)
 		//printf("U_CHARSET_FAMILY: %d\n", U_CHARSET_FAMILY);
 	}
 	else {
-		fprintf(stderr, "  error: U_CHARSET_FAMILY=%d != %d=actual charset family\n",
+		slfprintf_stderr("  error: U_CHARSET_FAMILY=%d != %d=actual charset family\n",
 		    U_CHARSET_FAMILY, charsetFamily);
 		errorCode = U_INTERNAL_PROGRAM_ERROR;
 	}
@@ -125,10 +125,10 @@ void cmd_version(bool /* noLoad */, UErrorCode &errorCode)
 	const char * pluginFile = uplug_getPluginFile();
 	printf("Plugin file is: %s\n", (pluginFile&&*pluginFile) ? pluginFile : "(not set. try setting ICU_PLUGINS to a directory.)");
 #else
-	fprintf(stderr, "Dynamic Loading: is disabled. No plugins will be loaded at start-up.\n");
+	slfprintf_stderr("Dynamic Loading: is disabled. No plugins will be loaded at start-up.\n");
 #endif
 #else
-	fprintf(stderr, "Plugins are disabled.\n");
+	slfprintf_stderr("Plugins are disabled.\n");
 #endif
 }
 
@@ -234,8 +234,8 @@ extern int main(int argc, char * argv[]) {
 		    argv[-argc]);
 	}
 	if(options[0].doesOccur || options[1].doesOccur) {
-		fprintf(stderr, "%s: Output information about the current ICU\n", argv[0]);
-		fprintf(stderr, "Options:\n"
+		slfprintf_stderr("%s: Output information about the current ICU\n", argv[0]);
+		slfprintf_stderr("Options:\n"
 		    " -h     or  --help                 - Print this help message.\n"
 		    " -m     or  --millisecond-time     - Print the current UTC time in milliseconds.\n"
 		    " -d <dir>   or  --icudatadir <dir> - Set the ICU Data Directory\n"
@@ -247,7 +247,7 @@ extern int main(int argc, char * argv[]) {
 		    "\n"
 		    "If no arguments are given, the tool will print ICU version and configuration information.\n"
 		    );
-		fprintf(stderr, "International Components for Unicode %s\n%s\n", U_ICU_VERSION, U_COPYRIGHT_STRING);
+		slfprintf_stderr("International Components for Unicode %s\n%s\n", U_ICU_VERSION, U_COPYRIGHT_STRING);
 		return argc<0 ? U_ILLEGAL_ARGUMENT_ERROR : U_ZERO_ERROR;
 	}
 
@@ -270,7 +270,7 @@ extern int main(int argc, char * argv[]) {
 	if(options[7].doesOccur) { /* 2nd part of version: cleanup */
 		FILE * out = fopen(options[7].value, "w");
 		if(out==NULL) {
-			fprintf(stderr, "ERR: can't write to XML file %s\n", options[7].value);
+			slfprintf_stderr("ERR: can't write to XML file %s\n", options[7].value);
 			return 1;
 		}
 		/* todo: API for writing DTD? */

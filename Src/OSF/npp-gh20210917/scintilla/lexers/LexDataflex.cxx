@@ -150,14 +150,14 @@ static void ClassifyDataFlexWord(WordList * keywordlists[], StyleContext &sc, Ac
 	}
 	if(oldState != newState && newState == SCE_DF_WORD) {
 		// a for loop must have for at the start of the line, for is also used in "define abc for 123"
-		if((strcmp(s, "for") == 0) && (IsFirstDataFlexWord(sc.currentPos-3, styler)) ) {
+		if((strcmp(s, "for") == 0) && (IsFirstDataFlexWord(sc.currentPos-3, styler))) {
 			newState = SCE_DF_SCOPEWORD;
 		}
 	}
 	if(oldState != newState && newState == SCE_DF_WORD) {
 		// a repeat loop must have repeat at the start of the line, repeat is also used in 'move (repeat("d",5))
 		// to sFoo'
-		if((strcmp(s, "repeat") == 0) && (IsFirstDataFlexWord(sc.currentPos-6, styler)) ) {
+		if((strcmp(s, "repeat") == 0) && (IsFirstDataFlexWord(sc.currentPos-6, styler))) {
 			newState = SCE_DF_SCOPEWORD;
 		}
 	}
@@ -213,7 +213,7 @@ static void ColouriseDataFlexDoc(Sci_PositionU startPos, Sci_Position length, in
 			    }
 			    break;
 			case SCE_DF_HEXNUMBER:
-			    if(!(setHexNumber.Contains(sc.ch) || sc.ch == 'I') ) {      // in |CI$22a we also want to
+			    if(!(setHexNumber.Contains(sc.ch) || sc.ch == 'I')) {      // in |CI$22a we also want to
 				                                                        // color the "I"
 				    sc.SetState(SCE_DF_DEFAULT);
 			    }
@@ -257,11 +257,11 @@ static void ColouriseDataFlexDoc(Sci_PositionU startPos, Sci_Position length, in
 				    sc.Forward();
 			    }
 			    else if(sc.ch == '\'' || sc.ch == '\"') {
-				    if(sc.ch == '\'' && (curLineState & stateSingleQuoteOpen) ) {
+				    if(sc.ch == '\'' && (curLineState & stateSingleQuoteOpen)) {
 					    curLineState &= ~(stateSingleQuoteOpen);
 					    sc.ForwardSetState(SCE_DF_DEFAULT);
 				    }
-				    else if(sc.ch == '\"' && (curLineState & stateDoubleQuoteOpen) ) {
+				    else if(sc.ch == '\"' && (curLineState & stateDoubleQuoteOpen)) {
 					    curLineState &= ~(stateDoubleQuoteOpen);
 					    sc.ForwardSetState(SCE_DF_DEFAULT);
 				    }
@@ -301,9 +301,9 @@ static void ColouriseDataFlexDoc(Sci_PositionU startPos, Sci_Position length, in
 			else if((sc.ch == '#' && !sc.Match("#REM")) && IsFirstDataFlexWord(sc.currentPos, styler)) {
 				sc.SetState(SCE_DF_PREPROCESSOR);
 				// || (sc.ch == '|' && sc.chNext == 'C' && sc.GetRelativeCharacter(2) == 'I' &&
-				// sc.GetRelativeCharacter(3) == '$') ) {
+				// sc.GetRelativeCharacter(3) == '$')) {
 			}
-			else if((sc.ch == '$' && ((!setWord.Contains(sc.chPrev)) || sc.chPrev == 'I' ) ) || (sc.Match("|CI$")) ) {
+			else if((sc.ch == '$' && ((!setWord.Contains(sc.chPrev)) || sc.chPrev == 'I' ) ) || (sc.Match("|CI$"))) {
 				sc.SetState(SCE_DF_HEXNUMBER); // start with $ and previous character not in
 				                               // a..zA..Z0..9 excluding "I" OR start with |CI$
 			}

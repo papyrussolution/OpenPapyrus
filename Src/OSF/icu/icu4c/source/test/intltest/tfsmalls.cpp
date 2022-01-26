@@ -263,7 +263,7 @@ void test_Formattable(void)
 	 && (ft_arr[1].getType() == Formattable::kDouble) && (ft_arr[1].getDouble() == 2.0)
 	 && (ft_arr[2].getType() == Formattable::kLong) && (ft_arr[2].getLong()   == (int32_t)3)
 	 && (ft_arr[3].getType() == Formattable::kString) && (ft_arr[3].getString(temp) == ucs)
-	 && (ft_arr[4].getType() == Formattable::kString) && (ft_arr[4].getString(temp) == *ucs_ptr) ) {
+	 && (ft_arr[4].getType() == Formattable::kString) && (ft_arr[4].getString(temp) == *ucs_ptr)) {
 		it_logln("FT constr. for date, double, long, ustring, ustring* and array tested");
 	}
 	else {

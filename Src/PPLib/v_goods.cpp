@@ -1,5 +1,5 @@
 // V_GOODS.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -3536,9 +3536,8 @@ int PPViewGoods::ExportUhtt()
 								PPID   uhtt_manuf_id = 0;
 								if(goods_rec.BrandID) {
 									PPID   temp_uhtt_id = 0;
-									if(brand_ref_list.Search(goods_rec.BrandID, &temp_uhtt_id, 0) > 0) {
+									if(brand_ref_list.Search(goods_rec.BrandID, &temp_uhtt_id, 0))
 										uhtt_brand_id = temp_uhtt_id;
-									}
 									else if(brand_obj.Fetch(goods_rec.BrandID, &brand_rec) > 0 && brand_rec.Name[0]) {
 										TSCollection <UhttBrandPacket> brand_list;
 										if(uc.GetBrandByName(brand_rec.Name, brand_list) > 0 && brand_list.getCount())
@@ -3548,9 +3547,8 @@ int PPViewGoods::ExportUhtt()
 								}
 								if(goods_rec.ManufID) {
 									PPID   temp_uhtt_id = 0;
-									if(manuf_ref_list.Search(goods_rec.ManufID, &temp_uhtt_id, 0) > 0) {
+									if(manuf_ref_list.Search(goods_rec.ManufID, &temp_uhtt_id, 0))
 										uhtt_manuf_id = temp_uhtt_id;
-									}
 									else if(PsnObj.Fetch(goods_rec.ManufID, &psn_rec) > 0 && psn_rec.Name[0]) {
 										TSCollection <UhttPersonPacket> person_list;
 										if(uc.GetPersonByName(psn_rec.Name, person_list) > 0 && person_list.getCount()) {

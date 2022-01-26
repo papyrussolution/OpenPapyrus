@@ -85,7 +85,7 @@ CordRepBtreeNavigator::Position CordRepBtreeNavigator::Skip(size_t n) {
 	// edges that must be skipped.
 	while(height > 0) {
 		node = edge->btree();
-		index_[height] = index;
+		index_[height] = static_cast<uint8_t>(index);
 		node_[--height] = node;
 		index = node->begin();
 		edge = node->Edge(index);
@@ -96,22 +96,21 @@ CordRepBtreeNavigator::Position CordRepBtreeNavigator::Skip(size_t n) {
 			edge = node->Edge(index);
 		}
 	}
-	index_[0] = index;
+	index_[0] = static_cast<uint8_t>(index);
 	return {edge, n};
 }
 
-ReadResult CordRepBtreeNavigator::Read(size_t edge_offset, size_t n) {
+ReadResult CordRepBtreeNavigator::Read(size_t edge_offset, size_t n) 
+{
 	int height = 0;
 	size_t length = edge_offset + n;
 	size_t index = index_[0];
 	CordRepBtree* node = node_[0];
 	CordRep* edge = node->Edge(index);
 	assert(edge_offset < edge->length);
-
 	if(length < edge->length) {
 		return {Substring(edge, edge_offset, n), length};
 	}
-
 	// Similar to 'Skip', we consume all edges that are inside the 'length' of
 	// data that needs to be read. If we exhaust the current level, we move one
 	// level up the tree and repeat until we hit the final edge that must be
@@ -121,7 +120,7 @@ ReadResult CordRepBtreeNavigator::Read(size_t edge_offset, size_t n) {
 	do {
 		length -= edge->length;
 		while(++index == node->end()) {
-			index_[height] = index;
+			index_[height] = static_cast<uint8_t>(index);
 			if(++height > height_) {
 				subtree->set_end(subtree_end);
 				if(length == 0) return {subtree, 0};
@@ -149,7 +148,7 @@ ReadResult CordRepBtreeNavigator::Read(size_t edge_offset, size_t n) {
 	// edges that must be read, adding 'down' nodes to `subtree`.
 	while(height > 0) {
 		node = edge->btree();
-		index_[height] = index;
+		index_[height] = static_cast<uint8_t>(index);
 		node_[--height] = node;
 		index = node->begin();
 		edge = node->Edge(index);
@@ -173,7 +172,7 @@ ReadResult CordRepBtreeNavigator::Read(size_t edge_offset, size_t n) {
 		subtree->edges_[subtree_end++] = Substring(edge, 0, length);
 	}
 	subtree->set_end(subtree_end);
-	index_[0] = index;
+	index_[0] = static_cast<uint8_t>(index);
 	return {tree, length};
 }
 }  // namespace cord_internal

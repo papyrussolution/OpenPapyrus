@@ -5650,7 +5650,7 @@ int Notepad_plus::getLangFromMenuName(const TCHAR * langName)
 
 	for(int i = IDM_LANG_C; i <= IDM_LANG_USER; ++i)
 		if(::GetMenuString(_mainMenuHandle, i, menuLangName, menuSize, MF_BYCOMMAND) )
-			if(sstreq(langName, menuLangName) ) {
+			if(sstreq(langName, menuLangName)) {
 				id      = i;
 				break;
 			}
@@ -5658,7 +5658,7 @@ int Notepad_plus::getLangFromMenuName(const TCHAR * langName)
 	if(id == 0) {
 		for(int i = IDM_LANG_USER + 1; i <= IDM_LANG_USER_LIMIT; ++i)
 			if(::GetMenuString(_mainMenuHandle, i, menuLangName, menuSize, MF_BYCOMMAND) )
-				if(sstreq(langName, menuLangName) ) {
+				if(sstreq(langName, menuLangName)) {
 					id      = i;
 					break;
 				}
@@ -5675,7 +5675,7 @@ generic_string Notepad_plus::getLangFromMenu(const Buffer * buf)
 	TCHAR menuLangName[nbChar];
 
 	id = (NppParameters::getInstance()).langTypeToCommandID(buf->getLangType());
-	if(( id != IDM_LANG_USER ) || !(buf->isUserDefineLangExt() ) ) {
+	if(( id != IDM_LANG_USER ) || !(buf->isUserDefineLangExt() )) {
 		::GetMenuString(_mainMenuHandle, id, menuLangName, nbChar-1, MF_BYCOMMAND);
 		userLangName = menuLangName;
 	}

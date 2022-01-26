@@ -116,10 +116,7 @@ void ReflectionOps::Merge(const Message& from, Message* to) {
 					    const Message& from_child =
 						from_reflection->GetRepeatedMessage(from, field, j);
 					    if(from_reflection == to_reflection) {
-						    to_reflection
-						    ->AddMessage(to, field,
-							from_child.GetReflection()->GetMessageFactory())
-						    ->MergeFrom(from_child);
+						    to_reflection->AddMessage(to, field, from_child.GetReflection()->GetMessageFactory())->MergeFrom(from_child);
 					    }
 					    else {
 						    to_reflection->AddMessage(to, field)->MergeFrom(from_child);
@@ -150,10 +147,7 @@ void ReflectionOps::Merge(const Message& from, Message* to) {
 				case FieldDescriptor::CPPTYPE_MESSAGE:
 				    const Message& from_child = from_reflection->GetMessage(from, field);
 				    if(from_reflection == to_reflection) {
-					    to_reflection
-					    ->MutableMessage(
-						    to, field, from_child.GetReflection()->GetMessageFactory())
-					    ->MergeFrom(from_child);
+					    to_reflection->MutableMessage(to, field, from_child.GetReflection()->GetMessageFactory())->MergeFrom(from_child);
 				    }
 				    else {
 					    to_reflection->MutableMessage(to, field)->MergeFrom(from_child);
@@ -162,20 +156,17 @@ void ReflectionOps::Merge(const Message& from, Message* to) {
 			}
 		}
 	}
-
-	to_reflection->MutableUnknownFields(to)->MergeFrom(
-		from_reflection->GetUnknownFields(from));
+	to_reflection->MutableUnknownFields(to)->MergeFrom(from_reflection->GetUnknownFields(from));
 }
 
-void ReflectionOps::Clear(Message* message) {
+void ReflectionOps::Clear(Message* message) 
+{
 	const Reflection* reflection = GetReflectionOrDie(*message);
-
 	std::vector<const FieldDescriptor*> fields;
 	reflection->ListFieldsOmitStripped(*message, &fields);
 	for(const FieldDescriptor* field : fields) {
 		reflection->ClearField(message, field);
 	}
-
 	reflection->MutableUnknownFields(message)->Clear();
 }
 

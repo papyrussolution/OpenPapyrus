@@ -2519,7 +2519,7 @@ inline bool TestSubmessageMaps::has_m() const {
   return _internal_has_m();
 }
 inline void TestSubmessageMaps::clear_m() {
-  if (m_ != nullptr) m_->Clear();
+  if(m_ != nullptr) m_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::TestMaps& TestSubmessageMaps::_internal_m() const {

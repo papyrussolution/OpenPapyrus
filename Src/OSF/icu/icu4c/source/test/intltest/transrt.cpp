@@ -1678,7 +1678,7 @@ void TransliteratorRoundTripTest::TestInterIndic() {
 		RTTest test(interIndicArray[i* INTER_INDIC_ARRAY_WIDTH + 0]);
 		Legal * legal = new LegalIndic();
 		logln(UnicodeString("Stress testing ") + interIndicArray[i*INTER_INDIC_ARRAY_WIDTH + 0]);
-		if(!logKnownIssue("cldrbug:1911") ) {
+		if(!logKnownIssue("cldrbug:1911")) {
 			/* "full test" */
 			// CLDR bug #1911: This test should be moved into CLDR.
 			test.test(interIndicArray[i*INTER_INDIC_ARRAY_WIDTH + 1],

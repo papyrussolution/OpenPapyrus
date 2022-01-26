@@ -254,11 +254,9 @@ const MicroPropsGenerator* NumberFormatterImpl::macrosToMicroGenerator(const Mac
 	if(U_FAILURE(status)) {
 		return nullptr;
 	}
-
-	/////////////////////////////////////////////////////////////////////////////////////
-	/// START POPULATING THE DEFAULT MICROPROPS AND BUILDING THE MICROPROPS GENERATOR ///
-	/////////////////////////////////////////////////////////////////////////////////////
-
+	//
+	// START POPULATING THE DEFAULT MICROPROPS AND BUILDING THE MICROPROPS GENERATOR ///
+	//
 	// Unit Preferences and Conversions as our first step
 	if(macros.usage.isSet()) {
 		if(!isCldrUnit) {
@@ -267,8 +265,7 @@ const MicroPropsGenerator* NumberFormatterImpl::macrosToMicroGenerator(const Mac
 			status = U_ILLEGAL_ARGUMENT_ERROR;
 			return nullptr;
 		}
-		auto usagePrefsHandler =
-		    new UsagePrefsHandler(macros.locale, macros.unit, macros.usage.fValue, chain, status);
+		auto usagePrefsHandler = new UsagePrefsHandler(macros.locale, macros.unit, macros.usage.fValue, chain, status);
 		fUsagePrefsHandler.adoptInsteadAndCheckErrorCode(usagePrefsHandler, status);
 		chain = fUsagePrefsHandler.getAlias();
 	}

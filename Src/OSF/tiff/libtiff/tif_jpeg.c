@@ -974,7 +974,7 @@ int TIFFJPEGIsFullStripRequired(TIFF* tif)
 		TIFFWarningExt(tif->tif_clientdata, module, "Improper JPEG strip/tile size, expected %dx%d, got %dx%d",
 		    segment_width, segment_height, sp->cinfo.d.image_width, sp->cinfo.d.image_height);
 	}
-	if(sp->cinfo.d.image_width == segment_width && sp->cinfo.d.image_height > segment_height && tif->tif_row + segment_height == td->td_imagelength && !isTiled(tif) ) {
+	if(sp->cinfo.d.image_width == segment_width && sp->cinfo.d.image_height > segment_height && tif->tif_row + segment_height == td->td_imagelength && !isTiled(tif)) {
 		/* Some files have a last strip, that should be truncated, */
 		/* but their JPEG codestream has still the maximum strip */
 		/* height. Warn about this as this is non compliant, but */
@@ -1014,7 +1014,7 @@ int TIFFJPEGIsFullStripRequired(TIFF* tif)
 
 	/* In some cases, libjpeg needs to allocate a lot of memory */
 	/* http://www.libjpeg-turbo.org/pmwiki/uploads/About/TwoIssueswiththeJPEGStandard.pdf */
-	if(TIFFjpeg_has_multiple_scans(sp) ) {
+	if(TIFFjpeg_has_multiple_scans(sp)) {
 		/* In this case libjpeg will need to allocate memory or backing */
 		/* store for all coefficients */
 		/* See call to jinit_d_coef_controller() from master_selection() */

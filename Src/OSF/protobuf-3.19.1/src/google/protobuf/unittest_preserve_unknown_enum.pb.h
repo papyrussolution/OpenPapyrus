@@ -797,7 +797,7 @@ inline void MyMessage::set_has_oneof_e_1() {
   _oneof_case_[0] = kOneofE1;
 }
 inline void MyMessage::clear_oneof_e_1() {
-  if (_internal_has_oneof_e_1()) {
+  if(_internal_has_oneof_e_1()) {
     o_.oneof_e_1_ = 0;
     clear_has_o();
   }
@@ -835,7 +835,7 @@ inline void MyMessage::set_has_oneof_e_2() {
   _oneof_case_[0] = kOneofE2;
 }
 inline void MyMessage::clear_oneof_e_2() {
-  if (_internal_has_oneof_e_2()) {
+  if(_internal_has_oneof_e_2()) {
     o_.oneof_e_2_ = 0;
     clear_has_o();
   }
@@ -1033,7 +1033,7 @@ inline void MyMessagePlusExtra::set_has_oneof_e_1() {
   _oneof_case_[0] = kOneofE1;
 }
 inline void MyMessagePlusExtra::clear_oneof_e_1() {
-  if (_internal_has_oneof_e_1()) {
+  if(_internal_has_oneof_e_1()) {
     o_.oneof_e_1_ = 0;
     clear_has_o();
   }
@@ -1071,7 +1071,7 @@ inline void MyMessagePlusExtra::set_has_oneof_e_2() {
   _oneof_case_[0] = kOneofE2;
 }
 inline void MyMessagePlusExtra::clear_oneof_e_2() {
-  if (_internal_has_oneof_e_2()) {
+  if(_internal_has_oneof_e_2()) {
     o_.oneof_e_2_ = 0;
     clear_has_o();
   }

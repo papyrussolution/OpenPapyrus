@@ -2000,7 +2000,7 @@ inline bool AnyTestCases::has_empty_any() const {
   return _internal_has_empty_any();
 }
 inline void AnyTestCases::clear_empty_any() {
-  if (GetArenaForAllocation() == nullptr && empty_any_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && empty_any_ != nullptr) {
     delete empty_any_;
   }
   empty_any_ = nullptr;
@@ -2090,7 +2090,7 @@ inline bool AnyTestCases::has_type_only_any() const {
   return _internal_has_type_only_any();
 }
 inline void AnyTestCases::clear_type_only_any() {
-  if (GetArenaForAllocation() == nullptr && type_only_any_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && type_only_any_ != nullptr) {
     delete type_only_any_;
   }
   type_only_any_ = nullptr;
@@ -2180,7 +2180,7 @@ inline bool AnyTestCases::has_wrapper_any() const {
   return _internal_has_wrapper_any();
 }
 inline void AnyTestCases::clear_wrapper_any() {
-  if (GetArenaForAllocation() == nullptr && wrapper_any_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && wrapper_any_ != nullptr) {
     delete wrapper_any_;
   }
   wrapper_any_ = nullptr;
@@ -2270,7 +2270,7 @@ inline bool AnyTestCases::has_any_with_timestamp_value() const {
   return _internal_has_any_with_timestamp_value();
 }
 inline void AnyTestCases::clear_any_with_timestamp_value() {
-  if (GetArenaForAllocation() == nullptr && any_with_timestamp_value_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && any_with_timestamp_value_ != nullptr) {
     delete any_with_timestamp_value_;
   }
   any_with_timestamp_value_ = nullptr;
@@ -2360,7 +2360,7 @@ inline bool AnyTestCases::has_any_with_duration_value() const {
   return _internal_has_any_with_duration_value();
 }
 inline void AnyTestCases::clear_any_with_duration_value() {
-  if (GetArenaForAllocation() == nullptr && any_with_duration_value_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && any_with_duration_value_ != nullptr) {
     delete any_with_duration_value_;
   }
   any_with_duration_value_ = nullptr;
@@ -2450,7 +2450,7 @@ inline bool AnyTestCases::has_any_with_struct_value() const {
   return _internal_has_any_with_struct_value();
 }
 inline void AnyTestCases::clear_any_with_struct_value() {
-  if (GetArenaForAllocation() == nullptr && any_with_struct_value_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && any_with_struct_value_ != nullptr) {
     delete any_with_struct_value_;
   }
   any_with_struct_value_ = nullptr;
@@ -2540,7 +2540,7 @@ inline bool AnyTestCases::has_recursive_any() const {
   return _internal_has_recursive_any();
 }
 inline void AnyTestCases::clear_recursive_any() {
-  if (GetArenaForAllocation() == nullptr && recursive_any_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && recursive_any_ != nullptr) {
     delete recursive_any_;
   }
   recursive_any_ = nullptr;
@@ -2630,7 +2630,7 @@ inline bool AnyTestCases::has_any_with_message_value() const {
   return _internal_has_any_with_message_value();
 }
 inline void AnyTestCases::clear_any_with_message_value() {
-  if (GetArenaForAllocation() == nullptr && any_with_message_value_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && any_with_message_value_ != nullptr) {
     delete any_with_message_value_;
   }
   any_with_message_value_ = nullptr;
@@ -2720,7 +2720,7 @@ inline bool AnyTestCases::has_any_with_nested_message() const {
   return _internal_has_any_with_nested_message();
 }
 inline void AnyTestCases::clear_any_with_nested_message() {
-  if (GetArenaForAllocation() == nullptr && any_with_nested_message_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && any_with_nested_message_ != nullptr) {
     delete any_with_nested_message_;
   }
   any_with_nested_message_ = nullptr;
@@ -2810,7 +2810,7 @@ inline bool AnyTestCases::has_any_with_message_with_wrapper_type() const {
   return _internal_has_any_with_message_with_wrapper_type();
 }
 inline void AnyTestCases::clear_any_with_message_with_wrapper_type() {
-  if (GetArenaForAllocation() == nullptr && any_with_message_with_wrapper_type_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && any_with_message_with_wrapper_type_ != nullptr) {
     delete any_with_message_with_wrapper_type_;
   }
   any_with_message_with_wrapper_type_ = nullptr;
@@ -2900,7 +2900,7 @@ inline bool AnyTestCases::has_any_with_message_with_timestamp() const {
   return _internal_has_any_with_message_with_timestamp();
 }
 inline void AnyTestCases::clear_any_with_message_with_timestamp() {
-  if (GetArenaForAllocation() == nullptr && any_with_message_with_timestamp_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && any_with_message_with_timestamp_ != nullptr) {
     delete any_with_message_with_timestamp_;
   }
   any_with_message_with_timestamp_ = nullptr;
@@ -2990,7 +2990,7 @@ inline bool AnyTestCases::has_any_with_message_containing_map() const {
   return _internal_has_any_with_message_containing_map();
 }
 inline void AnyTestCases::clear_any_with_message_containing_map() {
-  if (GetArenaForAllocation() == nullptr && any_with_message_containing_map_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && any_with_message_containing_map_ != nullptr) {
     delete any_with_message_containing_map_;
   }
   any_with_message_containing_map_ = nullptr;
@@ -3080,7 +3080,7 @@ inline bool AnyTestCases::has_any_with_message_containing_struct() const {
   return _internal_has_any_with_message_containing_struct();
 }
 inline void AnyTestCases::clear_any_with_message_containing_struct() {
-  if (GetArenaForAllocation() == nullptr && any_with_message_containing_struct_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && any_with_message_containing_struct_ != nullptr) {
     delete any_with_message_containing_struct_;
   }
   any_with_message_containing_struct_ = nullptr;
@@ -3170,7 +3170,7 @@ inline bool AnyTestCases::has_any_with_message_containing_repeated_message() con
   return _internal_has_any_with_message_containing_repeated_message();
 }
 inline void AnyTestCases::clear_any_with_message_containing_repeated_message() {
-  if (GetArenaForAllocation() == nullptr && any_with_message_containing_repeated_message_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && any_with_message_containing_repeated_message_ != nullptr) {
     delete any_with_message_containing_repeated_message_;
   }
   any_with_message_containing_repeated_message_ = nullptr;
@@ -3260,7 +3260,7 @@ inline bool AnyTestCases::has_recursive_any_with_type_field_at_end() const {
   return _internal_has_recursive_any_with_type_field_at_end();
 }
 inline void AnyTestCases::clear_recursive_any_with_type_field_at_end() {
-  if (GetArenaForAllocation() == nullptr && recursive_any_with_type_field_at_end_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && recursive_any_with_type_field_at_end_ != nullptr) {
     delete recursive_any_with_type_field_at_end_;
   }
   recursive_any_with_type_field_at_end_ = nullptr;
@@ -3350,7 +3350,7 @@ inline bool AnyTestCases::has_repeated_any() const {
   return _internal_has_repeated_any();
 }
 inline void AnyTestCases::clear_repeated_any() {
-  if (GetArenaForAllocation() == nullptr && repeated_any_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && repeated_any_ != nullptr) {
     delete repeated_any_;
   }
   repeated_any_ = nullptr;
@@ -3440,7 +3440,7 @@ inline bool AnyTestCases::has_empty_any_with_null_type_url() const {
   return _internal_has_empty_any_with_null_type_url();
 }
 inline void AnyTestCases::clear_empty_any_with_null_type_url() {
-  if (GetArenaForAllocation() == nullptr && empty_any_with_null_type_url_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && empty_any_with_null_type_url_ != nullptr) {
     delete empty_any_with_null_type_url_;
   }
   empty_any_with_null_type_url_ = nullptr;
@@ -3530,7 +3530,7 @@ inline bool AnyTestCases::has_any_with_empty() const {
   return _internal_has_any_with_empty();
 }
 inline void AnyTestCases::clear_any_with_empty() {
-  if (GetArenaForAllocation() == nullptr && any_with_empty_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && any_with_empty_ != nullptr) {
     delete any_with_empty_;
   }
   any_with_empty_ = nullptr;
@@ -3620,7 +3620,7 @@ inline bool AnyTestCases::has_any_with_default_timestamp() const {
   return _internal_has_any_with_default_timestamp();
 }
 inline void AnyTestCases::clear_any_with_default_timestamp() {
-  if (GetArenaForAllocation() == nullptr && any_with_default_timestamp_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && any_with_default_timestamp_ != nullptr) {
     delete any_with_default_timestamp_;
   }
   any_with_default_timestamp_ = nullptr;
@@ -4750,7 +4750,7 @@ inline bool Imports::has_data() const {
   return _internal_has_data();
 }
 inline void Imports::clear_data() {
-  if (GetArenaForAllocation() == nullptr && data_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && data_ != nullptr) {
     delete data_;
   }
   data_ = nullptr;
@@ -4992,7 +4992,7 @@ inline bool Data::has_nested_data() const {
   return _internal_has_nested_data();
 }
 inline void Data::clear_nested_data() {
-  if (GetArenaForAllocation() == nullptr && nested_data_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && nested_data_ != nullptr) {
     delete nested_data_;
   }
   nested_data_ = nullptr;

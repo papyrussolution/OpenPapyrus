@@ -295,7 +295,7 @@ bool CalendarFieldsSet::matches(Calendar * cal, CalendarFieldsSet &diffSet,
 			if(calVal != get((UCalendarDateFields)i)) {
 				match = FALSE;
 				diffSet.set((UCalendarDateFields)i, calVal);
-				//fprintf(stderr, "match failed: %s#%d=%d !=
+				//slfprintf_stderr("match failed: %s#%d=%d !=
 				// %d\n",udbg_enumName(UDBG_UCalendarDateFields,i),i,cal->get((UCalendarDateFields)i,status),
 				// get((UCalendarDateFields)i));;
 			}

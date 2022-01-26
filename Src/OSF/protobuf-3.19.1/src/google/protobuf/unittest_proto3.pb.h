@@ -3627,7 +3627,7 @@ inline bool TestAllTypes::has_optional_nested_message() const {
   return _internal_has_optional_nested_message();
 }
 inline void TestAllTypes::clear_optional_nested_message() {
-  if (GetArenaForAllocation() == nullptr && optional_nested_message_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && optional_nested_message_ != nullptr) {
     delete optional_nested_message_;
   }
   optional_nested_message_ = nullptr;
@@ -3717,7 +3717,7 @@ inline bool TestAllTypes::has_optional_foreign_message() const {
   return _internal_has_optional_foreign_message();
 }
 inline void TestAllTypes::clear_optional_foreign_message() {
-  if (GetArenaForAllocation() == nullptr && optional_foreign_message_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && optional_foreign_message_ != nullptr) {
     delete optional_foreign_message_;
   }
   optional_foreign_message_ = nullptr;
@@ -4117,7 +4117,7 @@ inline bool TestAllTypes::has_optional_lazy_message() const {
   return _internal_has_optional_lazy_message();
 }
 inline void TestAllTypes::clear_optional_lazy_message() {
-  if (GetArenaForAllocation() == nullptr && optional_lazy_message_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && optional_lazy_message_ != nullptr) {
     delete optional_lazy_message_;
   }
   optional_lazy_message_ = nullptr;
@@ -5450,7 +5450,7 @@ inline void TestAllTypes::set_has_oneof_uint32() {
   _oneof_case_[0] = kOneofUint32;
 }
 inline void TestAllTypes::clear_oneof_uint32() {
-  if (_internal_has_oneof_uint32()) {
+  if(_internal_has_oneof_uint32()) {
     oneof_field_.oneof_uint32_ = 0u;
     clear_has_oneof_field();
   }
@@ -5488,8 +5488,8 @@ inline void TestAllTypes::set_has_oneof_nested_message() {
   _oneof_case_[0] = kOneofNestedMessage;
 }
 inline void TestAllTypes::clear_oneof_nested_message() {
-  if (_internal_has_oneof_nested_message()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_oneof_nested_message()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete oneof_field_.oneof_nested_message_;
     }
     clear_has_oneof_field();
@@ -5562,7 +5562,7 @@ inline void TestAllTypes::set_has_oneof_string() {
   _oneof_case_[0] = kOneofString;
 }
 inline void TestAllTypes::clear_oneof_string() {
-  if (_internal_has_oneof_string()) {
+  if(_internal_has_oneof_string()) {
     oneof_field_.oneof_string_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_oneof_field();
   }
@@ -5644,7 +5644,7 @@ inline void TestAllTypes::set_has_oneof_bytes() {
   _oneof_case_[0] = kOneofBytes;
 }
 inline void TestAllTypes::clear_oneof_bytes() {
-  if (_internal_has_oneof_bytes()) {
+  if(_internal_has_oneof_bytes()) {
     oneof_field_.oneof_bytes_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_oneof_field();
   }
@@ -7052,7 +7052,7 @@ inline bool NestedTestAllTypes::has_child() const {
   return _internal_has_child();
 }
 inline void NestedTestAllTypes::clear_child() {
-  if (GetArenaForAllocation() == nullptr && child_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && child_ != nullptr) {
     delete child_;
   }
   child_ = nullptr;
@@ -7142,7 +7142,7 @@ inline bool NestedTestAllTypes::has_payload() const {
   return _internal_has_payload();
 }
 inline void NestedTestAllTypes::clear_payload() {
-  if (GetArenaForAllocation() == nullptr && payload_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && payload_ != nullptr) {
     delete payload_;
   }
   payload_ = nullptr;
@@ -7291,7 +7291,7 @@ inline void TestOneof2::set_has_foo_enum() {
   _oneof_case_[0] = kFooEnum;
 }
 inline void TestOneof2::clear_foo_enum() {
-  if (_internal_has_foo_enum()) {
+  if(_internal_has_foo_enum()) {
     foo_.foo_enum_ = 0;
     clear_has_foo();
   }

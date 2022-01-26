@@ -243,7 +243,7 @@ Locale::Locale(Locale::ELocaleType) : UObject(), fullName(fullNameBuffer), baseN
 Locale::Locale(const char * newLanguage, const char * newCountry, const char * newVariant, const char * newKeywords) : 
 	UObject(), fullName(fullNameBuffer), baseName(NULL)
 {
-	if((newLanguage==NULL) && (newCountry == NULL) && (newVariant == NULL) ) {
+	if((newLanguage==NULL) && (newCountry == NULL) && (newVariant == NULL)) {
 		init(NULL, FALSE); /* shortcut */
 	}
 	else {
@@ -282,7 +282,7 @@ Locale::Locale(const char * newLanguage, const char * newCountry, const char * n
 				setToBogus();
 				return;
 			}
-			while((vsize>1) && (newVariant[vsize-1] == SEP_CHAR) ) {
+			while((vsize>1) && (newVariant[vsize-1] == SEP_CHAR)) {
 				vsize--;
 			}
 		}
@@ -299,7 +299,7 @@ Locale::Locale(const char * newLanguage, const char * newCountry, const char * n
 
 		// newLanguage is already copied
 
-		if(( vsize != 0) || (csize != 0) ) { // at least:  __v
+		if(( vsize != 0) || (csize != 0)) { // at least:  __v
 			                               //            ^
 			togo.append(SEP_CHAR, status);
 		}

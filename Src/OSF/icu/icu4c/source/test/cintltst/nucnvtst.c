@@ -152,19 +152,19 @@ static void printUSeq(const UChar * a, int len)
 static void printSeqErr(const unsigned char * a, int len)
 {
 	int i = 0;
-	fprintf(stderr, "{");
+	slfprintf_stderr("{");
 	while(i<len)
-		fprintf(stderr, "0x%02x ", a[i++]);
-	fprintf(stderr, "}\n");
+		slfprintf_stderr("0x%02x ", a[i++]);
+	slfprintf_stderr("}\n");
 }
 
 static void printUSeqErr(const UChar * a, int len)
 {
 	int i = 0;
-	fprintf(stderr, "{U+");
+	slfprintf_stderr("{U+");
 	while(i<len)
-		fprintf(stderr, "0x%04x ", a[i++]);
-	fprintf(stderr, "}\n");
+		slfprintf_stderr("0x%04x ", a[i++]);
+	slfprintf_stderr("}\n");
 }
 
 static void TestNextUChar(UConverter * cnv, const char * source, const char * limit, const int32_t results[], const char * message)
@@ -463,14 +463,14 @@ static ETestConvertResult testConvertFromU(const UChar * source, int sourceLen, 
 	if(expectLen != targ-junkout) {
 		log_err("Expected %d chars out, got %d %s\n", expectLen, targ-junkout, gNuConvTestName);
 		log_verbose("Expected %d chars out, got %d %s\n", expectLen, targ-junkout, gNuConvTestName);
-		fprintf(stderr, "Got:\n");
+		slfprintf_stderr("Got:\n");
 		printSeqErr((const unsigned char *)junkout, (int32_t)(targ-junkout));
-		fprintf(stderr, "Expected:\n");
+		slfprintf_stderr("Expected:\n");
 		printSeqErr((const unsigned char *)expect, expectLen);
 		return TC_MISMATCH;
 	}
 
-	if(checkOffsets && (expectOffsets != 0) ) {
+	if(checkOffsets && (expectOffsets != 0)) {
 		log_verbose("comparing %d offsets..\n", targ-junkout);
 		if(memcmp(junokout, expectOffsets, (targ-junkout) * sizeof(int32_t) )) {
 			log_err("did not get the expected offsets. %s\n", gNuConvTestName);
@@ -497,9 +497,9 @@ static ETestConvertResult testConvertFromU(const UChar * source, int sourceLen, 
 	else {
 		log_err("String does not match u->%s\n", gNuConvTestName);
 		printUSeqErr(source, sourceLen);
-		fprintf(stderr, "Got:\n");
+		slfprintf_stderr("Got:\n");
 		printSeqErr((const unsigned char *)junkout, expectLen);
-		fprintf(stderr, "Expected:\n");
+		slfprintf_stderr("Expected:\n");
 		printSeqErr((const unsigned char *)expect, expectLen);
 
 		return TC_MISMATCH;

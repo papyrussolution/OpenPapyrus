@@ -119,18 +119,18 @@ static void TestDateIntervalFormat()
 			tzidLen = 0;
 		}
 		udtitvfmt = udtitvfmt_open(testItemPtr->locale, skelBuf, -1, tzidBuf, tzidLen, &status);
-		if(U_SUCCESS(status) ) {
+		if(U_SUCCESS(status)) {
 			UChar result[kFormatBufLen];
 			UChar resultExpected[kFormatBufLen];
 
 			udtitvfmt_setContext(udtitvfmt, testItemPtr->context, &status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				log_err("FAIL: udtitvfmt_setContext for locale %s, skeleton %s, context %04X -  %s\n",
 				    testItemPtr->locale, testItemPtr->skeleton, (unsigned)testItemPtr->context, myErrorName(status));
 			}
 			else {
 				UDisplayContext getContext = udtitvfmt_getContext(udtitvfmt, UDISPCTX_TYPE_CAPITALIZATION, &status);
-				if(U_FAILURE(status) ) {
+				if(U_FAILURE(status)) {
 					log_err("FAIL: udtitvfmt_getContext for locale %s, skeleton %s, context %04X -  %s\n",
 					    testItemPtr->locale, testItemPtr->skeleton, (unsigned)testItemPtr->context,
 					    myErrorName(status));
@@ -152,7 +152,7 @@ static void TestDateIntervalFormat()
 			if(fmtLen >= kFormatBufLen) {
 				result[kFormatBufLen-1] = 0;
 			}
-			if(U_SUCCESS(status) ) {
+			if(U_SUCCESS(status)) {
 				u_unescape(testItemPtr->resultExpected, resultExpected, kFormatBufLen);
 				if(u_strcmp(result, resultExpected) != 0) {
 					char bcharBuf[kFormatBufLen];
@@ -350,7 +350,7 @@ static void TestFPos_SkelWithSeconds()
 		UErrorCode status = U_ZERO_ERROR;
 		ulen = u_unescape(locSkelItemPtr->skeleton, ubuf, kSizeUBuf);
 		udifmt = udtitvfmt_open(locSkelItemPtr->locale, ubuf, ulen, zoneGMT, -1, &status);
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			log_data_err("FAIL: udtitvfmt_open for locale %s, skeleton %s: %s\n",
 			    locSkelItemPtr->locale, locSkelItemPtr->skeleton, u_errorName(status));
 		}
@@ -365,7 +365,7 @@ static void TestFPos_SkelWithSeconds()
 				status = U_ZERO_ERROR;
 				uelen = u_unescape(expectedPtr->format, uebuf, kSizeUBuf);
 				ulen = udtitvfmt_format(udifmt, startTime, startTime + *deltasPtr, ubuf, kSizeUBuf, &fpos, &status);
-				if(U_FAILURE(status) ) {
+				if(U_FAILURE(status)) {
 					log_err("FAIL: udtitvfmt_format for locale %s, skeleton %s, delta %.1f: %s\n",
 					    locSkelItemPtr->locale, locSkelItemPtr->skeleton, *deltasPtr, u_errorName(status));
 				}

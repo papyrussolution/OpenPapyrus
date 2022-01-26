@@ -1266,7 +1266,7 @@ ssize_t FASTCALL _libssh2_channel_read(LIBSSH2_CHANNEL * channel, int stream_id,
 	    (int)buflen, channel->local.id, channel->remote.id, stream_id);
 	/* expand the receiving window first if it has become too narrow */
 	if((channel->read_state == libssh2_NB_state_jump1) ||
-	    (channel->remote.window_size < channel->remote.window_size_initial / 4 * 3 + buflen) ) {
+	    (channel->remote.window_size < channel->remote.window_size_initial / 4 * 3 + buflen)) {
 		uint32 adjustment = channel->remote.window_size_initial + buflen - channel->remote.window_size;
 		SETMAX(adjustment, LIBSSH2_CHANNEL_MINADJUST);
 		// the actual window adjusting may not finish so we need to deal with this special state here

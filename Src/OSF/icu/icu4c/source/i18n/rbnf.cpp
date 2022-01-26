@@ -569,7 +569,7 @@ void LocDataParser::parseError(const char * EXPLANATION_ARG)
 	pe.offset = (int32_t)(p - data);
 
 #ifdef RBNF_DEBUG
-	fprintf(stderr, "%s at or near character %ld: ", EXPLANATION_ARG, p-data);
+	slfprintf_stderr("%s at or near character %ld: ", EXPLANATION_ARG, p-data);
 
 	UnicodeString msg;
 	msg.append(start, p - start);
@@ -585,7 +585,7 @@ void LocDataParser::parseError(const char * EXPLANATION_ARG)
 	else {
 		buf[len] = 0;
 	}
-	fprintf(stderr, "%s\n", buf);
+	slfprintf_stderr("%s\n", buf);
 	fflush(stderr);
 #endif
 
@@ -1280,7 +1280,7 @@ UnicodeString &RuleBasedNumberFormat::adjustForCapitalizationContext(int32_t sta
 		if(u_islower(ch) && U_SUCCESS(status) && capitalizationBrkIter != NULL &&
 		    ( capitalizationContext == UDISPCTX_CAPITALIZATION_FOR_BEGINNING_OF_SENTENCE ||
 		    (capitalizationContext == UDISPCTX_CAPITALIZATION_FOR_UI_LIST_OR_MENU && capitalizationForUIListMenu) ||
-		    (capitalizationContext == UDISPCTX_CAPITALIZATION_FOR_STANDALONE && capitalizationForStandAlone)) ) {
+		    (capitalizationContext == UDISPCTX_CAPITALIZATION_FOR_STANDALONE && capitalizationForStandAlone))) {
 			// titlecase first word of currentResult, here use sentence iterator unlike current
 			// implementations
 			// in LocaleDisplayNamesImpl::adjustForUsageAndContext and RelativeDateFormat::format
@@ -1602,7 +1602,7 @@ void RuleBasedNumberFormat::setContext(UDisplayContext value, UErrorCode & statu
 #if !UCONFIG_NO_BREAK_ITERATION
 		if(capitalizationBrkIter == NULL && (value==UDISPCTX_CAPITALIZATION_FOR_BEGINNING_OF_SENTENCE ||
 		    (value==UDISPCTX_CAPITALIZATION_FOR_UI_LIST_OR_MENU && capitalizationForUIListMenu) ||
-		    (value==UDISPCTX_CAPITALIZATION_FOR_STANDALONE && capitalizationForStandAlone)) ) {
+		    (value==UDISPCTX_CAPITALIZATION_FOR_STANDALONE && capitalizationForStandAlone))) {
 			status = U_ZERO_ERROR;
 			capitalizationBrkIter = BreakIterator::createSentenceInstance(locale, status);
 			if(U_FAILURE(status)) {

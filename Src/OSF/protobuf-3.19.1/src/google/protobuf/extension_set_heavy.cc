@@ -43,10 +43,7 @@
 #include <google/protobuf/parse_context.h>
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/arena.h>
-#include <google/protobuf/extension_set.h>
 #include <google/protobuf/message.h>
-#include <google/protobuf/message_lite.h>
-#include <google/protobuf/repeated_field.h>
 #include <google/protobuf/unknown_field_set.h>
 #include <google/protobuf/wire_format_lite.h>
 #include <google/protobuf/port_def.inc>

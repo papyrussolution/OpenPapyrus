@@ -163,10 +163,10 @@ const char* TestMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // optional int32 a = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
           _Internal::set_has_a(&has_bits);
           a_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -177,12 +177,12 @@ const char* TestMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    if ((8000u <= tag)) {
+    if((8000u <= tag)) {
       ptr = _extensions_.ParseField(tag, ptr, internal_default_instance(), &_internal_metadata_, ctx);
       CHK_(ptr != nullptr);
       continue;
@@ -210,7 +210,7 @@ uint8_t* TestMessage::_InternalSerialize(
 
   cached_has_bits = _has_bits_[0];
   // optional int32 a = 1;
-  if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000001u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_a(), target);
   }
@@ -219,7 +219,7 @@ uint8_t* TestMessage::_InternalSerialize(
   target = _extensions_._InternalSerialize(
   internal_default_instance(), 1000, 536870912, target, stream);
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -239,7 +239,7 @@ size_t TestMessage::ByteSizeLong() const {
 
   // optional int32 a = 1;
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000001u) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_a());
   }
 
@@ -265,7 +265,7 @@ void TestMessage::MergeFrom(const TestMessage& from) {
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_has_a()) {
+  if(from._internal_has_a()) {
     _internal_set_a(from._internal_a());
   }
   _extensions_.MergeFrom(internal_default_instance(), from._extensions_);
@@ -274,13 +274,13 @@ void TestMessage::MergeFrom(const TestMessage& from) {
 
 void TestMessage::CopyFrom(const TestMessage& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest.no_generic_services_test.TestMessage)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
 bool TestMessage::IsInitialized() const {
-  if (!_extensions_.IsInitialized()) {
+  if(!_extensions_.IsInitialized()) {
     return false;
   }
 

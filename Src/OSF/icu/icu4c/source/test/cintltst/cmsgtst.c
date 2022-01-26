@@ -1078,7 +1078,7 @@ static void OpenMessageFormatTest(void)
 
 	/* Test umsg_toPattern     */
 	umsg_toPattern(f1, result, 256, &status);
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		log_data_err("umsg_toPattern method failed. Error: %s (Are you missing data?)\n", u_errorName(status));
 	}
 	else {

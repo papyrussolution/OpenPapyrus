@@ -74,7 +74,7 @@ static void from8to16SE(void * dst, const void * src)
 
 static void from8toFLT(void * dst, const void * src)
 {
-	*(float*)dst = (*(uint8 *)src) / 255.0f;
+	*(float *)dst = (*(uint8 *)src) / 255.0f;
 }
 
 static void from8toDBL(void * dst, const void * src)
@@ -119,12 +119,12 @@ static void from16to16(void * dst, const void * src)
 
 static void from16toFLT(void * dst, const void * src)
 {
-	*(float*)dst = (*(uint16*)src) / 65535.0f;
+	*(float *)dst = (*(uint16*)src) / 65535.0f;
 }
 
 static void from16SEtoFLT(void * dst, const void * src)
 {
-	*(float*)dst = (CHANGE_ENDIAN(*(uint16*)src)) / 65535.0f;
+	*(float *)dst = (CHANGE_ENDIAN(*(uint16*)src)) / 65535.0f;
 }
 
 static void from16toDBL(void * dst, const void * src)
@@ -162,19 +162,19 @@ static void from16SEtoHLF(void * dst, const void * src)
 // From Float
 static void fromFLTto8(void * dst, const void * src)
 {
-	float n = *(float*)src;
+	float n = *(float *)src;
 	*(uint8 *)dst = _cmsQuickSaturateByte(n * 255.0f);
 }
 
 static void fromFLTto16(void * dst, const void * src)
 {
-	float n = *(float*)src;
+	float n = *(float *)src;
 	*(uint16*)dst = _cmsQuickSaturateWord(n * 65535.0f);
 }
 
 static void fromFLTto16SE(void * dst, const void * src)
 {
-	float n = *(float*)src;
+	float n = *(float *)src;
 	uint16 i = _cmsQuickSaturateWord(n * 65535.0f);
 	*(uint16*)dst = CHANGE_ENDIAN(i);
 }
@@ -186,14 +186,14 @@ static void copy32(void * dst, const void * src)
 
 static void fromFLTtoDBL(void * dst, const void * src)
 {
-	float n = *(float*)src;
+	float n = *(float *)src;
 	*(double *)dst = (double)n;
 }
 
 static void fromFLTtoHLF(void * dst, const void * src)
 {
 #ifndef CMS_NO_HALF_SUPPORT
-	float n = *(float*)src;
+	float n = *(float *)src;
 	*(uint16*)dst = _cmsFloat2Half(n);
 #else
 	CXX_UNUSED(dst);
@@ -239,7 +239,7 @@ static void fromHLFto16SE(void * dst, const void * src)
 static void fromHLFtoFLT(void * dst, const void * src)
 {
 #ifndef CMS_NO_HALF_SUPPORT
-	*(float*)dst = _cmsHalf2Float(*(uint16*)src);
+	*(float *)dst = _cmsHalf2Float(*(uint16*)src);
 #else
 	CXX_UNUSED(dst);
 	CXX_UNUSED(src);
@@ -279,7 +279,7 @@ static void fromDBLto16SE(void * dst, const void * src)
 static void fromDBLtoFLT(void * dst, const void * src)
 {
 	double n = *(double *)src;
-	*(float*)dst = (float)n;
+	*(float *)dst = (float)n;
 }
 
 static void fromDBLtoHLF(void * dst, const void * src)

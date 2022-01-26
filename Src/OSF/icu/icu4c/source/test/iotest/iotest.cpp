@@ -832,7 +832,7 @@ int main(int argc, char * argv[])
 	 */
 	u_init(&errorCode);
 	if(U_FAILURE(errorCode)) {
-		fprintf(stderr, "#### Note:  ICU Init without build-specific setDataDirectory() failed.\n");
+		slfprintf_stderr("#### Note:  ICU Init without build-specific setDataDirectory() failed.\n");
 	}
 	u_cleanup();
 	errorCode = U_ZERO_ERROR;
@@ -869,7 +869,7 @@ int main(int argc, char * argv[])
 			log_verbose("Deleting: %s\n", filenameToRemove);
 			if(remove(filenameToRemove) != 0) {
 				/* Maybe someone didn't close the file correctly. */
-				fprintf(stderr, "FAIL: Could not delete %s\n", filenameToRemove);
+				slfprintf_stderr("FAIL: Could not delete %s\n", filenameToRemove);
 				nerrors += 1;
 			}
 		}

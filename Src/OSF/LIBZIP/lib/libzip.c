@@ -1484,7 +1484,7 @@ static ZipSourceBuffer * buffer_new_read(const void * data, uint64 length, int f
 	if(buffer) {
 		buffer->size = length;
 		if(length > 0) {
-			if((buffer->fragments = (uint8**)SAlloc::M(sizeof(*(buffer->fragments)))) == NULL) {
+			if((buffer->fragments = (uint8 **)SAlloc::M(sizeof(*(buffer->fragments)))) == NULL) {
 				buffer_free(buffer);
 				return NULL;
 			}
@@ -1565,7 +1565,7 @@ static int64 buffer_write(ZipSourceBuffer * buffer, const uint8 * data, uint64 l
 			while(new_capacity < needed_fragments) {
 				new_capacity *= 2;
 			}
-			fragments = (uint8**)SAlloc::R(buffer->fragments, (size_t)(new_capacity * sizeof(*fragments)));
+			fragments = (uint8 **)SAlloc::R(buffer->fragments, (size_t)(new_capacity * sizeof(*fragments)));
 			if(fragments == NULL)
 				return zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 			buffer->fragments = fragments;

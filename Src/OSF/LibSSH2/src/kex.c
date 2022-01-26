@@ -891,8 +891,7 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION * session,
 				ret = LIBSSH2_ERROR_KEX_FAILURE;
 				goto clean_exit;
 			}
-			if(session->remote.crypt->
-			    init(session, session->remote.crypt, iv, &free_iv, secret, &free_secret, 0, &session->remote.crypt_abstract)) {
+			if(session->remote.crypt->init(session, session->remote.crypt, iv, &free_iv, secret, &free_secret, 0, &session->remote.crypt_abstract)) {
 				LIBSSH2_FREE(session, iv);
 				LIBSSH2_FREE(session, secret);
 				ret = LIBSSH2_ERROR_KEX_FAILURE;

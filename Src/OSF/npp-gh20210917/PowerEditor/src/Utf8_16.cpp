@@ -7,15 +7,13 @@
 // any derived copies.  Scott Kirkwood makes no representations
 // about the suitability of this software for any purpose.
 // It is provided "as is" without express or implied warranty.
-////////////////////////////////////////////////////////////////////////////////
 //
 // Modificated 2006 Jens Lorenz
 //
 // - Clean up the sources
 // - Removing UCS-Bug in Utf8_Iter
 // - Add convert function in Utf8_16_Write
-////////////////////////////////////////////////////////////////////////////////
-
+//
 #include <npp-internal.h>
 #pragma hdrstop
 

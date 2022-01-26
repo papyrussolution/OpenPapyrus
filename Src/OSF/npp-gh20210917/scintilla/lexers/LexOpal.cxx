@@ -16,7 +16,7 @@ using namespace Scintilla;
 inline static void getRange(Sci_PositionU start, Sci_PositionU end, Accessor & styler, char * s, Sci_PositionU len)
 {
 	Sci_PositionU i = 0;
-	while((i < end - start + 1) && (i < len - 1 ) ) {
+	while((i < end - start + 1) && (i < len - 1 )) {
 		s[i] = static_cast<char>( styler[ start + i ]);
 		i++;
 	}
@@ -37,7 +37,7 @@ inline bool HandleString(Sci_PositionU & cur, Sci_PositionU one_too_much, Access
 		}
 
 		ch = styler.SafeGetCharAt(cur);
-		if(( ch == '\015' ) || ( ch == '\012' ) ) { // Deny multi-line strings
+		if(( ch == '\015' ) || ( ch == '\012' )) { // Deny multi-line strings
 			styler.ColourTo(cur - 1, SCE_OPAL_STRING);
 			styler.StartSegment(cur);
 			return true;
@@ -145,7 +145,7 @@ inline bool HandleCommentLine(Sci_PositionU & cur, Sci_PositionU one_too_much, A
 		}
 
 		ch = styler.SafeGetCharAt(cur);
-		if(( ch != ' ') && (ch != '\t' ) ) {
+		if(( ch != ' ') && (ch != '\t' )) {
 			styler.ColourTo(cur - 1, SCE_OPAL_DEFAULT);
 			styler.StartSegment(cur);
 			return true;
@@ -245,7 +245,7 @@ inline bool HandleInteger(Sci_PositionU & cur, Sci_PositionU one_too_much, Acces
 		}
 
 		ch = styler.SafeGetCharAt(cur);
-		if(!(IsASCII(ch) && isdigit(ch) ) ) {
+		if(!(IsASCII(ch) && isdigit(ch) )) {
 			styler.ColourTo(cur - 1, SCE_OPAL_INTEGER);
 			styler.StartSegment(cur);
 			return true;
@@ -277,7 +277,7 @@ inline bool HandleWord(Sci_PositionU & cur, Sci_PositionU one_too_much, Accessor
 	WordList & keywords    = *keywordlists[ 0 ];
 	WordList & classwords  = *keywordlists[ 1 ];
 
-	if(keywords.InList(ide) ) {  // Keyword
+	if(keywords.InList(ide)) {  // Keyword
 		delete [] ide;
 
 		styler.ColourTo(cur - 1, SCE_OPAL_KEYWORD);
@@ -289,7 +289,7 @@ inline bool HandleWord(Sci_PositionU & cur, Sci_PositionU one_too_much, Accessor
 			return true;
 		}
 	}
-	else if(classwords.InList(ide) ) {  // Sort
+	else if(classwords.InList(ide)) {  // Sort
 		delete [] ide;
 
 		styler.ColourTo(cur - 1, SCE_OPAL_SORT);
@@ -301,7 +301,7 @@ inline bool HandleWord(Sci_PositionU & cur, Sci_PositionU one_too_much, Accessor
 			return true;
 		}
 	}
-	else if(!strcmp(ide, "true") || !strcmp(ide, "false") ) {    // Bool const
+	else if(!strcmp(ide, "true") || !strcmp(ide, "false")) {    // Bool const
 		delete [] ide;
 
 		styler.ColourTo(cur - 1, SCE_OPAL_BOOL_CONST);
@@ -421,12 +421,12 @@ static void ColouriseOpalDoc(Sci_PositionU startPos, Sci_Position length, int in
 				    default:
 				{
 					// Integer
-					if(IsASCII(ch) && isdigit(ch) ) {
+					if(IsASCII(ch) && isdigit(ch)) {
 						if(!HandleInteger(cur, one_too_much, styler) ) return;
 					}
 
 					// Keyword
-					else if(IsASCII(ch) && ( islower(ch) || isupper(ch) ) ) {
+					else if(IsASCII(ch) && ( islower(ch) || isupper(ch) )) {
 						if(!HandleWord(cur, one_too_much, styler, keywordlists) ) return;
 					}
 

@@ -1479,7 +1479,7 @@ bool Notepad_plus::fileSaveAllConfirm()
 
 bool Notepad_plus::fileSaveAll()
 {
-	if(fileSaveAllConfirm() ) {
+	if(fileSaveAllConfirm()) {
 		if(viewVisible(MAIN_VIEW)) {
 			for(size_t i = 0; i < _mainDocTab.nbItem(); ++i) {
 				BufferID idToSave = _mainDocTab.getBufferByIndex(i);

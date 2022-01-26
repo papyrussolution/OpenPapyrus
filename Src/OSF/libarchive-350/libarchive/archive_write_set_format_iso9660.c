@@ -797,8 +797,8 @@ struct iso9660 {
 #define BOOT_MEDIA_2_88M_DISKETTE       3
 #define BOOT_MEDIA_HARD_DISK            4
 		uchar system_type;
-		uint16_t boot_load_seg;
-		uint16_t boot_load_size;
+		uint16 boot_load_seg;
+		uint16 boot_load_size;
 #define BOOT_LOAD_SIZE          4
 	} el_torito;
 
@@ -885,7 +885,7 @@ static void     set_str(uchar *, const char *, size_t, char,
     const char *);
 static inline int joliet_allowed_char(uchar, uchar);
 static int set_str_utf16be(struct archive_write *, uchar *,
-    const char *, size_t, uint16_t, enum vdc);
+    const char *, size_t, uint16, enum vdc);
 static int set_str_a_characters_bp(struct archive_write *,
     uchar *, int, int, const char *, enum vdc);
 static int set_str_d_characters_bp(struct archive_write *,
@@ -1275,7 +1275,7 @@ static int iso9660_options(struct archive_write * a, const char * key, const cha
 				    }
 				    p++;
 			    }
-			    iso9660->el_torito.boot_load_seg = (uint16_t)seg;
+			    iso9660->el_torito.boot_load_seg = (uint16)seg;
 			    iso9660->opt.boot_load_seg = 1;
 			    return ARCHIVE_OK;
 		    }
@@ -1285,7 +1285,7 @@ static int iso9660_options(struct archive_write * a, const char * key, const cha
 			    iso9660->opt.boot_load_size = r == ARCHIVE_OK;
 			    if(r != ARCHIVE_OK)
 				    return ARCHIVE_FATAL;
-			    iso9660->el_torito.boot_load_size = (uint16_t)num;
+			    iso9660->el_torito.boot_load_size = (uint16)num;
 			    return ARCHIVE_OK;
 		    }
 		    if(strcmp(key, "boot-type") == 0) {
@@ -2106,7 +2106,7 @@ static inline int joliet_allowed_char(uchar high, uchar low)
 }
 
 static int set_str_utf16be(struct archive_write * a, uchar * p, const char * s,
-    size_t l, uint16_t uf, enum vdc vdc)
+    size_t l, uint16 uf, enum vdc vdc)
 {
 	size_t size, i;
 	int onepad;
@@ -2133,7 +2133,7 @@ static int set_str_utf16be(struct archive_write * a, uchar * p, const char * s,
 		memcpy(p, iso9660->utf16be.s, size);
 	}
 	else {
-		const uint16_t * u16 = (const uint16_t*)s;
+		const uint16 * u16 = (const uint16*)s;
 
 		size = 0;
 		while(*u16++)
@@ -2290,7 +2290,7 @@ static inline void set_num_712(uchar * p, char value)
  * Least significant byte first.
  * ISO9660 Standard 7.2.1
  */
-static inline void set_num_721(uchar * p, uint16_t value)
+static inline void set_num_721(uchar * p, uint16 value)
 {
 	archive_le16enc(p, value);
 }
@@ -2299,7 +2299,7 @@ static inline void set_num_721(uchar * p, uint16_t value)
  * Most significant byte first.
  * ISO9660 Standard 7.2.2
  */
-static inline void set_num_722(uchar * p, uint16_t value)
+static inline void set_num_722(uchar * p, uint16 value)
 {
 	archive_be16enc(p, value);
 }
@@ -2308,7 +2308,7 @@ static inline void set_num_722(uchar * p, uint16_t value)
  * Both-byte orders.
  * ISO9660 Standard 7.2.3
  */
-static void set_num_723(uchar * p, uint16_t value)
+static void set_num_723(uchar * p, uint16 value)
 {
 	archive_le16enc(p, value);
 	archive_be16enc(p+2, value);
@@ -3651,7 +3651,7 @@ static int set_file_identifier(uchar * bp, int from, int to, enum vdc vdc,
 static int write_VD(struct archive_write * a, struct iso9660::vdd * vdd)
 {
 	uchar * bp;
-	uint16_t volume_set_size = 1;
+	uint16 volume_set_size = 1;
 	char identifier[256];
 	enum VD_type vdt;
 	enum vdc vdc;
@@ -5642,7 +5642,7 @@ static void idr_set_num(uchar * p, int num)
 
 static void idr_set_num_beutf16(uchar * p, int num)
 {
-	static const uint16_t xdig[] = {
+	static const uint16 xdig[] = {
 		0x0030, 0x0031, 0x0032, 0x0033, 0x0034, 0x0035,
 		0x0036, 0x0037, 0x0038, 0x0039,
 		0x0041, 0x0042, 0x0043, 0x0044, 0x0045, 0x0046,
@@ -6894,7 +6894,7 @@ static int make_boot_catalog(struct archive_write * a)
 {
 	struct iso9660 * iso9660 = static_cast<struct iso9660 *>(a->format_data);
 	uchar * p;
-	uint16_t sum, * wp;
+	uint16 sum, * wp;
 	uchar * block = wb_buffptr(a);
 	memzero(block, LOGICAL_BLOCK_SIZE);
 	p = block;
@@ -6918,8 +6918,8 @@ static int make_boot_catalog(struct archive_write * a)
 	p[31] = 0xAA;
 
 	sum = 0;
-	wp = (uint16_t*)block;
-	while(wp < (uint16_t*)&block[32])
+	wp = (uint16*)block;
+	while(wp < (uint16*)&block[32])
 		sum += archive_le16dec(wp++);
 	set_num_721(&block[28], (~sum) + 1);
 

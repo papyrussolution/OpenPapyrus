@@ -761,7 +761,7 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 		archive_le32enc(local_header + 18, (uint32)zip->entry_compressed_size);
 		archive_le32enc(local_header + 22, (uint32)zip->entry_uncompressed_size);
 	}
-	archive_le16enc(local_header + 26, (uint16_t)filename_length);
+	archive_le16enc(local_header + 26, (uint16)filename_length);
 
 	if(zip->entry_encryption == ENCRYPTION_TRADITIONAL) {
 		if(zip->entry_flags & ZIP_ENTRY_FLAG_LENGTH_AT_END)
@@ -787,7 +787,7 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 		archive_le16enc(zip->file_header + 10, zip->entry_compression);
 	archive_le32enc(zip->file_header + 12,
 	    dos_time(archive_entry_mtime(zip->entry)));
-	archive_le16enc(zip->file_header + 28, (uint16_t)filename_length);
+	archive_le16enc(zip->file_header + 28, (uint16)filename_length);
 	/* Following Info-Zip, store mode in the "external attributes" field. */
 	archive_le32enc(zip->file_header + 38,
 	    ((uint32)archive_entry_mode(zip->entry)) << 16);
@@ -887,7 +887,7 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 		e += 8;
 		archive_le64enc(e, zip->entry_compressed_size);
 		e += 8;
-		archive_le16enc(zip64_start + 2, (uint16_t)(e - (zip64_start + 4)));
+		archive_le16enc(zip64_start + 2, (uint16)(e - (zip64_start + 4)));
 	}
 
 	if(zip->flags & ZIP_FLAG_EXPERIMENT_xl) {
@@ -915,11 +915,11 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 		if(included & 8) {
 			// Libarchive does not currently support file comments.
 		}
-		archive_le16enc(external_info + 2, (uint16_t)(e - (external_info + 4)));
+		archive_le16enc(external_info + 2, (uint16)(e - (external_info + 4)));
 	}
 
 	/* Update local header with size of extra data and write it all out: */
-	archive_le16enc(local_header + 28, (uint16_t)(e - local_extra));
+	archive_le16enc(local_header + 28, (uint16)(e - local_extra));
 
 	ret = __archive_write_output(a, local_header, 30);
 	if(ret != ARCHIVE_OK)
@@ -1005,7 +1005,7 @@ static ssize_t archive_write_zip_data(struct archive_write * a, const void * buf
 	switch(zip->entry_compression) {
 		case COMPRESSION_STORE:
 		    if(zip->tctx_valid || zip->cctx_valid) {
-			    const uint8 * rb = (const uint8*)buff;
+			    const uint8 * rb = (const uint8 *)buff;
 			    const uint8 * const re = rb + s;
 
 			    while(rb < re) {
@@ -1201,7 +1201,7 @@ static int archive_write_zip_finish_entry(struct archive_write * a)
 			archive_le64enc(z, zip->entry_offset);
 			z += 8;
 		}
-		archive_le16enc(zip64 + 2, (uint16_t)(z - (zip64 + 4)));
+		archive_le16enc(zip64 + 2, (uint16)(z - (zip64 + 4)));
 		zd = cd_alloc(zip, z - zip64);
 		if(zd == NULL) {
 			archive_set_error(&a->archive, ENOMEM,
@@ -1226,7 +1226,7 @@ static int archive_write_zip_finish_entry(struct archive_write * a)
 	    (uint32)zipmin(zip->entry_uncompressed_written,
 	    ZIP_4GB_MAX));
 	archive_le16enc(zip->file_header + 30,
-	    (uint16_t)(zip->central_directory_bytes - zip->file_header_extra_offset));
+	    (uint16)(zip->central_directory_bytes - zip->file_header_extra_offset));
 	archive_le32enc(zip->file_header + 42,
 	    (uint32)zipmin(zip->entry_offset,
 	    ZIP_4GB_MAX));
@@ -1289,9 +1289,9 @@ static int archive_write_zip_close(struct archive_write * a)
 	/* Format and write end of central directory. */
 	memzero(buff, sizeof(buff));
 	memcpy(buff, "PK\005\006", 4);
-	archive_le16enc(buff + 8, (uint16_t)zipmin(0xffffU,
+	archive_le16enc(buff + 8, (uint16)zipmin(0xffffU,
 	    zip->central_directory_entries));
-	archive_le16enc(buff + 10, (uint16_t)zipmin(0xffffU,
+	archive_le16enc(buff + 10, (uint16)zipmin(0xffffU,
 	    zip->central_directory_entries));
 	archive_le32enc(buff + 12,
 	    (uint32)zipmin(ZIP_4GB_MAX, (offset_end - offset_start)));

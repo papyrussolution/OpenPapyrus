@@ -2406,7 +2406,7 @@ inline bool StructTestCases::has_empty_value() const {
   return _internal_has_empty_value();
 }
 inline void StructTestCases::clear_empty_value() {
-  if (GetArenaForAllocation() == nullptr && empty_value_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && empty_value_ != nullptr) {
     delete empty_value_;
   }
   empty_value_ = nullptr;
@@ -2496,7 +2496,7 @@ inline bool StructTestCases::has_empty_value2() const {
   return _internal_has_empty_value2();
 }
 inline void StructTestCases::clear_empty_value2() {
-  if (GetArenaForAllocation() == nullptr && empty_value2_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && empty_value2_ != nullptr) {
     delete empty_value2_;
   }
   empty_value2_ = nullptr;
@@ -2586,7 +2586,7 @@ inline bool StructTestCases::has_null_value() const {
   return _internal_has_null_value();
 }
 inline void StructTestCases::clear_null_value() {
-  if (GetArenaForAllocation() == nullptr && null_value_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && null_value_ != nullptr) {
     delete null_value_;
   }
   null_value_ = nullptr;
@@ -2676,7 +2676,7 @@ inline bool StructTestCases::has_simple_struct() const {
   return _internal_has_simple_struct();
 }
 inline void StructTestCases::clear_simple_struct() {
-  if (GetArenaForAllocation() == nullptr && simple_struct_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && simple_struct_ != nullptr) {
     delete simple_struct_;
   }
   simple_struct_ = nullptr;
@@ -2766,7 +2766,7 @@ inline bool StructTestCases::has_longer_struct() const {
   return _internal_has_longer_struct();
 }
 inline void StructTestCases::clear_longer_struct() {
-  if (GetArenaForAllocation() == nullptr && longer_struct_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && longer_struct_ != nullptr) {
     delete longer_struct_;
   }
   longer_struct_ = nullptr;
@@ -2856,7 +2856,7 @@ inline bool StructTestCases::has_struct_with_nested_struct() const {
   return _internal_has_struct_with_nested_struct();
 }
 inline void StructTestCases::clear_struct_with_nested_struct() {
-  if (GetArenaForAllocation() == nullptr && struct_with_nested_struct_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && struct_with_nested_struct_ != nullptr) {
     delete struct_with_nested_struct_;
   }
   struct_with_nested_struct_ = nullptr;
@@ -2946,7 +2946,7 @@ inline bool StructTestCases::has_struct_with_nested_list() const {
   return _internal_has_struct_with_nested_list();
 }
 inline void StructTestCases::clear_struct_with_nested_list() {
-  if (GetArenaForAllocation() == nullptr && struct_with_nested_list_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && struct_with_nested_list_ != nullptr) {
     delete struct_with_nested_list_;
   }
   struct_with_nested_list_ = nullptr;
@@ -3036,7 +3036,7 @@ inline bool StructTestCases::has_struct_with_list_of_nulls() const {
   return _internal_has_struct_with_list_of_nulls();
 }
 inline void StructTestCases::clear_struct_with_list_of_nulls() {
-  if (GetArenaForAllocation() == nullptr && struct_with_list_of_nulls_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && struct_with_list_of_nulls_ != nullptr) {
     delete struct_with_list_of_nulls_;
   }
   struct_with_list_of_nulls_ = nullptr;
@@ -3126,7 +3126,7 @@ inline bool StructTestCases::has_struct_with_list_of_lists() const {
   return _internal_has_struct_with_list_of_lists();
 }
 inline void StructTestCases::clear_struct_with_list_of_lists() {
-  if (GetArenaForAllocation() == nullptr && struct_with_list_of_lists_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && struct_with_list_of_lists_ != nullptr) {
     delete struct_with_list_of_lists_;
   }
   struct_with_list_of_lists_ = nullptr;
@@ -3216,7 +3216,7 @@ inline bool StructTestCases::has_struct_with_list_of_structs() const {
   return _internal_has_struct_with_list_of_structs();
 }
 inline void StructTestCases::clear_struct_with_list_of_structs() {
-  if (GetArenaForAllocation() == nullptr && struct_with_list_of_structs_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && struct_with_list_of_structs_ != nullptr) {
     delete struct_with_list_of_structs_;
   }
   struct_with_list_of_structs_ = nullptr;
@@ -3306,7 +3306,7 @@ inline bool StructTestCases::has_struct_with_empty_list() const {
   return _internal_has_struct_with_empty_list();
 }
 inline void StructTestCases::clear_struct_with_empty_list() {
-  if (GetArenaForAllocation() == nullptr && struct_with_empty_list_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && struct_with_empty_list_ != nullptr) {
     delete struct_with_empty_list_;
   }
   struct_with_empty_list_ = nullptr;
@@ -3396,7 +3396,7 @@ inline bool StructTestCases::has_struct_with_list_with_empty_struct() const {
   return _internal_has_struct_with_list_with_empty_struct();
 }
 inline void StructTestCases::clear_struct_with_list_with_empty_struct() {
-  if (GetArenaForAllocation() == nullptr && struct_with_list_with_empty_struct_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && struct_with_list_with_empty_struct_ != nullptr) {
     delete struct_with_list_with_empty_struct_;
   }
   struct_with_list_with_empty_struct_ = nullptr;
@@ -3744,7 +3744,7 @@ inline bool StructTestCases::has_value_wrapper_simple() const {
   return _internal_has_value_wrapper_simple();
 }
 inline void StructTestCases::clear_value_wrapper_simple() {
-  if (GetArenaForAllocation() == nullptr && value_wrapper_simple_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && value_wrapper_simple_ != nullptr) {
     delete value_wrapper_simple_;
   }
   value_wrapper_simple_ = nullptr;
@@ -3834,7 +3834,7 @@ inline bool StructTestCases::has_value_wrapper_with_struct() const {
   return _internal_has_value_wrapper_with_struct();
 }
 inline void StructTestCases::clear_value_wrapper_with_struct() {
-  if (GetArenaForAllocation() == nullptr && value_wrapper_with_struct_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && value_wrapper_with_struct_ != nullptr) {
     delete value_wrapper_with_struct_;
   }
   value_wrapper_with_struct_ = nullptr;
@@ -3924,7 +3924,7 @@ inline bool StructTestCases::has_value_wrapper_with_list() const {
   return _internal_has_value_wrapper_with_list();
 }
 inline void StructTestCases::clear_value_wrapper_with_list() {
-  if (GetArenaForAllocation() == nullptr && value_wrapper_with_list_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && value_wrapper_with_list_ != nullptr) {
     delete value_wrapper_with_list_;
   }
   value_wrapper_with_list_ = nullptr;
@@ -4014,7 +4014,7 @@ inline bool StructTestCases::has_value_wrapper_with_empty_list() const {
   return _internal_has_value_wrapper_with_empty_list();
 }
 inline void StructTestCases::clear_value_wrapper_with_empty_list() {
-  if (GetArenaForAllocation() == nullptr && value_wrapper_with_empty_list_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && value_wrapper_with_empty_list_ != nullptr) {
     delete value_wrapper_with_empty_list_;
   }
   value_wrapper_with_empty_list_ = nullptr;
@@ -4104,7 +4104,7 @@ inline bool StructTestCases::has_value_wrapper_with_list_with_empty_struct() con
   return _internal_has_value_wrapper_with_list_with_empty_struct();
 }
 inline void StructTestCases::clear_value_wrapper_with_list_with_empty_struct() {
-  if (GetArenaForAllocation() == nullptr && value_wrapper_with_list_with_empty_struct_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && value_wrapper_with_list_with_empty_struct_ != nullptr) {
     delete value_wrapper_with_list_with_empty_struct_;
   }
   value_wrapper_with_list_with_empty_struct_ = nullptr;
@@ -4194,7 +4194,7 @@ inline bool StructTestCases::has_list_value_wrapper() const {
   return _internal_has_list_value_wrapper();
 }
 inline void StructTestCases::clear_list_value_wrapper() {
-  if (GetArenaForAllocation() == nullptr && list_value_wrapper_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && list_value_wrapper_ != nullptr) {
     delete list_value_wrapper_;
   }
   list_value_wrapper_ = nullptr;
@@ -4284,7 +4284,7 @@ inline bool StructTestCases::has_list_value_wrapper_with_empty_list() const {
   return _internal_has_list_value_wrapper_with_empty_list();
 }
 inline void StructTestCases::clear_list_value_wrapper_with_empty_list() {
-  if (GetArenaForAllocation() == nullptr && list_value_wrapper_with_empty_list_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && list_value_wrapper_with_empty_list_ != nullptr) {
     delete list_value_wrapper_with_empty_list_;
   }
   list_value_wrapper_with_empty_list_ = nullptr;
@@ -4374,7 +4374,7 @@ inline bool StructTestCases::has_list_value_wrapper_with_list_with_empty_struct(
   return _internal_has_list_value_wrapper_with_list_with_empty_struct();
 }
 inline void StructTestCases::clear_list_value_wrapper_with_list_with_empty_struct() {
-  if (GetArenaForAllocation() == nullptr && list_value_wrapper_with_list_with_empty_struct_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && list_value_wrapper_with_list_with_empty_struct_ != nullptr) {
     delete list_value_wrapper_with_list_with_empty_struct_;
   }
   list_value_wrapper_with_list_with_empty_struct_ = nullptr;
@@ -5152,7 +5152,7 @@ inline bool StructTestCases::has_repeated_value() const {
   return _internal_has_repeated_value();
 }
 inline void StructTestCases::clear_repeated_value() {
-  if (GetArenaForAllocation() == nullptr && repeated_value_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && repeated_value_ != nullptr) {
     delete repeated_value_;
   }
   repeated_value_ = nullptr;
@@ -5242,7 +5242,7 @@ inline bool StructTestCases::has_repeated_value_nested_list() const {
   return _internal_has_repeated_value_nested_list();
 }
 inline void StructTestCases::clear_repeated_value_nested_list() {
-  if (GetArenaForAllocation() == nullptr && repeated_value_nested_list_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && repeated_value_nested_list_ != nullptr) {
     delete repeated_value_nested_list_;
   }
   repeated_value_nested_list_ = nullptr;
@@ -5332,7 +5332,7 @@ inline bool StructTestCases::has_repeated_value_nested_list2() const {
   return _internal_has_repeated_value_nested_list2();
 }
 inline void StructTestCases::clear_repeated_value_nested_list2() {
-  if (GetArenaForAllocation() == nullptr && repeated_value_nested_list2_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && repeated_value_nested_list2_ != nullptr) {
     delete repeated_value_nested_list2_;
   }
   repeated_value_nested_list2_ = nullptr;
@@ -5422,7 +5422,7 @@ inline bool StructTestCases::has_repeated_value_nested_list3() const {
   return _internal_has_repeated_value_nested_list3();
 }
 inline void StructTestCases::clear_repeated_value_nested_list3() {
-  if (GetArenaForAllocation() == nullptr && repeated_value_nested_list3_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && repeated_value_nested_list3_ != nullptr) {
     delete repeated_value_nested_list3_;
   }
   repeated_value_nested_list3_ = nullptr;
@@ -5512,7 +5512,7 @@ inline bool StructTestCases::has_repeated_listvalue() const {
   return _internal_has_repeated_listvalue();
 }
 inline void StructTestCases::clear_repeated_listvalue() {
-  if (GetArenaForAllocation() == nullptr && repeated_listvalue_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && repeated_listvalue_ != nullptr) {
     delete repeated_listvalue_;
   }
   repeated_listvalue_ = nullptr;
@@ -5602,7 +5602,7 @@ inline bool StructTestCases::has_map_of_struct() const {
   return _internal_has_map_of_struct();
 }
 inline void StructTestCases::clear_map_of_struct() {
-  if (GetArenaForAllocation() == nullptr && map_of_struct_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && map_of_struct_ != nullptr) {
     delete map_of_struct_;
   }
   map_of_struct_ = nullptr;
@@ -5692,7 +5692,7 @@ inline bool StructTestCases::has_map_of_struct_value() const {
   return _internal_has_map_of_struct_value();
 }
 inline void StructTestCases::clear_map_of_struct_value() {
-  if (GetArenaForAllocation() == nullptr && map_of_struct_value_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && map_of_struct_value_ != nullptr) {
     delete map_of_struct_value_;
   }
   map_of_struct_value_ = nullptr;
@@ -5782,7 +5782,7 @@ inline bool StructTestCases::has_map_of_listvalue() const {
   return _internal_has_map_of_listvalue();
 }
 inline void StructTestCases::clear_map_of_listvalue() {
-  if (GetArenaForAllocation() == nullptr && map_of_listvalue_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && map_of_listvalue_ != nullptr) {
     delete map_of_listvalue_;
   }
   map_of_listvalue_ = nullptr;

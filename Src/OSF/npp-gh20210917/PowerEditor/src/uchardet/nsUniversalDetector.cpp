@@ -168,7 +168,7 @@ nsresult nsUniversalDetector::HandleData(const char * aBuf, PRUint32 aLen)
 		else {
 			//ok, just pure ascii so far
 			if(ePureAscii == mInputState &&
-			    (aBuf[i] == '\033' || (aBuf[i] == '{' && mLastChar == '~')) ) {
+			    (aBuf[i] == '\033' || (aBuf[i] == '{' && mLastChar == '~'))) {
 				//found escape character or HZ "~{"
 				mInputState = eEscAscii;
 			}

@@ -20,7 +20,7 @@
 
 static void debug_astro_loc(const char * f, int32_t l)
 {
-	fprintf(stderr, "%s:%d: ", f, l);
+	slfprintf_stderr("%s:%d: ", f, l);
 }
 
 static void debug_astro_msg(const char * pat, ...)

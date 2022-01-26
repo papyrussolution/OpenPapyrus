@@ -1690,7 +1690,7 @@ static void U_CALLCONV UConverter_fromUnicode_ISO_2022_JP_OFFSETS_LOGIC(UConvert
 	UConverterDataISO2022 * converterData;
 	ISO2022State * pFromU2022State;
 	uint8 * target = (uint8 *)args->target;
-	const uint8 * targetLimit = (const uint8*)args->targetLimit;
+	const uint8 * targetLimit = (const uint8 *)args->targetLimit;
 	const UChar * source = args->source;
 	const UChar * sourceLimit = args->sourceLimit;
 	int32_t* offsets = args->offsets;
@@ -2986,7 +2986,7 @@ static void U_CALLCONV UConverter_fromUnicode_ISO_2022_CN_OFFSETS_LOGIC(UConvert
 	UConverterDataISO2022 * converterData;
 	ISO2022State * pFromU2022State;
 	uint8 * target = (uint8 *)args->target;
-	const uint8 * targetLimit = (const uint8*)args->targetLimit;
+	const uint8 * targetLimit = (const uint8 *)args->targetLimit;
 	const UChar * source = args->source;
 	const UChar * sourceLimit = args->sourceLimit;
 	int32_t* offsets = args->offsets;

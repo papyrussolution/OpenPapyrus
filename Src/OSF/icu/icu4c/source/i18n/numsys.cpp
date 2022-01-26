@@ -301,7 +301,7 @@ U_CFUNC void initNumsysNames(UErrorCode & status) {
 		return;
 	}
 
-	while(ures_hasNext(numberingSystemsInfo) && U_SUCCESS(status) ) {
+	while(ures_hasNext(numberingSystemsInfo) && U_SUCCESS(status)) {
 		LocalUResourceBundlePointer nsCurrent(ures_getNextResource(numberingSystemsInfo, nullptr, &rbstatus));
 		if(rbstatus == U_MEMORY_ALLOCATION_ERROR) {
 			status = rbstatus; // we want to report OOM failure back to the caller.

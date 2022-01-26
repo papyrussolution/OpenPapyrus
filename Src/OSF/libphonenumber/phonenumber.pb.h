@@ -93,8 +93,7 @@ class PhoneNumber final :
   explicit constexpr PhoneNumber(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   PhoneNumber(const PhoneNumber& from);
-  PhoneNumber(PhoneNumber&& from) noexcept
-    : PhoneNumber() {
+  PhoneNumber(PhoneNumber&& from) noexcept : PhoneNumber() {
     *this = ::std::move(from);
   }
 
@@ -103,8 +102,8 @@ class PhoneNumber final :
     return *this;
   }
   inline PhoneNumber& operator=(PhoneNumber&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -116,33 +115,22 @@ class PhoneNumber final :
     return *this;
   }
 
-  inline const std::string& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString);
-  }
-  inline std::string* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<std::string>();
-  }
+  inline const std::string& unknown_fields() const { return _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString); }
+  inline std::string* mutable_unknown_fields() { return _internal_metadata_.mutable_unknown_fields<std::string>(); }
 
-  static const PhoneNumber& default_instance() {
-    return *internal_default_instance();
-  }
+  static const PhoneNumber& default_instance() { return *internal_default_instance(); }
   static inline const PhoneNumber* internal_default_instance() {
-    return reinterpret_cast<const PhoneNumber*>(
-               &_PhoneNumber_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    0;
+    return reinterpret_cast<const PhoneNumber*>(&_PhoneNumber_default_instance_); }
+  static constexpr int kIndexInFileMessages = 0;
 
-  friend void swap(PhoneNumber& a, PhoneNumber& b) {
-    a.Swap(&b);
-  }
+  friend void swap(PhoneNumber& a, PhoneNumber& b) { a.Swap(&b); }
   inline void Swap(PhoneNumber* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -150,7 +138,7 @@ class PhoneNumber final :
     }
   }
   void UnsafeArenaSwap(PhoneNumber* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }

@@ -459,7 +459,7 @@ inline const UChar * res_getString(const ResourceTracer& traceInfo, const Resour
 	return res_getStringNoTrace(pResData, res, pLength);
 }
 
-inline const uint8* res_getBinary(const ResourceTracer& traceInfo, const ResourceData * pResData, Resource res, int32_t * pLength) 
+inline const uint8 * res_getBinary(const ResourceTracer& traceInfo, const ResourceData * pResData, Resource res, int32_t * pLength) 
 {
 	traceInfo.trace("binary");
 	return res_getBinaryNoTrace(pResData, res, pLength);

@@ -9,7 +9,7 @@
 #include "db_int.h"
 #pragma hdrstop
 
-static int __ham_dups_unsorted(DB*, uint8*, uint32);
+static int __ham_dups_unsorted(DB*, uint8 *, uint32);
 static int __ham_vrfy_bucket(DB*, VRFY_DBINFO*, HMETA*, uint32, uint32);
 static int __ham_vrfy_item(DB*, VRFY_DBINFO*, db_pgno_t, PAGE*, uint32, uint32);
 

@@ -51,31 +51,31 @@
    @param pi packet iterator to modify
    @return returns false if pi pointed to the last packet or else returns true
  */
-static OPJ_BOOL opj_pi_next_lrcp(opj_pi_iterator_t * pi);
+static boolint opj_pi_next_lrcp(opj_pi_iterator_t * pi);
 /**
    Get next packet in resolution-layer-component-precinct order.
    @param pi packet iterator to modify
    @return returns false if pi pointed to the last packet or else returns true
  */
-static OPJ_BOOL opj_pi_next_rlcp(opj_pi_iterator_t * pi);
+static boolint opj_pi_next_rlcp(opj_pi_iterator_t * pi);
 /**
    Get next packet in resolution-precinct-component-layer order.
    @param pi packet iterator to modify
    @return returns false if pi pointed to the last packet or else returns true
  */
-static OPJ_BOOL opj_pi_next_rpcl(opj_pi_iterator_t * pi);
+static boolint opj_pi_next_rpcl(opj_pi_iterator_t * pi);
 /**
    Get next packet in precinct-component-resolution-layer order.
    @param pi packet iterator to modify
    @return returns false if pi pointed to the last packet or else returns true
  */
-static OPJ_BOOL opj_pi_next_pcrl(opj_pi_iterator_t * pi);
+static boolint opj_pi_next_pcrl(opj_pi_iterator_t * pi);
 /**
    Get next packet in component-precinct-resolution-layer order.
    @param pi packet iterator to modify
    @return returns false if pi pointed to the last packet or else returns true
  */
-static OPJ_BOOL opj_pi_next_cprl(opj_pi_iterator_t * pi);
+static boolint opj_pi_next_cprl(opj_pi_iterator_t * pi);
 
 /**
  * Updates the coding parameters if the encoding is used with Progression order changes and final (or cinema parameters
@@ -226,7 +226,7 @@ static void opj_pi_update_decode_poc(opj_pi_iterator_t * p_pi,
 /**
  * FIXME DOC
  */
-static OPJ_BOOL opj_pi_check_next_level(OPJ_INT32 pos,
+static boolint opj_pi_check_next_level(OPJ_INT32 pos,
     opj_cp_t * cp,
     OPJ_UINT32 tileno,
     OPJ_UINT32 pino,
@@ -242,7 +242,7 @@ static OPJ_BOOL opj_pi_check_next_level(OPJ_INT32 pos,
    ==========================================================
  */
 
-static OPJ_BOOL opj_pi_next_lrcp(opj_pi_iterator_t * pi)
+static boolint opj_pi_next_lrcp(opj_pi_iterator_t * pi)
 {
 	opj_pi_comp_t * comp = NULL;
 	opj_pi_resolution_t * res = NULL;
@@ -252,7 +252,7 @@ static OPJ_BOOL opj_pi_next_lrcp(opj_pi_iterator_t * pi)
 	    pi->poc.compno1 >= pi->numcomps + 1) {
 		opj_event_msg(pi->manager, EVT_ERROR,
 		    "opj_pi_next_lrcp(): invalid compno0/compno1\n");
-		return OPJ_FALSE;
+		return FALSE;
 	}
 
 	if(!pi->first) {
@@ -287,11 +287,11 @@ static OPJ_BOOL opj_pi_next_lrcp(opj_pi_iterator_t * pi)
 					/* the POC should be rejected */
 					if(index >= pi->include_size) {
 						opj_event_msg(pi->manager, EVT_ERROR, "Invalid access to pi->include");
-						return OPJ_FALSE;
+						return FALSE;
 					}
 					if(!pi->include[index]) {
 						pi->include[index] = 1;
-						return OPJ_TRUE;
+						return TRUE;
 					}
 LABEL_SKIP:
 					;
@@ -300,17 +300,17 @@ LABEL_SKIP:
 		}
 	}
 
-	return OPJ_FALSE;
+	return FALSE;
 }
 
-static OPJ_BOOL opj_pi_next_rlcp(opj_pi_iterator_t * pi)
+static boolint opj_pi_next_rlcp(opj_pi_iterator_t * pi)
 {
 	opj_pi_comp_t * comp = NULL;
 	opj_pi_resolution_t * res = NULL;
 	OPJ_UINT32 index = 0;
 	if(pi->poc.compno0 >= pi->numcomps || pi->poc.compno1 >= pi->numcomps + 1) {
 		opj_event_msg(pi->manager, EVT_ERROR, "opj_pi_next_rlcp(): invalid compno0/compno1\n");
-		return OPJ_FALSE;
+		return FALSE;
 	}
 	if(!pi->first) {
 		comp = &pi->comps[pi->compno];
@@ -337,11 +337,11 @@ static OPJ_BOOL opj_pi_next_rlcp(opj_pi_iterator_t * pi)
 					    pi->step_c + pi->precno * pi->step_p;
 					if(index >= pi->include_size) {
 						opj_event_msg(pi->manager, EVT_ERROR, "Invalid access to pi->include");
-						return OPJ_FALSE;
+						return FALSE;
 					}
 					if(!pi->include[index]) {
 						pi->include[index] = 1;
-						return OPJ_TRUE;
+						return TRUE;
 					}
 LABEL_SKIP:
 					;
@@ -350,22 +350,18 @@ LABEL_SKIP:
 		}
 	}
 
-	return OPJ_FALSE;
+	return FALSE;
 }
 
-static OPJ_BOOL opj_pi_next_rpcl(opj_pi_iterator_t * pi)
+static boolint opj_pi_next_rpcl(opj_pi_iterator_t * pi)
 {
 	opj_pi_comp_t * comp = NULL;
 	opj_pi_resolution_t * res = NULL;
 	OPJ_UINT32 index = 0;
-
-	if(pi->poc.compno0 >= pi->numcomps ||
-	    pi->poc.compno1 >= pi->numcomps + 1) {
-		opj_event_msg(pi->manager, EVT_ERROR,
-		    "opj_pi_next_rpcl(): invalid compno0/compno1\n");
-		return OPJ_FALSE;
+	if(pi->poc.compno0 >= pi->numcomps || pi->poc.compno1 >= pi->numcomps + 1) {
+		opj_event_msg(pi->manager, EVT_ERROR, "opj_pi_next_rpcl(): invalid compno0/compno1\n");
+		return FALSE;
 	}
-
 	if(!pi->first) {
 		goto LABEL_SKIP;
 	}
@@ -382,17 +378,17 @@ static OPJ_BOOL opj_pi_next_rpcl(opj_pi_iterator_t * pi)
 				if(res->pdx + comp->numresolutions - 1 - resno < 32 &&
 				    comp->dx <= UINT_MAX / (1u << (res->pdx + comp->numresolutions - 1 - resno))) {
 					dx = comp->dx * (1u << (res->pdx + comp->numresolutions - 1 - resno));
-					pi->dx = !pi->dx ? dx : opj_uint_min(pi->dx, dx);
+					pi->dx = !pi->dx ? dx : smin(pi->dx, dx);
 				}
 				if(res->pdy + comp->numresolutions - 1 - resno < 32 &&
 				    comp->dy <= UINT_MAX / (1u << (res->pdy + comp->numresolutions - 1 - resno))) {
 					dy = comp->dy * (1u << (res->pdy + comp->numresolutions - 1 - resno));
-					pi->dy = !pi->dy ? dy : opj_uint_min(pi->dy, dy);
+					pi->dy = !pi->dy ? dy : smin(pi->dy, dy);
 				}
 			}
 		}
 		if(pi->dx == 0 || pi->dy == 0) {
-			return OPJ_FALSE;
+			return FALSE;
 		}
 	}
 	if(!pi->tp_on) {
@@ -470,11 +466,11 @@ static OPJ_BOOL opj_pi_next_rpcl(opj_pi_iterator_t * pi)
 						index = pi->layno * pi->step_l + pi->resno * pi->step_r + pi->compno * pi->step_c + pi->precno * pi->step_p;
 						if(index >= pi->include_size) {
 							opj_event_msg(pi->manager, EVT_ERROR, "Invalid access to pi->include");
-							return OPJ_FALSE;
+							return FALSE;
 						}
 						if(!pi->include[index]) {
 							pi->include[index] = 1;
-							return OPJ_TRUE;
+							return TRUE;
 						}
 LABEL_SKIP:
 						;
@@ -483,17 +479,17 @@ LABEL_SKIP:
 			}
 		}
 	}
-	return OPJ_FALSE;
+	return FALSE;
 }
 
-static OPJ_BOOL opj_pi_next_pcrl(opj_pi_iterator_t * pi)
+static boolint opj_pi_next_pcrl(opj_pi_iterator_t * pi)
 {
 	opj_pi_comp_t * comp = NULL;
 	opj_pi_resolution_t * res = NULL;
 	OPJ_UINT32 index = 0;
 	if(pi->poc.compno0 >= pi->numcomps || pi->poc.compno1 >= pi->numcomps + 1) {
 		opj_event_msg(pi->manager, EVT_ERROR, "opj_pi_next_pcrl(): invalid compno0/compno1\n");
-		return OPJ_FALSE;
+		return FALSE;
 	}
 	if(!pi->first) {
 		comp = &pi->comps[pi->compno];
@@ -512,17 +508,17 @@ static OPJ_BOOL opj_pi_next_pcrl(opj_pi_iterator_t * pi)
 				if(res->pdx + comp->numresolutions - 1 - resno < 32 &&
 				    comp->dx <= UINT_MAX / (1u << (res->pdx + comp->numresolutions - 1 - resno))) {
 					dx = comp->dx * (1u << (res->pdx + comp->numresolutions - 1 - resno));
-					pi->dx = !pi->dx ? dx : opj_uint_min(pi->dx, dx);
+					pi->dx = !pi->dx ? dx : smin(pi->dx, dx);
 				}
 				if(res->pdy + comp->numresolutions - 1 - resno < 32 &&
 				    comp->dy <= UINT_MAX / (1u << (res->pdy + comp->numresolutions - 1 - resno))) {
 					dy = comp->dy * (1u << (res->pdy + comp->numresolutions - 1 - resno));
-					pi->dy = !pi->dy ? dy : opj_uint_min(pi->dy, dy);
+					pi->dy = !pi->dy ? dy : smin(pi->dy, dy);
 				}
 			}
 		}
 		if(pi->dx == 0 || pi->dy == 0) {
-			return OPJ_FALSE;
+			return FALSE;
 		}
 	}
 	if(!pi->tp_on) {
@@ -537,7 +533,7 @@ static OPJ_BOOL opj_pi_next_pcrl(opj_pi_iterator_t * pi)
 		    pi->x += (pi->dx - (pi->x % pi->dx))) {
 			for(pi->compno = pi->poc.compno0; pi->compno < pi->poc.compno1; pi->compno++) {
 				comp = &pi->comps[pi->compno];
-				for(pi->resno = pi->poc.resno0; pi->resno < opj_uint_min(pi->poc.resno1, comp->numresolutions); pi->resno++) {
+				for(pi->resno = pi->poc.resno0; pi->resno < smin(pi->poc.resno1, comp->numresolutions); pi->resno++) {
 					OPJ_UINT32 levelno;
 					OPJ_UINT32 trx0, try0;
 					OPJ_UINT32 trx1, try1;
@@ -590,11 +586,11 @@ static OPJ_BOOL opj_pi_next_pcrl(opj_pi_iterator_t * pi)
 						index = pi->layno * pi->step_l + pi->resno * pi->step_r + pi->compno * pi->step_c + pi->precno * pi->step_p;
 						if(index >= pi->include_size) {
 							opj_event_msg(pi->manager, EVT_ERROR, "Invalid access to pi->include");
-							return OPJ_FALSE;
+							return FALSE;
 						}
 						if(!pi->include[index]) {
 							pi->include[index] = 1;
-							return OPJ_TRUE;
+							return TRUE;
 						}
 LABEL_SKIP:
 						;
@@ -604,22 +600,18 @@ LABEL_SKIP:
 		}
 	}
 
-	return OPJ_FALSE;
+	return FALSE;
 }
 
-static OPJ_BOOL opj_pi_next_cprl(opj_pi_iterator_t * pi)
+static boolint opj_pi_next_cprl(opj_pi_iterator_t * pi)
 {
 	opj_pi_comp_t * comp = NULL;
 	opj_pi_resolution_t * res = NULL;
 	OPJ_UINT32 index = 0;
-
-	if(pi->poc.compno0 >= pi->numcomps ||
-	    pi->poc.compno1 >= pi->numcomps + 1) {
-		opj_event_msg(pi->manager, EVT_ERROR,
-		    "opj_pi_next_cprl(): invalid compno0/compno1\n");
-		return OPJ_FALSE;
+	if(pi->poc.compno0 >= pi->numcomps || pi->poc.compno1 >= pi->numcomps + 1) {
+		opj_event_msg(pi->manager, EVT_ERROR, "opj_pi_next_cprl(): invalid compno0/compno1\n");
+		return FALSE;
 	}
-
 	if(!pi->first) {
 		comp = &pi->comps[pi->compno];
 		goto LABEL_SKIP;
@@ -627,7 +619,6 @@ static OPJ_BOOL opj_pi_next_cprl(opj_pi_iterator_t * pi)
 	else {
 		pi->first = 0;
 	}
-
 	for(pi->compno = pi->poc.compno0; pi->compno < pi->poc.compno1; pi->compno++) {
 		OPJ_UINT32 resno;
 		comp = &pi->comps[pi->compno];
@@ -639,16 +630,16 @@ static OPJ_BOOL opj_pi_next_cprl(opj_pi_iterator_t * pi)
 			if(res->pdx + comp->numresolutions - 1 - resno < 32 &&
 			    comp->dx <= UINT_MAX / (1u << (res->pdx + comp->numresolutions - 1 - resno))) {
 				dx = comp->dx * (1u << (res->pdx + comp->numresolutions - 1 - resno));
-				pi->dx = !pi->dx ? dx : opj_uint_min(pi->dx, dx);
+				pi->dx = !pi->dx ? dx : smin(pi->dx, dx);
 			}
 			if(res->pdy + comp->numresolutions - 1 - resno < 32 &&
 			    comp->dy <= UINT_MAX / (1u << (res->pdy + comp->numresolutions - 1 - resno))) {
 				dy = comp->dy * (1u << (res->pdy + comp->numresolutions - 1 - resno));
-				pi->dy = !pi->dy ? dy : opj_uint_min(pi->dy, dy);
+				pi->dy = !pi->dy ? dy : smin(pi->dy, dy);
 			}
 		}
 		if(pi->dx == 0 || pi->dy == 0) {
-			return OPJ_FALSE;
+			return FALSE;
 		}
 		if(!pi->tp_on) {
 			pi->poc.ty0 = pi->ty0;
@@ -661,7 +652,7 @@ static OPJ_BOOL opj_pi_next_cprl(opj_pi_iterator_t * pi)
 			for(pi->x = (OPJ_UINT32)pi->poc.tx0; pi->x < (OPJ_UINT32)pi->poc.tx1;
 			    pi->x += (pi->dx - (pi->x % pi->dx))) {
 				for(pi->resno = pi->poc.resno0;
-				    pi->resno < opj_uint_min(pi->poc.resno1, comp->numresolutions); pi->resno++) {
+				    pi->resno < smin(pi->poc.resno1, comp->numresolutions); pi->resno++) {
 					OPJ_UINT32 levelno;
 					OPJ_UINT32 trx0, try0;
 					OPJ_UINT32 trx1, try1;
@@ -728,11 +719,11 @@ static OPJ_BOOL opj_pi_next_cprl(opj_pi_iterator_t * pi)
 						    pi->step_c + pi->precno * pi->step_p;
 						if(index >= pi->include_size) {
 							opj_event_msg(pi->manager, EVT_ERROR, "Invalid access to pi->include");
-							return OPJ_FALSE;
+							return FALSE;
 						}
 						if(!pi->include[index]) {
 							pi->include[index] = 1;
-							return OPJ_TRUE;
+							return TRUE;
 						}
 LABEL_SKIP:
 						;
@@ -742,7 +733,7 @@ LABEL_SKIP:
 		}
 	}
 
-	return OPJ_FALSE;
+	return FALSE;
 }
 
 static void opj_get_encoding_parameters(const opj_image_t * p_image,
@@ -787,12 +778,12 @@ static void opj_get_encoding_parameters(const opj_image_t * p_image,
 	/* find extent of tile */
 	l_tx0 = p_cp->tx0 + p *
 	    p_cp->tdx; /* can't be greater than p_image->x1 so won't overflow */
-	*p_tx0 = opj_uint_max(l_tx0, p_image->x0);
-	*p_tx1 = opj_uint_min(opj_uint_adds(l_tx0, p_cp->tdx), p_image->x1);
+	*p_tx0 = smax(l_tx0, p_image->x0);
+	*p_tx1 = smin(opj_uint_adds(l_tx0, p_cp->tdx), p_image->x1);
 	l_ty0 = p_cp->ty0 + q *
 	    p_cp->tdy; /* can't be greater than p_image->y1 so won't overflow */
-	*p_ty0 = opj_uint_max(l_ty0, p_image->y0);
-	*p_ty1 = opj_uint_min(opj_uint_adds(l_ty0, p_cp->tdy), p_image->y1);
+	*p_ty0 = smax(l_ty0, p_image->y0);
+	*p_ty1 = smin(opj_uint_adds(l_ty0, p_cp->tdy), p_image->y1);
 
 	/* max precision is 0 (can only grow) */
 	*p_max_prec = 0;
@@ -833,8 +824,8 @@ static void opj_get_encoding_parameters(const opj_image_t * p_image,
 			l_dy = l_img_comp->dy * (1u << (l_pdy + l_tccp->numresolutions - 1 - resno));
 
 			/* take the minimum size for dx for each comp and resolution */
-			*p_dx_min = opj_uint_min(*p_dx_min, l_dx);
-			*p_dy_min = opj_uint_min(*p_dy_min, l_dy);
+			*p_dx_min = smin(*p_dx_min, l_dx);
+			*p_dy_min = smin(*p_dy_min, l_dy);
 
 			/* various calculations of extents */
 			l_level_no = l_tccp->numresolutions - 1 - resno;
@@ -912,12 +903,12 @@ static void opj_get_all_encoding_parameters(const opj_image_t * p_image,
 	/* here calculation of tx0, tx1, ty0, ty1, maxprec, l_dx and l_dy */
 	l_tx0 = p_cp->tx0 + p *
 	    p_cp->tdx; /* can't be greater than p_image->x1 so won't overflow */
-	*p_tx0 = opj_uint_max(l_tx0, p_image->x0);
-	*p_tx1 = opj_uint_min(opj_uint_adds(l_tx0, p_cp->tdx), p_image->x1);
+	*p_tx0 = smax(l_tx0, p_image->x0);
+	*p_tx1 = smin(opj_uint_adds(l_tx0, p_cp->tdx), p_image->x1);
 	l_ty0 = p_cp->ty0 + q *
 	    p_cp->tdy; /* can't be greater than p_image->y1 so won't overflow */
-	*p_ty0 = opj_uint_max(l_ty0, p_image->y0);
-	*p_ty1 = opj_uint_min(opj_uint_adds(l_ty0, p_cp->tdy), p_image->y1);
+	*p_ty0 = smax(l_ty0, p_image->y0);
+	*p_ty1 = smin(opj_uint_adds(l_ty0, p_cp->tdy), p_image->y1);
 
 	/* max precision and resolution is 0 (can only grow)*/
 	*p_max_prec = 0;
@@ -965,12 +956,12 @@ static void opj_get_all_encoding_parameters(const opj_image_t * p_image,
 			    l_img_comp->dx <= UINT_MAX / (1u << (l_pdx + l_level_no))) {
 				l_dx = l_img_comp->dx * (1u << (l_pdx + l_level_no));
 				/* take the minimum size for l_dx for each comp and resolution*/
-				*p_dx_min = opj_uint_min(*p_dx_min, l_dx);
+				*p_dx_min = smin(*p_dx_min, l_dx);
 			}
 			if(l_pdy + l_level_no < 32 &&
 			    l_img_comp->dy <= UINT_MAX / (1u << (l_pdy + l_level_no))) {
 				l_dy = l_img_comp->dy * (1u << (l_pdy + l_level_no));
-				*p_dy_min = opj_uint_min(*p_dy_min, l_dy);
+				*p_dy_min = smin(*p_dy_min, l_dy);
 			}
 
 			/* various calculations of extents*/
@@ -1216,7 +1207,7 @@ static void opj_pi_update_decode_poc(opj_pi_iterator_t * p_pi, opj_tcp_t * p_tcp
 		l_current_pi->poc.precno0 = 0;
 		l_current_pi->poc.resno1 = l_current_poc->resno1; /* Resolution Level Index #0 (End) */
 		l_current_pi->poc.compno1 = l_current_poc->compno1; /* Component Index #0 (End) */
-		l_current_pi->poc.layno1 = opj_uint_min(l_current_poc->layno1, p_tcp->numlayers); /* Layer Index #0 (End) */
+		l_current_pi->poc.layno1 = smin(l_current_poc->layno1, p_tcp->numlayers); /* Layer Index #0 (End) */
 		l_current_pi->poc.precno1 = p_max_precision;
 		++l_current_pi;
 		++l_current_poc;
@@ -1249,7 +1240,7 @@ static void opj_pi_update_decode_not_poc(opj_pi_iterator_t * p_pi, opj_tcp_t * p
 	}
 }
 
-static OPJ_BOOL opj_pi_check_next_level(OPJ_INT32 pos, opj_cp_t * cp, OPJ_UINT32 tileno, OPJ_UINT32 pino, const OPJ_CHAR * prog)
+static boolint opj_pi_check_next_level(OPJ_INT32 pos, opj_cp_t * cp, OPJ_UINT32 tileno, OPJ_UINT32 pino, const OPJ_CHAR * prog)
 {
 	OPJ_INT32 i;
 	opj_tcp_t * tcps = &cp->tcps[tileno];
@@ -1260,40 +1251,40 @@ static OPJ_BOOL opj_pi_check_next_level(OPJ_INT32 pos, opj_cp_t * cp, OPJ_UINT32
 				case 'R':
 				    if(tcp->res_t == tcp->resE) {
 					    if(opj_pi_check_next_level(pos - 1, cp, tileno, pino, prog)) {
-						    return OPJ_TRUE;
+						    return TRUE;
 					    }
 					    else {
-						    return OPJ_FALSE;
+						    return FALSE;
 					    }
 				    }
 				    else {
-					    return OPJ_TRUE;
+					    return TRUE;
 				    }
 				    break;
 				case 'C':
 				    if(tcp->comp_t == tcp->compE) {
 					    if(opj_pi_check_next_level(pos - 1, cp, tileno, pino, prog)) {
-						    return OPJ_TRUE;
+						    return TRUE;
 					    }
 					    else {
-						    return OPJ_FALSE;
+						    return FALSE;
 					    }
 				    }
 				    else {
-					    return OPJ_TRUE;
+					    return TRUE;
 				    }
 				    break;
 				case 'L':
 				    if(tcp->lay_t == tcp->layE) {
 					    if(opj_pi_check_next_level(pos - 1, cp, tileno, pino, prog)) {
-						    return OPJ_TRUE;
+						    return TRUE;
 					    }
 					    else {
-						    return OPJ_FALSE;
+						    return FALSE;
 					    }
 				    }
 				    else {
-					    return OPJ_TRUE;
+					    return TRUE;
 				    }
 				    break;
 				case 'P':
@@ -1302,14 +1293,14 @@ static OPJ_BOOL opj_pi_check_next_level(OPJ_INT32 pos, opj_cp_t * cp, OPJ_UINT32
 					    case OPJ_RLCP:
 						if(tcp->prc_t == tcp->prcE) {
 							if(opj_pi_check_next_level(i - 1, cp, tileno, pino, prog)) {
-								return OPJ_TRUE;
+								return TRUE;
 							}
 							else {
-								return OPJ_FALSE;
+								return FALSE;
 							}
 						}
 						else {
-							return OPJ_TRUE;
+							return TRUE;
 						}
 						break;
 					    default:
@@ -1317,25 +1308,25 @@ static OPJ_BOOL opj_pi_check_next_level(OPJ_INT32 pos, opj_cp_t * cp, OPJ_UINT32
 							/*TY*/
 							if(tcp->ty0_t == tcp->tyE) {
 								if(opj_pi_check_next_level(i - 1, cp, tileno, pino, prog)) {
-									return OPJ_TRUE;
+									return TRUE;
 								}
 								else {
-									return OPJ_FALSE;
+									return FALSE;
 								}
 							}
 							else {
-								return OPJ_TRUE;
+								return TRUE;
 							}/*TY*/
 						}
 						else {
-							return OPJ_TRUE;
+							return TRUE;
 						}
 						break;
 				    }/*end case P*/
 			}/*end switch*/
 		}/*end for*/
 	}/*end if*/
-	return OPJ_FALSE;
+	return FALSE;
 }
 
 /*
@@ -1635,7 +1626,7 @@ opj_pi_iterator_t * opj_pi_initialise_encode(const opj_image_t * p_image,
 	l_step_l = l_max_res * l_step_r;
 
 	/* set values for first packet iterator*/
-	l_pi->tp_on = (OPJ_BYTE)p_cp->m_specific_param.m_enc.m_tp_on;
+	l_pi->tp_on = (uint8)p_cp->m_specific_param.m_enc.m_tp_on;
 	l_current_pi = l_pi;
 
 	/* memory allocation for include*/
@@ -2080,7 +2071,7 @@ void opj_pi_update_encoding_parameters(const opj_image_t * p_image, opj_cp_t * p
 	}
 }
 
-OPJ_BOOL opj_pi_next(opj_pi_iterator_t * pi)
+boolint opj_pi_next(opj_pi_iterator_t * pi)
 {
 	switch(pi->poc.prg) {
 		case OPJ_LRCP: return opj_pi_next_lrcp(pi);
@@ -2088,7 +2079,7 @@ OPJ_BOOL opj_pi_next(opj_pi_iterator_t * pi)
 		case OPJ_RPCL: return opj_pi_next_rpcl(pi);
 		case OPJ_PCRL: return opj_pi_next_pcrl(pi);
 		case OPJ_CPRL: return opj_pi_next_cprl(pi);
-		case OPJ_PROG_UNKNOWN: return OPJ_FALSE;
+		case OPJ_PROG_UNKNOWN: return FALSE;
 	}
-	return OPJ_FALSE;
+	return FALSE;
 }

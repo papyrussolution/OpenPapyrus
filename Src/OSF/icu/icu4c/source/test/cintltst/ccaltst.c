@@ -506,7 +506,7 @@ static void TestCalendar()
 		const char * localeToDisplay = (ucalGetTypeTestPtr->locale != NULL) ? ucalGetTypeTestPtr->locale : "<NULL>";
 		status = U_ZERO_ERROR;
 		caldef = ucal_open(NULL, 0, ucalGetTypeTestPtr->locale, ucalGetTypeTestPtr->calType, &status);
-		if(U_SUCCESS(status) ) {
+		if(U_SUCCESS(status)) {
 			const char * calType = ucal_getType(caldef, &status);
 			if(U_SUCCESS(status) && calType != NULL) {
 				if(uprv_strcmp(calType, ucalGetTypeTestPtr->expectedResult) != 0) {
@@ -1163,7 +1163,7 @@ static void TestAddRollExtensive()
 		ucal_setDateTime(cal, itemPtr->year, itemPtr->month, itemPtr->day, itemPtr->hour, 0, 0, &status);
 		ucal_add(cal, UCAL_DATE, 1, &status);
 		hr = ucal_get(cal, UCAL_HOUR_OF_DAY, &status);
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			log_err("ucal_add failed adding day across transition for zone %s: %s\n", itemPtr->zone, u_errorName(status));
 		}
 		else if(hr != itemPtr->hour) {
@@ -1172,7 +1172,7 @@ static void TestAddRollExtensive()
 		else {
 			ucal_add(cal, UCAL_DATE, -1, &status);
 			hr = ucal_get(cal, UCAL_HOUR_OF_DAY, &status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				log_err("ucal_add failed subtracting day across transition for zone %s: %s\n", itemPtr->zone,
 				    u_errorName(status));
 			}
@@ -1861,14 +1861,14 @@ static void TestWeekend() {
 						fmtStatus = U_ZERO_ERROR;
 					}
 				}
-				if(U_FAILURE(status) ) {
+				if(U_FAILURE(status)) {
 					log_err("FAIL: locale %s date %s isWeekend() status %s\n",
 					    testDatesPtr->locale,
 					    fmtDateBytes,
 					    u_errorName(status));
 					status = U_ZERO_ERROR;
 				}
-				else if((isWeekend!=0) != (weekendDatesPtr->isWeekend!=0) ) {
+				else if((isWeekend!=0) != (weekendDatesPtr->isWeekend!=0)) {
 					log_err("FAIL: locale %s date %s isWeekend %d, expected the opposite\n",
 					    testDatesPtr->locale,
 					    fmtDateBytes,
@@ -1903,7 +1903,7 @@ static void TestWeekend() {
 				if(dayType == UCAL_WEEKEND_ONSET || dayType == UCAL_WEEKEND_CEASE) {
 					transition = ucal_getWeekendTransition(cal, daysOfWeekPtr->dayOfWeek, &status);
 				}
-				if(U_FAILURE(status) ) {
+				if(U_FAILURE(status)) {
 					log_err("FAIL: locale %s DOW %d getDayOfWeekType() status %s\n",
 					    testDaysPtr->locale,
 					    daysOfWeekPtr->dayOfWeek,
@@ -2491,7 +2491,7 @@ void TestAddRollEra0AndEraBounds() {
 	for(eraTestItemPtr = eraTestItems; eraTestItemPtr->locale != NULL; eraTestItemPtr++) {
 		UErrorCode status = U_ZERO_ERROR;
 		UCalendar * ucalTest = ucal_open(zoneGMT, -1, eraTestItemPtr->locale, UCAL_DEFAULT, &status);
-		if(U_SUCCESS(status) ) {
+		if(U_SUCCESS(status)) {
 			int32_t yrBefore, yrAfter, yrMax, eraAfter, eraMax, eraNow;
 
 			status = U_ZERO_ERROR;
@@ -2506,7 +2506,7 @@ void TestAddRollEra0AndEraBounds() {
 				    eraTestItemPtr->locale, u_errorName(status));
 			}
 			else if((eraTestItemPtr->era0YearsGoBackwards && yrAfter>yrBefore) ||
-			    (!eraTestItemPtr->era0YearsGoBackwards && yrAfter<yrBefore) ) {
+			    (!eraTestItemPtr->era0YearsGoBackwards && yrAfter<yrBefore)) {
 				log_err("FAIL: era 0 add 1 year does not move forward in time for %s\n", eraTestItemPtr->locale);
 			}
 
@@ -2522,7 +2522,7 @@ void TestAddRollEra0AndEraBounds() {
 				    eraTestItemPtr->locale, u_errorName(status));
 			}
 			else if((eraTestItemPtr->era0YearsGoBackwards && yrAfter>yrBefore) ||
-			    (!eraTestItemPtr->era0YearsGoBackwards && yrAfter<yrBefore) ) {
+			    (!eraTestItemPtr->era0YearsGoBackwards && yrAfter<yrBefore)) {
 				log_err("FAIL: era 0 roll 1 year does not move forward in time for %s\n", eraTestItemPtr->locale);
 			}
 
@@ -2559,7 +2559,7 @@ void TestAddRollEra0AndEraBounds() {
 					log_err("FAIL: set era 0 year 1 then roll -2 years and get year,era for %s, error %s\n",
 					    eraTestItemPtr->locale, u_errorName(status));
 				}
-				else if(uprv_strcmp(calType, "chinese")!=0 && (eraAfter != 0 || yrAfter != -1) ) {
+				else if(uprv_strcmp(calType, "chinese")!=0 && (eraAfter != 0 || yrAfter != -1)) {
 					log_err(
 						"FAIL: era 0 roll -2 years from year 1 does not stay within era or produce year -1 for %s (get era %d year %d)\n",
 						eraTestItemPtr->locale,
@@ -2792,7 +2792,7 @@ static const TZTransitionItem tzTransitionItems[] = {
 void TestGetTZTransition() {
 	UErrorCode status = U_ZERO_ERROR;
 	UCalendar * ucal = ucal_open(zoneGMT, -1, "en", UCAL_GREGORIAN, &status);
-	if(U_SUCCESS(status) ) {
+	if(U_SUCCESS(status)) {
 		const TZTransitionItem * itemPtr;
 		for(itemPtr = tzTransitionItems; itemPtr->descrip != NULL; itemPtr++) {
 			UDate curMillis;
@@ -2800,7 +2800,7 @@ void TestGetTZTransition() {
 			ucal_setDateTime(ucal, itemPtr->year, itemPtr->month, itemPtr->day, 12, 0, 0, &status);
 			curMillis = ucal_getMillis(ucal, &status);
 			(void)curMillis; /* Suppress set but not used warning. */
-			if(U_SUCCESS(status) ) {
+			if(U_SUCCESS(status)) {
 				UDate transition1, transition2;
 				bool result;
 
@@ -2984,13 +2984,13 @@ void TestGetTimeZoneIDByWindowsID()
 void TestJpnCalAddSetNextEra() {
 	UErrorCode status = U_ZERO_ERROR;
 	UCalendar * jCal = ucal_open(NULL, 0, "ja_JP@calendar=japanese", UCAL_DEFAULT, &status);
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		log_data_err("FAIL: ucal_open for ja_JP@calendar=japanese, status %s\n", u_errorName(status));
 	}
 	else {
 		ucal_clear(jCal); // This sets to 1970, in Showa
 		int32_t sEra = ucal_get(jCal, UCAL_ERA, &status); // Don't assume era number for Showa
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			log_data_err("FAIL: ucal_get ERA for Showa, status %s\n", u_errorName(status));
 		}
 		else {
@@ -3002,7 +3002,7 @@ void TestJpnCalAddSetNextEra() {
 				ucal_clear(jCal);
 				ucal_set(jCal, UCAL_ERA, sEra+iEra);
 				eYear = ucal_get(jCal, UCAL_EXTENDED_YEAR, &status);
-				if(U_FAILURE(status) ) {
+				if(U_FAILURE(status)) {
 					log_err("FAIL: set %d, ucal_get EXTENDED_YEAR, status %s\n", iEra, u_errorName(status));
 				}
 				else if(eYear != startYears[iEra]) {
@@ -3010,12 +3010,12 @@ void TestJpnCalAddSetNextEra() {
 				}
 				else {
 					ucal_add(jCal, UCAL_ERA, 1, &status);
-					if(U_FAILURE(status) ) {
+					if(U_FAILURE(status)) {
 						log_err("FAIL: set %d, ucal_add ERA 1, status %s\n", iEra, u_errorName(status));
 					}
 					else {
 						eYear = ucal_get(jCal, UCAL_EXTENDED_YEAR, &status);
-						if(U_FAILURE(status) ) {
+						if(U_FAILURE(status)) {
 							log_err("FAIL: set %d then add ERA 1, ucal_get EXTENDED_YEAR, status %s\n",
 							    iEra,
 							    u_errorName(status));

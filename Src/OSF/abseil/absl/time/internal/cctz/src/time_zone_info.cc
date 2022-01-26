@@ -615,7 +615,7 @@ std::unique_ptr<ZoneInfoSource> FileZoneInfoSource::Open(const std::string& name
 		path += tzdir;
 		path += '/';
 #if defined(_MSC_VER)
-		free(tzdir_env);
+		SAlloc::F(tzdir_env);
 #endif
 	}
 	path.append(name, pos, std::string::npos);

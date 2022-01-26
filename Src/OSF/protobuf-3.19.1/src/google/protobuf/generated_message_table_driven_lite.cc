@@ -32,8 +32,6 @@
 #pragma hdrstop
 #include <google/protobuf/generated_message_table_driven_lite.h>
 #include <google/protobuf/io/zero_copy_stream_impl_lite.h>
-#include <google/protobuf/metadata_lite.h>
-#include <google/protobuf/repeated_field.h>
 #include <google/protobuf/wire_format_lite.h>
 
 namespace google {

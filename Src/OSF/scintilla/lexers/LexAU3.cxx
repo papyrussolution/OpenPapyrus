@@ -85,11 +85,11 @@ static bool FASTCALL IsAOperator(char ch)
 	return false;
 }
 
-///////////////////////////////////////////////////////////////////////////////
+//
 // GetSendKey() filters the portion before and after a/multiple space(s)
 // and return the first portion to be looked-up in the table
 // also check if the second portion is valid... (up,down.on.off,toggle or a number)
-///////////////////////////////////////////////////////////////////////////////
+//
 
 static int GetSendKey(const char * szLine, char * szKey)
 {
@@ -110,7 +110,7 @@ static int GetSendKey(const char * szLine, char * szKey)
 		}
 		//
 		if(nStartFound == 1) {
-			if((cTemp == ' ') && (nFlag == 0) ) { // get the stuff till first space
+			if((cTemp == ' ') && (nFlag == 0)) { // get the stuff till first space
 				nFlag = 1;
 				// Add } to the end of the first bit for table lookup later.
 				szKey[nKeyPos++] = '}';
@@ -712,7 +712,7 @@ static void FoldAU3Doc(Sci_PositionU startPos, Sci_Position length, int, WordLis
 			// **************************
 			// if a keyword is found on the current line and the line doesn't end with _ (continuation)
 			//    and we are not inside a commentblock.
-			if(szKeywordlen > 0 && (!(chPrev == '_')) && ((!(IsStreamCommentStyle(style)) || foldInComment)) ) {
+			if(szKeywordlen > 0 && (!(chPrev == '_')) && ((!(IsStreamCommentStyle(style)) || foldInComment))) {
 				szKeyword[szKeywordlen] = '\0';
 				// only fold "if" last keyword is "then"  (else its a one line if)
 				if(sstreq(szKeyword, "if") && ThenFoundLast) {

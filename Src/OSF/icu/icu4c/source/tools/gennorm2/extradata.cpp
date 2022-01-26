@@ -43,7 +43,7 @@ int32_t ExtraData::writeMapping(UChar32 c, const Norm &norm, UnicodeString & dat
 		UnicodeString & rm = *norm.rawMapping;
 		int32_t rmLength = rm.length();
 		if(rmLength>Normalizer2Impl::MAPPING_LENGTH_MASK) {
-			fprintf(stderr, "gennorm2 error: raw mapping for U+%04lX longer than maximum of %d\n", (long)c, Normalizer2Impl::MAPPING_LENGTH_MASK);
+			slfprintf_stderr("gennorm2 error: raw mapping for U+%04lX longer than maximum of %d\n", (long)c, Normalizer2Impl::MAPPING_LENGTH_MASK);
 			exit(U_INVALID_FORMAT_ERROR);
 		}
 		UChar rm0 = rm.charAt(0);
@@ -118,7 +118,7 @@ bool ExtraData::setNoNoDelta(UChar32 c, Norm &norm) const
 void ExtraData::writeCompositions(UChar32 c, const Norm &norm, UnicodeString & dataString) 
 {
 	if(norm.cc!=0) {
-		fprintf(stderr, "gennorm2 error: U+%04lX combines-forward and has ccc!=0, not possible in Unicode normalization\n", (long)c);
+		slfprintf_stderr("gennorm2 error: U+%04lX combines-forward and has ccc!=0, not possible in Unicode normalization\n", (long)c);
 		exit(U_INVALID_FORMAT_ERROR);
 	}
 	int32_t length;
@@ -163,11 +163,11 @@ void ExtraData::writeCompositions(UChar32 c, const Norm &norm, UnicodeString & d
 void ExtraData::rangeHandler(UChar32 start, UChar32 end, Norm &norm) 
 {
 	if(start!=end) {
-		fprintf(stderr, "gennorm2 error: unexpected shared data for multiple code points U+%04lX..U+%04lX\n", (long)start, (long)end);
+		slfprintf_stderr("gennorm2 error: unexpected shared data for multiple code points U+%04lX..U+%04lX\n", (long)start, (long)end);
 		exit(U_INTERNAL_PROGRAM_ERROR);
 	}
 	if(norm.error!=nullptr) {
-		fprintf(stderr, "gennorm2 error: U+%04lX %s\n", (long)start, norm.error);
+		slfprintf_stderr("gennorm2 error: U+%04lX %s\n", (long)start, norm.error);
 		exit(U_INVALID_FORMAT_ERROR);
 	}
 	writeExtraData(start, norm);

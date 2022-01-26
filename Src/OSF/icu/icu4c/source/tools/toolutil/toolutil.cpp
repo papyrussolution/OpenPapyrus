@@ -64,7 +64,7 @@ IcuToolErrorCode::~IcuToolErrorCode()
 }
 
 void IcuToolErrorCode::handleFailure() const {
-	fprintf(stderr, "error at %s: %s\n", location, errorName());
+	slfprintf_stderr("error at %s: %s\n", location, errorName());
 	exit(errorCode);
 }
 
@@ -259,7 +259,7 @@ U_CAPI UToolMemory * U_EXPORT2 utm_open(const char * name, int32_t initialCapaci
 
 	mem = (UToolMemory*)uprv_malloc(sizeof(UToolMemory)+initialCapacity*size);
 	if(mem==NULL) {
-		fprintf(stderr, "error: %s - out of memory\n", name);
+		slfprintf_stderr("error: %s - out of memory\n", name);
 		exit(U_MEMORY_ALLOCATION_ERROR);
 	}
 	mem->array = mem->staticArray;
@@ -294,7 +294,7 @@ static bool utm_hasCapacity(UToolMemory * mem, int32_t capacity) {
 		int32_t newCapacity;
 
 		if(mem->maxCapacity<capacity) {
-			fprintf(stderr, "error: %s - trying to use more than maxCapacity=%ld units\n",
+			slfprintf_stderr("error: %s - trying to use more than maxCapacity=%ld units\n",
 			    mem->name, (long)mem->maxCapacity);
 			exit(U_MEMORY_ALLOCATION_ERROR);
 		}
@@ -320,7 +320,7 @@ static bool utm_hasCapacity(UToolMemory * mem, int32_t capacity) {
 			mem->array = uprv_realloc(mem->array, newCapacity*mem->size);
 		}
 		if(mem->array==NULL) {
-			fprintf(stderr, "error: %s - out of memory\n", mem->name);
+			slfprintf_stderr("error: %s - out of memory\n", mem->name);
 			exit(U_MEMORY_ALLOCATION_ERROR);
 		}
 		mem->capacity = newCapacity;

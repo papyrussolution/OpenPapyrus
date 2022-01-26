@@ -51,7 +51,7 @@ bool HasRandenHwAesImplementation() {
 const void* RandenHwAes::GetKeys() {
 	// Attempted to dispatch to an unsupported dispatch target.
 	const int d = ABSL_RANDOM_INTERNAL_AES_DISPATCH;
-	fprintf(stderr, "AES Hardware detection failed (%d).\n", d);
+	slfprintf_stderr("AES Hardware detection failed (%d).\n", d);
 	exit(1);
 	return nullptr;
 }
@@ -60,7 +60,7 @@ const void* RandenHwAes::GetKeys() {
 void RandenHwAes::Absorb(const void*, void*) {
 	// Attempted to dispatch to an unsupported dispatch target.
 	const int d = ABSL_RANDOM_INTERNAL_AES_DISPATCH;
-	fprintf(stderr, "AES Hardware detection failed (%d).\n", d);
+	slfprintf_stderr("AES Hardware detection failed (%d).\n", d);
 	exit(1);
 }
 
@@ -68,7 +68,7 @@ void RandenHwAes::Absorb(const void*, void*) {
 void RandenHwAes::Generate(const void*, void*) {
 	// Attempted to dispatch to an unsupported dispatch target.
 	const int d = ABSL_RANDOM_INTERNAL_AES_DISPATCH;
-	fprintf(stderr, "AES Hardware detection failed (%d).\n", d);
+	slfprintf_stderr("AES Hardware detection failed (%d).\n", d);
 	exit(1);
 }
 }  // namespace random_internal

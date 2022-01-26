@@ -199,7 +199,7 @@ double not_a_number_Removed()
 {
 #if defined (_MSC_VER) || defined (DJGPP) || defined(__DJGPP__) || defined(__MINGW32__)
 	ulong lnan[2] = {0xffffffff, 0x7fffffff};
-	return *(double*)lnan;
+	return *(double *)lnan;
 #else
 	return atof("NaN");
 #endif

@@ -59,11 +59,8 @@ protected:
 };
 
 LexerModule lmEDIFACT(SCLEX_EDIFACT, LexerEDIFACT::Factory, "edifact");
-
-///////////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////////
-
+//
+//
 LexerEDIFACT::LexerEDIFACT()
 {
 	m_bFold = false;
@@ -78,7 +75,6 @@ void LexerEDIFACT::Lex(Sci_PositionU startPos, Sci_Position lengthDoc, int, IDoc
 {
 	Sci_PositionU posFinish = startPos + lengthDoc;
 	InitialiseFromUNA(pAccess, posFinish);
-
 	// Look backwards for a ' or a document beginning
 	Sci_PositionU posCurrent = FindPreviousEnd(pAccess, startPos);
 	// And jump past the ' if this was not the beginning of the document

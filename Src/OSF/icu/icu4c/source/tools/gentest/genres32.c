@@ -63,7 +63,7 @@ U_CFUNC int genres32(const char * prog, const char * path)
 	/*puts(file);*/
 	puts("Generating testtable32.txt");
 	if(out == NULL) {
-		fprintf(stderr, "%s: Couldn't create resource test file %s\n",
+		slfprintf_stderr("%s: Couldn't create resource test file %s\n",
 		    prog, file);
 		return 1;
 	}

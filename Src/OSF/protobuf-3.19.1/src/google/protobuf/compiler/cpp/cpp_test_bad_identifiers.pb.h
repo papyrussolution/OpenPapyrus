@@ -5420,7 +5420,7 @@ inline bool TestConflictingSymbolNames::has_do_() const {
   return _internal_has_do_();
 }
 inline void TestConflictingSymbolNames::clear_do_() {
-  if (do__ != nullptr) do__->Clear();
+  if(do__ != nullptr) do__->Clear();
   _has_bits_[0] &= ~0x00000040u;
 }
 inline const ::protobuf_unittest::TestConflictingSymbolNames_DO& TestConflictingSymbolNames::_internal_do_() const {
@@ -5635,7 +5635,7 @@ inline bool TestConflictingSymbolNames::has_release_do() const {
   return _internal_has_release_do();
 }
 inline void TestConflictingSymbolNames::clear_release_do() {
-  if (release_do_ != nullptr) release_do_->Clear();
+  if(release_do_ != nullptr) release_do_->Clear();
   _has_bits_[0] &= ~0x00000080u;
 }
 inline const ::protobuf_unittest::TestConflictingSymbolNames_DO& TestConflictingSymbolNames::_internal_release_do() const {

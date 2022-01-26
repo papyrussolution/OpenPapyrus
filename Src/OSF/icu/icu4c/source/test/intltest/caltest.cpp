@@ -3919,7 +3919,7 @@ void CalendarTest::TestChineseCalendarMapping() {
 	Locale locEnCalChinese = Locale::createFromName("en@calendar=chinese");
 	LocalPointer<Calendar>  calGregory(Calendar::createInstance(zone->clone(), locEnCalGregory, status));
 	LocalPointer<Calendar>  calChinese(Calendar::createInstance(zone.orphan(), locEnCalChinese, status));
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		errln("Fail: Calendar::createInstance fails for en with calendar=gregorian or calendar=chinese: %s", u_errorName(status));
 	}
 	else {
@@ -3931,7 +3931,7 @@ void CalendarTest::TestChineseCalendarMapping() {
 			calGregory->set(mapPtr->gyr, mapPtr->gmo - 1, mapPtr->gda, 8, 0);
 			UDate date = calGregory->getTime(status);
 			calChinese->setTime(date, status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				errln("Fail: for Gregorian %4d-%02d-%02d, calGregory->getTime or calChinese->setTime reports: %s",
 				    mapPtr->gyr, mapPtr->gmo, mapPtr->gda, u_errorName(status));
 				continue;
@@ -3941,7 +3941,7 @@ void CalendarTest::TestChineseCalendarMapping() {
 			int32_t mo  = calChinese->get(UCAL_MONTH, status) + 1;
 			int32_t lp  = calChinese->get(UCAL_IS_LEAP_MONTH, status);
 			int32_t da  = calChinese->get(UCAL_DATE, status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				errln("Fail: for Gregorian %4d-%02d-%02d, calChinese->get (for era, yr, mo, leapmo, da) reports: %s",
 				    mapPtr->gyr, mapPtr->gmo, mapPtr->gda, u_errorName(status));
 				continue;
@@ -3970,7 +3970,7 @@ void CalendarTest::TestChineseCalendarMapping() {
 			calChinese->set(UCAL_HOUR_OF_DAY, 8);
 			date = calChinese->getTime(status);
 			calGregory->setTime(date, status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				errln("Fail: for Chinese %2d-%02d(%d)-%02d, calChinese->getTime or calGregory->setTime reports: %s",
 				    mapPtr->cyr, mapPtr->cmo, mapPtr->clp, mapPtr->cda, u_errorName(status));
 				continue;
@@ -3978,7 +3978,7 @@ void CalendarTest::TestChineseCalendarMapping() {
 			yr  = calGregory->get(UCAL_YEAR, status);
 			mo  = calGregory->get(UCAL_MONTH, status) + 1;
 			da  = calGregory->get(UCAL_DATE, status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				errln("Fail: for Chinese %2d-%02d(%d)-%02d, calGregory->get (for yr, mo, da) reports: %s",
 				    mapPtr->cyr, mapPtr->cmo, mapPtr->clp, mapPtr->cda, u_errorName(status));
 				continue;

@@ -31,7 +31,6 @@
 #include <protobuf-internal.h>
 #pragma hdrstop
 #include <google/protobuf/util/internal/proto_writer.h>
-#include <google/protobuf/stubs/once.h>
 #include <google/protobuf/wire_format_lite.h>
 #include <google/protobuf/util/internal/field_mask_utility.h>
 #include <google/protobuf/util/internal/object_location_tracker.h>

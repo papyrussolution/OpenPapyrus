@@ -762,9 +762,9 @@ static int cipher_decrypt_gcm(struct ssh_cipher_struct * cipher,
 		AES_GCM_IVLEN,
 		complete_packet,                   /* aad */
 		aadlen,
-		(const uint8*)complete_packet + aadlen + encrypted_size,                    /* tag */
+		(const uint8 *)complete_packet + aadlen + encrypted_size,                    /* tag */
 		authlen,
-		(const uint8*)complete_packet + aadlen,                    /* input */
+		(const uint8 *)complete_packet + aadlen,                    /* input */
 		(uchar *)out);                    /* output */
 	if(rc != 0) {
 		SSH_LOG(SSH_LOG_WARNING, "mbedtls_gcm_auth_decrypt failed");

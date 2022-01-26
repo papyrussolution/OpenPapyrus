@@ -141,7 +141,7 @@ void CompoundTransliteratorTest::TestCloneEqual() {
 	if(copyct1->getID()     != ct1->getID() || copyct2->getID()    != ct2->getID() ||
 	    copyct1->getCount() != ct1->getCount() || copyct2->getCount() != ct2->getCount() ||
 	    copyct2->getID()    == ct1->getID() || copyct1->getID()    == ct2->getID()    ||
-	    copyct2->getCount() == ct1->getCount() || copyct1->getCount() == ct2->getCount() ) {
+	    copyct2->getCount() == ct1->getCount() || copyct1->getCount() == ct2->getCount()) {
 		errln("Error: copy constructors failed");
 	}
 
@@ -150,7 +150,7 @@ void CompoundTransliteratorTest::TestCloneEqual() {
 	    equalct1.getCount() != ct1->getCount() || equalct2.getCount() != ct2->getCount()  ||
 	    copyct2->getID()    == ct1->getID() || copyct1->getID()    == ct2->getID()     ||
 	    equalct1.getCount() != copyct1->getCount() || equalct2.getCount() != copyct2->getCount() ||
-	    equalct2.getCount() == ct1->getCount() || equalct1.getCount() == ct2->getCount() ) {
+	    equalct2.getCount() == ct1->getCount() || equalct1.getCount() == ct2->getCount()) {
 		errln("Error: =operator or copy constructor failed");
 	}
 

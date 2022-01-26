@@ -37,15 +37,10 @@
 #include <google/protobuf/unittest_arena.pb.h>
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl_lite.h>
-#include <google/protobuf/extension_set.h>
 #include <google/protobuf/message.h>
-#include <google/protobuf/message_lite.h>
-#include <google/protobuf/repeated_field.h>
 #include <google/protobuf/unknown_field_set.h>
-#include <google/protobuf/wire_format_lite.h>
 #include <gtest/gtest.h>
-// Must be included last
-#include <google/protobuf/port_def.inc>
+#include <google/protobuf/port_def.inc> // Must be included last
 
 using proto2_arena_unittest::ArenaMessage;
 using protobuf_unittest::TestAllExtensions;

@@ -140,7 +140,7 @@ U_CAPI void U_EXPORT2 usrc_writeArray(FILE * f,
 		case 8: p8 = (const uint8_t*)p; break;
 		case 16: p16 = (const uint16_t*)p; break;
 		case 32: p32 = (const uint32_t*)p; break;
-		default: fprintf(stderr, "usrc_writeArray(width=%ld) unrecognized width\n", (long)width); return;
+		default: slfprintf_stderr("usrc_writeArray(width=%ld) unrecognized width\n", (long)width); return;
 	}
 	if(prefix) {
 		fprintf(f, prefix, (long)length);

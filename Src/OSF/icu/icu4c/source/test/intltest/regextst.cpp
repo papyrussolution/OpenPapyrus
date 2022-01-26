@@ -319,7 +319,7 @@ static UText* regextst_openUTF8FromInvariant(UText * ut, const char * inv, int64
 	return utext_openUTF8(ut, inv, length, status);
 #else
 	if(inv_next+length+1>INV_BUFSIZ) {
-		fprintf(stderr, "%s:%d Error: INV_BUFSIZ #defined to be %d but needs to be at least %d.\n",
+		slfprintf_stderr("%s:%d Error: INV_BUFSIZ #defined to be %d but needs to be at least %d.\n",
 		    __FILE__, __LINE__, INV_BUFSIZ, (inv_next+length+1));
 		*status = U_MEMORY_ALLOCATION_ERROR;
 		return NULL;
@@ -330,7 +330,7 @@ static UText* regextst_openUTF8FromInvariant(UText * ut, const char * inv, int64
 	inv_next += length;
 
 #if 0
-	fprintf(stderr, " Note: INV_BUFSIZ at %d, used=%d\n", INV_BUFSIZ, inv_next);
+	slfprintf_stderr(" Note: INV_BUFSIZ at %d, used=%d\n", INV_BUFSIZ, inv_next);
 #endif
 
 	return utext_openUTF8(ut, (const char *)buf, length, status);
@@ -3580,13 +3580,13 @@ void RegexTest::regex_find(const UnicodeString & pattern,
 	//    positions.
 	//
 	parsePat = RegexPattern::compile("<(/?)(r|[0-9]+)>", 0, pe, status);
-	if(!assertSuccess(WHERE, status) ) {
+	if(!assertSuccess(WHERE, status)) {
 		goto cleanupAndReturn;
 	}
 
 	unEscapedInput = inputString.unescape();
 	parseMatcher = parsePat->matcher(unEscapedInput, status);
-	if(!assertSuccess(WHERE, status) ) {
+	if(!assertSuccess(WHERE, status)) {
 		goto cleanupAndReturn;
 	}
 	while(parseMatcher->find()) {

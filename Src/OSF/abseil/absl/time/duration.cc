@@ -1,17 +1,6 @@
 // Copyright 2017 The Abseil Authors.
-//
 // Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
 //
-//      https://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 // The implementation of the absl::Duration class, which is declared in
 // //absl/time.h.  This class behaves like a numeric type; it has no public
 // methods and is used only through the operators defined here.
@@ -228,29 +217,26 @@ inline Duration ScaleFixed(Duration d, int64_t r) {
 
 // Scales (i.e., multiplies or divides, depending on the Operation template)
 // the Duration d by the double r.
-template <template <typename> class Operation>
-inline Duration ScaleDouble(Duration d, double r) {
+template <template <typename> class Operation> inline Duration ScaleDouble(Duration d, double r) 
+{
 	Operation<double> op;
 	double hi_doub = op(time_internal::GetRepHi(d), r);
 	double lo_doub = op(time_internal::GetRepLo(d), r);
-
 	double hi_int = 0;
 	double hi_frac = std::modf(hi_doub, &hi_int);
-
 	// Moves hi's fractional bits to lo.
 	lo_doub /= kTicksPerSecond;
 	lo_doub += hi_frac;
-
 	double lo_int = 0;
 	double lo_frac = std::modf(lo_doub, &lo_int);
-
 	// Rolls lo into hi if necessary.
-	int64_t lo64 = Round(lo_frac * kTicksPerSecond);
+	int64_t lo64 = static_cast<int64_t>(Round(lo_frac * kTicksPerSecond));
 
 	Duration ans;
 	if(!SafeAddRepHi(hi_int, lo_int, &ans)) return ans;
 	int64_t hi64 = time_internal::GetRepHi(ans);
-	if(!SafeAddRepHi(hi64, lo64 / kTicksPerSecond, &ans)) return ans;
+	if(!SafeAddRepHi(hi64, lo64 / kTicksPerSecond, &ans)) 
+		return ans;
 	hi64 = time_internal::GetRepHi(ans);
 	lo64 %= kTicksPerSecond;
 	NormalizeTicks(&hi64, &lo64);
@@ -260,18 +246,15 @@ inline Duration ScaleDouble(Duration d, double r) {
 // Tries to divide num by den as fast as possible by looking for common, easy
 // cases. If the division was done, the quotient is in *q and the remainder is
 // in *rem and true will be returned.
-inline bool IDivFastPath(const Duration num, const Duration den, int64_t* q,
-    Duration* rem) {
+inline bool IDivFastPath(const Duration num, const Duration den, int64_t* q, Duration* rem) 
+{
 	// Bail if num or den is an infinity.
-	if(time_internal::IsInfiniteDuration(num) ||
-	    time_internal::IsInfiniteDuration(den))
+	if(time_internal::IsInfiniteDuration(num) || time_internal::IsInfiniteDuration(den))
 		return false;
-
 	int64_t num_hi = time_internal::GetRepHi(num);
 	uint32_t num_lo = time_internal::GetRepLo(num);
 	int64_t den_hi = time_internal::GetRepHi(den);
 	uint32_t den_lo = time_internal::GetRepLo(den);
-
 	if(den_hi == 0 && den_lo == kTicksPerNanosecond) {
 		// Dividing by 1ns
 		if(num_hi >= 0 && num_hi < (kint64max - kTicksPerSecond) / 1000000000) {
@@ -630,7 +613,8 @@ timespec ToTimespec(Duration d) {
 	return ts;
 }
 
-timeval ToTimeval(Duration d) {
+timeval ToTimeval(Duration d) 
+{
 	timeval tv;
 	timespec ts = ToTimespec(d);
 	if(ts.tv_sec < 0) {
@@ -642,7 +626,7 @@ timeval ToTimeval(Duration d) {
 			ts.tv_nsec -= 1000 * 1000 * 1000;
 		}
 	}
-	tv.tv_sec = ts.tv_sec;
+	tv.tv_sec = static_cast<long>(ts.tv_sec);
 	if(tv.tv_sec != ts.tv_sec) { // narrowing
 		if(ts.tv_sec < 0) {
 			tv.tv_sec = std::numeric_limits<decltype(tv.tv_sec)>::min();
@@ -738,14 +722,15 @@ void AppendNumberUnit(std::string* out, int64_t n, DisplayUnit unit) {
 
 // Note: unit.prec is limited to double's digits10 value (typically 15) so it
 // always fits in buf[].
-void AppendNumberUnit(std::string* out, double n, DisplayUnit unit) {
+void AppendNumberUnit(std::string* out, double n, DisplayUnit unit) 
+{
 	constexpr int kBufferSize = std::numeric_limits<double>::digits10;
 	const int prec = std::min(kBufferSize, unit.prec);
 	char buf[kBufferSize]; // also large enough to hold integer part
 	char* ep = buf + sizeof(buf);
-	double d = 0;
-	int64_t frac_part = Round(std::modf(n, &d) * unit.pow10);
-	int64_t int_part = d;
+	double d = 0.0;
+	int64_t frac_part = static_cast<int64_t>(Round(std::modf(n, &d) * unit.pow10));
+	int64_t int_part = static_cast<int64_t>(d);
 	if(int_part != 0 || frac_part != 0) {
 		char* bp = Format64(ep, 0, int_part); // always < 1000
 		out->append(bp, ep - bp);

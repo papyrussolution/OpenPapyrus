@@ -298,29 +298,23 @@ typedef struct u_scanf_info {
 /* We do not use handlers for 0-0x1f */
 #define USCANF_BASE_FMT_HANDLERS 0x20
 
-static int32_t u_scanf_skip_leading_ws(UFILE * input,
-    UChar pad)
+static int32_t u_scanf_skip_leading_ws(UFILE * input, UChar pad)
 {
 	UChar c;
 	int32_t count = 0;
 	bool isNotEOF;
-
 	/* skip all leading ws in the input */
-	while(((isNotEOF = ufile_getch(input, &c)) == TRUE) && (c == pad || u_isWhitespace(c)) ) {
+	while(((isNotEOF = ufile_getch(input, &c)) == TRUE) && (c == pad || u_isWhitespace(c))) {
 		count++;
 	}
-
 	/* put the final character back on the input */
 	if(isNotEOF)
 		u_fungetc(c, input);
-
 	return count;
 }
 
 /* TODO: Is always skipping the prefix symbol as a positive sign a good idea in all locales? */
-static int32_t u_scanf_skip_leading_positive_sign(UFILE * input,
-    UNumberFormat * format,
-    UErrorCode * status)
+static int32_t u_scanf_skip_leading_positive_sign(UFILE * input, UNumberFormat * format, UErrorCode * status)
 {
 	UChar c;
 	int32_t count = 0;
@@ -328,27 +322,19 @@ static int32_t u_scanf_skip_leading_positive_sign(UFILE * input,
 	UChar plusSymbol[USCANF_SYMBOL_BUFFER_SIZE];
 	int32_t symbolLen;
 	UErrorCode localStatus = U_ZERO_ERROR;
-
 	if(U_SUCCESS(*status)) {
-		symbolLen = unum_getSymbol(format,
-			UNUM_PLUS_SIGN_SYMBOL,
-			plusSymbol,
-			UPRV_LENGTHOF(plusSymbol),
-			&localStatus);
-
+		symbolLen = unum_getSymbol(format, UNUM_PLUS_SIGN_SYMBOL, plusSymbol, UPRV_LENGTHOF(plusSymbol), &localStatus);
 		if(U_SUCCESS(localStatus)) {
 			/* skip all leading ws in the input */
-			while(((isNotEOF = ufile_getch(input, &c)) == TRUE) && (count < symbolLen && c == plusSymbol[count]) ) {
+			while(((isNotEOF = ufile_getch(input, &c)) == TRUE) && (count < symbolLen && c == plusSymbol[count])) {
 				count++;
 			}
-
 			/* put the final character back on the input */
 			if(isNotEOF) {
 				u_fungetc(c, input);
 			}
 		}
 	}
-
 	return count;
 }
 
@@ -425,7 +411,7 @@ static int32_t u_scanf_double_handler(UFILE * input, u_scanf_spec_info * info, u
 
 	if(!info->fSkipArg) {
 		if(info->fIsLong)
-			*(double*)(args[0].ptrValue) = num;
+			*(double *)(args[0].ptrValue) = num;
 		else if(info->fIsLongDouble)
 			*(long double*)(args[0].ptrValue) = num;
 		else
@@ -489,7 +475,7 @@ static int32_t u_scanf_scientific_handler(UFILE * input, u_scanf_spec_info * inf
 	num = unum_parseDouble(format, input->str.fPos, len, &parsePos, &status);
 	if(!info->fSkipArg) {
 		if(info->fIsLong)
-			*(double*)(args[0].ptrValue) = num;
+			*(double *)(args[0].ptrValue) = num;
 		else if(info->fIsLongDouble)
 			*(long double*)(args[0].ptrValue) = num;
 		else
@@ -573,7 +559,7 @@ static int32_t u_scanf_scidbl_handler(UFILE * input, u_scanf_spec_info * info, u
 
 	if(!info->fSkipArg) {
 		if(info->fIsLong)
-			*(double*)(args[0].ptrValue) = num;
+			*(double *)(args[0].ptrValue) = num;
 		else if(info->fIsLongDouble)
 			*(long double*)(args[0].ptrValue) = num;
 		else
@@ -713,7 +699,7 @@ static int32_t u_scanf_percent_handler(UFILE * input,
 	num = unum_parseDouble(format, input->str.fPos, len, &parsePos, &status);
 
 	if(!info->fSkipArg) {
-		*(double*)(args[0].ptrValue) = num;
+		*(double *)(args[0].ptrValue) = num;
 	}
 
 	/* mask off any necessary bits */
@@ -938,7 +924,7 @@ static int32_t u_scanf_spellout_handler(UFILE      * input,
 	num = unum_parseDouble(format, input->str.fPos, len, &parsePos, &status);
 
 	if(!info->fSkipArg) {
-		*(double*)(args[0].ptrValue) = num;
+		*(double *)(args[0].ptrValue) = num;
 	}
 
 	/* mask off any necessary bits */
@@ -983,7 +969,7 @@ static int32_t u_scanf_hex_handler(UFILE * input,
 
 	/* check for alternate form */
 	if(*(input->str.fPos) == 0x0030 &&
-	    (*(input->str.fPos + 1) == 0x0078 || *(input->str.fPos + 1) == 0x0058) ) {
+	    (*(input->str.fPos + 1) == 0x0078 || *(input->str.fPos + 1) == 0x0058)) {
 		/* skip the '0' and 'x' or 'X' if present */
 		input->str.fPos += 2;
 		len -= 2;
@@ -1143,7 +1129,7 @@ static int32_t u_scanf_scanset_handler(UFILE * input,
 
 		/* grab characters one at a time and make sure they are in the scanset */
 		while(chLeft > 0) {
-			if(((isNotEOF = ufile_getch32(input, &c)) == TRUE) && uset_contains(scanset, c) ) {
+			if(((isNotEOF = ufile_getch32(input, &c)) == TRUE) && uset_contains(scanset, c)) {
 				readCharacter = TRUE;
 				if(!info->fSkipArg) {
 					int32_t idx = 0;
@@ -1234,27 +1220,21 @@ static const u_scanf_info g_u_scanf_infos[USCANF_NUM_FMT_HANDLERS] = {
 	UFMT_EMPTY,         UFMT_EMPTY,         UFMT_EMPTY,         UFMT_EMPTY,
 };
 
-U_CFUNC int32_t u_scanf_parse(UFILE * f,
-    const UChar * patternSpecification,
-    va_list ap)
+U_CFUNC int32_t u_scanf_parse(UFILE * f, const UChar * patternSpecification, va_list ap)
 {
 	const UChar * alias;
 	int32_t count, converted, argConsumed, cpConsumed;
 	uint16_t handlerNum;
-
 	ufmt_args args;
 	u_scanf_spec spec;
 	ufmt_type_info info;
 	u_scanf_handler handler;
-
 	/* alias the pattern */
 	alias = patternSpecification;
-
 	/* haven't converted anything yet */
 	argConsumed = 0;
 	converted = 0;
 	cpConsumed = 0;
-
 	/* iterate through the pattern */
 	for(;;) {
 		/* match any characters up to the next '%' */

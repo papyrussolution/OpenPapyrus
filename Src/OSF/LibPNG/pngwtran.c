@@ -65,29 +65,23 @@ static void png_do_pack(png_row_infop row_info, png_bytep row, uint32 bit_depth)
 			case 2:
 		    {
 			    png_bytep sp, dp;
-			    unsigned int shift;
+			    uint shift;
 			    int v;
 			    uint32 i;
 			    uint32 row_width = row_info->width;
-
 			    sp = row;
 			    dp = row;
 			    shift = 6;
 			    v = 0;
-
 			    for(i = 0; i < row_width; i++) {
-				    uint8 value;
-
-				    value = (uint8)(*sp & 0x03);
+				    uint8 value = (uint8)(*sp & 0x03);
 				    v |= (value << shift);
-
 				    if(shift == 0) {
 					    shift = 6;
 					    *dp = static_cast<uint8>(v);
 					    dp++;
 					    v = 0;
 				    }
-
 				    else
 					    shift -= 2;
 
@@ -103,22 +97,17 @@ static void png_do_pack(png_row_infop row_info, png_bytep row, uint32 bit_depth)
 			case 4:
 		    {
 			    png_bytep sp, dp;
-			    unsigned int shift;
+			    uint shift;
 			    int v;
 			    uint32 i;
 			    uint32 row_width = row_info->width;
-
 			    sp = row;
 			    dp = row;
 			    shift = 4;
 			    v = 0;
-
 			    for(i = 0; i < row_width; i++) {
-				    uint8 value;
-
-				    value = (uint8)(*sp & 0x0f);
+				    uint8 value = (uint8)(*sp & 0x0f);
 				    v |= (value << shift);
-
 				    if(shift == 0) {
 					    shift = 4;
 					    *dp = static_cast<uint8>(v);
@@ -193,7 +182,7 @@ static void png_do_shift(png_row_infop row_info, png_bytep row, png_const_color_
 		if(row_info->bit_depth < 8) {
 			png_bytep bp = row;
 			size_t i;
-			unsigned int mask;
+			uint mask;
 			size_t row_bytes = row_info->rowbytes;
 			if(bit_depth->gray == 1 && row_info->bit_depth == 2)
 				mask = 0x55;
@@ -202,8 +191,8 @@ static void png_do_shift(png_row_infop row_info, png_bytep row, png_const_color_
 			else
 				mask = 0xff;
 			for(i = 0; i < row_bytes; i++, bp++) {
-				unsigned int v = *bp;
-				unsigned int out = 0;
+				uint v = *bp;
+				uint out = 0;
 				for(int j = shift_start[0]; j > -shift_dec[0]; j -= shift_dec[0]) {
 					if(j > 0)
 						out |= v << j;
@@ -218,9 +207,9 @@ static void png_do_shift(png_row_infop row_info, png_bytep row, png_const_color_
 			uint32 i;
 			uint32 istop = channels * row_info->width;
 			for(i = 0; i < istop; i++, bp++) {
-				const unsigned int c = i%channels;
-				unsigned int v = *bp;
-				unsigned int out = 0;
+				const uint c = i%channels;
+				uint v = *bp;
+				uint out = 0;
 				for(int j = shift_start[c]; j > -shift_dec[c]; j -= shift_dec[c]) {
 					if(j > 0)
 						out |= v << j;
@@ -235,10 +224,10 @@ static void png_do_shift(png_row_infop row_info, png_bytep row, png_const_color_
 			uint32 i;
 			const uint32 istop = channels * row_info->width;
 			for(bp = row, i = 0; i < istop; i++) {
-				const unsigned int c = i%channels;
+				const uint c = i%channels;
 				int j;
-				unsigned int v = png_get_uint_16(bp);
-				unsigned int value = 0;
+				uint v = png_get_uint_16(bp);
+				uint value = 0;
 				for(j = shift_start[c]; j > -shift_dec[c]; j -= shift_dec[c]) {
 					if(j > 0)
 						value |= v << j;

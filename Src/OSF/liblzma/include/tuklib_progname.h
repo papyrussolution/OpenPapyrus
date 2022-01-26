@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
+//
 //
 /// \file       tuklib_progname.h
 /// \brief      Program name to be displayed in messages
@@ -8,7 +8,7 @@
 //  This file has been put into the public domain.
 //  You can do whatever you want with this file.
 //
-///////////////////////////////////////////////////////////////////////////////
+//
 
 #ifndef TUKLIB_PROGNAME_H
 #define TUKLIB_PROGNAME_H

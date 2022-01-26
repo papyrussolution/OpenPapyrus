@@ -57,7 +57,7 @@
 int pthread_detach(pthread_t thread)
 {
 	int result;
-	BOOL destroyIt =  __PTW32_FALSE;
+	BOOL destroyIt =  FALSE;
 	__ptw32_thread_t * tp = static_cast<__ptw32_thread_t *>(thread.p);
 	__ptw32_mcs_local_node_t reuseLock;
 	__ptw32_mcs_lock_acquire(&__ptw32_thread_reuse_lock, &reuseLock);
@@ -69,23 +69,20 @@ int pthread_detach(pthread_t thread)
 	}
 	else {
 		__ptw32_mcs_local_node_t stateLock;
-		/*
-		 * Joinable __ptw32_thread_t structs are not scavenged until
-		 * a join or detach is done. The thread may have exited already,
-		 * but all of the state and locks etc are still there.
-		 */
+		// 
+		// Joinable __ptw32_thread_t structs are not scavenged until
+		// a join or detach is done. The thread may have exited already,
+		// but all of the state and locks etc are still there.
+		// 
 		result = 0;
 		__ptw32_mcs_lock_acquire(&tp->stateLock, &stateLock);
 		if(tp->state < PThreadStateLast) {
 			tp->detachState = PTHREAD_CREATE_DETACHED;
-			if(tp->state == PThreadStateExiting) {
-				destroyIt = __PTW32_TRUE;
-			}
+			if(tp->state == PThreadStateExiting)
+				destroyIt = TRUE;
 		}
-		else if(tp->detachState != PTHREAD_CREATE_DETACHED) {
-			// Thread is joinable and has exited or is exiting.
-			destroyIt =  __PTW32_TRUE;
-		}
+		else if(tp->detachState != PTHREAD_CREATE_DETACHED)
+			destroyIt =  TRUE; // Thread is joinable and has exited or is exiting.
 		__ptw32_mcs_lock_release(&stateLock);
 	}
 	__ptw32_mcs_lock_release(&reuseLock);

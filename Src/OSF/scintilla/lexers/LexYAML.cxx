@@ -295,7 +295,7 @@ static void FoldYAMLDoc(Sci_PositionU startPos, Sci_Position length, int /*initS
 			styler.SetLevel(skipLine, skipLevel | whiteFlag);
 		}
 		// Set fold header on non-comment line
-		if(!comment && !(indentCurrent & SC_FOLDLEVELWHITEFLAG) ) {
+		if(!comment && !(indentCurrent & SC_FOLDLEVELWHITEFLAG)) {
 			if((indentCurrent & SC_FOLDLEVELNUMBERMASK) < (indentNext & SC_FOLDLEVELNUMBERMASK))
 				lev |= SC_FOLDLEVELHEADERFLAG;
 		}

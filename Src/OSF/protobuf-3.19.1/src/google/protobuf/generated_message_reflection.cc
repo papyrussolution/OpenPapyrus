@@ -36,13 +36,11 @@
 #pragma hdrstop
 #include <google/protobuf/generated_message_reflection.h>
 #include <google/protobuf/descriptor.pb.h>
-#include <google/protobuf/extension_set.h>
 #include <google/protobuf/generated_message_util.h>
 #include <google/protobuf/inlined_string_field.h>
 #include <google/protobuf/map_field.h>
 #include <google/protobuf/map_field_inl.h>
 #include <google/protobuf/stubs/mutex.h>
-#include <google/protobuf/repeated_field.h>
 #include <google/protobuf/unknown_field_set.h>
 #include <google/protobuf/stubs/casts.h>
 #include <google/protobuf/stubs/strutil.h>

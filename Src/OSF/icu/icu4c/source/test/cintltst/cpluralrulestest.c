@@ -74,7 +74,7 @@ static void TestPluralRules()
 	for(testItemPtr = testItems; testItemPtr->locale != NULL; ++testItemPtr) {
 		UErrorCode status = U_ZERO_ERROR;
 		UPluralRules* uplrules = uplrules_open(testItemPtr->locale, &status);
-		if(U_SUCCESS(status) ) {
+		if(U_SUCCESS(status)) {
 			UNumberFormat * unumfmt;
 			UChar keyword[kKeywordBufLen];
 			UChar keywordExpected[kKeywordBufLen];
@@ -82,7 +82,7 @@ static void TestPluralRules()
 			if(keywdLen >= kKeywordBufLen) {
 				keyword[kKeywordBufLen-1] = 0;
 			}
-			if(U_SUCCESS(status) ) {
+			if(U_SUCCESS(status)) {
 				u_unescape(testItemPtr->keywordExpected, keywordExpected, kKeywordBufLen);
 				if(u_strcmp(keyword, keywordExpected) != 0) {
 					char bcharBuf[kKeywordBufLen];
@@ -98,7 +98,7 @@ static void TestPluralRules()
 
 			status = U_ZERO_ERROR;
 			unumfmt = unum_open(UNUM_PATTERN_DECIMAL, twoDecimalPat, -1, testItemPtr->locale, NULL, &status);
-			if(U_SUCCESS(status) ) {
+			if(U_SUCCESS(status)) {
 				keywdLen = uplrules_selectWithFormat(uplrules,
 					testItemPtr->number,
 					unumfmt,
@@ -108,7 +108,7 @@ static void TestPluralRules()
 				if(keywdLen >= kKeywordBufLen) {
 					keyword[kKeywordBufLen-1] = 0;
 				}
-				if(U_SUCCESS(status) ) {
+				if(U_SUCCESS(status)) {
 					u_unescape(testItemPtr->keywordExpectedForDecimals, keywordExpected, kKeywordBufLen);
 					if(u_strcmp(keyword, keywordExpected) != 0) {
 						char bcharBuf[kKeywordBufLen];

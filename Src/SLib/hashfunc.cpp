@@ -2712,7 +2712,7 @@ void SlHash::__Sha256TransformHelper(State::ShaCtx * pCtx, const void * pBuffer)
 			}
 		}
 		else { // final
-			if(r_ctx.Num < sizeof(r_ctx.Data) ) {
+			if(r_ctx.Num < sizeof(r_ctx.Data)) {
 				r_ctx.Count += r_ctx.Num * 8; // Increase the Count of the message
 				PTR8(r_ctx.Data)[r_ctx.Num++] = (uint8)0x80; // Append the '1' bit
 				// if the Count is currently above 56 bytes we append zeros

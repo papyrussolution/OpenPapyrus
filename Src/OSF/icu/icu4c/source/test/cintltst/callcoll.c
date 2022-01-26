@@ -1308,7 +1308,7 @@ static void TestBadKey(void)
 	while((badLoc = *badLocsPtr++) != NULL) {
 		UErrorCode status = U_ZERO_ERROR;
 		UCollator* uc = ucol_open(badLoc, &status);
-		if(U_SUCCESS(status) ) {
+		if(U_SUCCESS(status)) {
 			if(uc == NULL) {
 				log_err("ucol_open sets SUCCESS but returns NULL, locale: %s\n", badLoc);
 			}

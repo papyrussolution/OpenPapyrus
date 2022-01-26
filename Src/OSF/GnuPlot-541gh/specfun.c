@@ -401,7 +401,7 @@ double lngamma(double x)
 	};
 	/* log( sqrt( 2*pi ) ) */
 	static const ushort LS2P[] = {040153, 037616, 041445, 0172645, };
-#define LS2PI *(double*)LS2P
+#define LS2PI *(double *)LS2P
 #define MAXLGM 2.035093e36
 #endif /* DEC */
 
@@ -434,7 +434,7 @@ double lngamma(double x)
 	static const ushort LS2P[] = {
 		0xbeb5, 0xc864, 0x67f1, 0x3fed
 	};
-#define LS2PI *(double*)LS2P
+#define LS2PI *(double *)LS2P
 #define MAXLGM 2.556348e305
 #endif /* IBMPC */
 
@@ -466,7 +466,7 @@ double lngamma(double x)
 	static const ushort LS2P[] = {
 		0x3fed, 0x67f1, 0xc864, 0xbeb5
 	};
-#define LS2PI *(double*)LS2P
+#define LS2PI *(double *)LS2P
 #define MAXLGM 2.556348e305
 #endif /* MIEEE */
 	static const double LOGPI = 1.1447298858494001741434273513530587116472948129153;
@@ -1307,15 +1307,15 @@ void GnuPlot::F_InverseErf(union argument * /*arg*/)
 #endif
 #ifdef DEC
 	static ushort s2p[] = {0040440, 0066230, 0177661, 0034055};
-	#define s2pi *(double*)s2p
+	#define s2pi *(double *)s2p
 #endif
 #ifdef IBMPC
 static ushort s2p[] = {0x2706, 0x1ff6, 0x0d93, 0x4004};
-#define s2pi *(double*)s2p
+#define s2pi *(double *)s2p
 #endif
 #ifdef MIEEE
 static ushort s2p[] = { 0x4004, 0x0d93, 0x1ff6, 0x2706 };
-#define s2pi *(double*)s2p
+#define s2pi *(double *)s2p
 #endif
 
 static double inverse_normal_func(double y0)

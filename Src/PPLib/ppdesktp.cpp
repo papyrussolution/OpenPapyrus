@@ -1,5 +1,5 @@
 // PPDESKTP.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -842,8 +842,10 @@ void PPDesktop::DrawIcon(TCanvas & rC, long id, SPoint2S coord, const SString & 
 				else
 					h_icon = LoadIcon(TProgram::GetInst(), MAKEINTRESOURCE(icon_id));
 			}
-			else
+			else {
+				// @v11.2.12 @todo: иногда эта функция работает очень медленно
 				h_icon = static_cast<HICON>(::LoadImage(0, SUcSwitch(rIcon), IMAGE_ICON, IconSize, IconSize, LR_LOADFROMFILE));
+			}
 		}
 		SETIFZ(h_icon, LoadIcon(TProgram::GetInst(), MAKEINTRESOURCE(ICON_DEFAULT)));
 		if(h_icon) {

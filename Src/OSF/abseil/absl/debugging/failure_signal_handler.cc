@@ -1,17 +1,6 @@
 //
 // Copyright 2018 The Abseil Authors.
-//
 // Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      https://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 //
 #include "absl/absl-internal.h"
 #pragma hdrstop
@@ -119,18 +108,14 @@ static bool SetupAlternateStackOnce() {
 #else
 	const size_t page_mask = sysconf(_SC_PAGESIZE) - 1;
 #endif
-	size_t stack_size =
-	    (std::max<size_t>(SIGSTKSZ, 65536) + page_mask) & ~page_mask;
-#if defined(ABSL_HAVE_ADDRESS_SANITIZER) || \
-	defined(ABSL_HAVE_MEMORY_SANITIZER) || defined(ABSL_HAVE_THREAD_SANITIZER)
+	size_t stack_size = (std::max<size_t>(SIGSTKSZ, 65536) + page_mask) & ~page_mask;
+#if defined(ABSL_HAVE_ADDRESS_SANITIZER) || defined(ABSL_HAVE_MEMORY_SANITIZER) || defined(ABSL_HAVE_THREAD_SANITIZER)
 	// Account for sanitizer instrumentation requiring additional stack space.
 	stack_size *= 5;
 #endif
-
 	stack_t sigstk;
-	memset(&sigstk, 0, sizeof(sigstk));
+	memzero(&sigstk, sizeof(sigstk));
 	sigstk.ss_size = stack_size;
-
 #ifdef ABSL_HAVE_MMAP
 #ifndef MAP_STACK
 #define MAP_STACK 0
@@ -138,18 +123,16 @@ static bool SetupAlternateStackOnce() {
 #if defined(MAP_ANON) && !defined(MAP_ANONYMOUS)
 #define MAP_ANONYMOUS MAP_ANON
 #endif
-	sigstk.ss_sp = mmap(nullptr, sigstk.ss_size, PROT_READ | PROT_WRITE,
-		MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK, -1, 0);
+	sigstk.ss_sp = mmap(nullptr, sigstk.ss_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK, -1, 0);
 	if(sigstk.ss_sp == MAP_FAILED) {
 		ABSL_RAW_LOG(FATAL, "mmap() for alternate signal stack failed");
 	}
 #else
-	sigstk.ss_sp = malloc(sigstk.ss_size);
+	sigstk.ss_sp = SAlloc::M(sigstk.ss_size);
 	if(sigstk.ss_sp == nullptr) {
 		ABSL_RAW_LOG(FATAL, "malloc() for alternate signal stack failed");
 	}
 #endif
-
 	if(sigaltstack(&sigstk, nullptr) != 0) {
 		ABSL_RAW_LOG(FATAL, "sigaltstack() failed with errno=%d", errno);
 	}

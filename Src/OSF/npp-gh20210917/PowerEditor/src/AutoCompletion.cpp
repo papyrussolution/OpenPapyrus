@@ -818,7 +818,7 @@ bool AutoCompletion::setLanguage(LangType language)
 		//Iterate through all keywords
 		TiXmlElement * funcNode = _pXmlKeyword;
 
-		for(; funcNode; funcNode = funcNode->NextSiblingElement(TEXT("KeyWord")) ) {
+		for(; funcNode; funcNode = funcNode->NextSiblingElement(TEXT("KeyWord"))) {
 			const TCHAR * name = funcNode->Attribute(TEXT("name"));
 			if(name) {
 				size_t len = lstrlen(name);

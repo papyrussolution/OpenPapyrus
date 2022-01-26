@@ -1154,58 +1154,46 @@ uint32 PNGAPI png_permit_mng_features(png_structrp png_ptr, uint32 mng_features)
 #endif
 
 #ifdef PNG_HANDLE_AS_UNKNOWN_SUPPORTED
-static unsigned int add_one_chunk(png_bytep list, unsigned int count, png_const_bytep add, int keep)
+static uint add_one_chunk(png_bytep list, uint count, png_const_bytep add, int keep)
 {
-	unsigned int i;
-
 	/* Utility function: update the 'keep' state of a chunk if it is already in
 	 * the list, otherwise add it to the list.
 	 */
-	for(i = 0; i < count; ++i, list += 5) {
+	for(uint i = 0; i < count; ++i, list += 5) {
 		if(memcmp(list, add, 4) == 0) {
 			list[4] = (uint8)keep;
-
 			return count;
 		}
 	}
-
 	if(keep != PNG_HANDLE_CHUNK_AS_DEFAULT) {
 		++count;
 		memcpy(list, add, 4);
 		list[4] = (uint8)keep;
 	}
-
 	return count;
 }
 
-void PNGAPI png_set_keep_unknown_chunks(png_structrp png_ptr, int keep,
-    png_const_bytep chunk_list, int num_chunks_in)
+void PNGAPI png_set_keep_unknown_chunks(png_structrp png_ptr, int keep, png_const_bytep chunk_list, int num_chunks_in)
 {
 	png_bytep new_list;
-	unsigned int num_chunks, old_num_chunks;
-
+	uint num_chunks, old_num_chunks;
 	if(!png_ptr)
 		return;
-
 	if(keep < 0 || keep >= PNG_HANDLE_CHUNK_LAST) {
 		png_app_error(png_ptr, "png_set_keep_unknown_chunks: invalid keep");
-
 		return;
 	}
-
 	if(num_chunks_in <= 0) {
 		png_ptr->unknown_default = keep;
-
 		/* '0' means just set the flags, so stop here */
 		if(num_chunks_in == 0)
 			return;
 	}
-
 	if(num_chunks_in < 0) {
 		/* Ignore all unknown chunks and all chunks recognized by
 		 * libpng except for IHDR, PLTE, tRNS, IDAT, and IEND
 		 */
-		static PNG_CONST uint8 chunks_to_ignore[] = {
+		static const uint8 chunks_to_ignore[] = {
 			98,  75,  71,  68, '\0', /* bKGD */
 			99,  72,  82,  77, '\0', /* cHRM */
 			103,  65,  77,  65, '\0', /* gAMA */
@@ -1224,54 +1212,40 @@ void PNGAPI png_set_keep_unknown_chunks(png_structrp png_ptr, int keep,
 			116,  73,  77,  69, '\0', /* tIME */
 			122,  84,  88, 116, '\0' /* zTXt */
 		};
-
 		chunk_list = chunks_to_ignore;
 		num_chunks = (uint)/*SAFE*/ (sizeof chunks_to_ignore)/5U;
 	}
-
 	else { /* num_chunks_in > 0 */
 		if(chunk_list == NULL) {
 			/* Prior to 1.6.0 this was silently ignored, now it is an app_error
 			 * which can be switched off.
 			 */
 			png_app_error(png_ptr, "png_set_keep_unknown_chunks: no chunk list");
-
 			return;
 		}
-
 		num_chunks = num_chunks_in;
 	}
-
 	old_num_chunks = png_ptr->num_chunk_list;
 	if(png_ptr->chunk_list == NULL)
 		old_num_chunks = 0;
-
-	/* Since num_chunks is always restricted to UINT_MAX/5 this can't overflow.
-	 */
+	// Since num_chunks is always restricted to UINT_MAX/5 this can't overflow.
 	if(num_chunks + old_num_chunks > UINT_MAX/5) {
 		png_app_error(png_ptr, "png_set_keep_unknown_chunks: too many chunks");
-
 		return;
 	}
-
 	/* If these chunks are being reset to the default then no more memory is
 	 * required because add_one_chunk above doesn't extend the list if the 'keep'
 	 * parameter is the default.
 	 */
 	if(keep != 0) {
-		new_list = png_voidcast(png_bytep, png_malloc(png_ptr,
-			    5 * (num_chunks + old_num_chunks)));
-
+		new_list = png_voidcast(png_bytep, png_malloc(png_ptr, 5 * (num_chunks + old_num_chunks)));
 		if(old_num_chunks > 0)
 			memcpy(new_list, png_ptr->chunk_list, 5*old_num_chunks);
 	}
-
 	else if(old_num_chunks > 0)
 		new_list = png_ptr->chunk_list;
-
 	else
 		new_list = NULL;
-
 	/* Add the new chunks together with each one's handling code.  If the chunk
 	 * already exists the code is updated, otherwise the chunk is added to the
 	 * end.  (In libpng 1.6.0 order no longer matters because this code enforces
@@ -1280,13 +1254,10 @@ void PNGAPI png_set_keep_unknown_chunks(png_structrp png_ptr, int keep,
 	if(new_list != NULL) {
 		png_const_bytep inlist;
 		png_bytep outlist;
-		unsigned int i;
-
+		uint i;
 		for(i = 0; i<num_chunks; ++i) {
-			old_num_chunks = add_one_chunk(new_list, old_num_chunks,
-			    chunk_list+5*i, keep);
+			old_num_chunks = add_one_chunk(new_list, old_num_chunks, chunk_list+5*i, keep);
 		}
-
 		/* Now remove any spurious 'default' entries. */
 		num_chunks = 0;
 		for(i = 0, inlist = outlist = new_list; i<old_num_chunks; ++i, inlist += 5) {

@@ -830,7 +830,7 @@ void SlSRP::User::ProcessChallenge(const SBinaryChunk & rS, const SBinaryChunk &
 	k = H_nn(HashAlg, P_Ng->N, P_Ng->g);
 	THROW(k);
 	// SRP-6a safety check 
-	if(!BN_is_zero(B) && !BN_is_zero(u) ) {
+	if(!BN_is_zero(B) && !BN_is_zero(u)) {
 		BN_mod_exp(v, P_Ng->g, x, P_Ng->N, ctx);
 		// S = (B - k*(g^x)) ^ (a + ux) 
 		BN_mul(tmp1, u, x, ctx);
@@ -895,7 +895,7 @@ void SlSRP::User::ProcessChallenge(const uchar * pBytesS, int lenS, const uchar 
 	if(!k)
 		goto cleanup_and_exit;
 	// SRP-6a safety check 
-	if(!BN_is_zero(B) && !BN_is_zero(u) ) {
+	if(!BN_is_zero(B) && !BN_is_zero(u)) {
 		BN_mod_exp(v, P_ng->g, x, P_ng->N, ctx);
 		// S = (B - k*(g^x)) ^ (a + ux) 
 		BN_mul(tmp1, u, x, ctx);

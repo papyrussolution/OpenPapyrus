@@ -4499,7 +4499,7 @@ inline bool TestAllTypesProto3_NestedMessage::has_corecursive() const {
   return _internal_has_corecursive();
 }
 inline void TestAllTypesProto3_NestedMessage::clear_corecursive() {
-  if (GetArenaForAllocation() == nullptr && corecursive_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && corecursive_ != nullptr) {
     delete corecursive_;
   }
   corecursive_ = nullptr;
@@ -4993,7 +4993,7 @@ inline bool TestAllTypesProto3::has_optional_nested_message() const {
   return _internal_has_optional_nested_message();
 }
 inline void TestAllTypesProto3::clear_optional_nested_message() {
-  if (GetArenaForAllocation() == nullptr && optional_nested_message_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && optional_nested_message_ != nullptr) {
     delete optional_nested_message_;
   }
   optional_nested_message_ = nullptr;
@@ -5083,7 +5083,7 @@ inline bool TestAllTypesProto3::has_optional_foreign_message() const {
   return _internal_has_optional_foreign_message();
 }
 inline void TestAllTypesProto3::clear_optional_foreign_message() {
-  if (GetArenaForAllocation() == nullptr && optional_foreign_message_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && optional_foreign_message_ != nullptr) {
     delete optional_foreign_message_;
   }
   optional_foreign_message_ = nullptr;
@@ -5329,7 +5329,7 @@ inline bool TestAllTypesProto3::has_recursive_message() const {
   return _internal_has_recursive_message();
 }
 inline void TestAllTypesProto3::clear_recursive_message() {
-  if (GetArenaForAllocation() == nullptr && recursive_message_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && recursive_message_ != nullptr) {
     delete recursive_message_;
   }
   recursive_message_ = nullptr;
@@ -8358,7 +8358,7 @@ inline void TestAllTypesProto3::set_has_oneof_uint32() {
   _oneof_case_[0] = kOneofUint32;
 }
 inline void TestAllTypesProto3::clear_oneof_uint32() {
-  if (_internal_has_oneof_uint32()) {
+  if(_internal_has_oneof_uint32()) {
     oneof_field_.oneof_uint32_ = 0u;
     clear_has_oneof_field();
   }
@@ -8396,8 +8396,8 @@ inline void TestAllTypesProto3::set_has_oneof_nested_message() {
   _oneof_case_[0] = kOneofNestedMessage;
 }
 inline void TestAllTypesProto3::clear_oneof_nested_message() {
-  if (_internal_has_oneof_nested_message()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_oneof_nested_message()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete oneof_field_.oneof_nested_message_;
     }
     clear_has_oneof_field();
@@ -8470,7 +8470,7 @@ inline void TestAllTypesProto3::set_has_oneof_string() {
   _oneof_case_[0] = kOneofString;
 }
 inline void TestAllTypesProto3::clear_oneof_string() {
-  if (_internal_has_oneof_string()) {
+  if(_internal_has_oneof_string()) {
     oneof_field_.oneof_string_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_oneof_field();
   }
@@ -8552,7 +8552,7 @@ inline void TestAllTypesProto3::set_has_oneof_bytes() {
   _oneof_case_[0] = kOneofBytes;
 }
 inline void TestAllTypesProto3::clear_oneof_bytes() {
-  if (_internal_has_oneof_bytes()) {
+  if(_internal_has_oneof_bytes()) {
     oneof_field_.oneof_bytes_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_oneof_field();
   }
@@ -8634,7 +8634,7 @@ inline void TestAllTypesProto3::set_has_oneof_bool() {
   _oneof_case_[0] = kOneofBool;
 }
 inline void TestAllTypesProto3::clear_oneof_bool() {
-  if (_internal_has_oneof_bool()) {
+  if(_internal_has_oneof_bool()) {
     oneof_field_.oneof_bool_ = false;
     clear_has_oneof_field();
   }
@@ -8672,7 +8672,7 @@ inline void TestAllTypesProto3::set_has_oneof_uint64() {
   _oneof_case_[0] = kOneofUint64;
 }
 inline void TestAllTypesProto3::clear_oneof_uint64() {
-  if (_internal_has_oneof_uint64()) {
+  if(_internal_has_oneof_uint64()) {
     oneof_field_.oneof_uint64_ = uint64_t{0u};
     clear_has_oneof_field();
   }
@@ -8710,7 +8710,7 @@ inline void TestAllTypesProto3::set_has_oneof_float() {
   _oneof_case_[0] = kOneofFloat;
 }
 inline void TestAllTypesProto3::clear_oneof_float() {
-  if (_internal_has_oneof_float()) {
+  if(_internal_has_oneof_float()) {
     oneof_field_.oneof_float_ = 0;
     clear_has_oneof_field();
   }
@@ -8748,7 +8748,7 @@ inline void TestAllTypesProto3::set_has_oneof_double() {
   _oneof_case_[0] = kOneofDouble;
 }
 inline void TestAllTypesProto3::clear_oneof_double() {
-  if (_internal_has_oneof_double()) {
+  if(_internal_has_oneof_double()) {
     oneof_field_.oneof_double_ = 0;
     clear_has_oneof_field();
   }
@@ -8786,7 +8786,7 @@ inline void TestAllTypesProto3::set_has_oneof_enum() {
   _oneof_case_[0] = kOneofEnum;
 }
 inline void TestAllTypesProto3::clear_oneof_enum() {
-  if (_internal_has_oneof_enum()) {
+  if(_internal_has_oneof_enum()) {
     oneof_field_.oneof_enum_ = 0;
     clear_has_oneof_field();
   }
@@ -8824,7 +8824,7 @@ inline void TestAllTypesProto3::set_has_oneof_null_value() {
   _oneof_case_[0] = kOneofNullValue;
 }
 inline void TestAllTypesProto3::clear_oneof_null_value() {
-  if (_internal_has_oneof_null_value()) {
+  if(_internal_has_oneof_null_value()) {
     oneof_field_.oneof_null_value_ = 0;
     clear_has_oneof_field();
   }

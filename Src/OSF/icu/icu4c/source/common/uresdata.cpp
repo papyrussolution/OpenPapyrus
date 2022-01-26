@@ -432,7 +432,7 @@ U_CAPI const uint8 * U_EXPORT2 res_getBinaryNoTrace(const ResourceData * pResDat
 	if(RES_GET_TYPE(res)==URES_BINARY) {
 		const int32_t * p32 = offset==0 ? (const int32_t*)&gEmpty32 : pResData->pRoot+offset;
 		length = *p32++;
-		p = (const uint8*)p32;
+		p = (const uint8 *)p32;
 	}
 	else {
 		p = NULL;

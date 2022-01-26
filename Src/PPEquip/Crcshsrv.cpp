@@ -1,5 +1,5 @@
 // CRCSHSRV.CPP
-// Copyright (c) V.Nasonov 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) V.Nasonov 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Интерфейс (асинхронный) к драйверу кассового сервера (ООО Кристалл Сервис)
 //
@@ -1785,7 +1785,7 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 	while(p_gds_iter->Next(&gi) > 0) {
 		char   tempbuf[128];
 	   	if(gi.ID != prev_goods_id) {
-			const  int is_spirit    = BIN(p_gds_iter->GetAlcoGoodsExtension(gi.ID, 0, agi) > 0); // @v9.1.8
+			const  int is_spirit    = BIN(p_gds_iter->GetAlcoGoodsExtension(gi.ID, 0, agi) > 0);
 			DbfTable * p_out_tbl_goods = 0;
 			THROW(p_out_tbl_goods = fp.GetTable(fp.tGoods));
 			if(CConfig.Flags & CCFLG_DEBUG)

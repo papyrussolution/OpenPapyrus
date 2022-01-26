@@ -25,7 +25,7 @@ typedef png_libpng_version_1_6_23 Your_png_h_is_not_version_1_6_23;
 #ifdef PNG_READ_SUPPORTED
 void PNGAPI png_set_sig_bytes(png_structrp png_ptr, int num_bytes)
 {
-	unsigned int nb = (uint)num_bytes;
+	uint nb = (uint)num_bytes;
 	png_debug(1, "in png_set_sig_bytes");
 	if(png_ptr) {
 		if(num_bytes < 0)
@@ -556,7 +556,7 @@ void PNGAPI png_save_int_32(png_bytep buf, png_int_32 i)
  */
 int PNGAPI png_convert_to_rfc1123_buffer(char out[29], png_const_timep ptime)
 {
-	// @v9.7.10 static PNG_CONST char short_months[12][4] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+	// @v9.7.10 static const char short_months[12][4] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 	if(out == NULL)
 		return 0;
 	if(ptime->year > 9999 /* RFC1123 limitation */ || ptime->month == 0 || ptime->month > 12 || ptime->day == 0 || ptime->day > 31 ||
@@ -603,11 +603,9 @@ const char * PNGAPI png_convert_to_rfc1123(png_structrp png_ptr, png_const_timep
 		/* The only failure above if png_ptr != NULL is from an invalid ptime */
 		if(png_convert_to_rfc1123_buffer(png_ptr->time_buffer, ptime) == 0)
 			png_warning(png_ptr, "Ignoring invalid time value");
-
 		else
 			return png_ptr->time_buffer;
 	}
-
 	return NULL;
 }
 
@@ -1904,7 +1902,7 @@ static int png_compare_ICC_profile_with_sRGB(png_const_structrp png_ptr, png_con
 #if PNG_sRGB_PROFILE_CHECKS > 1
 	uLong crc = 0; /* the value for 0 length data */
 #endif
-	unsigned int i;
+	uint i;
 #ifdef PNG_SET_OPTION_SUPPORTED
 	// First see if PNG_SKIP_sRGB_CHECK_PROFILE has been set to "on" 
 	if(((png_ptr->options >> PNG_SKIP_sRGB_CHECK_PROFILE) & 3) == PNG_OPTION_ON)
@@ -2378,7 +2376,7 @@ static double png_pow10(int power)
 /* Function to format a floating point value in ASCII with a given
  * precision.
  */
-void /* PRIVATE */ png_ascii_from_fp(png_const_structrp png_ptr, char * ascii, size_t size, double fp, unsigned int precision)
+void /* PRIVATE */ png_ascii_from_fp(png_const_structrp png_ptr, char * ascii, size_t size, double fp, uint precision)
 {
 	/* We use standard functions from math.h, but not printf because
 	 * that would require stdio.  The caller must supply a buffer of
@@ -2675,7 +2673,7 @@ void /* PRIVATE */ png_ascii_from_fixed(png_const_structrp png_ptr, char * ascii
 				 * non-zero fractional digit:
 				 */
 				if(first <= 5) {
-					unsigned int i;
+					uint i;
 					*ascii++ = 46; /* decimal point */
 					// ndigits may be <5 for small numbers, output leading zeros then ndigits digits to first:
 					i = 5;
@@ -2963,9 +2961,9 @@ static const uint32 png_8bit_l2[128] = {
 #endif
 };
 
-static png_int_32 png_log8bit(unsigned int x)
+static png_int_32 png_log8bit(uint x)
 {
-	unsigned int lg2 = 0;
+	uint lg2 = 0;
 	/* Each time 'x' is multiplied by 2, 1 must be subtracted off the final log,
 	 * because the log is actually negate that means adding 1.  The final
 	 * returned value thus has the range 0 (for 255 input) to 7.994 (for 1
@@ -3021,7 +3019,7 @@ static png_int_32 png_log8bit(unsigned int x)
 #ifdef PNG_16BIT_SUPPORTED
 static png_int_32 png_log16bit(uint32 x)
 {
-	unsigned int lg2 = 0;
+	uint lg2 = 0;
 	// As above, but now the input has 16 bits. 
 	if((x &= 0xffff) == 0)
 		return -1;
@@ -3176,7 +3174,7 @@ static png_uint_16 png_exp16bit(png_fixed_point lg2)
 #endif /* 16BIT */
 #endif /* FLOATING_ARITHMETIC */
 
-uint8 png_gamma_8bit_correct(unsigned int value, png_fixed_point gamma_val)
+uint8 png_gamma_8bit_correct(uint value, png_fixed_point gamma_val)
 {
 	if(value > 0 && value < 255) {
 #ifdef PNG_FLOATING_ARITHMETIC_SUPPORTED
@@ -3222,7 +3220,7 @@ uint8 png_gamma_8bit_correct(unsigned int value, png_fixed_point gamma_val)
 }
 
 #ifdef PNG_16BIT_SUPPORTED
-png_uint_16 png_gamma_16bit_correct(unsigned int value, png_fixed_point gamma_val)
+png_uint_16 png_gamma_16bit_correct(uint value, png_fixed_point gamma_val)
 {
 	if(value > 0 && value < 65535) {
 #ifdef PNG_FLOATING_ARITHMETIC_SUPPORTED
@@ -3256,7 +3254,7 @@ png_uint_16 png_gamma_16bit_correct(unsigned int value, png_fixed_point gamma_va
  * is nominally a 16-bit value if bit depth is 8 then the result is
  * 8-bit (as are the arguments.)
  */
-png_uint_16 /* PRIVATE */ png_gamma_correct(png_structrp png_ptr, unsigned int value, png_fixed_point gamma_val)
+png_uint_16 /* PRIVATE */ png_gamma_correct(png_structrp png_ptr, uint value, png_fixed_point gamma_val)
 {
 	if(png_ptr->bit_depth == 8)
 		return png_gamma_8bit_correct(value, gamma_val);
@@ -3278,28 +3276,22 @@ png_uint_16 /* PRIVATE */ png_gamma_correct(png_structrp png_ptr, unsigned int v
  * png_error (i.e. if one of the mallocs below fails) - i.e. the *table argument
  * should be somewhere that will be cleaned.
  */
-static void png_build_16bit_table(png_structrp png_ptr, png_uint_16pp * ptable,
-    PNG_CONST unsigned int shift, PNG_CONST png_fixed_point gamma_val)
+static void png_build_16bit_table(png_structrp png_ptr, png_uint_16pp * ptable, const uint shift, const png_fixed_point gamma_val)
 {
 	/* Various values derived from 'shift': */
-	PNG_CONST unsigned int num = 1U << (8U - shift);
+	const uint num = 1U << (8U - shift);
 #ifdef PNG_FLOATING_ARITHMETIC_SUPPORTED
 	/* CSE the division and work round wacky GCC warnings (see the comments
 	 * in png_gamma_8bit_correct for where these come from.)
 	 */
-	PNG_CONST double fmax = 1./(((png_int_32)1 << (16U - shift))-1);
+	const double fmax = 1./(((png_int_32)1 << (16U - shift))-1);
 #endif
-	PNG_CONST unsigned int max = (1U << (16U - shift))-1U;
-	PNG_CONST unsigned int max_by_2 = 1U << (15U-shift);
-	unsigned int i;
-
-	png_uint_16pp table = *ptable =
-	    (png_uint_16pp)png_calloc(png_ptr, num * (sizeof(png_uint_16p)));
-
+	const uint max = (1U << (16U - shift))-1U;
+	const uint max_by_2 = 1U << (15U-shift);
+	uint i;
+	png_uint_16pp table = *ptable = (png_uint_16pp)png_calloc(png_ptr, num * (sizeof(png_uint_16p)));
 	for(i = 0; i < num; i++) {
-		png_uint_16p sub_table = table[i] =
-		    (png_uint_16p)png_malloc(png_ptr, 256 * (sizeof(png_uint_16)));
-
+		png_uint_16p sub_table = table[i] = (png_uint_16p)png_malloc(png_ptr, 256 * (sizeof(png_uint_16)));
 		/* The 'threshold' test is repeated here because it can arise for one of
 		 * the 16-bit tables even if the others don't hit it.
 		 */
@@ -3312,7 +3304,7 @@ static void png_build_16bit_table(png_structrp png_ptr, png_uint_16pp * ptable,
 			 * We want input * 65535/max, rounded, the arithmetic fits in 32
 			 * bits (uint) so long as max <= 32767.
 			 */
-			unsigned int j;
+			uint j;
 			for(j = 0; j < 256; j++) {
 				uint32 ig = (j << (8-shift)) + i;
 #           ifdef PNG_FLOATING_ARITHMETIC_SUPPORTED
@@ -3331,15 +3323,11 @@ static void png_build_16bit_table(png_structrp png_ptr, png_uint_16pp * ptable,
 			}
 		}
 		else {
-			/* We must still build a table, but do it the fast way. */
-			unsigned int j;
-
-			for(j = 0; j < 256; j++) {
+			// We must still build a table, but do it the fast way
+			for(uint j = 0; j < 256; j++) {
 				uint32 ig = (j << (8-shift)) + i;
-
 				if(shift != 0)
 					ig = (ig * 65535U + max_by_2)/max;
-
 				sub_table[j] = (png_uint_16)ig;
 			}
 		}
@@ -3349,25 +3337,20 @@ static void png_build_16bit_table(png_structrp png_ptr, png_uint_16pp * ptable,
 /* NOTE: this function expects the *inverse* of the overall gamma transformation
  * required.
  */
-static void png_build_16to8_table(png_structrp png_ptr, png_uint_16pp * ptable,
-    PNG_CONST unsigned int shift, PNG_CONST png_fixed_point gamma_val)
+static void png_build_16to8_table(png_structrp png_ptr, png_uint_16pp * ptable, const uint shift, const png_fixed_point gamma_val)
 {
-	PNG_CONST unsigned int num = 1U << (8U - shift);
-	PNG_CONST unsigned int max = (1U << (16U - shift))-1U;
-	unsigned int i;
+	const uint num = 1U << (8U - shift);
+	const uint max = (1U << (16U - shift))-1U;
+	uint i;
 	uint32 last;
-
-	png_uint_16pp table = *ptable =
-	    (png_uint_16pp)png_calloc(png_ptr, num * (sizeof(png_uint_16p)));
+	png_uint_16pp table = *ptable = (png_uint_16pp)png_calloc(png_ptr, num * (sizeof(png_uint_16p)));
 
 	/* 'num' is the number of tables and also the number of low bits of low
 	 * bits of the input 16-bit value used to select a table.  Each table is
 	 * itself indexed by the high 8 bits of the value.
 	 */
 	for(i = 0; i < num; i++)
-		table[i] = (png_uint_16p)png_malloc(png_ptr,
-		    256 * (sizeof(png_uint_16)));
-
+		table[i] = (png_uint_16p)png_malloc(png_ptr, 256 * (sizeof(png_uint_16)));
 	/* 'gamma_val' is set to the reciprocal of the value calculated above, so
 	 * pow(out,g) is an *input* value.  'last' is the last input value set.
 	 *
@@ -3414,7 +3397,7 @@ static void png_build_16to8_table(png_structrp png_ptr, png_uint_16pp * ptable,
  * typically much faster).  Note that libpng currently does no sBIT processing
  * (apparently contrary to the spec) so a 256-entry table is always generated.
  */
-static void png_build_8bit_table(png_structrp png_ptr, png_bytepp ptable, PNG_CONST png_fixed_point gamma_val)
+static void png_build_8bit_table(png_structrp png_ptr, png_bytepp ptable, const png_fixed_point gamma_val)
 {
 	png_bytep table = *ptable = (png_bytep)png_malloc(png_ptr, 256);
 	if(png_gamma_significant(gamma_val) != 0) {
@@ -3832,16 +3815,16 @@ void PNGAPI png_image_free(png_imagep image)
 	 * (if not inside an error handling context).  Otherwise assume
 	 * png_safe_execute will call this API after the return.
 	 */
-	if(image != NULL && image->opaque != NULL && image->opaque->error_buf == NULL) {
-		/* Ignore errors here: */
+	if(image && image->opaque && image->opaque->error_buf == NULL) {
+		// Ignore errors here:
 		(void)png_safe_execute(image, png_image_free_function, image);
 		image->opaque = NULL;
 	}
 }
 
-int /* PRIVATE */ png_image_error(png_imagep image, const char * error_message)
+/* PRIVATE */int FASTCALL png_image_error(png_imagep image, const char * error_message)
 {
-	/* Utility to log an error. */
+	// Utility to log an error
 	png_safecat(image->message, (sizeof image->message), 0, error_message);
 	image->warning_or_error |= PNG_IMAGE_ERROR;
 	png_image_free(image);

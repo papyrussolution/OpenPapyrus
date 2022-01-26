@@ -1,17 +1,6 @@
 // Copyright 2017 The Abseil Authors.
-//
 // Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
 //
-//      https://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #include "absl/absl-internal.h"
 #pragma hdrstop
 //#include "absl/base/internal/low_level_alloc.h" // This file is a no-op if the required LowLevelAlloc support is missing.
@@ -56,11 +45,10 @@ void ReclaimThreadIdentity(void* v) {
 
 // Return value rounded up to next multiple of align.
 // Align must be a power of two.
-static intptr_t RoundUp(intptr_t addr, intptr_t align) {
-	return (addr + align - 1) & ~(align - 1);
-}
+static intptr_t RoundUp(intptr_t addr, intptr_t align) { return (addr + align - 1) & ~(align - 1); }
 
-static void ResetThreadIdentity(base_internal::ThreadIdentity* identity) {
+static void ResetThreadIdentity(base_internal::ThreadIdentity* identity) 
+{
 	base_internal::PerThreadSynch* pts = &identity->per_thread_synch;
 	pts->next = nullptr;
 	pts->skip = nullptr;
@@ -83,9 +71,9 @@ static void ResetThreadIdentity(base_internal::ThreadIdentity* identity) {
 	identity->next = nullptr;
 }
 
-static base_internal::ThreadIdentity* NewThreadIdentity() {
+static base_internal::ThreadIdentity* NewThreadIdentity() 
+{
 	base_internal::ThreadIdentity* identity = nullptr;
-
 	{
 		// Re-use a previously released object if possible.
 		base_internal::SpinLockHolder l(&freelist_lock);
@@ -94,20 +82,15 @@ static base_internal::ThreadIdentity* NewThreadIdentity() {
 			thread_identity_freelist = thread_identity_freelist->next;
 		}
 	}
-
 	if(identity == nullptr) {
 		// Allocate enough space to align ThreadIdentity to a multiple of
 		// PerThreadSynch::kAlignment. This space is never released (it is
 		// added to a freelist by ReclaimThreadIdentity instead).
-		void* allocation = base_internal::LowLevelAlloc::Alloc(
-			sizeof(*identity) + base_internal::PerThreadSynch::kAlignment - 1);
+		void* allocation = base_internal::LowLevelAlloc::Alloc(sizeof(*identity) + base_internal::PerThreadSynch::kAlignment - 1);
 		// Round up the address to the required alignment.
-		identity = reinterpret_cast<base_internal::ThreadIdentity*>(
-			RoundUp(reinterpret_cast<intptr_t>(allocation),
-			base_internal::PerThreadSynch::kAlignment));
+		identity = reinterpret_cast<base_internal::ThreadIdentity*>(RoundUp(reinterpret_cast<intptr_t>(allocation), base_internal::PerThreadSynch::kAlignment));
 	}
 	ResetThreadIdentity(identity);
-
 	return identity;
 }
 

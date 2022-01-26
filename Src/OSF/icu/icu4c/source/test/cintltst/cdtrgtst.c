@@ -665,7 +665,7 @@ void Test_GEec(void)
 {
 	UErrorCode status = U_ZERO_ERROR;
 	UDateFormat * dtfmt = udat_open(UDAT_LONG, UDAT_LONG, "en", zonePST, -1, NULL, 0, &status);
-	if(U_SUCCESS(status) ) {
+	if(U_SUCCESS(status)) {
 		const DatePatternAndText * patTextPtr;
 		for(patTextPtr = datePatternsAndText; patTextPtr->pattern != NULL; ++patTextPtr) {
 			UChar dmyGnText[DATE_TEXT_MAX_CHARS];
@@ -676,7 +676,7 @@ void Test_GEec(void)
 			udat_applyPattern(dtfmt, FALSE, patTextPtr->pattern, -1);
 			dmyGnTextLen = udat_format(dtfmt, july022008, dmyGnText, DATE_TEXT_MAX_CHARS, NULL, &status);
 			(void)dmyGnTextLen; /* Suppress set but not used warning. */
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				log_err("FAIL: udat_format with %s: %s\n", patTextPtr->label, myErrorName(status));
 				status = U_ZERO_ERROR;
 			}
@@ -688,7 +688,7 @@ void Test_GEec(void)
 			dateResult = udat_parse(dtfmt, patTextPtr->text, -1, NULL, &status); /* no time, dateResult !=
 			                                                                        july022008 by some hours
 			         */
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				log_err("FAIL: udat_parse with %s: %s\n", patTextPtr->label, myErrorName(status));
 				status = U_ZERO_ERROR;
 			}

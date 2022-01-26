@@ -511,8 +511,8 @@ static UChar32 U_CALLCONV ucnv_getNextUChar_UTF8(UConverterToUnicodeArgs * args,
 	/* UTF-8 only here, the framework handles CESU-8 to combine surrogate pairs */
 
 	cnv = args->converter;
-	sourceInitial = source = (const uint8*)args->source;
-	if(source >= (const uint8*)args->sourceLimit) {
+	sourceInitial = source = (const uint8 *)args->source;
+	if(source >= (const uint8 *)args->sourceLimit) {
 		/* no input */
 		*err = U_INDEX_OUTOFBOUNDS_ERROR;
 		return 0xffff;
@@ -540,7 +540,7 @@ static UChar32 U_CALLCONV ucnv_getNextUChar_UTF8(UConverterToUnicodeArgs * args,
 		cnv->toUBytes[0] = myByte;
 		i = 1;
 		*err = U_TRUNCATED_CHAR_FOUND;
-		while(source < (const uint8*)args->sourceLimit) {
+		while(source < (const uint8 *)args->sourceLimit) {
 			uint8 b = *source;
 			if(icu::UTF8::isValidTrail(myByte, b, i, extraBytesToWrite)) {
 				cnv->toUBytes[i++] = b;
@@ -772,7 +772,7 @@ moreBytes:
 	U_ASSERT(count>=0);
 
 	if(U_SUCCESS(*pErrorCode) && source<sourceLimit) {
-		if(target==(const uint8*)pFromUArgs->targetLimit) {
+		if(target==(const uint8 *)pFromUArgs->targetLimit) {
 			*pErrorCode = U_BUFFER_OVERFLOW_ERROR;
 		}
 		else {

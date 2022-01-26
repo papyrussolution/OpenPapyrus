@@ -100,33 +100,27 @@ public:
 			t = tag;
 			return tables.bfind(t, table_index, HB_BFIND_NOT_FOUND_STORE, Index::NOT_FOUND_INDEX);
 		}
-
 		const TableRecord& get_table_by_tag(hb_tag_t tag) const
 		{
 			uint table_index;
 			find_table_index(tag, &table_index);
 			return get_table(table_index);
 		}
-
 public:
-
-		template <typename item_t>
-		bool serialize(hb_serialize_context_t * c,
-		    hb_tag_t sfnt_tag,
-		    hb_array_t<item_t> items)
+		template <typename item_t> bool serialize(hb_serialize_context_t * c, hb_tag_t sfnt_tag, hb_array_t<item_t> items)
 		{
 			TRACE_SERIALIZE(this);
 			/* Alloc 12 for the OTHeader. */
-			if(UNLIKELY(!c->extend_min(*this))) return_trace(false);
+			if(UNLIKELY(!c->extend_min(*this))) 
+				return_trace(false);
 			/* Write sfntVersion (bytes 0..3). */
 			sfnt_version = sfnt_tag;
 			/* Take space for numTables, searchRange, entrySelector, RangeShift
 			 * and the TableRecords themselves.  */
-			if(UNLIKELY(!tables.serialize(c, items.length))) return_trace(false);
-
+			if(UNLIKELY(!tables.serialize(c, items.length))) 
+				return_trace(false);
 			const char * dir_end = (const char *)c->head;
 			HBUINT32 * checksum_adjustment = nullptr;
-
 			/* Write OffsetTables, alloc for and write actual table blobs. */
 			for(uint i = 0; i < tables.len; i++) {
 				TableRecord &rec = tables.arrayZ[i];
@@ -134,33 +128,25 @@ public:
 				rec.tag = items[i].tag;
 				rec.length = blob->length;
 				rec.offset.serialize(c, this);
-
 				/* Allocate room for the table and copy it. */
 				char * start = (char *)c->allocate_size<void> (rec.length);
-				if(UNLIKELY(!start)) return false;
-
+				if(UNLIKELY(!start)) 
+					return false;
 				if(LIKELY(rec.length))
 					memcpy(start, blob->data, rec.length);
-
 				/* 4-byte alignment. */
 				c->align(4);
 				const char * end = (const char *)c->head;
-
-				if(items[i].tag == HB_OT_TAG_head &&
-				    (uint)(end - start) >= head::static_size) {
+				if(items[i].tag == HB_OT_TAG_head && (uint)(end - start) >= head::static_size) {
 					head * h = (head *)start;
 					checksum_adjustment = &h->checkSumAdjustment;
 					*checksum_adjustment = 0;
 				}
-
 				rec.checkSum.set_for_data(start, end - start);
 			}
-
 			tables.qsort();
-
 			if(checksum_adjustment) {
 				CheckSum checksum;
-
 				/* The following line is a slower version of the following block. */
 				//checksum.set_for_data (this, (const char *) c->head - (const char *) this);
 				checksum.set_for_data(this, dir_end - (const char *)this);
@@ -168,13 +154,10 @@ public:
 					TableRecord &rec = tables.arrayZ[i];
 					checksum = checksum + rec.checkSum;
 				}
-
 				*checksum_adjustment = 0xB1B0AFBAu - checksum;
 			}
-
 			return_trace(true);
 		}
-
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);

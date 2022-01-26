@@ -92,7 +92,7 @@ void PluralFormatTest::pluralFormatBasicTest(/*char *par*/)
 	UnicodeString us = UnicodeString("");
 	plFmt[0]->toPattern(us);
 	plFmt[1] = new PluralFormat(locale, status[1]);
-	if(U_SUCCESS(status[0]) && U_SUCCESS(status[1]) ) {
+	if(U_SUCCESS(status[0]) && U_SUCCESS(status[1])) {
 		*plFmt[1] = *plFmt[0];
 		if(plFmt[1]!=NULL) {
 			if(*plFmt[1] != *plFmt[0]) {
@@ -107,7 +107,7 @@ void PluralFormatTest::pluralFormatBasicTest(/*char *par*/)
 
 	status[0] = U_ZERO_ERROR;
 	plFmt[0] = new PluralFormat(locale, status[0]);
-	if(U_SUCCESS(status[0]) ) {
+	if(U_SUCCESS(status[0])) {
 		*plFmt[1] = *plFmt[0];
 		if(plFmt[1]!=NULL) {
 			if(*plFmt[1] != *plFmt[0]) {
@@ -119,7 +119,7 @@ void PluralFormatTest::pluralFormatBasicTest(/*char *par*/)
 		dataerrln("ERROR: PluralFormat constructor failed! - %s", u_errorName(status[1]));
 	}
 
-	if(U_SUCCESS(status[1]) ) {
+	if(U_SUCCESS(status[1])) {
 		plFmt[2] = plFmt[1]->clone();
 
 		if(plFmt[1]!=NULL) {
@@ -675,7 +675,7 @@ void PluralFormatTest::numberFormatTest(PluralFormat* plFmt,
     UnicodeString * message) {
 	UErrorCode status = U_ZERO_ERROR;
 
-	if((plFmt==NULL) || (numFmt==NULL) ) {
+	if((plFmt==NULL) || (numFmt==NULL)) {
 		dataerrln("ERROR: Could not create PluralFormat or NumberFormat - exiting");
 		return;
 	}

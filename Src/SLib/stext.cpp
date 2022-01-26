@@ -1703,7 +1703,7 @@ static FORCEINLINE size_t FASTCALL implement_sstrlen(const wchar_t * pStr) { ret
 // Descr: копирует сроку from в буфер to и возвращает указатель на
 //   завершающий нулевой символ строки to.
 //
-char * FASTCALL stpcpy(char *to, const char *from)
+char * FASTCALL stpcpy(char * to, const char * from)
 {
 	size_t len = implement_sstrlen(from);
 	if(len)

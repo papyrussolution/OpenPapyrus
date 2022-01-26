@@ -231,8 +231,8 @@ static void U_CALLCONV _UTF7ToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs
 	/* set up the local pointers */
 	cnv = pArgs->converter;
 
-	source = (const uint8*)pArgs->source;
-	sourceLimit = (const uint8*)pArgs->sourceLimit;
+	source = (const uint8 *)pArgs->source;
+	sourceLimit = (const uint8 *)pArgs->sourceLimit;
 	target = pArgs->target;
 	targetLimit = pArgs->targetLimit;
 	offsets = pArgs->offsets;
@@ -946,8 +946,8 @@ static void U_CALLCONV _IMAPToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs
 	/* set up the local pointers */
 	cnv = pArgs->converter;
 
-	source = (const uint8*)pArgs->source;
-	sourceLimit = (const uint8*)pArgs->sourceLimit;
+	source = (const uint8 *)pArgs->source;
+	sourceLimit = (const uint8 *)pArgs->sourceLimit;
 	target = pArgs->target;
 	targetLimit = pArgs->targetLimit;
 	offsets = pArgs->offsets;

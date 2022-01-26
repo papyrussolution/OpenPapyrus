@@ -162,7 +162,7 @@ static void TestUsage() {
 	/* Test skeleton == NULL */
 	s = NULL;
 	length = udatpg_getBestPattern(dtpg, s, 0, bestPattern, 20, &errorCode);
-	if(!U_FAILURE(errorCode)&&(length!=0) ) {
+	if(!U_FAILURE(errorCode)&&(length!=0)) {
 		log_err("udatpg_getBestPattern failed in illegal argument - skeleton is NULL.\n");
 		return;
 	}
@@ -181,7 +181,7 @@ static void TestUsage() {
 	/* Test pattern == NULL */
 	s = NULL;
 	length = udatpg_getSkeleton(dtpg, s, 0, result, 20, &errorCode);
-	if(!U_FAILURE(errorCode)&&(length!=0) ) {
+	if(!U_FAILURE(errorCode)&&(length!=0)) {
 		log_err("udatpg_getSkeleton failed in illegal argument - pattern is NULL.\n");
 		return;
 	}
@@ -200,7 +200,7 @@ static void TestUsage() {
 	/* Test pattern == NULL */
 	s = NULL;
 	length = udatpg_getBaseSkeleton(dtpg, s, 0, result, 20, &errorCode);
-	if(!U_FAILURE(errorCode)&&(length!=0) ) {
+	if(!U_FAILURE(errorCode)&&(length!=0)) {
 		log_err("udatpg_getBaseSkeleton failed in illegal argument - pattern is NULL.\n");
 		return;
 	}
@@ -285,7 +285,7 @@ static void TestBuilder() {
 	s = NULL;
 	length = udatpg_addPattern(dtpg, s, 0, FALSE, result, 20,
 		&length, &errorCode);
-	if(!U_FAILURE(errorCode)&&(length!=0) ) {
+	if(!U_FAILURE(errorCode)&&(length!=0)) {
 		log_err("udatpg_addPattern failed in illegal argument - pattern is NULL.\n");
 		return;
 	}
@@ -300,7 +300,7 @@ static void TestBuilder() {
 	}
 	length = udatpg_replaceFieldTypes(dtpg, testPattern2, 7, replacedStr, 4,
 		result, 20, &errorCode);
-	if(U_FAILURE(errorCode) || (length==0) ) {
+	if(U_FAILURE(errorCode) || (length==0)) {
 		log_err("udatpg_replaceFieldTypes failed!\n");
 		return;
 	}
@@ -310,7 +310,7 @@ static void TestBuilder() {
 	ptrResult[1] = redundantPattern;
 	count = 0;
 	en = udatpg_openSkeletons(dtpg, &errorCode);
-	if(U_FAILURE(errorCode) || (length==0) ) {
+	if(U_FAILURE(errorCode) || (length==0)) {
 		log_err("udatpg_openSkeletons failed!\n");
 		return;
 	}
@@ -335,7 +335,7 @@ static void TestBuilder() {
 		}
 		count++;
 	}
-	if(U_FAILURE(errorCode) || (length==0) ) {
+	if(U_FAILURE(errorCode) || (length==0)) {
 		log_err("udatpg_openSkeletons failed!\n");
 		return;
 	}
@@ -420,7 +420,7 @@ static void TestOptions() {
 	for(; count-- > 0; ++testDataPtr) {
 		UErrorCode status = U_ZERO_ERROR;
 		UDateTimePatternGenerator * dtpgen = udatpg_open(testDataPtr->locale, &status);
-		if(U_SUCCESS(status) ) {
+		if(U_SUCCESS(status)) {
 			UChar pattern[kTestOptionsPatLenMax];
 			int32_t patLen = udatpg_getBestPatternWithOptions(dtpgen, testDataPtr->skel, -1,
 				testDataPtr->options, pattern,
@@ -478,7 +478,7 @@ static void TestGetFieldDisplayNames() {
 	for(; count-- > 0; ++testDataPtr) {
 		UErrorCode status = U_ZERO_ERROR;
 		UDateTimePatternGenerator * dtpgen = udatpg_open(testDataPtr->locale, &status);
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			log_data_err("ERROR udatpg_open failed for locale %s : %s - (Are you missing data?)\n",
 			    testDataPtr->locale,
 			    myErrorName(status));
@@ -490,7 +490,7 @@ static void TestGetFieldDisplayNames() {
 
 			int32_t getLen = udatpg_getFieldDisplayName(dtpgen, testDataPtr->field, testDataPtr->width,
 				getName, kFieldDisplayNameMax, &status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				log_err("ERROR udatpg_getFieldDisplayName locale %s field %d width %d, got status %s, len %d\n",
 				    testDataPtr->locale, testDataPtr->field, testDataPtr->width, u_errorName(status), getLen);
 			}
@@ -563,7 +563,7 @@ static void TestGetDefaultHourCycle()
 	for(; count-- > 0; ++testDataPtr) {
 		UErrorCode status = U_ZERO_ERROR;
 		UDateTimePatternGenerator * dtpgen = udatpg_open(testDataPtr->locale, &status);
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			log_data_err("ERROR udatpg_open failed for locale %s : %s - (Are you missing data?)\n", testDataPtr->locale, myErrorName(status));
 		}
 		else {

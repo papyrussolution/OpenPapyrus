@@ -684,7 +684,7 @@ static void FoldFortranDoc(Sci_PositionU startPos, Sci_Position length, int init
 					    (strcmp(prevWord, "case") == 0 && strcmp(s, "default") == 0) ||
 					    (strcmp(prevWord, "type") == 0 && strcmp(s, "is") == 0) ||
 					    (strcmp(prevWord, "class") == 0 && strcmp(s, "is") == 0) ||
-					    (strcmp(prevWord, "class") == 0 && strcmp(s, "default") == 0) ) {
+					    (strcmp(prevWord, "class") == 0 && strcmp(s, "default") == 0)) {
 						if(!isPrevLine) {
 							levelCurrent--;
 						}

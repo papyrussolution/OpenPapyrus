@@ -26,7 +26,7 @@ using namespace icu;
 #endif
 
 #if UPLUG_TRACE
-#define DBG(x) fprintf(stderr, "%s:%d: ", __FILE__, __LINE__); fprintf x
+#define DBG(x) slfprintf_stderr("%s:%d: ", __FILE__, __LINE__); fprintf x
 #endif
 
 /**
@@ -269,7 +269,7 @@ static void uplug_unloadPlug(UPlugData * plug, UErrorCode * status) {
 }
 
 static void uplug_queryPlug(UPlugData * plug, UErrorCode * status) {
-	if(!plug->awaitingLoad || !(plug->level == UPLUG_LEVEL_UNKNOWN) ) { /* shouldn't happen. Plugin hasn't been
+	if(!plug->awaitingLoad || !(plug->level == UPLUG_LEVEL_UNKNOWN)) { /* shouldn't happen. Plugin hasn't been
 		                                                               loaded yet.*/
 		*status = U_INTERNAL_PROGRAM_ERROR;
 		return;
@@ -292,7 +292,7 @@ static void uplug_loadPlug(UPlugData * plug, UErrorCode * status) {
 	if(U_FAILURE(*status)) {
 		return;
 	}
-	if(!plug->awaitingLoad || (plug->level < UPLUG_LEVEL_LOW) ) { /* shouldn't happen. Plugin hasn't been loaded
+	if(!plug->awaitingLoad || (plug->level < UPLUG_LEVEL_LOW)) { /* shouldn't happen. Plugin hasn't been loaded
 		                                                         yet.*/
 		*status = U_INTERNAL_PROGRAM_ERROR;
 		return;

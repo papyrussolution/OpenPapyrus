@@ -172,6 +172,17 @@ SJson::~SJson()
 
 bool SJson::IsValid() const { return !(State & 0x0001); }
 
+int FASTCALL SJson::ToStr(SStringU & rBuf) const
+{
+	rBuf.Z();
+	SString temp_buf;
+	int   ok = ToStr(temp_buf);
+	if(ok) {
+		ok = rBuf.CopyFromUtf8Strict(temp_buf.cptr(), temp_buf.Len());
+	}
+	return ok;
+}
+
 int FASTCALL SJson::ToStr(SString & rBuf) const
 {
 	//return json_tree_to_string(this, rBuf);

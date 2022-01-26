@@ -168,7 +168,7 @@ LRESULT SplitterContainer::runProc(UINT message, WPARAM wParam, LPARAM lParam)
 	    }
 		case WM_DOPOPUPMENU:
 	    {
-		    if((_splitterMode != SplitterMode::LEFT_FIX) && (_splitterMode != SplitterMode::RIGHT_FIX) ) {
+		    if((_splitterMode != SplitterMode::LEFT_FIX) && (_splitterMode != SplitterMode::RIGHT_FIX)) {
 			    POINT p;
 			    ::GetCursorPos(&p);
 			    if(!_hPopupMenu) {

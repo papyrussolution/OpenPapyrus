@@ -910,7 +910,7 @@ void RBBITableBuilder::mergeRuleStatusVals() {
 			//    between this state and the group from the global list.
 			for(i = 0; i<thisStatesTagValues->size(); i++) {
 				if(thisStatesTagValues->elementAti(i) !=
-				    fRB->fRuleStatusVals->elementAti(thisTagGroupStart + 1 + i) ) {
+				    fRB->fRuleStatusVals->elementAti(thisTagGroupStart + 1 + i)) {
 					// Mismatch.
 					break;
 				}

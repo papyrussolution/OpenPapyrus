@@ -34,7 +34,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
 #ifndef OPJ_DWT_H
 #define OPJ_DWT_H
 /**
@@ -59,9 +58,7 @@ Apply a reversible DWT transform to a component of an image.
 @param p_tcd TCD handle
 @param tilec Tile component information (current tile)
 */
-OPJ_BOOL opj_dwt_encode(opj_tcd_t *p_tcd,
-                        opj_tcd_tilecomp_t * tilec);
-
+boolint opj_dwt_encode(opj_tcd_t *p_tcd, opj_tcd_tilecomp_t * tilec);
 /**
 Inverse 5-3 wavelet transform in 2-D.
 Apply a reversible inverse DWT transform to a component of an image.
@@ -69,25 +66,21 @@ Apply a reversible inverse DWT transform to a component of an image.
 @param tilec Tile component information (current tile)
 @param numres Number of resolution levels to decode
 */
-OPJ_BOOL opj_dwt_decode(opj_tcd_t *p_tcd,
-                        opj_tcd_tilecomp_t* tilec,
-                        OPJ_UINT32 numres);
-
+boolint opj_dwt_decode(opj_tcd_t *p_tcd, opj_tcd_tilecomp_t* tilec, OPJ_UINT32 numres);
 /**
 Get the norm of a wavelet function of a subband at a specified level for the reversible 5-3 DWT.
 @param level Level of the wavelet function
 @param orient Band of the wavelet function
 @return Returns the norm of the wavelet function
 */
-OPJ_FLOAT64 opj_dwt_getnorm(OPJ_UINT32 level, OPJ_UINT32 orient);
+double opj_dwt_getnorm(OPJ_UINT32 level, OPJ_UINT32 orient);
 /**
 Forward 9-7 wavelet transform in 2-D.
 Apply an irreversible DWT transform to a component of an image.
 @param p_tcd TCD handle
 @param tilec Tile component information (current tile)
 */
-OPJ_BOOL opj_dwt_encode_real(opj_tcd_t *p_tcd,
-                             opj_tcd_tilecomp_t * tilec);
+boolint opj_dwt_encode_real(opj_tcd_t *p_tcd, opj_tcd_tilecomp_t * tilec);
 /**
 Inverse 9-7 wavelet transform in 2-D.
 Apply an irreversible inverse DWT transform to a component of an image.
@@ -95,17 +88,14 @@ Apply an irreversible inverse DWT transform to a component of an image.
 @param tilec Tile component information (current tile)
 @param numres Number of resolution levels to decode
 */
-OPJ_BOOL opj_dwt_decode_real(opj_tcd_t *p_tcd,
-                             opj_tcd_tilecomp_t* OPJ_RESTRICT tilec,
-                             OPJ_UINT32 numres);
-
+boolint opj_dwt_decode_real(opj_tcd_t *p_tcd, opj_tcd_tilecomp_t* OPJ_RESTRICT tilec, OPJ_UINT32 numres);
 /**
 Get the norm of a wavelet function of a subband at a specified level for the irreversible 9-7 DWT
 @param level Level of the wavelet function
 @param orient Band of the wavelet function
 @return Returns the norm of the 9-7 wavelet
 */
-OPJ_FLOAT64 opj_dwt_getnorm_real(OPJ_UINT32 level, OPJ_UINT32 orient);
+double opj_dwt_getnorm_real(OPJ_UINT32 level, OPJ_UINT32 orient);
 /**
 Explicit calculation of the Quantization Stepsizes
 @param tccp Tile-component coding parameters

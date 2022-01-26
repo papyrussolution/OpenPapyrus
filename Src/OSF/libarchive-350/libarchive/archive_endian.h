@@ -58,7 +58,7 @@
 
 /* Alignment-agnostic encode/decode bytestream to/from little/big endian. */
 
-static inline uint16_t
+static inline uint16
 archive_be16dec(const void *pp)
 {
 	uchar const * p = (uchar const *)pp;
@@ -93,7 +93,7 @@ static inline uint64 archive_be64dec(const void *pp)
 	return (((uint64)archive_be32dec(p) << 32) | archive_be32dec(p + 4));
 }
 
-static inline uint16_t archive_le16dec(const void *pp)
+static inline uint16 archive_le16dec(const void *pp)
 {
 	uchar const * p = (uchar const *)pp;
 	/* Store into unsigned temporaries before left shifting, to avoid
@@ -123,7 +123,7 @@ static inline uint64 archive_le64dec(const void *pp)
 	return (((uint64)archive_le32dec(p + 4) << 32) | archive_le32dec(p));
 }
 
-static inline void archive_be16enc(void * pp, uint16_t u)
+static inline void archive_be16enc(void * pp, uint16 u)
 {
 	uchar * p = static_cast<uchar *>(pp);
 	p[0] = (u >> 8) & 0xff;
@@ -146,7 +146,7 @@ static inline void archive_be64enc(void *pp, uint64 u)
 	archive_be32enc(p + 4, (uint32)(u & 0xffffffff));
 }
 
-static inline void archive_le16enc(void *pp, uint16_t u)
+static inline void archive_le16enc(void *pp, uint16 u)
 {
 	uchar * p = static_cast<uchar *>(pp);
 	p[0] = u & 0xff;

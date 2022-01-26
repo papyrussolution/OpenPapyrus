@@ -1799,7 +1799,7 @@ bool NppParameters::getContextMenuFromXmlTree(HMENU mainMenuHadle, HMENU plugins
 	WcharMbcsConvertor& wmc = WcharMbcsConvertor::getInstance();
 	TiXmlNodeA * contextMenuRoot = root->FirstChildElement("ScintillaContextMenu");
 	if(contextMenuRoot) {
-		for(TiXmlNodeA * childNode = contextMenuRoot->FirstChildElement("Item"); childNode; childNode = childNode->NextSibling("Item") ) {
+		for(TiXmlNodeA * childNode = contextMenuRoot->FirstChildElement("Item"); childNode; childNode = childNode->NextSibling("Item")) {
 			const char * folderNameA = (childNode->ToElement())->Attribute("FolderName");
 			const char * displayAsA = (childNode->ToElement())->Attribute("ItemNameAs");
 			generic_string folderName;
@@ -1898,7 +1898,7 @@ bool NppParameters::getSessionFromXmlTree(TiXmlDocument * pSessionDoc, Session& 
 				else // k == 1
 					session._activeSubIndex = index2;
 			}
-			for(TiXmlNode * childNode = viewRoots[k]->FirstChildElement(TEXT("File")); childNode; childNode = childNode->NextSibling(TEXT("File")) ) {
+			for(TiXmlNode * childNode = viewRoots[k]->FirstChildElement(TEXT("File")); childNode; childNode = childNode->NextSibling(TEXT("File"))) {
 				const TCHAR * fileName = (childNode->ToElement())->Attribute(TEXT("filename"));
 				if(fileName) {
 					Position position;
@@ -2037,7 +2037,7 @@ void NppParameters::feedFileBrowserParameters(TiXmlNode * node)
 		_fileBrowserSelectedItemPath = selectedItemPath;
 	}
 
-	for(TiXmlNode * childNode = fileBrowserRoot->FirstChildElement(TEXT("root")); childNode; childNode = childNode->NextSibling(TEXT("root")) ) {
+	for(TiXmlNode * childNode = fileBrowserRoot->FirstChildElement(TEXT("root")); childNode; childNode = childNode->NextSibling(TEXT("root"))) {
 		const TCHAR * filePath = (childNode->ToElement())->Attribute(TEXT("foldername"));
 		if(filePath) {
 			_fileBrowserRoot.push_back(filePath);
@@ -2050,7 +2050,7 @@ void NppParameters::feedProjectPanelsParameters(TiXmlNode * node)
 	TiXmlNode * projPanelRoot = node->FirstChildElement(TEXT("ProjectPanels"));
 	if(!projPanelRoot) return;
 
-	for(TiXmlNode * childNode = projPanelRoot->FirstChildElement(TEXT("ProjectPanel")); childNode; childNode = childNode->NextSibling(TEXT("ProjectPanel")) ) {
+	for(TiXmlNode * childNode = projPanelRoot->FirstChildElement(TEXT("ProjectPanel")); childNode; childNode = childNode->NextSibling(TEXT("ProjectPanel"))) {
 		int index = 0;
 		const TCHAR * idStr = (childNode->ToElement())->Attribute(TEXT("id"), &index);
 		if(idStr && (index >= 0 && index <= 2)) {
@@ -2073,7 +2073,7 @@ void NppParameters::feedFindHistoryParameters(TiXmlNode * node)
 	}
 	if((_findHistory._nbMaxFindHistoryPath > 0) && (_findHistory._nbMaxFindHistoryPath <= NB_MAX_FINDHISTORY_PATH)) {
 		for(TiXmlNode * childNode = findHistoryRoot->FirstChildElement(TEXT("Path")); childNode && (_findHistory._findHistoryPaths.size() < NB_MAX_FINDHISTORY_PATH);
-		    childNode = childNode->NextSibling(TEXT("Path")) ) {
+		    childNode = childNode->NextSibling(TEXT("Path"))) {
 			const TCHAR * filePath = (childNode->ToElement())->Attribute(TEXT("name"));
 			if(filePath) {
 				_findHistory._findHistoryPaths.push_back(generic_string(filePath));
@@ -2184,7 +2184,7 @@ void FASTCALL NppParameters::feedShortcut(TiXmlNode * node)
 {
 	TiXmlNode * shortcutsRoot = node->FirstChildElement(TEXT("InternalCommands"));
 	if(!shortcutsRoot) return;
-	for(TiXmlNode * childNode = shortcutsRoot->FirstChildElement(TEXT("Shortcut")); childNode; childNode = childNode->NextSibling(TEXT("Shortcut")) ) {
+	for(TiXmlNode * childNode = shortcutsRoot->FirstChildElement(TEXT("Shortcut")); childNode; childNode = childNode->NextSibling(TEXT("Shortcut"))) {
 		int id;
 		const TCHAR * idStr = (childNode->ToElement())->Attribute(TEXT("id"), &id);
 		if(idStr) {
@@ -2208,7 +2208,7 @@ void NppParameters::feedMacros(TiXmlNode * node)
 
 	for(TiXmlNode * childNode = macrosRoot->FirstChildElement(TEXT("Macro"));
 	    childNode;
-	    childNode = childNode->NextSibling(TEXT("Macro")) ) {
+	    childNode = childNode->NextSibling(TEXT("Macro"))) {
 		Shortcut sc;
 		if(getShortcuts(childNode, sc)) {// && sc.isValid())
 			Macro macro;
@@ -2224,7 +2224,7 @@ void NppParameters::getActions(TiXmlNode * node, Macro & macro)
 {
 	for(TiXmlNode * childNode = node->FirstChildElement(TEXT("Action"));
 	    childNode;
-	    childNode = childNode->NextSibling(TEXT("Action")) ) {
+	    childNode = childNode->NextSibling(TEXT("Action"))) {
 		int type;
 		const TCHAR * typeStr = (childNode->ToElement())->Attribute(TEXT("type"), &type);
 		if((!typeStr) || (type > 3))
@@ -2249,7 +2249,7 @@ void NppParameters::feedUserCmds(TiXmlNode * node)
 	TiXmlNode * userCmdsRoot = node->FirstChildElement(TEXT("UserDefinedCommands"));
 	if(!userCmdsRoot) 
 		return;
-	for(TiXmlNode * childNode = userCmdsRoot->FirstChildElement(TEXT("Command")); childNode; childNode = childNode->NextSibling(TEXT("Command")) ) {
+	for(TiXmlNode * childNode = userCmdsRoot->FirstChildElement(TEXT("Command")); childNode; childNode = childNode->NextSibling(TEXT("Command"))) {
 		Shortcut sc;
 		if(getShortcuts(childNode, sc)) {
 			TiXmlNode * aNode = childNode->FirstChild();
@@ -2270,7 +2270,7 @@ void NppParameters::feedPluginCustomizedCmds(TiXmlNode * node)
 	TiXmlNode * pluginCustomizedCmdsRoot = node->FirstChildElement(TEXT("PluginCommands"));
 	if(!pluginCustomizedCmdsRoot) 
 		return;
-	for(TiXmlNode * childNode = pluginCustomizedCmdsRoot->FirstChildElement(TEXT("PluginCommand")); childNode; childNode = childNode->NextSibling(TEXT("PluginCommand")) ) {
+	for(TiXmlNode * childNode = pluginCustomizedCmdsRoot->FirstChildElement(TEXT("PluginCommand")); childNode; childNode = childNode->NextSibling(TEXT("PluginCommand"))) {
 		const TCHAR * moduleName = (childNode->ToElement())->Attribute(TEXT("moduleName"));
 		if(!moduleName)
 			continue;
@@ -2298,7 +2298,7 @@ void NppParameters::feedScintKeys(TiXmlNode * node)
 	TiXmlNode * scintKeysRoot = node->FirstChildElement(TEXT("ScintillaKeys"));
 	if(!scintKeysRoot) 
 		return;
-	for(TiXmlNode * childNode = scintKeysRoot->FirstChildElement(TEXT("ScintKey")); childNode; childNode = childNode->NextSibling(TEXT("ScintKey")) ) {
+	for(TiXmlNode * childNode = scintKeysRoot->FirstChildElement(TEXT("ScintKey")); childNode; childNode = childNode->NextSibling(TEXT("ScintKey"))) {
 		int scintKey;
 		const TCHAR * keyStr = (childNode->ToElement())->Attribute(TEXT("ScintID"), &scintKey);
 		if(!keyStr)
@@ -2353,7 +2353,7 @@ bool NppParameters::feedBlacklist(TiXmlNode * node)
 	TiXmlNode * blackListRoot = node->FirstChildElement(TEXT("PluginBlackList"));
 	if(!blackListRoot) 
 		return false;
-	for(TiXmlNode * childNode = blackListRoot->FirstChildElement(TEXT("Plugin")); childNode; childNode = childNode->NextSibling(TEXT("Plugin")) ) {
+	for(TiXmlNode * childNode = blackListRoot->FirstChildElement(TEXT("Plugin")); childNode; childNode = childNode->NextSibling(TEXT("Plugin"))) {
 		const TCHAR * name = (childNode->ToElement())->Attribute(TEXT("name"));
 		if(name) {
 			_blacklist.push_back(name);
@@ -2392,7 +2392,7 @@ bool NppParameters::getShortcuts(TiXmlNode * node, Shortcut & sc)
 std::pair<uchar, uchar> NppParameters::feedUserLang(TiXmlNode * node)
 {
 	int iBegin = _nbUserLang;
-	for(TiXmlNode * childNode = node->FirstChildElement(TEXT("UserLang")); childNode && (_nbUserLang < NB_MAX_USER_LANG); childNode = childNode->NextSibling(TEXT("UserLang")) ) {
+	for(TiXmlNode * childNode = node->FirstChildElement(TEXT("UserLang")); childNode && (_nbUserLang < NB_MAX_USER_LANG); childNode = childNode->NextSibling(TEXT("UserLang"))) {
 		const TCHAR* name = (childNode->ToElement())->Attribute(TEXT("name"));
 		const TCHAR* ext = (childNode->ToElement())->Attribute(TEXT("ext"));
 		const TCHAR* darkModeTheme = (childNode->ToElement())->Attribute(TEXT("darkModeTheme"));
@@ -3151,7 +3151,7 @@ bool NppParameters::feedStylerArray(TiXmlNode * node)
 	// For each lexer
 	for(TiXmlNode * childNode = styleRoot->FirstChildElement(TEXT("LexerType"));
 	    childNode;
-	    childNode = childNode->NextSibling(TEXT("LexerType")) ) {
+	    childNode = childNode->NextSibling(TEXT("LexerType"))) {
 		TiXmlElement * element = childNode->ToElement();
 		const TCHAR * lexerName = element->Attribute(TEXT("name"));
 		const TCHAR * lexerDesc = element->Attribute(TEXT("desc"));
@@ -3170,7 +3170,7 @@ bool NppParameters::feedStylerArray(TiXmlNode * node)
 	TiXmlNode * globalStyleRoot = node->FirstChildElement(TEXT("GlobalStyles"));
 	if(!globalStyleRoot) 
 		return false;
-	for(TiXmlNode * childNode = globalStyleRoot->FirstChildElement(TEXT("WidgetStyle")); childNode; childNode = childNode->NextSibling(TEXT("WidgetStyle")) ) {
+	for(TiXmlNode * childNode = globalStyleRoot->FirstChildElement(TEXT("WidgetStyle")); childNode; childNode = childNode->NextSibling(TEXT("WidgetStyle"))) {
 		TiXmlElement * element = childNode->ToElement();
 		const TCHAR * styleIDStr = element->Attribute(TEXT("styleID"));
 		int styleID = -1;
@@ -3203,7 +3203,7 @@ void LexerStylerArray::addLexerStyler(const TCHAR * lexerName, const TCHAR * lex
 		ls.setLexerUserExt(lexerUserExt);
 	for(TiXmlNode * childNode = lexerNode->FirstChildElement(TEXT("WordsStyle"));
 	    childNode;
-	    childNode = childNode->NextSibling(TEXT("WordsStyle")) ) {
+	    childNode = childNode->NextSibling(TEXT("WordsStyle"))) {
 		TiXmlElement * element = childNode->ToElement();
 		const TCHAR * styleIDStr = element->Attribute(TEXT("styleID"));
 		if(styleIDStr) {
@@ -3658,7 +3658,7 @@ void NppParameters::feedKeyWordsParameters(TiXmlNode * node)
 
 	for(TiXmlNode * langNode = langRoot->FirstChildElement(TEXT("Language"));
 	    langNode;
-	    langNode = langNode->NextSibling(TEXT("Language")) ) {
+	    langNode = langNode->NextSibling(TEXT("Language"))) {
 		if(_nbLang < NB_LANG) {
 			TiXmlElement* element = langNode->ToElement();
 			const TCHAR* name = element->Attribute(TEXT("name"));
@@ -3675,7 +3675,7 @@ void NppParameters::feedKeyWordsParameters(TiXmlNode * node)
 
 				for(TiXmlNode * kwNode = langNode->FirstChildElement(TEXT("Keywords"));
 				    kwNode;
-				    kwNode = kwNode->NextSibling(TEXT("Keywords")) ) {
+				    kwNode = kwNode->NextSibling(TEXT("Keywords"))) {
 					const TCHAR * indexName = (kwNode->ToElement())->Attribute(TEXT("name"));
 					TiXmlNode * kwVal = kwNode->FirstChild();
 					const TCHAR * keyWords = TEXT("");
@@ -3705,7 +3705,7 @@ void NppParameters::feedGUIParameters(TiXmlNode * node)
 
 	for(TiXmlNode * childNode = GUIRoot->FirstChildElement(TEXT("GUIConfig"));
 	    childNode;
-	    childNode = childNode->NextSibling(TEXT("GUIConfig")) ) {
+	    childNode = childNode->NextSibling(TEXT("GUIConfig"))) {
 		TiXmlElement* element = childNode->ToElement();
 		const TCHAR* nm = element->Attribute(TEXT("name"));
 		if(nullptr == nm)
@@ -4563,7 +4563,7 @@ void NppParameters::feedGUIParameters(TiXmlNode * node)
 
 			for(TiXmlNode * subChildNode = childNode->FirstChildElement(TEXT("UserDefinePair"));
 			    subChildNode;
-			    subChildNode = subChildNode->NextSibling(TEXT("UserDefinePair")) ) {
+			    subChildNode = subChildNode->NextSibling(TEXT("UserDefinePair"))) {
 				int open = -1;
 				int openVal = 0;
 				const TCHAR * openValStr = (subChildNode->ToElement())->Attribute(TEXT("open"), &openVal);
@@ -5057,7 +5057,7 @@ void NppParameters::feedDockingManager(TiXmlNode * node)
 		_nppGUI._dockingData._bottomHight = i;
 	for(TiXmlNode * childNode = node->FirstChildElement(TEXT("FloatingWindow"));
 	    childNode;
-	    childNode = childNode->NextSibling(TEXT("FloatingWindow")) ) {
+	    childNode = childNode->NextSibling(TEXT("FloatingWindow"))) {
 		TiXmlElement * floatElement = childNode->ToElement();
 		int cont;
 		if(floatElement->Attribute(TEXT("cont"), &cont)) {
@@ -5072,7 +5072,7 @@ void NppParameters::feedDockingManager(TiXmlNode * node)
 			_nppGUI._dockingData._flaotingWindowInfo.push_back(FloatingWindowInfo(cont, x, y, w, h));
 		}
 	}
-	for(TiXmlNode * childNode = node->FirstChildElement(TEXT("PluginDlg")); childNode; childNode = childNode->NextSibling(TEXT("PluginDlg")) ) {
+	for(TiXmlNode * childNode = node->FirstChildElement(TEXT("PluginDlg")); childNode; childNode = childNode->NextSibling(TEXT("PluginDlg"))) {
 		TiXmlElement * dlgElement = childNode->ToElement();
 		const TCHAR * name = dlgElement->Attribute(TEXT("pluginName"));
 		int id;
@@ -5090,7 +5090,7 @@ void NppParameters::feedDockingManager(TiXmlNode * node)
 			_nppGUI._dockingData._pluginDockInfo.push_back(PluginDlgDockingInfo(name, id, curr, prev, isVisible));
 		}
 	}
-	for(TiXmlNode * childNode = node->FirstChildElement(TEXT("ActiveTabs")); childNode; childNode = childNode->NextSibling(TEXT("ActiveTabs")) ) {
+	for(TiXmlNode * childNode = node->FirstChildElement(TEXT("ActiveTabs")); childNode; childNode = childNode->NextSibling(TEXT("ActiveTabs"))) {
 		TiXmlElement * dlgElement = childNode->ToElement();
 		int cont;
 		if(dlgElement->Attribute(TEXT("cont"), &cont)) {

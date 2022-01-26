@@ -455,17 +455,13 @@ boolint CMSEXPORT cmsGDBCompute(cmsHANDLE hGBD, cmsUInt32Number dwFlags)
 #if 0
 boolint cmsGBDdumpVRML(cmsHANDLE hGBD, const char * fname)
 {
-	FILE* fp;
 	int i, j;
 	cmsGDB * gbd = (cmsGDB *)hGBD;
 	cmsGDBPoint * pt;
-
-	fp = fopen(fname, "wt");
+	FILE * fp = fopen(fname, "wt");
 	if(fp == NULL)
 		return FALSE;
-
 	fprintf(fp, "#VRML V2.0 utf8\n");
-
 	// set the viewing orientation and distance
 	fprintf(fp, "DEF CamTest Group {\n");
 	fprintf(fp, "\tchildren [\n");
@@ -535,18 +531,14 @@ boolint cmsGBDdumpVRML(cmsHANDLE hGBD, const char * fname)
 	for(i = 0; i < SECTORS; i++)
 		for(j = 0; j < SECTORS; j++) {
 			cmsVEC3 v;
-
 			pt = &gbd->Gamut[i][j];
 			ToCartesian(&v, &pt->p);
-
 			fprintf(fp, "\t\t\t\t\t%g %g %g", v.n[0]+50, v.n[1], v.n[2]);
-
 			if((j == SECTORS - 1) && (i == SECTORS - 1))
 				fprintf(fp, "]\n");
 			else
 				fprintf(fp, ",\n");
 		}
-
 	fprintf(fp, "\t\t\t\t}\n");
 
 	// fill in the face colors

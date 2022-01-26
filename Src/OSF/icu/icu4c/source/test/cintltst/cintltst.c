@@ -97,12 +97,12 @@ int main(int argc, const char * const argv[])
 	defaultDataFound = TRUE;
 	u_init(&errorCode);
 	if(U_FAILURE(errorCode)) {
-		fprintf(stderr, "#### Note:  ICU Init without build-specific setDataDirectory() failed. %s\n", u_errorName(errorCode));
+		slfprintf_stderr("#### Note:  ICU Init without build-specific setDataDirectory() failed. %s\n", u_errorName(errorCode));
 		defaultDataFound = FALSE;
 	}
 	u_cleanup();
 #ifdef URES_DEBUG
-	fprintf(stderr, "After initial u_cleanup: RB cache %s empty.\n", ures_dumpCacheContents() ? "WAS NOT" : "was");
+	slfprintf_stderr("After initial u_cleanup: RB cache %s empty.\n", ures_dumpCacheContents() ? "WAS NOT" : "was");
 #endif
 
 	while(getTestOption(REPEAT_TESTS_OPTION) > 0) { /* Loop runs once per complete execution of the tests
@@ -182,7 +182,7 @@ int main(int argc, const char * const argv[])
 			fprintf(stderr,
 			    "*** %s! Can not open a resource bundle for the default locale %s\n", warnOrErr, uloc_getDefault());
 			if(!getTestOption(WARN_ON_MISSING_DATA_OPTION)) {
-				fprintf(stderr, "*** Exiting.  Use the '-w' option if data files were\n"
+				slfprintf_stderr("*** Exiting.  Use the '-w' option if data files were\n"
 				    "*** purposely removed, to continue test anyway.\n");
 				u_cleanup();
 				return 1;
@@ -218,11 +218,11 @@ int main(int argc, const char * const argv[])
 		}
 #ifdef URES_DEBUG
 		if(ures_dumpCacheContents()) {
-			fprintf(stderr, "Error: After final u_cleanup, RB cache was not empty.\n");
+			slfprintf_stderr("Error: After final u_cleanup, RB cache was not empty.\n");
 			nerrors++;
 		}
 		else {
-			fprintf(stderr, "OK: After final u_cleanup, RB cache was empty.\n");
+			slfprintf_stderr("OK: After final u_cleanup, RB cache was empty.\n");
 		}
 #endif
 #endif

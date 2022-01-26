@@ -505,7 +505,7 @@ static void FoldPowerProDoc(Sci_PositionU startPos, Sci_Position length, int, Wo
 
 			// if a keyword is found on the current line and the line doesn't end with ;;+ (continuation)
 			//    and we are not inside a commentblock.
-			if(firstWordLen > 0 && chPrev != '+' && chPrevPrev != ';' && chPrevPrevPrev !=';' && (!IsStreamCommentStyle(style) || foldInComment) ) {
+			if(firstWordLen > 0 && chPrev != '+' && chPrevPrev != ';' && chPrevPrevPrev !=';' && (!IsStreamCommentStyle(style) || foldInComment)) {
 				// only fold "if" last keyword is "then"  (else its a one line if)
 				if(sstreq(szFirstWord, "if") && isDoLastWord)
 					levelNext++;

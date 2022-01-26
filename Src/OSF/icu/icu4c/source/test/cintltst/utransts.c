@@ -591,7 +591,7 @@ enum { kUBufMax = 256 };
 static void TestGetRulesAndSourceSet() {
 	UErrorCode status = U_ZERO_ERROR;
 	UTransliterator * utrans = utrans_openU(transSimpleID, -1, UTRANS_FORWARD, NULL, 0, NULL, &status);
-	if(U_SUCCESS(status) ) {
+	if(U_SUCCESS(status)) {
 		USet* uset;
 		UChar ubuf[kUBufMax];
 		int32_t ulen;

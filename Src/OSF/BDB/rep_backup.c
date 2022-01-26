@@ -54,9 +54,9 @@ static FILE_WALK_FN __rep_remove_file;
 static int __rep_remove_logs(ENV *);
 static int __rep_remove_nimdbs(ENV *);
 static int __rep_rollback(ENV*, DB_LSN *);
-static int __rep_unlink_by_list(ENV*, uint32, uint8*, uint32, uint32);
+static int __rep_unlink_by_list(ENV*, uint32, uint8 *, uint32, uint32);
 static FILE_WALK_FN __rep_unlink_file;
-static int __rep_walk_filelist(ENV*, uint32, uint8*, uint32, uint32, FILE_WALK_FN*, void *);
+static int __rep_walk_filelist(ENV*, uint32, uint8 *, uint32, uint32, FILE_WALK_FN*, void *);
 static int __rep_walk_dir(ENV*, const char *, FILE_LIST_CTX *);
 static int __rep_write_page(ENV*, DB_THREAD_INFO*, REP*, __rep_fileinfo_args *);
 /*

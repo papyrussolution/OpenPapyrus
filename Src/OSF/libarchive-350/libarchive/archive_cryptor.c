@@ -97,7 +97,7 @@ static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt,
 static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt,
     size_t salt_len, unsigned rounds, uint8 * derived_key, size_t derived_key_len) 
 {
-	pbkdf2_hmac_sha1((uint)pw_len, (const uint8*)pw, rounds, salt_len, salt, derived_key_len, derived_key);
+	pbkdf2_hmac_sha1((uint)pw_len, (const uint8 *)pw, rounds, salt_len, salt, derived_key_len, derived_key);
 	return 0;
 }
 

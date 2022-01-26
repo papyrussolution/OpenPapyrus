@@ -1423,7 +1423,7 @@ inline bool FieldMaskTestCases::has_single_mask() const {
   return _internal_has_single_mask();
 }
 inline void FieldMaskTestCases::clear_single_mask() {
-  if (GetArenaForAllocation() == nullptr && single_mask_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && single_mask_ != nullptr) {
     delete single_mask_;
   }
   single_mask_ = nullptr;
@@ -1513,7 +1513,7 @@ inline bool FieldMaskTestCases::has_multiple_mask() const {
   return _internal_has_multiple_mask();
 }
 inline void FieldMaskTestCases::clear_multiple_mask() {
-  if (GetArenaForAllocation() == nullptr && multiple_mask_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && multiple_mask_ != nullptr) {
     delete multiple_mask_;
   }
   multiple_mask_ = nullptr;
@@ -1603,7 +1603,7 @@ inline bool FieldMaskTestCases::has_snake_camel() const {
   return _internal_has_snake_camel();
 }
 inline void FieldMaskTestCases::clear_snake_camel() {
-  if (GetArenaForAllocation() == nullptr && snake_camel_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && snake_camel_ != nullptr) {
     delete snake_camel_;
   }
   snake_camel_ = nullptr;
@@ -1693,7 +1693,7 @@ inline bool FieldMaskTestCases::has_empty_field() const {
   return _internal_has_empty_field();
 }
 inline void FieldMaskTestCases::clear_empty_field() {
-  if (GetArenaForAllocation() == nullptr && empty_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && empty_field_ != nullptr) {
     delete empty_field_;
   }
   empty_field_ = nullptr;
@@ -1783,7 +1783,7 @@ inline bool FieldMaskTestCases::has_apiary_format1() const {
   return _internal_has_apiary_format1();
 }
 inline void FieldMaskTestCases::clear_apiary_format1() {
-  if (GetArenaForAllocation() == nullptr && apiary_format1_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && apiary_format1_ != nullptr) {
     delete apiary_format1_;
   }
   apiary_format1_ = nullptr;
@@ -1873,7 +1873,7 @@ inline bool FieldMaskTestCases::has_apiary_format2() const {
   return _internal_has_apiary_format2();
 }
 inline void FieldMaskTestCases::clear_apiary_format2() {
-  if (GetArenaForAllocation() == nullptr && apiary_format2_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && apiary_format2_ != nullptr) {
     delete apiary_format2_;
   }
   apiary_format2_ = nullptr;
@@ -1963,7 +1963,7 @@ inline bool FieldMaskTestCases::has_apiary_format3() const {
   return _internal_has_apiary_format3();
 }
 inline void FieldMaskTestCases::clear_apiary_format3() {
-  if (GetArenaForAllocation() == nullptr && apiary_format3_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && apiary_format3_ != nullptr) {
     delete apiary_format3_;
   }
   apiary_format3_ = nullptr;
@@ -2053,7 +2053,7 @@ inline bool FieldMaskTestCases::has_map_key1() const {
   return _internal_has_map_key1();
 }
 inline void FieldMaskTestCases::clear_map_key1() {
-  if (GetArenaForAllocation() == nullptr && map_key1_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && map_key1_ != nullptr) {
     delete map_key1_;
   }
   map_key1_ = nullptr;
@@ -2143,7 +2143,7 @@ inline bool FieldMaskTestCases::has_map_key2() const {
   return _internal_has_map_key2();
 }
 inline void FieldMaskTestCases::clear_map_key2() {
-  if (GetArenaForAllocation() == nullptr && map_key2_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && map_key2_ != nullptr) {
     delete map_key2_;
   }
   map_key2_ = nullptr;
@@ -2233,7 +2233,7 @@ inline bool FieldMaskTestCases::has_map_key3() const {
   return _internal_has_map_key3();
 }
 inline void FieldMaskTestCases::clear_map_key3() {
-  if (GetArenaForAllocation() == nullptr && map_key3_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && map_key3_ != nullptr) {
     delete map_key3_;
   }
   map_key3_ = nullptr;
@@ -2323,7 +2323,7 @@ inline bool FieldMaskTestCases::has_map_key4() const {
   return _internal_has_map_key4();
 }
 inline void FieldMaskTestCases::clear_map_key4() {
-  if (GetArenaForAllocation() == nullptr && map_key4_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && map_key4_ != nullptr) {
     delete map_key4_;
   }
   map_key4_ = nullptr;
@@ -2413,7 +2413,7 @@ inline bool FieldMaskTestCases::has_map_key5() const {
   return _internal_has_map_key5();
 }
 inline void FieldMaskTestCases::clear_map_key5() {
-  if (GetArenaForAllocation() == nullptr && map_key5_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && map_key5_ != nullptr) {
     delete map_key5_;
   }
   map_key5_ = nullptr;

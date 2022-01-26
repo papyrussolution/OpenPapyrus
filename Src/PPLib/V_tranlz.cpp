@@ -1,5 +1,5 @@
 // V_TRANLZ.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -4942,12 +4942,20 @@ int PrcssrAlcReport::PreprocessGoodsItem(PPID goodsID, PPID lotID, const ObjTagL
 			if(flags & pgifUseSubstCode && Cfg.SubstCategoryCode[0]) {
 				rItem.CategoryCode = Cfg.SubstCategoryCode;
 			}
-			long  ncode = rItem.CategoryCode.ToLong();
-			if(ncode > 0 && ncode < 100) {
-				rItem.CategoryCode.Z().CatLongZ(ncode, 3);
-			}
-			if(ncode > 0 && ncode < 500 && !oneof3(ncode, /*260,*/ 261, 262, 263)) {
-				rItem.StatusFlags |= GoodsItem::stMarkWanted;
+			{
+				long  ncode = rItem.CategoryCode.ToLong();
+				if(ncode > 0 && ncode < 100) {
+					rItem.CategoryCode.Z().CatLongZ(ncode, 3);
+				}
+				// @v11.2.12 {
+				else if(ncode > 1000 && ncode < 10000)
+					ncode = ncode / 10;
+				else if(ncode >= 10000)
+					ncode = ncode / 100;
+				// } @v11.2.12 
+				if(ncode > 0 && ncode < 500 && !oneof3(ncode, /*260,*/ 261, 262, 263)) {
+					rItem.StatusFlags |= GoodsItem::stMarkWanted;
+				}
 			}
 			uint   cnp = 0;
 			if(CategoryNameList.Search(rItem.CategoryCode, &rItem.CategoryName, &cnp)) {

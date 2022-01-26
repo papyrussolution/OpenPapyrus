@@ -148,7 +148,7 @@ DefaultValueTest::DefaultValueTest(const DefaultValueTest& from)
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     string_value_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (!from._internal_string_value().empty()) {
+  if(!from._internal_string_value().empty()) {
     string_value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_string_value(), 
       GetArenaForAllocation());
   }
@@ -156,7 +156,7 @@ DefaultValueTest::DefaultValueTest(const DefaultValueTest& from)
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     bytes_value_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (!from._internal_bytes_value().empty()) {
+  if(!from._internal_bytes_value().empty()) {
     bytes_value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_bytes_value(), 
       GetArenaForAllocation());
   }
@@ -224,10 +224,10 @@ const char* DefaultValueTest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // double double_value = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 9)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 9)) {
           double_value_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<double>(ptr);
           ptr += sizeof(double);
         } else
@@ -235,7 +235,7 @@ const char* DefaultValueTest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         continue;
       // repeated double repeated_double = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedDoubleParser(_internal_mutable_repeated_double(), ptr, ctx);
           CHK_(ptr);
         } else if (static_cast<uint8_t>(tag) == 17) {
@@ -246,7 +246,7 @@ const char* DefaultValueTest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         continue;
       // float float_value = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 29)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 29)) {
           float_value_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
           ptr += sizeof(float);
         } else
@@ -254,7 +254,7 @@ const char* DefaultValueTest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         continue;
       // int64 int64_value = 5;
       case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 40)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 40)) {
           int64_value_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else
@@ -262,7 +262,7 @@ const char* DefaultValueTest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         continue;
       // uint64 uint64_value = 7;
       case 7:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 56)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 56)) {
           uint64_value_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else
@@ -270,7 +270,7 @@ const char* DefaultValueTest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         continue;
       // int32 int32_value = 9;
       case 9:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 72)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 72)) {
           int32_value_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
@@ -278,7 +278,7 @@ const char* DefaultValueTest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         continue;
       // uint32 uint32_value = 11;
       case 11:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 88)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 88)) {
           uint32_value_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
@@ -286,7 +286,7 @@ const char* DefaultValueTest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         continue;
       // bool bool_value = 13;
       case 13:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 104)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 104)) {
           bool_value_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else
@@ -294,7 +294,7 @@ const char* DefaultValueTest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         continue;
       // string string_value = 15;
       case 15:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 122)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 122)) {
           auto str = _internal_mutable_string_value();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "proto_util_converter.testing.DefaultValueTest.string_value"));
@@ -304,7 +304,7 @@ const char* DefaultValueTest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         continue;
       // bytes bytes_value = 17 [ctype = CORD];
       case 17:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 138)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 138)) {
           auto str = _internal_mutable_bytes_value();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
@@ -313,7 +313,7 @@ const char* DefaultValueTest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         continue;
       // .proto_util_converter.testing.DefaultValueTest.EnumDefault enum_value = 18;
       case 18:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 144)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 144)) {
           uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
           _internal_set_enum_value(static_cast<::proto_util_converter::testing::DefaultValueTest_EnumDefault>(val));
@@ -324,7 +324,7 @@ const char* DefaultValueTest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -354,13 +354,13 @@ uint8_t* DefaultValueTest::_InternalSerialize(
   double tmp_double_value = this->_internal_double_value();
   uint64_t raw_double_value;
   memcpy(&raw_double_value, &tmp_double_value, sizeof(tmp_double_value));
-  if (raw_double_value != 0) {
+  if(raw_double_value != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteDoubleToArray(1, this->_internal_double_value(), target);
   }
 
   // repeated double repeated_double = 2;
-  if (this->_internal_repeated_double_size() > 0) {
+  if(this->_internal_repeated_double_size() > 0) {
     target = stream->WriteFixedPacked(2, _internal_repeated_double(), target);
   }
 
@@ -369,43 +369,43 @@ uint8_t* DefaultValueTest::_InternalSerialize(
   float tmp_float_value = this->_internal_float_value();
   uint32_t raw_float_value;
   memcpy(&raw_float_value, &tmp_float_value, sizeof(tmp_float_value));
-  if (raw_float_value != 0) {
+  if(raw_float_value != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteFloatToArray(3, this->_internal_float_value(), target);
   }
 
   // int64 int64_value = 5;
-  if (this->_internal_int64_value() != 0) {
+  if(this->_internal_int64_value() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt64ToArray(5, this->_internal_int64_value(), target);
   }
 
   // uint64 uint64_value = 7;
-  if (this->_internal_uint64_value() != 0) {
+  if(this->_internal_uint64_value() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(7, this->_internal_uint64_value(), target);
   }
 
   // int32 int32_value = 9;
-  if (this->_internal_int32_value() != 0) {
+  if(this->_internal_int32_value() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(9, this->_internal_int32_value(), target);
   }
 
   // uint32 uint32_value = 11;
-  if (this->_internal_uint32_value() != 0) {
+  if(this->_internal_uint32_value() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(11, this->_internal_uint32_value(), target);
   }
 
   // bool bool_value = 13;
-  if (this->_internal_bool_value() != 0) {
+  if(this->_internal_bool_value() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(13, this->_internal_bool_value(), target);
   }
 
   // string string_value = 15;
-  if (!this->_internal_string_value().empty()) {
+  if(!this->_internal_string_value().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_string_value().data(), static_cast<int>(this->_internal_string_value().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
@@ -415,18 +415,18 @@ uint8_t* DefaultValueTest::_InternalSerialize(
   }
 
   // bytes bytes_value = 17 [ctype = CORD];
-  if (!this->_internal_bytes_value().empty()) {
+  if(!this->_internal_bytes_value().empty()) {
     target = stream->WriteBytesMaybeAliased(
         17, this->_internal_bytes_value(), target);
   }
 
   // .proto_util_converter.testing.DefaultValueTest.EnumDefault enum_value = 18;
-  if (this->_internal_enum_value() != 0) {
+  if(this->_internal_enum_value() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(18, this->_internal_enum_value(), target);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -446,23 +446,22 @@ size_t DefaultValueTest::ByteSizeLong() const {
   {
     unsigned int count = static_cast<unsigned int>(this->_internal_repeated_double_size());
     size_t data_size = 8UL * count;
-    if (data_size > 0) {
+    if(data_size > 0) {
       total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
-            static_cast<int32_t>(data_size));
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
     }
     total_size += data_size;
   }
 
   // string string_value = 15;
-  if (!this->_internal_string_value().empty()) {
+  if(!this->_internal_string_value().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_string_value());
   }
 
   // bytes bytes_value = 17 [ctype = CORD];
-  if (!this->_internal_bytes_value().empty()) {
+  if(!this->_internal_bytes_value().empty()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_bytes_value());
@@ -473,12 +472,12 @@ size_t DefaultValueTest::ByteSizeLong() const {
   double tmp_double_value = this->_internal_double_value();
   uint64_t raw_double_value;
   memcpy(&raw_double_value, &tmp_double_value, sizeof(tmp_double_value));
-  if (raw_double_value != 0) {
+  if(raw_double_value != 0) {
     total_size += 1 + 8;
   }
 
   // int64 int64_value = 5;
-  if (this->_internal_int64_value() != 0) {
+  if(this->_internal_int64_value() != 0) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int64SizePlusOne(this->_internal_int64_value());
   }
 
@@ -487,32 +486,32 @@ size_t DefaultValueTest::ByteSizeLong() const {
   float tmp_float_value = this->_internal_float_value();
   uint32_t raw_float_value;
   memcpy(&raw_float_value, &tmp_float_value, sizeof(tmp_float_value));
-  if (raw_float_value != 0) {
+  if(raw_float_value != 0) {
     total_size += 1 + 4;
   }
 
   // int32 int32_value = 9;
-  if (this->_internal_int32_value() != 0) {
+  if(this->_internal_int32_value() != 0) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_int32_value());
   }
 
   // uint64 uint64_value = 7;
-  if (this->_internal_uint64_value() != 0) {
+  if(this->_internal_uint64_value() != 0) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64SizePlusOne(this->_internal_uint64_value());
   }
 
   // uint32 uint32_value = 11;
-  if (this->_internal_uint32_value() != 0) {
+  if(this->_internal_uint32_value() != 0) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32SizePlusOne(this->_internal_uint32_value());
   }
 
   // bool bool_value = 13;
-  if (this->_internal_bool_value() != 0) {
+  if(this->_internal_bool_value() != 0) {
     total_size += 1 + 1;
   }
 
   // .proto_util_converter.testing.DefaultValueTest.EnumDefault enum_value = 18;
-  if (this->_internal_enum_value() != 0) {
+  if(this->_internal_enum_value() != 0) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_enum_value());
   }
@@ -540,42 +539,42 @@ void DefaultValueTest::MergeFrom(const DefaultValueTest& from) {
   (void) cached_has_bits;
 
   repeated_double_.MergeFrom(from.repeated_double_);
-  if (!from._internal_string_value().empty()) {
+  if(!from._internal_string_value().empty()) {
     _internal_set_string_value(from._internal_string_value());
   }
-  if (!from._internal_bytes_value().empty()) {
+  if(!from._internal_bytes_value().empty()) {
     _internal_set_bytes_value(from._internal_bytes_value());
   }
   static_assert(sizeof(uint64_t) == sizeof(double), "Code assumes uint64_t and double are the same size.");
   double tmp_double_value = from._internal_double_value();
   uint64_t raw_double_value;
   memcpy(&raw_double_value, &tmp_double_value, sizeof(tmp_double_value));
-  if (raw_double_value != 0) {
+  if(raw_double_value != 0) {
     _internal_set_double_value(from._internal_double_value());
   }
-  if (from._internal_int64_value() != 0) {
+  if(from._internal_int64_value() != 0) {
     _internal_set_int64_value(from._internal_int64_value());
   }
   static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
   float tmp_float_value = from._internal_float_value();
   uint32_t raw_float_value;
   memcpy(&raw_float_value, &tmp_float_value, sizeof(tmp_float_value));
-  if (raw_float_value != 0) {
+  if(raw_float_value != 0) {
     _internal_set_float_value(from._internal_float_value());
   }
-  if (from._internal_int32_value() != 0) {
+  if(from._internal_int32_value() != 0) {
     _internal_set_int32_value(from._internal_int32_value());
   }
-  if (from._internal_uint64_value() != 0) {
+  if(from._internal_uint64_value() != 0) {
     _internal_set_uint64_value(from._internal_uint64_value());
   }
-  if (from._internal_uint32_value() != 0) {
+  if(from._internal_uint32_value() != 0) {
     _internal_set_uint32_value(from._internal_uint32_value());
   }
-  if (from._internal_bool_value() != 0) {
+  if(from._internal_bool_value() != 0) {
     _internal_set_bool_value(from._internal_bool_value());
   }
-  if (from._internal_enum_value() != 0) {
+  if(from._internal_enum_value() != 0) {
     _internal_set_enum_value(from._internal_enum_value());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -583,7 +582,7 @@ void DefaultValueTest::MergeFrom(const DefaultValueTest& from) {
 
 void DefaultValueTest::CopyFrom(const DefaultValueTest& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:proto_util_converter.testing.DefaultValueTest)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }

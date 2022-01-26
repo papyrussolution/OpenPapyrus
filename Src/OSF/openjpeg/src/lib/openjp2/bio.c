@@ -52,32 +52,32 @@
 /**
    Write a byte
    @param bio BIO handle
-   @return Returns OPJ_TRUE if successful, returns OPJ_FALSE otherwise
+   @return Returns TRUE if successful, returns FALSE otherwise
  */
-static OPJ_BOOL FASTCALL opj_bio_byteout(opj_bio_t * bio)
+static boolint FASTCALL opj_bio_byteout(opj_bio_t * bio)
 {
 	bio->buf = (bio->buf << 8) & 0xffff;
 	bio->ct = bio->buf == 0xff00 ? 7 : 8;
 	if((OPJ_SIZE_T)bio->bp >= (OPJ_SIZE_T)bio->end) {
-		return OPJ_FALSE;
+		return FALSE;
 	}
-	*bio->bp++ = (OPJ_BYTE)(bio->buf >> 8);
-	return OPJ_TRUE;
+	*bio->bp++ = (uint8)(bio->buf >> 8);
+	return TRUE;
 }
 /**
    Read a byte
    @param bio BIO handle
-   @return Returns OPJ_TRUE if successful, returns OPJ_FALSE otherwise
+   @return Returns TRUE if successful, returns FALSE otherwise
  */
-static OPJ_BOOL FASTCALL opj_bio_bytein(opj_bio_t * bio)
+static boolint FASTCALL opj_bio_bytein(opj_bio_t * bio)
 {
 	bio->buf = (bio->buf << 8) & 0xffff;
 	bio->ct = bio->buf == 0xff00 ? 7 : 8;
 	if((OPJ_SIZE_T)bio->bp >= (OPJ_SIZE_T)bio->end) {
-		return OPJ_FALSE;
+		return FALSE;
 	}
 	bio->buf |= *bio->bp++;
-	return OPJ_TRUE;
+	return TRUE;
 }
 /**
    Write a bit
@@ -119,9 +119,7 @@ opj_bio_t* opj_bio_create(void)
 
 void opj_bio_destroy(opj_bio_t * bio)
 {
-	if(bio) {
-		SAlloc::F(bio);
-	}
+	SAlloc::F(bio);
 }
 
 ptrdiff_t opj_bio_numbytes(opj_bio_t * bio)
@@ -129,7 +127,7 @@ ptrdiff_t opj_bio_numbytes(opj_bio_t * bio)
 	return (bio->bp - bio->start);
 }
 
-void opj_bio_init_enc(opj_bio_t * bio, OPJ_BYTE * bp, OPJ_UINT32 len)
+void opj_bio_init_enc(opj_bio_t * bio, uint8 * bp, OPJ_UINT32 len)
 {
 	bio->start = bp;
 	bio->end = bp + len;
@@ -138,7 +136,7 @@ void opj_bio_init_enc(opj_bio_t * bio, OPJ_BYTE * bp, OPJ_UINT32 len)
 	bio->ct = 8;
 }
 
-void opj_bio_init_dec(opj_bio_t * bio, OPJ_BYTE * bp, OPJ_UINT32 len)
+void opj_bio_init_dec(opj_bio_t * bio, uint8 * bp, OPJ_UINT32 len)
 {
 	bio->start = bp;
 	bio->end = bp + len;
@@ -149,9 +147,8 @@ void opj_bio_init_dec(opj_bio_t * bio, OPJ_BYTE * bp, OPJ_UINT32 len)
 
 void FASTCALL opj_bio_write(opj_bio_t * bio, OPJ_UINT32 v, OPJ_UINT32 n)
 {
-	OPJ_INT32 i;
 	assert((n > 0U) && (n <= 32U));
-	for(i = (OPJ_INT32)n - 1; i >= 0; i--) {
+	for(OPJ_INT32 i = (OPJ_INT32)n - 1; i >= 0; i--) {
 		opj_bio_putbit(bio, (v >> i) & 1);
 	}
 }
@@ -174,26 +171,26 @@ OPJ_UINT32 FASTCALL opj_bio_read(opj_bio_t * bio, OPJ_UINT32 n)
 	return v;
 }
 
-OPJ_BOOL opj_bio_flush(opj_bio_t * bio)
+boolint opj_bio_flush(opj_bio_t * bio)
 {
 	if(!opj_bio_byteout(bio)) {
-		return OPJ_FALSE;
+		return FALSE;
 	}
 	if(bio->ct == 7) {
 		if(!opj_bio_byteout(bio)) {
-			return OPJ_FALSE;
+			return FALSE;
 		}
 	}
-	return OPJ_TRUE;
+	return TRUE;
 }
 
-OPJ_BOOL opj_bio_inalign(opj_bio_t * bio)
+boolint opj_bio_inalign(opj_bio_t * bio)
 {
 	if((bio->buf & 0xff) == 0xff) {
 		if(!opj_bio_bytein(bio)) {
-			return OPJ_FALSE;
+			return FALSE;
 		}
 	}
 	bio->ct = 0;
-	return OPJ_TRUE;
+	return TRUE;
 }

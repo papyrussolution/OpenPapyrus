@@ -330,7 +330,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF8WithSub(UChar * dest,
 				}
 				else {
 					/* function call for "complicated" and error cases */
-					(c) = utf8_nextCharSafeBody((const uint8*)src, &(i), -1, c, -1);
+					(c) = utf8_nextCharSafeBody((const uint8 *)src, &(i), -1, c, -1);
 					if(c<0 && (++numSubstitutions, c = subchar) < 0) {
 						*pErrorCode = U_INVALID_CHAR_FOUND;
 						return NULL;
@@ -376,7 +376,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF8WithSub(UChar * dest,
 				}
 				else {
 					/* function call for "complicated" and error cases */
-					(c) = utf8_nextCharSafeBody((const uint8*)src, &(i), -1, c, -1);
+					(c) = utf8_nextCharSafeBody((const uint8 *)src, &(i), -1, c, -1);
 					if(c<0 && (++numSubstitutions, c = subchar) < 0) {
 						*pErrorCode = U_INVALID_CHAR_FOUND;
 						return NULL;
@@ -445,7 +445,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF8WithSub(UChar * dest,
 						}
 
 						/* function call for "complicated" and error cases */
-						(c) = utf8_nextCharSafeBody((const uint8*)src, &(i), srcLength, c, -1);
+						(c) = utf8_nextCharSafeBody((const uint8 *)src, &(i), srcLength, c, -1);
 						if(c<0 && (++numSubstitutions, c = subchar) < 0) {
 							*pErrorCode = U_INVALID_CHAR_FOUND;
 							return NULL;
@@ -487,7 +487,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF8WithSub(UChar * dest,
 				}
 				else {
 					/* function call for "complicated" and error cases */
-					(c) = utf8_nextCharSafeBody((const uint8*)src, &(i), srcLength, c, -1);
+					(c) = utf8_nextCharSafeBody((const uint8 *)src, &(i), srcLength, c, -1);
 					if(c<0 && (++numSubstitutions, c = subchar) < 0) {
 						*pErrorCode = U_INVALID_CHAR_FOUND;
 						return NULL;
@@ -535,7 +535,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF8WithSub(UChar * dest,
 				}
 				else {
 					/* function call for "complicated" and error cases */
-					(c) = utf8_nextCharSafeBody((const uint8*)src, &(i), srcLength, c, -1);
+					(c) = utf8_nextCharSafeBody((const uint8 *)src, &(i), srcLength, c, -1);
 					if(c<0 && (++numSubstitutions, c = subchar) < 0) {
 						*pErrorCode = U_INVALID_CHAR_FOUND;
 						return NULL;
@@ -584,7 +584,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF8Lenient(UChar * dest,
 	UChar * pDest = dest;
 	UChar32 ch;
 	int32_t reqLength = 0;
-	uint8* pSrc = (uint8 *)src;
+	uint8 * pSrc = (uint8 *)src;
 
 	/* args check */
 	if(U_FAILURE(*pErrorCode)) {
@@ -1273,7 +1273,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromJavaModifiedUTF8WithSub(UChar * dest,
 				}
 				else {
 					/* function call for error cases */
-					utf8_nextCharSafeBody((const uint8*)src, &(i), srcLength, ch, -1);
+					utf8_nextCharSafeBody((const uint8 *)src, &(i), srcLength, ch, -1);
 					++numSubstitutions;
 					*(pDest++) = (UChar)subchar;
 				}
@@ -1319,7 +1319,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromJavaModifiedUTF8WithSub(UChar * dest,
 			}
 			else {
 				/* function call for error cases */
-				utf8_nextCharSafeBody((const uint8*)src, &(i), srcLength, ch, -1);
+				utf8_nextCharSafeBody((const uint8 *)src, &(i), srcLength, ch, -1);
 				++numSubstitutions;
 				if(subchar<=0xFFFF) {
 					*(pDest++) = (UChar)subchar;
@@ -1375,7 +1375,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromJavaModifiedUTF8WithSub(UChar * dest,
 			}
 			else {
 				/* function call for error cases */
-				utf8_nextCharSafeBody((const uint8*)src, &(i), srcLength, ch, -1);
+				utf8_nextCharSafeBody((const uint8 *)src, &(i), srcLength, ch, -1);
 				++numSubstitutions;
 				reqLength += U16_LENGTH(ch);
 			}

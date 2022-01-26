@@ -33,7 +33,6 @@
 #include <google/protobuf/arenastring.h>
 #include <google/protobuf/parse_context.h>
 #include <google/protobuf/io/coded_stream.h>
-#include <google/protobuf/message_lite.h>
 #include <google/protobuf/stubs/mutex.h>
 #include <google/protobuf/stubs/stl_util.h>
 // clang-format off

@@ -2009,7 +2009,7 @@ inline bool WrappersTestCases::has_double_wrapper() const {
   return _internal_has_double_wrapper();
 }
 inline void WrappersTestCases::clear_double_wrapper() {
-  if (GetArenaForAllocation() == nullptr && double_wrapper_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && double_wrapper_ != nullptr) {
     delete double_wrapper_;
   }
   double_wrapper_ = nullptr;
@@ -2099,7 +2099,7 @@ inline bool WrappersTestCases::has_float_wrapper() const {
   return _internal_has_float_wrapper();
 }
 inline void WrappersTestCases::clear_float_wrapper() {
-  if (GetArenaForAllocation() == nullptr && float_wrapper_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && float_wrapper_ != nullptr) {
     delete float_wrapper_;
   }
   float_wrapper_ = nullptr;
@@ -2189,7 +2189,7 @@ inline bool WrappersTestCases::has_int64_wrapper() const {
   return _internal_has_int64_wrapper();
 }
 inline void WrappersTestCases::clear_int64_wrapper() {
-  if (GetArenaForAllocation() == nullptr && int64_wrapper_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && int64_wrapper_ != nullptr) {
     delete int64_wrapper_;
   }
   int64_wrapper_ = nullptr;
@@ -2279,7 +2279,7 @@ inline bool WrappersTestCases::has_uint64_wrapper() const {
   return _internal_has_uint64_wrapper();
 }
 inline void WrappersTestCases::clear_uint64_wrapper() {
-  if (GetArenaForAllocation() == nullptr && uint64_wrapper_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && uint64_wrapper_ != nullptr) {
     delete uint64_wrapper_;
   }
   uint64_wrapper_ = nullptr;
@@ -2369,7 +2369,7 @@ inline bool WrappersTestCases::has_int32_wrapper() const {
   return _internal_has_int32_wrapper();
 }
 inline void WrappersTestCases::clear_int32_wrapper() {
-  if (GetArenaForAllocation() == nullptr && int32_wrapper_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && int32_wrapper_ != nullptr) {
     delete int32_wrapper_;
   }
   int32_wrapper_ = nullptr;
@@ -2459,7 +2459,7 @@ inline bool WrappersTestCases::has_uint32_wrapper() const {
   return _internal_has_uint32_wrapper();
 }
 inline void WrappersTestCases::clear_uint32_wrapper() {
-  if (GetArenaForAllocation() == nullptr && uint32_wrapper_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && uint32_wrapper_ != nullptr) {
     delete uint32_wrapper_;
   }
   uint32_wrapper_ = nullptr;
@@ -2549,7 +2549,7 @@ inline bool WrappersTestCases::has_bool_wrapper() const {
   return _internal_has_bool_wrapper();
 }
 inline void WrappersTestCases::clear_bool_wrapper() {
-  if (GetArenaForAllocation() == nullptr && bool_wrapper_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && bool_wrapper_ != nullptr) {
     delete bool_wrapper_;
   }
   bool_wrapper_ = nullptr;
@@ -2639,7 +2639,7 @@ inline bool WrappersTestCases::has_string_wrapper() const {
   return _internal_has_string_wrapper();
 }
 inline void WrappersTestCases::clear_string_wrapper() {
-  if (GetArenaForAllocation() == nullptr && string_wrapper_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && string_wrapper_ != nullptr) {
     delete string_wrapper_;
   }
   string_wrapper_ = nullptr;
@@ -2729,7 +2729,7 @@ inline bool WrappersTestCases::has_bytes_wrapper() const {
   return _internal_has_bytes_wrapper();
 }
 inline void WrappersTestCases::clear_bytes_wrapper() {
-  if (GetArenaForAllocation() == nullptr && bytes_wrapper_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && bytes_wrapper_ != nullptr) {
     delete bytes_wrapper_;
   }
   bytes_wrapper_ = nullptr;
@@ -2819,7 +2819,7 @@ inline bool WrappersTestCases::has_double_wrapper_default() const {
   return _internal_has_double_wrapper_default();
 }
 inline void WrappersTestCases::clear_double_wrapper_default() {
-  if (GetArenaForAllocation() == nullptr && double_wrapper_default_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && double_wrapper_default_ != nullptr) {
     delete double_wrapper_default_;
   }
   double_wrapper_default_ = nullptr;
@@ -2909,7 +2909,7 @@ inline bool WrappersTestCases::has_float_wrapper_default() const {
   return _internal_has_float_wrapper_default();
 }
 inline void WrappersTestCases::clear_float_wrapper_default() {
-  if (GetArenaForAllocation() == nullptr && float_wrapper_default_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && float_wrapper_default_ != nullptr) {
     delete float_wrapper_default_;
   }
   float_wrapper_default_ = nullptr;
@@ -2999,7 +2999,7 @@ inline bool WrappersTestCases::has_int64_wrapper_default() const {
   return _internal_has_int64_wrapper_default();
 }
 inline void WrappersTestCases::clear_int64_wrapper_default() {
-  if (GetArenaForAllocation() == nullptr && int64_wrapper_default_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && int64_wrapper_default_ != nullptr) {
     delete int64_wrapper_default_;
   }
   int64_wrapper_default_ = nullptr;
@@ -3089,7 +3089,7 @@ inline bool WrappersTestCases::has_uint64_wrapper_default() const {
   return _internal_has_uint64_wrapper_default();
 }
 inline void WrappersTestCases::clear_uint64_wrapper_default() {
-  if (GetArenaForAllocation() == nullptr && uint64_wrapper_default_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && uint64_wrapper_default_ != nullptr) {
     delete uint64_wrapper_default_;
   }
   uint64_wrapper_default_ = nullptr;
@@ -3179,7 +3179,7 @@ inline bool WrappersTestCases::has_int32_wrapper_default() const {
   return _internal_has_int32_wrapper_default();
 }
 inline void WrappersTestCases::clear_int32_wrapper_default() {
-  if (GetArenaForAllocation() == nullptr && int32_wrapper_default_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && int32_wrapper_default_ != nullptr) {
     delete int32_wrapper_default_;
   }
   int32_wrapper_default_ = nullptr;
@@ -3269,7 +3269,7 @@ inline bool WrappersTestCases::has_uint32_wrapper_default() const {
   return _internal_has_uint32_wrapper_default();
 }
 inline void WrappersTestCases::clear_uint32_wrapper_default() {
-  if (GetArenaForAllocation() == nullptr && uint32_wrapper_default_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && uint32_wrapper_default_ != nullptr) {
     delete uint32_wrapper_default_;
   }
   uint32_wrapper_default_ = nullptr;
@@ -3359,7 +3359,7 @@ inline bool WrappersTestCases::has_bool_wrapper_default() const {
   return _internal_has_bool_wrapper_default();
 }
 inline void WrappersTestCases::clear_bool_wrapper_default() {
-  if (GetArenaForAllocation() == nullptr && bool_wrapper_default_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && bool_wrapper_default_ != nullptr) {
     delete bool_wrapper_default_;
   }
   bool_wrapper_default_ = nullptr;
@@ -3449,7 +3449,7 @@ inline bool WrappersTestCases::has_string_wrapper_default() const {
   return _internal_has_string_wrapper_default();
 }
 inline void WrappersTestCases::clear_string_wrapper_default() {
-  if (GetArenaForAllocation() == nullptr && string_wrapper_default_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && string_wrapper_default_ != nullptr) {
     delete string_wrapper_default_;
   }
   string_wrapper_default_ = nullptr;
@@ -3539,7 +3539,7 @@ inline bool WrappersTestCases::has_bytes_wrapper_default() const {
   return _internal_has_bytes_wrapper_default();
 }
 inline void WrappersTestCases::clear_bytes_wrapper_default() {
-  if (GetArenaForAllocation() == nullptr && bytes_wrapper_default_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && bytes_wrapper_default_ != nullptr) {
     delete bytes_wrapper_default_;
   }
   bytes_wrapper_default_ = nullptr;

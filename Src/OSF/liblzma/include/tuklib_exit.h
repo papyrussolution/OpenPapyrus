@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
+//
 //
 /// \file       tuklib_exit.h
 /// \brief      Close stdout and stderr, and exit
@@ -9,7 +9,7 @@
 //  This file has been put into the public domain.
 //  You can do whatever you want with this file.
 //
-///////////////////////////////////////////////////////////////////////////////
+//
 
 #ifndef TUKLIB_EXIT_H
 #define TUKLIB_EXIT_H

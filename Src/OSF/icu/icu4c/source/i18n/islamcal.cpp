@@ -31,7 +31,7 @@ static const UDate HIJRA_MILLIS = -42521587200000.0;    // 7/16/622 AD 00:00
 
 static void debug_islamcal_loc(const char * f, int32_t l)
 {
-	fprintf(stderr, "%s:%d: ", f, l);
+	slfprintf_stderr("%s:%d: ", f, l);
 }
 
 static void debug_islamcal_msg(const char * pat, ...)
@@ -527,7 +527,7 @@ int32_t IslamicCalendar::handleGetMonthLength(int32_t extendedYear, int32_t mont
 	int32_t length = 0;
 
 	if(cType == CIVIL || cType == TBLA ||
-	    (cType == UMALQURA && (extendedYear<UMALQURA_YEAR_START || extendedYear>UMALQURA_YEAR_END)) ) {
+	    (cType == UMALQURA && (extendedYear<UMALQURA_YEAR_START || extendedYear>UMALQURA_YEAR_END))) {
 		length = 29 + (month+1) % 2;
 		if(month == DHU_AL_HIJJAH && civilLeapYear(extendedYear)) {
 			length++;
@@ -549,7 +549,7 @@ int32_t IslamicCalendar::handleGetMonthLength(int32_t extendedYear, int32_t mont
  */
 int32_t IslamicCalendar::handleGetYearLength(int32_t extendedYear) const {
 	if(cType == CIVIL || cType == TBLA ||
-	    (cType == UMALQURA && (extendedYear<UMALQURA_YEAR_START || extendedYear>UMALQURA_YEAR_END)) ) {
+	    (cType == UMALQURA && (extendedYear<UMALQURA_YEAR_START || extendedYear>UMALQURA_YEAR_END))) {
 		return 354 + (civilLeapYear(extendedYear) ? 1 : 0);
 	}
 	else if(cType == ASTRONOMICAL) {
@@ -687,7 +687,7 @@ void IslamicCalendar::handleComputeFields(int32_t julianDay, UErrorCode & status
 					m = 11;
 					break;
 				}
-				else if(d < handleGetYearLength(y) ) {
+				else if(d < handleGetYearLength(y)) {
 					int monthLen = handleGetMonthLength(y, m);
 					m = 0;
 					while(d > monthLen) {

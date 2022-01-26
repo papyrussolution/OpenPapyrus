@@ -34,9 +34,6 @@
 
 #include <protobuf-internal.h>
 #pragma hdrstop
-#include <google/protobuf/repeated_field.h>
-#include <google/protobuf/stubs/logging.h>
-#include <google/protobuf/stubs/common.h>
 #include <google/protobuf/port_def.inc>
 
 namespace google {

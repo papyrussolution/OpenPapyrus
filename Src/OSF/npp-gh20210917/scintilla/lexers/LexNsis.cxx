@@ -258,7 +258,7 @@ static int classifyWordNsis(Sci_PositionU start, Sci_PositionU end, WordList * k
 	if(s[0] == '$' && bUserVars) {
 		bool bHasSimpleNsisChars = true;
 		for(Sci_PositionU j = 1; j < end - start + 1 && j < 99; j++) {
-			if(!isNsisChar(s[j]) ) {
+			if(!isNsisChar(s[j])) {
 				bHasSimpleNsisChars = false;
 				break;
 			}
@@ -269,10 +269,10 @@ static int classifyWordNsis(Sci_PositionU start, Sci_PositionU end, WordList * k
 	}
 
 	// To check for numbers
-	if(isNsisNumber(s[0]) ) {
+	if(isNsisNumber(s[0])) {
 		bool bHasSimpleNsisNumber = true;
 		for(Sci_PositionU j = 1; j < end - start + 1 && j < 99; j++) {
-			if(!isNsisNumber(s[j]) ) {
+			if(!isNsisNumber(s[j])) {
 				bHasSimpleNsisNumber = false;
 				break;
 			}
@@ -489,14 +489,14 @@ static void ColouriseNsisDoc(Sci_PositionU startPos, Sci_Position length, int, W
 			}
 			else if(bVarInString && cCurrChar == '\\' &&
 			    (cNextChar == 'n' || cNextChar == 'r' || cNextChar == 't' || cNextChar == '"' || cNextChar == '`' ||
-			    cNextChar == '\'' ) ) {
+			    cNextChar == '\'' )) {
 				styler.ColourTo(i+1, SCE_NSIS_STRINGVAR);
 				bVarInString = false;
 				bIngoreNextDollarSign = false;
 			}
 
 			// Covers "$INSTDIR and user vars like $MYVAR"
-			else if(bVarInString && !isNsisChar(cNextChar) ) {
+			else if(bVarInString && !isNsisChar(cNextChar)) {
 				int nWordState = classifyWordNsis(styler.GetStartSegment(), i, keywordLists, styler);
 				if(nWordState == SCE_NSIS_VARIABLE)
 					styler.ColourTo(i, SCE_NSIS_STRINGVAR);
@@ -568,7 +568,7 @@ static void FoldNsisDoc(Sci_PositionU startPos, Sci_Position length, int, WordLi
 		}
 
 		if(bArg1 && !blockComment) {
-			if(nWordStart == -1 && (isNsisLetter(chCurr) || chCurr == '!') ) {
+			if(nWordStart == -1 && (isNsisLetter(chCurr) || chCurr == '!')) {
 				nWordStart = i;
 			}
 			else if(isNsisLetter(chCurr) == false && nWordStart > -1) {

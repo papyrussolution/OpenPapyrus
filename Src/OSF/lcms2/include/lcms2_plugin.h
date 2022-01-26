@@ -1,5 +1,3 @@
-//---------------------------------------------------------------------------------
-//
 //  Little Color Management System
 //  Copyright (c) 1998-2020 Marti Maria Saguer
 //
@@ -21,13 +19,11 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//---------------------------------------------------------------------------------
-//
 // This is the plug-in header file. Normal LittleCMS clients should not use it.
 // It is provided for plug-in writters that may want to access the support
 // functions to do low level operations. All plug-in related structures
 // are defined here. Including this file forces to include the standard API too.
-
+//
 #ifndef _lcms_plugin_H
 
 // Deal with Microsoft's attempt at deprecating C standard runtime functions
@@ -283,11 +279,9 @@ typedef struct {
 	// Points to a user-supplied function which implements the factory
 	cmsInterpFnFactory InterpolatorsFactory;
 } cmsPluginInterpolation;
-
-//----------------------------------------------------------------------------------------------------------
-
+//
 // Parametric curves. A negative type means same function but analytically inverted. Max. number of params is 10
-
+//
 // Evaluator callback for user-supplied parametric curves. May implement more than one type
 typedef  double (* cmsParametricCurveEvaluator)(cmsInt32Number Type, const double Params[10], double R);
 
@@ -299,12 +293,11 @@ typedef struct {
 	cmsUInt32Number ParameterCount[MAX_TYPES_IN_LCMS_PLUGIN];   // Number of parameters for each function
 	cmsParametricCurveEvaluator Evaluator;                      // The evaluator
 } cmsPluginParametricCurves;
-//----------------------------------------------------------------------------------------------------------
-
+//
 // Formatters. This plug-in adds new handlers, replacing them if they already exist. Formatters dealing with
 // float (bps = 4) or double (bps = 0) types are requested via FormatterFloat callback. Others come across
 // Formatter16 callback
-
+//
 struct _cmstransform_struct;
 
 typedef uint8 * (* cmsFormatter16)(struct _cmstransform_struct* CMMcargo, uint16 Values[],  uint8 * Buffer, cmsUInt32Number Stride);
@@ -330,9 +323,7 @@ typedef struct {
 	cmsPluginBase base;
 	cmsFormatterFactory FormattersFactory;
 } cmsPluginFormatters;
-
-//----------------------------------------------------------------------------------------------------------
-
+//
 // Tag type handler. Each type is free to return anything it wants, and it is up to the caller to
 // know in advance what is the type contained in the tag.
 typedef struct _cms_typehandler_struct {
@@ -360,9 +351,7 @@ typedef struct {
 	cmsPluginBase base;
 	cmsTagTypeHandler Handler;
 } cmsPluginTagType;
-
-//----------------------------------------------------------------------------------------------------------
-
+//
 // This is the tag plugin, which identifies tags. For writing, a pointer to function is provided.
 // This function should return the desired type for this tag, given the version of profile
 // and the data being serialized.
@@ -382,21 +371,14 @@ typedef struct {
 	cmsTagSignature Signature;
 	cmsTagDescriptor Descriptor;
 } cmsPluginTag;
-
-//----------------------------------------------------------------------------------------------------------
-
+//
 // Custom intents. This function should join all profiles specified in the array in
 // a single LUT. Any custom intent in the chain redirects to custom function. If more than
 // one custom intent is found, the one located first is invoked. Usually users should use only one
 // custom intent, so mixing custom intents in same multiprofile transform is not supported.
-
-typedef cmsPipeline * (* cmsIntentFn)(cmsContext ContextID,
-    cmsUInt32Number nProfiles,
-    cmsUInt32Number Intents[],
-    cmsHPROFILE hProfiles[],
-    boolint BPC[],
-    double AdaptationStates[],
-    cmsUInt32Number dwFlags);
+//
+typedef cmsPipeline * (* cmsIntentFn)(cmsContext ContextID, cmsUInt32Number nProfiles, cmsUInt32Number Intents[],
+    cmsHPROFILE hProfiles[], boolint BPC[], double AdaptationStates[], cmsUInt32Number dwFlags);
 
 // Each plug-in defines a single intent number.
 typedef struct {
@@ -409,11 +391,9 @@ typedef struct {
 // The default ICC intents (perceptual, saturation, rel.col and abs.col)
 CMSAPI cmsPipeline * CMSEXPORT _cmsDefaultICCintents(cmsContext ContextID, cmsUInt32Number nProfiles, cmsUInt32Number Intents[], cmsHPROFILE hProfiles[],
     boolint BPC[], double AdaptationStates[], cmsUInt32Number dwFlags);
-
-//----------------------------------------------------------------------------------------------------------
-
+//
 // Pipelines, Multi Process Elements.
-
+//
 typedef void (* _cmsStageEvalFn)(const float In[], float Out[], const cmsStage * mpe);
 typedef void *(* _cmsStageDupElemFn)(cmsStage * mpe);
 typedef void (* _cmsStageFreeElemFn)(cmsStage * mpe);
@@ -457,44 +437,32 @@ typedef struct {
 	cmsUInt32Number nEntries;
 	boolint HasFloatValues;
 } _cmsStageCLutData;
-
-//----------------------------------------------------------------------------------------------------------
+//
 // Optimization. Using this plug-in, additional optimization strategies may be implemented.
 // The function should return TRUE if any optimization is done on the LUT, this terminates
 // the optimization  search. Or FALSE if it is unable to optimize and want to give a chance
 // to the rest of optimizers.
-
-typedef void (* _cmsOPTeval16Fn)(const uint16 In[],
-    uint16 Out[],
-    const void * Data);
-
-typedef boolint (* _cmsOPToptimizeFn)(cmsPipeline ** Lut,
-    cmsUInt32Number Intent,
-    cmsUInt32Number* InputFormat,
-    cmsUInt32Number* OutputFormat,
-    cmsUInt32Number* dwFlags);
+//
+typedef void (* _cmsOPTeval16Fn)(const uint16 In[], uint16 Out[], const void * Data);
+typedef boolint (* _cmsOPToptimizeFn)(cmsPipeline ** Lut, cmsUInt32Number Intent, cmsUInt32Number* InputFormat,
+    cmsUInt32Number* OutputFormat, cmsUInt32Number* dwFlags);
 
 // This function may be used to set the optional evaluator and a block of private data. If private data is being used,
 // an optional
 // duplicator and free functions should also be specified in order to duplicate the LUT construct. Use NULL to inhibit
 // such functionality.
 
-CMSAPI void CMSEXPORT _cmsPipelineSetOptimizationParameters(cmsPipeline * Lut,
-    _cmsOPTeval16Fn Eval16,
-    void * PrivateData,
-    _cmsFreeUserDataFn FreePrivateDataFn,
-    _cmsDupUserDataFn DupPrivateDataFn);
+CMSAPI void CMSEXPORT _cmsPipelineSetOptimizationParameters(cmsPipeline * Lut, _cmsOPTeval16Fn Eval16, void * PrivateData,
+    _cmsFreeUserDataFn FreePrivateDataFn, _cmsDupUserDataFn DupPrivateDataFn);
 
 typedef struct {
 	cmsPluginBase base;
-
 	// Optimize entry point
 	_cmsOPToptimizeFn OptimizePtr;
 }  cmsPluginOptimization;
-
-//----------------------------------------------------------------------------------------------------------
+//
 // Full xform
-
+//
 typedef struct {
 	cmsUInt32Number BytesPerLineIn;
 	cmsUInt32Number BytesPerLineOut;
@@ -502,48 +470,22 @@ typedef struct {
 	cmsUInt32Number BytesPerPlaneOut;
 } cmsStride;
 
-typedef void (* _cmsTransformFn)(struct _cmstransform_struct * CMMcargo,      // Legacy function, handles just ONE
-                                                                              // scanline.
-    const void * InputBuffer,
-    void * OutputBuffer,
-    cmsUInt32Number Size,
-    cmsUInt32Number Stride);                                                  // Stride in bytes to the next plana in
-                                                                              // planar formats
-
-typedef void (* _cmsTransform2Fn)(struct _cmstransform_struct * CMMcargo,
-    const void * InputBuffer,
-    void * OutputBuffer,
-    cmsUInt32Number PixelsPerLine,
-    cmsUInt32Number LineCount,
-    const cmsStride* Stride);
-
-typedef boolint (* _cmsTransformFactory)(_cmsTransformFn* xform,
-    void ** UserData,
-    _cmsFreeUserDataFn* FreePrivateDataFn,
-    cmsPipeline ** Lut,
-    cmsUInt32Number* InputFormat,
-    cmsUInt32Number* OutputFormat,
-    cmsUInt32Number* dwFlags);
-
-typedef boolint (* _cmsTransform2Factory)(_cmsTransform2Fn* xform,
-    void ** UserData,
-    _cmsFreeUserDataFn* FreePrivateDataFn,
-    cmsPipeline ** Lut,
-    cmsUInt32Number* InputFormat,
-    cmsUInt32Number* OutputFormat,
-    cmsUInt32Number* dwFlags);
+typedef void (* _cmsTransformFn)(struct _cmstransform_struct * CMMcargo, // Legacy function, handles just ONE scanline.
+    const void * InputBuffer, void * OutputBuffer, cmsUInt32Number Size, cmsUInt32Number Stride/*Stride in bytes to the next plana in planar formats*/);
+typedef void (* _cmsTransform2Fn)(struct _cmstransform_struct * CMMcargo, const void * InputBuffer, void * OutputBuffer,
+    cmsUInt32Number PixelsPerLine, cmsUInt32Number LineCount, const cmsStride* Stride);
+typedef boolint (* _cmsTransformFactory)(_cmsTransformFn* xform, void ** UserData, _cmsFreeUserDataFn* FreePrivateDataFn,
+    cmsPipeline ** Lut, cmsUInt32Number* InputFormat, cmsUInt32Number* OutputFormat, cmsUInt32Number* dwFlags);
+typedef boolint (* _cmsTransform2Factory)(_cmsTransform2Fn* xform, void ** UserData, _cmsFreeUserDataFn* FreePrivateDataFn,
+    cmsPipeline ** Lut, cmsUInt32Number* InputFormat, cmsUInt32Number* OutputFormat, cmsUInt32Number* dwFlags);
 
 // Retrieve user data as specified by the factory
 CMSAPI void CMSEXPORT _cmsSetTransformUserData(struct _cmstransform_struct * CMMcargo, void * ptr, _cmsFreeUserDataFn FreePrivateDataFn);
 CMSAPI void * CMSEXPORT _cmsGetTransformUserData(struct _cmstransform_struct * CMMcargo);
 
 // Retrieve formatters
-CMSAPI void CMSEXPORT _cmsGetTransformFormatters16(struct _cmstransform_struct * CMMcargo,
-    cmsFormatter16* FromInput,
-    cmsFormatter16* ToOutput);
-CMSAPI void CMSEXPORT _cmsGetTransformFormattersFloat(struct _cmstransform_struct * CMMcargo,
-    cmsFormatterFloat* FromInput,
-    cmsFormatterFloat* ToOutput);
+CMSAPI void CMSEXPORT _cmsGetTransformFormatters16(struct _cmstransform_struct * CMMcargo, cmsFormatter16* FromInput, cmsFormatter16* ToOutput);
+CMSAPI void CMSEXPORT _cmsGetTransformFormattersFloat(struct _cmstransform_struct * CMMcargo, cmsFormatterFloat* FromInput, cmsFormatterFloat* ToOutput);
 
 typedef struct {
 	cmsPluginBase base;
@@ -554,10 +496,9 @@ typedef struct {
 		_cmsTransform2Factory xform;
 	} factories;
 }  cmsPluginTransform;
-
-//----------------------------------------------------------------------------------------------------------
+//
 // Mutex
-
+//
 typedef void *    (* _cmsCreateMutexFnPtrType)(cmsContext ContextID);
 typedef void (* _cmsDestroyMutexFnPtrType)(cmsContext ContextID, void * mtx);
 typedef boolint (* _cmsLockMutexFnPtrType)(cmsContext ContextID, void * mtx);

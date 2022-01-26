@@ -64,7 +64,7 @@ void  opj_procedure_list_destroy(opj_procedure_list_t * p_list)
 	}
 }
 
-OPJ_BOOL FASTCALL opj_procedure_list_add_procedure(opj_procedure_list_t * p_validation_list, opj_procedure p_procedure, opj_event_mgr_t* p_manager)
+boolint FASTCALL opj_procedure_list_add_procedure(opj_procedure_list_t * p_validation_list, opj_procedure p_procedure, opj_event_mgr_t* p_manager)
 {
 	assert(p_manager != NULL);
 	if(p_validation_list->m_nb_max_procedures == p_validation_list->m_nb_procedures) {
@@ -76,7 +76,7 @@ OPJ_BOOL FASTCALL opj_procedure_list_add_procedure(opj_procedure_list_t * p_vali
 			p_validation_list->m_nb_max_procedures = 0;
 			p_validation_list->m_nb_procedures = 0;
 			opj_event_msg(p_manager, EVT_ERROR, "Not enough memory to add a new validation procedure\n");
-			return OPJ_FALSE;
+			return FALSE;
 		}
 		else {
 			p_validation_list->m_procedures = new_procedures;
@@ -84,7 +84,7 @@ OPJ_BOOL FASTCALL opj_procedure_list_add_procedure(opj_procedure_list_t * p_vali
 	}
 	p_validation_list->m_procedures[p_validation_list->m_nb_procedures] = p_procedure;
 	++p_validation_list->m_nb_procedures;
-	return OPJ_TRUE;
+	return TRUE;
 }
 
 OPJ_UINT32 opj_procedure_list_get_nb_procedures(opj_procedure_list_t * p_validation_list)

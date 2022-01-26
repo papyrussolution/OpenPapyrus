@@ -852,7 +852,7 @@ U_CAPI int32_t U_EXPORT2 uspoof_swap(const UDataSwapper * ds, const void * inDat
 	// Get the Spoof Data Header, and check that it appears to be OK.
 	//
 	//
-	const uint8   * inBytes = (const uint8*)inData+headerSize;
+	const uint8   * inBytes = (const uint8 *)inData+headerSize;
 	SpoofDataHeader * spoofDH = (SpoofDataHeader*)inBytes;
 	if(ds->readUInt32(spoofDH->fMagic)   != USPOOF_MAGIC ||
 	    ds->readUInt32(spoofDH->fLength)  <  sizeof(SpoofDataHeader)) {

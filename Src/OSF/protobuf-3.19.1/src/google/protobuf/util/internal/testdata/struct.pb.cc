@@ -680,67 +680,67 @@ StructTestCases::_Internal::map_of_listvalue(const StructTestCases* msg) {
   return *msg->map_of_listvalue_;
 }
 void StructTestCases::clear_top_level_struct() {
-  if (GetArenaForAllocation() == nullptr && top_level_struct_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && top_level_struct_ != nullptr) {
     delete top_level_struct_;
   }
   top_level_struct_ = nullptr;
 }
 void StructTestCases::clear_top_level_struct_with_empty_list() {
-  if (GetArenaForAllocation() == nullptr && top_level_struct_with_empty_list_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && top_level_struct_with_empty_list_ != nullptr) {
     delete top_level_struct_with_empty_list_;
   }
   top_level_struct_with_empty_list_ = nullptr;
 }
 void StructTestCases::clear_top_level_struct_with_list_with_empty_struct() {
-  if (GetArenaForAllocation() == nullptr && top_level_struct_with_list_with_empty_struct_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && top_level_struct_with_list_with_empty_struct_ != nullptr) {
     delete top_level_struct_with_list_with_empty_struct_;
   }
   top_level_struct_with_list_with_empty_struct_ = nullptr;
 }
 void StructTestCases::clear_top_level_value_simple() {
-  if (GetArenaForAllocation() == nullptr && top_level_value_simple_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && top_level_value_simple_ != nullptr) {
     delete top_level_value_simple_;
   }
   top_level_value_simple_ = nullptr;
 }
 void StructTestCases::clear_top_level_value_with_struct() {
-  if (GetArenaForAllocation() == nullptr && top_level_value_with_struct_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && top_level_value_with_struct_ != nullptr) {
     delete top_level_value_with_struct_;
   }
   top_level_value_with_struct_ = nullptr;
 }
 void StructTestCases::clear_top_level_value_with_list() {
-  if (GetArenaForAllocation() == nullptr && top_level_value_with_list_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && top_level_value_with_list_ != nullptr) {
     delete top_level_value_with_list_;
   }
   top_level_value_with_list_ = nullptr;
 }
 void StructTestCases::clear_top_level_value_with_empty_list() {
-  if (GetArenaForAllocation() == nullptr && top_level_value_with_empty_list_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && top_level_value_with_empty_list_ != nullptr) {
     delete top_level_value_with_empty_list_;
   }
   top_level_value_with_empty_list_ = nullptr;
 }
 void StructTestCases::clear_top_level_value_with_list_with_empty_struct() {
-  if (GetArenaForAllocation() == nullptr && top_level_value_with_list_with_empty_struct_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && top_level_value_with_list_with_empty_struct_ != nullptr) {
     delete top_level_value_with_list_with_empty_struct_;
   }
   top_level_value_with_list_with_empty_struct_ = nullptr;
 }
 void StructTestCases::clear_top_level_listvalue() {
-  if (GetArenaForAllocation() == nullptr && top_level_listvalue_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && top_level_listvalue_ != nullptr) {
     delete top_level_listvalue_;
   }
   top_level_listvalue_ = nullptr;
 }
 void StructTestCases::clear_top_level_empty_listvalue() {
-  if (GetArenaForAllocation() == nullptr && top_level_empty_listvalue_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && top_level_empty_listvalue_ != nullptr) {
     delete top_level_empty_listvalue_;
   }
   top_level_empty_listvalue_ = nullptr;
 }
 void StructTestCases::clear_top_level_listvalue_with_empty_struct() {
-  if (GetArenaForAllocation() == nullptr && top_level_listvalue_with_empty_struct_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && top_level_listvalue_with_empty_struct_ != nullptr) {
     delete top_level_listvalue_with_empty_struct_;
   }
   top_level_listvalue_with_empty_struct_ = nullptr;
@@ -757,197 +757,197 @@ StructTestCases::StructTestCases(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 StructTestCases::StructTestCases(const StructTestCases& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if (from._internal_has_empty_value()) {
+  if(from._internal_has_empty_value()) {
     empty_value_ = new ::proto_util_converter::testing::StructWrapper(*from.empty_value_);
   } else {
     empty_value_ = nullptr;
   }
-  if (from._internal_has_empty_value2()) {
+  if(from._internal_has_empty_value2()) {
     empty_value2_ = new ::proto_util_converter::testing::StructWrapper(*from.empty_value2_);
   } else {
     empty_value2_ = nullptr;
   }
-  if (from._internal_has_null_value()) {
+  if(from._internal_has_null_value()) {
     null_value_ = new ::proto_util_converter::testing::StructWrapper(*from.null_value_);
   } else {
     null_value_ = nullptr;
   }
-  if (from._internal_has_simple_struct()) {
+  if(from._internal_has_simple_struct()) {
     simple_struct_ = new ::proto_util_converter::testing::StructWrapper(*from.simple_struct_);
   } else {
     simple_struct_ = nullptr;
   }
-  if (from._internal_has_longer_struct()) {
+  if(from._internal_has_longer_struct()) {
     longer_struct_ = new ::proto_util_converter::testing::StructWrapper(*from.longer_struct_);
   } else {
     longer_struct_ = nullptr;
   }
-  if (from._internal_has_struct_with_nested_struct()) {
+  if(from._internal_has_struct_with_nested_struct()) {
     struct_with_nested_struct_ = new ::proto_util_converter::testing::StructWrapper(*from.struct_with_nested_struct_);
   } else {
     struct_with_nested_struct_ = nullptr;
   }
-  if (from._internal_has_struct_with_nested_list()) {
+  if(from._internal_has_struct_with_nested_list()) {
     struct_with_nested_list_ = new ::proto_util_converter::testing::StructWrapper(*from.struct_with_nested_list_);
   } else {
     struct_with_nested_list_ = nullptr;
   }
-  if (from._internal_has_struct_with_list_of_nulls()) {
+  if(from._internal_has_struct_with_list_of_nulls()) {
     struct_with_list_of_nulls_ = new ::proto_util_converter::testing::StructWrapper(*from.struct_with_list_of_nulls_);
   } else {
     struct_with_list_of_nulls_ = nullptr;
   }
-  if (from._internal_has_struct_with_list_of_lists()) {
+  if(from._internal_has_struct_with_list_of_lists()) {
     struct_with_list_of_lists_ = new ::proto_util_converter::testing::StructWrapper(*from.struct_with_list_of_lists_);
   } else {
     struct_with_list_of_lists_ = nullptr;
   }
-  if (from._internal_has_struct_with_list_of_structs()) {
+  if(from._internal_has_struct_with_list_of_structs()) {
     struct_with_list_of_structs_ = new ::proto_util_converter::testing::StructWrapper(*from.struct_with_list_of_structs_);
   } else {
     struct_with_list_of_structs_ = nullptr;
   }
-  if (from._internal_has_struct_with_empty_list()) {
+  if(from._internal_has_struct_with_empty_list()) {
     struct_with_empty_list_ = new ::proto_util_converter::testing::StructWrapper(*from.struct_with_empty_list_);
   } else {
     struct_with_empty_list_ = nullptr;
   }
-  if (from._internal_has_struct_with_list_with_empty_struct()) {
+  if(from._internal_has_struct_with_list_with_empty_struct()) {
     struct_with_list_with_empty_struct_ = new ::proto_util_converter::testing::StructWrapper(*from.struct_with_list_with_empty_struct_);
   } else {
     struct_with_list_with_empty_struct_ = nullptr;
   }
-  if (from._internal_has_top_level_struct()) {
+  if(from._internal_has_top_level_struct()) {
     top_level_struct_ = new ::PROTOBUF_NAMESPACE_ID::Struct(*from.top_level_struct_);
   } else {
     top_level_struct_ = nullptr;
   }
-  if (from._internal_has_top_level_struct_with_empty_list()) {
+  if(from._internal_has_top_level_struct_with_empty_list()) {
     top_level_struct_with_empty_list_ = new ::PROTOBUF_NAMESPACE_ID::Struct(*from.top_level_struct_with_empty_list_);
   } else {
     top_level_struct_with_empty_list_ = nullptr;
   }
-  if (from._internal_has_top_level_struct_with_list_with_empty_struct()) {
+  if(from._internal_has_top_level_struct_with_list_with_empty_struct()) {
     top_level_struct_with_list_with_empty_struct_ = new ::PROTOBUF_NAMESPACE_ID::Struct(*from.top_level_struct_with_list_with_empty_struct_);
   } else {
     top_level_struct_with_list_with_empty_struct_ = nullptr;
   }
-  if (from._internal_has_value_wrapper_simple()) {
+  if(from._internal_has_value_wrapper_simple()) {
     value_wrapper_simple_ = new ::proto_util_converter::testing::ValueWrapper(*from.value_wrapper_simple_);
   } else {
     value_wrapper_simple_ = nullptr;
   }
-  if (from._internal_has_value_wrapper_with_struct()) {
+  if(from._internal_has_value_wrapper_with_struct()) {
     value_wrapper_with_struct_ = new ::proto_util_converter::testing::ValueWrapper(*from.value_wrapper_with_struct_);
   } else {
     value_wrapper_with_struct_ = nullptr;
   }
-  if (from._internal_has_value_wrapper_with_list()) {
+  if(from._internal_has_value_wrapper_with_list()) {
     value_wrapper_with_list_ = new ::proto_util_converter::testing::ValueWrapper(*from.value_wrapper_with_list_);
   } else {
     value_wrapper_with_list_ = nullptr;
   }
-  if (from._internal_has_value_wrapper_with_empty_list()) {
+  if(from._internal_has_value_wrapper_with_empty_list()) {
     value_wrapper_with_empty_list_ = new ::proto_util_converter::testing::ValueWrapper(*from.value_wrapper_with_empty_list_);
   } else {
     value_wrapper_with_empty_list_ = nullptr;
   }
-  if (from._internal_has_value_wrapper_with_list_with_empty_struct()) {
+  if(from._internal_has_value_wrapper_with_list_with_empty_struct()) {
     value_wrapper_with_list_with_empty_struct_ = new ::proto_util_converter::testing::ValueWrapper(*from.value_wrapper_with_list_with_empty_struct_);
   } else {
     value_wrapper_with_list_with_empty_struct_ = nullptr;
   }
-  if (from._internal_has_list_value_wrapper()) {
+  if(from._internal_has_list_value_wrapper()) {
     list_value_wrapper_ = new ::proto_util_converter::testing::ListValueWrapper(*from.list_value_wrapper_);
   } else {
     list_value_wrapper_ = nullptr;
   }
-  if (from._internal_has_list_value_wrapper_with_empty_list()) {
+  if(from._internal_has_list_value_wrapper_with_empty_list()) {
     list_value_wrapper_with_empty_list_ = new ::proto_util_converter::testing::ListValueWrapper(*from.list_value_wrapper_with_empty_list_);
   } else {
     list_value_wrapper_with_empty_list_ = nullptr;
   }
-  if (from._internal_has_list_value_wrapper_with_list_with_empty_struct()) {
+  if(from._internal_has_list_value_wrapper_with_list_with_empty_struct()) {
     list_value_wrapper_with_list_with_empty_struct_ = new ::proto_util_converter::testing::ListValueWrapper(*from.list_value_wrapper_with_list_with_empty_struct_);
   } else {
     list_value_wrapper_with_list_with_empty_struct_ = nullptr;
   }
-  if (from._internal_has_top_level_value_simple()) {
+  if(from._internal_has_top_level_value_simple()) {
     top_level_value_simple_ = new ::PROTOBUF_NAMESPACE_ID::Value(*from.top_level_value_simple_);
   } else {
     top_level_value_simple_ = nullptr;
   }
-  if (from._internal_has_top_level_value_with_struct()) {
+  if(from._internal_has_top_level_value_with_struct()) {
     top_level_value_with_struct_ = new ::PROTOBUF_NAMESPACE_ID::Value(*from.top_level_value_with_struct_);
   } else {
     top_level_value_with_struct_ = nullptr;
   }
-  if (from._internal_has_top_level_value_with_list()) {
+  if(from._internal_has_top_level_value_with_list()) {
     top_level_value_with_list_ = new ::PROTOBUF_NAMESPACE_ID::Value(*from.top_level_value_with_list_);
   } else {
     top_level_value_with_list_ = nullptr;
   }
-  if (from._internal_has_top_level_value_with_empty_list()) {
+  if(from._internal_has_top_level_value_with_empty_list()) {
     top_level_value_with_empty_list_ = new ::PROTOBUF_NAMESPACE_ID::Value(*from.top_level_value_with_empty_list_);
   } else {
     top_level_value_with_empty_list_ = nullptr;
   }
-  if (from._internal_has_top_level_value_with_list_with_empty_struct()) {
+  if(from._internal_has_top_level_value_with_list_with_empty_struct()) {
     top_level_value_with_list_with_empty_struct_ = new ::PROTOBUF_NAMESPACE_ID::Value(*from.top_level_value_with_list_with_empty_struct_);
   } else {
     top_level_value_with_list_with_empty_struct_ = nullptr;
   }
-  if (from._internal_has_top_level_listvalue()) {
+  if(from._internal_has_top_level_listvalue()) {
     top_level_listvalue_ = new ::PROTOBUF_NAMESPACE_ID::ListValue(*from.top_level_listvalue_);
   } else {
     top_level_listvalue_ = nullptr;
   }
-  if (from._internal_has_top_level_empty_listvalue()) {
+  if(from._internal_has_top_level_empty_listvalue()) {
     top_level_empty_listvalue_ = new ::PROTOBUF_NAMESPACE_ID::ListValue(*from.top_level_empty_listvalue_);
   } else {
     top_level_empty_listvalue_ = nullptr;
   }
-  if (from._internal_has_top_level_listvalue_with_empty_struct()) {
+  if(from._internal_has_top_level_listvalue_with_empty_struct()) {
     top_level_listvalue_with_empty_struct_ = new ::PROTOBUF_NAMESPACE_ID::ListValue(*from.top_level_listvalue_with_empty_struct_);
   } else {
     top_level_listvalue_with_empty_struct_ = nullptr;
   }
-  if (from._internal_has_repeated_value()) {
+  if(from._internal_has_repeated_value()) {
     repeated_value_ = new ::proto_util_converter::testing::RepeatedValueWrapper(*from.repeated_value_);
   } else {
     repeated_value_ = nullptr;
   }
-  if (from._internal_has_repeated_value_nested_list()) {
+  if(from._internal_has_repeated_value_nested_list()) {
     repeated_value_nested_list_ = new ::proto_util_converter::testing::RepeatedValueWrapper(*from.repeated_value_nested_list_);
   } else {
     repeated_value_nested_list_ = nullptr;
   }
-  if (from._internal_has_repeated_value_nested_list2()) {
+  if(from._internal_has_repeated_value_nested_list2()) {
     repeated_value_nested_list2_ = new ::proto_util_converter::testing::RepeatedValueWrapper(*from.repeated_value_nested_list2_);
   } else {
     repeated_value_nested_list2_ = nullptr;
   }
-  if (from._internal_has_repeated_value_nested_list3()) {
+  if(from._internal_has_repeated_value_nested_list3()) {
     repeated_value_nested_list3_ = new ::proto_util_converter::testing::RepeatedValueWrapper(*from.repeated_value_nested_list3_);
   } else {
     repeated_value_nested_list3_ = nullptr;
   }
-  if (from._internal_has_repeated_listvalue()) {
+  if(from._internal_has_repeated_listvalue()) {
     repeated_listvalue_ = new ::proto_util_converter::testing::RepeatedListValueWrapper(*from.repeated_listvalue_);
   } else {
     repeated_listvalue_ = nullptr;
   }
-  if (from._internal_has_map_of_struct()) {
+  if(from._internal_has_map_of_struct()) {
     map_of_struct_ = new ::proto_util_converter::testing::MapOfStruct(*from.map_of_struct_);
   } else {
     map_of_struct_ = nullptr;
   }
-  if (from._internal_has_map_of_struct_value()) {
+  if(from._internal_has_map_of_struct_value()) {
     map_of_struct_value_ = new ::proto_util_converter::testing::MapOfStruct(*from.map_of_struct_value_);
   } else {
     map_of_struct_value_ = nullptr;
   }
-  if (from._internal_has_map_of_listvalue()) {
+  if(from._internal_has_map_of_listvalue()) {
     map_of_listvalue_ = new ::proto_util_converter::testing::MapOfStruct(*from.map_of_listvalue_);
   } else {
     map_of_listvalue_ = nullptr;
@@ -971,45 +971,45 @@ StructTestCases::~StructTestCases() {
 
 inline void StructTestCases::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  if (this != internal_default_instance()) delete empty_value_;
-  if (this != internal_default_instance()) delete empty_value2_;
-  if (this != internal_default_instance()) delete null_value_;
-  if (this != internal_default_instance()) delete simple_struct_;
-  if (this != internal_default_instance()) delete longer_struct_;
-  if (this != internal_default_instance()) delete struct_with_nested_struct_;
-  if (this != internal_default_instance()) delete struct_with_nested_list_;
-  if (this != internal_default_instance()) delete struct_with_list_of_nulls_;
-  if (this != internal_default_instance()) delete struct_with_list_of_lists_;
-  if (this != internal_default_instance()) delete struct_with_list_of_structs_;
-  if (this != internal_default_instance()) delete struct_with_empty_list_;
-  if (this != internal_default_instance()) delete struct_with_list_with_empty_struct_;
-  if (this != internal_default_instance()) delete top_level_struct_;
-  if (this != internal_default_instance()) delete top_level_struct_with_empty_list_;
-  if (this != internal_default_instance()) delete top_level_struct_with_list_with_empty_struct_;
-  if (this != internal_default_instance()) delete value_wrapper_simple_;
-  if (this != internal_default_instance()) delete value_wrapper_with_struct_;
-  if (this != internal_default_instance()) delete value_wrapper_with_list_;
-  if (this != internal_default_instance()) delete value_wrapper_with_empty_list_;
-  if (this != internal_default_instance()) delete value_wrapper_with_list_with_empty_struct_;
-  if (this != internal_default_instance()) delete list_value_wrapper_;
-  if (this != internal_default_instance()) delete list_value_wrapper_with_empty_list_;
-  if (this != internal_default_instance()) delete list_value_wrapper_with_list_with_empty_struct_;
-  if (this != internal_default_instance()) delete top_level_value_simple_;
-  if (this != internal_default_instance()) delete top_level_value_with_struct_;
-  if (this != internal_default_instance()) delete top_level_value_with_list_;
-  if (this != internal_default_instance()) delete top_level_value_with_empty_list_;
-  if (this != internal_default_instance()) delete top_level_value_with_list_with_empty_struct_;
-  if (this != internal_default_instance()) delete top_level_listvalue_;
-  if (this != internal_default_instance()) delete top_level_empty_listvalue_;
-  if (this != internal_default_instance()) delete top_level_listvalue_with_empty_struct_;
-  if (this != internal_default_instance()) delete repeated_value_;
-  if (this != internal_default_instance()) delete repeated_value_nested_list_;
-  if (this != internal_default_instance()) delete repeated_value_nested_list2_;
-  if (this != internal_default_instance()) delete repeated_value_nested_list3_;
-  if (this != internal_default_instance()) delete repeated_listvalue_;
-  if (this != internal_default_instance()) delete map_of_struct_;
-  if (this != internal_default_instance()) delete map_of_struct_value_;
-  if (this != internal_default_instance()) delete map_of_listvalue_;
+  if(this != internal_default_instance()) delete empty_value_;
+  if(this != internal_default_instance()) delete empty_value2_;
+  if(this != internal_default_instance()) delete null_value_;
+  if(this != internal_default_instance()) delete simple_struct_;
+  if(this != internal_default_instance()) delete longer_struct_;
+  if(this != internal_default_instance()) delete struct_with_nested_struct_;
+  if(this != internal_default_instance()) delete struct_with_nested_list_;
+  if(this != internal_default_instance()) delete struct_with_list_of_nulls_;
+  if(this != internal_default_instance()) delete struct_with_list_of_lists_;
+  if(this != internal_default_instance()) delete struct_with_list_of_structs_;
+  if(this != internal_default_instance()) delete struct_with_empty_list_;
+  if(this != internal_default_instance()) delete struct_with_list_with_empty_struct_;
+  if(this != internal_default_instance()) delete top_level_struct_;
+  if(this != internal_default_instance()) delete top_level_struct_with_empty_list_;
+  if(this != internal_default_instance()) delete top_level_struct_with_list_with_empty_struct_;
+  if(this != internal_default_instance()) delete value_wrapper_simple_;
+  if(this != internal_default_instance()) delete value_wrapper_with_struct_;
+  if(this != internal_default_instance()) delete value_wrapper_with_list_;
+  if(this != internal_default_instance()) delete value_wrapper_with_empty_list_;
+  if(this != internal_default_instance()) delete value_wrapper_with_list_with_empty_struct_;
+  if(this != internal_default_instance()) delete list_value_wrapper_;
+  if(this != internal_default_instance()) delete list_value_wrapper_with_empty_list_;
+  if(this != internal_default_instance()) delete list_value_wrapper_with_list_with_empty_struct_;
+  if(this != internal_default_instance()) delete top_level_value_simple_;
+  if(this != internal_default_instance()) delete top_level_value_with_struct_;
+  if(this != internal_default_instance()) delete top_level_value_with_list_;
+  if(this != internal_default_instance()) delete top_level_value_with_empty_list_;
+  if(this != internal_default_instance()) delete top_level_value_with_list_with_empty_struct_;
+  if(this != internal_default_instance()) delete top_level_listvalue_;
+  if(this != internal_default_instance()) delete top_level_empty_listvalue_;
+  if(this != internal_default_instance()) delete top_level_listvalue_with_empty_struct_;
+  if(this != internal_default_instance()) delete repeated_value_;
+  if(this != internal_default_instance()) delete repeated_value_nested_list_;
+  if(this != internal_default_instance()) delete repeated_value_nested_list2_;
+  if(this != internal_default_instance()) delete repeated_value_nested_list3_;
+  if(this != internal_default_instance()) delete repeated_listvalue_;
+  if(this != internal_default_instance()) delete map_of_struct_;
+  if(this != internal_default_instance()) delete map_of_struct_value_;
+  if(this != internal_default_instance()) delete map_of_listvalue_;
 }
 
 void StructTestCases::ArenaDtor(void* object) {
@@ -1028,159 +1028,159 @@ void StructTestCases::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  if (GetArenaForAllocation() == nullptr && empty_value_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && empty_value_ != nullptr) {
     delete empty_value_;
   }
   empty_value_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && empty_value2_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && empty_value2_ != nullptr) {
     delete empty_value2_;
   }
   empty_value2_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && null_value_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && null_value_ != nullptr) {
     delete null_value_;
   }
   null_value_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && simple_struct_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && simple_struct_ != nullptr) {
     delete simple_struct_;
   }
   simple_struct_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && longer_struct_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && longer_struct_ != nullptr) {
     delete longer_struct_;
   }
   longer_struct_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && struct_with_nested_struct_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && struct_with_nested_struct_ != nullptr) {
     delete struct_with_nested_struct_;
   }
   struct_with_nested_struct_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && struct_with_nested_list_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && struct_with_nested_list_ != nullptr) {
     delete struct_with_nested_list_;
   }
   struct_with_nested_list_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && struct_with_list_of_nulls_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && struct_with_list_of_nulls_ != nullptr) {
     delete struct_with_list_of_nulls_;
   }
   struct_with_list_of_nulls_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && struct_with_list_of_lists_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && struct_with_list_of_lists_ != nullptr) {
     delete struct_with_list_of_lists_;
   }
   struct_with_list_of_lists_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && struct_with_list_of_structs_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && struct_with_list_of_structs_ != nullptr) {
     delete struct_with_list_of_structs_;
   }
   struct_with_list_of_structs_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && struct_with_empty_list_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && struct_with_empty_list_ != nullptr) {
     delete struct_with_empty_list_;
   }
   struct_with_empty_list_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && struct_with_list_with_empty_struct_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && struct_with_list_with_empty_struct_ != nullptr) {
     delete struct_with_list_with_empty_struct_;
   }
   struct_with_list_with_empty_struct_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && top_level_struct_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && top_level_struct_ != nullptr) {
     delete top_level_struct_;
   }
   top_level_struct_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && top_level_struct_with_empty_list_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && top_level_struct_with_empty_list_ != nullptr) {
     delete top_level_struct_with_empty_list_;
   }
   top_level_struct_with_empty_list_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && top_level_struct_with_list_with_empty_struct_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && top_level_struct_with_list_with_empty_struct_ != nullptr) {
     delete top_level_struct_with_list_with_empty_struct_;
   }
   top_level_struct_with_list_with_empty_struct_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && value_wrapper_simple_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && value_wrapper_simple_ != nullptr) {
     delete value_wrapper_simple_;
   }
   value_wrapper_simple_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && value_wrapper_with_struct_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && value_wrapper_with_struct_ != nullptr) {
     delete value_wrapper_with_struct_;
   }
   value_wrapper_with_struct_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && value_wrapper_with_list_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && value_wrapper_with_list_ != nullptr) {
     delete value_wrapper_with_list_;
   }
   value_wrapper_with_list_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && value_wrapper_with_empty_list_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && value_wrapper_with_empty_list_ != nullptr) {
     delete value_wrapper_with_empty_list_;
   }
   value_wrapper_with_empty_list_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && value_wrapper_with_list_with_empty_struct_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && value_wrapper_with_list_with_empty_struct_ != nullptr) {
     delete value_wrapper_with_list_with_empty_struct_;
   }
   value_wrapper_with_list_with_empty_struct_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && list_value_wrapper_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && list_value_wrapper_ != nullptr) {
     delete list_value_wrapper_;
   }
   list_value_wrapper_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && list_value_wrapper_with_empty_list_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && list_value_wrapper_with_empty_list_ != nullptr) {
     delete list_value_wrapper_with_empty_list_;
   }
   list_value_wrapper_with_empty_list_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && list_value_wrapper_with_list_with_empty_struct_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && list_value_wrapper_with_list_with_empty_struct_ != nullptr) {
     delete list_value_wrapper_with_list_with_empty_struct_;
   }
   list_value_wrapper_with_list_with_empty_struct_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && top_level_value_simple_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && top_level_value_simple_ != nullptr) {
     delete top_level_value_simple_;
   }
   top_level_value_simple_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && top_level_value_with_struct_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && top_level_value_with_struct_ != nullptr) {
     delete top_level_value_with_struct_;
   }
   top_level_value_with_struct_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && top_level_value_with_list_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && top_level_value_with_list_ != nullptr) {
     delete top_level_value_with_list_;
   }
   top_level_value_with_list_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && top_level_value_with_empty_list_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && top_level_value_with_empty_list_ != nullptr) {
     delete top_level_value_with_empty_list_;
   }
   top_level_value_with_empty_list_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && top_level_value_with_list_with_empty_struct_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && top_level_value_with_list_with_empty_struct_ != nullptr) {
     delete top_level_value_with_list_with_empty_struct_;
   }
   top_level_value_with_list_with_empty_struct_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && top_level_listvalue_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && top_level_listvalue_ != nullptr) {
     delete top_level_listvalue_;
   }
   top_level_listvalue_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && top_level_empty_listvalue_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && top_level_empty_listvalue_ != nullptr) {
     delete top_level_empty_listvalue_;
   }
   top_level_empty_listvalue_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && top_level_listvalue_with_empty_struct_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && top_level_listvalue_with_empty_struct_ != nullptr) {
     delete top_level_listvalue_with_empty_struct_;
   }
   top_level_listvalue_with_empty_struct_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && repeated_value_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && repeated_value_ != nullptr) {
     delete repeated_value_;
   }
   repeated_value_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && repeated_value_nested_list_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && repeated_value_nested_list_ != nullptr) {
     delete repeated_value_nested_list_;
   }
   repeated_value_nested_list_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && repeated_value_nested_list2_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && repeated_value_nested_list2_ != nullptr) {
     delete repeated_value_nested_list2_;
   }
   repeated_value_nested_list2_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && repeated_value_nested_list3_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && repeated_value_nested_list3_ != nullptr) {
     delete repeated_value_nested_list3_;
   }
   repeated_value_nested_list3_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && repeated_listvalue_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && repeated_listvalue_ != nullptr) {
     delete repeated_listvalue_;
   }
   repeated_listvalue_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && map_of_struct_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && map_of_struct_ != nullptr) {
     delete map_of_struct_;
   }
   map_of_struct_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && map_of_struct_value_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && map_of_struct_value_ != nullptr) {
     delete map_of_struct_value_;
   }
   map_of_struct_value_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && map_of_listvalue_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && map_of_listvalue_ != nullptr) {
     delete map_of_listvalue_;
   }
   map_of_listvalue_ = nullptr;
@@ -1192,10 +1192,10 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // .proto_util_converter.testing.StructWrapper empty_value = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr = ctx->ParseMessage(_internal_mutable_empty_value(), ptr);
           CHK_(ptr);
         } else
@@ -1203,7 +1203,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .proto_util_converter.testing.StructWrapper empty_value2 = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr = ctx->ParseMessage(_internal_mutable_empty_value2(), ptr);
           CHK_(ptr);
         } else
@@ -1211,7 +1211,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .proto_util_converter.testing.StructWrapper null_value = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           ptr = ctx->ParseMessage(_internal_mutable_null_value(), ptr);
           CHK_(ptr);
         } else
@@ -1219,7 +1219,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .proto_util_converter.testing.StructWrapper simple_struct = 4;
       case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
           ptr = ctx->ParseMessage(_internal_mutable_simple_struct(), ptr);
           CHK_(ptr);
         } else
@@ -1227,7 +1227,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .proto_util_converter.testing.StructWrapper longer_struct = 5;
       case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
           ptr = ctx->ParseMessage(_internal_mutable_longer_struct(), ptr);
           CHK_(ptr);
         } else
@@ -1235,7 +1235,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .proto_util_converter.testing.StructWrapper struct_with_nested_struct = 6;
       case 6:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
           ptr = ctx->ParseMessage(_internal_mutable_struct_with_nested_struct(), ptr);
           CHK_(ptr);
         } else
@@ -1243,7 +1243,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .proto_util_converter.testing.StructWrapper struct_with_nested_list = 7;
       case 7:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
           ptr = ctx->ParseMessage(_internal_mutable_struct_with_nested_list(), ptr);
           CHK_(ptr);
         } else
@@ -1251,7 +1251,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .proto_util_converter.testing.StructWrapper struct_with_list_of_nulls = 8;
       case 8:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
           ptr = ctx->ParseMessage(_internal_mutable_struct_with_list_of_nulls(), ptr);
           CHK_(ptr);
         } else
@@ -1259,7 +1259,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .proto_util_converter.testing.StructWrapper struct_with_list_of_lists = 9;
       case 9:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
           ptr = ctx->ParseMessage(_internal_mutable_struct_with_list_of_lists(), ptr);
           CHK_(ptr);
         } else
@@ -1267,7 +1267,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .proto_util_converter.testing.StructWrapper struct_with_list_of_structs = 10;
       case 10:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 82)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 82)) {
           ptr = ctx->ParseMessage(_internal_mutable_struct_with_list_of_structs(), ptr);
           CHK_(ptr);
         } else
@@ -1275,7 +1275,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .proto_util_converter.testing.StructWrapper struct_with_empty_list = 11;
       case 11:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 90)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 90)) {
           ptr = ctx->ParseMessage(_internal_mutable_struct_with_empty_list(), ptr);
           CHK_(ptr);
         } else
@@ -1283,7 +1283,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .proto_util_converter.testing.StructWrapper struct_with_list_with_empty_struct = 12;
       case 12:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 98)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 98)) {
           ptr = ctx->ParseMessage(_internal_mutable_struct_with_list_with_empty_struct(), ptr);
           CHK_(ptr);
         } else
@@ -1291,7 +1291,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .google.protobuf.Struct top_level_struct = 13;
       case 13:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 106)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 106)) {
           ptr = ctx->ParseMessage(_internal_mutable_top_level_struct(), ptr);
           CHK_(ptr);
         } else
@@ -1299,7 +1299,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .google.protobuf.Struct top_level_struct_with_empty_list = 14;
       case 14:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 114)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 114)) {
           ptr = ctx->ParseMessage(_internal_mutable_top_level_struct_with_empty_list(), ptr);
           CHK_(ptr);
         } else
@@ -1307,7 +1307,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .google.protobuf.Struct top_level_struct_with_list_with_empty_struct = 15;
       case 15:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 122)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 122)) {
           ptr = ctx->ParseMessage(_internal_mutable_top_level_struct_with_list_with_empty_struct(), ptr);
           CHK_(ptr);
         } else
@@ -1315,7 +1315,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .proto_util_converter.testing.ValueWrapper value_wrapper_simple = 16;
       case 16:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 130)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 130)) {
           ptr = ctx->ParseMessage(_internal_mutable_value_wrapper_simple(), ptr);
           CHK_(ptr);
         } else
@@ -1323,7 +1323,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .proto_util_converter.testing.ValueWrapper value_wrapper_with_struct = 17;
       case 17:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 138)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 138)) {
           ptr = ctx->ParseMessage(_internal_mutable_value_wrapper_with_struct(), ptr);
           CHK_(ptr);
         } else
@@ -1331,7 +1331,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .proto_util_converter.testing.ValueWrapper value_wrapper_with_list = 18;
       case 18:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 146)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 146)) {
           ptr = ctx->ParseMessage(_internal_mutable_value_wrapper_with_list(), ptr);
           CHK_(ptr);
         } else
@@ -1339,7 +1339,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .proto_util_converter.testing.ValueWrapper value_wrapper_with_empty_list = 19;
       case 19:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 154)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 154)) {
           ptr = ctx->ParseMessage(_internal_mutable_value_wrapper_with_empty_list(), ptr);
           CHK_(ptr);
         } else
@@ -1347,7 +1347,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .proto_util_converter.testing.ValueWrapper value_wrapper_with_list_with_empty_struct = 20;
       case 20:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 162)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 162)) {
           ptr = ctx->ParseMessage(_internal_mutable_value_wrapper_with_list_with_empty_struct(), ptr);
           CHK_(ptr);
         } else
@@ -1355,7 +1355,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .proto_util_converter.testing.ListValueWrapper list_value_wrapper = 21;
       case 21:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 170)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 170)) {
           ptr = ctx->ParseMessage(_internal_mutable_list_value_wrapper(), ptr);
           CHK_(ptr);
         } else
@@ -1363,7 +1363,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .proto_util_converter.testing.ListValueWrapper list_value_wrapper_with_empty_list = 22;
       case 22:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 178)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 178)) {
           ptr = ctx->ParseMessage(_internal_mutable_list_value_wrapper_with_empty_list(), ptr);
           CHK_(ptr);
         } else
@@ -1371,7 +1371,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .proto_util_converter.testing.ListValueWrapper list_value_wrapper_with_list_with_empty_struct = 23;
       case 23:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 186)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 186)) {
           ptr = ctx->ParseMessage(_internal_mutable_list_value_wrapper_with_list_with_empty_struct(), ptr);
           CHK_(ptr);
         } else
@@ -1379,7 +1379,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .google.protobuf.Value top_level_value_simple = 24;
       case 24:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 194)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 194)) {
           ptr = ctx->ParseMessage(_internal_mutable_top_level_value_simple(), ptr);
           CHK_(ptr);
         } else
@@ -1387,7 +1387,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .google.protobuf.Value top_level_value_with_struct = 25;
       case 25:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 202)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 202)) {
           ptr = ctx->ParseMessage(_internal_mutable_top_level_value_with_struct(), ptr);
           CHK_(ptr);
         } else
@@ -1395,7 +1395,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .google.protobuf.Value top_level_value_with_list = 26;
       case 26:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 210)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 210)) {
           ptr = ctx->ParseMessage(_internal_mutable_top_level_value_with_list(), ptr);
           CHK_(ptr);
         } else
@@ -1403,7 +1403,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .google.protobuf.Value top_level_value_with_empty_list = 27;
       case 27:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 218)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 218)) {
           ptr = ctx->ParseMessage(_internal_mutable_top_level_value_with_empty_list(), ptr);
           CHK_(ptr);
         } else
@@ -1411,7 +1411,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .google.protobuf.Value top_level_value_with_list_with_empty_struct = 28;
       case 28:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 226)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 226)) {
           ptr = ctx->ParseMessage(_internal_mutable_top_level_value_with_list_with_empty_struct(), ptr);
           CHK_(ptr);
         } else
@@ -1419,7 +1419,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .google.protobuf.ListValue top_level_listvalue = 29;
       case 29:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 234)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 234)) {
           ptr = ctx->ParseMessage(_internal_mutable_top_level_listvalue(), ptr);
           CHK_(ptr);
         } else
@@ -1427,7 +1427,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .google.protobuf.ListValue top_level_empty_listvalue = 30;
       case 30:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 242)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 242)) {
           ptr = ctx->ParseMessage(_internal_mutable_top_level_empty_listvalue(), ptr);
           CHK_(ptr);
         } else
@@ -1435,7 +1435,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .google.protobuf.ListValue top_level_listvalue_with_empty_struct = 31;
       case 31:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 250)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 250)) {
           ptr = ctx->ParseMessage(_internal_mutable_top_level_listvalue_with_empty_struct(), ptr);
           CHK_(ptr);
         } else
@@ -1443,7 +1443,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .proto_util_converter.testing.RepeatedValueWrapper repeated_value = 32;
       case 32:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 2)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 2)) {
           ptr = ctx->ParseMessage(_internal_mutable_repeated_value(), ptr);
           CHK_(ptr);
         } else
@@ -1451,7 +1451,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .proto_util_converter.testing.RepeatedValueWrapper repeated_value_nested_list = 33;
       case 33:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr = ctx->ParseMessage(_internal_mutable_repeated_value_nested_list(), ptr);
           CHK_(ptr);
         } else
@@ -1459,7 +1459,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .proto_util_converter.testing.RepeatedValueWrapper repeated_value_nested_list2 = 34;
       case 34:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr = ctx->ParseMessage(_internal_mutable_repeated_value_nested_list2(), ptr);
           CHK_(ptr);
         } else
@@ -1467,7 +1467,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .proto_util_converter.testing.RepeatedValueWrapper repeated_value_nested_list3 = 35;
       case 35:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           ptr = ctx->ParseMessage(_internal_mutable_repeated_value_nested_list3(), ptr);
           CHK_(ptr);
         } else
@@ -1475,7 +1475,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .proto_util_converter.testing.RepeatedListValueWrapper repeated_listvalue = 36;
       case 36:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
           ptr = ctx->ParseMessage(_internal_mutable_repeated_listvalue(), ptr);
           CHK_(ptr);
         } else
@@ -1483,7 +1483,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .proto_util_converter.testing.MapOfStruct map_of_struct = 37;
       case 37:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
           ptr = ctx->ParseMessage(_internal_mutable_map_of_struct(), ptr);
           CHK_(ptr);
         } else
@@ -1491,7 +1491,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .proto_util_converter.testing.MapOfStruct map_of_struct_value = 38;
       case 38:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
           ptr = ctx->ParseMessage(_internal_mutable_map_of_struct_value(), ptr);
           CHK_(ptr);
         } else
@@ -1499,7 +1499,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .proto_util_converter.testing.MapOfStruct map_of_listvalue = 39;
       case 39:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
           ptr = ctx->ParseMessage(_internal_mutable_map_of_listvalue(), ptr);
           CHK_(ptr);
         } else
@@ -1509,7 +1509,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -1535,7 +1535,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   (void) cached_has_bits;
 
   // .proto_util_converter.testing.StructWrapper empty_value = 1;
-  if (this->_internal_has_empty_value()) {
+  if(this->_internal_has_empty_value()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1543,7 +1543,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.StructWrapper empty_value2 = 2;
-  if (this->_internal_has_empty_value2()) {
+  if(this->_internal_has_empty_value2()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1551,7 +1551,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.StructWrapper null_value = 3;
-  if (this->_internal_has_null_value()) {
+  if(this->_internal_has_null_value()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1559,7 +1559,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.StructWrapper simple_struct = 4;
-  if (this->_internal_has_simple_struct()) {
+  if(this->_internal_has_simple_struct()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1567,7 +1567,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.StructWrapper longer_struct = 5;
-  if (this->_internal_has_longer_struct()) {
+  if(this->_internal_has_longer_struct()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1575,7 +1575,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.StructWrapper struct_with_nested_struct = 6;
-  if (this->_internal_has_struct_with_nested_struct()) {
+  if(this->_internal_has_struct_with_nested_struct()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1583,7 +1583,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.StructWrapper struct_with_nested_list = 7;
-  if (this->_internal_has_struct_with_nested_list()) {
+  if(this->_internal_has_struct_with_nested_list()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1591,7 +1591,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.StructWrapper struct_with_list_of_nulls = 8;
-  if (this->_internal_has_struct_with_list_of_nulls()) {
+  if(this->_internal_has_struct_with_list_of_nulls()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1599,7 +1599,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.StructWrapper struct_with_list_of_lists = 9;
-  if (this->_internal_has_struct_with_list_of_lists()) {
+  if(this->_internal_has_struct_with_list_of_lists()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1607,7 +1607,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.StructWrapper struct_with_list_of_structs = 10;
-  if (this->_internal_has_struct_with_list_of_structs()) {
+  if(this->_internal_has_struct_with_list_of_structs()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1615,7 +1615,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.StructWrapper struct_with_empty_list = 11;
-  if (this->_internal_has_struct_with_empty_list()) {
+  if(this->_internal_has_struct_with_empty_list()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1623,7 +1623,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.StructWrapper struct_with_list_with_empty_struct = 12;
-  if (this->_internal_has_struct_with_list_with_empty_struct()) {
+  if(this->_internal_has_struct_with_list_with_empty_struct()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1631,7 +1631,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .google.protobuf.Struct top_level_struct = 13;
-  if (this->_internal_has_top_level_struct()) {
+  if(this->_internal_has_top_level_struct()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1639,7 +1639,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .google.protobuf.Struct top_level_struct_with_empty_list = 14;
-  if (this->_internal_has_top_level_struct_with_empty_list()) {
+  if(this->_internal_has_top_level_struct_with_empty_list()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1647,7 +1647,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .google.protobuf.Struct top_level_struct_with_list_with_empty_struct = 15;
-  if (this->_internal_has_top_level_struct_with_list_with_empty_struct()) {
+  if(this->_internal_has_top_level_struct_with_list_with_empty_struct()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1655,7 +1655,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.ValueWrapper value_wrapper_simple = 16;
-  if (this->_internal_has_value_wrapper_simple()) {
+  if(this->_internal_has_value_wrapper_simple()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1663,7 +1663,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.ValueWrapper value_wrapper_with_struct = 17;
-  if (this->_internal_has_value_wrapper_with_struct()) {
+  if(this->_internal_has_value_wrapper_with_struct()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1671,7 +1671,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.ValueWrapper value_wrapper_with_list = 18;
-  if (this->_internal_has_value_wrapper_with_list()) {
+  if(this->_internal_has_value_wrapper_with_list()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1679,7 +1679,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.ValueWrapper value_wrapper_with_empty_list = 19;
-  if (this->_internal_has_value_wrapper_with_empty_list()) {
+  if(this->_internal_has_value_wrapper_with_empty_list()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1687,7 +1687,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.ValueWrapper value_wrapper_with_list_with_empty_struct = 20;
-  if (this->_internal_has_value_wrapper_with_list_with_empty_struct()) {
+  if(this->_internal_has_value_wrapper_with_list_with_empty_struct()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1695,7 +1695,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.ListValueWrapper list_value_wrapper = 21;
-  if (this->_internal_has_list_value_wrapper()) {
+  if(this->_internal_has_list_value_wrapper()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1703,7 +1703,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.ListValueWrapper list_value_wrapper_with_empty_list = 22;
-  if (this->_internal_has_list_value_wrapper_with_empty_list()) {
+  if(this->_internal_has_list_value_wrapper_with_empty_list()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1711,7 +1711,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.ListValueWrapper list_value_wrapper_with_list_with_empty_struct = 23;
-  if (this->_internal_has_list_value_wrapper_with_list_with_empty_struct()) {
+  if(this->_internal_has_list_value_wrapper_with_list_with_empty_struct()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1719,7 +1719,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .google.protobuf.Value top_level_value_simple = 24;
-  if (this->_internal_has_top_level_value_simple()) {
+  if(this->_internal_has_top_level_value_simple()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1727,7 +1727,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .google.protobuf.Value top_level_value_with_struct = 25;
-  if (this->_internal_has_top_level_value_with_struct()) {
+  if(this->_internal_has_top_level_value_with_struct()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1735,7 +1735,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .google.protobuf.Value top_level_value_with_list = 26;
-  if (this->_internal_has_top_level_value_with_list()) {
+  if(this->_internal_has_top_level_value_with_list()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1743,7 +1743,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .google.protobuf.Value top_level_value_with_empty_list = 27;
-  if (this->_internal_has_top_level_value_with_empty_list()) {
+  if(this->_internal_has_top_level_value_with_empty_list()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1751,7 +1751,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .google.protobuf.Value top_level_value_with_list_with_empty_struct = 28;
-  if (this->_internal_has_top_level_value_with_list_with_empty_struct()) {
+  if(this->_internal_has_top_level_value_with_list_with_empty_struct()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1759,7 +1759,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .google.protobuf.ListValue top_level_listvalue = 29;
-  if (this->_internal_has_top_level_listvalue()) {
+  if(this->_internal_has_top_level_listvalue()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1767,7 +1767,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .google.protobuf.ListValue top_level_empty_listvalue = 30;
-  if (this->_internal_has_top_level_empty_listvalue()) {
+  if(this->_internal_has_top_level_empty_listvalue()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1775,7 +1775,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .google.protobuf.ListValue top_level_listvalue_with_empty_struct = 31;
-  if (this->_internal_has_top_level_listvalue_with_empty_struct()) {
+  if(this->_internal_has_top_level_listvalue_with_empty_struct()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1783,7 +1783,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.RepeatedValueWrapper repeated_value = 32;
-  if (this->_internal_has_repeated_value()) {
+  if(this->_internal_has_repeated_value()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1791,7 +1791,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.RepeatedValueWrapper repeated_value_nested_list = 33;
-  if (this->_internal_has_repeated_value_nested_list()) {
+  if(this->_internal_has_repeated_value_nested_list()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1799,7 +1799,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.RepeatedValueWrapper repeated_value_nested_list2 = 34;
-  if (this->_internal_has_repeated_value_nested_list2()) {
+  if(this->_internal_has_repeated_value_nested_list2()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1807,7 +1807,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.RepeatedValueWrapper repeated_value_nested_list3 = 35;
-  if (this->_internal_has_repeated_value_nested_list3()) {
+  if(this->_internal_has_repeated_value_nested_list3()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1815,7 +1815,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.RepeatedListValueWrapper repeated_listvalue = 36;
-  if (this->_internal_has_repeated_listvalue()) {
+  if(this->_internal_has_repeated_listvalue()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1823,7 +1823,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.MapOfStruct map_of_struct = 37;
-  if (this->_internal_has_map_of_struct()) {
+  if(this->_internal_has_map_of_struct()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1831,7 +1831,7 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.MapOfStruct map_of_struct_value = 38;
-  if (this->_internal_has_map_of_struct_value()) {
+  if(this->_internal_has_map_of_struct_value()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1839,14 +1839,14 @@ uint8_t* StructTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.MapOfStruct map_of_listvalue = 39;
-  if (this->_internal_has_map_of_listvalue()) {
+  if(this->_internal_has_map_of_listvalue()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
         39, _Internal::map_of_listvalue(this), target, stream);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -1863,273 +1863,273 @@ size_t StructTestCases::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // .proto_util_converter.testing.StructWrapper empty_value = 1;
-  if (this->_internal_has_empty_value()) {
+  if(this->_internal_has_empty_value()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *empty_value_);
   }
 
   // .proto_util_converter.testing.StructWrapper empty_value2 = 2;
-  if (this->_internal_has_empty_value2()) {
+  if(this->_internal_has_empty_value2()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *empty_value2_);
   }
 
   // .proto_util_converter.testing.StructWrapper null_value = 3;
-  if (this->_internal_has_null_value()) {
+  if(this->_internal_has_null_value()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *null_value_);
   }
 
   // .proto_util_converter.testing.StructWrapper simple_struct = 4;
-  if (this->_internal_has_simple_struct()) {
+  if(this->_internal_has_simple_struct()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *simple_struct_);
   }
 
   // .proto_util_converter.testing.StructWrapper longer_struct = 5;
-  if (this->_internal_has_longer_struct()) {
+  if(this->_internal_has_longer_struct()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *longer_struct_);
   }
 
   // .proto_util_converter.testing.StructWrapper struct_with_nested_struct = 6;
-  if (this->_internal_has_struct_with_nested_struct()) {
+  if(this->_internal_has_struct_with_nested_struct()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *struct_with_nested_struct_);
   }
 
   // .proto_util_converter.testing.StructWrapper struct_with_nested_list = 7;
-  if (this->_internal_has_struct_with_nested_list()) {
+  if(this->_internal_has_struct_with_nested_list()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *struct_with_nested_list_);
   }
 
   // .proto_util_converter.testing.StructWrapper struct_with_list_of_nulls = 8;
-  if (this->_internal_has_struct_with_list_of_nulls()) {
+  if(this->_internal_has_struct_with_list_of_nulls()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *struct_with_list_of_nulls_);
   }
 
   // .proto_util_converter.testing.StructWrapper struct_with_list_of_lists = 9;
-  if (this->_internal_has_struct_with_list_of_lists()) {
+  if(this->_internal_has_struct_with_list_of_lists()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *struct_with_list_of_lists_);
   }
 
   // .proto_util_converter.testing.StructWrapper struct_with_list_of_structs = 10;
-  if (this->_internal_has_struct_with_list_of_structs()) {
+  if(this->_internal_has_struct_with_list_of_structs()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *struct_with_list_of_structs_);
   }
 
   // .proto_util_converter.testing.StructWrapper struct_with_empty_list = 11;
-  if (this->_internal_has_struct_with_empty_list()) {
+  if(this->_internal_has_struct_with_empty_list()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *struct_with_empty_list_);
   }
 
   // .proto_util_converter.testing.StructWrapper struct_with_list_with_empty_struct = 12;
-  if (this->_internal_has_struct_with_list_with_empty_struct()) {
+  if(this->_internal_has_struct_with_list_with_empty_struct()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *struct_with_list_with_empty_struct_);
   }
 
   // .google.protobuf.Struct top_level_struct = 13;
-  if (this->_internal_has_top_level_struct()) {
+  if(this->_internal_has_top_level_struct()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *top_level_struct_);
   }
 
   // .google.protobuf.Struct top_level_struct_with_empty_list = 14;
-  if (this->_internal_has_top_level_struct_with_empty_list()) {
+  if(this->_internal_has_top_level_struct_with_empty_list()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *top_level_struct_with_empty_list_);
   }
 
   // .google.protobuf.Struct top_level_struct_with_list_with_empty_struct = 15;
-  if (this->_internal_has_top_level_struct_with_list_with_empty_struct()) {
+  if(this->_internal_has_top_level_struct_with_list_with_empty_struct()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *top_level_struct_with_list_with_empty_struct_);
   }
 
   // .proto_util_converter.testing.ValueWrapper value_wrapper_simple = 16;
-  if (this->_internal_has_value_wrapper_simple()) {
+  if(this->_internal_has_value_wrapper_simple()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *value_wrapper_simple_);
   }
 
   // .proto_util_converter.testing.ValueWrapper value_wrapper_with_struct = 17;
-  if (this->_internal_has_value_wrapper_with_struct()) {
+  if(this->_internal_has_value_wrapper_with_struct()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *value_wrapper_with_struct_);
   }
 
   // .proto_util_converter.testing.ValueWrapper value_wrapper_with_list = 18;
-  if (this->_internal_has_value_wrapper_with_list()) {
+  if(this->_internal_has_value_wrapper_with_list()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *value_wrapper_with_list_);
   }
 
   // .proto_util_converter.testing.ValueWrapper value_wrapper_with_empty_list = 19;
-  if (this->_internal_has_value_wrapper_with_empty_list()) {
+  if(this->_internal_has_value_wrapper_with_empty_list()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *value_wrapper_with_empty_list_);
   }
 
   // .proto_util_converter.testing.ValueWrapper value_wrapper_with_list_with_empty_struct = 20;
-  if (this->_internal_has_value_wrapper_with_list_with_empty_struct()) {
+  if(this->_internal_has_value_wrapper_with_list_with_empty_struct()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *value_wrapper_with_list_with_empty_struct_);
   }
 
   // .proto_util_converter.testing.ListValueWrapper list_value_wrapper = 21;
-  if (this->_internal_has_list_value_wrapper()) {
+  if(this->_internal_has_list_value_wrapper()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *list_value_wrapper_);
   }
 
   // .proto_util_converter.testing.ListValueWrapper list_value_wrapper_with_empty_list = 22;
-  if (this->_internal_has_list_value_wrapper_with_empty_list()) {
+  if(this->_internal_has_list_value_wrapper_with_empty_list()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *list_value_wrapper_with_empty_list_);
   }
 
   // .proto_util_converter.testing.ListValueWrapper list_value_wrapper_with_list_with_empty_struct = 23;
-  if (this->_internal_has_list_value_wrapper_with_list_with_empty_struct()) {
+  if(this->_internal_has_list_value_wrapper_with_list_with_empty_struct()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *list_value_wrapper_with_list_with_empty_struct_);
   }
 
   // .google.protobuf.Value top_level_value_simple = 24;
-  if (this->_internal_has_top_level_value_simple()) {
+  if(this->_internal_has_top_level_value_simple()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *top_level_value_simple_);
   }
 
   // .google.protobuf.Value top_level_value_with_struct = 25;
-  if (this->_internal_has_top_level_value_with_struct()) {
+  if(this->_internal_has_top_level_value_with_struct()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *top_level_value_with_struct_);
   }
 
   // .google.protobuf.Value top_level_value_with_list = 26;
-  if (this->_internal_has_top_level_value_with_list()) {
+  if(this->_internal_has_top_level_value_with_list()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *top_level_value_with_list_);
   }
 
   // .google.protobuf.Value top_level_value_with_empty_list = 27;
-  if (this->_internal_has_top_level_value_with_empty_list()) {
+  if(this->_internal_has_top_level_value_with_empty_list()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *top_level_value_with_empty_list_);
   }
 
   // .google.protobuf.Value top_level_value_with_list_with_empty_struct = 28;
-  if (this->_internal_has_top_level_value_with_list_with_empty_struct()) {
+  if(this->_internal_has_top_level_value_with_list_with_empty_struct()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *top_level_value_with_list_with_empty_struct_);
   }
 
   // .google.protobuf.ListValue top_level_listvalue = 29;
-  if (this->_internal_has_top_level_listvalue()) {
+  if(this->_internal_has_top_level_listvalue()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *top_level_listvalue_);
   }
 
   // .google.protobuf.ListValue top_level_empty_listvalue = 30;
-  if (this->_internal_has_top_level_empty_listvalue()) {
+  if(this->_internal_has_top_level_empty_listvalue()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *top_level_empty_listvalue_);
   }
 
   // .google.protobuf.ListValue top_level_listvalue_with_empty_struct = 31;
-  if (this->_internal_has_top_level_listvalue_with_empty_struct()) {
+  if(this->_internal_has_top_level_listvalue_with_empty_struct()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *top_level_listvalue_with_empty_struct_);
   }
 
   // .proto_util_converter.testing.RepeatedValueWrapper repeated_value = 32;
-  if (this->_internal_has_repeated_value()) {
+  if(this->_internal_has_repeated_value()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *repeated_value_);
   }
 
   // .proto_util_converter.testing.RepeatedValueWrapper repeated_value_nested_list = 33;
-  if (this->_internal_has_repeated_value_nested_list()) {
+  if(this->_internal_has_repeated_value_nested_list()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *repeated_value_nested_list_);
   }
 
   // .proto_util_converter.testing.RepeatedValueWrapper repeated_value_nested_list2 = 34;
-  if (this->_internal_has_repeated_value_nested_list2()) {
+  if(this->_internal_has_repeated_value_nested_list2()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *repeated_value_nested_list2_);
   }
 
   // .proto_util_converter.testing.RepeatedValueWrapper repeated_value_nested_list3 = 35;
-  if (this->_internal_has_repeated_value_nested_list3()) {
+  if(this->_internal_has_repeated_value_nested_list3()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *repeated_value_nested_list3_);
   }
 
   // .proto_util_converter.testing.RepeatedListValueWrapper repeated_listvalue = 36;
-  if (this->_internal_has_repeated_listvalue()) {
+  if(this->_internal_has_repeated_listvalue()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *repeated_listvalue_);
   }
 
   // .proto_util_converter.testing.MapOfStruct map_of_struct = 37;
-  if (this->_internal_has_map_of_struct()) {
+  if(this->_internal_has_map_of_struct()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *map_of_struct_);
   }
 
   // .proto_util_converter.testing.MapOfStruct map_of_struct_value = 38;
-  if (this->_internal_has_map_of_struct_value()) {
+  if(this->_internal_has_map_of_struct_value()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *map_of_struct_value_);
   }
 
   // .proto_util_converter.testing.MapOfStruct map_of_listvalue = 39;
-  if (this->_internal_has_map_of_listvalue()) {
+  if(this->_internal_has_map_of_listvalue()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *map_of_listvalue_);
@@ -2157,121 +2157,121 @@ void StructTestCases::MergeFrom(const StructTestCases& from) {
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_has_empty_value()) {
+  if(from._internal_has_empty_value()) {
     _internal_mutable_empty_value()->::proto_util_converter::testing::StructWrapper::MergeFrom(from._internal_empty_value());
   }
-  if (from._internal_has_empty_value2()) {
+  if(from._internal_has_empty_value2()) {
     _internal_mutable_empty_value2()->::proto_util_converter::testing::StructWrapper::MergeFrom(from._internal_empty_value2());
   }
-  if (from._internal_has_null_value()) {
+  if(from._internal_has_null_value()) {
     _internal_mutable_null_value()->::proto_util_converter::testing::StructWrapper::MergeFrom(from._internal_null_value());
   }
-  if (from._internal_has_simple_struct()) {
+  if(from._internal_has_simple_struct()) {
     _internal_mutable_simple_struct()->::proto_util_converter::testing::StructWrapper::MergeFrom(from._internal_simple_struct());
   }
-  if (from._internal_has_longer_struct()) {
+  if(from._internal_has_longer_struct()) {
     _internal_mutable_longer_struct()->::proto_util_converter::testing::StructWrapper::MergeFrom(from._internal_longer_struct());
   }
-  if (from._internal_has_struct_with_nested_struct()) {
+  if(from._internal_has_struct_with_nested_struct()) {
     _internal_mutable_struct_with_nested_struct()->::proto_util_converter::testing::StructWrapper::MergeFrom(from._internal_struct_with_nested_struct());
   }
-  if (from._internal_has_struct_with_nested_list()) {
+  if(from._internal_has_struct_with_nested_list()) {
     _internal_mutable_struct_with_nested_list()->::proto_util_converter::testing::StructWrapper::MergeFrom(from._internal_struct_with_nested_list());
   }
-  if (from._internal_has_struct_with_list_of_nulls()) {
+  if(from._internal_has_struct_with_list_of_nulls()) {
     _internal_mutable_struct_with_list_of_nulls()->::proto_util_converter::testing::StructWrapper::MergeFrom(from._internal_struct_with_list_of_nulls());
   }
-  if (from._internal_has_struct_with_list_of_lists()) {
+  if(from._internal_has_struct_with_list_of_lists()) {
     _internal_mutable_struct_with_list_of_lists()->::proto_util_converter::testing::StructWrapper::MergeFrom(from._internal_struct_with_list_of_lists());
   }
-  if (from._internal_has_struct_with_list_of_structs()) {
+  if(from._internal_has_struct_with_list_of_structs()) {
     _internal_mutable_struct_with_list_of_structs()->::proto_util_converter::testing::StructWrapper::MergeFrom(from._internal_struct_with_list_of_structs());
   }
-  if (from._internal_has_struct_with_empty_list()) {
+  if(from._internal_has_struct_with_empty_list()) {
     _internal_mutable_struct_with_empty_list()->::proto_util_converter::testing::StructWrapper::MergeFrom(from._internal_struct_with_empty_list());
   }
-  if (from._internal_has_struct_with_list_with_empty_struct()) {
+  if(from._internal_has_struct_with_list_with_empty_struct()) {
     _internal_mutable_struct_with_list_with_empty_struct()->::proto_util_converter::testing::StructWrapper::MergeFrom(from._internal_struct_with_list_with_empty_struct());
   }
-  if (from._internal_has_top_level_struct()) {
+  if(from._internal_has_top_level_struct()) {
     _internal_mutable_top_level_struct()->::PROTOBUF_NAMESPACE_ID::Struct::MergeFrom(from._internal_top_level_struct());
   }
-  if (from._internal_has_top_level_struct_with_empty_list()) {
+  if(from._internal_has_top_level_struct_with_empty_list()) {
     _internal_mutable_top_level_struct_with_empty_list()->::PROTOBUF_NAMESPACE_ID::Struct::MergeFrom(from._internal_top_level_struct_with_empty_list());
   }
-  if (from._internal_has_top_level_struct_with_list_with_empty_struct()) {
+  if(from._internal_has_top_level_struct_with_list_with_empty_struct()) {
     _internal_mutable_top_level_struct_with_list_with_empty_struct()->::PROTOBUF_NAMESPACE_ID::Struct::MergeFrom(from._internal_top_level_struct_with_list_with_empty_struct());
   }
-  if (from._internal_has_value_wrapper_simple()) {
+  if(from._internal_has_value_wrapper_simple()) {
     _internal_mutable_value_wrapper_simple()->::proto_util_converter::testing::ValueWrapper::MergeFrom(from._internal_value_wrapper_simple());
   }
-  if (from._internal_has_value_wrapper_with_struct()) {
+  if(from._internal_has_value_wrapper_with_struct()) {
     _internal_mutable_value_wrapper_with_struct()->::proto_util_converter::testing::ValueWrapper::MergeFrom(from._internal_value_wrapper_with_struct());
   }
-  if (from._internal_has_value_wrapper_with_list()) {
+  if(from._internal_has_value_wrapper_with_list()) {
     _internal_mutable_value_wrapper_with_list()->::proto_util_converter::testing::ValueWrapper::MergeFrom(from._internal_value_wrapper_with_list());
   }
-  if (from._internal_has_value_wrapper_with_empty_list()) {
+  if(from._internal_has_value_wrapper_with_empty_list()) {
     _internal_mutable_value_wrapper_with_empty_list()->::proto_util_converter::testing::ValueWrapper::MergeFrom(from._internal_value_wrapper_with_empty_list());
   }
-  if (from._internal_has_value_wrapper_with_list_with_empty_struct()) {
+  if(from._internal_has_value_wrapper_with_list_with_empty_struct()) {
     _internal_mutable_value_wrapper_with_list_with_empty_struct()->::proto_util_converter::testing::ValueWrapper::MergeFrom(from._internal_value_wrapper_with_list_with_empty_struct());
   }
-  if (from._internal_has_list_value_wrapper()) {
+  if(from._internal_has_list_value_wrapper()) {
     _internal_mutable_list_value_wrapper()->::proto_util_converter::testing::ListValueWrapper::MergeFrom(from._internal_list_value_wrapper());
   }
-  if (from._internal_has_list_value_wrapper_with_empty_list()) {
+  if(from._internal_has_list_value_wrapper_with_empty_list()) {
     _internal_mutable_list_value_wrapper_with_empty_list()->::proto_util_converter::testing::ListValueWrapper::MergeFrom(from._internal_list_value_wrapper_with_empty_list());
   }
-  if (from._internal_has_list_value_wrapper_with_list_with_empty_struct()) {
+  if(from._internal_has_list_value_wrapper_with_list_with_empty_struct()) {
     _internal_mutable_list_value_wrapper_with_list_with_empty_struct()->::proto_util_converter::testing::ListValueWrapper::MergeFrom(from._internal_list_value_wrapper_with_list_with_empty_struct());
   }
-  if (from._internal_has_top_level_value_simple()) {
+  if(from._internal_has_top_level_value_simple()) {
     _internal_mutable_top_level_value_simple()->::PROTOBUF_NAMESPACE_ID::Value::MergeFrom(from._internal_top_level_value_simple());
   }
-  if (from._internal_has_top_level_value_with_struct()) {
+  if(from._internal_has_top_level_value_with_struct()) {
     _internal_mutable_top_level_value_with_struct()->::PROTOBUF_NAMESPACE_ID::Value::MergeFrom(from._internal_top_level_value_with_struct());
   }
-  if (from._internal_has_top_level_value_with_list()) {
+  if(from._internal_has_top_level_value_with_list()) {
     _internal_mutable_top_level_value_with_list()->::PROTOBUF_NAMESPACE_ID::Value::MergeFrom(from._internal_top_level_value_with_list());
   }
-  if (from._internal_has_top_level_value_with_empty_list()) {
+  if(from._internal_has_top_level_value_with_empty_list()) {
     _internal_mutable_top_level_value_with_empty_list()->::PROTOBUF_NAMESPACE_ID::Value::MergeFrom(from._internal_top_level_value_with_empty_list());
   }
-  if (from._internal_has_top_level_value_with_list_with_empty_struct()) {
+  if(from._internal_has_top_level_value_with_list_with_empty_struct()) {
     _internal_mutable_top_level_value_with_list_with_empty_struct()->::PROTOBUF_NAMESPACE_ID::Value::MergeFrom(from._internal_top_level_value_with_list_with_empty_struct());
   }
-  if (from._internal_has_top_level_listvalue()) {
+  if(from._internal_has_top_level_listvalue()) {
     _internal_mutable_top_level_listvalue()->::PROTOBUF_NAMESPACE_ID::ListValue::MergeFrom(from._internal_top_level_listvalue());
   }
-  if (from._internal_has_top_level_empty_listvalue()) {
+  if(from._internal_has_top_level_empty_listvalue()) {
     _internal_mutable_top_level_empty_listvalue()->::PROTOBUF_NAMESPACE_ID::ListValue::MergeFrom(from._internal_top_level_empty_listvalue());
   }
-  if (from._internal_has_top_level_listvalue_with_empty_struct()) {
+  if(from._internal_has_top_level_listvalue_with_empty_struct()) {
     _internal_mutable_top_level_listvalue_with_empty_struct()->::PROTOBUF_NAMESPACE_ID::ListValue::MergeFrom(from._internal_top_level_listvalue_with_empty_struct());
   }
-  if (from._internal_has_repeated_value()) {
+  if(from._internal_has_repeated_value()) {
     _internal_mutable_repeated_value()->::proto_util_converter::testing::RepeatedValueWrapper::MergeFrom(from._internal_repeated_value());
   }
-  if (from._internal_has_repeated_value_nested_list()) {
+  if(from._internal_has_repeated_value_nested_list()) {
     _internal_mutable_repeated_value_nested_list()->::proto_util_converter::testing::RepeatedValueWrapper::MergeFrom(from._internal_repeated_value_nested_list());
   }
-  if (from._internal_has_repeated_value_nested_list2()) {
+  if(from._internal_has_repeated_value_nested_list2()) {
     _internal_mutable_repeated_value_nested_list2()->::proto_util_converter::testing::RepeatedValueWrapper::MergeFrom(from._internal_repeated_value_nested_list2());
   }
-  if (from._internal_has_repeated_value_nested_list3()) {
+  if(from._internal_has_repeated_value_nested_list3()) {
     _internal_mutable_repeated_value_nested_list3()->::proto_util_converter::testing::RepeatedValueWrapper::MergeFrom(from._internal_repeated_value_nested_list3());
   }
-  if (from._internal_has_repeated_listvalue()) {
+  if(from._internal_has_repeated_listvalue()) {
     _internal_mutable_repeated_listvalue()->::proto_util_converter::testing::RepeatedListValueWrapper::MergeFrom(from._internal_repeated_listvalue());
   }
-  if (from._internal_has_map_of_struct()) {
+  if(from._internal_has_map_of_struct()) {
     _internal_mutable_map_of_struct()->::proto_util_converter::testing::MapOfStruct::MergeFrom(from._internal_map_of_struct());
   }
-  if (from._internal_has_map_of_struct_value()) {
+  if(from._internal_has_map_of_struct_value()) {
     _internal_mutable_map_of_struct_value()->::proto_util_converter::testing::MapOfStruct::MergeFrom(from._internal_map_of_struct_value());
   }
-  if (from._internal_has_map_of_listvalue()) {
+  if(from._internal_has_map_of_listvalue()) {
     _internal_mutable_map_of_listvalue()->::proto_util_converter::testing::MapOfStruct::MergeFrom(from._internal_map_of_listvalue());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -2279,7 +2279,7 @@ void StructTestCases::MergeFrom(const StructTestCases& from) {
 
 void StructTestCases::CopyFrom(const StructTestCases& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:proto_util_converter.testing.StructTestCases)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -2317,7 +2317,7 @@ StructWrapper::_Internal::struct_(const StructWrapper* msg) {
   return *msg->struct__;
 }
 void StructWrapper::clear_struct_() {
-  if (GetArenaForAllocation() == nullptr && struct__ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && struct__ != nullptr) {
     delete struct__;
   }
   struct__ = nullptr;
@@ -2334,7 +2334,7 @@ StructWrapper::StructWrapper(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 StructWrapper::StructWrapper(const StructWrapper& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if (from._internal_has_struct_()) {
+  if(from._internal_has_struct_()) {
     struct__ = new ::PROTOBUF_NAMESPACE_ID::Struct(*from.struct__);
   } else {
     struct__ = nullptr;
@@ -2355,7 +2355,7 @@ StructWrapper::~StructWrapper() {
 
 inline void StructWrapper::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  if (this != internal_default_instance()) delete struct__;
+  if(this != internal_default_instance()) delete struct__;
 }
 
 void StructWrapper::ArenaDtor(void* object) {
@@ -2374,7 +2374,7 @@ void StructWrapper::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  if (GetArenaForAllocation() == nullptr && struct__ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && struct__ != nullptr) {
     delete struct__;
   }
   struct__ = nullptr;
@@ -2386,10 +2386,10 @@ const char* StructWrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // .google.protobuf.Struct struct = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr = ctx->ParseMessage(_internal_mutable_struct_(), ptr);
           CHK_(ptr);
         } else
@@ -2399,7 +2399,7 @@ const char* StructWrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -2425,14 +2425,14 @@ uint8_t* StructWrapper::_InternalSerialize(
   (void) cached_has_bits;
 
   // .google.protobuf.Struct struct = 1;
-  if (this->_internal_has_struct_()) {
+  if(this->_internal_has_struct_()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
         1, _Internal::struct_(this), target, stream);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -2449,7 +2449,7 @@ size_t StructWrapper::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // .google.protobuf.Struct struct = 1;
-  if (this->_internal_has_struct_()) {
+  if(this->_internal_has_struct_()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *struct__);
@@ -2477,7 +2477,7 @@ void StructWrapper::MergeFrom(const StructWrapper& from) {
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_has_struct_()) {
+  if(from._internal_has_struct_()) {
     _internal_mutable_struct_()->::PROTOBUF_NAMESPACE_ID::Struct::MergeFrom(from._internal_struct_());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -2485,7 +2485,7 @@ void StructWrapper::MergeFrom(const StructWrapper& from) {
 
 void StructWrapper::CopyFrom(const StructWrapper& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:proto_util_converter.testing.StructWrapper)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -2518,7 +2518,7 @@ ValueWrapper::_Internal::value(const ValueWrapper* msg) {
   return *msg->value_;
 }
 void ValueWrapper::clear_value() {
-  if (GetArenaForAllocation() == nullptr && value_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && value_ != nullptr) {
     delete value_;
   }
   value_ = nullptr;
@@ -2535,7 +2535,7 @@ ValueWrapper::ValueWrapper(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 ValueWrapper::ValueWrapper(const ValueWrapper& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if (from._internal_has_value()) {
+  if(from._internal_has_value()) {
     value_ = new ::PROTOBUF_NAMESPACE_ID::Value(*from.value_);
   } else {
     value_ = nullptr;
@@ -2556,7 +2556,7 @@ ValueWrapper::~ValueWrapper() {
 
 inline void ValueWrapper::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  if (this != internal_default_instance()) delete value_;
+  if(this != internal_default_instance()) delete value_;
 }
 
 void ValueWrapper::ArenaDtor(void* object) {
@@ -2575,7 +2575,7 @@ void ValueWrapper::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  if (GetArenaForAllocation() == nullptr && value_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && value_ != nullptr) {
     delete value_;
   }
   value_ = nullptr;
@@ -2587,10 +2587,10 @@ const char* ValueWrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // .google.protobuf.Value value = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr = ctx->ParseMessage(_internal_mutable_value(), ptr);
           CHK_(ptr);
         } else
@@ -2600,7 +2600,7 @@ const char* ValueWrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -2626,14 +2626,14 @@ uint8_t* ValueWrapper::_InternalSerialize(
   (void) cached_has_bits;
 
   // .google.protobuf.Value value = 1;
-  if (this->_internal_has_value()) {
+  if(this->_internal_has_value()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
         1, _Internal::value(this), target, stream);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -2650,7 +2650,7 @@ size_t ValueWrapper::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // .google.protobuf.Value value = 1;
-  if (this->_internal_has_value()) {
+  if(this->_internal_has_value()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *value_);
@@ -2678,7 +2678,7 @@ void ValueWrapper::MergeFrom(const ValueWrapper& from) {
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_has_value()) {
+  if(from._internal_has_value()) {
     _internal_mutable_value()->::PROTOBUF_NAMESPACE_ID::Value::MergeFrom(from._internal_value());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -2686,7 +2686,7 @@ void ValueWrapper::MergeFrom(const ValueWrapper& from) {
 
 void ValueWrapper::CopyFrom(const ValueWrapper& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:proto_util_converter.testing.ValueWrapper)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -2772,10 +2772,10 @@ const char* RepeatedValueWrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAM
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // repeated .google.protobuf.Value values = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -2790,7 +2790,7 @@ const char* RepeatedValueWrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAM
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -2823,7 +2823,7 @@ uint8_t* RepeatedValueWrapper::_InternalSerialize(
       InternalWriteMessage(1, this->_internal_values(i), target, stream);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -2841,9 +2841,8 @@ size_t RepeatedValueWrapper::ByteSizeLong() const {
 
   // repeated .google.protobuf.Value values = 1;
   total_size += 1UL * this->_internal_values_size();
-  for (const auto& msg : this->values_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  for(const auto& msg : this->values_) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -2874,7 +2873,7 @@ void RepeatedValueWrapper::MergeFrom(const RepeatedValueWrapper& from) {
 
 void RepeatedValueWrapper::CopyFrom(const RepeatedValueWrapper& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:proto_util_converter.testing.RepeatedValueWrapper)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -2907,7 +2906,7 @@ ListValueWrapper::_Internal::shopping_list(const ListValueWrapper* msg) {
   return *msg->shopping_list_;
 }
 void ListValueWrapper::clear_shopping_list() {
-  if (GetArenaForAllocation() == nullptr && shopping_list_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && shopping_list_ != nullptr) {
     delete shopping_list_;
   }
   shopping_list_ = nullptr;
@@ -2924,7 +2923,7 @@ ListValueWrapper::ListValueWrapper(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 ListValueWrapper::ListValueWrapper(const ListValueWrapper& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if (from._internal_has_shopping_list()) {
+  if(from._internal_has_shopping_list()) {
     shopping_list_ = new ::PROTOBUF_NAMESPACE_ID::ListValue(*from.shopping_list_);
   } else {
     shopping_list_ = nullptr;
@@ -2945,7 +2944,7 @@ ListValueWrapper::~ListValueWrapper() {
 
 inline void ListValueWrapper::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  if (this != internal_default_instance()) delete shopping_list_;
+  if(this != internal_default_instance()) delete shopping_list_;
 }
 
 void ListValueWrapper::ArenaDtor(void* object) {
@@ -2964,7 +2963,7 @@ void ListValueWrapper::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  if (GetArenaForAllocation() == nullptr && shopping_list_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && shopping_list_ != nullptr) {
     delete shopping_list_;
   }
   shopping_list_ = nullptr;
@@ -2976,10 +2975,10 @@ const char* ListValueWrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // .google.protobuf.ListValue shopping_list = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr = ctx->ParseMessage(_internal_mutable_shopping_list(), ptr);
           CHK_(ptr);
         } else
@@ -2989,7 +2988,7 @@ const char* ListValueWrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -3015,14 +3014,14 @@ uint8_t* ListValueWrapper::_InternalSerialize(
   (void) cached_has_bits;
 
   // .google.protobuf.ListValue shopping_list = 1;
-  if (this->_internal_has_shopping_list()) {
+  if(this->_internal_has_shopping_list()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
         1, _Internal::shopping_list(this), target, stream);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -3039,7 +3038,7 @@ size_t ListValueWrapper::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // .google.protobuf.ListValue shopping_list = 1;
-  if (this->_internal_has_shopping_list()) {
+  if(this->_internal_has_shopping_list()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *shopping_list_);
@@ -3067,7 +3066,7 @@ void ListValueWrapper::MergeFrom(const ListValueWrapper& from) {
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_has_shopping_list()) {
+  if(from._internal_has_shopping_list()) {
     _internal_mutable_shopping_list()->::PROTOBUF_NAMESPACE_ID::ListValue::MergeFrom(from._internal_shopping_list());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -3075,7 +3074,7 @@ void ListValueWrapper::MergeFrom(const ListValueWrapper& from) {
 
 void ListValueWrapper::CopyFrom(const ListValueWrapper& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:proto_util_converter.testing.ListValueWrapper)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -3161,10 +3160,10 @@ const char* RepeatedListValueWrapper::_InternalParse(const char* ptr, ::PROTOBUF
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // repeated .google.protobuf.ListValue dimensions = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -3179,7 +3178,7 @@ const char* RepeatedListValueWrapper::_InternalParse(const char* ptr, ::PROTOBUF
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -3212,7 +3211,7 @@ uint8_t* RepeatedListValueWrapper::_InternalSerialize(
       InternalWriteMessage(1, this->_internal_dimensions(i), target, stream);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -3230,9 +3229,8 @@ size_t RepeatedListValueWrapper::ByteSizeLong() const {
 
   // repeated .google.protobuf.ListValue dimensions = 1;
   total_size += 1UL * this->_internal_dimensions_size();
-  for (const auto& msg : this->dimensions_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  for(const auto& msg : this->dimensions_) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -3263,7 +3261,7 @@ void RepeatedListValueWrapper::MergeFrom(const RepeatedListValueWrapper& from) {
 
 void RepeatedListValueWrapper::CopyFrom(const RepeatedListValueWrapper& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:proto_util_converter.testing.RepeatedListValueWrapper)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -3409,10 +3407,10 @@ const char* MapOfStruct::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // map<string, .google.protobuf.Struct> struct_map = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -3425,7 +3423,7 @@ const char* MapOfStruct::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
         continue;
       // map<string, .google.protobuf.Value> value_map = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -3438,7 +3436,7 @@ const char* MapOfStruct::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
         continue;
       // map<string, .google.protobuf.ListValue> listvalue_map = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -3453,7 +3451,7 @@ const char* MapOfStruct::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -3479,9 +3477,8 @@ uint8_t* MapOfStruct::_InternalSerialize(
   (void) cached_has_bits;
 
   // map<string, .google.protobuf.Struct> struct_map = 1;
-  if (!this->_internal_struct_map().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Struct >::const_pointer
-        ConstPtr;
+  if(!this->_internal_struct_map().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Struct >::const_pointer ConstPtr;
     typedef ConstPtr SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
     struct Utf8Check {
@@ -3494,13 +3491,11 @@ uint8_t* MapOfStruct::_InternalSerialize(
       }
     };
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_struct_map().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_struct_map().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_struct_map().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_struct_map().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Struct >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Struct >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Struct >::const_iterator
           it = this->_internal_struct_map().begin();
           it != this->_internal_struct_map().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -3521,9 +3516,8 @@ uint8_t* MapOfStruct::_InternalSerialize(
   }
 
   // map<string, .google.protobuf.Value> value_map = 2;
-  if (!this->_internal_value_map().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value >::const_pointer
-        ConstPtr;
+  if(!this->_internal_value_map().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value >::const_pointer ConstPtr;
     typedef ConstPtr SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
     struct Utf8Check {
@@ -3536,13 +3530,11 @@ uint8_t* MapOfStruct::_InternalSerialize(
       }
     };
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_value_map().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_value_map().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_value_map().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_value_map().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value >::const_iterator
           it = this->_internal_value_map().begin();
           it != this->_internal_value_map().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -3563,9 +3555,8 @@ uint8_t* MapOfStruct::_InternalSerialize(
   }
 
   // map<string, .google.protobuf.ListValue> listvalue_map = 3;
-  if (!this->_internal_listvalue_map().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::ListValue >::const_pointer
-        ConstPtr;
+  if(!this->_internal_listvalue_map().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::ListValue >::const_pointer ConstPtr;
     typedef ConstPtr SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
     struct Utf8Check {
@@ -3578,13 +3569,11 @@ uint8_t* MapOfStruct::_InternalSerialize(
       }
     };
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_listvalue_map().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_listvalue_map().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_listvalue_map().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_listvalue_map().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::ListValue >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::ListValue >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::ListValue >::const_iterator
           it = this->_internal_listvalue_map().begin();
           it != this->_internal_listvalue_map().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -3604,7 +3593,7 @@ uint8_t* MapOfStruct::_InternalSerialize(
     }
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -3623,7 +3612,7 @@ size_t MapOfStruct::ByteSizeLong() const {
   // map<string, .google.protobuf.Struct> struct_map = 1;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_struct_map_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Struct >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Struct >::const_iterator
       it = this->_internal_struct_map().begin();
       it != this->_internal_struct_map().end(); ++it) {
     total_size += MapOfStruct_StructMapEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -3632,7 +3621,7 @@ size_t MapOfStruct::ByteSizeLong() const {
   // map<string, .google.protobuf.Value> value_map = 2;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_value_map_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value >::const_iterator
       it = this->_internal_value_map().begin();
       it != this->_internal_value_map().end(); ++it) {
     total_size += MapOfStruct_ValueMapEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -3641,7 +3630,7 @@ size_t MapOfStruct::ByteSizeLong() const {
   // map<string, .google.protobuf.ListValue> listvalue_map = 3;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_listvalue_map_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::ListValue >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::ListValue >::const_iterator
       it = this->_internal_listvalue_map().begin();
       it != this->_internal_listvalue_map().end(); ++it) {
     total_size += MapOfStruct_ListvalueMapEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -3677,7 +3666,7 @@ void MapOfStruct::MergeFrom(const MapOfStruct& from) {
 
 void MapOfStruct::CopyFrom(const MapOfStruct& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:proto_util_converter.testing.MapOfStruct)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -3722,7 +3711,7 @@ Dummy::Dummy(const Dummy& from)
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     text_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (!from._internal_text().empty()) {
+  if(!from._internal_text().empty()) {
     text_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_text(), 
       GetArenaForAllocation());
   }
@@ -3773,10 +3762,10 @@ const char* Dummy::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inte
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // string text = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           auto str = _internal_mutable_text();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "proto_util_converter.testing.Dummy.text"));
@@ -3788,7 +3777,7 @@ const char* Dummy::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inte
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -3814,7 +3803,7 @@ uint8_t* Dummy::_InternalSerialize(
   (void) cached_has_bits;
 
   // string text = 1;
-  if (!this->_internal_text().empty()) {
+  if(!this->_internal_text().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_text().data(), static_cast<int>(this->_internal_text().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
@@ -3823,7 +3812,7 @@ uint8_t* Dummy::_InternalSerialize(
         1, this->_internal_text(), target);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -3840,7 +3829,7 @@ size_t Dummy::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // string text = 1;
-  if (!this->_internal_text().empty()) {
+  if(!this->_internal_text().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_text());
@@ -3868,7 +3857,7 @@ void Dummy::MergeFrom(const Dummy& from) {
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (!from._internal_text().empty()) {
+  if(!from._internal_text().empty()) {
     _internal_set_text(from._internal_text());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -3876,7 +3865,7 @@ void Dummy::MergeFrom(const Dummy& from) {
 
 void Dummy::CopyFrom(const Dummy& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:proto_util_converter.testing.Dummy)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -3915,7 +3904,7 @@ StructType::_Internal::object(const StructType* msg) {
   return *msg->object_;
 }
 void StructType::clear_object() {
-  if (GetArenaForAllocation() == nullptr && object_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && object_ != nullptr) {
     delete object_;
   }
   object_ = nullptr;
@@ -3932,7 +3921,7 @@ StructType::StructType(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 StructType::StructType(const StructType& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if (from._internal_has_object()) {
+  if(from._internal_has_object()) {
     object_ = new ::PROTOBUF_NAMESPACE_ID::Struct(*from.object_);
   } else {
     object_ = nullptr;
@@ -3953,7 +3942,7 @@ StructType::~StructType() {
 
 inline void StructType::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  if (this != internal_default_instance()) delete object_;
+  if(this != internal_default_instance()) delete object_;
 }
 
 void StructType::ArenaDtor(void* object) {
@@ -3972,7 +3961,7 @@ void StructType::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  if (GetArenaForAllocation() == nullptr && object_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && object_ != nullptr) {
     delete object_;
   }
   object_ = nullptr;
@@ -3984,10 +3973,10 @@ const char* StructType::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID:
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // .google.protobuf.Struct object = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr = ctx->ParseMessage(_internal_mutable_object(), ptr);
           CHK_(ptr);
         } else
@@ -3997,7 +3986,7 @@ const char* StructType::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID:
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -4023,14 +4012,14 @@ uint8_t* StructType::_InternalSerialize(
   (void) cached_has_bits;
 
   // .google.protobuf.Struct object = 1;
-  if (this->_internal_has_object()) {
+  if(this->_internal_has_object()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
         1, _Internal::object(this), target, stream);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -4047,7 +4036,7 @@ size_t StructType::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // .google.protobuf.Struct object = 1;
-  if (this->_internal_has_object()) {
+  if(this->_internal_has_object()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *object_);
@@ -4075,7 +4064,7 @@ void StructType::MergeFrom(const StructType& from) {
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_has_object()) {
+  if(from._internal_has_object()) {
     _internal_mutable_object()->::PROTOBUF_NAMESPACE_ID::Struct::MergeFrom(from._internal_object());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -4083,7 +4072,7 @@ void StructType::MergeFrom(const StructType& from) {
 
 void StructType::CopyFrom(const StructType& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:proto_util_converter.testing.StructType)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }

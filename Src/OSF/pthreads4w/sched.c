@@ -41,7 +41,7 @@ int sched_setscheduler(pid_t pid, int policy)
 	if(pid) {
 		int selfPid = (int)GetCurrentProcessId();
 		if(pid != selfPid) {
-			HANDLE h = OpenProcess(PROCESS_SET_INFORMATION,  __PTW32_FALSE, (DWORD)pid);
+			HANDLE h = OpenProcess(PROCESS_SET_INFORMATION,  FALSE, (DWORD)pid);
 			if(!h) {
 				__PTW32_SET_ERRNO((GetLastError() == (0xFF & ERROR_ACCESS_DENIED)) ? EPERM : ESRCH);
 				return -1;
@@ -70,7 +70,7 @@ int sched_getscheduler(pid_t pid)
 	if(pid) {
 		int selfPid = (int)GetCurrentProcessId();
 		if(pid != selfPid) {
-			HANDLE h = OpenProcess(PROCESS_QUERY_INFORMATION,  __PTW32_FALSE, (DWORD)pid);
+			HANDLE h = OpenProcess(PROCESS_QUERY_INFORMATION,  FALSE, (DWORD)pid);
 			if(!h) {
 				__PTW32_SET_ERRNO(((0xFF & ERROR_ACCESS_DENIED) == GetLastError()) ? EPERM : ESRCH);
 				return -1;
@@ -143,7 +143,7 @@ int sched_setaffinity(pid_t pid, size_t cpusetsize, cpu_set_t * set)
 		if(0 == targetPid) {
 			targetPid = (int)GetCurrentProcessId();
 		}
-		h = OpenProcess(PROCESS_QUERY_INFORMATION|PROCESS_SET_INFORMATION,  __PTW32_FALSE, (DWORD)targetPid);
+		h = OpenProcess(PROCESS_QUERY_INFORMATION|PROCESS_SET_INFORMATION,  FALSE, (DWORD)targetPid);
 		if(!h) {
 			result = (((0xFF & ERROR_ACCESS_DENIED) == GetLastError()) ? EPERM : ESRCH);
 		}
@@ -233,7 +233,7 @@ int sched_getaffinity(pid_t pid, size_t cpusetsize, cpu_set_t * set)
 		if(0 == targetPid) {
 			targetPid = (int)GetCurrentProcessId();
 		}
-		h = OpenProcess(PROCESS_QUERY_INFORMATION,  __PTW32_FALSE, (DWORD)targetPid);
+		h = OpenProcess(PROCESS_QUERY_INFORMATION,  FALSE, (DWORD)targetPid);
 		if(!h) {
 			result = (((0xFF & ERROR_ACCESS_DENIED) == GetLastError()) ? EPERM : ESRCH);
 		}

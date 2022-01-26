@@ -95,13 +95,13 @@ static uint _hb_buffer_serialize_glyphs_json(hb_buffer_t * buffer, uint start, u
 	for(uint i = start; i < end; i++) {
 		char b[1024];
 		char * p = b;
-		/* In the following code, we know b is large enough that no overflow can happen. */
-
-#define APPEND(s) HB_STMT_START { strcpy(p, s); p += strlen(s); } HB_STMT_END
+		// In the following code, we know b is large enough that no overflow can happen. 
+// @sobolev #define APPEND(s) HB_STMT_START { strcpy(p, s); p += strlen(s); } HB_STMT_END
 		if(i)
 			*p++ = ',';
 		*p++ = '{';
-		APPEND("\"g\":");
+		// @sobolev APPEND("\"g\":");
+		p = stpcpy(p, "\"g\":"); // @sobolev 
 		if(!(flags & HB_BUFFER_SERIALIZE_FLAG_NO_GLYPH_NAMES)) {
 			char g[128];
 			hb_font_glyph_to_string(font, info[i].codepoint, g, sizeof(g));
@@ -115,17 +115,14 @@ static uint _hb_buffer_serialize_glyphs_json(hb_buffer_t * buffer, uint start, u
 		}
 		else
 			p += hb_max(0, snprintf(p, ARRAY_LENGTH(b) - (p - b), "%u", info[i].codepoint));
-
 		if(!(flags & HB_BUFFER_SERIALIZE_FLAG_NO_CLUSTERS)) {
 			p += hb_max(0, snprintf(p, ARRAY_LENGTH(b) - (p - b), ",\"cl\":%u", info[i].cluster));
 		}
 
 		if(!(flags & HB_BUFFER_SERIALIZE_FLAG_NO_POSITIONS)) {
-			p += hb_max(0, snprintf(p, ARRAY_LENGTH(b) - (p - b), ",\"dx\":%d,\"dy\":%d",
-				x+pos[i].x_offset, y+pos[i].y_offset));
+			p += hb_max(0, snprintf(p, ARRAY_LENGTH(b) - (p - b), ",\"dx\":%d,\"dy\":%d", x+pos[i].x_offset, y+pos[i].y_offset));
 			if(!(flags & HB_BUFFER_SERIALIZE_FLAG_NO_ADVANCES))
-				p += hb_max(0, snprintf(p, ARRAY_LENGTH(b) - (p - b), ",\"ax\":%d,\"ay\":%d",
-					pos[i].x_advance, pos[i].y_advance));
+				p += hb_max(0, snprintf(p, ARRAY_LENGTH(b) - (p - b), ",\"ax\":%d,\"ay\":%d", pos[i].x_advance, pos[i].y_advance));
 		}
 
 		if(flags & HB_BUFFER_SERIALIZE_FLAG_GLYPH_FLAGS) {

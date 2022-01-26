@@ -675,8 +675,8 @@ void RegionTest::TestGetPreferredValues() {
 			for(int i = 1; data[i]; i++) {
 				bool found = FALSE;
 				preferredValues->reset(status);
-				while(const char * check = preferredValues->next(NULL, status) ) {
-					if(!uprv_strcmp(check, data[i]) ) {
+				while(const char * check = preferredValues->next(NULL, status)) {
+					if(!uprv_strcmp(check, data[i])) {
 						found = TRUE;
 						break;
 					}

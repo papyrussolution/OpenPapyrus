@@ -398,7 +398,7 @@ static bool isSpecialTypeRgKeyValue(const char * val) {
 	const char * p = val;
 	while(*p) {
 		if((subtagLen < 2 && uprv_isASCIILetter(*p)) ||
-		    (subtagLen >= 2 && (*p == 'Z' || *p == 'z')) ) {
+		    (subtagLen >= 2 && (*p == 'Z' || *p == 'z'))) {
 			subtagLen++;
 		}
 		else {

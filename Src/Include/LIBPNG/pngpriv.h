@@ -874,49 +874,42 @@ extern "C" {
 
 /* Zlib support */
 #define PNG_UNEXPECTED_ZLIB_RETURN (-7)
-PNG_INTERNAL_FUNCTION(void, png_zstream_error, (png_structrp png_ptr, int ret), PNG_EMPTY);
+void png_zstream_error(png_structrp png_ptr, int ret);
 /* Used by the zlib handling functions to ensure that z_stream::msg is always
  * set before they return.
  */
 
 #ifdef PNG_WRITE_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_free_buffer_list, (png_structrp png_ptr, png_compression_bufferp *list), PNG_EMPTY);
+void png_free_buffer_list(png_structrp png_ptr, png_compression_bufferp *list);
 /* Free the buffer list used by the compressed write code. */
 #endif
 
-#if defined(PNG_FLOATING_POINT_SUPPORTED) && \
-	!defined(PNG_FIXED_POINT_MACRO_SUPPORTED) && \
-	(defined(PNG_gAMA_SUPPORTED) || defined(PNG_cHRM_SUPPORTED) || \
-	defined(PNG_sCAL_SUPPORTED) || defined(PNG_READ_BACKGROUND_SUPPORTED) || \
-	defined(PNG_READ_RGB_TO_GRAY_SUPPORTED)) || \
-	(defined(PNG_sCAL_SUPPORTED) &&	\
-	defined(PNG_FLOATING_ARITHMETIC_SUPPORTED))
-PNG_INTERNAL_FUNCTION(png_fixed_point, png_fixed, (png_const_structrp png_ptr,
-	    double fp, const char * text), PNG_EMPTY);
+#if defined(PNG_FLOATING_POINT_SUPPORTED) && !defined(PNG_FIXED_POINT_MACRO_SUPPORTED) && \
+	(defined(PNG_gAMA_SUPPORTED) || defined(PNG_cHRM_SUPPORTED) || defined(PNG_sCAL_SUPPORTED) || defined(PNG_READ_BACKGROUND_SUPPORTED) || \
+	defined(PNG_READ_RGB_TO_GRAY_SUPPORTED)) || (defined(PNG_sCAL_SUPPORTED) &&	defined(PNG_FLOATING_ARITHMETIC_SUPPORTED))
+	png_fixed_point png_fixed(png_const_structrp png_ptr, double fp, const char * text);
 #endif
 
 /* Check the user version string for compatibility, returns false if the version
  * numbers aren't compatible.
  */
-PNG_INTERNAL_FUNCTION(int, png_user_version_check, (png_structrp png_ptr,
-	    const char * user_png_ver), PNG_EMPTY);
+int png_user_version_check(png_structrp png_ptr, const char * user_png_ver);
 
 /* Internal base allocator - no messages, NULL on failure to allocate.  This
  * does, however, call the application provided allocator and that could call
  * png_error (although that would be a bug in the application implementation.)
  */
-PNG_INTERNAL_FUNCTION(void *, png_malloc_base, (png_const_structrp png_ptr, png_alloc_size_t size), PNG_ALLOCATED);
+void * png_malloc_base(png_const_structrp png_ptr, png_alloc_size_t size)/*PNG_ALLOCATED*/;
 
 #if defined(PNG_TEXT_SUPPORTED) || defined(PNG_sPLT_SUPPORTED) || defined(PNG_STORE_UNKNOWN_CHUNKS_SUPPORTED)
 // Internal array allocator, outputs no error or warning messages on failure, just returns NULL.
-PNG_INTERNAL_FUNCTION(void *, png_malloc_array, (png_const_structrp png_ptr, int nelements, size_t element_size), PNG_ALLOCATED);
+void * png_malloc_array(png_const_structrp png_ptr, int nelements, size_t element_size)/*PNG_ALLOCATED*/;
 
 /* The same but an existing array is extended by add_elements.  This function
  * also memsets the new elements to 0 and copies the old elements.  The old
  * array is not freed or altered.
  */
-PNG_INTERNAL_FUNCTION(void *, png_realloc_array, (png_const_structrp png_ptr,
-	const void * array, int old_elements, int add_elements, size_t element_size), PNG_ALLOCATED);
+void * png_realloc_array(png_const_structrp png_ptr, const void * array, int old_elements, int add_elements, size_t element_size)/*PNG_ALLOCATED*/;
 #endif /* text, sPLT or unknown chunks */
 
 /* Magic to create a struct when there is no struct to call the user supplied
@@ -925,34 +918,31 @@ PNG_INTERNAL_FUNCTION(void *, png_realloc_array, (png_const_structrp png_ptr,
  * restriction so libpng has to assume that the 'free' handler, at least, might
  * call png_error.
  */
-PNG_INTERNAL_FUNCTION(png_structp, png_create_png_struct, (const char * user_png_ver, void * error_ptr, png_error_ptr error_fn,
-	png_error_ptr warn_fn, void * mem_ptr, png_malloc_ptr malloc_fn, png_free_ptr free_fn), PNG_ALLOCATED);
+png_structp png_create_png_struct(const char * user_png_ver, void * error_ptr, png_error_ptr error_fn, png_error_ptr warn_fn, void * mem_ptr, png_malloc_ptr malloc_fn, png_free_ptr free_fn)/*PNG_ALLOCATED*/;
 /* Free memory from internal libpng struct */
-PNG_INTERNAL_FUNCTION(void, png_destroy_png_struct, (png_structrp png_ptr), PNG_EMPTY);
+void png_destroy_png_struct(png_structrp png_ptr);
 /* Free an allocated jmp_buf (always succeeds) */
-PNG_INTERNAL_FUNCTION(void, png_free_jmpbuf, (png_structrp png_ptr), PNG_EMPTY);
+void png_free_jmpbuf(png_structrp png_ptr);
 /* Function to allocate memory for zlib.  PNGAPI is disallowed. */
-PNG_INTERNAL_FUNCTION(voidpf, png_zalloc, (void * png_ptr, uInt items, uInt size), PNG_ALLOCATED);
+voidpf png_zalloc(void * png_ptr, uInt items, uInt size)/*PNG_ALLOCATED*/;
 /* Function to free memory for zlib.  PNGAPI is disallowed. */
-PNG_INTERNAL_FUNCTION(void, png_zfree, (void * png_ptr, void * ptr), PNG_EMPTY);
+void png_zfree(void * png_ptr, void * ptr);
 
 /* Next four functions are used internally as callbacks.  PNGCBAPI is required
  * but not PNG_EXPORT.  PNGAPI added at libpng version 1.2.3, changed to
  * PNGCBAPI at 1.5.0
  */
 
-PNG_INTERNAL_FUNCTION(void PNGCBAPI, png_default_read_data, (png_structp png_ptr, png_bytep data, size_t length), PNG_EMPTY);
+void PNGCBAPI png_default_read_data(png_structp png_ptr, png_bytep data, size_t length);
 #ifdef PNG_PROGRESSIVE_READ_SUPPORTED
-PNG_INTERNAL_FUNCTION(void PNGCBAPI, png_push_fill_buffer, (png_structp png_ptr, png_bytep buffer, size_t length), PNG_EMPTY);
+	void PNGCBAPI png_push_fill_buffer(png_structp png_ptr, png_bytep buffer, size_t length);
 #endif
-PNG_INTERNAL_FUNCTION(void PNGCBAPI, png_default_write_data, (png_structp png_ptr, png_bytep data, size_t length), PNG_EMPTY);
-
+void PNGCBAPI png_default_write_data(png_structp png_ptr, png_bytep data, size_t length);
 #ifdef PNG_WRITE_FLUSH_SUPPORTED
 #ifdef PNG_STDIO_SUPPORTED
-PNG_INTERNAL_FUNCTION(void PNGCBAPI, png_default_flush, (png_structp png_ptr), PNG_EMPTY);
+	void PNGCBAPI png_default_flush(png_structp png_ptr);
 #endif
 #endif
-
 /* Reset the CRC variable */
 PNG_INTERNAL_FUNCTION(void, png_reset_crc, (png_structrp png_ptr), PNG_EMPTY);
 /* Write the "data" buffer to whatever output you are using */
@@ -977,7 +967,7 @@ PNG_INTERNAL_FUNCTION(int, png_crc_error, (png_structrp png_ptr), PNG_EMPTY);
 PNG_INTERNAL_FUNCTION(void, png_calculate_crc, (png_structrp png_ptr, png_const_bytep ptr, size_t length), PNG_EMPTY);
 
 #ifdef PNG_WRITE_FLUSH_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_flush, (png_structrp png_ptr), PNG_EMPTY);
+	void png_flush(png_structrp png_ptr);
 #endif
 
 /* Write various chunks */
@@ -985,79 +975,74 @@ PNG_INTERNAL_FUNCTION(void, png_flush, (png_structrp png_ptr), PNG_EMPTY);
 /* Write the IHDR chunk, and update the png_struct with the necessary
  * information.
  */
-PNG_INTERNAL_FUNCTION(void, png_write_IHDR, (png_structrp png_ptr, uint32 width, uint32 height, int bit_depth, int color_type, int compression_method, int filter_method, int interlace_method), PNG_EMPTY);
-PNG_INTERNAL_FUNCTION(void, png_write_PLTE, (png_structrp png_ptr, png_const_colorp palette, uint32 num_pal), PNG_EMPTY);
-PNG_INTERNAL_FUNCTION(void, png_compress_IDAT, (png_structrp png_ptr, png_const_bytep row_data, png_alloc_size_t row_data_length, int flush), PNG_EMPTY);
-PNG_INTERNAL_FUNCTION(void, png_write_IEND, (png_structrp png_ptr), PNG_EMPTY);
+void png_write_IHDR(png_structrp png_ptr, uint32 width, uint32 height, int bit_depth, int color_type, int compression_method, int filter_method, int interlace_method);
+void png_write_PLTE(png_structrp png_ptr, png_const_colorp palette, uint32 num_pal);
+void png_compress_IDAT(png_structrp png_ptr, png_const_bytep row_data, png_alloc_size_t row_data_length, int flush);
+void png_write_IEND(png_structrp png_ptr);
 #ifdef PNG_WRITE_gAMA_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_write_gAMA_fixed, (png_structrp png_ptr, png_fixed_point file_gamma), PNG_EMPTY);
+	void png_write_gAMA_fixed(png_structrp png_ptr, png_fixed_point file_gamma);
 #endif
 #ifdef PNG_WRITE_sBIT_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_write_sBIT, (png_structrp png_ptr, png_const_color_8p sbit, int color_type), PNG_EMPTY);
+	void png_write_sBIT(png_structrp png_ptr, png_const_color_8p sbit, int color_type);
 #endif
 #ifdef PNG_WRITE_cHRM_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_write_cHRM_fixed, (png_structrp png_ptr, const png_xy *xy), PNG_EMPTY);
-/* The xy value must have been previously validated */
+	void png_write_cHRM_fixed(png_structrp png_ptr, const png_xy *xy);
+	/* The xy value must have been previously validated */
 #endif
 #ifdef PNG_WRITE_sRGB_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_write_sRGB, (png_structrp png_ptr, int intent), PNG_EMPTY);
+	void png_write_sRGB(png_structrp png_ptr, int intent);
 #endif
 
 #ifdef PNG_WRITE_iCCP_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_write_iCCP, (png_structrp png_ptr,
-	    const char * name, png_const_bytep profile), PNG_EMPTY);
-/* The profile must have been previously validated for correctness, the
- * length comes from the first four bytes.  Only the base, deflate,
- * compression is supported.
- */
+	void png_write_iCCP(png_structrp png_ptr, const char * name, png_const_bytep profile);
+	// The profile must have been previously validated for correctness, the
+	// length comes from the first four bytes.  Only the base, deflate, compression is supported.
 #endif
 
 #ifdef PNG_WRITE_sPLT_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_write_sPLT, (png_structrp png_ptr, png_const_sPLT_tp palette), PNG_EMPTY);
+void png_write_sPLT(png_structrp png_ptr, png_const_sPLT_tp palette);
 #endif
 #ifdef PNG_WRITE_tRNS_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_write_tRNS, (png_structrp png_ptr, png_const_bytep trans, png_const_color_16p values, int number, int color_type), PNG_EMPTY);
+void png_write_tRNS(png_structrp png_ptr, png_const_bytep trans, png_const_color_16p values, int number, int color_type);
 #endif
 #ifdef PNG_WRITE_bKGD_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_write_bKGD, (png_structrp png_ptr, png_const_color_16p values, int color_type), PNG_EMPTY);
+void png_write_bKGD(png_structrp png_ptr, png_const_color_16p values, int color_type);
 #endif
 #ifdef PNG_WRITE_hIST_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_write_hIST, (png_structrp png_ptr, png_const_uint_16p hist, int num_hist), PNG_EMPTY);
+void png_write_hIST(png_structrp png_ptr, png_const_uint_16p hist, int num_hist);
 #endif
 /* Chunks that have keywords */
 #ifdef PNG_WRITE_tEXt_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_write_tEXt, (png_structrp png_ptr, const char * key, const char * text, size_t text_len), PNG_EMPTY);
+void png_write_tEXt(png_structrp png_ptr, const char * key, const char * text, size_t text_len);
 #endif
 #ifdef PNG_WRITE_zTXt_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_write_zTXt, (png_structrp png_ptr, const char * key, const char * text, int compression), PNG_EMPTY);
+void png_write_zTXt(png_structrp png_ptr, const char * key, const char * text, int compression);
 #endif
 #ifdef PNG_WRITE_iTXt_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_write_iTXt, (png_structrp png_ptr, int compression, const char * key, const char * lang,
-	    const char * lang_key, const char * text), PNG_EMPTY);
+void png_write_iTXt(png_structrp png_ptr, int compression, const char * key, const char * lang, const char * lang_key, const char * text);
 #endif
 #ifdef PNG_TEXT_SUPPORTED  /* Added at version 1.0.14 and 1.2.4 */
-PNG_INTERNAL_FUNCTION(int, png_set_text_2, (png_const_structrp png_ptr, png_inforp info_ptr, png_const_textp text_ptr, int num_text), PNG_EMPTY);
+int png_set_text_2(png_const_structrp png_ptr, png_inforp info_ptr, png_const_textp text_ptr, int num_text);
 #endif
 #ifdef PNG_WRITE_oFFs_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_write_oFFs, (png_structrp png_ptr, png_int_32 x_offset, png_int_32 y_offset, int unit_type), PNG_EMPTY);
+void png_write_oFFs(png_structrp png_ptr, png_int_32 x_offset, png_int_32 y_offset, int unit_type);
 #endif
 #ifdef PNG_WRITE_pCAL_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_write_pCAL, (png_structrp png_ptr, char * purpose, png_int_32 X0, png_int_32 X1, int type, int nparams,
-	    const char * units, png_charpp params), PNG_EMPTY);
+void png_write_pCAL(png_structrp png_ptr, char * purpose, png_int_32 X0, png_int_32 X1, int type, int nparams, const char * units, png_charpp params);
 #endif
 #ifdef PNG_WRITE_pHYs_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_write_pHYs, (png_structrp png_ptr, uint32 x_pixels_per_unit, uint32 y_pixels_per_unit, int unit_type), PNG_EMPTY);
+void png_write_pHYs(png_structrp png_ptr, uint32 x_pixels_per_unit, uint32 y_pixels_per_unit, int unit_type);
 #endif
 #ifdef PNG_WRITE_tIME_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_write_tIME, (png_structrp png_ptr, png_const_timep mod_time), PNG_EMPTY);
+void png_write_tIME(png_structrp png_ptr, png_const_timep mod_time);
 #endif
 #ifdef PNG_WRITE_sCAL_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_write_sCAL_s, (png_structrp png_ptr, int unit, const char * width, const char * height), PNG_EMPTY);
+void png_write_sCAL_s(png_structrp png_ptr, int unit, const char * width, const char * height);
 #endif
-/* Called when finished processing a row of data */
-PNG_INTERNAL_FUNCTION(void, png_write_finish_row, (png_structrp png_ptr), PNG_EMPTY);
-/* Internal use only.   Called before first row of data */
-PNG_INTERNAL_FUNCTION(void, png_write_start_row, (png_structrp png_ptr), PNG_EMPTY);
+// Called when finished processing a row of data 
+void png_write_finish_row(png_structrp png_ptr);
+// Internal use only.   Called before first row of data 
+void png_write_start_row(png_structrp png_ptr);
 
 /* Combine a row of data, dealing with alpha, etc. if requested.  'row' is an
  * array of png_ptr->width pixels.  If the image is not interlaced or this
@@ -1484,7 +1469,7 @@ PNG_INTERNAL_FUNCTION(void, png_chunk_report, (png_const_structrp png_ptr, const
 	 */
 	#define PNG_sCAL_MAX_DIGITS (PNG_sCAL_PRECISION+1 /*.*/+1 /*E*/+10 /*exponent*/)
 	#ifdef PNG_FLOATING_POINT_SUPPORTED
-		PNG_INTERNAL_FUNCTION(void, png_ascii_from_fp, (png_const_structrp png_ptr, char * ascii, size_t size, double fp, unsigned int precision), PNG_EMPTY);
+		PNG_INTERNAL_FUNCTION(void, png_ascii_from_fp, (png_const_structrp png_ptr, char * ascii, size_t size, double fp, uint precision), PNG_EMPTY);
 	#endif /* FLOATING_POINT */
 	#ifdef PNG_FIXED_POINT_SUPPORTED
 		PNG_INTERNAL_FUNCTION(void, png_ascii_from_fixed, (png_const_structrp png_ptr, char * ascii, size_t size, png_fixed_point fp), PNG_EMPTY);
@@ -1631,9 +1616,9 @@ PNG_INTERNAL_FUNCTION(int, png_gamma_significant, (png_fixed_point gamma_value),
  * While the input is an 'unsigned' value it must actually be the
  * correct bit value - 0..255 or 0..65535 as required.
  */
-PNG_INTERNAL_FUNCTION(png_uint_16, png_gamma_correct, (png_structrp png_ptr, unsigned int value, png_fixed_point gamma_value), PNG_EMPTY);
-PNG_INTERNAL_FUNCTION(png_uint_16, png_gamma_16bit_correct, (unsigned int value, png_fixed_point gamma_value), PNG_EMPTY);
-PNG_INTERNAL_FUNCTION(uint8, png_gamma_8bit_correct, (unsigned int value, png_fixed_point gamma_value), PNG_EMPTY);
+PNG_INTERNAL_FUNCTION(png_uint_16, png_gamma_correct, (png_structrp png_ptr, uint value, png_fixed_point gamma_value), PNG_EMPTY);
+PNG_INTERNAL_FUNCTION(png_uint_16, png_gamma_16bit_correct, (uint value, png_fixed_point gamma_value), PNG_EMPTY);
+PNG_INTERNAL_FUNCTION(uint8, png_gamma_8bit_correct, (uint value, png_fixed_point gamma_value), PNG_EMPTY);
 PNG_INTERNAL_FUNCTION(void, png_destroy_gamma_table, (png_structrp png_ptr), PNG_EMPTY);
 PNG_INTERNAL_FUNCTION(void, png_build_gamma_table, (png_structrp png_ptr, int bit_depth), PNG_EMPTY);
 #endif
@@ -1648,8 +1633,8 @@ typedef struct png_control {
 	void * error_buf; /* Always a jmp_buf at present. */
 	png_const_bytep memory; /* Memory buffer. */
 	size_t size; /* Size of the memory buffer. */
-	unsigned int for_write       : 1; /* Otherwise it is a read structure */
-	unsigned int owned_file      : 1; /* We own the file in io_ptr */
+	uint for_write       : 1; /* Otherwise it is a read structure */
+	uint owned_file      : 1; /* We own the file in io_ptr */
 } png_control;
 // 
 // Return the pointer to the jmp_buf from a png_control: necessary because C
@@ -1675,7 +1660,7 @@ PNG_INTERNAL_FUNCTION(int, png_safe_execute, (png_imagep image, int (* function)
 // 
 // Utility to log an error; this also cleans up the png_image; the function always returns 0 (false).
 // 
-PNG_INTERNAL_FUNCTION(int, png_image_error, (png_imagep image, const char * error_message), PNG_EMPTY);
+int FASTCALL png_image_error(png_imagep image, const char * error_message);
 #ifndef PNG_SIMPLIFIED_READ_SUPPORTED
 	// png_image_free is used by the write code but not exported */
 	PNG_INTERNAL_FUNCTION(void, png_image_free, (png_imagep image), PNG_EMPTY);
@@ -1688,19 +1673,19 @@ PNG_INTERNAL_FUNCTION(int, png_image_error, (png_imagep image, const char * erro
 // 
 #ifdef PNG_FILTER_OPTIMIZATIONS
 	// Just declare the optimization that will be used
-	PNG_INTERNAL_FUNCTION(void, PNG_FILTER_OPTIMIZATIONS, (png_structp png_ptr, unsigned int bpp), PNG_EMPTY);
+	PNG_INTERNAL_FUNCTION(void, PNG_FILTER_OPTIMIZATIONS, (png_structp png_ptr, uint bpp), PNG_EMPTY);
 #else
 	// List *all* the possible optimizations here - this branch is required if
 	// the builder of libpng passes the definition of PNG_FILTER_OPTIMIZATIONS in
 	// CFLAGS in place of CPPFLAGS *and* uses symbol prefixing.
 	#if PNG_ARM_NEON_OPT > 0
-		PNG_INTERNAL_FUNCTION(void, png_init_filter_functions_neon, (png_structp png_ptr, unsigned int bpp), PNG_EMPTY);
+		PNG_INTERNAL_FUNCTION(void, png_init_filter_functions_neon, (png_structp png_ptr, uint bpp), PNG_EMPTY);
 	#endif
 	#if PNG_MIPS_MSA_OPT > 0
-		PNG_INTERNAL_FUNCTION(void, png_init_filter_functions_msa, (png_structp png_ptr, unsigned int bpp), PNG_EMPTY);
+		PNG_INTERNAL_FUNCTION(void, png_init_filter_functions_msa, (png_structp png_ptr, uint bpp), PNG_EMPTY);
 	#endif
 	#if PNG_INTEL_SSE_IMPLEMENTATION > 0
-		PNG_INTERNAL_FUNCTION(void, png_init_filter_functions_sse2, (png_structp png_ptr, unsigned int bpp), PNG_EMPTY);
+		PNG_INTERNAL_FUNCTION(void, png_init_filter_functions_sse2, (png_structp png_ptr, uint bpp), PNG_EMPTY);
 	#endif
 #endif
 PNG_INTERNAL_FUNCTION(uint32, png_check_keyword, (png_structrp png_ptr, const char * key, png_bytep new_key), PNG_EMPTY);

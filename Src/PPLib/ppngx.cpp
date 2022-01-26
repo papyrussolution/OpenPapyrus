@@ -1,5 +1,5 @@
 // PPNGX.CPP
-// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Взаимодействие с NGINX
 //
@@ -883,7 +883,7 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 					P_StqRtb->LastRcvCmd = sp.GetH().Type;
 					P_StqRtb->Other.Get(SSecretTagPool::tagClientIdent, &cli_ident);
 					if(P_Ic) {
-						if(P_Ic->ProcessCommand(sp, cli_ident, &sess_secret, reply_tp)) {	
+						if(P_Ic->ProcessCmd(sp, cli_ident, &sess_secret, reply_tp, 0, 0)) {	
 							out_buf.Z().EncodeMime64(reply_tp.constptr(), reply_tp.GetAvailableSize());
 							P_StqRtb->LastSndCmd = reply_tp.GetH().Type;
 						}

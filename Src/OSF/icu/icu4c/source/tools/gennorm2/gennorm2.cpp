@@ -170,7 +170,7 @@ extern "C" int main(int argc, char * argv[]) {
 		printf("gennorm2: processing %s\n", argv[i]);
 		if(strcmp(argv[i], "minus") == 0) {
 			if(doMinus) {
-				fprintf(stderr, "gennorm2 error: only one 'minus' can be specified\n");
+				slfprintf_stderr("gennorm2 error: only one 'minus' can be specified\n");
 				exit(U_ILLEGAL_ARGUMENT_ERROR);
 			}
 			// Data from previous input files has been collected in b1.
@@ -191,7 +191,7 @@ extern "C" int main(int argc, char * argv[]) {
 		filename.append(argv[i], errorCode);
 		std::ifstream f(filename.data());
 		if(f.fail()) {
-			fprintf(stderr, "gennorm2 error: unable to open %s\n", filename.data());
+			slfprintf_stderr("gennorm2 error: unable to open %s\n", filename.data());
 			exit(U_FILE_ACCESS_ERROR);
 		}
 		builder->setOverrideHandling(Normalizer2DataBuilder::OVERRIDE_PREVIOUS);
@@ -250,11 +250,11 @@ void parseFile(std::ifstream &f, Normalizer2DataBuilder &builder) {
 		int32_t rangeLength =
 		    u_parseCodePointRangeAnyTerminator(line, &startCP, &endCP, &delimiter, errorCode);
 		if(errorCode.isFailure()) {
-			fprintf(stderr, "gennorm2 error: parsing code point range from %s\n", line);
+			slfprintf_stderr("gennorm2 error: parsing code point range from %s\n", line);
 			exit(errorCode.reset());
 		}
 		if(endCP >= 0xd800 && startCP <= 0xdfff) {
-			fprintf(stderr, "gennorm2 error: value or mapping for surrogate code points: %s\n",
+			slfprintf_stderr("gennorm2 error: value or mapping for surrogate code points: %s\n",
 			    line);
 			exit(U_ILLEGAL_ARGUMENT_ERROR);
 		}
@@ -264,7 +264,7 @@ void parseFile(std::ifstream &f, Normalizer2DataBuilder &builder) {
 			char * end;
 			unsigned long value = strtoul(s, &end, 10);
 			if(end<=s || *u_skipWhitespace(end)!=0 || value>=0xff) {
-				fprintf(stderr, "gennorm2 error: parsing ccc from %s\n", line);
+				slfprintf_stderr("gennorm2 error: parsing ccc from %s\n", line);
 				exit(U_PARSE_ERROR);
 			}
 			for(UChar32 c = (UChar32)startCP; c<=(UChar32)endCP; ++c) {
@@ -274,7 +274,7 @@ void parseFile(std::ifstream &f, Normalizer2DataBuilder &builder) {
 		}
 		if(*delimiter=='-') {
 			if(*u_skipWhitespace(delimiter+1)!=0) {
-				fprintf(stderr, "gennorm2 error: parsing remove-mapping %s\n", line);
+				slfprintf_stderr("gennorm2 error: parsing remove-mapping %s\n", line);
 				exit(U_PARSE_ERROR);
 			}
 			for(UChar32 c = (UChar32)startCP; c<=(UChar32)endCP; ++c) {
@@ -286,7 +286,7 @@ void parseFile(std::ifstream &f, Normalizer2DataBuilder &builder) {
 			UChar uchars[Normalizer2Impl::MAPPING_LENGTH_MASK];
 			int32_t length = u_parseString(delimiter+1, uchars, UPRV_LENGTHOF(uchars), NULL, errorCode);
 			if(errorCode.isFailure()) {
-				fprintf(stderr, "gennorm2 error: parsing mapping string from %s\n", line);
+				slfprintf_stderr("gennorm2 error: parsing mapping string from %s\n", line);
 				exit(errorCode.reset());
 			}
 			UnicodeString mapping(FALSE, uchars, length);
@@ -306,7 +306,7 @@ void parseFile(std::ifstream &f, Normalizer2DataBuilder &builder) {
 			}
 			continue;
 		}
-		fprintf(stderr, "gennorm2 error: unrecognized data line %s\n", line);
+		slfprintf_stderr("gennorm2 error: unrecognized data line %s\n", line);
 		exit(U_PARSE_ERROR);
 	}
 }

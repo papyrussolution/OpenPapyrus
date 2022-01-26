@@ -458,7 +458,7 @@ void ScintillaEditView::setSpecialStyle(const NppStyle & styleToSet)
 void ScintillaEditView::setHotspotStyle(NppStyle & styleToSet)
 {
 	StyleMap* styleMap;
-	if(_hotspotStyles.find(_currentBuffer) == _hotspotStyles.end() ) {
+	if(_hotspotStyles.find(_currentBuffer) == _hotspotStyles.end()) {
 		_hotspotStyles[_currentBuffer] = new StyleMap;
 	}
 	styleMap = _hotspotStyles[_currentBuffer];
@@ -2817,7 +2817,7 @@ void ScintillaEditView::runMarkers(bool doHide, size_t searchStart, bool endOfDo
 		bool isInSection = false;
 		for(auto i = searchStart; i < maxLines; ++i) {
 			auto state = execute(SCI_MARKERGET, i);
-			if(((state & (1 << MARK_HIDELINESEND)) != 0) ) {
+			if(((state & (1 << MARK_HIDELINESEND)) != 0)) {
 				if(isInSection) {
 					execute(SCI_HIDELINES, startHiding, i-1);
 					if(!endOfDoc) {
@@ -2826,7 +2826,7 @@ void ScintillaEditView::runMarkers(bool doHide, size_t searchStart, bool endOfDo
 				}
 				isInSection = false;
 			}
-			if(((state & (1 << MARK_HIDELINESBEGIN | 1 << MARK_HIDELINESUNDERLINE)) != 0) ) {
+			if(((state & (1 << MARK_HIDELINESBEGIN | 1 << MARK_HIDELINESUNDERLINE)) != 0)) {
 				isInSection = true;
 				startHiding = i+1;
 			}
@@ -2837,7 +2837,7 @@ void ScintillaEditView::runMarkers(bool doHide, size_t searchStart, bool endOfDo
 		bool isInSection = false;
 		for(auto i = searchStart; i < maxLines; ++i) {
 			auto state = execute(SCI_MARKERGET, i);
-			if(((state & (1 << MARK_HIDELINESEND)) != 0) ) {
+			if(((state & (1 << MARK_HIDELINESEND)) != 0)) {
 				if(doDelete) {
 					execute(SCI_MARKERDELETE, i, MARK_HIDELINESEND);
 					if(!endOfDoc) {
@@ -2860,7 +2860,7 @@ void ScintillaEditView::runMarkers(bool doHide, size_t searchStart, bool endOfDo
 					isInSection = false;
 				}
 			}
-			if(((state & (1 << MARK_HIDELINESBEGIN | 1 << MARK_HIDELINESUNDERLINE)) != 0) ) {
+			if(((state & (1 << MARK_HIDELINESBEGIN | 1 << MARK_HIDELINESUNDERLINE)) != 0)) {
 				if(doDelete) {
 					execute(SCI_MARKERDELETE, i, MARK_HIDELINESBEGIN);
 					execute(SCI_MARKERDELETE, i, MARK_HIDELINESUNDERLINE);

@@ -1975,7 +1975,7 @@ cairo_status_t _cairo_scaled_font_show_glyphs(cairo_scaled_font_t * scaled_font,
 
 		/* If we have glyphs of different formats, we "upgrade" the mask
 		 * to the wider of the formats. */
-		if(glyph_surface->format != mask_format && _cairo_format_bits_per_pixel(mask_format) < _cairo_format_bits_per_pixel(glyph_surface->format) ) {
+		if(glyph_surface->format != mask_format && _cairo_format_bits_per_pixel(mask_format) < _cairo_format_bits_per_pixel(glyph_surface->format)) {
 			cairo_surface_t * new_mask;
 			switch(glyph_surface->format) {
 				case CAIRO_FORMAT_ARGB32:

@@ -88,7 +88,7 @@ BLAKE2_PACKED(struct blake2s_param__ {
 	uint8 depth; /* 4 */
 	uint32 leaf_length; /* 8 */
 	uint32 node_offset; /* 12 */
-	uint16_t xof_length; /* 14 */
+	uint16 xof_length; /* 14 */
 	uint8 node_depth; /* 15 */
 	uint8 inner_length; /* 16 */
 	/* uint8  reserved[0]; */

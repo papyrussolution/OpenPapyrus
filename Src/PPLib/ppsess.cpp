@@ -2149,6 +2149,33 @@ static void InitTest()
 		}
 	}
 	// } @v11.2.4
+	// @v11.2.12 {
+	{
+		// ѕроверка наименований видов потоков PPThread
+		static const int thread_kind_list[] = {
+			PPThread::kUnknown,
+			PPThread::kJobServer,
+			PPThread::kNetServer,
+			PPThread::kJob,
+			PPThread::kNetSession,
+			PPThread::kDbDispatcher,
+			PPThread::kEventCollector,
+			PPThread::kLogger,
+			PPThread::kDllSession,
+			PPThread::kPpppProcessor,
+			PPThread::kNginxServer,
+			PPThread::kWorkerSession,
+			PPThread::kNginxWorker,
+			PPThread::kStyloQServer,
+			PPThread::kStyloQSession
+		};
+		for(uint tkidx = 0; tkidx < SIZEOFARRAY(thread_kind_list); tkidx++) {
+			SString & r_nm = SLS.AcquireRvlStr();
+			PPThread::GetKindText(thread_kind_list[tkidx], r_nm);
+			assert(r_nm.NotEmpty());
+		}
+	}
+	// } @v11.2.12 
 #endif // } _DEBUG
 }
 
@@ -3283,7 +3310,9 @@ private:
 						}
 						if(p_mqb_cli && pt_mqc.IsTime()) {
 							if(SETIFZ(p_queue, DS.GetAdviseEventQueue(0))) {
-								while(p_mqb_cli->ConsumeMessage(mqb_envelop, 0) > 0) {
+								//PPERR_MQBC_CONSUMETIMEOUT
+								const int cmr = p_mqb_cli->ConsumeMessage(mqb_envelop, 100); // @v11.2.12 timeout 0-->100
+								while(cmr > 0) { 
 									PPAdviseEvent ev;
 									ev.SetupAndAppendToVector(mqb_envelop, temp_list);
 									p_mqb_cli->Ack(mqb_envelop.DeliveryTag, 0);

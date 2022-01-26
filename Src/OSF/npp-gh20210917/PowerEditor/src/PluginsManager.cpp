@@ -221,7 +221,7 @@ int PluginsManager::loadPlugin(const TCHAR * pluginFilePath)
 				PathRemoveExtension(xmlPath);
 				PathAddExtension(xmlPath, TEXT(".xml"));
 
-				if(!PathFileExists(xmlPath) ) {
+				if(!PathFileExists(xmlPath)) {
 					throw generic_string(generic_string(xmlPath) + TEXT(" is missing."));
 				}
 			}

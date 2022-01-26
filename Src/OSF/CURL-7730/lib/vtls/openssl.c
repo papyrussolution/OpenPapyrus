@@ -2974,7 +2974,7 @@ static CURLcode ossl_connect_step1(struct connectdata * conn, int sockindex)
 		lookup = X509_STORE_add_lookup(SSL_CTX_get_cert_store(backend->ctx),
 			X509_LOOKUP_file());
 		if(!lookup ||
-		    (!X509_load_crl_file(lookup, ssl_crlfile, X509_FILETYPE_PEM)) ) {
+		    (!X509_load_crl_file(lookup, ssl_crlfile, X509_FILETYPE_PEM))) {
 			failf(data, "error loading CRL file: %s", ssl_crlfile);
 			return CURLE_SSL_CRL_BADFILE;
 		}

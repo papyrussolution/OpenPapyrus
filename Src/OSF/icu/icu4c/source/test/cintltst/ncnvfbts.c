@@ -64,19 +64,19 @@ static void printUSeq(const UChar * a, int len)
 static void printSeqErr(const unsigned char * a, int len)
 {
 	int i = 0;
-	fprintf(stderr, "{");
+	slfprintf_stderr("{");
 	while(i<len)
-		fprintf(stderr, "0x%02x ", a[i++]);
-	fprintf(stderr, "}\n");
+		slfprintf_stderr("0x%02x ", a[i++]);
+	slfprintf_stderr("}\n");
 }
 
 static void printUSeqErr(const UChar * a, int len)
 {
 	int i = 0;
-	fprintf(stderr, "{U+");
+	slfprintf_stderr("{U+");
 	while(i<len)
-		fprintf(stderr, "0x%04x ", a[i++]);
-	fprintf(stderr, "}\n");
+		slfprintf_stderr("0x%04x ", a[i++]);
+	slfprintf_stderr("}\n");
 }
 
 static void TestConverterFallBack(void)
@@ -244,7 +244,7 @@ static bool testConvertFromUnicode(const UChar * source, int sourceLen,  const u
 		return FALSE;
 	}
 
-	if(checkOffsets && (expectOffsets != 0) ) {
+	if(checkOffsets && (expectOffsets != 0)) {
 		log_verbose("\ncomparing %d offsets..\n", targ-junkout);
 		if(uprv_memcmp(junokout, expectOffsets, (targ-junkout) * sizeof(int32_t) )) {
 			log_err("\ndid not get the expected offsets while %s \n", gNuConvTestName);

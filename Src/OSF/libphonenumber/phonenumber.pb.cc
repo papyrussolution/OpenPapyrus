@@ -162,7 +162,7 @@ PhoneNumber::PhoneNumber(const PhoneNumber& from)
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     extension_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (from._internal_has_extension()) {
+  if(from._internal_has_extension()) {
     extension_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_extension(), 
       GetArenaForAllocation());
   }
@@ -170,7 +170,7 @@ PhoneNumber::PhoneNumber(const PhoneNumber& from)
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     raw_input_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (from._internal_has_raw_input()) {
+  if(from._internal_has_raw_input()) {
     raw_input_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_raw_input(), 
       GetArenaForAllocation());
   }
@@ -178,7 +178,7 @@ PhoneNumber::PhoneNumber(const PhoneNumber& from)
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     preferred_domestic_carrier_code_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (from._internal_has_preferred_domestic_carrier_code()) {
+  if(from._internal_has_preferred_domestic_carrier_code()) {
     preferred_domestic_carrier_code_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_preferred_domestic_carrier_code(), 
       GetArenaForAllocation());
   }
@@ -239,18 +239,18 @@ void PhoneNumber::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000007u) {
-    if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000007u) {
+    if(cached_has_bits & 0x00000001u) {
       extension_.ClearNonDefaultToEmpty();
     }
-    if (cached_has_bits & 0x00000002u) {
+    if(cached_has_bits & 0x00000002u) {
       raw_input_.ClearNonDefaultToEmpty();
     }
-    if (cached_has_bits & 0x00000004u) {
+    if(cached_has_bits & 0x00000004u) {
       preferred_domestic_carrier_code_.ClearNonDefaultToEmpty();
     }
   }
-  if (cached_has_bits & 0x000000f8u) {
+  if(cached_has_bits & 0x000000f8u) {
     ::memset(&national_number_, 0, static_cast<size_t>(
         reinterpret_cast<char*>(&country_code_source_) -
         reinterpret_cast<char*>(&national_number_)) + sizeof(country_code_source_));
@@ -266,10 +266,10 @@ const char* PhoneNumber::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // required int32 country_code = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
           _Internal::set_has_country_code(&has_bits);
           country_code_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -278,7 +278,7 @@ const char* PhoneNumber::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
         continue;
       // required uint64 national_number = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
           _Internal::set_has_national_number(&has_bits);
           national_number_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
@@ -287,7 +287,7 @@ const char* PhoneNumber::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
         continue;
       // optional string extension = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           auto str = _internal_mutable_extension();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
@@ -296,7 +296,7 @@ const char* PhoneNumber::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
         continue;
       // optional bool italian_leading_zero = 4;
       case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 32)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 32)) {
           _Internal::set_has_italian_leading_zero(&has_bits);
           italian_leading_zero_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
@@ -305,7 +305,7 @@ const char* PhoneNumber::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
         continue;
       // optional string raw_input = 5;
       case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
           auto str = _internal_mutable_raw_input();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
@@ -314,10 +314,10 @@ const char* PhoneNumber::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
         continue;
       // optional .i18n.phonenumbers.PhoneNumber.CountryCodeSource country_code_source = 6;
       case 6:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 48)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 48)) {
           uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
-          if (PROTOBUF_PREDICT_TRUE(::i18n::phonenumbers::PhoneNumber_CountryCodeSource_IsValid(val))) {
+          if(PROTOBUF_PREDICT_TRUE(::i18n::phonenumbers::PhoneNumber_CountryCodeSource_IsValid(val))) {
             _internal_set_country_code_source(static_cast<::i18n::phonenumbers::PhoneNumber_CountryCodeSource>(val));
           } else {
             ::PROTOBUF_NAMESPACE_ID::internal::WriteVarint(6, val, mutable_unknown_fields());
@@ -327,7 +327,7 @@ const char* PhoneNumber::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
         continue;
       // optional string preferred_domestic_carrier_code = 7;
       case 7:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
           auto str = _internal_mutable_preferred_domestic_carrier_code();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
@@ -336,7 +336,7 @@ const char* PhoneNumber::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
         continue;
       // optional int32 number_of_leading_zeros = 8 [default = 1];
       case 8:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 64)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 64)) {
           _Internal::set_has_number_of_leading_zeros(&has_bits);
           number_of_leading_zeros_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -347,7 +347,7 @@ const char* PhoneNumber::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -375,54 +375,54 @@ uint8_t* PhoneNumber::_InternalSerialize(
 
   cached_has_bits = _has_bits_[0];
   // required int32 country_code = 1;
-  if (cached_has_bits & 0x00000010u) {
+  if(cached_has_bits & 0x00000010u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_country_code(), target);
   }
 
   // required uint64 national_number = 2;
-  if (cached_has_bits & 0x00000008u) {
+  if(cached_has_bits & 0x00000008u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(2, this->_internal_national_number(), target);
   }
 
   // optional string extension = 3;
-  if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000001u) {
     target = stream->WriteStringMaybeAliased(
         3, this->_internal_extension(), target);
   }
 
   // optional bool italian_leading_zero = 4;
-  if (cached_has_bits & 0x00000020u) {
+  if(cached_has_bits & 0x00000020u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(4, this->_internal_italian_leading_zero(), target);
   }
 
   // optional string raw_input = 5;
-  if (cached_has_bits & 0x00000002u) {
+  if(cached_has_bits & 0x00000002u) {
     target = stream->WriteStringMaybeAliased(
         5, this->_internal_raw_input(), target);
   }
 
   // optional .i18n.phonenumbers.PhoneNumber.CountryCodeSource country_code_source = 6;
-  if (cached_has_bits & 0x00000040u) {
+  if(cached_has_bits & 0x00000040u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(6, this->_internal_country_code_source(), target);
   }
 
   // optional string preferred_domestic_carrier_code = 7;
-  if (cached_has_bits & 0x00000004u) {
+  if(cached_has_bits & 0x00000004u) {
     target = stream->WriteStringMaybeAliased(
         7, this->_internal_preferred_domestic_carrier_code(), target);
   }
 
   // optional int32 number_of_leading_zeros = 8 [default = 1];
-  if (cached_has_bits & 0x00000080u) {
+  if(cached_has_bits & 0x00000080u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(8, this->_internal_number_of_leading_zeros(), target);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = stream->WriteRaw(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).data(),
         static_cast<int>(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size()), target);
   }
@@ -434,12 +434,12 @@ size_t PhoneNumber::RequiredFieldsByteSizeFallback() const {
 // @@protoc_insertion_point(required_fields_byte_size_fallback_start:i18n.phonenumbers.PhoneNumber)
   size_t total_size = 0;
 
-  if (_internal_has_national_number()) {
+  if(_internal_has_national_number()) {
     // required uint64 national_number = 2;
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64SizePlusOne(this->_internal_national_number());
   }
 
-  if (_internal_has_country_code()) {
+  if(_internal_has_country_code()) {
     // required int32 country_code = 1;
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_country_code());
   }
@@ -450,7 +450,7 @@ size_t PhoneNumber::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:i18n.phonenumbers.PhoneNumber)
   size_t total_size = 0;
 
-  if (((_has_bits_[0] & 0x00000018) ^ 0x00000018) == 0) {  // All required fields are present.
+  if(((_has_bits_[0] & 0x00000018) ^ 0x00000018) == 0) {  // All required fields are present.
     // required uint64 national_number = 2;
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64SizePlusOne(this->_internal_national_number());
 
@@ -465,48 +465,48 @@ size_t PhoneNumber::ByteSizeLong() const {
   (void) cached_has_bits;
 
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000007u) {
+  if(cached_has_bits & 0x00000007u) {
     // optional string extension = 3;
-    if (cached_has_bits & 0x00000001u) {
+    if(cached_has_bits & 0x00000001u) {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
           this->_internal_extension());
     }
 
     // optional string raw_input = 5;
-    if (cached_has_bits & 0x00000002u) {
+    if(cached_has_bits & 0x00000002u) {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
           this->_internal_raw_input());
     }
 
     // optional string preferred_domestic_carrier_code = 7;
-    if (cached_has_bits & 0x00000004u) {
+    if(cached_has_bits & 0x00000004u) {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
           this->_internal_preferred_domestic_carrier_code());
     }
 
   }
-  if (cached_has_bits & 0x000000e0u) {
+  if(cached_has_bits & 0x000000e0u) {
     // optional bool italian_leading_zero = 4;
-    if (cached_has_bits & 0x00000020u) {
+    if(cached_has_bits & 0x00000020u) {
       total_size += 1 + 1;
     }
 
     // optional .i18n.phonenumbers.PhoneNumber.CountryCodeSource country_code_source = 6;
-    if (cached_has_bits & 0x00000040u) {
+    if(cached_has_bits & 0x00000040u) {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_country_code_source());
     }
 
     // optional int32 number_of_leading_zeros = 8 [default = 1];
-    if (cached_has_bits & 0x00000080u) {
+    if(cached_has_bits & 0x00000080u) {
       total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_number_of_leading_zeros());
     }
 
   }
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     total_size += _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size();
   }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
@@ -527,29 +527,29 @@ void PhoneNumber::MergeFrom(const PhoneNumber& from) {
   (void) cached_has_bits;
 
   cached_has_bits = from._has_bits_[0];
-  if (cached_has_bits & 0x000000ffu) {
-    if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x000000ffu) {
+    if(cached_has_bits & 0x00000001u) {
       _internal_set_extension(from._internal_extension());
     }
-    if (cached_has_bits & 0x00000002u) {
+    if(cached_has_bits & 0x00000002u) {
       _internal_set_raw_input(from._internal_raw_input());
     }
-    if (cached_has_bits & 0x00000004u) {
+    if(cached_has_bits & 0x00000004u) {
       _internal_set_preferred_domestic_carrier_code(from._internal_preferred_domestic_carrier_code());
     }
-    if (cached_has_bits & 0x00000008u) {
+    if(cached_has_bits & 0x00000008u) {
       national_number_ = from.national_number_;
     }
-    if (cached_has_bits & 0x00000010u) {
+    if(cached_has_bits & 0x00000010u) {
       country_code_ = from.country_code_;
     }
-    if (cached_has_bits & 0x00000020u) {
+    if(cached_has_bits & 0x00000020u) {
       italian_leading_zero_ = from.italian_leading_zero_;
     }
-    if (cached_has_bits & 0x00000040u) {
+    if(cached_has_bits & 0x00000040u) {
       country_code_source_ = from.country_code_source_;
     }
-    if (cached_has_bits & 0x00000080u) {
+    if(cached_has_bits & 0x00000080u) {
       number_of_leading_zeros_ = from.number_of_leading_zeros_;
     }
     _has_bits_[0] |= cached_has_bits;
@@ -559,13 +559,13 @@ void PhoneNumber::MergeFrom(const PhoneNumber& from) {
 
 void PhoneNumber::CopyFrom(const PhoneNumber& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:i18n.phonenumbers.PhoneNumber)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
 bool PhoneNumber::IsInitialized() const {
-  if (_Internal::MissingRequiredFields(_has_bits_)) return false;
+  if(_Internal::MissingRequiredFields(_has_bits_)) return false;
   return true;
 }
 

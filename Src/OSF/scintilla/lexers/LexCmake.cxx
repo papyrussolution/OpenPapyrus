@@ -98,10 +98,10 @@ static int classifyWordCmake(Sci_PositionU start, Sci_PositionU end, WordList * 
 			return SCE_CMAKE_VARIABLE;
 	}
 	// To check for numbers
-	if(isdec(word[0]) ) {
+	if(isdec(word[0])) {
 		bool bHasSimpleCmakeNumber = true;
 		for(uint j = 1; j < end - start + 1 && j < 99; j++) {
-			if(!isdec(word[j]) ) {
+			if(!isdec(word[j])) {
 				bHasSimpleCmakeNumber = false;
 				break;
 			}
@@ -277,7 +277,7 @@ static void ColouriseCmakeDoc(Sci_PositionU startPos, Sci_Position length, int, 
 				bVarInString = false;
 				bIngoreNextDollarSign = false;
 			}
-			else if(bVarInString && !isCmakeChar(cNextChar) ) {
+			else if(bVarInString && !isCmakeChar(cNextChar)) {
 				int nWordState = classifyWordCmake(styler.GetStartSegment(), i, keywordLists, styler);
 				if(nWordState == SCE_CMAKE_VARIABLE)
 					styler.ColourTo(i, SCE_CMAKE_STRINGVAR);
@@ -322,7 +322,7 @@ static void FoldCmakeDoc(Sci_PositionU startPos, Sci_Position length, int, WordL
 	for(Sci_PositionU i = safeStartPos; i < startPos + length; i++) {
 		char chCurr = styler.SafeGetCharAt(i);
 		if(bArg1) {
-			if(nWordStart == -1 && (isCmakeLetter(chCurr)) ) {
+			if(nWordStart == -1 && (isCmakeLetter(chCurr))) {
 				nWordStart = i;
 			}
 			else if(isCmakeLetter(chCurr) == false && nWordStart > -1) {

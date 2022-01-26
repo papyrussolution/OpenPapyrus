@@ -460,18 +460,18 @@ static int archive_wstring_append_from_mbs_in_codepage(struct archive_wstring * 
 			return -1;
 		wmemcpy(dest->s + dest->length, (const wchar_t*)s, count);
 		if((sc->flag & SCONV_FROM_UTF16BE) && !is_big_endian()) {
-			uint16_t * u16 = (uint16_t*)(dest->s + dest->length);
+			uint16 * u16 = (uint16*)(dest->s + dest->length);
 			int b;
 			for(b = 0; b < count; b++) {
-				uint16_t val = archive_le16dec(u16+b);
+				uint16 val = archive_le16dec(u16+b);
 				archive_be16enc(u16+b, val);
 			}
 		}
 		else if((sc->flag & SCONV_FROM_UTF16LE) && is_big_endian()) {
-			uint16_t * u16 = (uint16_t*)(dest->s + dest->length);
+			uint16 * u16 = (uint16*)(dest->s + dest->length);
 			int b;
 			for(b = 0; b < count; b++) {
-				uint16_t val = archive_be16dec(u16+b);
+				uint16 val = archive_be16dec(u16+b);
 				archive_le16enc(u16+b, val);
 			}
 		}
@@ -646,12 +646,12 @@ static int archive_string_append_from_wcs_in_codepage(struct archive_string * as
 		}
 	}
 	else if(sc != NULL && (sc->flag & SCONV_TO_UTF16)) {
-		uint16_t * u16;
+		uint16 * u16;
 
 		if(NULL ==
 		    archive_string_ensure(as, as->length + len * 2 + 2))
 			return -1;
-		u16 = (uint16_t*)(as->s + as->length);
+		u16 = (uint16*)(as->s + as->length);
 		count = 0;
 		defchar_used = 0;
 		if(sc->flag & SCONV_TO_UTF16BE) {
@@ -2131,7 +2131,7 @@ static int best_effort_strncat_in_locale(struct archive_string * as, const void 
 	 */
 
 	remaining = length;
-	itp = (const uint8*)_p;
+	itp = (const uint8 *)_p;
 	while(*itp && remaining > 0) {
 		if(*itp > 127) {
 			// Non-ASCII: Substitute with suitable replacement
@@ -2490,7 +2490,7 @@ static size_t unicode_to_utf16be(char * p, size_t remaining, uint32 uc)
 	else {
 		if(remaining < 2)
 			return 0;
-		archive_be16enc(utf16, static_cast<uint16_t>(uc));
+		archive_be16enc(utf16, static_cast<uint16>(uc));
 		return (2);
 	}
 }
@@ -2510,7 +2510,7 @@ static size_t unicode_to_utf16le(char * p, size_t remaining, uint32 uc)
 	else {
 		if(remaining < 2)
 			return 0;
-		archive_le16enc(utf16, static_cast<uint16_t>(uc));
+		archive_le16enc(utf16, static_cast<uint16>(uc));
 		return (2);
 	}
 }
@@ -3392,7 +3392,7 @@ static int win_strncat_from_utf16(struct archive_string * as, const void * _p, s
 		u16 = static_cast<const char *>(_p);
 		ll = 0;
 		for(b = 0; b < bytes; b += 2) {
-			uint16_t val;
+			uint16 val;
 			if(be)
 				val = archive_be16dec(u16+b);
 			else
@@ -3420,7 +3420,7 @@ static int win_strncat_from_utf16(struct archive_string * as, const void * _p, s
 				return -1;
 			memcpy(tmp.s, _p, bytes);
 			for(b = 0; b < bytes; b += 2) {
-				uint16_t val = archive_be16dec(tmp.s+b);
+				uint16 val = archive_be16dec(tmp.s+b);
 				archive_le16enc(tmp.s+b, val);
 			}
 			u16 = tmp.s;
@@ -3435,7 +3435,7 @@ static int win_strncat_from_utf16(struct archive_string * as, const void * _p, s
 				return -1;
 			memcpy(tmp.s, _p, bytes);
 			for(b = 0; b < bytes; b += 2) {
-				uint16_t val = archive_le16dec(tmp.s+b);
+				uint16 val = archive_le16dec(tmp.s+b);
 				archive_be16enc(tmp.s+b, val);
 			}
 			u16 = tmp.s;
@@ -3482,7 +3482,7 @@ static int win_strncat_from_utf16le(struct archive_string * as, const void * _p,
 
 static int is_big_endian(void)
 {
-	uint16_t d = 1;
+	uint16 d = 1;
 
 	return (archive_be16dec(&d) == 1);
 }
@@ -3549,7 +3549,7 @@ static int win_strncat_to_utf16(struct archive_string * as16, const void * _p,
 	if(is_big_endian()) {
 		if(!bigendian) {
 			while(count > 0) {
-				uint16_t v = archive_be16dec(u16);
+				uint16 v = archive_be16dec(u16);
 				archive_le16enc(u16, v);
 				u16 += 2;
 				count--;
@@ -3559,7 +3559,7 @@ static int win_strncat_to_utf16(struct archive_string * as16, const void * _p,
 	else {
 		if(bigendian) {
 			while(count > 0) {
-				uint16_t v = archive_le16dec(u16);
+				uint16 v = archive_le16dec(u16);
 				archive_be16enc(u16, v);
 				u16 += 2;
 				count--;

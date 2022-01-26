@@ -135,7 +135,7 @@ U_CAPI UChar * U_EXPORT2 u_uastrncpy(UChar * ucs1,
 		    &err);
 		ucnv_reset(cnv); /* be good citizens */
 		u_releaseDefaultConverter(cnv);
-		if(U_FAILURE(err) && (err != U_BUFFER_OVERFLOW_ERROR) ) {
+		if(U_FAILURE(err) && (err != U_BUFFER_OVERFLOW_ERROR)) {
 			*ucs1 = 0; /* failure */
 		}
 		if(target < (ucs1+n)) { /* U_BUFFER_OVERFLOW_ERROR isn't an err, just means no termination will happen.
@@ -206,7 +206,7 @@ U_CAPI char * U_EXPORT2 u_austrncpy(char * s1,
 		    &err);
 		ucnv_reset(cnv); /* be good citizens */
 		u_releaseDefaultConverter(cnv);
-		if(U_FAILURE(err) && (err != U_BUFFER_OVERFLOW_ERROR) ) {
+		if(U_FAILURE(err) && (err != U_BUFFER_OVERFLOW_ERROR)) {
 			*s1 = 0; /* failure */
 		}
 		if(target < (s1+n)) { /* U_BUFFER_OVERFLOW_ERROR isn't an err, just means no termination will happen. */

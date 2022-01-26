@@ -52,11 +52,11 @@ TestLiteImportsNonlite::_Internal::message_with_required(const TestLiteImportsNo
   return *msg->message_with_required_;
 }
 void TestLiteImportsNonlite::clear_message() {
-  if (message_ != nullptr) message_->Clear();
+  if(message_ != nullptr) message_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 void TestLiteImportsNonlite::clear_message_with_required() {
-  if (message_with_required_ != nullptr) message_with_required_->Clear();
+  if(message_with_required_ != nullptr) message_with_required_->Clear();
   _has_bits_[0] &= ~0x00000002u;
 }
 TestLiteImportsNonlite::TestLiteImportsNonlite(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -72,12 +72,12 @@ TestLiteImportsNonlite::TestLiteImportsNonlite(const TestLiteImportsNonlite& fro
   : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
       _has_bits_(from._has_bits_) {
   _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
-  if (from._internal_has_message()) {
+  if(from._internal_has_message()) {
     message_ = new ::protobuf_unittest::TestAllTypes(*from.message_);
   } else {
     message_ = nullptr;
   }
-  if (from._internal_has_message_with_required()) {
+  if(from._internal_has_message_with_required()) {
     message_with_required_ = new ::protobuf_unittest::TestRequired(*from.message_with_required_);
   } else {
     message_with_required_ = nullptr;
@@ -101,8 +101,8 @@ TestLiteImportsNonlite::~TestLiteImportsNonlite() {
 
 inline void TestLiteImportsNonlite::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  if (this != internal_default_instance()) delete message_;
-  if (this != internal_default_instance()) delete message_with_required_;
+  if(this != internal_default_instance()) delete message_;
+  if(this != internal_default_instance()) delete message_with_required_;
 }
 
 void TestLiteImportsNonlite::ArenaDtor(void* object) {
@@ -122,12 +122,12 @@ void TestLiteImportsNonlite::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
-    if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000003u) {
+    if(cached_has_bits & 0x00000001u) {
       GOOGLE_DCHECK(message_ != nullptr);
       message_->Clear();
     }
-    if (cached_has_bits & 0x00000002u) {
+    if(cached_has_bits & 0x00000002u) {
       GOOGLE_DCHECK(message_with_required_ != nullptr);
       message_with_required_->Clear();
     }
@@ -142,10 +142,10 @@ const char* TestLiteImportsNonlite::_InternalParse(const char* ptr, ::PROTOBUF_N
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // optional .protobuf_unittest.TestAllTypes message = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr = ctx->ParseMessage(_internal_mutable_message(), ptr);
           CHK_(ptr);
         } else
@@ -153,7 +153,7 @@ const char* TestLiteImportsNonlite::_InternalParse(const char* ptr, ::PROTOBUF_N
         continue;
       // optional .protobuf_unittest.TestRequired message_with_required = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr = ctx->ParseMessage(_internal_mutable_message_with_required(), ptr);
           CHK_(ptr);
         } else
@@ -163,7 +163,7 @@ const char* TestLiteImportsNonlite::_InternalParse(const char* ptr, ::PROTOBUF_N
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -191,7 +191,7 @@ uint8_t* TestLiteImportsNonlite::_InternalSerialize(
 
   cached_has_bits = _has_bits_[0];
   // optional .protobuf_unittest.TestAllTypes message = 1;
-  if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000001u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -199,14 +199,14 @@ uint8_t* TestLiteImportsNonlite::_InternalSerialize(
   }
 
   // optional .protobuf_unittest.TestRequired message_with_required = 2;
-  if (cached_has_bits & 0x00000002u) {
+  if(cached_has_bits & 0x00000002u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
         2, _Internal::message_with_required(this), target, stream);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = stream->WriteRaw(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).data(),
         static_cast<int>(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size()), target);
   }
@@ -223,23 +223,23 @@ size_t TestLiteImportsNonlite::ByteSizeLong() const {
   (void) cached_has_bits;
 
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
+  if(cached_has_bits & 0x00000003u) {
     // optional .protobuf_unittest.TestAllTypes message = 1;
-    if (cached_has_bits & 0x00000001u) {
+    if(cached_has_bits & 0x00000001u) {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
           *message_);
     }
 
     // optional .protobuf_unittest.TestRequired message_with_required = 2;
-    if (cached_has_bits & 0x00000002u) {
+    if(cached_has_bits & 0x00000002u) {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
           *message_with_required_);
     }
 
   }
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     total_size += _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size();
   }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
@@ -260,11 +260,11 @@ void TestLiteImportsNonlite::MergeFrom(const TestLiteImportsNonlite& from) {
   (void) cached_has_bits;
 
   cached_has_bits = from._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
-    if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000003u) {
+    if(cached_has_bits & 0x00000001u) {
       _internal_mutable_message()->::protobuf_unittest::TestAllTypes::MergeFrom(from._internal_message());
     }
-    if (cached_has_bits & 0x00000002u) {
+    if(cached_has_bits & 0x00000002u) {
       _internal_mutable_message_with_required()->::protobuf_unittest::TestRequired::MergeFrom(from._internal_message_with_required());
     }
   }
@@ -273,13 +273,13 @@ void TestLiteImportsNonlite::MergeFrom(const TestLiteImportsNonlite& from) {
 
 void TestLiteImportsNonlite::CopyFrom(const TestLiteImportsNonlite& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest.TestLiteImportsNonlite)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
 bool TestLiteImportsNonlite::IsInitialized() const {
-  if (_internal_has_message_with_required()) {
+  if(_internal_has_message_with_required()) {
     if (!message_with_required_->IsInitialized()) return false;
   }
   return true;

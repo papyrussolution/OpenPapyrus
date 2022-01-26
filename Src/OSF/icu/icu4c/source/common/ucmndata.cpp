@@ -221,15 +221,14 @@ static const DataHeader * U_CALLCONV offsetTOCLookupFn(const UDataMemory * pData
 {
 	(void)pErrorCode;
 	const UDataOffsetTOC  * toc = (UDataOffsetTOC*)pData->toc;
-	if(toc!=NULL) {
+	if(toc) {
 		const char * base = (const char *)toc;
 		int32_t number, count = (int32_t)toc->count;
-
 		/* perform a binary search for the data in the common data's table of contents */
 #if defined (UDATA_DEBUG_DUMP)
 		/* list the contents of the TOC each time .. not recommended */
 		for(number = 0; number<count; ++number) {
-			fprintf(stderr, "\tx%d: %s\n", number, &base[toc->entry[number].nameOffset]);
+			slfprintf_stderr("\tx%d: %s\n", number, &base[toc->entry[number].nameOffset]);
 		}
 #endif
 		number = offsetTOCPrefixBinarySearch(tocEntryName, base, toc->entry, count);
@@ -237,33 +236,28 @@ static const DataHeader * U_CALLCONV offsetTOCLookupFn(const UDataMemory * pData
 			/* found it */
 			const UDataOffsetTOCEntry * entry = toc->entry+number;
 #ifdef UDATA_DEBUG
-			fprintf(stderr, "%s: Found.\n", tocEntryName);
+			slfprintf_stderr("%s: Found.\n", tocEntryName);
 #endif
-			if((number+1) < count) {
-				*pLength = (int32_t)(entry[1].dataOffset - entry->dataOffset);
-			}
-			else {
-				*pLength = -1;
-			}
+			*pLength = ((number+1) < count) ? (int32_t)(entry[1].dataOffset - entry->dataOffset) : -1;
 			return (const DataHeader*)(base+entry->dataOffset);
 		}
 		else {
 #ifdef UDATA_DEBUG
-			fprintf(stderr, "%s: Not found.\n", tocEntryName);
+			slfprintf_stderr("%s: Not found.\n", tocEntryName);
 #endif
 			return NULL;
 		}
 	}
 	else {
 #ifdef UDATA_DEBUG
-		fprintf(stderr, "returning header\n");
+		slfprintf_stderr("returning header\n");
 #endif
-
 		return pData->pHeader;
 	}
 }
 
-static uint32_t U_CALLCONV pointerTOCEntryCount(const UDataMemory * pData) {
+static uint32_t U_CALLCONV pointerTOCEntryCount(const UDataMemory * pData) 
+{
 	const PointerTOC * toc = (PointerTOC*)pData->toc;
 	return (uint32_t)((toc != NULL) ? (toc->count) : 0);
 }
@@ -280,21 +274,21 @@ static const DataHeader * U_CALLCONV pointerTOCLookupFn(const UDataMemory * pDat
 #if defined (UDATA_DEBUG_DUMP)
 		/* list the contents of the TOC each time .. not recommended */
 		for(number = 0; number<count; ++number) {
-			fprintf(stderr, "\tx%d: %s\n", number, toc->entry[number].entryName);
+			slfprintf_stderr("\tx%d: %s\n", number, toc->entry[number].entryName);
 		}
 #endif
 		number = pointerTOCPrefixBinarySearch(name, toc->entry, count);
 		if(number>=0) {
 			/* found it */
 #ifdef UDATA_DEBUG
-			fprintf(stderr, "%s: Found.\n", toc->entry[number].entryName);
+			slfprintf_stderr("%s: Found.\n", toc->entry[number].entryName);
 #endif
 			*pLength = -1;
 			return UDataMemory_normalizeDataPointer(toc->entry[number].pHeader);
 		}
 		else {
 #ifdef UDATA_DEBUG
-			fprintf(stderr, "%s: Not found.\n", name);
+			slfprintf_stderr("%s: Not found.\n", name);
 #endif
 			return NULL;
 		}

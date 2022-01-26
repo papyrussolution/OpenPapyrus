@@ -1,17 +1,6 @@
 // Copyright 2017 The Abseil Authors.
-//
 // Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
 //
-//      https://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/random/internal/chi_square.h"
@@ -22,16 +11,13 @@ ABSL_NAMESPACE_BEGIN
 namespace random_internal {
 namespace {
 #if defined(__EMSCRIPTEN__)
-// Workaround __EMSCRIPTEN__ error: llvm_fma_f64 not found.
-inline double fma(double x, double y, double z) {
-	return (x * y) + z;
-}
-
+	// Workaround __EMSCRIPTEN__ error: llvm_fma_f64 not found.
+	inline double fma(double x, double y, double z) { return (x * y) + z; }
 #endif
 
 // Use Horner's method to evaluate a polynomial.
-template <typename T, unsigned N>
-inline T EvaluatePolynomial(T x, const T (&poly)[N]) {
+template <typename T, unsigned N> inline T EvaluatePolynomial(T x, const T (&poly)[N]) 
+{
 #if !defined(__EMSCRIPTEN__)
 	using std::fma;
 #endif
@@ -195,20 +181,15 @@ double ChiSquarePValue(double chi_square, int dof) {
 	// is > 0 is zero (chi square values <= 0 have been filtered above).
 	if(dof < 1) return 0;
 
-	auto capped_exp = [](double x) {
-		    return x < -20 ? 0.0 : std::exp(x);
-	    };
+	auto capped_exp = [](double x) { return x < -20 ? 0.0 : std::exp(x); };
 	static constexpr double kBigX = 20;
-
 	double a = 0.5 * chi_square;
 	const bool even = !(dof & 1); // True if dof is an even number.
 	const double y = capped_exp(-a);
 	double s = even ? y : (2.0 * POZ(-std::sqrt(chi_square)));
-
 	if(dof <= 2) {
 		return s;
 	}
-
 	chi_square = 0.5 * (dof - 1.0);
 	double z = (even ? 1.0 : 0.5);
 	if(a > kBigX) {

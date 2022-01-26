@@ -125,7 +125,7 @@ ParamVector convertParamsToNotepadStyle(PWSTR pCmdLine)
 	}
 
 	// Advance to the first non-whitespace character
-	while(iswspace(*pCmdLine) ) {
+	while(iswspace(*pCmdLine)) {
 		++pCmdLine;
 	}
 
@@ -330,7 +330,7 @@ PWSTR stripIgnoredParams(ParamVector & params, PWSTR pCmdLine)
 			pCmdLine = advanceCmdLine(pCmdLine, *it);
 
 			auto nextIt = std::next(it);
-			if(nextIt != params.end() ) {
+			if(nextIt != params.end()) {
 				pCmdLine = advanceCmdLine(pCmdLine, *nextIt);
 				params.erase(nextIt);
 			}
@@ -433,7 +433,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int)
 	if(::GetLastError() == ERROR_ALREADY_EXISTS)
 		TheFirstOne = false;
 	// Convert commandline to notepad-compatible format, if applicable
-	if(isInList(FLAG_NOTEPAD_COMPATIBILITY, params) ) {
+	if(isInList(FLAG_NOTEPAD_COMPATIBILITY, params)) {
 		params = convertParamsToNotepadStyle(pCmdLineWithoutIgnores);
 	}
 	bool isParamePresent;

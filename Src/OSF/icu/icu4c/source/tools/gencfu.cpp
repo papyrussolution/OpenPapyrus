@@ -133,7 +133,7 @@ int  main(int argc, char ** argv)
 	argc = u_parseArgs(argc, argv, UPRV_LENGTHOF(options), options);
 	if(argc<0) {
 		// Unrecognized option
-		fprintf(stderr, "error in command line argument \"%s\"\n", argv[-argc]);
+		slfprintf_stderr("error in command line argument \"%s\"\n", argv[-argc]);
 		usageAndDie(U_ILLEGAL_ARGUMENT_ERROR);
 	}
 	if(options[0].doesOccur || options[1].doesOccur) {
@@ -141,7 +141,7 @@ int  main(int argc, char ** argv)
 		usageAndDie(0);
 	}
 	if(!(options[3].doesOccur && options[5].doesOccur)) {
-		fprintf(stderr, "confusables file and output file must all be specified.\n");
+		slfprintf_stderr("confusables file and output file must all be specified.\n");
 		usageAndDie(U_ILLEGAL_ARGUMENT_ERROR);
 	}
 	confFileName   = options[3].value;
@@ -174,7 +174,7 @@ int  main(int argc, char ** argv)
 	/* write message with just the name */
 	sprintf(msg, "gencfu writes dummy %s because of UCONFIG_NO_REGULAR_EXPRESSIONS and/or UCONFIG_NO_NORMALIZATION and/or UCONFIG_NO_FILE_IO, see uconfig.h",
 	    outFileName);
-	fprintf(stderr, "%s\n", msg);
+	slfprintf_stderr("%s\n", msg);
 	/* write the dummy data file */
 	pData = udata_create(outDir, NULL, outFileName, &dummyDataInfo, NULL, &status);
 	udata_writeBlock(pData, msg, strlen(msg));
@@ -184,7 +184,7 @@ int  main(int argc, char ** argv)
 	/* Initialize ICU */
 	u_init(&status);
 	if(U_FAILURE(status)) {
-		fprintf(stderr, "%s: can not initialize ICU.  status = %s\n", argv[0], u_errorName(status));
+		slfprintf_stderr("%s: can not initialize ICU.  status = %s\n", argv[0], u_errorName(status));
 		exit(1);
 	}
 	status = U_ZERO_ERROR;
@@ -205,7 +205,7 @@ int  main(int argc, char ** argv)
 	int32_t errType;
 	USpoofChecker * sc = uspoof_openFromSource(confusables, confusablesLen, NULL, 0, &errType, &parseError, &status);
 	if(U_FAILURE(status)) {
-		fprintf(stderr, "gencfu: uspoof_openFromSource error \"%s\"  at file %s, line %d, column %d\n",
+		slfprintf_stderr("gencfu: uspoof_openFromSource error \"%s\"  at file %s, line %d, column %d\n",
 		    u_errorName(status), confFileName, (int)parseError.line, (int)parseError.offset);
 		exit(status);
 	}
@@ -216,7 +216,7 @@ int  main(int argc, char ** argv)
 	uint8_t        * outData;
 	outDataSize = uspoof_serialize(sc, NULL, 0, &status);
 	if(status != U_BUFFER_OVERFLOW_ERROR) {
-		fprintf(stderr, "gencfu: uspoof_serialize() returned %s\n", u_errorName(status));
+		slfprintf_stderr("gencfu: uspoof_serialize() returned %s\n", u_errorName(status));
 		exit(status);
 	}
 	status = U_ZERO_ERROR;
@@ -231,7 +231,7 @@ int  main(int argc, char ** argv)
 	UNewDataMemory * pData;
 	pData = udata_create(outDir, NULL, outFileName, &(dh.info), copyright, &status);
 	if(U_FAILURE(status)) {
-		fprintf(stderr, "gencfu: Could not open output file \"%s\", \"%s\"\n", outFileName, u_errorName(status));
+		slfprintf_stderr("gencfu: Could not open output file \"%s\", \"%s\"\n", outFileName, u_errorName(status));
 		exit(status);
 	}
 	//  Write the data itself.
@@ -239,11 +239,11 @@ int  main(int argc, char ** argv)
 	// finish up
 	bytesWritten = udata_finish(pData, &status);
 	if(U_FAILURE(status)) {
-		fprintf(stderr, "gencfu: Error %d writing the output file\n", status);
+		slfprintf_stderr("gencfu: Error %d writing the output file\n", status);
 		exit(status);
 	}
 	if(bytesWritten != outDataSize) {
-		fprintf(stderr, "gencfu: Error writing to output file \"%s\"\n", outFileName);
+		slfprintf_stderr("gencfu: Error writing to output file \"%s\"\n", outFileName);
 		exit(-1);
 	}
 	uspoof_close(sc);

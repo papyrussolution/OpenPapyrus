@@ -4185,7 +4185,7 @@ inline bool TestMapSubmessage::has_test_map() const {
   return _internal_has_test_map();
 }
 inline void TestMapSubmessage::clear_test_map() {
-  if (GetArenaForAllocation() == nullptr && test_map_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && test_map_ != nullptr) {
     delete test_map_;
   }
   test_map_ = nullptr;

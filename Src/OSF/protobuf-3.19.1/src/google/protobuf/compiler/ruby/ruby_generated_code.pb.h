@@ -1891,7 +1891,7 @@ inline bool TestMessage::has_optional_msg() const {
   return _internal_has_optional_msg();
 }
 inline void TestMessage::clear_optional_msg() {
-  if (GetArenaForAllocation() == nullptr && optional_msg_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && optional_msg_ != nullptr) {
     delete optional_msg_;
   }
   optional_msg_ = nullptr;
@@ -2632,7 +2632,7 @@ inline void TestMessage::set_has_oneof_int32() {
   _oneof_case_[0] = kOneofInt32;
 }
 inline void TestMessage::clear_oneof_int32() {
-  if (_internal_has_oneof_int32()) {
+  if(_internal_has_oneof_int32()) {
     my_oneof_.oneof_int32_ = 0;
     clear_has_my_oneof();
   }
@@ -2670,7 +2670,7 @@ inline void TestMessage::set_has_oneof_int64() {
   _oneof_case_[0] = kOneofInt64;
 }
 inline void TestMessage::clear_oneof_int64() {
-  if (_internal_has_oneof_int64()) {
+  if(_internal_has_oneof_int64()) {
     my_oneof_.oneof_int64_ = int64_t{0};
     clear_has_my_oneof();
   }
@@ -2708,7 +2708,7 @@ inline void TestMessage::set_has_oneof_uint32() {
   _oneof_case_[0] = kOneofUint32;
 }
 inline void TestMessage::clear_oneof_uint32() {
-  if (_internal_has_oneof_uint32()) {
+  if(_internal_has_oneof_uint32()) {
     my_oneof_.oneof_uint32_ = 0u;
     clear_has_my_oneof();
   }
@@ -2746,7 +2746,7 @@ inline void TestMessage::set_has_oneof_uint64() {
   _oneof_case_[0] = kOneofUint64;
 }
 inline void TestMessage::clear_oneof_uint64() {
-  if (_internal_has_oneof_uint64()) {
+  if(_internal_has_oneof_uint64()) {
     my_oneof_.oneof_uint64_ = uint64_t{0u};
     clear_has_my_oneof();
   }
@@ -2784,7 +2784,7 @@ inline void TestMessage::set_has_oneof_bool() {
   _oneof_case_[0] = kOneofBool;
 }
 inline void TestMessage::clear_oneof_bool() {
-  if (_internal_has_oneof_bool()) {
+  if(_internal_has_oneof_bool()) {
     my_oneof_.oneof_bool_ = false;
     clear_has_my_oneof();
   }
@@ -2822,7 +2822,7 @@ inline void TestMessage::set_has_oneof_double() {
   _oneof_case_[0] = kOneofDouble;
 }
 inline void TestMessage::clear_oneof_double() {
-  if (_internal_has_oneof_double()) {
+  if(_internal_has_oneof_double()) {
     my_oneof_.oneof_double_ = 0;
     clear_has_my_oneof();
   }
@@ -2860,7 +2860,7 @@ inline void TestMessage::set_has_oneof_float() {
   _oneof_case_[0] = kOneofFloat;
 }
 inline void TestMessage::clear_oneof_float() {
-  if (_internal_has_oneof_float()) {
+  if(_internal_has_oneof_float()) {
     my_oneof_.oneof_float_ = 0;
     clear_has_my_oneof();
   }
@@ -2898,7 +2898,7 @@ inline void TestMessage::set_has_oneof_string() {
   _oneof_case_[0] = kOneofString;
 }
 inline void TestMessage::clear_oneof_string() {
-  if (_internal_has_oneof_string()) {
+  if(_internal_has_oneof_string()) {
     my_oneof_.oneof_string_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_my_oneof();
   }
@@ -2980,7 +2980,7 @@ inline void TestMessage::set_has_oneof_bytes() {
   _oneof_case_[0] = kOneofBytes;
 }
 inline void TestMessage::clear_oneof_bytes() {
-  if (_internal_has_oneof_bytes()) {
+  if(_internal_has_oneof_bytes()) {
     my_oneof_.oneof_bytes_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_my_oneof();
   }
@@ -3062,7 +3062,7 @@ inline void TestMessage::set_has_oneof_enum() {
   _oneof_case_[0] = kOneofEnum;
 }
 inline void TestMessage::clear_oneof_enum() {
-  if (_internal_has_oneof_enum()) {
+  if(_internal_has_oneof_enum()) {
     my_oneof_.oneof_enum_ = 0;
     clear_has_my_oneof();
   }
@@ -3100,8 +3100,8 @@ inline void TestMessage::set_has_oneof_msg() {
   _oneof_case_[0] = kOneofMsg;
 }
 inline void TestMessage::clear_oneof_msg() {
-  if (_internal_has_oneof_msg()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_oneof_msg()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete my_oneof_.oneof_msg_;
     }
     clear_has_my_oneof();
@@ -3461,7 +3461,7 @@ inline bool TestMessage::has_nested_message() const {
   return _internal_has_nested_message();
 }
 inline void TestMessage::clear_nested_message() {
-  if (GetArenaForAllocation() == nullptr && nested_message_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && nested_message_ != nullptr) {
     delete nested_message_;
   }
   nested_message_ = nullptr;

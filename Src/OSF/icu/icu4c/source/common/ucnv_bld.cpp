@@ -266,7 +266,7 @@ static bool U_CALLCONV isCnvAcceptable(void * /*context*/,
 static UConverterSharedData* ucnv_data_unFlattenClone(UConverterLoadArgs * pArgs, UDataMemory * pData, UErrorCode * status)
 {
 	/* UDataInfo info; -- necessary only if some converters have different formatVersion */
-	const uint8 * raw = (const uint8*)udata_getMemory(pData);
+	const uint8 * raw = (const uint8 *)udata_getMemory(pData);
 	const UConverterStaticData * source = (const UConverterStaticData*)raw;
 	UConverterSharedData * data;
 	UConverterType type = (UConverterType)source->conversionType;
@@ -1324,7 +1324,7 @@ U_CAPI int32_t U_EXPORT2 ucnv_swap(const UDataSwapper * ds,
 		return 0;
 	}
 
-	inBytes = (const uint8*)inData+headerSize;
+	inBytes = (const uint8 *)inData+headerSize;
 	outBytes = (uint8 *)outData+headerSize;
 
 	/* read the initial UConverterStaticData structure after the UDataInfo header */

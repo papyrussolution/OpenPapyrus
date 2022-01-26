@@ -313,7 +313,7 @@ int pthread_cond_destroy(pthread_cond_t * cond)
  *   bTimedOut = sem_wait( semBlockQueue,timeout );
  *
  *   lock( mtxUnblockLock );
- *   if( 0 != (nSignalsWasLeft = nWaitersToUnblock) ) {
+ *   if( 0 != (nSignalsWasLeft = nWaitersToUnblock)) {
  *  if( bTimeout ) {                       // timeout (or canceled)
  *    if( 0 != nWaitersBlocked ) {
  *      nWaitersBlocked--;
@@ -328,7 +328,7 @@ int pthread_cond_destroy(pthread_cond_t * cond)
  *      nSignalsWasLeft = 0;                // do not open the gate
  *                                    // below again.
  *    }
- *    else if( 0 != (nWaitersWasGone = nWaitersGone) ) {
+ *    else if( 0 != (nWaitersWasGone = nWaitersGone)) {
  *      nWaitersGone = 0;
  *    }
  *  }
@@ -431,7 +431,7 @@ int pthread_cond_destroy(pthread_cond_t * cond)
  *   bTimedOut = sem_wait( semBlockQueue,timeout );
  *
  *   lock( mtxUnblockLock );
- *   if( 0 != (nSignalsWasLeft = nWaitersToUnblock) ) {
+ *   if( 0 != (nSignalsWasLeft = nWaitersToUnblock)) {
  *  --nWaitersToUnblock;
  *   }
  *   else if( INT_MAX/2 == ++nWaitersGone ) { // timeout/canceled or
@@ -880,7 +880,7 @@ int pthread_cond_signal(pthread_cond_t * cond)
 int pthread_cond_broadcast(pthread_cond_t * cond)
 {
 	// The TRUE unblockAll arg means unblock ALL waiters.
-	return (__ptw32_cond_unblock(cond,  __PTW32_TRUE));
+	return (__ptw32_cond_unblock(cond,  TRUE));
 }
 /*
  * ------------------------------------------------------

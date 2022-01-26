@@ -15,7 +15,7 @@
 #define HMAC_OUTPUT_SIZE        20
 #define HMAC_BLOCK_SIZE 64
 
-static void __db_hmac(uint8*, uint8*, size_t, uint8 *);
+static void __db_hmac(uint8 *, uint8 *, size_t, uint8 *);
 /*
  * !!!
  * All of these functions use a ctx structure on the stack.  The __db_SHA1Init

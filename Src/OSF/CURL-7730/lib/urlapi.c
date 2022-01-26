@@ -247,7 +247,7 @@ bool Curl_is_absolute_url(const char * url, char * buf, size_t buflen)
 		/* RFC 3986 3.1 explains:
 		   scheme      = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
 		 */
-		else if(ISALNUM(s) || (s == '+') || (s == '-') || (s == '.') ) {
+		else if(ISALNUM(s) || (s == '+') || (s == '-') || (s == '.')) {
 			if(buf)
 				buf[i] = (char)TOLOWER(s);
 		}

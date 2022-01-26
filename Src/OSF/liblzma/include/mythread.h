@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
+//
 //
 /// \file       mythread.h
 /// \brief      Some threading related helper macros and functions
@@ -8,7 +8,7 @@
 //  This file has been put into the public domain.
 //  You can do whatever you want with this file.
 //
-///////////////////////////////////////////////////////////////////////////////
+//
 
 #ifndef MYTHREAD_H
 #define MYTHREAD_H

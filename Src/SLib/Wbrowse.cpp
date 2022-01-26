@@ -1005,7 +1005,7 @@ int BrowserWindow::CopyToClipboard()
 							sw.PutFormat("FG0L", 2, j + 1, row + 1);
 							sw.PutVal(val_buf.cptr(), 1);
 						}
-						if(width_ary.BSearch(cn, &len, 0) > 0 && len < (long)val_buf.Len())
+						if(width_ary.BSearch(cn, &len, 0) && len < (long)val_buf.Len())
 							width_ary.Update(cn, (long)val_buf.Len(), 1);
 					}
 				}

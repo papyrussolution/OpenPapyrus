@@ -10,15 +10,13 @@
 //
 // Notes: Used the UTF information I found at:
 //   http://www.cl.cam.ac.uk/~mgk25/unicode.html
-////////////////////////////////////////////////////////////////////////////////
 // 
 // Modificated 2006 Jens Lorenz
 // 
 // - Clean up the sources
 // - Removing UCS-Bug in Utf8_Iter
 // - Add convert function in Utf8_16_Write
-////////////////////////////////////////////////////////////////////////////////
-
+//
 #pragma once
 
 #ifdef _MSC_VER

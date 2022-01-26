@@ -639,7 +639,7 @@ void UnicodeSet::applyPattern(RuleCharacterIterator& chars,
 
 namespace {
 static bool numericValueFilter(UChar32 ch, void * context) {
-	return u_getNumericValue(ch) == *(double*)context;
+	return u_getNumericValue(ch) == *(double *)context;
 }
 
 static bool generalCategoryMaskFilter(UChar32 ch, void * context) {

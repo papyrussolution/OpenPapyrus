@@ -477,7 +477,7 @@ void T_CTEST_EXPORT2 runTests(const TestNode * root)
 	ON_LINE = FALSE; /* just in case */
 
 	if(knownList != NULL) {
-		if(udbg_knownIssue_print(knownList) ) {
+		if(udbg_knownIssue_print(knownList)) {
 			fprintf(stdout, "(To run suppressed tests, use the -K option.) \n\n");
 		}
 		udbg_knownIssue_close(knownList);
@@ -1184,7 +1184,7 @@ int32_t T_CTEST_EXPORT2 ctest_xml_init(const char * rootName)
 	XML_FILE = fopen(XML_FILE_NAME, "w");
 	if(!XML_FILE) {
 		perror("fopen");
-		fprintf(stderr, " Error: couldn't open XML output file %s\n", XML_FILE_NAME);
+		slfprintf_stderr(" Error: couldn't open XML output file %s\n", XML_FILE_NAME);
 		return 1;
 	}
 	while(*rootName&&!isalnum((int)*rootName)) {

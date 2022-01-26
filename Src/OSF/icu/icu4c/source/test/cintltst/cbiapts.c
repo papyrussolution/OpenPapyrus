@@ -892,7 +892,7 @@ static void TestBreakIteratorTailoring()
 	for(testPtr = tailoringTests; testPtr->locale != NULL; ++testPtr) {
 		UErrorCode status = U_ZERO_ERROR;
 		UBreakIterator* ubrkiter = ubrk_open(testPtr->type, testPtr->locale, testPtr->test, -1, &status);
-		if(U_SUCCESS(status) ) {
+		if(U_SUCCESS(status)) {
 			int32_t offset, offsindx;
 			bool foundError = FALSE;
 			for(offsindx = 0; (offset = ubrk_next(ubrkiter)) != UBRK_DONE; ++offsindx) {

@@ -35,19 +35,19 @@
  * that exists and is the right size.
  */
 #if !defined(HAVE_INT64_T) && defined(HAVE___INT64)
-	typedef __int64 int64;
+	// @sobolev typedef __int64 int64;
 	#define HAVE_INT64_T
 #endif
 #if !defined(HAVE_INT64_T) && SIZE_OF_INT == 8
-	typedef int int64;
+	// @sobolev typedef int int64;
 	#define HAVE_INT64_T
 #endif
 #if !defined(HAVE_INT64_T) && SIZE_OF_LONG == 8
-	typedef long int64;
+	// @sobolev typedef long int64;
 	#define HAVE_INT64_T
 #endif
 #if !defined(HAVE_INT64_T) && SIZE_OF_LONG_LONG == 8
-	typedef long long int64;
+	// @sobolev typedef long long int64;
 	#define HAVE_INT64_T
 #endif
 #if !defined(HAVE_INT64_T)
@@ -68,14 +68,14 @@
 	#error No 32-bit integer type was found.
 #endif
 /*
- * Similarly for int16_t
+ * Similarly for int16
  */
 #if !defined(HAVE_INT16_T) && SIZE_OF_INT == 2
-	typedef int int16_t;
+	// @sobolev typedef int int16_t__Removed;
 	#define HAVE_INT16_T
 #endif
 #if !defined(HAVE_INT16_T) && SIZE_OF_SHORT == 2
-	typedef short int16_t;
+	// @sobolev typedef short int16_t__Removed;
 	#define HAVE_INT16_T
 #endif
 #if !defined(HAVE_INT16_T)
@@ -85,19 +85,19 @@
  * Similarly for uint64
  */
 #if !defined(HAVE_UINT64_T) && defined(HAVE_UNSIGNED___INT64)
-	typedef unsigned __int64 uint64;
+	// @sobolev typedef unsigned __int64 uint64;
 	#define HAVE_UINT64_T
 #endif
 #if !defined(HAVE_UINT64_T) && SIZE_OF_UNSIGNED == 8
-	typedef unsigned uint64;
+	// @sobolev typedef unsigned uint64;
 	#define HAVE_UINT64_T
 #endif
 #if !defined(HAVE_UINT64_T) && SIZE_OF_UNSIGNED_LONG == 8
-	typedef unsigned long uint64;
+	// @sobolev typedef unsigned long uint64;
 	#define HAVE_UINT64_T
 #endif
 #if !defined(HAVE_UINT64_T) && SIZE_OF_UNSIGNED_LONG_LONG == 8
-	typedef unsigned long long uint64;
+	// @sobolev typedef unsigned long long uint64;
 	#define HAVE_UINT64_T
 #endif
 #if !defined(HAVE_UINT64_T)
@@ -118,14 +118,14 @@
 	//#error No 32-bit unsigned integer type was found.
 //#endif
 /*
- * Similarly for uint16_t
+ * Similarly for uint16
  */
 #if !defined(HAVE_UINT16_T) && SIZE_OF_UNSIGNED == 2
-	typedef unsigned uint16_t;
+	// @sobolev typedef unsigned uint16_t__Removed;
 	#define HAVE_UINT16_T
 #endif
 #if !defined(HAVE_UINT16_T) && SIZE_OF_UNSIGNED_SHORT == 2
-	typedef unsigned short uint16_t;
+	// @sobolev typedef unsigned short uint16_t__Removed;
 	#define HAVE_UINT16_T
 #endif
 #if !defined(HAVE_UINT16_T)
@@ -135,7 +135,7 @@
  * Similarly for uint8
  */
 #if !defined(HAVE_UINT8_T)
-	typedef uchar uint8;
+	// @sobolev typedef uchar uint8;
 	#define HAVE_UINT8_T
 #endif
 #if !defined(HAVE_UINT16_T)

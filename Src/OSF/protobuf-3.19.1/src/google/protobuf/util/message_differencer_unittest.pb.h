@@ -1289,7 +1289,7 @@ inline bool TestField::has_m() const {
   return _internal_has_m();
 }
 inline void TestField::clear_m() {
-  if (m_ != nullptr) m_->Clear();
+  if(m_ != nullptr) m_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::TestField& TestField::_internal_m() const {
@@ -1604,7 +1604,7 @@ inline bool TestDiffMessage_Item::has_m() const {
   return _internal_has_m();
 }
 inline void TestDiffMessage_Item::clear_m() {
-  if (m_ != nullptr) m_->Clear();
+  if(m_ != nullptr) m_->Clear();
   _has_bits_[0] &= ~0x00000002u;
 }
 inline const ::protobuf_unittest::TestField& TestDiffMessage_Item::_internal_m() const {
@@ -1904,7 +1904,7 @@ inline bool TestDiffMessage::has_m() const {
   return _internal_has_m();
 }
 inline void TestDiffMessage::clear_m() {
-  if (m_ != nullptr) m_->Clear();
+  if(m_ != nullptr) m_->Clear();
   _has_bits_[0] &= ~0x00000002u;
 }
 inline const ::protobuf_unittest::TestField& TestDiffMessage::_internal_m() const {

@@ -33,13 +33,12 @@
 #include <protobuf-internal.h>
 #pragma hdrstop
 #include <google/protobuf/stubs/common.h>
-
 #ifdef _WIN32
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN  // We only need minimal includes
-#endif
-#include <windows.h>
-#define snprintf _snprintf    // see comment in strutil.cc
+	#ifndef WIN32_LEAN_AND_MEAN
+		#define WIN32_LEAN_AND_MEAN  // We only need minimal includes
+	#endif
+	#include <windows.h>
+	#define snprintf _snprintf    // see comment in strutil.cc
 #endif
 #if defined(__ANDROID__)
 #include <android/log.h>
@@ -47,12 +46,10 @@
 
 #include <google/protobuf/stubs/callback.h>
 #include <google/protobuf/stubs/logging.h>
-#include <google/protobuf/stubs/once.h>
 #include <google/protobuf/stubs/status.h>
 #include <google/protobuf/stubs/stringpiece.h>
 #include <google/protobuf/stubs/strutil.h>
 #include <google/protobuf/stubs/int128.h>
-
 #include <google/protobuf/port_def.inc>
 
 namespace google {
@@ -127,42 +124,33 @@ inline void DefaultLogHandler(LogLevel level, const char* filename, int line,
 		ANDROID_LOG_ERROR, // LOG(ERROR)
 		ANDROID_LOG_FATAL, // LOG(FATAL)
 	};
-
 	// Bound the logging level.
 	const int android_log_level = android_log_levels[level];
 	::std::ostringstream ostr;
-	ostr << "[libprotobuf " << level_names[level] << " " << filename << ":"
-	     << line << "] " << message.c_str();
-
+	ostr << "[libprotobuf " << level_names[level] << " " << filename << ":" << line << "] " << message.c_str();
 	// Output the log string the Android log at the appropriate level.
-	__android_log_write(android_log_level, "libprotobuf-native",
-	    ostr.str().c_str());
+	__android_log_write(android_log_level, "libprotobuf-native", ostr.str().c_str());
 	// Also output to std::cerr.
 	fprintf(stderr, "%s", ostr.str().c_str());
 	fflush(stderr);
-
 	// Indicate termination if needed.
 	if(android_log_level == ANDROID_LOG_FATAL) {
-		__android_log_write(ANDROID_LOG_FATAL, "libprotobuf-native",
-		    "terminating.\n");
+		__android_log_write(ANDROID_LOG_FATAL, "libprotobuf-native", "terminating.\n");
 	}
 }
 
 #else
-void DefaultLogHandler(LogLevel level, const char* filename, int line,
-    const std::string& message) {
+void DefaultLogHandler(LogLevel level, const char* filename, int line, const std::string& message) 
+{
 	if(level < GOOGLE_PROTOBUF_MIN_LOG_LEVEL) {
 		return;
 	}
 	static const char* level_names[] = { "INFO", "WARNING", "ERROR", "FATAL" };
-
 	// We use fprintf() instead of cerr because we want this to work at static
 	// initialization time.
-	fprintf(stderr, "[libprotobuf %s %s:%d] %s\n",
-	    level_names[level], filename, line, message.c_str());
+	fprintf(stderr, "[libprotobuf %s %s:%d] %s\n", level_names[level], filename, line, message.c_str());
 	fflush(stderr); // Needed on MSVC.
 }
-
 #endif
 
 void NullLogHandler(LogLevel /* level */, const char* /* filename */,

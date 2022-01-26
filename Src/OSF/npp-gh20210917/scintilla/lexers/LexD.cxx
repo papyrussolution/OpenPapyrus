@@ -270,7 +270,7 @@ void SCI_METHOD LexerD::Lex(Sci_PositionU startPos, Sci_Position length, int ini
 			    }
 			    else if(( sc.ch == '-' || sc.ch == '+') && (                     /*sign and*/
 					( !numHex && ( sc.chPrev == 'e' || sc.chPrev == 'E' ) ) || /*decimal or*/
-					( sc.chPrev == 'p' || sc.chPrev == 'P' ) ) ) {          /*hex*/
+					( sc.chPrev == 'p' || sc.chPrev == 'P' ) )) {          /*hex*/
 				    // Parse exponent sign in float literals: 2e+10 0x2e+10
 				    continue;
 			    }

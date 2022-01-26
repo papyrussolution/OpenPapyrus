@@ -1,5 +1,5 @@
 // ATOLDRV.CPP
-// Copyright (c) A.Starodub 2010, 2011, 2013, 2015, 2016, 2018, 2019, 2020, 2021
+// Copyright (c) A.Starodub 2010, 2011, 2013, 2015, 2016, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Интерфейс с драйвером оборудования АТОЛ 
 //
@@ -341,6 +341,21 @@ private:
 		SDynLibrary Lib;
 	};
 	// @v10.3.9 virtual int InitChannel();
+	int  CallJsonProc(const SJson * pJs)
+	{
+		int    ok = 1;
+		THROW(pJs);
+		THROW(P_Fptr10 && P_Fptr10->ProcessJsonProc);
+		{
+			void * h = P_Fptr10->Handler;
+			SStringU js_buf_u;
+			THROW_SL(pJs->ToStr(js_buf_u));
+			P_Fptr10->SetParamStrProc(h, LIBFPTR_PARAM_JSON_DATA, js_buf_u.ucptr());
+			P_Fptr10->ProcessJsonProc(h);
+		}
+		CATCHZOK
+		return ok;
+	}
 	int  ReadSettingsBulk(SString & rJsonBuf); // handler
 	int  WriteSettingsBukl(const SString & rJsonBuf); // handler
 	int  Connect(StateBlock * pStB)

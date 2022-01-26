@@ -95,7 +95,7 @@ int32_t swapFormatVersion3(const UDataSwapper * ds,
 		return 0;
 	}
 
-	inBytes = (const uint8*)inData;
+	inBytes = (const uint8 *)inData;
 	outBytes = (uint8 *)outData;
 
 	inHeader = (const UCATableHeader*)inData;
@@ -303,7 +303,7 @@ int32_t swapFormatVersion4(const UDataSwapper * ds,
 		return 0;
 	}
 
-	const uint8 * inBytes = (const uint8*)inData;
+	const uint8 * inBytes = (const uint8 *)inData;
 	uint8 * outBytes = (uint8 *)outData;
 
 	const int32_t * inIndexes = (const int32_t*)inBytes;
@@ -567,7 +567,7 @@ U_CAPI int32_t U_EXPORT2 ucol_swapInverseUCA(const UDataSwapper * ds,
 		return 0;
 	}
 
-	inBytes = (const uint8*)inData+headerSize;
+	inBytes = (const uint8 *)inData+headerSize;
 	outBytes = (uint8 *)outData+headerSize;
 
 	inHeader = (const InverseUCATableHeader*)inBytes;

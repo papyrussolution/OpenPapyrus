@@ -739,7 +739,7 @@ static void TestNumberFormat()
 
 	/*testing set and get Attributes extensively */
 	log_verbose("\nTesting get and set attributes extensively\n");
-	for(attr = UNUM_PARSE_INT_ONLY; attr<= UNUM_PADDING_POSITION; attr = (UNumberFormatAttribute)((int32_t)attr + 1) ) {
+	for(attr = UNUM_PARSE_INT_ONLY; attr<= UNUM_PADDING_POSITION; attr = (UNumberFormatAttribute)((int32_t)attr + 1)) {
 		newvalue = unum_getAttribute(fr, attr);
 		unum_setAttribute(def, attr, newvalue);
 		if(unum_getAttribute(def, attr)!=unum_getAttribute(fr, attr))
@@ -2533,7 +2533,7 @@ static void TestUNumberingSystem() {
 	for(itemPtr = numSysTestItems; itemPtr->locale != NULL; itemPtr++) {
 		status = U_ZERO_ERROR;
 		unumsys = unumsys_open(itemPtr->locale, &status);
-		if(U_SUCCESS(status) ) {
+		if(U_SUCCESS(status)) {
 			UChar ubuf[kNumSysDescripBufMax];
 			int32_t ulen, radix = unumsys_getRadix(unumsys);
 			bool isAlgorithmic = unumsys_isAlgorithmic(unumsys);
@@ -2561,15 +2561,15 @@ static void TestUNumberingSystem() {
 		// Helps verify the management of the internal cache of the names.
 		status = U_ZERO_ERROR;
 		uenum = unumsys_openAvailableNames(&status);
-		if(U_SUCCESS(status) ) {
+		if(U_SUCCESS(status)) {
 			int32_t numsysCount = 0;
 			// sanity check for a couple of number systems that must be in the enumeration
 			bool foundLatn = FALSE;
 			bool foundArab = FALSE;
-			while((numsys = uenum_next(uenum, NULL, &status)) != NULL && U_SUCCESS(status) ) {
+			while((numsys = uenum_next(uenum, NULL, &status)) != NULL && U_SUCCESS(status)) {
 				status = U_ZERO_ERROR;
 				unumsys = unumsys_openByName(numsys, &status);
-				if(U_SUCCESS(status) ) {
+				if(U_SUCCESS(status)) {
 					numsysCount++;
 					if(uprv_strcmp(numsys, "latn") ) foundLatn = TRUE;
 					if(uprv_strcmp(numsys, "arab") ) foundArab = TRUE;
@@ -2738,7 +2738,7 @@ static void TestContext() {
 	const TestContextItem* itemPtr;
 
 	UNumberFormat * unum = unum_open(UNUM_SPELLOUT, NULL, 0, "en", NULL, &status);
-	if(U_SUCCESS(status) ) {
+	if(U_SUCCESS(status)) {
 		UDisplayContext context = unum_getContext(unum, UDISPCTX_TYPE_CAPITALIZATION, &status);
 		if(U_FAILURE(status) || context != UDISPCTX_CAPITALIZATION_NONE) {
 			log_err("FAIL: Initial unum_getContext is not UDISPCTX_CAPITALIZATION_NONE\n");
@@ -2883,7 +2883,7 @@ enum { kUBufSize = 64, kBBufSize = 128 };
 static void TestCurrFmtNegSameAsPositive() {
 	UErrorCode status = U_ZERO_ERROR;
 	UNumberFormat * unumfmt = unum_open(UNUM_CURRENCY, NULL, 0, "en_US", NULL, &status);
-	if(U_SUCCESS(status) ) {
+	if(U_SUCCESS(status)) {
 		unum_applyPattern(unumfmt, FALSE, currFmtNegSameAsPos, -1, NULL, &status);
 		if(U_SUCCESS(status)) {
 			UChar ubuf[kUBufSize];
@@ -3075,7 +3075,7 @@ static void TestVariousStylesAndAttributes() {
 	for(lsaTestPtr = lsaTests; lsaTestPtr->locale != NULL; lsaTestPtr++) {
 		UErrorCode status = U_ZERO_ERROR;
 		UNumberFormat * unum = unum_open(lsaTestPtr->style, NULL, 0, lsaTestPtr->locale, NULL, &status);
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			log_data_err("FAIL: unum_open style %d, locale %s: error %s\n",
 			    (int)lsaTestPtr->style,
 			    lsaTestPtr->locale,
@@ -3098,7 +3098,7 @@ static void TestVariousStylesAndAttributes() {
 				status = U_ZERO_ERROR;
 				uexplen = u_unescape(veItemPtr->expected, uexp, kUBufSize);
 				ugetlen = unum_formatDouble(unum, veItemPtr->value, uget, kUBufSize, NULL, &status);
-				if(U_FAILURE(status) ) {
+				if(U_FAILURE(status)) {
 					log_err("FAIL: unum_formatDouble style %d, locale %s, attr %d, value %.2f: error %s\n",
 					    (int)lsaTestPtr->style,
 					    lsaTestPtr->locale,
@@ -3216,7 +3216,7 @@ static const FormatForFieldsItem fffItems[] = {
 static void TestFormatForFields() {
 	UErrorCode status = U_ZERO_ERROR;
 	UFieldPositionIterator* fpositer = ufieldpositer_open(&status);
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		log_err("ufieldpositer_open fails, status %s\n", u_errorName(status));
 	}
 	else {
@@ -3227,7 +3227,7 @@ static void TestFormatForFields() {
 			unum = (itemPtr->style == UNUM_PATTERN_DECIMAL) ?
 			    unum_open(itemPtr->style, patNoFields, -1, itemPtr->locale, NULL, &status) :
 			    unum_open(itemPtr->style, NULL, 0, itemPtr->locale, NULL, &status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				log_data_err("unum_open fails for locale %s, style %d: status %s (Are you missing data?)\n",
 				    itemPtr->locale,
 				    itemPtr->style,
@@ -3236,7 +3236,7 @@ static void TestFormatForFields() {
 			else {
 				UChar ubuf[kUBufSize];
 				int32_t ulen = unum_formatDoubleForFields(unum, itemPtr->value, ubuf, kUBufSize, fpositer, &status);
-				if(U_FAILURE(status) ) {
+				if(U_FAILURE(status)) {
 					log_err("unum_formatDoubleForFields fails for locale %s, style %d: status %s\n",
 					    itemPtr->locale,
 					    itemPtr->style,
@@ -3529,7 +3529,7 @@ static void TestSetMaxFracAndRoundIncr() {
 		status = U_ZERO_ERROR;
 		ulen = unum_toPattern(unf, FALSE, ubuf, kUBufMax, &status);
 		(void)ulen;
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			log_err("test %s: unum_toPattern fails with %s\n", itemPtr->descrip, u_errorName(status));
 		}
 		else if(u_strcmp(ubuf, itemPtr->expPattern)!=0) {
@@ -3539,7 +3539,7 @@ static void TestSetMaxFracAndRoundIncr() {
 		}
 		status = U_ZERO_ERROR;
 		ulen = unum_formatDouble(unf, itemPtr->valueToFmt, ubuf, kUBufMax, NULL, &status);
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			log_err("test %s: unum_formatDouble fails with %s\n", itemPtr->descrip, u_errorName(status));
 		}
 		else if(u_strcmp(ubuf, itemPtr->expFormat)!=0) {
@@ -3609,7 +3609,7 @@ static void TestSciNotationMaxFracCap()
 	static const UChar * pat1 = u"#.##E+00;-#.##E+00";
 	UErrorCode status = U_ZERO_ERROR;
 	UNumberFormat * unum = unum_open(UNUM_PATTERN_DECIMAL, pat1, -1, "en_US", NULL, &status);
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		log_data_err("unum_open UNUM_PATTERN_DECIMAL with scientific pattern for \"en_US\" fails with %s\n", u_errorName(status));
 	}
 	else {
@@ -3621,7 +3621,7 @@ static void TestSciNotationMaxFracCap()
 		unum_setAttribute(unum, UNUM_MIN_FRACTION_DIGITS, 0);
 		unum_setAttribute(unum, UNUM_MAX_FRACTION_DIGITS, 2147483647);
 		ulen = unum_toPattern(unum, FALSE, ubuf, kUBufMax, &status);
-		if(U_SUCCESS(status) ) {
+		if(U_SUCCESS(status)) {
 			u_austrncpy(bbuf, ubuf, kUBufMax);
 			log_info("unum_toPattern (%d): %s\n", ulen, bbuf);
 		}
@@ -3629,7 +3629,7 @@ static void TestSciNotationMaxFracCap()
 		for(value = 10.0; value < 1000000000.0; value *= 10.0) {
 			status = U_ZERO_ERROR;
 			ulen = unum_formatDouble(unum, value, ubuf, kUBufMax, NULL, &status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				log_err("unum_formatDouble value %.1f status %s\n", value, u_errorName(status));
 			}
 			else if(u_strncmp(ubuf, u"1E+0", 4) != 0) {
@@ -3644,7 +3644,7 @@ static void TestSciNotationMaxFracCap()
 static void TestMinIntMinFracZero() {
 	UErrorCode status = U_ZERO_ERROR;
 	UNumberFormat * unum = unum_open(UNUM_DECIMAL, NULL, 0, "en_US", NULL, &status);
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		log_data_err("unum_open UNUM_DECIMAL for en_US fails with %s\n", u_errorName(status));
 	}
 	else {
@@ -3661,7 +3661,7 @@ static void TestMinIntMinFracZero() {
 		}
 
 		ulen = unum_toPattern(unum, FALSE, ubuf, kUBufMax, &status);
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			log_err("unum_toPattern fails with %s\n", u_errorName(status));
 		}
 		else if(ulen < 3 || u_strstr(ubuf, u"#.#")==NULL) {
@@ -3671,7 +3671,7 @@ static void TestMinIntMinFracZero() {
 
 		status = U_ZERO_ERROR;
 		ulen = unum_formatDouble(unum, 10.0, ubuf, kUBufMax, NULL, &status);
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			log_err("unum_formatDouble 10.0 ulen %d fails with %s\n", ulen, u_errorName(status));
 		}
 		else if(u_strcmp(ubuf, u"10") != 0) {
@@ -3681,7 +3681,7 @@ static void TestMinIntMinFracZero() {
 
 		status = U_ZERO_ERROR;
 		ulen = unum_formatDouble(unum, 0.9, ubuf, kUBufMax, NULL, &status);
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			log_err("unum_formatDouble 0.9 ulen %d fails with %s\n", ulen, u_errorName(status));
 		}
 		else if(u_strcmp(ubuf, u".9") != 0) {
@@ -3691,7 +3691,7 @@ static void TestMinIntMinFracZero() {
 
 		status = U_ZERO_ERROR;
 		ulen = unum_formatDouble(unum, 0.0, ubuf, kUBufMax, NULL, &status);
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			log_err("unum_formatDouble 0.0 ulen %d fails with %s\n", ulen, u_errorName(status));
 		}
 		else if(u_strcmp(ubuf, u"0") != 0) {
@@ -3702,7 +3702,7 @@ static void TestMinIntMinFracZero() {
 		unum_close(unum);
 		status = U_ZERO_ERROR;
 		unum = unum_open(UNUM_CURRENCY, NULL, 0, "en_US", NULL, &status);
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			log_data_err("unum_open UNUM_CURRENCY for en_US fails with %s\n", u_errorName(status));
 		}
 		else {
@@ -3716,7 +3716,7 @@ static void TestMinIntMinFracZero() {
 
 			status = U_ZERO_ERROR;
 			ulen = unum_formatDouble(unum, 10.0, ubuf, kUBufMax, NULL, &status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				log_err("unum_formatDouble (CURRENCY) 10.0 ulen %d fails with %s\n", ulen, u_errorName(status));
 			}
 			else if(u_strcmp(ubuf, u"$10") != 0) {
@@ -3726,7 +3726,7 @@ static void TestMinIntMinFracZero() {
 
 			status = U_ZERO_ERROR;
 			ulen = unum_formatDouble(unum, 0.9, ubuf, kUBufMax, NULL, &status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				log_err("unum_formatDouble (CURRENCY) 0.9 ulen %d fails with %s\n", ulen, u_errorName(status));
 			}
 			else if(u_strcmp(ubuf, u"$.9") != 0) {
@@ -3736,7 +3736,7 @@ static void TestMinIntMinFracZero() {
 
 			status = U_ZERO_ERROR;
 			ulen = unum_formatDouble(unum, 0.0, ubuf, kUBufMax, NULL, &status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				log_err("unum_formatDouble (CURRENCY) 0.0 ulen %d fails with %s\n", ulen, u_errorName(status));
 			}
 			else if(u_strcmp(ubuf, u"$0") != 0) {
@@ -3752,7 +3752,7 @@ static void Test21479_ExactCurrency()
 {
 	UErrorCode status = U_ZERO_ERROR;
 	UNumberFormat * nf = unum_open(UNUM_CURRENCY, NULL, 0, "en_US", NULL, &status);
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		log_data_err("unum_open UNUM_CURRENCY for en_US fails with %s\n", u_errorName(status));
 		goto cleanup;
 	}

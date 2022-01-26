@@ -4662,7 +4662,7 @@ inline bool TestRecursion::has_child() const {
   return _internal_has_child();
 }
 inline void TestRecursion::clear_child() {
-  if (child_ != nullptr) child_->Clear();
+  if(child_ != nullptr) child_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::TestRecursion& TestRecursion::_internal_child() const {

@@ -73,7 +73,7 @@ static void initMsg(const char * pname)
 #if defined(UCONVMSG_LINK) && U_PLATFORM != U_PF_OS390 /* On z/OS, this is failing. */
 		udata_setAppData(UCONVMSG, (const void *)uconvmsg_dat, &err);
 		if(U_FAILURE(err)) {
-			fprintf(stderr, "%s: warning, problem installing our static resource bundle data uconvmsg: %s - trying anyways.\n",
+			slfprintf_stderr("%s: warning, problem installing our static resource bundle data uconvmsg: %s - trying anyways.\n",
 			    pname, u_errorName(err));
 			err = U_ZERO_ERROR; /* It may still fail */
 		}
@@ -81,9 +81,9 @@ static void initMsg(const char * pname)
 		/* Get messages. */
 		gBundle = u_wmsg_setPath(UCONVMSG, &err);
 		if(U_FAILURE(err)) {
-			fprintf(stderr, "%s: warning: couldn't open bundle %s: %s\n", pname, UCONVMSG, u_errorName(err));
+			slfprintf_stderr("%s: warning: couldn't open bundle %s: %s\n", pname, UCONVMSG, u_errorName(err));
 #ifdef UCONVMSG_LINK
-			fprintf(stderr, "%s: setAppData was called, internal data %s failed to load\n", pname, UCONVMSG);
+			slfprintf_stderr("%s: setAppData was called, internal data %s failed to load\n", pname, UCONVMSG);
 #endif
 			err = U_ZERO_ERROR;
 			/* that was try #1, try again with a path */
@@ -92,8 +92,8 @@ static void initMsg(const char * pname)
 			uprv_strcat(dataPath, UCONVMSG);
 			gBundle = u_wmsg_setPath(dataPath, &err);
 			if(U_FAILURE(err)) {
-				fprintf(stderr, "%s: warning: still couldn't open bundle %s: %s\n", pname, dataPath, u_errorName(err));
-				fprintf(stderr, "%s: warning: messages will not be displayed\n", pname);
+				slfprintf_stderr("%s: warning: still couldn't open bundle %s: %s\n", pname, dataPath, u_errorName(err));
+				slfprintf_stderr("%s: warning: messages will not be displayed\n", pname);
 			}
 		}
 	}
@@ -622,7 +622,7 @@ bool ConvertFile::convertFile(const char * pname,
 	}
 
 	if(verbose) {
-		fprintf(stderr, "%s:\n", infilestr);
+		slfprintf_stderr("%s:\n", infilestr);
 	}
 
 #if !UCONFIG_NO_TRANSLITERATION
@@ -1115,7 +1115,7 @@ extern int main(int argc, char ** argv)
 	/* Initialize ICU */
 	u_init(&status);
 	if(U_FAILURE(status)) {
-		fprintf(stderr, "%s: can not initialize ICU.  status = %s\n",
+		slfprintf_stderr("%s: can not initialize ICU.  status = %s\n",
 		    argv[0], u_errorName(status));
 		exit(1);
 	}
@@ -1387,7 +1387,7 @@ error_exit:
 #if !UCONFIG_NO_LEGACY_CONVERSION
 	ret = 1;
 #else
-	fprintf(stderr, "uconv error: UCONFIG_NO_LEGACY_CONVERSION is on. See uconfig.h\n");
+	slfprintf_stderr("uconv error: UCONFIG_NO_LEGACY_CONVERSION is on. See uconfig.h\n");
 #endif
 normal_exit:
 	if(outfile != stdout) {

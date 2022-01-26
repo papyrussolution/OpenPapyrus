@@ -64,19 +64,16 @@
 
 #include <protobuf-internal.h>
 #pragma hdrstop
-#include <google/protobuf/dynamic_message.h>
 #include <google/protobuf/descriptor.pb.h>
 #include <google/protobuf/generated_message_reflection.h>
 #include <google/protobuf/generated_message_util.h>
 #include <google/protobuf/unknown_field_set.h>
 #include <google/protobuf/stubs/hash.h>
 #include <google/protobuf/arenastring.h>
-#include <google/protobuf/extension_set.h>
 #include <google/protobuf/map_field.h>
 #include <google/protobuf/map_field_inl.h>
 #include <google/protobuf/map_type_handler.h>
 #include <google/protobuf/reflection_ops.h>
-#include <google/protobuf/repeated_field.h>
 #include <google/protobuf/port_def.inc>  // NOLINT
 
 namespace google {
@@ -662,7 +659,8 @@ void DynamicMessage::CrossLinkPrototypes() {
 	}
 }
 
-Message* DynamicMessage::New(Arena* arena) const {
+Message* DynamicMessage::New(Arena* arena) const 
+{
 	if(arena != nullptr) {
 		void* new_base = Arena::CreateArray<char>(arena, type_info_->size);
 		memset(new_base, 0, type_info_->size);
@@ -675,15 +673,11 @@ Message* DynamicMessage::New(Arena* arena) const {
 	}
 }
 
-int DynamicMessage::GetCachedSize() const {
-	return cached_byte_size_.load(std::memory_order_relaxed);
-}
+int DynamicMessage::GetCachedSize() const { return cached_byte_size_.load(std::memory_order_relaxed); }
+void DynamicMessage::SetCachedSize(int size) const { cached_byte_size_.store(size, std::memory_order_relaxed); }
 
-void DynamicMessage::SetCachedSize(int size) const {
-	cached_byte_size_.store(size, std::memory_order_relaxed);
-}
-
-Metadata DynamicMessage::GetMetadata() const {
+Metadata DynamicMessage::GetMetadata() const 
+{
 	Metadata metadata;
 	metadata.descriptor = type_info_->type;
 	metadata.reflection = type_info_->reflection.get();
@@ -692,31 +686,32 @@ Metadata DynamicMessage::GetMetadata() const {
 
 // ===================================================================
 
-DynamicMessageFactory::DynamicMessageFactory()
-	: pool_(nullptr), delegate_to_generated_factory_(false) {
+DynamicMessageFactory::DynamicMessageFactory() : pool_(nullptr), delegate_to_generated_factory_(false) 
+{
 }
 
-DynamicMessageFactory::DynamicMessageFactory(const DescriptorPool* pool)
-	: pool_(pool), delegate_to_generated_factory_(false) {
+DynamicMessageFactory::DynamicMessageFactory(const DescriptorPool* pool) : pool_(pool), delegate_to_generated_factory_(false) 
+{
 }
 
-DynamicMessageFactory::~DynamicMessageFactory() {
+DynamicMessageFactory::~DynamicMessageFactory() 
+{
 	for(auto iter = prototypes_.begin(); iter != prototypes_.end(); ++iter) {
 		delete iter->second;
 	}
 }
 
-const Message* DynamicMessageFactory::GetPrototype(const Descriptor* type) {
+const Message* DynamicMessageFactory::GetPrototype(const Descriptor* type) 
+{
 	MutexLock lock(&prototypes_mutex_);
 	return GetPrototypeNoLock(type);
 }
 
-const Message* DynamicMessageFactory::GetPrototypeNoLock(const Descriptor* type) {
-	if(delegate_to_generated_factory_ &&
-	    type->file()->pool() == DescriptorPool::generated_pool()) {
+const Message* DynamicMessageFactory::GetPrototypeNoLock(const Descriptor* type) 
+{
+	if(delegate_to_generated_factory_ && type->file()->pool() == DescriptorPool::generated_pool()) {
 		return MessageFactory::generated_factory()->GetPrototype(type);
 	}
-
 	const TypeInfo** target = &prototypes_[type];
 	if(*target != nullptr) {
 		// Already exists.
@@ -751,9 +746,7 @@ const Message* DynamicMessageFactory::GetPrototypeNoLock(const Descriptor* type)
 	// Decide all field offsets by packing in order.
 	// We place the DynamicMessage object itself at the beginning of the allocated
 	// space.
-	int size = sizeof(DynamicMessage);
-	size = AlignOffset(size);
-
+	int size = AlignOffset(sizeof(DynamicMessage));
 	// Next the has_bits, which is an array of uint32s.
 	type_info->has_bits_offset = -1;
 	int max_hasbit = 0;
@@ -779,14 +772,12 @@ const Message* DynamicMessageFactory::GetPrototypeNoLock(const Descriptor* type)
 		size += has_bits_array_size * sizeof(uint32_t);
 		size = AlignOffset(size);
 	}
-
 	// The oneof_case, if any. It is an array of uint32s.
 	if(real_oneof_count > 0) {
 		type_info->oneof_case_offset = size;
 		size += real_oneof_count * sizeof(uint32_t);
 		size = AlignOffset(size);
 	}
-
 	// The ExtensionSet, if any.
 	if(type->extension_range_count() > 0) {
 		type_info->extensions_offset = size;
@@ -805,7 +796,7 @@ const Message* DynamicMessageFactory::GetPrototypeNoLock(const Descriptor* type)
 		// Make sure field is aligned to avoid bus errors.
 		// Oneof fields do not use any space.
 		if(!InRealOneof(type->field(i))) {
-			int field_size = FieldSpaceUsed(type->field(i));
+			const int field_size = FieldSpaceUsed(type->field(i));
 			size = AlignTo(size, std::min(kSafeAlignment, field_size));
 			offsets[i] = size;
 			size += field_size;

@@ -83,11 +83,11 @@ INT_PTR CALLBACK WordStyleDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM l
 		    for(size_t i = 0; i < themeSwitcher.size(); ++i) {
 			    pair<generic_string, generic_string> & themeInfo = themeSwitcher.getElementFromIndex(i);
 			    int j = static_cast<int32_t>(::SendMessage(_hSwitch2ThemeCombo, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(themeInfo.first.c_str())));
-			    if(!themeInfo.second.compare(nppParamInst.getNppGUI()._themeName) ) {
+			    if(!themeInfo.second.compare(nppParamInst.getNppGUI()._themeName)) {
 				    _currentThemeIndex = j;
 				    _themeName.assign(themeInfo.second);
 			    }
-			    if(!themeInfo.first.compare(TEXT("Default")) ) {
+			    if(!themeInfo.first.compare(TEXT("Default"))) {
 				    defaultThemeIndex = j;
 			    }
 		    }

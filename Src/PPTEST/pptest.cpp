@@ -1429,11 +1429,14 @@ int DoTest_PThr4w();
 static void Test_LibPhoneNumber()
 {
 #if(_MSC_VER >= 1900)
-	SLibPhoneNumber pn;
-	int r4 = pn.Parse("(8142) 330 660", "RU");
-	int r1 = pn.Parse("+7(921)700-29-87", "RU");
-	int r2 = pn.Parse("8(921)700-29-87", "RU");
-	int r3 = pn.Parse("+7(921)700-29-87", 0);
+	for(uint i = 0; i < 10; i++) {
+		SLibPhoneNumber pn;
+		int r4 = pn.Parse("(8142) 330 660", "RU");
+		int r1 = pn.Parse("+7(921)700-29-87", "RU");
+		int r2 = pn.Parse("8(921)700-29-87", "RU");
+		int r3 = pn.Parse("+7(921)700-29-87", 0);
+		assert(r1 && r2 && r3 && r4);
+	}
 #endif
 }
 

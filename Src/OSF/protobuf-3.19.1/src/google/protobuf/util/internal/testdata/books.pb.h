@@ -4945,7 +4945,7 @@ inline bool Book::has_author() const {
   return _internal_has_author();
 }
 inline void Book::clear_author() {
-  if (author_ != nullptr) author_->Clear();
+  if(author_ != nullptr) author_->Clear();
   _has_bits_[0] &= ~0x00000008u;
 }
 inline const ::proto_util_converter::testing::Author& Book::_internal_author() const {
@@ -5160,7 +5160,7 @@ inline bool Book::has_data() const {
   return _internal_has_data();
 }
 inline void Book::clear_data() {
-  if (data_ != nullptr) data_->Clear();
+  if(data_ != nullptr) data_->Clear();
   _has_bits_[0] &= ~0x00000010u;
 }
 inline const ::proto_util_converter::testing::Book_Data& Book::_internal_data() const {
@@ -5250,7 +5250,7 @@ inline bool Book::has_publisher() const {
   return _internal_has_publisher();
 }
 inline void Book::clear_publisher() {
-  if (publisher_ != nullptr) publisher_->Clear();
+  if(publisher_ != nullptr) publisher_->Clear();
   _has_bits_[0] &= ~0x00000020u;
 }
 inline const ::proto_util_converter::testing::Publisher& Book::_internal_publisher() const {
@@ -8050,7 +8050,7 @@ inline bool NestedBook::has_book() const {
   return _internal_has_book();
 }
 inline void NestedBook::clear_book() {
-  if (book_ != nullptr) book_->Clear();
+  if(book_ != nullptr) book_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::proto_util_converter::testing::Book& NestedBook::_internal_book() const {
@@ -8292,7 +8292,7 @@ inline bool Cyclic::has_m_book() const {
   return _internal_has_m_book();
 }
 inline void Cyclic::clear_m_book() {
-  if (m_book_ != nullptr) m_book_->Clear();
+  if(m_book_ != nullptr) m_book_->Clear();
   _has_bits_[0] &= ~0x00000002u;
 }
 inline const ::proto_util_converter::testing::Book& Cyclic::_internal_m_book() const {
@@ -8422,7 +8422,7 @@ inline bool Cyclic::has_m_cyclic() const {
   return _internal_has_m_cyclic();
 }
 inline void Cyclic::clear_m_cyclic() {
-  if (m_cyclic_ != nullptr) m_cyclic_->Clear();
+  if(m_cyclic_ != nullptr) m_cyclic_->Clear();
   _has_bits_[0] &= ~0x00000004u;
 }
 inline const ::proto_util_converter::testing::Cyclic& Cyclic::_internal_m_cyclic() const {
@@ -9268,7 +9268,7 @@ inline bool TestMessageFieldsWithSameJsonName::has_prim1() const {
   return _internal_has_prim1();
 }
 inline void TestMessageFieldsWithSameJsonName::clear_prim1() {
-  if (prim1_ != nullptr) prim1_->Clear();
+  if(prim1_ != nullptr) prim1_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::proto_util_converter::testing::Primitive& TestMessageFieldsWithSameJsonName::_internal_prim1() const {
@@ -9358,7 +9358,7 @@ inline bool TestMessageFieldsWithSameJsonName::has_prim_1() const {
   return _internal_has_prim_1();
 }
 inline void TestMessageFieldsWithSameJsonName::clear_prim_1() {
-  if (prim_1_ != nullptr) prim_1_->Clear();
+  if(prim_1_ != nullptr) prim_1_->Clear();
   _has_bits_[0] &= ~0x00000002u;
 }
 inline const ::proto_util_converter::testing::Primitive& TestMessageFieldsWithSameJsonName::_internal_prim_1() const {

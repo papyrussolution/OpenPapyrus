@@ -60,11 +60,11 @@ static const unsigned char kUTF8LenTbl[256] = {
 
 // Return length of a single UTF-8 source character
 inline int OneCharLen(const char* src) {
-  return kUTF8LenTbl[*reinterpret_cast<const uint8*>(src)];
+  return kUTF8LenTbl[*reinterpret_cast<const uint8 *>(src)];
 }
 
 // Return length of a single UTF-8 source character
-inline int OneCharLen(const uint8* src) {
+inline int OneCharLen(const uint8 * src) {
   return kUTF8LenTbl[*src];
 }
 

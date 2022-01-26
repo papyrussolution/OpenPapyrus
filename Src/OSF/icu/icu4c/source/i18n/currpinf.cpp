@@ -80,7 +80,7 @@ CurrencyPluralInfo&CurrencyPluralInfo::operator = (const CurrencyPluralInfo& inf
 	deleteHash(fPluralCountToCurrencyUnitPattern);
 	fPluralCountToCurrencyUnitPattern = initHash(fInternalStatus);
 	copyHash(info.fPluralCountToCurrencyUnitPattern, fPluralCountToCurrencyUnitPattern, fInternalStatus);
-	if(U_FAILURE(fInternalStatus) ) {
+	if(U_FAILURE(fInternalStatus)) {
 		return *this;
 	}
 	ZDELETE(fPluralRules);

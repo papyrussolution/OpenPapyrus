@@ -958,7 +958,7 @@ static int StyloQLoginInvitation(DbLoginBlock & rDlb, SString & rInvString)
 			THROW(p_ic->GetOwnPeerEntry(&sp) > 0);
 			// @debug @! В следующем вызове должен применяться флаг PPStyloQInterchange::smqbpfLocalSession, а не PPStyloQInterchange::smqbpfLocalMachine
 			// Сейчас мы устанавливаем smqbpfLocalMachine для того, чтобы можно было отладить механизм на эмуляторе клиента.
-			THROW(p_ic->SetupMqbParam(sp, PPStyloQInterchange::smqbpfInitAccessPoint|PPStyloQInterchange::smqbpfLocalMachine, rsparam));
+			THROW(PPStyloQInterchange::SetupMqbParam(sp, PPStyloQInterchange::smqbpfInitAccessPoint|PPStyloQInterchange::smqbpfLocalMachine, rsparam));
 			{
 				PPMqbClient::RoutingParamEntry rpe;
 				SBinaryChunk qi;
@@ -975,7 +975,7 @@ static int StyloQLoginInvitation(DbLoginBlock & rDlb, SString & rInvString)
 				js.ToStr(inv.CommandJson);
 			}
 			{
-				p_ic->RunStyloQServer(rsparam, &rDlb);
+				p_ic->RunStyloQLocalMqbServer(rsparam, &rDlb);
 				if(p_ic->MakeInvitation(inv, rInvString) > 0)
 					ok = 1;
 			}

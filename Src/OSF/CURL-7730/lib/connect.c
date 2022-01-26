@@ -263,7 +263,7 @@ static CURLcode bindlocal(struct connectdata * conn,
 		/* no local kind of binding was requested */
 		return CURLE_OK;
 	memzero(&sa, sizeof(struct Curl_sockaddr_storage));
-	if(dev && (strlen(dev)<255) ) {
+	if(dev && (strlen(dev)<255)) {
 		char myhost[256] = "";
 		int done = 0; /* -1 for error, 1 for address found */
 		bool is_interface = FALSE;

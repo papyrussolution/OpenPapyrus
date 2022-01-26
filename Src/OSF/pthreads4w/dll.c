@@ -39,7 +39,7 @@ __PTW32_BEGIN_C_DECLS
 
 BOOL WINAPI DllMain(HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpvReserved)
 {
-	BOOL result =  __PTW32_TRUE;
+	BOOL result =  TRUE;
 	switch(fdwReason) {
 		case DLL_PROCESS_ATTACH: result = pthread_win32_process_attach_np(); break;
 		case DLL_THREAD_ATTACH:  result = pthread_win32_thread_attach_np(); break; // A thread is being created

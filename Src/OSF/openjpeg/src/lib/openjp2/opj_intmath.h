@@ -53,37 +53,22 @@
    Get the minimum of two integers
    @return Returns a if a < b else b
  */
-static INLINE OPJ_INT32 opj_int_min(OPJ_INT32 a, OPJ_INT32 b)
-{
-	return a < b ? a : b;
-}
-
+//static INLINE OPJ_INT32 opj_int_min_Removed(OPJ_INT32 a, OPJ_INT32 b) { return a < b ? a : b; }
 /**
    Get the minimum of two integers
    @return Returns a if a < b else b
  */
-static INLINE OPJ_UINT32 opj_uint_min(OPJ_UINT32 a, OPJ_UINT32 b)
-{
-	return a < b ? a : b;
-}
-
+//static INLINE OPJ_UINT32 opj_uint_min_Removed(OPJ_UINT32 a, OPJ_UINT32 b) { return a < b ? a : b; }
 /**
    Get the maximum of two integers
    @return Returns a if a > b else b
  */
-static INLINE OPJ_INT32 opj_int_max(OPJ_INT32 a, OPJ_INT32 b)
-{
-	return (a > b) ? a : b;
-}
-
+//static INLINE OPJ_INT32 opj_int_max_Removed(OPJ_INT32 a, OPJ_INT32 b) { return (a > b) ? a : b; }
 /**
    Get the maximum of two integers
    @return Returns a if a > b else b
  */
-static INLINE OPJ_UINT32 opj_uint_max(OPJ_UINT32 a, OPJ_UINT32 b)
-{
-	return (a > b) ? a : b;
-}
+//static INLINE OPJ_UINT32 opj_uint_max_Removed(OPJ_UINT32 a, OPJ_UINT32 b) { return (a > b) ? a : b; }
 
 /**
    Get the saturated sum of two unsigned integers
@@ -94,15 +79,11 @@ static INLINE OPJ_UINT32 opj_uint_adds(OPJ_UINT32 a, OPJ_UINT32 b)
 	OPJ_UINT64 sum = (OPJ_UINT64)a + (OPJ_UINT64)b;
 	return (OPJ_UINT32)(-(OPJ_INT32)(sum >> 32)) | (OPJ_UINT32)sum;
 }
-
 /**
    Get the saturated difference of two unsigned integers
    @return Returns saturated sum of a-b
  */
-static INLINE OPJ_UINT32 opj_uint_subs(OPJ_UINT32 a, OPJ_UINT32 b)
-{
-	return (a >= b) ? a - b : 0;
-}
+static INLINE OPJ_UINT32 opj_uint_subs(OPJ_UINT32 a, OPJ_UINT32 b) { return (a >= b) ? (a - b) : 0; }
 
 /**
    Clamp an integer inside an interval
@@ -113,18 +94,7 @@ static INLINE OPJ_UINT32 opj_uint_subs(OPJ_UINT32 a, OPJ_UINT32 b)
    <li>Returns min if (a < min)
    </ul>
  */
-static INLINE OPJ_INT32 opj_int_clamp(OPJ_INT32 a, OPJ_INT32 min,
-    OPJ_INT32 max)
-{
-	if(a < min) {
-		return min;
-	}
-	if(a > max) {
-		return max;
-	}
-	return a;
-}
-
+//static INLINE OPJ_INT32 opj_int_clamp_Removed(OPJ_INT32 a, OPJ_INT32 min, OPJ_INT32 max) { if(a < min) { return min; } if(a > max) { return max; } return a; }
 /**
    Clamp an integer inside an interval
    @return
@@ -134,17 +104,7 @@ static INLINE OPJ_INT32 opj_int_clamp(OPJ_INT32 a, OPJ_INT32 min,
    <li>Returns min if (a < min)
    </ul>
  */
-static INLINE OPJ_INT64 opj_int64_clamp(OPJ_INT64 a, OPJ_INT64 min, OPJ_INT64 max)
-{
-	if(a < min) {
-		return min;
-	}
-	if(a > max) {
-		return max;
-	}
-	return a;
-}
-
+//static INLINE OPJ_INT64 opj_int64_clamp_Removed(OPJ_INT64 a, OPJ_INT64 min, OPJ_INT64 max) { if(a < min) { return min; } if(a > max) { return max; } return a; }
 /**
    @return Get absolute value of integer
  */

@@ -6191,7 +6191,9 @@ int PPObjPerson::AddRelationList(PPID * pPrmrID, PPIDArray * pScndList, PPID * p
 
 int PPObjPerson::EditRelation(PPID * pPrmrID, PPID * pScndID, PPID * pRelTypeID)
 {
-	int    ok = -1, valid_data = 0, edit = 0;
+	int    ok = -1;
+	int    valid_data = 0;
+	bool   edit = false;
 	PersonLink pl_item;
 	PPPersonPacket pack;
 	THROW(CheckRights(PPR_MOD));
@@ -6206,7 +6208,7 @@ int PPObjPerson::EditRelation(PPID * pPrmrID, PPID * pScndID, PPID * pRelTypeID)
 		LAssocArray rel_list;
 		THROW(GetPacket(pl_item.PrmrPersonID, &pack, 0) > 0);
 		rel_list = pack.GetRelList();
-		edit = BIN(rel_list.SearchPair(pl_item.ScndPersonList.getSingle(), pl_item.LinkTypeID, 0) > 0);
+		edit = rel_list.SearchPair(pl_item.ScndPersonList.getSingle(), pl_item.LinkTypeID, 0);
 		if(edit)
 			pack.RemoveRelation(pl_item.ScndPersonList.getSingle(), pl_item.LinkTypeID);
 	}

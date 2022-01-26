@@ -327,13 +327,13 @@ TimestampDurationTestCases::_Internal::duration5(const TimestampDurationTestCase
   return *msg->duration5_;
 }
 void TimestampDurationTestCases::clear_timeval8() {
-  if (GetArenaForAllocation() == nullptr && timeval8_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && timeval8_ != nullptr) {
     delete timeval8_;
   }
   timeval8_ = nullptr;
 }
 void TimestampDurationTestCases::clear_duration5() {
-  if (GetArenaForAllocation() == nullptr && duration5_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && duration5_ != nullptr) {
     delete duration5_;
   }
   duration5_ = nullptr;
@@ -350,102 +350,102 @@ TimestampDurationTestCases::TimestampDurationTestCases(::PROTOBUF_NAMESPACE_ID::
 TimestampDurationTestCases::TimestampDurationTestCases(const TimestampDurationTestCases& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if (from._internal_has_epoch()) {
+  if(from._internal_has_epoch()) {
     epoch_ = new ::proto_util_converter::testing::TimeStampType(*from.epoch_);
   } else {
     epoch_ = nullptr;
   }
-  if (from._internal_has_epoch2()) {
+  if(from._internal_has_epoch2()) {
     epoch2_ = new ::proto_util_converter::testing::TimeStampType(*from.epoch2_);
   } else {
     epoch2_ = nullptr;
   }
-  if (from._internal_has_mintime()) {
+  if(from._internal_has_mintime()) {
     mintime_ = new ::proto_util_converter::testing::TimeStampType(*from.mintime_);
   } else {
     mintime_ = nullptr;
   }
-  if (from._internal_has_maxtime()) {
+  if(from._internal_has_maxtime()) {
     maxtime_ = new ::proto_util_converter::testing::TimeStampType(*from.maxtime_);
   } else {
     maxtime_ = nullptr;
   }
-  if (from._internal_has_timeval1()) {
+  if(from._internal_has_timeval1()) {
     timeval1_ = new ::proto_util_converter::testing::TimeStampType(*from.timeval1_);
   } else {
     timeval1_ = nullptr;
   }
-  if (from._internal_has_timeval2()) {
+  if(from._internal_has_timeval2()) {
     timeval2_ = new ::proto_util_converter::testing::TimeStampType(*from.timeval2_);
   } else {
     timeval2_ = nullptr;
   }
-  if (from._internal_has_timeval3()) {
+  if(from._internal_has_timeval3()) {
     timeval3_ = new ::proto_util_converter::testing::TimeStampType(*from.timeval3_);
   } else {
     timeval3_ = nullptr;
   }
-  if (from._internal_has_timeval4()) {
+  if(from._internal_has_timeval4()) {
     timeval4_ = new ::proto_util_converter::testing::TimeStampType(*from.timeval4_);
   } else {
     timeval4_ = nullptr;
   }
-  if (from._internal_has_timeval5()) {
+  if(from._internal_has_timeval5()) {
     timeval5_ = new ::proto_util_converter::testing::TimeStampType(*from.timeval5_);
   } else {
     timeval5_ = nullptr;
   }
-  if (from._internal_has_timeval6()) {
+  if(from._internal_has_timeval6()) {
     timeval6_ = new ::proto_util_converter::testing::TimeStampType(*from.timeval6_);
   } else {
     timeval6_ = nullptr;
   }
-  if (from._internal_has_timeval7()) {
+  if(from._internal_has_timeval7()) {
     timeval7_ = new ::proto_util_converter::testing::TimeStampType(*from.timeval7_);
   } else {
     timeval7_ = nullptr;
   }
-  if (from._internal_has_timeval8()) {
+  if(from._internal_has_timeval8()) {
     timeval8_ = new ::PROTOBUF_NAMESPACE_ID::Timestamp(*from.timeval8_);
   } else {
     timeval8_ = nullptr;
   }
-  if (from._internal_has_zero_duration()) {
+  if(from._internal_has_zero_duration()) {
     zero_duration_ = new ::proto_util_converter::testing::DurationType(*from.zero_duration_);
   } else {
     zero_duration_ = nullptr;
   }
-  if (from._internal_has_min_duration()) {
+  if(from._internal_has_min_duration()) {
     min_duration_ = new ::proto_util_converter::testing::DurationType(*from.min_duration_);
   } else {
     min_duration_ = nullptr;
   }
-  if (from._internal_has_max_duration()) {
+  if(from._internal_has_max_duration()) {
     max_duration_ = new ::proto_util_converter::testing::DurationType(*from.max_duration_);
   } else {
     max_duration_ = nullptr;
   }
-  if (from._internal_has_duration1()) {
+  if(from._internal_has_duration1()) {
     duration1_ = new ::proto_util_converter::testing::DurationType(*from.duration1_);
   } else {
     duration1_ = nullptr;
   }
-  if (from._internal_has_duration2()) {
+  if(from._internal_has_duration2()) {
     duration2_ = new ::proto_util_converter::testing::DurationType(*from.duration2_);
   } else {
     duration2_ = nullptr;
   }
-  if (from._internal_has_duration3()) {
+  if(from._internal_has_duration3()) {
     duration3_ = new ::proto_util_converter::testing::DurationType(*from.duration3_);
   } else {
     duration3_ = nullptr;
   }
-  if (from._internal_has_duration4()) {
+  if(from._internal_has_duration4()) {
     duration4_ = new ::proto_util_converter::testing::DurationType(*from.duration4_);
   } else {
     duration4_ = nullptr;
   }
-  if (from._internal_has_duration5()) {
+  if(from._internal_has_duration5()) {
     duration5_ = new ::PROTOBUF_NAMESPACE_ID::Duration(*from.duration5_);
   } else {
     duration5_ = nullptr;
@@ -469,26 +469,26 @@ TimestampDurationTestCases::~TimestampDurationTestCases() {
 
 inline void TimestampDurationTestCases::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  if (this != internal_default_instance()) delete epoch_;
-  if (this != internal_default_instance()) delete epoch2_;
-  if (this != internal_default_instance()) delete mintime_;
-  if (this != internal_default_instance()) delete maxtime_;
-  if (this != internal_default_instance()) delete timeval1_;
-  if (this != internal_default_instance()) delete timeval2_;
-  if (this != internal_default_instance()) delete timeval3_;
-  if (this != internal_default_instance()) delete timeval4_;
-  if (this != internal_default_instance()) delete timeval5_;
-  if (this != internal_default_instance()) delete timeval6_;
-  if (this != internal_default_instance()) delete timeval7_;
-  if (this != internal_default_instance()) delete timeval8_;
-  if (this != internal_default_instance()) delete zero_duration_;
-  if (this != internal_default_instance()) delete min_duration_;
-  if (this != internal_default_instance()) delete max_duration_;
-  if (this != internal_default_instance()) delete duration1_;
-  if (this != internal_default_instance()) delete duration2_;
-  if (this != internal_default_instance()) delete duration3_;
-  if (this != internal_default_instance()) delete duration4_;
-  if (this != internal_default_instance()) delete duration5_;
+  if(this != internal_default_instance()) delete epoch_;
+  if(this != internal_default_instance()) delete epoch2_;
+  if(this != internal_default_instance()) delete mintime_;
+  if(this != internal_default_instance()) delete maxtime_;
+  if(this != internal_default_instance()) delete timeval1_;
+  if(this != internal_default_instance()) delete timeval2_;
+  if(this != internal_default_instance()) delete timeval3_;
+  if(this != internal_default_instance()) delete timeval4_;
+  if(this != internal_default_instance()) delete timeval5_;
+  if(this != internal_default_instance()) delete timeval6_;
+  if(this != internal_default_instance()) delete timeval7_;
+  if(this != internal_default_instance()) delete timeval8_;
+  if(this != internal_default_instance()) delete zero_duration_;
+  if(this != internal_default_instance()) delete min_duration_;
+  if(this != internal_default_instance()) delete max_duration_;
+  if(this != internal_default_instance()) delete duration1_;
+  if(this != internal_default_instance()) delete duration2_;
+  if(this != internal_default_instance()) delete duration3_;
+  if(this != internal_default_instance()) delete duration4_;
+  if(this != internal_default_instance()) delete duration5_;
 }
 
 void TimestampDurationTestCases::ArenaDtor(void* object) {
@@ -507,83 +507,83 @@ void TimestampDurationTestCases::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  if (GetArenaForAllocation() == nullptr && epoch_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && epoch_ != nullptr) {
     delete epoch_;
   }
   epoch_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && epoch2_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && epoch2_ != nullptr) {
     delete epoch2_;
   }
   epoch2_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && mintime_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && mintime_ != nullptr) {
     delete mintime_;
   }
   mintime_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && maxtime_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && maxtime_ != nullptr) {
     delete maxtime_;
   }
   maxtime_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && timeval1_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && timeval1_ != nullptr) {
     delete timeval1_;
   }
   timeval1_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && timeval2_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && timeval2_ != nullptr) {
     delete timeval2_;
   }
   timeval2_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && timeval3_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && timeval3_ != nullptr) {
     delete timeval3_;
   }
   timeval3_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && timeval4_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && timeval4_ != nullptr) {
     delete timeval4_;
   }
   timeval4_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && timeval5_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && timeval5_ != nullptr) {
     delete timeval5_;
   }
   timeval5_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && timeval6_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && timeval6_ != nullptr) {
     delete timeval6_;
   }
   timeval6_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && timeval7_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && timeval7_ != nullptr) {
     delete timeval7_;
   }
   timeval7_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && timeval8_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && timeval8_ != nullptr) {
     delete timeval8_;
   }
   timeval8_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && zero_duration_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && zero_duration_ != nullptr) {
     delete zero_duration_;
   }
   zero_duration_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && min_duration_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && min_duration_ != nullptr) {
     delete min_duration_;
   }
   min_duration_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && max_duration_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && max_duration_ != nullptr) {
     delete max_duration_;
   }
   max_duration_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && duration1_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && duration1_ != nullptr) {
     delete duration1_;
   }
   duration1_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && duration2_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && duration2_ != nullptr) {
     delete duration2_;
   }
   duration2_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && duration3_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && duration3_ != nullptr) {
     delete duration3_;
   }
   duration3_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && duration4_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && duration4_ != nullptr) {
     delete duration4_;
   }
   duration4_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && duration5_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && duration5_ != nullptr) {
     delete duration5_;
   }
   duration5_ = nullptr;
@@ -595,10 +595,10 @@ const char* TimestampDurationTestCases::_InternalParse(const char* ptr, ::PROTOB
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // .proto_util_converter.testing.TimeStampType epoch = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr = ctx->ParseMessage(_internal_mutable_epoch(), ptr);
           CHK_(ptr);
         } else
@@ -606,7 +606,7 @@ const char* TimestampDurationTestCases::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // .proto_util_converter.testing.TimeStampType epoch2 = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr = ctx->ParseMessage(_internal_mutable_epoch2(), ptr);
           CHK_(ptr);
         } else
@@ -614,7 +614,7 @@ const char* TimestampDurationTestCases::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // .proto_util_converter.testing.TimeStampType mintime = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           ptr = ctx->ParseMessage(_internal_mutable_mintime(), ptr);
           CHK_(ptr);
         } else
@@ -622,7 +622,7 @@ const char* TimestampDurationTestCases::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // .proto_util_converter.testing.TimeStampType maxtime = 4;
       case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
           ptr = ctx->ParseMessage(_internal_mutable_maxtime(), ptr);
           CHK_(ptr);
         } else
@@ -630,7 +630,7 @@ const char* TimestampDurationTestCases::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // .proto_util_converter.testing.TimeStampType timeval1 = 5;
       case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
           ptr = ctx->ParseMessage(_internal_mutable_timeval1(), ptr);
           CHK_(ptr);
         } else
@@ -638,7 +638,7 @@ const char* TimestampDurationTestCases::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // .proto_util_converter.testing.TimeStampType timeval2 = 6;
       case 6:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
           ptr = ctx->ParseMessage(_internal_mutable_timeval2(), ptr);
           CHK_(ptr);
         } else
@@ -646,7 +646,7 @@ const char* TimestampDurationTestCases::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // .proto_util_converter.testing.TimeStampType timeval3 = 7;
       case 7:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
           ptr = ctx->ParseMessage(_internal_mutable_timeval3(), ptr);
           CHK_(ptr);
         } else
@@ -654,7 +654,7 @@ const char* TimestampDurationTestCases::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // .proto_util_converter.testing.TimeStampType timeval4 = 8;
       case 8:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
           ptr = ctx->ParseMessage(_internal_mutable_timeval4(), ptr);
           CHK_(ptr);
         } else
@@ -662,7 +662,7 @@ const char* TimestampDurationTestCases::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // .proto_util_converter.testing.TimeStampType timeval5 = 9;
       case 9:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
           ptr = ctx->ParseMessage(_internal_mutable_timeval5(), ptr);
           CHK_(ptr);
         } else
@@ -670,7 +670,7 @@ const char* TimestampDurationTestCases::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // .proto_util_converter.testing.TimeStampType timeval6 = 10;
       case 10:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 82)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 82)) {
           ptr = ctx->ParseMessage(_internal_mutable_timeval6(), ptr);
           CHK_(ptr);
         } else
@@ -678,7 +678,7 @@ const char* TimestampDurationTestCases::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // .proto_util_converter.testing.TimeStampType timeval7 = 11;
       case 11:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 90)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 90)) {
           ptr = ctx->ParseMessage(_internal_mutable_timeval7(), ptr);
           CHK_(ptr);
         } else
@@ -686,7 +686,7 @@ const char* TimestampDurationTestCases::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // .google.protobuf.Timestamp timeval8 = 12;
       case 12:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 98)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 98)) {
           ptr = ctx->ParseMessage(_internal_mutable_timeval8(), ptr);
           CHK_(ptr);
         } else
@@ -694,7 +694,7 @@ const char* TimestampDurationTestCases::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // .proto_util_converter.testing.DurationType zero_duration = 101;
       case 101:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
           ptr = ctx->ParseMessage(_internal_mutable_zero_duration(), ptr);
           CHK_(ptr);
         } else
@@ -702,7 +702,7 @@ const char* TimestampDurationTestCases::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // .proto_util_converter.testing.DurationType min_duration = 102;
       case 102:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
           ptr = ctx->ParseMessage(_internal_mutable_min_duration(), ptr);
           CHK_(ptr);
         } else
@@ -710,7 +710,7 @@ const char* TimestampDurationTestCases::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // .proto_util_converter.testing.DurationType max_duration = 103;
       case 103:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
           ptr = ctx->ParseMessage(_internal_mutable_max_duration(), ptr);
           CHK_(ptr);
         } else
@@ -718,7 +718,7 @@ const char* TimestampDurationTestCases::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // .proto_util_converter.testing.DurationType duration1 = 104;
       case 104:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
           ptr = ctx->ParseMessage(_internal_mutable_duration1(), ptr);
           CHK_(ptr);
         } else
@@ -726,7 +726,7 @@ const char* TimestampDurationTestCases::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // .proto_util_converter.testing.DurationType duration2 = 105;
       case 105:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
           ptr = ctx->ParseMessage(_internal_mutable_duration2(), ptr);
           CHK_(ptr);
         } else
@@ -734,7 +734,7 @@ const char* TimestampDurationTestCases::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // .proto_util_converter.testing.DurationType duration3 = 106;
       case 106:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 82)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 82)) {
           ptr = ctx->ParseMessage(_internal_mutable_duration3(), ptr);
           CHK_(ptr);
         } else
@@ -742,7 +742,7 @@ const char* TimestampDurationTestCases::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // .proto_util_converter.testing.DurationType duration4 = 107;
       case 107:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 90)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 90)) {
           ptr = ctx->ParseMessage(_internal_mutable_duration4(), ptr);
           CHK_(ptr);
         } else
@@ -750,7 +750,7 @@ const char* TimestampDurationTestCases::_InternalParse(const char* ptr, ::PROTOB
         continue;
       // .google.protobuf.Duration duration5 = 108;
       case 108:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 98)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 98)) {
           ptr = ctx->ParseMessage(_internal_mutable_duration5(), ptr);
           CHK_(ptr);
         } else
@@ -760,7 +760,7 @@ const char* TimestampDurationTestCases::_InternalParse(const char* ptr, ::PROTOB
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -786,7 +786,7 @@ uint8_t* TimestampDurationTestCases::_InternalSerialize(
   (void) cached_has_bits;
 
   // .proto_util_converter.testing.TimeStampType epoch = 1;
-  if (this->_internal_has_epoch()) {
+  if(this->_internal_has_epoch()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -794,7 +794,7 @@ uint8_t* TimestampDurationTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.TimeStampType epoch2 = 2;
-  if (this->_internal_has_epoch2()) {
+  if(this->_internal_has_epoch2()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -802,7 +802,7 @@ uint8_t* TimestampDurationTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.TimeStampType mintime = 3;
-  if (this->_internal_has_mintime()) {
+  if(this->_internal_has_mintime()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -810,7 +810,7 @@ uint8_t* TimestampDurationTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.TimeStampType maxtime = 4;
-  if (this->_internal_has_maxtime()) {
+  if(this->_internal_has_maxtime()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -818,7 +818,7 @@ uint8_t* TimestampDurationTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.TimeStampType timeval1 = 5;
-  if (this->_internal_has_timeval1()) {
+  if(this->_internal_has_timeval1()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -826,7 +826,7 @@ uint8_t* TimestampDurationTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.TimeStampType timeval2 = 6;
-  if (this->_internal_has_timeval2()) {
+  if(this->_internal_has_timeval2()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -834,7 +834,7 @@ uint8_t* TimestampDurationTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.TimeStampType timeval3 = 7;
-  if (this->_internal_has_timeval3()) {
+  if(this->_internal_has_timeval3()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -842,7 +842,7 @@ uint8_t* TimestampDurationTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.TimeStampType timeval4 = 8;
-  if (this->_internal_has_timeval4()) {
+  if(this->_internal_has_timeval4()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -850,7 +850,7 @@ uint8_t* TimestampDurationTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.TimeStampType timeval5 = 9;
-  if (this->_internal_has_timeval5()) {
+  if(this->_internal_has_timeval5()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -858,7 +858,7 @@ uint8_t* TimestampDurationTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.TimeStampType timeval6 = 10;
-  if (this->_internal_has_timeval6()) {
+  if(this->_internal_has_timeval6()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -866,7 +866,7 @@ uint8_t* TimestampDurationTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.TimeStampType timeval7 = 11;
-  if (this->_internal_has_timeval7()) {
+  if(this->_internal_has_timeval7()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -874,7 +874,7 @@ uint8_t* TimestampDurationTestCases::_InternalSerialize(
   }
 
   // .google.protobuf.Timestamp timeval8 = 12;
-  if (this->_internal_has_timeval8()) {
+  if(this->_internal_has_timeval8()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -882,7 +882,7 @@ uint8_t* TimestampDurationTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.DurationType zero_duration = 101;
-  if (this->_internal_has_zero_duration()) {
+  if(this->_internal_has_zero_duration()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -890,7 +890,7 @@ uint8_t* TimestampDurationTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.DurationType min_duration = 102;
-  if (this->_internal_has_min_duration()) {
+  if(this->_internal_has_min_duration()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -898,7 +898,7 @@ uint8_t* TimestampDurationTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.DurationType max_duration = 103;
-  if (this->_internal_has_max_duration()) {
+  if(this->_internal_has_max_duration()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -906,7 +906,7 @@ uint8_t* TimestampDurationTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.DurationType duration1 = 104;
-  if (this->_internal_has_duration1()) {
+  if(this->_internal_has_duration1()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -914,7 +914,7 @@ uint8_t* TimestampDurationTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.DurationType duration2 = 105;
-  if (this->_internal_has_duration2()) {
+  if(this->_internal_has_duration2()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -922,7 +922,7 @@ uint8_t* TimestampDurationTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.DurationType duration3 = 106;
-  if (this->_internal_has_duration3()) {
+  if(this->_internal_has_duration3()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -930,7 +930,7 @@ uint8_t* TimestampDurationTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.DurationType duration4 = 107;
-  if (this->_internal_has_duration4()) {
+  if(this->_internal_has_duration4()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -938,14 +938,14 @@ uint8_t* TimestampDurationTestCases::_InternalSerialize(
   }
 
   // .google.protobuf.Duration duration5 = 108;
-  if (this->_internal_has_duration5()) {
+  if(this->_internal_has_duration5()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
         108, _Internal::duration5(this), target, stream);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -962,140 +962,140 @@ size_t TimestampDurationTestCases::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // .proto_util_converter.testing.TimeStampType epoch = 1;
-  if (this->_internal_has_epoch()) {
+  if(this->_internal_has_epoch()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *epoch_);
   }
 
   // .proto_util_converter.testing.TimeStampType epoch2 = 2;
-  if (this->_internal_has_epoch2()) {
+  if(this->_internal_has_epoch2()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *epoch2_);
   }
 
   // .proto_util_converter.testing.TimeStampType mintime = 3;
-  if (this->_internal_has_mintime()) {
+  if(this->_internal_has_mintime()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *mintime_);
   }
 
   // .proto_util_converter.testing.TimeStampType maxtime = 4;
-  if (this->_internal_has_maxtime()) {
+  if(this->_internal_has_maxtime()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *maxtime_);
   }
 
   // .proto_util_converter.testing.TimeStampType timeval1 = 5;
-  if (this->_internal_has_timeval1()) {
+  if(this->_internal_has_timeval1()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *timeval1_);
   }
 
   // .proto_util_converter.testing.TimeStampType timeval2 = 6;
-  if (this->_internal_has_timeval2()) {
+  if(this->_internal_has_timeval2()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *timeval2_);
   }
 
   // .proto_util_converter.testing.TimeStampType timeval3 = 7;
-  if (this->_internal_has_timeval3()) {
+  if(this->_internal_has_timeval3()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *timeval3_);
   }
 
   // .proto_util_converter.testing.TimeStampType timeval4 = 8;
-  if (this->_internal_has_timeval4()) {
+  if(this->_internal_has_timeval4()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *timeval4_);
   }
 
   // .proto_util_converter.testing.TimeStampType timeval5 = 9;
-  if (this->_internal_has_timeval5()) {
+  if(this->_internal_has_timeval5()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *timeval5_);
   }
 
   // .proto_util_converter.testing.TimeStampType timeval6 = 10;
-  if (this->_internal_has_timeval6()) {
+  if(this->_internal_has_timeval6()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *timeval6_);
   }
 
   // .proto_util_converter.testing.TimeStampType timeval7 = 11;
-  if (this->_internal_has_timeval7()) {
+  if(this->_internal_has_timeval7()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *timeval7_);
   }
 
   // .google.protobuf.Timestamp timeval8 = 12;
-  if (this->_internal_has_timeval8()) {
+  if(this->_internal_has_timeval8()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *timeval8_);
   }
 
   // .proto_util_converter.testing.DurationType zero_duration = 101;
-  if (this->_internal_has_zero_duration()) {
+  if(this->_internal_has_zero_duration()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *zero_duration_);
   }
 
   // .proto_util_converter.testing.DurationType min_duration = 102;
-  if (this->_internal_has_min_duration()) {
+  if(this->_internal_has_min_duration()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *min_duration_);
   }
 
   // .proto_util_converter.testing.DurationType max_duration = 103;
-  if (this->_internal_has_max_duration()) {
+  if(this->_internal_has_max_duration()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *max_duration_);
   }
 
   // .proto_util_converter.testing.DurationType duration1 = 104;
-  if (this->_internal_has_duration1()) {
+  if(this->_internal_has_duration1()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *duration1_);
   }
 
   // .proto_util_converter.testing.DurationType duration2 = 105;
-  if (this->_internal_has_duration2()) {
+  if(this->_internal_has_duration2()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *duration2_);
   }
 
   // .proto_util_converter.testing.DurationType duration3 = 106;
-  if (this->_internal_has_duration3()) {
+  if(this->_internal_has_duration3()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *duration3_);
   }
 
   // .proto_util_converter.testing.DurationType duration4 = 107;
-  if (this->_internal_has_duration4()) {
+  if(this->_internal_has_duration4()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *duration4_);
   }
 
   // .google.protobuf.Duration duration5 = 108;
-  if (this->_internal_has_duration5()) {
+  if(this->_internal_has_duration5()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *duration5_);
@@ -1123,64 +1123,64 @@ void TimestampDurationTestCases::MergeFrom(const TimestampDurationTestCases& fro
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_has_epoch()) {
+  if(from._internal_has_epoch()) {
     _internal_mutable_epoch()->::proto_util_converter::testing::TimeStampType::MergeFrom(from._internal_epoch());
   }
-  if (from._internal_has_epoch2()) {
+  if(from._internal_has_epoch2()) {
     _internal_mutable_epoch2()->::proto_util_converter::testing::TimeStampType::MergeFrom(from._internal_epoch2());
   }
-  if (from._internal_has_mintime()) {
+  if(from._internal_has_mintime()) {
     _internal_mutable_mintime()->::proto_util_converter::testing::TimeStampType::MergeFrom(from._internal_mintime());
   }
-  if (from._internal_has_maxtime()) {
+  if(from._internal_has_maxtime()) {
     _internal_mutable_maxtime()->::proto_util_converter::testing::TimeStampType::MergeFrom(from._internal_maxtime());
   }
-  if (from._internal_has_timeval1()) {
+  if(from._internal_has_timeval1()) {
     _internal_mutable_timeval1()->::proto_util_converter::testing::TimeStampType::MergeFrom(from._internal_timeval1());
   }
-  if (from._internal_has_timeval2()) {
+  if(from._internal_has_timeval2()) {
     _internal_mutable_timeval2()->::proto_util_converter::testing::TimeStampType::MergeFrom(from._internal_timeval2());
   }
-  if (from._internal_has_timeval3()) {
+  if(from._internal_has_timeval3()) {
     _internal_mutable_timeval3()->::proto_util_converter::testing::TimeStampType::MergeFrom(from._internal_timeval3());
   }
-  if (from._internal_has_timeval4()) {
+  if(from._internal_has_timeval4()) {
     _internal_mutable_timeval4()->::proto_util_converter::testing::TimeStampType::MergeFrom(from._internal_timeval4());
   }
-  if (from._internal_has_timeval5()) {
+  if(from._internal_has_timeval5()) {
     _internal_mutable_timeval5()->::proto_util_converter::testing::TimeStampType::MergeFrom(from._internal_timeval5());
   }
-  if (from._internal_has_timeval6()) {
+  if(from._internal_has_timeval6()) {
     _internal_mutable_timeval6()->::proto_util_converter::testing::TimeStampType::MergeFrom(from._internal_timeval6());
   }
-  if (from._internal_has_timeval7()) {
+  if(from._internal_has_timeval7()) {
     _internal_mutable_timeval7()->::proto_util_converter::testing::TimeStampType::MergeFrom(from._internal_timeval7());
   }
-  if (from._internal_has_timeval8()) {
+  if(from._internal_has_timeval8()) {
     _internal_mutable_timeval8()->::PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from._internal_timeval8());
   }
-  if (from._internal_has_zero_duration()) {
+  if(from._internal_has_zero_duration()) {
     _internal_mutable_zero_duration()->::proto_util_converter::testing::DurationType::MergeFrom(from._internal_zero_duration());
   }
-  if (from._internal_has_min_duration()) {
+  if(from._internal_has_min_duration()) {
     _internal_mutable_min_duration()->::proto_util_converter::testing::DurationType::MergeFrom(from._internal_min_duration());
   }
-  if (from._internal_has_max_duration()) {
+  if(from._internal_has_max_duration()) {
     _internal_mutable_max_duration()->::proto_util_converter::testing::DurationType::MergeFrom(from._internal_max_duration());
   }
-  if (from._internal_has_duration1()) {
+  if(from._internal_has_duration1()) {
     _internal_mutable_duration1()->::proto_util_converter::testing::DurationType::MergeFrom(from._internal_duration1());
   }
-  if (from._internal_has_duration2()) {
+  if(from._internal_has_duration2()) {
     _internal_mutable_duration2()->::proto_util_converter::testing::DurationType::MergeFrom(from._internal_duration2());
   }
-  if (from._internal_has_duration3()) {
+  if(from._internal_has_duration3()) {
     _internal_mutable_duration3()->::proto_util_converter::testing::DurationType::MergeFrom(from._internal_duration3());
   }
-  if (from._internal_has_duration4()) {
+  if(from._internal_has_duration4()) {
     _internal_mutable_duration4()->::proto_util_converter::testing::DurationType::MergeFrom(from._internal_duration4());
   }
-  if (from._internal_has_duration5()) {
+  if(from._internal_has_duration5()) {
     _internal_mutable_duration5()->::PROTOBUF_NAMESPACE_ID::Duration::MergeFrom(from._internal_duration5());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -1188,7 +1188,7 @@ void TimestampDurationTestCases::MergeFrom(const TimestampDurationTestCases& fro
 
 void TimestampDurationTestCases::CopyFrom(const TimestampDurationTestCases& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:proto_util_converter.testing.TimestampDurationTestCases)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -1226,7 +1226,7 @@ TimeStampType::_Internal::timestamp(const TimeStampType* msg) {
   return *msg->timestamp_;
 }
 void TimeStampType::clear_timestamp() {
-  if (GetArenaForAllocation() == nullptr && timestamp_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && timestamp_ != nullptr) {
     delete timestamp_;
   }
   timestamp_ = nullptr;
@@ -1243,7 +1243,7 @@ TimeStampType::TimeStampType(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 TimeStampType::TimeStampType(const TimeStampType& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if (from._internal_has_timestamp()) {
+  if(from._internal_has_timestamp()) {
     timestamp_ = new ::PROTOBUF_NAMESPACE_ID::Timestamp(*from.timestamp_);
   } else {
     timestamp_ = nullptr;
@@ -1264,7 +1264,7 @@ TimeStampType::~TimeStampType() {
 
 inline void TimeStampType::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  if (this != internal_default_instance()) delete timestamp_;
+  if(this != internal_default_instance()) delete timestamp_;
 }
 
 void TimeStampType::ArenaDtor(void* object) {
@@ -1283,7 +1283,7 @@ void TimeStampType::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  if (GetArenaForAllocation() == nullptr && timestamp_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && timestamp_ != nullptr) {
     delete timestamp_;
   }
   timestamp_ = nullptr;
@@ -1295,10 +1295,10 @@ const char* TimeStampType::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // .google.protobuf.Timestamp timestamp = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr = ctx->ParseMessage(_internal_mutable_timestamp(), ptr);
           CHK_(ptr);
         } else
@@ -1308,7 +1308,7 @@ const char* TimeStampType::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -1334,14 +1334,14 @@ uint8_t* TimeStampType::_InternalSerialize(
   (void) cached_has_bits;
 
   // .google.protobuf.Timestamp timestamp = 1;
-  if (this->_internal_has_timestamp()) {
+  if(this->_internal_has_timestamp()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
         1, _Internal::timestamp(this), target, stream);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -1358,7 +1358,7 @@ size_t TimeStampType::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // .google.protobuf.Timestamp timestamp = 1;
-  if (this->_internal_has_timestamp()) {
+  if(this->_internal_has_timestamp()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *timestamp_);
@@ -1386,7 +1386,7 @@ void TimeStampType::MergeFrom(const TimeStampType& from) {
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_has_timestamp()) {
+  if(from._internal_has_timestamp()) {
     _internal_mutable_timestamp()->::PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from._internal_timestamp());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -1394,7 +1394,7 @@ void TimeStampType::MergeFrom(const TimeStampType& from) {
 
 void TimeStampType::CopyFrom(const TimeStampType& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:proto_util_converter.testing.TimeStampType)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -1427,7 +1427,7 @@ DurationType::_Internal::duration(const DurationType* msg) {
   return *msg->duration_;
 }
 void DurationType::clear_duration() {
-  if (GetArenaForAllocation() == nullptr && duration_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && duration_ != nullptr) {
     delete duration_;
   }
   duration_ = nullptr;
@@ -1444,7 +1444,7 @@ DurationType::DurationType(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 DurationType::DurationType(const DurationType& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if (from._internal_has_duration()) {
+  if(from._internal_has_duration()) {
     duration_ = new ::PROTOBUF_NAMESPACE_ID::Duration(*from.duration_);
   } else {
     duration_ = nullptr;
@@ -1465,7 +1465,7 @@ DurationType::~DurationType() {
 
 inline void DurationType::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  if (this != internal_default_instance()) delete duration_;
+  if(this != internal_default_instance()) delete duration_;
 }
 
 void DurationType::ArenaDtor(void* object) {
@@ -1484,7 +1484,7 @@ void DurationType::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  if (GetArenaForAllocation() == nullptr && duration_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && duration_ != nullptr) {
     delete duration_;
   }
   duration_ = nullptr;
@@ -1496,10 +1496,10 @@ const char* DurationType::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // .google.protobuf.Duration duration = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr = ctx->ParseMessage(_internal_mutable_duration(), ptr);
           CHK_(ptr);
         } else
@@ -1509,7 +1509,7 @@ const char* DurationType::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -1535,14 +1535,14 @@ uint8_t* DurationType::_InternalSerialize(
   (void) cached_has_bits;
 
   // .google.protobuf.Duration duration = 1;
-  if (this->_internal_has_duration()) {
+  if(this->_internal_has_duration()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
         1, _Internal::duration(this), target, stream);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -1559,7 +1559,7 @@ size_t DurationType::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // .google.protobuf.Duration duration = 1;
-  if (this->_internal_has_duration()) {
+  if(this->_internal_has_duration()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *duration_);
@@ -1587,7 +1587,7 @@ void DurationType::MergeFrom(const DurationType& from) {
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_has_duration()) {
+  if(from._internal_has_duration()) {
     _internal_mutable_duration()->::PROTOBUF_NAMESPACE_ID::Duration::MergeFrom(from._internal_duration());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -1595,7 +1595,7 @@ void DurationType::MergeFrom(const DurationType& from) {
 
 void DurationType::CopyFrom(const DurationType& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:proto_util_converter.testing.DurationType)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -1633,13 +1633,13 @@ TimestampDuration::_Internal::dur(const TimestampDuration* msg) {
   return *msg->dur_;
 }
 void TimestampDuration::clear_ts() {
-  if (GetArenaForAllocation() == nullptr && ts_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && ts_ != nullptr) {
     delete ts_;
   }
   ts_ = nullptr;
 }
 void TimestampDuration::clear_dur() {
-  if (GetArenaForAllocation() == nullptr && dur_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && dur_ != nullptr) {
     delete dur_;
   }
   dur_ = nullptr;
@@ -1661,12 +1661,12 @@ TimestampDuration::TimestampDuration(const TimestampDuration& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       rep_ts_(from.rep_ts_) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if (from._internal_has_ts()) {
+  if(from._internal_has_ts()) {
     ts_ = new ::PROTOBUF_NAMESPACE_ID::Timestamp(*from.ts_);
   } else {
     ts_ = nullptr;
   }
-  if (from._internal_has_dur()) {
+  if(from._internal_has_dur()) {
     dur_ = new ::PROTOBUF_NAMESPACE_ID::Duration(*from.dur_);
   } else {
     dur_ = nullptr;
@@ -1690,8 +1690,8 @@ TimestampDuration::~TimestampDuration() {
 
 inline void TimestampDuration::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  if (this != internal_default_instance()) delete ts_;
-  if (this != internal_default_instance()) delete dur_;
+  if(this != internal_default_instance()) delete ts_;
+  if(this != internal_default_instance()) delete dur_;
 }
 
 void TimestampDuration::ArenaDtor(void* object) {
@@ -1711,11 +1711,11 @@ void TimestampDuration::Clear() {
   (void) cached_has_bits;
 
   rep_ts_.Clear();
-  if (GetArenaForAllocation() == nullptr && ts_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && ts_ != nullptr) {
     delete ts_;
   }
   ts_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && dur_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && dur_ != nullptr) {
     delete dur_;
   }
   dur_ = nullptr;
@@ -1727,10 +1727,10 @@ const char* TimestampDuration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // .google.protobuf.Timestamp ts = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr = ctx->ParseMessage(_internal_mutable_ts(), ptr);
           CHK_(ptr);
         } else
@@ -1738,7 +1738,7 @@ const char* TimestampDuration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
         continue;
       // .google.protobuf.Duration dur = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr = ctx->ParseMessage(_internal_mutable_dur(), ptr);
           CHK_(ptr);
         } else
@@ -1746,7 +1746,7 @@ const char* TimestampDuration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
         continue;
       // repeated .google.protobuf.Timestamp rep_ts = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -1761,7 +1761,7 @@ const char* TimestampDuration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -1787,7 +1787,7 @@ uint8_t* TimestampDuration::_InternalSerialize(
   (void) cached_has_bits;
 
   // .google.protobuf.Timestamp ts = 1;
-  if (this->_internal_has_ts()) {
+  if(this->_internal_has_ts()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1795,7 +1795,7 @@ uint8_t* TimestampDuration::_InternalSerialize(
   }
 
   // .google.protobuf.Duration dur = 2;
-  if (this->_internal_has_dur()) {
+  if(this->_internal_has_dur()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1810,7 +1810,7 @@ uint8_t* TimestampDuration::_InternalSerialize(
       InternalWriteMessage(3, this->_internal_rep_ts(i), target, stream);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -1828,20 +1828,19 @@ size_t TimestampDuration::ByteSizeLong() const {
 
   // repeated .google.protobuf.Timestamp rep_ts = 3;
   total_size += 1UL * this->_internal_rep_ts_size();
-  for (const auto& msg : this->rep_ts_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  for(const auto& msg : this->rep_ts_) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // .google.protobuf.Timestamp ts = 1;
-  if (this->_internal_has_ts()) {
+  if(this->_internal_has_ts()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *ts_);
   }
 
   // .google.protobuf.Duration dur = 2;
-  if (this->_internal_has_dur()) {
+  if(this->_internal_has_dur()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *dur_);
@@ -1870,10 +1869,10 @@ void TimestampDuration::MergeFrom(const TimestampDuration& from) {
   (void) cached_has_bits;
 
   rep_ts_.MergeFrom(from.rep_ts_);
-  if (from._internal_has_ts()) {
+  if(from._internal_has_ts()) {
     _internal_mutable_ts()->::PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from._internal_ts());
   }
-  if (from._internal_has_dur()) {
+  if(from._internal_has_dur()) {
     _internal_mutable_dur()->::PROTOBUF_NAMESPACE_ID::Duration::MergeFrom(from._internal_dur());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -1881,7 +1880,7 @@ void TimestampDuration::MergeFrom(const TimestampDuration& from) {
 
 void TimestampDuration::CopyFrom(const TimestampDuration& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:proto_util_converter.testing.TimestampDuration)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }

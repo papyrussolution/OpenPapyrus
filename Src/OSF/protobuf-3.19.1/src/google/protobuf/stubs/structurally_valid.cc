@@ -90,10 +90,10 @@ typedef struct {
   const int bytes_per_entry;
   const uint32 losub;
   const uint32 hiadd;
-  const uint8* state_table;
+  const uint8 * state_table;
   const RemapEntry* remap_base;
-  const uint8* remap_string;
-  const uint8* fast_state;
+  const uint8 * remap_string;
+  const uint8 * fast_state;
 } UTF8StateMachineObj;
 
 typedef UTF8StateMachineObj UTF8ScanObj;
@@ -377,8 +377,8 @@ static const UTF8ScanObj utf8acceptnonsurrogates_obj = {
 
 // Return true if current Tbl pointer is within state0 range
 // Note that unsigned compare checks both ends of range simultaneously
-static inline bool InStateZero(const UTF8ScanObj* st, const uint8* Tbl) {
-  const uint8* Tbl0 = &st->state_table[st->state0];
+static inline bool InStateZero(const UTF8ScanObj* st, const uint8 * Tbl) {
+  const uint8 * Tbl0 = &st->state_table[st->state0];
   return (static_cast<uint32>(Tbl - Tbl0) < st->state0_size);
 }
 
@@ -393,17 +393,17 @@ int UTF8GenericScan(const UTF8ScanObj* st,
   if (str_length == 0) return kExitOK;
 
   int eshift = st->entry_shift;
-  const uint8* isrc = reinterpret_cast<const uint8*>(str);
-  const uint8* src = isrc;
-  const uint8* srclimit = isrc + str_length;
-  const uint8* srclimit8 = str_length < 7 ? isrc : srclimit - 7;
-  const uint8* Tbl_0 = &st->state_table[st->state0];
+  const uint8 * isrc = reinterpret_cast<const uint8 *>(str);
+  const uint8 * src = isrc;
+  const uint8 * srclimit = isrc + str_length;
+  const uint8 * srclimit8 = str_length < 7 ? isrc : srclimit - 7;
+  const uint8 * Tbl_0 = &st->state_table[st->state0];
 
  DoAgain:
   // Do state-table scan
   int e = 0;
   uint8 c;
-  const uint8* Tbl2 = &st->fast_state[0];
+  const uint8 * Tbl2 = &st->fast_state[0];
   const uint32 losub = st->losub;
   const uint32 hiadd = st->hiadd;
   // Check initial few bytes one at a time until 8-byte aligned
@@ -447,7 +447,7 @@ int UTF8GenericScan(const UTF8ScanObj* st,
 
   // Byte-at-a-time scan
   //----------------------------
-  const uint8* Tbl = Tbl_0;
+  const uint8 * Tbl = Tbl_0;
   while (src < srclimit) {
     c = *src;
     e = Tbl[c];
@@ -501,10 +501,10 @@ int UTF8GenericScanFastAscii(const UTF8ScanObj* st,
   *bytes_consumed = 0;
   if (str_length == 0) return kExitOK;
 
-  const uint8* isrc =  reinterpret_cast<const uint8*>(str);
-  const uint8* src = isrc;
-  const uint8* srclimit = isrc + str_length;
-  const uint8* srclimit8 = str_length < 7 ? isrc : srclimit - 7;
+  const uint8 * isrc =  reinterpret_cast<const uint8 *>(str);
+  const uint8 * src = isrc;
+  const uint8 * srclimit = isrc + str_length;
+  const uint8 * srclimit8 = str_length < 7 ? isrc : srclimit - 7;
   int n;
   int rest_consumed;
   int exit_reason;

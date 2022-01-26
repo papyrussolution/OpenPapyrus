@@ -275,8 +275,8 @@ static void U_CALLCONV _UTF16BEToUnicodeWithOffsets(UConverterToUnicodeArgs * pA
 	}
 
 	cnv = pArgs->converter;
-	source = (const uint8*)pArgs->source;
-	length = (int32_t)((const uint8*)pArgs->sourceLimit-source);
+	source = (const uint8 *)pArgs->source;
+	length = (int32_t)((const uint8 *)pArgs->sourceLimit-source);
 	if(length<=0 && cnv->toUnicodeStatus==0) {
 		/* no input, nothing to do */
 		return;
@@ -362,7 +362,7 @@ static void U_CALLCONV _UTF16BEToUnicodeWithOffsets(UConverterToUnicodeArgs * pA
 					*pErrorCode = U_ILLEGAL_CHAR_FOUND;
 
 					/* back out reading the code unit after it */
-					if(((const uint8*)pArgs->source-source)>=2) {
+					if(((const uint8 *)pArgs->source-source)>=2) {
 						source -= 2;
 					}
 					else {
@@ -520,8 +520,8 @@ static UChar32 U_CALLCONV _UTF16BEGetNextUChar(UConverterToUnicodeArgs * pArgs, 
 		return UCNV_GET_NEXT_UCHAR_USE_TO_U;
 	}
 
-	s = (const uint8*)pArgs->source;
-	sourceLimit = (const uint8*)pArgs->sourceLimit;
+	s = (const uint8 *)pArgs->source;
+	sourceLimit = (const uint8 *)pArgs->sourceLimit;
 
 	if(s>=sourceLimit) {
 		/* no input */
@@ -903,8 +903,8 @@ static void U_CALLCONV _UTF16LEToUnicodeWithOffsets(UConverterToUnicodeArgs * pA
 	}
 
 	cnv = pArgs->converter;
-	source = (const uint8*)pArgs->source;
-	length = (int32_t)((const uint8*)pArgs->sourceLimit-source);
+	source = (const uint8 *)pArgs->source;
+	length = (int32_t)((const uint8 *)pArgs->sourceLimit-source);
 	if(length<=0 && cnv->toUnicodeStatus==0) {
 		/* no input, nothing to do */
 		return;
@@ -990,7 +990,7 @@ static void U_CALLCONV _UTF16LEToUnicodeWithOffsets(UConverterToUnicodeArgs * pA
 					*pErrorCode = U_ILLEGAL_CHAR_FOUND;
 
 					/* back out reading the code unit after it */
-					if(((const uint8*)pArgs->source-source)>=2) {
+					if(((const uint8 *)pArgs->source-source)>=2) {
 						source -= 2;
 					}
 					else {
@@ -1148,8 +1148,8 @@ static UChar32 U_CALLCONV _UTF16LEGetNextUChar(UConverterToUnicodeArgs * pArgs, 
 		return UCNV_GET_NEXT_UCHAR_USE_TO_U;
 	}
 
-	s = (const uint8*)pArgs->source;
-	sourceLimit = (const uint8*)pArgs->sourceLimit;
+	s = (const uint8 *)pArgs->source;
+	sourceLimit = (const uint8 *)pArgs->sourceLimit;
 
 	if(s>=sourceLimit) {
 		/* no input */

@@ -356,7 +356,7 @@ void BreakRules::compileRules(UCHARBUF * rules, UErrorCode & status) {
 	}
 
 	if(!otherSet.isEmpty()) {
-		// fprintf(stderr, "have an other set.\n");
+		// slfprintf_stderr("have an other set.\n");
 		UnicodeString pattern;
 		CharClass * cclass = addCharClass(UnicodeString("__Others"), otherSet.toPattern(pattern), status);
 		fCharClassList->addElement(cclass, status);
@@ -676,7 +676,7 @@ void RBBIMonkeyImpl::runTest() {
 		testIsBoundaryRandom(status);
 
 		if(fLoopCount < 0 && loopCount % 100 == 0) {
-			fprintf(stderr, ".");
+			slfprintf_stderr(".");
 		}
 		if(U_FAILURE(status)) {
 			if(++errorCount > 10) {

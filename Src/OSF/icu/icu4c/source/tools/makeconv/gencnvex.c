@@ -430,7 +430,7 @@ static bool generateToUTable(CnvExtData * extData, UCMTable * table,
 	}
 
 	if(count>=0x100) {
-		fprintf(stderr, "error: toUnicode extension table section overflow: %ld section entries\n", (long)count);
+		slfprintf_stderr("error: toUnicode extension table section overflow: %ld section entries\n", (long)count);
 		return FALSE;
 	}
 
@@ -489,7 +489,7 @@ static bool generateToUTable(CnvExtData * extData, UCMTable * table,
 
 			if(subStart<subLimit && mappings[map[subStart]].bLen==unitIndex+1) {
 				/* print error for multiple same-input-sequence mappings */
-				fprintf(stderr, "error: multiple mappings from same bytes\n");
+				slfprintf_stderr("error: multiple mappings from same bytes\n");
 				ucm_printMapping(table, m, stderr);
 				ucm_printMapping(table, mappings+map[subStart], stderr);
 				return FALSE;
@@ -762,7 +762,7 @@ static bool generateFromUTable(CnvExtData * extData, UCMTable * table,
 
 			if(subStart<subLimit && mappings[map[subStart]].uLen==unitIndex+1) {
 				/* print error for multiple same-input-sequence mappings */
-				fprintf(stderr, "error: multiple mappings from same Unicode code points\n");
+				slfprintf_stderr("error: multiple mappings from same Unicode code points\n");
 				ucm_printMapping(table, m, stderr);
 				ucm_printMapping(table, mappings+map[subStart], stderr);
 				return FALSE;
@@ -823,7 +823,7 @@ static void addFromUTrieEntry(CnvExtData * extData, UChar32 c, uint32_t value) {
 		extData->stage1[i1] = (uint16_t)newBlock;
 		extData->stage2Top = newBlock+MBCS_STAGE_2_BLOCK_SIZE;
 		if(extData->stage2Top>UPRV_LENGTHOF(extData->stage2)) {
-			fprintf(stderr, "error: too many stage 2 entries at U+%04x\n", (int)c);
+			slfprintf_stderr("error: too many stage 2 entries at U+%04x\n", (int)c);
 			exit(U_MEMORY_ALLOCATION_ERROR);
 		}
 	}
@@ -845,7 +845,7 @@ static void addFromUTrieEntry(CnvExtData * extData, UChar32 c, uint32_t value) {
 
 		extData->stage3Top = newBlock+MBCS_STAGE_3_BLOCK_SIZE;
 		if(extData->stage3Top>UPRV_LENGTHOF(extData->stage3)) {
-			fprintf(stderr, "error: too many stage 3 entries at U+%04x\n", (int)c);
+			slfprintf_stderr("error: too many stage 3 entries at U+%04x\n", (int)c);
 			exit(U_MEMORY_ALLOCATION_ERROR);
 		}
 	}
@@ -892,7 +892,7 @@ static void addFromUTrieEntry(CnvExtData * extData, UChar32 c, uint32_t value) {
 	}
 	else {
 		if((i3b = extData->stage3bTop++)>=UPRV_LENGTHOF(extData->stage3b)) {
-			fprintf(stderr, "error: too many stage 3b entries at U+%04x\n", (int)c);
+			slfprintf_stderr("error: too many stage 3b entries at U+%04x\n", (int)c);
 			exit(U_MEMORY_ALLOCATION_ERROR);
 		}
 
@@ -952,7 +952,7 @@ static bool generateFromUTrie(CnvExtData * extData, UCMTable * table, int32_t ma
 
 			if(subStart<subLimit && mappings[map[subStart]].uLen==1) {
 				/* print error for multiple same-input-sequence mappings */
-				fprintf(stderr, "error: multiple mappings from same Unicode code points\n");
+				slfprintf_stderr("error: multiple mappings from same Unicode code points\n");
 				ucm_printMapping(table, m, stderr);
 				ucm_printMapping(table, mappings+map[subStart], stderr);
 				return FALSE;
@@ -1024,7 +1024,7 @@ static bool CnvExtAddTable(NewConverter * cnvData, UCMTable * table, UConverterS
 {
 	CnvExtData * extData;
 	if(table->unicodeMask&UCNV_HAS_SURROGATES) {
-		fprintf(stderr, "error: contains mappings for surrogate code points\n");
+		slfprintf_stderr("error: contains mappings for surrogate code points\n");
 		return FALSE;
 	}
 	else {

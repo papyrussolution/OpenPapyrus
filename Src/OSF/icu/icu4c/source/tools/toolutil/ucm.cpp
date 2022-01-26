@@ -235,7 +235,7 @@ U_CAPI void U_EXPORT2 ucm_sortTable(UCMTable * t) {
 		 */
 		t->reverseMap = (int32_t*)uprv_malloc(t->mappingsCapacity*sizeof(int32_t));
 		if(t->reverseMap==NULL) {
-			fprintf(stderr, "ucm error: unable to allocate reverseMap\n");
+			slfprintf_stderr("ucm error: unable to allocate reverseMap\n");
 			exit(U_MEMORY_ALLOCATION_ERROR);
 		}
 	}
@@ -249,7 +249,7 @@ U_CAPI void U_EXPORT2 ucm_sortTable(UCMTable * t) {
 	    FALSE, &errorCode);
 
 	if(U_FAILURE(errorCode)) {
-		fprintf(stderr, "ucm error: sortTable()/uprv_sortArray() fails - %s\n",
+		slfprintf_stderr("ucm error: sortTable()/uprv_sortArray() fails - %s\n",
 		    u_errorName(errorCode));
 		exit(errorCode);
 	}
@@ -349,9 +349,7 @@ static uint8_t checkBaseExtUnicode(UCMStates * baseStates, UCMTable * base, UCMT
 					result |= NEEDS_MOVE;
 				}
 				else {
-					fprintf(stderr,
-					    "ucm error: the base table contains a mapping whose input sequence\n"
-					    "           is a prefix of the input sequence of an extension mapping\n");
+					slfprintf_stderr("ucm error: the base table contains a mapping whose input sequence\n           is a prefix of the input sequence of an extension mapping\n");
 					ucm_printMapping(base, mb, stderr);
 					ucm_printMapping(ext, me, stderr);
 					result |= HAS_ERRORS;
@@ -365,9 +363,7 @@ static uint8_t checkBaseExtUnicode(UCMStates * baseStates, UCMTable * base, UCMT
 			 * same output: remove the extension mapping,
 			 * otherwise treat as an error
 			 */
-			if(mb->f==me->f && mb->bLen==me->bLen &&
-			    0==uprv_memcmp(UCM_GET_BYTES(base, mb), UCM_GET_BYTES(ext, me), mb->bLen)
-			    ) {
+			if(mb->f==me->f && mb->bLen==me->bLen && 0==uprv_memcmp(UCM_GET_BYTES(base, mb), UCM_GET_BYTES(ext, me), mb->bLen)) {
 				me->moveFlag |= UCM_REMOVE_MAPPING;
 				result |= NEEDS_MOVE;
 			}
@@ -377,15 +373,11 @@ static uint8_t checkBaseExtUnicode(UCMStates * baseStates, UCMTable * base, UCMT
 				result |= NEEDS_MOVE;
 			}
 			else {
-				fprintf(stderr,
-				    "ucm error: the base table contains a mapping whose input sequence\n"
-				    "           is the same as the input sequence of an extension mapping\n"
-				    "           but it maps differently\n");
+				slfprintf_stderr("ucm error: the base table contains a mapping whose input sequence\n           is the same as the input sequence of an extension mapping\n           but it maps differently\n");
 				ucm_printMapping(base, mb, stderr);
 				ucm_printMapping(ext, me, stderr);
 				result |= HAS_ERRORS;
 			}
-
 			++mb;
 		}
 		else { /* cmp>0 */
@@ -455,9 +447,7 @@ static uint8_t checkBaseExtBytes(UCMStates * baseStates, UCMTable * base, UCMTab
 					result |= NEEDS_MOVE;
 				}
 				else {
-					fprintf(stderr,
-					    "ucm error: the base table contains a mapping whose input sequence\n"
-					    "           is a prefix of the input sequence of an extension mapping\n");
+					slfprintf_stderr("ucm error: the base table contains a mapping whose input sequence\n           is a prefix of the input sequence of an extension mapping\n");
 					ucm_printMapping(base, mb, stderr);
 					ucm_printMapping(ext, me, stderr);
 					result |= HAS_ERRORS;
@@ -471,9 +461,7 @@ static uint8_t checkBaseExtBytes(UCMStates * baseStates, UCMTable * base, UCMTab
 			 * same output: remove the extension mapping,
 			 * otherwise treat as an error
 			 */
-			if(mb->f==me->f && mb->uLen==me->uLen &&
-			    0==uprv_memcmp(UCM_GET_CODE_POINTS(base, mb), UCM_GET_CODE_POINTS(ext, me), 4*mb->uLen)
-			    ) {
+			if(mb->f==me->f && mb->uLen==me->uLen && 0==uprv_memcmp(UCM_GET_CODE_POINTS(base, mb), UCM_GET_CODE_POINTS(ext, me), 4*mb->uLen)) {
 				me->moveFlag |= UCM_REMOVE_MAPPING;
 				result |= NEEDS_MOVE;
 			}
@@ -483,15 +471,11 @@ static uint8_t checkBaseExtBytes(UCMStates * baseStates, UCMTable * base, UCMTab
 				result |= NEEDS_MOVE;
 			}
 			else {
-				fprintf(stderr,
-				    "ucm error: the base table contains a mapping whose input sequence\n"
-				    "           is the same as the input sequence of an extension mapping\n"
-				    "           but it maps differently\n");
+				slfprintf_stderr("ucm error: the base table contains a mapping whose input sequence\n           is the same as the input sequence of an extension mapping\n           but it maps differently\n");
 				ucm_printMapping(base, mb, stderr);
 				ucm_printMapping(ext, me, stderr);
 				result |= HAS_ERRORS;
 			}
-
 			++b;
 		}
 		else { /* cmp>0 */
@@ -500,15 +484,12 @@ static uint8_t checkBaseExtBytes(UCMStates * baseStates, UCMTable * base, UCMTab
 	}
 }
 
-U_CAPI bool U_EXPORT2 ucm_checkValidity(UCMTable * table, UCMStates * baseStates) {
-	UCMapping * m, * mLimit;
+U_CAPI bool U_EXPORT2 ucm_checkValidity(UCMTable * table, UCMStates * baseStates) 
+{
 	int32_t count;
-	bool isOK;
-
-	m = table->mappings;
-	mLimit = m+table->mappingsLength;
-	isOK = TRUE;
-
+	UCMapping * m = table->mappings;
+	UCMapping * mLimit = m+table->mappingsLength;
+	bool isOK = TRUE;
 	while(m<mLimit) {
 		count = ucm_countChars(baseStates, UCM_GET_BYTES(table, m), m->bLen);
 		if(count<1) {
@@ -517,7 +498,6 @@ U_CAPI bool U_EXPORT2 ucm_checkValidity(UCMTable * table, UCMStates * baseStates
 		}
 		++m;
 	}
-
 	return isOK;
 }
 
@@ -526,11 +506,11 @@ U_CAPI bool U_EXPORT2 ucm_checkBaseExt(UCMStates * baseStates, UCMTable * base, 
 	uint8_t result;
 	// if we have an extension table, we must always use precision flags 
 	if(base->flagsType&UCM_FLAGS_IMPLICIT) {
-		fprintf(stderr, "ucm error: the base table contains mappings without precision flags\n");
+		slfprintf_stderr("ucm error: the base table contains mappings without precision flags\n");
 		return FALSE;
 	}
 	if(ext->flagsType&UCM_FLAGS_IMPLICIT) {
-		fprintf(stderr, "ucm error: extension table contains mappings without precision flags\n");
+		slfprintf_stderr("ucm error: extension table contains mappings without precision flags\n");
 		return FALSE;
 	}
 	// checking requires both tables to be sorted 
@@ -669,7 +649,7 @@ U_CAPI bool U_EXPORT2 ucm_separateMappings(UCMFile * ucm, bool isSISO)
 	bool isOK = true;
 	for(; m<mLimit; ++m) {
 		if(isSISO && m->bLen==1 && (m->b.bytes[0]==0xe || m->b.bytes[0]==0xf)) {
-			fprintf(stderr, "warning: removing illegal mapping from an SI/SO-stateful table\n");
+			slfprintf_stderr("warning: removing illegal mapping from an SI/SO-stateful table\n");
 			ucm_printMapping(table, m, stderr);
 			m->moveFlag |= UCM_REMOVE_MAPPING;
 			needsMove = TRUE;
@@ -720,12 +700,12 @@ U_CAPI int8_t U_EXPORT2 ucm_parseBytes(uint8_t bytes[UCNV_EXT_MAX_BYTES], const 
 		if(s[1]!='x' ||
 		    (byte = (uint8_t)uprv_strtoul(s+2, &end, 16), end)!=s+4
 		    ) {
-			fprintf(stderr, "ucm error: byte must be formatted as \\xXX (2 hex digits) - \"%s\"\n", line);
+			slfprintf_stderr("ucm error: byte must be formatted as \\xXX (2 hex digits) - \"%s\"\n", line);
 			return -1;
 		}
 
 		if(bLen==UCNV_EXT_MAX_BYTES) {
-			fprintf(stderr, "ucm error: too many bytes on \"%s\"\n", line);
+			slfprintf_stderr("ucm error: too many bytes on \"%s\"\n", line);
 			return -1;
 		}
 		bytes[bLen++] = byte;
@@ -764,16 +744,16 @@ U_CAPI bool U_EXPORT2 ucm_parseMappingLine(UCMapping * m,
 		    (cp = (UChar32)uprv_strtoul(s+2, &end, 16), end)==s+2 ||
 		    *end!='>'
 		    ) {
-			fprintf(stderr, "ucm error: Unicode code point must be formatted as <UXXXX> (1..6 hex digits) - \"%s\"\n", line);
+			slfprintf_stderr("ucm error: Unicode code point must be formatted as <UXXXX> (1..6 hex digits) - \"%s\"\n", line);
 			return FALSE;
 		}
 		if((uint32_t)cp>0x10ffff || U_IS_SURROGATE(cp)) {
-			fprintf(stderr, "ucm error: Unicode code point must be 0..d7ff or e000..10ffff - \"%s\"\n", line);
+			slfprintf_stderr("ucm error: Unicode code point must be 0..d7ff or e000..10ffff - \"%s\"\n", line);
 			return FALSE;
 		}
 
 		if(uLen==UCNV_EXT_MAX_UCHARS) {
-			fprintf(stderr, "ucm error: too many code points on \"%s\"\n", line);
+			slfprintf_stderr("ucm error: too many code points on \"%s\"\n", line);
 			return FALSE;
 		}
 		codePoints[uLen++] = cp;
@@ -781,7 +761,7 @@ U_CAPI bool U_EXPORT2 ucm_parseMappingLine(UCMapping * m,
 	}
 
 	if(uLen==0) {
-		fprintf(stderr, "ucm error: no Unicode code points on \"%s\"\n", line);
+		slfprintf_stderr("ucm error: no Unicode code points on \"%s\"\n", line);
 		return FALSE;
 	}
 	else if(uLen==1) {
@@ -793,7 +773,7 @@ U_CAPI bool U_EXPORT2 ucm_parseMappingLine(UCMapping * m,
 		if((U_FAILURE(errorCode) && errorCode!=U_BUFFER_OVERFLOW_ERROR) ||
 		    u16Length>UCNV_EXT_MAX_UCHARS
 		    ) {
-			fprintf(stderr, "ucm error: too many UChars on \"%s\"\n", line);
+			slfprintf_stderr("ucm error: too many UChars on \"%s\"\n", line);
 			return FALSE;
 		}
 	}
@@ -807,7 +787,7 @@ U_CAPI bool U_EXPORT2 ucm_parseMappingLine(UCMapping * m,
 		return FALSE;
 	}
 	else if(bLen==0) {
-		fprintf(stderr, "ucm error: no bytes on \"%s\"\n", line);
+		slfprintf_stderr("ucm error: no bytes on \"%s\"\n", line);
 		return FALSE;
 	}
 	else if(bLen<=4) {
@@ -823,7 +803,7 @@ U_CAPI bool U_EXPORT2 ucm_parseMappingLine(UCMapping * m,
 		else if(*s=='|') {
 			f = (int8_t)(s[1]-'0');
 			if((uint8_t)f>4) {
-				fprintf(stderr, "ucm error: fallback indicator must be |0..|4 - \"%s\"\n", line);
+				slfprintf_stderr("ucm error: fallback indicator must be |0..|4 - \"%s\"\n", line);
 				return FALSE;
 			}
 			break;
@@ -843,7 +823,7 @@ U_CAPI UCMTable * U_EXPORT2 ucm_openTable()
 {
 	UCMTable * table = (UCMTable*)uprv_malloc(sizeof(UCMTable));
 	if(table==NULL) {
-		fprintf(stderr, "ucm error: unable to allocate a UCMTable\n");
+		slfprintf_stderr("ucm error: unable to allocate a UCMTable\n");
 		exit(U_MEMORY_ALLOCATION_ERROR);
 	}
 
@@ -888,7 +868,7 @@ U_CAPI void U_EXPORT2 ucm_addMapping(UCMTable * table, UCMapping * m, UChar32 co
 		table->mappings = (UCMapping*)uprv_realloc(table->mappings,
 			table->mappingsCapacity*sizeof(UCMapping));
 		if(table->mappings==NULL) {
-			fprintf(stderr, "ucm error: unable to allocate %d UCMappings\n", (int)table->mappingsCapacity);
+			slfprintf_stderr("ucm error: unable to allocate %d UCMappings\n", (int)table->mappingsCapacity);
 			exit(U_MEMORY_ALLOCATION_ERROR);
 		}
 		if(table->reverseMap!=NULL) {
@@ -902,7 +882,7 @@ U_CAPI void U_EXPORT2 ucm_addMapping(UCMTable * table, UCMapping * m, UChar32 co
 		table->codePointsCapacity = 10000;
 		table->codePoints = (UChar32*)uprv_malloc(table->codePointsCapacity*4);
 		if(table->codePoints==NULL) {
-			fprintf(stderr, "ucm error: unable to allocate %d UChar32s\n",
+			slfprintf_stderr("ucm error: unable to allocate %d UChar32s\n",
 			    (int)table->codePointsCapacity);
 			exit(U_MEMORY_ALLOCATION_ERROR);
 		}
@@ -912,7 +892,7 @@ U_CAPI void U_EXPORT2 ucm_addMapping(UCMTable * table, UCMapping * m, UChar32 co
 		table->bytesCapacity = 10000;
 		table->bytes = (uint8_t*)uprv_malloc(table->bytesCapacity);
 		if(table->bytes==NULL) {
-			fprintf(stderr, "ucm error: unable to allocate %d bytes\n",
+			slfprintf_stderr("ucm error: unable to allocate %d bytes\n",
 			    (int)table->bytesCapacity);
 			exit(U_MEMORY_ALLOCATION_ERROR);
 		}
@@ -922,7 +902,7 @@ U_CAPI void U_EXPORT2 ucm_addMapping(UCMTable * table, UCMapping * m, UChar32 co
 		idx = table->codePointsLength;
 		table->codePointsLength += m->uLen;
 		if(table->codePointsLength>table->codePointsCapacity) {
-			fprintf(stderr, "ucm error: too many code points in multiple-code point mappings\n");
+			slfprintf_stderr("ucm error: too many code points in multiple-code point mappings\n");
 			exit(U_MEMORY_ALLOCATION_ERROR);
 		}
 
@@ -934,7 +914,7 @@ U_CAPI void U_EXPORT2 ucm_addMapping(UCMTable * table, UCMapping * m, UChar32 co
 		idx = table->bytesLength;
 		table->bytesLength += m->bLen;
 		if(table->bytesLength>table->bytesCapacity) {
-			fprintf(stderr, "ucm error: too many bytes in mappings with >4 charset bytes\n");
+			slfprintf_stderr("ucm error: too many bytes in mappings with >4 charset bytes\n");
 			exit(U_MEMORY_ALLOCATION_ERROR);
 		}
 
@@ -969,7 +949,7 @@ U_CAPI UCMFile * U_EXPORT2 ucm_open()
 {
 	UCMFile * ucm = (UCMFile*)uprv_malloc(sizeof(UCMFile));
 	if(ucm==NULL) {
-		fprintf(stderr, "ucm error: unable to allocate a UCMFile\n");
+		slfprintf_stderr("ucm error: unable to allocate a UCMFile\n");
 		exit(U_MEMORY_ALLOCATION_ERROR);
 	}
 	memzero(ucm, sizeof(UCMFile));
@@ -1045,7 +1025,7 @@ U_CAPI bool U_EXPORT2 ucm_addMappingAuto(UCMFile * ucm, bool forBase, UCMStates 
 	int32_t type;
 
 	if(m->f==2 && m->uLen>1) {
-		fprintf(stderr, "ucm error: illegal <subchar1> |2 mapping from multiple code points\n");
+		slfprintf_stderr("ucm error: illegal <subchar1> |2 mapping from multiple code points\n");
 		printMapping(m, codePoints, bytes, stderr);
 		return FALSE;
 	}
@@ -1111,7 +1091,7 @@ U_CAPI void U_EXPORT2 ucm_readTable(UCMFile * ucm, FileStream* convFile,
 	for(;;) {
 		/* read the next line */
 		if(!T_FileStream_readLine(convFile, line, sizeof(line))) {
-			fprintf(stderr, "incomplete charmap section\n");
+			slfprintf_stderr("incomplete charmap section\n");
 			isOK = FALSE;
 			break;
 		}

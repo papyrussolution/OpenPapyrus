@@ -91,7 +91,7 @@ U_CFUNC int u_wmsg(FILE * fp, const char * tag, ...)
 	int32_t resultLength = UPRV_LENGTHOF(result);
 	if(gBundle == NULL) {
 #if 0
-		fprintf(stderr, "u_wmsg: No path set!!\n"); /* FIXME: codepage?? */
+		slfprintf_stderr("u_wmsg: No path set!!\n"); /* FIXME: codepage?? */
 #endif
 		return -1;
 	}
@@ -117,7 +117,7 @@ U_CFUNC int u_wmsg(FILE * fp, const char * tag, ...)
 	va_end(ap);
 	if(U_FAILURE(err)) {
 #if 0
-		fprintf(stderr, "u_wmsg: failed to format %s:%s, err %s\n", uloc_getDefault(), tag, u_errorName(err));
+		slfprintf_stderr("u_wmsg: failed to format %s:%s, err %s\n", uloc_getDefault(), tag, u_errorName(err));
 #endif
 		err = U_ZERO_ERROR;
 		uprint(msg, msgLen, fp, &err);
@@ -127,7 +127,7 @@ U_CFUNC int u_wmsg(FILE * fp, const char * tag, ...)
 #endif
 	if(U_FAILURE(err)) {
 #if 0
-		fprintf(stderr, "u_wmsg: failed to print %s: %s, err %s\n", uloc_getDefault(), tag, u_errorName(err));
+		slfprintf_stderr("u_wmsg: failed to print %s: %s, err %s\n", uloc_getDefault(), tag, u_errorName(err));
 #endif
 		return -1;
 	}

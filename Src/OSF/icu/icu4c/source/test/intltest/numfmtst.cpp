@@ -7115,7 +7115,7 @@ void NumberFormatTest::TestAvailableNumberingSystems() {
 		const char * nsname = availableNumberingSystems->next(&len, status);
 		NumberingSystem* ns = NumberingSystem::createInstanceByName(nsname, status);
 		logln("OK for ns = %s", nsname);
-		if(uprv_strcmp(nsname, ns->getName()) ) {
+		if(uprv_strcmp(nsname, ns->getName())) {
 			errln("FAIL: Numbering system name didn't match for name = %s\n", nsname);
 		}
 		if(prevName != nullptr) {
@@ -7152,14 +7152,14 @@ void NumberFormatTest::Test9087(void)
 	UChar outputbuf[50] = {0};
 	UErrorCode status = U_ZERO_ERROR;
 	UNumberFormat * fmt = unum_open(UNUM_PATTERN_DECIMAL, pattern, 1, NULL, NULL, &status);
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		dataerrln("FAIL: error in unum_open() - %s", u_errorName(status));
 		return;
 	}
 
 	unum_setSymbol(fmt, UNUM_INFINITY_SYMBOL, infstr, 3, &status);
 	unum_setSymbol(fmt, UNUM_NAN_SYMBOL, nanstr, 3, &status);
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		errln("FAIL: error setting symbols");
 	}
 
@@ -7338,7 +7338,7 @@ bool NumberFormatTest::testFormattableAsUFormattable(const char * file, int line
 	bool triedExact = FALSE; // did we attempt an exact comparison?
 	bool exactMatch = FALSE; // was the exact comparison true?
 
-	switch(f.getType() ) {
+	switch(f.getType()) {
 		case Formattable::kDate:
 		    expectUType = UFMT_DATE;
 		    exactMatch = (f.getDate()==ufmt_getDate(u, &valueStatus));
@@ -7441,7 +7441,7 @@ bool NumberFormatTest::testFormattableAsUFormattable(const char * file, int line
 			assertTrue(fileLine + " as doubles ==", f.getDouble(convStatus)==ufmt_getDouble(u, &convStatus));
 		}
 
-		if(assertSuccess(fileLine + " (numeric conversion status)", convStatus) ) {
+		if(assertSuccess(fileLine + " (numeric conversion status)", convStatus)) {
 			StringPiece fDecNum = f.getDecimalNumber(convStatus);
 #if 1
 			int32_t len;
@@ -7452,7 +7452,7 @@ bool NumberFormatTest::testFormattableAsUFormattable(const char * file, int line
 			int32_t len = ufmt_getDecNumChars(u, decNumChars, 200, &convStatus);
 #endif
 
-			if(assertSuccess(fileLine + " (decNumbers conversion)", convStatus) ) {
+			if(assertSuccess(fileLine + " (decNumbers conversion)", convStatus)) {
 				logln(fileLine + decNumChars);
 				assertEquals(fileLine + " decNumChars length==", len, fDecNum.length());
 				assertEquals(fileLine + " decNumChars digits", decNumChars, fDecNum.data());
@@ -7466,7 +7466,7 @@ bool NumberFormatTest::testFormattableAsUFormattable(const char * file, int line
 			if((l==r)
 			 && ( uType != UFMT_INT64 ) // int64 better not overflow
 			 && (U_INVALID_FORMAT_ERROR==int64ConversionU)
-			 && (U_INVALID_FORMAT_ERROR==int64ConversionF) ) {
+			 && (U_INVALID_FORMAT_ERROR==int64ConversionF)) {
 				logln("%s:%d: OK: 64 bit overflow", file, line);
 			}
 			else {

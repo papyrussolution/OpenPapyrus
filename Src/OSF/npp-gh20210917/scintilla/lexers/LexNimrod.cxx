@@ -403,7 +403,7 @@ static void FoldNimrodDoc(Sci_PositionU startPos, Sci_Position length,
 		}
 
 		// Set fold header on non-quote/non-comment line
-		if(!quote && !comment && !(indentCurrent & SC_FOLDLEVELWHITEFLAG) ) {
+		if(!quote && !comment && !(indentCurrent & SC_FOLDLEVELWHITEFLAG)) {
 			if((indentCurrent & SC_FOLDLEVELNUMBERMASK) <
 			    (indentNext & SC_FOLDLEVELNUMBERMASK))
 				lev |= SC_FOLDLEVELHEADERFLAG;

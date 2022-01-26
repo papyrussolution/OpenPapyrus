@@ -85,7 +85,7 @@ public:
 				U_CHARSET_FAMILY,
 				&errorCode);
 			if(U_FAILURE(errorCode)) {
-				fprintf(stderr, "icupkg: udata_openSwapper(\"%s\") failed - %s\n",
+				slfprintf_stderr("icupkg: udata_openSwapper(\"%s\") failed - %s\n",
 				    pItem->name, u_errorName(errorCode));
 				exit(errorCode);
 			}
@@ -95,7 +95,7 @@ public:
 
 			swapped = new uint8_t[pItem->length];
 			if(swapped==NULL) {
-				fprintf(stderr, "icupkg: unable to allocate memory for swapping \"%s\"\n", pItem->name);
+				slfprintf_stderr("icupkg: unable to allocate memory for swapping \"%s\"\n", pItem->name);
 				exit(U_MEMORY_ALLOCATION_ERROR);
 			}
 			swap(ds, pItem->data, pItem->length, swapped, &errorCode);
@@ -142,7 +142,7 @@ static void makeTargetName(const char * itemName, const char * id, int32_t idLen
 	suffixLength = (int32_t)strlen(suffix);
 	targetLength = treeLength+idLength+suffixLength;
 	if(targetLength>=capacity) {
-		fprintf(stderr, "icupkg/makeTargetName(%s) target item name length %ld too long\n",
+		slfprintf_stderr("icupkg/makeTargetName(%s) target item name length %ld too long\n",
 		    itemName, (long)targetLength);
 		*pErrorCode = U_BUFFER_OVERFLOW_ERROR;
 		return;
@@ -219,7 +219,7 @@ static void checkAlias(const char * itemName,
 	int32_t i;
 
 	if(!uprv_isInvariantUString(alias, length)) {
-		fprintf(stderr, "icupkg/ures_enumDependencies(%s res=%08x) alias string contains non-invariant characters\n",
+		slfprintf_stderr("icupkg/ures_enumDependencies(%s res=%08x) alias string contains non-invariant characters\n",
 		    itemName, res);
 		*pErrorCode = U_INVALID_CHAR_FOUND;
 		return;
@@ -247,7 +247,7 @@ static void checkAlias(const char * itemName,
 	else { /* URES_STRING */
 		// the whole string should only consist of a locale ID
 		if(i!=length) {
-			fprintf(stderr, "icupkg/ures_enumDependencies(%s res=%08x) %%ALIAS contains a '/'\n",
+			slfprintf_stderr("icupkg/ures_enumDependencies(%s res=%08x) %%ALIAS contains a '/'\n",
 			    itemName, res);
 			*pErrorCode = U_UNSUPPORTED_ERROR;
 			return;
@@ -257,7 +257,7 @@ static void checkAlias(const char * itemName,
 	// convert the Unicode string to char *
 	char localeID[48];
 	if(length>=(int32_t)sizeof(localeID)) {
-		fprintf(stderr, "icupkg/ures_enumDependencies(%s res=%08x) alias locale ID length %ld too long\n",
+		slfprintf_stderr("icupkg/ures_enumDependencies(%s res=%08x) alias locale ID length %ld too long\n",
 		    itemName, res, (long)length);
 		*pErrorCode = U_BUFFER_OVERFLOW_ERROR;
 		return;
@@ -327,7 +327,7 @@ static void ures_enumDependencies(const char * itemName,
 				    pkg,
 				    pErrorCode);
 			    if(U_FAILURE(*pErrorCode)) {
-				    fprintf(stderr, "icupkg/ures_enumDependencies(%s table res=%08x)[%d].recurse(%s: %08x) failed\n",
+				    slfprintf_stderr("icupkg/ures_enumDependencies(%s table res=%08x)[%d].recurse(%s: %08x) failed\n",
 					itemName, res, i, itemKey, item);
 				    break;
 			    }
@@ -340,16 +340,9 @@ static void ures_enumDependencies(const char * itemName,
 		    int32_t count = res_countArrayItems(pResData, res);
 		    for(int32_t i = 0; i<count; ++i) {
 			    Resource item = res_getArrayItem(pResData, res, i);
-			    ures_enumDependencies(
-				    itemName, pResData,
-				    item, NULL,
-				    inKey, depth+1,
-				    check, context,
-				    pkg,
-				    pErrorCode);
+			    ures_enumDependencies(itemName, pResData, item, NULL, inKey, depth+1, check, context, pkg, pErrorCode);
 			    if(U_FAILURE(*pErrorCode)) {
-				    fprintf(stderr, "icupkg/ures_enumDependencies(%s array res=%08x)[%d].recurse(%08x) failed\n",
-					itemName, res, i, item);
+				    slfprintf_stderr("icupkg/ures_enumDependencies(%s array res=%08x)[%d].recurse(%08x) failed\n", itemName, res, i, item);
 				    break;
 			    }
 		    }
@@ -369,7 +362,7 @@ static void ures_enumDependencies(const char * itemName, const UDataInfo * pInfo
 
 	res_read(&resData, pInfo, inBytes, length, pErrorCode);
 	if(U_FAILURE(*pErrorCode)) {
-		fprintf(stderr, "icupkg: .res format version %02x.%02x not supported, or bundle malformed\n",
+		slfprintf_stderr("icupkg: .res format version %02x.%02x not supported, or bundle malformed\n",
 		    pInfo->formatVersion[0], pInfo->formatVersion[1]);
 		exit(U_UNSUPPORTED_ERROR);
 	}
@@ -404,7 +397,7 @@ static void ures_enumDependencies(const char * itemName, const UDataInfo * pInfo
 		nativePool.setItem(pkg->getItem(index), ures_swap);
 		const UDataInfo * poolInfo = nativePool.getDataInfo();
 		if(poolInfo->formatVersion[0]<=1) {
-			fprintf(stderr, "icupkg: %s is not a pool bundle\n", poolName);
+			slfprintf_stderr("icupkg: %s is not a pool bundle\n", poolName);
 			return;
 		}
 		const int32_t * poolRoot = (const int32_t*)nativePool.getBytes();
@@ -413,7 +406,7 @@ static void ures_enumDependencies(const char * itemName, const UDataInfo * pInfo
 		if(!(poolIndexLength>URES_INDEX_POOL_CHECKSUM &&
 		    (poolIndexes[URES_INDEX_ATTRIBUTES]&URES_ATT_IS_POOL_BUNDLE))
 		    ) {
-			fprintf(stderr, "icupkg: %s is not a pool bundle\n", poolName);
+			slfprintf_stderr("icupkg: %s is not a pool bundle\n", poolName);
 			return;
 		}
 		if(resData.pRoot[1+URES_INDEX_POOL_CHECKSUM]==poolIndexes[URES_INDEX_POOL_CHECKSUM]) {
@@ -421,7 +414,7 @@ static void ures_enumDependencies(const char * itemName, const UDataInfo * pInfo
 			resData.poolBundleStrings = (const uint16_t*)(poolRoot+poolIndexes[URES_INDEX_KEYS_TOP]);
 		}
 		else {
-			fprintf(stderr, "icupkg: %s has mismatched checksum for %s\n", poolName, itemName);
+			slfprintf_stderr("icupkg: %s has mismatched checksum for %s\n", poolName, itemName);
 			return;
 		}
 	}
@@ -455,7 +448,7 @@ static void ucnv_enumDependencies(const UDataSwapper * ds,
 		    pInfo->formatVersion[0]==6 &&
 		    pInfo->formatVersion[1]>=2
 		    )) {
-		fprintf(stderr, "icupkg/ucnv_enumDependencies(): .cnv format version %02x.%02x not supported\n",
+		slfprintf_stderr("icupkg/ucnv_enumDependencies(): .cnv format version %02x.%02x not supported\n",
 		    pInfo->formatVersion[0], pInfo->formatVersion[1]);
 		exit(U_UNSUPPORTED_ERROR);
 	}
@@ -611,7 +604,7 @@ void Package::enumDependencies(Item * pItem, void * context, CheckDependency che
 				    U_IS_BIG_ENDIAN, U_CHARSET_FAMILY,
 				    &errorCode);
 			    if(U_FAILURE(errorCode)) {
-				    fprintf(stderr, "icupkg: udata_openSwapper(\"%s\") failed - %s\n",
+				    slfprintf_stderr("icupkg: udata_openSwapper(\"%s\") failed - %s\n",
 					pItem->name, u_errorName(errorCode));
 				    exit(errorCode);
 			    }

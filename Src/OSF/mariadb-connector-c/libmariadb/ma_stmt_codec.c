@@ -917,7 +917,7 @@ static void ps_fetch_double(MYSQL_BIND * r_param, const MYSQL_FIELD * field, uch
 	switch(r_param->buffer_type) {
 		case MYSQL_TYPE_DOUBLE:
 	    {
-		    double * value = (double*)r_param->buffer;
+		    double * value = (double *)r_param->buffer;
 		    float8get(*value, *row);
 		    r_param->buffer_length = 8;
 	    }

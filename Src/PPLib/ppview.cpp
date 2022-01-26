@@ -2565,7 +2565,7 @@ IMPL_HANDLE_EVENT(PPViewBrowser)
 					KeyDownCommand kc;
 					kc.Code  = LoWord(event.keyDown.keyCode);
 					kc.State = HiWord(event.keyDown.keyCode);
-					if(oneof2(kc.State, 0, KeyDownCommand::stateShift) && isasciialpha(kc.Code)) {
+					if(oneof2(kc.State, 0, KeyDownCommand::stateShift) && isasciialpha(static_cast<char>(kc.Code))) {
 						kc.Code = toupper(kc.Code);
 					}
 					uint32 final_code = MakeLong(kc.Code, kc.State);

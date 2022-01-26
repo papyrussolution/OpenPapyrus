@@ -1,17 +1,6 @@
 // Copyright 2020 The Abseil Authors.
-//
 // Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
 //
-//      https://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/strings/internal/str_format/float_conversion.h"
@@ -339,23 +328,24 @@ void RoundToEven(char * p) {
 
 // Simple integral decimal digit printing for values that fit in 64-bits.
 // Returns the pointer to the last written digit.
-char * PrintIntegralDigitsFromRightFast(uint64_t v, char * p) {
+char * PrintIntegralDigitsFromRightFast(uint64_t v, char * p) 
+{
 	do {
-		*--p = DivideBy10WithCarry(&v, 0) + '0';
+		*--p = static_cast<char>(DivideBy10WithCarry(&v, 0) + '0');
 	} while(v != 0);
 	return p;
 }
 
 // Simple integral decimal digit printing for values that fit in 128-bits.
 // Returns the pointer to the last written digit.
-char * PrintIntegralDigitsFromRightFast(uint128 v, char * p) {
+char * PrintIntegralDigitsFromRightFast(uint128 v, char * p) 
+{
 	auto high = static_cast<uint64_t>(v >> 64);
 	auto low = static_cast<uint64_t>(v);
-
 	while(high != 0) {
 		uint64_t carry = DivideBy10WithCarry(&high, 0);
 		carry = DivideBy10WithCarry(&low, carry);
-		*--p = carry + '0';
+		*--p = static_cast<char>(carry + '0');
 	}
 	return PrintIntegralDigitsFromRightFast(low, p);
 }
@@ -407,8 +397,7 @@ char * PrintFractionalDigitsFast(uint128 v, char * start, int exp,
 	while(precision > 0 && low != 0) {
 		uint64_t carry = MultiplyBy10WithCarry(&low, uint64_t{0});
 		carry = MultiplyBy10WithCarry(&high, carry);
-
-		*p++ = carry + '0';
+		*p++ = static_cast<char>(carry + '0');
 		--precision;
 	}
 
@@ -416,7 +405,8 @@ char * PrintFractionalDigitsFast(uint128 v, char * start, int exp,
 	// This block is pretty much the same as the main loop for the 64-bit case
 	// above.
 	while(precision > 0) {
-		if(!high) return p;
+		if(!high) 
+			return p;
 		*p++ = MultiplyBy10WithCarry(&high, uint64_t{0}) + '0';
 		--precision;
 	}
@@ -1397,30 +1387,24 @@ bool FloatToSink(const Float v, const FormatConversionSpecImpl &conv,
 			exp = 0;
 		}
 		if(!conv.has_alt_flag()) {
-			while(buffer.back() == '0') buffer.pop_back();
-			if(buffer.back() == '.') buffer.pop_back();
+			while(buffer.back() == '0') 
+				buffer.pop_back();
+			if(buffer.back() == '.') 
+				buffer.pop_back();
 		}
 		if(exp) {
-			PrintExponent(
-				exp, FormatConversionCharIsUpper(conv.conversion_char()) ? 'E' : 'e',
-				&buffer);
+			PrintExponent(exp, FormatConversionCharIsUpper(conv.conversion_char()) ? 'E' : 'e', &buffer);
 		}
 	}
-	else if(c == FormatConversionCharInternal::a ||
-	    c == FormatConversionCharInternal::A) {
+	else if(oneof2(c, FormatConversionCharInternal::a, FormatConversionCharInternal::A)) {
 		bool uppercase = (c == FormatConversionCharInternal::A);
-		FormatA(HexFloatTypeParams(Float{}), decomposed.mantissa,
-		    decomposed.exponent, uppercase, {sign_char, precision, conv, sink});
+		FormatA(HexFloatTypeParams(Float{}), decomposed.mantissa, decomposed.exponent, uppercase, {sign_char, precision, conv, sink});
 		return true;
 	}
 	else {
 		return false;
 	}
-
-	WriteBufferToSink(sign_char,
-	    absl::string_view(buffer.begin, buffer.end - buffer.begin),
-	    conv, sink);
-
+	WriteBufferToSink(sign_char, absl::string_view(buffer.begin, buffer.end - buffer.begin), conv, sink);
 	return true;
 }
 }  // namespace
@@ -1432,7 +1416,6 @@ bool ConvertFloatImpl(long double v, const FormatConversionSpecImpl &conv,
 		// handle it natively. Fallback to snprintf.
 		return FallbackToSnprintf(v, conv, sink);
 	}
-
 	return FloatToSink(v, conv, sink);
 }
 

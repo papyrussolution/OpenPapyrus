@@ -173,7 +173,7 @@ void DecNum::_setTo(const char * str, int32_t maxDigits, UErrorCode & status) {
 	}
 }
 
-void DecNum::setTo(const uint8* bcd, int32_t length, int32_t scale, bool isNegative, UErrorCode & status) {
+void DecNum::setTo(const uint8 * bcd, int32_t length, int32_t scale, bool isNegative, UErrorCode & status) {
 	if(length > kDefaultDigits) {
 		fData.resize(length, 0);
 		fContext.digits = length;

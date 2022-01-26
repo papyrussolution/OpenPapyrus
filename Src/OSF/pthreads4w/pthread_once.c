@@ -31,7 +31,7 @@ int pthread_once(pthread_once_t * once_control, void(__PTW32_CDECL * init_routin
 	if(once_control == NULL || init_routine == NULL) {
 		return EINVAL;
 	}
-	if((__PTW32_INTERLOCKED_LONG)__PTW32_FALSE ==
+	if((__PTW32_INTERLOCKED_LONG)FALSE ==
 	    (__PTW32_INTERLOCKED_LONG)__PTW32_INTERLOCKED_EXCHANGE_ADD_LONG((__PTW32_INTERLOCKED_LONGPTR)&once_control->done,
 	    (__PTW32_INTERLOCKED_LONG)0)) {                                                      /* MBR fence */
 		__ptw32_mcs_local_node_t node;
@@ -46,7 +46,7 @@ int pthread_once(pthread_once_t * once_control, void(__PTW32_CDECL * init_routin
 #if defined (__PTW32_CONFIG_MSVC7)
 	#pragma inline_depth()
 #endif
-			once_control->done =  __PTW32_TRUE;
+			once_control->done =  TRUE;
 		}
 		__ptw32_mcs_lock_release(&node);
 	}

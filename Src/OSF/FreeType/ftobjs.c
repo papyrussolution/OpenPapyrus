@@ -748,7 +748,7 @@ FT_Load_Glyph(FT_Face face,
 	    ( face->internal->transform_matrix.yx == 0 &&
 	    face->internal->transform_matrix.xx != 0) ||
 	    ( face->internal->transform_matrix.xx == 0 &&
-	    face->internal->transform_matrix.yx != 0)) ) {
+	    face->internal->transform_matrix.yx != 0))) {
 		if(( load_flags & FT_LOAD_FORCE_AUTOHINT ) ||
 		    !FT_DRIVER_HAS_HINTER(driver)         )
 			autohint = TRUE;

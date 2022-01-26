@@ -135,11 +135,11 @@ static void extractPackageName(const char * filename, char pkg[], int32_t capaci
 	const char * basename = findBasename(filename);
 	int32_t len = (int32_t)strlen(basename)-4; /* -4: subtract the length of ".dat" */
 	if(len<=0 || 0!=strcmp(basename+len, ".dat")) {
-		fprintf(stderr, "icupkg: \"%s\" is not recognized as a package filename (must end with .dat)\n", basename);
+		slfprintf_stderr("icupkg: \"%s\" is not recognized as a package filename (must end with .dat)\n", basename);
 		exit(U_ILLEGAL_ARGUMENT_ERROR);
 	}
 	if(len>=capacity) {
-		fprintf(stderr, "icupkg: the package name \"%s\" is too long (>=%ld)\n", basename, (long)capacity);
+		slfprintf_stderr("icupkg: the package name \"%s\" is too long (>=%ld)\n", basename, (long)capacity);
 		exit(U_ILLEGAL_ARGUMENT_ERROR);
 	}
 	memcpy(pkg, basename, len);
@@ -197,7 +197,7 @@ static void makeFullFilename(const char * path, const char * name,
 	// prepend the path unless NULL or empty
 	if(path!=NULL && path[0]!=0) {
 		if((int32_t)(strlen(path)+1)>=capacity) {
-			fprintf(stderr, "pathname too long: \"%s\"\n", path);
+			slfprintf_stderr("pathname too long: \"%s\"\n", path);
 			exit(U_BUFFER_OVERFLOW_ERROR);
 		}
 		strcpy(filename, path);
@@ -214,7 +214,7 @@ static void makeFullFilename(const char * path, const char * name,
 
 	// turn the name into a filename, turn tree separators into file separators
 	if((int32_t)((s-filename)+strlen(name))>=capacity) {
-		fprintf(stderr, "path/filename too long: \"%s%s\"\n", filename, name);
+		slfprintf_stderr("path/filename too long: \"%s%s\"\n", filename, name);
 		exit(U_BUFFER_OVERFLOW_ERROR);
 	}
 	strcpy(s, name);
@@ -234,7 +234,7 @@ static void makeFullFilenameAndDirs(const char * path, const char * name, char *
 			*sep = 0;   // truncate temporarily
 			uprv_mkdir(filename, &errorCode);
 			if(U_FAILURE(errorCode)) {
-				fprintf(stderr, "icupkg: unable to create tree directory \"%s\"\n", filename);
+				slfprintf_stderr("icupkg: unable to create tree directory \"%s\"\n", filename);
 				exit(U_FILE_ACCESS_ERROR);
 			}
 		}
@@ -253,14 +253,14 @@ static uint8_t * readFile(const char * path, const char * name, int32_t &length,
 	/* open the input file, get its length, allocate memory for it, read the file */
 	file = fopen(filename, "rb");
 	if(!file) {
-		fprintf(stderr, "icupkg: unable to open input file \"%s\"\n", filename);
+		slfprintf_stderr("icupkg: unable to open input file \"%s\"\n", filename);
 		exit(U_FILE_ACCESS_ERROR);
 	}
 
 	/* get the file length */
 	fileLength = getFileLength(file);
 	if(ferror(file) || fileLength<=0) {
-		fprintf(stderr, "icupkg: empty input file \"%s\"\n", filename);
+		slfprintf_stderr("icupkg: empty input file \"%s\"\n", filename);
 		fclose(file);
 		exit(U_FILE_ACCESS_ERROR);
 	}
@@ -270,12 +270,12 @@ static uint8_t * readFile(const char * path, const char * name, int32_t &length,
 	icu::LocalMemory<uint8_t> data((uint8_t*)uprv_malloc(length));
 	if(data.isNull()) {
 		fclose(file);
-		fprintf(stderr, "icupkg: malloc error allocating %d bytes.\n", (int)length);
+		slfprintf_stderr("icupkg: malloc error allocating %d bytes.\n", (int)length);
 		exit(U_MEMORY_ALLOCATION_ERROR);
 	}
 	/* read the file */
 	if(fileLength!=(int32_t)fread(data.getAlias(), 1, fileLength, file)) {
-		fprintf(stderr, "icupkg: error reading \"%s\"\n", filename);
+		slfprintf_stderr("icupkg: error reading \"%s\"\n", filename);
 		fclose(file);
 		exit(U_FILE_ACCESS_ERROR);
 	}
@@ -288,11 +288,11 @@ static uint8_t * readFile(const char * path, const char * name, int32_t &length,
 	errorCode = U_ZERO_ERROR;
 	typeEnum = getTypeEnumForInputData(data.getAlias(), length, &errorCode);
 	if(typeEnum<0 || U_FAILURE(errorCode)) {
-		fprintf(stderr, "icupkg: not an ICU data file: \"%s\"\n", filename);
+		slfprintf_stderr("icupkg: not an ICU data file: \"%s\"\n", filename);
 #if !UCONFIG_NO_LEGACY_CONVERSION
 		exit(U_INVALID_FORMAT_ERROR);
 #else
-		fprintf(stderr, "U_INVALID_FORMAT_ERROR occurred but UCONFIG_NO_LEGACY_CONVERSION is on so this is expected.\n");
+		slfprintf_stderr("U_INVALID_FORMAT_ERROR occurred but UCONFIG_NO_LEGACY_CONVERSION is on so this is expected.\n");
 		exit(0);
 #endif
 	}
@@ -359,7 +359,7 @@ Package::~Package()
 void Package::setPrefix(const char * p) 
 {
 	if(strlen(p)>=sizeof(pkgPrefix)) {
-		fprintf(stderr, "icupkg: --toc_prefix %s too long\n", p);
+		slfprintf_stderr("icupkg: --toc_prefix %s too long\n", p);
 		exit(U_ILLEGAL_ARGUMENT_ERROR);
 	}
 	strcpy(pkgPrefix, p);
@@ -392,7 +392,7 @@ void Package::readPackage(const char * filename) {
 	makeTypeProps(type, inCharset, inIsBigEndian);
 	ds = udata_openSwapper(inIsBigEndian, inCharset, U_IS_BIG_ENDIAN, U_CHARSET_FAMILY, &errorCode);
 	if(U_FAILURE(errorCode)) {
-		fprintf(stderr, "icupkg: udata_openSwapper(\"%s\") failed - %s\n",
+		slfprintf_stderr("icupkg: udata_openSwapper(\"%s\") failed - %s\n",
 		    filename, u_errorName(errorCode));
 		exit(errorCode);
 	}
@@ -418,7 +418,7 @@ void Package::readPackage(const char * filename) {
 		    pInfo->dataFormat[3]==0x44 &&
 		    pInfo->formatVersion[0]==1
 		    )) {
-		fprintf(stderr, "icupkg: data format %02x.%02x.%02x.%02x (format version %02x) is not recognized as an ICU .dat package\n",
+		slfprintf_stderr("icupkg: data format %02x.%02x.%02x.%02x (format version %02x) is not recognized as an ICU .dat package\n",
 		    pInfo->dataFormat[0], pInfo->dataFormat[1],
 		    pInfo->dataFormat[2], pInfo->dataFormat[3],
 		    pInfo->formatVersion[0]);
@@ -452,7 +452,7 @@ void Package::readPackage(const char * filename) {
 		}
 	}
 	if(length<offset) {
-		fprintf(stderr, "icupkg: too few bytes (%ld after header) for a .dat package\n",
+		slfprintf_stderr("icupkg: too few bytes (%ld after header) for a .dat package\n",
 		    (long)length);
 		exit(U_INDEX_OUTOFBOUNDS_ERROR);
 	}
@@ -460,7 +460,7 @@ void Package::readPackage(const char * filename) {
 
 	if(itemCount<=0) {
 		if(doAutoPrefix) {
-			fprintf(stderr, "icupkg: --auto_toc_prefix[_with_type] but the input package is empty\n");
+			slfprintf_stderr("icupkg: --auto_toc_prefix[_with_type] but the input package is empty\n");
 			exit(U_INVALID_FORMAT_ERROR);
 		}
 	}
@@ -469,7 +469,7 @@ void Package::readPackage(const char * filename) {
 		char * s, * inItemStrings;
 
 		if(itemCount>itemMax) {
-			fprintf(stderr, "icupkg: too many items, maximum is %d\n", itemMax);
+			slfprintf_stderr("icupkg: too many items, maximum is %d\n", itemMax);
 			exit(U_BUFFER_OVERFLOW_ERROR);
 		}
 
@@ -483,14 +483,14 @@ void Package::readPackage(const char * filename) {
 		}
 
 		if((inStringTop+itemLength)>STRING_STORE_SIZE) {
-			fprintf(stderr, "icupkg: total length of item name strings too long\n");
+			slfprintf_stderr("icupkg: total length of item name strings too long\n");
 			exit(U_BUFFER_OVERFLOW_ERROR);
 		}
 
 		inItemStrings = inStrings+inStringTop;
 		ds->swapInvChars(ds, inBytes+stringsOffset, itemLength, inItemStrings, &errorCode);
 		if(U_FAILURE(errorCode)) {
-			fprintf(stderr, "icupkg failed to swap the input .dat package item name strings\n");
+			slfprintf_stderr("icupkg failed to swap the input .dat package item name strings\n");
 			exit(U_INVALID_FORMAT_ERROR);
 		}
 		inStringTop += itemLength;
@@ -565,7 +565,7 @@ void Package::readPackage(const char * filename) {
 			offset = (int32_t)ds->readUInt32(inEntries[i].nameOffset)-stringsOffset;
 			s = inItemStrings+offset;
 			if(0!=strncmp(s, prefix, prefixLength) || s[prefixLength]==0) {
-				fprintf(stderr, "icupkg: input .dat item name \"%s\" does not start with \"%s\"\n",
+				slfprintf_stderr("icupkg: input .dat item name \"%s\" does not start with \"%s\"\n",
 				    s, prefix);
 				exit(U_INVALID_FORMAT_ERROR);
 			}
@@ -579,7 +579,7 @@ void Package::readPackage(const char * filename) {
 				// set the previous item's platform type
 				typeEnum = getTypeEnumForInputData(items[i-1].data, items[i-1].length, &errorCode);
 				if(typeEnum<0 || U_FAILURE(errorCode)) {
-					fprintf(stderr, "icupkg: not an ICU data file: item \"%s\" in \"%s\"\n", items[i-1].name, filename);
+					slfprintf_stderr("icupkg: not an ICU data file: item \"%s\" in \"%s\"\n", items[i-1].name, filename);
 					exit(U_INVALID_FORMAT_ERROR);
 				}
 				items[i-1].type = makeTypeLetter(typeEnum);
@@ -592,7 +592,7 @@ void Package::readPackage(const char * filename) {
 		// set the last item's platform type
 		typeEnum = getTypeEnumForInputData(items[itemCount-1].data, items[itemCount-1].length, &errorCode);
 		if(typeEnum<0 || U_FAILURE(errorCode)) {
-			fprintf(stderr, "icupkg: not an ICU data file: item \"%s\" in \"%s\"\n", items[itemCount-1].name, filename);
+			slfprintf_stderr("icupkg: not an ICU data file: item \"%s\" in \"%s\"\n", items[itemCount-1].name, filename);
 			exit(U_INVALID_FORMAT_ERROR);
 		}
 		items[itemCount-1].type = makeTypeLetter(typeEnum);
@@ -634,7 +634,7 @@ void Package::writePackage(const char * filename, char outType, const char * com
 		headerLength = 4+pHeader->info.size;
 		length = (int32_t)strlen(comment);
 		if((int32_t)(headerLength+length)>=(int32_t)sizeof(header)) {
-			fprintf(stderr, "icupkg: comment too long\n");
+			slfprintf_stderr("icupkg: comment too long\n");
 			exit(U_BUFFER_OVERFLOW_ERROR);
 		}
 		memcpy(header+headerLength, comment, length+1);
@@ -660,7 +660,7 @@ void Package::writePackage(const char * filename, char outType, const char * com
 	ds[TYPE_LE] = NULL;
 	ds[TYPE_E] = i==TYPE_E ? NULL : udata_openSwapper(TRUE, U_EBCDIC_FAMILY, outIsBigEndian, outCharset, &errorCode);
 	if(U_FAILURE(errorCode)) {
-		fprintf(stderr, "icupkg: udata_openSwapper() failed - %s\n", u_errorName(errorCode));
+		slfprintf_stderr("icupkg: udata_openSwapper() failed - %s\n", u_errorName(errorCode));
 		exit(errorCode);
 	}
 	for(i = 0; i<TYPE_COUNT; ++i) {
@@ -675,7 +675,7 @@ void Package::writePackage(const char * filename, char outType, const char * com
 	// create the file and write its contents
 	file = fopen(filename, "wb");
 	if(!file) {
-		fprintf(stderr, "icupkg: unable to create file \"%s\"\n", filename);
+		slfprintf_stderr("icupkg: unable to create file \"%s\"\n", filename);
 		exit(U_FILE_ACCESS_ERROR);
 	}
 
@@ -683,13 +683,13 @@ void Package::writePackage(const char * filename, char outType, const char * com
 	if(dsLocalToOut!=NULL) {
 		udata_swapDataHeader(dsLocalToOut, header, headerLength, header, &errorCode);
 		if(U_FAILURE(errorCode)) {
-			fprintf(stderr, "icupkg: udata_swapDataHeader(local to out) failed - %s\n", u_errorName(errorCode));
+			slfprintf_stderr("icupkg: udata_swapDataHeader(local to out) failed - %s\n", u_errorName(errorCode));
 			exit(errorCode);
 		}
 	}
 	length = (int32_t)fwrite(header, 1, headerLength, file);
 	if(length!=headerLength) {
-		fprintf(stderr, "icupkg: unable to write complete header to file \"%s\"\n", filename);
+		slfprintf_stderr("icupkg: unable to write complete header to file \"%s\"\n", filename);
 		exit(U_FILE_ACCESS_ERROR);
 	}
 
@@ -710,14 +710,14 @@ void Package::writePackage(const char * filename, char outType, const char * com
 	if(dsLocalToOut!=NULL) {
 		dsLocalToOut->swapInvChars(dsLocalToOut, prefix, prefixLength, prefix, &errorCode);
 		if(U_FAILURE(errorCode)) {
-			fprintf(stderr, "icupkg: swapInvChars(output package name) failed - %s\n", u_errorName(errorCode));
+			slfprintf_stderr("icupkg: swapInvChars(output package name) failed - %s\n", u_errorName(errorCode));
 			exit(errorCode);
 		}
 
 		// swap and sort the item names (sorting needs to be done in the output charset)
 		dsLocalToOut->swapInvChars(dsLocalToOut, inStrings, inStringTop, inStrings, &errorCode);
 		if(U_FAILURE(errorCode)) {
-			fprintf(stderr, "icupkg: swapInvChars(item names) failed - %s\n", u_errorName(errorCode));
+			slfprintf_stderr("icupkg: swapInvChars(item names) failed - %s\n", u_errorName(errorCode));
 			exit(errorCode);
 		}
 		sortItems();
@@ -748,13 +748,13 @@ void Package::writePackage(const char * filename, char outType, const char * com
 	if(dsLocalToOut!=NULL) {
 		dsLocalToOut->swapArray32(dsLocalToOut, &outInt32, 4, &outInt32, &errorCode);
 		if(U_FAILURE(errorCode)) {
-			fprintf(stderr, "icupkg: swapArray32(item count) failed - %s\n", u_errorName(errorCode));
+			slfprintf_stderr("icupkg: swapArray32(item count) failed - %s\n", u_errorName(errorCode));
 			exit(errorCode);
 		}
 	}
 	length = (int32_t)fwrite(&outInt32, 1, 4, file);
 	if(length!=4) {
-		fprintf(stderr, "icupkg: unable to write complete item count to file \"%s\"\n", filename);
+		slfprintf_stderr("icupkg: unable to write complete item count to file \"%s\"\n", filename);
 		exit(U_FILE_ACCESS_ERROR);
 	}
 
@@ -766,13 +766,13 @@ void Package::writePackage(const char * filename, char outType, const char * com
 		if(dsLocalToOut!=NULL) {
 			dsLocalToOut->swapArray32(dsLocalToOut, &entry, 8, &entry, &errorCode);
 			if(U_FAILURE(errorCode)) {
-				fprintf(stderr, "icupkg: swapArray32(item entry %ld) failed - %s\n", (long)i, u_errorName(errorCode));
+				slfprintf_stderr("icupkg: swapArray32(item entry %ld) failed - %s\n", (long)i, u_errorName(errorCode));
 				exit(errorCode);
 			}
 		}
 		length = (int32_t)fwrite(&entry, 1, 8, file);
 		if(length!=8) {
-			fprintf(stderr, "icupkg: unable to write complete item entry %ld to file \"%s\"\n", (long)i, filename);
+			slfprintf_stderr("icupkg: unable to write complete item entry %ld to file \"%s\"\n", (long)i, filename);
 			exit(U_FILE_ACCESS_ERROR);
 		}
 
@@ -786,7 +786,7 @@ void Package::writePackage(const char * filename, char outType, const char * com
 	// write the item names
 	length = (int32_t)fwrite(outStrings, 1, outStringTop, file);
 	if(length!=outStringTop) {
-		fprintf(stderr, "icupkg: unable to write complete item names to file \"%s\"\n", filename);
+		slfprintf_stderr("icupkg: unable to write complete item names to file \"%s\"\n", filename);
 		exit(U_FILE_ACCESS_ERROR);
 	}
 
@@ -800,19 +800,19 @@ void Package::writePackage(const char * filename, char outType, const char * com
 				pItem->data, pItem->length, pItem->data,
 				&errorCode);
 			if(U_FAILURE(errorCode)) {
-				fprintf(stderr, "icupkg: udata_swap(item %ld) failed - %s\n", (long)i, u_errorName(errorCode));
+				slfprintf_stderr("icupkg: udata_swap(item %ld) failed - %s\n", (long)i, u_errorName(errorCode));
 				exit(errorCode);
 			}
 		}
 		length = (int32_t)fwrite(pItem->data, 1, pItem->length, file);
 		if(length!=pItem->length) {
-			fprintf(stderr, "icupkg: unable to write complete item %ld to file \"%s\"\n", (long)i, filename);
+			slfprintf_stderr("icupkg: unable to write complete item %ld to file \"%s\"\n", (long)i, filename);
 			exit(U_FILE_ACCESS_ERROR);
 		}
 	}
 
 	if(ferror(file)) {
-		fprintf(stderr, "icupkg: unable to write complete file \"%s\"\n", filename);
+		slfprintf_stderr("icupkg: unable to write complete file \"%s\"\n", filename);
 		exit(U_FILE_ACCESS_ERROR);
 	}
 
@@ -886,7 +886,7 @@ void Package::findItems(const char * pattern) {
 		findSuffixLength = (int32_t)strlen(findSuffix);
 		if(NULL!=strchr(findSuffix, '*')) {
 			// two or more wildcards
-			fprintf(stderr, "icupkg: syntax error (more than one '*') in item pattern \"%s\"\n", pattern);
+			slfprintf_stderr("icupkg: syntax error (more than one '*') in item pattern \"%s\"\n", pattern);
 			exit(U_PARSE_ERROR);
 		}
 	}
@@ -1056,7 +1056,7 @@ void Package::extractItem(const char * filesPath, const char * outName, int32_t 
 		makeTypeProps(outType, outCharset, outIsBigEndian);
 		ds = udata_openSwapper(itemIsBigEndian, itemCharset, outIsBigEndian, outCharset, &errorCode);
 		if(U_FAILURE(errorCode)) {
-			fprintf(stderr, "icupkg: udata_openSwapper(item %ld) failed - %s\n", (long)idx, u_errorName(errorCode));
+			slfprintf_stderr("icupkg: udata_openSwapper(item %ld) failed - %s\n", (long)idx, u_errorName(errorCode));
 			exit(errorCode);
 		}
 
@@ -1066,7 +1066,7 @@ void Package::extractItem(const char * filesPath, const char * outName, int32_t 
 		// swap the item from its platform properties to the desired ones
 		udata_swap(ds, pItem->data, pItem->length, pItem->data, &errorCode);
 		if(U_FAILURE(errorCode)) {
-			fprintf(stderr, "icupkg: udata_swap(item %ld) failed - %s\n", (long)idx, u_errorName(errorCode));
+			slfprintf_stderr("icupkg: udata_swap(item %ld) failed - %s\n", (long)idx, u_errorName(errorCode));
 			exit(errorCode);
 		}
 		udata_closeSwapper(ds);
@@ -1076,12 +1076,12 @@ void Package::extractItem(const char * filesPath, const char * outName, int32_t 
 	makeFullFilenameAndDirs(filesPath, outName, filename, (int32_t)sizeof(filename));
 	file = fopen(filename, "wb");
 	if(!file) {
-		fprintf(stderr, "icupkg: unable to create file \"%s\"\n", filename);
+		slfprintf_stderr("icupkg: unable to create file \"%s\"\n", filename);
 		exit(U_FILE_ACCESS_ERROR);
 	}
 	fileLength = (int32_t)fwrite(pItem->data, 1, pItem->length, file);
 	if(ferror(file) || fileLength!=pItem->length) {
-		fprintf(stderr, "icupkg: unable to write complete file \"%s\"\n", filename);
+		slfprintf_stderr("icupkg: unable to write complete file \"%s\"\n", filename);
 		exit(U_FILE_ACCESS_ERROR);
 	}
 	fclose(file);
@@ -1126,7 +1126,7 @@ void Package::checkDependency(void * context, const char * itemName, const char 
 	Package * me = (Package*)context;
 	if(me->findItem(targetName) < 0) {
 		me->isMissingItems = TRUE;
-		fprintf(stderr, "Item %s depends on missing item %s\n", itemName, targetName);
+		slfprintf_stderr("Item %s depends on missing item %s\n", itemName, targetName);
 	}
 }
 
@@ -1158,7 +1158,7 @@ char * Package::allocString(bool in, int32_t length)
 	}
 	top += length+1;
 	if(top>STRING_STORE_SIZE) {
-		fprintf(stderr, "icupkg: string storage overflow\n");
+		slfprintf_stderr("icupkg: string storage overflow\n");
 		exit(U_BUFFER_OVERFLOW_ERROR);
 	}
 	if(in) {
@@ -1175,7 +1175,7 @@ void Package::sortItems()
 	UErrorCode errorCode = U_ZERO_ERROR;
 	uprv_sortArray(items, itemCount, (int32_t)sizeof(Item), compareItems, NULL, FALSE, &errorCode);
 	if(U_FAILURE(errorCode)) {
-		fprintf(stderr, "icupkg: sorting item names failed - %s\n", u_errorName(errorCode));
+		slfprintf_stderr("icupkg: sorting item names failed - %s\n", u_errorName(errorCode));
 		exit(errorCode);
 	}
 }
@@ -1186,7 +1186,7 @@ void Package::setItemCapacity(int32_t max)
 		Item * newItems = (Item*)uprv_malloc(max * sizeof(items[0]));
 		Item * oldItems = items;
 		if(newItems == NULL) {
-			fprintf(stderr, "icupkg: Out of memory trying to allocate %lu bytes for %d items\n", (unsigned long)(max*sizeof(items[0])), max);
+			slfprintf_stderr("icupkg: Out of memory trying to allocate %lu bytes for %d items\n", (unsigned long)(max*sizeof(items[0])), max);
 			exit(U_MEMORY_ALLOCATION_ERROR);
 		}
 		if(items && itemCount>0) {

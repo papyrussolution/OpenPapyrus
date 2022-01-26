@@ -95,7 +95,7 @@ Four::Four(const Four& from)
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     a_string_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (!from._internal_a_string().empty()) {
+  if(!from._internal_a_string().empty()) {
     a_string_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_a_string(), 
       GetArenaForAllocation());
   }
@@ -146,10 +146,10 @@ const char* Four::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inter
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // string a_string = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           auto str = _internal_mutable_a_string();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "one.two.a_three.Four.a_string"));
@@ -161,7 +161,7 @@ const char* Four::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inter
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -187,7 +187,7 @@ uint8_t* Four::_InternalSerialize(
   (void) cached_has_bits;
 
   // string a_string = 1;
-  if (!this->_internal_a_string().empty()) {
+  if(!this->_internal_a_string().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_a_string().data(), static_cast<int>(this->_internal_a_string().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
@@ -196,7 +196,7 @@ uint8_t* Four::_InternalSerialize(
         1, this->_internal_a_string(), target);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -213,7 +213,7 @@ size_t Four::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // string a_string = 1;
-  if (!this->_internal_a_string().empty()) {
+  if(!this->_internal_a_string().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_a_string());
@@ -241,7 +241,7 @@ void Four::MergeFrom(const Four& from) {
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (!from._internal_a_string().empty()) {
+  if(!from._internal_a_string().empty()) {
     _internal_set_a_string(from._internal_a_string());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -249,7 +249,7 @@ void Four::MergeFrom(const Four& from) {
 
 void Four::CopyFrom(const Four& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:one.two.a_three.Four)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }

@@ -322,11 +322,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir>\papyrus\__TEMP__\VC2017\icu\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
-    <IntDir>\papyrus\__TEMP__\VC2017\icu\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>\papyrus\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>\papyrus\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <!-- The ICU projects use "Win32" to mean "x86", so we need to special case it. -->
-    <OutDir Condition="'$(Platform)'=='Win32'">\papyrus\__TEMP__\VC2017\icu\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
-    <IntDir Condition="'$(Platform)'=='Win32'">\papyrus\__TEMP__\VC2017\icu\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir Condition="'$(Platform)'=='Win32'">\papyrus\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir Condition="'$(Platform)'=='Win32'">\papyrus\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <!-- Disable Incremental Linking for Release builds as it prevents Link-time Code Generation -->
     <LinkIncremental Condition="'$(Configuration)'=='Debug'">true</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)'=='MtDllDebug'">true</LinkIncremental>
@@ -392,6 +392,8 @@
       <BrowseInformationFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ConformanceMode>
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ConformanceMode>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
     </ClCompile>
     <Link>
       <OutputFile>..\..\$(IcuBinOutputDir)\icuuc70d.dll</OutputFile>
@@ -442,6 +444,8 @@
       </BrowseInformationFile>
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ConformanceMode>
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ConformanceMode>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">false</CompileAsManaged>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">false</CompileAsManaged>
     </ClCompile>
     <Link>
       <OutputFile>..\..\$(IcuBinOutputDir)\icuuc70d.dll</OutputFile>
@@ -492,6 +496,8 @@
       </BrowseInformationFile>
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ConformanceMode>
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ConformanceMode>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">false</CompileAsManaged>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">false</CompileAsManaged>
     </ClCompile>
     <Link>
       <OutputFile>..\..\$(IcuBinOutputDir)\icuuc70d.dll</OutputFile>
@@ -535,6 +541,8 @@
       <BrowseInformationFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ConformanceMode>
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ConformanceMode>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsManaged>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsManaged>
     </ClCompile>
     <Link>
       <OutputFile>..\..\$(IcuBinOutputDir)\icuuc70.dll</OutputFile>
@@ -583,6 +591,8 @@
       </BrowseInformationFile>
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ConformanceMode>
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ConformanceMode>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">false</CompileAsManaged>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">false</CompileAsManaged>
     </ClCompile>
     <Link>
       <OutputFile>..\..\$(IcuBinOutputDir)\icuuc70.dll</OutputFile>
@@ -631,6 +641,8 @@
       </BrowseInformationFile>
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ConformanceMode>
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ConformanceMode>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">false</CompileAsManaged>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">false</CompileAsManaged>
     </ClCompile>
     <Link>
       <OutputFile>..\..\$(IcuBinOutputDir)\icuuc70.dll</OutputFile>

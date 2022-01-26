@@ -196,13 +196,13 @@ time_zone local_time_zone() {
 		zone = "/etc/localtime"; // System-specific default.
 		localtime_env = std::getenv("LOCALTIME");
 #endif
-		if(localtime_env) zone = localtime_env;
+		if(localtime_env) 
+			zone = localtime_env;
 	}
-
 	const std::string name = zone;
 #if defined(_MSC_VER)
-	free(localtime_env);
-	free(tz_env);
+	SAlloc::F(localtime_env);
+	SAlloc::F(tz_env);
 #endif
 
 	time_zone tz;

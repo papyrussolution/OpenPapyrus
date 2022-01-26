@@ -1877,7 +1877,7 @@ U_CAPI int32_t U_EXPORT2 uchar_swapNames(const UDataSwapper * ds,
 		return 0;
 	}
 
-	inBytes = (const uint8*)inData+headerSize;
+	inBytes = (const uint8 *)inData+headerSize;
 	outBytes = (uint8 *)outData+headerSize;
 	if(length<0) {
 		algNamesOffset = ds->readUInt32(((const uint32_t*)inBytes)[3]);
@@ -2090,8 +2090,8 @@ U_CAPI int32_t U_EXPORT2 uchar_swapNames(const UDataSwapper * ds,
 				    /* swap the strings, up to the last terminating NUL */
 				    p += factorsCount;
 				    q += factorsCount;
-				    stringsCount = (uint32_t)((inBytes+offset)-(const uint8*)p);
-				    while(stringsCount>0 && ((const uint8*)p)[stringsCount-1]!=0) {
+				    stringsCount = (uint32_t)((inBytes+offset)-(const uint8 *)p);
+				    while(stringsCount>0 && ((const uint8 *)p)[stringsCount-1]!=0) {
 					    --stringsCount;
 				    }
 				    ds->swapInvChars(ds, p, (int32_t)stringsCount, q, pErrorCode);

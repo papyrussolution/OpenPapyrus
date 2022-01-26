@@ -55,11 +55,11 @@ Individual bit input-output stream (BIO)
 */
 typedef struct opj_bio {
     /** pointer to the start of the buffer */
-    OPJ_BYTE *start;
+    uint8 *start;
     /** pointer to the end of the buffer */
-    OPJ_BYTE *end;
+    uint8 *end;
     /** pointer to the present position in the buffer */
-    OPJ_BYTE *bp;
+    uint8 *bp;
     /** temporary place where each byte is read or written */
     OPJ_UINT32 buf;
     /** coder : number of bits free to write. decoder : number of bits read */
@@ -91,14 +91,14 @@ Init encoder
 @param bp Output buffer
 @param len Output buffer length
 */
-void opj_bio_init_enc(opj_bio_t *bio, OPJ_BYTE *bp, OPJ_UINT32 len);
+void opj_bio_init_enc(opj_bio_t *bio, uint8 *bp, OPJ_UINT32 len);
 /**
 Init decoder
 @param bio BIO handle
 @param bp Input buffer
 @param len Input buffer length
 */
-void opj_bio_init_dec(opj_bio_t *bio, OPJ_BYTE *bp, OPJ_UINT32 len);
+void opj_bio_init_dec(opj_bio_t *bio, uint8 *bp, OPJ_UINT32 len);
 /**
 Write bits
 @param bio BIO handle
@@ -116,15 +116,15 @@ OPJ_UINT32 FASTCALL opj_bio_read(opj_bio_t *bio, OPJ_UINT32 n);
 /**
 Flush bits
 @param bio BIO handle
-@return Returns OPJ_TRUE if successful, returns OPJ_FALSE otherwise
+@return Returns TRUE if successful, returns FALSE otherwise
 */
-OPJ_BOOL opj_bio_flush(opj_bio_t *bio);
+boolint opj_bio_flush(opj_bio_t *bio);
 /**
 Passes the ending bits (coming from flushing)
 @param bio BIO handle
-@return Returns OPJ_TRUE if successful, returns OPJ_FALSE otherwise
+@return Returns TRUE if successful, returns FALSE otherwise
 */
-OPJ_BOOL opj_bio_inalign(opj_bio_t *bio);
+boolint opj_bio_inalign(opj_bio_t *bio);
 /* ----------------------------------------------------------------------- */
 /*@}*/
 

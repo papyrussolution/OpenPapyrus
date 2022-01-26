@@ -16,7 +16,7 @@ struct response_wait {
 static int addr_chk __P((const ENV*, const char *, uint));
 static void adjust_bulk_response __P((ENV*, DBT *));
 static int bad_callback_method __P((DB_CHANNEL*, const char *));
-static void copy_body __P((uint8*, REPMGR_IOVECS *));
+static void copy_body __P((uint8 *, REPMGR_IOVECS *));
 static int get_shared_netaddr __P((ENV*, int, repmgr_netaddr_t *));
 static int establish_connection __P((ENV*, int, REPMGR_CONNECTION**));
 static int get_channel_connection __P((CHANNEL*, REPMGR_CONNECTION**));
@@ -25,7 +25,7 @@ static int join_group_at_site __P((ENV*, repmgr_netaddr_t *));
 static int kick_blockers __P((ENV*, REPMGR_CONNECTION*, void *));
 static int make_request_conn __P((ENV*, repmgr_netaddr_t*, REPMGR_CONNECTION**));
 static int set_local_site __P((DB_SITE*, uint32));
-static int read_own_msg __P((ENV*, REPMGR_CONNECTION*, uint32*, uint8**, size_t *));
+static int read_own_msg __P((ENV*, REPMGR_CONNECTION*, uint32*, uint8 **, size_t *));
 static int refresh_site __P((DB_SITE *));
 static int __repmgr_await_threads(ENV *);
 static int __repmgr_build_data_out __P((ENV*, DBT*, uint32, __repmgr_msg_metadata_args*, REPMGR_IOVECS**iovecsp));

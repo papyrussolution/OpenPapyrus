@@ -652,7 +652,7 @@ static inline void GenerateVector(vvstring & vec, const char * s, const char * p
 		}
 
 		if((s[i] == ' ' && s[i+1] == prefix[0] && s[i+2] == prefix[1] && s[i+3] != ' ') ||
-		    (   i == 0 &&   s[0] == prefix[0] &&   s[1] == prefix[1] && s[i+2] != ' ') ) {
+		    (   i == 0 &&   s[0] == prefix[0] &&   s[1] == prefix[1] && s[i+2] != ' ')) {
 			if(i > 0) i += 1; // skip space
 			i += 2; // skip prefix
 			copy = true;
@@ -1955,7 +1955,7 @@ static void ColouriseUserDoc(Sci_PositionU startPos, Sci_Position length, int in
 			    if(!commentLineOpen.empty()) {
 				    if((pureLC == PURE_LC_NONE) ||
 					(pureLC == PURE_LC_BOL && (sc.chPrev == '\r' || sc.chPrev == '\n')) ||
-					(pureLC == PURE_LC_WSP && visibleChars == false) ) {
+					(pureLC == PURE_LC_WSP && visibleChars == false)) {
 					    if(isInListForward(commentLineOpen, sc, ignoreCase, openIndex, skipForward)) {
 						    if(foldComments && isCommentLine != COMMENTLINE_SKIP_TESTING)
 							    isCommentLine = COMMENTLINE_YES;

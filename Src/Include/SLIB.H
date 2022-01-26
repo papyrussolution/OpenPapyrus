@@ -541,6 +541,7 @@ class  SoapPacket;
 class  SoapPacketStruc;
 class  SoapPacketArray;
 class  DBTable;
+struct SJson;
 struct SDataMoveProgressInfo;
 struct _finddatai64_t;
 struct _cairo;
@@ -2258,39 +2259,37 @@ private:
 class SUniTime {
 public:
 	enum {
-		indfScale       = 0x80, // Если этот бит нулевой, то время представлено как FILETIME (100ns since 1601-01-01 UTC)
-		indfUncertainty = 0xC0, // Если бит установлен, то значение приблизительное. В этом случае предпоследний
-			// байт может содержать дополнительные признаки представления (например, как диапазон или +/-)
-
-		indInvalid      = 0xff, // Используется как внутренний код возврата, означающий ошибку
-
-		indDefault      = 0x00, // 0.1mks since 1601-01-01 (UTC).
-		indMSec         = 0x80, // milliseconds since 1601-01-01 (UTC).
-        indSec          = 0x81, // seconds since 1601-01-01 (UTC).
-        indMin          = 0x82, // minuts  since 1601-01-01 (UTC).
-        indHr           = 0x83, // hours   since 1601-01-01 (UTC).
-		indMSecTz       = 0x84, // since 1601-01-01. // timezone - lowest 8 bit
-		indCSecTz       = 0x85, // since 1601-01-01. // timezone - lowest 8 bit
-        indSecTz        = 0x86, // since 1601-01-01. // timezone - lowest 8 bit
-        indMinTz        = 0x87, // since 1601-01-01. // timezone - lowest 8 bit
-        indHrTz         = 0x88, // since 1601-01-01. // timezone - lowest 8 bit
-        indDay          = 0x89, // since 0001-01-01
-        indMon          = 0x8A, // since 0001-01-01
-		indQuart        = 0x8B, // since 0001-01-01
-		indSmYr         = 0x8C, // since 0001-01-01
-		indYr           = 0x8D, // since 0001-01-01
-		indDYr          = 0x8E, // since 0001-01-01
-		indSmCent       = 0x8F, // since 0001-01-01
-		indCent         = 0x90, // since 0001-01-01
-		indMillennium   = 0x91, // since 0001-01-01
-		indDayBC        = 0x92, // before 0001-01-01
-		indMonBC        = 0x93, // before 0001-01-01
-		indYrBC         = 0x94, // before 0001-01-01
-		indDYrBC        = 0x95, // before 0001-01-01
-		indCentBC       = 0x96, // before 0001-01-01
-		indMillenniumBC = 0x97, // before 0001-01-01
-		indMlnYrAgo     = 0x98,
-		indBlnYrAgo     = 0x99
+	    indfScale       = 0x80, // Если этот бит нулевой, то время представлено как FILETIME (100ns since 1601-01-01 UTC)
+	    indfUncertainty = 0xC0, // Если бит установлен, то значение приблизительное. В этом случае предпоследний
+		// байт может содержать дополнительные признаки представления (например, как диапазон или +/-)
+	    indInvalid      = 0xff, // Используется как внутренний код возврата, означающий ошибку
+	    indDefault      = 0x00, // 0.1mks since 1601-01-01 (UTC).
+	    indMSec         = 0x80, // milliseconds since 1601-01-01 (UTC).
+	    indSec          = 0x81, // seconds since 1601-01-01 (UTC).
+	    indMin          = 0x82, // minuts  since 1601-01-01 (UTC).
+	    indHr           = 0x83, // hours   since 1601-01-01 (UTC).
+	    indMSecTz       = 0x84, // since 1601-01-01. // timezone - lowest 8 bit
+	    indCSecTz       = 0x85, // since 1601-01-01. // timezone - lowest 8 bit
+	    indSecTz        = 0x86, // since 1601-01-01. // timezone - lowest 8 bit
+	    indMinTz        = 0x87, // since 1601-01-01. // timezone - lowest 8 bit
+	    indHrTz         = 0x88, // since 1601-01-01. // timezone - lowest 8 bit
+	    indDay          = 0x89, // since 0001-01-01
+	    indMon          = 0x8A, // since 0001-01-01
+	    indQuart        = 0x8B, // since 0001-01-01
+	    indSmYr         = 0x8C, // since 0001-01-01
+	    indYr           = 0x8D, // since 0001-01-01
+	    indDYr          = 0x8E, // since 0001-01-01
+	    indSmCent       = 0x8F, // since 0001-01-01
+	    indCent         = 0x90, // since 0001-01-01
+	    indMillennium   = 0x91, // since 0001-01-01
+	    indDayBC        = 0x92, // before 0001-01-01
+	    indMonBC        = 0x93, // before 0001-01-01
+	    indYrBC         = 0x94, // before 0001-01-01
+	    indDYrBC        = 0x95, // before 0001-01-01
+	    indCentBC       = 0x96, // before 0001-01-01
+	    indMillenniumBC = 0x97, // before 0001-01-01
+	    indMlnYrAgo     = 0x98,
+	    indBlnYrAgo     = 0x99
 	};
 	SUniTime();
 	explicit SUniTime(LDATE d);
@@ -2301,8 +2300,8 @@ public:
 	// Descr: Возвращает сигнатуру, идентифицирующую вариант представления времени.
 	//
 	uint   GetSignature() const;
-    int64  ToInt64() const;
-    int    FromInt64(int64 v);
+	int64  ToInt64() const;
+	int    FromInt64(int64 v);
 	//
 	// Descr: Устанавливает время с точность до даты (н.э.)
 	//
@@ -2313,7 +2312,7 @@ public:
 	// ARG(rD        IN): Дата/время, которые следует установить
 	// ARG(signature IN): Требуемая точность установки.
 	//   Допускаются только следующие значения параметра:
-    //   indSec, indMin, indHr, indDay, indMon, indQuart, indSmYr, indYr, indDYr, indSmCent, indCent
+	//   indSec, indMin, indHr, indDay, indMon, indQuart, indSmYr, indYr, indDYr, indSmCent, indCent
 	//
 	int    FASTCALL Set(const LDATETIME & rD, uint signature);
 	//
@@ -2377,7 +2376,7 @@ private:
 #define PTR32(p)              (reinterpret_cast<uint32*>(p))
 #define PTR64(p)              (reinterpret_cast<uint64*>(p))
 #define PTRDBL(p)             (static_cast<double*>(p))
-#define PTR8C(p)              (reinterpret_cast<const uint8*>(p))
+#define PTR8C(p)              (reinterpret_cast<const uint8 *>(p))
 #define PTR16C(p)             (reinterpret_cast<const uint16*>(p))
 #define PTR32C(p)             (reinterpret_cast<const uint32*>(p))
 #define PTR64C(p)             (reinterpret_cast<const uint64*>(p))
@@ -3719,8 +3718,8 @@ int  XMLWriteSpecSymbEntities(void * pWriter);
 class STextConst {
 public:
 	enum {
-        cMon_En_Sh    = 1, // [12] Наименования месяцев (en сокращенные)
-        cDow_En_Sh    = 2, // [7]  Наименования дней недели (en сокращенные) [0] = "Mon", [6] = "Sun"
+		cMon_En_Sh    = 1, // [12] Наименования месяцев (en сокращенные)
+		cDow_En_Sh    = 2, // [7]  Наименования дней недели (en сокращенные) [0] = "Mon", [6] = "Sun"
 		cDow_En       = 3, // [7]  Наименования дней недели (en полные) [0] = "Mon", [6] = "Sun"
 		cAsciiCtrl    = 4, // [32] Мнемоники управляющих символов ASCII кодировки [0..31] "NUL", "SOH", "STX", "ETX", "EOT", "ENQ" eg.
 		cBasis64      = 5, // [1] Таблица кодировки base64
@@ -5938,7 +5937,7 @@ public:
 	//   передается в строку как есть. Предполагается, что вызывающая функция знает что делает
 	//   и в отрезке действительно хранятся вразумительные символы.
 	// Returns:
-	//   true - передача осущетсвлена успешно
+	//   true - передача осуществлена успешно
 	//   false - ошибка. Пока нет причин для такого возврата. В дальнейшем планируется добавить
 	//     дополнительный аргумент в функцию с целью ограничить потециальный вред от необоснованного
 	//     вызова - то есть, проверку внутреннего содержимого отрезка.
@@ -6555,6 +6554,13 @@ public:
 	};
 	SSecretTagPool();
 	int    GeneratePrivateKey(uint bitCount);
+	//
+	// Descr: Утилитная функция, извлекающая тег tag из пула и пытающаяся преобразовать его содержимое в JSON.
+	// Returns:
+	//   0 - ошибка (либо нет такого тега, либо данные в нем не в JSON-формате)
+	//  !0 - указатель на JSON. Объект по этому указателю должен быть разрушен вызывающей функцией.
+	//
+	SJson * GetJson(uint tag) const;
 };
 
 class SlCrypto {
@@ -7940,16 +7946,16 @@ public:
 	// ARG(binary IN): если !0, то используется бинарный поиск (при этом вы должны быть уверены, что
 	//   массив отсортирован.
 	// Returns:
-	//   >0 - ключ key найден в массиве
-	//   0  - ключ не найден
+	//  true  - ключ key найден в массиве
+	//  false - ключ не найден
 	//
-	int    Search(long key, long * pVal, uint * pPos/*, int binary = 0*/) const;
+	bool   Search(long key, long * pVal, uint * pPos/*, int binary = 0*/) const;
 	//
 	// Descr: Тоже что и Search, но поиск бинарный (предполагается, что список отсортирован по ключу в возрастающем порядке).
 	//
-	int    BSearch(long key, long * pVal, uint * pPos) const;
-	int    SearchByVal(long val, long * pKey, uint * pPos) const;
-	int    SearchPair(long key, long val, uint * pPos) const;
+	bool   BSearch(long key, long * pVal, uint * pPos) const;
+	bool   SearchByVal(long val, long * pKey, uint * pPos) const;
+	bool   SearchPair(long key, long val, uint * pPos) const;
 	bool   CheckFlag(long key, long mask, int binary = 0) const;
 	//
 	// Descr: Сортирует массив по ключу (Key) в возрастающем порядке.
@@ -11413,6 +11419,7 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 
 struct SNaturalTokenStat {
 	SNaturalTokenStat();
+	SNaturalTokenStat & Z();
     uint32 Len;  // Длина токена в байтах
     uint32 Seq;
 };
@@ -11433,12 +11440,35 @@ class STokenRecognizer : public SRegExpSet {
 public:
 	static int EncodeChZn1162(uint16 productTypeBytes, const char * pGTIN, const char * pSerial, void * pResultBuf, size_t resultBufSize);
 	STokenRecognizer();
-	~STokenRecognizer();
+	virtual ~STokenRecognizer();
 	//
 	// Descr: Функция пытается идентифицировать natural token в строке pToken длиной len.
 	//   Если len < 0, то просматривается sstrlen(pToken) символов
 	//
 	int    Run(const uchar * pToken, int len, SNaturalTokenArray & rResultList, SNaturalTokenStat * pStat);
+protected:
+	struct ImplementBlock {
+		enum {
+			fUtf8     = 0x0001, // Весь токен состоит из валидных UTF8-символов
+			fPhoneSet = 0x0002  // Токен по набору символов может быть истолкован как номер телефона (но требуются дополнительные проверки)
+		};
+		ImplementBlock();
+		ImplementBlock & Z();
+		void   Init(const uchar * pToken, int tokenLen /* (<0) - strlen(pToken) */);
+		long   F;
+		uint   DecCount; // Количество десятичных цифр
+		SNaturalTokenStat Stat;
+		SString Temp;
+		LAssocArray ChrList;
+	};
+	int    Implement(ImplementBlock & rIb, const uchar * pToken, int len, SNaturalTokenArray & rResultList, SNaturalTokenStat * pStat);
+	//
+	// Descr: Виртуальная функция PostImplement вызывается после Implement с целью реализации дополнительных
+	//   проверок, которые отсутствуют в базовой реализации Implement.
+	// ARG(rIb IN/OUT): инициализированный методом Implement блок, содержащий значительное число важных параметров 
+	//   исследуемого токена.
+	//
+	virtual int PostImplement(ImplementBlock & rIb, const uchar * pToken, int len, SNaturalTokenArray & rResultList, SNaturalTokenStat * pStat);
 private:
 	static int FASTCALL IsUtf8(const uchar * p, size_t restLen);
 };
@@ -11512,6 +11542,7 @@ struct SJson {
 	bool   IsFalse() const { return (Type == SJson::tFALSE); }
 	const SJson * FASTCALL FindChildByKey(const char * pKey) const;
 	int    FASTCALL ToStr(SString & rBuf) const;
+	int    FASTCALL ToStr(SStringU & rBuf) const;
 	void   FASTCALL AssignText(const SString & rT);
 	int    Insert(const char * pTextLabel, SJson * pValue);
 	int    InsertString(const char * pTextLabel, const char * pStr);

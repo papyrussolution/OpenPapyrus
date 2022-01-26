@@ -6611,6 +6611,8 @@ browser STYLOQBINDERY north(100), 1, 0, "@{view_styloqbindery}", OWNER|GRID, 0
 		FACE             : kbCtrlP,    PPDV_FACEPROFILE01, "Face\tCtrl-P"
 		CONFIG           : kbF8,       PPDV_GEAR01,    "@{config}\tF8"
 		INVITATION       : kbCtrlI,    PPDV_INVITATIONQR01, "@{dostyloqinvite}\tCtrl-I"
+		separator
+		SYSJ             : kbCtrlJ,    PPDV_SYSJOURNAL,     "@{dobrowsesjbybill}\tCtrl-J"
 	}
 }
 
@@ -9117,6 +9119,9 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_TREEVIEW
 	PPDV_INFO01
 	PPDV_INVITATIONQR01
+	PPDV_GENERIC_DOCUMENT
+	PPDV_GENERIC_SERVER
+	PPDV_GENERIC_COMMAND
 }
 //
 // Следующие изображения используются без замещения цвета

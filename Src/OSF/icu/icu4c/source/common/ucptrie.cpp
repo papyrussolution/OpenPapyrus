@@ -116,7 +116,7 @@ U_CAPI UCPTrie * U_EXPORT2 ucptrie_openFromBinary(UCPTrieType type, UCPTrieValue
 		    trie->nullValue = trie->data.ptr32[nullValueOffset];
 		    break;
 		case UCPTRIE_VALUE_BITS_8:
-		    trie->data.ptr8 = (const uint8*)p16;
+		    trie->data.ptr8 = (const uint8 *)p16;
 		    trie->nullValue = trie->data.ptr8[nullValueOffset];
 		    break;
 		default:

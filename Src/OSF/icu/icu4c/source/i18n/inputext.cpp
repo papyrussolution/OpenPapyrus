@@ -43,7 +43,7 @@ void InputText::setText(const char * in, int32_t len)
 {
 	fInputLen  = 0;
 	fC1Bytes   = FALSE;
-	fRawInput  = (const uint8*)in;
+	fRawInput  = (const uint8 *)in;
 	fRawLength = len == -1 ? (int32_t)uprv_strlen(in) : len;
 }
 

@@ -1282,7 +1282,7 @@ void RBBITest::runUnicodeTestData(const char * fileName, RuleBasedBreakIterator 
 			   This occurred when the text file was corrupt (wasn't marked as UTF-8)
 			   and caused an infinite loop here on EBCDIC systems!
 			 */
-			fprintf(stderr, "FAIL: hit end of file %s for the %8dth time- corrupt data file?\r", fileName, ++spin);
+			slfprintf_stderr("FAIL: hit end of file %s for the %8dth time- corrupt data file?\r", fileName, ++spin);
 			//       return;
 		}
 		if(tokenMatcher.start(1, status) >= 0) {
@@ -3054,7 +3054,7 @@ int32_t RBBILineMonkey::next(int32_t startPos) {
 		if(fBA->contains(thisChar) ||
 		    fHY->contains(thisChar) ||
 		    fNS->contains(thisChar) ||
-		    fBB->contains(prevChar) ) {
+		    fBB->contains(prevChar)) {
 			setAppliedRule(pos, "LB 21");
 			continue;
 		}
@@ -3871,7 +3871,7 @@ void RBBITest::RunMonkey(BreakIterator * bi, RBBIMonkeyKind &mk, const char * na
 		if(numIterations == -1 && loopCount % 10 == 0) {
 			// If test is running in an infinite loop, display a periodic tic so
 			//   we can tell that it is making progress.
-			fprintf(stderr, ".");
+			slfprintf_stderr(".");
 		}
 		// Save current random number seed, so that we can recreate the random numbers
 		//   for this loop iteration in event of an error.

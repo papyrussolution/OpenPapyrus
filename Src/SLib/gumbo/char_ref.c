@@ -13961,7 +13961,7 @@ _eof_trans:
 		_acts = _char_ref_actions + _char_ref_trans_actions[_trans];
 		_nacts = (uint)*_acts++;
 		while(_nacts-- > 0) {
-			switch(*(_acts++) ) {
+			switch(*(_acts++)) {
 				case 2:
 #line 1 "NONE"
 				    {te = p+1;}

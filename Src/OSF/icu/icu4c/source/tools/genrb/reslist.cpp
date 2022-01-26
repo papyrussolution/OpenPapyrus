@@ -1059,7 +1059,7 @@ void SRBRoot::write(const char * outputDir, const char * outputPkg,
 
 	size = udata_finish(mem, &errorCode);
 	if(top != size) {
-		fprintf(stderr, "genrb error: wrote %u bytes but counted %u\n",
+		slfprintf_stderr("genrb error: wrote %u bytes but counted %u\n",
 		    (int)size, (int)top);
 		errorCode = U_INTERNAL_PROGRAM_ERROR;
 	}

@@ -212,7 +212,7 @@ static void LinLerp1Dfloat(const float Value[], float Output[], const cmsInterpP
 	float y1, y0;
 	float rest;
 	int cell0, cell1;
-	const float * LutTable = (float*)p->Table;
+	const float * LutTable = (float *)p->Table;
 	float val2 = fclamp(Value[0]);
 	// if last value...
 	if(val2 == 1.0) {
@@ -257,7 +257,7 @@ static void Eval1InputFloat(const float Value[], float Output[], const cmsInterp
 	float rest;
 	int cell0, cell1;
 	cmsUInt32Number OutChan;
-	const float* LutTable = (float*)p->Table;
+	const float* LutTable = (float *)p->Table;
 	float val2 = fclamp(Value[0]);
 	// if last value...
 	if(val2 == 1.0) {
@@ -293,7 +293,7 @@ static void BilinearInterpFloat(const float Input[], float Output[], const cmsIn
 {
 #define LERP(a, l, h)    (float)((l)+(((h)-(l))*(a)))
 #define DENS(i, j)      (LutTable[(i)+(j)+OutChan])
-	const float* LutTable = (float*)p->Table;
+	const float* LutTable = (float *)p->Table;
 	float px, py;
 	int x0, y0,
 	    X0, Y0, X1, Y1;
@@ -381,7 +381,7 @@ static void TrilinearInterpFloat(const float Input[], float Output[], const cmsI
 #define LERP(a, l, h)      (float)((l)+(((h)-(l))*(a)))
 #define DENS(i, j, k)      (LutTable[(i)+(j)+(k)+OutChan])
 
-	const float* LutTable = (float*)p->Table;
+	const float* LutTable = (float *)p->Table;
 	float px, py, pz;
 	int x0, y0, z0,
 	    X0, Y0, Z0, X1, Y1, Z1;
@@ -512,7 +512,7 @@ static CMS_NO_SANITIZE void TrilinearInterp16(const uint16 Input[], uint16 Outpu
 #define DENS(i, j, k) (LutTable[(i)+(j)+(k)+OutChan])
 static void TetrahedralInterpFloat(const float Input[], float Output[], const cmsInterpParams* p)
 {
-	const float* LutTable = (float*)p->Table;
+	const float* LutTable = (float *)p->Table;
 	float px, py, pz;
 	int x0, y0, z0,
 	    X0, Y0, Z0, X1, Y1, Z1;
@@ -864,7 +864,7 @@ static CMS_NO_SANITIZE void Eval4Inputs(const uint16 Input[], uint16 Output[], c
 
 static void Eval4InputsFloat(const float Input[], float Output[], const cmsInterpParams* p)
 {
-	const float* LutTable = (float*)p->Table;
+	const float* LutTable = (float *)p->Table;
 	float rest;
 	float pk;
 	int k0, K0, K1;
@@ -938,7 +938,7 @@ static CMS_NO_SANITIZE void Eval5Inputs(const uint16 Input[], uint16 Output[], c
 
 static void Eval5InputsFloat(const float Input[], float Output[], const cmsInterpParams* p)
 {
-	const float* LutTable = (float*)p->Table;
+	const float* LutTable = (float *)p->Table;
 	float rest;
 	float pk;
 	int k0, K0, K1;
@@ -1013,7 +1013,7 @@ static CMS_NO_SANITIZE void Eval6Inputs(const uint16 Input[], uint16 Output[], c
 
 static void Eval6InputsFloat(const float Input[], float Output[], const cmsInterpParams* p)
 {
-	const float* LutTable = (float*)p->Table;
+	const float* LutTable = (float *)p->Table;
 	float rest;
 	float pk;
 	int k0, K0, K1;
@@ -1088,7 +1088,7 @@ static CMS_NO_SANITIZE void Eval7Inputs(const uint16 Input[], uint16 Output[], c
 
 static void Eval7InputsFloat(const float Input[], float Output[], const cmsInterpParams* p)
 {
-	const float* LutTable = (float*)p->Table;
+	const float* LutTable = (float *)p->Table;
 	float rest;
 	float pk;
 	int k0, K0, K1;
@@ -1162,7 +1162,7 @@ static CMS_NO_SANITIZE void Eval8Inputs(const uint16 Input[], uint16 Output[], c
 
 static void Eval8InputsFloat(const float Input[], float Output[], const cmsInterpParams* p)
 {
-	const float* LutTable = (float*)p->Table;
+	const float* LutTable = (float *)p->Table;
 	float rest;
 	float pk;
 	int k0, K0, K1;

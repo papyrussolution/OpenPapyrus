@@ -244,7 +244,7 @@ static cmsToneCurve * AllocateToneCurveStruct(cmsContext ContextID, cmsUInt32Num
 				p->SegInterp[i] = _cmsComputeInterpParams(ContextID, Segments[i].nGridPoints, 1, 1, NULL, CMS_LERP_FLAGS_FLOAT);
 			memmove(&p->Segments[i], &Segments[i], sizeof(cmsCurveSegment));
 			if(Segments[i].Type == 0 && Segments[i].SampledPoints != NULL)
-				p->Segments[i].SampledPoints = (float*)_cmsDupMem(ContextID, Segments[i].SampledPoints, sizeof(float) * Segments[i].nGridPoints);
+				p->Segments[i].SampledPoints = (float *)_cmsDupMem(ContextID, Segments[i].SampledPoints, sizeof(float) * Segments[i].nGridPoints);
 			else
 				p->Segments[i].SampledPoints = NULL;
 			c = GetParametricCurveByType(ContextID, Segments[i].Type, NULL);
@@ -696,7 +696,7 @@ cmsToneCurve * CMSEXPORT cmsBuildTabulatedToneCurveFloat(cmsContext ContextID, c
 	Seg[1].Type = 0;
 
 	Seg[1].nGridPoints = nEntries;
-	Seg[1].SampledPoints = (float*)values;
+	Seg[1].SampledPoints = (float *)values;
 
 	// Final segment is constant = lastsample
 	Seg[2].x0 = 1.0;
@@ -801,7 +801,7 @@ cmsToneCurve * CMSEXPORT cmsJoinToneCurve(cmsContext ContextID, const cmsToneCur
 	Yreversed = cmsReverseToneCurveEx(nResultingPoints, Y);
 	if(Yreversed == NULL) goto Error;
 
-	Res = (float*)_cmsCalloc(ContextID, nResultingPoints, sizeof(float));
+	Res = (float *)_cmsCalloc(ContextID, nResultingPoints, sizeof(float));
 	if(Res == NULL) goto Error;
 
 	//Iterate
@@ -943,9 +943,9 @@ static boolint smooth2(cmsContext ContextID, float w[], float y[], float z[], fl
 {
 	int i, i1, i2;
 	boolint st;
-	float * c = (float*)_cmsCalloc(ContextID, MAX_NODES_IN_CURVE, sizeof(float));
-	float * d = (float*)_cmsCalloc(ContextID, MAX_NODES_IN_CURVE, sizeof(float));
-	float * e = (float*)_cmsCalloc(ContextID, MAX_NODES_IN_CURVE, sizeof(float));
+	float * c = (float *)_cmsCalloc(ContextID, MAX_NODES_IN_CURVE, sizeof(float));
+	float * d = (float *)_cmsCalloc(ContextID, MAX_NODES_IN_CURVE, sizeof(float));
+	float * e = (float *)_cmsCalloc(ContextID, MAX_NODES_IN_CURVE, sizeof(float));
 	if(c != NULL && d != NULL && e != NULL) {
 		d[1] = w[1] + lambda;
 		c[1] = -2 * lambda / d[1];
@@ -1001,9 +1001,9 @@ boolint CMSEXPORT cmsSmoothToneCurve(cmsToneCurve * Tab, double lambda)
 			nItems = Tab->nEntries;
 			if(nItems < MAX_NODES_IN_CURVE) {
 				// Allocate one more item than needed
-				w = (float*)_cmsCalloc(ContextID, nItems + 1, sizeof(float));
-				y = (float*)_cmsCalloc(ContextID, nItems + 1, sizeof(float));
-				z = (float*)_cmsCalloc(ContextID, nItems + 1, sizeof(float));
+				w = (float *)_cmsCalloc(ContextID, nItems + 1, sizeof(float));
+				y = (float *)_cmsCalloc(ContextID, nItems + 1, sizeof(float));
+				z = (float *)_cmsCalloc(ContextID, nItems + 1, sizeof(float));
 
 				if(w != NULL && y != NULL && z != NULL) { // Ensure no memory allocation failure
 					memzero(w, (nItems + 1) * sizeof(float));

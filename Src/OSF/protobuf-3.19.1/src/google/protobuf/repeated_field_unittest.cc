@@ -37,7 +37,6 @@
 
 #include <protobuf-internal.h>
 #pragma hdrstop
-#include <google/protobuf/repeated_field.h>
 #include <google/protobuf/unittest.pb.h>
 #include <gmock/gmock.h>
 #include <google/protobuf/testing/googletest.h>

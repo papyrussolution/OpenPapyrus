@@ -187,7 +187,7 @@ U_CAPI void U_EXPORT2 udata_createDummy(const char * dir, const char * type, con
 	if(U_SUCCESS(*pErrorCode)) {
 		udata_finish(udata_create(dir, type, name, &dummyDataInfo, NULL, pErrorCode), pErrorCode);
 		if(U_FAILURE(*pErrorCode)) {
-			fprintf(stderr, "error %s writing dummy data file %s" U_FILE_SEP_STRING "%s.%s\n",
+			slfprintf_stderr("error %s writing dummy data file %s" U_FILE_SEP_STRING "%s.%s\n",
 			    u_errorName(*pErrorCode), dir, name, type);
 			exit(*pErrorCode);
 		}

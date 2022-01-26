@@ -267,7 +267,7 @@ extern int main(int argc, char * argv[]) {
 
 	pkg = new Package;
 	if(pkg==NULL) {
-		fprintf(stderr, "icupkg: not enough memory\n");
+		slfprintf_stderr("icupkg: not enough memory\n");
 		return U_MEMORY_ALLOCATION_ERROR;
 	}
 	isModified = FALSE;
@@ -279,7 +279,7 @@ extern int main(int argc, char * argv[]) {
 	}
 	if(options[OPT_AUTO_TOC_PREFIX_WITH_TYPE].doesOccur) {
 		if(options[OPT_TOC_PREFIX].doesOccur) {
-			fprintf(stderr, "icupkg: --auto_toc_prefix_with_type and also --toc_prefix\n");
+			slfprintf_stderr("icupkg: --auto_toc_prefix_with_type and also --toc_prefix\n");
 			printUsage(pname, FALSE);
 			return U_ILLEGAL_ARGUMENT_ERROR;
 		}
@@ -308,7 +308,7 @@ extern int main(int argc, char * argv[]) {
 
 	if(0==strcmp(argv[1], "new")) {
 		if(autoPrefix) {
-			fprintf(stderr, "icupkg: --auto_toc_prefix[_with_type] but no input package\n");
+			slfprintf_stderr("icupkg: --auto_toc_prefix[_with_type] but no input package\n");
 			printUsage(pname, FALSE);
 			return U_ILLEGAL_ARGUMENT_ERROR;
 		}
@@ -417,7 +417,7 @@ extern int main(int argc, char * argv[]) {
 	if(options[OPT_REMOVE_LIST].doesOccur) {
 		listPkg = new Package();
 		if(listPkg==NULL) {
-			fprintf(stderr, "icupkg: not enough memory\n");
+			slfprintf_stderr("icupkg: not enough memory\n");
 			exit(U_MEMORY_ALLOCATION_ERROR);
 		}
 		if(readList(NULL, options[OPT_REMOVE_LIST].value, FALSE, listPkg)) {
@@ -439,7 +439,7 @@ extern int main(int argc, char * argv[]) {
 	if(options[OPT_ADD_LIST].doesOccur) {
 		addListPkg = new Package();
 		if(addListPkg==NULL) {
-			fprintf(stderr, "icupkg: not enough memory\n");
+			slfprintf_stderr("icupkg: not enough memory\n");
 			exit(U_MEMORY_ALLOCATION_ERROR);
 		}
 		if(readList(sourcePath, options[OPT_ADD_LIST].value, TRUE, addListPkg)) {
@@ -456,7 +456,7 @@ extern int main(int argc, char * argv[]) {
 	if(options[OPT_EXTRACT_LIST].doesOccur) {
 		listPkg = new Package();
 		if(listPkg==NULL) {
-			fprintf(stderr, "icupkg: not enough memory\n");
+			slfprintf_stderr("icupkg: not enough memory\n");
 			exit(U_MEMORY_ALLOCATION_ERROR);
 		}
 		if(readList(NULL, options[OPT_EXTRACT_LIST].value, FALSE, listPkg)) {
@@ -501,7 +501,7 @@ extern int main(int argc, char * argv[]) {
 		char outFilenameBuffer[1024]; // for auto-generated output filename, if necessary
 		if(outFilename==NULL || outFilename[0]==0) {
 			if(inFilename==NULL || inFilename[0]==0) {
-				fprintf(stderr, "icupkg: unable to auto-generate an output filename if there is no input filename\n");
+				slfprintf_stderr("icupkg: unable to auto-generate an output filename if there is no input filename\n");
 				exit(U_ILLEGAL_ARGUMENT_ERROR);
 			}
 			/*

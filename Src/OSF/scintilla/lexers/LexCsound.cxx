@@ -76,7 +76,7 @@ static void ColouriseCsoundDoc(Sci_PositionU startPos, Sci_Position length, int 
 			}
 		}
 		else if(sc.state == SCE_CSOUND_IDENTIFIER) {
-			if(!IsAWordChar(sc.ch) ) {
+			if(!IsAWordChar(sc.ch)) {
 				char s[100];
 				sc.GetCurrent(s, sizeof(s));
 

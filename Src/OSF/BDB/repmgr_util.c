@@ -12,7 +12,7 @@
 
 static int get_eid(ENV*, const char *, uint, int *);
 static int __repmgr_addrcmp(repmgr_netaddr_t*, repmgr_netaddr_t *);
-static int read_gmdb(ENV*, DB_THREAD_INFO*, uint8**, size_t *);
+static int read_gmdb(ENV*, DB_THREAD_INFO*, uint8 **, size_t *);
 /*
  * Schedules a future attempt to re-establish a connection with the given site.
  * Usually, we wait the configured retry_wait period.  But if the "immediate"

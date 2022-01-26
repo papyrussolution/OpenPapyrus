@@ -230,7 +230,7 @@ void SCI_METHOD LexerAsm::Lex(Sci_PositionU startPos, Sci_Position length, int i
 			}
 		}
 		else if(sc.state == SCE_ASM_IDENTIFIER) {
-			if(!IsAWordChar(sc.ch) ) {
+			if(!IsAWordChar(sc.ch)) {
 				char s[100];
 				sc.GetCurrentLowered(s, sizeof(s));
 				bool IsDirective = false;

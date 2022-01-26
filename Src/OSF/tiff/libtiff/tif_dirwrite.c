@@ -347,7 +347,7 @@ static int FASTCALL TIFFWriteDirectorySec(TIFF* tif, int isimage, int imagedone,
 		 * a previously read tile/strip in mixed read/write mode.
 		 */
 		if(tif->tif_rawcc > 0 && (tif->tif_flags & TIFF_BEENWRITING) != 0) {
-			if(!TIFFFlushData1(tif) ) {
+			if(!TIFFFlushData1(tif)) {
 				TIFFErrorExt(tif->tif_clientdata, module, "Error flushing data before directory write");
 				return 0;
 			}
@@ -1838,7 +1838,7 @@ static int TIFFWriteDirectoryTagCheckedLong8(TIFF* tif, uint32* ndir, TIFFDirEnt
 {
 	uint64 m;
 	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint64)==8);
-	if(!(tif->tif_flags&TIFF_BIGTIFF) ) {
+	if(!(tif->tif_flags&TIFF_BIGTIFF)) {
 		TIFFErrorExt(tif->tif_clientdata, __FUNCTION__, "LONG8 not allowed for ClassicTIFF");
 		return 0;
 	}
@@ -1853,7 +1853,7 @@ static int TIFFWriteDirectoryTagCheckedLong8Array(TIFF* tif, uint32* ndir, TIFFD
 {
 	assert(count<0x20000000);
 	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint64)==8);
-	if(!(tif->tif_flags&TIFF_BIGTIFF) ) {
+	if(!(tif->tif_flags&TIFF_BIGTIFF)) {
 		TIFFErrorExt(tif->tif_clientdata, __FUNCTION__, "LONG8 not allowed for ClassicTIFF");
 		return 0;
 	}
@@ -1867,7 +1867,7 @@ static int TIFFWriteDirectoryTagCheckedSlong8(TIFF* tif, uint32* ndir, TIFFDirEn
 {
 	int64 m;
 	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(int64)==8);
-	if(!(tif->tif_flags&TIFF_BIGTIFF) ) {
+	if(!(tif->tif_flags&TIFF_BIGTIFF)) {
 		TIFFErrorExt(tif->tif_clientdata, __FUNCTION__, "SLONG8 not allowed for ClassicTIFF");
 		return 0;
 	}
@@ -1882,7 +1882,7 @@ static int TIFFWriteDirectoryTagCheckedSlong8Array(TIFF* tif, uint32* ndir, TIFF
 {
 	assert(count<0x20000000);
 	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(int64)==8);
-	if(!(tif->tif_flags&TIFF_BIGTIFF) ) {
+	if(!(tif->tif_flags&TIFF_BIGTIFF)) {
 		TIFFErrorExt(tif->tif_clientdata, __FUNCTION__, "SLONG8 not allowed for ClassicTIFF");
 		return 0;
 	}
@@ -2330,7 +2330,7 @@ int _TIFFRewriteField(TIFF* tif, uint16 tag, TIFFDataType in_datatype, tmsize_t 
 /* -------------------------------------------------------------------- */
 /* Do some checking this is a straight forward case.               */
 /* -------------------------------------------------------------------- */
-	if(isMapped(tif) ) {
+	if(isMapped(tif)) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Memory mapped files not currently supported for this operation.");
 		return 0;
 	}
@@ -2417,7 +2417,7 @@ int _TIFFRewriteField(TIFF* tif, uint16 tag, TIFFDataType in_datatype, tmsize_t 
 /* -------------------------------------------------------------------- */
 /* What data type do we want to write this as?                     */
 /* -------------------------------------------------------------------- */
-	if(TIFFDataWidth(in_datatype) == 8 && !(tif->tif_flags&TIFF_BIGTIFF) ) {
+	if(TIFFDataWidth(in_datatype) == 8 && !(tif->tif_flags&TIFF_BIGTIFF)) {
 		if(in_datatype == TIFF_LONG8)
 			datatype = TIFF_LONG;
 		else if(in_datatype == TIFF_SLONG8)
@@ -2459,7 +2459,7 @@ int _TIFFRewriteField(TIFF* tif, uint16 tag, TIFFDataType in_datatype, tmsize_t 
 		}
 	}
 
-	if(TIFFDataWidth(datatype) > 1 && (tif->tif_flags&TIFF_SWAB) ) {
+	if(TIFFDataWidth(datatype) > 1 && (tif->tif_flags&TIFF_SWAB)) {
 		if(TIFFDataWidth(datatype) == 2)
 			TIFFSwabArrayOfShort( (uint16 *)buf_to_write, count);
 		else if(TIFFDataWidth(datatype) == 4)

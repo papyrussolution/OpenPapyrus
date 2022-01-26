@@ -43,13 +43,10 @@
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 #include <google/protobuf/descriptor.pb.h>
 #include <google/protobuf/arena.h>
-#include <google/protobuf/dynamic_message.h>
-#include <google/protobuf/extension_set.h>
 #include <google/protobuf/testing/googletest.h>
 #include <gtest/gtest.h>
 #include <google/protobuf/stubs/stl_util.h>
-// Must be included last.
-#include <google/protobuf/port_def.inc>
+#include <google/protobuf/port_def.inc> // Must be included last.
 
 namespace google {
 namespace protobuf {

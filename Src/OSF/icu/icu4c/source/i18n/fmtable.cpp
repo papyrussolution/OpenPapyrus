@@ -812,7 +812,7 @@ U_NAMESPACE_END
 U_NAMESPACE_USE
 
 U_CAPI UFormattable* U_EXPORT2 ufmt_open(UErrorCode * status) {
-	if(U_FAILURE(*status) ) {
+	if(U_FAILURE(*status)) {
 		return NULL;
 	}
 	UFormattable * fmt = (new Formattable())->toUFormattable();
@@ -877,7 +877,7 @@ U_CAPI const UChar * U_EXPORT2 ufmt_getUChars(UFormattable * fmt, int32_t * len,
 
 	// avoid bogosity by checking the type first.
 	if(obj->getType() != Formattable::kString) {
-		if(U_SUCCESS(*status) ) {
+		if(U_SUCCESS(*status)) {
 			*status = U_INVALID_FORMAT_ERROR;
 		}
 		return NULL;

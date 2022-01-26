@@ -1846,7 +1846,7 @@ inline bool TestProto3Optional::has_optional_nested_message() const {
   return _internal_has_optional_nested_message();
 }
 inline void TestProto3Optional::clear_optional_nested_message() {
-  if (optional_nested_message_ != nullptr) optional_nested_message_->Clear();
+  if(optional_nested_message_ != nullptr) optional_nested_message_->Clear();
   _has_bits_[0] &= ~0x00000008u;
 }
 inline const ::protobuf_unittest::TestProto3Optional_NestedMessage& TestProto3Optional::_internal_optional_nested_message() const {
@@ -1936,7 +1936,7 @@ inline bool TestProto3Optional::has_lazy_nested_message() const {
   return _internal_has_lazy_nested_message();
 }
 inline void TestProto3Optional::clear_lazy_nested_message() {
-  if (lazy_nested_message_ != nullptr) lazy_nested_message_->Clear();
+  if(lazy_nested_message_ != nullptr) lazy_nested_message_->Clear();
   _has_bits_[0] &= ~0x00000010u;
 }
 inline const ::protobuf_unittest::TestProto3Optional_NestedMessage& TestProto3Optional::_internal_lazy_nested_message() const {
@@ -2149,7 +2149,7 @@ inline bool TestProto3OptionalMessage::has_nested_message() const {
   return _internal_has_nested_message();
 }
 inline void TestProto3OptionalMessage::clear_nested_message() {
-  if (GetArenaForAllocation() == nullptr && nested_message_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && nested_message_ != nullptr) {
     delete nested_message_;
   }
   nested_message_ = nullptr;
@@ -2241,7 +2241,7 @@ inline bool TestProto3OptionalMessage::has_optional_nested_message() const {
   return _internal_has_optional_nested_message();
 }
 inline void TestProto3OptionalMessage::clear_optional_nested_message() {
-  if (optional_nested_message_ != nullptr) optional_nested_message_->Clear();
+  if(optional_nested_message_ != nullptr) optional_nested_message_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::TestProto3OptionalMessage_NestedMessage& TestProto3OptionalMessage::_internal_optional_nested_message() const {

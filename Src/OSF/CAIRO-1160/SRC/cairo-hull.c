@@ -87,19 +87,13 @@ static int _cairo_hull_vertex_compare(const void * av, const void * bv)
 	 */
 	if(a == b)
 		return 0;
-
 	ret = _cairo_slope_compare(&a->slope, &b->slope);
-
 	/*
 	 * In the case of two vertices with identical slope from the
 	 * extremal point discard the nearer point.
 	 */
 	if(!ret) {
-		int cmp;
-
-		cmp = _cairo_int64_cmp(_slope_length(&a->slope),
-			_slope_length(&b->slope));
-
+		int cmp = _cairo_int64_cmp(_slope_length(&a->slope), _slope_length(&b->slope));
 		/*
 		 * Use the points' ids to ensure a well-defined ordering,
 		 * and avoid setting discard on both points.

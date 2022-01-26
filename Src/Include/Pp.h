@@ -5781,7 +5781,7 @@ public:
 			// После инициализации чтения реплики функцией StartReading, если
 			// реплика сигнализирует об ошибке, то возвращаемая функцией структура заголовка будет содержать этот флаг.
 		// @#{hfAck^hfRepError}
-		hfInformer   = 0x0004, // Реплика информирует клиента о ходе выолнения процесса.
+		hfInformer   = 0x0004, // Реплика информирует клиента о ходе выполнения процесса.
 			// Если тип данных равен htGenericText, то после заголовка следует текстовая информация о ходе процесса.
 		hfCmd        = 0x0008, // Пакет является командой (в противном случае - репликой)
 		hfSlString   = 0x0010, // Пакет представлен строкой, завершенной переводом каретки.
@@ -6275,6 +6275,7 @@ public:
 	static int InitClient(PPMqbClient & rC, SString * pDomain);
 	PPMqbClient();
 	~PPMqbClient();
+	bool   IsHostEqual(const char * pHost, int port) const;
 	int    Connect(const char * pHost, int port);
 	int    Disconnect();
 	int    Login(const LoginParam & rP);
@@ -7593,7 +7594,7 @@ public:
 
 	enum {
 		loginfSkipLicChecking   = 0x0001,
-		loginfInternal  = 0x0002,  // @v11.1.8 Авторизация осуществляется внутренним потоком - некоторые действия делать не следует
+		loginfInternal          = 0x0002,  // @v11.1.8 Авторизация осуществляется внутренним потоком - некоторые действия делать не следует
 		loginfCheckOnetimePass  = 0x0004,  // @v11.1.9 Авторизация по одноразовому пропуску
 		loginfAllowAuthAsJobSrv = 0x0008,  // @v11.2.0 Флаг используется специальным образом во-вне функции Login
 	};
@@ -35226,7 +35227,7 @@ public:
 	//
 	static int FASTCALL IsValidKind(int kind);
 
-	PPObjVATBook(void * extraPtr = 0);
+	explicit PPObjVATBook(void * extraPtr = 0);
 	~PPObjVATBook();
 	virtual int  DeleteObj(PPID);
 	virtual int  Browse(void * extraPtr);
@@ -46152,11 +46153,11 @@ public:
 		featrfMediator = 0x0001 // Сервис выполняет функции медиатора (обслуживание других сервисов и клиентов)
 	};
 	enum { // @persistent
-		roleUndef          = 0,
-		roleClient         = 1,
-		rolePublicService  = 2,
-		rolePrivateService = 3,
-		//roleMediator       = 4
+		roleUndef             = 0, // Инвалидное неопределенное значение
+		roleClient            = 1, // Клиент. Не может иметь флаг featrfMediator
+		rolePublicService     = 2, // Публичный сервис. Может иметь флаг featrfMediator
+		rolePrivateService    = 3, // Приватный сервис. Может иметь флаг featrfMediator
+		roleDedicatedMediator = 4  // @v11.2.12 Выделенный медиатор. Обязательно имеет флаг featrfMediator, но не обрабатывает "потребительские" запросы.
 	};
 	static int MakeTransmissionJson(const char * pSrcJson, SString & rTransmissionJson);
 	static SJson * MakeTransmissionJson(const char * pSrcJson);
@@ -46164,14 +46165,33 @@ public:
 	bool   FASTCALL IsEq(const StyloQConfig & rS) const;
 	StyloQConfig & Z();
 	uint   GetCount() const { return L.getCount(); }
+	//
+	// Descr: Устанавливает значение тега tag. Не обрабатывает теги tagFeatures и tagRole (see SetFeatures() and SetRole())
+	//
 	int    Set(int tag, const char * pText);
+	//
+	// Descr: Возвращает значение тега tag в буфере rResult. Не обрабатывает теги tagFeatures и tagRole (see GetFeatures() and GetRole())
+	//
 	int    Get(int tag, SString & rResult) const;
+	//
+	// Descr: Устанавливает флаги особенностей сервиса. Проверяет непротиворечивость заданного значения ff 
+	//   другим атрибутам сервиса.
+	//
 	int    SetFeatures(uint64 ff);
 	uint64 GetFeatures() const;
+	//
+	// Descr: Устанавливает значение роли сервиса (roleXXX). Проверяет непротиворечивость заданного значения 
+	//   другим атрибутам сервиса.
+	//
 	int    SetRole(uint role);
 	uint   GetRole() const;
 	int    FromJson(const char * pJsonText);
 	int    FromJsonObject(const SJson * pJsObj);
+	//
+	// Descr: Формирует json-объект представления конфигурации. Используется для хранения в базе данных и 
+	//   передачи клиентам по сети.
+	// Note: Полученный экземпляр объекта должен быть разрушен вызывающей функцией.
+	//
 	SJson * ToJson() const;
 	int    ToJson(SString & rResult) const;
 private:
@@ -46330,6 +46350,13 @@ public:
 		kCounter        = 8  // @v11.2.10 Специальная единственная запись для хранения текущего счетчика (документов и т.д.)
 	};
 	//
+	// Descr: Флаги записи таблицы данных StyloQ bindery (StyloQSec::Flags)
+	//
+	enum {
+		styloqfMediator = 0x0001 // Запись соответствует kForeignService-медиатору. Флаг устанавливается/снимается при создании или обновлении
+			// записи после получения соответствующей информации от сервиса-медиатора
+	};
+	//
 	// Descr: Типы документов, хранящихся в реестре Stylo-Q
 	//
 	enum { // @persistent
@@ -46344,24 +46371,27 @@ public:
 		StyloQSecTbl::Rec Rec;
 		SSecretTagPool Pool;
 	};
-
-	static PPIDArray & MakeLinkObjTypeList(PPIDArray & rList);
-	static int BuildSvcDbSymbMap();
-
 	struct IgnitionServerEntry {
 		SBinaryChunk Ident;
 		SString Url;
 	};
 
+	static PPIDArray & MakeLinkObjTypeList(PPIDArray & rList);
+	static int BuildSvcDbSymbMap();
 	static int ReadIgnitionServerList(TSCollection <IgnitionServerEntry> & rList);
+	static bool GetDbMapBySvcIdent(const SBinaryChunk & rIdent, SString * pDbSymb, uint * pFlags);
+	//
+	// Descr: Возвращает копию ассоциаций идентификаторов сервисов с символами баз данных.
+	//
+	static bool GetDbMap(SvcDbSymbMap & rMap);
 
 	StyloQCore();
-
 	int    PutPeerEntry(PPID * pID, StoragePacket * pPack, int use_ta);
 	int    GetPeerEntry(PPID id, StoragePacket * pPack);
 	int    SearchSession(const SBinaryChunk & rOtherPublic, StoragePacket * pPack);
 	int    PutDocument(PPID * pID, int direction, int docType, const SBinaryChunk & rIdent, SSecretTagPool & rPool, int use_ta);
 	int    GetDocIdListByType(int direction, int docType, const SBinaryChunk & rIdent, LongArray & rIdList);
+	int    GetMediatorIdList(LongArray & rIdList);
 	//
 	// OwnPeerEntry содержит следующие теги:
 	//    SSecretTagPool::tagPrimaryRN - первичный ключ (длинное случайное число)
@@ -46385,8 +46415,6 @@ public:
 	int    SetupPeerInstance(PPID * pID, int use_ta); // @v11.2.7
 	int    SearchGlobalIdentEntry(int kind, const SBinaryChunk & rIdent, StoragePacket * pPack);
 	int    ReadCurrentPacket(StoragePacket * pPack);
-
-	static bool GetDbMapBySvcIdent(const SBinaryChunk & rIdent, SString * pDbSymb, uint * pFlags);
 private:
 	static ReadWriteLock _SvcDbMapRwl; // Блокировка для защиты _SvcDbMap
 	static SvcDbSymbMap _SvcDbMap;
@@ -46499,10 +46527,11 @@ public:
 	StyloQProtocol();
 	StyloQProtocol & Z();
 	enum {
-		psubtypeForward      = 0,
-		psubtypeForwardError = 1,
-		psubtypeReplyOk      = 2,
-		psubtypeReplyError   = 3,
+		psubtypeForward           = 0,
+		psubtypeForwardError      = 1,
+		psubtypeReplyOk           = 2,
+		psubtypeReplyError        = 3,
+		psubtypeIntermediateReply = 4  // @v11.2.12 Промежуточный ответ сервера с просьбой подождать либо отчет о ходе выполнения процесса
 	};
 	int    StartWriting(int cmdId, int subtype);
 	int    FinishWriting(const SBinaryChunk * pCryptoKey);
@@ -46593,7 +46622,7 @@ public:
 	};
 
 	PPStyloQInterchange();
-	PPStyloQInterchange(StyloQCore * pStQC);
+	explicit PPStyloQInterchange(StyloQCore * pStQC);
 	~PPStyloQInterchange();
 	//
 	// Descr: Высокоуровневая функция, реализующая полный раунд клиентского запроса к сервису.
@@ -46609,8 +46638,7 @@ public:
 	//   значению по умолчанию (24 * 60 * 60, то есть сутки).
 	//
 	uint   GetNominalSessionLifeTimeSec() const;
-	//int    RunStyloQServer(RunServerParam & rP);
-	int    RunStyloQServer(RunServerParam & rP, const DbLoginBlock * pDlb);
+	int    RunStyloQLocalMqbServer(RunServerParam & rP, const DbLoginBlock * pDlb);
 	static int StopStyloQServer();
 	//
 	// Descr: Флаги функции SetupMqbParam
@@ -46622,7 +46650,7 @@ public:
 			// Flags smqbpfLocalMachine and smqbpfLocalSession mutualy exclusive
 	};
 
-	int    SetupMqbParam(const StyloQCore::StoragePacket & rOwnPack, long flags, PPStyloQInterchange::RunServerParam & rP);
+	static int SetupMqbParam(const StyloQCore::StoragePacket & rOwnPack, long flags, PPStyloQInterchange::RunServerParam & rP);
 	//
 	// Descr: Функция реализует первоначальную генерацию необходимых ключей
 	//   и значений с сохранением их в базе данных.
@@ -46708,6 +46736,11 @@ public:
 	int    GetOwnPeerEntry(StyloQCore::StoragePacket * pPack);
 	int    SearchGlobalIdentEntry(int kind, const SBinaryChunk & rIdent, StyloQCore::StoragePacket * pPack);
 	//
+	// Descr: Высокоуровневая процедура, реализующая регистрацию или обновление собственных данных
+	//   у сервиса-медиатора.
+	//
+	int    ServiceSelfregisterInMediator(const StyloQCore::StoragePacket * pOwnPack, SysJournal * pSjOuter);
+	//
 	// Descr: Сохраняет в базе данных параметры сессии для того, чтобы в следующий раз можно было бы
 	//   быстро установить соединение с противоположной стороной.
 	//   Пакет pPack (если не нулевой) должен содержать следующие теги:
@@ -46722,13 +46755,16 @@ public:
 	int    ExecuteInvitationDialog(InterchangeParam & rData);
 	int    Dump();
 	int    TestDatabase();
+
+	typedef int (*ProcessCmdCallbackProc)(StyloQProtocol & rPack, void * pExtra);
 	//
 	// Descr: Головная функция, реализующая исполнение клиентских команд.
 	// Returns:
 	//  >0 - обработка завершена и клиенту следует отправить ответ (даже если обработка была с ошибкой)
 	//   0 - функция отработала с ошибкой и клиенту ответ отсылать не следует.
 	//
-	int    ProcessCommand(const StyloQProtocol & rRcvPack, const SBinaryChunk & rCliIdent, const SBinaryChunk * pSessSecret, StyloQProtocol & rReplyPack);
+	int    ProcessCmd(const StyloQProtocol & rRcvPack, const SBinaryChunk & rCliIdent, const SBinaryChunk * pSessSecret, StyloQProtocol & rReplyPack,
+		ProcessCmdCallbackProc intermediateReplyProc, void * pIntermediateReplyExtra);
 	//
 	SlSRP::Verifier * InitSrpVerifier(const SBinaryChunk & rCliIdent, const SBinaryChunk & rSrpS, const SBinaryChunk & rSrpV, const SBinaryChunk & rA, SBinaryChunk & rResultB) const;
 	SlSRP::Verifier * CreateSrpPacket_Svc_Auth(const SBinaryChunk & rMyPub, const SBinaryChunk & rCliIdent, const SBinaryChunk & rSrpS,

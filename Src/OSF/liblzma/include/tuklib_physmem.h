@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
+//
 //
 /// \file       tuklib_physmem.h
 /// \brief      Get the amount of physical memory
@@ -8,7 +8,7 @@
 //  This file has been put into the public domain.
 //  You can do whatever you want with this file.
 //
-///////////////////////////////////////////////////////////////////////////////
+//
 
 #ifndef TUKLIB_PHYSMEM_H
 #define TUKLIB_PHYSMEM_H

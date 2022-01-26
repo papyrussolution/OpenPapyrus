@@ -1911,13 +1911,11 @@ bool PhoneNumberUtil::GetInvalidExampleNumber(const string& region_code,
 // Gets a valid number for the specified region_code and type.  Returns false if
 // the country was unknown or 001 (representing non-geographical regions), or if
 // no number exists.
-bool PhoneNumberUtil::GetExampleNumberForType(const string& region_code,
-    PhoneNumberUtil::PhoneNumberType type,
-    PhoneNumber* number) const {
+bool PhoneNumberUtil::GetExampleNumberForType(const string& region_code, PhoneNumberUtil::PhoneNumberType type, PhoneNumber* number) const 
+{
 	DCHECK(number);
 	if(!IsValidRegionCode(region_code)) {
-		LOG(WARNING) << "Invalid or unknown region code (" << region_code
-			     << ") provided.";
+		LOG(WARNING) << "Invalid or unknown region code (" << region_code << ") provided.";
 		return false;
 	}
 	const PhoneMetadata* region_metadata = GetMetadataForRegion(region_code);
@@ -1928,15 +1926,14 @@ bool PhoneNumberUtil::GetExampleNumberForType(const string& region_code,
 			return true;
 		}
 		else {
-			LOG(ERROR) << "Error parsing example number ("
-				   << static_cast<int>(success) << ")";
+			LOG(ERROR) << "Error parsing example number (" << static_cast<int>(success) << ")";
 		}
 	}
 	return false;
 }
 
-bool PhoneNumberUtil::GetExampleNumberForType(PhoneNumberUtil::PhoneNumberType type,
-    PhoneNumber* number) const {
+bool PhoneNumberUtil::GetExampleNumberForType(PhoneNumberUtil::PhoneNumberType type, PhoneNumber* number) const 
+{
 	DCHECK(number);
 	std::set<string> regions;
 	GetSupportedRegions(&regions);
@@ -1950,23 +1947,17 @@ bool PhoneNumberUtil::GetExampleNumberForType(PhoneNumberUtil::PhoneNumberType t
 	// entities.
 	std::set<int> global_network_calling_codes;
 	GetSupportedGlobalNetworkCallingCodes(&global_network_calling_codes);
-	for(std::set<int>::const_iterator it = global_network_calling_codes.begin();
-	    it != global_network_calling_codes.end(); ++it) {
+	for(std::set<int>::const_iterator it = global_network_calling_codes.begin(); it != global_network_calling_codes.end(); ++it) {
 		int country_calling_code = *it;
-		const PhoneMetadata* metadata =
-		    GetMetadataForNonGeographicalRegion(country_calling_code);
+		const PhoneMetadata* metadata = GetMetadataForNonGeographicalRegion(country_calling_code);
 		const PhoneNumberDesc* desc = GetNumberDescByType(*metadata, type);
 		if(desc->has_example_number()) {
-			ErrorType success = Parse(StrCat(kPlusSign,
-				country_calling_code,
-				desc->example_number()),
-				RegionCode::GetUnknown(), number);
+			ErrorType success = Parse(StrCat(kPlusSign, country_calling_code, desc->example_number()), RegionCode::GetUnknown(), number);
 			if(success == NO_PARSING_ERROR) {
 				return true;
 			}
 			else {
-				LOG(ERROR) << "Error parsing example number ("
-					   << static_cast<int>(success) << ")";
+				LOG(ERROR) << "Error parsing example number (" << static_cast<int>(success) << ")";
 			}
 		}
 	}
@@ -1992,23 +1983,18 @@ bool PhoneNumberUtil::GetExampleNumberForNonGeoEntity(int country_calling_code, 
 		};
 		for(int i = 0; i < kNumberTypes; ++i) {
 			if(types[i].has_example_number()) {
-				ErrorType success = Parse(StrCat(kPlusSign,
-					SimpleItoa(country_calling_code),
-					types[i].example_number()),
-					RegionCode::GetUnknown(), number);
+				ErrorType success = Parse(StrCat(kPlusSign, SimpleItoa(country_calling_code), types[i].example_number()), RegionCode::GetUnknown(), number);
 				if(success == NO_PARSING_ERROR) {
 					return true;
 				}
 				else {
-					LOG(ERROR) << "Error parsing example number ("
-						   << static_cast<int>(success) << ")";
+					LOG(ERROR) << "Error parsing example number (" << static_cast<int>(success) << ")";
 				}
 			}
 		}
 	}
 	else {
-		LOG(WARNING) << "Invalid or unknown country calling code provided: "
-			     << country_calling_code;
+		LOG(WARNING) << "Invalid or unknown country calling code provided: " << country_calling_code;
 	}
 	return false;
 }

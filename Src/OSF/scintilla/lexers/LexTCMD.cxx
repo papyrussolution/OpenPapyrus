@@ -50,7 +50,7 @@ static uint FASTCALL GetBatchVarLen(char * wordBuffer)
 			return 0;
 
 		for(; ( wordBuffer[nLength]); nLength++) {
-			switch(toupper(wordBuffer[nLength]) ) {
+			switch(toupper(wordBuffer[nLength])) {
 				case 'A':
 				// file attributes
 				case 'D':

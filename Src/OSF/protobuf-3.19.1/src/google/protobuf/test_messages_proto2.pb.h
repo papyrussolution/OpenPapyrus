@@ -5710,7 +5710,7 @@ inline bool TestAllTypesProto2_NestedMessage::has_corecursive() const {
   return _internal_has_corecursive();
 }
 inline void TestAllTypesProto2_NestedMessage::clear_corecursive() {
-  if (corecursive_ != nullptr) corecursive_->Clear();
+  if(corecursive_ != nullptr) corecursive_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_test_messages::proto2::TestAllTypesProto2& TestAllTypesProto2_NestedMessage::_internal_corecursive() const {
@@ -6513,7 +6513,7 @@ inline bool TestAllTypesProto2::has_optional_nested_message() const {
   return _internal_has_optional_nested_message();
 }
 inline void TestAllTypesProto2::clear_optional_nested_message() {
-  if (optional_nested_message_ != nullptr) optional_nested_message_->Clear();
+  if(optional_nested_message_ != nullptr) optional_nested_message_->Clear();
   _has_bits_[0] &= ~0x00000020u;
 }
 inline const ::protobuf_test_messages::proto2::TestAllTypesProto2_NestedMessage& TestAllTypesProto2::_internal_optional_nested_message() const {
@@ -6603,7 +6603,7 @@ inline bool TestAllTypesProto2::has_optional_foreign_message() const {
   return _internal_has_optional_foreign_message();
 }
 inline void TestAllTypesProto2::clear_optional_foreign_message() {
-  if (optional_foreign_message_ != nullptr) optional_foreign_message_->Clear();
+  if(optional_foreign_message_ != nullptr) optional_foreign_message_->Clear();
   _has_bits_[0] &= ~0x00000040u;
 }
 inline const ::protobuf_test_messages::proto2::ForeignMessageProto2& TestAllTypesProto2::_internal_optional_foreign_message() const {
@@ -6885,7 +6885,7 @@ inline bool TestAllTypesProto2::has_recursive_message() const {
   return _internal_has_recursive_message();
 }
 inline void TestAllTypesProto2::clear_recursive_message() {
-  if (recursive_message_ != nullptr) recursive_message_->Clear();
+  if(recursive_message_ != nullptr) recursive_message_->Clear();
   _has_bits_[0] &= ~0x00000080u;
 }
 inline const ::protobuf_test_messages::proto2::TestAllTypesProto2& TestAllTypesProto2::_internal_recursive_message() const {
@@ -9920,7 +9920,7 @@ inline void TestAllTypesProto2::set_has_oneof_uint32() {
   _oneof_case_[0] = kOneofUint32;
 }
 inline void TestAllTypesProto2::clear_oneof_uint32() {
-  if (_internal_has_oneof_uint32()) {
+  if(_internal_has_oneof_uint32()) {
     oneof_field_.oneof_uint32_ = 0u;
     clear_has_oneof_field();
   }
@@ -9958,8 +9958,8 @@ inline void TestAllTypesProto2::set_has_oneof_nested_message() {
   _oneof_case_[0] = kOneofNestedMessage;
 }
 inline void TestAllTypesProto2::clear_oneof_nested_message() {
-  if (_internal_has_oneof_nested_message()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_oneof_nested_message()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete oneof_field_.oneof_nested_message_;
     }
     clear_has_oneof_field();
@@ -10032,7 +10032,7 @@ inline void TestAllTypesProto2::set_has_oneof_string() {
   _oneof_case_[0] = kOneofString;
 }
 inline void TestAllTypesProto2::clear_oneof_string() {
-  if (_internal_has_oneof_string()) {
+  if(_internal_has_oneof_string()) {
     oneof_field_.oneof_string_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_oneof_field();
   }
@@ -10114,7 +10114,7 @@ inline void TestAllTypesProto2::set_has_oneof_bytes() {
   _oneof_case_[0] = kOneofBytes;
 }
 inline void TestAllTypesProto2::clear_oneof_bytes() {
-  if (_internal_has_oneof_bytes()) {
+  if(_internal_has_oneof_bytes()) {
     oneof_field_.oneof_bytes_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_oneof_field();
   }
@@ -10196,7 +10196,7 @@ inline void TestAllTypesProto2::set_has_oneof_bool() {
   _oneof_case_[0] = kOneofBool;
 }
 inline void TestAllTypesProto2::clear_oneof_bool() {
-  if (_internal_has_oneof_bool()) {
+  if(_internal_has_oneof_bool()) {
     oneof_field_.oneof_bool_ = false;
     clear_has_oneof_field();
   }
@@ -10234,7 +10234,7 @@ inline void TestAllTypesProto2::set_has_oneof_uint64() {
   _oneof_case_[0] = kOneofUint64;
 }
 inline void TestAllTypesProto2::clear_oneof_uint64() {
-  if (_internal_has_oneof_uint64()) {
+  if(_internal_has_oneof_uint64()) {
     oneof_field_.oneof_uint64_ = uint64_t{0u};
     clear_has_oneof_field();
   }
@@ -10272,7 +10272,7 @@ inline void TestAllTypesProto2::set_has_oneof_float() {
   _oneof_case_[0] = kOneofFloat;
 }
 inline void TestAllTypesProto2::clear_oneof_float() {
-  if (_internal_has_oneof_float()) {
+  if(_internal_has_oneof_float()) {
     oneof_field_.oneof_float_ = 0;
     clear_has_oneof_field();
   }
@@ -10310,7 +10310,7 @@ inline void TestAllTypesProto2::set_has_oneof_double() {
   _oneof_case_[0] = kOneofDouble;
 }
 inline void TestAllTypesProto2::clear_oneof_double() {
-  if (_internal_has_oneof_double()) {
+  if(_internal_has_oneof_double()) {
     oneof_field_.oneof_double_ = 0;
     clear_has_oneof_field();
   }
@@ -10348,7 +10348,7 @@ inline void TestAllTypesProto2::set_has_oneof_enum() {
   _oneof_case_[0] = kOneofEnum;
 }
 inline void TestAllTypesProto2::clear_oneof_enum() {
-  if (_internal_has_oneof_enum()) {
+  if(_internal_has_oneof_enum()) {
     oneof_field_.oneof_enum_ = 0;
     clear_has_oneof_field();
   }
@@ -10386,7 +10386,7 @@ inline bool TestAllTypesProto2::has_data() const {
   return _internal_has_data();
 }
 inline void TestAllTypesProto2::clear_data() {
-  if (data_ != nullptr) data_->Clear();
+  if(data_ != nullptr) data_->Clear();
   _has_bits_[0] &= ~0x00000100u;
 }
 inline const ::protobuf_test_messages::proto2::TestAllTypesProto2_Data& TestAllTypesProto2::_internal_data() const {
@@ -11578,7 +11578,7 @@ inline bool UnknownToTestAllTypes::has_nested_message() const {
   return _internal_has_nested_message();
 }
 inline void UnknownToTestAllTypes::clear_nested_message() {
-  if (nested_message_ != nullptr) nested_message_->Clear();
+  if(nested_message_ != nullptr) nested_message_->Clear();
   _has_bits_[0] &= ~0x00000002u;
 }
 inline const ::protobuf_test_messages::proto2::ForeignMessageProto2& UnknownToTestAllTypes::_internal_nested_message() const {
@@ -11668,7 +11668,7 @@ inline bool UnknownToTestAllTypes::has_optionalgroup() const {
   return _internal_has_optionalgroup();
 }
 inline void UnknownToTestAllTypes::clear_optionalgroup() {
-  if (optionalgroup_ != nullptr) optionalgroup_->Clear();
+  if(optionalgroup_ != nullptr) optionalgroup_->Clear();
   _has_bits_[0] &= ~0x00000004u;
 }
 inline const ::protobuf_test_messages::proto2::UnknownToTestAllTypes_OptionalGroup& UnknownToTestAllTypes::_internal_optionalgroup() const {

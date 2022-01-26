@@ -1,5 +1,5 @@
 // STCHBRW.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // TimeChunkBrowser
 //
@@ -2225,13 +2225,13 @@ int STimeChunkBrowser::SelectChunkColor(const STimeChunkAssoc * pChunk, HBRUSH *
 	int    ok = 1;
 	HBRUSH b = 0;
 	long   val = 0;
-	if(pChunk->Status >= 0 && ChunkColorCache.Search(pChunk->Status, &val, 0) > 0) {
+	if(pChunk->Status >= 0 && ChunkColorCache.Search(pChunk->Status, &val, 0)) {
 		b = reinterpret_cast<HBRUSH>(val);
 	}
 	else {
 		STimeChunkGrid::Color clr;
 		if(GetChunkColor(pChunk, &clr)) {
-			if(ColorBrushList.Search((long)clr.C, &val, 0) > 0)
+			if(ColorBrushList.Search((long)clr.C, &val, 0))
 				b = reinterpret_cast<HBRUSH>(val);
 			else {
 				b = ::CreateSolidBrush(clr.C);

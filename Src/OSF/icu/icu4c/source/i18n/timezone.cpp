@@ -41,7 +41,7 @@
 
 static void debug_tz_loc(const char * f, int32_t l)
 {
-	fprintf(stderr, "%s:%d: ", f, l);
+	slfprintf_stderr("%s:%d: ", f, l);
 }
 
 static void debug_tz_msg(const char * pat, ...)

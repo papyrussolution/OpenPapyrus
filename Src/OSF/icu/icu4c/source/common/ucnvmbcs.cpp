@@ -1782,7 +1782,7 @@ static void U_CALLCONV ucnv_MBCSLoad(UConverterSharedData * sharedData,
 		mbcsTable->unicodeCodeUnits = (const uint16_t*)(raw+header->offsetToUCodeUnits);
 
 		mbcsTable->fromUnicodeTable = (const uint16_t*)(raw+header->offsetFromUTable);
-		mbcsTable->fromUnicodeBytes = (const uint8*)(raw+header->offsetFromUBytes);
+		mbcsTable->fromUnicodeBytes = (const uint8 *)(raw+header->offsetFromUBytes);
 		mbcsTable->fromUBytesLength = header->fromUBytesLength;
 
 		/*
@@ -2063,8 +2063,8 @@ static void ucnv_MBCSSingleToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
 
 	/* set up the local pointers */
 	cnv = pArgs->converter;
-	source = (const uint8*)pArgs->source;
-	sourceLimit = (const uint8*)pArgs->sourceLimit;
+	source = (const uint8 *)pArgs->source;
+	sourceLimit = (const uint8 *)pArgs->sourceLimit;
 	target = pArgs->target;
 	targetLimit = pArgs->targetLimit;
 	offsets = pArgs->offsets;
@@ -2182,7 +2182,7 @@ static void ucnv_MBCSSingleToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
 				&offsets, sourceIndex,
 				pArgs->flush,
 				pErrorCode);
-			sourceIndex += 1+(int32_t)(source-(const uint8*)pArgs->source);
+			sourceIndex += 1+(int32_t)(source-(const uint8 *)pArgs->source);
 
 			if(U_FAILURE(*pErrorCode)) {
 				/* not mappable or buffer overflow */
@@ -2220,8 +2220,8 @@ static void ucnv_MBCSSingleToBMPWithOffsets(UConverterToUnicodeArgs * pArgs,
 
 	/* set up the local pointers */
 	cnv = pArgs->converter;
-	source = (const uint8*)pArgs->source;
-	sourceLimit = (const uint8*)pArgs->sourceLimit;
+	source = (const uint8 *)pArgs->source;
+	sourceLimit = (const uint8 *)pArgs->sourceLimit;
 	target = pArgs->target;
 	targetCapacity = (int32_t)(pArgs->targetLimit-pArgs->target);
 	offsets = pArgs->offsets;
@@ -2535,8 +2535,8 @@ U_CFUNC void ucnv_MBCSToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
 	}
 
 	/* set up the local pointers */
-	source = (const uint8*)pArgs->source;
-	sourceLimit = (const uint8*)pArgs->sourceLimit;
+	source = (const uint8 *)pArgs->source;
+	sourceLimit = (const uint8 *)pArgs->sourceLimit;
 	target = pArgs->target;
 	targetLimit = pArgs->targetLimit;
 	offsets = pArgs->offsets;
@@ -2889,7 +2889,7 @@ U_CFUNC void ucnv_MBCSToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
 				if(i<byteIndex) {
 					/* Back out some bytes. */
 					int8_t backOutDistance = byteIndex-i;
-					int32_t bytesFromThisBuffer = (int32_t)(source-(const uint8*)pArgs->source);
+					int32_t bytesFromThisBuffer = (int32_t)(source-(const uint8 *)pArgs->source);
 					byteIndex = i; /* length of reported illegal byte sequence */
 					if(backOutDistance<=bytesFromThisBuffer) {
 						source -= backOutDistance;
@@ -2899,7 +2899,7 @@ U_CFUNC void ucnv_MBCSToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
 						cnv->preToULength = (int8_t)(bytesFromThisBuffer-backOutDistance);
 						/* preToULength is negative! */
 						uprv_memcpy(cnv->preToU, bytes+i, -cnv->preToULength);
-						source = (const uint8*)pArgs->source;
+						source = (const uint8 *)pArgs->source;
 					}
 				}
 			}
@@ -2914,7 +2914,7 @@ U_CFUNC void ucnv_MBCSToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
 				&offsets, sourceIndex,
 				pArgs->flush,
 				pErrorCode);
-			sourceIndex = nextSourceIndex += (int32_t)(source-(const uint8*)pArgs->source);
+			sourceIndex = nextSourceIndex += (int32_t)(source-(const uint8 *)pArgs->source);
 
 			if(U_FAILURE(*pErrorCode)) {
 				/* not mappable or buffer overflow */
@@ -2949,8 +2949,8 @@ static UChar32 ucnv_MBCSSingleGetNextUChar(UConverterToUnicodeArgs * pArgs,
 
 	/* set up the local pointers */
 	cnv = pArgs->converter;
-	source = (const uint8*)pArgs->source;
-	sourceLimit = (const uint8*)pArgs->sourceLimit;
+	source = (const uint8 *)pArgs->source;
+	sourceLimit = (const uint8 *)pArgs->sourceLimit;
 	if((cnv->options&UCNV_OPTION_SWAP_LFNL)!=0) {
 		stateTable = (const int32_t(*)[256])cnv->sharedData->mbcs.swapLFNLStateTable;
 	}
@@ -3064,8 +3064,8 @@ static UChar32 U_CALLCONV ucnv_MBCSGetNextUChar(UConverterToUnicodeArgs * pArgs,
 	}
 
 	/* set up the local pointers */
-	source = lastSource = (const uint8*)pArgs->source;
-	sourceLimit = (const uint8*)pArgs->sourceLimit;
+	source = lastSource = (const uint8 *)pArgs->source;
+	sourceLimit = (const uint8 *)pArgs->sourceLimit;
 
 	if((cnv->options&UCNV_OPTION_SWAP_LFNL)!=0) {
 		stateTable = (const int32_t(*)[256])cnv->sharedData->mbcs.swapLFNLStateTable;
@@ -4135,7 +4135,7 @@ getTrail:
 		lastSource = source;
 		c = _extFromU(cnv, cnv->sharedData,
 			c, &source, sourceLimit,
-			&target, (const uint8*)(pArgs->targetLimit),
+			&target, (const uint8 *)(pArgs->targetLimit),
 			&offsets, sourceIndex,
 			pArgs->flush,
 			pErrorCode);

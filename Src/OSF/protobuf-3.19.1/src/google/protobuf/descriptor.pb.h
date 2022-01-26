@@ -8993,7 +8993,7 @@ inline bool FileDescriptorProto::has_options() const {
   return _internal_has_options();
 }
 inline void FileDescriptorProto::clear_options() {
-  if (options_ != nullptr) options_->Clear();
+  if(options_ != nullptr) options_->Clear();
   _has_bits_[0] &= ~0x00000008u;
 }
 inline const ::PROTOBUF_NAMESPACE_ID::FileOptions& FileDescriptorProto::_internal_options() const {
@@ -9083,7 +9083,7 @@ inline bool FileDescriptorProto::has_source_code_info() const {
   return _internal_has_source_code_info();
 }
 inline void FileDescriptorProto::clear_source_code_info() {
-  if (source_code_info_ != nullptr) source_code_info_->Clear();
+  if(source_code_info_ != nullptr) source_code_info_->Clear();
   _has_bits_[0] &= ~0x00000010u;
 }
 inline const ::PROTOBUF_NAMESPACE_ID::SourceCodeInfo& FileDescriptorProto::_internal_source_code_info() const {
@@ -9302,7 +9302,7 @@ inline bool DescriptorProto_ExtensionRange::has_options() const {
   return _internal_has_options();
 }
 inline void DescriptorProto_ExtensionRange::clear_options() {
-  if (options_ != nullptr) options_->Clear();
+  if(options_ != nullptr) options_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::PROTOBUF_NAMESPACE_ID::ExtensionRangeOptions& DescriptorProto_ExtensionRange::_internal_options() const {
@@ -9765,7 +9765,7 @@ inline bool DescriptorProto::has_options() const {
   return _internal_has_options();
 }
 inline void DescriptorProto::clear_options() {
-  if (options_ != nullptr) options_->Clear();
+  if(options_ != nullptr) options_->Clear();
   _has_bits_[0] &= ~0x00000002u;
 }
 inline const ::PROTOBUF_NAMESPACE_ID::MessageOptions& DescriptorProto::_internal_options() const {
@@ -10473,7 +10473,7 @@ inline bool FieldDescriptorProto::has_options() const {
   return _internal_has_options();
 }
 inline void FieldDescriptorProto::clear_options() {
-  if (options_ != nullptr) options_->Clear();
+  if(options_ != nullptr) options_->Clear();
   _has_bits_[0] &= ~0x00000020u;
 }
 inline const ::PROTOBUF_NAMESPACE_ID::FieldOptions& FieldDescriptorProto::_internal_options() const {
@@ -10664,7 +10664,7 @@ inline bool OneofDescriptorProto::has_options() const {
   return _internal_has_options();
 }
 inline void OneofDescriptorProto::clear_options() {
-  if (options_ != nullptr) options_->Clear();
+  if(options_ != nullptr) options_->Clear();
   _has_bits_[0] &= ~0x00000002u;
 }
 inline const ::PROTOBUF_NAMESPACE_ID::OneofOptions& OneofDescriptorProto::_internal_options() const {
@@ -10927,7 +10927,7 @@ inline bool EnumDescriptorProto::has_options() const {
   return _internal_has_options();
 }
 inline void EnumDescriptorProto::clear_options() {
-  if (options_ != nullptr) options_->Clear();
+  if(options_ != nullptr) options_->Clear();
   _has_bits_[0] &= ~0x00000002u;
 }
 inline const ::PROTOBUF_NAMESPACE_ID::EnumOptions& EnumDescriptorProto::_internal_options() const {
@@ -11233,7 +11233,7 @@ inline bool EnumValueDescriptorProto::has_options() const {
   return _internal_has_options();
 }
 inline void EnumValueDescriptorProto::clear_options() {
-  if (options_ != nullptr) options_->Clear();
+  if(options_ != nullptr) options_->Clear();
   _has_bits_[0] &= ~0x00000002u;
 }
 inline const ::PROTOBUF_NAMESPACE_ID::EnumValueOptions& EnumValueDescriptorProto::_internal_options() const {
@@ -11436,7 +11436,7 @@ inline bool ServiceDescriptorProto::has_options() const {
   return _internal_has_options();
 }
 inline void ServiceDescriptorProto::clear_options() {
-  if (options_ != nullptr) options_->Clear();
+  if(options_ != nullptr) options_->Clear();
   _has_bits_[0] &= ~0x00000002u;
 }
 inline const ::PROTOBUF_NAMESPACE_ID::ServiceOptions& ServiceDescriptorProto::_internal_options() const {
@@ -11737,7 +11737,7 @@ inline bool MethodDescriptorProto::has_options() const {
   return _internal_has_options();
 }
 inline void MethodDescriptorProto::clear_options() {
-  if (options_ != nullptr) options_->Clear();
+  if(options_ != nullptr) options_->Clear();
   _has_bits_[0] &= ~0x00000008u;
 }
 inline const ::PROTOBUF_NAMESPACE_ID::MethodOptions& MethodDescriptorProto::_internal_options() const {

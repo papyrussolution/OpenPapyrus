@@ -909,7 +909,7 @@ inline void TestOptimizedForSize::set_has_integer_field() {
   _oneof_case_[0] = kIntegerField;
 }
 inline void TestOptimizedForSize::clear_integer_field() {
-  if (_internal_has_integer_field()) {
+  if(_internal_has_integer_field()) {
     foo_.integer_field_ = 0;
     clear_has_foo();
   }
@@ -947,7 +947,7 @@ inline void TestOptimizedForSize::set_has_string_field() {
   _oneof_case_[0] = kStringField;
 }
 inline void TestOptimizedForSize::clear_string_field() {
-  if (_internal_has_string_field()) {
+  if(_internal_has_string_field()) {
     foo_.string_field_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_foo();
   }
@@ -1073,7 +1073,7 @@ inline bool TestOptionalOptimizedForSize::has_o() const {
   return _internal_has_o();
 }
 inline void TestOptionalOptimizedForSize::clear_o() {
-  if (o_ != nullptr) o_->Clear();
+  if(o_ != nullptr) o_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::TestRequiredOptimizedForSize& TestOptionalOptimizedForSize::_internal_o() const {

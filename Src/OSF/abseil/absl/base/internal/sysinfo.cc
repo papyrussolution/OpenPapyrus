@@ -39,22 +39,22 @@ DWORD Win32CountSetBits(ULONG_PTR bitMask) {
 // Returns the number of logical CPUs using GetLogicalProcessorInformation(), or
 // 0 if the number of processors is not available or can not be computed.
 // https://docs.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-getlogicalprocessorinformation
-int Win32NumCPUs() {
+int Win32NumCPUs() 
+{
 #pragma comment(lib, "kernel32.lib")
 	using Info = SYSTEM_LOGICAL_PROCESSOR_INFORMATION;
-
 	DWORD info_size = sizeof(Info);
-	Info* info(static_cast<Info*>(malloc(info_size)));
-	if(info == nullptr) return 0;
-
+	Info* info(static_cast<Info*>(SAlloc::M(info_size)));
+	if(info == nullptr) 
+		return 0;
 	bool success = GetLogicalProcessorInformation(info, &info_size);
 	if(!success && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
-		free(info);
-		info = static_cast<Info*>(malloc(info_size));
-		if(info == nullptr) return 0;
+		SAlloc::F(info);
+		info = static_cast<Info*>(SAlloc::M(info_size));
+		if(info == nullptr) 
+			return 0;
 		success = GetLogicalProcessorInformation(info, &info_size);
 	}
-
 	DWORD logicalProcessorCount = 0;
 	if(success) {
 		Info* ptr = info;
@@ -79,7 +79,7 @@ int Win32NumCPUs() {
 			ptr++;
 		}
 	}
-	free(info);
+	SAlloc::F(info);
 	return logicalProcessorCount;
 }
 
@@ -310,11 +310,9 @@ ABSL_CONST_INIT static int num_cpus = 0;
 
 // NumCPUs() may be called before main() and before malloc is properly
 // initialized, therefore this must not allocate memory.
-int NumCPUs() {
-	base_internal::LowLevelCallOnce(
-		&init_num_cpus_once, []() {
-				num_cpus = GetNumCPUs();
-			});
+int NumCPUs() 
+{
+	base_internal::LowLevelCallOnce(&init_num_cpus_once, []() { num_cpus = GetNumCPUs(); });
 	return num_cpus;
 }
 
@@ -324,20 +322,15 @@ ABSL_CONST_INIT static double nominal_cpu_frequency = 1.0;
 
 // NominalCPUFrequency() may be called before main() and before malloc is
 // properly initialized, therefore this must not allocate memory.
-double NominalCPUFrequency() {
-	base_internal::LowLevelCallOnce(
-		&init_nominal_cpu_frequency_once,
-		[]() {
-				nominal_cpu_frequency = GetNominalCPUFrequency();
-			});
+double NominalCPUFrequency() 
+{
+	base_internal::LowLevelCallOnce(&init_nominal_cpu_frequency_once, []() { nominal_cpu_frequency = GetNominalCPUFrequency(); });
 	return nominal_cpu_frequency;
 }
 
 #if defined(_WIN32)
 
-pid_t GetTID() {
-	return pid_t{GetCurrentThreadId()};
-}
+pid_t GetTID() { return pid_t{GetCurrentThreadId()}; }
 
 #elif defined(__linux__)
 

@@ -220,14 +220,14 @@ U_CAPI bool U_EXPORT2 ures_dumpCacheContents() {
 
 	Mutex lock(&resbMutex);
 	if(cache == NULL) {
-		fprintf(stderr, "%s:%d: RB Cache is NULL.\n", __FILE__, __LINE__);
+		slfprintf_stderr("%s:%d: RB Cache is NULL.\n", __FILE__, __LINE__);
 		return FALSE;
 	}
 
 	while((e = uhash_nextElement(cache, &pos)) != NULL) {
 		cacheNotEmpty = TRUE;
 		resB = (UResourceDataEntry*)e->value.pointer;
-		fprintf(stderr, "%s:%d: RB Cache: Entry @0x%p, refcount %d, name %s:%s.  Pool 0x%p, alias 0x%p, parent 0x%p\n",
+		slfprintf_stderr("%s:%d: RB Cache: Entry @0x%p, refcount %d, name %s:%s.  Pool 0x%p, alias 0x%p, parent 0x%p\n",
 		    __FILE__, __LINE__,
 		    (void *)resB, resB->fCountExisting,
 		    resB->fName ? resB->fName : "NULL",
@@ -237,7 +237,7 @@ U_CAPI bool U_EXPORT2 ures_dumpCacheContents() {
 		    (void *)resB->fParent);
 	}
 
-	fprintf(stderr, "%s:%d: RB Cache still contains %d items.\n", __FILE__, __LINE__, uhash_count(cache));
+	slfprintf_stderr("%s:%d: RB Cache still contains %d items.\n", __FILE__, __LINE__, uhash_count(cache));
 	return cacheNotEmpty;
 }
 
@@ -1432,7 +1432,7 @@ U_CAPI const char * U_EXPORT2 ures_getUTF8String(const UResourceBundle * resB,
 	return ures_toUTF8String(s16, length16, dest, pLength, forceCopy, status);
 }
 
-U_CAPI const uint8* U_EXPORT2 ures_getBinary(const UResourceBundle * resB, int32_t* len,
+U_CAPI const uint8 * U_EXPORT2 ures_getBinary(const UResourceBundle * resB, int32_t* len,
     UErrorCode *   status) {
 	const uint8 * p;
 	if(status==NULL || U_FAILURE(*status)) {
@@ -2781,14 +2781,14 @@ U_CAPI UEnumeration* U_EXPORT2 ures_openAvailableLocales(const char * path, UErr
 	ures_getByKey(idx, INDEX_TAG, &myContext->installed, status);
 	if(U_SUCCESS(*status)) {
 #if defined(URES_TREE_DEBUG)
-		fprintf(stderr, "Got %s::%s::[%s] : %s\n",
+		slfprintf_stderr("Got %s::%s::[%s] : %s\n",
 		    path, INDEX_LOCALE_NAME, INDEX_TAG, ures_getKey(&myContext->installed));
 #endif
 		en->context = myContext;
 	}
 	else {
 #if defined(URES_TREE_DEBUG)
-		fprintf(stderr, "%s open failed - %s\n", path, u_errorName(*status));
+		slfprintf_stderr("%s open failed - %s\n", path, u_errorName(*status));
 #endif
 		ures_close(&myContext->installed);
 		uprv_free(myContext);
@@ -2833,7 +2833,7 @@ U_CAPI int32_t U_EXPORT2 ures_getFunctionalEquivalent(char * result, int32_t res
 	}
 	uloc_getBaseName(locid, base, 1024-1, &subStatus);
 #if defined(URES_TREE_DEBUG)
-	fprintf(stderr, "getFunctionalEquivalent: \"%s\" [%s=%s] in %s - %s\n",
+	slfprintf_stderr("getFunctionalEquivalent: \"%s\" [%s=%s] in %s - %s\n",
 	    locid, keyword, kwVal, base, u_errorName(subStatus));
 #endif
 	ures_initStackObject(&bund1);
@@ -2866,7 +2866,7 @@ U_CAPI int32_t U_EXPORT2 ures_getFunctionalEquivalent(char * result, int32_t res
 		isAvailable = NULL; /* only want to set this the first time around */
 
 #if defined(URES_TREE_DEBUG)
-		fprintf(stderr, "%s;%s -> %s [%s]\n", path ? path : "ICUDATA", parent, u_errorName(subStatus),
+		slfprintf_stderr("%s;%s -> %s [%s]\n", path ? path : "ICUDATA", parent, u_errorName(subStatus),
 		    ures_getLocale(res, &subStatus));
 #endif
 		if(U_FAILURE(subStatus)) {
@@ -2879,21 +2879,21 @@ U_CAPI int32_t U_EXPORT2 ures_getFunctionalEquivalent(char * result, int32_t res
 				int32_t defLen;
 				/* look for default item */
 #if defined(URES_TREE_DEBUG)
-				fprintf(stderr, "%s;%s : loaded default -> %s\n",
+				slfprintf_stderr("%s;%s : loaded default -> %s\n",
 				    path ? path : "ICUDATA", parent, u_errorName(subStatus));
 #endif
 				defUstr = ures_getStringByKey(&bund1, DEFAULT_TAG, &defLen, &subStatus);
 				if(U_SUCCESS(subStatus) && defLen) {
 					u_UCharsToChars(defUstr, defVal, u_strlen(defUstr));
 #if defined(URES_TREE_DEBUG)
-					fprintf(stderr, "%s;%s -> default %s=%s,  %s\n",
+					slfprintf_stderr("%s;%s -> default %s=%s,  %s\n",
 					    path ? path : "ICUDATA", parent, keyword, defVal, u_errorName(subStatus));
 #endif
 					uprv_strcpy(defLoc, parent);
 					if(kwVal[0]==0) {
 						uprv_strcpy(kwVal, defVal);
 #if defined(URES_TREE_DEBUG)
-						fprintf(stderr, "%s;%s -> kwVal =  %s\n",
+						slfprintf_stderr("%s;%s -> kwVal =  %s\n",
 						    path ? path : "ICUDATA", parent, keyword, kwVal);
 #endif
 					}
@@ -2924,7 +2924,7 @@ U_CAPI int32_t U_EXPORT2 ures_getFunctionalEquivalent(char * result, int32_t res
 		isAvailable = NULL; /* only want to set this the first time around */
 
 #if defined(URES_TREE_DEBUG)
-		fprintf(stderr, "%s;%s -> %s (looking for %s)\n",
+		slfprintf_stderr("%s;%s -> %s (looking for %s)\n",
 		    path ? path : "ICUDATA", parent, u_errorName(subStatus), kwVal);
 #endif
 		if(U_FAILURE(subStatus)) {
@@ -2933,16 +2933,16 @@ U_CAPI int32_t U_EXPORT2 ures_getFunctionalEquivalent(char * result, int32_t res
 		else if(subStatus == U_ZERO_ERROR) {
 			ures_getByKey(res, resName, &bund1, &subStatus);
 #if defined(URES_TREE_DEBUG)
-/**/ fprintf(stderr, "@%d [%s] %s\n", __LINE__, resName, u_errorName(subStatus));
+/**/ slfprintf_stderr("@%d [%s] %s\n", __LINE__, resName, u_errorName(subStatus));
 #endif
 			if(subStatus == U_ZERO_ERROR) {
 				ures_getByKey(&bund1, kwVal, &bund2, &subStatus);
 #if defined(URES_TREE_DEBUG)
-/**/ fprintf(stderr, "@%d [%s] %s\n", __LINE__, kwVal, u_errorName(subStatus));
+/**/ slfprintf_stderr("@%d [%s] %s\n", __LINE__, kwVal, u_errorName(subStatus));
 #endif
 				if(subStatus == U_ZERO_ERROR) {
 #if defined(URES_TREE_DEBUG)
-					fprintf(stderr, "%s;%s -> full0 %s=%s,  %s\n",
+					slfprintf_stderr("%s;%s -> full0 %s=%s,  %s\n",
 					    path ? path : "ICUDATA", parent, keyword, kwVal, u_errorName(subStatus));
 #endif
 					uprv_strcpy(full, parent);
@@ -2955,14 +2955,14 @@ U_CAPI int32_t U_EXPORT2 ures_getFunctionalEquivalent(char * result, int32_t res
 						int32_t defLen;
 						/* look for default item */
 #if defined(URES_TREE_DEBUG)
-						fprintf(stderr, "%s;%s -> recalculating Default0\n",
+						slfprintf_stderr("%s;%s -> recalculating Default0\n",
 						    path ? path : "ICUDATA", full);
 #endif
 						defUstr = ures_getStringByKey(&bund1, DEFAULT_TAG, &defLen, &subStatus);
 						if(U_SUCCESS(subStatus) && defLen) {
 							u_UCharsToChars(defUstr, defVal, u_strlen(defUstr));
 #if defined(URES_TREE_DEBUG)
-							fprintf(stderr, "%s;%s -> default0 %s=%s,  %s\n",
+							slfprintf_stderr("%s;%s -> default0 %s=%s,  %s\n",
 							    path ? path : "ICUDATA", full, keyword, defVal, u_errorName(subStatus));
 #endif
 							uprv_strcpy(defLoc, full);
@@ -2970,13 +2970,13 @@ U_CAPI int32_t U_EXPORT2 ures_getFunctionalEquivalent(char * result, int32_t res
 					} /* end of recalculate default KW */
 #if defined(URES_TREE_DEBUG)
 					else {
-						fprintf(stderr, "No trim0,  %s <= %s\n", defLoc, full);
+						slfprintf_stderr("No trim0,  %s <= %s\n", defLoc, full);
 					}
 #endif
 				}
 				else {
 #if defined(URES_TREE_DEBUG)
-					fprintf(stderr, "err=%s in %s looking for %s\n",
+					slfprintf_stderr("err=%s in %s looking for %s\n",
 					    u_errorName(subStatus), parent, kwVal);
 #endif
 				}
@@ -2992,7 +2992,7 @@ U_CAPI int32_t U_EXPORT2 ures_getFunctionalEquivalent(char * result, int32_t res
 
 	if((full[0]==0) && uprv_strcmp(kwVal, defVal)) {
 #if defined(URES_TREE_DEBUG)
-		fprintf(stderr, "Failed to locate kw %s - try default %s\n", kwVal, defVal);
+		slfprintf_stderr("Failed to locate kw %s - try default %s\n", kwVal, defVal);
 #endif
 		uprv_strcpy(kwVal, defVal);
 		uprv_strcpy(parent, base);
@@ -3007,7 +3007,7 @@ U_CAPI int32_t U_EXPORT2 ures_getFunctionalEquivalent(char * result, int32_t res
 			isAvailable = NULL; /* only want to set this the first time around */
 
 #if defined(URES_TREE_DEBUG)
-			fprintf(stderr, "%s;%s -> %s (looking for default %s)\n",
+			slfprintf_stderr("%s;%s -> %s (looking for default %s)\n",
 			    path ? path : "ICUDATA", parent, u_errorName(subStatus), kwVal);
 #endif
 			if(U_FAILURE(subStatus)) {
@@ -3019,7 +3019,7 @@ U_CAPI int32_t U_EXPORT2 ures_getFunctionalEquivalent(char * result, int32_t res
 					ures_getByKey(&bund1, kwVal, &bund2, &subStatus);
 					if(subStatus == U_ZERO_ERROR) {
 #if defined(URES_TREE_DEBUG)
-						fprintf(stderr, "%s;%s -> full1 %s=%s,  %s\n", path ? path : "ICUDATA",
+						slfprintf_stderr("%s;%s -> full1 %s=%s,  %s\n", path ? path : "ICUDATA",
 						    parent, keyword, kwVal, u_errorName(subStatus));
 #endif
 						uprv_strcpy(full, parent);
@@ -3033,14 +3033,14 @@ U_CAPI int32_t U_EXPORT2 ures_getFunctionalEquivalent(char * result, int32_t res
 							int32_t defLen;
 							/* look for default item */
 #if defined(URES_TREE_DEBUG)
-							fprintf(stderr, "%s;%s -> recalculating Default1\n",
+							slfprintf_stderr("%s;%s -> recalculating Default1\n",
 							    path ? path : "ICUDATA", full);
 #endif
 							defUstr = ures_getStringByKey(&bund1, DEFAULT_TAG, &defLen, &subStatus);
 							if(U_SUCCESS(subStatus) && defLen) {
 								u_UCharsToChars(defUstr, defVal, u_strlen(defUstr));
 #if defined(URES_TREE_DEBUG)
-								fprintf(stderr, "%s;%s -> default %s=%s,  %s\n",
+								slfprintf_stderr("%s;%s -> default %s=%s,  %s\n",
 								    path ? path : "ICUDATA", full, keyword, defVal, u_errorName(subStatus));
 #endif
 								uprv_strcpy(defLoc, full);
@@ -3048,7 +3048,7 @@ U_CAPI int32_t U_EXPORT2 ures_getFunctionalEquivalent(char * result, int32_t res
 						} /* end of recalculate default KW */
 #if defined(URES_TREE_DEBUG)
 						else {
-							fprintf(stderr, "No trim1,  %s <= %s\n", defLoc, full);
+							slfprintf_stderr("No trim1,  %s <= %s\n", defLoc, full);
 						}
 #endif
 					}
@@ -3065,20 +3065,20 @@ U_CAPI int32_t U_EXPORT2 ures_getFunctionalEquivalent(char * result, int32_t res
 	if(U_SUCCESS(*status)) {
 		if(!full[0]) {
 #if defined(URES_TREE_DEBUG)
-			fprintf(stderr, "Still could not load keyword %s=%s\n", keyword, kwVal);
+			slfprintf_stderr("Still could not load keyword %s=%s\n", keyword, kwVal);
 #endif
 			*status = U_MISSING_RESOURCE_ERROR;
 		}
 		else if(omitDefault) {
 #if defined(URES_TREE_DEBUG)
-			fprintf(stderr, "Trim? full=%s, defLoc=%s, found=%s\n", full, defLoc, found);
+			slfprintf_stderr("Trim? full=%s, defLoc=%s, found=%s\n", full, defLoc, found);
 #endif
 			if(uprv_strlen(defLoc) <= uprv_strlen(full)) {
 				/* found the keyword in a *child* of where the default tag was present. */
 				if(!uprv_strcmp(kwVal, defVal)) { /* if the requested kw is default, */
 					/* and the default is in or in an ancestor of the current locale */
 #if defined(URES_TREE_DEBUG)
-					fprintf(stderr, "Removing unneeded var %s=%s\n", keyword, kwVal);
+					slfprintf_stderr("Removing unneeded var %s=%s\n", keyword, kwVal);
 #endif
 					kwVal[0] = 0;
 				}
@@ -3152,13 +3152,13 @@ U_CAPI UEnumeration* U_EXPORT2 ures_getKeywordValues(const char * path, const ch
 
 #if defined(URES_TREE_DEBUG)
 		if(!bund || U_FAILURE(subStatus)) {
-			fprintf(stderr, "%s-%s values: Can't open %s locale - skipping. (%s)\n", path ? path : "<ICUDATA>", keyword, locale, u_errorName(subStatus));
+			slfprintf_stderr("%s-%s values: Can't open %s locale - skipping. (%s)\n", path ? path : "<ICUDATA>", keyword, locale, u_errorName(subStatus));
 		}
 #endif
 		ures_getByKey(bund, keyword, &item, &subStatus);
 		if(!bund || U_FAILURE(subStatus)) {
 #if defined(URES_TREE_DEBUG)
-			fprintf(stderr, "%s-%s values: Can't find in %s - skipping. (%s)\n", path ? path : "<ICUDATA>", keyword, locale, u_errorName(subStatus));
+			slfprintf_stderr("%s-%s values: Can't find in %s - skipping. (%s)\n", path ? path : "<ICUDATA>", keyword, locale, u_errorName(subStatus));
 #endif
 			ures_close(bund);
 			bund = NULL;
@@ -3172,7 +3172,7 @@ U_CAPI UEnumeration* U_EXPORT2 ures_getKeywordValues(const char * path, const ch
 			k = ures_getKey(subPtr);
 
 #if defined(URES_TREE_DEBUG)
-			/* fprintf(stderr, "%s | %s | %s | %s\n", path?path:"<ICUDATA>", keyword, locale, k); */
+			/* slfprintf_stderr("%s | %s | %s | %s\n", path?path:"<ICUDATA>", keyword, locale, k); */
 #endif
 			if(k == NULL || *k == 0 ||
 			    uprv_strcmp(k, DEFAULT_TAG) == 0 || uprv_strncmp(k, "private-", 8) == 0) {
@@ -3197,7 +3197,7 @@ U_CAPI UEnumeration* U_EXPORT2 ures_getKeywordValues(const char * path, const ch
 					valuesList[valuesCount++] = valuesBuf+valuesIndex;
 					valuesIndex += kLen;
 #if defined(URES_TREE_DEBUG)
-					fprintf(stderr, "%s | %s | %s | [%s]   (UNIQUE)\n",
+					slfprintf_stderr("%s | %s | %s | [%s]   (UNIQUE)\n",
 					    path ? path : "<ICUDATA>", keyword, locale, k);
 #endif
 					valuesBuf[valuesIndex++] = 0; /* terminate */
@@ -3212,7 +3212,7 @@ U_CAPI UEnumeration* U_EXPORT2 ures_getKeywordValues(const char * path, const ch
 	ures_close(&subItem);
 	uenum_close(locs);
 #if defined(URES_TREE_DEBUG)
-	fprintf(stderr, "%s:  size %d, #%d\n", u_errorName(*status),
+	slfprintf_stderr("%s:  size %d, #%d\n", u_errorName(*status),
 	    valuesIndex, valuesCount);
 #endif
 	return uloc_openKeywordList(valuesBuf, valuesIndex, status);

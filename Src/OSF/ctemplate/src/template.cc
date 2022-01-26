@@ -2036,7 +2036,7 @@ Template* Template::StringToTemplate(const TemplateString& content,
 	size_t content_len = content.size();
 	memcpy(buffer, content.data(), content_len);
 	tpl->StripBuffer(&buffer, &content_len);
-	if(tpl->BuildTree(buffer, buffer + content_len) ) {
+	if(tpl->BuildTree(buffer, buffer + content_len)) {
 		assert(tpl->state() == TS_READY);
 	}
 	else {
@@ -2568,7 +2568,7 @@ EXCLUSIVE_LOCKS_REQUIRED(g_template_mutex) {
 	ZDELETE(htmlparser_);
 	// Now parse the template we just read.  BuildTree takes over ownership
 	// of input_buffer in every case, and will eventually delete it.
-	if(BuildTree(file_buffer, file_buffer + buflen) ) {
+	if(BuildTree(file_buffer, file_buffer + buflen)) {
 		assert(state() == TS_READY);
 		return true;
 	}

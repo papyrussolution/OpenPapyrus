@@ -15,7 +15,7 @@
 using namespace Scintilla;
 
 #ifdef DEBUG_LEX_MODULA
-	#define DEBUG_STATE(p, c) fprintf(stderr, "Unknown state: currentPos = %u, char = '%c'\n", static_cast<unsigned int>(p), c);
+	#define DEBUG_STATE(p, c) slfprintf_stderr("Unknown state: currentPos = %u, char = '%c'\n", static_cast<unsigned int>(p), c);
 #else
 	#define DEBUG_STATE(p, c)
 #endif
@@ -28,8 +28,8 @@ static inline bool IsDigitOfBase(unsigned ch, unsigned base) {
 	else {
 		if(ch > '9') {
 			unsigned nb = base - 10;
-			if(( ch < 'A' ) || ( ch >= ( 'A' + nb ) ) ) {
-				if(( ch < 'a' ) || ( ch >= ( 'a' + nb ) ) ) {
+			if(( ch < 'A' ) || ( ch >= ( 'A' + nb ) )) {
+				if(( ch < 'a' ) || ( ch >= ( 'a' + nb ) )) {
 					return false;
 				}
 			}
@@ -47,14 +47,14 @@ static inline unsigned IsOperator(StyleContext & sc, WordList & op) {
 	s[2] = 0;
 	for(i = 0; i < op.Length(); i++) {
 		if(( strlen(op.WordAt(i) ) == 2 ) &&
-		    ( s[0] == op.WordAt(i)[0] && s[1] == op.WordAt(i)[1]) ) {
+		    ( s[0] == op.WordAt(i)[0] && s[1] == op.WordAt(i)[1])) {
 			return 2;
 		}
 	}
 	s[1] = 0;
 	for(i = 0; i < op.Length(); i++) {
 		if(( strlen(op.WordAt(i) ) == 1 ) &&
-		    ( s[0] == op.WordAt(i)[0]) ) {
+		    ( s[0] == op.WordAt(i)[0])) {
 			return 1;
 		}
 	}
@@ -64,7 +64,7 @@ static inline unsigned IsOperator(StyleContext & sc, WordList & op) {
 static inline bool IsEOL(Accessor &styler, Sci_PositionU curPos) {
 	unsigned ch = styler.SafeGetCharAt(curPos);
 	if(( ch == '\r' && styler.SafeGetCharAt(curPos + 1) == '\n' ) ||
-	    ( ch == '\n' ) ) {
+	    ( ch == '\n' )) {
 		return true;
 	}
 	return false;
@@ -81,7 +81,7 @@ static inline bool checkStatement(Accessor &styler,
 		}
 	}
 	if(spaceAfter) {
-		if(!isspace(styler.SafeGetCharAt(curPos + i) ) ) {
+		if(!isspace(styler.SafeGetCharAt(curPos + i) )) {
 			return false;
 		}
 	}
@@ -100,7 +100,7 @@ static inline bool checkEndSemicolon(Accessor &styler,
 			return false;
 		}
 	}
-	while(isspace(styler.SafeGetCharAt(curPos + i) ) ) {
+	while(isspace(styler.SafeGetCharAt(curPos + i) )) {
 		i++;
 		if(( curPos + i ) >= endPos) return false;
 	}
@@ -125,7 +125,7 @@ static inline bool checkKeyIdentOper(Accessor &styler,
 	newPos++;
 	if(newPos >= endPos)
 		return false;
-	while(isspace(styler.SafeGetCharAt(newPos) ) ) {
+	while(isspace(styler.SafeGetCharAt(newPos) )) {
 		newPos++;
 		if(newPos >= endPos)
 			return false;
@@ -142,7 +142,7 @@ static inline bool checkKeyIdentOper(Accessor &styler,
 		if(newPos >= endPos) return false;
 		ch = styler.SafeGetCharAt(newPos);
 	}
-	while(isspace(styler.SafeGetCharAt(newPos) ) ) {
+	while(isspace(styler.SafeGetCharAt(newPos) )) {
 		newPos++;
 		if(newPos >= endPos) return false;
 	}
@@ -227,7 +227,7 @@ static void FoldModulaDoc(Sci_PositionU startPos,
 							    if(ch == 'P') {
 								    if(styler.StyleAt(pos) == SCE_MODULA_KEYWORD) {
 									    if(checkKeyIdentOper(styler, pos, endPos,
-										"PROCEDURE", '(') ) {
+										"PROCEDURE", '(')) {
 										    break;
 									    }
 								    }
@@ -253,18 +253,18 @@ static void FoldModulaDoc(Sci_PositionU startPos,
 			    break;
 		}
 
-		if(IsEOL(styler, curPos) || ( curPos == endPos - 1 ) ) {
+		if(IsEOL(styler, curPos) || ( curPos == endPos - 1 )) {
 			int efectiveLevel = curLevel | nextLevel << 16;
 			if(visChars == 0)
 				efectiveLevel |= SC_FOLDLEVELWHITEFLAG;
 			if(curLevel < nextLevel)
 				efectiveLevel |= SC_FOLDLEVELHEADERFLAG;
-			if(efectiveLevel != styler.LevelAt(curLine) ) {
+			if(efectiveLevel != styler.LevelAt(curLine)) {
 				styler.SetLevel(curLine, efectiveLevel);
 			}
 			curLine++;
 			curLevel = nextLevel;
-			if(IsEOL(styler, curPos) && ( curPos == endPos - 1 ) ) {
+			if(IsEOL(styler, curPos) && ( curPos == endPos - 1 )) {
 				styler.SetLevel(curLine, ( curLevel | curLevel << 16)
 				    | SC_FOLDLEVELWHITEFLAG);
 			}
@@ -276,7 +276,7 @@ static void FoldModulaDoc(Sci_PositionU startPos,
 }
 
 static inline bool skipWhiteSpaces(StyleContext & sc) {
-	while(isspace(sc.ch) ) {
+	while(isspace(sc.ch)) {
 		sc.SetState(SCE_MODULA_DEFAULT);
 		if(sc.More() )
 			sc.Forward();
@@ -307,7 +307,7 @@ static void ColouriseModulaDoc(Sci_PositionU startPos,
 
 	StyleContext sc(startPos, length, initStyle, styler);
 
-	while(sc.More() ) {
+	while(sc.More()) {
 		switch(sc.state)      {
 			case SCE_MODULA_DEFAULT:
 			    if(!skipWhiteSpaces(sc) ) break;
@@ -323,7 +323,7 @@ static void ColouriseModulaDoc(Sci_PositionU startPos,
 				    sc.Forward();
 			    }
 			    else if(isalpha(sc.ch) )      {
-				    if(isupper(sc.ch) && isupper(sc.chNext) ) {
+				    if(isupper(sc.ch) && isupper(sc.chNext)) {
 					    for(i = 0; i < BUFLEN - 1; i++) {
 						    buf[i] = sc.GetRelative(i);
 						    if(!isalpha(buf[i]) && !(buf[i] == '_') )
@@ -332,7 +332,7 @@ static void ColouriseModulaDoc(Sci_PositionU startPos,
 					    kl = i;
 					    buf[kl] = 0;
 
-					    if(keyWords.InList(buf) ) {
+					    if(keyWords.InList(buf)) {
 						    sc.SetState(SCE_MODULA_KEYWORD);
 						    sc.Forward(kl);
 						    sc.SetState(SCE_MODULA_DEFAULT);
@@ -412,7 +412,7 @@ static void ColouriseModulaDoc(Sci_PositionU startPos,
 					break;
 
 				    case '@':
-					if(islower(sc.chNext) ) {
+					if(islower(sc.chNext)) {
 						for(i = 0; i < BUFLEN - 1; i++) {
 							buf[i] = sc.GetRelative(i+1);
 							if(isspace(buf[i]) ) break;
@@ -420,7 +420,7 @@ static void ColouriseModulaDoc(Sci_PositionU startPos,
 						buf[i] = 0;
 						kl = i;
 
-						if(doxyKeys.InList(buf) ) {
+						if(doxyKeys.InList(buf)) {
 							sc.SetState(SCE_MODULA_DOXYKEY);
 							sc.Forward(kl + 1);
 							sc.SetState(SCE_MODULA_DOXYCOMM);
@@ -444,7 +444,7 @@ static void ColouriseModulaDoc(Sci_PositionU startPos,
 			    kl = i;
 			    buf[kl] = 0;
 
-			    switch(sc.GetRelative(kl) ) {
+			    switch(sc.GetRelative(kl)) {
 				    case '_':
 				{
 					int base = atoi(buf);
@@ -457,13 +457,13 @@ static void ColouriseModulaDoc(Sci_PositionU startPos,
 						kl++;
 						for(i = 0; i < BUFLEN - 1; i++) {
 							buf[i] = sc.GetRelative(kl+i);
-							if(!IsDigitOfBase(buf[i], 16) ) {
+							if(!IsDigitOfBase(buf[i], 16)) {
 								break;
 							}
 						}
 						imax = i;
 						for(i = 0; i < imax; i++) {
-							if(!IsDigitOfBase(buf[i], base) ) {
+							if(!IsDigitOfBase(buf[i], base)) {
 								sc.SetState(SCE_MODULA_BADSTR);
 								break;
 							}
@@ -495,7 +495,7 @@ static void ColouriseModulaDoc(Sci_PositionU startPos,
 						kl++;
 
 						buf[0] = sc.GetRelative(kl);
-						if(isdigit(buf[0]) ) {
+						if(isdigit(buf[0])) {
 							for(i = 0;; i++) {
 								if(!isdigit(sc.GetRelative(kl+i)) )
 									break;
@@ -517,9 +517,9 @@ static void ColouriseModulaDoc(Sci_PositionU startPos,
 									    kl++;
 								    }
 								    buf[0] = sc.GetRelative(kl);
-								    if(isdigit(buf[0]) ) {
+								    if(isdigit(buf[0])) {
 									    for(i = 0;; i++) {
-										    if(!isdigit(sc.GetRelative(kl+i)) ) {
+										    if(!isdigit(sc.GetRelative(kl+i))) {
 											    buf[0] = sc.GetRelative(kl+i);
 											    break;
 										    }
@@ -590,7 +590,7 @@ static void ColouriseModulaDoc(Sci_PositionU startPos,
 			    else {
 				    if(sc.ch == '\\') {
 					    i = 1;
-					    if(IsDigitOfBase(sc.chNext, 8) ) {
+					    if(IsDigitOfBase(sc.chNext, 8)) {
 						    for(i = 1; i < BUFLEN - 1; i++) {
 							    if(!IsDigitOfBase(sc.GetRelative(i+1), 8) )
 								    break;
@@ -606,7 +606,7 @@ static void ColouriseModulaDoc(Sci_PositionU startPos,
 						    buf[0] = sc.chNext;
 						    buf[1] = 0;
 
-						    if(escapeCodes.InList(buf) ) {
+						    if(escapeCodes.InList(buf)) {
 							    sc.SetState(SCE_MODULA_STRSPEC);
 						    }
 						    else {
@@ -629,7 +629,7 @@ static void ColouriseModulaDoc(Sci_PositionU startPos,
 			    else if(( sc.currentPos - charPos ) == 1)      {
 				    if(sc.ch == '\\') {
 					    i = 1;
-					    if(IsDigitOfBase(sc.chNext, 8) ) {
+					    if(IsDigitOfBase(sc.chNext, 8)) {
 						    for(i = 1; i < BUFLEN - 1; i++) {
 							    if(!IsDigitOfBase(sc.GetRelative(i+1), 8) )
 								    break;
@@ -645,7 +645,7 @@ static void ColouriseModulaDoc(Sci_PositionU startPos,
 						    buf[0] = sc.chNext;
 						    buf[1] = 0;
 
-						    if(escapeCodes.InList(buf) ) {
+						    if(escapeCodes.InList(buf)) {
 							    sc.SetState(SCE_MODULA_CHARSPEC);
 						    }
 						    else {
@@ -682,7 +682,7 @@ static void ColouriseModulaDoc(Sci_PositionU startPos,
 				    }
 				    kl = i;
 				    buf[kl] = 0;
-				    if(pragmaWords.InList(buf) ) {
+				    if(pragmaWords.InList(buf)) {
 					    sc.SetState(SCE_MODULA_PRGKEY);
 					    sc.Forward(kl);
 					    sc.SetState(SCE_MODULA_PRAGMA);

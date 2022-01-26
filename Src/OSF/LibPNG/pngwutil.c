@@ -33,7 +33,7 @@ void PNGAPI png_save_uint_32(png_bytep buf, uint32 i)
  * The parameter is declared unsigned int, not png_uint_16,
  * just to avoid potential problems on pre-ANSI C compilers.
  */
-void PNGAPI png_save_uint_16(png_bytep buf, unsigned int i)
+void PNGAPI png_save_uint_16(png_bytep buf, uint i)
 {
 	buf[0] = (uint8)((i >> 8) & 0xffU);
 	buf[1] = (uint8)( i       & 0xffU);
@@ -199,31 +199,25 @@ static png_alloc_size_t png_image_size(png_structrp png_ptr)
 	 * the width and height used to 15 bits.
 	 */
 	uint32 h = png_ptr->height;
-
 	if(png_ptr->rowbytes < 32768 && h < 32768) {
 		if(png_ptr->interlaced != 0) {
 			/* Interlacing makes the image larger because of the replication of
 			 * both the filter byte and the padding to a byte boundary.
 			 */
 			uint32 w = png_ptr->width;
-			unsigned int pd = png_ptr->pixel_depth;
+			uint pd = png_ptr->pixel_depth;
 			png_alloc_size_t cb_base;
 			int pass;
-
 			for(cb_base = 0, pass = 0; pass<=6; ++pass) {
 				uint32 pw = PNG_PASS_COLS(w, pass);
-
 				if(pw > 0)
 					cb_base += (PNG_ROWBYTES(pd, pw)+1) * PNG_PASS_ROWS(h, pass);
 			}
-
 			return cb_base;
 		}
-
 		else
 			return (png_ptr->rowbytes+1) * h;
 	}
-
 	else
 		return 0xffffffffU;
 }
@@ -241,14 +235,14 @@ static void optimize_cmf(png_bytep data, png_alloc_size_t data_size)
 	 * still compliant to the stream specification.
 	 */
 	if(data_size <= 16384) { /* else windowBits must be 15 */
-		unsigned int z_cmf = data[0]; /* zlib compression method and flags */
+		uint z_cmf = data[0]; /* zlib compression method and flags */
 		if((z_cmf & 0x0f) == 8 && (z_cmf & 0xf0) <= 0x70) {
-			unsigned int z_cinfo;
-			unsigned int half_z_window_size;
+			uint z_cinfo;
+			uint half_z_window_size;
 			z_cinfo = z_cmf >> 4;
 			half_z_window_size = 1U << (z_cinfo + 7);
 			if(data_size <= half_z_window_size) { /* else no change */
-				unsigned int tmp;
+				uint tmp;
 				do {
 					half_z_window_size >>= 1;
 					--z_cinfo;
@@ -349,21 +343,16 @@ static int png_deflate_claim(png_structrp png_ptr, uint32 owner, png_alloc_size_
 			 * widens the result of the following shift to 64-bits if(and,
 			 * apparently, only if) it is used in a test.
 			 */
-			unsigned int half_window_size = 1U << (windowBits-1);
-
+			uint half_window_size = 1U << (windowBits-1);
 			while(data_size + 262 <= half_window_size) {
 				half_window_size >>= 1;
 				--windowBits;
 			}
 		}
-
 		/* Check against the previous initialized values, if any. */
-		if((png_ptr->flags & PNG_FLAG_ZSTREAM_INITIALIZED) != 0 &&
-		    (png_ptr->zlib_set_level != level ||
-			    png_ptr->zlib_set_method != method ||
-			    png_ptr->zlib_set_window_bits != windowBits ||
-			    png_ptr->zlib_set_mem_level != memLevel ||
-			    png_ptr->zlib_set_strategy != strategy)) {
+		if((png_ptr->flags & PNG_FLAG_ZSTREAM_INITIALIZED) != 0 && (png_ptr->zlib_set_level != level ||
+			    png_ptr->zlib_set_method != method || png_ptr->zlib_set_window_bits != windowBits ||
+			    png_ptr->zlib_set_mem_level != memLevel || png_ptr->zlib_set_strategy != strategy)) {
 			if(deflateEnd(&png_ptr->zstream) != Z_OK)
 				png_warning(png_ptr, "deflateEnd failed (ignored)");
 
@@ -843,25 +832,20 @@ void /* PRIVATE */ png_compress_IDAT(png_structrp png_ptr, png_const_bytep input
 		 * created at this point, but the check here is quick and safe.
 		 */
 		if(png_ptr->zbuffer_list == NULL) {
-			png_ptr->zbuffer_list = png_voidcast(png_compression_bufferp,
-			    png_malloc(png_ptr, PNG_COMPRESSION_BUFFER_SIZE(png_ptr)));
+			png_ptr->zbuffer_list = png_voidcast(png_compression_bufferp, png_malloc(png_ptr, PNG_COMPRESSION_BUFFER_SIZE(png_ptr)));
 			png_ptr->zbuffer_list->next = NULL;
 		}
-
 		else
 			png_free_buffer_list(png_ptr, &png_ptr->zbuffer_list->next);
-
 		/* It is a terminal error if we can't claim the zstream. */
 		if(png_deflate_claim(png_ptr, png_IDAT, png_image_size(png_ptr)) != Z_OK)
 			png_error(png_ptr, png_ptr->zstream.msg);
-
 		/* The output state is maintained in png_ptr->zstream, so it must be
 		 * initialized here after the claim.
 		 */
 		png_ptr->zstream.next_out = png_ptr->zbuffer_list->output;
 		png_ptr->zstream.avail_out = png_ptr->zbuffer_size;
 	}
-
 	/* Now loop reading and writing until all the input is consumed or an error
 	 * terminates the operation.  The _out values are maintained across calls to
 	 * this function, but the input must be reset each time.
@@ -870,22 +854,16 @@ void /* PRIVATE */ png_compress_IDAT(png_structrp png_ptr, png_const_bytep input
 	png_ptr->zstream.avail_in = 0; /* set below */
 	for(;; ) {
 		int ret;
-
 		/* INPUT: from the row data */
 		uInt avail = ZLIB_IO_MAX;
-
 		if(avail > input_len)
 			avail = (uInt)input_len; /* safe because of the check */
-
 		png_ptr->zstream.avail_in = avail;
 		input_len -= avail;
-
 		ret = deflate(&png_ptr->zstream, input_len > 0 ? Z_NO_FLUSH : flush);
-
 		/* Include as-yet unconsumed input */
 		input_len += png_ptr->zstream.avail_in;
 		png_ptr->zstream.avail_in = 0;
-
 		/* OUTPUT: write complete IDAT chunks when avail_out drops to zero. Note
 		 * that these two zstream fields are preserved across the calls, therefore
 		 * there is no need to set these up on entry to the loop.
@@ -893,22 +871,17 @@ void /* PRIVATE */ png_compress_IDAT(png_structrp png_ptr, png_const_bytep input
 		if(png_ptr->zstream.avail_out == 0) {
 			png_bytep data = png_ptr->zbuffer_list->output;
 			uInt size = png_ptr->zbuffer_size;
-
 			/* Write an IDAT containing the data then reset the buffer.  The
 			 * first IDAT may need deflate header optimization.
 			 */
 #ifdef PNG_WRITE_OPTIMIZE_CMF_SUPPORTED
-			if((png_ptr->mode & PNG_HAVE_IDAT) == 0 &&
-			    png_ptr->compression_type == PNG_COMPRESSION_TYPE_BASE)
+			if((png_ptr->mode & PNG_HAVE_IDAT) == 0 && png_ptr->compression_type == PNG_COMPRESSION_TYPE_BASE)
 				optimize_cmf(data, png_image_size(png_ptr));
 #endif
-
 			png_write_complete_chunk(png_ptr, png_IDAT, data, size);
 			png_ptr->mode |= PNG_HAVE_IDAT;
-
 			png_ptr->zstream.next_out = data;
 			png_ptr->zstream.avail_out = size;
-
 			/* For SYNC_FLUSH or FINISH it is essential to keep calling zlib with
 			 * the same flush parameter until it has finished output, for NO_FLUSH
 			 * it doesn't matter.
@@ -916,7 +889,6 @@ void /* PRIVATE */ png_compress_IDAT(png_structrp png_ptr, png_const_bytep input
 			if(ret == Z_OK && flush != Z_NO_FLUSH)
 				continue;
 		}
-
 		/* The order of these checks doesn't matter much; it just affects which
 		 * possible error might be detected if multiple things go wrong at once.
 		 */
@@ -941,20 +913,16 @@ void /* PRIVATE */ png_compress_IDAT(png_structrp png_ptr, png_const_bytep input
 			uInt size = png_ptr->zbuffer_size - png_ptr->zstream.avail_out;
 
 #ifdef PNG_WRITE_OPTIMIZE_CMF_SUPPORTED
-			if((png_ptr->mode & PNG_HAVE_IDAT) == 0 &&
-			    png_ptr->compression_type == PNG_COMPRESSION_TYPE_BASE)
+			if((png_ptr->mode & PNG_HAVE_IDAT) == 0 && png_ptr->compression_type == PNG_COMPRESSION_TYPE_BASE)
 				optimize_cmf(data, png_image_size(png_ptr));
 #endif
-
 			png_write_complete_chunk(png_ptr, png_IDAT, data, size);
 			png_ptr->zstream.avail_out = 0;
 			png_ptr->zstream.next_out = NULL;
 			png_ptr->mode |= PNG_HAVE_IDAT | PNG_AFTER_IDAT;
-
 			png_ptr->zowner = 0; /* Release the stream */
 			return;
 		}
-
 		else {
 			/* This is an error condition. */
 			png_zstream_error(png_ptr, ret);
@@ -1647,16 +1615,16 @@ void /* PRIVATE */ png_write_start_row(png_structrp png_ptr)
 	/* Arrays to facilitate easy interlacing - use pass (0 - 6) as index */
 
 	/* Start of interlace block */
-	static PNG_CONST uint8 png_pass_start[7] = {0, 4, 0, 2, 0, 1, 0};
+	static const uint8 png_pass_start[7] = {0, 4, 0, 2, 0, 1, 0};
 
 	/* Offset to next interlace block */
-	static PNG_CONST uint8 png_pass_inc[7] = {8, 8, 4, 4, 2, 2, 1};
+	static const uint8 png_pass_inc[7] = {8, 8, 4, 4, 2, 2, 1};
 
 	/* Start of interlace block in the y direction */
-	static PNG_CONST uint8 png_pass_ystart[7] = {0, 0, 4, 0, 2, 0, 1};
+	static const uint8 png_pass_ystart[7] = {0, 0, 4, 0, 2, 0, 1};
 
 	/* Offset to next interlace block in the y direction */
-	static PNG_CONST uint8 png_pass_yinc[7] = {8, 8, 8, 4, 4, 2, 2};
+	static const uint8 png_pass_yinc[7] = {8, 8, 8, 4, 4, 2, 2};
 #endif
 
 	png_alloc_size_t buf_size;
@@ -1756,28 +1724,17 @@ void /* PRIVATE */ png_write_finish_row(png_structrp png_ptr)
 #ifdef PNG_WRITE_INTERLACING_SUPPORTED
 	/* Arrays to facilitate easy interlacing - use pass (0 - 6) as index */
 
-	/* Start of interlace block */
-	static PNG_CONST uint8 png_pass_start[7] = {0, 4, 0, 2, 0, 1, 0};
-
-	/* Offset to next interlace block */
-	static PNG_CONST uint8 png_pass_inc[7] = {8, 8, 4, 4, 2, 2, 1};
-
-	/* Start of interlace block in the y direction */
-	static PNG_CONST uint8 png_pass_ystart[7] = {0, 0, 4, 0, 2, 0, 1};
-
-	/* Offset to next interlace block in the y direction */
-	static PNG_CONST uint8 png_pass_yinc[7] = {8, 8, 8, 4, 4, 2, 2};
+	static const uint8 png_pass_start[7] = {0, 4, 0, 2, 0, 1, 0}; /* Start of interlace block */
+	static const uint8 png_pass_inc[7] = {8, 8, 4, 4, 2, 2, 1}; /* Offset to next interlace block */
+	static const uint8 png_pass_ystart[7] = {0, 0, 4, 0, 2, 0, 1}; /* Start of interlace block in the y direction */
+	static const uint8 png_pass_yinc[7] = {8, 8, 8, 4, 4, 2, 2}; /* Offset to next interlace block in the y direction */
 #endif
-
 	png_debug(1, "in png_write_finish_row");
-
 	/* Next row */
 	png_ptr->row_number++;
-
 	/* See if we are done */
 	if(png_ptr->row_number < png_ptr->num_rows)
 		return;
-
 #ifdef PNG_WRITE_INTERLACING_SUPPORTED
 	/* If interlaced, go to next pass */
 	if(png_ptr->interlaced != 0) {
@@ -1805,9 +1762,7 @@ void /* PRIVATE */ png_write_finish_row(png_structrp png_ptr)
 		}
 	}
 #endif
-
-	/* If we get here, we've just written the last row, so we need
-	   to flush the compressor */
+	// If we get here, we've just written the last row, so we need to flush the compressor 
 	png_compress_IDAT(png_ptr, NULL, 0, Z_FINISH);
 }
 
@@ -1823,9 +1778,9 @@ void /* PRIVATE */ png_do_write_interlace(png_row_infop row_info, png_bytep row,
 {
 	/* Arrays to facilitate easy interlacing - use pass (0 - 6) as index */
 	/* Start of interlace block */
-	static PNG_CONST uint8 png_pass_start[7] = {0, 4, 0, 2, 0, 1, 0};
+	static const uint8 png_pass_start[7] = {0, 4, 0, 2, 0, 1, 0};
 	/* Offset to next interlace block */
-	static PNG_CONST uint8 png_pass_inc[7] = {8, 8, 4, 4, 2, 2, 1};
+	static const uint8 png_pass_inc[7] = {8, 8, 4, 4, 2, 2, 1};
 	png_debug(1, "in png_do_write_interlace");
 	/* We don't have to do anything on the last pass (6) */
 	if(pass < 6) {
@@ -1835,16 +1790,14 @@ void /* PRIVATE */ png_do_write_interlace(png_row_infop row_info, png_bytep row,
 		    {
 			    png_bytep sp;
 			    png_bytep dp;
-			    unsigned int shift;
+			    uint shift;
 			    int d;
 			    int value;
 			    uint32 i;
 			    uint32 row_width = row_info->width;
-
 			    dp = row;
 			    d = 0;
 			    shift = 7;
-
 			    for(i = png_pass_start[pass]; i < row_width; i += png_pass_inc[pass]) {
 				    sp = row + (size_t)(i >> 3);
 				    value = (int)(*sp >> (7 - (int)(i & 0x07))) & 0x01;
@@ -1868,22 +1821,18 @@ void /* PRIVATE */ png_do_write_interlace(png_row_infop row_info, png_bytep row,
 		    {
 			    png_bytep sp;
 			    png_bytep dp;
-			    unsigned int shift;
+			    uint shift;
 			    int d;
 			    int value;
 			    uint32 i;
 			    uint32 row_width = row_info->width;
-
 			    dp = row;
 			    shift = 6;
 			    d = 0;
-
-			    for(i = png_pass_start[pass]; i < row_width;
-				    i += png_pass_inc[pass]) {
+			    for(i = png_pass_start[pass]; i < row_width; i += png_pass_inc[pass]) {
 				    sp = row + (size_t)(i >> 2);
 				    value = (*sp >> ((3 - (int)(i & 0x03)) << 1)) & 0x03;
 				    d |= (value << shift);
-
 				    if(shift == 0) {
 					    shift = 6;
 					    *dp++ = (uint8)d;
@@ -1903,17 +1852,15 @@ void /* PRIVATE */ png_do_write_interlace(png_row_infop row_info, png_bytep row,
 		    {
 			    png_bytep sp;
 			    png_bytep dp;
-			    unsigned int shift;
+			    uint shift;
 			    int d;
 			    int value;
 			    uint32 i;
 			    uint32 row_width = row_info->width;
-
 			    dp = row;
 			    shift = 4;
 			    d = 0;
-			    for(i = png_pass_start[pass]; i < row_width;
-				    i += png_pass_inc[pass]) {
+			    for(i = png_pass_start[pass]; i < row_width; i += png_pass_inc[pass]) {
 				    sp = row + (size_t)(i >> 1);
 				    value = (*sp >> ((1 - (int)(i & 0x01)) << 2)) & 0x0f;
 				    d |= (value << shift);
@@ -2175,7 +2122,7 @@ void /* PRIVATE */ png_write_find_filter(png_structrp png_ptr, png_row_infop row
 		best_row = png_ptr->try_row;
 	}
 	else if((filter_to_do & PNG_FILTER_AVG) != 0) {
-		size_t lmins = mins;
+		const size_t lmins = mins;
 		size_t sum = png_setup_avg_row(png_ptr, bpp, row_bytes, lmins);
 		if(sum < mins) {
 			mins = sum;

@@ -1355,7 +1355,7 @@ inline bool CodeGeneratorRequest::has_compiler_version() const {
   return _internal_has_compiler_version();
 }
 inline void CodeGeneratorRequest::clear_compiler_version() {
-  if (compiler_version_ != nullptr) compiler_version_->Clear();
+  if(compiler_version_ != nullptr) compiler_version_->Clear();
   _has_bits_[0] &= ~0x00000002u;
 }
 inline const ::PROTOBUF_NAMESPACE_ID::compiler::Version& CodeGeneratorRequest::_internal_compiler_version() const {

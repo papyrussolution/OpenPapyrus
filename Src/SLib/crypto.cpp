@@ -135,6 +135,21 @@ int SSecretTagPool::GeneratePrivateKey(uint bitCount)
 	return ok;
 }
 
+SJson * SSecretTagPool::GetJson(uint tag) const
+{
+	SJson * p_js = 0;
+	SBinaryChunk bch;
+	if(Get(tag, &bch)) {
+		SString temp_buf;
+		if(bch.ToRawStr(temp_buf)) {
+			p_js = SJson::Parse(temp_buf);
+			if(p_js && !p_js->IsValid())
+				ZDELETE(p_js);
+		}
+	}
+	return p_js;
+}
+
 SlCrypto::CipherProperties::CipherProperties() : BlockSize(0), KeySize(0), IvSize(0), AadSize(0)
 {
 }

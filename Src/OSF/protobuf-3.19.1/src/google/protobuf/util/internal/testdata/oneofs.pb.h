@@ -1212,7 +1212,7 @@ inline void OneOfsRequest::set_has_str_data() {
   _oneof_case_[0] = kStrData;
 }
 inline void OneOfsRequest::clear_str_data() {
-  if (_internal_has_str_data()) {
+  if(_internal_has_str_data()) {
     data_.str_data_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_data();
   }
@@ -1294,7 +1294,7 @@ inline void OneOfsRequest::set_has_int_data() {
   _oneof_case_[0] = kIntData;
 }
 inline void OneOfsRequest::clear_int_data() {
-  if (_internal_has_int_data()) {
+  if(_internal_has_int_data()) {
     data_.int_data_ = 0;
     clear_has_data();
   }
@@ -1332,8 +1332,8 @@ inline void OneOfsRequest::set_has_message_data() {
   _oneof_case_[0] = kMessageData;
 }
 inline void OneOfsRequest::clear_message_data() {
-  if (_internal_has_message_data()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_message_data()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete data_.message_data_;
     }
     clear_has_data();
@@ -1406,8 +1406,8 @@ inline void OneOfsRequest::set_has_more_data() {
   _oneof_case_[0] = kMoreData;
 }
 inline void OneOfsRequest::clear_more_data() {
-  if (_internal_has_more_data()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_more_data()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete data_.more_data_;
     }
     clear_has_data();
@@ -1894,7 +1894,7 @@ inline void RequestWithSimpleOneof::set_has_str_data() {
   _oneof_case_[0] = kStrData;
 }
 inline void RequestWithSimpleOneof::clear_str_data() {
-  if (_internal_has_str_data()) {
+  if(_internal_has_str_data()) {
     data_.str_data_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_data();
   }
@@ -1976,7 +1976,7 @@ inline void RequestWithSimpleOneof::set_has_int_data() {
   _oneof_case_[0] = kIntData;
 }
 inline void RequestWithSimpleOneof::clear_int_data() {
-  if (_internal_has_int_data()) {
+  if(_internal_has_int_data()) {
     data_.int_data_ = 0;
     clear_has_data();
   }
@@ -2014,8 +2014,8 @@ inline void RequestWithSimpleOneof::set_has_message_data() {
   _oneof_case_[0] = kMessageData;
 }
 inline void RequestWithSimpleOneof::clear_message_data() {
-  if (_internal_has_message_data()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_message_data()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete data_.message_data_;
     }
     clear_has_data();
@@ -2088,8 +2088,8 @@ inline void RequestWithSimpleOneof::set_has_more_data() {
   _oneof_case_[0] = kMoreData;
 }
 inline void RequestWithSimpleOneof::clear_more_data() {
-  if (_internal_has_more_data()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_more_data()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete data_.more_data_;
     }
     clear_has_data();

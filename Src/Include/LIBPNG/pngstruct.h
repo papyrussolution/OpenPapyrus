@@ -332,8 +332,8 @@ struct png_struct_def {
 #endif
 #endif
 #ifdef PNG_SET_UNKNOWN_CHUNKS_SUPPORTED
-	int unknown_default; /* As PNG_HANDLE_* */
-	unsigned int num_chunk_list; /* Number of entries in the list */
+	int  unknown_default; /* As PNG_HANDLE_* */
+	uint num_chunk_list; /* Number of entries in the list */
 	png_bytep chunk_list; // List of uint8[5]; the textual chunk name followed by a PNG_HANDLE_* byte 
 #endif
 	//

@@ -195,14 +195,14 @@ U_CAPI void U_EXPORT2 ucm_addState(UCMStates * states, const char * s) {
 	const char * error;
 
 	if(states->countStates==MBCS_MAX_STATE_COUNT) {
-		fprintf(stderr, "ucm error: too many states (maximum %u)\n", MBCS_MAX_STATE_COUNT);
+		slfprintf_stderr("ucm error: too many states (maximum %u)\n", MBCS_MAX_STATE_COUNT);
 		exit(U_INVALID_TABLE_FORMAT);
 	}
 
 	error = parseState(s, states->stateTable[states->countStates],
 		&states->stateFlags[states->countStates]);
 	if(error!=NULL) {
-		fprintf(stderr, "ucm error: parse error in state definition at '%s'\n", error);
+		slfprintf_stderr("ucm error: parse error in state definition at '%s'\n", error);
 		exit(U_INVALID_TABLE_FORMAT);
 	}
 
@@ -241,13 +241,13 @@ U_CAPI bool U_EXPORT2 ucm_parseHeaderLine(UCMFile * ucm,
 
 	/* get the key name, bracketed in <> */
 	if(*s!='<') {
-		fprintf(stderr, "ucm error: no header field <key> in line \"%s\"\n", line);
+		slfprintf_stderr("ucm error: no header field <key> in line \"%s\"\n", line);
 		exit(U_INVALID_TABLE_FORMAT);
 	}
 	*pKey = ++s;
 	while(*s!='>') {
 		if(*s==0) {
-			fprintf(stderr, "ucm error: incomplete header field <key> in line \"%s\"\n", line);
+			slfprintf_stderr("ucm error: incomplete header field <key> in line \"%s\"\n", line);
 			exit(U_INVALID_TABLE_FORMAT);
 		}
 		++s;
@@ -282,7 +282,7 @@ U_CAPI bool U_EXPORT2 ucm_parseHeaderLine(UCMFile * ucm,
 			states->conversionType = UCNV_EBCDIC_STATEFUL;
 		}
 		else {
-			fprintf(stderr, "ucm error: unknown <uconv_class> %s\n", *pValue);
+			slfprintf_stderr("ucm error: unknown <uconv_class> %s\n", *pValue);
 			exit(U_INVALID_TABLE_FORMAT);
 		}
 		return TRUE;
@@ -294,7 +294,7 @@ U_CAPI bool U_EXPORT2 ucm_parseHeaderLine(UCMFile * ucm,
 			states->outputType = (int8_t)(states->maxCharLength-1);
 		}
 		else {
-			fprintf(stderr, "ucm error: illegal <mb_cur_max> %s\n", *pValue);
+			slfprintf_stderr("ucm error: illegal <mb_cur_max> %s\n", *pValue);
 			exit(U_INVALID_TABLE_FORMAT);
 		}
 		return TRUE;
@@ -305,7 +305,7 @@ U_CAPI bool U_EXPORT2 ucm_parseHeaderLine(UCMFile * ucm,
 			states->minCharLength = (int8_t)(c-'0');
 		}
 		else {
-			fprintf(stderr, "ucm error: illegal <mb_cur_min> %s\n", *pValue);
+			slfprintf_stderr("ucm error: illegal <mb_cur_min> %s\n", *pValue);
 			exit(U_INVALID_TABLE_FORMAT);
 		}
 		return TRUE;
@@ -321,12 +321,12 @@ U_CAPI bool U_EXPORT2 ucm_parseHeaderLine(UCMFile * ucm,
 			case UCNV_MBCS:
 			    break;
 			default:
-			    fprintf(stderr, "ucm error: <icu:state> entry for non-MBCS table or before the <uconv_class> line\n");
+			    slfprintf_stderr("ucm error: <icu:state> entry for non-MBCS table or before the <uconv_class> line\n");
 			    exit(U_INVALID_TABLE_FORMAT);
 		}
 
 		if(states->maxCharLength==0) {
-			fprintf(stderr, "ucm error: <icu:state> before the <mb_cur_max> line\n");
+			slfprintf_stderr("ucm error: <icu:state> before the <mb_cur_max> line\n");
 			exit(U_INVALID_TABLE_FORMAT);
 		}
 		ucm_addState(states, *pValue);
@@ -334,7 +334,7 @@ U_CAPI bool U_EXPORT2 ucm_parseHeaderLine(UCMFile * ucm,
 	}
 	else if(uprv_strcmp(*pKey, "icu:base")==0) {
 		if(**pValue==0) {
-			fprintf(stderr, "ucm error: <icu:base> without a base table name\n");
+			slfprintf_stderr("ucm error: <icu:base> without a base table name\n");
 			exit(U_INVALID_TABLE_FORMAT);
 		}
 		uprv_strcpy(ucm->baseName, *pValue);
@@ -412,7 +412,7 @@ static int32_t sumUpStates(UCMStates * states) {
 	}
 
 	if(!allStatesReady) {
-		fprintf(stderr, "ucm error: the state table contains loops\n");
+		slfprintf_stderr("ucm error: the state table contains loops\n");
 		exit(U_INVALID_TABLE_FORMAT);
 	}
 
@@ -443,7 +443,7 @@ U_CAPI void U_EXPORT2 ucm_processStates(UCMStates * states, bool ignoreSISOCheck
 	int32_t entry, state, cell, count;
 
 	if(states->conversionType==UCNV_UNSUPPORTED_CONVERTER) {
-		fprintf(stderr, "ucm error: missing conversion type (<uconv_class>)\n");
+		slfprintf_stderr("ucm error: missing conversion type (<uconv_class>)\n");
 		exit(U_INVALID_TABLE_FORMAT);
 	}
 
@@ -452,20 +452,20 @@ U_CAPI void U_EXPORT2 ucm_processStates(UCMStates * states, bool ignoreSISOCheck
 			case UCNV_SBCS:
 			    /* SBCS: use MBCS data structure with a default state table */
 			    if(states->maxCharLength!=1) {
-				    fprintf(stderr, "error: SBCS codepage with max B/char!=1\n");
+				    slfprintf_stderr("error: SBCS codepage with max B/char!=1\n");
 				    exit(U_INVALID_TABLE_FORMAT);
 			    }
 			    states->conversionType = UCNV_MBCS;
 			    ucm_addState(states, "0-ff");
 			    break;
 			case UCNV_MBCS:
-			    fprintf(stderr, "ucm error: missing state table information (<icu:state>) for MBCS\n");
+			    slfprintf_stderr("ucm error: missing state table information (<icu:state>) for MBCS\n");
 			    exit(U_INVALID_TABLE_FORMAT);
 			    break;
 			case UCNV_EBCDIC_STATEFUL:
 			    /* EBCDIC_STATEFUL: use MBCS data structure with a default state table */
 			    if(states->minCharLength!=1 || states->maxCharLength!=2) {
-				    fprintf(stderr, "error: DBCS codepage with min B/char!=1 or max B/char!=2\n");
+				    slfprintf_stderr("error: DBCS codepage with min B/char!=1 or max B/char!=2\n");
 				    exit(U_INVALID_TABLE_FORMAT);
 			    }
 			    states->conversionType = UCNV_MBCS;
@@ -478,7 +478,7 @@ U_CAPI void U_EXPORT2 ucm_processStates(UCMStates * states, bool ignoreSISOCheck
 			case UCNV_DBCS:
 			    /* DBCS: use MBCS data structure with a default state table */
 			    if(states->minCharLength!=2 || states->maxCharLength!=2) {
-				    fprintf(stderr, "error: DBCS codepage with min or max B/char!=2\n");
+				    slfprintf_stderr("error: DBCS codepage with min or max B/char!=2\n");
 				    exit(U_INVALID_TABLE_FORMAT);
 			    }
 			    states->conversionType = UCNV_MBCS;
@@ -488,7 +488,7 @@ U_CAPI void U_EXPORT2 ucm_processStates(UCMStates * states, bool ignoreSISOCheck
 			    ucm_addState(states, "");
 			    break;
 			default:
-			    fprintf(stderr, "ucm error: unknown charset structure\n");
+			    slfprintf_stderr("ucm error: unknown charset structure\n");
 			    exit(U_INVALID_TABLE_FORMAT);
 			    break;
 		}
@@ -501,7 +501,7 @@ U_CAPI void U_EXPORT2 ucm_processStates(UCMStates * states, bool ignoreSISOCheck
 	 * but these simple checks cover most state tables in practice
 	 */
 	if(states->maxCharLength<states->minCharLength) {
-		fprintf(stderr, "ucm error: max B/char < min B/char\n");
+		slfprintf_stderr("ucm error: max B/char < min B/char\n");
 		exit(U_INVALID_TABLE_FORMAT);
 	}
 
@@ -513,7 +513,7 @@ U_CAPI void U_EXPORT2 ucm_processStates(UCMStates * states, bool ignoreSISOCheck
 		}
 	}
 	if(states->maxCharLength>count+1) {
-		fprintf(stderr, "ucm error: max B/char too large\n");
+		slfprintf_stderr("ucm error: max B/char too large\n");
 		exit(U_INVALID_TABLE_FORMAT);
 	}
 
@@ -535,7 +535,7 @@ U_CAPI void U_EXPORT2 ucm_processStates(UCMStates * states, bool ignoreSISOCheck
 		}
 
 		if(cell==256) {
-			fprintf(stderr, "ucm warning: min B/char too small\n");
+			slfprintf_stderr("ucm warning: min B/char too small\n");
 		}
 	}
 
@@ -548,18 +548,18 @@ U_CAPI void U_EXPORT2 ucm_processStates(UCMStates * states, bool ignoreSISOCheck
 		for(cell = 0; cell<256; ++cell) {
 			entry = states->stateTable[state][cell];
 			if((uint8_t)MBCS_ENTRY_STATE(entry)>=states->countStates) {
-				fprintf(stderr, "ucm error: state table entry [%x][%x] has a next state of %x that is too high\n",
+				slfprintf_stderr("ucm error: state table entry [%x][%x] has a next state of %x that is too high\n",
 				    (int)state, (int)cell, (int)MBCS_ENTRY_STATE(entry));
 				exit(U_INVALID_TABLE_FORMAT);
 			}
 			if(MBCS_ENTRY_IS_FINAL(entry) && (states->stateFlags[MBCS_ENTRY_STATE(entry)]&0xf)!=MBCS_STATE_FLAG_DIRECT) {
-				fprintf(stderr, "ucm error: state table entry [%x][%x] is final but has a non-initial next state of %x\n",
+				slfprintf_stderr("ucm error: state table entry [%x][%x] is final but has a non-initial next state of %x\n",
 				    (int)state, (int)cell, (int)MBCS_ENTRY_STATE(entry));
 				exit(U_INVALID_TABLE_FORMAT);
 			}
 			else if(MBCS_ENTRY_IS_TRANSITION(entry) &&
 			    (states->stateFlags[MBCS_ENTRY_STATE(entry)]&0xf)==MBCS_STATE_FLAG_DIRECT) {
-				fprintf(stderr, "ucm error: state table entry [%x][%x] is not final but has an initial next state of %x\n",
+				slfprintf_stderr("ucm error: state table entry [%x][%x] is not final but has an initial next state of %x\n",
 				    (int)state, (int)cell, (int)MBCS_ENTRY_STATE(entry));
 				exit(U_INVALID_TABLE_FORMAT);
 			}
@@ -569,11 +569,11 @@ U_CAPI void U_EXPORT2 ucm_processStates(UCMStates * states, bool ignoreSISOCheck
 	/* is this an SI/SO (like EBCDIC-stateful) state table? */
 	if(states->countStates>=2 && (states->stateFlags[1]&0xf)==MBCS_STATE_FLAG_DIRECT) {
 		if(states->maxCharLength!=2) {
-			fprintf(stderr, "ucm error: SI/SO codepages must have max 2 bytes/char (not %x)\n", (int)states->maxCharLength);
+			slfprintf_stderr("ucm error: SI/SO codepages must have max 2 bytes/char (not %x)\n", (int)states->maxCharLength);
 			exit(U_INVALID_TABLE_FORMAT);
 		}
 		if(states->countStates<3) {
-			fprintf(stderr, "ucm error: SI/SO codepages must have at least 3 states (not %x)\n", (int)states->countStates);
+			slfprintf_stderr("ucm error: SI/SO codepages must have at least 3 states (not %x)\n", (int)states->countStates);
 			exit(U_INVALID_TABLE_FORMAT);
 		}
 		/* are the SI/SO all in the right places? */
@@ -586,7 +586,7 @@ U_CAPI void U_EXPORT2 ucm_processStates(UCMStates * states, bool ignoreSISOCheck
 			states->outputType = MBCS_OUTPUT_2_SISO;
 		}
 		else {
-			fprintf(stderr, "ucm error: SI/SO codepages must have in states 0 and 1 transitions e:1.s, f:0.s\n");
+			slfprintf_stderr("ucm error: SI/SO codepages must have in states 0 and 1 transitions e:1.s, f:0.s\n");
 			exit(U_INVALID_TABLE_FORMAT);
 		}
 		state = 2;
@@ -598,7 +598,7 @@ U_CAPI void U_EXPORT2 ucm_processStates(UCMStates * states, bool ignoreSISOCheck
 	/* check that no unexpected state is a "direct" one */
 	while(state<states->countStates) {
 		if((states->stateFlags[state]&0xf)==MBCS_STATE_FLAG_DIRECT) {
-			fprintf(stderr, "ucm error: state %d is 'initial' - not supported except for SI/SO codepages\n", (int)state);
+			slfprintf_stderr("ucm error: state %d is 'initial' - not supported except for SI/SO codepages\n", (int)state);
 			exit(U_INVALID_TABLE_FORMAT);
 		}
 		++state;
@@ -723,14 +723,14 @@ static void compactToUnicode2(UCMStates * states,
 		printf("compacting toUnicode data saves %ld bytes\n", (long)savings);
 	}
 	if(states->countStates>=MBCS_MAX_STATE_COUNT) {
-		fprintf(stderr, "cannot compact toUnicode because the maximum number of states is reached\n");
+		slfprintf_stderr("cannot compact toUnicode because the maximum number of states is reached\n");
 		return;
 	}
 
 	/* make a copy of the state table */
 	oldStateTable = (int32_t(*)[256])uprv_malloc(states->countStates*1024);
 	if(oldStateTable==NULL) {
-		fprintf(stderr, "cannot compact toUnicode: out of memory\n");
+		slfprintf_stderr("cannot compact toUnicode: out of memory\n");
 		return;
 	}
 	uprv_memcpy(oldStateTable, states->stateTable, states->countStates*1024);
@@ -781,7 +781,7 @@ static void compactToUnicode2(UCMStates * states,
 	}
 	*pUnicodeCodeUnits = (uint16_t*)uprv_malloc(sum*sizeof(uint16_t));
 	if(*pUnicodeCodeUnits==NULL) {
-		fprintf(stderr, "cannot compact toUnicode: out of memory allocating %ld 16-bit code units\n",
+		slfprintf_stderr("cannot compact toUnicode: out of memory allocating %ld 16-bit code units\n",
 		    (long)sum);
 		/* revert to the old state table */
 		*pUnicodeCodeUnits = oldUnicodeCodeUnits;
@@ -1018,7 +1018,7 @@ U_CAPI int32_t U_EXPORT2 ucm_countChars(UCMStates * states,
 	state = 0;
 
 	if(states->countStates==0) {
-		fprintf(stderr, "ucm error: there is no state information!\n");
+		slfprintf_stderr("ucm error: there is no state information!\n");
 		return -1;
 	}
 
@@ -1041,10 +1041,10 @@ U_CAPI int32_t U_EXPORT2 ucm_countChars(UCMStates * states,
 		else {
 			switch(MBCS_ENTRY_FINAL_ACTION(entry)) {
 				case MBCS_STATE_ILLEGAL:
-				    fprintf(stderr, "ucm error: byte sequence ends in illegal state\n");
+				    slfprintf_stderr("ucm error: byte sequence ends in illegal state\n");
 				    return -1;
 				case MBCS_STATE_CHANGE_ONLY:
-				    fprintf(stderr, "ucm error: byte sequence ends in state-change-only\n");
+				    slfprintf_stderr("ucm error: byte sequence ends in state-change-only\n");
 				    return -1;
 				case MBCS_STATE_UNASSIGNED:
 				case MBCS_STATE_FALLBACK_DIRECT_16:
@@ -1060,7 +1060,7 @@ U_CAPI int32_t U_EXPORT2 ucm_countChars(UCMStates * states,
 				    break;
 				default:
 				    /* reserved, must never occur */
-				    fprintf(stderr, "ucm error: byte sequence reached reserved action code, entry: 0x%02lx\n",
+				    slfprintf_stderr("ucm error: byte sequence reached reserved action code, entry: 0x%02lx\n",
 					(unsigned long)entry);
 				    return -1;
 			}
@@ -1068,7 +1068,7 @@ U_CAPI int32_t U_EXPORT2 ucm_countChars(UCMStates * states,
 	}
 
 	if(offset!=0) {
-		fprintf(stderr, "ucm error: byte sequence too short, ends in non-final state %u\n", state);
+		slfprintf_stderr("ucm error: byte sequence too short, ends in non-final state %u\n", state);
 		return -1;
 	}
 
@@ -1077,7 +1077,7 @@ U_CAPI int32_t U_EXPORT2 ucm_countChars(UCMStates * states,
 	 * must consist of only double-byte sequences
 	 */
 	if(count>1 && states->outputType==MBCS_OUTPUT_2_SISO && length!=2*count) {
-		fprintf(stderr, "ucm error: SI/SO (like EBCDIC-stateful) result with %d characters does not contain all DBCS\n",
+		slfprintf_stderr("ucm error: SI/SO (like EBCDIC-stateful) result with %d characters does not contain all DBCS\n",
 		    (int)count);
 		return -1;
 	}

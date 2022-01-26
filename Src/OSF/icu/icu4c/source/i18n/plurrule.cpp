@@ -616,7 +616,7 @@ void PluralRuleParser::parse(const UnicodeString & ruleData, PluralRules * prule
 			case tNumber:
 			    U_ASSERT(curAndConstraint != nullptr);
 			    if((curAndConstraint->op==AndConstraint::MOD)&&
-				(curAndConstraint->opNum == -1 ) ) {
+				(curAndConstraint->opNum == -1 )) {
 				    curAndConstraint->opNum = getNumberValue(token);
 			    }
 			    else {
@@ -1065,7 +1065,7 @@ void RuleChain::dumpRules(UnicodeString & result) {
 				if((andRule->op==AndConstraint::NONE) &&  (andRule->rangeList==nullptr) && (andRule->value == -1)) {
 					// Empty Rules.
 				}
-				else if((andRule->op==AndConstraint::NONE) && (andRule->rangeList==nullptr) ) {
+				else if((andRule->op==AndConstraint::NONE) && (andRule->rangeList==nullptr)) {
 					result += tokenString(andRule->digitsType);
 					result += UNICODE_STRING_SIMPLE(" is ");
 					if(andRule->negated) {

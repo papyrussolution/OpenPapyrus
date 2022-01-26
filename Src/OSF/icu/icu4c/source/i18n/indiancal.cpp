@@ -328,7 +328,7 @@ static void U_CALLCONV initializeSystemDefaultCentury()
 	UErrorCode status = U_ZERO_ERROR;
 
 	IndianCalendar calendar(Locale("@calendar=Indian"), status);
-	if(U_SUCCESS(status) ) {
+	if(U_SUCCESS(status)) {
 		calendar.setTime(Calendar::getNow(), status);
 		calendar.add(UCAL_YEAR, -80, status);
 

@@ -698,7 +698,7 @@ void TimeUnitFormat::deleteHash(Hashtable* htable) {
 }
 
 void TimeUnitFormat::copyHash(const Hashtable* source, Hashtable* target, UErrorCode & status) {
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		return;
 	}
 	int32_t pos = UHASH_FIRST;
@@ -713,7 +713,7 @@ void TimeUnitFormat::copyHash(const Hashtable* source, Hashtable* target, UError
 			newVal[0] = value[0]->clone();
 			newVal[1] = value[1]->clone();
 			target->put(UnicodeString(*key), newVal, status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				delete newVal[0];
 				delete newVal[1];
 				uprv_free(newVal);
@@ -744,7 +744,7 @@ U_CALLCONV tmutfmtHashTableValueComparator(UHashTok val1, UHashTok val2) {
 U_CDECL_END
 
 Hashtable* TimeUnitFormat::initHash(UErrorCode & status) {
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		return NULL;
 	}
 	Hashtable* hTable;
@@ -752,7 +752,7 @@ Hashtable* TimeUnitFormat::initHash(UErrorCode & status) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 		return NULL;
 	}
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		delete hTable;
 		return NULL;
 	}

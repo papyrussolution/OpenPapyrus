@@ -47,13 +47,13 @@ int TIFFFlush(TIFF* tif)
 	 && tif->tif_mode == O_RDWR) {
 		uint64  * offsets = NULL, * sizes = NULL;
 
-		if(TIFFIsTiled(tif) ) {
+		if(TIFFIsTiled(tif)) {
 			if(TIFFGetField(tif, TIFFTAG_TILEOFFSETS, &offsets)
 			 && TIFFGetField(tif, TIFFTAG_TILEBYTECOUNTS, &sizes)
 			 && _TIFFRewriteField(tif, TIFFTAG_TILEOFFSETS, TIFF_LONG8,
 				    tif->tif_dir.td_nstrips, offsets)
 			 && _TIFFRewriteField(tif, TIFFTAG_TILEBYTECOUNTS, TIFF_LONG8,
-				    tif->tif_dir.td_nstrips, sizes) ) {
+				    tif->tif_dir.td_nstrips, sizes)) {
 				tif->tif_flags &= ~TIFF_DIRTYSTRIP;
 				tif->tif_flags &= ~TIFF_BEENWRITING;
 				return 1;
@@ -65,7 +65,7 @@ int TIFFFlush(TIFF* tif)
 			 && _TIFFRewriteField(tif, TIFFTAG_STRIPOFFSETS, TIFF_LONG8,
 				    tif->tif_dir.td_nstrips, offsets)
 			 && _TIFFRewriteField(tif, TIFFTAG_STRIPBYTECOUNTS, TIFF_LONG8,
-				    tif->tif_dir.td_nstrips, sizes) ) {
+				    tif->tif_dir.td_nstrips, sizes)) {
 				tif->tif_flags &= ~TIFF_DIRTYSTRIP;
 				tif->tif_flags &= ~TIFF_BEENWRITING;
 				return 1;

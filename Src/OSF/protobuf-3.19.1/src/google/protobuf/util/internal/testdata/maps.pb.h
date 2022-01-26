@@ -3918,7 +3918,7 @@ inline bool MapsTestCases::has_empty_map() const {
   return _internal_has_empty_map();
 }
 inline void MapsTestCases::clear_empty_map() {
-  if (GetArenaForAllocation() == nullptr && empty_map_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && empty_map_ != nullptr) {
     delete empty_map_;
   }
   empty_map_ = nullptr;
@@ -4008,7 +4008,7 @@ inline bool MapsTestCases::has_string_to_int() const {
   return _internal_has_string_to_int();
 }
 inline void MapsTestCases::clear_string_to_int() {
-  if (GetArenaForAllocation() == nullptr && string_to_int_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && string_to_int_ != nullptr) {
     delete string_to_int_;
   }
   string_to_int_ = nullptr;
@@ -4098,7 +4098,7 @@ inline bool MapsTestCases::has_int_to_string() const {
   return _internal_has_int_to_string();
 }
 inline void MapsTestCases::clear_int_to_string() {
-  if (GetArenaForAllocation() == nullptr && int_to_string_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && int_to_string_ != nullptr) {
     delete int_to_string_;
   }
   int_to_string_ = nullptr;
@@ -4188,7 +4188,7 @@ inline bool MapsTestCases::has_mixed1() const {
   return _internal_has_mixed1();
 }
 inline void MapsTestCases::clear_mixed1() {
-  if (GetArenaForAllocation() == nullptr && mixed1_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && mixed1_ != nullptr) {
     delete mixed1_;
   }
   mixed1_ = nullptr;
@@ -4278,7 +4278,7 @@ inline bool MapsTestCases::has_mixed2() const {
   return _internal_has_mixed2();
 }
 inline void MapsTestCases::clear_mixed2() {
-  if (GetArenaForAllocation() == nullptr && mixed2_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && mixed2_ != nullptr) {
     delete mixed2_;
   }
   mixed2_ = nullptr;
@@ -4368,7 +4368,7 @@ inline bool MapsTestCases::has_map_of_objects() const {
   return _internal_has_map_of_objects();
 }
 inline void MapsTestCases::clear_map_of_objects() {
-  if (GetArenaForAllocation() == nullptr && map_of_objects_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && map_of_objects_ != nullptr) {
     delete map_of_objects_;
   }
   map_of_objects_ = nullptr;
@@ -4458,7 +4458,7 @@ inline bool MapsTestCases::has_empty_key_string_to_int1() const {
   return _internal_has_empty_key_string_to_int1();
 }
 inline void MapsTestCases::clear_empty_key_string_to_int1() {
-  if (GetArenaForAllocation() == nullptr && empty_key_string_to_int1_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && empty_key_string_to_int1_ != nullptr) {
     delete empty_key_string_to_int1_;
   }
   empty_key_string_to_int1_ = nullptr;
@@ -4548,7 +4548,7 @@ inline bool MapsTestCases::has_empty_key_string_to_int2() const {
   return _internal_has_empty_key_string_to_int2();
 }
 inline void MapsTestCases::clear_empty_key_string_to_int2() {
-  if (GetArenaForAllocation() == nullptr && empty_key_string_to_int2_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && empty_key_string_to_int2_ != nullptr) {
     delete empty_key_string_to_int2_;
   }
   empty_key_string_to_int2_ = nullptr;
@@ -4638,7 +4638,7 @@ inline bool MapsTestCases::has_empty_key_string_to_int3() const {
   return _internal_has_empty_key_string_to_int3();
 }
 inline void MapsTestCases::clear_empty_key_string_to_int3() {
-  if (GetArenaForAllocation() == nullptr && empty_key_string_to_int3_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && empty_key_string_to_int3_ != nullptr) {
     delete empty_key_string_to_int3_;
   }
   empty_key_string_to_int3_ = nullptr;
@@ -4728,7 +4728,7 @@ inline bool MapsTestCases::has_empty_key_bool_to_string() const {
   return _internal_has_empty_key_bool_to_string();
 }
 inline void MapsTestCases::clear_empty_key_bool_to_string() {
-  if (GetArenaForAllocation() == nullptr && empty_key_bool_to_string_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && empty_key_bool_to_string_ != nullptr) {
     delete empty_key_bool_to_string_;
   }
   empty_key_bool_to_string_ = nullptr;
@@ -4818,7 +4818,7 @@ inline bool MapsTestCases::has_empty_key_int_to_string() const {
   return _internal_has_empty_key_int_to_string();
 }
 inline void MapsTestCases::clear_empty_key_int_to_string() {
-  if (GetArenaForAllocation() == nullptr && empty_key_int_to_string_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && empty_key_int_to_string_ != nullptr) {
     delete empty_key_int_to_string_;
   }
   empty_key_int_to_string_ = nullptr;
@@ -4908,7 +4908,7 @@ inline bool MapsTestCases::has_empty_key_mixed() const {
   return _internal_has_empty_key_mixed();
 }
 inline void MapsTestCases::clear_empty_key_mixed() {
-  if (GetArenaForAllocation() == nullptr && empty_key_mixed_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && empty_key_mixed_ != nullptr) {
     delete empty_key_mixed_;
   }
   empty_key_mixed_ = nullptr;
@@ -4998,7 +4998,7 @@ inline bool MapsTestCases::has_empty_key_map_objects() const {
   return _internal_has_empty_key_map_objects();
 }
 inline void MapsTestCases::clear_empty_key_map_objects() {
-  if (GetArenaForAllocation() == nullptr && empty_key_map_objects_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && empty_key_map_objects_ != nullptr) {
     delete empty_key_map_objects_;
   }
   empty_key_map_objects_ = nullptr;
@@ -5884,7 +5884,7 @@ inline bool MapOutWireFormat_Map1Entry::has_value() const {
   return _internal_has_value();
 }
 inline void MapOutWireFormat_Map1Entry::clear_value() {
-  if (GetArenaForAllocation() == nullptr && value_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && value_ != nullptr) {
     delete value_;
   }
   value_ = nullptr;
@@ -6029,7 +6029,7 @@ inline bool MapOutWireFormat_Map2Entry::has_value() const {
   return _internal_has_value();
 }
 inline void MapOutWireFormat_Map2Entry::clear_value() {
-  if (GetArenaForAllocation() == nullptr && value_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && value_ != nullptr) {
     delete value_;
   }
   value_ = nullptr;

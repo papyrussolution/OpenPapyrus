@@ -230,7 +230,7 @@ static UCHARBUF* ucbuf_fillucbuf(UCHARBUF* buf, UErrorCode * error) {
 			UErrorCode error1 = U_ZERO_ERROR;
 
 			if(buf->showWarning==TRUE) {
-				fprintf(stderr, "\n###WARNING: Encountered abnormal bytes while"
+				slfprintf_stderr("\n###WARNING: Encountered abnormal bytes while"
 				    " converting input stream to target encoding: %s\n",
 				    u_errorName(*error));
 			}
@@ -259,9 +259,9 @@ static UCHARBUF* ucbuf_fillucbuf(UCHARBUF* buf, UErrorCode * error) {
 
 			if(buf->showWarning ==TRUE) {
 				/* print out the context */
-				fprintf(stderr, "\tPre-context: %s\n", preContext);
-				fprintf(stderr, "\tContext: %s\n", context);
-				fprintf(stderr, "\tPost-context: %s\n", postContext);
+				slfprintf_stderr("\tPre-context: %s\n", preContext);
+				slfprintf_stderr("\tContext: %s\n", context);
+				slfprintf_stderr("\tPost-context: %s\n", postContext);
 			}
 
 			/* reset the converter */
@@ -408,7 +408,7 @@ U_CAPI int32_t U_EXPORT2 ucbuf_getcx32(UCHARBUF* buf, UErrorCode * error)
 			}
 			context[len] = 0; /* null terminate the buffer */
 			u_UCharsToChars(buf->currentPos, context, len);
-			fprintf(stderr, "Bad escape: [%c%s]...\n", (int)c1, context);
+			slfprintf_stderr("Bad escape: [%c%s]...\n", (int)c1, context);
 		}
 		*error = U_ILLEGAL_ESCAPE_SEQUENCE;
 		return c1;
@@ -480,7 +480,7 @@ U_CAPI UCHARBUF* U_EXPORT2 ucbuf_open(const char * fileName, const char ** cp, b
 		}
 
 		if((buf->conv==NULL) && (buf->showWarning==TRUE)) {
-			fprintf(stderr, "###WARNING: No converter defined. Using codepage of system.\n");
+			slfprintf_stderr("###WARNING: No converter defined. Using codepage of system.\n");
 		}
 		buf->remaining = fileSize-buf->signatureLength;
 		if(buf->isBuffered) {
@@ -498,7 +498,7 @@ U_CAPI UCHARBUF* U_EXPORT2 ucbuf_open(const char * fileName, const char ** cp, b
 		buf->currentPos = buf->buffer;
 		buf->bufLimit = buf->buffer;
 		if(U_FAILURE(*error)) {
-			fprintf(stderr, "Could not open codepage [%s]: %s\n", *cp, u_errorName(*error));
+			slfprintf_stderr("Could not open codepage [%s]: %s\n", *cp, u_errorName(*error));
 			ucbuf_close(buf);
 			return NULL;
 		}

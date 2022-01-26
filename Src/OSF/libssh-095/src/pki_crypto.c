@@ -718,7 +718,7 @@ ssh_string pki_private_key_to_pem(const ssh_key key,
 		     * the first half of the SSH private key (the second half is the
 		     * public key) */
 		    pkey = EVP_PKEY_new_raw_private_key(EVP_PKEY_ED25519, NULL,
-			    (const uint8*)key->ed25519_privkey,
+			    (const uint8 *)key->ed25519_privkey,
 			    ED25519_KEY_LEN);
 		    if(pkey == NULL) {
 			    SSH_LOG(SSH_LOG_TRACE,
@@ -1969,7 +1969,7 @@ static EVP_PKEY * pki_key_to_pkey(ssh_key key)
 			     * the first half of the SSH private key (the second half is the
 			     * public key). Both keys have the same length (32 bytes) */
 			    pkey = EVP_PKEY_new_raw_private_key(EVP_PKEY_ED25519, NULL,
-				    (const uint8*)key->ed25519_privkey,
+				    (const uint8 *)key->ed25519_privkey,
 				    ED25519_KEY_LEN);
 		    }
 		    else {
@@ -1978,7 +1978,7 @@ static EVP_PKEY * pki_key_to_pkey(ssh_key key)
 				    goto error;
 			    }
 			    pkey = EVP_PKEY_new_raw_public_key(EVP_PKEY_ED25519, NULL,
-				    (const uint8*)key->ed25519_pubkey,
+				    (const uint8 *)key->ed25519_pubkey,
 				    ED25519_KEY_LEN);
 		    }
 		    if(pkey == NULL) {

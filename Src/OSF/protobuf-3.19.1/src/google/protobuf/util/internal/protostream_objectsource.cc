@@ -33,7 +33,6 @@
 #include <google/protobuf/util/internal/protostream_objectsource.h>
 #include <google/protobuf/stubs/stringprintf.h>
 #include <google/protobuf/io/coded_stream.h>
-#include <google/protobuf/stubs/once.h>
 #include <google/protobuf/unknown_field_set.h>
 #include <google/protobuf/wire_format_lite.h>
 #include <google/protobuf/util/internal/field_mask_utility.h>

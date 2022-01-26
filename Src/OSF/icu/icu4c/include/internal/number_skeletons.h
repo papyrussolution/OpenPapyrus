@@ -21,31 +21,23 @@ struct SeenMacroProps;
 
 // namespace for enums and entrypoint functions
 namespace skeleton {
-
-////////////////////////////////////////////////////////////////////////////////////////
+//
 // NOTE: For examples of how to add a new stem to the number skeleton parser, see:    //
 // https://github.com/unicode-org/icu/commit/a2a7982216b2348070dc71093775ac7195793d73 //
 // and                                                                                //
 // https://github.com/unicode-org/icu/commit/6fe86f3934a8a5701034f648a8f7c5087e84aa28 //
-////////////////////////////////////////////////////////////////////////////////////////
-
+//
 /**
  * While parsing a skeleton, this enum records what type of option we expect to find next.
  */
 enum ParseState {
-
     // Section 0: We expect whitespace or a stem, but not an option:
-
     STATE_NULL,
-
     // Section 1: We might accept an option, but it is not required:
-
     STATE_SCIENTIFIC,
     STATE_FRACTION_PRECISION,
     STATE_PRECISION,
-
     // Section 2: An option is required:
-
     STATE_INCREMENT_PRECISION,
     STATE_MEASURE_UNIT,
     STATE_PER_MEASURE_UNIT,

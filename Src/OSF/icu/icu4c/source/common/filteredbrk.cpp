@@ -28,7 +28,7 @@ static void _fb_trace(const char * m, const UnicodeString * s, bool b, int32_t d
 	else {
 		strcpy(buf, "NULL");
 	}
-	fprintf(stderr, "%s:%d: %s. s='%s'(%p), b=%c, d=%d\n",
+	slfprintf_stderr("%s:%d: %s. s='%s'(%p), b=%c, d=%d\n",
 	    f, l, m, buf, (const void *)s, b ? 'T' : 'F', (int)d);
 }
 
@@ -550,18 +550,18 @@ SimpleFilteredBreakIteratorBuilder::SimpleFilteredBreakIteratorBuilder(const Loc
 	if(U_SUCCESS(status)) {
 		UErrorCode subStatus = U_ZERO_ERROR;
 		LocalUResourceBundlePointer b(ures_open(U_ICUDATA_BRKITR, fromLocale.getBaseName(), &subStatus));
-		if(U_FAILURE(subStatus) || (subStatus == U_USING_DEFAULT_WARNING) ) {
+		if(U_FAILURE(subStatus) || (subStatus == U_USING_DEFAULT_WARNING)) {
 			status = subStatus; // copy the failing status
 #if FB_DEBUG
-			fprintf(stderr, "open BUNDLE %s : %s, %s\n", fromLocale.getBaseName(), "[exit]", u_errorName(status));
+			slfprintf_stderr("open BUNDLE %s : %s, %s\n", fromLocale.getBaseName(), "[exit]", u_errorName(status));
 #endif
 			return; // leaves the builder empty, if you try to use it.
 		}
 		LocalUResourceBundlePointer exceptions(ures_getByKeyWithFallback(b.getAlias(), "exceptions", NULL, &subStatus));
-		if(U_FAILURE(subStatus) || (subStatus == U_USING_DEFAULT_WARNING) ) {
+		if(U_FAILURE(subStatus) || (subStatus == U_USING_DEFAULT_WARNING)) {
 			status = subStatus; // copy the failing status
 #if FB_DEBUG
-			fprintf(stderr, "open EXCEPTIONS %s : %s, %s\n", fromLocale.getBaseName(), "[exit]", u_errorName(status));
+			slfprintf_stderr("open EXCEPTIONS %s : %s, %s\n", fromLocale.getBaseName(), "[exit]", u_errorName(status));
 #endif
 			return; // leaves the builder empty, if you try to use it.
 		}
@@ -570,15 +570,15 @@ SimpleFilteredBreakIteratorBuilder::SimpleFilteredBreakIteratorBuilder(const Loc
 #if FB_DEBUG
 		{
 			UErrorCode subsub = subStatus;
-			fprintf(stderr, "open SentenceBreak %s => %s, %s\n", fromLocale.getBaseName(),
+			slfprintf_stderr("open SentenceBreak %s => %s, %s\n", fromLocale.getBaseName(),
 			    ures_getLocale(breaks.getAlias(), &subsub), u_errorName(subStatus));
 		}
 #endif
 
-		if(U_FAILURE(subStatus) || (subStatus == U_USING_DEFAULT_WARNING) ) {
+		if(U_FAILURE(subStatus) || (subStatus == U_USING_DEFAULT_WARNING)) {
 			status = subStatus; // copy the failing status
 #if FB_DEBUG
-			fprintf(stderr, "open %s : %s, %s\n", fromLocale.getBaseName(), "[exit]", u_errorName(status));
+			slfprintf_stderr("open %s : %s, %s\n", fromLocale.getBaseName(), "[exit]", u_errorName(status));
 #endif
 			return; // leaves the builder empty, if you try to use it.
 		}

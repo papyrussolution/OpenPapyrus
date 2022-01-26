@@ -193,8 +193,8 @@ typedef enum { rep_untested, rep_not, rep_confirmed } repeat_state_e;
 typedef enum { favorCompressionRatio = 0, favorDecompressionSpeed } HCfavor_e;
 
 LZ4_FORCE_INLINE int LZ4HC_InsertAndGetWiderMatch(LZ4HC_CCtx_internal* hc4, const uint8 * const ip,
-    const uint8 * const iLowLimit, const uint8 * const iHighLimit, int longest, const uint8** matchpos,
-    const uint8** startpos, const int maxNbAttempts, const int patternAnalysis, const int chainSwap,
+    const uint8 * const iLowLimit, const uint8 * const iHighLimit, int longest, const uint8 ** matchpos,
+    const uint8 ** startpos, const int maxNbAttempts, const int patternAnalysis, const int chainSwap,
     const dictCtx_directive dict, const HCfavor_e favorDecSpeed)
 {
 	uint16* const chainTable = hc4->chainTable;
@@ -291,7 +291,7 @@ LZ4_FORCE_INLINE int LZ4HC_InsertAndGetWiderMatch(LZ4HC_CCtx_internal* hc4, cons
 			    /* may be a repeated pattern */
 			    if(repeat == rep_untested) {
 				    if( ((pattern & 0xFFFF) == (pattern >> 16))
-					&  ((pattern & 0xFF)   == (pattern >> 24)) ) {
+					&  ((pattern & 0xFF)   == (pattern >> 24))) {
 					    repeat = rep_confirmed;
 					    srcPatternLength =
 						LZ4HC_countPattern(ip+sizeof(pattern), iHighLimit, pattern) + sizeof(pattern);
@@ -308,7 +308,7 @@ LZ4_FORCE_INLINE int LZ4HC_InsertAndGetWiderMatch(LZ4HC_CCtx_internal* hc4, cons
 					    size_t const backLength = LZ4HC_reverseCountPattern(matchPtr, lowestMatchPtr, pattern);
 					    size_t const currentSegmentLength = backLength + forwardPatternLength;
 					    if((currentSegmentLength >= srcPatternLength) // current pattern segment large enough to contain full srcPatternLength 
-						&& (forwardPatternLength <= srcPatternLength) ) { // haven't reached this position yet
+						&& (forwardPatternLength <= srcPatternLength)) { // haven't reached this position yet
 						    matchIndex = matchCandidateIdx + (uint32)forwardPatternLength - (uint32)srcPatternLength; // best position, full pattern, might be followed by more match
 					    }
 					    else {
@@ -374,7 +374,7 @@ LZ4_FORCE_INLINE int LZ4HC_InsertAndGetWiderMatch(LZ4HC_CCtx_internal* hc4, cons
 }
 
 LZ4_FORCE_INLINE int LZ4HC_InsertAndFindBestMatch(LZ4HC_CCtx_internal* const hc4,   /* Index table will be updated */
-    const uint8 * const ip, const uint8 * const iLimit, const uint8** matchpos, const int maxNbAttempts, const int patternAnalysis, const dictCtx_directive dict)
+    const uint8 * const ip, const uint8 * const iLimit, const uint8 ** matchpos, const int maxNbAttempts, const int patternAnalysis, const dictCtx_directive dict)
 {
 	const uint8 * uselessPtr = ip;
 	/* note : LZ4HC_InsertAndGetWiderMatch() is able to modify the starting position of a match (*startpos),
@@ -392,7 +392,7 @@ typedef enum {
 /* LZ4HC_encodeSequence() :
  * @return : 0 if ok,
  *      1 if buffer issue detected */
-LZ4_FORCE_INLINE int LZ4HC_encodeSequence(const uint8** ip, uint8** op, const uint8** anchor, int matchLength, const uint8 * const match, limitedOutput_directive limit, uint8 * oend)
+LZ4_FORCE_INLINE int LZ4HC_encodeSequence(const uint8 ** ip, uint8 ** op, const uint8 ** anchor, int matchLength, const uint8 * const match, limitedOutput_directive limit, uint8 * oend)
 {
 	size_t length;
 	uint8 * const token = (*op)++;

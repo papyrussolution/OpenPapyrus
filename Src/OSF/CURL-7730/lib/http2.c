@@ -1542,7 +1542,7 @@ static int h2_session_send(struct Curl_easy * data,
 	struct HTTP * stream = data->req.protop;
 	if((data->set.stream_weight != data->state.stream_weight) ||
 	    (data->set.stream_depends_e != data->state.stream_depends_e) ||
-	    (data->set.stream_depends_on != data->state.stream_depends_on) ) {
+	    (data->set.stream_depends_on != data->state.stream_depends_on)) {
 		/* send new weight and/or dependency */
 		nghttp2_priority_spec pri_spec;
 		int rv;

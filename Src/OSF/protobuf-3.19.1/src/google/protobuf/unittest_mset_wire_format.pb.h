@@ -584,7 +584,7 @@ inline bool TestMessageSetWireFormatContainer::has_message_set() const {
   return _internal_has_message_set();
 }
 inline void TestMessageSetWireFormatContainer::clear_message_set() {
-  if (message_set_ != nullptr) message_set_->Clear();
+  if(message_set_ != nullptr) message_set_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::proto2_wireformat_unittest::TestMessageSet& TestMessageSetWireFormatContainer::_internal_message_set() const {

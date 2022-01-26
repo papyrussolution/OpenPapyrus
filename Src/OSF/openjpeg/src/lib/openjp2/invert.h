@@ -51,10 +51,10 @@ The function in INVERT.H compute a matrix inversion with a LUP method
  * @param pSrcMatrix    the matrix to invert.
  * @param pDestMatrix   data to store the inverted matrix.
  * @param nb_compo      size of the matrix
- * @return OPJ_TRUE if the inversion is successful, OPJ_FALSE if the matrix is singular.
+ * @return TRUE if the inversion is successful, FALSE if the matrix is singular.
  */
-OPJ_BOOL opj_matrix_inversion_f(OPJ_FLOAT32 * pSrcMatrix,
-                                OPJ_FLOAT32 * pDestMatrix,
+boolint opj_matrix_inversion_f(float * pSrcMatrix,
+                                float * pDestMatrix,
                                 OPJ_UINT32 nb_compo);
 /* ----------------------------------------------------------------------- */
 /*@}*/

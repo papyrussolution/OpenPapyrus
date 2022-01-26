@@ -82,7 +82,7 @@ void DateIntervalInfo::setIntervalPattern(const UnicodeString & skeleton,
 
 void DateIntervalInfo::setFallbackIntervalPattern(const UnicodeString & fallbackPattern,
     UErrorCode & status) {
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		return;
 	}
 	int32_t firstPatternIndex = fallbackPattern.indexOf(gFirstPattern,
@@ -116,7 +116,7 @@ DateIntervalInfo::operator = (const DateIntervalInfo &dtitvinf) {
 	deleteHash(fIntervalPatterns);
 	fIntervalPatterns = initHash(status);
 	copyHash(dtitvinf.fIntervalPatterns, fIntervalPatterns, status);
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		return *this;
 	}
 
@@ -151,18 +151,18 @@ UnicodeString &DateIntervalInfo::getIntervalPattern(const UnicodeString & skelet
     UCalendarDateFields field,
     UnicodeString & result,
     UErrorCode & status) const {
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		return result;
 	}
 
 	const UnicodeString * patternsOfOneSkeleton = (UnicodeString *)fIntervalPatterns->get(skeleton);
 	if(patternsOfOneSkeleton != nullptr) {
 		IntervalPatternIndex index = calendarFieldToIntervalIndex(field, status);
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			return result;
 		}
 		const UnicodeString & intervalPattern =  patternsOfOneSkeleton[index];
-		if(!intervalPattern.isEmpty() ) {
+		if(!intervalPattern.isEmpty()) {
 			result = intervalPattern;
 		}
 	}
@@ -420,7 +420,7 @@ void DateIntervalInfo::initializeData(const Locale & locale, UErrorCode & status
 			gIntervalDateTimePatternTag, nullptr, &status);
 		// TODO(ICU-20400): After the fixing, we should find the "fallback" from
 		// the rb directly by the path "calendar/${calendar}/intervalFormats/fallback".
-		if(U_SUCCESS(status) ) {
+		if(U_SUCCESS(status)) {
 			resStr = ures_getStringByKeyWithFallback(itvDtPtnResource, gFallbackPatternTag,
 				&resStrLen, &status);
 		}
@@ -480,7 +480,7 @@ void DateIntervalInfo::setIntervalPatternInternally(const UnicodeString & skelet
     const UnicodeString & intervalPattern,
     UErrorCode & status) {
 	IntervalPatternIndex index = calendarFieldToIntervalIndex(lrgDiffCalUnit, status);
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		return;
 	}
 	UnicodeString * patternsOfOneSkeleton = (UnicodeString *)(fIntervalPatterns->get(skeleton));
@@ -626,7 +626,7 @@ const UnicodeString * DateIntervalInfo::getBestSkeleton(const UnicodeString & sk
 				distance += DIFFERENT_FIELD;
 			}
 			else if(stringNumeric(inputFieldWidth, fieldWidth,
-			    (char)(i+BASE) ) ) {
+			    (char)(i+BASE) )) {
 				distance += STRING_NUMERIC_DIFFERENCE;
 			}
 			else {
@@ -653,7 +653,7 @@ const UnicodeString * DateIntervalInfo::getBestSkeleton(const UnicodeString & sk
 
 DateIntervalInfo::IntervalPatternIndex DateIntervalInfo::calendarFieldToIntervalIndex(UCalendarDateFields field,
     UErrorCode & status) {
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		return kIPI_MAX_INDEX;
 	}
 	IntervalPatternIndex index = kIPI_MAX_INDEX;
@@ -735,7 +735,7 @@ U_CALLCONV dtitvinfHashTableValueComparator(UHashTok val1, UHashTok val2) {
 U_CDECL_END
 
 Hashtable* DateIntervalInfo::initHash(UErrorCode & status) {
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		return nullptr;
 	}
 	Hashtable* hTable;
@@ -743,7 +743,7 @@ Hashtable* DateIntervalInfo::initHash(UErrorCode & status) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 		return nullptr;
 	}
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		delete hTable;
 		return nullptr;
 	}
@@ -754,7 +754,7 @@ Hashtable* DateIntervalInfo::initHash(UErrorCode & status) {
 void DateIntervalInfo::copyHash(const Hashtable* source,
     Hashtable* target,
     UErrorCode & status) {
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		return;
 	}
 	int32_t pos = UHASH_FIRST;
@@ -775,7 +775,7 @@ void DateIntervalInfo::copyHash(const Hashtable* source,
 				copy[i] = value[i];
 			}
 			target->put(UnicodeString(*key), copy, status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				return;
 			}
 		}

@@ -308,9 +308,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "absl", "absl.vcxproj", "{3B
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "XAPIAN", "XAPIAN", "{99AF360D-99DA-4BA0-AACE-9D02ABAE1799}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xapian-core", "..\Build2017-xapian\xapian-core.vcxproj", "{025E0EDD-F5D6-449E-B63E-3FF2490269F1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xapian-core", "xapian-core.vcxproj", "{025E0EDD-F5D6-449E-B63E-3FF2490269F1}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xapian-lang-compiler", "..\Build2017-xapian\xapian-lang-compiler.vcxproj", "{5BE00833-B4FB-491E-AF5C-AEAD42B51D4B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xapian-lang-compiler", "xapian-lang-compiler.vcxproj", "{5BE00833-B4FB-491E-AF5C-AEAD42B51D4B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

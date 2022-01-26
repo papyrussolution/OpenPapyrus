@@ -260,7 +260,6 @@ static bool lz_encoder_prepare(lzma_mf * mf, const lzma_allocator * allocator, c
 		hs |= hs >> 8;
 		hs >>= 1;
 		hs |= 0xFFFF;
-
 		if(hs > (UINT32_C(1) << 24)) {
 			if(hash_bytes == 3)
 				hs = (UINT32_C(1) << 24) - 1;

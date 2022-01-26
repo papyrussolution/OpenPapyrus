@@ -44,7 +44,7 @@ class U_I18N_API DecNum : public UMemory {
     void setTo(double d, UErrorCode & status);
 
     /** Sets the decNumber to the BCD representation. */
-    void setTo(const uint8* bcd, int32_t length, int32_t scale, bool isNegative, UErrorCode & status);
+    void setTo(const uint8 * bcd, int32_t length, int32_t scale, bool isNegative, UErrorCode & status);
 
     void normalize();
 

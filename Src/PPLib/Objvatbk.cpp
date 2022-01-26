@@ -1,5 +1,5 @@
 // OBJVATBK.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage windows-1251
 // Книги продаж и покупок
 //
@@ -3090,7 +3090,7 @@ int PPViewVatBook::Export()
 					left.Space().Cat(ver.ToStr(temp_buf));
 					n_file.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VERPROG), left);
 				}
-				n_file.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VERFORM), "5.06"); // @v10.4.2 "5.04"-->"5.06"
+				n_file.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VERFORM), "5.08"); // @v10.4.2 "5.04"-->"5.06" // @v11.2.12 "5.06"-->"5.08"
 				{
 					SXml::WNode n_doc(g.P_X, g.GetToken_Ansi(PPHSC_RU_DOCUMENT));
 					if(Filt.Kind == PPVTB_BUY) {

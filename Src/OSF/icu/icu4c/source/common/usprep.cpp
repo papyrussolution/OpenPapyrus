@@ -227,7 +227,7 @@ static bool U_CALLCONV loadData(UStringPrepProfile* profile,
 	}
 
 	p = (const int32_t*)udata_getMemory(dataMemory);
-	pb = (const uint8*)(p+_SPREP_INDEX_TOP);
+	pb = (const uint8 *)(p+_SPREP_INDEX_TOP);
 	utrie_unserialize(&_sprepTrie, pb, p[_SPREP_INDEX_TRIE_SIZE], errorCode);
 	_sprepTrie.getFoldingOffset = getSPrepFoldingOffset;
 
@@ -319,7 +319,7 @@ static UStringPrepProfile* usprep_getProfile(const char * path,
 		}
 
 		/* load the data */
-		if(!loadData(newProfile.getAlias(), path, name, _SPREP_DATA_TYPE, status) || U_FAILURE(*status) ) {
+		if(!loadData(newProfile.getAlias(), path, name, _SPREP_DATA_TYPE, status) || U_FAILURE(*status)) {
 			return NULL;
 		}
 
@@ -781,7 +781,7 @@ U_CAPI int32_t U_EXPORT2 usprep_swap(const UDataSwapper * ds,
 		return 0;
 	}
 
-	inBytes = (const uint8*)inData+headerSize;
+	inBytes = (const uint8 *)inData+headerSize;
 	outBytes = (uint8 *)outData+headerSize;
 
 	inIndexes = (const int32_t*)inBytes;

@@ -50,7 +50,7 @@ extern int main(int argc, char * argv[])
 	argc = u_parseArgs(argc, argv, UPRV_LENGTHOF(options), options);
 	/* error handling, printing usage message */
 	if(argc<0) {
-		fprintf(stderr, "error in command line argument \"%s\"\n", argv[-argc]);
+		slfprintf_stderr("error in command line argument \"%s\"\n", argv[-argc]);
 	}
 	else if(argc<2) {
 		argc = -1;

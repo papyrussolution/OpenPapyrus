@@ -643,7 +643,7 @@ void UXMLParser::error(const char * message, UErrorCode & status) {
 		ci = src.indexOf((UChar)0x0a, ci+1);
 		line++;
 	}
-	fprintf(stderr, "Error: %s at line %d\n", message, line);
+	slfprintf_stderr("Error: %s at line %d\n", message, line);
 	if(U_SUCCESS(status)) {
 		status = U_PARSE_ERROR;
 	}

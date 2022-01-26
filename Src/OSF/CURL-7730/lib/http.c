@@ -3862,7 +3862,7 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data, struct connectdata
 		}
 #endif
 		else if(!k->http_bodyless && checkprefix("Last-Modified:", headp) &&
-		    (data->set.timecondition || data->set.get_filetime) ) {
+		    (data->set.timecondition || data->set.get_filetime)) {
 			k->timeofdoc = Curl_getdate_capped(headp + strlen("Last-Modified:"));
 			if(data->set.get_filetime)
 				data->info.filetime = k->timeofdoc;

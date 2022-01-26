@@ -119,7 +119,7 @@ U_CAPI void U_EXPORT2 createCommonDataFile(const char * destDir,
 
 	line = (char *)uprv_malloc(sizeof(char) * LINE_BUFFER_SIZE);
 	if(line == NULL) {
-		fprintf(stderr, "gencmn: unable to allocate memory for line buffer of size %d\n", LINE_BUFFER_SIZE);
+		slfprintf_stderr("gencmn: unable to allocate memory for line buffer of size %d\n", LINE_BUFFER_SIZE);
 		exit(U_MEMORY_ALLOCATION_ERROR);
 	}
 
@@ -146,7 +146,7 @@ U_CAPI void U_EXPORT2 createCommonDataFile(const char * destDir,
 	else {
 		in = T_FileStream_open(dataFile, "r");
 		if(in == NULL) {
-			fprintf(stderr, "gencmn: unable to open input file %s\n", dataFile);
+			slfprintf_stderr("gencmn: unable to open input file %s\n", dataFile);
 			exit(U_FILE_ACCESS_ERROR);
 		}
 	}
@@ -208,7 +208,7 @@ U_CAPI void U_EXPORT2 createCommonDataFile(const char * destDir,
 	}
 
 	if(fileCount==0) {
-		fprintf(stderr, "gencmn: no files listed in %s\n", dataFile == NULL ? "<stdin>" : dataFile);
+		slfprintf_stderr("gencmn: no files listed in %s\n", dataFile == NULL ? "<stdin>" : dataFile);
 		return;
 	}
 
@@ -234,7 +234,7 @@ U_CAPI void U_EXPORT2 createCommonDataFile(const char * destDir,
 			copyRight == NULL ? U_COPYRIGHT_STRING : copyRight,
 			&errorCode);
 		if(U_FAILURE(errorCode)) {
-			fprintf(stderr, "gencmn: udata_create(-d %s -n %s -t %s) failed - %s\n",
+			slfprintf_stderr("gencmn: udata_create(-d %s -n %s -t %s) failed - %s\n",
 			    destDir, name, type,
 			    u_errorName(errorCode));
 			exit(errorCode);
@@ -271,7 +271,7 @@ U_CAPI void U_EXPORT2 createCommonDataFile(const char * destDir,
 			/* copy the next file */
 			file = T_FileStream_open(files[i].pathname, "rb");
 			if(!file) {
-				fprintf(stderr, "gencmn: unable to open listed file %s\n", files[i].pathname);
+				slfprintf_stderr("gencmn: unable to open listed file %s\n", files[i].pathname);
 				exit(U_FILE_ACCESS_ERROR);
 			}
 			for(nread = 0;;) {
@@ -305,7 +305,7 @@ U_CAPI void U_EXPORT2 createCommonDataFile(const char * destDir,
 		/* finish */
 		udata_finish(out, &errorCode);
 		if(U_FAILURE(errorCode)) {
-			fprintf(stderr, "gencmn: udata_finish() failed - %s\n", u_errorName(errorCode));
+			slfprintf_stderr("gencmn: udata_finish() failed - %s\n", u_errorName(errorCode));
 			exit(errorCode);
 		}
 	}
@@ -336,7 +336,7 @@ U_CAPI void U_EXPORT2 createCommonDataFile(const char * destDir,
 			uprv_strcpy(gencmnFileName, filename);
 		}
 		if(out==NULL) {
-			fprintf(stderr, "gencmn: unable to open .c output file %s\n", filename);
+			slfprintf_stderr("gencmn: unable to open .c output file %s\n", filename);
 			exit(U_FILE_ACCESS_ERROR);
 		}
 
@@ -416,7 +416,7 @@ static void addFile(const char * filename, const char * name, const char * sourc
 		fileMax += CHUNK_FILE_COUNT;
 		files = (File*)uprv_realloc(files, fileMax*sizeof(files[0])); /* note: never freed. */
 		if(files==NULL) {
-			fprintf(stderr, "pkgdata/gencmn: Could not allocate %u bytes for %d files\n",
+			slfprintf_stderr("pkgdata/gencmn: Could not allocate %u bytes for %d files\n",
 			    (unsigned int)(fileMax*sizeof(files[0])), fileCount);
 			exit(U_MEMORY_ALLOCATION_ERROR);
 		}
@@ -452,14 +452,14 @@ static void addFile(const char * filename, const char * name, const char * sourc
 		/* try to open the file */
 		file = T_FileStream_open(fullPath, "rb");
 		if(!file) {
-			fprintf(stderr, "gencmn: unable to open listed file %s\n", fullPath);
+			slfprintf_stderr("gencmn: unable to open listed file %s\n", fullPath);
 			exit(U_FILE_ACCESS_ERROR);
 		}
 
 		/* get the file length */
 		length = T_FileStream_size(file);
 		if(T_FileStream_error(file) || length<=20) {
-			fprintf(stderr, "gencmn: unable to get length of listed file %s\n", fullPath);
+			slfprintf_stderr("gencmn: unable to get length of listed file %s\n", fullPath);
 			exit(U_FILE_ACCESS_ERROR);
 		}
 
@@ -507,7 +507,7 @@ static char * allocString(uint32_t length) {
 	char * p;
 
 	if(top>STRING_STORE_SIZE) {
-		fprintf(stderr, "gencmn: out of memory\n");
+		slfprintf_stderr("gencmn: out of memory\n");
 		exit(U_MEMORY_ALLOCATION_ERROR);
 	}
 	p = stringStore+stringTop;

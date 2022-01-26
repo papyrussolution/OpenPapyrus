@@ -86,7 +86,7 @@ static void opj_default_callback(const char * msg, void * client_data)
 /* ----------------------------------------------------------------------- */
 
 /* ----------------------------------------------------------------------- */
-OPJ_BOOL opj_event_msg(opj_event_mgr_t* p_event_mgr, OPJ_INT32 event_type, const char * fmt, ...)
+boolint opj_event_msg(opj_event_mgr_t* p_event_mgr, OPJ_INT32 event_type, const char * fmt, ...)
 {
 #define OPJ_MSG_SIZE 512 /* 512 bytes should be more than enough for a short message */
 	opj_msg_callback msg_handler = 00;
@@ -109,11 +109,11 @@ OPJ_BOOL opj_event_msg(opj_event_mgr_t* p_event_mgr, OPJ_INT32 event_type, const
 			    break;
 		}
 		if(msg_handler == 00) {
-			return OPJ_FALSE;
+			return FALSE;
 		}
 	}
 	else {
-		return OPJ_FALSE;
+		return FALSE;
 	}
 	if((fmt != 00) && (p_event_mgr != 00)) {
 		va_list arg;
@@ -132,7 +132,7 @@ OPJ_BOOL opj_event_msg(opj_event_mgr_t* p_event_mgr, OPJ_INT32 event_type, const
 		msg_handler(message, l_data);
 	}
 
-	return OPJ_TRUE;
+	return TRUE;
 }
 
 void opj_set_default_event_handler(opj_event_mgr_t * p_manager)

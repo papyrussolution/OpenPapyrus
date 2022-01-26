@@ -109,6 +109,7 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;PCRE_STATIC;_DEBUG;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WIN32_WINNT=0x0600;CLAR_FIXTURE_PATH="d:/Papyrus/Src/OSF/libgit2-1.1.1/tests/resources/";CLAR_TMPDIR="libgit2_tests";_FILE_OFFSET_BITS=64;GIT_DEPRECATE_HARD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <CompileAs>CompileAsCpp</CompileAs>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WIN32_WINNT=0x0600;CLAR_FIXTURE_PATH=\"D:/develop/LibGit2/libgit2-1.1.1/tests/resources/\";CLAR_TMPDIR=\"libgit2_tests\";_FILE_OFFSET_BITS=64;GIT_DEPRECATE_HARD;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -164,6 +165,7 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;PCRE_STATIC;_DEBUG;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WIN32_WINNT=0x0600;CLAR_FIXTURE_PATH="d:/Papyrus/Src/OSF/libgit2-1.1.1/tests/resources/";CLAR_TMPDIR="libgit2_tests";_FILE_OFFSET_BITS=64;GIT_DEPRECATE_HARD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <CompileAs>CompileAsCpp</CompileAs>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WIN32_WINNT=0x0600;CLAR_FIXTURE_PATH=\"D:/develop/LibGit2/libgit2-1.1.1/tests/resources/\";CLAR_TMPDIR=\"libgit2_tests\";_FILE_OFFSET_BITS=64;GIT_DEPRECATE_HARD;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -221,6 +223,7 @@
       <DebugInformationFormat>
       </DebugInformationFormat>
       <CompileAs>CompileAsCpp</CompileAs>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WIN32_WINNT=0x0600;CLAR_FIXTURE_PATH=\"D:/develop/LibGit2/libgit2-1.1.1/tests/resources/\";CLAR_TMPDIR=\"libgit2_tests\";_FILE_OFFSET_BITS=64;GIT_DEPRECATE_HARD;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -282,6 +285,7 @@
       <DebugInformationFormat>
       </DebugInformationFormat>
       <CompileAs>CompileAsCpp</CompileAs>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WIN32_WINNT=0x0600;CLAR_FIXTURE_PATH=\"D:/develop/LibGit2/libgit2-1.1.1/tests/resources/\";CLAR_TMPDIR=\"libgit2_tests\";_FILE_OFFSET_BITS=64;GIT_DEPRECATE_HARD;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>

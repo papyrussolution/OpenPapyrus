@@ -71,7 +71,7 @@ static enum TIFFReadDirEntryErr TIFFReadDirEntryFloat(TIFF* tif, TIFFDirEntry* d
 static enum TIFFReadDirEntryErr TIFFReadDirEntryDouble(TIFF* tif, TIFFDirEntry* direntry, double* value);
 static enum TIFFReadDirEntryErr TIFFReadDirEntryIfd8(TIFF* tif, TIFFDirEntry* direntry, uint64* value);
 static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryArray(TIFF* tif, TIFFDirEntry* direntry, uint32* count, uint32 desttypesize, void ** value);
-static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryByteArray(TIFF* tif, TIFFDirEntry* direntry, uint8** value);
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryByteArray(TIFF* tif, TIFFDirEntry* direntry, uint8 ** value);
 static enum TIFFReadDirEntryErr TIFFReadDirEntrySbyteArray(TIFF* tif, TIFFDirEntry* direntry, int8** value);
 static enum TIFFReadDirEntryErr TIFFReadDirEntryShortArray(TIFF* tif, TIFFDirEntry* direntry, uint16** value);
 static enum TIFFReadDirEntryErr TIFFReadDirEntrySshortArray(TIFF* tif, TIFFDirEntry* direntry, int16** value);
@@ -860,7 +860,7 @@ static enum TIFFReadDirEntryErr TIFFReadDirEntryArrayWithLimit(TIFF* tif, TIFFDi
 	assert((tmsize_t)datasize>0);
 	if(isMapped(tif) && datasize > (uint32)tif->tif_size)
 		return TIFFReadDirEntryErrIo;
-	if(!isMapped(tif) && (((tif->tif_flags&TIFF_BIGTIFF) && datasize > 8) || (!(tif->tif_flags&TIFF_BIGTIFF) && datasize > 4)) ) {
+	if(!isMapped(tif) && (((tif->tif_flags&TIFF_BIGTIFF) && datasize > 8) || (!(tif->tif_flags&TIFF_BIGTIFF) && datasize > 4))) {
 		data = NULL;
 	}
 	else {
@@ -913,7 +913,7 @@ static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryArray(TIFF* tif, TIFFDi
 	return TIFFReadDirEntryArrayWithLimit(tif, direntry, count, desttypesize, value, ~((uint64)0));
 }
 
-static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryByteArray(TIFF* tif, TIFFDirEntry* direntry, uint8** value)
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryByteArray(TIFF* tif, TIFFDirEntry* direntry, uint8 ** value)
 {
 	enum TIFFReadDirEntryErr err;
 	uint32 count;

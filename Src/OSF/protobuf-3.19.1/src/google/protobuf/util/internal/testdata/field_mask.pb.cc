@@ -212,7 +212,7 @@ NestedFieldMask::_Internal::single_mask(const NestedFieldMask* msg) {
   return *msg->single_mask_;
 }
 void NestedFieldMask::clear_single_mask() {
-  if (GetArenaForAllocation() == nullptr && single_mask_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && single_mask_ != nullptr) {
     delete single_mask_;
   }
   single_mask_ = nullptr;
@@ -238,11 +238,11 @@ NestedFieldMask::NestedFieldMask(const NestedFieldMask& from)
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     data_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (!from._internal_data().empty()) {
+  if(!from._internal_data().empty()) {
     data_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_data(), 
       GetArenaForAllocation());
   }
-  if (from._internal_has_single_mask()) {
+  if(from._internal_has_single_mask()) {
     single_mask_ = new ::PROTOBUF_NAMESPACE_ID::FieldMask(*from.single_mask_);
   } else {
     single_mask_ = nullptr;
@@ -268,7 +268,7 @@ NestedFieldMask::~NestedFieldMask() {
 inline void NestedFieldMask::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
   data_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (this != internal_default_instance()) delete single_mask_;
+  if(this != internal_default_instance()) delete single_mask_;
 }
 
 void NestedFieldMask::ArenaDtor(void* object) {
@@ -289,7 +289,7 @@ void NestedFieldMask::Clear() {
 
   repeated_mask_.Clear();
   data_.ClearToEmpty();
-  if (GetArenaForAllocation() == nullptr && single_mask_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && single_mask_ != nullptr) {
     delete single_mask_;
   }
   single_mask_ = nullptr;
@@ -301,10 +301,10 @@ const char* NestedFieldMask::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // string data = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           auto str = _internal_mutable_data();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "proto_util_converter.testing.NestedFieldMask.data"));
@@ -314,7 +314,7 @@ const char* NestedFieldMask::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // .google.protobuf.FieldMask single_mask = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr = ctx->ParseMessage(_internal_mutable_single_mask(), ptr);
           CHK_(ptr);
         } else
@@ -322,7 +322,7 @@ const char* NestedFieldMask::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // repeated .google.protobuf.FieldMask repeated_mask = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -337,7 +337,7 @@ const char* NestedFieldMask::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -363,7 +363,7 @@ uint8_t* NestedFieldMask::_InternalSerialize(
   (void) cached_has_bits;
 
   // string data = 1;
-  if (!this->_internal_data().empty()) {
+  if(!this->_internal_data().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_data().data(), static_cast<int>(this->_internal_data().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
@@ -373,7 +373,7 @@ uint8_t* NestedFieldMask::_InternalSerialize(
   }
 
   // .google.protobuf.FieldMask single_mask = 2;
-  if (this->_internal_has_single_mask()) {
+  if(this->_internal_has_single_mask()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -388,7 +388,7 @@ uint8_t* NestedFieldMask::_InternalSerialize(
       InternalWriteMessage(3, this->_internal_repeated_mask(i), target, stream);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -406,20 +406,19 @@ size_t NestedFieldMask::ByteSizeLong() const {
 
   // repeated .google.protobuf.FieldMask repeated_mask = 3;
   total_size += 1UL * this->_internal_repeated_mask_size();
-  for (const auto& msg : this->repeated_mask_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  for(const auto& msg : this->repeated_mask_) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // string data = 1;
-  if (!this->_internal_data().empty()) {
+  if(!this->_internal_data().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_data());
   }
 
   // .google.protobuf.FieldMask single_mask = 2;
-  if (this->_internal_has_single_mask()) {
+  if(this->_internal_has_single_mask()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *single_mask_);
@@ -448,10 +447,10 @@ void NestedFieldMask::MergeFrom(const NestedFieldMask& from) {
   (void) cached_has_bits;
 
   repeated_mask_.MergeFrom(from.repeated_mask_);
-  if (!from._internal_data().empty()) {
+  if(!from._internal_data().empty()) {
     _internal_set_data(from._internal_data());
   }
-  if (from._internal_has_single_mask()) {
+  if(from._internal_has_single_mask()) {
     _internal_mutable_single_mask()->::PROTOBUF_NAMESPACE_ID::FieldMask::MergeFrom(from._internal_single_mask());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -459,7 +458,7 @@ void NestedFieldMask::MergeFrom(const NestedFieldMask& from) {
 
 void NestedFieldMask::CopyFrom(const NestedFieldMask& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:proto_util_converter.testing.NestedFieldMask)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -500,7 +499,7 @@ FieldMaskTest::_Internal::single_mask(const FieldMaskTest* msg) {
   return *msg->single_mask_;
 }
 void FieldMaskTest::clear_single_mask() {
-  if (GetArenaForAllocation() == nullptr && single_mask_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && single_mask_ != nullptr) {
     delete single_mask_;
   }
   single_mask_ = nullptr;
@@ -528,11 +527,11 @@ FieldMaskTest::FieldMaskTest(const FieldMaskTest& from)
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (!from._internal_id().empty()) {
+  if(!from._internal_id().empty()) {
     id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_id(), 
       GetArenaForAllocation());
   }
-  if (from._internal_has_single_mask()) {
+  if(from._internal_has_single_mask()) {
     single_mask_ = new ::PROTOBUF_NAMESPACE_ID::FieldMask(*from.single_mask_);
   } else {
     single_mask_ = nullptr;
@@ -558,7 +557,7 @@ FieldMaskTest::~FieldMaskTest() {
 inline void FieldMaskTest::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
   id_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (this != internal_default_instance()) delete single_mask_;
+  if(this != internal_default_instance()) delete single_mask_;
 }
 
 void FieldMaskTest::ArenaDtor(void* object) {
@@ -580,7 +579,7 @@ void FieldMaskTest::Clear() {
   repeated_mask_.Clear();
   nested_mask_.Clear();
   id_.ClearToEmpty();
-  if (GetArenaForAllocation() == nullptr && single_mask_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && single_mask_ != nullptr) {
     delete single_mask_;
   }
   single_mask_ = nullptr;
@@ -592,10 +591,10 @@ const char* FieldMaskTest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // string id = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           auto str = _internal_mutable_id();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "proto_util_converter.testing.FieldMaskTest.id"));
@@ -605,7 +604,7 @@ const char* FieldMaskTest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
         continue;
       // .google.protobuf.FieldMask single_mask = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr = ctx->ParseMessage(_internal_mutable_single_mask(), ptr);
           CHK_(ptr);
         } else
@@ -613,7 +612,7 @@ const char* FieldMaskTest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
         continue;
       // repeated .google.protobuf.FieldMask repeated_mask = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -626,7 +625,7 @@ const char* FieldMaskTest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
         continue;
       // repeated .proto_util_converter.testing.NestedFieldMask nested_mask = 4;
       case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -641,7 +640,7 @@ const char* FieldMaskTest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -667,7 +666,7 @@ uint8_t* FieldMaskTest::_InternalSerialize(
   (void) cached_has_bits;
 
   // string id = 1;
-  if (!this->_internal_id().empty()) {
+  if(!this->_internal_id().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_id().data(), static_cast<int>(this->_internal_id().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
@@ -677,7 +676,7 @@ uint8_t* FieldMaskTest::_InternalSerialize(
   }
 
   // .google.protobuf.FieldMask single_mask = 2;
-  if (this->_internal_has_single_mask()) {
+  if(this->_internal_has_single_mask()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -700,7 +699,7 @@ uint8_t* FieldMaskTest::_InternalSerialize(
       InternalWriteMessage(4, this->_internal_nested_mask(i), target, stream);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -718,27 +717,25 @@ size_t FieldMaskTest::ByteSizeLong() const {
 
   // repeated .google.protobuf.FieldMask repeated_mask = 3;
   total_size += 1UL * this->_internal_repeated_mask_size();
-  for (const auto& msg : this->repeated_mask_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  for(const auto& msg : this->repeated_mask_) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // repeated .proto_util_converter.testing.NestedFieldMask nested_mask = 4;
   total_size += 1UL * this->_internal_nested_mask_size();
-  for (const auto& msg : this->nested_mask_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  for(const auto& msg : this->nested_mask_) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // string id = 1;
-  if (!this->_internal_id().empty()) {
+  if(!this->_internal_id().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_id());
   }
 
   // .google.protobuf.FieldMask single_mask = 2;
-  if (this->_internal_has_single_mask()) {
+  if(this->_internal_has_single_mask()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *single_mask_);
@@ -768,10 +765,10 @@ void FieldMaskTest::MergeFrom(const FieldMaskTest& from) {
 
   repeated_mask_.MergeFrom(from.repeated_mask_);
   nested_mask_.MergeFrom(from.nested_mask_);
-  if (!from._internal_id().empty()) {
+  if(!from._internal_id().empty()) {
     _internal_set_id(from._internal_id());
   }
-  if (from._internal_has_single_mask()) {
+  if(from._internal_has_single_mask()) {
     _internal_mutable_single_mask()->::PROTOBUF_NAMESPACE_ID::FieldMask::MergeFrom(from._internal_single_mask());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -779,7 +776,7 @@ void FieldMaskTest::MergeFrom(const FieldMaskTest& from) {
 
 void FieldMaskTest::CopyFrom(const FieldMaskTest& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:proto_util_converter.testing.FieldMaskTest)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -887,62 +884,62 @@ FieldMaskTestCases::FieldMaskTestCases(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 FieldMaskTestCases::FieldMaskTestCases(const FieldMaskTestCases& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if (from._internal_has_single_mask()) {
+  if(from._internal_has_single_mask()) {
     single_mask_ = new ::proto_util_converter::testing::FieldMaskWrapper(*from.single_mask_);
   } else {
     single_mask_ = nullptr;
   }
-  if (from._internal_has_multiple_mask()) {
+  if(from._internal_has_multiple_mask()) {
     multiple_mask_ = new ::proto_util_converter::testing::FieldMaskWrapper(*from.multiple_mask_);
   } else {
     multiple_mask_ = nullptr;
   }
-  if (from._internal_has_snake_camel()) {
+  if(from._internal_has_snake_camel()) {
     snake_camel_ = new ::proto_util_converter::testing::FieldMaskWrapper(*from.snake_camel_);
   } else {
     snake_camel_ = nullptr;
   }
-  if (from._internal_has_empty_field()) {
+  if(from._internal_has_empty_field()) {
     empty_field_ = new ::proto_util_converter::testing::FieldMaskWrapper(*from.empty_field_);
   } else {
     empty_field_ = nullptr;
   }
-  if (from._internal_has_apiary_format1()) {
+  if(from._internal_has_apiary_format1()) {
     apiary_format1_ = new ::proto_util_converter::testing::FieldMaskWrapper(*from.apiary_format1_);
   } else {
     apiary_format1_ = nullptr;
   }
-  if (from._internal_has_apiary_format2()) {
+  if(from._internal_has_apiary_format2()) {
     apiary_format2_ = new ::proto_util_converter::testing::FieldMaskWrapper(*from.apiary_format2_);
   } else {
     apiary_format2_ = nullptr;
   }
-  if (from._internal_has_apiary_format3()) {
+  if(from._internal_has_apiary_format3()) {
     apiary_format3_ = new ::proto_util_converter::testing::FieldMaskWrapper(*from.apiary_format3_);
   } else {
     apiary_format3_ = nullptr;
   }
-  if (from._internal_has_map_key1()) {
+  if(from._internal_has_map_key1()) {
     map_key1_ = new ::proto_util_converter::testing::FieldMaskWrapper(*from.map_key1_);
   } else {
     map_key1_ = nullptr;
   }
-  if (from._internal_has_map_key2()) {
+  if(from._internal_has_map_key2()) {
     map_key2_ = new ::proto_util_converter::testing::FieldMaskWrapper(*from.map_key2_);
   } else {
     map_key2_ = nullptr;
   }
-  if (from._internal_has_map_key3()) {
+  if(from._internal_has_map_key3()) {
     map_key3_ = new ::proto_util_converter::testing::FieldMaskWrapper(*from.map_key3_);
   } else {
     map_key3_ = nullptr;
   }
-  if (from._internal_has_map_key4()) {
+  if(from._internal_has_map_key4()) {
     map_key4_ = new ::proto_util_converter::testing::FieldMaskWrapper(*from.map_key4_);
   } else {
     map_key4_ = nullptr;
   }
-  if (from._internal_has_map_key5()) {
+  if(from._internal_has_map_key5()) {
     map_key5_ = new ::proto_util_converter::testing::FieldMaskWrapper(*from.map_key5_);
   } else {
     map_key5_ = nullptr;
@@ -966,18 +963,18 @@ FieldMaskTestCases::~FieldMaskTestCases() {
 
 inline void FieldMaskTestCases::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  if (this != internal_default_instance()) delete single_mask_;
-  if (this != internal_default_instance()) delete multiple_mask_;
-  if (this != internal_default_instance()) delete snake_camel_;
-  if (this != internal_default_instance()) delete empty_field_;
-  if (this != internal_default_instance()) delete apiary_format1_;
-  if (this != internal_default_instance()) delete apiary_format2_;
-  if (this != internal_default_instance()) delete apiary_format3_;
-  if (this != internal_default_instance()) delete map_key1_;
-  if (this != internal_default_instance()) delete map_key2_;
-  if (this != internal_default_instance()) delete map_key3_;
-  if (this != internal_default_instance()) delete map_key4_;
-  if (this != internal_default_instance()) delete map_key5_;
+  if(this != internal_default_instance()) delete single_mask_;
+  if(this != internal_default_instance()) delete multiple_mask_;
+  if(this != internal_default_instance()) delete snake_camel_;
+  if(this != internal_default_instance()) delete empty_field_;
+  if(this != internal_default_instance()) delete apiary_format1_;
+  if(this != internal_default_instance()) delete apiary_format2_;
+  if(this != internal_default_instance()) delete apiary_format3_;
+  if(this != internal_default_instance()) delete map_key1_;
+  if(this != internal_default_instance()) delete map_key2_;
+  if(this != internal_default_instance()) delete map_key3_;
+  if(this != internal_default_instance()) delete map_key4_;
+  if(this != internal_default_instance()) delete map_key5_;
 }
 
 void FieldMaskTestCases::ArenaDtor(void* object) {
@@ -996,51 +993,51 @@ void FieldMaskTestCases::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  if (GetArenaForAllocation() == nullptr && single_mask_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && single_mask_ != nullptr) {
     delete single_mask_;
   }
   single_mask_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && multiple_mask_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && multiple_mask_ != nullptr) {
     delete multiple_mask_;
   }
   multiple_mask_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && snake_camel_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && snake_camel_ != nullptr) {
     delete snake_camel_;
   }
   snake_camel_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && empty_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && empty_field_ != nullptr) {
     delete empty_field_;
   }
   empty_field_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && apiary_format1_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && apiary_format1_ != nullptr) {
     delete apiary_format1_;
   }
   apiary_format1_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && apiary_format2_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && apiary_format2_ != nullptr) {
     delete apiary_format2_;
   }
   apiary_format2_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && apiary_format3_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && apiary_format3_ != nullptr) {
     delete apiary_format3_;
   }
   apiary_format3_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && map_key1_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && map_key1_ != nullptr) {
     delete map_key1_;
   }
   map_key1_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && map_key2_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && map_key2_ != nullptr) {
     delete map_key2_;
   }
   map_key2_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && map_key3_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && map_key3_ != nullptr) {
     delete map_key3_;
   }
   map_key3_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && map_key4_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && map_key4_ != nullptr) {
     delete map_key4_;
   }
   map_key4_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && map_key5_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && map_key5_ != nullptr) {
     delete map_key5_;
   }
   map_key5_ = nullptr;
@@ -1052,10 +1049,10 @@ const char* FieldMaskTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // .proto_util_converter.testing.FieldMaskWrapper single_mask = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr = ctx->ParseMessage(_internal_mutable_single_mask(), ptr);
           CHK_(ptr);
         } else
@@ -1063,7 +1060,7 @@ const char* FieldMaskTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // .proto_util_converter.testing.FieldMaskWrapper multiple_mask = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr = ctx->ParseMessage(_internal_mutable_multiple_mask(), ptr);
           CHK_(ptr);
         } else
@@ -1071,7 +1068,7 @@ const char* FieldMaskTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // .proto_util_converter.testing.FieldMaskWrapper snake_camel = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           ptr = ctx->ParseMessage(_internal_mutable_snake_camel(), ptr);
           CHK_(ptr);
         } else
@@ -1079,7 +1076,7 @@ const char* FieldMaskTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // .proto_util_converter.testing.FieldMaskWrapper empty_field = 4;
       case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
           ptr = ctx->ParseMessage(_internal_mutable_empty_field(), ptr);
           CHK_(ptr);
         } else
@@ -1087,7 +1084,7 @@ const char* FieldMaskTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // .proto_util_converter.testing.FieldMaskWrapper apiary_format1 = 5;
       case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
           ptr = ctx->ParseMessage(_internal_mutable_apiary_format1(), ptr);
           CHK_(ptr);
         } else
@@ -1095,7 +1092,7 @@ const char* FieldMaskTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // .proto_util_converter.testing.FieldMaskWrapper apiary_format2 = 6;
       case 6:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
           ptr = ctx->ParseMessage(_internal_mutable_apiary_format2(), ptr);
           CHK_(ptr);
         } else
@@ -1103,7 +1100,7 @@ const char* FieldMaskTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // .proto_util_converter.testing.FieldMaskWrapper apiary_format3 = 7;
       case 7:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
           ptr = ctx->ParseMessage(_internal_mutable_apiary_format3(), ptr);
           CHK_(ptr);
         } else
@@ -1111,7 +1108,7 @@ const char* FieldMaskTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // .proto_util_converter.testing.FieldMaskWrapper map_key1 = 8;
       case 8:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
           ptr = ctx->ParseMessage(_internal_mutable_map_key1(), ptr);
           CHK_(ptr);
         } else
@@ -1119,7 +1116,7 @@ const char* FieldMaskTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // .proto_util_converter.testing.FieldMaskWrapper map_key2 = 9;
       case 9:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
           ptr = ctx->ParseMessage(_internal_mutable_map_key2(), ptr);
           CHK_(ptr);
         } else
@@ -1127,7 +1124,7 @@ const char* FieldMaskTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // .proto_util_converter.testing.FieldMaskWrapper map_key3 = 10;
       case 10:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 82)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 82)) {
           ptr = ctx->ParseMessage(_internal_mutable_map_key3(), ptr);
           CHK_(ptr);
         } else
@@ -1135,7 +1132,7 @@ const char* FieldMaskTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // .proto_util_converter.testing.FieldMaskWrapper map_key4 = 11;
       case 11:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 90)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 90)) {
           ptr = ctx->ParseMessage(_internal_mutable_map_key4(), ptr);
           CHK_(ptr);
         } else
@@ -1143,7 +1140,7 @@ const char* FieldMaskTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // .proto_util_converter.testing.FieldMaskWrapper map_key5 = 12;
       case 12:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 98)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 98)) {
           ptr = ctx->ParseMessage(_internal_mutable_map_key5(), ptr);
           CHK_(ptr);
         } else
@@ -1153,7 +1150,7 @@ const char* FieldMaskTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -1179,7 +1176,7 @@ uint8_t* FieldMaskTestCases::_InternalSerialize(
   (void) cached_has_bits;
 
   // .proto_util_converter.testing.FieldMaskWrapper single_mask = 1;
-  if (this->_internal_has_single_mask()) {
+  if(this->_internal_has_single_mask()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1187,7 +1184,7 @@ uint8_t* FieldMaskTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.FieldMaskWrapper multiple_mask = 2;
-  if (this->_internal_has_multiple_mask()) {
+  if(this->_internal_has_multiple_mask()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1195,7 +1192,7 @@ uint8_t* FieldMaskTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.FieldMaskWrapper snake_camel = 3;
-  if (this->_internal_has_snake_camel()) {
+  if(this->_internal_has_snake_camel()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1203,7 +1200,7 @@ uint8_t* FieldMaskTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.FieldMaskWrapper empty_field = 4;
-  if (this->_internal_has_empty_field()) {
+  if(this->_internal_has_empty_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1211,7 +1208,7 @@ uint8_t* FieldMaskTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.FieldMaskWrapper apiary_format1 = 5;
-  if (this->_internal_has_apiary_format1()) {
+  if(this->_internal_has_apiary_format1()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1219,7 +1216,7 @@ uint8_t* FieldMaskTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.FieldMaskWrapper apiary_format2 = 6;
-  if (this->_internal_has_apiary_format2()) {
+  if(this->_internal_has_apiary_format2()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1227,7 +1224,7 @@ uint8_t* FieldMaskTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.FieldMaskWrapper apiary_format3 = 7;
-  if (this->_internal_has_apiary_format3()) {
+  if(this->_internal_has_apiary_format3()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1235,7 +1232,7 @@ uint8_t* FieldMaskTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.FieldMaskWrapper map_key1 = 8;
-  if (this->_internal_has_map_key1()) {
+  if(this->_internal_has_map_key1()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1243,7 +1240,7 @@ uint8_t* FieldMaskTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.FieldMaskWrapper map_key2 = 9;
-  if (this->_internal_has_map_key2()) {
+  if(this->_internal_has_map_key2()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1251,7 +1248,7 @@ uint8_t* FieldMaskTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.FieldMaskWrapper map_key3 = 10;
-  if (this->_internal_has_map_key3()) {
+  if(this->_internal_has_map_key3()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1259,7 +1256,7 @@ uint8_t* FieldMaskTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.FieldMaskWrapper map_key4 = 11;
-  if (this->_internal_has_map_key4()) {
+  if(this->_internal_has_map_key4()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1267,14 +1264,14 @@ uint8_t* FieldMaskTestCases::_InternalSerialize(
   }
 
   // .proto_util_converter.testing.FieldMaskWrapper map_key5 = 12;
-  if (this->_internal_has_map_key5()) {
+  if(this->_internal_has_map_key5()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
         12, _Internal::map_key5(this), target, stream);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -1291,84 +1288,84 @@ size_t FieldMaskTestCases::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // .proto_util_converter.testing.FieldMaskWrapper single_mask = 1;
-  if (this->_internal_has_single_mask()) {
+  if(this->_internal_has_single_mask()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *single_mask_);
   }
 
   // .proto_util_converter.testing.FieldMaskWrapper multiple_mask = 2;
-  if (this->_internal_has_multiple_mask()) {
+  if(this->_internal_has_multiple_mask()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *multiple_mask_);
   }
 
   // .proto_util_converter.testing.FieldMaskWrapper snake_camel = 3;
-  if (this->_internal_has_snake_camel()) {
+  if(this->_internal_has_snake_camel()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *snake_camel_);
   }
 
   // .proto_util_converter.testing.FieldMaskWrapper empty_field = 4;
-  if (this->_internal_has_empty_field()) {
+  if(this->_internal_has_empty_field()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *empty_field_);
   }
 
   // .proto_util_converter.testing.FieldMaskWrapper apiary_format1 = 5;
-  if (this->_internal_has_apiary_format1()) {
+  if(this->_internal_has_apiary_format1()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *apiary_format1_);
   }
 
   // .proto_util_converter.testing.FieldMaskWrapper apiary_format2 = 6;
-  if (this->_internal_has_apiary_format2()) {
+  if(this->_internal_has_apiary_format2()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *apiary_format2_);
   }
 
   // .proto_util_converter.testing.FieldMaskWrapper apiary_format3 = 7;
-  if (this->_internal_has_apiary_format3()) {
+  if(this->_internal_has_apiary_format3()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *apiary_format3_);
   }
 
   // .proto_util_converter.testing.FieldMaskWrapper map_key1 = 8;
-  if (this->_internal_has_map_key1()) {
+  if(this->_internal_has_map_key1()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *map_key1_);
   }
 
   // .proto_util_converter.testing.FieldMaskWrapper map_key2 = 9;
-  if (this->_internal_has_map_key2()) {
+  if(this->_internal_has_map_key2()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *map_key2_);
   }
 
   // .proto_util_converter.testing.FieldMaskWrapper map_key3 = 10;
-  if (this->_internal_has_map_key3()) {
+  if(this->_internal_has_map_key3()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *map_key3_);
   }
 
   // .proto_util_converter.testing.FieldMaskWrapper map_key4 = 11;
-  if (this->_internal_has_map_key4()) {
+  if(this->_internal_has_map_key4()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *map_key4_);
   }
 
   // .proto_util_converter.testing.FieldMaskWrapper map_key5 = 12;
-  if (this->_internal_has_map_key5()) {
+  if(this->_internal_has_map_key5()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *map_key5_);
@@ -1396,40 +1393,40 @@ void FieldMaskTestCases::MergeFrom(const FieldMaskTestCases& from) {
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_has_single_mask()) {
+  if(from._internal_has_single_mask()) {
     _internal_mutable_single_mask()->::proto_util_converter::testing::FieldMaskWrapper::MergeFrom(from._internal_single_mask());
   }
-  if (from._internal_has_multiple_mask()) {
+  if(from._internal_has_multiple_mask()) {
     _internal_mutable_multiple_mask()->::proto_util_converter::testing::FieldMaskWrapper::MergeFrom(from._internal_multiple_mask());
   }
-  if (from._internal_has_snake_camel()) {
+  if(from._internal_has_snake_camel()) {
     _internal_mutable_snake_camel()->::proto_util_converter::testing::FieldMaskWrapper::MergeFrom(from._internal_snake_camel());
   }
-  if (from._internal_has_empty_field()) {
+  if(from._internal_has_empty_field()) {
     _internal_mutable_empty_field()->::proto_util_converter::testing::FieldMaskWrapper::MergeFrom(from._internal_empty_field());
   }
-  if (from._internal_has_apiary_format1()) {
+  if(from._internal_has_apiary_format1()) {
     _internal_mutable_apiary_format1()->::proto_util_converter::testing::FieldMaskWrapper::MergeFrom(from._internal_apiary_format1());
   }
-  if (from._internal_has_apiary_format2()) {
+  if(from._internal_has_apiary_format2()) {
     _internal_mutable_apiary_format2()->::proto_util_converter::testing::FieldMaskWrapper::MergeFrom(from._internal_apiary_format2());
   }
-  if (from._internal_has_apiary_format3()) {
+  if(from._internal_has_apiary_format3()) {
     _internal_mutable_apiary_format3()->::proto_util_converter::testing::FieldMaskWrapper::MergeFrom(from._internal_apiary_format3());
   }
-  if (from._internal_has_map_key1()) {
+  if(from._internal_has_map_key1()) {
     _internal_mutable_map_key1()->::proto_util_converter::testing::FieldMaskWrapper::MergeFrom(from._internal_map_key1());
   }
-  if (from._internal_has_map_key2()) {
+  if(from._internal_has_map_key2()) {
     _internal_mutable_map_key2()->::proto_util_converter::testing::FieldMaskWrapper::MergeFrom(from._internal_map_key2());
   }
-  if (from._internal_has_map_key3()) {
+  if(from._internal_has_map_key3()) {
     _internal_mutable_map_key3()->::proto_util_converter::testing::FieldMaskWrapper::MergeFrom(from._internal_map_key3());
   }
-  if (from._internal_has_map_key4()) {
+  if(from._internal_has_map_key4()) {
     _internal_mutable_map_key4()->::proto_util_converter::testing::FieldMaskWrapper::MergeFrom(from._internal_map_key4());
   }
-  if (from._internal_has_map_key5()) {
+  if(from._internal_has_map_key5()) {
     _internal_mutable_map_key5()->::proto_util_converter::testing::FieldMaskWrapper::MergeFrom(from._internal_map_key5());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -1437,7 +1434,7 @@ void FieldMaskTestCases::MergeFrom(const FieldMaskTestCases& from) {
 
 void FieldMaskTestCases::CopyFrom(const FieldMaskTestCases& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:proto_util_converter.testing.FieldMaskTestCases)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -1475,7 +1472,7 @@ FieldMaskWrapper::_Internal::mask(const FieldMaskWrapper* msg) {
   return *msg->mask_;
 }
 void FieldMaskWrapper::clear_mask() {
-  if (GetArenaForAllocation() == nullptr && mask_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && mask_ != nullptr) {
     delete mask_;
   }
   mask_ = nullptr;
@@ -1492,7 +1489,7 @@ FieldMaskWrapper::FieldMaskWrapper(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 FieldMaskWrapper::FieldMaskWrapper(const FieldMaskWrapper& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if (from._internal_has_mask()) {
+  if(from._internal_has_mask()) {
     mask_ = new ::PROTOBUF_NAMESPACE_ID::FieldMask(*from.mask_);
   } else {
     mask_ = nullptr;
@@ -1513,7 +1510,7 @@ FieldMaskWrapper::~FieldMaskWrapper() {
 
 inline void FieldMaskWrapper::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  if (this != internal_default_instance()) delete mask_;
+  if(this != internal_default_instance()) delete mask_;
 }
 
 void FieldMaskWrapper::ArenaDtor(void* object) {
@@ -1532,7 +1529,7 @@ void FieldMaskWrapper::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  if (GetArenaForAllocation() == nullptr && mask_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && mask_ != nullptr) {
     delete mask_;
   }
   mask_ = nullptr;
@@ -1544,10 +1541,10 @@ const char* FieldMaskWrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // .google.protobuf.FieldMask mask = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr = ctx->ParseMessage(_internal_mutable_mask(), ptr);
           CHK_(ptr);
         } else
@@ -1557,7 +1554,7 @@ const char* FieldMaskWrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -1583,14 +1580,14 @@ uint8_t* FieldMaskWrapper::_InternalSerialize(
   (void) cached_has_bits;
 
   // .google.protobuf.FieldMask mask = 1;
-  if (this->_internal_has_mask()) {
+  if(this->_internal_has_mask()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
         1, _Internal::mask(this), target, stream);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -1607,7 +1604,7 @@ size_t FieldMaskWrapper::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // .google.protobuf.FieldMask mask = 1;
-  if (this->_internal_has_mask()) {
+  if(this->_internal_has_mask()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *mask_);
@@ -1635,7 +1632,7 @@ void FieldMaskWrapper::MergeFrom(const FieldMaskWrapper& from) {
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_has_mask()) {
+  if(from._internal_has_mask()) {
     _internal_mutable_mask()->::PROTOBUF_NAMESPACE_ID::FieldMask::MergeFrom(from._internal_mask());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -1643,7 +1640,7 @@ void FieldMaskWrapper::MergeFrom(const FieldMaskWrapper& from) {
 
 void FieldMaskWrapper::CopyFrom(const FieldMaskWrapper& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:proto_util_converter.testing.FieldMaskWrapper)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }

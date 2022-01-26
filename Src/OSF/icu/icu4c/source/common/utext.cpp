@@ -864,7 +864,7 @@ static bool U_CALLCONV utf8TextAccess(UText * ut, int64_t index, bool forward) {
 	//         call the named block as if it were a function();
 	//         return;
 	//
-	const uint8 * s8 = (const uint8*)ut->context;
+	const uint8 * s8 = (const uint8 *)ut->context;
 	UTF8Buf * u8b = NULL;
 	int32_t length = ut->b;      // Length of original utf-8
 	int32_t ix = (int32_t)index; // Requested index, trimmed to 32 bits.
@@ -1349,7 +1349,7 @@ static UChar * utext_strFromUTF8(UChar * dest,
 	UChar32 ch = 0;
 	int32_t index = 0;
 	int32_t reqLength = 0;
-	uint8* pSrc = (uint8 *)src;
+	uint8 * pSrc = (uint8 *)src;
 
 	while((index < srcLength)&&(pDest<pDestLimit)) {
 		ch = pSrc[index++];
@@ -1420,7 +1420,7 @@ static int32_t U_CALLCONV utf8TextExtract(UText * ut,
 	// adjust the incoming indexes to land on code point boundaries if needed.
 	//    adjust by no more than three, because that is the largest number of trail bytes
 	//    in a well formed UTF8 character.
-	const uint8 * buf = (const uint8*)ut->context;
+	const uint8 * buf = (const uint8 *)ut->context;
 	int i;
 	if(start32 < ut->chunkNativeLimit) {
 		for(i = 0; i<3; i++) {

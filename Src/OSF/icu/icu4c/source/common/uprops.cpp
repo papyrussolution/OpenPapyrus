@@ -87,7 +87,7 @@ void U_CALLCONV ulayout_load(UErrorCode & errorCode) {
 		return;
 	}
 
-	const uint8 * inBytes = (const uint8*)udata_getMemory(gLayoutMemory);
+	const uint8 * inBytes = (const uint8 *)udata_getMemory(gLayoutMemory);
 	const int32_t * inIndexes = (const int32_t*)inBytes;
 	int32_t indexesLength = inIndexes[ULAYOUT_IX_INDEXES_LENGTH];
 	if(indexesLength < 12) {

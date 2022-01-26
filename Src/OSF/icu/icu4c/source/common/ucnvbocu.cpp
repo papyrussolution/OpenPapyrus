@@ -435,7 +435,7 @@ fastSingle:
 		}
 	}
 	/* restore real values */
-	targetCapacity = (int32_t)((const uint8*)pArgs->targetLimit-target);
+	targetCapacity = (int32_t)((const uint8 *)pArgs->targetLimit-target);
 	sourceIndex = nextSourceIndex; /* wrong if offsets==NULL but does not matter */
 
 	/* regular loop for all cases */
@@ -692,7 +692,7 @@ fastSingle:
 		--targetCapacity;
 	}
 	/* restore real values */
-	targetCapacity = (int32_t)((const uint8*)pArgs->targetLimit-target);
+	targetCapacity = (int32_t)((const uint8 *)pArgs->targetLimit-target);
 
 	/* regular loop for all cases */
 	while(source<sourceLimit) {
@@ -971,8 +971,8 @@ static void U_CALLCONV _Bocu1ToUnicodeWithOffsets(UConverterToUnicodeArgs * pArg
 
 	/* set up the local pointers */
 	cnv = pArgs->converter;
-	source = (const uint8*)pArgs->source;
-	sourceLimit = (const uint8*)pArgs->sourceLimit;
+	source = (const uint8 *)pArgs->source;
+	sourceLimit = (const uint8 *)pArgs->sourceLimit;
 	target = pArgs->target;
 	targetLimit = pArgs->targetLimit;
 	offsets = pArgs->offsets;
@@ -1201,8 +1201,8 @@ static void U_CALLCONV _Bocu1ToUnicode(UConverterToUnicodeArgs * pArgs,
 
 	/* set up the local pointers */
 	cnv = pArgs->converter;
-	source = (const uint8*)pArgs->source;
-	sourceLimit = (const uint8*)pArgs->sourceLimit;
+	source = (const uint8 *)pArgs->source;
+	sourceLimit = (const uint8 *)pArgs->sourceLimit;
 	target = pArgs->target;
 	targetLimit = pArgs->targetLimit;
 

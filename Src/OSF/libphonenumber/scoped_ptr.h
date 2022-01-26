@@ -83,55 +83,49 @@ template <class T, int n> struct DefaultDeleter<T[n]> {
 // scoped_ptr<int, base::FreeDeleter> foo_ptr(
 //     static_cast<int*>(malloc(sizeof(int))));
 struct FreeDeleter {
-	inline void operator()(void* ptr) const {
-		free(ptr);
-	}
+	inline void operator()(void* ptr) const { free(ptr); }
 };
 
 // Minimal implementation of the core logic of scoped_ptr, suitable for
 // reuse in both scoped_ptr and its specializations.
-template <class T, class D>
-class scoped_ptr_impl {
+template <class T, class D> class scoped_ptr_impl {
 public:
-	explicit scoped_ptr_impl(T* p) : data_(p) {
+	explicit scoped_ptr_impl(T* p) : data_(p) 
+	{
 	}
-
 	// Initializer for deleters that have data parameters.
-	scoped_ptr_impl(T* p, const D& d) : data_(p, d) {
+	scoped_ptr_impl(T* p, const D& d) : data_(p, d) 
+	{
 	}
-
 	// Templated constructor that destructively takes the value from another
 	// scoped_ptr_impl.
-	template <typename U, typename V>
-	scoped_ptr_impl(scoped_ptr_impl<U, V>* other)
-		: data_(other->release(), other->get_deleter()) {
+	template <typename U, typename V> scoped_ptr_impl(scoped_ptr_impl<U, V>* other) : data_(other->release(), other->get_deleter()) 
+	{
 		// We do not support move-only deleters.  We could modify our move
 		// emulation to have base::subtle::move() and base::subtle::forward()
 		// functions that are imperfect emulations of their C++11 equivalents,
 		// but until there's a requirement, just assume deleters are copyable.
 	}
-
-	template <typename U, typename V>
-	void TakeState(scoped_ptr_impl<U, V>* other) {
+	template <typename U, typename V> void TakeState(scoped_ptr_impl<U, V>* other) 
+	{
 		// See comment in templated constructor above regarding lack of support
 		// for move-only deleters.
 		reset(other->release());
 		get_deleter() = other->get_deleter();
 	}
-
-	~scoped_ptr_impl() {
+	~scoped_ptr_impl() 
+	{
 		if(data_.ptr != NULL) {
 			// Not using get_deleter() saves one function call in non-optimized
 			// builds.
 			static_cast<D&>(data_)(data_.ptr);
 		}
 	}
-
-	void reset(T* p) {
+	void reset(T* p) 
+	{
 		// This is a self-reset, which is no longer allowed: http://crbug.com/162971
 		if(p != NULL && p == data_.ptr)
 			abort();
-
 		// Note that running data_.ptr = p can lead to undefined behavior if
 		// get_deleter()(get()) deletes this. In order to pevent this, reset()
 		// should update the stored pointer before deleting its old value.
@@ -152,20 +146,11 @@ public:
 			static_cast<D&>(data_)(old);
 		data_.ptr = p;
 	}
-
-	T* get() const {
-		return data_.ptr;
-	}
-
-	D& get_deleter() {
-		return data_;
-	}
-
-	const D& get_deleter() const {
-		return data_;
-	}
-
-	void swap(scoped_ptr_impl& p2) {
+	T* get() const { return data_.ptr; }
+	D& get_deleter() { return data_; }
+	const D& get_deleter() const { return data_; }
+	void swap(scoped_ptr_impl& p2) 
+	{
 		// Standard swap idiom: 'using std::swap' ensures that std::swap is
 		// present in the overload set, but we call swap unqualified so that
 		// any more-specific overloads can be used, if available.
@@ -173,8 +158,8 @@ public:
 		swap(static_cast<D&>(data_), static_cast<D&>(p2.data_));
 		swap(data_.ptr, p2.data_.ptr);
 	}
-
-	T* release() {
+	T* release() 
+	{
 		T* old_ptr = data_.ptr;
 		data_.ptr = NULL;
 		return old_ptr;
@@ -189,17 +174,15 @@ private:
 	// empty class.  See e.g. http://www.cantrip.org/emptyopt.html for a good
 	// discussion of this technique.
 	struct Data : public D {
-		explicit Data(T* ptr_in) : ptr(ptr_in) {
+		explicit Data(T* ptr_in) : ptr(ptr_in) 
+		{
 		}
-
-		Data(T* ptr_in, const D& other) : D(other), ptr(ptr_in) {
+		Data(T* ptr_in, const D& other) : D(other), ptr(ptr_in) 
+		{
 		}
-
 		T* ptr;
 	};
-
 	Data data_;
-
 	DISALLOW_COPY_AND_ASSIGN(scoped_ptr_impl);
 };
 
@@ -227,17 +210,18 @@ public:
 	typedef D deleter_type;
 
 	// Constructor.  Defaults to initializing with NULL.
-	scoped_ptr() : impl_(NULL) {
+	scoped_ptr() : impl_(NULL) 
+	{
 	}
 
 	// Constructor.  Takes ownership of p.
-	explicit scoped_ptr(element_type* p) : impl_(p) {
+	explicit scoped_ptr(element_type* p) : impl_(p) 
+	{
 	}
-
 	// Constructor.  Allows initialization of a stateful deleter.
-	scoped_ptr(element_type* p, const D& d) : impl_(p, d) {
+	scoped_ptr(element_type* p, const D& d) : impl_(p, d) 
+	{
 	}
-
 	// Constructor.  Allows construction from a scoped_ptr rvalue for a
 	// convertible type and deleter.
 	//
@@ -248,8 +232,8 @@ public:
 	// we do not need a separate move constructor allowing us to avoid one
 	// use of SFINAE. You only need to care about this if you modify the
 	// implementation of scoped_ptr.
-	template <typename U, typename V>
-	scoped_ptr(scoped_ptr<U, V> other) : impl_(&other.impl_) {
+	template <typename U, typename V> scoped_ptr(scoped_ptr<U, V> other) : impl_(&other.impl_) 
+	{
 		COMPILE_ASSERT(!is_array<U>::value, U_cannot_be_an_array);
 	}
 
@@ -263,49 +247,38 @@ public:
 	// separate move assignment operator allowing us to avoid one use of SFINAE.
 	// You only need to care about this if you modify the implementation of
 	// scoped_ptr.
-	template <typename U, typename V>
-	scoped_ptr& operator=(scoped_ptr<U, V> rhs) {
+	template <typename U, typename V> scoped_ptr& operator=(scoped_ptr<U, V> rhs) 
+	{
 		COMPILE_ASSERT(!is_array<U>::value, U_cannot_be_an_array);
 		impl_.TakeState(&rhs.impl_);
 		return *this;
 	}
-
 	// Reset.  Deletes the currently owned object, if any.
 	// Then takes ownership of a new object, if given.
-	void reset(element_type* p = NULL) {
+	void reset(element_type* p = NULL) 
+	{
 		impl_.reset(p);
 	}
-
 	// Accessors to get the owned object.
 	// operator* and operator-> will assert() if there is no current object.
-	element_type& operator*() const {
+	element_type& operator*() const 
+	{
 		assert(impl_.get() != NULL);
 		return *impl_.get();
 	}
-
-	element_type* operator->() const {
+	element_type* operator->() const 
+	{
 		assert(impl_.get() != NULL);
 		return impl_.get();
 	}
-
-	element_type* get() const {
-		return impl_.get();
-	}
-
+	element_type* get() const { return impl_.get(); }
 	// Access to the deleter.
-	deleter_type& get_deleter() {
-		return impl_.get_deleter();
-	}
-
-	const deleter_type& get_deleter() const {
-		return impl_.get_deleter();
-	}
-
+	deleter_type& get_deleter() { return impl_.get_deleter(); }
+	const deleter_type& get_deleter() const { return impl_.get_deleter(); }
 	// Allow scoped_ptr<element_type> to be used in boolean expressions, but not
 	// implicitly convertible to a real bool (which is dangerous).
 private:
 	typedef scoped_ptr_impl<element_type, deleter_type> scoped_ptr::* Testable;
-
 public:
 	operator Testable() const { return impl_.get() ? &scoped_ptr::impl_ : NULL; }
 
@@ -347,17 +320,15 @@ private:
 	template <class U> bool operator!=(scoped_ptr<U> const& p2) const;
 };
 
-template <class T, class D>
-class scoped_ptr<T[], D> {
+template <class T, class D> class scoped_ptr<T[], D> {
 public:
 	// The element and deleter types.
 	typedef T element_type;
 	typedef D deleter_type;
-
 	// Constructor.  Defaults to initializing with NULL.
-	scoped_ptr() : impl_(NULL) {
+	scoped_ptr() : impl_(NULL) 
+	{
 	}
-
 	// Constructor. Stores the given array. Note that the argument's type
 	// must exactly match T*. In particular:
 	// - it cannot be a pointer to a type derived from T, because it is
@@ -374,39 +345,29 @@ public:
 	//   to work around this may use implicit_cast<const T*>().
 	//   However, because of the first bullet in this comment, users MUST
 	//   NOT use implicit_cast<Base*>() to upcast the static type of the array.
-	explicit scoped_ptr(element_type* array) : impl_(array) {
+	explicit scoped_ptr(element_type* array) : impl_(array) 
+	{
 	}
-
 	// Reset.  Deletes the currently owned array, if any.
 	// Then takes ownership of a new object, if given.
-	void reset(element_type* array = NULL) {
+	void reset(element_type* array = NULL) 
+	{
 		impl_.reset(array);
 	}
-
 	// Accessors to get the owned array.
-	element_type& operator[](size_t i) const {
+	element_type& operator[](size_t i) const 
+	{
 		assert(impl_.get() != NULL);
 		return impl_.get()[i];
 	}
-
-	element_type* get() const {
-		return impl_.get();
-	}
-
+	element_type* get() const { return impl_.get(); }
 	// Access to the deleter.
-	deleter_type& get_deleter() {
-		return impl_.get_deleter();
-	}
-
-	const deleter_type& get_deleter() const {
-		return impl_.get_deleter();
-	}
-
+	deleter_type& get_deleter() { return impl_.get_deleter(); }
+	const deleter_type& get_deleter() const { return impl_.get_deleter(); }
 	// Allow scoped_ptr<element_type> to be used in boolean expressions, but not
 	// implicitly convertible to a real bool (which is dangerous).
 private:
 	typedef scoped_ptr_impl<element_type, deleter_type> scoped_ptr::* Testable;
-
 public:
 	operator Testable() const { return impl_.get() ? &scoped_ptr::impl_ : NULL; }
 
@@ -420,21 +381,20 @@ public:
 	bool operator!=(element_type* array) const {
 		return impl_.get() != array;
 	}
-
 	// Swap two scoped pointers.
-	void swap(scoped_ptr& p2) {
+	void swap(scoped_ptr& p2) 
+	{
 		impl_.swap(p2.impl_);
 	}
-
 	// Release a pointer.
 	// The return value is the current pointer held by this object.
 	// If this object holds a NULL pointer, the return value is NULL.
 	// After this operation, this object will hold a NULL pointer,
 	// and will not own the object any more.
-	element_type* release() {
+	element_type* release() 
+	{
 		return impl_.release();
 	}
-
 private:
 	// Force element_type to be a complete type.
 	enum { type_must_be_complete = sizeof(element_type) };
@@ -464,28 +424,14 @@ private:
 };
 
 // Free functions
-template <class T, class D> void swap(scoped_ptr<T, D>& p1, scoped_ptr<T, D>& p2) 
-{
-	p1.swap(p2);
-}
-
-template <class T, class D> bool operator==(T* p1, const scoped_ptr<T, D>& p2) 
-{
-	return p1 == p2.get();
-}
-
-template <class T, class D> bool operator!=(T* p1, const scoped_ptr<T, D>& p2) 
-{
-	return p1 != p2.get();
-}
+template <class T, class D> void swap(scoped_ptr<T, D>& p1, scoped_ptr<T, D>& p2) { p1.swap(p2); }
+template <class T, class D> bool operator==(T* p1, const scoped_ptr<T, D>& p2) { return p1 == p2.get(); }
+template <class T, class D> bool operator!=(T* p1, const scoped_ptr<T, D>& p2) { return p1 != p2.get(); }
 
 // A function to convert T* into scoped_ptr<T>
 // Doing e.g. make_scoped_ptr(new FooBarBaz<type>(arg)) is a shorter notation
 // for scoped_ptr<FooBarBaz<type> >(new FooBarBaz<type>(arg))
-template <typename T> scoped_ptr<T> make_scoped_ptr(T* ptr) 
-{
-	return scoped_ptr<T>(ptr);
-}
+template <typename T> scoped_ptr<T> make_scoped_ptr(T* ptr) { return scoped_ptr<T>(ptr); }
 }  // namespace phonenumbers
 }  // namespace i18n
 

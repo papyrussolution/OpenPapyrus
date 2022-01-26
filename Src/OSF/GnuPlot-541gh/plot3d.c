@@ -332,7 +332,7 @@ void GnuPlot::ThinPlateSplinesSetup(const iso_curve * pOldIsoCrvs, double ** ppX
 	for(oicrv = pOldIsoCrvs; oicrv; oicrv = oicrv->next) {
 		numpoints += oicrv->p_count;
 	}
-	xx = (double*)SAlloc::M(sizeof(xx[0]) * (numpoints + 3) * (numpoints + 8));
+	xx = (double *)SAlloc::M(sizeof(xx[0]) * (numpoints + 3) * (numpoints + 8));
 	// the memory needed is not really (n+3)*(n+8) for now, but might be if I take into account errors ... 
 	K = (double **)SAlloc::M(sizeof(K[0]) * (numpoints + 3));
 	yy = xx + numpoints;

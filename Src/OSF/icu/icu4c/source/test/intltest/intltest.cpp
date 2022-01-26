@@ -1356,7 +1356,7 @@ int main(int argc, char * argv[])
 	 */
 	u_init(&errorCode);
 	if(U_FAILURE(errorCode)) {
-		fprintf(stderr, "#### Note:  ICU Init without build-specific setDataDirectory() failed.\n");
+		slfprintf_stderr("#### Note:  ICU Init without build-specific setDataDirectory() failed.\n");
 		defaultDataFound = FALSE;
 	}
 	else {
@@ -1379,7 +1379,7 @@ int main(int argc, char * argv[])
 		    "*** Check the ICU_DATA environment variable and \n"
 		    "*** check that the data files are present.\n", argv[0], u_errorName(errorCode));
 		if(warnOnMissingData == 0) {
-			fprintf(stderr, "*** Exiting.  Use the '-w' option if data files were\n*** purposely removed, to continue test anyway.\n");
+			slfprintf_stderr("*** Exiting.  Use the '-w' option if data files were\n*** purposely removed, to continue test anyway.\n");
 			u_cleanup();
 			return 1;
 		}
@@ -1485,7 +1485,7 @@ int main(int argc, char * argv[])
 		major.errln("FAILURE: A test changed the default locale without resetting it.");
 	}
 	fprintf(stdout, "\n--------------------------------------\n");
-	if(major.printKnownIssues() ) {
+	if(major.printKnownIssues()) {
 		fprintf(stdout, " To run suppressed tests, use the -K option. \n");
 	}
 	if(major.getErrors() == 0) {

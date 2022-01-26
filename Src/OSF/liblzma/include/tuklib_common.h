@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
+//
 //
 /// \file       tuklib_common.h
 /// \brief      Common definitions for tuklib modules
@@ -8,7 +8,7 @@
 //  This file has been put into the public domain.
 //  You can do whatever you want with this file.
 //
-///////////////////////////////////////////////////////////////////////////////
+//
 
 #ifndef TUKLIB_COMMON_H
 #define TUKLIB_COMMON_H

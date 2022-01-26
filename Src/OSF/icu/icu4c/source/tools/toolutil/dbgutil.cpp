@@ -78,12 +78,12 @@ U_TOOLUTIL_API const UnicodeString & U_EXPORT2 udbg_enumString(UDebugEnumType ty
 	}
 	if(type<0||type>=UDBG_ENUM_COUNT) {
 		// use UDBG_ENUM_COUNT,0  to mean an empty string
-		//fprintf(stderr, "** returning out of range on %d\n",type);
+		//slfprintf_stderr("** returning out of range on %d\n",type);
 		//fflush(stderr);
 		return strs[UDBG_ENUM_COUNT][0];
 	}
 	int32_t count = udbg_enumCount(type);
-	//fprintf(stderr, "enumString [%d,%d]: typecount %d, fieldcount %d\n", type,field,UDBG_ENUM_COUNT,count);
+	//slfprintf_stderr("enumString [%d,%d]: typecount %d, fieldcount %d\n", type,field,UDBG_ENUM_COUNT,count);
 	//fflush(stderr);
 	if(field<0 || field > count) {
 		return strs[type][count];

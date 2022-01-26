@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
+//
 //
 /// \file       tuklib_mbstr.h
 /// \brief      Utility functions for handling multibyte strings
@@ -13,7 +13,7 @@
 //  This file has been put into the public domain.
 //  You can do whatever you want with this file.
 //
-///////////////////////////////////////////////////////////////////////////////
+//
 
 #ifndef TUKLIB_MBSTR_H
 #define TUKLIB_MBSTR_H

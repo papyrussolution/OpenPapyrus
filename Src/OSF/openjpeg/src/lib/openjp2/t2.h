@@ -80,11 +80,11 @@ Encode the packets of a tile to a destination buffer
 @param t2_mode          If == THRESH_CALC In Threshold calculation ,If == FINAL_PASS Final pass
 @param p_manager        the user event manager
 */
-OPJ_BOOL opj_t2_encode_packets(opj_t2_t* t2,
+boolint opj_t2_encode_packets(opj_t2_t* t2,
                                OPJ_UINT32 tileno,
                                opj_tcd_tile_t *tile,
                                OPJ_UINT32 maxlayers,
-                               OPJ_BYTE *dest,
+                               uint8 *dest,
                                OPJ_UINT32 * p_data_written,
                                OPJ_UINT32 len,
                                opj_codestream_info_t *cstr_info,
@@ -109,11 +109,11 @@ Decode the packets of a tile from a source buffer
 
 @return FIXME DOC
  */
-OPJ_BOOL opj_t2_decode_packets(opj_tcd_t* tcd,
+boolint opj_t2_decode_packets(opj_tcd_t* tcd,
                                opj_t2_t *t2,
                                OPJ_UINT32 tileno,
                                opj_tcd_tile_t *tile,
-                               OPJ_BYTE *src,
+                               uint8 *src,
                                OPJ_UINT32 * p_data_read,
                                OPJ_UINT32 len,
                                opj_codestream_index_t *cstr_info,

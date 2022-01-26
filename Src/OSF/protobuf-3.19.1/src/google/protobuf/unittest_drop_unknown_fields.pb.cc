@@ -221,10 +221,10 @@ const char* Foo::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::intern
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // int32 int32_value = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
           int32_value_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
@@ -232,7 +232,7 @@ const char* Foo::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::intern
         continue;
       // .unittest_drop_unknown_fields.Foo.NestedEnum enum_value = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
           uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
           _internal_set_enum_value(static_cast<::unittest_drop_unknown_fields::Foo_NestedEnum>(val));
@@ -243,7 +243,7 @@ const char* Foo::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::intern
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -269,18 +269,18 @@ uint8_t* Foo::_InternalSerialize(
   (void) cached_has_bits;
 
   // int32 int32_value = 1;
-  if (this->_internal_int32_value() != 0) {
+  if(this->_internal_int32_value() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_int32_value(), target);
   }
 
   // .unittest_drop_unknown_fields.Foo.NestedEnum enum_value = 2;
-  if (this->_internal_enum_value() != 0) {
+  if(this->_internal_enum_value() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(2, this->_internal_enum_value(), target);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -297,12 +297,12 @@ size_t Foo::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // int32 int32_value = 1;
-  if (this->_internal_int32_value() != 0) {
+  if(this->_internal_int32_value() != 0) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_int32_value());
   }
 
   // .unittest_drop_unknown_fields.Foo.NestedEnum enum_value = 2;
-  if (this->_internal_enum_value() != 0) {
+  if(this->_internal_enum_value() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_enum_value());
   }
@@ -329,10 +329,10 @@ void Foo::MergeFrom(const Foo& from) {
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_int32_value() != 0) {
+  if(from._internal_int32_value() != 0) {
     _internal_set_int32_value(from._internal_int32_value());
   }
-  if (from._internal_enum_value() != 0) {
+  if(from._internal_enum_value() != 0) {
     _internal_set_enum_value(from._internal_enum_value());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -340,7 +340,7 @@ void Foo::MergeFrom(const Foo& from) {
 
 void Foo::CopyFrom(const Foo& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:unittest_drop_unknown_fields.Foo)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -435,10 +435,10 @@ const char* FooWithExtraFields::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // int32 int32_value = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
           int32_value_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
@@ -446,7 +446,7 @@ const char* FooWithExtraFields::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // .unittest_drop_unknown_fields.FooWithExtraFields.NestedEnum enum_value = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
           uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
           _internal_set_enum_value(static_cast<::unittest_drop_unknown_fields::FooWithExtraFields_NestedEnum>(val));
@@ -455,7 +455,7 @@ const char* FooWithExtraFields::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // int32 extra_int32_value = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 24)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 24)) {
           extra_int32_value_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
@@ -465,7 +465,7 @@ const char* FooWithExtraFields::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -491,24 +491,24 @@ uint8_t* FooWithExtraFields::_InternalSerialize(
   (void) cached_has_bits;
 
   // int32 int32_value = 1;
-  if (this->_internal_int32_value() != 0) {
+  if(this->_internal_int32_value() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_int32_value(), target);
   }
 
   // .unittest_drop_unknown_fields.FooWithExtraFields.NestedEnum enum_value = 2;
-  if (this->_internal_enum_value() != 0) {
+  if(this->_internal_enum_value() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(2, this->_internal_enum_value(), target);
   }
 
   // int32 extra_int32_value = 3;
-  if (this->_internal_extra_int32_value() != 0) {
+  if(this->_internal_extra_int32_value() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(3, this->_internal_extra_int32_value(), target);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -525,18 +525,18 @@ size_t FooWithExtraFields::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // int32 int32_value = 1;
-  if (this->_internal_int32_value() != 0) {
+  if(this->_internal_int32_value() != 0) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_int32_value());
   }
 
   // .unittest_drop_unknown_fields.FooWithExtraFields.NestedEnum enum_value = 2;
-  if (this->_internal_enum_value() != 0) {
+  if(this->_internal_enum_value() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_enum_value());
   }
 
   // int32 extra_int32_value = 3;
-  if (this->_internal_extra_int32_value() != 0) {
+  if(this->_internal_extra_int32_value() != 0) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_extra_int32_value());
   }
 
@@ -562,13 +562,13 @@ void FooWithExtraFields::MergeFrom(const FooWithExtraFields& from) {
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_int32_value() != 0) {
+  if(from._internal_int32_value() != 0) {
     _internal_set_int32_value(from._internal_int32_value());
   }
-  if (from._internal_enum_value() != 0) {
+  if(from._internal_enum_value() != 0) {
     _internal_set_enum_value(from._internal_enum_value());
   }
-  if (from._internal_extra_int32_value() != 0) {
+  if(from._internal_extra_int32_value() != 0) {
     _internal_set_extra_int32_value(from._internal_extra_int32_value());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -576,7 +576,7 @@ void FooWithExtraFields::MergeFrom(const FooWithExtraFields& from) {
 
 void FooWithExtraFields::CopyFrom(const FooWithExtraFields& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:unittest_drop_unknown_fields.FooWithExtraFields)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }

@@ -1153,9 +1153,9 @@ static void TestSearchCollatorElements(void)
 	for(tsceItemPtr = tsceItems; tsceItemPtr->locale != NULL; tsceItemPtr++) {
 		UErrorCode status = U_ZERO_ERROR;
 		UCollator* ucol = ucol_open(tsceItemPtr->locale, &status);
-		if(U_SUCCESS(status) ) {
+		if(U_SUCCESS(status)) {
 			UCollationElements * uce = ucol_openElements(ucol, tsceText, kLen_tsceText, &status);
-			if(U_SUCCESS(status) ) {
+			if(U_SUCCESS(status)) {
 				int32_t offset, element;
 				const int32_t * nextOffsetPtr;
 				const int32_t * limitOffsetPtr;

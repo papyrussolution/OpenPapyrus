@@ -173,8 +173,7 @@ PCRE_EXP_DECL int pcre32_pattern_to_host_byte_order(pcre32 * argument_re, pcre32
 #elif defined COMPILE_PCRE32
 		*ptr = swap_uint32(*ptr);
 #endif
-		switch(*ptr)
-		{
+		switch(*ptr) {
 			case OP_END:
 			    return 0;
 

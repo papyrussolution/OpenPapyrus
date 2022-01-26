@@ -2616,7 +2616,7 @@ static void xmlXPathFormatNumber(double number, char buffer[], int buffersize)
 			 * In either case, result is in work, and after_fraction points
 			 * just past the fractional part.
 			     */
-			    if(((absolute_value > UPPER_DOUBLE) || (absolute_value < LOWER_DOUBLE)) && (absolute_value != 0.0) ) {
+			    if(((absolute_value > UPPER_DOUBLE) || (absolute_value < LOWER_DOUBLE)) && (absolute_value != 0.0)) {
 				    /* Use scientific notation */
 				    integer_place = DBL_DIG + EXPONENT_DIGITS + 1;
 				    fraction_place = DBL_DIG - 1;

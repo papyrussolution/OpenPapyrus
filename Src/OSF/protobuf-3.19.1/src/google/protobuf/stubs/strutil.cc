@@ -2306,7 +2306,7 @@ int UTF8FirstLetterNumBytes(const char* src, int len) {
 	if(len == 0) {
 		return 0;
 	}
-	return kUTF8LenTbl[*reinterpret_cast<const uint8*>(src)];
+	return kUTF8LenTbl[*reinterpret_cast<const uint8 *>(src)];
 }
 
 // ----------------------------------------------------------------------

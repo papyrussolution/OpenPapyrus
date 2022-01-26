@@ -31,7 +31,7 @@
 #include <sl_pthreads4w.h>
 #pragma hdrstop
 
-int __ptw32_processInitialized =  __PTW32_FALSE;
+int __ptw32_processInitialized =  FALSE;
 __ptw32_thread_t * __ptw32_threadReuseTop =  __PTW32_THREAD_REUSE_EMPTY;
 __ptw32_thread_t * __ptw32_threadReuseBottom =  __PTW32_THREAD_REUSE_EMPTY;
 pthread_key_t __ptw32_selfThreadKey = NULL;

@@ -288,27 +288,27 @@ static void PrintMarkDavis(void)
 	m[1] = 0xe4;
 
 	for(i = 0; i<sizem; i++) {
-		fprintf(stderr, "\\u%04X ", m[i]);
+		slfprintf_stderr("\\u%04X ", m[i]);
 	}
-	fprintf(stderr, "\n");
+	slfprintf_stderr("\n");
 
 	for(h = 0; h<UPRV_LENGTHOF(caseFirst); h++) {
 		ucol_setAttribute(coll, UCOL_CASE_FIRST, caseFirst[i], &status);
-		fprintf(stderr, "caseFirst: %s\n", caseFirstC[h]);
+		slfprintf_stderr("caseFirst: %s\n", caseFirstC[h]);
 
 		for(i = 0; i<UPRV_LENGTHOF(alternateHandling); i++) {
 			ucol_setAttribute(coll, UCOL_ALTERNATE_HANDLING, alternateHandling[i], &status);
-			fprintf(stderr, "  AltHandling: %s\n", alternateHandlingC[i]);
+			slfprintf_stderr("  AltHandling: %s\n", alternateHandlingC[i]);
 
 			for(j = 0; j<UPRV_LENGTHOF(caseLevel); j++) {
 				ucol_setAttribute(coll, UCOL_CASE_LEVEL, caseLevel[j], &status);
-				fprintf(stderr, "    caseLevel: %s\n", caseLevelC[j]);
+				slfprintf_stderr("    caseLevel: %s\n", caseLevelC[j]);
 
 				for(k = 0; k<UPRV_LENGTHOF(strengths); k++) {
 					ucol_setAttribute(coll, UCOL_STRENGTH, strengths[k], &status);
 					sortkeysize = ucol_getSortKey(coll, m, sizem, sortkey, 256);
-					fprintf(stderr, "      strength: %s\n      Sortkey: ", strengthsC[k]);
-					fprintf(stderr, "%s\n", ucol_sortKeyToString(coll, sortkey, buffer, &len));
+					slfprintf_stderr("      strength: %s\n      Sortkey: ", strengthsC[k]);
+					slfprintf_stderr("%s\n", ucol_sortKeyToString(coll, sortkey, buffer, &len));
 				}
 			}
 		}
@@ -3617,16 +3617,16 @@ static void TestVI5913(void)
 		return;
 	}
 	log_verbose("\n\nVI collation:");
-	if(!ucol_equal(coll, tData[0], u_strlen(tData[0]), tData[2], u_strlen(tData[2])) ) {
+	if(!ucol_equal(coll, tData[0], u_strlen(tData[0]), tData[2], u_strlen(tData[2]))) {
 		log_err("\\u1EAC not equals to \\u1EA0+\\u0302\n");
 	}
-	if(!ucol_equal(coll, tData[0], u_strlen(tData[0]), tData[3], u_strlen(tData[3])) ) {
+	if(!ucol_equal(coll, tData[0], u_strlen(tData[0]), tData[3], u_strlen(tData[3]))) {
 		log_err("\\u1EAC not equals to \\u00c2+\\u0323\n");
 	}
-	if(!ucol_equal(coll, tData[5], u_strlen(tData[5]), tData[4], u_strlen(tData[4])) ) {
+	if(!ucol_equal(coll, tData[5], u_strlen(tData[5]), tData[4], u_strlen(tData[4]))) {
 		log_err("\\u1ED8 not equals to \\u1ECC+\\u0302\n");
 	}
-	if(!ucol_equal(coll, tData[7], u_strlen(tData[7]), tData[6], u_strlen(tData[6])) ) {
+	if(!ucol_equal(coll, tData[7], u_strlen(tData[7]), tData[6], u_strlen(tData[6]))) {
 		log_err("\\u1EB7 not equals to \\u1EA1+\\u0306\n");
 	}
 
@@ -3644,13 +3644,13 @@ static void TestVI5913(void)
 	/* Test Romanian sort. */
 	coll = ucol_open("ro", &status);
 	log_verbose("\n\nRO collation:");
-	if(!ucol_equal(coll, tData[0], u_strlen(tData[0]), tData[1], u_strlen(tData[1])) ) {
+	if(!ucol_equal(coll, tData[0], u_strlen(tData[0]), tData[1], u_strlen(tData[1]))) {
 		log_err("\\u1EAC not equals to \\u1EA0+\\u0302\n");
 	}
-	if(!ucol_equal(coll, tData[4], u_strlen(tData[4]), tData[5], u_strlen(tData[5])) ) {
+	if(!ucol_equal(coll, tData[4], u_strlen(tData[4]), tData[5], u_strlen(tData[5]))) {
 		log_err("\\u1EAC not equals to \\u00c2+\\u0323\n");
 	}
-	if(!ucol_equal(coll, tData[6], u_strlen(tData[6]), tData[7], u_strlen(tData[7])) ) {
+	if(!ucol_equal(coll, tData[6], u_strlen(tData[6]), tData[7], u_strlen(tData[7]))) {
 		log_err("\\u1EB7 not equals to \\u1EA1+\\u0306\n");
 	}
 
@@ -5383,15 +5383,15 @@ static void TestReorderWithNumericCollation(void)
 	collResult = ucol_strcoll(myCollation, fortyS, UPRV_LENGTHOF(fortyS), fortyThreeP, UPRV_LENGTHOF(fortyThreeP));
 	collResultReorder = ucol_strcoll(myReorderCollation, fortyS, UPRV_LENGTHOF(fortyS), fortyThreeP, UPRV_LENGTHOF(fortyThreeP));
 	/*
-	   fprintf(stderr, "\tcollResult = %x\n", collResult);
-	   fprintf(stderr, "\tcollResultReorder = %x\n", collResultReorder);
-	   fprintf(stderr, "\nfortyS\n");
+	   slfprintf_stderr("\tcollResult = %x\n", collResult);
+	   slfprintf_stderr("\tcollResultReorder = %x\n", collResultReorder);
+	   slfprintf_stderr("\nfortyS\n");
 	   for (i = 0; i < fortyS_sortKey_Length; i++) {
-	    fprintf(stderr, "%x --- %x\n", fortyS_sortKey[i], fortyS_sortKey_reorder[i]);
+	    slfprintf_stderr("%x --- %x\n", fortyS_sortKey[i], fortyS_sortKey_reorder[i]);
 	   }
-	   fprintf(stderr, "\nfortyThreeP\n");
+	   slfprintf_stderr("\nfortyThreeP\n");
 	   for (i = 0; i < fortyThreeP_sortKey_Length; i++) {
-	    fprintf(stderr, "%x --- %x\n", fortyThreeP_sortKey[i], fortyThreeP_sortKey_reorder[i]);
+	    slfprintf_stderr("%x --- %x\n", fortyThreeP_sortKey[i], fortyThreeP_sortKey_reorder[i]);
 	   }
 	 */
 	if(collResult != collResultReorder) {
@@ -5834,9 +5834,9 @@ static void TestCaseLevelBufferOverflow(void)
 {
 	UErrorCode status = U_ZERO_ERROR;
 	UCollator * ucol = ucol_open("root", &status);
-	if(U_SUCCESS(status) ) {
+	if(U_SUCCESS(status)) {
 		ucol_setAttribute(ucol, UCOL_CASE_LEVEL, UCOL_ON, &status);
-		if(U_SUCCESS(status) ) {
+		if(U_SUCCESS(status)) {
 			const LongUpperStrItem * itemPtr;
 			uint8_t sortKeyA[kCollKeyLenMax], sortKeyB[kCollKeyLenMax];
 			for(itemPtr = longUpperStrItems; itemPtr->longUpperStrPtr != NULL; itemPtr++) {

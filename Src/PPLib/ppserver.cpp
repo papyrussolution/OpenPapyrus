@@ -1,5 +1,5 @@
 // PPSERVER.CPP
-// Copyright (c) A.Sobolev 2005, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2005, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -58,9 +58,6 @@ void PPThread::Startup()
 void PPThread::Shutdown()
 {
 	DS.Logout();
-	//
-	// @v8.0.6 Изменен порядок вызова. Было: SlThread::Shutdown(); DBS.ReleaseThread(); DS.ReleaseThread();
-	//
 	DS.ReleaseThread();
 	DBS.ReleaseThread();
 	SlThread::Shutdown();
@@ -220,7 +217,16 @@ void PPServerCmd::Init()
 	ZDELETE(P_SoBlk);
 }
 
-void PPServerCmd::ClearParams() { ParamL.Z(); }
+void PPServerCmd::ClearParams() 
+{ 
+	// @v11.2.12 {
+	if(ParamL.Search(paridPassword)) {
+		
+	}
+	// } @v11.2.12 
+	ParamL.Z(); 
+}
+
 int  FASTCALL PPServerCmd::GetParam(int parid, SString & rVal) const { return ParamL.GetText(parid, rVal); }
 
 int FASTCALL PPServerCmd::PutParam(int parid, const char * pVal)
@@ -352,117 +358,121 @@ int PPServerCmd::ParseLine(const SString & rLine, long flags)
 	//
 	struct CmdSymb {
 		uint   H;
-		const  char * P_Symb;
+		// @v11.2.12 const  char * P_Symb;
 		int    Tok;
 		int    CmdType;
 		long   Flags;
 	};
+	// @v11.2.12 Поле P_Symb удалено из структуры - достаточно уже времени прошло: все работает нормально.
 	static const CmdSymb symb_list[] = {
-		{ PPHS_HELLO                    , "HELLO",                     tNoArg,                   PPSCMD_HELLO,                 cmdfNoArg },
-		{ PPHS_HSH                      , "HSH",                       tNoArg,                   PPSCMD_HSH,                   cmdfNoArg },
-		{ PPHS_GETLASTERR               , "GETLASTERR",                tNoArg,                   PPSCMD_GETLASTERRMSG,         cmdfNoArg },
-		{ PPHS_SETGLOBALUSER            , "SETGLOBALUSER",             tSetGlobalUser,           PPSCMD_SETGLOBALUSER,         cmdfNeedAuth },
-		{ PPHS_GETGLOBALUSER            , "GETGLOBALUSER",             tNoArg,                   PPSCMD_GETGLOBALUSER,         cmdfNeedAuth|cmdfNoArg },
-		{ PPHS_GETSERVERSTAT            , "GetServerStat",             tNoArg,                   PPSCMD_GETSERVERSTAT,         cmdfNoArg },
-		{ PPHS_QUIT                     , "QUIT",                      tNoArg,                   PPSCMD_QUIT,                  cmdfNoArg },
-		{ PPHS_LOGOUT                   , "LOGOUT",                    tNoArg,                   PPSCMD_LOGOUT,                cmdfNeedAuth|cmdfNoArg },
-		{ PPHS_SPII                     , "SPII",                      tNoArg,                   PPSCMD_SPII,                  cmdfNoArg },
-		{ PPHS_STYLOBHT                 , "STYLOBHT",                  tNoArg,                   PPSCMD_STYLOBHT,              cmdfNoArg },
-		{ PPHS_LOGIN                    , "LOGIN",                     tLogin,                   PPSCMD_LOGIN,                 0 },
-		{ PPHS_SUSPEND                  , "SUSPEND",                   tSuspend,                 PPSCMD_SUSPEND,               0 },
-		{ PPHS_RESTORESESS              , "RESTORESESS",               tResume,                  PPSCMD_RESUME,                0 },
-		{ PPHS_RESUME                   , "RESUME",                    tResume,                  PPSCMD_RESUME,                0 },
-		{ PPHS_STYLOBHTII               , "STYLOBHTII",                tStyloBHTII,              PPSCMD_STYLOBHTII,            0 },
-		{ PPHS_GETBIZSCORES             , "GETBIZSCORES",              tGetBizScores,            PPSCMD_GETBIZSCORES,          cmdfNeedAuth },
-		{ PPHS_CHECKGLOBALCREDENTIAL    , "CheckGlobalCredential",     tCheckGlobalCredential,   PPSCMD_CHECKGLOBALCREDENTIAL, cmdfNeedAuth },
-		{ PPHS_GETTDDO                  , "GETTDDO",                   tGetTDDO,                 PPSCMD_GETTDDO,               0 },
-		{ PPHS_GETIMAGE                 , "GETIMAGE",                  tGetImage,                PPSCMD_GETIMAGE,              cmdfNeedAuth },
-		{ PPHS_GETNEXTFILEPART          , "GETNEXTFILEPART",           tGetNextFilePart,         PPSCMD_GETNEXTFILEPART,       0 },
-		{ PPHS_ACKFILE                  , "ACKFILE",                   tAckFile,                 PPSCMD_ACKFILE,               0 },
-		{ PPHS_CANCELFILE               , "CANCELFILE",                tCancelFile,              PPSCMD_CANCELFILE,            0 },
-		{ PPHS_EXECVIEW                 , "EXECVIEW",                  tExecViewNF,              PPSCMD_EXECVIEWNF,            cmdfNeedAuth },
-		{ PPHS_TESTPAPYRUSSERVER        , "TESTPAPYRUSSERVER",         tNoArg,                   PPSCMD_TEST,                  cmdfNoArg },
-		{ PPHS_PREPAREPALMOUTDATA       , "PREPAREPALMOUTDATA",        tPreparePalmOutData,      PPSCMD_PREPAREPALMOUTDATA,    0 },
-		{ PPHS_PREPAREPALMINDATA        , "PREPAREPALMINDATA",         tPreparePalmInData,       PPSCMD_PREPAREPALMINDATA,     0 },
-		{ PPHS_GETFILE                  , "GETFILE",                   tGetFile,                 PPSCMD_GETFILE,               0 },
-		{ PPHS_PUTFILE                  , "PUTFILE",                   tPutFile,                 PPSCMD_PUTFILE,               0 },
-		{ PPHS_PUTNEXTFILEPART          , "PUTNEXTFILEPART",           tPutNextFilePart,         PPSCMD_PUTNEXTFILEPART,       0 },
-		{ PPHS_PROCESSPALMXMLDATA       , "PROCESSPALMXMLDATA",        tProcessPalmXmlData,      PPSCMD_PROCESSPALMXMLDATA,    0 },
-		{ PPHS_SETIMAGEMIME             , "SETIMAGEMIME",              tSetImageMime,            PPSCMD_SETIMAGEMIME,          cmdfNeedAuth },
-		{ PPHS_PING                     , "PING",                      tPing,                    PPSCMD_PING,                  0 },
-		{ PPHS_SELECT                   , "SELECT",                    tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
-		{ PPHS_SET                      , "SET",                       tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
-		{ PPHS_CREATE                   , "CREATE",                    tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
-		{ PPHS_CCHECKCREATE             , "CCHECKCREATE",              tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
-		{ PPHS_CCHECKADDLINE            , "CCHECKADDLINE",             tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
-		{ PPHS_CCHECKFINISH             , "CCHECKFINISH",              tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
-		{ PPHS_SCARDREST                , "SCARDREST",                 tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
-		{ PPHS_SCARDDEPOSIT             , "SCARDDEPOSIT",              tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
-		{ PPHS_SCARDWITHDRAW            , "SCARDWITHDRAW",             tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
-		{ PPHS_GTACHECKIN               , "GTACHECKIN",                tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
-		{ PPHS_BILLCREATE               , "BILLCREATE",                tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
-		{ PPHS_BILLADDLINE              , "BILLADDLINE",               tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
-		{ PPHS_BILLFINISH               , "BILLFINISH",                tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
-		{ PPHS_SETPERSONREL             , "SETPERSONREL",              tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
-		{ PPHS_GETPERSONREL             , "GETPERSONREL",              tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
-		{ PPHS_SETOBJECTTAG             , "SETOBJECTTAG",              tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
-		{ PPHS_INCOBJECTTAG             , "INCOBJECTTAG",              tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
-		{ PPHS_DECOBJECTTAG             , "DECOBJECTTAG",              tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
-		{ PPHS_GETOBJECTTAG             , "GETOBJECTTAG",              tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
-		{ PPHS_DRAFTTRANSITGOODSREST    , "DRAFTTRANSITGOODSREST",     tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
-		{ PPHS_DRAFTTRANSITGOODSRESTLIST, "DRAFTTRANSITGOODSRESTLIST", tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
-		{ PPHS_GETGOODSMATRIX           , "GETGOODSMATRIX",            tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
-		{ PPHS_GETOBJATTACHMENTINFO     , "GETOBJATTACHMENTINFO",      tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
-		{ PPHS_GETTSESSPLACESTATUS      , "GETTSESSPLACESTATUS",       tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
-		{ PPHS_TSESSCIPCHECKIN          , "TSESSCIPCHECKIN",           tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
-		{ PPHS_TSESSCIPCANCEL           , "TSESSCIPCANCEL",            tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
-		{ PPHS_EXPTARIFFTA              , "EXPTARIFFTA",               tExpTariffTA,             PPSCMD_EXPTARIFFTA,           cmdfNeedAuth },
-		{ PPHS_SENDSMS                  , "SENDSMS",                   tSendSMS,                 PPSCMD_SENDSMS,               cmdfNeedAuth },
-		{ PPHS_RESETCACHE               , "RESETCACHE",                tResetCache,              PPSCMD_RESETCACHE,            cmdfNeedAuth },
-		{ PPHS_LOGLOCKSTACK             , "LOGLOCKSTACK",              tLogLockStack,            PPSCMD_LOGLOCKSTACK,          0            }, // @v9.8.1
-		{ PPHS_CPOSINIT                 , "CPOSINIT",                  tCPosProcessorCommand,    PPSCMD_POS_INIT,              cmdfNeedAuth },
-		{ PPHS_CPOSRELEASE              , "CPOSRELEASE",               tCPosProcessorCommand,    PPSCMD_POS_RELEASE,           cmdfNeedAuth },
-		{ PPHS_CPOSGETCTABLELIST        , "CPOSGETCTABLELIST",         tCPosProcessorCommand,    PPSCMD_POS_GETCTABLELIST,     cmdfNeedAuth },
-		{ PPHS_CPOSGETCCHECKLIST        , "CPOSGETCCHECKLIST",         tCPosProcessorCommand,    PPSCMD_POS_GETCCHECKLIST,     cmdfNeedAuth },
-		{ PPHS_CPOSGETCCHECKLNCOUNT     , "CPOSGETCCHECKLNCOUNT",      tCPosProcessorCommand,    PPSCMD_POS_GETCCHECKLNCOUNT,  cmdfNeedAuth },
-		{ PPHS_CPOSADDCCHECKLINE        , "CPOSADDCCHECKLINE",         tCPosProcessorCommand,    PPSCMD_POS_ADDCCHECKLINE,     cmdfNeedAuth },
-		{ PPHS_CPOSRMVCCHECKLINE        , "CPOSRMVCCHECKLINE",         tCPosProcessorCommand,    PPSCMD_POS_RMVCCHECKLINE,     cmdfNeedAuth },
-		{ PPHS_CPOSCLEARCCHECK          , "CPOSCLEARCCHECK",           tCPosProcessorCommand,    PPSCMD_POS_CLEARCCHECK,       cmdfNeedAuth },
-		{ PPHS_CPOSRMVCCHECK            , "CPOSRMVCCHECK",             tCPosProcessorCommand,    PPSCMD_POS_RMVCCHECK,         cmdfNeedAuth },
-		{ PPHS_CPOSPRINTCCHECK          , "CPOSPRINTCCHECK",           tCPosProcessorCommand,    PPSCMD_POS_PRINTCCHECK,       cmdfNeedAuth },
-		{ PPHS_CPOSPRINTCCHECKLOCAL     , "CPOSPRINTCCHECKLOCAL",      tCPosProcessorCommand,    PPSCMD_POS_PRINTCCHECKLOCAL,  cmdfNeedAuth },
-		{ PPHS_CPOSGETCFG               , "CPOSGETCFG",                tCPosProcessorCommand,    PPSCMD_POS_GETCONFIG,         cmdfNeedAuth },
-		{ PPHS_CPOSSETCFG               , "CPOSSETCFG",                tCPosProcessorCommand,    PPSCMD_POS_SETCONFIG,         cmdfNeedAuth },
-		{ PPHS_CPOSGETSTATE             , "CPOSGETSTATE",              tCPosProcessorCommand,    PPSCMD_POS_GETSTATE,          cmdfNeedAuth },
-		{ PPHS_CPOSSELECTCCHECK         , "CPOSSELECTCCHECK",          tCPosProcessorCommand,    PPSCMD_POS_SELECTCCHECK,      cmdfNeedAuth },
-		{ PPHS_CPOSSUSPENDCCHECK        , "CPOSSUSPENDCCHECK",         tCPosProcessorCommand,    PPSCMD_POS_SUSPENDCCHECK,     cmdfNeedAuth },
-		{ PPHS_CPOSSELECTTBL            , "CPOSSELECTTBL",             tCPosProcessorCommand,    PPSCMD_POS_SELECTCTABLE,      cmdfNeedAuth },
-		{ PPHS_CPOSGETRIGHTS            , "CPOSGETRIGHTS",             tCPosProcessorCommand,    PPSCMD_POS_GETCPOSRIGHTS,     cmdfNeedAuth },
-		{ PPHS_CPOSDECRYPTAUTHDATA      , "CPOSDECRYPTAUTHDATA",       tCPosProcessorCommand,    PPSCMD_POS_DECRYPTAUTHDATA,   cmdfNeedAuth },
-		{ PPHS_CPOSGETGOODSPRICE        , "CPOSGETGOODSPRICE",         tCPosProcessorCommand,    PPSCMD_POS_GETGOODSPRICE,     cmdfNeedAuth },
-		{ PPHS_CPOSGETCURRENTSTATE      , "CPOSGETCURRENTSTATE",       tCPosProcessorCommand,    PPSCMD_POS_GETCURRENTSTATE,   cmdfNeedAuth },
-		{ PPHS_CPOSRESETCURRENTLINE     , "CPOSRESETCURRENTLINE",      tCPosProcessorCommand,    PPSCMD_POS_RESETCURRENTLINE,  cmdfNeedAuth },
-		{ PPHS_CPOSPROCESSBARCODE       , "CPOSPROCESSBARCODE",        tCPosProcessorCommand,    PPSCMD_POS_PROCESSBARCODE,    cmdfNeedAuth },
-		{ PPHS_CPOSSETCCROWQUEUE        , "CPOSSETCCROWQUEUE",         tCPosProcessorCommand,    PPSCMD_POS_CPOSSETCCROWQUEUE, cmdfNeedAuth },
-		{ PPHS_CPOSGETMODIFLIST         , "CPOSGETMODIFLIST",          tCPosProcessorCommand,    PPSCMD_POS_GETMODIFLIST,      cmdfNeedAuth },
-		{ PPHS_GETDISPLAYINFO           , "GETDISPLAYINFO",            tGetDisplayInfo,          PPSCMD_GETDISPLAYINFO,        cmdfNeedAuth },
-		{ PPHS_GETWORKBOOKCONTENT       , "GETWORKBOOKCONTENT",        tGetWorkbookContent,      PPSCMD_GETWORKBOOKCONTENT,    cmdfNeedAuth },
-		{ PPHS_SETTXTCMDTERM            , "SETTXTCMDTERM",             tSetTxtCmdTerm,           PPSCMD_SETTXTCMDTERM,                    0 },
-		{ PPHS_GETKEYWORDSEQ            , "GETKEYWORDSEQ",             tGetKeywordSeq,           PPSCMD_GETKEYWORDSEQ,         cmdfNeedAuth },
-		{ PPHS_REGISTERSTYLO            , "REGISTERSTYLO",             tRegisterStylo,           PPSCMD_REGISTERSTYLO,         cmdfNeedAuth },
-		{ PPHS_SETWORKBOOKCOTENT        , "SETWORKBOOKCONTENT",        tSetWorkbookContent,      PPSCMD_SETWORKBOOKCONTENT,    cmdfNeedAuth },
-		{ PPHS_QUERYNATURALTOKEN        , "QUERYNATURALTOKEN",         tQueryNaturalToken,       PPSCMD_QUERYNATURALTOKEN,     cmdfNeedAuth },
-		{ PPHS_GETARTICLEBYPERSON       , "GETARTICLEBYPERSON",        tGetArticleByPerson,      PPSCMD_GETARTICLEBYPERSON,    cmdfNeedAuth },
-		{ PPHS_GETPERSONBYARTICLE       , "GETPERSONBYARTICLE",        tGetPersonByArticle,      PPSCMD_GETPERSONBYARTICLE,    cmdfNeedAuth },
-		{ PPHS_SETTIMESERIES            , "settimeseries",             tSetTimeSeries,           PPSCMD_SETTIMESERIES,         cmdfNeedAuth }, // @v10.2.3
-		{ PPHS_GETREQQUOTES             , "getreqquotes",              tGetReqQuotes,            PPSCMD_GETREQQUOTES,          cmdfNeedAuth }, // @v10.2.4
-		{ PPHS_SETTIMESERIESPROP        , "settimeseriesprop",         tSetTimeSeriesProp,       PPSCMD_SETTIMESERIESPROP,     cmdfNeedAuth }, // @v10.2.5
-		{ PPHS_SETTIMESERIESSTKENV      , "settimeseriesstkenv",       tSetTimeSeriesStkEnv,     PPSCMD_SETTIMESERIESSTKENV,   cmdfNeedAuth }, // @v10.2.10
-		{ PPHS_GETCOMMONMQSCONFIG       , "getcommonmqsconfig",        tGetCommonMqsConfig,      PPSCMD_GETCOMMONMQSCONFIG,    cmdfNeedAuth }, // @v10.5.9
+		{ PPHS_HELLO                    , /*"HELLO",*/                     tNoArg,                   PPSCMD_HELLO,                 cmdfNoArg },
+		{ PPHS_HSH                      , /*"HSH",*/                       tNoArg,                   PPSCMD_HSH,                   cmdfNoArg },
+		{ PPHS_GETLASTERR               , /*"GETLASTERR",*/                tNoArg,                   PPSCMD_GETLASTERRMSG,         cmdfNoArg },
+		{ PPHS_SETGLOBALUSER            , /*"SETGLOBALUSER",*/             tSetGlobalUser,           PPSCMD_SETGLOBALUSER,         cmdfNeedAuth },
+		{ PPHS_GETGLOBALUSER            , /*"GETGLOBALUSER",*/             tNoArg,                   PPSCMD_GETGLOBALUSER,         cmdfNeedAuth|cmdfNoArg },
+		{ PPHS_GETSERVERSTAT            , /*"GetServerStat",*/             tNoArg,                   PPSCMD_GETSERVERSTAT,         cmdfNoArg },
+		{ PPHS_QUIT                     , /*"QUIT",*/                      tNoArg,                   PPSCMD_QUIT,                  cmdfNoArg },
+		{ PPHS_LOGOUT                   , /*"LOGOUT",*/                    tNoArg,                   PPSCMD_LOGOUT,                cmdfNeedAuth|cmdfNoArg },
+		{ PPHS_SPII                     , /*"SPII",*/                      tNoArg,                   PPSCMD_SPII,                  cmdfNoArg },
+		{ PPHS_STYLOBHT                 , /*"STYLOBHT",*/                  tNoArg,                   PPSCMD_STYLOBHT,              cmdfNoArg },
+		{ PPHS_LOGIN                    , /*"LOGIN",*/                     tLogin,                   PPSCMD_LOGIN,                 0 },
+		{ PPHS_SUSPEND                  , /*"SUSPEND",*/                   tSuspend,                 PPSCMD_SUSPEND,               0 },
+		{ PPHS_RESTORESESS              , /*"RESTORESESS",*/               tResume,                  PPSCMD_RESUME,                0 },
+		{ PPHS_RESUME                   , /*"RESUME",*/                    tResume,                  PPSCMD_RESUME,                0 },
+		{ PPHS_STYLOBHTII               , /*"STYLOBHTII",*/                tStyloBHTII,              PPSCMD_STYLOBHTII,            0 },
+		{ PPHS_GETBIZSCORES             , /*"GETBIZSCORES",*/              tGetBizScores,            PPSCMD_GETBIZSCORES,          cmdfNeedAuth },
+		{ PPHS_CHECKGLOBALCREDENTIAL    , /*"CheckGlobalCredential",*/     tCheckGlobalCredential,   PPSCMD_CHECKGLOBALCREDENTIAL, cmdfNeedAuth },
+		{ PPHS_GETTDDO                  , /*"GETTDDO",*/                   tGetTDDO,                 PPSCMD_GETTDDO,               0 },
+		{ PPHS_GETIMAGE                 , /*"GETIMAGE",*/                  tGetImage,                PPSCMD_GETIMAGE,              cmdfNeedAuth },
+		{ PPHS_GETNEXTFILEPART          , /*"GETNEXTFILEPART",*/           tGetNextFilePart,         PPSCMD_GETNEXTFILEPART,       0 },
+		{ PPHS_ACKFILE                  , /*"ACKFILE",*/                   tAckFile,                 PPSCMD_ACKFILE,               0 },
+		{ PPHS_CANCELFILE               , /*"CANCELFILE",*/                tCancelFile,              PPSCMD_CANCELFILE,            0 },
+		{ PPHS_EXECVIEW                 , /*"EXECVIEW",*/                  tExecViewNF,              PPSCMD_EXECVIEWNF,            cmdfNeedAuth },
+		{ PPHS_TESTPAPYRUSSERVER        , /*"TESTPAPYRUSSERVER",*/         tNoArg,                   PPSCMD_TEST,                  cmdfNoArg },
+		{ PPHS_PREPAREPALMOUTDATA       , /*"PREPAREPALMOUTDATA",*/        tPreparePalmOutData,      PPSCMD_PREPAREPALMOUTDATA,    0 },
+		{ PPHS_PREPAREPALMINDATA        , /*"PREPAREPALMINDATA",*/         tPreparePalmInData,       PPSCMD_PREPAREPALMINDATA,     0 },
+		{ PPHS_GETFILE                  , /*"GETFILE",*/                   tGetFile,                 PPSCMD_GETFILE,               0 },
+		{ PPHS_PUTFILE                  , /*"PUTFILE",*/                   tPutFile,                 PPSCMD_PUTFILE,               0 },
+		{ PPHS_PUTNEXTFILEPART          , /*"PUTNEXTFILEPART",*/           tPutNextFilePart,         PPSCMD_PUTNEXTFILEPART,       0 },
+		{ PPHS_PROCESSPALMXMLDATA       , /*"PROCESSPALMXMLDATA",*/        tProcessPalmXmlData,      PPSCMD_PROCESSPALMXMLDATA,    0 },
+		{ PPHS_SETIMAGEMIME             , /*"SETIMAGEMIME",*/              tSetImageMime,            PPSCMD_SETIMAGEMIME,          cmdfNeedAuth },
+		{ PPHS_PING                     , /*"PING",*/                      tPing,                    PPSCMD_PING,                  0 },
+		{ PPHS_SELECT                   , /*"SELECT",*/                    tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
+		{ PPHS_SET                      , /*"SET",*/                       tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
+		{ PPHS_CREATE                   , /*"CREATE",*/                    tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
+		{ PPHS_CCHECKCREATE             , /*"CCHECKCREATE",*/              tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
+		{ PPHS_CCHECKADDLINE            , /*"CCHECKADDLINE",*/             tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
+		{ PPHS_CCHECKFINISH             , /*"CCHECKFINISH",*/              tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
+		{ PPHS_SCARDREST                , /*"SCARDREST",*/                 tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
+		{ PPHS_SCARDDEPOSIT             , /*"SCARDDEPOSIT",*/              tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
+		{ PPHS_SCARDWITHDRAW            , /*"SCARDWITHDRAW",*/             tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
+		{ PPHS_GTACHECKIN               , /*"GTACHECKIN",*/                tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
+		{ PPHS_BILLCREATE               , /*"BILLCREATE",*/                tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
+		{ PPHS_BILLADDLINE              , /*"BILLADDLINE",*/               tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
+		{ PPHS_BILLFINISH               , /*"BILLFINISH",*/                tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
+		{ PPHS_SETPERSONREL             , /*"SETPERSONREL",*/              tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
+		{ PPHS_GETPERSONREL             , /*"GETPERSONREL",*/              tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
+		{ PPHS_SETOBJECTTAG             , /*"SETOBJECTTAG",*/              tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
+		{ PPHS_INCOBJECTTAG             , /*"INCOBJECTTAG",*/              tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
+		{ PPHS_DECOBJECTTAG             , /*"DECOBJECTTAG",*/              tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
+		{ PPHS_GETOBJECTTAG             , /*"GETOBJECTTAG",*/              tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
+		{ PPHS_DRAFTTRANSITGOODSREST    , /*"DRAFTTRANSITGOODSREST",*/     tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
+		{ PPHS_DRAFTTRANSITGOODSRESTLIST, /*"DRAFTTRANSITGOODSRESTLIST",*/ tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
+		{ PPHS_GETGOODSMATRIX           , /*"GETGOODSMATRIX",*/            tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
+		{ PPHS_GETOBJATTACHMENTINFO     , /*"GETOBJATTACHMENTINFO",*/      tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
+		{ PPHS_GETTSESSPLACESTATUS      , /*"GETTSESSPLACESTATUS",*/       tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
+		{ PPHS_TSESSCIPCHECKIN          , /*"TSESSCIPCHECKIN",*/           tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
+		{ PPHS_TSESSCIPCANCEL           , /*"TSESSCIPCANCEL",*/            tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
+		{ PPHS_EXPTARIFFTA              , /*"EXPTARIFFTA",*/               tExpTariffTA,             PPSCMD_EXPTARIFFTA,           cmdfNeedAuth },
+		{ PPHS_SENDSMS                  , /*"SENDSMS",*/                   tSendSMS,                 PPSCMD_SENDSMS,               cmdfNeedAuth },
+		{ PPHS_RESETCACHE               , /*"RESETCACHE",*/                tResetCache,              PPSCMD_RESETCACHE,            cmdfNeedAuth },
+		{ PPHS_LOGLOCKSTACK             , /*"LOGLOCKSTACK",*/              tLogLockStack,            PPSCMD_LOGLOCKSTACK,          0            }, // @v9.8.1
+		{ PPHS_CPOSINIT                 , /*"CPOSINIT",*/                  tCPosProcessorCommand,    PPSCMD_POS_INIT,              cmdfNeedAuth },
+		{ PPHS_CPOSRELEASE              , /*"CPOSRELEASE",*/               tCPosProcessorCommand,    PPSCMD_POS_RELEASE,           cmdfNeedAuth },
+		{ PPHS_CPOSGETCTABLELIST        , /*"CPOSGETCTABLELIST",*/         tCPosProcessorCommand,    PPSCMD_POS_GETCTABLELIST,     cmdfNeedAuth },
+		{ PPHS_CPOSGETCCHECKLIST        , /*"CPOSGETCCHECKLIST",*/         tCPosProcessorCommand,    PPSCMD_POS_GETCCHECKLIST,     cmdfNeedAuth },
+		{ PPHS_CPOSGETCCHECKLNCOUNT     , /*"CPOSGETCCHECKLNCOUNT",*/      tCPosProcessorCommand,    PPSCMD_POS_GETCCHECKLNCOUNT,  cmdfNeedAuth },
+		{ PPHS_CPOSADDCCHECKLINE        , /*"CPOSADDCCHECKLINE",*/         tCPosProcessorCommand,    PPSCMD_POS_ADDCCHECKLINE,     cmdfNeedAuth },
+		{ PPHS_CPOSRMVCCHECKLINE        , /*"CPOSRMVCCHECKLINE",*/         tCPosProcessorCommand,    PPSCMD_POS_RMVCCHECKLINE,     cmdfNeedAuth },
+		{ PPHS_CPOSCLEARCCHECK          , /*"CPOSCLEARCCHECK",*/           tCPosProcessorCommand,    PPSCMD_POS_CLEARCCHECK,       cmdfNeedAuth },
+		{ PPHS_CPOSRMVCCHECK            , /*"CPOSRMVCCHECK",*/             tCPosProcessorCommand,    PPSCMD_POS_RMVCCHECK,         cmdfNeedAuth },
+		{ PPHS_CPOSPRINTCCHECK          , /*"CPOSPRINTCCHECK",*/           tCPosProcessorCommand,    PPSCMD_POS_PRINTCCHECK,       cmdfNeedAuth },
+		{ PPHS_CPOSPRINTCCHECKLOCAL     , /*"CPOSPRINTCCHECKLOCAL",*/      tCPosProcessorCommand,    PPSCMD_POS_PRINTCCHECKLOCAL,  cmdfNeedAuth },
+		{ PPHS_CPOSGETCFG               , /*"CPOSGETCFG",*/                tCPosProcessorCommand,    PPSCMD_POS_GETCONFIG,         cmdfNeedAuth },
+		{ PPHS_CPOSSETCFG               , /*"CPOSSETCFG",*/                tCPosProcessorCommand,    PPSCMD_POS_SETCONFIG,         cmdfNeedAuth },
+		{ PPHS_CPOSGETSTATE             , /*"CPOSGETSTATE",*/              tCPosProcessorCommand,    PPSCMD_POS_GETSTATE,          cmdfNeedAuth },
+		{ PPHS_CPOSSELECTCCHECK         , /*"CPOSSELECTCCHECK",*/          tCPosProcessorCommand,    PPSCMD_POS_SELECTCCHECK,      cmdfNeedAuth },
+		{ PPHS_CPOSSUSPENDCCHECK        , /*"CPOSSUSPENDCCHECK",*/         tCPosProcessorCommand,    PPSCMD_POS_SUSPENDCCHECK,     cmdfNeedAuth },
+		{ PPHS_CPOSSELECTTBL            , /*"CPOSSELECTTBL",*/             tCPosProcessorCommand,    PPSCMD_POS_SELECTCTABLE,      cmdfNeedAuth },
+		{ PPHS_CPOSGETRIGHTS            , /*"CPOSGETRIGHTS",*/             tCPosProcessorCommand,    PPSCMD_POS_GETCPOSRIGHTS,     cmdfNeedAuth },
+		{ PPHS_CPOSDECRYPTAUTHDATA      , /*"CPOSDECRYPTAUTHDATA",*/       tCPosProcessorCommand,    PPSCMD_POS_DECRYPTAUTHDATA,   cmdfNeedAuth },
+		{ PPHS_CPOSGETGOODSPRICE        , /*"CPOSGETGOODSPRICE",*/         tCPosProcessorCommand,    PPSCMD_POS_GETGOODSPRICE,     cmdfNeedAuth },
+		{ PPHS_CPOSGETCURRENTSTATE      , /*"CPOSGETCURRENTSTATE",*/       tCPosProcessorCommand,    PPSCMD_POS_GETCURRENTSTATE,   cmdfNeedAuth },
+		{ PPHS_CPOSRESETCURRENTLINE     , /*"CPOSRESETCURRENTLINE",*/      tCPosProcessorCommand,    PPSCMD_POS_RESETCURRENTLINE,  cmdfNeedAuth },
+		{ PPHS_CPOSPROCESSBARCODE       , /*"CPOSPROCESSBARCODE",*/        tCPosProcessorCommand,    PPSCMD_POS_PROCESSBARCODE,    cmdfNeedAuth },
+		{ PPHS_CPOSSETCCROWQUEUE        , /*"CPOSSETCCROWQUEUE",*/         tCPosProcessorCommand,    PPSCMD_POS_CPOSSETCCROWQUEUE, cmdfNeedAuth },
+		{ PPHS_CPOSGETMODIFLIST         , /*"CPOSGETMODIFLIST",*/          tCPosProcessorCommand,    PPSCMD_POS_GETMODIFLIST,      cmdfNeedAuth },
+		{ PPHS_GETDISPLAYINFO           , /*"GETDISPLAYINFO",*/            tGetDisplayInfo,          PPSCMD_GETDISPLAYINFO,        cmdfNeedAuth },
+		{ PPHS_GETWORKBOOKCONTENT       , /*"GETWORKBOOKCONTENT",*/        tGetWorkbookContent,      PPSCMD_GETWORKBOOKCONTENT,    cmdfNeedAuth },
+		{ PPHS_SETTXTCMDTERM            , /*"SETTXTCMDTERM",*/             tSetTxtCmdTerm,           PPSCMD_SETTXTCMDTERM,                    0 },
+		{ PPHS_GETKEYWORDSEQ            , /*"GETKEYWORDSEQ",*/             tGetKeywordSeq,           PPSCMD_GETKEYWORDSEQ,         cmdfNeedAuth },
+		{ PPHS_REGISTERSTYLO            , /*"REGISTERSTYLO",*/             tRegisterStylo,           PPSCMD_REGISTERSTYLO,         cmdfNeedAuth },
+		{ PPHS_SETWORKBOOKCOTENT        , /*"SETWORKBOOKCONTENT",*/        tSetWorkbookContent,      PPSCMD_SETWORKBOOKCONTENT,    cmdfNeedAuth },
+		{ PPHS_QUERYNATURALTOKEN        , /*"QUERYNATURALTOKEN",*/         tQueryNaturalToken,       PPSCMD_QUERYNATURALTOKEN,     cmdfNeedAuth },
+		{ PPHS_GETARTICLEBYPERSON       , /*"GETARTICLEBYPERSON",*/        tGetArticleByPerson,      PPSCMD_GETARTICLEBYPERSON,    cmdfNeedAuth },
+		{ PPHS_GETPERSONBYARTICLE       , /*"GETPERSONBYARTICLE",*/        tGetPersonByArticle,      PPSCMD_GETPERSONBYARTICLE,    cmdfNeedAuth },
+		{ PPHS_SETTIMESERIES            , /*"settimeseries",*/             tSetTimeSeries,           PPSCMD_SETTIMESERIES,         cmdfNeedAuth }, // @v10.2.3
+		{ PPHS_GETREQQUOTES             , /*"getreqquotes",*/              tGetReqQuotes,            PPSCMD_GETREQQUOTES,          cmdfNeedAuth }, // @v10.2.4
+		{ PPHS_SETTIMESERIESPROP        , /*"settimeseriesprop",*/         tSetTimeSeriesProp,       PPSCMD_SETTIMESERIESPROP,     cmdfNeedAuth }, // @v10.2.5
+		{ PPHS_SETTIMESERIESSTKENV      , /*"settimeseriesstkenv",*/       tSetTimeSeriesStkEnv,     PPSCMD_SETTIMESERIESSTKENV,   cmdfNeedAuth }, // @v10.2.10
+		{ PPHS_GETCOMMONMQSCONFIG       , /*"getcommonmqsconfig",*/        tGetCommonMqsConfig,      PPSCMD_GETCOMMONMQSCONFIG,    cmdfNeedAuth }, // @v10.5.9
 	};
 	int    ok = 1;
 	size_t p = 0;
-	SString temp_buf, name, pw, db_symb;
+	SString temp_buf;
+	SString name;
+	SString pw;
+	SString db_symb;
 	int    err = 0;
 	H.Type = 0;
 	int    tok = 0;
@@ -473,13 +483,15 @@ int PPServerCmd::ParseLine(const SString & rLine, long flags)
     THROW(GetWord(rLine, &p));
 	Term.ToLower();
 	CALLPTRMEMB(P_ShT, Search(Term, &_u_hs, 0));
-	for(i = 0; i < SIZEOFARRAY(symb_list); i++) {
-		if(symb_list[i].H == _u_hs) {
-			assert(sstreqi_ascii(symb_list[i].P_Symb, Term)); // @1
-			tok = symb_list[i].Tok;
-			H.Type = symb_list[i].CmdType;
-			cmd_flags = symb_list[i].Flags;
-			break;
+	{
+		for(i = 0; i < SIZEOFARRAY(symb_list); i++) {
+			if(symb_list[i].H == _u_hs) {
+				// @v11.2.12 assert(sstreqi_ascii(symb_list[i].P_Symb, Term)); // @1
+				tok = symb_list[i].Tok;
+				H.Type = symb_list[i].CmdType;
+				cmd_flags = symb_list[i].Flags;
+				break;
+			}
 		}
 	}
 	// @v8.7.4 (Не уверен, но похоже эта строка генерирует неприятные побочные эффекты) THROW(!(cmd_flags & cmdfNeedAuth) || DS.GetConstTLA().IsAuth());
@@ -513,6 +525,7 @@ int PPServerCmd::ParseLine(const SString & rLine, long flags)
 			PutParam(1, db_symb);
 			PutParam(2, name);
 			PutParam(3, pw);
+			pw.Obfuscate(); // @v11.2.12
 			break;
 		case tSuspend:
 			if(GetWord(rLine, &p)) {
@@ -559,6 +572,7 @@ int PPServerCmd::ParseLine(const SString & rLine, long flags)
 			PutParam(1, db_symb);
 			PutParam(2, name);
 			PutParam(3, pw);
+			pw.Obfuscate(); // @v11.2.12
 			break;
 		case tGetBizScores:
 			if(GetWord(rLine, &p)) {
@@ -572,6 +586,7 @@ int PPServerCmd::ParseLine(const SString & rLine, long flags)
 				ok = 0;
 			PutParam(1, name);
 			PutParam(2, pw);
+			pw.Obfuscate(); // @v11.2.12
 			break;
 		case tCheckGlobalCredential:
 			if(GetWord(rLine, &p)) {
@@ -585,6 +600,7 @@ int PPServerCmd::ParseLine(const SString & rLine, long flags)
 				ok = 0;
 			PutParam(1, name);
 			PutParam(2, pw);
+			pw.Obfuscate(); // @v11.2.12
 			break;
 		case tGetTDDO:
 			if(GetWord(rLine, &p)) {
@@ -4009,10 +4025,15 @@ void PPServerSession::Run()
 	};
 	WaitingMode waiting_mode = wmodActiveSession;
 	//
-	SString s, fmt_buf, log_buf, temp_buf;
 	PPJobSrvReply reply(this);
 	PPServerCmd cmd;
-	SString _s, log_file_name, debug_log_file_name;
+	SString s;
+	SString fmt_buf;
+	SString log_buf;
+	SString temp_buf;
+	SString _s;
+	SString log_file_name;
+	SString debug_log_file_name;
 	Evnt   stop_event(SLS.GetStopEventName(_s), Evnt::modeOpen);
 	WSAEVENT sock_event = WSACreateEvent();
 	LDATETIME tm_start = getcurdatetime_();
@@ -4309,7 +4330,8 @@ int CheckVersion()
 //
 //
 //
-int RunNginxServer(); // @prototype(ppngx.cpp)
+int  RunNginxServer(); // @prototype(ppngx.cpp)
+void RunStyloQMqbServer(); // @prototype(styloq.cpp)
 
 int run_server()
 {
@@ -4340,6 +4362,7 @@ int run_server()
 			}
 		}
 // @v10.1.8 #endif // } _PPSERVER
+		RunStyloQMqbServer(); // @v11.2.12 Запуск (если нужно) сервера обработки mqb-запросов StyloQ
 		{
 			class PPServer : public TcpServer {
 			public:
@@ -4820,7 +4843,7 @@ SLTEST_R(PapyrusTcpClient)
 		}
 		else {
 			addr.ToStr(InetAddr::fmtHost | InetAddr::fmtPort, srv_addr_line);
-			SetInfo(temp_buf.Printf("Unable connect to %s", srv_addr_line.cptr()), 0);
+			SetInfo(temp_buf.Printf("Unable to connect to %s", srv_addr_line.cptr()), 0);
 		}
 	}
 	else

@@ -954,7 +954,7 @@ UnicodeString &SimpleDateFormat::format(Calendar& cal, UnicodeString & appendTo,
 UnicodeString &SimpleDateFormat::_format(Calendar& cal, UnicodeString & appendTo,
     FieldPositionHandler& handler, UErrorCode & status) const
 {
-	if(U_FAILURE(status) ) {
+	if(U_FAILURE(status)) {
 		return appendTo;
 	}
 	Calendar* workCal = &cal;
@@ -1248,7 +1248,7 @@ void SimpleDateFormat::initNumberFormatters(const Locale &locale, UErrorCode & s
 	if(U_FAILURE(status)) {
 		return;
 	}
-	if(fDateOverride.isBogus() && fTimeOverride.isBogus() ) {
+	if(fDateOverride.isBogus() && fTimeOverride.isBogus()) {
 		return;
 	}
 	umtx_lock(&LOCK);
@@ -2524,7 +2524,7 @@ void SimpleDateFormat::parse(const UnicodeString & text, Calendar& cal, ParsePos
 	// a Saturday, so it can have a 2:30 am -- and it should. [LIU]
 	/*
 	    UDate parsedDate = calendar.getTime();
-	    if( ambiguousYear[0] && !parsedDate.after(fDefaultCenturyStart) ) {
+	    if( ambiguousYear[0] && !parsedDate.after(fDefaultCenturyStart)) {
 	        calendar.add(Calendar.YEAR, 100);
 	        parsedDate = calendar.getTime();
 	    }
@@ -3012,7 +3012,7 @@ int32_t SimpleDateFormat::subParse(const UnicodeString & text, int32_t& start, U
 	bool gotNumber = FALSE;
 
 #if defined (U_DEBUG_CAL)
-	//fprintf(stderr, "%s:%d - [%c]  st=%d \n", __FILE__, __LINE__, (char) ch, start);
+	//slfprintf_stderr("%s:%d - [%c]  st=%d \n", __FILE__, __LINE__, (char) ch, start);
 #endif
 
 	if(patternCharIndex == UDAT_FIELD_COUNT) {
@@ -4150,7 +4150,7 @@ void SimpleDateFormat::setContext(UDisplayContext value, UErrorCode & status)
 #if !UCONFIG_NO_BREAK_ITERATION
 	if(U_SUCCESS(status)) {
 		if(fCapitalizationBrkIter == NULL && (value==UDISPCTX_CAPITALIZATION_FOR_BEGINNING_OF_SENTENCE ||
-		    value==UDISPCTX_CAPITALIZATION_FOR_UI_LIST_OR_MENU || value==UDISPCTX_CAPITALIZATION_FOR_STANDALONE) ) {
+		    value==UDISPCTX_CAPITALIZATION_FOR_UI_LIST_OR_MENU || value==UDISPCTX_CAPITALIZATION_FOR_STANDALONE)) {
 			status = U_ZERO_ERROR;
 			fCapitalizationBrkIter = BreakIterator::createSentenceInstance(fLocale, status);
 			if(U_FAILURE(status)) {

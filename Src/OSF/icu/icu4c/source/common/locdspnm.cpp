@@ -42,9 +42,7 @@ static int32_t ncat(char * buffer, uint32_t buflen, ...)
 }
 
 U_NAMESPACE_BEGIN
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
+//
 // Access resource data for locale components.
 // Wrap code in uloc.c for now.
 class ICUDataTable {
@@ -192,9 +190,9 @@ UnicodeString &DefaultLocaleDisplayNames::keyValueDisplayName(const char * /* ke
 }
 
 #endif  // currently unused class DefaultLocaleDisplayNames
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
+//
+//
+//
 class LocaleDisplayNamesImpl : public LocaleDisplayNames {
 	Locale locale;
 	UDialectHandling dialectHandling;
@@ -492,7 +490,7 @@ UnicodeString &LocaleDisplayNamesImpl::adjustForUsageAndContext(CapContextUsage 
 #if !UCONFIG_NO_BREAK_ITERATION
 	// check to see whether we need to titlecase result
 	if(result.length() > 0 && u_islower(result.char32At(0)) && capitalizationBrkIter!= NULL &&
-	    ( capitalizationContext==UDISPCTX_CAPITALIZATION_FOR_BEGINNING_OF_SENTENCE || fCapitalization[usage]) ) {
+	    ( capitalizationContext==UDISPCTX_CAPITALIZATION_FOR_BEGINNING_OF_SENTENCE || fCapitalization[usage])) {
 		// note fCapitalization[usage] won't be set unless capitalizationContext is UI_LIST_OR_MENU or
 		// STANDALONE
 		static UMutex capitalizationBrkIterLock;

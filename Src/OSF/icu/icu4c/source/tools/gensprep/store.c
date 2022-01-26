@@ -196,7 +196,7 @@ extern void init() {
 
 	/* initialize the two tries */
 	if(NULL==utrie_open(sprepTrie, NULL, MAX_DATA_LENGTH, 0, 0, FALSE)) {
-		fprintf(stderr, "error: failed to initialize tries\n");
+		slfprintf_stderr("error: failed to initialize tries\n");
 		exit(U_MEMORY_ALLOCATION_ERROR);
 	}
 }
@@ -275,7 +275,7 @@ static void storeMappingData()
 				trieWord += 0x02;
 
 				if(trieWord > _SPREP_TYPE_THRESHOLD) {
-					fprintf(stderr, "trieWord cannot contain value greater than 0x%04X.\n", _SPREP_TYPE_THRESHOLD);
+					slfprintf_stderr("trieWord cannot contain value greater than 0x%04X.\n", _SPREP_TYPE_THRESHOLD);
 					exit(U_ILLEGAL_CHAR_FOUND);
 				}
 				/* figure out if the code point has type already stored */
@@ -290,14 +290,14 @@ static void storeMappingData()
 						 * the codepoint has value something other than prohibited
 						 * and a mapping .. error!
 						 */
-						fprintf(stderr, "Type for codepoint \\U%08X already set!.\n", (int)codepoint);
+						slfprintf_stderr("Type for codepoint \\U%08X already set!.\n", (int)codepoint);
 						exit(U_ILLEGAL_ARGUMENT_ERROR);
 					}
 				}
 
 				/* now set the value in the trie */
 				if(!utrie_set32(sprepTrie, codepoint, trieWord)) {
-					fprintf(stderr, "Could not set the value for code point.\n");
+					slfprintf_stderr("Could not set the value for code point.\n");
 					exit(U_ILLEGAL_ARGUMENT_ERROR);
 				}
 
@@ -306,7 +306,7 @@ static void storeMappingData()
 
 				/* sanity check are we exceeding the max number allowed */
 				if(currentIndex+value->length+1 > _SPREP_MAX_INDEX_VALUE) {
-					fprintf(stderr, "Too many entries in the mapping table %i. Maximum allowed is %i\n",
+					slfprintf_stderr("Too many entries in the mapping table %i. Maximum allowed is %i\n",
 					    currentIndex+value->length, _SPREP_MAX_INDEX_VALUE);
 					exit(U_INDEX_OUTOFBOUNDS_ERROR);
 				}
@@ -321,7 +321,7 @@ static void storeMappingData()
 				currentIndex += value->length;
 				if(currentIndex > mappingDataCapacity) {
 					// If this happens there is a bug in the computation of the mapping data size in storeMapping() 
-					fprintf(stderr, "gensprep, fatal error at %s, %d.  Aborting.\n", __FILE__, __LINE__);
+					slfprintf_stderr("gensprep, fatal error at %s, %d.  Aborting.\n", __FILE__, __LINE__);
 					exit(U_INTERNAL_PROGRAM_ERROR);
 				}
 			}
@@ -369,7 +369,7 @@ static void storeMappingData()
 			 * the codepoint has value something other than prohibited
 			 * and a mapping .. error!
 			 */
-			fprintf(stderr, "Type for codepoint \\U%08X already set!.\n", (int)codepoint);
+			slfprintf_stderr("Type for codepoint \\U%08X already set!.\n", (int)codepoint);
 			exit(U_ILLEGAL_ARGUMENT_ERROR);
 		}
 	}
@@ -385,14 +385,14 @@ static void storeMappingData()
 		if(trieWord < _SPREP_TYPE_THRESHOLD) {
 			/* now set the value in the trie */
 			if(!utrie_set32(sprepTrie, codepoint, trieWord)) {
-				fprintf(stderr, "Could not set the value for code point.\n");
+				slfprintf_stderr("Could not set the value for code point.\n");
 				exit(U_ILLEGAL_ARGUMENT_ERROR);
 			}
 			/* value is set so just return */
 			return;
 		}
 		else {
-			fprintf(stderr, "trieWord cannot contain value greater than threshold 0x%04X.\n", _SPREP_TYPE_THRESHOLD);
+			slfprintf_stderr("trieWord cannot contain value greater than threshold 0x%04X.\n", _SPREP_TYPE_THRESHOLD);
 			exit(U_ILLEGAL_CHAR_FOUND);
 		}
 	}
@@ -406,14 +406,14 @@ static void storeMappingData()
 
 			/* make sure that the second bit is OFF */
 			if((trieWord & 0x02) != 0) {
-				fprintf(stderr, "The second bit in the trie word is not zero while storing a delta.\n");
+				slfprintf_stderr("The second bit in the trie word is not zero while storing a delta.\n");
 				exit(U_INTERNAL_PROGRAM_ERROR);
 			}
 			/* make sure that the value of trieWord is less than the threshold */
 			if(trieWord < _SPREP_TYPE_THRESHOLD) {
 				/* now set the value in the trie */
 				if(!utrie_set32(sprepTrie, codepoint, trieWord)) {
-					fprintf(stderr, "Could not set the value for code point.\n");
+					slfprintf_stderr("Could not set the value for code point.\n");
 					exit(U_ILLEGAL_ARGUMENT_ERROR);
 				}
 				/* value is set so just return */
@@ -446,7 +446,7 @@ static void storeMappingData()
 	mappingDataCapacity += adjustedLen;
 
 	if(U_FAILURE(*status)) {
-		fprintf(stderr, "Failed to put entries into the hash table. Error: %s\n", u_errorName(*status));
+		slfprintf_stderr("Failed to put entries into the hash table. Error: %s\n", u_errorName(*status));
 		exit(*status);
 	}
 }
@@ -456,7 +456,7 @@ static void storeMappingData()
 	(void)status; // suppress compiler warnings about unused variable
 	uint16_t trieWord = 0;
 	if((int)(_SPREP_TYPE_THRESHOLD + type) > 0xFFFF) {
-		fprintf(stderr, "trieWord cannot contain value greater than 0xFFFF.\n");
+		slfprintf_stderr("trieWord cannot contain value greater than 0xFFFF.\n");
 		exit(U_ILLEGAL_CHAR_FOUND);
 	}
 	trieWord = (_SPREP_TYPE_THRESHOLD + type); /* the top 4 bits contain the value */
@@ -481,7 +481,7 @@ static void storeMappingData()
 				if(trieWord < _SPREP_TYPE_THRESHOLD) {
 					/* now set the value in the trie */
 					if(!utrie_set32(sprepTrie, start, trieWord)) {
-						fprintf(stderr, "Could not set the value for code point.\n");
+						slfprintf_stderr("Could not set the value for code point.\n");
 						exit(U_ILLEGAL_ARGUMENT_ERROR);
 					}
 					/* value is set so just return */
@@ -495,19 +495,19 @@ static void storeMappingData()
 				}
 			}
 			else if(savedTrieWord != trieWord) {
-				fprintf(stderr, "Value for codepoint \\U%08X already set!.\n", (int)start);
+				slfprintf_stderr("Value for codepoint \\U%08X already set!.\n", (int)start);
 				exit(U_ILLEGAL_ARGUMENT_ERROR);
 			}
 			/* if savedTrieWord == trieWord .. fall through and set the value */
 		}
 		if(!utrie_set32(sprepTrie, start, trieWord)) {
-			fprintf(stderr, "Could not set the value for code point \\U%08X.\n", (int)start);
+			slfprintf_stderr("Could not set the value for code point \\U%08X.\n", (int)start);
 			exit(U_ILLEGAL_ARGUMENT_ERROR);
 		}
 	}
 	else {
 		if(!utrie_setRange32(sprepTrie, start, end+1, trieWord, FALSE)) {
-			fprintf(stderr, "Value for certain codepoint already set.\n");
+			slfprintf_stderr("Value for certain codepoint already set.\n");
 			exit(U_ILLEGAL_CHAR_FOUND);
 		}
 	}
@@ -558,7 +558,7 @@ extern void generateData(const char * dataDir, const char * bundleName) {
 
 	sprepTrieSize = utrie_serialize(sprepTrie, sprepTrieBlock, sizeof(sprepTrieBlock), getFoldedValue, TRUE, &errorCode);
 	if(U_FAILURE(errorCode)) {
-		fprintf(stderr, "error: utrie_serialize(sprep trie) failed, %s\n", u_errorName(errorCode));
+		slfprintf_stderr("error: utrie_serialize(sprep trie) failed, %s\n", u_errorName(errorCode));
 		exit(errorCode);
 	}
 
@@ -579,7 +579,7 @@ extern void generateData(const char * dataDir, const char * bundleName) {
 	pData = udata_create(dataDir, DATA_TYPE, fileName, &dataInfo,
 		haveCopyright ? U_COPYRIGHT_STRING : NULL, &errorCode);
 	if(U_FAILURE(errorCode)) {
-		fprintf(stderr, "gensprep: unable to create the output file, error %d\n", errorCode);
+		slfprintf_stderr("gensprep: unable to create the output file, error %d\n", errorCode);
 		exit(errorCode);
 	}
 
@@ -597,12 +597,12 @@ extern void generateData(const char * dataDir, const char * bundleName) {
 	/* finish up */
 	dataLength = udata_finish(pData, &errorCode);
 	if(U_FAILURE(errorCode)) {
-		fprintf(stderr, "gensprep: error %d writing the output file\n", errorCode);
+		slfprintf_stderr("gensprep: error %d writing the output file\n", errorCode);
 		exit(errorCode);
 	}
 
 	if(dataLength!=size) {
-		fprintf(stderr, "gensprep error: data length %ld != calculated size %ld\n",
+		slfprintf_stderr("gensprep error: data length %ld != calculated size %ld\n",
 		    (long)dataLength, (long)size);
 		exit(U_INTERNAL_PROGRAM_ERROR);
 	}

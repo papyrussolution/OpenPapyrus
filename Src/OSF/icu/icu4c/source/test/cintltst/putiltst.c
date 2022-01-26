@@ -433,8 +433,8 @@ static void remainderTest(double x, double y, double exp)
 
 static bool compareWithNAN(double x, double y)
 {
-	if(uprv_isNaN(x) || uprv_isNaN(y) ) {
-		if(!uprv_isNaN(x) || !uprv_isNaN(y) ) {
+	if(uprv_isNaN(x) || uprv_isNaN(y)) {
+		if(!uprv_isNaN(x) || !uprv_isNaN(y)) {
 			return FALSE;
 		}
 	}
@@ -447,7 +447,7 @@ static bool compareWithNAN(double x, double y)
 
 static void doAssert(double got, double expect, const char * message)
 {
-	if(!compareWithNAN(expect, got) ) {
+	if(!compareWithNAN(expect, got)) {
 		log_err("ERROR :  %s. Expected : %lf, Got: %lf\n", message, expect, got);
 	}
 }

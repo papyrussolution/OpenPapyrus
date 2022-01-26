@@ -1,27 +1,12 @@
+// call_once.h
 // Copyright 2017 The Abseil Authors.
-//
 // Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      https://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-// -----------------------------------------------------------------------------
-// File: call_once.h
-// -----------------------------------------------------------------------------
 //
 // This header file provides an Abseil version of `std::call_once` for invoking
 // a given function at most once, across all threads. This Abseil version is
 // faster than the C++11 version and incorporates the C++17 argument-passing
-// fix, so that (for example) non-const references may be passed to the invoked
-// function.
-
+// fix, so that (for example) non-const references may be passed to the invoked function.
+//
 #ifndef ABSL_BASE_CALL_ONCE_H_
 #define ABSL_BASE_CALL_ONCE_H_
 

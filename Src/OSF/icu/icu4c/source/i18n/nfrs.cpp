@@ -177,7 +177,7 @@ NFRuleSet::NFRuleSet(RuleBasedNumberFormat * _owner, UnicodeString * description
 
 	fIsPublic = name.indexOf(gPercentPercent, 2, 0) != 0;
 
-	if(name.endsWith(gNoparse, 8) ) {
+	if(name.endsWith(gNoparse, 8)) {
 		fIsParseable = FALSE;
 		name.truncate(name.length()-8); // remove the @noparse from the name
 	}
@@ -685,12 +685,12 @@ bool NFRuleSet::parse(const UnicodeString & text,
 	ParsePosition workingPos = pos;
 
 #ifdef RBNF_DEBUG
-	fprintf(stderr, "<nfrs> %x '", this);
+	slfprintf_stderr("<nfrs> %x '", this);
 	dumpUS(stderr, name);
-	fprintf(stderr, "' text '");
+	slfprintf_stderr("' text '");
 	dumpUS(stderr, text);
-	fprintf(stderr, "'\n");
-	fprintf(stderr, "  parse negative: %d\n", this, negativeNumberRule != 0);
+	slfprintf_stderr("'\n");
+	slfprintf_stderr("  parse negative: %d\n", this, negativeNumberRule != 0);
 #endif
 	// Try each of the negative rules, fraction rules, infinity rules and NaN rules
 	for(int i = 0; i < NON_NUMERICAL_RULE_LENGTH; i++) {
@@ -713,9 +713,9 @@ bool NFRuleSet::parse(const UnicodeString & text,
 		}
 	}
 #ifdef RBNF_DEBUG
-	fprintf(stderr, "<nfrs> continue other with text '");
+	slfprintf_stderr("<nfrs> continue other with text '");
 	dumpUS(stderr, text);
-	fprintf(stderr, "' hwm: %d\n", highWaterMark.getIndex());
+	slfprintf_stderr("' hwm: %d\n", highWaterMark.getIndex());
 #endif
 
 	// finally, go through the regular rules one at a time.  We start
@@ -735,7 +735,7 @@ bool NFRuleSet::parse(const UnicodeString & text,
 			util64_toa(ub, ubstr, 64);
 			char ubstrhex[64];
 			util64_toa(ub, ubstrhex, 64, 16);
-			fprintf(stderr, "ub: %g, i64: %s (%s)\n", upperBound, ubstr, ubstrhex);
+			slfprintf_stderr("ub: %g, i64: %s (%s)\n", upperBound, ubstr, ubstrhex);
 		}
 #endif
 		for(int32_t i = rules.size(); --i >= 0 && highWaterMark.getIndex() < text.length();) {
@@ -757,7 +757,7 @@ bool NFRuleSet::parse(const UnicodeString & text,
 		}
 	}
 #ifdef RBNF_DEBUG
-	fprintf(stderr, "<nfrs> exit\n");
+	slfprintf_stderr("<nfrs> exit\n");
 #endif
 	// finally, update the parse position we were passed to point to the
 	// first character we didn't use, and return the result that

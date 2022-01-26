@@ -82,8 +82,7 @@ class NumberFormat final :
   explicit constexpr NumberFormat(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   NumberFormat(const NumberFormat& from);
-  NumberFormat(NumberFormat&& from) noexcept
-    : NumberFormat() {
+  NumberFormat(NumberFormat&& from) noexcept : NumberFormat() {
     *this = ::std::move(from);
   }
 
@@ -92,8 +91,8 @@ class NumberFormat final :
     return *this;
   }
   inline NumberFormat& operator=(NumberFormat&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -105,33 +104,22 @@ class NumberFormat final :
     return *this;
   }
 
-  inline const std::string& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString);
-  }
-  inline std::string* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<std::string>();
-  }
+  inline const std::string& unknown_fields() const { return _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString); }
+  inline std::string* mutable_unknown_fields() { return _internal_metadata_.mutable_unknown_fields<std::string>(); }
 
-  static const NumberFormat& default_instance() {
-    return *internal_default_instance();
-  }
+  static const NumberFormat& default_instance() { return *internal_default_instance(); }
   static inline const NumberFormat* internal_default_instance() {
-    return reinterpret_cast<const NumberFormat*>(
-               &_NumberFormat_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    0;
+    return reinterpret_cast<const NumberFormat*>(&_NumberFormat_default_instance_); }
+  static constexpr int kIndexInFileMessages = 0;
 
-  friend void swap(NumberFormat& a, NumberFormat& b) {
-    a.Swap(&b);
-  }
+  friend void swap(NumberFormat& a, NumberFormat& b) { a.Swap(&b); }
   inline void Swap(NumberFormat* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -139,7 +127,7 @@ class NumberFormat final :
     }
   }
   void UnsafeArenaSwap(NumberFormat* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -333,8 +321,7 @@ class PhoneNumberDesc final :
   explicit constexpr PhoneNumberDesc(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   PhoneNumberDesc(const PhoneNumberDesc& from);
-  PhoneNumberDesc(PhoneNumberDesc&& from) noexcept
-    : PhoneNumberDesc() {
+  PhoneNumberDesc(PhoneNumberDesc&& from) noexcept : PhoneNumberDesc() {
     *this = ::std::move(from);
   }
 
@@ -343,8 +330,8 @@ class PhoneNumberDesc final :
     return *this;
   }
   inline PhoneNumberDesc& operator=(PhoneNumberDesc&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -356,33 +343,22 @@ class PhoneNumberDesc final :
     return *this;
   }
 
-  inline const std::string& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString);
-  }
-  inline std::string* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<std::string>();
-  }
+  inline const std::string& unknown_fields() const { return _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString); }
+  inline std::string* mutable_unknown_fields() { return _internal_metadata_.mutable_unknown_fields<std::string>(); }
 
-  static const PhoneNumberDesc& default_instance() {
-    return *internal_default_instance();
-  }
+  static const PhoneNumberDesc& default_instance() { return *internal_default_instance(); }
   static inline const PhoneNumberDesc* internal_default_instance() {
-    return reinterpret_cast<const PhoneNumberDesc*>(
-               &_PhoneNumberDesc_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    1;
+    return reinterpret_cast<const PhoneNumberDesc*>(&_PhoneNumberDesc_default_instance_); }
+  static constexpr int kIndexInFileMessages = 1;
 
-  friend void swap(PhoneNumberDesc& a, PhoneNumberDesc& b) {
-    a.Swap(&b);
-  }
+  friend void swap(PhoneNumberDesc& a, PhoneNumberDesc& b) { a.Swap(&b); }
   inline void Swap(PhoneNumberDesc* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -390,7 +366,7 @@ class PhoneNumberDesc final :
     }
   }
   void UnsafeArenaSwap(PhoneNumberDesc* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -548,8 +524,7 @@ class PhoneMetadata final :
   explicit constexpr PhoneMetadata(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   PhoneMetadata(const PhoneMetadata& from);
-  PhoneMetadata(PhoneMetadata&& from) noexcept
-    : PhoneMetadata() {
+  PhoneMetadata(PhoneMetadata&& from) noexcept : PhoneMetadata() {
     *this = ::std::move(from);
   }
 
@@ -558,8 +533,8 @@ class PhoneMetadata final :
     return *this;
   }
   inline PhoneMetadata& operator=(PhoneMetadata&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -571,33 +546,22 @@ class PhoneMetadata final :
     return *this;
   }
 
-  inline const std::string& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString);
-  }
-  inline std::string* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<std::string>();
-  }
+  inline const std::string& unknown_fields() const { return _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString); }
+  inline std::string* mutable_unknown_fields() { return _internal_metadata_.mutable_unknown_fields<std::string>(); }
 
-  static const PhoneMetadata& default_instance() {
-    return *internal_default_instance();
-  }
+  static const PhoneMetadata& default_instance() { return *internal_default_instance(); }
   static inline const PhoneMetadata* internal_default_instance() {
-    return reinterpret_cast<const PhoneMetadata*>(
-               &_PhoneMetadata_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    2;
+    return reinterpret_cast<const PhoneMetadata*>(&_PhoneMetadata_default_instance_); }
+  static constexpr int kIndexInFileMessages = 2;
 
-  friend void swap(PhoneMetadata& a, PhoneMetadata& b) {
-    a.Swap(&b);
-  }
+  friend void swap(PhoneMetadata& a, PhoneMetadata& b) { a.Swap(&b); }
   inline void Swap(PhoneMetadata* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -605,7 +569,7 @@ class PhoneMetadata final :
     }
   }
   void UnsafeArenaSwap(PhoneMetadata* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -1290,8 +1254,7 @@ class PhoneMetadataCollection final :
   explicit constexpr PhoneMetadataCollection(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   PhoneMetadataCollection(const PhoneMetadataCollection& from);
-  PhoneMetadataCollection(PhoneMetadataCollection&& from) noexcept
-    : PhoneMetadataCollection() {
+  PhoneMetadataCollection(PhoneMetadataCollection&& from) noexcept : PhoneMetadataCollection() {
     *this = ::std::move(from);
   }
 
@@ -1300,8 +1263,8 @@ class PhoneMetadataCollection final :
     return *this;
   }
   inline PhoneMetadataCollection& operator=(PhoneMetadataCollection&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -1313,33 +1276,22 @@ class PhoneMetadataCollection final :
     return *this;
   }
 
-  inline const std::string& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString);
-  }
-  inline std::string* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<std::string>();
-  }
+  inline const std::string& unknown_fields() const { return _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString); }
+  inline std::string* mutable_unknown_fields() { return _internal_metadata_.mutable_unknown_fields<std::string>(); }
 
-  static const PhoneMetadataCollection& default_instance() {
-    return *internal_default_instance();
-  }
+  static const PhoneMetadataCollection& default_instance() { return *internal_default_instance(); }
   static inline const PhoneMetadataCollection* internal_default_instance() {
-    return reinterpret_cast<const PhoneMetadataCollection*>(
-               &_PhoneMetadataCollection_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    3;
+    return reinterpret_cast<const PhoneMetadataCollection*>(&_PhoneMetadataCollection_default_instance_); }
+  static constexpr int kIndexInFileMessages = 3;
 
-  friend void swap(PhoneMetadataCollection& a, PhoneMetadataCollection& b) {
-    a.Swap(&b);
-  }
+  friend void swap(PhoneMetadataCollection& a, PhoneMetadataCollection& b) { a.Swap(&b); }
   inline void Swap(PhoneMetadataCollection* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -1347,7 +1299,7 @@ class PhoneMetadataCollection final :
     }
   }
   void UnsafeArenaSwap(PhoneMetadataCollection* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -2066,7 +2018,7 @@ inline bool PhoneMetadata::has_general_desc() const {
   return _internal_has_general_desc();
 }
 inline void PhoneMetadata::clear_general_desc() {
-  if (general_desc_ != nullptr) general_desc_->Clear();
+  if(general_desc_ != nullptr) general_desc_->Clear();
   _has_bits_[0] &= ~0x00000100u;
 }
 inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::_internal_general_desc() const {
@@ -2156,7 +2108,7 @@ inline bool PhoneMetadata::has_fixed_line() const {
   return _internal_has_fixed_line();
 }
 inline void PhoneMetadata::clear_fixed_line() {
-  if (fixed_line_ != nullptr) fixed_line_->Clear();
+  if(fixed_line_ != nullptr) fixed_line_->Clear();
   _has_bits_[0] &= ~0x00000200u;
 }
 inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::_internal_fixed_line() const {
@@ -2246,7 +2198,7 @@ inline bool PhoneMetadata::has_mobile() const {
   return _internal_has_mobile();
 }
 inline void PhoneMetadata::clear_mobile() {
-  if (mobile_ != nullptr) mobile_->Clear();
+  if(mobile_ != nullptr) mobile_->Clear();
   _has_bits_[0] &= ~0x00000400u;
 }
 inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::_internal_mobile() const {
@@ -2336,7 +2288,7 @@ inline bool PhoneMetadata::has_toll_free() const {
   return _internal_has_toll_free();
 }
 inline void PhoneMetadata::clear_toll_free() {
-  if (toll_free_ != nullptr) toll_free_->Clear();
+  if(toll_free_ != nullptr) toll_free_->Clear();
   _has_bits_[0] &= ~0x00000800u;
 }
 inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::_internal_toll_free() const {
@@ -2426,7 +2378,7 @@ inline bool PhoneMetadata::has_premium_rate() const {
   return _internal_has_premium_rate();
 }
 inline void PhoneMetadata::clear_premium_rate() {
-  if (premium_rate_ != nullptr) premium_rate_->Clear();
+  if(premium_rate_ != nullptr) premium_rate_->Clear();
   _has_bits_[0] &= ~0x00001000u;
 }
 inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::_internal_premium_rate() const {
@@ -2516,7 +2468,7 @@ inline bool PhoneMetadata::has_shared_cost() const {
   return _internal_has_shared_cost();
 }
 inline void PhoneMetadata::clear_shared_cost() {
-  if (shared_cost_ != nullptr) shared_cost_->Clear();
+  if(shared_cost_ != nullptr) shared_cost_->Clear();
   _has_bits_[0] &= ~0x00002000u;
 }
 inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::_internal_shared_cost() const {
@@ -2606,7 +2558,7 @@ inline bool PhoneMetadata::has_personal_number() const {
   return _internal_has_personal_number();
 }
 inline void PhoneMetadata::clear_personal_number() {
-  if (personal_number_ != nullptr) personal_number_->Clear();
+  if(personal_number_ != nullptr) personal_number_->Clear();
   _has_bits_[0] &= ~0x00004000u;
 }
 inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::_internal_personal_number() const {
@@ -2696,7 +2648,7 @@ inline bool PhoneMetadata::has_voip() const {
   return _internal_has_voip();
 }
 inline void PhoneMetadata::clear_voip() {
-  if (voip_ != nullptr) voip_->Clear();
+  if(voip_ != nullptr) voip_->Clear();
   _has_bits_[0] &= ~0x00008000u;
 }
 inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::_internal_voip() const {
@@ -2786,7 +2738,7 @@ inline bool PhoneMetadata::has_pager() const {
   return _internal_has_pager();
 }
 inline void PhoneMetadata::clear_pager() {
-  if (pager_ != nullptr) pager_->Clear();
+  if(pager_ != nullptr) pager_->Clear();
   _has_bits_[0] &= ~0x00010000u;
 }
 inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::_internal_pager() const {
@@ -2876,7 +2828,7 @@ inline bool PhoneMetadata::has_uan() const {
   return _internal_has_uan();
 }
 inline void PhoneMetadata::clear_uan() {
-  if (uan_ != nullptr) uan_->Clear();
+  if(uan_ != nullptr) uan_->Clear();
   _has_bits_[0] &= ~0x00040000u;
 }
 inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::_internal_uan() const {
@@ -2966,7 +2918,7 @@ inline bool PhoneMetadata::has_emergency() const {
   return _internal_has_emergency();
 }
 inline void PhoneMetadata::clear_emergency() {
-  if (emergency_ != nullptr) emergency_->Clear();
+  if(emergency_ != nullptr) emergency_->Clear();
   _has_bits_[0] &= ~0x00080000u;
 }
 inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::_internal_emergency() const {
@@ -3056,7 +3008,7 @@ inline bool PhoneMetadata::has_voicemail() const {
   return _internal_has_voicemail();
 }
 inline void PhoneMetadata::clear_voicemail() {
-  if (voicemail_ != nullptr) voicemail_->Clear();
+  if(voicemail_ != nullptr) voicemail_->Clear();
   _has_bits_[0] &= ~0x00100000u;
 }
 inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::_internal_voicemail() const {
@@ -3146,7 +3098,7 @@ inline bool PhoneMetadata::has_short_code() const {
   return _internal_has_short_code();
 }
 inline void PhoneMetadata::clear_short_code() {
-  if (short_code_ != nullptr) short_code_->Clear();
+  if(short_code_ != nullptr) short_code_->Clear();
   _has_bits_[0] &= ~0x00200000u;
 }
 inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::_internal_short_code() const {
@@ -3236,7 +3188,7 @@ inline bool PhoneMetadata::has_standard_rate() const {
   return _internal_has_standard_rate();
 }
 inline void PhoneMetadata::clear_standard_rate() {
-  if (standard_rate_ != nullptr) standard_rate_->Clear();
+  if(standard_rate_ != nullptr) standard_rate_->Clear();
   _has_bits_[0] &= ~0x00400000u;
 }
 inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::_internal_standard_rate() const {
@@ -3326,7 +3278,7 @@ inline bool PhoneMetadata::has_carrier_specific() const {
   return _internal_has_carrier_specific();
 }
 inline void PhoneMetadata::clear_carrier_specific() {
-  if (carrier_specific_ != nullptr) carrier_specific_->Clear();
+  if(carrier_specific_ != nullptr) carrier_specific_->Clear();
   _has_bits_[0] &= ~0x00800000u;
 }
 inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::_internal_carrier_specific() const {
@@ -3416,7 +3368,7 @@ inline bool PhoneMetadata::has_sms_services() const {
   return _internal_has_sms_services();
 }
 inline void PhoneMetadata::clear_sms_services() {
-  if (sms_services_ != nullptr) sms_services_->Clear();
+  if(sms_services_ != nullptr) sms_services_->Clear();
   _has_bits_[0] &= ~0x01000000u;
 }
 inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::_internal_sms_services() const {
@@ -3506,7 +3458,7 @@ inline bool PhoneMetadata::has_no_international_dialling() const {
   return _internal_has_no_international_dialling();
 }
 inline void PhoneMetadata::clear_no_international_dialling() {
-  if (no_international_dialling_ != nullptr) no_international_dialling_->Clear();
+  if(no_international_dialling_ != nullptr) no_international_dialling_->Clear();
   _has_bits_[0] &= ~0x00020000u;
 }
 inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::_internal_no_international_dialling() const {

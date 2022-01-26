@@ -974,7 +974,7 @@ static int gssapi_server_mech_authneg(context_t * text,
 
 	if((params->props.security_flags & SASL_SEC_PASS_CREDENTIALS) &&
 	    (!(out_flags & GSS_C_DELEG_FLAG) ||
-	    text->client_creds == GSS_C_NO_CREDENTIAL) ) {
+	    text->client_creds == GSS_C_NO_CREDENTIAL)) {
 		text->utils->seterror(text->utils->conn, SASL_LOG_WARN,
 		    "GSSAPI warning: no credentials were passed");
 		/* continue with authentication */

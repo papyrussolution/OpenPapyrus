@@ -37,12 +37,10 @@
 #include <google/protobuf/stubs/stringprintf.h>
 #include <google/protobuf/any.h>
 #include <google/protobuf/descriptor.pb.h>
-#include <google/protobuf/stubs/once.h>
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/io/tokenizer.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 #include <google/protobuf/descriptor_database.h>
-#include <google/protobuf/dynamic_message.h>
 #include <google/protobuf/generated_message_util.h>
 #include <google/protobuf/text_format.h>
 #include <google/protobuf/unknown_field_set.h>
@@ -741,23 +739,19 @@ public:
 		    };
 
 		fprintf(stderr, "TableArena unused space histogram:\n");
-		fprintf(stderr, "  Current: %u\n",
-		    current_ != nullptr ? current_->space_left() : 0);
+		fprintf(stderr, "  Current: %u\n", current_ != nullptr ? current_->space_left() : 0);
 		print_histogram(full_blocks_, 0);
 		for(size_t i = 0; i < kSmallSizes.size(); ++i) {
 			print_histogram(small_size_blocks_[i], kSmallSizes[i]);
 		}
 	}
-
 	// Current allocation count.
 	// This can be used for checkpointing.
-	size_t num_allocations() const {
-		return num_allocations_;
-	}
-
+	size_t num_allocations() const { return num_allocations_; }
 	// Rollback the latest allocations until we reach back to `checkpoint`
 	// num_allocations.
-	void RollbackTo(size_t checkpoint) {
+	void RollbackTo(size_t checkpoint) 
+	{
 		while(num_allocations_ > checkpoint) {
 			GOOGLE_DCHECK(!rollback_info_.empty());
 			auto& info = rollback_info_.back();

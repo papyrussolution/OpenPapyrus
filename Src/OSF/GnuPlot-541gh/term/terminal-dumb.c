@@ -596,7 +596,7 @@ TERM_PUBLIC void dumb_filled_polygon(GpTermEntry_Static * pThis, int points, gpi
 			SETMAX(ymax, corners[i].y);
 		}
 		// Dynamically allocate node list. 
-		nodeX = (float*)SAlloc::M(sizeof(*nodeX) * points);
+		nodeX = (float *)SAlloc::M(sizeof(*nodeX) * points);
 		// Loop through the rows of the image. 
 		for(pixelY = ymin; pixelY <= ymax + 1; pixelY++) {
 			// Build a sorted list of nodes. 

@@ -38,8 +38,6 @@
 #include <google/protobuf/stubs/stringprintf.h>
 #include <google/protobuf/test_util.h>
 #include <google/protobuf/unittest.pb.h>
-#include <google/protobuf/dynamic_message.h>
-#include <google/protobuf/reflection.h>
 #include <gtest/gtest.h>
 
 namespace google {

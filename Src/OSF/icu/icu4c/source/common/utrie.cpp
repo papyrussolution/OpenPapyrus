@@ -738,7 +738,7 @@ U_CAPI int32_t U_EXPORT2 utrie_serialize(UNewTrie * trie, void * dt, int32_t cap
 	uint32_t * p;
 	uint16_t * dest16;
 	int32_t i, length;
-	uint8* data = NULL;
+	uint8 * data = NULL;
 
 	/* argument check */
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {

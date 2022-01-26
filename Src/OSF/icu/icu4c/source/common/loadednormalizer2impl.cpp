@@ -66,7 +66,7 @@ void LoadedNormalizer2Impl::load(const char * packageName, const char * name, UE
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
-	const uint8 * inBytes = (const uint8*)udata_getMemory(memory);
+	const uint8 * inBytes = (const uint8 *)udata_getMemory(memory);
 	const int32_t * inIndexes = (const int32_t*)inBytes;
 	int32_t indexesLength = inIndexes[IX_NORM_TRIE_OFFSET]/4;
 	if(indexesLength<=IX_MIN_LCCC_CP) {

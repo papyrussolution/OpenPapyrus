@@ -54,14 +54,14 @@ U_CAPI Package * U_EXPORT2 readList(const char * filesPath, const char * listnam
 	const char * listNameEnd;
 
 	if(listname==NULL || listname[0]==0) {
-		fprintf(stderr, "missing list file\n");
+		slfprintf_stderr("missing list file\n");
 		return NULL;
 	}
 
 	if(listPkg == NULL) {
 		listPkg = new Package();
 		if(listPkg==NULL) {
-			fprintf(stderr, "icupkg: not enough memory\n");
+			slfprintf_stderr("icupkg: not enough memory\n");
 			exit(U_MEMORY_ALLOCATION_ERROR);
 		}
 	}
@@ -75,7 +75,7 @@ U_CAPI Package * U_EXPORT2 readList(const char * filesPath, const char * listnam
 
 		file = fopen(listname, "r");
 		if(!file) {
-			fprintf(stderr, "icupkg: unable to open list file \"%s\"\n", listname);
+			slfprintf_stderr("icupkg: unable to open list file \"%s\"\n", listname);
 			delete listPkg;
 			exit(U_FILE_ACCESS_ERROR);
 		}
@@ -160,7 +160,7 @@ U_CAPI int U_EXPORT2 writePackageDatFile(const char * outFilename,
 	if(pkg == NULL) {
 		ownedPkg.adoptInstead(new Package);
 		if(ownedPkg.isNull()) {
-			fprintf(stderr, "icupkg: not enough memory\n");
+			slfprintf_stderr("icupkg: not enough memory\n");
 			return U_MEMORY_ALLOCATION_ERROR;
 		}
 		pkg = ownedPkg.getAlias();

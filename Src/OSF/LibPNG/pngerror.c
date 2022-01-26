@@ -47,8 +47,7 @@ PNG_NORETURN void PNGAPI png_error(png_const_structrp png_ptr, const char * erro
 						break;
 
 				if((png_ptr->flags & PNG_FLAG_STRIP_ERROR_TEXT) != 0) {
-					int i;
-					for(i = 0; i < offset - 1; i++)
+					for(int i = 0; i < offset - 1; i++)
 						msg[i] = error_message[i+1];
 					msg[i - 1] = '\0';
 					error_message = msg;
@@ -375,7 +374,7 @@ void /* PRIVATE */ png_app_error(png_const_structrp png_ptr, const char * error_
  * if the character is invalid.
  */
 #define isnonalpha(c) ((c) < 65 || (c) > 122 || ((c) > 90 && (c) < 97))
-static PNG_CONST char png_digit[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+static const char png_digit[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
 static void /* PRIVATE */ png_format_buffer(png_const_structrp png_ptr, char * buffer, const char * error_message)
 {

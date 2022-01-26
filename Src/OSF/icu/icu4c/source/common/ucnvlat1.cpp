@@ -40,7 +40,7 @@ static void U_CALLCONV _Latin1ToUnicodeWithOffsets(UConverterToUnicodeArgs * pAr
 	int32_t sourceIndex;
 
 	/* set up the local pointers */
-	source = (const uint8*)pArgs->source;
+	source = (const uint8 *)pArgs->source;
 	target = pArgs->target;
 	targetCapacity = (int32_t)(pArgs->targetLimit-pArgs->target);
 	offsets = pArgs->offsets;
@@ -51,7 +51,7 @@ static void U_CALLCONV _Latin1ToUnicodeWithOffsets(UConverterToUnicodeArgs * pAr
 	 * since the conversion here is 1:1 UChar:uint8, we need only one counter
 	 * for the minimum of the sourceLength and targetCapacity
 	 */
-	length = (int32_t)((const uint8*)pArgs->sourceLimit-source);
+	length = (int32_t)((const uint8 *)pArgs->sourceLimit-source);
 	if(length<=targetCapacity) {
 		targetCapacity = length;
 	}
@@ -118,8 +118,8 @@ static void U_CALLCONV _Latin1ToUnicodeWithOffsets(UConverterToUnicodeArgs * pAr
 /* This is a table-less and callback-less version of ucnv_MBCSSingleGetNextUChar(). */
 static UChar32 U_CALLCONV _Latin1GetNextUChar(UConverterToUnicodeArgs * pArgs,
     UErrorCode * pErrorCode) {
-	const uint8 * source = (const uint8*)pArgs->source;
-	if(source<(const uint8*)pArgs->sourceLimit) {
+	const uint8 * source = (const uint8 *)pArgs->source;
+	if(source<(const uint8 *)pArgs->sourceLimit) {
 		pArgs->source = (const char *)(source+1);
 		return *source;
 	}
@@ -495,8 +495,8 @@ static void U_CALLCONV _ASCIIToUnicodeWithOffsets(UConverterToUnicodeArgs * pArg
 	uint8 c;
 
 	/* set up the local pointers */
-	source = (const uint8*)pArgs->source;
-	sourceLimit = (const uint8*)pArgs->sourceLimit;
+	source = (const uint8 *)pArgs->source;
+	sourceLimit = (const uint8 *)pArgs->sourceLimit;
 	target = oldTarget = pArgs->target;
 	targetCapacity = (int32_t)(pArgs->targetLimit-pArgs->target);
 	offsets = pArgs->offsets;
@@ -597,8 +597,8 @@ static UChar32 U_CALLCONV _ASCIIGetNextUChar(UConverterToUnicodeArgs * pArgs,
 	const uint8 * source;
 	uint8 b;
 
-	source = (const uint8*)pArgs->source;
-	if(source<(const uint8*)pArgs->sourceLimit) {
+	source = (const uint8 *)pArgs->source;
+	if(source<(const uint8 *)pArgs->sourceLimit) {
 		b = *source++;
 		pArgs->source = (const char *)source;
 		if(b<=0x7f) {
@@ -635,8 +635,8 @@ static void U_CALLCONV ucnv_ASCIIFromUTF8(UConverterFromUnicodeArgs * pFromUArgs
 	}
 
 	/* set up the local pointers */
-	source = (const uint8*)pToUArgs->source;
-	sourceLimit = (const uint8*)pToUArgs->sourceLimit;
+	source = (const uint8 *)pToUArgs->source;
+	sourceLimit = (const uint8 *)pToUArgs->sourceLimit;
 	target = (uint8 *)pFromUArgs->target;
 	targetCapacity = (int32_t)(pFromUArgs->targetLimit-pFromUArgs->target);
 
@@ -697,7 +697,7 @@ static void U_CALLCONV ucnv_ASCIIFromUTF8(UConverterFromUnicodeArgs * pFromUArgs
 		/* non-ASCII character, handle in standard converter */
 		*pErrorCode = U_USING_DEFAULT_WARNING;
 	}
-	else if(source<sourceLimit && target>=(const uint8*)pFromUArgs->targetLimit) {
+	else if(source<sourceLimit && target>=(const uint8 *)pFromUArgs->targetLimit) {
 		/* target is full */
 		*pErrorCode = U_BUFFER_OVERFLOW_ERROR;
 	}

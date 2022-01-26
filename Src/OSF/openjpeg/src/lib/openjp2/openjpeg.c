@@ -36,37 +36,37 @@
 /* ---------------------------------------------------------------------- */
 /* Functions to set the message handlers */
 
-OPJ_BOOL OPJ_CALLCONV opj_set_info_handler(opj_codec_t * p_codec, opj_msg_callback p_callback, void * p_user_data)
+boolint OPJ_CALLCONV opj_set_info_handler(opj_codec_t * p_codec, opj_msg_callback p_callback, void * p_user_data)
 {
 	opj_codec_private_t * l_codec = (opj_codec_private_t*)p_codec;
 	if(!l_codec) {
-		return OPJ_FALSE;
+		return FALSE;
 	}
 	l_codec->m_event_mgr.info_handler = p_callback;
 	l_codec->m_event_mgr.m_info_data = p_user_data;
-	return OPJ_TRUE;
+	return TRUE;
 }
 
-OPJ_BOOL OPJ_CALLCONV opj_set_warning_handler(opj_codec_t * p_codec, opj_msg_callback p_callback, void * p_user_data)
+boolint OPJ_CALLCONV opj_set_warning_handler(opj_codec_t * p_codec, opj_msg_callback p_callback, void * p_user_data)
 {
 	opj_codec_private_t * l_codec = (opj_codec_private_t*)p_codec;
 	if(!l_codec) {
-		return OPJ_FALSE;
+		return FALSE;
 	}
 	l_codec->m_event_mgr.warning_handler = p_callback;
 	l_codec->m_event_mgr.m_warning_data = p_user_data;
-	return OPJ_TRUE;
+	return TRUE;
 }
 
-OPJ_BOOL OPJ_CALLCONV opj_set_error_handler(opj_codec_t * p_codec, opj_msg_callback p_callback, void * p_user_data)
+boolint OPJ_CALLCONV opj_set_error_handler(opj_codec_t * p_codec, opj_msg_callback p_callback, void * p_user_data)
 {
 	opj_codec_private_t * l_codec = (opj_codec_private_t*)p_codec;
 	if(!l_codec) {
-		return OPJ_FALSE;
+		return FALSE;
 	}
 	l_codec->m_event_mgr.error_handler = p_callback;
 	l_codec->m_event_mgr.m_error_data = p_user_data;
-	return OPJ_TRUE;
+	return TRUE;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -98,12 +98,12 @@ static OPJ_OFF_T opj_skip_from_file(OPJ_OFF_T p_nb_bytes, FILE * p_user_data)
 	return p_nb_bytes;
 }
 
-static OPJ_BOOL opj_seek_from_file(OPJ_OFF_T p_nb_bytes, FILE * p_user_data)
+static boolint opj_seek_from_file(OPJ_OFF_T p_nb_bytes, FILE * p_user_data)
 {
 	if(OPJ_FSEEK(p_user_data, p_nb_bytes, SEEK_SET)) {
-		return OPJ_FALSE;
+		return FALSE;
 	}
-	return OPJ_TRUE;
+	return TRUE;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -149,42 +149,42 @@ opj_codec_t* OPJ_CALLCONV opj_create_decompress(OPJ_CODEC_FORMAT p_format)
 		    l_codec->opj_dump_codec = (void (*)(void*, OPJ_INT32, FILE*))j2k_dump;
 		    l_codec->opj_get_codec_info = (opj_codestream_info_v2_t* (*)(void *))j2k_get_cstr_info;
 		    l_codec->opj_get_codec_index = (opj_codestream_index_t* (*)(void *))j2k_get_cstr_index;
-		    l_codec->m_codec_data.m_decompression.opj_decode = (OPJ_BOOL (*)(void *, struct opj_stream_private *, opj_image_t*, struct opj_event_mgr *))opj_j2k_decode;
-		    l_codec->m_codec_data.m_decompression.opj_end_decompress = (OPJ_BOOL (*)(void *, struct opj_stream_private *, struct opj_event_mgr *))opj_j2k_end_decompress;
-		    l_codec->m_codec_data.m_decompression.opj_read_header = (OPJ_BOOL (*)(struct opj_stream_private *, void *, opj_image_t **, struct opj_event_mgr *))opj_j2k_read_header;
+		    l_codec->m_codec_data.m_decompression.opj_decode = (boolint (*)(void *, struct opj_stream_private *, opj_image_t*, struct opj_event_mgr *))opj_j2k_decode;
+		    l_codec->m_codec_data.m_decompression.opj_end_decompress = (boolint (*)(void *, struct opj_stream_private *, struct opj_event_mgr *))opj_j2k_end_decompress;
+		    l_codec->m_codec_data.m_decompression.opj_read_header = (boolint (*)(struct opj_stream_private *, void *, opj_image_t **, struct opj_event_mgr *))opj_j2k_read_header;
 		    l_codec->m_codec_data.m_decompression.opj_destroy = (void (*)(void *))opj_j2k_destroy;
 		    l_codec->m_codec_data.m_decompression.opj_setup_decoder = (void (*)(void *, opj_dparameters_t *))opj_j2k_setup_decoder;
-		    l_codec->m_codec_data.m_decompression.opj_read_tile_header = (OPJ_BOOL (*)(void *, OPJ_UINT32*, OPJ_UINT32*, OPJ_INT32*, OPJ_INT32*,
-				OPJ_INT32*, OPJ_INT32*, OPJ_UINT32*, OPJ_BOOL*, struct opj_stream_private *, struct opj_event_mgr *))opj_j2k_read_tile_header;
-		    l_codec->m_codec_data.m_decompression.opj_decode_tile_data = (OPJ_BOOL (*)(void *, OPJ_UINT32, OPJ_BYTE*, OPJ_UINT32, struct opj_stream_private *,
+		    l_codec->m_codec_data.m_decompression.opj_read_tile_header = (boolint (*)(void *, OPJ_UINT32*, OPJ_UINT32*, OPJ_INT32*, OPJ_INT32*,
+				OPJ_INT32*, OPJ_INT32*, OPJ_UINT32*, boolint*, struct opj_stream_private *, struct opj_event_mgr *))opj_j2k_read_tile_header;
+		    l_codec->m_codec_data.m_decompression.opj_decode_tile_data = (boolint (*)(void *, OPJ_UINT32, uint8 *, OPJ_UINT32, struct opj_stream_private *,
 				struct opj_event_mgr *))opj_j2k_decode_tile;
 
 		    l_codec->m_codec_data.m_decompression.opj_set_decode_area =
-			(OPJ_BOOL (*)(void *,
+			(boolint (*)(void *,
 			opj_image_t*,
 			OPJ_INT32, OPJ_INT32, OPJ_INT32, OPJ_INT32,
 			struct opj_event_mgr *))opj_j2k_set_decode_area;
 
 		    l_codec->m_codec_data.m_decompression.opj_get_decoded_tile =
-			(OPJ_BOOL (*)(void * p_codec,
+			(boolint (*)(void * p_codec,
 			opj_stream_private_t * p_cio,
 			opj_image_t * p_image,
 			struct opj_event_mgr * p_manager,
 			OPJ_UINT32 tile_index))opj_j2k_get_tile;
 
 		    l_codec->m_codec_data.m_decompression.opj_set_decoded_resolution_factor =
-			(OPJ_BOOL (*)(void * p_codec,
+			(boolint (*)(void * p_codec,
 			OPJ_UINT32 res_factor,
 			struct opj_event_mgr * p_manager))opj_j2k_set_decoded_resolution_factor;
 
 		    l_codec->m_codec_data.m_decompression.opj_set_decoded_components =
-			(OPJ_BOOL (*)(void * p_codec,
+			(boolint (*)(void * p_codec,
 			OPJ_UINT32 numcomps,
 			const OPJ_UINT32 * comps_indices,
 			struct opj_event_mgr * p_manager))opj_j2k_set_decoded_components;
 
 		    l_codec->opj_set_threads =
-			(OPJ_BOOL (*)(void * p_codec, OPJ_UINT32 num_threads))opj_j2k_set_threads;
+			(boolint (*)(void * p_codec, OPJ_UINT32 num_threads))opj_j2k_set_threads;
 
 		    l_codec->m_codec = opj_j2k_create_decompress();
 
@@ -206,24 +206,24 @@ opj_codec_t* OPJ_CALLCONV opj_create_decompress(OPJ_CODEC_FORMAT p_format)
 				void*))jp2_get_cstr_index;
 
 		    l_codec->m_codec_data.m_decompression.opj_decode =
-			(OPJ_BOOL (*)(void *,
+			(boolint (*)(void *,
 			struct opj_stream_private *,
 			opj_image_t*,
 			struct opj_event_mgr *))opj_jp2_decode;
 
 		    l_codec->m_codec_data.m_decompression.opj_end_decompress =
-			(OPJ_BOOL (*)(void *,
+			(boolint (*)(void *,
 			struct opj_stream_private *,
 			struct opj_event_mgr *))opj_jp2_end_decompress;
 
 		    l_codec->m_codec_data.m_decompression.opj_read_header =
-			(OPJ_BOOL (*)(struct opj_stream_private *,
+			(boolint (*)(struct opj_stream_private *,
 			void *,
 			opj_image_t **,
 			struct opj_event_mgr *))opj_jp2_read_header;
 
 		    l_codec->m_codec_data.m_decompression.opj_read_tile_header =
-			(OPJ_BOOL (*)(void *,
+			(boolint (*)(void *,
 			OPJ_UINT32*,
 			OPJ_UINT32*,
 			OPJ_INT32*,
@@ -231,13 +231,13 @@ opj_codec_t* OPJ_CALLCONV opj_create_decompress(OPJ_CODEC_FORMAT p_format)
 			OPJ_INT32 *,
 			OPJ_INT32 *,
 			OPJ_UINT32 *,
-			OPJ_BOOL *,
+			boolint *,
 			struct opj_stream_private *,
 			struct opj_event_mgr *))opj_jp2_read_tile_header;
 
 		    l_codec->m_codec_data.m_decompression.opj_decode_tile_data =
-			(OPJ_BOOL (*)(void *,
-			OPJ_UINT32, OPJ_BYTE*, OPJ_UINT32,
+			(boolint (*)(void *,
+			OPJ_UINT32, uint8 *, OPJ_UINT32,
 			struct opj_stream_private *,
 			struct opj_event_mgr *))opj_jp2_decode_tile;
 
@@ -248,33 +248,33 @@ opj_codec_t* OPJ_CALLCONV opj_create_decompress(OPJ_CODEC_FORMAT p_format)
 			(void (*)(void *, opj_dparameters_t *))opj_jp2_setup_decoder;
 
 		    l_codec->m_codec_data.m_decompression.opj_set_decode_area =
-			(OPJ_BOOL (*)(void *,
+			(boolint (*)(void *,
 			opj_image_t*,
 			OPJ_INT32, OPJ_INT32, OPJ_INT32, OPJ_INT32,
 			struct opj_event_mgr *))opj_jp2_set_decode_area;
 
 		    l_codec->m_codec_data.m_decompression.opj_get_decoded_tile =
-			(OPJ_BOOL (*)(void * p_codec,
+			(boolint (*)(void * p_codec,
 			opj_stream_private_t * p_cio,
 			opj_image_t * p_image,
 			struct opj_event_mgr * p_manager,
 			OPJ_UINT32 tile_index))opj_jp2_get_tile;
 
 		    l_codec->m_codec_data.m_decompression.opj_set_decoded_resolution_factor =
-			(OPJ_BOOL (*)(void * p_codec,
+			(boolint (*)(void * p_codec,
 			OPJ_UINT32 res_factor,
 			opj_event_mgr_t * p_manager))opj_jp2_set_decoded_resolution_factor;
 
 		    l_codec->m_codec_data.m_decompression.opj_set_decoded_components =
-			(OPJ_BOOL (*)(void * p_codec,
+			(boolint (*)(void * p_codec,
 			OPJ_UINT32 numcomps,
 			const OPJ_UINT32 * comps_indices,
 			struct opj_event_mgr * p_manager))opj_jp2_set_decoded_components;
 
 		    l_codec->opj_set_threads =
-			(OPJ_BOOL (*)(void * p_codec, OPJ_UINT32 num_threads))opj_jp2_set_threads;
+			(boolint (*)(void * p_codec, OPJ_UINT32 num_threads))opj_jp2_set_threads;
 
-		    l_codec->m_codec = opj_jp2_create(OPJ_TRUE);
+		    l_codec->m_codec = opj_jp2_create(TRUE);
 
 		    if(!l_codec->m_codec) {
 			    SAlloc::F(l_codec);
@@ -305,7 +305,7 @@ void OPJ_CALLCONV opj_set_default_decoder_parameters(opj_dparameters_t * paramet
 		parameters->flags = 0;
 		/* UniPG>> */
 #ifdef USE_JPWL
-		parameters->jpwl_correct = OPJ_FALSE;
+		parameters->jpwl_correct = FALSE;
 		parameters->jpwl_exp_comps = JPWL_EXPECTED_COMPONENTS;
 		parameters->jpwl_max_tiles = JPWL_MAXIMUM_TILES;
 #endif /* USE_JPWL */
@@ -313,16 +313,16 @@ void OPJ_CALLCONV opj_set_default_decoder_parameters(opj_dparameters_t * paramet
 	}
 }
 
-OPJ_BOOL OPJ_CALLCONV opj_codec_set_threads(opj_codec_t * p_codec, int num_threads)
+boolint OPJ_CALLCONV opj_codec_set_threads(opj_codec_t * p_codec, int num_threads)
 {
 	if(p_codec && (num_threads >= 0)) {
 		opj_codec_private_t * l_codec = (opj_codec_private_t*)p_codec;
 		return l_codec->opj_set_threads(l_codec->m_codec, (OPJ_UINT32)num_threads);
 	}
-	return OPJ_FALSE;
+	return FALSE;
 }
 
-OPJ_BOOL OPJ_CALLCONV opj_setup_decoder(opj_codec_t * p_codec,
+boolint OPJ_CALLCONV opj_setup_decoder(opj_codec_t * p_codec,
     opj_dparameters_t * parameters
     )
 {
@@ -332,34 +332,34 @@ OPJ_BOOL OPJ_CALLCONV opj_setup_decoder(opj_codec_t * p_codec,
 		if(!l_codec->is_decompressor) {
 			opj_event_msg(&(l_codec->m_event_mgr), EVT_ERROR,
 			    "Codec provided to the opj_setup_decoder function is not a decompressor handler.\n");
-			return OPJ_FALSE;
+			return FALSE;
 		}
 
 		l_codec->m_codec_data.m_decompression.opj_setup_decoder(l_codec->m_codec,
 		    parameters);
-		return OPJ_TRUE;
+		return TRUE;
 	}
-	return OPJ_FALSE;
+	return FALSE;
 }
 
-OPJ_BOOL OPJ_CALLCONV opj_read_header(opj_stream_t * p_stream, opj_codec_t * p_codec, opj_image_t ** p_image)
+boolint OPJ_CALLCONV opj_read_header(opj_stream_t * p_stream, opj_codec_t * p_codec, opj_image_t ** p_image)
 {
 	if(p_codec && p_stream) {
 		opj_codec_private_t* l_codec = (opj_codec_private_t*)p_codec;
 		opj_stream_private_t* l_stream = (opj_stream_private_t*)p_stream;
 		if(!l_codec->is_decompressor) {
 			opj_event_msg(&(l_codec->m_event_mgr), EVT_ERROR, "Codec provided to the opj_read_header function is not a decompressor handler.\n");
-			return OPJ_FALSE;
+			return FALSE;
 		}
 		return l_codec->m_codec_data.m_decompression.opj_read_header(l_stream, l_codec->m_codec, p_image, &(l_codec->m_event_mgr));
 	}
-	return OPJ_FALSE;
+	return FALSE;
 }
 
-OPJ_BOOL OPJ_CALLCONV opj_set_decoded_components(opj_codec_t * p_codec,
+boolint OPJ_CALLCONV opj_set_decoded_components(opj_codec_t * p_codec,
     OPJ_UINT32 numcomps,
     const OPJ_UINT32* comps_indices,
-    OPJ_BOOL apply_color_transforms)
+    boolint apply_color_transforms)
 {
 	if(p_codec) {
 		opj_codec_private_t * l_codec = (opj_codec_private_t*)p_codec;
@@ -367,13 +367,13 @@ OPJ_BOOL OPJ_CALLCONV opj_set_decoded_components(opj_codec_t * p_codec,
 		if(!l_codec->is_decompressor) {
 			opj_event_msg(&(l_codec->m_event_mgr), EVT_ERROR,
 			    "Codec provided to the opj_set_decoded_components function is not a decompressor handler.\n");
-			return OPJ_FALSE;
+			return FALSE;
 		}
 
 		if(apply_color_transforms) {
 			opj_event_msg(&(l_codec->m_event_mgr), EVT_ERROR,
-			    "apply_color_transforms = OPJ_TRUE is not supported.\n");
-			return OPJ_FALSE;
+			    "apply_color_transforms = TRUE is not supported.\n");
+			return FALSE;
 		}
 
 		return l_codec->m_codec_data.m_decompression.opj_set_decoded_components(
@@ -382,10 +382,10 @@ OPJ_BOOL OPJ_CALLCONV opj_set_decoded_components(opj_codec_t * p_codec,
 			comps_indices,
 			&(l_codec->m_event_mgr));
 	}
-	return OPJ_FALSE;
+	return FALSE;
 }
 
-OPJ_BOOL OPJ_CALLCONV opj_decode(opj_codec_t * p_codec,
+boolint OPJ_CALLCONV opj_decode(opj_codec_t * p_codec,
     opj_stream_t * p_stream,
     opj_image_t* p_image)
 {
@@ -394,7 +394,7 @@ OPJ_BOOL OPJ_CALLCONV opj_decode(opj_codec_t * p_codec,
 		opj_stream_private_t * l_stream = (opj_stream_private_t*)p_stream;
 
 		if(!l_codec->is_decompressor) {
-			return OPJ_FALSE;
+			return FALSE;
 		}
 
 		return l_codec->m_codec_data.m_decompression.opj_decode(l_codec->m_codec,
@@ -403,10 +403,10 @@ OPJ_BOOL OPJ_CALLCONV opj_decode(opj_codec_t * p_codec,
 			   &(l_codec->m_event_mgr));
 	}
 
-	return OPJ_FALSE;
+	return FALSE;
 }
 
-OPJ_BOOL OPJ_CALLCONV opj_set_decode_area(opj_codec_t * p_codec,
+boolint OPJ_CALLCONV opj_set_decode_area(opj_codec_t * p_codec,
     opj_image_t* p_image,
     OPJ_INT32 p_start_x, OPJ_INT32 p_start_y,
     OPJ_INT32 p_end_x, OPJ_INT32 p_end_y
@@ -416,7 +416,7 @@ OPJ_BOOL OPJ_CALLCONV opj_set_decode_area(opj_codec_t * p_codec,
 		opj_codec_private_t * l_codec = (opj_codec_private_t*)p_codec;
 
 		if(!l_codec->is_decompressor) {
-			return OPJ_FALSE;
+			return FALSE;
 		}
 
 		return l_codec->m_codec_data.m_decompression.opj_set_decode_area(
@@ -426,24 +426,24 @@ OPJ_BOOL OPJ_CALLCONV opj_set_decode_area(opj_codec_t * p_codec,
 			p_end_x, p_end_y,
 			&(l_codec->m_event_mgr));
 	}
-	return OPJ_FALSE;
+	return FALSE;
 }
 
-OPJ_BOOL OPJ_CALLCONV opj_read_tile_header(opj_codec_t * p_codec,
+boolint OPJ_CALLCONV opj_read_tile_header(opj_codec_t * p_codec,
     opj_stream_t * p_stream,
     OPJ_UINT32 * p_tile_index,
     OPJ_UINT32 * p_data_size,
     OPJ_INT32 * p_tile_x0, OPJ_INT32 * p_tile_y0,
     OPJ_INT32 * p_tile_x1, OPJ_INT32 * p_tile_y1,
     OPJ_UINT32 * p_nb_comps,
-    OPJ_BOOL * p_should_go_on)
+    boolint * p_should_go_on)
 {
 	if(p_codec && p_stream && p_data_size && p_tile_index) {
 		opj_codec_private_t * l_codec = (opj_codec_private_t*)p_codec;
 		opj_stream_private_t * l_stream = (opj_stream_private_t*)p_stream;
 
 		if(!l_codec->is_decompressor) {
-			return OPJ_FALSE;
+			return FALSE;
 		}
 
 		return l_codec->m_codec_data.m_decompression.opj_read_tile_header(
@@ -457,12 +457,12 @@ OPJ_BOOL OPJ_CALLCONV opj_read_tile_header(opj_codec_t * p_codec,
 			l_stream,
 			&(l_codec->m_event_mgr));
 	}
-	return OPJ_FALSE;
+	return FALSE;
 }
 
-OPJ_BOOL OPJ_CALLCONV opj_decode_tile_data(opj_codec_t * p_codec,
+boolint OPJ_CALLCONV opj_decode_tile_data(opj_codec_t * p_codec,
     OPJ_UINT32 p_tile_index,
-    OPJ_BYTE * p_data,
+    uint8 * p_data,
     OPJ_UINT32 p_data_size,
     opj_stream_t * p_stream
     )
@@ -472,7 +472,7 @@ OPJ_BOOL OPJ_CALLCONV opj_decode_tile_data(opj_codec_t * p_codec,
 		opj_stream_private_t * l_stream = (opj_stream_private_t*)p_stream;
 
 		if(!l_codec->is_decompressor) {
-			return OPJ_FALSE;
+			return FALSE;
 		}
 
 		return l_codec->m_codec_data.m_decompression.opj_decode_tile_data(
@@ -483,10 +483,10 @@ OPJ_BOOL OPJ_CALLCONV opj_decode_tile_data(opj_codec_t * p_codec,
 			l_stream,
 			&(l_codec->m_event_mgr));
 	}
-	return OPJ_FALSE;
+	return FALSE;
 }
 
-OPJ_BOOL OPJ_CALLCONV opj_get_decoded_tile(opj_codec_t * p_codec,
+boolint OPJ_CALLCONV opj_get_decoded_tile(opj_codec_t * p_codec,
     opj_stream_t * p_stream,
     opj_image_t * p_image,
     OPJ_UINT32 tile_index)
@@ -496,7 +496,7 @@ OPJ_BOOL OPJ_CALLCONV opj_get_decoded_tile(opj_codec_t * p_codec,
 		opj_stream_private_t * l_stream = (opj_stream_private_t*)p_stream;
 
 		if(!l_codec->is_decompressor) {
-			return OPJ_FALSE;
+			return FALSE;
 		}
 
 		return l_codec->m_codec_data.m_decompression.opj_get_decoded_tile(
@@ -507,22 +507,16 @@ OPJ_BOOL OPJ_CALLCONV opj_get_decoded_tile(opj_codec_t * p_codec,
 			tile_index);
 	}
 
-	return OPJ_FALSE;
+	return FALSE;
 }
 
-OPJ_BOOL OPJ_CALLCONV opj_set_decoded_resolution_factor(opj_codec_t * p_codec,
-    OPJ_UINT32 res_factor)
+boolint OPJ_CALLCONV opj_set_decoded_resolution_factor(opj_codec_t * p_codec, OPJ_UINT32 res_factor)
 {
 	opj_codec_private_t * l_codec = (opj_codec_private_t*)p_codec;
-
 	if(!l_codec) {
-		return OPJ_FALSE;
+		return FALSE;
 	}
-
-	return l_codec->m_codec_data.m_decompression.opj_set_decoded_resolution_factor(
-		l_codec->m_codec,
-		res_factor,
-		&(l_codec->m_event_mgr));
+	return l_codec->m_codec_data.m_decompression.opj_set_decoded_resolution_factor(l_codec->m_codec, res_factor, &(l_codec->m_event_mgr));
 }
 
 /* ---------------------------------------------------------------------- */
@@ -530,82 +524,48 @@ OPJ_BOOL OPJ_CALLCONV opj_set_decoded_resolution_factor(opj_codec_t * p_codec,
 
 opj_codec_t* OPJ_CALLCONV opj_create_compress(OPJ_CODEC_FORMAT p_format)
 {
-	opj_codec_private_t * l_codec = 00;
-
-	l_codec = (opj_codec_private_t*)SAlloc::C(1, sizeof(opj_codec_private_t));
+	opj_codec_private_t * l_codec = (opj_codec_private_t*)SAlloc::C(1, sizeof(opj_codec_private_t));
 	if(!l_codec) {
 		return 00;
 	}
-
 	l_codec->is_decompressor = 0;
-
 	switch(p_format) {
 		case OPJ_CODEC_J2K:
-		    l_codec->m_codec_data.m_compression.opj_encode = (OPJ_BOOL (*)(void *,
-			struct opj_stream_private *,
-			struct opj_event_mgr *))opj_j2k_encode;
-
-		    l_codec->m_codec_data.m_compression.opj_end_compress = (OPJ_BOOL (*)(void *,
-			struct opj_stream_private *,
-			struct opj_event_mgr *))opj_j2k_end_compress;
-
-		    l_codec->m_codec_data.m_compression.opj_start_compress = (OPJ_BOOL (*)(void *,
-			struct opj_stream_private *,
-			struct opj_image *,
-			struct opj_event_mgr *))opj_j2k_start_compress;
-
-		    l_codec->m_codec_data.m_compression.opj_write_tile = (OPJ_BOOL (*)(void *,
-			OPJ_UINT32,
-			OPJ_BYTE*,
-			OPJ_UINT32,
-			struct opj_stream_private *,
-			struct opj_event_mgr *))opj_j2k_write_tile;
-
-		    l_codec->m_codec_data.m_compression.opj_destroy = (void (*)(
-				void *))opj_j2k_destroy;
-
-		    l_codec->m_codec_data.m_compression.opj_setup_encoder = (OPJ_BOOL (*)(void *,
-			opj_cparameters_t *,
-			struct opj_image *,
-			struct opj_event_mgr *))opj_j2k_setup_encoder;
-
-		    l_codec->m_codec_data.m_compression.opj_encoder_set_extra_options = (OPJ_BOOL (
-				*)(void *,
-			const char* const*,
-			struct opj_event_mgr *))opj_j2k_encoder_set_extra_options;
-
-		    l_codec->opj_set_threads =
-			(OPJ_BOOL (*)(void * p_codec, OPJ_UINT32 num_threads))opj_j2k_set_threads;
-
+		    l_codec->m_codec_data.m_compression.opj_encode = (boolint (*)(void *, struct opj_stream_private *, struct opj_event_mgr *))opj_j2k_encode;
+		    l_codec->m_codec_data.m_compression.opj_end_compress = (boolint (*)(void *, struct opj_stream_private *, struct opj_event_mgr *))opj_j2k_end_compress;
+		    l_codec->m_codec_data.m_compression.opj_start_compress = (boolint (*)(void *, struct opj_stream_private *, struct opj_image *, struct opj_event_mgr *))opj_j2k_start_compress;
+		    l_codec->m_codec_data.m_compression.opj_write_tile = (boolint (*)(void *, OPJ_UINT32, uint8 *, OPJ_UINT32, struct opj_stream_private *, struct opj_event_mgr *))opj_j2k_write_tile;
+		    l_codec->m_codec_data.m_compression.opj_destroy = (void (*)(void *))opj_j2k_destroy;
+		    l_codec->m_codec_data.m_compression.opj_setup_encoder = (boolint (*)(void *, opj_cparameters_t *, struct opj_image *, struct opj_event_mgr *))opj_j2k_setup_encoder;
+		    l_codec->m_codec_data.m_compression.opj_encoder_set_extra_options = (boolint (*)(void *, const char* const*, struct opj_event_mgr *))opj_j2k_encoder_set_extra_options;
+		    l_codec->opj_set_threads = (boolint (*)(void * p_codec, OPJ_UINT32 num_threads))opj_j2k_set_threads;
 		    l_codec->m_codec = opj_j2k_create_compress();
 		    if(!l_codec->m_codec) {
 			    SAlloc::F(l_codec);
 			    return 00;
 		    }
-
 		    break;
-
 		case OPJ_CODEC_JP2:
 		    /* get a JP2 decoder handle */
-		    l_codec->m_codec_data.m_compression.opj_encode = (OPJ_BOOL (*)(void *,
+		    l_codec->m_codec_data.m_compression.opj_encode = (boolint (*)(void *,
 			struct opj_stream_private *,
 			struct opj_event_mgr *))opj_jp2_encode;
 
-		    l_codec->m_codec_data.m_compression.opj_end_compress = (OPJ_BOOL (*)(void *,
+		    l_codec->m_codec_data.m_compression.opj_end_compress = (boolint (*)(void *,
 			struct opj_stream_private *,
 			struct opj_event_mgr *))opj_jp2_end_compress;
 
-		    l_codec->m_codec_data.m_compression.opj_start_compress = (OPJ_BOOL (*)(void *,
+		    l_codec->m_codec_data.m_compression.opj_start_compress = (boolint (*)(void *,
 			struct opj_stream_private *,
 			struct opj_image *,
 			struct opj_event_mgr *))opj_jp2_start_compress;
-		    l_codec->m_codec_data.m_compression.opj_write_tile = (OPJ_BOOL (*)(void *, OPJ_UINT32, OPJ_BYTE*, OPJ_UINT32, struct opj_stream_private *, struct opj_event_mgr *))opj_jp2_write_tile;
+		    l_codec->m_codec_data.m_compression.opj_write_tile = (boolint (*)(void *, OPJ_UINT32, uint8 *, OPJ_UINT32, struct opj_stream_private *, struct opj_event_mgr *))opj_jp2_write_tile;
 		    l_codec->m_codec_data.m_compression.opj_destroy = (void (*)(void *))opj_jp2_destroy;
-		    l_codec->m_codec_data.m_compression.opj_setup_encoder = (OPJ_BOOL (*)(void *, opj_cparameters_t *,
+		    l_codec->m_codec_data.m_compression.opj_setup_encoder = (boolint (*)(void *, opj_cparameters_t *,
 				struct opj_image *, struct opj_event_mgr *))opj_jp2_setup_encoder;
-		    l_codec->m_codec_data.m_compression.opj_encoder_set_extra_options = (OPJ_BOOL (*)(void *, const char* const*, struct opj_event_mgr *))opj_jp2_encoder_set_extra_options;
-		    l_codec->opj_set_threads = (OPJ_BOOL (*)(void * p_codec, OPJ_UINT32 num_threads))opj_jp2_set_threads;
-		    l_codec->m_codec = opj_jp2_create(OPJ_FALSE);
+		    l_codec->m_codec_data.m_compression.opj_encoder_set_extra_options = (boolint (*)(void *, const char* const*, struct opj_event_mgr *))opj_jp2_encoder_set_extra_options;
+		    l_codec->opj_set_threads = (boolint (*)(void * p_codec, OPJ_UINT32 num_threads))opj_jp2_set_threads;
+		    l_codec->m_codec = opj_jp2_create(FALSE);
 		    if(!l_codec->m_codec) {
 			    SAlloc::F(l_codec);
 			    return 00;
@@ -647,10 +607,10 @@ void OPJ_CALLCONV opj_set_default_encoder_parameters(opj_cparameters_t * paramet
 		parameters->cp_disto_alloc = 0;
 		parameters->cp_fixed_alloc = 0;
 		parameters->cp_fixed_quality = 0;
-		parameters->jpip_on = OPJ_FALSE;
+		parameters->jpip_on = FALSE;
 		/* UniPG>> */
 #ifdef USE_JPWL
-		parameters->jpwl_epc_on = OPJ_FALSE;
+		parameters->jpwl_epc_on = FALSE;
 		parameters->jpwl_hprot_MH = -1; /* -1 means unassigned */
 		{
 			int i;
@@ -683,7 +643,7 @@ void OPJ_CALLCONV opj_set_default_encoder_parameters(opj_cparameters_t * paramet
 	}
 }
 
-OPJ_BOOL OPJ_CALLCONV opj_setup_encoder(opj_codec_t * p_codec, opj_cparameters_t * parameters, opj_image_t * p_image)
+boolint OPJ_CALLCONV opj_setup_encoder(opj_codec_t * p_codec, opj_cparameters_t * parameters, opj_image_t * p_image)
 {
 	if(p_codec && parameters && p_image) {
 		opj_codec_private_t * l_codec = (opj_codec_private_t*)p_codec;
@@ -691,12 +651,12 @@ OPJ_BOOL OPJ_CALLCONV opj_setup_encoder(opj_codec_t * p_codec, opj_cparameters_t
 			return l_codec->m_codec_data.m_compression.opj_setup_encoder(l_codec->m_codec, parameters, p_image, &(l_codec->m_event_mgr));
 		}
 	}
-	return OPJ_FALSE;
+	return FALSE;
 }
 
 /* ----------------------------------------------------------------------- */
 
-OPJ_BOOL OPJ_CALLCONV opj_encoder_set_extra_options(opj_codec_t * p_codec, const char* const* options)
+boolint OPJ_CALLCONV opj_encoder_set_extra_options(opj_codec_t * p_codec, const char* const* options)
 {
 	if(p_codec) {
 		opj_codec_private_t * l_codec = (opj_codec_private_t*)p_codec;
@@ -704,12 +664,12 @@ OPJ_BOOL OPJ_CALLCONV opj_encoder_set_extra_options(opj_codec_t * p_codec, const
 			return l_codec->m_codec_data.m_compression.opj_encoder_set_extra_options(l_codec->m_codec, options, &(l_codec->m_event_mgr));
 		}
 	}
-	return OPJ_FALSE;
+	return FALSE;
 }
 
 /* ----------------------------------------------------------------------- */
 
-OPJ_BOOL OPJ_CALLCONV opj_start_compress(opj_codec_t * p_codec, opj_image_t * p_image, opj_stream_t * p_stream)
+boolint OPJ_CALLCONV opj_start_compress(opj_codec_t * p_codec, opj_image_t * p_image, opj_stream_t * p_stream)
 {
 	if(p_codec && p_stream) {
 		opj_codec_private_t * l_codec = (opj_codec_private_t*)p_codec;
@@ -718,10 +678,10 @@ OPJ_BOOL OPJ_CALLCONV opj_start_compress(opj_codec_t * p_codec, opj_image_t * p_
 			return l_codec->m_codec_data.m_compression.opj_start_compress(l_codec->m_codec, l_stream, p_image, &(l_codec->m_event_mgr));
 		}
 	}
-	return OPJ_FALSE;
+	return FALSE;
 }
 
-OPJ_BOOL OPJ_CALLCONV opj_encode(opj_codec_t * p_info, opj_stream_t * p_stream)
+boolint OPJ_CALLCONV opj_encode(opj_codec_t * p_info, opj_stream_t * p_stream)
 {
 	if(p_info && p_stream) {
 		opj_codec_private_t * l_codec = (opj_codec_private_t*)p_info;
@@ -730,10 +690,10 @@ OPJ_BOOL OPJ_CALLCONV opj_encode(opj_codec_t * p_info, opj_stream_t * p_stream)
 			return l_codec->m_codec_data.m_compression.opj_encode(l_codec->m_codec, l_stream, &(l_codec->m_event_mgr));
 		}
 	}
-	return OPJ_FALSE;
+	return FALSE;
 }
 
-OPJ_BOOL OPJ_CALLCONV opj_end_compress(opj_codec_t * p_codec,
+boolint OPJ_CALLCONV opj_end_compress(opj_codec_t * p_codec,
     opj_stream_t * p_stream)
 {
 	if(p_codec && p_stream) {
@@ -746,27 +706,27 @@ OPJ_BOOL OPJ_CALLCONV opj_end_compress(opj_codec_t * p_codec,
 				   &(l_codec->m_event_mgr));
 		}
 	}
-	return OPJ_FALSE;
+	return FALSE;
 }
 
-OPJ_BOOL OPJ_CALLCONV opj_end_decompress(opj_codec_t * p_codec, opj_stream_t * p_stream)
+boolint OPJ_CALLCONV opj_end_decompress(opj_codec_t * p_codec, opj_stream_t * p_stream)
 {
 	if(p_codec && p_stream) {
 		opj_codec_private_t * l_codec = (opj_codec_private_t*)p_codec;
 		opj_stream_private_t * l_stream = (opj_stream_private_t*)p_stream;
 		if(!l_codec->is_decompressor) {
-			return OPJ_FALSE;
+			return FALSE;
 		}
 		return l_codec->m_codec_data.m_decompression.opj_end_decompress(l_codec->m_codec, l_stream, &(l_codec->m_event_mgr));
 	}
-	return OPJ_FALSE;
+	return FALSE;
 }
 
-OPJ_BOOL OPJ_CALLCONV opj_set_MCT(opj_cparameters_t * parameters,
-    OPJ_FLOAT32 * pEncodingMatrix,
+boolint OPJ_CALLCONV opj_set_MCT(opj_cparameters_t * parameters,
+    float * pEncodingMatrix,
     OPJ_INT32 * p_dc_shift, OPJ_UINT32 pNbComp)
 {
-	OPJ_UINT32 l_matrix_size = pNbComp * pNbComp * (OPJ_UINT32)sizeof(OPJ_FLOAT32);
+	OPJ_UINT32 l_matrix_size = pNbComp * pNbComp * (OPJ_UINT32)sizeof(float);
 	OPJ_UINT32 l_dc_shift_size = pNbComp * (OPJ_UINT32)sizeof(OPJ_INT32);
 	OPJ_UINT32 l_mct_total_size = l_matrix_size + l_dc_shift_size;
 
@@ -783,19 +743,19 @@ OPJ_BOOL OPJ_CALLCONV opj_set_MCT(opj_cparameters_t * parameters,
 	parameters->tcp_mct = 2;
 	parameters->mct_data = SAlloc::M(l_mct_total_size);
 	if(!parameters->mct_data) {
-		return OPJ_FALSE;
+		return FALSE;
 	}
 
 	memcpy(parameters->mct_data, pEncodingMatrix, l_matrix_size);
-	memcpy(((OPJ_BYTE*)parameters->mct_data) +  l_matrix_size, p_dc_shift,
+	memcpy(((uint8 *)parameters->mct_data) +  l_matrix_size, p_dc_shift,
 	    l_dc_shift_size);
 
-	return OPJ_TRUE;
+	return TRUE;
 }
 
-OPJ_BOOL OPJ_CALLCONV opj_write_tile(opj_codec_t * p_codec,
+boolint OPJ_CALLCONV opj_write_tile(opj_codec_t * p_codec,
     OPJ_UINT32 p_tile_index,
-    OPJ_BYTE * p_data,
+    uint8 * p_data,
     OPJ_UINT32 p_data_size,
     opj_stream_t * p_stream)
 {
@@ -804,7 +764,7 @@ OPJ_BOOL OPJ_CALLCONV opj_write_tile(opj_codec_t * p_codec,
 		opj_stream_private_t * l_stream = (opj_stream_private_t*)p_stream;
 
 		if(l_codec->is_decompressor) {
-			return OPJ_FALSE;
+			return FALSE;
 		}
 
 		return l_codec->m_codec_data.m_compression.opj_write_tile(l_codec->m_codec,
@@ -815,7 +775,7 @@ OPJ_BOOL OPJ_CALLCONV opj_write_tile(opj_codec_t * p_codec,
 			   &(l_codec->m_event_mgr));
 	}
 
-	return OPJ_FALSE;
+	return FALSE;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -891,12 +851,12 @@ void OPJ_CALLCONV opj_destroy_cstr_index(opj_codestream_index_t ** p_cstr_index)
 	}
 }
 
-opj_stream_t* OPJ_CALLCONV opj_stream_create_default_file_stream(const char * fname, OPJ_BOOL p_is_read_stream)
+opj_stream_t* OPJ_CALLCONV opj_stream_create_default_file_stream(const char * fname, boolint p_is_read_stream)
 {
 	return opj_stream_create_file_stream(fname, OPJ_J2K_STREAM_CHUNK_SIZE, p_is_read_stream);
 }
 
-opj_stream_t* OPJ_CALLCONV opj_stream_create_file_stream(const char * fname, OPJ_SIZE_T p_size, OPJ_BOOL p_is_read_stream)
+opj_stream_t* OPJ_CALLCONV opj_stream_create_file_stream(const char * fname, OPJ_SIZE_T p_size, boolint p_is_read_stream)
 {
 	opj_stream_t* l_stream = 00;
 	FILE * p_file;
@@ -931,12 +891,12 @@ opj_stream_t* OPJ_CALLCONV opj_stream_create_file_stream(const char * fname, OPJ
 void * OPJ_CALLCONV opj_image_data_alloc(OPJ_SIZE_T size)
 {
 	void * ret = opj_aligned_malloc(size);
-	/* printf("opj_image_data_alloc %p\n", ret); */
+	// printf("opj_image_data_alloc %p\n", ret); 
 	return ret;
 }
 
 void OPJ_CALLCONV opj_image_data_free(void * ptr)
 {
-	/* printf("opj_image_data_free %p\n", ptr); */
+	// printf("opj_image_data_free %p\n", ptr); 
 	opj_aligned_free(ptr);
 }

@@ -183,7 +183,7 @@ OPJ_UINT32 opj_mqc_numbytes(opj_mqc_t * mqc)
 	return (OPJ_UINT32)diff;
 }
 
-void opj_mqc_init_enc(opj_mqc_t * mqc, OPJ_BYTE * bp)
+void opj_mqc_init_enc(opj_mqc_t * mqc, uint8 * bp)
 {
 	/* To avoid the curctx pointer to be dangling, but not strictly */
 	/* required as the current context is always set before encoding */
@@ -249,7 +249,7 @@ void opj_mqc_bypass_enc(opj_mqc_t * mqc, OPJ_UINT32 d)
 	mqc->ct--;
 	mqc->c = mqc->c + (d << mqc->ct);
 	if(mqc->ct == 0) {
-		*mqc->bp = (OPJ_BYTE)mqc->c;
+		*mqc->bp = (uint8)mqc->c;
 		mqc->ct = 8;
 		/* If the previous byte was 0xff, make sure that the next msb is 0 */
 		if(*mqc->bp == 0xff) {
@@ -260,13 +260,13 @@ void opj_mqc_bypass_enc(opj_mqc_t * mqc, OPJ_UINT32 d)
 	}
 }
 
-OPJ_UINT32 opj_mqc_bypass_get_extra_bytes(opj_mqc_t * mqc, OPJ_BOOL erterm)
+OPJ_UINT32 opj_mqc_bypass_get_extra_bytes(opj_mqc_t * mqc, boolint erterm)
 {
 	return (mqc->ct < 7 ||
 	       (mqc->ct == 7 && (erterm || mqc->bp[-1] != 0xff))) ? 1 : 0;
 }
 
-void opj_mqc_bypass_flush_enc(opj_mqc_t * mqc, OPJ_BOOL erterm)
+void opj_mqc_bypass_flush_enc(opj_mqc_t * mqc, boolint erterm)
 {
 	/* Is there any bit remaining to be flushed ? */
 	/* If the last output byte is 0xff, we can discard it, unless */
@@ -275,7 +275,7 @@ void opj_mqc_bypass_flush_enc(opj_mqc_t * mqc, OPJ_BOOL erterm)
 	/* discarding it, but Kakadu requires it when decoding */
 	/* in -fussy mode) */
 	if(mqc->ct < 7 || (mqc->ct == 7 && (erterm || mqc->bp[-1] != 0xff))) {
-		OPJ_BYTE bit_value = 0;
+		uint8 bit_value = 0;
 		/* If so, fill the remaining lsbs with an alternating sequence of */
 		/* 0,1,... */
 		/* Note: it seems the standard only requires that for a ERTERM flush */
@@ -283,9 +283,9 @@ void opj_mqc_bypass_flush_enc(opj_mqc_t * mqc, OPJ_BOOL erterm)
 		while(mqc->ct > 0) {
 			mqc->ct--;
 			mqc->c += (OPJ_UINT32)(bit_value << mqc->ct);
-			bit_value = (OPJ_BYTE)(1U - bit_value);
+			bit_value = (uint8)(1U - bit_value);
 		}
-		*mqc->bp = (OPJ_BYTE)mqc->c;
+		*mqc->bp = (uint8)mqc->c;
 		/* Advance pointer so that opj_mqc_numbytes() returns a valid value */
 		mqc->bp++;
 	}
@@ -419,7 +419,7 @@ void opj_mqc_segmark_enc(opj_mqc_t * mqc)
 }
 
 static void opj_mqc_init_dec_common(opj_mqc_t * mqc,
-    OPJ_BYTE * bp,
+    uint8 * bp,
     OPJ_UINT32 len,
     OPJ_UINT32 extra_writable_bytes)
 {
@@ -438,7 +438,7 @@ static void opj_mqc_init_dec_common(opj_mqc_t * mqc,
 	mqc->bp = bp;
 }
 
-void opj_mqc_init_dec(opj_mqc_t * mqc, OPJ_BYTE * bp, OPJ_UINT32 len,
+void opj_mqc_init_dec(opj_mqc_t * mqc, uint8 * bp, OPJ_UINT32 len,
     OPJ_UINT32 extra_writable_bytes)
 {
 	/* Implements ISO 15444-1 C.3.5 Initialization of the decoder (INITDEC) */
@@ -462,7 +462,7 @@ void opj_mqc_init_dec(opj_mqc_t * mqc, OPJ_BYTE * bp, OPJ_UINT32 len,
 	mqc->a = 0x8000;
 }
 
-void opj_mqc_raw_init_dec(opj_mqc_t * mqc, OPJ_BYTE * bp, OPJ_UINT32 len,
+void opj_mqc_raw_init_dec(opj_mqc_t * mqc, uint8 * bp, OPJ_UINT32 len,
     OPJ_UINT32 extra_writable_bytes)
 {
 	opj_mqc_init_dec_common(mqc, bp, len, extra_writable_bytes);
@@ -497,14 +497,14 @@ void opj_mqc_byteout(opj_mqc_t * mqc)
 	assert(mqc->bp >= mqc->start - 1);
 	if(*mqc->bp == 0xff) {
 		mqc->bp++;
-		*mqc->bp = (OPJ_BYTE)(mqc->c >> 20);
+		*mqc->bp = (uint8)(mqc->c >> 20);
 		mqc->c &= 0xfffff;
 		mqc->ct = 7;
 	}
 	else {
 		if((mqc->c & 0x8000000) == 0) {
 			mqc->bp++;
-			*mqc->bp = (OPJ_BYTE)(mqc->c >> 19);
+			*mqc->bp = (uint8)(mqc->c >> 19);
 			mqc->c &= 0x7ffff;
 			mqc->ct = 8;
 		}
@@ -513,13 +513,13 @@ void opj_mqc_byteout(opj_mqc_t * mqc)
 			if(*mqc->bp == 0xff) {
 				mqc->c &= 0x7ffffff;
 				mqc->bp++;
-				*mqc->bp = (OPJ_BYTE)(mqc->c >> 20);
+				*mqc->bp = (uint8)(mqc->c >> 20);
 				mqc->c &= 0xfffff;
 				mqc->ct = 7;
 			}
 			else {
 				mqc->bp++;
-				*mqc->bp = (OPJ_BYTE)(mqc->c >> 19);
+				*mqc->bp = (uint8)(mqc->c >> 19);
 				mqc->c &= 0x7ffff;
 				mqc->ct = 8;
 			}

@@ -200,7 +200,7 @@ static int TIFFFillStripPartial(TIFF * tif, int strip, tmsize_t read_ahead, int 
 		/* For JPEG, if there are multiple scans (can generally be known */
 		/* with the  read_ahead used), we need to read the whole strip */
 		if(tif->tif_dir.td_compression==COMPRESSION_JPEG && (uint64)tif->tif_rawcc < td->td_stripbytecount[strip]) {
-			if(TIFFJPEGIsFullStripRequired(tif) ) {
+			if(TIFFJPEGIsFullStripRequired(tif)) {
 				return TIFFFillStrip(tif, strip);
 			}
 		}
@@ -505,7 +505,7 @@ static tmsize_t TIFFReadRawStripOrTile2(TIFF* tif, uint32 strip_or_tile, int is_
 		}
 		return static_cast<tmsize_t>(-1);
 	}
-	if(!TIFFReadAndRealloc(tif, size, 0, is_strip, strip_or_tile, module) ) {
+	if(!TIFFReadAndRealloc(tif, size, 0, is_strip, strip_or_tile, module)) {
 		return static_cast<tmsize_t>(-1);
 	}
 	return (size);
@@ -673,7 +673,7 @@ int TIFFFillStrip(TIFF* tif, uint32 strip)
 				tif->tif_rawdatasize = 0;
 				tif->tif_flags &= ~TIFF_BUFFERMMAP;
 			}
-			if(isMapped(tif) ) {
+			if(isMapped(tif)) {
 				if(bytecountm > tif->tif_rawdatasize && !TIFFReadBufferSetup(tif, 0, bytecountm)) {
 					return 0;
 				}
@@ -989,7 +989,7 @@ int TIFFFillTile(TIFF* tif, uint32 tile)
 				tif->tif_rawdatasize = 0;
 				tif->tif_flags &= ~TIFF_BUFFERMMAP;
 			}
-			if(isMapped(tif) ) {
+			if(isMapped(tif)) {
 				if(bytecountm > tif->tif_rawdatasize && !TIFFReadBufferSetup(tif, 0, bytecountm)) {
 					return 0;
 				}

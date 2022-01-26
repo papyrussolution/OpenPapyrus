@@ -78,7 +78,7 @@ int pthread_create(pthread_t * tid, const pthread_attr_t * attr, void * (__PTW32
 	pthread_attr_t a;
 	HANDLE threadH = 0;
 	int result = EAGAIN;
-	int run =  __PTW32_TRUE;
+	int run =  TRUE;
 	ThreadParms * parms = NULL;
 	unsigned int stackSize;
 	int priority;

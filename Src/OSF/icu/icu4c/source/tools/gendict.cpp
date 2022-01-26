@@ -130,7 +130,7 @@ private:
 			}
 			int32_t delta = c - transformConstant;
 			if(delta < 0 || 0xFD < delta) {
-				fprintf(stderr, "Codepoint U+%04lx out of range for --transform offset-%04lx!\n",
+				slfprintf_stderr("Codepoint U+%04lx out of range for --transform offset-%04lx!\n",
 				    (long)c, (long)transformConstant);
 				exit(U_ILLEGAL_ARGUMENT_ERROR); // TODO: should return and print the line number
 			}
@@ -163,14 +163,14 @@ public:
 			char * end;
 			unsigned long base = uprv_strtoul(t + 7, &end, 16);
 			if(end == (t + 7) || *end != 0 || base > 0x10FF80) {
-				fprintf(stderr, "Syntax for offset value in --transform offset-%s invalid!\n", t + 7);
+				slfprintf_stderr("Syntax for offset value in --transform offset-%s invalid!\n", t + 7);
 				usageAndDie(U_ILLEGAL_ARGUMENT_ERROR);
 			}
 			transformType = DictionaryData::TRANSFORM_TYPE_OFFSET;
 			transformConstant = (UChar32)base;
 		}
 		else {
-			fprintf(stderr, "Invalid transform specified: %s\n", t);
+			slfprintf_stderr("Invalid transform specified: %s\n", t);
 			usageAndDie(U_ILLEGAL_ARGUMENT_ERROR);
 		}
 	}
@@ -245,7 +245,7 @@ int main(int argc, char ** argv)
 	argc = u_parseArgs(argc, argv, UPRV_LENGTHOF(options), options);
 	if(argc<0) {
 		// Unrecognized option
-		fprintf(stderr, "error in command line argument \"%s\"\n", argv[-argc]);
+		slfprintf_stderr("error in command line argument \"%s\"\n", argv[-argc]);
 		usageAndDie(U_ILLEGAL_ARGUMENT_ERROR);
 	}
 	if(options[ARG_HELP].doesOccur || options[ARG_QMARK].doesOccur) {
@@ -255,7 +255,7 @@ int main(int argc, char ** argv)
 	bool verbose = options[ARG_VERBOSE].doesOccur;
 	bool quiet = options[ARG_QUIET].doesOccur;
 	if(argc < 3) {
-		fprintf(stderr, "input and output file must both be specified.\n");
+		slfprintf_stderr("input and output file must both be specified.\n");
 		usageAndDie(U_ILLEGAL_ARGUMENT_ERROR);
 	}
 	const char * outFileName  = argv[2];
@@ -269,12 +269,12 @@ int main(int argc, char ** argv)
 		copyright = U_COPYRIGHT_STRING;
 	}
 	if(options[ARG_UCHARS].doesOccur == options[ARG_BYTES].doesOccur) {
-		fprintf(stderr, "you must specify exactly one type of trie to output!\n");
+		slfprintf_stderr("you must specify exactly one type of trie to output!\n");
 		usageAndDie(U_ILLEGAL_ARGUMENT_ERROR);
 	}
 	bool isBytesTrie = options[ARG_BYTES].doesOccur;
 	if(static_cast<char>(isBytesTrie) != options[ARG_TRANSFORM].doesOccur) {
-		fprintf(stderr, "you must provide a transformation for a bytes trie, and must not provide one for a uchars trie!\n");
+		slfprintf_stderr("you must provide a transformation for a bytes trie, and must not provide one for a uchars trie!\n");
 		usageAndDie(U_ILLEGAL_ARGUMENT_ERROR);
 	}
 	IcuToolErrorCode status("gendict/main()");
@@ -285,7 +285,7 @@ int main(int argc, char ** argv)
 	UErrorCode tempstatus = U_ZERO_ERROR;
 	/* write message with just the name */ // potential for a buffer overflow here...
 	sprintf(msg, "gendict writes dummy %s because of UCONFIG_NO_BREAK_ITERATION and/or UCONFIG_NO_FILE_IO, see uconfig.h", outFileName);
-	fprintf(stderr, "%s\n", msg);
+	slfprintf_stderr("%s\n", msg);
 	/* write the dummy data file */
 	pData = udata_create(outDir, NULL, outFileName, &dataInfo, NULL, &tempstatus);
 	udata_writeBlock(pData, msg, strlen(msg));
@@ -299,7 +299,7 @@ int main(int argc, char ** argv)
 	const char * codepage = "UTF-8";
 	LocalUCHARBUFPointer f(ucbuf_open(wordFileName, &codepage, TRUE, FALSE, status));
 	if(status.isFailure()) {
-		fprintf(stderr, "error opening input file: ICU Error \"%s\"\n", status.errorName());
+		slfprintf_stderr("error opening input file: ICU Error \"%s\"\n", status.errorName());
 		exit(status.reset());
 	}
 	if(verbose) {
@@ -307,7 +307,7 @@ int main(int argc, char ** argv)
 	}
 	DataDict dict(isBytesTrie, status);
 	if(status.isFailure()) {
-		fprintf(stderr, "new DataDict: ICU Error \"%s\"\n", status.errorName());
+		slfprintf_stderr("new DataDict: ICU Error \"%s\"\n", status.errorName());
 		exit(status.reset());
 	}
 	if(options[ARG_TRANSFORM].doesOccur) {
@@ -333,7 +333,7 @@ int main(int argc, char ** argv)
 		for(keyLen = 0; keyLen < fileLine.length() && !u_isspace(fileLine[keyLen]); ++keyLen) {
 		}
 		if(keyLen == 0) {
-			fprintf(stderr, "Error: no word on line %i!\n", lineCount);
+			slfprintf_stderr("Error: no word on line %i!\n", lineCount);
 			isOk = FALSE;
 			continue;
 		}
@@ -346,7 +346,7 @@ int main(int argc, char ** argv)
 		if(keyLen < valueStart) {
 			int32_t valueLength = fileLine.length() - valueStart;
 			if(valueLength > 15) {
-				fprintf(stderr, "Error: value too long on line %i!\n", lineCount);
+				slfprintf_stderr("Error: value too long on line %i!\n", lineCount);
 				isOk = FALSE;
 				continue;
 			}
@@ -355,7 +355,7 @@ int main(int argc, char ** argv)
 			char * end;
 			unsigned long value = uprv_strtoul(s, &end, 0);
 			if(end == s || *end != 0 || (int32_t)uprv_strlen(s) != valueLength || value > 0xffffffff) {
-				fprintf(stderr, "Error: value syntax error or value too large on line %i!\n", lineCount);
+				slfprintf_stderr("Error: value syntax error or value too large on line %i!\n", lineCount);
 				isOk = FALSE;
 				continue;
 			}
@@ -373,7 +373,7 @@ int main(int argc, char ** argv)
 			if(keyLen > maxlen) maxlen = keyLen;
 		}
 		if(status.isFailure()) {
-			fprintf(stderr, "ICU Error \"%s\": Failed to add word to trie at input line %d in input file\n",
+			slfprintf_stderr("ICU Error \"%s\": Failed to add word to trie at input line %d in input file\n",
 			    status.errorName(), lineCount);
 			exit(status.reset());
 		}
@@ -385,7 +385,7 @@ int main(int argc, char ** argv)
 		status.set(U_ILLEGAL_ARGUMENT_ERROR);
 	}
 	if(hasValues && hasValuelessContents) {
-		fprintf(stderr, "warning: file contained both valued and unvalued strings!\n");
+		slfprintf_stderr("warning: file contained both valued and unvalued strings!\n");
 	}
 	if(verbose) {
 		printf("Serializing data...isBytesTrie? %d\n", isBytesTrie);
@@ -414,7 +414,7 @@ int main(int argc, char ** argv)
 	}
 	UNewDataMemory * pData = udata_create(NULL, NULL, outFileName, &dataInfo, copyright, status);
 	if(status.isFailure()) {
-		fprintf(stderr, "gendict: could not open output file \"%s\", \"%s\"\n", outFileName, status.errorName());
+		slfprintf_stderr("gendict: could not open output file \"%s\", \"%s\"\n", outFileName, status.errorName());
 		exit(status.reset());
 	}
 	if(verbose) {
@@ -436,11 +436,11 @@ int main(int argc, char ** argv)
 	udata_writeBlock(pData, outData, outDataSize);
 	size_t bytesWritten = udata_finish(pData, status);
 	if(status.isFailure()) {
-		fprintf(stderr, "gendict: error \"%s\" writing the output file\n", status.errorName());
+		slfprintf_stderr("gendict: error \"%s\" writing the output file\n", status.errorName());
 		exit(status.reset());
 	}
 	if(bytesWritten != (size_t)size) {
-		fprintf(stderr, "Error writing to output file \"%s\"\n", outFileName);
+		slfprintf_stderr("Error writing to output file \"%s\"\n", outFileName);
 		exit(U_INTERNAL_PROGRAM_ERROR);
 	}
 	if(!quiet) {

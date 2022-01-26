@@ -2460,7 +2460,7 @@ void CalendarRegressionTest::TestT6745()
 	for(testLocalePtr = copEthCalLocales; testLocalePtr->locale != NULL; ++testLocalePtr) {
 		UErrorCode status = U_ZERO_ERROR;
 		Calendar * cal = Calendar::createInstance(Locale(testLocalePtr->locale), status);
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			dataerrln((UnicodeString)"FAIL: Calendar::createInstance, locale " + testLocalePtr->locale + ", status " + u_errorName(
 				    status));
 			continue;
@@ -2470,7 +2470,7 @@ void CalendarRegressionTest::TestT6745()
 			status = U_ZERO_ERROR;
 			cal->set(testItemPtr->startYear + testLocalePtr->yearOffset, testItemPtr->startMonth, testItemPtr->startDay, 9, 0);
 			cal->add(testItemPtr->fieldToChange, testItemPtr->fieldDelta, status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				errln((UnicodeString)"FAIL: Calendar::add, locale " + testLocalePtr->locale + ", field/delta " +
 				    testItemPtr->fieldToChange + "/" + testItemPtr->fieldDelta + ", status " + u_errorName(status));
 				continue;
@@ -3039,7 +3039,7 @@ void CalendarRegressionTest::TestPersianCalOverflow() {
 			cal->set(UCAL_JULIAN_DAY, jd);
 			month = cal->get(UCAL_MONTH, status);
 			dayOfMonth = cal->get(UCAL_DATE, status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				errln("FAIL: Calendar->get MONTH/DATE for localeID %s, julianDay %d, status %s", localeID, jd,
 				    u_errorName(status));
 			}
@@ -3073,7 +3073,7 @@ void CalendarRegressionTest::TestIslamicCalOverflow() {
 			year = cal->get(UCAL_YEAR, status);
 			month = cal->get(UCAL_MONTH, status);
 			dayOfMonth = cal->get(UCAL_DATE, status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				errln("FAIL: Calendar->get YEAR/MONTH/DATE for localeID %s, julianDay %d, status %s", localeID, jd, u_errorName(status));
 			}
 			else if(month > maxMonth || dayOfMonth > maxDayOfMonth) {

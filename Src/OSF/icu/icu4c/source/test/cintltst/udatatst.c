@@ -771,7 +771,7 @@ static void TestUDataOpenChoiceDemo2() {
 	if(U_FAILURE(status)) {
 		log_data_err("failed to load data at p=%s t=%s n=%s, isAcceptable", path, type, name);
 	}
-	if(U_SUCCESS(status) ) {
+	if(U_SUCCESS(status)) {
 		udata_close(result);
 	}
 

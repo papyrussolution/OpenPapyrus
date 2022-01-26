@@ -6,7 +6,7 @@
 #include <pp.h>
 #pragma hdrstop
 //
-//   BillTaxArray
+// BillTaxArray
 //
 struct BillTaxEntry { // @flat
 	BillTaxEntry() : VAT(0), SalesTax(0), Amount(0.0)
@@ -54,8 +54,8 @@ int BillTaxArray::Add(BillTaxEntry * e)
 	int    ok = 1;
 	uint   p;
 	if(Search(e->VAT, e->SalesTax, &p)) {
-		BillTaxEntry & bte = at(p);
-		bte.Amount += e->Amount;
+		BillTaxEntry & r_bte = at(p);
+		r_bte.Amount += e->Amount;
 	}
 	else {
 		THROW(Insert(e));
@@ -486,7 +486,11 @@ int SCS_SHTRIHFRF::CheckForCash(double sum)
 
 int SCS_SHTRIHFRF::CheckForEKLZOrFMOverflow()
 {
-	int    ok = 1, is_eklz_present = 0, is_eklz_overflow = 0, is_fm_overflow = 0, free_rec_in_fm = 0;
+	int    ok = 1;
+	int    is_eklz_present = 0;
+	int    is_eklz_overflow = 0;
+	int    is_fm_overflow = 0;
+	int    free_rec_in_fm = 0;
 	THROW(ExecFR(GetECRStatus));
 	THROW(GetFR(EKLZIsPresent, &is_eklz_present));
 	if(is_eklz_present)
@@ -500,7 +504,8 @@ int SCS_SHTRIHFRF::CheckForEKLZOrFMOverflow()
 
 int SCS_SHTRIHFRF::CheckForSessionOver()
 {
-	int    ok = -1, is_24_hours_over = 0;
+	int    ok = -1;
+	int    is_24_hours_over = 0;
 	THROW(ConnectFR());
 	THROW(ExecFR(GetECRStatus));
 	THROW(GetFR(IsFM24HoursOver, &is_24_hours_over));
@@ -529,10 +534,10 @@ int  SCS_SHTRIHFRF::CheckForRibbonUsing(uint ribbonParam)
 
 void SCS_SHTRIHFRF::CutLongTail(char * pBuf)
 {
-	char * p = 0;
 	if(pBuf && static_cast<long>(sstrlen(pBuf)) > CheckStrLen) {
 		pBuf[CheckStrLen + 1] = 0;
-		if((p = strrchr(pBuf, ' ')) != 0)
+		char * p = strrchr(pBuf, ' ');
+		if(p)
 			*p = 0;
 		else
 			pBuf[CheckStrLen] = 0;
@@ -566,14 +571,15 @@ int	SCS_SHTRIHFRF::PrintDiscountInfo(const CCheckPacket * pPack, uint flags)
 		dscnt = -dscnt;
 	if(dscnt > 0.0) {
 		double  pcnt = round(dscnt * 100.0 / (amt + dscnt), 1);
-		SString prn_str, temp_str;
+		SString prn_str;
+		SString temp_buf;
 		SCardCore scc;
 		THROW(SetFR(StringForPrinting, prn_str.Z().CatCharN('-', CheckStrLen)));
 		THROW(ExecFRPrintOper(PrintString));
-		temp_str.Z().Cat(amt + dscnt, SFMT_MONEY);
+		temp_buf.Z().Cat(amt + dscnt, SFMT_MONEY);
 		PPLoadText(PPTXT_CCFMT_AMTWODISCOUNT, prn_str);
 		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER);
-		prn_str.CatCharN(' ', CheckStrLen - prn_str.Len() - temp_str.Len()).Cat(temp_str);
+		prn_str.CatCharN(' ', CheckStrLen - prn_str.Len() - temp_buf.Len()).Cat(temp_buf);
 		THROW(SetFR(StringForPrinting, prn_str));
 		THROW(ExecFRPrintOper(PrintString));
 		if(scc.Search(pPack->Rec.SCardID, 0) > 0) {
@@ -582,20 +588,20 @@ int	SCS_SHTRIHFRF::PrintDiscountInfo(const CCheckPacket * pPack, uint flags)
 			prn_str.Space().Cat(scc.data.Code);
 			THROW(SetFR(StringForPrinting, prn_str));
 			THROW(ExecFRPrintOper(PrintString));
-			if(scc.data.PersonID && GetPersonName(scc.data.PersonID, temp_str) > 0) {
+			if(scc.data.PersonID && GetPersonName(scc.data.PersonID, temp_buf) > 0) {
 				PPLoadText(PPTXT_CCFMT_CARDOWNER, prn_str);
 				prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER);
-				prn_str.Space().Cat(temp_str.Transf(CTRANSF_INNER_TO_OUTER));
+				prn_str.Space().Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
 				CutLongTail(prn_str);
 				THROW(SetFR(StringForPrinting, prn_str));
 				THROW(ExecFRPrintOper(PrintString));
 			}
 		}
-		temp_str.Z().Cat(dscnt, SFMT_MONEY);
+		temp_buf.Z().Cat(dscnt, SFMT_MONEY);
 		PPLoadText(PPTXT_CCFMT_DISCOUNT, prn_str);
 		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER);
 		prn_str.Space().Cat(pcnt, MKSFMTD(0, (flags & PRNCHK_ROUNDINT) ? 0 : 1, NMBF_NOTRAILZ)).CatChar('%');
-		prn_str.CatCharN(' ', CheckStrLen - prn_str.Len() - temp_str.Len()).Cat(temp_str);
+		prn_str.CatCharN(' ', CheckStrLen - prn_str.Len() - temp_buf.Len()).Cat(temp_buf);
 		THROW(SetFR(StringForPrinting, prn_str));
 		THROW(ExecFRPrintOper(PrintString));
 	}
@@ -672,6 +678,22 @@ int SCS_SHTRIHFRF::GetBarcodePrintMethodAndStd(int innerBarcodeStd, int * pOemMe
 	ASSIGN_PTR(pOemStd, oem_std);
 	return ok;
 }
+
+static int GetShtrihVatRateIdent(double vatRate, bool isVatFree) // @v11.2.12
+{
+	int   result = 0;
+	if(isVatFree)
+		result = 4;
+	else {
+		if(feqeps(vatRate, 20.0, 1E-3) || feqeps(vatRate, 18.0, 1E-3))
+			result = 1;
+		else if(feqeps(vatRate, 10.0, 1E-3))
+			result = 2;
+		else if(feqeps(vatRate, 0.0, 1E-3))
+			result = 3;
+	}
+	return result;
+}
 //
 // PrintCheck - коды возврата:
 //   SYNCPRN_NO_ERROR           - OK
@@ -688,7 +710,7 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 	const   int use_fn_op = BIN(Flags & sfUseFnMethods); // @v10.7.2
 	int     ok = 1;
 	int     chk_no = 0;
-	int     is_format = 0;
+	bool    is_format = false;
 	SString temp_buf;
 	SString fmt_buf;
 	SString msg_buf;
@@ -713,8 +735,8 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 		pPack->HasNonFiscalAmount(&real_fiscal, &real_nonfiscal);
 		const double _fiscal = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? real_fiscal : (real_fiscal + real_nonfiscal);
 		const CcAmountList & r_al = pPack->AL_Const();
-		const int is_al = BIN(r_al.getCount());
-		const int is_vat_free = BIN(CnObj.IsVatFree(NodeID) > 0); // @v11.2.11
+		const bool   is_al = LOGIC(r_al.getCount());
+		const bool   is_vat_free = (CnObj.IsVatFree(NodeID) > 0); // @v11.2.11
 		const double amt_bnk = is_al ? r_al.Get(CCAMTTYP_BANK) : ((pPack->Rec.Flags & CCHKF_BANKING) ? _fiscal : 0.0);
 		const double amt_cash = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
 		const double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal);
@@ -741,7 +763,7 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 			SlipLineParam sl_param;
 			THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 			if(r > 0) {
-				is_format = 1;
+				is_format = true;
 				if(static_cast<long>(sdc_param.PageWidth) > CheckStrLen)
 					WriteLogFile_PageWidthOver(format_name);
 				RibbonParam = 0;
@@ -809,6 +831,7 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 						//double _p = round(sl_param.Price, 2);
 						const double _q = sl_param.Qtty;
 						const double _p = sl_param.Price;
+						const int    shtrih_vat_rate_ident = GetShtrihVatRateIdent(sl_param.VatRate, is_vat_free); // @v11.2.11
 						running_total += (_q * _p);
 						THROW(SetFR(Quantity, _q));
 						THROW(SetFR(Price, fabs(_p)));
@@ -817,7 +840,7 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 							THROW(SetFR(StringForPrinting, temp_buf));
 						}
 						THROW(SetFR(Department, (sl_param.DivID > 16 || sl_param.DivID < 0) ? 0 :  sl_param.DivID));
-						THROW(SetFR(Tax1, 0L));
+						THROW(SetFR(Tax1, shtrih_vat_rate_ident)); // @v11.2.12 0L-->shtrih_vat_rate_ident
 						if(use_fn_op) {
 							/*{
 								FNOperation
@@ -977,17 +1000,8 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 				THROW(SetFR(StringForPrinting, ""));
 				if(prn_total_sale) {
 					// @v11.2.11 {
-					int   shtrih_vat_rate_ident = 0;
-					if(is_vat_free)
-						shtrih_vat_rate_ident = 4;
-					else {
-						if(sl_param.VatRate == 20.0 || sl_param.VatRate == 18.0)
-							shtrih_vat_rate_ident = 1;
-						else if(sl_param.VatRate == 10.0)
-							shtrih_vat_rate_ident = 2;
-						else if(sl_param.VatRate == 0.0)
-							shtrih_vat_rate_ident = 3;
-					}
+					const double fixed_vat_rate = 20.0; // ? sl_param.VatRate
+					const int    shtrih_vat_rate_ident = GetShtrihVatRateIdent(fixed_vat_rate, is_vat_free); // @v11.2.12
 					// } @v11.2.11 
 					if(_fiscal != 0.0) {
 						if(!pPack->GetCount()) {
@@ -1117,6 +1131,15 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 				}
 				if(shtrih_taxtype) {
 					THROW(SetFR(TaxType, shtrih_taxtype));
+					// @v11.2.12 @debug {
+					{
+						//PPTXT_LOG_CCTAXSYSTEMSET                  "Для кассового чека установлена система налогообложения %s"
+						PPLoadText(PPTXT_LOG_CCTAXSYSTEMSET, fmt_buf);
+						temp_buf.Z().Cat(tax_sys_id).Space().Cat("->").Space().CatHex(static_cast<long>(shtrih_taxtype));
+						msg_buf.Printf(fmt_buf, temp_buf.cptr());
+						PPLogMessage(PPFILNAM_SHTRIH_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+					}
+					// } @v11.2.12
 				}
 			}
 			// } @v11.2.11
@@ -1530,7 +1553,8 @@ int SCS_SHTRIHFRF::PrintSlipDoc(const CCheckPacket * pPack, const char * pFormat
 
 int SCS_SHTRIHFRF::PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags)
 {
-	int     ok = 1, is_format = 0;
+	int     ok = 1;
+	bool    is_format = false;
 	SlipDocCommonParam  sdc_param;
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
@@ -1544,7 +1568,7 @@ int SCS_SHTRIHFRF::PrintCheckCopy(const CCheckPacket * pPack, const char * pForm
 		SlipLineParam sl_param;
 		THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 		if(r > 0) {
-			is_format = 1;
+			is_format = true;
 			if(static_cast<long>(sdc_param.PageWidth) > CheckStrLen)
 				WriteLogFile_PageWidthOver(format_name);
 			RibbonParam = 0;

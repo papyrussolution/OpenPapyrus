@@ -1701,7 +1701,7 @@ CURLcode Curl_retry_request(struct connectdata * conn,
 		   it again. Bad luck. Retry the same request on a fresh connect! */
 		retry = TRUE;
 	else if(data->state.refused_stream &&
-	    (data->req.bytecount + data->req.headerbytecount == 0) ) {
+	    (data->req.bytecount + data->req.headerbytecount == 0)) {
 		/* This was sent on a refused stream, safe to rerun. A refused stream
 		   error can typically only happen on HTTP/2 level if the stream is safe
 		   to issue again, but the nghttp2 API can deliver the message to other

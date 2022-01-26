@@ -48,7 +48,7 @@ void IntlTestDecimalFormatSymbols::testSymbols(/* char *par */)
 		return;
 	}
 
-	if(en == fr || !(en != fr) ) {
+	if(en == fr || !(en != fr)) {
 		errln("ERROR: English DecimalFormatSymbols equal to French");
 	}
 

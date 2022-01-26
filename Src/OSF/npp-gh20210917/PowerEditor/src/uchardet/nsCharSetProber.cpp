@@ -99,7 +99,7 @@ PRBool nsCharSetProber::FilterWithEnglishLetters(const char * aBuf, PRUint32 aLe
 			isInTag = PR_TRUE;
 
 		if(!(*curPtr & 0x80) &&
-		    (*curPtr < 'A' || (*curPtr > 'Z' && *curPtr < 'a') || *curPtr > 'z') ) {
+		    (*curPtr < 'A' || (*curPtr > 'Z' && *curPtr < 'a') || *curPtr > 'z')) {
 			if(curPtr > prevPtr && !isInTag) { // Current segment contains more than just a symbol
 				                           // and it is not inside a tag, keep it.
 				while(prevPtr < curPtr) *newptr++ = *prevPtr++;

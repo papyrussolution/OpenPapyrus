@@ -254,6 +254,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <BrowseInformationFile />
+      <CompileAsManaged>false</CompileAsManaged>
     </ClCompile>
     <Lib>
       <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
@@ -302,6 +303,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <BrowseInformationFile />
+      <CompileAsManaged>false</CompileAsManaged>
     </ClCompile>
     <Lib>
       <AdditionalOptions>/machine:X64  %(AdditionalOptions)</AdditionalOptions>
@@ -344,6 +346,7 @@
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CompileAsManaged>false</CompileAsManaged>
     </ClCompile>
     <Lib>
       <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
@@ -388,6 +391,7 @@
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CompileAsManaged>false</CompileAsManaged>
     </ClCompile>
     <Lib>
       <AdditionalOptions>/machine:X64  %(AdditionalOptions)</AdditionalOptions>
@@ -435,6 +439,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <BrowseInformationFile />
+      <CompileAsManaged>false</CompileAsManaged>
     </ClCompile>
     <Lib>
       <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
@@ -484,6 +489,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <BrowseInformationFile />
+      <CompileAsManaged>false</CompileAsManaged>
     </ClCompile>
     <Lib>
       <AdditionalOptions>/machine:X64  %(AdditionalOptions)</AdditionalOptions>
@@ -527,6 +533,7 @@
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CompileAsManaged>false</CompileAsManaged>
     </ClCompile>
     <Lib>
       <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
@@ -572,6 +579,7 @@
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CompileAsManaged>false</CompileAsManaged>
     </ClCompile>
     <Lib>
       <AdditionalOptions>/machine:X64  %(AdditionalOptions)</AdditionalOptions>
@@ -614,6 +622,7 @@
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CompileAsManaged>false</CompileAsManaged>
     </ClCompile>
     <Lib>
       <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
@@ -658,6 +667,7 @@
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CompileAsManaged>false</CompileAsManaged>
     </ClCompile>
     <Lib>
       <AdditionalOptions>/machine:X64  %(AdditionalOptions)</AdditionalOptions>
@@ -701,6 +711,7 @@
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CompileAsManaged>false</CompileAsManaged>
     </ClCompile>
     <Lib>
       <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
@@ -746,6 +757,7 @@
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CompileAsManaged>false</CompileAsManaged>
     </ClCompile>
     <Lib>
       <AdditionalOptions>/machine:X64  %(AdditionalOptions)</AdditionalOptions>

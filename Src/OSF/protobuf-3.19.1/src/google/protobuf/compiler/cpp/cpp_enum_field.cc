@@ -249,9 +249,7 @@ void RepeatedEnumFieldGenerator::GenerateAccessorDeclarations(io::Printer* print
 void RepeatedEnumFieldGenerator::GenerateInlineAccessorDefinitions(io::Printer* printer) const {
 	Formatter format(printer, variables_);
 	format(
-		"inline $type$ $classname$::_internal_$name$(int index) const {\n"
-		"  return static_cast< $type$ >($name$_.Get(index));\n"
-		"}\n"
+		"inline $type$ $classname$::_internal_$name$(int index) const { return static_cast< $type$ >($name$_.Get(index)); }\n"
 		"inline $type$ $classname$::$name$(int index) const {\n"
 		"$annotate_get$"
 		"  // @@protoc_insertion_point(field_get:$full_name$)\n"
@@ -339,30 +337,25 @@ void RepeatedEnumFieldGenerator::GenerateSerializeWithCachedSizesToArray(io::Pri
 	}
 }
 
-void RepeatedEnumFieldGenerator::GenerateByteSize(io::Printer* printer) const {
+void RepeatedEnumFieldGenerator::GenerateByteSize(io::Printer* printer) const 
+{
 	Formatter format(printer, variables_);
 	format(
 		"{\n"
 		"  size_t data_size = 0;\n"
-		"  unsigned int count = static_cast<unsigned "
-		"int>(this->_internal_$name$_size());");
+		"  unsigned int count = static_cast<unsigned int>(this->_internal_$name$_size());");
 	format.Indent();
 	format(
-		"for (unsigned int i = 0; i < count; i++) {\n"
-		"  data_size += ::$proto_ns$::internal::WireFormatLite::EnumSize(\n"
-		"    this->_internal_$name$(static_cast<int>(i)));\n"
-		"}\n");
+		"for(unsigned int i = 0; i < count; i++) {\n"
+		"  data_size += ::$proto_ns$::internal::WireFormatLite::EnumSize(this->_internal_$name$(static_cast<int>(i)));\n}\n");
 
 	if(descriptor_->is_packed()) {
 		format(
-			"if (data_size > 0) {\n"
-			"  total_size += $tag_size$ +\n"
-			"    ::$proto_ns$::internal::WireFormatLite::Int32Size(\n"
-			"        static_cast<$int32$>(data_size));\n"
+			"if(data_size > 0) {\n"
+			"  total_size += $tag_size$ + ::$proto_ns$::internal::WireFormatLite::Int32Size(static_cast<$int32$>(data_size));\n"
 			"}\n"
 			"int cached_size = ::$proto_ns$::internal::ToCachedSize(data_size);\n"
-			"_$name$_cached_byte_size_.store(cached_size,\n"
-			"                                std::memory_order_relaxed);\n"
+			"_$name$_cached_byte_size_.store(cached_size, std::memory_order_relaxed);\n"
 			"total_size += data_size;\n");
 	}
 	else {
@@ -372,11 +365,11 @@ void RepeatedEnumFieldGenerator::GenerateByteSize(io::Printer* printer) const {
 	format("}\n");
 }
 
-void RepeatedEnumFieldGenerator::GenerateConstinitInitializer(io::Printer* printer) const {
+void RepeatedEnumFieldGenerator::GenerateConstinitInitializer(io::Printer* printer) const 
+{
 	Formatter format(printer, variables_);
 	format("$name$_()");
-	if(descriptor_->is_packed() &&
-	    HasGeneratedMethods(descriptor_->file(), options_)) {
+	if(descriptor_->is_packed() && HasGeneratedMethods(descriptor_->file(), options_)) {
 		format("\n, _$name$_cached_byte_size_(0)");
 	}
 }

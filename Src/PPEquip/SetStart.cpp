@@ -1,5 +1,5 @@
 // SETSTART.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Интерфейс (асинхронный) к драйверу SetStart (аналогичен ФРОНТОЛ'у)
 //
@@ -439,7 +439,7 @@ int ACS_SETSTART::ExportData(int updOnly)
 							tail.Cat(ATOL_OUTER_SCHEME);                // #13 - Код схемы внешней автоматической скидки
 						tail.Semicol();
 						tail.CatCharN(';', 2);                          // #14-#15 - Не используем
-						if(cn_data.Flags & CASHF_EXPGOODSGROUPS && gds_info.ParentID && grp_n_level_ary.Search(gds_info.ParentID, &level, 0) > 0)
+						if(cn_data.Flags & CASHF_EXPGOODSGROUPS && gds_info.ParentID && grp_n_level_ary.Search(gds_info.ParentID, &level, 0))
 							tail.Cat(gds_info.ParentID);               // #16 - ИД группы товаров
 						else
 							tail.CatChar('0');

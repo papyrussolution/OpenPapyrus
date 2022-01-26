@@ -910,115 +910,115 @@ TestWellKnownTypes::_Internal::value_field(const TestWellKnownTypes* msg) {
   return *msg->value_field_;
 }
 void TestWellKnownTypes::clear_any_field() {
-  if (GetArenaForAllocation() == nullptr && any_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && any_field_ != nullptr) {
     delete any_field_;
   }
   any_field_ = nullptr;
 }
 void TestWellKnownTypes::clear_api_field() {
-  if (GetArenaForAllocation() == nullptr && api_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && api_field_ != nullptr) {
     delete api_field_;
   }
   api_field_ = nullptr;
 }
 void TestWellKnownTypes::clear_duration_field() {
-  if (GetArenaForAllocation() == nullptr && duration_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && duration_field_ != nullptr) {
     delete duration_field_;
   }
   duration_field_ = nullptr;
 }
 void TestWellKnownTypes::clear_empty_field() {
-  if (GetArenaForAllocation() == nullptr && empty_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && empty_field_ != nullptr) {
     delete empty_field_;
   }
   empty_field_ = nullptr;
 }
 void TestWellKnownTypes::clear_field_mask_field() {
-  if (GetArenaForAllocation() == nullptr && field_mask_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && field_mask_field_ != nullptr) {
     delete field_mask_field_;
   }
   field_mask_field_ = nullptr;
 }
 void TestWellKnownTypes::clear_source_context_field() {
-  if (GetArenaForAllocation() == nullptr && source_context_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && source_context_field_ != nullptr) {
     delete source_context_field_;
   }
   source_context_field_ = nullptr;
 }
 void TestWellKnownTypes::clear_struct_field() {
-  if (GetArenaForAllocation() == nullptr && struct_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && struct_field_ != nullptr) {
     delete struct_field_;
   }
   struct_field_ = nullptr;
 }
 void TestWellKnownTypes::clear_timestamp_field() {
-  if (GetArenaForAllocation() == nullptr && timestamp_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && timestamp_field_ != nullptr) {
     delete timestamp_field_;
   }
   timestamp_field_ = nullptr;
 }
 void TestWellKnownTypes::clear_type_field() {
-  if (GetArenaForAllocation() == nullptr && type_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && type_field_ != nullptr) {
     delete type_field_;
   }
   type_field_ = nullptr;
 }
 void TestWellKnownTypes::clear_double_field() {
-  if (GetArenaForAllocation() == nullptr && double_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && double_field_ != nullptr) {
     delete double_field_;
   }
   double_field_ = nullptr;
 }
 void TestWellKnownTypes::clear_float_field() {
-  if (GetArenaForAllocation() == nullptr && float_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && float_field_ != nullptr) {
     delete float_field_;
   }
   float_field_ = nullptr;
 }
 void TestWellKnownTypes::clear_int64_field() {
-  if (GetArenaForAllocation() == nullptr && int64_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && int64_field_ != nullptr) {
     delete int64_field_;
   }
   int64_field_ = nullptr;
 }
 void TestWellKnownTypes::clear_uint64_field() {
-  if (GetArenaForAllocation() == nullptr && uint64_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && uint64_field_ != nullptr) {
     delete uint64_field_;
   }
   uint64_field_ = nullptr;
 }
 void TestWellKnownTypes::clear_int32_field() {
-  if (GetArenaForAllocation() == nullptr && int32_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && int32_field_ != nullptr) {
     delete int32_field_;
   }
   int32_field_ = nullptr;
 }
 void TestWellKnownTypes::clear_uint32_field() {
-  if (GetArenaForAllocation() == nullptr && uint32_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && uint32_field_ != nullptr) {
     delete uint32_field_;
   }
   uint32_field_ = nullptr;
 }
 void TestWellKnownTypes::clear_bool_field() {
-  if (GetArenaForAllocation() == nullptr && bool_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && bool_field_ != nullptr) {
     delete bool_field_;
   }
   bool_field_ = nullptr;
 }
 void TestWellKnownTypes::clear_string_field() {
-  if (GetArenaForAllocation() == nullptr && string_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && string_field_ != nullptr) {
     delete string_field_;
   }
   string_field_ = nullptr;
 }
 void TestWellKnownTypes::clear_bytes_field() {
-  if (GetArenaForAllocation() == nullptr && bytes_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && bytes_field_ != nullptr) {
     delete bytes_field_;
   }
   bytes_field_ = nullptr;
 }
 void TestWellKnownTypes::clear_value_field() {
-  if (GetArenaForAllocation() == nullptr && value_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && value_field_ != nullptr) {
     delete value_field_;
   }
   value_field_ = nullptr;
@@ -1035,97 +1035,97 @@ TestWellKnownTypes::TestWellKnownTypes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 TestWellKnownTypes::TestWellKnownTypes(const TestWellKnownTypes& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if (from._internal_has_any_field()) {
+  if(from._internal_has_any_field()) {
     any_field_ = new ::PROTOBUF_NAMESPACE_ID::Any(*from.any_field_);
   } else {
     any_field_ = nullptr;
   }
-  if (from._internal_has_api_field()) {
+  if(from._internal_has_api_field()) {
     api_field_ = new ::PROTOBUF_NAMESPACE_ID::Api(*from.api_field_);
   } else {
     api_field_ = nullptr;
   }
-  if (from._internal_has_duration_field()) {
+  if(from._internal_has_duration_field()) {
     duration_field_ = new ::PROTOBUF_NAMESPACE_ID::Duration(*from.duration_field_);
   } else {
     duration_field_ = nullptr;
   }
-  if (from._internal_has_empty_field()) {
+  if(from._internal_has_empty_field()) {
     empty_field_ = new ::PROTOBUF_NAMESPACE_ID::Empty(*from.empty_field_);
   } else {
     empty_field_ = nullptr;
   }
-  if (from._internal_has_field_mask_field()) {
+  if(from._internal_has_field_mask_field()) {
     field_mask_field_ = new ::PROTOBUF_NAMESPACE_ID::FieldMask(*from.field_mask_field_);
   } else {
     field_mask_field_ = nullptr;
   }
-  if (from._internal_has_source_context_field()) {
+  if(from._internal_has_source_context_field()) {
     source_context_field_ = new ::PROTOBUF_NAMESPACE_ID::SourceContext(*from.source_context_field_);
   } else {
     source_context_field_ = nullptr;
   }
-  if (from._internal_has_struct_field()) {
+  if(from._internal_has_struct_field()) {
     struct_field_ = new ::PROTOBUF_NAMESPACE_ID::Struct(*from.struct_field_);
   } else {
     struct_field_ = nullptr;
   }
-  if (from._internal_has_timestamp_field()) {
+  if(from._internal_has_timestamp_field()) {
     timestamp_field_ = new ::PROTOBUF_NAMESPACE_ID::Timestamp(*from.timestamp_field_);
   } else {
     timestamp_field_ = nullptr;
   }
-  if (from._internal_has_type_field()) {
+  if(from._internal_has_type_field()) {
     type_field_ = new ::PROTOBUF_NAMESPACE_ID::Type(*from.type_field_);
   } else {
     type_field_ = nullptr;
   }
-  if (from._internal_has_double_field()) {
+  if(from._internal_has_double_field()) {
     double_field_ = new ::PROTOBUF_NAMESPACE_ID::DoubleValue(*from.double_field_);
   } else {
     double_field_ = nullptr;
   }
-  if (from._internal_has_float_field()) {
+  if(from._internal_has_float_field()) {
     float_field_ = new ::PROTOBUF_NAMESPACE_ID::FloatValue(*from.float_field_);
   } else {
     float_field_ = nullptr;
   }
-  if (from._internal_has_int64_field()) {
+  if(from._internal_has_int64_field()) {
     int64_field_ = new ::PROTOBUF_NAMESPACE_ID::Int64Value(*from.int64_field_);
   } else {
     int64_field_ = nullptr;
   }
-  if (from._internal_has_uint64_field()) {
+  if(from._internal_has_uint64_field()) {
     uint64_field_ = new ::PROTOBUF_NAMESPACE_ID::UInt64Value(*from.uint64_field_);
   } else {
     uint64_field_ = nullptr;
   }
-  if (from._internal_has_int32_field()) {
+  if(from._internal_has_int32_field()) {
     int32_field_ = new ::PROTOBUF_NAMESPACE_ID::Int32Value(*from.int32_field_);
   } else {
     int32_field_ = nullptr;
   }
-  if (from._internal_has_uint32_field()) {
+  if(from._internal_has_uint32_field()) {
     uint32_field_ = new ::PROTOBUF_NAMESPACE_ID::UInt32Value(*from.uint32_field_);
   } else {
     uint32_field_ = nullptr;
   }
-  if (from._internal_has_bool_field()) {
+  if(from._internal_has_bool_field()) {
     bool_field_ = new ::PROTOBUF_NAMESPACE_ID::BoolValue(*from.bool_field_);
   } else {
     bool_field_ = nullptr;
   }
-  if (from._internal_has_string_field()) {
+  if(from._internal_has_string_field()) {
     string_field_ = new ::PROTOBUF_NAMESPACE_ID::StringValue(*from.string_field_);
   } else {
     string_field_ = nullptr;
   }
-  if (from._internal_has_bytes_field()) {
+  if(from._internal_has_bytes_field()) {
     bytes_field_ = new ::PROTOBUF_NAMESPACE_ID::BytesValue(*from.bytes_field_);
   } else {
     bytes_field_ = nullptr;
   }
-  if (from._internal_has_value_field()) {
+  if(from._internal_has_value_field()) {
     value_field_ = new ::PROTOBUF_NAMESPACE_ID::Value(*from.value_field_);
   } else {
     value_field_ = nullptr;
@@ -1149,25 +1149,25 @@ TestWellKnownTypes::~TestWellKnownTypes() {
 
 inline void TestWellKnownTypes::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  if (this != internal_default_instance()) delete any_field_;
-  if (this != internal_default_instance()) delete api_field_;
-  if (this != internal_default_instance()) delete duration_field_;
-  if (this != internal_default_instance()) delete empty_field_;
-  if (this != internal_default_instance()) delete field_mask_field_;
-  if (this != internal_default_instance()) delete source_context_field_;
-  if (this != internal_default_instance()) delete struct_field_;
-  if (this != internal_default_instance()) delete timestamp_field_;
-  if (this != internal_default_instance()) delete type_field_;
-  if (this != internal_default_instance()) delete double_field_;
-  if (this != internal_default_instance()) delete float_field_;
-  if (this != internal_default_instance()) delete int64_field_;
-  if (this != internal_default_instance()) delete uint64_field_;
-  if (this != internal_default_instance()) delete int32_field_;
-  if (this != internal_default_instance()) delete uint32_field_;
-  if (this != internal_default_instance()) delete bool_field_;
-  if (this != internal_default_instance()) delete string_field_;
-  if (this != internal_default_instance()) delete bytes_field_;
-  if (this != internal_default_instance()) delete value_field_;
+  if(this != internal_default_instance()) delete any_field_;
+  if(this != internal_default_instance()) delete api_field_;
+  if(this != internal_default_instance()) delete duration_field_;
+  if(this != internal_default_instance()) delete empty_field_;
+  if(this != internal_default_instance()) delete field_mask_field_;
+  if(this != internal_default_instance()) delete source_context_field_;
+  if(this != internal_default_instance()) delete struct_field_;
+  if(this != internal_default_instance()) delete timestamp_field_;
+  if(this != internal_default_instance()) delete type_field_;
+  if(this != internal_default_instance()) delete double_field_;
+  if(this != internal_default_instance()) delete float_field_;
+  if(this != internal_default_instance()) delete int64_field_;
+  if(this != internal_default_instance()) delete uint64_field_;
+  if(this != internal_default_instance()) delete int32_field_;
+  if(this != internal_default_instance()) delete uint32_field_;
+  if(this != internal_default_instance()) delete bool_field_;
+  if(this != internal_default_instance()) delete string_field_;
+  if(this != internal_default_instance()) delete bytes_field_;
+  if(this != internal_default_instance()) delete value_field_;
 }
 
 void TestWellKnownTypes::ArenaDtor(void* object) {
@@ -1186,79 +1186,79 @@ void TestWellKnownTypes::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  if (GetArenaForAllocation() == nullptr && any_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && any_field_ != nullptr) {
     delete any_field_;
   }
   any_field_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && api_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && api_field_ != nullptr) {
     delete api_field_;
   }
   api_field_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && duration_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && duration_field_ != nullptr) {
     delete duration_field_;
   }
   duration_field_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && empty_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && empty_field_ != nullptr) {
     delete empty_field_;
   }
   empty_field_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && field_mask_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && field_mask_field_ != nullptr) {
     delete field_mask_field_;
   }
   field_mask_field_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && source_context_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && source_context_field_ != nullptr) {
     delete source_context_field_;
   }
   source_context_field_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && struct_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && struct_field_ != nullptr) {
     delete struct_field_;
   }
   struct_field_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && timestamp_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && timestamp_field_ != nullptr) {
     delete timestamp_field_;
   }
   timestamp_field_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && type_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && type_field_ != nullptr) {
     delete type_field_;
   }
   type_field_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && double_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && double_field_ != nullptr) {
     delete double_field_;
   }
   double_field_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && float_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && float_field_ != nullptr) {
     delete float_field_;
   }
   float_field_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && int64_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && int64_field_ != nullptr) {
     delete int64_field_;
   }
   int64_field_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && uint64_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && uint64_field_ != nullptr) {
     delete uint64_field_;
   }
   uint64_field_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && int32_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && int32_field_ != nullptr) {
     delete int32_field_;
   }
   int32_field_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && uint32_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && uint32_field_ != nullptr) {
     delete uint32_field_;
   }
   uint32_field_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && bool_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && bool_field_ != nullptr) {
     delete bool_field_;
   }
   bool_field_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && string_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && string_field_ != nullptr) {
     delete string_field_;
   }
   string_field_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && bytes_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && bytes_field_ != nullptr) {
     delete bytes_field_;
   }
   bytes_field_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && value_field_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && value_field_ != nullptr) {
     delete value_field_;
   }
   value_field_ = nullptr;
@@ -1270,10 +1270,10 @@ const char* TestWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // .google.protobuf.Any any_field = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr = ctx->ParseMessage(_internal_mutable_any_field(), ptr);
           CHK_(ptr);
         } else
@@ -1281,7 +1281,7 @@ const char* TestWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // .google.protobuf.Api api_field = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr = ctx->ParseMessage(_internal_mutable_api_field(), ptr);
           CHK_(ptr);
         } else
@@ -1289,7 +1289,7 @@ const char* TestWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // .google.protobuf.Duration duration_field = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           ptr = ctx->ParseMessage(_internal_mutable_duration_field(), ptr);
           CHK_(ptr);
         } else
@@ -1297,7 +1297,7 @@ const char* TestWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // .google.protobuf.Empty empty_field = 4;
       case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
           ptr = ctx->ParseMessage(_internal_mutable_empty_field(), ptr);
           CHK_(ptr);
         } else
@@ -1305,7 +1305,7 @@ const char* TestWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // .google.protobuf.FieldMask field_mask_field = 5;
       case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
           ptr = ctx->ParseMessage(_internal_mutable_field_mask_field(), ptr);
           CHK_(ptr);
         } else
@@ -1313,7 +1313,7 @@ const char* TestWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // .google.protobuf.SourceContext source_context_field = 6;
       case 6:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
           ptr = ctx->ParseMessage(_internal_mutable_source_context_field(), ptr);
           CHK_(ptr);
         } else
@@ -1321,7 +1321,7 @@ const char* TestWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // .google.protobuf.Struct struct_field = 7;
       case 7:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
           ptr = ctx->ParseMessage(_internal_mutable_struct_field(), ptr);
           CHK_(ptr);
         } else
@@ -1329,7 +1329,7 @@ const char* TestWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // .google.protobuf.Timestamp timestamp_field = 8;
       case 8:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
           ptr = ctx->ParseMessage(_internal_mutable_timestamp_field(), ptr);
           CHK_(ptr);
         } else
@@ -1337,7 +1337,7 @@ const char* TestWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // .google.protobuf.Type type_field = 9;
       case 9:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
           ptr = ctx->ParseMessage(_internal_mutable_type_field(), ptr);
           CHK_(ptr);
         } else
@@ -1345,7 +1345,7 @@ const char* TestWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // .google.protobuf.DoubleValue double_field = 10;
       case 10:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 82)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 82)) {
           ptr = ctx->ParseMessage(_internal_mutable_double_field(), ptr);
           CHK_(ptr);
         } else
@@ -1353,7 +1353,7 @@ const char* TestWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // .google.protobuf.FloatValue float_field = 11;
       case 11:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 90)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 90)) {
           ptr = ctx->ParseMessage(_internal_mutable_float_field(), ptr);
           CHK_(ptr);
         } else
@@ -1361,7 +1361,7 @@ const char* TestWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // .google.protobuf.Int64Value int64_field = 12;
       case 12:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 98)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 98)) {
           ptr = ctx->ParseMessage(_internal_mutable_int64_field(), ptr);
           CHK_(ptr);
         } else
@@ -1369,7 +1369,7 @@ const char* TestWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // .google.protobuf.UInt64Value uint64_field = 13;
       case 13:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 106)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 106)) {
           ptr = ctx->ParseMessage(_internal_mutable_uint64_field(), ptr);
           CHK_(ptr);
         } else
@@ -1377,7 +1377,7 @@ const char* TestWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // .google.protobuf.Int32Value int32_field = 14;
       case 14:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 114)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 114)) {
           ptr = ctx->ParseMessage(_internal_mutable_int32_field(), ptr);
           CHK_(ptr);
         } else
@@ -1385,7 +1385,7 @@ const char* TestWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // .google.protobuf.UInt32Value uint32_field = 15;
       case 15:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 122)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 122)) {
           ptr = ctx->ParseMessage(_internal_mutable_uint32_field(), ptr);
           CHK_(ptr);
         } else
@@ -1393,7 +1393,7 @@ const char* TestWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // .google.protobuf.BoolValue bool_field = 16;
       case 16:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 130)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 130)) {
           ptr = ctx->ParseMessage(_internal_mutable_bool_field(), ptr);
           CHK_(ptr);
         } else
@@ -1401,7 +1401,7 @@ const char* TestWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // .google.protobuf.StringValue string_field = 17;
       case 17:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 138)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 138)) {
           ptr = ctx->ParseMessage(_internal_mutable_string_field(), ptr);
           CHK_(ptr);
         } else
@@ -1409,7 +1409,7 @@ const char* TestWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // .google.protobuf.BytesValue bytes_field = 18;
       case 18:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 146)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 146)) {
           ptr = ctx->ParseMessage(_internal_mutable_bytes_field(), ptr);
           CHK_(ptr);
         } else
@@ -1417,7 +1417,7 @@ const char* TestWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // .google.protobuf.Value value_field = 19;
       case 19:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 154)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 154)) {
           ptr = ctx->ParseMessage(_internal_mutable_value_field(), ptr);
           CHK_(ptr);
         } else
@@ -1427,7 +1427,7 @@ const char* TestWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -1453,7 +1453,7 @@ uint8_t* TestWellKnownTypes::_InternalSerialize(
   (void) cached_has_bits;
 
   // .google.protobuf.Any any_field = 1;
-  if (this->_internal_has_any_field()) {
+  if(this->_internal_has_any_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1461,7 +1461,7 @@ uint8_t* TestWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.Api api_field = 2;
-  if (this->_internal_has_api_field()) {
+  if(this->_internal_has_api_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1469,7 +1469,7 @@ uint8_t* TestWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.Duration duration_field = 3;
-  if (this->_internal_has_duration_field()) {
+  if(this->_internal_has_duration_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1477,7 +1477,7 @@ uint8_t* TestWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.Empty empty_field = 4;
-  if (this->_internal_has_empty_field()) {
+  if(this->_internal_has_empty_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1485,7 +1485,7 @@ uint8_t* TestWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.FieldMask field_mask_field = 5;
-  if (this->_internal_has_field_mask_field()) {
+  if(this->_internal_has_field_mask_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1493,7 +1493,7 @@ uint8_t* TestWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.SourceContext source_context_field = 6;
-  if (this->_internal_has_source_context_field()) {
+  if(this->_internal_has_source_context_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1501,7 +1501,7 @@ uint8_t* TestWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.Struct struct_field = 7;
-  if (this->_internal_has_struct_field()) {
+  if(this->_internal_has_struct_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1509,7 +1509,7 @@ uint8_t* TestWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.Timestamp timestamp_field = 8;
-  if (this->_internal_has_timestamp_field()) {
+  if(this->_internal_has_timestamp_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1517,7 +1517,7 @@ uint8_t* TestWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.Type type_field = 9;
-  if (this->_internal_has_type_field()) {
+  if(this->_internal_has_type_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1525,7 +1525,7 @@ uint8_t* TestWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.DoubleValue double_field = 10;
-  if (this->_internal_has_double_field()) {
+  if(this->_internal_has_double_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1533,7 +1533,7 @@ uint8_t* TestWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.FloatValue float_field = 11;
-  if (this->_internal_has_float_field()) {
+  if(this->_internal_has_float_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1541,7 +1541,7 @@ uint8_t* TestWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.Int64Value int64_field = 12;
-  if (this->_internal_has_int64_field()) {
+  if(this->_internal_has_int64_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1549,7 +1549,7 @@ uint8_t* TestWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.UInt64Value uint64_field = 13;
-  if (this->_internal_has_uint64_field()) {
+  if(this->_internal_has_uint64_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1557,7 +1557,7 @@ uint8_t* TestWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.Int32Value int32_field = 14;
-  if (this->_internal_has_int32_field()) {
+  if(this->_internal_has_int32_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1565,7 +1565,7 @@ uint8_t* TestWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.UInt32Value uint32_field = 15;
-  if (this->_internal_has_uint32_field()) {
+  if(this->_internal_has_uint32_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1573,7 +1573,7 @@ uint8_t* TestWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.BoolValue bool_field = 16;
-  if (this->_internal_has_bool_field()) {
+  if(this->_internal_has_bool_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1581,7 +1581,7 @@ uint8_t* TestWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.StringValue string_field = 17;
-  if (this->_internal_has_string_field()) {
+  if(this->_internal_has_string_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1589,7 +1589,7 @@ uint8_t* TestWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.BytesValue bytes_field = 18;
-  if (this->_internal_has_bytes_field()) {
+  if(this->_internal_has_bytes_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1597,14 +1597,14 @@ uint8_t* TestWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.Value value_field = 19;
-  if (this->_internal_has_value_field()) {
+  if(this->_internal_has_value_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
         19, _Internal::value_field(this), target, stream);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -1621,133 +1621,133 @@ size_t TestWellKnownTypes::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // .google.protobuf.Any any_field = 1;
-  if (this->_internal_has_any_field()) {
+  if(this->_internal_has_any_field()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *any_field_);
   }
 
   // .google.protobuf.Api api_field = 2;
-  if (this->_internal_has_api_field()) {
+  if(this->_internal_has_api_field()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *api_field_);
   }
 
   // .google.protobuf.Duration duration_field = 3;
-  if (this->_internal_has_duration_field()) {
+  if(this->_internal_has_duration_field()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *duration_field_);
   }
 
   // .google.protobuf.Empty empty_field = 4;
-  if (this->_internal_has_empty_field()) {
+  if(this->_internal_has_empty_field()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *empty_field_);
   }
 
   // .google.protobuf.FieldMask field_mask_field = 5;
-  if (this->_internal_has_field_mask_field()) {
+  if(this->_internal_has_field_mask_field()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *field_mask_field_);
   }
 
   // .google.protobuf.SourceContext source_context_field = 6;
-  if (this->_internal_has_source_context_field()) {
+  if(this->_internal_has_source_context_field()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *source_context_field_);
   }
 
   // .google.protobuf.Struct struct_field = 7;
-  if (this->_internal_has_struct_field()) {
+  if(this->_internal_has_struct_field()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *struct_field_);
   }
 
   // .google.protobuf.Timestamp timestamp_field = 8;
-  if (this->_internal_has_timestamp_field()) {
+  if(this->_internal_has_timestamp_field()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *timestamp_field_);
   }
 
   // .google.protobuf.Type type_field = 9;
-  if (this->_internal_has_type_field()) {
+  if(this->_internal_has_type_field()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *type_field_);
   }
 
   // .google.protobuf.DoubleValue double_field = 10;
-  if (this->_internal_has_double_field()) {
+  if(this->_internal_has_double_field()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *double_field_);
   }
 
   // .google.protobuf.FloatValue float_field = 11;
-  if (this->_internal_has_float_field()) {
+  if(this->_internal_has_float_field()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *float_field_);
   }
 
   // .google.protobuf.Int64Value int64_field = 12;
-  if (this->_internal_has_int64_field()) {
+  if(this->_internal_has_int64_field()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *int64_field_);
   }
 
   // .google.protobuf.UInt64Value uint64_field = 13;
-  if (this->_internal_has_uint64_field()) {
+  if(this->_internal_has_uint64_field()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *uint64_field_);
   }
 
   // .google.protobuf.Int32Value int32_field = 14;
-  if (this->_internal_has_int32_field()) {
+  if(this->_internal_has_int32_field()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *int32_field_);
   }
 
   // .google.protobuf.UInt32Value uint32_field = 15;
-  if (this->_internal_has_uint32_field()) {
+  if(this->_internal_has_uint32_field()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *uint32_field_);
   }
 
   // .google.protobuf.BoolValue bool_field = 16;
-  if (this->_internal_has_bool_field()) {
+  if(this->_internal_has_bool_field()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *bool_field_);
   }
 
   // .google.protobuf.StringValue string_field = 17;
-  if (this->_internal_has_string_field()) {
+  if(this->_internal_has_string_field()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *string_field_);
   }
 
   // .google.protobuf.BytesValue bytes_field = 18;
-  if (this->_internal_has_bytes_field()) {
+  if(this->_internal_has_bytes_field()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *bytes_field_);
   }
 
   // .google.protobuf.Value value_field = 19;
-  if (this->_internal_has_value_field()) {
+  if(this->_internal_has_value_field()) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *value_field_);
@@ -1775,61 +1775,61 @@ void TestWellKnownTypes::MergeFrom(const TestWellKnownTypes& from) {
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_has_any_field()) {
+  if(from._internal_has_any_field()) {
     _internal_mutable_any_field()->::PROTOBUF_NAMESPACE_ID::Any::MergeFrom(from._internal_any_field());
   }
-  if (from._internal_has_api_field()) {
+  if(from._internal_has_api_field()) {
     _internal_mutable_api_field()->::PROTOBUF_NAMESPACE_ID::Api::MergeFrom(from._internal_api_field());
   }
-  if (from._internal_has_duration_field()) {
+  if(from._internal_has_duration_field()) {
     _internal_mutable_duration_field()->::PROTOBUF_NAMESPACE_ID::Duration::MergeFrom(from._internal_duration_field());
   }
-  if (from._internal_has_empty_field()) {
+  if(from._internal_has_empty_field()) {
     _internal_mutable_empty_field()->::PROTOBUF_NAMESPACE_ID::Empty::MergeFrom(from._internal_empty_field());
   }
-  if (from._internal_has_field_mask_field()) {
+  if(from._internal_has_field_mask_field()) {
     _internal_mutable_field_mask_field()->::PROTOBUF_NAMESPACE_ID::FieldMask::MergeFrom(from._internal_field_mask_field());
   }
-  if (from._internal_has_source_context_field()) {
+  if(from._internal_has_source_context_field()) {
     _internal_mutable_source_context_field()->::PROTOBUF_NAMESPACE_ID::SourceContext::MergeFrom(from._internal_source_context_field());
   }
-  if (from._internal_has_struct_field()) {
+  if(from._internal_has_struct_field()) {
     _internal_mutable_struct_field()->::PROTOBUF_NAMESPACE_ID::Struct::MergeFrom(from._internal_struct_field());
   }
-  if (from._internal_has_timestamp_field()) {
+  if(from._internal_has_timestamp_field()) {
     _internal_mutable_timestamp_field()->::PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from._internal_timestamp_field());
   }
-  if (from._internal_has_type_field()) {
+  if(from._internal_has_type_field()) {
     _internal_mutable_type_field()->::PROTOBUF_NAMESPACE_ID::Type::MergeFrom(from._internal_type_field());
   }
-  if (from._internal_has_double_field()) {
+  if(from._internal_has_double_field()) {
     _internal_mutable_double_field()->::PROTOBUF_NAMESPACE_ID::DoubleValue::MergeFrom(from._internal_double_field());
   }
-  if (from._internal_has_float_field()) {
+  if(from._internal_has_float_field()) {
     _internal_mutable_float_field()->::PROTOBUF_NAMESPACE_ID::FloatValue::MergeFrom(from._internal_float_field());
   }
-  if (from._internal_has_int64_field()) {
+  if(from._internal_has_int64_field()) {
     _internal_mutable_int64_field()->::PROTOBUF_NAMESPACE_ID::Int64Value::MergeFrom(from._internal_int64_field());
   }
-  if (from._internal_has_uint64_field()) {
+  if(from._internal_has_uint64_field()) {
     _internal_mutable_uint64_field()->::PROTOBUF_NAMESPACE_ID::UInt64Value::MergeFrom(from._internal_uint64_field());
   }
-  if (from._internal_has_int32_field()) {
+  if(from._internal_has_int32_field()) {
     _internal_mutable_int32_field()->::PROTOBUF_NAMESPACE_ID::Int32Value::MergeFrom(from._internal_int32_field());
   }
-  if (from._internal_has_uint32_field()) {
+  if(from._internal_has_uint32_field()) {
     _internal_mutable_uint32_field()->::PROTOBUF_NAMESPACE_ID::UInt32Value::MergeFrom(from._internal_uint32_field());
   }
-  if (from._internal_has_bool_field()) {
+  if(from._internal_has_bool_field()) {
     _internal_mutable_bool_field()->::PROTOBUF_NAMESPACE_ID::BoolValue::MergeFrom(from._internal_bool_field());
   }
-  if (from._internal_has_string_field()) {
+  if(from._internal_has_string_field()) {
     _internal_mutable_string_field()->::PROTOBUF_NAMESPACE_ID::StringValue::MergeFrom(from._internal_string_field());
   }
-  if (from._internal_has_bytes_field()) {
+  if(from._internal_has_bytes_field()) {
     _internal_mutable_bytes_field()->::PROTOBUF_NAMESPACE_ID::BytesValue::MergeFrom(from._internal_bytes_field());
   }
-  if (from._internal_has_value_field()) {
+  if(from._internal_has_value_field()) {
     _internal_mutable_value_field()->::PROTOBUF_NAMESPACE_ID::Value::MergeFrom(from._internal_value_field());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -1837,7 +1837,7 @@ void TestWellKnownTypes::MergeFrom(const TestWellKnownTypes& from) {
 
 void TestWellKnownTypes::CopyFrom(const TestWellKnownTypes& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest.TestWellKnownTypes)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -2030,10 +2030,10 @@ const char* RepeatedWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_N
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // repeated .google.protobuf.Any any_field = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -2046,7 +2046,7 @@ const char* RepeatedWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_N
         continue;
       // repeated .google.protobuf.Api api_field = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -2059,7 +2059,7 @@ const char* RepeatedWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_N
         continue;
       // repeated .google.protobuf.Duration duration_field = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -2072,7 +2072,7 @@ const char* RepeatedWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_N
         continue;
       // repeated .google.protobuf.Empty empty_field = 4;
       case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -2085,7 +2085,7 @@ const char* RepeatedWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_N
         continue;
       // repeated .google.protobuf.FieldMask field_mask_field = 5;
       case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -2098,7 +2098,7 @@ const char* RepeatedWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_N
         continue;
       // repeated .google.protobuf.SourceContext source_context_field = 6;
       case 6:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -2111,7 +2111,7 @@ const char* RepeatedWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_N
         continue;
       // repeated .google.protobuf.Struct struct_field = 7;
       case 7:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -2124,7 +2124,7 @@ const char* RepeatedWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_N
         continue;
       // repeated .google.protobuf.Timestamp timestamp_field = 8;
       case 8:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -2137,7 +2137,7 @@ const char* RepeatedWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_N
         continue;
       // repeated .google.protobuf.Type type_field = 9;
       case 9:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -2150,7 +2150,7 @@ const char* RepeatedWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_N
         continue;
       // repeated .google.protobuf.DoubleValue double_field = 10;
       case 10:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 82)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 82)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -2163,7 +2163,7 @@ const char* RepeatedWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_N
         continue;
       // repeated .google.protobuf.FloatValue float_field = 11;
       case 11:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 90)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 90)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -2176,7 +2176,7 @@ const char* RepeatedWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_N
         continue;
       // repeated .google.protobuf.Int64Value int64_field = 12;
       case 12:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 98)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 98)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -2189,7 +2189,7 @@ const char* RepeatedWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_N
         continue;
       // repeated .google.protobuf.UInt64Value uint64_field = 13;
       case 13:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 106)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 106)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -2202,7 +2202,7 @@ const char* RepeatedWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_N
         continue;
       // repeated .google.protobuf.Int32Value int32_field = 14;
       case 14:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 114)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 114)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -2215,7 +2215,7 @@ const char* RepeatedWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_N
         continue;
       // repeated .google.protobuf.UInt32Value uint32_field = 15;
       case 15:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 122)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 122)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -2228,7 +2228,7 @@ const char* RepeatedWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_N
         continue;
       // repeated .google.protobuf.BoolValue bool_field = 16;
       case 16:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 130)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 130)) {
           ptr -= 2;
           do {
             ptr += 2;
@@ -2241,7 +2241,7 @@ const char* RepeatedWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_N
         continue;
       // repeated .google.protobuf.StringValue string_field = 17;
       case 17:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 138)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 138)) {
           ptr -= 2;
           do {
             ptr += 2;
@@ -2254,7 +2254,7 @@ const char* RepeatedWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_N
         continue;
       // repeated .google.protobuf.BytesValue bytes_field = 18;
       case 18:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 146)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 146)) {
           ptr -= 2;
           do {
             ptr += 2;
@@ -2269,7 +2269,7 @@ const char* RepeatedWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_N
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -2438,7 +2438,7 @@ uint8_t* RepeatedWellKnownTypes::_InternalSerialize(
       InternalWriteMessage(18, this->_internal_bytes_field(i), target, stream);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -2456,128 +2456,110 @@ size_t RepeatedWellKnownTypes::ByteSizeLong() const {
 
   // repeated .google.protobuf.Any any_field = 1;
   total_size += 1UL * this->_internal_any_field_size();
-  for (const auto& msg : this->any_field_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  for(const auto& msg : this->any_field_) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // repeated .google.protobuf.Api api_field = 2;
   total_size += 1UL * this->_internal_api_field_size();
-  for (const auto& msg : this->api_field_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  for(const auto& msg : this->api_field_) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // repeated .google.protobuf.Duration duration_field = 3;
   total_size += 1UL * this->_internal_duration_field_size();
-  for (const auto& msg : this->duration_field_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  for(const auto& msg : this->duration_field_) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // repeated .google.protobuf.Empty empty_field = 4;
   total_size += 1UL * this->_internal_empty_field_size();
-  for (const auto& msg : this->empty_field_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  for(const auto& msg : this->empty_field_) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // repeated .google.protobuf.FieldMask field_mask_field = 5;
   total_size += 1UL * this->_internal_field_mask_field_size();
-  for (const auto& msg : this->field_mask_field_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  for(const auto& msg : this->field_mask_field_) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // repeated .google.protobuf.SourceContext source_context_field = 6;
   total_size += 1UL * this->_internal_source_context_field_size();
-  for (const auto& msg : this->source_context_field_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  for(const auto& msg : this->source_context_field_) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // repeated .google.protobuf.Struct struct_field = 7;
   total_size += 1UL * this->_internal_struct_field_size();
-  for (const auto& msg : this->struct_field_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  for(const auto& msg : this->struct_field_) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // repeated .google.protobuf.Timestamp timestamp_field = 8;
   total_size += 1UL * this->_internal_timestamp_field_size();
-  for (const auto& msg : this->timestamp_field_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  for(const auto& msg : this->timestamp_field_) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // repeated .google.protobuf.Type type_field = 9;
   total_size += 1UL * this->_internal_type_field_size();
-  for (const auto& msg : this->type_field_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  for(const auto& msg : this->type_field_) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // repeated .google.protobuf.DoubleValue double_field = 10;
   total_size += 1UL * this->_internal_double_field_size();
-  for (const auto& msg : this->double_field_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  for(const auto& msg : this->double_field_) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // repeated .google.protobuf.FloatValue float_field = 11;
   total_size += 1UL * this->_internal_float_field_size();
-  for (const auto& msg : this->float_field_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  for(const auto& msg : this->float_field_) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // repeated .google.protobuf.Int64Value int64_field = 12;
   total_size += 1UL * this->_internal_int64_field_size();
-  for (const auto& msg : this->int64_field_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  for(const auto& msg : this->int64_field_) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // repeated .google.protobuf.UInt64Value uint64_field = 13;
   total_size += 1UL * this->_internal_uint64_field_size();
-  for (const auto& msg : this->uint64_field_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  for(const auto& msg : this->uint64_field_) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // repeated .google.protobuf.Int32Value int32_field = 14;
   total_size += 1UL * this->_internal_int32_field_size();
-  for (const auto& msg : this->int32_field_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  for(const auto& msg : this->int32_field_) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // repeated .google.protobuf.UInt32Value uint32_field = 15;
   total_size += 1UL * this->_internal_uint32_field_size();
-  for (const auto& msg : this->uint32_field_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  for(const auto& msg : this->uint32_field_) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // repeated .google.protobuf.BoolValue bool_field = 16;
   total_size += 2UL * this->_internal_bool_field_size();
-  for (const auto& msg : this->bool_field_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  for(const auto& msg : this->bool_field_) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // repeated .google.protobuf.StringValue string_field = 17;
   total_size += 2UL * this->_internal_string_field_size();
-  for (const auto& msg : this->string_field_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  for(const auto& msg : this->string_field_) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // repeated .google.protobuf.BytesValue bytes_field = 18;
   total_size += 2UL * this->_internal_bytes_field_size();
-  for (const auto& msg : this->bytes_field_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  for(const auto& msg : this->bytes_field_) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -2625,7 +2607,7 @@ void RepeatedWellKnownTypes::MergeFrom(const RepeatedWellKnownTypes& from) {
 
 void RepeatedWellKnownTypes::CopyFrom(const RepeatedWellKnownTypes& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest.RepeatedWellKnownTypes)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -2777,8 +2759,8 @@ void OneofWellKnownTypes::set_allocated_any_field(::PROTOBUF_NAMESPACE_ID::Any* 
   // @@protoc_insertion_point(field_set_allocated:protobuf_unittest.OneofWellKnownTypes.any_field)
 }
 void OneofWellKnownTypes::clear_any_field() {
-  if (_internal_has_any_field()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_any_field()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete oneof_field_.any_field_;
     }
     clear_has_oneof_field();
@@ -2802,8 +2784,8 @@ void OneofWellKnownTypes::set_allocated_api_field(::PROTOBUF_NAMESPACE_ID::Api* 
   // @@protoc_insertion_point(field_set_allocated:protobuf_unittest.OneofWellKnownTypes.api_field)
 }
 void OneofWellKnownTypes::clear_api_field() {
-  if (_internal_has_api_field()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_api_field()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete oneof_field_.api_field_;
     }
     clear_has_oneof_field();
@@ -2827,8 +2809,8 @@ void OneofWellKnownTypes::set_allocated_duration_field(::PROTOBUF_NAMESPACE_ID::
   // @@protoc_insertion_point(field_set_allocated:protobuf_unittest.OneofWellKnownTypes.duration_field)
 }
 void OneofWellKnownTypes::clear_duration_field() {
-  if (_internal_has_duration_field()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_duration_field()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete oneof_field_.duration_field_;
     }
     clear_has_oneof_field();
@@ -2852,8 +2834,8 @@ void OneofWellKnownTypes::set_allocated_empty_field(::PROTOBUF_NAMESPACE_ID::Emp
   // @@protoc_insertion_point(field_set_allocated:protobuf_unittest.OneofWellKnownTypes.empty_field)
 }
 void OneofWellKnownTypes::clear_empty_field() {
-  if (_internal_has_empty_field()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_empty_field()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete oneof_field_.empty_field_;
     }
     clear_has_oneof_field();
@@ -2877,8 +2859,8 @@ void OneofWellKnownTypes::set_allocated_field_mask_field(::PROTOBUF_NAMESPACE_ID
   // @@protoc_insertion_point(field_set_allocated:protobuf_unittest.OneofWellKnownTypes.field_mask_field)
 }
 void OneofWellKnownTypes::clear_field_mask_field() {
-  if (_internal_has_field_mask_field()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_field_mask_field()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete oneof_field_.field_mask_field_;
     }
     clear_has_oneof_field();
@@ -2902,8 +2884,8 @@ void OneofWellKnownTypes::set_allocated_source_context_field(::PROTOBUF_NAMESPAC
   // @@protoc_insertion_point(field_set_allocated:protobuf_unittest.OneofWellKnownTypes.source_context_field)
 }
 void OneofWellKnownTypes::clear_source_context_field() {
-  if (_internal_has_source_context_field()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_source_context_field()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete oneof_field_.source_context_field_;
     }
     clear_has_oneof_field();
@@ -2927,8 +2909,8 @@ void OneofWellKnownTypes::set_allocated_struct_field(::PROTOBUF_NAMESPACE_ID::St
   // @@protoc_insertion_point(field_set_allocated:protobuf_unittest.OneofWellKnownTypes.struct_field)
 }
 void OneofWellKnownTypes::clear_struct_field() {
-  if (_internal_has_struct_field()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_struct_field()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete oneof_field_.struct_field_;
     }
     clear_has_oneof_field();
@@ -2952,8 +2934,8 @@ void OneofWellKnownTypes::set_allocated_timestamp_field(::PROTOBUF_NAMESPACE_ID:
   // @@protoc_insertion_point(field_set_allocated:protobuf_unittest.OneofWellKnownTypes.timestamp_field)
 }
 void OneofWellKnownTypes::clear_timestamp_field() {
-  if (_internal_has_timestamp_field()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_timestamp_field()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete oneof_field_.timestamp_field_;
     }
     clear_has_oneof_field();
@@ -2977,8 +2959,8 @@ void OneofWellKnownTypes::set_allocated_type_field(::PROTOBUF_NAMESPACE_ID::Type
   // @@protoc_insertion_point(field_set_allocated:protobuf_unittest.OneofWellKnownTypes.type_field)
 }
 void OneofWellKnownTypes::clear_type_field() {
-  if (_internal_has_type_field()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_type_field()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete oneof_field_.type_field_;
     }
     clear_has_oneof_field();
@@ -3002,8 +2984,8 @@ void OneofWellKnownTypes::set_allocated_double_field(::PROTOBUF_NAMESPACE_ID::Do
   // @@protoc_insertion_point(field_set_allocated:protobuf_unittest.OneofWellKnownTypes.double_field)
 }
 void OneofWellKnownTypes::clear_double_field() {
-  if (_internal_has_double_field()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_double_field()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete oneof_field_.double_field_;
     }
     clear_has_oneof_field();
@@ -3027,8 +3009,8 @@ void OneofWellKnownTypes::set_allocated_float_field(::PROTOBUF_NAMESPACE_ID::Flo
   // @@protoc_insertion_point(field_set_allocated:protobuf_unittest.OneofWellKnownTypes.float_field)
 }
 void OneofWellKnownTypes::clear_float_field() {
-  if (_internal_has_float_field()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_float_field()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete oneof_field_.float_field_;
     }
     clear_has_oneof_field();
@@ -3052,8 +3034,8 @@ void OneofWellKnownTypes::set_allocated_int64_field(::PROTOBUF_NAMESPACE_ID::Int
   // @@protoc_insertion_point(field_set_allocated:protobuf_unittest.OneofWellKnownTypes.int64_field)
 }
 void OneofWellKnownTypes::clear_int64_field() {
-  if (_internal_has_int64_field()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_int64_field()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete oneof_field_.int64_field_;
     }
     clear_has_oneof_field();
@@ -3077,8 +3059,8 @@ void OneofWellKnownTypes::set_allocated_uint64_field(::PROTOBUF_NAMESPACE_ID::UI
   // @@protoc_insertion_point(field_set_allocated:protobuf_unittest.OneofWellKnownTypes.uint64_field)
 }
 void OneofWellKnownTypes::clear_uint64_field() {
-  if (_internal_has_uint64_field()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_uint64_field()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete oneof_field_.uint64_field_;
     }
     clear_has_oneof_field();
@@ -3102,8 +3084,8 @@ void OneofWellKnownTypes::set_allocated_int32_field(::PROTOBUF_NAMESPACE_ID::Int
   // @@protoc_insertion_point(field_set_allocated:protobuf_unittest.OneofWellKnownTypes.int32_field)
 }
 void OneofWellKnownTypes::clear_int32_field() {
-  if (_internal_has_int32_field()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_int32_field()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete oneof_field_.int32_field_;
     }
     clear_has_oneof_field();
@@ -3127,8 +3109,8 @@ void OneofWellKnownTypes::set_allocated_uint32_field(::PROTOBUF_NAMESPACE_ID::UI
   // @@protoc_insertion_point(field_set_allocated:protobuf_unittest.OneofWellKnownTypes.uint32_field)
 }
 void OneofWellKnownTypes::clear_uint32_field() {
-  if (_internal_has_uint32_field()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_uint32_field()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete oneof_field_.uint32_field_;
     }
     clear_has_oneof_field();
@@ -3152,8 +3134,8 @@ void OneofWellKnownTypes::set_allocated_bool_field(::PROTOBUF_NAMESPACE_ID::Bool
   // @@protoc_insertion_point(field_set_allocated:protobuf_unittest.OneofWellKnownTypes.bool_field)
 }
 void OneofWellKnownTypes::clear_bool_field() {
-  if (_internal_has_bool_field()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_bool_field()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete oneof_field_.bool_field_;
     }
     clear_has_oneof_field();
@@ -3177,8 +3159,8 @@ void OneofWellKnownTypes::set_allocated_string_field(::PROTOBUF_NAMESPACE_ID::St
   // @@protoc_insertion_point(field_set_allocated:protobuf_unittest.OneofWellKnownTypes.string_field)
 }
 void OneofWellKnownTypes::clear_string_field() {
-  if (_internal_has_string_field()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_string_field()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete oneof_field_.string_field_;
     }
     clear_has_oneof_field();
@@ -3202,8 +3184,8 @@ void OneofWellKnownTypes::set_allocated_bytes_field(::PROTOBUF_NAMESPACE_ID::Byt
   // @@protoc_insertion_point(field_set_allocated:protobuf_unittest.OneofWellKnownTypes.bytes_field)
 }
 void OneofWellKnownTypes::clear_bytes_field() {
-  if (_internal_has_bytes_field()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_bytes_field()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete oneof_field_.bytes_field_;
     }
     clear_has_oneof_field();
@@ -3315,7 +3297,7 @@ OneofWellKnownTypes::~OneofWellKnownTypes() {
 
 inline void OneofWellKnownTypes::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  if (has_oneof_field()) {
+  if(has_oneof_field()) {
     clear_oneof_field();
   }
 }
@@ -3334,109 +3316,109 @@ void OneofWellKnownTypes::clear_oneof_field() {
 // @@protoc_insertion_point(one_of_clear_start:protobuf_unittest.OneofWellKnownTypes)
   switch (oneof_field_case()) {
     case kAnyField: {
-      if (GetArenaForAllocation() == nullptr) {
+      if(GetArenaForAllocation() == nullptr) {
         delete oneof_field_.any_field_;
       }
       break;
     }
     case kApiField: {
-      if (GetArenaForAllocation() == nullptr) {
+      if(GetArenaForAllocation() == nullptr) {
         delete oneof_field_.api_field_;
       }
       break;
     }
     case kDurationField: {
-      if (GetArenaForAllocation() == nullptr) {
+      if(GetArenaForAllocation() == nullptr) {
         delete oneof_field_.duration_field_;
       }
       break;
     }
     case kEmptyField: {
-      if (GetArenaForAllocation() == nullptr) {
+      if(GetArenaForAllocation() == nullptr) {
         delete oneof_field_.empty_field_;
       }
       break;
     }
     case kFieldMaskField: {
-      if (GetArenaForAllocation() == nullptr) {
+      if(GetArenaForAllocation() == nullptr) {
         delete oneof_field_.field_mask_field_;
       }
       break;
     }
     case kSourceContextField: {
-      if (GetArenaForAllocation() == nullptr) {
+      if(GetArenaForAllocation() == nullptr) {
         delete oneof_field_.source_context_field_;
       }
       break;
     }
     case kStructField: {
-      if (GetArenaForAllocation() == nullptr) {
+      if(GetArenaForAllocation() == nullptr) {
         delete oneof_field_.struct_field_;
       }
       break;
     }
     case kTimestampField: {
-      if (GetArenaForAllocation() == nullptr) {
+      if(GetArenaForAllocation() == nullptr) {
         delete oneof_field_.timestamp_field_;
       }
       break;
     }
     case kTypeField: {
-      if (GetArenaForAllocation() == nullptr) {
+      if(GetArenaForAllocation() == nullptr) {
         delete oneof_field_.type_field_;
       }
       break;
     }
     case kDoubleField: {
-      if (GetArenaForAllocation() == nullptr) {
+      if(GetArenaForAllocation() == nullptr) {
         delete oneof_field_.double_field_;
       }
       break;
     }
     case kFloatField: {
-      if (GetArenaForAllocation() == nullptr) {
+      if(GetArenaForAllocation() == nullptr) {
         delete oneof_field_.float_field_;
       }
       break;
     }
     case kInt64Field: {
-      if (GetArenaForAllocation() == nullptr) {
+      if(GetArenaForAllocation() == nullptr) {
         delete oneof_field_.int64_field_;
       }
       break;
     }
     case kUint64Field: {
-      if (GetArenaForAllocation() == nullptr) {
+      if(GetArenaForAllocation() == nullptr) {
         delete oneof_field_.uint64_field_;
       }
       break;
     }
     case kInt32Field: {
-      if (GetArenaForAllocation() == nullptr) {
+      if(GetArenaForAllocation() == nullptr) {
         delete oneof_field_.int32_field_;
       }
       break;
     }
     case kUint32Field: {
-      if (GetArenaForAllocation() == nullptr) {
+      if(GetArenaForAllocation() == nullptr) {
         delete oneof_field_.uint32_field_;
       }
       break;
     }
     case kBoolField: {
-      if (GetArenaForAllocation() == nullptr) {
+      if(GetArenaForAllocation() == nullptr) {
         delete oneof_field_.bool_field_;
       }
       break;
     }
     case kStringField: {
-      if (GetArenaForAllocation() == nullptr) {
+      if(GetArenaForAllocation() == nullptr) {
         delete oneof_field_.string_field_;
       }
       break;
     }
     case kBytesField: {
-      if (GetArenaForAllocation() == nullptr) {
+      if(GetArenaForAllocation() == nullptr) {
         delete oneof_field_.bytes_field_;
       }
       break;
@@ -3464,10 +3446,10 @@ const char* OneofWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAME
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // .google.protobuf.Any any_field = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr = ctx->ParseMessage(_internal_mutable_any_field(), ptr);
           CHK_(ptr);
         } else
@@ -3475,7 +3457,7 @@ const char* OneofWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAME
         continue;
       // .google.protobuf.Api api_field = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr = ctx->ParseMessage(_internal_mutable_api_field(), ptr);
           CHK_(ptr);
         } else
@@ -3483,7 +3465,7 @@ const char* OneofWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAME
         continue;
       // .google.protobuf.Duration duration_field = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           ptr = ctx->ParseMessage(_internal_mutable_duration_field(), ptr);
           CHK_(ptr);
         } else
@@ -3491,7 +3473,7 @@ const char* OneofWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAME
         continue;
       // .google.protobuf.Empty empty_field = 4;
       case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
           ptr = ctx->ParseMessage(_internal_mutable_empty_field(), ptr);
           CHK_(ptr);
         } else
@@ -3499,7 +3481,7 @@ const char* OneofWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAME
         continue;
       // .google.protobuf.FieldMask field_mask_field = 5;
       case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
           ptr = ctx->ParseMessage(_internal_mutable_field_mask_field(), ptr);
           CHK_(ptr);
         } else
@@ -3507,7 +3489,7 @@ const char* OneofWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAME
         continue;
       // .google.protobuf.SourceContext source_context_field = 6;
       case 6:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
           ptr = ctx->ParseMessage(_internal_mutable_source_context_field(), ptr);
           CHK_(ptr);
         } else
@@ -3515,7 +3497,7 @@ const char* OneofWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAME
         continue;
       // .google.protobuf.Struct struct_field = 7;
       case 7:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
           ptr = ctx->ParseMessage(_internal_mutable_struct_field(), ptr);
           CHK_(ptr);
         } else
@@ -3523,7 +3505,7 @@ const char* OneofWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAME
         continue;
       // .google.protobuf.Timestamp timestamp_field = 8;
       case 8:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
           ptr = ctx->ParseMessage(_internal_mutable_timestamp_field(), ptr);
           CHK_(ptr);
         } else
@@ -3531,7 +3513,7 @@ const char* OneofWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAME
         continue;
       // .google.protobuf.Type type_field = 9;
       case 9:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
           ptr = ctx->ParseMessage(_internal_mutable_type_field(), ptr);
           CHK_(ptr);
         } else
@@ -3539,7 +3521,7 @@ const char* OneofWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAME
         continue;
       // .google.protobuf.DoubleValue double_field = 10;
       case 10:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 82)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 82)) {
           ptr = ctx->ParseMessage(_internal_mutable_double_field(), ptr);
           CHK_(ptr);
         } else
@@ -3547,7 +3529,7 @@ const char* OneofWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAME
         continue;
       // .google.protobuf.FloatValue float_field = 11;
       case 11:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 90)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 90)) {
           ptr = ctx->ParseMessage(_internal_mutable_float_field(), ptr);
           CHK_(ptr);
         } else
@@ -3555,7 +3537,7 @@ const char* OneofWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAME
         continue;
       // .google.protobuf.Int64Value int64_field = 12;
       case 12:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 98)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 98)) {
           ptr = ctx->ParseMessage(_internal_mutable_int64_field(), ptr);
           CHK_(ptr);
         } else
@@ -3563,7 +3545,7 @@ const char* OneofWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAME
         continue;
       // .google.protobuf.UInt64Value uint64_field = 13;
       case 13:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 106)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 106)) {
           ptr = ctx->ParseMessage(_internal_mutable_uint64_field(), ptr);
           CHK_(ptr);
         } else
@@ -3571,7 +3553,7 @@ const char* OneofWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAME
         continue;
       // .google.protobuf.Int32Value int32_field = 14;
       case 14:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 114)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 114)) {
           ptr = ctx->ParseMessage(_internal_mutable_int32_field(), ptr);
           CHK_(ptr);
         } else
@@ -3579,7 +3561,7 @@ const char* OneofWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAME
         continue;
       // .google.protobuf.UInt32Value uint32_field = 15;
       case 15:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 122)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 122)) {
           ptr = ctx->ParseMessage(_internal_mutable_uint32_field(), ptr);
           CHK_(ptr);
         } else
@@ -3587,7 +3569,7 @@ const char* OneofWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAME
         continue;
       // .google.protobuf.BoolValue bool_field = 16;
       case 16:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 130)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 130)) {
           ptr = ctx->ParseMessage(_internal_mutable_bool_field(), ptr);
           CHK_(ptr);
         } else
@@ -3595,7 +3577,7 @@ const char* OneofWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAME
         continue;
       // .google.protobuf.StringValue string_field = 17;
       case 17:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 138)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 138)) {
           ptr = ctx->ParseMessage(_internal_mutable_string_field(), ptr);
           CHK_(ptr);
         } else
@@ -3603,7 +3585,7 @@ const char* OneofWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAME
         continue;
       // .google.protobuf.BytesValue bytes_field = 18;
       case 18:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 146)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 146)) {
           ptr = ctx->ParseMessage(_internal_mutable_bytes_field(), ptr);
           CHK_(ptr);
         } else
@@ -3613,7 +3595,7 @@ const char* OneofWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAME
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -3639,7 +3621,7 @@ uint8_t* OneofWellKnownTypes::_InternalSerialize(
   (void) cached_has_bits;
 
   // .google.protobuf.Any any_field = 1;
-  if (_internal_has_any_field()) {
+  if(_internal_has_any_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -3647,7 +3629,7 @@ uint8_t* OneofWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.Api api_field = 2;
-  if (_internal_has_api_field()) {
+  if(_internal_has_api_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -3655,7 +3637,7 @@ uint8_t* OneofWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.Duration duration_field = 3;
-  if (_internal_has_duration_field()) {
+  if(_internal_has_duration_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -3663,7 +3645,7 @@ uint8_t* OneofWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.Empty empty_field = 4;
-  if (_internal_has_empty_field()) {
+  if(_internal_has_empty_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -3671,7 +3653,7 @@ uint8_t* OneofWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.FieldMask field_mask_field = 5;
-  if (_internal_has_field_mask_field()) {
+  if(_internal_has_field_mask_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -3679,7 +3661,7 @@ uint8_t* OneofWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.SourceContext source_context_field = 6;
-  if (_internal_has_source_context_field()) {
+  if(_internal_has_source_context_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -3687,7 +3669,7 @@ uint8_t* OneofWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.Struct struct_field = 7;
-  if (_internal_has_struct_field()) {
+  if(_internal_has_struct_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -3695,7 +3677,7 @@ uint8_t* OneofWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.Timestamp timestamp_field = 8;
-  if (_internal_has_timestamp_field()) {
+  if(_internal_has_timestamp_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -3703,7 +3685,7 @@ uint8_t* OneofWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.Type type_field = 9;
-  if (_internal_has_type_field()) {
+  if(_internal_has_type_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -3711,7 +3693,7 @@ uint8_t* OneofWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.DoubleValue double_field = 10;
-  if (_internal_has_double_field()) {
+  if(_internal_has_double_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -3719,7 +3701,7 @@ uint8_t* OneofWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.FloatValue float_field = 11;
-  if (_internal_has_float_field()) {
+  if(_internal_has_float_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -3727,7 +3709,7 @@ uint8_t* OneofWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.Int64Value int64_field = 12;
-  if (_internal_has_int64_field()) {
+  if(_internal_has_int64_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -3735,7 +3717,7 @@ uint8_t* OneofWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.UInt64Value uint64_field = 13;
-  if (_internal_has_uint64_field()) {
+  if(_internal_has_uint64_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -3743,7 +3725,7 @@ uint8_t* OneofWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.Int32Value int32_field = 14;
-  if (_internal_has_int32_field()) {
+  if(_internal_has_int32_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -3751,7 +3733,7 @@ uint8_t* OneofWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.UInt32Value uint32_field = 15;
-  if (_internal_has_uint32_field()) {
+  if(_internal_has_uint32_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -3759,7 +3741,7 @@ uint8_t* OneofWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.BoolValue bool_field = 16;
-  if (_internal_has_bool_field()) {
+  if(_internal_has_bool_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -3767,7 +3749,7 @@ uint8_t* OneofWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.StringValue string_field = 17;
-  if (_internal_has_string_field()) {
+  if(_internal_has_string_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -3775,14 +3757,14 @@ uint8_t* OneofWellKnownTypes::_InternalSerialize(
   }
 
   // .google.protobuf.BytesValue bytes_field = 18;
-  if (_internal_has_bytes_field()) {
+  if(_internal_has_bytes_field()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
         18, _Internal::bytes_field(this), target, stream);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -4033,7 +4015,7 @@ void OneofWellKnownTypes::MergeFrom(const OneofWellKnownTypes& from) {
 
 void OneofWellKnownTypes::CopyFrom(const OneofWellKnownTypes& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest.OneofWellKnownTypes)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -4495,10 +4477,10 @@ const char* MapWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // map<int32, .google.protobuf.Any> any_field = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4511,7 +4493,7 @@ const char* MapWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
         continue;
       // map<int32, .google.protobuf.Api> api_field = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4524,7 +4506,7 @@ const char* MapWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
         continue;
       // map<int32, .google.protobuf.Duration> duration_field = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4537,7 +4519,7 @@ const char* MapWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
         continue;
       // map<int32, .google.protobuf.Empty> empty_field = 4;
       case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4550,7 +4532,7 @@ const char* MapWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
         continue;
       // map<int32, .google.protobuf.FieldMask> field_mask_field = 5;
       case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4563,7 +4545,7 @@ const char* MapWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
         continue;
       // map<int32, .google.protobuf.SourceContext> source_context_field = 6;
       case 6:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4576,7 +4558,7 @@ const char* MapWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
         continue;
       // map<int32, .google.protobuf.Struct> struct_field = 7;
       case 7:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4589,7 +4571,7 @@ const char* MapWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
         continue;
       // map<int32, .google.protobuf.Timestamp> timestamp_field = 8;
       case 8:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4602,7 +4584,7 @@ const char* MapWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
         continue;
       // map<int32, .google.protobuf.Type> type_field = 9;
       case 9:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4615,7 +4597,7 @@ const char* MapWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
         continue;
       // map<int32, .google.protobuf.DoubleValue> double_field = 10;
       case 10:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 82)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 82)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4628,7 +4610,7 @@ const char* MapWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
         continue;
       // map<int32, .google.protobuf.FloatValue> float_field = 11;
       case 11:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 90)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 90)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4641,7 +4623,7 @@ const char* MapWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
         continue;
       // map<int32, .google.protobuf.Int64Value> int64_field = 12;
       case 12:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 98)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 98)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4654,7 +4636,7 @@ const char* MapWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
         continue;
       // map<int32, .google.protobuf.UInt64Value> uint64_field = 13;
       case 13:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 106)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 106)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4667,7 +4649,7 @@ const char* MapWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
         continue;
       // map<int32, .google.protobuf.Int32Value> int32_field = 14;
       case 14:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 114)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 114)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4680,7 +4662,7 @@ const char* MapWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
         continue;
       // map<int32, .google.protobuf.UInt32Value> uint32_field = 15;
       case 15:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 122)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 122)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4693,7 +4675,7 @@ const char* MapWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
         continue;
       // map<int32, .google.protobuf.BoolValue> bool_field = 16;
       case 16:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 130)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 130)) {
           ptr -= 2;
           do {
             ptr += 2;
@@ -4706,7 +4688,7 @@ const char* MapWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
         continue;
       // map<int32, .google.protobuf.StringValue> string_field = 17;
       case 17:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 138)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 138)) {
           ptr -= 2;
           do {
             ptr += 2;
@@ -4719,7 +4701,7 @@ const char* MapWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
         continue;
       // map<int32, .google.protobuf.BytesValue> bytes_field = 18;
       case 18:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 146)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 146)) {
           ptr -= 2;
           do {
             ptr += 2;
@@ -4734,7 +4716,7 @@ const char* MapWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -4760,19 +4742,16 @@ uint8_t* MapWellKnownTypes::_InternalSerialize(
   (void) cached_has_bits;
 
   // map<int32, .google.protobuf.Any> any_field = 1;
-  if (!this->_internal_any_field().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Any >::const_pointer
-        ConstPtr;
+  if(!this->_internal_any_field().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Any >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_any_field().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_any_field().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_any_field().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_any_field().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Any >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Any >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Any >::const_iterator
           it = this->_internal_any_field().begin();
           it != this->_internal_any_field().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -4791,19 +4770,16 @@ uint8_t* MapWellKnownTypes::_InternalSerialize(
   }
 
   // map<int32, .google.protobuf.Api> api_field = 2;
-  if (!this->_internal_api_field().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Api >::const_pointer
-        ConstPtr;
+  if(!this->_internal_api_field().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Api >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_api_field().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_api_field().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_api_field().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_api_field().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Api >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Api >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Api >::const_iterator
           it = this->_internal_api_field().begin();
           it != this->_internal_api_field().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -4822,19 +4798,16 @@ uint8_t* MapWellKnownTypes::_InternalSerialize(
   }
 
   // map<int32, .google.protobuf.Duration> duration_field = 3;
-  if (!this->_internal_duration_field().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Duration >::const_pointer
-        ConstPtr;
+  if(!this->_internal_duration_field().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Duration >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_duration_field().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_duration_field().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_duration_field().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_duration_field().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Duration >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Duration >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Duration >::const_iterator
           it = this->_internal_duration_field().begin();
           it != this->_internal_duration_field().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -4853,19 +4826,16 @@ uint8_t* MapWellKnownTypes::_InternalSerialize(
   }
 
   // map<int32, .google.protobuf.Empty> empty_field = 4;
-  if (!this->_internal_empty_field().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Empty >::const_pointer
-        ConstPtr;
+  if(!this->_internal_empty_field().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Empty >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_empty_field().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_empty_field().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_empty_field().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_empty_field().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Empty >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Empty >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Empty >::const_iterator
           it = this->_internal_empty_field().begin();
           it != this->_internal_empty_field().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -4884,19 +4854,16 @@ uint8_t* MapWellKnownTypes::_InternalSerialize(
   }
 
   // map<int32, .google.protobuf.FieldMask> field_mask_field = 5;
-  if (!this->_internal_field_mask_field().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::FieldMask >::const_pointer
-        ConstPtr;
+  if(!this->_internal_field_mask_field().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::FieldMask >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_field_mask_field().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_field_mask_field().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_field_mask_field().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_field_mask_field().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::FieldMask >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::FieldMask >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::FieldMask >::const_iterator
           it = this->_internal_field_mask_field().begin();
           it != this->_internal_field_mask_field().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -4915,19 +4882,16 @@ uint8_t* MapWellKnownTypes::_InternalSerialize(
   }
 
   // map<int32, .google.protobuf.SourceContext> source_context_field = 6;
-  if (!this->_internal_source_context_field().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::SourceContext >::const_pointer
-        ConstPtr;
+  if(!this->_internal_source_context_field().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::SourceContext >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_source_context_field().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_source_context_field().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_source_context_field().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_source_context_field().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::SourceContext >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::SourceContext >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::SourceContext >::const_iterator
           it = this->_internal_source_context_field().begin();
           it != this->_internal_source_context_field().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -4946,19 +4910,16 @@ uint8_t* MapWellKnownTypes::_InternalSerialize(
   }
 
   // map<int32, .google.protobuf.Struct> struct_field = 7;
-  if (!this->_internal_struct_field().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Struct >::const_pointer
-        ConstPtr;
+  if(!this->_internal_struct_field().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Struct >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_struct_field().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_struct_field().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_struct_field().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_struct_field().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Struct >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Struct >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Struct >::const_iterator
           it = this->_internal_struct_field().begin();
           it != this->_internal_struct_field().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -4977,19 +4938,16 @@ uint8_t* MapWellKnownTypes::_InternalSerialize(
   }
 
   // map<int32, .google.protobuf.Timestamp> timestamp_field = 8;
-  if (!this->_internal_timestamp_field().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Timestamp >::const_pointer
-        ConstPtr;
+  if(!this->_internal_timestamp_field().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Timestamp >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_timestamp_field().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_timestamp_field().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_timestamp_field().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_timestamp_field().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Timestamp >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Timestamp >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Timestamp >::const_iterator
           it = this->_internal_timestamp_field().begin();
           it != this->_internal_timestamp_field().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -5008,19 +4966,16 @@ uint8_t* MapWellKnownTypes::_InternalSerialize(
   }
 
   // map<int32, .google.protobuf.Type> type_field = 9;
-  if (!this->_internal_type_field().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Type >::const_pointer
-        ConstPtr;
+  if(!this->_internal_type_field().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Type >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_type_field().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_type_field().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_type_field().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_type_field().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Type >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Type >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Type >::const_iterator
           it = this->_internal_type_field().begin();
           it != this->_internal_type_field().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -5039,19 +4994,16 @@ uint8_t* MapWellKnownTypes::_InternalSerialize(
   }
 
   // map<int32, .google.protobuf.DoubleValue> double_field = 10;
-  if (!this->_internal_double_field().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::DoubleValue >::const_pointer
-        ConstPtr;
+  if(!this->_internal_double_field().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::DoubleValue >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_double_field().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_double_field().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_double_field().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_double_field().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::DoubleValue >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::DoubleValue >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::DoubleValue >::const_iterator
           it = this->_internal_double_field().begin();
           it != this->_internal_double_field().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -5070,19 +5022,16 @@ uint8_t* MapWellKnownTypes::_InternalSerialize(
   }
 
   // map<int32, .google.protobuf.FloatValue> float_field = 11;
-  if (!this->_internal_float_field().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::FloatValue >::const_pointer
-        ConstPtr;
+  if(!this->_internal_float_field().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::FloatValue >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_float_field().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_float_field().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_float_field().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_float_field().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::FloatValue >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::FloatValue >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::FloatValue >::const_iterator
           it = this->_internal_float_field().begin();
           it != this->_internal_float_field().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -5101,19 +5050,16 @@ uint8_t* MapWellKnownTypes::_InternalSerialize(
   }
 
   // map<int32, .google.protobuf.Int64Value> int64_field = 12;
-  if (!this->_internal_int64_field().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Int64Value >::const_pointer
-        ConstPtr;
+  if(!this->_internal_int64_field().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Int64Value >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_int64_field().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_int64_field().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_int64_field().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_int64_field().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Int64Value >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Int64Value >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Int64Value >::const_iterator
           it = this->_internal_int64_field().begin();
           it != this->_internal_int64_field().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -5132,19 +5078,16 @@ uint8_t* MapWellKnownTypes::_InternalSerialize(
   }
 
   // map<int32, .google.protobuf.UInt64Value> uint64_field = 13;
-  if (!this->_internal_uint64_field().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::UInt64Value >::const_pointer
-        ConstPtr;
+  if(!this->_internal_uint64_field().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::UInt64Value >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_uint64_field().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_uint64_field().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_uint64_field().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_uint64_field().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::UInt64Value >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::UInt64Value >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::UInt64Value >::const_iterator
           it = this->_internal_uint64_field().begin();
           it != this->_internal_uint64_field().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -5163,19 +5106,16 @@ uint8_t* MapWellKnownTypes::_InternalSerialize(
   }
 
   // map<int32, .google.protobuf.Int32Value> int32_field = 14;
-  if (!this->_internal_int32_field().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Int32Value >::const_pointer
-        ConstPtr;
+  if(!this->_internal_int32_field().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Int32Value >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_int32_field().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_int32_field().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_int32_field().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_int32_field().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Int32Value >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Int32Value >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Int32Value >::const_iterator
           it = this->_internal_int32_field().begin();
           it != this->_internal_int32_field().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -5194,19 +5134,16 @@ uint8_t* MapWellKnownTypes::_InternalSerialize(
   }
 
   // map<int32, .google.protobuf.UInt32Value> uint32_field = 15;
-  if (!this->_internal_uint32_field().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::UInt32Value >::const_pointer
-        ConstPtr;
+  if(!this->_internal_uint32_field().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::UInt32Value >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_uint32_field().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_uint32_field().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_uint32_field().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_uint32_field().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::UInt32Value >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::UInt32Value >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::UInt32Value >::const_iterator
           it = this->_internal_uint32_field().begin();
           it != this->_internal_uint32_field().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -5225,19 +5162,16 @@ uint8_t* MapWellKnownTypes::_InternalSerialize(
   }
 
   // map<int32, .google.protobuf.BoolValue> bool_field = 16;
-  if (!this->_internal_bool_field().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::BoolValue >::const_pointer
-        ConstPtr;
+  if(!this->_internal_bool_field().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::BoolValue >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_bool_field().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_bool_field().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_bool_field().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_bool_field().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::BoolValue >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::BoolValue >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::BoolValue >::const_iterator
           it = this->_internal_bool_field().begin();
           it != this->_internal_bool_field().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -5256,19 +5190,16 @@ uint8_t* MapWellKnownTypes::_InternalSerialize(
   }
 
   // map<int32, .google.protobuf.StringValue> string_field = 17;
-  if (!this->_internal_string_field().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::StringValue >::const_pointer
-        ConstPtr;
+  if(!this->_internal_string_field().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::StringValue >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_string_field().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_string_field().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_string_field().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_string_field().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::StringValue >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::StringValue >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::StringValue >::const_iterator
           it = this->_internal_string_field().begin();
           it != this->_internal_string_field().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -5287,19 +5218,16 @@ uint8_t* MapWellKnownTypes::_InternalSerialize(
   }
 
   // map<int32, .google.protobuf.BytesValue> bytes_field = 18;
-  if (!this->_internal_bytes_field().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::BytesValue >::const_pointer
-        ConstPtr;
+  if(!this->_internal_bytes_field().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::BytesValue >::const_pointer ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< int32_t, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_bytes_field().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_bytes_field().size()]);
+    if(stream->IsSerializationDeterministic() && this->_internal_bytes_field().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_bytes_field().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::BytesValue >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::BytesValue >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::BytesValue >::const_iterator
           it = this->_internal_bytes_field().begin();
           it != this->_internal_bytes_field().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
@@ -5317,7 +5245,7 @@ uint8_t* MapWellKnownTypes::_InternalSerialize(
     }
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -5336,7 +5264,7 @@ size_t MapWellKnownTypes::ByteSizeLong() const {
   // map<int32, .google.protobuf.Any> any_field = 1;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_any_field_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Any >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Any >::const_iterator
       it = this->_internal_any_field().begin();
       it != this->_internal_any_field().end(); ++it) {
     total_size += MapWellKnownTypes_AnyFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5345,7 +5273,7 @@ size_t MapWellKnownTypes::ByteSizeLong() const {
   // map<int32, .google.protobuf.Api> api_field = 2;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_api_field_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Api >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Api >::const_iterator
       it = this->_internal_api_field().begin();
       it != this->_internal_api_field().end(); ++it) {
     total_size += MapWellKnownTypes_ApiFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5354,7 +5282,7 @@ size_t MapWellKnownTypes::ByteSizeLong() const {
   // map<int32, .google.protobuf.Duration> duration_field = 3;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_duration_field_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Duration >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Duration >::const_iterator
       it = this->_internal_duration_field().begin();
       it != this->_internal_duration_field().end(); ++it) {
     total_size += MapWellKnownTypes_DurationFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5363,7 +5291,7 @@ size_t MapWellKnownTypes::ByteSizeLong() const {
   // map<int32, .google.protobuf.Empty> empty_field = 4;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_empty_field_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Empty >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Empty >::const_iterator
       it = this->_internal_empty_field().begin();
       it != this->_internal_empty_field().end(); ++it) {
     total_size += MapWellKnownTypes_EmptyFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5372,7 +5300,7 @@ size_t MapWellKnownTypes::ByteSizeLong() const {
   // map<int32, .google.protobuf.FieldMask> field_mask_field = 5;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_field_mask_field_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::FieldMask >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::FieldMask >::const_iterator
       it = this->_internal_field_mask_field().begin();
       it != this->_internal_field_mask_field().end(); ++it) {
     total_size += MapWellKnownTypes_FieldMaskFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5381,7 +5309,7 @@ size_t MapWellKnownTypes::ByteSizeLong() const {
   // map<int32, .google.protobuf.SourceContext> source_context_field = 6;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_source_context_field_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::SourceContext >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::SourceContext >::const_iterator
       it = this->_internal_source_context_field().begin();
       it != this->_internal_source_context_field().end(); ++it) {
     total_size += MapWellKnownTypes_SourceContextFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5390,7 +5318,7 @@ size_t MapWellKnownTypes::ByteSizeLong() const {
   // map<int32, .google.protobuf.Struct> struct_field = 7;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_struct_field_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Struct >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Struct >::const_iterator
       it = this->_internal_struct_field().begin();
       it != this->_internal_struct_field().end(); ++it) {
     total_size += MapWellKnownTypes_StructFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5399,7 +5327,7 @@ size_t MapWellKnownTypes::ByteSizeLong() const {
   // map<int32, .google.protobuf.Timestamp> timestamp_field = 8;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_timestamp_field_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Timestamp >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Timestamp >::const_iterator
       it = this->_internal_timestamp_field().begin();
       it != this->_internal_timestamp_field().end(); ++it) {
     total_size += MapWellKnownTypes_TimestampFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5408,7 +5336,7 @@ size_t MapWellKnownTypes::ByteSizeLong() const {
   // map<int32, .google.protobuf.Type> type_field = 9;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_type_field_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Type >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Type >::const_iterator
       it = this->_internal_type_field().begin();
       it != this->_internal_type_field().end(); ++it) {
     total_size += MapWellKnownTypes_TypeFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5417,7 +5345,7 @@ size_t MapWellKnownTypes::ByteSizeLong() const {
   // map<int32, .google.protobuf.DoubleValue> double_field = 10;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_double_field_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::DoubleValue >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::DoubleValue >::const_iterator
       it = this->_internal_double_field().begin();
       it != this->_internal_double_field().end(); ++it) {
     total_size += MapWellKnownTypes_DoubleFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5426,7 +5354,7 @@ size_t MapWellKnownTypes::ByteSizeLong() const {
   // map<int32, .google.protobuf.FloatValue> float_field = 11;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_float_field_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::FloatValue >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::FloatValue >::const_iterator
       it = this->_internal_float_field().begin();
       it != this->_internal_float_field().end(); ++it) {
     total_size += MapWellKnownTypes_FloatFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5435,7 +5363,7 @@ size_t MapWellKnownTypes::ByteSizeLong() const {
   // map<int32, .google.protobuf.Int64Value> int64_field = 12;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_int64_field_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Int64Value >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Int64Value >::const_iterator
       it = this->_internal_int64_field().begin();
       it != this->_internal_int64_field().end(); ++it) {
     total_size += MapWellKnownTypes_Int64FieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5444,7 +5372,7 @@ size_t MapWellKnownTypes::ByteSizeLong() const {
   // map<int32, .google.protobuf.UInt64Value> uint64_field = 13;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_uint64_field_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::UInt64Value >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::UInt64Value >::const_iterator
       it = this->_internal_uint64_field().begin();
       it != this->_internal_uint64_field().end(); ++it) {
     total_size += MapWellKnownTypes_Uint64FieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5453,7 +5381,7 @@ size_t MapWellKnownTypes::ByteSizeLong() const {
   // map<int32, .google.protobuf.Int32Value> int32_field = 14;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_int32_field_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Int32Value >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Int32Value >::const_iterator
       it = this->_internal_int32_field().begin();
       it != this->_internal_int32_field().end(); ++it) {
     total_size += MapWellKnownTypes_Int32FieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5462,7 +5390,7 @@ size_t MapWellKnownTypes::ByteSizeLong() const {
   // map<int32, .google.protobuf.UInt32Value> uint32_field = 15;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_uint32_field_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::UInt32Value >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::UInt32Value >::const_iterator
       it = this->_internal_uint32_field().begin();
       it != this->_internal_uint32_field().end(); ++it) {
     total_size += MapWellKnownTypes_Uint32FieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5471,7 +5399,7 @@ size_t MapWellKnownTypes::ByteSizeLong() const {
   // map<int32, .google.protobuf.BoolValue> bool_field = 16;
   total_size += 2 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_bool_field_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::BoolValue >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::BoolValue >::const_iterator
       it = this->_internal_bool_field().begin();
       it != this->_internal_bool_field().end(); ++it) {
     total_size += MapWellKnownTypes_BoolFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5480,7 +5408,7 @@ size_t MapWellKnownTypes::ByteSizeLong() const {
   // map<int32, .google.protobuf.StringValue> string_field = 17;
   total_size += 2 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_string_field_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::StringValue >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::StringValue >::const_iterator
       it = this->_internal_string_field().begin();
       it != this->_internal_string_field().end(); ++it) {
     total_size += MapWellKnownTypes_StringFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5489,7 +5417,7 @@ size_t MapWellKnownTypes::ByteSizeLong() const {
   // map<int32, .google.protobuf.BytesValue> bytes_field = 18;
   total_size += 2 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_bytes_field_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::BytesValue >::const_iterator
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::BytesValue >::const_iterator
       it = this->_internal_bytes_field().begin();
       it != this->_internal_bytes_field().end(); ++it) {
     total_size += MapWellKnownTypes_BytesFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
@@ -5540,7 +5468,7 @@ void MapWellKnownTypes::MergeFrom(const MapWellKnownTypes& from) {
 
 void MapWellKnownTypes::CopyFrom(const MapWellKnownTypes& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest.MapWellKnownTypes)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }

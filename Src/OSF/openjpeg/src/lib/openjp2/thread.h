@@ -180,9 +180,9 @@ typedef void (*opj_tls_free_func)(void * value);
  * @param key key whose value to set.
  * @param value value to set (may be NULL).
  * @param free_func function to call currently installed value.
- * @return OPJ_TRUE if successful.
+ * @return TRUE if successful.
  */
-OPJ_BOOL opj_tls_set(opj_tls_t* tls, int key, void * value,
+boolint opj_tls_set(opj_tls_t* tls, int key, void * value,
                      opj_tls_free_func free_func);
 
 /*@}*/
@@ -219,9 +219,9 @@ typedef void (*opj_job_fn)(void * user_data, opj_tls_t* tls);
  * @param tp the thread pool handle.
  * @param job_fn Function to run. Must not be NULL.
  * @param user_data User data provided to thread_fn.
- * @return OPJ_TRUE if the job was successfully submitted.
+ * @return TRUE if the job was successfully submitted.
  */
-OPJ_BOOL opj_thread_pool_submit_job(opj_thread_pool_t* tp, opj_job_fn job_fn,
+boolint opj_thread_pool_submit_job(opj_thread_pool_t* tp, opj_job_fn job_fn,
                                     void * user_data);
 
 /** Wait that no more than max_remaining_jobs jobs are remaining in the queue of

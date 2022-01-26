@@ -124,7 +124,7 @@ static void ColouriseRDoc(Sci_PositionU startPos, Sci_Position length, int initS
 			if(IsADigit(sc.ch) || (sc.ch == '.' && IsADigit(sc.chNext))) {
 				sc.SetState(SCE_R_NUMBER);
 			}
-			else if(IsAWordStart(sc.ch) ) {
+			else if(IsAWordStart(sc.ch)) {
 				sc.SetState(SCE_R_IDENTIFIER);
 			}
 			else if(sc.Match('#')) {

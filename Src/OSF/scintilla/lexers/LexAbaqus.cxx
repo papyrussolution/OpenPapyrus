@@ -56,7 +56,7 @@ static void ColouriseABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int 
 				    sc.SetState(SCE_ABAQUS_DEFAULT);
 				    state = LINE_END;
 			    }
-			    else if(IsAKeywordChar(sc.ch) ) {
+			    else if(IsAKeywordChar(sc.ch)) {
 				    // nothing changes
 				    state = KW_LINE_KW;
 			    }
@@ -78,7 +78,7 @@ static void ColouriseABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int 
 				    sc.SetState(SCE_ABAQUS_ARGUMENT);
 				    state = KW_LINE_PAR;
 			    }
-			    else if(sc.atLineEnd || (sc.ch == ',') ) {
+			    else if(sc.atLineEnd || (sc.ch == ',')) {
 				    // we remain in keyword mode
 				    state = KW_LINE_COMMA;
 			    }
@@ -97,7 +97,7 @@ static void ColouriseABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int 
 				    sc.SetState(SCE_ABAQUS_DEFAULT);
 				    state = LINE_END;
 			    }
-			    else if(IsAKeywordChar(sc.ch) || (sc.ch == '-') ) {
+			    else if(IsAKeywordChar(sc.ch) || (sc.ch == '-')) {
 				    // remain in this state
 				    state = KW_LINE_PAR;
 			    }
@@ -121,11 +121,11 @@ static void ColouriseABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int 
 				    // remain in this state
 				    state = KW_LINE_EQ;
 			    }
-			    else if(IsADigit(sc.ch) || (sc.ch == '-') || (sc.ch == '.' && IsADigit(sc.chNext)) ) {
+			    else if(IsADigit(sc.ch) || (sc.ch == '-') || (sc.ch == '.' && IsADigit(sc.chNext))) {
 				    sc.SetState(SCE_ABAQUS_NUMBER);
 				    state = KW_LINE_VAL;
 			    }
-			    else if(IsAKeywordChar(sc.ch) ) {
+			    else if(IsAKeywordChar(sc.ch)) {
 				    sc.SetState(SCE_ABAQUS_DEFAULT);
 				    state = KW_LINE_VAL;
 			    }
@@ -143,7 +143,7 @@ static void ColouriseABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int 
 				    sc.SetState(SCE_ABAQUS_DEFAULT);
 				    state = LINE_END;
 			    }
-			    else if(IsASetChar(sc.ch) && (sc.state == SCE_ABAQUS_DEFAULT) ) {
+			    else if(IsASetChar(sc.ch) && (sc.state == SCE_ABAQUS_DEFAULT)) {
 				    // nothing changes
 				    state = KW_LINE_VAL;
 			    }
@@ -175,7 +175,7 @@ static void ColouriseABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int 
 				    sc.SetState(SCE_ABAQUS_DEFAULT);
 				    state = LINE_END;
 			    }
-			    else if(IsASetChar(sc.ch) && (sc.state == SCE_ABAQUS_DEFAULT) ) {
+			    else if(IsASetChar(sc.ch) && (sc.state == SCE_ABAQUS_DEFAULT)) {
 				    // nothing changes
 				    state = DAT_LINE_VAL;
 			    }
@@ -216,11 +216,11 @@ static void ColouriseABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int 
 				    sc.SetState(SCE_ABAQUS_OPERATOR);
 				    state = DAT_LINE_COMMA;
 			    }
-			    else if(IsADigit(sc.ch) || (sc.ch == '-')|| (sc.ch == '.' && IsADigit(sc.chNext)) ) {
+			    else if(IsADigit(sc.ch) || (sc.ch == '-')|| (sc.ch == '.' && IsADigit(sc.chNext))) {
 				    sc.SetState(SCE_ABAQUS_NUMBER);
 				    state = DAT_LINE_VAL;
 			    }
-			    else if(IsAKeywordChar(sc.ch) ) {
+			    else if(IsAKeywordChar(sc.ch)) {
 				    sc.SetState(SCE_ABAQUS_DEFAULT);
 				    state = DAT_LINE_VAL;
 			    }
@@ -266,11 +266,11 @@ static void ColouriseABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int 
 					    sc.SetState(SCE_ABAQUS_OPERATOR);
 					    state = DAT_LINE_COMMA;
 				    }
-				    else if(IsADigit(sc.ch) || (sc.ch == '-')|| (sc.ch == '.' && IsADigit(sc.chNext)) ) {
+				    else if(IsADigit(sc.ch) || (sc.ch == '-')|| (sc.ch == '.' && IsADigit(sc.chNext))) {
 					    sc.SetState(SCE_ABAQUS_NUMBER);
 					    state = DAT_LINE_VAL;
 				    }
-				    else if(IsAKeywordChar(sc.ch) ) {
+				    else if(IsAKeywordChar(sc.ch)) {
 					    sc.SetState(SCE_ABAQUS_DEFAULT);
 					    state = DAT_LINE_VAL;
 				    }
@@ -407,12 +407,12 @@ static int LineType(Sci_Position line, Accessor & styler)
 	word[wlen] = '*';
 	wlen++;
 	i++;
-	while((i < eol_pos) && (wlen < 255) ) {
+	while((i < eol_pos) && (wlen < 255)) {
 		c = styler.SafeGetCharAt(i);
 		ch = static_cast<char>(LowerCase(c));
 		if((!IsSpace(c)) && (!IsIdentifier(c)) )
 			break;
-		if(IsIdentifier(c) ) {
+		if(IsIdentifier(c)) {
 			word[wlen] = ch;
 			wlen++;
 		}
@@ -483,7 +483,7 @@ static void FoldABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int, Word
 			}
 		}
 		// Check for data line
-		if((lineType == 1) || (lineType == 3) ) {
+		if((lineType == 1) || (lineType == 3)) {
 			if(beginData < 0) {
 				if(beginComment >= 0) {
 					beginData = beginComment;
@@ -518,7 +518,7 @@ static void FoldABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int, Word
 			}
 
 			int datLevel = level + 1;
-			if(!(prvKeyLineTp & 4) ) {
+			if(!(prvKeyLineTp & 4)) {
 				datLevel = level;
 			}
 
@@ -558,7 +558,7 @@ static void FoldABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int, Word
 			Sci_Position lineType = LineType(line, styler);
 
 			if(lineType != 8) {
-				if(!(lineType & 4) ) {
+				if(!(lineType & 4)) {
 					beginComment = endLine + 1;
 				}
 				break;
@@ -576,7 +576,7 @@ static void FoldABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int, Word
 		SafeSetLevel(prvKeyLine, level | SC_FOLDLEVELHEADERFLAG, styler);
 	}
 	int datLevel = level + 1;
-	if(!(prvKeyLineTp & 4) ) {
+	if(!(prvKeyLineTp & 4)) {
 		datLevel = level;
 	}
 	for(Sci_Position ll = beginData; ll < beginComment; ll++)

@@ -1,5 +1,5 @@
 // PPDEFS.H
-// Copyright (c) Sobolev A. 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) Sobolev A. 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 // Файл содержит только define-определения. Используется для включения в исходные файлы ресурсов
@@ -709,10 +709,12 @@
 	#define PPACN_BILLUNLINK            89L // @v10.8.3 Удалена привязка документа к другому документу. Дополнительный параметр - ид документа, к которому была привязка
 	#define PPACN_EVENTDETECTION        90L // @v10.8.10 Попытка обнаружения события (PPObjEvent). Следующая попытка будет опираться на время этой записи.
 	#define PPACN_RECENTVERSIONLAUNCHED 91L // @v11.2.10 Событие, иниициируемое при запуске сеанса, версия которого превышает последнее значение, зафиксированное
-		// таким же событием. Используетс в Stylo-Q и, возможно, в иных однопользовательских приложениях. В Papyrus'е не применяется из-за того, что он многопользовательский -
+		// таким же событием. Используется в Stylo-Q и, возможно, в иных однопользовательских приложениях. В Papyrus'е не применяется из-за того, что он многопользовательский -
 		// там другие механизмы.
+	#define PPACN_STYLOQSVCSELFREG      92L // @v11.2.12 Сервис Stylo-Q отправил собственные регистрационные данные медиатору. Доп параметр - ид медиатора.
+		// Событие необходимо для правильной идентификации необходимости повторной саморегистрации после изменения собственных данных.
 	// !!! При вставке нового значения изменить PPACN_LAST !!!
-	#define PPACN_LAST                  91L // Последнее значение (ИЗМЕНИТЬ ПРИ ВСТАВКЕ НОВОГО ЗНАЧЕНИЯ)
+	#define PPACN_LAST                  92L // Последнее значение (ИЗМЕНИТЬ ПРИ ВСТАВКЕ НОВОГО ЗНАЧЕНИЯ)
 
 	#define SYSMAINTENANCEFUNC_AUTOMQSCONFIG 1 // @v10.7.5 Автоматическое обновление конфигурации обмена с брокером сообщений
 	//
@@ -927,65 +929,66 @@
 // и их идентификаторы не могут быть изменены.
 //
 #define PPOBJ_USERPROFILE        73L // @v8.0.6
-	#define USERPROFILEPPRP_FILEINFO  1L
-	#define USERPROFILEPPRP_FILEINFO2 2L
+	#define USERPROFILEPPRP_FILEINFO   1L
+	#define USERPROFILEPPRP_FILEINFO2  2L
 
-	#define PPUPRF_LOGIN              1
-	#define PPUPRF_SESSION            2
-	#define PPUPRF_BILLTURN_RCPT      3
-	#define PPUPRF_BILLTURN_EXP       4
-	#define PPUPRF_BILLTURN_IEXP      5
-	#define PPUPRF_BILLTURN_MOD       6
-	#define PPUPRF_BILLTURN_RVL       7
-	#define PPUPRF_BILLTURN_ORD       8
-	#define PPUPRF_BILLTURN_DRFT      9
-	#define PPUPRF_BILLTURN_RET      10
-	#define PPUPRF_BILLTURN_ETC      11
-	#define PPUPRF_BILLUPD_RCPT      12
-	#define PPUPRF_BILLUPD_EXP       13
-	#define PPUPRF_BILLUPD_IEXP      14
-	#define PPUPRF_BILLUPD_MOD       15
-	#define PPUPRF_BILLUPD_RVL       16
-	#define PPUPRF_BILLUPD_ORD       17
-	#define PPUPRF_BILLUPD_DRFT      18
-	#define PPUPRF_BILLUPD_RET       19
-	#define PPUPRF_BILLUPD_ETC       20
-	#define PPUPRF_BILLRMV_RCPT      21
-	#define PPUPRF_BILLRMV_EXP       22
-	#define PPUPRF_BILLRMV_IEXP      23
-	#define PPUPRF_BILLRMV_MOD       24
-	#define PPUPRF_BILLRMV_RVL       25
-	#define PPUPRF_BILLRMV_ORD       26
-	#define PPUPRF_BILLRMV_DRFT      27
-	#define PPUPRF_BILLRMV_RET       28
-	#define PPUPRF_BILLRMV_ETC       29
-	#define PPUPRF_VIEW_GREST        51
-	#define PPUPRF_VIEW_GREST_DT     52
-	#define PPUPRF_VATFREEPERSONLIST 53
-	#define PPUPRF_PSALBLDGOODS      54
-	#define PPUPRF_PSALBLDGOODSTEST  55
-	#define PPUPRF_GOODSPUT          56
-	#define PPUPRF_CCHECKPUT         57
-	#define PPUPRF_GETMTXLISTBYLOC   58
-	#define PPUPRF_CSESSTXMRESTORE   59
-	#define PPUPRF_PACKCACHETEXT     60
-	#define PPUPRF_MTXCACHEACTUALIZE 61
-	#define PPUPRF_SCARDUPDBYRULE    62
-	#define PPUPRF_GETINVSTOCKREST   63
-	#define PPUPRF_VIEW_GOODSOPANLZ  64
-	#define PPUPRF_VIEW_TRFRANLZ     65
-	#define PPUPRF_INVENTAUTOBUILD   66
-	#define PPUPRF_CALCARTDEBT       67
-	#define PPUPRF_VIEW_DEBT         68
-	#define PPUPRF_GETOPENEDLOTS     69
-	#define PPUPRF_BHTPREPBILL       70 // @v9.4.11
-	#define PPUPRF_BHTPREPGOODS      71 // @v9.4.11
-	#define PPUPRF_OSMXMLPARSETAG    72 // @v9.5.8
-	#define PPUPRF_BUILDGOODSFL      73 // @v10.1.4
-	#define PPUPRF_SRCHINGOODSFL     74 // @v10.1.4
-	#define PPUPRF_TIMSERWRITE       75 // @v10.3.3
-	#define PPUPRF_TSEVALSTAKES      76 // @v10.3.3
-	#define PPUPRF_LAST              77 // @v10.3.3 @anchor 75-->77 Идентификатор для отмера количества существующих значений
+	#define PPUPRF_LOGIN                   1
+	#define PPUPRF_SESSION           	   2
+	#define PPUPRF_BILLTURN_RCPT     	   3
+	#define PPUPRF_BILLTURN_EXP      	   4
+	#define PPUPRF_BILLTURN_IEXP     	   5
+	#define PPUPRF_BILLTURN_MOD      	   6
+	#define PPUPRF_BILLTURN_RVL      	   7
+	#define PPUPRF_BILLTURN_ORD      	   8
+	#define PPUPRF_BILLTURN_DRFT     	   9
+	#define PPUPRF_BILLTURN_RET      	  10
+	#define PPUPRF_BILLTURN_ETC      	  11
+	#define PPUPRF_BILLUPD_RCPT      	  12
+	#define PPUPRF_BILLUPD_EXP       	  13
+	#define PPUPRF_BILLUPD_IEXP      	  14
+	#define PPUPRF_BILLUPD_MOD       	  15
+	#define PPUPRF_BILLUPD_RVL       	  16
+	#define PPUPRF_BILLUPD_ORD       	  17
+	#define PPUPRF_BILLUPD_DRFT      	  18
+	#define PPUPRF_BILLUPD_RET       	  19
+	#define PPUPRF_BILLUPD_ETC       	  20
+	#define PPUPRF_BILLRMV_RCPT      	  21
+	#define PPUPRF_BILLRMV_EXP       	  22
+	#define PPUPRF_BILLRMV_IEXP      	  23
+	#define PPUPRF_BILLRMV_MOD       	  24
+	#define PPUPRF_BILLRMV_RVL       	  25
+	#define PPUPRF_BILLRMV_ORD       	  26
+	#define PPUPRF_BILLRMV_DRFT      	  27
+	#define PPUPRF_BILLRMV_RET       	  28
+	#define PPUPRF_BILLRMV_ETC       	  29
+	#define PPUPRF_VIEW_GREST        	  51
+	#define PPUPRF_VIEW_GREST_DT     	  52
+	#define PPUPRF_VATFREEPERSONLIST 	  53
+	#define PPUPRF_PSALBLDGOODS      	  54
+	#define PPUPRF_PSALBLDGOODSTEST  	  55
+	#define PPUPRF_GOODSPUT          	  56
+	#define PPUPRF_CCHECKPUT         	  57
+	#define PPUPRF_GETMTXLISTBYLOC   	  58
+	#define PPUPRF_CSESSTXMRESTORE   	  59
+	#define PPUPRF_PACKCACHETEXT     	  60
+	#define PPUPRF_MTXCACHEACTUALIZE 	  61
+	#define PPUPRF_SCARDUPDBYRULE    	  62
+	#define PPUPRF_GETINVSTOCKREST   	  63
+	#define PPUPRF_VIEW_GOODSOPANLZ  	  64
+	#define PPUPRF_VIEW_TRFRANLZ     	  65
+	#define PPUPRF_INVENTAUTOBUILD   	  66
+	#define PPUPRF_CALCARTDEBT       	  67
+	#define PPUPRF_VIEW_DEBT         	  68
+	#define PPUPRF_GETOPENEDLOTS     	  69
+	#define PPUPRF_BHTPREPBILL       	  70 // @v9.4.11
+	#define PPUPRF_BHTPREPGOODS      	  71 // @v9.4.11
+	#define PPUPRF_OSMXMLPARSETAG    	  72 // @v9.5.8
+	#define PPUPRF_BUILDGOODSFL      	  73 // @v10.1.4
+	#define PPUPRF_SRCHINGOODSFL     	  74 // @v10.1.4
+	#define PPUPRF_TIMSERWRITE       	  75 // @v10.3.3
+	#define PPUPRF_TSEVALSTAKES      	  76 // @v10.3.3
+	#define PPUPRF_STYLOQ_CMD_ORDERPREREQ 77 // @v11.2.12
+	#define PPUPRF_LAST                   78 // @v10.3.3 @anchor 75-->77 Идентификатор для отмера количества существующих значений // @v11.2.12 77-->78
 #define PPOBJ_EDIPROVIDER	     74L // Провайдеры EDI-обмена
 	#define EDIPRVPRP_EXTSTRING       1L // Текстовые данные пакета
 #define PPOBJ_USREXCLRIGHTS      75L // Исключения для пользовательских прав доступа при некоторых действиях
@@ -1554,6 +1557,8 @@
 #define PPEDIOP_EGAIS_NOTIFY_WBVER4           76 // @v11.0.12 Уведомление сервера ЕГАИС об использовании версии 4 протокола обмена (то же, что и PPEDIOP_EGAIS_NOTIFY_WBVER2, но с небольшим изменением внутри).
 #define PPEDIOP_EGAIS_WAYBILL_V4              77 // @v11.0.12 version 4 of PPEDIOP_EGAIS_WAYBILLACT
 #define PPEDIOP_EGAIS_WAYBILLACT_V4           78 // @v11.0.12 version 4 of PPEDIOP_EGAIS_WAYBILLACT
+#define PPEDIOP_EGAIS_QUERYFORMF1             79 // @v11.2.12 Новая версия PPEDIOP_EGAIS_QUERYFORMA
+#define PPEDIOP_EGAIS_QUERYFORMF2             80 // @v11.2.12 Новая версия PPEDIOP_EGAIS_QUERYFORMB
 //
 // Descr: Статусы ответа (RECADV) на уведомление об отгрузке (DESADV)
 //

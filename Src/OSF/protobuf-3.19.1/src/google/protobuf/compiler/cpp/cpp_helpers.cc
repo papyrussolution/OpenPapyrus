@@ -39,7 +39,6 @@
 #include <google/protobuf/compiler/cpp/cpp_names.h>
 #include <google/protobuf/descriptor.pb.h>
 #include <google/protobuf/compiler/scc.h>
-#include <google/protobuf/dynamic_message.h>
 #include <google/protobuf/wire_format_lite.h>
 #include <google/protobuf/port_def.inc> // Must be last
 

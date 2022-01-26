@@ -512,7 +512,7 @@ static void LZ4_putPositionOnHash(const uint8 * p, uint32 h, void * tableBase, t
 {
 	switch(tableType) {
 		case clearedTable: { /* illegal! */ assert(0); return; }
-		case byPtr: { const uint8** hashTable = (const uint8**)tableBase; hashTable[h] = p; return; }
+		case byPtr: { const uint8 ** hashTable = (const uint8 **)tableBase; hashTable[h] = p; return; }
 		case byU32: { uint32* hashTable = (uint32 *)tableBase; hashTable[h] = (uint32)(p-srcBase); return; }
 		case byU16: { uint16* hashTable = (uint16 *)tableBase; hashTable[h] = static_cast<uint16>(p-srcBase); return; }
 	}
@@ -832,7 +832,7 @@ _next_match:
 			    //DEBUGLOG(6, "             with matchLength=%u", matchCode+MINMATCH);
 		    }
 
-		    if((outputLimited) && /* Check output buffer overflow */ (UNLIKELY(op + (1 + LASTLITERALS) + (matchCode>>8) > olimit)) ) {
+		    if((outputLimited) && /* Check output buffer overflow */ (UNLIKELY(op + (1 + LASTLITERALS) + (matchCode>>8) > olimit))) {
 			    if(outputLimited == limitedOutput)
 				    goto _failure;
 			    if(outputLimited == fillOutput) {
@@ -869,7 +869,7 @@ _next_match:
 			match = LZ4_getPosition(ip, cctx->hashTable, tableType, base);
 			LZ4_putPosition(ip, cctx->hashTable, tableType, base);
 			if( (match+MAX_DISTANCE >= ip)
-			    && (LZ4_read32(match) == LZ4_read32(ip)) ) {
+			    && (LZ4_read32(match) == LZ4_read32(ip))) {
 				token = op++; *token = 0; goto _next_match;
 			}
 		}
@@ -906,7 +906,7 @@ _next_match:
 			}
 			LZ4_putIndexOnHash(current, h, cctx->hashTable, tableType);
 			assert(matchIndex < current);
-			if( ((dictIssue==dictSmall) ? (matchIndex >= prefixIdxLimit) : 1) && ((tableType==byU16) ? 1 : (matchIndex+MAX_DISTANCE >= current)) && (LZ4_read32(match) == LZ4_read32(ip)) ) {
+			if( ((dictIssue==dictSmall) ? (matchIndex >= prefixIdxLimit) : 1) && ((tableType==byU16) ? 1 : (matchIndex+MAX_DISTANCE >= current)) && (LZ4_read32(match) == LZ4_read32(ip))) {
 				token = op++;
 				*token = 0;
 				if(maybe_extMem) offset = current - matchIndex;
@@ -1388,7 +1388,7 @@ LZ4_FORCE_INLINE int LZ4_decompress_generic(const char* const src, char* const d
 		     */
 		    if((endOnInput ? length != RUN_MASK : length <= 8)
 		        /* strictly "less than" on input, to re-enter the loop with at least one byte */
-			&& LIKELY((endOnInput ? ip < shortiend : 1) & (op <= shortoend)) ) {
+			&& LIKELY((endOnInput ? ip < shortiend : 1) & (op <= shortoend))) {
 			    /* Copy the literals */
 			    memcpy(op, ip, endOnInput ? 16 : 8);
 			    op += length; ip += length;
@@ -1400,7 +1400,7 @@ LZ4_FORCE_INLINE int LZ4_decompress_generic(const char* const src, char* const d
 			    match = op - offset;
 			    assert(match <= op); /* check overflow */
 			    // Do not deal with overlapping matches. 
-			    if( (length != ML_MASK) && (offset >= 8) && (dict==withPrefix64k || match >= lowPrefix) ) {
+			    if( (length != ML_MASK) && (offset >= 8) && (dict==withPrefix64k || match >= lowPrefix)) {
 				    /* Copy the match. */
 				    memcpy(op + 0, match + 0, 8);
 				    memcpy(op + 8, match + 8, 8);

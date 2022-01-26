@@ -299,7 +299,7 @@ struct _7zip {
 #ifdef _LZMA_PROB32
 #define CProb uint32
 #else
-#define CProb uint16_t
+#define CProb uint16
 #endif
 	CProb bcj2_p[256 + 2];
 	uint8 bcj2_prevByte;

@@ -234,7 +234,7 @@ static COMPOUND_TEXT_CONVERTERS getState(int codepoint) {
 
 static COMPOUND_TEXT_CONVERTERS findStateFromEscSeq(const char * source,
     const char * sourceLimit,
-    const uint8* toUBytesBuffer,
+    const uint8 * toUBytesBuffer,
     int32_t toUBytesBufferLength,
     UErrorCode * err) {
 	COMPOUND_TEXT_CONVERTERS state = INVALID;
@@ -379,7 +379,7 @@ static const char * U_CALLCONV _CompoundTextgetName(const UConverter * cnv) {
 static void U_CALLCONV UConverter_fromUnicode_CompoundText_OFFSETS(UConverterFromUnicodeArgs* args, UErrorCode * err) {
 	UConverter * cnv = args->converter;
 	uint8 * target = (uint8 *)args->target;
-	const uint8 * targetLimit = (const uint8*)args->targetLimit;
+	const uint8 * targetLimit = (const uint8 *)args->targetLimit;
 	const UChar * source = args->source;
 	const UChar * sourceLimit = args->sourceLimit;
 	/* int32_t* offsets = args->offsets; */

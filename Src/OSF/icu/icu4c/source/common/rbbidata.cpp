@@ -328,7 +328,7 @@ U_CAPI int32_t U_EXPORT2 ubrk_swap(const UDataSwapper * ds, const void * inData,
 	//
 	// Get the RRBI Data Header, and check that it appears to be OK.
 	//
-	const uint8 * inBytes = (const uint8*)inData+headerSize;
+	const uint8 * inBytes = (const uint8 *)inData+headerSize;
 	RBBIDataHeader * rbbiDH = (RBBIDataHeader*)inBytes;
 	if(ds->readUInt32(rbbiDH->fMagic) != 0xb1a0 ||
 	    !RBBIDataWrapper::isDataVersionAcceptable(rbbiDH->fFormatVersion) ||

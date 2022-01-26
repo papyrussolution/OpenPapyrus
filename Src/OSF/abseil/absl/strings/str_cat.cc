@@ -39,7 +39,7 @@ AlphaNum::AlphaNum(Dec dec)
 		*--writer = '0' + (value % 10);
 		value /= 10;
 	}
-	*--writer = '0' + value;
+	*--writer = static_cast<char>('0' + value);
 	if(neg) *--writer = '-';
 
 	ptrdiff_t fillers = writer - minfill;

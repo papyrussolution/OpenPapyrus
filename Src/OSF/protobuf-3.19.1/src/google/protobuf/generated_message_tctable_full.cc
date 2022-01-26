@@ -31,11 +31,9 @@
 #include <protobuf-internal.h>
 #pragma hdrstop
 #include <google/protobuf/parse_context.h>
-#include <google/protobuf/extension_set.h>
 #include <google/protobuf/generated_message_tctable_impl.h>
 #include <google/protobuf/message.h>
 #include <google/protobuf/unknown_field_set.h>
-
 // clang-format off
 #include <google/protobuf/port_def.inc>
 // clang-format on

@@ -272,7 +272,7 @@ static void t42_parse_encoding(T42_Face face, T42_Loader loader)
 		}
 		/* we use a T1_Table to store our charnames */
 		loader->num_chars = encode->num_chars = count;
-		if(FT_NEW_ARRAY(encode->char_index, count) || FT_NEW_ARRAY(encode->char_name,  count) || FT_SET_ERROR(psaux->ps_table_funcs->init(char_table, count, memory)) ) {
+		if(FT_NEW_ARRAY(encode->char_index, count) || FT_NEW_ARRAY(encode->char_name,  count) || FT_SET_ERROR(psaux->ps_table_funcs->init(char_table, count, memory))) {
 			parser->root.error = error;
 			return;
 		}

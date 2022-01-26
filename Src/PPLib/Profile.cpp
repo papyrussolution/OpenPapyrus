@@ -1,5 +1,5 @@
 // PROFILE.CPP
-// Copyright (c) A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -9,61 +9,62 @@
 //
 // uint16 FuncId; uint16 FuncVer; uint16 FactorCount; uint16 Flags;
 static const PPUserProfileFuncEntry PPUserProfileFuncTab[] = {
-	{ PPUPRF_LOGIN,             0, 0, 0, 0 },
-	{ PPUPRF_SESSION,           0, 0, 0, 0 },
-	{ PPUPRF_BILLTURN_RCPT,     0, 1, 0, 0 },
-	{ PPUPRF_BILLTURN_EXP,      0, 1, 0, 0 },
-	{ PPUPRF_BILLTURN_IEXP,     0, 1, 0, 0 },
-	{ PPUPRF_BILLTURN_MOD,      0, 1, 0, 0 },
-	{ PPUPRF_BILLTURN_RVL,      0, 1, 0, 0 },
-	{ PPUPRF_BILLTURN_ORD,      0, 1, 0, 0 },
-	{ PPUPRF_BILLTURN_DRFT,     0, 1, 0, 0 },
-	{ PPUPRF_BILLTURN_RET,      0, 1, 0, 0 },
-	{ PPUPRF_BILLTURN_ETC,      0, 1, 0, 0 },
-	{ PPUPRF_BILLUPD_RCPT,      0, 1, 0, 0 },
-	{ PPUPRF_BILLUPD_EXP,       0, 1, 0, 0 },
-	{ PPUPRF_BILLUPD_IEXP,      0, 1, 0, 0 },
-	{ PPUPRF_BILLUPD_MOD,       0, 1, 0, 0 },
-	{ PPUPRF_BILLUPD_RVL,       0, 1, 0, 0 },
-	{ PPUPRF_BILLUPD_ORD,       0, 1, 0, 0 },
-	{ PPUPRF_BILLUPD_DRFT,      0, 1, 0, 0 },
-	{ PPUPRF_BILLUPD_RET,       0, 1, 0, 0 },
-	{ PPUPRF_BILLUPD_ETC,       0, 1, 0, 0 },
-	{ PPUPRF_BILLRMV_RCPT,      0, 1, 0, 0 },
-	{ PPUPRF_BILLRMV_EXP,       0, 1, 0, 0 },
-	{ PPUPRF_BILLRMV_IEXP,      0, 1, 0, 0 },
-	{ PPUPRF_BILLRMV_MOD,       0, 1, 0, 0 },
-	{ PPUPRF_BILLRMV_RVL,       0, 1, 0, 0 },
-	{ PPUPRF_BILLRMV_ORD,       0, 1, 0, 0 },
-	{ PPUPRF_BILLRMV_DRFT,      0, 1, 0, 0 },
-	{ PPUPRF_BILLRMV_RET,       0, 1, 0, 0 },
-	{ PPUPRF_BILLRMV_ETC,       0, 1, 0, 0 },
-	{ PPUPRF_VIEW_GREST,        0, 1, 0, 0 },
-	{ PPUPRF_VIEW_GREST_DT,     0, 1, 0, 0 },
-	{ PPUPRF_VATFREEPERSONLIST, 0, 1, 0, 0 },
-	{ PPUPRF_PSALBLDGOODS,      0, 2, 0, 0 },
-	{ PPUPRF_PSALBLDGOODSTEST,  0, 2, 0, 0 },
-	{ PPUPRF_GOODSPUT,          0, 1, PPUserProfileFuncEntry::fAccumulate, 100 },
-	{ PPUPRF_CCHECKPUT,         0, 3, PPUserProfileFuncEntry::fAccumulate, 1000 },
-	{ PPUPRF_GETMTXLISTBYLOC,   0, 1, 0, 0 },
-	{ PPUPRF_CSESSTXMRESTORE,   0, 1, 0, 0 },
-	{ PPUPRF_PACKCACHETEXT,     0, 1, 0, 0 },
-	{ PPUPRF_MTXCACHEACTUALIZE, 0, 2, PPUserProfileFuncEntry::fAccumulate, 100 },
-	{ PPUPRF_SCARDUPDBYRULE,    0, 2, 0, 0 },
-	{ PPUPRF_GETINVSTOCKREST,   0, 1, PPUserProfileFuncEntry::fAccumulate, 1000 },
-	{ PPUPRF_VIEW_GOODSOPANLZ,  0, 1, 0, 0 },
-	{ PPUPRF_VIEW_TRFRANLZ,     0, 1, 0, 0 },
-	{ PPUPRF_INVENTAUTOBUILD,   0, 1, 0, 0 },
-	{ PPUPRF_CALCARTDEBT,       0, 2, PPUserProfileFuncEntry::fAccumulate, 100 },
-	{ PPUPRF_VIEW_DEBT,         0, 1, 0, 0 },
-	{ PPUPRF_GETOPENEDLOTS,     0, 2, PPUserProfileFuncEntry::fAccumulate, 10000 },
-	{ PPUPRF_BHTPREPBILL,       0, 1, 0, 0 },
-	{ PPUPRF_BHTPREPGOODS,      0, 1, 0, 0 },
-	{ PPUPRF_OSMXMLPARSETAG,    0, 1, PPUserProfileFuncEntry::fAccumulate, 1000000 },
-	{ PPUPRF_BUILDGOODSFL,      0, 1, 0, 0 },  // @v10.1.4
-	{ PPUPRF_SRCHINGOODSFL,     0, 2, 0, 0 },  // @v10.1.4
-	{ PPUPRF_TIMSERWRITE,       0, 1, PPUserProfileFuncEntry::fAccumulate, 100 }, // @v10.3.3
-	{ PPUPRF_TSEVALSTAKES,      0, 1, PPUserProfileFuncEntry::fAccumulate, 600 }, // @v10.3.3
+	{ PPUPRF_LOGIN,                  0, 0, 0, 0 },
+	{ PPUPRF_SESSION,           	 0, 0, 0, 0 },
+	{ PPUPRF_BILLTURN_RCPT,     	 0, 1, 0, 0 },
+	{ PPUPRF_BILLTURN_EXP,      	 0, 1, 0, 0 },
+	{ PPUPRF_BILLTURN_IEXP,     	 0, 1, 0, 0 },
+	{ PPUPRF_BILLTURN_MOD,      	 0, 1, 0, 0 },
+	{ PPUPRF_BILLTURN_RVL,      	 0, 1, 0, 0 },
+	{ PPUPRF_BILLTURN_ORD,      	 0, 1, 0, 0 },
+	{ PPUPRF_BILLTURN_DRFT,     	 0, 1, 0, 0 },
+	{ PPUPRF_BILLTURN_RET,      	 0, 1, 0, 0 },
+	{ PPUPRF_BILLTURN_ETC,      	 0, 1, 0, 0 },
+	{ PPUPRF_BILLUPD_RCPT,      	 0, 1, 0, 0 },
+	{ PPUPRF_BILLUPD_EXP,       	 0, 1, 0, 0 },
+	{ PPUPRF_BILLUPD_IEXP,      	 0, 1, 0, 0 },
+	{ PPUPRF_BILLUPD_MOD,       	 0, 1, 0, 0 },
+	{ PPUPRF_BILLUPD_RVL,       	 0, 1, 0, 0 },
+	{ PPUPRF_BILLUPD_ORD,       	 0, 1, 0, 0 },
+	{ PPUPRF_BILLUPD_DRFT,      	 0, 1, 0, 0 },
+	{ PPUPRF_BILLUPD_RET,       	 0, 1, 0, 0 },
+	{ PPUPRF_BILLUPD_ETC,       	 0, 1, 0, 0 },
+	{ PPUPRF_BILLRMV_RCPT,      	 0, 1, 0, 0 },
+	{ PPUPRF_BILLRMV_EXP,       	 0, 1, 0, 0 },
+	{ PPUPRF_BILLRMV_IEXP,      	 0, 1, 0, 0 },
+	{ PPUPRF_BILLRMV_MOD,       	 0, 1, 0, 0 },
+	{ PPUPRF_BILLRMV_RVL,       	 0, 1, 0, 0 },
+	{ PPUPRF_BILLRMV_ORD,       	 0, 1, 0, 0 },
+	{ PPUPRF_BILLRMV_DRFT,      	 0, 1, 0, 0 },
+	{ PPUPRF_BILLRMV_RET,       	 0, 1, 0, 0 },
+	{ PPUPRF_BILLRMV_ETC,       	 0, 1, 0, 0 },
+	{ PPUPRF_VIEW_GREST,        	 0, 1, 0, 0 },
+	{ PPUPRF_VIEW_GREST_DT,     	 0, 1, 0, 0 },
+	{ PPUPRF_VATFREEPERSONLIST, 	 0, 1, 0, 0 },
+	{ PPUPRF_PSALBLDGOODS,      	 0, 2, 0, 0 },
+	{ PPUPRF_PSALBLDGOODSTEST,  	 0, 2, 0, 0 },
+	{ PPUPRF_GOODSPUT,          	 0, 1, PPUserProfileFuncEntry::fAccumulate, 100 },
+	{ PPUPRF_CCHECKPUT,         	 0, 3, PPUserProfileFuncEntry::fAccumulate, 1000 },
+	{ PPUPRF_GETMTXLISTBYLOC,   	 0, 1, 0, 0 },
+	{ PPUPRF_CSESSTXMRESTORE,   	 0, 1, 0, 0 },
+	{ PPUPRF_PACKCACHETEXT,     	 0, 1, 0, 0 },
+	{ PPUPRF_MTXCACHEACTUALIZE, 	 0, 2, PPUserProfileFuncEntry::fAccumulate, 100 },
+	{ PPUPRF_SCARDUPDBYRULE,    	 0, 2, 0, 0 },
+	{ PPUPRF_GETINVSTOCKREST,   	 0, 1, PPUserProfileFuncEntry::fAccumulate, 1000 },
+	{ PPUPRF_VIEW_GOODSOPANLZ,  	 0, 1, 0, 0 },
+	{ PPUPRF_VIEW_TRFRANLZ,     	 0, 1, 0, 0 },
+	{ PPUPRF_INVENTAUTOBUILD,   	 0, 1, 0, 0 },
+	{ PPUPRF_CALCARTDEBT,       	 0, 2, PPUserProfileFuncEntry::fAccumulate, 100 },
+	{ PPUPRF_VIEW_DEBT,         	 0, 1, 0, 0 },
+	{ PPUPRF_GETOPENEDLOTS,     	 0, 2, PPUserProfileFuncEntry::fAccumulate, 10000 },
+	{ PPUPRF_BHTPREPBILL,       	 0, 1, 0, 0 },
+	{ PPUPRF_BHTPREPGOODS,      	 0, 1, 0, 0 },
+	{ PPUPRF_OSMXMLPARSETAG,    	 0, 1, PPUserProfileFuncEntry::fAccumulate, 1000000 },
+	{ PPUPRF_BUILDGOODSFL,      	 0, 1, 0, 0 },  // @v10.1.4
+	{ PPUPRF_SRCHINGOODSFL,     	 0, 2, 0, 0 },  // @v10.1.4
+	{ PPUPRF_TIMSERWRITE,       	 0, 1, PPUserProfileFuncEntry::fAccumulate, 100 }, // @v10.3.3
+	{ PPUPRF_TSEVALSTAKES,      	 0, 1, PPUserProfileFuncEntry::fAccumulate, 600 }, // @v10.3.3
+	{ PPUPRF_STYLOQ_CMD_ORDERPREREQ, 0, 2, 0, 0 } // @v11.2.12
 };
 
 static const PPUserProfileFuncEntry * FASTCALL _GetUserProfileFuncEntry(int funcId)
@@ -1544,4 +1545,3 @@ int PPUserProfileCore::Load(const char * pPath)
 	CATCHZOK
 	return ok;
 }
-

@@ -219,7 +219,7 @@ extern int main(int argc, char * argv[]) {
 	uprv_strcpy(basename, inputFileName);
 	parseMappings(filename, FALSE, &errorCode);
 	if(U_FAILURE(errorCode)) {
-		fprintf(stderr, "Could not open file %s for reading. Error: %s \n", filename, u_errorName(errorCode));
+		slfprintf_stderr("Could not open file %s for reading. Error: %s \n", filename, u_errorName(errorCode));
 		return errorCode;
 	}
 
@@ -236,7 +236,7 @@ extern int main(int argc, char * argv[]) {
 
 		parseNormalizationCorrections(filename, &errorCode);
 		if(U_FAILURE(errorCode)) {
-			fprintf(stderr, "Could not open file %s for reading \n", filename);
+			slfprintf_stderr("Could not open file %s for reading \n", filename);
 			return errorCode;
 		}
 		sprepOptions |= _SPREP_NORMALIZATION_ON;
@@ -282,7 +282,7 @@ static void U_CALLCONV normalizationCorrectionsLineFn(void * context,
 	/* get the character code, field 0 */
 	code = (uint32_t)uprv_strtoul(fields[0][0], &end, 16);
 	if(U_FAILURE(*pErrorCode)) {
-		fprintf(stderr, "gensprep: error parsing NormalizationCorrections.txt mapping at %s\n", fields[0][0]);
+		slfprintf_stderr("gensprep: error parsing NormalizationCorrections.txt mapping at %s\n", fields[0][0]);
 		exit(*pErrorCode);
 	}
 	/* Original (erroneous) decomposition */
@@ -293,7 +293,7 @@ static void U_CALLCONV normalizationCorrectionsLineFn(void * context,
 	u_versionFromString(version, fields[3][0]);
 	u_versionFromString(thisVersion, "3.2.0");
 	if(U_FAILURE(*pErrorCode)) {
-		fprintf(stderr, "gensprep error parsing NormalizationCorrections.txt of U+%04lx - %s\n", (long)code, u_errorName(*pErrorCode));
+		slfprintf_stderr("gensprep error parsing NormalizationCorrections.txt of U+%04lx - %s\n", (long)code, u_errorName(*pErrorCode));
 		exit(*pErrorCode);
 	}
 	/* store the mapping */
@@ -316,7 +316,7 @@ static void parseNormalizationCorrections(const char * filename, UErrorCode * pE
 	   */
 
 	if(U_FAILURE(*pErrorCode) && ( *pErrorCode!=U_FILE_ACCESS_ERROR)) {
-		fprintf(stderr, "gensprep error: u_parseDelimitedFile(\"%s\") failed - %s\n", filename, u_errorName(*pErrorCode));
+		slfprintf_stderr("gensprep error: u_parseDelimitedFile(\"%s\") failed - %s\n", filename, u_errorName(*pErrorCode));
 		exit(*pErrorCode);
 	}
 }
@@ -351,7 +351,7 @@ static void U_CALLCONV strprepProfileLineFn(void * context,
 			return;
 		}
 		else {
-			fprintf(stderr, "gensprep error parsing a directive %s.", fields[0][0]);
+			slfprintf_stderr("gensprep error parsing a directive %s.", fields[0][0]);
 		}
 	}
 
@@ -361,7 +361,7 @@ static void U_CALLCONV strprepProfileLineFn(void * context,
 	if(uprv_strstr(typeName, usprepTypeNames[USPREP_UNASSIGNED])!=NULL) {
 		u_parseCodePointRange(s, &rangeStart, &rangeEnd, pErrorCode);
 		if(U_FAILURE(*pErrorCode)) {
-			fprintf(stderr, "Could not parse code point range. Error: %s\n", u_errorName(*pErrorCode));
+			slfprintf_stderr("Could not parse code point range. Error: %s\n", u_errorName(*pErrorCode));
 			return;
 		}
 
@@ -371,7 +371,7 @@ static void U_CALLCONV strprepProfileLineFn(void * context,
 	else if(uprv_strstr(typeName, usprepTypeNames[USPREP_PROHIBITED])!=NULL) {
 		u_parseCodePointRange(s, &rangeStart, &rangeEnd, pErrorCode);
 		if(U_FAILURE(*pErrorCode)) {
-			fprintf(stderr, "Could not parse code point range. Error: %s\n", u_errorName(*pErrorCode));
+			slfprintf_stderr("Could not parse code point range. Error: %s\n", u_errorName(*pErrorCode));
 			return;
 		}
 
@@ -382,7 +382,7 @@ static void U_CALLCONV strprepProfileLineFn(void * context,
 		/* get the character code, field 0 */
 		code = (uint32_t)uprv_strtoul(s, &end, 16);
 		if(end<=s || end!=fields[0][1]) {
-			fprintf(stderr, "gensprep: syntax error in field 0 at %s\n", fields[0][0]);
+			slfprintf_stderr("gensprep: syntax error in field 0 at %s\n", fields[0][0]);
 			*pErrorCode = U_PARSE_ERROR;
 			exit(U_PARSE_ERROR);
 		}
@@ -398,7 +398,7 @@ static void U_CALLCONV strprepProfileLineFn(void * context,
 	}
 
 	if(U_FAILURE(*pErrorCode)) {
-		fprintf(stderr, "gensprep error parsing  %s line %s at %s. Error: %s\n", filename,
+		slfprintf_stderr("gensprep error parsing  %s line %s at %s. Error: %s\n", filename,
 		    fields[0][0], fields[2][0], u_errorName(*pErrorCode));
 		exit(*pErrorCode);
 	}
@@ -416,7 +416,7 @@ static void parseMappings(const char * filename, bool reportError, UErrorCode * 
 	/*fprintf(stdout,"Number of code points that have mappings with length >1 : %i\n",len);*/
 
 	if(U_FAILURE(*pErrorCode) && (reportError || *pErrorCode!=U_FILE_ACCESS_ERROR)) {
-		fprintf(stderr, "gensprep error: u_parseDelimitedFile(\"%s\") failed - %s\n", filename, u_errorName(*pErrorCode));
+		slfprintf_stderr("gensprep error: u_parseDelimitedFile(\"%s\") failed - %s\n", filename, u_errorName(*pErrorCode));
 		exit(*pErrorCode);
 	}
 }

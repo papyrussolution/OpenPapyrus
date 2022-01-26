@@ -1016,7 +1016,7 @@ const uint8 * RuleBasedBreakIterator::getBinaryRules(uint32_t &length)
 	const uint8 * retPtr = NULL;
 	length = 0;
 	if(fData != NULL) {
-		retPtr = (const uint8*)fData->fHeader;
+		retPtr = (const uint8 *)fData->fHeader;
 		length = fData->fHeader->fLength;
 	}
 	return retPtr;

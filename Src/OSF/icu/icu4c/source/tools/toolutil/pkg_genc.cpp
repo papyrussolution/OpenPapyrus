@@ -234,11 +234,11 @@ U_CAPI bool U_EXPORT2 checkAssemblyHeaderName(const char * optAssembly)
 
 U_CAPI void U_EXPORT2 printAssemblyHeadersToStdErr() 
 {
-	fprintf(stderr, "%s", assemblyHeader[0].name);
+	slfprintf_stderr("%s", assemblyHeader[0].name);
 	for(int32_t idx = 1; idx < UPRV_LENGTHOF(assemblyHeader); idx++) {
-		fprintf(stderr, ", %s", assemblyHeader[idx].name);
+		slfprintf_stderr(", %s", assemblyHeader[idx].name);
 	}
-	fprintf(stderr, ")\n");
+	slfprintf_stderr(")\n");
 }
 
 U_CAPI void U_EXPORT2 writeAssemblyCode(const char * filename, const char * destdir, const char * optEntryPoint,
@@ -254,18 +254,18 @@ U_CAPI void U_EXPORT2 writeAssemblyCode(const char * filename, const char * dest
 	size_t i, length, count;
 	FileStream * in = T_FileStream_open(filename, "rb");
 	if(in==NULL) {
-		fprintf(stderr, "genccode: unable to open input file %s\n", filename);
+		slfprintf_stderr("genccode: unable to open input file %s\n", filename);
 		exit(U_FILE_ACCESS_ERROR);
 	}
 	getOutFilename(filename, destdir, buffer.chars, sizeof(buffer.chars), entry, sizeof(entry), ".S", optFilename);
 	out = T_FileStream_open(buffer.chars, "w");
 	if(out==NULL) {
-		fprintf(stderr, "genccode: unable to open output file %s\n", buffer.chars);
+		slfprintf_stderr("genccode: unable to open output file %s\n", buffer.chars);
 		exit(U_FILE_ACCESS_ERROR);
 	}
 	if(outFilePath != NULL) {
 		if(uprv_strlen(buffer.chars) >= outFilePathCapacity) {
-			fprintf(stderr, "genccode: filename too long\n");
+			slfprintf_stderr("genccode: filename too long\n");
 			exit(U_ILLEGAL_ARGUMENT_ERROR);
 		}
 		uprv_strcpy(outFilePath, buffer.chars);
@@ -291,7 +291,7 @@ U_CAPI void U_EXPORT2 writeAssemblyCode(const char * filename, const char * dest
 	count = snprintf(buffer.chars, sizeof(buffer.chars), assemblyHeader[assemblyHeaderIndex].header,
 		entry, entry, entry, entry, entry, entry, entry, entry);
 	if(count >= sizeof(buffer.chars)) {
-		fprintf(stderr, "genccode: entry name too long (long filename?)\n");
+		slfprintf_stderr("genccode: entry name too long (long filename?)\n");
 		exit(U_ILLEGAL_ARGUMENT_ERROR);
 	}
 	T_FileStream_writeLine(out, buffer.chars);
@@ -316,18 +316,18 @@ U_CAPI void U_EXPORT2 writeAssemblyCode(const char * filename, const char * dest
 		entry, entry, entry, entry,
 		entry, entry, entry, entry);
 	if(count >= sizeof(buffer.chars)) {
-		fprintf(stderr, "genccode: entry name too long (long filename?)\n");
+		slfprintf_stderr("genccode: entry name too long (long filename?)\n");
 		exit(U_ILLEGAL_ARGUMENT_ERROR);
 	}
 	T_FileStream_writeLine(out, buffer.chars);
 
 	if(T_FileStream_error(in)) {
-		fprintf(stderr, "genccode: file read error while generating from file %s\n", filename);
+		slfprintf_stderr("genccode: file read error while generating from file %s\n", filename);
 		exit(U_FILE_ACCESS_ERROR);
 	}
 
 	if(T_FileStream_error(out)) {
-		fprintf(stderr, "genccode: file write error while generating from file %s\n", filename);
+		slfprintf_stderr("genccode: file write error while generating from file %s\n", filename);
 		exit(U_FILE_ACCESS_ERROR);
 	}
 
@@ -348,14 +348,14 @@ U_CAPI void U_EXPORT2 writeCCode(const char * filename,
 
 	in = T_FileStream_open(filename, "rb");
 	if(in==NULL) {
-		fprintf(stderr, "genccode: unable to open input file %s\n", filename);
+		slfprintf_stderr("genccode: unable to open input file %s\n", filename);
 		exit(U_FILE_ACCESS_ERROR);
 	}
 
 	if(optName != NULL) { /* prepend  'icudt28_' */
 		// +2 includes the _ and the NUL
 		if(uprv_strlen(optName) + 2 > sizeof(entry)) {
-			fprintf(stderr, "genccode: entry name too long (long filename?)\n");
+			slfprintf_stderr("genccode: entry name too long (long filename?)\n");
 			exit(U_ILLEGAL_ARGUMENT_ERROR);
 		}
 		strcpy(entry, optName);
@@ -377,7 +377,7 @@ U_CAPI void U_EXPORT2 writeCCode(const char * filename,
 
 	if(outFilePath != NULL) {
 		if(uprv_strlen(buffer) >= outFilePathCapacity) {
-			fprintf(stderr, "genccode: filename too long\n");
+			slfprintf_stderr("genccode: filename too long\n");
 			exit(U_ILLEGAL_ARGUMENT_ERROR);
 		}
 		uprv_strcpy(outFilePath, buffer);
@@ -385,7 +385,7 @@ U_CAPI void U_EXPORT2 writeCCode(const char * filename,
 
 	out = T_FileStream_open(buffer, "w");
 	if(out==NULL) {
-		fprintf(stderr, "genccode: unable to open output file %s\n", buffer);
+		slfprintf_stderr("genccode: unable to open output file %s\n", buffer);
 		exit(U_FILE_ACCESS_ERROR);
 	}
 
@@ -423,7 +423,7 @@ U_CAPI void U_EXPORT2 writeCCode(const char * filename,
 		"} %s={ 0.0, \n",
 		entry);
 	if(count >= sizeof(buffer)) {
-		fprintf(stderr, "genccode: entry name too long (long filename?)\n");
+		slfprintf_stderr("genccode: entry name too long (long filename?)\n");
 		exit(U_ILLEGAL_ARGUMENT_ERROR);
 	}
 	T_FileStream_writeLine(out, buffer);
@@ -454,7 +454,7 @@ U_CAPI void U_EXPORT2 writeCCode(const char * filename,
 		"} %s={ 0.0, {\n",
 		(long)T_FileStream_size(in), entry);
 	if(count >= sizeof(buffer)) {
-		fprintf(stderr, "genccode: entry name too long (long filename?)\n");
+		slfprintf_stderr("genccode: entry name too long (long filename?)\n");
 		exit(U_ILLEGAL_ARGUMENT_ERROR);
 	}
 	T_FileStream_writeLine(out, buffer);
@@ -473,12 +473,12 @@ U_CAPI void U_EXPORT2 writeCCode(const char * filename,
 #endif
 
 	if(T_FileStream_error(in)) {
-		fprintf(stderr, "genccode: file read error while generating from file %s\n", filename);
+		slfprintf_stderr("genccode: file read error while generating from file %s\n", filename);
 		exit(U_FILE_ACCESS_ERROR);
 	}
 
 	if(T_FileStream_error(out)) {
-		fprintf(stderr, "genccode: file write error while generating from file %s\n", filename);
+		slfprintf_stderr("genccode: file write error while generating from file %s\n", filename);
 		exit(U_FILE_ACCESS_ERROR);
 	}
 
@@ -678,17 +678,17 @@ static void getOutFilename(const char * inFilename,
 	}
 
 	if(status.isFailure()) {
-		fprintf(stderr, "genccode: error building filename or entrypoint\n");
+		slfprintf_stderr("genccode: error building filename or entrypoint\n");
 		exit(status.get());
 	}
 
 	if(outFilenameBuilder.length() >= outFilenameCapacity) {
-		fprintf(stderr, "genccode: output filename too long\n");
+		slfprintf_stderr("genccode: output filename too long\n");
 		exit(U_ILLEGAL_ARGUMENT_ERROR);
 	}
 
 	if(entryNameBuilder.length() >= entryNameCapacity) {
-		fprintf(stderr, "genccode: entry name too long (long filename?)\n");
+		slfprintf_stderr("genccode: entry name too long (long filename?)\n");
 		exit(U_ILLEGAL_ARGUMENT_ERROR);
 	}
 
@@ -763,14 +763,14 @@ static void getArchitecture(uint16_t * pCPU, uint16_t * pBits, bool * pIsBigEndi
 
 	in = T_FileStream_open(filename, "rb");
 	if(in==NULL) {
-		fprintf(stderr, "genccode: unable to open match-arch file %s\n", filename);
+		slfprintf_stderr("genccode: unable to open match-arch file %s\n", filename);
 		exit(U_FILE_ACCESS_ERROR);
 	}
 	length = T_FileStream_read(in, buffer.bytes, sizeof(buffer.bytes));
 
 #ifdef U_ELF
 	if(length<(int32_t)sizeof(Elf32_Ehdr)) {
-		fprintf(stderr, "genccode: match-arch file %s is too short\n", filename);
+		slfprintf_stderr("genccode: match-arch file %s is too short\n", filename);
 		exit(U_UNSUPPORTED_ERROR);
 	}
 	if(
@@ -780,26 +780,26 @@ static void getArchitecture(uint16_t * pCPU, uint16_t * pBits, bool * pIsBigEndi
 		buffer.header32.e_ident[3]!=ELFMAG3 ||
 		buffer.header32.e_ident[EI_CLASS]<ELFCLASS32 || buffer.header32.e_ident[EI_CLASS]>ELFCLASS64
 		) {
-		fprintf(stderr, "genccode: match-arch file %s is not an ELF object file, or not supported\n", filename);
+		slfprintf_stderr("genccode: match-arch file %s is not an ELF object file, or not supported\n", filename);
 		exit(U_UNSUPPORTED_ERROR);
 	}
 
 	*pBits = buffer.header32.e_ident[EI_CLASS]==ELFCLASS32 ? 32 : 64; /* only 32 or 64: see check above */
 #ifdef U_ELF64
 	if(*pBits!=32 && *pBits!=64) {
-		fprintf(stderr, "genccode: currently only supports 32-bit and 64-bit ELF format\n");
+		slfprintf_stderr("genccode: currently only supports 32-bit and 64-bit ELF format\n");
 		exit(U_UNSUPPORTED_ERROR);
 	}
 #else
 	if(*pBits!=32) {
-		fprintf(stderr, "genccode: built with elf.h missing 64-bit definitions\n");
+		slfprintf_stderr("genccode: built with elf.h missing 64-bit definitions\n");
 		exit(U_UNSUPPORTED_ERROR);
 	}
 #endif
 
 	*pIsBigEndian = (bool)(buffer.header32.e_ident[EI_DATA]==ELFDATA2MSB);
 	if(*pIsBigEndian!=U_IS_BIG_ENDIAN) {
-		fprintf(stderr, "genccode: currently only same-endianness ELF formats are supported\n");
+		slfprintf_stderr("genccode: currently only same-endianness ELF formats are supported\n");
 		exit(U_UNSUPPORTED_ERROR);
 	}
 	/* TODO: Support byte swapping */
@@ -807,7 +807,7 @@ static void getArchitecture(uint16_t * pCPU, uint16_t * pBits, bool * pIsBigEndi
 	*pCPU = buffer.header32.e_machine;
 #elif U_PLATFORM_HAS_WIN32_API
 	if(length<sizeof(IMAGE_FILE_HEADER)) {
-		fprintf(stderr, "genccode: match-arch file %s is too short\n", filename);
+		slfprintf_stderr("genccode: match-arch file %s is too short\n", filename);
 		exit(U_UNSUPPORTED_ERROR);
 	}
 	/* TODO: Use buffer.header.  Keep aliasing legal.  */
@@ -1118,7 +1118,7 @@ U_CAPI void U_EXPORT2 writeObjectCode(const char * filename,
 
 	in = T_FileStream_open(filename, "rb");
 	if(in==NULL) {
-		fprintf(stderr, "genccode: unable to open input file %s\n", filename);
+		slfprintf_stderr("genccode: unable to open input file %s\n", filename);
 		exit(U_FILE_ACCESS_ERROR);
 	}
 	size = T_FileStream_size(in);
@@ -1135,7 +1135,7 @@ U_CAPI void U_EXPORT2 writeObjectCode(const char * filename,
 
 	if(outFilePath != NULL) {
 		if(uprv_strlen(buffer) >= outFilePathCapacity) {
-			fprintf(stderr, "genccode: filename too long\n");
+			slfprintf_stderr("genccode: filename too long\n");
 			exit(U_ILLEGAL_ARGUMENT_ERROR);
 		}
 		uprv_strcpy(outFilePath, buffer);
@@ -1156,7 +1156,7 @@ U_CAPI void U_EXPORT2 writeObjectCode(const char * filename,
 	/* open the output file */
 	out = T_FileStream_open(buffer, "wb");
 	if(out==NULL) {
-		fprintf(stderr, "genccode: unable to open output file %s\n", buffer);
+		slfprintf_stderr("genccode: unable to open output file %s\n", buffer);
 		exit(U_FILE_ACCESS_ERROR);
 	}
 
@@ -1273,11 +1273,11 @@ U_CAPI void U_EXPORT2 writeObjectCode(const char * filename,
 	T_FileStream_write(out, &symbolNames, symbolNames.sizeofLongNames);
 #endif
 	if(T_FileStream_error(in)) {
-		fprintf(stderr, "genccode: file read error while generating from file %s\n", filename);
+		slfprintf_stderr("genccode: file read error while generating from file %s\n", filename);
 		exit(U_FILE_ACCESS_ERROR);
 	}
 	if(T_FileStream_error(out)) {
-		fprintf(stderr, "genccode: file write error while generating from file %s\n", filename);
+		slfprintf_stderr("genccode: file write error while generating from file %s\n", filename);
 		exit(U_FILE_ACCESS_ERROR);
 	}
 	T_FileStream_close(out);

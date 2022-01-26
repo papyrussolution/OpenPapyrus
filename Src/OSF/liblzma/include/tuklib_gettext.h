@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
+//
 //
 /// \file       tuklib_gettext.h
 /// \brief      Wrapper for gettext and friends
@@ -8,7 +8,7 @@
 //  This file has been put into the public domain.
 //  You can do whatever you want with this file.
 //
-///////////////////////////////////////////////////////////////////////////////
+//
 
 #ifndef TUKLIB_GETTEXT_H
 #define TUKLIB_GETTEXT_H

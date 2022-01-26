@@ -4027,7 +4027,7 @@ enum t_contour_levels_kind {
 };
 
 typedef double tri_diag[3]; /* Used to allocate the tri-diag matrix. */
-#define contour_levels_list ((double*)_Cntr.dyn_contour_levels_list.v)
+#define contour_levels_list ((double *)_Cntr.dyn_contour_levels_list.v)
 //
 //#include <hidden3d.h>
 #define PT_ARROWHEAD -10

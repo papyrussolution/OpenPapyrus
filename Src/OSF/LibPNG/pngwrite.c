@@ -16,7 +16,7 @@
 #ifdef PNG_WRITE_SUPPORTED
 #ifdef PNG_WRITE_UNKNOWN_CHUNKS_SUPPORTED
 /* Write out all the unknown chunks for the current given location */
-static void write_unknown_chunks(png_structrp png_ptr, png_const_inforp info_ptr, unsigned int where)
+static void write_unknown_chunks(png_structrp png_ptr, png_const_inforp info_ptr, uint where)
 {
 	if(info_ptr->unknown_chunks_num != 0) {
 		png_const_unknown_chunkp up;
@@ -424,7 +424,7 @@ void PNGAPI png_write_end(png_structrp png_ptr, png_inforp info_ptr)
 }
 
 #ifdef PNG_CONVERT_tIME_SUPPORTED
-void PNGAPI png_convert_from_struct_tm(png_timep ptime, PNG_CONST struct tm * ttime)
+void PNGAPI png_convert_from_struct_tm(png_timep ptime, const struct tm * ttime)
 {
 	png_debug(1, "in png_convert_from_struct_tm");
 
@@ -1667,21 +1667,16 @@ static int png_image_write_main(void * argument)
 	 * and total image size to ensure that they are within the system limits.
 	 */
 	{
-		const unsigned int channels = PNG_IMAGE_PIXEL_CHANNELS(image->format);
-
+		const uint channels = PNG_IMAGE_PIXEL_CHANNELS(image->format);
 		if(image->width <= 0x7FFFFFFFU/channels) { /* no overflow */
 			uint32 check;
 			const uint32 png_row_stride = image->width * channels;
-
 			if(display->row_stride == 0)
 				display->row_stride = (png_int_32)/*SAFE*/ png_row_stride;
-
 			if(display->row_stride < 0)
 				check = -display->row_stride;
-
 			else
 				check = display->row_stride;
-
 			if(check >= png_row_stride) {
 				/* Now check for overflow of the image buffer calculation; this
 				 * limits the whole image size to 32 bits for API compatibility with
@@ -1757,12 +1752,10 @@ static int png_image_write_main(void * argument)
 	 * First check for a little endian system if writing 16-bit files.
 	 */
 	if(write_16bit != 0) {
-		PNG_CONST png_uint_16 le = 0x0001;
-
+		const png_uint_16 le = 0x0001;
 		if((*(png_const_bytep) & le) != 0)
 			png_set_swap(png_ptr);
 	}
-
 #ifdef PNG_SIMPLIFIED_WRITE_BGR_SUPPORTED
 	if((format & PNG_FORMAT_FLAG_BGR) != 0) {
 		if(colormap == 0 && (format & PNG_FORMAT_FLAG_COLOR) != 0)
@@ -1770,7 +1763,6 @@ static int png_image_write_main(void * argument)
 		format &= ~PNG_FORMAT_FLAG_BGR;
 	}
 #endif
-
 #ifdef PNG_SIMPLIFIED_WRITE_AFIRST_SUPPORTED
 	if((format & PNG_FORMAT_FLAG_AFIRST) != 0) {
 		if(colormap == 0 && (format & PNG_FORMAT_FLAG_ALPHA) != 0)
@@ -1784,16 +1776,12 @@ static int png_image_write_main(void * argument)
 	 */
 	if(colormap != 0 && image->colormap_entries <= 16)
 		png_set_packing(png_ptr);
-
 	/* That should have handled all (both) the transforms. */
-	if((format & ~(uint32)(PNG_FORMAT_FLAG_COLOR | PNG_FORMAT_FLAG_LINEAR |
-			    PNG_FORMAT_FLAG_ALPHA | PNG_FORMAT_FLAG_COLORMAP)) != 0)
+	if((format & ~(uint32)(PNG_FORMAT_FLAG_COLOR | PNG_FORMAT_FLAG_LINEAR | PNG_FORMAT_FLAG_ALPHA | PNG_FORMAT_FLAG_COLORMAP)) != 0)
 		png_error(png_ptr, "png_write_image: unsupported transformation");
-
 	{
 		png_const_bytep row = png_voidcast(png_const_bytep, display->buffer);
 		ptrdiff_t row_bytes = display->row_stride;
-
 		if(linear != 0)
 			row_bytes *= (sizeof(png_uint_16));
 

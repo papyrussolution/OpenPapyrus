@@ -25,9 +25,9 @@ U_CFUNC void error(uint32_t linenumber, const char * msg, ...)
 {
 	va_list va;
 	va_start(va, msg);
-	fprintf(stderr, "%s:%u: ", gCurrentFileName, (int)linenumber);
+	slfprintf_stderr("%s:%u: ", gCurrentFileName, (int)linenumber);
 	vfprintf(stderr, msg, va);
-	fprintf(stderr, "\n");
+	slfprintf_stderr("\n");
 	va_end(va);
 }
 
@@ -53,9 +53,9 @@ U_CFUNC void warning(uint32_t linenumber, const char * msg, ...)
 	if(gShowWarning) {
 		va_list va;
 		va_start(va, msg);
-		fprintf(stderr, "%s:%u: warning: ", gCurrentFileName, (int)linenumber);
+		slfprintf_stderr("%s:%u: warning: ", gCurrentFileName, (int)linenumber);
 		vfprintf(stderr, msg, va);
-		fprintf(stderr, "\n");
+		slfprintf_stderr("\n");
 		va_end(va);
 	}
 }

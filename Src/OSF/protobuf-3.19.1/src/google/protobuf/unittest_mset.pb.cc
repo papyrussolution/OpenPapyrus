@@ -195,7 +195,7 @@ TestMessageSetContainer::_Internal::message_set(const TestMessageSetContainer* m
   return *msg->message_set_;
 }
 void TestMessageSetContainer::clear_message_set() {
-  if (message_set_ != nullptr) message_set_->Clear();
+  if(message_set_ != nullptr) message_set_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 TestMessageSetContainer::TestMessageSetContainer(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -211,7 +211,7 @@ TestMessageSetContainer::TestMessageSetContainer(const TestMessageSetContainer& 
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       _has_bits_(from._has_bits_) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if (from._internal_has_message_set()) {
+  if(from._internal_has_message_set()) {
     message_set_ = new ::proto2_wireformat_unittest::TestMessageSet(*from.message_set_);
   } else {
     message_set_ = nullptr;
@@ -232,7 +232,7 @@ TestMessageSetContainer::~TestMessageSetContainer() {
 
 inline void TestMessageSetContainer::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  if (this != internal_default_instance()) delete message_set_;
+  if(this != internal_default_instance()) delete message_set_;
 }
 
 void TestMessageSetContainer::ArenaDtor(void* object) {
@@ -252,7 +252,7 @@ void TestMessageSetContainer::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000001u) {
     GOOGLE_DCHECK(message_set_ != nullptr);
     message_set_->Clear();
   }
@@ -266,10 +266,10 @@ const char* TestMessageSetContainer::_InternalParse(const char* ptr, ::PROTOBUF_
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // optional .proto2_wireformat_unittest.TestMessageSet message_set = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr = ctx->ParseMessage(_internal_mutable_message_set(), ptr);
           CHK_(ptr);
         } else
@@ -279,7 +279,7 @@ const char* TestMessageSetContainer::_InternalParse(const char* ptr, ::PROTOBUF_
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -307,14 +307,14 @@ uint8_t* TestMessageSetContainer::_InternalSerialize(
 
   cached_has_bits = _has_bits_[0];
   // optional .proto2_wireformat_unittest.TestMessageSet message_set = 1;
-  if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000001u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
         1, _Internal::message_set(this), target, stream);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -332,7 +332,7 @@ size_t TestMessageSetContainer::ByteSizeLong() const {
 
   // optional .proto2_wireformat_unittest.TestMessageSet message_set = 1;
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000001u) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *message_set_);
@@ -360,7 +360,7 @@ void TestMessageSetContainer::MergeFrom(const TestMessageSetContainer& from) {
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_has_message_set()) {
+  if(from._internal_has_message_set()) {
     _internal_mutable_message_set()->::proto2_wireformat_unittest::TestMessageSet::MergeFrom(from._internal_message_set());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -368,13 +368,13 @@ void TestMessageSetContainer::MergeFrom(const TestMessageSetContainer& from) {
 
 void TestMessageSetContainer::CopyFrom(const TestMessageSetContainer& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest.TestMessageSetContainer)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
 bool TestMessageSetContainer::IsInitialized() const {
-  if (_internal_has_message_set()) {
+  if(_internal_has_message_set()) {
     if (!message_set_->IsInitialized()) return false;
   }
   return true;
@@ -415,7 +415,7 @@ TestMessageSetExtension1::_Internal::recursive(const TestMessageSetExtension1* m
   return *msg->recursive_;
 }
 void TestMessageSetExtension1::clear_recursive() {
-  if (recursive_ != nullptr) recursive_->Clear();
+  if(recursive_ != nullptr) recursive_->Clear();
   _has_bits_[0] &= ~0x00000002u;
 }
 TestMessageSetExtension1::TestMessageSetExtension1(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -435,11 +435,11 @@ TestMessageSetExtension1::TestMessageSetExtension1(const TestMessageSetExtension
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     test_aliasing_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (from._internal_has_test_aliasing()) {
+  if(from._internal_has_test_aliasing()) {
     test_aliasing_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_test_aliasing(), 
       GetArenaForAllocation());
   }
-  if (from._internal_has_recursive()) {
+  if(from._internal_has_recursive()) {
     recursive_ = new ::proto2_wireformat_unittest::TestMessageSet(*from.recursive_);
   } else {
     recursive_ = nullptr;
@@ -469,7 +469,7 @@ TestMessageSetExtension1::~TestMessageSetExtension1() {
 inline void TestMessageSetExtension1::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
   test_aliasing_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (this != internal_default_instance()) delete recursive_;
+  if(this != internal_default_instance()) delete recursive_;
 }
 
 void TestMessageSetExtension1::ArenaDtor(void* object) {
@@ -489,11 +489,11 @@ void TestMessageSetExtension1::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
-    if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000003u) {
+    if(cached_has_bits & 0x00000001u) {
       test_aliasing_.ClearNonDefaultToEmpty();
     }
-    if (cached_has_bits & 0x00000002u) {
+    if(cached_has_bits & 0x00000002u) {
       GOOGLE_DCHECK(recursive_ != nullptr);
       recursive_->Clear();
     }
@@ -509,10 +509,10 @@ const char* TestMessageSetExtension1::_InternalParse(const char* ptr, ::PROTOBUF
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // optional int32 i = 15;
       case 15:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 120)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 120)) {
           _Internal::set_has_i(&has_bits);
           i_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -521,7 +521,7 @@ const char* TestMessageSetExtension1::_InternalParse(const char* ptr, ::PROTOBUF
         continue;
       // optional .proto2_wireformat_unittest.TestMessageSet recursive = 16;
       case 16:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 130)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 130)) {
           ptr = ctx->ParseMessage(_internal_mutable_recursive(), ptr);
           CHK_(ptr);
         } else
@@ -529,7 +529,7 @@ const char* TestMessageSetExtension1::_InternalParse(const char* ptr, ::PROTOBUF
         continue;
       // optional string test_aliasing = 17 [ctype = STRING_PIECE];
       case 17:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 138)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 138)) {
           auto str = _internal_mutable_test_aliasing();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           #ifndef NDEBUG
@@ -543,7 +543,7 @@ const char* TestMessageSetExtension1::_InternalParse(const char* ptr, ::PROTOBUF
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -571,13 +571,13 @@ uint8_t* TestMessageSetExtension1::_InternalSerialize(
 
   cached_has_bits = _has_bits_[0];
   // optional int32 i = 15;
-  if (cached_has_bits & 0x00000004u) {
+  if(cached_has_bits & 0x00000004u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(15, this->_internal_i(), target);
   }
 
   // optional .proto2_wireformat_unittest.TestMessageSet recursive = 16;
-  if (cached_has_bits & 0x00000002u) {
+  if(cached_has_bits & 0x00000002u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -585,7 +585,7 @@ uint8_t* TestMessageSetExtension1::_InternalSerialize(
   }
 
   // optional string test_aliasing = 17 [ctype = STRING_PIECE];
-  if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000001u) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
       this->_internal_test_aliasing().data(), static_cast<int>(this->_internal_test_aliasing().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
@@ -594,7 +594,7 @@ uint8_t* TestMessageSetExtension1::_InternalSerialize(
         17, this->_internal_test_aliasing(), target);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -611,23 +611,23 @@ size_t TestMessageSetExtension1::ByteSizeLong() const {
   (void) cached_has_bits;
 
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000007u) {
+  if(cached_has_bits & 0x00000007u) {
     // optional string test_aliasing = 17 [ctype = STRING_PIECE];
-    if (cached_has_bits & 0x00000001u) {
+    if(cached_has_bits & 0x00000001u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
           this->_internal_test_aliasing());
     }
 
     // optional .proto2_wireformat_unittest.TestMessageSet recursive = 16;
-    if (cached_has_bits & 0x00000002u) {
+    if(cached_has_bits & 0x00000002u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
           *recursive_);
     }
 
     // optional int32 i = 15;
-    if (cached_has_bits & 0x00000004u) {
+    if(cached_has_bits & 0x00000004u) {
       total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_i());
     }
 
@@ -655,14 +655,14 @@ void TestMessageSetExtension1::MergeFrom(const TestMessageSetExtension1& from) {
   (void) cached_has_bits;
 
   cached_has_bits = from._has_bits_[0];
-  if (cached_has_bits & 0x00000007u) {
-    if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000007u) {
+    if(cached_has_bits & 0x00000001u) {
       _internal_set_test_aliasing(from._internal_test_aliasing());
     }
-    if (cached_has_bits & 0x00000002u) {
+    if(cached_has_bits & 0x00000002u) {
       _internal_mutable_recursive()->::proto2_wireformat_unittest::TestMessageSet::MergeFrom(from._internal_recursive());
     }
-    if (cached_has_bits & 0x00000004u) {
+    if(cached_has_bits & 0x00000004u) {
       i_ = from.i_;
     }
     _has_bits_[0] |= cached_has_bits;
@@ -672,13 +672,13 @@ void TestMessageSetExtension1::MergeFrom(const TestMessageSetExtension1& from) {
 
 void TestMessageSetExtension1::CopyFrom(const TestMessageSetExtension1& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest.TestMessageSetExtension1)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
 bool TestMessageSetExtension1::IsInitialized() const {
-  if (_internal_has_recursive()) {
+  if(_internal_has_recursive()) {
     if (!recursive_->IsInitialized()) return false;
   }
   return true;
@@ -736,7 +736,7 @@ TestMessageSetExtension2::TestMessageSetExtension2(const TestMessageSetExtension
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     str_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (from._internal_has_str()) {
+  if(from._internal_has_str()) {
     str_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_str(), 
       GetArenaForAllocation());
   }
@@ -779,7 +779,7 @@ void TestMessageSetExtension2::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000001u) {
     str_.ClearNonDefaultToEmpty();
   }
   _has_bits_.Clear();
@@ -792,10 +792,10 @@ const char* TestMessageSetExtension2::_InternalParse(const char* ptr, ::PROTOBUF
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // optional string str = 25;
       case 25:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 202)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 202)) {
           auto str = _internal_mutable_str();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           #ifndef NDEBUG
@@ -809,7 +809,7 @@ const char* TestMessageSetExtension2::_InternalParse(const char* ptr, ::PROTOBUF
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -837,7 +837,7 @@ uint8_t* TestMessageSetExtension2::_InternalSerialize(
 
   cached_has_bits = _has_bits_[0];
   // optional string str = 25;
-  if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000001u) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
       this->_internal_str().data(), static_cast<int>(this->_internal_str().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
@@ -846,7 +846,7 @@ uint8_t* TestMessageSetExtension2::_InternalSerialize(
         25, this->_internal_str(), target);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -864,7 +864,7 @@ size_t TestMessageSetExtension2::ByteSizeLong() const {
 
   // optional string str = 25;
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000001u) {
     total_size += 2 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_str());
@@ -892,7 +892,7 @@ void TestMessageSetExtension2::MergeFrom(const TestMessageSetExtension2& from) {
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_has_str()) {
+  if(from._internal_has_str()) {
     _internal_set_str(from._internal_str());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -900,7 +900,7 @@ void TestMessageSetExtension2::MergeFrom(const TestMessageSetExtension2& from) {
 
 void TestMessageSetExtension2::CopyFrom(const TestMessageSetExtension2& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest.TestMessageSetExtension2)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
@@ -961,7 +961,7 @@ RawMessageSet_Item::RawMessageSet_Item(const RawMessageSet_Item& from)
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     message_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (from._internal_has_message()) {
+  if(from._internal_has_message()) {
     message_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_message(), 
       GetArenaForAllocation());
   }
@@ -1006,7 +1006,7 @@ void RawMessageSet_Item::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000001u) {
     message_.ClearNonDefaultToEmpty();
   }
   type_id_ = 0;
@@ -1020,10 +1020,10 @@ const char* RawMessageSet_Item::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // required int32 type_id = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
           _Internal::set_has_type_id(&has_bits);
           type_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
@@ -1032,7 +1032,7 @@ const char* RawMessageSet_Item::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         continue;
       // required bytes message = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           auto str = _internal_mutable_message();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
@@ -1043,7 +1043,7 @@ const char* RawMessageSet_Item::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -1071,18 +1071,18 @@ uint8_t* RawMessageSet_Item::_InternalSerialize(
 
   cached_has_bits = _has_bits_[0];
   // required int32 type_id = 2;
-  if (cached_has_bits & 0x00000002u) {
+  if(cached_has_bits & 0x00000002u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(2, this->_internal_type_id(), target);
   }
 
   // required bytes message = 3;
-  if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000001u) {
     target = stream->WriteBytesMaybeAliased(
         3, this->_internal_message(), target);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -1094,14 +1094,14 @@ size_t RawMessageSet_Item::RequiredFieldsByteSizeFallback() const {
 // @@protoc_insertion_point(required_fields_byte_size_fallback_start:protobuf_unittest.RawMessageSet.Item)
   size_t total_size = 0;
 
-  if (_internal_has_message()) {
+  if(_internal_has_message()) {
     // required bytes message = 3;
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_message());
   }
 
-  if (_internal_has_type_id()) {
+  if(_internal_has_type_id()) {
     // required int32 type_id = 2;
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_type_id());
   }
@@ -1112,7 +1112,7 @@ size_t RawMessageSet_Item::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:protobuf_unittest.RawMessageSet.Item)
   size_t total_size = 0;
 
-  if (((_has_bits_[0] & 0x00000003) ^ 0x00000003) == 0) {  // All required fields are present.
+  if(((_has_bits_[0] & 0x00000003) ^ 0x00000003) == 0) {  // All required fields are present.
     // required bytes message = 3;
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
@@ -1151,11 +1151,11 @@ void RawMessageSet_Item::MergeFrom(const RawMessageSet_Item& from) {
   (void) cached_has_bits;
 
   cached_has_bits = from._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
-    if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000003u) {
+    if(cached_has_bits & 0x00000001u) {
       _internal_set_message(from._internal_message());
     }
-    if (cached_has_bits & 0x00000002u) {
+    if(cached_has_bits & 0x00000002u) {
       type_id_ = from.type_id_;
     }
     _has_bits_[0] |= cached_has_bits;
@@ -1165,13 +1165,13 @@ void RawMessageSet_Item::MergeFrom(const RawMessageSet_Item& from) {
 
 void RawMessageSet_Item::CopyFrom(const RawMessageSet_Item& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest.RawMessageSet.Item)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
 bool RawMessageSet_Item::IsInitialized() const {
-  if (_Internal::MissingRequiredFields(_has_bits_)) return false;
+  if(_Internal::MissingRequiredFields(_has_bits_)) return false;
   return true;
 }
 
@@ -1257,10 +1257,10 @@ const char* RawMessageSet::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // repeated group Item = 1 { ... };
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 11)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 11)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -1275,7 +1275,7 @@ const char* RawMessageSet::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -1308,7 +1308,7 @@ uint8_t* RawMessageSet::_InternalSerialize(
       InternalWriteGroup(1, this->_internal_item(i), target, stream);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -1326,9 +1326,8 @@ size_t RawMessageSet::ByteSizeLong() const {
 
   // repeated group Item = 1 { ... };
   total_size += 2UL * this->_internal_item_size();
-  for (const auto& msg : this->item_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GroupSize(msg);
+  for(const auto& msg : this->item_) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GroupSize(msg);
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -1359,13 +1358,13 @@ void RawMessageSet::MergeFrom(const RawMessageSet& from) {
 
 void RawMessageSet::CopyFrom(const RawMessageSet& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:protobuf_unittest.RawMessageSet)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
 bool RawMessageSet::IsInitialized() const {
-  if (!::PROTOBUF_NAMESPACE_ID::internal::AllAreInitialized(item_))
+  if(!::PROTOBUF_NAMESPACE_ID::internal::AllAreInitialized(item_))
     return false;
   return true;
 }

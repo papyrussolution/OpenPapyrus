@@ -46,7 +46,6 @@
 #include <google/protobuf/compiler/java/java_service.h>
 #include <google/protobuf/compiler/java/java_shared_code_generator.h>
 #include <google/protobuf/descriptor.pb.h>
-#include <google/protobuf/dynamic_message.h>
 #include <google/protobuf/port_def.inc> // Must be last
 
 namespace google {

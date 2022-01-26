@@ -72,7 +72,7 @@ Packet iterator
 */
 typedef struct opj_pi_iterator {
     /** Enabling Tile part generation*/
-    OPJ_BYTE tp_on;
+    uint8 tp_on;
     /** precise if the packet has been already used (useful for progression order change) */
     OPJ_INT16 *include;
     /** Number of elements in include array */
@@ -94,7 +94,7 @@ typedef struct opj_pi_iterator {
     /** layer that identify the packet */
     OPJ_UINT32 layno;
     /** 0 if the first packet */
-    OPJ_BOOL first;
+    boolint first;
     /** progression order change information */
     opj_poc_t poc;
     /** number of components in the image */
@@ -187,7 +187,7 @@ Modify the packet iterator to point to the next packet
 @param pi Packet iterator to modify
 @return Returns false if pi pointed to the last packet or else returns true
 */
-OPJ_BOOL opj_pi_next(opj_pi_iterator_t * pi);
+boolint opj_pi_next(opj_pi_iterator_t * pi);
 
 /**
  * Return the number of packets in the tile.

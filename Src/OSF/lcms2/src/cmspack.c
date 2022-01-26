@@ -575,16 +575,16 @@ static uint8 * UnrollLabFloatTo16(_cmsTRANSFORM * info, uint16 wIn[], uint8 * ac
 		pos_L = accum;
 		pos_a = accum + Stride;
 		pos_b = accum + Stride * 2;
-		Lab.L = *(float*)pos_L;
-		Lab.a = *(float*)pos_a;
-		Lab.b = *(float*)pos_b;
+		Lab.L = *(float *)pos_L;
+		Lab.a = *(float *)pos_a;
+		Lab.b = *(float *)pos_b;
 		cmsFloat2LabEncoded(wIn, &Lab);
 		return accum + sizeof(float);
 	}
 	else {
-		Lab.L = ((float*)accum)[0];
-		Lab.a = ((float*)accum)[1];
-		Lab.b = ((float*)accum)[2];
+		Lab.L = ((float *)accum)[0];
+		Lab.a = ((float *)accum)[1];
+		Lab.b = ((float *)accum)[2];
 
 		cmsFloat2LabEncoded(wIn, &Lab);
 		accum += (3 + T_EXTRA(info->InputFormat)) * sizeof(float);
@@ -627,14 +627,14 @@ static uint8 * UnrollXYZFloatTo16(_cmsTRANSFORM * info, uint16 wIn[], uint8 * ac
 		pos_X = accum;
 		pos_Y = accum + Stride;
 		pos_Z = accum + Stride * 2;
-		XYZ.X = *(float*)pos_X;
-		XYZ.Y = *(float*)pos_Y;
-		XYZ.Z = *(float*)pos_Z;
+		XYZ.X = *(float *)pos_X;
+		XYZ.Y = *(float *)pos_Y;
+		XYZ.Z = *(float *)pos_Z;
 		cmsFloat2XYZEncoded(wIn, &XYZ);
 		return accum + sizeof(float);
 	}
 	else {
-		float* Pt = (float*)accum;
+		float* Pt = (float *)accum;
 		cmsCIEXYZ XYZ;
 		XYZ.X = Pt[0];
 		XYZ.Y = Pt[1];
@@ -746,9 +746,9 @@ static uint8 * UnrollFloatTo16(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum
 		cmsUInt32Number index = DoSwap ? (nChan - i - 1) : i;
 
 		if(Planar)
-			v = (float)((float*)accum)[(i + start) * Stride];
+			v = (float)((float *)accum)[(i + start) * Stride];
 		else
-			v = (float)((float*)accum)[i + start];
+			v = (float)((float *)accum)[i + start];
 
 		vi = _cmsQuickSaturateWord(v * maximum);
 
@@ -806,9 +806,9 @@ static uint8 * UnrollFloatsToFloat(_cmsTRANSFORM * info, float wIn[], uint8 * ac
 		cmsUInt32Number index = DoSwap ? (nChan - i - 1) : i;
 
 		if(Planar)
-			v = (float)((float*)accum)[(i + start) * Stride];
+			v = (float)((float *)accum)[(i + start) * Stride];
 		else
-			v = (float)((float*)accum)[i + start];
+			v = (float)((float *)accum)[i + start];
 
 		v /= maximum;
 
@@ -900,7 +900,7 @@ static uint8 * UnrollLabDoubleToFloat(_cmsTRANSFORM * info, float wIn[], uint8 *
 // From Lab double to float
 static uint8 * UnrollLabFloatToFloat(_cmsTRANSFORM * info, float wIn[], uint8 * accum, cmsUInt32Number Stride)
 {
-	float* Pt = (float*)accum;
+	float* Pt = (float *)accum;
 	if(T_PLANAR(info->InputFormat)) {
 		Stride /= PixelSize(info->InputFormat);
 
@@ -945,7 +945,7 @@ static uint8 * UnrollXYZDoubleToFloat(_cmsTRANSFORM * info, float wIn[], uint8 *
 
 static uint8 * UnrollXYZFloatToFloat(_cmsTRANSFORM * info, float wIn[], uint8 * accum, cmsUInt32Number Stride)
 {
-	float* Pt = (float*)accum;
+	float* Pt = (float *)accum;
 	if(T_PLANAR(info->InputFormat)) {
 		Stride /= PixelSize(info->InputFormat);
 		wIn[0] = (float)(Pt[0] / MAX_ENCODEABLE_XYZ);
@@ -1836,7 +1836,7 @@ uint8 * PackLabFloatFrom16(_cmsTRANSFORM * info,
 	cmsLabEncoded2Float(&Lab, wOut);
 
 	if(T_PLANAR(info->OutputFormat)) {
-		float* Out = (float*)output;
+		float* Out = (float *)output;
 
 		Stride /= PixelSize(info->OutputFormat);
 
@@ -1847,9 +1847,9 @@ uint8 * PackLabFloatFrom16(_cmsTRANSFORM * info,
 		return output + sizeof(float);
 	}
 	else {
-		((float*)output)[0] = (float)Lab.L;
-		((float*)output)[1] = (float)Lab.a;
-		((float*)output)[2] = (float)Lab.b;
+		((float *)output)[0] = (float)Lab.L;
+		((float *)output)[1] = (float)Lab.a;
+		((float *)output)[2] = (float)Lab.b;
 
 		return output + (3 + T_EXTRA(info->OutputFormat)) * sizeof(float);
 	}
@@ -1889,7 +1889,7 @@ uint8 * PackXYZFloatFrom16(_cmsTRANSFORM* Info,
 {
 	if(T_PLANAR(Info->OutputFormat)) {
 		cmsCIEXYZ XYZ;
-		float* Out = (float*)output;
+		float* Out = (float *)output;
 		cmsXYZEncoded2Float(&XYZ, wOut);
 
 		Stride /= PixelSize(Info->OutputFormat);
@@ -1902,7 +1902,7 @@ uint8 * PackXYZFloatFrom16(_cmsTRANSFORM* Info,
 	}
 	else {
 		cmsCIEXYZ XYZ;
-		float* Out = (float*)output;
+		float* Out = (float *)output;
 		cmsXYZEncoded2Float(&XYZ, wOut);
 
 		Out[0] = (float)XYZ.X;
@@ -1972,7 +1972,7 @@ static uint8 * PackFloatFrom16(_cmsTRANSFORM * info, uint16 wOut[], uint8 * outp
 	cmsUInt32Number ExtraFirst = DoSwap ^ SwapFirst;
 	double maximum = IsInkSpace(info->OutputFormat) ? 655.35 : 65535.0;
 	double v = 0;
-	float* swap1 = (float*)output;
+	float* swap1 = (float *)output;
 	cmsUInt32Number i, start = 0;
 	Stride /= PixelSize(info->OutputFormat);
 	if(ExtraFirst)
@@ -1984,9 +1984,9 @@ static uint8 * PackFloatFrom16(_cmsTRANSFORM * info, uint16 wOut[], uint8 * outp
 		if(Reverse)
 			v = maximum - v;
 		if(Planar)
-			((float*)output)[(i + start) * Stride] = (float)v;
+			((float *)output)[(i + start) * Stride] = (float)v;
 		else
-			((float*)output)[i + start] = (float)v;
+			((float *)output)[i + start] = (float)v;
 	}
 	if(Extra == 0 && SwapFirst) {
 		memmove(swap1 + 1, swap1, (nChan - 1)* sizeof(float));
@@ -2015,7 +2015,7 @@ uint8 * PackFloatsFromFloat(_cmsTRANSFORM * info,
 	cmsUInt32Number Planar = T_PLANAR(info->OutputFormat);
 	cmsUInt32Number ExtraFirst = DoSwap ^ SwapFirst;
 	double maximum = IsInkSpace(info->OutputFormat) ? 100.0 : 1.0;
-	float* swap1 = (float*)output;
+	float* swap1 = (float *)output;
 	double v = 0;
 	cmsUInt32Number i, start = 0;
 
@@ -2033,9 +2033,9 @@ uint8 * PackFloatsFromFloat(_cmsTRANSFORM * info,
 			v = maximum - v;
 
 		if(Planar)
-			((float*)output)[(i + start)* Stride] = (float)v;
+			((float *)output)[(i + start)* Stride] = (float)v;
 		else
-			((float*)output)[i + start] = (float)v;
+			((float *)output)[i + start] = (float)v;
 	}
 
 	if(Extra == 0 && SwapFirst) {
@@ -2099,7 +2099,7 @@ uint8 * PackDoublesFromFloat(_cmsTRANSFORM * info,
 
 static uint8 * PackLabFloatFromFloat(_cmsTRANSFORM* Info, float wOut[], uint8 * output, cmsUInt32Number Stride)
 {
-	float* Out = (float*)output;
+	float* Out = (float *)output;
 	if(T_PLANAR(Info->OutputFormat)) {
 		Stride /= PixelSize(Info->OutputFormat);
 		Out[0]        = (float)(wOut[0] * 100.0);
@@ -2143,7 +2143,7 @@ uint8 * PackXYZFloatFromFloat(_cmsTRANSFORM* Info,
     uint8 * output,
     cmsUInt32Number Stride)
 {
-	float* Out = (float*)output;
+	float* Out = (float *)output;
 
 	if(T_PLANAR(Info->OutputFormat)) {
 		Stride /= PixelSize(Info->OutputFormat);

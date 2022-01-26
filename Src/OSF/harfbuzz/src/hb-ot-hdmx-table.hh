@@ -37,39 +37,23 @@
 
 namespace OT {
 	struct DeviceRecord {
-		static uint get_size(uint count)
-		{
-			return hb_ceil_to_4(min_size + count * HBUINT8::static_size);
-		}
-
-		template<typename Iterator,
-		hb_requires(hb_is_iterator(Iterator))>
-		bool serialize(hb_serialize_context_t * c, unsigned pixelSize, Iterator it)
+		static uint get_size(uint count) { return hb_ceil_to_4(min_size + count * HBUINT8::static_size); }
+		template<typename Iterator, hb_requires(hb_is_iterator(Iterator))> bool serialize(hb_serialize_context_t * c, unsigned pixelSize, Iterator it)
 		{
 			TRACE_SERIALIZE(this);
-
 			unsigned length = it.len();
-
-			if(UNLIKELY(!c->extend(*this, length))) return_trace(false);
-
+			if(UNLIKELY(!c->extend(*this, length))) 
+				return_trace(false);
 			this->pixelSize = pixelSize;
-			this->maxWidth =
-			    +it
-			    | hb_reduce(hb_max, 0u);
-
-			+it
-			| hb_sink(widthsZ.as_array(length));
-
+			this->maxWidth = +it | hb_reduce(hb_max, 0u);
+			+it | hb_sink(widthsZ.as_array(length));
 			return_trace(true);
 		}
-
 		bool sanitize(hb_sanitize_context_t * c, unsigned sizeDeviceRecord) const
 		{
 			TRACE_SANITIZE(this);
-			return_trace(LIKELY(c->check_struct(this) &&
-			    c->check_range(this, sizeDeviceRecord)));
+			return_trace(LIKELY(c->check_struct(this) && c->check_range(this, sizeDeviceRecord)));
 		}
-
 		HBUINT8 pixelSize; /* Pixel size for following widths (as ppem). */
 		HBUINT8 maxWidth; /* Maximum width. */
 		UnsizedArrayOf<HBUINT8>       widthsZ; /* Array of widths (numGlyphs is from the 'maxp' table). */
@@ -79,12 +63,10 @@ public:
 
 	struct hdmx {
 		static constexpr hb_tag_t tableTag = HB_OT_TAG_hdmx;
-
 		uint get_size() const
 		{
 			return min_size + numRecords * sizeDeviceRecord;
 		}
-
 		const DeviceRecord& operator [] (uint i)const
 		{
 			/* XXX Null(DeviceRecord) is NOT safe as it's num-glyphs lengthed.
@@ -93,70 +75,44 @@ public:
 			return StructAtOffset<DeviceRecord> (&this->firstDeviceRecord, i * sizeDeviceRecord);
 		}
 
-		template<typename Iterator,
-		hb_requires(hb_is_iterator(Iterator))>
-		bool serialize(hb_serialize_context_t * c, unsigned version, Iterator it)
+		template<typename Iterator, hb_requires(hb_is_iterator(Iterator))> bool serialize(hb_serialize_context_t * c, unsigned version, Iterator it)
 		{
 			TRACE_SERIALIZE(this);
-
 			if(UNLIKELY(!c->extend_min((*this)))) return_trace(false);
-
 			this->version = version;
 			this->numRecords = it.len();
 			this->sizeDeviceRecord = DeviceRecord::get_size(it ? (*it).second.len() : 0);
-
 			for(const hb_item_type<Iterator>& _ : +it)
 				c->start_embed<DeviceRecord> ()->serialize(c, _.first, _.second);
-
 			return_trace(c->successful);
 		}
-
 		bool subset(hb_subset_context_t * c) const
 		{
 			TRACE_SUBSET(this);
-
 			hdmx * hdmx_prime = c->serializer->start_embed <hdmx> ();
-			if(UNLIKELY(!hdmx_prime)) return_trace(false);
-
-			auto it =
-			    +hb_range((uint)numRecords)
-			    | hb_map([c, this] (uint _)
+			if(UNLIKELY(!hdmx_prime)) 
+				return_trace(false);
+			auto it = +hb_range((uint)numRecords) | hb_map([c, this] (uint _)
 			{
-				const DeviceRecord * device_record =
-				&StructAtOffset<DeviceRecord> (&firstDeviceRecord,
-				_ * sizeDeviceRecord);
-				auto row =
-				+hb_range(c->plan->num_output_glyphs())
-				| hb_map(c->plan->reverse_glyph_map)
-				| hb_map([this, c, device_record] (hb_codepoint_t _)
+				const DeviceRecord * device_record = &StructAtOffset<DeviceRecord> (&firstDeviceRecord, _ * sizeDeviceRecord);
+				auto row = +hb_range(c->plan->num_output_glyphs()) | hb_map(c->plan->reverse_glyph_map) | hb_map([this, c, device_record] (hb_codepoint_t _)
 				{
 					if(c->plan->is_empty_glyph(_))
 						return Null(HBUINT8);
 					return device_record->widthsZ.as_array(get_num_glyphs()) [_];
-				})
-				;
+				});
 				return hb_pair((uint)device_record->pixelSize, +row);
-			})
-			;
-
+			});
 			hdmx_prime->serialize(c->serializer, version, it);
 			return_trace(true);
 		}
-
-		unsigned get_num_glyphs() const
-		{
-			return sizeDeviceRecord - DeviceRecord::min_size;
-		}
-
+		unsigned get_num_glyphs() const { return sizeDeviceRecord - DeviceRecord::min_size; }
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
-			return_trace(c->check_struct(this) &&
-			    !hb_unsigned_mul_overflows(numRecords, sizeDeviceRecord) &&
-			    sizeDeviceRecord >= DeviceRecord::min_size &&
-			    c->check_range(this, get_size()));
+			return_trace(c->check_struct(this) && !hb_unsigned_mul_overflows(numRecords, sizeDeviceRecord) &&
+			    sizeDeviceRecord >= DeviceRecord::min_size && c->check_range(this, get_size()));
 		}
-
 protected:
 		HBUINT16 version; /* Table version number (0) */
 		HBUINT16 numRecords; /* Number of device records. */

@@ -173,7 +173,7 @@ MyMessage::~MyMessage() {
 
 inline void MyMessage::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  if (has_o()) {
+  if(has_o()) {
     clear_o();
   }
 }
@@ -228,13 +228,13 @@ const char* MyMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
+    switch(tag >> 3) {
       // optional .proto2_preserve_unknown_enum_unittest.MyEnum e = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
           uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
-          if (PROTOBUF_PREDICT_TRUE(::proto2_preserve_unknown_enum_unittest::MyEnum_IsValid(val))) {
+          if(PROTOBUF_PREDICT_TRUE(::proto2_preserve_unknown_enum_unittest::MyEnum_IsValid(val))) {
             _internal_set_e(static_cast<::proto2_preserve_unknown_enum_unittest::MyEnum>(val));
           } else {
             ::PROTOBUF_NAMESPACE_ID::internal::WriteVarint(1, val, mutable_unknown_fields());
@@ -244,13 +244,13 @@ const char* MyMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
         continue;
       // repeated .proto2_preserve_unknown_enum_unittest.MyEnum repeated_e = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
           ptr -= 1;
           do {
             ptr += 1;
             uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
             CHK_(ptr);
-            if (PROTOBUF_PREDICT_TRUE(::proto2_preserve_unknown_enum_unittest::MyEnum_IsValid(val))) {
+            if(PROTOBUF_PREDICT_TRUE(::proto2_preserve_unknown_enum_unittest::MyEnum_IsValid(val))) {
               _internal_add_repeated_e(static_cast<::proto2_preserve_unknown_enum_unittest::MyEnum>(val));
             } else {
               ::PROTOBUF_NAMESPACE_ID::internal::WriteVarint(2, val, mutable_unknown_fields());
@@ -265,13 +265,13 @@ const char* MyMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
         continue;
       // repeated .proto2_preserve_unknown_enum_unittest.MyEnum repeated_packed_e = 3 [packed = true];
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedEnumParser<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(_internal_mutable_repeated_packed_e(), ptr, ctx, ::proto2_preserve_unknown_enum_unittest::MyEnum_IsValid, &_internal_metadata_, 3);
           CHK_(ptr);
         } else if (static_cast<uint8_t>(tag) == 24) {
           uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
-          if (PROTOBUF_PREDICT_TRUE(::proto2_preserve_unknown_enum_unittest::MyEnum_IsValid(val))) {
+          if(PROTOBUF_PREDICT_TRUE(::proto2_preserve_unknown_enum_unittest::MyEnum_IsValid(val))) {
             _internal_add_repeated_packed_e(static_cast<::proto2_preserve_unknown_enum_unittest::MyEnum>(val));
           } else {
             ::PROTOBUF_NAMESPACE_ID::internal::WriteVarint(3, val, mutable_unknown_fields());
@@ -281,13 +281,13 @@ const char* MyMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
         continue;
       // repeated .proto2_preserve_unknown_enum_unittest.MyEnum repeated_packed_unexpected_e = 4;
       case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 32)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 32)) {
           ptr -= 1;
           do {
             ptr += 1;
             uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
             CHK_(ptr);
-            if (PROTOBUF_PREDICT_TRUE(::proto2_preserve_unknown_enum_unittest::MyEnum_IsValid(val))) {
+            if(PROTOBUF_PREDICT_TRUE(::proto2_preserve_unknown_enum_unittest::MyEnum_IsValid(val))) {
               _internal_add_repeated_packed_unexpected_e(static_cast<::proto2_preserve_unknown_enum_unittest::MyEnum>(val));
             } else {
               ::PROTOBUF_NAMESPACE_ID::internal::WriteVarint(4, val, mutable_unknown_fields());
@@ -302,10 +302,10 @@ const char* MyMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
         continue;
       // .proto2_preserve_unknown_enum_unittest.MyEnum oneof_e_1 = 5;
       case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 40)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 40)) {
           uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
-          if (PROTOBUF_PREDICT_TRUE(::proto2_preserve_unknown_enum_unittest::MyEnum_IsValid(val))) {
+          if(PROTOBUF_PREDICT_TRUE(::proto2_preserve_unknown_enum_unittest::MyEnum_IsValid(val))) {
             _internal_set_oneof_e_1(static_cast<::proto2_preserve_unknown_enum_unittest::MyEnum>(val));
           } else {
             ::PROTOBUF_NAMESPACE_ID::internal::WriteVarint(5, val, mutable_unknown_fields());
@@ -315,10 +315,10 @@ const char* MyMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
         continue;
       // .proto2_preserve_unknown_enum_unittest.MyEnum oneof_e_2 = 6;
       case 6:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 48)) {
+        if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 48)) {
           uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
-          if (PROTOBUF_PREDICT_TRUE(::proto2_preserve_unknown_enum_unittest::MyEnum_IsValid(val))) {
+          if(PROTOBUF_PREDICT_TRUE(::proto2_preserve_unknown_enum_unittest::MyEnum_IsValid(val))) {
             _internal_set_oneof_e_2(static_cast<::proto2_preserve_unknown_enum_unittest::MyEnum>(val));
           } else {
             ::PROTOBUF_NAMESPACE_ID::internal::WriteVarint(6, val, mutable_unknown_fields());
@@ -330,7 +330,7 @@ const char* MyMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
         goto handle_unusual;
     }  // switch
   handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
+    if((tag == 0) || ((tag & 7) == 4)) {
       CHK_(ptr);
       ctx->SetLastTag(tag);
       goto message_done;
@@ -358,7 +358,7 @@ uint8_t* MyMessage::_InternalSerialize(
 
   cached_has_bits = _has_bits_[0];
   // optional .proto2_preserve_unknown_enum_unittest.MyEnum e = 1;
-  if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000001u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(1, this->_internal_e(), target);
   }
@@ -399,7 +399,7 @@ uint8_t* MyMessage::_InternalSerialize(
     }
     default: ;
   }
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+  if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
@@ -418,9 +418,8 @@ size_t MyMessage::ByteSizeLong() const {
   // repeated .proto2_preserve_unknown_enum_unittest.MyEnum repeated_e = 2;
   {
     size_t data_size = 0;
-    unsigned int count = static_cast<unsigned int>(this->_internal_repeated_e_size());for (unsigned int i = 0; i < count; i++) {
-      data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(
-        this->_internal_repeated_e(static_cast<int>(i)));
+    unsigned int count = static_cast<unsigned int>(this->_internal_repeated_e_size());for(unsigned int i = 0; i < count; i++) {
+      data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_repeated_e(static_cast<int>(i)));
     }
     total_size += (1UL * count) + data_size;
   }
@@ -428,34 +427,29 @@ size_t MyMessage::ByteSizeLong() const {
   // repeated .proto2_preserve_unknown_enum_unittest.MyEnum repeated_packed_e = 3 [packed = true];
   {
     size_t data_size = 0;
-    unsigned int count = static_cast<unsigned int>(this->_internal_repeated_packed_e_size());for (unsigned int i = 0; i < count; i++) {
-      data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(
-        this->_internal_repeated_packed_e(static_cast<int>(i)));
+    unsigned int count = static_cast<unsigned int>(this->_internal_repeated_packed_e_size());for(unsigned int i = 0; i < count; i++) {
+      data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_repeated_packed_e(static_cast<int>(i)));
     }
-    if (data_size > 0) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
-            static_cast<int32_t>(data_size));
+    if(data_size > 0) {
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
     }
     int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
-    _repeated_packed_e_cached_byte_size_.store(cached_size,
-                                    std::memory_order_relaxed);
+    _repeated_packed_e_cached_byte_size_.store(cached_size, std::memory_order_relaxed);
     total_size += data_size;
   }
 
   // repeated .proto2_preserve_unknown_enum_unittest.MyEnum repeated_packed_unexpected_e = 4;
   {
     size_t data_size = 0;
-    unsigned int count = static_cast<unsigned int>(this->_internal_repeated_packed_unexpected_e_size());for (unsigned int i = 0; i < count; i++) {
-      data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(
-        this->_internal_repeated_packed_unexpected_e(static_cast<int>(i)));
+    unsigned int count = static_cast<unsigned int>(this->_internal_repeated_packed_unexpected_e_size());for(unsigned int i = 0; i < count; i++) {
+      data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_repeated_packed_unexpected_e(static_cast<int>(i)));
     }
     total_size += (1UL * count) + data_size;
   }
 
   // optional .proto2_preserve_unknown_enum_unittest.MyEnum e = 1;
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
+  if(cached_has_bits & 0x00000001u) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_e());
   }
@@ -502,7 +496,7 @@ void MyMessage::MergeFrom(const MyMessage& from) {
   repeated_e_.MergeFrom(from.repeated_e_);
   repeated_packed_e_.MergeFrom(from.repeated_packed_e_);
   repeated_packed_unexpected_e_.MergeFrom(from.repeated_packed_unexpected_e_);
-  if (from._internal_has_e()) {
+  if(from._internal_has_e()) {
     _internal_set_e(from._internal_e());
   }
   switch (from.o_case()) {
@@ -523,7 +517,7 @@ void MyMessage::MergeFrom(const MyMessage& from) {
 
 void MyMessage::CopyFrom(const MyMessage& from) {
 // @@protoc_insertion_point(class_specific_copy_from_start:proto2_preserve_unknown_enum_unittest.MyMessage)
-  if (&from == this) return;
+  if(&from == this) return;
   Clear();
   MergeFrom(from);
 }

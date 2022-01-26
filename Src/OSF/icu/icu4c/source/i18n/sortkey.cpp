@@ -54,7 +54,7 @@ CollationKey::CollationKey() : UObject(), fFlagAndLength(0), fHashCode(kEmptyHas
 }
 
 // Create a collation key from a bit array.
-CollationKey::CollationKey(const uint8* newValues, int32_t count) : UObject(), fFlagAndLength(count), fHashCode(kInvalidHashCode)
+CollationKey::CollationKey(const uint8 * newValues, int32_t count) : UObject(), fFlagAndLength(count), fHashCode(kInvalidHashCode)
 {
 	if(count < 0 || (newValues == NULL && count != 0) ||
 	    (count > getCapacity() && reallocate(count, 0) == NULL)) {
@@ -216,7 +216,7 @@ UCollationResult CollationKey::compareTo(const CollationKey& target, UErrorCode 
 
 #ifdef U_USE_COLLATION_KEY_DEPRECATES
 // Create a copy of the byte array.
-uint8* CollationKey::toByteArray(int32_t& count) const
+uint8 * CollationKey::toByteArray(int32_t& count) const
 {
 	uint8 * result = (uint8 *)uprv_malloc(sizeof(uint8) * fCount);
 

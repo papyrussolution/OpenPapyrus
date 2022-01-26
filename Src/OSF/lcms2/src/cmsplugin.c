@@ -158,7 +158,7 @@ boolint CMSEXPORT  _cmsReadFloat32Number(cmsIOHANDLER* io, float* n)
 		return FALSE;
 	if(n != NULL) {
 		tmp = _cmsAdjustEndianess32(tmp);
-		*n = *(float*)(void *)&tmp;
+		*n = *(float *)(void *)&tmp;
 		// Safeguard which covers against absurd values
 		if(*n > 1E+20 || *n < -1E+20) 
 			return FALSE;

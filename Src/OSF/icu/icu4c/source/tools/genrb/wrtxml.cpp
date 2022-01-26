@@ -204,7 +204,7 @@ static char * parseFilename(const char * id, char * /*lang*/) {
     canonLen = uloc_canonicalize(localeID, canon, canonCapacity, &status);
 
     if(U_FAILURE(status)) {
-        fprintf(stderr, "Could not canonicalize the locale ID: %s. Error: %s\n", localeID, u_errorName(status));
+        slfprintf_stderr("Could not canonicalize the locale ID: %s. Error: %s\n", localeID, u_errorName(status));
         exit(status);
     }
     strnrepchr(canon, canonLen, '_', '-');
@@ -255,7 +255,7 @@ static char * convertAndEscape(char ** pDest, int32_t destCap, int32_t* destLeng
 
         if(U16_IS_LEAD(c) || U16_IS_TRAIL(c)) {
             *status = U_ILLEGAL_CHAR_FOUND;
-            fprintf(stderr, "Illegal Surrogate! \n");
+            slfprintf_stderr("Illegal Surrogate! \n");
             uprv_free(dest);
             return NULL;
         }
@@ -320,7 +320,7 @@ static char * convertAndEscape(char ** pDest, int32_t destCap, int32_t* destLeng
                 case 0x1E:
                 case 0x1F:
                     *status = U_ILLEGAL_CHAR_FOUND;
-                    fprintf(stderr, "Illegal Character \\u%04X!\n",(int)c);
+                    slfprintf_stderr("Illegal Character \\u%04X!\n",(int)c);
                     uprv_free(dest);
                     return NULL;
                 default:
@@ -331,7 +331,7 @@ static char * convertAndEscape(char ** pDest, int32_t destCap, int32_t* destLeng
                 U8_APPEND((unsigned char *)dest,destLen,destCap,c,isError);
                 if(isError) {
                     *status = U_ILLEGAL_CHAR_FOUND;
-                    fprintf(stderr, "Illegal Character \\U%08X!\n",(int)c);
+                    slfprintf_stderr("Illegal Character \\U%08X!\n",(int)c);
                     uprv_free(dest);
                     return NULL;
                 }
@@ -403,7 +403,7 @@ print(UChar * src, int32_t srcLen,const char *tagStart,const char *tagEnd,  UErr
 
     buf = (char *) (uprv_malloc(bufCapacity));
     if(buf==0) {
-        fprintf(stderr, "Could not allocate memory!!");
+        slfprintf_stderr("Could not allocate memory!!");
         exit(U_MEMORY_ALLOCATION_ERROR);
     }
     buf = convertAndEscape(&buf, bufCapacity, &bufLen, src, srcLen,status);
@@ -454,7 +454,7 @@ printNoteElements(const UString *src, UErrorCode *status) {
     uprv_free(note);
 #else
 
-    fprintf(stderr, "Warning: Could not output comments to XLIFF file. ICU has been built without RegularExpression support.\n");
+    slfprintf_stderr("Warning: Could not output comments to XLIFF file. ICU has been built without RegularExpression support.\n");
 
 #endif /* UCONFIG_NO_REGULAR_EXPRESSIONS */
 
@@ -517,7 +517,7 @@ printComments(struct UString *src, const char *resName, bool printTranslate, UEr
                 write_utf8_file(out,UnicodeString(">\n"));
             }
         }else if(getShowWarning()) {
-            fprintf(stderr, "Warning: Translate attribute for resource %s cannot be set. XLIFF prohibits it.\n", resName);
+            slfprintf_stderr("Warning: Translate attribute for resource %s cannot be set. XLIFF prohibits it.\n", resName);
             /* no translate attribute .. just close the tag */
             write_utf8_file(out,UnicodeString(">\n"));
         }
@@ -535,7 +535,7 @@ printComments(struct UString *src, const char *resName, bool printTranslate, UEr
     uprv_free(trans);
 #else
 
-    fprintf(stderr, "Warning: Could not output comments to XLIFF file. ICU has been built without RegularExpression support.\n");
+    slfprintf_stderr("Warning: Could not output comments to XLIFF file. ICU has been built without RegularExpression support.\n");
 
 #endif /* UCONFIG_NO_REGULAR_EXPRESSIONS */
 
@@ -826,7 +826,7 @@ bin_write_xml(BinaryResource *res, const char * id, const char * /*language*/, U
         ext = uprv_strrchr(fileName, '.');
 
         if(ext == NULL) {
-            fprintf(stderr, "Error: %s is an unknown binary filename type.\n", fileName);
+            slfprintf_stderr("Error: %s is an unknown binary filename type.\n", fileName);
             exit(U_ILLEGAL_ARGUMENT_ERROR);
         }
 
@@ -1078,7 +1078,7 @@ bundle_write_xml(struct SRBRoot *bundle, const char *outputDir,const char * outp
        * }
      */
              if(lang==NULL) {
-                 fprintf(stderr, "Error: The file name and table name do not contain a valid language code. Please use -l option to specify it.\n");
+                 slfprintf_stderr("Error: The file name and table name do not contain a valid language code. Please use -l option to specify it.\n");
                  exit(U_ILLEGAL_ARGUMENT_ERROR);
              }
        /* }*/

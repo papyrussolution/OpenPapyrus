@@ -1,4 +1,7 @@
 // SLIB-PHONENUMBER.CPP
+// Copyright (c) A.Sobolev 2022
+// @codepage UTF-8
+// Интерфейсный модуль для доступа к libphonenumber из SLIB и Papyrus
 //
 #include <libphonenumber-internal.h>
 #pragma hdrstop
@@ -13,8 +16,9 @@ SLibPhoneNumber::~SLibPhoneNumber()
 {
 	delete static_cast<PhoneNumber *>(H);
 	H = 0;
-	delete static_cast<PhoneNumberUtil *>(P);
-	P = 0;
+	// P - singlton. Разрушать его нельзя!
+	//delete static_cast<PhoneNumberUtil *>(P);
+	//P = 0;
 }
 
 int SLibPhoneNumber::Parse(const char * pText, const char * pDefaultRegion)

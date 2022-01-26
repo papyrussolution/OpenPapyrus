@@ -4903,7 +4903,7 @@ inline bool TestMessage::has_message_value() const {
   return _internal_has_message_value();
 }
 inline void TestMessage::clear_message_value() {
-  if (GetArenaForAllocation() == nullptr && message_value_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && message_value_ != nullptr) {
     delete message_value_;
   }
   message_value_ = nullptr;
@@ -5562,7 +5562,7 @@ inline void TestOneof::set_has_oneof_int32_value() {
   _oneof_case_[0] = kOneofInt32Value;
 }
 inline void TestOneof::clear_oneof_int32_value() {
-  if (_internal_has_oneof_int32_value()) {
+  if(_internal_has_oneof_int32_value()) {
     oneof_value_.oneof_int32_value_ = 0;
     clear_has_oneof_value();
   }
@@ -5600,7 +5600,7 @@ inline void TestOneof::set_has_oneof_string_value() {
   _oneof_case_[0] = kOneofStringValue;
 }
 inline void TestOneof::clear_oneof_string_value() {
-  if (_internal_has_oneof_string_value()) {
+  if(_internal_has_oneof_string_value()) {
     oneof_value_.oneof_string_value_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_oneof_value();
   }
@@ -5682,7 +5682,7 @@ inline void TestOneof::set_has_oneof_bytes_value() {
   _oneof_case_[0] = kOneofBytesValue;
 }
 inline void TestOneof::clear_oneof_bytes_value() {
-  if (_internal_has_oneof_bytes_value()) {
+  if(_internal_has_oneof_bytes_value()) {
     oneof_value_.oneof_bytes_value_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_oneof_value();
   }
@@ -5764,7 +5764,7 @@ inline void TestOneof::set_has_oneof_enum_value() {
   _oneof_case_[0] = kOneofEnumValue;
 }
 inline void TestOneof::clear_oneof_enum_value() {
-  if (_internal_has_oneof_enum_value()) {
+  if(_internal_has_oneof_enum_value()) {
     oneof_value_.oneof_enum_value_ = 0;
     clear_has_oneof_value();
   }
@@ -5802,8 +5802,8 @@ inline void TestOneof::set_has_oneof_message_value() {
   _oneof_case_[0] = kOneofMessageValue;
 }
 inline void TestOneof::clear_oneof_message_value() {
-  if (_internal_has_oneof_message_value()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_oneof_message_value()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete oneof_value_.oneof_message_value_;
     }
     clear_has_oneof_value();
@@ -5876,7 +5876,7 @@ inline void TestOneof::set_has_oneof_null_value() {
   _oneof_case_[0] = kOneofNullValue;
 }
 inline void TestOneof::clear_oneof_null_value() {
-  if (_internal_has_oneof_null_value()) {
+  if(_internal_has_oneof_null_value()) {
     oneof_value_.oneof_null_value_ = 0;
     clear_has_oneof_value();
   }

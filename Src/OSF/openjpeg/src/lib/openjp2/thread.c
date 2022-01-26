@@ -42,9 +42,9 @@
 
 //#include <process.h>
 
-OPJ_BOOL OPJ_CALLCONV opj_has_thread_support(void)
+boolint OPJ_CALLCONV opj_has_thread_support(void)
 {
-	return OPJ_TRUE;
+	return TRUE;
 }
 
 int OPJ_CALLCONV opj_get_num_cpus(void)
@@ -75,21 +75,22 @@ opj_mutex_t* opj_mutex_create(void)
 
 void opj_mutex_lock(opj_mutex_t* mutex)
 {
-	EnterCriticalSection(&(mutex->cs));
+	if(mutex)
+		EnterCriticalSection(&(mutex->cs));
 }
 
-void opj_mutex_unlock(opj_mutex_t* mutex)
+void opj_mutex_unlock(opj_mutex_t * mutex)
 {
-	LeaveCriticalSection(&(mutex->cs));
+	if(mutex)
+		LeaveCriticalSection(&(mutex->cs));
 }
 
 void opj_mutex_destroy(opj_mutex_t* mutex)
 {
-	if(!mutex) {
-		return;
+	if(mutex) {
+		DeleteCriticalSection(&(mutex->cs));
+		SAlloc::F(mutex);
 	}
-	DeleteCriticalSection(&(mutex->cs));
-	SAlloc::F(mutex);
 }
 
 struct opj_cond_waiter_list_t {
@@ -106,7 +107,7 @@ struct opj_cond_t {
 
 static DWORD TLSKey = 0;
 static volatile LONG inTLSLockedSection = 0;
-static volatile int TLSKeyInit = OPJ_FALSE;
+static volatile int TLSKeyInit = FALSE;
 
 opj_cond_t* opj_cond_create(void)
 {
@@ -118,14 +119,14 @@ opj_cond_t* opj_cond_create(void)
 	/* Make sure that the TLS key is allocated in a thread-safe way */
 	/* We cannot use a global mutex/critical section since its creation itself would not be */
 	/* thread-safe, so use InterlockedCompareExchange trick */
-	while(OPJ_TRUE) {
+	while(TRUE) {
 #if HAVE_INTERLOCKED_COMPARE_EXCHANGE
 		if(InterlockedCompareExchange(&inTLSLockedSection, 1, 0) == 0)
 #endif
 		{
 			if(!TLSKeyInit) {
 				TLSKey = TlsAlloc();
-				TLSKeyInit = OPJ_TRUE;
+				TLSKeyInit = TRUE;
 			}
 #if HAVE_INTERLOCKED_COMPARE_EXCHANGE
 			InterlockedCompareExchange(&inTLSLockedSection, 0, 1);
@@ -157,30 +158,21 @@ void opj_cond_wait(opj_cond_t* cond, opj_mutex_t* mutex)
 			0,         /* initial state = unsignaled */
 			NULL /* no name */);
 		assert(hEvent);
-
 		TlsSetValue(TLSKey, hEvent);
 	}
-
 	/* Insert the waiter into the waiter list of the condition */
 	opj_mutex_lock(cond->internal_mutex);
-
 	item = (opj_cond_waiter_list_t*)SAlloc::M(sizeof(opj_cond_waiter_list_t));
 	assert(item != NULL);
-
 	item->hEvent = hEvent;
 	item->next = cond->waiter_list;
-
 	cond->waiter_list = item;
-
 	opj_mutex_unlock(cond->internal_mutex);
-
 	/* Release the client mutex before waiting for the event being signaled */
 	opj_mutex_unlock(mutex);
-
 	/* Ideally we would check that we do not get WAIT_FAILED but it is hard */
 	/* to report a failure. */
 	WaitForSingleObject(hEvent, INFINITE);
-
 	/* Reacquire the client mutex */
 	opj_mutex_lock(mutex);
 }
@@ -222,7 +214,7 @@ unsigned int __stdcall opj_thread_callback_adapter(void * info)
 	thread->thread_fn(thread->user_data);
 
 	/* Free the handle possible allocated by a cond */
-	while(OPJ_TRUE) {
+	while(TRUE) {
 		/* Make sure TLSKey is not being created just at that moment... */
 #if HAVE_INTERLOCKED_COMPARE_EXCHANGE
 		if(InterlockedCompareExchange(&inTLSLockedSection, 1, 0) == 0)
@@ -285,9 +277,9 @@ void opj_thread_join(opj_thread_t* thread)
 /* avoid poisoning issuing with malloc() use in pthread.h with ulibc (#1013) */
 #include "opj_includes.h"
 
-OPJ_BOOL OPJ_CALLCONV opj_has_thread_support(void)
+boolint OPJ_CALLCONV opj_has_thread_support(void)
 {
-	return OPJ_TRUE;
+	return TRUE;
 }
 
 int OPJ_CALLCONV opj_get_num_cpus(void)
@@ -305,11 +297,10 @@ struct opj_mutex_t {
 
 opj_mutex_t* opj_mutex_create(void)
 {
-	opj_mutex_t* mutex = (opj_mutex_t*)SAlloc::C(1U, sizeof(opj_mutex_t));
-	if(mutex != NULL) {
+	opj_mutex_t * mutex = (opj_mutex_t*)SAlloc::C(1U, sizeof(opj_mutex_t));
+	if(mutex) {
 		if(pthread_mutex_init(&mutex->mutex, NULL) != 0) {
-			SAlloc::F(mutex);
-			mutex = NULL;
+			ZFREE(mutex);
 		}
 	}
 	return mutex;
@@ -317,21 +308,22 @@ opj_mutex_t* opj_mutex_create(void)
 
 void opj_mutex_lock(opj_mutex_t* mutex)
 {
-	pthread_mutex_lock(&(mutex->mutex));
+	if(mutex)
+		pthread_mutex_lock(&(mutex->mutex));
 }
 
 void opj_mutex_unlock(opj_mutex_t* mutex)
 {
-	pthread_mutex_unlock(&(mutex->mutex));
+	if(mutex)
+		pthread_mutex_unlock(&(mutex->mutex));
 }
 
 void opj_mutex_destroy(opj_mutex_t* mutex)
 {
-	if(!mutex) {
-		return;
+	if(mutex) {
+		pthread_mutex_destroy(&(mutex->mutex));
+		SAlloc::F(mutex);
 	}
-	pthread_mutex_destroy(&(mutex->mutex));
-	SAlloc::F(mutex);
 }
 
 struct opj_cond_t {
@@ -421,9 +413,9 @@ void opj_thread_join(opj_thread_t* thread)
 
 #include "opj_includes.h"
 
-OPJ_BOOL OPJ_CALLCONV opj_has_thread_support(void)
+boolint OPJ_CALLCONV opj_has_thread_support(void)
 {
-	return OPJ_FALSE;
+	return FALSE;
 }
 
 int OPJ_CALLCONV opj_get_num_cpus(void)
@@ -504,23 +496,20 @@ static opj_tls_t* opj_tls_new(void)
 
 static void opj_tls_destroy(opj_tls_t* tls)
 {
-	int i;
-	if(!tls) {
-		return;
-	}
-	for(i = 0; i < tls->key_val_count; i++) {
-		if(tls->key_val[i].opj_free_func) {
-			tls->key_val[i].opj_free_func(tls->key_val[i].value);
+	if(tls) {
+		for(int i = 0; i < tls->key_val_count; i++) {
+			if(tls->key_val[i].opj_free_func) {
+				tls->key_val[i].opj_free_func(tls->key_val[i].value);
+			}
 		}
+		SAlloc::F(tls->key_val);
+		SAlloc::F(tls);
 	}
-	SAlloc::F(tls->key_val);
-	SAlloc::F(tls);
 }
 
 void * opj_tls_get(opj_tls_t* tls, int key)
 {
-	int i;
-	for(i = 0; i < tls->key_val_count; i++) {
+	for(int i = 0; i < tls->key_val_count; i++) {
 		if(tls->key_val[i].key == key) {
 			return tls->key_val[i].value;
 		}
@@ -528,12 +517,12 @@ void * opj_tls_get(opj_tls_t* tls, int key)
 	return NULL;
 }
 
-OPJ_BOOL opj_tls_set(opj_tls_t* tls, int key, void * value, opj_tls_free_func opj_free_func)
+boolint opj_tls_set(opj_tls_t* tls, int key, void * value, opj_tls_free_func opj_free_func)
 {
 	opj_tls_key_val_t* new_key_val;
 	int i;
 	if(tls->key_val_count == INT_MAX) {
-		return OPJ_FALSE;
+		return FALSE;
 	}
 	for(i = 0; i < tls->key_val_count; i++) {
 		if(tls->key_val[i].key == key) {
@@ -542,19 +531,19 @@ OPJ_BOOL opj_tls_set(opj_tls_t* tls, int key, void * value, opj_tls_free_func op
 			}
 			tls->key_val[i].value = value;
 			tls->key_val[i].opj_free_func = opj_free_func;
-			return OPJ_TRUE;
+			return TRUE;
 		}
 	}
 	new_key_val = (opj_tls_key_val_t*)SAlloc::R(tls->key_val, ((size_t)tls->key_val_count + 1U) * sizeof(opj_tls_key_val_t));
 	if(!new_key_val) {
-		return OPJ_FALSE;
+		return FALSE;
 	}
 	tls->key_val = new_key_val;
 	new_key_val[tls->key_val_count].key = key;
 	new_key_val[tls->key_val_count].value = value;
 	new_key_val[tls->key_val_count].opj_free_func = opj_free_func;
 	tls->key_val_count++;
-	return OPJ_TRUE;
+	return TRUE;
 }
 
 typedef struct {
@@ -605,120 +594,93 @@ struct opj_thread_pool_t {
 	int signaling_threshold;
 };
 
-static OPJ_BOOL opj_thread_pool_setup(opj_thread_pool_t* tp, int num_threads);
-static opj_worker_thread_job_t* opj_thread_pool_get_next_job(opj_thread_pool_t* tp,
-    opj_worker_thread_t* worker_thread,
-    OPJ_BOOL signal_job_finished);
+static boolint opj_thread_pool_setup(opj_thread_pool_t* tp, int num_threads);
+static opj_worker_thread_job_t* opj_thread_pool_get_next_job(opj_thread_pool_t* tp, opj_worker_thread_t* worker_thread, boolint signal_job_finished);
 
 opj_thread_pool_t* opj_thread_pool_create(int num_threads)
 {
-	opj_thread_pool_t* tp;
-
-	tp = (opj_thread_pool_t*)SAlloc::C(1, sizeof(opj_thread_pool_t));
-	if(!tp) {
-		return NULL;
-	}
-	tp->state = OPJWTS_OK;
-
-	if(num_threads <= 0) {
-		tp->tls = opj_tls_new();
-		if(!tp->tls) {
-			SAlloc::F(tp);
-			tp = NULL;
+	opj_thread_pool_t* tp = (opj_thread_pool_t*)SAlloc::C(1, sizeof(opj_thread_pool_t));
+	if(tp) {
+		tp->state = OPJWTS_OK;
+		if(num_threads <= 0) {
+			tp->tls = opj_tls_new();
+			if(!tp->tls) {
+				ZFREE(tp);
+			}
 		}
-		return tp;
-	}
-
-	tp->mutex = opj_mutex_create();
-	if(!tp->mutex) {
-		SAlloc::F(tp);
-		return NULL;
-	}
-	if(!opj_thread_pool_setup(tp, num_threads)) {
-		opj_thread_pool_destroy(tp);
-		return NULL;
+		else {
+			tp->mutex = opj_mutex_create();
+			if(!tp->mutex) {
+				ZFREE(tp);
+			}
+			else if(!opj_thread_pool_setup(tp, num_threads)) {
+				opj_thread_pool_destroy(tp);
+				tp = 0;
+			}
+		}
 	}
 	return tp;
 }
 
 static void opj_worker_thread_function(void * user_data)
 {
-	opj_worker_thread_t* worker_thread;
-	opj_thread_pool_t* tp;
-	opj_tls_t* tls;
-	OPJ_BOOL job_finished = OPJ_FALSE;
-
-	worker_thread = (opj_worker_thread_t*)user_data;
-	tp = worker_thread->tp;
-	tls = opj_tls_new();
-
-	while(OPJ_TRUE) {
-		opj_worker_thread_job_t* job = opj_thread_pool_get_next_job(tp, worker_thread,
-			job_finished);
+	boolint job_finished = FALSE;
+	opj_worker_thread_t* worker_thread = (opj_worker_thread_t*)user_data;
+	opj_thread_pool_t* tp = worker_thread->tp;
+	opj_tls_t* tls = opj_tls_new();
+	while(TRUE) {
+		opj_worker_thread_job_t* job = opj_thread_pool_get_next_job(tp, worker_thread, job_finished);
 		if(job == NULL) {
 			break;
 		}
-
 		if(job->job_fn) {
 			job->job_fn(job->user_data, tls);
 		}
 		SAlloc::F(job);
-		job_finished = OPJ_TRUE;
+		job_finished = TRUE;
 	}
-
 	opj_tls_destroy(tls);
 }
 
-static OPJ_BOOL opj_thread_pool_setup(opj_thread_pool_t* tp, int num_threads)
+static boolint opj_thread_pool_setup(opj_thread_pool_t* tp, int num_threads)
 {
 	int i;
-	OPJ_BOOL bRet = OPJ_TRUE;
-
+	boolint bRet = TRUE;
 	assert(num_threads > 0);
-
 	tp->cond = opj_cond_create();
 	if(tp->cond == NULL) {
-		return OPJ_FALSE;
+		return FALSE;
 	}
-
-	tp->worker_threads = (opj_worker_thread_t*)SAlloc::C((size_t)num_threads,
-		sizeof(opj_worker_thread_t));
+	tp->worker_threads = (opj_worker_thread_t*)SAlloc::C((size_t)num_threads, sizeof(opj_worker_thread_t));
 	if(tp->worker_threads == NULL) {
-		return OPJ_FALSE;
+		return FALSE;
 	}
 	tp->worker_threads_count = num_threads;
-
 	for(i = 0; i < num_threads; i++) {
 		tp->worker_threads[i].tp = tp;
-
 		tp->worker_threads[i].mutex = opj_mutex_create();
 		if(tp->worker_threads[i].mutex == NULL) {
 			tp->worker_threads_count = i;
-			bRet = OPJ_FALSE;
+			bRet = FALSE;
 			break;
 		}
-
 		tp->worker_threads[i].cond = opj_cond_create();
 		if(tp->worker_threads[i].cond == NULL) {
 			opj_mutex_destroy(tp->worker_threads[i].mutex);
 			tp->worker_threads_count = i;
-			bRet = OPJ_FALSE;
+			bRet = FALSE;
 			break;
 		}
-
-		tp->worker_threads[i].marked_as_waiting = OPJ_FALSE;
-
-		tp->worker_threads[i].thread = opj_thread_create(opj_worker_thread_function,
-			&(tp->worker_threads[i]));
+		tp->worker_threads[i].marked_as_waiting = FALSE;
+		tp->worker_threads[i].thread = opj_thread_create(opj_worker_thread_function, &(tp->worker_threads[i]));
 		if(tp->worker_threads[i].thread == NULL) {
 			opj_mutex_destroy(tp->worker_threads[i].mutex);
 			opj_cond_destroy(tp->worker_threads[i].cond);
 			tp->worker_threads_count = i;
-			bRet = OPJ_FALSE;
+			bRet = FALSE;
 			break;
 		}
 	}
-
 	/* Wait all threads to be started */
 	/* printf("waiting for all threads to be started\n"); */
 	opj_mutex_lock(tp->mutex);
@@ -727,11 +689,9 @@ static OPJ_BOOL opj_thread_pool_setup(opj_thread_pool_t* tp, int num_threads)
 	}
 	opj_mutex_unlock(tp->mutex);
 	/* printf("all threads started\n"); */
-
 	if(tp->state == OPJWTS_ERROR) {
-		bRet = OPJ_FALSE;
+		bRet = FALSE;
 	}
-
 	return bRet;
 }
 
@@ -743,23 +703,19 @@ static OPJ_BOOL opj_thread_pool_setup(opj_thread_pool_t* tp, int num_threads)
  */
 
 static opj_worker_thread_job_t* opj_thread_pool_get_next_job(opj_thread_pool_t* tp,
-    opj_worker_thread_t* worker_thread,
-    OPJ_BOOL signal_job_finished)
+    opj_worker_thread_t* worker_thread, boolint signal_job_finished)
 {
-	while(OPJ_TRUE) {
+	while(TRUE) {
 		opj_job_list_t* top_job_iter;
-
 		opj_mutex_lock(tp->mutex);
-
 		if(signal_job_finished) {
-			signal_job_finished = OPJ_FALSE;
+			signal_job_finished = FALSE;
 			tp->pending_jobs_count--;
 			/*printf("tp=%p, remaining jobs: %d\n", tp, tp->pending_jobs_count);*/
 			if(tp->pending_jobs_count <= tp->signaling_threshold) {
 				opj_cond_signal(tp->cond);
 			}
 		}
-
 		if(tp->state == OPJWTS_STOP) {
 			opj_mutex_unlock(tp->mutex);
 			return NULL;
@@ -768,30 +724,24 @@ static opj_worker_thread_job_t* opj_thread_pool_get_next_job(opj_thread_pool_t* 
 		if(top_job_iter) {
 			opj_worker_thread_job_t* job;
 			tp->job_queue = top_job_iter->next;
-
 			job = top_job_iter->job;
 			opj_mutex_unlock(tp->mutex);
 			SAlloc::F(top_job_iter);
 			return job;
 		}
-
 		/* opj_waiting(); */
 		if(!worker_thread->marked_as_waiting) {
 			opj_worker_thread_list_t* item;
-
-			worker_thread->marked_as_waiting = OPJ_TRUE;
+			worker_thread->marked_as_waiting = TRUE;
 			tp->waiting_worker_thread_count++;
 			assert(tp->waiting_worker_thread_count <= tp->worker_threads_count);
-
 			item = (opj_worker_thread_list_t*)SAlloc::M(sizeof(opj_worker_thread_list_t));
 			if(item == NULL) {
 				tp->state = OPJWTS_ERROR;
 				opj_cond_signal(tp->cond);
-
 				opj_mutex_unlock(tp->mutex);
 				return NULL;
 			}
-
 			item->worker_thread = worker_thread;
 			item->next = tp->waiting_worker_thread_list;
 			tp->waiting_worker_thread_list = item;
@@ -799,46 +749,36 @@ static opj_worker_thread_job_t* opj_thread_pool_get_next_job(opj_thread_pool_t* 
 
 		/* printf("signaling that worker thread is ready\n"); */
 		opj_cond_signal(tp->cond);
-
 		opj_mutex_lock(worker_thread->mutex);
 		opj_mutex_unlock(tp->mutex);
-
 		/* printf("waiting for job\n"); */
 		opj_cond_wait(worker_thread->cond, worker_thread->mutex);
-
 		opj_mutex_unlock(worker_thread->mutex);
 		/* printf("got job\n"); */
 	}
 }
 
-OPJ_BOOL opj_thread_pool_submit_job(opj_thread_pool_t* tp,
-    opj_job_fn job_fn,
-    void * user_data)
+boolint opj_thread_pool_submit_job(opj_thread_pool_t* tp, opj_job_fn job_fn, void * user_data)
 {
 	opj_worker_thread_job_t* job;
 	opj_job_list_t* item;
-
 	if(tp->mutex == NULL) {
 		job_fn(user_data, tp->tls);
-		return OPJ_TRUE;
+		return TRUE;
 	}
-
 	job = (opj_worker_thread_job_t*)SAlloc::M(sizeof(opj_worker_thread_job_t));
 	if(job == NULL) {
-		return OPJ_FALSE;
+		return FALSE;
 	}
 	job->job_fn = job_fn;
 	job->user_data = user_data;
-
 	item = (opj_job_list_t*)SAlloc::M(sizeof(opj_job_list_t));
 	if(item == NULL) {
 		SAlloc::F(job);
-		return OPJ_FALSE;
+		return FALSE;
 	}
 	item->job = job;
-
 	opj_mutex_lock(tp->mutex);
-
 	tp->signaling_threshold = 100 * tp->worker_threads_count;
 	while(tp->pending_jobs_count > tp->signaling_threshold) {
 		/* printf("%d jobs enqueued. Waiting\n", tp->pending_jobs_count); */
@@ -851,53 +791,40 @@ OPJ_BOOL opj_thread_pool_submit_job(opj_thread_pool_t* tp,
 	tp->pending_jobs_count++;
 
 	if(tp->waiting_worker_thread_list) {
-		opj_worker_thread_t* worker_thread;
 		opj_worker_thread_list_t* next;
 		opj_worker_thread_list_t* to_opj_free;
-
-		worker_thread = tp->waiting_worker_thread_list->worker_thread;
-
+		opj_worker_thread_t* worker_thread = tp->waiting_worker_thread_list->worker_thread;
 		assert(worker_thread->marked_as_waiting);
-		worker_thread->marked_as_waiting = OPJ_FALSE;
-
+		worker_thread->marked_as_waiting = FALSE;
 		next = tp->waiting_worker_thread_list->next;
 		to_opj_free = tp->waiting_worker_thread_list;
 		tp->waiting_worker_thread_list = next;
 		tp->waiting_worker_thread_count--;
-
 		opj_mutex_lock(worker_thread->mutex);
 		opj_mutex_unlock(tp->mutex);
 		opj_cond_signal(worker_thread->cond);
 		opj_mutex_unlock(worker_thread->mutex);
-
 		SAlloc::F(to_opj_free);
 	}
 	else {
 		opj_mutex_unlock(tp->mutex);
 	}
-
-	return OPJ_TRUE;
+	return TRUE;
 }
 
-void opj_thread_pool_wait_completion(opj_thread_pool_t* tp,
-    int max_remaining_jobs)
+void opj_thread_pool_wait_completion(opj_thread_pool_t* tp, int max_remaining_jobs)
 {
-	if(tp->mutex == NULL) {
-		return;
+	if(tp->mutex) {
+		SETMAX(max_remaining_jobs, 0);
+		opj_mutex_lock(tp->mutex);
+		tp->signaling_threshold = max_remaining_jobs;
+		while(tp->pending_jobs_count > max_remaining_jobs) {
+			/*printf("tp=%p, jobs before wait = %d, max_remaining_jobs = %d\n", tp, tp->pending_jobs_count, max_remaining_jobs);*/
+			opj_cond_wait(tp->cond, tp->mutex);
+			/*printf("tp=%p, jobs after wait = %d\n", tp, tp->pending_jobs_count);*/
+		}
+		opj_mutex_unlock(tp->mutex);
 	}
-
-	if(max_remaining_jobs < 0) {
-		max_remaining_jobs = 0;
-	}
-	opj_mutex_lock(tp->mutex);
-	tp->signaling_threshold = max_remaining_jobs;
-	while(tp->pending_jobs_count > max_remaining_jobs) {
-		/*printf("tp=%p, jobs before wait = %d, max_remaining_jobs = %d\n", tp, tp->pending_jobs_count,
-		   max_remaining_jobs);*/
-		opj_cond_wait(tp->cond, tp->mutex);
-		/*printf("tp=%p, jobs after wait = %d\n", tp, tp->pending_jobs_count);*/
-	}
-	opj_mutex_unlock(tp->mutex);
 }
 
 int opj_thread_pool_get_thread_count(opj_thread_pool_t* tp)
@@ -907,32 +834,30 @@ int opj_thread_pool_get_thread_count(opj_thread_pool_t* tp)
 
 void opj_thread_pool_destroy(opj_thread_pool_t* tp)
 {
-	if(!tp) {
-		return;
-	}
-	if(tp->cond) {
-		int i;
-		opj_thread_pool_wait_completion(tp, 0);
-		opj_mutex_lock(tp->mutex);
-		tp->state = OPJWTS_STOP;
-		opj_mutex_unlock(tp->mutex);
-		for(i = 0; i < tp->worker_threads_count; i++) {
-			opj_mutex_lock(tp->worker_threads[i].mutex);
-			opj_cond_signal(tp->worker_threads[i].cond);
-			opj_mutex_unlock(tp->worker_threads[i].mutex);
-			opj_thread_join(tp->worker_threads[i].thread);
-			opj_cond_destroy(tp->worker_threads[i].cond);
-			opj_mutex_destroy(tp->worker_threads[i].mutex);
+	if(tp) {
+		if(tp->cond) {
+			opj_thread_pool_wait_completion(tp, 0);
+			opj_mutex_lock(tp->mutex);
+			tp->state = OPJWTS_STOP;
+			opj_mutex_unlock(tp->mutex);
+			for(int i = 0; i < tp->worker_threads_count; i++) {
+				opj_mutex_lock(tp->worker_threads[i].mutex);
+				opj_cond_signal(tp->worker_threads[i].cond);
+				opj_mutex_unlock(tp->worker_threads[i].mutex);
+				opj_thread_join(tp->worker_threads[i].thread);
+				opj_cond_destroy(tp->worker_threads[i].cond);
+				opj_mutex_destroy(tp->worker_threads[i].mutex);
+			}
+			SAlloc::F(tp->worker_threads);
+			while(tp->waiting_worker_thread_list != NULL) {
+				opj_worker_thread_list_t* next = tp->waiting_worker_thread_list->next;
+				SAlloc::F(tp->waiting_worker_thread_list);
+				tp->waiting_worker_thread_list = next;
+			}
+			opj_cond_destroy(tp->cond);
 		}
-		SAlloc::F(tp->worker_threads);
-		while(tp->waiting_worker_thread_list != NULL) {
-			opj_worker_thread_list_t* next = tp->waiting_worker_thread_list->next;
-			SAlloc::F(tp->waiting_worker_thread_list);
-			tp->waiting_worker_thread_list = next;
-		}
-		opj_cond_destroy(tp->cond);
+		opj_mutex_destroy(tp->mutex);
+		opj_tls_destroy(tp->tls);
+		SAlloc::F(tp);
 	}
-	opj_mutex_destroy(tp->mutex);
-	opj_tls_destroy(tp->tls);
-	SAlloc::F(tp);
 }

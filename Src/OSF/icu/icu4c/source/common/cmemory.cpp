@@ -37,7 +37,7 @@ U_CAPI void * U_EXPORT2 uprv_malloc(size_t s)
 	putchar('>');
 	fflush(stdout);
 #else
-	fprintf(stderr, "MALLOC\t#%d\t%ul bytes\t%ul total\n", ++n, s, (b += s)); fflush(stderr);
+	slfprintf_stderr("MALLOC\t#%d\t%ul bytes\t%ul total\n", ++n, s, (b += s)); fflush(stderr);
 #endif
 #endif
 	if(s > 0) {

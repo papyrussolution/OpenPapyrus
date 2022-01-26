@@ -368,7 +368,7 @@ static int lz4_write_stream_descriptor(struct archive_write_filter * f)
 	struct private_data * data = (struct private_data *)f->data;
 	uint8 * sd;
 
-	sd = (uint8*)data->out;
+	sd = (uint8 *)data->out;
 	/* Write Magic Number. */
 	archive_le32enc(&sd[0], LZ4_MAGICNUMBER);
 	/* FLG */

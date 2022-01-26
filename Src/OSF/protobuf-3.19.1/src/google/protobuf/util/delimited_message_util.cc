@@ -109,7 +109,7 @@ bool SerializeDelimitedToCodedStream(const MessageLite& message,
 	output->WriteVarint32(size);
 
 	// Write the content.
-	uint8* buffer = output->GetDirectBufferForNBytesAndAdvance(size);
+	uint8 * buffer = output->GetDirectBufferForNBytesAndAdvance(size);
 	if(buffer != NULL) {
 		// Optimization: The message fits in one buffer, so use the faster
 		// direct-to-array serialization path.

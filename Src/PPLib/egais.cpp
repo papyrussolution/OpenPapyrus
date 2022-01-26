@@ -1,5 +1,5 @@
 // EGAIS.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Интеграция с системой EGAIS
 //
@@ -236,7 +236,10 @@ PPEgaisProcessor::Packet::Packet(int docType) : DocType(docType), Flags(0), Intr
 		case PPEDIOP_EGAIS_QUERYRESENDDOC: // @v10.2.12
 		case PPEDIOP_EGAIS_QUERYRESTBCODE: // @v10.5.6
 		case PPEDIOP_EGAIS_QUERYFORMA:
-		case PPEDIOP_EGAIS_QUERYFORMB: P_Data = new SString; break;
+		case PPEDIOP_EGAIS_QUERYFORMB: 
+		case PPEDIOP_EGAIS_QUERYFORMF1: // @v11.2.12
+		case PPEDIOP_EGAIS_QUERYFORMF2: // @v11.2.12
+			P_Data = new SString; break;
 		case PPEDIOP_EGAIS_TICKET: P_Data = new Ticket; break;
 		case PPEDIOP_EGAIS_TTNINFORMBREG:
 		case PPEDIOP_EGAIS_TTNINFORMF2REG: P_Data = new InformB; break;
@@ -288,7 +291,10 @@ PPEgaisProcessor::Packet::~Packet()
 		case PPEDIOP_EGAIS_QUERYRESENDDOC: // @v10.2.12
 		case PPEDIOP_EGAIS_QUERYRESTBCODE: // @v10.5.6
 		case PPEDIOP_EGAIS_QUERYFORMA:
-		case PPEDIOP_EGAIS_QUERYFORMB: delete static_cast<SString *>(P_Data); break;
+		case PPEDIOP_EGAIS_QUERYFORMB: 
+		case PPEDIOP_EGAIS_QUERYFORMF1: // @v11.2.12
+		case PPEDIOP_EGAIS_QUERYFORMF2: // @v11.2.12
+			delete static_cast<SString *>(P_Data); break;
 		case PPEDIOP_EGAIS_TICKET: delete static_cast<Ticket *>(P_Data); break;
 		case PPEDIOP_EGAIS_TTNINFORMBREG:
 		case PPEDIOP_EGAIS_TTNINFORMF2REG: delete static_cast<InformB *>(P_Data); break;
@@ -1167,11 +1173,11 @@ int PPEgaisProcessor::QueryInfA(PPID locID, const char * pInfA)
 {
 	int    ok = -1;
 	Ack    ack;
-    Packet qp(PPEDIOP_EGAIS_QUERYFORMA);
+    Packet qp(/*PPEDIOP_EGAIS_QUERYFORMA*/PPEDIOP_EGAIS_QUERYFORMF1); // @v11.2.12 PPEDIOP_EGAIS_QUERYFORMA-->PPEDIOP_EGAIS_QUERYFORMF1
 	if(qp.P_Data) {
         *static_cast<SString *>(qp.P_Data) = pInfA;
 	}
-	THROW(PutQuery(qp, locID, "QueryFormA", ack));
+	THROW(PutQuery(qp, locID, /*"QueryFormA"*/"QueryFormF1", ack)); // @v11.2.12 "QueryFormA"-->"QueryFormF1"
 	CATCHZOK
     return ok;
 }
@@ -1180,10 +1186,10 @@ int PPEgaisProcessor::QueryInfB(PPID locID, const char * pInfB)
 {
 	int    ok = -1;
 	Ack    ack;
-    Packet qp(PPEDIOP_EGAIS_QUERYFORMB);
+    Packet qp(/*PPEDIOP_EGAIS_QUERYFORMB*/PPEDIOP_EGAIS_QUERYFORMF2); // @v11.2.12 PPEDIOP_EGAIS_QUERYFORMB-->PPEDIOP_EGAIS_QUERYFORMF2
 	if(qp.P_Data)
 		*static_cast<SString *>(qp.P_Data) = pInfB;
-	THROW(PutQuery(qp, locID, "QueryFormB", ack));
+	THROW(PutQuery(qp, locID, /*"QueryFormB"*/"QueryFormF2", ack)); // @v11.2.12 "QueryFormB"-->"QueryFormF2"
 	CATCHZOK
     return ok;
 }
@@ -1323,6 +1329,8 @@ static const SIntToSymbTabEntry _EgaisDocTypes[] = {
 	{ PPEDIOP_EGAIS_QUERYRESTSSHOP,   "QueryRestsShop_v2" },
 	{ PPEDIOP_EGAIS_QUERYFORMA,       "QueryFormA" },
 	{ PPEDIOP_EGAIS_QUERYFORMB,       "QueryFormB" },
+	{ PPEDIOP_EGAIS_QUERYFORMF1,      "QueryFormF1" }, // @v11.2.12
+	{ PPEDIOP_EGAIS_QUERYFORMF2,      "QueryFormF2" }, // @v11.2.12
 	{ PPEDIOP_EGAIS_REPLYSSP,         "ReplySSP" },
 	{ PPEDIOP_EGAIS_REPLYSPIRIT,      "ReplySpirit" },
 	{ PPEDIOP_EGAIS_REPLYCLIENT,      "ReplyClient" },
@@ -2138,7 +2146,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 					{ 11, "wt",   "ConfirmTicket"        }, // ambiguity
 					{ 12, "wt",   "ConfirmRepealWB"      }, // ambiguity
 					{ 13, "awr",  "ActWriteOff"          }, // ambiguity
-					{ 14, "qf",   "QueryFormAB"          },
+					{ 14, "qf",   "QueryFormF1F2"        }, // @v11.2.12 "QueryFormAB"-->"QueryFormF1F2"
 					{ 15, "bk",   "QueryBarcode"         },
 					{ 16, "ce",   "CommonEnum"           }, // ambiguity
 					{ 17, "pref", "ProductRef_v2"        }, // ambiguity
@@ -2602,7 +2610,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 						n_dt.PutInner(SXml::nst("qp", "ClientId"), EncText(fsrar_ident));
 						n_dt.PutInner(SXml::nst("qp", "WBTypeUsed"), EncText(temp_buf = "WayBill_v4"));
 					}
-					else if(oneof2(doc_type, PPEDIOP_EGAIS_QUERYFORMA, PPEDIOP_EGAIS_REPLYFORMB)) {
+					else if(oneof4(doc_type, PPEDIOP_EGAIS_QUERYFORMA, PPEDIOP_EGAIS_REPLYFORMB, PPEDIOP_EGAIS_QUERYFORMF1, PPEDIOP_EGAIS_QUERYFORMF2)) { // @v11.2.12 PPEDIOP_EGAIS_QUERYFORMF1, PPEDIOP_EGAIS_QUERYFORMF2
 						const SString * p_formab_regid = static_cast<const SString *>(rPack.P_Data);
                         if(p_formab_regid->NotEmpty()) {
 							n_dt.PutInner(SXml::nst("qf", "FormRegId"), EncText(temp_buf = *p_formab_regid));

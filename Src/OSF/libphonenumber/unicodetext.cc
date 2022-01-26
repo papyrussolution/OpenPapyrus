@@ -359,12 +359,12 @@ void UnicodeText::push_back(char32 c) {
 			repr_.append(buf, len);
 		}
 		else {
-			fprintf(stderr, "Unicode value 0x%x is not valid for interchange\n", c);
+			slfprintf_stderr("Unicode value 0x%x is not valid for interchange\n", c);
 			repr_.append(" ", 1);
 		}
 	}
 	else {
-		fprintf(stderr, "Illegal Unicode value: 0x%x\n", c);
+		slfprintf_stderr("Illegal Unicode value: 0x%x\n", c);
 		repr_.append(" ", 1);
 	}
 }

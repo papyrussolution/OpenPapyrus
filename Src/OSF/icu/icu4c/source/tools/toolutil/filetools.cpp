@@ -55,7 +55,7 @@ U_CAPI bool U_EXPORT2 isFileModTimeLater(const char * filePath, const char * che
 					newpath.append(U_FILE_SEP_STRING, -1, status);
 					newpath.append(dirEntry->d_name, -1, status);
 					if(U_FAILURE(status)) {
-						fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, u_errorName(status));
+						slfprintf_stderr("%s:%d: %s\n", __FILE__, __LINE__, u_errorName(status));
 						return FALSE;
 					}
 
@@ -80,7 +80,7 @@ U_CAPI bool U_EXPORT2 isFileModTimeLater(const char * filePath, const char * che
 			closedir(pDir);
 		}
 		else {
-			fprintf(stderr, "Unable to open directory: %s\n", checkAgainst);
+			slfprintf_stderr("Unable to open directory: %s\n", checkAgainst);
 			return FALSE;
 		}
 #endif
@@ -121,7 +121,7 @@ static int32_t whichFileModTimeIsLater(const char * file1, const char * file2) {
 		}
 	}
 	else {
-		fprintf(stderr, "Unable to get stats from file: %s or %s\n", file1, file2);
+		slfprintf_stderr("Unable to get stats from file: %s or %s\n", file1, file2);
 		result = -1;
 	}
 

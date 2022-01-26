@@ -444,10 +444,8 @@ void StringFieldGenerator::GenerateConstructorCode(io::Printer* printer) const {
 	}
 	GOOGLE_DCHECK(!inlined_);
 	format("$name$_.UnsafeSetDefault($init_value$);\n");
-	if(IsString(descriptor_, options_) &&
-	    descriptor_->default_value_string().empty()) {
-		format(
-			"#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING\n"
+	if(IsString(descriptor_, options_) && descriptor_->default_value_string().empty()) {
+		format("#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING\n"
 			"  $name$_.Set($init_value$, \"\", GetArenaForAllocation());\n"
 			"#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING\n");
 	}
@@ -458,10 +456,10 @@ void StringFieldGenerator::GenerateCopyConstructorCode(io::Printer* printer) con
 	GenerateConstructorCode(printer);
 
 	if(HasHasbit(descriptor_)) {
-		format("if (from._internal_has_$name$()) {\n");
+		format("if(from._internal_has_$name$()) {\n");
 	}
 	else {
-		format("if (!from._internal_$name$().empty()) {\n");
+		format("if(!from._internal_$name$().empty()) {\n");
 	}
 
 	format.Indent();

@@ -3490,7 +3490,7 @@ cmsToneCurve * ReadSegmentedCurve(struct _cms_typehandler_struct* self, cmsIOHAN
 			    if(!_cmsReadUInt32Number(io, &Count)) goto Error;
 
 			    Segments[i].nGridPoints = Count;
-			    Segments[i].SampledPoints = (float*)_cmsCalloc(self->ContextID, Count, sizeof(float));
+			    Segments[i].SampledPoints = (float *)_cmsCalloc(self->ContextID, Count, sizeof(float));
 			    if(Segments[i].SampledPoints == NULL) goto Error;
 
 			    for(j = 0; j < Count; j++) {

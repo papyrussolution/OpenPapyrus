@@ -40,11 +40,9 @@
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/io/zero_copy_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
-#include <google/protobuf/dynamic_message.h>
 #include <google/protobuf/map_field.h>
 #include <google/protobuf/map_field_inl.h>
 #include <google/protobuf/message.h>
-#include <google/protobuf/message_lite.h>
 #include <google/protobuf/unknown_field_set.h>
 #include <google/protobuf/port_def.inc>
 

@@ -1536,7 +1536,7 @@ static int xmlZMemBuffGetContent(xmlZMemBuffPtr buff, char ** data_ref)
 	if(z_err == Z_STREAM_END) {
 		/* Need to append the gzip data trailer  */
 
-		if(buff->zctrl.avail_out < ( 2 * sizeof( unsigned long ) ) ) {
+		if(buff->zctrl.avail_out < ( 2 * sizeof( unsigned long ) )) {
 			if(xmlZMemBuffExtend(buff, (2 * sizeof(ulong))) == -1)
 				return ( -1 );
 		}

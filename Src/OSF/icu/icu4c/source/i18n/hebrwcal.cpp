@@ -405,13 +405,13 @@ int32_t HebrewCalendar::startOfYear(int32_t year, UErrorCode & status)
 			day += 1;
 			wd = (day % 7);
 		}
-		if(wd == 1 && frac > 15*HOUR_PARTS+204 && !isLeapYear(year) ) {
+		if(wd == 1 && frac > 15*HOUR_PARTS+204 && !isLeapYear(year)) {
 			// If the new moon falls after 3:11:20am (15h204p from the previous noon)
 			// on a Tuesday and it is not a leap year, postpone by 2 days.
 			// This prevents 356-day years.
 			day += 2;
 		}
-		else if(wd == 0 && frac > 21*HOUR_PARTS+589 && isLeapYear(year-1) ) {
+		else if(wd == 0 && frac > 21*HOUR_PARTS+589 && isLeapYear(year-1)) {
 			// If the new moon falls after 9:32:43 1/3am (21h589p from yesterday noon)
 			// on a Monday and *last* year was a leap year, postpone by 1 day.
 			// Prevents 382-day years.
@@ -584,7 +584,7 @@ void HebrewCalendar::handleComputeFields(int32_t julianDay, UErrorCode & status)
 
 	int32_t month = 0;
 	int32_t momax = UPRV_LENGTHOF(MONTH_START);
-	while(month < momax && dayOfYear > (isLeap ? LEAP_MONTH_START[month][type] : MONTH_START[month][type]) ) {
+	while(month < momax && dayOfYear > (isLeap ? LEAP_MONTH_START[month][type] : MONTH_START[month][type])) {
 		month++;
 	}
 	if(month >= momax || month<=0) {

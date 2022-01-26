@@ -1,5 +1,5 @@
 // V_CCHECK.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2788,7 +2788,7 @@ int PPViewCCheck::CreateGoodsCorrTbl()
 				}
 				ins_count++;
 			}
-			if(goods_chk_ary.BSearch(p_gds_qtty1->Key, 0, &(goods_chk_pos = 0)) > 0) // Количество чеков в которых встречается ведомый товар, будем хранить в отдельном массиве
+			if(goods_chk_ary.BSearch(p_gds_qtty1->Key, 0, &(goods_chk_pos = 0))) // Количество чеков в которых встречается ведомый товар, будем хранить в отдельном массиве
 				goods_chk_ary.at(goods_chk_pos).Val++;
 			else {
 				THROW_SL(goods_chk_ary.Add(p_gds_qtty1->Key, 1, 0, 1));

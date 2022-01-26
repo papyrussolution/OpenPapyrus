@@ -104,7 +104,7 @@ void Normalizer2DataBuilder::setUnicodeVersion(const char * v) {
 	    ) {
 		char buffer[U_MAX_VERSION_STRING_LENGTH];
 		u_versionToString(unicodeVersion, buffer);
-		fprintf(stderr, "gennorm2 error: multiple inconsistent Unicode version numbers %s vs. %s\n",
+		slfprintf_stderr("gennorm2 error: multiple inconsistent Unicode version numbers %s vs. %s\n",
 		    buffer, v);
 		exit(U_ILLEGAL_ARGUMENT_ERROR);
 	}
@@ -742,7 +742,7 @@ LocalUCPTriePointer Normalizer2DataBuilder::processData() {
 		umutablecptrie_buildImmutable(norm16Trie, UCPTRIE_TYPE_FAST, UCPTRIE_VALUE_BITS_16, errorCode));
 	norm16TrieLength = ucptrie_toBinary(builtTrie.getAlias(), nullptr, 0, errorCode);
 	if(errorCode.get()!=U_BUFFER_OVERFLOW_ERROR) {
-		fprintf(stderr, "gennorm2 error: unable to build/serialize the normalization trie - %s\n",
+		slfprintf_stderr("gennorm2 error: unable to build/serialize the normalization trie - %s\n",
 		    errorCode.errorName());
 		exit(errorCode.reset());
 	}
@@ -799,7 +799,7 @@ void Normalizer2DataBuilder::writeBinaryFile(const char * filename) {
 	    udata_create(NULL, NULL, filename, &dataInfo,
 		haveCopyright ? U_COPYRIGHT_STRING : NULL, errorCode);
 	if(errorCode.isFailure()) {
-		fprintf(stderr, "gennorm2 error: unable to create the output file %s - %s\n",
+		slfprintf_stderr("gennorm2 error: unable to create the output file %s - %s\n",
 		    filename, errorCode.errorName());
 		exit(errorCode.reset());
 	}
@@ -809,12 +809,12 @@ void Normalizer2DataBuilder::writeBinaryFile(const char * filename) {
 	udata_writeBlock(pData, smallFCD, sizeof(smallFCD));
 	int32_t writtenSize = udata_finish(pData, errorCode);
 	if(errorCode.isFailure()) {
-		fprintf(stderr, "gennorm2: error %s writing the output file\n", errorCode.errorName());
+		slfprintf_stderr("gennorm2: error %s writing the output file\n", errorCode.errorName());
 		exit(errorCode.reset());
 	}
 	int32_t totalSize = indexes[Normalizer2Impl::IX_TOTAL_SIZE];
 	if(writtenSize!=totalSize) {
-		fprintf(stderr, "gennorm2 error: written size %ld != calculated size %ld\n",
+		slfprintf_stderr("gennorm2 error: written size %ld != calculated size %ld\n",
 		    (long)writtenSize, (long)totalSize);
 		exit(U_INTERNAL_PROGRAM_ERROR);
 	}
@@ -836,7 +836,7 @@ void Normalizer2DataBuilder::writeCSourceFile(const char * filename) {
 
 	FILE * f = usrc_create(path.data(), basename, 2016, "icu/source/tools/gennorm2/n2builder.cpp");
 	if(f==NULL) {
-		fprintf(stderr, "gennorm2/writeCSourceFile() error: unable to create the output file %s\n",
+		slfprintf_stderr("gennorm2/writeCSourceFile() error: unable to create the output file %s\n",
 		    filename);
 		exit(U_FILE_ACCESS_ERROR);
 	}
@@ -894,7 +894,7 @@ void Normalizer2DataBuilder::writeDataFile(const char * filename, bool writeRemo
 	// Do not processData() before writing the input-syntax data file.
 	FILE * f = fopen(filename, "w");
 	if(f == nullptr) {
-		fprintf(stderr, "gennorm2/writeDataFile() error: unable to create the output file %s\n",
+		slfprintf_stderr("gennorm2/writeDataFile() error: unable to create the output file %s\n",
 		    filename);
 		exit(U_FILE_ACCESS_ERROR);
 		return;

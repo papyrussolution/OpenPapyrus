@@ -129,7 +129,7 @@ void IntlTestSimpleDateFormatAPI::testAPI(/*char *par*/)
     }
 
     Format *clone = def.clone();
-    if( ! (*clone == def) ) {
+    if( ! (*clone == def)) {
         errln("ERROR: Clone() (or ==) failed");
     }
     delete clone;

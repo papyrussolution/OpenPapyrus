@@ -5735,7 +5735,7 @@ inline void TestMessageWithCustomOptions::set_has_oneof_field() {
   _oneof_case_[0] = kOneofField;
 }
 inline void TestMessageWithCustomOptions::clear_oneof_field() {
-  if (_internal_has_oneof_field()) {
+  if(_internal_has_oneof_field()) {
     AnOneof_.oneof_field_ = 0;
     clear_has_AnOneof();
   }
@@ -6025,7 +6025,7 @@ inline bool ComplexOptionType2::has_bar() const {
   return _internal_has_bar();
 }
 inline void ComplexOptionType2::clear_bar() {
-  if (bar_ != nullptr) bar_->Clear();
+  if(bar_ != nullptr) bar_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::ComplexOptionType1& ComplexOptionType2::_internal_bar() const {
@@ -6143,7 +6143,7 @@ inline bool ComplexOptionType2::has_fred() const {
   return _internal_has_fred();
 }
 inline void ComplexOptionType2::clear_fred() {
-  if (fred_ != nullptr) fred_->Clear();
+  if(fred_ != nullptr) fred_->Clear();
   _has_bits_[0] &= ~0x00000002u;
 }
 inline const ::protobuf_unittest::ComplexOptionType2_ComplexOptionType4& ComplexOptionType2::_internal_fred() const {
@@ -6337,7 +6337,7 @@ inline bool ComplexOptionType3::has_complexoptiontype5() const {
   return _internal_has_complexoptiontype5();
 }
 inline void ComplexOptionType3::clear_complexoptiontype5() {
-  if (complexoptiontype5_ != nullptr) complexoptiontype5_->Clear();
+  if(complexoptiontype5_ != nullptr) complexoptiontype5_->Clear();
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::protobuf_unittest::ComplexOptionType3_ComplexOptionType5& ComplexOptionType3::_internal_complexoptiontype5() const {
@@ -6641,7 +6641,7 @@ inline bool Aggregate::has_sub() const {
   return _internal_has_sub();
 }
 inline void Aggregate::clear_sub() {
-  if (sub_ != nullptr) sub_->Clear();
+  if(sub_ != nullptr) sub_->Clear();
   _has_bits_[0] &= ~0x00000002u;
 }
 inline const ::protobuf_unittest::Aggregate& Aggregate::_internal_sub() const {
@@ -6819,7 +6819,7 @@ inline bool Aggregate::has_mset() const {
   return _internal_has_mset();
 }
 inline void Aggregate::clear_mset() {
-  if (mset_ != nullptr) mset_->Clear();
+  if(mset_ != nullptr) mset_->Clear();
   _has_bits_[0] &= ~0x00000008u;
 }
 inline const ::protobuf_unittest::AggregateMessageSet& Aggregate::_internal_mset() const {

@@ -1,5 +1,5 @@
 // ATOL.CPP
-// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage windows-1251
 // Интерфейс (асинхронный) к драйверу "Атол"
 //
@@ -667,7 +667,7 @@ int ACS_ATOL::ExportData(int updOnly)
 				tail.Cat(ATOL_OUTER_SCHEME);                      // #13 - Код схемы внешней автоматической скидки
 			tail.Semicol();
 			tail.CatCharN(';', 2);                                // #14-#15 - Не используем
-			if(cn_data.Flags & CASHF_EXPGOODSGROUPS && gds_info.ParentID && grp_n_level_ary.Search(gds_info.ParentID, &level, 0) > 0)
+			if(cn_data.Flags & CASHF_EXPGOODSGROUPS && gds_info.ParentID && grp_n_level_ary.Search(gds_info.ParentID, &level, 0))
 				tail.Cat(gds_info.ParentID);                      // #16 - ИД группы товаров
 			else
 				tail.CatChar('0');

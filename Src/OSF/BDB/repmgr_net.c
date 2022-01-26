@@ -59,7 +59,7 @@ static int is_permanent __P((ENV*, void *));
 static int __repmgr_finish_connect __P((ENV*, socket_t s, REPMGR_CONNECTION**));
 static int __repmgr_propose_version __P((ENV*, REPMGR_CONNECTION *));
 static int __repmgr_start_connect __P((ENV*, socket_t*, ADDRINFO*, int *));
-static void setup_sending_msg __P((ENV*, struct sending_msg *, uint8*, uint, const DBT*, const DBT *));
+static void setup_sending_msg __P((ENV*, struct sending_msg *, uint8 *, uint, const DBT*, const DBT *));
 static int __repmgr_send_internal __P((ENV*, REPMGR_CONNECTION*, struct sending_msg *, db_timeout_t));
 static int enqueue_msg __P((ENV*, REPMGR_CONNECTION*, struct sending_msg *, size_t));
 static REPMGR_SITE * __repmgr_available_site __P((ENV*, int));

@@ -185,7 +185,7 @@ void BaseArena::MakeNewBlock() {
 BaseArena::AllocatedBlock*  BaseArena::AllocNewBlock(const size_t block_size) {
 	AllocatedBlock * block;
 	// Find the next block.
-	if(blocks_alloced_ < ARRAYSIZE(first_blocks_) ) {
+	if(blocks_alloced_ < ARRAYSIZE(first_blocks_)) {
 		// Use one of the pre-allocated blocks
 		block = &first_blocks_[blocks_alloced_++];
 	}

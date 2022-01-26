@@ -66,7 +66,7 @@ static void TestUListFmt() {
 	for(lftep = listFmtTestEntries; lftep->locale != NULL; lftep++) {
 		UErrorCode status = U_ZERO_ERROR;
 		UListFormatter * listfmt = ulistfmt_open(lftep->locale, &status);
-		if(U_FAILURE(status) ) {
+		if(U_FAILURE(status)) {
 			log_data_err("ERROR: ulistfmt_open fails for locale %s, status %s\n", lftep->locale, u_errorName(status));
 		}
 		else {
@@ -78,7 +78,7 @@ static void TestUListFmt() {
 				ubufActual,
 				kUBufMax,
 				&status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				log_err("ERROR: ulistfmt_format fails for locale %s count %d (real lengths), status %s\n",
 				    lftep->locale,
 				    lftep->stringCount,
@@ -99,7 +99,7 @@ static void TestUListFmt() {
 			/* try again with all lengths -1 */
 			status = U_ZERO_ERROR;
 			ulenActual = ulistfmt_format(listfmt, strings, stringLengthsNeg, lftep->stringCount, ubufActual, kUBufMax, &status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				log_err("ERROR: ulistfmt_format fails for locale %s count %d (-1 lengths), status %s\n",
 				    lftep->locale,
 				    lftep->stringCount,
@@ -120,7 +120,7 @@ static void TestUListFmt() {
 			/* try again with NULL lengths */
 			status = U_ZERO_ERROR;
 			ulenActual = ulistfmt_format(listfmt, strings, NULL, lftep->stringCount, ubufActual, kUBufMax, &status);
-			if(U_FAILURE(status) ) {
+			if(U_FAILURE(status)) {
 				log_err("ERROR: ulistfmt_format fails for locale %s count %d (NULL lengths), status %s\n",
 				    lftep->locale,
 				    lftep->stringCount,

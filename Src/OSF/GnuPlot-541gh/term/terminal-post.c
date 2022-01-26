@@ -2545,7 +2545,7 @@ static void write_component_array(const char * text, gradient_struct * grad, int
 	for(i = 0; i<cnt; ++i) {
 		char * ref = (char *)(&(grad[i]));
 		ref += offset;
-		val = GpPostscriptBlock::SaveSpace(*((double*)(ref)));
+		val = GpPostscriptBlock::SaveSpace(*((double *)(ref)));
 		len += strlen(val) + 1;
 		if(len > 77) {
 			fputs("\n  ", GPT.P_GpPsFile);

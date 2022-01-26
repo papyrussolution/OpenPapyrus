@@ -120,7 +120,7 @@ int  main(int argc, char ** argv)
 	argc = u_parseArgs(argc, argv, UPRV_LENGTHOF(options), options);
 	if(argc<0) {
 		// Unrecognized option
-		fprintf(stderr, "error in command line argument \"%s\"\n", argv[-argc]);
+		slfprintf_stderr("error in command line argument \"%s\"\n", argv[-argc]);
 		usageAndDie(U_ILLEGAL_ARGUMENT_ERROR);
 	}
 
@@ -130,7 +130,7 @@ int  main(int argc, char ** argv)
 	}
 
 	if(!(options[3].doesOccur && options[4].doesOccur)) {
-		fprintf(stderr, "rule file and output file must both be specified.\n");
+		slfprintf_stderr("rule file and output file must both be specified.\n");
 		usageAndDie(U_ILLEGAL_ARGUMENT_ERROR);
 	}
 	ruleFileName = options[3].value;
@@ -154,7 +154,7 @@ int  main(int argc, char ** argv)
 	char msg[1024];
 	/* write message with just the name */
 	sprintf(msg, "genbrk writes dummy %s because of UCONFIG_NO_BREAK_ITERATION and/or UCONFIG_NO_FILE_IO, see uconfig.h", outFileName);
-	fprintf(stderr, "%s\n", msg);
+	slfprintf_stderr("%s\n", msg);
 
 	/* write the dummy data file */
 	pData = udata_create(outDir, NULL, outFileName, &dummyDataInfo, NULL, &status);
@@ -166,7 +166,7 @@ int  main(int argc, char ** argv)
 	/* Initialize ICU */
 	u_init(&status);
 	if(U_FAILURE(status)) {
-		fprintf(stderr, "%s: can not initialize ICU.  status = %s\n", argv[0], u_errorName(status));
+		slfprintf_stderr("%s: can not initialize ICU.  status = %s\n", argv[0], u_errorName(status));
 		exit(1);
 	}
 	status = U_ZERO_ERROR;
@@ -178,7 +178,7 @@ int  main(int argc, char ** argv)
 	char * ruleBufferC;
 	FILE * file = fopen(ruleFileName, "rb");
 	if(file == 0) {
-		fprintf(stderr, "Could not open file \"%s\"\n", ruleFileName);
+		slfprintf_stderr("Could not open file \"%s\"\n", ruleFileName);
 		exit(-1);
 	}
 	fseek(file, 0, SEEK_END);
@@ -187,7 +187,7 @@ int  main(int argc, char ** argv)
 	ruleBufferC = new char[ruleFileSize+10];
 	result = (long)fread(ruleBufferC, 1, ruleFileSize, file);
 	if(result != ruleFileSize) {
-		fprintf(stderr, "Error reading file \"%s\"\n", ruleFileName);
+		slfprintf_stderr("Error reading file \"%s\"\n", ruleFileName);
 		exit(-1);
 	}
 	ruleBufferC[ruleFileSize] = 0;
@@ -210,7 +210,7 @@ int  main(int argc, char ** argv)
 	//
 	UConverter * conv = ucnv_open(encoding, &status);
 	if(U_FAILURE(status)) {
-		fprintf(stderr, "ucnv_open: ICU Error \"%s\"\n", u_errorName(status));
+		slfprintf_stderr("ucnv_open: ICU Error \"%s\"\n", u_errorName(status));
 		exit(status);
 	}
 	//
@@ -219,14 +219,14 @@ int  main(int argc, char ** argv)
 	//
 	uint32_t destCap = ucnv_toUChars(conv, NULL/*dest*/, 0/*destCapacity*/, ruleSourceC, ruleFileSize, &status);
 	if(status != U_BUFFER_OVERFLOW_ERROR) {
-		fprintf(stderr, "ucnv_toUChars: ICU Error \"%s\"\n", u_errorName(status));
+		slfprintf_stderr("ucnv_toUChars: ICU Error \"%s\"\n", u_errorName(status));
 		exit(status);
 	}
 	status = U_ZERO_ERROR;
 	UChar * ruleSourceU = new UChar[destCap+1];
 	ucnv_toUChars(conv, ruleSourceU/*dest*/, destCap+1, ruleSourceC, ruleFileSize, &status);
 	if(U_FAILURE(status)) {
-		fprintf(stderr, "ucnv_toUChars: ICU Error \"%s\"\n", u_errorName(status));
+		slfprintf_stderr("ucnv_toUChars: ICU Error \"%s\"\n", u_errorName(status));
 		exit(status);
 	}
 	ucnv_close(conv);
@@ -243,7 +243,7 @@ int  main(int argc, char ** argv)
 	parseError.offset = 0;
 	RuleBasedBreakIterator * bi = new RuleBasedBreakIterator(ruleSourceS, parseError, status);
 	if(U_FAILURE(status)) {
-		fprintf(stderr, "createRuleBasedBreakIterator: ICU Error \"%s\"  at line %d, column %d\n", u_errorName(status), (int)parseError.line, (int)parseError.offset);
+		slfprintf_stderr("createRuleBasedBreakIterator: ICU Error \"%s\"  at line %d, column %d\n", u_errorName(status), (int)parseError.line, (int)parseError.offset);
 		exit(status);
 	}
 	//
@@ -259,7 +259,7 @@ int  main(int argc, char ** argv)
 	size_t bytesWritten;
 	UNewDataMemory * pData = udata_create(outDir, NULL, outFileName, &(dh.info), copyright, &status);
 	if(U_FAILURE(status)) {
-		fprintf(stderr, "genbrk: Could not open output file \"%s\", \"%s\"\n", outFileName, u_errorName(status));
+		slfprintf_stderr("genbrk: Could not open output file \"%s\", \"%s\"\n", outFileName, u_errorName(status));
 		exit(status);
 	}
 	//  Write the data itself.
@@ -267,11 +267,11 @@ int  main(int argc, char ** argv)
 	// finish up
 	bytesWritten = udata_finish(pData, &status);
 	if(U_FAILURE(status)) {
-		fprintf(stderr, "genbrk: error %d writing the output file\n", status);
+		slfprintf_stderr("genbrk: error %d writing the output file\n", status);
 		exit(status);
 	}
 	if(bytesWritten != outDataSize) {
-		fprintf(stderr, "Error writing to output file \"%s\"\n", outFileName);
+		slfprintf_stderr("Error writing to output file \"%s\"\n", outFileName);
 		exit(-1);
 	}
 	delete bi;

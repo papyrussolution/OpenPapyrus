@@ -464,13 +464,13 @@ U_CFUNC bool uprv_mapFile(UDataMemory * pData, const char * path, UErrorCode * s
 #       endif
 
 #       ifdef UDATA_DEBUG
-	fprintf(stderr, "dllload: %s ", pathBuffer);
+	slfprintf_stderr("dllload: %s ", pathBuffer);
 #       endif
 
 	handle = dllload(pathBuffer);
 
 #       ifdef UDATA_DEBUG
-	fprintf(stderr, " -> %08X\n", handle);
+	slfprintf_stderr(" -> %08X\n", handle);
 #       endif
 
 	if(handle != nullptr) {
@@ -483,7 +483,7 @@ U_CFUNC bool uprv_mapFile(UDataMemory * pData, const char * path, UErrorCode * s
 			return FALSE;
 		}
 #              ifdef UDATA_DEBUG
-		fprintf(stderr, "dllqueryvar(%08X, %s) -> %08X\n", handle, U_ICUDATA_ENTRY_NAME, val);
+		slfprintf_stderr("dllqueryvar(%08X, %s) -> %08X\n", handle, U_ICUDATA_ENTRY_NAME, val);
 #              endif
 
 		pData->pHeader = (const DataHeader*)val;

@@ -1705,7 +1705,7 @@ DECLAREContigPutFunc(putcontig8bitYCbCr41tile)
 			int32 Cb = pp[4];
 			int32 Cr = pp[5];
 
-			switch( (w&3) ) {
+			switch( (w&3)) {
 				case 3: YCbCrtoRGB(cp [2], pp[2]); /*-fallthrough*/
 				case 2: YCbCrtoRGB(cp [1], pp[1]); /*-fallthrough*/
 				case 1: YCbCrtoRGB(cp [0], pp[0]); /*-fallthrough*/
@@ -1921,7 +1921,7 @@ static int initYCbCrConversion(TIFFRGBAImage* img)
 	}
 	if(!isInRefBlackWhiteRange(refBlackWhite[0]) || !isInRefBlackWhiteRange(refBlackWhite[1]) ||
 	    !isInRefBlackWhiteRange(refBlackWhite[2]) || !isInRefBlackWhiteRange(refBlackWhite[3]) ||
-	    !isInRefBlackWhiteRange(refBlackWhite[4]) || !isInRefBlackWhiteRange(refBlackWhite[5]) ) {
+	    !isInRefBlackWhiteRange(refBlackWhite[4]) || !isInRefBlackWhiteRange(refBlackWhite[5])) {
 		TIFFErrorExt(img->tif->tif_clientdata, module, "Invalid values for ReferenceBlackWhite tag");
 		return 0;
 	}
@@ -2417,7 +2417,7 @@ int TIFFReadRGBAStripExt(TIFF* tif, uint32 row, uint32 * raster, int stop_on_err
 	TIFFRGBAImage img;
 	int ok;
 	uint32 rowsperstrip, rows_to_read;
-	if(TIFFIsTiled(tif) ) {
+	if(TIFFIsTiled(tif)) {
 		TIFFErrorExt(tif->tif_clientdata, TIFFFileName(tif), "Can't use TIFFReadRGBAStrip() with tiled file.");
 		return 0;
 	}
@@ -2464,7 +2464,7 @@ int TIFFReadRGBATileExt(TIFF* tif, uint32 col, uint32 row, uint32 * raster, int 
 	 * Verify that our request is legal - on a tile file, and on a
 	 * tile boundary.
 	 */
-	if(!TIFFIsTiled(tif) ) {
+	if(!TIFFIsTiled(tif)) {
 		TIFFErrorExt(tif->tif_clientdata, TIFFFileName(tif), "Can't use TIFFReadRGBATile() with stripped file.");
 		return 0;
 	}

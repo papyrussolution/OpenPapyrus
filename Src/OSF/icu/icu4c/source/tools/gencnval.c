@@ -192,7 +192,7 @@ extern int main(int argc, char * argv[])
 	argc = u_parseArgs(argc, argv, UPRV_LENGTHOF(options), options);
 	/* error handling, printing usage message */
 	if(argc<0) {
-		fprintf(stderr, "error in command line argument \"%s\"\n", argv[-argc]);
+		slfprintf_stderr("error in command line argument \"%s\"\n", argv[-argc]);
 	}
 	if(argc<0 || options[HELP1].doesOccur || options[HELP2].doesOccur) {
 		fprintf(stderr,
@@ -241,7 +241,7 @@ extern int main(int argc, char * argv[])
 
 	in = T_FileStream_open(path, "r");
 	if(in==NULL) {
-		fprintf(stderr, "gencnval: unable to open input file %s\n", path);
+		slfprintf_stderr("gencnval: unable to open input file %s\n", path);
 		exit(U_FILE_ACCESS_ERROR);
 	}
 	parseFile(in);
@@ -251,7 +251,7 @@ extern int main(int argc, char * argv[])
 	out = udata_create(options[DESTDIR].value, DATA_TYPE, DATA_NAME, &dataInfo,
 		options[COPYRIGHT].doesOccur ? U_COPYRIGHT_STRING : NULL, &errorCode);
 	if(U_FAILURE(errorCode)) {
-		fprintf(stderr, "gencnval: unable to open output file - error %s\n", u_errorName(errorCode));
+		slfprintf_stderr("gencnval: unable to open output file - error %s\n", u_errorName(errorCode));
 		exit(errorCode);
 	}
 
@@ -261,7 +261,7 @@ extern int main(int argc, char * argv[])
 	/* finish */
 	udata_finish(out, &errorCode);
 	if(U_FAILURE(errorCode)) {
-		fprintf(stderr, "gencnval: error finishing output file - %s\n", u_errorName(errorCode));
+		slfprintf_stderr("gencnval: error finishing output file - %s\n", u_errorName(errorCode));
 		exit(errorCode);
 	}
 
@@ -310,12 +310,12 @@ static void parseFile(FileStream * in) {
 
 		if(validParse || lineSize > 0) {
 			if(isspace((int)*line)) {
-				fprintf(stderr, "%s:%d: error: cannot start an alias with a space\n", path, lineNum-1);
+				slfprintf_stderr("%s:%d: error: cannot start an alias with a space\n", path, lineNum-1);
 				exit(U_PARSE_ERROR);
 			}
 			else if(line[0] == '{') {
 				if(!standardTagsUsed && line[lineSize - 1] != '}') {
-					fprintf(stderr, "%s:%d: error: alias needs to start with a converter name\n", path, lineNum);
+					slfprintf_stderr("%s:%d: error: alias needs to start with a converter name\n", path, lineNum);
 					exit(U_PARSE_ERROR);
 				}
 				addOfficialTaggedStandards(line, lineSize);
@@ -326,7 +326,7 @@ static void parseFile(FileStream * in) {
 					parseLine(line);
 				}
 				else {
-					fprintf(stderr, "%s:%d: error: alias table needs to start a list of standard tags\n", path,
+					slfprintf_stderr("%s:%d: error: alias table needs to start a list of standard tags\n", path,
 					    lineNum);
 					exit(U_PARSE_ERROR);
 				}
@@ -468,7 +468,7 @@ static void parseLine(const char * line)
 				++pos;
 			}
 			else {
-				fprintf(stderr, "%s:%d: Unterminated tag list\n", path, lineNum);
+				slfprintf_stderr("%s:%d: Unterminated tag list\n", path, lineNum);
 				exit(U_UNMATCHED_BRACES);
 			}
 		}
@@ -484,7 +484,7 @@ static uint16_t getTagNumber(const char * tag, uint16_t tagLen) {
 	bool preferredName = ((tagLen > 0) ? (tag[tagLen - 1] == '*') : (FALSE));
 
 	if(tagCount >= MAX_TAG_COUNT) {
-		fprintf(stderr, "%s:%d: too many tags\n", path, lineNum);
+		slfprintf_stderr("%s:%d: too many tags\n", path, lineNum);
 		exit(U_BUFFER_OVERFLOW_ERROR);
 	}
 
@@ -502,7 +502,7 @@ static uint16_t getTagNumber(const char * tag, uint16_t tagLen) {
 
 	/* we need to add this tag */
 	if(tagCount >= MAX_TAG_COUNT) {
-		fprintf(stderr, "%s:%d: error: too many tags\n", path, lineNum);
+		slfprintf_stderr("%s:%d: error: too many tags\n", path, lineNum);
 		exit(U_BUFFER_OVERFLOW_ERROR);
 	}
 
@@ -510,7 +510,7 @@ static uint16_t getTagNumber(const char * tag, uint16_t tagLen) {
 	atag = allocString(&tagBlock, tag, tagLen);
 
 	if(standardTagsUsed) {
-		fprintf(stderr, "%s:%d: error: Tag \"%s\" is not declared at the beginning of the alias table.\n",
+		slfprintf_stderr("%s:%d: error: Tag \"%s\" is not declared at the beginning of the alias table.\n",
 		    path, lineNum, atag);
 		exit(1);
 	}
@@ -543,19 +543,19 @@ static void addOfficialTaggedStandards(char * line, int32_t lineLen) {
 	static const char WHITESPACE[] = " \t";
 
 	if(tagCount > UCNV_NUM_RESERVED_TAGS) {
-		fprintf(stderr, "%s:%d: error: official tags already added\n", path, lineNum);
+		slfprintf_stderr("%s:%d: error: official tags already added\n", path, lineNum);
 		exit(U_BUFFER_OVERFLOW_ERROR);
 	}
 	tag = strchr(line, '{');
 	if(tag == NULL) {
 		/* Why were we called? */
-		fprintf(stderr, "%s:%d: error: Missing start of tag group\n", path, lineNum);
+		slfprintf_stderr("%s:%d: error: Missing start of tag group\n", path, lineNum);
 		exit(U_PARSE_ERROR);
 	}
 	tag++;
 	endTagExp = strchr(tag, '}');
 	if(endTagExp == NULL) {
-		fprintf(stderr, "%s:%d: error: Missing end of tag group\n", path, lineNum);
+		slfprintf_stderr("%s:%d: error: Missing end of tag group\n", path, lineNum);
 		exit(U_PARSE_ERROR);
 	}
 	endTagExp[0] = 0;
@@ -585,7 +585,7 @@ static uint16_t addToKnownAliases(const char * alias) {
         if(knownAliases[idx] != num
  && uprv_strcmp(alias, GET_ALIAS_STR(knownAliases[idx])) == 0)
         {
-            fprintf(stderr, "%s:%d: warning: duplicate alias %s and %s found\n", path,
+            slfprintf_stderr("%s:%d: warning: duplicate alias %s and %s found\n", path,
                 lineNum, alias, GET_ALIAS_STR(knownAliases[idx]));
             duplicateKnownAliasesCount++;
             break;
@@ -594,7 +594,7 @@ static uint16_t addToKnownAliases(const char * alias) {
  && ucnv_compareNames(alias, GET_ALIAS_STR(knownAliases[idx])) == 0)
         {
             if(verbose) {
-                fprintf(stderr, "%s:%d: information: duplicate alias %s and %s found\n", path,
+                slfprintf_stderr("%s:%d: information: duplicate alias %s and %s found\n", path,
                     lineNum, alias, GET_ALIAS_STR(knownAliases[idx]));
             }
             duplicateKnownAliasesCount++;
@@ -603,7 +603,7 @@ static uint16_t addToKnownAliases(const char * alias) {
     }
  */
 	if(knownAliasesCount >= MAX_ALIAS_COUNT) {
-		fprintf(stderr, "%s:%d: warning: Too many aliases defined for all converters\n",
+		slfprintf_stderr("%s:%d: warning: Too many aliases defined for all converters\n",
 		    path, lineNum);
 		exit(U_BUFFER_OVERFLOW_ERROR);
 	}
@@ -620,22 +620,22 @@ static uint16_t addAlias(const char * alias, uint16_t standard, uint16_t convert
 	AliasList * aliasList;
 
 	if(standard>=MAX_TAG_COUNT) {
-		fprintf(stderr, "%s:%d: error: too many standard tags\n", path, lineNum);
+		slfprintf_stderr("%s:%d: error: too many standard tags\n", path, lineNum);
 		exit(U_BUFFER_OVERFLOW_ERROR);
 	}
 	if(converter>=MAX_CONV_COUNT) {
-		fprintf(stderr, "%s:%d: error: too many converter names\n", path, lineNum);
+		slfprintf_stderr("%s:%d: error: too many converter names\n", path, lineNum);
 		exit(U_BUFFER_OVERFLOW_ERROR);
 	}
 	aliasList = &tags[standard].aliasList[converter];
 
 	if(strchr(alias, '}')) {
-		fprintf(stderr, "%s:%d: error: unmatched } found\n", path,
+		slfprintf_stderr("%s:%d: error: unmatched } found\n", path,
 		    lineNum);
 	}
 
 	if(aliasList->aliasCount + 1 >= MAX_TC_ALIAS_COUNT) {
-		fprintf(stderr, "%s:%d: error: too many aliases for alias %s and converter %s\n", path,
+		slfprintf_stderr("%s:%d: error: too many aliases for alias %s and converter %s\n", path,
 		    lineNum, alias, GET_ALIAS_STR(converters[converter].converter));
 		exit(U_BUFFER_OVERFLOW_ERROR);
 	}
@@ -646,11 +646,11 @@ static uint16_t addAlias(const char * alias, uint16_t standard, uint16_t convert
 		   be discarded when the alias is a default converter. Options should
 		   only be on a converter and not an alias. */
 		if(uprv_strchr(alias, UCNV_OPTION_SEP_CHAR) != 0) {
-			fprintf(stderr, "warning(line %d): alias %s contains a \"" UCNV_OPTION_SEP_STRING "\". Options are parsed at run-time and do not need to be in the alias table.\n",
+			slfprintf_stderr("warning(line %d): alias %s contains a \"" UCNV_OPTION_SEP_STRING "\". Options are parsed at run-time and do not need to be in the alias table.\n",
 			    lineNum, alias);
 		}
 		if(uprv_strchr(alias, UCNV_VALUE_SEP_CHAR) != 0) {
-			fprintf(stderr, "warning(line %d): alias %s contains an \"" UCNV_VALUE_SEP_STRING "\". Options are parsed at run-time and do not need to be in the alias table.\n",
+			slfprintf_stderr("warning(line %d): alias %s contains an \"" UCNV_VALUE_SEP_STRING "\". Options are parsed at run-time and do not need to be in the alias table.\n",
 			    lineNum, alias);
 		}
 	}
@@ -670,12 +670,12 @@ static uint16_t addAlias(const char * alias, uint16_t standard, uint16_t convert
 						 * not just a lenient-match duplicate.
 						 */
 						if(verbose || 0 == uprv_strcmp(alias, GET_ALIAS_STR(aliasNum))) {
-							fprintf(stderr, "%s:%d: warning: duplicate aliases %s and %s found for standard %s and converter %s\n",
+							slfprintf_stderr("%s:%d: warning: duplicate aliases %s and %s found for standard %s and converter %s\n",
 							    path, lineNum, alias, GET_ALIAS_STR(aliasNum), GET_TAG_STR(tags[standard].tag), GET_ALIAS_STR(converters[converter].converter));
 						}
 					}
 					else {
-						fprintf(stderr, "%s:%d: warning: duplicate aliases %s and %s found for standard tag %s between converter %s and converter %s\n",
+						slfprintf_stderr("%s:%d: warning: duplicate aliases %s and %s found for standard tag %s between converter %s and converter %s\n",
 						    path, lineNum, alias, GET_ALIAS_STR(aliasNum), GET_TAG_STR(tags[standard].tag), GET_ALIAS_STR(converters[converter].converter), GET_ALIAS_STR(converters[idx].converter));
 					}
 					break;
@@ -692,7 +692,7 @@ static uint16_t addAlias(const char * alias, uint16_t standard, uint16_t convert
                     if(aliasNum
             && ucnv_compareNames(alias, GET_ALIAS_STR(aliasNum)) == 0)
                     {
-                        fprintf(stderr, "%s:%d: warning: duplicate alias %s found for converter %s and standard tag
+                        slfprintf_stderr("%s:%d: warning: duplicate alias %s found for converter %s and standard tag
                            %s\n", path,
                             lineNum, alias, GET_ALIAS_STR(converters[converter].converter),
                                GET_TAG_STR(tags[standard].tag));
@@ -739,12 +739,12 @@ static uint16_t addConverter(const char * converter)
 {
 	uint32_t idx;
 	if(converterCount>=MAX_CONV_COUNT) {
-		fprintf(stderr, "%s:%d: error: too many converters\n", path, lineNum);
+		slfprintf_stderr("%s:%d: error: too many converters\n", path, lineNum);
 		exit(U_BUFFER_OVERFLOW_ERROR);
 	}
 	for(idx = 0; idx < converterCount; idx++) {
 		if(ucnv_compareNames(converter, GET_ALIAS_STR(converters[idx].converter)) == 0) {
-			fprintf(stderr, "%s:%d: error: duplicate converter %s found!\n", path, lineNum, converter);
+			slfprintf_stderr("%s:%d: error: duplicate converter %s found!\n", path, lineNum, converter);
 			exit(U_PARSE_ERROR);
 			break;
 		}
@@ -785,7 +785,7 @@ static void resolveAliasToConverter(uint16_t alias, uint16_t * tagNum, uint16_t 
 	}
 	*tagNum = UINT16_MAX;
 	*converterNum = UINT16_MAX;
-	fprintf(stderr, "%s: warning: alias %s not found\n", path, GET_ALIAS_STR(alias));
+	slfprintf_stderr("%s: warning: alias %s not found\n", path, GET_ALIAS_STR(alias));
 	return;
 }
 
@@ -886,7 +886,7 @@ static void createOneAliasList(uint16_t * aliasArrLists, uint32_t tag, uint32_t 
 			else {
 				value = 0;
 				if(tag != 0 && !quiet) { /* Only show the warning when it's not the leftover tag. */
-					fprintf(stderr, "%s: warning: tag %s does not have a default alias for %s\n",
+					slfprintf_stderr("%s: warning: tag %s does not have a default alias for %s\n",
 					    path,
 					    GET_TAG_STR(tags[tag].tag),
 					    GET_ALIAS_STR(converters[converter].converter));
@@ -894,7 +894,7 @@ static void createOneAliasList(uint16_t * aliasArrLists, uint32_t tag, uint32_t 
 			}
 			aliasLists[aliasListsSize++] = value;
 			if(aliasListsSize >= MAX_LIST_SIZE) {
-				fprintf(stderr, "%s: error: Too many alias lists\n", path);
+				slfprintf_stderr("%s: error: Too many alias lists\n", path);
 				exit(U_BUFFER_OVERFLOW_ERROR);
 			}
 		}
@@ -1034,7 +1034,7 @@ static char * allocString(StringBlock * block, const char * s, int32_t length)
 	 */
 	top = block->top + (uint32_t)((length + 1 + 1) & ~1);
 	if(top >= block->max) {
-		fprintf(stderr, "%s:%d: error: out of memory\n", path, lineNum);
+		slfprintf_stderr("%s:%d: error: out of memory\n", path, lineNum);
 		exit(U_MEMORY_ALLOCATION_ERROR);
 	}
 	/* get the pointer and copy the string */
@@ -1046,7 +1046,7 @@ static char * allocString(StringBlock * block, const char * s, int32_t length)
 	}
 	/* check for invariant characters now that we have a NUL-terminated string for easy output */
 	if(!uprv_isInvariantString(p, length)) {
-		fprintf(stderr, "%s:%d: error: the name %s contains not just invariant characters\n", path, lineNum, p);
+		slfprintf_stderr("%s:%d: error: the name %s contains not just invariant characters\n", path, lineNum, p);
 		exit(U_INVALID_TABLE_FORMAT);
 	}
 	block->top = top;

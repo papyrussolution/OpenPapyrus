@@ -2299,7 +2299,7 @@ int32_t UnicodeSet::spanBack(const UChar * s, int32_t length, USetSpanCondition 
 
 int32_t UnicodeSet::spanUTF8(const char * s, int32_t length, USetSpanCondition spanCondition) const {
 	if(length>0 && bmpSet!=NULL) {
-		const uint8 * s0 = (const uint8*)s;
+		const uint8 * s0 = (const uint8 *)s;
 		return (int32_t)(bmpSet->spanUTF8(s0, length, spanCondition)-s0);
 	}
 	if(length<0) {
@@ -2309,7 +2309,7 @@ int32_t UnicodeSet::spanUTF8(const char * s, int32_t length, USetSpanCondition s
 		return 0;
 	}
 	if(stringSpan!=NULL) {
-		return stringSpan->spanUTF8((const uint8*)s, length, spanCondition);
+		return stringSpan->spanUTF8((const uint8 *)s, length, spanCondition);
 	}
 	else if(hasStrings()) {
 		uint32_t which = spanCondition==USET_SPAN_NOT_CONTAINED ?
@@ -2317,7 +2317,7 @@ int32_t UnicodeSet::spanUTF8(const char * s, int32_t length, USetSpanCondition s
 		    UnicodeSetStringSpan::FWD_UTF8_CONTAINED;
 		UnicodeSetStringSpan strSpan(*this, *strings, which);
 		if(strSpan.needsStringSpanUTF8()) {
-			return strSpan.spanUTF8((const uint8*)s, length, spanCondition);
+			return strSpan.spanUTF8((const uint8 *)s, length, spanCondition);
 		}
 	}
 	if(spanCondition!=USET_SPAN_NOT_CONTAINED) {
@@ -2337,7 +2337,7 @@ int32_t UnicodeSet::spanUTF8(const char * s, int32_t length, USetSpanCondition s
 int32_t UnicodeSet::spanBackUTF8(const char * s, int32_t length, USetSpanCondition spanCondition) const 
 {
 	if(length>0 && bmpSet!=NULL) {
-		const uint8 * s0 = (const uint8*)s;
+		const uint8 * s0 = (const uint8 *)s;
 		return bmpSet->spanBackUTF8(s0, length, spanCondition);
 	}
 	if(length<0) {
@@ -2347,13 +2347,13 @@ int32_t UnicodeSet::spanBackUTF8(const char * s, int32_t length, USetSpanConditi
 		return 0;
 	}
 	if(stringSpan!=NULL) {
-		return stringSpan->spanBackUTF8((const uint8*)s, length, spanCondition);
+		return stringSpan->spanBackUTF8((const uint8 *)s, length, spanCondition);
 	}
 	else if(hasStrings()) {
 		uint32_t which = spanCondition==USET_SPAN_NOT_CONTAINED ? UnicodeSetStringSpan::BACK_UTF8_NOT_CONTAINED : UnicodeSetStringSpan::BACK_UTF8_CONTAINED;
 		UnicodeSetStringSpan strSpan(*this, *strings, which);
 		if(strSpan.needsStringSpanUTF8()) {
-			return strSpan.spanBackUTF8((const uint8*)s, length, spanCondition);
+			return strSpan.spanBackUTF8((const uint8 *)s, length, spanCondition);
 		}
 	}
 	if(spanCondition!=USET_SPAN_NOT_CONTAINED) {

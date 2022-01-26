@@ -1,5 +1,5 @@
 // SSTRING.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -6813,6 +6813,13 @@ SNaturalTokenStat::SNaturalTokenStat() : Len(0), Seq(0)
 {
 }
 
+SNaturalTokenStat & SNaturalTokenStat::Z()
+{
+	Len = 0;
+	Seq = 0;
+	return *this;
+}
+
 SNaturalTokenArray & SNaturalTokenArray::Z()
 {
 	clear();
@@ -6910,45 +6917,57 @@ static int FASTCALL _ProbeDate(const SString & rText)
 	return ok;
 }
 
-int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rResultList, SNaturalTokenStat * pStat)
+STokenRecognizer::ImplementBlock::ImplementBlock() : F(0), DecCount(0)
+{
+}
+
+STokenRecognizer::ImplementBlock & STokenRecognizer::ImplementBlock::Z()
+{
+	F = 0;
+	DecCount = 0;
+	Temp.Z();
+	ChrList.clear();
+	Stat.Z();
+	return *this;
+}
+
+void STokenRecognizer::ImplementBlock::Init(const uchar * pToken, int len)
+{
+	Z();
+	Stat.Len = (len >= 0) ? static_cast<uint32>(len) : sstrlen(pToken);
+}
+
+int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int len, SNaturalTokenArray & rResultList, SNaturalTokenStat * pStat)
 {
 	int    ok = 1;
 	uint32 h = 0;
-	SString temp_buf;
-    SNaturalTokenStat stat;
-    stat.Len = (len >= 0) ? static_cast<uint32>(len) : sstrlen(pToken);
-    if(stat.Len) {
-		enum {
-			fUtf8     = 0x0001,
-			fPhoneSet = 0x0002
-		};
-		uint32 f = fPhoneSet;
+	rIb.Init(pToken, len);
+	const uint toklen = rIb.Stat.Len;
+    if(toklen) {
 		uint   i;
-		uint   dec_count = 0; // Количество десятичных цифр
 		uchar  num_potential_frac_delim = 0;
 		uchar  num_potential_tri_delim = 0;
-		LAssocArray chr_list;
 		h = 0xffffffffU & ~(SNTOKSEQ_LEADSHARP|SNTOKSEQ_LEADMINUS|SNTOKSEQ_LEADDOLLAR|SNTOKSEQ_BACKPCT);
 		const char the_first_chr = pToken[0];
-		for(i = 0; i < stat.Len; i++) {
+		for(i = 0; i < toklen; i++) {
             const uchar c = pToken[i];
-			const size_t ul = IsUtf8(pToken+i, stat.Len-i);
+			const size_t ul = IsUtf8(pToken+i, toklen-i);
 			if(ul > 1) {
-                f |= fUtf8;
+                rIb.F |= ImplementBlock::fUtf8;
                 i += (ul-1);
 			}
 			else {
                 if(!ul)
 					h &= ~SNTOKSEQ_UTF8;
 				uint  pos = 0;
-				if(chr_list.Search(static_cast<long>(c), 0, &pos))
-					chr_list.at(pos).Val++;
+				if(rIb.ChrList.Search(static_cast<long>(c), 0, &pos))
+					rIb.ChrList.at(pos).Val++;
 				else
-					chr_list.Add(static_cast<long>(c), 1, 0);
+					rIb.ChrList.Add(static_cast<long>(c), 1, 0);
 			}
 		}
-		chr_list.Sort();
-		if(f & fUtf8) {
+		rIb.ChrList.Sort();
+		if(rIb.F & ImplementBlock::fUtf8) {
 			h &= ~(SNTOKSEQ_DEC|SNTOKSEQ_HEX|SNTOKSEQ_LATLWR|SNTOKSEQ_LATUPR|SNTOKSEQ_LAT|SNTOKSEQ_DECLAT|
 				SNTOKSEQ_ASCII|SNTOKSEQ_866|SNTOKSEQ_1251|SNTOKSEQ_HEXHYPHEN|SNTOKSEQ_DECHYPHEN|SNTOKSEQ_HEXCOLON|
 				SNTOKSEQ_DECCOLON|SNTOKSEQ_HEXDOT|SNTOKSEQ_DECDOT|SNTOKSEQ_DECSLASH|SNTOKSEQ_NUMERIC);
@@ -6967,10 +6986,10 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 				h |= SNTOKSEQ_LEADDOLLAR;
 			else if(the_first_chr == '+')
 				is_lead_plus = 1;
-			const uint clc = chr_list.getCount();
+			const uint clc = rIb.ChrList.getCount();
 			for(; i < clc; i++) {
-				const uchar c = static_cast<uchar>(chr_list.at(i).Key);
-				const uint  ccnt = static_cast<uint>(chr_list.at(i).Val);
+				const uchar c = static_cast<uchar>(rIb.ChrList.at(i).Key);
+				const uint  ccnt = static_cast<uint>(rIb.ChrList.at(i).Val);
 				if(h & SNTOKSEQ_ASCII && !(c >= 1 && c <= 127))
 					h &= ~SNTOKSEQ_ASCII;
 				else {
@@ -6978,7 +6997,7 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 					const bool is_dec_c = isdec(c);
 					if(is_dec_c) {
 						has_dec = 1;
-						dec_count += ccnt;
+						rIb.DecCount += ccnt;
 					}
 					if(h & SNTOKSEQ_LAT && !isasciialpha(c))
 						h &= ~SNTOKSEQ_LAT;
@@ -7014,7 +7033,7 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 						else if(the_first_chr == ' ')
 							h &= ~SNTOKSEQ_NUMERIC;
 						else if(oneof2(c, '+', '-')) {
-							if(chr_list.at(i).Val > 1)
+							if(rIb.ChrList.at(i).Val > 1)
 								h &= ~SNTOKSEQ_NUMERIC;
 							else if(c == '+' && !is_lead_plus)
 								h &= ~SNTOKSEQ_NUMERIC;
@@ -7022,11 +7041,11 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 								h &= ~SNTOKSEQ_NUMERIC;
 						}
 					}
-					if(f & fPhoneSet) {
+					if(rIb.F & ImplementBlock::fPhoneSet) {
 						if(!is_dec_c && !oneof5(c, '+', '-', '(', ')', ' '))
-							f &= ~fPhoneSet;
+							rIb.F &= ~ImplementBlock::fPhoneSet;
 						else if(oneof3(c, '+', '(', ')') && ccnt > 1)
-							f &= ~fPhoneSet;
+							rIb.F &= ~ImplementBlock::fPhoneSet;
 					}
 				}
 				if(h & SNTOKSEQ_866 && !IsLetter866(c))
@@ -7052,11 +7071,11 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 					if(h & SNTOKSEQ_HEX)
 						h &= ~tf;
 					else if(clc == 1) {
-						assert(chr_list.at(0).Key == '-');
+						assert(rIb.ChrList.at(0).Key == '-');
 						h &= ~tf;
 					}
 					else if(clc == 2 && h & SNTOKSEQ_LEADSHARP) {
-						assert(chr_list.at(1).Key == '-'); // '#' < '-'
+						assert(rIb.ChrList.at(1).Key == '-'); // '#' < '-'
 						h &= ~tf;
 					}
 				}
@@ -7067,11 +7086,11 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 					if(h & SNTOKSEQ_DEC)
 						h &= ~tf;
 					else if(clc == 1) {
-						assert(chr_list.at(0).Key == '-');
+						assert(rIb.ChrList.at(0).Key == '-');
 						h &= ~tf;
 					}
 					else if(clc == 2 && h & SNTOKSEQ_LEADSHARP) {
-						assert(chr_list.at(1).Key == '-'); // '#' < '-'
+						assert(rIb.ChrList.at(1).Key == '-'); // '#' < '-'
 						h &= ~tf;
 					}
 				}
@@ -7082,11 +7101,11 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 					if(h & SNTOKSEQ_HEX)
 						h &= ~tf;
 					else if(clc == 1) {
-						assert(chr_list.at(0).Key == ':');
+						assert(rIb.ChrList.at(0).Key == ':');
 						h &= ~tf;
 					}
 					else if(clc == 2 && h & SNTOKSEQ_LEADSHARP) {
-						assert(chr_list.at(1).Key == ':'); // '#' < ':'
+						assert(rIb.ChrList.at(1).Key == ':'); // '#' < ':'
 						h &= ~tf;
 					}
 				}
@@ -7097,11 +7116,11 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 					if(h & SNTOKSEQ_DEC)
 						h &= ~tf;
 					else if(clc == 1) {
-						assert(chr_list.at(0).Key == ':');
+						assert(rIb.ChrList.at(0).Key == ':');
 						h &= ~tf;
 					}
 					else if(clc == 2 && h & SNTOKSEQ_LEADSHARP) {
-						assert(chr_list.at(1).Key == ':'); // '#' < ':'
+						assert(rIb.ChrList.at(1).Key == ':'); // '#' < ':'
 						h &= ~tf;
 					}
 				}
@@ -7112,11 +7131,11 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 					if(h & SNTOKSEQ_HEX)
 						h &= ~tf;
 					else if(clc == 1) {
-						assert(chr_list.at(0).Key == '.');
+						assert(rIb.ChrList.at(0).Key == '.');
 						h &= ~tf;
 					}
 					else if(clc == 2 && h & SNTOKSEQ_LEADSHARP) {
-						assert(chr_list.at(1).Key == '.'); // '#' < '.'
+						assert(rIb.ChrList.at(1).Key == '.'); // '#' < '.'
 						h &= ~tf;
 					}
 				}
@@ -7127,11 +7146,11 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 					if(h & SNTOKSEQ_DEC)
 						h &= ~tf;
 					else if(clc == 1) {
-						assert(chr_list.at(0).Key == '.');
+						assert(rIb.ChrList.at(0).Key == '.');
 						h &= ~tf;
 					}
 					else if(clc == 2 && h & SNTOKSEQ_LEADSHARP) {
-						assert(chr_list.at(1).Key == '.'); // '#' < '.'
+						assert(rIb.ChrList.at(1).Key == '.'); // '#' < '.'
 						h &= ~tf;
 					}
 				}
@@ -7142,11 +7161,11 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 					if(h & SNTOKSEQ_DEC)
 						h &= ~tf;
 					else if(clc == 1) {
-						assert(chr_list.at(0).Key == '/');
+						assert(rIb.ChrList.at(0).Key == '/');
 						h &= ~tf;
 					}
 					else if(clc == 2 && h & SNTOKSEQ_LEADSHARP) {
-						assert(chr_list.at(1).Key == '/'); // '#' < '/'
+						assert(rIb.ChrList.at(1).Key == '/'); // '#' < '/'
 						h &= ~tf;
 					}
 				}
@@ -7158,9 +7177,9 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 						h &= ~tf;
 					else {
 						uint   comma_chr_pos = 0;
-						const  uint comma_count = chr_list.Search(static_cast<long>(','), 0, &comma_chr_pos) ? chr_list.at(comma_chr_pos).Val : 0;
+						const  uint comma_count = rIb.ChrList.Search(static_cast<long>(','), 0, &comma_chr_pos) ? rIb.ChrList.at(comma_chr_pos).Val : 0;
 						uint   last_dec_ser = 0;
-						uint   j = stat.Len;
+						uint   j = toklen;
 						if(j) do {
 							const uchar lc = pToken[--j];
 							if(isdec(lc))
@@ -7222,7 +7241,7 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 			}
 		}
 		if(h & SNTOKSEQ_LEADSHARP) {
-			if(h & SNTOKSEQ_HEX && stat.Len == 7) {
+			if(h & SNTOKSEQ_HEX && toklen == 7) {
 				rResultList.Add(SNTOK_COLORHEX, 0.9f);
 			}
 		}
@@ -7234,12 +7253,12 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 		}
 		else {
 			if(h & SNTOKSEQ_DEC) {
-				uchar last = pToken[stat.Len-1];
+				uchar last = pToken[toklen-1];
 				int   cd = 0;
 				rResultList.Add(SNTOK_DIGITCODE, 1.0f);
-				switch(stat.Len) {
+				switch(toklen) {
 					case 6:
-						if(_ProbeDate(temp_buf.Z().CatN(reinterpret_cast<const char *>(pToken), stat.Len))) {
+						if(_ProbeDate(rIb.Temp.Z().CatN(reinterpret_cast<const char *>(pToken), toklen))) {
 							rResultList.Add(SNTOK_DATE, 0.5f);
 						}
 						break;
@@ -7274,27 +7293,25 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 							if(is_ru_okpo)
 								rResultList.Add(SNTOK_RU_OKPO, 0.95f);
 						}
-						cd = SCalcBarcodeCheckDigitL(reinterpret_cast<const char *>(pToken), stat.Len-1);
+						cd = SCalcBarcodeCheckDigitL(reinterpret_cast<const char *>(pToken), toklen-1);
 						if(static_cast<uchar>(cd) == (last-'0')) {
 							if(pToken[0] == '0')
 								rResultList.Add(SNTOK_UPCE, 0.9f);
 							else
 								rResultList.Add(SNTOK_EAN8, 0.9f);
 						}
-						if(_ProbeDate(temp_buf.Z().CatN(reinterpret_cast<const char *>(pToken), stat.Len))) {
+						if(_ProbeDate(rIb.Temp.Z().CatN(reinterpret_cast<const char *>(pToken), toklen))) {
 							rResultList.Add(SNTOK_DATE, 0.8f);
 						}
 						break;
 					case 9:
-						{
-							if(pToken[0] == '0' && pToken[1] == '4') {
-								rResultList.Add(SNTOK_RU_BIC, 0.6f);
-							}
-							rResultList.Add(SNTOK_RU_KPP, 0.1f); // @v10.8.2
+						if(pToken[0] == '0' && pToken[1] == '4') {
+							rResultList.Add(SNTOK_RU_BIC, 0.6f);
 						}
+						rResultList.Add(SNTOK_RU_KPP, 0.1f); // @v10.8.2
 						break;
 					case 10:
-						if(SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), stat.Len)) {
+						if(SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), toklen)) {
 							rResultList.Add(SNTOK_RU_INN, 1.0f);
 						}
 						break;
@@ -7336,31 +7353,31 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 							}
 						}
 					case 12:
-						cd = SCalcBarcodeCheckDigitL(reinterpret_cast<const char *>(pToken), stat.Len-1);
+						cd = SCalcBarcodeCheckDigitL(reinterpret_cast<const char *>(pToken), toklen-1);
 						if(static_cast<uchar>(cd) == (last-'0')) {
 							if(pToken[0] == '0')
 								rResultList.Add(SNTOK_UPCE, 1.0f);
 							else
 								rResultList.Add(SNTOK_EAN8, 1.0f);
 						}
-						else if(SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), stat.Len)) {
+						else if(SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), toklen)) {
 							rResultList.Add(SNTOK_RU_INN, 1.0f);
 						}
 						break;
 					case 13:
-						cd = SCalcBarcodeCheckDigitL(reinterpret_cast<const char *>(pToken), stat.Len-1);
+						cd = SCalcBarcodeCheckDigitL(reinterpret_cast<const char *>(pToken), toklen-1);
 						if((uchar)cd == (last-'0')) {
 							rResultList.Add(SNTOK_EAN13, 1.0f);
 						}
 						break;
 					case 15:
-						if(SCalcCheckDigit(SCHKDIGALG_LUHN|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), stat.Len)) {
+						if(SCalcCheckDigit(SCHKDIGALG_LUHN|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), toklen)) {
 							rResultList.Add(SNTOK_IMEI, 0.9f);
 							rResultList.Add(SNTOK_DIGITCODE, 0.1f);
 						}
 						break;
 					case 19:
-						if(SCalcCheckDigit(SCHKDIGALG_LUHN|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), stat.Len)) {
+						if(SCalcCheckDigit(SCHKDIGALG_LUHN|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), toklen)) {
 							rResultList.Add(SNTOK_LUHN, 0.9f);
 							rResultList.Add(SNTOK_EGAISWARECODE, 0.1f);
 						}
@@ -7371,14 +7388,14 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 				}
 			}
 			if(h & SNTOKSEQ_DECLAT) {
-				if(stat.Len == 68)
+				if(toklen == 68)
 					rResultList.Add(SNTOK_EGAISMARKCODE, 1.0f);
 				else {
 					rResultList.Add(SNTOK_DIGLAT, 1.0f);
 					// @v10.8.2 {
-					if(stat.Len == 9) {
+					if(toklen == 9) {
 						int   is_ru_kpp = 1;
-						for(i = 0; is_ru_kpp && i < stat.Len; i++) {
+						for(i = 0; is_ru_kpp && i < toklen; i++) {
 							if(!isdec(pToken[i])) {
 								if(!(oneof2(i, 4, 5) && checkirange(pToken[i], 'A', 'Z'))) // 5, 6 знаки в КПП могут быть прописной латинской буквой
 									is_ru_kpp = 0;
@@ -7391,18 +7408,18 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 				}
 			}
 			if(h & SNTOKSEQ_HEXHYPHEN) {
-				if(stat.Len == 36) {
+				if(toklen == 36) {
 					uint   pos = 0;
 					long   val = 0;
-					if(chr_list.BSearch((long)'-', &val, &pos) && val == 4) {
+					if(rIb.ChrList.BSearch((long)'-', &val, &pos) && val == 4) {
 						rResultList.Add(SNTOK_GUID, 1.0f);
 					}
 				}
 			}
 			if(h & (SNTOKSEQ_DECHYPHEN|SNTOKSEQ_DECSLASH|SNTOKSEQ_DECDOT)) {
 				// 1-1-1 17-12-2016
-				if(stat.Len >= 5 && stat.Len <= 10) {
-					temp_buf.CatN(reinterpret_cast<const char *>(pToken), stat.Len);
+				if(toklen >= 5 && toklen <= 10) {
+					rIb.Temp.Z().CatN(reinterpret_cast<const char *>(pToken), toklen);
 					StringSet ss;
 					const char * p_div = 0;
 					if(h & SNTOKSEQ_DECHYPHEN)
@@ -7411,10 +7428,10 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 						p_div = "/";
 					else if(h & SNTOKSEQ_DECDOT)
 						p_div = ".";
-					temp_buf.Tokenize(p_div, ss);
+					rIb.Temp.Tokenize(p_div, ss);
 					const uint ss_count = ss.getCount();
 					if(ss_count == 3) {
-						if(_ProbeDate(temp_buf.Z().CatN(reinterpret_cast<const char *>(pToken), stat.Len))) {
+						if(_ProbeDate(rIb.Temp.Z().CatN(reinterpret_cast<const char *>(pToken), toklen))) {
 							rResultList.Add(SNTOK_DATE, 0.8f);
 						}
 					}
@@ -7422,38 +7439,38 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 			}
 			if(h & SNTOKSEQ_DECDOT) {
 				// 1.1.1.1 255.255.255.255
-				temp_buf.Z().CatN(reinterpret_cast<const char *>(pToken), stat.Len);
-				StringSet ss('.', temp_buf);
+				rIb.Temp.Z().CatN(reinterpret_cast<const char *>(pToken), toklen);
+				StringSet ss('.', rIb.Temp);
 				const uint ss_count = ss.getCount();
 				if(ss_count == 2) {
 					rResultList.Add(SNTOK_REALNUMBER, 0.9f);
 				}
-				if(stat.Len >= 3 && stat.Len <= 15) {
+				if(toklen >= 3 && toklen <= 15) {
 					if(ss_count == 4) {
 						int   is_ip4 = 1;
-						for(uint ssp = 0; is_ip4 && ss.get(&ssp, temp_buf);) {
-							if(temp_buf.IsEmpty())
+						for(uint ssp = 0; is_ip4 && ss.get(&ssp, rIb.Temp);) {
+							if(rIb.Temp.IsEmpty())
 								is_ip4 = 0;
 							else {
-								long v = temp_buf.ToLong();
+								long v = rIb.Temp.ToLong();
 								if(v < 0 || v > 255)
 									is_ip4 = 0;
 							}
 						}
 						if(is_ip4) {
 							float prob = 0.95f;
-							if(memcmp(pToken, "127.0.0.1", stat.Len) == 0)
+							if(memcmp(pToken, "127.0.0.1", toklen) == 0)
 								prob = 1.0f;
 							rResultList.Add(SNTOK_IP4, prob);
 						}
 					}
 					else if(oneof2(ss_count, 2, 3)) {
 						int   is_ver = 1;
-						for(uint ssp = 0; is_ver && ss.get(&ssp, temp_buf);) {
-							if(temp_buf.IsEmpty())
+						for(uint ssp = 0; is_ver && ss.get(&ssp, rIb.Temp);) {
+							if(rIb.Temp.IsEmpty())
 								is_ver = 0;
 							else {
-								long v = temp_buf.ToLong();
+								long v = rIb.Temp.ToLong();
 								if(v < 0 || v > 100)
 									is_ver = 0;
 							}
@@ -7477,15 +7494,15 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 				}
 			}
 			// @v11.0.3 {
-			if(f & fPhoneSet) {
-				if(dec_count >= 5 && dec_count <= 14) {
+			if(rIb.F & ImplementBlock::fPhoneSet) {
+				if(rIb.DecCount >= 5 && rIb.DecCount <= 14) {
 					if(InitRePhone()) {
 						SRegExp2::FindResult reresult;
-						if(P_RePhone->Find(reinterpret_cast<const char *>(pToken), stat.Len, 0, &reresult)) {
+						if(P_RePhone->Find(reinterpret_cast<const char *>(pToken), toklen, 0, &reresult)) {
 							const uint f_pos = 0;
 							size_t _offs = reresult.at(f_pos).low;
 							size_t _len = reresult.at(f_pos).upp - reresult.at(f_pos).low;
-							if(_offs == 0 && _len == stat.Len)
+							if(_offs == 0 && _len == toklen)
 								rResultList.Add(SNTOK_PHONE, 0.8f);
 						}
 					}
@@ -7495,15 +7512,15 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 			if(h & SNTOKSEQ_ASCII) {
 				uint   pos = 0;
 				long   val = 0;
-				if(chr_list.BSearch(static_cast<long>('@'), &val, &pos) && val == 1 && InitReEmail()) {
+				if(rIb.ChrList.BSearch(static_cast<long>('@'), &val, &pos) && val == 1 && InitReEmail()) {
 					SRegExp2::FindResult reresult;
-					if(P_ReEMail->Find(reinterpret_cast<const char *>(pToken), stat.Len, 0, &reresult)) {
+					if(P_ReEMail->Find(reinterpret_cast<const char *>(pToken), toklen, 0, &reresult)) {
 						assert(reresult.getCount());
 						if(reresult.getCount()) {
 							const uint f_pos = 0;
 							size_t _offs = reresult.at(f_pos).low;
 							size_t _len = reresult.at(f_pos).upp - reresult.at(f_pos).low;
-							if(_offs == 0 && _len == stat.Len)
+							if(_offs == 0 && _len == toklen)
 								rResultList.Add(SNTOK_EMAIL, 1.0f);
 						}
 					}
@@ -7511,7 +7528,7 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 				//
 				// Проверка на маркировки сигаретных пачек (SNTOK_CHZN_CIGITEM)
 				//
-				if(stat.Len == 29) {
+				if(toklen == 29) {
 					size_t _offs = 0;
 					if(pToken[_offs++] == '0') {
 						int    is_chzn_cigitem = 1;
@@ -7524,7 +7541,7 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 							rResultList.Add(SNTOK_CHZN_CIGITEM, 0.8f);
 					}
 				}
-				else if(oneof5(stat.Len, 25, 35, 41, 52, 55)) {
+				else if(oneof5(toklen, 25, 35, 41, 52, 55)) {
 					size_t _offs = 0;
 					if(pToken[_offs++] == '0') {
 						int    is_chzn_cigblock = 1;
@@ -7537,7 +7554,7 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 							assert(_offs == 16);
 							if(strstr(PTRCHRC_(pToken)+_offs, "8005")) // код сигаретного блока может содержать тег цены с префиксом 80005
 								rResultList.Add(SNTOK_CHZN_CIGBLOCK, 0.8f);
-							else if(stat.Len == 25)
+							else if(toklen == 25)
 								rResultList.Add(SNTOK_CHZN_CIGBLOCK, 0.5f);
 						}
 					}
@@ -7545,9 +7562,21 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 			}
 		}
     }
-	stat.Seq = h;
-	ASSIGN_PTR(pStat, stat);
+	rIb.Stat.Seq = h;
+	ASSIGN_PTR(pStat, rIb.Stat);
 	return ok;
+}
+
+/*virtual*/int STokenRecognizer::PostImplement(ImplementBlock & rIb, const uchar * pToken, int len, SNaturalTokenArray & rResultList, SNaturalTokenStat * pStat)
+{
+	return 1;	
+}
+
+int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rResultList, SNaturalTokenStat * pStat)
+{
+	ImplementBlock ib;
+	int ok = Implement(ib, pToken, len, rResultList, pStat);
+	return ok ? PostImplement(ib, pToken, len, rResultList, pStat) : 0;
 }
 
 #if SLTEST_RUNNING // {

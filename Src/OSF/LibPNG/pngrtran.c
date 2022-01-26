@@ -2620,11 +2620,11 @@ static int png_do_rgb_to_gray(png_structrp png_ptr, png_row_infop row_info, png_
 	png_debug(1, "in png_do_rgb_to_gray");
 	if((row_info->color_type & PNG_COLOR_MASK_PALETTE) == 0 &&
 	    (row_info->color_type & PNG_COLOR_MASK_COLOR) != 0) {
-		PNG_CONST uint32 rc = png_ptr->rgb_to_gray_red_coeff;
-		PNG_CONST uint32 gc = png_ptr->rgb_to_gray_green_coeff;
-		PNG_CONST uint32 bc = 32768 - rc - gc;
-		PNG_CONST uint32 row_width = row_info->width;
-		PNG_CONST int have_alpha =
+		const uint32 rc = png_ptr->rgb_to_gray_red_coeff;
+		const uint32 gc = png_ptr->rgb_to_gray_green_coeff;
+		const uint32 bc = 32768 - rc - gc;
+		const uint32 row_width = row_info->width;
+		const int have_alpha =
 		    (row_info->color_type & PNG_COLOR_MASK_ALPHA) != 0;
 
 		if(row_info->bit_depth == 8) {
@@ -3507,9 +3507,9 @@ static void png_do_encode_alpha(png_row_infop row_info, png_bytep row, png_struc
 
 	if((row_info->color_type & PNG_COLOR_MASK_ALPHA) != 0) {
 		if(row_info->bit_depth == 8) {
-			PNG_CONST png_bytep table = png_ptr->gamma_from_1;
+			const png_bytep table = png_ptr->gamma_from_1;
 			if(table != NULL) {
-				PNG_CONST int step = (row_info->color_type & PNG_COLOR_MASK_COLOR) ? 4 : 2;
+				const int step = (row_info->color_type & PNG_COLOR_MASK_COLOR) ? 4 : 2;
 				/* The alpha channel is the last component: */
 				row += step - 1;
 				for(; row_width > 0; --row_width, row += step)
@@ -3518,10 +3518,10 @@ static void png_do_encode_alpha(png_row_infop row_info, png_bytep row, png_struc
 			}
 		}
 		else if(row_info->bit_depth == 16) {
-			PNG_CONST png_uint_16pp table = png_ptr->gamma_16_from_1;
-			PNG_CONST int gamma_shift = png_ptr->gamma_shift;
+			const png_uint_16pp table = png_ptr->gamma_16_from_1;
+			const int gamma_shift = png_ptr->gamma_shift;
 			if(table != NULL) {
-				PNG_CONST int step = (row_info->color_type & PNG_COLOR_MASK_COLOR) ? 8 : 4;
+				const int step = (row_info->color_type & PNG_COLOR_MASK_COLOR) ? 8 : 4;
 				/* The alpha channel is the last component: */
 				row += step - 2;
 				for(; row_width > 0; --row_width, row += step) {

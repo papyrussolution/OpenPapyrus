@@ -763,7 +763,7 @@ inline void Value::set_has_null_value() {
   _oneof_case_[0] = kNullValue;
 }
 inline void Value::clear_null_value() {
-  if (_internal_has_null_value()) {
+  if(_internal_has_null_value()) {
     kind_.null_value_ = 0;
     clear_has_kind();
   }
@@ -801,7 +801,7 @@ inline void Value::set_has_number_value() {
   _oneof_case_[0] = kNumberValue;
 }
 inline void Value::clear_number_value() {
-  if (_internal_has_number_value()) {
+  if(_internal_has_number_value()) {
     kind_.number_value_ = 0;
     clear_has_kind();
   }
@@ -839,7 +839,7 @@ inline void Value::set_has_string_value() {
   _oneof_case_[0] = kStringValue;
 }
 inline void Value::clear_string_value() {
-  if (_internal_has_string_value()) {
+  if(_internal_has_string_value()) {
     kind_.string_value_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_kind();
   }
@@ -921,7 +921,7 @@ inline void Value::set_has_bool_value() {
   _oneof_case_[0] = kBoolValue;
 }
 inline void Value::clear_bool_value() {
-  if (_internal_has_bool_value()) {
+  if(_internal_has_bool_value()) {
     kind_.bool_value_ = false;
     clear_has_kind();
   }
@@ -959,8 +959,8 @@ inline void Value::set_has_struct_value() {
   _oneof_case_[0] = kStructValue;
 }
 inline void Value::clear_struct_value() {
-  if (_internal_has_struct_value()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_struct_value()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete kind_.struct_value_;
     }
     clear_has_kind();
@@ -1033,8 +1033,8 @@ inline void Value::set_has_list_value() {
   _oneof_case_[0] = kListValue;
 }
 inline void Value::clear_list_value() {
-  if (_internal_has_list_value()) {
-    if (GetArenaForAllocation() == nullptr) {
+  if(_internal_has_list_value()) {
+    if(GetArenaForAllocation() == nullptr) {
       delete kind_.list_value_;
     }
     clear_has_kind();

@@ -4672,6 +4672,7 @@ private:
 	int    Write_OwnFormat_INVOIC(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp);
 	int    Write_OwnFormat_RECADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPEdiProcessor::RecadvPacket & rRaPack);
 	void   Write_OwnFormat_OriginOrder_Tag(SXml::WDoc & rDoc, const BillTbl::Rec & rOrderBillRec);
+	void   Write_OwnFormat_Qtty(SXml::WDoc & rDoc, const char * pQttyTag, const char * pUom, double qtty, long format);
 };
 
 class EdiProviderImplementation_Exite : public PPEdiProcessor::ProviderImplementation {
@@ -4974,6 +4975,13 @@ int EdiProviderImplementation_Kontur::ReadOwnFormatContractor(xmlNode * pNode, O
 	return ok;
 }
 
+void EdiProviderImplementation_Kontur::Write_OwnFormat_Qtty(SXml::WDoc & rDoc, const char * pQttyTag, const char * pUom, double qtty, long format)
+{
+	SXml::WNode n_q(rDoc, pQttyTag);
+	n_q.PutAttrib("unitOfMeasure", isempty(pUom) ? "PCE" : pUom);
+	n_q.SetValue(SLS.AcquireRvlStr().Cat(qtty, format)); // MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)
+}
+
 int EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERS(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp)
 {
 	int    ok = 1;
@@ -5044,11 +5052,7 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERS(xmlTextWriter * pX,
 				}
 				n_item.PutInner("lineNumber", temp_buf.Z().Cat(r_ti.RByBill));
 				//n_item.PutInnerSkipEmpty("comment", "");
-				{
-					SXml::WNode n_q(_doc, "requestedQuantity");
-					n_q.PutAttrib("unitOfMeasure", "PCE");
-					n_q.SetValue(temp_buf.Z().Cat(qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)));
-				}
+				Write_OwnFormat_Qtty(_doc, "requestedQuantity", "PCE", qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS));
 				n_item.PutInnerSkipEmpty("flowType", "Direct"); // Тип поставки, может принимать значения: Stock - сток до РЦ, Transit - транзит в магазин, Direct - прямая поставка, Fresh - свежие продукты
 				//n_item.PutInner("netPrice", "");
 				n_item.PutInner("netPriceWithVAT", temp_buf.Z().Cat(cost, MKSFMTD(0, 5, NMBF_NOTRAILZ|NMBF_OMITEPS)));
@@ -5197,16 +5201,8 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERRSP(xmlTextWriter * p
 				}
 				n_item.PutInner("lineNumber", temp_buf.Z().Cat(r_ti.RByBill));
 				//n_item.PutInnerSkipEmpty("comment", "");
-				{
-					SXml::WNode n_q(_doc, "orderedQuantity");
-					n_q.PutAttrib("unitOfMeasure", "PCE");
-					n_q.SetValue(temp_buf.Z().Cat(qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)));
-				}
-				{
-					SXml::WNode n_q(_doc, "confirmedQuantity");
-					n_q.PutAttrib("unitOfMeasure", "PCE");
-					n_q.SetValue(temp_buf.Z().Cat(confirm_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)));
-				}
+				Write_OwnFormat_Qtty(_doc, "orderedQuantity", "PCE", qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS));
+				Write_OwnFormat_Qtty(_doc, "confirmedQuantity", "PCE", confirm_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS));
 				//n_item.PutInnerSkipEmpty("flowType", "Direct"); // Тип поставки, может принимать значения: Stock - сток до РЦ, Transit - транзит в магазин, Direct - прямая поставка, Fresh - свежие продукты
 				//n_item.PutInner("netPrice", "");
 				n_item.PutInner("netPriceWithVAT", temp_buf.Z().Cat(confirm_price, MKSFMTD(0, 5, NMBF_NOTRAILZ|NMBF_OMITEPS)));
@@ -5339,22 +5335,12 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_DESADV(xmlTextWriter * pX,
 								ord_qtty = fabs(ord_lot_rec.Quantity);
 						}
 					}
-					if(ord_qtty > 0.0) {
-						SXml::WNode n_q(_doc, "orderedQuantity");
-						n_q.PutAttrib("unitOfMeasure", "PCE");
-						n_q.SetValue(temp_buf.Z().Cat(ord_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)));
-					}
+					if(ord_qtty > 0.0)
+						Write_OwnFormat_Qtty(_doc, "orderedQuantity", "PCE", ord_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS));
 				}
-				{
-					SXml::WNode n_q(_doc, "despatchedQuantity");
-					n_q.PutAttrib("unitOfMeasure", "PCE");
-					n_q.SetValue(temp_buf.Z().Cat(qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)));
-				}
-				if(r_ti.UnitPerPack > 0.0) {
-					SXml::WNode n_q(_doc, "onePlaceQuantity");
-					n_q.PutAttrib("unitOfMeasure", "PCE");
-					n_q.SetValue(temp_buf.Z().Cat(fabs(r_ti.UnitPerPack), MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)));
-				}
+				Write_OwnFormat_Qtty(_doc, "despatchedQuantity", "PCE", qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS));
+				if(r_ti.UnitPerPack > 0.0)
+					Write_OwnFormat_Qtty(_doc, "onePlaceQuantity", "PCE", fabs(r_ti.UnitPerPack), MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS));
 				if(checkdate(r_ti.Expiry, 0))
 					n_item.PutInner("expireDate", temp_buf.Z().Cat(r_ti.Expiry, DATF_ISO8601|DATF_CENTURY));
 				n_item.PutInner("netPrice", temp_buf.Z().Cat(price_without_vat, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS))); // цена по позиции без НДС
@@ -5652,7 +5638,7 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_RECADV(xmlTextWriter * pX,
 			</receivingAdvice>
 		</eDIMessage>
 	*/
-	int    ok = 0;
+	int    ok = 1;
 	SString temp_buf;
 	SString bill_text;
 	PPObjBill::MakeCodeString(&rRaPack.RBp.Rec, PPObjBill::mcsAddOpName, bill_text);
@@ -5661,23 +5647,26 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_RECADV(xmlTextWriter * pX,
 	rIdent.ToStr(S_GUID::fmtIDL, temp_buf);
 	n_docs.PutAttrib("id", temp_buf);
 	{
-		SXml::WNode n_hdr(_doc, "interchangeHeader");
-		THROW(GetMainOrgGLN(temp_buf));
-		n_hdr.PutInner("sender", temp_buf);
-		THROW(GetArticleGLN(rRaPack.RBp.Rec.Object, temp_buf));
-		n_hdr.PutInner("recipient", temp_buf);
-		n_hdr.PutInner("documentType", "RECADV");
-		n_hdr.PutInner("creationDateTime", temp_buf.Z().CatCurDateTime(DATF_ISO8601|DATF_CENTURY, TIMF_HMS));
-		//n_hdr.PutInner("isTest", "0");
+		{
+			SXml::WNode n_hdr(_doc, "interchangeHeader");
+			THROW(GetMainOrgGLN(temp_buf));
+			n_hdr.PutInner("sender", temp_buf);
+			THROW(GetArticleGLN(rRaPack.RBp.Rec.Object, temp_buf));
+			n_hdr.PutInner("recipient", temp_buf);
+			n_hdr.PutInner("documentType", "RECADV");
+			n_hdr.PutInner("creationDateTime", temp_buf.Z().CatCurDateTime(DATF_ISO8601|DATF_CENTURY, TIMF_HMS));
+			//n_hdr.PutInner("isTest", "0");
+		}
 		{
 			BillTbl::Rec order_bill_rec;
 			SXml::WNode n_b(_doc, "receivingAdvice");
 			n_b.PutAttrib("number", (temp_buf = rRaPack.RBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
 			n_b.PutAttrib("date", temp_buf.Z().Cat(rRaPack.RBp.Rec.Dt, DATF_ISO8601|DATF_CENTURY));
 			{
-				const int goobr = GetOriginOrderBill(rRaPack.ABp, &order_bill_rec);
-				THROW(goobr);
-				THROW_PP_S(goobr > 0, PPERR_EDI_RECADV_NOORDER, bill_text);
+				THROW_PP_S(rRaPack.OrderBillID && P_BObj->Search(rRaPack.OrderBillID, &order_bill_rec) > 0, PPERR_EDI_RECADV_NOORDER, bill_text);
+				//const int goobr = GetOriginOrderBill(rRaPack.ABp, &order_bill_rec);
+				//THROW(goobr);
+				//THROW_PP_S(goobr > 0, PPERR_EDI_RECADV_NOORDER, bill_text);
 				Write_OwnFormat_OriginOrder_Tag(_doc, order_bill_rec);
 			}
 			{
@@ -5694,28 +5683,52 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_RECADV(xmlTextWriter * pX,
 				SXml::WNode n_i(_doc, "deliveryInfo");
 				if(checkdate(order_bill_rec.DueDate, 0)) {
 					LDATETIME temp_dtm;
-					temp_dtm.Set(order_bill_rec.DueDate, ZEROTIME);
-					n_i.PutInner("estimatedDeliveryDateTime", temp_buf.Z().Cat(temp_dtm, DATF_ISO8601|DATF_CENTURY, TIMF_HMS));
+					n_i.PutInner("estimatedDeliveryDateTime", temp_buf.Z().Cat(temp_dtm.Set(order_bill_rec.DueDate, ZEROTIME), DATF_ISO8601|DATF_CENTURY, TIMF_HMS));
+				}
+				{
+					LDATETIME temp_dtm;
+					n_i.PutInner("receptionDateTime", temp_buf.Z().Cat(temp_dtm.Set(rRaPack.RBp.Rec.Dt, ZEROTIME), DATF_ISO8601|DATF_CENTURY, TIMF_HMS));
 				}
 				THROW(WriteOwnFormatContractor(_doc, "shipFrom", ObjectToPerson(rRaPack.RBp.Rec.Object), 0));
 				THROW(WriteOwnFormatContractor(_doc, "shipTo", 0, rRaPack.RBp.Rec.LocID));
 			}
 			{
+				Goods2Tbl::Rec goods_rec;
+				SString goods_code;
+				SString goods_ar_code;
 				SXml::WNode n_dtl(_doc, "lineItems");
 				n_dtl.PutInner("currencyISOCode", "RUB");
 				for(uint i = 0; i < rRaPack.ABp.GetTCount(); i++) { // Перебор ведем по оригинальному DESADV
 					const PPTransferItem & r_ti = rRaPack.ABp.ConstTI(i);
-					SXml::WNode n_item(_doc, "lineItem");
-					/*
-						<gtin>2100000006991</gtin>
-						<internalBuyerCode>9392</internalBuyerCode>
-						<orderedQuantity unitOfMeasure="PCE">48.000</orderedQuantity>
-						<despatchedQuantity unitOfMeasure="PCE">48.000</despatchedQuantity>
-						<deliveredQuantity unitOfMeasure="PCE">48.000</deliveredQuantity>
-						<acceptedQuantity unitOfMeasure="PCE">48.000</acceptedQuantity>
-						<netPriceWithVAT>317.7300</netPriceWithVAT>
-						<amount>15251.0400</amount>
-					*/
+					const double dlvr_qtty = fabs(fabs(r_ti.Quantity_));
+					assert(dlvr_qtty == rRaPack.DesadvQttyList.Get(i+1));
+					const double ord_qtty = fabs(rRaPack.OrderedQttyList.Get(i+1));
+					const double acc_qtty = fabs(rRaPack.RecadvQttyList.Get(i+1));
+					//
+					if(GetGoodsInfo(r_ti.GoodsID, rRaPack.ABp.Rec.Object, &goods_rec, goods_code, goods_ar_code)) {
+						SXml::WNode n_item(_doc, "lineItem");
+						n_item.PutInner("gtin", goods_code);
+						n_item.PutInner("internalBuyerCode", temp_buf.Z().Cat(r_ti.GoodsID));
+						Write_OwnFormat_Qtty(_doc, "orderedQuantity", "PCE", ord_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS));
+						Write_OwnFormat_Qtty(_doc, "despatchedQuantity", "PCE", dlvr_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS));
+						Write_OwnFormat_Qtty(_doc, "deliveredQuantity", "PCE", dlvr_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS));
+						Write_OwnFormat_Qtty(_doc, "acceptedQuantity", "PCE", acc_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS));
+						n_item.PutInner("netPriceWithVAT", temp_buf.Z().Cat(fabs(r_ti.Cost), MKSFMTD(0, 2, 0)));
+						n_item.PutInner("amount", temp_buf.Z().Cat(fabs(r_ti.Cost * dlvr_qtty), MKSFMTD(0, 2, 0)));
+						/*
+							<gtin>2100000006991</gtin>
+							<internalBuyerCode>9392</internalBuyerCode>
+							<orderedQuantity unitOfMeasure="PCE">48.000</orderedQuantity>
+							<despatchedQuantity unitOfMeasure="PCE">48.000</despatchedQuantity>
+							<deliveredQuantity unitOfMeasure="PCE">48.000</deliveredQuantity>
+							<acceptedQuantity unitOfMeasure="PCE">48.000</acceptedQuantity>
+							<netPriceWithVAT>317.7300</netPriceWithVAT>
+							<amount>15251.0400</amount>
+						*/
+					}
+					else {
+						; // @todo log-error
+					}
 				}
 			}
 		}
@@ -5755,10 +5768,8 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_INVOIC(xmlTextWriter * pX,
 		}
 		temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 		n_b.PutAttrib("number", temp_buf);
-		if(checkdate(rBp.Ext.InvoiceDate, 0))
-			temp_buf.Z().Cat(rBp.Ext.InvoiceDate, DATF_ISO8601|DATF_CENTURY);
-		else
-			temp_buf.Z().Cat(rBp.Rec.Dt, DATF_ISO8601|DATF_CENTURY);
+		assert(checkdate(rBp.Rec.Dt)); // @v11.2.12
+		temp_buf.Z().Cat(checkdate(rBp.Ext.InvoiceDate) ? rBp.Ext.InvoiceDate : rBp.Rec.Dt, DATF_ISO8601|DATF_CENTURY);
 		n_b.PutAttrib("date", temp_buf);
 		n_b.PutAttrib("status", "Original");
 		{
@@ -5836,16 +5847,9 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_INVOIC(xmlTextWriter * pX,
 				//n_item.PutInnerSkipEmpty("orderLineNumber", ""); // <!--порядковый номер товара-->
 				// n_item.PutInner("lineNumber", temp_buf.Z().Cat(r_ti.RByBill));
 				//n_item.PutInnerSkipEmpty("comment", "");
-				{
-					SXml::WNode n_q(_doc, "quantity");
-					n_q.PutAttrib("unitOfMeasure", "PCE");
-					n_q.SetValue(temp_buf.Z().Cat(qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)));
-				}
-				if(r_ti.UnitPerPack > 0.0) {
-					SXml::WNode n_q(_doc, "onePlaceQuantity");
-					n_q.PutAttrib("unitOfMeasure", "PCE");
-					n_q.SetValue(temp_buf.Z().Cat(fabs(r_ti.UnitPerPack), MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)));
-				}
+				Write_OwnFormat_Qtty(_doc, "quantity", "PCE", qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS));
+				if(r_ti.UnitPerPack > 0.0)
+					Write_OwnFormat_Qtty(_doc, "onePlaceQuantity", "PCE", r_ti.UnitPerPack, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS));
 				n_item.PutInner("netPrice", temp_buf.Z().Cat(price_without_vat, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS))); // цена по позиции без НДС
 				n_item.PutInner("netPriceWithVAT", temp_buf.Z().Cat(price_with_vat, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS))); // цена по позиции с НДС
 				n_item.PutInner("netAmount", temp_buf.Z().Cat(amount_without_vat, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS))); // сумма по позиции без НДС
@@ -9141,10 +9145,10 @@ int EdiProviderImplementation_Exite::Write_OwnFormat_RECADV(xmlTextWriter * pX, 
 						SXml::WNode n_inner2(_doc, "POSITION");
 						{
 							const PPID goods_id = labs(r_ti.GoodsID);
-							double dlvr_qtty = fabs(fabs(r_ti.Quantity_));
+							const double dlvr_qtty = fabs(fabs(r_ti.Quantity_));
 							assert(dlvr_qtty == rRaPack.DesadvQttyList.Get(i+1));
-							double ord_qtty = fabs(rRaPack.OrderedQttyList.Get(i+1));
-							double acc_qtty = fabs(rRaPack.RecadvQttyList.Get(i+1));
+							const double ord_qtty = fabs(rRaPack.OrderedQttyList.Get(i+1));
+							const double acc_qtty = fabs(rRaPack.RecadvQttyList.Get(i+1));
 							uint   recadv_ti_pos = 0;
 							const PPTransferItem * p_recadv_ti = rRaPack.RBp.SearchTI(r_ti.RByBill, &recadv_ti_pos) ? &rRaPack.RBp.ConstTI(recadv_ti_pos) : 0;
 							//double amount_with_vat = p_recadv_ti ? (p_recadv_ti->Cost * fabs(p_recadv_ti->Quantity_)) : (r_ti.Cost * fabs(r_ti.Quantity_));

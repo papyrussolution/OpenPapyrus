@@ -105,7 +105,7 @@ createData(const char * outputDirectory, UErrorCode *errorCode) {
     pData=udata_create(outputDirectory, DATA_TYPE, DATA_NAME, &dataInfo,
                        U_COPYRIGHT_STRING, errorCode);
     if(U_FAILURE(*errorCode)) {
-        fprintf(stderr, "gentest: unable to create data memory, %s\n", u_errorName(*errorCode));
+        slfprintf_stderr("gentest: unable to create data memory, %s\n", u_errorName(*errorCode));
         exit(*errorCode);
     }
 
@@ -117,14 +117,14 @@ createData(const char * outputDirectory, UErrorCode *errorCode) {
     /* finish up */
     dataLength=udata_finish(pData, errorCode);
     if(U_FAILURE(*errorCode)) {
-        fprintf(stderr, "gentest: error %d writing the output file\n", *errorCode);
+        slfprintf_stderr("gentest: error %d writing the output file\n", *errorCode);
         exit(*errorCode);
     }
     size=sizeof(stringValue) + sizeof(intValue);
 
 
     if(dataLength!=(long)size) {
-        fprintf(stderr, "gentest: data length %ld != calculated size %lu\n",
+        slfprintf_stderr("gentest: data length %ld != calculated size %lu\n",
             dataLength, (unsigned long)size);
         exit(U_INTERNAL_PROGRAM_ERROR);
     }
@@ -148,7 +148,7 @@ outputJavaStuff(const char * progname, const char *outputDir) {
     /*puts(file);*/
     printf("%s: Generating %s\n", progname, file);
     if(out == NULL) {
-        fprintf(stderr, "%s: Couldn't create resource test file %s\n",
+        slfprintf_stderr("%s: Couldn't create resource test file %s\n",
             progname, file);
         return 1;
     }

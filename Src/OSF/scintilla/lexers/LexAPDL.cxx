@@ -161,11 +161,11 @@ static int LowerCase(int c)
 
 static int CheckAPDLFoldPoint(char const * token, int &level)
 {
-	if(sstreq(token, "*if") || sstreq(token, "*do") || sstreq(token, "*dowhile") ) {
+	if(sstreq(token, "*if") || sstreq(token, "*do") || sstreq(token, "*dowhile")) {
 		level |= SC_FOLDLEVELHEADERFLAG;
 		return 1;
 	}
-	if(sstreq(token, "*endif") || sstreq(token, "*enddo") ) {
+	if(sstreq(token, "*endif") || sstreq(token, "*enddo")) {
 		return -1;
 	}
 	return 0;

@@ -3909,7 +3909,7 @@ inline bool DefaultValueTestCases::has_empty_double() const {
   return _internal_has_empty_double();
 }
 inline void DefaultValueTestCases::clear_empty_double() {
-  if (GetArenaForAllocation() == nullptr && empty_double_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && empty_double_ != nullptr) {
     delete empty_double_;
   }
   empty_double_ = nullptr;
@@ -3999,7 +3999,7 @@ inline bool DefaultValueTestCases::has_double_with_default_value() const {
   return _internal_has_double_with_default_value();
 }
 inline void DefaultValueTestCases::clear_double_with_default_value() {
-  if (GetArenaForAllocation() == nullptr && double_with_default_value_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && double_with_default_value_ != nullptr) {
     delete double_with_default_value_;
   }
   double_with_default_value_ = nullptr;
@@ -4089,7 +4089,7 @@ inline bool DefaultValueTestCases::has_double_with_nondefault_value() const {
   return _internal_has_double_with_nondefault_value();
 }
 inline void DefaultValueTestCases::clear_double_with_nondefault_value() {
-  if (GetArenaForAllocation() == nullptr && double_with_nondefault_value_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && double_with_nondefault_value_ != nullptr) {
     delete double_with_nondefault_value_;
   }
   double_with_nondefault_value_ = nullptr;
@@ -4179,7 +4179,7 @@ inline bool DefaultValueTestCases::has_repeated_double() const {
   return _internal_has_repeated_double();
 }
 inline void DefaultValueTestCases::clear_repeated_double() {
-  if (GetArenaForAllocation() == nullptr && repeated_double_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && repeated_double_ != nullptr) {
     delete repeated_double_;
   }
   repeated_double_ = nullptr;
@@ -4269,7 +4269,7 @@ inline bool DefaultValueTestCases::has_nested_message() const {
   return _internal_has_nested_message();
 }
 inline void DefaultValueTestCases::clear_nested_message() {
-  if (GetArenaForAllocation() == nullptr && nested_message_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && nested_message_ != nullptr) {
     delete nested_message_;
   }
   nested_message_ = nullptr;
@@ -4359,7 +4359,7 @@ inline bool DefaultValueTestCases::has_repeated_nested_message() const {
   return _internal_has_repeated_nested_message();
 }
 inline void DefaultValueTestCases::clear_repeated_nested_message() {
-  if (GetArenaForAllocation() == nullptr && repeated_nested_message_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && repeated_nested_message_ != nullptr) {
     delete repeated_nested_message_;
   }
   repeated_nested_message_ = nullptr;
@@ -4449,7 +4449,7 @@ inline bool DefaultValueTestCases::has_double_message_with_oneof() const {
   return _internal_has_double_message_with_oneof();
 }
 inline void DefaultValueTestCases::clear_double_message_with_oneof() {
-  if (GetArenaForAllocation() == nullptr && double_message_with_oneof_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && double_message_with_oneof_ != nullptr) {
     delete double_message_with_oneof_;
   }
   double_message_with_oneof_ = nullptr;
@@ -4539,7 +4539,7 @@ inline bool DefaultValueTestCases::has_empty_struct() const {
   return _internal_has_empty_struct();
 }
 inline void DefaultValueTestCases::clear_empty_struct() {
-  if (GetArenaForAllocation() == nullptr && empty_struct_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && empty_struct_ != nullptr) {
     delete empty_struct_;
   }
   empty_struct_ = nullptr;
@@ -4629,7 +4629,7 @@ inline bool DefaultValueTestCases::has_empty_struct2() const {
   return _internal_has_empty_struct2();
 }
 inline void DefaultValueTestCases::clear_empty_struct2() {
-  if (GetArenaForAllocation() == nullptr && empty_struct2_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && empty_struct2_ != nullptr) {
     delete empty_struct2_;
   }
   empty_struct2_ = nullptr;
@@ -4719,7 +4719,7 @@ inline bool DefaultValueTestCases::has_struct_with_null_value() const {
   return _internal_has_struct_with_null_value();
 }
 inline void DefaultValueTestCases::clear_struct_with_null_value() {
-  if (GetArenaForAllocation() == nullptr && struct_with_null_value_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && struct_with_null_value_ != nullptr) {
     delete struct_with_null_value_;
   }
   struct_with_null_value_ = nullptr;
@@ -4809,7 +4809,7 @@ inline bool DefaultValueTestCases::has_struct_with_values() const {
   return _internal_has_struct_with_values();
 }
 inline void DefaultValueTestCases::clear_struct_with_values() {
-  if (GetArenaForAllocation() == nullptr && struct_with_values_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && struct_with_values_ != nullptr) {
     delete struct_with_values_;
   }
   struct_with_values_ = nullptr;
@@ -4899,7 +4899,7 @@ inline bool DefaultValueTestCases::has_struct_with_nested_struct() const {
   return _internal_has_struct_with_nested_struct();
 }
 inline void DefaultValueTestCases::clear_struct_with_nested_struct() {
-  if (GetArenaForAllocation() == nullptr && struct_with_nested_struct_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && struct_with_nested_struct_ != nullptr) {
     delete struct_with_nested_struct_;
   }
   struct_with_nested_struct_ = nullptr;
@@ -4989,7 +4989,7 @@ inline bool DefaultValueTestCases::has_struct_with_nested_list() const {
   return _internal_has_struct_with_nested_list();
 }
 inline void DefaultValueTestCases::clear_struct_with_nested_list() {
-  if (GetArenaForAllocation() == nullptr && struct_with_nested_list_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && struct_with_nested_list_ != nullptr) {
     delete struct_with_nested_list_;
   }
   struct_with_nested_list_ = nullptr;
@@ -5079,7 +5079,7 @@ inline bool DefaultValueTestCases::has_struct_with_list_of_nulls() const {
   return _internal_has_struct_with_list_of_nulls();
 }
 inline void DefaultValueTestCases::clear_struct_with_list_of_nulls() {
-  if (GetArenaForAllocation() == nullptr && struct_with_list_of_nulls_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && struct_with_list_of_nulls_ != nullptr) {
     delete struct_with_list_of_nulls_;
   }
   struct_with_list_of_nulls_ = nullptr;
@@ -5169,7 +5169,7 @@ inline bool DefaultValueTestCases::has_struct_with_list_of_lists() const {
   return _internal_has_struct_with_list_of_lists();
 }
 inline void DefaultValueTestCases::clear_struct_with_list_of_lists() {
-  if (GetArenaForAllocation() == nullptr && struct_with_list_of_lists_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && struct_with_list_of_lists_ != nullptr) {
     delete struct_with_list_of_lists_;
   }
   struct_with_list_of_lists_ = nullptr;
@@ -5259,7 +5259,7 @@ inline bool DefaultValueTestCases::has_struct_with_list_of_structs() const {
   return _internal_has_struct_with_list_of_structs();
 }
 inline void DefaultValueTestCases::clear_struct_with_list_of_structs() {
-  if (GetArenaForAllocation() == nullptr && struct_with_list_of_structs_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && struct_with_list_of_structs_ != nullptr) {
     delete struct_with_list_of_structs_;
   }
   struct_with_list_of_structs_ = nullptr;
@@ -5435,7 +5435,7 @@ inline bool DefaultValueTestCases::has_value_wrapper_simple() const {
   return _internal_has_value_wrapper_simple();
 }
 inline void DefaultValueTestCases::clear_value_wrapper_simple() {
-  if (GetArenaForAllocation() == nullptr && value_wrapper_simple_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && value_wrapper_simple_ != nullptr) {
     delete value_wrapper_simple_;
   }
   value_wrapper_simple_ = nullptr;
@@ -5525,7 +5525,7 @@ inline bool DefaultValueTestCases::has_value_wrapper_with_struct() const {
   return _internal_has_value_wrapper_with_struct();
 }
 inline void DefaultValueTestCases::clear_value_wrapper_with_struct() {
-  if (GetArenaForAllocation() == nullptr && value_wrapper_with_struct_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && value_wrapper_with_struct_ != nullptr) {
     delete value_wrapper_with_struct_;
   }
   value_wrapper_with_struct_ = nullptr;
@@ -5615,7 +5615,7 @@ inline bool DefaultValueTestCases::has_value_wrapper_with_list() const {
   return _internal_has_value_wrapper_with_list();
 }
 inline void DefaultValueTestCases::clear_value_wrapper_with_list() {
-  if (GetArenaForAllocation() == nullptr && value_wrapper_with_list_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && value_wrapper_with_list_ != nullptr) {
     delete value_wrapper_with_list_;
   }
   value_wrapper_with_list_ = nullptr;
@@ -5705,7 +5705,7 @@ inline bool DefaultValueTestCases::has_list_value_wrapper() const {
   return _internal_has_list_value_wrapper();
 }
 inline void DefaultValueTestCases::clear_list_value_wrapper() {
-  if (GetArenaForAllocation() == nullptr && list_value_wrapper_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && list_value_wrapper_ != nullptr) {
     delete list_value_wrapper_;
   }
   list_value_wrapper_ = nullptr;
@@ -6139,7 +6139,7 @@ inline bool DefaultValueTestCases::has_empty_any() const {
   return _internal_has_empty_any();
 }
 inline void DefaultValueTestCases::clear_empty_any() {
-  if (GetArenaForAllocation() == nullptr && empty_any_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && empty_any_ != nullptr) {
     delete empty_any_;
   }
   empty_any_ = nullptr;
@@ -6229,7 +6229,7 @@ inline bool DefaultValueTestCases::has_type_only_any() const {
   return _internal_has_type_only_any();
 }
 inline void DefaultValueTestCases::clear_type_only_any() {
-  if (GetArenaForAllocation() == nullptr && type_only_any_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && type_only_any_ != nullptr) {
     delete type_only_any_;
   }
   type_only_any_ = nullptr;
@@ -6319,7 +6319,7 @@ inline bool DefaultValueTestCases::has_recursive_any() const {
   return _internal_has_recursive_any();
 }
 inline void DefaultValueTestCases::clear_recursive_any() {
-  if (GetArenaForAllocation() == nullptr && recursive_any_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && recursive_any_ != nullptr) {
     delete recursive_any_;
   }
   recursive_any_ = nullptr;
@@ -6409,7 +6409,7 @@ inline bool DefaultValueTestCases::has_any_with_message_value() const {
   return _internal_has_any_with_message_value();
 }
 inline void DefaultValueTestCases::clear_any_with_message_value() {
-  if (GetArenaForAllocation() == nullptr && any_with_message_value_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && any_with_message_value_ != nullptr) {
     delete any_with_message_value_;
   }
   any_with_message_value_ = nullptr;
@@ -6499,7 +6499,7 @@ inline bool DefaultValueTestCases::has_any_with_nested_message() const {
   return _internal_has_any_with_nested_message();
 }
 inline void DefaultValueTestCases::clear_any_with_nested_message() {
-  if (GetArenaForAllocation() == nullptr && any_with_nested_message_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && any_with_nested_message_ != nullptr) {
     delete any_with_nested_message_;
   }
   any_with_nested_message_ = nullptr;
@@ -6589,7 +6589,7 @@ inline bool DefaultValueTestCases::has_any_with_message_containing_map() const {
   return _internal_has_any_with_message_containing_map();
 }
 inline void DefaultValueTestCases::clear_any_with_message_containing_map() {
-  if (GetArenaForAllocation() == nullptr && any_with_message_containing_map_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && any_with_message_containing_map_ != nullptr) {
     delete any_with_message_containing_map_;
   }
   any_with_message_containing_map_ = nullptr;
@@ -6679,7 +6679,7 @@ inline bool DefaultValueTestCases::has_any_with_message_containing_struct() cons
   return _internal_has_any_with_message_containing_struct();
 }
 inline void DefaultValueTestCases::clear_any_with_message_containing_struct() {
-  if (GetArenaForAllocation() == nullptr && any_with_message_containing_struct_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && any_with_message_containing_struct_ != nullptr) {
     delete any_with_message_containing_struct_;
   }
   any_with_message_containing_struct_ = nullptr;
@@ -6855,7 +6855,7 @@ inline bool DefaultValueTestCases::has_empty_map() const {
   return _internal_has_empty_map();
 }
 inline void DefaultValueTestCases::clear_empty_map() {
-  if (GetArenaForAllocation() == nullptr && empty_map_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && empty_map_ != nullptr) {
     delete empty_map_;
   }
   empty_map_ = nullptr;
@@ -6945,7 +6945,7 @@ inline bool DefaultValueTestCases::has_string_to_int() const {
   return _internal_has_string_to_int();
 }
 inline void DefaultValueTestCases::clear_string_to_int() {
-  if (GetArenaForAllocation() == nullptr && string_to_int_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && string_to_int_ != nullptr) {
     delete string_to_int_;
   }
   string_to_int_ = nullptr;
@@ -7035,7 +7035,7 @@ inline bool DefaultValueTestCases::has_int_to_string() const {
   return _internal_has_int_to_string();
 }
 inline void DefaultValueTestCases::clear_int_to_string() {
-  if (GetArenaForAllocation() == nullptr && int_to_string_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && int_to_string_ != nullptr) {
     delete int_to_string_;
   }
   int_to_string_ = nullptr;
@@ -7125,7 +7125,7 @@ inline bool DefaultValueTestCases::has_mixed1() const {
   return _internal_has_mixed1();
 }
 inline void DefaultValueTestCases::clear_mixed1() {
-  if (GetArenaForAllocation() == nullptr && mixed1_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && mixed1_ != nullptr) {
     delete mixed1_;
   }
   mixed1_ = nullptr;
@@ -7215,7 +7215,7 @@ inline bool DefaultValueTestCases::has_mixed2() const {
   return _internal_has_mixed2();
 }
 inline void DefaultValueTestCases::clear_mixed2() {
-  if (GetArenaForAllocation() == nullptr && mixed2_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && mixed2_ != nullptr) {
     delete mixed2_;
   }
   mixed2_ = nullptr;
@@ -7305,7 +7305,7 @@ inline bool DefaultValueTestCases::has_empty_mixed2() const {
   return _internal_has_empty_mixed2();
 }
 inline void DefaultValueTestCases::clear_empty_mixed2() {
-  if (GetArenaForAllocation() == nullptr && empty_mixed2_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && empty_mixed2_ != nullptr) {
     delete empty_mixed2_;
   }
   empty_mixed2_ = nullptr;
@@ -7395,7 +7395,7 @@ inline bool DefaultValueTestCases::has_map_of_objects() const {
   return _internal_has_map_of_objects();
 }
 inline void DefaultValueTestCases::clear_map_of_objects() {
-  if (GetArenaForAllocation() == nullptr && map_of_objects_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && map_of_objects_ != nullptr) {
     delete map_of_objects_;
   }
   map_of_objects_ = nullptr;
@@ -7485,7 +7485,7 @@ inline bool DefaultValueTestCases::has_mixed_empty() const {
   return _internal_has_mixed_empty();
 }
 inline void DefaultValueTestCases::clear_mixed_empty() {
-  if (GetArenaForAllocation() == nullptr && mixed_empty_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && mixed_empty_ != nullptr) {
     delete mixed_empty_;
   }
   mixed_empty_ = nullptr;
@@ -7575,7 +7575,7 @@ inline bool DefaultValueTestCases::has_message_map_empty() const {
   return _internal_has_message_map_empty();
 }
 inline void DefaultValueTestCases::clear_message_map_empty() {
-  if (GetArenaForAllocation() == nullptr && message_map_empty_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && message_map_empty_ != nullptr) {
     delete message_map_empty_;
   }
   message_map_empty_ = nullptr;
@@ -7665,7 +7665,7 @@ inline bool DefaultValueTestCases::has_double_value() const {
   return _internal_has_double_value();
 }
 inline void DefaultValueTestCases::clear_double_value() {
-  if (GetArenaForAllocation() == nullptr && double_value_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && double_value_ != nullptr) {
     delete double_value_;
   }
   double_value_ = nullptr;
@@ -7755,7 +7755,7 @@ inline bool DefaultValueTestCases::has_double_value_default() const {
   return _internal_has_double_value_default();
 }
 inline void DefaultValueTestCases::clear_double_value_default() {
-  if (GetArenaForAllocation() == nullptr && double_value_default_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && double_value_default_ != nullptr) {
     delete double_value_default_;
   }
   double_value_default_ = nullptr;
@@ -7916,7 +7916,7 @@ inline bool DoubleMessage::has_nested_message() const {
   return _internal_has_nested_message();
 }
 inline void DoubleMessage::clear_nested_message() {
-  if (GetArenaForAllocation() == nullptr && nested_message_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && nested_message_ != nullptr) {
     delete nested_message_;
   }
   nested_message_ = nullptr;
@@ -8135,7 +8135,7 @@ inline void DoubleMessage::set_has_str_value() {
   _oneof_case_[0] = kStrValue;
 }
 inline void DoubleMessage::clear_str_value() {
-  if (_internal_has_str_value()) {
+  if(_internal_has_str_value()) {
     value_.str_value_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
     clear_has_value();
   }
@@ -8217,7 +8217,7 @@ inline void DoubleMessage::set_has_num_value() {
   _oneof_case_[0] = kNumValue;
 }
 inline void DoubleMessage::clear_num_value() {
-  if (_internal_has_num_value()) {
+  if(_internal_has_num_value()) {
     value_.num_value_ = int64_t{0};
     clear_has_value();
   }
@@ -8676,7 +8676,7 @@ inline bool AnyMessage::has_data() const {
   return _internal_has_data();
 }
 inline void AnyMessage::clear_data() {
-  if (GetArenaForAllocation() == nullptr && data_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && data_ != nullptr) {
     delete data_;
   }
   data_ = nullptr;
@@ -8918,7 +8918,7 @@ inline bool AnyData::has_nested_data() const {
   return _internal_has_nested_data();
 }
 inline void AnyData::clear_nested_data() {
-  if (GetArenaForAllocation() == nullptr && nested_data_ != nullptr) {
+  if(GetArenaForAllocation() == nullptr && nested_data_ != nullptr) {
     delete nested_data_;
   }
   nested_data_ = nullptr;

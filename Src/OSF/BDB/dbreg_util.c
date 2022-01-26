@@ -9,7 +9,7 @@
 #include "db_int.h"
 #pragma hdrstop
 
-static int __dbreg_check_master __P((ENV*, uint8*, char *));
+static int __dbreg_check_master __P((ENV*, uint8 *, char *));
 /*
  * __dbreg_add_dbentry --
  *	Adds a DB entry to the dbreg DB entry table.

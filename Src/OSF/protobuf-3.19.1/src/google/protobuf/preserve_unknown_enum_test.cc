@@ -33,7 +33,6 @@
 #include <google/protobuf/unittest.pb.h>
 #include <google/protobuf/unittest_preserve_unknown_enum.pb.h>
 #include <google/protobuf/unittest_preserve_unknown_enum2.pb.h>
-#include <google/protobuf/dynamic_message.h>
 #include <gtest/gtest.h>
 
 namespace google {

@@ -1,5 +1,5 @@
 // V_LOT.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1950,7 +1950,8 @@ int PPViewLot::CreateTempTable()
 
 int PPViewLot::InitIteration(IterOrder order)
 {
-	int    ok = 1, no_recs = 0;
+	int    ok = 1;
+	bool   no_recs = false;
 	DBQ  * dbq = 0;
 	BExtQuery::ZDelete(&P_IterQuery);
 	Counter.Init();
@@ -2044,13 +2045,13 @@ int PPViewLot::InitIteration(IterOrder order)
 				k_ = k;
 				if(P_Tbl->search(idx, &k_, spGe)) {
 					if(k_.k3.Closed != k.k3.Closed || k_.k3.GoodsID != k.k3.GoodsID || k_.k3.LocID != k.k3.LocID)
-						no_recs = 1;
+						no_recs = true;
 					else if(Filt.Period.upp && k_.k3.Dt > Filt.Period.upp)
-						no_recs = 1;
+						no_recs = true;
 				}
 				else {
 					THROW_DB(BTROKORNFOUND);
-					no_recs = 1;
+					no_recs = true;
 				}
 			}
 			else {
@@ -2113,6 +2114,8 @@ int PPViewLot::AcceptViewItem(const ReceiptTbl::Rec & rLotRec, LotViewItem * pIt
 	else if(Filt.Flags & LotFilt::fCostAbovePrice && dbl_cmp(rLotRec.Cost, rLotRec.Price) <= 0)
 		return -1;
 	else if(SupplList.GetCount() > 1 && !SupplList.CheckID(rLotRec.SupplID))
+		return -1;
+	else if(LocList.getCount() > 1 && !LocList.lsearch(rLotRec.LocID)) // @v11.2.12
 		return -1;
 	else if(!Filt.QcExpiryPrd.IsZero()) {
 		if(rLotRec.QCertID && QcObj.Search(rLotRec.QCertID) > 0 && !Filt.QcExpiryPrd.CheckDate(QcObj.P_Tbl->data.Expiry))
@@ -3521,7 +3524,7 @@ int PPViewLotExtCode::CheckDupCode(const LotExtCodeTbl::Rec & rRec)
 	LotExtCodeTbl::Key1 k1;
 	MEMSZERO(k1);
 	STRNSCPY(k1.Code, rRec.Code);
-	k1.BillID = rRec.BillID; // @v9.8.11
+	k1.BillID = rRec.BillID;
 	if(Tbl.search(1, &k1, spGe) && sstreqi_ascii(Tbl.data.Code, rRec.Code) && Tbl.data.BillID == rRec.BillID) {
 		SString msg_buf, temp_buf;
 		ReceiptTbl::Rec lot_rec;

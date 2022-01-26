@@ -183,7 +183,7 @@ void PluralRulesTest::testAPI(/*char *par*/)
 	for(int32_t i = 0; i<PLURAL_TEST_NUM-1; ++i) {
 		LocalPointer<PluralRules> newRules(test->createRules(pluralTestData[i], status));
 		setupResult(pluralTestResult[i], result, &max);
-		if(!checkEqual(*newRules, result, max) ) {
+		if(!checkEqual(*newRules, result, max)) {
 			errln("ERROR:  simple plural rules failed! - exiting");
 			return;
 		}
@@ -211,12 +211,12 @@ void PluralRulesTest::testAPI(/*char *par*/)
 		0x63 // 'c'
 	};
 	LocalPointer<PluralRules> newRules(test->createRules(complexRule, status));
-	if(!checkEqual(*newRules, cRuleResult, 12) ) {
+	if(!checkEqual(*newRules, cRuleResult, 12)) {
 		errln("ERROR:  complex plural rules failed! - exiting");
 		return;
 	}
 	newRules.adoptInstead(test->createRules(complexRule2, status));
-	if(!checkEqual(*newRules, cRuleResult, 12) ) {
+	if(!checkEqual(*newRules, cRuleResult, 12)) {
 		errln("ERROR:  complex plural rules failed! - exiting");
 		return;
 	}
@@ -242,7 +242,7 @@ void PluralRulesTest::testAPI(/*char *par*/)
 	// ======= Test Equality
 	logln("Testing Equality of PluralRules");
 
-	if(!testEquality(*test) ) {
+	if(!testEquality(*test)) {
 		errln("ERROR:  complex plural rules failed! - exiting");
 		return;
 	}
@@ -319,7 +319,7 @@ bool testEquality(const PluralRules &test) {
 			rules[j] = NULL;
 		}
 		int32_t totalRules = 0;
-		while((totalRules<MAX_EQ_COL) && (testEquRules[i][totalRules].length()>0) ) {
+		while((totalRules<MAX_EQ_COL) && (testEquRules[i][totalRules].length()>0)) {
 			rules[totalRules] = test.createRules(testEquRules[i][totalRules], status);
 			totalRules++;
 		}

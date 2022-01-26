@@ -87,7 +87,7 @@ int pthread_mutex_init(pthread_mutex_t * mutex, const pthread_mutexattr_t * attr
 		}
 		if(result == 0) {
 			mx->ownerThread.p = NULL;
-			mx->event = CreateEvent(NULL,  __PTW32_FALSE/* manual reset = No */, __PTW32_FALSE/* initial state = not signalled */, NULL/* event name */);
+			mx->event = CreateEvent(NULL,  FALSE/* manual reset = No */, FALSE/* initial state = not signalled */, NULL/* event name */);
 			if(0 == mx->event) {
 				result = ENOSPC;
 			}

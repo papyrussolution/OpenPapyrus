@@ -1636,7 +1636,7 @@ static int FASTCALL convert_binary_to_decimal_1st_approx(uint64 a, int32 b, uint
 		mantissa += long_mantissa[1];
 		--exponent;
 	}
-	else if(mantissa >= (10ULL * POW10_18) ) {
+	else if(mantissa >= (10ULL * POW10_18)) {
 		mantissa /= 10ULL;
 		++exponent;
 	}

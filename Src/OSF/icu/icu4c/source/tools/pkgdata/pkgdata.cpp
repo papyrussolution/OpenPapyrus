@@ -252,7 +252,8 @@ const char options_help[][320] = {
 
 const char * progname = "PKGDATA";
 
-int main(int argc, char * argv[]) {
+int main(int argc, char * argv[]) 
+{
 	int result = 0;
 	/* FileStream  *out; */
 	UPKGOptions o;
@@ -262,13 +263,9 @@ int main(int argc, char * argv[]) {
 	/* char         tmp[1024]; */
 	uint32_t i;
 	int32_t n;
-
 	U_MAIN_INIT_ARGS(argc, argv);
-
 	progname = argv[0];
-
 	options[MODE].value = "common";
-
 	/* read command line options */
 	argc = u_parseArgs(argc, argv, UPRV_LENGTHOF(options), options);
 
@@ -285,15 +282,15 @@ int main(int argc, char * argv[]) {
 			    "%s: error in command line argument \"%s\"\n",
 			    progname,
 			    argv[-argc]);
-			fprintf(stderr, "Run '%s --help' for help.\n", progname);
+			slfprintf_stderr("Run '%s --help' for help.\n", progname);
 			return 1;
 		}
 
 #if !defined(WINDOWS_WITH_MSVC) || defined(USING_CYGWIN)
 		if(!options[BLDOPT].doesOccur && uprv_strcmp(options[MODE].value, "common") != 0) {
 			if(pkg_getPkgDataPath(options[VERBOSE].doesOccur, &options[BLDOPT]) != 0) {
-				fprintf(stderr, " required parameter is missing: -O is required for static and shared builds.\n");
-				fprintf(stderr, "Run '%s --help' for help.\n", progname);
+				slfprintf_stderr(" required parameter is missing: -O is required for static and shared builds.\n");
+				slfprintf_stderr("Run '%s --help' for help.\n", progname);
 				return 1;
 			}
 		}
@@ -304,8 +301,8 @@ int main(int argc, char * argv[]) {
 #endif
 
 		if(!options[NAME].doesOccur) { /* -O we already have - don't report it. */
-			fprintf(stderr, " required parameter -p is missing \n");
-			fprintf(stderr, "Run '%s --help' for help.\n", progname);
+			slfprintf_stderr(" required parameter -p is missing \n");
+			slfprintf_stderr("Run '%s --help' for help.\n", progname);
 			return 1;
 		}
 
@@ -325,9 +322,9 @@ int main(int argc, char * argv[]) {
 		    "\tpackageFile is a text file containing the list of files to package.\n",
 		    progname);
 
-		fprintf(stderr, "\n options:\n");
+		slfprintf_stderr("\n options:\n");
 		for(i = 0; i<UPRV_LENGTHOF(options); i++) {
-			fprintf(stderr, "%-5s -%c %s%-10s  %s\n",
+			slfprintf_stderr("%-5s -%c %s%-10s  %s\n",
 			    (i<1 ? "[REQ]" : ""),
 			    options[i].shortName,
 			    options[i].longName ? "or --" : "     ",
@@ -335,16 +332,16 @@ int main(int argc, char * argv[]) {
 			    options_help[i]);
 		}
 
-		fprintf(stderr, "modes: (-m option)\n");
+		slfprintf_stderr("modes: (-m option)\n");
 		for(i = 0; i<UPRV_LENGTHOF(modes); i++) {
-			fprintf(stderr, "   %-9s ", modes[i].name);
+			slfprintf_stderr("   %-9s ", modes[i].name);
 			if(modes[i].alt_name) {
-				fprintf(stderr, "/ %-9s", modes[i].alt_name);
+				slfprintf_stderr("/ %-9s", modes[i].alt_name);
 			}
 			else {
-				fprintf(stderr, "           ");
+				slfprintf_stderr("           ");
 			}
-			fprintf(stderr, "  %s\n", modes[i].desc);
+			slfprintf_stderr("  %s\n", modes[i].desc);
 		}
 		return 1;
 	}
@@ -431,8 +428,8 @@ int main(int argc, char * argv[]) {
 	}
 	/* load the files */
 	loadLists(&o, &status);
-	if(U_FAILURE(status) ) {
-		fprintf(stderr, "error loading input file lists: %s\n", u_errorName(status));
+	if(U_FAILURE(status)) {
+		slfprintf_stderr("error loading input file lists: %s\n", u_errorName(status));
 		return 2;
 	}
 	result = pkg_executeOptions(&o);
@@ -496,7 +493,7 @@ normal_command_mode:
 	printf("pkgdata: %s\n", cmd);
 	int result = system(cmd);
 	if(result != 0) {
-		fprintf(stderr, "-- return status = %d\n", result);
+		slfprintf_stderr("-- return status = %d\n", result);
 		result = 1; // system() result code is platform specific.
 	}
 
@@ -561,7 +558,7 @@ static int32_t pkg_executeOptions(UPKGOptions * o)
 			NULL,
 			U_CHARSET_FAMILY ? 'e' :  U_IS_BIG_ENDIAN ? 'b' : 'l');
 		if(result != 0) {
-			fprintf(stderr, "Error writing package dat file.\n");
+			slfprintf_stderr("Error writing package dat file.\n");
 			return result;
 		}
 
@@ -575,7 +572,7 @@ static int32_t pkg_executeOptions(UPKGOptions * o)
 			if(uprv_strcmp(datFileNamePath, targetFileNamePath) != 0) {
 				if(T_FileStream_file_exists(targetFileNamePath)) {
 					if((result = remove(targetFileNamePath)) != 0) {
-						fprintf(stderr, "Unable to remove old dat file: %s\n",
+						slfprintf_stderr("Unable to remove old dat file: %s\n",
 						    targetFileNamePath);
 						return result;
 					}
@@ -696,7 +693,7 @@ static int32_t pkg_executeOptions(UPKGOptions * o)
 
 					result = pkg_createWithAssemblyCode(targetDir, mode, gencFilePath);
 					if(result != 0) {
-						fprintf(stderr, "Error generating assembly code for data.\n");
+						slfprintf_stderr("Error generating assembly code for data.\n");
 						return result;
 					}
 					else if(IN_STATIC_MODE(mode)) {
@@ -710,7 +707,7 @@ static int32_t pkg_executeOptions(UPKGOptions * o)
 					}
 				}
 				else {
-					fprintf(stderr, "Assembly type \"%s\" is unknown.\n", genccodeAssembly);
+					slfprintf_stderr("Assembly type \"%s\" is unknown.\n", genccodeAssembly);
 					return -1;
 				}
 			}
@@ -723,7 +720,7 @@ static int32_t pkg_executeOptions(UPKGOptions * o)
 					result = pkg_createWithoutAssemblyCode(o, targetDir, mode);
 #else
 					/* This error should not occur. */
-					fprintf(stderr, "Error- BUILD_DATA_WITHOUT_ASSEMBLY is not defined. Internal error.\n");
+					slfprintf_stderr("Error- BUILD_DATA_WITHOUT_ASSEMBLY is not defined. Internal error.\n");
 #endif
 				}
 				else {
@@ -756,7 +753,7 @@ static int32_t pkg_executeOptions(UPKGOptions * o)
 				}
 
 				if(result != 0) {
-					fprintf(stderr, "Error generating package data.\n");
+					slfprintf_stderr("Error generating package data.\n");
 					return result;
 				}
 			}
@@ -768,7 +765,7 @@ static int32_t pkg_executeOptions(UPKGOptions * o)
 				}
 				result = pkg_archiveLibrary(targetDir, o->version, reverseExt);
 				if(result != 0) {
-					fprintf(stderr, "Error creating data archive library file.\n");
+					slfprintf_stderr("Error creating data archive library file.\n");
 					return result;
 				}
 #if U_PLATFORM != U_PF_OS400
@@ -780,7 +777,7 @@ static int32_t pkg_executeOptions(UPKGOptions * o)
 					result = pkg_createSymLinks(targetDir, noVersion);
 #endif
 					if(result != 0) {
-						fprintf(stderr, "Error creating symbolic links of the data library file.\n");
+						slfprintf_stderr("Error creating symbolic links of the data library file.\n");
 						return result;
 					}
 				}
@@ -796,7 +793,7 @@ static int32_t pkg_executeOptions(UPKGOptions * o)
 				}
 				result = pkg_installLibrary(o->install, targetDir, noVersion);
 				if(result != 0) {
-					fprintf(stderr, "Error installing the data library.\n");
+					slfprintf_stderr("Error installing the data library.\n");
 					return result;
 				}
 			}
@@ -827,7 +824,7 @@ static int32_t initializePkgDataFlags(UPKGOptions * o) {
 				pkgDataFlags[i][0] = 0;
 			}
 			else {
-				fprintf(stderr, "Error allocating memory for pkgDataFlags.\n");
+				slfprintf_stderr("Error allocating memory for pkgDataFlags.\n");
 				/* If an error occurs, ensure that the rest of the array is NULL */
 				for(int32_t n = i + 1; n < PKGDATA_FLAGS_SIZE; n++) {
 					pkgDataFlags[n] = NULL;
@@ -837,7 +834,7 @@ static int32_t initializePkgDataFlags(UPKGOptions * o) {
 		}
 	}
 	else {
-		fprintf(stderr, "Error allocating memory for pkgDataFlags.\n");
+		slfprintf_stderr("Error allocating memory for pkgDataFlags.\n");
 		return -1;
 	}
 
@@ -862,7 +859,7 @@ static int32_t initializePkgDataFlags(UPKGOptions * o) {
 		currentBufferSize = tmpResult;
 	}
 	else if(U_FAILURE(status)) {
-		fprintf(stderr, "Unable to open or read \"%s\" option file. status = %s\n", o->options, u_errorName(status));
+		slfprintf_stderr("Unable to open or read \"%s\" option file. status = %s\n", o->options, u_errorName(status));
 		return -1;
 	}
 #endif
@@ -1032,7 +1029,7 @@ static int32_t pkg_createSymLinks(const char * targetDir, bool specialHandling)
 	    LN_CMD, libFileNames[LIB_FILE_VERSION], libFileNames[LIB_FILE_VERSION_MAJOR]);
 	result = runCommand(cmd);
 	if(result != 0) {
-		fprintf(stderr, "Error creating symbolic links. Failed command: %s\n", cmd);
+		slfprintf_stderr("Error creating symbolic links. Failed command: %s\n", cmd);
 		return result;
 	}
 #endif
@@ -1049,14 +1046,14 @@ static int32_t pkg_createSymLinks(const char * targetDir, bool specialHandling)
 			    LN_CMD, libFileNames[LIB_FILE_OS390BATCH_VERSION], libFileNames[LIB_FILE_OS390BATCH_MAJOR]);
 			result = runCommand(cmd);
 			if(result != 0) {
-				fprintf(stderr, "Error creating symbolic links. Failed command: %s\n", cmd);
+				slfprintf_stderr("Error creating symbolic links. Failed command: %s\n", cmd);
 				return result;
 			}
 			sprintf(cmd, "cd %s && %s %s.x && %s %s %s.x", targetDir, RM_CMD, libFileNames[LIB_FILE],
 			    LN_CMD, libFileNames[LIB_FILE_OS390BATCH_VERSION], libFileNames[LIB_FILE]);
 			result = runCommand(cmd);
 			if(result != 0) {
-				fprintf(stderr, "Error creating symbolic links. Failed command: %s\n", cmd);
+				slfprintf_stderr("Error creating symbolic links. Failed command: %s\n", cmd);
 				return result;
 			}
 		}
@@ -1089,21 +1086,21 @@ static int32_t pkg_installLibrary(const char * installDir, const char * targetDi
 	U_ASSERT(0 <= ret && ret < SMALL_BUFFER_MAX_SIZE);
 	result = runCommand(cmd);
 	if(result != 0) {
-		fprintf(stderr, "Error installing library. Failed command: %s\n", cmd);
+		slfprintf_stderr("Error installing library. Failed command: %s\n", cmd);
 		return result;
 	}
 #ifdef CYGWINMSVC
 	sprintf(cmd, "cd %s && %s %s.lib %s", targetDir, pkgDataFlags[INSTALL_CMD], libFileNames[LIB_FILE], installDir);
 	result = runCommand(cmd);
 	if(result != 0) {
-		fprintf(stderr, "Error installing library. Failed command: %s\n", cmd);
+		slfprintf_stderr("Error installing library. Failed command: %s\n", cmd);
 		return result;
 	}
 #elif U_PLATFORM == U_PF_CYGWIN
 	sprintf(cmd, "cd %s && %s %s %s", targetDir, pkgDataFlags[INSTALL_CMD], libFileNames[LIB_FILE_CYGWIN_VERSION], installDir );
 	result = runCommand(cmd);
 	if(result != 0) {
-		fprintf(stderr, "Error installing library. Failed command: %s\n", cmd);
+		slfprintf_stderr("Error installing library. Failed command: %s\n", cmd);
 		return result;
 	}
 #elif U_PLATFORM == U_PF_OS390
@@ -1111,7 +1108,7 @@ static int32_t pkg_installLibrary(const char * installDir, const char * targetDi
 		sprintf(cmd, "%s %s %s", pkgDataFlags[INSTALL_CMD], libFileNames[LIB_FILE_OS390BATCH_VERSION], installDir);
 		result = runCommand(cmd);
 		if(result != 0) {
-			fprintf(stderr, "Error installing library. Failed command: %s\n", cmd);
+			slfprintf_stderr("Error installing library. Failed command: %s\n", cmd);
 			return result;
 		}
 	}
@@ -1127,7 +1124,7 @@ static int32_t pkg_installCommonMode(const char * installDir, const char * fileN
 		UErrorCode status = U_ZERO_ERROR;
 		uprv_mkdir(installDir, &status);
 		if(U_FAILURE(status)) {
-			fprintf(stderr, "Error creating installation directory: %s\n", installDir);
+			slfprintf_stderr("Error creating installation directory: %s\n", installDir);
 			return -1;
 		}
 	}
@@ -1139,7 +1136,7 @@ static int32_t pkg_installCommonMode(const char * installDir, const char * fileN
 
 	result = runCommand(cmd);
 	if(result != 0) {
-		fprintf(stderr, "Failed to install data file with command: %s\n", cmd);
+		slfprintf_stderr("Failed to install data file with command: %s\n", cmd);
 	}
 
 	return result;
@@ -1159,7 +1156,7 @@ static int32_t pkg_installFileMode(const char * installDir, const char * srcDir,
 
 		uprv_mkdir(installDir, &status);
 		if(U_FAILURE(status)) {
-			fprintf(stderr, "Error creating installation directory: %s\n", installDir);
+			slfprintf_stderr("Error creating installation directory: %s\n", installDir);
 			return -1;
 		}
 	}
@@ -1188,13 +1185,13 @@ static int32_t pkg_installFileMode(const char * installDir, const char * srcDir,
 
 				result = runCommand(cmd);
 				if(result != 0) {
-					fprintf(stderr, "Failed to install data file with command: %s\n", cmd);
+					slfprintf_stderr("Failed to install data file with command: %s\n", cmd);
 					break;
 				}
 			}
 			else {
 				if(!T_FileStream_eof(f)) {
-					fprintf(stderr, "Failed to read line from file: %s\n", fileListName);
+					slfprintf_stderr("Failed to read line from file: %s\n", fileListName);
 					result = -1;
 				}
 				break;
@@ -1204,13 +1201,13 @@ static int32_t pkg_installFileMode(const char * installDir, const char * srcDir,
 	}
 	else {
 		result = -1;
-		fprintf(stderr, "Unable to open list file: %s\n", fileListName);
+		slfprintf_stderr("Unable to open list file: %s\n", fileListName);
 	}
 #else
 	sprintf(cmd, "%s %s %s %s", WIN_INSTALL_CMD, srcDir, installDir, WIN_INSTALL_CMD_FLAGS);
 	result = runCommand(cmd);
 	if(result != 0) {
-		fprintf(stderr, "Failed to install data file with command: %s\n", cmd);
+		slfprintf_stderr("Failed to install data file with command: %s\n", cmd);
 	}
 #endif
 
@@ -1244,7 +1241,7 @@ static int32_t pkg_archiveLibrary(const char * targetDir, const char * version, 
 
 		result = runCommand(cmd);
 		if(result != 0) {
-			fprintf(stderr, "Error creating archive library. Failed command: %s\n", cmd);
+			slfprintf_stderr("Error creating archive library. Failed command: %s\n", cmd);
 			return result;
 		}
 
@@ -1255,7 +1252,7 @@ static int32_t pkg_archiveLibrary(const char * targetDir, const char * version, 
 
 		result = runCommand(cmd);
 		if(result != 0) {
-			fprintf(stderr, "Error creating archive library. Failed command: %s\n", cmd);
+			slfprintf_stderr("Error creating archive library. Failed command: %s\n", cmd);
 			return result;
 		}
 
@@ -1267,7 +1264,7 @@ static int32_t pkg_archiveLibrary(const char * targetDir, const char * version, 
 
 		result = runCommand(cmd);
 		if(result != 0) {
-			fprintf(stderr, "Error creating archive library. Failed command: %s\n", cmd);
+			slfprintf_stderr("Error creating archive library. Failed command: %s\n", cmd);
 			return result;
 		}
 	}
@@ -1311,7 +1308,7 @@ static int32_t pkg_generateLibraryFile(const char * targetDir,
 			    uprv_strlen(libFileNames[LIB_FILE_VERSION]) + uprv_strlen(objectFile) + uprv_strlen(pkgDataFlags[RANLIB]) +
 			    BUFFER_PADDING_SIZE);
 			if((cmd = (char *)uprv_malloc(sizeof(char) * length)) == NULL) {
-				fprintf(stderr, "Unable to allocate memory for command.\n");
+				slfprintf_stderr("Unable to allocate memory for command.\n");
 				return -1;
 			}
 			freeCmd = TRUE;
@@ -1346,7 +1343,7 @@ static int32_t pkg_generateLibraryFile(const char * targetDir,
 			length += static_cast<int32_t>(uprv_strlen(targetDir) + uprv_strlen(libFileNames[LIB_FILE_MINGW]));
 #endif
 			if((cmd = (char *)uprv_malloc(sizeof(char) * length)) == NULL) {
-				fprintf(stderr, "Unable to allocate memory for command.\n");
+				slfprintf_stderr("Unable to allocate memory for command.\n");
 				return -1;
 			}
 			freeCmd = TRUE;
@@ -1459,7 +1456,7 @@ static int32_t pkg_generateLibraryFile(const char * targetDir,
 	}
 
 	if(result != 0) {
-		fprintf(stderr, "Error generating library file. Failed command: %s\n", cmd);
+		slfprintf_stderr("Error generating library file. Failed command: %s\n", cmd);
 	}
 
 	if(freeCmd) {
@@ -1487,7 +1484,7 @@ static int32_t pkg_createWithAssemblyCode(const char * targetDir, const char mod
 	sprintf(cmd.getAlias(), "%s %s -o %s %s", pkgDataFlags[COMPILER], pkgDataFlags[LIBFLAGS_], tempObjectFile, gencFilePath);
 	result = runCommand(cmd.getAlias());
 	if(result != 0) {
-		fprintf(stderr, "Error creating with assembly code. Failed command: %s\n", cmd.getAlias());
+		slfprintf_stderr("Error creating with assembly code. Failed command: %s\n", cmd.getAlias());
 		return result;
 	}
 	return pkg_generateLibraryFile(targetDir, mode, tempObjectFile);
@@ -1543,12 +1540,12 @@ static int32_t pkg_createWithoutAssemblyCode(UPKGOptions * o, const char * targe
 	    libFileNames[LIB_FILE]);
         /* Remove previous icudtall.c file. */
 	if(T_FileStream_file_exists(icudtAll) && (result = remove(icudtAll)) != 0) {
-		fprintf(stderr, "Unable to remove old icudtall file: %s\n", icudtAll);
+		slfprintf_stderr("Unable to remove old icudtall file: %s\n", icudtAll);
 		return result;
 	}
 
 	if((icudtAllFile = T_FileStream_open(icudtAll, "w"))==NULL) {
-		fprintf(stderr, "Unable to write to icudtall file: %s\n", icudtAll);
+		slfprintf_stderr("Unable to write to icudtall file: %s\n", icudtAll);
 		return result;
 	}
 #endif
@@ -1561,11 +1558,11 @@ static int32_t pkg_createWithoutAssemblyCode(UPKGOptions * o, const char * targe
 	}
 
 	if((cmd = (char *)uprv_malloc((listSize + 2) * SMALL_BUFFER_MAX_SIZE)) == NULL) {
-		fprintf(stderr, "Unable to allocate memory for cmd.\n");
+		slfprintf_stderr("Unable to allocate memory for cmd.\n");
 		return -1;
 	}
 	else if((buffer = (char *)uprv_malloc((listSize + 1) * SMALL_BUFFER_MAX_SIZE)) == NULL) {
-		fprintf(stderr, "Unable to allocate memory for buffer.\n");
+		slfprintf_stderr("Unable to allocate memory for buffer.\n");
 		uprv_free(cmd);
 		return -1;
 	}
@@ -1669,7 +1666,7 @@ static int32_t pkg_createWithoutAssemblyCode(UPKGOptions * o, const char * targe
 		sprintf(cmd, "%s %s -o %s %s", pkgDataFlags[COMPILER], pkgDataFlags[LIBFLAGS_], tempObjectFile, gencmnFile);
 		result = runCommand(cmd);
 		if(result != 0) {
-			fprintf(stderr, "Error creating library without assembly code. Failed command: %s\n", cmd);
+			slfprintf_stderr("Error creating library without assembly code. Failed command: %s\n", cmd);
 			break;
 		}
 		uprv_strcat(buffer, " ");
@@ -1691,7 +1688,7 @@ static int32_t pkg_createWithoutAssemblyCode(UPKGOptions * o, const char * targe
 		uprv_strcat(buffer, tempObjectFile);
 	}
 	else {
-		fprintf(stderr, "Error creating library without assembly code. Failed command: %s\n", cmd);
+		slfprintf_stderr("Error creating library without assembly code. Failed command: %s\n", cmd);
 	}
 #endif
 
@@ -1830,7 +1827,7 @@ static int32_t pkg_createWindowsDLL(const char mode, const char * gencFilePath, 
 
 	result = runCommand(cmd, TRUE);
 	if(result != 0) {
-		fprintf(stderr, "Error creating Windows DLL library. Failed command: %s\n", cmd);
+		slfprintf_stderr("Error creating Windows DLL library. Failed command: %s\n", cmd);
 	}
 
 	return result;
@@ -1864,7 +1861,7 @@ static UPKGOptions * pkg_checkFlag(UPKGOptions * o) {
 		tmpGenlibFlagBuffer = (char *)uprv_malloc(length);
 		if(tmpGenlibFlagBuffer == NULL) {
                         /* Memory allocation error */
-			fprintf(stderr, "Unable to allocate buffer of size: %d.\n", length);
+			slfprintf_stderr("Unable to allocate buffer of size: %d.\n", length);
 			return NULL;
 		}
 
@@ -1928,7 +1925,7 @@ static UPKGOptions * pkg_checkFlag(UPKGOptions * o) {
 
 		f = T_FileStream_open(mapFile, "w");
 		if(f == NULL) {
-			fprintf(stderr, "Unable to create map file: %s.\n", mapFile);
+			slfprintf_stderr("Unable to create map file: %s.\n", mapFile);
 			return NULL;
 		}
 		else {
@@ -1994,7 +1991,7 @@ static void loadLists(UPKGOptions * o, UErrorCode * status)
 		in = T_FileStream_open(l->str, "r"); /* open files list */
 
 		if(!in) {
-			fprintf(stderr, "Error opening <%s>.\n", l->str);
+			slfprintf_stderr("Error opening <%s>.\n", l->str);
 			*status = U_FILE_ACCESS_ERROR;
 			return;
 		}
@@ -2002,7 +1999,7 @@ static void loadLists(UPKGOptions * o, UErrorCode * status)
 		while(T_FileStream_readLine(in, line, sizeof(line))!=NULL) { /* for each line */
 			ln++;
 			if(uprv_strlen(line)>lineMax) {
-				fprintf(stderr, "%s:%d - line too long (over %d chars)\n", l->str, (int)ln, (int)lineMax);
+				slfprintf_stderr("%s:%d - line too long (over %d chars)\n", l->str, (int)ln, (int)lineMax);
 				exit(1);
 			}
                         /* remove spaces at the beginning */
@@ -2037,7 +2034,7 @@ static void loadLists(UPKGOptions * o, UErrorCode * status)
 				if(linePtr[0] == '"') {
 					lineNext = uprv_strchr(linePtr+1, '"');
 					if(lineNext == NULL) {
-						fprintf(stderr, "%s:%d - missing trailing double quote (\")\n",
+						slfprintf_stderr("%s:%d - missing trailing double quote (\")\n",
 						    l->str, (int)ln);
 						exit(1);
 					}
@@ -2082,7 +2079,7 @@ static void loadLists(UPKGOptions * o, UErrorCode * status)
                                    PKGDATA_FILE_SEP_STRING */
 				tmpLength = static_cast<int32_t>(uprv_strlen(o->srcDir) + uprv_strlen(s) + 5);
 				if((tmp = (char *)uprv_malloc(tmpLength)) == NULL) {
-					fprintf(stderr, "pkgdata: Error: Unable to allocate tmp buffer size: %d\n", tmpLength);
+					slfprintf_stderr("pkgdata: Error: Unable to allocate tmp buffer size: %d\n", tmpLength);
 					exit(U_MEMORY_ALLOCATION_ERROR);
 				}
 				uprv_strcpy(tmp, o->srcDir);
@@ -2111,7 +2108,7 @@ static bool getPkgDataPath(const char * cmd, bool verbose, char * buf, size_t it
 	p.adoptInstead(popen(cmdBuf.data(), "r"));
 
 	if(p.isNull() || (n = fread(buf, 1, items-1, p.getAlias())) <= 0) {
-		fprintf(stderr, "%s: Error calling '%s'\n", progname, cmd);
+		slfprintf_stderr("%s: Error calling '%s'\n", progname, cmd);
 		*buf = 0;
 		return FALSE;
 	}
@@ -2132,7 +2129,7 @@ static int32_t pkg_getPkgDataPath(bool verbose, UOption * option) {
 
 	if(!getPkgDataPath(pkgconfigCmd, verbose, buf, UPRV_LENGTHOF(buf))) {
 		if(!getPkgDataPath(icuconfigCmd, verbose, buf, UPRV_LENGTHOF(buf))) {
-			fprintf(stderr, "%s: icu-config not found. Fix PATH or specify -O option\n", progname);
+			slfprintf_stderr("%s: icu-config not found. Fix PATH or specify -O option\n", progname);
 			return -1;
 		}
 
@@ -2196,14 +2193,14 @@ static void pkg_createOptMatchArch(char * optMatchArch) {
 			sprintf(optMatchArch, "%s", obj);
 		}
 		else {
-			fprintf(stderr, "Failed to compile %s\n", source);
+			slfprintf_stderr("Failed to compile %s\n", source);
 		}
 		if(!T_FileStream_remove(source)) {
-			fprintf(stderr, "T_FileStream_remove failed to delete %s\n", source);
+			slfprintf_stderr("T_FileStream_remove failed to delete %s\n", source);
 		}
 	}
 	else {
-		fprintf(stderr, "T_FileStream_open failed to open %s for writing\n", source);
+		slfprintf_stderr("T_FileStream_open failed to open %s for writing\n", source);
 	}
 #endif
 }
@@ -2211,7 +2208,7 @@ static void pkg_createOptMatchArch(char * optMatchArch) {
 static void pkg_destroyOptMatchArch(char * optMatchArch) 
 {
 	if(T_FileStream_file_exists(optMatchArch) && !T_FileStream_remove(optMatchArch)) {
-		fprintf(stderr, "T_FileStream_remove failed to delete %s\n", optMatchArch);
+		slfprintf_stderr("T_FileStream_remove failed to delete %s\n", optMatchArch);
 	}
 }
 

@@ -404,7 +404,7 @@ static void * CLUTElemDup(cmsStage * mpe)
 	if(Data->Tab.T) {
 		if(Data->HasFloatValues) {
 			NewElem->Tab.TFloat =
-			    (float*)_cmsDupMem(mpe->ContextID, Data->Tab.TFloat, Data->nEntries * sizeof(float));
+			    (float *)_cmsDupMem(mpe->ContextID, Data->Tab.TFloat, Data->nEntries * sizeof(float));
 			if(NewElem->Tab.TFloat == NULL)
 				goto Error;
 		}
@@ -578,7 +578,7 @@ cmsStage * CMSEXPORT cmsStageAllocCLutFloatGranular(cmsContext ContextID,
 		return NULL;
 	}
 
-	NewElem->Tab.TFloat  = (float*)_cmsCalloc(ContextID, n, sizeof(float));
+	NewElem->Tab.TFloat  = (float *)_cmsCalloc(ContextID, n, sizeof(float));
 	if(NewElem->Tab.TFloat == NULL) {
 		cmsStageFree(NewMPE);
 		return NULL;

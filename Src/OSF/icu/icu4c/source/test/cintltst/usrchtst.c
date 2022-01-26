@@ -2737,15 +2737,15 @@ static void TestUsingSearchCollator(void)
 	for(tuscItemPtr = tuscItems; tuscItemPtr->locale != NULL; tuscItemPtr++) {
 		UErrorCode status = U_ZERO_ERROR;
 		UCollator* ucol = ucol_open(tuscItemPtr->locale, &status);
-		if(U_SUCCESS(status) ) {
+		if(U_SUCCESS(status)) {
 			UStringSearch* usrch = usearch_openFromCollator(dummyPat, -1, tuscItemPtr->text, -1, ucol, NULL, &status);
-			if(U_SUCCESS(status) ) {
+			if(U_SUCCESS(status)) {
 				const PatternAndOffsets * patternsOffsetsPtr;
 				for(patternsOffsetsPtr = tuscItemPtr->patternsAndOffsets;
 				    patternsOffsetsPtr->pattern != NULL;
 				    patternsOffsetsPtr++) {
 					usearch_setPattern(usrch, patternsOffsetsPtr->pattern, -1, &status);
-					if(U_SUCCESS(status) ) {
+					if(U_SUCCESS(status)) {
 						int32_t offset;
 						const int32_t * nextOffsetPtr;
 						const int32_t * limitOffsetPtr;
@@ -2775,7 +2775,7 @@ static void TestUsingSearchCollator(void)
 									tuscItemPtr->locale);
 							}
 						}
-						if(U_FAILURE(status) ) {
+						if(U_FAILURE(status)) {
 							log_err("error, locale %s, usearch_next failed: %s\n",
 							    tuscItemPtr->locale,
 							    u_errorName(status));
@@ -2811,7 +2811,7 @@ static void TestUsingSearchCollator(void)
 									tuscItemPtr->locale);
 							}
 						}
-						if(U_FAILURE(status) ) {
+						if(U_FAILURE(status)) {
 							log_err("error, locale %s, usearch_previous failed: %s\n",
 							    tuscItemPtr->locale,
 							    u_errorName(status));
@@ -2853,7 +2853,7 @@ static void TestPCEBuffer_with(const UChar * search, uint32_t searchLen, const U
 		FALSE,
 		NULL,
 		&icuStatus);
-	if(U_FAILURE(icuStatus) ) {
+	if(U_FAILURE(icuStatus)) {
 		log_data_err("ucol_openFromShortString error %s\n", u_errorName(icuStatus));
 		goto exit;
 	}
@@ -2861,7 +2861,7 @@ static void TestPCEBuffer_with(const UChar * search, uint32_t searchLen, const U
 	locale = ucol_getLocaleByType(coll,
 		ULOC_VALID_LOCALE,
 		&icuStatus);
-	if(U_FAILURE(icuStatus) ) {
+	if(U_FAILURE(icuStatus)) {
 		log_err("ucol_getLocaleByType error %s\n", u_errorName(icuStatus));
 		goto exit;
 	}
@@ -2873,7 +2873,7 @@ static void TestPCEBuffer_with(const UChar * search, uint32_t searchLen, const U
 		source,
 		sourceLen,
 		&icuStatus);
-	if(U_FAILURE(icuStatus) ) {
+	if(U_FAILURE(icuStatus)) {
 		log_err("ubrk_open error %s\n", u_errorName(icuStatus));
 		goto exit;
 	}
@@ -2885,14 +2885,14 @@ static void TestPCEBuffer_with(const UChar * search, uint32_t searchLen, const U
 		coll,
 		ubrk,
 		&icuStatus);
-	if(U_FAILURE(icuStatus) ) {
+	if(U_FAILURE(icuStatus)) {
 		log_err("usearch_openFromCollator error %s\n", u_errorName(icuStatus));
 		goto exit;
 	}
 
 	match = usearch_first(usearch,
 		&icuStatus);
-	if(U_FAILURE(icuStatus) ) {
+	if(U_FAILURE(icuStatus)) {
 		log_err("usearch_first error %s\n", u_errorName(icuStatus));
 		goto exit;
 	}

@@ -1,15 +1,9 @@
+// ppucd.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- *   Copyright (C) 2011-2014, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *******************************************************************************
- *   file name:  ppucd.cpp
+ *   Copyright (C) 2011-2014, International Business Machines Corporation and others.  All Rights Reserved.
  *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
  *   created on: 2011dec11
  *   created by: Markus W. Scherer
  */
@@ -73,7 +67,7 @@ PreparsedUCD::PreparsedUCD(const char * filename, UErrorCode &errorCode) : pname
 	}
 	if(!file) {
 		perror("error opening preparsed UCD");
-		fprintf(stderr, "error opening preparsed UCD file %s\n", filename ? filename : "\"no file name given\"");
+		slfprintf_stderr("error opening preparsed UCD file %s\n", filename ? filename : "\"no file name given\"");
 		errorCode = U_FILE_ACCESS_ERROR;
 		return;
 	}
@@ -122,7 +116,7 @@ PreparsedUCD::LineType PreparsedUCD::readLine(UErrorCode &errorCode) {
 	if(result==NULL) {
 		if(ferror(file)) {
 			perror("error reading preparsed UCD");
-			fprintf(stderr, "error reading preparsed UCD before line %ld\n", (long)lineNumber);
+			slfprintf_stderr("error reading preparsed UCD before line %ld\n", (long)lineNumber);
 			errorCode = U_FILE_ACCESS_ERROR;
 		}
 		return NO_LINE;
@@ -529,7 +523,8 @@ bool PreparsedUCD::parseProperty(UniProps &props, const char * field, UnicodeSet
 	}
 }
 
-bool PreparsedUCD::getRangeForAlgNames(UChar32 &start, UChar32 &end, UErrorCode &errorCode) {
+bool PreparsedUCD::getRangeForAlgNames(UChar32 &start, UChar32 &end, UErrorCode &errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return FALSE;
 	}
@@ -541,10 +536,7 @@ bool PreparsedUCD::getRangeForAlgNames(UChar32 &start, UChar32 &end, UErrorCode 
 	const char * field = nextField();
 	if(field==NULL) {
 		// No range field after the type.
-		fprintf(stderr,
-		    "error in preparsed UCD: missing algnamesrange range field "
-		    "(no second field) on line %ld\n",
-		    (long)lineNumber);
+		slfprintf_stderr("error in preparsed UCD: missing algnamesrange range field (no second field) on line %ld\n", (long)lineNumber);
 		errorCode = U_PARSE_ERROR;
 		return FALSE;
 	}
@@ -555,9 +547,7 @@ UChar32 PreparsedUCD::parseCodePoint(const char * s, UErrorCode &errorCode) {
 	char * end;
 	uint32_t value = (uint32_t)uprv_strtoul(s, &end, 16);
 	if(end<=s || *end!=0 || value>=0x110000) {
-		fprintf(stderr,
-		    "error in preparsed UCD: '%s' is not a valid code point on line %ld\n",
-		    s, (long)lineNumber);
+		slfprintf_stderr("error in preparsed UCD: '%s' is not a valid code point on line %ld\n", s, (long)lineNumber);
 		errorCode = U_PARSE_ERROR;
 		return U_SENTINEL;
 	}
@@ -568,9 +558,7 @@ bool PreparsedUCD::parseCodePointRange(const char * s, UChar32 &start, UChar32 &
 	uint32_t st, e;
 	u_parseCodePointRange(s, &st, &e, &errorCode);
 	if(U_FAILURE(errorCode)) {
-		fprintf(stderr,
-		    "error in preparsed UCD: '%s' is not a valid code point range on line %ld\n",
-		    s, (long)lineNumber);
+		slfprintf_stderr("error in preparsed UCD: '%s' is not a valid code point range on line %ld\n", s, (long)lineNumber);
 		return FALSE;
 	}
 	start = (UChar32)st;
@@ -578,7 +566,8 @@ bool PreparsedUCD::parseCodePointRange(const char * s, UChar32 &start, UChar32 &
 	return TRUE;
 }
 
-void PreparsedUCD::parseString(const char * s, UnicodeString & uni, UErrorCode &errorCode) {
+void PreparsedUCD::parseString(const char * s, UnicodeString & uni, UErrorCode &errorCode) 
+{
 	UChar * buffer = toUCharPtr(uni.getBuffer(-1));
 	int32_t length = u_parseString(s, buffer, uni.getCapacity(), NULL, &errorCode);
 	if(errorCode==U_BUFFER_OVERFLOW_ERROR) {
@@ -589,9 +578,7 @@ void PreparsedUCD::parseString(const char * s, UnicodeString & uni, UErrorCode &
 	}
 	uni.releaseBuffer(length);
 	if(U_FAILURE(errorCode)) {
-		fprintf(stderr,
-		    "error in preparsed UCD: '%s' is not a valid Unicode string on line %ld\n",
-		    s, (long)lineNumber);
+		slfprintf_stderr("error in preparsed UCD: '%s' is not a valid Unicode string on line %ld\n", s, (long)lineNumber);
 	}
 }
 
@@ -615,16 +602,12 @@ void PreparsedUCD::parseScriptExtensions(const char * s, UnicodeSet &scx, UError
 		}
 		int32_t script = pnames->getPropertyValueEnum(UCHAR_SCRIPT, scs);
 		if(script==UCHAR_INVALID_CODE) {
-			fprintf(stderr,
-			    "error in preparsed UCD: '%s' is not a valid script code on line %ld\n",
-			    scs, (long)lineNumber);
+			slfprintf_stderr("error in preparsed UCD: '%s' is not a valid script code on line %ld\n", scs, (long)lineNumber);
 			errorCode = U_PARSE_ERROR;
 			return;
 		}
 		else if(scx.contains(script)) {
-			fprintf(stderr,
-			    "error in preparsed UCD: scx has duplicate '%s' codes on line %ld\n",
-			    scs, (long)lineNumber);
+			slfprintf_stderr("error in preparsed UCD: scx has duplicate '%s' codes on line %ld\n", scs, (long)lineNumber);
 			errorCode = U_PARSE_ERROR;
 			return;
 		}
@@ -639,7 +622,7 @@ void PreparsedUCD::parseScriptExtensions(const char * s, UnicodeSet &scx, UError
 		}
 	}
 	if(scx.isEmpty()) {
-		fprintf(stderr, "error in preparsed UCD: empty scx= on line %ld\n", (long)lineNumber);
+		slfprintf_stderr("error in preparsed UCD: empty scx= on line %ld\n", (long)lineNumber);
 		errorCode = U_PARSE_ERROR;
 	}
 }

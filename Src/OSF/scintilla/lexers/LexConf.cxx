@@ -64,19 +64,19 @@ static void ColouriseConfDoc(Sci_PositionU startPos, Sci_Position length, int, W
 				    state = SCE_CONF_STRING;
 				    styler.ColourTo(i, SCE_CONF_STRING);
 			    }
-			    else if(IsASCII(ch) && ispunct(ch) ) {
+			    else if(IsASCII(ch) && ispunct(ch)) {
 				    // signals an operator...
 				    // no state jump necessary for this
 				    // simple case...
 				    styler.ColourTo(i, SCE_CONF_OPERATOR);
 			    }
-			    else if(IsASCII(ch) && isalpha(ch) ) {
+			    else if(IsASCII(ch) && isalpha(ch)) {
 				    // signals the start of an identifier
 				    bufferCount = 0;
 				    buffer[bufferCount++] = static_cast<char>(tolower(ch));
 				    state = SCE_CONF_IDENTIFIER;
 			    }
-			    else if(IsASCII(ch) && isdec(ch) ) {
+			    else if(IsASCII(ch) && isdec(ch)) {
 				    // signals the start of a number
 				    bufferCount = 0;
 				    buffer[bufferCount++] = ch;
@@ -156,7 +156,7 @@ static void ColouriseConfDoc(Sci_PositionU startPos, Sci_Position length, int, W
 				    state = SCE_CONF_DEFAULT;
 				    buffer[bufferCount] = '\0';
 				    // Colourize here...
-				    if(sstrchr(buffer, '.') ) {
+				    if(sstrchr(buffer, '.')) {
 					    // it is an IP address...
 					    styler.ColourTo(i-1, SCE_CONF_IP);
 				    }
