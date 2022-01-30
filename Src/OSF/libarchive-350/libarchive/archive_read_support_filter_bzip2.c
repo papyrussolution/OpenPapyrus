@@ -29,11 +29,6 @@ __FBSDID("$FreeBSD$");
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#ifdef HAVE_BZLIB_H
-#include <..\OSF\BZIP2\bzlib.h>
-#endif
-#include "archive.h"
-#include "archive_private.h"
 #include "archive_read_private.h"
 
 #if defined(HAVE_BZLIB_H) && defined(BZ_CONFIG_ERROR)

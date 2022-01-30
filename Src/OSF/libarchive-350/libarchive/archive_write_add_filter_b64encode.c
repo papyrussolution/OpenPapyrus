@@ -26,11 +26,6 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
 
-#include "archive.h"
-#include "archive_private.h"
-#include "archive_string.h"
-#include "archive_write_private.h"
-
 #define LBYTES  57
 
 struct private_b64encode {
@@ -71,14 +66,10 @@ int archive_write_add_filter_b64encode(struct archive * _a)
 	struct archive_write * a = (struct archive_write *)_a;
 	struct archive_write_filter * f = __archive_write_allocate_filter(_a);
 	struct private_b64encode * state;
-
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_write_add_filter_uu");
-
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_add_filter_uu");
 	state = (struct private_b64encode *)SAlloc::C(1, sizeof(*state));
 	if(state == NULL) {
-		archive_set_error(f->archive, ENOMEM,
-		    "Can't allocate data for b64encode filter");
+		archive_set_error(f->archive, ENOMEM, "Can't allocate data for b64encode filter");
 		return ARCHIVE_FATAL;
 	}
 	archive_strcpy(&state->name, "-");
@@ -95,19 +86,15 @@ int archive_write_add_filter_b64encode(struct archive * _a)
 
 	return ARCHIVE_OK;
 }
-
 /*
  * Set write options.
  */
-static int archive_filter_b64encode_options(struct archive_write_filter * f, const char * key,
-    const char * value)
+static int archive_filter_b64encode_options(struct archive_write_filter * f, const char * key, const char * value)
 {
 	struct private_b64encode * state = (struct private_b64encode *)f->data;
-
 	if(strcmp(key, "mode") == 0) {
 		if(value == NULL) {
-			archive_set_error(f->archive, ARCHIVE_ERRNO_MISC,
-			    "mode option requires octal digits");
+			archive_set_error(f->archive, ARCHIVE_ERRNO_MISC, "mode option requires octal digits");
 			return ARCHIVE_FAILED;
 		}
 		state->mode = (int)atol8(value, strlen(value)) & 0777;
@@ -115,8 +102,7 @@ static int archive_filter_b64encode_options(struct archive_write_filter * f, con
 	}
 	else if(strcmp(key, "name") == 0) {
 		if(value == NULL) {
-			archive_set_error(f->archive, ARCHIVE_ERRNO_MISC,
-			    "name option requires a string");
+			archive_set_error(f->archive, ARCHIVE_ERRNO_MISC, "name option requires a string");
 			return ARCHIVE_FAILED;
 		}
 		archive_strcpy(&state->name, value);
@@ -136,7 +122,6 @@ static int archive_filter_b64encode_open(struct archive_write_filter * f)
 {
 	struct private_b64encode * state = (struct private_b64encode *)f->data;
 	size_t bs = 65536, bpb;
-
 	if(f->archive->magic == ARCHIVE_WRITE_MAGIC) {
 		/* Buffer size should be a multiple number of the of bytes
 		 * per block for performance. */
@@ -149,14 +134,10 @@ static int archive_filter_b64encode_open(struct archive_write_filter * f)
 
 	state->bs = bs;
 	if(archive_string_ensure(&state->encoded_buff, bs + 512) == NULL) {
-		archive_set_error(f->archive, ENOMEM,
-		    "Can't allocate data for b64encode buffer");
+		archive_set_error(f->archive, ENOMEM, "Can't allocate data for b64encode buffer");
 		return ARCHIVE_FATAL;
 	}
-
-	archive_string_sprintf(&state->encoded_buff, "begin-base64 %o %s\n",
-	    state->mode, state->name.s);
-
+	archive_string_sprintf(&state->encoded_buff, "begin-base64 %o %s\n", state->mode, state->name.s);
 	f->data = state;
 	return 0;
 }

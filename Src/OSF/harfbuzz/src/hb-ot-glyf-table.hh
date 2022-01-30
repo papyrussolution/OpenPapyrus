@@ -259,7 +259,7 @@ public:
 				flags = (uint16_t)flags & ~WE_HAVE_INSTRUCTIONS;
 			}
 
-			bool has_instructions()  const {
+			bool has_instructions() const {
 				return flags & WE_HAVE_INSTRUCTIONS;
 			}
 

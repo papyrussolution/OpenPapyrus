@@ -32,21 +32,9 @@ __FBSDID("$FreeBSD$");
 #elif HAVE_EXPAT_H
 #include <expat.h>
 #endif
-#ifdef HAVE_BZLIB_H
-	#include <..\OSF\BZIP2\bzlib.h>
-#endif
-#if HAVE_LZMA_H
-	#include <..\OSF\liblzma\api\lzma.h>
-#endif
-#ifdef HAVE_ZLIB_H
-	#include <zlib.h>
-#endif
-#include "archive.h"
 #include "archive_digest_private.h"
 #include "archive_endian.h"
-#include "archive_entry.h"
 #include "archive_entry_locale.h"
-#include "archive_private.h"
 #include "archive_read_private.h"
 
 #if (!defined(HAVE_LIBXML_XMLREADER_H) && \
@@ -140,7 +128,7 @@ struct xar_file {
 	struct xar_file         * parent;
 	int subdirs;
 
-	unsigned int has;
+	uint has;
 #define HAS_DATA                0x00001
 #define HAS_PATHNAME            0x00002
 #define HAS_SYMLINK             0x00004
@@ -182,8 +170,8 @@ struct xar_file {
 	dev_t devminor;
 	int64 ino64;
 	struct archive_string fflags_text;
-	unsigned int link;
-	unsigned int nlink;
+	uint link;
+	uint nlink;
 	struct archive_string hardlink;
 	struct xattr            * xattr_list;
 };
@@ -191,7 +179,7 @@ struct xar_file {
 struct hdlink {
 	struct hdlink            * next;
 
-	unsigned int id;
+	uint id;
 	int cnt;
 	struct xar_file          * files;
 };

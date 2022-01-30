@@ -447,7 +447,7 @@ uint32_t RegexPattern::flags() const {
 //
 //---------------------------------------------------------------------
 RegexMatcher * RegexPattern::matcher(const UnicodeString & input,
-    UErrorCode          &status)  const {
+    UErrorCode          &status) const {
 	RegexMatcher    * retMatcher = matcher(status);
 	if(retMatcher != NULL) {
 		retMatcher->fDeferredStatus = status;
@@ -461,7 +461,7 @@ RegexMatcher * RegexPattern::matcher(const UnicodeString & input,
 //   matcher(status)
 //
 //---------------------------------------------------------------------
-RegexMatcher * RegexPattern::matcher(UErrorCode & status)  const 
+RegexMatcher * RegexPattern::matcher(UErrorCode & status) const 
 {
 	RegexMatcher * retMatcher = NULL;
 	if(U_FAILURE(status)) {

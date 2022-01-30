@@ -79,7 +79,7 @@
 } while(/*CONSTCOND*/ 0)
 
 static void __archive_rb_tree_insert_rebalance(struct archive_rb_tree *, struct archive_rb_node *);
-static void __archive_rb_tree_removal_rebalance(struct archive_rb_tree *, struct archive_rb_node *, unsigned int);
+static void __archive_rb_tree_removal_rebalance(struct archive_rb_tree *, struct archive_rb_node *, uint);
 
 #define RB_SENTINEL_NODE        NULL
 
@@ -152,7 +152,7 @@ int __archive_rb_tree_insert_node(struct archive_rb_tree * rbt, struct archive_r
 	 * update rbt->rbt_root.
 	 */
 	struct archive_rb_node * parent = (struct archive_rb_node *)(void *)&rbt->rbt_root;
-	unsigned int position = RB_DIR_LEFT;
+	uint position = RB_DIR_LEFT;
 	/*
 	 * Find out where to place this new leaf.
 	 */
@@ -204,9 +204,9 @@ int __archive_rb_tree_insert_node(struct archive_rb_tree * rbt, struct archive_r
  * as a separate step.
  */
 /*ARGSUSED*/
-static void __archive_rb_tree_reparent_nodes(struct archive_rb_node * old_father, const unsigned int which)
+static void __archive_rb_tree_reparent_nodes(struct archive_rb_node * old_father, const uint which)
 {
-	const unsigned int other = which ^ RB_DIR_OTHER;
+	const uint other = which ^ RB_DIR_OTHER;
 	struct archive_rb_node * const grandpa = RB_FATHER(old_father);
 	struct archive_rb_node * const old_child = old_father->rb_nodes[which];
 	struct archive_rb_node * const new_father = old_child;
@@ -246,8 +246,8 @@ static void __archive_rb_tree_insert_rebalance(struct archive_rb_tree * rbt,
 	struct archive_rb_node * father = RB_FATHER(self);
 	struct archive_rb_node * grandpa;
 	struct archive_rb_node * uncle;
-	unsigned int which;
-	unsigned int other;
+	uint which;
+	uint other;
 
 	for(;;) {
 		/*
@@ -317,7 +317,7 @@ static void __archive_rb_tree_insert_rebalance(struct archive_rb_tree * rbt,
 static void __archive_rb_tree_prune_node(struct archive_rb_tree * rbt,
     struct archive_rb_node * self, int rebalance)
 {
-	const unsigned int which = RB_POSITION(self);
+	const uint which = RB_POSITION(self);
 	struct archive_rb_node * father = RB_FATHER(self);
 
 	/*
@@ -339,8 +339,8 @@ static void __archive_rb_tree_prune_node(struct archive_rb_tree * rbt,
 static void __archive_rb_tree_swap_prune_and_rebalance(struct archive_rb_tree * rbt,
     struct archive_rb_node * self, struct archive_rb_node * standin)
 {
-	const unsigned int standin_which = RB_POSITION(standin);
-	unsigned int standin_other = standin_which ^ RB_DIR_OTHER;
+	const uint standin_which = RB_POSITION(standin);
+	uint standin_other = standin_which ^ RB_DIR_OTHER;
 	struct archive_rb_node * standin_son;
 	struct archive_rb_node * standin_father = RB_FATHER(standin);
 	int rebalance = RB_BLACK_P(standin);
@@ -440,7 +440,7 @@ static void __archive_rb_tree_swap_prune_and_rebalance(struct archive_rb_tree * 
  *
  * But it's more efficient to just evaluate and recolor the child.
  */
-static void __archive_rb_tree_prune_blackred_branch(struct archive_rb_node * self, unsigned int which)
+static void __archive_rb_tree_prune_blackred_branch(struct archive_rb_node * self, uint which)
 {
 	struct archive_rb_node * father = RB_FATHER(self);
 	struct archive_rb_node * son = self->rb_nodes[which];
@@ -461,7 +461,7 @@ void __archive_rb_tree_remove_node(struct archive_rb_tree * rbt,
     struct archive_rb_node * self)
 {
 	struct archive_rb_node * standin;
-	unsigned int which;
+	uint which;
 
 	/*
 	 * In the following diagrams, we (the node to be removed) are S.  Red
@@ -514,10 +514,10 @@ void __archive_rb_tree_remove_node(struct archive_rb_tree * rbt,
 }
 
 static void __archive_rb_tree_removal_rebalance(struct archive_rb_tree * rbt,
-    struct archive_rb_node * parent, unsigned int which)
+    struct archive_rb_node * parent, uint which)
 {
 	while(RB_BLACK_P(parent->rb_nodes[which])) {
-		unsigned int other = which ^ RB_DIR_OTHER;
+		uint other = which ^ RB_DIR_OTHER;
 		struct archive_rb_node * brother = parent->rb_nodes[other];
 
 		if(brother == NULL)
@@ -640,8 +640,8 @@ static void __archive_rb_tree_removal_rebalance(struct archive_rb_tree * rbt,
 }
 
 struct archive_rb_node * __archive_rb_tree_iterate(struct archive_rb_tree * rbt,
-    struct archive_rb_node * self, const unsigned int direction){
-	const unsigned int other = direction ^ RB_DIR_OTHER;
+    struct archive_rb_node * self, const uint direction){
+	const uint other = direction ^ RB_DIR_OTHER;
 
 	if(self == NULL) {
 		self = rbt->rbt_root;

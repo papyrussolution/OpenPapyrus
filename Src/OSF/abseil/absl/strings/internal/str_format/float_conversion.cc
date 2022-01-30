@@ -354,16 +354,16 @@ char * PrintIntegralDigitsFromRightFast(uint128 v, char * p)
 // shifting.
 // Performs rounding if necessary to fit within `precision`.
 // Returns the pointer to one after the last character written.
-char * PrintFractionalDigitsFast(uint64_t v, char * start, int exp,
-    int precision) {
+char * PrintFractionalDigitsFast(uint64_t v, char * start, int exp, int precision) 
+{
 	char * p = start;
 	v <<= (64 - exp);
 	while(precision > 0) {
-		if(!v) return p;
-		*p++ = MultiplyBy10WithCarry(&v, uint64_t{0}) + '0';
+		if(!v) 
+			return p;
+		*p++ = static_cast<char>(MultiplyBy10WithCarry(&v, uint64_t{0}) + '0');
 		--precision;
 	}
-
 	// We need to round.
 	if(v < 0x8000000000000000) {
 		// We round down, so nothing to do.
@@ -385,8 +385,8 @@ char * PrintFractionalDigitsFast(uint64_t v, char * start, int exp,
 // after shifting.
 // Performs rounding if necessary to fit within `precision`.
 // Returns the pointer to one after the last character written.
-char * PrintFractionalDigitsFast(uint128 v, char * start, int exp,
-    int precision) {
+char * PrintFractionalDigitsFast(uint128 v, char * start, int exp, int precision) 
+{
 	char * p = start;
 	v <<= (128 - exp);
 	auto high = static_cast<uint64_t>(v >> 64);
@@ -400,17 +400,15 @@ char * PrintFractionalDigitsFast(uint128 v, char * start, int exp,
 		*p++ = static_cast<char>(carry + '0');
 		--precision;
 	}
-
 	// Now `low` is empty, so use a faster approach for the rest of the digits.
 	// This block is pretty much the same as the main loop for the 64-bit case
 	// above.
 	while(precision > 0) {
 		if(!high) 
 			return p;
-		*p++ = MultiplyBy10WithCarry(&high, uint64_t{0}) + '0';
+		*p++ = static_cast<char>(MultiplyBy10WithCarry(&high, uint64_t{0}) + '0');
 		--precision;
 	}
-
 	// We need to round.
 	if(high < 0x8000000000000000) {
 		// We round down, so nothing to do.

@@ -66,15 +66,15 @@
 #define XXH_free free
 #define XXH_memcpy memcpy
 
-static unsigned int       XXH32(const void*, unsigned int, unsigned int);
+static uint       XXH32(const void*, uint, uint);
 static void *   XXH32_init(uint);
-static XXH_errorcode      XXH32_update(void*, const void*, unsigned int);
-static unsigned int       XXH32_digest(void *);
+static XXH_errorcode      XXH32_update(void*, const void*, uint);
+static uint       XXH32_digest(void *);
 /*static int		  XXH32_sizeofState(void);*/
-static XXH_errorcode      XXH32_resetState(void*, unsigned int);
+static XXH_errorcode      XXH32_resetState(void*, uint);
 #define       XXH32_SIZEOFSTATE 48
 typedef struct { long long ll[(XXH32_SIZEOFSTATE+(sizeof(long long)-1))/sizeof(long long)]; } XXH32_stateSpace_t;
-static unsigned int       XXH32_intermediateDigest(void *);
+static uint       XXH32_intermediateDigest(void *);
 
 /***************************************
 ** Basic Types
@@ -89,7 +89,7 @@ typedef uint64 U64;
 #else
 typedef uchar BYTE;
 typedef unsigned short U16;
-typedef unsigned int U32;
+typedef uint U32;
 typedef   signed int S32;
 typedef unsigned long long U64;
 #endif
@@ -191,7 +191,7 @@ static FORCE_INLINE U32 XXH_readLE32(const U32* ptr, XXH_endianess endian)
 /*****************************
 ** Simple Hash Functions
 ******************************/
-static FORCE_INLINE U32 XXH32_endian_align(const void * input, unsigned int len, U32 seed, XXH_endianess endian, XXH_alignment align)
+static FORCE_INLINE U32 XXH32_endian_align(const void * input, uint len, U32 seed, XXH_endianess endian, XXH_alignment align)
 {
 	const BYTE* p = (const BYTE*)input;
 	const BYTE* bEnd = p + len;
@@ -240,7 +240,7 @@ static FORCE_INLINE U32 XXH32_endian_align(const void * input, unsigned int len,
 	return h32;
 }
 
-U32 XXH32(const void * input, unsigned int len, U32 seed)
+U32 XXH32(const void * input, uint len, U32 seed)
 {
 #if 0
 	// Simple version, good for code maintenance, but unfortunately slow for small inputs
@@ -368,7 +368,7 @@ static FORCE_INLINE XXH_errorcode XXH32_update_endian(void * state_in, const voi
 	return XXH_OK;
 }
 
-static XXH_errorcode XXH32_update(void * state_in, const void * input, unsigned int len)
+static XXH_errorcode XXH32_update(void * state_in, const void * input, uint len)
 {
 	XXH_endianess endian_detected = (XXH_endianess)XXH_CPU_LITTLE_ENDIAN;
 	if((endian_detected==XXH_littleEndian) || XXH_FORCE_NATIVE_FORMAT)

@@ -8404,10 +8404,10 @@ class Win32Exception : public std::exception {
 public:
 	static void installHandler();
 	static void removeHandler();
-	virtual const char * what()  const throw() { return _event; }
+	virtual const char * what() const throw() { return _event; }
 	ExceptionAddress where() const { return _location; }
-	uint code()  const { return _code; }
-	EXCEPTION_POINTERS * info()  const { return _info; }
+	uint code() const { return _code; }
+	EXCEPTION_POINTERS * info() const { return _info; }
 protected:
 	explicit Win32Exception(EXCEPTION_POINTERS * info); // Constructor only accessible by exception handler
 	static void translate(unsigned code, EXCEPTION_POINTERS * info);

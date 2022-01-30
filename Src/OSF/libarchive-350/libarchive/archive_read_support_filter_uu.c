@@ -452,24 +452,19 @@ read_more:
 		len = get_line(b, avail_in - used, &nl);
 		if(len < 0) {
 			/* Non-ascii character is found. */
-			if(uudecode->state == ST_FIND_HEAD &&
-			    (uudecode->total > 0 || total > 0)) {
+			if(uudecode->state == ST_FIND_HEAD && (uudecode->total > 0 || total > 0)) {
 				uudecode->state = ST_IGNORE;
 				used = avail_in;
 				goto finish;
 			}
-			archive_set_error(&self->archive->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "Insufficient compressed data");
+			archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Insufficient compressed data");
 			return ARCHIVE_FATAL;
 		}
 		llen = len;
 		if((nl == 0) && (uudecode->state != ST_UUEND)) {
 			if(total == 0 && ravail <= 0) {
 				/* There is nothing more to read, fail */
-				archive_set_error(&self->archive->archive,
-				    ARCHIVE_ERRNO_FILE_FORMAT,
-				    "Missing format data");
+				archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Missing format data");
 				return ARCHIVE_FATAL;
 			}
 			/*
@@ -497,9 +492,7 @@ read_more:
 			case ST_FIND_HEAD:
 			    /* Do not read more than UUENCODE_BID_MAX_READ bytes */
 			    if(total + len >= UUENCODE_BID_MAX_READ) {
-				    archive_set_error(&self->archive->archive,
-					ARCHIVE_ERRNO_FILE_FORMAT,
-					"Invalid format data");
+				    archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Invalid format data");
 				    return ARCHIVE_FATAL;
 			    }
 			    if(len - nl >= 11 && memcmp(b, "begin ", 6) == 0)
@@ -523,18 +516,14 @@ read_more:
 				    goto finish;
 			    body = len - nl;
 			    if(!uuchar[*b] || body <= 0) {
-				    archive_set_error(&self->archive->archive,
-					ARCHIVE_ERRNO_MISC,
-					"Insufficient compressed data");
+				    archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Insufficient compressed data");
 				    return ARCHIVE_FATAL;
 			    }
 			    /* Get length of undecoded bytes of current line. */
 			    l = UUDECODE(*b++);
 			    body--;
 			    if(l > body) {
-				    archive_set_error(&self->archive->archive,
-					ARCHIVE_ERRNO_MISC,
-					"Insufficient compressed data");
+				    archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Insufficient compressed data");
 				    return ARCHIVE_FATAL;
 			    }
 			    if(l == 0) {
@@ -567,9 +556,7 @@ read_more:
 				    }
 			    }
 			    if(l) {
-				    archive_set_error(&self->archive->archive,
-					ARCHIVE_ERRNO_MISC,
-					"Insufficient compressed data");
+				    archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Insufficient compressed data");
 				    return ARCHIVE_FATAL;
 			    }
 			    break;
@@ -577,9 +564,7 @@ read_more:
 			    if(len - nl == 3 && memcmp(b, "end ", 3) == 0)
 				    uudecode->state = ST_FIND_HEAD;
 			    else {
-				    archive_set_error(&self->archive->archive,
-					ARCHIVE_ERRNO_MISC,
-					"Insufficient compressed data");
+				    archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Insufficient compressed data");
 				    return ARCHIVE_FATAL;
 			    }
 			    break;
@@ -622,9 +607,7 @@ read_more:
 				    }
 			    }
 			    if(l && *b != '=') {
-				    archive_set_error(&self->archive->archive,
-					ARCHIVE_ERRNO_MISC,
-					"Insufficient compressed data");
+				    archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Insufficient compressed data");
 				    return ARCHIVE_FATAL;
 			    }
 			    break;

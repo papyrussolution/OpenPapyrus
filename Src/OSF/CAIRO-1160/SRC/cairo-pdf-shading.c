@@ -38,7 +38,6 @@
 #if CAIRO_HAS_PDF_OPERATORS
 
 #include "cairo-pdf-shading-private.h"
-//#include <float.h>
 
 static uchar * FASTCALL encode_coordinate(uchar * p, double c)
 {

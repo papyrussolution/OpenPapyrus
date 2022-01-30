@@ -1475,10 +1475,7 @@ int ssh_options_apply(ssh_session session) {
 		SAlloc::F(session->opts.ProxyCommand);
 		session->opts.ProxyCommand = tmp;
 	}
-
-	for(it = ssh_list_get_iterator(session->opts.identity);
-	    it != NULL;
-	    it = it->next) {
+	for(it = ssh_list_get_iterator(session->opts.identity); it != NULL; it = it->next) {
 		char * id = (char *)it->data;
 		if(strncmp(id, "pkcs11:", 6) == 0) {
 			/* PKCS#11 URIs are using percent-encoding so we can not mix

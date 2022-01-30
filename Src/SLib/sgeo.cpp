@@ -84,7 +84,7 @@
 
 static bool IsGeoPosValid(double lat, double lon)
 {
-	int    ok = true;
+	bool   ok = true;
 	if(lat < -90.0 || lat > 90.0)
 		ok = SLS.SetError(SLERR_INVGEOLATITUDE);
 	else if(lon < -180.0 || lon > 180.0)

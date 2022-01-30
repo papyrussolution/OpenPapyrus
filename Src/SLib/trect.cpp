@@ -1073,7 +1073,7 @@ float  SPoint2F::Ratio() const { return (y / x); }
 float  SPoint2F::Add() const { return x + y; }
 SPoint2F SPoint2F::AddX(float _x) const { return SPoint2F(x + _x, y); }
 SPoint2F SPoint2F::AddY(float _y) const { return SPoint2F(x, y + _y); }
-float  SPoint2F::Sub()  const { return x - y; }
+float  SPoint2F::Sub() const { return x - y; }
 float  SPoint2F::Sq() const { return (x * x + y * y); }
 double SPoint2F::Hypot() const { return _hypot(x, y); }
 float  SPoint2F::Hypotf() const { return static_cast<float>(_hypot(x, y)); }

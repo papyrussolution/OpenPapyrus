@@ -93,11 +93,6 @@ __FBSDID("$FreeBSD$");
 #ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
 #endif
-
-#include "archive.h"
-#include "archive_string.h"
-#include "archive_entry.h"
-#include "archive_private.h"
 #include "archive_read_disk_private.h"
 
 #ifndef HAVE_FCHDIR
@@ -458,17 +453,13 @@ static int _archive_read_free(struct archive * _a)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	int r;
-
 	if(_a == NULL)
 		return ARCHIVE_OK;
-	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, "archive_read_free");
-
+	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, "archive_read_free");
 	if(a->archive.state != ARCHIVE_STATE_CLOSED)
 		r = _archive_read_close(&a->archive);
 	else
 		r = ARCHIVE_OK;
-
 	tree_free(a->tree);
 	if(a->cleanup_gname != NULL && a->lookup_gname_data != NULL)
 		(a->cleanup_gname)(a->lookup_gname_data);
@@ -485,15 +476,10 @@ static int _archive_read_free(struct archive * _a)
 static int _archive_read_close(struct archive * _a)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
-
-	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, "archive_read_close");
-
+	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, "archive_read_close");
 	if(a->archive.state != ARCHIVE_STATE_FATAL)
 		a->archive.state = ARCHIVE_STATE_CLOSED;
-
 	tree_close(a->tree);
-
 	return ARCHIVE_OK;
 }
 
@@ -511,8 +497,7 @@ static void setup_symlink_mode(struct archive_read_disk * a, char symlink_mode,
 int archive_read_disk_set_symlink_logical(struct archive * _a)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_read_disk_set_symlink_logical");
+	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_read_disk_set_symlink_logical");
 	setup_symlink_mode(a, 'L', 1);
 	return ARCHIVE_OK;
 }
@@ -520,8 +505,7 @@ int archive_read_disk_set_symlink_logical(struct archive * _a)
 int archive_read_disk_set_symlink_physical(struct archive * _a)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_read_disk_set_symlink_physical");
+	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_read_disk_set_symlink_physical");
 	setup_symlink_mode(a, 'P', 0);
 	return ARCHIVE_OK;
 }
@@ -529,8 +513,7 @@ int archive_read_disk_set_symlink_physical(struct archive * _a)
 int archive_read_disk_set_symlink_hybrid(struct archive * _a)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_read_disk_set_symlink_hybrid");
+	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_read_disk_set_symlink_hybrid");
 	setup_symlink_mode(a, 'H', 1); /* Follow symlinks initially. */
 	return ARCHIVE_OK;
 }
@@ -538,8 +521,7 @@ int archive_read_disk_set_symlink_hybrid(struct archive * _a)
 int archive_read_disk_set_atime_restored(struct archive * _a)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_read_disk_restore_atime");
+	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_read_disk_restore_atime");
 #ifdef HAVE_UTIMES
 	a->flags |= ARCHIVE_READDISK_RESTORE_ATIME;
 	if(a->tree != NULL)
@@ -557,12 +539,8 @@ int archive_read_disk_set_behavior(struct archive * _a, int flags)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	int r = ARCHIVE_OK;
-
-	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_read_disk_honor_nodump");
-
+	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_read_disk_honor_nodump");
 	a->flags = flags;
-
 	if(flags & ARCHIVE_READDISK_RESTORE_ATIME)
 		r = archive_read_disk_set_atime_restored(_a);
 	else {
@@ -571,7 +549,6 @@ int archive_read_disk_set_behavior(struct archive * _a, int flags)
 	}
 	return r;
 }
-
 /*
  * Trivial implementations of gname/uname lookup functions.
  * These are normally overridden by the client, but these stub
@@ -666,21 +643,16 @@ static int _archive_read_data_block(struct archive * _a, const void ** buff,
 	int64 sparse_bytes;
 	size_t buffbytes;
 	int empty_sparse_region = 0;
-
-	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_DATA,
-	    "archive_read_data_block");
-
+	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_DATA, "archive_read_data_block");
 	if(t->entry_eof || t->entry_remaining_bytes <= 0) {
 		r = ARCHIVE_EOF;
 		goto abort_read_data;
 	}
-
 	/*
 	 * Open the current file.
 	 */
 	if(t->entry_fd < 0) {
 		int flags = O_RDONLY | O_BINARY | O_CLOEXEC;
-
 		/*
 		 * Eliminate or reduce cache effects if we can.
 		 *
@@ -1083,11 +1055,7 @@ static int _archive_read_next_header2(struct archive * _a, struct archive_entry 
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	struct tree * t;
 	int r;
-
-	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC,
-	    ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA,
-	    "archive_read_next_header2");
-
+	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA, "archive_read_next_header2");
 	t = a->tree;
 	if(t->entry_fd >= 0) {
 		close_and_restore_time(t->entry_fd, t, &t->restore_time);
@@ -1684,19 +1652,16 @@ static int setup_current_filesystem(struct archive_read_disk * a)
 	struct statvfs svfs;
 #endif
 	int r, vr = 0, xr = 0;
-
 	if(tree_current_is_symblic_link_target(t)) {
 #if defined(HAVE_OPENAT)
 		/*
 		 * Get file system statistics on any directory
 		 * where current is.
 		 */
-		int fd = openat(tree_current_dir_fd(t),
-			tree_current_access_path(t), O_RDONLY | O_CLOEXEC);
+		int fd = openat(tree_current_dir_fd(t), tree_current_access_path(t), O_RDONLY | O_CLOEXEC);
 		__archive_ensure_cloexec_flag(fd);
 		if(fd < 0) {
-			archive_set_error(&a->archive, errno,
-			    "openat failed");
+			archive_set_error(&a->archive, errno, "openat failed");
 			return ARCHIVE_FAILED;
 		}
 #if defined(HAVE_FSTATVFS)
@@ -1824,8 +1789,7 @@ static int setup_current_filesystem(struct archive_read_disk * a)
 			tree_current_access_path(t), O_RDONLY | O_CLOEXEC);
 		__archive_ensure_cloexec_flag(fd);
 		if(fd < 0) {
-			archive_set_error(&a->archive, errno,
-			    "openat failed");
+			archive_set_error(&a->archive, errno, "openat failed");
 			return ARCHIVE_FAILED;
 		}
 		r = fstatvfs(fd, &svfs);

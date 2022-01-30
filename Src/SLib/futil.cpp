@@ -1,5 +1,5 @@
 // FUTIL.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -306,7 +306,8 @@ int createDir(const char * pPath)
 	int    ok = 1;
 	SString path;
 	SString temp_path;
-	(temp_path = pPath).SetLastSlash().ReplaceChar('/', '\\');
+	// @v11.2.12 (temp_path = pPath).SetLastSlash().ReplaceChar('/', '\\');
+	SPathStruc::NormalizePath(pPath, SPathStruc::npfKeepCase, temp_path); // @v11.2.12 
 	const char * p = temp_path;
 	do {
 		if(*p == '\\') {
@@ -330,9 +331,9 @@ int createDir(const char * pPath)
 	return ok;
 }
 
-int FASTCALL IsWild(const char * f)
+bool FASTCALL IsWild(const char * f)
 {
-	return BIN(f && strpbrk(f, "*?") != 0);
+	return (!isempty(f) && strpbrk(f, "*?") != 0);
 }
 
 SString & makeExecPathFileName(const char * pName, const char * pExt, SString & rPath)

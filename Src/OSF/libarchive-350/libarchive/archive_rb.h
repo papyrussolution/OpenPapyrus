@@ -108,6 +108,6 @@ struct archive_rb_node	*
 void	__archive_rb_tree_remove_node(struct archive_rb_tree *, struct archive_rb_node *);
 struct archive_rb_node *
 	__archive_rb_tree_iterate(struct archive_rb_tree *,
-	struct archive_rb_node *, const unsigned int);
+	struct archive_rb_node *, const uint);
 
 #endif	/* ARCHIVE_RB_H_*/

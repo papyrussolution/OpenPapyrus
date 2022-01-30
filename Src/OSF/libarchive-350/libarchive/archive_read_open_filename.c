@@ -161,17 +161,13 @@ int archive_read_open_filename_w(struct archive * a, const wchar_t * wfilename, 
 		 * filename to multi-byte one and use it.
 		 */
 		struct archive_string fn;
-
 		archive_string_init(&fn);
 		if(archive_string_append_from_wcs(&fn, wfilename,
 		    wcslen(wfilename)) != 0) {
 			if(errno == ENOMEM)
-				archive_set_error(a, errno,
-				    "Can't allocate memory");
+				archive_set_error(a, errno, "Can't allocate memory");
 			else
-				archive_set_error(a, EINVAL,
-				    "Failed to convert a wide-character"
-				    " filename to a multi-byte filename");
+				archive_set_error(a, EINVAL, "Failed to convert a wide-character filename to a multi-byte filename");
 			archive_string_free(&fn);
 			SAlloc::F(mine);
 			return ARCHIVE_FATAL;
@@ -232,8 +228,7 @@ static int file_open(struct archive * a, void * client_data)
 		fd = open(filename, O_RDONLY | O_BINARY | O_CLOEXEC);
 		__archive_ensure_cloexec_flag(fd);
 		if(fd < 0) {
-			archive_set_error(a, errno,
-			    "Failed to open '%s'", filename);
+			archive_set_error(a, errno, "Failed to open '%s'", filename);
 			return ARCHIVE_FATAL;
 		}
 	}
@@ -242,8 +237,7 @@ static int file_open(struct archive * a, void * client_data)
 		wfilename = mine->filename.w;
 		fd = _wopen(wfilename, O_RDONLY | O_BINARY);
 		if(fd < 0 && errno == ENOENT) {
-			wchar_t * fullpath;
-			fullpath = __la_win_permissive_name_w(wfilename);
+			wchar_t * fullpath = __la_win_permissive_name_w(wfilename);
 			if(fullpath != NULL) {
 				fd = _wopen(fullpath, O_RDONLY | O_BINARY);
 				SAlloc::F(fullpath);
@@ -382,8 +376,7 @@ static ssize_t file_read(struct archive * a, void * client_data, const void ** b
 			if(errno == EINTR)
 				continue;
 			else if(mine->filename_type == read_file_data::FNT_STDIN)
-				archive_set_error(a, errno,
-				    "Error reading stdin");
+				archive_set_error(a, errno, "Error reading stdin");
 			else if(mine->filename_type == read_file_data::FNT_MBS)
 				archive_set_error(a, errno, "Error reading '%s'", mine->filename.m);
 			else

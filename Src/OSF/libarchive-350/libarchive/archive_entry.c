@@ -47,23 +47,8 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry.c 201096 2009-12-28 02:41:
 #if defined(HAVE_EXT2FS_EXT2_FS_H) && !defined(__CYGWIN__)
 #include <ext2fs/ext2_fs.h>     /* for Linux file flags */
 #endif
-#include <stddef.h>
-#include <stdio.h>
-#ifdef HAVE_STDLIB_H
-#include <stdlib.h>
-#endif
-#ifdef HAVE_STRING_H
-#include <string.h>
-#endif
-#ifdef HAVE_WCHAR_H
-#include <wchar.h>
-#endif
-
-#include "archive.h"
 #include "archive_acl_private.h"
-#include "archive_entry.h"
 #include "archive_entry_locale.h"
-#include "archive_private.h"
 #include "archive_entry_private.h"
 
 #if !defined(HAVE_MAJOR) && !defined(major)
@@ -105,10 +90,8 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry.c 201096 2009-12-28 02:41:
 	} while(0)
 
 static char *    ae_fflagstostr(unsigned long bitset, unsigned long bitclear);
-static const wchar_t    * ae_wcstofflags(const wchar_t * stringp,
-    unsigned long * setp, unsigned long * clrp);
-static const char       * ae_strtofflags(const char * stringp,
-    unsigned long * setp, unsigned long * clrp);
+static const wchar_t    * ae_wcstofflags(const wchar_t * stringp, unsigned long * setp, unsigned long * clrp);
+static const char       * ae_strtofflags(const char * stringp, unsigned long * setp, unsigned long * clrp);
 
 #ifndef HAVE_WCSCPY
 static wchar_t * wcscpy(wchar_t * s1, const wchar_t * s2)
@@ -505,7 +488,7 @@ int archive_entry_mtime_is_set(struct archive_entry * entry)
 	return (entry->ae_set & AE_SET_MTIME);
 }
 
-unsigned int archive_entry_nlink(struct archive_entry * entry)
+uint archive_entry_nlink(struct archive_entry * entry)
 {
 	return (entry->ae_stat.aest_nlink);
 }
@@ -690,8 +673,7 @@ const wchar_t * archive_entry_uname_w(struct archive_entry * entry)
 	return NULL;
 }
 
-int _archive_entry_uname_l(struct archive_entry * entry,
-    const char ** p, size_t * len, struct archive_string_conv * sc)
+int _archive_entry_uname_l(struct archive_entry * entry, const char ** p, size_t * len, struct archive_string_conv * sc)
 {
 	return (archive_mstring_get_mbs_l(entry->archive, &entry->ae_uname, p, len, sc));
 }
@@ -715,35 +697,30 @@ int archive_entry_is_encrypted(struct archive_entry * entry)
  * Functions to set archive_entry properties.
  */
 
-void archive_entry_set_filetype(struct archive_entry * entry, unsigned int type)
+void archive_entry_set_filetype(struct archive_entry * entry, uint type)
 {
 	entry->stat_valid = 0;
 	entry->acl.mode &= ~AE_IFMT;
 	entry->acl.mode |= AE_IFMT & type;
 }
 
-void archive_entry_set_fflags(struct archive_entry * entry,
-    unsigned long set, unsigned long clear)
+void archive_entry_set_fflags(struct archive_entry * entry, ulong set, ulong clear)
 {
 	archive_mstring_clean(&entry->ae_fflags_text);
 	entry->ae_fflags_set = set;
 	entry->ae_fflags_clear = clear;
 }
 
-const char * archive_entry_copy_fflags_text(struct archive_entry * entry,
-    const char * flags)
+const char * archive_entry_copy_fflags_text(struct archive_entry * entry, const char * flags)
 {
 	archive_mstring_copy_mbs(&entry->ae_fflags_text, flags);
-	return (ae_strtofflags(flags,
-	       &entry->ae_fflags_set, &entry->ae_fflags_clear));
+	return (ae_strtofflags(flags, &entry->ae_fflags_set, &entry->ae_fflags_clear));
 }
 
-const wchar_t * archive_entry_copy_fflags_text_w(struct archive_entry * entry,
-    const wchar_t * flags)
+const wchar_t * archive_entry_copy_fflags_text_w(struct archive_entry * entry, const wchar_t * flags)
 {
 	archive_mstring_copy_wcs(&entry->ae_fflags_text, flags);
-	return (ae_wcstofflags(flags,
-	       &entry->ae_fflags_set, &entry->ae_fflags_clear));
+	return (ae_wcstofflags(flags, &entry->ae_fflags_set, &entry->ae_fflags_clear));
 }
 
 void archive_entry_set_gid(struct archive_entry * entry, la_int64_t g)
@@ -1011,7 +988,7 @@ void archive_entry_unset_mtime(struct archive_entry * entry)
 	entry->ae_set &= ~AE_SET_MTIME;
 }
 
-void archive_entry_set_nlink(struct archive_entry * entry, unsigned int nlink)
+void archive_entry_set_nlink(struct archive_entry * entry, uint nlink)
 {
 	entry->stat_valid = 0;
 	entry->ae_stat.aest_nlink = nlink;

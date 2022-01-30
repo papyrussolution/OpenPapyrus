@@ -214,8 +214,7 @@ class TestConflictingSymbolNames_BuildDescriptors final :
   explicit constexpr TestConflictingSymbolNames_BuildDescriptors(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestConflictingSymbolNames_BuildDescriptors(const TestConflictingSymbolNames_BuildDescriptors& from);
-  TestConflictingSymbolNames_BuildDescriptors(TestConflictingSymbolNames_BuildDescriptors&& from) noexcept
-    : TestConflictingSymbolNames_BuildDescriptors() {
+  TestConflictingSymbolNames_BuildDescriptors(TestConflictingSymbolNames_BuildDescriptors&& from) noexcept : TestConflictingSymbolNames_BuildDescriptors() {
     *this = ::std::move(from);
   }
 
@@ -224,8 +223,8 @@ class TestConflictingSymbolNames_BuildDescriptors final :
     return *this;
   }
   inline TestConflictingSymbolNames_BuildDescriptors& operator=(TestConflictingSymbolNames_BuildDescriptors&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -237,42 +236,25 @@ class TestConflictingSymbolNames_BuildDescriptors final :
     return *this;
   }
 
-  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance);
-  }
-  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-  }
+  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const { return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance); }
+  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() { return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(); }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestConflictingSymbolNames_BuildDescriptors& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestConflictingSymbolNames_BuildDescriptors& default_instance() { return *internal_default_instance(); }
   static inline const TestConflictingSymbolNames_BuildDescriptors* internal_default_instance() {
-    return reinterpret_cast<const TestConflictingSymbolNames_BuildDescriptors*>(
-               &_TestConflictingSymbolNames_BuildDescriptors_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    0;
+    return reinterpret_cast<const TestConflictingSymbolNames_BuildDescriptors*>(&_TestConflictingSymbolNames_BuildDescriptors_default_instance_); }
+  static constexpr int kIndexInFileMessages = 0;
 
-  friend void swap(TestConflictingSymbolNames_BuildDescriptors& a, TestConflictingSymbolNames_BuildDescriptors& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestConflictingSymbolNames_BuildDescriptors& a, TestConflictingSymbolNames_BuildDescriptors& b) { a.Swap(&b); }
   inline void Swap(TestConflictingSymbolNames_BuildDescriptors* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -280,7 +262,7 @@ class TestConflictingSymbolNames_BuildDescriptors final :
     }
   }
   void UnsafeArenaSwap(TestConflictingSymbolNames_BuildDescriptors* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -339,8 +321,7 @@ class TestConflictingSymbolNames_TypeTraits final :
   explicit constexpr TestConflictingSymbolNames_TypeTraits(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestConflictingSymbolNames_TypeTraits(const TestConflictingSymbolNames_TypeTraits& from);
-  TestConflictingSymbolNames_TypeTraits(TestConflictingSymbolNames_TypeTraits&& from) noexcept
-    : TestConflictingSymbolNames_TypeTraits() {
+  TestConflictingSymbolNames_TypeTraits(TestConflictingSymbolNames_TypeTraits&& from) noexcept : TestConflictingSymbolNames_TypeTraits() {
     *this = ::std::move(from);
   }
 
@@ -349,8 +330,8 @@ class TestConflictingSymbolNames_TypeTraits final :
     return *this;
   }
   inline TestConflictingSymbolNames_TypeTraits& operator=(TestConflictingSymbolNames_TypeTraits&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -362,42 +343,25 @@ class TestConflictingSymbolNames_TypeTraits final :
     return *this;
   }
 
-  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance);
-  }
-  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-  }
+  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const { return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance); }
+  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() { return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(); }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestConflictingSymbolNames_TypeTraits& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestConflictingSymbolNames_TypeTraits& default_instance() { return *internal_default_instance(); }
   static inline const TestConflictingSymbolNames_TypeTraits* internal_default_instance() {
-    return reinterpret_cast<const TestConflictingSymbolNames_TypeTraits*>(
-               &_TestConflictingSymbolNames_TypeTraits_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    1;
+    return reinterpret_cast<const TestConflictingSymbolNames_TypeTraits*>(&_TestConflictingSymbolNames_TypeTraits_default_instance_); }
+  static constexpr int kIndexInFileMessages = 1;
 
-  friend void swap(TestConflictingSymbolNames_TypeTraits& a, TestConflictingSymbolNames_TypeTraits& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestConflictingSymbolNames_TypeTraits& a, TestConflictingSymbolNames_TypeTraits& b) { a.Swap(&b); }
   inline void Swap(TestConflictingSymbolNames_TypeTraits* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -405,7 +369,7 @@ class TestConflictingSymbolNames_TypeTraits final :
     }
   }
   void UnsafeArenaSwap(TestConflictingSymbolNames_TypeTraits* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -465,8 +429,7 @@ class TestConflictingSymbolNames_Data1 final :
   explicit constexpr TestConflictingSymbolNames_Data1(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestConflictingSymbolNames_Data1(const TestConflictingSymbolNames_Data1& from);
-  TestConflictingSymbolNames_Data1(TestConflictingSymbolNames_Data1&& from) noexcept
-    : TestConflictingSymbolNames_Data1() {
+  TestConflictingSymbolNames_Data1(TestConflictingSymbolNames_Data1&& from) noexcept : TestConflictingSymbolNames_Data1() {
     *this = ::std::move(from);
   }
 
@@ -475,8 +438,8 @@ class TestConflictingSymbolNames_Data1 final :
     return *this;
   }
   inline TestConflictingSymbolNames_Data1& operator=(TestConflictingSymbolNames_Data1&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -488,42 +451,25 @@ class TestConflictingSymbolNames_Data1 final :
     return *this;
   }
 
-  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance);
-  }
-  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-  }
+  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const { return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance); }
+  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() { return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(); }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestConflictingSymbolNames_Data1& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestConflictingSymbolNames_Data1& default_instance() { return *internal_default_instance(); }
   static inline const TestConflictingSymbolNames_Data1* internal_default_instance() {
-    return reinterpret_cast<const TestConflictingSymbolNames_Data1*>(
-               &_TestConflictingSymbolNames_Data1_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    2;
+    return reinterpret_cast<const TestConflictingSymbolNames_Data1*>(&_TestConflictingSymbolNames_Data1_default_instance_); }
+  static constexpr int kIndexInFileMessages = 2;
 
-  friend void swap(TestConflictingSymbolNames_Data1& a, TestConflictingSymbolNames_Data1& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestConflictingSymbolNames_Data1& a, TestConflictingSymbolNames_Data1& b) { a.Swap(&b); }
   inline void Swap(TestConflictingSymbolNames_Data1* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -531,7 +477,7 @@ class TestConflictingSymbolNames_Data1 final :
     }
   }
   void UnsafeArenaSwap(TestConflictingSymbolNames_Data1* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -631,8 +577,7 @@ class TestConflictingSymbolNames_Data2 final :
   explicit constexpr TestConflictingSymbolNames_Data2(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestConflictingSymbolNames_Data2(const TestConflictingSymbolNames_Data2& from);
-  TestConflictingSymbolNames_Data2(TestConflictingSymbolNames_Data2&& from) noexcept
-    : TestConflictingSymbolNames_Data2() {
+  TestConflictingSymbolNames_Data2(TestConflictingSymbolNames_Data2&& from) noexcept : TestConflictingSymbolNames_Data2() {
     *this = ::std::move(from);
   }
 
@@ -641,8 +586,8 @@ class TestConflictingSymbolNames_Data2 final :
     return *this;
   }
   inline TestConflictingSymbolNames_Data2& operator=(TestConflictingSymbolNames_Data2&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -654,42 +599,25 @@ class TestConflictingSymbolNames_Data2 final :
     return *this;
   }
 
-  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance);
-  }
-  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-  }
+  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const { return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance); }
+  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() { return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(); }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestConflictingSymbolNames_Data2& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestConflictingSymbolNames_Data2& default_instance() { return *internal_default_instance(); }
   static inline const TestConflictingSymbolNames_Data2* internal_default_instance() {
-    return reinterpret_cast<const TestConflictingSymbolNames_Data2*>(
-               &_TestConflictingSymbolNames_Data2_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    3;
+    return reinterpret_cast<const TestConflictingSymbolNames_Data2*>(&_TestConflictingSymbolNames_Data2_default_instance_); }
+  static constexpr int kIndexInFileMessages = 3;
 
-  friend void swap(TestConflictingSymbolNames_Data2& a, TestConflictingSymbolNames_Data2& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestConflictingSymbolNames_Data2& a, TestConflictingSymbolNames_Data2& b) { a.Swap(&b); }
   inline void Swap(TestConflictingSymbolNames_Data2* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -697,7 +625,7 @@ class TestConflictingSymbolNames_Data2 final :
     }
   }
   void UnsafeArenaSwap(TestConflictingSymbolNames_Data2* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -792,8 +720,7 @@ class TestConflictingSymbolNames_Data3 final :
   explicit constexpr TestConflictingSymbolNames_Data3(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestConflictingSymbolNames_Data3(const TestConflictingSymbolNames_Data3& from);
-  TestConflictingSymbolNames_Data3(TestConflictingSymbolNames_Data3&& from) noexcept
-    : TestConflictingSymbolNames_Data3() {
+  TestConflictingSymbolNames_Data3(TestConflictingSymbolNames_Data3&& from) noexcept : TestConflictingSymbolNames_Data3() {
     *this = ::std::move(from);
   }
 
@@ -802,8 +729,8 @@ class TestConflictingSymbolNames_Data3 final :
     return *this;
   }
   inline TestConflictingSymbolNames_Data3& operator=(TestConflictingSymbolNames_Data3&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -815,42 +742,25 @@ class TestConflictingSymbolNames_Data3 final :
     return *this;
   }
 
-  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance);
-  }
-  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-  }
+  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const { return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance); }
+  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() { return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(); }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestConflictingSymbolNames_Data3& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestConflictingSymbolNames_Data3& default_instance() { return *internal_default_instance(); }
   static inline const TestConflictingSymbolNames_Data3* internal_default_instance() {
-    return reinterpret_cast<const TestConflictingSymbolNames_Data3*>(
-               &_TestConflictingSymbolNames_Data3_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    4;
+    return reinterpret_cast<const TestConflictingSymbolNames_Data3*>(&_TestConflictingSymbolNames_Data3_default_instance_); }
+  static constexpr int kIndexInFileMessages = 4;
 
-  friend void swap(TestConflictingSymbolNames_Data3& a, TestConflictingSymbolNames_Data3& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestConflictingSymbolNames_Data3& a, TestConflictingSymbolNames_Data3& b) { a.Swap(&b); }
   inline void Swap(TestConflictingSymbolNames_Data3* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -858,7 +768,7 @@ class TestConflictingSymbolNames_Data3 final :
     }
   }
   void UnsafeArenaSwap(TestConflictingSymbolNames_Data3* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -960,8 +870,7 @@ class TestConflictingSymbolNames_Data4 final :
   explicit constexpr TestConflictingSymbolNames_Data4(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestConflictingSymbolNames_Data4(const TestConflictingSymbolNames_Data4& from);
-  TestConflictingSymbolNames_Data4(TestConflictingSymbolNames_Data4&& from) noexcept
-    : TestConflictingSymbolNames_Data4() {
+  TestConflictingSymbolNames_Data4(TestConflictingSymbolNames_Data4&& from) noexcept : TestConflictingSymbolNames_Data4() {
     *this = ::std::move(from);
   }
 
@@ -970,8 +879,8 @@ class TestConflictingSymbolNames_Data4 final :
     return *this;
   }
   inline TestConflictingSymbolNames_Data4& operator=(TestConflictingSymbolNames_Data4&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -983,42 +892,25 @@ class TestConflictingSymbolNames_Data4 final :
     return *this;
   }
 
-  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance);
-  }
-  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-  }
+  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const { return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance); }
+  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() { return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(); }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestConflictingSymbolNames_Data4& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestConflictingSymbolNames_Data4& default_instance() { return *internal_default_instance(); }
   static inline const TestConflictingSymbolNames_Data4* internal_default_instance() {
-    return reinterpret_cast<const TestConflictingSymbolNames_Data4*>(
-               &_TestConflictingSymbolNames_Data4_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    5;
+    return reinterpret_cast<const TestConflictingSymbolNames_Data4*>(&_TestConflictingSymbolNames_Data4_default_instance_); }
+  static constexpr int kIndexInFileMessages = 5;
 
-  friend void swap(TestConflictingSymbolNames_Data4& a, TestConflictingSymbolNames_Data4& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestConflictingSymbolNames_Data4& a, TestConflictingSymbolNames_Data4& b) { a.Swap(&b); }
   inline void Swap(TestConflictingSymbolNames_Data4* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -1026,7 +918,7 @@ class TestConflictingSymbolNames_Data4 final :
     }
   }
   void UnsafeArenaSwap(TestConflictingSymbolNames_Data4* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -1122,8 +1014,7 @@ class TestConflictingSymbolNames_Data5 final :
   explicit constexpr TestConflictingSymbolNames_Data5(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestConflictingSymbolNames_Data5(const TestConflictingSymbolNames_Data5& from);
-  TestConflictingSymbolNames_Data5(TestConflictingSymbolNames_Data5&& from) noexcept
-    : TestConflictingSymbolNames_Data5() {
+  TestConflictingSymbolNames_Data5(TestConflictingSymbolNames_Data5&& from) noexcept : TestConflictingSymbolNames_Data5() {
     *this = ::std::move(from);
   }
 
@@ -1132,8 +1023,8 @@ class TestConflictingSymbolNames_Data5 final :
     return *this;
   }
   inline TestConflictingSymbolNames_Data5& operator=(TestConflictingSymbolNames_Data5&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -1145,42 +1036,25 @@ class TestConflictingSymbolNames_Data5 final :
     return *this;
   }
 
-  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance);
-  }
-  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-  }
+  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const { return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance); }
+  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() { return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(); }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestConflictingSymbolNames_Data5& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestConflictingSymbolNames_Data5& default_instance() { return *internal_default_instance(); }
   static inline const TestConflictingSymbolNames_Data5* internal_default_instance() {
-    return reinterpret_cast<const TestConflictingSymbolNames_Data5*>(
-               &_TestConflictingSymbolNames_Data5_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    6;
+    return reinterpret_cast<const TestConflictingSymbolNames_Data5*>(&_TestConflictingSymbolNames_Data5_default_instance_); }
+  static constexpr int kIndexInFileMessages = 6;
 
-  friend void swap(TestConflictingSymbolNames_Data5& a, TestConflictingSymbolNames_Data5& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestConflictingSymbolNames_Data5& a, TestConflictingSymbolNames_Data5& b) { a.Swap(&b); }
   inline void Swap(TestConflictingSymbolNames_Data5* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -1188,7 +1062,7 @@ class TestConflictingSymbolNames_Data5 final :
     }
   }
   void UnsafeArenaSwap(TestConflictingSymbolNames_Data5* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -1293,8 +1167,7 @@ class TestConflictingSymbolNames_Data6 final :
   explicit constexpr TestConflictingSymbolNames_Data6(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestConflictingSymbolNames_Data6(const TestConflictingSymbolNames_Data6& from);
-  TestConflictingSymbolNames_Data6(TestConflictingSymbolNames_Data6&& from) noexcept
-    : TestConflictingSymbolNames_Data6() {
+  TestConflictingSymbolNames_Data6(TestConflictingSymbolNames_Data6&& from) noexcept : TestConflictingSymbolNames_Data6() {
     *this = ::std::move(from);
   }
 
@@ -1303,8 +1176,8 @@ class TestConflictingSymbolNames_Data6 final :
     return *this;
   }
   inline TestConflictingSymbolNames_Data6& operator=(TestConflictingSymbolNames_Data6&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -1316,42 +1189,25 @@ class TestConflictingSymbolNames_Data6 final :
     return *this;
   }
 
-  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance);
-  }
-  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-  }
+  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const { return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance); }
+  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() { return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(); }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestConflictingSymbolNames_Data6& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestConflictingSymbolNames_Data6& default_instance() { return *internal_default_instance(); }
   static inline const TestConflictingSymbolNames_Data6* internal_default_instance() {
-    return reinterpret_cast<const TestConflictingSymbolNames_Data6*>(
-               &_TestConflictingSymbolNames_Data6_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    7;
+    return reinterpret_cast<const TestConflictingSymbolNames_Data6*>(&_TestConflictingSymbolNames_Data6_default_instance_); }
+  static constexpr int kIndexInFileMessages = 7;
 
-  friend void swap(TestConflictingSymbolNames_Data6& a, TestConflictingSymbolNames_Data6& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestConflictingSymbolNames_Data6& a, TestConflictingSymbolNames_Data6& b) { a.Swap(&b); }
   inline void Swap(TestConflictingSymbolNames_Data6* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -1359,7 +1215,7 @@ class TestConflictingSymbolNames_Data6 final :
     }
   }
   void UnsafeArenaSwap(TestConflictingSymbolNames_Data6* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -1463,8 +1319,7 @@ class TestConflictingSymbolNames_Cord final :
   explicit constexpr TestConflictingSymbolNames_Cord(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestConflictingSymbolNames_Cord(const TestConflictingSymbolNames_Cord& from);
-  TestConflictingSymbolNames_Cord(TestConflictingSymbolNames_Cord&& from) noexcept
-    : TestConflictingSymbolNames_Cord() {
+  TestConflictingSymbolNames_Cord(TestConflictingSymbolNames_Cord&& from) noexcept : TestConflictingSymbolNames_Cord() {
     *this = ::std::move(from);
   }
 
@@ -1473,8 +1328,8 @@ class TestConflictingSymbolNames_Cord final :
     return *this;
   }
   inline TestConflictingSymbolNames_Cord& operator=(TestConflictingSymbolNames_Cord&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -1486,42 +1341,25 @@ class TestConflictingSymbolNames_Cord final :
     return *this;
   }
 
-  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance);
-  }
-  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-  }
+  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const { return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance); }
+  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() { return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(); }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestConflictingSymbolNames_Cord& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestConflictingSymbolNames_Cord& default_instance() { return *internal_default_instance(); }
   static inline const TestConflictingSymbolNames_Cord* internal_default_instance() {
-    return reinterpret_cast<const TestConflictingSymbolNames_Cord*>(
-               &_TestConflictingSymbolNames_Cord_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    8;
+    return reinterpret_cast<const TestConflictingSymbolNames_Cord*>(&_TestConflictingSymbolNames_Cord_default_instance_); }
+  static constexpr int kIndexInFileMessages = 8;
 
-  friend void swap(TestConflictingSymbolNames_Cord& a, TestConflictingSymbolNames_Cord& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestConflictingSymbolNames_Cord& a, TestConflictingSymbolNames_Cord& b) { a.Swap(&b); }
   inline void Swap(TestConflictingSymbolNames_Cord* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -1529,7 +1367,7 @@ class TestConflictingSymbolNames_Cord final :
     }
   }
   void UnsafeArenaSwap(TestConflictingSymbolNames_Cord* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -1588,8 +1426,7 @@ class TestConflictingSymbolNames_StringPiece final :
   explicit constexpr TestConflictingSymbolNames_StringPiece(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestConflictingSymbolNames_StringPiece(const TestConflictingSymbolNames_StringPiece& from);
-  TestConflictingSymbolNames_StringPiece(TestConflictingSymbolNames_StringPiece&& from) noexcept
-    : TestConflictingSymbolNames_StringPiece() {
+  TestConflictingSymbolNames_StringPiece(TestConflictingSymbolNames_StringPiece&& from) noexcept : TestConflictingSymbolNames_StringPiece() {
     *this = ::std::move(from);
   }
 
@@ -1598,8 +1435,8 @@ class TestConflictingSymbolNames_StringPiece final :
     return *this;
   }
   inline TestConflictingSymbolNames_StringPiece& operator=(TestConflictingSymbolNames_StringPiece&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -1611,42 +1448,25 @@ class TestConflictingSymbolNames_StringPiece final :
     return *this;
   }
 
-  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance);
-  }
-  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-  }
+  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const { return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance); }
+  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() { return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(); }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestConflictingSymbolNames_StringPiece& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestConflictingSymbolNames_StringPiece& default_instance() { return *internal_default_instance(); }
   static inline const TestConflictingSymbolNames_StringPiece* internal_default_instance() {
-    return reinterpret_cast<const TestConflictingSymbolNames_StringPiece*>(
-               &_TestConflictingSymbolNames_StringPiece_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    9;
+    return reinterpret_cast<const TestConflictingSymbolNames_StringPiece*>(&_TestConflictingSymbolNames_StringPiece_default_instance_); }
+  static constexpr int kIndexInFileMessages = 9;
 
-  friend void swap(TestConflictingSymbolNames_StringPiece& a, TestConflictingSymbolNames_StringPiece& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestConflictingSymbolNames_StringPiece& a, TestConflictingSymbolNames_StringPiece& b) { a.Swap(&b); }
   inline void Swap(TestConflictingSymbolNames_StringPiece* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -1654,7 +1474,7 @@ class TestConflictingSymbolNames_StringPiece final :
     }
   }
   void UnsafeArenaSwap(TestConflictingSymbolNames_StringPiece* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -1713,8 +1533,7 @@ class TestConflictingSymbolNames_DO final :
   explicit constexpr TestConflictingSymbolNames_DO(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestConflictingSymbolNames_DO(const TestConflictingSymbolNames_DO& from);
-  TestConflictingSymbolNames_DO(TestConflictingSymbolNames_DO&& from) noexcept
-    : TestConflictingSymbolNames_DO() {
+  TestConflictingSymbolNames_DO(TestConflictingSymbolNames_DO&& from) noexcept : TestConflictingSymbolNames_DO() {
     *this = ::std::move(from);
   }
 
@@ -1723,8 +1542,8 @@ class TestConflictingSymbolNames_DO final :
     return *this;
   }
   inline TestConflictingSymbolNames_DO& operator=(TestConflictingSymbolNames_DO&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -1736,42 +1555,25 @@ class TestConflictingSymbolNames_DO final :
     return *this;
   }
 
-  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance);
-  }
-  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-  }
+  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const { return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance); }
+  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() { return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(); }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestConflictingSymbolNames_DO& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestConflictingSymbolNames_DO& default_instance() { return *internal_default_instance(); }
   static inline const TestConflictingSymbolNames_DO* internal_default_instance() {
-    return reinterpret_cast<const TestConflictingSymbolNames_DO*>(
-               &_TestConflictingSymbolNames_DO_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    10;
+    return reinterpret_cast<const TestConflictingSymbolNames_DO*>(&_TestConflictingSymbolNames_DO_default_instance_); }
+  static constexpr int kIndexInFileMessages = 10;
 
-  friend void swap(TestConflictingSymbolNames_DO& a, TestConflictingSymbolNames_DO& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestConflictingSymbolNames_DO& a, TestConflictingSymbolNames_DO& b) { a.Swap(&b); }
   inline void Swap(TestConflictingSymbolNames_DO* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -1779,7 +1581,7 @@ class TestConflictingSymbolNames_DO final :
     }
   }
   void UnsafeArenaSwap(TestConflictingSymbolNames_DO* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -1839,8 +1641,7 @@ class TestConflictingSymbolNames final :
   explicit constexpr TestConflictingSymbolNames(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestConflictingSymbolNames(const TestConflictingSymbolNames& from);
-  TestConflictingSymbolNames(TestConflictingSymbolNames&& from) noexcept
-    : TestConflictingSymbolNames() {
+  TestConflictingSymbolNames(TestConflictingSymbolNames&& from) noexcept : TestConflictingSymbolNames() {
     *this = ::std::move(from);
   }
 
@@ -1849,8 +1650,8 @@ class TestConflictingSymbolNames final :
     return *this;
   }
   inline TestConflictingSymbolNames& operator=(TestConflictingSymbolNames&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -1862,42 +1663,25 @@ class TestConflictingSymbolNames final :
     return *this;
   }
 
-  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance);
-  }
-  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-  }
+  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const { return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance); }
+  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() { return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(); }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestConflictingSymbolNames& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestConflictingSymbolNames& default_instance() { return *internal_default_instance(); }
   static inline const TestConflictingSymbolNames* internal_default_instance() {
-    return reinterpret_cast<const TestConflictingSymbolNames*>(
-               &_TestConflictingSymbolNames_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    11;
+    return reinterpret_cast<const TestConflictingSymbolNames*>(&_TestConflictingSymbolNames_default_instance_); }
+  static constexpr int kIndexInFileMessages = 11;
 
-  friend void swap(TestConflictingSymbolNames& a, TestConflictingSymbolNames& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestConflictingSymbolNames& a, TestConflictingSymbolNames& b) { a.Swap(&b); }
   inline void Swap(TestConflictingSymbolNames* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -1905,7 +1689,7 @@ class TestConflictingSymbolNames final :
     }
   }
   void UnsafeArenaSwap(TestConflictingSymbolNames* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -2891,8 +2675,7 @@ class TestConflictingSymbolNamesExtension final :
   explicit constexpr TestConflictingSymbolNamesExtension(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestConflictingSymbolNamesExtension(const TestConflictingSymbolNamesExtension& from);
-  TestConflictingSymbolNamesExtension(TestConflictingSymbolNamesExtension&& from) noexcept
-    : TestConflictingSymbolNamesExtension() {
+  TestConflictingSymbolNamesExtension(TestConflictingSymbolNamesExtension&& from) noexcept : TestConflictingSymbolNamesExtension() {
     *this = ::std::move(from);
   }
 
@@ -2901,8 +2684,8 @@ class TestConflictingSymbolNamesExtension final :
     return *this;
   }
   inline TestConflictingSymbolNamesExtension& operator=(TestConflictingSymbolNamesExtension&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -2914,42 +2697,25 @@ class TestConflictingSymbolNamesExtension final :
     return *this;
   }
 
-  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance);
-  }
-  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-  }
+  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const { return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance); }
+  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() { return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(); }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestConflictingSymbolNamesExtension& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestConflictingSymbolNamesExtension& default_instance() { return *internal_default_instance(); }
   static inline const TestConflictingSymbolNamesExtension* internal_default_instance() {
-    return reinterpret_cast<const TestConflictingSymbolNamesExtension*>(
-               &_TestConflictingSymbolNamesExtension_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    12;
+    return reinterpret_cast<const TestConflictingSymbolNamesExtension*>(&_TestConflictingSymbolNamesExtension_default_instance_); }
+  static constexpr int kIndexInFileMessages = 12;
 
-  friend void swap(TestConflictingSymbolNamesExtension& a, TestConflictingSymbolNamesExtension& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestConflictingSymbolNamesExtension& a, TestConflictingSymbolNamesExtension& b) { a.Swap(&b); }
   inline void Swap(TestConflictingSymbolNamesExtension* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -2957,7 +2723,7 @@ class TestConflictingSymbolNamesExtension final :
     }
   }
   void UnsafeArenaSwap(TestConflictingSymbolNamesExtension* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -3021,8 +2787,7 @@ class TestConflictingEnumNames final :
   explicit constexpr TestConflictingEnumNames(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestConflictingEnumNames(const TestConflictingEnumNames& from);
-  TestConflictingEnumNames(TestConflictingEnumNames&& from) noexcept
-    : TestConflictingEnumNames() {
+  TestConflictingEnumNames(TestConflictingEnumNames&& from) noexcept : TestConflictingEnumNames() {
     *this = ::std::move(from);
   }
 
@@ -3031,8 +2796,8 @@ class TestConflictingEnumNames final :
     return *this;
   }
   inline TestConflictingEnumNames& operator=(TestConflictingEnumNames&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -3044,42 +2809,25 @@ class TestConflictingEnumNames final :
     return *this;
   }
 
-  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance);
-  }
-  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-  }
+  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const { return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance); }
+  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() { return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(); }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestConflictingEnumNames& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestConflictingEnumNames& default_instance() { return *internal_default_instance(); }
   static inline const TestConflictingEnumNames* internal_default_instance() {
-    return reinterpret_cast<const TestConflictingEnumNames*>(
-               &_TestConflictingEnumNames_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    13;
+    return reinterpret_cast<const TestConflictingEnumNames*>(&_TestConflictingEnumNames_default_instance_); }
+  static constexpr int kIndexInFileMessages = 13;
 
-  friend void swap(TestConflictingEnumNames& a, TestConflictingEnumNames& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestConflictingEnumNames& a, TestConflictingEnumNames& b) { a.Swap(&b); }
   inline void Swap(TestConflictingEnumNames* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -3087,7 +2835,7 @@ class TestConflictingEnumNames final :
     }
   }
   void UnsafeArenaSwap(TestConflictingEnumNames* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -3216,8 +2964,7 @@ class DummyMessage final :
   explicit constexpr DummyMessage(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   DummyMessage(const DummyMessage& from);
-  DummyMessage(DummyMessage&& from) noexcept
-    : DummyMessage() {
+  DummyMessage(DummyMessage&& from) noexcept : DummyMessage() {
     *this = ::std::move(from);
   }
 
@@ -3226,8 +2973,8 @@ class DummyMessage final :
     return *this;
   }
   inline DummyMessage& operator=(DummyMessage&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -3239,42 +2986,25 @@ class DummyMessage final :
     return *this;
   }
 
-  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance);
-  }
-  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-  }
+  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const { return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance); }
+  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() { return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(); }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const DummyMessage& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const DummyMessage& default_instance() { return *internal_default_instance(); }
   static inline const DummyMessage* internal_default_instance() {
-    return reinterpret_cast<const DummyMessage*>(
-               &_DummyMessage_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    14;
+    return reinterpret_cast<const DummyMessage*>(&_DummyMessage_default_instance_); }
+  static constexpr int kIndexInFileMessages = 14;
 
-  friend void swap(DummyMessage& a, DummyMessage& b) {
-    a.Swap(&b);
-  }
+  friend void swap(DummyMessage& a, DummyMessage& b) { a.Swap(&b); }
   inline void Swap(DummyMessage* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -3282,7 +3012,7 @@ class DummyMessage final :
     }
   }
   void UnsafeArenaSwap(DummyMessage* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -3342,8 +3072,7 @@ class NULL_ final :
   explicit constexpr NULL_(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   NULL_(const NULL_& from);
-  NULL_(NULL_&& from) noexcept
-    : NULL_() {
+  NULL_(NULL_&& from) noexcept : NULL_() {
     *this = ::std::move(from);
   }
 
@@ -3352,8 +3081,8 @@ class NULL_ final :
     return *this;
   }
   inline NULL_& operator=(NULL_&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -3365,42 +3094,25 @@ class NULL_ final :
     return *this;
   }
 
-  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance);
-  }
-  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-  }
+  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const { return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance); }
+  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() { return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(); }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const NULL_& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const NULL_& default_instance() { return *internal_default_instance(); }
   static inline const NULL_* internal_default_instance() {
-    return reinterpret_cast<const NULL_*>(
-               &_NULL__default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    15;
+    return reinterpret_cast<const NULL_*>(&_NULL__default_instance_); }
+  static constexpr int kIndexInFileMessages = 15;
 
-  friend void swap(NULL_& a, NULL_& b) {
-    a.Swap(&b);
-  }
+  friend void swap(NULL_& a, NULL_& b) { a.Swap(&b); }
   inline void Swap(NULL_* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -3408,7 +3120,7 @@ class NULL_ final :
     }
   }
   void UnsafeArenaSwap(NULL_* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -3499,8 +3211,7 @@ class Shutdown final :
   explicit constexpr Shutdown(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   Shutdown(const Shutdown& from);
-  Shutdown(Shutdown&& from) noexcept
-    : Shutdown() {
+  Shutdown(Shutdown&& from) noexcept : Shutdown() {
     *this = ::std::move(from);
   }
 
@@ -3509,8 +3220,8 @@ class Shutdown final :
     return *this;
   }
   inline Shutdown& operator=(Shutdown&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -3522,42 +3233,25 @@ class Shutdown final :
     return *this;
   }
 
-  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance);
-  }
-  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-  }
+  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const { return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance); }
+  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() { return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(); }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const Shutdown& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const Shutdown& default_instance() { return *internal_default_instance(); }
   static inline const Shutdown* internal_default_instance() {
-    return reinterpret_cast<const Shutdown*>(
-               &_Shutdown_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    16;
+    return reinterpret_cast<const Shutdown*>(&_Shutdown_default_instance_); }
+  static constexpr int kIndexInFileMessages = 16;
 
-  friend void swap(Shutdown& a, Shutdown& b) {
-    a.Swap(&b);
-  }
+  friend void swap(Shutdown& a, Shutdown& b) { a.Swap(&b); }
   inline void Swap(Shutdown* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -3565,7 +3259,7 @@ class Shutdown final :
     }
   }
   void UnsafeArenaSwap(Shutdown* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -3624,8 +3318,7 @@ class TableStruct final :
   explicit constexpr TableStruct(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TableStruct(const TableStruct& from);
-  TableStruct(TableStruct&& from) noexcept
-    : TableStruct() {
+  TableStruct(TableStruct&& from) noexcept : TableStruct() {
     *this = ::std::move(from);
   }
 
@@ -3634,8 +3327,8 @@ class TableStruct final :
     return *this;
   }
   inline TableStruct& operator=(TableStruct&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -3647,42 +3340,25 @@ class TableStruct final :
     return *this;
   }
 
-  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance);
-  }
-  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-  }
+  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const { return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance); }
+  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() { return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(); }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TableStruct& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TableStruct& default_instance() { return *internal_default_instance(); }
   static inline const TableStruct* internal_default_instance() {
-    return reinterpret_cast<const TableStruct*>(
-               &_TableStruct_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    17;
+    return reinterpret_cast<const TableStruct*>(&_TableStruct_default_instance_); }
+  static constexpr int kIndexInFileMessages = 17;
 
-  friend void swap(TableStruct& a, TableStruct& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TableStruct& a, TableStruct& b) { a.Swap(&b); }
   inline void Swap(TableStruct* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -3690,7 +3366,7 @@ class TableStruct final :
     }
   }
   void UnsafeArenaSwap(TableStruct* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -3877,9 +3553,7 @@ inline int TestConflictingSymbolNames_Data2::data_size() const {
 inline void TestConflictingSymbolNames_Data2::clear_data() {
   data_.Clear();
 }
-inline ::protobuf_unittest::TestConflictingSymbolNames_TestEnum TestConflictingSymbolNames_Data2::_internal_data(int index) const {
-  return static_cast< ::protobuf_unittest::TestConflictingSymbolNames_TestEnum >(data_.Get(index));
-}
+inline ::protobuf_unittest::TestConflictingSymbolNames_TestEnum TestConflictingSymbolNames_Data2::_internal_data(int index) const { return static_cast< ::protobuf_unittest::TestConflictingSymbolNames_TestEnum >(data_.Get(index)); }
 inline ::protobuf_unittest::TestConflictingSymbolNames_TestEnum TestConflictingSymbolNames_Data2::data(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.Data2.data)
   return _internal_data(index);

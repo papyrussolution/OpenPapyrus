@@ -25,18 +25,12 @@
  */
 #include "archive_platform.h"
 #pragma hdrstop
-#ifdef HAVE_ZLIB_H
-	#include <zlib.h> /* crc32 */
-#endif
-#include "archive.h"
 #ifndef HAVE_ZLIB_H
 	#include "archive_crc32.h"
 #endif
 #include "archive_endian.h"
-#include "archive_entry.h"
 #include "archive_entry_locale.h"
 #include "archive_ppmd7_private.h"
-#include "archive_private.h"
 #include "archive_read_private.h"
 
 /* RAR signature, also known as the mark header */
@@ -169,7 +163,7 @@ struct huffman_tree_node {
 };
 
 struct huffman_table_entry {
-	unsigned int length;
+	uint length;
 	int value;
 };
 
@@ -233,18 +227,18 @@ struct rar {
 	int64 offset_outgoing;
 	int64 offset_seek;
 	char valid;
-	unsigned int unp_offset;
-	unsigned int unp_buffer_size;
+	uint unp_offset;
+	uint unp_buffer_size;
 	uchar * unp_buffer;
-	unsigned int dictionary_size;
+	uint dictionary_size;
 	char start_new_block;
 	char entry_eof;
 	unsigned long crc_calculated;
 	int found_first_header;
 	char has_endarc_header;
 	struct data_block_offsets * dbo;
-	unsigned int cursor;
-	unsigned int nodes;
+	uint cursor;
+	uint nodes;
 	char filename_must_match;
 
 	/* LZSS members */
@@ -255,11 +249,11 @@ struct rar {
 	uchar lengthtable[HUFFMAN_TABLE_SIZE];
 	struct lzss lzss;
 	char output_last_match;
-	unsigned int lastlength;
-	unsigned int lastoffset;
-	unsigned int oldoffset[4];
-	unsigned int lastlowoffset;
-	unsigned int numlowoffsetrepeats;
+	uint lastlength;
+	uint lastoffset;
+	uint oldoffset[4];
+	uint lastlowoffset;
+	uint numlowoffsetrepeats;
 	int64 filterstart;
 	char start_new_table;
 
@@ -484,7 +478,7 @@ static int rar_br_preparation(struct archive_read * a, struct rar::rar_br * br)
 }
 
 /* Find last bit set */
-static inline int rar_fls(unsigned int word)
+static inline int rar_fls(uint word)
 {
 	word |= (word >>  1);
 	word |= (word >>  2);
@@ -990,7 +984,7 @@ static int64 archive_read_format_rar_seek_data(struct archive_read * a, int64 of
     int whence)
 {
 	int64 client_offset, ret;
-	unsigned int i;
+	uint i;
 	struct rar * rar = (struct rar *)(a->format->data);
 
 	if(rar->compression_method == COMPRESS_METHOD_STORE) {
@@ -1502,13 +1496,10 @@ static int read_header(struct archive_read * a, struct archive_entry * entry,
 
 	if(archive_entry_copy_pathname_l(entry, filename, filename_size, fn_sconv)) {
 		if(errno == ENOMEM) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate memory for Pathname");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Pathname");
 			return ARCHIVE_FATAL;
 		}
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Pathname cannot be converted from %s to current locale.",
-		    archive_string_conversion_charset_name(fn_sconv));
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Pathname cannot be converted from %s to current locale.", archive_string_conversion_charset_name(fn_sconv));
 		ret = (ARCHIVE_WARN);
 	}
 
@@ -1648,29 +1639,24 @@ static int read_symlink_stored(struct archive_read * a, struct archive_entry * e
 
 static int read_data_stored(struct archive_read * a, const void ** buff, size_t * size, int64 * offset)
 {
-	struct rar * rar;
 	ssize_t bytes_avail;
-	rar = (struct rar *)(a->format->data);
+	struct rar * rar = (struct rar *)(a->format->data);
 	if(rar->bytes_remaining == 0 && !(rar->main_flags & MHD_VOLUME && rar->file_flags & FHD_SPLIT_AFTER)) {
 		*buff = NULL;
 		*size = 0;
 		*offset = rar->offset;
 		if(rar->file_crc != rar->crc_calculated) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-			    "File CRC error");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "File CRC error");
 			return ARCHIVE_FATAL;
 		}
 		rar->entry_eof = 1;
 		return (ARCHIVE_EOF);
 	}
-
 	*buff = rar_read_ahead(a, 1, &bytes_avail);
 	if(bytes_avail <= 0) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Truncated RAR file data");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Truncated RAR file data");
 		return ARCHIVE_FATAL;
 	}
-
 	*size = bytes_avail;
 	*offset = rar->offset;
 	rar->offset += bytes_avail;
@@ -1721,7 +1707,6 @@ static int read_data_compressed(struct archive_read * a, const void ** buff, siz
 			rar->entry_eof = 1;
 			return (ARCHIVE_EOF);
 		}
-
 		if(!rar->is_ppmd_block && rar->dictionary_size && rar->bytes_uncopied > 0) {
 			if(rar->bytes_uncopied > (rar->unp_buffer_size - rar->unp_offset))
 				bs = rar->unp_buffer_size - rar->unp_offset;
@@ -1751,10 +1736,8 @@ static int read_data_compressed(struct archive_read * a, const void ** buff, siz
 			return ret;
 
 		if(rar->is_ppmd_block) {
-			if((sym = __archive_ppmd7_functions.Ppmd7_DecodeSymbol(
-				    &rar->ppmd7_context, &rar->range_dec.p)) < 0) {
-				archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-				    "Invalid symbol");
+			if((sym = __archive_ppmd7_functions.Ppmd7_DecodeSymbol(&rar->ppmd7_context, &rar->range_dec.p)) < 0) {
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Invalid symbol");
 				return ARCHIVE_FATAL;
 			}
 			if(sym != rar->ppmd_escape) {
@@ -1762,43 +1745,31 @@ static int read_data_compressed(struct archive_read * a, const void ** buff, siz
 				rar->bytes_uncopied++;
 			}
 			else {
-				if((code = __archive_ppmd7_functions.Ppmd7_DecodeSymbol(
-					    &rar->ppmd7_context, &rar->range_dec.p)) < 0) {
-					archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-					    "Invalid symbol");
+				if((code = __archive_ppmd7_functions.Ppmd7_DecodeSymbol(&rar->ppmd7_context, &rar->range_dec.p)) < 0) {
+					archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Invalid symbol");
 					return ARCHIVE_FATAL;
 				}
-
-				switch(code)
-				{
+				switch(code) {
 					case 0:
 					    rar->start_new_table = 1;
 					    return read_data_compressed(a, buff, size, offset, looper);
-
 					case 2:
 					    rar->ppmd_eod = 1; /* End Of ppmd Data. */
 					    continue;
-
 					case 3:
-					    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-						"Parsing filters is unsupported.");
+					    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Parsing filters is unsupported.");
 					    return ARCHIVE_FAILED;
-
 					case 4:
 					    lzss_offset = 0;
 					    for(i = 2; i >= 0; i--) {
-						    if((code = __archive_ppmd7_functions.Ppmd7_DecodeSymbol(
-								&rar->ppmd7_context, &rar->range_dec.p)) < 0) {
-							    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-								"Invalid symbol");
+						    if((code = __archive_ppmd7_functions.Ppmd7_DecodeSymbol(&rar->ppmd7_context, &rar->range_dec.p)) < 0) {
+							    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Invalid symbol");
 							    return ARCHIVE_FATAL;
 						    }
 						    lzss_offset |= code << (i * 8);
 					    }
-					    if((length = __archive_ppmd7_functions.Ppmd7_DecodeSymbol(
-							&rar->ppmd7_context, &rar->range_dec.p)) < 0) {
-						    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-							"Invalid symbol");
+					    if((length = __archive_ppmd7_functions.Ppmd7_DecodeSymbol(&rar->ppmd7_context, &rar->range_dec.p)) < 0) {
+						    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Invalid symbol");
 						    return ARCHIVE_FATAL;
 					    }
 					    lzss_emit_match(rar, lzss_offset + 2, length + 32);
@@ -1806,10 +1777,8 @@ static int read_data_compressed(struct archive_read * a, const void ** buff, siz
 					    break;
 
 					case 5:
-					    if((length = __archive_ppmd7_functions.Ppmd7_DecodeSymbol(
-							&rar->ppmd7_context, &rar->range_dec.p)) < 0) {
-						    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-							"Invalid symbol");
+					    if((length = __archive_ppmd7_functions.Ppmd7_DecodeSymbol(&rar->ppmd7_context, &rar->range_dec.p)) < 0) {
+						    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Invalid symbol");
 						    return ARCHIVE_FATAL;
 					    }
 					    lzss_emit_match(rar, 1, length + 4);
@@ -1836,8 +1805,7 @@ static int read_data_compressed(struct archive_read * a, const void ** buff, siz
 				 * NOTE: If this case were possible on a normal RAR file
 				 * we would find out where it was actually bad and
 				 * what we would do to solve it. */
-				archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-				    "Internal error extracting RAR file");
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Internal error extracting RAR file");
 				return ARCHIVE_FATAL;
 			}
 		}
@@ -1869,7 +1837,7 @@ static int parse_codes(struct archive_read * a)
 {
 	int i, j, val, n, r;
 	uchar bitlengths[MAX_SYMBOLS], zerocount, ppmd_flags;
-	unsigned int maxorder;
+	uint maxorder;
 	struct huffman_code precode;
 	struct rar * rar = (struct rar *)(a->format->data);
 	struct rar::rar_br * br = &(rar->br);
@@ -1946,7 +1914,6 @@ static int parse_codes(struct archive_read * a)
 	}
 	else {
 		rar_br_consume(br, 1);
-
 		/* Keep existing table flag */
 		if(!rar_br_read_ahead(a, br, 1))
 			goto truncated_data;
@@ -2069,7 +2036,7 @@ static int parse_codes(struct archive_read * a)
 		 * memory usage as much as possible.
 		 */
 		void * new_window;
-		unsigned int new_size;
+		uint new_size;
 		if(rar->unp_size >= DICTIONARY_MAX_SIZE)
 			new_size = DICTIONARY_MAX_SIZE;
 		else
@@ -2118,7 +2085,7 @@ static void free_codes(struct archive_read * a)
 static int read_next_symbol(struct archive_read * a, struct huffman_code * code)
 {
 	uchar bit;
-	unsigned int bits;
+	uint bits;
 	int length, value, node;
 	struct rar * rar;
 	struct rar::rar_br * br;
@@ -2378,7 +2345,7 @@ static int64 expand(struct archive_read * a, int64 end)
 		7,   8,  10,  12,  14,  16,  20, 24,  28,  32,  40,  48,  56,  64, 80,  96, 112, 128, 160, 192, 224 };
 	static const uchar lengthbits[] = { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5 };
 	static const int lengthb_min = MIN((int)(sizeof(lengthbases)/sizeof(lengthbases[0])), (int)(sizeof(lengthbits)/sizeof(lengthbits[0])));
-	static const unsigned int offsetbases[] = {       0,       1,       2,       3,       4,       6,
+	static const uint offsetbases[] = {       0,       1,       2,       3,       4,       6,
 		8,      12,      16,      24,      32,      48,
 		64,      96,     128,     192,     256,     384,
 		512,     768,    1024,    1536,    2048,    3072,

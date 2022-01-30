@@ -29,7 +29,7 @@
 #define _POSIX_C_SOURCE 2
 #endif
 #endif
-#include <signal.h>
+//#include <signal.h>
 
 #if !defined(OPENSSL_SYS_MSDOS) && !defined(OPENSSL_SYS_VMS)
 #ifdef OPENSSL_UNISTD

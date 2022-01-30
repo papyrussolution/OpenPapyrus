@@ -43,10 +43,6 @@ __FBSDID("$FreeBSD$");
  *     entries like these, at the moment care is taken to skip them.
  *
  **/
-
-#include "archive.h"
-#include "archive_entry.h"
-#include "archive_private.h"
 #include "archive_read_private.h"
 
 typedef enum {
@@ -92,7 +88,7 @@ struct warc_s {
 	/* string pool */
 	warc_strbuf_t pool;
 	/* previous version */
-	unsigned int pver;
+	uint pver;
 	/* stringified format name */
 	struct archive_string sver;
 };
@@ -104,8 +100,8 @@ static int _warc_skip(struct archive_read * a);
 static int _warc_rdhdr(struct archive_read * a, struct archive_entry * e);
 
 /* private routines */
-static unsigned int _warc_rdver(const char buf[10], size_t bsz);
-static unsigned int _warc_rdtyp(const char * buf, size_t bsz);
+static uint _warc_rdver(const char buf[10], size_t bsz);
+static uint _warc_rdtyp(const char * buf, size_t bsz);
 static warc_string_t _warc_rduri(const char * buf, size_t bsz);
 static ssize_t _warc_rdlen(const char * buf, size_t bsz);
 static time_t _warc_rdrtm(const char * buf, size_t bsz);
@@ -147,7 +143,7 @@ static int _warc_bid(struct archive_read * a, int best_bid)
 {
 	const char * hdr;
 	ssize_t nrd;
-	unsigned int ver;
+	uint ver;
 	CXX_UNUSED(best_bid);
 	/* check first line of file, it should be a record already */
 	if((hdr = static_cast<const char *>(__archive_read_ahead(a, 12U, &nrd))) == NULL) {
@@ -172,7 +168,7 @@ static int _warc_rdhdr(struct archive_read * a, struct archive_entry * entry)
 {
 #define HDR_PROBE_LEN           (12U)
 	struct warc_s * w = static_cast<struct warc_s *>(a->format->data);
-	unsigned int ver;
+	uint ver;
 	const char * buf;
 	ssize_t nrd;
 	const char * eoh;
@@ -396,9 +392,9 @@ static char* xmemmem(const char * hay, const size_t haysize,
 	const char * hp;
 	const char * np;
 	const char * cand;
-	unsigned int hsum;
-	unsigned int nsum;
-	unsigned int eqp;
+	uint hsum;
+	uint nsum;
+	uint eqp;
 
 	/* trivial checks first
 	 * a 0-sized needle is defined to be found anywhere in haystack
@@ -539,12 +535,12 @@ out:
 	return res;
 }
 
-static unsigned int _warc_rdver(const char * buf, size_t bsz)
+static uint _warc_rdver(const char * buf, size_t bsz)
 {
 	static const char magic[] = "WARC/";
 	const char * c;
-	unsigned int ver = 0U;
-	unsigned int end = 0U;
+	uint ver = 0U;
+	uint end = 0U;
 
 	if(bsz < 12 || memcmp(buf, magic, sizeof(magic) - 1U) != 0) {
 		/* buffer too small or invalid magic */
@@ -585,7 +581,7 @@ static unsigned int _warc_rdver(const char * buf, size_t bsz)
 	return ver;
 }
 
-static unsigned int _warc_rdtyp(const char * buf, size_t bsz)
+static uint _warc_rdtyp(const char * buf, size_t bsz)
 {
 	static const char _key[] = "\r\nWARC-Type:";
 	const char * val, * eol;

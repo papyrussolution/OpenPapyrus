@@ -1,5 +1,5 @@
 // VETIS.CPP
-// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Модуль для взаимодействия с системой Меркурий (интерфейс ВЕТИС)
 //
@@ -8278,16 +8278,16 @@ int PPVetisInterface::PrepareOutgoingTransportData(PPID billID, VetisPrepareOutg
 	// } @v10.8.12
 	if(transport_id) {
 		PPObjTransport tr_obj;
-		PPTransport tr_rec;
-		if(tr_obj.Get(transport_id, &tr_rec) > 0) {
+		PPTransportPacket tr_pack;
+		if(tr_obj.Get(transport_id, &tr_pack) > 0) {
 			//transport_type = (oneof2(freight.TrType, PPTRTYP_CAR, PPTRTYP_SHIP)) ? freight.TrType : 0;
-			long   transport_type = tr_rec.TrType;
+			long   transport_type = tr_pack.Rec.TrType;
 			if(transport_type == PPTRTYP_CAR) {
 				rReq.Transp.TransportType = VetisTransportInfo::ttCar;
-				rReq.Transp.TransportNumber.VehicleNumber = tr_rec.Code;
-				rReq.Transp.TransportNumber.TrailerNumber = tr_rec.TrailerCode;
+				rReq.Transp.TransportNumber.VehicleNumber = tr_pack.Rec.Code;
+				rReq.Transp.TransportNumber.TrailerNumber = tr_pack.Rec.TrailerCode;
 				{
-					switch(tr_rec.VanType) {
+					switch(tr_pack.Rec.VanType) {
 						case PPTransport::vantypFrozen: tst = vtstFROZEN; break;
 						case PPTransport::vantypChilled: tst = vtstCHILLED; break;
 						case PPTransport::vantypCooled: tst = vtstCOOLED; break;
@@ -8302,10 +8302,10 @@ int PPVetisInterface::PrepareOutgoingTransportData(PPID billID, VetisPrepareOutg
 			}
 			else if(transport_type == PPTRTYP_SHIP) {
 				rReq.Transp.TransportType = VetisTransportInfo::ttShip;
-				if(tr_rec.Code[0])
-					rReq.Transp.TransportNumber.ShipName = tr_rec.Code;
+				if(tr_pack.Rec.Code[0])
+					rReq.Transp.TransportNumber.ShipName = tr_pack.Rec.Code;
 				else
-					rReq.Transp.TransportNumber.ShipName = tr_rec.Name;
+					rReq.Transp.TransportNumber.ShipName = tr_pack.Rec.Name;
 			}
 		}
 	}

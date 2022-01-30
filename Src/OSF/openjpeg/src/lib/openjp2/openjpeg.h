@@ -105,8 +105,7 @@
 #   endif /* OPJ_EXPORTS */
 #endif /* !OPJ_STATIC || !_WIN32 */
 
-//boolint a;
-// @sobolev typedef int OPJ_BOOL__Removed;
+// @sobolev (replaced with boolint) typedef int OPJ_BOOL__Removed;
 // @sobolev #define OPJ_TRUE__Removed  1
 // @sobolev #define OPJ_FALSE__Removed 0
 typedef char OPJ_CHAR;

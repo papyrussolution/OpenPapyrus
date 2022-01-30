@@ -15,26 +15,21 @@
 #define ABSL_SYNCHRONIZATION_INTERNAL_FUTEX_H_
 
 #include "absl/base/config.h"
-
 #ifdef _WIN32
-#include <windows.h>
+	#include <windows.h>
 #else
-#include <sys/time.h>
-#include <unistd.h>
+	#include <sys/time.h>
+	#include <unistd.h>
 #endif
-
 #ifdef __linux__
-#include <linux/futex.h>
-#include <sys/syscall.h>
+	#include <linux/futex.h>
+	#include <sys/syscall.h>
 #endif
-
 #include <errno.h>
 #include <stdio.h>
 #include <time.h>
-
 #include <atomic>
 #include <cstdint>
-
 #include "absl/base/optimization.h"
 #include "absl/synchronization/internal/kernel_timeout.h"
 

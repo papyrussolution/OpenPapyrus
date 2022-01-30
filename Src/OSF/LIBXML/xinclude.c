@@ -403,7 +403,7 @@ static int xmlXIncludeAddNode(xmlXIncludeCtxtPtr ctxt, xmlNode * cur)
 	if((href[0] == '#') || (href[0] == 0))
 		local = 1;
 	parse = xmlXIncludeGetProp(ctxt, cur, XINCLUDE_PARSE);
-	if(parse != NULL) {
+	if(parse) {
 		if(sstreq(parse, XINCLUDE_PARSE_XML))
 			xml = 1;
 		else if(sstreq(parse, XINCLUDE_PARSE_TEXT))

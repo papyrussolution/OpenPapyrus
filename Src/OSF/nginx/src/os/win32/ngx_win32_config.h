@@ -50,7 +50,7 @@
 	typedef long  time_t;
 	/* OpenWatcom defines time_t as "unsigned long" */
 #endif
-#include <time.h>      /* localtime(), strftime() */
+//#include <time.h>      /* localtime(), strftime() */
 
 #ifdef _MSC_VER
 	#pragma hdrstop /* the end of the precompiled headers */

@@ -26,10 +26,6 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
 
-#include "archive.h"
-#include "archive_string.h"
-#include "archive_write_private.h"
-
 struct write_lrzip {
 	struct archive_write_program_data * pdata;
 	int compression_level;

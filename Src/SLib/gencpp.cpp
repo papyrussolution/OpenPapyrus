@@ -1,5 +1,5 @@
 // GENCPP.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2016, 2018, 2020
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2016, 2018, 2020, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -36,7 +36,10 @@ int Generator_CPP::Wr_Include(const char * pFileName, int quot)
 
 int Generator_CPP::Wr_Define(const char * pMacro, const char * pVal)
 {
-	TempBuf.Z().CatChar('#').Cat("define").Space().Cat(pMacro).Space().Cat(pVal).CR();
+	TempBuf.Z().CatChar('#').Cat("define").Space().Cat(pMacro);
+	if(!isempty(pVal))
+		TempBuf.Space().Cat(pVal);
+	TempBuf.CR();
 	return WriteLine(TempBuf);
 }
 
@@ -49,7 +52,7 @@ int Generator_CPP::Wr_IfDef(const char * pSymb, int _ifndef /*=0*/)
 int Generator_CPP::Wr_EndIf(const char * pSymb)
 {
 	TempBuf.Z().CatChar('#').Cat("endif");
-	if(pSymb && pSymb[0])
+	if(!isempty(pSymb))
 		TempBuf.Space().CatCharN('/', 2).Space().Cat(pSymb);
 	TempBuf.CR();
 	return WriteLine(TempBuf);
@@ -76,7 +79,7 @@ int Generator_CPP::Wr_Comment(const char * pBuf)
 {
 	TempBuf.Z();
 	CatIndent(TempBuf).CatCharN('/', 2);
-	if(pBuf)
+	if(!isempty(pBuf))
 		TempBuf.Space().Cat(pBuf);
 	TempBuf.CR();
 	return WriteLine(TempBuf);

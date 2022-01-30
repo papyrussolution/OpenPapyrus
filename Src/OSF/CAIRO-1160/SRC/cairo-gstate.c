@@ -1526,7 +1526,7 @@ cairo_status_t _cairo_gstate_show_text_glyphs(cairo_gstate_t * gstate, const cai
 		if(UNLIKELY(transformed_glyphs == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
-	if(info != NULL) {
+	if(info) {
 		if(info->num_clusters > ARRAY_LENGTH(stack_transformed_clusters)) {
 			transformed_clusters = cairo_text_cluster_allocate(info->num_clusters);
 			if(UNLIKELY(transformed_clusters == NULL)) {
@@ -1562,7 +1562,7 @@ cairo_status_t _cairo_gstate_show_text_glyphs(cairo_gstate_t * gstate, const cai
 	 *
 	 * Needless to say, do this only if show_text_glyphs is not available. */
 	if(cairo_surface_has_show_text_glyphs(gstate->target) || _cairo_scaled_font_get_max_scale(gstate->scaled_font) <= 10240) {
-		if(info != NULL) {
+		if(info) {
 			status = _cairo_surface_show_text_glyphs(gstate->target, op, pattern, info->utf8, info->utf8_len,
 				transformed_glyphs, num_glyphs, transformed_clusters, info->num_clusters, info->cluster_flags,
 				gstate->scaled_font, gstate->clip);

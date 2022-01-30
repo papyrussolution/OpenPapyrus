@@ -29,10 +29,6 @@ __FBSDID("$FreeBSD$");
 #ifdef HAVE_ZSTD_H
 	#include <zstd.h>
 #endif
-#include "archive.h"
-#include "archive_private.h"
-#include "archive_string.h"
-#include "archive_write_private.h"
 
 /* Don't compile this if we don't have zstd.h */
 

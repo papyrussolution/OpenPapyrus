@@ -497,7 +497,7 @@ int32_t GregorianCalendar::handleComputeMonthStart(int32_t eyear, int32_t month,
 	return static_cast<int32_t>(julianDay);
 }
 
-int32_t GregorianCalendar::handleGetMonthLength(int32_t extendedYear, int32_t month)  const
+int32_t GregorianCalendar::handleGetMonthLength(int32_t extendedYear, int32_t month) const
 {
 	// If the month is out of range, adjust it into range, and
 	// modify the extended year value accordingly.

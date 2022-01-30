@@ -26,11 +26,7 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-#include "archive.h"
-#include "archive_entry.h"
 #include "archive_entry_locale.h"
-#include "archive_private.h"
-#include "archive_write_private.h"
 #include "archive_write_set_format_private.h"
 
 struct v7tar {
@@ -340,7 +336,7 @@ static int format_header_v7tar(struct archive_write * a, char h[512],
     struct archive_entry * entry, int strict,
     struct archive_string_conv * sconv)
 {
-	unsigned int checksum;
+	uint checksum;
 	int i, r, ret;
 	size_t copy_length;
 	const char * p, * pp;

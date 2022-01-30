@@ -26,20 +26,8 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
 
-#ifdef HAVE_BZLIB_H
-	#include <..\OSF\BZIP2\bzlib.h>
-#endif
-#ifdef HAVE_LZMA_H
-	#include <..\OSF\liblzma\api\lzma.h>
-#endif
-#ifdef HAVE_ZLIB_H
-	#include <zlib.h>
-#endif
-#include "archive.h"
-#include "archive_entry.h"
 #include "archive_entry_locale.h"
 #include "archive_ppmd7_private.h"
-#include "archive_private.h"
 #include "archive_read_private.h"
 #include "archive_endian.h"
 
@@ -745,7 +733,7 @@ static int archive_read_format_7zip_read_data(struct archive_read * a,
 		    zip->si.ss.digests[zip->entry->ssIndex] !=
 		    zip->entry_crc32) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "7-Zip bad CRC: 0x%lx should be 0x%lx",
-			    (unsigned long)zip->entry_crc32, (unsigned long)zip->si.ss.digests[zip->entry->ssIndex]);
+			    (ulong)zip->entry_crc32, (ulong)zip->si.ss.digests[zip->entry->ssIndex]);
 			ret = ARCHIVE_WARN;
 		}
 	}
@@ -855,7 +843,7 @@ static void set_error(struct archive_read * a, int ret)
 
 static unsigned long decode_codec_id(const uchar * codecId, size_t id_size)
 {
-	unsigned i;
+	uint i;
 	unsigned long id = 0;
 
 	for(i = 0; i < id_size; i++) {
@@ -1520,7 +1508,7 @@ static void free_Digest(struct _7z_digests * d)
 static int read_Digests(struct archive_read * a, struct _7z_digests * d, size_t num)
 {
 	const uchar * p;
-	unsigned i;
+	uint i;
 	if(num == 0)
 		return -1;
 	memzero(d, sizeof(*d));
@@ -1562,7 +1550,7 @@ static void free_PackInfo(struct _7z_pack_info * pi)
 static int read_PackInfo(struct archive_read * a, struct _7z_pack_info * pi)
 {
 	const uchar * p;
-	unsigned i;
+	uint i;
 	memzero(pi, sizeof(*pi));
 	/*
 	 * Read PackPos.
@@ -1647,7 +1635,7 @@ static int read_Folder(struct archive_read * a, struct _7z_folder * f)
 	const uchar * p;
 	uint64 numInStreamsTotal = 0;
 	uint64 numOutStreamsTotal = 0;
-	unsigned i;
+	uint i;
 	memzero(f, sizeof(*f));
 	/*
 	 * Read NumCoders.
@@ -1775,7 +1763,7 @@ static int read_Folder(struct archive_read * a, struct _7z_folder * f)
 
 static void free_CodersInfo(struct _7z_coders_info * ci)
 {
-	unsigned i;
+	uint i;
 
 	if(ci->folders) {
 		for(i = 0; i < ci->numFolders; i++)
@@ -1788,7 +1776,7 @@ static int read_CodersInfo(struct archive_read * a, struct _7z_coders_info * ci)
 {
 	const uchar * p;
 	struct _7z_digests digest;
-	unsigned i;
+	uint i;
 	memzero(ci, sizeof(*ci));
 	memzero(&digest, sizeof(digest));
 	if((p = header_bytes(a, 1)) == NULL)
@@ -1883,7 +1871,7 @@ static uint64 folder_uncompressed_size(struct _7z_folder * f)
 	unsigned pairs = (uint)f->numBindPairs;
 
 	while(--n >= 0) {
-		unsigned i;
+		uint i;
 		for(i = 0; i < pairs; i++) {
 			if(f->bindPairs[i].outIndex == (uint64)n)
 				break;
@@ -1908,7 +1896,7 @@ static int read_SubStreamsInfo(struct archive_read * a, struct _7z_substream_inf
 	uint64 * usizes;
 	size_t unpack_streams;
 	int type;
-	unsigned i;
+	uint i;
 	uint32 numDigests;
 	memzero(ss, sizeof(*ss));
 	for(i = 0; i < numFolders; i++)
@@ -2029,7 +2017,7 @@ static int read_StreamsInfo(struct archive_read * a, struct _7z_stream_info * si
 {
 	struct _7zip * zip = (struct _7zip *)a->format->data;
 	const uchar * p;
-	unsigned i;
+	uint i;
 	memzero(si, sizeof(*si));
 	if((p = header_bytes(a, 1)) == NULL)
 		return -1;
@@ -2109,7 +2097,7 @@ static int read_Header(struct archive_read * a, struct _7z_header_info * h,
 	struct _7z_stream_info * si = &(zip->si);
 	struct _7zip_entry * entries;
 	uint32 folderIndex, indexInFolder;
-	unsigned i;
+	uint i;
 	int eindex, empty_streams, sindex;
 
 	if(check_header_id) {
@@ -2437,7 +2425,7 @@ static int read_Times(struct archive_read * a, struct _7z_header_info * h, int t
 	struct _7zip_entry * entries = zip->entries;
 	uchar * timeBools;
 	int allAreDefined;
-	unsigned i;
+	uint i;
 	timeBools = static_cast<uchar *>(SAlloc::C((size_t)zip->numFiles, sizeof(*timeBools)));
 	if(timeBools == NULL)
 		return -1;
@@ -2691,7 +2679,7 @@ static ssize_t get_uncompressed_data(struct archive_read * a, const void ** buff
 {
 	struct _7zip * zip = (struct _7zip *)a->format->data;
 	ssize_t bytes_avail;
-	if(zip->codec == _7Z_COPY && zip->codec2 == (unsigned long)-1) {
+	if(zip->codec == _7Z_COPY && zip->codec2 == (ulong)-1) {
 		/* Copy mode. */
 
 		*buff = __archive_read_ahead(a, minimum, &bytes_avail);
@@ -2742,7 +2730,7 @@ static ssize_t extract_pack_stream(struct archive_read * a, size_t minimum)
 	ssize_t bytes_avail;
 	int r;
 
-	if(zip->codec == _7Z_COPY && zip->codec2 == (unsigned long)-1) {
+	if(zip->codec == _7Z_COPY && zip->codec2 == (ulong)-1) {
 		if(minimum == 0)
 			minimum = 1;
 		if(__archive_read_ahead(a, minimum, &bytes_avail) == NULL || bytes_avail <= 0) {
@@ -3004,7 +2992,7 @@ static int setup_decode_folder(struct archive_read * a, struct _7z_folder * fold
 	struct _7zip * zip = (struct _7zip *)a->format->data;
 	const struct _7z_folder::_7z_coder * coder1, * coder2;
 	const char * cname = (header) ? "archive header" : "file content";
-	unsigned i;
+	uint i;
 	int r, found_bcj2 = 0;
 	/*
 	 * Release the memory which the previous folder used for BCJ2.

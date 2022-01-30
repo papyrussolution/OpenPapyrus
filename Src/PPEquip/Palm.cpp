@@ -2263,6 +2263,30 @@ int PPObjStyloPalm::GetChildList(PPID id, PPIDArray & rPalmList)
 	return Helper_GetChildList(id, rPalmList, 0);
 }
 
+int PPObjStyloPalm::GetListByPerson(PPID personID, PPIDArray & rPalmList)
+{
+	int    ok = -1;
+	rPalmList.Z();
+	if(personID) {
+		PPID   agent_accsheet_id = GetAgentAccSheet();
+		if(agent_accsheet_id) {
+			PPObjArticle ar_obj;
+			PPID   ar_id = 0;
+			if(ar_obj.P_Tbl->PersonToArticle(personID, agent_accsheet_id, &ar_id) > 0 && ar_id) {
+				PPStyloPalm2 rec;
+				for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
+					if(rec.AgentID == ar_id) {
+						rPalmList.add(rec.ID);
+						ok = 1;
+					}
+				}
+			}
+		}
+	}
+	rPalmList.sortAndUndup();
+	return ok;
+}
+
 int PPObjStyloPalm::CopyFromFTP(PPID id, int delAfterCopy, PPLogger * pLog)
 {
 	int    ok = 1;

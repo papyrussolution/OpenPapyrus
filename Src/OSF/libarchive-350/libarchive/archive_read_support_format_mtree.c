@@ -28,13 +28,9 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_support_format_mtree.c 201165 2009-12-29 05:52:13Z kientzle $");
 
-#include "archive.h"
-#include "archive_entry.h"
 #include "archive_entry_private.h"
-#include "archive_private.h"
 #include "archive_rb.h"
 #include "archive_read_private.h"
-#include "archive_string.h"
 #include "archive_pack_dev.h"
 
 #ifndef O_BINARY
@@ -765,19 +761,15 @@ static int process_global_set(struct archive_read * a,
 	}
 }
 
-static int process_global_unset(struct archive_read * a,
-    struct mtree_option ** global, const char * line)
+static int process_global_unset(struct archive_read * a, struct mtree_option ** global, const char * line)
 {
 	const char * next;
 	size_t len;
-
 	line += 6;
 	if(strchr(line, '=') != NULL) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "/unset shall not contain `='");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "/unset shall not contain `='");
 		return ARCHIVE_FATAL;
 	}
-
 	for(;;) {
 		next = line + strspn(line, " \t\r\n");
 		if(*next == '\0')
@@ -1337,7 +1329,7 @@ static int parse_device(dev_t * pdev, struct archive * a, char * val)
 				archive_set_error(a, ARCHIVE_ERRNO_FILE_FORMAT, "Too many arguments");
 				return ARCHIVE_WARN;
 			}
-			numbers[argc++] = (unsigned long)mtree_atol(&p, 0);
+			numbers[argc++] = (ulong)mtree_atol(&p, 0);
 		}
 		if(argc < 2) {
 			archive_set_error(a, ARCHIVE_ERRNO_FILE_FORMAT, "Not enough arguments");

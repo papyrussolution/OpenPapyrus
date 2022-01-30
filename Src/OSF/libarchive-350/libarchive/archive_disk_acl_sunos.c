@@ -40,8 +40,6 @@
 #include <sys/acl.h>
 #endif
 
-#include "archive_entry.h"
-#include "archive_private.h"
 #include "archive_read_disk_private.h"
 #include "archive_write_disk_private.h"
 

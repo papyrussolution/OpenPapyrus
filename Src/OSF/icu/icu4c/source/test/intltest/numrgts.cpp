@@ -93,7 +93,7 @@ public:
 };
 
 int32_t gMyNumberFormatTestClassID;
-UClassID MyNumberFormatTest::getDynamicClassID()  const
+UClassID MyNumberFormatTest::getDynamicClassID() const
 {
 	return (UClassID)&gMyNumberFormatTestClassID;
 }

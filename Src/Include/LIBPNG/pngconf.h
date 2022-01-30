@@ -27,9 +27,8 @@
  * the standard.  If your compiler doesn't provide these header files, or they
  * do not match the standard, you will need to provide/improve them.
  */
-#include <limits.h>
-#include <stddef.h>
-
+//#include <limits.h>
+//#include <stddef.h>
 /* Library header files.  These header files are all defined by ISOC90; libpng
  * expects conformant implementations, however, an ISOC90 conformant system need
  * not provide these header files if the functionality cannot be implemented.
@@ -39,13 +38,12 @@
  * Prior to 1.6.0 string.h was included here; the API changes in 1.6.0 to not
  * include this unnecessary header file.
  */
-#ifdef PNG_SETJMP_SUPPORTED
-	#include <setjmp.h> /* Required for the definition of jmp_buf and the declaration of longjmp: */
-#endif
-#ifdef PNG_CONVERT_tIME_SUPPORTED
-	#include <time.h> /* Required for struct tm: */
-#endif
-
+//#ifdef PNG_SETJMP_SUPPORTED
+	//#include <setjmp.h> /* Required for the definition of jmp_buf and the declaration of longjmp: */
+//#endif
+//#ifdef PNG_CONVERT_tIME_SUPPORTED
+	//#include <time.h> /* Required for struct tm: */
+//#endif
 #endif /* PNG_BUILDING_SYMBOL_TABLE */
 
 /* Prior to 1.6.0 it was possible to turn off 'const' in declarations using

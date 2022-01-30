@@ -25,9 +25,6 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_virtual.c 201098 2009-12-28 02:58:14Z kientzle $");
-#include "archive.h"
-#include "archive_entry.h"
-#include "archive_private.h"
 
 int archive_filter_code(struct archive * a, int n)
 {
@@ -116,12 +113,10 @@ la_ssize_t archive_write_data(struct archive * a, const void * buff, size_t s)
 	return ((a->vtable->archive_write_data)(a, buff, s));
 }
 
-la_ssize_t archive_write_data_block(struct archive * a, const void * buff, size_t s,
-    la_int64_t o)
+la_ssize_t archive_write_data_block(struct archive * a, const void * buff, size_t s, la_int64_t o)
 {
 	if(a->vtable->archive_write_data_block == NULL) {
-		archive_set_error(a, ARCHIVE_ERRNO_MISC,
-		    "archive_write_data_block not supported");
+		archive_set_error(a, ARCHIVE_ERRNO_MISC, "archive_write_data_block not supported");
 		a->state = ARCHIVE_STATE_FATAL;
 		return ARCHIVE_FATAL;
 	}
@@ -138,8 +133,7 @@ int archive_read_next_header2(struct archive * a, struct archive_entry * entry)
 	return ((a->vtable->archive_read_next_header2)(a, entry));
 }
 
-int archive_read_data_block(struct archive * a,
-    const void ** buff, size_t * s, la_int64_t * o)
+int archive_read_data_block(struct archive * a, const void ** buff, size_t * s, la_int64_t * o)
 {
 	return ((a->vtable->archive_read_data_block)(a, buff, s, o));
 }

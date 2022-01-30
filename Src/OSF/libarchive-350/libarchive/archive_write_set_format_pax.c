@@ -28,11 +28,7 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_pax.c 201162 2009-12-29 05:47:46Z kientzle $");
 
-#include "archive.h"
-#include "archive_entry.h"
 #include "archive_entry_locale.h"
-#include "archive_private.h"
-#include "archive_write_private.h"
 #include "archive_write_set_format_private.h"
 
 struct sparse_block {

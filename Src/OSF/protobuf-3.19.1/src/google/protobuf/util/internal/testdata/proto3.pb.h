@@ -100,8 +100,7 @@ class Proto3Message final :
   explicit constexpr Proto3Message(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   Proto3Message(const Proto3Message& from);
-  Proto3Message(Proto3Message&& from) noexcept
-    : Proto3Message() {
+  Proto3Message(Proto3Message&& from) noexcept : Proto3Message() {
     *this = ::std::move(from);
   }
 
@@ -110,8 +109,8 @@ class Proto3Message final :
     return *this;
   }
   inline Proto3Message& operator=(Proto3Message&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -123,35 +122,22 @@ class Proto3Message final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const Proto3Message& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const Proto3Message& default_instance() { return *internal_default_instance(); }
   static inline const Proto3Message* internal_default_instance() {
-    return reinterpret_cast<const Proto3Message*>(
-               &_Proto3Message_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    0;
+    return reinterpret_cast<const Proto3Message*>(&_Proto3Message_default_instance_); }
+  static constexpr int kIndexInFileMessages = 0;
 
-  friend void swap(Proto3Message& a, Proto3Message& b) {
-    a.Swap(&b);
-  }
+  friend void swap(Proto3Message& a, Proto3Message& b) { a.Swap(&b); }
   inline void Swap(Proto3Message* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -159,7 +145,7 @@ class Proto3Message final :
     }
   }
   void UnsafeArenaSwap(Proto3Message* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }

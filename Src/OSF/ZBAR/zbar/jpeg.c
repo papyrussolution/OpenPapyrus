@@ -25,7 +25,7 @@
 #pragma hdrstop
 #include <../osf/libjpeg/jpeglib.h>
 #include <../osf/libjpeg/jerror.h>
-#include <setjmp.h>
+//#include <setjmp.h>
 
 #undef HAVE_STDLIB_H
 

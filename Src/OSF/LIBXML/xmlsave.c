@@ -76,12 +76,12 @@ int xmlIsXHTML(const xmlChar * systemID, const xmlChar * publicID)
 {
 	if(!systemID && !publicID)
 		return -1;
-	if(publicID != NULL) {
+	if(publicID) {
 		if(sstreq(publicID, XHTML_STRICT_PUBLIC_ID)) return 1;
 		if(sstreq(publicID, XHTML_FRAME_PUBLIC_ID)) return 1;
 		if(sstreq(publicID, XHTML_TRANS_PUBLIC_ID)) return 1;
 	}
-	if(systemID != NULL) {
+	if(systemID) {
 		if(sstreq(systemID, XHTML_STRICT_SYSTEM_ID)) return 1;
 		if(sstreq(systemID, XHTML_FRAME_SYSTEM_ID)) return 1;
 		if(sstreq(systemID, XHTML_TRANS_SYSTEM_ID)) return 1;
@@ -694,7 +694,7 @@ static void xmlAttrDumpOutput(xmlSaveCtxt * ctxt, xmlAttr * cur)
 				xmlOutputBufferWriteWSNonSig(ctxt, 2);
 			else
 				xmlOutputBufferWrite(buf, 1, " ");
-			if(cur->ns && (cur->ns->prefix != NULL)) {
+			if(cur->ns && cur->ns->prefix) {
 				xmlOutputBufferWriteString(buf, reinterpret_cast<const char *>(cur->ns->prefix));
 				xmlOutputBufferWrite(buf, 1, ":");
 			}
@@ -759,10 +759,10 @@ static int htmlNodeDumpOutputInternal(xmlSaveCtxt * ctxt, xmlNode * cur)
 	xmlDoc * doc = cur->doc;
 	if(doc) {
 		oldenc = doc->encoding;
-		if(ctxt->encoding != NULL) {
+		if(ctxt->encoding) {
 			doc->encoding = BAD_CAST ctxt->encoding;
 		}
-		else if(doc->encoding != NULL) {
+		else if(doc->encoding) {
 			encoding = doc->encoding;
 		}
 	}
@@ -925,7 +925,7 @@ static void xmlNodeDumpOutputInternal(xmlSaveCtxt * ctxt, xmlNode * cur)
 				if(ctxt->format == 2)
 					xmlOutputBufferWriteWSNonSig(ctxt, 1);
 				xmlOutputBufferWrite(p_buf, 1, ">");
-				if((cur->type != XML_ELEMENT_NODE) && (cur->content != NULL)) {
+				if((cur->type != XML_ELEMENT_NODE) && cur->content) {
 					xmlOutputBufferWriteEscape(p_buf, cur->content, ctxt->escape);
 				}
 				if(cur->children) {
@@ -940,7 +940,7 @@ static void xmlNodeDumpOutputInternal(xmlSaveCtxt * ctxt, xmlNode * cur)
 						xmlOutputBufferWrite(p_buf, ctxt->indent_size * (ctxt->level > ctxt->indent_nr ? ctxt->indent_nr : ctxt->level), ctxt->indent);
 				}
 				xmlOutputBufferWrite(p_buf, 2, "</");
-				if(cur->ns && (cur->ns->prefix != NULL)) {
+				if(cur->ns && cur->ns->prefix) {
 					xmlOutputBufferWriteString(p_buf, reinterpret_cast<const char *>(cur->ns->prefix));
 					xmlOutputBufferWrite(p_buf, 1, ":");
 				}
@@ -1103,9 +1103,9 @@ static int xhtmlIsEmpty(const xmlNode * pNode)
 		return -1;
 	if(pNode->type != XML_ELEMENT_NODE)
 		return 0;
-	if((pNode->ns != NULL) && (!sstreq(pNode->ns->href, XHTML_NS_NAME)))
+	if(pNode->ns && (!sstreq(pNode->ns->href, XHTML_NS_NAME)))
 		return 0;
-	if(pNode->children != NULL)
+	if(pNode->children)
 		return 0;
 	switch(pNode->name[0]) {
 		case 'a':
@@ -1206,12 +1206,12 @@ static void xhtmlAttrListDumpOutput(xmlSaveCtxt * ctxt, xmlAttr * cur)
 	/*
 	 * C.7.
 	 */
-	if((lang != NULL) && (xml_lang == NULL)) {
+	if(lang && (xml_lang == NULL)) {
 		xmlOutputBufferWrite(buf, 11, " xml:lang=\"");
 		xmlAttrSerializeContent(buf, lang);
 		xmlOutputBufferWrite(buf, 1, "\"");
 	}
-	else if((xml_lang != NULL) && (lang == NULL)) {
+	else if(xml_lang && (lang == NULL)) {
 		xmlOutputBufferWrite(buf, 7, " lang=\"");
 		xmlAttrSerializeContent(buf, xml_lang);
 		xmlOutputBufferWrite(buf, 1, "\"");
@@ -1450,7 +1450,7 @@ static void xhtmlNodeDumpOutput(xmlSaveCtxt * ctxt, xmlNode * cur)
 			 * C.3. Element Minimization and Empty Element Content
 			 */
 			xmlOutputBufferWrite(buf, 2, "</");
-			if(cur->ns && (cur->ns->prefix != NULL)) {
+			if(cur->ns && cur->ns->prefix) {
 				xmlOutputBufferWriteString(buf, reinterpret_cast<const char *>(cur->ns->prefix));
 				xmlOutputBufferWrite(buf, 1, ":");
 			}
@@ -1488,7 +1488,7 @@ static void xhtmlNodeDumpOutput(xmlSaveCtxt * ctxt, xmlNode * cur)
 	 */
 	if((cur->type == XML_ELEMENT_NODE) && ((sstreq(cur->name, "script")) || (sstreq(cur->name, "style"))) && (!cur->ns || (sstreq(cur->ns->href, XHTML_NS_NAME)))) {
 		xmlNode * child = cur->children;
-		while(child != NULL) {
+		while(child) {
 			if(child->type == XML_TEXT_NODE) {
 				if(!xmlStrchr(child->content, '<') && !xmlStrchr(child->content, '&') && !xmlStrstr(child->content, reinterpret_cast<const xmlChar *>("]]>"))) {
 					/* Nothing to escape, so just output as is... */
@@ -1554,7 +1554,7 @@ static void xhtmlNodeDumpOutput(xmlSaveCtxt * ctxt, xmlNode * cur)
 			xmlOutputBufferWrite(buf, ctxt->indent_size * (ctxt->level > ctxt->indent_nr ? ctxt->indent_nr : ctxt->level), ctxt->indent);
 	}
 	xmlOutputBufferWrite(buf, 2, "</");
-	if(cur->ns && (cur->ns->prefix != NULL)) {
+	if(cur->ns && cur->ns->prefix) {
 		xmlOutputBufferWriteString(buf, reinterpret_cast<const char *>(cur->ns->prefix));
 		xmlOutputBufferWrite(buf, 1, ":");
 	}

@@ -50,7 +50,7 @@
 	#define cairo_public // @v10.6.5 
 #endif
 #include <slib.h> // @sobolev
-#include <setjmp.h>
+//#include <setjmp.h>
 #ifdef _MSC_VER
 	#define _USE_MATH_DEFINES
 #endif

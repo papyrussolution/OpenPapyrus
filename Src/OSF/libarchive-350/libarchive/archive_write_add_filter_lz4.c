@@ -32,10 +32,7 @@ __FBSDID("$FreeBSD$");
 #ifdef HAVE_LZ4HC_H
 #include <lz4hc.h>
 #endif
-#include "archive.h"
 #include "archive_endian.h"
-#include "archive_private.h"
-#include "archive_write_private.h"
 #include "archive_xxhash.h"
 
 #define LZ4_MAGICNUMBER 0x184d2204
@@ -124,8 +121,7 @@ int archive_write_add_filter_lz4(struct archive * _a)
 		return ARCHIVE_FATAL;
 	}
 	data->compression_level = 0;
-	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-	    "Using external lz4 program");
+	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Using external lz4 program");
 	return ARCHIVE_WARN;
 #endif
 }
@@ -133,21 +129,17 @@ int archive_write_add_filter_lz4(struct archive * _a)
 /*
  * Set write options.
  */
-static int archive_filter_lz4_options(struct archive_write_filter * f,
-    const char * key, const char * value)
+static int archive_filter_lz4_options(struct archive_write_filter * f, const char * key, const char * value)
 {
 	struct private_data * data = (struct private_data *)f->data;
-
 	if(strcmp(key, "compression-level") == 0) {
 		int val;
-		if(value == NULL || !((val = value[0] - '0') >= 1 && val <= 9) ||
-		    value[1] != '\0')
+		if(value == NULL || !((val = value[0] - '0') >= 1 && val <= 9) || value[1] != '\0')
 			return ARCHIVE_WARN;
 
 #ifndef HAVE_LZ4HC_H
 		if(val >= 3) {
-			archive_set_error(f->archive, ARCHIVE_ERRNO_PROGRAMMER,
-			    "High compression not included in this build");
+			archive_set_error(f->archive, ARCHIVE_ERRNO_PROGRAMMER, "High compression not included in this build");
 			return ARCHIVE_FATAL;
 		}
 #endif
@@ -245,13 +237,10 @@ static int archive_filter_lz4_open(struct archive_write_filter * f)
 	}
 
 	if(data->out_buffer == NULL || data->in_buffer_allocated == NULL) {
-		archive_set_error(f->archive, ENOMEM,
-		    "Can't allocate data for compression buffer");
+		archive_set_error(f->archive, ENOMEM, "Can't allocate data for compression buffer");
 		return ARCHIVE_FATAL;
 	}
-
 	f->write = archive_filter_lz4_write;
-
 	return ARCHIVE_OK;
 }
 
@@ -324,7 +313,7 @@ static int archive_filter_lz4_close(struct archive_write_filter * f)
 		memzero(data->out, 4); data->out += 4;
 		/* Write Stream checksum if needed. */
 		if(data->stream_checksum) {
-			unsigned int checksum;
+			uint checksum;
 			checksum = __archive_xxhash.XXH32_digest(data->xxh32_state);
 			data->xxh32_state = NULL;
 			archive_le32enc(data->out, checksum);
@@ -456,7 +445,7 @@ static int drive_compressor_independence(struct archive_write_filter * f, const 
     size_t length)
 {
 	struct private_data * data = (struct private_data *)f->data;
-	unsigned int outsize;
+	uint outsize;
 
 #ifdef HAVE_LZ4HC_H
 	if(data->compression_level >= 3)
@@ -494,7 +483,7 @@ static int drive_compressor_independence(struct archive_write_filter * f, const 
 	}
 	data->out += outsize;
 	if(data->block_checksum) {
-		unsigned int checksum =
+		uint checksum =
 		    __archive_xxhash.XXH32(data->out - outsize, outsize, 0);
 		archive_le32enc(data->out, checksum);
 		data->out += 4;
@@ -520,9 +509,7 @@ static int drive_compressor_dependence(struct archive_write_filter * f, const ch
 			    LZ4_createHC(data->in_buffer_allocated);
 #endif
 			if(data->lz4_stream == NULL) {
-				archive_set_error(f->archive, ENOMEM,
-				    "Can't allocate data for compression"
-				    " buffer");
+				archive_set_error(f->archive, ENOMEM, "Can't allocate data for compression buffer");
 				return ARCHIVE_FATAL;
 			}
 		}
@@ -545,9 +532,7 @@ static int drive_compressor_dependence(struct archive_write_filter * f, const ch
 		if(data->lz4_stream == NULL) {
 			data->lz4_stream = LZ4_createStream();
 			if(data->lz4_stream == NULL) {
-				archive_set_error(f->archive, ENOMEM,
-				    "Can't allocate data for compression"
-				    " buffer");
+				archive_set_error(f->archive, ENOMEM, "Can't allocate data for compression buffer");
 				return ARCHIVE_FATAL;
 			}
 		}
@@ -580,7 +565,7 @@ static int drive_compressor_dependence(struct archive_write_filter * f, const ch
 	}
 	data->out += outsize;
 	if(data->block_checksum) {
-		unsigned int checksum =
+		uint checksum =
 		    __archive_xxhash.XXH32(data->out - outsize, outsize, 0);
 		archive_le32enc(data->out, checksum);
 		data->out += 4;

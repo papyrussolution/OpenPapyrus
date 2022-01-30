@@ -8,7 +8,7 @@
 	#define USE_POSIX_TIME2
 #endif
 #ifdef USE_POSIX_TIME
-	#include <time.h>
+	//#include <time.h>
 	#ifdef USE_POSIX_TIME2
 		#include <sys/time.h>
 	#endif

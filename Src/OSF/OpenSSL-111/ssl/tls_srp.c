@@ -205,7 +205,7 @@ int SSL_set_srp_server_param(SSL * s, const BIGNUM * N, const BIGNUM * g, BIGNUM
 		else
 			s->srp_ctx.v = BN_dup(v);
 	}
-	if(info != NULL) {
+	if(info) {
 		if(s->srp_ctx.info)
 			OPENSSL_free(s->srp_ctx.info);
 		if((s->srp_ctx.info = BUF_strdup(info)) == NULL)

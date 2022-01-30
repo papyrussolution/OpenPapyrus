@@ -24,10 +24,7 @@
  */
 #include "archive_platform.h"
 #pragma hdrstop
-#include "archive.h"
-#include "archive_entry.h"
 #include "archive_entry_locale.h"
-#include "archive_private.h"
 #include "archive_read_private.h"
 #include "archive_endian.h"
 
@@ -1032,7 +1029,7 @@ static int lha_read_file_extended_header(struct archive_read * a, struct lha * l
 	const uchar * extdheader;
 	size_t extdsize;
 	size_t datasize;
-	unsigned int i;
+	uint i;
 	uchar extdtype;
 
 #define EXT_HEADER_CRC          0x00            /* Header CRC and information*/
@@ -1615,13 +1612,13 @@ static uchar lha_calcsum(uchar sum, const void * pp, int offset, size_t size)
 static uint16 crc16tbl[2][256];
 static void lha_crc16_init(void)
 {
-	unsigned int i;
+	uint i;
 	static int crc16init = 0;
 	if(crc16init)
 		return;
 	crc16init = 1;
 	for(i = 0; i < 256; i++) {
-		unsigned int j;
+		uint j;
 		uint16 crc = (uint16)i;
 		for(j = 8; j; j--)
 			crc = (crc >> 1) ^ ((crc & 1) * 0xA001);

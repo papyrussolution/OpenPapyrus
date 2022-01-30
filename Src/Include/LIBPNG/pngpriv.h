@@ -449,7 +449,7 @@
  *  DBL_MIN  Smallest normalized fp number (can be set to an arbitrary value)
  *  DBL_MAX  Maximum floating point number (can be set to an arbitrary value)
  */
-#include <float.h>
+//#include <float.h>
 
 #if(defined(__MWERKS__) && defined(macintosh)) || defined(applec) || defined(THINK_C) || defined(__SC__) || defined(TARGET_OS_MAC)
 /* We need to check that <math.h> hasn't already been included earlier
@@ -460,7 +460,7 @@
 #      include <fp.h>
 #endif
 #else
-#include <math.h>
+	//#include <math.h>
 #endif
 #if defined(_AMIGA) && defined(__SASC) && defined(_M68881)
 /* Amiga SAS/C: We must include builtin FPU functions when compiling using

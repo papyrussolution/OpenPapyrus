@@ -37,14 +37,14 @@
 	#include <sys/stat.h>
 #endif
 #ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
-#ifdef TIME_WITH_SYS_TIME
-#include <time.h>
-#endif
+	#include <sys/time.h>
+	//#ifdef TIME_WITH_SYS_TIME
+		//#include <time.h>
+	//#endif
 #else
-	#ifdef HAVE_TIME_H
-		#include <time.h>
-	#endif
+	//#ifdef HAVE_TIME_H
+		//#include <time.h>
+	//#endif
 #endif
 #ifdef WIN32
 	#include <io.h>

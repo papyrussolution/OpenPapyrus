@@ -343,7 +343,7 @@ void CollationDataReader::read(const CollationTailoring * base, const uint8 * in
 	// If the fast Latin format version is different,
 	// or the version is set to 0 for "no fast Latin table",
 	// then just always use the normal string comparison path.
-	if(data != NULL) {
+	if(data) {
 		data->fastLatinTable = NULL;
 		data->fastLatinTableLength = 0;
 		if(((inIndexes[IX_OPTIONS] >> 16) & 0xff) == CollationFastLatin::VERSION) {

@@ -66,8 +66,8 @@ archive_be16dec(const void *pp)
 	/* Store into unsigned temporaries before left shifting, to avoid
 	promotion to signed int and then left shifting into the sign bit,
 	which is undefined behaviour. */
-	unsigned int p1 = p[1];
-	unsigned int p0 = p[0];
+	uint p1 = p[1];
+	uint p0 = p[0];
 
 	return ((p0 << 8) | p1);
 }
@@ -80,10 +80,10 @@ archive_be32dec(const void *pp)
 	/* Store into unsigned temporaries before left shifting, to avoid
 	promotion to signed int and then left shifting into the sign bit,
 	which is undefined behaviour. */
-	unsigned int p3 = p[3];
-	unsigned int p2 = p[2];
-	unsigned int p1 = p[1];
-	unsigned int p0 = p[0];
+	uint p3 = p[3];
+	uint p2 = p[2];
+	uint p1 = p[1];
+	uint p0 = p[0];
 	return ((p0 << 24) | (p1 << 16) | (p2 << 8) | p3);
 }
 
@@ -99,8 +99,8 @@ static inline uint16 archive_le16dec(const void *pp)
 	/* Store into unsigned temporaries before left shifting, to avoid
 	promotion to signed int and then left shifting into the sign bit,
 	which is undefined behaviour. */
-	unsigned int p1 = p[1];
-	unsigned int p0 = p[0];
+	uint p1 = p[1];
+	uint p0 = p[0];
 	return ((p1 << 8) | p0);
 }
 
@@ -110,10 +110,10 @@ static inline uint32 archive_le32dec(const void *pp)
 	/* Store into unsigned temporaries before left shifting, to avoid
 	promotion to signed int and then left shifting into the sign bit,
 	which is undefined behaviour. */
-	unsigned int p3 = p[3];
-	unsigned int p2 = p[2];
-	unsigned int p1 = p[1];
-	unsigned int p0 = p[0];
+	uint p3 = p[3];
+	uint p2 = p[2];
+	uint p1 = p[1];
+	uint p0 = p[0];
 	return ((p3 << 24) | (p2 << 16) | (p1 << 8) | p0);
 }
 

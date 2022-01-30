@@ -607,9 +607,7 @@ void GenerateExtensionAnnotations(const Descriptor* descriptor, const Options& o
 				"(this, id.number(), _proto_TypeTraits::GetPtr(id.number(), "
 				"_extensions_, id.default_value_ref()));");
 		}
-		else if(StrContains(annotation_name, "repeated") &&
-		    !StrContains(annotation_name, "list") &&
-		    !StrContains(annotation_name, "size")) {
+		else if(StrContains(annotation_name, "repeated") && !StrContains(annotation_name, "list") && !StrContains(annotation_name, "size")) {
 			// Repeated index accessors.
 			std::string str_index = "index";
 			if(StrContains(annotation_name, "add")) {
@@ -642,19 +640,11 @@ void GenerateExtensionAnnotations(const Descriptor* descriptor, const Options& o
 
 // ===================================================================
 
-MessageGenerator::MessageGenerator(const Descriptor* descriptor,
-    const std::map<std::string, std::string>& vars, int index_in_file_messages,
-    const Options& options, MessageSCCAnalyzer* scc_analyzer)
-	: descriptor_(descriptor),
-	index_in_file_messages_(index_in_file_messages),
-	classname_(ClassName(descriptor, false)),
-	options_(options),
-	field_generators_(descriptor, options, scc_analyzer),
-	max_has_bit_index_(0),
-	max_inlined_string_index_(0),
-	num_weak_fields_(0),
-	scc_analyzer_(scc_analyzer),
-	variables_(vars) {
+MessageGenerator::MessageGenerator(const Descriptor* descriptor, const std::map<std::string, std::string>& vars, int index_in_file_messages,
+    const Options& options, MessageSCCAnalyzer* scc_analyzer) : descriptor_(descriptor), index_in_file_messages_(index_in_file_messages),
+	classname_(ClassName(descriptor, false)), options_(options), field_generators_(descriptor, options, scc_analyzer),
+	max_has_bit_index_(0), max_inlined_string_index_(0), num_weak_fields_(0), scc_analyzer_(scc_analyzer), variables_(vars) 
+{
 	if(!message_layout_helper_) {
 		message_layout_helper_.reset(new PaddingOptimizer());
 	}
@@ -670,25 +660,17 @@ MessageGenerator::MessageGenerator(const Descriptor* descriptor,
 	variables_["annotate_bytesize"] = "";
 	variables_["annotate_mergefrom"] = "";
 
-	if(options.field_listener_options.inject_field_listener_events &&
-	    descriptor->file()->options().optimize_for() !=
-	    google::protobuf::FileOptions::LITE_RUNTIME) {
+	if(options.field_listener_options.inject_field_listener_events && descriptor->file()->options().optimize_for() != google::protobuf::FileOptions::LITE_RUNTIME) {
 		const std::string injector_template = "  _tracker_.";
-
-		MaySetAnnotationVariable(options, "serialize", injector_template,
-		    "OnSerialize(this);\n", &variables_);
-		MaySetAnnotationVariable(options, "deserialize", injector_template,
-		    "OnDeserialize(this);\n", &variables_);
+		MaySetAnnotationVariable(options, "serialize", injector_template, "OnSerialize(this);\n", &variables_);
+		MaySetAnnotationVariable(options, "deserialize", injector_template, "OnDeserialize(this);\n", &variables_);
 		// TODO(danilak): Ideally annotate_reflection should not exist and we need
 		// to annotate all reflective calls on our own, however, as this is a cause
 		// for side effects, i.e. reading values dynamically, we want the users know
 		// that dynamic access can happen.
-		MaySetAnnotationVariable(options, "reflection", injector_template,
-		    "OnGetMetadata();\n", &variables_);
-		MaySetAnnotationVariable(options, "bytesize", injector_template,
-		    "OnByteSize(this);\n", &variables_);
-		MaySetAnnotationVariable(options, "mergefrom", injector_template,
-		    "OnMergeFrom(this, &from);\n", &variables_);
+		MaySetAnnotationVariable(options, "reflection", injector_template, "OnGetMetadata();\n", &variables_);
+		MaySetAnnotationVariable(options, "bytesize", injector_template, "OnByteSize(this);\n", &variables_);
+		MaySetAnnotationVariable(options, "mergefrom", injector_template, "OnMergeFrom(this, &from);\n", &variables_);
 	}
 
 	GenerateExtensionAnnotations(descriptor_, options_, &variables_);
@@ -701,7 +683,6 @@ MessageGenerator::MessageGenerator(const Descriptor* descriptor,
 		if(IsFieldStripped(field, options_)) {
 			continue;
 		}
-
 		if(IsWeak(field, options_)) {
 			num_weak_fields_++;
 		}
@@ -709,10 +690,7 @@ MessageGenerator::MessageGenerator(const Descriptor* descriptor,
 			optimized_order_.push_back(field);
 		}
 	}
-
-	message_layout_helper_->OptimizeLayout(&optimized_order_, options_,
-	    scc_analyzer_);
-
+	message_layout_helper_->OptimizeLayout(&optimized_order_, options_, scc_analyzer_);
 	// This message has hasbits iff one or more fields need one.
 	for(auto field : optimized_order_) {
 		if(HasHasbit(field)) {
@@ -728,69 +706,58 @@ MessageGenerator::MessageGenerator(const Descriptor* descriptor,
 			inlined_string_indices_[field->index()] = max_inlined_string_index_++;
 		}
 	}
-
 	if(!has_bit_indices_.empty()) {
 		field_generators_.SetHasBitIndices(has_bit_indices_);
 	}
-
 	if(!inlined_string_indices_.empty()) {
 		field_generators_.SetInlinedStringIndices(inlined_string_indices_);
 	}
-
 	num_required_fields_ = 0;
 	for(int i = 0; i < descriptor->field_count(); i++) {
 		if(descriptor->field(i)->is_required()) {
 			++num_required_fields_;
 		}
 	}
-
-	table_driven_ =
-	    TableDrivenParsingEnabled(descriptor_, options_, scc_analyzer_);
-	parse_function_generator_.reset(new ParseFunctionGenerator(
-		    descriptor_, max_has_bit_index_, has_bit_indices_,
-		    inlined_string_indices_, options_, scc_analyzer_, variables_));
+	table_driven_ = TableDrivenParsingEnabled(descriptor_, options_, scc_analyzer_);
+	parse_function_generator_.reset(new ParseFunctionGenerator(descriptor_, max_has_bit_index_, has_bit_indices_, inlined_string_indices_, options_, scc_analyzer_, variables_));
 }
 
 MessageGenerator::~MessageGenerator() = default;
 
-size_t MessageGenerator::HasBitsSize() const {
-	return (max_has_bit_index_ + 31) / 32;
+size_t MessageGenerator::HasBitsSize() const { return (max_has_bit_index_ + 31) / 32; }
+size_t MessageGenerator::InlinedStringDonatedSize() const { return (max_inlined_string_index_ + 31) / 32; }
+
+int MessageGenerator::HasBitIndex(const FieldDescriptor* field) const 
+{
+	return has_bit_indices_.empty() ? kNoHasbit : has_bit_indices_[field->index()];
 }
 
-size_t MessageGenerator::InlinedStringDonatedSize() const {
-	return (max_inlined_string_index_ + 31) / 32;
-}
-
-int MessageGenerator::HasBitIndex(const FieldDescriptor* field) const {
-	return has_bit_indices_.empty() ? kNoHasbit
-	       : has_bit_indices_[field->index()];
-}
-
-int MessageGenerator::HasByteIndex(const FieldDescriptor* field) const {
+int MessageGenerator::HasByteIndex(const FieldDescriptor* field) const 
+{
 	int hasbit = HasBitIndex(field);
 	return hasbit == kNoHasbit ? kNoHasbit : hasbit / 8;
 }
 
-int MessageGenerator::HasWordIndex(const FieldDescriptor* field) const {
+int MessageGenerator::HasWordIndex(const FieldDescriptor* field) const 
+{
 	int hasbit = HasBitIndex(field);
 	return hasbit == kNoHasbit ? kNoHasbit : hasbit / 32;
 }
 
-void MessageGenerator::AddGenerators(std::vector<std::unique_ptr<EnumGenerator> >* enum_generators,
-    std::vector<std::unique_ptr<ExtensionGenerator> >* extension_generators) {
+void MessageGenerator::AddGenerators(std::vector<std::unique_ptr<EnumGenerator> >* enum_generators, std::vector<std::unique_ptr<ExtensionGenerator> >* extension_generators) 
+{
 	for(int i = 0; i < descriptor_->enum_type_count(); i++) {
-		enum_generators->emplace_back(
-			new EnumGenerator(descriptor_->enum_type(i), variables_, options_));
+		enum_generators->emplace_back(new EnumGenerator(descriptor_->enum_type(i), variables_, options_));
 		enum_generators_.push_back(enum_generators->back().get());
 	}
 	for(int i = 0; i < descriptor_->extension_count(); i++) {
-		extension_generators->emplace_back(new ExtensionGenerator(
-			    descriptor_->extension(i), options_, scc_analyzer_));
+		extension_generators->emplace_back(new ExtensionGenerator(descriptor_->extension(i), options_, scc_analyzer_));
 		extension_generators_.push_back(extension_generators->back().get());
 	}
 }
 
-void MessageGenerator::GenerateFieldAccessorDeclarations(io::Printer* printer) {
+void MessageGenerator::GenerateFieldAccessorDeclarations(io::Printer* printer) 
+{
 	Formatter format(printer, variables_);
 	// optimized_fields_ does not contain fields where
 	//    field->real_containing_oneof()
@@ -801,12 +768,9 @@ void MessageGenerator::GenerateFieldAccessorDeclarations(io::Printer* printer) {
 	// able to infer these indices from the k[FIELDNAME]FieldNumber order.
 	std::vector<const FieldDescriptor*> ordered_fields;
 	ordered_fields.reserve(descriptor_->field_count());
-
-	ordered_fields.insert(ordered_fields.begin(), optimized_order_.begin(),
-	    optimized_order_.end());
+	ordered_fields.insert(ordered_fields.begin(), optimized_order_.begin(), optimized_order_.end());
 	for(auto field : FieldRange(descriptor_)) {
-		if(!field->real_containing_oneof() && !field->options().weak() &&
-		    !IsFieldStripped(field, options_)) {
+		if(!field->real_containing_oneof() && !field->options().weak() && !IsFieldStripped(field, options_)) {
 			continue;
 		}
 		ordered_fields.push_back(field);
@@ -816,7 +780,6 @@ void MessageGenerator::GenerateFieldAccessorDeclarations(io::Printer* printer) {
 		format("enum : int {\n");
 		for(auto field : ordered_fields) {
 			Formatter::SaveState save(&format);
-
 			std::map<std::string, std::string> vars;
 			SetCommonFieldVariables(field, &vars, options_);
 			format.AddMap(vars);
@@ -826,19 +789,15 @@ void MessageGenerator::GenerateFieldAccessorDeclarations(io::Printer* printer) {
 	}
 	for(auto field : ordered_fields) {
 		PrintFieldComment(format, field);
-
 		Formatter::SaveState save(&format);
-
 		std::map<std::string, std::string> vars;
 		SetCommonFieldVariables(field, &vars, options_);
 		format.AddMap(vars);
-
 		if(field->is_repeated()) {
 			format("$deprecated_attr$int ${1$$name$_size$}$() const$2$\n", field,
 			    !IsFieldStripped(field, options_) ? ";" : " {__builtin_trap();}");
 			if(!IsFieldStripped(field, options_)) {
-				format(
-					"private:\n"
+				format("private:\n"
 					"int ${1$_internal_$name$_size$}$() const;\n"
 					"public:\n",
 					field);
@@ -856,22 +815,15 @@ void MessageGenerator::GenerateFieldAccessorDeclarations(io::Printer* printer) {
 		}
 		else if(HasPrivateHasMethod(field)) {
 			if(!IsFieldStripped(field, options_)) {
-				format(
-					"private:\n"
-					"bool ${1$_internal_has_$name$$}$() const;\n"
-					"public:\n",
+				format("private:\nbool ${1$_internal_has_$name$$}$() const;\npublic:\n",
 					field);
 			}
 		}
-		format("$deprecated_attr$void ${1$clear_$name$$}$()$2$\n", field,
-		    !IsFieldStripped(field, options_) ? ";" : "{__builtin_trap();}");
-
+		format("$deprecated_attr$void ${1$clear_$name$$}$()$2$\n", field, !IsFieldStripped(field, options_) ? ";" : "{__builtin_trap();}");
 		// Generate type-specific accessor declarations.
 		field_generators_.get(field).GenerateAccessorDeclarations(printer);
-
 		format("\n");
 	}
-
 	if(descriptor_->extension_range_count() > 0) {
 		// Generate accessors for extensions.
 		// We use "_proto_TypeTraits" as a type name below because "TypeTraits"

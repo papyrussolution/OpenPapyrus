@@ -28,17 +28,9 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_support_format_iso9660.c 201246 2009-12-30 05:30:35Z kientzle $");
 
-#ifdef HAVE_ZLIB_H
-	#include <zlib.h>
-#endif
-#include "archive.h"
 #include "archive_endian.h"
-#include "archive_entry.h"
 #include "archive_entry_locale.h"
-#include "archive_private.h"
 #include "archive_read_private.h"
-#include "archive_string.h"
-
 /*
  * An overview of ISO 9660 format:
  *
@@ -439,14 +431,10 @@ int archive_read_support_format_iso9660(struct archive * _a)
 	struct archive_read * a = (struct archive_read *)_a;
 	struct iso9660 * iso9660;
 	int r;
-
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_read_support_format_iso9660");
-
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_iso9660");
 	iso9660 = (struct iso9660 *)SAlloc::C(1, sizeof(*iso9660));
 	if(iso9660 == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate iso9660 data");
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate iso9660 data");
 		return ARCHIVE_FATAL;
 	}
 	iso9660->magic = ISO9660_MAGIC;
@@ -910,17 +898,11 @@ static int read_children(struct archive_read * a, struct file_info * parent)
 		iso9660->entry_bytes_unconsumed = 0;
 	}
 	if(iso9660->current_position > parent->offset) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Ignoring out-of-order directory (%s) %jd > %jd",
-		    parent->name.s,
-		    (intmax_t)iso9660->current_position,
-		    (intmax_t)parent->offset);
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Ignoring out-of-order directory (%s) %jd > %jd", parent->name.s, (intmax_t)iso9660->current_position, (intmax_t)parent->offset);
 		return ARCHIVE_WARN;
 	}
 	if(parent->offset + parent->size > iso9660->volume_size) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Directory is beyond end-of-media: %s",
-		    parent->name.s);
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Directory is beyond end-of-media: %s", parent->name.s);
 		return ARCHIVE_WARN;
 	}
 	if(iso9660->current_position < parent->offset) {
@@ -1032,9 +1014,7 @@ static int choose_volume(struct archive_read * a, struct iso9660 * iso9660)
 
 	block = __archive_read_ahead(a, vd->size, NULL);
 	if(block == NULL) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Failed to read full block when scanning "
-		    "ISO9660 directory list");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Failed to read full block when scanning ISO9660 directory list");
 		return ARCHIVE_FATAL;
 	}
 
@@ -1154,26 +1134,17 @@ static int archive_read_format_iso9660_read_header(struct archive_read * a,
 			iso9660->sconv_utf16be);
 		if(r != 0) {
 			if(errno == ENOMEM) {
-				archive_set_error(&a->archive, ENOMEM,
-				    "No memory for Pathname");
+				archive_set_error(&a->archive, ENOMEM, "No memory for Pathname");
 				return ARCHIVE_FATAL;
 			}
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_FILE_FORMAT,
-			    "Pathname cannot be converted "
-			    "from %s to current locale.",
-			    archive_string_conversion_charset_name(
-				    iso9660->sconv_utf16be));
-
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Pathname cannot be converted from %s to current locale.", archive_string_conversion_charset_name(iso9660->sconv_utf16be));
 			rd_r = ARCHIVE_WARN;
 		}
 	}
 	else {
 		const char * path = build_pathname(&iso9660->pathname, file, 0);
 		if(!path) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_FILE_FORMAT,
-			    "Pathname is too long");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Pathname is too long");
 			return ARCHIVE_FATAL;
 		}
 		else {
@@ -1187,9 +1158,7 @@ static int archive_read_format_iso9660_read_header(struct archive_read * a,
 	iso9660->entry_sparse_offset = 0;
 
 	if(file->offset + file->size > iso9660->volume_size) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "File is beyond end-of-media: %s",
-		    archive_entry_pathname(entry));
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "File is beyond end-of-media: %s", archive_entry_pathname(entry));
 		iso9660->entry_bytes_remaining = 0;
 		return ARCHIVE_WARN;
 	}
@@ -1225,32 +1194,21 @@ static int archive_read_format_iso9660_read_header(struct archive_read * a,
 				iso9660->sconv_utf16be);
 			if(r != 0) {
 				if(errno == ENOMEM) {
-					archive_set_error(&a->archive, ENOMEM,
-					    "No memory for Linkname");
+					archive_set_error(&a->archive, ENOMEM, "No memory for Linkname"); 
 					return ARCHIVE_FATAL;
 				}
-				archive_set_error(&a->archive,
-				    ARCHIVE_ERRNO_FILE_FORMAT,
-				    "Linkname cannot be converted "
-				    "from %s to current locale.",
-				    archive_string_conversion_charset_name(
-					    iso9660->sconv_utf16be));
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Linkname cannot be converted from %s to current locale.", archive_string_conversion_charset_name(iso9660->sconv_utf16be));
 				rd_r = ARCHIVE_WARN;
 			}
 		}
 		else
-			archive_entry_set_hardlink(entry,
-			    iso9660->previous_pathname.s);
+			archive_entry_set_hardlink(entry, iso9660->previous_pathname.s);
 		archive_entry_unset_size(entry);
 		iso9660->entry_bytes_remaining = 0;
 		return (rd_r);
 	}
-
-	if((file->mode & AE_IFMT) != AE_IFDIR &&
-	    file->offset < iso9660->current_position) {
-		int64 r64;
-
-		r64 = __archive_read_seek(a, file->offset, SEEK_SET);
+	if((file->mode & AE_IFMT) != AE_IFDIR && file->offset < iso9660->current_position) {
+		int64 r64 = __archive_read_seek(a, file->offset, SEEK_SET);
 		if(r64 != (int64)file->offset) {
 			/* We can't seek backwards to extract it, so issue
 			 * a warning.  Note that this can only happen if
@@ -1260,12 +1218,8 @@ static int archive_read_format_iso9660_read_header(struct archive_read * a,
 			 * the entry. Such layouts are very unusual; most
 			 * ISO9660 writers lay out and record all directory
 			 * information first, then store all file bodies. */
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "Ignoring out-of-order file @%jx (%s) %jd < %jd",
-			    (intmax_t)file->number,
-			    iso9660->pathname.s,
-			    (intmax_t)file->offset,
-			    (intmax_t)iso9660->current_position);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Ignoring out-of-order file @%jx (%s) %jd < %jd", (intmax_t)file->number,
+			    iso9660->pathname.s, (intmax_t)file->offset, (intmax_t)iso9660->current_position);
 			iso9660->entry_bytes_remaining = 0;
 			return ARCHIVE_WARN;
 		}
@@ -1342,8 +1296,7 @@ static int zisofs_read_data(struct archive_read * a,
 	zisofs = &iso9660->entry_zisofs;
 	p = static_cast<const uchar *>(__archive_read_ahead(a, 1, &bytes_read));
 	if(bytes_read <= 0) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Truncated zisofs file body");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Truncated zisofs file body");
 		return ARCHIVE_FATAL;
 	}
 	if(bytes_read > iso9660->entry_bytes_remaining)
@@ -1880,12 +1833,10 @@ static struct file_info * parse_file_info(struct archive_read * a, struct file_i
 		}
 		else if(parent != NULL && parent->rr_moved)
 			file->rr_moved_has_re_only = 0;
-		else if(parent != NULL && (flags & 0x02) &&
-		    (parent->re || parent->re_descendant))
+		else if(parent != NULL && (flags & 0x02) && (parent->re || parent->re_descendant))
 			file->re_descendant = 1;
 		if(file->cl_offset) {
 			struct file_info * r;
-
 			if(parent == NULL || parent->parent == NULL) {
 				archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Invalid Rockridge CL");
 				goto fail;
@@ -2751,11 +2702,8 @@ static int next_cache_entry(struct archive_read * a, struct iso9660 * iso9660,
 	}
 	*pfile = cache_get_entry(iso9660);
 	return ((*pfile == NULL) ? ARCHIVE_EOF : ARCHIVE_OK);
-
 fatal_rr:
-	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-	    "Failed to connect 'CL' pointer to 'RE' rr_moved pointer of "
-	    "Rockridge extensions: current position = %jd, CL offset = %jd",
+	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Failed to connect 'CL' pointer to 'RE' rr_moved pointer of Rockridge extensions: current position = %jd, CL offset = %jd",
 	    (intmax_t)iso9660->current_position, (intmax_t)file->cl_offset);
 	return ARCHIVE_FATAL;
 }
@@ -2844,15 +2792,13 @@ static int heap_add_entry(struct archive_read * a, struct heap_queue * heap,
 			new_size = 1024;
 		/* Overflow might keep us from growing the list. */
 		if(new_size <= heap->allocated) {
-			archive_set_error(&a->archive,
-			    ENOMEM, "Out of memory");
+			archive_set_error(&a->archive, ENOMEM, "Out of memory");
 			return ARCHIVE_FATAL;
 		}
 		new_pending_files = (struct file_info **)
 		    SAlloc::M(new_size * sizeof(new_pending_files[0]));
 		if(new_pending_files == NULL) {
-			archive_set_error(&a->archive,
-			    ENOMEM, "Out of memory");
+			archive_set_error(&a->archive, ENOMEM, "Out of memory");
 			return ARCHIVE_FATAL;
 		}
 		if(heap->allocated)
@@ -2930,7 +2876,7 @@ static struct file_info * heap_get_entry(struct heap_queue * heap)              
 	}
 }
 
-static unsigned int toi(const void * p, int n)
+static uint toi(const void * p, int n)
 {
 	const uchar * v = (const uchar *)p;
 	if(n > 1)

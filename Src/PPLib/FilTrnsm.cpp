@@ -1,5 +1,5 @@
 // FILTRNSM.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Передача объектов между разделами БД
 //
@@ -1022,7 +1022,7 @@ static int PackTransmitFiles(const /*PPFileNameArray*/SFileEntryPool * pFileList
 int PPBackupOperationFile(const char * pFileName, const char * pFolderName, long flags)
 {
 	int    ok = 1;
-	const  int use_arc = BIN(flags & bofCompress);
+	const  bool use_arc = LOGIC(flags & bofCompress);
 	long   n = 0;
 	SString src_file_name;
 	SString src_file_ext;

@@ -5195,7 +5195,30 @@ int PPStyloQInterchange::ProcessCommand_RsrvOrderPrereq(StyloQCommandList::Item 
 		SString temp_buf;
 		PPObjStyloPalm stp_obj;
 		PPStyloPalmPacket stp_pack;
+		const PPObjID oid(rCliPack.Rec.LinkObjType, rCliPack.Rec.LinkObjID);
 		THROW(rCmdItem.Param.ReadStatic(&stylopalm_id, sizeof(stylopalm_id))); // @todo err
+		if(stylopalm_id == ROBJID_CONTEXT) {
+			PPID   local_person_id = 0;
+			THROW(oid.Obj && oid.Id);
+			if(oid.Obj == PPOBJ_PERSON) {
+				local_person_id = oid.Id;
+			}
+			else if(oid.Obj == PPOBJ_USR) {
+				PPObjSecur sec_obj(PPOBJ_USR, 0);
+				PPSecur sec_rec;
+				THROW(sec_obj.Fetch(oid.Id, &sec_rec) > 0 && sec_rec.PersonID);
+				local_person_id = sec_rec.PersonID;
+			}
+			else {
+				CALLEXCEPT();
+			}
+			if(local_person_id) {
+				PPIDArray stp_id_list;
+				if(stp_obj.GetListByPerson(local_person_id, stp_id_list) > 0) {
+					stylopalm_id = stp_id_list.get(0);
+				}
+			}
+		}
 		THROW(stp_obj.GetPacket(stylopalm_id, &stp_pack) > 0);
 		{
 			SJson js(SJson::tOBJECT);

@@ -306,33 +306,26 @@ static int ssh_bind_config_parse_line(ssh_bind bind,
 		    p = ssh_config_get_str_tok(&s, NULL);
 		    if(p && (*parser_flags & PARSING)) {
 			    int value = -1;
-
 			    if(strcasecmp(p, "quiet") == 0) {
 				    value = SSH_LOG_NONE;
 			    }
 			    else if(strcasecmp(p, "fatal") == 0 ||
-				strcasecmp(p, "error")== 0 ||
-				strcasecmp(p, "info") == 0) {
+				strcasecmp(p, "error")== 0 || strcasecmp(p, "info") == 0) {
 				    value = SSH_LOG_WARN;
 			    }
 			    else if(strcasecmp(p, "verbose") == 0) {
 				    value = SSH_LOG_INFO;
 			    }
-			    else if(strcasecmp(p, "DEBUG") == 0 ||
-				strcasecmp(p, "DEBUG1") == 0) {
+			    else if(strcasecmp(p, "DEBUG") == 0 || strcasecmp(p, "DEBUG1") == 0) {
 				    value = SSH_LOG_DEBUG;
 			    }
-			    else if(strcasecmp(p, "DEBUG2") == 0 ||
-				strcasecmp(p, "DEBUG3") == 0) {
+			    else if(strcasecmp(p, "DEBUG2") == 0 || strcasecmp(p, "DEBUG3") == 0) {
 				    value = SSH_LOG_TRACE;
 			    }
 			    if(value != -1) {
-				    rc = ssh_bind_options_set(bind, SSH_BIND_OPTIONS_LOG_VERBOSITY,
-					    &value);
+				    rc = ssh_bind_options_set(bind, SSH_BIND_OPTIONS_LOG_VERBOSITY, &value);
 				    if(rc != 0) {
-					    SSH_LOG(SSH_LOG_WARN,
-						"line %d: Failed to set LogLevel value '%s'",
-						count, p);
+					    SSH_LOG(SSH_LOG_WARN, "line %d: Failed to set LogLevel value '%s'", count, p);
 				    }
 			    }
 		    }
@@ -342,9 +335,7 @@ static int ssh_bind_config_parse_line(ssh_bind bind,
 		    if(p && (*parser_flags & PARSING)) {
 			    rc = ssh_bind_options_set(bind, SSH_BIND_OPTIONS_KEY_EXCHANGE, p);
 			    if(rc != 0) {
-				    SSH_LOG(SSH_LOG_WARN,
-					"line %d: Failed to set KexAlgorithms value '%s'",
-					count, p);
+				    SSH_LOG(SSH_LOG_WARN, "line %d: Failed to set KexAlgorithms value '%s'", count, p);
 			    }
 		    }
 		    break;

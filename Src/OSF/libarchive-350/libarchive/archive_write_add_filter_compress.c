@@ -58,10 +58,6 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_compression_compress.c 201111 2009-12-28 03:33:05Z kientzle $");
 
-#include "archive.h"
-#include "archive_private.h"
-#include "archive_write_private.h"
-
 #define HSIZE           69001   /* 95% occupancy */
 #define HSHIFT          8       /* 8 - trunc(log2(HSIZE / 65536)) */
 #define CHECK_GAP 10000         /* Ratio check interval. */
@@ -134,14 +130,11 @@ static int archive_compressor_compress_open(struct archive_write_filter * f)
 {
 	struct private_data * state;
 	size_t bs = 65536, bpb;
-
 	f->code = ARCHIVE_FILTER_COMPRESS;
 	f->name = "compress";
-
 	state = (struct private_data *)SAlloc::C(1, sizeof(*state));
 	if(state == NULL) {
-		archive_set_error(f->archive, ENOMEM,
-		    "Can't allocate data for compression");
+		archive_set_error(f->archive, ENOMEM, "Can't allocate data for compression");
 		return ARCHIVE_FATAL;
 	}
 

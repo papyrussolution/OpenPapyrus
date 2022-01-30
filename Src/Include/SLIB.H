@@ -26,6 +26,8 @@
 	#include <float.h>
 	#include <time.h>
 	#include <errno.h>
+	#include <signal.h> // @v11.2.12
+	#include <setjmp.h> // @v11.2.12
 	// @v10.9.6 {
 	#if _MSC_VER < 1900
 		// POSIX Supplement
@@ -1820,7 +1822,7 @@ struct LDATE { // @noctr
 	LDATE  operator = (double); // OleDate
 	int    day() const { return static_cast<int>(v & 0x00ff); }
 	int    month() const { return static_cast<int>((v & 0xff00) >> 8); }
-	int    year()  const { return static_cast<int>(v >> 16); }
+	int    year() const { return static_cast<int>(v >> 16); }
 	int    weekno() const;
 	int    dayspermonth() const;
 	//
@@ -1891,13 +1893,13 @@ struct LTIME {
 	LTIME  operator = (OleDate);
 	LTIME  operator = (double); // OleDate
 	LTIME  encode(int h, int m, int s, int ms);
-	int    hour()  const { return static_cast<int>((reinterpret_cast<const uint8 *>(&v))[3]); }
+	int    hour() const { return static_cast<int>((reinterpret_cast<const uint8 *>(&v))[3]); }
 	int    minut() const { return static_cast<int>((reinterpret_cast<const uint8 *>(&v))[2]); }
 	int    sec() const { return static_cast<int>((reinterpret_cast<const uint8 *>(&v))[1]); }
 	//
 	// Descr: Возвращает количество сотых долей секунды в значении this.
 	//
-	int    hs()    const { return static_cast<int>((reinterpret_cast<const uint8 *>(&v))[0]); }
+	int    hs() const { return static_cast<int>((reinterpret_cast<const uint8 *>(&v))[0]); }
 	long   totalsec() const { return (sec() + minut() * 60 + hour() * 3600); }
 	//
 	// Descr: Устанавливает время в соответствии с количеством секунд, заданных параметром s.
@@ -1926,11 +1928,11 @@ public:
 	STIME  operator = (OleDate);
 	STIME  operator = (double); // OleDate
 	STIME  encode(int h, int m, int s, int ms, int tz);
-	int    hour()  const;
+	int    hour() const;
 	int    minut() const;
 	int    sec() const;
-	int    ms()    const;
-	int    zone()  const;
+	int    ms() const;
+	int    zone() const;
 	long   totalsec() const;
 	//
 	// Descr: Устанавливает время в соответствии с количеством секунд, заданных параметром s.
@@ -4386,8 +4388,8 @@ public:
 	const wchar_t * ucptr() const { return P_Buf; }
 	SStringU & FASTCALL operator = (const SStringU &);
 	SStringU & FASTCALL operator = (const wchar_t *);
-	int    FASTCALL IsEq(const SStringU & rS) const;
-	int    FASTCALL IsEq(const wchar_t * pS) const;
+	bool   FASTCALL IsEq(const SStringU & rS) const;
+	bool   FASTCALL IsEq(const wchar_t * pS) const;
 	int    FASTCALL Cmp(const SStringU & rS) const;
 	//
 	// Descr: Сравнивает префикс строки this со строкой pS.
@@ -5495,7 +5497,7 @@ int    pathValid(const char * pPath, int existOnly);
 //   @# &rPath != 0
 //
 SString & makeExecPathFileName(const char * pName, const char * pExt, SString & rPath);
-int    FASTCALL IsWild(const char * pFileName);
+bool   FASTCALL IsWild(const char * pFileName);
 int    createDir(const char * pPath);
 int    copyFileByName(const char * pSrcFileName, const char * pDestFileName);
 //

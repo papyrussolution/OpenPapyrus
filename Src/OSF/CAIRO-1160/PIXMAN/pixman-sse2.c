@@ -55,10 +55,8 @@ static __m128i mask_565_b;
 static __m128i mask_red;
 static __m128i mask_green;
 static __m128i mask_blue;
-
 static __m128i mask_565_fix_rb;
 static __m128i mask_565_fix_g;
-
 static __m128i mask_565_rb;
 static __m128i mask_565_pack_multiplier;
 
@@ -2370,13 +2368,10 @@ static void sse2_composite_over_8888_n_8888(pixman_implementation_t * imp, pixma
 		src = src_line;
 		src_line += src_stride;
 		w = width;
-
 		while(w && (uintptr_t)dst & 15) {
 			uint32 s = *src++;
-
 			if(s) {
 				uint32 d = *dst;
-
 				__m128i ms = unpack_32_1x128(s);
 				__m128i alpha    = expand_alpha_1x128(ms);
 				__m128i dest     = xmm_mask;
@@ -4306,7 +4301,7 @@ static force_inline void scaled_nearest_scanline_sse2_8888_n_8888_OVER(const uin
 	__m128i xmm_alpha_lo, xmm_alpha_hi;
 	if(zero_src || (*mask >> 24) == 0)
 		return;
-	xmm_mask = create_mask_16_128(*mask >> 24);
+	xmm_mask = create_mask_16_128(static_cast<uint16>(*mask >> 24));
 	while(w && (uintptr_t)dst & 15) {
 		uint32 s = *(src + pixman_fixed_to_int(vx));
 		vx += unit_x;
@@ -4813,41 +4808,30 @@ static force_inline void scaled_bilinear_scanline_sse2_8888_n_8888_OVER(uint32 *
 	BILINEAR_DECLARE_VARIABLES;
 	uint32 pix1;
 	__m128i xmm_mask;
-
 	if(zero_src || (*mask >> 24) == 0)
 		return;
-
-	xmm_mask = create_mask_16_128(*mask >> 24);
-
+	xmm_mask = create_mask_16_128(static_cast<uint16>(*mask >> 24));
 	while(w && ((uintptr_t)dst & 15)) {
 		BILINEAR_INTERPOLATE_ONE_PIXEL(pix1);
 		if(pix1) {
 			uint32 d = *dst;
-
 			__m128i ms = unpack_32_1x128(pix1);
 			__m128i alpha     = expand_alpha_1x128(ms);
 			__m128i dest      = xmm_mask;
 			__m128i alpha_dst = unpack_32_1x128(d);
-
-			*dst = pack_1x128_32
-				    (in_over_1x128(&ms, &alpha, &dest, &alpha_dst));
+			*dst = pack_1x128_32(in_over_1x128(&ms, &alpha, &dest, &alpha_dst));
 		}
-
 		dst++;
 		w--;
 	}
-
 	while(w >= 4) {
 		__m128i xmm_src;
 		BILINEAR_INTERPOLATE_FOUR_PIXELS(xmm_src);
-
 		if(!is_zero(xmm_src)) {
 			__m128i xmm_src_lo, xmm_src_hi;
 			__m128i xmm_dst, xmm_dst_lo, xmm_dst_hi;
 			__m128i xmm_alpha_lo, xmm_alpha_hi;
-
 			xmm_dst = load_128_aligned((__m128i*)dst);
-
 			unpack_128_2x128(xmm_src, &xmm_src_lo, &xmm_src_hi);
 			unpack_128_2x128(xmm_dst, &xmm_dst_lo, &xmm_dst_hi);
 			expand_alpha_2x128(xmm_src_lo, xmm_src_hi,

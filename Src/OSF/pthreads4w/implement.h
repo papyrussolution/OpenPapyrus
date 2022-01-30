@@ -81,12 +81,12 @@
 #if !defined(malloc)
 	#include <malloc.h>
 #endif
-#if defined(__PTW32_CLEANUP_C)
-	#include <setjmp.h>
-#endif
-#if !defined(INT_MAX)
-	#include <limits.h>
-#endif
+//#if defined(__PTW32_CLEANUP_C)
+	//#include <setjmp.h>
+//#endif
+//#if !defined(INT_MAX)
+	//#include <limits.h>
+//#endif
 /* use local include files during development */
 #include "semaphore.h"
 #include "sched.h"

@@ -158,7 +158,7 @@ U_CAPI void U_EXPORT2 ulist_addItemBeginList(UList * list, const void * data, bo
 }
 
 U_CAPI bool U_EXPORT2 ulist_containsString(const UList * list, const char * data, int32_t length) {
-	if(list != NULL) {
+	if(list) {
 		const UListNode * pointer;
 		for(pointer = list->head; pointer != NULL; pointer = pointer->next) {
 			if(length == (int32_t)uprv_strlen((const char *)pointer->data)) {
@@ -172,7 +172,7 @@ U_CAPI bool U_EXPORT2 ulist_containsString(const UList * list, const char * data
 }
 
 U_CAPI bool U_EXPORT2 ulist_removeString(UList * list, const char * data) {
-	if(list != NULL) {
+	if(list) {
 		UListNode * pointer;
 		for(pointer = list->head; pointer != NULL; pointer = pointer->next) {
 			if(uprv_strcmp(data, (const char *)pointer->data) == 0) {
@@ -199,7 +199,7 @@ U_CAPI void * U_EXPORT2 ulist_getNext(UList * list) {
 }
 
 U_CAPI int32_t U_EXPORT2 ulist_getListSize(const UList * list) {
-	if(list != NULL) {
+	if(list) {
 		return list->size;
 	}
 
@@ -207,7 +207,7 @@ U_CAPI int32_t U_EXPORT2 ulist_getListSize(const UList * list) {
 }
 
 U_CAPI void U_EXPORT2 ulist_resetList(UList * list) {
-	if(list != NULL) {
+	if(list) {
 		list->curr = list->head;
 	}
 }
@@ -215,7 +215,7 @@ U_CAPI void U_EXPORT2 ulist_resetList(UList * list) {
 U_CAPI void U_EXPORT2 ulist_deleteList(UList * list) {
 	UListNode * listHead = NULL;
 
-	if(list != NULL) {
+	if(list) {
 		listHead = list->head;
 		while(listHead != NULL) {
 			UListNode * listPointer = listHead->next;

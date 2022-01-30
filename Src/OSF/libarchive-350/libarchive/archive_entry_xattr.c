@@ -39,9 +39,6 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry_xattr.c 201096 2009-12-28 
 #if defined(HAVE_EXT2FS_EXT2_FS_H) && !defined(__CYGWIN__)
 #include <ext2fs/ext2_fs.h>     /* for Linux file flags */
 #endif
-#include "archive.h"
-#include "archive_entry.h"
-#include "archive_private.h"
 #include "archive_entry_private.h"
 
 /*

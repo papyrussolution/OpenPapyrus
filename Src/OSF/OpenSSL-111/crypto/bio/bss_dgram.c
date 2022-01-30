@@ -933,7 +933,7 @@ static int dgram_sctp_free(BIO * a)
 		return 0;
 
 	data = (bio_dgram_sctp_data*)a->ptr;
-	if(data != NULL)
+	if(data)
 		OPENSSL_free(data);
 
 	return 1;

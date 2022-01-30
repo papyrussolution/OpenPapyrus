@@ -95,9 +95,9 @@ dev_t pack_native(int n, unsigned long numbers[], const char ** error)
 
 	if(n == 2) {
 		dev = apd_makedev(numbers[0], numbers[1]);
-		if((unsigned long)major(dev) != numbers[0])
+		if((ulong)major(dev) != numbers[0])
 			*error = iMajorError;
-		else if((unsigned long)minor(dev) != numbers[1])
+		else if((ulong)minor(dev) != numbers[1])
 			*error = iMinorError;
 	}
 	else
@@ -111,9 +111,9 @@ static dev_t pack_netbsd(int n, unsigned long numbers[], const char ** error)
 
 	if(n == 2) {
 		dev = makedev_netbsd(numbers[0], numbers[1]);
-		if((unsigned long)major_netbsd(dev) != numbers[0])
+		if((ulong)major_netbsd(dev) != numbers[0])
 			*error = iMajorError;
-		else if((unsigned long)minor_netbsd(dev) != numbers[1])
+		else if((ulong)minor_netbsd(dev) != numbers[1])
 			*error = iMinorError;
 	}
 	else
@@ -132,9 +132,9 @@ static dev_t pack_freebsd(int n, unsigned long numbers[], const char ** error)
 
 	if(n == 2) {
 		dev = makedev_freebsd(numbers[0], numbers[1]);
-		if((unsigned long)major_freebsd(dev) != numbers[0])
+		if((ulong)major_freebsd(dev) != numbers[0])
 			*error = iMajorError;
-		if((unsigned long)minor_freebsd(dev) != numbers[1])
+		if((ulong)minor_freebsd(dev) != numbers[1])
 			*error = iMinorError;
 	}
 	else
@@ -153,9 +153,9 @@ static dev_t pack_8_8(int n, unsigned long numbers[], const char ** error)
 
 	if(n == 2) {
 		dev = makedev_8_8(numbers[0], numbers[1]);
-		if((unsigned long)major_8_8(dev) != numbers[0])
+		if((ulong)major_8_8(dev) != numbers[0])
 			*error = iMajorError;
-		if((unsigned long)minor_8_8(dev) != numbers[1])
+		if((ulong)minor_8_8(dev) != numbers[1])
 			*error = iMinorError;
 	}
 	else
@@ -174,9 +174,9 @@ static dev_t pack_12_20(int n, unsigned long numbers[], const char ** error)
 
 	if(n == 2) {
 		dev = makedev_12_20(numbers[0], numbers[1]);
-		if((unsigned long)major_12_20(dev) != numbers[0])
+		if((ulong)major_12_20(dev) != numbers[0])
 			*error = iMajorError;
-		if((unsigned long)minor_12_20(dev) != numbers[1])
+		if((ulong)minor_12_20(dev) != numbers[1])
 			*error = iMinorError;
 	}
 	else
@@ -195,9 +195,9 @@ static dev_t pack_14_18(int n, unsigned long numbers[], const char ** error)
 
 	if(n == 2) {
 		dev = makedev_14_18(numbers[0], numbers[1]);
-		if((unsigned long)major_14_18(dev) != numbers[0])
+		if((ulong)major_14_18(dev) != numbers[0])
 			*error = iMajorError;
-		if((unsigned long)minor_14_18(dev) != numbers[1])
+		if((ulong)minor_14_18(dev) != numbers[1])
 			*error = iMinorError;
 	}
 	else
@@ -216,9 +216,9 @@ static dev_t pack_8_24(int n, unsigned long numbers[], const char ** error)
 
 	if(n == 2) {
 		dev = makedev_8_24(numbers[0], numbers[1]);
-		if((unsigned long)major_8_24(dev) != numbers[0])
+		if((ulong)major_8_24(dev) != numbers[0])
 			*error = iMajorError;
-		if((unsigned long)minor_8_24(dev) != numbers[1])
+		if((ulong)minor_8_24(dev) != numbers[1])
 			*error = iMinorError;
 	}
 	else
@@ -236,21 +236,20 @@ static dev_t pack_8_24(int n, unsigned long numbers[], const char ** error)
 static dev_t pack_bsdos(int n, unsigned long numbers[], const char ** error)
 {
 	dev_t dev = 0;
-
 	if(n == 2) {
 		dev = makedev_12_20(numbers[0], numbers[1]);
-		if((unsigned long)major_12_20(dev) != numbers[0])
+		if((ulong)major_12_20(dev) != numbers[0])
 			*error = iMajorError;
-		if((unsigned long)minor_12_20(dev) != numbers[1])
+		if((ulong)minor_12_20(dev) != numbers[1])
 			*error = iMinorError;
 	}
 	else if(n == 3) {
 		dev = makedev_12_12_8(numbers[0], numbers[1], numbers[2]);
-		if((unsigned long)major_12_12_8(dev) != numbers[0])
+		if((ulong)major_12_12_8(dev) != numbers[0])
 			*error = iMajorError;
-		if((unsigned long)unit_12_12_8(dev) != numbers[1])
+		if((ulong)unit_12_12_8(dev) != numbers[1])
 			*error = "invalid unit number";
-		if((unsigned long)subunit_12_12_8(dev) != numbers[2])
+		if((ulong)subunit_12_12_8(dev) != numbers[2])
 			*error = "invalid subunit number";
 	}
 	else

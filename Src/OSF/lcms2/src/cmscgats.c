@@ -2082,7 +2082,7 @@ static int LocatePatch(cmsIT8* it8, const char * cPatch)
 	for(i = 0; i < t->nPatches; i++) {
 		data = GetData(it8, i, t->SampleID);
 
-		if(data != NULL) {
+		if(data) {
 			if(cmsstrcasecmp(data, cPatch) == 0)
 				return i;
 		}

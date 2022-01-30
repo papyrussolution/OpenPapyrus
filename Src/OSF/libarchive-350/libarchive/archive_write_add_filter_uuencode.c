@@ -26,11 +26,6 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
 
-#include "archive.h"
-#include "archive_private.h"
-#include "archive_string.h"
-#include "archive_write_private.h"
-
 #define LBYTES 45
 
 struct private_uuencode {

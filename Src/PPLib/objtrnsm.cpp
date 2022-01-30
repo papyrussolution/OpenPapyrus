@@ -1,5 +1,5 @@
 // OBJTRNSM.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Передача объектов между разделами БД
 //
@@ -90,7 +90,7 @@ struct RestoreStackItem {
 			AddClusterAssoc(CTL_DBXCHGCFG_CHARRYF, 3, DBDXF_NOCOMMITBYDEF);
 			AddClusterAssoc(CTL_DBXCHGCFG_CHARRYF, 4, DBDXF_DESTROYQUEUEBYDEF);
 			AddClusterAssoc(CTL_DBXCHGCFG_CHARRYF, 5, DBDXF_DONTLOGOBJUPD);
-			AddClusterAssoc(CTL_DBXCHGCFG_CHARRYF, 6, DBDXF_SENDTAGATTCHM); // @v9.2.6
+			AddClusterAssoc(CTL_DBXCHGCFG_CHARRYF, 6, DBDXF_SENDTAGATTCHM);
 			AddClusterAssoc(CTL_DBXCHGCFG_CHARRYF, 7, DBDXF_SYNCUSRANDGRPS); // @v10.1.5
 			SetClusterData(CTL_DBXCHGCFG_CHARRYF, Data.Flags);
 
@@ -100,12 +100,9 @@ struct RestoreStackItem {
 			SetClusterData(CTL_DBXCHGCFG_RLZORD, Data.RealizeOrder);
 			SetupPPObjCombo(this, CTLSEL_DBXCHGCFG_ONELOC, PPOBJ_LOCATION, Data.OneRcvLocID, 0);
 			{
-				// @v9.9.6 SetupPPObjCombo(this, CTLSEL_DBXCHGCFG_DROP, PPOBJ_OPRKIND, Data.DfctRcptOpID, OLW_CANINSERT, (void *)PPOPT_GOODSRECEIPT);
-				// @v9.9.6 {
 				PPIDArray op_type_list;
 				op_type_list.addzlist(PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT, 0);
 				SetupOprKindCombo(this, CTLSEL_DBXCHGCFG_DROP, Data.DfctRcptOpID, OLW_CANINSERT, &op_type_list, 0);
-				// } @v9.9.6
 			}
 			SetupPPObjCombo(this, CTLSEL_DBXCHGCFG_SPCSGG, PPOBJ_GOODSGROUP, Data.SpcSubstGoodsGrpID, OLW_CANINSERT|OLW_CANSELUPLEVEL); // @v10.0.10
 			setCtrlReal(CTL_DBXCHGCFG_PCTADD, R2(fdiv100i(Data.PctAdd)));
@@ -142,13 +139,11 @@ struct RestoreStackItem {
 				long flags = GetClusterData(CTL_DBXCHGCFG_FLAGS);
 				SetupCtrls(flags);
 			}
-			// @v9.9.6 {
 			else if(event.isCbSelected(CTLSEL_DBXCHGCFG_DROP)) {
 				long flags = GetClusterData(CTL_DBXCHGCFG_FLAGS);
 				getCtrlData(CTLSEL_DBXCHGCFG_DROP, &Data.DfctRcptOpID);
 				SetupCtrls(flags);
 			}
-			// } @v9.9.6
 			else
 				return;
 			clearEvent(event);
@@ -158,11 +153,11 @@ struct RestoreStackItem {
 			const int disable = (!(flags & DBDXF_TURNTOTALDEFICITE) && (flags & DBDXF_CALCTOTALDEFICITE)) ? 0 : 1;
 			DisableClusterItem(CTL_DBXCHGCFG_CHARRYF, 2, disable);
 			if(disable) {
-				GetClusterData(CTL_DBXCHGCFG_CHARRYF, &(flags = 0));
+				flags = GetClusterData(CTL_DBXCHGCFG_CHARRYF);
 				flags &= ~DBDXF_SUBSTDEFICITGOODS;
 				SetClusterData(CTL_DBXCHGCFG_CHARRYF, flags);
 			}
-			DisableClusterItem(CTL_DBXCHGCFG_FLAGS, 5, BIN(Data.DfctRcptOpID && GetOpType(Data.DfctRcptOpID) != PPOPT_GOODSRECEIPT)); // @v9.9.6
+			DisableClusterItem(CTL_DBXCHGCFG_FLAGS, 5, BIN(Data.DfctRcptOpID && GetOpType(Data.DfctRcptOpID) != PPOPT_GOODSRECEIPT));
 		}
 	};
 	int    ok = -1, is_new = 0;
@@ -265,7 +260,6 @@ struct __PPDBXchgConfig {  // @persistent @store(PropertyTbl)
 //
 ObjTransmitParam::ObjTransmitParam() : Since_(ZERODATETIME), UpdProtocol(0), Flags(0), TrnsmFlags(0)
 {
-	//Init();
 }
 
 void ObjTransmitParam::Init()
@@ -299,8 +293,8 @@ int ObjTransmitParam::Read(SBuffer & rBuf, long)
 
 int ObjTransmitParam::Write(SBuffer & rBuf, long) const
 {
-	const PPIDArray * p_dbdiv_list = &DestDBDivList.Get(); // @v9.8.9 @fix SArray-->PPIDArray
-	const PPIDArray * p_obj_list = &ObjList.Get(); // @v9.8.9 @fix SArray-->PPIDArray
+	const PPIDArray * p_dbdiv_list = &DestDBDivList.Get();
+	const PPIDArray * p_obj_list = &ObjList.Get();
 	if(rBuf.Write(p_dbdiv_list, 0) && rBuf.Write(p_obj_list, 0) && rBuf.Write(Since_) &&
 		rBuf.Write(&UpdProtocol, sizeof(UpdProtocol)) && rBuf.Write(Flags) && rBuf.Write(TrnsmFlags))
 		return 1;
@@ -347,16 +341,14 @@ ObjTransmContext::ObjTransmContext(uint ctrFlags, PPLogger * pLogger) : State(0)
 		P_Logger = pLogger;
 		State |= stOuterLogger;
 	}
-	else {
+	else
 		P_Logger = new PPLogger((ctrFlags & ctrfDisableLogWindow) ? PPLogger::fDisableWindow : 0);
-	}
 }
 
 ObjTransmContext::~ObjTransmContext()
 {
-	//delete P_Btd;
 	delete P_ForceRestoreObj;
-	delete P_Gra; // @v10.0.12
+	delete P_Gra;
 	P_Ot = 0;
 	if(!(State & stOuterLogger)) {
 		ZDELETE(P_Logger);
@@ -488,11 +480,8 @@ PPObjectTransmit::PPObjectTransmit(TransmitMode mode, uint ctrFlags) : CtrError(
 	Ctx.Flags = 0;
 	Ctx.P_Ot = this;
 	PPObjectTransmit::ReadConfig(&Ctx.Cfg);
-	// @v10.0.12 {
-	if(Ctx.Cfg.SpcSubstGoodsGrpID) {
+	if(Ctx.Cfg.SpcSubstGoodsGrpID)
 		Ctx.P_Gra = new GoodsReplacementArray(Ctx.Cfg.SpcSubstGoodsGrpID);
-	}
-	// } @v10.0.12
 	if(Mode == PPObjectTransmit::tmReading) {
 		SetDestDbDivID(r_cfg.DBDiv);
 		Ctx.P_DestDbDivPack = 0;
@@ -622,7 +611,7 @@ int PPObjectTransmit::CloseInPacket()
 	int    ok = 1;
 	if(P_InStream) {
 		SFile::ZClose(&P_InStream);
-		InFileName = 0;
+		InFileName.Z();
 	}
 	else
 		ok = -1;
@@ -650,14 +639,17 @@ int PPObjectTransmit::Read(FILE * stream, void * p, size_t s)
 //
 PPObjectTransmit::IndexItem * PPObjectTransmit::TmpTblRecToIdxItem(const ObjSyncQueueTbl::Rec * pRec, IndexItem * pItem)
 {
-	memzero(pItem, sizeof(*pItem));
-	pItem->ObjType  = pRec->ObjType;
-	pItem->ObjID    = pRec->ObjID;
-	pItem->CommID   = *pRec;
-	pItem->ObjOffs  = pRec->FilePos;
-	pItem->Mod.Set(pRec->ModDt, pRec->ModTm);
-	pItem->Flags    = pRec->Flags;
-	pItem->Priority = pRec->Priority;
+	assert(pItem);
+	if(pItem) {
+		memzero(pItem, sizeof(*pItem));
+		pItem->ObjType  = pRec->ObjType;
+		pItem->ObjID    = pRec->ObjID;
+		pItem->CommID   = *pRec;
+		pItem->ObjOffs  = pRec->FilePos;
+		pItem->Mod.Set(pRec->ModDt, pRec->ModTm);
+		pItem->Flags    = pRec->Flags;
+		pItem->Priority = pRec->Priority;
+	}
 	return pItem;
 }
 
@@ -678,7 +670,8 @@ int PPObjectTransmit::EnumObjectsByIndex(PPObjID * pObjId, ObjSyncQueueTbl::Rec 
 
 int PPObjectTransmit::PutSyncCmpToIndex(PPID objType, PPID id)
 {
-	int    ok = -1, r = -1;
+	int    ok = -1;
+	int    r = -1;
 	PPCommSyncID comm_id;
 	ObjSyncTbl::Rec sync_rec;
 	ObjSyncQueueTbl::Key1 k1;
@@ -786,7 +779,6 @@ int PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updProtocol
 						need_send = 1;
 						break;
 				}
-				// @v9.8.10 {
 				if(do_log_send_info) {
 					if(need_send != NEED_SEND_NOOBJ) {
 						THROW(SETIFZ(p_obj, _GetObjectPtr(objType)));
@@ -801,7 +793,6 @@ int PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updProtocol
 						send_log_msg.Space().Cat(temp_buf);
 					PPLogMessage(PPFILNAM_DBXSEND_LOG, send_log_msg, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 				}
-				// } @v9.8.10
 			}
 		}
 	}
@@ -847,28 +838,21 @@ int PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updProtocol
 		}
 		THROW(r = SyncTbl.SearchSync(objType, objID, DestDbDivID, 0, &s_rec));
 		//
-		// Следующие два блока одинаковые, но, вероятно, они все-таки должны различаться.
-		// (необходим более тщительный анализ логики передачи объектов)
+		// @v11.2.12 Уточняем протокол: PPOTUP_FORCE имеет приоритет и не должен отменяться.
 		//
-		if(r > 0) {
-			if(this_obj_upd_protocol == PPOTUP_FORCE)
-				pack.Flags |= PPObjPack::fForceUpdate;
-			else if(this_obj_upd_protocol == PPOTUP_BYTIME) {
-				pack.Flags &= ~PPObjPack::fForceUpdate;
-				pack.Flags |= PPObjPack::fUpdate;
-			}
-			else
-				pack.Flags &= ~(PPObjPack::fForceUpdate | PPObjPack::fUpdate);
+		if(this_obj_upd_protocol == PPOTUP_FORCE) {
+			pack.Flags |= PPObjPack::fForceUpdate;
+			pack.Flags &= ~(PPObjPack::fUpdate); // @v11.2.12
 		}
-		else {
-			if(this_obj_upd_protocol == PPOTUP_FORCE)
-				pack.Flags |= PPObjPack::fForceUpdate;
-			else if(this_obj_upd_protocol == PPOTUP_BYTIME) {
-				pack.Flags &= ~PPObjPack::fForceUpdate;
+		else if(!(pack.Flags & PPObjPack::fForceUpdate)) { // @v11.2.12
+			if(this_obj_upd_protocol == PPOTUP_BYTIME) {
+				// @v11.2.12 pack.Flags &= ~PPObjPack::fForceUpdate;
 				pack.Flags |= PPObjPack::fUpdate;
 			}
-			else
-				pack.Flags &= ~(PPObjPack::fForceUpdate | PPObjPack::fUpdate);
+			else {
+				// @v11.2.12 pack.Flags &= ~(PPObjPack::fForceUpdate);
+				pack.Flags &= ~(PPObjPack::fUpdate);
+			}
 		}
 		if(RecoverTransmission)
 			pack.Flags |= PPObjPack::fRecover;
@@ -2193,7 +2177,15 @@ int PPObjectTransmit::MakeTransmitFileName(SString & rFileName, S_GUID * pDbDivU
 			if(!sj_item.ObjType || param.ObjList.Search(sj_item.ObjType, 0) > 0) {
 				if(sj_item.ObjType != PPOBJ_GOODSBASKET) {
 					// Корзины в пакете модифицированных объектов передавать не следует
-					THROW(p_ot->PostObject(sj_item.ObjType, sj_item.ObjID, PPOTUP_BYTIME, BIN(param.Flags & ObjTransmitParam::fSyncCmp)));
+					int update_mode = PPOTUP_BYTIME;
+					// @v11.2.12 {
+					// Специальный случай: товар не менялся, а надо передать измененя котировок - устанавливаем режим
+					// акцепта в "безусловный" ибо в противном случае принимающая сторона не станет пытаться принимать пакет товара,
+					// хотя в нем содержатся измененные котировки.
+					if(sj_item.ObjType == PPOBJ_GOODS && oneof3(sj_item.Action, PPACN_GOODSQUOTUPD, PPACN_QUOTUPD2, PPACN_QUOTRMV2))
+						update_mode = PPOTUP_FORCE;
+					// } @v11.2.12 
+					THROW(p_ot->PostObject(sj_item.ObjType, sj_item.ObjID, update_mode, BIN(param.Flags & ObjTransmitParam::fSyncCmp)));
 				}
 			}
 			PPWaitPercent(sj_view.GetCounter(), wait_msg);
@@ -3212,10 +3204,12 @@ static int SelfSyncDialog(SelfSyncParam * pParam)
 
 static int FASTCALL SyncRefObj(ObjSyncCore * pSyncTbl, PPID obj, PPID dest)
 {
-	int    ok = 1, r;
-	SString msg_buf;
-	PPWaitMsg(GetObjectTitle(obj, msg_buf));
-	for(PPID id = 0; (r = PPRef->EnumItems(obj, &id)) > 0;)
+	int    ok = 1;
+	int    r;
+	Reference * p_ref = PPRef;
+	//SString msg_buf;
+	PPWaitMsg(GetObjectTitle(obj, SLS.AcquireRvlStr())); // @v11.2.12 msg_buf-->SLS.AcquireRvlStr()
+	for(PPID id = 0; (r = p_ref->EnumItems(obj, &id)) > 0;)
 		THROW(pSyncTbl->SelfSync(obj, id, dest, 0));
 	THROW(r);
 	CATCHZOK
@@ -3286,7 +3280,6 @@ int SynchronizeObjects(PPID dest)
 		PPObjProcessor  prc_obj;
 		PPObjTech       tec_obj;
 		PPObjBill * p_bobj = BillObj;
-
 		PPIDArray ref_obj_list;
 		{
 			PPTransaction tra(1);

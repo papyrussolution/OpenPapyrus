@@ -215,8 +215,7 @@ static int compress_bidder_init(struct archive_read_filter * self)
 	/* Get compression parameters. */
 	code = getbits(self, 8);
 	if((code & 0x1f) > 16) {
-		archive_set_error(&self->archive->archive, -1,
-		    "Invalid compressed data");
+		archive_set_error(&self->archive->archive, -1, "Invalid compressed data");
 		return ARCHIVE_FATAL;
 	}
 	state->maxcode_bits = code & 0x1f;
@@ -335,21 +334,16 @@ static int next_code(struct archive_read_filter * self)
 		state->oldcode = -1;
 		return (next_code(self));
 	}
-
-	if(code > state->free_ent
-	    || (code == state->free_ent && state->oldcode < 0)) {
+	if(code > state->free_ent || (code == state->free_ent && state->oldcode < 0)) {
 		/* An invalid code is a fatal error. */
-		archive_set_error(&(self->archive->archive), -1,
-		    "Invalid compressed data");
+		archive_set_error(&(self->archive->archive), -1, "Invalid compressed data");
 		return ARCHIVE_FATAL;
 	}
-
 	/* Special case for KwKwK string. */
 	if(code >= state->free_ent) {
 		*state->stackp++ = state->finbyte;
 		code = state->oldcode;
 	}
-
 	/* Generate output characters in reverse order. */
 	while(code >= 256) {
 		*state->stackp++ = state->suffix[code];

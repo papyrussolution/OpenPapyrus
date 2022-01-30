@@ -121,7 +121,6 @@ boolint CMSEXPORT cmsPipelineCheckAndRetreiveStages(const cmsPipeline * Lut, cms
 cmsToneCurve ** _cmsStageGetPtrToCurveSet(const cmsStage * mpe)
 {
 	_cmsStageToneCurvesData* Data = (_cmsStageToneCurvesData*)mpe->Data;
-
 	return Data->TheCurves;
 }
 
@@ -945,9 +944,7 @@ cmsStage * _cmsStageNormalizeFromXyzFloat(cmsContext ContextID)
 		0, 0, n
 	};
 #undef n
-
 	cmsStage * mpe =  cmsStageAllocMatrix(ContextID, 3, 3, a1, NULL);
-
 	if(mpe == NULL) return mpe;
 	mpe->Implements = cmsSigXYZ2FloatPCS;
 	return mpe;

@@ -44,15 +44,12 @@
 #include "cairoint.h"
 #pragma hdrstop
 #define _DEFAULT_SOURCE /* for localtime_r(), gmtime_r(), snprintf(), sstrdup() */
-
 #include "cairo-pdf.h"
 #include "cairo-pdf-surface-private.h"
-
 #include "cairo-array-private.h"
 #include "cairo-error-private.h"
 #include "cairo-output-stream-private.h"
-
-#include <time.h>
+//#include <time.h>
 
 #ifndef HAVE_LOCALTIME_R
 #define localtime_r(T, BUF) (*(BUF) = *localtime(T))

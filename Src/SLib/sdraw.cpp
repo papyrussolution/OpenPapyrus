@@ -4,7 +4,7 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <setjmp.h> // jpeg && png
+//#include <setjmp.h> // jpeg && png
 //
 #define CAIRO_WIN32_STATIC_BUILD 1
 #include <cairo-1160\cairo.h>

@@ -26,14 +26,6 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_compression_gzip.c 201081 2009-12-28 02:04:42Z kientzle $");
 
-#ifdef HAVE_ZLIB_H
-	#include <zlib.h>
-#endif
-#include "archive.h"
-#include "archive_private.h"
-#include "archive_string.h"
-#include "archive_write_private.h"
-
 #if ARCHIVE_VERSION_NUMBER < 4000000
 int archive_write_set_compression_gzip(struct archive * a)
 {
@@ -110,8 +102,7 @@ int archive_write_add_filter_gzip(struct archive * _a)
 		return ARCHIVE_FATAL;
 	}
 	data->compression_level = 0;
-	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-	    "Using external gzip program");
+	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Using external gzip program");
 	return ARCHIVE_WARN;
 #endif
 }
@@ -177,11 +168,9 @@ static int archive_compressor_gzip_open(struct archive_write_filter * f)
 				bs -= bs % bpb;
 		}
 		data->compressed_buffer_size = bs;
-		data->compressed
-			= (uchar *)SAlloc::M(data->compressed_buffer_size);
+		data->compressed = (uchar *)SAlloc::M(data->compressed_buffer_size);
 		if(data->compressed == NULL) {
-			archive_set_error(f->archive, ENOMEM,
-			    "Can't allocate data for compression buffer");
+			archive_set_error(f->archive, ENOMEM, "Can't allocate data for compression buffer");
 			return ARCHIVE_FATAL;
 		}
 	}
@@ -230,27 +219,19 @@ static int archive_compressor_gzip_open(struct archive_write_filter * f)
 	}
 
 	/* Library setup failed: clean up. */
-	archive_set_error(f->archive, ARCHIVE_ERRNO_MISC, "Internal error "
-	    "initializing compression library");
-
-	/* Override the error message if we know what really went wrong. */
+	archive_set_error(f->archive, ARCHIVE_ERRNO_MISC, "Internal error initializing compression library");
+		/* Override the error message if we know what really went wrong. */
 	switch(ret) {
 		case Z_STREAM_ERROR:
-		    archive_set_error(f->archive, ARCHIVE_ERRNO_MISC,
-			"Internal error initializing "
-			"compression library: invalid setup parameter");
+		    archive_set_error(f->archive, ARCHIVE_ERRNO_MISC, "Internal error initializing compression library: invalid setup parameter");
 		    break;
 		case Z_MEM_ERROR:
-		    archive_set_error(f->archive, ENOMEM,
-			"Internal error initializing compression library");
+		    archive_set_error(f->archive, ENOMEM, "Internal error initializing compression library");
 		    break;
 		case Z_VERSION_ERROR:
-		    archive_set_error(f->archive, ARCHIVE_ERRNO_MISC,
-			"Internal error initializing "
-			"compression library: invalid library version");
+		    archive_set_error(f->archive, ARCHIVE_ERRNO_MISC, "Internal error initializing compression library: invalid library version");
 		    break;
 	}
-
 	return ARCHIVE_FATAL;
 }
 
@@ -305,13 +286,11 @@ static int archive_compressor_gzip_close(struct archive_write_filter * f)
 		trailer[7] = (uint8)(data->total_in >> 24)&0xff;
 		ret = __archive_write_filter(f->next_filter, trailer, 8);
 	}
-
 	switch(deflateEnd(&(data->stream))) {
 		case Z_OK:
 		    break;
 		default:
-		    archive_set_error(f->archive, ARCHIVE_ERRNO_MISC,
-			"Failed to clean up compressor");
+		    archive_set_error(f->archive, ARCHIVE_ERRNO_MISC, "Failed to clean up compressor");
 		    ret = ARCHIVE_FATAL;
 	}
 	return ret;
@@ -362,10 +341,7 @@ static int drive_compressor(struct archive_write_filter * f,
 			    return ARCHIVE_OK;
 			default:
 			    /* Any other return value indicates an error. */
-			    archive_set_error(f->archive, ARCHIVE_ERRNO_MISC,
-				"GZip compression failed:"
-				" deflate() call returned status %d",
-				ret);
+			    archive_set_error(f->archive, ARCHIVE_ERRNO_MISC, "GZip compression failed: deflate() call returned status %d", ret);
 			    return ARCHIVE_FATAL;
 		}
 	}

@@ -36,9 +36,6 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_read.c 201157 2009-12-29 05:30:2
 #ifdef HAVE_UNISTD_H
 	#include <unistd.h>
 #endif
-#include "archive.h"
-#include "archive_entry.h"
-#include "archive_private.h"
 #include "archive_read_private.h"
 
 // @sobolev #define minimum_Removed(a, b) (a < b ? a : b)
@@ -200,7 +197,7 @@ static int64 client_seek_proxy(struct archive_read_filter * self, int64 offset, 
 static int client_close_proxy(struct archive_read_filter * self)
 {
 	int r = ARCHIVE_OK, r2;
-	unsigned int i;
+	uint i;
 	if(self->archive->client.closer == NULL)
 		return r;
 	for(i = 0; i < self->archive->client.nodes; i++) {
@@ -219,7 +216,7 @@ static int client_open_proxy(struct archive_read_filter * self)
 	return r;
 }
 
-static int client_switch_proxy(struct archive_read_filter * self, unsigned int iindex)
+static int client_switch_proxy(struct archive_read_filter * self, uint iindex)
 {
 	int r1 = ARCHIVE_OK, r2 = ARCHIVE_OK;
 	void * data2 = NULL;
@@ -296,7 +293,7 @@ int archive_read_set_callback_data(struct archive * _a, void * client_data)
 	return archive_read_set_callback_data2(_a, client_data, 0);
 }
 
-int archive_read_set_callback_data2(struct archive * _a, void * client_data, unsigned int iindex)
+int archive_read_set_callback_data2(struct archive * _a, void * client_data, uint iindex)
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_set_callback_data2");
@@ -318,11 +315,11 @@ int archive_read_set_callback_data2(struct archive * _a, void * client_data, uns
 	return ARCHIVE_OK;
 }
 
-int archive_read_add_callback_data(struct archive * _a, void * client_data, unsigned int iindex)
+int archive_read_add_callback_data(struct archive * _a, void * client_data, uint iindex)
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	void * p;
-	unsigned int i;
+	uint i;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_add_callback_data");
 	if(iindex > a->client.nodes) {
 		archive_set_error(&a->archive, EINVAL, "Invalid index specified.");
@@ -361,7 +358,7 @@ int archive_read_open1(struct archive * _a)
 	struct archive_read * a = (struct archive_read *)_a;
 	struct archive_read_filter * filter, * tmp;
 	int slot, e = ARCHIVE_OK;
-	unsigned int i;
+	uint i;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_open");
 	archive_clear_error(&a->archive);
 	if(a->client.reader == NULL) {
@@ -1051,9 +1048,7 @@ int __archive_read_register_format(struct archive_read * a,
 			return ARCHIVE_OK;
 		}
 	}
-
-	archive_set_error(&a->archive, ENOMEM,
-	    "Not enough slots for format registration");
+	archive_set_error(&a->archive, ENOMEM, "Not enough slots for format registration");
 	return ARCHIVE_FATAL;
 }
 
@@ -1063,9 +1058,8 @@ int __archive_read_register_format(struct archive_read * a,
  */
 int __archive_read_get_bidder(struct archive_read * a, struct archive_read_filter_bidder ** bidder)
 {
-	int i, number_slots;
-	number_slots = sizeof(a->bidders) / sizeof(a->bidders[0]);
-	for(i = 0; i < number_slots; i++) {
+	int number_slots = sizeof(a->bidders) / sizeof(a->bidders[0]);
+	for(int i = 0; i < number_slots; i++) {
 		if(a->bidders[i].bid == NULL) {
 			memzero(a->bidders + i, sizeof(a->bidders[0]));
 			*bidder = (a->bidders + i);
@@ -1378,7 +1372,7 @@ int64 __archive_read_filter_seek(struct archive_read_filter * filter, int64 offs
 {
 	struct archive_read_client * client;
 	int64 r;
-	unsigned int cursor;
+	uint cursor;
 	if(filter->closed || filter->fatal)
 		return ARCHIVE_FATAL;
 	if(filter->seek == NULL)

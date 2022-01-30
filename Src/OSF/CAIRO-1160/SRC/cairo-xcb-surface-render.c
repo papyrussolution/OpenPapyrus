@@ -4152,7 +4152,7 @@ static cairo_status_t _cairo_xcb_surface_add_glyph(cairo_xcb_connection_t * conn
 	uint32 glyph_index = _cairo_scaled_glyph_index(scaled_glyph);
 	/* check to see if we have a pending XRenderFreeGlyph for this glyph */
 	info = _cairo_xcb_scaled_font_get_glyphset_info_for_pending_free_glyph(connection, font, glyph_index, glyph_surface);
-	if(info != NULL)
+	if(info)
 		return _cairo_xcb_glyph_attach(connection, scaled_glyph, info);
 	if(glyph_surface == NULL) {
 		status = _cairo_scaled_glyph_lookup(font, glyph_index, CAIRO_SCALED_GLYPH_INFO_METRICS|CAIRO_SCALED_GLYPH_INFO_SURFACE, scaled_glyph_out);

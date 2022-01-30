@@ -208,18 +208,12 @@ inline bool Proto2MapEnumPlusExtra_Parse(
 }
 // ===================================================================
 
-class TestEnumMap_KnownMapFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestEnumMap_KnownMapFieldEntry_DoNotUse, 
-    int32_t, ::protobuf_unittest::Proto2MapEnum,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
+class TestEnumMap_KnownMapFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestEnumMap_KnownMapFieldEntry_DoNotUse, int32_t, ::protobuf_unittest::Proto2MapEnum, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestEnumMap_KnownMapFieldEntry_DoNotUse, 
-    int32_t, ::protobuf_unittest::Proto2MapEnum,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestEnumMap_KnownMapFieldEntry_DoNotUse, int32_t, ::protobuf_unittest::Proto2MapEnum, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> SuperType;
   TestEnumMap_KnownMapFieldEntry_DoNotUse();
-  explicit constexpr TestEnumMap_KnownMapFieldEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestEnumMap_KnownMapFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestEnumMap_KnownMapFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestEnumMap_KnownMapFieldEntry_DoNotUse& other);
   static const TestEnumMap_KnownMapFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestEnumMap_KnownMapFieldEntry_DoNotUse*>(&_TestEnumMap_KnownMapFieldEntry_DoNotUse_default_instance_); }
@@ -231,18 +225,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class TestEnumMap_UnknownMapFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestEnumMap_UnknownMapFieldEntry_DoNotUse, 
-    int32_t, ::protobuf_unittest::Proto2MapEnum,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
+class TestEnumMap_UnknownMapFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestEnumMap_UnknownMapFieldEntry_DoNotUse, int32_t, ::protobuf_unittest::Proto2MapEnum, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestEnumMap_UnknownMapFieldEntry_DoNotUse, 
-    int32_t, ::protobuf_unittest::Proto2MapEnum,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestEnumMap_UnknownMapFieldEntry_DoNotUse, int32_t, ::protobuf_unittest::Proto2MapEnum, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> SuperType;
   TestEnumMap_UnknownMapFieldEntry_DoNotUse();
-  explicit constexpr TestEnumMap_UnknownMapFieldEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestEnumMap_UnknownMapFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestEnumMap_UnknownMapFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestEnumMap_UnknownMapFieldEntry_DoNotUse& other);
   static const TestEnumMap_UnknownMapFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestEnumMap_UnknownMapFieldEntry_DoNotUse*>(&_TestEnumMap_UnknownMapFieldEntry_DoNotUse_default_instance_); }
@@ -262,8 +250,7 @@ class TestEnumMap final :
   explicit constexpr TestEnumMap(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestEnumMap(const TestEnumMap& from);
-  TestEnumMap(TestEnumMap&& from) noexcept
-    : TestEnumMap() {
+  TestEnumMap(TestEnumMap&& from) noexcept : TestEnumMap() {
     *this = ::std::move(from);
   }
 
@@ -272,8 +259,8 @@ class TestEnumMap final :
     return *this;
   }
   inline TestEnumMap& operator=(TestEnumMap&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -285,42 +272,25 @@ class TestEnumMap final :
     return *this;
   }
 
-  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance);
-  }
-  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-  }
+  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const { return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance); }
+  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() { return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(); }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestEnumMap& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestEnumMap& default_instance() { return *internal_default_instance(); }
   static inline const TestEnumMap* internal_default_instance() {
-    return reinterpret_cast<const TestEnumMap*>(
-               &_TestEnumMap_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    2;
+    return reinterpret_cast<const TestEnumMap*>(&_TestEnumMap_default_instance_); }
+  static constexpr int kIndexInFileMessages = 2;
 
-  friend void swap(TestEnumMap& a, TestEnumMap& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestEnumMap& a, TestEnumMap& b) { a.Swap(&b); }
   inline void Swap(TestEnumMap* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -328,7 +298,7 @@ class TestEnumMap final :
     }
   }
   void UnsafeArenaSwap(TestEnumMap* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -443,18 +413,12 @@ class TestEnumMap final :
 };
 // -------------------------------------------------------------------
 
-class TestEnumMapPlusExtra_KnownMapFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestEnumMapPlusExtra_KnownMapFieldEntry_DoNotUse, 
-    int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtra,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
+class TestEnumMapPlusExtra_KnownMapFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestEnumMapPlusExtra_KnownMapFieldEntry_DoNotUse, int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtra, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestEnumMapPlusExtra_KnownMapFieldEntry_DoNotUse, 
-    int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtra,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestEnumMapPlusExtra_KnownMapFieldEntry_DoNotUse, int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtra, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> SuperType;
   TestEnumMapPlusExtra_KnownMapFieldEntry_DoNotUse();
-  explicit constexpr TestEnumMapPlusExtra_KnownMapFieldEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestEnumMapPlusExtra_KnownMapFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestEnumMapPlusExtra_KnownMapFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestEnumMapPlusExtra_KnownMapFieldEntry_DoNotUse& other);
   static const TestEnumMapPlusExtra_KnownMapFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestEnumMapPlusExtra_KnownMapFieldEntry_DoNotUse*>(&_TestEnumMapPlusExtra_KnownMapFieldEntry_DoNotUse_default_instance_); }
@@ -466,18 +430,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class TestEnumMapPlusExtra_UnknownMapFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestEnumMapPlusExtra_UnknownMapFieldEntry_DoNotUse, 
-    int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtra,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
+class TestEnumMapPlusExtra_UnknownMapFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestEnumMapPlusExtra_UnknownMapFieldEntry_DoNotUse, int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtra, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestEnumMapPlusExtra_UnknownMapFieldEntry_DoNotUse, 
-    int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtra,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestEnumMapPlusExtra_UnknownMapFieldEntry_DoNotUse, int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtra, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> SuperType;
   TestEnumMapPlusExtra_UnknownMapFieldEntry_DoNotUse();
-  explicit constexpr TestEnumMapPlusExtra_UnknownMapFieldEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestEnumMapPlusExtra_UnknownMapFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestEnumMapPlusExtra_UnknownMapFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestEnumMapPlusExtra_UnknownMapFieldEntry_DoNotUse& other);
   static const TestEnumMapPlusExtra_UnknownMapFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestEnumMapPlusExtra_UnknownMapFieldEntry_DoNotUse*>(&_TestEnumMapPlusExtra_UnknownMapFieldEntry_DoNotUse_default_instance_); }
@@ -497,8 +455,7 @@ class TestEnumMapPlusExtra final :
   explicit constexpr TestEnumMapPlusExtra(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestEnumMapPlusExtra(const TestEnumMapPlusExtra& from);
-  TestEnumMapPlusExtra(TestEnumMapPlusExtra&& from) noexcept
-    : TestEnumMapPlusExtra() {
+  TestEnumMapPlusExtra(TestEnumMapPlusExtra&& from) noexcept : TestEnumMapPlusExtra() {
     *this = ::std::move(from);
   }
 
@@ -507,8 +464,8 @@ class TestEnumMapPlusExtra final :
     return *this;
   }
   inline TestEnumMapPlusExtra& operator=(TestEnumMapPlusExtra&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -520,42 +477,25 @@ class TestEnumMapPlusExtra final :
     return *this;
   }
 
-  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance);
-  }
-  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-  }
+  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const { return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance); }
+  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() { return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(); }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestEnumMapPlusExtra& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestEnumMapPlusExtra& default_instance() { return *internal_default_instance(); }
   static inline const TestEnumMapPlusExtra* internal_default_instance() {
-    return reinterpret_cast<const TestEnumMapPlusExtra*>(
-               &_TestEnumMapPlusExtra_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    5;
+    return reinterpret_cast<const TestEnumMapPlusExtra*>(&_TestEnumMapPlusExtra_default_instance_); }
+  static constexpr int kIndexInFileMessages = 5;
 
-  friend void swap(TestEnumMapPlusExtra& a, TestEnumMapPlusExtra& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestEnumMapPlusExtra& a, TestEnumMapPlusExtra& b) { a.Swap(&b); }
   inline void Swap(TestEnumMapPlusExtra* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -563,7 +503,7 @@ class TestEnumMapPlusExtra final :
     }
   }
   void UnsafeArenaSwap(TestEnumMapPlusExtra* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -678,18 +618,12 @@ class TestEnumMapPlusExtra final :
 };
 // -------------------------------------------------------------------
 
-class TestImportEnumMap_ImportEnumAmpEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestImportEnumMap_ImportEnumAmpEntry_DoNotUse, 
-    int32_t, ::protobuf_unittest_import::ImportEnumForMap,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
+class TestImportEnumMap_ImportEnumAmpEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestImportEnumMap_ImportEnumAmpEntry_DoNotUse, int32_t, ::protobuf_unittest_import::ImportEnumForMap, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestImportEnumMap_ImportEnumAmpEntry_DoNotUse, 
-    int32_t, ::protobuf_unittest_import::ImportEnumForMap,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestImportEnumMap_ImportEnumAmpEntry_DoNotUse, int32_t, ::protobuf_unittest_import::ImportEnumForMap, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM> SuperType;
   TestImportEnumMap_ImportEnumAmpEntry_DoNotUse();
-  explicit constexpr TestImportEnumMap_ImportEnumAmpEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestImportEnumMap_ImportEnumAmpEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestImportEnumMap_ImportEnumAmpEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestImportEnumMap_ImportEnumAmpEntry_DoNotUse& other);
   static const TestImportEnumMap_ImportEnumAmpEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestImportEnumMap_ImportEnumAmpEntry_DoNotUse*>(&_TestImportEnumMap_ImportEnumAmpEntry_DoNotUse_default_instance_); }
@@ -709,8 +643,7 @@ class TestImportEnumMap final :
   explicit constexpr TestImportEnumMap(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestImportEnumMap(const TestImportEnumMap& from);
-  TestImportEnumMap(TestImportEnumMap&& from) noexcept
-    : TestImportEnumMap() {
+  TestImportEnumMap(TestImportEnumMap&& from) noexcept : TestImportEnumMap() {
     *this = ::std::move(from);
   }
 
@@ -719,8 +652,8 @@ class TestImportEnumMap final :
     return *this;
   }
   inline TestImportEnumMap& operator=(TestImportEnumMap&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -732,42 +665,25 @@ class TestImportEnumMap final :
     return *this;
   }
 
-  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance);
-  }
-  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-  }
+  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const { return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance); }
+  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() { return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(); }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestImportEnumMap& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestImportEnumMap& default_instance() { return *internal_default_instance(); }
   static inline const TestImportEnumMap* internal_default_instance() {
-    return reinterpret_cast<const TestImportEnumMap*>(
-               &_TestImportEnumMap_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    7;
+    return reinterpret_cast<const TestImportEnumMap*>(&_TestImportEnumMap_default_instance_); }
+  static constexpr int kIndexInFileMessages = 7;
 
-  friend void swap(TestImportEnumMap& a, TestImportEnumMap& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestImportEnumMap& a, TestImportEnumMap& b) { a.Swap(&b); }
   inline void Swap(TestImportEnumMap* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -775,7 +691,7 @@ class TestImportEnumMap final :
     }
   }
   void UnsafeArenaSwap(TestImportEnumMap* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -867,18 +783,12 @@ class TestImportEnumMap final :
 };
 // -------------------------------------------------------------------
 
-class TestIntIntMap_MEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestIntIntMap_MEntry_DoNotUse, 
-    int32_t, int32_t,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
+class TestIntIntMap_MEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestIntIntMap_MEntry_DoNotUse, int32_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestIntIntMap_MEntry_DoNotUse, 
-    int32_t, int32_t,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestIntIntMap_MEntry_DoNotUse, int32_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> SuperType;
   TestIntIntMap_MEntry_DoNotUse();
-  explicit constexpr TestIntIntMap_MEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestIntIntMap_MEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestIntIntMap_MEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestIntIntMap_MEntry_DoNotUse& other);
   static const TestIntIntMap_MEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestIntIntMap_MEntry_DoNotUse*>(&_TestIntIntMap_MEntry_DoNotUse_default_instance_); }
@@ -898,8 +808,7 @@ class TestIntIntMap final :
   explicit constexpr TestIntIntMap(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestIntIntMap(const TestIntIntMap& from);
-  TestIntIntMap(TestIntIntMap&& from) noexcept
-    : TestIntIntMap() {
+  TestIntIntMap(TestIntIntMap&& from) noexcept : TestIntIntMap() {
     *this = ::std::move(from);
   }
 
@@ -908,8 +817,8 @@ class TestIntIntMap final :
     return *this;
   }
   inline TestIntIntMap& operator=(TestIntIntMap&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -921,42 +830,25 @@ class TestIntIntMap final :
     return *this;
   }
 
-  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance);
-  }
-  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-  }
+  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const { return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance); }
+  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() { return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(); }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestIntIntMap& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestIntIntMap& default_instance() { return *internal_default_instance(); }
   static inline const TestIntIntMap* internal_default_instance() {
-    return reinterpret_cast<const TestIntIntMap*>(
-               &_TestIntIntMap_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    9;
+    return reinterpret_cast<const TestIntIntMap*>(&_TestIntIntMap_default_instance_); }
+  static constexpr int kIndexInFileMessages = 9;
 
-  friend void swap(TestIntIntMap& a, TestIntIntMap& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestIntIntMap& a, TestIntIntMap& b) { a.Swap(&b); }
   inline void Swap(TestIntIntMap* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -964,7 +856,7 @@ class TestIntIntMap final :
     }
   }
   void UnsafeArenaSwap(TestIntIntMap* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -1056,18 +948,12 @@ class TestIntIntMap final :
 };
 // -------------------------------------------------------------------
 
-class TestMaps_MInt32Entry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MInt32Entry_DoNotUse, 
-    int32_t, ::protobuf_unittest::TestIntIntMap,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
+class TestMaps_MInt32Entry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MInt32Entry_DoNotUse, int32_t, ::protobuf_unittest::TestIntIntMap, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MInt32Entry_DoNotUse, 
-    int32_t, ::protobuf_unittest::TestIntIntMap,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MInt32Entry_DoNotUse, int32_t, ::protobuf_unittest::TestIntIntMap, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   TestMaps_MInt32Entry_DoNotUse();
-  explicit constexpr TestMaps_MInt32Entry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestMaps_MInt32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestMaps_MInt32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMaps_MInt32Entry_DoNotUse& other);
   static const TestMaps_MInt32Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMaps_MInt32Entry_DoNotUse*>(&_TestMaps_MInt32Entry_DoNotUse_default_instance_); }
@@ -1079,18 +965,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class TestMaps_MInt64Entry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MInt64Entry_DoNotUse, 
-    int64_t, ::protobuf_unittest::TestIntIntMap,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64,
+class TestMaps_MInt64Entry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MInt64Entry_DoNotUse, int64_t, ::protobuf_unittest::TestIntIntMap, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MInt64Entry_DoNotUse, 
-    int64_t, ::protobuf_unittest::TestIntIntMap,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MInt64Entry_DoNotUse, int64_t, ::protobuf_unittest::TestIntIntMap, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   TestMaps_MInt64Entry_DoNotUse();
-  explicit constexpr TestMaps_MInt64Entry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestMaps_MInt64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestMaps_MInt64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMaps_MInt64Entry_DoNotUse& other);
   static const TestMaps_MInt64Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMaps_MInt64Entry_DoNotUse*>(&_TestMaps_MInt64Entry_DoNotUse_default_instance_); }
@@ -1102,18 +982,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class TestMaps_MUint32Entry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MUint32Entry_DoNotUse, 
-    uint32_t, ::protobuf_unittest::TestIntIntMap,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32,
+class TestMaps_MUint32Entry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MUint32Entry_DoNotUse, uint32_t, ::protobuf_unittest::TestIntIntMap, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MUint32Entry_DoNotUse, 
-    uint32_t, ::protobuf_unittest::TestIntIntMap,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MUint32Entry_DoNotUse, uint32_t, ::protobuf_unittest::TestIntIntMap, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   TestMaps_MUint32Entry_DoNotUse();
-  explicit constexpr TestMaps_MUint32Entry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestMaps_MUint32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestMaps_MUint32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMaps_MUint32Entry_DoNotUse& other);
   static const TestMaps_MUint32Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMaps_MUint32Entry_DoNotUse*>(&_TestMaps_MUint32Entry_DoNotUse_default_instance_); }
@@ -1125,18 +999,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class TestMaps_MUint64Entry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MUint64Entry_DoNotUse, 
-    uint64_t, ::protobuf_unittest::TestIntIntMap,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64,
+class TestMaps_MUint64Entry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MUint64Entry_DoNotUse, uint64_t, ::protobuf_unittest::TestIntIntMap, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MUint64Entry_DoNotUse, 
-    uint64_t, ::protobuf_unittest::TestIntIntMap,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MUint64Entry_DoNotUse, uint64_t, ::protobuf_unittest::TestIntIntMap, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   TestMaps_MUint64Entry_DoNotUse();
-  explicit constexpr TestMaps_MUint64Entry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestMaps_MUint64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestMaps_MUint64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMaps_MUint64Entry_DoNotUse& other);
   static const TestMaps_MUint64Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMaps_MUint64Entry_DoNotUse*>(&_TestMaps_MUint64Entry_DoNotUse_default_instance_); }
@@ -1148,18 +1016,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class TestMaps_MSint32Entry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MSint32Entry_DoNotUse, 
-    int32_t, ::protobuf_unittest::TestIntIntMap,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT32,
+class TestMaps_MSint32Entry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MSint32Entry_DoNotUse, int32_t, ::protobuf_unittest::TestIntIntMap, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MSint32Entry_DoNotUse, 
-    int32_t, ::protobuf_unittest::TestIntIntMap,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MSint32Entry_DoNotUse, int32_t, ::protobuf_unittest::TestIntIntMap, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   TestMaps_MSint32Entry_DoNotUse();
-  explicit constexpr TestMaps_MSint32Entry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestMaps_MSint32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestMaps_MSint32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMaps_MSint32Entry_DoNotUse& other);
   static const TestMaps_MSint32Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMaps_MSint32Entry_DoNotUse*>(&_TestMaps_MSint32Entry_DoNotUse_default_instance_); }
@@ -1171,18 +1033,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class TestMaps_MSint64Entry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MSint64Entry_DoNotUse, 
-    int64_t, ::protobuf_unittest::TestIntIntMap,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT64,
+class TestMaps_MSint64Entry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MSint64Entry_DoNotUse, int64_t, ::protobuf_unittest::TestIntIntMap, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT64,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MSint64Entry_DoNotUse, 
-    int64_t, ::protobuf_unittest::TestIntIntMap,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT64,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MSint64Entry_DoNotUse, int64_t, ::protobuf_unittest::TestIntIntMap, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SINT64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   TestMaps_MSint64Entry_DoNotUse();
-  explicit constexpr TestMaps_MSint64Entry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestMaps_MSint64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestMaps_MSint64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMaps_MSint64Entry_DoNotUse& other);
   static const TestMaps_MSint64Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMaps_MSint64Entry_DoNotUse*>(&_TestMaps_MSint64Entry_DoNotUse_default_instance_); }
@@ -1194,18 +1050,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class TestMaps_MFixed32Entry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MFixed32Entry_DoNotUse, 
-    uint32_t, ::protobuf_unittest::TestIntIntMap,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED32,
+class TestMaps_MFixed32Entry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MFixed32Entry_DoNotUse, uint32_t, ::protobuf_unittest::TestIntIntMap, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MFixed32Entry_DoNotUse, 
-    uint32_t, ::protobuf_unittest::TestIntIntMap,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MFixed32Entry_DoNotUse, uint32_t, ::protobuf_unittest::TestIntIntMap, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   TestMaps_MFixed32Entry_DoNotUse();
-  explicit constexpr TestMaps_MFixed32Entry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestMaps_MFixed32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestMaps_MFixed32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMaps_MFixed32Entry_DoNotUse& other);
   static const TestMaps_MFixed32Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMaps_MFixed32Entry_DoNotUse*>(&_TestMaps_MFixed32Entry_DoNotUse_default_instance_); }
@@ -1217,18 +1067,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class TestMaps_MFixed64Entry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MFixed64Entry_DoNotUse, 
-    uint64_t, ::protobuf_unittest::TestIntIntMap,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED64,
+class TestMaps_MFixed64Entry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MFixed64Entry_DoNotUse, uint64_t, ::protobuf_unittest::TestIntIntMap, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED64,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MFixed64Entry_DoNotUse, 
-    uint64_t, ::protobuf_unittest::TestIntIntMap,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED64,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MFixed64Entry_DoNotUse, uint64_t, ::protobuf_unittest::TestIntIntMap, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_FIXED64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   TestMaps_MFixed64Entry_DoNotUse();
-  explicit constexpr TestMaps_MFixed64Entry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestMaps_MFixed64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestMaps_MFixed64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMaps_MFixed64Entry_DoNotUse& other);
   static const TestMaps_MFixed64Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMaps_MFixed64Entry_DoNotUse*>(&_TestMaps_MFixed64Entry_DoNotUse_default_instance_); }
@@ -1240,18 +1084,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class TestMaps_MSfixed32Entry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MSfixed32Entry_DoNotUse, 
-    int32_t, ::protobuf_unittest::TestIntIntMap,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED32,
+class TestMaps_MSfixed32Entry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MSfixed32Entry_DoNotUse, int32_t, ::protobuf_unittest::TestIntIntMap, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MSfixed32Entry_DoNotUse, 
-    int32_t, ::protobuf_unittest::TestIntIntMap,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MSfixed32Entry_DoNotUse, int32_t, ::protobuf_unittest::TestIntIntMap, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   TestMaps_MSfixed32Entry_DoNotUse();
-  explicit constexpr TestMaps_MSfixed32Entry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestMaps_MSfixed32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestMaps_MSfixed32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMaps_MSfixed32Entry_DoNotUse& other);
   static const TestMaps_MSfixed32Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMaps_MSfixed32Entry_DoNotUse*>(&_TestMaps_MSfixed32Entry_DoNotUse_default_instance_); }
@@ -1263,18 +1101,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class TestMaps_MSfixed64Entry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MSfixed64Entry_DoNotUse, 
-    int64_t, ::protobuf_unittest::TestIntIntMap,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED64,
+class TestMaps_MSfixed64Entry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MSfixed64Entry_DoNotUse, int64_t, ::protobuf_unittest::TestIntIntMap, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED64,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MSfixed64Entry_DoNotUse, 
-    int64_t, ::protobuf_unittest::TestIntIntMap,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED64,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MSfixed64Entry_DoNotUse, int64_t, ::protobuf_unittest::TestIntIntMap, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_SFIXED64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   TestMaps_MSfixed64Entry_DoNotUse();
-  explicit constexpr TestMaps_MSfixed64Entry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestMaps_MSfixed64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestMaps_MSfixed64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMaps_MSfixed64Entry_DoNotUse& other);
   static const TestMaps_MSfixed64Entry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMaps_MSfixed64Entry_DoNotUse*>(&_TestMaps_MSfixed64Entry_DoNotUse_default_instance_); }
@@ -1286,18 +1118,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class TestMaps_MBoolEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MBoolEntry_DoNotUse, 
-    bool, ::protobuf_unittest::TestIntIntMap,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL,
+class TestMaps_MBoolEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MBoolEntry_DoNotUse, bool, ::protobuf_unittest::TestIntIntMap, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MBoolEntry_DoNotUse, 
-    bool, ::protobuf_unittest::TestIntIntMap,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MBoolEntry_DoNotUse, bool, ::protobuf_unittest::TestIntIntMap, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   TestMaps_MBoolEntry_DoNotUse();
-  explicit constexpr TestMaps_MBoolEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestMaps_MBoolEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestMaps_MBoolEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMaps_MBoolEntry_DoNotUse& other);
   static const TestMaps_MBoolEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMaps_MBoolEntry_DoNotUse*>(&_TestMaps_MBoolEntry_DoNotUse_default_instance_); }
@@ -1309,27 +1135,20 @@ public:
 
 // -------------------------------------------------------------------
 
-class TestMaps_MStringEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MStringEntry_DoNotUse, 
-    std::string, ::protobuf_unittest::TestIntIntMap,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
+class TestMaps_MStringEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MStringEntry_DoNotUse, std::string, ::protobuf_unittest::TestIntIntMap, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MStringEntry_DoNotUse, 
-    std::string, ::protobuf_unittest::TestIntIntMap,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMaps_MStringEntry_DoNotUse, std::string, ::protobuf_unittest::TestIntIntMap, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   TestMaps_MStringEntry_DoNotUse();
-  explicit constexpr TestMaps_MStringEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestMaps_MStringEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestMaps_MStringEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMaps_MStringEntry_DoNotUse& other);
   static const TestMaps_MStringEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMaps_MStringEntry_DoNotUse*>(&_TestMaps_MStringEntry_DoNotUse_default_instance_); }
   static bool ValidateKey(std::string* s) {
 #ifndef NDEBUG
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-       s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "protobuf_unittest.TestMaps.MStringEntry.key");
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "protobuf_unittest.TestMaps.MStringEntry.key");
 #else
-    (void) s;
+    (void)s;
 #endif
     return true;
  }
@@ -1348,8 +1167,7 @@ class TestMaps final :
   explicit constexpr TestMaps(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestMaps(const TestMaps& from);
-  TestMaps(TestMaps&& from) noexcept
-    : TestMaps() {
+  TestMaps(TestMaps&& from) noexcept : TestMaps() {
     *this = ::std::move(from);
   }
 
@@ -1358,8 +1176,8 @@ class TestMaps final :
     return *this;
   }
   inline TestMaps& operator=(TestMaps&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -1371,42 +1189,25 @@ class TestMaps final :
     return *this;
   }
 
-  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance);
-  }
-  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-  }
+  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const { return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance); }
+  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() { return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(); }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestMaps& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestMaps& default_instance() { return *internal_default_instance(); }
   static inline const TestMaps* internal_default_instance() {
-    return reinterpret_cast<const TestMaps*>(
-               &_TestMaps_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    22;
+    return reinterpret_cast<const TestMaps*>(&_TestMaps_default_instance_); }
+  static constexpr int kIndexInFileMessages = 22;
 
-  friend void swap(TestMaps& a, TestMaps& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestMaps& a, TestMaps& b) { a.Swap(&b); }
   inline void Swap(TestMaps* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -1414,7 +1215,7 @@ class TestMaps final :
     }
   }
   void UnsafeArenaSwap(TestMaps* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -1767,8 +1568,7 @@ class TestSubmessageMaps final :
   explicit constexpr TestSubmessageMaps(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestSubmessageMaps(const TestSubmessageMaps& from);
-  TestSubmessageMaps(TestSubmessageMaps&& from) noexcept
-    : TestSubmessageMaps() {
+  TestSubmessageMaps(TestSubmessageMaps&& from) noexcept : TestSubmessageMaps() {
     *this = ::std::move(from);
   }
 
@@ -1777,8 +1577,8 @@ class TestSubmessageMaps final :
     return *this;
   }
   inline TestSubmessageMaps& operator=(TestSubmessageMaps&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -1790,42 +1590,25 @@ class TestSubmessageMaps final :
     return *this;
   }
 
-  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance);
-  }
-  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-  }
+  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const { return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance); }
+  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() { return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(); }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestSubmessageMaps& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestSubmessageMaps& default_instance() { return *internal_default_instance(); }
   static inline const TestSubmessageMaps* internal_default_instance() {
-    return reinterpret_cast<const TestSubmessageMaps*>(
-               &_TestSubmessageMaps_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    23;
+    return reinterpret_cast<const TestSubmessageMaps*>(&_TestSubmessageMaps_default_instance_); }
+  static constexpr int kIndexInFileMessages = 23;
 
-  friend void swap(TestSubmessageMaps& a, TestSubmessageMaps& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestSubmessageMaps& a, TestSubmessageMaps& b) { a.Swap(&b); }
   inline void Swap(TestSubmessageMaps* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -1833,7 +1616,7 @@ class TestSubmessageMaps final :
     }
   }
   void UnsafeArenaSwap(TestSubmessageMaps* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }

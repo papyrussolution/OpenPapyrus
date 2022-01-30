@@ -93,7 +93,7 @@ int ASN1_TYPE_get_int_octetstring(const ASN1_TYPE * a, long * num, uchar * data,
 		n = ret;
 	else
 		n = max_len;
-	if(data != NULL)
+	if(data)
 		memcpy(data, ASN1_STRING_get0_data(atmp->oct), n);
 	if(ret == -1) {
 err:

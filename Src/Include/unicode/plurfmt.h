@@ -1,16 +1,9 @@
+// PLURFMT.H
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
-*******************************************************************************
-* Copyright (C) 2007-2014, International Business Machines Corporation and
-* others. All Rights Reserved.
-*******************************************************************************
-*
-
-* File PLURFMT.H
-********************************************************************************
+* Copyright (C) 2007-2014, International Business Machines Corporation and others. All Rights Reserved.
 */
-
 #ifndef PLURFMT
 #define PLURFMT
 

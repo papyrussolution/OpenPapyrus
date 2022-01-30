@@ -247,8 +247,8 @@ ShortNumberInfo::ShortNumberCost ShortNumberInfo::GetExpectedCost(const PhoneNum
 	return cost;
 }
 
-void ShortNumberInfo::GetRegionCodeForShortNumberFromRegionList(const PhoneNumber& number, const list<string>& region_codes,
-    string* region_code) const {
+void ShortNumberInfo::GetRegionCodeForShortNumberFromRegionList(const PhoneNumber& number, const list<string>& region_codes, string* region_code) const 
+{
 	if(region_codes.size() == 0) {
 		region_code->assign(RegionCode::GetUnknown());
 		return;
@@ -262,9 +262,7 @@ void ShortNumberInfo::GetRegionCodeForShortNumberFromRegionList(const PhoneNumbe
 	for(list<string>::const_iterator it = region_codes.begin();
 	    it != region_codes.end(); ++it) {
 		const PhoneMetadata* phone_metadata = GetMetadataForRegion(*it);
-		if(phone_metadata != NULL &&
-		    MatchesPossibleNumberAndNationalNumber(*matcher_api_, national_number,
-		    phone_metadata->short_code())) {
+		if(phone_metadata != NULL && MatchesPossibleNumberAndNationalNumber(*matcher_api_, national_number, phone_metadata->short_code())) {
 			// The number is valid for this region.
 			region_code->assign(*it);
 			return;
@@ -273,7 +271,8 @@ void ShortNumberInfo::GetRegionCodeForShortNumberFromRegionList(const PhoneNumbe
 	region_code->assign(RegionCode::GetUnknown());
 }
 
-string ShortNumberInfo::GetExampleShortNumber(const string& region_code) const {
+string ShortNumberInfo::GetExampleShortNumber(const string& region_code) const 
+{
 	const PhoneMetadata* phone_metadata = GetMetadataForRegion(region_code);
 	if(!phone_metadata) {
 		return "";
@@ -285,8 +284,8 @@ string ShortNumberInfo::GetExampleShortNumber(const string& region_code) const {
 	return "";
 }
 
-string ShortNumberInfo::GetExampleShortNumberForCost(const string& region_code,
-    ShortNumberInfo::ShortNumberCost cost) const {
+string ShortNumberInfo::GetExampleShortNumberForCost(const string& region_code, ShortNumberInfo::ShortNumberCost cost) const 
+{
 	const PhoneMetadata* phone_metadata = GetMetadataForRegion(region_code);
 	if(!phone_metadata) {
 		return "";

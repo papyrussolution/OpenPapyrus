@@ -41,12 +41,8 @@
 #pragma hdrstop
 #if CAIRO_HAS_FT_FONT // {
 #define _DEFAULT_SOURCE /* for sstrdup() */
-//#include "cairo-error-private.h"
-//#include "cairo-image-surface-private.h"
 #include "cairo-ft-private.h"
-//#include "cairo-pattern-private.h"
 #include "cairo-pixman-private.h"
-//#include <float.h>
 #include "cairo-fontconfig-private.h"
 #include <ft2build.h>
 #include FT_FREETYPE_H

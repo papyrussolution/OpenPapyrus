@@ -1,5 +1,5 @@
 // V_TRANSP.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Starodub 2009, 2010, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -190,21 +190,21 @@ DBQuery * PPViewTransport::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 
 // PP_CREATE_TEMP_FILE_PROC(CreateTempTransportFile, TempTransport);
 
-void PPViewTransport::MakeTempRec(const PPTransport * pTranspRec, TempTransportTbl::Rec * pTempRec)
+void PPViewTransport::MakeTempRec(const PPTransportPacket * pTranspPack, TempTransportTbl::Rec * pTempRec)
 {
-	if(pTempRec && pTranspRec) {
+	if(pTempRec && pTranspPack) {
 		memzero(pTempRec, sizeof(*pTempRec));
-		pTempRec->ID = pTranspRec->ID;
-		STRNSCPY(pTempRec->Name, pTranspRec->Name);
-		GetObjectName(PPOBJ_TRANSPMODEL, pTranspRec->TrModelID, pTempRec->ModelName, sizeof(pTempRec->ModelName));
-		pTempRec->ModelID   = pTranspRec->TrModelID;
-		pTempRec->OwnerID   = pTranspRec->OwnerID;
-		pTempRec->CaptainID = pTranspRec->CaptainID;
-		pTempRec->TrType    = pTranspRec->TrType;
-		pTempRec->CountryID = pTranspRec->CountryID;
-		pTempRec->Capacity  = pTranspRec->Capacity;
-		STRNSCPY(pTempRec->Code,      pTranspRec->Code);
-		STRNSCPY(pTempRec->TrailCode, pTranspRec->TrailerCode);
+		pTempRec->ID = pTranspPack->Rec.ID;
+		STRNSCPY(pTempRec->Name, pTranspPack->Rec.Name);
+		GetObjectName(PPOBJ_TRANSPMODEL, pTranspPack->Rec.TrModelID, pTempRec->ModelName, sizeof(pTempRec->ModelName));
+		pTempRec->ModelID   = pTranspPack->Rec.TrModelID;
+		pTempRec->OwnerID   = pTranspPack->Rec.OwnerID;
+		pTempRec->CaptainID = pTranspPack->Rec.CaptainID;
+		pTempRec->TrType    = pTranspPack->Rec.TrType;
+		pTempRec->CountryID = pTranspPack->Rec.CountryID;
+		pTempRec->Capacity  = pTranspPack->Rec.Capacity;
+		STRNSCPY(pTempRec->Code,      pTranspPack->Rec.Code);
+		STRNSCPY(pTempRec->TrailCode, pTranspPack->Rec.TrailerCode);
 	}
 }
 
@@ -213,12 +213,12 @@ int PPViewTransport::UpdateTempTable(PPID transpID, PPViewBrowser * pBrw)
 	int    ok = 1;
 	if(P_TempTbl) {
 		if(transpID) {
-			PPTransport t_rec;
+			PPTransportPacket t_pack;
 			PPTransaction tra(ppDbDependTransaction, 1);
 			THROW(tra);
-			if(TObj.Get(transpID, &t_rec) > 0 && CheckForFilt(&Filt, transpID, 0)) {
+			if(TObj.Get(transpID, &t_pack) > 0 && CheckForFilt(&Filt, transpID, 0)) {
 				TempTransportTbl::Rec temp_rec;
-				MakeTempRec(&t_rec, &temp_rec);
+				MakeTempRec(&t_pack, &temp_rec);
 				TempTransportTbl::Key0 k0;
 				MEMSZERO(k0);
 				k0.ID = transpID;
@@ -241,29 +241,29 @@ int PPViewTransport::UpdateTempTable(PPID transpID, PPViewBrowser * pBrw)
 	return ok;
 }
 
-int PPViewTransport::CheckForFilt(TransportFilt * pFilt, PPID transpID, PPTransport * pRec)
+int PPViewTransport::CheckForFilt(TransportFilt * pFilt, PPID transpID, const PPTransportPacket * pPack)
 {
-	PPTransport rec;
-	if(pRec)
-		rec = *pRec;
+	PPTransportPacket temp_pack;
+	if(pPack)
+		temp_pack = *pPack;
 	else if(transpID)
-		TObj.Get(transpID, &rec);
-	if(!CheckFiltID(pFilt->ModelID, rec.TrModelID))
+		TObj.Get(transpID, &temp_pack);
+	if(!CheckFiltID(pFilt->ModelID, temp_pack.Rec.TrModelID))
 		return 0;
-	else if(!CheckFiltID(pFilt->TrType, rec.TrType))
+	else if(!CheckFiltID(pFilt->TrType, temp_pack.Rec.TrType))
 		return 0;
-	else if(!CheckFiltID(pFilt->OwnerID, rec.OwnerID))
+	else if(!CheckFiltID(pFilt->OwnerID, temp_pack.Rec.OwnerID))
 		return 0;
-	else if(!CheckFiltID(pFilt->CaptainID, rec.CaptainID))
+	else if(!CheckFiltID(pFilt->CaptainID, temp_pack.Rec.CaptainID))
 		return 0;
 	else if(pFilt->TrType == PPTRTYP_CAR) {
-		if(pFilt->Code.NotEmpty() && pFilt->Code.Cmp(rec.Code, 0) != 0)
+		if(pFilt->Code.NotEmpty() && pFilt->Code.Cmp(temp_pack.Rec.Code, 0) != 0)
 			return 0;
-		else if(pFilt->TrailCode.NotEmpty() && pFilt->TrailCode.Cmp(rec.TrailerCode, 0) != 0)
+		else if(pFilt->TrailCode.NotEmpty() && pFilt->TrailCode.Cmp(temp_pack.Rec.TrailerCode, 0) != 0)
 			return 0;
 	}
 	else if(pFilt->TrType == PPTRTYP_SHIP)
-		if(pFilt->CountryID && pFilt->CountryID != rec.CountryID)
+		if(pFilt->CountryID && pFilt->CountryID != temp_pack.Rec.CountryID)
 			return 0;
 	return 1;
 }
@@ -290,10 +290,10 @@ int PPViewTransport::Init_(const PPBaseFilt * pFilt)
 			THROW(tra);
 			for(uint i = 0; i < count; i++) {
 				PPID id = p_list->at(i);
-				PPTransport t_rec;
-				if(TObj.Get(id, &t_rec) > 0 && CheckForFilt(&Filt, 0, &t_rec)) {
+				PPTransportPacket t_pack;
+				if(TObj.Get(id, &t_pack) > 0 && CheckForFilt(&Filt, 0, &t_pack)) {
 					TempTransportTbl::Rec rec;
-					MakeTempRec(&t_rec, &rec);
+					MakeTempRec(&t_pack, &rec);
 					THROW_DB(bei.insert(&rec));
 				}
 				PPWaitPercent(i, count);
@@ -332,7 +332,11 @@ int FASTCALL PPViewTransport::NextIteration(TransportViewItem * pItem)
 	if(P_IterQuery) {
 		if(P_IterQuery->nextIteration() > 0) {
 		   	const PPID transp_id = P_TempTbl->data.ID;
-		   	ok = TObj.Get(transp_id, static_cast<PPTransport *>(pItem));
+			PPTransportPacket temp_pack;
+		   	ok = TObj.Get(transp_id, &temp_pack);
+			if(pItem) {
+				*static_cast<PPTransport *>(pItem) = temp_pack.Rec;
+			}
 		   	Counter.Increment();
 		}
 	}

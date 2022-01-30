@@ -3564,7 +3564,7 @@ error_out1:
 	}
 #endif
 #ifdef AMQP_POSIX_TIMER_API
-	#include <time.h>
+	//#include <time.h>
 
 	uint64 amqp_get_monotonic_timestamp() 
 	{

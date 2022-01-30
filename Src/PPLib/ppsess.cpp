@@ -1,11 +1,11 @@
 // PPSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// @codepage UTF-8
+// РњРѕРґСѓР»СЊ СѓРїСЂР°РІР»РµРЅРёСЏ СЃРёСЃС‚РµРјРЅС‹Рј РїСЂРѕС†РµСЃСЃРѕРј Рё РїРѕС‚РѕРєР°РјРё Papyrus
 //
 #include <pp.h>
 #pragma hdrstop
 #include <private\_ppo.h>
-#include <float.h>
-#include <signal.h>
 #include <ppsoapclient.h>
 #include <sartre.h>
 //
@@ -33,8 +33,8 @@ private:
 	int    ExtractStat(const DlContext * pCtx, const DlScope * pScope, DbTableStat * pStat) const;
 };
 //
-// Descr: Процедура создания словаря DbDict_DL600. Используется для установки
-//   функцией DbDictionary::SetCreateInstanceProc
+// Descr: РџСЂРѕС†РµРґСѓСЂР° СЃРѕР·РґР°РЅРёСЏ СЃР»РѕРІР°СЂСЏ DbDict_DL600. РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ СѓСЃС‚Р°РЅРѕРІРєРё
+//   С„СѓРЅРєС†РёРµР№ DbDictionary::SetCreateInstanceProc
 //
 /*static*/ DbDictionary * DbDict_DL600::CreateInstance(const char * pPath, long options)
 {
@@ -351,7 +351,7 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 			}
 		}
 		//
-		// Уведомление о наличие новых версий Papyrus
+		// РЈРІРµРґРѕРјР»РµРЅРёРµ Рѕ РЅР°Р»РёС‡РёРµ РЅРѕРІС‹С… РІРµСЂСЃРёР№ Papyrus
 		//
 		{
 			static SCycleTimer * p_timer2 = 0;
@@ -528,7 +528,7 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 			PPAdviseEventQueue * p_queue = DS.GetAdviseEventQueue(this);
 			const uint evqc = (p_queue && p_queue->Get(Marker, EvqList) > 0) ? EvqList.getCount() : 0;
 			if(evqc) {
-				Marker = EvqList.at(evqc-1).Ident; // Установить маркер очереди необходимо даже если подписчиков на события нет.
+				Marker = EvqList.at(evqc-1).Ident; // РЈСЃС‚Р°РЅРѕРІРёС‚СЊ РјР°СЂРєРµСЂ РѕС‡РµСЂРµРґРё РЅРµРѕР±С…РѕРґРёРјРѕ РґР°Р¶Рµ РµСЃР»Рё РїРѕРґРїРёСЃС‡РёРєРѕРІ РЅР° СЃРѕР±С‹С‚РёСЏ РЅРµС‚.
 				PPAdviseList adv_list;
 				if(!NotifyID || NotifyID == PPAdviseBlock::evMqbMessage)
 					DS.GetAdviseList(PPAdviseBlock::evMqbMessage, 0, adv_list);
@@ -591,7 +591,7 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 			const uint evqc = (p_queue && p_queue->Get(Marker, EvqList) > 0) ? EvqList.getCount() : 0;
 			if(evqc) {
 				//
-				// Установить маркер очереди необходимо даже если подписчиков на события нет.
+				// РЈСЃС‚Р°РЅРѕРІРёС‚СЊ РјР°СЂРєРµСЂ РѕС‡РµСЂРµРґРё РЅРµРѕР±С…РѕРґРёРјРѕ РґР°Р¶Рµ РµСЃР»Рё РїРѕРґРїРёСЃС‡РёРєРѕРІ РЅР° СЃРѕР±С‹С‚РёСЏ РЅРµС‚.
 				//
 				Marker = EvqList.at(evqc-1).Ident;
 				PPAdviseList adv_list_ringing;
@@ -648,7 +648,7 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 				PPAdviseList adv_list;
 				PPAdviseEventQueue * p_queue = DS.GetAdviseEventQueue(this);
 				//
-				// Установить маркер очереди необходимо даже если подписчиков на события нет.
+				// РЈСЃС‚Р°РЅРѕРІРёС‚СЊ РјР°СЂРєРµСЂ РѕС‡РµСЂРµРґРё РЅРµРѕР±С…РѕРґРёРјРѕ РґР°Р¶Рµ РµСЃР»Рё РїРѕРґРїРёСЃС‡РёРєРѕРІ РЅР° СЃРѕР±С‹С‚РёСЏ РЅРµС‚.
 				//
 				const uint evqc = (p_queue && p_queue->Get(Marker, EvqList) > 0) ? EvqList.getCount() : 0;
 				if(evqc)
@@ -710,7 +710,7 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 				PPAdviseList adv_list;
 				PPAdviseEventQueue * p_queue = DS.GetAdviseEventQueue(this);
 				//
-				// Установить маркер очереди необходимо даже если подписчиков на события нет.
+				// РЈСЃС‚Р°РЅРѕРІРёС‚СЊ РјР°СЂРєРµСЂ РѕС‡РµСЂРµРґРё РЅРµРѕР±С…РѕРґРёРјРѕ РґР°Р¶Рµ РµСЃР»Рё РїРѕРґРїРёСЃС‡РёРєРѕРІ РЅР° СЃРѕР±С‹С‚РёСЏ РЅРµС‚.
 				//
 				const uint evqc = (p_queue && p_queue->Get(Marker, EvqList) > 0) ? EvqList.getCount() : 0;
 				if(evqc)
@@ -772,7 +772,7 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 			if(NotifyID) {
 				PPAdviseEventQueue * p_queue = DS.GetAdviseEventQueue(this);
 				//
-				// Установить маркер очереди необходимо даже если подписчиков на события нет.
+				// РЈСЃС‚Р°РЅРѕРІРёС‚СЊ РјР°СЂРєРµСЂ РѕС‡РµСЂРµРґРё РЅРµРѕР±С…РѕРґРёРјРѕ РґР°Р¶Рµ РµСЃР»Рё РїРѕРґРїРёСЃС‡РёРєРѕРІ РЅР° СЃРѕР±С‹С‚РёСЏ РЅРµС‚.
 				//
 				const uint evqc = (p_queue && p_queue->Get(Marker, EvqList) > 0) ? EvqList.getCount() : 0;
 				if(evqc)
@@ -850,7 +850,7 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 			PPAdviseList adv_list;
 			PPAdviseEventQueue * p_queue = DS.GetAdviseEventQueue(this);
 			//
-			// Установить маркер очереди необходимо даже если подписчиков на события нет.
+			// РЈСЃС‚Р°РЅРѕРІРёС‚СЊ РјР°СЂРєРµСЂ РѕС‡РµСЂРµРґРё РЅРµРѕР±С…РѕРґРёРјРѕ РґР°Р¶Рµ РµСЃР»Рё РїРѕРґРїРёСЃС‡РёРєРѕРІ РЅР° СЃРѕР±С‹С‚РёСЏ РЅРµС‚.
 			//
 			const uint evqc = (p_queue && p_queue->Get(Marker, EvqList) > 0) ? EvqList.getCount() : 0;
 			if(evqc)
@@ -905,7 +905,7 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 			PPAdviseList adv_list;
 			PPAdviseEventQueue * p_queue = DS.GetAdviseEventQueue(this);
 			//
-			// Установить маркер очереди необходимо даже если подписчиков на события нет.
+			// РЈСЃС‚Р°РЅРѕРІРёС‚СЊ РјР°СЂРєРµСЂ РѕС‡РµСЂРµРґРё РЅРµРѕР±С…РѕРґРёРјРѕ РґР°Р¶Рµ РµСЃР»Рё РїРѕРґРїРёСЃС‡РёРєРѕРІ РЅР° СЃРѕР±С‹С‚РёСЏ РЅРµС‚.
 			//
 			const uint evqc = (p_queue && p_queue->Get(Marker, EvqList) > 0) ? EvqList.getCount() : 0;
 			if(evqc)
@@ -1026,7 +1026,7 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 	IdleCmdList.insert(new IdleCmdUpdateObjList(23, PPOBJ_PERSONEVENT, PPAdviseBlock::evPsnEvChanged)); // @v10.4.4 5-->23
 	IdleCmdList.insert(new IdleCmdUpdateTSessList(30, PPAdviseBlock::evTSessChanged));
 	IdleCmdList.insert(new IdleCmdUpdateObjList(27,  -1, PPAdviseBlock::evSysJournalChanged)); // @v10.4.4 5-->27
-	IdleCmdList.insert(new IdleCmdUpdateLogsMon(10, -1, PPAdviseBlock::evLogsChanged)); // @note Это, похоже, просто Quartz
+	IdleCmdList.insert(new IdleCmdUpdateLogsMon(10, -1, PPAdviseBlock::evLogsChanged)); // @note Р­С‚Рѕ, РїРѕС…РѕР¶Рµ, РїСЂРѕСЃС‚Рѕ Quartz
 	IdleCmdList.insert(new IdleCmdQuartz(PPAdviseBlock::evQuartz));
 	IdleCmdList.insert(new IdleCmdPhoneSvc(2, 0));
 	IdleCmdList.insert(new IdleCmdConfigUpdated(60, 0, PPAdviseBlock::evConfigChanged)); // @v10.3.1
@@ -1328,9 +1328,9 @@ int PPThreadLocalArea::PrivateCart::Set(const PPBasketPacket * pPack, int use_ta
 		THROW(tra);
 		if(P) {
 			//
-			// Так как функция PPObjGoodsBasket::PutPacket проверяет приватную коризну,
-			// подменяем указатель P так, чтобы PPObjGoodsBasket::PutPacket не узнала,
-			// что приватная корзина существует (иначе попадем в рекурсию).
+			// РўР°Рє РєР°Рє С„СѓРЅРєС†РёСЏ PPObjGoodsBasket::PutPacket РїСЂРѕРІРµСЂСЏРµС‚ РїСЂРёРІР°С‚РЅСѓСЋ РєРѕСЂРёР·РЅСѓ,
+			// РїРѕРґРјРµРЅСЏРµРј СѓРєР°Р·Р°С‚РµР»СЊ P С‚Р°Рє, С‡С‚РѕР±С‹ PPObjGoodsBasket::PutPacket РЅРµ СѓР·РЅР°Р»Р°,
+			// С‡С‚Рѕ РїСЂРёРІР°С‚РЅР°СЏ РєРѕСЂР·РёРЅР° СЃСѓС‰РµСЃС‚РІСѓРµС‚ (РёРЅР°С‡Рµ РїРѕРїР°РґРµРј РІ СЂРµРєСѓСЂСЃРёСЋ).
 			//
 			PPBasketCombine * _p = P;
 			P = 0;
@@ -1697,7 +1697,7 @@ PPSession::~PPSession()
 	delete P_AlbatrosCfg;
 	delete P_SrStxSet; // @v9.8.10
 	delete P_ExtCfgDb; // @v10.6.7
-	// Don't destroy P_LogQueue (на объект может ссылаться поток PPLogMsgSession потому удалять его нельзя)
+	// Don't destroy P_LogQueue (РЅР° РѕР±СЉРµРєС‚ РјРѕР¶РµС‚ СЃСЃС‹Р»Р°С‚СЊСЃСЏ РїРѕС‚РѕРє PPLogMsgSession РїРѕС‚РѕРјСѓ СѓРґР°Р»СЏС‚СЊ РµРіРѕ РЅРµР»СЊР·СЏ)
 }
 
 int PPSession::EnsureExtCfgDb()
@@ -1725,13 +1725,13 @@ int PPSession::EnsureExtCfgDb()
 	return ok;
 }
 //
-// Attention: вызов PPSession::InitExtCfgDb() должен быть защищен блокировкой ExtCfgDbLock
+// Attention: РІС‹Р·РѕРІ PPSession::InitExtCfgDb() РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ Р·Р°С‰РёС‰РµРЅ Р±Р»РѕРєРёСЂРѕРІРєРѕР№ ExtCfgDbLock
 //
 int PPSession::InitExtCfgDb()
 {
 	int    ok = -1;	
 	if(!P_ExtCfgDb) {
-		static int string_history_disabled = 0; // @global (полагаемся на то, что вызов этой функции защищен блокировкой)
+		static int string_history_disabled = 0; // @global (РїРѕР»Р°РіР°РµРјСЃСЏ РЅР° С‚Рѕ, С‡С‚Рѕ РІС‹Р·РѕРІ СЌС‚РѕР№ С„СѓРЅРєС†РёРё Р·Р°С‰РёС‰РµРЅ Р±Р»РѕРєРёСЂРѕРІРєРѕР№)
 		int cc_shu = string_history_disabled ? 0 : CConfig.StringHistoryUsage;
 		if(cc_shu < 0) {
 			/* @v11.2.6 UserInterfaceSettings ui_cfg;
@@ -1920,7 +1920,7 @@ static int _TestSymbols()
 	}
 	/*
 	{
-		2  "0DBT,0DB,0D,0ДБТ,0ДБ,0Д,1CRD,1CR,1KRD,1KR,1C,1K,1КРД,1КР,1К"
+		2  "0DBT,0DB,0D,0Р”Р‘Рў,0Р”Р‘,0Р”,1CRD,1CR,1KRD,1KR,1C,1K,1РљР Р”,1РљР ,1Рљ"
 		PPSymbTranslator st(PPSSYM_ACCSIDE);
 	}
 	*/
@@ -1954,7 +1954,7 @@ static void InitTest()
 	}
 	{
 		//
-		// Проверка совместимости типа SColor с WinGDI-типом RGBQUAD.
+		// РџСЂРѕРІРµСЂРєР° СЃРѕРІРјРµСЃС‚РёРјРѕСЃС‚Рё С‚РёРїР° SColor СЃ WinGDI-С‚РёРїРѕРј RGBQUAD.
 		//
 		SColor c(1, 2, 3, 0);
 		RGBQUAD q;
@@ -1977,18 +1977,18 @@ static void InitTest()
 	STATIC_ASSERT(DBRPL_ERROR == 0);
 	STATIC_ASSERT(sizeof(DBRowId) == 32);
 	//
-	// Так как множество классов наследуются от DBTable важно, чтобы
-	// размер DBTable был кратен 32 (для выравнивания по кэш-линии).
+	// РўР°Рє РєР°Рє РјРЅРѕР¶РµСЃС‚РІРѕ РєР»Р°СЃСЃРѕРІ РЅР°СЃР»РµРґСѓСЋС‚СЃСЏ РѕС‚ DBTable РІР°Р¶РЅРѕ, С‡С‚РѕР±С‹
+	// СЂР°Р·РјРµСЂ DBTable Р±С‹Р» РєСЂР°С‚РµРЅ 32 (РґР»СЏ РІС‹СЂР°РІРЅРёРІР°РЅРёСЏ РїРѕ РєСЌС€-Р»РёРЅРёРё).
 	//
 	STATIC_ASSERT(sizeof(DBTable) % 32 == 0);
 	//
-	// Записи системного журнала и резервной
-	// таблицы системного журнала должны быть эквивалентны.
+	// Р—Р°РїРёСЃРё СЃРёСЃС‚РµРјРЅРѕРіРѕ Р¶СѓСЂРЅР°Р»Р° Рё СЂРµР·РµСЂРІРЅРѕР№
+	// С‚Р°Р±Р»РёС†С‹ СЃРёСЃС‚РµРјРЅРѕРіРѕ Р¶СѓСЂРЅР°Р»Р° РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ СЌРєРІРёРІР°Р»РµРЅС‚РЅС‹.
 	//
 	STATIC_ASSERT(sizeof(SysJournalTbl::Rec) == sizeof(SjRsrvTbl::Rec));
 	//
-	// Размер внутренней структуры электронного адреса должен быть равен 16 байтам и
-	// поле Addr таблицы EAddrTbl должен быть бинарно эквивалентен PPEAddr.
+	// Р Р°Р·РјРµСЂ РІРЅСѓС‚СЂРµРЅРЅРµР№ СЃС‚СЂСѓРєС‚СѓСЂС‹ СЌР»РµРєС‚СЂРѕРЅРЅРѕРіРѕ Р°РґСЂРµСЃР° РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СЂР°РІРµРЅ 16 Р±Р°Р№С‚Р°Рј Рё
+	// РїРѕР»Рµ Addr С‚Р°Р±Р»РёС†С‹ EAddrTbl РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ Р±РёРЅР°СЂРЅРѕ СЌРєРІРёРІР°Р»РµРЅС‚РµРЅ PPEAddr.
 	//
 	STATIC_ASSERT(sizeof(PPEAddr) == 16);
 	STATIC_ASSERT(sizeof(PPEAddr) == sizeof(static_cast<const EAddrTbl::Rec *>(0)->Addr));
@@ -2066,8 +2066,8 @@ static void InitTest()
 	STATIC_ASSERT(sizeof(PPCycleFilt) == 4);
 	STATIC_ASSERT(sizeof(PPBill::Agreement) == offsetof(PropertyTbl::Rec, VT)); // @v10.1.12
 	//
-	// Гарантируем, что функции семейства PPSetError всегда возвращают 0
-	// БОльшая часть кода закладывается на этот факт.
+	// Р“Р°СЂР°РЅС‚РёСЂСѓРµРј, С‡С‚Рѕ С„СѓРЅРєС†РёРё СЃРµРјРµР№СЃС‚РІР° PPSetError РІСЃРµРіРґР° РІРѕР·РІСЂР°С‰Р°СЋС‚ 0
+	// Р‘РћР»СЊС€Р°СЏ С‡Р°СЃС‚СЊ РєРѕРґР° Р·Р°РєР»Р°РґС‹РІР°РµС‚СЃСЏ РЅР° СЌС‚РѕС‚ С„Р°РєС‚.
 	//
 	assert(PPSetErrorNoMem() == 0);
 	assert(PPSetErrorSLib() == 0);
@@ -2079,8 +2079,8 @@ static void InitTest()
 	assert(_TestSymbols());
 	{
 		//
-		// Убедимся, что функции TView::GetId() и TView::TestId() адекватно
-		// работают с нулевым указателем this.
+		// РЈР±РµРґРёРјСЃСЏ, С‡С‚Рѕ С„СѓРЅРєС†РёРё TView::GetId() Рё TView::TestId() Р°РґРµРєРІР°С‚РЅРѕ
+		// СЂР°Р±РѕС‚Р°СЋС‚ СЃ РЅСѓР»РµРІС‹Рј СѓРєР°Р·Р°С‚РµР»РµРј this.
 		//
 		TView * p_zero_view = 0;
 		assert(p_zero_view->GetId() == 0);
@@ -2088,7 +2088,7 @@ static void InitTest()
 	}
 	{
 		//
-		// Возможность системы получить стоп-событие, созданное в SlSession, критична!
+		// Р’РѕР·РјРѕР¶РЅРѕСЃС‚СЊ СЃРёСЃС‚РµРјС‹ РїРѕР»СѓС‡РёС‚СЊ СЃС‚РѕРї-СЃРѕР±С‹С‚РёРµ, СЃРѕР·РґР°РЅРЅРѕРµ РІ SlSession, РєСЂРёС‚РёС‡РЅР°!
 		//
 		SString evnam;
 		Evnt test_stop_event(SLS.GetStopEventName(evnam), Evnt::modeOpen);
@@ -2110,7 +2110,7 @@ static void InitTest()
 	// @v11.2.4 {
 	{
 		//
-		// Экспресс-тест проверки консистентности указателей на SUiLayout и коллекции ссылок на лейауты SUiLayout::RefCollection
+		// Р­РєСЃРїСЂРµСЃСЃ-С‚РµСЃС‚ РїСЂРѕРІРµСЂРєРё РєРѕРЅСЃРёСЃС‚РµРЅС‚РЅРѕСЃС‚Рё СѓРєР°Р·Р°С‚РµР»РµР№ РЅР° SUiLayout Рё РєРѕР»Р»РµРєС†РёРё СЃСЃС‹Р»РѕРє РЅР° Р»РµР№Р°СѓС‚С‹ SUiLayout::RefCollection
 		//
 		SUiLayout * pp_lo[10];
 		{
@@ -2132,13 +2132,13 @@ static void InitTest()
 				assert(reflist.Get(j)->IsConsistent());
 				assert(reflist2.Get(j)->IsConsistent());
 			}
-			reflist.Z(); // Ручное разрушение коллекции ссылок
+			reflist.Z(); // Р СѓС‡РЅРѕРµ СЂР°Р·СЂСѓС€РµРЅРёРµ РєРѕР»Р»РµРєС†РёРё СЃСЃС‹Р»РѕРє
 			assert(reflist.GetCount() == 0);
-			// Здесь произошло автоматическое разрушение коллекции ссылок reflist2
+			// Р—РґРµСЃСЊ РїСЂРѕРёР·РѕС€Р»Рѕ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРµ СЂР°Р·СЂСѓС€РµРЅРёРµ РєРѕР»Р»РµРєС†РёРё СЃСЃС‹Р»РѕРє reflist2
 		}
 		//
-		// После того как мы создали и разрушили 2 коллекции ссылок на лейауты pp_lo[]
-		// проверяем их консистентности и разрушаем их.
+		// РџРѕСЃР»Рµ С‚РѕРіРѕ РєР°Рє РјС‹ СЃРѕР·РґР°Р»Рё Рё СЂР°Р·СЂСѓС€РёР»Рё 2 РєРѕР»Р»РµРєС†РёРё СЃСЃС‹Р»РѕРє РЅР° Р»РµР№Р°СѓС‚С‹ pp_lo[]
+		// РїСЂРѕРІРµСЂСЏРµРј РёС… РєРѕРЅСЃРёСЃС‚РµРЅС‚РЅРѕСЃС‚Рё Рё СЂР°Р·СЂСѓС€Р°РµРј РёС….
 		//
 		for(uint k = 0; k < SIZEOFARRAY(pp_lo); k++) {
 			assert(pp_lo[k]->IsConsistent());
@@ -2151,7 +2151,7 @@ static void InitTest()
 	// } @v11.2.4
 	// @v11.2.12 {
 	{
-		// Проверка наименований видов потоков PPThread
+		// РџСЂРѕРІРµСЂРєР° РЅР°РёРјРµРЅРѕРІР°РЅРёР№ РІРёРґРѕРІ РїРѕС‚РѕРєРѕРІ PPThread
 		static const int thread_kind_list[] = {
 			PPThread::kUnknown,
 			PPThread::kJobServer,
@@ -2341,7 +2341,7 @@ int PPSession::Init(long flags, HINSTANCE hInst)
 		}
 		{
 			//
-			// Флаг устанавливается по умолчанию. Параметром DETECTDBTEXISTBYOPEN его можно отменить
+			// Р¤Р»Р°Рі СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ. РџР°СЂР°РјРµС‚СЂРѕРј DETECTDBTEXISTBYOPEN РµРіРѕ РјРѕР¶РЅРѕ РѕС‚РјРµРЅРёС‚СЊ
 			//
 			DbSession::Config dbcfg = DBS.GetConfig();
 			int    iv = 0;
@@ -2430,7 +2430,7 @@ int PPSession::Init(long flags, HINSTANCE hInst)
 			}
 		}
 	}
-	if(!(flags & fDenyLogQueue)) { // Для DLL-режима не используем поток журналов (какие-то траблы с потоками - надо разбираться)
+	if(!(flags & fDenyLogQueue)) { // Р”Р»СЏ DLL-СЂРµР¶РёРјР° РЅРµ РёСЃРїРѕР»СЊР·СѓРµРј РїРѕС‚РѕРє Р¶СѓСЂРЅР°Р»РѕРІ (РєР°РєРёРµ-С‚Рѕ С‚СЂР°Р±Р»С‹ СЃ РїРѕС‚РѕРєР°РјРё - РЅР°РґРѕ СЂР°Р·Р±РёСЂР°С‚СЊСЃСЏ)
 		P_LogQueue = new PPLogMsgQueue;
 		if(P_LogQueue) {
 			PPLogMsgSession * p_sess = new PPLogMsgSession(P_LogQueue);
@@ -2496,7 +2496,7 @@ void PPSession::ReleaseThread()
 	}
 }
 //
-// См. примечание к определению функций PP.H
+// РЎРј. РїСЂРёРјРµС‡Р°РЅРёРµ Рє РѕРїСЂРµРґРµР»РµРЅРёСЋ С„СѓРЅРєС†РёР№ PP.H
 //
 #define MAX_GETTLA_TRY 5
 
@@ -2657,7 +2657,7 @@ int PPSession::GetMachineID(MACAddr * pMachineID, int forceUpdate)
 
 int LogTerminalSessInfo(ulong processID, ulong termSessID, const char * pAddMsgString)
 {
-	/* @v7.9.9 Пользы не получили, а журнал забивается //
+	/* @v7.9.9 РџРѕР»СЊР·С‹ РЅРµ РїРѕР»СѓС‡РёР»Рё, Р° Р¶СѓСЂРЅР°Р» Р·Р°Р±РёРІР°РµС‚СЃСЏ //
 	SString msg_buf, buf;
 	PPLoadText(PPTXT_TERMINALSESSINFO, buf);
 	msg_buf.Printf(buf.cptr(), pAddMsgString, (long)processID, (long)termSessID);
@@ -2700,7 +2700,7 @@ int PPSession::CheckLicense(MACAddr * pMachineID, int * pIsDemo)
 			const PPSyncItem & r_item = sync_array.at(i);
 			const ulong  term_sess_id = r_item.TerminalSessID;
 			const MACAddr ma = r_item.MchnID;
-			if(r_item.ObjID != 1) // Серверные сессии не учитываем при подсчете занятых лицензий
+			if(r_item.ObjID != 1) // РЎРµСЂРІРµСЂРЅС‹Рµ СЃРµСЃСЃРёРё РЅРµ СѓС‡РёС‚С‹РІР°РµРј РїСЂРё РїРѕРґСЃС‡РµС‚Рµ Р·Р°РЅСЏС‚С‹С… Р»РёС†РµРЅР·РёР№
 				ma_list.addUnique(ma);
 			if(ma.Cmp(machine_id) == 0 && (cur_term_sess_id == 0 || cur_term_sess_id == term_sess_id))
 				this_machine_logged = 1;
@@ -2787,12 +2787,12 @@ int PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
 	pBlk->GetAttr(DbLoginBlock::attrServerType, temp_buf);
 	const SqlServerType server_type = GetSqlServerTypeBySymb(temp_buf);
 	//
-	// Проверяем доступность каталога базы данных
+	// РџСЂРѕРІРµСЂСЏРµРј РґРѕСЃС‚СѓРїРЅРѕСЃС‚СЊ РєР°С‚Р°Р»РѕРіР° Р±Р°Р·С‹ РґР°РЅРЅС‹С…
 	//
 	THROW_PP_S(server_type == sqlstMySQL || ::access(data_path, 0) == 0, PPERR_DBDIRNFOUND, data_path); // @v10.9.3 server_type == sqlstMySQL
 	if(!(flags & PPSession::odfDontInitSync)) {
 		//
-		// Инициализируем таблицу блокировок и проверяем не заблокирована ли база данных
+		// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј С‚Р°Р±Р»РёС†Сѓ Р±Р»РѕРєРёСЂРѕРІРѕРє Рё РїСЂРѕРІРµСЂСЏРµРј РЅРµ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅР° Р»Рё Р±Р°Р·Р° РґР°РЅРЅС‹С…
 		//
 		THROW(GetSync().Init(data_path)); // @todo InitSync(data_path)
 		THROW_PP(!GetSync().IsDBLocked(), PPERR_SYNCDBLOCKED);
@@ -2800,8 +2800,8 @@ int PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
 	GetPath(PPPATH_TEMP, temp_path);
 	pBlk->SetAttr(DbLoginBlock::attrTempPath, temp_path);
 	//
-	// Считываем информацию о версии базы данных и проверяем не является ли
-	// текущая версия системы меньше допустимой для этой базы данных.
+	// РЎС‡РёС‚С‹РІР°РµРј РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РІРµСЂСЃРёРё Р±Р°Р·С‹ РґР°РЅРЅС‹С… Рё РїСЂРѕРІРµСЂСЏРµРј РЅРµ СЏРІР»СЏРµС‚СЃСЏ Р»Рё
+	// С‚РµРєСѓС‰Р°СЏ РІРµСЂСЃРёСЏ СЃРёСЃС‚РµРјС‹ РјРµРЅСЊС€Рµ РґРѕРїСѓСЃС‚РёРјРѕР№ РґР»СЏ СЌС‚РѕР№ Р±Р°Р·С‹ РґР°РЅРЅС‹С….
 	//
 	THROW(r = verh.Read(data_path, &vh_info));
 	if(r > 0 && this_ver.Cmp(&vh_info.MinVer) < 0) {
@@ -2819,13 +2819,13 @@ int PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
 	pBlk->SetAttr(DbLoginBlock::attrDbUuid, vh_info.DbUUID.ToStr(S_GUID::fmtIDL, temp_buf));
 	DBTable::OpenExceptionProc = _dbOpenException;
 	//
-	// Теперь, когда проверки и инициализация, относящаяся к собственно Papyrus'у завершены
-	// можно создавать экземпляр провайдера базы данных и инициализировать его.
+	// РўРµРїРµСЂСЊ, РєРѕРіРґР° РїСЂРѕРІРµСЂРєРё Рё РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ, РѕС‚РЅРѕСЃСЏС‰Р°СЏСЃСЏ Рє СЃРѕР±СЃС‚РІРµРЅРЅРѕ Papyrus'Сѓ Р·Р°РІРµСЂС€РµРЅС‹
+	// РјРѕР¶РЅРѕ СЃРѕР·РґР°РІР°С‚СЊ СЌРєР·РµРјРїР»СЏСЂ РїСЂРѕРІР°Р№РґРµСЂР° Р±Р°Р·С‹ РґР°РЅРЅС‹С… Рё РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°С‚СЊ РµРіРѕ.
 	//
 	{
 		DbProvider * p_db = 0;
 		if(server_type == sqlstORA) {
-			// @todo SOraDbProvider должен инициализировать DbPathID
+			// @todo SOraDbProvider РґРѕР»Р¶РµРЅ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°С‚СЊ DbPathID
 			THROW_MEM(p_db = new SOraDbProvider(data_path));
 		}
 		else if(server_type == sqlstMySQL) {
@@ -2901,7 +2901,7 @@ int PPSession::FetchConfig(PPID obj, PPID objID, PPConfig * pCfg)
 	*pCfg = tmp;
 	pCfg->Flags |= (CFGFLG_UNITEINTRTRFR | CFGFLG_FORCEMANUF);
 	//
-	// Установка глобальных флагов и параметров
+	// РЈСЃС‚Р°РЅРѕРІРєР° РіР»РѕР±Р°Р»СЊРЅС‹С… С„Р»Р°РіРѕРІ Рё РїР°СЂР°РјРµС‚СЂРѕРІ
 	//
 	SETFLAG(pCfg->Flags, CFGFLG_FREEPRICE, global.Flags & CFGFLG_FREEPRICE);
 	SETFLAG(pCfg->Flags, CFGFLG_MULTICURACCT, global.Flags & CFGFLG_MULTICURACCT);
@@ -3068,7 +3068,7 @@ private:
 	virtual void Shutdown()
 	{
 		//
-		// То же, что и PPThread::Shutdown() но без DS.Logout()
+		// РўРѕ Р¶Рµ, С‡С‚Рѕ Рё PPThread::Shutdown() РЅРѕ Р±РµР· DS.Logout()
 		//
 		DS.ReleaseThread();
 		DBS.ReleaseThread();
@@ -3114,7 +3114,7 @@ private:
 		EvPollTiming pt_sj(pollperiod_sj, false);
 		EvPollTiming pt_phnsvc(pollperiod_phnsvc, false);
 		EvPollTiming pt_mqc(pollperiod_mqc, false);
-		EvPollTiming pt_purge(3600000, true); // этот тайминг не надо исполнять при запуске. Потому registerImmediate = 1
+		EvPollTiming pt_purge(3600000, true); // СЌС‚РѕС‚ С‚Р°Р№РјРёРЅРі РЅРµ РЅР°РґРѕ РёСЃРїРѕР»РЅСЏС‚СЊ РїСЂРё Р·Р°РїСѓСЃРєРµ. РџРѕС‚РѕРјСѓ registerImmediate = 1
 		const int  use_sj_scan_alg2 = 0;
 		SString msg_buf, temp_buf;
 		DBRowId last_sj_rowid; // @v10.4.4
@@ -3128,7 +3128,7 @@ private:
 		PPMqbClient * p_mqb_cli = PPMqbClient::CreateInstance(StartUp_MqbParam); // @v11.0.9
 		AsteriskAmiClient * p_phnsvc_cli = CreatePhnSvcClient(0);
 		LDATETIME sj_since;
-		const long __cycle_hs = (p_mqb_cli ? 37 : (p_phnsvc_cli ? 83 : 293)); // Период таймера в сотых долях секунды (37)
+		const long __cycle_hs = (p_mqb_cli ? 37 : (p_phnsvc_cli ? 83 : 293)); // РџРµСЂРёРѕРґ С‚Р°Р№РјРµСЂР° РІ СЃРѕС‚С‹С… РґРѕР»СЏС… СЃРµРєСѓРЅРґС‹ (37)
 		// @v10.6.0 {
 		int    queue_stat_flags_inited = 0;
 		SETFLAG(State, stPhnSvc, p_phnsvc_cli);
@@ -3149,7 +3149,7 @@ private:
 			HANDLE h_list[32];
 			h_list[h_count++] = stop_event;
 			//
-			STimer __timer;  // Таймер для отмера времени до следующего опроса источников событий
+			STimer __timer;  // РўР°Р№РјРµСЂ РґР»СЏ РѕС‚РјРµСЂР° РІСЂРµРјРµРЅРё РґРѕ СЃР»РµРґСѓСЋС‰РµРіРѕ РѕРїСЂРѕСЃР° РёСЃС‚РѕС‡РЅРёРєРѕРІ СЃРѕР±С‹С‚РёР№
 			__timer.Set(getcurdatetime_().addhs(__cycle_hs), 0);
 			h_list[h_count++] = __timer;
 			uint   r = ::WaitForMultipleObjects(h_count, h_list, 0, /*CycleMs*//*INFINITE*/60000);
@@ -3161,8 +3161,8 @@ private:
 					stop = 1; // quit loop
 					break;
 				case WAIT_TIMEOUT:
-					// Если по каким-то причинам сработал таймаут, то перезаряжаем цикл по-новой
-					// Предполагается, что это событие крайне маловероятно!
+					// Р•СЃР»Рё РїРѕ РєР°РєРёРј-С‚Рѕ РїСЂРёС‡РёРЅР°Рј СЃСЂР°Р±РѕС‚Р°Р» С‚Р°Р№РјР°СѓС‚, С‚Рѕ РїРµСЂРµР·Р°СЂСЏР¶Р°РµРј С†РёРєР» РїРѕ-РЅРѕРІРѕР№
+					// РџСЂРµРґРїРѕР»Р°РіР°РµС‚СЃСЏ, С‡С‚Рѕ СЌС‚Рѕ СЃРѕР±С‹С‚РёРµ РєСЂР°Р№РЅРµ РјР°Р»РѕРІРµСЂРѕСЏС‚РЅРѕ!
 					if(do_debug_log) {
 						PPLogMessage(PPFILNAM_DEBUG_AEQ_LOG, "TimeOut", LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 					}
@@ -3181,8 +3181,8 @@ private:
 						if(pt_sj.IsTime()) {
 							if(SETIFZ(p_queue, DS.GetAdviseEventQueue(0))) {
 								// @v10.6.0 {
-								// Мы вынуждены устанавливать флаги статистики очереди в рабочем цикле из-за
-								// того, что в момент старта потока очередь может еще и не существовать.
+								// РњС‹ РІС‹РЅСѓР¶РґРµРЅС‹ СѓСЃС‚Р°РЅР°РІР»РёРІР°С‚СЊ С„Р»Р°РіРё СЃС‚Р°С‚РёСЃС‚РёРєРё РѕС‡РµСЂРµРґРё РІ СЂР°Р±РѕС‡РµРј С†РёРєР»Рµ РёР·-Р·Р°
+								// С‚РѕРіРѕ, С‡С‚Рѕ РІ РјРѕРјРµРЅС‚ СЃС‚Р°СЂС‚Р° РїРѕС‚РѕРєР° РѕС‡РµСЂРµРґСЊ РјРѕР¶РµС‚ РµС‰Рµ Рё РЅРµ СЃСѓС‰РµСЃС‚РІРѕРІР°С‚СЊ.
 								if(!queue_stat_flags_inited) {
 									if(State & (stMqb|stPhnSvc)) {
 										PPAdviseEventQueue * p_queue = DS.GetAdviseEventQueue(0);
@@ -3257,10 +3257,10 @@ private:
 									sj_since = last_ev_dtm;
 									{
 										const LDATETIME local_cdtm = getcurdatetime_();
-										// Если время последнего события превышает текущее время, то придется
-										// считать, что Since равно текущему времени.
-										// Такая ситуация возможна при сбое часов одного из компьютеров, генерирующего
-										// события в системном журнале.
+										// Р•СЃР»Рё РІСЂРµРјСЏ РїРѕСЃР»РµРґРЅРµРіРѕ СЃРѕР±С‹С‚РёСЏ РїСЂРµРІС‹С€Р°РµС‚ С‚РµРєСѓС‰РµРµ РІСЂРµРјСЏ, С‚Рѕ РїСЂРёРґРµС‚СЃСЏ
+										// СЃС‡РёС‚Р°С‚СЊ, С‡С‚Рѕ Since СЂР°РІРЅРѕ С‚РµРєСѓС‰РµРјСѓ РІСЂРµРјРµРЅРё.
+										// РўР°РєР°СЏ СЃРёС‚СѓР°С†РёСЏ РІРѕР·РјРѕР¶РЅР° РїСЂРё СЃР±РѕРµ С‡Р°СЃРѕРІ РѕРґРЅРѕРіРѕ РёР· РєРѕРјРїСЊСЋС‚РµСЂРѕРІ, РіРµРЅРµСЂРёСЂСѓСЋС‰РµРіРѕ
+										// СЃРѕР±С‹С‚РёСЏ РІ СЃРёСЃС‚РµРјРЅРѕРј Р¶СѓСЂРЅР°Р»Рµ.
 										if(cmp(sj_since, local_cdtm) > 0)
 											sj_since = local_cdtm;
 									}
@@ -3271,11 +3271,11 @@ private:
 						}
 						if(State & stPhnSvc && pt_phnsvc.IsTime()) { // @v10.6.0 p_phnsvc_cli-->(State & stPhnSvc)
 							if(SETIFZ(p_queue, DS.GetAdviseEventQueue(0))) {
-								// @v10.6.0 Немного меняем схему: ранее, если !p_phnsvc_cli то мы больше не обращались к телефонному сервису.
-								// Однако могло случиться что очередная попытка получения статуса и не удачного восстановления соединения
-								// полность обрывало возможность получения сообщений в дальнейшем.
-								// Теперь смотрим на то был ли клиент инициализирован изначально (State & stPhnSvc). Если да, то
-								// будем каждый раз пытаться восстановить работу клиента.
+								// @v10.6.0 РќРµРјРЅРѕРіРѕ РјРµРЅСЏРµРј СЃС…РµРјСѓ: СЂР°РЅРµРµ, РµСЃР»Рё !p_phnsvc_cli С‚Рѕ РјС‹ Р±РѕР»СЊС€Рµ РЅРµ РѕР±СЂР°С‰Р°Р»РёСЃСЊ Рє С‚РµР»РµС„РѕРЅРЅРѕРјСѓ СЃРµСЂРІРёСЃСѓ.
+								// РћРґРЅР°РєРѕ РјРѕРіР»Рѕ СЃР»СѓС‡РёС‚СЊСЃСЏ С‡С‚Рѕ РѕС‡РµСЂРµРґРЅР°СЏ РїРѕРїС‹С‚РєР° РїРѕР»СѓС‡РµРЅРёСЏ СЃС‚Р°С‚СѓСЃР° Рё РЅРµ СѓРґР°С‡РЅРѕРіРѕ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ СЃРѕРµРґРёРЅРµРЅРёСЏ
+								// РїРѕР»РЅРѕСЃС‚СЊ РѕР±СЂС‹РІР°Р»Рѕ РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ РїРѕР»СѓС‡РµРЅРёСЏ СЃРѕРѕР±С‰РµРЅРёР№ РІ РґР°Р»СЊРЅРµР№С€РµРј.
+								// РўРµРїРµСЂСЊ СЃРјРѕС‚СЂРёРј РЅР° С‚Рѕ Р±С‹Р» Р»Рё РєР»РёРµРЅС‚ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅ РёР·РЅР°С‡Р°Р»СЊРЅРѕ (State & stPhnSvc). Р•СЃР»Рё РґР°, С‚Рѕ
+								// Р±СѓРґРµРј РєР°Р¶РґС‹Р№ СЂР°Р· РїС‹С‚Р°С‚СЊСЃСЏ РІРѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ СЂР°Р±РѕС‚Сѓ РєР»РёРµРЅС‚Р°.
 								SETIFZ(p_phnsvc_cli, CreatePhnSvcClient(p_phnsvc_cli)); // @v10.6.0
 								int gcs_ret = p_phnsvc_cli ? p_phnsvc_cli->GetChannelStatus(0, chnl_status_list) : 0;
 								if(!gcs_ret) {
@@ -3311,8 +3311,8 @@ private:
 						if(p_mqb_cli && pt_mqc.IsTime()) {
 							if(SETIFZ(p_queue, DS.GetAdviseEventQueue(0))) {
 								//PPERR_MQBC_CONSUMETIMEOUT
-								const int cmr = p_mqb_cli->ConsumeMessage(mqb_envelop, 100); // @v11.2.12 timeout 0-->100
-								while(cmr > 0) { 
+								// @v11.2.12 @fix С‚СѓС‚ Р±С‹Р» С‚СЏР¶РµР»С‹Р№ РґРµС„РµРєС‚, РїСЂРёРІРѕРґРёРІС€РёР№ Рє Р±РµСЃРєРѕРЅРµС‡РЅРѕРјСѓ С†РёРєР»Сѓ
+								while(p_mqb_cli->ConsumeMessage(mqb_envelop, 100) > 0) { // @v11.2.12 timeout 0-->100
 									PPAdviseEvent ev;
 									ev.SetupAndAppendToVector(mqb_envelop, temp_list);
 									p_mqb_cli->Ack(mqb_envelop.DeliveryTag, 0);
@@ -3356,14 +3356,14 @@ private:
 	}
 	DbLoginBlock LB;
 	SysJournal * P_Sj;
-	SString PhnSvcLocalUpChannelSymb;   // Символ канала (каналов), по которым должны регистрироваться события подъема трубки
-	SString PhnSvcLocalScanChannelSymb; // Символ канала (каналов), события по которым должны регистрироваться
+	SString PhnSvcLocalUpChannelSymb;   // РЎРёРјРІРѕР» РєР°РЅР°Р»Р° (РєР°РЅР°Р»РѕРІ), РїРѕ РєРѕС‚РѕСЂС‹Рј РґРѕР»Р¶РЅС‹ СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°С‚СЊСЃСЏ СЃРѕР±С‹С‚РёСЏ РїРѕРґСЉРµРјР° С‚СЂСѓР±РєРё
+	SString PhnSvcLocalScanChannelSymb; // РЎРёРјРІРѕР» РєР°РЅР°Р»Р° (РєР°РЅР°Р»РѕРІ), СЃРѕР±С‹С‚РёСЏ РїРѕ РєРѕС‚РѕСЂС‹Рј РґРѕР»Р¶РЅС‹ СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°С‚СЊСЃСЏ
 	PPPhoneServicePacket StartUp_PhnSvcPack;
 	PhnSvcChannelStatusPool PhnSvcStP;
 	PPMqbClient::InitParam StartUp_MqbParam; // @v10.5.7
 	enum {
-		stPhnSvc = 0x0001, // Устанавливается если при старте потока был инициирован клиент телефонного сервиса
-		stMqb    = 0x0002  // Устанавливается если при старте потока был инициирован клиент брокера сообщений
+		stPhnSvc = 0x0001, // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ РµСЃР»Рё РїСЂРё СЃС‚Р°СЂС‚Рµ РїРѕС‚РѕРєР° Р±С‹Р» РёРЅРёС†РёРёСЂРѕРІР°РЅ РєР»РёРµРЅС‚ С‚РµР»РµС„РѕРЅРЅРѕРіРѕ СЃРµСЂРІРёСЃР°
+		stMqb    = 0x0002  // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ РµСЃР»Рё РїСЂРё СЃС‚Р°СЂС‚Рµ РїРѕС‚РѕРєР° Р±С‹Р» РёРЅРёС†РёРёСЂРѕРІР°РЅ РєР»РёРµРЅС‚ Р±СЂРѕРєРµСЂР° СЃРѕРѕР±С‰РµРЅРёР№
 	};
 	uint   State;
 };
@@ -3487,13 +3487,13 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 {
 	enum {
         logmOrdinary  = 0,
-        logmSystem    = 1, // Под именем SYSTEM
-        logmService   = 2, // Под именем PPSession::P_JobLogin
-        logmEmptyBaseCreation = 3  // Под именем PPSession::P_EmptyBaseCreationLogin
+        logmSystem    = 1, // РџРѕРґ РёРјРµРЅРµРј SYSTEM
+        logmService   = 2, // РџРѕРґ РёРјРµРЅРµРј PPSession::P_JobLogin
+        logmEmptyBaseCreation = 3  // РџРѕРґ РёРјРµРЅРµРј PPSession::P_EmptyBaseCreationLogin
 	};
 	int    ok = 1, r;
 	int    debug_r = 0;
-	uint   db_state = 0; // @v9.9.0 Флаги состояния базы данных
+	uint   db_state = 0; // @v9.9.0 Р¤Р»Р°РіРё СЃРѕСЃС‚РѕСЏРЅРёСЏ Р±Р°Р·С‹ РґР°РЅРЅС‹С…
 	SString dict_path;
 	SString data_path;
 	SString db_symb;
@@ -3530,17 +3530,17 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 		r_tla.State &= ~PPThreadLocalArea::stAuth;
 		THROW(OpenDictionary2(&blk, 0));
 		debug_r = 4;
-		r_tla.Prf.InitUserProfile(user_name); // Инициализация профайлера с параметрами БД сразу после соединения с сервером БД.
-		r_tla.UfpSess.Begin(PPUPRF_SESSION);  // Профилирование всей сессии работы в БД (Login..Logout)
-		PPUserFuncProfiler ufp(PPUPRF_LOGIN); // Профилирование собственно процесса авторизации в базе данных
+		r_tla.Prf.InitUserProfile(user_name); // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РїСЂРѕС„Р°Р№Р»РµСЂР° СЃ РїР°СЂР°РјРµС‚СЂР°РјРё Р‘Р” СЃСЂР°Р·Сѓ РїРѕСЃР»Рµ СЃРѕРµРґРёРЅРµРЅРёСЏ СЃ СЃРµСЂРІРµСЂРѕРј Р‘Р”.
+		r_tla.UfpSess.Begin(PPUPRF_SESSION);  // РџСЂРѕС„РёР»РёСЂРѕРІР°РЅРёРµ РІСЃРµР№ СЃРµСЃСЃРёРё СЂР°Р±РѕС‚С‹ РІ Р‘Р” (Login..Logout)
+		PPUserFuncProfiler ufp(PPUPRF_LOGIN); // РџСЂРѕС„РёР»РёСЂРѕРІР°РЅРёРµ СЃРѕР±СЃС‚РІРµРЅРЅРѕ РїСЂРѕС†РµСЃСЃР° Р°РІС‚РѕСЂРёР·Р°С†РёРё РІ Р±Р°Р·Рµ РґР°РЅРЅС‹С…
 		const long db_path_id = DBS.GetDbPathID();
 		DbProvider * p_dict = CurDict;
 		assert(p_dict);
 		p_dict->GetDatabaseState(&db_state);
 		{
 			//
-			// Имя SYSTEM является встроенным аналогом имени MASTER и отличается //
-			// от него только идентификатором меню (MENU_SYSTEM)
+			// РРјСЏ SYSTEM СЏРІР»СЏРµС‚СЃСЏ РІСЃС‚СЂРѕРµРЅРЅС‹Рј Р°РЅР°Р»РѕРіРѕРј РёРјРµРЅРё MASTER Рё РѕС‚Р»РёС‡Р°РµС‚СЃСЏ //
+			// РѕС‚ РЅРµРіРѕ С‚РѕР»СЊРєРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРј РјРµРЅСЋ (MENU_SYSTEM)
 			//
 			if(sstreqi_ascii(user_name, "SYSTEM")) {
 				STRNSCPY(user_name, "MASTER");
@@ -3553,12 +3553,12 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 		}
 		{
 			//
-			// Следующий блок запускается только если в эту БД данным процессом не был осуществлен хотя бы один вход
+			// РЎР»РµРґСѓСЋС‰РёР№ Р±Р»РѕРє Р·Р°РїСѓСЃРєР°РµС‚СЃСЏ С‚РѕР»СЊРєРѕ РµСЃР»Рё РІ СЌС‚Сѓ Р‘Р” РґР°РЅРЅС‹Рј РїСЂРѕС†РµСЃСЃРѕРј РЅРµ Р±С‹Р» РѕСЃСѓС‰РµСЃС‚РІР»РµРЅ С…РѕС‚СЏ Р±С‹ РѕРґРёРЅ РІС…РѕРґ
 			//
 			ENTER_CRITICAL_SECTION
 			if(!CMng.HasDbEntry(db_path_id)) {
 				//
-				// Тестирование доступности каталогов (только для сервера)
+				// РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ РґРѕСЃС‚СѓРїРЅРѕСЃС‚Рё РєР°С‚Р°Р»РѕРіРѕРІ (С‚РѕР»СЊРєРѕ РґР»СЏ СЃРµСЂРІРµСЂР°)
 				//
 				if(CheckExtFlag(ECF_SYSSERVICE)) {
 					DBTable::OpenExceptionProc = 0;
@@ -3576,12 +3576,12 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 					DBTable::OpenExceptionProc = _dbOpenException;
 				}
 				//
-				// Процедура проверки необходимости конвертации и собственно конвертации
-				// не запускается если провайдер базы данных НЕ Btrieve (SQL-сервера в разработке)
+				// РџСЂРѕС†РµРґСѓСЂР° РїСЂРѕРІРµСЂРєРё РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё РєРѕРЅРІРµСЂС‚Р°С†РёРё Рё СЃРѕР±СЃС‚РІРµРЅРЅРѕ РєРѕРЅРІРµСЂС‚Р°С†РёРё
+				// РЅРµ Р·Р°РїСѓСЃРєР°РµС‚СЃСЏ РµСЃР»Рё РїСЂРѕРІР°Р№РґРµСЂ Р±Р°Р·С‹ РґР°РЅРЅС‹С… РќР• Btrieve (SQL-СЃРµСЂРІРµСЂР° РІ СЂР°Р·СЂР°Р±РѕС‚РєРµ)
 				//
 				if(!(p_dict->GetCapability() & DbProvider::cSQL)) {
 					//
-					// Блок конвертации данных.
+					// Р‘Р»РѕРє РєРѕРЅРІРµСЂС‚Р°С†РёРё РґР°РЅРЅС‹С….
 					//
 					PPVersionInfo ver_inf(0);
 					const SVerT this_ver = ver_inf.GetVersion();
@@ -3633,7 +3633,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						// @v4.7.7 Convert31110();
 						// ------
 						// @v4.7.7 Convert4108();
-						// [Перенесено в Convert6202()] // @v5.5.1 THROW(Convert4208());
+						// [РџРµСЂРµРЅРµСЃРµРЅРѕ РІ Convert6202()] // @v5.5.1 THROW(Convert4208());
 						// @v5.5.1 THROW(Convert4402());
 						// @v5.5.1 THROW(Convert4405());
 						// @v5.6.8 THROW(Convert4515());
@@ -3650,27 +3650,27 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						*/
 						// ------
 
-						// [Перенесено в Convert6202()] THROW(Convert5006()); // VADIM
-						// [Перенесено в Convert6407()] THROW(Convert5009()); // @v5.0.9 AHTOXA
-						// [Перенесено в Convert5200()] THROW(Convert5109()); // @v5.1.9
+						// [РџРµСЂРµРЅРµСЃРµРЅРѕ РІ Convert6202()] THROW(Convert5006()); // VADIM
+						// [РџРµСЂРµРЅРµСЃРµРЅРѕ РІ Convert6407()] THROW(Convert5009()); // @v5.0.9 AHTOXA
+						// [РџРµСЂРµРЅРµСЃРµРЅРѕ РІ Convert5200()] THROW(Convert5109()); // @v5.1.9
 						// @v7.8.10 THROW(Convert5200()); // @v5.2.0
 						// @v7.8.10 THROW(Convert5207());
 						// @v7.8.10 THROW(Convert5501()); // @v5.5.1
-						// [Перенесено в Convert6202()] THROW(Convert5512()); // @v5.5.12
+						// [РџРµСЂРµРЅРµСЃРµРЅРѕ РІ Convert6202()] THROW(Convert5512()); // @v5.5.12
 						// @v7.8.10 THROW(Convert5608()); // @v5.6.8
-						// [Перенесено в Convert6202()] THROW(Convert5506()); // @v5.5.6 VADIM
+						// [РџРµСЂРµРЅРµСЃРµРЅРѕ РІ Convert6202()] THROW(Convert5506()); // @v5.5.6 VADIM
 						// @v7.8.10 THROW(Convert5810()); // @v5.8.10
 						// @v8.6.1 THROW(Convert6202()); // @v6.1.9 + @v6.2.2
 						// @v8.6.1 THROW(Convert6303()); // @v6.3.3
 						// @v8.6.1 THROW(Convert6407()); // @v6.4.7
 						// @v8.6.1 THROW(Convert6611()); // @v6.6.11
 						// @v7.6.01 THROW(Convert6708()); // @v6.7.8
-						// @v7.3.11 Конвертация перенесена в Convert7311() THROW(Convert7208()); // @v7.2.8
+						// @v7.3.11 РљРѕРЅРІРµСЂС‚Р°С†РёСЏ РїРµСЂРµРЅРµСЃРµРЅР° РІ Convert7311() THROW(Convert7208()); // @v7.2.8
 						THROW(Convert7305()); // @v7.3.5
 						THROW(Convert7311()); // @v7.3.11
 						// @v11.1.12 moved to PPCvtTech11112 THROW(Convert7506()); // @v7.5.6
 						THROW(Convert7601()); // @v7.6.1
-						// @v9.4.0 (Перенесено в Convert9400) THROW(Convert7702()); // @v7.7.2
+						// @v9.4.0 (РџРµСЂРµРЅРµСЃРµРЅРѕ РІ Convert9400) THROW(Convert7702()); // @v7.7.2
 						THROW(Convert7708()); // @v7.7.8
 						THROW(Convert7712()); // @v7.7.12
 						THROW(Convert7907());
@@ -3688,11 +3688,11 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						THROW(Convert10209()); // @v10.2.9
 						THROW(Convert10507()); // @v10.5.7
 						THROW(Convert10702()); // @v10.7.2
-						THROW(Convert10903()); // @v10.9.3 конвертация ссылок на рабочие столы и меню в группах и пользователях
+						THROW(Convert10903()); // @v10.9.3 РєРѕРЅРІРµСЂС‚Р°С†РёСЏ СЃСЃС‹Р»РѕРє РЅР° СЂР°Р±РѕС‡РёРµ СЃС‚РѕР»С‹ Рё РјРµРЅСЋ РІ РіСЂСѓРїРїР°С… Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏС…
 						THROW(Convert10905()); // @v10.9.5
-						THROW(Convert11004()); // @v11.0.4 Конвертация TSessLine (добавлены поля LotDimX, LotDimY, LotDimZ)
+						THROW(Convert11004()); // @v11.0.4 РљРѕРЅРІРµСЂС‚Р°С†РёСЏ TSessLine (РґРѕР±Р°РІР»РµРЅС‹ РїРѕР»СЏ LotDimX, LotDimY, LotDimZ)
 						THROW(Convert11112()); // @v11.1.12 Bill
-						THROW(Convert11200()); // @v11.2.0 Соглашения с клиентами
+						THROW(Convert11200()); // @v11.2.0 РЎРѕРіР»Р°С€РµРЅРёСЏ СЃ РєР»РёРµРЅС‚Р°РјРё
 						{
 							PPVerHistory verh;
 							PPVerHistory::Info vh_info;
@@ -3732,7 +3732,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 				r = 1;
 			}
 			else {
-				onetimepass_user_id = 0; // Если вызывающая функция не просила единовременного пропуска, то onetimepass_user_id надо уничтожить
+				onetimepass_user_id = 0; // Р•СЃР»Рё РІС‹Р·С‹РІР°СЋС‰Р°СЏ С„СѓРЅРєС†РёСЏ РЅРµ РїСЂРѕСЃРёР»Р° РµРґРёРЅРѕРІСЂРµРјРµРЅРЅРѕРіРѕ РїСЂРѕРїСѓСЃРєР°, С‚Рѕ onetimepass_user_id РЅР°РґРѕ СѓРЅРёС‡С‚РѕР¶РёС‚СЊ
 				THROW(r = p_ref->SearchName(PPOBJ_USR, &r_lc.UserID, user_name));
 			}
 			if(r < 0) {
@@ -3765,7 +3765,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 					pw_is_wrong = 0;
 				else if(pw[0] && (r_lc.Flags & CFGFLG_SEC_CASESENSPASSW) ? strcmp(pw, pPassword) : stricmp866(pw, pPassword)) {
 					if(logmode == logmSystem) {
-						// для совместимости со старыми версиями (раньше использовался другой механизм шифрования)
+						// РґР»СЏ СЃРѕРІРјРµСЃС‚РёРјРѕСЃС‚Рё СЃРѕ СЃС‚Р°СЂС‹РјРё РІРµСЂСЃРёСЏРјРё (СЂР°РЅСЊС€Рµ РёСЃРїРѕР»СЊР·РѕРІР°Р»СЃСЏ РґСЂСѓРіРѕР№ РјРµС…Р°РЅРёР·Рј С€РёС„СЂРѕРІР°РЅРёСЏ)
 						decrypt(memcpy(pw, usr_rec.Password, sizeof(pw)), sizeof(pw));
 						if(stricmp866(pw, pPassword) == 0)
 							pw_is_wrong = 0;
@@ -3777,7 +3777,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 				THROW_PP(pw_is_wrong == 0, PPERR_INVUSERORPASSW);
 				if(!CheckExtFlag(ECF_SYSSERVICE)) {
 					//
-					// Уникальность входа не должна проверяться для сеансов JobServer'а
+					// РЈРЅРёРєР°Р»СЊРЅРѕСЃС‚СЊ РІС…РѕРґР° РЅРµ РґРѕР»Р¶РЅР° РїСЂРѕРІРµСЂСЏС‚СЊСЃСЏ РґР»СЏ СЃРµР°РЅСЃРѕРІ JobServer'Р°
 					//
 					if(r_lc.Flags & CFGFLG_SEC_DSBLMULTLOGIN) {
 						PPSyncArray sync_array;
@@ -3844,8 +3844,8 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 			if(empty_secur_base)
 				r_lc.State |= CFGST_EMPTYBASE;
 			//
-			// Флаг ECF_FULLGOODSCACHE должен быть определен до создания экземпляра
-			// PPObjGoods (который создается внутри конструктора PPObjBill)
+			// Р¤Р»Р°Рі ECF_FULLGOODSCACHE РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РѕРїСЂРµРґРµР»РµРЅ РґРѕ СЃРѕР·РґР°РЅРёСЏ СЌРєР·РµРјРїР»СЏСЂР°
+			// PPObjGoods (РєРѕС‚РѕСЂС‹Р№ СЃРѕР·РґР°РµС‚СЃСЏ РІРЅСѓС‚СЂРё РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂР° PPObjBill)
 			//
 #ifndef NDEBUG
 			//ExtFlags |= ECF_FULLGOODSCACHE;
@@ -3936,8 +3936,8 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 					}
 				}
 				//
-				// По историческим причинам параметр debug может быть установлен как в зоне [system]
-				// так и в зоне [config].
+				// РџРѕ РёСЃС‚РѕСЂРёС‡РµСЃРєРёРј РїСЂРёС‡РёРЅР°Рј РїР°СЂР°РјРµС‚СЂ debug РјРѕР¶РµС‚ Р±С‹С‚СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅ РєР°Рє РІ Р·РѕРЅРµ [system]
+				// С‚Р°Рє Рё РІ Р·РѕРЅРµ [config].
 				//
 				if(ini_file.GetInt(PPINISECT_SYSTEM, PPINIPARAM_DEBUG, &(iv = 0)) > 0 && iv == 1)
 					r_cc.Flags |= CCFLG_DEBUG;
@@ -3983,7 +3983,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						r_tla.DL600XMLEntityParam = sv;
 				}
 				{
-					r_tla.DL600XmlCp = cpANSI; // Правильно было бы UTF-8, но для обратной совместимости придется по умолчанию использовать ANSI
+					r_tla.DL600XmlCp = cpANSI; // РџСЂР°РІРёР»СЊРЅРѕ Р±С‹Р»Рѕ Р±С‹ UTF-8, РЅРѕ РґР»СЏ РѕР±СЂР°С‚РЅРѕР№ СЃРѕРІРјРµСЃС‚РёРјРѕСЃС‚Рё РїСЂРёРґРµС‚СЃСЏ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ ANSI
 					if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_DL600XMLCP, sv) && sv.NotEmptyS())
 						r_tla.DL600XmlCp.FromStr(sv);
 				}
@@ -4040,14 +4040,14 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 				// } @v10.7.9
 				// @v10.9.12 {
 				{
-					//#define CCFLG2_HIDEINVENTORYSTOCK  0x00010000L // @v10.9.12 Флаг, предписывающий скрывать значения учетных остатков
-						// инициируются по параметру в pp.ini [config] PPINIPARAM_INVENTORYSTOCKVIEWRESTRICTION
+					//#define CCFLG2_HIDEINVENTORYSTOCK  0x00010000L // @v10.9.12 Р¤Р»Р°Рі, РїСЂРµРґРїРёСЃС‹РІР°СЋС‰РёР№ СЃРєСЂС‹РІР°С‚СЊ Р·РЅР°С‡РµРЅРёСЏ СѓС‡РµС‚РЅС‹С… РѕСЃС‚Р°С‚РєРѕРІ
+						// РёРЅРёС†РёРёСЂСѓСЋС‚СЃСЏ РїРѕ РїР°СЂР°РјРµС‚СЂСѓ РІ pp.ini [config] PPINIPARAM_INVENTORYSTOCKVIEWRESTRICTION
 					if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_INVENTORYSTOCKVIEWRESTRICTION, sv) > 0) {
-						// При дублировании символов приоритет у токена, который находится дальше по списку
-						// Например: 
-						//   "user1,user2,!user1" - user1 имеет право видеть остатки, ибо второй раз указан с отрицанием
-						//   "!user2,user1,user2" - user2 не имеет права видеть остатки, ибо второй раз указан без отрицания
-						// Квантор $ALL$ запрещает доступ к просмотру всех пользователей кроме master и тех, что указаны после с отрицанием
+						// РџСЂРё РґСѓР±Р»РёСЂРѕРІР°РЅРёРё СЃРёРјРІРѕР»РѕРІ РїСЂРёРѕСЂРёС‚РµС‚ Сѓ С‚РѕРєРµРЅР°, РєРѕС‚РѕСЂС‹Р№ РЅР°С…РѕРґРёС‚СЃСЏ РґР°Р»СЊС€Рµ РїРѕ СЃРїРёСЃРєСѓ
+						// РќР°РїСЂРёРјРµСЂ: 
+						//   "user1,user2,!user1" - user1 РёРјРµРµС‚ РїСЂР°РІРѕ РІРёРґРµС‚СЊ РѕСЃС‚Р°С‚РєРё, РёР±Рѕ РІС‚РѕСЂРѕР№ СЂР°Р· СѓРєР°Р·Р°РЅ СЃ РѕС‚СЂРёС†Р°РЅРёРµРј
+						//   "!user2,user1,user2" - user2 РЅРµ РёРјРµРµС‚ РїСЂР°РІР° РІРёРґРµС‚СЊ РѕСЃС‚Р°С‚РєРё, РёР±Рѕ РІС‚РѕСЂРѕР№ СЂР°Р· СѓРєР°Р·Р°РЅ Р±РµР· РѕС‚СЂРёС†Р°РЅРёСЏ
+						// РљРІР°РЅС‚РѕСЂ $ALL$ Р·Р°РїСЂРµС‰Р°РµС‚ РґРѕСЃС‚СѓРї Рє РїСЂРѕСЃРјРѕС‚СЂСѓ РІСЃРµС… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ РєСЂРѕРјРµ master Рё С‚РµС…, С‡С‚Рѕ СѓРєР°Р·Р°РЅС‹ РїРѕСЃР»Рµ СЃ РѕС‚СЂРёС†Р°РЅРёРµРј
 						StringSet ss;
 						bool _for_all = false;
 						bool _this_user_found = false;
@@ -4084,8 +4084,8 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 				LogAction(PPACN_LOGIN, 0, 0, r_lc.SessionID, 1);
 			if(p_dict->GetCapability() & DbProvider::cSQL) {
 				//
-				// Для Oracle необходимо, чтобы все регулярные таблицы были созданы ради того,
-				// чтобы не возникла ситуация, когда отсутствующая таблица создается внутри транзакции.
+				// Р”Р»СЏ Oracle РЅРµРѕР±С…РѕРґРёРјРѕ, С‡С‚РѕР±С‹ РІСЃРµ СЂРµРіСѓР»СЏСЂРЅС‹Рµ С‚Р°Р±Р»РёС†С‹ Р±С‹Р»Рё СЃРѕР·РґР°РЅС‹ СЂР°РґРё С‚РѕРіРѕ,
+				// С‡С‚РѕР±С‹ РЅРµ РІРѕР·РЅРёРєР»Р° СЃРёС‚СѓР°С†РёСЏ, РєРѕРіРґР° РѕС‚СЃСѓС‚СЃС‚РІСѓСЋС‰Р°СЏ С‚Р°Р±Р»РёС†Р° СЃРѕР·РґР°РµС‚СЃСЏ РІРЅСѓС‚СЂРё С‚СЂР°РЅР·Р°РєС†РёРё.
 				//
 				SendObjMessage(DBMSG_DUMMY, 0, 0, 0);
 			}
@@ -4106,7 +4106,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 				else {
 					if(_PPConst.UseAdvEvQueue && !(flags & loginfInternal)) { // @v11.1.8 loginfInternal
 						int    cycle_ms = 0;
-						SString mqb_domain; // Имя домена для идентификации при обмене через брокера сообщений
+						SString mqb_domain; // РРјСЏ РґРѕРјРµРЅР° РґР»СЏ РёРґРµРЅС‚РёС„РёРєР°С†РёРё РїСЂРё РѕР±РјРµРЅРµ С‡РµСЂРµР· Р±СЂРѕРєРµСЂР° СЃРѕРѕР±С‰РµРЅРёР№
 						const PPPhoneServicePacket * p_phnsvc_pack = 0;
 						PPPhoneServicePacket ps_pack; 
 						PPMqbClient::InitParam mqb_init_param; // @v10.5.7
@@ -4123,7 +4123,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ADVISEEVENTCOLLECTORPERIOD, &cycle_ms);
 						if(cycle_ms <= 0 || cycle_ms > 600000)
 							cycle_ms = 5113;
-						if(r_tla.DefPhnSvcID) { // Пакет ps_pack инициализирован выше (r_tla.DefPhnSvcID != 0 - однозначно свидетельствует об этом)
+						if(r_tla.DefPhnSvcID) { // РџР°РєРµС‚ ps_pack РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅ РІС‹С€Рµ (r_tla.DefPhnSvcID != 0 - РѕРґРЅРѕР·РЅР°С‡РЅРѕ СЃРІРёРґРµС‚РµР»СЊСЃС‚РІСѓРµС‚ РѕР± СЌС‚РѕРј)
 							// @v11.2.6 UserInterfaceSettings ui_cfg;
 							// @v11.2.6 if(ui_cfg.Restore() > 0 && ui_cfg.Flags & ui_cfg.fPollVoipService)
 							if(APPL->GetUiSettings().Flags & UserInterfaceSettings::fPollVoipService) // @v11.2.6
@@ -4180,7 +4180,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 			r_tla.SetupEventResponder(r_tla.eventresponderSysMaintenance); // @v10.6.1
 			r_tla.SetupEventResponder(r_tla.eventresponderPhoneService); // @v9.8.12
 			r_tla.SetupEventResponder(r_tla.eventresponderMqb); // @v10.5.7
-			if(CConfig.Flags & CCFLG_DEBUG) { // @v10.4.0 (ранее информация о системном аккаунте выводилась всегда)
+			if(CConfig.Flags & CCFLG_DEBUG) { // @v10.4.0 (СЂР°РЅРµРµ РёРЅС„РѕСЂРјР°С†РёСЏ Рѕ СЃРёСЃС‚РµРјРЅРѕРј Р°РєРєР°СѓРЅС‚Рµ РІС‹РІРѕРґРёР»Р°СЃСЊ РІСЃРµРіРґР°)
 				TCHAR  domain_user[128];
 				DWORD  duser_len = SIZEOFARRAY(domain_user);
 				memzero(domain_user, sizeof(domain_user));
@@ -4191,7 +4191,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 				PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_USER|LOGMSGF_COMP);
 				// @v10.4.0 {
 				{
-					// Информация о текущих путях
+					// РРЅС„РѕСЂРјР°С†РёСЏ Рѕ С‚РµРєСѓС‰РёС… РїСѓС‚СЏС…
 					r_tla.Paths.DumpToStr(temp_buf);
 					PPLogMessage(PPFILNAM_INFO_LOG, temp_buf, LOGMSGF_DBINFO|LOGMSGF_USER|LOGMSGF_TIME);
 				}
@@ -4306,7 +4306,7 @@ int PPSession::DirtyDbCache(long dbPathID, PPAdviseEventQueue::Client * pCli)
 	int    ok = 1;
 	if(dbPathID && DBS.IsConsistent()) {
 		//
-		// Следующие три статических объекта защищены общей критической секцией
+		// РЎР»РµРґСѓСЋС‰РёРµ С‚СЂРё СЃС‚Р°С‚РёС‡РµСЃРєРёС… РѕР±СЉРµРєС‚Р° Р·Р°С‰РёС‰РµРЅС‹ РѕР±С‰РµР№ РєСЂРёС‚РёС‡РµСЃРєРѕР№ СЃРµРєС†РёРµР№
 		//
 		static PPIDArray * p_ev_list = 0;
 		static PPIDArray * p_comm_dirty_cache_ev_list = 0;
@@ -4315,7 +4315,7 @@ int PPSession::DirtyDbCache(long dbPathID, PPAdviseEventQueue::Client * pCli)
 			ENTER_CRITICAL_SECTION
 			{
 				//
-				// Единоразовая инициализация глобальных списков
+				// Р•РґРёРЅРѕСЂР°Р·РѕРІР°СЏ РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РіР»РѕР±Р°Р»СЊРЅС‹С… СЃРїРёСЃРєРѕРІ
 				//
 				if(!p_ev_list) {
 					p_comm_dirty_cache_ev_list = new PPIDArray;
@@ -4495,7 +4495,7 @@ int PPSession::Logout()
 		r_tla.ReleaseEventResponder(r_tla.eventresponderMqb); // @v10.5.7
 		SetPrivateBasket(0, 1);
 		//
-		// Удаляем временный каталог для отчетных данных
+		// РЈРґР°Р»СЏРµРј РІСЂРµРјРµРЅРЅС‹Р№ РєР°С‚Р°Р»РѕРі РґР»СЏ РѕС‚С‡РµС‚РЅС‹С… РґР°РЅРЅС‹С…
 		//
 		GetPath(PPPATH_TEMP, temp_buf);
 		temp_buf.SetLastSlash().CatLongZ(r_tla.PrnDirId, 8);
@@ -4523,7 +4523,7 @@ int PPSession::Logout()
 		}
 		// } @v10.8.0 
 		// @v8.6.7 {
-		// @todo Аккуратно остановить поток PPAdviseEventCollectorSjSession
+		// @todo РђРєРєСѓСЂР°С‚РЅРѕ РѕСЃС‚Р°РЅРѕРІРёС‚СЊ РїРѕС‚РѕРє PPAdviseEventCollectorSjSession
 		// } @v8.6.7
 		// @v10.0.06 {
 		if(r_tla.P_AeqThrd) {
@@ -4537,9 +4537,9 @@ int PPSession::Logout()
 
 SVerT PPSession::GetVersion() const
 {
-	// @v11.1.12 Так как номер версии не меняется в течении жизни сессии, то нет смысла 
-	// при каждом вызове совершать тяжелые операции по извечении оной.
-	// Увы, придется "доплатить" критической секцией.
+	// @v11.1.12 РўР°Рє РєР°Рє РЅРѕРјРµСЂ РІРµСЂСЃРёРё РЅРµ РјРµРЅСЏРµС‚СЃСЏ РІ С‚РµС‡РµРЅРёРё Р¶РёР·РЅРё СЃРµСЃСЃРёРё, С‚Рѕ РЅРµС‚ СЃРјС‹СЃР»Р° 
+	// РїСЂРё РєР°Р¶РґРѕРј РІС‹Р·РѕРІРµ СЃРѕРІРµСЂС€Р°С‚СЊ С‚СЏР¶РµР»С‹Рµ РѕРїРµСЂР°С†РёРё РїРѕ РёР·РІРµС‡РµРЅРёРё РѕРЅРѕР№.
+	// РЈРІС‹, РїСЂРёРґРµС‚СЃСЏ "РґРѕРїР»Р°С‚РёС‚СЊ" РєСЂРёС‚РёС‡РµСЃРєРѕР№ СЃРµРєС†РёРµР№.
 	static SVerT sv;
 	ENTER_CRITICAL_SECTION
 	if(static_cast<uint32>(sv) == 0) {
@@ -4740,10 +4740,10 @@ int PPSession::GetPath(PPID pathID, SString & rBuf)
 		case PPPATH_TESTROOT:
 			{
 				//
-				// Путь нужен для определения местонахождения всякого тестового смака.
-				// Он находится в SRC/PPTEST
-				// Так как текущий файл находится в одном из подкаталогов SRC (скорее всего в PPLIB)
-				// то нам нужен один уровень вверх и сразу в PPTEST (..\pptest).
+				// РџСѓС‚СЊ РЅСѓР¶РµРЅ РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ РјРµСЃС‚РѕРЅР°С…РѕР¶РґРµРЅРёСЏ РІСЃСЏРєРѕРіРѕ С‚РµСЃС‚РѕРІРѕРіРѕ СЃРјР°РєР°.
+				// РћРЅ РЅР°С…РѕРґРёС‚СЃСЏ РІ SRC/PPTEST
+				// РўР°Рє РєР°Рє С‚РµРєСѓС‰РёР№ С„Р°Р№Р» РЅР°С…РѕРґРёС‚СЃСЏ РІ РѕРґРЅРѕРј РёР· РїРѕРґРєР°С‚Р°Р»РѕРіРѕРІ SRC (СЃРєРѕСЂРµРµ РІСЃРµРіРѕ РІ PPLIB)
+				// С‚Рѕ РЅР°Рј РЅСѓР¶РµРЅ РѕРґРёРЅ СѓСЂРѕРІРµРЅСЊ РІРІРµСЂС… Рё СЃСЂР°Р·Сѓ РІ PPTEST (..\pptest).
 				//
 				SString temp_buf;
 				GetPath(PPPATH_BIN, temp_buf); // @recursion
@@ -5254,9 +5254,9 @@ int PPSession::GetObjectTitle(PPID objType, SString & rBuf)
 			int    found = 0;
 			if(objType > 0) {
 				//
-				// Могут существовать объекты, которые не входят в перечисление, возвращаемое
+				// РњРѕРіСѓС‚ СЃСѓС‰РµСЃС‚РІРѕРІР°С‚СЊ РѕР±СЉРµРєС‚С‹, РєРѕС‚РѕСЂС‹Рµ РЅРµ РІС…РѕРґСЏС‚ РІ РїРµСЂРµС‡РёСЃР»РµРЅРёРµ, РІРѕР·РІСЂР°С‰Р°РµРјРѕРµ
 				// PPGetObjTypeList().
-				// В этом случае применяем индивидуальный подход...
+				// Р’ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ РїСЂРёРјРµРЅСЏРµРј РёРЅРґРёРІРёРґСѓР°Р»СЊРЅС‹Р№ РїРѕРґС…РѕРґ...
 				//
 				ENTER_CRITICAL_SECTION
 				SString name_buf;
@@ -5759,9 +5759,9 @@ int PPAdviseEventQueue::Get(int64 lowIdent, PPAdviseEventVector & rList)
 	int    ok = -1;
 	int    declined = 0;
 	//
-	// Попытка получить доступ к очереди на чтение без ожидания.
-	// Принцип работы очереди в том, чтобы клиентский поток не ждал пока
-	// серверный поток получит очередную порцию данных от источника.
+	// РџРѕРїС‹С‚РєР° РїРѕР»СѓС‡РёС‚СЊ РґРѕСЃС‚СѓРї Рє РѕС‡РµСЂРµРґРё РЅР° С‡С‚РµРЅРёРµ Р±РµР· РѕР¶РёРґР°РЅРёСЏ.
+	// РџСЂРёРЅС†РёРї СЂР°Р±РѕС‚С‹ РѕС‡РµСЂРµРґРё РІ С‚РѕРј, С‡С‚РѕР±С‹ РєР»РёРµРЅС‚СЃРєРёР№ РїРѕС‚РѕРє РЅРµ Р¶РґР°Р» РїРѕРєР°
+	// СЃРµСЂРІРµСЂРЅС‹Р№ РїРѕС‚РѕРє РїРѕР»СѓС‡РёС‚ РѕС‡РµСЂРµРґРЅСѓСЋ РїРѕСЂС†РёСЋ РґР°РЅРЅС‹С… РѕС‚ РёСЃС‚РѕС‡РЅРёРєР°.
 	//
 	{
 		SRWLOCKERTIMEOUT(Lck, SReadWriteLocker::Read, 0);
@@ -5780,7 +5780,7 @@ int PPAdviseEventQueue::Get(int64 lowIdent, PPAdviseEventVector & rList)
 						_pos = _c;
 						if(_pos) do {
 							const int64 _zi = at(--_pos).Ident;
-							assert(_zi > at(_pos).Ident); // Тест на сортированный порядок элементов
+							assert(_zi > at(_pos).Ident); // РўРµСЃС‚ РЅР° СЃРѕСЂС‚РёСЂРѕРІР°РЅРЅС‹Р№ РїРѕСЂСЏРґРѕРє СЌР»РµРјРµРЅС‚РѕРІ
 							if(lowIdent >= _zi) {
 								_pos++;
 								break;
@@ -5842,9 +5842,9 @@ int PPAdviseEventQueue::Purge()
 					else {
 						for(_pos = 0; _pos < _c; _pos++) {
 							const int64 _zi = at(_pos).Ident;
-							assert(!_pos || _zi > at(_pos-1).Ident); // Тест на сортированный порядок элементов
+							assert(!_pos || _zi > at(_pos-1).Ident); // РўРµСЃС‚ РЅР° СЃРѕСЂС‚РёСЂРѕРІР°РЅРЅС‹Р№ РїРѕСЂСЏРґРѕРє СЌР»РµРјРµРЅС‚РѕРІ
 							if(_zi > marker) {
-								assert(_pos > 0); // Из-за предшествующих условий _pos не может быть первым (0)
+								assert(_pos > 0); // РР·-Р·Р° РїСЂРµРґС€РµСЃС‚РІСѓСЋС‰РёС… СѓСЃР»РѕРІРёР№ _pos РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РїРµСЂРІС‹Рј (0)
 								if(_pos > 0) // @paranoic
 									_upp = _pos-1;
 								else
@@ -6038,7 +6038,7 @@ SLTEST_R(ObjTypeSymb)
 
 			obj_type = DS.GetObjectTypeBySymb(temp_buf, &ext_param);
 			SLTEST_CHECK_EQ(r_entry.Id, MakeLong(obj_type, ext_param));
-			if(r_entry.HsId != PPHS_STYLODEVICE) { // Дублированный (запасной) символ
+			if(r_entry.HsId != PPHS_STYLODEVICE) { // Р”СѓР±Р»РёСЂРѕРІР°РЅРЅС‹Р№ (Р·Р°РїР°СЃРЅРѕР№) СЃРёРјРІРѕР»
 				SLTEST_CHECK_LT(0L, DS.GetObjectTypeSymb(r_entry.Id, symb));
 				SLTEST_CHECK_NZ(sstreqi_ascii(symb, temp_buf));
 			}
@@ -6048,7 +6048,7 @@ SLTEST_R(ObjTypeSymb)
 
 			obj_type = DS.GetObjectTypeBySymb(temp_buf, &ext_param);
 			SLTEST_CHECK_EQ(r_entry.Id, MakeLong(obj_type, ext_param));
-			if(r_entry.HsId != PPHS_STYLODEVICE) { // Дублированный (запасной) символ
+			if(r_entry.HsId != PPHS_STYLODEVICE) { // Р”СѓР±Р»РёСЂРѕРІР°РЅРЅС‹Р№ (Р·Р°РїР°СЃРЅРѕР№) СЃРёРјРІРѕР»
 				SLTEST_CHECK_LT(0L, DS.GetObjectTypeSymb(r_entry.Id, symb));
 				SLTEST_CHECK_NZ(sstreqi_ascii(symb, temp_buf));
 			}

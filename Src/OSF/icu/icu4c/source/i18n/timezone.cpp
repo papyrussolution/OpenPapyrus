@@ -1142,7 +1142,7 @@ UnicodeString &TimeZone::getDisplayName(const Locale & locale, UnicodeString & r
 	return getDisplayName(FALSE, LONG, locale, result);
 }
 
-UnicodeString &TimeZone::getDisplayName(bool inDaylight, EDisplayType style, UnicodeString & result)  const
+UnicodeString &TimeZone::getDisplayName(bool inDaylight, EDisplayType style, UnicodeString & result) const
 {
 	return getDisplayName(inDaylight, style, Locale::getDefault(), result);
 }

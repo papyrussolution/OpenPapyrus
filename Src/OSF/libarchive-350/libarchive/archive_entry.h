@@ -25,13 +25,10 @@
  *
  * $FreeBSD: head/lib/libarchive/archive_entry.h 201096 2009-12-28 02:41:27Z kientzle $
  */
-
 #ifndef ARCHIVE_ENTRY_H_INCLUDED
 #define	ARCHIVE_ENTRY_H_INCLUDED
-
 /* Note: Compiler will complain if this does not match archive.h! */
 #define	ARCHIVE_VERSION_NUMBER 3005000
-
 /*
  * Note: archive_entry.h is for use outside of libarchive; the
  * configuration headers (config.h, archive_platform.h, etc.) are
@@ -39,16 +36,13 @@
  * control the behavior of this header!  If you must conditionalize,
  * use predefined compiler and/or platform macros.
  */
-
 #include <sys/types.h>
 #include <stddef.h>  /* for wchar_t */
-#include <stdint.h>
-#include <time.h>
-
-#if defined(_WIN32) && !defined(__CYGWIN__)
-#include <windows.h>
-#endif
-
+//#include <stdint.h>
+//#include <time.h>
+//#if defined(_WIN32) && !defined(__CYGWIN__)
+//#include <windows.h>
+//#endif
 /* Get a suitable 64-bit integer type. */
 #if !defined(__LA_INT64_T_DEFINED)
 # if ARCHIVE_VERSION_NUMBER < 4000000
@@ -102,7 +96,6 @@ typedef ssize_t la_ssize_t;
 #ifdef __ANDROID__
 #include "android_lf.h"
 #endif
-
 /*
  * On Windows, define LIBARCHIVE_STATIC if you're building or using a
  * .lib.  The default here assumes you're building a DLL.  Only
@@ -267,7 +260,7 @@ __LA_DECL __LA_MODE_T	 archive_entry_mode(struct archive_entry *);
 __LA_DECL time_t	 archive_entry_mtime(struct archive_entry *);
 __LA_DECL long		 archive_entry_mtime_nsec(struct archive_entry *);
 __LA_DECL int		 archive_entry_mtime_is_set(struct archive_entry *);
-__LA_DECL unsigned int	 archive_entry_nlink(struct archive_entry *);
+__LA_DECL uint	 archive_entry_nlink(struct archive_entry *);
 __LA_DECL const char	*archive_entry_pathname(struct archive_entry *);
 __LA_DECL const char	*archive_entry_pathname_utf8(struct archive_entry *);
 __LA_DECL const wchar_t	*archive_entry_pathname_w(struct archive_entry *);
@@ -313,9 +306,8 @@ __LA_DECL void  archive_entry_unset_ctime(struct archive_entry *);
 __LA_DECL void	archive_entry_set_dev(struct archive_entry *, dev_t);
 __LA_DECL void	archive_entry_set_devmajor(struct archive_entry *, dev_t);
 __LA_DECL void	archive_entry_set_devminor(struct archive_entry *, dev_t);
-__LA_DECL void	archive_entry_set_filetype(struct archive_entry *, unsigned int);
-__LA_DECL void	archive_entry_set_fflags(struct archive_entry *,
-	    unsigned long /* set */, unsigned long /* clear */);
+__LA_DECL void	archive_entry_set_filetype(struct archive_entry *, uint);
+__LA_DECL void	archive_entry_set_fflags(struct archive_entry *, ulong /* set */, ulong /* clear */);
 /* Returns pointer to start of first invalid token, or NULL if none. */
 /* Note that all recognized tokens are processed, regardless. */
 __LA_DECL const char *archive_entry_copy_fflags_text(struct archive_entry *,
@@ -343,7 +335,7 @@ __LA_DECL int	archive_entry_update_link_utf8(struct archive_entry *, const char 
 __LA_DECL void	archive_entry_set_mode(struct archive_entry *, __LA_MODE_T);
 __LA_DECL void	archive_entry_set_mtime(struct archive_entry *, time_t, long);
 __LA_DECL void  archive_entry_unset_mtime(struct archive_entry *);
-__LA_DECL void	archive_entry_set_nlink(struct archive_entry *, unsigned int);
+__LA_DECL void	archive_entry_set_nlink(struct archive_entry *, uint);
 __LA_DECL void	archive_entry_set_pathname(struct archive_entry *, const char *);
 __LA_DECL void	archive_entry_set_pathname_utf8(struct archive_entry *, const char *);
 __LA_DECL void	archive_entry_copy_pathname(struct archive_entry *, const char *);
@@ -710,7 +702,7 @@ __LA_DECL void archive_entry_linkresolver_free(struct archive_entry_linkresolver
 __LA_DECL void archive_entry_linkify(struct archive_entry_linkresolver *,
     struct archive_entry **, struct archive_entry **);
 __LA_DECL struct archive_entry *archive_entry_partial_links(
-    struct archive_entry_linkresolver *res, unsigned int *links);
+    struct archive_entry_linkresolver *res, uint *links);
 #ifdef __cplusplus
 }
 #endif

@@ -26,9 +26,6 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-#include "archive.h"
-#include "archive_entry.h"
-#include "archive_private.h"
 #include "archive_entry_private.h"
 /*
  * sparse handling

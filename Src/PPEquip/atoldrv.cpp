@@ -140,6 +140,7 @@ public:
 		return ok;
 	}
 	virtual int PrintBnkTermReport(const char * pZCheck);
+	virtual int PreprocessChZnCode(int op, const char * pCode, double qtty, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult); // @v11.2.12
 	virtual int Diagnostics(StringSet * pSs) // @v10.5.12
 	{ 
 		if(pSs) {
@@ -341,17 +342,31 @@ private:
 		SDynLibrary Lib;
 	};
 	// @v10.3.9 virtual int InitChannel();
-	int  CallJsonProc(const SJson * pJs)
+	int  CallJsonProc(const SJson * pJs, SString & rResultJsonBuf)
 	{
+		rResultJsonBuf.Z();
 		int    ok = 1;
 		THROW(pJs);
 		THROW(P_Fptr10 && P_Fptr10->ProcessJsonProc);
 		{
 			void * h = P_Fptr10->Handler;
-			SStringU js_buf_u;
-			THROW_SL(pJs->ToStr(js_buf_u));
-			P_Fptr10->SetParamStrProc(h, LIBFPTR_PARAM_JSON_DATA, js_buf_u.ucptr());
-			P_Fptr10->ProcessJsonProc(h);
+			STempBuffer ret_buf(SKILOBYTE(1));
+			SStringU temp_buf_u;
+			THROW_SL(ret_buf.IsValid());
+			THROW_SL(pJs->ToStr(temp_buf_u));
+			P_Fptr10->SetParamStrProc(h, LIBFPTR_PARAM_JSON_DATA, temp_buf_u.ucptr());
+			if(P_Fptr10->ProcessJsonProc(h) != 0) {
+				SetErrorMessage();
+				CALLEXCEPT();
+			}
+			int ret_size = P_Fptr10->GetParamStrProc(h, LIBFPTR_PARAM_JSON_DATA, static_cast<wchar_t *>(ret_buf.vptr()), ret_buf.GetSize());
+			if(ret_size > static_cast<int>(ret_buf.GetSize())) {
+				THROW_SL(ret_buf.Alloc(ret_size+128));
+				ret_size = P_Fptr10->GetParamStrProc(h, LIBFPTR_PARAM_JSON_DATA, static_cast<wchar_t *>(ret_buf.vptr()), ret_buf.GetSize());
+			}
+			if(ret_size > 0) {
+				temp_buf_u.CopyFromN(static_cast<wchar_t *>(ret_buf.vptr()), ret_size);
+			}
 		}
 		CATCHZOK
 		return ok;
@@ -810,6 +825,41 @@ SCS_ATOLDRV::~SCS_ATOLDRV()
 			ZDELETE(P_Fptr10); // @v10.7.8
 		}
 	}
+}
+
+/*virtual*/int SCS_ATOLDRV::PreprocessChZnCode(int op, const char * pCode, double qtty, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult) // @v11.2.12
+{
+	int    ok = 1;
+	StateBlock stb;
+	THROW(Connect(&stb));
+	if(P_Fptr10 && P_Fptr10->IsValid() && P_Fptr10->ProcessJsonProc) {
+		SString temp_buf;
+		{
+			SJson  js(SJson::tOBJECT);
+			js.InsertString("type", "clearMarkingCodeValidationResult");
+			THROW(CallJsonProc(&js, temp_buf));
+		}
+		{
+			SJson  js(SJson::tOBJECT);
+			js.InsertString("type", "beginMarkingCodeValidation");
+			{
+				SJson * p_js_params = new SJson(SJson::tOBJECT);
+				p_js_params->InsertString("imcType", /*"auto"*/"imcShort");
+				temp_buf.Z().EncodeMime64(pCode, sstrlen(pCode));
+				p_js_params->InsertString("imc", temp_buf);
+				// itemPieceSold itemDryForSale 
+				p_js_params->InsertString("itemEstimatedStatus", "itemDryForSale");
+				p_js_params->InsertDouble("itemQuantity", qtty, MKSFMTD(0, 3, NMBF_NOTRAILZ));
+				p_js_params->InsertString("itemUnits", "piece");
+				p_js_params->InsertInt("imcModeProcessing", 0);
+				//p_js_params->InsertString("itemFractionalAmount", "");
+				js.Insert("params", p_js_params);
+			}
+			THROW(CallJsonProc(&js, temp_buf));
+		}
+	}
+	CATCHZOK
+	return ok;
 }
 
 int SCS_ATOLDRV::ReadSettingsBulk(SString & rJsonBuf)

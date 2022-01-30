@@ -9,7 +9,7 @@
 #ifndef HEADER_DRBG_RAND_H
 #define HEADER_DRBG_RAND_H
 
-#include <time.h>
+//#include <time.h>
 #include <openssl/ossl_typ.h>
 #include <openssl/obj_mac.h>
 

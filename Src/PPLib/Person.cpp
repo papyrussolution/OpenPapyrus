@@ -1,5 +1,5 @@
 // PERSON.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage windows-1251
 // @Kernel
 //
@@ -33,7 +33,7 @@ void PPPerson::destroy()
 
 int PPPerson::AddRelation(PPID personID, PPID relTypeID, uint * pPos)
 {
-	if(RelList.SearchPair(personID, relTypeID, 0) <= 0)
+	if(!RelList.SearchPair(personID, relTypeID, 0))
 		return RelList.Add(personID, relTypeID, pPos, 0) ? 1 : PPSetErrorSLib();
 	else
 		return PPSetError(PPERR_DUPPERSONREL);

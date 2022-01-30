@@ -3823,13 +3823,10 @@ int FASTCALL SStringU::Alloc(size_t sz)
 		if(p) {
 			Size = new_size;
 			P_Buf = p;
-			// @v9.4.9 @fix (big mistake) P_Buf[L] = 0;
-			// @v9.4.9 {
 			if(L)
 				P_Buf[L-1] = 0;
 			else
 				P_Buf[0] = 0;
-			// } @v9.4.9
 		}
 		else
 			ok = 0;
@@ -3837,57 +3834,57 @@ int FASTCALL SStringU::Alloc(size_t sz)
 	return ok;
 }
 
-int FASTCALL SStringU::IsEq(const SStringU & rS) const
+bool FASTCALL SStringU::IsEq(const SStringU & rS) const
 {
 	const size_t len = Len();
 	if(len == rS.Len()) {
 		if(len == 0)
-			return 1;
+			return true;
 		else {
 			assert(P_Buf && rS.P_Buf);
 			if(P_Buf && rS.P_Buf) {
 				switch(len) {
-					case 1: return BIN(P_Buf[0] == rS.P_Buf[0]);
-					case 2: return BIN(PTR32(P_Buf)[0] == PTR32(rS.P_Buf)[0]);
-					case 3: return BIN(P_Buf[0] == rS.P_Buf[0] && P_Buf[1] == rS.P_Buf[1] && P_Buf[2] == rS.P_Buf[2]);
-					case 4: return BIN(PTR64(P_Buf)[0] == PTR64(rS.P_Buf)[0]);
-					case 8: return BIN(PTR64(P_Buf)[0] == PTR64(rS.P_Buf)[0] && PTR64(P_Buf)[1] == PTR64(rS.P_Buf)[1]);
-					default: return BIN(memcmp(P_Buf, rS.P_Buf, len*sizeof(*P_Buf)) == 0); // @v10.7.1 @fix len-->len*sizeof(*P_Buf)
+					case 1: return (P_Buf[0] == rS.P_Buf[0]);
+					case 2: return (PTR32(P_Buf)[0] == PTR32(rS.P_Buf)[0]);
+					case 3: return (P_Buf[0] == rS.P_Buf[0] && P_Buf[1] == rS.P_Buf[1] && P_Buf[2] == rS.P_Buf[2]);
+					case 4: return (PTR64(P_Buf)[0] == PTR64(rS.P_Buf)[0]);
+					case 8: return (PTR64(P_Buf)[0] == PTR64(rS.P_Buf)[0] && PTR64(P_Buf)[1] == PTR64(rS.P_Buf)[1]);
+					default: return (memcmp(P_Buf, rS.P_Buf, len*sizeof(*P_Buf)) == 0); // @v10.7.1 @fix len-->len*sizeof(*P_Buf)
 				}
 			}
 			else
-				return 0;
+				return false;
 		}
 	}
 	else
-		return 0;
+		return false;
 }
 
-int FASTCALL SStringU::IsEq(const wchar_t * pS) const
+bool FASTCALL SStringU::IsEq(const wchar_t * pS) const
 {
 	const size_t len = Len();
 	const size_t len2 = sstrlen(pS);
 	if(len == len2) {
 		if(len == 0)
-			return 1;
+			return true;
 		else {
 			assert(P_Buf);
 			if(P_Buf) {
 				switch(len) {
-					case 1: return BIN(P_Buf[0] == pS[0]);
-					case 2: return BIN(PTR32C(P_Buf)[0] == PTR32C(pS)[0]);
-					case 3: return BIN(P_Buf[0] == pS[0] && P_Buf[1] == pS[1] && P_Buf[2] == pS[2]);
-					case 4: return BIN(PTR64C(P_Buf)[0] == PTR64C(pS)[0]);
-					case 8: return BIN(PTR64C(P_Buf)[0] == PTR64C(pS)[0] && PTR64C(P_Buf)[1] == PTR64C(pS)[1]);
-					default: return BIN(memcmp(P_Buf, pS, len*sizeof(*P_Buf)) == 0); // @v10.7.1 @fix len-->len*sizeof(*P_Buf)
+					case 1: return (P_Buf[0] == pS[0]);
+					case 2: return (PTR32C(P_Buf)[0] == PTR32C(pS)[0]);
+					case 3: return (P_Buf[0] == pS[0] && P_Buf[1] == pS[1] && P_Buf[2] == pS[2]);
+					case 4: return (PTR64C(P_Buf)[0] == PTR64C(pS)[0]);
+					case 8: return (PTR64C(P_Buf)[0] == PTR64C(pS)[0] && PTR64C(P_Buf)[1] == PTR64C(pS)[1]);
+					default: return (memcmp(P_Buf, pS, len*sizeof(*P_Buf)) == 0); // @v10.7.1 @fix len-->len*sizeof(*P_Buf)
 				}
 			}
 			else
-				return 0;
+				return false;
 		}
 	}
 	else
-		return 0;
+		return false;
 }
 
 int FASTCALL SStringU::Cmp(const SStringU & rS) const
@@ -4973,33 +4970,35 @@ static const char * FASTCALL SPathFindNextComponent(const char * pPath)
 		const char divider = (flags & npfSlash) ? '/' : '\\';
 		const char divider_to_replace = (flags & npfSlash) ? '\\' : '/';
 		rNormalizedPath.ReplaceChar(divider_to_replace, divider);
-		char  dotdot_pattern[16];
-		dotdot_pattern[0] = divider;
-		dotdot_pattern[1] = '.';
-		dotdot_pattern[2] = '.';
-		dotdot_pattern[3] = 0;
-		if(flags & npfCompensateDotDot && rNormalizedPath.Search(dotdot_pattern, 0, 1, 0)) {
-			// //abc/d/e/../f/g/../../i"
-			// /a/..
-			StringSet ss(divider, rNormalizedPath);
-			SString temp_buf;
-			SString new_result;
-			uint   p = 0;
-			while(rNormalizedPath.Search(dotdot_pattern, 0, 1, &p)) {
-				char next_chr = rNormalizedPath.C(p+3);
-				if(p > 3 && oneof2(next_chr, 0, divider) && rNormalizedPath.C(p-1) != divider) {
-					uint start_pos = 0;
-					uint i = p-3;
-					if(i) {
-						do {
-							char c = rNormalizedPath.C(--i);
-							if(c == divider) {
-								start_pos = i;
-								break;
+		if(flags & npfCompensateDotDot) {
+			char  dotdot_pattern[16] = {divider, '.', '.', 0};
+			//dotdot_pattern[0] = divider;
+			//dotdot_pattern[1] = '.';
+			//dotdot_pattern[2] = '.';
+			//dotdot_pattern[3] = 0;
+			if(rNormalizedPath.Search(dotdot_pattern, 0, 1, 0)) {
+				// //abc/d/e/../f/g/../../i"
+				// /a/..
+				StringSet ss(divider, rNormalizedPath);
+				SString temp_buf;
+				SString new_result;
+				uint   p = 0;
+				while(rNormalizedPath.Search(dotdot_pattern, 0, 1, &p)) {
+					char next_chr = rNormalizedPath.C(p+3);
+					if(p > 3 && oneof2(next_chr, 0, divider) && rNormalizedPath.C(p-1) != divider) {
+						uint start_pos = 0;
+						uint i = p-3;
+						if(i) {
+							do {
+								char c = rNormalizedPath.C(--i);
+								if(c == divider) {
+									start_pos = i;
+									break;
+								}
+							} while(i);
+							if(start_pos) {
+								rNormalizedPath.Excise(start_pos, p+3-start_pos);
 							}
-						} while(i);
-						if(start_pos) {
-							rNormalizedPath.Excise(start_pos, p+3-start_pos);
 						}
 					}
 				}

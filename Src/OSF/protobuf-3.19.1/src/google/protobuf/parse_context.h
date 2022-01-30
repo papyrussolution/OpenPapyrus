@@ -3,8 +3,7 @@
 // https://developers.google.com/protocol-buffers/
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are met:
 //
 //     * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
@@ -34,7 +33,6 @@
 #include <cstdint>
 #include <cstring>
 #include <string>
-
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/io/zero_copy_stream.h>
 #include <google/protobuf/arena.h>
@@ -46,7 +44,6 @@
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/wire_format_lite.h>
 #include <google/protobuf/stubs/strutil.h>
-
 #include <google/protobuf/port_def.inc>
 
 namespace google {
@@ -58,12 +55,10 @@ class MessageFactory;
 namespace internal {
 // Template code below needs to know about the existence of these functions.
 PROTOBUF_EXPORT void WriteVarint(uint32_t num, uint64_t val, std::string* s);
-PROTOBUF_EXPORT void WriteLengthDelimited(uint32_t num, StringPiece val,
-    std::string* s);
+PROTOBUF_EXPORT void WriteLengthDelimited(uint32_t num, StringPiece val, std::string* s);
 // Inline because it is just forwarding to s->WriteVarint
 inline void WriteVarint(uint32_t num, uint64_t val, UnknownFieldSet* s);
-inline void WriteLengthDelimited(uint32_t num, StringPiece val,
-    UnknownFieldSet* s);
+inline void WriteLengthDelimited(uint32_t num, StringPiece val, UnknownFieldSet* s);
 
 // The basic abstraction the parser is designed for is a slight modification
 // of the ZeroCopyInputStream (ZCIS) abstraction. A ZCIS presents a serialized
@@ -106,11 +101,11 @@ class PROTOBUF_EXPORT EpsCopyInputStream {
 public:
 	enum { kSlopBytes = 16, kMaxCordBytesToCopy = 512 };
 
-	explicit EpsCopyInputStream(bool enable_aliasing)
-		: aliasing_(enable_aliasing ? kOnPatch : kNoAliasing) {
+	explicit EpsCopyInputStream(bool enable_aliasing) : aliasing_(enable_aliasing ? kOnPatch : kNoAliasing) 
+	{
 	}
-
-	void BackUp(const char* ptr) {
+	void BackUp(const char* ptr) 
+	{
 		GOOGLE_DCHECK(ptr <= buffer_end_ + kSlopBytes);
 		int count;
 		if(next_chunk_ == buffer_) {
@@ -119,11 +114,12 @@ public:
 		else {
 			count = size_ + static_cast<int>(buffer_end_ - ptr);
 		}
-		if(count > 0) StreamBackUp(count);
+		if(count > 0) 
+			StreamBackUp(count);
 	}
-
 	// If return value is negative it's an error
-	PROTOBUF_NODISCARD int PushLimit(const char* ptr, int limit) {
+	PROTOBUF_NODISCARD int PushLimit(const char* ptr, int limit) 
+	{
 		GOOGLE_DCHECK(limit >= 0 && limit <= INT_MAX - kSlopBytes);
 		// This add is safe due to the invariant above, because
 		// ptr - buffer_end_ <= kSlopBytes.
@@ -133,8 +129,8 @@ public:
 		limit_ = limit;
 		return old_limit - limit;
 	}
-
-	PROTOBUF_NODISCARD bool PopLimit(int delta) {
+	PROTOBUF_NODISCARD bool PopLimit(int delta) 
+	{
 		if(PROTOBUF_PREDICT_FALSE(!EndedAtLimit())) return false;
 		limit_ = limit_ + delta;
 		// TODO(gerbens) We could remove this line and hoist the code to
@@ -142,89 +138,57 @@ public:
 		limit_end_ = buffer_end_ + (std::min)(0, limit_);
 		return true;
 	}
-
-	PROTOBUF_NODISCARD const char* Skip(const char* ptr, int size) {
+	PROTOBUF_NODISCARD const char* Skip(const char* ptr, int size) 
+	{
 		if(size <= buffer_end_ + kSlopBytes - ptr) {
 			return ptr + size;
 		}
 		return SkipFallback(ptr, size);
 	}
-
-	PROTOBUF_NODISCARD const char* ReadString(const char* ptr, int size,
-	    std::string* s) {
+	PROTOBUF_NODISCARD const char* ReadString(const char* ptr, int size, std::string* s) 
+	{
 		if(size <= buffer_end_ + kSlopBytes - ptr) {
 			s->assign(ptr, size);
 			return ptr + size;
 		}
 		return ReadStringFallback(ptr, size, s);
 	}
-
-	PROTOBUF_NODISCARD const char* AppendString(const char* ptr, int size,
-	    std::string* s) {
+	PROTOBUF_NODISCARD const char* AppendString(const char* ptr, int size, std::string* s) 
+	{
 		if(size <= buffer_end_ + kSlopBytes - ptr) {
 			s->append(ptr, size);
 			return ptr + size;
 		}
 		return AppendStringFallback(ptr, size, s);
 	}
-
 	// Implemented in arenastring.cc
-	PROTOBUF_NODISCARD const char* ReadArenaString(const char* ptr,
-	    ArenaStringPtr* s,
-	    Arena* arena);
-
-	template <typename Tag, typename T>
-	PROTOBUF_NODISCARD const char* ReadRepeatedFixed(const char* ptr,
-	    Tag expected_tag,
+	PROTOBUF_NODISCARD const char* ReadArenaString(const char* ptr, ArenaStringPtr* s, Arena* arena);
+	template <typename Tag, typename T> PROTOBUF_NODISCARD const char* ReadRepeatedFixed(const char* ptr, Tag expected_tag, RepeatedField<T>* out);
+	template <typename T> PROTOBUF_NODISCARD const char* ReadPackedFixed(const char* ptr, int size,
 	    RepeatedField<T>* out);
-
-	template <typename T>
-	PROTOBUF_NODISCARD const char* ReadPackedFixed(const char* ptr, int size,
-	    RepeatedField<T>* out);
-	template <typename Add>
-	PROTOBUF_NODISCARD const char* ReadPackedVarint(const char* ptr, Add add);
-
-	uint32_t LastTag() const {
-		return last_tag_minus_1_ + 1;
-	}
-
-	bool ConsumeEndGroup(uint32_t start_tag) {
+	template <typename Add> PROTOBUF_NODISCARD const char* ReadPackedVarint(const char* ptr, Add add);
+	uint32_t LastTag() const { return last_tag_minus_1_ + 1; }
+	bool ConsumeEndGroup(uint32_t start_tag) 
+	{
 		bool res = last_tag_minus_1_ == start_tag;
 		last_tag_minus_1_ = 0;
 		return res;
 	}
-
-	bool EndedAtLimit() const {
-		return last_tag_minus_1_ == 0;
-	}
-
-	bool EndedAtEndOfStream() const {
-		return last_tag_minus_1_ == 1;
-	}
-
-	void SetLastTag(uint32_t tag) {
+	bool EndedAtLimit() const { return last_tag_minus_1_ == 0; }
+	bool EndedAtEndOfStream() const { return last_tag_minus_1_ == 1; }
+	void SetLastTag(uint32_t tag) 
+	{
 		last_tag_minus_1_ = tag - 1;
 	}
-
-	void SetEndOfStream() {
+	void SetEndOfStream() 
+	{
 		last_tag_minus_1_ = 1;
 	}
-
-	bool IsExceedingLimit(const char* ptr) {
-		return ptr > limit_end_ &&
-		       (next_chunk_ == nullptr || ptr - buffer_end_ > limit_);
-	}
-
-	int BytesUntilLimit(const char* ptr) const {
-		return limit_ + static_cast<int>(buffer_end_ - ptr);
-	}
-
+	bool IsExceedingLimit(const char* ptr) { return ptr > limit_end_ && (next_chunk_ == nullptr || ptr - buffer_end_ > limit_); }
+	int BytesUntilLimit(const char* ptr) const { return limit_ + static_cast<int>(buffer_end_ - ptr); }
 	// Returns true if more data is available, if false is returned one has to
 	// call Done for further checks.
-	bool DataAvailable(const char* ptr) {
-		return ptr < limit_end_;
-	}
-
+	bool DataAvailable(const char* ptr) { return ptr < limit_end_; }
 protected:
 	// Returns true is limit (either an explicit limit or end of stream) is
 	// reached. It aligns *ptr across buffer seams.
@@ -409,44 +373,31 @@ public:
 		Arena* arena = nullptr;
 	};
 
-	template <typename ... T>
-	ParseContext(int depth, bool aliasing, const char** start, T&& ... args)
-		: EpsCopyInputStream(aliasing), depth_(depth) {
+	template <typename ... T> ParseContext(int depth, bool aliasing, const char** start, T&& ... args) : EpsCopyInputStream(aliasing), depth_(depth) 
+	{
 		*start = InitFrom(std::forward<T>(args) ...);
 	}
-
-	void TrackCorrectEnding() {
+	void TrackCorrectEnding() 
+	{
 		group_depth_ = 0;
 	}
-
-	bool Done(const char** ptr) {
+	bool Done(const char** ptr) 
+	{
 		return DoneWithCheck(ptr, group_depth_);
 	}
-
-	int depth() const {
-		return depth_;
-	}
-
-	Data& data() {
-		return data_;
-	}
-
-	const Data& data() const {
-		return data_;
-	}
-
+	int depth() const { return depth_; }
+	Data& data() { return data_; }
+	const Data& data() const { return data_; }
 	const char* ParseMessage(MessageLite* msg, const char* ptr);
 
 	// This overload supports those few cases where ParseMessage is called
 	// on a class that is not actually a proto message.
 	// TODO(jorg): Eliminate this use case.
-	template <typename T,
-	    typename std::enable_if<!std::is_base_of<MessageLite, T>::value,
-	    bool>::type = true>
+	template <typename T, typename std::enable_if<!std::is_base_of<MessageLite, T>::value, bool>::type = true>
 	PROTOBUF_NODISCARD const char* ParseMessage(T* msg, const char* ptr);
 
-	template <typename T>
-	PROTOBUF_NODISCARD PROTOBUF_NDEBUG_INLINE const char* ParseGroup(T* msg, const char* ptr, uint32_t tag) {
+	template <typename T> PROTOBUF_NODISCARD PROTOBUF_NDEBUG_INLINE const char* ParseGroup(T* msg, const char* ptr, uint32_t tag) 
+	{
 		if(--depth_ < 0) return nullptr;
 		group_depth_++;
 		ptr = msg->_InternalParse(ptr, this);
@@ -455,7 +406,6 @@ public:
 		if(PROTOBUF_PREDICT_FALSE(!ConsumeEndGroup(tag))) return nullptr;
 		return ptr;
 	}
-
 private:
 	// Out-of-line routine to save space in ParseContext::ParseMessage<T>
 	//   int old;

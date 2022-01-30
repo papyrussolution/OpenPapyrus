@@ -1199,7 +1199,7 @@ cairo_status_t cairo_surface_set_mime_data(cairo_surface_t * surface,
 	if(UNLIKELY(status))
 		return _cairo_surface_set_error(surface, status);
 
-	if(data != NULL) {
+	if(data) {
 		mime_data = (cairo_mime_data_t *)_cairo_malloc(sizeof(cairo_mime_data_t));
 		if(UNLIKELY(mime_data == NULL))
 			return _cairo_surface_set_error(surface, _cairo_error(CAIRO_STATUS_NO_MEMORY));

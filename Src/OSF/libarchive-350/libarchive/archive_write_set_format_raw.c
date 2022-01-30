@@ -24,14 +24,10 @@
  */
 #include "archive_platform.h"
 #pragma hdrstop
-#include "archive_entry.h"
-#include "archive_write_private.h"
 
-static ssize_t  archive_write_raw_data(struct archive_write *,
-    const void * buff, size_t s);
+static ssize_t  archive_write_raw_data(struct archive_write *, const void * buff, size_t s);
 static int archive_write_raw_free(struct archive_write *);
-static int archive_write_raw_header(struct archive_write *,
-    struct archive_entry *);
+static int archive_write_raw_header(struct archive_write *, struct archive_entry *);
 
 struct raw {
 	int entries_written;

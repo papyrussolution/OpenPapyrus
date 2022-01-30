@@ -372,10 +372,7 @@ struct ssh_list * ssh_known_hosts_get_algorithms(ssh_session session){
 		ssh_list_free(entry_list);
 		return NULL;
 	}
-
-	for(it = ssh_list_get_iterator(entry_list);
-	    it != NULL;
-	    it = ssh_list_get_iterator(entry_list)) {
+	for(it = ssh_list_get_iterator(entry_list); it != NULL; it = ssh_list_get_iterator(entry_list)) {
 		struct ssh_iterator * it2 = NULL;
 		struct ssh_knownhosts_entry * entry = NULL;
 		const char * algo = NULL;
@@ -385,9 +382,7 @@ struct ssh_list * ssh_known_hosts_get_algorithms(ssh_session session){
 		algo = entry->publickey->type_c;
 
 		/* Check for duplicates */
-		for(it2 = ssh_list_get_iterator(list);
-		    it2 != NULL;
-		    it2 = it2->next) {
+		for(it2 = ssh_list_get_iterator(list); it2 != NULL; it2 = it2->next) {
 			char * alg2 = ssh_iterator_value(char *, it2);
 			int cmp = strcmp(alg2, algo);
 			if(cmp == 0) {
@@ -522,13 +517,9 @@ char * ssh_known_hosts_get_algorithms_names(ssh_session session)
 		ssh_list_free(entry_list);
 		return NULL;
 	}
-
-	for(it = ssh_list_get_iterator(entry_list);
-	    it != NULL;
-	    it = ssh_list_get_iterator(entry_list)) {
+	for(it = ssh_list_get_iterator(entry_list); it != NULL; it = ssh_list_get_iterator(entry_list)) {
 		struct ssh_knownhosts_entry * entry = NULL;
 		const char * algo = NULL;
-
 		entry = ssh_iterator_value(struct ssh_knownhosts_entry *, it);
 		algo = ssh_known_host_sigs_from_hostkey_type(entry->publickey->type);
 		if(algo == NULL) {
@@ -803,12 +794,8 @@ enum ssh_known_hosts_e ssh_session_has_known_hosts_entry(ssh_session session){
 		return SSH_KNOWN_HOSTS_UNKNOWN;
 	}
 
-	for(it = ssh_list_get_iterator(entry_list);
-	    it != NULL;
-	    it = ssh_list_get_iterator(entry_list)) {
-		struct ssh_knownhosts_entry * entry = NULL;
-
-		entry = ssh_iterator_value(struct ssh_knownhosts_entry *, it);
+	for(it = ssh_list_get_iterator(entry_list); it != NULL; it = ssh_list_get_iterator(entry_list)) {
+		struct ssh_knownhosts_entry * entry = ssh_iterator_value(struct ssh_knownhosts_entry *, it);
 		ssh_knownhosts_entry_free(entry);
 		ssh_list_remove(entry_list, it);
 	}

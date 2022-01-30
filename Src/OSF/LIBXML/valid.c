@@ -3933,13 +3933,9 @@ cont:
 			    do {
 				    NODE = NODE->next;
 				    NODE = xmlValidateSkipIgnorable(NODE);
-				    if((NODE != NULL) &&
-				    (NODE->type == XML_ENTITY_REF_NODE))
+				    if((NODE != NULL) && (NODE->type == XML_ENTITY_REF_NODE))
 					    return -2;
-			    } while((NODE != NULL) &&
-			    ((NODE->type != XML_ELEMENT_NODE) &&
-				    (NODE->type != XML_TEXT_NODE) &&
-				    (NODE->type != XML_CDATA_SECTION_NODE)));
+			    } while((NODE != NULL) && ((NODE->type != XML_ELEMENT_NODE) && (NODE->type != XML_TEXT_NODE) && (NODE->type != XML_CDATA_SECTION_NODE)));
 			    ret = 1;
 			    break;
 		    }
@@ -4630,8 +4626,7 @@ static int xmlValidateOneCdataElement(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNod
 			 * Push the current node to be able to roll back
 			 * and process within the entity
 			     */
-			    if((cur->children != NULL) &&
-			    (cur->children->children != NULL)) {
+			    if((cur->children != NULL) && (cur->children->children != NULL)) {
 				    nodeVPush(ctxt, cur);
 				    cur = cur->children->children;
 				    continue;
@@ -4660,10 +4655,7 @@ static int xmlValidateOneCdataElement(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNod
 done:
 	ctxt->nodeMax = 0;
 	ctxt->nodeNr = 0;
-	if(ctxt->PP_NodeTab != NULL) {
-		SAlloc::F(ctxt->PP_NodeTab);
-		ctxt->PP_NodeTab = NULL;
-	}
+	ZFREE(ctxt->PP_NodeTab);
 	return ret;
 }
 
@@ -4683,7 +4675,7 @@ static int xmlValidateCheckMixed(xmlValidCtxtPtr ctxt, xmlElementContent * cont,
 	int plen;
 	name = xmlSplitQName3(qname, &plen);
 	if(!name) {
-		while(cont != NULL) {
+		while(cont) {
 			if(cont->type == XML_ELEMENT_CONTENT_ELEMENT) {
 				if((cont->prefix == NULL) && (sstreq(cont->name, qname)))
 					return 1;
@@ -4700,11 +4692,9 @@ static int xmlValidateCheckMixed(xmlValidCtxtPtr ctxt, xmlElementContent * cont,
 		}
 	}
 	else {
-		while(cont != NULL) {
+		while(cont) {
 			if(cont->type == XML_ELEMENT_CONTENT_ELEMENT) {
-				if((cont->prefix != NULL) &&
-				    (xmlStrncmp(cont->prefix, qname, plen) == 0) &&
-				    (sstreq(cont->name, name)))
+				if((cont->prefix != NULL) && (xmlStrncmp(cont->prefix, qname, plen) == 0) && (sstreq(cont->name, name)))
 					return 1;
 			}
 			else if((cont->type == XML_ELEMENT_CONTENT_OR) && (cont->c1 != NULL) && (cont->c1->type == XML_ELEMENT_CONTENT_ELEMENT)) {
@@ -4737,29 +4727,22 @@ static xmlElement * xmlValidGetElemDecl(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlN
 {
 	xmlElement * elemDecl = NULL;
 	const xmlChar * prefix = NULL;
-	if(!ctxt || (doc == NULL) ||
-	    (elem == NULL) || (elem->name == NULL))
+	if(!ctxt || (doc == NULL) || (elem == NULL) || (elem->name == NULL))
 		return 0;
-	if(extsubset != NULL)
-		*extsubset = 0;
-
+	ASSIGN_PTR(extsubset, 0);
 	/*
 	 * Fetch the declaration for the qualified name
 	 */
 	if((elem->ns != NULL) && (elem->ns->prefix != NULL))
 		prefix = elem->ns->prefix;
-
 	if(prefix != NULL) {
-		elemDecl = xmlGetDtdQElementDesc(doc->intSubset,
-		    elem->name, prefix);
+		elemDecl = xmlGetDtdQElementDesc(doc->intSubset, elem->name, prefix);
 		if((elemDecl == NULL) && (doc->extSubset != NULL)) {
-			elemDecl = xmlGetDtdQElementDesc(doc->extSubset,
-			    elem->name, prefix);
+			elemDecl = xmlGetDtdQElementDesc(doc->extSubset, elem->name, prefix);
 			if((elemDecl != NULL) && (extsubset != NULL))
 				*extsubset = 1;
 		}
 	}
-
 	/*
 	 * Fetch the declaration for the non qualified name
 	 * This is "non-strict" validation should be done on the
@@ -4805,7 +4788,7 @@ int xmlValidatePushElement(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem, c
 		/*
 		 * Check the new element agaisnt the content model of the new elem.
 		 */
-		if(state->elemDecl != NULL) {
+		if(state->elemDecl) {
 			elemDecl = state->elemDecl;
 			switch(elemDecl->etype) {
 				case XML_ELEMENT_TYPE_UNDEFINED:
@@ -5382,11 +5365,8 @@ int xmlValidateElement(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem)
 			ret &= xmlValidateOneNamespace(ctxt, doc, elem, elem->ns ? elem->ns->prefix : 0, ns, ns->href);
 		}
 	}
-	child = elem->children;
-	while(child != NULL) {
+	for(child = elem->children; child; child = child->next)
 		ret &= xmlValidateElement(ctxt, doc, child);
-		child = child->next;
-	}
 	return ret;
 }
 /**

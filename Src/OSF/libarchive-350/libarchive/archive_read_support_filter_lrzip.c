@@ -50,13 +50,9 @@ int archive_read_support_filter_lrzip(struct archive * _a)
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	struct archive_read_filter_bidder * reader;
-
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_read_support_filter_lrzip");
-
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_lrzip");
 	if(__archive_read_get_bidder(a, &reader) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
-
 	reader->data = NULL;
 	reader->name = "lrzip";
 	reader->bid = lrzip_bidder_bid;
@@ -64,8 +60,7 @@ int archive_read_support_filter_lrzip(struct archive * _a)
 	reader->options = NULL;
 	reader->free = lrzip_reader_free;
 	/* This filter always uses an external program. */
-	archive_set_error(_a, ARCHIVE_ERRNO_MISC,
-	    "Using external lrzip program for lrzip decompression");
+	archive_set_error(_a, ARCHIVE_ERRNO_MISC, "Using external lrzip program for lrzip decompression");
 	return ARCHIVE_WARN;
 }
 

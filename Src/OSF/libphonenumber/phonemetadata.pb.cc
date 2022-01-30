@@ -107,24 +107,12 @@ namespace phonenumbers {
 class NumberFormat::_Internal {
  public:
   using HasBits = decltype(std::declval<NumberFormat>()._has_bits_);
-  static void set_has_pattern(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
-  static void set_has_format(HasBits* has_bits) {
-    (*has_bits)[0] |= 2u;
-  }
-  static void set_has_national_prefix_formatting_rule(HasBits* has_bits) {
-    (*has_bits)[0] |= 4u;
-  }
-  static void set_has_national_prefix_optional_when_formatting(HasBits* has_bits) {
-    (*has_bits)[0] |= 16u;
-  }
-  static void set_has_domestic_carrier_code_formatting_rule(HasBits* has_bits) {
-    (*has_bits)[0] |= 8u;
-  }
-  static bool MissingRequiredFields(const HasBits& has_bits) {
-    return ((has_bits[0] & 0x00000003) ^ 0x00000003) != 0;
-  }
+  static void set_has_pattern(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
+  static void set_has_format(HasBits* has_bits) { (*has_bits)[0] |= 2u; }
+  static void set_has_national_prefix_formatting_rule(HasBits* has_bits) { (*has_bits)[0] |= 4u; }
+  static void set_has_national_prefix_optional_when_formatting(HasBits* has_bits) { (*has_bits)[0] |= 16u; }
+  static void set_has_domestic_carrier_code_formatting_rule(HasBits* has_bits) { (*has_bits)[0] |= 8u; }
+  static bool MissingRequiredFields(const HasBits& has_bits) { return ((has_bits[0] & 0x00000003) ^ 0x00000003) != 0; }
 };
 
 NumberFormat::NumberFormat(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -548,9 +536,7 @@ void NumberFormat::InternalSwap(NumberFormat* other) {
   swap(national_prefix_optional_when_formatting_, other->national_prefix_optional_when_formatting_);
 }
 
-std::string NumberFormat::GetTypeName() const {
-  return "i18n.phonenumbers.NumberFormat";
-}
+std::string NumberFormat::GetTypeName() const { return "i18n.phonenumbers.NumberFormat"; }
 
 
 // ===================================================================
@@ -558,12 +544,8 @@ std::string NumberFormat::GetTypeName() const {
 class PhoneNumberDesc::_Internal {
  public:
   using HasBits = decltype(std::declval<PhoneNumberDesc>()._has_bits_);
-  static void set_has_national_number_pattern(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
-  static void set_has_example_number(HasBits* has_bits) {
-    (*has_bits)[0] |= 2u;
-  }
+  static void set_has_national_number_pattern(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
+  static void set_has_example_number(HasBits* has_bits) { (*has_bits)[0] |= 2u; }
 };
 
 PhoneNumberDesc::PhoneNumberDesc(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -885,9 +867,7 @@ void PhoneNumberDesc::InternalSwap(PhoneNumberDesc* other) {
   );
 }
 
-std::string PhoneNumberDesc::GetTypeName() const {
-  return "i18n.phonenumbers.PhoneNumberDesc";
-}
+std::string PhoneNumberDesc::GetTypeName() const { return "i18n.phonenumbers.PhoneNumberDesc"; }
 
 
 // ===================================================================
@@ -896,115 +876,53 @@ class PhoneMetadata::_Internal {
  public:
   using HasBits = decltype(std::declval<PhoneMetadata>()._has_bits_);
   static const ::i18n::phonenumbers::PhoneNumberDesc& general_desc(const PhoneMetadata* msg);
-  static void set_has_general_desc(HasBits* has_bits) {
-    (*has_bits)[0] |= 256u;
-  }
+  static void set_has_general_desc(HasBits* has_bits) { (*has_bits)[0] |= 256u; }
   static const ::i18n::phonenumbers::PhoneNumberDesc& fixed_line(const PhoneMetadata* msg);
-  static void set_has_fixed_line(HasBits* has_bits) {
-    (*has_bits)[0] |= 512u;
-  }
+  static void set_has_fixed_line(HasBits* has_bits) { (*has_bits)[0] |= 512u; }
   static const ::i18n::phonenumbers::PhoneNumberDesc& mobile(const PhoneMetadata* msg);
-  static void set_has_mobile(HasBits* has_bits) {
-    (*has_bits)[0] |= 1024u;
-  }
+  static void set_has_mobile(HasBits* has_bits) { (*has_bits)[0] |= 1024u; }
   static const ::i18n::phonenumbers::PhoneNumberDesc& toll_free(const PhoneMetadata* msg);
-  static void set_has_toll_free(HasBits* has_bits) {
-    (*has_bits)[0] |= 2048u;
-  }
+  static void set_has_toll_free(HasBits* has_bits) { (*has_bits)[0] |= 2048u; }
   static const ::i18n::phonenumbers::PhoneNumberDesc& premium_rate(const PhoneMetadata* msg);
-  static void set_has_premium_rate(HasBits* has_bits) {
-    (*has_bits)[0] |= 4096u;
-  }
+  static void set_has_premium_rate(HasBits* has_bits) { (*has_bits)[0] |= 4096u; }
   static const ::i18n::phonenumbers::PhoneNumberDesc& shared_cost(const PhoneMetadata* msg);
-  static void set_has_shared_cost(HasBits* has_bits) {
-    (*has_bits)[0] |= 8192u;
-  }
+  static void set_has_shared_cost(HasBits* has_bits) { (*has_bits)[0] |= 8192u; }
   static const ::i18n::phonenumbers::PhoneNumberDesc& personal_number(const PhoneMetadata* msg);
-  static void set_has_personal_number(HasBits* has_bits) {
-    (*has_bits)[0] |= 16384u;
-  }
+  static void set_has_personal_number(HasBits* has_bits) { (*has_bits)[0] |= 16384u; }
   static const ::i18n::phonenumbers::PhoneNumberDesc& voip(const PhoneMetadata* msg);
-  static void set_has_voip(HasBits* has_bits) {
-    (*has_bits)[0] |= 32768u;
-  }
+  static void set_has_voip(HasBits* has_bits) { (*has_bits)[0] |= 32768u; }
   static const ::i18n::phonenumbers::PhoneNumberDesc& pager(const PhoneMetadata* msg);
-  static void set_has_pager(HasBits* has_bits) {
-    (*has_bits)[0] |= 65536u;
-  }
+  static void set_has_pager(HasBits* has_bits) { (*has_bits)[0] |= 65536u; }
   static const ::i18n::phonenumbers::PhoneNumberDesc& uan(const PhoneMetadata* msg);
-  static void set_has_uan(HasBits* has_bits) {
-    (*has_bits)[0] |= 262144u;
-  }
+  static void set_has_uan(HasBits* has_bits) { (*has_bits)[0] |= 262144u; }
   static const ::i18n::phonenumbers::PhoneNumberDesc& emergency(const PhoneMetadata* msg);
-  static void set_has_emergency(HasBits* has_bits) {
-    (*has_bits)[0] |= 524288u;
-  }
+  static void set_has_emergency(HasBits* has_bits) { (*has_bits)[0] |= 524288u; }
   static const ::i18n::phonenumbers::PhoneNumberDesc& voicemail(const PhoneMetadata* msg);
-  static void set_has_voicemail(HasBits* has_bits) {
-    (*has_bits)[0] |= 1048576u;
-  }
+  static void set_has_voicemail(HasBits* has_bits) { (*has_bits)[0] |= 1048576u; }
   static const ::i18n::phonenumbers::PhoneNumberDesc& short_code(const PhoneMetadata* msg);
-  static void set_has_short_code(HasBits* has_bits) {
-    (*has_bits)[0] |= 2097152u;
-  }
+  static void set_has_short_code(HasBits* has_bits) { (*has_bits)[0] |= 2097152u; }
   static const ::i18n::phonenumbers::PhoneNumberDesc& standard_rate(const PhoneMetadata* msg);
-  static void set_has_standard_rate(HasBits* has_bits) {
-    (*has_bits)[0] |= 4194304u;
-  }
+  static void set_has_standard_rate(HasBits* has_bits) { (*has_bits)[0] |= 4194304u; }
   static const ::i18n::phonenumbers::PhoneNumberDesc& carrier_specific(const PhoneMetadata* msg);
-  static void set_has_carrier_specific(HasBits* has_bits) {
-    (*has_bits)[0] |= 8388608u;
-  }
+  static void set_has_carrier_specific(HasBits* has_bits) { (*has_bits)[0] |= 8388608u; }
   static const ::i18n::phonenumbers::PhoneNumberDesc& sms_services(const PhoneMetadata* msg);
-  static void set_has_sms_services(HasBits* has_bits) {
-    (*has_bits)[0] |= 16777216u;
-  }
+  static void set_has_sms_services(HasBits* has_bits) { (*has_bits)[0] |= 16777216u; }
   static const ::i18n::phonenumbers::PhoneNumberDesc& no_international_dialling(const PhoneMetadata* msg);
-  static void set_has_no_international_dialling(HasBits* has_bits) {
-    (*has_bits)[0] |= 131072u;
-  }
-  static void set_has_id(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
-  static void set_has_country_code(HasBits* has_bits) {
-    (*has_bits)[0] |= 33554432u;
-  }
-  static void set_has_international_prefix(HasBits* has_bits) {
-    (*has_bits)[0] |= 2u;
-  }
-  static void set_has_preferred_international_prefix(HasBits* has_bits) {
-    (*has_bits)[0] |= 64u;
-  }
-  static void set_has_national_prefix(HasBits* has_bits) {
-    (*has_bits)[0] |= 4u;
-  }
-  static void set_has_preferred_extn_prefix(HasBits* has_bits) {
-    (*has_bits)[0] |= 8u;
-  }
-  static void set_has_national_prefix_for_parsing(HasBits* has_bits) {
-    (*has_bits)[0] |= 16u;
-  }
-  static void set_has_national_prefix_transform_rule(HasBits* has_bits) {
-    (*has_bits)[0] |= 32u;
-  }
-  static void set_has_same_mobile_and_fixed_line_pattern(HasBits* has_bits) {
-    (*has_bits)[0] |= 67108864u;
-  }
-  static void set_has_main_country_for_code(HasBits* has_bits) {
-    (*has_bits)[0] |= 134217728u;
-  }
-  static void set_has_leading_digits(HasBits* has_bits) {
-    (*has_bits)[0] |= 128u;
-  }
-  static void set_has_leading_zero_possible(HasBits* has_bits) {
-    (*has_bits)[0] |= 268435456u;
-  }
-  static void set_has_mobile_number_portable_region(HasBits* has_bits) {
-    (*has_bits)[0] |= 536870912u;
-  }
-  static bool MissingRequiredFields(const HasBits& has_bits) {
-    return ((has_bits[0] & 0x00000001) ^ 0x00000001) != 0;
-  }
+  static void set_has_no_international_dialling(HasBits* has_bits) { (*has_bits)[0] |= 131072u; }
+  static void set_has_id(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
+  static void set_has_country_code(HasBits* has_bits) { (*has_bits)[0] |= 33554432u; }
+  static void set_has_international_prefix(HasBits* has_bits) { (*has_bits)[0] |= 2u; }
+  static void set_has_preferred_international_prefix(HasBits* has_bits) { (*has_bits)[0] |= 64u; }
+  static void set_has_national_prefix(HasBits* has_bits) { (*has_bits)[0] |= 4u; }
+  static void set_has_preferred_extn_prefix(HasBits* has_bits) { (*has_bits)[0] |= 8u; }
+  static void set_has_national_prefix_for_parsing(HasBits* has_bits) { (*has_bits)[0] |= 16u; }
+  static void set_has_national_prefix_transform_rule(HasBits* has_bits) { (*has_bits)[0] |= 32u; }
+  static void set_has_same_mobile_and_fixed_line_pattern(HasBits* has_bits) { (*has_bits)[0] |= 67108864u; }
+  static void set_has_main_country_for_code(HasBits* has_bits) { (*has_bits)[0] |= 134217728u; }
+  static void set_has_leading_digits(HasBits* has_bits) { (*has_bits)[0] |= 128u; }
+  static void set_has_leading_zero_possible(HasBits* has_bits) { (*has_bits)[0] |= 268435456u; }
+  static void set_has_mobile_number_portable_region(HasBits* has_bits) { (*has_bits)[0] |= 536870912u; }
+  static bool MissingRequiredFields(const HasBits& has_bits) { return ((has_bits[0] & 0x00000001) ^ 0x00000001) != 0; }
 };
 
 const ::i18n::phonenumbers::PhoneNumberDesc&
@@ -2428,9 +2346,7 @@ void PhoneMetadata::InternalSwap(PhoneMetadata* other) {
           reinterpret_cast<char*>(&other->general_desc_));
 }
 
-std::string PhoneMetadata::GetTypeName() const {
-  return "i18n.phonenumbers.PhoneMetadata";
-}
+std::string PhoneMetadata::GetTypeName() const { return "i18n.phonenumbers.PhoneMetadata"; }
 
 
 // ===================================================================
@@ -2611,9 +2527,7 @@ void PhoneMetadataCollection::InternalSwap(PhoneMetadataCollection* other) {
   metadata_.InternalSwap(&other->metadata_);
 }
 
-std::string PhoneMetadataCollection::GetTypeName() const {
-  return "i18n.phonenumbers.PhoneMetadataCollection";
-}
+std::string PhoneMetadataCollection::GetTypeName() const { return "i18n.phonenumbers.PhoneMetadataCollection"; }
 
 
 // @@protoc_insertion_point(namespace_scope)

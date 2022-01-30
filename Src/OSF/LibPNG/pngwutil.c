@@ -392,7 +392,7 @@ static int png_deflate_claim(png_structrp png_ptr, uint32 owner, png_alloc_size_
 void /* PRIVATE */ png_free_buffer_list(png_structrp png_ptr, png_compression_bufferp * listp)
 {
 	png_compression_bufferp list = *listp;
-	if(list != NULL) {
+	if(list) {
 		*listp = NULL;
 		do {
 			png_compression_bufferp next = list->next;

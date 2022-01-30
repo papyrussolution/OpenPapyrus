@@ -107,7 +107,7 @@
     <DefaultPlatformToolset Condition=" '$(DefaultPlatformToolset)' == '' ">$(AutoDetectedPlatformToolset)</DefaultPlatformToolset>
   </PropertyGroup>
   <PropertyGroup Label="PlatformToolset">
-    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(WindowsTargetPlatformVersion)'=='' and '$(PlatformToolset)'=='v142'">
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
@@ -386,6 +386,9 @@
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
     </ClCompile>
+    <Lib>
+      <TargetMachine Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MachineX86</TargetMachine>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='MtDllDebug'">
     <ClCompile>
@@ -408,6 +411,9 @@
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">false</CompileAsManaged>
     </ClCompile>
+    <Lib>
+      <TargetMachine Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">MachineX86</TargetMachine>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='ServerDebug'">
     <ClCompile>
@@ -430,6 +436,9 @@
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">false</CompileAsManaged>
     </ClCompile>
+    <Lib>
+      <TargetMachine Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">MachineX86</TargetMachine>
+    </Lib>
   </ItemDefinitionGroup>
   <!-- Options that are common to all 'Release' project configurations -->
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
@@ -456,6 +465,9 @@
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsManaged>
     </ClCompile>
+    <Lib>
+      <TargetMachine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MachineX86</TargetMachine>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='MtDllRelease'">
     <ClCompile>
@@ -481,6 +493,9 @@
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">false</CompileAsManaged>
     </ClCompile>
+    <Lib>
+      <TargetMachine Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">MachineX86</TargetMachine>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='ServerRelease'">
     <ClCompile>
@@ -506,6 +521,9 @@
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">false</CompileAsManaged>
     </ClCompile>
+    <Lib>
+      <TargetMachine Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">MachineX86</TargetMachine>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\osf\icu\icu4c\source\stubdata\stubdata.cpp" />

@@ -252,22 +252,16 @@ int blake2s(void * out, size_t outlen, const void * in, size_t inlen, const void
 	blake2s_state S[1];
 	/* Verify parameters */
 	if(NULL == in && inlen > 0) return -1;
-
 	if(NULL == out) return -1;
-
 	if(NULL == key && keylen > 0) return -1;
-
 	if(!outlen || outlen > BLAKE2S_OUTBYTES) return -1;
-
 	if(keylen > BLAKE2S_KEYBYTES) return -1;
-
 	if(keylen > 0) {
 		if(blake2s_init_key(S, outlen, key, keylen) < 0) return -1;
 	}
 	else {
 		if(blake2s_init(S, outlen) < 0) return -1;
 	}
-
 	blake2s_update(S, (const uint8 *)in, inlen);
 	blake2s_final(S, out, outlen);
 	return 0;
@@ -278,7 +272,6 @@ int crypto_hash(uchar * out, uchar * in, unsigned long long inlen)
 {
 	return blake2s(out, BLAKE2S_OUTBYTES, in, inlen, NULL, 0);
 }
-
 #endif
 
 #if defined(BLAKE2S_SELFTEST)

@@ -57,6 +57,7 @@
 	#define HAVE_PROCESS_H 1 /* Define if you have the <process.h> header file. */
 #endif
 #define HAVE_SIGNAL_H 1 /* Define if you have the <signal.h> header file. */
+#define HAVE_SETJMP_H 1 // @v11.2.12
 /* #define HAVE_SGTTY_H 1 */ /* Define if you have the <sgtty.h> header file. */
 /* #define HAVE_SSL_H 1 */ /* Define if you have the <ssl.h> header file. */
 #if defined(_MSC_VER) && (_MSC_VER >= 1800)

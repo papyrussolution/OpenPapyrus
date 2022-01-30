@@ -34,7 +34,7 @@
 #ifndef NO_PNG
 #include <libpng/png.h>
 #include <zlib.h>
-#include <setjmp.h>
+//#include <setjmp.h>
 
 #define SSET    "0123456789ABCDEF"
 

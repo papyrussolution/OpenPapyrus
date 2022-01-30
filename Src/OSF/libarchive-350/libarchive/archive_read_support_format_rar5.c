@@ -25,14 +25,9 @@
 #include "archive_platform.h"
 #pragma hdrstop
 #include "archive_endian.h"
-#ifdef HAVE_ZLIB_H
-	#include <zlib.h> /* crc32 */
-#endif
-#include "archive.h"
 #ifndef HAVE_ZLIB_H
 	#include "archive_crc32.h"
 #endif
-#include "archive_entry.h"
 #include "archive_entry_locale.h"
 #include "archive_ppmd7_private.h"
 #include "archive_entry_private.h"
@@ -278,7 +273,7 @@ struct main_header {
 	uint8 endarc : 1;
 	uint8 notused : 5;
 
-	unsigned int vol_no;
+	uint vol_no;
 };
 
 struct generic_header {
@@ -290,7 +285,7 @@ struct generic_header {
 };
 
 struct multivolume {
-	unsigned int expected_vol_no;
+	uint expected_vol_no;
 	uint8 * push_buf;
 };
 
@@ -1375,51 +1370,40 @@ static int parse_file_extra_owner(struct archive_read* a, struct archive_entry* 
 	return ARCHIVE_OK;
 }
 
-static int process_head_file_extra(struct archive_read* a,
-    struct archive_entry* e, struct rar5* rar, ssize_t extra_data_size)
+static int process_head_file_extra(struct archive_read* a, struct archive_entry* e, struct rar5* rar, ssize_t extra_data_size)
 {
 	size_t extra_field_size;
 	size_t extra_field_id = 0;
 	int ret = ARCHIVE_FATAL;
 	size_t var_size;
-
 	while(extra_data_size > 0) {
 		if(!read_var_sized(a, &extra_field_size, &var_size))
 			return ARCHIVE_EOF;
-
 		extra_data_size -= var_size;
 		if(ARCHIVE_OK != consume(a, var_size)) {
 			return ARCHIVE_EOF;
 		}
-
 		if(!read_var_sized(a, &extra_field_id, &var_size))
 			return ARCHIVE_EOF;
-
 		extra_data_size -= var_size;
 		if(ARCHIVE_OK != consume(a, var_size)) {
 			return ARCHIVE_EOF;
 		}
-
 		switch(extra_field_id) {
 			case EX_HASH:
-			    ret = parse_file_extra_hash(a, rar,
-				    &extra_data_size);
+			    ret = parse_file_extra_hash(a, rar, &extra_data_size);
 			    break;
 			case EX_HTIME:
-			    ret = parse_file_extra_htime(a, e, rar,
-				    &extra_data_size);
+			    ret = parse_file_extra_htime(a, e, rar, &extra_data_size);
 			    break;
 			case EX_REDIR:
-			    ret = parse_file_extra_redir(a, e, rar,
-				    &extra_data_size);
+			    ret = parse_file_extra_redir(a, e, rar, &extra_data_size);
 			    break;
 			case EX_UOWNER:
-			    ret = parse_file_extra_owner(a, e,
-				    &extra_data_size);
+			    ret = parse_file_extra_owner(a, e, &extra_data_size);
 			    break;
 			case EX_VERSION:
-			    ret = parse_file_extra_version(a, e,
-				    &extra_data_size);
+			    ret = parse_file_extra_version(a, e, &extra_data_size);
 			    break;
 			case EX_CRYPT:
 			// @fallthrough
@@ -1430,17 +1414,14 @@ static int process_head_file_extra(struct archive_read* a,
 			    return consume(a, extra_data_size);
 		}
 	}
-
 	if(ret != ARCHIVE_OK) {
 		/* Attribute not implemented. */
 		return ret;
 	}
-
 	return ARCHIVE_OK;
 }
 
-static int process_head_file(struct archive_read* a, struct rar5* rar,
-    struct archive_entry* entry, size_t block_flags)
+static int process_head_file(struct archive_read* a, struct rar5* rar, struct archive_entry* entry, size_t block_flags)
 {
 	ssize_t extra_data_size = 0;
 	size_t data_size = 0;
@@ -1493,26 +1474,20 @@ static int process_head_file(struct archive_read* a, struct rar5* rar,
 	if(block_flags & HFL_DATA) {
 		if(!read_var_sized(a, &data_size, NULL))
 			return ARCHIVE_EOF;
-
 		rar->file.bytes_remaining = data_size;
 	}
 	else {
 		rar->file.bytes_remaining = 0;
-
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "no data found in file/service block");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "no data found in file/service block");
 		return ARCHIVE_FATAL;
 	}
 
 	if(!read_var_sized(a, &file_flags, NULL))
 		return ARCHIVE_EOF;
-
 	if(!read_var(a, &unpacked_size, NULL))
 		return ARCHIVE_EOF;
-
 	if(file_flags & UNKNOWN_UNPACKED_SIZE) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER,
-		    "Files with unknown unpacked size are not supported");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Files with unknown unpacked size are not supported");
 		return ARCHIVE_FATAL;
 	}
 

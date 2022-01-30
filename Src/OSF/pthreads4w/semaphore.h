@@ -62,7 +62,7 @@
 struct timespec;
 
 #define __need_struct_timespec
-#include <time.h>
+//#include <time.h>
 
 /* The data type used to represent our semaphore implementation,
  * as required by POSIX.1; FIXME: consider renaming the underlying

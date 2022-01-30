@@ -1259,12 +1259,9 @@ boolint CMSEXPORT cmsSaveProfileToFile(cmsHPROFILE hProfile, const char * FileNa
 	cmsContext ContextID = cmsGetProfileContextID(hProfile);
 	cmsIOHANDLER* io = cmsOpenIOhandlerFromFile(ContextID, FileName, "w");
 	boolint rc;
-
 	if(io == NULL) return FALSE;
-
 	rc = (cmsSaveProfileToIOhandler(hProfile, io) != 0);
 	rc &= cmsCloseIOhandler(io);
-
 	if(rc == FALSE) {       // remove() is C99 per 7.19.4.1
 		remove(FileName); // We have to IGNORE return value in this case
 	}
@@ -1277,12 +1274,9 @@ boolint CMSEXPORT cmsSaveProfileToStream(cmsHPROFILE hProfile, FILE* Stream)
 	boolint rc;
 	cmsContext ContextID = cmsGetProfileContextID(hProfile);
 	cmsIOHANDLER* io = cmsOpenIOhandlerFromStream(ContextID, Stream);
-
 	if(io == NULL) return FALSE;
-
 	rc = (cmsSaveProfileToIOhandler(hProfile, io) != 0);
 	rc &= cmsCloseIOhandler(io);
-
 	return rc;
 }
 
@@ -1626,17 +1620,14 @@ cmsUInt32Number CMSEXPORT cmsReadRawTag(cmsHPROFILE hProfile, cmsTagSignature si
 		TagSize  = Icc->TagSizes[i];
 
 		// read the data directly, don't keep copy
-		if(data != NULL) {
+		if(data) {
 			if(BufferSize < TagSize)
 				TagSize = BufferSize;
-
 			if(!Icc->IOhandler->Seek(Icc->IOhandler, Offset)) goto Error;
 			if(!Icc->IOhandler->Read(Icc->IOhandler, data, 1, TagSize)) goto Error;
-
 			_cmsUnlockMutex(Icc->ContextID, Icc->UsrMutex);
 			return TagSize;
 		}
-
 		_cmsUnlockMutex(Icc->ContextID, Icc->UsrMutex);
 		return Icc->TagSizes[i];
 	}
@@ -1644,7 +1635,7 @@ cmsUInt32Number CMSEXPORT cmsReadRawTag(cmsHPROFILE hProfile, cmsTagSignature si
 	// The data has been already read, or written. But wait!, maybe the user chose to save as
 	// raw data. In this case, return the raw data directly
 	if(Icc->TagSaveAsRaw[i]) {
-		if(data != NULL) {
+		if(data) {
 			TagSize  = Icc->TagSizes[i];
 			if(BufferSize < TagSize)
 				TagSize = BufferSize;

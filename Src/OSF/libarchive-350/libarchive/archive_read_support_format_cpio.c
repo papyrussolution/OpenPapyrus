@@ -27,10 +27,7 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_support_format_cpio.c 201163 2009-12-29 05:50:34Z kientzle $");
 /* #include <stdint.h> */ /* See archive_platform.h */
-#include "archive.h"
-#include "archive_entry.h"
 #include "archive_entry_locale.h"
-#include "archive_private.h"
 #include "archive_read_private.h"
 
 #define bin_magic_offset 0
@@ -153,7 +150,7 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_support_format_cpio.c 20116
 struct links_entry {
 	struct links_entry * next;
 	struct links_entry * previous;
-	unsigned int links;
+	uint links;
 	dev_t dev;
 	int64 ino;
 	char * name;
@@ -604,22 +601,14 @@ static int find_odc_header(struct archive_read * a)
 		while(p + odc_header_size <= q) {
 			switch(p[5]) {
 				case '7':
-				    if((memcmp("070707", p, 6) == 0
-					&& is_octal(p, odc_header_size))
-					|| (memcmp("070727", p, 6) == 0
-					&& is_afio_large(p, q - p))) {
+				    if((memcmp("070707", p, 6) == 0 && is_octal(p, odc_header_size)) || (memcmp("070727", p, 6) == 0 && is_afio_large(p, q - p))) {
 					    skip = p - (const char *)h;
 					    __archive_read_consume(a, skip);
 					    skipped += skip;
 					    if(p[4] == '2')
-						    a->archive.archive_format =
-							ARCHIVE_FORMAT_CPIO_AFIO_LARGE;
+						    a->archive.archive_format = ARCHIVE_FORMAT_CPIO_AFIO_LARGE;
 					    if(skipped > 0) {
-						    archive_set_error(&a->archive,
-							0,
-							"Skipped %d bytes before "
-							"finding valid header",
-							(int)skipped);
+						    archive_set_error(&a->archive, 0, "Skipped %d bytes before finding valid header", (int)skipped);
 						    return ARCHIVE_WARN;
 					    }
 					    return ARCHIVE_OK;
@@ -746,26 +735,20 @@ static int header_afiol(struct archive_read * a, struct cpio * cpio,
 	return ARCHIVE_OK;
 }
 
-static int header_bin_le(struct archive_read * a, struct cpio * cpio,
-    struct archive_entry * entry, size_t * namelength, size_t * name_pad)
+static int header_bin_le(struct archive_read * a, struct cpio * cpio, struct archive_entry * entry, size_t * namelength, size_t * name_pad)
 {
 	const void * h;
 	const uchar * header;
-
 	a->archive.archive_format = ARCHIVE_FORMAT_CPIO_BIN_LE;
 	a->archive.archive_format_name = "cpio (little-endian binary)";
-
 	/* Read fixed-size portion of header. */
 	h = __archive_read_ahead(a, bin_header_size, NULL);
 	if(h == NULL) {
-		archive_set_error(&a->archive, 0,
-		    "End of file trying to read next cpio header");
+		archive_set_error(&a->archive, 0, "End of file trying to read next cpio header");
 		return ARCHIVE_FATAL;
 	}
-
 	/* Parse out binary fields. */
 	header = (const uchar *)h;
-
 	archive_entry_set_dev(entry, header[bin_dev_offset] + header[bin_dev_offset + 1] * 256);
 	archive_entry_set_ino(entry, header[bin_ino_offset] + header[bin_ino_offset + 1] * 256);
 	archive_entry_set_mode(entry, header[bin_mode_offset] + header[bin_mode_offset + 1] * 256);
@@ -789,21 +772,16 @@ static int header_bin_be(struct archive_read * a, struct cpio * cpio,
 {
 	const void * h;
 	const uchar * header;
-
 	a->archive.archive_format = ARCHIVE_FORMAT_CPIO_BIN_BE;
 	a->archive.archive_format_name = "cpio (big-endian binary)";
-
 	/* Read fixed-size portion of header. */
 	h = __archive_read_ahead(a, bin_header_size, NULL);
 	if(h == NULL) {
-		archive_set_error(&a->archive, 0,
-		    "End of file trying to read next cpio header");
+		archive_set_error(&a->archive, 0, "End of file trying to read next cpio header");
 		return ARCHIVE_FATAL;
 	}
-
 	/* Parse out binary fields. */
 	header = (const uchar *)h;
-
 	archive_entry_set_dev(entry, header[bin_dev_offset] * 256 + header[bin_dev_offset + 1]);
 	archive_entry_set_ino(entry, header[bin_ino_offset] * 256 + header[bin_ino_offset + 1]);
 	archive_entry_set_mode(entry, header[bin_mode_offset] * 256 + header[bin_mode_offset + 1]);
@@ -855,7 +833,7 @@ static int64 be4(const uchar * p)
  * locale settings; you cannot simply substitute strtol here, since
  * it does obey locale.
  */
-static int64 atol8(const char * p, unsigned char_cnt)
+static int64 atol8(const char * p, uint char_cnt)
 {
 	int digit;
 	int64 l = 0;
@@ -871,7 +849,7 @@ static int64 atol8(const char * p, unsigned char_cnt)
 	return (l);
 }
 
-static int64 atol16(const char * p, unsigned char_cnt)
+static int64 atol16(const char * p, uint char_cnt)
 {
 	int digit;
 	int64 l = 0;

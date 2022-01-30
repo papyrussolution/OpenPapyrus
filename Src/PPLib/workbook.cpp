@@ -1,5 +1,7 @@
 // WORKBOOK.CPP
-// Copyright (c) Petroglif 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) Petroglif 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// @codepage UTF-8
+// РњРѕРґСѓР»СЊ СѓРїСЂР°РІР»РµРЅРёСЏ СЂР°Р±РѕС‡РёРјРё РєРЅРёРіР°РјРё (РїСЂРѕРёР·РІРѕР»СЊРЅС‹Р№ РєРѕРЅС‚РµРЅС‚, РєР°Рє РїСЂР°РІРёР»Рѕ, РїСЂРµРґРЅР°Р·РЅР°С‡РµРЅРЅС‹Р№ РґР»СЏ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ РІ web-browser'Рµ
 //
 #include <pp.h>
 #pragma hdrstop
@@ -291,7 +293,7 @@ void PPObjWorkbook::SortIdListByRankAndName(LongArray & rList)
 			int    ok = 1;
 			getCtrlData(CTL_WBCFG_CODETEMPL,     Data.Cntr.Head.CodeTemplate);
 			getCtrlData(CTL_WBCFG_CODECNTR,      &Data.Cntr.Head.Counter);
-			getCtrlData(CTLSEL_WBCFG_UHTTXEVTOK, &Data.Cfg.UhttXEvTokID); // @v9.3.9
+			getCtrlData(CTLSEL_WBCFG_UHTTXEVTOK, &Data.Cfg.UhttXEvTokID);
 			getCtrlData(CTLSEL_WBCFG_DEFIMGFOLD, &Data.Cfg.DefImageFolderID);
 			ASSIGN_PTR(pData, Data);
 			return ok;
@@ -853,7 +855,7 @@ private:
 		}
 		// } @debug
 #endif // } 0
-		/* @v8.1.0 Редактирование файла осуществляется из списка командой cmaMore
+		/* @v8.1.0 Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ С„Р°Р№Р»Р° РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ РёР· СЃРїРёСЃРєР° РєРѕРјР°РЅРґРѕР№ cmaMore
 		if(event.isCmd(cmOpenTextFile)) {
 			getCtrlString(CTL_WORKBOOK_FILE, temp_buf);
 			if(temp_buf.Len())
@@ -2294,7 +2296,7 @@ int PPObjWorkbook::InterchangeUhtt()
 				acn_list.add(PPACN_EVENTTOKEN);
 				if(p_sj->GetLastObjEvent(PPOBJ_EVENTTOKEN, cfg.UhttXEvTokID, &acn_list, &moment) > 0) {
 					since_ev = moment;
-					// PPTXT_LOG_WBS_LASTEVENTFOUND   "Синхронизация рабочих книг: последнее найденное событие @datetime"
+					// PPTXT_LOG_WBS_LASTEVENTFOUND   "РЎРёРЅС…СЂРѕРЅРёР·Р°С†РёСЏ СЂР°Р±РѕС‡РёС… РєРЅРёРі: РїРѕСЃР»РµРґРЅРµРµ РЅР°Р№РґРµРЅРЅРѕРµ СЃРѕР±С‹С‚РёРµ @datetime"
 					logger.Log(PPFormatT(PPTXT_LOG_WBS_LASTEVENTFOUND, &msg_buf, moment));
 				}
 			}
@@ -2303,10 +2305,10 @@ int PPObjWorkbook::InterchangeUhtt()
 			PPUhttClient uhtt_cli;
 			TSCollection <UhttWorkbookItemPacket> result;
 			THROW(uhtt_cli.Auth());
-			// PPTXT_LOG_WBS_GETTINGFROMUHTT  "Получение списка рабочих книг с сервера"
+			// PPTXT_LOG_WBS_GETTINGFROMUHTT  "РџРѕР»СѓС‡РµРЅРёРµ СЃРїРёСЃРєР° СЂР°Р±РѕС‡РёС… РєРЅРёРі СЃ СЃРµСЂРІРµСЂР°"
 			logger.Log(PPFormatT(PPTXT_LOG_WBS_GETTINGFROMUHTT, &msg_buf));
 			THROW(uhtt_cli.GetWorkbookListByParentCode(0, result));
-			// PPTXT_LOG_WBS_LISTVGOTFROMUHTT "Получен список рабочих книг с сервера в количестве @int записей"
+			// PPTXT_LOG_WBS_LISTVGOTFROMUHTT "РџРѕР»СѓС‡РµРЅ СЃРїРёСЃРѕРє СЂР°Р±РѕС‡РёС… РєРЅРёРі СЃ СЃРµСЂРІРµСЂР° РІ РєРѕР»РёС‡РµСЃС‚РІРµ @int Р·Р°РїРёСЃРµР№"
 			logger.Log(PPFormatT(PPTXT_LOG_WBS_LISTVGOTFROMUHTT, &msg_buf, (long)result.getCount()));
 			{
 				ProcessUhttImportBlock blk(uhtt_cli, result, since_ev);
@@ -2319,7 +2321,7 @@ int PPObjWorkbook::InterchangeUhtt()
 						// @v10.2.5 THROW(cpr);
 						if(cpr > 0) {
 							updated_list.add(native_id);
-							// PPTXT_LOG_WBS_WBVACCEPTED      "Рабочая книга '@zstr' акцептирована в базе данных"
+							// PPTXT_LOG_WBS_WBVACCEPTED      "Р Р°Р±РѕС‡Р°СЏ РєРЅРёРіР° '@zstr' Р°РєС†РµРїС‚РёСЂРѕРІР°РЅР° РІ Р±Р°Р·Рµ РґР°РЅРЅС‹С…"
 							logger.Log(PPFormatT(PPTXT_LOG_WBS_WBVACCEPTED, &msg_buf, p_item->Name.cptr()));
 						}
 						// @v10.2.5 {
@@ -2471,14 +2473,14 @@ int PPObjWorkbook::Helper_ExportToUhtt(PPUhttClient & rUc, PPID id,
 	}
 	THROW(rUc.CreateWorkbookItem(&uhtt_id, uhtt_pack));
 	{
-		// PPTXT_LOG_WBS_WBVSENTTOUHTT    "Рабочая книга '@zstr' передана на сервер"
+		// PPTXT_LOG_WBS_WBVSENTTOUHTT    "Р Р°Р±РѕС‡Р°СЏ РєРЅРёРіР° '@zstr' РїРµСЂРµРґР°РЅР° РЅР° СЃРµСЂРІРµСЂ"
 		(temp_buf = uhtt_pack.Name).Transf(CTRANSF_UTF8_TO_INNER);
 		CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_WBS_WBVSENTTOUHTT, &msg_buf, temp_buf.cptr())));
 	}
 	if(attach_file_name.NotEmpty()) {
 		THROW(rUc.SetWorkbookContentByID(uhtt_id, attach_file_name));
 		{
-			// PPTXT_LOG_WBS_WBCVSENTTOUHTT   "Содержимое рабочей книги '@zstr' передано на сервер"
+			// PPTXT_LOG_WBS_WBCVSENTTOUHTT   "РЎРѕРґРµСЂР¶РёРјРѕРµ СЂР°Р±РѕС‡РµР№ РєРЅРёРіРё '@zstr' РїРµСЂРµРґР°РЅРѕ РЅР° СЃРµСЂРІРµСЂ"
 			(temp_buf = uhtt_pack.Name).Transf(CTRANSF_UTF8_TO_INNER);
 			CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_WBS_WBCVSENTTOUHTT, &msg_buf, temp_buf.cptr())));
 		}
@@ -3186,7 +3188,7 @@ int PPALDD_UhttWorkbook::Set(long iterId, int commit)
 				if(cmp(foreign_mod_dtm, mod_dtm) > 0) {
 					PPWorkbookPacket ex_pack;
 					THROW_PP_S(rights_blk.IsAllow(PPGlobalAccRights::fEdit), PPERR_NORIGHTS, DS.GetTLA().GlobAccName);
-					THROW(r_blk.WbObj.GetPacket(temp_rec.ID, &ex_pack) > 0); // Ранее мы нашли запись - пактет должен быть получен
+					THROW(r_blk.WbObj.GetPacket(temp_rec.ID, &ex_pack) > 0); // Р Р°РЅРµРµ РјС‹ РЅР°С€Р»Рё Р·Р°РїРёСЃСЊ - РїР°РєС‚РµС‚ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РїРѕР»СѓС‡РµРЅ
 					id = temp_rec.ID;
 					if(r_blk.Pack.Rec.ParentID)
 						ex_pack.Rec.ParentID = r_blk.Pack.Rec.ParentID;

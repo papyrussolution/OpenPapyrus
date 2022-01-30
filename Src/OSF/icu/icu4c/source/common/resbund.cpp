@@ -340,7 +340,7 @@ UnicodeString ResourceBundle::getStringEx(const char * key, UErrorCode & status)
 	return UnicodeString(TRUE, r, len);
 }
 
-const char * ResourceBundle::getVersionNumber()  const
+const char * ResourceBundle::getVersionNumber() const
 {
 	return ures_getVersionNumberInternal(fResource);
 }

@@ -602,14 +602,14 @@
  #ifndef UNDER_CE
   #ifndef PALM
    #ifndef WITH_NOIO
-    #include <errno.h>
+    //#include <errno.h>
     #include <sys/types.h>
    #endif
    #ifndef WITH_LEAN
     #ifdef HAVE_SYS_TIMEB_H
      #include <sys/timeb.h>             /* for ftime() */
     #endif
-    #include <time.h>
+    //#include <time.h>
    #endif
   #endif
  #endif
@@ -997,7 +997,7 @@ extern "C" {
   #endif
  #endif
  #ifdef WIN32
-  #include <float.h>
+  //#include <float.h>
   #ifndef HAVE_ISNAN
    #define HAVE_ISNAN
   #endif

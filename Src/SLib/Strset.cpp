@@ -557,7 +557,7 @@ bool StringSet::get(uint * pos, char * str, size_t maxlen) const
 
 bool StringSet::get(uint * pPos, SString & s) const
 {
-	int    ok = true;
+	bool   ok = true;
 	const  char * c = 0;
 	uint   p = *pPos;
 	uint   len = 0;

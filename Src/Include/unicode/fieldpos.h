@@ -1,26 +1,18 @@
+// FIELDPOS.H
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- ********************************************************************************
- *   Copyright (C) 1997-2006, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- ********************************************************************************
- *
- * File FIELDPOS.H
- *
+ *   Copyright (C) 1997-2006, International Business Machines Corporation and others.  All Rights Reserved.
  * Modification History:
- *
  *   Date        Name        Description
  *   02/25/97    aliu        Converted from java.
  *   03/17/97    clhuang     Updated per Format implementation.
  *    07/17/98    stephen        Added default/copy ctors, and operators =, ==, !=
- ********************************************************************************
  */
-
-// *****************************************************************************
+//
 // This file was generated from the java source file FieldPosition.java
-// *****************************************************************************
- 
+//
+
 #ifndef FIELDPOS_H
 #define FIELDPOS_H
 

@@ -224,7 +224,7 @@ static void __hmac_sha1_update(archive_hmac_sha1_ctx * ctx, const uint8 * data,
 
 static void __hmac_sha1_final(archive_hmac_sha1_ctx * ctx, uint8 * out, size_t * out_len)
 {
-	unsigned int len = (uint)*out_len;
+	uint len = (uint)*out_len;
 
 	HMAC_Final(*ctx, out, &len);
 	*out_len = len;

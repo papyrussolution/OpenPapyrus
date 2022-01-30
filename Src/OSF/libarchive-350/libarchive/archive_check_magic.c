@@ -78,9 +78,9 @@ static const char * archive_handle_type_name(unsigned m)
 	}
 }
 
-static char * write_all_states(char * buff, unsigned int states)
+static char * write_all_states(char * buff, uint states)
 {
-	unsigned int lowbit;
+	uint lowbit;
 	buff[0] = '\0';
 	/* A trick for computing the lowest set bit. */
 	while((lowbit = states & (1 + ~states)) != 0) {
@@ -100,7 +100,7 @@ static char * write_all_states(char * buff, unsigned int states)
  * This is designed to catch serious programming errors that violate
  * the libarchive API.
  */
-int __archive_check_magic(struct archive * a, unsigned int magic, unsigned int state, const char * function)
+int STDCALL __archive_check_magic(struct archive * a, uint magic, uint state, const char * function)
 {
 	char states1[64];
 	char states2[64];
@@ -118,8 +118,7 @@ int __archive_check_magic(struct archive * a, unsigned int magic, unsigned int s
 		diediedie();
 	}
 	if(a->magic != magic) {
-		archive_set_error(a, -1, "PROGRAMMER ERROR: Function '%s' invoked on '%s' archive object, which is not supported.",
-		    function, handle_type);
+		archive_set_error(a, -1, "PROGRAMMER ERROR: Function '%s' invoked on '%s' archive object, which is not supported.", function, handle_type);
 		a->state = ARCHIVE_STATE_FATAL;
 		return ARCHIVE_FATAL;
 	}

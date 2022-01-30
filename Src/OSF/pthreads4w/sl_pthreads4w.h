@@ -9,7 +9,7 @@
 #include "implement.h"
 #include "sched.h"
 #include "context.h"
-#include <limits.h>
-#if !defined(WINCE)
-	#include <signal.h> // Not needed yet, but defining it should indicate clashes with build target environment that should be fixed.
-#endif
+//#include <limits.h>
+//#if !defined(WINCE)
+	//#include <signal.h> // Not needed yet, but defining it should indicate clashes with build target environment that should be fixed.
+//#endif

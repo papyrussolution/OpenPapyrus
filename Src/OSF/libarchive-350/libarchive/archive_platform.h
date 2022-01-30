@@ -196,4 +196,22 @@
 #else
 	#define	__LA_FALLTHROUGH
 #endif
+#if HAVE_LIBXML_XMLWRITER_H
+	#include <..\osf\libxml\libxml.h>
+	#include <libxml/xmlwriter.h>
+#endif
+#ifdef HAVE_BZLIB_H
+	#include <..\OSF\BZIP2\bzlib.h>
+#endif
+#ifdef HAVE_LZMA_H
+	#include <..\OSF\liblzma\api\lzma.h>
+#endif
+#ifdef HAVE_ZLIB_H
+	#include <zlib.h>
+#endif
+#include "archive.h"
+#include "archive_entry.h"
+#include "archive_private.h"
+#include "archive_string.h"
+#include "archive_write_private.h"
 #endif /* !ARCHIVE_PLATFORM_H_INCLUDED */

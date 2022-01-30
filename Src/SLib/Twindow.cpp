@@ -1091,7 +1091,7 @@ void TWindow::InvalidateLayoutRefList(const SUiLayout::RefCollection & rRedrawLo
 	for(uint i = 0; i < rRedrawLoList.GetCount(); i++) {
 		const SUiLayout * p_lo = rRedrawLoList.Get(i);
 		if(p_lo->IsConsistent())
-			invalidateRect(p_lo->GetFrameAdjustedToParent(), erase);
+			invalidateRect(p_lo->GetFrameAdjustedToParent(), LOGIC(erase));
 	}
 }
 

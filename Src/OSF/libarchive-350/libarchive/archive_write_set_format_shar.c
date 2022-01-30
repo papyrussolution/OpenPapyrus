@@ -27,10 +27,6 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_shar.c 189438 2009-03-06 05:58:56Z kientzle $");
 
-#include "archive.h"
-#include "archive_entry.h"
-#include "archive_private.h"
-#include "archive_write_private.h"
 #include "archive_write_set_format_private.h"
 
 struct shar {
@@ -260,7 +256,7 @@ static int archive_write_shar_header(struct archive_write * a, struct archive_en
 			    }
 			    else {
 				    if(shar->dump) {
-					    unsigned int mode = archive_entry_mode(entry) & 0777;
+					    uint mode = archive_entry_mode(entry) & 0777;
 					    archive_string_sprintf(&shar->work,
 						"uudecode -p > %s << 'SHAR_END'\n",
 						shar->quoted_name.s);

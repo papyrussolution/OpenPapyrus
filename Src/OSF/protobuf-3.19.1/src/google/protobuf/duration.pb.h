@@ -70,8 +70,7 @@ class Duration final :
   explicit constexpr Duration(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   Duration(const Duration& from);
-  Duration(Duration&& from) noexcept
-    : Duration() {
+  Duration(Duration&& from) noexcept : Duration() {
     *this = ::std::move(from);
   }
 
@@ -80,8 +79,8 @@ class Duration final :
     return *this;
   }
   inline Duration& operator=(Duration&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -93,35 +92,22 @@ class Duration final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const Duration& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const Duration& default_instance() { return *internal_default_instance(); }
   static inline const Duration* internal_default_instance() {
-    return reinterpret_cast<const Duration*>(
-               &_Duration_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    0;
+    return reinterpret_cast<const Duration*>(&_Duration_default_instance_); }
+  static constexpr int kIndexInFileMessages = 0;
 
-  friend void swap(Duration& a, Duration& b) {
-    a.Swap(&b);
-  }
+  friend void swap(Duration& a, Duration& b) { a.Swap(&b); }
   inline void Swap(Duration* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -129,7 +115,7 @@ class Duration final :
     }
   }
   void UnsafeArenaSwap(Duration* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }

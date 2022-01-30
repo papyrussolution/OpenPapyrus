@@ -587,7 +587,7 @@ public:
 		document = 0;
 		prev = next = 0;
 	}
-	const char * Name()  const { return name.c_str(); } ///< Return the name of this attribute.
+	const char * Name() const { return name.c_str(); } ///< Return the name of this attribute.
 	const char * Value() const { return value.c_str(); } ///< Return the value of this attribute.
 	const int IntValue() const; ///< Return the value of this attribute, converted to an integer.
 	const double    DoubleValue() const; ///< Return the value of this attribute, converted to a double.
@@ -635,7 +635,7 @@ public:
 	TiXmlAttributeA* Previous() const;
 	bool operator == (const TiXmlAttributeA& rhs) const { return rhs.name == name; }
 	bool operator<(const TiXmlAttributeA& rhs) const { return name < rhs.name; }
-	bool operator>(const TiXmlAttributeA& rhs)  const { return name > rhs.name; }
+	bool operator>(const TiXmlAttributeA& rhs) const { return name > rhs.name; }
 
 	/*	[internal use]
 	        Attribtue parsing starts: first letter of the name
@@ -680,7 +680,7 @@ public:
 	void Add(TiXmlAttributeA* attribute);
 	void Remove(TiXmlAttributeA* attribute);
 	TiXmlAttributeA* First() const { return ( sentinel.next == &sentinel ) ? 0 : sentinel.next; }
-	TiXmlAttributeA* Last()  const { return ( sentinel.prev == &sentinel ) ? 0 : sentinel.prev; }
+	TiXmlAttributeA* Last() const { return ( sentinel.prev == &sentinel ) ? 0 : sentinel.prev; }
 	TiXmlAttributeA*        Find(const char * name) const;
 private:
 	TiXmlAttributeA sentinel;
@@ -1090,7 +1090,7 @@ public:
 	/** Generally, you probably want the error string ( ErrorDesc() ). But if you
 	        prefer the ErrorId, this function will fetch it.
 	 */
-	const int ErrorId()     const {
+	const int ErrorId() const {
 		return errorId;
 	}
 

@@ -631,24 +631,17 @@ static int SSL_CTX_use_certificate_chain_bio(SSL_CTX * ctx, BIO* in,
 		ret = 0;
 		goto end;
 	}
-
 	ret = SSL_CTX_use_certificate(ctx, x);
-
 	if(ERR_peek_error() != 0)
 		ret = 0;
-
 	if(ret) {
 		X509 * ca;
 		ulong err;
-
 		if(!SSL_CTX_clear_chain_certs(ctx)) {
 			ret = 0;
 			goto end;
 		}
-
-		while((ca = PEM_read_bio_X509(in, NULL, passwd_callback,
-		    passwd_callback_userdata))
-		    != NULL) {
+		while((ca = PEM_read_bio_X509(in, NULL, passwd_callback, passwd_callback_userdata)) != NULL) {
 			if(!SSL_CTX_add0_chain_cert(ctx, ca)) {
 				X509_free(ca);
 				ret = 0;

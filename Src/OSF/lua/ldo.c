@@ -9,7 +9,7 @@
 #define ldo_c
 #define LUA_CORE
 
-#include <setjmp.h>
+//#include <setjmp.h>
 #include "lua.h"
 #include "lapi.h"
 #include "ldebug.h"

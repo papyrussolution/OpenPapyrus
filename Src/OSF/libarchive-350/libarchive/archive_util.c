@@ -30,29 +30,19 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_util.c 201098 2009-12-28 02:58:1
 #if defined(HAVE_WINCRYPT_H) && !defined(__CYGWIN__)
 #include <wincrypt.h>
 #endif
-#ifdef HAVE_ZLIB_H
-	#include <zlib.h>
-#endif
-#ifdef HAVE_LZMA_H
-	#include <..\OSF\liblzma\api\lzma.h>
-#endif
 #ifdef HAVE_BZLIB_H
 	#include <..\osf\bzip2\bzlib.h>
 #endif
 #ifdef HAVE_LZ4_H
 #include <lz4.h>
 #endif
-
-#include "archive.h"
-#include "archive_private.h"
 #include "archive_random_private.h"
-#include "archive_string.h"
 
 #ifndef O_CLOEXEC
-#define O_CLOEXEC       0
+	#define O_CLOEXEC       0
 #endif
 
-static int archive_utility_string_sort_helper(char **, unsigned int);
+static int archive_utility_string_sort_helper(char **, uint);
 
 /* Generic initialization of 'struct archive' objects. */
 int __archive_clean(struct archive * a)
@@ -532,9 +522,9 @@ void __archive_ensure_cloexec_flag(int fd)
 /*
  * Utility function to sort a group of strings using quicksort.
  */
-static int archive_utility_string_sort_helper(char ** strings, unsigned int n)
+static int archive_utility_string_sort_helper(char ** strings, uint n)
 {
-	unsigned int i, lesser_count, greater_count;
+	uint i, lesser_count, greater_count;
 	char ** lesser, ** greater, ** tmp, * pivot;
 	int retval1, retval2;
 
@@ -592,7 +582,7 @@ static int archive_utility_string_sort_helper(char ** strings, unsigned int n)
 
 int archive_utility_string_sort(char ** strings)
 {
-	unsigned int size = 0;
+	uint size = 0;
 	while(strings[size] != NULL)
 		size++;
 	return archive_utility_string_sort_helper(strings, size);

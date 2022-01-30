@@ -196,7 +196,7 @@ void * ListBoxDef::CreateImageList(HINSTANCE hInst) // @v10.9.4 HIMAGELIST-->(vo
 			long item_id  = ImageAssoc.at(i).Key;
 			uint image_id = static_cast<uint>(ImageAssoc.at(i).Val);
 			long image_idx = -1;
-			if(added_list.Search(image_id, &image_idx, 0) <= 0) {
+			if(!added_list.Search(image_id, &image_idx, 0)) {
 				if(image_id & _SlConst.VectorImageMask) {
 					TWhatmanToolArray::Item tool_item;
 					const SDrawFigure * p_fig = APPL->LoadDrawFigureById(image_id, &tool_item); // @v10.5.0 (image_id & ~0x40000000)-->image_id

@@ -5354,18 +5354,18 @@ int PPALDD_Transport::InitData(PPFilt & rFilt, long rsrv)
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
 		PPObjTransport * p_obj = static_cast<PPObjTransport *>(Extra[0].Ptr);
-		PPTransport rec;
-		if(p_obj->Get(rFilt.ID, &rec) > 0) {
-			H.ID        = rec.ID;
-			H.TrType    = rec.TrType;
-			H.Capacity  = rec.Capacity;
-			STRNSCPY(H.Name, rec.Name);
-			STRNSCPY(H.Code, rec.Code);
-			STRNSCPY(H.TrailerCode, rec.TrailerCode);
-			GetObjectName(PPOBJ_TRANSPMODEL, rec.TrModelID, H.ModelName, sizeof(H.ModelName));
-			H.OwnerID = rec.OwnerID;
-			H.CountryID = rec.CountryID;
-			H.CaptainID = rec.CaptainID;
+		PPTransportPacket pack;
+		if(p_obj->Get(rFilt.ID, &pack) > 0) {
+			H.ID        = pack.Rec.ID;
+			H.TrType    = pack.Rec.TrType;
+			H.Capacity  = pack.Rec.Capacity;
+			STRNSCPY(H.Name, pack.Rec.Name);
+			STRNSCPY(H.Code, pack.Rec.Code);
+			STRNSCPY(H.TrailerCode, pack.Rec.TrailerCode);
+			GetObjectName(PPOBJ_TRANSPMODEL, pack.Rec.TrModelID, H.ModelName, sizeof(H.ModelName));
+			H.OwnerID = pack.Rec.OwnerID;
+			H.CountryID = pack.Rec.CountryID;
+			H.CaptainID = pack.Rec.CaptainID;
 			ok = DlRtm::InitData(rFilt, rsrv);
 		}
 	}

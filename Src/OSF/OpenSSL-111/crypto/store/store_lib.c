@@ -430,7 +430,7 @@ X509_CRL * OSSL_STORE_INFO_get1_CRL(const OSSL_STORE_INFO * info)
  */
 void OSSL_STORE_INFO_free(OSSL_STORE_INFO * info)
 {
-	if(info != NULL) {
+	if(info) {
 		switch(info->type) {
 			case OSSL_STORE_INFO_EMBEDDED:
 			    BUF_MEM_free(info->_.embedded.blob);

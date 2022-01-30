@@ -155,7 +155,7 @@ void OPENSSL_cpuid_setup(void)
 
 #if defined(_WIN32)
 #include <tchar.h>
-#include <signal.h>
+//#include <signal.h>
 #ifdef __WATCOMC__
 	#if defined(_UNICODE) || defined(__UNICODE__)
 		#define _vsntprintf _vsnwprintf

@@ -27,9 +27,9 @@
  */
 #include <sl_pthreads4w.h>
 #pragma hdrstop
-#if defined(__PTW32_CLEANUP_C)
-	#include <setjmp.h>
-#endif
+//#if defined(__PTW32_CLEANUP_C)
+	//#include <setjmp.h>
+//#endif
 
 static const int64_t NANOSEC_PER_SEC = 1000000000;
 static const int64_t NANOSEC_PER_MILLISEC = 1000000;

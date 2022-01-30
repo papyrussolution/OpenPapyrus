@@ -107,7 +107,7 @@
  * Similarly for uint32
  */
 //#if !defined(HAVE_UINT32_T) && SIZE_OF_UNSIGNED == 4
-	//typedef unsigned int uint32_t;
+	//typedef uint uint32_t;
 	//#define HAVE_UINT32_T
 //#endif
 //#if !defined(HAVE_UINT32_T) && SIZE_OF_UNSIGNED_LONG == 4

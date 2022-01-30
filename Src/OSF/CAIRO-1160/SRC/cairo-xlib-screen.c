@@ -318,7 +318,7 @@ cairo_status_t _cairo_xlib_screen_get(Display * dpy,
 		goto CLEANUP_DEVICE;
 
 	info = _cairo_xlib_display_get_screen(display, screen);
-	if(info != NULL) {
+	if(info) {
 		*out = info;
 		goto CLEANUP_DISPLAY;
 	}

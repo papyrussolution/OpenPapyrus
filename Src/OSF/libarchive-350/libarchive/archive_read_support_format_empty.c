@@ -25,24 +25,17 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_support_format_empty.c 191524 2009-04-26 18:24:14Z kientzle $");
-#include "archive.h"
-#include "archive_entry.h"
-#include "archive_private.h"
 #include "archive_read_private.h"
 
 static int archive_read_format_empty_bid(struct archive_read *, int);
-static int archive_read_format_empty_read_data(struct archive_read *,
-    const void **, size_t *, int64 *);
-static int archive_read_format_empty_read_header(struct archive_read *,
-    struct archive_entry *);
+static int archive_read_format_empty_read_data(struct archive_read *, const void **, size_t *, int64 *);
+static int archive_read_format_empty_read_header(struct archive_read *, struct archive_entry *);
+
 int archive_read_support_format_empty(struct archive * _a)
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	int r;
-
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_read_support_format_empty");
-
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_empty");
 	r = __archive_read_register_format(a,
 		NULL,
 		"empty",

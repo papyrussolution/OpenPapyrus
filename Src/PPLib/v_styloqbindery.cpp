@@ -755,7 +755,7 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData)
 						{
 							CALLPTRMEMB(P_NfMgr, GetResourceLists(&CmdSymbList, &CmdTextList));
 							setLabelText(CTL_STQCMD_VCMD, PPLoadStringS("styloqcommand_remoteorderparam", temp_buf));
-							SetupPPObjCombo(this, CTLSEL_STQCMD_VCMD, PPOBJ_STYLOPALM, stylopalm_id, OLW_CANINSERT);
+							SetupPPObjCombo(this, CTLSEL_STQCMD_VCMD, PPOBJ_STYLOPALM, stylopalm_id, OLW_CANINSERT|OLW_INSCONTEXTEDITEMS); // @v11.2.12 OLW_INSCONTEXTEDITEMS
 						}
 						enable_viewcmd = true;
 						//enable_cmd_param = true; 

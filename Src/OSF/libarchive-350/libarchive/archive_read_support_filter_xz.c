@@ -30,12 +30,7 @@ __FBSDID("$FreeBSD$");
 #ifdef HAVE_UNISTD_H
 	#include <unistd.h>
 #endif
-#if HAVE_LZMA_H
-	#include <..\OSF\liblzma\api\lzma.h>
-#endif
-#include "archive.h"
 #include "archive_endian.h"
-#include "archive_private.h"
 #include "archive_read_private.h"
 
 #if HAVE_LZMA_H && HAVE_LIBLZMA

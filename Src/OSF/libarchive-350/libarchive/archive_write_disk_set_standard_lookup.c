@@ -44,7 +44,7 @@ struct bucket {
 };
 
 static const size_t cache_size = 127;
-static unsigned int     hash(const char *);
+static uint     hash(const char *);
 static int64  lookup_gid(void *, const char * uname, int64);
 static int64  lookup_uid(void *, const char * uname, int64);
 static void     cleanup(void *);
@@ -227,7 +227,7 @@ static void cleanup(void * pPrivate)
 	SAlloc::F(cache);
 }
 
-static unsigned int hash(const char * p)
+static uint hash(const char * p)
 {
 	/* A 32-bit version of Peter Weinberger's (PJW) hash algorithm,
 	   as used by ELF for hashing function names. */

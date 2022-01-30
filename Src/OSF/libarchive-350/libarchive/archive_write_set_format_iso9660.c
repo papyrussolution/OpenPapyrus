@@ -30,16 +30,9 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#ifdef HAVE_ZLIB_H
-	#include <zlib.h>
-#endif
-#include "archive.h"
 #include "archive_endian.h"
-#include "archive_entry.h"
 #include "archive_entry_locale.h"
-#include "archive_private.h"
 #include "archive_rb.h"
-#include "archive_write_private.h"
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 #define getuid()                        0
@@ -291,7 +284,7 @@ struct iso_option {
 	 * This file shall be described in the Root Directory
 	 * and containing a abstract statement.
 	 */
-	unsigned int abstract_file : 1;
+	uint abstract_file : 1;
 #define OPT_ABSTRACT_FILE_DEFAULT       0       /* Not specified */
 #define ABSTRACT_FILE_SIZE              37
 
@@ -308,7 +301,7 @@ struct iso_option {
 	 * application.
 	 * This file shall be described in the Root Directory.
 	 */
-	unsigned int application_id : 1;
+	uint application_id : 1;
 #define OPT_APPLICATION_ID_DEFAULT      0       /* Use default identifier */
 #define APPLICATION_IDENTIFIER_SIZE     128
 
@@ -321,7 +314,7 @@ struct iso_option {
 	 *
 	 * Allow filenames to use version numbers.
 	 */
-	unsigned int allow_vernum : 1;
+	uint allow_vernum : 1;
 #define OPT_ALLOW_VERNUM_DEFAULT        1       /* Enabled */
 
 	/*
@@ -334,7 +327,7 @@ struct iso_option {
 	 * This file shall be described in the Root Directory
 	 * and containing bibliographic records.
 	 */
-	unsigned int biblio_file : 1;
+	uint biblio_file : 1;
 #define OPT_BIBLIO_FILE_DEFAULT         0       /* Not specified */
 #define BIBLIO_FILE_SIZE                37
 
@@ -347,7 +340,7 @@ struct iso_option {
 	 * Specifies "El Torito" boot image file to make
 	 * a bootable CD.
 	 */
-	unsigned int boot : 1;
+	uint boot : 1;
 #define OPT_BOOT_DEFAULT                0       /* Not specified */
 
 	/*
@@ -358,7 +351,7 @@ struct iso_option {
 	 *
 	 * Specifies a fullpath of El Torito boot catalog.
 	 */
-	unsigned int boot_catalog : 1;
+	uint boot_catalog : 1;
 #define OPT_BOOT_CATALOG_DEFAULT        0       /* Not specified */
 
 	/*
@@ -372,7 +365,7 @@ struct iso_option {
 	 * into the boot file in ISO image at offset 8
 	 * through offset 64.
 	 */
-	unsigned int boot_info_table : 1;
+	uint boot_info_table : 1;
 #define OPT_BOOT_INFO_TABLE_DEFAULT     0       /* Disabled */
 
 	/*
@@ -384,7 +377,7 @@ struct iso_option {
 	 * Specifies a load segment for boot image.
 	 * This is used with no-emulation mode.
 	 */
-	unsigned int boot_load_seg : 1;
+	uint boot_load_seg : 1;
 #define OPT_BOOT_LOAD_SEG_DEFAULT       0       /* Not specified */
 
 	/*
@@ -396,7 +389,7 @@ struct iso_option {
 	 * Specifies a sector count for boot image.
 	 * This is used with no-emulation mode.
 	 */
-	unsigned int boot_load_size : 1;
+	uint boot_load_size : 1;
 #define OPT_BOOT_LOAD_SIZE_DEFAULT      0       /* Not specified */
 
 	/*
@@ -420,7 +413,7 @@ struct iso_option {
 	 *
 	 * Specifies a type of "El Torito" boot image.
 	 */
-	unsigned int boot_type : 2;
+	uint boot_type : 2;
 #define OPT_BOOT_TYPE_AUTO              0       /* auto detect		  */
 #define OPT_BOOT_TYPE_NO_EMU            1       /* ``no emulation'' image */
 #define OPT_BOOT_TYPE_FD                2       /* floppy disk image	  */
@@ -435,7 +428,7 @@ struct iso_option {
 	 *
 	 * Specifies compression level for option zisofs=direct.
 	 */
-	unsigned int compression_level : 1;
+	uint compression_level : 1;
 #define OPT_COMPRESSION_LEVEL_DEFAULT   0       /* Not specified */
 
 	/*
@@ -448,7 +441,7 @@ struct iso_option {
 	 * This file shall be described in the Root Directory
 	 * and containing a copyright statement.
 	 */
-	unsigned int copyright_file : 1;
+	uint copyright_file : 1;
 #define OPT_COPYRIGHT_FILE_DEFAULT      0       /* Not specified */
 #define COPYRIGHT_FILE_SIZE             37
 
@@ -460,7 +453,7 @@ struct iso_option {
 	 *
 	 * Specifies a group id to rewrite the group id of all files.
 	 */
-	unsigned int gid : 1;
+	uint gid : 1;
 #define OPT_GID_DEFAULT                 0       /* Not specified */
 
 	/*
@@ -502,7 +495,7 @@ struct iso_option {
 	 *   - the maximum length of files and directories is raised to 193.
 	 *     if rockridge option is disabled, raised to 207.
 	 */
-	unsigned int iso_level : 3;
+	uint iso_level : 3;
 #define OPT_ISO_LEVEL_DEFAULT           1       /* ISO Level 1 */
 
 	/*
@@ -523,7 +516,7 @@ struct iso_option {
 	 *
 	 * Generates Joliet Volume and Directory Records.
 	 */
-	unsigned int joliet : 2;
+	uint joliet : 2;
 #define OPT_JOLIET_DISABLE              0       /* Not generate Joliet Records. */
 #define OPT_JOLIET_ENABLE               1       /* Generate Joliet Records.  */
 #define OPT_JOLIET_LONGNAME             2       /* Use long joliet filenames.*/
@@ -538,7 +531,7 @@ struct iso_option {
 	 *
 	 * The number of levels in hierarchy cannot exceed eight.
 	 */
-	unsigned int limit_depth : 1;
+	uint limit_depth : 1;
 #define OPT_LIMIT_DEPTH_DEFAULT         1       /* Enabled */
 
 	/*
@@ -552,7 +545,7 @@ struct iso_option {
 	 * to the size of the Parent Directory Number of Path
 	 * Table.
 	 */
-	unsigned int limit_dirs : 1;
+	uint limit_dirs : 1;
 #define OPT_LIMIT_DIRS_DEFAULT          1       /* Enabled */
 
 	/*
@@ -563,7 +556,7 @@ struct iso_option {
 	 *
 	 * Pads the end of the ISO image by null of 300Ki bytes.
 	 */
-	unsigned int pad : 1;
+	uint pad : 1;
 #define OPT_PAD_DEFAULT                 1       /* Enabled */
 
 	/*
@@ -578,7 +571,7 @@ struct iso_option {
 	 * for a file containing the identification of the user.
 	 * This file shall be described in the Root Directory.
 	 */
-	unsigned int publisher : 1;
+	uint publisher : 1;
 #define OPT_PUBLISHER_DEFAULT           0       /* Not specified */
 #define PUBLISHER_IDENTIFIER_SIZE       128
 
@@ -604,7 +597,7 @@ struct iso_option {
 	 *
 	 * Generates SUSP and RR records.
 	 */
-	unsigned int rr : 2;
+	uint rr : 2;
 #define OPT_RR_DISABLED                 0
 #define OPT_RR_STRICT                   1
 #define OPT_RR_USEFUL                   2
@@ -618,7 +611,7 @@ struct iso_option {
 	 *
 	 * Specifies Volume Identifier.
 	 */
-	unsigned int volume_id : 1;
+	uint volume_id : 1;
 #define OPT_VOLUME_ID_DEFAULT           0       /* Use default identifier */
 #define VOLUME_IDENTIFIER_SIZE          32
 
@@ -640,7 +633,7 @@ struct iso_option {
 	 *
 	 * Generates RRIP 'ZF' System Use Entry.
 	 */
-	unsigned int zisofs : 1;
+	uint zisofs : 1;
 #define OPT_ZISOFS_DISABLED             0
 #define OPT_ZISOFS_DIRECT               1
 #define OPT_ZISOFS_DEFAULT              OPT_ZISOFS_DISABLED

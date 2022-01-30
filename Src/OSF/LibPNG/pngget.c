@@ -801,8 +801,7 @@ uint32 PNGAPI png_get_tRNS(png_const_structrp png_ptr, png_inforp info_ptr, png_
 				*trans_color = &(info_ptr->trans_color);
 				retval |= PNG_INFO_tRNS;
 			}
-			if(trans_alpha != NULL)
-				*trans_alpha = NULL;
+			ASSIGN_PTR(trans_alpha, NULL);
 		}
 		if(num_trans != NULL) {
 			*num_trans = info_ptr->num_trans;

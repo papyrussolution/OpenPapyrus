@@ -118,8 +118,6 @@
  */
 #include "allheaders.h"
 #pragma hdrstop
-#include <setjmp.h>
-
 /* --------------------------------------------*/
 #if  HAVE_LIBPNG   /* defined in environ.h */
 /* --------------------------------------------*/

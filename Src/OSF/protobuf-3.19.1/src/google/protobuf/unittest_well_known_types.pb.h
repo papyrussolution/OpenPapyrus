@@ -167,8 +167,7 @@ class TestWellKnownTypes final :
   explicit constexpr TestWellKnownTypes(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestWellKnownTypes(const TestWellKnownTypes& from);
-  TestWellKnownTypes(TestWellKnownTypes&& from) noexcept
-    : TestWellKnownTypes() {
+  TestWellKnownTypes(TestWellKnownTypes&& from) noexcept : TestWellKnownTypes() {
     *this = ::std::move(from);
   }
 
@@ -177,8 +176,8 @@ class TestWellKnownTypes final :
     return *this;
   }
   inline TestWellKnownTypes& operator=(TestWellKnownTypes&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -190,35 +189,22 @@ class TestWellKnownTypes final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestWellKnownTypes& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestWellKnownTypes& default_instance() { return *internal_default_instance(); }
   static inline const TestWellKnownTypes* internal_default_instance() {
-    return reinterpret_cast<const TestWellKnownTypes*>(
-               &_TestWellKnownTypes_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    0;
+    return reinterpret_cast<const TestWellKnownTypes*>(&_TestWellKnownTypes_default_instance_); }
+  static constexpr int kIndexInFileMessages = 0;
 
-  friend void swap(TestWellKnownTypes& a, TestWellKnownTypes& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestWellKnownTypes& a, TestWellKnownTypes& b) { a.Swap(&b); }
   inline void Swap(TestWellKnownTypes* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -226,7 +212,7 @@ class TestWellKnownTypes final :
     }
   }
   void UnsafeArenaSwap(TestWellKnownTypes* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -682,8 +668,7 @@ class RepeatedWellKnownTypes final :
   explicit constexpr RepeatedWellKnownTypes(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   RepeatedWellKnownTypes(const RepeatedWellKnownTypes& from);
-  RepeatedWellKnownTypes(RepeatedWellKnownTypes&& from) noexcept
-    : RepeatedWellKnownTypes() {
+  RepeatedWellKnownTypes(RepeatedWellKnownTypes&& from) noexcept : RepeatedWellKnownTypes() {
     *this = ::std::move(from);
   }
 
@@ -692,8 +677,8 @@ class RepeatedWellKnownTypes final :
     return *this;
   }
   inline RepeatedWellKnownTypes& operator=(RepeatedWellKnownTypes&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -705,35 +690,22 @@ class RepeatedWellKnownTypes final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const RepeatedWellKnownTypes& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const RepeatedWellKnownTypes& default_instance() { return *internal_default_instance(); }
   static inline const RepeatedWellKnownTypes* internal_default_instance() {
-    return reinterpret_cast<const RepeatedWellKnownTypes*>(
-               &_RepeatedWellKnownTypes_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    1;
+    return reinterpret_cast<const RepeatedWellKnownTypes*>(&_RepeatedWellKnownTypes_default_instance_); }
+  static constexpr int kIndexInFileMessages = 1;
 
-  friend void swap(RepeatedWellKnownTypes& a, RepeatedWellKnownTypes& b) {
-    a.Swap(&b);
-  }
+  friend void swap(RepeatedWellKnownTypes& a, RepeatedWellKnownTypes& b) { a.Swap(&b); }
   inline void Swap(RepeatedWellKnownTypes* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -741,7 +713,7 @@ class RepeatedWellKnownTypes final :
     }
   }
   void UnsafeArenaSwap(RepeatedWellKnownTypes* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -1177,8 +1149,7 @@ class OneofWellKnownTypes final :
   explicit constexpr OneofWellKnownTypes(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   OneofWellKnownTypes(const OneofWellKnownTypes& from);
-  OneofWellKnownTypes(OneofWellKnownTypes&& from) noexcept
-    : OneofWellKnownTypes() {
+  OneofWellKnownTypes(OneofWellKnownTypes&& from) noexcept : OneofWellKnownTypes() {
     *this = ::std::move(from);
   }
 
@@ -1187,8 +1158,8 @@ class OneofWellKnownTypes final :
     return *this;
   }
   inline OneofWellKnownTypes& operator=(OneofWellKnownTypes&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -1200,18 +1171,10 @@ class OneofWellKnownTypes final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const OneofWellKnownTypes& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const OneofWellKnownTypes& default_instance() { return *internal_default_instance(); }
   enum OneofFieldCase {
     kAnyField = 1,
     kApiField = 2,
@@ -1235,22 +1198,17 @@ class OneofWellKnownTypes final :
   };
 
   static inline const OneofWellKnownTypes* internal_default_instance() {
-    return reinterpret_cast<const OneofWellKnownTypes*>(
-               &_OneofWellKnownTypes_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    2;
+    return reinterpret_cast<const OneofWellKnownTypes*>(&_OneofWellKnownTypes_default_instance_); }
+  static constexpr int kIndexInFileMessages = 2;
 
-  friend void swap(OneofWellKnownTypes& a, OneofWellKnownTypes& b) {
-    a.Swap(&b);
-  }
+  friend void swap(OneofWellKnownTypes& a, OneofWellKnownTypes& b) { a.Swap(&b); }
   inline void Swap(OneofWellKnownTypes* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -1258,7 +1216,7 @@ class OneofWellKnownTypes final :
     }
   }
   void UnsafeArenaSwap(OneofWellKnownTypes* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -1715,18 +1673,12 @@ class OneofWellKnownTypes final :
 };
 // -------------------------------------------------------------------
 
-class MapWellKnownTypes_AnyFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_AnyFieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::Any,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
+class MapWellKnownTypes_AnyFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_AnyFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::Any, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_AnyFieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::Any,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_AnyFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::Any, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   MapWellKnownTypes_AnyFieldEntry_DoNotUse();
-  explicit constexpr MapWellKnownTypes_AnyFieldEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr MapWellKnownTypes_AnyFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit MapWellKnownTypes_AnyFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_AnyFieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_AnyFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_AnyFieldEntry_DoNotUse*>(&_MapWellKnownTypes_AnyFieldEntry_DoNotUse_default_instance_); }
@@ -1738,18 +1690,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class MapWellKnownTypes_ApiFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_ApiFieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::Api,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
+class MapWellKnownTypes_ApiFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_ApiFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::Api, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_ApiFieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::Api,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_ApiFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::Api, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   MapWellKnownTypes_ApiFieldEntry_DoNotUse();
-  explicit constexpr MapWellKnownTypes_ApiFieldEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr MapWellKnownTypes_ApiFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit MapWellKnownTypes_ApiFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_ApiFieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_ApiFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_ApiFieldEntry_DoNotUse*>(&_MapWellKnownTypes_ApiFieldEntry_DoNotUse_default_instance_); }
@@ -1761,18 +1707,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class MapWellKnownTypes_DurationFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_DurationFieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::Duration,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
+class MapWellKnownTypes_DurationFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_DurationFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::Duration, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_DurationFieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::Duration,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_DurationFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::Duration, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   MapWellKnownTypes_DurationFieldEntry_DoNotUse();
-  explicit constexpr MapWellKnownTypes_DurationFieldEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr MapWellKnownTypes_DurationFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit MapWellKnownTypes_DurationFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_DurationFieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_DurationFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_DurationFieldEntry_DoNotUse*>(&_MapWellKnownTypes_DurationFieldEntry_DoNotUse_default_instance_); }
@@ -1784,18 +1724,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class MapWellKnownTypes_EmptyFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_EmptyFieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::Empty,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
+class MapWellKnownTypes_EmptyFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_EmptyFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::Empty, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_EmptyFieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::Empty,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_EmptyFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::Empty, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   MapWellKnownTypes_EmptyFieldEntry_DoNotUse();
-  explicit constexpr MapWellKnownTypes_EmptyFieldEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr MapWellKnownTypes_EmptyFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit MapWellKnownTypes_EmptyFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_EmptyFieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_EmptyFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_EmptyFieldEntry_DoNotUse*>(&_MapWellKnownTypes_EmptyFieldEntry_DoNotUse_default_instance_); }
@@ -1807,18 +1741,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class MapWellKnownTypes_FieldMaskFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_FieldMaskFieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::FieldMask,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
+class MapWellKnownTypes_FieldMaskFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_FieldMaskFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::FieldMask, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_FieldMaskFieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::FieldMask,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_FieldMaskFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::FieldMask, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   MapWellKnownTypes_FieldMaskFieldEntry_DoNotUse();
-  explicit constexpr MapWellKnownTypes_FieldMaskFieldEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr MapWellKnownTypes_FieldMaskFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit MapWellKnownTypes_FieldMaskFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_FieldMaskFieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_FieldMaskFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_FieldMaskFieldEntry_DoNotUse*>(&_MapWellKnownTypes_FieldMaskFieldEntry_DoNotUse_default_instance_); }
@@ -1830,18 +1758,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class MapWellKnownTypes_SourceContextFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_SourceContextFieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::SourceContext,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
+class MapWellKnownTypes_SourceContextFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_SourceContextFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::SourceContext, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_SourceContextFieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::SourceContext,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_SourceContextFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::SourceContext, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   MapWellKnownTypes_SourceContextFieldEntry_DoNotUse();
-  explicit constexpr MapWellKnownTypes_SourceContextFieldEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr MapWellKnownTypes_SourceContextFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit MapWellKnownTypes_SourceContextFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_SourceContextFieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_SourceContextFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_SourceContextFieldEntry_DoNotUse*>(&_MapWellKnownTypes_SourceContextFieldEntry_DoNotUse_default_instance_); }
@@ -1853,18 +1775,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class MapWellKnownTypes_StructFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_StructFieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::Struct,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
+class MapWellKnownTypes_StructFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_StructFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::Struct, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_StructFieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::Struct,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_StructFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::Struct, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   MapWellKnownTypes_StructFieldEntry_DoNotUse();
-  explicit constexpr MapWellKnownTypes_StructFieldEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr MapWellKnownTypes_StructFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit MapWellKnownTypes_StructFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_StructFieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_StructFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_StructFieldEntry_DoNotUse*>(&_MapWellKnownTypes_StructFieldEntry_DoNotUse_default_instance_); }
@@ -1876,18 +1792,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class MapWellKnownTypes_TimestampFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_TimestampFieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::Timestamp,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
+class MapWellKnownTypes_TimestampFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_TimestampFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::Timestamp, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_TimestampFieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::Timestamp,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_TimestampFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::Timestamp, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   MapWellKnownTypes_TimestampFieldEntry_DoNotUse();
-  explicit constexpr MapWellKnownTypes_TimestampFieldEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr MapWellKnownTypes_TimestampFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit MapWellKnownTypes_TimestampFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_TimestampFieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_TimestampFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_TimestampFieldEntry_DoNotUse*>(&_MapWellKnownTypes_TimestampFieldEntry_DoNotUse_default_instance_); }
@@ -1899,18 +1809,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class MapWellKnownTypes_TypeFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_TypeFieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::Type,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
+class MapWellKnownTypes_TypeFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_TypeFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::Type, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_TypeFieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::Type,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_TypeFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::Type, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   MapWellKnownTypes_TypeFieldEntry_DoNotUse();
-  explicit constexpr MapWellKnownTypes_TypeFieldEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr MapWellKnownTypes_TypeFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit MapWellKnownTypes_TypeFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_TypeFieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_TypeFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_TypeFieldEntry_DoNotUse*>(&_MapWellKnownTypes_TypeFieldEntry_DoNotUse_default_instance_); }
@@ -1922,18 +1826,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class MapWellKnownTypes_DoubleFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_DoubleFieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::DoubleValue,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
+class MapWellKnownTypes_DoubleFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_DoubleFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::DoubleValue, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_DoubleFieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::DoubleValue,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_DoubleFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::DoubleValue, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   MapWellKnownTypes_DoubleFieldEntry_DoNotUse();
-  explicit constexpr MapWellKnownTypes_DoubleFieldEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr MapWellKnownTypes_DoubleFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit MapWellKnownTypes_DoubleFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_DoubleFieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_DoubleFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_DoubleFieldEntry_DoNotUse*>(&_MapWellKnownTypes_DoubleFieldEntry_DoNotUse_default_instance_); }
@@ -1945,18 +1843,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class MapWellKnownTypes_FloatFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_FloatFieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::FloatValue,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
+class MapWellKnownTypes_FloatFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_FloatFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::FloatValue, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_FloatFieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::FloatValue,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_FloatFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::FloatValue, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   MapWellKnownTypes_FloatFieldEntry_DoNotUse();
-  explicit constexpr MapWellKnownTypes_FloatFieldEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr MapWellKnownTypes_FloatFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit MapWellKnownTypes_FloatFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_FloatFieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_FloatFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_FloatFieldEntry_DoNotUse*>(&_MapWellKnownTypes_FloatFieldEntry_DoNotUse_default_instance_); }
@@ -1968,18 +1860,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class MapWellKnownTypes_Int64FieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_Int64FieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::Int64Value,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
+class MapWellKnownTypes_Int64FieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_Int64FieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::Int64Value, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_Int64FieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::Int64Value,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_Int64FieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::Int64Value, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   MapWellKnownTypes_Int64FieldEntry_DoNotUse();
-  explicit constexpr MapWellKnownTypes_Int64FieldEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr MapWellKnownTypes_Int64FieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit MapWellKnownTypes_Int64FieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_Int64FieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_Int64FieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_Int64FieldEntry_DoNotUse*>(&_MapWellKnownTypes_Int64FieldEntry_DoNotUse_default_instance_); }
@@ -1991,18 +1877,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class MapWellKnownTypes_Uint64FieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_Uint64FieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::UInt64Value,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
+class MapWellKnownTypes_Uint64FieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_Uint64FieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::UInt64Value, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_Uint64FieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::UInt64Value,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_Uint64FieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::UInt64Value, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   MapWellKnownTypes_Uint64FieldEntry_DoNotUse();
-  explicit constexpr MapWellKnownTypes_Uint64FieldEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr MapWellKnownTypes_Uint64FieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit MapWellKnownTypes_Uint64FieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_Uint64FieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_Uint64FieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_Uint64FieldEntry_DoNotUse*>(&_MapWellKnownTypes_Uint64FieldEntry_DoNotUse_default_instance_); }
@@ -2014,18 +1894,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class MapWellKnownTypes_Int32FieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_Int32FieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::Int32Value,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
+class MapWellKnownTypes_Int32FieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_Int32FieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::Int32Value, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_Int32FieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::Int32Value,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_Int32FieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::Int32Value, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   MapWellKnownTypes_Int32FieldEntry_DoNotUse();
-  explicit constexpr MapWellKnownTypes_Int32FieldEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr MapWellKnownTypes_Int32FieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit MapWellKnownTypes_Int32FieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_Int32FieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_Int32FieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_Int32FieldEntry_DoNotUse*>(&_MapWellKnownTypes_Int32FieldEntry_DoNotUse_default_instance_); }
@@ -2037,18 +1911,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class MapWellKnownTypes_Uint32FieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_Uint32FieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::UInt32Value,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
+class MapWellKnownTypes_Uint32FieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_Uint32FieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::UInt32Value, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_Uint32FieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::UInt32Value,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_Uint32FieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::UInt32Value, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   MapWellKnownTypes_Uint32FieldEntry_DoNotUse();
-  explicit constexpr MapWellKnownTypes_Uint32FieldEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr MapWellKnownTypes_Uint32FieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit MapWellKnownTypes_Uint32FieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_Uint32FieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_Uint32FieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_Uint32FieldEntry_DoNotUse*>(&_MapWellKnownTypes_Uint32FieldEntry_DoNotUse_default_instance_); }
@@ -2060,18 +1928,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class MapWellKnownTypes_BoolFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_BoolFieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::BoolValue,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
+class MapWellKnownTypes_BoolFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_BoolFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::BoolValue, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_BoolFieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::BoolValue,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_BoolFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::BoolValue, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   MapWellKnownTypes_BoolFieldEntry_DoNotUse();
-  explicit constexpr MapWellKnownTypes_BoolFieldEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr MapWellKnownTypes_BoolFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit MapWellKnownTypes_BoolFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_BoolFieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_BoolFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_BoolFieldEntry_DoNotUse*>(&_MapWellKnownTypes_BoolFieldEntry_DoNotUse_default_instance_); }
@@ -2083,18 +1945,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class MapWellKnownTypes_StringFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_StringFieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::StringValue,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
+class MapWellKnownTypes_StringFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_StringFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::StringValue, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_StringFieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::StringValue,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_StringFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::StringValue, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   MapWellKnownTypes_StringFieldEntry_DoNotUse();
-  explicit constexpr MapWellKnownTypes_StringFieldEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr MapWellKnownTypes_StringFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit MapWellKnownTypes_StringFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_StringFieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_StringFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_StringFieldEntry_DoNotUse*>(&_MapWellKnownTypes_StringFieldEntry_DoNotUse_default_instance_); }
@@ -2106,18 +1962,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class MapWellKnownTypes_BytesFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_BytesFieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::BytesValue,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
+class MapWellKnownTypes_BytesFieldEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_BytesFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::BytesValue, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_BytesFieldEntry_DoNotUse, 
-    int32_t, ::PROTOBUF_NAMESPACE_ID::BytesValue,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MapWellKnownTypes_BytesFieldEntry_DoNotUse, int32_t, ::PROTOBUF_NAMESPACE_ID::BytesValue, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   MapWellKnownTypes_BytesFieldEntry_DoNotUse();
-  explicit constexpr MapWellKnownTypes_BytesFieldEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr MapWellKnownTypes_BytesFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit MapWellKnownTypes_BytesFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const MapWellKnownTypes_BytesFieldEntry_DoNotUse& other);
   static const MapWellKnownTypes_BytesFieldEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MapWellKnownTypes_BytesFieldEntry_DoNotUse*>(&_MapWellKnownTypes_BytesFieldEntry_DoNotUse_default_instance_); }
@@ -2137,8 +1987,7 @@ class MapWellKnownTypes final :
   explicit constexpr MapWellKnownTypes(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   MapWellKnownTypes(const MapWellKnownTypes& from);
-  MapWellKnownTypes(MapWellKnownTypes&& from) noexcept
-    : MapWellKnownTypes() {
+  MapWellKnownTypes(MapWellKnownTypes&& from) noexcept : MapWellKnownTypes() {
     *this = ::std::move(from);
   }
 
@@ -2147,8 +1996,8 @@ class MapWellKnownTypes final :
     return *this;
   }
   inline MapWellKnownTypes& operator=(MapWellKnownTypes&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -2160,35 +2009,22 @@ class MapWellKnownTypes final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const MapWellKnownTypes& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const MapWellKnownTypes& default_instance() { return *internal_default_instance(); }
   static inline const MapWellKnownTypes* internal_default_instance() {
-    return reinterpret_cast<const MapWellKnownTypes*>(
-               &_MapWellKnownTypes_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    21;
+    return reinterpret_cast<const MapWellKnownTypes*>(&_MapWellKnownTypes_default_instance_); }
+  static constexpr int kIndexInFileMessages = 21;
 
-  friend void swap(MapWellKnownTypes& a, MapWellKnownTypes& b) {
-    a.Swap(&b);
-  }
+  friend void swap(MapWellKnownTypes& a, MapWellKnownTypes& b) { a.Swap(&b); }
   inline void Swap(MapWellKnownTypes* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -2196,7 +2032,7 @@ class MapWellKnownTypes final :
     }
   }
   void UnsafeArenaSwap(MapWellKnownTypes* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }

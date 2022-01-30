@@ -97,7 +97,7 @@ struct archive_read_filter {
 	/* Close (just this filter) and SAlloc::F(self). */
 	int (*close)(struct archive_read_filter *self);
 	/* Function that handles switching from reading one block to the next/prev */
-	int (*sswitch)(struct archive_read_filter *self, unsigned int iindex);
+	int (*sswitch)(struct archive_read_filter *self, uint iindex);
 	/* Read any header metadata if available. */
 	int (*read_header)(struct archive_read_filter *self, struct archive_entry *entry);
 	/* My private data. */
@@ -140,8 +140,8 @@ struct archive_read_client {
 	archive_seek_callback	*seeker;
 	archive_close_callback	*closer;
 	archive_switch_callback *switcher;
-	unsigned int nodes;
-	unsigned int cursor;
+	uint nodes;
+	uint cursor;
 	int64 position;
 	struct archive_read_data_node *dataset;
 };
@@ -178,8 +178,8 @@ struct archive_read {
 	int64		  header_position;
 
 	/* Nodes and offsets of compressed data block */
-	unsigned int data_start_node;
-	unsigned int data_end_node;
+	uint data_start_node;
+	uint data_end_node;
 
 	/*
 	 * Format detection is mostly the same as compression

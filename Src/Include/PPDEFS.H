@@ -8211,6 +8211,8 @@
 //                                 933 // Occupied by DLG_SELSUSCHECK_L
 #define DLG_SELDRAFTBYCHK          934
 	#define CTL_SELDRAFTBYCHK_SEL      (1 + WINDOWS_ID_BIAS)
+	#define CTL_SELDRAFTBYCHK_OP       (2 + WINDOWS_ID_BIAS)
+	#define CTLSEL_SELDRAFTBYCHK_OP    (3 + WINDOWS_ID_BIAS)
 #define DLG_IEBILLSEL              935
 	#define CTL_IEBILLSEL_BILL         (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_IEBILLSEL_BILL      (2 + WINDOWS_ID_BIAS)

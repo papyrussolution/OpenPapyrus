@@ -127,8 +127,6 @@
 #if  HAVE_LIBJPEG   /* defined in environ.h */
 /* --------------------------------------------*/
 
-#include <setjmp.h>
-
 /* jconfig.h makes the error of setting
  *   #define HAVE_STDLIB_H
  * which conflicts with config_auto.h (where it is set to 1) and results

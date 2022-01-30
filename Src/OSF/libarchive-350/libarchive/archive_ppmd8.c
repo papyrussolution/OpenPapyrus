@@ -140,7 +140,7 @@ static void GlueFreeBlocks(CPpmd8 * p)
 {
 	CPpmd8_Node_Ref head = 0;
 	CPpmd8_Node_Ref * prev = &head;
-	unsigned i;
+	uint i;
 	p->GlueCount = 1 << 13;
 	memzero(p->Stamps, sizeof(p->Stamps));
 	/* Order-0 context is always at top UNIT, so we don't need guard NODE at the end.
@@ -188,7 +188,7 @@ static void GlueFreeBlocks(CPpmd8 * p)
 
 static void * AllocUnitsRare(CPpmd8 * p, unsigned indx)
 {
-	unsigned i;
+	uint i;
 	void * retVal;
 	if(p->GlueCount == 0) {
 		GlueFreeBlocks(p);
@@ -278,7 +278,7 @@ static void * MoveUnitsUp(CPpmd8 * p, void * oldPtr, unsigned nu)
 static void ExpandTextArea(CPpmd8 * p)
 {
 	UInt32 count[PPMD_NUM_INDEXES];
-	unsigned i;
+	uint i;
 	memzero(count, sizeof(count));
 	if(p->LoUnit != p->HiUnit)
 		((CPpmd8_Node*)p->LoUnit)->Stamp = 0;
@@ -495,7 +495,7 @@ static CPpmd_Void_Ref RemoveBinContexts(CPpmd8 * p, CTX_PTR ctx, unsigned order)
 static UInt32 GetUsedMemory(const CPpmd8 * p)
 {
 	UInt32 v = 0;
-	unsigned i;
+	uint i;
 	for(i = 0; i < PPMD_NUM_INDEXES; i++)
 		v += p->Stamps[i] * I2U(i);
 	return p->Size - (UInt32)(p->HiUnit - p->LoUnit) - (UInt32)(p->UnitsStart - p->Text) - U2B(v);
@@ -1037,7 +1037,7 @@ void Ppmd8_Update2(CPpmd8 * p)
 
 Bool Ppmd8_RangeDec_Init(CPpmd8 * p)
 {
-	unsigned i;
+	uint i;
 	p->Low = 0;
 	p->Range = 0xFFFFFFFF;
 	p->Code = 0;
@@ -1073,7 +1073,7 @@ int Ppmd8_DecodeSymbol(CPpmd8 * p)
 	size_t charMask[256 / sizeof(size_t)];
 	if(p->MinContext->NumStats != 0) {
 		CPpmd_State * s = Ppmd8_GetStats(p, p->MinContext);
-		unsigned i;
+		uint i;
 		UInt32 count, hiCnt;
 		if((count = RangeDec_GetThreshold(p, p->MinContext->SummFreq)) < (hiCnt = s->Freq)) {
 			Byte symbol;

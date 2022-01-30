@@ -39,10 +39,6 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_write.c 201099 2009-12-28 03:03:
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#include "archive.h"
-#include "archive_entry.h"
-#include "archive_private.h"
-#include "archive_write_private.h"
 
 static struct archive_vtable * archive_write_vtable(void);
 
@@ -382,13 +378,11 @@ static int archive_write_client_write(struct archive_write_filter * f,
 			char * p = state->buffer;
 			size_t to_write = state->buffer_size;
 			while(to_write > 0) {
-				bytes_written = (a->client_writer)(&a->archive,
-					a->client_data, p, to_write);
+				bytes_written = (a->client_writer)(&a->archive, a->client_data, p, to_write);
 				if(bytes_written <= 0)
 					return ARCHIVE_FATAL;
 				if((size_t)bytes_written > to_write) {
-					archive_set_error(&(a->archive),
-					    -1, "write overrun");
+					archive_set_error(&(a->archive), -1, "write overrun");
 					return ARCHIVE_FATAL;
 				}
 				p += bytes_written;
@@ -636,18 +630,13 @@ static int _archive_write_header(struct archive * _a, struct archive_entry * ent
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	int ret, r2;
-
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC,
-	    ARCHIVE_STATE_DATA | ARCHIVE_STATE_HEADER, "archive_write_header");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_DATA | ARCHIVE_STATE_HEADER, "archive_write_header");
 	archive_clear_error(&a->archive);
-
 	if(a->format_write_header == NULL) {
-		archive_set_error(&(a->archive), -1,
-		    "Format must be set before you can write to an archive.");
+		archive_set_error(&(a->archive), -1, "Format must be set before you can write to an archive.");
 		a->archive.state = ARCHIVE_STATE_FATAL;
 		return ARCHIVE_FATAL;
 	}
-
 	/* In particular, "retry" and "fatal" get returned immediately. */
 	ret = archive_write_finish_entry(&a->archive);
 	if(ret == ARCHIVE_FATAL) {
@@ -656,17 +645,11 @@ static int _archive_write_header(struct archive * _a, struct archive_entry * ent
 	}
 	if(ret < ARCHIVE_OK && ret != ARCHIVE_WARN)
 		return ret;
-
-	if(a->skip_file_set &&
-	    archive_entry_dev_is_set(entry) &&
-	    archive_entry_ino_is_set(entry) &&
-	    archive_entry_dev(entry) == (dev_t)a->skip_file_dev &&
-	    archive_entry_ino64(entry) == a->skip_file_ino) {
-		archive_set_error(&a->archive, 0,
-		    "Can't add archive to itself");
+	if(a->skip_file_set && archive_entry_dev_is_set(entry) && archive_entry_ino_is_set(entry) &&
+	    archive_entry_dev(entry) == (dev_t)a->skip_file_dev && archive_entry_ino64(entry) == a->skip_file_ino) {
+		archive_set_error(&a->archive, 0, "Can't add archive to itself");
 		return ARCHIVE_FAILED;
 	}
-
 	/* Format and write header. */
 	r2 = ((a->format_write_header)(a, entry));
 	if(r2 == ARCHIVE_FAILED) {

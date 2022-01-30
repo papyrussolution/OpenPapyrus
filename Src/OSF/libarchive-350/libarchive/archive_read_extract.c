@@ -26,9 +26,6 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: src/lib/libarchive/archive_read_extract.c,v 1.61 2008/05/26 17:00:22 kientzle Exp $");
 
-#include "archive.h"
-#include "archive_entry.h"
-#include "archive_private.h"
 #include "archive_read_private.h"
 
 int archive_read_extract(struct archive * _a, struct archive_entry * entry, int flags)

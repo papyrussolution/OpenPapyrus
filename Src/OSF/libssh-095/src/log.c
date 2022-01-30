@@ -28,7 +28,7 @@
 #ifdef HAVE_SYS_UTIME_H
 	#include <sys/utime.h>
 #endif /* HAVE_SYS_UTIME_H */
-#include <time.h>
+//#include <time.h>
 
 static LIBSSH_THREAD int ssh_log_level;
 static LIBSSH_THREAD ssh_logging_callback ssh_log_cb;

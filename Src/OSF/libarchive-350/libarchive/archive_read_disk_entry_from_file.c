@@ -91,10 +91,6 @@ __FBSDID("$FreeBSD");
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-
-#include "archive.h"
-#include "archive_entry.h"
-#include "archive_private.h"
 #include "archive_read_disk_private.h"
 
 #ifndef O_CLOEXEC

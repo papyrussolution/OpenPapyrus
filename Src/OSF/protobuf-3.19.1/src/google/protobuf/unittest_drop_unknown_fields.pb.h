@@ -128,8 +128,7 @@ class Foo final :
   explicit constexpr Foo(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   Foo(const Foo& from);
-  Foo(Foo&& from) noexcept
-    : Foo() {
+  Foo(Foo&& from) noexcept : Foo() {
     *this = ::std::move(from);
   }
 
@@ -138,8 +137,8 @@ class Foo final :
     return *this;
   }
   inline Foo& operator=(Foo&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -151,35 +150,22 @@ class Foo final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const Foo& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const Foo& default_instance() { return *internal_default_instance(); }
   static inline const Foo* internal_default_instance() {
-    return reinterpret_cast<const Foo*>(
-               &_Foo_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    0;
+    return reinterpret_cast<const Foo*>(&_Foo_default_instance_); }
+  static constexpr int kIndexInFileMessages = 0;
 
-  friend void swap(Foo& a, Foo& b) {
-    a.Swap(&b);
-  }
+  friend void swap(Foo& a, Foo& b) { a.Swap(&b); }
   inline void Swap(Foo* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -187,7 +173,7 @@ class Foo final :
     }
   }
   void UnsafeArenaSwap(Foo* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -317,8 +303,7 @@ class FooWithExtraFields final :
   explicit constexpr FooWithExtraFields(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   FooWithExtraFields(const FooWithExtraFields& from);
-  FooWithExtraFields(FooWithExtraFields&& from) noexcept
-    : FooWithExtraFields() {
+  FooWithExtraFields(FooWithExtraFields&& from) noexcept : FooWithExtraFields() {
     *this = ::std::move(from);
   }
 
@@ -327,8 +312,8 @@ class FooWithExtraFields final :
     return *this;
   }
   inline FooWithExtraFields& operator=(FooWithExtraFields&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -340,35 +325,22 @@ class FooWithExtraFields final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const FooWithExtraFields& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const FooWithExtraFields& default_instance() { return *internal_default_instance(); }
   static inline const FooWithExtraFields* internal_default_instance() {
-    return reinterpret_cast<const FooWithExtraFields*>(
-               &_FooWithExtraFields_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    1;
+    return reinterpret_cast<const FooWithExtraFields*>(&_FooWithExtraFields_default_instance_); }
+  static constexpr int kIndexInFileMessages = 1;
 
-  friend void swap(FooWithExtraFields& a, FooWithExtraFields& b) {
-    a.Swap(&b);
-  }
+  friend void swap(FooWithExtraFields& a, FooWithExtraFields& b) { a.Swap(&b); }
   inline void Swap(FooWithExtraFields* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -376,7 +348,7 @@ class FooWithExtraFields final :
     }
   }
   void UnsafeArenaSwap(FooWithExtraFields* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }

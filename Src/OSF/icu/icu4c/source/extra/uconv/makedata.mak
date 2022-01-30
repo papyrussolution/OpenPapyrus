@@ -45,7 +45,7 @@ RESFILES=resfiles.mk
 ICUDATA=$(ICUP)\data
 
 # DLL_OUTPUT=.\$(CFG)
-DLL_OUTPUT=..\..\__TEMP__\VC2017\icu\$(CFG)\icu-uconv
+DLL_OUTPUT=..\..\__TEMP__\VC2017\$(CFG)\icu-uconv
 # set the following to 'static' or 'dll' depending
 PKGMODE=static
 

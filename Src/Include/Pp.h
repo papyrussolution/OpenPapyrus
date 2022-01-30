@@ -22483,6 +22483,7 @@ public:
 	int    GetChildList(PPID id, PPIDArray & rPalmList);
 	int    GetLocList(PPID id, ObjIdListFilt & rLocList);
 	int    GetQuotKindList(PPID id, ObjIdListFilt & rQuotKindList);
+	int    GetListByPerson(PPID personID, PPIDArray & rPalmList);
 	int    GetPacket(PPID id, PPStyloPalmPacket * pPack);
 	int    PutPacket(PPID * pID, PPStyloPalmPacket * pPack, int use_ta);
 	int    CheckSignalForInput(const char * pPath);
@@ -30365,7 +30366,7 @@ struct PPTransport {       // @persistent @store(Goods2Tbl)
 		vantypVentilated  = 4
 	};
 	PPTransport();
-	int    FASTCALL IsEq(const PPTransport & rS) const;
+	bool   FASTCALL IsEq(const PPTransport & rS) const;
 
 	PPID   ID;             // @id
 	long   TrType;         // PPTRTYP_XXX (Stored as Goods2.GdsClsID)
@@ -30381,14 +30382,24 @@ struct PPTransport {       // @persistent @store(Goods2Tbl)
 	int16  Flags;          // @v10.2.4 (вместо Reserve) @flags
 };
 
+class PPTransportPacket { // @v11.2.12
+public:
+	PPTransportPacket();
+	PPTransportPacket & Z();
+	bool   FASTCALL IsEq(const PPTransportPacket & rS) const;
+
+	PPTransport Rec;
+	ObjTagList TagL; // @v11.2.12 Список тегов
+};
+
 class PPObjTransport : public PPObjGoods {
 public:
 	static int FASTCALL ReadConfig(PPTransportConfig *);
 	static int FASTCALL WriteConfig(const PPTransportConfig *, int use_ta);
 	static int EditConfig();
 	PPObjTransport(void * extraPtr = 0);
-	int    Get(PPID id, PPTransport * pPack);
-	int    Put(PPID * pID, const PPTransport * pPack, int use_ta);
+	int    Get(PPID id, PPTransportPacket * pPack);
+	int    Put(PPID * pID, const PPTransportPacket * pPack, int use_ta);
 	int    GetNameByTemplate(PPTransport * pPack, const char * pTemplate, SString & rBuf) const;
 	virtual int  Edit(PPID * pID, void * extraPtr);
 	// realy private
@@ -30429,7 +30440,7 @@ public:
 struct PPBrand {           // @persistent @store(GoodsTbl)
 	PPBrand();
 	int    FASTCALL CheckForFilt(const BrandFilt * pFilt) const;
-
+	bool   FASTCALL IsEq(const PPBrand & rS) const;
 	PPID   ID;             // @id
 	char   Name[64];       // Наименование на родном языке
 	PPID   OwnerID;        // ->Person.ID (PPPRK_MANUF) Владелец брэнда
@@ -30444,9 +30455,13 @@ public:
 	~PPBrandPacket();
 	void   Init();
 	PPBrandPacket & FASTCALL operator = (const PPBrandPacket &);
-
+	//
+	// Descr: Сравнивает на эквивалентность пакет this с пакетом rS. Без учета LinkFiles!
+	//
+	bool   FASTCALL IsEq(const PPBrandPacket & rS) const;
 	PPBrand    Rec;
-	ObjLinkFiles  LinkFiles;
+	ObjLinkFiles LinkFiles;
+	ObjTagList TagL;        // @v11.2.12 Список тегов
 };
 
 class PPObjBrand : public PPObjGoods {
@@ -47594,8 +47609,8 @@ private:
 	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual void ViewTotal();
 	int    IsTempTblNeeded();
-	int    CheckForFilt(TransportFilt * pFilt, PPID transpID, PPTransport * pRec);
-	void   MakeTempRec(const PPTransport * pTranspRec, TempTransportTbl::Rec * pTempRec);
+	int    CheckForFilt(TransportFilt * pFilt, PPID transpID, const PPTransportPacket * pRec);
+	void   MakeTempRec(const PPTransportPacket * pTranspPack, TempTransportTbl::Rec * pTempRec);
 	int    UpdateTempTable(PPID transpID, PPViewBrowser * pBrw);
 	int    DeleteItem(PPID id);
 	int    Transmit(PPID);

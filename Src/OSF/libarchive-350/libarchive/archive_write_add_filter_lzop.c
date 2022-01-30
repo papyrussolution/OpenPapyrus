@@ -34,10 +34,7 @@ __FBSDID("$FreeBSD$");
 #ifdef HAVE_LZO_LZO1X_H
 #include <lzo/lzo1x.h>
 #endif
-#include "archive.h"
-#include "archive_string.h"
 #include "archive_endian.h"
-#include "archive_write_private.h"
 
 enum lzo_method {
 	METHOD_LZO1X_1 = 1,
@@ -144,15 +141,12 @@ int archive_write_add_filter_lzop(struct archive * _a)
 #if defined(HAVE_LZO_LZOCONF_H) && defined(HAVE_LZO_LZO1X_H)
 	if(lzo_init() != LZO_E_OK) {
 		SAlloc::F(data);
-		archive_set_error(_a, ARCHIVE_ERRNO_MISC,
-		    "lzo_init(type check) failed");
+		archive_set_error(_a, ARCHIVE_ERRNO_MISC, "lzo_init(type check) failed");
 		return ARCHIVE_FATAL;
 	}
 	if(lzo_version() < 0x940) {
 		SAlloc::F(data);
-		archive_set_error(_a, ARCHIVE_ERRNO_MISC,
-		    "liblzo library is too old(%s < 0.940)",
-		    lzo_version_string());
+		archive_set_error(_a, ARCHIVE_ERRNO_MISC, "liblzo library is too old(%s < 0.940)", lzo_version_string());
 		return ARCHIVE_FATAL;
 	}
 	data->compression_level = 5;

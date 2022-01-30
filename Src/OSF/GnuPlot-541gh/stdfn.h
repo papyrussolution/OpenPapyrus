@@ -167,25 +167,25 @@
 	#endif
 #endif /* HAVE_SYS_STAT_H */
 #ifdef HAVE_LIMITS_H
-	#include <limits.h>
+	//#include <limits.h>
 #else
 	#ifdef HAVE_VALUES_H
 		#include <values.h>
 	#endif
 #endif
 // ctime etc, should also define time_t and struct tm 
-#ifdef HAVE_TIME_H
-	#include <time.h>
-#endif
+//#ifdef HAVE_TIME_H
+	//#include <time.h>
+//#endif
 #ifndef HAVE_TIME_T_IN_TIME_H
 	#define time_t long
 #endif
 #ifdef HAVE_SYS_TIME_H
 	#include <sys/time.h> /* for gettimeofday() */
 #endif
-#ifdef HAVE_FLOAT_H
-	#include <float.h>
-#endif
+//#ifdef HAVE_FLOAT_H
+	//#include <float.h>
+//#endif
 // Some older platforms, namely SunOS 4.x, don't define this. 
 #ifndef DBL_EPSILON
 	#define DBL_EPSILON     2.2204460492503131E-16

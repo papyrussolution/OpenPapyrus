@@ -33,10 +33,10 @@
 typedef enum { XXH_OK = 0, XXH_ERROR } XXH_errorcode;
 
 struct archive_xxhash {
-	unsigned int (* XXH32)(const void * input, unsigned int len, unsigned int seed);
-	void *     (* XXH32_init)(unsigned int seed);
-	XXH_errorcode (* XXH32_update)(void * state, const void * input, unsigned int len);
-	unsigned int (* XXH32_digest)(void * state);
+	uint (* XXH32)(const void * input, uint len, uint seed);
+	void *     (* XXH32_init)(uint seed);
+	XXH_errorcode (* XXH32_update)(void * state, const void * input, uint len);
+	uint (* XXH32_digest)(void * state);
 };
 
 extern const struct archive_xxhash __archive_xxhash;

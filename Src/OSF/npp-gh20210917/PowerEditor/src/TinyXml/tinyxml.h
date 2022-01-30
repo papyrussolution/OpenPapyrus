@@ -419,7 +419,7 @@ public:
 		TiXmlElement* NextSiblingElement(const generic_string& _value) const { return NextSiblingElement(_value.c_str()); } ///< STL std::generic_string form.
 	#endif
 	/// Convenience function to get through elements.
-	TiXmlElement* FirstChildElement()       const;
+	TiXmlElement* FirstChildElement() const;
 	/// Convenience function to get through elements.
 	TiXmlElement* FirstChildElement(const TCHAR * value) const;
     #ifdef TIXML_USE_STL
@@ -436,11 +436,11 @@ public:
 	TiXmlDocument* GetDocument() const;
 	/// Returns true if this node has no children.
 	bool NoChildren() const { return !firstChild; }
-	TiXmlDocument* ToDocument()     const { return ( this && type == DOCUMENT) ? (TiXmlDocument*)this : 0; } ///< Cast to a more defined type. Will return null not of the requested type.
+	TiXmlDocument* ToDocument() const { return ( this && type == DOCUMENT) ? (TiXmlDocument*)this : 0; } ///< Cast to a more defined type. Will return null not of the requested type.
 	TiXmlElement*  ToElement() const { return (this && type == ELEMENT) ? (TiXmlElement*)this : 0; } ///< Cast to a more defined type. Will return null not of the requested type.
 	TiXmlComment*  ToComment() const { return (this && type == COMMENT) ? (TiXmlComment*)this : 0; } ///< Cast to a more defined type. Will return null not of the requested type.
 	TiXmlUnknown*  ToUnknown() const { return (this && type == UNKNOWN) ? (TiXmlUnknown*)this : 0; } ///< Cast to a more defined type. Will return null not of the requested type.
-	TiXmlText * ToText()    const { return (this && type == TEXT) ? (TiXmlText*)this : 0; } ///< Cast to a more defined type. Will return null not of the requested type.
+	TiXmlText * ToText() const { return (this && type == TEXT) ? (TiXmlText*)this : 0; } ///< Cast to a more defined type. Will return null not of the requested type.
 	TiXmlDeclaration * ToDeclaration() const { return (this && type == DECLARATION) ? (TiXmlDeclaration*)this : 0; } /// < Cast to a more defined type. Will return null not of the requested type.
 	virtual TiXmlNode * Clone() const = 0;
 	void   SetUserData(void * user) { userData = user; }
@@ -490,7 +490,7 @@ public:
 	TiXmlAttribute(const TCHAR * _name, const TCHAR * _value) : name(_name), value(_value), document(0), prev(0), next(0)
 	{
 	}
-	const TCHAR * Name()  const { return name.c_str(); } ///< Return the name of this attribute.
+	const TCHAR * Name() const { return name.c_str(); } ///< Return the name of this attribute.
 	const TCHAR * Value() const { return value.c_str(); } ///< Return the value of this attribute.
 	const int IntValue() const; ///< Return the value of this attribute, converted to an integer.
 	const double DoubleValue() const; ///< Return the value of this attribute, converted to a double.
@@ -531,7 +531,7 @@ public:
 	TiXmlAttribute* Previous() const;
 	bool operator == (const TiXmlAttribute& rhs) const { return rhs.name == name; }
 	bool operator<(const TiXmlAttribute& rhs) const { return name < rhs.name; }
-	bool operator>(const TiXmlAttribute& rhs)  const { return name > rhs.name; }
+	bool operator>(const TiXmlAttribute& rhs) const { return name > rhs.name; }
 	/*	[internal use]
 	        Attribtue parsing starts: first letter of the name
 	                                         returns: the next TCHAR after the value end quote
@@ -570,7 +570,7 @@ public:
 	void Add(TiXmlAttribute* attribute);
 	void Remove(TiXmlAttribute* attribute);
 	TiXmlAttribute* First() const { return ( sentinel.next == &sentinel ) ? 0 : sentinel.next; }
-	TiXmlAttribute* Last()  const { return ( sentinel.prev == &sentinel ) ? 0 : sentinel.prev; }
+	TiXmlAttribute* Last() const { return ( sentinel.prev == &sentinel ) ? 0 : sentinel.prev; }
 	TiXmlAttribute* Find(const TCHAR * name) const;
 private:
 	TiXmlAttribute sentinel;

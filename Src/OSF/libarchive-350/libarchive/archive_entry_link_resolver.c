@@ -25,10 +25,6 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry_link_resolver.c 201100 2009-12-28 03:05:31Z kientzle $");
-
-#include "archive.h"
-#include "archive_entry.h"
-
 /*
  * This is mostly a pretty straightforward hash table implementation.
  * The only interesting bit is the different strategies used to
@@ -59,7 +55,7 @@ struct links_entry {
 	struct archive_entry    * canonical;
 	struct archive_entry    * entry;
 	size_t hash;
-	unsigned int links; /* # links not yet seen */
+	uint links; /* # links not yet seen */
 };
 
 struct archive_entry_linkresolver {
@@ -377,7 +373,7 @@ static void grow_hash(struct archive_entry_linkresolver * res)
 }
 
 struct archive_entry * archive_entry_partial_links(struct archive_entry_linkresolver * res,
-    unsigned int * links){
+    uint * links){
 	struct archive_entry    * e;
 	struct links_entry * le;
 

@@ -109,6 +109,6 @@ void __archive_write_entry_filetype_unsupported(struct archive * a,
 		archive_set_error(a, ARCHIVE_ERRNO_FILE_FORMAT,
 		    "%s: %s format cannot archive files with mode 0%lo",
 		    archive_entry_pathname(entry), format,
-		    (unsigned long)archive_entry_mode(entry));
+		    (ulong)archive_entry_mode(entry));
 	}
 }

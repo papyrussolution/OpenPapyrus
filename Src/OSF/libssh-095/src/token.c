@@ -353,7 +353,7 @@ char * ssh_append_without_duplicates(const char * list,
 	size_t concat_len = 0;
 	char * ret = NULL, * concat = NULL;
 
-	if(list != NULL) {
+	if(list) {
 		concat_len = strlen(list);
 	}
 
@@ -369,7 +369,7 @@ char * ssh_append_without_duplicates(const char * list,
 	if(concat == NULL) {
 		return NULL;
 	}
-	if(list != NULL) {
+	if(list) {
 		strcpy(concat, list);
 		strncat(concat, ",", concat_len - strlen(concat) - 1);
 	}

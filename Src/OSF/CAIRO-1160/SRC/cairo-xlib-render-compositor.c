@@ -1131,7 +1131,7 @@ static cairo_status_t _cairo_xlib_surface_add_glyph(cairo_xlib_display_t * displ
 	glyph_index = _cairo_scaled_glyph_index(glyph);
 	/* check to see if we have a pending XRenderFreeGlyph for this glyph */
 	info = find_pending_free_glyph(display, font, glyph_index, glyph_surface);
-	if(info != NULL)
+	if(info)
 		return _cairo_xlib_glyph_attach(display, glyph, info);
 	if(glyph_surface == NULL) {
 		status = _cairo_scaled_glyph_lookup(font, glyph_index, CAIRO_SCALED_GLYPH_INFO_METRICS|CAIRO_SCALED_GLYPH_INFO_SURFACE, pscaled_glyph);

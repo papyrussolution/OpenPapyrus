@@ -35,18 +35,11 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_zip.c 201168 20
 #ifdef HAVE_LANGINFO_H
 #include <langinfo.h>
 #endif
-#ifdef HAVE_ZLIB_H
-	#include <zlib.h>
-#endif
-#include "archive.h"
 #include "archive_cryptor_private.h"
 #include "archive_endian.h"
-#include "archive_entry.h"
 #include "archive_entry_locale.h"
 #include "archive_hmac_private.h"
-#include "archive_private.h"
 #include "archive_random_private.h"
-#include "archive_write_private.h"
 #include "archive_write_set_format_private.h"
 #ifndef HAVE_ZLIB_H
 	#include "archive_crc32.h"
@@ -174,7 +167,7 @@ static int archive_write_zip_header(struct archive_write *,
     struct archive_entry *);
 static int archive_write_zip_options(struct archive_write *,
     const char *, const char *);
-static unsigned int dos_time(const time_t);
+static uint dos_time(const time_t);
 static size_t path_length(struct archive_entry *);
 static int write_path(struct archive_entry *, struct archive_write *);
 static void copy_path(struct archive_entry *, uchar *);
@@ -494,16 +487,13 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 	/* If we're not using Zip64, reject large files. */
 	if(zip->flags & ZIP_FLAG_AVOID_ZIP64) {
 		/* Reject entries over 4GB. */
-		if(archive_entry_size_is_set(entry)
-		    && (archive_entry_size(entry) > ZIP_4GB_MAX)) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "Files > 4GB require Zip64 extensions");
+		if(archive_entry_size_is_set(entry) && (archive_entry_size(entry) > ZIP_4GB_MAX)) {
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Files > 4GB require Zip64 extensions");
 			return ARCHIVE_FAILED;
 		}
 		/* Reject entries if archive is > 4GB. */
 		if(zip->written_bytes > ZIP_4GB_MAX) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "Archives > 4GB require Zip64 extensions");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Archives > 4GB require Zip64 extensions");
 			return ARCHIVE_FAILED;
 		}
 	}
@@ -558,26 +548,18 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 	zip->entry = archive_entry_clone(entry);
 #endif
 	if(zip->entry == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate zip header data");
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate zip header data");
 		return ARCHIVE_FATAL;
 	}
-
 	if(sconv != NULL) {
 		const char * p;
 		size_t len;
-
 		if(archive_entry_pathname_l(entry, &p, &len, sconv) != 0) {
 			if(errno == ENOMEM) {
-				archive_set_error(&a->archive, ENOMEM,
-				    "Can't allocate memory for Pathname");
+				archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Pathname");
 				return ARCHIVE_FATAL;
 			}
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_FILE_FORMAT,
-			    "Can't translate Pathname '%s' to %s",
-			    archive_entry_pathname(entry),
-			    archive_string_conversion_charset_name(sconv));
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Can't translate Pathname '%s' to %s", archive_entry_pathname(entry), archive_string_conversion_charset_name(sconv));
 			ret2 = ARCHIVE_WARN;
 		}
 		if(len > 0)
@@ -591,9 +573,7 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 		if(type == AE_IFLNK) {
 			if(archive_entry_symlink_l(entry, &p, &len, sconv)) {
 				if(errno == ENOMEM) {
-					archive_set_error(&a->archive, ENOMEM,
-					    "Can't allocate memory "
-					    " for Symlink");
+					archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Symlink");
 					return ARCHIVE_FATAL;
 				}
 				/* No error if we can't convert. */
@@ -955,8 +935,7 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 		zip->stream.avail_out = (uInt)zip->len_buf;
 		if(deflateInit2(&zip->stream, zip->deflate_compression_level,
 		    Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY) != Z_OK) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't init deflate compressor");
+			archive_set_error(&a->archive, ENOMEM, "Can't init deflate compressor");
 			return ARCHIVE_FATAL;
 		}
 	}
@@ -1022,9 +1001,7 @@ static ssize_t archive_write_zip_data(struct archive_write * a, const void * buf
 						    &zip->cctx,
 						    rb, re - rb, zip->buf, &l);
 					    if(ret < 0) {
-						    archive_set_error(&a->archive,
-							ARCHIVE_ERRNO_MISC,
-							"Failed to encrypt file");
+						    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Failed to encrypt file");
 						    return ARCHIVE_FAILED;
 					    }
 					    archive_hmac_sha1_update(&zip->hctx,
@@ -1067,9 +1044,7 @@ static ssize_t archive_write_zip_data(struct archive_write * a, const void * buf
 						    zip->buf, zip->len_buf,
 						    zip->buf, &outl);
 					    if(ret < 0) {
-						    archive_set_error(&a->archive,
-							ARCHIVE_ERRNO_MISC,
-							"Failed to encrypt file");
+						    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Failed to encrypt file");
 						    return ARCHIVE_FAILED;
 					    }
 					    archive_hmac_sha1_update(&zip->hctx,
@@ -1120,9 +1095,7 @@ static int archive_write_zip_finish_entry(struct archive_write * a)
 					&zip->cctx, zip->buf, remainder,
 					zip->buf, &outl);
 				if(ret < 0) {
-					archive_set_error(&a->archive,
-					    ARCHIVE_ERRNO_MISC,
-					    "Failed to encrypt file");
+					archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Failed to encrypt file");
 					return ARCHIVE_FAILED;
 				}
 				archive_hmac_sha1_update(&zip->hctx,
@@ -1204,8 +1177,7 @@ static int archive_write_zip_finish_entry(struct archive_write * a)
 		archive_le16enc(zip64 + 2, (uint16)(z - (zip64 + 4)));
 		zd = cd_alloc(zip, z - zip64);
 		if(zd == NULL) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate zip data");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate zip data");
 			return ARCHIVE_FATAL;
 		}
 		memcpy(zd, zip64, z - zip64);
@@ -1328,10 +1300,10 @@ static int archive_write_zip_free(struct archive_write * a)
 }
 
 /* Convert into MSDOS-style date/time. */
-static unsigned int dos_time(const time_t unix_time)
+static uint dos_time(const time_t unix_time)
 {
 	struct tm * t;
-	unsigned int dt;
+	uint dt;
 #if defined(HAVE_LOCALTIME_R) || defined(HAVE__LOCALTIME64_S)
 	struct tm tmbuf;
 #endif
@@ -1475,7 +1447,7 @@ static uint8 trad_enc_decrypt_byte(struct trad_enc_ctx * ctx)
 static unsigned trad_enc_encrypt_update(struct trad_enc_ctx * ctx, const uint8 * in,
     size_t in_len, uint8 * out, size_t out_len)
 {
-	unsigned i;
+	uint i;
 	const unsigned max = (uint)((in_len < out_len) ? in_len : out_len);
 	for(i = 0; i < max; i++) {
 		uint8 t = in[i];

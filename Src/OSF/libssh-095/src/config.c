@@ -765,20 +765,16 @@ static int ssh_config_parse_line(ssh_session session,
 			    if(strcasecmp(p, "quiet") == 0) {
 				    value = SSH_LOG_NONE;
 			    }
-			    else if(strcasecmp(p, "fatal") == 0 ||
-				strcasecmp(p, "error")== 0 ||
-				strcasecmp(p, "info") == 0) {
+			    else if(strcasecmp(p, "fatal") == 0 || strcasecmp(p, "error")== 0 || strcasecmp(p, "info") == 0) {
 				    value = SSH_LOG_WARN;
 			    }
 			    else if(strcasecmp(p, "verbose") == 0) {
 				    value = SSH_LOG_INFO;
 			    }
-			    else if(strcasecmp(p, "DEBUG") == 0 ||
-				strcasecmp(p, "DEBUG1") == 0) {
+			    else if(strcasecmp(p, "DEBUG") == 0 || strcasecmp(p, "DEBUG1") == 0) {
 				    value = SSH_LOG_DEBUG;
 			    }
-			    else if(strcasecmp(p, "DEBUG2") == 0 ||
-				strcasecmp(p, "DEBUG3") == 0) {
+			    else if(strcasecmp(p, "DEBUG2") == 0 || strcasecmp(p, "DEBUG3") == 0) {
 				    value = SSH_LOG_TRACE;
 			    }
 			    if(value != -1) {

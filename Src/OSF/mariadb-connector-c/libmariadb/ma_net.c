@@ -23,17 +23,6 @@
 */
 #include <ma_global.h>
 #pragma hdrstop
-//#include <mysql.h>
-//#include <ma_pvio.h>
-//#include <ma_sys.h>
-//#include <ma_string.h>
-//#include "mysql.h"
-//#include "ma_server_error.h"
-//#include <signal.h>
-//#include <errno.h>
-//#include <sys/types.h>
-//#include <ma_pvio.h>
-//#include <ma_common.h>
 #ifndef _WIN32
 	#include <poll.h>
 #endif

@@ -234,8 +234,7 @@ class MessageType final :
   explicit constexpr MessageType(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   MessageType(const MessageType& from);
-  MessageType(MessageType&& from) noexcept
-    : MessageType() {
+  MessageType(MessageType&& from) noexcept : MessageType() {
     *this = ::std::move(from);
   }
 
@@ -244,8 +243,8 @@ class MessageType final :
     return *this;
   }
   inline MessageType& operator=(MessageType&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -257,35 +256,22 @@ class MessageType final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const MessageType& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const MessageType& default_instance() { return *internal_default_instance(); }
   static inline const MessageType* internal_default_instance() {
-    return reinterpret_cast<const MessageType*>(
-               &_MessageType_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    0;
+    return reinterpret_cast<const MessageType*>(&_MessageType_default_instance_); }
+  static constexpr int kIndexInFileMessages = 0;
 
-  friend void swap(MessageType& a, MessageType& b) {
-    a.Swap(&b);
-  }
+  friend void swap(MessageType& a, MessageType& b) { a.Swap(&b); }
   inline void Swap(MessageType* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -293,7 +279,7 @@ class MessageType final :
     }
   }
   void UnsafeArenaSwap(MessageType* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -380,8 +366,7 @@ class TestMessage final :
   explicit constexpr TestMessage(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestMessage(const TestMessage& from);
-  TestMessage(TestMessage&& from) noexcept
-    : TestMessage() {
+  TestMessage(TestMessage&& from) noexcept : TestMessage() {
     *this = ::std::move(from);
   }
 
@@ -390,8 +375,8 @@ class TestMessage final :
     return *this;
   }
   inline TestMessage& operator=(TestMessage&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -403,35 +388,22 @@ class TestMessage final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestMessage& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestMessage& default_instance() { return *internal_default_instance(); }
   static inline const TestMessage* internal_default_instance() {
-    return reinterpret_cast<const TestMessage*>(
-               &_TestMessage_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    1;
+    return reinterpret_cast<const TestMessage*>(&_TestMessage_default_instance_); }
+  static constexpr int kIndexInFileMessages = 1;
 
-  friend void swap(TestMessage& a, TestMessage& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestMessage& a, TestMessage& b) { a.Swap(&b); }
   inline void Swap(TestMessage* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -439,7 +411,7 @@ class TestMessage final :
     }
   }
   void UnsafeArenaSwap(TestMessage* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -919,8 +891,7 @@ class TestOneof final :
   explicit constexpr TestOneof(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestOneof(const TestOneof& from);
-  TestOneof(TestOneof&& from) noexcept
-    : TestOneof() {
+  TestOneof(TestOneof&& from) noexcept : TestOneof() {
     *this = ::std::move(from);
   }
 
@@ -929,8 +900,8 @@ class TestOneof final :
     return *this;
   }
   inline TestOneof& operator=(TestOneof&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -942,18 +913,10 @@ class TestOneof final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestOneof& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestOneof& default_instance() { return *internal_default_instance(); }
   enum OneofValueCase {
     kOneofInt32Value = 1,
     kOneofStringValue = 2,
@@ -965,22 +928,17 @@ class TestOneof final :
   };
 
   static inline const TestOneof* internal_default_instance() {
-    return reinterpret_cast<const TestOneof*>(
-               &_TestOneof_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    2;
+    return reinterpret_cast<const TestOneof*>(&_TestOneof_default_instance_); }
+  static constexpr int kIndexInFileMessages = 2;
 
-  friend void swap(TestOneof& a, TestOneof& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestOneof& a, TestOneof& b) { a.Swap(&b); }
   inline void Swap(TestOneof* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -988,7 +946,7 @@ class TestOneof final :
     }
   }
   void UnsafeArenaSwap(TestOneof* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -1178,18 +1136,12 @@ class TestOneof final :
 };
 // -------------------------------------------------------------------
 
-class TestMap_BoolMapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMap_BoolMapEntry_DoNotUse, 
-    bool, int32_t,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL,
+class TestMap_BoolMapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMap_BoolMapEntry_DoNotUse, bool, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMap_BoolMapEntry_DoNotUse, 
-    bool, int32_t,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMap_BoolMapEntry_DoNotUse, bool, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> SuperType;
   TestMap_BoolMapEntry_DoNotUse();
-  explicit constexpr TestMap_BoolMapEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestMap_BoolMapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestMap_BoolMapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMap_BoolMapEntry_DoNotUse& other);
   static const TestMap_BoolMapEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMap_BoolMapEntry_DoNotUse*>(&_TestMap_BoolMapEntry_DoNotUse_default_instance_); }
@@ -1201,18 +1153,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class TestMap_Int32MapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMap_Int32MapEntry_DoNotUse, 
-    int32_t, int32_t,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
+class TestMap_Int32MapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMap_Int32MapEntry_DoNotUse, int32_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMap_Int32MapEntry_DoNotUse, 
-    int32_t, int32_t,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMap_Int32MapEntry_DoNotUse, int32_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> SuperType;
   TestMap_Int32MapEntry_DoNotUse();
-  explicit constexpr TestMap_Int32MapEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestMap_Int32MapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestMap_Int32MapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMap_Int32MapEntry_DoNotUse& other);
   static const TestMap_Int32MapEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMap_Int32MapEntry_DoNotUse*>(&_TestMap_Int32MapEntry_DoNotUse_default_instance_); }
@@ -1224,18 +1170,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class TestMap_Int64MapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMap_Int64MapEntry_DoNotUse, 
-    int64_t, int32_t,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64,
+class TestMap_Int64MapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMap_Int64MapEntry_DoNotUse, int64_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMap_Int64MapEntry_DoNotUse, 
-    int64_t, int32_t,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMap_Int64MapEntry_DoNotUse, int64_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> SuperType;
   TestMap_Int64MapEntry_DoNotUse();
-  explicit constexpr TestMap_Int64MapEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestMap_Int64MapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestMap_Int64MapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMap_Int64MapEntry_DoNotUse& other);
   static const TestMap_Int64MapEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMap_Int64MapEntry_DoNotUse*>(&_TestMap_Int64MapEntry_DoNotUse_default_instance_); }
@@ -1247,18 +1187,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class TestMap_Uint32MapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMap_Uint32MapEntry_DoNotUse, 
-    uint32_t, int32_t,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32,
+class TestMap_Uint32MapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMap_Uint32MapEntry_DoNotUse, uint32_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMap_Uint32MapEntry_DoNotUse, 
-    uint32_t, int32_t,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMap_Uint32MapEntry_DoNotUse, uint32_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> SuperType;
   TestMap_Uint32MapEntry_DoNotUse();
-  explicit constexpr TestMap_Uint32MapEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestMap_Uint32MapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestMap_Uint32MapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMap_Uint32MapEntry_DoNotUse& other);
   static const TestMap_Uint32MapEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMap_Uint32MapEntry_DoNotUse*>(&_TestMap_Uint32MapEntry_DoNotUse_default_instance_); }
@@ -1270,18 +1204,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class TestMap_Uint64MapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMap_Uint64MapEntry_DoNotUse, 
-    uint64_t, int32_t,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64,
+class TestMap_Uint64MapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMap_Uint64MapEntry_DoNotUse, uint64_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMap_Uint64MapEntry_DoNotUse, 
-    uint64_t, int32_t,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMap_Uint64MapEntry_DoNotUse, uint64_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> SuperType;
   TestMap_Uint64MapEntry_DoNotUse();
-  explicit constexpr TestMap_Uint64MapEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestMap_Uint64MapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestMap_Uint64MapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMap_Uint64MapEntry_DoNotUse& other);
   static const TestMap_Uint64MapEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMap_Uint64MapEntry_DoNotUse*>(&_TestMap_Uint64MapEntry_DoNotUse_default_instance_); }
@@ -1293,24 +1221,16 @@ public:
 
 // -------------------------------------------------------------------
 
-class TestMap_StringMapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMap_StringMapEntry_DoNotUse, 
-    std::string, int32_t,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
+class TestMap_StringMapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMap_StringMapEntry_DoNotUse, std::string, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMap_StringMapEntry_DoNotUse, 
-    std::string, int32_t,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestMap_StringMapEntry_DoNotUse, std::string, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> SuperType;
   TestMap_StringMapEntry_DoNotUse();
-  explicit constexpr TestMap_StringMapEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestMap_StringMapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestMap_StringMapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestMap_StringMapEntry_DoNotUse& other);
   static const TestMap_StringMapEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestMap_StringMapEntry_DoNotUse*>(&_TestMap_StringMapEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(std::string* s) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "proto3.TestMap.StringMapEntry.key");
- }
+  static bool ValidateKey(std::string* s) { return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "proto3.TestMap.StringMapEntry.key"); }
   static bool ValidateValue(void*) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
@@ -1326,8 +1246,7 @@ class TestMap final :
   explicit constexpr TestMap(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestMap(const TestMap& from);
-  TestMap(TestMap&& from) noexcept
-    : TestMap() {
+  TestMap(TestMap&& from) noexcept : TestMap() {
     *this = ::std::move(from);
   }
 
@@ -1336,8 +1255,8 @@ class TestMap final :
     return *this;
   }
   inline TestMap& operator=(TestMap&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -1349,35 +1268,22 @@ class TestMap final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestMap& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestMap& default_instance() { return *internal_default_instance(); }
   static inline const TestMap* internal_default_instance() {
-    return reinterpret_cast<const TestMap*>(
-               &_TestMap_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    9;
+    return reinterpret_cast<const TestMap*>(&_TestMap_default_instance_); }
+  static constexpr int kIndexInFileMessages = 9;
 
-  friend void swap(TestMap& a, TestMap& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestMap& a, TestMap& b) { a.Swap(&b); }
   inline void Swap(TestMap* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -1385,7 +1291,7 @@ class TestMap final :
     }
   }
   void UnsafeArenaSwap(TestMap* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -1592,18 +1498,12 @@ class TestMap final :
 };
 // -------------------------------------------------------------------
 
-class TestNestedMap_BoolMapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestNestedMap_BoolMapEntry_DoNotUse, 
-    bool, int32_t,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL,
+class TestNestedMap_BoolMapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestNestedMap_BoolMapEntry_DoNotUse, bool, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestNestedMap_BoolMapEntry_DoNotUse, 
-    bool, int32_t,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestNestedMap_BoolMapEntry_DoNotUse, bool, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> SuperType;
   TestNestedMap_BoolMapEntry_DoNotUse();
-  explicit constexpr TestNestedMap_BoolMapEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestNestedMap_BoolMapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestNestedMap_BoolMapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestNestedMap_BoolMapEntry_DoNotUse& other);
   static const TestNestedMap_BoolMapEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestNestedMap_BoolMapEntry_DoNotUse*>(&_TestNestedMap_BoolMapEntry_DoNotUse_default_instance_); }
@@ -1615,18 +1515,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class TestNestedMap_Int32MapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestNestedMap_Int32MapEntry_DoNotUse, 
-    int32_t, int32_t,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
+class TestNestedMap_Int32MapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestNestedMap_Int32MapEntry_DoNotUse, int32_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestNestedMap_Int32MapEntry_DoNotUse, 
-    int32_t, int32_t,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestNestedMap_Int32MapEntry_DoNotUse, int32_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> SuperType;
   TestNestedMap_Int32MapEntry_DoNotUse();
-  explicit constexpr TestNestedMap_Int32MapEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestNestedMap_Int32MapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestNestedMap_Int32MapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestNestedMap_Int32MapEntry_DoNotUse& other);
   static const TestNestedMap_Int32MapEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestNestedMap_Int32MapEntry_DoNotUse*>(&_TestNestedMap_Int32MapEntry_DoNotUse_default_instance_); }
@@ -1638,18 +1532,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class TestNestedMap_Int64MapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestNestedMap_Int64MapEntry_DoNotUse, 
-    int64_t, int32_t,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64,
+class TestNestedMap_Int64MapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestNestedMap_Int64MapEntry_DoNotUse, int64_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestNestedMap_Int64MapEntry_DoNotUse, 
-    int64_t, int32_t,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestNestedMap_Int64MapEntry_DoNotUse, int64_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> SuperType;
   TestNestedMap_Int64MapEntry_DoNotUse();
-  explicit constexpr TestNestedMap_Int64MapEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestNestedMap_Int64MapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestNestedMap_Int64MapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestNestedMap_Int64MapEntry_DoNotUse& other);
   static const TestNestedMap_Int64MapEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestNestedMap_Int64MapEntry_DoNotUse*>(&_TestNestedMap_Int64MapEntry_DoNotUse_default_instance_); }
@@ -1661,18 +1549,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class TestNestedMap_Uint32MapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestNestedMap_Uint32MapEntry_DoNotUse, 
-    uint32_t, int32_t,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32,
+class TestNestedMap_Uint32MapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestNestedMap_Uint32MapEntry_DoNotUse, uint32_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestNestedMap_Uint32MapEntry_DoNotUse, 
-    uint32_t, int32_t,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestNestedMap_Uint32MapEntry_DoNotUse, uint32_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> SuperType;
   TestNestedMap_Uint32MapEntry_DoNotUse();
-  explicit constexpr TestNestedMap_Uint32MapEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestNestedMap_Uint32MapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestNestedMap_Uint32MapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestNestedMap_Uint32MapEntry_DoNotUse& other);
   static const TestNestedMap_Uint32MapEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestNestedMap_Uint32MapEntry_DoNotUse*>(&_TestNestedMap_Uint32MapEntry_DoNotUse_default_instance_); }
@@ -1684,18 +1566,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class TestNestedMap_Uint64MapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestNestedMap_Uint64MapEntry_DoNotUse, 
-    uint64_t, int32_t,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64,
+class TestNestedMap_Uint64MapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestNestedMap_Uint64MapEntry_DoNotUse, uint64_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestNestedMap_Uint64MapEntry_DoNotUse, 
-    uint64_t, int32_t,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestNestedMap_Uint64MapEntry_DoNotUse, uint64_t, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> SuperType;
   TestNestedMap_Uint64MapEntry_DoNotUse();
-  explicit constexpr TestNestedMap_Uint64MapEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestNestedMap_Uint64MapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestNestedMap_Uint64MapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestNestedMap_Uint64MapEntry_DoNotUse& other);
   static const TestNestedMap_Uint64MapEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestNestedMap_Uint64MapEntry_DoNotUse*>(&_TestNestedMap_Uint64MapEntry_DoNotUse_default_instance_); }
@@ -1707,24 +1583,16 @@ public:
 
 // -------------------------------------------------------------------
 
-class TestNestedMap_StringMapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestNestedMap_StringMapEntry_DoNotUse, 
-    std::string, int32_t,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
+class TestNestedMap_StringMapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestNestedMap_StringMapEntry_DoNotUse, std::string, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestNestedMap_StringMapEntry_DoNotUse, 
-    std::string, int32_t,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestNestedMap_StringMapEntry_DoNotUse, std::string, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> SuperType;
   TestNestedMap_StringMapEntry_DoNotUse();
-  explicit constexpr TestNestedMap_StringMapEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestNestedMap_StringMapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestNestedMap_StringMapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestNestedMap_StringMapEntry_DoNotUse& other);
   static const TestNestedMap_StringMapEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestNestedMap_StringMapEntry_DoNotUse*>(&_TestNestedMap_StringMapEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(std::string* s) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "proto3.TestNestedMap.StringMapEntry.key");
- }
+  static bool ValidateKey(std::string* s) { return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "proto3.TestNestedMap.StringMapEntry.key"); }
   static bool ValidateValue(void*) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
@@ -1732,24 +1600,16 @@ public:
 
 // -------------------------------------------------------------------
 
-class TestNestedMap_MapMapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestNestedMap_MapMapEntry_DoNotUse, 
-    std::string, ::proto3::TestNestedMap,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
+class TestNestedMap_MapMapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestNestedMap_MapMapEntry_DoNotUse, std::string, ::proto3::TestNestedMap, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestNestedMap_MapMapEntry_DoNotUse, 
-    std::string, ::proto3::TestNestedMap,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestNestedMap_MapMapEntry_DoNotUse, std::string, ::proto3::TestNestedMap, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   TestNestedMap_MapMapEntry_DoNotUse();
-  explicit constexpr TestNestedMap_MapMapEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestNestedMap_MapMapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestNestedMap_MapMapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestNestedMap_MapMapEntry_DoNotUse& other);
   static const TestNestedMap_MapMapEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestNestedMap_MapMapEntry_DoNotUse*>(&_TestNestedMap_MapMapEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(std::string* s) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "proto3.TestNestedMap.MapMapEntry.key");
- }
+  static bool ValidateKey(std::string* s) { return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "proto3.TestNestedMap.MapMapEntry.key"); }
   static bool ValidateValue(void*) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
@@ -1765,8 +1625,7 @@ class TestNestedMap final :
   explicit constexpr TestNestedMap(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestNestedMap(const TestNestedMap& from);
-  TestNestedMap(TestNestedMap&& from) noexcept
-    : TestNestedMap() {
+  TestNestedMap(TestNestedMap&& from) noexcept : TestNestedMap() {
     *this = ::std::move(from);
   }
 
@@ -1775,8 +1634,8 @@ class TestNestedMap final :
     return *this;
   }
   inline TestNestedMap& operator=(TestNestedMap&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -1788,35 +1647,22 @@ class TestNestedMap final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestNestedMap& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestNestedMap& default_instance() { return *internal_default_instance(); }
   static inline const TestNestedMap* internal_default_instance() {
-    return reinterpret_cast<const TestNestedMap*>(
-               &_TestNestedMap_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    17;
+    return reinterpret_cast<const TestNestedMap*>(&_TestNestedMap_default_instance_); }
+  static constexpr int kIndexInFileMessages = 17;
 
-  friend void swap(TestNestedMap& a, TestNestedMap& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestNestedMap& a, TestNestedMap& b) { a.Swap(&b); }
   inline void Swap(TestNestedMap* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -1824,7 +1670,7 @@ class TestNestedMap final :
     }
   }
   void UnsafeArenaSwap(TestNestedMap* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -2054,27 +1900,17 @@ class TestNestedMap final :
 };
 // -------------------------------------------------------------------
 
-class TestStringMap_StringMapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestStringMap_StringMapEntry_DoNotUse, 
-    std::string, std::string,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
+class TestStringMap_StringMapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestStringMap_StringMapEntry_DoNotUse, std::string, std::string, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestStringMap_StringMapEntry_DoNotUse, 
-    std::string, std::string,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestStringMap_StringMapEntry_DoNotUse, std::string, std::string, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING> SuperType;
   TestStringMap_StringMapEntry_DoNotUse();
-  explicit constexpr TestStringMap_StringMapEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestStringMap_StringMapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestStringMap_StringMapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestStringMap_StringMapEntry_DoNotUse& other);
   static const TestStringMap_StringMapEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestStringMap_StringMapEntry_DoNotUse*>(&_TestStringMap_StringMapEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(std::string* s) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "proto3.TestStringMap.StringMapEntry.key");
- }
-  static bool ValidateValue(std::string* s) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "proto3.TestStringMap.StringMapEntry.value");
- }
+  static bool ValidateKey(std::string* s) { return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "proto3.TestStringMap.StringMapEntry.key"); }
+  static bool ValidateValue(std::string* s) { return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "proto3.TestStringMap.StringMapEntry.value"); }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 };
@@ -2089,8 +1925,7 @@ class TestStringMap final :
   explicit constexpr TestStringMap(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestStringMap(const TestStringMap& from);
-  TestStringMap(TestStringMap&& from) noexcept
-    : TestStringMap() {
+  TestStringMap(TestStringMap&& from) noexcept : TestStringMap() {
     *this = ::std::move(from);
   }
 
@@ -2099,8 +1934,8 @@ class TestStringMap final :
     return *this;
   }
   inline TestStringMap& operator=(TestStringMap&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -2112,35 +1947,22 @@ class TestStringMap final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestStringMap& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestStringMap& default_instance() { return *internal_default_instance(); }
   static inline const TestStringMap* internal_default_instance() {
-    return reinterpret_cast<const TestStringMap*>(
-               &_TestStringMap_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    19;
+    return reinterpret_cast<const TestStringMap*>(&_TestStringMap_default_instance_); }
+  static constexpr int kIndexInFileMessages = 19;
 
-  friend void swap(TestStringMap& a, TestStringMap& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestStringMap& a, TestStringMap& b) { a.Swap(&b); }
   inline void Swap(TestStringMap* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -2148,7 +1970,7 @@ class TestStringMap final :
     }
   }
   void UnsafeArenaSwap(TestStringMap* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -2248,8 +2070,7 @@ class TestWrapper final :
   explicit constexpr TestWrapper(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestWrapper(const TestWrapper& from);
-  TestWrapper(TestWrapper&& from) noexcept
-    : TestWrapper() {
+  TestWrapper(TestWrapper&& from) noexcept : TestWrapper() {
     *this = ::std::move(from);
   }
 
@@ -2258,8 +2079,8 @@ class TestWrapper final :
     return *this;
   }
   inline TestWrapper& operator=(TestWrapper&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -2271,35 +2092,22 @@ class TestWrapper final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestWrapper& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestWrapper& default_instance() { return *internal_default_instance(); }
   static inline const TestWrapper* internal_default_instance() {
-    return reinterpret_cast<const TestWrapper*>(
-               &_TestWrapper_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    20;
+    return reinterpret_cast<const TestWrapper*>(&_TestWrapper_default_instance_); }
+  static constexpr int kIndexInFileMessages = 20;
 
-  friend void swap(TestWrapper& a, TestWrapper& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestWrapper& a, TestWrapper& b) { a.Swap(&b); }
   inline void Swap(TestWrapper* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -2307,7 +2115,7 @@ class TestWrapper final :
     }
   }
   void UnsafeArenaSwap(TestWrapper* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -2743,8 +2551,7 @@ class TestTimestamp final :
   explicit constexpr TestTimestamp(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestTimestamp(const TestTimestamp& from);
-  TestTimestamp(TestTimestamp&& from) noexcept
-    : TestTimestamp() {
+  TestTimestamp(TestTimestamp&& from) noexcept : TestTimestamp() {
     *this = ::std::move(from);
   }
 
@@ -2753,8 +2560,8 @@ class TestTimestamp final :
     return *this;
   }
   inline TestTimestamp& operator=(TestTimestamp&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -2766,35 +2573,22 @@ class TestTimestamp final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestTimestamp& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestTimestamp& default_instance() { return *internal_default_instance(); }
   static inline const TestTimestamp* internal_default_instance() {
-    return reinterpret_cast<const TestTimestamp*>(
-               &_TestTimestamp_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    21;
+    return reinterpret_cast<const TestTimestamp*>(&_TestTimestamp_default_instance_); }
+  static constexpr int kIndexInFileMessages = 21;
 
-  friend void swap(TestTimestamp& a, TestTimestamp& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestTimestamp& a, TestTimestamp& b) { a.Swap(&b); }
   inline void Swap(TestTimestamp* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -2802,7 +2596,7 @@ class TestTimestamp final :
     }
   }
   void UnsafeArenaSwap(TestTimestamp* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -2918,8 +2712,7 @@ class TestDuration final :
   explicit constexpr TestDuration(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestDuration(const TestDuration& from);
-  TestDuration(TestDuration&& from) noexcept
-    : TestDuration() {
+  TestDuration(TestDuration&& from) noexcept : TestDuration() {
     *this = ::std::move(from);
   }
 
@@ -2928,8 +2721,8 @@ class TestDuration final :
     return *this;
   }
   inline TestDuration& operator=(TestDuration&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -2941,35 +2734,22 @@ class TestDuration final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestDuration& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestDuration& default_instance() { return *internal_default_instance(); }
   static inline const TestDuration* internal_default_instance() {
-    return reinterpret_cast<const TestDuration*>(
-               &_TestDuration_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    22;
+    return reinterpret_cast<const TestDuration*>(&_TestDuration_default_instance_); }
+  static constexpr int kIndexInFileMessages = 22;
 
-  friend void swap(TestDuration& a, TestDuration& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestDuration& a, TestDuration& b) { a.Swap(&b); }
   inline void Swap(TestDuration* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -2977,7 +2757,7 @@ class TestDuration final :
     }
   }
   void UnsafeArenaSwap(TestDuration* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -3093,8 +2873,7 @@ class TestFieldMask final :
   explicit constexpr TestFieldMask(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestFieldMask(const TestFieldMask& from);
-  TestFieldMask(TestFieldMask&& from) noexcept
-    : TestFieldMask() {
+  TestFieldMask(TestFieldMask&& from) noexcept : TestFieldMask() {
     *this = ::std::move(from);
   }
 
@@ -3103,8 +2882,8 @@ class TestFieldMask final :
     return *this;
   }
   inline TestFieldMask& operator=(TestFieldMask&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -3116,35 +2895,22 @@ class TestFieldMask final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestFieldMask& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestFieldMask& default_instance() { return *internal_default_instance(); }
   static inline const TestFieldMask* internal_default_instance() {
-    return reinterpret_cast<const TestFieldMask*>(
-               &_TestFieldMask_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    23;
+    return reinterpret_cast<const TestFieldMask*>(&_TestFieldMask_default_instance_); }
+  static constexpr int kIndexInFileMessages = 23;
 
-  friend void swap(TestFieldMask& a, TestFieldMask& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestFieldMask& a, TestFieldMask& b) { a.Swap(&b); }
   inline void Swap(TestFieldMask* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -3152,7 +2918,7 @@ class TestFieldMask final :
     }
   }
   void UnsafeArenaSwap(TestFieldMask* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -3248,8 +3014,7 @@ class TestStruct final :
   explicit constexpr TestStruct(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestStruct(const TestStruct& from);
-  TestStruct(TestStruct&& from) noexcept
-    : TestStruct() {
+  TestStruct(TestStruct&& from) noexcept : TestStruct() {
     *this = ::std::move(from);
   }
 
@@ -3258,8 +3023,8 @@ class TestStruct final :
     return *this;
   }
   inline TestStruct& operator=(TestStruct&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -3271,35 +3036,22 @@ class TestStruct final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestStruct& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestStruct& default_instance() { return *internal_default_instance(); }
   static inline const TestStruct* internal_default_instance() {
-    return reinterpret_cast<const TestStruct*>(
-               &_TestStruct_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    24;
+    return reinterpret_cast<const TestStruct*>(&_TestStruct_default_instance_); }
+  static constexpr int kIndexInFileMessages = 24;
 
-  friend void swap(TestStruct& a, TestStruct& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestStruct& a, TestStruct& b) { a.Swap(&b); }
   inline void Swap(TestStruct* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -3307,7 +3059,7 @@ class TestStruct final :
     }
   }
   void UnsafeArenaSwap(TestStruct* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -3423,8 +3175,7 @@ class TestAny final :
   explicit constexpr TestAny(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestAny(const TestAny& from);
-  TestAny(TestAny&& from) noexcept
-    : TestAny() {
+  TestAny(TestAny&& from) noexcept : TestAny() {
     *this = ::std::move(from);
   }
 
@@ -3433,8 +3184,8 @@ class TestAny final :
     return *this;
   }
   inline TestAny& operator=(TestAny&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -3446,35 +3197,22 @@ class TestAny final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestAny& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestAny& default_instance() { return *internal_default_instance(); }
   static inline const TestAny* internal_default_instance() {
-    return reinterpret_cast<const TestAny*>(
-               &_TestAny_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    25;
+    return reinterpret_cast<const TestAny*>(&_TestAny_default_instance_); }
+  static constexpr int kIndexInFileMessages = 25;
 
-  friend void swap(TestAny& a, TestAny& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestAny& a, TestAny& b) { a.Swap(&b); }
   inline void Swap(TestAny* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -3482,7 +3220,7 @@ class TestAny final :
     }
   }
   void UnsafeArenaSwap(TestAny* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -3598,8 +3336,7 @@ class TestValue final :
   explicit constexpr TestValue(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestValue(const TestValue& from);
-  TestValue(TestValue&& from) noexcept
-    : TestValue() {
+  TestValue(TestValue&& from) noexcept : TestValue() {
     *this = ::std::move(from);
   }
 
@@ -3608,8 +3345,8 @@ class TestValue final :
     return *this;
   }
   inline TestValue& operator=(TestValue&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -3621,35 +3358,22 @@ class TestValue final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestValue& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestValue& default_instance() { return *internal_default_instance(); }
   static inline const TestValue* internal_default_instance() {
-    return reinterpret_cast<const TestValue*>(
-               &_TestValue_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    26;
+    return reinterpret_cast<const TestValue*>(&_TestValue_default_instance_); }
+  static constexpr int kIndexInFileMessages = 26;
 
-  friend void swap(TestValue& a, TestValue& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestValue& a, TestValue& b) { a.Swap(&b); }
   inline void Swap(TestValue* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -3657,7 +3381,7 @@ class TestValue final :
     }
   }
   void UnsafeArenaSwap(TestValue* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -3773,8 +3497,7 @@ class TestListValue final :
   explicit constexpr TestListValue(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestListValue(const TestListValue& from);
-  TestListValue(TestListValue&& from) noexcept
-    : TestListValue() {
+  TestListValue(TestListValue&& from) noexcept : TestListValue() {
     *this = ::std::move(from);
   }
 
@@ -3783,8 +3506,8 @@ class TestListValue final :
     return *this;
   }
   inline TestListValue& operator=(TestListValue&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -3796,35 +3519,22 @@ class TestListValue final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestListValue& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestListValue& default_instance() { return *internal_default_instance(); }
   static inline const TestListValue* internal_default_instance() {
-    return reinterpret_cast<const TestListValue*>(
-               &_TestListValue_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    27;
+    return reinterpret_cast<const TestListValue*>(&_TestListValue_default_instance_); }
+  static constexpr int kIndexInFileMessages = 27;
 
-  friend void swap(TestListValue& a, TestListValue& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestListValue& a, TestListValue& b) { a.Swap(&b); }
   inline void Swap(TestListValue* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -3832,7 +3542,7 @@ class TestListValue final :
     }
   }
   void UnsafeArenaSwap(TestListValue* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -3940,18 +3650,12 @@ class TestListValue final :
 };
 // -------------------------------------------------------------------
 
-class TestBoolValue_BoolMapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestBoolValue_BoolMapEntry_DoNotUse, 
-    bool, int32_t,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL,
+class TestBoolValue_BoolMapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestBoolValue_BoolMapEntry_DoNotUse, bool, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestBoolValue_BoolMapEntry_DoNotUse, 
-    bool, int32_t,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> SuperType;
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<TestBoolValue_BoolMapEntry_DoNotUse, bool, int32_t, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_BOOL, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32> SuperType;
   TestBoolValue_BoolMapEntry_DoNotUse();
-  explicit constexpr TestBoolValue_BoolMapEntry_DoNotUse(
-      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  explicit constexpr TestBoolValue_BoolMapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
   explicit TestBoolValue_BoolMapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const TestBoolValue_BoolMapEntry_DoNotUse& other);
   static const TestBoolValue_BoolMapEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const TestBoolValue_BoolMapEntry_DoNotUse*>(&_TestBoolValue_BoolMapEntry_DoNotUse_default_instance_); }
@@ -3971,8 +3675,7 @@ class TestBoolValue final :
   explicit constexpr TestBoolValue(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestBoolValue(const TestBoolValue& from);
-  TestBoolValue(TestBoolValue&& from) noexcept
-    : TestBoolValue() {
+  TestBoolValue(TestBoolValue&& from) noexcept : TestBoolValue() {
     *this = ::std::move(from);
   }
 
@@ -3981,8 +3684,8 @@ class TestBoolValue final :
     return *this;
   }
   inline TestBoolValue& operator=(TestBoolValue&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -3994,35 +3697,22 @@ class TestBoolValue final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestBoolValue& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestBoolValue& default_instance() { return *internal_default_instance(); }
   static inline const TestBoolValue* internal_default_instance() {
-    return reinterpret_cast<const TestBoolValue*>(
-               &_TestBoolValue_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    29;
+    return reinterpret_cast<const TestBoolValue*>(&_TestBoolValue_default_instance_); }
+  static constexpr int kIndexInFileMessages = 29;
 
-  friend void swap(TestBoolValue& a, TestBoolValue& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestBoolValue& a, TestBoolValue& b) { a.Swap(&b); }
   inline void Swap(TestBoolValue* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -4030,7 +3720,7 @@ class TestBoolValue final :
     }
   }
   void UnsafeArenaSwap(TestBoolValue* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -4141,8 +3831,7 @@ class TestCustomJsonName final :
   explicit constexpr TestCustomJsonName(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestCustomJsonName(const TestCustomJsonName& from);
-  TestCustomJsonName(TestCustomJsonName&& from) noexcept
-    : TestCustomJsonName() {
+  TestCustomJsonName(TestCustomJsonName&& from) noexcept : TestCustomJsonName() {
     *this = ::std::move(from);
   }
 
@@ -4151,8 +3840,8 @@ class TestCustomJsonName final :
     return *this;
   }
   inline TestCustomJsonName& operator=(TestCustomJsonName&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -4164,35 +3853,22 @@ class TestCustomJsonName final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestCustomJsonName& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestCustomJsonName& default_instance() { return *internal_default_instance(); }
   static inline const TestCustomJsonName* internal_default_instance() {
-    return reinterpret_cast<const TestCustomJsonName*>(
-               &_TestCustomJsonName_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    30;
+    return reinterpret_cast<const TestCustomJsonName*>(&_TestCustomJsonName_default_instance_); }
+  static constexpr int kIndexInFileMessages = 30;
 
-  friend void swap(TestCustomJsonName& a, TestCustomJsonName& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestCustomJsonName& a, TestCustomJsonName& b) { a.Swap(&b); }
   inline void Swap(TestCustomJsonName* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -4200,7 +3876,7 @@ class TestCustomJsonName final :
     }
   }
   void UnsafeArenaSwap(TestCustomJsonName* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -4287,8 +3963,7 @@ class TestExtensions final :
   explicit constexpr TestExtensions(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestExtensions(const TestExtensions& from);
-  TestExtensions(TestExtensions&& from) noexcept
-    : TestExtensions() {
+  TestExtensions(TestExtensions&& from) noexcept : TestExtensions() {
     *this = ::std::move(from);
   }
 
@@ -4297,8 +3972,8 @@ class TestExtensions final :
     return *this;
   }
   inline TestExtensions& operator=(TestExtensions&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -4310,35 +3985,22 @@ class TestExtensions final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestExtensions& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestExtensions& default_instance() { return *internal_default_instance(); }
   static inline const TestExtensions* internal_default_instance() {
-    return reinterpret_cast<const TestExtensions*>(
-               &_TestExtensions_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    31;
+    return reinterpret_cast<const TestExtensions*>(&_TestExtensions_default_instance_); }
+  static constexpr int kIndexInFileMessages = 31;
 
-  friend void swap(TestExtensions& a, TestExtensions& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestExtensions& a, TestExtensions& b) { a.Swap(&b); }
   inline void Swap(TestExtensions* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -4346,7 +4008,7 @@ class TestExtensions final :
     }
   }
   void UnsafeArenaSwap(TestExtensions* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -4442,8 +4104,7 @@ class TestEnumValue final :
   explicit constexpr TestEnumValue(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestEnumValue(const TestEnumValue& from);
-  TestEnumValue(TestEnumValue&& from) noexcept
-    : TestEnumValue() {
+  TestEnumValue(TestEnumValue&& from) noexcept : TestEnumValue() {
     *this = ::std::move(from);
   }
 
@@ -4452,8 +4113,8 @@ class TestEnumValue final :
     return *this;
   }
   inline TestEnumValue& operator=(TestEnumValue&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -4465,35 +4126,22 @@ class TestEnumValue final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestEnumValue& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestEnumValue& default_instance() { return *internal_default_instance(); }
   static inline const TestEnumValue* internal_default_instance() {
-    return reinterpret_cast<const TestEnumValue*>(
-               &_TestEnumValue_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    32;
+    return reinterpret_cast<const TestEnumValue*>(&_TestEnumValue_default_instance_); }
+  static constexpr int kIndexInFileMessages = 32;
 
-  friend void swap(TestEnumValue& a, TestEnumValue& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestEnumValue& a, TestEnumValue& b) { a.Swap(&b); }
   inline void Swap(TestEnumValue* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -4501,7 +4149,7 @@ class TestEnumValue final :
     }
   }
   void UnsafeArenaSwap(TestEnumValue* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -5474,9 +5122,7 @@ inline int TestMessage::repeated_enum_value_size() const {
 inline void TestMessage::clear_repeated_enum_value() {
   repeated_enum_value_.Clear();
 }
-inline ::proto3::EnumType TestMessage::_internal_repeated_enum_value(int index) const {
-  return static_cast< ::proto3::EnumType >(repeated_enum_value_.Get(index));
-}
+inline ::proto3::EnumType TestMessage::_internal_repeated_enum_value(int index) const { return static_cast< ::proto3::EnumType >(repeated_enum_value_.Get(index)); }
 inline ::proto3::EnumType TestMessage::repeated_enum_value(int index) const {
   // @@protoc_insertion_point(field_get:proto3.TestMessage.repeated_enum_value)
   return _internal_repeated_enum_value(index);

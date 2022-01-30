@@ -28,11 +28,8 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_support_format_tar.c 201161 2009-12-29 05:44:39Z kientzle $");
 
-#include "archive.h"
 #include "archive_acl_private.h" /* For ACL parsing routines. */
-#include "archive_entry.h"
 #include "archive_entry_locale.h"
-#include "archive_private.h"
 #include "archive_read_private.h"
 
 #define tar_min(a, b) ((a) < (b) ? (a) : (b))
@@ -551,8 +548,7 @@ static int archive_read_format_tar_read_data(struct archive_read * a,
 		if(bytes_read < 0)
 			return ARCHIVE_FATAL;
 		if(*buff == NULL) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "Truncated tar archive");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Truncated tar archive");
 			return ARCHIVE_FATAL;
 		}
 		if(bytes_read > tar->entry_bytes_remaining)
@@ -679,16 +675,13 @@ static int tar_read_header(struct archive_read * a, struct tar * tar,
 		archive_set_error(&a->archive, EINVAL, "Damaged tar archive");
 		return (ARCHIVE_RETRY); /* Retryable: Invalid header */
 	}
-
 	if(++tar->header_recursion_depth > 32) {
 		tar_flush_unconsumed(a, unconsumed);
 		archive_set_error(&a->archive, EINVAL, "Too many special headers");
 		return ARCHIVE_WARN;
 	}
-
 	/* Determine the format variant. */
 	header = (const struct archive_entry_header_ustar *)h;
-
 	switch(header->typeflag[0]) {
 		case 'A': /* Solaris tar ACL */
 		    a->archive.archive_format = ARCHIVE_FORMAT_TAR_PAX_INTERCHANGE;
@@ -2546,9 +2539,7 @@ static ssize_t readline(struct archive_read * a, struct tar * tar, const char **
 	if(p != NULL) {
 		bytes_read = 1 + ((const char *)p) - s;
 		if(bytes_read > limit) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_FILE_FORMAT,
-			    "Line too long");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Line too long");
 			return ARCHIVE_FATAL;
 		}
 		*unconsumed = bytes_read;
@@ -2559,14 +2550,11 @@ static ssize_t readline(struct archive_read * a, struct tar * tar, const char **
 	/* Otherwise, we need to accumulate in a line buffer. */
 	for(;;) {
 		if(total_size + bytes_read > limit) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_FILE_FORMAT,
-			    "Line too long");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Line too long");
 			return ARCHIVE_FATAL;
 		}
 		if(archive_string_ensure(&tar->line, total_size + bytes_read) == NULL) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate working buffer");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate working buffer");
 			return ARCHIVE_FATAL;
 		}
 		memcpy(tar->line.s + total_size, t, bytes_read);
@@ -2615,7 +2603,7 @@ static char * base64_decode(const char * s, size_t len, size_t * out_len)
 
 	/* If the decode table is not yet initialized, prepare it. */
 	if(decode_table[digits[1]] != 1) {
-		unsigned i;
+		uint i;
 		memset(decode_table, 0xff, sizeof(decode_table));
 		for(i = 0; i < sizeof(digits); i++)
 			decode_table[digits[i]] = i;

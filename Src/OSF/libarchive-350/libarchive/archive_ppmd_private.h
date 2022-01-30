@@ -26,7 +26,7 @@ typedef long Int32;
 typedef unsigned long UInt32;
 #else
 typedef int Int32;
-typedef unsigned int UInt32;
+typedef uint UInt32;
 #endif
 
 #ifdef _SZ_NO_INT_64

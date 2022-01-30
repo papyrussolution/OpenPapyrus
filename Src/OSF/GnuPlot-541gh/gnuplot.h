@@ -41,12 +41,12 @@
 #define WITH_METAPOST
 //#define PIPES
 
-#include <signal.h>
-#include <setjmp.h>
+//#include <signal.h>
+//#include <setjmp.h>
 #include <memory.h>
-#ifdef HAVE_WCHAR_H
-	#include <wchar.h>
-#endif
+//#ifdef HAVE_WCHAR_H
+	//#include <wchar.h>
+//#endif
 #include <tchar.h>
 #if defined(_MSC_VER) || defined(__WATCOMC__)
 	#include <io.h>

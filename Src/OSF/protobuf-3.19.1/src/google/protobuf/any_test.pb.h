@@ -71,8 +71,7 @@ class TestAny final :
   explicit constexpr TestAny(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   TestAny(const TestAny& from);
-  TestAny(TestAny&& from) noexcept
-    : TestAny() {
+  TestAny(TestAny&& from) noexcept : TestAny() {
     *this = ::std::move(from);
   }
 
@@ -81,8 +80,8 @@ class TestAny final :
     return *this;
   }
   inline TestAny& operator=(TestAny&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -94,35 +93,22 @@ class TestAny final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TestAny& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const TestAny& default_instance() { return *internal_default_instance(); }
   static inline const TestAny* internal_default_instance() {
-    return reinterpret_cast<const TestAny*>(
-               &_TestAny_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    0;
+    return reinterpret_cast<const TestAny*>(&_TestAny_default_instance_); }
+  static constexpr int kIndexInFileMessages = 0;
 
-  friend void swap(TestAny& a, TestAny& b) {
-    a.Swap(&b);
-  }
+  friend void swap(TestAny& a, TestAny& b) { a.Swap(&b); }
   inline void Swap(TestAny* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -130,7 +116,7 @@ class TestAny final :
     }
   }
   void UnsafeArenaSwap(TestAny* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }

@@ -41,11 +41,7 @@ __FBSDID("$FreeBSD$");
  * archive being read was tainted.  Windows has a similar feature; we
  * should investigate ways to support this generically. */
 
-#include "archive.h"
 #include "archive_acl_private.h"
-#include "archive_string.h"
-#include "archive_entry.h"
-#include "archive_private.h"
 
 #ifndef O_BINARY
 #define O_BINARY 0

@@ -1,5 +1,5 @@
 // OBJUTIL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -795,6 +795,12 @@ ListBoxDef * PPObject::Selector(ListBoxDef * pOrgDef, long flags, void * extraPt
 	if(ImplementFlags & implStrAssocMakeList) {
 		StrAssocArray * p_list = MakeStrAssocList(extraPtr);
 		if(p_list) {
+			// @v11.2.12 {
+			if(flags & OLW_INSCONTEXTEDITEMS) {
+				p_list->AddFast(ROBJID_CONTEXT, "#BYCONTEXT");
+				p_list->Move(p_list->getCount()-1, 0);
+			}
+			// } @v11.2.12
 			if(pOrgDef) {
 				if(ImplementFlags & implTreeSelector)
 					static_cast<StdTreeListBoxDef *>(pOrgDef)->setArray(p_list);

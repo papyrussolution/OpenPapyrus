@@ -70,8 +70,7 @@ class Any final :
   explicit constexpr Any(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   Any(const Any& from);
-  Any(Any&& from) noexcept
-    : Any() {
+  Any(Any&& from) noexcept : Any() {
     *this = ::std::move(from);
   }
 
@@ -80,8 +79,8 @@ class Any final :
     return *this;
   }
   inline Any& operator=(Any&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -93,24 +92,13 @@ class Any final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const Any& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const Any& default_instance() { return *internal_default_instance(); }
   static inline const Any* internal_default_instance() {
-    return reinterpret_cast<const Any*>(
-               &_Any_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    0;
+    return reinterpret_cast<const Any*>(&_Any_default_instance_); }
+  static constexpr int kIndexInFileMessages = 0;
 
   // implements Any -----------------------------------------------
 
@@ -124,29 +112,21 @@ class Any final :
       const ::PROTOBUF_NAMESPACE_ID::FieldDescriptor** type_url_field,
       const ::PROTOBUF_NAMESPACE_ID::FieldDescriptor** value_field);
   template <typename T, class = typename std::enable_if<!std::is_convertible<T, const ::PROTOBUF_NAMESPACE_ID::Message&>::value>::type>
-  bool PackFrom(const T& message) {
-    return _any_metadata_.PackFrom<T>(GetArena(), message);
-  }
+  bool PackFrom(const T& message) { return _any_metadata_.PackFrom<T>(GetArena(), message); }
   template <typename T, class = typename std::enable_if<!std::is_convertible<T, const ::PROTOBUF_NAMESPACE_ID::Message&>::value>::type>
-  bool PackFrom(const T& message, ::PROTOBUF_NAMESPACE_ID::ConstStringParam type_url_prefix) {
-    return _any_metadata_.PackFrom<T>(GetArena(), message, type_url_prefix);}
+  bool PackFrom(const T& message, ::PROTOBUF_NAMESPACE_ID::ConstStringParam type_url_prefix) { return _any_metadata_.PackFrom<T>(GetArena(), message, type_url_prefix); }
   template <typename T, class = typename std::enable_if<!std::is_convertible<T, const ::PROTOBUF_NAMESPACE_ID::Message&>::value>::type>
   bool UnpackTo(T* message) const { return _any_metadata_.UnpackTo<T>(message); }
-  template<typename T> bool Is() const {
-    return _any_metadata_.Is<T>();
-  }
-  static bool ParseAnyTypeUrl(::PROTOBUF_NAMESPACE_ID::ConstStringParam type_url,
-                              std::string* full_type_name);
-  friend void swap(Any& a, Any& b) {
-    a.Swap(&b);
-  }
+  template<typename T> bool Is() const { return _any_metadata_.Is<T>(); }
+  static bool ParseAnyTypeUrl(::PROTOBUF_NAMESPACE_ID::ConstStringParam type_url, std::string * full_type_name);
+  friend void swap(Any& a, Any& b) { a.Swap(&b); }
   inline void Swap(Any* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -154,7 +134,7 @@ class Any final :
     }
   }
   void UnsafeArenaSwap(Any* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }

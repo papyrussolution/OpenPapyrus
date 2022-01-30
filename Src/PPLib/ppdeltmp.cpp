@@ -1,6 +1,7 @@
 // PPDELTMP.CPP
-// Copyright (c) A.Osolotkin, A.Sobolev 2001-2003, 2005, 2007, 2013, 2015, 2016, 2017, 2018, 2020
-// Удаление временных файлов
+// Copyright (c) A.Osolotkin, A.Sobolev 2001-2003, 2005, 2007, 2013, 2015, 2016, 2017, 2018, 2020, 2022
+// @codepage UTF-8
+// РЈРґР°Р»РµРЅРёРµ РІСЂРµРјРµРЅРЅС‹С… С„Р°Р№Р»РѕРІ
 //
 #include <pp.h>
 #pragma hdrstop
@@ -39,15 +40,30 @@ static void _RemoveTempFiles(PPID pathID, const char * pExt, const char * pFileP
 
 static void FASTCALL RemoveInOutFiles(long diff_dt, PPID pathID)
 {
-	SString src_path, src_file_name;
-	LDATE  cur_dt = getcurdate_();
-	PPGetPath(pathID, src_path);
-	src_path.SetLastSlash();
-	(src_file_name = src_path).Cat("*.pps");
+	// ppos-backup
+	SString src_path;
+	SString src_file_name;
+	SString base_path;
+	const LDATE cur_dt = getcurdate_();
 	SDirEntry sde;
-	for(SDirec sd(src_file_name); sd.Next(&sde) > 0;)
-		if(diffdate(cur_dt, sde.WriteTime.d) >= diff_dt)
-			SFile::Remove((src_file_name = src_path).Cat(sde.FileName));
+	PPGetPath(pathID, base_path);
+	{
+		(src_path = base_path).SetLastSlash();
+		(src_file_name = src_path).Cat("*.pps");
+		for(SDirec sd(src_file_name); sd.Next(&sde) > 0;)
+			if(diffdate(cur_dt, sde.WriteTime.d) >= diff_dt)
+				SFile::Remove((src_file_name = src_path).Cat(sde.FileName));
+	}
+	// @v11.2.12 {
+	// РЈРґР°Р»СЏРµРј СЃС‚Р°СЂС‹Рµ С„Р°Р№Р»С‹ РёР· backup-РєР°С‚Р°Р»РѕРіР°
+	{
+		(src_path = base_path).SetLastSlash().Cat("ppos-backup").SetLastSlash();
+		(src_file_name = src_path).Cat("*.pps");
+		for(SDirec sd(src_file_name); sd.Next(&sde) > 0;)
+			if(diffdate(cur_dt, sde.WriteTime.d) >= diff_dt)
+				SFile::Remove((src_file_name = src_path).Cat(sde.FileName));
+	}
+	// } @v11.2.12
 }
 
 int PPDeleteTmpFiles(DeleteTmpFilesParam * pDelParam)
@@ -92,11 +108,9 @@ int PPDeleteTmpFiles(DeleteTmpFilesParam * pDelParam)
 		_RemoveTempFiles(PPPATH_OUT,  "PML", 0);
 		_RemoveTempFiles(PPPATH_TEMP, "MSG", 0);
 	}
-	// @v9.9.9 {
 	if(pDelParam->Flags & DeleteTmpFilesParam::fRmvTempQrCodes) {
 		_RemoveTempFiles(PPPATH_TEMP, "png", "fccqr");
 	}
-	// } @v9.9.9 
 	if(pDelParam->Flags & DeleteTmpFilesParam::fRmvBHTDataFiles) {
 		_RemoveTempFiles(PPPATH_IN,  "DAT", "BHT");
 		_RemoveTempFiles(PPPATH_IN,  "DBF", "BHT");
@@ -107,14 +121,14 @@ int PPDeleteTmpFiles(DeleteTmpFilesParam * pDelParam)
 		RemoveInOutFiles(pDelParam->OutDays, PPPATH_OUT);
 	{
 		//
-		// Безусловное удаление некоторых файлов, которые существуют более 3-x суток
+		// Р‘РµР·СѓСЃР»РѕРІРЅРѕРµ СѓРґР°Р»РµРЅРёРµ РЅРµРєРѕС‚РѕСЂС‹С… С„Р°Р№Р»РѕРІ, РєРѕС‚РѕСЂС‹Рµ СЃСѓС‰РµСЃС‚РІСѓСЋС‚ Р±РѕР»РµРµ 3-x СЃСѓС‚РѕРє
 		//
 		StringSet etc_to_rmv_files;
 		const LDATETIME ct = getcurdatetime_();
 		if(_temp_path.NotEmpty()) {
 			{
 				//
-				// Временные файлы изображений
+				// Р’СЂРµРјРµРЅРЅС‹Рµ С„Р°Р№Р»С‹ РёР·РѕР±СЂР°Р¶РµРЅРёР№
 				//
 				(tmp_sub_dir = _temp_path).Cat("oimg????.*");
 				for(SDirec sd(tmp_sub_dir, 0); sd.Next(&sde) > 0;) {
@@ -124,7 +138,7 @@ int PPDeleteTmpFiles(DeleteTmpFilesParam * pDelParam)
 			}
 			{
 				//
-				// Временные файлы post-изображений (подкаталог img)
+				// Р’СЂРµРјРµРЅРЅС‹Рµ С„Р°Р№Р»С‹ post-РёР·РѕР±СЂР°Р¶РµРЅРёР№ (РїРѕРґРєР°С‚Р°Р»РѕРі img)
 				//
 				(tmp_dir = _temp_path).Cat("img").SetLastSlash();
 				(tmp_sub_dir = tmp_dir).Cat("pst?????.*");
@@ -135,7 +149,7 @@ int PPDeleteTmpFiles(DeleteTmpFilesParam * pDelParam)
 			}
 			{
 				//
-				// Временные xml-файлы
+				// Р’СЂРµРјРµРЅРЅС‹Рµ xml-С„Р°Р№Р»С‹
 				//
 				(tmp_sub_dir = _temp_path).Cat("*.xml");
 				for(SDirec sd(tmp_sub_dir, 0); sd.Next(&sde) > 0;) {
@@ -145,7 +159,7 @@ int PPDeleteTmpFiles(DeleteTmpFilesParam * pDelParam)
 			}
 			{
 				//
-				// Временные файлы рабочих книг
+				// Р’СЂРµРјРµРЅРЅС‹Рµ С„Р°Р№Р»С‹ СЂР°Р±РѕС‡РёС… РєРЅРёРі
 				//
 				(tmp_sub_dir = _temp_path).Cat("wb*.*");
 				for(SDirec sd(tmp_sub_dir, 0); sd.Next(&sde) > 0;) {
@@ -166,20 +180,21 @@ int PPDeleteTmpFiles(DeleteTmpFilesParam * pDelParam)
 int DeleteTmpFilesDlg(DeleteTmpFilesParam * pParam)
 {
 	class DeleteTmpFilesDialog : public TDialog {
+		DECL_DIALOG_DATA(DeleteTmpFilesParam);
 	public:
 		DeleteTmpFilesDialog() : TDialog(DLG_DELTMP)
 		{
 		}
-		int    setDTS(const DeleteTmpFilesParam * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			ushort v = 0;
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			AddClusterAssoc(CTL_DELTMP_FILES, 0, DeleteTmpFilesParam::fRmvTempData);
 			AddClusterAssoc(CTL_DELTMP_FILES, 1, DeleteTmpFilesParam::fRmvTempPrns);
 			AddClusterAssoc(CTL_DELTMP_FILES, 2, DeleteTmpFilesParam::fRmvTempCharry);
 			AddClusterAssoc(CTL_DELTMP_FILES, 3, DeleteTmpFilesParam::fRmvTempEmail);
 			AddClusterAssoc(CTL_DELTMP_FILES, 4, DeleteTmpFilesParam::fRmvBHTDataFiles);
-			AddClusterAssoc(CTL_DELTMP_FILES, 5, DeleteTmpFilesParam::fRmvTempQrCodes); // @v9.9.9
+			AddClusterAssoc(CTL_DELTMP_FILES, 5, DeleteTmpFilesParam::fRmvTempQrCodes);
 			SetClusterData(CTL_DELTMP_FILES, Data.Flags);
 
 			v = BIN(Data.Flags & DeleteTmpFilesParam::fRmvInTransm);
@@ -192,7 +207,7 @@ int DeleteTmpFilesDlg(DeleteTmpFilesParam * pParam)
 			disableCtrl(CTL_DELTMP_OUTDAYS, !v);
 			return 1;
 		}
-		int    getDTS(DeleteTmpFilesParam * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			ushort v = 0;
 			int    r = 1;
@@ -229,7 +244,6 @@ int DeleteTmpFilesDlg(DeleteTmpFilesParam * pParam)
 				clearEvent(event);
 			}
 		}
-		DeleteTmpFilesParam Data;
 	};
 	DIALOG_PROC_BODYERR(DeleteTmpFilesDialog, pParam);
 }

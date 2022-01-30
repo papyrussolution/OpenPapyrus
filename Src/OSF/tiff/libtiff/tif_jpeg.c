@@ -42,15 +42,14 @@
  *
  * Contributed by Tom Lane <tgl@sss.pgh.pa.us>.
  */
-#include <setjmp.h>
+//#include <setjmp.h>
 
 int TIFFFillStrip(TIFF* tif, uint32 strip);
 int TIFFFillTile(TIFF* tif, uint32 tile);
 int TIFFReInitJPEG_12(TIFF * tif, int scheme, int is_encode);
 int TIFFJPEGIsFullStripRequired_12(TIFF* tif);
 
-/* We undefine FAR to avoid conflict with JPEG definition */
-
+// We undefine FAR to avoid conflict with JPEG definition 
 #ifdef FAR
 #undef FAR
 #endif

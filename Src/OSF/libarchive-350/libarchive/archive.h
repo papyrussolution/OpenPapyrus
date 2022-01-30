@@ -38,10 +38,10 @@
 /* Note: Compiler will complain if this does not match archive_entry.h! */
 #define ARCHIVE_VERSION_NUMBER 3005000
 
-#include <sys/stat.h>
-#include <stddef.h>  /* for wchar_t */
-#include <stdio.h> /* For FILE * */
-#include <time.h> /* For time_t */
+//#include <sys/stat.h>
+//#include <stddef.h>  /* for wchar_t */
+//#include <stdio.h> /* For FILE * */
+//#include <time.h> /* For time_t */
 
 /*
  * Note: archive.h is for use outside of libarchive; the configuration
@@ -457,9 +457,9 @@ __LA_DECL int archive_read_set_switch_callback(struct archive *, archive_switch_
 /* This sets the first data object. */
 __LA_DECL int archive_read_set_callback_data(struct archive *, void *);
 /* This sets data object at specified index */
-__LA_DECL int archive_read_set_callback_data2(struct archive *, void *, unsigned int);
+__LA_DECL int archive_read_set_callback_data2(struct archive *, void *, uint);
 /* This adds a data object at the specified index. */
-__LA_DECL int archive_read_add_callback_data(struct archive *, void *, unsigned int);
+__LA_DECL int archive_read_add_callback_data(struct archive *, void *, uint);
 /* This appends a data object to the end of list */
 __LA_DECL int archive_read_append_callback_data(struct archive *, void *);
 /* This prepends a data object to the beginning of list */

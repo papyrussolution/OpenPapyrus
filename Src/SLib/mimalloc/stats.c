@@ -451,7 +451,7 @@ void mi_thread_stats_print_out(mi_output_fun* out, void * arg) NOEXCEPT
 		return mi_to_msecs(t);
 	}
 #else
-	#include <time.h>
+	//#include <time.h>
 	#ifdef CLOCK_REALTIME
 	mi_msecs_t _mi_clock_now(void) 
 	{

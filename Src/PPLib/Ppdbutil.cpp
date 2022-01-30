@@ -1,5 +1,5 @@
 // PPDBUTIL.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -109,7 +109,10 @@ static int _Recover(BTBLID tblID, PPRecoverParam * pParam, SArray * pRecoverInfo
 	int    r = 1;
 	int64  disk_total = 0, disk_avail = 0;
 	DbTableStat ts;
-	SString path, msg_buf, fmt_buf, tbl_name;
+	SString path;
+	SString msg_buf;
+	SString fmt_buf;
+	SString tbl_name;
 	DbProvider * p_db = CurDict;
 	p_db->GetTableInfo(tblID, &ts);
 	path = ts.Location;
@@ -2413,12 +2416,14 @@ static int _DoRecover(PPDbEntrySet2 * pDbes, PPBackup * pBP)
 				//
 				// Создаем подкаталог, в который будут сбрасываться версии файлов "до ремонта"
 				//
-				for(long k = 1; k < 1000000L; k++)
+				for(long k = 1; k < 1000000L; k++) {
 					if(!::IsDirectory((bak_path = data_path).SetLastSlash().Cat("RB").CatLongZ(k, 6))) {
+						bak_path.SetLastSlash(); // @v11.2.12
 						THROW_SL(::createDir(bak_path));
 						param.P_BakPath = bak_path;
 						break;
 					}
+				}
 				if(tblID) {
 					THROW_PP(_Recover(tblID, &param, &r_info_array), PPERR_DBLIB);
 				}

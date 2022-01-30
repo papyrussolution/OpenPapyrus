@@ -236,10 +236,7 @@ void ssh_free(ssh_session session)
 
 	if(session->ssh_message_list) {
 		ssh_message msg;
-
-		for(msg = ssh_list_pop_head(ssh_message, session->ssh_message_list);
-		    msg != NULL;
-		    msg = ssh_list_pop_head(ssh_message, session->ssh_message_list)) {
+		for(msg = ssh_list_pop_head(ssh_message, session->ssh_message_list); msg != NULL; msg = ssh_list_pop_head(ssh_message, session->ssh_message_list)) {
 			ssh_message_free(msg);
 		}
 		ssh_list_free(session->ssh_message_list);
@@ -256,10 +253,7 @@ void ssh_free(ssh_session session)
 	/* options */
 	if(session->opts.identity) {
 		char * id;
-
-		for(id = ssh_list_pop_head(char *, session->opts.identity);
-		    id != NULL;
-		    id = ssh_list_pop_head(char *, session->opts.identity)) {
+		for(id = ssh_list_pop_head(char *, session->opts.identity); id != NULL; id = ssh_list_pop_head(char *, session->opts.identity)) {
 			ZFREE(id);
 		}
 		ssh_list_free(session->opts.identity);
@@ -380,10 +374,9 @@ const char * ssh_get_kex_algo(ssh_session session) {
  *
  * @return Returns cipher name or NULL.
  */
-const char * ssh_get_cipher_in(ssh_session session) {
-	if((session != NULL) &&
-	    (session->current_crypto != NULL) &&
-	    (session->current_crypto->in_cipher != NULL)) {
+const char * ssh_get_cipher_in(ssh_session session) 
+{
+	if((session != NULL) && (session->current_crypto != NULL) && (session->current_crypto->in_cipher != NULL)) {
 		return session->current_crypto->in_cipher->name;
 	}
 	return NULL;
@@ -396,10 +389,9 @@ const char * ssh_get_cipher_in(ssh_session session) {
  *
  * @return Returns cipher name or NULL.
  */
-const char * ssh_get_cipher_out(ssh_session session) {
-	if((session != NULL) &&
-	    (session->current_crypto != NULL) &&
-	    (session->current_crypto->out_cipher != NULL)) {
+const char * ssh_get_cipher_out(ssh_session session) 
+{
+	if((session != NULL) && (session->current_crypto != NULL) && (session->current_crypto->out_cipher != NULL)) {
 		return session->current_crypto->out_cipher->name;
 	}
 	return NULL;
@@ -412,9 +404,9 @@ const char * ssh_get_cipher_out(ssh_session session) {
  *
  * @return Returns HMAC algorithm name or NULL if unknown.
  */
-const char * ssh_get_hmac_in(ssh_session session) {
-	if((session != NULL) &&
-	    (session->current_crypto != NULL)) {
+const char * ssh_get_hmac_in(ssh_session session) 
+{
+	if((session != NULL) && (session->current_crypto != NULL)) {
 		return ssh_hmac_type_to_string(session->current_crypto->in_hmac, session->current_crypto->in_hmac_etm);
 	}
 	return NULL;

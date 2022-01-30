@@ -3957,8 +3957,8 @@ int PPEanComDocument::Read_Document(PPEdiProcessor::ProviderImplementation * pPr
 		}
 	}
 	else if(SXml::IsName(p_root, "ORDRSP")) { // @v11.2.7
-		PPID   ordrsp_op_id = 0;
-		//PPBillPacket * p_bp_rsp = 0;
+		// ***
+		PPID   ordrsp_op_id = 0; 
 		PPBillPacket * p_bp_ord = 0;
 		THROW(op_obj.GetEdiOrdrspOp(&ordrsp_op_id, 1));
 		THROW(Read_CommonDocumentEntries(p_root->children, document));
@@ -5028,8 +5028,7 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERS(xmlTextWriter * pX,
 			}
 			THROW(WriteOwnFormatContractor(_doc, "shipTo", 0, rBp.Rec.LocID));
 		}
-		// @v11.1.12 n_b.PutInnerSkipEmpty("comment", temp_buf.Z().Cat(rBp.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8));
-		n_b.PutInnerSkipEmpty("comment", (temp_buf = rBp.SMemo).Transf(CTRANSF_INNER_TO_UTF8)); // @v11.1.12
+		n_b.PutInnerSkipEmpty("comment", EncXmlText(rBp.SMemo));
 		{
 			SString goods_code;
 			SString goods_ar_code;
@@ -5050,6 +5049,7 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERS(xmlTextWriter * pX,
 				if(goods_ar_code.NotEmpty()) {
 					n_item.PutInner("internalSupplierCode", (temp_buf = goods_ar_code).Transf(CTRANSF_INNER_TO_UTF8));
 				}
+				n_item.PutInner("description", EncXmlText(goods_rec.Name)); // @v11.2.12
 				n_item.PutInner("lineNumber", temp_buf.Z().Cat(r_ti.RByBill));
 				//n_item.PutInnerSkipEmpty("comment", "");
 				Write_OwnFormat_Qtty(_doc, "requestedQuantity", "PCE", qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS));
@@ -5166,8 +5166,7 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERRSP(xmlTextWriter * p
 			}
 			THROW(WriteOwnFormatContractor(_doc, "shipFrom", 0, r_org_pack.Rec.LocID));
 		}
-		// @v11.1.12 n_b.PutInnerSkipEmpty("comment", temp_buf.Z().Cat(rBp.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8));
-		n_b.PutInnerSkipEmpty("comment", (temp_buf = rBp.SMemo).Transf(CTRANSF_INNER_TO_UTF8)); // @v11.1.12
+		n_b.PutInnerSkipEmpty("comment", EncXmlText(rBp.SMemo));
 		{
 			SString goods_code;
 			SString goods_ar_code;
@@ -5199,6 +5198,7 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERRSP(xmlTextWriter * p
 				if(goods_ar_code.NotEmpty()) {
 					n_item.PutInner("internalBuyerCode", (temp_buf = goods_ar_code).Transf(CTRANSF_INNER_TO_UTF8));
 				}
+				n_item.PutInner("description", EncXmlText(goods_rec.Name)); // @v11.2.12
 				n_item.PutInner("lineNumber", temp_buf.Z().Cat(r_ti.RByBill));
 				//n_item.PutInnerSkipEmpty("comment", "");
 				Write_OwnFormat_Qtty(_doc, "orderedQuantity", "PCE", qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS));
@@ -5294,8 +5294,7 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_DESADV(xmlTextWriter * pX,
 				THROW(WriteOwnFormatContractor(_doc, "shipTo", 0, rBp.GetDlvrAddrID()));
 			}
 		}
-		// @v11.1.12 n_b.PutInnerSkipEmpty("comment", temp_buf.Z().Cat(rBp.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8)); // <!--номер промоакции-->
-		n_b.PutInnerSkipEmpty("comment", (temp_buf = rBp.SMemo).Transf(CTRANSF_INNER_TO_UTF8)); // <!--номер промоакции--> // @v11.1.12
+		n_b.PutInnerSkipEmpty("comment", EncXmlText(rBp.SMemo)); // <!--номер промоакции--> // @v11.1.12
 		{
 			SString goods_code;
 			SString goods_ar_code;
@@ -5320,6 +5319,7 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_DESADV(xmlTextWriter * pX,
 				THROW(GetGoodsInfo(r_ti.GoodsID, rBp.Rec.Object, &goods_rec, goods_code, goods_ar_code));
 				n_item.PutInner("gtin", goods_code);
 				n_item.PutInner("internalSupplierCode", temp_buf.Z().Cat(goods_rec.ID));
+				n_item.PutInner("description", EncXmlText(goods_rec.Name)); // @v11.2.12
 				//n_item.PutInnerSkipEmpty("codeOfEgais", ""); // <!--код товара в ЕГАИС-->
 				//n_item.PutInnerSkipEmpty("lotNumberEgais", ""); // <!--номер товара в ТТН ЕГАИС-->
 				//n_item.PutInnerSkipEmpty("orderLineNumber", ""); // <!--порядковый номер товара-->
@@ -5427,8 +5427,7 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_ALCODESADV(xmlTextWriter *
 				THROW(WriteOwnFormatContractor(_doc, "shipTo", 0, rBp.GetDlvrAddrID()));
 			}
 		}
-		// @v11.1.12 n_b.PutInnerSkipEmpty("comment", temp_buf.Z().Cat(rBp.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8)); // <!--номер промоакции-->
-		n_b.PutInnerSkipEmpty("comment", (temp_buf = rBp.SMemo).Transf(CTRANSF_INNER_TO_UTF8)); // <!--номер промоакции--> // @v11.1.12
+		n_b.PutInnerSkipEmpty("comment", EncXmlText(rBp.SMemo)); // <!--номер промоакции--> // @v11.1.12
 		{
 			const int use_refc_data = Arp.UseOwnEgaisObjects();
 			SString goods_code;
@@ -5447,7 +5446,7 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_ALCODESADV(xmlTextWriter *
 					n_item.PutInnerSkipEmpty("internalBuyerCode", (temp_buf = goods_ar_code).Transf(CTRANSF_INNER_TO_UTF8));
 					{
 						SXml::WNode n_lot(_doc, "lot");
-						n_lot.PutInner("description", temp_buf.Z().Cat(goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
+						n_lot.PutInner("description", EncXmlText(goods_rec.Name));
 						n_lot.PutInnerSkipEmpty("codeOfEgais", temp_buf.Z().Cat(agi.EgaisCode).Transf(CTRANSF_INNER_TO_UTF8));
 						if(agi.UnpackedVolume > 0) {
 							SXml::WNode n_vol(_doc, "volume");
@@ -5709,6 +5708,7 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_RECADV(xmlTextWriter * pX,
 						SXml::WNode n_item(_doc, "lineItem");
 						n_item.PutInner("gtin", goods_code);
 						n_item.PutInner("internalBuyerCode", temp_buf.Z().Cat(r_ti.GoodsID));
+						n_item.PutInner("description", EncXmlText(goods_rec.Name)); // @v11.2.12
 						Write_OwnFormat_Qtty(_doc, "orderedQuantity", "PCE", ord_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS));
 						Write_OwnFormat_Qtty(_doc, "despatchedQuantity", "PCE", dlvr_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS));
 						Write_OwnFormat_Qtty(_doc, "deliveredQuantity", "PCE", dlvr_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS));
@@ -5813,8 +5813,7 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_INVOIC(xmlTextWriter * pX,
 				THROW(WriteOwnFormatContractor(_doc, "shipTo", 0, rBp.GetDlvrAddrID()));
 			}
 		}
-		// @v11.1.12 n_b.PutInnerSkipEmpty("comment", EncXmlText(rBp.Rec.Memo)); // <!--номер промоакции-->
-		n_b.PutInnerSkipEmpty("comment", EncXmlText(temp_buf = rBp.SMemo)); // <!--номер промоакции--> // @v11.1.12
+		n_b.PutInnerSkipEmpty("comment", EncXmlText(rBp.SMemo)); // <!--номер промоакции--> // @v11.1.12
 		{
 			SString goods_code;
 			SString goods_ar_code;
@@ -6092,7 +6091,7 @@ int PPEdiProcessor::SendOrders(const PPBillIterchangeFilt & rP, const PPIDArray 
 							ObjTagItem tag_item;
 							tag_sent_content.Z().Cat(di.Uuid, S_GUID::fmtIDL);
 							if(tag_item.SetStr(tag_id, tag_sent_content))
-								THROW(p_ref->Ot.PutTag(PPOBJ_BILL, bill_id, &tag_item, 0));
+								THROW(p_ref->Ot.PutTag(PPOBJ_BILL, bill_id, &tag_item, 1)); // @v11.2.12 @fix use_ta 0-->1
 						}
 					}
 				}
@@ -6481,9 +6480,12 @@ int EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, const c
 	SString goods_name;
 	SString gtin;
 	SString ar_goods_code;
+	SString order_number;
+	LDATE  order_date = ZERODATE;
 	xmlParserCtxt * p_ctx = static_cast<xmlParserCtxt *>(pCtx);
 	xmlDoc * p_doc = 0;
 	xmlNode * p_root = 0;
+	PPObjOprKind op_obj;
 	PPEdiProcessor::Packet * p_pack = 0;
 	PPBillPacket * p_bpack = 0; // is owned by p_pack
 	PPID   goods_id_by_gtin = 0;
@@ -6687,15 +6689,25 @@ int EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, const c
 				}
 			}
 			else if(SXml::IsName(p_n, "orderResponse")) {
+				PPID   ordrsp_op_id = 0; // ***
+				order_number.Z();
+				order_date = ZERODATE;
+				PPBillPacket * p_bp_ord = 0;
 				THROW(edi_op == PPEDIOP_ORDERRSP);
-				THROW_PP(ACfg.Hdr.EdiOrderSpOpID, PPERR_EDI_OPNDEF_ORDERRSP);
+				THROW(op_obj.GetEdiOrdrspOp(&ordrsp_op_id, 1)); // @v11.2.12
+				// @v11.2.12 THROW_PP(ACfg.Hdr.EdiOrderSpOpID, PPERR_EDI_OPNDEF_ORDERRSP);
 				THROW(ReadCommonAttributes(p_n, attrs));
 				THROW_MEM(p_pack = new PPEdiProcessor::Packet(edi_op));
 				p_bpack = static_cast<PPBillPacket *>(p_pack->P_Data);
+				p_bp_ord = static_cast<PPBillPacket *>(p_pack->P_ExtData);
 				addendum_msg_buf.Z().Cat("ORDERRSP").Space().Cat(attrs.Num).Space().Cat(attrs.Dt, DATF_DMY);
 				THROW_PP_S(p_bpack, PPERR_EDI_INBILLNOTINITED, addendum_msg_buf);
 				for(xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
 					if(SXml::GetContentByName(p_n2, "originOrder", temp_buf)) {
+						if(SXml::GetAttrib(p_n2, "number", temp_buf))
+							order_number = temp_buf;
+						if(SXml::GetAttrib(p_n2, "date", temp_buf) > 0)
+							order_date = strtodate_(temp_buf, DATF_DMY);
 					}
 					else if(SXml::GetContentByName(p_n2, "blanketOrderIdentificator", temp_buf)) {
 					}
@@ -6745,6 +6757,14 @@ int EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, const c
 								serial.Z();
 								goods_name.Z();
 								ti.Init(&p_bpack->Rec);
+								if(SXml::GetAttrib(p_n3, "status", temp_buf)) {
+									if(temp_buf.IsEqiAscii("Accepted")) {
+										;
+									}
+									else if(temp_buf.IsEqiAscii("Changed")) {
+										;
+									}
+								}
 								for(xmlNode * p_li = p_n3->children; p_li; p_li = p_li->next) {
 									if(SXml::GetContentByName(p_li, "gtin", temp_buf)) {
 										if(GObj.SearchByBarcode(temp_buf, &bc_rec, &goods_rec) > 0)
@@ -6791,6 +6811,15 @@ int EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, const c
 									}
 								}
 							}
+						}
+					}
+				}
+				{
+					if(order_number.NotEmptyS() && checkdate(order_date)) {
+						BillTbl::Rec ord_bill_rec;
+						if(SearchLinkedBill(order_number, order_date, p_bpack->Rec.Object, PPEDIOP_ORDER, &ord_bill_rec) > 0) {
+							p_bpack->Rec.LinkBillID = ord_bill_rec.ID;
+							THROW(P_BObj->ExtractPacket(p_bpack->Rec.LinkBillID, static_cast<PPBillPacket *>(p_pack->P_ExtData)) > 0);
 						}
 					}
 				}
@@ -6925,7 +6954,6 @@ int EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, const c
 			else if(SXml::IsName(p_n, "receivingAdvice")) {
 				PPID   desadv_bill_id = 0;
 				int    diff_status = 0; //
-				PPObjOprKind op_obj;
 				PPEdiProcessor::RecadvPacket * p_recadv_pack = 0;
 				OwnFormatCommonAttr desadv_bill_attr;
 				PPID   op_id = 0;
@@ -8373,13 +8401,13 @@ int EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::Docum
 								THROW_PP_S(p_bpack, PPERR_EDI_INBILLNOTINITED, addendum_msg_buf);
 								THROW(p_bpack->CreateBlank_WithoutCode(ordrsp_op_id, 0, 0, 1));
 								p_bpack->Rec.EdiOp = p_pack->DocType;
-								for(SJson * p_bf = p_obj->P_Child->P_Child; p_bf; p_bf = p_bf->P_Next) {
+								for(const SJson * p_bf = p_obj->P_Child->P_Child; p_bf; p_bf = p_bf->P_Next) {
 									temp_buf = p_bf->P_Child->Text;
 									if(p_bf->Text.IsEqiAscii("HEAD")) {
 										if(p_bf->P_Child && p_bf->P_Child->Type == SJson::tARRAY) {
-											for(SJson * p_hi = p_bf->P_Child->P_Child; p_hi; p_hi = p_hi->P_Next) {
+											for(const SJson * p_hi = p_bf->P_Child->P_Child; p_hi; p_hi = p_hi->P_Next) {
 												if(p_hi->Type == SJson::tOBJECT) {
-													for(SJson * p_hf = p_hi->P_Child; p_hf; p_hf = p_hf->P_Next) {
+													for(const SJson * p_hf = p_hi->P_Child; p_hf; p_hf = p_hf->P_Next) {
 														temp_buf = p_hf->P_Child->Text;
 														if(p_hf->Text.IsEqiAscii("RECIPIENT")) {
 															THROW_PP_S(PsnObj.ResolveGLN(temp_buf, &rcvr_psn_id) > 0, PPERR_EDI_UNBLRSLV_RCVR, temp_buf);
@@ -8410,10 +8438,10 @@ int EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::Docum
 														}
 														else if(p_hf->Text.IsEqiAscii("POSITION")) {
 															if(p_hf->P_Child && p_hf->P_Child->Type == SJson::tARRAY) {
-																for(SJson * p_pli = p_hf->P_Child->P_Child; p_pli; p_pli = p_pli->P_Next) {
+																for(const SJson * p_pli = p_hf->P_Child->P_Child; p_pli; p_pli = p_pli->P_Next) {
 																	if(p_pli->Type == SJson::tOBJECT) {
 																		THROW(pos_blk.Init(&p_bpack->Rec));
-																		for(SJson * p_pf = p_pli->P_Child; p_pf; p_pf = p_pf->P_Next) {
+																		for(const SJson * p_pf = p_pli->P_Child; p_pf; p_pf = p_pf->P_Next) {
 																			temp_buf = p_pf->P_Child->Text;
 																			if(p_pf->Text.IsEqiAscii("PRODUCT")) {
 																				pos_blk.GTIN = temp_buf;

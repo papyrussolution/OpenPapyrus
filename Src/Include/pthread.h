@@ -1,7 +1,4 @@
 /* This is an implementation of the threads API of the Single Unix Specification.
- *
- * --------------------------------------------------------------------------
- *
  *      Pthreads4w - POSIX Threads for Windows
  *      Copyright 1998 John E. Bossom
  *      Copyright 1999-2018, Pthreads4w contributors
@@ -84,21 +81,11 @@
 	#define __PTW32_LEVEL  __PTW32_LEVEL_MAX       /* include everything anyway */
 #endif
 /*
- * -------------------------------------------------------------
- *
- *
  * Module: pthread.h
  *
  * Purpose:
- *      Provides an implementation of PThreads based upon the
- *      standard:
- *
- *        POSIX 1003.1-2001
- *  and
- *    The Single Unix Specification version 3
- *
- *    (these two are equivalent)
- *
+ *      Provides an implementation of PThreads based upon the standard:
+ *        POSIX 1003.1-2001 and The Single Unix Specification version 3 (these two are equivalent)
  *      in order to enhance code portability between Windows,
  *  various commercial Unix implementations, and Linux.
  *
@@ -127,9 +114,7 @@
  *
  * Maintainer:
  *      The code base for this project is coordinated and
- *      eventually pre-tested, packaged, and made available by
- *
- *        Ross Johnson <rpj@callisto.canberra.edu.au>
+ *      eventually pre-tested, packaged, and made available by Ross Johnson <rpj@callisto.canberra.edu.au>
  *
  * QA Testers:
  *      Ultimately, the library is tested in the real world by
@@ -149,18 +134,14 @@
  *
  * Web site:
  *      The source code and other information about this library
- *      are available from
- *
- *        https://sourceforge.net/projects/pthreads4w/
- *
- * -------------------------------------------------------------
+ *      are available from https://sourceforge.net/projects/pthreads4w/
  */
 /* @v11.2.12 enum { // Boolean values to make us independent of system includes
 	__PTW32_FALSE__Removed = 0,
 	__PTW32_TRUE__Removed = (!__PTW32_FALSE__Removed)
 };*/
 
-#include <time.h>
+//#include <time.h>
 #include <sched.h>
 /*
  * -------------------------------------------------------------
@@ -421,19 +402,11 @@ enum { /* pthread_attr_{get,set}detachstate
 	PTHREAD_BARRIER_SERIAL_THREAD = -1
 };
 /*
- * ====================
- * ====================
  * cancellation
- * ====================
- * ====================
  */
 #define PTHREAD_CANCELED       ((void *)(size_t)-1)
 /*
- * ====================
- * ====================
  * Once Key
- * ====================
- * ====================
  */
 #if  __PTW32_VERSION_MAJOR > 2
 

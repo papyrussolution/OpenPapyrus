@@ -2748,9 +2748,7 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 		while(cptr->name) {
 			/* find the cipher requested & make sure it's one we're happy
 			   with by policy */
-			if(!strcasecmp(cipher, cptr->name) &&
-			    stext->requiressf <= cptr->ssf &&
-			    stext->limitssf >= cptr->ssf) {
+			if(!strcasecmp(cipher, cptr->name) && stext->requiressf <= cptr->ssf && stext->limitssf >= cptr->ssf) {
 				/* found it! */
 				break;
 			}
@@ -2767,8 +2765,7 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 		}
 		else {
 			/* erg? client requested something we didn't advertise! */
-			sparams->utils->log(sparams->utils->conn, SASL_LOG_WARN,
-			    "protocol violation: client requested invalid cipher");
+			sparams->utils->log(sparams->utils->conn, SASL_LOG_WARN, "protocol violation: client requested invalid cipher");
 			SETERROR(sparams->utils, "client requested invalid cipher");
 			/* Mark that we attempted security layer negotiation */
 			oparams->mech_ssf = 2;
@@ -2779,8 +2776,7 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 		oparams->encode = &digestmd5_encode;
 		oparams->decode = &digestmd5_decode;
 	}
-	else if(!strcasecmp(qop, "auth-int") &&
-	    stext->requiressf <= 1 && stext->limitssf >= 1) {
+	else if(!strcasecmp(qop, "auth-int") && stext->requiressf <= 1 && stext->limitssf >= 1) {
 		oparams->encode = &digestmd5_encode;
 		oparams->decode = &digestmd5_decode;
 		oparams->mech_ssf = 1;
@@ -2791,23 +2787,12 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 		oparams->mech_ssf = 0;
 	}
 	else {
-		SETERROR(sparams->utils,
-		    "protocol violation: client requested invalid qop");
+		SETERROR(sparams->utils, "protocol violation: client requested invalid qop");
 		result = SASL_FAIL;
 		goto FreeAllMem;
 	}
-
-	serverresponse = create_response(text,
-		sparams->utils,
-		nonce,
-		noncecount,
-		cnonce,
-		qop,
-		request,
-		Secret,
-		authorization_id,
-		&text->response_value);
-
+	serverresponse = create_response(text, sparams->utils, nonce, noncecount, cnonce, qop,
+		request, Secret, authorization_id, &text->response_value);
 	if(serverresponse == NULL) {
 		SETERROR(sparams->utils, "internal error: unable to create response");
 		result = SASL_NOMEM;

@@ -1309,34 +1309,25 @@ void PNGAPI png_set_read_user_chunk_fn(png_structrp png_ptr, void * user_chunk_p
 #endif
 
 #ifdef PNG_INFO_IMAGE_SUPPORTED
-void PNGAPI png_set_rows(png_const_structrp png_ptr, png_inforp info_ptr,
-    png_bytepp row_pointers)
+void PNGAPI png_set_rows(png_const_structrp png_ptr, png_inforp info_ptr, png_bytepp row_pointers)
 {
 	png_debug1(1, "in %s storage function", "rows");
-
 	if(png_ptr == NULL || info_ptr == NULL)
 		return;
-
-	if(info_ptr->row_pointers != NULL &&
-	    (info_ptr->row_pointers != row_pointers))
+	if(info_ptr->row_pointers != NULL && (info_ptr->row_pointers != row_pointers))
 		png_free_data(png_ptr, info_ptr, PNG_FREE_ROWS, 0);
-
 	info_ptr->row_pointers = row_pointers;
-
 	if(row_pointers != NULL)
 		info_ptr->valid |= PNG_INFO_IDAT;
 }
-
 #endif
 
 void PNGAPI png_set_compression_buffer_size(png_structrp png_ptr, size_t size)
 {
 	if(!png_ptr)
 		return;
-
 	if(size == 0 || size > PNG_UINT_31_MAX)
 		png_error(png_ptr, "invalid compression buffer size");
-
 #ifdef PNG_SEQUENTIAL_READ_SUPPORTED
 	if((png_ptr->mode & PNG_IS_READ_STRUCT) != 0) {
 		png_ptr->IDAT_read_size = (uint32)size; /* checked above */

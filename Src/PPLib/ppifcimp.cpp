@@ -1,5 +1,5 @@
 // PPIFCIMP.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 // Реализация интерфейсов
@@ -9104,9 +9104,9 @@ int32 DL6ICLS_PPObjTransport::Search(int32 id, PPYOBJREC rec)
 	int    ok = 0;
 	PPObjTransport * p_e = static_cast<PPObjTransport *>(ExtraPtr);
 	if(p_e) {
-		PPTransport inner_rec;
-		if((ok = p_e->Get(id, &inner_rec)) > 0) {
-			FillTransportRec(&inner_rec, static_cast<SPpyO_Transport *>(rec));
+		PPTransportPacket inner_pack;
+		if((ok = p_e->Get(id, &inner_pack)) > 0) {
+			FillTransportRec(&inner_pack.Rec, static_cast<SPpyO_Transport *>(rec));
 		}
 	}
 	return ok;
@@ -9117,10 +9117,10 @@ int32 DL6ICLS_PPObjTransport::SearchByName(SString & text, int32 kind, int32 ext
 	int    ok = -1;
 	PPObjTransport * p_e = static_cast<PPObjTransport *>(ExtraPtr);
 	if(p_e) {
-		PPTransport inner_rec;
+		PPTransportPacket inner_pack;
 		PPID   id = 0;
-		if(p_e->SearchByName(text, &id, 0) > 0 && p_e->Get(id, &inner_rec) > 0) {
-			FillTransportRec(&inner_rec, static_cast<SPpyO_Transport *>(rec));
+		if(p_e->SearchByName(text, &id, 0) > 0 && p_e->Get(id, &inner_pack) > 0) {
+			FillTransportRec(&inner_pack.Rec, static_cast<SPpyO_Transport *>(rec));
 			ok = 1;
 		}
 	}
@@ -9149,11 +9149,11 @@ int32 DL6ICLS_PPObjTransport::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 	int    ok = 1;
 	PPID   id = 0;
 	PPObjTransport * p_e = static_cast<PPObjTransport *>(ExtraPtr);
-	PPTransport tr_rec;
+	PPTransportPacket tr_pack;
 	THROW_INVARG(p_e);
-	THROW(AcceptTransportRec(static_cast<SPpyO_Transport *>(pRec), &tr_rec));
-	tr_rec.ID = 0;
-	THROW(p_e->Put(&id, &tr_rec, (flags & 1) ? 0 : 1));
+	THROW(AcceptTransportRec(static_cast<SPpyO_Transport *>(pRec), &tr_pack.Rec));
+	tr_pack.Rec.ID = 0;
+	THROW(p_e->Put(&id, &tr_pack, (flags & 1) ? 0 : 1));
 	CATCHZOK
 	ASSIGN_PTR(pID, id);
 	return ok;
@@ -9163,10 +9163,10 @@ int32 DL6ICLS_PPObjTransport::Update(int32 id, int32 flags, PPYOBJREC rec)
 {
 	int    ok = 1;
 	PPObjTransport * p_e = static_cast<PPObjTransport *>(ExtraPtr);
-	PPTransport tr_rec;
+	PPTransportPacket tr_pack;
 	THROW_INVARG(p_e);
-	THROW(AcceptTransportRec(static_cast<SPpyO_Transport *>(rec), &tr_rec));
-	THROW(p_e->Put(&id, &tr_rec, (flags & 1) ? 0 : 1));
+	THROW(AcceptTransportRec(static_cast<SPpyO_Transport *>(rec), &tr_pack.Rec));
+	THROW(p_e->Put(&id, &tr_pack, (flags & 1) ? 0 : 1)); // @v11.2.12 @fixme Этот вызов снесет теги транспорта (если они были)!
 	CATCHZOK
 	return ok;
 }

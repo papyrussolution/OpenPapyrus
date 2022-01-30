@@ -28,19 +28,15 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
 
-#include "archive.h"
-#include "archive_entry.h"
 #include "archive_entry_locale.h"
-#include "archive_private.h"
 #include "archive_random_private.h"
-#include "archive_write_private.h"
 #include "archive_write_set_format_private.h"
 
 struct warc_s {
-	unsigned int omit_warcinfo : 1;
+	uint omit_warcinfo : 1;
 	time_t now;
 	mode_t typ;
-	unsigned int rng;
+	uint rng;
 	/* populated size */
 	uint64 populz;
 };
@@ -82,7 +78,7 @@ typedef struct {
 } warc_essential_hdr_t;
 
 typedef struct {
-	unsigned int u[4U];
+	uint u[4U];
 } warc_uuid_t;
 
 static int _warc_options(struct archive_write*, const char * key, const char * v);

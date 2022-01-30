@@ -19,7 +19,7 @@
 	#include <io.h>
 	#include <memory.h>
 	// @v10.9.3 #include <process.h>
-	#include <signal.h>
+	//#include <signal.h>
 #endif /* DB_WINCE */
 #include <tchar.h>
 /*

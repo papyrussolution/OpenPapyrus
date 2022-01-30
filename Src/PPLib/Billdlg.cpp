@@ -3344,10 +3344,10 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 			TDialog::handleEvent(event);
 			if(event.isCbSelected(CTLSEL_FREIGHT_SHIP)) {
 				PPObjTransport tr_obj;
-				PPTransport tr_rec;
+				PPTransportPacket tr_pack;
 				PPID   tr_id = getCtrlLong(CTLSEL_FREIGHT_SHIP);
-				if(tr_id && tr_obj.Get(tr_id, &tr_rec) > 0) {
-					setCtrlData(CTLSEL_FREIGHT_CAPTAIN, &tr_rec.CaptainID);
+				if(tr_id && tr_obj.Get(tr_id, &tr_pack) > 0) {
+					setCtrlData(CTLSEL_FREIGHT_CAPTAIN, &tr_pack.Rec.CaptainID);
 					disableCtrl(CTL_FREIGHT_TRTYP, 1);
 				}
 				else

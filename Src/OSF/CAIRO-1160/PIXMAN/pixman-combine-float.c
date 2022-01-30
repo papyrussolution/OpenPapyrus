@@ -29,10 +29,6 @@
 #ifdef HAVE_CONFIG_H
 	#include <config.h>
 #endif
-//#include <math.h>
-//#include <string.h>
-//#include <float.h>
-//#include "pixman-private.h"
 
 /* Workaround for http://gcc.gnu.org/PR54965 */
 /* GCC 4.6 has problems with force_inline, so just use normal inline instead */

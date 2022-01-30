@@ -95,8 +95,7 @@ class MyMessage final :
   explicit constexpr MyMessage(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   MyMessage(const MyMessage& from);
-  MyMessage(MyMessage&& from) noexcept
-    : MyMessage() {
+  MyMessage(MyMessage&& from) noexcept : MyMessage() {
     *this = ::std::move(from);
   }
 
@@ -105,8 +104,8 @@ class MyMessage final :
     return *this;
   }
   inline MyMessage& operator=(MyMessage&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -118,25 +117,13 @@ class MyMessage final :
     return *this;
   }
 
-  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance);
-  }
-  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-  }
+  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const { return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance); }
+  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() { return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(); }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const MyMessage& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const MyMessage& default_instance() { return *internal_default_instance(); }
   enum OCase {
     kOneofE1 = 5,
     kOneofE2 = 6,
@@ -144,22 +131,17 @@ class MyMessage final :
   };
 
   static inline const MyMessage* internal_default_instance() {
-    return reinterpret_cast<const MyMessage*>(
-               &_MyMessage_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    0;
+    return reinterpret_cast<const MyMessage*>(&_MyMessage_default_instance_); }
+  static constexpr int kIndexInFileMessages = 0;
 
-  friend void swap(MyMessage& a, MyMessage& b) {
-    a.Swap(&b);
-  }
+  friend void swap(MyMessage& a, MyMessage& b) { a.Swap(&b); }
   inline void Swap(MyMessage* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -167,7 +149,7 @@ class MyMessage final :
     }
   }
   void UnsafeArenaSwap(MyMessage* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -398,9 +380,7 @@ inline int MyMessage::repeated_e_size() const {
 inline void MyMessage::clear_repeated_e() {
   repeated_e_.Clear();
 }
-inline ::proto2_preserve_unknown_enum_unittest::MyEnum MyMessage::_internal_repeated_e(int index) const {
-  return static_cast< ::proto2_preserve_unknown_enum_unittest::MyEnum >(repeated_e_.Get(index));
-}
+inline ::proto2_preserve_unknown_enum_unittest::MyEnum MyMessage::_internal_repeated_e(int index) const { return static_cast< ::proto2_preserve_unknown_enum_unittest::MyEnum >(repeated_e_.Get(index)); }
 inline ::proto2_preserve_unknown_enum_unittest::MyEnum MyMessage::repeated_e(int index) const {
   // @@protoc_insertion_point(field_get:proto2_preserve_unknown_enum_unittest.MyMessage.repeated_e)
   return _internal_repeated_e(index);
@@ -443,9 +423,7 @@ inline int MyMessage::repeated_packed_e_size() const {
 inline void MyMessage::clear_repeated_packed_e() {
   repeated_packed_e_.Clear();
 }
-inline ::proto2_preserve_unknown_enum_unittest::MyEnum MyMessage::_internal_repeated_packed_e(int index) const {
-  return static_cast< ::proto2_preserve_unknown_enum_unittest::MyEnum >(repeated_packed_e_.Get(index));
-}
+inline ::proto2_preserve_unknown_enum_unittest::MyEnum MyMessage::_internal_repeated_packed_e(int index) const { return static_cast< ::proto2_preserve_unknown_enum_unittest::MyEnum >(repeated_packed_e_.Get(index)); }
 inline ::proto2_preserve_unknown_enum_unittest::MyEnum MyMessage::repeated_packed_e(int index) const {
   // @@protoc_insertion_point(field_get:proto2_preserve_unknown_enum_unittest.MyMessage.repeated_packed_e)
   return _internal_repeated_packed_e(index);
@@ -488,9 +466,7 @@ inline int MyMessage::repeated_packed_unexpected_e_size() const {
 inline void MyMessage::clear_repeated_packed_unexpected_e() {
   repeated_packed_unexpected_e_.Clear();
 }
-inline ::proto2_preserve_unknown_enum_unittest::MyEnum MyMessage::_internal_repeated_packed_unexpected_e(int index) const {
-  return static_cast< ::proto2_preserve_unknown_enum_unittest::MyEnum >(repeated_packed_unexpected_e_.Get(index));
-}
+inline ::proto2_preserve_unknown_enum_unittest::MyEnum MyMessage::_internal_repeated_packed_unexpected_e(int index) const { return static_cast< ::proto2_preserve_unknown_enum_unittest::MyEnum >(repeated_packed_unexpected_e_.Get(index)); }
 inline ::proto2_preserve_unknown_enum_unittest::MyEnum MyMessage::repeated_packed_unexpected_e(int index) const {
   // @@protoc_insertion_point(field_get:proto2_preserve_unknown_enum_unittest.MyMessage.repeated_packed_unexpected_e)
   return _internal_repeated_packed_unexpected_e(index);

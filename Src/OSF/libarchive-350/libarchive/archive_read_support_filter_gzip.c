@@ -29,13 +29,7 @@ __FBSDID("$FreeBSD$");
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#ifdef HAVE_ZLIB_H
-#include <zlib.h>
-#endif
-#include "archive.h"
-#include "archive_entry.h"
 #include "archive_endian.h"
-#include "archive_private.h"
 #include "archive_read_private.h"
 
 #ifdef HAVE_ZLIB_H
@@ -298,28 +292,20 @@ static int gzip_bidder_init(struct archive_read_filter * self)
 
 static int consume_header(struct archive_read_filter * self)
 {
-	struct private_data * state;
 	ssize_t avail;
-	size_t len;
 	int ret;
-
-	state = (struct private_data *)self->data;
-
+	struct private_data * state = (struct private_data *)self->data;
 	/* If this is a real header, consume it. */
-	len = peek_at_header(self->upstream, NULL, state);
+	size_t len = peek_at_header(self->upstream, NULL, state);
 	if(len == 0)
 		return (ARCHIVE_EOF);
 	__archive_read_filter_consume(self->upstream, len);
-
 	/* Initialize CRC accumulator. */
 	state->crc = crc32(0L, NULL, 0);
-
 	/* Initialize compression library. */
-	state->stream.next_in = (uchar *)(uintptr_t)
-	    __archive_read_filter_ahead(self->upstream, 1, &avail);
+	state->stream.next_in = (uchar *)(uintptr_t)__archive_read_filter_ahead(self->upstream, 1, &avail);
 	state->stream.avail_in = (uInt)avail;
-	ret = inflateInit2(&(state->stream),
-		-15 /* Don't check for zlib header */);
+	ret = inflateInit2(&(state->stream), -15 /* Don't check for zlib header */);
 
 	/* Decipher the error code. */
 	switch(ret) {
@@ -327,27 +313,16 @@ static int consume_header(struct archive_read_filter * self)
 		    state->in_stream = 1;
 		    return ARCHIVE_OK;
 		case Z_STREAM_ERROR:
-		    archive_set_error(&self->archive->archive,
-			ARCHIVE_ERRNO_MISC,
-			"Internal error initializing compression library: "
-			"invalid setup parameter");
+		    archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Internal error initializing compression library: invalid setup parameter");
 		    break;
 		case Z_MEM_ERROR:
-		    archive_set_error(&self->archive->archive, ENOMEM,
-			"Internal error initializing compression library: "
-			"out of memory");
+		    archive_set_error(&self->archive->archive, ENOMEM, "Internal error initializing compression library: out of memory");
 		    break;
 		case Z_VERSION_ERROR:
-		    archive_set_error(&self->archive->archive,
-			ARCHIVE_ERRNO_MISC,
-			"Internal error initializing compression library: "
-			"invalid library version");
+		    archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Internal error initializing compression library: invalid library version");
 		    break;
 		default:
-		    archive_set_error(&self->archive->archive,
-			ARCHIVE_ERRNO_MISC,
-			"Internal error initializing compression library: "
-			" Zlib error %d", ret);
+		    archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Internal error initializing compression library: Zlib error %d", ret);
 		    break;
 	}
 	return ARCHIVE_FATAL;
@@ -355,12 +330,9 @@ static int consume_header(struct archive_read_filter * self)
 
 static int consume_trailer(struct archive_read_filter * self)
 {
-	struct private_data * state;
 	const uchar * p;
 	ssize_t avail;
-
-	state = (struct private_data *)self->data;
-
+	struct private_data * state = (struct private_data *)self->data;
 	state->in_stream = 0;
 	switch(inflateEnd(&(state->stream))) {
 		case Z_OK:
@@ -374,12 +346,9 @@ static int consume_trailer(struct archive_read_filter * self)
 	p = static_cast<const uchar *>(__archive_read_filter_ahead(self->upstream, 8, &avail));
 	if(p == NULL || avail == 0)
 		return ARCHIVE_FATAL;
-
 	/* XXX TODO: Verify the length and CRC. */
-
 	/* We've verified the trailer, so consume it now. */
 	__archive_read_filter_consume(self->upstream, 8);
-
 	return ARCHIVE_OK;
 }
 
@@ -409,16 +378,12 @@ static ssize_t gzip_filter_read(struct archive_read_filter * self, const void **
 			if(ret < ARCHIVE_OK)
 				return ret;
 		}
-
 		/* Peek at the next available data. */
 		/* ZLib treats stream.next_in as const but doesn't declare
 		 * it so, hence this ugly cast. */
-		state->stream.next_in = (uchar *)(uintptr_t)
-		    __archive_read_filter_ahead(self->upstream, 1, &avail_in);
+		state->stream.next_in = (uchar *)(uintptr_t)__archive_read_filter_ahead(self->upstream, 1, &avail_in);
 		if(state->stream.next_in == NULL) {
-			archive_set_error(&self->archive->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "truncated gzip input");
+			archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "truncated gzip input");
 			return ARCHIVE_FATAL;
 		}
 		if(UINT_MAX >= SSIZE_MAX)
@@ -447,9 +412,7 @@ static ssize_t gzip_filter_read(struct archive_read_filter * self, const void **
 			    break;
 			default:
 			    /* Return an error. */
-			    archive_set_error(&self->archive->archive,
-				ARCHIVE_ERRNO_MISC,
-				"gzip decompression failed");
+			    archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "gzip decompression failed");
 			    return ARCHIVE_FATAL;
 		}
 	}
@@ -463,30 +426,22 @@ static ssize_t gzip_filter_read(struct archive_read_filter * self, const void **
 		*p = state->out_block;
 	return (decompressed);
 }
-
 /*
  * Clean up the decompressor.
  */
 static int gzip_filter_close(struct archive_read_filter * self)
 {
-	struct private_data * state;
-	int ret;
-
-	state = (struct private_data *)self->data;
-	ret = ARCHIVE_OK;
-
+	struct private_data * state = (struct private_data *)self->data;
+	int ret = ARCHIVE_OK;
 	if(state->in_stream) {
 		switch(inflateEnd(&(state->stream))) {
 			case Z_OK:
 			    break;
 			default:
-			    archive_set_error(&(self->archive->archive),
-				ARCHIVE_ERRNO_MISC,
-				"Failed to clean up gzip compressor");
-			    ret = ARCHIVE_FATAL;
+			    archive_set_error(&(self->archive->archive), ARCHIVE_ERRNO_MISC, "Failed to clean up gzip compressor"); 
+				ret = ARCHIVE_FATAL;
 		}
 	}
-
 	SAlloc::F(state->name);
 	SAlloc::F(state->out_block);
 	SAlloc::F(state);

@@ -116,33 +116,15 @@ constexpr int PhoneNumber::CountryCodeSource_ARRAYSIZE;
 class PhoneNumber::_Internal {
  public:
   using HasBits = decltype(std::declval<PhoneNumber>()._has_bits_);
-  static void set_has_country_code(HasBits* has_bits) {
-    (*has_bits)[0] |= 16u;
-  }
-  static void set_has_national_number(HasBits* has_bits) {
-    (*has_bits)[0] |= 8u;
-  }
-  static void set_has_extension(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
-  static void set_has_italian_leading_zero(HasBits* has_bits) {
-    (*has_bits)[0] |= 32u;
-  }
-  static void set_has_number_of_leading_zeros(HasBits* has_bits) {
-    (*has_bits)[0] |= 128u;
-  }
-  static void set_has_raw_input(HasBits* has_bits) {
-    (*has_bits)[0] |= 2u;
-  }
-  static void set_has_country_code_source(HasBits* has_bits) {
-    (*has_bits)[0] |= 64u;
-  }
-  static void set_has_preferred_domestic_carrier_code(HasBits* has_bits) {
-    (*has_bits)[0] |= 4u;
-  }
-  static bool MissingRequiredFields(const HasBits& has_bits) {
-    return ((has_bits[0] & 0x00000018) ^ 0x00000018) != 0;
-  }
+  static void set_has_country_code(HasBits* has_bits) { (*has_bits)[0] |= 16u; }
+  static void set_has_national_number(HasBits* has_bits) { (*has_bits)[0] |= 8u; }
+  static void set_has_extension(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
+  static void set_has_italian_leading_zero(HasBits* has_bits) { (*has_bits)[0] |= 32u; }
+  static void set_has_number_of_leading_zeros(HasBits* has_bits) { (*has_bits)[0] |= 128u; }
+  static void set_has_raw_input(HasBits* has_bits) { (*has_bits)[0] |= 2u; }
+  static void set_has_country_code_source(HasBits* has_bits) { (*has_bits)[0] |= 64u; }
+  static void set_has_preferred_domestic_carrier_code(HasBits* has_bits) { (*has_bits)[0] |= 4u; }
+  static bool MissingRequiredFields(const HasBits& has_bits) { return ((has_bits[0] & 0x00000018) ^ 0x00000018) != 0; }
 };
 
 PhoneNumber::PhoneNumber(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -599,9 +581,7 @@ void PhoneNumber::InternalSwap(PhoneNumber* other) {
   swap(number_of_leading_zeros_, other->number_of_leading_zeros_);
 }
 
-std::string PhoneNumber::GetTypeName() const {
-  return "i18n.phonenumbers.PhoneNumber";
-}
+std::string PhoneNumber::GetTypeName() const { return "i18n.phonenumbers.PhoneNumber"; }
 
 
 // @@protoc_insertion_point(namespace_scope)

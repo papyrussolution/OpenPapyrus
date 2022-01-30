@@ -741,14 +741,10 @@ int sftp_extension_supported(sftp_session sftp, const char * name, const char * 
 	for(i = 0; i < n; i++) {
 		const char * ext_name = sftp_extensions_get_name(sftp, i);
 		const char * ext_data = sftp_extensions_get_data(sftp, i);
-
-		if(ext_name != NULL && ext_data != NULL &&
-		    strcmp(ext_name, name) == 0 &&
-		    strcmp(ext_data, data) == 0) {
+		if(ext_name != NULL && ext_data != NULL && strcmp(ext_name, name) == 0 && strcmp(ext_data, data) == 0) {
 			return 1;
 		}
 	}
-
 	return 0;
 }
 

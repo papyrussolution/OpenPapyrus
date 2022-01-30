@@ -26,9 +26,6 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: src/lib/libarchive/archive_read_extract.c,v 1.61 2008/05/26 17:00:22 kientzle Exp $");
 
-#include "archive.h"
-#include "archive_entry.h"
-#include "archive_private.h"
 #include "archive_read_private.h"
 
 static int copy_data(struct archive * ar, struct archive * aw);
@@ -110,11 +107,9 @@ static int copy_data(struct archive * ar, struct archive * aw)
 {
 	int64 offset;
 	const void * buff;
-	struct archive_read_extract * extract;
 	size_t size;
 	int r;
-
-	extract = __archive_read_get_extract((struct archive_read *)ar);
+	struct archive_read_extract * extract = __archive_read_get_extract((struct archive_read *)ar);
 	if(extract == NULL)
 		return ARCHIVE_FATAL;
 	for(;;) {
@@ -127,12 +122,10 @@ static int copy_data(struct archive * ar, struct archive * aw)
 		if(r < ARCHIVE_WARN)
 			r = ARCHIVE_WARN;
 		if(r < ARCHIVE_OK) {
-			archive_set_error(ar, archive_errno(aw),
-			    "%s", archive_error_string(aw));
+			archive_set_error(ar, archive_errno(aw), "%s", archive_error_string(aw));
 			return r;
 		}
 		if(extract->extract_progress)
-			(extract->extract_progress)
-				(extract->extract_progress_user_data);
+			extract->extract_progress(extract->extract_progress_user_data);
 	}
 }

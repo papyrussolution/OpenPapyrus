@@ -29,11 +29,7 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_gnu_tar.c 191579 2009-04-27 18:35:03Z gastal $");
 
-#include "archive.h"
-#include "archive_entry.h"
 #include "archive_entry_locale.h"
-#include "archive_private.h"
-#include "archive_write_private.h"
 #include "archive_write_set_format_private.h"
 
 struct gnutar {
@@ -543,7 +539,7 @@ exit_write_header:
 static int archive_format_gnutar_header(struct archive_write * a, char h[512],
     struct archive_entry * entry, int tartype)
 {
-	unsigned int checksum;
+	uint checksum;
 	int i, ret;
 	size_t copy_length;
 	const char * p;

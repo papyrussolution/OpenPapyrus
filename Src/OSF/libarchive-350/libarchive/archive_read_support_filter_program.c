@@ -30,11 +30,11 @@ __FBSDID("$FreeBSD$");
 #ifdef HAVE_SYS_WAIT_H
 #  include <sys/wait.h>
 #endif
-#ifdef HAVE_SIGNAL_H
-#  include <signal.h>
-#endif
+//#ifdef HAVE_SIGNAL_H
+	//#include <signal.h>
+//#endif
 #ifdef HAVE_UNISTD_H
-#  include <unistd.h>
+	#include <unistd.h>
 #endif
 #include "archive.h"
 #include "archive_private.h"

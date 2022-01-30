@@ -26,8 +26,6 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
 
-#include "archive_write_private.h"
-
 int archive_write_set_passphrase(struct archive * _a, const char * p)
 {
 	struct archive_write * a = (struct archive_write *)_a;

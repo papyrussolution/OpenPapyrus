@@ -224,39 +224,39 @@ U_CAPI decContext *  U_EXPORT2 uprv_decContextSetStatus(decContext * context, uI
 /* DEC_Condition_MU or is not recognized.  In these cases NULL is  */
 /* returned. */
 /* ------------------------------------------------------------------ */
-U_CAPI decContext *  U_EXPORT2 uprv_decContextSetStatusFromString(decContext * context,
-    const char * string) {
-	if(strcmp(string, DEC_Condition_CS)==0)
+U_CAPI decContext *  U_EXPORT2 uprv_decContextSetStatusFromString(decContext * context, const char * string) 
+{
+	if(sstreq(string, DEC_Condition_CS))
 		return uprv_decContextSetStatus(context, DEC_Conversion_syntax);
-	if(strcmp(string, DEC_Condition_DZ)==0)
+	if(sstreq(string, DEC_Condition_DZ))
 		return uprv_decContextSetStatus(context, DEC_Division_by_zero);
-	if(strcmp(string, DEC_Condition_DI)==0)
+	if(sstreq(string, DEC_Condition_DI))
 		return uprv_decContextSetStatus(context, DEC_Division_impossible);
-	if(strcmp(string, DEC_Condition_DU)==0)
+	if(sstreq(string, DEC_Condition_DU))
 		return uprv_decContextSetStatus(context, DEC_Division_undefined);
-	if(strcmp(string, DEC_Condition_IE)==0)
+	if(sstreq(string, DEC_Condition_IE))
 		return uprv_decContextSetStatus(context, DEC_Inexact);
-	if(strcmp(string, DEC_Condition_IS)==0)
+	if(sstreq(string, DEC_Condition_IS))
 		return uprv_decContextSetStatus(context, DEC_Insufficient_storage);
-	if(strcmp(string, DEC_Condition_IC)==0)
+	if(sstreq(string, DEC_Condition_IC))
 		return uprv_decContextSetStatus(context, DEC_Invalid_context);
-	if(strcmp(string, DEC_Condition_IO)==0)
+	if(sstreq(string, DEC_Condition_IO))
 		return uprv_decContextSetStatus(context, DEC_Invalid_operation);
   #if DECSUBSET
-	if(strcmp(string, DEC_Condition_LD)==0)
+	if(sstreq(string, DEC_Condition_LD))
 		return uprv_decContextSetStatus(context, DEC_Lost_digits);
   #endif
-	if(strcmp(string, DEC_Condition_OV)==0)
+	if(sstreq(string, DEC_Condition_OV))
 		return uprv_decContextSetStatus(context, DEC_Overflow);
-	if(strcmp(string, DEC_Condition_PA)==0)
+	if(sstreq(string, DEC_Condition_PA))
 		return uprv_decContextSetStatus(context, DEC_Clamped);
-	if(strcmp(string, DEC_Condition_RO)==0)
+	if(sstreq(string, DEC_Condition_RO))
 		return uprv_decContextSetStatus(context, DEC_Rounded);
-	if(strcmp(string, DEC_Condition_SU)==0)
+	if(sstreq(string, DEC_Condition_SU))
 		return uprv_decContextSetStatus(context, DEC_Subnormal);
-	if(strcmp(string, DEC_Condition_UN)==0)
+	if(sstreq(string, DEC_Condition_UN))
 		return uprv_decContextSetStatus(context, DEC_Underflow);
-	if(strcmp(string, DEC_Condition_ZE)==0)
+	if(sstreq(string, DEC_Condition_ZE))
 		return context;
 	return NULL; /* Multiple status, or unknown  */
 }   /* decContextSetStatusFromString  */
@@ -417,9 +417,7 @@ U_CAPI uInt U_EXPORT2 uprv_decContextTestSavedStatus(uInt oldstatus, uInt mask) 
 /* */
 /* No error is possible. */
 /* ------------------------------------------------------------------ */
-U_CAPI uInt U_EXPORT2 uprv_decContextTestStatus(decContext * context, uInt mask) {
-	return (context->status&mask)!=0;
-}   /* decContextTestStatus  */
+U_CAPI uInt U_EXPORT2 uprv_decContextTestStatus(decContext * context, uInt mask) { return (context->status&mask)!=0; } /* decContextTestStatus  */
 
 /* ------------------------------------------------------------------ */
 /* decContextZeroStatus -- clear all status bits    */
@@ -429,7 +427,8 @@ U_CAPI uInt U_EXPORT2 uprv_decContextTestStatus(decContext * context, uInt mask)
 /* */
 /* No error is possible. */
 /* ------------------------------------------------------------------ */
-U_CAPI decContext * U_EXPORT2 uprv_decContextZeroStatus(decContext * context) {
+U_CAPI decContext * U_EXPORT2 uprv_decContextZeroStatus(decContext * context) 
+{
 	context->status = 0;
 	return context;
 }   /* decContextZeroStatus  */

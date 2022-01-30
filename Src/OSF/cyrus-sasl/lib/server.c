@@ -1413,27 +1413,19 @@ int sasl_server_start(sasl_conn_t * conn,
 		sasl_server_plug_t * pluglist = NULL;
 		int version, plugcount;
 		int l = 0;
-
 		/* need to load this plugin */
-		result = _sasl_get_plugin(m->m.f,
-			_sasl_find_verifyfile_callback(global_callbacks.callbacks),
-			&library);
-
+		result = _sasl_get_plugin(m->m.f, _sasl_find_verifyfile_callback(global_callbacks.callbacks), &library);
 		if(result == SASL_OK) {
-			result = _sasl_locate_entry(library, "sasl_server_plug_init",
-				(void **)&entry_point);
+			result = _sasl_locate_entry(library, "sasl_server_plug_init", (void **)&entry_point);
 		}
-
 		if(result == SASL_OK) {
-			result = entry_point(mechlist->utils, SASL_SERVER_PLUG_VERSION,
-				&version, &pluglist, &plugcount);
+			result = entry_point(mechlist->utils, SASL_SERVER_PLUG_VERSION, &version, &pluglist, &plugcount);
 		}
-
 		if(result == SASL_OK) {
 			/* find the correct mechanism in this plugin */
 			for(l = 0; l < plugcount; l++) {
-				if(!strcasecmp(pluglist[l].mech_name,
-				    m->m.plug->mech_name)) break;
+				if(!strcasecmp(pluglist[l].mech_name, m->m.plug->mech_name)) 
+					break;
 			}
 			if(l == plugcount) {
 				result = SASL_NOMECH;
@@ -1441,11 +1433,8 @@ int sasl_server_start(sasl_conn_t * conn,
 		}
 		if(result == SASL_OK) {
 			/* check that the parameters are the same */
-			if((pluglist[l].max_ssf != m->m.plug->max_ssf) ||
-			    (pluglist[l].security_flags != m->m.plug->security_flags)) {
-				_sasl_log(conn, SASL_LOG_ERR,
-				    "%s: security parameters don't match mechlist file",
-				    pluglist[l].mech_name);
+			if((pluglist[l].max_ssf != m->m.plug->max_ssf) || (pluglist[l].security_flags != m->m.plug->security_flags)) {
+				_sasl_log(conn, SASL_LOG_ERR, "%s: security parameters don't match mechlist file", pluglist[l].mech_name);
 				result = SASL_NOMECH;
 			}
 		}
@@ -1455,27 +1444,22 @@ int sasl_server_start(sasl_conn_t * conn,
 			m->m.plug = &pluglist[l];
 			m->m.condition = SASL_OK;
 		}
-
 		if(result != SASL_OK) {
 			/* The library will eventually be freed, don't sweat it */
 			RETURN(conn, result);
 		}
 	}
-
 	if(conn->context) {
-		s_conn->mech->m.plug->mech_dispose(conn->context,
-		    s_conn->sparams->utils);
+		s_conn->mech->m.plug->mech_dispose(conn->context, s_conn->sparams->utils);
 		conn->context = NULL;
 	}
-
 	/* We used to setup sparams HERE, but now it's done
 	   inside of mech_permitted (which is called above) */
 	prev = &s_conn->mech_contexts;
 	for(cur = *prev; cur; prev = &cur->next, cur = cur->next) {
 		if(cur->mech == m) {
 			if(!cur->context) {
-				sasl_seterror(conn, 0,
-				    "Got past mech_permitted with a disallowed mech!");
+				sasl_seterror(conn, 0, "Got past mech_permitted with a disallowed mech!");
 				return SASL_NOMECH;
 			}
 			/* If we find it, we need to pull cur out of the
@@ -1486,30 +1470,21 @@ int sasl_server_start(sasl_conn_t * conn,
 			break;
 		}
 	}
-
 	s_conn->mech = m;
-
 	if(!conn->context) {
 		/* Note that we don't hand over a new challenge */
-		result = s_conn->mech->m.plug->mech_new(s_conn->mech->m.plug->glob_context,
-			s_conn->sparams,
-			NULL,
-			0,
-			&(conn->context));
+		result = s_conn->mech->m.plug->mech_new(s_conn->mech->m.plug->glob_context, s_conn->sparams, NULL, 0, &(conn->context));
 	}
 	else {
 		/* the work was already done by mech_avail! */
 		result = SASL_OK;
 	}
-
 	if(result == SASL_OK) {
 		if(clientin) {
 			if(s_conn->mech->m.plug->features & SASL_FEAT_SERVER_FIRST) {
 				/* Remote sent first, but mechanism does not support it.
 				 * RFC 2222 says we fail at this point. */
-				sasl_seterror(conn,
-				    0,
-				    "Remote sent first but mech does not allow it.");
+				sasl_seterror(conn, 0, "Remote sent first but mech does not allow it.");
 				result = SASL_BADPROT;
 			}
 			else {

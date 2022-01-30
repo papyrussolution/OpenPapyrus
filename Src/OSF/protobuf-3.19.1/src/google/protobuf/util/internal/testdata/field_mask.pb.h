@@ -86,8 +86,7 @@ class NestedFieldMask final :
   explicit constexpr NestedFieldMask(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   NestedFieldMask(const NestedFieldMask& from);
-  NestedFieldMask(NestedFieldMask&& from) noexcept
-    : NestedFieldMask() {
+  NestedFieldMask(NestedFieldMask&& from) noexcept : NestedFieldMask() {
     *this = ::std::move(from);
   }
 
@@ -96,8 +95,8 @@ class NestedFieldMask final :
     return *this;
   }
   inline NestedFieldMask& operator=(NestedFieldMask&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -109,35 +108,22 @@ class NestedFieldMask final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const NestedFieldMask& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const NestedFieldMask& default_instance() { return *internal_default_instance(); }
   static inline const NestedFieldMask* internal_default_instance() {
-    return reinterpret_cast<const NestedFieldMask*>(
-               &_NestedFieldMask_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    0;
+    return reinterpret_cast<const NestedFieldMask*>(&_NestedFieldMask_default_instance_); }
+  static constexpr int kIndexInFileMessages = 0;
 
-  friend void swap(NestedFieldMask& a, NestedFieldMask& b) {
-    a.Swap(&b);
-  }
+  friend void swap(NestedFieldMask& a, NestedFieldMask& b) { a.Swap(&b); }
   inline void Swap(NestedFieldMask* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -145,7 +131,7 @@ class NestedFieldMask final :
     }
   }
   void UnsafeArenaSwap(NestedFieldMask* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -277,8 +263,7 @@ class FieldMaskTest final :
   explicit constexpr FieldMaskTest(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   FieldMaskTest(const FieldMaskTest& from);
-  FieldMaskTest(FieldMaskTest&& from) noexcept
-    : FieldMaskTest() {
+  FieldMaskTest(FieldMaskTest&& from) noexcept : FieldMaskTest() {
     *this = ::std::move(from);
   }
 
@@ -287,8 +272,8 @@ class FieldMaskTest final :
     return *this;
   }
   inline FieldMaskTest& operator=(FieldMaskTest&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -300,35 +285,22 @@ class FieldMaskTest final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const FieldMaskTest& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const FieldMaskTest& default_instance() { return *internal_default_instance(); }
   static inline const FieldMaskTest* internal_default_instance() {
-    return reinterpret_cast<const FieldMaskTest*>(
-               &_FieldMaskTest_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    1;
+    return reinterpret_cast<const FieldMaskTest*>(&_FieldMaskTest_default_instance_); }
+  static constexpr int kIndexInFileMessages = 1;
 
-  friend void swap(FieldMaskTest& a, FieldMaskTest& b) {
-    a.Swap(&b);
-  }
+  friend void swap(FieldMaskTest& a, FieldMaskTest& b) { a.Swap(&b); }
   inline void Swap(FieldMaskTest* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -336,7 +308,7 @@ class FieldMaskTest final :
     }
   }
   void UnsafeArenaSwap(FieldMaskTest* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -488,8 +460,7 @@ class FieldMaskTestCases final :
   explicit constexpr FieldMaskTestCases(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   FieldMaskTestCases(const FieldMaskTestCases& from);
-  FieldMaskTestCases(FieldMaskTestCases&& from) noexcept
-    : FieldMaskTestCases() {
+  FieldMaskTestCases(FieldMaskTestCases&& from) noexcept : FieldMaskTestCases() {
     *this = ::std::move(from);
   }
 
@@ -498,8 +469,8 @@ class FieldMaskTestCases final :
     return *this;
   }
   inline FieldMaskTestCases& operator=(FieldMaskTestCases&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -511,35 +482,22 @@ class FieldMaskTestCases final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const FieldMaskTestCases& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const FieldMaskTestCases& default_instance() { return *internal_default_instance(); }
   static inline const FieldMaskTestCases* internal_default_instance() {
-    return reinterpret_cast<const FieldMaskTestCases*>(
-               &_FieldMaskTestCases_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    2;
+    return reinterpret_cast<const FieldMaskTestCases*>(&_FieldMaskTestCases_default_instance_); }
+  static constexpr int kIndexInFileMessages = 2;
 
-  friend void swap(FieldMaskTestCases& a, FieldMaskTestCases& b) {
-    a.Swap(&b);
-  }
+  friend void swap(FieldMaskTestCases& a, FieldMaskTestCases& b) { a.Swap(&b); }
   inline void Swap(FieldMaskTestCases* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -547,7 +505,7 @@ class FieldMaskTestCases final :
     }
   }
   void UnsafeArenaSwap(FieldMaskTestCases* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }
@@ -863,8 +821,7 @@ class FieldMaskWrapper final :
   explicit constexpr FieldMaskWrapper(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   FieldMaskWrapper(const FieldMaskWrapper& from);
-  FieldMaskWrapper(FieldMaskWrapper&& from) noexcept
-    : FieldMaskWrapper() {
+  FieldMaskWrapper(FieldMaskWrapper&& from) noexcept : FieldMaskWrapper() {
     *this = ::std::move(from);
   }
 
@@ -873,8 +830,8 @@ class FieldMaskWrapper final :
     return *this;
   }
   inline FieldMaskWrapper& operator=(FieldMaskWrapper&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
+    if(this == &from) return *this;
+    if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
         && GetOwningArena() != nullptr
   #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
@@ -886,35 +843,22 @@ class FieldMaskWrapper final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const FieldMaskWrapper& default_instance() {
-    return *internal_default_instance();
-  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() { return GetDescriptor(); }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() { return default_instance().GetMetadata().descriptor; }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() { return default_instance().GetMetadata().reflection; }
+  static const FieldMaskWrapper& default_instance() { return *internal_default_instance(); }
   static inline const FieldMaskWrapper* internal_default_instance() {
-    return reinterpret_cast<const FieldMaskWrapper*>(
-               &_FieldMaskWrapper_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    3;
+    return reinterpret_cast<const FieldMaskWrapper*>(&_FieldMaskWrapper_default_instance_); }
+  static constexpr int kIndexInFileMessages = 3;
 
-  friend void swap(FieldMaskWrapper& a, FieldMaskWrapper& b) {
-    a.Swap(&b);
-  }
+  friend void swap(FieldMaskWrapper& a, FieldMaskWrapper& b) { a.Swap(&b); }
   inline void Swap(FieldMaskWrapper* other) {
-    if (other == this) return;
+    if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
+    if(GetOwningArena() != nullptr &&
         GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
@@ -922,7 +866,7 @@ class FieldMaskWrapper final :
     }
   }
   void UnsafeArenaSwap(FieldMaskWrapper* other) {
-    if (other == this) return;
+    if(other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
   }

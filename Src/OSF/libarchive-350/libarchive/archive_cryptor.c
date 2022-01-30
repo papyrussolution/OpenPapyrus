@@ -443,7 +443,7 @@ static int aes_ctr_update(archive_crypto_ctx * ctx, const uint8 * const in, size
 	uint8 * const ebuf = ctx->encr_buf;
 	unsigned pos = ctx->encr_pos;
 	unsigned max = (uint)((in_len < *out_len) ? in_len : *out_len);
-	unsigned i;
+	uint i;
 	for(i = 0; i < max;) {
 		if(pos == AES_BLOCK_SIZE) {
 			aes_ctr_increase_counter(ctx);

@@ -24,13 +24,7 @@
  */
 #include "archive_platform.h"
 #pragma hdrstop
-#ifdef HAVE_ZLIB_H
-#include <zlib.h>
-#endif
-#include "archive.h"
-#include "archive_entry.h"
 #include "archive_entry_locale.h"
-#include "archive_private.h"
 #include "archive_read_private.h"
 #include "archive_endian.h"
 

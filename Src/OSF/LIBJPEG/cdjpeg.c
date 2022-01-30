@@ -12,9 +12,9 @@
 #include "cdjpeg.h"
 #pragma hdrstop
 //#include <ctype.h>		/* to declare isupper(), tolower() */
-#ifdef NEED_SIGNAL_CATCHER
-	#include <signal.h>             /* to declare signal() */
-#endif
+//#ifdef NEED_SIGNAL_CATCHER
+	//#include <signal.h>             /* to declare signal() */
+//#endif
 #ifdef USE_SETMODE
 	//#include <fcntl.h>              /* to declare setmode()'s parameter macros */
 /* If you have setmode() but not <io.h>, just delete this line: */

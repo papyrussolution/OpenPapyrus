@@ -284,7 +284,7 @@ int ASN1_STRING_set(ASN1_STRING * str, const void * _data, int len)
 		}
 	}
 	str->length = len;
-	if(data != NULL) {
+	if(data) {
 		memcpy(str->data, data, len);
 		/* an allowance for strings :-) */
 		str->data[len] = '\0';

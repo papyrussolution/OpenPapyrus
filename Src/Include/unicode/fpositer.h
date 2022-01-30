@@ -1,20 +1,12 @@
+// attiter.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- ********************************************************************************
- *   Copyright (C) 2010-2012, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- ********************************************************************************
- *
- * File attiter.h
- *
+ *   Copyright (C) 2010-2012, International Business Machines Corporation and others.  All Rights Reserved.
  * Modification History:
- *
  *   Date        Name        Description
  *   12/15/2009  dougfelt    Created
- ********************************************************************************
  */
-
 #ifndef FPOSITER_H
 #define FPOSITER_H
 

@@ -26,13 +26,9 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-#include "archive.h"
-#include "archive_private.h"
-#include "archive_entry.h"
 #include "archive_getdate.h"
 #include "archive_pathmatch.h"
 #include "archive_rb.h"
-#include "archive_string.h"
 
 struct match {
 	struct match * next;
@@ -1442,7 +1438,7 @@ int archive_match_owner_excluded(struct archive * _a, struct archive_entry * ent
 
 static int add_owner_id(struct archive_match * a, struct id_array * ids, int64 id)
 {
-	unsigned i;
+	uint i;
 
 	if(ids->count + 1 >= ids->size) {
 		void * p;

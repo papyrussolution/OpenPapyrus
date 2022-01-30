@@ -1,5 +1,5 @@
 // V_SCALE.CPP
-// Copyright (c) A.Starodub 2008, 2009, 2010, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Starodub 2008, 2009, 2010, 2015, 2016, 2017, 2018, 2019, 2022
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -201,7 +201,7 @@ int PPViewScale::CheckScaleStatus(PPID scaleID, int statusFromList)
 {
 	long   ok = 0;
 	if(statusFromList) {
-		if(ScaleStatusList.Search(scaleID, &ok, 0) <= 0)
+		if(!ScaleStatusList.Search(scaleID, &ok, 0))
 			ok = -2;
 	}
 	else  {

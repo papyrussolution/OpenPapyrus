@@ -128,23 +128,14 @@ __FBSDID("$FreeBSD$");
 #define HAVE_QUARANTINE 1
 #endif
 #endif
-
-#ifdef HAVE_ZLIB_H
-#include <zlib.h>
-#endif
-
 /* TODO: Support Mac OS 'quarantine' feature.  This is really just a
  * standard tag to mark files that have been downloaded as "tainted".
  * On Mac OS, we should mark the extracted files as tainted if the
  * archive being read was tainted.  Windows has a similar feature; we
  * should investigate ways to support this generically. */
 
-#include "archive.h"
 #include "archive_acl_private.h"
-#include "archive_string.h"
 #include "archive_endian.h"
-#include "archive_entry.h"
-#include "archive_private.h"
 #include "archive_write_disk_private.h"
 
 #ifndef O_BINARY
@@ -288,7 +279,7 @@ struct archive_write_disk {
 	/* Xattr "com.apple.ResourceFork". */
 	uchar * resource_fork;
 	size_t resource_fork_allocated_size;
-	unsigned int decmpfs_block_count;
+	uint decmpfs_block_count;
 	uint32                * decmpfs_block_info;
 	/* Buffer for compressed data. */
 	uchar * compressed_buffer;
@@ -1166,7 +1157,7 @@ static int hfs_reset_compressor(struct archive_write_disk * a)
 static int hfs_decompress(struct archive_write_disk * a)
 {
 	uint32 * block_info;
-	unsigned int block_count;
+	uint block_count;
 	uint32 data_pos, data_size;
 	ssize_t r;
 	ssize_t bytes_written, bytes_to_write;
@@ -1376,7 +1367,7 @@ static ssize_t hfs_write_decmpfs_block(struct archive_write_disk * a, const char
 	if(a->decmpfs_block_count == (uint)-1) {
 		void * new_block;
 		size_t new_size;
-		unsigned int block_count;
+		uint block_count;
 
 		if(a->decmpfs_header_p == NULL) {
 			new_block = SAlloc::M(MAX_DECMPFS_XATTR_SIZE
@@ -3667,17 +3658,14 @@ static int clear_nochange_fflags(struct archive_write_disk * a)
 	    | EXT2_IMMUTABLE_FL
 #endif
 	;
-
-	return (set_fflags_platform(a, a->fd, a->name, mode, 0,
-	       nochange_flags));
+	return (set_fflags_platform(a, a->fd, a->name, mode, 0, nochange_flags));
 }
 
 #if ( defined(HAVE_LCHFLAGS) || defined(HAVE_CHFLAGS) || defined(HAVE_FCHFLAGS) ) && defined(HAVE_STRUCT_STAT_ST_FLAGS)
 /*
  * BSD reads flags using stat() and sets them with one of {f,l,}chflags()
  */
-static int set_fflags_platform(struct archive_write_disk * a, int fd, const char * name,
-    mode_t mode, unsigned long set, unsigned long clear)
+static int set_fflags_platform(struct archive_write_disk * a, int fd, const char * name, mode_t mode, unsigned long set, unsigned long clear)
 {
 	int r;
 	const int sf_mask = 0
@@ -3741,15 +3729,12 @@ static int set_fflags_platform(struct archive_write_disk * a, int fd, const char
 	return ARCHIVE_WARN;
 }
 
-#elif (defined(FS_IOC_GETFLAGS) && defined(FS_IOC_SETFLAGS) && \
-	defined(HAVE_WORKING_FS_IOC_GETFLAGS)) || \
-	(defined(EXT2_IOC_GETFLAGS) && defined(EXT2_IOC_SETFLAGS) && \
-	defined(HAVE_WORKING_EXT2_IOC_GETFLAGS))
+#elif (defined(FS_IOC_GETFLAGS) && defined(FS_IOC_SETFLAGS) && defined(HAVE_WORKING_FS_IOC_GETFLAGS)) || \
+	(defined(EXT2_IOC_GETFLAGS) && defined(EXT2_IOC_SETFLAGS) && defined(HAVE_WORKING_EXT2_IOC_GETFLAGS))
 /*
  * Linux uses ioctl() to read and write file flags.
  */
-static int set_fflags_platform(struct archive_write_disk * a, int fd, const char * name,
-    mode_t mode, unsigned long set, unsigned long clear)
+static int set_fflags_platform(struct archive_write_disk * a, int fd, const char * name, mode_t mode, unsigned long set, unsigned long clear)
 {
 	int ret;
 	int myfd = fd;

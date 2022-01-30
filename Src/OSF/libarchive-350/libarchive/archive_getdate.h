@@ -27,12 +27,10 @@
 
 #ifndef ARCHIVE_GETDATE_H_INCLUDED
 #define ARCHIVE_GETDATE_H_INCLUDED
-
 #ifndef __LIBARCHIVE_BUILD
-#error This header is only to be used internally to libarchive.
+	#error This header is only to be used internally to libarchive.
 #endif
-
-#include <time.h>
+//#include <time.h>
 
 time_t __archive_get_date(time_t now, const char *);
 

@@ -25,30 +25,10 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-
-#if HAVE_LIBXML_XMLWRITER_H
-	#include <..\osf\libxml\libxml.h>
-	#include <libxml/xmlwriter.h>
-#endif
-#ifdef HAVE_BZLIB_H
-	#include <..\OSF\BZIP2\bzlib.h>
-#endif
-#ifdef HAVE_LZMA_H
-	#include <..\OSF\liblzma\api\lzma.h>
-#endif
-#ifdef HAVE_ZLIB_H
-	#include <zlib.h>
-#endif
-#include "archive.h"
 #include "archive_digest_private.h"
 #include "archive_endian.h"
-#include "archive_entry.h"
 #include "archive_entry_locale.h"
-#include "archive_private.h"
 #include "archive_rb.h"
-#include "archive_string.h"
-#include "archive_write_private.h"
-
 /*
  * Differences to xar utility.
  * - Subdocument is not supported yet.
@@ -2324,11 +2304,9 @@ static void checksum_final(struct chksumwork * sumwrk, struct chksumval * sumval
 }
 
 #if !defined(HAVE_BZLIB_H) || !defined(BZ_CONFIG_ERROR) || !defined(HAVE_LZMA_H)
-static int compression_unsupported_encoder(struct archive * a,
-    struct la_zstream * lastrm, const char * name)
+static int compression_unsupported_encoder(struct archive * a, struct la_zstream * lastrm, const char * name)
 {
-	archive_set_error(a, ARCHIVE_ERRNO_MISC,
-	    "%s compression not supported on this platform", name);
+	archive_set_error(a, ARCHIVE_ERRNO_MISC, "%s compression not supported on this platform", name);
 	lastrm->valid = 0;
 	lastrm->real_stream = NULL;
 	return ARCHIVE_FAILED;
@@ -2550,8 +2528,7 @@ static int compression_init_encoder_lzma(struct archive * a, struct la_zstream *
 		default:
 		    SAlloc::F(strm);
 		    lastrm->real_stream = NULL;
-		    archive_set_error(a, ARCHIVE_ERRNO_MISC,
-			"Internal error initializing compression library: It's a bug in liblzma");
+		    archive_set_error(a, ARCHIVE_ERRNO_MISC, "Internal error initializing compression library: It's a bug in liblzma");
 		    r =  ARCHIVE_FATAL;
 		    break;
 	}

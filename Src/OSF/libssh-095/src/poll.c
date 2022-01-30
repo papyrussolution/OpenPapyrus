@@ -96,21 +96,18 @@ static poll_fn ssh_poll_emu;
 #define STRICT
 #endif /* STRICT */
 
-#include <time.h>
-#include <windows.h>
+//#include <time.h>
+//#include <windows.h>
 #include <winsock2.h>
 #else /* _WIN32 */
 #include <sys/select.h>
 #include <sys/socket.h>
-
 #ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
+	#include <sys/time.h>
 #endif
-
 #endif /* _WIN32 */
-
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
+	#include <unistd.h>
 #endif
 
 static bool bsd_socket_not_connected(int sock_err)

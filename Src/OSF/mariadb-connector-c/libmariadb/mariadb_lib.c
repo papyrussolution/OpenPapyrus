@@ -23,22 +23,6 @@
 
 #include <ma_global.h>
 #pragma hdrstop
-//#include <ma_sys.h>
-//#include <ma_string.h>
-//#include <mariadb_ctype.h>
-//#include <ma_common.h>
-//#include "ma_priv.h"
-//#include "ma_context.h"
-//#include "mysql.h"
-//#include "mariadb_version.h"
-//#include "ma_server_error.h"
-//#include <mariadb/ma_io.h>
-//#include "errmsg.h"
-//#include <sys/stat.h>
-//#include <signal.h>
-//#include <time.h>
-//#include <mariadb_dyncol.h>
-
 #ifndef __has_feature
 	#define __has_feature(x) 0
 #endif

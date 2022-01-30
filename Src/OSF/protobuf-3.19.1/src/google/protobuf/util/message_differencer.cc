@@ -1196,9 +1196,7 @@ bool MessageDifferencer::CompareRepeatedRep(const Message& message1, const Messa
 			parent_fields->pop_back();
 			fieldDifferent = true;
 		}
-		else if(reporter_ != NULL &&
-		    specific_field.index != specific_field.new_index &&
-		    !specific_field.field->is_map() && report_moves_) {
+		else if(reporter_ != NULL && specific_field.index != specific_field.new_index && !specific_field.field->is_map() && report_moves_) {
 			parent_fields->push_back(specific_field);
 			reporter_->ReportMoved(message1, message2, *parent_fields);
 			parent_fields->pop_back();

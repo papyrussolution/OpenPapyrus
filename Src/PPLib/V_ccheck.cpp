@@ -3704,7 +3704,7 @@ int PPViewCCheck::GetPacket(PPID id, CCheckPacket * pPack)
 class CCheckInfoDialog : public TDialog {
 	DECL_DIALOG_DATA(CCheckPacket);
 public:
-	CCheckInfoDialog() : TDialog(DLG_CCHECKINFO), CanModif(0)
+	CCheckInfoDialog() : TDialog(DLG_CCHECKINFO), CanModif(false)
 	{
 	}
 	DECL_DIALOG_SETDTS()
@@ -3737,11 +3737,11 @@ public:
 			// CTL_CCHECKINFO_TIME
 			//
 			disableCtrls(1, CTL_CCHECKINFO_ID, CTL_CCHECKINFO_USERID, CTL_CCHECKINFO_AMOUNT, CTL_CCHECKINFO_DSCNT, 0);
-			CanModif = 1;
+			CanModif = true;
 		}
 		else if((Data.Rec.Flags & CCHKF_NOTUSED) && oneof2(csess_rec.Incomplete, CSESSINCMPL_GLINES, CSESSINCMPL_COMPLETE) && PPMaster) {
 			disableCtrls(1, CTL_CCHECKINFO_ID, CTL_CCHECKINFO_USERID, CTL_CCHECKINFO_AMOUNT, CTL_CCHECKINFO_DSCNT, 0);
-			CanModif = 1;
+			CanModif = true;
 		}
 		else {
 			disableCtrls(1, CTL_CCHECKINFO_ID, CTL_CCHECKINFO_CODE, CTL_CCHECKINFO_CASHCODE,
@@ -3873,7 +3873,7 @@ public:
 		}
 		return ok;
 	}
-	int    GetCanModifStatus() const { return CanModif; }
+	bool   GetCanModifStatus() const { return CanModif; }
 private:
 	DECL_HANDLE_EVENT
 	{
@@ -3900,15 +3900,15 @@ private:
 	}
 	PPObjCSession CsObj;
 	PPObjSCard ScObj;
-	int    CanModif;
+	bool   CanModif;
 };
 
 // static
 int PPViewCCheck::EditCCheckSystemInfo(CCheckPacket & rPack)
 {
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	CCheckInfoDialog * dlg = 0;
-	int    can_modif = 0;
 	PPObjSCard sc_obj;
 	PPObjCSession cs_obj;
 	SCardTbl::Rec sc_rec;
@@ -3918,7 +3918,7 @@ int PPViewCCheck::EditCCheckSystemInfo(CCheckPacket & rPack)
 	dlg->setDTS(&rPack);
 	while(!valid_data && ExecView(dlg) == cmOK) {
 		valid_data = 1;
-		can_modif = dlg->GetCanModifStatus();
+		const  bool can_modif = dlg->GetCanModifStatus();
 		long   flags = rPack.Rec.Flags;
 		PPID   card_id = rPack.Rec.SCardID;
 		dlg->GetClusterData(CTL_CCHECKINFO_FLAGS, &flags);
@@ -4010,7 +4010,7 @@ int PPViewCCheck::Detail(const void * pHdr, PPViewBrowser * pBrw)
 			DateRange ct_period;
 			MEMSZERO(hdr);
 			if(GetBrwHdr(pHdr, &hdr)) {
-				uint   tab_idx = pBrw ? pBrw->GetCurColumn() : 0;
+				const  uint tab_idx = pBrw ? pBrw->GetCurColumn() : 0;
 				PPID   tab_id = 0;
 				int    r = 0;
 				if(oneof2(Filt.Grp, CCheckFilt::gGoodsDate, CCheckFilt::gGoodsDateSerial)) // @v10.2.6 CCheckFilt::gGoodsDateSerial
@@ -4171,10 +4171,35 @@ int PPViewCCheck::Detail(const void * pHdr, PPViewBrowser * pBrw)
 int PPViewCCheck::CreateDraftBySuspCheck(PPViewCCheck * pV, PPID chkID)
 {
 	int    ok = -1;
+	TDialog * dlg = 0;
 	const PPEquipConfig & r_eq_cfg = pV->CsObj.GetEqCfg();
-	if(chkID && !pV->Filt.Grp && r_eq_cfg.OpOnTempSess && GetOpType(r_eq_cfg.OpOnTempSess) == PPOPT_DRAFTEXPEND) {
-		uint  all_selection = chkID ? 0 : 1;
-		if(!chkID || SelectorDialog(DLG_SELDRAFTBYCHK, CTL_SELDRAFTBYCHK_SEL, &all_selection) > 0) {
+	if(!pV->Filt.Grp) {
+		bool   skip = false;
+		bool   select_all = chkID ? false : true;
+		PPID   op_id = (r_eq_cfg.OpOnTempSess && GetOpType(r_eq_cfg.OpOnTempSess) == PPOPT_DRAFTEXPEND) ? r_eq_cfg.OpOnTempSess : 0;
+		dlg = new TDialog(DLG_SELDRAFTBYCHK);
+		THROW(CheckDialogPtr(&dlg));
+		dlg->AddClusterAssocDef(CTL_SELDRAFTBYCHK_SEL, 0, 0);
+		dlg->AddClusterAssoc(CTL_SELDRAFTBYCHK_SEL, 1, 1);
+		if(!chkID)
+			dlg->DisableClusterItem(CTL_SELDRAFTBYCHK_SEL, 0, 1);
+		dlg->SetClusterData(CTL_SELDRAFTBYCHK_SEL, select_all);
+		{
+			PPIDArray op_type_list;
+			op_type_list.add(PPOPT_DRAFTEXPEND);
+			SetupOprKindCombo(dlg, CTLSEL_SELDRAFTBYCHK_OP, op_id, 0, &op_type_list, 0);
+		}
+		if(ExecView(dlg) == cmOK) {
+			if(dlg->GetClusterData(CTL_SELDRAFTBYCHK_SEL) == 1)
+				select_all = true;
+			else
+				select_all = false;
+			op_id = dlg->getCtrlLong(CTLSEL_SELDRAFTBYCHK_OP);
+		}
+		else
+			skip = true;
+		ZDELETE(dlg);
+		if(!skip && op_id && GetOpType(op_id) == PPOPT_DRAFTEXPEND && (chkID || select_all)) {
 			PPID    loc_id = LConfig.Location;
 			PPID    ar_id = 0;
 			SString bill_memo, temp_buf;
@@ -4183,7 +4208,7 @@ int PPViewCCheck::CreateDraftBySuspCheck(PPViewCCheck * pV, PPID chkID)
 			BillFilt    b_filt;
 			PPObjBill * p_bobj = BillObj;
 			THROW(p_bobj->CheckRights(PPR_INS));
-			if(all_selection) {
+			if(select_all) {
 				PPLoadText(PPTXT_CCHECKSELFORPERIOD, temp_buf);
 				b_filt.Period.SetDate(pV->Filt.Period.low);
 				bill_memo.Cat(temp_buf).Space().Cat(pV->Filt.Period);
@@ -4203,7 +4228,7 @@ int PPViewCCheck::CreateDraftBySuspCheck(PPViewCCheck * pV, PPID chkID)
 					SCardTbl::Rec  sc_rec;
 					if(pV->P_CC->Cards.Search(chk_rec.SCardID, &sc_rec) > 0 && sc_rec.PersonID) {
 						PPOprKind  op_rec;
-						if(GetOpData(r_eq_cfg.OpOnTempSess, &op_rec) > 0) {
+						if(GetOpData(op_id, &op_rec) > 0) {
 							PPObjArticle ar_obj;
 							ar_obj.GetByPerson(op_rec.AccSheetID, sc_rec.PersonID, &ar_id);
 						}
@@ -4212,8 +4237,9 @@ int PPViewCCheck::CreateDraftBySuspCheck(PPViewCCheck * pV, PPID chkID)
 				pV->P_CC->MakeCodeString(&chk_rec, bill_memo);
 			}
 			b_filt.LocList.Add(loc_id);
-			THROW(pack.CreateBlankByFilt(r_eq_cfg.OpOnTempSess, &b_filt, 1));
-			while(!all_selection || pV->NextIteration(&chk_rec) > 0) {
+			THROW(pack.CreateBlankByFilt(op_id, &b_filt, 1));
+			// @todo Добавить вывод в окно журнала сообщения о процессе и не создавать дубликаты документов (искать таковые по косвенным признакам: вид операции, дата и пр.)
+			while(!select_all || pV->NextIteration(&chk_rec) > 0) {
 				CCheckLineTbl::Rec cc_line;
 				// @v10.6.4 MEMSZERO(cc_line);
 				if(diffdate(chk_rec.Dt, pack.Rec.Dt) > 0)
@@ -4233,7 +4259,7 @@ int PPViewCCheck::CreateDraftBySuspCheck(PPViewCCheck * pV, PPID chkID)
 					ti.Price = TR5(intmnytodbl(cc_line.Price) - cc_line.Dscnt);
 					THROW(pack.InsertRow(&ti, 0));
 				}
-				if(!all_selection) {
+				if(!select_all) {
 					pack.Rec.Object  = ar_id;
 					pack.Rec.SCardID = chk_rec.SCardID;
 					break;
@@ -4246,9 +4272,11 @@ int PPViewCCheck::CreateDraftBySuspCheck(PPViewCCheck * pV, PPID chkID)
 			if(p_bobj->TurnPacket(&pack, 1) <= 0)
 				p_bobj->DiagGoodsTurnError(&pack);
 			ok = 1;
+			//}
 		}
 	}
 	CATCHZOKPPERR
+	delete dlg;
 	return ok;
 }
 

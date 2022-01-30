@@ -18,11 +18,6 @@
 
 #include <ma_global.h>
 #pragma hdrstop
-//#include <ma_sys.h>
-//#include "mariadb_ctype.h"
-//#include <ma_string.h>
-//#include <mariadb_ctype.h>
-//#include <signal.h>
 #ifdef _WIN32
 	#ifdef _MSC_VER
 		#include <locale.h>

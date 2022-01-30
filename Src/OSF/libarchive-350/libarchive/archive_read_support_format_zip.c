@@ -41,24 +41,11 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_support_format_zip.c 201102
  * added in Nov 2011.  Zip64 support (including a significant code
  * refactoring) was added in 2014.
  */
-
-#ifdef HAVE_ZLIB_H
-#include <zlib.h>
-#endif
-#ifdef HAVE_BZLIB_H
-	#include <..\OSF\BZIP2\bzlib.h>
-#endif
-#ifdef HAVE_LZMA_H
-	#include <..\OSF\liblzma\api\lzma.h>
-#endif
-#include "archive.h"
 #include "archive_digest_private.h"
 #include "archive_cryptor_private.h"
 #include "archive_endian.h"
-#include "archive_entry.h"
 #include "archive_entry_locale.h"
 #include "archive_hmac_private.h"
-#include "archive_private.h"
 #include "archive_rb.h"
 #include "archive_read_private.h"
 #include "archive_ppmd8_private.h"
@@ -2160,8 +2147,8 @@ static int read_decryption_header(struct archive_read * a)
 {
 	struct zip * zip = (struct zip *)(a->format->data);
 	const char * p;
-	unsigned int remaining_size;
-	unsigned int ts;
+	uint remaining_size;
+	uint ts;
 
 	/*
 	 * Read an initialization vector data field.
@@ -2583,7 +2570,7 @@ static int archive_read_format_zip_read_data(struct archive_read * a,
 		if((!zip->hctx_valid ||
 		    zip->entry->aes_extra.vendor != AES_VENDOR_AE_2) && zip->entry->crc32 != zip->entry_crc32 && !zip->ignore_crc32) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "ZIP bad CRC: 0x%lx should be 0x%lx",
-			    (unsigned long)zip->entry_crc32, (unsigned long)zip->entry->crc32);
+			    (ulong)zip->entry_crc32, (ulong)zip->entry->crc32);
 			return ARCHIVE_WARN;
 		}
 	}

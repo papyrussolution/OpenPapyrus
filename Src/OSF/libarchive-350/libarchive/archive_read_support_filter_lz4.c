@@ -272,8 +272,7 @@ static ssize_t lz4_filter_read(struct archive_read_filter * self, const void ** 
 		case private_data::READ_DEFAULT_STREAM:
 		case private_data::READ_LEGACY_STREAM:
 		    /* Reading a lz4 stream already failed. */
-		    archive_set_error(&self->archive->archive,
-			ARCHIVE_ERRNO_MISC, "Invalid sequence.");
+		    archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Invalid sequence.");
 		    return ARCHIVE_FATAL;
 		case private_data::READ_DEFAULT_BLOCK:
 		    ret = lz4_filter_read_default_stream(self, p);
@@ -331,7 +330,7 @@ static int lz4_filter_read_descriptor(struct archive_read_filter * self)
 	ssize_t bytes_remaining;
 	ssize_t descriptor_bytes;
 	uchar flag, bd;
-	unsigned int chsum, chsum_verifier;
+	uint chsum, chsum_verifier;
 	/* Make sure we have 2 bytes for flags. */
 	const char * read_buf = (const char *)__archive_read_filter_ahead(self->upstream, 2, &bytes_remaining);
 	if(read_buf == NULL) {
@@ -407,8 +406,7 @@ static int lz4_filter_read_descriptor(struct archive_read_filter * self)
 	/* Success */
 	return ARCHIVE_OK;
 malformed_error:
-	archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC,
-	    "malformed lz4 data");
+	archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "malformed lz4 data");
 	return ARCHIVE_FATAL;
 }
 
@@ -455,9 +453,9 @@ static ssize_t lz4_filter_read_data_block(struct archive_read_filter * self, con
 
 	/* Optional processing, checking a block sum. */
 	if(checksum_size) {
-		unsigned int chsum = __archive_xxhash.XXH32(
+		uint chsum = __archive_xxhash.XXH32(
 			read_buf + 4, (int)compressed_size, 0);
-		unsigned int chsum_block =
+		uint chsum_block =
 		    archive_le32dec(read_buf + 4 + compressed_size);
 		if(chsum != chsum_block)
 			goto malformed_error;
@@ -519,26 +517,20 @@ static ssize_t lz4_filter_read_data_block(struct archive_read_filter * self, con
 			state->flags.block_maximum_size);
 #endif
 	}
-
 	/* Check if an error occurred in the decompression process. */
 	if(uncompressed_size < 0) {
-		archive_set_error(&(self->archive->archive),
-		    ARCHIVE_ERRNO_MISC, "lz4 decompression failed");
+		archive_set_error(&(self->archive->archive), ARCHIVE_ERRNO_MISC, "lz4 decompression failed");
 		return ARCHIVE_FATAL;
 	}
-
 	state->unconsumed = 4 + compressed_size + checksum_size;
 	*p = state->out_block + prefix64k;
 	state->decoded_size = uncompressed_size;
 	return uncompressed_size;
-
 malformed_error:
-	archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC,
-	    "malformed lz4 data");
+	archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "malformed lz4 data");
 	return ARCHIVE_FATAL;
 truncated_error:
-	archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC,
-	    "truncated lz4 input");
+	archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "truncated lz4 input");
 	return ARCHIVE_FATAL;
 }
 

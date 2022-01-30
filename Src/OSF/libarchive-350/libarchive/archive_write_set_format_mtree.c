@@ -27,14 +27,9 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_mtree.c 201171 2009-12-29 06:39:07Z kientzle $");
 
-#include "archive.h"
 #include "archive_digest_private.h"
-#include "archive_entry.h"
 #include "archive_entry_private.h"
-#include "archive_private.h"
 #include "archive_rb.h"
-#include "archive_string.h"
-#include "archive_write_private.h"
 
 #define INDENTNAMELEN   15
 #define MAXLINELEN      80
@@ -93,7 +88,7 @@ struct mtree_entry {
 	struct archive_string uname;
 	struct archive_string gname;
 	struct archive_string fflags_text;
-	unsigned int nlink;
+	uint nlink;
 	mode_t filetype;
 	mode_t mode;
 	int64 size;

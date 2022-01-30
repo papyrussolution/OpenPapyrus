@@ -664,9 +664,9 @@ int netware_init(void);
 #include "hash.h"
 #include "curl_addrinfo.h"
 #include "asyn.h"
-#ifdef HAVE_SETJMP_H
-	#include <setjmp.h>
-#endif
+//#ifdef HAVE_SETJMP_H
+	//#include <setjmp.h>
+//#endif
 #include "hostip.h"
 #include "transfer.h"
 #include "progress.h"

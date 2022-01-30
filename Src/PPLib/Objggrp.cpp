@@ -1,5 +1,5 @@
 // OBJGGRP.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1327,7 +1327,7 @@ PPTransport::PPTransport()
 	THISZERO();
 }
 
-int FASTCALL PPTransport::IsEq(const PPTransport & rS) const
+bool FASTCALL PPTransport::IsEq(const PPTransport & rS) const
 {
 #define CMP_FLD(f) if(f != rS.f) return 0;
 	CMP_FLD(ID);
@@ -1340,20 +1340,36 @@ int FASTCALL PPTransport::IsEq(const PPTransport & rS) const
 	CMP_FLD(VanType); // @v10.2.0
 	CMP_FLD(Flags); // @v10.2.4
 	if(!sstreq(Name, rS.Name))
-		return 0;
+		return false;
 	if(!sstreq(Code, rS.Code))
-		return 0;
+		return false;
 	if(!sstreq(TrailerCode, rS.TrailerCode))
-		return 0;
-	return 1;
+		return false;
+	return true;
 #undef CMP_FLD
+}
+
+PPTransportPacket::PPTransportPacket()
+{
+}
+
+PPTransportPacket & PPTransportPacket::Z()
+{
+	MEMSZERO(Rec);
+	TagL.Destroy();
+	return *this;
+}
+	
+bool FASTCALL PPTransportPacket::IsEq(const PPTransportPacket & rS) const
+{
+	return (Rec.IsEq(rS.Rec) && TagL.IsEq(rS.TagL));
 }
 
 PPObjTransport::PPObjTransport(void * extraPtr) : PPObjGoods(PPOBJ_TRANSPORT, PPGDSK_TRANSPORT, extraPtr)
 {
 }
 
-int PPObjTransport::Get(PPID id, PPTransport * pRec)
+int PPObjTransport::Get(PPID id, PPTransportPacket * pPack)
 {
 	int    ok = -1, r;
 	Goods2Tbl::Rec goods_rec;
@@ -1361,30 +1377,31 @@ int PPObjTransport::Get(PPID id, PPTransport * pRec)
 	THROW_PP_S(goods_rec.Kind == PPGDSK_TRANSPORT, PPERR_INVTRANSPORTRECKIND, id);
 	if(r > 0) {
 		ok = 1;
-		if(pRec) {
+		if(pPack) {
 			BarcodeArray bc_list;
-			pRec->ID = goods_rec.ID;
-			pRec->TrType = goods_rec.GdsClsID;
-			STRNSCPY(pRec->Name, goods_rec.Name);
-			pRec->TrModelID = goods_rec.BrandID;
-			pRec->OwnerID   = goods_rec.ManufID;
-			pRec->CountryID = goods_rec.DefBCodeStrucID;
-			pRec->CaptainID = goods_rec.RspnsPersonID;
-			pRec->Capacity  = static_cast<long>(goods_rec.PhUPerU);
-			pRec->VanType   = goods_rec.VanType; // @v10.2.0
-			SETFLAG(pRec->Flags, GF_PASSIV, goods_rec.Flags & GF_PASSIV); // @v10.2.4
+			pPack->Rec.ID = goods_rec.ID;
+			pPack->Rec.TrType = goods_rec.GdsClsID;
+			STRNSCPY(pPack->Rec.Name, goods_rec.Name);
+			pPack->Rec.TrModelID = goods_rec.BrandID;
+			pPack->Rec.OwnerID   = goods_rec.ManufID;
+			pPack->Rec.CountryID = goods_rec.DefBCodeStrucID;
+			pPack->Rec.CaptainID = goods_rec.RspnsPersonID;
+			pPack->Rec.Capacity  = static_cast<long>(goods_rec.PhUPerU);
+			pPack->Rec.VanType   = goods_rec.VanType; // @v10.2.0
+			SETFLAG(pPack->Rec.Flags, GF_PASSIV, goods_rec.Flags & GF_PASSIV); // @v10.2.4
 			P_Tbl->ReadBarcodes(id, bc_list);
 			for(uint i = 0; i < bc_list.getCount(); i++) {
 				BarcodeTbl::Rec & r_bc_rec = bc_list.at(i);
 				if(r_bc_rec.Code[0] == '^') {
 					if(r_bc_rec.Qtty == 1.0) {
-						STRNSCPY(pRec->Code, r_bc_rec.Code+1);
+						STRNSCPY(pPack->Rec.Code, r_bc_rec.Code+1);
 					}
 					else if(r_bc_rec.Qtty == 2.0) {
-						STRNSCPY(pRec->TrailerCode, r_bc_rec.Code+1);
+						STRNSCPY(pPack->Rec.TrailerCode, r_bc_rec.Code+1);
 					}
 				}
 			}
+			THROW(GetTagList(id, &pPack->TagL)); // @v11.2.12
 		}
 	}
 	CATCHZOK
@@ -1436,23 +1453,24 @@ int PPObjTransport::Get(PPID id, PPTransport * pRec)
 	return ok;
 }
 
-int PPObjTransport::Put(PPID * pID, const PPTransport * pRec, int use_ta)
+int PPObjTransport::Put(PPID * pID, const PPTransportPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	int    action = 0;
 	Goods2Tbl::Rec raw_rec;
-	PPTransport org_rec;
+	PPTransportPacket org_pack;
 	BarcodeArray bc_list;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(*pID) {
-			THROW(Get(*pID, &org_rec) > 0);
-			if(pRec) {
-				if(!pRec->IsEq(org_rec)) {
-					THROW(MakeStorage(*pID, pRec, &raw_rec, &bc_list));
+			THROW(Get(*pID, &org_pack) > 0);
+			if(pPack) {
+				if(!pPack->IsEq(org_pack)) {
+					THROW(MakeStorage(*pID, &pPack->Rec, &raw_rec, &bc_list));
 					THROW(P_Tbl->Update(pID, &raw_rec, 0));
 					THROW(P_Tbl->UpdateBarcodes(*pID, &bc_list, 0));
+					THROW(SetTagList(*pID, &pPack->TagL, 0)); // @v11.2.12
 					action = PPACN_OBJUPD;
 				}
 				else
@@ -1461,16 +1479,18 @@ int PPObjTransport::Put(PPID * pID, const PPTransport * pRec, int use_ta)
 			else {
 				THROW(P_Tbl->Update(pID, 0, 0));
 				THROW(P_Tbl->UpdateBarcodes(*pID, 0, 0));
+				THROW(SetTagList(*pID, 0, 0)); // @v11.2.12
 			}
 		}
-		else if(pRec) {
-			THROW(MakeStorage(0, pRec, &raw_rec, 0));
+		else if(pPack) {
+			THROW(MakeStorage(0, &pPack->Rec, &raw_rec, 0));
 			THROW(P_Tbl->Update(pID, &raw_rec, 0));
 			//
 			// Теперь знаем идентификатор и можно сохранить список кодов
 			//
-			THROW(MakeStorage(*pID, pRec, &raw_rec, &bc_list));
+			THROW(MakeStorage(*pID, &pPack->Rec, &raw_rec, &bc_list));
 			THROW(P_Tbl->UpdateBarcodes(*pID, &bc_list, 0));
+			THROW(SetTagList(*pID, &pPack->TagL, 0)); // @v11.2.12
 			action = PPACN_OBJADD;
 		}
 		if(action)
@@ -1505,44 +1525,45 @@ int PPObjTransport::Browse(void * extraPtr)
 }
 
 class TransportDialog : public TDialog {
+	DECL_DIALOG_DATA(PPTransportPacket);
 public:
 	explicit TransportDialog(uint dlgID) : TDialog(dlgID), LockAutoName(0)
 	{
 		PPObjTransport::ReadConfig(&Cfg);
 	}
-	int    setDTS(const PPTransport * pData)
+	DECL_DIALOG_SETDTS()
 	{
-		Data = *pData;
+		RVALUEPTR(Data, pData);
 		LockAutoName = 1;
-		if(Cfg.NameTemplate.NotEmpty() && Data.TrType == PPTRTYP_CAR)
+		if(Cfg.NameTemplate.NotEmpty() && Data.Rec.TrType == PPTRTYP_CAR)
 			selectCtrl(CTL_TRANSPORT_MODEL);
 		PPID   owner_kind_id = NZOR(Cfg.OwnerKindID, PPPRK_SHIPOWNER);
 		PPID   captain_kind_id = NZOR(Cfg.CaptainKindID, PPPRK_CAPTAIN);
-		setCtrlData(CTL_TRANSPORT_NAME,  Data.Name);
-		setCtrlData(CTL_TRANSPORT_CODE,  Data.Code);
-		setCtrlData(CTL_TRANSPORT_TRAILCODE, Data.TrailerCode);
-		setCtrlReal(CTL_TRANSPORT_CAPACITY, fdiv1000i(Data.Capacity));
-		SetupPPObjCombo(this, CTLSEL_TRANSPORT_MODEL, PPOBJ_TRANSPMODEL, Data.TrModelID, OLW_CANINSERT);
-		SetupPPObjCombo(this, CTLSEL_TRANSPORT_OWNER, PPOBJ_PERSON, Data.OwnerID, OLW_CANINSERT, reinterpret_cast<void *>(owner_kind_id));
-		SetupPPObjCombo(this, CTLSEL_TRANSPORT_CAPTAIN, PPOBJ_PERSON, Data.CaptainID, OLW_CANINSERT, reinterpret_cast<void *>(captain_kind_id));
-		SetupPPObjCombo(this, CTLSEL_TRANSPORT_CNTRY, PPOBJ_COUNTRY, Data.CountryID, OLW_CANINSERT);
+		setCtrlData(CTL_TRANSPORT_NAME,  Data.Rec.Name);
+		setCtrlData(CTL_TRANSPORT_CODE,  Data.Rec.Code);
+		setCtrlData(CTL_TRANSPORT_TRAILCODE, Data.Rec.TrailerCode);
+		setCtrlReal(CTL_TRANSPORT_CAPACITY, fdiv1000i(Data.Rec.Capacity));
+		SetupPPObjCombo(this, CTLSEL_TRANSPORT_MODEL, PPOBJ_TRANSPMODEL, Data.Rec.TrModelID, OLW_CANINSERT);
+		SetupPPObjCombo(this, CTLSEL_TRANSPORT_OWNER, PPOBJ_PERSON, Data.Rec.OwnerID, OLW_CANINSERT, reinterpret_cast<void *>(owner_kind_id));
+		SetupPPObjCombo(this, CTLSEL_TRANSPORT_CAPTAIN, PPOBJ_PERSON, Data.Rec.CaptainID, OLW_CANINSERT, reinterpret_cast<void *>(captain_kind_id));
+		SetupPPObjCombo(this, CTLSEL_TRANSPORT_CNTRY, PPOBJ_COUNTRY, Data.Rec.CountryID, OLW_CANINSERT);
 		// @v10.2.0 {
-		if(Data.TrType == PPTRTYP_CAR) {
-			SetupStringCombo(this, CTLSEL_TRANSPORT_VANTYP, PPTXT_VANTYPE, Data.VanType);
+		if(Data.Rec.TrType == PPTRTYP_CAR) {
+			SetupStringCombo(this, CTLSEL_TRANSPORT_VANTYP, PPTXT_VANTYPE, Data.Rec.VanType);
 		}
 		// } @v10.2.0
 		// @v10.2.4 {
 		AddClusterAssoc(CTL_TRANSPORT_FLAGS, 0, GF_PASSIV);
-		SetClusterData(CTL_TRANSPORT_FLAGS, Data.Flags);
+		SetClusterData(CTL_TRANSPORT_FLAGS, Data.Rec.Flags);
 		// } @v10.2.4
 		LockAutoName = 0;
 		return 1;
 	}
-	int    getDTS(PPTransport * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		Helper_GetDTS();
-		if(*strip(Data.Name) == 0) {
+		if(*strip(Data.Rec.Name) == 0) {
 			ok = PPErrorByDialog(this, CTL_TRANSPORT_NAME, PPERR_NAMENEEDED);
 		}
 		else {
@@ -1554,14 +1575,19 @@ private:
 	DECL_HANDLE_EVENT
 	{
 		TDialog::handleEvent(event);
-		if(!LockAutoName && Cfg.NameTemplate.NotEmpty()) {
+		if(event.isCmd(cmTags)) {
+			Data.TagL.ObjType = PPOBJ_TRANSPORT;
+			EditObjTagValList(&Data.TagL, 0);
+			clearEvent(event);			
+		}
+		else if(!LockAutoName && Cfg.NameTemplate.NotEmpty()) {
 			if(event.isCbSelected(CTLSEL_TRANSPORT_MODEL) || event.isCbSelected(CTLSEL_TRANSPORT_OWNER) ||
 				event.isCbSelected(CTLSEL_TRANSPORT_CAPTAIN) ||
 				(event.isCmd(cmInputUpdated) &&
 				(event.isCtlEvent(CTL_TRANSPORT_CODE) || event.isCtlEvent(CTL_TRANSPORT_TRAILCODE)))) {
 				Helper_GetDTS();
 				SString name_buf;
-				TrObj.GetNameByTemplate(&Data, Cfg.NameTemplate, name_buf);
+				TrObj.GetNameByTemplate(&Data.Rec, Cfg.NameTemplate, name_buf);
 				setCtrlString(CTL_TRANSPORT_NAME, name_buf);
 				clearEvent(event);
 			}
@@ -1569,25 +1595,24 @@ private:
 	}
 	void   Helper_GetDTS()
 	{
-		getCtrlData(CTL_TRANSPORT_NAME,  Data.Name);
-		getCtrlData(CTL_TRANSPORT_CODE,  Data.Code);
-		getCtrlData(CTL_TRANSPORT_TRAILCODE,  Data.TrailerCode);
-		getCtrlData(CTLSEL_TRANSPORT_MODEL, &Data.TrModelID);
-		getCtrlData(CTLSEL_TRANSPORT_OWNER, &Data.OwnerID);
-		getCtrlData(CTLSEL_TRANSPORT_CNTRY, &Data.CountryID);
-		getCtrlData(CTLSEL_TRANSPORT_CAPTAIN, &Data.CaptainID);
+		getCtrlData(CTL_TRANSPORT_NAME,  Data.Rec.Name);
+		getCtrlData(CTL_TRANSPORT_CODE,  Data.Rec.Code);
+		getCtrlData(CTL_TRANSPORT_TRAILCODE,  Data.Rec.TrailerCode);
+		getCtrlData(CTLSEL_TRANSPORT_MODEL, &Data.Rec.TrModelID);
+		getCtrlData(CTLSEL_TRANSPORT_OWNER, &Data.Rec.OwnerID);
+		getCtrlData(CTLSEL_TRANSPORT_CNTRY, &Data.Rec.CountryID);
+		getCtrlData(CTLSEL_TRANSPORT_CAPTAIN, &Data.Rec.CaptainID);
 		// @v10.2.0 {
-		if(Data.TrType == PPTRTYP_CAR) {
+		if(Data.Rec.TrType == PPTRTYP_CAR) {
 			long   temp_val = 0;
 			getCtrlData(CTLSEL_TRANSPORT_VANTYP, &temp_val);
-			Data.VanType = (int16)temp_val;
+			Data.Rec.VanType = static_cast<int16>(temp_val);
 		}
 		// } @v10.2.0
-		Data.Capacity = (long)(getCtrlReal(CTL_TRANSPORT_CAPACITY) * 1000.0);
-		Data.Flags = (int16)GetClusterData(CTL_TRANSPORT_FLAGS); // @v10.2.4
+		Data.Rec.Capacity = static_cast<long>(getCtrlReal(CTL_TRANSPORT_CAPACITY) * 1000.0);
+		Data.Rec.Flags = static_cast<int16>(GetClusterData(CTL_TRANSPORT_FLAGS)); // @v10.2.4
 	}
 	int    LockAutoName;
-	PPTransport Data;
 	PPTransportConfig Cfg;
 	PPObjTransport TrObj;
 };
@@ -1598,13 +1623,13 @@ int PPObjTransport::Edit(PPID * pID, void * extraPtr /*initTrType*/)
 	uint   dlg_id = 0;
 	long   tr_type = reinterpret_cast<long>(extraPtr);
 	TDialog * sel_dlg = 0;
-	PPTransport rec;
+	PPTransportPacket pack;
 	if(*pID) {
-		THROW(Get(*pID, &rec) > 0);
-		tr_type = rec.TrType;
+		THROW(Get(*pID, &pack) > 0);
+		tr_type = pack.Rec.TrType;
 	}
 	else {
-		MEMSZERO(rec);
+		pack.Z();
 		if(tr_type != PPTRTYP_CAR && tr_type != PPTRTYP_SHIP) {
 			tr_type = 0;
 			THROW(CheckDialogPtr(&(sel_dlg = new TDialog(DLG_TRSEL))));
@@ -1618,7 +1643,7 @@ int PPObjTransport::Edit(PPID * pID, void * extraPtr /*initTrType*/)
 			}
 			ZDELETE(sel_dlg);
 		}
-		rec.TrType = tr_type;
+		pack.Rec.TrType = tr_type;
 	}
 	if(tr_type == PPTRTYP_CAR)
 		dlg_id = DLG_TR_CAR;
@@ -1627,10 +1652,10 @@ int PPObjTransport::Edit(PPID * pID, void * extraPtr /*initTrType*/)
 	else
 		dlg_id = 0;
 	if(dlg_id) {
-		if(PPDialogProcBodyID<TransportDialog, PPTransport>(dlg_id, &rec) > 0) {
+		if(PPDialogProcBodyID<TransportDialog, PPTransportPacket>(dlg_id, &pack) > 0) {
 			valid_data = 1;
 			ok = cmOK;
-			THROW(Put(pID, &rec, 1));
+			THROW(Put(pID, &pack, 1));
 		}
 	}
 	CATCHZOKPPERR
@@ -1655,12 +1680,15 @@ int PPObjTransport::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replac
 
 int PPObjTransport::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext *)
 {
+	// @v11.2.12 @dbd_exchange
 	int    ok = -1;
 	PPTransport * p_pack = 0;
 	THROW_MEM(p->Data = new PPTransport);
 	p_pack = static_cast<PPTransport *>(p->Data);
 	if(stream == 0) {
-		THROW(Get(id, p_pack) > 0);
+		PPTransportPacket temp_pack; // @v11.2.12
+		THROW(Get(id, &temp_pack) > 0);
+		*p_pack = temp_pack.Rec; // @v11.2.12
 	}
 	else
 		THROW(ReadBlk(p_pack, sizeof(*p_pack), stream));
@@ -1670,19 +1698,24 @@ int PPObjTransport::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext
 
 int PPObjTransport::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {
+	// @v11.2.12 @dbd_exchange
 	int    ok = 1;
 	if(p && p->Data) {
 		PPTransport * p_pack = static_cast<PPTransport *>(p->Data);
 		if(stream == 0) {
 			PPTransport temp_rec;
-			if((*pID || SearchByName(p_pack->Name, pID, 0) > 0) && Get(*pID, &temp_rec) > 0) {
-				if(!Put(pID, p_pack, 1)) {
+			PPTransportPacket temp_pack; // @v11.2.12
+			if((*pID || SearchByName(p_pack->Name, pID, 0) > 0) && Get(*pID, &temp_pack) > 0) {
+				temp_pack.Rec = *p_pack;
+				if(!Put(pID, &temp_pack, 1)) {
 					pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTTRANSPORT, p_pack->ID, p_pack->Name);
 					ok = -1;
 				}
 			}
 			else {
-				if(!Put(pID, p_pack, 1)) {
+				temp_pack.Z();
+				temp_pack.Rec = *p_pack;
+				if(!Put(pID, &temp_pack, 1)) {
 					pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTTRANSPORT, p_pack->ID, p_pack->Name);
 					ok = -1;
 				}
@@ -1749,6 +1782,11 @@ int PPObjTransport::GetNameByTemplate(PPTransport * pPack, const char * pTemplat
 PPBrand::PPBrand()
 {
 	THISZERO();
+}
+
+bool FASTCALL PPBrand::IsEq(const PPBrand & rS) const
+{
+	return (ID == rS.ID && OwnerID == rS.OwnerID && ParentID == rS.ParentID && Flags == rS.Flags && sstreq(Name, rS.Name));
 }
 
 int FASTCALL PPBrand::CheckForFilt(const BrandFilt * pFilt) const
@@ -1821,12 +1859,19 @@ void PPBrandPacket::Init()
 {
 	// @v10.6.4 MEMSZERO(Rec);
 	LinkFiles.Clear();
+	TagL.Destroy(); // @v11.2.12
+}
+
+bool FASTCALL PPBrandPacket::IsEq(const PPBrandPacket & rS) const
+{
+	return (Rec.IsEq(rS.Rec) && TagL.IsEq(rS.TagL));
 }
 
 PPBrandPacket & FASTCALL PPBrandPacket::operator = (const PPBrandPacket & rSrc)
 {
 	memcpy(&Rec, &rSrc.Rec, sizeof(Rec));
 	LinkFiles = rSrc.LinkFiles;
+	TagL = rSrc.TagL; // @v11.2.12
 	return *this;
 }
 //
@@ -1847,10 +1892,8 @@ PPObjBrand::PPObjBrand(void * extraPtr) : PPObjGoods(PPOBJ_BRAND, PPGDSK_BRAND, 
 			pRec->OwnerID   = rGoodsRec.ManufID;
 			pRec->Flags     = rGoodsRec.Flags;
 		}
-		else {
-			PPSetError(/*PPERR_INVBRANDRECKIND*/1, rGoodsRec.ID);
-			ok = 0;
-		}
+		else
+			ok = PPSetError(/*PPERR_INVBRANDRECKIND*/1, rGoodsRec.ID);
 	}
 	return ok;
 }
@@ -1866,7 +1909,14 @@ int PPObjBrand::Fetch(PPID id, PPBrand * pRec)
 int PPObjBrand::Get(PPID id, PPBrandPacket * pPack)
 {
 	int    ok = PPObjGoods::Search(id);
-	return (ok > 0) ? Helper_GetRec(P_Tbl->data, &pPack->Rec) : ok;
+	if(ok > 0) {
+		if(pPack) {
+			THROW(Helper_GetRec(P_Tbl->data, &pPack->Rec));
+			THROW(GetTagList(id, &pPack->TagL));
+		}
+	}
+	CATCHZOK
+	return ok;
 }
 
 int PPObjBrand::Put(PPID * pID, PPBrandPacket * pPack, int use_ta)
@@ -1877,17 +1927,19 @@ int PPObjBrand::Put(PPID * pID, PPBrandPacket * pPack, int use_ta)
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(*pID) {
-			THROW(Search(*pID, &raw_rec) > 0 && raw_rec.Kind == PPGDSK_BRAND);
+			PPBrandPacket org_pack;
+			//THROW(Search(*pID, &raw_rec) > 0 && raw_rec.Kind == PPGDSK_BRAND);
+			THROW(Get(*pID, &org_pack) > 0);
 			if(pPack) {
-				if(pPack->Rec.OwnerID != raw_rec.ManufID || !sstreq(pPack->Rec.Name, raw_rec.Name) || pPack->Rec.Flags != raw_rec.Flags ||
-					pPack->Rec.Flags & BRNDF_HASIMAGES
-				) {
+				if(!pPack->IsEq(org_pack) || pPack->LinkFiles.IsChanged(*pID, 0L)) {
 					THROW(CheckRights(PPR_MOD));
+					raw_rec.ID = org_pack.Rec.ID;
 					raw_rec.Kind = PPGDSK_BRAND;
 					STRNSCPY(raw_rec.Name, pPack->Rec.Name);
 					raw_rec.ManufID = pPack->Rec.OwnerID;
 					raw_rec.Flags   = pPack->Rec.Flags;
 					THROW(P_Tbl->Update(pID, &raw_rec, 0));
+					THROW(SetTagList(*pID, &pPack->TagL, 0)); // @v11.2.12
 					if(pPack->LinkFiles.IsChanged(*pID, 0L)) {
 						// THROW_PP(CheckRights(PSNRT_UPDIMAGE), PPERR_NRT_UPDIMAGE);
 						pPack->LinkFiles.Save(*pID, 0L);
@@ -1900,6 +1952,7 @@ int PPObjBrand::Put(PPID * pID, PPBrandPacket * pPack, int use_ta)
 			else {
 				THROW(CheckRights(PPR_DEL));
 				THROW(P_Tbl->Update(pID, 0, 0));
+				THROW(SetTagList(*pID, 0, 0)); // @v11.2.12
 				{
 					ObjLinkFiles _lf(PPOBJ_BRAND);
 					_lf.Save(*pID, 0L);
@@ -1915,6 +1968,7 @@ int PPObjBrand::Put(PPID * pID, PPBrandPacket * pPack, int use_ta)
 			raw_rec.ManufID = pPack->Rec.OwnerID;
 			raw_rec.Flags   = pPack->Rec.Flags;
 			THROW(P_Tbl->Update(pID, &raw_rec, 0));
+			THROW(SetTagList(*pID, &pPack->TagL, 0)); // @v11.2.12
 			if(pPack->LinkFiles.IsChanged(*pID, 0L)) {
 				// THROW_PP(CheckRights(PSNRT_UPDIMAGE), PPERR_NRT_UPDIMAGE);
 				pPack->LinkFiles.Save(*pID, 0L);
@@ -2074,52 +2128,89 @@ int PPObjBrand::Browse(void * extraPtr)
 
 #define GRP_IBG 1
 
+class BrandDialog : public TDialog {
+	DECL_DIALOG_DATA(PPBrandPacket);
+public:
+	BrandDialog() : TDialog(DLG_BRAND)
+	{
+		addGroup(GRP_IBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_GOODS_IMAGE,
+			cmAddImage, cmDelImage, 1, ImageBrowseCtrlGroup::fUseExtOpenDlg));
+	}
+	DECL_DIALOG_SETDTS()
+	{
+		int    ok = 1;
+		RVALUEPTR(Data, pData);
+		//
+		setCtrlLong(CTL_GOODS_ID, Data.Rec.ID);
+		setCtrlData(CTL_GOODS_NAME, Data.Rec.Name);
+		{
+			ImageBrowseCtrlGroup::Rec rec;
+			Data.LinkFiles.Init(PPOBJ_BRAND);
+			if(Data.Rec.Flags & BRNDF_HASIMAGES)
+				Data.LinkFiles.Load(Data.Rec.ID, 0L);
+			Data.LinkFiles.At(0, rec.Path);
+			setGroupData(GRP_IBG, &rec);
+		}
+		SetupPPObjCombo(this, CTLSEL_GOODS_MANUF, PPOBJ_PERSON, Data.Rec.OwnerID, OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_MANUF));
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		getCtrlData(sel = CTL_GOODS_NAME,  Data.Rec.Name);
+		THROW_PP(*strip(Data.Rec.Name), PPERR_NAMENEEDED);
+		getCtrlData(CTLSEL_GOODS_MANUF, &Data.Rec.OwnerID);
+		{
+			ImageBrowseCtrlGroup::Rec rec;
+			if(getGroupData(GRP_IBG, &rec))
+				if(rec.Path.Len()) {
+					THROW(Data.LinkFiles.Replace(0, rec.Path));
+				}
+				else
+					Data.LinkFiles.Remove(0);
+			SETFLAG(Data.Rec.Flags, BRNDF_HASIMAGES, Data.LinkFiles.GetCount());
+		}
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
+private:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isCmd(cmTags)) {
+			Data.TagL.ObjType = PPOBJ_BRAND;
+			EditObjTagValList(&Data.TagL, 0);
+			clearEvent(event);
+		}
+	}
+};
+
 int PPObjBrand::Edit(PPID * pID, void * extraPtr)
 {
-	int    ok = -1, valid_data = 0, is_new = 0;
-	TDialog * dlg = 0;
+	int    ok = -1;
+	int    valid_data = 0;
+	int    is_new = 0;
+	BrandDialog * dlg = 0;
 	PPBrandPacket pack;
-	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_BRAND))));
 	THROW(EditPrereq(pID, dlg, &is_new));
+	THROW(CheckDialogPtr(&(dlg = new BrandDialog())));
 	if(!is_new) {
 		THROW(Get(*pID, &pack) > 0);
 	}
 	else
 		pack.Init();
-	dlg->setCtrlLong(CTL_GOODS_ID, pack.Rec.ID);
-	dlg->setCtrlData(CTL_GOODS_NAME, pack.Rec.Name);
-	dlg->addGroup(GRP_IBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_GOODS_IMAGE,
-		cmAddImage, cmDelImage, 1, ImageBrowseCtrlGroup::fUseExtOpenDlg));
-	{
-		ImageBrowseCtrlGroup::Rec rec;
-		pack.LinkFiles.Init(PPOBJ_BRAND);
-		if(pack.Rec.Flags & BRNDF_HASIMAGES)
-			pack.LinkFiles.Load(pack.Rec.ID, 0L);
-		pack.LinkFiles.At(0, rec.Path);
-		dlg->setGroupData(GRP_IBG, &rec);
-	}
-	SetupPPObjCombo(dlg, CTLSEL_GOODS_MANUF, PPOBJ_PERSON, pack.Rec.OwnerID, OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_MANUF));
+	THROW(dlg->setDTS(&pack));
 	while(!valid_data && ExecView(dlg) == cmOK) {
-		dlg->getCtrlData(CTL_GOODS_NAME,  pack.Rec.Name);
-		dlg->getCtrlData(CTLSEL_GOODS_MANUF, &pack.Rec.OwnerID);
-		{
-			ImageBrowseCtrlGroup::Rec rec;
-			if(dlg->getGroupData(GRP_IBG, &rec))
-				if(rec.Path.Len()) {
-					THROW(pack.LinkFiles.Replace(0, rec.Path));
-				}
-				else
-					pack.LinkFiles.Remove(0);
-			SETFLAG(pack.Rec.Flags, BRNDF_HASIMAGES, pack.LinkFiles.GetCount());
+		if(dlg->getDTS(&pack)) {
+			if(Put(pID, &pack, 1)) {
+				ok = cmOK;
+				valid_data = 1;
+			}
+			else
+				PPError();
 		}
-		if(*strip(pack.Rec.Name) == 0)
-			PPErrorByDialog(dlg, CTL_GOODS_NAME, PPERR_NAMENEEDED);
-		else if(Put(pID, &pack, 1)) {
-			valid_data = 1;
-			ok = cmOK;
-		}
-		else
-			PPError();
 	}
 	CATCHZOKPPERR
 	delete dlg;

@@ -27,11 +27,7 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_ustar.c 191579 2009-04-27 18:35:03Z kientzle $");
 
-#include "archive.h"
-#include "archive_entry.h"
 #include "archive_entry_locale.h"
-#include "archive_private.h"
-#include "archive_write_private.h"
 #include "archive_write_set_format_private.h"
 
 struct ustar {
@@ -365,7 +361,7 @@ int __archive_write_format_header_ustar(struct archive_write * a, char h[512],
     struct archive_entry * entry, int tartype, int strict,
     struct archive_string_conv * sconv)
 {
-	unsigned int checksum;
+	uint checksum;
 	int i, r, ret;
 	size_t copy_length;
 	const char * p, * pp;

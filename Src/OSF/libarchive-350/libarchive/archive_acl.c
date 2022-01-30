@@ -27,19 +27,7 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
 
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#ifdef HAVE_LIMITS_H
-//#include <limits.h>
-//#endif
-//#ifdef HAVE_WCHAR_H
-//#include <wchar.h>
-//#endif
-
 #include "archive_acl_private.h"
-#include "archive_entry.h"
-#include "archive_private.h"
 
 #undef max
 #define max(a, b)       ((a)>(b) ? (a) : (b))
