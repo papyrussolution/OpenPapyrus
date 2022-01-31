@@ -307,7 +307,7 @@ int createDir(const char * pPath)
 	SString path;
 	SString temp_path;
 	// @v11.2.12 (temp_path = pPath).SetLastSlash().ReplaceChar('/', '\\');
-	SPathStruc::NormalizePath(pPath, SPathStruc::npfKeepCase, temp_path); // @v11.2.12 
+	SPathStruc::NormalizePath(pPath, SPathStruc::npfKeepCase, temp_path).SetLastSlash(); // @v11.2.12 
 	const char * p = temp_path;
 	do {
 		if(*p == '\\') {
