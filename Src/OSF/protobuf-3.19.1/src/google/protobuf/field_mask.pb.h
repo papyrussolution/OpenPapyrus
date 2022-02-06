@@ -104,8 +104,7 @@ class FieldMask final :
   inline void Swap(FieldMask* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -137,8 +136,7 @@ class FieldMask final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -149,19 +147,16 @@ class FieldMask final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "google.protobuf.FieldMask";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "google.protobuf.FieldMask"; }
   protected:
-  explicit FieldMask(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit FieldMask(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -182,7 +177,7 @@ class FieldMask final :
   std::string* mutable_paths(int index);
   void set_paths(int index, const std::string& value);
   void set_paths(int index, std::string&& value);
-  void set_paths(int index, const char* value);
+  void set_paths(int index, const char * value);
   void set_paths(int index, const char* value, size_t size);
   std::string* add_paths();
   void add_paths(const std::string& value);
@@ -219,9 +214,7 @@ class FieldMask final :
 // FieldMask
 
 // repeated string paths = 1;
-inline int FieldMask::_internal_paths_size() const {
-  return paths_.size();
-}
+inline int FieldMask::_internal_paths_size() const { return paths_.size(); }
 inline int FieldMask::paths_size() const {
   return _internal_paths_size();
 }
@@ -233,9 +226,7 @@ inline std::string* FieldMask::add_paths() {
   // @@protoc_insertion_point(field_add_mutable:google.protobuf.FieldMask.paths)
   return _s;
 }
-inline const std::string& FieldMask::_internal_paths(int index) const {
-  return paths_.Get(index);
-}
+inline const std::string& FieldMask::_internal_paths(int index) const { return paths_.Get(index); }
 inline const std::string& FieldMask::paths(int index) const {
   // @@protoc_insertion_point(field_get:google.protobuf.FieldMask.paths)
   return _internal_paths(index);
@@ -262,9 +253,7 @@ inline void FieldMask::set_paths(int index, const char* value, size_t size) {
     reinterpret_cast<const char*>(value), size);
   // @@protoc_insertion_point(field_set_pointer:google.protobuf.FieldMask.paths)
 }
-inline std::string* FieldMask::_internal_add_paths() {
-  return paths_.Add();
-}
+inline std::string* FieldMask::_internal_add_paths() { return paths_.Add(); }
 inline void FieldMask::add_paths(const std::string& value) {
   paths_.Add()->assign(value);
   // @@protoc_insertion_point(field_add:google.protobuf.FieldMask.paths)

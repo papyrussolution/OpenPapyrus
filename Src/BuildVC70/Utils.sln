@@ -21,6 +21,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GenVer", "GenVer.vcproj", "
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "slib", "slib.vcproj", "{D507E468-21FC-4209-A5A8-DE1F055866DC}"
 	ProjectSection(ProjectDependencies) = postProject
+		{BD776450-1675-4703-BFD3-2517B5A45DA8} = {BD776450-1675-4703-BFD3-2517B5A45DA8}
+		{1EE9AB8F-F42F-481E-963F-5854BFDB8EC1} = {1EE9AB8F-F42F-481E-963F-5854BFDB8EC1}
+		{0796C89C-07E1-4BDA-BDAE-F023AEB5366C} = {0796C89C-07E1-4BDA-BDAE-F023AEB5366C}
+		{6B7325A2-A019-4FC4-9585-1DBA4CADEFEB} = {6B7325A2-A019-4FC4-9585-1DBA4CADEFEB}
+		{26070AD0-2D76-41A2-AB8B-864EA198CC6F} = {26070AD0-2D76-41A2-AB8B-864EA198CC6F}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "scp2rc", "scp2rc.vcproj", "{7471402A-C332-49E3-9438-29DC88517B6A}"
@@ -196,6 +201,14 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bz2", "bzip2.vcproj", "{BD7
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "onig", "onig.vcproj", "{6DF114F3-4C83-4F5E-AA2C-2CB451949336}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lz4", "lz4.vcproj", "{6B7325A2-A019-4FC4-9585-1DBA4CADEFEB}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libzip", "libzip.vcproj", "{1EE9AB8F-F42F-481E-963F-5854BFDB8EC1}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -866,6 +879,50 @@ Global
 		{6DF114F3-4C83-4F5E-AA2C-2CB451949336}.ServerRelease.Build.0 = Release|Win32
 		{6DF114F3-4C83-4F5E-AA2C-2CB451949336}.Universe-HTT.ActiveCfg = Release|Win32
 		{6DF114F3-4C83-4F5E-AA2C-2CB451949336}.Universe-HTT.Build.0 = Release|Win32
+		{6B7325A2-A019-4FC4-9585-1DBA4CADEFEB}.Debug.ActiveCfg = Debug|Win32
+		{6B7325A2-A019-4FC4-9585-1DBA4CADEFEB}.Debug.Build.0 = Debug|Win32
+		{6B7325A2-A019-4FC4-9585-1DBA4CADEFEB}.Debug Multithreaded.ActiveCfg = Debug|Win32
+		{6B7325A2-A019-4FC4-9585-1DBA4CADEFEB}.Debug Multithreaded.Build.0 = Debug|Win32
+		{6B7325A2-A019-4FC4-9585-1DBA4CADEFEB}.Debug Singlethreaded.ActiveCfg = Debug|Win32
+		{6B7325A2-A019-4FC4-9585-1DBA4CADEFEB}.Debug Singlethreaded.Build.0 = Debug|Win32
+		{6B7325A2-A019-4FC4-9585-1DBA4CADEFEB}.MtDllDebug.ActiveCfg = MtDllDebug|Win32
+		{6B7325A2-A019-4FC4-9585-1DBA4CADEFEB}.MtDllDebug.Build.0 = MtDllDebug|Win32
+		{6B7325A2-A019-4FC4-9585-1DBA4CADEFEB}.MtDllRelease.ActiveCfg = MtDllRelease|Win32
+		{6B7325A2-A019-4FC4-9585-1DBA4CADEFEB}.MtDllRelease.Build.0 = MtDllRelease|Win32
+		{6B7325A2-A019-4FC4-9585-1DBA4CADEFEB}.Release.ActiveCfg = Release|Win32
+		{6B7325A2-A019-4FC4-9585-1DBA4CADEFEB}.Release.Build.0 = Release|Win32
+		{6B7325A2-A019-4FC4-9585-1DBA4CADEFEB}.Release Multithreaded.ActiveCfg = Release|Win32
+		{6B7325A2-A019-4FC4-9585-1DBA4CADEFEB}.Release Multithreaded.Build.0 = Release|Win32
+		{6B7325A2-A019-4FC4-9585-1DBA4CADEFEB}.Release Singlethreaded.ActiveCfg = Release|Win32
+		{6B7325A2-A019-4FC4-9585-1DBA4CADEFEB}.Release Singlethreaded.Build.0 = Release|Win32
+		{6B7325A2-A019-4FC4-9585-1DBA4CADEFEB}.ServerDebug.ActiveCfg = ServerDebug|Win32
+		{6B7325A2-A019-4FC4-9585-1DBA4CADEFEB}.ServerDebug.Build.0 = ServerDebug|Win32
+		{6B7325A2-A019-4FC4-9585-1DBA4CADEFEB}.ServerRelease.ActiveCfg = ServerRelease|Win32
+		{6B7325A2-A019-4FC4-9585-1DBA4CADEFEB}.ServerRelease.Build.0 = ServerRelease|Win32
+		{6B7325A2-A019-4FC4-9585-1DBA4CADEFEB}.Universe-HTT.ActiveCfg = ServerRelease|Win32
+		{6B7325A2-A019-4FC4-9585-1DBA4CADEFEB}.Universe-HTT.Build.0 = ServerRelease|Win32
+		{1EE9AB8F-F42F-481E-963F-5854BFDB8EC1}.Debug.ActiveCfg = Debug|Win32
+		{1EE9AB8F-F42F-481E-963F-5854BFDB8EC1}.Debug.Build.0 = Debug|Win32
+		{1EE9AB8F-F42F-481E-963F-5854BFDB8EC1}.Debug Multithreaded.ActiveCfg = Debug|Win32
+		{1EE9AB8F-F42F-481E-963F-5854BFDB8EC1}.Debug Multithreaded.Build.0 = Debug|Win32
+		{1EE9AB8F-F42F-481E-963F-5854BFDB8EC1}.Debug Singlethreaded.ActiveCfg = Debug|Win32
+		{1EE9AB8F-F42F-481E-963F-5854BFDB8EC1}.Debug Singlethreaded.Build.0 = Debug|Win32
+		{1EE9AB8F-F42F-481E-963F-5854BFDB8EC1}.MtDllDebug.ActiveCfg = MtDllDebug|Win32
+		{1EE9AB8F-F42F-481E-963F-5854BFDB8EC1}.MtDllDebug.Build.0 = MtDllDebug|Win32
+		{1EE9AB8F-F42F-481E-963F-5854BFDB8EC1}.MtDllRelease.ActiveCfg = MtDllRelease|Win32
+		{1EE9AB8F-F42F-481E-963F-5854BFDB8EC1}.MtDllRelease.Build.0 = MtDllRelease|Win32
+		{1EE9AB8F-F42F-481E-963F-5854BFDB8EC1}.Release.ActiveCfg = Release|Win32
+		{1EE9AB8F-F42F-481E-963F-5854BFDB8EC1}.Release.Build.0 = Release|Win32
+		{1EE9AB8F-F42F-481E-963F-5854BFDB8EC1}.Release Multithreaded.ActiveCfg = Release|Win32
+		{1EE9AB8F-F42F-481E-963F-5854BFDB8EC1}.Release Multithreaded.Build.0 = Release|Win32
+		{1EE9AB8F-F42F-481E-963F-5854BFDB8EC1}.Release Singlethreaded.ActiveCfg = Release|Win32
+		{1EE9AB8F-F42F-481E-963F-5854BFDB8EC1}.Release Singlethreaded.Build.0 = Release|Win32
+		{1EE9AB8F-F42F-481E-963F-5854BFDB8EC1}.ServerDebug.ActiveCfg = ServerDebug|Win32
+		{1EE9AB8F-F42F-481E-963F-5854BFDB8EC1}.ServerDebug.Build.0 = ServerDebug|Win32
+		{1EE9AB8F-F42F-481E-963F-5854BFDB8EC1}.ServerRelease.ActiveCfg = ServerRelease|Win32
+		{1EE9AB8F-F42F-481E-963F-5854BFDB8EC1}.ServerRelease.Build.0 = ServerRelease|Win32
+		{1EE9AB8F-F42F-481E-963F-5854BFDB8EC1}.Universe-HTT.ActiveCfg = ServerDebug|Win32
+		{1EE9AB8F-F42F-481E-963F-5854BFDB8EC1}.Universe-HTT.Build.0 = ServerDebug|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

@@ -129,8 +129,7 @@ class TestLargeEnumValue final :
   inline void Swap(TestLargeEnumValue* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -151,28 +150,21 @@ class TestLargeEnumValue final :
     return CreateMaybeMessage<TestLargeEnumValue>(arena);
   }
   using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyFrom;
-  inline void CopyFrom(const TestLargeEnumValue& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(this, from);
-  }
+  inline void CopyFrom(const TestLargeEnumValue& from) { ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(this, from); }
   using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeFrom;
-  void MergeFrom(const TestLargeEnumValue& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(this, from);
-  }
+  void MergeFrom(const TestLargeEnumValue& from) { ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(this, from); }
   public:
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestLargeEnumValue";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestLargeEnumValue"; }
   protected:
-  explicit TestLargeEnumValue(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestLargeEnumValue(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 

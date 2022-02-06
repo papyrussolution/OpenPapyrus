@@ -433,7 +433,7 @@ int PPEgaisProcessor::GetReplyList(void * pCtx, PPID locID, int direction /* +1 
 				THROW(p_root = xmlDocGetRootElement(p_doc));
 				if(SXml::IsName(p_root, "A")) {
 					THROW(!SXml::IsContent(p_root, "error"))
-					for(xmlNode * p_c = p_root->children; p_c; p_c = p_c->next) {
+					for(const xmlNode * p_c = p_root->children; p_c; p_c = p_c->next) {
 						if(SXml::IsName(p_c, "url")) {
 							Reply * p_new_reply = rList.CreateNewItem();
 							THROW_SL(p_new_reply);
@@ -3525,7 +3525,7 @@ int PPEgaisProcessor::Read_ProductInfo(xmlNode * pFirstNode, PPGoodsPacket * pPa
 				manuf_psn_kind_id = tag_rec.LinkObjGrp;
         }
 	}
-	for(xmlNode * p_n = pFirstNode; p_n; p_n = p_n->next) {
+	for(const xmlNode * p_n = pFirstNode; p_n; p_n = p_n->next) {
 		if(SXml::IsName(p_n, "Identity"))
 			;
 		else if(SXml::IsName(p_n, "Type"))
@@ -3705,9 +3705,9 @@ int PPEgaisProcessor::Read_ActInventoryInformBReg(xmlNode * pFirstNode, PPEgaisP
 	ActInformItem * p_item = 0;
 	if(pPack && pPack->P_Data) {
 		PPEgaisProcessor::ActInform * p_pack = static_cast<PPEgaisProcessor::ActInform *>(pPack->P_Data);
-		for(xmlNode * p_n = pFirstNode; p_n; p_n = p_n->next) {
+		for(const xmlNode * p_n = pFirstNode; p_n; p_n = p_n->next) {
 			if(SXml::IsName(p_n, "Header")) {
-				for(xmlNode * p_a = p_n->children; p_a; p_a = p_a->next) {
+				for(const xmlNode * p_a = p_n->children; p_a; p_a = p_a->next) {
 					if(SXml::GetContentByName(p_a, "ActRegId", temp_buf))
 						(p_pack->ActRegId = temp_buf).Transf(CTRANSF_UTF8_TO_INNER);
 					else if(SXml::GetContentByName(p_a, "Number", temp_buf))
@@ -3715,20 +3715,20 @@ int PPEgaisProcessor::Read_ActInventoryInformBReg(xmlNode * pFirstNode, PPEgaisP
 				}
 			}
 			else if(SXml::IsName(p_n, "Content")) {
-				for(xmlNode * p_a = p_n->children; p_a; p_a = p_a->next) {
+				for(const xmlNode * p_a = p_n->children; p_a; p_a = p_a->next) {
 					if(SXml::IsName(p_a, "Position")) {
 						THROW_MEM(p_item = new ActInformItem);
-						for(xmlNode * p_p = p_a->children; p_p; p_p = p_p->next) {
+						for(const xmlNode * p_p = p_a->children; p_p; p_p = p_p->next) {
 							if(SXml::GetContentByName(p_p, "Identity", temp_buf))
 								p_item->P = temp_buf.ToLong();
 							else if(SXml::GetContentByName(p_p, "InformARegId", temp_buf) || SXml::GetContentByName(p_p, "InformF1RegId", temp_buf)) {
 								temp_buf.Strip().Transf(CTRANSF_UTF8_TO_INNER).CopyTo(p_item->AIdent, sizeof(p_item->AIdent));
 							}
 							else if(SXml::IsName(p_p, "InformB") || SXml::IsName(p_p, "InformF2")) {
-								for(xmlNode * p_b = p_p->children; p_b; p_b = p_b->next) {
+								for(const xmlNode * p_b = p_p->children; p_b; p_b = p_b->next) {
 									if(SXml::IsName(p_b, "InformBItem") || SXml::IsName(p_b, "InformF2Item")) {
 										InformBItem bitem;
-										for(xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
+										for(const xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
 											if(SXml::GetContentByName(p_i, "Identity", temp_buf))
 												bitem.P = temp_buf.ToLong();
 											else if(SXml::GetContentByName(p_i, "BRegId", temp_buf) || SXml::GetContentByName(p_i, "F2RegId", temp_buf))
@@ -3836,7 +3836,7 @@ int PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID, int 
 	if(pRefC)
 		pRefC->LastPersonP = -1;
 	int    j_status = 0;
-	for(xmlNode * p_n = pFirstNode; p_n; p_n = p_n->next) {
+	for(const xmlNode * p_n = pFirstNode; p_n; p_n = p_n->next) {
 		//
 		// Для 2-й версии протокола есть дополнительная обрамляющая зона идентифицирующая юридический статус персоналии
 		//
@@ -3879,7 +3879,7 @@ int PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID, int 
 		else if(SXml::GetContentByName(p_n, "RNN", rnn))
 			;
 		else if(SXml::IsName(p_n, "address")) {
-			for(xmlNode * p_a = p_n->children; p_a; p_a = p_a->next) {
+			for(const xmlNode * p_a = p_n->children; p_a; p_a = p_a->next) {
 				if(SXml::GetContentByName(p_a, "Country", temp_buf))
 					country_code = temp_buf.ToLong();
 				else if(SXml::GetContentByName(p_a, "Index", zip))
@@ -4160,7 +4160,7 @@ int PPEgaisProcessor::Read_TicketResult(xmlNode * pFirstNode, int ticketType, PP
 	int    ok = -1;
 	SString temp_buf;
 	rResult.Type = ticketType;
-	for(xmlNode * p_r = pFirstNode; p_r; p_r = p_r->next) {
+	for(const xmlNode * p_r = pFirstNode; p_r; p_r = p_r->next) {
 		if(ticketType == 1) {
 			if(SXml::GetContentByName(p_r, "Conclusion", temp_buf)) {
 				rResult.Conclusion = temp_buf.IsEqiAscii("Accepted") ? 1 : (temp_buf.IsEqiAscii("Rejected") ? 0 : -1);
@@ -4204,7 +4204,7 @@ int PPEgaisProcessor::Read_Ticket(xmlNode * pFirstNode, Packet * pPack)
 	SString temp_buf;
 	if(pPack && pPack->P_Data) {
 		Ticket * p_ticket = static_cast<Ticket *>(pPack->P_Data);
-		for(xmlNode * p_n = pFirstNode; p_n; p_n = p_n->next) {
+		for(const xmlNode * p_n = pFirstNode; p_n; p_n = p_n->next) {
 			if(SXml::IsName(p_n, "Identity"))
 				;
 			else if(SXml::GetContentByName(p_n, "TicketDate", temp_buf))
@@ -4236,7 +4236,7 @@ int PPEgaisProcessor::Read_IformA(xmlNode * pFirstNode, Packet * pPack, PrcssrAl
 	PPPersonPacket psn_consignee;
     SString temp_buf;
     EgaisRefATbl::Rec * p_data = static_cast<EgaisRefATbl::Rec *>(pPack->P_Data);
-    for(xmlNode * p_n = pFirstNode; p_n; p_n = p_n->next) {
+    for(const xmlNode * p_n = pFirstNode; p_n; p_n = p_n->next) {
 		if(SXml::GetContentByName(p_n, "InformARegId", temp_buf)) {
 			temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 			STRNSCPY(p_data->RefACode, temp_buf);
@@ -4299,9 +4299,9 @@ int PPEgaisProcessor::Read_TTNIformBReg(xmlNode * pFirstNode, Packet * pPack)
     SString temp_buf;
     SString bill_ident;
     InformB * p_data = static_cast<InformB *>(pPack->P_Data);
-    for(xmlNode * p_n = pFirstNode; p_n; p_n = p_n->next) {
+    for(const xmlNode * p_n = pFirstNode; p_n; p_n = p_n->next) {
 		if(SXml::IsName(p_n, "Header")) {
-            for(xmlNode * p_h = p_n->children; p_h; p_h = p_h->next) {
+            for(const xmlNode * p_h = p_n->children; p_h; p_h = p_h->next) {
 				/*
             	if(SXml::GetContentByName(p_h, "Identity", temp_buf))
 					p_data->Id = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
@@ -4332,10 +4332,10 @@ int PPEgaisProcessor::Read_TTNIformBReg(xmlNode * pFirstNode, Packet * pPack)
 		else {
 			if(SXml::IsName(p_n, "Content")) {
 				int    surrogate_line_ident = _PPConst.EgaisInRowIdentDivider;
-				for(xmlNode * p_c = p_n->children; p_c; p_c = p_c->next) {
+				for(const xmlNode * p_c = p_n->children; p_c; p_c = p_c->next) {
                     InformBItem item;
 					if(SXml::IsName(p_c, "Position")) {
-						for(xmlNode * p_pos = p_c->children; p_pos; p_pos = p_pos->next) {
+						for(const xmlNode * p_pos = p_c->children; p_pos; p_pos = p_pos->next) {
 							if(SXml::GetContentByName(p_pos, "Identity", temp_buf)) {
 								// @v10.3.4 {
 								STRNSCPY(item.OrgRowIdent, temp_buf);
@@ -4403,10 +4403,10 @@ int PPEgaisProcessor::Read_WayBillAct(xmlNode * pFirstNode, PPID locID, Packet *
     BillTbl::Rec bhdr;
     // @v10.6.4 MEMSZERO(bhdr);
     TSVector <WayBillActRecadvItem> items;
-    for(xmlNode * p_n = pFirstNode; p_n; p_n = p_n->next) {
+    for(const xmlNode * p_n = pFirstNode; p_n; p_n = p_n->next) {
 		if(SXml::IsName(p_n, "Header")) {
 			was_header_accepted = 1;
-            for(xmlNode * p_h = p_n->children; p_h; p_h = p_h->next) {
+            for(const xmlNode * p_h = p_n->children; p_h; p_h = p_h->next) {
 				if(SXml::GetContentByName(p_h, "IsAccept", temp_buf)) {
 					if(temp_buf.IsEqiAscii("Accepted"))
 						is_accepted = 1;
@@ -4424,10 +4424,10 @@ int PPEgaisProcessor::Read_WayBillAct(xmlNode * pFirstNode, PPID locID, Packet *
             }
         }
 		else if(SXml::IsName(p_n, "Content")) {
-			for(xmlNode * p_c = p_n->children; p_c; p_c = p_c->next) {
+			for(const xmlNode * p_c = p_n->children; p_c; p_c = p_c->next) {
 				WayBillActRecadvItem item;
 				if(SXml::IsName(p_c, "Position")) {
-					for(xmlNode * p_pos = p_c->children; p_pos; p_pos = p_pos->next) {
+					for(const xmlNode * p_pos = p_c->children; p_pos; p_pos = p_pos->next) {
 						if(SXml::GetContentByName(p_pos, "Identity", temp_buf))
 							item.P = temp_buf.ToLong();
 						else if(SXml::GetContentByName(p_pos, "InformBRegId", temp_buf))
@@ -4612,13 +4612,13 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 	TSCollection <ExtCodeSetEntry> ext_code_set_list;
 	if(pPack)
 		pPack->Flags |= Packet::fFaultObj; // @v9.2.8 Иницилизируем флаг. Когда убедимся, что документ OK, флаг снимим.
-    for(xmlNode * p_n = pFirstNode; ok > 0 && p_n; p_n = p_n->next) {
+    for(const xmlNode * p_n = pFirstNode; ok > 0 && p_n; p_n = p_n->next) {
         if(SXml::GetContentByName(p_n, "Identity", temp_buf)) {
 			bill_ident = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 		}
 		else if(SXml::IsName(p_n, "Header")) {
 			was_header_accepted = 1;
-            for(xmlNode * p_h = p_n->children; ok > 0 && p_h; p_h = p_h->next) {
+            for(const xmlNode * p_h = p_n->children; ok > 0 && p_h; p_h = p_h->next) {
                 if(SXml::GetContentByName(p_h, "NUMBER", temp_buf)) {
 					temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
                     // @v11.0.12 STRNSCPY(bhdr.Code, temp_buf);
@@ -4819,7 +4819,7 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 				//PPLotExtCodeContainer::MarkSet ext_codes_set;
 				int    surrogate_line_ident = _PPConst.EgaisInRowIdentDivider;
 				SString org_line_ident;
-				for(xmlNode * p_c = p_n->children; p_c; p_c = p_c->next) {
+				for(const xmlNode * p_c = p_n->children; p_c; p_c = p_c->next) {
 					PPTransferItem ti;
 					serial.Z();
 					//ext_codes_set.Clear();
@@ -4834,7 +4834,7 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 						double _src_cost = 0.0;
 						ExtCodeSetEntry * p_ecs_entry = 0;
 						org_line_ident.Z();
-						for(xmlNode * p_pos = p_c->children; p_pos; p_pos = p_pos->next) {
+						for(const xmlNode * p_pos = p_c->children; p_pos; p_pos = p_pos->next) {
 							if(SXml::GetContentByName(p_pos, "Identity", temp_buf)) {
 								// @v10.3.4 {
 								if(temp_buf.IsDigit()) {
@@ -4892,7 +4892,7 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 							else if(SXml::GetContentByName(p_pos, "FARegId", temp_buf)) // @v9.9.5 (egais ver 3)
 								alc_ext.InformA = temp_buf.Strip().Transf(CTRANSF_UTF8_TO_INNER);
 							else if(SXml::IsName(p_pos, "InformA") || SXml::IsName(p_pos, "InformF1")) {
-								for(xmlNode * p_inf = p_pos->children; p_inf; p_inf = p_inf->next) {
+								for(const xmlNode * p_inf = p_pos->children; p_inf; p_inf = p_inf->next) {
 									if(SXml::GetContentByName(p_inf, "RegId", alc_ext.InformA)) {
 										alc_ext.InformA.Strip().Transf(CTRANSF_UTF8_TO_INNER);
 										break;
@@ -4900,22 +4900,22 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 								}
 							}
 							else if(SXml::IsName(p_pos, "InformB") || SXml::IsName(p_pos, "InformF2")) {
-								for(xmlNode * p_inf = p_pos->children; p_inf; p_inf = p_inf->next) {
+								for(const xmlNode * p_inf = p_pos->children; p_inf; p_inf = p_inf->next) {
 									if(SXml::GetContentByName(p_inf, "F2RegId", temp_buf)) // @v9.9.5 (egais ver 3)
 										alc_ext.InformB = temp_buf.Strip().Transf(CTRANSF_UTF8_TO_INNER);
 									else if(SXml::IsName(p_inf, "MarkInfo")) {
 										THROW_MEM(SETIFZ(p_ecs_entry, ext_code_set_list.CreateNewItem()));
-										for(xmlNode * p_boxpos = p_inf->children; p_boxpos; p_boxpos = p_boxpos->next) {
+										for(const xmlNode * p_boxpos = p_inf->children; p_boxpos; p_boxpos = p_boxpos->next) {
 											if(SXml::IsName(p_boxpos, "boxpos")) {
 												box_number.Z();
 												long   box_id = 0;
-												for(xmlNode * p_box = p_boxpos->children; p_box; p_box = p_box->next) {
+												for(const xmlNode * p_box = p_boxpos->children; p_box; p_box = p_box->next) {
 													if(SXml::GetContentByName(p_box, "boxnumber", temp_buf)) {
 														if(temp_buf.NotEmpty())
 															box_id = p_ecs_entry->Set.AddBox(0, temp_buf, 0);
 													}
 													else if(SXml::IsName(p_box, "amclist")) {
-														for(xmlNode * p_amc = p_box->children; p_amc; p_amc = p_amc->next) {
+														for(const xmlNode * p_amc = p_box->children; p_amc; p_amc = p_amc->next) {
 															if(SXml::GetContentByName(p_amc, "amc", temp_buf) > 0)
 																p_ecs_entry->Set.AddNum(box_id, temp_buf, 0);
 														}
@@ -4925,7 +4925,7 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 										}
 									}
 									else if(SXml::IsName(p_inf, "InformBItem") || SXml::IsName(p_inf, "InformF2Item")) {
-										for(xmlNode * p_inf_item = p_inf->children; p_inf_item; p_inf_item = p_inf_item->next) {
+										for(const xmlNode * p_inf_item = p_inf->children; p_inf_item; p_inf_item = p_inf_item->next) {
 											if(SXml::GetContentByName(p_inf_item, "BRegId", alc_ext.InformB) || SXml::GetContentByName(p_inf_item, "F2RegId", alc_ext.InformB))
 												alc_ext.InformB.Strip().Transf(CTRANSF_UTF8_TO_INNER);
 										}
@@ -6216,17 +6216,17 @@ int PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const DateRan
     // @v10.6.4 MEMSZERO(bhdr);
     TSVector <EgaisRestItem> items;
 	const PPID manuf_tag_id = Cfg.LotManufTagList.getCount() ? Cfg.LotManufTagList.get(0) : 0;
-    for(xmlNode * p_n = pFirstNode; ok > 0 && p_n; p_n = p_n->next) {
+    for(const xmlNode * p_n = pFirstNode; ok > 0 && p_n; p_n = p_n->next) {
         if(SXml::GetContentByName(p_n, "RestsDate", temp_buf)) {
 			strtodatetime(temp_buf, &rest_dtm, DATF_ISO8601, TIMF_HMS);
 		}
 		else if(SXml::IsName(p_n, "Products")) {
-			for(xmlNode * p_c = p_n->children; ok > 0 && p_c; p_c = p_c->next) {
+			for(const xmlNode * p_c = p_n->children; ok > 0 && p_c; p_c = p_c->next) {
 				if(SXml::IsName(p_c, "StockPosition") || SXml::IsName(p_c, "ShopPosition")) {
 					alc_ext.Z();
 					EgaisRestItem rest_item;
 					int    product_refc_pos = -1;
-					for(xmlNode * p_pos = p_c->children; ok > 0 && p_pos; p_pos = p_pos->next) {
+					for(const xmlNode * p_pos = p_c->children; ok > 0 && p_pos; p_pos = p_pos->next) {
 						if(SXml::GetContentByName(p_pos, "Quantity", temp_buf))
 							rest_item.Rest = temp_buf.ToReal();
 						else if(SXml::GetContentByName(p_pos, "InformARegId", temp_buf) || SXml::GetContentByName(p_pos, "InformF1RegId", temp_buf))
@@ -6471,12 +6471,12 @@ int PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, long flag
 	THROW_LXML((p_doc = xmlCtxtReadFile(p_ctx, pFileName, 0, XML_PARSE_NOENT)), p_ctx);
 	THROW(p_root = xmlDocGetRootElement(p_doc));
 	if(SXml::IsName(p_root, "Documents")) {
-		for(xmlNode * p_n = p_root->children; p_n; p_n = p_n->next) {
+		for(const xmlNode * p_n = p_root->children; p_n; p_n = p_n->next) {
 			if(SXml::IsName(p_n, "Owner")) {
 
 			}
 			else if(SXml::IsName(p_n, "Document")) {
-				for(xmlNode * p_nd = p_n->children; p_nd; p_nd = p_nd->next) {
+				for(const xmlNode * p_nd = p_n->children; p_nd; p_nd = p_nd->next) {
 					const int doc_type = RecognizeDocTypeTag(reinterpret_cast<const char *>(p_nd->name));
 					int    rs = 0;
 					if(oneof4(doc_type, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3, PPEDIOP_EGAIS_WAYBILL_V4)) {
@@ -6499,7 +6499,7 @@ int PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, long flag
 						THROW(Helper_InitNewPack(doc_type, pPackList, &p_new_pack));
 						{
 							RepealWb * p_rwb = static_cast<RepealWb *>(p_new_pack->P_Data);
-							for(xmlNode * p_n = p_nd->children; p_n; p_n = p_n->next) {
+							for(const xmlNode * p_n = p_nd->children; p_n; p_n = p_n->next) {
 								if(SXml::GetContentByName(p_n, "ClientId", temp_buf) > 0)
 									p_rwb->ContragentCode = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 								else if(SXml::GetContentByName(p_n, "RequestNumber", temp_buf) > 0)
@@ -6564,11 +6564,11 @@ int PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, long flag
 						if(sell_pk_id) {
 							THROW(Helper_InitNewPack(doc_type, pPackList, &p_new_pack));
 							{
-								for(xmlNode * p_n = p_nd->children; p_n; p_n = p_n->next) {
+								for(const xmlNode * p_n = p_nd->children; p_n; p_n = p_n->next) {
 									if(SXml::IsName(p_n, "Clients")) {
 										PPGetFilePath(PPPATH_OUT, "egais-clients", out_file_name);
 										SFile out_file(out_file_name, SFile::mAppend);
-										for(xmlNode * p_c = p_n->children; p_c; p_c = p_c->next) {
+										for(const xmlNode * p_c = p_n->children; p_c; p_c = p_c->next) {
 											if(SXml::IsName(p_c, "Client")) {
 												PPPersonPacket * p_new_psn_pack = 0;
 												if(p_new_pack) {
@@ -6590,11 +6590,11 @@ int PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, long flag
 					else if(doc_type == PPEDIOP_EGAIS_REPLYAP) {
 						THROW(Helper_InitNewPack(doc_type, pPackList, &p_new_pack));
 						{
-							for(xmlNode * p_n = p_nd->children; p_n; p_n = p_n->next) {
+							for(const xmlNode * p_n = p_nd->children; p_n; p_n = p_n->next) {
 								if(SXml::IsName(p_n, "Products")) {
 									PPGetFilePath(PPPATH_OUT, "egais-products", out_file_name);
 									SFile out_file(out_file_name, SFile::mAppend);
-									for(xmlNode * p_c = p_n->children; p_c; p_c = p_c->next) {
+									for(const xmlNode * p_c = p_n->children; p_c; p_c = p_c->next) {
 										if(SXml::IsName(p_c, "Product")) {
 											PrcssrAlcReport::GoodsItem ext;
 											PPGoodsPacket * p_new_goods_pack = 0;
@@ -6616,7 +6616,7 @@ int PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, long flag
 						THROW(Helper_InitNewPack(doc_type, pPackList, &p_new_pack));
 						{
 							ReplyRestBCode * p_rrbc = static_cast<ReplyRestBCode *>(p_new_pack->P_Data);
-							for(xmlNode * p_n = p_nd->children; p_n; p_n = p_n->next) {
+							for(const xmlNode * p_n = p_nd->children; p_n; p_n = p_n->next) {
 								if(SXml::GetContentByName(p_n, "RestsDate", temp_buf)) {
 									strtodatetime(temp_buf, &p_rrbc->RestTime, DATF_ISO8601|DATF_CENTURY, TIMF_HMS);
 								}
@@ -6624,7 +6624,7 @@ int PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, long flag
 									p_rrbc->Inform2RegId = temp_buf;
 								}
 								else if(SXml::IsName(p_n, "MarkInfo")) {
-									for(xmlNode * p_c = p_n->children; p_c; p_c = p_c->next) {
+									for(const xmlNode * p_c = p_n->children; p_c; p_c = p_c->next) {
 										if(SXml::GetContentByName(p_c, "amc", temp_buf)) {
 											p_rrbc->MarkSet.add(temp_buf);
 										}
@@ -6637,7 +6637,7 @@ int PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, long flag
 						THROW(Helper_InitNewPack(doc_type, pPackList, &p_new_pack));
                         {
                         	TSCollection <QueryBarcode> * p_qbl = static_cast<TSCollection <QueryBarcode> *>(p_new_pack->P_Data);
-                        	for(xmlNode * p_n = p_nd->children; p_n; p_n = p_n->next) {
+                        	for(const xmlNode * p_n = p_nd->children; p_n; p_n = p_n->next) {
                         		if(SXml::IsName(p_n, "Marks")) {
 									PPGetFilePath(PPPATH_OUT, "egais-marks", out_file_name);
 									const int is_out_empty = fileExists(out_file_name) ? 0 : 1;
@@ -6646,11 +6646,11 @@ int PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, long flag
 										line_buf.Z().Cat("Type").Tab().Cat("Rank").Tab().Cat("Number").Tab().Cat("Barcode").CR();
 										out_file.WriteLine(line_buf);
 									}
-                        			for(xmlNode * p_c = p_n->children; p_c; p_c = p_c->next) {
+                        			for(const xmlNode * p_c = p_n->children; p_c; p_c = p_c->next) {
 										if(SXml::IsName(p_c, "Mark")) {
 											QueryBarcode * p_qb = p_qbl->CreateNewItem();
 											THROW_SL(p_qb);
-											for(xmlNode * p_m = p_c->children; p_m; p_m = p_m->next) {
+											for(const xmlNode * p_m = p_c->children; p_m; p_m = p_m->next) {
 												if(SXml::GetContentByName(p_m, "Type", temp_buf))
 													p_qb->CodeType = temp_buf.ToLong();
 												else if(SXml::GetContentByName(p_m, "Rank", temp_buf))

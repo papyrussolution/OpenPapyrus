@@ -732,12 +732,8 @@ constexpr int Book::Type_ARRAYSIZE;
 class Book_Data::_Internal {
  public:
   using HasBits = decltype(std::declval<Book_Data>()._has_bits_);
-  static void set_has_year(HasBits* has_bits) {
-    (*has_bits)[0] |= 2u;
-  }
-  static void set_has_copyright(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
+  static void set_has_year(HasBits* has_bits) { (*has_bits)[0] |= 2u; }
+  static void set_has_copyright(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
 Book_Data::Book_Data(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -758,8 +754,7 @@ Book_Data::Book_Data(const Book_Data& from)
     copyright_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_copyright()) {
-    copyright_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_copyright(), 
-      GetArenaForAllocation());
+    copyright_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_copyright(), GetArenaForAllocation());
   }
   year_ = from.year_;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.Book.Data)
@@ -881,8 +876,7 @@ uint8_t* Book_Data::_InternalSerialize(
       this->_internal_copyright().data(), static_cast<int>(this->_internal_copyright().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
       "proto_util_converter.testing.Book.Data.copyright");
-    target = stream->WriteStringMaybeAliased(
-        8, this->_internal_copyright(), target);
+    target = stream->WriteStringMaybeAliased(8, this->_internal_copyright(), target);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -905,9 +899,7 @@ size_t Book_Data::ByteSizeLong() const {
   if(cached_has_bits & 0x00000003u) {
     // optional string copyright = 8;
     if(cached_has_bits & 0x00000001u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_copyright());
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_copyright());
     }
 
     // optional uint32 year = 7;
@@ -977,9 +969,7 @@ void Book_Data::InternalSwap(Book_Data* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Book_Data::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[0]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[0]);
 }
 
 // ===================================================================
@@ -987,12 +977,8 @@ void Book_Data::InternalSwap(Book_Data* other) {
 class Book_Label::_Internal {
  public:
   using HasBits = decltype(std::declval<Book_Label>()._has_bits_);
-  static void set_has_key(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
-  static void set_has_value(HasBits* has_bits) {
-    (*has_bits)[0] |= 2u;
-  }
+  static void set_has_key(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
+  static void set_has_value(HasBits* has_bits) { (*has_bits)[0] |= 2u; }
 };
 
 Book_Label::Book_Label(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -1013,16 +999,14 @@ Book_Label::Book_Label(const Book_Label& from)
     key_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_key()) {
-    key_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_key(), 
-      GetArenaForAllocation());
+    key_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_key(), GetArenaForAllocation());
   }
   value_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     value_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_value()) {
-    value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_value(), 
-      GetArenaForAllocation());
+    value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_value(), GetArenaForAllocation());
   }
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.Book.Label)
 }
@@ -1148,8 +1132,7 @@ uint8_t* Book_Label::_InternalSerialize(
       this->_internal_key().data(), static_cast<int>(this->_internal_key().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
       "proto_util_converter.testing.Book.Label.key");
-    target = stream->WriteStringMaybeAliased(
-        1, this->_internal_key(), target);
+    target = stream->WriteStringMaybeAliased(1, this->_internal_key(), target);
   }
 
   // optional string value = 2;
@@ -1158,8 +1141,7 @@ uint8_t* Book_Label::_InternalSerialize(
       this->_internal_value().data(), static_cast<int>(this->_internal_value().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
       "proto_util_converter.testing.Book.Label.value");
-    target = stream->WriteStringMaybeAliased(
-        2, this->_internal_value(), target);
+    target = stream->WriteStringMaybeAliased(2, this->_internal_value(), target);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1182,16 +1164,12 @@ size_t Book_Label::ByteSizeLong() const {
   if(cached_has_bits & 0x00000003u) {
     // optional string key = 1;
     if(cached_has_bits & 0x00000001u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_key());
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_key());
     }
 
     // optional string value = 2;
     if(cached_has_bits & 0x00000002u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_value());
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_value());
     }
 
   }
@@ -1259,9 +1237,7 @@ void Book_Label::InternalSwap(Book_Label* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Book_Label::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[1]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[1]);
 }
 
 // ===================================================================
@@ -1269,40 +1245,20 @@ void Book_Label::InternalSwap(Book_Label* other) {
 class Book::_Internal {
  public:
   using HasBits = decltype(std::declval<Book>()._has_bits_);
-  static void set_has_title(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
+  static void set_has_title(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
   static const ::proto_util_converter::testing::Author& author(const Book* msg);
-  static void set_has_author(HasBits* has_bits) {
-    (*has_bits)[0] |= 8u;
-  }
-  static void set_has_length(HasBits* has_bits) {
-    (*has_bits)[0] |= 256u;
-  }
-  static void set_has_published(HasBits* has_bits) {
-    (*has_bits)[0] |= 128u;
-  }
-  static void set_has_content(HasBits* has_bits) {
-    (*has_bits)[0] |= 2u;
-  }
+  static void set_has_author(HasBits* has_bits) { (*has_bits)[0] |= 8u; }
+  static void set_has_length(HasBits* has_bits) { (*has_bits)[0] |= 256u; }
+  static void set_has_published(HasBits* has_bits) { (*has_bits)[0] |= 128u; }
+  static void set_has_content(HasBits* has_bits) { (*has_bits)[0] |= 2u; }
   static const ::proto_util_converter::testing::Book_Data& data(const Book* msg);
-  static void set_has_data(HasBits* has_bits) {
-    (*has_bits)[0] |= 16u;
-  }
+  static void set_has_data(HasBits* has_bits) { (*has_bits)[0] |= 16u; }
   static const ::proto_util_converter::testing::Publisher& publisher(const Book* msg);
-  static void set_has_publisher(HasBits* has_bits) {
-    (*has_bits)[0] |= 32u;
-  }
-  static void set_has_type(HasBits* has_bits) {
-    (*has_bits)[0] |= 512u;
-  }
-  static void set_has_snake_field(HasBits* has_bits) {
-    (*has_bits)[0] |= 4u;
-  }
+  static void set_has_publisher(HasBits* has_bits) { (*has_bits)[0] |= 32u; }
+  static void set_has_type(HasBits* has_bits) { (*has_bits)[0] |= 512u; }
+  static void set_has_snake_field(HasBits* has_bits) { (*has_bits)[0] |= 4u; }
   static const ::proto_util_converter::testing::AnyWrapper& type_not_found(const Book* msg);
-  static void set_has_type_not_found(HasBits* has_bits) {
-    (*has_bits)[0] |= 64u;
-  }
+  static void set_has_type_not_found(HasBits* has_bits) { (*has_bits)[0] |= 64u; }
 };
 
 const ::proto_util_converter::testing::Author&
@@ -1349,24 +1305,21 @@ Book::Book(const Book& from)
     title_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_title()) {
-    title_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_title(), 
-      GetArenaForAllocation());
+    title_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_title(), GetArenaForAllocation());
   }
   content_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     content_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_content()) {
-    content_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_content(), 
-      GetArenaForAllocation());
+    content_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_content(), GetArenaForAllocation());
   }
   snake_field_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     snake_field_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_snake_field()) {
-    snake_field_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_snake_field(), 
-      GetArenaForAllocation());
+    snake_field_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_snake_field(), GetArenaForAllocation());
   }
   if(from._internal_has_author()) {
     author_ = new ::proto_util_converter::testing::Author(*from.author_);
@@ -1662,8 +1615,7 @@ uint8_t* Book::_InternalSerialize(
       this->_internal_title().data(), static_cast<int>(this->_internal_title().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
       "proto_util_converter.testing.Book.title");
-    target = stream->WriteStringMaybeAliased(
-        1, this->_internal_title(), target);
+    target = stream->WriteStringMaybeAliased(1, this->_internal_title(), target);
   }
 
   // optional .proto_util_converter.testing.Author author = 2;
@@ -1688,8 +1640,7 @@ uint8_t* Book::_InternalSerialize(
 
   // optional bytes content = 5;
   if(cached_has_bits & 0x00000002u) {
-    target = stream->WriteBytesMaybeAliased(
-        5, this->_internal_content(), target);
+    target = stream->WriteBytesMaybeAliased(5, this->_internal_content(), target);
   }
 
   // optional group Data = 6 { ... };
@@ -1728,8 +1679,7 @@ uint8_t* Book::_InternalSerialize(
       this->_internal_snake_field().data(), static_cast<int>(this->_internal_snake_field().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
       "proto_util_converter.testing.Book.snake_field");
-    target = stream->WriteStringMaybeAliased(
-        12, this->_internal_snake_field(), target);
+    target = stream->WriteStringMaybeAliased(12, this->_internal_snake_field(), target);
   }
 
   // optional .proto_util_converter.testing.AnyWrapper type_not_found = 13;
@@ -1742,8 +1692,8 @@ uint8_t* Book::_InternalSerialize(
 
   // repeated int32 primitive_repeated = 14;
   for(int i = 0, n = this->_internal_primitive_repeated_size(); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(14, this->_internal_primitive_repeated(i), target);
+  	target = stream->EnsureSpace(target);
+  	target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(14, this->_internal_primitive_repeated(i), target);
   }
 
   // Extension range [200, 500)
@@ -1776,8 +1726,7 @@ size_t Book::ByteSizeLong() const {
 
   // repeated int32 primitive_repeated = 14;
   {
-    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      Int32Size(this->primitive_repeated_);
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(this->primitive_repeated_);
     total_size += 1 *
                   ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_primitive_repeated_size());
     total_size += data_size;
@@ -1787,23 +1736,17 @@ size_t Book::ByteSizeLong() const {
   if(cached_has_bits & 0x000000ffu) {
     // optional string title = 1;
     if(cached_has_bits & 0x00000001u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_title());
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_title());
     }
 
     // optional bytes content = 5;
     if(cached_has_bits & 0x00000002u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
-          this->_internal_content());
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(this->_internal_content());
     }
 
     // optional string snake_field = 12;
     if(cached_has_bits & 0x00000004u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_snake_field());
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_snake_field());
     }
 
     // optional .proto_util_converter.testing.Author author = 2;
@@ -1970,9 +1913,7 @@ void Book::InternalSwap(Book* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Book::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[2]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[2]);
 }
 
 // ===================================================================
@@ -1980,12 +1921,8 @@ void Book::InternalSwap(Book* other) {
 class Publisher::_Internal {
  public:
   using HasBits = decltype(std::declval<Publisher>()._has_bits_);
-  static void set_has_name(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
-  static bool MissingRequiredFields(const HasBits& has_bits) {
-    return ((has_bits[0] & 0x00000001) ^ 0x00000001) != 0;
-  }
+  static void set_has_name(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
+  static bool MissingRequiredFields(const HasBits& has_bits) { return ((has_bits[0] & 0x00000001) ^ 0x00000001) != 0; }
 };
 
 Publisher::Publisher(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -2006,8 +1943,7 @@ Publisher::Publisher(const Publisher& from)
     name_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_name()) {
-    name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_name(), 
-      GetArenaForAllocation());
+    name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_name(), GetArenaForAllocation());
   }
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.Publisher)
 }
@@ -2111,8 +2047,7 @@ uint8_t* Publisher::_InternalSerialize(
       this->_internal_name().data(), static_cast<int>(this->_internal_name().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
       "proto_util_converter.testing.Publisher.name");
-    target = stream->WriteStringMaybeAliased(
-        1, this->_internal_name(), target);
+    target = stream->WriteStringMaybeAliased(1, this->_internal_name(), target);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -2129,9 +2064,7 @@ size_t Publisher::ByteSizeLong() const {
 
   // required string name = 1;
   if(_internal_has_name()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_name());
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_name());
   }
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -2191,9 +2124,7 @@ void Publisher::InternalSwap(Publisher* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Publisher::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[3]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[3]);
 }
 
 // ===================================================================
@@ -2201,15 +2132,9 @@ void Publisher::InternalSwap(Publisher* other) {
 class Author::_Internal {
  public:
   using HasBits = decltype(std::declval<Author>()._has_bits_);
-  static void set_has_id(HasBits* has_bits) {
-    (*has_bits)[0] |= 2u;
-  }
-  static void set_has_name(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
-  static void set_has_alive(HasBits* has_bits) {
-    (*has_bits)[0] |= 4u;
-  }
+  static void set_has_id(HasBits* has_bits) { (*has_bits)[0] |= 2u; }
+  static void set_has_name(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
+  static void set_has_alive(HasBits* has_bits) { (*has_bits)[0] |= 4u; }
 };
 
 Author::Author(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -2234,8 +2159,7 @@ Author::Author(const Author& from)
     name_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_name()) {
-    name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_name(), 
-      GetArenaForAllocation());
+    name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_name(), GetArenaForAllocation());
   }
   ::memcpy(&id_, &from.id_,
     static_cast<size_t>(reinterpret_cast<char*>(&alive_) -
@@ -2407,12 +2331,11 @@ uint8_t* Author::_InternalSerialize(
       this->_internal_name().data(), static_cast<int>(this->_internal_name().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
       "proto_util_converter.testing.Author.name");
-    target = stream->WriteStringMaybeAliased(
-        2, this->_internal_name(), target);
+    target = stream->WriteStringMaybeAliased(2, this->_internal_name(), target);
   }
 
   // repeated string pseudonym = 3;
-  for (int i = 0, n = this->_internal_pseudonym_size(); i < n; i++) {
+  for(int i = 0, n = this->_internal_pseudonym_size(); i < n; i++) {
     const auto& s = this->_internal_pseudonym(i);
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
       s.data(), static_cast<int>(s.length()),
@@ -2452,11 +2375,9 @@ size_t Author::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // repeated string pseudonym = 3;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(pseudonym_.size());
-  for (int i = 0, n = pseudonym_.size(); i < n; i++) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-      pseudonym_.Get(i));
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(pseudonym_.size());
+  for(int i = 0, n = pseudonym_.size(); i < n; i++) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(pseudonym_.Get(i));
   }
 
   // repeated .proto_util_converter.testing.Author friend = 5;
@@ -2469,9 +2390,7 @@ size_t Author::ByteSizeLong() const {
   if(cached_has_bits & 0x00000007u) {
     // optional string name = 2;
     if(cached_has_bits & 0x00000001u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_name());
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_name());
     }
 
     // optional uint64 id = 1 [json_name = "@id"];
@@ -2558,9 +2477,7 @@ void Author::InternalSwap(Author* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Author::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[4]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[4]);
 }
 
 // ===================================================================
@@ -2568,12 +2485,8 @@ void Author::InternalSwap(Author* other) {
 class BadAuthor::_Internal {
  public:
   using HasBits = decltype(std::declval<BadAuthor>()._has_bits_);
-  static void set_has_id(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
-  static void set_has_pseudonym(HasBits* has_bits) {
-    (*has_bits)[0] |= 2u;
-  }
+  static void set_has_id(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
+  static void set_has_pseudonym(HasBits* has_bits) { (*has_bits)[0] |= 2u; }
 };
 
 BadAuthor::BadAuthor(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -2598,16 +2511,14 @@ BadAuthor::BadAuthor(const BadAuthor& from)
     id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_id()) {
-    id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_id(), 
-      GetArenaForAllocation());
+    id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_id(), GetArenaForAllocation());
   }
   pseudonym_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     pseudonym_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_pseudonym()) {
-    pseudonym_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_pseudonym(), 
-      GetArenaForAllocation());
+    pseudonym_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_pseudonym(), GetArenaForAllocation());
   }
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.BadAuthor)
 }
@@ -2762,14 +2673,13 @@ uint8_t* BadAuthor::_InternalSerialize(
       this->_internal_id().data(), static_cast<int>(this->_internal_id().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
       "proto_util_converter.testing.BadAuthor.id");
-    target = stream->WriteStringMaybeAliased(
-        1, this->_internal_id(), target);
+    target = stream->WriteStringMaybeAliased(1, this->_internal_id(), target);
   }
 
   // repeated uint64 name = 2;
   for(int i = 0, n = this->_internal_name_size(); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(2, this->_internal_name(i), target);
+  	target = stream->EnsureSpace(target);
+  	target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(2, this->_internal_name(i), target);
   }
 
   // optional string pseudonym = 3;
@@ -2778,13 +2688,12 @@ uint8_t* BadAuthor::_InternalSerialize(
       this->_internal_pseudonym().data(), static_cast<int>(this->_internal_pseudonym().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
       "proto_util_converter.testing.BadAuthor.pseudonym");
-    target = stream->WriteStringMaybeAliased(
-        3, this->_internal_pseudonym(), target);
+    target = stream->WriteStringMaybeAliased(3, this->_internal_pseudonym(), target);
   }
 
   // repeated bool alive = 4 [packed = true];
   if(this->_internal_alive_size() > 0) {
-    target = stream->WriteFixedPacked(4, _internal_alive(), target);
+  	target = stream->WriteFixedPacked(4, _internal_alive(), target);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -2805,8 +2714,7 @@ size_t BadAuthor::ByteSizeLong() const {
 
   // repeated uint64 name = 2;
   {
-    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      UInt64Size(this->name_);
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(this->name_);
     total_size += 1 *
                   ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_name_size());
     total_size += data_size;
@@ -2817,8 +2725,7 @@ size_t BadAuthor::ByteSizeLong() const {
     unsigned int count = static_cast<unsigned int>(this->_internal_alive_size());
     size_t data_size = 1UL * count;
     if(data_size > 0) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    	total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
     }
     total_size += data_size;
   }
@@ -2827,16 +2734,12 @@ size_t BadAuthor::ByteSizeLong() const {
   if(cached_has_bits & 0x00000003u) {
     // optional string id = 1;
     if(cached_has_bits & 0x00000001u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_id());
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_id());
     }
 
     // optional string pseudonym = 3;
     if(cached_has_bits & 0x00000002u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_pseudonym());
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_pseudonym());
     }
 
   }
@@ -2908,9 +2811,7 @@ void BadAuthor::InternalSwap(BadAuthor* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata BadAuthor::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[5]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[5]);
 }
 
 // ===================================================================
@@ -2918,51 +2819,21 @@ void BadAuthor::InternalSwap(BadAuthor* other) {
 class Primitive::_Internal {
  public:
   using HasBits = decltype(std::declval<Primitive>()._has_bits_);
-  static void set_has_fix32(HasBits* has_bits) {
-    (*has_bits)[0] |= 4u;
-  }
-  static void set_has_u32(HasBits* has_bits) {
-    (*has_bits)[0] |= 8u;
-  }
-  static void set_has_i32(HasBits* has_bits) {
-    (*has_bits)[0] |= 16u;
-  }
-  static void set_has_sf32(HasBits* has_bits) {
-    (*has_bits)[0] |= 32u;
-  }
-  static void set_has_s32(HasBits* has_bits) {
-    (*has_bits)[0] |= 1024u;
-  }
-  static void set_has_fix64(HasBits* has_bits) {
-    (*has_bits)[0] |= 64u;
-  }
-  static void set_has_u64(HasBits* has_bits) {
-    (*has_bits)[0] |= 128u;
-  }
-  static void set_has_i64(HasBits* has_bits) {
-    (*has_bits)[0] |= 256u;
-  }
-  static void set_has_sf64(HasBits* has_bits) {
-    (*has_bits)[0] |= 512u;
-  }
-  static void set_has_s64(HasBits* has_bits) {
-    (*has_bits)[0] |= 4096u;
-  }
-  static void set_has_str(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
-  static void set_has_bytes(HasBits* has_bits) {
-    (*has_bits)[0] |= 2u;
-  }
-  static void set_has_float_(HasBits* has_bits) {
-    (*has_bits)[0] |= 2048u;
-  }
-  static void set_has_double_(HasBits* has_bits) {
-    (*has_bits)[0] |= 8192u;
-  }
-  static void set_has_bool_(HasBits* has_bits) {
-    (*has_bits)[0] |= 16384u;
-  }
+  static void set_has_fix32(HasBits* has_bits) { (*has_bits)[0] |= 4u; }
+  static void set_has_u32(HasBits* has_bits) { (*has_bits)[0] |= 8u; }
+  static void set_has_i32(HasBits* has_bits) { (*has_bits)[0] |= 16u; }
+  static void set_has_sf32(HasBits* has_bits) { (*has_bits)[0] |= 32u; }
+  static void set_has_s32(HasBits* has_bits) { (*has_bits)[0] |= 1024u; }
+  static void set_has_fix64(HasBits* has_bits) { (*has_bits)[0] |= 64u; }
+  static void set_has_u64(HasBits* has_bits) { (*has_bits)[0] |= 128u; }
+  static void set_has_i64(HasBits* has_bits) { (*has_bits)[0] |= 256u; }
+  static void set_has_sf64(HasBits* has_bits) { (*has_bits)[0] |= 512u; }
+  static void set_has_s64(HasBits* has_bits) { (*has_bits)[0] |= 4096u; }
+  static void set_has_str(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
+  static void set_has_bytes(HasBits* has_bits) { (*has_bits)[0] |= 2u; }
+  static void set_has_float_(HasBits* has_bits) { (*has_bits)[0] |= 2048u; }
+  static void set_has_double_(HasBits* has_bits) { (*has_bits)[0] |= 8192u; }
+  static void set_has_bool_(HasBits* has_bits) { (*has_bits)[0] |= 16384u; }
 };
 
 Primitive::Primitive(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -3013,16 +2884,14 @@ Primitive::Primitive(const Primitive& from)
     str_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_str()) {
-    str_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_str(), 
-      GetArenaForAllocation());
+    str_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_str(), GetArenaForAllocation());
   }
   bytes_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     bytes_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_bytes()) {
-    bytes_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_bytes(), 
-      GetArenaForAllocation());
+    bytes_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_bytes(), GetArenaForAllocation());
   }
   ::memcpy(&fix32_, &from.fix32_,
     static_cast<size_t>(reinterpret_cast<char*>(&bool__) -
@@ -3593,14 +3462,12 @@ uint8_t* Primitive::_InternalSerialize(
       this->_internal_str().data(), static_cast<int>(this->_internal_str().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
       "proto_util_converter.testing.Primitive.str");
-    target = stream->WriteStringMaybeAliased(
-        11, this->_internal_str(), target);
+    target = stream->WriteStringMaybeAliased(11, this->_internal_str(), target);
   }
 
   // optional bytes bytes = 12;
   if(cached_has_bits & 0x00000002u) {
-    target = stream->WriteBytesMaybeAliased(
-        12, this->_internal_bytes(), target);
+    target = stream->WriteBytesMaybeAliased(12, this->_internal_bytes(), target);
   }
 
   // optional float float = 13;
@@ -3623,66 +3490,66 @@ uint8_t* Primitive::_InternalSerialize(
 
   // repeated fixed32 rep_fix32 = 16;
   for(int i = 0, n = this->_internal_rep_fix32_size(); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteFixed32ToArray(16, this->_internal_rep_fix32(i), target);
+  	target = stream->EnsureSpace(target);
+  	target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteFixed32ToArray(16, this->_internal_rep_fix32(i), target);
   }
 
   // repeated uint32 rep_u32 = 17;
   for(int i = 0, n = this->_internal_rep_u32_size(); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(17, this->_internal_rep_u32(i), target);
+  	target = stream->EnsureSpace(target);
+  	target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(17, this->_internal_rep_u32(i), target);
   }
 
   // repeated int32 rep_i32 = 18;
   for(int i = 0, n = this->_internal_rep_i32_size(); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(18, this->_internal_rep_i32(i), target);
+  	target = stream->EnsureSpace(target);
+  	target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(18, this->_internal_rep_i32(i), target);
   }
 
   // repeated sfixed32 rep_sf32 = 19;
   for(int i = 0, n = this->_internal_rep_sf32_size(); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteSFixed32ToArray(19, this->_internal_rep_sf32(i), target);
+  	target = stream->EnsureSpace(target);
+  	target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteSFixed32ToArray(19, this->_internal_rep_sf32(i), target);
   }
 
   // repeated sint32 rep_s32 = 20;
   for(int i = 0, n = this->_internal_rep_s32_size(); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteSInt32ToArray(20, this->_internal_rep_s32(i), target);
+  	target = stream->EnsureSpace(target);
+  	target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteSInt32ToArray(20, this->_internal_rep_s32(i), target);
   }
 
   // repeated fixed64 rep_fix64 = 21;
   for(int i = 0, n = this->_internal_rep_fix64_size(); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteFixed64ToArray(21, this->_internal_rep_fix64(i), target);
+  	target = stream->EnsureSpace(target);
+  	target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteFixed64ToArray(21, this->_internal_rep_fix64(i), target);
   }
 
   // repeated uint64 rep_u64 = 22;
   for(int i = 0, n = this->_internal_rep_u64_size(); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(22, this->_internal_rep_u64(i), target);
+  	target = stream->EnsureSpace(target);
+  	target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(22, this->_internal_rep_u64(i), target);
   }
 
   // repeated int64 rep_i64 = 23;
   for(int i = 0, n = this->_internal_rep_i64_size(); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt64ToArray(23, this->_internal_rep_i64(i), target);
+  	target = stream->EnsureSpace(target);
+  	target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt64ToArray(23, this->_internal_rep_i64(i), target);
   }
 
   // repeated sfixed64 rep_sf64 = 24;
   for(int i = 0, n = this->_internal_rep_sf64_size(); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteSFixed64ToArray(24, this->_internal_rep_sf64(i), target);
+  	target = stream->EnsureSpace(target);
+  	target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteSFixed64ToArray(24, this->_internal_rep_sf64(i), target);
   }
 
   // repeated sint64 rep_s64 = 25;
   for(int i = 0, n = this->_internal_rep_s64_size(); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteSInt64ToArray(25, this->_internal_rep_s64(i), target);
+  	target = stream->EnsureSpace(target);
+  	target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteSInt64ToArray(25, this->_internal_rep_s64(i), target);
   }
 
   // repeated string rep_str = 26;
-  for (int i = 0, n = this->_internal_rep_str_size(); i < n; i++) {
+  for(int i = 0, n = this->_internal_rep_str_size(); i < n; i++) {
     const auto& s = this->_internal_rep_str(i);
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
       s.data(), static_cast<int>(s.length()),
@@ -3692,27 +3559,27 @@ uint8_t* Primitive::_InternalSerialize(
   }
 
   // repeated bytes rep_bytes = 27;
-  for (int i = 0, n = this->_internal_rep_bytes_size(); i < n; i++) {
+  for(int i = 0, n = this->_internal_rep_bytes_size(); i < n; i++) {
     const auto& s = this->_internal_rep_bytes(i);
     target = stream->WriteBytes(27, s, target);
   }
 
   // repeated float rep_float = 28;
   for(int i = 0, n = this->_internal_rep_float_size(); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteFloatToArray(28, this->_internal_rep_float(i), target);
+  	target = stream->EnsureSpace(target);
+  	target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteFloatToArray(28, this->_internal_rep_float(i), target);
   }
 
   // repeated double rep_double = 29;
   for(int i = 0, n = this->_internal_rep_double_size(); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteDoubleToArray(29, this->_internal_rep_double(i), target);
+  	target = stream->EnsureSpace(target);
+  	target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteDoubleToArray(29, this->_internal_rep_double(i), target);
   }
 
   // repeated bool rep_bool = 30;
   for(int i = 0, n = this->_internal_rep_bool_size(); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(30, this->_internal_rep_bool(i), target);
+  	target = stream->EnsureSpace(target);
+  	target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(30, this->_internal_rep_bool(i), target);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -3742,8 +3609,7 @@ size_t Primitive::ByteSizeLong() const {
 
   // repeated uint32 rep_u32 = 17;
   {
-    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      UInt32Size(this->rep_u32_);
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(this->rep_u32_);
     total_size += 2 *
                   ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_u32_size());
     total_size += data_size;
@@ -3751,8 +3617,7 @@ size_t Primitive::ByteSizeLong() const {
 
   // repeated int32 rep_i32 = 18;
   {
-    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      Int32Size(this->rep_i32_);
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(this->rep_i32_);
     total_size += 2 *
                   ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_i32_size());
     total_size += data_size;
@@ -3769,8 +3634,7 @@ size_t Primitive::ByteSizeLong() const {
 
   // repeated sint32 rep_s32 = 20;
   {
-    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      SInt32Size(this->rep_s32_);
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SInt32Size(this->rep_s32_);
     total_size += 2 *
                   ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_s32_size());
     total_size += data_size;
@@ -3787,8 +3651,7 @@ size_t Primitive::ByteSizeLong() const {
 
   // repeated uint64 rep_u64 = 22;
   {
-    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      UInt64Size(this->rep_u64_);
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(this->rep_u64_);
     total_size += 2 *
                   ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_u64_size());
     total_size += data_size;
@@ -3796,8 +3659,7 @@ size_t Primitive::ByteSizeLong() const {
 
   // repeated int64 rep_i64 = 23;
   {
-    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      Int64Size(this->rep_i64_);
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int64Size(this->rep_i64_);
     total_size += 2 *
                   ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_i64_size());
     total_size += data_size;
@@ -3814,27 +3676,22 @@ size_t Primitive::ByteSizeLong() const {
 
   // repeated sint64 rep_s64 = 25;
   {
-    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      SInt64Size(this->rep_s64_);
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SInt64Size(this->rep_s64_);
     total_size += 2 *
                   ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_s64_size());
     total_size += data_size;
   }
 
   // repeated string rep_str = 26;
-  total_size += 2 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(rep_str_.size());
-  for (int i = 0, n = rep_str_.size(); i < n; i++) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-      rep_str_.Get(i));
+  total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(rep_str_.size());
+  for(int i = 0, n = rep_str_.size(); i < n; i++) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(rep_str_.Get(i));
   }
 
   // repeated bytes rep_bytes = 27;
-  total_size += 2 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(rep_bytes_.size());
-  for (int i = 0, n = rep_bytes_.size(); i < n; i++) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
-      rep_bytes_.Get(i));
+  total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(rep_bytes_.size());
+  for(int i = 0, n = rep_bytes_.size(); i < n; i++) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(rep_bytes_.Get(i));
   }
 
   // repeated float rep_float = 28;
@@ -3868,16 +3725,12 @@ size_t Primitive::ByteSizeLong() const {
   if(cached_has_bits & 0x000000ffu) {
     // optional string str = 11;
     if(cached_has_bits & 0x00000001u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_str());
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_str());
     }
 
     // optional bytes bytes = 12;
     if(cached_has_bits & 0x00000002u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
-          this->_internal_bytes());
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(this->_internal_bytes());
     }
 
     // optional fixed32 fix32 = 1;
@@ -4091,9 +3944,7 @@ void Primitive::InternalSwap(Primitive* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Primitive::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[6]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[6]);
 }
 
 // ===================================================================
@@ -4369,85 +4220,85 @@ uint8_t* PackedPrimitive::_InternalSerialize(
 
   // repeated fixed32 rep_fix32 = 16 [packed = true];
   if(this->_internal_rep_fix32_size() > 0) {
-    target = stream->WriteFixedPacked(16, _internal_rep_fix32(), target);
+  	target = stream->WriteFixedPacked(16, _internal_rep_fix32(), target);
   }
 
   // repeated uint32 rep_u32 = 17 [packed = true];
   {
-    int byte_size = _rep_u32_cached_byte_size_.load(std::memory_order_relaxed);
-    if(byte_size > 0) {
-      target = stream->WriteUInt32Packed(17, _internal_rep_u32(), byte_size, target);
-    }
+  	int byte_size = _rep_u32_cached_byte_size_.load(std::memory_order_relaxed);
+  	if(byte_size > 0) {
+  		target = stream->WriteUInt32Packed(17, _internal_rep_u32(), byte_size, target);
+  	}
   }
 
   // repeated int32 rep_i32 = 18 [packed = true];
   {
-    int byte_size = _rep_i32_cached_byte_size_.load(std::memory_order_relaxed);
-    if(byte_size > 0) {
-      target = stream->WriteInt32Packed(18, _internal_rep_i32(), byte_size, target);
-    }
+  	int byte_size = _rep_i32_cached_byte_size_.load(std::memory_order_relaxed);
+  	if(byte_size > 0) {
+  		target = stream->WriteInt32Packed(18, _internal_rep_i32(), byte_size, target);
+  	}
   }
 
   // repeated sfixed32 rep_sf32 = 19 [packed = true];
   if(this->_internal_rep_sf32_size() > 0) {
-    target = stream->WriteFixedPacked(19, _internal_rep_sf32(), target);
+  	target = stream->WriteFixedPacked(19, _internal_rep_sf32(), target);
   }
 
   // repeated sint32 rep_s32 = 20 [packed = true];
   {
-    int byte_size = _rep_s32_cached_byte_size_.load(std::memory_order_relaxed);
-    if(byte_size > 0) {
-      target = stream->WriteSInt32Packed(20, _internal_rep_s32(), byte_size, target);
-    }
+  	int byte_size = _rep_s32_cached_byte_size_.load(std::memory_order_relaxed);
+  	if(byte_size > 0) {
+  		target = stream->WriteSInt32Packed(20, _internal_rep_s32(), byte_size, target);
+  	}
   }
 
   // repeated fixed64 rep_fix64 = 21 [packed = true];
   if(this->_internal_rep_fix64_size() > 0) {
-    target = stream->WriteFixedPacked(21, _internal_rep_fix64(), target);
+  	target = stream->WriteFixedPacked(21, _internal_rep_fix64(), target);
   }
 
   // repeated uint64 rep_u64 = 22 [packed = true];
   {
-    int byte_size = _rep_u64_cached_byte_size_.load(std::memory_order_relaxed);
-    if(byte_size > 0) {
-      target = stream->WriteUInt64Packed(22, _internal_rep_u64(), byte_size, target);
-    }
+  	int byte_size = _rep_u64_cached_byte_size_.load(std::memory_order_relaxed);
+  	if(byte_size > 0) {
+  		target = stream->WriteUInt64Packed(22, _internal_rep_u64(), byte_size, target);
+  	}
   }
 
   // repeated int64 rep_i64 = 23 [packed = true];
   {
-    int byte_size = _rep_i64_cached_byte_size_.load(std::memory_order_relaxed);
-    if(byte_size > 0) {
-      target = stream->WriteInt64Packed(23, _internal_rep_i64(), byte_size, target);
-    }
+  	int byte_size = _rep_i64_cached_byte_size_.load(std::memory_order_relaxed);
+  	if(byte_size > 0) {
+  		target = stream->WriteInt64Packed(23, _internal_rep_i64(), byte_size, target);
+  	}
   }
 
   // repeated sfixed64 rep_sf64 = 24 [packed = true];
   if(this->_internal_rep_sf64_size() > 0) {
-    target = stream->WriteFixedPacked(24, _internal_rep_sf64(), target);
+  	target = stream->WriteFixedPacked(24, _internal_rep_sf64(), target);
   }
 
   // repeated sint64 rep_s64 = 25 [packed = true];
   {
-    int byte_size = _rep_s64_cached_byte_size_.load(std::memory_order_relaxed);
-    if(byte_size > 0) {
-      target = stream->WriteSInt64Packed(25, _internal_rep_s64(), byte_size, target);
-    }
+  	int byte_size = _rep_s64_cached_byte_size_.load(std::memory_order_relaxed);
+  	if(byte_size > 0) {
+  		target = stream->WriteSInt64Packed(25, _internal_rep_s64(), byte_size, target);
+  	}
   }
 
   // repeated float rep_float = 28 [packed = true];
   if(this->_internal_rep_float_size() > 0) {
-    target = stream->WriteFixedPacked(28, _internal_rep_float(), target);
+  	target = stream->WriteFixedPacked(28, _internal_rep_float(), target);
   }
 
   // repeated double rep_double = 29 [packed = true];
   if(this->_internal_rep_double_size() > 0) {
-    target = stream->WriteFixedPacked(29, _internal_rep_double(), target);
+  	target = stream->WriteFixedPacked(29, _internal_rep_double(), target);
   }
 
   // repeated bool rep_bool = 30 [packed = true];
   if(this->_internal_rep_bool_size() > 0) {
-    target = stream->WriteFixedPacked(30, _internal_rep_bool(), target);
+  	target = stream->WriteFixedPacked(30, _internal_rep_bool(), target);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -4471,19 +4322,16 @@ size_t PackedPrimitive::ByteSizeLong() const {
     unsigned int count = static_cast<unsigned int>(this->_internal_rep_fix32_size());
     size_t data_size = 4UL * count;
     if(data_size > 0) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    	total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
     }
     total_size += data_size;
   }
 
   // repeated uint32 rep_u32 = 17 [packed = true];
   {
-    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      UInt32Size(this->rep_u32_);
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(this->rep_u32_);
     if(data_size > 0) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    	total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
     }
     int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
     _rep_u32_cached_byte_size_.store(cached_size, std::memory_order_relaxed);
@@ -4492,11 +4340,9 @@ size_t PackedPrimitive::ByteSizeLong() const {
 
   // repeated int32 rep_i32 = 18 [packed = true];
   {
-    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      Int32Size(this->rep_i32_);
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(this->rep_i32_);
     if(data_size > 0) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    	total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
     }
     int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
     _rep_i32_cached_byte_size_.store(cached_size, std::memory_order_relaxed);
@@ -4508,19 +4354,16 @@ size_t PackedPrimitive::ByteSizeLong() const {
     unsigned int count = static_cast<unsigned int>(this->_internal_rep_sf32_size());
     size_t data_size = 4UL * count;
     if(data_size > 0) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    	total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
     }
     total_size += data_size;
   }
 
   // repeated sint32 rep_s32 = 20 [packed = true];
   {
-    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      SInt32Size(this->rep_s32_);
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SInt32Size(this->rep_s32_);
     if(data_size > 0) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    	total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
     }
     int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
     _rep_s32_cached_byte_size_.store(cached_size, std::memory_order_relaxed);
@@ -4532,19 +4375,16 @@ size_t PackedPrimitive::ByteSizeLong() const {
     unsigned int count = static_cast<unsigned int>(this->_internal_rep_fix64_size());
     size_t data_size = 8UL * count;
     if(data_size > 0) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    	total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
     }
     total_size += data_size;
   }
 
   // repeated uint64 rep_u64 = 22 [packed = true];
   {
-    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      UInt64Size(this->rep_u64_);
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(this->rep_u64_);
     if(data_size > 0) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    	total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
     }
     int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
     _rep_u64_cached_byte_size_.store(cached_size, std::memory_order_relaxed);
@@ -4553,11 +4393,9 @@ size_t PackedPrimitive::ByteSizeLong() const {
 
   // repeated int64 rep_i64 = 23 [packed = true];
   {
-    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      Int64Size(this->rep_i64_);
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int64Size(this->rep_i64_);
     if(data_size > 0) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    	total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
     }
     int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
     _rep_i64_cached_byte_size_.store(cached_size, std::memory_order_relaxed);
@@ -4569,19 +4407,16 @@ size_t PackedPrimitive::ByteSizeLong() const {
     unsigned int count = static_cast<unsigned int>(this->_internal_rep_sf64_size());
     size_t data_size = 8UL * count;
     if(data_size > 0) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    	total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
     }
     total_size += data_size;
   }
 
   // repeated sint64 rep_s64 = 25 [packed = true];
   {
-    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      SInt64Size(this->rep_s64_);
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SInt64Size(this->rep_s64_);
     if(data_size > 0) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    	total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
     }
     int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
     _rep_s64_cached_byte_size_.store(cached_size, std::memory_order_relaxed);
@@ -4593,8 +4428,7 @@ size_t PackedPrimitive::ByteSizeLong() const {
     unsigned int count = static_cast<unsigned int>(this->_internal_rep_float_size());
     size_t data_size = 4UL * count;
     if(data_size > 0) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    	total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
     }
     total_size += data_size;
   }
@@ -4604,8 +4438,7 @@ size_t PackedPrimitive::ByteSizeLong() const {
     unsigned int count = static_cast<unsigned int>(this->_internal_rep_double_size());
     size_t data_size = 8UL * count;
     if(data_size > 0) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    	total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
     }
     total_size += data_size;
   }
@@ -4615,8 +4448,7 @@ size_t PackedPrimitive::ByteSizeLong() const {
     unsigned int count = static_cast<unsigned int>(this->_internal_rep_bool_size());
     size_t data_size = 1UL * count;
     if(data_size > 0) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    	total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
     }
     total_size += data_size;
   }
@@ -4689,9 +4521,7 @@ void PackedPrimitive::InternalSwap(PackedPrimitive* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata PackedPrimitive::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[7]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[7]);
 }
 
 // ===================================================================
@@ -4700,9 +4530,7 @@ class NestedBook::_Internal {
  public:
   using HasBits = decltype(std::declval<NestedBook>()._has_bits_);
   static const ::proto_util_converter::testing::Book& book(const NestedBook* msg);
-  static void set_has_book(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
+  static void set_has_book(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
 const ::proto_util_converter::testing::Book&
@@ -4899,9 +4727,7 @@ void NestedBook::InternalSwap(NestedBook* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata NestedBook::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[8]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[8]);
 }
 
 // ===================================================================
@@ -5009,10 +4835,10 @@ uint8_t* BadNestedBook::_InternalSerialize(
 
   // repeated uint32 book = 1 [packed = true];
   {
-    int byte_size = _book_cached_byte_size_.load(std::memory_order_relaxed);
-    if(byte_size > 0) {
-      target = stream->WriteUInt32Packed(1, _internal_book(), byte_size, target);
-    }
+  	int byte_size = _book_cached_byte_size_.load(std::memory_order_relaxed);
+  	if(byte_size > 0) {
+  		target = stream->WriteUInt32Packed(1, _internal_book(), byte_size, target);
+  	}
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -5033,11 +4859,9 @@ size_t BadNestedBook::ByteSizeLong() const {
 
   // repeated uint32 book = 1 [packed = true];
   {
-    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      UInt32Size(this->book_);
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(this->book_);
     if(data_size > 0) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    	total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
     }
     int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
     _book_cached_byte_size_.store(cached_size, std::memory_order_relaxed);
@@ -5088,9 +4912,7 @@ void BadNestedBook::InternalSwap(BadNestedBook* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata BadNestedBook::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[9]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[9]);
 }
 
 // ===================================================================
@@ -5098,20 +4920,12 @@ void BadNestedBook::InternalSwap(BadNestedBook* other) {
 class Cyclic::_Internal {
  public:
   using HasBits = decltype(std::declval<Cyclic>()._has_bits_);
-  static void set_has_m_int(HasBits* has_bits) {
-    (*has_bits)[0] |= 8u;
-  }
-  static void set_has_m_str(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
+  static void set_has_m_int(HasBits* has_bits) { (*has_bits)[0] |= 8u; }
+  static void set_has_m_str(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
   static const ::proto_util_converter::testing::Book& m_book(const Cyclic* msg);
-  static void set_has_m_book(HasBits* has_bits) {
-    (*has_bits)[0] |= 2u;
-  }
+  static void set_has_m_book(HasBits* has_bits) { (*has_bits)[0] |= 2u; }
   static const ::proto_util_converter::testing::Cyclic& m_cyclic(const Cyclic* msg);
-  static void set_has_m_cyclic(HasBits* has_bits) {
-    (*has_bits)[0] |= 4u;
-  }
+  static void set_has_m_cyclic(HasBits* has_bits) { (*has_bits)[0] |= 4u; }
 };
 
 const ::proto_util_converter::testing::Book&
@@ -5142,8 +4956,7 @@ Cyclic::Cyclic(const Cyclic& from)
     m_str_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_m_str()) {
-    m_str_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_m_str(), 
-      GetArenaForAllocation());
+    m_str_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_m_str(), GetArenaForAllocation());
   }
   if(from._internal_has_m_book()) {
     m_book_ = new ::proto_util_converter::testing::Book(*from.m_book_);
@@ -5320,8 +5133,7 @@ uint8_t* Cyclic::_InternalSerialize(
       this->_internal_m_str().data(), static_cast<int>(this->_internal_m_str().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
       "proto_util_converter.testing.Cyclic.m_str");
-    target = stream->WriteStringMaybeAliased(
-        2, this->_internal_m_str(), target);
+    target = stream->WriteStringMaybeAliased(2, this->_internal_m_str(), target);
   }
 
   // optional .proto_util_converter.testing.Book m_book = 3;
@@ -5374,9 +5186,7 @@ size_t Cyclic::ByteSizeLong() const {
   if(cached_has_bits & 0x0000000fu) {
     // optional string m_str = 2;
     if(cached_has_bits & 0x00000001u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_m_str());
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_m_str());
     }
 
     // optional .proto_util_converter.testing.Book m_book = 3;
@@ -5479,9 +5289,7 @@ void Cyclic::InternalSwap(Cyclic* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Cyclic::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[10]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[10]);
 }
 
 // ===================================================================
@@ -5489,9 +5297,7 @@ void Cyclic::InternalSwap(Cyclic* other) {
 class TestJsonName1::_Internal {
  public:
   using HasBits = decltype(std::declval<TestJsonName1>()._has_bits_);
-  static void set_has_one_value(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
+  static void set_has_one_value(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
 TestJsonName1::TestJsonName1(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -5669,9 +5475,7 @@ void TestJsonName1::InternalSwap(TestJsonName1* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestJsonName1::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[11]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[11]);
 }
 
 // ===================================================================
@@ -5679,9 +5483,7 @@ void TestJsonName1::InternalSwap(TestJsonName1* other) {
 class TestJsonName2::_Internal {
  public:
   using HasBits = decltype(std::declval<TestJsonName2>()._has_bits_);
-  static void set_has_another_value(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
+  static void set_has_another_value(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
 TestJsonName2::TestJsonName2(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -5859,9 +5661,7 @@ void TestJsonName2::InternalSwap(TestJsonName2* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestJsonName2::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[12]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[12]);
 }
 
 // ===================================================================
@@ -5869,54 +5669,22 @@ void TestJsonName2::InternalSwap(TestJsonName2* other) {
 class TestPrimitiveFieldsWithSameJsonName::_Internal {
  public:
   using HasBits = decltype(std::declval<TestPrimitiveFieldsWithSameJsonName>()._has_bits_);
-  static void set_has_val_str1(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
-  static void set_has_val_str_1(HasBits* has_bits) {
-    (*has_bits)[0] |= 2u;
-  }
-  static void set_has_val_int321(HasBits* has_bits) {
-    (*has_bits)[0] |= 4u;
-  }
-  static void set_has_val_int32_1(HasBits* has_bits) {
-    (*has_bits)[0] |= 8u;
-  }
-  static void set_has_val_uint321(HasBits* has_bits) {
-    (*has_bits)[0] |= 16u;
-  }
-  static void set_has_val_uint32_1(HasBits* has_bits) {
-    (*has_bits)[0] |= 32u;
-  }
-  static void set_has_val_int641(HasBits* has_bits) {
-    (*has_bits)[0] |= 64u;
-  }
-  static void set_has_val_int64_1(HasBits* has_bits) {
-    (*has_bits)[0] |= 128u;
-  }
-  static void set_has_val_uint641(HasBits* has_bits) {
-    (*has_bits)[0] |= 256u;
-  }
-  static void set_has_val_uint64_1(HasBits* has_bits) {
-    (*has_bits)[0] |= 512u;
-  }
-  static void set_has_val_bool1(HasBits* has_bits) {
-    (*has_bits)[0] |= 1024u;
-  }
-  static void set_has_val_bool_1(HasBits* has_bits) {
-    (*has_bits)[0] |= 2048u;
-  }
-  static void set_has_val_double1(HasBits* has_bits) {
-    (*has_bits)[0] |= 8192u;
-  }
-  static void set_has_val_double_1(HasBits* has_bits) {
-    (*has_bits)[0] |= 16384u;
-  }
-  static void set_has_val_float1(HasBits* has_bits) {
-    (*has_bits)[0] |= 4096u;
-  }
-  static void set_has_val_float_1(HasBits* has_bits) {
-    (*has_bits)[0] |= 32768u;
-  }
+  static void set_has_val_str1(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
+  static void set_has_val_str_1(HasBits* has_bits) { (*has_bits)[0] |= 2u; }
+  static void set_has_val_int321(HasBits* has_bits) { (*has_bits)[0] |= 4u; }
+  static void set_has_val_int32_1(HasBits* has_bits) { (*has_bits)[0] |= 8u; }
+  static void set_has_val_uint321(HasBits* has_bits) { (*has_bits)[0] |= 16u; }
+  static void set_has_val_uint32_1(HasBits* has_bits) { (*has_bits)[0] |= 32u; }
+  static void set_has_val_int641(HasBits* has_bits) { (*has_bits)[0] |= 64u; }
+  static void set_has_val_int64_1(HasBits* has_bits) { (*has_bits)[0] |= 128u; }
+  static void set_has_val_uint641(HasBits* has_bits) { (*has_bits)[0] |= 256u; }
+  static void set_has_val_uint64_1(HasBits* has_bits) { (*has_bits)[0] |= 512u; }
+  static void set_has_val_bool1(HasBits* has_bits) { (*has_bits)[0] |= 1024u; }
+  static void set_has_val_bool_1(HasBits* has_bits) { (*has_bits)[0] |= 2048u; }
+  static void set_has_val_double1(HasBits* has_bits) { (*has_bits)[0] |= 8192u; }
+  static void set_has_val_double_1(HasBits* has_bits) { (*has_bits)[0] |= 16384u; }
+  static void set_has_val_float1(HasBits* has_bits) { (*has_bits)[0] |= 4096u; }
+  static void set_has_val_float_1(HasBits* has_bits) { (*has_bits)[0] |= 32768u; }
 };
 
 TestPrimitiveFieldsWithSameJsonName::TestPrimitiveFieldsWithSameJsonName(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -5937,16 +5705,14 @@ TestPrimitiveFieldsWithSameJsonName::TestPrimitiveFieldsWithSameJsonName(const T
     val_str1_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_val_str1()) {
-    val_str1_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_val_str1(), 
-      GetArenaForAllocation());
+    val_str1_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_val_str1(), GetArenaForAllocation());
   }
   val_str_1_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     val_str_1_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_val_str_1()) {
-    val_str_1_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_val_str_1(), 
-      GetArenaForAllocation());
+    val_str_1_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_val_str_1(), GetArenaForAllocation());
   }
   ::memcpy(&val_int321_, &from.val_int321_,
     static_cast<size_t>(reinterpret_cast<char*>(&val_float_1_) -
@@ -6215,8 +5981,7 @@ uint8_t* TestPrimitiveFieldsWithSameJsonName::_InternalSerialize(
       this->_internal_val_str1().data(), static_cast<int>(this->_internal_val_str1().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
       "proto_util_converter.testing.TestPrimitiveFieldsWithSameJsonName.val_str1");
-    target = stream->WriteStringMaybeAliased(
-        1, this->_internal_val_str1(), target);
+    target = stream->WriteStringMaybeAliased(1, this->_internal_val_str1(), target);
   }
 
   // optional string val_str_1 = 2;
@@ -6225,8 +5990,7 @@ uint8_t* TestPrimitiveFieldsWithSameJsonName::_InternalSerialize(
       this->_internal_val_str_1().data(), static_cast<int>(this->_internal_val_str_1().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
       "proto_util_converter.testing.TestPrimitiveFieldsWithSameJsonName.val_str_1");
-    target = stream->WriteStringMaybeAliased(
-        2, this->_internal_val_str_1(), target);
+    target = stream->WriteStringMaybeAliased(2, this->_internal_val_str_1(), target);
   }
 
   // optional int32 val_int321 = 3;
@@ -6333,16 +6097,12 @@ size_t TestPrimitiveFieldsWithSameJsonName::ByteSizeLong() const {
   if(cached_has_bits & 0x000000ffu) {
     // optional string val_str1 = 1;
     if(cached_has_bits & 0x00000001u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_val_str1());
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_val_str1());
     }
 
     // optional string val_str_1 = 2;
     if(cached_has_bits & 0x00000002u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_val_str_1());
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_val_str_1());
     }
 
     // optional int32 val_int321 = 3;
@@ -6534,9 +6294,7 @@ void TestPrimitiveFieldsWithSameJsonName::InternalSwap(TestPrimitiveFieldsWithSa
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestPrimitiveFieldsWithSameJsonName::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[13]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[13]);
 }
 
 // ===================================================================
@@ -6669,7 +6427,7 @@ uint8_t* TestRepeatedFieldsWithSameJsonName::_InternalSerialize(
   (void) cached_has_bits;
 
   // repeated string rep_str1 = 1;
-  for (int i = 0, n = this->_internal_rep_str1_size(); i < n; i++) {
+  for(int i = 0, n = this->_internal_rep_str1_size(); i < n; i++) {
     const auto& s = this->_internal_rep_str1(i);
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
       s.data(), static_cast<int>(s.length()),
@@ -6679,7 +6437,7 @@ uint8_t* TestRepeatedFieldsWithSameJsonName::_InternalSerialize(
   }
 
   // repeated string rep_str_1 = 2;
-  for (int i = 0, n = this->_internal_rep_str_1_size(); i < n; i++) {
+  for(int i = 0, n = this->_internal_rep_str_1_size(); i < n; i++) {
     const auto& s = this->_internal_rep_str_1(i);
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
       s.data(), static_cast<int>(s.length()),
@@ -6705,19 +6463,15 @@ size_t TestRepeatedFieldsWithSameJsonName::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // repeated string rep_str1 = 1;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(rep_str1_.size());
-  for (int i = 0, n = rep_str1_.size(); i < n; i++) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-      rep_str1_.Get(i));
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(rep_str1_.size());
+  for(int i = 0, n = rep_str1_.size(); i < n; i++) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(rep_str1_.Get(i));
   }
 
   // repeated string rep_str_1 = 2;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(rep_str_1_.size());
-  for (int i = 0, n = rep_str_1_.size(); i < n; i++) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-      rep_str_1_.Get(i));
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(rep_str_1_.size());
+  for(int i = 0, n = rep_str_1_.size(); i < n; i++) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(rep_str_1_.Get(i));
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -6766,9 +6520,7 @@ void TestRepeatedFieldsWithSameJsonName::InternalSwap(TestRepeatedFieldsWithSame
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestRepeatedFieldsWithSameJsonName::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[14]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[14]);
 }
 
 // ===================================================================
@@ -6777,13 +6529,9 @@ class TestMessageFieldsWithSameJsonName::_Internal {
  public:
   using HasBits = decltype(std::declval<TestMessageFieldsWithSameJsonName>()._has_bits_);
   static const ::proto_util_converter::testing::Primitive& prim1(const TestMessageFieldsWithSameJsonName* msg);
-  static void set_has_prim1(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
+  static void set_has_prim1(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
   static const ::proto_util_converter::testing::Primitive& prim_1(const TestMessageFieldsWithSameJsonName* msg);
-  static void set_has_prim_1(HasBits* has_bits) {
-    (*has_bits)[0] |= 2u;
-  }
+  static void set_has_prim_1(HasBits* has_bits) { (*has_bits)[0] |= 2u; }
 };
 
 const ::proto_util_converter::testing::Primitive&
@@ -7032,9 +6780,7 @@ void TestMessageFieldsWithSameJsonName::InternalSwap(TestMessageFieldsWithSameJs
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestMessageFieldsWithSameJsonName::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[15]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[15]);
 }
 #if !defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912)
 const int NestedBook::kAnotherBookFieldNumber;

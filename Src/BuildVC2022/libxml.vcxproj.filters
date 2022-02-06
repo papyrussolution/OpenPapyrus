@@ -1,0 +1,124 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\Osf\Libxml\buf.c" />
+    <ClCompile Include="..\Osf\Libxml\c14n.c" />
+    <ClCompile Include="..\Osf\Libxml\catalog.c" />
+    <ClCompile Include="..\Osf\Libxml\chvalid.c" />
+    <ClCompile Include="..\Osf\Libxml\debugXML.c" />
+    <ClCompile Include="..\Osf\Libxml\dict.c" />
+    <ClCompile Include="..\Osf\Libxml\encoding.c" />
+    <ClCompile Include="..\Osf\Libxml\entities.c" />
+    <ClCompile Include="..\Osf\Libxml\error.c" />
+    <ClCompile Include="..\Osf\Libxml\globals.c" />
+    <ClCompile Include="..\Osf\Libxml\hash.c" />
+    <ClCompile Include="..\Osf\Libxml\libxml-pch.c" />
+    <ClCompile Include="..\Osf\Libxml\list.c" />
+    <ClCompile Include="..\Osf\Libxml\parser.c" />
+    <ClCompile Include="..\Osf\Libxml\parserInternals.c" />
+    <ClCompile Include="..\Osf\Libxml\pattern.c" />
+    <ClCompile Include="..\Osf\Libxml\relaxng.c" />
+    <ClCompile Include="..\Osf\Libxml\SAX2.c" />
+    <ClCompile Include="..\Osf\Libxml\schematron.c" />
+    <ClCompile Include="..\Osf\Libxml\threads.c" />
+    <ClCompile Include="..\Osf\Libxml\tree.c" />
+    <ClCompile Include="..\Osf\Libxml\uri.c" />
+    <ClCompile Include="..\Osf\Libxml\valid.c" />
+    <ClCompile Include="..\Osf\Libxml\xinclude.c" />
+    <ClCompile Include="..\Osf\Libxml\xlink.c" />
+    <ClCompile Include="..\Osf\Libxml\xmlcatalog.c" />
+    <ClCompile Include="..\Osf\Libxml\xmlIO.c" />
+    <ClCompile Include="..\Osf\Libxml\xmlmemory.c" />
+    <ClCompile Include="..\Osf\Libxml\xmlmodule.c" />
+    <ClCompile Include="..\Osf\Libxml\xmlreader.c" />
+    <ClCompile Include="..\Osf\Libxml\xmlregexp.c" />
+    <ClCompile Include="..\Osf\Libxml\xmlsave.c" />
+    <ClCompile Include="..\Osf\Libxml\xmlschemas.c" />
+    <ClCompile Include="..\Osf\Libxml\xmlschemastypes.c" />
+    <ClCompile Include="..\Osf\Libxml\xmlstring.c" />
+    <ClCompile Include="..\Osf\Libxml\xmlunicode.c" />
+    <ClCompile Include="..\Osf\Libxml\xmlwriter.c" />
+    <ClCompile Include="..\Osf\Libxml\xpath.c" />
+    <ClCompile Include="..\Osf\Libxml\xpointer.c" />
+    <ClCompile Include="..\Osf\Libxml\xzlib.c" />
+    <ClCompile Include="..\OSF\LIBXML\SAX.c" />
+    <ClCompile Include="..\OSF\LIBXML\HTMLparser.c" />
+    <ClCompile Include="..\OSF\LIBXML\HTMLtree.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\LIBXML\config.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\LIBXML\libxml.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\LIBXML\timsort.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libxml\encoding.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libxml\globals.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libxml\list.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libxml\parser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libxml\relaxng.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libxml\schemasInternals.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libxml\tree.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libxml\valid.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libxml\xmlautomata.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libxml\xmlerror.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libxml\xmlIO.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libxml\xmlmemory.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libxml\xmlmodule.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libxml\xmlreader.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libxml\xmlschemas.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libxml\xmlschemastypes.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libxml\xmlversion.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libxml\xmlwriter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\libxml\HTMLparser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\libxml\HTMLtree.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{0c68d664-0cf2-4c2f-b704-1b9d49200d0c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

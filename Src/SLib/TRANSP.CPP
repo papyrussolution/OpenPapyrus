@@ -1,5 +1,5 @@
 // TRANSP.CPP
-// Copyright (c) A.Sobolev 1999, 2006, 2010, 2016, 2017, 2019, 2020
+// Copyright (c) A.Sobolev 1999, 2006, 2010, 2016, 2017, 2019, 2020, 2022
 // Transpositions
 //
 #include <slib-internal.h>
@@ -86,7 +86,7 @@ void Transpos::Swap(long _i, long _j)
 	//long   t = P_List[i-1];
    	//P_List[i-1] = P_List[j-1];
 	//P_List[j-1] = t;
-	Exchange(&P_List[i-1], &P_List[j-1]);
+	SExchange(&P_List[i-1], &P_List[j-1]);
 }
 
 int Transpos::Transposition(long order)

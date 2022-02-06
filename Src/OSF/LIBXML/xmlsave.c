@@ -812,7 +812,7 @@ static void xmlNodeDumpOutputInternal(xmlSaveCtxt * ctxt, xmlNode * cur)
 		else if(ctxt->options & XML_SAVE_XHTML) {
 			xhtmlNodeDumpOutput(ctxt, cur);
 		}
-		else if(((cur->type != XML_NAMESPACE_DECL) && cur->doc && (cur->doc->type == XML_HTML_DOCUMENT_NODE) && ((ctxt->options & XML_SAVE_AS_XML) == 0)) || (ctxt->options & XML_SAVE_AS_HTML)) {
+		else if(((cur->type != XML_NAMESPACE_DECL) && cur->doc && (cur->doc->type == XML_HTML_DOCUMENT_NODE) && !(ctxt->options & XML_SAVE_AS_XML)) || (ctxt->options & XML_SAVE_AS_HTML)) {
 			htmlNodeDumpOutputInternal(ctxt, cur);
 		}
 #endif
@@ -871,7 +871,7 @@ static void xmlNodeDumpOutputInternal(xmlSaveCtxt * ctxt, xmlNode * cur)
 			xmlOutputBufferWrite(p_buf, 1, ";");
 		}
 		else if(cur->type == XML_CDATA_SECTION_NODE) {
-			if(cur->content == NULL || *cur->content == '\0')
+			if(isempty(cur->content))
 				xmlOutputBufferWrite(p_buf, 12, "<![CDATA[]]>");
 			else {
 				start = end = cur->content;

@@ -2274,7 +2274,7 @@ xmlCatalogPtr xmlLoadACatalog(const char * filename)
 static int xmlExpandCatalog(xmlCatalogPtr catal, const char * filename)
 {
 	int ret;
-	if((catal == NULL) || (filename == NULL))
+	if(!catal || !filename)
 		return -1;
 	if(catal->type == XML_SGML_CATALOG_TYPE) {
 		xmlChar * content = xmlLoadFileContent(filename);

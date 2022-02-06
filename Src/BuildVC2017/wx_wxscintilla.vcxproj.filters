@@ -149,6 +149,7 @@
     <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\src\ViewStyle.cxx" />
     <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexlib\WordList.cxx" />
     <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\src\XPM.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\src\scintilla-pch.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\OSF\wxWidgets\include\wx\msw\genrcdefs.h">

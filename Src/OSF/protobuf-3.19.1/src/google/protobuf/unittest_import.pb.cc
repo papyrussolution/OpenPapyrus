@@ -111,9 +111,7 @@ bool ImportEnumForMap_IsValid(int value) {
 class ImportMessage::_Internal {
  public:
   using HasBits = decltype(std::declval<ImportMessage>()._has_bits_);
-  static void set_has_d(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
+  static void set_has_d(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
 ImportMessage::ImportMessage(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -291,9 +289,7 @@ void ImportMessage::InternalSwap(ImportMessage* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata ImportMessage::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2funittest_5fimport_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5fimport_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2funittest_5fimport_2eproto[0]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5fimport_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5fimport_2eproto_once, file_level_metadata_google_2fprotobuf_2funittest_5fimport_2eproto[0]);
 }
 
 // @@protoc_insertion_point(namespace_scope)

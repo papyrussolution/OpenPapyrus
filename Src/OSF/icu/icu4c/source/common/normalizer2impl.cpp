@@ -2465,16 +2465,13 @@ const UChar * Normalizer2Impl::makeFCD(const UChar * src, const UChar * limit, R
 	return src;
 }
 
-void Normalizer2Impl::makeFCDAndAppend(const UChar * src, const UChar * limit,
-    bool doMakeFCD,
-    UnicodeString & safeMiddle,
-    ReorderingBuffer &buffer,
-    UErrorCode & errorCode) const {
+void Normalizer2Impl::makeFCDAndAppend(const UChar * src, const UChar * limit, bool doMakeFCD,
+    UnicodeString & safeMiddle, ReorderingBuffer &buffer, UErrorCode & errorCode) const 
+{
 	if(!buffer.isEmpty()) {
 		const UChar * firstBoundaryInSrc = findNextFCDBoundary(src, limit);
 		if(src!=firstBoundaryInSrc) {
-			const UChar * lastBoundaryInDest = findPreviousFCDBoundary(buffer.getStart(),
-				buffer.getLimit());
+			const UChar * lastBoundaryInDest = findPreviousFCDBoundary(buffer.getStart(), buffer.getLimit());
 			int32_t destSuffixLength = (int32_t)(buffer.getLimit()-lastBoundaryInDest);
 			UnicodeString middle(lastBoundaryInDest, destSuffixLength);
 			buffer.removeSuffix(destSuffixLength);
@@ -2492,15 +2489,14 @@ void Normalizer2Impl::makeFCDAndAppend(const UChar * src, const UChar * limit,
 		makeFCD(src, limit, &buffer, errorCode);
 	}
 	else {
-		if(!limit) { // appendZeroCC() needs limit!=NULL
-			limit = u_strchr(src, 0);
-		}
+		SETIFZQ(limit, u_strchr(src, 0)); // appendZeroCC() needs limit!=NULL
 		buffer.appendZeroCC(src, limit, errorCode);
 	}
 }
 
-const UChar * Normalizer2Impl::findPreviousFCDBoundary(const UChar * start, const UChar * p) const {
-	while(start<p) {
+const UChar * Normalizer2Impl::findPreviousFCDBoundary(const UChar * start, const UChar * p) const 
+{
+	while(start < p) {
 		const UChar * codePointLimit = p;
 		UChar32 c;
 		uint16_t norm16;
@@ -2515,8 +2511,9 @@ const UChar * Normalizer2Impl::findPreviousFCDBoundary(const UChar * start, cons
 	return p;
 }
 
-const UChar * Normalizer2Impl::findNextFCDBoundary(const UChar * p, const UChar * limit) const {
-	while(p<limit) {
+const UChar * Normalizer2Impl::findNextFCDBoundary(const UChar * p, const UChar * limit) const 
+{
+	while(p < limit) {
 		const UChar * codePointStart = p;
 		UChar32 c;
 		uint16_t norm16;
@@ -2530,20 +2527,22 @@ const UChar * Normalizer2Impl::findNextFCDBoundary(const UChar * p, const UChar 
 	}
 	return p;
 }
-
-// CanonicalIterator data -------------------------------------------------- ***
-
-CanonIterData::CanonIterData(UErrorCode & errorCode) :
-	mutableTrie(umutablecptrie_open(0, 0, &errorCode)), trie(nullptr),
-	canonStartSets(uprv_deleteUObject, NULL, errorCode) {
+//
+// CanonicalIterator data
+//
+CanonIterData::CanonIterData(UErrorCode & errorCode) : mutableTrie(umutablecptrie_open(0, 0, &errorCode)), trie(nullptr),
+	canonStartSets(uprv_deleteUObject, NULL, errorCode) 
+{
 }
 
-CanonIterData::~CanonIterData() {
+CanonIterData::~CanonIterData() 
+{
 	umutablecptrie_close(mutableTrie);
 	ucptrie_close(trie);
 }
 
-void CanonIterData::addToStartSet(UChar32 origin, UChar32 decompLead, UErrorCode & errorCode) {
+void CanonIterData::addToStartSet(UChar32 origin, UChar32 decompLead, UErrorCode & errorCode) 
+{
 	uint32_t canonValue = umutablecptrie_get(mutableTrie, decompLead);
 	if((canonValue&(CANON_HAS_SET|CANON_VALUE_MASK))==0 && origin!=0) {
 		// origin is the first character whose decomposition starts with

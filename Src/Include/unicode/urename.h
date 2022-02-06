@@ -1,15 +1,9 @@
+// urename.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
-*******************************************************************************
 *   Copyright (C) 2002-2016, International Business Machines Corporation and others.  All Rights Reserved.
-*******************************************************************************
-*
-*   file name:  urename.h
 *   encoding:   UTF-8
-*   tab size:   8 (not used)
-*   indentation:4
-*
 *   Created by: Perl script tools/genren.pl written by Vladimir Weinstein
 *
 *  Contains data for renaming ICU exports.

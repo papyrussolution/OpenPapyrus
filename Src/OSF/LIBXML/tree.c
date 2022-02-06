@@ -306,8 +306,7 @@ int xmlValidateNCName(const xmlChar * value, int space)
 		cur++;
 	else
 		goto try_complex;
-	while(((*cur >= 'a') && (*cur <= 'z')) || ((*cur >= 'A') && (*cur <= 'Z')) ||
-	    ((*cur >= '0') && (*cur <= '9')) || (*cur == '_') || (*cur == '-') || (*cur == '.'))
+	while(((*cur >= 'a') && (*cur <= 'z')) || ((*cur >= 'A') && (*cur <= 'Z')) || ((*cur >= '0') && (*cur <= '9')) || (*cur == '_') || (*cur == '-') || (*cur == '.'))
 		cur++;
 	if(space)
 		while(IS_BLANK_CH(*cur)) 
@@ -381,8 +380,7 @@ int xmlValidateQName(const xmlChar * value, int space)
 			cur++;
 		else
 			goto try_complex;
-		while(((*cur >= 'a') && (*cur <= 'z')) || ((*cur >= 'A') && (*cur <= 'Z')) ||
-		    ((*cur >= '0') && (*cur <= '9')) || (*cur == '_') || (*cur == '-') || (*cur == '.'))
+		while(((*cur >= 'a') && (*cur <= 'z')) || ((*cur >= 'A') && (*cur <= 'Z')) || ((*cur >= '0') && (*cur <= '9')) || (*cur == '_') || (*cur == '-') || (*cur == '.'))
 			cur++;
 	}
 	if(space)
@@ -455,8 +453,7 @@ int xmlValidateName(const xmlChar * value, int space)
 		cur++;
 	else
 		goto try_complex;
-	while(((*cur >= 'a') && (*cur <= 'z')) || ((*cur >= 'A') && (*cur <= 'Z')) || ((*cur >= '0') && (*cur <= '9')) ||
-	    (*cur == '_') || (*cur == '-') || (*cur == '.') || (*cur == ':'))
+	while(((*cur >= 'a') && (*cur <= 'z')) || ((*cur >= 'A') && (*cur <= 'Z')) || ((*cur >= '0') && (*cur <= '9')) || (*cur == '_') || (*cur == '-') || (*cur == '.') || (*cur == ':'))
 		cur++;
 	if(space)
 		while(IS_BLANK_CH(*cur)) 
@@ -767,7 +764,7 @@ xmlDtd * FASTCALL xmlGetIntSubset(const xmlDoc * doc)
 	if(!doc)
 		return 0;
     else {
-        for(xmlNode * cur = doc->children; cur; cur = cur->next) {
+        for(const xmlNode * cur = doc->children; cur; cur = cur->next) {
             if(cur->type == XML_DTD_NODE)
                 return (xmlDtd *)cur;
         }
@@ -3959,7 +3956,7 @@ long xmlGetLineNo(const xmlNode * P_Node)
  * Returns the new path or NULL in case of error. The caller must free
  *   the returned string
  */
-xmlChar * xmlGetNodePath(const xmlNode * P_Node)
+xmlChar * xmlGetNodePath(const xmlNode * pNode)
 {
 	const xmlNode * cur, * tmp, * next;
 	xmlChar * buffer = NULL, * temp;
@@ -3969,7 +3966,7 @@ xmlChar * xmlGetNodePath(const xmlNode * P_Node)
 	const char * name;
 	char nametemp[100];
 	int occur = 0, generic;
-	if(!P_Node || (P_Node->type == XML_NAMESPACE_DECL))
+	if(!pNode || pNode->type == XML_NAMESPACE_DECL)
 		return 0;
 	buf_len = 500;
 	buffer = static_cast<xmlChar *>(SAlloc::M(buf_len * sizeof(xmlChar)));
@@ -3983,14 +3980,13 @@ xmlChar * xmlGetNodePath(const xmlNode * P_Node)
 		SAlloc::F(buffer);
 		return 0;
 	}
-
 	buffer[0] = 0;
-	cur = P_Node;
+	cur = pNode;
 	do {
 		name = "";
 		sep = "?";
 		occur = 0;
-		if((cur->type == XML_DOCUMENT_NODE) || (cur->type == XML_HTML_DOCUMENT_NODE)) {
+		if(oneof2(cur->type, XML_DOCUMENT_NODE, XML_HTML_DOCUMENT_NODE)) {
 			if(buffer[0] == '/')
 				break;
 			sep = "/";
@@ -4023,7 +4019,7 @@ xmlChar * xmlGetNodePath(const xmlNode * P_Node)
 			tmp = cur->prev;
 			while(tmp) {
 				if((tmp->type == XML_ELEMENT_NODE) && (generic || (sstreq(cur->name, tmp->name) &&
-					((tmp->ns == cur->ns) || (tmp->ns && cur->ns && (sstreq(cur->ns->prefix, tmp->ns->prefix)))))))
+					((tmp->ns == cur->ns) || (tmp->ns && cur->ns && sstreq(cur->ns->prefix, tmp->ns->prefix))))))
 					occur++;
 				tmp = tmp->prev;
 			}
@@ -4031,7 +4027,7 @@ xmlChar * xmlGetNodePath(const xmlNode * P_Node)
 				tmp = cur->next;
 				while(tmp && occur == 0) {
 					if((tmp->type == XML_ELEMENT_NODE) && (generic || (sstreq(cur->name, tmp->name) &&
-						((tmp->ns == cur->ns) || (tmp->ns && cur->ns && (sstreq(cur->ns->prefix, tmp->ns->prefix)))))))
+						((tmp->ns == cur->ns) || (tmp->ns && cur->ns && sstreq(cur->ns->prefix, tmp->ns->prefix))))))
 						occur++;
 					tmp = tmp->next;
 				}
@@ -4067,27 +4063,27 @@ xmlChar * xmlGetNodePath(const xmlNode * P_Node)
 			else
 				occur++;
 		}
-		else if((cur->type == XML_TEXT_NODE) || (cur->type == XML_CDATA_SECTION_NODE)) {
+		else if(oneof2(cur->type, XML_TEXT_NODE, XML_CDATA_SECTION_NODE)) {
 			sep = "/";
 			name = "text()";
 			next = cur->P_ParentNode;
-			/*
-			 * Thumbler index computation
-			 */
+			// 
+			// Thumbler index computation
+			// 
 			tmp = cur->prev;
 			while(tmp) {
-				if((tmp->type == XML_TEXT_NODE) || (tmp->type == XML_CDATA_SECTION_NODE))
+				if(oneof2(tmp->type, XML_TEXT_NODE, XML_CDATA_SECTION_NODE))
 					occur++;
 				tmp = tmp->prev;
 			}
-			/*
-			 * Evaluate if this is the only text- or CDATA-section-node;
-			 * if yes, then we'll get "text()", otherwise "text()[1]".
-			 */
+			// 
+			// Evaluate if this is the only text- or CDATA-section-node;
+			// if yes, then we'll get "text()", otherwise "text()[1]".
+			// 
 			if(occur == 0) {
 				tmp = cur->next;
 				while(tmp) {
-					if((tmp->type == XML_TEXT_NODE) || (tmp->type == XML_CDATA_SECTION_NODE)) {
+					if(oneof2(tmp->type, XML_TEXT_NODE, XML_CDATA_SECTION_NODE)) {
 						occur = 1;
 						break;
 					}
@@ -4103,19 +4099,19 @@ xmlChar * xmlGetNodePath(const xmlNode * P_Node)
 			nametemp[sizeof(nametemp) - 1] = 0;
 			name = nametemp;
 			next = cur->P_ParentNode;
-			/*
-			 * Thumbler index computation
-			 */
+			// 
+			// Thumbler index computation
+			// 
 			tmp = cur->prev;
 			while(tmp) {
-				if((tmp->type == XML_PI_NODE) && (sstreq(cur->name, tmp->name)))
+				if(tmp->type == XML_PI_NODE && sstreq(cur->name, tmp->name))
 					occur++;
 				tmp = tmp->prev;
 			}
 			if(occur == 0) {
 				tmp = cur->next;
 				while(tmp && occur == 0) {
-					if((tmp->type == XML_PI_NODE) && (sstreq(cur->name, tmp->name)))
+					if(tmp->type == XML_PI_NODE && sstreq(cur->name, tmp->name))
 						occur++;
 					tmp = tmp->next;
 				}
@@ -4147,7 +4143,7 @@ xmlChar * xmlGetNodePath(const xmlNode * P_Node)
 		if(sstrlen(buffer) + sizeof(nametemp) + 20 > buf_len) {
 			buf_len = 2 * buf_len + sstrlen(buffer) + sizeof(nametemp) + 20;
 			temp = static_cast<xmlChar *>(SAlloc::R(buffer, buf_len));
-			if(temp == NULL) {
+			if(!temp) {
 				xmlTreeErrMemory("getting node path");
 				SAlloc::F(buf);
 				SAlloc::F(buffer);
@@ -4155,7 +4151,7 @@ xmlChar * xmlGetNodePath(const xmlNode * P_Node)
 			}
 			buffer = temp;
 			temp = static_cast<xmlChar *>(SAlloc::R(buf, buf_len));
-			if(temp == NULL) {
+			if(!temp) {
 				xmlTreeErrMemory("getting node path");
 				SAlloc::F(buf);
 				SAlloc::F(buffer);
@@ -4212,8 +4208,7 @@ xmlNode * FASTCALL xmlDocGetRootElement(const xmlDoc * doc)
 xmlNode * xmlDocSetRootElement(xmlDoc * doc, xmlNode * root)
 {
 	xmlNode * old = NULL;
-	if(!doc) return 0;
-	if((root == NULL) || (root->type == XML_NAMESPACE_DECL))
+	if(!doc || !root || root->type == XML_NAMESPACE_DECL) 
 		return 0;
 	xmlUnlinkNode(root);
 	xmlSetTreeDoc(root, doc);
@@ -4229,13 +4224,11 @@ xmlNode * xmlDocSetRootElement(xmlDoc * doc, xmlNode * root)
 			doc->children = root;
 			doc->last = root;
 		}
-		else {
+		else
 			xmlAddSibling(doc->children, root);
-		}
 	}
-	else {
+	else
 		xmlReplaceNode(old, root);
-	}
 	return old;
 }
 
@@ -4253,7 +4246,8 @@ xmlNode * xmlDocSetRootElement(xmlDoc * doc, xmlNode * root)
 void xmlNodeSetLang(xmlNode * cur, const xmlChar * lang)
 {
 	xmlNs * ns;
-	if(!cur) return;
+	if(!cur) 
+		return;
 	switch(cur->type) {
 		case XML_TEXT_NODE:
 		case XML_CDATA_SECTION_NODE:
@@ -7574,40 +7568,29 @@ int xmlDOMWrapReconcileNamespaces(xmlDOMWrapCtxtPtr ctxt ATTRIBUTE_UNUSED, xmlNo
 			    adoptns = 1;
 			    curElem = cur;
 			    depth++;
-			    /*
-			 * Namespace declarations.
-			     */
+				// Namespace declarations.
 			    if(cur->nsDef) {
 				    prevns = NULL;
 				    ns = cur->nsDef;
 				    while(ns) {
 					    if(!parnsdone) {
 						    if(elem->P_ParentNode && ((xmlNode *)elem->P_ParentNode->doc != elem->P_ParentNode)) {
-							    /*
-							 * Gather ancestor in-scope ns-decls.
-							     */
+								// Gather ancestor in-scope ns-decls.
 							    if(xmlDOMWrapNSNormGatherInScopeNs(&nsMap, elem->P_ParentNode) == -1)
 								    goto internal_error;
 						    }
 						    parnsdone = 1;
 					    }
-					    /*
-					 * Lookup the ns ancestor-axis for equal ns-decls in scope.
-					     */
+						// Lookup the ns ancestor-axis for equal ns-decls in scope.
 					    if(optRemoveRedundantNS && XML_NSMAP_NOTEMPTY(nsMap)) {
 						    XML_NSMAP_FOREACH(nsMap, mi) {
 							    if((mi->depth >= XML_TREE_NSMAP_PARENT) && (mi->shadowDepth == -1) &&
-							    ((ns->prefix == mi->newNs->prefix) || sstreq(ns->prefix, mi->newNs->prefix)) && 
-									((ns->href == mi->newNs->href) || sstreq(ns->href, mi->newNs->href))) {
-								    /*
-								 * A redundant ns-decl was found.
-								 * Add it to the list of redundant ns-decls.
-								     */
+									((ns->prefix == mi->newNs->prefix) || sstreq(ns->prefix, mi->newNs->prefix)) && ((ns->href == mi->newNs->href) || sstreq(ns->href, mi->newNs->href))) {
+									// A redundant ns-decl was found.
+									// Add it to the list of redundant ns-decls.
 								    if(xmlDOMWrapNSNormAddNsMapItem2(&listRedund, &sizeRedund, &nbRedund, ns, mi->newNs) == -1)
 									    goto internal_error;
-								    /*
-								 * Remove the ns-decl from the element-node.
-								     */
+									// Remove the ns-decl from the element-node.
 								    if(prevns)
 									    prevns->next = ns->next;
 								    else
@@ -7616,15 +7599,10 @@ int xmlDOMWrapReconcileNamespaces(xmlDOMWrapCtxtPtr ctxt ATTRIBUTE_UNUSED, xmlNo
 							    }
 						    }
 					    }
-					    /*
-					 * Skip ns-references handling if the referenced
-					 * ns-decl is declared on the same element.
-					     */
+						// Skip ns-references handling if the referenced ns-decl is declared on the same element.
 					    if(cur->ns && adoptns && (cur->ns == ns))
 						    adoptns = 0;
-					    /*
-					 * Does it shadow any ns-decl?
-					     */
+						// Does it shadow any ns-decl?
 					    if(XML_NSMAP_NOTEMPTY(nsMap)) {
 						    XML_NSMAP_FOREACH(nsMap, mi) {
 							    if((mi->depth >= XML_TREE_NSMAP_PARENT) && (mi->shadowDepth == -1) && ((ns->prefix == mi->newNs->prefix) || sstreq(ns->prefix, mi->newNs->prefix))) {
@@ -7632,9 +7610,7 @@ int xmlDOMWrapReconcileNamespaces(xmlDOMWrapCtxtPtr ctxt ATTRIBUTE_UNUSED, xmlNo
 							    }
 						    }
 					    }
-					    /*
-					 * Push mapping.
-					     */
+						// Push mapping.
 					    if(xmlDOMWrapNsMapAddItem(&nsMap, -1, ns, ns, depth) == NULL)
 						    goto internal_error;
 					    prevns = ns;
@@ -7644,9 +7620,9 @@ next_ns_decl:
 			    }
 			    if(!adoptns)
 				    goto ns_end;
-			/* No break on purpose. */
+			// No break on purpose. 
 			case XML_ATTRIBUTE_NODE:
-			    /* No ns, no fun. */
+			    // No ns, no fun. 
 			    if(cur->ns == NULL)
 				    goto ns_end;
 			    if(!parnsdone) {
@@ -7656,9 +7632,7 @@ next_ns_decl:
 				    }
 				    parnsdone = 1;
 			    }
-			    /*
-			 * Adjust the reference if this was a redundant ns-decl.
-			     */
+				// Adjust the reference if this was a redundant ns-decl.
 			    if(listRedund) {
 				    for(i = 0, j = 0; i < nbRedund; i++, j += 2) {
 					    if(cur->ns == listRedund[j]) {
@@ -7667,13 +7641,9 @@ next_ns_decl:
 					    }
 				    }
 			    }
-			    /*
-			 * Adopt ns-references.
-			     */
+				// Adopt ns-references.
 			    if(XML_NSMAP_NOTEMPTY(nsMap)) {
-				    /*
-				 * Search for a mapping.
-				     */
+					// Search for a mapping.
 				    XML_NSMAP_FOREACH(nsMap, mi) {
 					    if((mi->shadowDepth == -1) && (cur->ns == mi->oldNs)) {
 						    cur->ns = mi->newNs;
@@ -7681,14 +7651,12 @@ next_ns_decl:
 					    }
 				    }
 			    }
-			    /*
-			 * Aquire a normalized ns-decl and add it to the map.
-			     */
+				// Aquire a normalized ns-decl and add it to the map.
 			    if(xmlDOMWrapNSNormAquireNormalizedNs(doc, curElem, cur->ns, &ns, &nsMap, depth, ancestorsOnly, (cur->type == XML_ATTRIBUTE_NODE) ? 1 : 0) == -1)
 				    goto internal_error;
 			    cur->ns = ns;
 ns_end:
-			    if((cur->type == XML_ELEMENT_NODE) && cur->properties) {
+			    if(cur->type == XML_ELEMENT_NODE && cur->properties) {
 				    // Process attributes.
 				    cur = (xmlNode *)cur->properties;
 				    continue;
@@ -7768,7 +7736,7 @@ exit:
  *
  * Returns 0 if succeeded, -1 otherwise and on API/internal errors.
  */
-static int xmlDOMWrapAdoptBranch(xmlDOMWrapCtxtPtr ctxt, xmlDoc * sourceDoc, xmlNode * P_Node, xmlDoc * destDoc, xmlNode * destParent, int options ATTRIBUTE_UNUSED)
+static int xmlDOMWrapAdoptBranch(xmlDOMWrapCtxtPtr ctxt, xmlDoc * sourceDoc, xmlNode * pNode, xmlDoc * destDoc, xmlNode * destParent, int options ATTRIBUTE_UNUSED)
 {
 	int ret = 0;
 	xmlNode * cur;
@@ -7797,7 +7765,7 @@ static int xmlDOMWrapAdoptBranch(xmlDOMWrapCtxtPtr ctxt, xmlDoc * sourceDoc, xml
 	 * 2) custom ns-reference handling is used
 	 */
 	parnsdone = BIN(!destParent || (ctxt && ctxt->getNsForNodeFunc));
-	cur = P_Node;
+	cur = pNode;
 	if(cur && (cur->type == XML_NAMESPACE_DECL))
 		goto internal_error;
 	while(cur) {
@@ -7815,10 +7783,10 @@ static int xmlDOMWrapAdoptBranch(xmlDOMWrapCtxtPtr ctxt, xmlDoc * sourceDoc, xml
 				goto leave_node;
 			do {
 				cur = cur->next;
-				if((cur->type == XML_XINCLUDE_END) || (cur->doc == P_Node->doc))
+				if(cur->type == XML_XINCLUDE_END || cur->doc == pNode->doc)
 					break;
 			} while(cur->next);
-			if(cur->doc != P_Node->doc)
+			if(cur->doc != pNode->doc)
 				goto leave_node;
 		}
 		cur->doc = destDoc;
@@ -7985,16 +7953,13 @@ ns_end:
 			default:
 			    goto internal_error;
 		}
-		/*
-		 * Walk the tree.
-		 */
+		// Walk the tree.
 		if(cur->children) {
 			cur = cur->children;
 			continue;
 		}
-
 leave_node:
-		if(cur == P_Node)
+		if(cur == pNode)
 			break;
 		if(oneof3(cur->type, XML_ELEMENT_NODE, XML_XINCLUDE_START, XML_XINCLUDE_END)) {
 			/*
@@ -8390,7 +8355,7 @@ int xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt, xmlDoc * sourceDoc, xmlNode * P_
 			            /* if we need to search only in the ancestor-axis */
 				    ancestorsOnly,
 			            /* ns-decls must be prefixed for attributes. */
-				    (cur->type == XML_ATTRIBUTE_NODE) ? 1 : 0) == -1)
+				    BIN(cur->type == XML_ATTRIBUTE_NODE)) == -1)
 				goto internal_error;
 			clone->ns = ns;
 		}

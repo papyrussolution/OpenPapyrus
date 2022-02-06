@@ -1,0 +1,447 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\Osf\Bdb\bdb-pch.c" />
+    <ClCompile Include="..\OSF\BDB\bdb_memp.c" />
+    <ClCompile Include="..\OSF\BDB\bdb_mutex.c" />
+    <ClCompile Include="..\OSF\BDB\bdb_txn.c" />
+    <ClCompile Include="..\Osf\Bdb\btree_auto.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_compact.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_compare.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_compress.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_conv.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_curadj.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_cursor.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_delete.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_method.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_open.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_put.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_rec.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_reclaim.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_recno.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_rsearch.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_search.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_split.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_stat.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_upgrade.c" />
+    <ClCompile Include="..\Osf\Bdb\bt_verify.c" />
+    <ClCompile Include="..\Osf\Bdb\clib\strsep.c" />
+    <ClCompile Include="..\Osf\Bdb\clock.c" />
+    <ClCompile Include="..\Osf\Bdb\crdel_auto.c" />
+    <ClCompile Include="..\Osf\Bdb\crdel_rec.c" />
+    <ClCompile Include="..\Osf\Bdb\crypto\aes_method.c" />
+    <ClCompile Include="..\Osf\Bdb\crypto\crypto.c" />
+    <ClCompile Include="..\OSF\BDB\crypto\mt19937db.c" />
+    <ClCompile Include="..\OSF\BDB\crypto\rijndael-alg-fst.c" />
+    <ClCompile Include="..\OSF\BDB\crypto\rijndael-api-fst.c" />
+    <ClCompile Include="..\Osf\Bdb\db.c" />
+    <ClCompile Include="..\Osf\Bdb\dbreg.c" />
+    <ClCompile Include="..\Osf\Bdb\dbreg_auto.c" />
+    <ClCompile Include="..\Osf\Bdb\dbreg_rec.c" />
+    <ClCompile Include="..\Osf\Bdb\dbreg_stat.c" />
+    <ClCompile Include="..\Osf\Bdb\dbreg_util.c" />
+    <ClCompile Include="..\Osf\Bdb\dbt.c" />
+    <ClCompile Include="..\Osf\Bdb\db_am.c" />
+    <ClCompile Include="..\Osf\Bdb\db_auto.c" />
+    <ClCompile Include="..\Osf\Bdb\db_byteorder.c" />
+    <ClCompile Include="..\Osf\Bdb\db_cam.c" />
+    <ClCompile Include="..\Osf\Bdb\db_cds.c" />
+    <ClCompile Include="..\Osf\Bdb\db_compact.c" />
+    <ClCompile Include="..\Osf\Bdb\db_compint.c" />
+    <ClCompile Include="..\Osf\Bdb\db_conv.c" />
+    <ClCompile Include="..\Osf\Bdb\db_copy.c" />
+    <ClCompile Include="..\Osf\Bdb\db_dispatch.c" />
+    <ClCompile Include="..\Osf\Bdb\db_dup.c" />
+    <ClCompile Include="..\Osf\Bdb\db_err.c" />
+    <ClCompile Include="..\Osf\Bdb\db_getlong.c" />
+    <ClCompile Include="..\Osf\Bdb\db_idspace.c" />
+    <ClCompile Include="..\Osf\Bdb\db_iface.c" />
+    <ClCompile Include="..\Osf\Bdb\db_join.c" />
+    <ClCompile Include="..\Osf\Bdb\db_log2.c" />
+    <ClCompile Include="..\Osf\Bdb\db_meta.c" />
+    <ClCompile Include="..\Osf\Bdb\db_method.c" />
+    <ClCompile Include="..\Osf\Bdb\db_open.c" />
+    <ClCompile Include="..\Osf\Bdb\db_overflow.c" />
+    <ClCompile Include="..\Osf\Bdb\db_ovfl_vrfy.c" />
+    <ClCompile Include="..\Osf\Bdb\db_pr.c" />
+    <ClCompile Include="..\Osf\Bdb\db_rec.c" />
+    <ClCompile Include="..\Osf\Bdb\db_reclaim.c" />
+    <ClCompile Include="..\Osf\Bdb\db_remove.c" />
+    <ClCompile Include="..\Osf\Bdb\db_rename.c" />
+    <ClCompile Include="..\Osf\Bdb\db_ret.c" />
+    <ClCompile Include="..\Osf\Bdb\db_setid.c" />
+    <ClCompile Include="..\Osf\Bdb\db_setlsn.c" />
+    <ClCompile Include="..\Osf\Bdb\db_shash.c" />
+    <ClCompile Include="..\Osf\Bdb\db_sort_multiple.c" />
+    <ClCompile Include="..\Osf\Bdb\db_stati.c" />
+    <ClCompile Include="..\Osf\Bdb\db_truncate.c" />
+    <ClCompile Include="..\Osf\Bdb\db_upg.c" />
+    <ClCompile Include="..\Osf\Bdb\db_upg_opd.c" />
+    <ClCompile Include="..\Osf\Bdb\db_vrfy.c" />
+    <ClCompile Include="..\Osf\Bdb\db_vrfyutil.c" />
+    <ClCompile Include="..\Osf\Bdb\env_alloc.c" />
+    <ClCompile Include="..\Osf\Bdb\env_config.c" />
+    <ClCompile Include="..\Osf\Bdb\env_failchk.c" />
+    <ClCompile Include="..\Osf\Bdb\env_file.c" />
+    <ClCompile Include="..\Osf\Bdb\env_globals.c" />
+    <ClCompile Include="..\Osf\Bdb\env_method.c" />
+    <ClCompile Include="..\Osf\Bdb\env_name.c" />
+    <ClCompile Include="..\Osf\Bdb\env_open.c" />
+    <ClCompile Include="..\Osf\Bdb\env_recover.c" />
+    <ClCompile Include="..\Osf\Bdb\env_region.c" />
+    <ClCompile Include="..\Osf\Bdb\env_register.c" />
+    <ClCompile Include="..\Osf\Bdb\env_sig.c" />
+    <ClCompile Include="..\Osf\Bdb\env_stat.c" />
+    <ClCompile Include="..\Osf\Bdb\fileops_auto.c" />
+    <ClCompile Include="..\Osf\Bdb\fop_basic.c" />
+    <ClCompile Include="..\Osf\Bdb\fop_rec.c" />
+    <ClCompile Include="..\Osf\Bdb\fop_util.c" />
+    <ClCompile Include="..\Osf\Bdb\hash.c" />
+    <ClCompile Include="..\Osf\Bdb\hash_auto.c" />
+    <ClCompile Include="..\Osf\Bdb\hash_compact.c" />
+    <ClCompile Include="..\Osf\Bdb\hash_conv.c" />
+    <ClCompile Include="..\Osf\Bdb\hash_dup.c" />
+    <ClCompile Include="..\Osf\Bdb\hash_func.c" />
+    <ClCompile Include="..\Osf\Bdb\hash_meta.c" />
+    <ClCompile Include="..\Osf\Bdb\hash_method.c" />
+    <ClCompile Include="..\Osf\Bdb\hash_open.c" />
+    <ClCompile Include="..\Osf\Bdb\hash_page.c" />
+    <ClCompile Include="..\Osf\Bdb\hash_rec.c" />
+    <ClCompile Include="..\Osf\Bdb\hash_reclaim.c" />
+    <ClCompile Include="..\Osf\Bdb\hash_stat.c" />
+    <ClCompile Include="..\Osf\Bdb\hash_upgrade.c" />
+    <ClCompile Include="..\Osf\Bdb\hash_verify.c" />
+    <ClCompile Include="..\Osf\Bdb\heap.c" />
+    <ClCompile Include="..\Osf\Bdb\heap_auto.c" />
+    <ClCompile Include="..\Osf\Bdb\heap_autop.c" />
+    <ClCompile Include="..\Osf\Bdb\heap_conv.c" />
+    <ClCompile Include="..\Osf\Bdb\heap_method.c" />
+    <ClCompile Include="..\Osf\Bdb\heap_open.c" />
+    <ClCompile Include="..\Osf\Bdb\heap_rec.c" />
+    <ClCompile Include="..\Osf\Bdb\heap_reclaim.c" />
+    <ClCompile Include="..\Osf\Bdb\heap_stat.c" />
+    <ClCompile Include="..\Osf\Bdb\heap_verify.c" />
+    <ClCompile Include="..\Osf\Bdb\hmac.c" />
+    <ClCompile Include="..\Osf\Bdb\lock.c" />
+    <ClCompile Include="..\Osf\Bdb\lock_deadlock.c" />
+    <ClCompile Include="..\Osf\Bdb\lock_failchk.c" />
+    <ClCompile Include="..\Osf\Bdb\lock_id.c" />
+    <ClCompile Include="..\Osf\Bdb\lock_list.c" />
+    <ClCompile Include="..\Osf\Bdb\lock_method.c" />
+    <ClCompile Include="..\Osf\Bdb\lock_region.c" />
+    <ClCompile Include="..\Osf\Bdb\lock_stat.c" />
+    <ClCompile Include="..\Osf\Bdb\lock_timer.c" />
+    <ClCompile Include="..\Osf\Bdb\lock_util.c" />
+    <ClCompile Include="..\Osf\Bdb\log.c" />
+    <ClCompile Include="..\Osf\Bdb\log_archive.c" />
+    <ClCompile Include="..\Osf\Bdb\log_compare.c" />
+    <ClCompile Include="..\Osf\Bdb\log_debug.c" />
+    <ClCompile Include="..\Osf\Bdb\log_get.c" />
+    <ClCompile Include="..\Osf\Bdb\log_method.c" />
+    <ClCompile Include="..\Osf\Bdb\log_print.c" />
+    <ClCompile Include="..\Osf\Bdb\log_put.c" />
+    <ClCompile Include="..\Osf\Bdb\log_stat.c" />
+    <ClCompile Include="..\Osf\Bdb\log_verify.c" />
+    <ClCompile Include="..\Osf\Bdb\log_verify_auto.c" />
+    <ClCompile Include="..\Osf\Bdb\log_verify_int.c" />
+    <ClCompile Include="..\Osf\Bdb\log_verify_util.c" />
+    <ClCompile Include="..\Osf\Bdb\mkpath.c" />
+    <ClCompile Include="..\Osf\Bdb\openflags.c" />
+    <ClCompile Include="..\OSF\BDB\os\bdb_os.c" />
+    <ClCompile Include="..\Osf\Bdb\os_method.c" />
+    <ClCompile Include="..\Osf\Bdb\os_windows\bdb_os_win.c" />
+    <ClCompile Include="..\Osf\Bdb\os_windows\os_rename.c" />
+    <ClCompile Include="..\Osf\Bdb\partition.c" />
+    <ClCompile Include="..\Osf\Bdb\qam.c" />
+    <ClCompile Include="..\Osf\Bdb\qam_auto.c" />
+    <ClCompile Include="..\Osf\Bdb\qam_conv.c" />
+    <ClCompile Include="..\Osf\Bdb\qam_files.c" />
+    <ClCompile Include="..\Osf\Bdb\qam_method.c" />
+    <ClCompile Include="..\Osf\Bdb\qam_open.c" />
+    <ClCompile Include="..\Osf\Bdb\qam_rec.c" />
+    <ClCompile Include="..\Osf\Bdb\qam_stat.c" />
+    <ClCompile Include="..\Osf\Bdb\qam_upgrade.c" />
+    <ClCompile Include="..\Osf\Bdb\qam_verify.c" />
+    <ClCompile Include="..\Osf\Bdb\repmgr_auto.c" />
+    <ClCompile Include="..\Osf\Bdb\repmgr_automsg.c" />
+    <ClCompile Include="..\Osf\Bdb\repmgr_elect.c" />
+    <ClCompile Include="..\Osf\Bdb\repmgr_method.c" />
+    <ClCompile Include="..\Osf\Bdb\repmgr_msg.c" />
+    <ClCompile Include="..\Osf\Bdb\repmgr_net.c" />
+    <ClCompile Include="..\Osf\Bdb\repmgr_queue.c" />
+    <ClCompile Include="..\Osf\Bdb\repmgr_rec.c" />
+    <ClCompile Include="..\Osf\Bdb\repmgr_sel.c" />
+    <ClCompile Include="..\Osf\Bdb\repmgr_stat.c" />
+    <ClCompile Include="..\Osf\Bdb\repmgr_util.c" />
+    <ClCompile Include="..\Osf\Bdb\repmgr_windows.c" />
+    <ClCompile Include="..\Osf\Bdb\rep_automsg.c" />
+    <ClCompile Include="..\Osf\Bdb\rep_backup.c" />
+    <ClCompile Include="..\Osf\Bdb\rep_elect.c" />
+    <ClCompile Include="..\Osf\Bdb\rep_lease.c" />
+    <ClCompile Include="..\Osf\Bdb\rep_log.c" />
+    <ClCompile Include="..\Osf\Bdb\rep_method.c" />
+    <ClCompile Include="..\Osf\Bdb\rep_record.c" />
+    <ClCompile Include="..\Osf\Bdb\rep_region.c" />
+    <ClCompile Include="..\Osf\Bdb\rep_stat.c" />
+    <ClCompile Include="..\Osf\Bdb\rep_util.c" />
+    <ClCompile Include="..\Osf\Bdb\rep_verify.c" />
+    <ClCompile Include="..\Osf\Bdb\sequence.c" />
+    <ClCompile Include="..\Osf\Bdb\seq_stat.c" />
+    <ClCompile Include="..\Osf\Bdb\sha1.c" />
+    <ClCompile Include="..\Osf\Bdb\test_mutex.c" />
+    <ClCompile Include="..\Osf\Bdb\txn_auto.c" />
+    <ClCompile Include="..\Osf\Bdb\util_arg.c" />
+    <ClCompile Include="..\Osf\Bdb\util_cache.c" />
+    <ClCompile Include="..\Osf\Bdb\util_log.c" />
+    <ClCompile Include="..\Osf\Bdb\util_sig.c" />
+    <ClCompile Include="..\Osf\Bdb\xa.c" />
+    <ClCompile Include="..\Osf\Bdb\xa_map.c" />
+    <ClCompile Include="..\Osf\Bdb\zerofill.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Osf\Bdb\dbinc\atomic.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\berkeleydb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\btree.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\btree_auto.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\btree_ext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\clib_ext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\buildinc\windows\clib_port.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\clock.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\common_ext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\crdel_auto.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\crypto.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\crypto_ext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\cxx_int.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\db_am.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\db_auto.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\buildinc\windows\db_config.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\buildinc\windows\db_cxx.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\db_dispatch.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\db_ext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\buildinc\windows\db_int.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\db_page.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\db_swap.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\db_upgrade.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\dbreg_auto.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\dbreg_ext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\buildinc\windows\dbstl_common.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\debug.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\env_ext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\fileops_auto.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\fileops_ext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\fop.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\globals.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\hash.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\hash_auto.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\hash_ext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\heap.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\heap_auto.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\heap_ext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\hmac.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\hmac_ext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\lock.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\lock_ext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\log.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\log_ext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\log_verify.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\mp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\mp_ext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\mutex.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\mutex_ext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\mutex_int.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\os.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\os_ext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\partition.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\perfmon.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\qam.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\qam_auto.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\qam_ext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\queue.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\region.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\rep.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\rep_automsg.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\rep_ext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\repmgr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\repmgr_auto.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\repmgr_automsg.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\repmgr_ext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\crypto\rijndael\rijndael-alg-fst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\crypto\rijndael\rijndael-api-fst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\sequence_ext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\shqueue.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\tcl_db.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\tcl_ext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\txn.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\txn_auto.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\txn_ext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\win_db.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc\xa.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Bdb\dbinc_auto\xa_ext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{f8ca883c-4964-40f5-a0ba-37f60a0ba78b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Osf\Bdb\lock_alloc.incl">
+      <Filter>Header</Filter>
+    </None>
+  </ItemGroup>
+</Project>

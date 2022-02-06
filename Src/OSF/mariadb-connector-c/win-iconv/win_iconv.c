@@ -1243,7 +1243,7 @@ static int kernel_wctomb(csconv_t * cv, ushort * wbuf, int wbufsize, uchar * buf
 #endif
 	}
 	len = WideCharToMultiByte(cv->codepage, flags,
-		(const wchar_t*)wbuf, wbufsize, (char *)buf, bufsize, NULL, p);
+		(const wchar_t *)wbuf, wbufsize, (char *)buf, bufsize, NULL, p);
 	if(len == 0) {
 		if(GetLastError() == ERROR_INSUFFICIENT_BUFFER)
 			return seterror(E2BIG);
@@ -1284,7 +1284,7 @@ static int mlang_wctomb(csconv_t * cv, ushort * wbuf, int wbufsize, uchar * buf,
 	char tmpbuf[MB_CHAR_MAX]; /* enough room for one character */
 	int tmpsize = MB_CHAR_MAX;
 	int insize = wbufsize;
-	HRESULT hr = ConvertINetUnicodeToMultiByte(&cv->mode, cv->codepage, (const wchar_t*)wbuf, &wbufsize, tmpbuf, &tmpsize);
+	HRESULT hr = ConvertINetUnicodeToMultiByte(&cv->mode, cv->codepage, (const wchar_t *)wbuf, &wbufsize, tmpbuf, &tmpsize);
 	if(hr != S_OK || insize != wbufsize)
 		return seterror(EILSEQ);
 	else if(bufsize < tmpsize)
@@ -1622,7 +1622,7 @@ static int iso2022jp_wctomb(csconv_t * cv, ushort * wbuf, int wbufsize, uchar * 
 	 * used (kernel or MLang, and its version).
 	 */
 	hr = ConvertINetUnicodeToMultiByte(&dummy, cv->codepage,
-		(const wchar_t*)wbuf, &wbufsize, tmp, &tmpsize);
+		(const wchar_t *)wbuf, &wbufsize, tmp, &tmpsize);
 	if(hr != S_OK || insize != wbufsize)
 		return seterror(EILSEQ);
 	else if(bufsize < tmpsize)

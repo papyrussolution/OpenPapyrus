@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\OSF\RisohEditor\mcdx\mcdx.cpp" />
+    <ClCompile Include="..\OSF\RisohEditor\mcdx\getoptwin.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{DEDD3EE6-F3BB-35B8-A0C4-01D858999657}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{0dcaab2b-a92a-430e-8185-de2a2ababd2a}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\pkgdata\pkgdata.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\pkgdata\pkgtypes.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\pkgdata\pkgtypes.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

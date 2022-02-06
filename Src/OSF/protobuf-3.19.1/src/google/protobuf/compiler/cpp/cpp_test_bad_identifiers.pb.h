@@ -251,8 +251,7 @@ class TestConflictingSymbolNames_BuildDescriptors final :
   inline void Swap(TestConflictingSymbolNames_BuildDescriptors* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -273,28 +272,21 @@ class TestConflictingSymbolNames_BuildDescriptors final :
     return CreateMaybeMessage<TestConflictingSymbolNames_BuildDescriptors>(arena);
   }
   using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyFrom;
-  inline void CopyFrom(const TestConflictingSymbolNames_BuildDescriptors& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(this, from);
-  }
+  inline void CopyFrom(const TestConflictingSymbolNames_BuildDescriptors& from) { ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(this, from); }
   using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeFrom;
-  void MergeFrom(const TestConflictingSymbolNames_BuildDescriptors& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(this, from);
-  }
+  void MergeFrom(const TestConflictingSymbolNames_BuildDescriptors& from) { ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(this, from); }
   public:
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestConflictingSymbolNames.BuildDescriptors";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestConflictingSymbolNames.BuildDescriptors"; }
   protected:
-  explicit TestConflictingSymbolNames_BuildDescriptors(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestConflictingSymbolNames_BuildDescriptors(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -358,8 +350,7 @@ class TestConflictingSymbolNames_TypeTraits final :
   inline void Swap(TestConflictingSymbolNames_TypeTraits* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -380,28 +371,21 @@ class TestConflictingSymbolNames_TypeTraits final :
     return CreateMaybeMessage<TestConflictingSymbolNames_TypeTraits>(arena);
   }
   using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyFrom;
-  inline void CopyFrom(const TestConflictingSymbolNames_TypeTraits& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(this, from);
-  }
+  inline void CopyFrom(const TestConflictingSymbolNames_TypeTraits& from) { ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(this, from); }
   using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeFrom;
-  void MergeFrom(const TestConflictingSymbolNames_TypeTraits& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(this, from);
-  }
+  void MergeFrom(const TestConflictingSymbolNames_TypeTraits& from) { ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(this, from); }
   public:
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestConflictingSymbolNames.TypeTraits";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestConflictingSymbolNames.TypeTraits"; }
   protected:
-  explicit TestConflictingSymbolNames_TypeTraits(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestConflictingSymbolNames_TypeTraits(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -466,8 +450,7 @@ class TestConflictingSymbolNames_Data1 final :
   inline void Swap(TestConflictingSymbolNames_Data1* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -499,8 +482,7 @@ class TestConflictingSymbolNames_Data1 final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -511,19 +493,16 @@ class TestConflictingSymbolNames_Data1 final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestConflictingSymbolNames.Data1";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestConflictingSymbolNames.Data1"; }
   protected:
-  explicit TestConflictingSymbolNames_Data1(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestConflictingSymbolNames_Data1(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -614,8 +593,7 @@ class TestConflictingSymbolNames_Data2 final :
   inline void Swap(TestConflictingSymbolNames_Data2* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -647,8 +625,7 @@ class TestConflictingSymbolNames_Data2 final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -659,19 +636,16 @@ class TestConflictingSymbolNames_Data2 final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestConflictingSymbolNames.Data2";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestConflictingSymbolNames.Data2"; }
   protected:
-  explicit TestConflictingSymbolNames_Data2(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestConflictingSymbolNames_Data2(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -757,8 +731,7 @@ class TestConflictingSymbolNames_Data3 final :
   inline void Swap(TestConflictingSymbolNames_Data3* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -790,8 +763,7 @@ class TestConflictingSymbolNames_Data3 final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -802,19 +774,16 @@ class TestConflictingSymbolNames_Data3 final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestConflictingSymbolNames.Data3";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestConflictingSymbolNames.Data3"; }
   protected:
-  explicit TestConflictingSymbolNames_Data3(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestConflictingSymbolNames_Data3(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -835,7 +804,7 @@ class TestConflictingSymbolNames_Data3 final :
   std::string* mutable_data(int index);
   void set_data(int index, const std::string& value);
   void set_data(int index, std::string&& value);
-  void set_data(int index, const char* value);
+  void set_data(int index, const char * value);
   void set_data(int index, const char* value, size_t size);
   std::string* add_data();
   void add_data(const std::string& value);
@@ -907,8 +876,7 @@ class TestConflictingSymbolNames_Data4 final :
   inline void Swap(TestConflictingSymbolNames_Data4* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -940,8 +908,7 @@ class TestConflictingSymbolNames_Data4 final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -952,19 +919,16 @@ class TestConflictingSymbolNames_Data4 final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestConflictingSymbolNames.Data4";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestConflictingSymbolNames.Data4"; }
   protected:
-  explicit TestConflictingSymbolNames_Data4(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestConflictingSymbolNames_Data4(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -1051,8 +1015,7 @@ class TestConflictingSymbolNames_Data5 final :
   inline void Swap(TestConflictingSymbolNames_Data5* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -1084,8 +1047,7 @@ class TestConflictingSymbolNames_Data5 final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -1096,19 +1058,16 @@ class TestConflictingSymbolNames_Data5 final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestConflictingSymbolNames.Data5";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestConflictingSymbolNames.Data5"; }
   protected:
-  explicit TestConflictingSymbolNames_Data5(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestConflictingSymbolNames_Data5(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -1131,7 +1090,7 @@ class TestConflictingSymbolNames_Data5 final :
   std::string* mutable_data(int index);
   void set_data(int index, const std::string& value);
   void set_data(int index, std::string&& value);
-  void set_data(int index, const char* value);
+  void set_data(int index, const char * value);
   void set_data(int index, const char* value, size_t size);
   std::string* add_data();
   void add_data(const std::string& value);
@@ -1204,8 +1163,7 @@ class TestConflictingSymbolNames_Data6 final :
   inline void Swap(TestConflictingSymbolNames_Data6* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -1237,8 +1195,7 @@ class TestConflictingSymbolNames_Data6 final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -1249,19 +1206,16 @@ class TestConflictingSymbolNames_Data6 final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestConflictingSymbolNames.Data6";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestConflictingSymbolNames.Data6"; }
   protected:
-  explicit TestConflictingSymbolNames_Data6(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestConflictingSymbolNames_Data6(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -1284,7 +1238,7 @@ class TestConflictingSymbolNames_Data6 final :
   std::string* mutable_data(int index);
   void set_data(int index, const std::string& value);
   void set_data(int index, std::string&& value);
-  void set_data(int index, const char* value);
+  void set_data(int index, const char * value);
   void set_data(int index, const char* value, size_t size);
   std::string* add_data();
   void add_data(const std::string& value);
@@ -1356,8 +1310,7 @@ class TestConflictingSymbolNames_Cord final :
   inline void Swap(TestConflictingSymbolNames_Cord* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -1378,28 +1331,21 @@ class TestConflictingSymbolNames_Cord final :
     return CreateMaybeMessage<TestConflictingSymbolNames_Cord>(arena);
   }
   using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyFrom;
-  inline void CopyFrom(const TestConflictingSymbolNames_Cord& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(this, from);
-  }
+  inline void CopyFrom(const TestConflictingSymbolNames_Cord& from) { ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(this, from); }
   using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeFrom;
-  void MergeFrom(const TestConflictingSymbolNames_Cord& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(this, from);
-  }
+  void MergeFrom(const TestConflictingSymbolNames_Cord& from) { ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(this, from); }
   public:
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestConflictingSymbolNames.Cord";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestConflictingSymbolNames.Cord"; }
   protected:
-  explicit TestConflictingSymbolNames_Cord(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestConflictingSymbolNames_Cord(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -1463,8 +1409,7 @@ class TestConflictingSymbolNames_StringPiece final :
   inline void Swap(TestConflictingSymbolNames_StringPiece* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -1485,28 +1430,21 @@ class TestConflictingSymbolNames_StringPiece final :
     return CreateMaybeMessage<TestConflictingSymbolNames_StringPiece>(arena);
   }
   using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyFrom;
-  inline void CopyFrom(const TestConflictingSymbolNames_StringPiece& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(this, from);
-  }
+  inline void CopyFrom(const TestConflictingSymbolNames_StringPiece& from) { ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(this, from); }
   using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeFrom;
-  void MergeFrom(const TestConflictingSymbolNames_StringPiece& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(this, from);
-  }
+  void MergeFrom(const TestConflictingSymbolNames_StringPiece& from) { ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(this, from); }
   public:
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestConflictingSymbolNames.StringPiece";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestConflictingSymbolNames.StringPiece"; }
   protected:
-  explicit TestConflictingSymbolNames_StringPiece(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestConflictingSymbolNames_StringPiece(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -1570,8 +1508,7 @@ class TestConflictingSymbolNames_DO final :
   inline void Swap(TestConflictingSymbolNames_DO* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -1592,28 +1529,21 @@ class TestConflictingSymbolNames_DO final :
     return CreateMaybeMessage<TestConflictingSymbolNames_DO>(arena);
   }
   using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyFrom;
-  inline void CopyFrom(const TestConflictingSymbolNames_DO& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(this, from);
-  }
+  inline void CopyFrom(const TestConflictingSymbolNames_DO& from) { ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(this, from); }
   using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeFrom;
-  void MergeFrom(const TestConflictingSymbolNames_DO& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(this, from);
-  }
+  void MergeFrom(const TestConflictingSymbolNames_DO& from) { ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(this, from); }
   public:
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestConflictingSymbolNames.DO";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestConflictingSymbolNames.DO"; }
   protected:
-  explicit TestConflictingSymbolNames_DO(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestConflictingSymbolNames_DO(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -1678,8 +1608,7 @@ class TestConflictingSymbolNames final :
   inline void Swap(TestConflictingSymbolNames* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -1711,8 +1640,7 @@ class TestConflictingSymbolNames final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -1723,19 +1651,16 @@ class TestConflictingSymbolNames final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestConflictingSymbolNames";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestConflictingSymbolNames"; }
   protected:
-  explicit TestConflictingSymbolNames(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestConflictingSymbolNames(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -1859,7 +1784,7 @@ class TestConflictingSymbolNames final :
   std::string* mutable_new_element(int index);
   void set_new_element(int index, const std::string& value);
   void set_new_element(int index, std::string&& value);
-  void set_new_element(int index, const char* value);
+  void set_new_element(int index, const char * value);
   void set_new_element(int index, const char* value, size_t size);
   std::string* add_new_element();
   void add_new_element(const std::string& value);
@@ -2533,84 +2458,49 @@ class TestConflictingSymbolNames final :
                                                  &_extensions_);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Repeated::ConstType GetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id,
-      int index) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Repeated::ConstType GetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id, int index) const {
 
     return _proto_TypeTraits::Get(id.number(), _extensions_, index);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Repeated::MutableType MutableExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id,
-      int index) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Repeated::MutableType MutableExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id, int index) {
 
     return _proto_TypeTraits::Mutable(id.number(), index, &_extensions_);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id,
-      int index, typename _proto_TypeTraits::Repeated::ConstType value) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id, int index, typename _proto_TypeTraits::Repeated::ConstType value) {
     _proto_TypeTraits::Set(id.number(), index, value, &_extensions_);
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Repeated::MutableType AddExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id) {
-    typename _proto_TypeTraits::Repeated::MutableType to_add =
-        _proto_TypeTraits::Add(id.number(), _field_type, &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Repeated::MutableType AddExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id) {
+    typename _proto_TypeTraits::Repeated::MutableType to_add = _proto_TypeTraits::Add(id.number(), _field_type, &_extensions_);
 
     return to_add;
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void AddExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id,
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void AddExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id,
       typename _proto_TypeTraits::Repeated::ConstType value) {
-    _proto_TypeTraits::Add(id.number(), _field_type, _is_packed, value,
-                           &_extensions_);
+    _proto_TypeTraits::Add(id.number(), _field_type, _is_packed, value, &_extensions_);
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
   inline const typename _proto_TypeTraits::Repeated::RepeatedFieldType&
-  GetRepeatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  GetRepeatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _proto_TypeTraits::GetRepeated(id.number(), _extensions_);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Repeated::RepeatedFieldType*
-  MutableRepeatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Repeated::RepeatedFieldType * MutableRepeatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestConflictingSymbolNames, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::MutableRepeated(id.number(), _field_type,
-                                              _is_packed, &_extensions_);
+    return _proto_TypeTraits::MutableRepeated(id.number(), _field_type, _is_packed, &_extensions_);
   }
 
   // @@protoc_insertion_point(class_scope:protobuf_unittest.TestConflictingSymbolNames)
@@ -2712,8 +2602,7 @@ class TestConflictingSymbolNamesExtension final :
   inline void Swap(TestConflictingSymbolNamesExtension* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -2734,28 +2623,21 @@ class TestConflictingSymbolNamesExtension final :
     return CreateMaybeMessage<TestConflictingSymbolNamesExtension>(arena);
   }
   using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyFrom;
-  inline void CopyFrom(const TestConflictingSymbolNamesExtension& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(this, from);
-  }
+  inline void CopyFrom(const TestConflictingSymbolNamesExtension& from) { ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(this, from); }
   using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeFrom;
-  void MergeFrom(const TestConflictingSymbolNamesExtension& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(this, from);
-  }
+  void MergeFrom(const TestConflictingSymbolNamesExtension& from) { ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(this, from); }
   public:
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestConflictingSymbolNamesExtension";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestConflictingSymbolNamesExtension"; }
   protected:
-  explicit TestConflictingSymbolNamesExtension(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestConflictingSymbolNamesExtension(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -2824,8 +2706,7 @@ class TestConflictingEnumNames final :
   inline void Swap(TestConflictingEnumNames* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -2857,8 +2738,7 @@ class TestConflictingEnumNames final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -2869,19 +2749,16 @@ class TestConflictingEnumNames final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestConflictingEnumNames";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestConflictingEnumNames"; }
   protected:
-  explicit TestConflictingEnumNames(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestConflictingEnumNames(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -3001,8 +2878,7 @@ class DummyMessage final :
   inline void Swap(DummyMessage* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -3023,28 +2899,21 @@ class DummyMessage final :
     return CreateMaybeMessage<DummyMessage>(arena);
   }
   using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyFrom;
-  inline void CopyFrom(const DummyMessage& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(this, from);
-  }
+  inline void CopyFrom(const DummyMessage& from) { ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(this, from); }
   using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeFrom;
-  void MergeFrom(const DummyMessage& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(this, from);
-  }
+  void MergeFrom(const DummyMessage& from) { ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(this, from); }
   public:
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.DummyMessage";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.DummyMessage"; }
   protected:
-  explicit DummyMessage(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit DummyMessage(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -3109,8 +2978,7 @@ class NULL_ final :
   inline void Swap(NULL_* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -3142,8 +3010,7 @@ class NULL_ final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -3154,19 +3021,16 @@ class NULL_ final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.NULL";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.NULL"; }
   protected:
-  explicit NULL_(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit NULL_(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -3248,8 +3112,7 @@ class Shutdown final :
   inline void Swap(Shutdown* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -3270,28 +3133,21 @@ class Shutdown final :
     return CreateMaybeMessage<Shutdown>(arena);
   }
   using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyFrom;
-  inline void CopyFrom(const Shutdown& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(this, from);
-  }
+  inline void CopyFrom(const Shutdown& from) { ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(this, from); }
   using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeFrom;
-  void MergeFrom(const Shutdown& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(this, from);
-  }
+  void MergeFrom(const Shutdown& from) { ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(this, from); }
   public:
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.Shutdown";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.Shutdown"; }
   protected:
-  explicit Shutdown(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit Shutdown(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -3355,8 +3211,7 @@ class TableStruct final :
   inline void Swap(TableStruct* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -3377,28 +3232,21 @@ class TableStruct final :
     return CreateMaybeMessage<TableStruct>(arena);
   }
   using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyFrom;
-  inline void CopyFrom(const TableStruct& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(this, from);
-  }
+  inline void CopyFrom(const TableStruct& from) { ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(this, from); }
   using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeFrom;
-  void MergeFrom(const TableStruct& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(this, from);
-  }
+  void MergeFrom(const TableStruct& from) { ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(this, from); }
   public:
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TableStruct";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TableStruct"; }
   protected:
-  explicit TableStruct(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TableStruct(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -3493,18 +3341,14 @@ extern ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unitte
 // TestConflictingSymbolNames_Data1
 
 // repeated int32 data = 1;
-inline int TestConflictingSymbolNames_Data1::_internal_data_size() const {
-  return data_.size();
-}
+inline int TestConflictingSymbolNames_Data1::_internal_data_size() const { return data_.size(); }
 inline int TestConflictingSymbolNames_Data1::data_size() const {
   return _internal_data_size();
 }
 inline void TestConflictingSymbolNames_Data1::clear_data() {
   data_.Clear();
 }
-inline int32_t TestConflictingSymbolNames_Data1::_internal_data(int index) const {
-  return data_.Get(index);
-}
+inline int32_t TestConflictingSymbolNames_Data1::_internal_data(int index) const { return data_.Get(index); }
 inline int32_t TestConflictingSymbolNames_Data1::data(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.Data1.data)
   return _internal_data(index);
@@ -3513,9 +3357,7 @@ inline void TestConflictingSymbolNames_Data1::set_data(int index, int32_t value)
   data_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.Data1.data)
 }
-inline void TestConflictingSymbolNames_Data1::_internal_add_data(int32_t value) {
-  data_.Add(value);
-}
+inline void TestConflictingSymbolNames_Data1::_internal_add_data(int32_t value) { data_.Add(value); }
 inline void TestConflictingSymbolNames_Data1::add_data(int32_t value) {
   _internal_add_data(value);
   // @@protoc_insertion_point(field_add:protobuf_unittest.TestConflictingSymbolNames.Data1.data)
@@ -3544,9 +3386,7 @@ TestConflictingSymbolNames_Data1::mutable_data() {
 // TestConflictingSymbolNames_Data2
 
 // repeated .protobuf_unittest.TestConflictingSymbolNames.TestEnum data = 1;
-inline int TestConflictingSymbolNames_Data2::_internal_data_size() const {
-  return data_.size();
-}
+inline int TestConflictingSymbolNames_Data2::_internal_data_size() const { return data_.size(); }
 inline int TestConflictingSymbolNames_Data2::data_size() const {
   return _internal_data_size();
 }
@@ -3591,9 +3431,7 @@ TestConflictingSymbolNames_Data2::mutable_data() {
 // TestConflictingSymbolNames_Data3
 
 // repeated string data = 1;
-inline int TestConflictingSymbolNames_Data3::_internal_data_size() const {
-  return data_.size();
-}
+inline int TestConflictingSymbolNames_Data3::_internal_data_size() const { return data_.size(); }
 inline int TestConflictingSymbolNames_Data3::data_size() const {
   return _internal_data_size();
 }
@@ -3605,9 +3443,7 @@ inline std::string* TestConflictingSymbolNames_Data3::add_data() {
   // @@protoc_insertion_point(field_add_mutable:protobuf_unittest.TestConflictingSymbolNames.Data3.data)
   return _s;
 }
-inline const std::string& TestConflictingSymbolNames_Data3::_internal_data(int index) const {
-  return data_.Get(index);
-}
+inline const std::string& TestConflictingSymbolNames_Data3::_internal_data(int index) const { return data_.Get(index); }
 inline const std::string& TestConflictingSymbolNames_Data3::data(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.Data3.data)
   return _internal_data(index);
@@ -3634,9 +3470,7 @@ inline void TestConflictingSymbolNames_Data3::set_data(int index, const char* va
     reinterpret_cast<const char*>(value), size);
   // @@protoc_insertion_point(field_set_pointer:protobuf_unittest.TestConflictingSymbolNames.Data3.data)
 }
-inline std::string* TestConflictingSymbolNames_Data3::_internal_add_data() {
-  return data_.Add();
-}
+inline std::string* TestConflictingSymbolNames_Data3::_internal_add_data() { return data_.Add(); }
 inline void TestConflictingSymbolNames_Data3::add_data(const std::string& value) {
   data_.Add()->assign(value);
   // @@protoc_insertion_point(field_add:protobuf_unittest.TestConflictingSymbolNames.Data3.data)
@@ -3670,9 +3504,7 @@ TestConflictingSymbolNames_Data3::mutable_data() {
 // TestConflictingSymbolNames_Data4
 
 // repeated .protobuf_unittest.TestConflictingSymbolNames.Data4 data = 1;
-inline int TestConflictingSymbolNames_Data4::_internal_data_size() const {
-  return data_.size();
-}
+inline int TestConflictingSymbolNames_Data4::_internal_data_size() const { return data_.size(); }
 inline int TestConflictingSymbolNames_Data4::data_size() const {
   return _internal_data_size();
 }
@@ -3714,9 +3546,7 @@ TestConflictingSymbolNames_Data4::data() const {
 // TestConflictingSymbolNames_Data5
 
 // repeated string data = 1 [ctype = STRING_PIECE];
-inline int TestConflictingSymbolNames_Data5::_internal_data_size() const {
-  return data_.size();
-}
+inline int TestConflictingSymbolNames_Data5::_internal_data_size() const { return data_.size(); }
 inline int TestConflictingSymbolNames_Data5::data_size() const {
   return _internal_data_size();
 }
@@ -3728,9 +3558,7 @@ inline std::string* TestConflictingSymbolNames_Data5::add_data() {
   // @@protoc_insertion_point(field_add_mutable:protobuf_unittest.TestConflictingSymbolNames.Data5.data)
   return _s;
 }
-inline const std::string& TestConflictingSymbolNames_Data5::_internal_data(int index) const {
-  return data_.Get(index);
-}
+inline const std::string& TestConflictingSymbolNames_Data5::_internal_data(int index) const { return data_.Get(index); }
 inline const std::string& TestConflictingSymbolNames_Data5::data(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.Data5.data)
   return _internal_data(index);
@@ -3757,9 +3585,7 @@ inline void TestConflictingSymbolNames_Data5::set_data(int index, const char* va
     reinterpret_cast<const char*>(value), size);
   // @@protoc_insertion_point(field_set_pointer:protobuf_unittest.TestConflictingSymbolNames.Data5.data)
 }
-inline std::string* TestConflictingSymbolNames_Data5::_internal_add_data() {
-  return data_.Add();
-}
+inline std::string* TestConflictingSymbolNames_Data5::_internal_add_data() { return data_.Add(); }
 inline void TestConflictingSymbolNames_Data5::add_data(const std::string& value) {
   data_.Add()->assign(value);
   // @@protoc_insertion_point(field_add:protobuf_unittest.TestConflictingSymbolNames.Data5.data)
@@ -3793,9 +3619,7 @@ TestConflictingSymbolNames_Data5::mutable_data() {
 // TestConflictingSymbolNames_Data6
 
 // repeated string data = 1 [ctype = CORD];
-inline int TestConflictingSymbolNames_Data6::_internal_data_size() const {
-  return data_.size();
-}
+inline int TestConflictingSymbolNames_Data6::_internal_data_size() const { return data_.size(); }
 inline int TestConflictingSymbolNames_Data6::data_size() const {
   return _internal_data_size();
 }
@@ -3807,9 +3631,7 @@ inline std::string* TestConflictingSymbolNames_Data6::add_data() {
   // @@protoc_insertion_point(field_add_mutable:protobuf_unittest.TestConflictingSymbolNames.Data6.data)
   return _s;
 }
-inline const std::string& TestConflictingSymbolNames_Data6::_internal_data(int index) const {
-  return data_.Get(index);
-}
+inline const std::string& TestConflictingSymbolNames_Data6::_internal_data(int index) const { return data_.Get(index); }
 inline const std::string& TestConflictingSymbolNames_Data6::data(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.Data6.data)
   return _internal_data(index);
@@ -3836,9 +3658,7 @@ inline void TestConflictingSymbolNames_Data6::set_data(int index, const char* va
     reinterpret_cast<const char*>(value), size);
   // @@protoc_insertion_point(field_set_pointer:protobuf_unittest.TestConflictingSymbolNames.Data6.data)
 }
-inline std::string* TestConflictingSymbolNames_Data6::_internal_add_data() {
-  return data_.Add();
-}
+inline std::string* TestConflictingSymbolNames_Data6::_internal_add_data() { return data_.Add(); }
 inline void TestConflictingSymbolNames_Data6::add_data(const std::string& value) {
   data_.Add()->assign(value);
   // @@protoc_insertion_point(field_add:protobuf_unittest.TestConflictingSymbolNames.Data6.data)
@@ -3895,20 +3715,18 @@ inline void TestConflictingSymbolNames::clear_input() {
   input_ = 0;
   _has_bits_[0] &= ~0x00000100u;
 }
-inline int32_t TestConflictingSymbolNames::_internal_input() const {
-  return input_;
-}
+inline int32_t TestConflictingSymbolNames::_internal_input() const { return input_; }
 inline int32_t TestConflictingSymbolNames::input() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.input)
-  return _internal_input();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.input)
+	return _internal_input();
 }
 inline void TestConflictingSymbolNames::_internal_set_input(int32_t value) {
-  _has_bits_[0] |= 0x00000100u;
-  input_ = value;
+	_has_bits_[0] |= 0x00000100u;
+	input_ = value;
 }
 inline void TestConflictingSymbolNames::set_input(int32_t value) {
-  _internal_set_input(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.input)
+	_internal_set_input(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.input)
 }
 
 // optional int32 output = 2;
@@ -3923,20 +3741,18 @@ inline void TestConflictingSymbolNames::clear_output() {
   output_ = 0;
   _has_bits_[0] &= ~0x00000200u;
 }
-inline int32_t TestConflictingSymbolNames::_internal_output() const {
-  return output_;
-}
+inline int32_t TestConflictingSymbolNames::_internal_output() const { return output_; }
 inline int32_t TestConflictingSymbolNames::output() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.output)
-  return _internal_output();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.output)
+	return _internal_output();
 }
 inline void TestConflictingSymbolNames::_internal_set_output(int32_t value) {
-  _has_bits_[0] |= 0x00000200u;
-  output_ = value;
+	_has_bits_[0] |= 0x00000200u;
+	output_ = value;
 }
 inline void TestConflictingSymbolNames::set_output(int32_t value) {
-  _internal_set_output(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.output)
+	_internal_set_output(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.output)
 }
 
 // optional string length = 3;
@@ -3952,8 +3768,8 @@ inline void TestConflictingSymbolNames::clear_length() {
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const std::string& TestConflictingSymbolNames::length() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.length)
-  return _internal_length();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.length)
+	return _internal_length();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -3963,45 +3779,40 @@ void TestConflictingSymbolNames::set_length(ArgT0&& arg0, ArgT... args) {
   // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.length)
 }
 inline std::string* TestConflictingSymbolNames::mutable_length() {
-  std::string* _s = _internal_mutable_length();
-  // @@protoc_insertion_point(field_mutable:protobuf_unittest.TestConflictingSymbolNames.length)
-  return _s;
+	std::string* _s = _internal_mutable_length();
+	// @@protoc_insertion_point(field_mutable:protobuf_unittest.TestConflictingSymbolNames.length)
+	return _s;
 }
-inline const std::string& TestConflictingSymbolNames::_internal_length() const {
-  return length_.Get();
-}
+inline const std::string& TestConflictingSymbolNames::_internal_length() const { return length_.Get(); }
 inline void TestConflictingSymbolNames::_internal_set_length(const std::string& value) {
-  _has_bits_[0] |= 0x00000001u;
-  length_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000001u;
+	length_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* TestConflictingSymbolNames::_internal_mutable_length() {
-  _has_bits_[0] |= 0x00000001u;
-  return length_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000001u;
+	return length_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* TestConflictingSymbolNames::release_length__() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.TestConflictingSymbolNames.length)
-  if (!_internal_has_length()) {
-    return nullptr;
-  }
+  if(!_internal_has_length()) { return nullptr; }
   _has_bits_[0] &= ~0x00000001u;
   auto* p = length_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (length_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(length_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     length_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void TestConflictingSymbolNames::set_allocated_length(std::string* length) {
-  if (length != nullptr) {
+  if(length != nullptr) {
     _has_bits_[0] |= 0x00000001u;
   } else {
     _has_bits_[0] &= ~0x00000001u;
   }
-  length_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), length,
-      GetArenaForAllocation());
+  length_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), length, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (length_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(length_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     length_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -4009,18 +3820,14 @@ inline void TestConflictingSymbolNames::set_allocated_length(std::string* length
 }
 
 // repeated int32 i = 4;
-inline int TestConflictingSymbolNames::_internal_i_size() const {
-  return i_.size();
-}
+inline int TestConflictingSymbolNames::_internal_i_size() const { return i_.size(); }
 inline int TestConflictingSymbolNames::i_size() const {
   return _internal_i_size();
 }
 inline void TestConflictingSymbolNames::clear_i() {
   i_.Clear();
 }
-inline int32_t TestConflictingSymbolNames::_internal_i(int index) const {
-  return i_.Get(index);
-}
+inline int32_t TestConflictingSymbolNames::_internal_i(int index) const { return i_.Get(index); }
 inline int32_t TestConflictingSymbolNames::i(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.i)
   return _internal_i(index);
@@ -4029,9 +3836,7 @@ inline void TestConflictingSymbolNames::set_i(int index, int32_t value) {
   i_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.i)
 }
-inline void TestConflictingSymbolNames::_internal_add_i(int32_t value) {
-  i_.Add(value);
-}
+inline void TestConflictingSymbolNames::_internal_add_i(int32_t value) { i_.Add(value); }
 inline void TestConflictingSymbolNames::add_i(int32_t value) {
   _internal_add_i(value);
   // @@protoc_insertion_point(field_add:protobuf_unittest.TestConflictingSymbolNames.i)
@@ -4056,9 +3861,7 @@ TestConflictingSymbolNames::mutable_i() {
 }
 
 // repeated string new_element = 5 [ctype = STRING_PIECE];
-inline int TestConflictingSymbolNames::_internal_new_element_size() const {
-  return new_element_.size();
-}
+inline int TestConflictingSymbolNames::_internal_new_element_size() const { return new_element_.size(); }
 inline int TestConflictingSymbolNames::new_element_size() const {
   return _internal_new_element_size();
 }
@@ -4070,9 +3873,7 @@ inline std::string* TestConflictingSymbolNames::add_new_element() {
   // @@protoc_insertion_point(field_add_mutable:protobuf_unittest.TestConflictingSymbolNames.new_element)
   return _s;
 }
-inline const std::string& TestConflictingSymbolNames::_internal_new_element(int index) const {
-  return new_element_.Get(index);
-}
+inline const std::string& TestConflictingSymbolNames::_internal_new_element(int index) const { return new_element_.Get(index); }
 inline const std::string& TestConflictingSymbolNames::new_element(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.new_element)
   return _internal_new_element(index);
@@ -4099,9 +3900,7 @@ inline void TestConflictingSymbolNames::set_new_element(int index, const char* v
     reinterpret_cast<const char*>(value), size);
   // @@protoc_insertion_point(field_set_pointer:protobuf_unittest.TestConflictingSymbolNames.new_element)
 }
-inline std::string* TestConflictingSymbolNames::_internal_add_new_element() {
-  return new_element_.Add();
-}
+inline std::string* TestConflictingSymbolNames::_internal_add_new_element() { return new_element_.Add(); }
 inline void TestConflictingSymbolNames::add_new_element(const std::string& value) {
   new_element_.Add()->assign(value);
   // @@protoc_insertion_point(field_add:protobuf_unittest.TestConflictingSymbolNames.new_element)
@@ -4142,20 +3941,18 @@ inline void TestConflictingSymbolNames::clear_total_size() {
   total_size_ = 0;
   _has_bits_[0] &= ~0x00000400u;
 }
-inline int32_t TestConflictingSymbolNames::_internal_total_size() const {
-  return total_size_;
-}
+inline int32_t TestConflictingSymbolNames::_internal_total_size() const { return total_size_; }
 inline int32_t TestConflictingSymbolNames::total_size() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.total_size)
-  return _internal_total_size();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.total_size)
+	return _internal_total_size();
 }
 inline void TestConflictingSymbolNames::_internal_set_total_size(int32_t value) {
-  _has_bits_[0] |= 0x00000400u;
-  total_size_ = value;
+	_has_bits_[0] |= 0x00000400u;
+	total_size_ = value;
 }
 inline void TestConflictingSymbolNames::set_total_size(int32_t value) {
-  _internal_set_total_size(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.total_size)
+	_internal_set_total_size(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.total_size)
 }
 
 // optional int32 tag = 7;
@@ -4170,20 +3967,18 @@ inline void TestConflictingSymbolNames::clear_tag() {
   tag_ = 0;
   _has_bits_[0] &= ~0x00000800u;
 }
-inline int32_t TestConflictingSymbolNames::_internal_tag() const {
-  return tag_;
-}
+inline int32_t TestConflictingSymbolNames::_internal_tag() const { return tag_; }
 inline int32_t TestConflictingSymbolNames::tag() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.tag)
-  return _internal_tag();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.tag)
+	return _internal_tag();
 }
 inline void TestConflictingSymbolNames::_internal_set_tag(int32_t value) {
-  _has_bits_[0] |= 0x00000800u;
-  tag_ = value;
+	_has_bits_[0] |= 0x00000800u;
+	tag_ = value;
 }
 inline void TestConflictingSymbolNames::set_tag(int32_t value) {
-  _internal_set_tag(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.tag)
+	_internal_set_tag(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.tag)
 }
 
 // optional int32 source = 8;
@@ -4198,20 +3993,18 @@ inline void TestConflictingSymbolNames::clear_source() {
   source_ = 0;
   _has_bits_[0] &= ~0x00001000u;
 }
-inline int32_t TestConflictingSymbolNames::_internal_source() const {
-  return source_;
-}
+inline int32_t TestConflictingSymbolNames::_internal_source() const { return source_; }
 inline int32_t TestConflictingSymbolNames::source() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.source)
-  return _internal_source();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.source)
+	return _internal_source();
 }
 inline void TestConflictingSymbolNames::_internal_set_source(int32_t value) {
-  _has_bits_[0] |= 0x00001000u;
-  source_ = value;
+	_has_bits_[0] |= 0x00001000u;
+	source_ = value;
 }
 inline void TestConflictingSymbolNames::set_source(int32_t value) {
-  _internal_set_source(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.source)
+	_internal_set_source(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.source)
 }
 
 // optional int32 value = 9;
@@ -4226,20 +4019,18 @@ inline void TestConflictingSymbolNames::clear_value() {
   value_ = 0;
   _has_bits_[0] &= ~0x00002000u;
 }
-inline int32_t TestConflictingSymbolNames::_internal_value() const {
-  return value_;
-}
+inline int32_t TestConflictingSymbolNames::_internal_value() const { return value_; }
 inline int32_t TestConflictingSymbolNames::value() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.value)
-  return _internal_value();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.value)
+	return _internal_value();
 }
 inline void TestConflictingSymbolNames::_internal_set_value(int32_t value) {
-  _has_bits_[0] |= 0x00002000u;
-  value_ = value;
+	_has_bits_[0] |= 0x00002000u;
+	value_ = value;
 }
 inline void TestConflictingSymbolNames::set_value(int32_t value) {
-  _internal_set_value(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.value)
+	_internal_set_value(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.value)
 }
 
 // optional int32 file = 10;
@@ -4254,20 +4045,18 @@ inline void TestConflictingSymbolNames::clear_file() {
   file_ = 0;
   _has_bits_[0] &= ~0x00004000u;
 }
-inline int32_t TestConflictingSymbolNames::_internal_file() const {
-  return file_;
-}
+inline int32_t TestConflictingSymbolNames::_internal_file() const { return file_; }
 inline int32_t TestConflictingSymbolNames::file() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.file)
-  return _internal_file();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.file)
+	return _internal_file();
 }
 inline void TestConflictingSymbolNames::_internal_set_file(int32_t value) {
-  _has_bits_[0] |= 0x00004000u;
-  file_ = value;
+	_has_bits_[0] |= 0x00004000u;
+	file_ = value;
 }
 inline void TestConflictingSymbolNames::set_file(int32_t value) {
-  _internal_set_file(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.file)
+	_internal_set_file(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.file)
 }
 
 // optional int32 from = 11;
@@ -4282,20 +4071,18 @@ inline void TestConflictingSymbolNames::clear_from() {
   from_ = 0;
   _has_bits_[0] &= ~0x00008000u;
 }
-inline int32_t TestConflictingSymbolNames::_internal_from() const {
-  return from_;
-}
+inline int32_t TestConflictingSymbolNames::_internal_from() const { return from_; }
 inline int32_t TestConflictingSymbolNames::from() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.from)
-  return _internal_from();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.from)
+	return _internal_from();
 }
 inline void TestConflictingSymbolNames::_internal_set_from(int32_t value) {
-  _has_bits_[0] |= 0x00008000u;
-  from_ = value;
+	_has_bits_[0] |= 0x00008000u;
+	from_ = value;
 }
 inline void TestConflictingSymbolNames::set_from(int32_t value) {
-  _internal_set_from(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.from)
+	_internal_set_from(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.from)
 }
 
 // optional int32 handle_uninterpreted = 12;
@@ -4310,35 +4097,29 @@ inline void TestConflictingSymbolNames::clear_handle_uninterpreted() {
   handle_uninterpreted_ = 0;
   _has_bits_[0] &= ~0x00010000u;
 }
-inline int32_t TestConflictingSymbolNames::_internal_handle_uninterpreted() const {
-  return handle_uninterpreted_;
-}
+inline int32_t TestConflictingSymbolNames::_internal_handle_uninterpreted() const { return handle_uninterpreted_; }
 inline int32_t TestConflictingSymbolNames::handle_uninterpreted() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.handle_uninterpreted)
-  return _internal_handle_uninterpreted();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.handle_uninterpreted)
+	return _internal_handle_uninterpreted();
 }
 inline void TestConflictingSymbolNames::_internal_set_handle_uninterpreted(int32_t value) {
-  _has_bits_[0] |= 0x00010000u;
-  handle_uninterpreted_ = value;
+	_has_bits_[0] |= 0x00010000u;
+	handle_uninterpreted_ = value;
 }
 inline void TestConflictingSymbolNames::set_handle_uninterpreted(int32_t value) {
-  _internal_set_handle_uninterpreted(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.handle_uninterpreted)
+	_internal_set_handle_uninterpreted(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.handle_uninterpreted)
 }
 
 // repeated int32 index = 13;
-inline int TestConflictingSymbolNames::_internal_index_size() const {
-  return index_.size();
-}
+inline int TestConflictingSymbolNames::_internal_index_size() const { return index_.size(); }
 inline int TestConflictingSymbolNames::index_size() const {
   return _internal_index_size();
 }
 inline void TestConflictingSymbolNames::clear_index() {
   index_.Clear();
 }
-inline int32_t TestConflictingSymbolNames::_internal_index(int index) const {
-  return index_.Get(index);
-}
+inline int32_t TestConflictingSymbolNames::_internal_index(int index) const { return index_.Get(index); }
 inline int32_t TestConflictingSymbolNames::index(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.index)
   return _internal_index(index);
@@ -4347,9 +4128,7 @@ inline void TestConflictingSymbolNames::set_index(int index, int32_t value) {
   index_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.index)
 }
-inline void TestConflictingSymbolNames::_internal_add_index(int32_t value) {
-  index_.Add(value);
-}
+inline void TestConflictingSymbolNames::_internal_add_index(int32_t value) { index_.Add(value); }
 inline void TestConflictingSymbolNames::add_index(int32_t value) {
   _internal_add_index(value);
   // @@protoc_insertion_point(field_add:protobuf_unittest.TestConflictingSymbolNames.index)
@@ -4385,20 +4164,18 @@ inline void TestConflictingSymbolNames::clear_controller() {
   controller_ = 0;
   _has_bits_[0] &= ~0x00020000u;
 }
-inline int32_t TestConflictingSymbolNames::_internal_controller() const {
-  return controller_;
-}
+inline int32_t TestConflictingSymbolNames::_internal_controller() const { return controller_; }
 inline int32_t TestConflictingSymbolNames::controller() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.controller)
-  return _internal_controller();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.controller)
+	return _internal_controller();
 }
 inline void TestConflictingSymbolNames::_internal_set_controller(int32_t value) {
-  _has_bits_[0] |= 0x00020000u;
-  controller_ = value;
+	_has_bits_[0] |= 0x00020000u;
+	controller_ = value;
 }
 inline void TestConflictingSymbolNames::set_controller(int32_t value) {
-  _internal_set_controller(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.controller)
+	_internal_set_controller(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.controller)
 }
 
 // optional int32 already_here = 15;
@@ -4413,20 +4190,18 @@ inline void TestConflictingSymbolNames::clear_already_here() {
   already_here_ = 0;
   _has_bits_[0] &= ~0x00040000u;
 }
-inline int32_t TestConflictingSymbolNames::_internal_already_here() const {
-  return already_here_;
-}
+inline int32_t TestConflictingSymbolNames::_internal_already_here() const { return already_here_; }
 inline int32_t TestConflictingSymbolNames::already_here() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.already_here)
-  return _internal_already_here();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.already_here)
+	return _internal_already_here();
 }
 inline void TestConflictingSymbolNames::_internal_set_already_here(int32_t value) {
-  _has_bits_[0] |= 0x00040000u;
-  already_here_ = value;
+	_has_bits_[0] |= 0x00040000u;
+	already_here_ = value;
 }
 inline void TestConflictingSymbolNames::set_already_here(int32_t value) {
-  _internal_set_already_here(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.already_here)
+	_internal_set_already_here(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.already_here)
 }
 
 // optional uint32 uint32 = 16;
@@ -4441,20 +4216,18 @@ inline void TestConflictingSymbolNames::clear_uint32() {
   uint32_ = 0u;
   _has_bits_[0] &= ~0x00080000u;
 }
-inline uint32_t TestConflictingSymbolNames::_internal_uint32() const {
-  return uint32_;
-}
+inline uint32_t TestConflictingSymbolNames::_internal_uint32() const { return uint32_; }
 inline uint32_t TestConflictingSymbolNames::uint32() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.uint32)
-  return _internal_uint32();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.uint32)
+	return _internal_uint32();
 }
 inline void TestConflictingSymbolNames::_internal_set_uint32(uint32_t value) {
-  _has_bits_[0] |= 0x00080000u;
-  uint32_ = value;
+	_has_bits_[0] |= 0x00080000u;
+	uint32_ = value;
 }
 inline void TestConflictingSymbolNames::set_uint32(uint32_t value) {
-  _internal_set_uint32(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.uint32)
+	_internal_set_uint32(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.uint32)
 }
 
 // optional uint64 uint64 = 17;
@@ -4469,20 +4242,18 @@ inline void TestConflictingSymbolNames::clear_uint64() {
   uint64_ = uint64_t{0u};
   _has_bits_[0] &= ~0x00100000u;
 }
-inline uint64_t TestConflictingSymbolNames::_internal_uint64() const {
-  return uint64_;
-}
+inline uint64_t TestConflictingSymbolNames::_internal_uint64() const { return uint64_; }
 inline uint64_t TestConflictingSymbolNames::uint64() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.uint64)
-  return _internal_uint64();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.uint64)
+	return _internal_uint64();
 }
 inline void TestConflictingSymbolNames::_internal_set_uint64(uint64_t value) {
-  _has_bits_[0] |= 0x00100000u;
-  uint64_ = value;
+	_has_bits_[0] |= 0x00100000u;
+	uint64_ = value;
 }
 inline void TestConflictingSymbolNames::set_uint64(uint64_t value) {
-  _internal_set_uint64(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.uint64)
+	_internal_set_uint64(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.uint64)
 }
 
 // optional string string = 18;
@@ -4498,8 +4269,8 @@ inline void TestConflictingSymbolNames::clear_string() {
   _has_bits_[0] &= ~0x00000002u;
 }
 inline const std::string& TestConflictingSymbolNames::string() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.string)
-  return _internal_string();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.string)
+	return _internal_string();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -4509,45 +4280,40 @@ void TestConflictingSymbolNames::set_string(ArgT0&& arg0, ArgT... args) {
   // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.string)
 }
 inline std::string* TestConflictingSymbolNames::mutable_string() {
-  std::string* _s = _internal_mutable_string();
-  // @@protoc_insertion_point(field_mutable:protobuf_unittest.TestConflictingSymbolNames.string)
-  return _s;
+	std::string* _s = _internal_mutable_string();
+	// @@protoc_insertion_point(field_mutable:protobuf_unittest.TestConflictingSymbolNames.string)
+	return _s;
 }
-inline const std::string& TestConflictingSymbolNames::_internal_string() const {
-  return string_.Get();
-}
+inline const std::string& TestConflictingSymbolNames::_internal_string() const { return string_.Get(); }
 inline void TestConflictingSymbolNames::_internal_set_string(const std::string& value) {
-  _has_bits_[0] |= 0x00000002u;
-  string_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000002u;
+	string_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* TestConflictingSymbolNames::_internal_mutable_string() {
-  _has_bits_[0] |= 0x00000002u;
-  return string_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000002u;
+	return string_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* TestConflictingSymbolNames::release_string() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.TestConflictingSymbolNames.string)
-  if (!_internal_has_string()) {
-    return nullptr;
-  }
+  if(!_internal_has_string()) { return nullptr; }
   _has_bits_[0] &= ~0x00000002u;
   auto* p = string_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (string_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(string_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     string_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void TestConflictingSymbolNames::set_allocated_string(std::string* string) {
-  if (string != nullptr) {
+  if(string != nullptr) {
     _has_bits_[0] |= 0x00000002u;
   } else {
     _has_bits_[0] &= ~0x00000002u;
   }
-  string_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), string,
-      GetArenaForAllocation());
+  string_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), string, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (string_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(string_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     string_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -4566,20 +4332,18 @@ inline void TestConflictingSymbolNames::clear_memset() {
   memset_ = 0;
   _has_bits_[0] &= ~0x00200000u;
 }
-inline int32_t TestConflictingSymbolNames::_internal_memset() const {
-  return memset_;
-}
+inline int32_t TestConflictingSymbolNames::_internal_memset() const { return memset_; }
 inline int32_t TestConflictingSymbolNames::memset() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.memset)
-  return _internal_memset();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.memset)
+	return _internal_memset();
 }
 inline void TestConflictingSymbolNames::_internal_set_memset(int32_t value) {
-  _has_bits_[0] |= 0x00200000u;
-  memset_ = value;
+	_has_bits_[0] |= 0x00200000u;
+	memset_ = value;
 }
 inline void TestConflictingSymbolNames::set_memset(int32_t value) {
-  _internal_set_memset(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.memset)
+	_internal_set_memset(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.memset)
 }
 
 // optional int32 int32 = 20;
@@ -4594,20 +4358,18 @@ inline void TestConflictingSymbolNames::clear_int32() {
   int32_ = 0;
   _has_bits_[0] &= ~0x00400000u;
 }
-inline int32_t TestConflictingSymbolNames::_internal_int32() const {
-  return int32_;
-}
+inline int32_t TestConflictingSymbolNames::_internal_int32() const { return int32_; }
 inline int32_t TestConflictingSymbolNames::int32() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.int32)
-  return _internal_int32();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.int32)
+	return _internal_int32();
 }
 inline void TestConflictingSymbolNames::_internal_set_int32(int32_t value) {
-  _has_bits_[0] |= 0x00400000u;
-  int32_ = value;
+	_has_bits_[0] |= 0x00400000u;
+	int32_ = value;
 }
 inline void TestConflictingSymbolNames::set_int32(int32_t value) {
-  _internal_set_int32(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.int32)
+	_internal_set_int32(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.int32)
 }
 
 // optional int64 int64 = 21;
@@ -4622,20 +4384,18 @@ inline void TestConflictingSymbolNames::clear_int64() {
   int64_ = int64_t{0};
   _has_bits_[0] &= ~0x00800000u;
 }
-inline int64_t TestConflictingSymbolNames::_internal_int64() const {
-  return int64_;
-}
+inline int64_t TestConflictingSymbolNames::_internal_int64() const { return int64_; }
 inline int64_t TestConflictingSymbolNames::int64() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.int64)
-  return _internal_int64();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.int64)
+	return _internal_int64();
 }
 inline void TestConflictingSymbolNames::_internal_set_int64(int64_t value) {
-  _has_bits_[0] |= 0x00800000u;
-  int64_ = value;
+	_has_bits_[0] |= 0x00800000u;
+	int64_ = value;
 }
 inline void TestConflictingSymbolNames::set_int64(int64_t value) {
-  _internal_set_int64(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.int64)
+	_internal_set_int64(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.int64)
 }
 
 // optional uint32 cached_size = 22;
@@ -4650,20 +4410,18 @@ inline void TestConflictingSymbolNames::clear_cached_size() {
   cached_size_ = 0u;
   _has_bits_[0] &= ~0x01000000u;
 }
-inline uint32_t TestConflictingSymbolNames::_internal_cached_size() const {
-  return cached_size_;
-}
+inline uint32_t TestConflictingSymbolNames::_internal_cached_size() const { return cached_size_; }
 inline uint32_t TestConflictingSymbolNames::cached_size() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.cached_size)
-  return _internal_cached_size();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.cached_size)
+	return _internal_cached_size();
 }
 inline void TestConflictingSymbolNames::_internal_set_cached_size(uint32_t value) {
-  _has_bits_[0] |= 0x01000000u;
-  cached_size_ = value;
+	_has_bits_[0] |= 0x01000000u;
+	cached_size_ = value;
 }
 inline void TestConflictingSymbolNames::set_cached_size(uint32_t value) {
-  _internal_set_cached_size(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.cached_size)
+	_internal_set_cached_size(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.cached_size)
 }
 
 // optional uint32 extensions = 23;
@@ -4678,20 +4436,18 @@ inline void TestConflictingSymbolNames::clear_extensions() {
   extensions_ = 0u;
   _has_bits_[0] &= ~0x02000000u;
 }
-inline uint32_t TestConflictingSymbolNames::_internal_extensions() const {
-  return extensions_;
-}
+inline uint32_t TestConflictingSymbolNames::_internal_extensions() const { return extensions_; }
 inline uint32_t TestConflictingSymbolNames::extensions() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.extensions)
-  return _internal_extensions();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.extensions)
+	return _internal_extensions();
 }
 inline void TestConflictingSymbolNames::_internal_set_extensions(uint32_t value) {
-  _has_bits_[0] |= 0x02000000u;
-  extensions_ = value;
+	_has_bits_[0] |= 0x02000000u;
+	extensions_ = value;
 }
 inline void TestConflictingSymbolNames::set_extensions(uint32_t value) {
-  _internal_set_extensions(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.extensions)
+	_internal_set_extensions(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.extensions)
 }
 
 // optional uint32 bit = 24;
@@ -4706,20 +4462,18 @@ inline void TestConflictingSymbolNames::clear_bit() {
   bit_ = 0u;
   _has_bits_[0] &= ~0x04000000u;
 }
-inline uint32_t TestConflictingSymbolNames::_internal_bit() const {
-  return bit_;
-}
+inline uint32_t TestConflictingSymbolNames::_internal_bit() const { return bit_; }
 inline uint32_t TestConflictingSymbolNames::bit() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.bit)
-  return _internal_bit();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.bit)
+	return _internal_bit();
 }
 inline void TestConflictingSymbolNames::_internal_set_bit(uint32_t value) {
-  _has_bits_[0] |= 0x04000000u;
-  bit_ = value;
+	_has_bits_[0] |= 0x04000000u;
+	bit_ = value;
 }
 inline void TestConflictingSymbolNames::set_bit(uint32_t value) {
-  _internal_set_bit(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.bit)
+	_internal_set_bit(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.bit)
 }
 
 // optional uint32 bits = 25;
@@ -4734,20 +4488,18 @@ inline void TestConflictingSymbolNames::clear_bits() {
   bits_ = 0u;
   _has_bits_[0] &= ~0x08000000u;
 }
-inline uint32_t TestConflictingSymbolNames::_internal_bits() const {
-  return bits_;
-}
+inline uint32_t TestConflictingSymbolNames::_internal_bits() const { return bits_; }
 inline uint32_t TestConflictingSymbolNames::bits() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.bits)
-  return _internal_bits();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.bits)
+	return _internal_bits();
 }
 inline void TestConflictingSymbolNames::_internal_set_bits(uint32_t value) {
-  _has_bits_[0] |= 0x08000000u;
-  bits_ = value;
+	_has_bits_[0] |= 0x08000000u;
+	bits_ = value;
 }
 inline void TestConflictingSymbolNames::set_bits(uint32_t value) {
-  _internal_set_bits(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.bits)
+	_internal_set_bits(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.bits)
 }
 
 // optional uint32 offsets = 26;
@@ -4762,20 +4514,18 @@ inline void TestConflictingSymbolNames::clear_offsets() {
   offsets_ = 0u;
   _has_bits_[0] &= ~0x10000000u;
 }
-inline uint32_t TestConflictingSymbolNames::_internal_offsets() const {
-  return offsets_;
-}
+inline uint32_t TestConflictingSymbolNames::_internal_offsets() const { return offsets_; }
 inline uint32_t TestConflictingSymbolNames::offsets() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.offsets)
-  return _internal_offsets();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.offsets)
+	return _internal_offsets();
 }
 inline void TestConflictingSymbolNames::_internal_set_offsets(uint32_t value) {
-  _has_bits_[0] |= 0x10000000u;
-  offsets_ = value;
+	_has_bits_[0] |= 0x10000000u;
+	offsets_ = value;
 }
 inline void TestConflictingSymbolNames::set_offsets(uint32_t value) {
-  _internal_set_offsets(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.offsets)
+	_internal_set_offsets(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.offsets)
 }
 
 // optional uint32 reflection = 27;
@@ -4790,20 +4540,18 @@ inline void TestConflictingSymbolNames::clear_reflection() {
   reflection_ = 0u;
   _has_bits_[0] &= ~0x20000000u;
 }
-inline uint32_t TestConflictingSymbolNames::_internal_reflection() const {
-  return reflection_;
-}
+inline uint32_t TestConflictingSymbolNames::_internal_reflection() const { return reflection_; }
 inline uint32_t TestConflictingSymbolNames::reflection() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.reflection)
-  return _internal_reflection();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.reflection)
+	return _internal_reflection();
 }
 inline void TestConflictingSymbolNames::_internal_set_reflection(uint32_t value) {
-  _has_bits_[0] |= 0x20000000u;
-  reflection_ = value;
+	_has_bits_[0] |= 0x20000000u;
+	reflection_ = value;
 }
 inline void TestConflictingSymbolNames::set_reflection(uint32_t value) {
-  _internal_set_reflection(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.reflection)
+	_internal_set_reflection(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.reflection)
 }
 
 // optional string some_cord = 28 [ctype = CORD];
@@ -4819,8 +4567,8 @@ inline void TestConflictingSymbolNames::clear_some_cord() {
   _has_bits_[0] &= ~0x00000004u;
 }
 inline const std::string& TestConflictingSymbolNames::some_cord() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.some_cord)
-  return _internal_some_cord();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.some_cord)
+	return _internal_some_cord();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -4830,45 +4578,40 @@ void TestConflictingSymbolNames::set_some_cord(ArgT0&& arg0, ArgT... args) {
   // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.some_cord)
 }
 inline std::string* TestConflictingSymbolNames::mutable_some_cord() {
-  std::string* _s = _internal_mutable_some_cord();
-  // @@protoc_insertion_point(field_mutable:protobuf_unittest.TestConflictingSymbolNames.some_cord)
-  return _s;
+	std::string* _s = _internal_mutable_some_cord();
+	// @@protoc_insertion_point(field_mutable:protobuf_unittest.TestConflictingSymbolNames.some_cord)
+	return _s;
 }
-inline const std::string& TestConflictingSymbolNames::_internal_some_cord() const {
-  return some_cord_.Get();
-}
+inline const std::string& TestConflictingSymbolNames::_internal_some_cord() const { return some_cord_.Get(); }
 inline void TestConflictingSymbolNames::_internal_set_some_cord(const std::string& value) {
-  _has_bits_[0] |= 0x00000004u;
-  some_cord_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000004u;
+	some_cord_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* TestConflictingSymbolNames::_internal_mutable_some_cord() {
-  _has_bits_[0] |= 0x00000004u;
-  return some_cord_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000004u;
+	return some_cord_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* TestConflictingSymbolNames::release_some_cord() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.TestConflictingSymbolNames.some_cord)
-  if (!_internal_has_some_cord()) {
-    return nullptr;
-  }
+  if(!_internal_has_some_cord()) { return nullptr; }
   _has_bits_[0] &= ~0x00000004u;
   auto* p = some_cord_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (some_cord_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(some_cord_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     some_cord_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void TestConflictingSymbolNames::set_allocated_some_cord(std::string* some_cord) {
-  if (some_cord != nullptr) {
+  if(some_cord != nullptr) {
     _has_bits_[0] |= 0x00000004u;
   } else {
     _has_bits_[0] &= ~0x00000004u;
   }
-  some_cord_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), some_cord,
-      GetArenaForAllocation());
+  some_cord_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), some_cord, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (some_cord_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(some_cord_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     some_cord_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -4888,8 +4631,8 @@ inline void TestConflictingSymbolNames::clear_some_string_piece() {
   _has_bits_[0] &= ~0x00000008u;
 }
 inline const std::string& TestConflictingSymbolNames::some_string_piece() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.some_string_piece)
-  return _internal_some_string_piece();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.some_string_piece)
+	return _internal_some_string_piece();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -4899,45 +4642,40 @@ void TestConflictingSymbolNames::set_some_string_piece(ArgT0&& arg0, ArgT... arg
   // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.some_string_piece)
 }
 inline std::string* TestConflictingSymbolNames::mutable_some_string_piece() {
-  std::string* _s = _internal_mutable_some_string_piece();
-  // @@protoc_insertion_point(field_mutable:protobuf_unittest.TestConflictingSymbolNames.some_string_piece)
-  return _s;
+	std::string* _s = _internal_mutable_some_string_piece();
+	// @@protoc_insertion_point(field_mutable:protobuf_unittest.TestConflictingSymbolNames.some_string_piece)
+	return _s;
 }
-inline const std::string& TestConflictingSymbolNames::_internal_some_string_piece() const {
-  return some_string_piece_.Get();
-}
+inline const std::string& TestConflictingSymbolNames::_internal_some_string_piece() const { return some_string_piece_.Get(); }
 inline void TestConflictingSymbolNames::_internal_set_some_string_piece(const std::string& value) {
-  _has_bits_[0] |= 0x00000008u;
-  some_string_piece_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000008u;
+	some_string_piece_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* TestConflictingSymbolNames::_internal_mutable_some_string_piece() {
-  _has_bits_[0] |= 0x00000008u;
-  return some_string_piece_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000008u;
+	return some_string_piece_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* TestConflictingSymbolNames::release_some_string_piece() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.TestConflictingSymbolNames.some_string_piece)
-  if (!_internal_has_some_string_piece()) {
-    return nullptr;
-  }
+  if(!_internal_has_some_string_piece()) { return nullptr; }
   _has_bits_[0] &= ~0x00000008u;
   auto* p = some_string_piece_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (some_string_piece_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(some_string_piece_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     some_string_piece_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void TestConflictingSymbolNames::set_allocated_some_string_piece(std::string* some_string_piece) {
-  if (some_string_piece != nullptr) {
+  if(some_string_piece != nullptr) {
     _has_bits_[0] |= 0x00000008u;
   } else {
     _has_bits_[0] &= ~0x00000008u;
   }
-  some_string_piece_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), some_string_piece,
-      GetArenaForAllocation());
+  some_string_piece_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), some_string_piece, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (some_string_piece_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(some_string_piece_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     some_string_piece_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -4956,20 +4694,18 @@ inline void TestConflictingSymbolNames::clear_int_() {
   int__ = 0u;
   _has_bits_[0] &= ~0x40000000u;
 }
-inline uint32_t TestConflictingSymbolNames::_internal_int_() const {
-  return int__;
-}
+inline uint32_t TestConflictingSymbolNames::_internal_int_() const { return int__; }
 inline uint32_t TestConflictingSymbolNames::int_() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.int)
-  return _internal_int_();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.int)
+	return _internal_int_();
 }
 inline void TestConflictingSymbolNames::_internal_set_int_(uint32_t value) {
-  _has_bits_[0] |= 0x40000000u;
-  int__ = value;
+	_has_bits_[0] |= 0x40000000u;
+	int__ = value;
 }
 inline void TestConflictingSymbolNames::set_int_(uint32_t value) {
-  _internal_set_int_(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.int)
+	_internal_set_int_(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.int)
 }
 
 // optional uint32 friend = 31;
@@ -4984,20 +4720,18 @@ inline void TestConflictingSymbolNames::clear_friend_() {
   friend__ = 0u;
   _has_bits_[0] &= ~0x80000000u;
 }
-inline uint32_t TestConflictingSymbolNames::_internal_friend_() const {
-  return friend__;
-}
+inline uint32_t TestConflictingSymbolNames::_internal_friend_() const { return friend__; }
 inline uint32_t TestConflictingSymbolNames::friend_() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.friend)
-  return _internal_friend_();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.friend)
+	return _internal_friend_();
 }
 inline void TestConflictingSymbolNames::_internal_set_friend_(uint32_t value) {
-  _has_bits_[0] |= 0x80000000u;
-  friend__ = value;
+	_has_bits_[0] |= 0x80000000u;
+	friend__ = value;
 }
 inline void TestConflictingSymbolNames::set_friend_(uint32_t value) {
-  _internal_set_friend_(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.friend)
+	_internal_set_friend_(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.friend)
 }
 
 // optional uint32 class = 37;
@@ -5012,20 +4746,18 @@ inline void TestConflictingSymbolNames::clear_class_() {
   class__ = 0u;
   _has_bits_[1] &= ~0x00000004u;
 }
-inline uint32_t TestConflictingSymbolNames::_internal_class_() const {
-  return class__;
-}
+inline uint32_t TestConflictingSymbolNames::_internal_class_() const { return class__; }
 inline uint32_t TestConflictingSymbolNames::class_() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.class)
-  return _internal_class_();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.class)
+	return _internal_class_();
 }
 inline void TestConflictingSymbolNames::_internal_set_class_(uint32_t value) {
-  _has_bits_[1] |= 0x00000004u;
-  class__ = value;
+	_has_bits_[1] |= 0x00000004u;
+	class__ = value;
 }
 inline void TestConflictingSymbolNames::set_class_(uint32_t value) {
-  _internal_set_class_(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.class)
+	_internal_set_class_(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.class)
 }
 
 // optional uint32 typedecl = 39;
@@ -5040,20 +4772,18 @@ inline void TestConflictingSymbolNames::clear_typedecl() {
   typedecl_ = 0u;
   _has_bits_[1] &= ~0x00000008u;
 }
-inline uint32_t TestConflictingSymbolNames::_internal_typedecl() const {
-  return typedecl_;
-}
+inline uint32_t TestConflictingSymbolNames::_internal_typedecl() const { return typedecl_; }
 inline uint32_t TestConflictingSymbolNames::typedecl() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.typedecl)
-  return _internal_typedecl();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.typedecl)
+	return _internal_typedecl();
 }
 inline void TestConflictingSymbolNames::_internal_set_typedecl(uint32_t value) {
-  _has_bits_[1] |= 0x00000008u;
-  typedecl_ = value;
+	_has_bits_[1] |= 0x00000008u;
+	typedecl_ = value;
 }
 inline void TestConflictingSymbolNames::set_typedecl(uint32_t value) {
-  _internal_set_typedecl(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.typedecl)
+	_internal_set_typedecl(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.typedecl)
 }
 
 // optional uint32 auto = 40;
@@ -5068,20 +4798,18 @@ inline void TestConflictingSymbolNames::clear_auto_() {
   auto__ = 0u;
   _has_bits_[1] &= ~0x00000010u;
 }
-inline uint32_t TestConflictingSymbolNames::_internal_auto_() const {
-  return auto__;
-}
+inline uint32_t TestConflictingSymbolNames::_internal_auto_() const { return auto__; }
 inline uint32_t TestConflictingSymbolNames::auto_() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.auto)
-  return _internal_auto_();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.auto)
+	return _internal_auto_();
 }
 inline void TestConflictingSymbolNames::_internal_set_auto_(uint32_t value) {
-  _has_bits_[1] |= 0x00000010u;
-  auto__ = value;
+	_has_bits_[1] |= 0x00000010u;
+	auto__ = value;
 }
 inline void TestConflictingSymbolNames::set_auto_(uint32_t value) {
-  _internal_set_auto_(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.auto)
+	_internal_set_auto_(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.auto)
 }
 
 // optional .protobuf_unittest.TestConflictingSymbolNames.DO do = 32;
@@ -5186,20 +4914,18 @@ inline void TestConflictingSymbolNames::clear_field_type() {
   field_type_ = 0;
   _has_bits_[1] &= ~0x00000001u;
 }
-inline int32_t TestConflictingSymbolNames::_internal_field_type() const {
-  return field_type_;
-}
+inline int32_t TestConflictingSymbolNames::_internal_field_type() const { return field_type_; }
 inline int32_t TestConflictingSymbolNames::field_type() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.field_type)
-  return _internal_field_type();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.field_type)
+	return _internal_field_type();
 }
 inline void TestConflictingSymbolNames::_internal_set_field_type(int32_t value) {
-  _has_bits_[1] |= 0x00000001u;
-  field_type_ = value;
+	_has_bits_[1] |= 0x00000001u;
+	field_type_ = value;
 }
 inline void TestConflictingSymbolNames::set_field_type(int32_t value) {
-  _internal_set_field_type(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.field_type)
+	_internal_set_field_type(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.field_type)
 }
 
 // optional bool is_packed = 34;
@@ -5214,20 +4940,18 @@ inline void TestConflictingSymbolNames::clear_is_packed() {
   is_packed_ = false;
   _has_bits_[1] &= ~0x00000002u;
 }
-inline bool TestConflictingSymbolNames::_internal_is_packed() const {
-  return is_packed_;
-}
+inline bool TestConflictingSymbolNames::_internal_is_packed() const { return is_packed_; }
 inline bool TestConflictingSymbolNames::is_packed() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.is_packed)
-  return _internal_is_packed();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.is_packed)
+	return _internal_is_packed();
 }
 inline void TestConflictingSymbolNames::_internal_set_is_packed(bool value) {
-  _has_bits_[1] |= 0x00000002u;
-  is_packed_ = value;
+	_has_bits_[1] |= 0x00000002u;
+	is_packed_ = value;
 }
 inline void TestConflictingSymbolNames::set_is_packed(bool value) {
-  _internal_set_is_packed(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.is_packed)
+	_internal_set_is_packed(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.is_packed)
 }
 
 // optional string release_length = 35;
@@ -5243,8 +4967,8 @@ inline void TestConflictingSymbolNames::clear_release_length() {
   _has_bits_[0] &= ~0x00000010u;
 }
 inline const std::string& TestConflictingSymbolNames::release_length() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.release_length)
-  return _internal_release_length();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.release_length)
+	return _internal_release_length();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -5254,45 +4978,40 @@ void TestConflictingSymbolNames::set_release_length(ArgT0&& arg0, ArgT... args) 
   // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.release_length)
 }
 inline std::string* TestConflictingSymbolNames::mutable_release_length() {
-  std::string* _s = _internal_mutable_release_length();
-  // @@protoc_insertion_point(field_mutable:protobuf_unittest.TestConflictingSymbolNames.release_length)
-  return _s;
+	std::string* _s = _internal_mutable_release_length();
+	// @@protoc_insertion_point(field_mutable:protobuf_unittest.TestConflictingSymbolNames.release_length)
+	return _s;
 }
-inline const std::string& TestConflictingSymbolNames::_internal_release_length() const {
-  return release_length_.Get();
-}
+inline const std::string& TestConflictingSymbolNames::_internal_release_length() const { return release_length_.Get(); }
 inline void TestConflictingSymbolNames::_internal_set_release_length(const std::string& value) {
-  _has_bits_[0] |= 0x00000010u;
-  release_length_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000010u;
+	release_length_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* TestConflictingSymbolNames::_internal_mutable_release_length() {
-  _has_bits_[0] |= 0x00000010u;
-  return release_length_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000010u;
+	return release_length_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* TestConflictingSymbolNames::release_release_length() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.TestConflictingSymbolNames.release_length)
-  if (!_internal_has_release_length()) {
-    return nullptr;
-  }
+  if(!_internal_has_release_length()) { return nullptr; }
   _has_bits_[0] &= ~0x00000010u;
   auto* p = release_length_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (release_length_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(release_length_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     release_length_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void TestConflictingSymbolNames::set_allocated_release_length(std::string* release_length) {
-  if (release_length != nullptr) {
+  if(release_length != nullptr) {
     _has_bits_[0] |= 0x00000010u;
   } else {
     _has_bits_[0] &= ~0x00000010u;
   }
-  release_length_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), release_length,
-      GetArenaForAllocation());
+  release_length_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), release_length, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (release_length_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(release_length_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     release_length_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -5402,8 +5121,8 @@ inline void TestConflictingSymbolNames::clear_target() {
   _has_bits_[0] &= ~0x00000020u;
 }
 inline const std::string& TestConflictingSymbolNames::target() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.target)
-  return _internal_target();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.target)
+	return _internal_target();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -5413,45 +5132,40 @@ void TestConflictingSymbolNames::set_target(ArgT0&& arg0, ArgT... args) {
   // @@protoc_insertion_point(field_set:protobuf_unittest.TestConflictingSymbolNames.target)
 }
 inline std::string* TestConflictingSymbolNames::mutable_target() {
-  std::string* _s = _internal_mutable_target();
-  // @@protoc_insertion_point(field_mutable:protobuf_unittest.TestConflictingSymbolNames.target)
-  return _s;
+	std::string* _s = _internal_mutable_target();
+	// @@protoc_insertion_point(field_mutable:protobuf_unittest.TestConflictingSymbolNames.target)
+	return _s;
 }
-inline const std::string& TestConflictingSymbolNames::_internal_target() const {
-  return target_.Get();
-}
+inline const std::string& TestConflictingSymbolNames::_internal_target() const { return target_.Get(); }
 inline void TestConflictingSymbolNames::_internal_set_target(const std::string& value) {
-  _has_bits_[0] |= 0x00000020u;
-  target_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000020u;
+	target_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* TestConflictingSymbolNames::_internal_mutable_target() {
-  _has_bits_[0] |= 0x00000020u;
-  return target_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000020u;
+	return target_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* TestConflictingSymbolNames::release_target() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.TestConflictingSymbolNames.target)
-  if (!_internal_has_target()) {
-    return nullptr;
-  }
+  if(!_internal_has_target()) { return nullptr; }
   _has_bits_[0] &= ~0x00000020u;
   auto* p = target_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (target_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(target_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     target_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void TestConflictingSymbolNames::set_allocated_target(std::string* target) {
-  if (target != nullptr) {
+  if(target != nullptr) {
     _has_bits_[0] |= 0x00000020u;
   } else {
     _has_bits_[0] &= ~0x00000020u;
   }
-  target_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), target,
-      GetArenaForAllocation());
+  target_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), target, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (target_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(target_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     target_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -5513,20 +5227,18 @@ inline void NULL_::clear_int_() {
   int__ = 0;
   _has_bits_[0] &= ~0x00000001u;
 }
-inline int32_t NULL_::_internal_int_() const {
-  return int__;
-}
+inline int32_t NULL_::_internal_int_() const { return int__; }
 inline int32_t NULL_::int_() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.NULL.int)
-  return _internal_int_();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.NULL.int)
+	return _internal_int_();
 }
 inline void NULL_::_internal_set_int_(int32_t value) {
-  _has_bits_[0] |= 0x00000001u;
-  int__ = value;
+	_has_bits_[0] |= 0x00000001u;
+	int__ = value;
 }
 inline void NULL_::set_int_(int32_t value) {
-  _internal_set_int_(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.NULL.int)
+	_internal_set_int_(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.NULL.int)
 }
 
 // -------------------------------------------------------------------

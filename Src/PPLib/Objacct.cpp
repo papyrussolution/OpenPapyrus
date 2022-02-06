@@ -1068,8 +1068,8 @@ int PPObjAccount::Edit(PPID * pID, void * extraPtr /*accType*/)
 				if(*pID)
 					num_changed = (ac != acc_pack.Rec.A.Ac || sb != acc_pack.Rec.A.Sb);
 				if(num_changed) {
-					Exchange(&acc_pack.Rec.A.Ac, &ac);
-					Exchange(&acc_pack.Rec.A.Sb, &sb);
+					SExchange(&acc_pack.Rec.A.Ac, &ac);
+					SExchange(&acc_pack.Rec.A.Sb, &sb);
 				}
 				THROW(PutPacket(pID, &acc_pack, 1));
 				if(num_changed) {

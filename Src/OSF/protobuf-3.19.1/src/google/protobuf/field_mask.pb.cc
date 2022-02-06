@@ -178,7 +178,7 @@ uint8_t* FieldMask::_InternalSerialize(
   (void) cached_has_bits;
 
   // repeated string paths = 1;
-  for (int i = 0, n = this->_internal_paths_size(); i < n; i++) {
+  for(int i = 0, n = this->_internal_paths_size(); i < n; i++) {
     const auto& s = this->_internal_paths(i);
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       s.data(), static_cast<int>(s.length()),
@@ -204,11 +204,9 @@ size_t FieldMask::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // repeated string paths = 1;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(paths_.size());
-  for (int i = 0, n = paths_.size(); i < n; i++) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-      paths_.Get(i));
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(paths_.size());
+  for(int i = 0, n = paths_.size(); i < n; i++) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(paths_.Get(i));
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -255,9 +253,7 @@ void FieldMask::InternalSwap(FieldMask* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata FieldMask::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2ffield_5fmask_2eproto_getter, &descriptor_table_google_2fprotobuf_2ffield_5fmask_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2ffield_5fmask_2eproto[0]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2ffield_5fmask_2eproto_getter, &descriptor_table_google_2fprotobuf_2ffield_5fmask_2eproto_once, file_level_metadata_google_2fprotobuf_2ffield_5fmask_2eproto[0]);
 }
 
 // @@protoc_insertion_point(namespace_scope)

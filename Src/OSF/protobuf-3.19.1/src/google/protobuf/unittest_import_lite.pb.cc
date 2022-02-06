@@ -87,9 +87,7 @@ bool ImportEnumLite_Parse(
 class ImportMessageLite::_Internal {
  public:
   using HasBits = decltype(std::declval<ImportMessageLite>()._has_bits_);
-  static void set_has_d(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
+  static void set_has_d(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
 ImportMessageLite::ImportMessageLite(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -264,9 +262,7 @@ void ImportMessageLite::InternalSwap(ImportMessageLite* other) {
   swap(d_, other->d_);
 }
 
-std::string ImportMessageLite::GetTypeName() const {
-  return "protobuf_unittest_import.ImportMessageLite";
-}
+std::string ImportMessageLite::GetTypeName() const { return "protobuf_unittest_import.ImportMessageLite"; }
 
 
 // @@protoc_insertion_point(namespace_scope)

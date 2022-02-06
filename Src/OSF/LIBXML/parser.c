@@ -8838,8 +8838,7 @@ xmlChar * xmlParseEncName(xmlParserCtxt * ctxt)
 		buf[len++] = cur;
 		NEXT;
 		cur = CUR;
-		while(((cur >= 'a') && (cur <= 'z')) || ((cur >= 'A') && (cur <= 'Z')) ||
-		    ((cur >= '0') && (cur <= '9')) || (cur == '.') || (cur == '_') || (cur == '-')) {
+		while(((cur >= 'a') && (cur <= 'z')) || ((cur >= 'A') && (cur <= 'Z')) || ((cur >= '0') && (cur <= '9')) || (cur == '.') || (cur == '_') || (cur == '-')) {
 			if((len+1) >= size) {
 				xmlChar * tmp;
 				size *= 2;

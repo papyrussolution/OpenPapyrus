@@ -891,7 +891,7 @@ void Editor::MultipleSelectAdd(AddNumber addNumber)
 bool Editor::RangeContainsProtected(int start, int end) const
 {
 	if(vs.ProtectionActive()) {
-		ExchangeForOrder(&start, &end);
+		SExchangeForOrder(&start, &end);
 		for(int pos = start; pos < end; pos++) {
 			if(vs.styles[pdoc->StyleIndexAt(pos)].IsProtected())
 				return true;

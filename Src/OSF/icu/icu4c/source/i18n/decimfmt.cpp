@@ -1,6 +1,7 @@
+// DECIMFMT.CPP
 // © 2018 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -117,21 +118,15 @@ DecimalFormat::DecimalFormat(const DecimalFormatSymbols* symbolsToAdopt, UErrorC
 		fields->symbols.adoptInsteadAndCheckErrorCode(adoptedSymbols.orphan(), status);
 	}
 	if(U_FAILURE(status)) {
-		delete fields;
-		fields = nullptr;
+		ZDELETE(fields);
 	}
 }
 
 #if UCONFIG_HAVE_PARSEALLINPUT
 	void DecimalFormat::setParseAllInput(UNumberFormatAttributeValue value) 
 	{
-		if(fields == nullptr) {
-			return;
-		}
-		if(value == fields->properties.parseAllInput) {
-			return;
-		}
-		fields->properties.parseAllInput = value;
+		if(fields && fields->properties.parseAllInput != value)
+			fields->properties.parseAllInput = value;
 	}
 #endif
 
@@ -254,100 +249,41 @@ int32_t DecimalFormat::getAttribute(UNumberFormatAttribute attr, UErrorCode & st
 		status = U_MEMORY_ALLOCATION_ERROR;
 		return -1;
 	}
-
 	switch(attr) {
-		case UNUM_LENIENT_PARSE:
-		    return isLenient();
-
-		case UNUM_PARSE_INT_ONLY:
-		    return isParseIntegerOnly();
-
-		case UNUM_GROUPING_USED:
-		    return isGroupingUsed();
-
-		case UNUM_DECIMAL_ALWAYS_SHOWN:
-		    return isDecimalSeparatorAlwaysShown();
-
-		case UNUM_MAX_INTEGER_DIGITS:
-		    return getMaximumIntegerDigits();
-
-		case UNUM_MIN_INTEGER_DIGITS:
-		    return getMinimumIntegerDigits();
-
-		case UNUM_INTEGER_DIGITS:
-		    // TBD: what should this return?
-		    return getMinimumIntegerDigits();
-
-		case UNUM_MAX_FRACTION_DIGITS:
-		    return getMaximumFractionDigits();
-
-		case UNUM_MIN_FRACTION_DIGITS:
-		    return getMinimumFractionDigits();
-
-		case UNUM_FRACTION_DIGITS:
-		    // TBD: what should this return?
-		    return getMinimumFractionDigits();
-
-		case UNUM_SIGNIFICANT_DIGITS_USED:
-		    return areSignificantDigitsUsed();
-
-		case UNUM_MAX_SIGNIFICANT_DIGITS:
-		    return getMaximumSignificantDigits();
-
-		case UNUM_MIN_SIGNIFICANT_DIGITS:
-		    return getMinimumSignificantDigits();
-
-		case UNUM_MULTIPLIER:
-		    return getMultiplier();
-
-		case UNUM_SCALE:
-		    return getMultiplierScale();
-
-		case UNUM_GROUPING_SIZE:
-		    return getGroupingSize();
-
-		case UNUM_ROUNDING_MODE:
-		    return getRoundingMode();
-
-		case UNUM_FORMAT_WIDTH:
-		    return getFormatWidth();
-
-		case UNUM_PADDING_POSITION:
-		    return getPadPosition();
-
-		case UNUM_SECONDARY_GROUPING_SIZE:
-		    return getSecondaryGroupingSize();
-
-		case UNUM_PARSE_NO_EXPONENT:
-		    return isParseNoExponent();
-
-		case UNUM_PARSE_DECIMAL_MARK_REQUIRED:
-		    return isDecimalPatternMatchRequired();
-
-		case UNUM_CURRENCY_USAGE:
-		    return getCurrencyUsage();
-
-		case UNUM_MINIMUM_GROUPING_DIGITS:
-		    return getMinimumGroupingDigits();
-
-		case UNUM_PARSE_CASE_SENSITIVE:
-		    return isParseCaseSensitive();
-
-		case UNUM_SIGN_ALWAYS_SHOWN:
-		    return isSignAlwaysShown();
-
-		case UNUM_FORMAT_FAIL_IF_MORE_THAN_MAX_DIGITS:
-		    return isFormatFailIfMoreThanMaxDigits();
-
-		default:
-		    status = U_UNSUPPORTED_ERROR;
-		    break;
+		case UNUM_LENIENT_PARSE: return isLenient();
+		case UNUM_PARSE_INT_ONLY: return isParseIntegerOnly();
+		case UNUM_GROUPING_USED: return isGroupingUsed();
+		case UNUM_DECIMAL_ALWAYS_SHOWN: return isDecimalSeparatorAlwaysShown();
+		case UNUM_MAX_INTEGER_DIGITS: return getMaximumIntegerDigits();
+		case UNUM_MIN_INTEGER_DIGITS: return getMinimumIntegerDigits();
+		case UNUM_INTEGER_DIGITS: return getMinimumIntegerDigits(); // TBD: what should this return?
+		case UNUM_MAX_FRACTION_DIGITS: return getMaximumFractionDigits();
+		case UNUM_MIN_FRACTION_DIGITS: return getMinimumFractionDigits();
+		case UNUM_FRACTION_DIGITS: return getMinimumFractionDigits(); // TBD: what should this return?
+		case UNUM_SIGNIFICANT_DIGITS_USED: return areSignificantDigitsUsed();
+		case UNUM_MAX_SIGNIFICANT_DIGITS: return getMaximumSignificantDigits();
+		case UNUM_MIN_SIGNIFICANT_DIGITS: return getMinimumSignificantDigits();
+		case UNUM_MULTIPLIER: return getMultiplier();
+		case UNUM_SCALE: return getMultiplierScale();
+		case UNUM_GROUPING_SIZE: return getGroupingSize();
+		case UNUM_ROUNDING_MODE: return getRoundingMode();
+		case UNUM_FORMAT_WIDTH: return getFormatWidth();
+		case UNUM_PADDING_POSITION: return getPadPosition();
+		case UNUM_SECONDARY_GROUPING_SIZE: return getSecondaryGroupingSize();
+		case UNUM_PARSE_NO_EXPONENT: return isParseNoExponent();
+		case UNUM_PARSE_DECIMAL_MARK_REQUIRED: return isDecimalPatternMatchRequired();
+		case UNUM_CURRENCY_USAGE: return getCurrencyUsage();
+		case UNUM_MINIMUM_GROUPING_DIGITS: return getMinimumGroupingDigits();
+		case UNUM_PARSE_CASE_SENSITIVE: return isParseCaseSensitive();
+		case UNUM_SIGN_ALWAYS_SHOWN: return isSignAlwaysShown();
+		case UNUM_FORMAT_FAIL_IF_MORE_THAN_MAX_DIGITS: return isFormatFailIfMoreThanMaxDigits();
+		default: status = U_UNSUPPORTED_ERROR; break;
 	}
-
 	return -1; /* undefined */
 }
 
-void DecimalFormat::setGroupingUsed(bool enabled) {
+void DecimalFormat::setGroupingUsed(bool enabled) 
+{
 	if(fields == nullptr) {
 		return;
 	}
@@ -384,9 +320,8 @@ void DecimalFormat::setLenient(bool enable) {
 	touchNoError();
 }
 
-DecimalFormat::DecimalFormat(const UnicodeString & pattern, DecimalFormatSymbols* symbolsToAdopt,
-    UParseError&, UErrorCode & status)
-	: DecimalFormat(symbolsToAdopt, status) {
+DecimalFormat::DecimalFormat(const UnicodeString & pattern, DecimalFormatSymbols* symbolsToAdopt, UParseError&, UErrorCode & status) : DecimalFormat(symbolsToAdopt, status) 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
@@ -395,9 +330,8 @@ DecimalFormat::DecimalFormat(const UnicodeString & pattern, DecimalFormatSymbols
 	touch(status);
 }
 
-DecimalFormat::DecimalFormat(const UnicodeString & pattern, const DecimalFormatSymbols& symbols,
-    UErrorCode & status)
-	: DecimalFormat(nullptr, status) {
+DecimalFormat::DecimalFormat(const UnicodeString & pattern, const DecimalFormatSymbols& symbols, UErrorCode & status) : DecimalFormat(nullptr, status) 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
@@ -405,8 +339,7 @@ DecimalFormat::DecimalFormat(const UnicodeString & pattern, const DecimalFormatS
 	if(U_FAILURE(status)) {
 		// If we failed to allocate DecimalFormatSymbols, then release fields and its members.
 		// We must have a fully complete fields object, we cannot have partially populated members.
-		delete fields;
-		fields = nullptr;
+		ZDELETE(fields);
 		status = U_MEMORY_ALLOCATION_ERROR;
 		return;
 	}
@@ -415,7 +348,8 @@ DecimalFormat::DecimalFormat(const UnicodeString & pattern, const DecimalFormatS
 	touch(status);
 }
 
-DecimalFormat::DecimalFormat(const DecimalFormat& source) : NumberFormat(source) {
+DecimalFormat::DecimalFormat(const DecimalFormat& source) : NumberFormat(source) 
+{
 	// If the object that we are copying from is invalid, no point in going further.
 	if(source.fields == nullptr) {
 		return;
@@ -433,14 +367,14 @@ DecimalFormat::DecimalFormat(const DecimalFormat& source) : NumberFormat(source)
 	// any partially populated DecimalFormatFields object. We must have a fully complete fields object
 	// or else we set it to nullptr.
 	if(U_FAILURE(status)) {
-		delete fields;
-		fields = nullptr;
+		ZDELETE(fields);
 		return;
 	}
 	touch(status);
 }
 
-DecimalFormat& DecimalFormat::operator = (const DecimalFormat& rhs) {
+DecimalFormat& DecimalFormat::operator = (const DecimalFormat& rhs) 
+{
 	// guard against self-assignment
 	if(this == &rhs) {
 		return *this;
@@ -462,21 +396,20 @@ DecimalFormat& DecimalFormat::operator = (const DecimalFormat& rhs) {
 	}
 	fields->symbols.adoptInstead(dfs.orphan());
 	touch(status);
-
 	return *this;
 }
 
-DecimalFormat::~DecimalFormat() {
-	if(fields == nullptr) {
-		return;
+DecimalFormat::~DecimalFormat() 
+{
+	if(fields) {
+		delete fields->atomicParser.exchange(nullptr);
+		delete fields->atomicCurrencyParser.exchange(nullptr);
+		delete fields;
 	}
-
-	delete fields->atomicParser.exchange(nullptr);
-	delete fields->atomicCurrencyParser.exchange(nullptr);
-	delete fields;
 }
 
-DecimalFormat* DecimalFormat::clone() const {
+DecimalFormat* DecimalFormat::clone() const 
+{
 	// can only clone valid objects.
 	if(fields == nullptr) {
 		return nullptr;
@@ -488,7 +421,8 @@ DecimalFormat* DecimalFormat::clone() const {
 	return nullptr;
 }
 
-bool DecimalFormat::operator == (const Format& other) const {
+bool DecimalFormat::operator == (const Format& other) const 
+{
 	auto* otherDF = dynamic_cast<const DecimalFormat*>(&other);
 	if(otherDF == nullptr) {
 		return false;
@@ -501,7 +435,8 @@ bool DecimalFormat::operator == (const Format& other) const {
 	return fields->properties == otherDF->fields->properties && *getDecimalFormatSymbols() == *otherDF->getDecimalFormatSymbols();
 }
 
-UnicodeString & DecimalFormat::format(double number, UnicodeString & appendTo, FieldPosition& pos) const {
+UnicodeString & DecimalFormat::format(double number, UnicodeString & appendTo, FieldPosition& pos) const 
+{
 	if(fields == nullptr) {
 		appendTo.setToBogus();
 		return appendTo;
@@ -519,8 +454,8 @@ UnicodeString & DecimalFormat::format(double number, UnicodeString & appendTo, F
 	return appendTo;
 }
 
-UnicodeString & DecimalFormat::format(double number, UnicodeString & appendTo, FieldPosition& pos,
-    UErrorCode & status) const {
+UnicodeString & DecimalFormat::format(double number, UnicodeString & appendTo, FieldPosition& pos, UErrorCode & status) const 
+{
 	if(U_FAILURE(status)) {
 		return appendTo; // don't overwrite status if it's already a failure.
 	}

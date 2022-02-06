@@ -125,7 +125,7 @@ size_t UTF16Length(const char * s, size_t len)
 {
 	size_t ulen = 0;
 	size_t charLen;
-	for(size_t i = 0; i<len; ) {
+	for(size_t i = 0; i < len; ) {
 		uchar ch = static_cast<uchar>(s[i]);
 		if(ch < 0x80)
 			charLen = 1;
@@ -148,7 +148,7 @@ size_t UTF16FromUTF8(const char * s, size_t len, wchar_t * tbuf, size_t tlen)
 	size_t ui = 0;
 	const uchar * us = reinterpret_cast<const uchar *>(s);
 	size_t i = 0;
-	while((i<len) && (ui<tlen)) {
+	while((i < len) && (ui<tlen)) {
 		uchar ch = us[i++];
 		if(ch < 0x80) {
 			tbuf[ui] = ch;
@@ -188,7 +188,7 @@ uint UTF32FromUTF8(const char * s, uint len, uint * tbuf, uint tlen)
 	uint ui = 0;
 	const uchar * us = reinterpret_cast<const uchar *>(s);
 	uint i = 0;
-	while((i<len) && (ui<tlen)) {
+	while((i < len) && (ui<tlen)) {
 		uchar ch = us[i++];
 		uint value = 0;
 		if(ch < 0x80) {

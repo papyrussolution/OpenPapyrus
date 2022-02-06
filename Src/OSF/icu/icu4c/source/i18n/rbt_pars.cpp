@@ -1493,7 +1493,7 @@ int32_t TransliteratorParser::syntaxError(UErrorCode parseErrorCode,
 
 	// for pre-context
 	const int32_t LEN = U_PARSE_CONTEXT_LEN - 1;
-	int32_t start = uprv_max(pos - LEN, 0);
+	int32_t start = smax(pos - LEN, 0);
 	int32_t stop  = pos;
 
 	rule.extract(start, stop-start, parseError.preContext);
@@ -1502,7 +1502,7 @@ int32_t TransliteratorParser::syntaxError(UErrorCode parseErrorCode,
 
 	//for post-context
 	start = pos;
-	stop  = uprv_min(pos + LEN, rule.length());
+	stop  = smin(pos + LEN, rule.length());
 
 	rule.extract(start, stop-start, parseError.postContext);
 	//null terminate the buffer

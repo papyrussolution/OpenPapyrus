@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\osf\ctemplate\src\base\arena.cc" />
+    <ClCompile Include="..\osf\ctemplate\src\htmlparser\htmlparser.cc" />
+    <ClCompile Include="..\osf\ctemplate\src\htmlparser\jsparser.cc" />
+    <ClCompile Include="..\osf\ctemplate\src\htmlparser\statemachine.cc" />
+    <ClCompile Include="..\osf\ctemplate\src\per_expand_data.cc" />
+    <ClCompile Include="..\osf\ctemplate\src\template.cc" />
+    <ClCompile Include="..\osf\ctemplate\src\template_annotator.cc" />
+    <ClCompile Include="..\osf\ctemplate\src\template_cache.cc" />
+    <ClCompile Include="..\osf\ctemplate\src\template_dictionary.cc" />
+    <ClCompile Include="..\osf\ctemplate\src\template_modifiers.cc" />
+    <ClCompile Include="..\osf\ctemplate\src\template_namelist.cc" />
+    <ClCompile Include="..\osf\ctemplate\src\template_pathops.cc" />
+    <ClCompile Include="..\osf\ctemplate\src\template_string.cc" />
+    <ClCompile Include="..\osf\ctemplate\src\windows\port.cc" />
+    <ClCompile Include="..\OSF\ctemplate\src\ctemplate-pch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\osf\ctemplate\src\base\arena.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\windows\config.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\htmlparser\htmlparser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\htmlparser\htmlparser_cpp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\htmlparser\jsparser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\base\manual_constructor.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\base\mutex.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\windows\ctemplate\per_expand_data.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\windows\port.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\base\small_map.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\htmlparser\statemachine.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\windows\ctemplate\template.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\windows\ctemplate\template_annotator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\windows\ctemplate\template_cache.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\windows\ctemplate\template_dictionary.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\windows\ctemplate\template_dictionary_interface.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\windows\ctemplate\template_emitter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\windows\ctemplate\template_enums.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\windows\ctemplate\template_from_string.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\windows\ctemplate\template_modifiers.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\windows\ctemplate\template_namelist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\windows\ctemplate\template_pathops.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\windows\ctemplate\template_string.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\ctemplate\src\ctemplate-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{401fbc92-56df-43fa-84ef-e0dd7b641e9c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

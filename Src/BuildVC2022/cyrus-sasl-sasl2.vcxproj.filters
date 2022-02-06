@@ -1,0 +1,121 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\OSF\cyrus-sasl\lib\auxprop.c" />
+    <ClCompile Include="..\OSF\cyrus-sasl\lib\canonusr.c" />
+    <ClCompile Include="..\OSF\cyrus-sasl\lib\checkpw.c" />
+    <ClCompile Include="..\OSF\cyrus-sasl\lib\client.c" />
+    <ClCompile Include="..\OSF\cyrus-sasl\lib\common.c" />
+    <ClCompile Include="..\OSF\cyrus-sasl\lib\config.c" />
+    <ClCompile Include="..\OSF\cyrus-sasl\lib\external.c" />
+    <ClCompile Include="..\OSF\cyrus-sasl\lib\getsubopt.c" />
+    <ClCompile Include="..\OSF\cyrus-sasl\lib\md5.c" />
+    <ClCompile Include="..\OSF\cyrus-sasl\lib\saslutil.c" />
+    <ClCompile Include="..\OSF\cyrus-sasl\lib\server.c" />
+    <ClCompile Include="..\OSF\cyrus-sasl\lib\seterror.c" />
+    <ClCompile Include="..\OSF\cyrus-sasl\lib\windlopen.c" />
+    <ClCompile Include="..\OSF\cyrus-sasl\plugins\anonymous.c">
+      <Filter>cyrus-sasl-plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\cyrus-sasl\plugins\login.c">
+      <Filter>cyrus-sasl-plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\cyrus-sasl\plugins\digestmd5.c">
+      <Filter>cyrus-sasl-plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\cyrus-sasl\plugins\ntlm.c">
+      <Filter>cyrus-sasl-plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\cyrus-sasl\plugins\plain.c">
+      <Filter>cyrus-sasl-plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\cyrus-sasl\plugins\scram.c">
+      <Filter>cyrus-sasl-plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\cyrus-sasl\plugins\sasldb.c">
+      <Filter>cyrus-sasl-plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\cyrus-sasl\plugins\sasldb_init.c">
+      <Filter>cyrus-sasl-plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\cyrus-sasl\sasldb\allockey.c">
+      <Filter>cyrus-sasl-plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\cyrus-sasl\sasldb\db_berkeley.c">
+      <Filter>cyrus-sasl-plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\cyrus-sasl\sasldb\db_gdbm.c">
+      <Filter>cyrus-sasl-plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\cyrus-sasl\sasldb\db_lmdb.c">
+      <Filter>cyrus-sasl-plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\cyrus-sasl\sasldb\db_ndbm.c">
+      <Filter>cyrus-sasl-plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\cyrus-sasl\sasldb\db_none.c">
+      <Filter>cyrus-sasl-plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\cyrus-sasl\common\crypto-compat.c" />
+    <ClCompile Include="..\OSF\cyrus-sasl\common\plugin_common.c" />
+    <ClCompile Include="..\OSF\cyrus-sasl\plugins\gssapi.c">
+      <Filter>cyrus-sasl-plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\cyrus-sasl\plugins\gssapiv2_init.c">
+      <Filter>cyrus-sasl-plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\cyrus-sasl\lib\sasl-pch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\cyrus-sasl\sasldb\sasldb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\cyrus-sasl\common\crypto-compat.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\cyrus-sasl\common\plugin_common.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\cyrus-sasl\lib\staticopen.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\cyrus-sasl\lib\saslint.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\cyrus-sasl\lib\sasl-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\cyrus-sasl\include\exits.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\cyrus-sasl\include\gai.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\cyrus-sasl\include\hmac-md5.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\cyrus-sasl\include\md5.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\cyrus-sasl\include\prop.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\cyrus-sasl\include\sasl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\cyrus-sasl\include\saslplug.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\cyrus-sasl\include\saslutil.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="cyrus-sasl-plugin">
+      <UniqueIdentifier>{93f2fb87-12f1-4ff7-b16e-99c1cda93f6d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{210c5f99-7feb-41d2-afc7-8a7bf2e30b77}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

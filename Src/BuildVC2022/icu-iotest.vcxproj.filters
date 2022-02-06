@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{f58e3dfd-d825-49e5-ae9b-8bf2c87f91d7}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\osf\icu\icu4c\source\test\iotest\filetst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\iotest\iotest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\iotest\stream.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\iotest\strtst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\iotest\trnstst.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\iotest\iotest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

@@ -1148,14 +1148,12 @@ void Notepad_plus::command(int id)
 		    FindStatus status = FSNoMessage;
 		    _findReplaceDlg.processFindNext(text2Find, &op, &status);
 		    if(status == FSEndReached) {
-			    generic_string msg =
-				_nativeLangSpeaker.getLocalizedStrFromID("find-status-end-reached",
+			    generic_string msg = _nativeLangSpeaker.getLocalizedStrFromID("find-status-end-reached",
 				    TEXT("Find: Found the 1st occurrence from the top. The end of the document has been reached."));
 			    _findReplaceDlg.setStatusbarMessage(msg, FSEndReached);
 		    }
 		    else if(status == FSTopReached) {
-			    generic_string msg =
-				_nativeLangSpeaker.getLocalizedStrFromID("find-status-top-reached",
+			    generic_string msg = _nativeLangSpeaker.getLocalizedStrFromID("find-status-top-reached",
 				    TEXT("Find: Found the 1st occurrence from the bottom. The beginning of the document has been reached."));
 			    _findReplaceDlg.setStatusbarMessage(msg, FSTopReached);
 		    }

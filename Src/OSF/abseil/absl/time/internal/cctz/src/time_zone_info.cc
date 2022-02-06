@@ -361,7 +361,8 @@ bool TimeZoneInfo::ExtendTransitions() {
 	return true;
 }
 
-bool TimeZoneInfo::Load(ZoneInfoSource* zip) {
+bool TimeZoneInfo::Load(ZoneInfoSource* zip) 
+{
 	// Read and validate the header.
 	tzhead tzh;
 	if(zip->Read(&tzh, sizeof(tzh)) != sizeof(tzh)) return false;
@@ -372,13 +373,17 @@ bool TimeZoneInfo::Load(ZoneInfoSource* zip) {
 	std::size_t time_len = 4;
 	if(tzh.tzh_version[0] != '\0') {
 		// Skip the 4-byte data.
-		if(zip->Skip(hdr.DataLength(time_len)) != 0) return false;
+		if(zip->Skip(hdr.DataLength(time_len)) != 0) 
+			return false;
 		// Read and validate the header for the 8-byte data.
-		if(zip->Read(&tzh, sizeof(tzh)) != sizeof(tzh)) return false;
+		if(zip->Read(&tzh, sizeof(tzh)) != sizeof(tzh)) 
+			return false;
 		if(strncmp(tzh.tzh_magic, TZ_MAGIC, sizeof(tzh.tzh_magic)) != 0)
 			return false;
-		if(tzh.tzh_version[0] == '\0') return false;
-		if(!hdr.Build(tzh)) return false;
+		if(tzh.tzh_version[0] == '\0') 
+			return false;
+		if(!hdr.Build(tzh)) 
+			return false;
 		time_len = 8;
 	}
 	if(hdr.typecnt == 0) return false;

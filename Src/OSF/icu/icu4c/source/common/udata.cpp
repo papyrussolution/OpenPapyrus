@@ -22,31 +22,16 @@
 #include "ucmndata.h"
 #include "udatamem.h"
 #include "umapfile.h"
-
-/***********************************************************************
- *
- *   Notes on the organization of the ICU data implementation
- *
- *      All of the public API is defined in udata.h
- *
- *      The implementation is split into several files...
- *
- *         - udata.c  (this file) contains higher level code that knows about
- *                     the search paths for locating data, caching opened data, etc.
- *
- *         - umapfile.c  contains the low level platform-specific code for actually loading
- *                     (memory mapping, file reading, whatever) data into memory.
- *
- *         - ucmndata.c  deals with the tables of contents of ICU data items within
- *                     an ICU common format data file.  The implementation includes
- *                     an abstract interface and support for multiple TOC formats.
- *                     All knowledge of any specific TOC format is encapsulated here.
- *
- *         - udatamem.c has code for managing UDataMemory structs.  These are little
- *                     descriptor objects for blocks of memory holding ICU data of
- *                     various types.
- */
-
+// 
+// Notes on the organization of the ICU data implementation
+// All of the public API is defined in udata.h
+//   The implementation is split into several files...
+//    - udata.c  (this file) contains higher level code that knows about the search paths for locating data, caching opened data, etc.
+//    - umapfile.c  contains the low level platform-specific code for actually loading (memory mapping, file reading, whatever) data into memory.
+//    - ucmndata.c  deals with the tables of contents of ICU data items within an ICU common format data file.  The implementation includes
+//      an abstract interface and support for multiple TOC formats. All knowledge of any specific TOC format is encapsulated here.
+//    - udatamem.c has code for managing UDataMemory structs.  These are little descriptor objects for blocks of memory holding ICU data of various types.
+// 
 /* configuration ---------------------------------------------------------- */
 
 /* If you are excruciatingly bored turn this on .. */
@@ -83,9 +68,7 @@ static UDataMemory * udata_findCachedData(const char * path, UErrorCode &err);
  * of this.
  */
 static UDataMemory * gCommonICUDataArray[10] = { NULL };   // Access protected by icu global mutex.
-
 static u_atomic_int32_t gHaveTriedToLoadCommonData = ATOMIC_INT32_T_INITIALIZER(0);  //  See extendICUData().
-
 static UHashtable  * gCommonDataCache = NULL; /* Global hash table of opened ICU data files.  */
 static icu::UInitOnce gCommonDataCacheInitOnce = U_INITONCE_INITIALIZER;
 
@@ -100,19 +83,16 @@ static UDataFileAccess gDataFileAccess = UDATA_NO_FILES;
 static bool U_CALLCONV udata_cleanup(void)
 {
 	int32_t i;
-
 	if(gCommonDataCache) {          /* Delete the cache of user data mappings.  */
 		uhash_close(gCommonDataCache); /* Table owns the contents, and will delete them. */
 		gCommonDataCache = NULL; /* Cleanup is not thread safe.       */
 	}
 	gCommonDataCacheInitOnce.reset();
-
 	for(i = 0; i < UPRV_LENGTHOF(gCommonICUDataArray) && gCommonICUDataArray[i] != NULL; ++i) {
 		udata_close(gCommonICUDataArray[i]);
 		gCommonICUDataArray[i] = NULL;
 	}
 	gHaveTriedToLoadCommonData = 0;
-
 	return TRUE; /* Everything was cleaned up */
 }
 
@@ -120,11 +100,9 @@ static bool U_CALLCONV findCommonICUDataByName(const char * inBasename, UErrorCo
 {
 	bool found = FALSE;
 	int32_t i;
-
 	UDataMemory  * pData = udata_findCachedData(inBasename, err);
 	if(U_FAILURE(err) || pData == NULL)
 		return FALSE;
-
 	{
 		Mutex lock;
 		for(i = 0; i < UPRV_LENGTHOF(gCommonICUDataArray); ++i) {
@@ -246,14 +224,16 @@ typedef struct DataCacheElement {
  *         udata cleanup function closes the hash table; hash table in turn calls back to
  *         here for each entry.
  */
-static void U_CALLCONV DataCacheElement_deleter(void * pDCEl) {
+static void U_CALLCONV DataCacheElement_deleter(void * pDCEl) 
+{
 	DataCacheElement * p = (DataCacheElement*)pDCEl;
 	udata_close(p->item); /* unmaps storage */
 	uprv_free(p->name); /* delete the hash key string. */
 	uprv_free(pDCEl); /* delete 'this' */
 }
 
-static void U_CALLCONV udata_initHashTable(UErrorCode &err) {
+static void U_CALLCONV udata_initHashTable(UErrorCode &err) 
+{
 	U_ASSERT(gCommonDataCache == NULL);
 	gCommonDataCache = uhash_open(uhash_hashChars, uhash_compareChars, NULL, &err);
 	if(U_FAILURE(err)) {
@@ -1080,16 +1060,13 @@ static UDataMemory * doLoadFromCommonData(bool isICUData, const char * /*pkgName
 		}
 	}
 }
-
 /*
  * Identify the Time Zone resources that are subject to special override data loading.
  */
-static bool isTimeZoneFile(const char * name, const char * type) {
-	return ((uprv_strcmp(type, "res") == 0) &&
-	       (uprv_strcmp(name, "zoneinfo64") == 0 ||
-	       uprv_strcmp(name, "timezoneTypes") == 0 ||
-	       uprv_strcmp(name, "windowsZones") == 0 ||
-	       uprv_strcmp(name, "metaZones") == 0));
+static bool isTimeZoneFile(const char * name, const char * type) 
+{
+	return ((uprv_strcmp(type, "res") == 0) && (uprv_strcmp(name, "zoneinfo64") == 0 ||
+	       uprv_strcmp(name, "timezoneTypes") == 0 || uprv_strcmp(name, "windowsZones") == 0 || uprv_strcmp(name, "metaZones") == 0));
 }
 
 /*
@@ -1117,41 +1094,27 @@ static bool isTimeZoneFile(const char * name, const char * type) {
  *  They have a flag to indicate when they're heap allocated and thus
  *  must be deleted when closed.
  */
-
-/*----------------------------------------------------------------------------*
-*                                                                            *
-* main data loading functions                                                *
-*                                                                            *
-*----------------------------------------------------------------------------*/
-static UDataMemory * doOpenChoice(const char * path, const char * type, const char * name,
-    UDataMemoryIsAcceptable * isAcceptable, void * context,
-    UErrorCode * pErrorCode)
+// 
+// main data loading functions
+// 
+static UDataMemory * doOpenChoice(const char * path, const char * type, const char * name, UDataMemoryIsAcceptable * isAcceptable, void * context, UErrorCode * pErrorCode)
 {
 	UDataMemory  * retVal = NULL;
-
 	const char * dataPath;
-
 	int32_t tocEntrySuffixIndex;
 	const char * tocEntryPathSuffix;
 	UErrorCode subErrorCode = U_ZERO_ERROR;
 	const char * treeChar;
-
 	bool isICUData = FALSE;
-
 	FileTracer::traceOpen(path, type, name);
-
-	/* Is this path ICU data? */
-	if(path == NULL ||
-	    !strcmp(path, U_ICUDATA_ALIAS) || /* "ICUDATA" */
-	    !uprv_strncmp(path, U_ICUDATA_NAME U_TREE_SEPARATOR_STRING, /* "icudt26e-" */
-	    uprv_strlen(U_ICUDATA_NAME U_TREE_SEPARATOR_STRING)) ||
-	    !uprv_strncmp(path, U_ICUDATA_ALIAS U_TREE_SEPARATOR_STRING, /* "ICUDATA-" */
+	// Is this path ICU data? 
+	if(!path || sstreq(path, U_ICUDATA_ALIAS) || /* "ICUDATA" */ !uprv_strncmp(path, U_ICUDATA_NAME U_TREE_SEPARATOR_STRING, /* "icudt26e-" */
+	    uprv_strlen(U_ICUDATA_NAME U_TREE_SEPARATOR_STRING)) || !uprv_strncmp(path, U_ICUDATA_ALIAS U_TREE_SEPARATOR_STRING, /* "ICUDATA-" */
 	    uprv_strlen(U_ICUDATA_ALIAS U_TREE_SEPARATOR_STRING))) {
 		isICUData = TRUE;
 	}
-
-#if(U_FILE_SEP_CHAR != U_FILE_ALT_SEP_CHAR)  /* Windows:  try "foo\bar" and "foo/bar" */
-	/* remap from alternate path char to the main one */
+#if(U_FILE_SEP_CHAR != U_FILE_ALT_SEP_CHAR) // Windows:  try "foo\bar" and "foo/bar" 
+	// remap from alternate path char to the main one 
 	CharString altSepPath;
 	if(path) {
 		if(uprv_strchr(path, U_FILE_ALT_SEP_CHAR) != NULL) {
@@ -1167,24 +1130,19 @@ static UDataMemory * doOpenChoice(const char * path, const char * type, const ch
 		}
 	}
 #endif
-
 	CharString tocEntryName; /* entry name in tree format. ex:  'icudt28b/coll/ar.res' */
 	CharString tocEntryPath; /* entry name in path format. ex:  'icudt28b\\coll\\ar.res' */
-
 	CharString pkgName;
 	CharString treeName;
-
 	/* ======= Set up strings */
 	if(path==NULL) {
 		pkgName.append(U_ICUDATA_NAME, *pErrorCode);
 	}
 	else {
-		const char * pkg;
-		const char * first;
-		pkg = uprv_strrchr(path, U_FILE_SEP_CHAR);
-		first = uprv_strchr(path, U_FILE_SEP_CHAR);
+		const char * pkg = uprv_strrchr(path, U_FILE_SEP_CHAR);
+		const char * first = uprv_strchr(path, U_FILE_SEP_CHAR);
 		if(uprv_pathIsAbsolute(path) || (pkg != first)) { /* more than one slash in the path- not a tree name */
-			/* see if this is an /absolute/path/to/package  path */
+			// see if this is an /absolute/path/to/package  path 
 			if(pkg) {
 				pkgName.append(pkg+1, *pErrorCode);
 			}
@@ -1202,10 +1160,8 @@ static UDataMemory * doOpenChoice(const char * path, const char * type, const ch
 				else {
 					pkgName.append(path, (int32_t)(treeChar-path), *pErrorCode);
 					if(first == NULL) {
-						/*
-						   This user data has no path, but there is a tree name.
-						   Look up the correct path from the data cache later.
-						 */
+						// This user data has no path, but there is a tree name.
+						// Look up the correct path from the data cache later.
 						path = pkgName.data();
 					}
 				}
@@ -1220,40 +1176,32 @@ static UDataMemory * doOpenChoice(const char * path, const char * type, const ch
 			}
 		}
 	}
-
 #ifdef UDATA_DEBUG
 	slfprintf_stderr(" P=%s T=%s\n", pkgName.data(), treeName.data());
 #endif
-
 	/* setting up the entry name and file name
-	 * Make up a full name by appending the type to the supplied
-	 *  name, assuming that a type was supplied.
+	 * Make up a full name by appending the type to the supplied name, assuming that a type was supplied.
 	 */
-
 	/* prepend the package */
 	tocEntryName.append(pkgName, *pErrorCode);
 	tocEntryPath.append(pkgName, *pErrorCode);
 	tocEntrySuffixIndex = tocEntryName.length();
-
 	if(!treeName.isEmpty()) {
 		tocEntryName.append(U_TREE_ENTRY_SEP_CHAR, *pErrorCode).append(treeName, *pErrorCode);
 		tocEntryPath.append(U_FILE_SEP_CHAR, *pErrorCode).append(treeName, *pErrorCode);
 	}
-
 	tocEntryName.append(U_TREE_ENTRY_SEP_CHAR, *pErrorCode).append(name, *pErrorCode);
 	tocEntryPath.append(U_FILE_SEP_CHAR, *pErrorCode).append(name, *pErrorCode);
-	if(type!=NULL && *type!=0) {
+	if(!isempty(type)) {
 		tocEntryName.append(".", *pErrorCode).append(type, *pErrorCode);
 		tocEntryPath.append(".", *pErrorCode).append(type, *pErrorCode);
 	}
 	// The +1 is for the U_FILE_SEP_CHAR that is always appended above.
 	tocEntryPathSuffix = tocEntryPath.data() + tocEntrySuffixIndex + 1; /* suffix starts here */
-
 #ifdef UDATA_DEBUG
 	slfprintf_stderr(" tocEntryName = %s\n", tocEntryName.data());
 	slfprintf_stderr(" tocEntryPath = %s\n", tocEntryName.data());
 #endif
-
 #if !defined(ICU_DATA_DIR_WINDOWS)
 	if(path == NULL) {
 		path = COMMON_DATA_NAME; /* "icudt26e" */
@@ -1262,15 +1210,12 @@ static UDataMemory * doOpenChoice(const char * path, const char * type, const ch
 	// When using the Windows system data, we expects only a single data file.
 	path = COMMON_DATA_NAME; /* "icudt26e" */
 #endif
-
 	/************************ Begin loop looking for ind. files ***************/
 #ifdef UDATA_DEBUG
 	slfprintf_stderr("IND: inBasename = %s, pkg=%s\n", "(n/a)", packageNameFromPath(path));
 #endif
-
 	/* End of dealing with a null basename */
 	dataPath = u_getDataDirectory();
-
 	/****    Time zone individual files override  */
 	if(isICUData && isTimeZoneFile(name, type)) {
 		const char * tzFilesDir = u_getTimeZoneFilesDirectory(pErrorCode);
@@ -1280,56 +1225,47 @@ static UDataMemory * doOpenChoice(const char * path, const char * type, const ch
 #endif
 			retVal = doLoadFromIndividualFiles(/* pkgName.data() */ "", tzFilesDir, tocEntryPathSuffix,
 			        /* path */ "", type, name, isAcceptable, context, &subErrorCode, pErrorCode);
-			if((retVal != NULL) || U_FAILURE(*pErrorCode)) {
+			if(retVal || U_FAILURE(*pErrorCode)) {
 				return retVal;
 			}
 		}
 	}
-
 	/****    COMMON PACKAGE  - only if packages are first. */
 	if(gDataFileAccess == UDATA_PACKAGES_FIRST) {
 #ifdef UDATA_DEBUG
 		slfprintf_stderr("Trying packages (UDATA_PACKAGES_FIRST)\n");
 #endif
 		/* #2 */
-		retVal = doLoadFromCommonData(isICUData,
-			pkgName.data(), dataPath, tocEntryPathSuffix, tocEntryName.data(),
+		retVal = doLoadFromCommonData(isICUData, pkgName.data(), dataPath, tocEntryPathSuffix, tocEntryName.data(),
 			path, type, name, isAcceptable, context, &subErrorCode, pErrorCode);
-		if((retVal != NULL) || U_FAILURE(*pErrorCode)) {
+		if(retVal || U_FAILURE(*pErrorCode)) {
 			return retVal;
 		}
 	}
-
 	/****    INDIVIDUAL FILES  */
-	if((gDataFileAccess==UDATA_PACKAGES_FIRST) ||
-	    (gDataFileAccess==UDATA_FILES_FIRST)) {
+	if(oneof2(gDataFileAccess, UDATA_PACKAGES_FIRST, UDATA_FILES_FIRST)) {
 #ifdef UDATA_DEBUG
 		slfprintf_stderr("Trying individual files\n");
 #endif
 		/* Check to make sure that there is a dataPath to iterate over */
 		if((dataPath && *dataPath) || !isICUData) {
-			retVal = doLoadFromIndividualFiles(pkgName.data(), dataPath, tocEntryPathSuffix,
-				path, type, name, isAcceptable, context, &subErrorCode, pErrorCode);
-			if((retVal != NULL) || U_FAILURE(*pErrorCode)) {
+			retVal = doLoadFromIndividualFiles(pkgName.data(), dataPath, tocEntryPathSuffix, path, type, name, isAcceptable, context, &subErrorCode, pErrorCode);
+			if(retVal || U_FAILURE(*pErrorCode)) {
 				return retVal;
 			}
 		}
 	}
-
 	/****    COMMON PACKAGE  */
-	if((gDataFileAccess==UDATA_ONLY_PACKAGES) ||
-	    (gDataFileAccess==UDATA_FILES_FIRST)) {
+	if(oneof2(gDataFileAccess, UDATA_ONLY_PACKAGES, UDATA_FILES_FIRST)) {
 #ifdef UDATA_DEBUG
 		slfprintf_stderr("Trying packages (UDATA_ONLY_PACKAGES || UDATA_FILES_FIRST)\n");
 #endif
-		retVal = doLoadFromCommonData(isICUData,
-			pkgName.data(), dataPath, tocEntryPathSuffix, tocEntryName.data(),
+		retVal = doLoadFromCommonData(isICUData, pkgName.data(), dataPath, tocEntryPathSuffix, tocEntryName.data(),
 			path, type, name, isAcceptable, context, &subErrorCode, pErrorCode);
-		if((retVal != NULL) || U_FAILURE(*pErrorCode)) {
+		if(retVal || U_FAILURE(*pErrorCode)) {
 			return retVal;
 		}
 	}
-
 	/* Load from DLL.  If we haven't attempted package load, we also haven't had any chance to
 	    try a DLL (static or setCommonData/etc)  load.
 	     If we ever have a "UDATA_ONLY_FILES", add it to the or list here.  */
@@ -1337,23 +1273,19 @@ static UDataMemory * doOpenChoice(const char * path, const char * type, const ch
 #ifdef UDATA_DEBUG
 		slfprintf_stderr("Trying common data (UDATA_NO_FILES)\n");
 #endif
-		retVal = doLoadFromCommonData(isICUData,
-			pkgName.data(), "", tocEntryPathSuffix, tocEntryName.data(),
+		retVal = doLoadFromCommonData(isICUData, pkgName.data(), "", tocEntryPathSuffix, tocEntryName.data(),
 			path, type, name, isAcceptable, context, &subErrorCode, pErrorCode);
-		if((retVal != NULL) || U_FAILURE(*pErrorCode)) {
+		if(retVal || U_FAILURE(*pErrorCode)) {
 			return retVal;
 		}
 	}
-
-	/* data not found */
+	// data not found 
 	if(U_SUCCESS(*pErrorCode)) {
 		if(U_SUCCESS(subErrorCode)) {
-			/* file not found */
-			*pErrorCode = U_FILE_ACCESS_ERROR;
+			*pErrorCode = U_FILE_ACCESS_ERROR; // file not found 
 		}
 		else {
-			/* entry point not found or rejected */
-			*pErrorCode = subErrorCode;
+			*pErrorCode = subErrorCode; // entry point not found or rejected 
 		}
 	}
 	return retVal;

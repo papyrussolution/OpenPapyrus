@@ -1,0 +1,3 @@
+To generate error.h from generate-exceptions exception_data.pm:
+	perl.exe -ID:\Papyrus\Src\OSF\xapian\xapian-core generate-exceptions 
+	result will be: include\xapian\error.h 

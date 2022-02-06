@@ -96,9 +96,7 @@ bool TestEnum_IsValid(int value) {
 class TestMessage::_Internal {
  public:
   using HasBits = decltype(std::declval<TestMessage>()._has_bits_);
-  static void set_has_a(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
+  static void set_has_a(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
 TestMessage::TestMessage(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -296,9 +294,7 @@ void TestMessage::InternalSwap(TestMessage* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestMessage::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2funittest_5fno_5fgeneric_5fservices_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5fno_5fgeneric_5fservices_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2funittest_5fno_5fgeneric_5fservices_2eproto[0]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5fno_5fgeneric_5fservices_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5fno_5fgeneric_5fservices_2eproto_once, file_level_metadata_google_2fprotobuf_2funittest_5fno_5fgeneric_5fservices_2eproto[0]);
 }
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier< ::protobuf_unittest::no_generic_services_test::TestMessage,
     ::PROTOBUF_NAMESPACE_ID::internal::PrimitiveTypeTraits< int32_t >, 5, false >

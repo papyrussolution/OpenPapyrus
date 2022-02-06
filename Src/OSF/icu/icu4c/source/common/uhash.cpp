@@ -1,16 +1,11 @@
+// UHASH.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- *   Copyright (C) 1997-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- ******************************************************************************
- *   Date        Name        Description
- *   03/22/00    aliu        Adapted from original C++ ICU Hashtable.
- *   07/06/01    aliu        Modified to support int32_t keys on
- *        platforms with sizeof(void *) < 32.
- ******************************************************************************
- */
+// Copyright (C) 1997-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// Date        Name        Description
+// 03/22/00    aliu        Adapted from original C++ ICU Hashtable.
+// 07/06/01    aliu        Modified to support int32_t keys on platforms with sizeof(void *) < 32.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "ustr_imp.h"
@@ -250,7 +245,6 @@ static UHashtable * _uhash_init(UHashtable * result,
 	if(U_FAILURE(*status)) return NULL;
 	U_ASSERT(keyHash != NULL);
 	U_ASSERT(keyComp != NULL);
-
 	result->keyHasher       = keyHash;
 	result->keyComparator   = keyComp;
 	result->valueComparator = valueComp;
@@ -258,13 +252,10 @@ static UHashtable * _uhash_init(UHashtable * result,
 	result->valueDeleter    = NULL;
 	result->allocated       = FALSE;
 	_uhash_internalSetResizePolicy(result, U_GROW);
-
 	_uhash_allocate(result, primeIndex, status);
-
 	if(U_FAILURE(*status)) {
 		return NULL;
 	}
-
 	return result;
 }
 
@@ -274,23 +265,19 @@ static UHashtable * _uhash_create(UHashFunction * keyHash,
     int32_t primeIndex,
     UErrorCode * status) {
 	UHashtable * result;
-
-	if(U_FAILURE(*status)) return NULL;
-
+	if(U_FAILURE(*status))
+		return NULL;
 	result = (UHashtable*)uprv_malloc(sizeof(UHashtable));
 	if(result == NULL) {
 		*status = U_MEMORY_ALLOCATION_ERROR;
 		return NULL;
 	}
-
 	_uhash_init(result, keyHash, keyComp, valueComp, primeIndex, status);
 	result->allocated       = TRUE;
-
 	if(U_FAILURE(*status)) {
 		uprv_free(result);
 		return NULL;
 	}
-
 	return result;
 }
 
@@ -521,29 +508,21 @@ err:
 	emptytok.pointer = NULL; emptytok.integer = 0;
 	return emptytok;
 }
-
-/********************************************************************
-* PUBLIC API
-********************************************************************/
-
-U_CAPI UHashtable * U_EXPORT2 uhash_open(UHashFunction * keyHash,
-    UKeyComparator * keyComp,
-    UValueComparator * valueComp,
-    UErrorCode * status) {
+// 
+// PUBLIC API
+// 
+U_CAPI UHashtable * U_EXPORT2 uhash_open(UHashFunction * keyHash, UKeyComparator * keyComp, UValueComparator * valueComp, UErrorCode * status) 
+{
 	return _uhash_create(keyHash, keyComp, valueComp, DEFAULT_PRIME_INDEX, status);
 }
 
-U_CAPI UHashtable * U_EXPORT2 uhash_openSize(UHashFunction * keyHash,
-    UKeyComparator * keyComp,
-    UValueComparator * valueComp,
-    int32_t size,
-    UErrorCode * status) {
+U_CAPI UHashtable * U_EXPORT2 uhash_openSize(UHashFunction * keyHash, UKeyComparator * keyComp, UValueComparator * valueComp, int32_t size, UErrorCode * status) 
+{
 	/* Find the smallest index i for which PRIMES[i] >= size. */
 	int32_t i = 0;
 	while(i<(PRIMES_LENGTH-1) && PRIMES[i]<size) {
 		++i;
 	}
-
 	return _uhash_create(keyHash, keyComp, valueComp, i, status);
 }
 
@@ -555,12 +534,9 @@ U_CAPI UHashtable * U_EXPORT2 uhash_init(UHashtable * fillinResult,
 	return _uhash_init(fillinResult, keyHash, keyComp, valueComp, DEFAULT_PRIME_INDEX, status);
 }
 
-U_CAPI UHashtable * U_EXPORT2 uhash_initSize(UHashtable * fillinResult,
-    UHashFunction * keyHash,
-    UKeyComparator * keyComp,
-    UValueComparator * valueComp,
-    int32_t size,
-    UErrorCode * status) {
+U_CAPI UHashtable * U_EXPORT2 uhash_initSize(UHashtable * fillinResult, UHashFunction * keyHash, UKeyComparator * keyComp,
+    UValueComparator * valueComp, int32_t size, UErrorCode * status) 
+{
 	// Find the smallest index i for which PRIMES[i] >= size.
 	int32_t i = 0;
 	while(i<(PRIMES_LENGTH-1) && PRIMES[i]<size) {
@@ -569,33 +545,34 @@ U_CAPI UHashtable * U_EXPORT2 uhash_initSize(UHashtable * fillinResult,
 	return _uhash_init(fillinResult, keyHash, keyComp, valueComp, i, status);
 }
 
-U_CAPI void U_EXPORT2 uhash_close(UHashtable * hash) {
-	if(hash == NULL) {
-		return;
-	}
-	if(hash->elements != NULL) {
-		if(hash->keyDeleter != NULL || hash->valueDeleter != NULL) {
-			int32_t pos = UHASH_FIRST;
-			UHashElement * e;
-			while((e = (UHashElement*)uhash_nextElement(hash, &pos)) != NULL) {
-				HASH_DELETE_KEY_VALUE(hash, e->key.pointer, e->value.pointer);
+U_CAPI void U_EXPORT2 uhash_close(UHashtable * hash) 
+{
+	if(hash) {
+		if(hash->elements) {
+			if(hash->keyDeleter != NULL || hash->valueDeleter != NULL) {
+				int32_t pos = UHASH_FIRST;
+				UHashElement * e;
+				while((e = (UHashElement*)uhash_nextElement(hash, &pos)) != NULL) {
+					HASH_DELETE_KEY_VALUE(hash, e->key.pointer, e->value.pointer);
+				}
 			}
+			uprv_free(hash->elements);
+			hash->elements = NULL;
 		}
-		uprv_free(hash->elements);
-		hash->elements = NULL;
-	}
-	if(hash->allocated) {
-		uprv_free(hash);
+		if(hash->allocated)
+			uprv_free(hash);
 	}
 }
 
-U_CAPI UHashFunction * U_EXPORT2 uhash_setKeyHasher(UHashtable * hash, UHashFunction * fn) {
+U_CAPI UHashFunction * U_EXPORT2 uhash_setKeyHasher(UHashtable * hash, UHashFunction * fn) 
+{
 	UHashFunction * result = hash->keyHasher;
 	hash->keyHasher = fn;
 	return result;
 }
 
-U_CAPI UKeyComparator * U_EXPORT2 uhash_setKeyComparator(UHashtable * hash, UKeyComparator * fn) {
+U_CAPI UKeyComparator * U_EXPORT2 uhash_setKeyComparator(UHashtable * hash, UKeyComparator * fn) 
+{
 	UKeyComparator * result = hash->keyComparator;
 	hash->keyComparator = fn;
 	return result;
@@ -739,41 +716,37 @@ U_CAPI int32_t U_EXPORT2 uhash_putiAllowZero(UHashtable * hash,
 		   status).integer;
 }
 
-U_CAPI int32_t U_EXPORT2 uhash_iputiAllowZero(UHashtable * hash,
-    int32_t key,
-    int32_t value,
-    UErrorCode * status) {
+U_CAPI int32_t U_EXPORT2 uhash_iputiAllowZero(UHashtable * hash, int32_t key, int32_t value, UErrorCode * status) 
+{
 	UHashTok keyholder, valueholder;
 	keyholder.integer = key;
 	valueholder.integer = value;
-	return _uhash_put(hash, keyholder, valueholder,
-		   HINT_BOTH_INTEGERS | HINT_ALLOW_ZERO,
-		   status).integer;
+	return _uhash_put(hash, keyholder, valueholder, HINT_BOTH_INTEGERS | HINT_ALLOW_ZERO, status).integer;
 }
 
-U_CAPI void * U_EXPORT2 uhash_remove(UHashtable * hash,
-    const void * key) {
+U_CAPI void * U_EXPORT2 uhash_remove(UHashtable * hash, const void * key) 
+{
 	UHashTok keyholder;
 	keyholder.pointer = (void *)key;
 	return _uhash_remove(hash, keyholder).pointer;
 }
 
-U_CAPI void * U_EXPORT2 uhash_iremove(UHashtable * hash,
-    int32_t key) {
+U_CAPI void * U_EXPORT2 uhash_iremove(UHashtable * hash, int32_t key) 
+{
 	UHashTok keyholder;
 	keyholder.integer = key;
 	return _uhash_remove(hash, keyholder).pointer;
 }
 
-U_CAPI int32_t U_EXPORT2 uhash_removei(UHashtable * hash,
-    const void * key) {
+U_CAPI int32_t U_EXPORT2 uhash_removei(UHashtable * hash, const void * key) 
+{
 	UHashTok keyholder;
 	keyholder.pointer = (void *)key;
 	return _uhash_remove(hash, keyholder).integer;
 }
 
-U_CAPI int32_t U_EXPORT2 uhash_iremovei(UHashtable * hash,
-    int32_t key) {
+U_CAPI int32_t U_EXPORT2 uhash_iremovei(UHashtable * hash, int32_t key) 
+{
 	UHashTok keyholder;
 	keyholder.integer = key;
 	return _uhash_remove(hash, keyholder).integer;
@@ -812,7 +785,8 @@ U_CAPI bool U_EXPORT2 uhash_icontainsKey(const UHashtable * hash, int32_t key) {
 	return !IS_EMPTY_OR_DELETED(e->hashcode);
 }
 
-U_CAPI const UHashElement* U_EXPORT2 uhash_find(const UHashtable * hash, const void * key) {
+U_CAPI const UHashElement* U_EXPORT2 uhash_find(const UHashtable * hash, const void * key) 
+{
 	UHashTok keyholder;
 	const UHashElement * e;
 	keyholder.pointer = (void *)key;
@@ -820,7 +794,8 @@ U_CAPI const UHashElement* U_EXPORT2 uhash_find(const UHashtable * hash, const v
 	return IS_EMPTY_OR_DELETED(e->hashcode) ? NULL : e;
 }
 
-U_CAPI const UHashElement* U_EXPORT2 uhash_nextElement(const UHashtable * hash, int32_t * pos) {
+U_CAPI const UHashElement* U_EXPORT2 uhash_nextElement(const UHashtable * hash, int32_t * pos) 
+{
 	/* Walk through the array until we find an element that is not
 	 * EMPTY and not DELETED.
 	 */
@@ -832,12 +807,12 @@ U_CAPI const UHashElement* U_EXPORT2 uhash_nextElement(const UHashtable * hash, 
 			return &(hash->elements[i]);
 		}
 	}
-
 	/* No more elements */
 	return NULL;
 }
 
-U_CAPI void * U_EXPORT2 uhash_removeElement(UHashtable * hash, const UHashElement* e) {
+U_CAPI void * U_EXPORT2 uhash_removeElement(UHashtable * hash, const UHashElement* e) 
+{
 	U_ASSERT(hash != NULL);
 	U_ASSERT(e != NULL);
 	if(!IS_EMPTY_OR_DELETED(e->hashcode)) {
@@ -846,11 +821,9 @@ U_CAPI void * U_EXPORT2 uhash_removeElement(UHashtable * hash, const UHashElemen
 	}
 	return NULL;
 }
-
-/********************************************************************
-* UHashTok convenience
-********************************************************************/
-
+// 
+// UHashTok convenience
+// 
 /**
  * Return a UHashTok for an integer.
  */
@@ -870,11 +843,9 @@ U_CAPI void * U_EXPORT2 uhash_removeElement(UHashtable * hash, const UHashElemen
     tok.pointer = p;
     return tok;
    }*/
-
-/********************************************************************
-* PUBLIC Key Hash Functions
-********************************************************************/
-
+// 
+// PUBLIC Key Hash Functions
+// 
 U_CAPI int32_t U_EXPORT2 uhash_hashUChars(const UHashTok key) {
 	const UChar * s = (const UChar *)key.pointer;
 	return s == NULL ? 0 : ustr_hashUCharsN(s, u_strlen(s));
@@ -939,12 +910,11 @@ U_CAPI bool U_EXPORT2 uhash_equals(const UHashtable * hash1, const UHashtable * 
 	}
 	return TRUE;
 }
-
-/********************************************************************
-* PUBLIC Comparator Functions
-********************************************************************/
-
-U_CAPI bool U_EXPORT2 uhash_compareUChars(const UHashTok key1, const UHashTok key2) {
+// 
+// PUBLIC Comparator Functions
+// 
+U_CAPI bool U_EXPORT2 uhash_compareUChars(const UHashTok key1, const UHashTok key2) 
+{
 	const UChar * p1 = (const UChar *)key1.pointer;
 	const UChar * p2 = (const UChar *)key2.pointer;
 	if(p1 == p2) {
@@ -960,7 +930,8 @@ U_CAPI bool U_EXPORT2 uhash_compareUChars(const UHashTok key1, const UHashTok ke
 	return (bool)(*p1 == *p2);
 }
 
-U_CAPI bool U_EXPORT2 uhash_compareChars(const UHashTok key1, const UHashTok key2) {
+U_CAPI bool U_EXPORT2 uhash_compareChars(const UHashTok key1, const UHashTok key2) 
+{
 	const char * p1 = (const char *)key1.pointer;
 	const char * p2 = (const char *)key2.pointer;
 	if(p1 == p2) {
@@ -976,7 +947,8 @@ U_CAPI bool U_EXPORT2 uhash_compareChars(const UHashTok key1, const UHashTok key
 	return (bool)(*p1 == *p2);
 }
 
-U_CAPI bool U_EXPORT2 uhash_compareIChars(const UHashTok key1, const UHashTok key2) {
+U_CAPI bool U_EXPORT2 uhash_compareIChars(const UHashTok key1, const UHashTok key2) 
+{
 	const char * p1 = (const char *)key1.pointer;
 	const char * p2 = (const char *)key2.pointer;
 	if(p1 == p2) {
@@ -991,15 +963,8 @@ U_CAPI bool U_EXPORT2 uhash_compareIChars(const UHashTok key1, const UHashTok ke
 	}
 	return (bool)(*p1 == *p2);
 }
-
-/********************************************************************
-* PUBLIC int32_t Support Functions
-********************************************************************/
-
-U_CAPI int32_t U_EXPORT2 uhash_hashLong(const UHashTok key) {
-	return key.integer;
-}
-
-U_CAPI bool U_EXPORT2 uhash_compareLong(const UHashTok key1, const UHashTok key2) {
-	return (bool)(key1.integer == key2.integer);
-}
+// 
+// PUBLIC int32_t Support Functions
+// 
+U_CAPI int32_t U_EXPORT2 uhash_hashLong(const UHashTok key) { return key.integer; }
+U_CAPI bool U_EXPORT2 uhash_compareLong(const UHashTok key1, const UHashTok key2) { return (bool)(key1.integer == key2.integer); }

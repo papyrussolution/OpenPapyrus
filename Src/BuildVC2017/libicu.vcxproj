@@ -341,11 +341,11 @@
       <TypeLibraryName>$(OutDir)\icuuc.tlb</TypeLibraryName>
     </Midl>
     <ClCompile>
-      <PreprocessorDefinitions>U_STATIC_IMPLEMENTATION;U_ATTRIBUTE_DEPRECATED=;U_COMMON_IMPLEMENTATION;U_PLATFORM_USES_ONLY_WIN32_API=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>U_ATTRIBUTE_DEPRECATED=;U_COMMON_IMPLEMENTATION;U_PLATFORM_USES_ONLY_WIN32_API=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableLanguageExtensions>false</DisableLanguageExtensions>
       <WarningLevel>Level3</WarningLevel>
       <CompileAs>CompileAsCpp</CompileAs>
-      <DebugInformationFormat>None</DebugInformationFormat>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>$(OutDir)/</AssemblerListingLocation>
       <ObjectFileName>$(OutDir)/</ObjectFileName>
@@ -360,7 +360,7 @@
   <!-- Options that are common to all 'Debug' project configurations -->
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
-      <PreprocessorDefinitions>U_STATIC_IMPLEMENTATION;RBBI_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>RBBI_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BrowseInformation>false</BrowseInformation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StringPooling Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</StringPooling>
@@ -394,6 +394,8 @@
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ConformanceMode>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">1Byte</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">1Byte</StructMemberAlignment>
     </ClCompile>
     <Link>
       <OutputFile>..\..\$(IcuBinOutputDir)\icuuc70d.dll</OutputFile>
@@ -406,7 +408,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='MtDllDebug'">
     <ClCompile>
-      <PreprocessorDefinitions>U_STATIC_IMPLEMENTATION;RBBI_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>RBBI_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BrowseInformation>false</BrowseInformation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StringPooling Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|ARM'">true</StringPooling>
@@ -446,6 +448,8 @@
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ConformanceMode>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">false</CompileAsManaged>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">1Byte</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">1Byte</StructMemberAlignment>
     </ClCompile>
     <Link>
       <OutputFile>..\..\$(IcuBinOutputDir)\icuuc70d.dll</OutputFile>
@@ -458,7 +462,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='ServerDebug'">
     <ClCompile>
-      <PreprocessorDefinitions>U_STATIC_IMPLEMENTATION;RBBI_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>RBBI_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BrowseInformation>false</BrowseInformation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StringPooling Condition="'$(Configuration)|$(Platform)'=='ServerDebug|ARM'">true</StringPooling>
@@ -498,6 +502,8 @@
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ConformanceMode>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">false</CompileAsManaged>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">1Byte</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">1Byte</StructMemberAlignment>
     </ClCompile>
     <Link>
       <OutputFile>..\..\$(IcuBinOutputDir)\icuuc70d.dll</OutputFile>
@@ -543,6 +549,8 @@
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ConformanceMode>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsManaged>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">1Byte</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Release|x64'">1Byte</StructMemberAlignment>
     </ClCompile>
     <Link>
       <OutputFile>..\..\$(IcuBinOutputDir)\icuuc70.dll</OutputFile>
@@ -593,6 +601,8 @@
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ConformanceMode>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">false</CompileAsManaged>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">1Byte</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">1Byte</StructMemberAlignment>
     </ClCompile>
     <Link>
       <OutputFile>..\..\$(IcuBinOutputDir)\icuuc70.dll</OutputFile>
@@ -643,6 +653,8 @@
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ConformanceMode>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">false</CompileAsManaged>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">1Byte</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">1Byte</StructMemberAlignment>
     </ClCompile>
     <Link>
       <OutputFile>..\..\$(IcuBinOutputDir)\icuuc70.dll</OutputFile>
@@ -724,7 +736,20 @@
     <ClCompile Include="..\osf\icu\icu4c\source\common\icudataver.cpp" />
     <ClCompile Include="..\osf\icu\icu4c\source\common\locmap.cpp" />
     <ClCompile Include="..\osf\icu\icu4c\source\common\putil.cpp" />
-    <ClCompile Include="..\osf\icu\icu4c\source\common\umath.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\umath.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\osf\icu\icu4c\source\common\umutex.cpp" />
     <ClCompile Include="..\osf\icu\icu4c\source\common\utrace.cpp" />
     <ClCompile Include="..\osf\icu\icu4c\source\common\utypes.cpp" />

@@ -1055,10 +1055,10 @@ public:
 	{
 		xmlFreeDoc(P_Doc);
 	}
-	xmlNode * FindFirstRec(xmlNode * pChild, const char * pTag)
+	const xmlNode * FindFirstRec(const xmlNode * pChild, const char * pTag)
 	{
-		xmlNode * p_result = 0;
-		for(xmlNode * p_rec = pChild; p_rec && !p_result; p_rec = p_rec->next) {
+		const xmlNode * p_result = 0;
+		for(const xmlNode * p_rec = pChild; p_rec && !p_result; p_rec = p_rec->next) {
 			p_result = SXml::IsName(p_rec, pTag) ? p_rec : FindFirstRec(p_rec->children, pTag); // @recursion
 		}
 		return p_result;
@@ -1082,8 +1082,8 @@ int AndroidReader::ReadGeoTracks(PalmInputParam * pParam)
 	if(pParam && pParam->P_GtList && p_doc) {
 		long   _count = 0;
 		IterCounter cntr;
-		xmlNode * p_first_rec = 0;
-		xmlNode * p_node = 0;
+		const xmlNode * p_first_rec = 0;
+		const xmlNode * p_node = 0;
 		xmlNode * p_root = xmlDocGetRootElement(p_doc);
 		{
 			p_node = FindFirstRec(p_root, p_hdr_tag);
@@ -1100,7 +1100,7 @@ int AndroidReader::ReadGeoTracks(PalmInputParam * pParam)
 		}
 		cntr.Init(_count);
 		for(p_node = p_first_rec; p_node; p_node = p_node->next) {
-			xmlNode * p_fld = p_node->children;
+			const xmlNode * p_fld = p_node->children;
 			if(p_fld) {
 				PPGeoTrackItem gt_item;
 				PPID line_order_id = 0;
@@ -1154,9 +1154,9 @@ int AndroidReader::ReadBills(PalmInputParam * pParam, long billIdBias, long * pO
 	if(pParam && pParam->P_BillQueue && p_doc) {
 		long   _count = 0;
 		IterCounter cntr;
-		xmlNode * p_first_rec = 0;
-		xmlNode * p_node = 0;
-		xmlNode * p_root = xmlDocGetRootElement(p_doc);
+		const xmlNode * p_first_rec = 0;
+		const xmlNode * p_node = 0;
+		const xmlNode * p_root = xmlDocGetRootElement(p_doc);
 		{
 			p_node = FindFirstRec(p_root, p_hdr_tag);
 			if(SXml::IsName(p_node, p_hdr_tag)) {
@@ -1172,7 +1172,7 @@ int AndroidReader::ReadBills(PalmInputParam * pParam, long billIdBias, long * pO
 		}
 		cntr.Init(_count);
 		for(p_node = p_first_rec; p_node; p_node = p_node->next) {
-			xmlNode * p_fld = p_node->children;
+			const xmlNode * p_fld = p_node->children;
 			if(p_fld) {
 				PalmBillPacket * p_pack = new PalmBillPacket;
 				PPID line_order_id = 0;
@@ -1217,8 +1217,8 @@ int AndroidReader::ReadBills(PalmInputParam * pParam, long billIdBias, long * pO
 				line_order_id = p_pack->Hdr.ID;
 				if(line_order_id) {
 					pParam->P_BillQueue->PushUnique(p_pack);
-					xmlNode * p_first_row_rec = 0;
-					xmlNode * p_row_node = 0;
+					const xmlNode * p_first_row_rec = 0;
+					const xmlNode * p_row_node = 0;
 					for(p_fld = p_node->children; p_fld; p_fld = p_fld->next) {
 						if(SXml::IsName(p_fld, "OrderRowTable")) {
 							for(p_fld = p_fld->children; !p_first_row_rec && p_fld; p_fld = p_fld->next) {

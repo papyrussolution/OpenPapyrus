@@ -1686,10 +1686,10 @@ U_CAPI int32_t U_EXPORT2 uloc_getParent(const char * localeID,
 		if(uprv_strnicmp(localeID, "und_", 4) == 0) {
 			localeID += 3;
 			i -= 3;
-			uprv_memmove(parent, localeID, uprv_min(i, parentCapacity));
+			uprv_memmove(parent, localeID, smin(i, parentCapacity));
 		}
 		else if(parent != localeID) {
-			uprv_memcpy(parent, localeID, uprv_min(i, parentCapacity));
+			uprv_memcpy(parent, localeID, smin(i, parentCapacity));
 		}
 	}
 

@@ -32,9 +32,7 @@ namespace protobuf_unittest_import {
 class PublicImportMessageLite::_Internal {
  public:
   using HasBits = decltype(std::declval<PublicImportMessageLite>()._has_bits_);
-  static void set_has_e(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
+  static void set_has_e(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
 PublicImportMessageLite::PublicImportMessageLite(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -209,9 +207,7 @@ void PublicImportMessageLite::InternalSwap(PublicImportMessageLite* other) {
   swap(e_, other->e_);
 }
 
-std::string PublicImportMessageLite::GetTypeName() const {
-  return "protobuf_unittest_import.PublicImportMessageLite";
-}
+std::string PublicImportMessageLite::GetTypeName() const { return "protobuf_unittest_import.PublicImportMessageLite"; }
 
 
 // @@protoc_insertion_point(namespace_scope)

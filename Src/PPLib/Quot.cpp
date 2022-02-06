@@ -958,7 +958,7 @@ int UpdateQuots(const QuotUpdFilt * pFilt)
 											}
 											if(to_process) {
 												THROW(_SetQuot(&qary, qi, price, 0, 0, 0 /* period */));
-												THROW(goods_obj.P_Tbl->SetQuotList(qary, 0));
+												THROW(goods_obj.P_Tbl->SetQuotList(qary, false, 0));
 												THROW(SetupQuotUpdRegBill(flt, qary, reg_pack_list));
 											}
 										}
@@ -1061,7 +1061,7 @@ int UpdateQuots(const QuotUpdFilt * pFilt)
 										}
 										if(upd) {
 											PROFILE_START
-											THROW(goods_obj.P_Tbl->SetQuotListQ(upd_list, &qtemplate, 1, 0));
+											THROW(goods_obj.P_Tbl->SetQuotListQ(upd_list, &qtemplate, true, 0));
 											THROW(SetupQuotUpdRegBill(flt, upd_list, reg_pack_list));
 											PROFILE_END
 										}
@@ -1158,7 +1158,7 @@ int UpdateQuots(const QuotUpdFilt * pFilt)
 								}
 							}
 							if(upd) {
-								THROW(goods_obj.P_Tbl->SetQuotList(qary, 0));
+								THROW(goods_obj.P_Tbl->SetQuotList(qary, false, 0));
 								THROW(SetupQuotUpdRegBill(flt, qary, reg_pack_list));
 							}
 						}
@@ -1248,7 +1248,7 @@ int EditQuotRollbackDialog(LDATETIME *pDateTime) { DIALOG_PROC_BODY(QuotRollback
 int RollbackQuots(const LDATETIME * pDateTime)
 {	
 	int    ok = -1;
-	int state_flag = 0;
+	int    state_flag = 0;
 	Quotation2Core * p_qc2 = new Quotation2Core();
 	PPObjQuotKind qk_obj;
 	PPObjGoods goods_obj;
@@ -1304,7 +1304,7 @@ int RollbackQuots(const LDATETIME * pDateTime)
 						}
 					}
 				}
-				THROW(p_qc2->Set(tmp_qlist, 0, &org_qlist_by_goods, 0, 0))
+				THROW(p_qc2->Set_(tmp_qlist, 0, &org_qlist_by_goods, false, false, 0))
 				//tmp_qlist.clear();
 				ok = 1;
 			}

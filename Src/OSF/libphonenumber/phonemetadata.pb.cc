@@ -21,7 +21,7 @@ constexpr NumberFormat::NumberFormat(
   , format_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , national_prefix_formatting_rule_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , domestic_carrier_code_formatting_rule_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
-  , national_prefix_optional_when_formatting_(false){}
+  , national_prefix_optional_when_formatting_(false) {}
 struct NumberFormatDefaultTypeInternal {
 	constexpr NumberFormatDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~NumberFormatDefaultTypeInternal() {}
@@ -35,7 +35,7 @@ constexpr PhoneNumberDesc::PhoneNumberDesc(
   : possible_length_()
   , possible_length_local_only_()
   , national_number_pattern_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
-  , example_number_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string){}
+  , example_number_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string) {}
 struct PhoneNumberDescDefaultTypeInternal {
 	constexpr PhoneNumberDescDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~PhoneNumberDescDefaultTypeInternal() {}
@@ -77,7 +77,7 @@ constexpr PhoneMetadata::PhoneMetadata(
   , same_mobile_and_fixed_line_pattern_(false)
   , main_country_for_code_(false)
   , leading_zero_possible_(false)
-  , mobile_number_portable_region_(false){}
+  , mobile_number_portable_region_(false) {}
 struct PhoneMetadataDefaultTypeInternal {
 	constexpr PhoneMetadataDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~PhoneMetadataDefaultTypeInternal() {}
@@ -88,7 +88,7 @@ struct PhoneMetadataDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PhoneMetadataDefaultTypeInternal _PhoneMetadata_default_instance_;
 constexpr PhoneMetadataCollection::PhoneMetadataCollection(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : metadata_(){}
+  : metadata_() {}
 struct PhoneMetadataCollectionDefaultTypeInternal {
 	constexpr PhoneMetadataCollectionDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~PhoneMetadataCollectionDefaultTypeInternal() {}

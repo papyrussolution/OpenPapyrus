@@ -4043,7 +4043,7 @@ public:
 	float  GetConfidence() const;
 protected:
 	class SJISContextAnalysis : public JapaneseContextAnalysis {
-		//SJISContextAnalysis(){};
+		//SJISContextAnalysis() {};
 	protected:
 		int32 GetOrder(const char * str, uint32 * charLen) const;
 		int32 GetOrder(const char * str) const

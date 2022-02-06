@@ -87,8 +87,7 @@ int PPDesktopAssocCmd::ParseCode(CodeBlock & rBlk) const
 				strtorrng(temp_buf, &low, &upp);
 				SETMAX(low, 0.0);
 				SETMAX(upp, 0.0);
-				if(low > upp)
-					Exchange(&low, &upp);
+				SExchangeForOrder(&low, &upp);
 				rBlk.LenRange.low = static_cast<int>(low);
 				rBlk.LenRange.upp = static_cast<int>(low);
 			}

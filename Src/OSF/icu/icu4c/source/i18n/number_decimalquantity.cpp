@@ -769,7 +769,7 @@ void DecimalQuantity::roundToMagnitude(int32_t magnitude, RoundingMode roundingM
 		}
 		else {
 			int32_t p = safeSubtract(position, 2);
-			int32_t minP = uprv_max(0, precision - 14);
+			int32_t minP = smax(0, precision - 14);
 			if(leadingDigit == 0 && (!nickel || trailingDigit == 0 || trailingDigit == 5)) {
 				section = roundingutils::SECTION_LOWER_EDGE;
 				for(; p >= minP; p--) {

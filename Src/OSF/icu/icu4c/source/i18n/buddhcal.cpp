@@ -1,16 +1,10 @@
+// BUDDHCAL.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- * Copyright (C) 2003-2013, International Business Machines Corporation and others. All Rights Reserved.
- *******************************************************************************
- *
- * File BUDDHCAL.CPP
- *
- * Modification History:
- *  05/13/2003    srl     copied from gregocal.cpp
- *
- */
+// Copyright (C) 2003-2013, International Business Machines Corporation and others. All Rights Reserved.
+// Modification History:
+// 05/13/2003    srl     copied from gregocal.cpp
+//
 #include <icu-internal.h>
 #pragma hdrstop
 

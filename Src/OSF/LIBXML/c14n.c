@@ -937,7 +937,7 @@ static int xmlC14NProcessAttrsAxis(xmlC14NCtxPtr ctx, xmlNode * cur, int parent_
 	xmlAttr * xml_base_attr = NULL;
 	xmlAttr * xml_lang_attr = NULL;
 	xmlAttr * xml_space_attr = NULL;
-	if(!ctx || (cur == NULL) || (cur->type != XML_ELEMENT_NODE)) {
+	if(!ctx || !cur || cur->type != XML_ELEMENT_NODE) {
 		xmlC14NErrParam("processing attributes axis");
 		return -1;
 	}
@@ -1181,7 +1181,7 @@ static int xmlC14NProcessElementNode(xmlC14NCtxPtr ctx, xmlNode * cur, int visib
 	int ret;
 	xmlC14NVisibleNsStack state;
 	int parent_is_doc = 0;
-	if(!ctx || (cur == NULL) || (cur->type != XML_ELEMENT_NODE)) {
+	if(!ctx || !cur || cur->type != XML_ELEMENT_NODE) {
 		xmlC14NErrParam("processing element node");
 		return -1;
 	}

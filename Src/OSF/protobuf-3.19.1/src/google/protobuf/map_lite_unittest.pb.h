@@ -629,8 +629,7 @@ class TestMapLite final :
   inline void Swap(TestMapLite* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -650,7 +649,7 @@ class TestMapLite final :
   TestMapLite* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
     return CreateMaybeMessage<TestMapLite>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)  final;
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) final;
   void CopyFrom(const TestMapLite& from);
   void MergeFrom(const TestMapLite& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -658,8 +657,7 @@ class TestMapLite final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -670,12 +668,9 @@ class TestMapLite final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestMapLite";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestMapLite"; }
   protected:
-  explicit TestMapLite(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestMapLite(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
@@ -1413,8 +1408,7 @@ class TestArenaMapLite final :
   inline void Swap(TestArenaMapLite* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -1434,7 +1428,7 @@ class TestArenaMapLite final :
   TestArenaMapLite* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
     return CreateMaybeMessage<TestArenaMapLite>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)  final;
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) final;
   void CopyFrom(const TestArenaMapLite& from);
   void MergeFrom(const TestArenaMapLite& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -1442,8 +1436,7 @@ class TestArenaMapLite final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -1454,12 +1447,9 @@ class TestArenaMapLite final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestArenaMapLite";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestArenaMapLite"; }
   protected:
-  explicit TestArenaMapLite(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestArenaMapLite(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
@@ -1934,8 +1924,7 @@ class TestRequiredMessageMapLite final :
   inline void Swap(TestRequiredMessageMapLite* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -1955,7 +1944,7 @@ class TestRequiredMessageMapLite final :
   TestRequiredMessageMapLite* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
     return CreateMaybeMessage<TestRequiredMessageMapLite>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)  final;
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) final;
   void CopyFrom(const TestRequiredMessageMapLite& from);
   void MergeFrom(const TestRequiredMessageMapLite& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -1963,8 +1952,7 @@ class TestRequiredMessageMapLite final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -1975,12 +1963,9 @@ class TestRequiredMessageMapLite final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestRequiredMessageMapLite";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestRequiredMessageMapLite"; }
   protected:
-  explicit TestRequiredMessageMapLite(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestRequiredMessageMapLite(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
@@ -2102,8 +2087,7 @@ class TestEnumMapLite final :
   inline void Swap(TestEnumMapLite* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -2123,7 +2107,7 @@ class TestEnumMapLite final :
   TestEnumMapLite* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
     return CreateMaybeMessage<TestEnumMapLite>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)  final;
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) final;
   void CopyFrom(const TestEnumMapLite& from);
   void MergeFrom(const TestEnumMapLite& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -2131,8 +2115,7 @@ class TestEnumMapLite final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -2143,12 +2126,9 @@ class TestEnumMapLite final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestEnumMapLite";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestEnumMapLite"; }
   protected:
-  explicit TestEnumMapLite(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestEnumMapLite(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
@@ -2293,8 +2273,7 @@ class TestEnumMapPlusExtraLite final :
   inline void Swap(TestEnumMapPlusExtraLite* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -2314,7 +2293,7 @@ class TestEnumMapPlusExtraLite final :
   TestEnumMapPlusExtraLite* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
     return CreateMaybeMessage<TestEnumMapPlusExtraLite>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)  final;
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) final;
   void CopyFrom(const TestEnumMapPlusExtraLite& from);
   void MergeFrom(const TestEnumMapPlusExtraLite& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -2322,8 +2301,7 @@ class TestEnumMapPlusExtraLite final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -2334,12 +2312,9 @@ class TestEnumMapPlusExtraLite final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestEnumMapPlusExtraLite";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestEnumMapPlusExtraLite"; }
   protected:
-  explicit TestEnumMapPlusExtraLite(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestEnumMapPlusExtraLite(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
@@ -2469,8 +2444,7 @@ class TestMessageMapLite final :
   inline void Swap(TestMessageMapLite* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -2490,7 +2464,7 @@ class TestMessageMapLite final :
   TestMessageMapLite* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
     return CreateMaybeMessage<TestMessageMapLite>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)  final;
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) final;
   void CopyFrom(const TestMessageMapLite& from);
   void MergeFrom(const TestMessageMapLite& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -2498,8 +2472,7 @@ class TestMessageMapLite final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -2510,12 +2483,9 @@ class TestMessageMapLite final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestMessageMapLite";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestMessageMapLite"; }
   protected:
-  explicit TestMessageMapLite(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestMessageMapLite(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
@@ -2607,8 +2577,7 @@ class TestRequiredLite final :
   inline void Swap(TestRequiredLite* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -2628,7 +2597,7 @@ class TestRequiredLite final :
   TestRequiredLite* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
     return CreateMaybeMessage<TestRequiredLite>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)  final;
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) final;
   void CopyFrom(const TestRequiredLite& from);
   void MergeFrom(const TestRequiredLite& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -2636,8 +2605,7 @@ class TestRequiredLite final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -2648,12 +2616,9 @@ class TestRequiredLite final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestRequiredLite";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestRequiredLite"; }
   protected:
-  explicit TestRequiredLite(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestRequiredLite(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
@@ -2713,8 +2678,7 @@ class TestRequiredLite final :
  private:
   class _Internal;
 
-  // helper for ByteSizeLong()
-  size_t RequiredFieldsByteSizeFallback() const;
+  size_t RequiredFieldsByteSizeFallback() const; // helper for ByteSizeLong()
 
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
@@ -2770,8 +2734,7 @@ class ForeignMessageArenaLite final :
   inline void Swap(ForeignMessageArenaLite* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -2791,7 +2754,7 @@ class ForeignMessageArenaLite final :
   ForeignMessageArenaLite* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
     return CreateMaybeMessage<ForeignMessageArenaLite>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)  final;
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) final;
   void CopyFrom(const ForeignMessageArenaLite& from);
   void MergeFrom(const ForeignMessageArenaLite& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -2799,8 +2762,7 @@ class ForeignMessageArenaLite final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -2811,12 +2773,9 @@ class ForeignMessageArenaLite final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.ForeignMessageArenaLite";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.ForeignMessageArenaLite"; }
   protected:
-  explicit ForeignMessageArenaLite(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit ForeignMessageArenaLite(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
@@ -2904,9 +2863,7 @@ class ForeignMessageArenaLite final :
 // TestMapLite
 
 // map<int32, int32> map_int32_int32 = 1;
-inline int TestMapLite::_internal_map_int32_int32_size() const {
-  return map_int32_int32_.size();
-}
+inline int TestMapLite::_internal_map_int32_int32_size() const { return map_int32_int32_.size(); }
 inline int TestMapLite::map_int32_int32_size() const {
   return _internal_map_int32_int32_size();
 }
@@ -2933,9 +2890,7 @@ TestMapLite::mutable_map_int32_int32() {
 }
 
 // map<int64, int64> map_int64_int64 = 2;
-inline int TestMapLite::_internal_map_int64_int64_size() const {
-  return map_int64_int64_.size();
-}
+inline int TestMapLite::_internal_map_int64_int64_size() const { return map_int64_int64_.size(); }
 inline int TestMapLite::map_int64_int64_size() const {
   return _internal_map_int64_int64_size();
 }
@@ -2962,9 +2917,7 @@ TestMapLite::mutable_map_int64_int64() {
 }
 
 // map<uint32, uint32> map_uint32_uint32 = 3;
-inline int TestMapLite::_internal_map_uint32_uint32_size() const {
-  return map_uint32_uint32_.size();
-}
+inline int TestMapLite::_internal_map_uint32_uint32_size() const { return map_uint32_uint32_.size(); }
 inline int TestMapLite::map_uint32_uint32_size() const {
   return _internal_map_uint32_uint32_size();
 }
@@ -2991,9 +2944,7 @@ TestMapLite::mutable_map_uint32_uint32() {
 }
 
 // map<uint64, uint64> map_uint64_uint64 = 4;
-inline int TestMapLite::_internal_map_uint64_uint64_size() const {
-  return map_uint64_uint64_.size();
-}
+inline int TestMapLite::_internal_map_uint64_uint64_size() const { return map_uint64_uint64_.size(); }
 inline int TestMapLite::map_uint64_uint64_size() const {
   return _internal_map_uint64_uint64_size();
 }
@@ -3020,9 +2971,7 @@ TestMapLite::mutable_map_uint64_uint64() {
 }
 
 // map<sint32, sint32> map_sint32_sint32 = 5;
-inline int TestMapLite::_internal_map_sint32_sint32_size() const {
-  return map_sint32_sint32_.size();
-}
+inline int TestMapLite::_internal_map_sint32_sint32_size() const { return map_sint32_sint32_.size(); }
 inline int TestMapLite::map_sint32_sint32_size() const {
   return _internal_map_sint32_sint32_size();
 }
@@ -3049,9 +2998,7 @@ TestMapLite::mutable_map_sint32_sint32() {
 }
 
 // map<sint64, sint64> map_sint64_sint64 = 6;
-inline int TestMapLite::_internal_map_sint64_sint64_size() const {
-  return map_sint64_sint64_.size();
-}
+inline int TestMapLite::_internal_map_sint64_sint64_size() const { return map_sint64_sint64_.size(); }
 inline int TestMapLite::map_sint64_sint64_size() const {
   return _internal_map_sint64_sint64_size();
 }
@@ -3078,9 +3025,7 @@ TestMapLite::mutable_map_sint64_sint64() {
 }
 
 // map<fixed32, fixed32> map_fixed32_fixed32 = 7;
-inline int TestMapLite::_internal_map_fixed32_fixed32_size() const {
-  return map_fixed32_fixed32_.size();
-}
+inline int TestMapLite::_internal_map_fixed32_fixed32_size() const { return map_fixed32_fixed32_.size(); }
 inline int TestMapLite::map_fixed32_fixed32_size() const {
   return _internal_map_fixed32_fixed32_size();
 }
@@ -3107,9 +3052,7 @@ TestMapLite::mutable_map_fixed32_fixed32() {
 }
 
 // map<fixed64, fixed64> map_fixed64_fixed64 = 8;
-inline int TestMapLite::_internal_map_fixed64_fixed64_size() const {
-  return map_fixed64_fixed64_.size();
-}
+inline int TestMapLite::_internal_map_fixed64_fixed64_size() const { return map_fixed64_fixed64_.size(); }
 inline int TestMapLite::map_fixed64_fixed64_size() const {
   return _internal_map_fixed64_fixed64_size();
 }
@@ -3136,9 +3079,7 @@ TestMapLite::mutable_map_fixed64_fixed64() {
 }
 
 // map<sfixed32, sfixed32> map_sfixed32_sfixed32 = 9;
-inline int TestMapLite::_internal_map_sfixed32_sfixed32_size() const {
-  return map_sfixed32_sfixed32_.size();
-}
+inline int TestMapLite::_internal_map_sfixed32_sfixed32_size() const { return map_sfixed32_sfixed32_.size(); }
 inline int TestMapLite::map_sfixed32_sfixed32_size() const {
   return _internal_map_sfixed32_sfixed32_size();
 }
@@ -3165,9 +3106,7 @@ TestMapLite::mutable_map_sfixed32_sfixed32() {
 }
 
 // map<sfixed64, sfixed64> map_sfixed64_sfixed64 = 10;
-inline int TestMapLite::_internal_map_sfixed64_sfixed64_size() const {
-  return map_sfixed64_sfixed64_.size();
-}
+inline int TestMapLite::_internal_map_sfixed64_sfixed64_size() const { return map_sfixed64_sfixed64_.size(); }
 inline int TestMapLite::map_sfixed64_sfixed64_size() const {
   return _internal_map_sfixed64_sfixed64_size();
 }
@@ -3194,9 +3133,7 @@ TestMapLite::mutable_map_sfixed64_sfixed64() {
 }
 
 // map<int32, float> map_int32_float = 11;
-inline int TestMapLite::_internal_map_int32_float_size() const {
-  return map_int32_float_.size();
-}
+inline int TestMapLite::_internal_map_int32_float_size() const { return map_int32_float_.size(); }
 inline int TestMapLite::map_int32_float_size() const {
   return _internal_map_int32_float_size();
 }
@@ -3223,9 +3160,7 @@ TestMapLite::mutable_map_int32_float() {
 }
 
 // map<int32, double> map_int32_double = 12;
-inline int TestMapLite::_internal_map_int32_double_size() const {
-  return map_int32_double_.size();
-}
+inline int TestMapLite::_internal_map_int32_double_size() const { return map_int32_double_.size(); }
 inline int TestMapLite::map_int32_double_size() const {
   return _internal_map_int32_double_size();
 }
@@ -3252,9 +3187,7 @@ TestMapLite::mutable_map_int32_double() {
 }
 
 // map<bool, bool> map_bool_bool = 13;
-inline int TestMapLite::_internal_map_bool_bool_size() const {
-  return map_bool_bool_.size();
-}
+inline int TestMapLite::_internal_map_bool_bool_size() const { return map_bool_bool_.size(); }
 inline int TestMapLite::map_bool_bool_size() const {
   return _internal_map_bool_bool_size();
 }
@@ -3281,9 +3214,7 @@ TestMapLite::mutable_map_bool_bool() {
 }
 
 // map<string, string> map_string_string = 14;
-inline int TestMapLite::_internal_map_string_string_size() const {
-  return map_string_string_.size();
-}
+inline int TestMapLite::_internal_map_string_string_size() const { return map_string_string_.size(); }
 inline int TestMapLite::map_string_string_size() const {
   return _internal_map_string_string_size();
 }
@@ -3310,9 +3241,7 @@ TestMapLite::mutable_map_string_string() {
 }
 
 // map<int32, bytes> map_int32_bytes = 15;
-inline int TestMapLite::_internal_map_int32_bytes_size() const {
-  return map_int32_bytes_.size();
-}
+inline int TestMapLite::_internal_map_int32_bytes_size() const { return map_int32_bytes_.size(); }
 inline int TestMapLite::map_int32_bytes_size() const {
   return _internal_map_int32_bytes_size();
 }
@@ -3339,9 +3268,7 @@ TestMapLite::mutable_map_int32_bytes() {
 }
 
 // map<int32, .protobuf_unittest.MapEnumLite> map_int32_enum = 16;
-inline int TestMapLite::_internal_map_int32_enum_size() const {
-  return map_int32_enum_.size();
-}
+inline int TestMapLite::_internal_map_int32_enum_size() const { return map_int32_enum_.size(); }
 inline int TestMapLite::map_int32_enum_size() const {
   return _internal_map_int32_enum_size();
 }
@@ -3368,9 +3295,7 @@ TestMapLite::mutable_map_int32_enum() {
 }
 
 // map<int32, .protobuf_unittest.ForeignMessageLite> map_int32_foreign_message = 17;
-inline int TestMapLite::_internal_map_int32_foreign_message_size() const {
-  return map_int32_foreign_message_.size();
-}
+inline int TestMapLite::_internal_map_int32_foreign_message_size() const { return map_int32_foreign_message_.size(); }
 inline int TestMapLite::map_int32_foreign_message_size() const {
   return _internal_map_int32_foreign_message_size();
 }
@@ -3394,9 +3319,7 @@ TestMapLite::mutable_map_int32_foreign_message() {
 }
 
 // map<int32, int32> teboring = 18;
-inline int TestMapLite::_internal_teboring_size() const {
-  return teboring_.size();
-}
+inline int TestMapLite::_internal_teboring_size() const { return teboring_.size(); }
 inline int TestMapLite::teboring_size() const {
   return _internal_teboring_size();
 }
@@ -3461,9 +3384,7 @@ TestMapLite::mutable_teboring() {
 // TestArenaMapLite
 
 // map<int32, int32> map_int32_int32 = 1;
-inline int TestArenaMapLite::_internal_map_int32_int32_size() const {
-  return map_int32_int32_.size();
-}
+inline int TestArenaMapLite::_internal_map_int32_int32_size() const { return map_int32_int32_.size(); }
 inline int TestArenaMapLite::map_int32_int32_size() const {
   return _internal_map_int32_int32_size();
 }
@@ -3490,9 +3411,7 @@ TestArenaMapLite::mutable_map_int32_int32() {
 }
 
 // map<int64, int64> map_int64_int64 = 2;
-inline int TestArenaMapLite::_internal_map_int64_int64_size() const {
-  return map_int64_int64_.size();
-}
+inline int TestArenaMapLite::_internal_map_int64_int64_size() const { return map_int64_int64_.size(); }
 inline int TestArenaMapLite::map_int64_int64_size() const {
   return _internal_map_int64_int64_size();
 }
@@ -3519,9 +3438,7 @@ TestArenaMapLite::mutable_map_int64_int64() {
 }
 
 // map<uint32, uint32> map_uint32_uint32 = 3;
-inline int TestArenaMapLite::_internal_map_uint32_uint32_size() const {
-  return map_uint32_uint32_.size();
-}
+inline int TestArenaMapLite::_internal_map_uint32_uint32_size() const { return map_uint32_uint32_.size(); }
 inline int TestArenaMapLite::map_uint32_uint32_size() const {
   return _internal_map_uint32_uint32_size();
 }
@@ -3548,9 +3465,7 @@ TestArenaMapLite::mutable_map_uint32_uint32() {
 }
 
 // map<uint64, uint64> map_uint64_uint64 = 4;
-inline int TestArenaMapLite::_internal_map_uint64_uint64_size() const {
-  return map_uint64_uint64_.size();
-}
+inline int TestArenaMapLite::_internal_map_uint64_uint64_size() const { return map_uint64_uint64_.size(); }
 inline int TestArenaMapLite::map_uint64_uint64_size() const {
   return _internal_map_uint64_uint64_size();
 }
@@ -3577,9 +3492,7 @@ TestArenaMapLite::mutable_map_uint64_uint64() {
 }
 
 // map<sint32, sint32> map_sint32_sint32 = 5;
-inline int TestArenaMapLite::_internal_map_sint32_sint32_size() const {
-  return map_sint32_sint32_.size();
-}
+inline int TestArenaMapLite::_internal_map_sint32_sint32_size() const { return map_sint32_sint32_.size(); }
 inline int TestArenaMapLite::map_sint32_sint32_size() const {
   return _internal_map_sint32_sint32_size();
 }
@@ -3606,9 +3519,7 @@ TestArenaMapLite::mutable_map_sint32_sint32() {
 }
 
 // map<sint64, sint64> map_sint64_sint64 = 6;
-inline int TestArenaMapLite::_internal_map_sint64_sint64_size() const {
-  return map_sint64_sint64_.size();
-}
+inline int TestArenaMapLite::_internal_map_sint64_sint64_size() const { return map_sint64_sint64_.size(); }
 inline int TestArenaMapLite::map_sint64_sint64_size() const {
   return _internal_map_sint64_sint64_size();
 }
@@ -3635,9 +3546,7 @@ TestArenaMapLite::mutable_map_sint64_sint64() {
 }
 
 // map<fixed32, fixed32> map_fixed32_fixed32 = 7;
-inline int TestArenaMapLite::_internal_map_fixed32_fixed32_size() const {
-  return map_fixed32_fixed32_.size();
-}
+inline int TestArenaMapLite::_internal_map_fixed32_fixed32_size() const { return map_fixed32_fixed32_.size(); }
 inline int TestArenaMapLite::map_fixed32_fixed32_size() const {
   return _internal_map_fixed32_fixed32_size();
 }
@@ -3664,9 +3573,7 @@ TestArenaMapLite::mutable_map_fixed32_fixed32() {
 }
 
 // map<fixed64, fixed64> map_fixed64_fixed64 = 8;
-inline int TestArenaMapLite::_internal_map_fixed64_fixed64_size() const {
-  return map_fixed64_fixed64_.size();
-}
+inline int TestArenaMapLite::_internal_map_fixed64_fixed64_size() const { return map_fixed64_fixed64_.size(); }
 inline int TestArenaMapLite::map_fixed64_fixed64_size() const {
   return _internal_map_fixed64_fixed64_size();
 }
@@ -3693,9 +3600,7 @@ TestArenaMapLite::mutable_map_fixed64_fixed64() {
 }
 
 // map<sfixed32, sfixed32> map_sfixed32_sfixed32 = 9;
-inline int TestArenaMapLite::_internal_map_sfixed32_sfixed32_size() const {
-  return map_sfixed32_sfixed32_.size();
-}
+inline int TestArenaMapLite::_internal_map_sfixed32_sfixed32_size() const { return map_sfixed32_sfixed32_.size(); }
 inline int TestArenaMapLite::map_sfixed32_sfixed32_size() const {
   return _internal_map_sfixed32_sfixed32_size();
 }
@@ -3722,9 +3627,7 @@ TestArenaMapLite::mutable_map_sfixed32_sfixed32() {
 }
 
 // map<sfixed64, sfixed64> map_sfixed64_sfixed64 = 10;
-inline int TestArenaMapLite::_internal_map_sfixed64_sfixed64_size() const {
-  return map_sfixed64_sfixed64_.size();
-}
+inline int TestArenaMapLite::_internal_map_sfixed64_sfixed64_size() const { return map_sfixed64_sfixed64_.size(); }
 inline int TestArenaMapLite::map_sfixed64_sfixed64_size() const {
   return _internal_map_sfixed64_sfixed64_size();
 }
@@ -3751,9 +3654,7 @@ TestArenaMapLite::mutable_map_sfixed64_sfixed64() {
 }
 
 // map<int32, float> map_int32_float = 11;
-inline int TestArenaMapLite::_internal_map_int32_float_size() const {
-  return map_int32_float_.size();
-}
+inline int TestArenaMapLite::_internal_map_int32_float_size() const { return map_int32_float_.size(); }
 inline int TestArenaMapLite::map_int32_float_size() const {
   return _internal_map_int32_float_size();
 }
@@ -3780,9 +3681,7 @@ TestArenaMapLite::mutable_map_int32_float() {
 }
 
 // map<int32, double> map_int32_double = 12;
-inline int TestArenaMapLite::_internal_map_int32_double_size() const {
-  return map_int32_double_.size();
-}
+inline int TestArenaMapLite::_internal_map_int32_double_size() const { return map_int32_double_.size(); }
 inline int TestArenaMapLite::map_int32_double_size() const {
   return _internal_map_int32_double_size();
 }
@@ -3809,9 +3708,7 @@ TestArenaMapLite::mutable_map_int32_double() {
 }
 
 // map<bool, bool> map_bool_bool = 13;
-inline int TestArenaMapLite::_internal_map_bool_bool_size() const {
-  return map_bool_bool_.size();
-}
+inline int TestArenaMapLite::_internal_map_bool_bool_size() const { return map_bool_bool_.size(); }
 inline int TestArenaMapLite::map_bool_bool_size() const {
   return _internal_map_bool_bool_size();
 }
@@ -3838,9 +3735,7 @@ TestArenaMapLite::mutable_map_bool_bool() {
 }
 
 // map<string, string> map_string_string = 14;
-inline int TestArenaMapLite::_internal_map_string_string_size() const {
-  return map_string_string_.size();
-}
+inline int TestArenaMapLite::_internal_map_string_string_size() const { return map_string_string_.size(); }
 inline int TestArenaMapLite::map_string_string_size() const {
   return _internal_map_string_string_size();
 }
@@ -3867,9 +3762,7 @@ TestArenaMapLite::mutable_map_string_string() {
 }
 
 // map<int32, bytes> map_int32_bytes = 15;
-inline int TestArenaMapLite::_internal_map_int32_bytes_size() const {
-  return map_int32_bytes_.size();
-}
+inline int TestArenaMapLite::_internal_map_int32_bytes_size() const { return map_int32_bytes_.size(); }
 inline int TestArenaMapLite::map_int32_bytes_size() const {
   return _internal_map_int32_bytes_size();
 }
@@ -3896,9 +3789,7 @@ TestArenaMapLite::mutable_map_int32_bytes() {
 }
 
 // map<int32, .protobuf_unittest.MapEnumLite> map_int32_enum = 16;
-inline int TestArenaMapLite::_internal_map_int32_enum_size() const {
-  return map_int32_enum_.size();
-}
+inline int TestArenaMapLite::_internal_map_int32_enum_size() const { return map_int32_enum_.size(); }
 inline int TestArenaMapLite::map_int32_enum_size() const {
   return _internal_map_int32_enum_size();
 }
@@ -3925,9 +3816,7 @@ TestArenaMapLite::mutable_map_int32_enum() {
 }
 
 // map<int32, .protobuf_unittest.ForeignMessageArenaLite> map_int32_foreign_message = 17;
-inline int TestArenaMapLite::_internal_map_int32_foreign_message_size() const {
-  return map_int32_foreign_message_.size();
-}
+inline int TestArenaMapLite::_internal_map_int32_foreign_message_size() const { return map_int32_foreign_message_.size(); }
 inline int TestArenaMapLite::map_int32_foreign_message_size() const {
   return _internal_map_int32_foreign_message_size();
 }
@@ -3960,9 +3849,7 @@ TestArenaMapLite::mutable_map_int32_foreign_message() {
 // TestRequiredMessageMapLite
 
 // map<int32, .protobuf_unittest.TestRequiredLite> map_field = 1;
-inline int TestRequiredMessageMapLite::_internal_map_field_size() const {
-  return map_field_.size();
-}
+inline int TestRequiredMessageMapLite::_internal_map_field_size() const { return map_field_.size(); }
 inline int TestRequiredMessageMapLite::map_field_size() const {
   return _internal_map_field_size();
 }
@@ -3997,9 +3884,7 @@ TestRequiredMessageMapLite::mutable_map_field() {
 // TestEnumMapLite
 
 // map<int32, .protobuf_unittest.Proto2MapEnumLite> known_map_field = 101;
-inline int TestEnumMapLite::_internal_known_map_field_size() const {
-  return known_map_field_.size();
-}
+inline int TestEnumMapLite::_internal_known_map_field_size() const { return known_map_field_.size(); }
 inline int TestEnumMapLite::known_map_field_size() const {
   return _internal_known_map_field_size();
 }
@@ -4026,9 +3911,7 @@ TestEnumMapLite::mutable_known_map_field() {
 }
 
 // map<int32, .protobuf_unittest.Proto2MapEnumLite> unknown_map_field = 102;
-inline int TestEnumMapLite::_internal_unknown_map_field_size() const {
-  return unknown_map_field_.size();
-}
+inline int TestEnumMapLite::_internal_unknown_map_field_size() const { return unknown_map_field_.size(); }
 inline int TestEnumMapLite::unknown_map_field_size() const {
   return _internal_unknown_map_field_size();
 }
@@ -4063,9 +3946,7 @@ TestEnumMapLite::mutable_unknown_map_field() {
 // TestEnumMapPlusExtraLite
 
 // map<int32, .protobuf_unittest.Proto2MapEnumPlusExtraLite> known_map_field = 101;
-inline int TestEnumMapPlusExtraLite::_internal_known_map_field_size() const {
-  return known_map_field_.size();
-}
+inline int TestEnumMapPlusExtraLite::_internal_known_map_field_size() const { return known_map_field_.size(); }
 inline int TestEnumMapPlusExtraLite::known_map_field_size() const {
   return _internal_known_map_field_size();
 }
@@ -4092,9 +3973,7 @@ TestEnumMapPlusExtraLite::mutable_known_map_field() {
 }
 
 // map<int32, .protobuf_unittest.Proto2MapEnumPlusExtraLite> unknown_map_field = 102;
-inline int TestEnumMapPlusExtraLite::_internal_unknown_map_field_size() const {
-  return unknown_map_field_.size();
-}
+inline int TestEnumMapPlusExtraLite::_internal_unknown_map_field_size() const { return unknown_map_field_.size(); }
 inline int TestEnumMapPlusExtraLite::unknown_map_field_size() const {
   return _internal_unknown_map_field_size();
 }
@@ -4127,9 +4006,7 @@ TestEnumMapPlusExtraLite::mutable_unknown_map_field() {
 // TestMessageMapLite
 
 // map<int32, .protobuf_unittest.TestAllTypesLite> map_int32_message = 1;
-inline int TestMessageMapLite::_internal_map_int32_message_size() const {
-  return map_int32_message_.size();
-}
+inline int TestMessageMapLite::_internal_map_int32_message_size() const { return map_int32_message_.size(); }
 inline int TestMessageMapLite::map_int32_message_size() const {
   return _internal_map_int32_message_size();
 }
@@ -4168,20 +4045,18 @@ inline void TestRequiredLite::clear_a() {
   a_ = 0;
   _has_bits_[0] &= ~0x00000001u;
 }
-inline int32_t TestRequiredLite::_internal_a() const {
-  return a_;
-}
+inline int32_t TestRequiredLite::_internal_a() const { return a_; }
 inline int32_t TestRequiredLite::a() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestRequiredLite.a)
-  return _internal_a();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestRequiredLite.a)
+	return _internal_a();
 }
 inline void TestRequiredLite::_internal_set_a(int32_t value) {
-  _has_bits_[0] |= 0x00000001u;
-  a_ = value;
+	_has_bits_[0] |= 0x00000001u;
+	a_ = value;
 }
 inline void TestRequiredLite::set_a(int32_t value) {
-  _internal_set_a(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestRequiredLite.a)
+	_internal_set_a(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestRequiredLite.a)
 }
 
 // required int32 b = 2;
@@ -4196,20 +4071,18 @@ inline void TestRequiredLite::clear_b() {
   b_ = 0;
   _has_bits_[0] &= ~0x00000002u;
 }
-inline int32_t TestRequiredLite::_internal_b() const {
-  return b_;
-}
+inline int32_t TestRequiredLite::_internal_b() const { return b_; }
 inline int32_t TestRequiredLite::b() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestRequiredLite.b)
-  return _internal_b();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestRequiredLite.b)
+	return _internal_b();
 }
 inline void TestRequiredLite::_internal_set_b(int32_t value) {
-  _has_bits_[0] |= 0x00000002u;
-  b_ = value;
+	_has_bits_[0] |= 0x00000002u;
+	b_ = value;
 }
 inline void TestRequiredLite::set_b(int32_t value) {
-  _internal_set_b(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestRequiredLite.b)
+	_internal_set_b(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestRequiredLite.b)
 }
 
 // required int32 c = 3;
@@ -4224,20 +4097,18 @@ inline void TestRequiredLite::clear_c() {
   c_ = 0;
   _has_bits_[0] &= ~0x00000004u;
 }
-inline int32_t TestRequiredLite::_internal_c() const {
-  return c_;
-}
+inline int32_t TestRequiredLite::_internal_c() const { return c_; }
 inline int32_t TestRequiredLite::c() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestRequiredLite.c)
-  return _internal_c();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestRequiredLite.c)
+	return _internal_c();
 }
 inline void TestRequiredLite::_internal_set_c(int32_t value) {
-  _has_bits_[0] |= 0x00000004u;
-  c_ = value;
+	_has_bits_[0] |= 0x00000004u;
+	c_ = value;
 }
 inline void TestRequiredLite::set_c(int32_t value) {
-  _internal_set_c(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestRequiredLite.c)
+	_internal_set_c(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestRequiredLite.c)
 }
 
 // -------------------------------------------------------------------
@@ -4256,20 +4127,18 @@ inline void ForeignMessageArenaLite::clear_c() {
   c_ = 0;
   _has_bits_[0] &= ~0x00000001u;
 }
-inline int32_t ForeignMessageArenaLite::_internal_c() const {
-  return c_;
-}
+inline int32_t ForeignMessageArenaLite::_internal_c() const { return c_; }
 inline int32_t ForeignMessageArenaLite::c() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.ForeignMessageArenaLite.c)
-  return _internal_c();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.ForeignMessageArenaLite.c)
+	return _internal_c();
 }
 inline void ForeignMessageArenaLite::_internal_set_c(int32_t value) {
-  _has_bits_[0] |= 0x00000001u;
-  c_ = value;
+	_has_bits_[0] |= 0x00000001u;
+	c_ = value;
 }
 inline void ForeignMessageArenaLite::set_c(int32_t value) {
-  _internal_set_c(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.ForeignMessageArenaLite.c)
+	_internal_set_c(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.ForeignMessageArenaLite.c)
 }
 
 #ifdef __GNUC__

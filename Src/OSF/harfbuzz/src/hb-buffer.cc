@@ -264,7 +264,7 @@ void hb_buffer_t::swap_buffers()
 		out_info = tmp_string;
 		pos = (hb_glyph_position_t*)out_info;
 	}
-	Exchange(&len, &out_len);
+	SExchange(&len, &out_len);
 	idx = 0;
 }
 

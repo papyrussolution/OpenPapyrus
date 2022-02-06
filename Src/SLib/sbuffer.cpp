@@ -64,13 +64,13 @@ SBuffer::SBuffer(const SBuffer & s) : Size(0), WrOffs(0), RdOffs(0), Flags(0), P
 	Copy(s);
 }
 
-int FASTCALL SBuffer::IsEq(const SBuffer & rS) const
+bool FASTCALL SBuffer::IsEq(const SBuffer & rS) const
 {
-	int    ok = 1;
+	bool   ok = true;
 	if(WrOffs != rS.WrOffs)
-		ok = 0;
+		ok = false;
 	else if(WrOffs && memcmp(P_Buf, rS.P_Buf, WrOffs) != 0)
-		ok = 0;
+		ok = false;
 	return ok;
 }
 
@@ -441,15 +441,23 @@ int FASTCALL SBuffer::Helper_Read(SVectorBase * pAry, long options /* = 0*/)
 int FASTCALL SBuffer::Read(SArray * pAry, long options)
 {
 	assert(pAry != 0);
-	pAry->freeAll();
-	return Helper_Read(pAry, options);
+	if(pAry) {
+		pAry->clear(); // @v11.3.0 freeAll()-->clear()
+		return Helper_Read(pAry, options);
+	}
+	else
+		return 0;
 }
 
 int FASTCALL SBuffer::Read(SVector * pAry, long options)
 {
 	assert(pAry != 0);
-	pAry->freeAll();
-	return Helper_Read(pAry, options);
+	if(pAry) {
+		pAry->clear(); // @v11.3.0 freeAll()-->clear()
+		return Helper_Read(pAry, options);
+	}
+	else
+		return 0;
 }
 
 int FASTCALL SBuffer::Write(const SString & rBuf)
@@ -833,6 +841,11 @@ int SBinaryChunk::Cat(const void * pData, size_t len)
 			ok = 0;
 	}
 	return ok;
+}
+
+int SBinaryChunk::Cat(const SBinaryChunk & rS)
+{
+	return rS.Len() ? Cat(rS.PtrC(), rS.Len()) : 1;
 }
 //
 //

@@ -2143,11 +2143,11 @@ int ImportCls::ListMessageBox(uint messageType)
 						p_input = xmlParserInputBufferCreateMem(xml_input, xml_input.Len(), XML_CHAR_ENCODING_NONE);
 						THROWERR((p_xml_ptr = xmlNewTextReader(p_input, NULL)), IEERR_NULLREADXMLPTR);
 						while(xmlTextReaderRead(p_xml_ptr)) {
-							xmlNode * p_node = xmlTextReaderCurrentNode(p_xml_ptr);
+							const xmlNode * p_node = xmlTextReaderCurrentNode(p_xml_ptr);
 							if(p_node && p_node->children && sstreqi_ascii(PTRCHRC_(p_node->name), "document-info")) {
 								//THROWERR(p_info_blk = new MessageInfoBlock, IEERR_NOMEM);
 								PPEdiMessageEntry eme;
-								for(xmlNode * p_doc_child = p_node->children; p_doc_child != 0; p_doc_child = p_doc_child->next) {
+								for(const xmlNode * p_doc_child = p_node->children; p_doc_child != 0; p_doc_child = p_doc_child->next) {
 									if(p_doc_child->children) {
 										cname.Set(p_doc_child->name);
 										if(cname.IsEqiAscii("tracking-id")) { // ИД документа в системе

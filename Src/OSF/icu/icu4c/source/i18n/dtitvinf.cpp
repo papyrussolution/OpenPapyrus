@@ -1,14 +1,8 @@
+// DTITVINF.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*******************************************************************************
- * Copyright (C) 2008-2016, International Business Machines Corporation and
- * others. All Rights Reserved.
- *******************************************************************************
- *
- * File DTITVINF.CPP
- *
- *******************************************************************************
- */
+// Copyright (C) 2008-2016, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -26,9 +20,7 @@
 U_NAMESPACE_BEGIN
 
 #ifdef DTITVINF_DEBUG
-#define PRINTMESG(msg) UPRV_BLOCK_MACRO_BEGIN { \
-		std::cout << "(" << __FILE__ << ":" << __LINE__ << ") " << msg << "\n"; \
-} UPRV_BLOCK_MACRO_END
+	#define PRINTMESG(msg) UPRV_BLOCK_MACRO_BEGIN { std::cout << "(" << __FILE__ << ":" << __LINE__ << ") " << msg << "\n"; } UPRV_BLOCK_MACRO_END
 #endif
 
 UOBJECT_DEFINE_RTTI_IMPLEMENTATION(DateIntervalInfo)
@@ -47,26 +39,20 @@ static const UChar gSecondPattern[] = {LEFT_CURLY_BRACKET, DIGIT_ONE, RIGHT_CURL
 static const UChar gDefaultFallbackPattern[] =
 {LEFT_CURLY_BRACKET, DIGIT_ZERO, RIGHT_CURLY_BRACKET, SPACE, EN_DASH, SPACE, LEFT_CURLY_BRACKET, DIGIT_ONE, RIGHT_CURLY_BRACKET, 0};
 
-DateIntervalInfo::DateIntervalInfo(UErrorCode & status)
-	:   fFallbackIntervalPattern(gDefaultFallbackPattern),
-	fFirstDateInPtnIsLaterDate(false),
-	fIntervalPatterns(nullptr)
+DateIntervalInfo::DateIntervalInfo(UErrorCode & status) : fFallbackIntervalPattern(gDefaultFallbackPattern),
+	fFirstDateInPtnIsLaterDate(false), fIntervalPatterns(nullptr)
 {
 	fIntervalPatterns = initHash(status);
 }
 
-DateIntervalInfo::DateIntervalInfo(const Locale & locale, UErrorCode & status)
-	:   fFallbackIntervalPattern(gDefaultFallbackPattern),
-	fFirstDateInPtnIsLaterDate(false),
-	fIntervalPatterns(nullptr)
+DateIntervalInfo::DateIntervalInfo(const Locale & locale, UErrorCode & status) : fFallbackIntervalPattern(gDefaultFallbackPattern),
+	fFirstDateInPtnIsLaterDate(false), fIntervalPatterns(nullptr)
 {
 	initializeData(locale, status);
 }
 
-void DateIntervalInfo::setIntervalPattern(const UnicodeString & skeleton,
-    UCalendarDateFields lrgDiffCalUnit,
-    const UnicodeString & intervalPattern,
-    UErrorCode & status) {
+void DateIntervalInfo::setIntervalPattern(const UnicodeString & skeleton, UCalendarDateFields lrgDiffCalUnit, const UnicodeString & intervalPattern, UErrorCode & status) 
+{
 	if(lrgDiffCalUnit == UCAL_HOUR_OF_DAY) {
 		setIntervalPatternInternally(skeleton, UCAL_AM_PM, intervalPattern, status);
 		setIntervalPatternInternally(skeleton, UCAL_HOUR, intervalPattern, status);
@@ -80,38 +66,33 @@ void DateIntervalInfo::setIntervalPattern(const UnicodeString & skeleton,
 	}
 }
 
-void DateIntervalInfo::setFallbackIntervalPattern(const UnicodeString & fallbackPattern,
-    UErrorCode & status) {
-	if(U_FAILURE(status)) {
-		return;
+void DateIntervalInfo::setFallbackIntervalPattern(const UnicodeString & fallbackPattern, UErrorCode & status) 
+{
+	if(U_SUCCESS(status)) {
+		const int32_t firstPatternIndex = fallbackPattern.indexOf(gFirstPattern, UPRV_LENGTHOF(gFirstPattern), 0);
+		const int32_t secondPatternIndex = fallbackPattern.indexOf(gSecondPattern, UPRV_LENGTHOF(gSecondPattern), 0);
+		if(firstPatternIndex == -1 || secondPatternIndex == -1) {
+			status = U_ILLEGAL_ARGUMENT_ERROR;
+		}
+		else {
+			if(firstPatternIndex > secondPatternIndex) {
+				fFirstDateInPtnIsLaterDate = true;
+			}
+			fFallbackIntervalPattern = fallbackPattern;
+		}
 	}
-	int32_t firstPatternIndex = fallbackPattern.indexOf(gFirstPattern,
-		UPRV_LENGTHOF(gFirstPattern), 0);
-	int32_t secondPatternIndex = fallbackPattern.indexOf(gSecondPattern,
-		UPRV_LENGTHOF(gSecondPattern), 0);
-	if(firstPatternIndex == -1 || secondPatternIndex == -1) {
-		status = U_ILLEGAL_ARGUMENT_ERROR;
-		return;
-	}
-	if(firstPatternIndex > secondPatternIndex) {
-		fFirstDateInPtnIsLaterDate = true;
-	}
-	fFallbackIntervalPattern = fallbackPattern;
 }
 
-DateIntervalInfo::DateIntervalInfo(const DateIntervalInfo& dtitvinf)
-	:   UObject(dtitvinf),
-	fIntervalPatterns(nullptr)
+DateIntervalInfo::DateIntervalInfo(const DateIntervalInfo& dtitvinf) : UObject(dtitvinf), fIntervalPatterns(nullptr)
 {
 	*this = dtitvinf;
 }
 
-DateIntervalInfo&
-DateIntervalInfo::operator = (const DateIntervalInfo &dtitvinf) {
+DateIntervalInfo& DateIntervalInfo::operator = (const DateIntervalInfo &dtitvinf) 
+{
 	if(this == &dtitvinf) {
 		return *this;
 	}
-
 	UErrorCode status = U_ZERO_ERROR;
 	deleteHash(fIntervalPatterns);
 	fIntervalPatterns = initHash(status);
@@ -119,61 +100,47 @@ DateIntervalInfo::operator = (const DateIntervalInfo &dtitvinf) {
 	if(U_FAILURE(status)) {
 		return *this;
 	}
-
 	fFallbackIntervalPattern = dtitvinf.fFallbackIntervalPattern;
 	fFirstDateInPtnIsLaterDate = dtitvinf.fFirstDateInPtnIsLaterDate;
 	return *this;
 }
 
-DateIntervalInfo* DateIntervalInfo::clone() const {
-	return new DateIntervalInfo(*this);
-}
+DateIntervalInfo* DateIntervalInfo::clone() const { return new DateIntervalInfo(*this); }
 
-DateIntervalInfo::~DateIntervalInfo() {
+DateIntervalInfo::~DateIntervalInfo() 
+{
 	deleteHash(fIntervalPatterns);
 	fIntervalPatterns = nullptr;
 }
 
-bool
-DateIntervalInfo::operator == (const DateIntervalInfo &other) const {
-	bool equal = (
-		fFallbackIntervalPattern == other.fFallbackIntervalPattern &&
-		fFirstDateInPtnIsLaterDate == other.fFirstDateInPtnIsLaterDate );
-
-	if(equal) {
+bool DateIntervalInfo::operator == (const DateIntervalInfo &other) const 
+{
+	bool equal = (fFallbackIntervalPattern == other.fFallbackIntervalPattern && fFirstDateInPtnIsLaterDate == other.fFirstDateInPtnIsLaterDate);
+	if(equal)
 		equal = fIntervalPatterns->equals(*(other.fIntervalPatterns));
-	}
-
 	return equal;
 }
 
-UnicodeString &DateIntervalInfo::getIntervalPattern(const UnicodeString & skeleton,
-    UCalendarDateFields field,
-    UnicodeString & result,
-    UErrorCode & status) const {
-	if(U_FAILURE(status)) {
-		return result;
-	}
-
-	const UnicodeString * patternsOfOneSkeleton = (UnicodeString *)fIntervalPatterns->get(skeleton);
-	if(patternsOfOneSkeleton != nullptr) {
-		IntervalPatternIndex index = calendarFieldToIntervalIndex(field, status);
-		if(U_FAILURE(status)) {
-			return result;
-		}
-		const UnicodeString & intervalPattern =  patternsOfOneSkeleton[index];
-		if(!intervalPattern.isEmpty()) {
-			result = intervalPattern;
+UnicodeString &DateIntervalInfo::getIntervalPattern(const UnicodeString & skeleton, UCalendarDateFields field, UnicodeString & result, UErrorCode & status) const 
+{
+	if(U_SUCCESS(status)) {
+		const UnicodeString * patternsOfOneSkeleton = (UnicodeString *)fIntervalPatterns->get(skeleton);
+		if(patternsOfOneSkeleton) {
+			IntervalPatternIndex index = calendarFieldToIntervalIndex(field, status);
+			if(U_SUCCESS(status)) {
+				const UnicodeString & intervalPattern =  patternsOfOneSkeleton[index];
+				if(!intervalPattern.isEmpty())
+					result = intervalPattern;
+			}
 		}
 	}
 	return result;
 }
 
-bool DateIntervalInfo::getDefaultOrder() const {
-	return fFirstDateInPtnIsLaterDate;
-}
+bool DateIntervalInfo::getDefaultOrder() const { return fFirstDateInPtnIsLaterDate; }
 
-UnicodeString &DateIntervalInfo::getFallbackIntervalPattern(UnicodeString & result) const {
+UnicodeString &DateIntervalInfo::getFallbackIntervalPattern(UnicodeString & result) const 
+{
 	result = fFallbackIntervalPattern;
 	return result;
 }
@@ -191,23 +158,18 @@ static const UChar PATH_SUFFIX[] = {SOLIDUS, LOW_I, LOW_N, LOW_T, LOW_E, LOW_R, 
  * Sink for enumerating all of the date interval skeletons.
  */
 struct DateIntervalInfo::DateIntervalSink : public ResourceSink {
-	// Output data
-	DateIntervalInfo &dateIntervalInfo;
+	DateIntervalInfo &dateIntervalInfo; // Output data
+	UnicodeString nextCalendarType; // Next calendar type
 
-	// Next calendar type
-	UnicodeString nextCalendarType;
-
-	DateIntervalSink(DateIntervalInfo &diInfo, const char * currentCalendarType)
-		: dateIntervalInfo(diInfo), nextCalendarType(currentCalendarType, -1, US_INV) {
+	DateIntervalSink(DateIntervalInfo &diInfo, const char * currentCalendarType) : dateIntervalInfo(diInfo), nextCalendarType(currentCalendarType, -1, US_INV) 
+	{
 	}
-
 	virtual ~DateIntervalSink();
-
-	virtual void put(const char * key, ResourceValue &value, bool /*noFallback*/, UErrorCode & errorCode) override {
+	virtual void put(const char * key, ResourceValue &value, bool /*noFallback*/, UErrorCode & errorCode) override 
+	{
 		if(U_FAILURE(errorCode)) {
 			return;
 		}
-
 		// Iterate over all the calendar entries and only pick the 'intervalFormats' table.
 		ResourceTable dateIntervalData = value.getTable(errorCode);
 		if(U_FAILURE(errorCode)) {
@@ -217,7 +179,6 @@ struct DateIntervalInfo::DateIntervalSink : public ResourceSink {
 			if(uprv_strcmp(key, gIntervalDateTimePatternTag) != 0) {
 				continue;
 			}
-
 			// Handle aliases and tables. Ignore the rest.
 			if(value.getType() == URES_ALIAS) {
 				// Get the calendar type for the alias path.
@@ -225,10 +186,8 @@ struct DateIntervalInfo::DateIntervalSink : public ResourceSink {
 				if(U_FAILURE(errorCode)) {
 					return;
 				}
-
 				nextCalendarType.remove();
 				getCalendarTypeFromPath(aliasPath, nextCalendarType, errorCode);
-
 				if(U_FAILURE(errorCode)) {
 					resetNextCalendarType();
 				}
@@ -257,11 +216,11 @@ struct DateIntervalInfo::DateIntervalSink : public ResourceSink {
 	/**
 	 * Processes the patterns for a skeleton table
 	 */
-	void processSkeletonTable(const char * key, ResourceValue &value, UErrorCode & errorCode) {
+	void processSkeletonTable(const char * key, ResourceValue &value, UErrorCode & errorCode) 
+	{
 		if(U_FAILURE(errorCode)) {
 			return;
 		}
-
 		// Iterate over all the patterns in the current skeleton table
 		const char * currentSkeleton = key;
 		ResourceTable patternData = value.getTable(errorCode);
@@ -288,12 +247,11 @@ struct DateIntervalInfo::DateIntervalSink : public ResourceSink {
 	/**
 	 * Extracts the calendar type from the path.
 	 */
-	static void getCalendarTypeFromPath(const UnicodeString & path, UnicodeString & calendarType,
-	    UErrorCode & errorCode) {
+	static void getCalendarTypeFromPath(const UnicodeString & path, UnicodeString & calendarType, UErrorCode & errorCode) 
+	{
 		if(U_FAILURE(errorCode)) {
 			return;
 		}
-
 		if(!path.startsWith(PATH_PREFIX, PATH_PREFIX_LENGTH) || !path.endsWith(PATH_SUFFIX, PATH_SUFFIX_LENGTH)) {
 			errorCode = U_INVALID_FORMAT_ERROR;
 			return;
@@ -460,10 +418,8 @@ void DateIntervalInfo::initializeData(const Locale & locale, UErrorCode & status
 					break;
 				}
 				const char * calType = calTypeBuffer.data();
-
 				// Reset the next calendar type to load.
 				sink.resetNextCalendarType();
-
 				// Get all resources for this calendar type
 				ures_getAllItemsWithFallback(calBundle, calType, sink, status);
 			}
@@ -475,10 +431,9 @@ void DateIntervalInfo::initializeData(const Locale & locale, UErrorCode & status
 	ures_close(rb);
 }
 
-void DateIntervalInfo::setIntervalPatternInternally(const UnicodeString & skeleton,
-    UCalendarDateFields lrgDiffCalUnit,
-    const UnicodeString & intervalPattern,
-    UErrorCode & status) {
+void DateIntervalInfo::setIntervalPatternInternally(const UnicodeString & skeleton, UCalendarDateFields lrgDiffCalUnit,
+    const UnicodeString & intervalPattern, UErrorCode & status) 
+{
 	IntervalPatternIndex index = calendarFieldToIntervalIndex(lrgDiffCalUnit, status);
 	if(U_FAILURE(status)) {
 		return;
@@ -493,37 +448,33 @@ void DateIntervalInfo::setIntervalPatternInternally(const UnicodeString & skelet
 		}
 		emptyHash = true;
 	}
-
 	patternsOfOneSkeleton[index] = intervalPattern;
 	if(emptyHash == TRUE) {
 		fIntervalPatterns->put(skeleton, patternsOfOneSkeleton, status);
 	}
 }
 
-void DateIntervalInfo::parseSkeleton(const UnicodeString & skeleton,
-    int32_t* skeletonFieldWidth) {
+void DateIntervalInfo::parseSkeleton(const UnicodeString & skeleton, int32_t* skeletonFieldWidth) 
+{
 	const int8_t PATTERN_CHAR_BASE = 0x41;
-	int32_t i;
-	for(i = 0; i < skeleton.length(); ++i) {
+	for(int32_t i = 0; i < skeleton.length(); ++i) {
 		// it is an ASCII char in skeleton
 		int8_t ch = (int8_t)skeleton.charAt(i);
 		++skeletonFieldWidth[ch - PATTERN_CHAR_BASE];
 	}
 }
 
-bool DateIntervalInfo::stringNumeric(int32_t fieldWidth, int32_t anotherFieldWidth,
-    char patternLetter) {
+bool DateIntervalInfo::stringNumeric(int32_t fieldWidth, int32_t anotherFieldWidth, char patternLetter) 
+{
 	if(patternLetter == 'M') {
-		if((fieldWidth <= 2 && anotherFieldWidth > 2) ||
-		    (fieldWidth > 2 && anotherFieldWidth <= 2 )) {
+		if((fieldWidth <= 2 && anotherFieldWidth > 2) || (fieldWidth > 2 && anotherFieldWidth <= 2 ))
 			return true;
-		}
 	}
 	return false;
 }
 
-const UnicodeString * DateIntervalInfo::getBestSkeleton(const UnicodeString & skeleton,
-    int8_t& bestMatchDistanceInfo) const {
+const UnicodeString * DateIntervalInfo::getBestSkeleton(const UnicodeString & skeleton, int8_t& bestMatchDistanceInfo) const 
+{
 #ifdef DTITVINF_DEBUG
 	char result[1000];
 	char result_1[1000];
@@ -532,9 +483,7 @@ const UnicodeString * DateIntervalInfo::getBestSkeleton(const UnicodeString & sk
 	sprintf(mesg, "in getBestSkeleton: skeleton: %s; \n", result);
 	PRINTMESG(mesg)
 #endif
-
-	int32_t inputSkeletonFieldWidth[] =
-	{
+	int32_t inputSkeletonFieldWidth[] = {
 		//       A   B   C   D   E   F   G   H   I   J   K   L   M   N   O
 		0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 		//   P   Q   R   S   T   U   V   W   X   Y   Z
@@ -544,9 +493,7 @@ const UnicodeString * DateIntervalInfo::getBestSkeleton(const UnicodeString & sk
 		//   p   q   r   s   t   u   v   w   x   y   z
 		0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0
 	};
-
-	int32_t skeletonFieldWidth[] =
-	{
+	int32_t skeletonFieldWidth[] = {
 		//       A   B   C   D   E   F   G   H   I   J   K   L   M   N   O
 		0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 		//   P   Q   R   S   T   U   V   W   X   Y   Z
@@ -601,7 +548,6 @@ const UnicodeString * DateIntervalInfo::getBestSkeleton(const UnicodeString & sk
 		sprintf(mesg, "available skeletons: skeleton: %s; \n", result);
 		PRINTMESG(mesg)
 #endif
-
 		// clear skeleton field width
 		int8_t i;
 		for(i = 0; i < fieldLength; ++i) {
@@ -625,14 +571,11 @@ const UnicodeString * DateIntervalInfo::getBestSkeleton(const UnicodeString & sk
 				fieldDifference = -1;
 				distance += DIFFERENT_FIELD;
 			}
-			else if(stringNumeric(inputFieldWidth, fieldWidth,
-			    (char)(i+BASE) )) {
+			else if(stringNumeric(inputFieldWidth, fieldWidth, (char)(i+BASE) )) {
 				distance += STRING_NUMERIC_DIFFERENCE;
 			}
 			else {
-				distance += (inputFieldWidth > fieldWidth) ?
-				    (inputFieldWidth - fieldWidth) :
-				    (fieldWidth - inputFieldWidth);
+				distance += (inputFieldWidth > fieldWidth) ? (inputFieldWidth - fieldWidth) : (fieldWidth - inputFieldWidth);
 			}
 		}
 		if(distance < bestDistance) {
@@ -651,8 +594,8 @@ const UnicodeString * DateIntervalInfo::getBestSkeleton(const UnicodeString & sk
 	return bestSkeleton;
 }
 
-DateIntervalInfo::IntervalPatternIndex DateIntervalInfo::calendarFieldToIntervalIndex(UCalendarDateFields field,
-    UErrorCode & status) {
+DateIntervalInfo::IntervalPatternIndex DateIntervalInfo::calendarFieldToIntervalIndex(UCalendarDateFields field, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return kIPI_MAX_INDEX;
 	}
@@ -696,17 +639,16 @@ DateIntervalInfo::IntervalPatternIndex DateIntervalInfo::calendarFieldToInterval
 
 void DateIntervalInfo::deleteHash(Hashtable* hTable)
 {
-	if(hTable == nullptr) {
-		return;
+	if(hTable) {
+		int32_t pos = UHASH_FIRST;
+		const UHashElement* element = nullptr;
+		while((element = hTable->nextElement(pos)) != nullptr) {
+			const UHashTok valueTok = element->value;
+			const UnicodeString * value = (UnicodeString *)valueTok.pointer;
+			delete[] value;
+		}
+		delete fIntervalPatterns;
 	}
-	int32_t pos = UHASH_FIRST;
-	const UHashElement* element = nullptr;
-	while((element = hTable->nextElement(pos)) != nullptr) {
-		const UHashTok valueTok = element->value;
-		const UnicodeString * value = (UnicodeString *)valueTok.pointer;
-		delete[] value;
-	}
-	delete fIntervalPatterns;
 }
 
 U_CDECL_BEGIN
@@ -720,13 +662,12 @@ U_CDECL_BEGIN
  */
 static bool U_CALLCONV dtitvinfHashTableValueComparator(UHashTok val1, UHashTok val2);
 
-static bool
-U_CALLCONV dtitvinfHashTableValueComparator(UHashTok val1, UHashTok val2) {
+static bool U_CALLCONV dtitvinfHashTableValueComparator(UHashTok val1, UHashTok val2) 
+{
 	const UnicodeString * pattern1 = (UnicodeString *)val1.pointer;
 	const UnicodeString * pattern2 = (UnicodeString *)val2.pointer;
 	bool ret = TRUE;
-	int8_t i;
-	for(i = 0; i < DateIntervalInfo::kMaxIntervalPatternIndex && ret == TRUE; ++i) {
+	for(int8_t i = 0; i < DateIntervalInfo::kMaxIntervalPatternIndex && ret == TRUE; ++i) {
 		ret = (pattern1[i] == pattern2[i]);
 	}
 	return ret;
@@ -734,7 +675,8 @@ U_CALLCONV dtitvinfHashTableValueComparator(UHashTok val1, UHashTok val2) {
 
 U_CDECL_END
 
-Hashtable* DateIntervalInfo::initHash(UErrorCode & status) {
+Hashtable* DateIntervalInfo::initHash(UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return nullptr;
 	}
@@ -751,32 +693,29 @@ Hashtable* DateIntervalInfo::initHash(UErrorCode & status) {
 	return hTable;
 }
 
-void DateIntervalInfo::copyHash(const Hashtable* source,
-    Hashtable* target,
-    UErrorCode & status) {
-	if(U_FAILURE(status)) {
-		return;
-	}
-	int32_t pos = UHASH_FIRST;
-	const UHashElement* element = nullptr;
-	if(source) {
-		while((element = source->nextElement(pos)) != nullptr) {
-			const UHashTok keyTok = element->key;
-			const UnicodeString * key = (UnicodeString *)keyTok.pointer;
-			const UHashTok valueTok = element->value;
-			const UnicodeString * value = (UnicodeString *)valueTok.pointer;
-			UnicodeString * copy = new UnicodeString[kIPI_MAX_INDEX];
-			if(copy == nullptr) {
-				status = U_MEMORY_ALLOCATION_ERROR;
-				return;
-			}
-			int8_t i;
-			for(i = 0; i < kIPI_MAX_INDEX; ++i) {
-				copy[i] = value[i];
-			}
-			target->put(UnicodeString(*key), copy, status);
-			if(U_FAILURE(status)) {
-				return;
+void DateIntervalInfo::copyHash(const Hashtable* source, Hashtable* target, UErrorCode & status) 
+{
+	if(U_SUCCESS(status)) {
+		int32_t pos = UHASH_FIRST;
+		const UHashElement* element = nullptr;
+		if(source) {
+			while((element = source->nextElement(pos)) != nullptr) {
+				const UHashTok keyTok = element->key;
+				const UnicodeString * key = (UnicodeString *)keyTok.pointer;
+				const UHashTok valueTok = element->value;
+				const UnicodeString * value = (UnicodeString *)valueTok.pointer;
+				UnicodeString * copy = new UnicodeString[kIPI_MAX_INDEX];
+				if(copy == nullptr) {
+					status = U_MEMORY_ALLOCATION_ERROR;
+					return;
+				}
+				for(int8_t i = 0; i < kIPI_MAX_INDEX; ++i) {
+					copy[i] = value[i];
+				}
+				target->put(UnicodeString(*key), copy, status);
+				if(U_FAILURE(status)) {
+					return;
+				}
 			}
 		}
 	}

@@ -57,12 +57,13 @@ Grouper Grouper::forProperties(const DecimalFormatProperties& properties)
 	return {grouping1, grouping2, minGrouping, UNUM_GROUPING_COUNT};
 }
 
-void Grouper::setLocaleData(const impl::ParsedPatternInfo &patternInfo, const Locale & locale) {
+void Grouper::setLocaleData(const impl::ParsedPatternInfo &patternInfo, const Locale & locale) 
+{
 	if(fMinGrouping == -2) {
 		fMinGrouping = getMinGroupingForLocale(locale);
 	}
 	else if(fMinGrouping == -3) {
-		fMinGrouping = static_cast<int16_t>(uprv_max(2, getMinGroupingForLocale(locale)));
+		fMinGrouping = static_cast<int16_t>(smax(2, static_cast<int>(getMinGroupingForLocale(locale))));
 	}
 	else {
 		// leave fMinGrouping alone

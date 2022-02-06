@@ -232,10 +232,10 @@ bool GpAxis::BadRange() const
 
 void GpAxis::FlipProjection()
 {
-	Exchange(&min, &max);
+	SExchange(&min, &max);
 	if(linked_to_primary) {
 		GpAxis * p_ax = linked_to_primary;
-		Exchange(&p_ax->min, &p_ax->max);
+		SExchange(&p_ax->min, &p_ax->max);
 	}
 }
 /* {{{ axis_checked_extend_empty_range() */
@@ -1602,7 +1602,7 @@ t_autoscale GnuPlot::LoadRange(GpAxis * pAx, double * pA, double * pB, t_autosca
 /* we determine length of the widest tick label by getting gen_ticks to
  * call this routine with every label
  */
-void GnuPlot::WidestTicCallback(GpTermEntry * pTerm, GpAxis * this_axis, double place, char * text, int ticlevel, const lp_style_type & rGrid, ticmark * userlabels) // callback
+void GnuPlot::WidestTicCallback(GpTermEntry * pTerm, GpAxis * this_axis, double place, const char * text, int ticlevel, const lp_style_type & rGrid, ticmark * userlabels) // callback
 {
 	// historically, minitics used to have no text,
 	// but now they can, except at ticlevel 1 (and this restriction is there only for compatibility reasons) */
@@ -1661,7 +1661,7 @@ void GnuPlot::SetCbMinMax()
 			r_cb_ax.max = AxS.__Z().max;
 	}
 	r_cb_ax.max = AxisLogValueChecked(COLOR_AXIS, r_cb_ax.max, "color axis");
-	ExchangeForOrder(&r_cb_ax.min, &r_cb_ax.max);
+	SExchangeForOrder(&r_cb_ax.min, &r_cb_ax.max);
 	if(r_cb_ax.linked_to_primary)
 		CloneLinkedAxes(&r_cb_ax, r_cb_ax.linked_to_primary);
 }

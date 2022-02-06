@@ -292,9 +292,9 @@ PPProcessorPacket::ExtBlock & PPProcessorPacket::ExtBlock::destroy()
 	return *this;
 }
 
-int PPProcessorPacket::ExtBlock::IsEmpty() const
+bool PPProcessorPacket::ExtBlock::IsEmpty() const
 {
-	return BIN(CheckInTime == 0 && CheckOutTime == 0 && TimeFlags == 0 && InitSessStatus == 0 && ExtStrP == 0 && !Places.getCount() && !GetOwnerGuaID());
+	return (CheckInTime == 0 && CheckOutTime == 0 && TimeFlags == 0 && InitSessStatus == 0 && ExtStrP == 0 && !Places.getCount() && !GetOwnerGuaID());
 }
 
 int PPProcessorPacket::ExtBlock::GetExtStrData(int fldID, SString & rBuf) const

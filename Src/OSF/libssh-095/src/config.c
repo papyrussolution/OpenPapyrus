@@ -436,14 +436,12 @@ static int ssh_config_parse_line(ssh_session session,
 		    *parsing = 0;
 		    do {
 			    p = p2 = ssh_config_get_str_tok(&s, NULL);
-			    if(p == NULL || p[0] == '\0') {
+			    if(isempty(p)) {
 				    break;
 			    }
 			    args++;
-			    SSH_LOG(SSH_LOG_TRACE, "line %d: Processing Match keyword '%s'",
-				count, p);
-
-			    /* If the option is prefixed with ! the result should be negated */
+			    SSH_LOG(SSH_LOG_TRACE, "line %d: Processing Match keyword '%s'", count, p);
+			    // If the option is prefixed with ! the result should be negated 
 			    negate = false;
 			    if(p[0] == '!') {
 				    negate = true;
@@ -454,10 +452,10 @@ static int ssh_config_parse_line(ssh_session session,
 			    switch(opt) {
 				    case MATCH_ALL:
 					p = ssh_config_get_str_tok(&s, NULL);
-					if(args <= 2 && (p == NULL || p[0] == '\0')) {
-						/* The first or second, but last argument. The "all" keyword
-						 * can be prefixed with either "final" or "canonical"
-						 * keywords which do not have any effect here. */
+					if(args <= 2 && isempty(p)) {
+						// The first or second, but last argument. The "all" keyword
+						// can be prefixed with either "final" or "canonical"
+						// keywords which do not have any effect here. 
 						if(negate == true) {
 							result = 0;
 						}
@@ -483,7 +481,7 @@ static int ssh_config_parse_line(ssh_session session,
 				    case MATCH_EXEC:
 					/* Skip to the end of line as unsupported */
 					p = ssh_config_get_cmd(&s);
-					if(p == NULL || p[0] == '\0') {
+					if(isempty(p)) {
 						SSH_LOG(SSH_LOG_WARN, "line %d: Match keyword "
 						    "'%s' requires argument", count, p2);
 						ZFREE(x);
@@ -500,10 +498,8 @@ static int ssh_config_parse_line(ssh_session session,
 				    case MATCH_LOCALUSER:
 					/* Here we match only one argument */
 					p = ssh_config_get_str_tok(&s, NULL);
-					if(p == NULL || p[0] == '\0') {
-						ssh_set_error(session, SSH_FATAL,
-						    "line %d: ERROR - Match user keyword "
-						    "requires argument", count);
+					if(isempty(p)) {
+						ssh_set_error(session, SSH_FATAL, "line %d: ERROR - Match user keyword requires argument", count);
 						ZFREE(x);
 						return -1;
 					}
@@ -522,7 +518,7 @@ static int ssh_config_parse_line(ssh_session session,
 				    case MATCH_ORIGINALHOST:
 					/* Skip one argument */
 					p = ssh_config_get_str_tok(&s, NULL);
-					if(p == NULL || p[0] == '\0') {
+					if(isempty(p)) {
 						SSH_LOG(SSH_LOG_WARN, "line %d: Match keyword "
 						    "'%s' requires argument", count, p2);
 						ZFREE(x);
@@ -539,7 +535,7 @@ static int ssh_config_parse_line(ssh_session session,
 				    case MATCH_HOST:
 					/* Here we match only one argument */
 					p = ssh_config_get_str_tok(&s, NULL);
-					if(p == NULL || p[0] == '\0') {
+					if(isempty(p)) {
 						ssh_set_error(session, SSH_FATAL,
 						    "line %d: ERROR - Match host keyword "
 						    "requires argument", count);
@@ -553,7 +549,7 @@ static int ssh_config_parse_line(ssh_session session,
 				    case MATCH_USER:
 					/* Here we match only one argument */
 					p = ssh_config_get_str_tok(&s, NULL);
-					if(p == NULL || p[0] == '\0') {
+					if(isempty(p)) {
 						ssh_set_error(session, SSH_FATAL,
 						    "line %d: ERROR - Match user keyword "
 						    "requires argument", count);
@@ -571,10 +567,9 @@ static int ssh_config_parse_line(ssh_session session,
 					ZFREE(x);
 					return -1;
 			    }
-		    } while(p != NULL && p[0] != '\0');
+		    } while(!isempty(p));
 		    if(args == 0) {
-			    ssh_set_error(session, SSH_FATAL,
-				"ERROR - Match keyword requires an argument");
+			    ssh_set_error(session, SSH_FATAL, "ERROR - Match keyword requires an argument");
 			    ZFREE(x);
 			    return -1;
 		    }
@@ -583,12 +578,9 @@ static int ssh_config_parse_line(ssh_session session,
 	    }
 		case SOC_HOST: {
 		    int ok = 0, result = -1;
-
 		    *parsing = 0;
 		    lowerhost = (session->opts.host) ? ssh_lowercase(session->opts.host) : NULL;
-		    for(p = ssh_config_get_str_tok(&s, NULL);
-			p != NULL && p[0] != '\0';
-			p = ssh_config_get_str_tok(&s, NULL)) {
+		    for(p = ssh_config_get_str_tok(&s, NULL); !isempty(p); p = ssh_config_get_str_tok(&s, NULL)) {
 			    if(ok >= 0) {
 				    ok = match_hostname(lowerhost, p, strlen(p));
 				    if(result == -1 && ok < 0) {

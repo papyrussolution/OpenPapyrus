@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{7156c811-7116-4eef-8bb1-0400c51f9fd3}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\genrb\errmsg.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\genrb\filterrb.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\genrb\genrb.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\genrb\parse.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\genrb\prscmnts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\genrb\rbutil.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\genrb\read.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\genrb\reslist.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\genrb\rle.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\genrb\ustr.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\genrb\wrtjava.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\genrb\wrtxml.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\genrb\errmsg.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\genrb\filterrb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\genrb\genrb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\genrb\parse.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\genrb\prscmnts.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\genrb\rbutil.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\genrb\read.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\genrb\reslist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\genrb\rle.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\genrb\ustr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

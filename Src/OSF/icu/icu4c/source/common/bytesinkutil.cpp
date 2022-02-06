@@ -1,9 +1,8 @@
+// BYTESINKUTIL.CPP
 // © 2017 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-
-// bytesinkutil.cpp
 // created: 2017sep14 Markus W. Scherer
-
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -63,7 +62,8 @@ bool ByteSinkUtil::appendChange(const uint8 * s, const uint8 * limit,
 	return appendChange((int32_t)(limit - s), s16, s16Length, sink, edits, errorCode);
 }
 
-void ByteSinkUtil::appendCodePoint(int32_t length, UChar32 c, ByteSink &sink, Edits * edits) {
+void ByteSinkUtil::appendCodePoint(int32_t length, UChar32 c, ByteSink &sink, Edits * edits) 
+{
 	char s8[U8_MAX_LENGTH];
 	int32_t s8Length = 0;
 	U8_APPEND_UNSAFE(s8, s8Length, c);
@@ -74,24 +74,20 @@ void ByteSinkUtil::appendCodePoint(int32_t length, UChar32 c, ByteSink &sink, Ed
 }
 
 namespace {
-// See unicode/utf8.h U8_APPEND_UNSAFE().
-inline uint8 getTwoByteLead(UChar32 c) {
-	return (uint8)((c >> 6) | 0xc0);
+	// See unicode/utf8.h U8_APPEND_UNSAFE().
+	inline uint8 getTwoByteLead(UChar32 c) { return (uint8)((c >> 6) | 0xc0); }
+	inline uint8 getTwoByteTrail(UChar32 c) { return (uint8)((c & 0x3f) | 0x80); }
 }
 
-inline uint8 getTwoByteTrail(UChar32 c) {
-	return (uint8)((c & 0x3f) | 0x80);
-}
-}  // namespace
-
-void ByteSinkUtil::appendTwoBytes(UChar32 c, ByteSink &sink) {
+void ByteSinkUtil::appendTwoBytes(UChar32 c, ByteSink &sink) 
+{
 	U_ASSERT(0x80 <= c && c <= 0x7ff); // 2-byte UTF-8
 	char s8[2] = { (char)getTwoByteLead(c), (char)getTwoByteTrail(c) };
 	sink.Append(s8, 2);
 }
 
-void ByteSinkUtil::appendNonEmptyUnchanged(const uint8 * s, int32_t length,
-    ByteSink &sink, uint32_t options, Edits * edits) {
+void ByteSinkUtil::appendNonEmptyUnchanged(const uint8 * s, int32_t length, ByteSink &sink, uint32_t options, Edits * edits) 
+{
 	U_ASSERT(length > 0);
 	if(edits != nullptr) {
 		edits->addUnchanged(length);
@@ -101,9 +97,8 @@ void ByteSinkUtil::appendNonEmptyUnchanged(const uint8 * s, int32_t length,
 	}
 }
 
-bool ByteSinkUtil::appendUnchanged(const uint8 * s, const uint8 * limit,
-    ByteSink &sink, uint32_t options, Edits * edits,
-    UErrorCode & errorCode) {
+bool ByteSinkUtil::appendUnchanged(const uint8 * s, const uint8 * limit, ByteSink &sink, uint32_t options, Edits * edits, UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return FALSE;
 	}
@@ -118,37 +113,31 @@ bool ByteSinkUtil::appendUnchanged(const uint8 * s, const uint8 * limit,
 	return TRUE;
 }
 
-CharStringByteSink::CharStringByteSink(CharString* dest) : dest_(*dest) {
+CharStringByteSink::CharStringByteSink(CharString* dest) : dest_(*dest) 
+{
 }
 
 CharStringByteSink::~CharStringByteSink() = default;
 
-void CharStringByteSink::Append(const char * bytes, int32_t n) {
+void CharStringByteSink::Append(const char * bytes, int32_t n) 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	dest_.append(bytes, n, status);
 	// Any errors are silently ignored.
 }
 
-char * CharStringByteSink::GetAppendBuffer(int32_t min_capacity,
-    int32_t desired_capacity_hint,
-    char * scratch,
-    int32_t scratch_capacity,
-    int32_t* result_capacity) {
+char * CharStringByteSink::GetAppendBuffer(int32_t min_capacity, int32_t desired_capacity_hint, char * scratch,
+    int32_t scratch_capacity, int32_t* result_capacity) 
+{
 	if(min_capacity < 1 || scratch_capacity < min_capacity) {
 		*result_capacity = 0;
 		return nullptr;
 	}
-
 	UErrorCode status = U_ZERO_ERROR;
-	char * result = dest_.getAppendBuffer(
-		min_capacity,
-		desired_capacity_hint,
-		*result_capacity,
-		status);
+	char * result = dest_.getAppendBuffer(min_capacity, desired_capacity_hint, *result_capacity, status);
 	if(U_SUCCESS(status)) {
 		return result;
 	}
-
 	*result_capacity = scratch_capacity;
 	return scratch;
 }

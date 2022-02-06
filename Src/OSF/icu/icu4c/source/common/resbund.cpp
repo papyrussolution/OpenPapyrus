@@ -1,52 +1,36 @@
+// RESBUND.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (C) 1997-2013, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- *
- * File resbund.cpp
- *
- * Modification History:
- *
- *   Date        Name        Description
- *   02/05/97    aliu        Fixed bug in chopLocale.  Added scanForLocaleInFile
- *        based on code taken from scanForLocale.  Added
- *        constructor which attempts to read resource bundle
- *        from a specific file, without searching other files.
- *   02/11/97    aliu        Added UErrorCode return values to constructors. Fixed
- *        infinite loops in scanForFile and scanForLocale.
- *        Modified getRawResourceData to not delete storage in
- *        localeData and resourceData which it doesn't own.
- *        Added Mac compatibility #ifdefs for tellp() and
- *        ios::nocreate.
- *   03/04/97    aliu        Modified to use ExpandingDataSink objects instead of
- *        the highly inefficient ostrstream objects.
- *   03/13/97    aliu        Rewrote to load in entire resource bundle and store
- *        it as a Hashtable of ResourceBundleData objects.
- *        Added state table to govern parsing of files.
- *        Modified to load locale index out of new file distinct
- *        from default.txt.
- *   03/25/97    aliu        Modified to support 2-d arrays, needed for timezone data.
- *        Added support for custom file suffixes.  Again, needed
- *        to support timezone data.  Improved error handling to
- *        detect duplicate tags and subtags.
- *   04/07/97    aliu        Fixed bug in getHashtableForLocale().  Fixed handling
- *        of failing UErrorCode values on entry to API methods.
- *        Fixed bugs in getArrayItem() for negative indices.
- *   04/29/97    aliu        Update to use new Hashtable deletion protocol.
- *   05/06/97    aliu        Flattened kTransitionTable for HP compiler.
- *        Fixed usage of CharString.
- * 06/11/99      stephen     Removed parsing of .txt files.
- *        Reworked to use new binary format.
- *        Cleaned up.
- * 06/14/99      stephen     Removed methods taking a filename suffix.
- * 06/22/99      stephen     Added missing T_FileStream_close in parse()
- * 11/09/99      weiv        Added getLocale(), rewritten constructForLocale()
- * March 2000    weiv        complete overhaul.
- ******************************************************************************
- */
+// Copyright (C) 1997-2013, International Business Machines Corporation and others.  All Rights Reserved.
+// 
+// Modification History:
+// Date        Name        Description
+// 02/05/97    aliu        Fixed bug in chopLocale.  Added scanForLocaleInFile
+//   based on code taken from scanForLocale.  Added
+//   constructor which attempts to read resource bundle
+//   from a specific file, without searching other files.
+// 02/11/97    aliu        Added UErrorCode return values to constructors. Fixed
+//   infinite loops in scanForFile and scanForLocale.
+//   Modified getRawResourceData to not delete storage in
+//   localeData and resourceData which it doesn't own.
+//   Added Mac compatibility #ifdefs for tellp() and ios::nocreate.
+// 03/04/97    aliu        Modified to use ExpandingDataSink objects instead of the highly inefficient ostrstream objects.
+// 03/13/97    aliu        Rewrote to load in entire resource bundle and store
+//   it as a Hashtable of ResourceBundleData objects.
+//   Added state table to govern parsing of files.
+//   Modified to load locale index out of new file distinct from default.txt.
+// 03/25/97    aliu        Modified to support 2-d arrays, needed for timezone data.
+//   Added support for custom file suffixes.  Again, needed to support timezone data.  Improved error handling to detect duplicate tags and subtags.
+// 04/07/97    aliu        Fixed bug in getHashtableForLocale().  Fixed handling
+//   of failing UErrorCode values on entry to API methods. Fixed bugs in getArrayItem() for negative indices.
+// 04/29/97    aliu        Update to use new Hashtable deletion protocol.
+// 05/06/97    aliu        Flattened kTransitionTable for HP compiler. Fixed usage of CharString.
+// 06/11/99      stephen     Removed parsing of .txt files. Reworked to use new binary format. Cleaned up.
+// 06/14/99      stephen     Removed methods taking a filename suffix.
+// 06/22/99      stephen     Added missing T_FileStream_close in parse()
+// 11/09/99      weiv        Added getLocale(), rewritten constructForLocale()
+// March 2000    weiv        complete overhaul.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "uresimp.h"
@@ -244,21 +228,10 @@ UnicodeString ResourceBundle::getString(UErrorCode & status) const
 	return UnicodeString(TRUE, r, len);
 }
 
-const uint8 * ResourceBundle::getBinary(int32_t& len, UErrorCode & status) const {
-	return ures_getBinary(fResource, &len, &status);
-}
-
-const int32_t * ResourceBundle::getIntVector(int32_t& len, UErrorCode & status) const {
-	return ures_getIntVector(fResource, &len, &status);
-}
-
-uint32_t ResourceBundle::getUInt(UErrorCode & status) const {
-	return ures_getUInt(fResource, &status);
-}
-
-int32_t ResourceBundle::getInt(UErrorCode & status) const {
-	return ures_getInt(fResource, &status);
-}
+const uint8 * ResourceBundle::getBinary(int32_t& len, UErrorCode & status) const { return ures_getBinary(fResource, &len, &status); }
+const int32_t * ResourceBundle::getIntVector(int32_t& len, UErrorCode & status) const { return ures_getIntVector(fResource, &len, &status); }
+uint32_t ResourceBundle::getUInt(UErrorCode & status) const { return ures_getUInt(fResource, &status); }
+int32_t ResourceBundle::getInt(UErrorCode & status) const { return ures_getInt(fResource, &status); }
 
 const char * ResourceBundle::getName() const { return ures_getName(fResource); }
 const char * ResourceBundle::getKey() const { return ures_getKey(fResource); }
@@ -293,9 +266,9 @@ UnicodeString ResourceBundle::getNextString(const char ** key, UErrorCode & stat
 	return UnicodeString(TRUE, r, len);
 }
 
-ResourceBundle ResourceBundle::get(int32_t indexR, UErrorCode & status) const {
+ResourceBundle ResourceBundle::get(int32_t indexR, UErrorCode & status) const 
+{
 	UResourceBundle r;
-
 	ures_initStackObject(&r);
 	ures_getByIndex(fResource, indexR, &r, &status);
 	ResourceBundle res(&r, status);
@@ -305,15 +278,16 @@ ResourceBundle ResourceBundle::get(int32_t indexR, UErrorCode & status) const {
 	return res;
 }
 
-UnicodeString ResourceBundle::getStringEx(int32_t indexS, UErrorCode & status) const {
+UnicodeString ResourceBundle::getStringEx(int32_t indexS, UErrorCode & status) const 
+{
 	int32_t len = 0;
 	const UChar * r = ures_getStringByIndex(fResource, indexS, &len, &status);
 	return UnicodeString(TRUE, r, len);
 }
 
-ResourceBundle ResourceBundle::get(const char * key, UErrorCode & status) const {
+ResourceBundle ResourceBundle::get(const char * key, UErrorCode & status) const 
+{
 	UResourceBundle r;
-
 	ures_initStackObject(&r);
 	ures_getByKey(fResource, key, &r, &status);
 	ResourceBundle res(&r, status);
@@ -334,22 +308,18 @@ ResourceBundle ResourceBundle::getWithFallback(const char * key, UErrorCode & st
 	return res;
 }
 
-UnicodeString ResourceBundle::getStringEx(const char * key, UErrorCode & status) const {
+UnicodeString ResourceBundle::getStringEx(const char * key, UErrorCode & status) const 
+{
 	int32_t len = 0;
 	const UChar * r = ures_getStringByKey(fResource, key, &len, &status);
 	return UnicodeString(TRUE, r, len);
 }
 
-const char * ResourceBundle::getVersionNumber() const
+const char * ResourceBundle::getVersionNumber() const { return ures_getVersionNumberInternal(fResource); }
+void ResourceBundle::getVersion(UVersionInfo versionInfo) const { ures_getVersion(fResource, versionInfo); }
+
+const Locale &ResourceBundle::getLocale() const 
 {
-	return ures_getVersionNumberInternal(fResource);
-}
-
-void ResourceBundle::getVersion(UVersionInfo versionInfo) const {
-	ures_getVersion(fResource, versionInfo);
-}
-
-const Locale &ResourceBundle::getLocale() const {
 	static UMutex gLocaleLock;
 	Mutex lock(&gLocaleLock);
 	if(fLocale != NULL) {

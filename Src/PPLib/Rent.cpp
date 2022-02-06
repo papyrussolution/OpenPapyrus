@@ -172,9 +172,9 @@ static int StrToRentPeriod(const char * pBuf, short * pPeriod, short * pNumPerio
 }
 #endif // } 0
 
-int PPRentCondition::IsEmpty() const
+bool PPRentCondition::IsEmpty() const
 {
-	return (!Period.IsZero() || Cycle || Percent || PartAmount) ? 0 : 1;
+	return (!Period.IsZero() || Cycle || Percent || PartAmount) ? false : true;
 }
 
 int FASTCALL PPRentCondition::IsEq(const PPRentCondition & rS) const

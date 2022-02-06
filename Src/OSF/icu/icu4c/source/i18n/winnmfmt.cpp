@@ -210,7 +210,7 @@ Win32NumberFormat::Win32NumberFormat(const Locale &locale, bool currency, UError
 		const wchar_t * localeName = nullptr;
 
 		if(fWindowsLocaleName != nullptr) {
-			localeName = reinterpret_cast<const wchar_t*>(toOldUCharPtr(fWindowsLocaleName->getTerminatedBuffer()));
+			localeName = reinterpret_cast<const wchar_t *>(toOldUCharPtr(fWindowsLocaleName->getTerminatedBuffer()));
 		}
 		fFormatInfo = (FormatInfo*)uprv_malloc(sizeof(FormatInfo));
 		if(fCurrency) {
@@ -261,7 +261,7 @@ Win32NumberFormat &Win32NumberFormat::operator = (const Win32NumberFormat &other
 	const wchar_t * localeName = nullptr;
 
 	if(fWindowsLocaleName != nullptr) {
-		localeName = reinterpret_cast<const wchar_t*>(toOldUCharPtr(fWindowsLocaleName->getTerminatedBuffer()));
+		localeName = reinterpret_cast<const wchar_t *>(toOldUCharPtr(fWindowsLocaleName->getTerminatedBuffer()));
 	}
 
 	if(fCurrency) {
@@ -376,7 +376,7 @@ UnicodeString & Win32NumberFormat::format(int32_t numDigits, UnicodeString & app
 	const wchar_t * localeName = nullptr;
 
 	if(fWindowsLocaleName != nullptr) {
-		localeName = reinterpret_cast<const wchar_t*>(toOldUCharPtr(fWindowsLocaleName->getTerminatedBuffer()));
+		localeName = reinterpret_cast<const wchar_t *>(toOldUCharPtr(fWindowsLocaleName->getTerminatedBuffer()));
 	}
 
 	if(fCurrency) {

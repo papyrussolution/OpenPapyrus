@@ -1,0 +1,151 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="ASM">
+      <UniqueIdentifier>{aed7f641-956e-4789-93ce-1796c19f9a49}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\OSF\isa-l\src\xor_gen_sse.asm">
+      <Filter>ASM</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\adler32_avx2_4.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\adler32_sse.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\bitbuf2.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\crc16_t10dif_01.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\crc16_t10dif_02.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\crc16_t10dif_by16_10.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\crc16_t10dif_by4.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\crc16_t10dif_copy_by4.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\crc16_t10dif_copy_by4_02.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\crc32_gzip_refl_by16_10.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\crc32_gzip_refl_by8.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\crc32_gzip_refl_by8_02.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\crc32_ieee_01.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\crc32_ieee_02.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\crc32_ieee_by16_10.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\crc32_ieee_by4.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\crc32_iscsi_00.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\crc32_iscsi_01.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\crc32_iscsi_by16_10.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\crc64_ecma_norm_by16_10.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\crc64_ecma_norm_by8.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\crc64_ecma_refl_by16_10.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\crc64_ecma_refl_by8.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\crc64_iso_norm_by16_10.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\crc64_iso_norm_by8.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\crc64_iso_refl_by16_10.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\crc64_iso_refl_by8.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\crc64_jones_norm_by16_10.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\crc64_jones_norm_by8.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\crc64_jones_refl_by16_10.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\crc64_jones_refl_by8.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\crc64_multibinary.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\crc_multibinary.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\data_struct2.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\ec_multibinary.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\encode_df_04.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\encode_df_06.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_2vect_dot_prod_avx.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_2vect_dot_prod_avx2.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_2vect_dot_prod_avx512.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_2vect_dot_prod_sse.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_2vect_mad_avx.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_2vect_mad_avx2.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_2vect_mad_avx512.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_2vect_mad_sse.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_3vect_dot_prod_avx.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_3vect_dot_prod_avx2.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_3vect_dot_prod_avx512.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_3vect_dot_prod_sse.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_3vect_mad_avx.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_3vect_mad_avx2.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_3vect_mad_avx512.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_3vect_mad_sse.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_4vect_dot_prod_avx.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_4vect_dot_prod_avx2.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_4vect_dot_prod_avx512.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_4vect_dot_prod_sse.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_4vect_mad_avx.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_4vect_mad_avx2.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_4vect_mad_avx512.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_4vect_mad_sse.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_5vect_dot_prod_avx.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_5vect_dot_prod_avx2.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_5vect_dot_prod_avx512.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_5vect_dot_prod_sse.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_5vect_mad_avx.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_5vect_mad_avx2.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_5vect_mad_avx512.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_5vect_mad_sse.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_6vect_dot_prod_avx.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_6vect_dot_prod_avx2.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_6vect_dot_prod_avx512.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_6vect_dot_prod_sse.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_6vect_mad_avx.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_6vect_mad_avx2.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_6vect_mad_avx512.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_6vect_mad_sse.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_vect_dot_prod_avx.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_vect_dot_prod_avx2.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_vect_dot_prod_avx512.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_vect_dot_prod_sse.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_vect_mad_avx.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_vect_mad_avx2.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_vect_mad_avx512.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_vect_mad_sse.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_vect_mul_avx.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\gf_vect_mul_sse.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\heap_macros.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\huffman.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_body.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_compare_types.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_decode_block_stateless.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_decode_block_stateless_01.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_decode_block_stateless_04.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_deflate_hash.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_finish.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_gen_icf_map_lh1_04.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_gen_icf_map_lh1_06.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_icf_body_h1_gr_bt.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_icf_finish.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_inflate_multibinary.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_multibinary.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_set_long_icf_fg_04.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_set_long_icf_fg_06.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_update_histogram.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_update_histogram_01.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_update_histogram_04.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\inflate_data_structs.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\lz0a_const.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\mem_multibinary.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\mem_zero_detect_avx.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\mem_zero_detect_sse.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\multibinary.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\options.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\pq_check_sse.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\pq_check_sse_i32.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\pq_gen_avx.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\pq_gen_avx2.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\pq_gen_avx512.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\pq_gen_sse.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\pq_gen_sse_i32.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\proc_heap.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\raid_multibinary.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\raid_multibinary_i32.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\reg_sizes.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\rfc1951_lookup.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\stdmac.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\xor_check_sse.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\xor_gen_avx.asm" />
+    <CustomBuild Include="..\OSF\isa-l\src\xor_gen_avx512.asm" />
+  </ItemGroup>
+</Project>

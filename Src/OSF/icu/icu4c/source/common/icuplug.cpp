@@ -1,11 +1,10 @@
-// icuplug.c
+// ICUPLUG.C
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *   Copyright (C) 2009-2015, International Business Machines Corporation and others.  All Rights Reserved.
- *   Date         Name        Description
- *   10/29/2009   sl          New.
- */
+// Copyright (C) 2009-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// Date         Name        Description
+// 10/29/2009   sl          New.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/icuplug.h"
@@ -575,17 +574,13 @@ static UPlugData* uplug_initPlugFromLibrary(const char * libName, const char * s
 	}
 	else {
 		UErrorCode subStatus = U_ZERO_ERROR;
-		plug = uplug_initErrorPlug(libName,
-			sym,
-			config,
-			"ERROR: could not load library",
-			(lib==NULL) ? U_MISSING_RESOURCE_ERROR : *status,
-			&subStatus);
+		plug = uplug_initErrorPlug(libName, sym, config, "ERROR: could not load library", (lib==NULL) ? U_MISSING_RESOURCE_ERROR : *status, &subStatus);
 	}
 	return plug;
 }
 
-U_CAPI UPlugData* U_EXPORT2 uplug_loadPlugFromLibrary(const char * libName, const char * sym, const char * config, UErrorCode * status) {
+U_CAPI UPlugData* U_EXPORT2 uplug_loadPlugFromLibrary(const char * libName, const char * sym, const char * config, UErrorCode * status) 
+{
 	UPlugData * plug = NULL;
 	if(U_FAILURE(*status)) {
 		return NULL;

@@ -2362,7 +2362,7 @@ static void exec_cmd(plot_struct * plot, char * command)
 				int i;
 
 				pattern[len] = '\0';
-				for(i = 0; i<len; i++) {
+				for(i = 0; i < len; i++) {
 					pattern[i] = dashes[plot->lt][i];
 					pattern[i] *= plot->lwidth;
 				}

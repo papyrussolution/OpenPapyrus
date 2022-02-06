@@ -184,12 +184,12 @@ static void strFrom16(char str[3], uint16 n)
 boolint CMSEXPORT cmsMLUsetASCII(cmsMLU* mlu, const char LanguageCode[3], const char CountryCode[3], const char * ASCIIString)
 {
 	cmsUInt32Number i, len = (cmsUInt32Number)strlen(ASCIIString);
-	wchar_t* WStr;
+	wchar_t * WStr;
 	boolint rc;
 	uint16 Lang  = strTo16(LanguageCode);
 	uint16 Cntry = strTo16(CountryCode);
 	if(mlu == NULL) return FALSE;
-	WStr = (wchar_t*)_cmsCalloc(mlu->ContextID, len,  sizeof(wchar_t));
+	WStr = (wchar_t *)_cmsCalloc(mlu->ContextID, len,  sizeof(wchar_t));
 	if(WStr == NULL) return FALSE;
 	for(i = 0; i < len; i++)
 		WStr[i] = (wchar_t)ASCIIString[i];
@@ -208,7 +208,7 @@ boolint CMSEXPORT cmsMLUsetASCII(cmsMLU* mlu, const char LanguageCode[3], const 
 }*/
 
 // Add a wide entry. Do not add any \0 terminator (ICC1v43_2010-12.pdf page 61)
-boolint CMSEXPORT cmsMLUsetWide(cmsMLU* mlu, const char Language[3], const char Country[3], const wchar_t* WideString)
+boolint CMSEXPORT cmsMLUsetWide(cmsMLU* mlu, const char Language[3], const char Country[3], const wchar_t * WideString)
 {
 	uint16 Lang  = strTo16(Language);
 	uint16 Cntry = strTo16(Country);
@@ -271,7 +271,7 @@ void CMSEXPORT cmsMLUfree(cmsMLU* mlu)
 
 // The algorithm first searches for an exact match of country and language, if not found it uses
 // the Language. If none is found, first entry is used instead.
-static const wchar_t* _cmsMLUgetWide(const cmsMLU* mlu, cmsUInt32Number * len,
+static const wchar_t * _cmsMLUgetWide(const cmsMLU* mlu, cmsUInt32Number * len,
     uint16 LanguageCode, uint16 CountryCode,
     uint16* UsedLanguageCode, uint16* UsedCountryCode)
 {
@@ -291,7 +291,7 @@ static const wchar_t* _cmsMLUgetWide(const cmsMLU* mlu, cmsUInt32Number * len,
 
 				if(len != NULL) *len = v->Len;
 
-				return (wchar_t*)((uint8 *)mlu->MemPool + v->StrW); // Found exact match
+				return (wchar_t *)((uint8 *)mlu->MemPool + v->StrW); // Found exact match
 			}
 		}
 	}
@@ -307,7 +307,7 @@ static const wchar_t* _cmsMLUgetWide(const cmsMLU* mlu, cmsUInt32Number * len,
 
 	if(len != NULL) *len   = v->Len;
 
-	return (wchar_t*)((uint8 *)mlu->MemPool + v->StrW);
+	return (wchar_t *)((uint8 *)mlu->MemPool + v->StrW);
 }
 
 // Obtain an ASCII representation of the wide string. Setting buffer to NULL returns the len
@@ -357,7 +357,7 @@ cmsUInt32Number CMSEXPORT cmsMLUgetASCII(const cmsMLU* mlu,
 // Obtain a wide representation of the MLU, on depending on current locale settings
 cmsUInt32Number CMSEXPORT cmsMLUgetWide(const cmsMLU* mlu,
     const char LanguageCode[3], const char CountryCode[3],
-    wchar_t* Buffer, cmsUInt32Number BufferSize)
+    wchar_t * Buffer, cmsUInt32Number BufferSize)
 {
 	const wchar_t * Wide;
 	cmsUInt32Number StrLen = 0;
@@ -816,14 +816,14 @@ void CMSEXPORT cmsDictFree(cmsHANDLE hDict)
 }
 
 // Duplicate a wide char string
-static wchar_t* DupWcs(cmsContext ContextID, const wchar_t* ptr)
+static wchar_t * DupWcs(cmsContext ContextID, const wchar_t * ptr)
 {
 	if(ptr == NULL) return NULL;
-	return (wchar_t*)_cmsDupMem(ContextID, ptr, (sstrlen(ptr) + 1) * sizeof(wchar_t));
+	return (wchar_t *)_cmsDupMem(ContextID, ptr, (sstrlen(ptr) + 1) * sizeof(wchar_t));
 }
 
 // Add a new entry to the linked list
-boolint CMSEXPORT cmsDictAddEntry(cmsHANDLE hDict, const wchar_t* Name, const wchar_t* Value, const cmsMLU * DisplayName, const cmsMLU * DisplayValue)
+boolint CMSEXPORT cmsDictAddEntry(cmsHANDLE hDict, const wchar_t * Name, const wchar_t * Value, const cmsMLU * DisplayName, const cmsMLU * DisplayValue)
 {
 	_cmsDICT* dict = (_cmsDICT*)hDict;
 	cmsDICTentry * entry;

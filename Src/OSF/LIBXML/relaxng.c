@@ -4192,15 +4192,12 @@ static xmlRelaxNGDefine * xmlRelaxNGParseNameClass(xmlRelaxNGParserCtxt * ctxt, 
 	xmlChar * val;
 	xmlRelaxNGDefine * ret = def;
 	if((IS_RELAXNG(P_Node, "name")) || (IS_RELAXNG(P_Node, "anyName")) || (IS_RELAXNG(P_Node, "nsName"))) {
-		if((def->type != XML_RELAXNG_ELEMENT) && (def->type != XML_RELAXNG_ATTRIBUTE)) {
+		if(!oneof2(def->type, XML_RELAXNG_ELEMENT, XML_RELAXNG_ATTRIBUTE)) {
 			ret = xmlRelaxNGNewDefine(ctxt, P_Node);
 			if(!ret)
 				return 0;
 			ret->parent = def;
-			if(ctxt->flags & XML_RELAXNG_IN_ATTRIBUTE)
-				ret->type = XML_RELAXNG_ATTRIBUTE;
-			else
-				ret->type = XML_RELAXNG_ELEMENT;
+			ret->type = (ctxt->flags & XML_RELAXNG_IN_ATTRIBUTE) ? XML_RELAXNG_ATTRIBUTE : XML_RELAXNG_ELEMENT;
 		}
 	}
 	if(IS_RELAXNG(P_Node, "name")) {
@@ -4299,13 +4296,11 @@ static xmlRelaxNGDefine * xmlRelaxNGParseNameClass(xmlRelaxNGParserCtxt * ctxt, 
  */
 static xmlRelaxNGDefine * xmlRelaxNGParseElement(xmlRelaxNGParserCtxt * ctxt, xmlNode * P_Node)
 {
-	xmlRelaxNGDefine * ret;
 	xmlRelaxNGDefine * cur;
 	xmlRelaxNGDefine * last;
 	xmlNode * child;
 	const xmlChar * olddefine;
-
-	ret = xmlRelaxNGNewDefine(ctxt, P_Node);
+	xmlRelaxNGDefine * ret = xmlRelaxNGNewDefine(ctxt, P_Node);
 	if(!ret)
 		return 0;
 	ret->type = XML_RELAXNG_ELEMENT;
@@ -4318,8 +4313,7 @@ static xmlRelaxNGDefine * xmlRelaxNGParseElement(xmlRelaxNGParserCtxt * ctxt, xm
 	cur = xmlRelaxNGParseNameClass(ctxt, child, ret);
 	if(cur)
 		child = child->next;
-
-	if(child == NULL) {
+	if(!child) {
 		xmlRngPErr(ctxt, P_Node, XML_RNGP_ELEMENT_NO_CONTENT, "xmlRelaxNGParseElement: element has no content\n", 0, 0);
 		return ret;
 	}
@@ -5028,7 +5022,7 @@ static xmlRelaxNGContentType FASTCALL xmlRelaxNGCheckRules(xmlRelaxNGParserCtxt 
 	xmlRelaxNGContentType ret, tmp, val = XML_RELAXNG_CONTENT_EMPTY;
 	while(cur) {
 		ret = XML_RELAXNG_CONTENT_EMPTY;
-		if((cur->type == XML_RELAXNG_REF) || (cur->type == XML_RELAXNG_PARENTREF)) {
+		if(oneof2(cur->type, XML_RELAXNG_REF, XML_RELAXNG_PARENTREF)) {
 			/*
 			 * This should actually be caught by list//element(ref) at the
 			 * element boundaries, c.f. Bug #159968 local refs are dropped in step 4.19.
@@ -5052,17 +5046,13 @@ static xmlRelaxNGContentType FASTCALL xmlRelaxNGCheckRules(xmlRelaxNGParserCtxt 
 				ret = xmlRelaxNGCheckRules(ctxt, cur->content, flags, cur->type);
 				cur->depth = ret - 15;
 			}
-			else if(cur->depth == -4) {
+			else if(cur->depth == -4)
 				ret = XML_RELAXNG_CONTENT_COMPLEX;
-			}
-			else {
+			else
 				ret = (xmlRelaxNGContentType)(cur->depth + 15);
-			}
 		}
 		else if(cur->type == XML_RELAXNG_ELEMENT) {
-			/*
-			 * The 7.3 Attribute derivation rule for groups is plugged there
-			 */
+			// The 7.3 Attribute derivation rule for groups is plugged there
 			xmlRelaxNGCheckGroupAttrs(ctxt, cur);
 			if(flags & XML_RELAXNG_IN_DATAEXCEPT) {
 				xmlRngPErr(ctxt, cur->P_Node, XML_RNGP_PAT_DATA_EXCEPT_ELEM, "Found forbidden pattern data/except//element(ref)\n", 0, 0);
@@ -5076,9 +5066,7 @@ static xmlRelaxNGContentType FASTCALL xmlRelaxNGCheckRules(xmlRelaxNGParserCtxt 
 			if(flags & XML_RELAXNG_IN_ATTRIBUTE) {
 				xmlRngPErr(ctxt, cur->P_Node, XML_RNGP_PAT_ATTR_ELEM, "Found forbidden pattern attribute//element(ref)\n", 0, 0);
 			}
-			/*
-			 * reset since in the simple form elements are only child of grammar/define
-			 */
+			// reset since in the simple form elements are only child of grammar/define
 			nflags = 0;
 			ret = xmlRelaxNGCheckRules(ctxt, cur->attrs, nflags, cur->type);
 			if(ret != XML_RELAXNG_CONTENT_EMPTY) {
@@ -5123,7 +5111,7 @@ static xmlRelaxNGContentType FASTCALL xmlRelaxNGCheckRules(xmlRelaxNGParserCtxt 
 			xmlRelaxNGCheckRules(ctxt, cur->content, nflags, cur->type);
 			ret = XML_RELAXNG_CONTENT_EMPTY;
 		}
-		else if((cur->type == XML_RELAXNG_ONEORMORE) || (cur->type == XML_RELAXNG_ZEROORMORE)) {
+		else if(oneof2(cur->type, XML_RELAXNG_ONEORMORE, XML_RELAXNG_ZEROORMORE)) {
 			if(flags & XML_RELAXNG_IN_DATAEXCEPT) {
 				xmlRngPErr(ctxt, cur->P_Node, XML_RNGP_PAT_DATA_EXCEPT_ONEMORE, "Found forbidden pattern data/except//oneOrMore\n", 0, 0);
 			}
@@ -5154,14 +5142,9 @@ static xmlRelaxNGContentType FASTCALL xmlRelaxNGCheckRules(xmlRelaxNGParserCtxt 
 			if(flags & XML_RELAXNG_IN_START) {
 				xmlRngPErr(ctxt, cur->P_Node, XML_RNGP_PAT_START_GROUP, "Found forbidden pattern start//group\n", 0, 0);
 			}
-			if(flags & XML_RELAXNG_IN_ONEORMORE)
-				nflags = flags | XML_RELAXNG_IN_OOMGROUP;
-			else
-				nflags = flags;
+			nflags = (flags & XML_RELAXNG_IN_ONEORMORE) ? (flags | XML_RELAXNG_IN_OOMGROUP) : flags;
 			ret = xmlRelaxNGCheckRules(ctxt, cur->content, nflags, cur->type);
-			/*
-			 * The 7.3 Attribute derivation rule for groups is plugged there
-			 */
+			// The 7.3 Attribute derivation rule for groups is plugged there
 			xmlRelaxNGCheckGroupAttrs(ctxt, cur);
 		}
 		else if(cur->type == XML_RELAXNG_INTERLEAVE) {
@@ -5174,17 +5157,11 @@ static xmlRelaxNGContentType FASTCALL xmlRelaxNGCheckRules(xmlRelaxNGParserCtxt 
 			if(flags & XML_RELAXNG_IN_START) {
 				xmlRngPErr(ctxt, cur->P_Node, XML_RNGP_PAT_DATA_EXCEPT_INTERLEAVE, "Found forbidden pattern start//interleave\n", 0, 0);
 			}
-			if(flags & XML_RELAXNG_IN_ONEORMORE)
-				nflags = flags | XML_RELAXNG_IN_OOMINTERLEAVE;
-			else
-				nflags = flags;
+			nflags = (flags & XML_RELAXNG_IN_ONEORMORE) ? (flags | XML_RELAXNG_IN_OOMINTERLEAVE) : flags;
 			ret = xmlRelaxNGCheckRules(ctxt, cur->content, nflags, cur->type);
 		}
 		else if(cur->type == XML_RELAXNG_EXCEPT) {
-			if(cur->parent && (cur->parent->type == XML_RELAXNG_DATATYPE))
-				nflags = flags | XML_RELAXNG_IN_DATAEXCEPT;
-			else
-				nflags = flags;
+			nflags = (cur->parent && cur->parent->type == XML_RELAXNG_DATATYPE) ? (flags | XML_RELAXNG_IN_DATAEXCEPT) : flags;
 			ret = xmlRelaxNGCheckRules(ctxt, cur->content, nflags, cur->type);
 		}
 		else if(cur->type == XML_RELAXNG_DATATYPE) {
@@ -7538,17 +7515,16 @@ static int xmlRelaxNGValidateAttributeList(xmlRelaxNGValidCtxtPtr ctxt, xmlRelax
  *
  * Returns 1 if matches 0 otherwise
  */
-static int xmlRelaxNGNodeMatchesList(xmlNode * P_Node, xmlRelaxNGDefine ** list)
+static int xmlRelaxNGNodeMatchesList(xmlNode * pNode, xmlRelaxNGDefine ** list)
 {
-	if(P_Node && list) {
+	if(pNode && list) {
 		int i = 0;
 		for(xmlRelaxNGDefine * cur = list[i++]; cur;) {
-			if((P_Node->type == XML_ELEMENT_NODE) && (cur->type == XML_RELAXNG_ELEMENT)) {
-				int tmp = xmlRelaxNGElementMatch(NULL, cur, P_Node);
-				if(tmp == 1)
+			if((pNode->type == XML_ELEMENT_NODE) && (cur->type == XML_RELAXNG_ELEMENT)) {
+				if(xmlRelaxNGElementMatch(NULL, cur, pNode) == 1)
 					return 1;
 			}
-			else if(((P_Node->type == XML_TEXT_NODE) || (P_Node->type == XML_CDATA_SECTION_NODE)) && (cur->type == XML_RELAXNG_TEXT)) {
+			else if(oneof2(pNode->type, XML_TEXT_NODE, XML_CDATA_SECTION_NODE) && cur->type == XML_RELAXNG_TEXT) {
 				return 1;
 			}
 			cur = list[i++];
@@ -7556,7 +7532,6 @@ static int xmlRelaxNGNodeMatchesList(xmlNode * P_Node, xmlRelaxNGDefine ** list)
 	}
 	return 0;
 }
-
 /**
  * xmlRelaxNGValidateInterleave:
  * @ctxt:  a Relax-NG validation context
@@ -7640,7 +7615,7 @@ static int xmlRelaxNGValidateInterleave(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGD
 		ctxt->state->seq = cur;
 		if(partitions->triage && (partitions->flags & IS_DETERMINIST)) {
 			void * tmp = NULL;
-			if((cur->type == XML_TEXT_NODE) || (cur->type == XML_CDATA_SECTION_NODE)) {
+			if(oneof2(cur->type, XML_TEXT_NODE, XML_CDATA_SECTION_NODE)) {
 				tmp = xmlHashLookup2(partitions->triage, reinterpret_cast<const xmlChar *>("#text"), NULL);
 			}
 			else if(cur->type == XML_ELEMENT_NODE) {
@@ -7673,9 +7648,7 @@ static int xmlRelaxNGValidateInterleave(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGD
 				}
 			}
 		}
-		/*
-		 * We break as soon as an element not matched is found
-		 */
+		// We break as soon as an element not matched is found
 		if(i >= nbgroups) {
 			break;
 		}
@@ -7730,9 +7703,7 @@ static int xmlRelaxNGValidateInterleave(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGD
 			int found = 0;
 			int best = -1;
 			int lowattr = -1;
-			/*
-			 * PBM: what happen if there is attributes checks in the interleaves
-			 */
+			// PBM: what happen if there is attributes checks in the interleaves
 			for(j = 0; j < ctxt->states->nbState; j++) {
 				cur = ctxt->states->tabState[j]->seq;
 				cur = xmlRelaxNGSkipIgnored(ctxt, cur);

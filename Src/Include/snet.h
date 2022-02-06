@@ -1,5 +1,5 @@
 // SNET.H
-// Copyright (c) A.Sobolev 2005, 2007, 2010, 2012, 2013, 2014, 2015, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2005, 2007, 2010, 2012, 2013, 2014, 2015, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #ifndef __SNET_H
@@ -15,7 +15,7 @@
 //
 struct MACAddr { // size=6
 	void   Init();
-	int    IsEmpty() const;
+	bool   IsEmpty() const;
 	SString & FASTCALL ToStr(SString & rBuf) const;
 	//
 	// Descr: сравнивает MAC-адреса this и s.
@@ -60,7 +60,7 @@ public:
 	int    FASTCALL operator == (const InetAddr & rS) const;
 	int    FASTCALL operator != (const InetAddr & rS) const;
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
-	int    IsEmpty() const;
+	bool   IsEmpty() const;
 	int    GetPort() const { return Port; }
 	const SString & GetHostName() const { return HostName; }
 	int    Set(ulong addr, int port = 0);

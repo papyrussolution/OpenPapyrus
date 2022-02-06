@@ -3106,7 +3106,7 @@ U_CAPI int32_t U_EXPORT2 ures_getFunctionalEquivalent(char * result, int32_t res
 	length = (int32_t)uprv_strlen(found);
 
 	if(U_SUCCESS(*status)) {
-		int32_t copyLength = uprv_min(length, resultCapacity);
+		int32_t copyLength = smin(length, resultCapacity);
 		if(copyLength>0) {
 			uprv_strncpy(result, found, copyLength);
 		}

@@ -1,0 +1,12 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@incdir@
+
+Name: Xapian
+Description: Search Engine Library
+URL: https://xapian.org/
+Version: @VERSION@
+Cflags: -I${includedir} @abi_affecting_cxxflags@
+Libs: @ldflags@ -L${libdir} -lxapian@LIBRARY_VERSION_SUFFIX@
+Libs.private: @XAPIAN_LIBS@

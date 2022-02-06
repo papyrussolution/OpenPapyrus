@@ -40,10 +40,10 @@ U_CFUNC uint16_t udata_getHeaderSize(const DataHeader * udh)
 	}
 }
 
-U_CFUNC uint16_t udata_getInfoSize(const UDataInfo * info) {
-	if(info==NULL) {
+U_CFUNC uint16_t udata_getInfoSize(const UDataInfo * info) 
+{
+	if(!info)
 		return 0;
-	}
 	else if(info->isBigEndian==U_IS_BIG_ENDIAN) {
 		/* same endianness */
 		return info->size;
@@ -54,15 +54,12 @@ U_CFUNC uint16_t udata_getInfoSize(const UDataInfo * info) {
 		return (uint16_t)((x<<8)|(x>>8));
 	}
 }
-
-/*-----------------------------------------------------------------------------*
-*                                                                             *
-*  Pointer TOCs.   TODO: This form of table-of-contents should be removed     *
-*                  because DLLs must be relocated on loading to correct the   *
-*                  pointer values and this operation makes shared memory      *
-*                  mapping of the data much less likely to work.              *
-*                                                                             *
-*-----------------------------------------------------------------------------*/
+// 
+// Pointer TOCs.   TODO: This form of table-of-contents should be removed
+//   because DLLs must be relocated on loading to correct the
+//   pointer values and this operation makes shared memory
+//   mapping of the data much less likely to work.
+// 
 typedef struct {
 	const char * entryName;
 	const DataHeader * pHeader;
@@ -79,13 +76,9 @@ typedef struct  {
 }  PointerTOC;
 
 /* definition of OffsetTOC struct types moved to ucmndata.h */
-
-/*-----------------------------------------------------------------------------*
-*                                                                             *
-*    entry point lookup implementations                                       *
-*                                                                             *
-*-----------------------------------------------------------------------------*/
-
+//
+// entry point lookup implementations
+//
 #ifndef MIN
 #define MIN(a, b) (((a)<(b)) ? (a) : (b))
 #endif
@@ -160,7 +153,8 @@ static int32_t offsetTOCPrefixBinarySearch(const char * s, const char * names, c
 	return -1;
 }
 
-static int32_t pointerTOCPrefixBinarySearch(const char * s, const PointerTOCEntry * toc, int32_t count) {
+static int32_t pointerTOCPrefixBinarySearch(const char * s, const PointerTOCEntry * toc, int32_t count) 
+{
 	int32_t start = 0;
 	int32_t limit = count;
 	/*
@@ -262,15 +256,12 @@ static uint32_t U_CALLCONV pointerTOCEntryCount(const UDataMemory * pData)
 	return (uint32_t)((toc != NULL) ? (toc->count) : 0);
 }
 
-static const DataHeader * U_CALLCONV pointerTOCLookupFn(const UDataMemory * pData,
-    const char * name,
-    int32_t * pLength,
-    UErrorCode * pErrorCode) {
+static const DataHeader * U_CALLCONV pointerTOCLookupFn(const UDataMemory * pData, const char * name, int32_t * pLength, UErrorCode * pErrorCode) 
+{
 	(void)pErrorCode;
 	if(pData->toc!=NULL) {
 		const PointerTOC * toc = (PointerTOC*)pData->toc;
 		int32_t number, count = (int32_t)toc->count;
-
 #if defined (UDATA_DEBUG_DUMP)
 		/* list the contents of the TOC each time .. not recommended */
 		for(number = 0; number<count; ++number) {

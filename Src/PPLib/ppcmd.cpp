@@ -1,5 +1,5 @@
 // PPCMD.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // @Kernel
 //
@@ -327,16 +327,16 @@ int PPCommandItem::Write2(void * pHandler, const long rwFlag) const  //@erik v10
 	return ok;
 }
 
-int PPCommandItem::Read2(void * pHandler, const long rwFlag) //@erik v10.6.1
+int PPCommandItem::Read2(const void * pHandler, const long rwFlag) //@erik v10.6.1
 {
 	int    ok = 1;
 	SString temp_buf;
 	assert(pHandler);
 	THROW(pHandler);
 	if(rwFlag == PPCommandMngr::fRWByXml) {
-		xmlNode * p_parent_node = static_cast<xmlNode *>(pHandler);
+		const xmlNode * p_parent_node = static_cast<const xmlNode *>(pHandler);
 		if(SXml::IsName(p_parent_node, "CommandItem")){
-			for(xmlNode * p_node = p_parent_node->children; p_node; p_node = p_node->next) {
+			for(const xmlNode * p_node = p_parent_node->children; p_node; p_node = p_node->next) {
 				if(SXml::GetContentByName(p_node, "Kind", temp_buf))
 					Kind = static_cast<int16>(temp_buf.ToLong());
 				else if(SXml::GetContentByName(p_node, "Flags", temp_buf))
@@ -468,7 +468,7 @@ int PPCommand::Write2(void * pHandler, const long rwFlag) const
 	return ok;
 }
 
-int PPCommand::Read2(void * pHandler, const long rwFlag)
+int PPCommand::Read2(const void * pHandler, const long rwFlag)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -476,9 +476,9 @@ int PPCommand::Read2(void * pHandler, const long rwFlag)
 	assert(pHandler);
 	THROW(pHandler);
 	if(rwFlag == PPCommandMngr::fRWByXml) {
-		xmlNode * p_parent_node = static_cast<xmlNode *>(pHandler);
+		const xmlNode * p_parent_node = static_cast<const xmlNode *>(pHandler);
 		if(SXml::IsName(p_parent_node, "Command")) {
-			for(xmlNode * p_node = p_parent_node->children; p_node; p_node = p_node->next) {
+			for(const xmlNode * p_node = p_parent_node->children; p_node; p_node = p_node->next) {
 				if(SXml::GetContentByName(p_node, "CmdID", temp_buf)>0) {
 					CmdID = temp_buf.ToLong();
 				}
@@ -686,7 +686,7 @@ int PPCommandFolder::Write2(void * pHandler, const long rwFlag) const // @recurs
 	return ok;
 }
 
-int PPCommandFolder::Read2(void * pHandler, const long rwFlag)
+int PPCommandFolder::Read2(const void * pHandler, const long rwFlag)
 {
 	int    ok = 1;
 	PPCommandItem * p_command_item = 0;
@@ -694,9 +694,9 @@ int PPCommandFolder::Read2(void * pHandler, const long rwFlag)
 	THROW(pHandler);
 	THROW(rwFlag == PPCommandMngr::fRWByXml);
 	{
-		xmlNode * p_parent_node = static_cast<xmlNode *>(pHandler);
+		const xmlNode * p_parent_node = static_cast<const xmlNode *>(pHandler);
 		if(SXml::IsName(p_parent_node, "CommandFolder")) {
-			for(xmlNode * p_node = p_parent_node->children; p_node; p_node = p_node->next) {
+			for(const xmlNode * p_node = p_parent_node->children; p_node; p_node = p_node->next) {
 				if(SXml::IsName(p_node, "CommandItem")) {
 					p_command_item = new PPCommandItem(PPCommandItem::kUndef);
 					THROW(p_command_item->Read2(p_node, rwFlag));
@@ -1511,7 +1511,7 @@ int PPCommandGroup::Write2(void * pHandler, const long rwFlag) const
 	return ok;
 }
 
-int PPCommandGroup::Read2(void * pHandler, const long rwFlag)
+int PPCommandGroup::Read2(const void * pHandler, const long rwFlag)
 {
 	int    ok = 1;
 	int    state = 0;
@@ -1520,9 +1520,9 @@ int PPCommandGroup::Read2(void * pHandler, const long rwFlag)
 	THROW(pHandler);
 	Type = cmdgrpcUndef; // @v10.9.3
 	if(rwFlag == PPCommandMngr::fRWByXml) {
-		xmlNode * p_parent_node = static_cast<xmlNode *>(pHandler);
+		const xmlNode * p_parent_node = static_cast<const xmlNode *>(pHandler);
 		if(SXml::IsName(p_parent_node, "CommandGroup")) {
-			for(xmlNode * p_node = p_parent_node->children; p_node; p_node = p_node->next){
+			for(const xmlNode * p_node = p_parent_node->children; p_node; p_node = p_node->next){
 				if(SXml::GetContentByName(p_node, "DbSymb", temp_buf) > 0) {
 					if(temp_buf.NotEmpty()){
 						DbSymb = temp_buf.Transf(CTRANSF_UTF8_TO_OUTER);

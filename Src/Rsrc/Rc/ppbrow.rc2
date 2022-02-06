@@ -1,5 +1,5 @@
 // PPBROW.RC2
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage windows-1251
 // Part of project Papyrus
 //
@@ -2580,6 +2580,14 @@ browser TRFRGR_G north(100), 1, 1, "@{view_opgrouping} @{_bygoods}", OWNER|GRID,
 browser TRFRGR_CT_G north(100), 3, 1, "@{view_opgrouping} @{_bygoods}", OWNER|GRID, 0
 {
 	"@ware",        3, notype, 0, 40
+	crosstab       "", notype, NMBF_DELCOMMA | NMBF_NOZERO, 12.2
+	toolbar TRFRANLZ
+}
+
+// @v11.3.0 На случай группировки товар/контрагент и кросстабуляции по контрагенту. Отличается от TRFRGR_CT_G только номером поля товара (4 вместо 3)
+browser TRFRGR_CT_G2 north(100), 3, 1, "@{view_opgrouping} @{_bygoods}", OWNER|GRID, 0
+{
+	"@ware",        2, notype, 0, 40
 	crosstab       "", notype, NMBF_DELCOMMA | NMBF_NOZERO, 12.2
 	toolbar TRFRANLZ
 }

@@ -419,7 +419,7 @@ extern int TIFFRGBAImageGet(TIFFRGBAImage*, uint32*, uint32, uint32);
 extern void TIFFRGBAImageEnd(TIFFRGBAImage*);
 extern TIFF* TIFFOpen(const char *, const char *);
 #ifdef __WIN32__
-extern TIFF* TIFFOpenW(const wchar_t*, const char *);
+extern TIFF* TIFFOpenW(const wchar_t *, const char *);
 #endif /* __WIN32__ */
 extern TIFF * TIFFFdOpen(int, const char *, const char *);
 extern TIFF * TIFFClientOpen(const char *, const char *, thandle_t, TIFFReadWriteProc, TIFFReadWriteProc, TIFFSeekProc, TIFFCloseProc, TIFFSizeProc, TIFFMapFileProc, TIFFUnmapFileProc);

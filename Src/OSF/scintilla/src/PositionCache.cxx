@@ -331,7 +331,7 @@ static /*inline*/ int FASTCALL KeyFromString(const char * charBytes, size_t len)
 {
 	PLATFORM_ASSERT(len <= 4);
 	int k = 0;
-	for(size_t i = 0; i<len && charBytes[i]; i++) {
+	for(size_t i = 0; i < len && charBytes[i]; i++) {
 		k = k * 0x100;
 		k += static_cast<uchar>(charBytes[i]);
 	}
@@ -533,7 +533,7 @@ void PositionCacheEntry::Set(uint styleNumber_, const char * s_, uint len_, cons
 	clock = clock_;
 	if(s_ && positions_) {
 		positions = new XYPOSITION[len + (len / 4) + 1];
-		for(uint i = 0; i<len; i++) {
+		for(uint i = 0; i < len; i++) {
 			positions[i] = positions_[i];
 		}
 		memcpy(reinterpret_cast<char *>(reinterpret_cast<void *>(positions + len)), s_, len);
@@ -559,7 +559,7 @@ bool PositionCacheEntry::Retrieve(uint styleNumber_, const char * s_,
 {
 	if((styleNumber == styleNumber_) && (len == len_) &&
 	    (memcmp(reinterpret_cast<char *>(reinterpret_cast<void *>(positions + len)), s_, len)== 0)) {
-		for(uint i = 0; i<len; i++) {
+		for(uint i = 0; i < len; i++) {
 			positions_[i] = positions[i];
 		}
 		return true;

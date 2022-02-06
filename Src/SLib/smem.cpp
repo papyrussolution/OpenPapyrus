@@ -255,90 +255,90 @@ void * catmem(void * pDest, size_t destSize, const void * pSrc, size_t srcSize)
 	return p_tmp;
 }
 
-void FASTCALL Exchange(int * pA, int * pB)
-{
-	int    temp = *pA;
-	*pA = *pB;
-	*pB = temp;
-}
-
-void FASTCALL Exchange(uint * pA, uint * pB)
-{
-	uint   temp = *pA;
-	*pA = *pB;
-	*pB = temp;
-}
-
-void FASTCALL ExchangeForOrder(int * pA, int * pB)
-{
-	if(*pA > *pB) {
-		int    temp = *pA;
-		*pA = *pB;
-		*pB = temp;
-	}
-}
-
-void FASTCALL Exchange(long * pA, long * pB)
-{
-	long   temp = *pA;
-	*pA = *pB;
-	*pB = temp;
-}
-
-void FASTCALL ExchangeForOrder(long * pA, long * pB)
-{
-	if(*pA > *pB) {
-		long   temp = *pA;
-		*pA = *pB;
-		*pB = temp;
-	}
-}
-
-void FASTCALL Exchange(ulong * pA, ulong * pB)
-{
-	ulong  temp = *pA;
-	*pA = *pB;
-	*pB = temp;
-}
-
-void FASTCALL Exchange(int16 * pA, int16 * pB)
-{
-	int16  temp = *pA;
-	*pA = *pB;
-	*pB = temp;
-}
-
-void FASTCALL ExchangeForOrder(int16 * pA, int16 * pB)
-{
-	if(*pA > *pB) {
-		int16  temp = *pA;
-		*pA = *pB;
-		*pB = temp;
-	}
-}
-
-void FASTCALL Exchange(int64 * pA, int64 * pB)
-{
-	int64  temp = *pA;
-	*pA = *pB;
-	*pB = temp;
-}
-
-void FASTCALL Exchange(float * pA, float * pB)
-{
-	memswap(pA, pB, sizeof(*pA));
-}
-
-void FASTCALL Exchange(double * pA, double * pB)
-{
-	memswap(pA, pB, sizeof(*pA));
-}
-
-void FASTCALL ExchangeForOrder(double * pA, double * pB)
-{
-	if(*pA > *pB)
-		memswap(pA, pB, sizeof(*pA));
-}
+//void FASTCALL Exchange(int * pA, int * pB)
+//{
+//	int    temp = *pA;
+//	*pA = *pB;
+//	*pB = temp;
+//}
+//
+//void FASTCALL Exchange(uint * pA, uint * pB)
+//{
+//	uint   temp = *pA;
+//	*pA = *pB;
+//	*pB = temp;
+//}
+//
+//void FASTCALL ExchangeForOrder(int * pA, int * pB)
+//{
+//	if(*pA > *pB) {
+//		int    temp = *pA;
+//		*pA = *pB;
+//		*pB = temp;
+//	}
+//}
+//
+//void FASTCALL Exchange(long * pA, long * pB)
+//{
+//	long   temp = *pA;
+//	*pA = *pB;
+//	*pB = temp;
+//}
+//
+//void FASTCALL ExchangeForOrder(long * pA, long * pB)
+//{
+//	if(*pA > *pB) {
+//		long   temp = *pA;
+//		*pA = *pB;
+//		*pB = temp;
+//	}
+//}
+//
+//void FASTCALL Exchange(ulong * pA, ulong * pB)
+//{
+//	ulong  temp = *pA;
+//	*pA = *pB;
+//	*pB = temp;
+//}
+//
+//void FASTCALL Exchange(int16 * pA, int16 * pB)
+//{
+//	int16  temp = *pA;
+//	*pA = *pB;
+//	*pB = temp;
+//}
+//
+//void FASTCALL ExchangeForOrder(int16 * pA, int16 * pB)
+//{
+//	if(*pA > *pB) {
+//		int16  temp = *pA;
+//		*pA = *pB;
+//		*pB = temp;
+//	}
+//}
+//
+//void FASTCALL Exchange(int64 * pA, int64 * pB)
+//{
+//	int64  temp = *pA;
+//	*pA = *pB;
+//	*pB = temp;
+//}
+//
+//void FASTCALL Exchange(float * pA, float * pB)
+//{
+//	memswap(pA, pB, sizeof(*pA));
+//}
+//
+//void FASTCALL Exchange(double * pA, double * pB)
+//{
+//	memswap(pA, pB, sizeof(*pA));
+//}
+//
+//void FASTCALL ExchangeForOrder(double * pA, double * pB)
+//{
+//	if(*pA > *pB)
+//		memswap(pA, pB, sizeof(*pA));
+//}
 //
 //
 // @costruction {

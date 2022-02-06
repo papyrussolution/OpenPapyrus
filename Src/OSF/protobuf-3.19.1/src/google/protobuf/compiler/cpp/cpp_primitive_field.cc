@@ -46,47 +46,27 @@ using internal::WireFormatLite;
 namespace {
 // For encodings with fixed sizes, returns that size in bytes.  Otherwise
 // returns -1.
-int FixedSize(FieldDescriptor::Type type) {
+int FixedSize(FieldDescriptor::Type type) 
+{
 	switch(type) {
-		case FieldDescriptor::TYPE_INT32:
-		    return -1;
-		case FieldDescriptor::TYPE_INT64:
-		    return -1;
-		case FieldDescriptor::TYPE_UINT32:
-		    return -1;
-		case FieldDescriptor::TYPE_UINT64:
-		    return -1;
-		case FieldDescriptor::TYPE_SINT32:
-		    return -1;
-		case FieldDescriptor::TYPE_SINT64:
-		    return -1;
-		case FieldDescriptor::TYPE_FIXED32:
-		    return WireFormatLite::kFixed32Size;
-		case FieldDescriptor::TYPE_FIXED64:
-		    return WireFormatLite::kFixed64Size;
-		case FieldDescriptor::TYPE_SFIXED32:
-		    return WireFormatLite::kSFixed32Size;
-		case FieldDescriptor::TYPE_SFIXED64:
-		    return WireFormatLite::kSFixed64Size;
-		case FieldDescriptor::TYPE_FLOAT:
-		    return WireFormatLite::kFloatSize;
-		case FieldDescriptor::TYPE_DOUBLE:
-		    return WireFormatLite::kDoubleSize;
-
-		case FieldDescriptor::TYPE_BOOL:
-		    return WireFormatLite::kBoolSize;
-		case FieldDescriptor::TYPE_ENUM:
-		    return -1;
-
-		case FieldDescriptor::TYPE_STRING:
-		    return -1;
-		case FieldDescriptor::TYPE_BYTES:
-		    return -1;
-		case FieldDescriptor::TYPE_GROUP:
-		    return -1;
-		case FieldDescriptor::TYPE_MESSAGE:
-		    return -1;
-
+		case FieldDescriptor::TYPE_INT32: return -1;
+		case FieldDescriptor::TYPE_INT64: return -1;
+		case FieldDescriptor::TYPE_UINT32: return -1;
+		case FieldDescriptor::TYPE_UINT64: return -1;
+		case FieldDescriptor::TYPE_SINT32: return -1;
+		case FieldDescriptor::TYPE_SINT64: return -1;
+		case FieldDescriptor::TYPE_FIXED32: return WireFormatLite::kFixed32Size;
+		case FieldDescriptor::TYPE_FIXED64: return WireFormatLite::kFixed64Size;
+		case FieldDescriptor::TYPE_SFIXED32: return WireFormatLite::kSFixed32Size;
+		case FieldDescriptor::TYPE_SFIXED64: return WireFormatLite::kSFixed64Size;
+		case FieldDescriptor::TYPE_FLOAT: return WireFormatLite::kFloatSize;
+		case FieldDescriptor::TYPE_DOUBLE: return WireFormatLite::kDoubleSize;
+		case FieldDescriptor::TYPE_BOOL: return WireFormatLite::kBoolSize;
+		case FieldDescriptor::TYPE_ENUM: return -1;
+		case FieldDescriptor::TYPE_STRING: return -1;
+		case FieldDescriptor::TYPE_BYTES: return -1;
+		case FieldDescriptor::TYPE_GROUP: return -1;
+		case FieldDescriptor::TYPE_MESSAGE: return -1;
 		    // No default because we want the compiler to complain if any new
 		    // types are added.
 	}
@@ -126,7 +106,8 @@ void PrimitiveFieldGenerator::GeneratePrivateMembers(io::Printer* printer) const
 	format("$type$ $name$_;\n");
 }
 
-void PrimitiveFieldGenerator::GenerateAccessorDeclarations(io::Printer* printer) const {
+void PrimitiveFieldGenerator::GenerateAccessorDeclarations(io::Printer* printer) const 
+{
 	Formatter format(printer, variables_);
 	format(
 		"$deprecated_attr$$type$ ${1$$name$$}$() const;\n"
@@ -138,29 +119,29 @@ void PrimitiveFieldGenerator::GenerateAccessorDeclarations(io::Printer* printer)
 		descriptor_);
 }
 
-void PrimitiveFieldGenerator::GenerateInlineAccessorDefinitions(io::Printer* printer) const {
+void PrimitiveFieldGenerator::GenerateInlineAccessorDefinitions(io::Printer* printer) const 
+{
 	Formatter format(printer, variables_);
 	format(
-		"inline $type$ $classname$::_internal_$name$() const {\n"
-		"  return $name$_;\n"
-		"}\n"
+		"inline $type$ $classname$::_internal_$name$() const { return $name$_; }\n"
 		"inline $type$ $classname$::$name$() const {\n"
 		"$annotate_get$"
-		"  // @@protoc_insertion_point(field_get:$full_name$)\n"
-		"  return _internal_$name$();\n"
+		"\t// @@protoc_insertion_point(field_get:$full_name$)\n"
+		"\treturn _internal_$name$();\n"
 		"}\n"
 		"inline void $classname$::_internal_set_$name$($type$ value) {\n"
-		"  $set_hasbit$\n"
-		"  $name$_ = value;\n"
+		"\t$set_hasbit$\n"
+		"\t$name$_ = value;\n"
 		"}\n"
 		"inline void $classname$::set_$name$($type$ value) {\n"
-		"  _internal_set_$name$(value);\n"
+		"\t_internal_set_$name$(value);\n"
 		"$annotate_set$"
-		"  // @@protoc_insertion_point(field_set:$full_name$)\n"
+		"\t// @@protoc_insertion_point(field_set:$full_name$)\n"
 		"}\n");
 }
 
-void PrimitiveFieldGenerator::GenerateClearingCode(io::Printer* printer) const {
+void PrimitiveFieldGenerator::GenerateClearingCode(io::Printer* printer) const 
+{
 	Formatter format(printer, variables_);
 	format("$name$_ = $default$;\n");
 }
@@ -189,12 +170,11 @@ void PrimitiveFieldGenerator::GenerateSerializeWithCachedSizesToArray(io::Printe
 	Formatter format(printer, variables_);
 	format(
 		"target = stream->EnsureSpace(target);\n"
-		"target = "
-		"::$proto_ns$::internal::WireFormatLite::Write$declared_type$ToArray("
-		"$number$, this->_internal_$name$(), target);\n");
+		"target = ::$proto_ns$::internal::WireFormatLite::Write$declared_type$ToArray($number$, this->_internal_$name$(), target);\n");
 }
 
-void PrimitiveFieldGenerator::GenerateByteSize(io::Printer* printer) const {
+void PrimitiveFieldGenerator::GenerateByteSize(io::Printer* printer) const 
+{
 	Formatter format(printer, variables_);
 	int fixed_size = FixedSize(descriptor_->type());
 	if(fixed_size == -1) {
@@ -202,15 +182,10 @@ void PrimitiveFieldGenerator::GenerateByteSize(io::Printer* printer) const {
 		    descriptor_->type()) == 1) {
 			// Adding one is very common and it turns out it can be done for
 			// free inside of WireFormatLite, so we can save an instruction here.
-			format(
-				"total_size += ::$proto_ns$::internal::WireFormatLite::"
-				"$declared_type$SizePlusOne(this->_internal_$name$());\n");
+			format("total_size += ::$proto_ns$::internal::WireFormatLite::$declared_type$SizePlusOne(this->_internal_$name$());\n");
 		}
 		else {
-			format(
-				"total_size += $tag_size$ +\n"
-				"  ::$proto_ns$::internal::WireFormatLite::$declared_type$Size(\n"
-				"    this->_internal_$name$());\n");
+			format("total_size += $tag_size$ + ::$proto_ns$::internal::WireFormatLite::$declared_type$Size(this->_internal_$name$());\n");
 		}
 	}
 	else {
@@ -218,7 +193,8 @@ void PrimitiveFieldGenerator::GenerateByteSize(io::Printer* printer) const {
 	}
 }
 
-void PrimitiveFieldGenerator::GenerateConstinitInitializer(io::Printer* printer) const {
+void PrimitiveFieldGenerator::GenerateConstinitInitializer(io::Printer* printer) const 
+{
 	Formatter format(printer, variables_);
 	format("$name$_($default$)");
 }
@@ -237,17 +213,14 @@ void PrimitiveOneofFieldGenerator::GenerateInlineAccessorDefinitions(io::Printer
 	Formatter format(printer, variables_);
 	format(
 		"inline $type$ $classname$::_internal_$name$() const {\n"
-		"  if (_internal_has_$name$()) {\n"
-		"    return $field_member$;\n"
-		"  }\n"
-		"  return $default$;\n"
+		"\treturn _internal_has_$name$() ? $field_member$ : $default$;\n"
 		"}\n"
 		"inline void $classname$::_internal_set_$name$($type$ value) {\n"
-		"  if (!_internal_has_$name$()) {\n"
-		"    clear_$oneof_name$();\n"
-		"    set_has_$name$();\n"
-		"  }\n"
-		"  $field_member$ = value;\n"
+		"\tif(!_internal_has_$name$()) {\n"
+		"\t\tclear_$oneof_name$();\n"
+		"\t\tset_has_$name$();\n"
+		"\t}\n"
+		"\t$field_member$ = value;\n"
 		"}\n"
 		"inline $type$ $classname$::$name$() const {\n"
 		"$annotate_get$"
@@ -280,7 +253,6 @@ void PrimitiveOneofFieldGenerator::GenerateConstructorCode(io::Printer* printer)
 RepeatedPrimitiveFieldGenerator::RepeatedPrimitiveFieldGenerator(const FieldDescriptor* descriptor, const Options& options)
 	: FieldGenerator(descriptor, options) {
 	SetPrimitiveVariables(descriptor, &variables_, options);
-
 	if(descriptor->is_packed()) {
 		variables_["packed_reader"] = "ReadPackedPrimitive";
 		variables_["repeated_reader"] = "ReadRepeatedPrimitiveNoInline";
@@ -327,9 +299,7 @@ void RepeatedPrimitiveFieldGenerator::GenerateAccessorDeclarations(io::Printer* 
 void RepeatedPrimitiveFieldGenerator::GenerateInlineAccessorDefinitions(io::Printer* printer) const {
 	Formatter format(printer, variables_);
 	format(
-		"inline $type$ $classname$::_internal_$name$(int index) const {\n"
-		"  return $name$_.Get(index);\n"
-		"}\n"
+		"inline $type$ $classname$::_internal_$name$(int index) const { return $name$_.Get(index); }\n"
 		"inline $type$ $classname$::$name$(int index) const {\n"
 		"$annotate_get$"
 		"  // @@protoc_insertion_point(field_get:$full_name$)\n"
@@ -340,9 +310,7 @@ void RepeatedPrimitiveFieldGenerator::GenerateInlineAccessorDefinitions(io::Prin
 		"  $name$_.Set(index, value);\n"
 		"  // @@protoc_insertion_point(field_set:$full_name$)\n"
 		"}\n"
-		"inline void $classname$::_internal_add_$name$($type$ value) {\n"
-		"  $name$_.Add(value);\n"
-		"}\n"
+		"inline void $classname$::_internal_add_$name$($type$ value) { $name$_.Add(value); }\n"
 		"inline void $classname$::add_$name$($type$ value) {\n"
 		"  _internal_add_$name$(value);\n"
 		"$annotate_add$"
@@ -401,25 +369,24 @@ void RepeatedPrimitiveFieldGenerator::GenerateSerializeWithCachedSizesToArray(io
 		if(FixedSize(descriptor_->type()) == -1) {
 			format(
 				"{\n"
-				"  int byte_size = _$name$_cached_byte_size_.load(std::memory_order_relaxed);\n"
-				"  if(byte_size > 0) {\n"
-				"    target = stream->Write$declared_type$Packed($number$, _internal_$name$(), byte_size, target);\n"
-				"  }\n"
+				"\tint byte_size = _$name$_cached_byte_size_.load(std::memory_order_relaxed);\n"
+				"\tif(byte_size > 0) {\n"
+				"\t\ttarget = stream->Write$declared_type$Packed($number$, _internal_$name$(), byte_size, target);\n"
+				"\t}\n"
 				"}\n");
 		}
 		else {
 			format(
 				"if(this->_internal_$name$_size() > 0) {\n"
-				"  target = stream->WriteFixedPacked($number$, _internal_$name$(), "
-				"target);\n"
+				"\ttarget = stream->WriteFixedPacked($number$, _internal_$name$(), target);\n"
 				"}\n");
 		}
 	}
 	else {
 		format(
 			"for(int i = 0, n = this->_internal_$name$_size(); i < n; i++) {\n"
-			"  target = stream->EnsureSpace(target);\n"
-			"  target = ::$proto_ns$::internal::WireFormatLite::Write$declared_type$ToArray($number$, this->_internal_$name$(i), target);\n"
+			"\ttarget = stream->EnsureSpace(target);\n"
+			"\ttarget = ::$proto_ns$::internal::WireFormatLite::Write$declared_type$ToArray($number$, this->_internal_$name$(i), target);\n"
 			"}\n");
 	}
 }
@@ -431,21 +398,17 @@ void RepeatedPrimitiveFieldGenerator::GenerateByteSize(io::Printer* printer) con
 	format.Indent();
 	int fixed_size = FixedSize(descriptor_->type());
 	if(fixed_size == -1) {
-		format(
-			"size_t data_size = ::$proto_ns$::internal::WireFormatLite::\n"
-			"  $declared_type$Size(this->$name$_);\n");
+		format("size_t data_size = ::$proto_ns$::internal::WireFormatLite::$declared_type$Size(this->$name$_);\n");
 	}
 	else {
-		format(
-			"unsigned int count = static_cast<unsigned int>(this->_internal_$name$_size());\n"
+		format("unsigned int count = static_cast<unsigned int>(this->_internal_$name$_size());\n"
 			"size_t data_size = $fixed_size$UL * count;\n");
 	}
 
 	if(descriptor_->is_packed()) {
 		format(
 			"if(data_size > 0) {\n"
-			"  total_size += $tag_size$ +\n"
-			"    ::$proto_ns$::internal::WireFormatLite::Int32Size(static_cast<$int32$>(data_size));\n"
+			"\ttotal_size += $tag_size$ + ::$proto_ns$::internal::WireFormatLite::Int32Size(static_cast<$int32$>(data_size));\n"
 			"}\n");
 		if(FixedSize(descriptor_->type()) == -1) {
 			format(

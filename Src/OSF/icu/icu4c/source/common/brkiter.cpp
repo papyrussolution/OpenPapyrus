@@ -1,17 +1,14 @@
-// brkiter.cpp
+// BRKITER.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-	Copyright (C) 1997-2015, International Business Machines Corporation and others. All Rights Reserved.
-	Modification History:
-	Date        Name        Description
-	02/18/97    aliu        Converted from OpenClass.  Added DONE.
-	01/13/2000  helena      Added UErrorCode parameter to createXXXInstance methods.
-*/
-// *****************************************************************************
+// Copyright (C) 1997-2015, International Business Machines Corporation and others. All Rights Reserved.
+// Modification History:
+// Date        Name        Description
+// 02/18/97    aliu        Converted from OpenClass.  Added DONE.
+// 01/13/2000  helena      Added UErrorCode parameter to createXXXInstance methods.
+// 
 // This file was generated from the java source file BreakIterator.java
-// *****************************************************************************
-
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "utracimp.h"
@@ -63,11 +60,9 @@ BreakIterator* BreakIterator::buildInstance(const Locale & loc, const char * typ
 				status = U_BUFFER_OVERFLOW_ERROR;
 			}
 		}
-
 		// Use the string if we found it
 		if(U_SUCCESS(status) && brkfname) {
 			actualLocale.append(ures_getLocaleInternal(brkName, &status), -1, status);
-
 			UChar * extStart = u_strchr(brkfname, 0x002e);
 			int len = 0;
 			if(extStart!=NULL) {
@@ -78,10 +73,8 @@ BreakIterator* BreakIterator::buildInstance(const Locale & loc, const char * typ
 			fnbuff[len] = 0; // nul terminate
 		}
 	}
-
 	ures_close(brkRules);
 	ures_close(brkName);
-
 	UDataMemory* file = udata_open(U_ICUDATA_BRKITR, ext, fnbuff, &status);
 	if(U_FAILURE(status)) {
 		ures_close(b);
@@ -358,9 +351,7 @@ BreakIterator* BreakIterator::makeInstance(const Locale & loc, int32_t kind, UEr
 		    char lbKeyValue[kKeyValueLenMax] = {0};
 		    UErrorCode kvStatus = U_ZERO_ERROR;
 		    int32_t kLen = loc.getKeywordValue("lb", lbKeyValue, kKeyValueLenMax, kvStatus);
-		    if(U_SUCCESS(kvStatus) && kLen > 0 &&
-			(uprv_strcmp(lbKeyValue,
-			"strict")==0 || uprv_strcmp(lbKeyValue, "normal")==0 || uprv_strcmp(lbKeyValue, "loose")==0)) {
+		    if(U_SUCCESS(kvStatus) && kLen > 0 && (uprv_strcmp(lbKeyValue, "strict")==0 || uprv_strcmp(lbKeyValue, "normal")==0 || uprv_strcmp(lbKeyValue, "loose")==0)) {
 			    uprv_strcat(lbType, "_");
 			    uprv_strcat(lbType, lbKeyValue);
 		    }
@@ -399,11 +390,9 @@ BreakIterator* BreakIterator::makeInstance(const Locale & loc, int32_t kind, UEr
 		default:
 		    status = U_ILLEGAL_ARGUMENT_ERROR;
 	}
-
 	if(U_FAILURE(status)) {
 		return NULL;
 	}
-
 	return result;
 }
 
@@ -420,14 +409,13 @@ const char * BreakIterator::getLocaleID(ULocDataLocaleType type, UErrorCode & st
 // This implementation of getRuleStatus is a do-nothing stub, here to
 // provide a default implementation for any derived BreakIterator classes that
 // do not implement it themselves.
-int32_t BreakIterator::getRuleStatus() const {
-	return 0;
-}
+int32_t BreakIterator::getRuleStatus() const { return 0; }
 
 // This implementation of getRuleStatusVec is a do-nothing stub, here to
 // provide a default implementation for any derived BreakIterator classes that
 // do not implement it themselves.
-int32_t BreakIterator::getRuleStatusVec(int32_t * fillInVec, int32_t capacity, UErrorCode & status) {
+int32_t BreakIterator::getRuleStatusVec(int32_t * fillInVec, int32_t capacity, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return 0;
 	}
@@ -447,5 +435,3 @@ BreakIterator::BreakIterator (const Locale & valid, const Locale & actual) {
 U_NAMESPACE_END
 
 #endif /* #if !UCONFIG_NO_BREAK_ITERATION */
-
-//eof

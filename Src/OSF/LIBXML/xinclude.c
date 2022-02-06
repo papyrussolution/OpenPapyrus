@@ -702,13 +702,13 @@ static xmlNode * xmlXIncludeCopyNodeList(xmlXIncludeCtxtPtr ctxt, xmlDoc * targe
 static xmlNode * xmlXIncludeGetNthChild(xmlNode * cur, int no) 
 {
 	int i;
-	if(!cur || (cur->type == XML_NAMESPACE_DECL))
+	if(!cur || cur->type == XML_NAMESPACE_DECL)
 		return 0;
 	cur = cur->children;
 	for(i = 0; i <= no; cur = cur->next) {
 		if(!cur)
 			return cur;
-		if((cur->type == XML_ELEMENT_NODE) || (cur->type == XML_DOCUMENT_NODE) || (cur->type == XML_HTML_DOCUMENT_NODE)) {
+		if(oneof3(cur->type, XML_ELEMENT_NODE, XML_DOCUMENT_NODE, XML_HTML_DOCUMENT_NODE)) {
 			i++;
 			if(i == no)
 				break;
@@ -857,8 +857,7 @@ static xmlNode * xmlXIncludeCopyRange(xmlXIncludeCtxtPtr ctxt, xmlDoc * target, 
 			}
 		}
 		else if(cur == start) { /* Not at the end, are we at start? */
-			if((cur->type == XML_TEXT_NODE) ||
-			    (cur->type == XML_CDATA_SECTION_NODE)) {
+			if(oneof2(cur->type, XML_TEXT_NODE, XML_CDATA_SECTION_NODE)) {
 				const xmlChar * content = cur->content;
 				if(!content) {
 					tmp = xmlNewTextLen(NULL, 0);

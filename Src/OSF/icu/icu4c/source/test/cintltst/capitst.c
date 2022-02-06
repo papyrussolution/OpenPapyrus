@@ -1,20 +1,15 @@
+// CAPITEST.C
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/********************************************************************
-* Copyright (c) 1997-2016, International Business Machines
-* Corporation and others. All Rights Reserved.
-********************************************************************/
-/*****************************************************************************
- *
- * File CAPITEST.C
- *
- * Modification History:
- *        Name                     Description
- *     Madhu Katragadda             Ported for C API
- *     Brian Rower                  Added TestOpenVsOpenRules
- ******************************************************************************
- *//* C API TEST For COLLATOR */
-
+// Copyright (c) 1997-2016, International Business Machines Corporation and others. All Rights Reserved.
+//
+// Modification History:
+//   Name                     Description
+//     Madhu Katragadda             Ported for C API
+//     Brian Rower                  Added TestOpenVsOpenRules
+// 
+// C API TEST For COLLATOR */
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -1873,7 +1868,7 @@ void TestGetTailoredSet() {
 static int tMemCmp(const uint8_t * first, const uint8_t * second) {
 	int32_t firstLen = (int32_t)strlen((const char *)first);
 	int32_t secondLen = (int32_t)strlen((const char *)second);
-	return memcmp(first, second, uprv_min(firstLen, secondLen));
+	return memcmp(first, second, smin(firstLen, secondLen));
 }
 
 static const char * strengthsC[] = {

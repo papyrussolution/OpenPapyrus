@@ -1518,14 +1518,11 @@ int GnuPlot::InFront(GpTermEntry * pTerm, long edgenum/* number of the edge in e
 						}
 					}
 					u_seg[segs] = 1;
-
-					/* Sort the points.  First and last point already in order. */
+					// Sort the points.  First and last point already in order
 					for(i = 1; i < segs; i++) {
 						int j = i+1;
 						for(; j < segs; j++) {
-							if(u_seg[i] > u_seg[j]) {
-								Exchange(u_seg+i, u_seg+j);
-							}
+							SExchangeForOrder(&u_seg[i], &u_seg[j]);
 						}
 					}
 					// Check if contiguous segments or segment is covered 

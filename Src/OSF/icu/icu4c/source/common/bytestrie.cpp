@@ -1,12 +1,11 @@
-// bytestrie.cpp
+// BYTESTRIE.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *   Copyright (C) 2010-2011, International Business Machines Corporation and others.  All Rights Reserved.
- *   encoding:   UTF-8
- *   created on: 2010sep25
- *   created by: Markus W. Scherer
- */
+// Copyright (C) 2010-2011, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2010sep25
+// created by: Markus W. Scherer
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 

@@ -321,8 +321,8 @@ public:
 	};
 
 public:
-	TextAnalysis (const wchar_t* text, uint32_t textLength,
-	    const wchar_t* localeName, DWRITE_READING_DIRECTION readingDirection)
+	TextAnalysis (const wchar_t * text, uint32_t textLength,
+	    const wchar_t * localeName, DWRITE_READING_DIRECTION readingDirection)
 		: mTextLength(textLength), mText(text), mLocaleName(localeName),
 		mReadingDirection(readingDirection), mCurrentRun(nullptr) {
 	}
@@ -524,8 +524,8 @@ protected:
 	// (weak references are fine here, since this class is a transient
 	//  stack-based helper that doesn't need to copy data)
 	uint32_t mTextLength;
-	const wchar_t* mText;
-	const wchar_t* mLocaleName;
+	const wchar_t * mText;
+	const wchar_t * mLocaleName;
 	DWRITE_READING_DIRECTION mReadingDirection;
 
 	// Current processing state.
@@ -628,7 +628,7 @@ static hb_bool_t _hb_directwrite_shape_full(hb_shape_plan_t * shape_plan,
 
 	const wchar_t localeName[20] = {0};
 	if(buffer->props.language)
-		mbstowcs((wchar_t*)localeName,
+		mbstowcs((wchar_t *)localeName,
 		    hb_language_to_string(buffer->props.language), 20);
 
 	// TODO: it does work but doesn't care about ranges

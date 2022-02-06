@@ -1,13 +1,12 @@
-// bocsu.cpp
+// BOCSU.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *   Copyright (C) 2001-2014, International Business Machines Corporation and others.  All Rights Reserved.
- *   encoding:   UTF-8
- *   Author: Markus W. Scherer
- *   Modification history:
- *   05/18/2001  weiv    Made into separate module
- */
+// Copyright (C) 2001-2014, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// Author: Markus W. Scherer
+// Modification history:
+// 05/18/2001  weiv    Made into separate module
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -71,7 +70,6 @@ static uint8 * u_writeDiff(int32_t diff, uint8 * p)
 	}
 	return p;
 }
-
 /*
  * Encode the code points of a string as
  * a sequence of byte-encoded differences (slope detection),
@@ -89,10 +87,10 @@ static uint8 * u_writeDiff(int32_t diff, uint8 * p)
  * Note that the identical-level run in a sort key is generated from
  * NFD text - there are never Hangul characters included.
  */
-U_CFUNC UChar32 u_writeIdenticalLevelRun(UChar32 prev, const UChar * s, int32_t length, icu::ByteSink &sink) {
+U_CFUNC UChar32 u_writeIdenticalLevelRun(UChar32 prev, const UChar * s, int32_t length, icu::ByteSink &sink) 
+{
 	char scratch[64];
 	int32_t capacity;
-
 	int32_t i = 0;
 	while(i<length) {
 		char * buffer = sink.GetAppendBuffer(1, length*2, scratch, (int32_t)sizeof(scratch), &capacity);

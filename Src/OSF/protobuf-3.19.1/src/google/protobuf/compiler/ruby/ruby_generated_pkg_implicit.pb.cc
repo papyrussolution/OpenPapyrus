@@ -96,8 +96,7 @@ Four::Four(const Four& from)
     a_string_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(!from._internal_a_string().empty()) {
-    a_string_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_a_string(), 
-      GetArenaForAllocation());
+    a_string_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_a_string(), GetArenaForAllocation());
   }
   // @@protoc_insertion_point(copy_constructor:one.two.a_three.Four)
 }
@@ -192,8 +191,7 @@ uint8_t* Four::_InternalSerialize(
       this->_internal_a_string().data(), static_cast<int>(this->_internal_a_string().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "one.two.a_three.Four.a_string");
-    target = stream->WriteStringMaybeAliased(
-        1, this->_internal_a_string(), target);
+    target = stream->WriteStringMaybeAliased(1, this->_internal_a_string(), target);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -214,9 +212,7 @@ size_t Four::ByteSizeLong() const {
 
   // string a_string = 1;
   if(!this->_internal_a_string().empty()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_a_string());
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_a_string());
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -271,9 +267,7 @@ void Four::InternalSwap(Four* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Four::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_ruby_5fgenerated_5fpkg_5fimplicit_2eproto_getter, &descriptor_table_ruby_5fgenerated_5fpkg_5fimplicit_2eproto_once,
-      file_level_metadata_ruby_5fgenerated_5fpkg_5fimplicit_2eproto[0]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_ruby_5fgenerated_5fpkg_5fimplicit_2eproto_getter, &descriptor_table_ruby_5fgenerated_5fpkg_5fimplicit_2eproto_once, file_level_metadata_ruby_5fgenerated_5fpkg_5fimplicit_2eproto[0]);
 }
 
 // @@protoc_insertion_point(namespace_scope)

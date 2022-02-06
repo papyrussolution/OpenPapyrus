@@ -1,0 +1,314 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\cppcheck\cli\cmdlineparser.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\cli\cppcheckexecutor.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\cli\filelister.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\cli\threadexecutor.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\lib\astutils.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\options.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\test64bit.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testassert.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testastutils.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testautovariables.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testbool.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testboost.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testbufferoverrun.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testcharvar.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testclass.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testcmdlineparser.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testcondition.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testconstructors.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testcppcheck.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testerrorlogger.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testexceptionsafety.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testexprengine.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testfilelister.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testgarbage.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testimportproject.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testincompletestatement.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testinternal.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testio.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testleakautovar.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testlibrary.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testmathlib.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testmemleak.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testnullpointer.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testfunctions.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testoptions.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testother.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testpath.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testpathmatch.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testplatform.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testpostfixoperator.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testpreprocessor.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testrunner.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testsamples.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testsimplifytemplate.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testsimplifytokens.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testsimplifytypedef.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testsimplifyusing.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testsizeof.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\teststl.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\teststring.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testsuite.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\OSF\cppcheck\test\testsuppressions.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testsymboldatabase.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testthreadexecutor.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testtimer.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testtoken.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testtokenize.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testtokenlist.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testtype.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testuninitvar.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testunusedfunctions.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testunusedprivfunc.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testunusedvar.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testvaarg.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testvalueflow.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\testvarid.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\cppcheck\cli\cmdlineparser.h" />
+    <ClInclude Include="..\OSF\cppcheck\cli\filelister.h" />
+    <ClInclude Include="..\OSF\cppcheck\cli\threadexecutor.h" />
+    <ClInclude Include="..\OSF\cppcheck\lib\config.h" />
+    <ClInclude Include="..\OSF\cppcheck\test\options.h" />
+    <ClInclude Include="..\OSF\cppcheck\test\redirect.h" />
+    <ClInclude Include="..\OSF\cppcheck\test\testsuite.h" />
+    <ClInclude Include="..\OSF\cppcheck\test\testutils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="cppcheck.vcxproj">
+      <Project>{c183db5b-ad6c-423d-80ca-1f9549555a1a}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{4F7DCE5E-6CDE-38C4-9EA7-27AF3B25CEB4}</ProjectGuid>
+    <RootNamespace>testrunner</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\..\ppy\bin\cppcheck\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\..\ppy\bin\cppcheck\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">testrunner</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">testrunner</TargetName>
+    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</IgnoreImportLibrary>
+    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</IgnoreImportLibrary>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\..\ppy\bin\cppcheck\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\..\ppy\bin\cppcheck\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">testrunner</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">testrunner</TargetName>
+    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</IgnoreImportLibrary>
+    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</IgnoreImportLibrary>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\osf\cppcheck\cli;..\osf\cppcheck\lib;..\osf\cppcheck\externals;..\osf\cppcheck\externals\simplecpp;..\osf\cppcheck\externals\tinyxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>CPPCHECKLIB_IMPORT;SIMPLECPP_IMPORT;WIN32;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level4</WarningLevel>
+      <DisableSpecificWarnings>4251;4482;4512</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>testsuite.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>testsuite.h</ForcedIncludeFiles>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../externals;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <LargeAddressAware>true</LargeAddressAware>
+      <StackReserveSize>8000000</StackReserveSize>
+      <StackCommitSize>8000000</StackCommitSize>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\osf\cppcheck\cli;..\osf\cppcheck\lib;..\osf\cppcheck\externals;..\osf\cppcheck\externals\simplecpp;..\osf\cppcheck\externals\tinyxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>CPPCHECKLIB_IMPORT;SIMPLECPP_IMPORT;WIN32;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level4</WarningLevel>
+      <DisableSpecificWarnings>4251;4482;4512</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>testsuite.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>testsuite.h</ForcedIncludeFiles>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../externals;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <StackReserveSize>8000000</StackReserveSize>
+      <StackCommitSize>8000000</StackCommitSize>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\osf\cppcheck\cli;..\osf\cppcheck\lib;..\osf\cppcheck\externals;..\osf\cppcheck\externals\simplecpp;..\osf\cppcheck\externals\tinyxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>CPPCHECKLIB_IMPORT;SIMPLECPP_IMPORT;NDEBUG;WIN32;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level4</WarningLevel>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <StringPooling>true</StringPooling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <DisableSpecificWarnings>4251;4482;4512</DisableSpecificWarnings>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>testsuite.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>testsuite.h</ForcedIncludeFiles>
+      <AdditionalOptions>/Zc:inline /Zc:throwingNew %(AdditionalOptions)</AdditionalOptions>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../externals;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <SetChecksum>true</SetChecksum>
+      <LargeAddressAware>true</LargeAddressAware>
+      <StackReserveSize>8000000</StackReserveSize>
+      <StackCommitSize>8000000</StackCommitSize>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\osf\cppcheck\cli;..\osf\cppcheck\lib;..\osf\cppcheck\externals;..\osf\cppcheck\externals\simplecpp;..\osf\cppcheck\externals\tinyxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>CPPCHECKLIB_IMPORT;SIMPLECPP_IMPORT;NDEBUG;WIN32;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level4</WarningLevel>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <StringPooling>true</StringPooling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <DisableSpecificWarnings>4251;4482;4512</DisableSpecificWarnings>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>testsuite.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>testsuite.h</ForcedIncludeFiles>
+      <AdditionalOptions>/Zc:inline /Zc:throwingNew %(AdditionalOptions)</AdditionalOptions>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../externals;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreImportLibrary>true</IgnoreImportLibrary>
+      <SubSystem>Console</SubSystem>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <SetChecksum>true</SetChecksum>
+      <StackReserveSize>8000000</StackReserveSize>
+      <StackCommitSize>8000000</StackCommitSize>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>

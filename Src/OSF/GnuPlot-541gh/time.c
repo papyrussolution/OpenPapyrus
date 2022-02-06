@@ -110,11 +110,12 @@ td_type GnuPlot::GStrPTime(char * s, char * fmt, struct tm * tm, double * usec, 
 			case 'b': // abbreviated month name 
 		    {
 			    int m;
-			    for(m = 0; m < 12; ++m)
+			    for(m = 0; m < 12; ++m) {
 				    if(strncasecmp(s, abbrev_month_names[m], strlen(abbrev_month_names[m])) == 0) {
 					    s += strlen(abbrev_month_names[m]);
 					    goto found_abbrev_mon;
 				    }
+				}
 			    // get here => not found 
 			    IntWarn(DATAFILE, "Bad abbreviated month name");
 			    m = 0;

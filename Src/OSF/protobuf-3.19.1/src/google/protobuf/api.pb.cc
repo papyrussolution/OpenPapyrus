@@ -198,16 +198,14 @@ Api::Api(const Api& from)
     name_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(!from._internal_name().empty()) {
-    name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_name(), 
-      GetArenaForAllocation());
+    name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_name(), GetArenaForAllocation());
   }
   version_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     version_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(!from._internal_version().empty()) {
-    version_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_version(), 
-      GetArenaForAllocation());
+    version_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_version(), GetArenaForAllocation());
   }
   if(from._internal_has_source_context()) {
     source_context_ = new ::PROTOBUF_NAMESPACE_ID::SourceContext(*from.source_context_);
@@ -393,8 +391,7 @@ uint8_t* Api::_InternalSerialize(
       this->_internal_name().data(), static_cast<int>(this->_internal_name().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.protobuf.Api.name");
-    target = stream->WriteStringMaybeAliased(
-        1, this->_internal_name(), target);
+    target = stream->WriteStringMaybeAliased(1, this->_internal_name(), target);
   }
 
   // repeated .google.protobuf.Method methods = 2;
@@ -419,8 +416,7 @@ uint8_t* Api::_InternalSerialize(
       this->_internal_version().data(), static_cast<int>(this->_internal_version().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.protobuf.Api.version");
-    target = stream->WriteStringMaybeAliased(
-        4, this->_internal_version(), target);
+    target = stream->WriteStringMaybeAliased(4, this->_internal_version(), target);
   }
 
   // .google.protobuf.SourceContext source_context = 5;
@@ -481,16 +477,12 @@ size_t Api::ByteSizeLong() const {
 
   // string name = 1;
   if(!this->_internal_name().empty()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_name());
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_name());
   }
 
   // string version = 4;
   if(!this->_internal_version().empty()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_version());
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_version());
   }
 
   // .google.protobuf.SourceContext source_context = 5;
@@ -584,9 +576,7 @@ void Api::InternalSwap(Api* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Api::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2fapi_2eproto_getter, &descriptor_table_google_2fprotobuf_2fapi_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2fapi_2eproto[0]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2fapi_2eproto_getter, &descriptor_table_google_2fprotobuf_2fapi_2eproto_once, file_level_metadata_google_2fprotobuf_2fapi_2eproto[0]);
 }
 
 // ===================================================================
@@ -617,24 +607,21 @@ Method::Method(const Method& from)
     name_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(!from._internal_name().empty()) {
-    name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_name(), 
-      GetArenaForAllocation());
+    name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_name(), GetArenaForAllocation());
   }
   request_type_url_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     request_type_url_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(!from._internal_request_type_url().empty()) {
-    request_type_url_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_request_type_url(), 
-      GetArenaForAllocation());
+    request_type_url_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_request_type_url(), GetArenaForAllocation());
   }
   response_type_url_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     response_type_url_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(!from._internal_response_type_url().empty()) {
-    response_type_url_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_response_type_url(), 
-      GetArenaForAllocation());
+    response_type_url_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_response_type_url(), GetArenaForAllocation());
   }
   ::memcpy(&request_streaming_, &from.request_streaming_,
     static_cast<size_t>(reinterpret_cast<char*>(&syntax_) -
@@ -810,8 +797,7 @@ uint8_t* Method::_InternalSerialize(
       this->_internal_name().data(), static_cast<int>(this->_internal_name().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.protobuf.Method.name");
-    target = stream->WriteStringMaybeAliased(
-        1, this->_internal_name(), target);
+    target = stream->WriteStringMaybeAliased(1, this->_internal_name(), target);
   }
 
   // string request_type_url = 2;
@@ -820,8 +806,7 @@ uint8_t* Method::_InternalSerialize(
       this->_internal_request_type_url().data(), static_cast<int>(this->_internal_request_type_url().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.protobuf.Method.request_type_url");
-    target = stream->WriteStringMaybeAliased(
-        2, this->_internal_request_type_url(), target);
+    target = stream->WriteStringMaybeAliased(2, this->_internal_request_type_url(), target);
   }
 
   // bool request_streaming = 3;
@@ -836,8 +821,7 @@ uint8_t* Method::_InternalSerialize(
       this->_internal_response_type_url().data(), static_cast<int>(this->_internal_response_type_url().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.protobuf.Method.response_type_url");
-    target = stream->WriteStringMaybeAliased(
-        4, this->_internal_response_type_url(), target);
+    target = stream->WriteStringMaybeAliased(4, this->_internal_response_type_url(), target);
   }
 
   // bool response_streaming = 5;
@@ -884,23 +868,17 @@ size_t Method::ByteSizeLong() const {
 
   // string name = 1;
   if(!this->_internal_name().empty()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_name());
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_name());
   }
 
   // string request_type_url = 2;
   if(!this->_internal_request_type_url().empty()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_request_type_url());
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_request_type_url());
   }
 
   // string response_type_url = 4;
   if(!this->_internal_response_type_url().empty()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_response_type_url());
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_response_type_url());
   }
 
   // bool request_streaming = 3;
@@ -1004,9 +982,7 @@ void Method::InternalSwap(Method* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Method::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2fapi_2eproto_getter, &descriptor_table_google_2fprotobuf_2fapi_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2fapi_2eproto[1]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2fapi_2eproto_getter, &descriptor_table_google_2fprotobuf_2fapi_2eproto_once, file_level_metadata_google_2fprotobuf_2fapi_2eproto[1]);
 }
 
 // ===================================================================
@@ -1032,16 +1008,14 @@ Mixin::Mixin(const Mixin& from)
     name_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(!from._internal_name().empty()) {
-    name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_name(), 
-      GetArenaForAllocation());
+    name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_name(), GetArenaForAllocation());
   }
   root_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     root_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(!from._internal_root().empty()) {
-    root_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_root(), 
-      GetArenaForAllocation());
+    root_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_root(), GetArenaForAllocation());
   }
   // @@protoc_insertion_point(copy_constructor:google.protobuf.Mixin)
 }
@@ -1152,8 +1126,7 @@ uint8_t* Mixin::_InternalSerialize(
       this->_internal_name().data(), static_cast<int>(this->_internal_name().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.protobuf.Mixin.name");
-    target = stream->WriteStringMaybeAliased(
-        1, this->_internal_name(), target);
+    target = stream->WriteStringMaybeAliased(1, this->_internal_name(), target);
   }
 
   // string root = 2;
@@ -1162,8 +1135,7 @@ uint8_t* Mixin::_InternalSerialize(
       this->_internal_root().data(), static_cast<int>(this->_internal_root().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.protobuf.Mixin.root");
-    target = stream->WriteStringMaybeAliased(
-        2, this->_internal_root(), target);
+    target = stream->WriteStringMaybeAliased(2, this->_internal_root(), target);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1184,16 +1156,12 @@ size_t Mixin::ByteSizeLong() const {
 
   // string name = 1;
   if(!this->_internal_name().empty()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_name());
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_name());
   }
 
   // string root = 2;
   if(!this->_internal_root().empty()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_root());
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_root());
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -1256,9 +1224,7 @@ void Mixin::InternalSwap(Mixin* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Mixin::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2fapi_2eproto_getter, &descriptor_table_google_2fprotobuf_2fapi_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2fapi_2eproto[2]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2fapi_2eproto_getter, &descriptor_table_google_2fprotobuf_2fapi_2eproto_once, file_level_metadata_google_2fprotobuf_2fapi_2eproto[2]);
 }
 
 // @@protoc_insertion_point(namespace_scope)

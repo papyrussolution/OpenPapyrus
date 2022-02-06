@@ -376,7 +376,7 @@ static const char * U_CALLCONV _CompoundTextgetName(const UConverter * cnv) {
 	return "x11-compound-text";
 }
 
-static void U_CALLCONV UConverter_fromUnicode_CompoundText_OFFSETS(UConverterFromUnicodeArgs* args, UErrorCode * err) {
+static void U_CALLCONV UConverter_fromUnicode_CompoundText_OFFSETS(UConverterFromUnicodeArgs * args, UErrorCode * err) {
 	UConverter * cnv = args->converter;
 	uint8 * target = (uint8 *)args->target;
 	const uint8 * targetLimit = (const uint8 *)args->targetLimit;

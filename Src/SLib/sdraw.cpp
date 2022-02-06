@@ -731,7 +731,7 @@ const SPoint2F & SDrawPath::GetCurrent()
 	return Cur;
 }
 
-int    SDrawPath::IsEmpty() const { return (OpList.getCount() == 0); }
+bool   SDrawPath::IsEmpty() const { return (OpList.getCount() == 0); }
 uint   SDrawPath::GetCount() const { return OpList.getCount(); }
 int    FASTCALL SDrawPath::CheckOp(int op) const { return BIN(oneof7(op, opNop, opMove, opLine, opCurve, opQuad, opArcSvg, opClose)); }
 

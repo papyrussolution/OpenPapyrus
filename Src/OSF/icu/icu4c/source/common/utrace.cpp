@@ -149,16 +149,15 @@ static void outputString(const char * s, char * outBuf, int32_t * outIx, int32_t
 	} while(c != 0);
 }
 
-static void outputUString(const UChar * s, int32_t len,
-    char * outBuf, int32_t * outIx, int32_t capacity, int32_t indent) {
+static void outputUString(const UChar * s, int32_t len, char * outBuf, int32_t * outIx, int32_t capacity, int32_t indent) 
+{
 	int32_t i = 0;
 	UChar c;
 	if(s==NULL) {
 		outputString(NULL, outBuf, outIx, capacity, indent);
 		return;
 	}
-
-	for(i = 0; i<len || len==-1; i++) {
+	for(i = 0; i < len || len==-1; i++) {
 		c = s[i];
 		outputHexBytes(c, 4, outBuf, outIx, capacity);
 		outputChar(' ', outBuf, outIx, capacity, indent);

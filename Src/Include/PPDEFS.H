@@ -1202,7 +1202,49 @@
 #define PPOBJ_ADVEVENTQUEUE 1101L   // Специальное значение для идентификации очереди системных событий
 #define PPOBJ_SELFREFTEXT   2000L   // Специальное значение для записей в TextRef, представлющих только текст с автоматически назначенным идентификатором
 // LastObject
+//
+// @v11.3.0 Общие (и, иногда, частные) атрибуты объектов. Вводятся для управления техникой поиска данных по текстовым запросам (fulltext index).
+// Attention! Чтобы минимизировать разногласия между методами идентификации многие атрибуты имеют значения, совпадающие с константами PPTRPROP_XXX
+// Если добавляете новые значения, то согласуйте их с соответствующим набором констант.
+// @persistent
+//
+#define PPOBJATTR_NAME         1L // Наименование
+#define PPOBJATTR_SYMB         2L // Символ
+#define PPOBJATTR_LONGNAME     3L // Длинное наименование
+#define PPOBJATTR_MEMO         4L
+#define PPOBJATTR_RAWADDR      6L
+#define PPOBJATTR_DESCR        8L
+#define PPOBJATTR_CODE         9L
+#define PPOBJATTR_ID          21L // Целочисленный уникальный идентификатор
+#define PPOBJATTR_FLAGS       22L
+#define PPOBJATTR_PHONE       23L
+#define PPOBJATTR_EMAIL       24L
+#define PPOBJATTR_GLN         25L
+#define PPOBJATTR_RUINN       26L
+#define PPOBJATTR_RUKPP       27L
+#define PPOBJATTR_RUSNILS     28L
+//
+// Descr: Зарезервированные значения текстовых свойств объектов
+// Attention! Чтобы минимизировать разногласия между методами идентификации константы PPOBJATTR_XXX (ppdefs.h) имеют значения, совпадающие с данным набором констант.
+// Если добавляете новые значения, то согласуйте их с соответствующим набором констант.
+// @v11.3.0 Переместил сюда коды PPTRPROP_XXX с целью согласования с идентификаторами семейства PPOBJATTR_XXX
+// @persistent
+//
+#define PPTRPROP_DEFAULT       0
+#define PPTRPROP_NAME          1 // Если у объекта есть и короткое и длинное наименования, то короткое заносится в PPTRPROP_NAME, а длинное - в PPTRPROP_LONGNAME
+#define PPTRPROP_SYMB          2 // Единственный уникальный символьный идентификатор объекта (может быть пустым, но если нет, то обязательно уникальным)
+#define PPTRPROP_LONGNAME      3
+#define PPTRPROP_MEMO          4
+#define PPTRPROP_COMBINE       5 // Комбинированная строка, содержащая набор текстовых свойств
+#define PPTRPROP_RAWADDR       6 // @v10.0.12 Простое текстовое представление адреса
+#define PPTRPROP_TIMESERIES    7 // @v10.2.3 Временная серия - специальное свойство, для которого хранится не строка, а STimeSeries.
+	// Применяется только для таблицы UnxTextRefTbl (но не TextRefTbl).
+	// Для оперирования этим свойством объект UnxTextRefCore имеет несколько специализированных методов. Попытка работать с этим
+	// свойством как со строкой инициирует ошибку.
+#define PPTRPROP_DESCR         8 // @v10.7.2 Строка описания (не путать с PPTRPROP_NAME и PPTRPROP_LONGNAME). Используется, например, в проектах и задачах.
+#define PPTRPROP_CODE          9 // @v11.3.0 Отличается от SYMB тем, что в общем случае может существовать более одного кода для одного объекта
 
+#define PPTRPROP_USER        100 // Стартовое значение, с которого можно использовать пользовательские идентификаторы текстовых свойств
 //
 // Зарезервированные теги объектов
 //

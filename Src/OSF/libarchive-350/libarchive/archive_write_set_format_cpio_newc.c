@@ -166,25 +166,19 @@ static int archive_write_newc_header(struct archive_write * a, struct archive_en
 {
 	const char * path;
 	size_t len;
-
 	if(archive_entry_filetype(entry) == 0 && archive_entry_hardlink(entry) == NULL) {
 		archive_set_error(&a->archive, -1, "Filetype required");
 		return ARCHIVE_FAILED;
 	}
-
-	if(archive_entry_pathname_l(entry, &path, &len, get_sconv(a)) != 0
-	    && errno == ENOMEM) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate memory for Pathname");
+	if(archive_entry_pathname_l(entry, &path, &len, get_sconv(a)) != 0 && errno == ENOMEM) {
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Pathname");
 		return ARCHIVE_FATAL;
 	}
-	if(len == 0 || path == NULL || path[0] == '\0') {
+	if(len == 0 || isempty(path)) {
 		archive_set_error(&a->archive, -1, "Pathname required");
 		return ARCHIVE_FAILED;
 	}
-
-	if(archive_entry_hardlink(entry) == NULL
-	    && (!archive_entry_size_is_set(entry) || archive_entry_size(entry) < 0)) {
+	if(archive_entry_hardlink(entry) == NULL && (!archive_entry_size_is_set(entry) || archive_entry_size(entry) < 0)) {
 		archive_set_error(&a->archive, -1, "Size required");
 		return ARCHIVE_FAILED;
 	}

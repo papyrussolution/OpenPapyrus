@@ -921,12 +921,12 @@ int StyloQCommandList::Load(const char * pDbSymb, const char * pFileName)
 	(DbSymbRestriction = pDbSymb).Strip();
 	L.freeAll();
 	{
-		xmlNode * p_root = xmlDocGetRootElement(p_doc);
+		const xmlNode * p_root = xmlDocGetRootElement(p_doc);
 		if(p_root && SXml::IsName(p_root, "StyloQCommandList")) {
-			for(xmlNode * p_node = p_root->children; p_node; p_node = p_node->next) {
+			for(const xmlNode * p_node = p_root->children; p_node; p_node = p_node->next) {
 				if(SXml::IsName(p_node, "StyloQCommand")) {
 					THROW_SL(p_new_item = new Item);
-					for(xmlNode * p_cn = p_node->children; p_cn; p_cn = p_cn->next) {
+					for(const xmlNode * p_cn = p_node->children; p_cn; p_cn = p_cn->next) {
 						if(SXml::GetContentByName(p_cn, "Uuid", temp_buf))
 							p_new_item->Uuid.FromStr(temp_buf);
 						if(SXml::GetContentByName(p_cn, "Name", temp_buf))
@@ -1122,6 +1122,33 @@ int FASTCALL StyloQCore::StoragePacket::IsEq(const StyloQCore::StoragePacket & r
 
 StyloQCore::StyloQCore() : StyloQSecTbl()
 {
+}
+
+int StyloQCore::MakeTextHashForCounterparty(const StoragePacket & rOtherPack, uint len, SString & rBuf)
+{
+	rBuf.Z();
+	int    ok = 0;
+	if(len > 0 && len <= 20) {
+		SBinaryChunk cli_ident;
+		SBinaryChunk svc_ident;
+		THROW(oneof2(rOtherPack.Rec.Kind, kClient, kForeignService));
+		rOtherPack.Pool.Get(SSecretTagPool::tagClientIdent, &cli_ident);
+		if(rOtherPack.Rec.Kind == kForeignService) {
+			rOtherPack.Pool.Get(SSecretTagPool::tagSvcIdent, &svc_ident);
+		}
+		if(cli_ident.Len() > 0 && svc_ident.Len() > 0) {
+			SBinaryChunk hashed_chunk;
+			hashed_chunk.Cat(svc_ident);
+			hashed_chunk.Cat(cli_ident);
+			binary160 hash = SlHash::Sha1(0, hashed_chunk.PtrC(), hashed_chunk.Len());
+			for(uint i = 0; rBuf.Len() < len && i < sizeof(hash); i++) {
+				rBuf.CatChar((char)('A' + ((255 + hash.D[i]) % 26)));
+			}
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	return ok;
 }
 
 int StyloQCore::ReadCurrentPacket(StoragePacket * pPack)
@@ -4680,7 +4707,6 @@ int PPStyloQInterchange::ProcessCommand_PersonEvent(StyloQCommandList::Item & rC
 	{
 		SSerializeContext sctx;
 		const LDATETIME _now = getcurdatetime_();
-		const PPObjID oid(rCliPack.Rec.LinkObjType, rCliPack.Rec.LinkObjID);
 		PPObjPersonEvent psnevobj;
 		PPPsnEventPacket pe_pack;
 		THROW(rCmdItem.Param.GetAvailableSize());
@@ -4689,34 +4715,10 @@ int PPStyloQInterchange::ProcessCommand_PersonEvent(StyloQCommandList::Item & rC
 		pe_pack.Rec.Tm = _now.t;
 		THROW(pe_pack.Rec.OpID);
 		if(pe_pack.Rec.PersonID == ROBJID_CONTEXT) {
-			THROW(oid.Obj && oid.Id);
-			if(oid.Obj == PPOBJ_PERSON) {
-				pe_pack.Rec.PersonID = oid.Id;
-			}
-			else if(oid.Obj == PPOBJ_USR) {
-				PPObjSecur sec_obj(PPOBJ_USR, 0);
-				PPSecur sec_rec;
-				THROW(sec_obj.Fetch(oid.Id, &sec_rec) > 0 && sec_rec.PersonID);
-				pe_pack.Rec.PersonID = sec_rec.PersonID;
-			}
-			else {
-				CALLEXCEPT();
-			}
+			THROW(FetchPersonFromClientPacket(rCliPack, &pe_pack.Rec.PersonID) > 0);
 		}
 		if(pe_pack.Rec.SecondID == ROBJID_CONTEXT) {
-			THROW(oid.Obj && oid.Id);
-			if(oid.Obj == PPOBJ_PERSON) {
-				pe_pack.Rec.SecondID = oid.Id;
-			}
-			else if(oid.Obj == PPOBJ_USR) {
-				PPObjSecur sec_obj(PPOBJ_USR, 0);
-				PPSecur sec_rec;
-				THROW(sec_obj.Fetch(oid.Id, &sec_rec) > 0 && sec_rec.PersonID);
-				pe_pack.Rec.SecondID = sec_rec.PersonID;
-			}
-			else {
-				CALLEXCEPT();
-			}
+			THROW(FetchPersonFromClientPacket(rCliPack, &pe_pack.Rec.SecondID) > 0);
 		}
 		THROW(psnevobj.PutPacket(&new_id, &pe_pack, 1));
 	}
@@ -5195,23 +5197,10 @@ int PPStyloQInterchange::ProcessCommand_RsrvOrderPrereq(StyloQCommandList::Item 
 		SString temp_buf;
 		PPObjStyloPalm stp_obj;
 		PPStyloPalmPacket stp_pack;
-		const PPObjID oid(rCliPack.Rec.LinkObjType, rCliPack.Rec.LinkObjID);
 		THROW(rCmdItem.Param.ReadStatic(&stylopalm_id, sizeof(stylopalm_id))); // @todo err
 		if(stylopalm_id == ROBJID_CONTEXT) {
 			PPID   local_person_id = 0;
-			THROW(oid.Obj && oid.Id);
-			if(oid.Obj == PPOBJ_PERSON) {
-				local_person_id = oid.Id;
-			}
-			else if(oid.Obj == PPOBJ_USR) {
-				PPObjSecur sec_obj(PPOBJ_USR, 0);
-				PPSecur sec_rec;
-				THROW(sec_obj.Fetch(oid.Id, &sec_rec) > 0 && sec_rec.PersonID);
-				local_person_id = sec_rec.PersonID;
-			}
-			else {
-				CALLEXCEPT();
-			}
+			THROW(FetchPersonFromClientPacket(rCliPack, &local_person_id) > 0);
 			if(local_person_id) {
 				PPIDArray stp_id_list;
 				if(stp_obj.GetListByPerson(local_person_id, stp_id_list) > 0) {
@@ -5340,6 +5329,123 @@ int PPStyloQInterchange::ProcessCommand_Report(StyloQCommandList::Item & rCmdIte
 	return ok;
 }
 
+int PPStyloQInterchange::FetchPersonFromClientPacket(const StyloQCore::StoragePacket & rCliPack, PPID * pPersonID)
+{
+	int    ok = -1;
+	PPID   person_id = 0;
+	PersonTbl::Rec psn_rec;
+	if(rCliPack.Rec.LinkObjType == PPOBJ_PERSON) {
+		person_id = rCliPack.Rec.LinkObjID;
+	}
+	else if(rCliPack.Rec.LinkObjType == PPOBJ_USR) {
+		PPSecur sec_rec;
+		PPObjSecur sec_obj(PPOBJ_USR, 0);
+		if(sec_obj.Search(rCliPack.Rec.LinkObjID, &sec_rec) > 0 && sec_rec.PersonID)
+			person_id = sec_rec.PersonID;
+	}
+	ASSIGN_PTR(pPersonID, person_id);
+	if(person_id)
+		ok = 1;
+	return ok;
+}
+
+int PPStyloQInterchange::AcceptStyloQClientAsPerson(const StyloQCore::StoragePacket & rCliPack, PPID personKindID, PPID * pPersonID, int use_ta)
+{
+	int    ok = -1;
+	PPID   person_id = 0;
+	if(personKindID) {
+		PPObjPerson psn_obj;
+		if(FetchPersonFromClientPacket(rCliPack, &person_id) > 0) {
+			if(psn_obj.P_Tbl->IsBelongToKind(person_id, personKindID) > 0) {
+				ok = 1;
+			}
+			else {
+				THROW(psn_obj.P_Tbl->AddKind(person_id, personKindID, use_ta));
+				ok = 1;
+			}
+		}
+		else {
+			bool face_is_valid = false;
+			SString temp_buf;
+			StyloQFace cli_face;
+			SBinaryChunk face_bytes;
+			if(rCliPack.Pool.Get(SSecretTagPool::tagFace, &face_bytes) > 0) {
+				if(face_bytes.Len()) {
+					face_bytes.ToRawStr(temp_buf);
+					if(cli_face.FromJson(temp_buf))
+						face_is_valid = true;
+				}
+			}
+			{
+				PPPersonPacket psn_pack;
+				RegisterTbl::Rec new_reg_rec;
+				if(face_is_valid) {
+					if(cli_face.Get(StyloQFace::tagCommonName, 0/*lang*/, temp_buf)) {
+						STRNSCPY(psn_pack.Rec.Name, temp_buf);
+					}
+					else {
+						SString compound_name;
+						if(cli_face.Get(StyloQFace::tagSurName, 0/*lang*/, temp_buf)) {
+							compound_name.CatDivIfNotEmpty(' ', 0).Cat(temp_buf);
+						}
+						if(cli_face.Get(StyloQFace::tagName, 0/*lang*/, temp_buf)) {
+							compound_name.CatDivIfNotEmpty(' ', 0).Cat(temp_buf);
+						}
+						if(cli_face.Get(StyloQFace::tagPatronymic, 0/*lang*/, temp_buf)) {
+							compound_name.CatDivIfNotEmpty(' ', 0).Cat(temp_buf);
+						}
+						if(compound_name.NotEmptyS())
+							STRNSCPY(psn_pack.Rec.Name, compound_name);
+					}
+					if(cli_face.Get(StyloQFace::tagPhone, 0/*lang*/, temp_buf)) {
+						psn_pack.ELA.AddItem(PPELK_MOBILE, temp_buf);
+					}
+					if(cli_face.Get(StyloQFace::tagEMail, 0/*lang*/, temp_buf)) {
+						psn_pack.ELA.AddItem(PPELK_EMAIL, temp_buf);
+					}
+					if(cli_face.Get(StyloQFace::tagRuINN, 0/*lang*/, temp_buf)) {
+						PPObjRegister::InitPacket(&new_reg_rec, PPREGT_TPID, PPObjID(PPOBJ_PERSON, 0), temp_buf);
+						psn_pack.Regs.insert(&new_reg_rec);
+					}
+					if(cli_face.Get(StyloQFace::tagRuKPP, 0/*lang*/, temp_buf)) {
+						PPObjRegister::InitPacket(&new_reg_rec, PPREGT_KPP, PPObjID(PPOBJ_PERSON, 0), temp_buf);
+						psn_pack.Regs.insert(&new_reg_rec);
+					}
+					if(cli_face.Get(StyloQFace::tagGLN, 0/*lang*/, temp_buf)) {
+						PPObjRegister::InitPacket(&new_reg_rec, PPREGT_GLN, PPObjID(PPOBJ_PERSON, 0), temp_buf);
+						psn_pack.Regs.insert(&new_reg_rec);
+					}
+					{
+						//tagCountryIsoSymb  =  9, // countryisosymb : string
+						//tagCountryIsoCode  = 10, // countryisocode : string (numeric)
+						//tagCountryName     = 11, // country : string with optional language shifted on 16 bits left
+						//tagZIP             = 12, // zip : string
+						//tagCityName        = 13, // city : string with optional language shifted on 16 bits left
+						//tagStreet          = 14, // street : string with optional language shifted on 16 bits left
+						//tagAddress         = 15, // address : string with optional language shifted on 16 bits left
+						PPLocationPacket addr_pack;
+						if(cli_face.Get(StyloQFace::tagCityName, 0/*lang*/, temp_buf)) {
+							//STRNSCPY(addr_pack.Rec.
+						}
+					}
+				}
+				if(isempty(psn_pack.Rec.Name)) {
+					P_T->MakeTextHashForCounterparty(rCliPack, 10, temp_buf);
+					STRNSCPY(psn_pack.Rec.Name, temp_buf);					
+				}
+				psn_pack.Kinds.addUnique(personKindID);
+				assert(person_id == 0);
+				person_id = 0;
+				THROW(psn_obj.PutPacket(&person_id, &psn_pack, use_ta));
+				ok = 1;
+			}
+		}
+	}
+	CATCHZOK
+	ASSIGN_PTR(pPersonID, person_id);
+	return ok;
+}
+
 PPID PPStyloQInterchange::ProcessCommand_PostDocument(const StyloQCore::StoragePacket & rCliPack, const SJson * pDeclaration, const SJson * pDocument)
 {
 	PPID   result_bill_id = 0;
@@ -5364,13 +5470,16 @@ PPID PPStyloQInterchange::ProcessCommand_PostDocument(const StyloQCore::StorageP
 		}
 		{
 			PPObjBill * p_bobj = BillObj;
-			PPObjSecur sec_obj(PPOBJ_USR, 0);
 			PPObjPerson psn_obj;
+			PPObjArticle ar_obj;
 			PPAlbatrossConfig acfg;
 			PPBillPacket bpack;
+			PPOprKind op_rec;
+			PPObjAccSheet acs_obj;
+			PPAccSheet acs_rec;
 			THROW(p_bobj);
 			DS.FetchAlbatrosConfig(&acfg);
-			THROW(acfg.Hdr.OpID);
+			THROW(GetOpData(acfg.Hdr.OpID, &op_rec) > 0);
 			{
 				PPTransaction tra(1);
 				THROW(tra);
@@ -5386,18 +5495,38 @@ PPID PPStyloQInterchange::ProcessCommand_PostDocument(const StyloQCore::StorageP
 					bpack.Rec.DueDate = doc.DueTime.d;
 				{
 					PPID  person_id = 0;
-					PersonTbl::Rec psn_rec;
-					if(rCliPack.Rec.LinkObjType == PPOBJ_PERSON) {
-						person_id = rCliPack.Rec.LinkObjID;
-					}
-					else if(rCliPack.Rec.LinkObjType == PPOBJ_USR) {
-						PPSecur sec_rec;
-						if(sec_obj.Search(rCliPack.Rec.LinkObjID, &sec_rec) > 0 && sec_rec.PersonID) {
-							person_id = sec_rec.PersonID;
+					if(doc.ClientID) {
+						ArticleTbl::Rec ar_rec;
+						THROW(ar_obj.Search(doc.ClientID, &ar_rec) > 0);
+						THROW(ar_rec.AccSheetID == op_rec.AccSheetID);
+						bpack.Rec.Object = ar_rec.ID;
+						if(doc.DlvrLocID) {
+							PPID cli_psn_id = ObjectToPerson(ar_rec.ID, 0);
+							if(cli_psn_id) {
+								PPIDArray dlvr_loc_list;
+								psn_obj.GetDlvrLocList(cli_psn_id, &dlvr_loc_list);
+								if(dlvr_loc_list.lsearch(doc.DlvrLocID))
+									bpack.SetFreight_DlvrAddrOnly(doc.DlvrLocID);
+							}
+						}
+						{
+							const PPID agent_acs_id = GetAgentAccSheet();
+							if(agent_acs_id && acs_obj.Fetch(agent_acs_id, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup) {
+								if(AcceptStyloQClientAsPerson(rCliPack, acs_rec.ObjGroup, &person_id, 0) > 0) {
+									PPID ar_id = 0;
+									if(ar_obj.P_Tbl->PersonToArticle(person_id, acs_rec.ID, &ar_id) > 0)
+										bpack.Ext.AgentID = ar_id;
+								}
+							}
 						}
 					}
-					if(person_id && psn_obj.Search(person_id, &psn_rec) > 0) {
-							
+					else if(op_rec.AccSheetID && acs_obj.Fetch(op_rec.AccSheetID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup) {
+						if(AcceptStyloQClientAsPerson(rCliPack, acs_rec.ObjGroup, &person_id, 0) > 0) {
+							PPID ar_id = 0;
+							if(ar_obj.P_Tbl->PersonToArticle(person_id, acs_rec.ID, &ar_id) > 0) {
+								bpack.Rec.Object = ar_id;
+							}
+						}
 					}
 				}
 				for(uint i = 0; i < doc.TiList.getCount(); i++) {

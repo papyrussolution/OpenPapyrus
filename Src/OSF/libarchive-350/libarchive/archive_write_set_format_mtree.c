@@ -1994,30 +1994,22 @@ static int mtree_entry_tree_add(struct archive_write * a, struct mtree_entry ** 
 			break;
 		}
 		if(l < 0) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "A name buffer is too small");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "A name buffer is too small");
 			return ARCHIVE_FATAL;
 		}
-		if(l == 1 && name[0] == '.' && dent != NULL &&
-		    dent == mtree->root) {
+		if(l == 1 && name[0] == '.' && dent != NULL && dent == mtree->root) {
 			fn += l;
 			if(fn[0] == '/')
 				fn++;
 			continue;
 		}
-
 		np = mtree_entry_find_child(dent, name);
 		if(np == NULL || fn[0] == '\0')
 			break;
-
 		/* Find next sub directory. */
 		if(!np->dir_info) {
 			/* NOT Directory! */
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "`%s' is not directory, we cannot insert `%s' ",
-			    np->pathname.s, file->pathname.s);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "`%s' is not directory, we cannot insert `%s' ", np->pathname.s, file->pathname.s);
 			return ARCHIVE_FAILED;
 		}
 		fn += l;

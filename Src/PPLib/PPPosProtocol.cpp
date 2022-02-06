@@ -1,5 +1,5 @@
 // PPPOSPROTOCOL.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -3520,7 +3520,7 @@ int PPPosProtocol::CreateGoodsGroup(const GoodsGroupBlock & rBlk, uint refPos, i
 				}
 			}
 		}
-		THROW(GObj.PutQuotList(native_id, &quot_list, 1));
+		THROW(GObj.PutQuotList(native_id, &quot_list, false, 1));
 	}
 	// } @v10.0.0
 	ASSIGN_PTR(pID, native_id);
@@ -3942,7 +3942,7 @@ int PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, int a
 					const QuotIdent qi(0 /*locID*/, PPQUOTK_BASE, 0/*@curID*/, 0);
 					quot_list.SetQuot(qi, rBlk.Price, 0 /*flags*/, 0, 0 /* period */);
 				}
-				THROW(GObj.PutQuotList(native_id, &quot_list, 1));
+				THROW(GObj.PutQuotList(native_id, &quot_list, false, 1));
 			}
 			if(rP.LocID) {
 				//

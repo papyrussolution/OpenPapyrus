@@ -1,5 +1,5 @@
 // OBJGOODS.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -424,10 +424,11 @@ static int _Unlock(PPID id)
 
 int PPObjGoods::Lock(PPID id)
 {
-	int    ok = 1, is_locked = 0;
+	int    ok = 1;
+	bool   is_locked = false;
 	if(id && !Locks.bsearch(id)) {
 		THROW(_Lock(id));
-		is_locked = 1;
+		is_locked = true;
 		THROW_SL(Locks.ordInsert(id, 0));
 	}
 	CATCH
@@ -459,12 +460,6 @@ void PPObjGoods::InitInstance(SCtrLite sctr, PPID kind, void * extraPtr)
 	P_PsnObj = 0;
 	EcoSel = 0;
 	DoObjVer = BIN(CConfig.Flags & CCFLG_USEHISTGOODS);
-	/* @v9.8.11
-	HistGoods = 0;
-	if(Sctr != SConstructorLite && DoObjVer) {
-		TLP_OPEN(HistGoods);
-	}
-	*/
 }
 
 void PPObjGoods::InitConfig()
@@ -497,10 +492,6 @@ PPObjGoods::PPObjGoods(SCtrLite sctr) : PPObject(PPOBJ_GOODS)
 PPObjGoods::~PPObjGoods()
 {
 	delete P_PsnObj;
-	/* @v9.8.11
-	if(HistGoods) {
-		TLP_CLOSE(HistGoods);
-	}*/
 	TLP_CLOSE(P_Tbl);
 	delete P_Cfg;
 }
@@ -1108,9 +1099,6 @@ int PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 					SSerializeContext & r_sctx = p_ovc->GetSCtx();
 					THROW(SerializePacket(+1, &old_pack, hist_buf, &r_sctx, 0));
 				}
-				/* @v9.8.11 else if(TLP(HistGoods).IsOpened()) {
-					THROW(SerializePacket_(1, &old_pack, &hist_buf));
-				}*/
 			}
 		}
 		if(pPack == 0) {
@@ -1137,7 +1125,7 @@ int PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 				THROW(p_ref->PutPropVlrString(PPOBJ_GOODSGROUP, *pID, GGPRP_EXSTRTITLES, 0));
 				THROW(p_ref->RemoveProperty(PPOBJ_GOODSGROUP, *pID, GGPRP_GOODSFILT2, 0));
 				THROW(p_ref->RemoveProperty(PPOBJ_GOODSGROUP, *pID, GGPRP_GOODSFLT_, 0));
-				THROW(PutQuotList(*pID, 0, 0));
+				THROW(PutQuotList(*pID, 0, false, 0));
 				old_pack.LinkFiles.Init(PPOBJ_GOODS);
 				old_pack.LinkFiles.Save(*pID, 0L);
 				THROW(SetTagList(*pID, 0, 0));
@@ -3900,15 +3888,15 @@ int PPObjGoods::RemoveDupArCodes(PPGoodsPacket * pPack, ObjTransmContext * pCtx)
 	return 1;
 }
 
-int PPObjGoods::AcceptQuot(PPID * pID, PPGoodsPacket * pPack, ObjTransmContext * pCtx)
+int PPObjGoods::AcceptQuot(PPID goodID, PPGoodsPacket * pPack, bool updByTime, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
-	if(*pID) {
+	if(goodID) {
 		PPQuotArray zero_list;
 		PPQuotArray * p_quot_list = NZOR(pPack->P_Quots, &zero_list);
-		p_quot_list->GoodsID = *pID ;
+		p_quot_list->GoodsID = goodID;
 		p_quot_list->SetManagedLocList(pCtx->P_SrcDbDivPack ? &pCtx->P_SrcDbDivPack->LocList : 0);
-		if(!PutQuotList(*pID, p_quot_list, 1)) {
+		if(!PutQuotList(goodID, p_quot_list, updByTime, 1)) {
 			pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTGOODSQUOTS, pPack->Rec.ID, pPack->Rec.Name);
 			ok = -1;
 		}
@@ -3916,14 +3904,16 @@ int PPObjGoods::AcceptQuot(PPID * pID, PPGoodsPacket * pPack, ObjTransmContext *
 	return ok;
 }
 
-int PPObjGoods::AcceptPacket(PPID * pID, PPGoodsPacket * pPack, ObjTransmContext * pCtx)
+int PPObjGoods::AcceptPacket(PPID * pID, PPGoodsPacket * pPack, bool updQuotsByTime, ObjTransmContext * pCtx)
 {
+	assert(pID); // @v11.3.0
 	//
 	// Если в пакете установлен флаг GF_TRANSQUOT, то сам пакет не изменяем, а меняем только котировки.
 	//
-	int    ok = 1, r;
+	int    ok = 1;
+	int    r;
 	if(pPack->Rec.Flags & GF_TRANSQUOT) {
-		ok = AcceptQuot(pID, pPack, pCtx);
+		ok = AcceptQuot(*pID, pPack, false, pCtx);
 	}
 	else {
 		const  int is_new = BIN(!*pID);
@@ -3932,7 +3922,7 @@ int PPObjGoods::AcceptPacket(PPID * pID, PPGoodsPacket * pPack, ObjTransmContext
 		RemoveDupArCodes(pPack, pCtx);
 		if(!is_new && GetConfig().Flags & GCF_XCHG_DONTRCVTAXGRPUPD)
 			pPack->UpdFlags |= PPGoodsPacket::ufDontChgTaxGrp;
-		if(pPack->LinkFiles.GetState() & ObjLinkFiles::stTransmissionNotSupported) // @v8.2.3
+		if(pPack->LinkFiles.GetState() & ObjLinkFiles::stTransmissionNotSupported)
 			pPack->UpdFlags |= PPGoodsPacket::ufDontChgImgFlag;
 		r = PutPacket(pID, pPack, 1);
 		if(!r) {
@@ -3942,7 +3932,7 @@ int PPObjGoods::AcceptPacket(PPID * pID, PPGoodsPacket * pPack, ObjTransmContext
 		else {
 			if(r < 0)
 				unchanged = 1;
-			ok = AcceptQuot(pID, pPack, pCtx);
+			ok = AcceptQuot(*pID, pPack, updQuotsByTime, pCtx);
 			if(ok > 0) {
 				const long _gf = pPack->Rec.Flags;
 				if(pPack->Rec.Kind == PPGDSK_GOODS && _gf & GF_GENERIC && pPack->GenericList.IsExists()) {
@@ -3978,28 +3968,50 @@ int PPObjGoods::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext
 		if(stream == 0) {
 			Goods2Tbl::Rec temp_rec;
 			if((*pID || SearchMaxLike(gp, pID) > 0) && Search(*pID, &temp_rec) > 0) {
+				gp->Rec.ID = *pID;
 				if(gp->Rec.Flags & GF_TRANSQUOT) {
-					gp->Rec.ID = *pID;
-					AcceptPacket(pID, gp, pCtx);
+					AcceptPacket(pID, gp, false, pCtx);
 					ok = -1; // Не фиксируем факт приема товара во избежании неверного отражения в таблице синхронизации
 				}
 				else if(!(pCtx->Cfg.Flags & DBDXF_NOUPDGOODS)) {
-					gp->Rec.ID = *pID;
-					//
-					// Структуры передаются. Однако, во избежании затирания связки товар-структура
-					// при приеме товара из другого раздела, если поступивший товар не содержит структуры,
-					// то оставляем ее как есть.
-					//
-					if(gp->Rec.StrucID == 0 || (!(GetConfig().Flags & GCF_XCHG_RCVSTRUCUPD) && temp_rec.StrucID))
-						gp->Rec.StrucID = temp_rec.StrucID;
-					if(gp->Rec.StrucID)
-						if(GSObj.Get(gp->Rec.StrucID, &gp->GS) > 0)
-							gp->GS.GoodsID = *pID;
-						else
-							gp->Rec.StrucID = 0;
-					//
-					ok = AcceptPacket(pID, gp, pCtx);
+					bool skip_accepting = false;
+					if(p->Flags & PPObjPack::fLateUpdatingDecision) {
+						SysJournal * p_sj = DS.GetTLA().P_SysJ;
+						LDATETIME mod;
+						int    is_cr = 0;
+						if(p_sj && p_sj->GetLastObjModifEvent(Obj, *pID, &mod, &is_cr) > 0) {
+							if(cmp(p->Mod, mod) <= 0) {
+								skip_accepting = true;
+								if(SVector::GetCount(gp->P_Quots)) {
+									ok = AcceptQuot(*pID, gp, (p->Flags & PPObjPack::fForceUpdate) ? false : true, pCtx);
+								}
+								else
+									ok = -1;
+							}
+						}
+					}
+					if(!skip_accepting) {
+						//
+						// Структуры передаются. Однако, во избежании затирания связки товар-структура
+						// при приеме товара из другого раздела, если поступивший товар не содержит структуры,
+						// то оставляем ее как есть.
+						//
+						if(gp->Rec.StrucID == 0 || (!(GetConfig().Flags & GCF_XCHG_RCVSTRUCUPD) && temp_rec.StrucID))
+							gp->Rec.StrucID = temp_rec.StrucID;
+						if(gp->Rec.StrucID)
+							if(GSObj.Get(gp->Rec.StrucID, &gp->GS) > 0)
+								gp->GS.GoodsID = *pID;
+							else
+								gp->Rec.StrucID = 0;
+						//
+						ok = AcceptPacket(pID, gp, (p->Flags & PPObjPack::fForceUpdate) ? false : true, pCtx);
+					}
 				}
+				// @v11.3.0 (Если нельзя принимать изменения товаров, но с товаром переданы котировки, то принимаем только котировки) {
+				else if(SVector::GetCount(gp->P_Quots)) {
+					ok = AcceptQuot(*pID, gp, (p->Flags & PPObjPack::fForceUpdate) ? false : true, pCtx);
+				}
+				// } @v11.3.0
 			}
 			else {
 				gp->Rec.ID = *pID = 0;
@@ -4008,7 +4020,7 @@ int PPObjGoods::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext
 				// предписано принять только котировки
 				//
 				gp->Rec.Flags &= ~GF_TRANSQUOT;
-				ok = AcceptPacket(pID, gp, pCtx);
+				ok = AcceptPacket(pID, gp, false, pCtx);
 			}
 		}
 		else {

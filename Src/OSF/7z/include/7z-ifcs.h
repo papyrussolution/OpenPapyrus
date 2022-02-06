@@ -5704,7 +5704,7 @@ namespace NArchive {
 	    const wchar_t * newName, const FILETIME *newTime, const uint64 *newSize, \
 	    int32 *answer)x; \
 	STDMETHOD(PrepareOperation) (const wchar_t * name, int32 isFolder, int32 askExtractMode, const uint64 *position)x; \
-	STDMETHOD(MessageError) (const wchar_t* message)x; \
+	STDMETHOD(MessageError) (const wchar_t * message)x; \
 	STDMETHOD(SetOperationResult) (int32 opRes, int32 encrypted)x; \
 
 DECL_INTERFACE_SUB(IFolderArchiveExtractCallback, IProgress, 0x01, 0x07) { INTERFACE_IFolderArchiveExtractCallback(PURE) };

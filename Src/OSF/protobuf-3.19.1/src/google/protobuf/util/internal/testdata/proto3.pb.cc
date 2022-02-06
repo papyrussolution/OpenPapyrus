@@ -272,9 +272,7 @@ void Proto3Message::InternalSwap(Proto3Message* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Proto3Message::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fproto3_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fproto3_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fproto3_2eproto[0]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fproto3_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fproto3_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fproto3_2eproto[0]);
 }
 
 // @@protoc_insertion_point(namespace_scope)

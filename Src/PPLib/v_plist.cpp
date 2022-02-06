@@ -1,5 +1,5 @@
 // V_PLIST.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage windows-1251
 //
 // @todo Убрать вкладку "Дополнительно" из фильтра (она полностью дублирует опции товарного фильтра)
@@ -1579,7 +1579,7 @@ void PListFiltDialog::setupList()
 		LDATE  dt = LConfig.OperDate;
 		Data.PListID = 0;
 		setCtrlData(CTL_PLIST_DATE, &dt);
-		tmp[0] = 0;
+		PTR32(tmp)[0] = 0;
 		setCtrlData(CTL_PLIST_MEMO, tmp);
 		if(!r)
 			PPError();

@@ -3676,18 +3676,18 @@ int GoodsCore::DirtyMatrix(const PPIDArray * pGoodsList, PPIDArray * pMtxLocList
 	return ok;
 }
 
-int GoodsCore::SetQuotList(const PPQuotArray & rQList, int use_ta)
+int GoodsCore::SetQuotList(const PPQuotArray & rQList, bool updByTime, int use_ta)
 {
 	int    ok = 0;
 	InitQc();
 	if(P_Qc)
-		ok = P_Qc->SetCurrList(rQList, 0, 0, use_ta);
+		ok = P_Qc->SetCurrList(rQList, 0, false, use_ta);
 	else if(P_Qc2)
-		ok = P_Qc2->Set(rQList, 0, 0, 0, use_ta);
+		ok = P_Qc2->Set_(rQList, 0, 0, false, updByTime, use_ta);
 	return ok;
 }
 
-int GoodsCore::SetQuotListQ(const PPQuotArray & rQList, const PPQuotArray * pTemplate, int noRmv, int use_ta)
+int GoodsCore::SetQuotListQ(const PPQuotArray & rQList, const PPQuotArray * pTemplate, bool noRmv, int use_ta)
 {
 	int    ok = 0;
 	assert(!(pTemplate && use_ta));
@@ -3695,7 +3695,7 @@ int GoodsCore::SetQuotListQ(const PPQuotArray & rQList, const PPQuotArray * pTem
 	if(P_Qc)
 		ok = P_Qc->SetCurrList(rQList, pTemplate, noRmv, use_ta);
 	else if(P_Qc2)
-		ok = P_Qc2->Set(rQList, 0, pTemplate, noRmv, use_ta);
+		ok = P_Qc2->Set_(rQList, 0, pTemplate, noRmv, false, use_ta);
 	return ok;
 }
 

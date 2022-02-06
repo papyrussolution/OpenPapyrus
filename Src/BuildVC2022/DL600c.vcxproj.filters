@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\PPLib\dl600.cpp" />
+    <ClCompile Include="..\PPLib\dlscope.cpp" />
+    <ClCompile Include="..\Tools\Dl600\dl600c.cpp" />
+    <ClCompile Include="..\Tools\Dl600\dl600c.lex.cpp" />
+    <ClCompile Include="..\Tools\Dl600\dl600c.tab.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\Tools\Dl600\dl600c.l" />
+    <CustomBuild Include="..\Tools\Dl600\dl600c.y" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{a29e40c7-ff92-4f1f-b617-718987fc79b3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Include\dl600.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Db.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\SLIB.H">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Tools\DL600\dl600c.tab.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

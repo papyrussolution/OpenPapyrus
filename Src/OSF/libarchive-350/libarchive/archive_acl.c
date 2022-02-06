@@ -666,7 +666,7 @@ wchar_t * archive_acl_to_text_w(struct archive_acl * acl, ssize_t * text_len, in
 		separator = L'\n';
 
 	/* Now, allocate the string and actually populate it. */
-	wp = ws = (wchar_t*)SAlloc::M(length * sizeof(wchar_t));
+	wp = ws = (wchar_t *)SAlloc::M(length * sizeof(wchar_t));
 	if(wp == NULL) {
 		if(errno == ENOMEM)
 			__archive_errx(1, "No memory");

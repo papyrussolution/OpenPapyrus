@@ -3126,7 +3126,7 @@ public:
 	~XmlReader();
 	int    Next(Packet *);
 private:
-	int    GetGiftCard(xmlNode ** pPlugins, SString & rSerial, int isPaym);
+	int    GetGiftCard(const xmlNode * const * pPlugins, SString & rSerial, int isPaym);
 
 	int    SubVer;
 	long   ChecksCount;
@@ -3172,7 +3172,7 @@ XmlReader::~XmlReader()
 	xmlFreeDoc(P_Doc);
 }
 
-int XmlReader::GetGiftCard(xmlNode ** pPlugins, SString & rSerial, int isPaym)
+int XmlReader::GetGiftCard(const xmlNode * const * pPlugins, SString & rSerial, int isPaym)
 {
 	int    ok = -1;
 	int    is_gift_card = 0;
@@ -3181,9 +3181,9 @@ int XmlReader::GetGiftCard(xmlNode ** pPlugins, SString & rSerial, int isPaym)
 	SString val, serial;
 	rSerial.Z();
 	if(pPlugins) {
-		for(xmlNode * p_plugins = *pPlugins; !is_gift_card && p_plugins; p_plugins = p_plugins->next) {
+		for(const xmlNode * p_plugins = *pPlugins; !is_gift_card && p_plugins; p_plugins = p_plugins->next) {
 			if(sstreqi_ascii((const char *)p_plugins->name, "plugin-property") && p_plugins->properties) {
-				xmlAttr * p_fld = p_plugins->properties;
+				const xmlAttr * p_fld = p_plugins->properties;
 				is_gift_card = 0;
 				serial = 0;
 				for(; p_fld; p_fld = p_fld->next) {
@@ -3280,9 +3280,9 @@ int XmlReader::Next(Packet * pPack)
 	//
 	if(ok > 0) {
 		const char * p_items_attr = "order;goodsCode;barCode;cost;count;amount;nds;ndsSumm;discountValue;departNumber;costWithDiscount";
-		xmlNode * p_root  = 0;
-		xmlNode * p_items = 0;
-		xmlNode * p_fld_ = 0;
+		const xmlNode * p_root  = 0;
+		const xmlNode * p_items = 0;
+		const xmlNode * p_fld_ = 0;
 		for(p_fld_ = P_CurRec->children; !p_root && p_fld_; p_fld_ = p_fld_->next)
 			if(sstreqi_ascii(reinterpret_cast<const char *>(p_fld_->name), "positions"))
 				p_root = p_fld_;
@@ -3346,7 +3346,7 @@ int XmlReader::Next(Packet * pPack)
 						if(GetGiftCard(&p_items->children, serial, 0) > 0)
 							serial.CopyTo(item.Serial, sizeof(item.Serial));
 						/*
-						for(xmlNode * p_plugins = p_items->children; !is_gift_card && p_plugins; p_plugins = p_plugins->next) {
+						for(const xmlNode * p_plugins = p_items->children; !is_gift_card && p_plugins; p_plugins = p_plugins->next) {
 							if(stricmp((const char *)p_plugins->name, "plugin-property") == 0 && p_plugins->properties) {
 								xmlAttr * p_fld = p_plugins->properties;
 								is_gift_card = 0;
@@ -3390,14 +3390,14 @@ int XmlReader::Next(Packet * pPack)
 				</payments>
 			*/
 			SString gift_card_code;
-			for(xmlNode * p_fld = P_CurRec->children; p_fld; p_fld = p_fld->next) {
+			for(const xmlNode * p_fld = P_CurRec->children; p_fld; p_fld = p_fld->next) {
 				if(sstreqi_ascii((const char *)p_fld->name, "payments")) {
 					//const char * p_items_attr = "amount;typeClass";
 					CcAmountList ccpl;
 					Header head;
 					MEMSZERO(head);
 					pack.GetHead(&head);
-					for(xmlNode * p_paym_fld = p_fld->children; p_paym_fld; p_paym_fld = p_paym_fld->next) {
+					for(const xmlNode * p_paym_fld = p_fld->children; p_paym_fld; p_paym_fld = p_paym_fld->next) {
 						if(p_paym_fld->type == XML_ELEMENT_NODE) {
 							int16  banking = -1;
 							int    amount_type = CCAMTTYP_CASH;
@@ -3453,7 +3453,7 @@ int XmlReader::Next(Packet * pPack)
 					Header head;
 					MEMSZERO(head);
 					pack.GetHead(&head);
-					for(xmlNode * p_dis_fld = p_fld->children; p_dis_fld; p_dis_fld = p_dis_fld->next) {
+					for(const xmlNode * p_dis_fld = p_fld->children; p_dis_fld; p_dis_fld = p_dis_fld->next) {
 						int16  banking = -1;
 						long   pos = -1;
 						double discount = 0.0;

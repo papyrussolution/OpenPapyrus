@@ -139,25 +139,18 @@ void AutoCompletion::getWordArray(vector<generic_string> & wordArray, TCHAR * be
 {
 	const size_t bufSize = 256;
 	const NppGUI & nppGUI = NppParameters::getInstance().getNppGUI();
-
 	if(nppGUI._autocIgnoreNumbers && isAllDigits(beginChars))
 		return;
-
 	generic_string expr(TEXT("\\<"));
 	expr += beginChars;
 	expr += TEXT("[^ \\t\\n\\r.,;:\"(){}=<>'+!?\\[\\]]+");
-
 	int docLength = int(_pEditView->execute(SCI_GETLENGTH));
-
 	int flags = SCFIND_WORDSTART | SCFIND_MATCHCASE | SCFIND_REGEXP | SCFIND_POSIX;
-
 	_pEditView->execute(SCI_SETSEARCHFLAGS, flags);
 	int posFind = _pEditView->searchInTarget(expr.c_str(), int(expr.length()), 0, docLength);
-
 	while(posFind >= 0) {
 		int wordStart = int(_pEditView->execute(SCI_GETTARGETSTART));
 		int wordEnd = int(_pEditView->execute(SCI_GETTARGETEND));
-
 		size_t foundTextLen = wordEnd - wordStart;
 		if(foundTextLen < bufSize) {
 			TCHAR w[bufSize];

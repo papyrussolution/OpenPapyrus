@@ -1,5 +1,5 @@
 // ILBPACK.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -523,7 +523,7 @@ public:
 				const double _part_qtty = fabs(r_ti.Quantity_);
 				double _low_rv = (r_ti.Price - DiscountList[ridx]) * _part_qtty;
 				double _upp_rv = _low_rv + delta;
-				ExchangeForOrder(&_low_rv, &_upp_rv);
+				SExchangeForOrder(&_low_rv, &_upp_rv);
 				const ulong  min_vat_div = min_vat_div_list.at(ridx);
 				PossibilityRange pr(ridx, min_vat_div);
 				if(_part_qtty != 0.0) {
@@ -2551,10 +2551,10 @@ int PPObjBill::AcceptLotSync(const PPBillPacket & rBp, const ILBillPacket & rIBp
 
 int PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
-	const  int trace_sync_lot = BIN(DS.CheckExtFlag(ECF_TRACESYNCLOT));
-
-	int    ok = 1, r;
-	const PPConfig & r_cfg = LConfig;
+	const  bool trace_sync_lot = DS.CheckExtFlag(ECF_TRACESYNCLOT);
+	int    ok = 1;
+	int    r;
+	const  PPConfig & r_cfg = LConfig;
 	PPID   err_id   = 0; // ИД документа, вызвавшего ошибку
 	int    err_code = 0; // Код ошибки
 	SString err_bill_code; // Номер документа, вызвавшего ошибку

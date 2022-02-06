@@ -433,7 +433,7 @@ INT_PTR CALLBACK HashFromFilesDlg::run_dlgProc(UINT message, WPARAM wParam, LPAR
 							if(digest_buf.NotEmpty()) {
 								files2check += it;
 								files2check += TEXT("\r\n");
-								wchar_t* fileName = ::PathFindFileName(it.c_str());
+								wchar_t * fileName = ::PathFindFileName(it.c_str());
 								hashResultStr += wmc.char2wchar(/*md5Result*/digest_buf, CP_ACP);
 								hashResultStr += TEXT("  ");
 								hashResultStr += fileName;
@@ -450,7 +450,7 @@ INT_PTR CALLBACK HashFromFilesDlg::run_dlgProc(UINT message, WPARAM wParam, LPAR
 								wsprintf(sha2hashStr + i * 2, TEXT("%02x"), /*sha2hash*/PTR8C(&__h)[i]);
 							files2check += it;
 							files2check += TEXT("\r\n");
-							wchar_t* fileName = ::PathFindFileName(it.c_str());
+							wchar_t * fileName = ::PathFindFileName(it.c_str());
 							hashResultStr += sha2hashStr;
 							hashResultStr += TEXT("  ");
 							hashResultStr += fileName;

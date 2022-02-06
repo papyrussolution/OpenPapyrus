@@ -956,33 +956,33 @@ int FASTCALL PPEAddr::operator == (const PPEAddr & rS) const
 	return eq;
 }
 
-int PPEAddr::IsEmpty() const
+bool PPEAddr::IsEmpty() const
 {
-	int    yes = 0;
+	bool   yes = false;
 	if(Type == tUndef)
-		yes = 1;
+		yes = true;
 	else if(Type == tIpV4) {
 		if(U.I4.A == 0)
-			yes = 1;
+			yes = true;
 	}
 	else if(Type == tIpV4Range) {
 		if(U.I4R.Low == 0 && U.I4R.Upp == 0)
-			yes = 1;
+			yes = true;
 	}
 	else if(Type == tIpV6) {
 		if(ismemzero(U.I6.A, sizeof(U.I6.A)))
-			yes = 1;
+			yes = true;
 	}
 	else if(Type == tIpV6Range) {
 		if(ismemzero(U.I6R.Low, sizeof(U.I6R.Low)) && ismemzero(U.I6R.Upp, sizeof(U.I6R.Upp)))
-			yes = 1;
+			yes = true;
 	}
 	else if(Type == tPhone) {
 		if(ismemzero(U.P.A, sizeof(U.P.A)))
-			yes = 1;
+			yes = true;
 	}
 	else
-		yes = 1;
+		yes = true;
 	return yes;
 }
 //

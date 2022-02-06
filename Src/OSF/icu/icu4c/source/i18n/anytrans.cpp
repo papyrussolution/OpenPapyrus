@@ -1,10 +1,10 @@
+// ANYTRANS.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- * Copyright (c) 2002-2014, International Business Machines Corporation and others.  All Rights Reserved.
- * Date        Name        Description
- * 06/06/2002  aliu        Creation.
- */
+// Copyright (c) 2002-2014, International Business Machines Corporation and others.  All Rights Reserved.
+// Date        Name        Description
+// 06/06/2002  aliu        Creation.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -106,19 +106,17 @@ ScriptRunIterator::ScriptRunIterator(const Replaceable& theText,
 	limit = myStart;
 }
 
-bool ScriptRunIterator::next() {
+bool ScriptRunIterator::next() 
+{
 	UChar32 ch;
 	UScriptCode s;
 	UErrorCode ec = U_ZERO_ERROR;
-
 	scriptCode = USCRIPT_INVALID_CODE; // don't know script yet
 	start = limit;
-
 	// Are we done?
 	if(start == textLimit) {
 		return FALSE;
 	}
-
 	// Move start back to include adjacent COMMON or INHERITED
 	// characters
 	while(start > textStart) {
@@ -131,7 +129,6 @@ bool ScriptRunIterator::next() {
 			break;
 		}
 	}
-
 	// Move limit ahead to include COMMON, INHERITED, and characters
 	// of the current script.
 	while(limit < textLimit) {
@@ -147,43 +144,37 @@ bool ScriptRunIterator::next() {
 		}
 		++limit;
 	}
-
 	// Return TRUE even if the entire text is COMMON / INHERITED, in
 	// which case scriptCode will be USCRIPT_INVALID_CODE.
 	return TRUE;
 }
 
-void ScriptRunIterator::adjustLimit(int32_t delta) {
+void ScriptRunIterator::adjustLimit(int32_t delta) 
+{
 	limit += delta;
 	textLimit += delta;
 }
-
-//------------------------------------------------------------
+//
 // AnyTransliterator
-
+//
 UOBJECT_DEFINE_RTTI_IMPLEMENTATION(AnyTransliterator)
 
-AnyTransliterator::AnyTransliterator(const UnicodeString & id,
-    const UnicodeString & theTarget,
-    const UnicodeString & theVariant,
-    UScriptCode theTargetScript,
-    UErrorCode & ec) :
-	Transliterator(id, NULL),
-	targetScript(theTargetScript)
+AnyTransliterator::AnyTransliterator(const UnicodeString & id, const UnicodeString & theTarget, const UnicodeString & theVariant,
+    UScriptCode theTargetScript, UErrorCode & ec) : Transliterator(id, NULL), targetScript(theTargetScript)
 {
 	cache = uhash_openSize(uhash_hashLong, uhash_compareLong, NULL, ANY_TRANS_CACHE_INIT_SIZE, &ec);
 	if(U_FAILURE(ec)) {
 		return;
 	}
 	uhash_setValueDeleter(cache, _deleteTransliterator);
-
 	target = theTarget;
 	if(theVariant.length() > 0) {
 		target.append(VARIANT_SEP).append(theVariant);
 	}
 }
 
-AnyTransliterator::~AnyTransliterator() {
+AnyTransliterator::~AnyTransliterator() 
+{
 	uhash_close(cache);
 }
 
@@ -214,35 +205,30 @@ AnyTransliterator* AnyTransliterator::clone() const {
 /**
  * Implements {@link Transliterator#handleTransliterate}.
  */
-void AnyTransliterator::handleTransliterate(Replaceable& text, UTransPosition& pos,
-    bool isIncremental) const {
+void AnyTransliterator::handleTransliterate(Replaceable& text, UTransPosition& pos, bool isIncremental) const 
+{
 	int32_t allStart = pos.start;
 	int32_t allLimit = pos.limit;
-
 	ScriptRunIterator it(text, pos.contextStart, pos.contextLimit);
-
 	while(it.next()) {
 		// Ignore runs in the ante context
-		if(it.limit <= allStart) continue;
-
+		if(it.limit <= allStart) 
+			continue;
 		// Try to instantiate transliterator from it.scriptCode to
 		// our target or target/variant
 		Transliterator* t = getTransliterator(it.scriptCode);
-
 		if(t == NULL) {
 			// We have no transliterator.  Do nothing, but keep
 			// pos.start up to date.
 			pos.start = it.limit;
 			continue;
 		}
-
 		// If the run end is before the transliteration limit, do
 		// a non-incremental transliteration.  Otherwise do an
 		// incremental one.
 		bool incremental = isIncremental && (it.limit >= allLimit);
-
-		pos.start = uprv_max(allStart, it.start);
-		pos.limit = uprv_min(allLimit, it.limit);
+		pos.start = smax(allStart, it.start);
+		pos.limit = smin(allLimit, it.limit);
 		int32_t limit = pos.limit;
 		t->filteredTransliterate(text, pos, incremental);
 		int32_t delta = pos.limit - limit;
@@ -313,11 +299,11 @@ static UScriptCode scriptNameToCode(const UnicodeString & name)
 	char buf[128];
 	UScriptCode code;
 	UErrorCode ec = U_ZERO_ERROR;
-	int32_t nameLen = name.length();
-	bool isInvariant = uprv_isInvariantUString(name.getBuffer(), nameLen);
+	const int32_t nameLen = name.length();
+	const bool isInvariant = uprv_isInvariantUString(name.getBuffer(), nameLen);
 	if(isInvariant) {
 		name.extract(0, nameLen, buf, (int32_t)sizeof(buf), US_INV);
-		buf[127] = 0; // Make sure that we NULL terminate the string.
+		buf[SIZEOFARRAY(buf)-1] = 0; // Make sure that we NULL terminate the string.
 	}
 	if(!isInvariant || uscript_getCode(buf, &code, 1, &ec) != 1 || U_FAILURE(ec)) {
 		code = USCRIPT_INVALID_CODE;
@@ -379,5 +365,3 @@ void AnyTransliterator::registerIDs()
 U_NAMESPACE_END
 
 #endif /* #if !UCONFIG_NO_TRANSLITERATION */
-
-//eof

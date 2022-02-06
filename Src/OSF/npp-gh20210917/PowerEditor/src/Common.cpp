@@ -685,9 +685,9 @@ generic_string stringTakeWhileAdmissable(const generic_string& input, const gene
 double stodLocale(const generic_string& str, _locale_t loc, size_t* idx)
 {
 	// Copied from the std::stod implementation but uses _wcstod_l instead of wcstod.
-	const wchar_t* ptr = str.c_str();
+	const wchar_t * ptr = str.c_str();
 	errno = 0;
-	wchar_t* eptr;
+	wchar_t * eptr;
 #ifdef __MINGW32__
 	double ans = ::wcstod(ptr, &eptr);
 #else

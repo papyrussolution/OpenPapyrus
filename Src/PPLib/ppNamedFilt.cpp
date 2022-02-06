@@ -1,5 +1,5 @@
 // PPNAMEDFILT.CPP
-// Copyright (c) P.Andrianov 2011, 2014, 2016, 2018, 2019, 2020, 2021
+// Copyright (c) P.Andrianov 2011, 2014, 2016, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -171,11 +171,11 @@ int PPNamedFilt::ReadGuaListFromStr(SString & rGuaListInStr)
 	return ok;
 }
 
-int PPNamedFilt::Read2(xmlNode * pParentNode)
+int PPNamedFilt::Read2(const xmlNode * pParentNode)
 {
 	int    ok = 1;
 	SString temp_buf;
-	for(xmlNode * p_node = pParentNode->children; p_node; p_node = p_node->next) {
+	for(const xmlNode * p_node = pParentNode->children; p_node; p_node = p_node->next) {
 		if(SXml::GetContentByName(p_node, "ID", temp_buf)>0) {
 			ID = temp_buf.ToLong();
 		}
@@ -477,9 +477,9 @@ int PPNamedFiltMngr::LoadPool2(const char * pDbSymb, PPNamedFiltPool * pPool, in
 	THROW(p_xml_parser);
 	THROW_SL(fileExists(XmlFilePath));
 	THROW_LXML((p_doc = xmlCtxtReadFile(p_xml_parser, XmlFilePath, 0, XML_PARSE_NOENT)), p_xml_parser) 
-	for(xmlNode * p_root = p_doc->children; p_root; p_root = p_root->next) {
+	for(const xmlNode * p_root = p_doc->children; p_root; p_root = p_root->next) {
 		if(SXml::IsName(p_root, "NamedFiltPool")) {
-			for(xmlNode * p_node = p_root->children; p_node; p_node = p_node->next) {
+			for(const xmlNode * p_node = p_root->children; p_node; p_node = p_node->next) {
 				if(SXml::IsName(p_node, "NamedFilt")) {
 					PPID   id = 0;
 					PPNamedFilt nf;
@@ -966,17 +966,17 @@ int PPNamedFilt::ViewDefinition::XmlWrite(xmlTextWriter * pXmlWriter) const
 	return ok;
 }
 
-int PPNamedFilt::ViewDefinition::XmlRead(xmlNode * pParentNode) 
+int PPNamedFilt::ViewDefinition::XmlRead(const xmlNode * pParentNode) 
 {
 	int    ok = 1;
 	SString temp_buf;
-	for(xmlNode * p_node = pParentNode->children; p_node; p_node = p_node->next) {
+	for(const xmlNode * p_node = pParentNode->children; p_node; p_node = p_node->next) {
 		if(SXml::GetContentByName(p_node, "DlStrucSymb", temp_buf)) { // @v11.2.0
 			StrucSymb = temp_buf;
 		}
 		else if(SXml::IsName(p_node, "Entry")) {
 			Entry tmp_entry;
-			for(xmlNode * p_entry_node = p_node->children; p_entry_node; p_entry_node = p_entry_node->next) {
+			for(const xmlNode * p_entry_node = p_node->children; p_entry_node; p_entry_node = p_entry_node->next) {
 				if(SXml::GetContentByName(p_entry_node, "Zone", temp_buf)){
 					tmp_entry.Zone = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 				}

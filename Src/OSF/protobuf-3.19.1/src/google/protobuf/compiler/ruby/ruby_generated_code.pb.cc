@@ -479,141 +479,91 @@ bool TestEnum_IsValid(int value) {
 // ===================================================================
 
 TestMessage_MapInt32StringEntry_DoNotUse::TestMessage_MapInt32StringEntry_DoNotUse() {}
-TestMessage_MapInt32StringEntry_DoNotUse::TestMessage_MapInt32StringEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestMessage_MapInt32StringEntry_DoNotUse::MergeFrom(const TestMessage_MapInt32StringEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestMessage_MapInt32StringEntry_DoNotUse::TestMessage_MapInt32StringEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestMessage_MapInt32StringEntry_DoNotUse::MergeFrom(const TestMessage_MapInt32StringEntry_DoNotUse& other) { MergeFromInternal(other); }
 ::PROTOBUF_NAMESPACE_ID::Metadata TestMessage_MapInt32StringEntry_DoNotUse::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_ruby_5fgenerated_5fcode_2eproto_getter, &descriptor_table_ruby_5fgenerated_5fcode_2eproto_once,
-      file_level_metadata_ruby_5fgenerated_5fcode_2eproto[0]);
+	return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_ruby_5fgenerated_5fcode_2eproto_getter, &descriptor_table_ruby_5fgenerated_5fcode_2eproto_once, file_level_metadata_ruby_5fgenerated_5fcode_2eproto[0]);
 }
 
 // ===================================================================
 
 TestMessage_MapInt64StringEntry_DoNotUse::TestMessage_MapInt64StringEntry_DoNotUse() {}
-TestMessage_MapInt64StringEntry_DoNotUse::TestMessage_MapInt64StringEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestMessage_MapInt64StringEntry_DoNotUse::MergeFrom(const TestMessage_MapInt64StringEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestMessage_MapInt64StringEntry_DoNotUse::TestMessage_MapInt64StringEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestMessage_MapInt64StringEntry_DoNotUse::MergeFrom(const TestMessage_MapInt64StringEntry_DoNotUse& other) { MergeFromInternal(other); }
 ::PROTOBUF_NAMESPACE_ID::Metadata TestMessage_MapInt64StringEntry_DoNotUse::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_ruby_5fgenerated_5fcode_2eproto_getter, &descriptor_table_ruby_5fgenerated_5fcode_2eproto_once,
-      file_level_metadata_ruby_5fgenerated_5fcode_2eproto[1]);
+	return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_ruby_5fgenerated_5fcode_2eproto_getter, &descriptor_table_ruby_5fgenerated_5fcode_2eproto_once, file_level_metadata_ruby_5fgenerated_5fcode_2eproto[1]);
 }
 
 // ===================================================================
 
 TestMessage_MapUint32StringEntry_DoNotUse::TestMessage_MapUint32StringEntry_DoNotUse() {}
-TestMessage_MapUint32StringEntry_DoNotUse::TestMessage_MapUint32StringEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestMessage_MapUint32StringEntry_DoNotUse::MergeFrom(const TestMessage_MapUint32StringEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestMessage_MapUint32StringEntry_DoNotUse::TestMessage_MapUint32StringEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestMessage_MapUint32StringEntry_DoNotUse::MergeFrom(const TestMessage_MapUint32StringEntry_DoNotUse& other) { MergeFromInternal(other); }
 ::PROTOBUF_NAMESPACE_ID::Metadata TestMessage_MapUint32StringEntry_DoNotUse::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_ruby_5fgenerated_5fcode_2eproto_getter, &descriptor_table_ruby_5fgenerated_5fcode_2eproto_once,
-      file_level_metadata_ruby_5fgenerated_5fcode_2eproto[2]);
+	return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_ruby_5fgenerated_5fcode_2eproto_getter, &descriptor_table_ruby_5fgenerated_5fcode_2eproto_once, file_level_metadata_ruby_5fgenerated_5fcode_2eproto[2]);
 }
 
 // ===================================================================
 
 TestMessage_MapUint64StringEntry_DoNotUse::TestMessage_MapUint64StringEntry_DoNotUse() {}
-TestMessage_MapUint64StringEntry_DoNotUse::TestMessage_MapUint64StringEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestMessage_MapUint64StringEntry_DoNotUse::MergeFrom(const TestMessage_MapUint64StringEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestMessage_MapUint64StringEntry_DoNotUse::TestMessage_MapUint64StringEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestMessage_MapUint64StringEntry_DoNotUse::MergeFrom(const TestMessage_MapUint64StringEntry_DoNotUse& other) { MergeFromInternal(other); }
 ::PROTOBUF_NAMESPACE_ID::Metadata TestMessage_MapUint64StringEntry_DoNotUse::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_ruby_5fgenerated_5fcode_2eproto_getter, &descriptor_table_ruby_5fgenerated_5fcode_2eproto_once,
-      file_level_metadata_ruby_5fgenerated_5fcode_2eproto[3]);
+	return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_ruby_5fgenerated_5fcode_2eproto_getter, &descriptor_table_ruby_5fgenerated_5fcode_2eproto_once, file_level_metadata_ruby_5fgenerated_5fcode_2eproto[3]);
 }
 
 // ===================================================================
 
 TestMessage_MapBoolStringEntry_DoNotUse::TestMessage_MapBoolStringEntry_DoNotUse() {}
-TestMessage_MapBoolStringEntry_DoNotUse::TestMessage_MapBoolStringEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestMessage_MapBoolStringEntry_DoNotUse::MergeFrom(const TestMessage_MapBoolStringEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestMessage_MapBoolStringEntry_DoNotUse::TestMessage_MapBoolStringEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestMessage_MapBoolStringEntry_DoNotUse::MergeFrom(const TestMessage_MapBoolStringEntry_DoNotUse& other) { MergeFromInternal(other); }
 ::PROTOBUF_NAMESPACE_ID::Metadata TestMessage_MapBoolStringEntry_DoNotUse::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_ruby_5fgenerated_5fcode_2eproto_getter, &descriptor_table_ruby_5fgenerated_5fcode_2eproto_once,
-      file_level_metadata_ruby_5fgenerated_5fcode_2eproto[4]);
+	return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_ruby_5fgenerated_5fcode_2eproto_getter, &descriptor_table_ruby_5fgenerated_5fcode_2eproto_once, file_level_metadata_ruby_5fgenerated_5fcode_2eproto[4]);
 }
 
 // ===================================================================
 
 TestMessage_MapStringStringEntry_DoNotUse::TestMessage_MapStringStringEntry_DoNotUse() {}
-TestMessage_MapStringStringEntry_DoNotUse::TestMessage_MapStringStringEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestMessage_MapStringStringEntry_DoNotUse::MergeFrom(const TestMessage_MapStringStringEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestMessage_MapStringStringEntry_DoNotUse::TestMessage_MapStringStringEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestMessage_MapStringStringEntry_DoNotUse::MergeFrom(const TestMessage_MapStringStringEntry_DoNotUse& other) { MergeFromInternal(other); }
 ::PROTOBUF_NAMESPACE_ID::Metadata TestMessage_MapStringStringEntry_DoNotUse::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_ruby_5fgenerated_5fcode_2eproto_getter, &descriptor_table_ruby_5fgenerated_5fcode_2eproto_once,
-      file_level_metadata_ruby_5fgenerated_5fcode_2eproto[5]);
+	return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_ruby_5fgenerated_5fcode_2eproto_getter, &descriptor_table_ruby_5fgenerated_5fcode_2eproto_once, file_level_metadata_ruby_5fgenerated_5fcode_2eproto[5]);
 }
 
 // ===================================================================
 
 TestMessage_MapStringMsgEntry_DoNotUse::TestMessage_MapStringMsgEntry_DoNotUse() {}
-TestMessage_MapStringMsgEntry_DoNotUse::TestMessage_MapStringMsgEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestMessage_MapStringMsgEntry_DoNotUse::MergeFrom(const TestMessage_MapStringMsgEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestMessage_MapStringMsgEntry_DoNotUse::TestMessage_MapStringMsgEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestMessage_MapStringMsgEntry_DoNotUse::MergeFrom(const TestMessage_MapStringMsgEntry_DoNotUse& other) { MergeFromInternal(other); }
 ::PROTOBUF_NAMESPACE_ID::Metadata TestMessage_MapStringMsgEntry_DoNotUse::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_ruby_5fgenerated_5fcode_2eproto_getter, &descriptor_table_ruby_5fgenerated_5fcode_2eproto_once,
-      file_level_metadata_ruby_5fgenerated_5fcode_2eproto[6]);
+	return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_ruby_5fgenerated_5fcode_2eproto_getter, &descriptor_table_ruby_5fgenerated_5fcode_2eproto_once, file_level_metadata_ruby_5fgenerated_5fcode_2eproto[6]);
 }
 
 // ===================================================================
 
 TestMessage_MapStringEnumEntry_DoNotUse::TestMessage_MapStringEnumEntry_DoNotUse() {}
-TestMessage_MapStringEnumEntry_DoNotUse::TestMessage_MapStringEnumEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestMessage_MapStringEnumEntry_DoNotUse::MergeFrom(const TestMessage_MapStringEnumEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestMessage_MapStringEnumEntry_DoNotUse::TestMessage_MapStringEnumEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestMessage_MapStringEnumEntry_DoNotUse::MergeFrom(const TestMessage_MapStringEnumEntry_DoNotUse& other) { MergeFromInternal(other); }
 ::PROTOBUF_NAMESPACE_ID::Metadata TestMessage_MapStringEnumEntry_DoNotUse::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_ruby_5fgenerated_5fcode_2eproto_getter, &descriptor_table_ruby_5fgenerated_5fcode_2eproto_once,
-      file_level_metadata_ruby_5fgenerated_5fcode_2eproto[7]);
+	return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_ruby_5fgenerated_5fcode_2eproto_getter, &descriptor_table_ruby_5fgenerated_5fcode_2eproto_once, file_level_metadata_ruby_5fgenerated_5fcode_2eproto[7]);
 }
 
 // ===================================================================
 
 TestMessage_MapStringInt32Entry_DoNotUse::TestMessage_MapStringInt32Entry_DoNotUse() {}
-TestMessage_MapStringInt32Entry_DoNotUse::TestMessage_MapStringInt32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestMessage_MapStringInt32Entry_DoNotUse::MergeFrom(const TestMessage_MapStringInt32Entry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestMessage_MapStringInt32Entry_DoNotUse::TestMessage_MapStringInt32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestMessage_MapStringInt32Entry_DoNotUse::MergeFrom(const TestMessage_MapStringInt32Entry_DoNotUse& other) { MergeFromInternal(other); }
 ::PROTOBUF_NAMESPACE_ID::Metadata TestMessage_MapStringInt32Entry_DoNotUse::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_ruby_5fgenerated_5fcode_2eproto_getter, &descriptor_table_ruby_5fgenerated_5fcode_2eproto_once,
-      file_level_metadata_ruby_5fgenerated_5fcode_2eproto[8]);
+	return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_ruby_5fgenerated_5fcode_2eproto_getter, &descriptor_table_ruby_5fgenerated_5fcode_2eproto_once, file_level_metadata_ruby_5fgenerated_5fcode_2eproto[8]);
 }
 
 // ===================================================================
 
 TestMessage_MapStringBoolEntry_DoNotUse::TestMessage_MapStringBoolEntry_DoNotUse() {}
-TestMessage_MapStringBoolEntry_DoNotUse::TestMessage_MapStringBoolEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestMessage_MapStringBoolEntry_DoNotUse::MergeFrom(const TestMessage_MapStringBoolEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestMessage_MapStringBoolEntry_DoNotUse::TestMessage_MapStringBoolEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestMessage_MapStringBoolEntry_DoNotUse::MergeFrom(const TestMessage_MapStringBoolEntry_DoNotUse& other) { MergeFromInternal(other); }
 ::PROTOBUF_NAMESPACE_ID::Metadata TestMessage_MapStringBoolEntry_DoNotUse::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_ruby_5fgenerated_5fcode_2eproto_getter, &descriptor_table_ruby_5fgenerated_5fcode_2eproto_once,
-      file_level_metadata_ruby_5fgenerated_5fcode_2eproto[9]);
+	return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_ruby_5fgenerated_5fcode_2eproto_getter, &descriptor_table_ruby_5fgenerated_5fcode_2eproto_once, file_level_metadata_ruby_5fgenerated_5fcode_2eproto[9]);
 }
 
 // ===================================================================
@@ -789,9 +739,7 @@ void TestMessage_NestedMessage::InternalSwap(TestMessage_NestedMessage* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestMessage_NestedMessage::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_ruby_5fgenerated_5fcode_2eproto_getter, &descriptor_table_ruby_5fgenerated_5fcode_2eproto_once,
-      file_level_metadata_ruby_5fgenerated_5fcode_2eproto[10]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_ruby_5fgenerated_5fcode_2eproto_getter, &descriptor_table_ruby_5fgenerated_5fcode_2eproto_once, file_level_metadata_ruby_5fgenerated_5fcode_2eproto[10]);
 }
 
 // ===================================================================
@@ -900,16 +848,14 @@ TestMessage::TestMessage(const TestMessage& from)
     optional_string_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(!from._internal_optional_string().empty()) {
-    optional_string_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_optional_string(), 
-      GetArenaForAllocation());
+    optional_string_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_optional_string(), GetArenaForAllocation());
   }
   optional_bytes_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     optional_bytes_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(!from._internal_optional_bytes().empty()) {
-    optional_bytes_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_optional_bytes(), 
-      GetArenaForAllocation());
+    optional_bytes_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_optional_bytes(), GetArenaForAllocation());
   }
   if(from._internal_has_optional_msg()) {
     optional_msg_ = new ::A::B::C::TestMessage(*from.optional_msg_);
@@ -1697,14 +1643,12 @@ uint8_t* TestMessage::_InternalSerialize(
       this->_internal_optional_string().data(), static_cast<int>(this->_internal_optional_string().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "A.B.C.TestMessage.optional_string");
-    target = stream->WriteStringMaybeAliased(
-        8, this->_internal_optional_string(), target);
+    target = stream->WriteStringMaybeAliased(8, this->_internal_optional_string(), target);
   }
 
   // bytes optional_bytes = 9;
   if(!this->_internal_optional_bytes().empty()) {
-    target = stream->WriteBytesMaybeAliased(
-        9, this->_internal_optional_bytes(), target);
+    target = stream->WriteBytesMaybeAliased(9, this->_internal_optional_bytes(), target);
   }
 
   // .A.B.C.TestEnum optional_enum = 10;
@@ -1731,53 +1675,53 @@ uint8_t* TestMessage::_InternalSerialize(
 
   // repeated int32 repeated_int32 = 21;
   {
-    int byte_size = _repeated_int32_cached_byte_size_.load(std::memory_order_relaxed);
-    if(byte_size > 0) {
-      target = stream->WriteInt32Packed(21, _internal_repeated_int32(), byte_size, target);
-    }
+  	int byte_size = _repeated_int32_cached_byte_size_.load(std::memory_order_relaxed);
+  	if(byte_size > 0) {
+  		target = stream->WriteInt32Packed(21, _internal_repeated_int32(), byte_size, target);
+  	}
   }
 
   // repeated int64 repeated_int64 = 22;
   {
-    int byte_size = _repeated_int64_cached_byte_size_.load(std::memory_order_relaxed);
-    if(byte_size > 0) {
-      target = stream->WriteInt64Packed(22, _internal_repeated_int64(), byte_size, target);
-    }
+  	int byte_size = _repeated_int64_cached_byte_size_.load(std::memory_order_relaxed);
+  	if(byte_size > 0) {
+  		target = stream->WriteInt64Packed(22, _internal_repeated_int64(), byte_size, target);
+  	}
   }
 
   // repeated uint32 repeated_uint32 = 23;
   {
-    int byte_size = _repeated_uint32_cached_byte_size_.load(std::memory_order_relaxed);
-    if(byte_size > 0) {
-      target = stream->WriteUInt32Packed(23, _internal_repeated_uint32(), byte_size, target);
-    }
+  	int byte_size = _repeated_uint32_cached_byte_size_.load(std::memory_order_relaxed);
+  	if(byte_size > 0) {
+  		target = stream->WriteUInt32Packed(23, _internal_repeated_uint32(), byte_size, target);
+  	}
   }
 
   // repeated uint64 repeated_uint64 = 24;
   {
-    int byte_size = _repeated_uint64_cached_byte_size_.load(std::memory_order_relaxed);
-    if(byte_size > 0) {
-      target = stream->WriteUInt64Packed(24, _internal_repeated_uint64(), byte_size, target);
-    }
+  	int byte_size = _repeated_uint64_cached_byte_size_.load(std::memory_order_relaxed);
+  	if(byte_size > 0) {
+  		target = stream->WriteUInt64Packed(24, _internal_repeated_uint64(), byte_size, target);
+  	}
   }
 
   // repeated bool repeated_bool = 25;
   if(this->_internal_repeated_bool_size() > 0) {
-    target = stream->WriteFixedPacked(25, _internal_repeated_bool(), target);
+  	target = stream->WriteFixedPacked(25, _internal_repeated_bool(), target);
   }
 
   // repeated double repeated_double = 26;
   if(this->_internal_repeated_double_size() > 0) {
-    target = stream->WriteFixedPacked(26, _internal_repeated_double(), target);
+  	target = stream->WriteFixedPacked(26, _internal_repeated_double(), target);
   }
 
   // repeated float repeated_float = 27;
   if(this->_internal_repeated_float_size() > 0) {
-    target = stream->WriteFixedPacked(27, _internal_repeated_float(), target);
+  	target = stream->WriteFixedPacked(27, _internal_repeated_float(), target);
   }
 
   // repeated string repeated_string = 28;
-  for (int i = 0, n = this->_internal_repeated_string_size(); i < n; i++) {
+  for(int i = 0, n = this->_internal_repeated_string_size(); i < n; i++) {
     const auto& s = this->_internal_repeated_string(i);
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       s.data(), static_cast<int>(s.length()),
@@ -1787,7 +1731,7 @@ uint8_t* TestMessage::_InternalSerialize(
   }
 
   // repeated bytes repeated_bytes = 29;
-  for (int i = 0, n = this->_internal_repeated_bytes_size(); i < n; i++) {
+  for(int i = 0, n = this->_internal_repeated_bytes_size(); i < n; i++) {
     const auto& s = this->_internal_repeated_bytes(i);
     target = stream->WriteBytes(29, s, target);
   }
@@ -1857,14 +1801,12 @@ uint8_t* TestMessage::_InternalSerialize(
       this->_internal_oneof_string().data(), static_cast<int>(this->_internal_oneof_string().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "A.B.C.TestMessage.oneof_string");
-    target = stream->WriteStringMaybeAliased(
-        48, this->_internal_oneof_string(), target);
+    target = stream->WriteStringMaybeAliased(48, this->_internal_oneof_string(), target);
   }
 
   // bytes oneof_bytes = 49;
   if(_internal_has_oneof_bytes()) {
-    target = stream->WriteBytesMaybeAliased(
-        49, this->_internal_oneof_bytes(), target);
+    target = stream->WriteBytesMaybeAliased(49, this->_internal_oneof_bytes(), target);
   }
 
   // .A.B.C.TestEnum oneof_enum = 50;
@@ -1906,12 +1848,12 @@ uint8_t* TestMessage::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestMessage_MapInt32StringEntry_DoNotUse::Funcs::InternalSerialize(61, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)].second));
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_iterator
           it = this->_internal_map_int32_string().begin();
           it != this->_internal_map_int32_string().end(); ++it) {
         target = TestMessage_MapInt32StringEntry_DoNotUse::Funcs::InternalSerialize(61, it->first, it->second, target, stream);
@@ -1945,12 +1887,12 @@ uint8_t* TestMessage::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestMessage_MapInt64StringEntry_DoNotUse::Funcs::InternalSerialize(62, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)].second));
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< int64_t, std::string >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, std::string >::const_iterator
           it = this->_internal_map_int64_string().begin();
           it != this->_internal_map_int64_string().end(); ++it) {
         target = TestMessage_MapInt64StringEntry_DoNotUse::Funcs::InternalSerialize(62, it->first, it->second, target, stream);
@@ -1984,12 +1926,12 @@ uint8_t* TestMessage::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestMessage_MapUint32StringEntry_DoNotUse::Funcs::InternalSerialize(63, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)].second));
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< uint32_t, std::string >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< uint32_t, std::string >::const_iterator
           it = this->_internal_map_uint32_string().begin();
           it != this->_internal_map_uint32_string().end(); ++it) {
         target = TestMessage_MapUint32StringEntry_DoNotUse::Funcs::InternalSerialize(63, it->first, it->second, target, stream);
@@ -2023,12 +1965,12 @@ uint8_t* TestMessage::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestMessage_MapUint64StringEntry_DoNotUse::Funcs::InternalSerialize(64, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)].second));
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< uint64_t, std::string >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< uint64_t, std::string >::const_iterator
           it = this->_internal_map_uint64_string().begin();
           it != this->_internal_map_uint64_string().end(); ++it) {
         target = TestMessage_MapUint64StringEntry_DoNotUse::Funcs::InternalSerialize(64, it->first, it->second, target, stream);
@@ -2062,12 +2004,12 @@ uint8_t* TestMessage::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestMessage_MapBoolStringEntry_DoNotUse::Funcs::InternalSerialize(65, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)].second));
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< bool, std::string >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< bool, std::string >::const_iterator
           it = this->_internal_map_bool_string().begin();
           it != this->_internal_map_bool_string().end(); ++it) {
         target = TestMessage_MapBoolStringEntry_DoNotUse::Funcs::InternalSerialize(65, it->first, it->second, target, stream);
@@ -2105,12 +2047,12 @@ uint8_t* TestMessage::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestMessage_MapStringStringEntry_DoNotUse::Funcs::InternalSerialize(66, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
           it = this->_internal_map_string_string().begin();
           it != this->_internal_map_string_string().end(); ++it) {
         target = TestMessage_MapStringStringEntry_DoNotUse::Funcs::InternalSerialize(66, it->first, it->second, target, stream);
@@ -2144,12 +2086,12 @@ uint8_t* TestMessage::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestMessage_MapStringMsgEntry_DoNotUse::Funcs::InternalSerialize(67, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::A::B::C::TestMessage >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::A::B::C::TestMessage >::const_iterator
           it = this->_internal_map_string_msg().begin();
           it != this->_internal_map_string_msg().end(); ++it) {
         target = TestMessage_MapStringMsgEntry_DoNotUse::Funcs::InternalSerialize(67, it->first, it->second, target, stream);
@@ -2183,12 +2125,12 @@ uint8_t* TestMessage::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestMessage_MapStringEnumEntry_DoNotUse::Funcs::InternalSerialize(68, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::A::B::C::TestEnum >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::A::B::C::TestEnum >::const_iterator
           it = this->_internal_map_string_enum().begin();
           it != this->_internal_map_string_enum().end(); ++it) {
         target = TestMessage_MapStringEnumEntry_DoNotUse::Funcs::InternalSerialize(68, it->first, it->second, target, stream);
@@ -2222,12 +2164,12 @@ uint8_t* TestMessage::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestMessage_MapStringInt32Entry_DoNotUse::Funcs::InternalSerialize(69, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >::const_iterator
           it = this->_internal_map_string_int32().begin();
           it != this->_internal_map_string_int32().end(); ++it) {
         target = TestMessage_MapStringInt32Entry_DoNotUse::Funcs::InternalSerialize(69, it->first, it->second, target, stream);
@@ -2261,12 +2203,12 @@ uint8_t* TestMessage::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestMessage_MapStringBoolEntry_DoNotUse::Funcs::InternalSerialize(70, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, bool >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< std::string, bool >::const_iterator
           it = this->_internal_map_string_bool().begin();
           it != this->_internal_map_string_bool().end(); ++it) {
         target = TestMessage_MapStringBoolEntry_DoNotUse::Funcs::InternalSerialize(70, it->first, it->second, target, stream);
@@ -2301,11 +2243,9 @@ size_t TestMessage::ByteSizeLong() const {
 
   // repeated int32 repeated_int32 = 21;
   {
-    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      Int32Size(this->repeated_int32_);
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(this->repeated_int32_);
     if(data_size > 0) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    	total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
     }
     int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
     _repeated_int32_cached_byte_size_.store(cached_size, std::memory_order_relaxed);
@@ -2314,11 +2254,9 @@ size_t TestMessage::ByteSizeLong() const {
 
   // repeated int64 repeated_int64 = 22;
   {
-    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      Int64Size(this->repeated_int64_);
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int64Size(this->repeated_int64_);
     if(data_size > 0) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    	total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
     }
     int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
     _repeated_int64_cached_byte_size_.store(cached_size, std::memory_order_relaxed);
@@ -2327,11 +2265,9 @@ size_t TestMessage::ByteSizeLong() const {
 
   // repeated uint32 repeated_uint32 = 23;
   {
-    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      UInt32Size(this->repeated_uint32_);
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(this->repeated_uint32_);
     if(data_size > 0) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    	total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
     }
     int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
     _repeated_uint32_cached_byte_size_.store(cached_size, std::memory_order_relaxed);
@@ -2340,11 +2276,9 @@ size_t TestMessage::ByteSizeLong() const {
 
   // repeated uint64 repeated_uint64 = 24;
   {
-    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      UInt64Size(this->repeated_uint64_);
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(this->repeated_uint64_);
     if(data_size > 0) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    	total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
     }
     int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
     _repeated_uint64_cached_byte_size_.store(cached_size, std::memory_order_relaxed);
@@ -2356,8 +2290,7 @@ size_t TestMessage::ByteSizeLong() const {
     unsigned int count = static_cast<unsigned int>(this->_internal_repeated_bool_size());
     size_t data_size = 1UL * count;
     if(data_size > 0) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    	total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
     }
     total_size += data_size;
   }
@@ -2367,8 +2300,7 @@ size_t TestMessage::ByteSizeLong() const {
     unsigned int count = static_cast<unsigned int>(this->_internal_repeated_double_size());
     size_t data_size = 8UL * count;
     if(data_size > 0) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    	total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
     }
     total_size += data_size;
   }
@@ -2378,26 +2310,21 @@ size_t TestMessage::ByteSizeLong() const {
     unsigned int count = static_cast<unsigned int>(this->_internal_repeated_float_size());
     size_t data_size = 4UL * count;
     if(data_size > 0) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    	total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
     }
     total_size += data_size;
   }
 
   // repeated string repeated_string = 28;
-  total_size += 2 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(repeated_string_.size());
-  for (int i = 0, n = repeated_string_.size(); i < n; i++) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-      repeated_string_.Get(i));
+  total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(repeated_string_.size());
+  for(int i = 0, n = repeated_string_.size(); i < n; i++) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(repeated_string_.Get(i));
   }
 
   // repeated bytes repeated_bytes = 29;
-  total_size += 2 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(repeated_bytes_.size());
-  for (int i = 0, n = repeated_bytes_.size(); i < n; i++) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
-      repeated_bytes_.Get(i));
+  total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(repeated_bytes_.size());
+  for(int i = 0, n = repeated_bytes_.size(); i < n; i++) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(repeated_bytes_.Get(i));
   }
 
   // repeated .A.B.C.TestEnum repeated_enum = 30;
@@ -2512,16 +2439,12 @@ size_t TestMessage::ByteSizeLong() const {
 
   // string optional_string = 8;
   if(!this->_internal_optional_string().empty()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_optional_string());
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_optional_string());
   }
 
   // bytes optional_bytes = 9;
   if(!this->_internal_optional_bytes().empty()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
-        this->_internal_optional_bytes());
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(this->_internal_optional_bytes());
   }
 
   // .A.B.C.TestMessage optional_msg = 11;
@@ -2594,33 +2517,25 @@ size_t TestMessage::ByteSizeLong() const {
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_optional_enum());
   }
 
-  switch (my_oneof_case()) {
+  switch(my_oneof_case()) {
     // int32 oneof_int32 = 41;
     case kOneofInt32: {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
-          this->_internal_oneof_int32());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(this->_internal_oneof_int32());
       break;
     }
     // int64 oneof_int64 = 42;
     case kOneofInt64: {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int64Size(
-          this->_internal_oneof_int64());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int64Size(this->_internal_oneof_int64());
       break;
     }
     // uint32 oneof_uint32 = 43;
     case kOneofUint32: {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-          this->_internal_oneof_uint32());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(this->_internal_oneof_uint32());
       break;
     }
     // uint64 oneof_uint64 = 44;
     case kOneofUint64: {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
-          this->_internal_oneof_uint64());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(this->_internal_oneof_uint64());
       break;
     }
     // bool oneof_bool = 45;
@@ -2640,16 +2555,12 @@ size_t TestMessage::ByteSizeLong() const {
     }
     // string oneof_string = 48;
     case kOneofString: {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_oneof_string());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_oneof_string());
       break;
     }
     // bytes oneof_bytes = 49;
     case kOneofBytes: {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
-          this->_internal_oneof_bytes());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(this->_internal_oneof_bytes());
       break;
     }
     // .A.B.C.TestEnum oneof_enum = 50;
@@ -2665,9 +2576,7 @@ size_t TestMessage::ByteSizeLong() const {
           *my_oneof_.oneof_msg_);
       break;
     }
-    case MY_ONEOF_NOT_SET: {
-      break;
-    }
+    case MY_ONEOF_NOT_SET: break;
   }
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
 }
@@ -2869,9 +2778,7 @@ void TestMessage::InternalSwap(TestMessage* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestMessage::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_ruby_5fgenerated_5fcode_2eproto_getter, &descriptor_table_ruby_5fgenerated_5fcode_2eproto_once,
-      file_level_metadata_ruby_5fgenerated_5fcode_2eproto[11]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_ruby_5fgenerated_5fcode_2eproto_getter, &descriptor_table_ruby_5fgenerated_5fcode_2eproto_once, file_level_metadata_ruby_5fgenerated_5fcode_2eproto[11]);
 }
 
 // @@protoc_insertion_point(namespace_scope)

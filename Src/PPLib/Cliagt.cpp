@@ -1,5 +1,5 @@
 // CLIAGT.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Соглашения с клиентами об условиях торговли
 //
@@ -1268,22 +1268,22 @@ int PPSupplAgreement::ExchangeParam::Serialize_(int dir, SBuffer & rBuf, SSerial
 	return ok;
 }
 
-int PPSupplAgreement::ExchangeParam::IsEmpty() const
+bool PPSupplAgreement::ExchangeParam::IsEmpty() const
 {
 	if(GoodsGrpID || !ConnAddr.IsEmpty() || ExpendOp || RcptOp || SupplRetOp || RetOp || MovInOp || MovOutOp || PriceQuotID)
-		return 0;
+		return false;
 	else {
 		SString temp_buf;
 		if(GetExtStrData(extssClientCode, temp_buf) > 0 && temp_buf.NotEmptyS())
-			return 0;
+			return false;
 		else if(GetExtStrData(extssEDIPrvdrSymb, temp_buf) > 0 && temp_buf.NotEmptyS())
-			return 0;
-		else if(DebtDimList.GetCount()) // @v9.1.3
-			return 0;
-		else if(WhList.GetCount()) // @v9.9.5
-			return 0;
+			return false;
+		else if(DebtDimList.GetCount())
+			return false;
+		else if(WhList.GetCount())
+			return false;
 		else
-			return 1;
+			return true;
 	}
 }
 

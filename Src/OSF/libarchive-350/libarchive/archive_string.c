@@ -52,10 +52,10 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_string.c 201095 2009-12-28 02:33
 #include "archive_string.h"
 #include "archive_string_composition.h"
 #if !defined(HAVE_WMEMCPY) && !defined(wmemcpy)
-	#define wmemcpy(a, b, i)  (wchar_t*)memcpy((a), (b), (i) * sizeof(wchar_t))
+	#define wmemcpy(a, b, i)  (wchar_t *)memcpy((a), (b), (i) * sizeof(wchar_t))
 #endif
 #if !defined(HAVE_WMEMMOVE) && !defined(wmemmove)
-	#define wmemmove(a, b, i)  (wchar_t*)memmove((a), (b), (i) * sizeof(wchar_t))
+	#define wmemmove(a, b, i)  (wchar_t *)memmove((a), (b), (i) * sizeof(wchar_t))
 #endif
 
 #undef max
@@ -355,8 +355,9 @@ struct archive_wstring * archive_wstrappend_wchar(struct archive_wstring * as, w
  * which some platform nl_langinfo(CODESET) returns, so we should
  * use locale_charset() instead of nl_langinfo(CODESET) for GNU libiconv.
  */
-static const char * default_iconv_charset(const char * charset) {
-	if(charset != NULL && charset[0] != '\0')
+static const char * default_iconv_charset(const char * charset) 
+{
+	if(!isempty(charset))
 		return charset;
 #if HAVE_LOCALE_CHARSET && !defined(__APPLE__)
 	/* locale_charset() is broken on Mac OS */
@@ -445,7 +446,7 @@ static int archive_wstring_append_from_mbs_in_codepage(struct archive_wstring * 
 			ret = archive_string_normalize_C(&u16, s, count, sc);
 		else
 			ret = archive_string_normalize_D(&u16, s, count, sc);
-		dest->s = (wchar_t*)u16.s;
+		dest->s = (wchar_t *)u16.s;
 		dest->length = u16.length >> 1;
 		dest->buffer_length = u16.buffer_length;
 		sc->flag = saved_flag; /* restore the saved flag. */
@@ -458,7 +459,7 @@ static int archive_wstring_append_from_mbs_in_codepage(struct archive_wstring * 
 		if(NULL == archive_wstring_ensure(dest,
 		    dest->length + count + 1))
 			return -1;
-		wmemcpy(dest->s + dest->length, (const wchar_t*)s, count);
+		wmemcpy(dest->s + dest->length, (const wchar_t *)s, count);
 		if((sc->flag & SCONV_FROM_UTF16BE) && !is_big_endian()) {
 			uint16 * u16 = (uint16*)(dest->s + dest->length);
 			int b;
@@ -1021,7 +1022,7 @@ static const char * canonical_charset_name(const char * charset)
 	char cs[16];
 	char * p;
 	const char * s;
-	if(charset == NULL || charset[0] == '\0' || strlen(charset) > 15)
+	if(isempty(charset) || strlen(charset) > 15)
 		return (charset);
 	/* Copy name to uppercase. */
 	p = cs;
@@ -1033,13 +1034,13 @@ static const char * canonical_charset_name(const char * charset)
 		*p++ = c;
 	}
 	*p++ = '\0';
-	if(strcmp(cs, "UTF-8") == 0 || strcmp(cs, "UTF8") == 0)
+	if(sstreq(cs, "UTF-8") || sstreq(cs, "UTF8"))
 		return ("UTF-8");
-	if(strcmp(cs, "UTF-16BE") == 0 || strcmp(cs, "UTF16BE") == 0)
+	if(sstreq(cs, "UTF-16BE") || sstreq(cs, "UTF16BE"))
 		return ("UTF-16BE");
-	if(strcmp(cs, "UTF-16LE") == 0 || strcmp(cs, "UTF16LE") == 0)
+	if(sstreq(cs, "UTF-16LE") || sstreq(cs, "UTF16LE"))
 		return ("UTF-16LE");
-	if(strcmp(cs, "CP932") == 0)
+	if(sstreq(cs, "CP932"))
 		return ("CP932");
 	return (charset);
 }
@@ -1064,7 +1065,6 @@ static struct archive_string_conv * create_sconv_object(const char * fc, const c
 		return NULL;
 	}
 	archive_string_init(&sc->utftmp);
-
 	if(flag & SCONV_TO_CHARSET) {
 		/*
 		 * Convert characters from the current locale charset to

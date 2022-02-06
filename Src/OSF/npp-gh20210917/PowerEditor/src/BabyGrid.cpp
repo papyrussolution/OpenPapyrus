@@ -1166,7 +1166,7 @@ void SizeGrid(HWND hWnd, int /*SI*/)
 	SendMessage(hWnd, WM_SIZE, SIZE_MAXIMIZED, 0);
 }
 
-int FindLongestLine(HDC hdc, wchar_t* text, SIZE* size)
+int FindLongestLine(HDC hdc, wchar_t * text, SIZE* size)
 {
 	int longest = 0;
 	wchar_t temptext[1000];

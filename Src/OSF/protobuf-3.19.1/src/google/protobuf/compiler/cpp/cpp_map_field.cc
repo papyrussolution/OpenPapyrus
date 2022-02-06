@@ -64,10 +64,8 @@ void SetMessageVariables(const FieldDescriptor* descriptor,
 		default:
 		    (*variables)["val_cpp"] = PrimitiveTypeName(options, val->cpp_type());
 	}
-	(*variables)["key_wire_type"] =
-	    "TYPE_" + ToUpper(DeclaredTypeMethodName(key->type()));
-	(*variables)["val_wire_type"] =
-	    "TYPE_" + ToUpper(DeclaredTypeMethodName(val->type()));
+	(*variables)["key_wire_type"] = "TYPE_" + ToUpper(DeclaredTypeMethodName(key->type()));
+	(*variables)["val_wire_type"] = "TYPE_" + ToUpper(DeclaredTypeMethodName(val->type()));
 	(*variables)["map_classname"] = ClassName(descriptor->message_type(), false);
 	(*variables)["number"] = StrCat(descriptor->number());
 	(*variables)["tag"] = StrCat(internal::WireFormat::MakeTag(descriptor));
@@ -169,13 +167,12 @@ static void GenerateSerializationLoop(const Formatter& format, bool string_key,
     bool is_deterministic) {
 	std::string ptr;
 	if(is_deterministic) {
-		format("for (size_type i = 0; i < n; i++) {\n");
-		ptr = string_key ? "items[static_cast<ptrdiff_t>(i)]"
-		    : "items[static_cast<ptrdiff_t>(i)].second";
+		format("for(size_type i = 0; i < n; i++) {\n");
+		ptr = string_key ? "items[static_cast<ptrdiff_t>(i)]" : "items[static_cast<ptrdiff_t>(i)].second";
 	}
 	else {
 		format(
-			"for (::$proto_ns$::Map< $key_cpp$, $val_cpp$ >::const_iterator\n"
+			"for(::$proto_ns$::Map< $key_cpp$, $val_cpp$ >::const_iterator\n"
 			"    it = this->_internal_$name$().begin();\n"
 			"    it != this->_internal_$name$().end(); ++it) {\n");
 		ptr = "it";
@@ -266,8 +263,7 @@ void MapFieldGenerator::GenerateByteSize(io::Printer* printer) const {
 		"for(::$proto_ns$::Map< $key_cpp$, $val_cpp$ >::const_iterator\n"
 		"    it = this->_internal_$name$().begin();\n"
 		"    it != this->_internal_$name$().end(); ++it) {\n"
-		"  total_size += $map_classname$::Funcs::ByteSizeLong(it->first, "
-		"it->second);\n"
+		"  total_size += $map_classname$::Funcs::ByteSizeLong(it->first, it->second);\n"
 		"}\n");
 }
 

@@ -120,9 +120,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestLargeEnumValue::GetClassDa
 
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestLargeEnumValue::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_cpp_5ftest_5flarge_5fenum_5fvalue_2eproto_getter, &descriptor_table_cpp_5ftest_5flarge_5fenum_5fvalue_2eproto_once,
-      file_level_metadata_cpp_5ftest_5flarge_5fenum_5fvalue_2eproto[0]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_cpp_5ftest_5flarge_5fenum_5fvalue_2eproto_getter, &descriptor_table_cpp_5ftest_5flarge_5fenum_5fvalue_2eproto_once, file_level_metadata_cpp_5ftest_5flarge_5fenum_5fvalue_2eproto[0]);
 }
 
 // @@protoc_insertion_point(namespace_scope)

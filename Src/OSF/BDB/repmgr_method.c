@@ -796,7 +796,7 @@ int __repmgr_local_site(DB_ENV * dbenv, DB_SITE ** sitep)
 
 static int addr_chk(const ENV*env, const char * host, uint port)
 {
-	if(host == NULL || host[0] == '\0') {
+	if(isempty(host)) {
 		__db_errx(env, DB_STR("3648", "repmgr_site: a host name is required"));
 		return EINVAL;
 	}

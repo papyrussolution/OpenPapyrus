@@ -185,9 +185,7 @@ class TestMessageSetContainer::_Internal {
  public:
   using HasBits = decltype(std::declval<TestMessageSetContainer>()._has_bits_);
   static const ::proto2_wireformat_unittest::TestMessageSet& message_set(const TestMessageSetContainer* msg);
-  static void set_has_message_set(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
+  static void set_has_message_set(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
 const ::proto2_wireformat_unittest::TestMessageSet&
@@ -388,9 +386,7 @@ void TestMessageSetContainer::InternalSwap(TestMessageSetContainer* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestMessageSetContainer::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2funittest_5fmset_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5fmset_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2funittest_5fmset_2eproto[0]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5fmset_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5fmset_2eproto_once, file_level_metadata_google_2fprotobuf_2funittest_5fmset_2eproto[0]);
 }
 
 // ===================================================================
@@ -398,16 +394,10 @@ void TestMessageSetContainer::InternalSwap(TestMessageSetContainer* other) {
 class TestMessageSetExtension1::_Internal {
  public:
   using HasBits = decltype(std::declval<TestMessageSetExtension1>()._has_bits_);
-  static void set_has_i(HasBits* has_bits) {
-    (*has_bits)[0] |= 4u;
-  }
+  static void set_has_i(HasBits* has_bits) { (*has_bits)[0] |= 4u; }
   static const ::proto2_wireformat_unittest::TestMessageSet& recursive(const TestMessageSetExtension1* msg);
-  static void set_has_recursive(HasBits* has_bits) {
-    (*has_bits)[0] |= 2u;
-  }
-  static void set_has_test_aliasing(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
+  static void set_has_recursive(HasBits* has_bits) { (*has_bits)[0] |= 2u; }
+  static void set_has_test_aliasing(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
 const ::proto2_wireformat_unittest::TestMessageSet&
@@ -436,8 +426,7 @@ TestMessageSetExtension1::TestMessageSetExtension1(const TestMessageSetExtension
     test_aliasing_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_test_aliasing()) {
-    test_aliasing_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_test_aliasing(), 
-      GetArenaForAllocation());
+    test_aliasing_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_test_aliasing(), GetArenaForAllocation());
   }
   if(from._internal_has_recursive()) {
     recursive_ = new ::proto2_wireformat_unittest::TestMessageSet(*from.recursive_);
@@ -590,8 +579,7 @@ uint8_t* TestMessageSetExtension1::_InternalSerialize(
       this->_internal_test_aliasing().data(), static_cast<int>(this->_internal_test_aliasing().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
       "protobuf_unittest.TestMessageSetExtension1.test_aliasing");
-    target = stream->WriteStringMaybeAliased(
-        17, this->_internal_test_aliasing(), target);
+    target = stream->WriteStringMaybeAliased(17, this->_internal_test_aliasing(), target);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -614,9 +602,7 @@ size_t TestMessageSetExtension1::ByteSizeLong() const {
   if(cached_has_bits & 0x00000007u) {
     // optional string test_aliasing = 17 [ctype = STRING_PIECE];
     if(cached_has_bits & 0x00000001u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_test_aliasing());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_test_aliasing());
     }
 
     // optional .proto2_wireformat_unittest.TestMessageSet recursive = 16;
@@ -704,9 +690,7 @@ void TestMessageSetExtension1::InternalSwap(TestMessageSetExtension1* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestMessageSetExtension1::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2funittest_5fmset_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5fmset_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2funittest_5fmset_2eproto[1]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5fmset_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5fmset_2eproto_once, file_level_metadata_google_2fprotobuf_2funittest_5fmset_2eproto[1]);
 }
 
 // ===================================================================
@@ -714,9 +698,7 @@ void TestMessageSetExtension1::InternalSwap(TestMessageSetExtension1* other) {
 class TestMessageSetExtension2::_Internal {
  public:
   using HasBits = decltype(std::declval<TestMessageSetExtension2>()._has_bits_);
-  static void set_has_str(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
+  static void set_has_str(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
 TestMessageSetExtension2::TestMessageSetExtension2(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -737,8 +719,7 @@ TestMessageSetExtension2::TestMessageSetExtension2(const TestMessageSetExtension
     str_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_str()) {
-    str_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_str(), 
-      GetArenaForAllocation());
+    str_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_str(), GetArenaForAllocation());
   }
   // @@protoc_insertion_point(copy_constructor:protobuf_unittest.TestMessageSetExtension2)
 }
@@ -842,8 +823,7 @@ uint8_t* TestMessageSetExtension2::_InternalSerialize(
       this->_internal_str().data(), static_cast<int>(this->_internal_str().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
       "protobuf_unittest.TestMessageSetExtension2.str");
-    target = stream->WriteStringMaybeAliased(
-        25, this->_internal_str(), target);
+    target = stream->WriteStringMaybeAliased(25, this->_internal_str(), target);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -865,9 +845,7 @@ size_t TestMessageSetExtension2::ByteSizeLong() const {
   // optional string str = 25;
   cached_has_bits = _has_bits_[0];
   if(cached_has_bits & 0x00000001u) {
-    total_size += 2 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_str());
+    total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_str());
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -923,9 +901,7 @@ void TestMessageSetExtension2::InternalSwap(TestMessageSetExtension2* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestMessageSetExtension2::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2funittest_5fmset_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5fmset_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2funittest_5fmset_2eproto[2]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5fmset_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5fmset_2eproto_once, file_level_metadata_google_2fprotobuf_2funittest_5fmset_2eproto[2]);
 }
 
 // ===================================================================
@@ -933,15 +909,9 @@ void TestMessageSetExtension2::InternalSwap(TestMessageSetExtension2* other) {
 class RawMessageSet_Item::_Internal {
  public:
   using HasBits = decltype(std::declval<RawMessageSet_Item>()._has_bits_);
-  static void set_has_type_id(HasBits* has_bits) {
-    (*has_bits)[0] |= 2u;
-  }
-  static void set_has_message(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
-  static bool MissingRequiredFields(const HasBits& has_bits) {
-    return ((has_bits[0] & 0x00000003) ^ 0x00000003) != 0;
-  }
+  static void set_has_type_id(HasBits* has_bits) { (*has_bits)[0] |= 2u; }
+  static void set_has_message(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
+  static bool MissingRequiredFields(const HasBits& has_bits) { return ((has_bits[0] & 0x00000003) ^ 0x00000003) != 0; }
 };
 
 RawMessageSet_Item::RawMessageSet_Item(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -962,8 +932,7 @@ RawMessageSet_Item::RawMessageSet_Item(const RawMessageSet_Item& from)
     message_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_message()) {
-    message_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_message(), 
-      GetArenaForAllocation());
+    message_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_message(), GetArenaForAllocation());
   }
   type_id_ = from.type_id_;
   // @@protoc_insertion_point(copy_constructor:protobuf_unittest.RawMessageSet.Item)
@@ -1078,8 +1047,7 @@ uint8_t* RawMessageSet_Item::_InternalSerialize(
 
   // required bytes message = 3;
   if(cached_has_bits & 0x00000001u) {
-    target = stream->WriteBytesMaybeAliased(
-        3, this->_internal_message(), target);
+    target = stream->WriteBytesMaybeAliased(3, this->_internal_message(), target);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1096,9 +1064,7 @@ size_t RawMessageSet_Item::RequiredFieldsByteSizeFallback() const {
 
   if(_internal_has_message()) {
     // required bytes message = 3;
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
-        this->_internal_message());
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(this->_internal_message());
   }
 
   if(_internal_has_type_id()) {
@@ -1114,9 +1080,7 @@ size_t RawMessageSet_Item::ByteSizeLong() const {
 
   if(((_has_bits_[0] & 0x00000003) ^ 0x00000003) == 0) {  // All required fields are present.
     // required bytes message = 3;
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
-        this->_internal_message());
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(this->_internal_message());
 
     // required int32 type_id = 2;
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_type_id());
@@ -1190,9 +1154,7 @@ void RawMessageSet_Item::InternalSwap(RawMessageSet_Item* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata RawMessageSet_Item::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2funittest_5fmset_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5fmset_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2funittest_5fmset_2eproto[3]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5fmset_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5fmset_2eproto_once, file_level_metadata_google_2fprotobuf_2funittest_5fmset_2eproto[3]);
 }
 
 // ===================================================================
@@ -1376,9 +1338,7 @@ void RawMessageSet::InternalSwap(RawMessageSet* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata RawMessageSet::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2funittest_5fmset_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5fmset_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2funittest_5fmset_2eproto[4]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5fmset_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5fmset_2eproto_once, file_level_metadata_google_2fprotobuf_2funittest_5fmset_2eproto[4]);
 }
 #if !defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912)
 const int TestMessageSetExtension1::kMessageSetExtensionFieldNumber;

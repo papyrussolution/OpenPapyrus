@@ -55,12 +55,12 @@ U_CAPI int32_t U_EXPORT2 ucnv_getDisplayName(const UConverter * cnv,
 		if(*pErrorCode == U_ZERO_ERROR) {
 			*pErrorCode = localStatus;
 		}
-		u_memcpy(displayName, name, uprv_min(length, displayNameCapacity)*U_SIZEOF_UCHAR);
+		u_memcpy(displayName, name, smin(length, displayNameCapacity)*U_SIZEOF_UCHAR);
 	}
 	else {
 		/* convert the internal name into a Unicode string */
 		length = (int32_t)uprv_strlen(cnv->sharedData->staticData->name);
-		u_charsToUChars(cnv->sharedData->staticData->name, displayName, uprv_min(length, displayNameCapacity));
+		u_charsToUChars(cnv->sharedData->staticData->name, displayName, smin(length, displayNameCapacity));
 	}
 	return u_terminateUChars(displayName, displayNameCapacity, length, pErrorCode);
 }

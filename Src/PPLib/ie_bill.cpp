@@ -1,5 +1,5 @@
 // IE_BILL.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 //
 #include <pp.h>
 #pragma hdrstop
@@ -109,7 +109,7 @@ public:
 					rHeader.FileFormatVer = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 				if(SXml::GetAttrib(p_root, GetToken_Utf8(PPHSC_RU_VERPROG), temp_buf))
 					rHeader.ProgVer = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-				for(xmlNode * p_n = p_root->children; p_n; p_n = p_n->next) {
+				for(const xmlNode * p_n = p_root->children; p_n; p_n = p_n->next) {
 					if(SXml::IsName(p_n, GetToken_Utf8(PPHSC_RU_EDISIDESINFO))) {
 						if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_RECEIVERID), temp_buf)) {
 							rHeader.SenderIdent = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
@@ -117,7 +117,7 @@ public:
 						if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_RECEIVERID), temp_buf)) {
 							rHeader.ReceiverIdent =  temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 						}
-						for(xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
+						for(const xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
 							if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_EDIPROVIDERINFO))) { // Провайдер обмена
 								if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_NAMEOFORG), temp_buf)) {
 								}
@@ -145,7 +145,7 @@ public:
 						}
 						if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_NAMEECSUBJCOMP), temp_buf)) {
 						}
-						for(xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
+						for(const xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
 							if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_INVOICEHEADER))) {
 								if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_INVOICENUMBER), temp_buf)) {
 									p_new_doc->InvcCode = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
@@ -155,7 +155,7 @@ public:
 								}
 								if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_CODEOKV), temp_buf)) {
 								}
-								for(xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
+								for(const xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
 									if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_INVOICECORRECTION))) {
 										if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_INVOICECORR_NOCODE), temp_buf)) {
 										}
@@ -183,7 +183,7 @@ public:
 											ReadParticipant(p_n3, *p_part);
 									}
 									else if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_EXTRA1))) {
-										for(xmlNode * p_n4 = p_n3->children; p_n4; p_n4 = p_n4->next) {
+										for(const xmlNode * p_n4 = p_n3->children; p_n4; p_n4 = p_n4->next) {
 											if(SXml::IsName(p_n4, GetToken_Utf8(PPHSC_RU_TEXTINF))) {
 												if(ReadExtraValue(p_n4, extra_key, extra_val) > 0) {
 													if(extra_key.IsEqiUtf8(GetToken_Utf8(PPHSC_RU_EXTRA_GLN_SUPPL))) { // @v11.1.12 CmpNC-->IsEqiUtf8
@@ -209,7 +209,7 @@ public:
 								}
 							}
 							else if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_INVOICETAB))) {
-								for(xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
+								for(const xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
 									if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_WAREINFO))) {
 										GoodsItem * p_item = p_new_doc->GoodsItemList.CreateNewItem();
 										if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_LINENUMBER), temp_buf))
@@ -228,7 +228,7 @@ public:
 											p_item->VatRate = temp_buf.ToReal();
 										if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_WAREAMT), temp_buf))
 											p_item->PriceSum = temp_buf.ToReal();
-										for(xmlNode * p_n4 = p_n3->children; p_n4; p_n4 = p_n4->next) {
+										for(const xmlNode * p_n4 = p_n3->children; p_n4; p_n4 = p_n4->next) {
 											if(SXml::IsName(p_n4, GetToken_Utf8(PPHSC_RU_EXCISE))) {
 											}
 											else if(SXml::IsName(p_n4, GetToken_Utf8(PPHSC_RU_AMTTAX))) {
@@ -239,9 +239,9 @@ public:
 												if(SXml::GetAttrib(p_n4, GetToken_Utf8(PPHSC_RU_UNITNAME), temp_buf)) {
 													p_item->UOM = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 												}
-												for(xmlNode * p_n5 = p_n4->children; p_n5; p_n5 = p_n5->next) {
+												for(const xmlNode * p_n5 = p_n4->children; p_n5; p_n5 = p_n5->next) {
 													if(SXml::IsName(p_n5, GetToken_Utf8(PPHSC_RU_WAREIDENTBLOCK))) {
-														for(xmlNode * p_n6 = p_n5->children; p_n6; p_n6 = p_n6->next) {
+														for(const xmlNode * p_n6 = p_n5->children; p_n6; p_n6 = p_n6->next) {
 															if(SXml::GetContentByName(p_n6, GetToken_Utf8(PPHSC_RU_WAREIDENT_PACKCODE), temp_buf) > 0) {
 																p_item->MarkList.add(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // номер марки
 															}
@@ -266,13 +266,13 @@ public:
 								}
 							}
 							else if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_WARETRANSFINFO))) {
-								for(xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
+								for(const xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
 									if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_WARETRANSFINFO2))) { // СвПер
 									}
 								}
 							}
 							else if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_SIGNER))) {
-								for(xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
+								for(const xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
 									if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_JUR_S))) {
 									}
 								}
@@ -304,7 +304,7 @@ private:
 	{
 		int    ok = 1;
 		SString temp_buf;
-		for(xmlNode * p_n = pNode->children; p_n; p_n = p_n->next) {
+		for(const xmlNode * p_n = pNode->children; p_n; p_n = p_n->next) {
 			if(SXml::IsName(p_n, GetToken_Utf8(PPHSC_RU_ADDR_RF))) {
 				if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_INDEX), temp_buf))
 					rResult.ZIP = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
@@ -343,11 +343,11 @@ private:
 		SString temp_buf;
 		if(SXml::GetAttrib(pNode, GetToken_Utf8(PPHSC_RU_OKPO), temp_buf))
 			rResult.OKPO = temp_buf;
-		for(xmlNode * p_n = pNode->children; p_n; p_n = p_n->next) {
+		for(const xmlNode * p_n = pNode->children; p_n; p_n = p_n->next) {
 			if(SXml::IsName(p_n, GetToken_Utf8(PPHSC_RU_IDPARTICIPANT))) {
 				if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_OKPO), temp_buf))
 					rResult.OKPO = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-				for(xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
+				for(const xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
 					if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_JURINFO))) {
 						if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_NAMEOFORG), temp_buf))
 							rResult.Appellation = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
@@ -362,7 +362,7 @@ private:
 							rResult.INN = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 						if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_KPP), temp_buf))
 							rResult.KPP = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-						for(xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
+						for(const xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
 							if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_FIO))) {
 								if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_SURNAME), temp_buf))
 									rResult.Surname = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
@@ -382,7 +382,7 @@ private:
 			else if(SXml::IsName(p_n, GetToken_Utf8(PPHSC_RU_BANKACCINFO))) {
 				if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_ACCNO), temp_buf))
 					rResult.BA.Account = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-				for(xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
+				for(const xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
 					if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_BANKINFO))) {
 						if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_BANKNAME), temp_buf))
 							rResult.BA.BankName = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
@@ -6332,6 +6332,17 @@ int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, const SString & rFileNa
 				}
 				g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_SELLERINFO), shipper_psn_id, /*shipper_loc_id*/0, rBp.Rec.Dt, 0); // @v10.8.7 shipper_loc_id-->0
 				g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_BUYERINFO), buyer_psn_id, 0, rBp.Rec.Dt, 0);
+				// @v11.3.0 {
+				{
+					//<ДокПодтвОтгр НаимДокОтгр="Накладная" НомДокОтгр="21-00491132391" ДатаДокОтгр="08.07.2021"/>
+					SXml::WNode n(g.P_X, g.GetToken_Ansi(PPHSC_RU_CONFSHIPMDOC));
+					temp_buf = g.GetToken_Ansi(PPHSC_RU_CONFSHIPMDOCNAM_BILL);
+					n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_CONFSHIPMDOCNAME), temp_buf);
+					temp_buf = rBp.Rec.Code;
+					n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_CONFSHIPMDOCNO), g.EncText(temp_buf));
+					n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_CONFSHIPMDOCDATE), temp_buf.Z().Cat(rBp.Rec.Dt, DATF_GERMAN|DATF_CENTURY));
+				}
+				// } @v11.3.0
 			}
 			g.WriteInvoiceItems(_hi, rBp);
 			g.Underwriter(0);

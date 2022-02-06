@@ -867,7 +867,7 @@ public:
 	int    operator ! () const { return (P_List == 0); }
 	int    IsExists() const { return BIN(P_List); }
 	int    FASTCALL IsEq(const ObjIdListFilt &) const;
-	int    IsEmpty() const;
+	bool   IsEmpty() const;
 	int    FASTCALL CheckID(PPID) const;
 	const  PPIDArray & Get() const { return *P_List; }
 	PPIDArray * GetP() const { return P_List; }
@@ -2159,7 +2159,7 @@ public:
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	size_t Size() const;
 	void   Empty();
-	int    IsEmpty() const;
+	bool   IsEmpty() const;
 	int    IsInherited() const;
 	int    Merge(const PPRights & rS, long flags);
 	int    Put(PPID securType, PPID securID);
@@ -3210,7 +3210,7 @@ public:
 	~PPPaths();
 	PPPaths & FASTCALL operator = (const PPPaths &);
 	PPPaths & Z();
-	int    IsEmpty() const;
+	bool   IsEmpty() const;
 	int    Get(PPID securType, PPID securID);
 	int    Put(PPID securType, PPID securID);
 	int    Remove(PPID securType, PPID securID);
@@ -3279,32 +3279,16 @@ private:
 	GuidHashTable * P_Hash;
 };
 //
-// Descr: Зарезервированные значения текстовых свойств объектов
-// @persistent
 //
-#define PPTRPROP_DEFAULT    0
-#define PPTRPROP_NAME       1 // Если у объекта есть и короткое и длинное наименования, то короткое заносится в PPTRPROP_NAME, а длинное - в PPTRPROP_LONGNAME
-#define PPTRPROP_SYMB       2
-#define PPTRPROP_LONGNAME   3
-#define PPTRPROP_MEMO       4
-#define PPTRPROP_COMBINE    5 // Комбинированная строка, содержащая набор текстовых свойств
-#define PPTRPROP_RAWADDR    6 // @v10.0.12 Простое текстовое представление адреса
-#define PPTRPROP_TIMESERIES 7 // @v10.2.3 Временная серия - специальное свойство, для которого хранится не строка, а STimeSeries.
-	// Применяется только для таблицы UnxTextRefTbl (но не TextRefTbl).
-	// Для оперирования этим свойством объект UnxTextRefCore имеет несколько специализированных методов. Попытка работать с этим
-	// свойством как со строкой инициирует ошибку.
-#define PPTRPROP_DESCR      8 // @v10.7.2 Строка описания (не путать с PPTRPROP_NAME и PPTRPROP_LONGNAME). Используется, например, в проектах и задачах.
-
-#define PPTRPROP_USER    100 // Стартовое значение, с которого можно использовать пользовательские идентификаторы текстовых свойств
-
+//
 class TextRefIdent { // @flat
 public:
 	TextRefIdent();
 	TextRefIdent(PPID objType, PPID objID, int16 prop);
 	int operator !() const;
 
-	PPObjID O; // Идентификатор объекта
-	int16   P; // Идентификатор свойства
+	PPObjID O; // Идентификатор объекта 
+	int16   P; // Идентификатор свойства PPTRPROP_XXX (ppdefs.h). В дальнейшем планируется объединение семейства PPTRPROP_XXX с PPOBJATTR_XXX
 	int16   L; // Идентификатор языка (slangXXX; 0 - default)
 };
 
@@ -4287,9 +4271,9 @@ struct PPQuot { // @persistent(DBX see Note above)
 		cmpNoID  = 0x0001, // Не брать в рассмотрение ИД котировки
 		cmpNoVal = 0x0002  // Не брать в рассмотрение значение котировки
 	};
-	int    IsEq(const PPQuot & rS, long cmpFlags = 0) const;
-	int    IsRelative() const;
-	int    IsEmpty() const;
+	bool   IsEq(const PPQuot & rS, long cmpFlags = 0) const;
+	bool   IsRelative() const;
+	bool   IsEmpty() const;
 	double CalcPrice(double cost, double price) const;
 	void   FASTCALL GetFromRec(const QuotationTbl::Rec &);
 	int    FASTCALL GetValFromStr(const char * pStr);
@@ -4469,7 +4453,7 @@ public:
 	//    0 - ошибка
 	//
 	int    SetCurr(PPID * pID, const PPQuot * pQuot, int logSj, int use_ta);
-	int    SetCurrList(const PPQuotArray & rQuotList, const PPQuotArray * pTemplate, int noRmv, int use_ta);
+	int    SetCurrList(const PPQuotArray & rQuotList, const PPQuotArray * pTemplate, bool noRmv, int use_ta);
 	int    GetCurrList(PPID goodsID, PPID quotKindID, PPID loc, PPQuotArray &);
 	int    GetCurr(PPID goodsID, const QuotIdent &, double cost, double price, double *, int useCache = 0);
 	int    GetNearest(PPID goodsID, const QuotIdent & pIdent, PPQuot * pQuot, int useCache);
@@ -4538,7 +4522,7 @@ public:
 	int    GetGoodsList(PPID relID, int actualOnly, PPIDArray & rList);
 	int    Set(const PPQuot & rQ, long qtaID, int logSj, int use_ta);
 	int    Set(PPQuotArray & rQList, long qtaID, int use_ta);
-	int    Set(const PPQuotArray & rQList, long qtaID, const PPQuotArray * pTemplate, int noRmv, int use_ta);
+	int    Set_(const PPQuotArray & rQList, long qtaID, const PPQuotArray * pTemplate, bool noRmv, bool updByTime, int use_ta);
 	int    RemoveAllForQuotKind(PPID quotKindID, int use_ta);
 	int    GetAddressLocList(PPIDArray & rList);
 	int    FetchRel(PPID relID, PPQuot * pVal);
@@ -4582,6 +4566,7 @@ private:
 	int    AdjustTime(Quotation2Tbl::Rec & rRec);
 	int    Helper_ReplaceRel(PPID replacedRelID, PPID newRelID, int use_ta);
 	int    RemoveAllForRel(PPID relID, const char * pPctMsg, int use_ta);
+	int    Implement_Set(const PPQuot & rQ, long qtaID, int logSj, bool keepTime, int use_ta);
 };
 //
 //
@@ -5180,7 +5165,7 @@ public:
 	//   только теми элементами, которые содержать соотвествующие поля PPQuot::Kind и PPQuot::LocID.
 	//
 	int    FetchQuotList(PPID goodsID, PPID qkID, PPID locID, PPQuotArray & rList);
-	int    SetQuotList(const PPQuotArray & rQList, int use_ta);
+	int    SetQuotList(const PPQuotArray & rQList, bool updByTime, int use_ta);
 	int    ClearQuotCache();
 	//
 	// Descr: Более быстрый аналог функции SetQuotList: бережет время за счет использования уже загруженной копии
@@ -5190,7 +5175,7 @@ public:
 	//   список котировок из БД должен извлекаться внутри транзакции.
 	//   В отладочной версии функции установлен assert(!(pTemplate && use_ta)).
 	//
-	int    SetQuotListQ(const PPQuotArray & rQList, const PPQuotArray * pTemplate, int noRmv, int use_ta);
+	int    SetQuotListQ(const PPQuotArray & rQList, const PPQuotArray * pTemplate, bool noRmv, int use_ta);
 	int    GetMatrix(PPID locID, PPIDArray * pResult);
 	int    GetMatrix(const ObjIdListFilt & rLocList, int orRule, PPIDArray * pResult);
 	int    GetMatrixRestrict(PPID mtxRestrQkID, PPID goodsGrpID, PPID locID, int srchNearest, long * pResult);
@@ -8471,15 +8456,18 @@ private:
 struct PPObjPack {
 	PPObjPack();
 	enum {
-		fDefinedHeader = 0x0001, //
-		fCreationDtTm  = 0x0002, // Значение Mod является датой/временем создания (но не изменения) объекта
-		fUpdate        = 0x0004, // Объект должен быть обновлен в разделе-получателе если его версия старше
-		fForceUpdate   = 0x0008, // Объект должен быть безусловно обновлен в разделе-получателе
-		fProcessed     = 0x0010, // internal use only
-		fDispatcher    = 0x0020, // Раздел, в который принимается объект является диспетчером
-		fSyncCmpObj    = 0x0040, // Пакет содержить только информацию о синхронизации
-		fNoObj = 0x0080, // Запись синхронизации виртуального объекта (например, лота)
-		fRecover       = 0x0100  // Восстанавливающая передача объектов
+		fDefinedHeader        = 0x0001, //
+		fCreationDtTm         = 0x0002, // Значение Mod является датой/временем создания (но не изменения) объекта
+		fUpdate               = 0x0004, // Объект должен быть обновлен в разделе-получателе если его версия старше
+		fForceUpdate          = 0x0008, // Объект должен быть безусловно обновлен в разделе-получателе
+		fProcessed            = 0x0010, // internal use only
+		fDispatcher           = 0x0020, // Раздел, в который принимается объект является диспетчером
+		fSyncCmpObj           = 0x0040, // Пакет содержить только информацию о синхронизации
+		fNoObj                = 0x0080, // Запись синхронизации виртуального объекта (например, лота)
+		fRecover              = 0x0100, // Восстанавливающая передача объектов
+		fLateUpdatingDecision = 0x0200  // @v11.3.0 Решение об изменении объекта в разделе-получателе должен принять 
+			// управляющий объектом класс на этапе акцепта виртуальной функцией PPObject::Write().
+			// Флаг вводится из-за необходимости анализа вложенных компонентов объекта для принятия решения.
 	};
 	void * Data;                 // Данные пакета. Если (Flags & fSyncCmpObj) то данных нет
 	SVerT  SrcVer;               // Версия системы, сформировавшей пакет
@@ -9463,7 +9451,7 @@ struct PPEAddr { // @persistent @flat size=16
 	int    FASTCALL SetPhone(const char * pPhone);
 	int    FASTCALL GetPhone(SString & rBuf) const;
 	int    FASTCALL operator == (const PPEAddr & rS) const;
-	int    IsEmpty() const;
+	bool   IsEmpty() const;
 
 	enum {
 		tUndef = 0,
@@ -9736,7 +9724,7 @@ public:
 		int    FASTCALL Copy(const ExchangeParam & rS);
 		int    FASTCALL IsEq(const ExchangeParam & rS) const;
 		ExchangeParam & Z();
-		int    IsEmpty() const;
+		bool   IsEmpty() const;
 		int    GetExtStrData(int fldID, SString & rBuf) const;
 		int    PutExtStrData(int fldID, const char * pStr);
 
@@ -10552,7 +10540,7 @@ struct ILTI { // @persistent(DBX) @size=80
 //
 struct PPBillExt { // @persistent @store(PropertyTbl)
 	PPBillExt();
-	int    IsEmpty() const;
+	bool   IsEmpty() const;
 	//
 	// Descr: Сравнивает перманентные поля экземпляра структуры this с экземпляром pS.
 	//   Перманентные поля не отмечены признаком @transient
@@ -10615,7 +10603,7 @@ protected:
 // @v10.8.5 (replaced with PPRentCondition::fPercent) #define RENTF_PERCENT   0x0010L // Процентные начисления по ренте.
 
 struct PPRentCondition {   // @size=48 @persistent @store(PropertyTbl[PPOBJ_BILL, @id, BILLPRP_RENT])
-	int    IsEmpty() const;
+	bool   IsEmpty() const;
 	int    FASTCALL IsEq(const PPRentCondition & rS) const;
 	int    GetCycleList(PPCycleArray *) const;
 	int    GetChargeDate(const PPCycleArray *, uint cycleNo, LDATE *) const;
@@ -10690,7 +10678,7 @@ struct PPBankingOrder { // @persistent @store(PropertyTbl)
 	//   Amount > 0
 	//
 	struct TaxMarkers {    // @size=90
-		int    IsEmpty() const;
+		bool   IsEmpty() const;
 		char   TaxClass[12];  // Код бюджетной классификации налога (7 знаков)
 		char   OKATO[16];     // Код муниципального образования по ОКАТО (11 знаков)
 		char   Reason[8];     // Код основания платежа
@@ -10731,8 +10719,8 @@ struct PPBankingOrder { // @persistent @store(PropertyTbl)
 struct PPFreight {         // @persistent @store(PropertyTbl)
 	PPFreight();
 	PPFreight & Z();
-	int    IsEmpty() const;
-	int    FASTCALL IsEq(const PPFreight &) const;
+	bool   IsEmpty() const;
+	bool   FASTCALL IsEq(const PPFreight &) const;
 	int    FASTCALL CheckForFilt(const FreightFilt & rFilt) const;
 	int    SetupDlvrAddr(PPID dlvrAddrID);
 
@@ -16027,7 +16015,7 @@ public:
 	virtual int Write_Depricated(SBuffer &, long) const;
 	virtual int Read_Depricated(SBuffer &, long);
 	virtual int Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
-	virtual int Read2(void * pHandler, const long rwFlag); // @erik v10.6.1
+	virtual int Read2(const void * pHandler, const long rwFlag); // @erik v10.6.1
 	virtual int IsEq(const void * pCommand) const; // @erik v10.6.1
 	virtual const PPCommandItem * Next(uint * pPos) const;
 	virtual PPCommandItem * Dup() const;
@@ -16049,7 +16037,7 @@ public:
 	virtual int Write_Depricated(SBuffer &, long) const;
 	virtual int Read_Depricated(SBuffer &, long);
 	virtual int Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
-	virtual int Read2(void * pHandler, const long rwFlag); // @erik v10.6.1
+	virtual int Read2(const void * pHandler, const long rwFlag); // @erik v10.6.1
 	virtual int IsEq(const void * pCommand) const; // @erik v10.6.1
 	virtual PPCommandItem * Dup() const;
 	int    FASTCALL Copy(const PPCommand &);
@@ -16127,7 +16115,7 @@ public:
 	virtual int Write_Depricated(SBuffer &, long) const;
 	virtual int Read_Depricated(SBuffer &, long);
 	virtual int Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
-	virtual int Read2(void * pHandler, const long rwFlag); // @erik v10.6.1
+	virtual int Read2(const void * pHandler, const long rwFlag); // @erik v10.6.1
 	virtual int IsEq(const void * pCommand) const; // @erik v10.6.1
 	virtual const PPCommandItem * Next(uint * pPos) const;
 	virtual PPCommandItem * Dup() const;
@@ -16176,7 +16164,7 @@ public:
 	virtual int Write_Depricated(SBuffer &, long) const;
 	virtual int Read_Depricated(SBuffer &, long);
 	virtual int Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
-	virtual int Read2(void * pHandler, const long rwFlag); // @erik v10.6.1
+	virtual int Read2(const void * pHandler, const long rwFlag); // @erik v10.6.1
 	virtual int IsEq(const void * pCommand) const; // @erik v10.6.1
 	virtual PPCommandItem * Dup() const;
 	void   FASTCALL SetDbSymb(const char * pDbSymb);
@@ -16296,7 +16284,7 @@ struct PPJobDescr { // @persistent
 	int    FASTCALL Write(SBuffer & rBuf) const;
 	int    FASTCALL Read(SBuffer & rBuf);
 	int    FASTCALL Write2(xmlTextWriter * pXmlWriter) const; //@erik v10.7.1
-	int    FASTCALL Read2(xmlNode * pParentNode); //@erik v10.7.1
+	int    FASTCALL Read2(const xmlNode * pParentNode); //@erik v10.7.1
 
 	long   CmdID;
 	long   Flags;
@@ -16314,7 +16302,7 @@ public:
 	int    FASTCALL Write(SBuffer & rBuf);
 	int    FASTCALL Read(SBuffer & rBuf);
 	int    FASTCALL Write2(xmlTextWriter * pXmlWriter) const; //@erik v10.7.1
-	int    FASTCALL Read2(xmlNode * pParentNode); //@erik v10.7.1
+	int    FASTCALL Read2(const xmlNode * pParentNode); //@erik v10.7.1
 	enum {
 		fV579          = 0x0001,
 		fNotifyByMail  = 0x0002, //
@@ -16486,8 +16474,8 @@ public:
 		int    SetStrucSymb(const char * pSymb);
 		int    GetEntry(uint pos, Entry & rE) const;
 		int    SetEntry(const Entry & rE);
-		int    XmlRead(xmlNode * pParentNode);		  //@erik v10.7.5
-		int    XmlWrite(xmlTextWriter * pXmlWriter) const;  //@erik v10.7.5
+		int    XmlRead(const xmlNode * pParentNode); //@erik v10.7.5
+		int    XmlWrite(xmlTextWriter * pXmlWriter) const; //@erik v10.7.5
 		int    RemoveEntryByPos(uint pos);
 		// @v10.6.7 int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 		int    XmlWriter(void * param);
@@ -16520,7 +16508,7 @@ public:
 	//
 	int    Read(SBuffer & rBuf, long);
 	int    Write2(xmlTextWriter * pXmlWriter);//@erik v10.7.5
-	int    Read2(xmlNode * pParentNode);//@erik v10.7.5
+	int    Read2(const xmlNode * pParentNode);//@erik v10.7.5
 	int    XmlWriteGuaList(xmlTextWriter * pXmlWriter); //@erik v10.7.5
 	int    ReadGuaListFromStr(SString & rGuaListInStr);//@erik v10.7.5
 
@@ -20192,7 +20180,7 @@ public:
 private:
 	uint   SetupFixedLenField(const char * pSrc, const uint prefixLen, const uint fixLen, int fldId);
 	uint   RecognizeFieldLen(const char * pSrc, int currentPrefixID) const;
-	int    IsSpecialStopChar(const char * pSrc) const;
+	bool   IsSpecialStopChar(const char * pSrc) const;
 	//
 	// Descr: Флаги функции DetectPrefix
 	//
@@ -29747,7 +29735,7 @@ public:
 	//   Если pList != 0, то проверяет соответствие pList->GoodsID == goodsID и,
 	//   если это равенство не выполняется возвращает 0 и PPErrCode = PPERR_INVQUOTLIST.
 	//
-	int    PutQuotList(PPID goodsID, const PPQuotArray * pList, int use_ta);
+	int    PutQuotList(PPID goodsID, const PPQuotArray * pList, bool updByTime, int use_ta);
 	int    ImportOld(int use_ta); // Импорт по устаревшей технологии
 	int    Import(const char * pCfgName, int analyze, int use_ta); // Импорт по новой технологии
 	int    ImportQuotOld(int use_ta);
@@ -29811,6 +29799,7 @@ public:
 	int    SetTagList(PPID goodsID, const ObjTagList * pTagList, int use_ta);
 	int    SerializePacket(int dir, PPGoodsPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx, const DBDivPack * pDestDbDiv);
 	int    __Helper_GetPriceRestrictions_ByFormula(SString & rFormula, const PPGoodsPacket * pPack, double & rBound);
+	int    QuerySpecialNecessityForAcceptingSyncPacket();
 
 	struct ProcessNameBlock {
 		long   Flags;
@@ -29876,8 +29865,8 @@ private:
 	//
 	// Descr: Записывает принятый из другого раздела пакет в БД.
 	//
-	int    AcceptPacket(PPID * pID, PPGoodsPacket * pPack, ObjTransmContext * pCtx); // @<<PPObjGoods::Write
-	int    AcceptQuot(PPID * pID, PPGoodsPacket * pPack, ObjTransmContext * pCtx); // @<<PPObjGoods::AcceptPacket
+	int    AcceptPacket(PPID * pID, PPGoodsPacket * pPack, bool updQuotsByTime, ObjTransmContext * pCtx); // @<<PPObjGoods::Write
+	int    AcceptQuot(PPID goodsID, PPGoodsPacket * pPack, bool updByTime, ObjTransmContext * pCtx); // @<<PPObjGoods::AcceptPacket
 	int    Helper_ImportHier(PPIniFile *, DbfTable *, PPID defUnitID, HierArray * pHierList); // @<<PPObjGoods::Import
 	void   Helper_AdjCostToVat(PPID lotTaxGrpID, PPID goodsTaxGrpID, LDATE lotDate,
 		double qtty, double * pCost /* In, Out */, double * pVatSum, int withOrWithout, int vatFreeSuppl, int roundPrec);
@@ -33444,6 +33433,7 @@ public:
 		int    ValidateGLN(const SString & rGLN);
 		int    GetOriginOrderBill(const PPBillPacket & rBp, BillTbl::Rec * pOrdBillRec);
 		int    SearchLinkedBill(const char * pCode, LDATE dt, PPID arID, int ediOp, BillTbl::Rec * pBillRec);
+		int    SearchLinkedOrder(const char * pCode, LDATE dt, PPID arID, BillTbl::Rec * pBillRec, PPBillPacket * pPack);
 		int    ResolveDlvrLoc(const char * pText, PPBillPacket * pPack);
 		int    ResolveContractor(const char * pText, int partyQ, PPBillPacket * pPack);
 
@@ -33458,8 +33448,29 @@ public:
 		PPAlbatrossConfig ACfg;
 		PrcssrAlcReport Arp;
 	protected:
+		struct DeferredPositionBlock {
+			DeferredPositionBlock();
+			int    Init(const BillTbl::Rec * pBillRec);
+			bool   SetupGoods();
+
+			PPID   GoodsID_ByGTIN;
+			PPID   GoodsID_ByArCode;
+			SString ArGoodsCode;
+			SString GoodsName;
+			SString GTIN;
+			double OrdQtty;  // заказанное количество
+			double AccQtty;  // количество, принятое к исполнению
+			double DlvrQtty; // Доставленное количество (DESADV)
+			double PriceWithVat;
+			double PriceWithoutVat;
+			double Vat; // Ставка НДС в процентах
+			PPTransferItem Ti;
+		};
 		const SString & FASTCALL EncXmlText(const char * pS);
 		const SString & FASTCALL EncXmlText(const SString & rS);
+		int16  FASTCALL StringToRByBill(const SString & rS) const;
+		int    GetGTIN(const SString & rS, DeferredPositionBlock & rBlk);
+		int    GetArCode(const SString & rS, int partyQ, int whoAmI, PPID billArID, DeferredPositionBlock & rBlk);
 		SString EncBuf;
 	private:
 		int    GetIntermediatePath(const char * pSub, int docType, SString & rBuf);
@@ -35543,8 +35554,8 @@ struct PPSCardSerPacket {
 	struct Ext {
 		Ext();
 		void   Init();
-		int    IsEmpty() const;
-		int    FASTCALL IsEq(const Ext & rS) const;
+		bool   IsEmpty() const;
+		bool   FASTCALL IsEq(const Ext & rS) const;
 		char   CodeTempl[32]; // Шаблон номеров карт
 		uint8  Reserve[20];   // @reserve
 		LTIME  UsageTmStart;
@@ -36350,7 +36361,7 @@ public:
 	public:
 		ExtBlock();
 		ExtBlock & destroy();
-		int    IsEmpty() const;
+		bool   IsEmpty() const;
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 		int    GetExtStrData(int fldID, SString & rBuf) const;
 		int    PutExtStrData(int fldID, const char * pBuf);
@@ -37986,10 +37997,11 @@ private:
 //
 // Object update mode in destination database devision
 //
-#define PPOTUP_DEFAULT  -1 //
-#define PPOTUP_NONE      0 // Don't update
-#define PPOTUP_BYTIME    1 // Update by modif date/time
-#define PPOTUP_FORCE     2 // Force update
+#define PPOTUP_DEFAULT             -1 //
+#define PPOTUP_NONE                 0 // Don't update
+#define PPOTUP_BYTIME               1 // Update by modif date/time
+#define PPOTUP_FORCE                2 // Force update
+#define PPOTUP_LATEUPDATINGDECISION 3 // @v11.3.0 @internal Проецируется на флаг пакета объекта PPObjPack::fLateUpdatingDecision
 
 #define TRNSMF_DELINFILES  0x00000001L
 #define TRNSMF_DELOUTFILES 0x00000002L
@@ -42777,7 +42789,7 @@ struct GoodsMovViewItem {
 struct GoodsMovTotal {
 	GoodsMovTotal();
 	void   Init();
-	int    IsEmpty() const;
+	bool   IsEmpty() const;
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 
 	double InRestQtty;
@@ -44296,7 +44308,7 @@ struct SCardSelPrcssrParam { // @persistent
 		fAppendEan13CD = 0x0010  // @v10.1.6 Дополнить недостающей контрольной цифрой EAN-13
 	};
 	SCardSelPrcssrParam();
-	int    IsEmpty() const;
+	bool   IsEmpty() const;
 	void   Init();
 	int    Validate(PPID srcSeriesID);
 	int    Write(SBuffer & rBuf, long) const;
@@ -46219,25 +46231,25 @@ public:
 		tagUnkn    =  0, //
 		tagVerifiable      =  1, // verifiable : bool ("true" || "false")
 		tagCommonName      =  2, // cn : string with optional language shifted on 16 bits left
-		tagName    =  3, // name : string with optional language shifted on 16 bits left
-		tagSurName =  4, // surname : string with optional language shifted on 16 bits left
+		tagName            =  3, // name : string with optional language shifted on 16 bits left
+		tagSurName         =  4, // surname : string with optional language shifted on 16 bits left
 		tagPatronymic      =  5, // patronymic : string with optional language shifted on 16 bits left
-		tagDOB     =  6, // dob : ISO-8601 date representation
-		tagPhone   =  7, // phone : string
-		tagGLN     =  8, // gln : string (numeric)
+		tagDOB             =  6, // dob : ISO-8601 date representation
+		tagPhone           =  7, // phone : string
+		tagGLN             =  8, // gln : string (numeric)
 		tagCountryIsoSymb  =  9, // countryisosymb : string
 		tagCountryIsoCode  = 10, // countryisocode : string (numeric)
 		tagCountryName     = 11, // country : string with optional language shifted on 16 bits left
-		tagZIP     = 12, // zip : string
+		tagZIP             = 12, // zip : string
 		tagCityName        = 13, // city : string with optional language shifted on 16 bits left
-		tagStreet  = 14, // street : string with optional language shifted on 16 bits left
-		tagAddress = 15, // address : string with optional language shifted on 16 bits left
-		tagImage   = 16, // image : mimeformat:mime64
-		tagRuINN   = 17, // ru_inn : string (numeric)
-		tagRuKPP   = 18, // ru_kpp : string (numeric)
-		tagRuSnils = 19, // ru_snils : string (numeric)
+		tagStreet          = 14, // street : string with optional language shifted on 16 bits left
+		tagAddress         = 15, // address : string with optional language shifted on 16 bits left
+		tagImage           = 16, // image : mimeformat:mime64
+		tagRuINN           = 17, // ru_inn : string (numeric)
+		tagRuKPP           = 18, // ru_kpp : string (numeric)
+		tagRuSnils         = 19, // ru_snils : string (numeric)
 		tagModifTime       = 20, // modtime : ISO-8601 date-time representation (UTC)
-		tagDescr   = 21, // descr : string
+		tagDescr           = 21, // descr : string
 		tagLatitude        = 22, // lat : real
 		tagLongitude       = 23, // lon : real
 		//
@@ -46247,6 +46259,7 @@ public:
 		//
 		tagExpiryPeriodSec = 24, // @v11.2.3 Период истечения срока действия в секундах
 		tagExpiryEpochSec  = 25, // @v11.2.3 Время истечения срока действия (секунды с 1/1/1970)
+		tagEMail           = 26, // @v11.3.0 
 	};
 	enum {
 		fVerifiable = 0x0001
@@ -46430,6 +46443,7 @@ public:
 	int    SetupPeerInstance(PPID * pID, int use_ta); // @v11.2.7
 	int    SearchGlobalIdentEntry(int kind, const SBinaryChunk & rIdent, StoragePacket * pPack);
 	int    ReadCurrentPacket(StoragePacket * pPack);
+	int    MakeTextHashForCounterparty(const StoragePacket & rOtherPack, uint len, SString & rBuf);
 private:
 	static ReadWriteLock _SvcDbMapRwl; // Блокировка для защиты _SvcDbMap
 	static SvcDbSymbMap _SvcDbMap;
@@ -46798,6 +46812,8 @@ private:
 	//    0 - ошибка
 	//
 	PPID   ProcessCommand_PostDocument(const StyloQCore::StoragePacket & rCliPack, const SJson * pDeclaration, const SJson * pDocument);
+	int    FetchPersonFromClientPacket(const StyloQCore::StoragePacket & rCliPack, PPID * pPersonID);
+	int    AcceptStyloQClientAsPerson(const StyloQCore::StoragePacket & rCliPack, PPID personKind, PPID * pPersonID, int use_ta);
 	int    QueryConfigIfNeeded(RoundTripBlock & rB);
 	//
 	// Descr: Возвращает дополнение для идентфикации локального (относящегося к машине или сеансу) сервера.
@@ -47626,7 +47642,7 @@ class AmountTypeFilt : public PPBaseFilt {
 public:
 	AmountTypeFilt();
 	AmountTypeFilt & FASTCALL operator = (const AmountTypeFilt &);
-	int    IsComplementary() const;
+	bool   IsComplementary() const;
 
 	char   ReserveStart[24];
 	long   Flags;

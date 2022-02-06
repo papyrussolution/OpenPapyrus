@@ -303,7 +303,7 @@ static void testTrieUTF16(const char * testName,
 	/* try forward */
 	p = s;
 	i = 0;
-	while(p<limit) {
+	while(p < limit) {
 		sIndex = (int32_t)(p-s);
 		U16_NEXT(s, sIndex, length, c2);
 		c = 0x33;
@@ -457,7 +457,7 @@ static void testTrieUTF8(const char * testName,
 	/* try forward */
 	p = s;
 	i = 0;
-	while(p<limit) {
+	while(p < limit) {
 		prev8 = i8 = (int32_t)(p-s);
 		U8_NEXT(s, i8, length, c);
 		if(valueBits==UTRIE2_16_VALUE_BITS) {

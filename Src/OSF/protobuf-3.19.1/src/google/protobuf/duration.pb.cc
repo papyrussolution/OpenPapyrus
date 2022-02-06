@@ -279,9 +279,7 @@ void Duration::InternalSwap(Duration* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Duration::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2fduration_2eproto_getter, &descriptor_table_google_2fprotobuf_2fduration_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2fduration_2eproto[0]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2fduration_2eproto_getter, &descriptor_table_google_2fprotobuf_2fduration_2eproto_once, file_level_metadata_google_2fprotobuf_2fduration_2eproto[0]);
 }
 
 // @@protoc_insertion_point(namespace_scope)

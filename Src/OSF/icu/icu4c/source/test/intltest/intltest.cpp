@@ -1261,14 +1261,12 @@ int main(int argc, char * argv[])
 			name = TRUE;
 		}
 	}
-
 	if(!all && !name) {
 		all = TRUE;
 	}
 	else if(all && name) {
 		syntax = TRUE;
 	}
-
 	if(syntax) {
 		fprintf(stdout,
 		    "### Syntax:\n"
@@ -1293,11 +1291,9 @@ int main(int argc, char * argv[])
 		    "### to the testname. \n\n");
 		return 1;
 	}
-
 	if(nProps > IntlTest::kMaxProps) {
 		fprintf(stdout, "### Too many properties.  Exiting.\n");
 	}
-
 	MajorTestLevel major;
 	major.setVerbose(verbose);
 	major.setNoErrMsg(no_err_msg);
@@ -1342,7 +1338,6 @@ int main(int argc, char * argv[])
 		fprintf(stdout, "   Custom property (prop:)  : %s\n", props[i]);
 	}
 	fprintf(stdout, "-----------------------------------------------\n");
-
 	if(utf8) {
 		ucnv_setDefaultName("utf-8");
 	}

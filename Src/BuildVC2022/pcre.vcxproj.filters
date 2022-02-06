@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{4e916100-de2b-4b8b-89cb-12732d85a094}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Osf\pcre-8.41\pcre_byte_order.c" />
+    <ClCompile Include="..\Osf\pcre-8.41\pcre_chartables.c" />
+    <ClCompile Include="..\osf\pcre-8.41\pcre_compile.c" />
+    <ClCompile Include="..\osf\pcre-8.41\pcre_config.c" />
+    <ClCompile Include="..\osf\pcre-8.41\pcre_dfa_exec.c" />
+    <ClCompile Include="..\osf\pcre-8.41\pcre_exec.c" />
+    <ClCompile Include="..\osf\pcre-8.41\pcre_fullinfo.c" />
+    <ClCompile Include="..\osf\pcre-8.41\pcre_get.c" />
+    <ClCompile Include="..\osf\pcre-8.41\pcre_globals.c" />
+    <ClCompile Include="..\osf\pcre-8.41\pcre_jit_compile.c" />
+    <ClCompile Include="..\osf\pcre-8.41\pcre_maketables.c" />
+    <ClCompile Include="..\osf\pcre-8.41\pcre_newline.c" />
+    <ClCompile Include="..\osf\pcre-8.41\pcre_ord2utf8.c" />
+    <ClCompile Include="..\osf\pcre-8.41\pcre_refcount.c" />
+    <ClCompile Include="..\osf\pcre-8.41\pcre_string_utils.c" />
+    <ClCompile Include="..\osf\pcre-8.41\pcre_study.c" />
+    <ClCompile Include="..\osf\pcre-8.41\pcre_tables.c" />
+    <ClCompile Include="..\osf\pcre-8.41\pcre_ucd.c" />
+    <ClCompile Include="..\osf\pcre-8.41\pcre_valid_utf8.c" />
+    <ClCompile Include="..\osf\pcre-8.41\pcre_version.c" />
+    <ClCompile Include="..\osf\pcre-8.41\pcre_xclass.c" />
+    <ClCompile Include="..\OSF\pcre-8.41\pcre-pch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\pcre-8.41\config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\pcre-8.41\pcre.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\pcre-8.41\pcre_internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\pcre-8.41\pcre_scanner.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\pcre-8.41\pcre_stringpiece.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\pcre-8.41\pcrecpp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\pcre-8.41\pcrecpp_internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\pcre-8.41\pcrecpparg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\pcre-8.41\pcreposix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\pcre-8.41\ucp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\pcre-8.41\pcre_isnewline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

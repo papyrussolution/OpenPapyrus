@@ -4537,8 +4537,8 @@ void expandNppEnvironmentStrs(const TCHAR *strSrc, TCHAR *stringDest, size_t str
 class Command {
 public :
 	Command() = default;
-	explicit Command(const TCHAR *cmd) : _cmdLine(cmd){};
-	explicit Command(const generic_string& cmd) : _cmdLine(cmd){};
+	explicit Command(const TCHAR *cmd) : _cmdLine(cmd) {};
+	explicit Command(const generic_string& cmd) : _cmdLine(cmd) {};
 	HINSTANCE run(HWND hWnd);
 	HINSTANCE run(HWND hWnd, const TCHAR* cwd);
 protected:
@@ -6217,7 +6217,7 @@ struct QuoteParams {
 	QuoteParams() 
 	{
 	}
-	QuoteParams(const wchar_t* quoter, Speed speed, bool shouldBeTrolling, int encoding, LangType lang, const wchar_t* quote) :
+	QuoteParams(const wchar_t * quoter, Speed speed, bool shouldBeTrolling, int encoding, LangType lang, const wchar_t * quote) :
 		_quoter(quoter), _speed(speed), _shouldBeTrolling(shouldBeTrolling), _encoding(encoding), _lang(lang), _quote(quote) 
 	{
 	}
@@ -6230,12 +6230,12 @@ struct QuoteParams {
 		_lang = L_TEXT;
 		_quote = nullptr;
 	}
-	const wchar_t* _quoter = nullptr;
+	const wchar_t * _quoter = nullptr;
 	Speed _speed = rapid;
 	bool _shouldBeTrolling = false;
 	int _encoding = SC_CP_UTF8;
 	LangType _lang = L_TEXT;
-	const wchar_t* _quote = nullptr;
+	const wchar_t * _quote = nullptr;
 };
 
 class Notepad_plus final {
@@ -6328,7 +6328,7 @@ public:
 	bool emergency(const generic_string& emergencySavedDir);
 	Buffer* getCurrentBuffer() { return _pEditView->getCurrentBuffer(); }
 	void launchDocumentBackupTask();
-	int getQuoteIndexFrom(const wchar_t* quoter) const;
+	int getQuoteIndexFrom(const wchar_t * quoter) const;
 	void showQuoteFromIndex(int index) const;
 	void showQuote(const QuoteParams* quote) const;
 	generic_string getPluginListVerStr() const { return _pluginsAdminDlg.getPluginListVerStr(); }

@@ -1,5 +1,5 @@
 // CALENDAR.CPP
-// Copyright (c) A.Fedotkov, A.Sobolev, A.Starodub 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Fedotkov, A.Sobolev, A.Starodub 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1354,8 +1354,8 @@ void TCalendar::SendToEditBox(LDATE d1, LDATE d2, int need_check)
 void TCalendar::SendToEditBox(int q1, int y1, int q2, int y2)
 {
 	if(y2 < y1 || (y2 == y1 && q2 < q1)) {
-		Exchange(&q1, &q2);
-		Exchange(&y1, &y2);
+		SExchange(&q1, &q2);
+		SExchange(&y1, &y2);
 	}
 	char   qt1[16], qt2[16];
 	memzero(qt1, sizeof(qt1));
@@ -1393,8 +1393,7 @@ void TCalendar::SendToEditBox(int m1, int y1, int m2, int y2, int opt)
 {
 	LDATE  dd1 = encodedate(1, m1, y1);
 	LDATE  dd2 = encodedate(1, m2, y2);
-	if(dd1 > dd2)
-		Exchange(&dd1.v, &dd2.v);
+	SExchangeForOrder(&dd1.v, &dd2.v);
 	SString s;
 	s.Cat(dd1.month()).CatChar('/').Cat(dd1.year());
 	if(dd1 != dd2)
@@ -1406,8 +1405,7 @@ void TCalendar::SendToEditBox(int m1, int y1, int m2, int y2, int opt)
 //
 void TCalendar::SendToEditBox(int y1, int y2)
 {
-	if(y1 > y2)
-		Exchange(&y1, &y2);
+	SExchangeForOrder(&y1, &y2);
 	SString s;
 	s.Cat(y1);
 	if(y1 != y2)

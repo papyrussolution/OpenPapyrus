@@ -465,7 +465,7 @@ bool utf8_to_wcs(const char* input, wstring* out) {
 	return mbs_to_wcs(input, out, true);
 }
 
-bool wcs_to_utf8(const wchar_t* input, string* out) {
+bool wcs_to_utf8(const wchar_t * input, string* out) {
 	return wcs_to_mbs(input, out, true);
 }
 }  // namespace strings

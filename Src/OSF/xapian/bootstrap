@@ -1,0 +1,1064 @@
+#!/bin/sh
+# bootstrap a xapian source tree obtained from git to produce a tree like
+# you'd get from unpacking the results of "make dist"
+#
+copyright='
+# Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019 Olly Betts
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+# USA
+'
+
+if [ "$1" = "--help" ] ; then
+  cat <<__END__
+$0 [--ftp|--http] [--download-tools=(always|ifneeded|never)] [--fetch-url-command=CMD] [--clean] [MODULE...]
+
+The default is to bootstrap all known modules.  Any modules which have a
+file called ".nobootstrap" in their top-level will be skipped.
+__END__
+  exit 0
+fi
+
+trap 'echo "Bootstrap failed"' EXIT
+set -e
+
+# The variables which specify the autotools to use.
+autotools="AUTORECONF AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE ACLOCAL LIBTOOLIZE"
+
+# Tool for downloading a file from a URL (currently wget, curl, and lwp-request
+# are probed for in that order).  Can be specified with --fetch-url-command.
+FETCH_URL_TOOL=
+
+check_checksum() {
+  checksum_=$1
+  tarball_=$2
+
+  if [ -z "$SHA256SUM_TOOL" ] ; then
+    for SHA256SUM_TOOL in \
+	'${SHA256SUM-sha256sum} 2>/dev/null|cut -d\  -f1' \
+	'${SHASUM-shasum} -a256 2>/dev/null|cut -d\  -f1' \
+	'${OPENSSL-openssl} sha256 2>/dev/null|sed "s/.* //"' \
+	'' ; do
+      if [ -z "$SHA256SUM_TOOL" ] ; then
+	echo <<'END'
+Need sha256sum or shasum or openssl installed to check SHA256 checksums.
+Set environment variable SHA256SUM, SHASUM or OPENSSL if the tool isn't on
+your PATH.
+END
+	exit 1
+      fi
+      # Sanity check by hashing empty input.
+      r=`:|eval "$SHA256SUM_TOOL"`
+      [ X"$r" != Xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 ] || break
+    done
+  fi
+  r=`< $tarball_ eval "$SHA256SUM_TOOL"`
+  if [ X"$r" != X"$checksum_" ] ; then
+    echo "$tarball_: computed SHA256 checksum did NOT match"
+    echo "computed: $r with $SHA256SUM_TOOL"
+    echo "expected: $checksum_"
+    ls -l $tarball_
+    file $tarball_ || true
+    mv "$tarball_" "$tarball_.$r"
+    echo "Renamed $tarball_ to $tarball_.$r"
+    exit 1
+  fi
+}
+
+check_at_least() {
+  # This function is expected to be used in 'if' so we can't rely on set -e
+  # being in effect here.
+  v1=$1
+  v2=$2
+  save_IFS=$IFS
+  IFS=.
+  set x $v1
+  for v in $v2 ; do
+    shift
+    if [ "$1" != "$v" ] ; then
+      if [ -z "$1" ] || [ "$1" -lt "$v" ] ; then
+	IFS=$save_IFS
+	return 1
+      fi
+      break
+    fi
+  done
+  IFS=$save_IFS
+  return 0
+}
+
+need_to_build() {
+  # This function is expected to be used in 'if' so we can't rely on set -e
+  # being in effect here.
+  package=$1
+  version=$2
+  binary=$3
+
+  case $download_tools in
+    always) ;;
+    never)
+      return 1
+      ;;
+    *)
+      if [ -n $binary ] ; then
+	if [ -s "../patches/$package/series" ] ; then
+	  echo "There are patches to apply to $package so it has to be built"
+	else
+	  # Check if a new enough version is already installed.
+	  version_installed=`"$binary" --version 2>/dev/null|sed '1,1 s/.* //p;d'`
+	  if [ -n "$version_installed" ] ; then
+	    # Fast track equality.
+	    if [ "$version_installed" = "$version" ] ; then
+	      echo "$binary $version_installed installed, exactly what's needed"
+	      return 1
+	    fi
+	    if check_at_least "$version_installed" "$version" ; then
+	      echo "$binary $version_installed installed >= $version required"
+	      return 1
+	    fi
+	  fi
+	fi
+      fi
+      ;;
+  esac
+  return 0
+}
+
+lazy_build() {
+  package=$1
+  version=$2
+  basename=$package-$version
+  ext=$3
+  checksum=$4
+
+  if [ "$ext" = "tar.xz" ] ; then
+    if [ -z "$xz_ok" ] ; then
+      if ${XZ-xz} --version > /dev/null 2>&1 ; then
+	xz_ok=1
+      else
+	xz_ok=0
+      fi
+    fi
+    if [ "$xz_ok" = 0 ] ; then
+      shift 2
+      ext=$3
+      checksum=$4
+    fi
+  fi
+  if [ "$ext" = "tar.bz2" ] ; then
+    if [ -z "$bz2_ok" ] ; then
+      # bzip2 --version doesn't exit with code 0 in upstream version (though
+      # Debian at least patch this bug), so use --help to check it.
+      if bzip2 --help > /dev/null 2>&1 ; then
+	bz2_ok=1
+      else
+	bz2_ok=0
+      fi
+    fi
+    if [ "$bz2_ok" = 0 ] ; then
+      shift 2
+      ext=$3
+      checksum=$4
+    fi
+  fi
+  tarball=$basename.$ext
+  case $basename in
+    *[24680][a-z]) basename=`echo "$basename"|sed 's/[a-z]$//'` ;;
+  esac
+
+  # Create the stamp file in INST so that rerunning bootstrap after
+  # "rm -rf INST" recovers nicely.
+  stamp=../INST/$package.stamp
+  out_of_date=
+
+  # Download the tarball if required.
+  if [ ! -f "$tarball" ] ; then
+    main_tarball=
+    # Older git versions don't support "git worktree", so discard stderr and
+    # then we'll skip the worktree handling because main_worktree_dir will
+    # be empty.
+    main_worktree_dir=`git worktree list --porcelain 2>/dev/null|sed 's/^worktree //;q'`
+    if [ -n "$main_worktree_dir" ] ; then
+      # Canonicalise main_worktree_dir before comparing with pwd.
+      main_worktree_dir=`cd "$main_worktree_dir" && pwd`
+      if [ "$main_worktree_dir/BUILD" != "`pwd`" ] ; then
+	# If main_tarball is set non-empty, then we're a linked worktree.
+	main_tarball=$main_worktree_dir/BUILD/$tarball
+      fi
+    fi
+    if [ -n "$main_tarball" ] && [ -f "$main_tarball" ] ; then
+      # Don't re-download the tarball if the main worktree already has it.
+      tarball=$main_tarball
+    else
+      if [ -z "$FETCH_URL_TOOL" ] ; then
+	if ${WGET-wget} --version > /dev/null 2>&1 ; then
+	  FETCH_URL_TOOL="${WGET-wget} -O-"
+	elif ${CURL-curl} --version > /dev/null 2>&1 || [ "$?" = 2 ] ; then
+	  # curl --version exits with code 2 (~7.18.2) or 0 (7.35.0).
+	  # -L is needed to follow HTTP redirects.
+	  FETCH_URL_TOOL="${CURL-curl} -L"
+	elif ${LWP_REQUEST-lwp-request} -v > /dev/null 2>&1 || [ "$?" = 9 -o "$?" = 255 ] ; then
+	  # lwp-request -v exits with code 9 (5.810) or 255 (6.03)
+	  FETCH_URL_TOOL="${LWP_REQUEST-lwp-request} -mGET"
+	else
+	  cat <<END >&2
+Neither wget nor curl nor lwp-request found - install one of them or if already
+installed, set WGET, CURL or LWP_REQUEST to the full path.  Alternatively,
+download $url
+to directory `pwd`
+then rerun this script.
+END
+	  exit 1
+	fi
+      fi
+      url="https://github.com/xapian/xapian-dev-deps/releases/download/current/$tarball"
+      case $basename in
+      file-*)
+	case $download_protocol in
+	  ftp) url="ftp://ftp.astron.com/pub/file/$tarball" ;;
+	  # We used to use http://fossies.org/ but that now redirects to https.
+	esac ;;
+      *[13579][a-z])
+	# GNU alpha release
+	case $download_protocol in
+	  ftp) url="ftp://alpha.gnu.org/gnu/$package/$tarball" ;;
+	  http) url="http://alpha.gnu.org/gnu/$package/$tarball" ;;
+	esac ;;
+      *)
+	case $download_protocol in
+	  ftp) url="ftp://ftp.gnu.org/gnu/$package/$tarball" ;;
+	  http) url="http://ftpmirror.gnu.org/$package/$tarball" ;;
+	esac ;;
+      esac
+      case $download_protocol,$url in
+	http,https:*)
+	  echo "warning: No http: link for $tarball available, using https:"
+	  ;;
+      esac
+
+      # Keep the tarball under a quarantined name until we've verified its
+      # checksum.  Once verified, if this is a linked git worktree we save
+      # the tarball in the main worktree's BUILD directory so that it can
+      # be shared with other worktrees.
+      if [ -n "$main_tarball" ] ; then
+	tarball=$main_tarball
+      fi
+      quarantined_tarball=$tarball-quarantine.$$
+      rm -f "$quarantined_tarball"
+      echo "Downloading <$url>"
+      $FETCH_URL_TOOL "$url" > "$quarantined_tarball" || exit $?
+      check_checksum "$checksum" "$quarantined_tarball"
+      mv "$quarantined_tarball" "$tarball"
+
+      # Force a build.
+      out_of_date=force
+    fi
+  fi
+
+  if [ -z "$out_of_date" ] ; then
+    if [ -f "$stamp" ] ; then
+      # Check if the tarball or the patches we're applying have changed since
+      # the existing build.
+      out_of_date=`find "$tarball" ../patches/"$package"/* -newer "$stamp" -print 2> /dev/null||true`
+    else
+      out_of_date=force
+    fi
+  fi
+
+  if [ -n "$out_of_date" ] ; then
+    # Verify the tarball's checksum before building it.  We now check at
+    # download time, but older versions of bootstrap didn't, and this also
+    # protects a user who manually downloads a tarball (which we suggest as an
+    # option if wget, curl, etc aren't found).
+    check_checksum "$checksum" "$tarball"
+
+    case $tarball in
+      */*) ;; # Only expire tarballs from the main worktree.
+      *)
+	case `git worktree list --porcelain 2>/dev/null|grep -c '^worktree '` in
+	  1|0)
+	    # Remove tarballs of other versions if there's only one worktree, or if
+	    # using git < 2.5 (before worktrees were added).
+	    for f in "$package"-* ; do
+	      [ "$f" = "$tarball" ] || rm -rf "$f"
+	    done
+	    ;;
+	esac
+	;;
+    esac
+
+    case $ext in
+    tar.xz)
+      ${XZ-xz} -dc "$tarball"| tar xf - || exit $? ;;
+    tar.bz2)
+      bzip2 -dc "$tarball"| tar xf - || exit $?  ;;
+    *)
+      gzip -dc "$tarball"| tar xf - || exit $? ;;
+    esac
+
+    cd "$basename" || exit $?
+
+    series="../../patches/$package/series"
+    if [ ! -f "$series" ] ; then
+      cat <<END >&2
+No patch series file 'patches/$package/series' - if there are no patches,
+this should just be an empty file.
+END
+      exit 1
+    fi
+    if [ -s "$series" ] ; then
+      echo "Applying patches from $package/series"
+      sed -n 's/[	 ]*\(#.*\)\?$//;/./p' "$series" | \
+	  while read p ; do
+	echo "Applying patch $package/$p"
+	patch -p1 < "../../patches/$package/$p" || exit $?
+      done
+    fi
+
+    echo "Configuring $package"
+    if test -n "$AUTOCONF" ; then
+      ./configure --prefix "$instdir" AUTOCONF="$AUTOCONF" || exit $?
+    else
+      ./configure --prefix "$instdir" || exit $?
+    fi
+    echo "Building $package"
+    make || exit $?
+    echo "Installing $package"
+    make install || exit $?
+    echo "Done installing $package"
+    cd .. || exit $?
+    rm -rf "$basename" || exit $?
+
+    touch "$stamp" || exit $?
+  fi
+  return 0
+}
+
+handle_git_external() {
+  path=$1
+  if [ ! -f "$path/.nobootstrap" ] ; then
+    rev=$2
+    url=$3
+    if [ ! -d "$path" ] ; then
+      git clone --no-checkout -- "$url" "$path"
+    elif (cd "$path" && git reflog "$rev" -- 2>/dev/null) ; then
+      : # Already have that revision locally
+    else
+      (cd "$path" && git fetch)
+    fi
+    (cd "$path" && git checkout "$rev")
+  fi
+}
+
+update_config() {
+  from=$1
+  to=$2
+  ts_from=`perl -ne '/^timestamp=(\W?)([-\d]+)$1/ and do {$_=$2;y/-//d;print;exit}' "$from"`
+  ts_to=`perl -ne '/^timestamp=(\W?)([-\d]+)$1/ and do {$_=$2;y/-//d;print;exit}' "$to"`
+  if [ "$ts_from" -gt "$ts_to" ] ; then
+     echo "Updating $to ($ts_to) with $from ($ts_from)"
+     # rm first in case the existing file is a symlink.
+     rm -f "$to"
+     cp "$from" "$to"
+  fi
+}
+
+update_bootstrap_sticky_opts() {
+  arg=$1
+  case $arg in
+    *[^-A-Za-z0-9_+=:@/.,]*)
+      # Quote for the shell and escape $ to $$ for make.
+      bootstrap_sticky_opts="$bootstrap_sticky_opts '"`echo "$arg"|sed "s/'/'\\\\\\''/g;"'s/[$]/\\\\$\\\\$/g'`"'"
+      ;;
+    *)
+      bootstrap_sticky_opts="$bootstrap_sticky_opts $arg"
+      ;;
+  esac
+}
+
+curdir=`pwd`
+
+# cd to srcdir if we aren't already there.
+srcdir=`echo "$0"|sed 's!/*[^/]*$!!'`
+case $srcdir in
+  ""|.)
+    srcdir=. ;;
+  *)
+    cd "$srcdir" ;;
+esac
+
+# Commit hash to pass to handle_git_external for swig.  Equivalent to
+# somewhere after SWIG 4.0.1 (4.0.1 doesn't support Ruby 2.7, but there
+# hadn't been a release at the point where we updated to this).
+swig_git_commit_hash=ae0efd3d742ad083312fadbc652d4d66fdad6f4d
+
+# Commit hashes to use for common in omega and letor respectively:
+omega_common_commit_hash=c65fd56b6ddd11894253b16bc1d0701ff6835672
+letor_common_commit_hash=c65fd56b6ddd11894253b16bc1d0701ff6835672
+
+gitdir=`git rev-parse --git-dir`
+
+if [ ! -d "$gitdir" ] ; then
+  echo "$0: No '.git' directory found - this script should be run from a"
+  echo "git repo cloned from git://git.xapian.org/xapian or a mirror of it"
+  exit 1
+fi
+
+for emptydir in xapian-applications/omega/m4 xapian-bindings/m4 xapian-letor/m4 ; do
+  if test -d "$emptydir" ; then
+    :
+  else
+    parent=`echo "$emptydir"|sed 's,/[^/]*$,,'`
+    if test -d "$parent" ; then
+      mkdir "$emptydir"
+    fi
+  fi
+done
+
+if [ -f "$gitdir/info/exclude" ] ; then
+  sed '/^\(swig\|xapian-applications\/omega\/common$\)/d' "$gitdir/info/exclude" > "$gitdir/info/exclude~"
+else
+  [ -d "$gitdir/info" ] || mkdir "$gitdir/info"
+fi
+cat <<END >> "$gitdir/info/exclude~"
+swig
+xapian-applications/omega/common
+xapian-letor/common
+END
+if [ -f "$gitdir/info/exclude" ] &&
+   cmp -s "$gitdir/info/exclude~" "$gitdir/info/exclude" ; then
+  rm "$gitdir/info/exclude~"
+else
+  mv "$gitdir/info/exclude~" "$gitdir/info/exclude"
+fi
+
+# If this tree is checked out from the github mirror, use the same access
+# method for other things checked out from github (e.g. swig) so we avoid
+# firewall issues.  If there's no default remote, the git config command
+# will exit with status 1, so ignore that failure.
+origin_url=`git config remote.origin.url||:`
+case $origin_url in
+  *[@/]github.com[:/]*)
+    github_base_url=`echo "X$origin_url"|sed 's/^X//;s!\([@/]github.com[:/]\).*!\1!'` ;;
+  *)
+    github_base_url=https://github.com/ ;;
+esac
+swig_origin_url=${github_base_url}swig/swig.git
+
+if [ -z "$XAPIAN_COMMON_CLONE_URL" ] ; then
+    xapian_common_clone_url=.
+else
+    xapian_common_clone_url=$XAPIAN_COMMON_CLONE_URL
+fi
+
+# Set to 'ftp' to use ftp URLs where available and 'http' to use unencrypted
+# 'http'.  By default we prefer https downloads as they are more likely to work
+# through firewalls and better preserve user privacy.
+download_protocol=
+
+# Set to 'always' to always use a locally installed copy of the autotools
+# or 'never' to never download.
+#
+# By default we check for locally installed versions and use them if they are
+# new enough versions.  But e.g. for building releases we want to use a known
+# set of versions.
+download_tools=ifneeded
+
+# Save options which should be sticky for when "make" needs to rerun bootstrap.
+# This should be empty or start with a space.
+bootstrap_sticky_opts=
+
+while [ "$#" -gt 0 ] ; do
+  case $1 in
+  --download-tools=*)
+    update_bootstrap_sticky_opts "$1"
+    download_tools=`echo "x$1"|sed 's/^x--download-tools=//'`
+    shift
+    continue
+    ;;
+
+  --download-tools)
+    update_bootstrap_sticky_opts "$1=$2"
+    download_tools=$2
+    shift 2
+    continue
+    ;;
+
+  --ftp)
+    bootstrap_sticky_opts="$bootstrap_sticky_opts $1"
+    download_protocol=ftp
+    shift
+    continue
+    ;;
+
+  --http)
+    bootstrap_sticky_opts="$bootstrap_sticky_opts $1"
+    download_protocol=http
+    shift
+    continue
+    ;;
+
+  --fetch-url-command=*)
+    update_bootstrap_sticky_opts "$1"
+    FETCH_URL_TOOL=`echo "x$1"|sed 's/^x--fetch-url-command=//'`
+    shift
+    continue
+    ;;
+
+  --fetch-url-command)
+    update_bootstrap_sticky_opts "$1=$2"
+    FETCH_URL_TOOL=$2
+    shift 2
+    continue
+    ;;
+
+  --clean)
+    # This probably shouldn't be sticky.
+    rm -rf INST
+    shift
+    continue
+    ;;
+
+  --without-autotools)
+    # This shouldn't be sticky.
+    echo "warning: Ignoring old option '$1' - new default is to use installed versions of tools if new enough.  Use '--download-tools=never' to prevent ever downloading"
+    shift
+    continue
+    ;;
+
+  --)
+    bootstrap_sticky_opts="$bootstrap_sticky_opts $1"
+    shift
+    break
+    ;;
+
+  -*)
+    echo "Unknown option '$1'" 1>&2
+    exit 1
+    ;;
+
+  *)
+    break
+    ;;
+  esac
+done
+
+if [ "$#" -gt 0 ] ; then
+  for a in "$@" ; do
+    update_bootstrap_sticky_opts "$a"
+  done
+fi
+
+case $download_tools in
+  always|ifneeded) ;;
+  never)
+    echo "warning: If stuff breaks with '--download-tools=never', you get to keep the pieces"
+    ;;
+  *)
+    echo "Invalid --download-tools value '$download_tools'"
+    exit 1
+    ;;
+esac
+
+[ -d INST ] || mkdir INST
+instdir=`pwd`/INST
+
+[ -d BUILD ] || mkdir BUILD
+cd BUILD
+
+# The hex strings are SHA256 checksums for the preceding extension.
+args='autoconf 2.69'
+if need_to_build $args autoconf ; then
+  lazy_build $args \
+    tar.xz 64ebcec9f8ac5b2487125a86a7760d2591ac9e1d3dbd59489633f9de62a57684 \
+    tar.gz 954bd69b391edc12d6a4a51a2dd1476543da5c6bbf05a95b59dc0dd6fd4c2969
+  AUTOCONF=$instdir/bin/autoconf
+  export AUTOCONF
+  AUTORECONF=$instdir/bin/autoreconf
+  export AUTORECONF
+  AUTOHEADER=$instdir/bin/autoheader
+  export AUTOHEADER
+  AUTOM4TE=$instdir/bin/autom4te
+  export AUTOM4TE
+fi
+args='automake 1.16.1'
+if need_to_build $args automake ; then
+  lazy_build $args \
+    tar.xz 5d05bb38a23fd3312b10aea93840feec685bdf4a41146e78882848165d3ae921 \
+    tar.gz 608a97523f97db32f1f5d5615c98ca69326ced2054c9f82e65bade7fc4c9dea8
+  ACLOCAL=$instdir/bin/aclocal
+  export ACLOCAL
+  AUTOMAKE=$instdir/bin/automake
+  export AUTOMAKE
+fi
+args='libtool 2.4.6'
+if need_to_build $args libtool ; then
+  lazy_build $args \
+    tar.xz 7c87a8c2c8c0fc9cd5019e402bed4292462d00a718a7cd5f11218153bf28b26f \
+    tar.gz e3bd4d5d3d025a36c21dd6af7ea818a2afcd4dfc1ea5a17b39d7854bcd0c06e3
+  LIBTOOLIZE=$instdir/bin/libtoolize
+  export LIBTOOLIZE
+  libtool_aclocal=$instdir/share/aclocal
+else
+  libtool_aclocal=`which libtoolize|sed 's!/bin/[^/]*$!/share/aclocal!'`
+  if [ -z "$libtool_aclocal" ] ; then
+    echo "libtoolize not found"
+    exit 1
+  fi
+fi
+
+if [ "$1" = "--deps=libmagic" ] ; then
+  shift
+  lazy_build file 5.3.2 \
+    tar.gz 8639dc4d1b21e232285cd483604afc4a6ee810710e00e579dbe9591681722b50
+fi
+
+# Save the unadorned aclocal for bootstrapping SWIG.  In particular SWIG
+# uses a modified old version of AX_CXX_COMPILE_STDCXX_11 which isn't
+# compatible with the current version which might be in a system directory.
+SWIG_ACLOCAL=${ACLOCAL-aclocal}
+
+cd ..
+
+# Add -I for in-tree macro directory first, so we use that xapian.m4 in
+# preference to one in any directories which may be added below.
+ACLOCAL="${ACLOCAL-aclocal} -I `pwd`/xapian-core/m4-macros -I `pwd`/xapian-letor/m4-macros"
+export ACLOCAL
+
+aclocal_ac_dir=`${ACLOCAL-aclocal} --print-ac-dir`
+aclocal_system_needed=
+if [ ! -r "$aclocal_ac_dir/pkg.m4" ] ; then
+  if [ -r /usr/share/aclocal/pkg.m4 ] ; then
+    aclocal_system_needed=/usr/share/aclocal
+  elif [ -r /usr/local/share/aclocal/pkg.m4 ] ; then
+    aclocal_system_needed=/usr/local/share/aclocal
+  elif [ -r /opt/local/share/aclocal/pkg.m4 ] ; then
+    aclocal_system_needed=/opt/local/share/aclocal
+  fi
+fi
+
+# If the aclocal we're using is in a different prefix to the libtool we're
+# using, we probably need to tell aclocal where to look for our libtool's
+# macros.  We also need to do this if we add -I /usr/share/aclocal below
+# since otherwise the system libtool's macros may be used in preference.
+if [ "$aclocal_ac_dir" != "$libtool_aclocal" ] || [ -n "$aclocal_system_needed" ]; then
+  ACLOCAL="${ACLOCAL-aclocal} -I $libtool_aclocal"
+  export ACLOCAL
+fi
+
+# If we're using a non-system automake, check if pkg.m4 is in the directory
+# aclocal looks in by default.  If not and there's a system pkg.m4, tell
+# aclocal to also look in the system aclocal directory.
+if [ -n "$aclocal_system_needed" ] ; then
+  ACLOCAL="${ACLOCAL-aclocal} -I $aclocal_system_needed"
+  export ACLOCAL
+fi
+
+case `${LIBTOOLIZE-libtoolize} --version` in
+"")
+  echo "${LIBTOOLIZE-libtoolize} not found"
+  exit 1 ;;
+"libtoolize (GNU libtool) 1.4.*")
+  echo "${LIBTOOLIZE-libtoolize} is from libtool 1.4 which is too old - libtool 2.2 is required."
+  echo "If you have both installed, set LIBTOOLIZE to point to the correct version."
+  exit 1 ;;
+"libtoolize (GNU libtool) 1.5.*")
+  echo "${LIBTOOLIZE-libtoolize} is from libtool 1.5 which is too old - libtool 2.2 is required."
+  echo "If you have both installed, set LIBTOOLIZE to point to the correct version."
+  exit 1 ;;
+esac
+
+intree_swig=no
+modules=
+for module in ${@:-xapian-core xapian-applications/omega swig xapian-bindings} ; do
+  d=$module
+  if [ "$d" = swig ] ; then
+    if [ -f "xapian-bindings/.nobootstrap" ] ; then
+      # No point bootstrapping SWIG if we aren't going to use it.
+      echo "Skipping '$d' due to presence of 'xapian-bindings/.nobootstrap'."
+      continue
+    fi
+    handle_git_external swig "$swig_git_commit_hash" "$swig_origin_url"
+  fi
+  if [ -f "$d/configure.ac" -o -f "$d/configure.in" ] ; then
+    :
+  else
+    # Skip any directories we can't bootstrap.
+    continue
+  fi
+  if [ -f "$d/.nobootstrap" ] ; then
+    # Report why to save head scratching when someone forgets they created
+    # a .nobootstrap file.
+    echo "Skipping '$module' due to presence of '$d/.nobootstrap'."
+    continue
+  fi
+  case $d in
+  xapian-applications/omega|xapian-letor)
+    # If someone's created a directory for common, leave it be.
+    if [ -h "$d/common" ] || [ ! -d "$d/common" ] ; then
+      # Pick omega_common_commit_hash or letor_common_commit_hash:
+      var=`echo "$d"|sed 's!.*[-/]!!g'`_common_commit_hash
+      hash=`eval echo \\\$"$var"`
+      if [ -f "$gitdir/shallow" ] ; then
+	if git reflog "$hash" -- 2> /dev/null ; then
+	  : # Already have the desired commit.
+	else
+	  git fetch --unshallow
+	fi
+      fi
+      handle_git_external "$d/.common.git" "$hash" "$xapian_common_clone_url"
+      ln -sf .common.git/xapian-core/common "$d/common"
+    fi
+    ;;
+  esac
+
+  echo "Bootstrapping \`$module'"
+  [ -f "$d/preautoreconf" ] && perl "$d/preautoreconf"
+
+  # If we have a custom INSTALL file, preserve it since autoreconf insists on
+  # replacing INSTALL with "generic installation instructions" when --force
+  # is used.  Be careful to replace it if autoreconf fails.
+  if [ -f "$d/INSTALL" ] ; then
+    if grep 'generic installation instructions' "$d/INSTALL" >/dev/null 2>&1 ; then
+      :
+    else
+      mv -f "$d/INSTALL" "$d/INSTALL.preserved-by-bootstrap"
+    fi
+  fi
+
+  autoreconf_rc=
+  if [ swig = "$module" ] ; then
+    # SWIG provides its own bootstrapping script.
+    curdir=`pwd`
+    cd "$d"
+    ACLOCAL=$SWIG_ACLOCAL ./autogen.sh || autoreconf_rc=$?
+    cd "$curdir"
+    # Use the uninstalled wrapper for the in-tree copy of SWIG.
+    intree_swig=yes
+  else
+    # Use --install as debian's autoconf wrapper uses 2.5X if it sees it
+    # (but it doesn't check for -i).
+    #
+    # Use --force so that we update files if autoconf, automake, or libtool
+    # has been upgraded.
+    ${AUTORECONF-autoreconf} --install --force "$d" || autoreconf_rc=$?
+  fi
+  if [ -f "$d/INSTALL.preserved-by-bootstrap" ] ; then
+    mv -f "$d/INSTALL.preserved-by-bootstrap" "$d/INSTALL"
+  fi
+  if [ -n "$autoreconf_rc" ] ; then
+    exit $autoreconf_rc
+  fi
+  for f in config.guess config.sub ; do
+    if [ -f "$d/$f" ] ; then
+      update_config "config/$f" "$d/$f"
+    fi
+  done
+  modules="$modules $module"
+done
+
+# Produce an absolute path to srcdir.
+srcdir_abs=`pwd`
+
+# Generate the top-level configure script.
+rm -f configure.tmp
+cat <<TOP_OF_CONFIGURE > configure.tmp
+#!/bin/sh
+# configure each submodule in a xapian source tree
+# Generated by Xapian top-level bootstrap script.
+#$copyright
+trap 'echo "configure failed"' EXIT
+set -e
+
+srcdir="$srcdir_abs"
+modules="$modules"
+
+TOP_OF_CONFIGURE
+
+cat <<'MIDDLE_OF_CONFIGURE' >> configure.tmp
+# Produced escaped version of command suitable for pasting back into sh
+cmd=$0
+user_CPPFLAGS=$CPPFLAGS
+user_LDFLAGS=$LDFLAGS
+for a ; do
+ case $a in
+  *[^-A-Za-z0-9_+=:@/.,]*)
+   esc_a=`echo "$a"|sed 's!\([^-A-Za-z0-9_+=:@/.,]\)!\\\\\\1!g'`
+   cmd="$cmd $esc_a" ;;
+  *)
+   cmd="$cmd $a" ;;
+ esac
+ # Capture any command-line settings of CPPFLAGS or LDFLAGS so we can override
+ # for omega.  We follow the behaviour of autoconf-generated configure scripts
+ # in that command-line setting beats environment variable setting, and the
+ # last of multiple command-line settings is used.
+ case $a in
+   CPPFLAGS=*)
+     user_CPPFLAGS=`expr "x$a" : 'xCPPFLAGS=\(.*\)'` ;;
+   LDFLAGS=*)
+     user_LDFLAGS=`expr "x$a" : 'xLDFLAGS=\(.*\)'` ;;
+ esac
+done
+
+here=`pwd`
+MIDDLE_OF_CONFIGURE
+
+vars=
+if [ yes = "$intree_swig" ] ; then
+  # We want the path to SWIG to point into srcdir, which isn't known until
+  # configure-time, so we need to expand $here in configure.
+  vars=' SWIG=$here/swig/preinst-swig'
+elif [ -n "$SWIG" ] ; then
+  # User specified SWIG in environment, e.g. with:
+  #   SWIG=/opt/swig/bin/swig ./bootstrap
+  vars=" SWIG='"`echo "$val"|sed 's/\(['"\\'"']\)/\\\1/g'`"'"
+fi
+for tool in $autotools ; do
+  eval "val=\$$tool"
+  if [ -n "$val" ] ; then
+    echo ': ${'"$tool='$val'"'}' >> configure.tmp
+    echo "export $tool" >> configure.tmp
+    vars="$vars $tool='"`echo "$val"|sed 's/\(['"\\'"']\)/\\\1/g'`"'"
+  fi
+done
+if [ -n "$vars" ] ; then
+  # $vars will always have a leading space.
+  echo "set$vars "'"$@"' >> configure.tmp
+fi
+
+cat <<'END_OF_CONFIGURE' >> configure.tmp
+dirs=
+revdirs=
+XAPIAN_CONFIG=$here/xapian-core/xapian-config
+XAPIANLETOR_CONFIG=$here/xapian-letor/xapianletor-config
+for d in $modules ; do
+  if [ "$here" = "$srcdir" ] ; then
+    configure=./configure
+    configure_from_here=$d/configure
+  else
+    configure=$srcdir/$d/configure
+    configure_from_here=$configure
+  fi
+  if [ -f "$configure_from_here" ] ; then
+    if [ -d "$d" ] ; then : ; else
+      case $d in
+      xapian-applications/*) [ -d xapian-applications ] || mkdir xapian-applications ;;
+      esac
+      mkdir "$d"
+    fi
+    echo "Configuring \`$d'"
+    # Use a shared config.cache for speed and to save a bit of diskspace, but
+    # don't share it with SWIG just in case it manages to probe and cache
+    # different answers (e.g. because it uses a C compiler).
+    case $d in
+    swig)
+      case "$*" in
+      *--host=*|*--host" "*)
+	# We're cross-building, but SWIG needs to be built natively.
+	swig_configure_args=
+	skip=
+	for arg in "$@" ; do
+	  if [ -n "$skip" ] ; then
+	    skip=
+	    continue
+	  fi
+	  case $arg in
+	  --host=*)
+	    # Drop --host=xxx
+	    continue ;;
+	  --host)
+	    # Drop --host xxx
+	    skip=1
+	    continue ;;
+	  CC=*|CXX=*)
+	    # Drop CC=xxx or CXX=xxx
+	    continue ;;
+	  CC_FOR_BUILD=*|CXX_FOR_BUILD=*)
+	    # CC_FOR_BUILD=xxx -> CC=xxx; CXX_FOR_BUILD=xxx -> CXX=xxx
+	    arg=`echo "$arg"|sed 's/_FOR_BUILD//'`
+	    ;;
+	  SWIG=*)
+	    # Drop SWIG=xxx - not useful and could cause problems.
+	    continue ;;
+	  esac
+	  swig_configure_args="$swig_configure_args "\'`echo "x$arg"|sed "s/^x//;s/'/'\\\\\\\\''/g"`\'
+	done
+	# Also handle compilers specified in environment variables.  We can
+	# just reassign them unconditionally as CC and CXX are ignored if
+	# empty.
+	cd "$d" && CC=$CC_FOR_BUILD CXX=$CXX_FOR_BUILD "$configure" `eval echo $swig_configure_args`
+	;;
+      *)
+	cd "$d" && "$configure" ${1+"$@"}
+	;;
+      esac
+      ;;
+    xapian-core)
+      cd "$d" && "$configure" --enable-maintainer-mode --disable-option-checking --cache-file="$here/config.cache" ${1+"$@"}
+      ;;
+    xapian-letor)
+      cd "$d" && "$configure" --enable-maintainer-mode --disable-option-checking XAPIAN_CONFIG="$XAPIAN_CONFIG" --cache-file="$here/config.cache" ${1+"$@"}
+      ;;
+    xapian-applications/omega)
+      cd "$d" && "$configure" --enable-maintainer-mode --disable-option-checking XAPIAN_CONFIG="$XAPIAN_CONFIG" CPPFLAGS="-I$srcdir/INST/include $user_CPPFLAGS" LDFLAGS="-L$srcdir/INST/lib $user_LDFLAGS" ${1+"$@"}
+      ;;
+    *)
+      cd "$d" && "$configure" --enable-maintainer-mode --disable-option-checking --cache-file="$here/config.cache" XAPIAN_CONFIG="$XAPIAN_CONFIG" XAPIANLETOR_CONFIG="$XAPIANLETOR_CONFIG" ${1+"$@"}
+      ;;
+    esac
+    cd "$here"
+    dirs="$dirs $d"
+    revdirs="$d $revdirs"
+  fi
+done
+
+case " $* " in
+  *" --help "*|*" --version "*)
+    # Don't generate Makefile if --help or --version specified.
+    trap - EXIT
+    exit 0
+    ;;
+esac
+
+rm -f Makefile.tmp
+cat <<EOF > Makefile.tmp
+# Makefile generated by:
+CONFIGURE_COMMAND := $cmd
+EOF
+if [ "$srcdir" != . ] ; then
+    cat <<EOF >> Makefile.tmp
+
+VPATH = $srcdir
+EOF
+fi
+targets='all install uninstall install-strip clean distclean mostlyclean maintainer-clean dist check distcheck'
+for target in $targets ; do
+  echo
+  echo "$target:"
+  case $target in
+    uninstall|*clean)
+      # When uninstalling or cleaning, process directories in reverse order, so
+      # that we process a directory after any directories which might use it.
+      list=$revdirs ;;
+    *)
+      list=$dirs ;;
+  esac
+  for d in $list ; do
+    case $d,$target in
+    swig,install*|swig,uninstall)
+      # Nothing to do with swig when installing/uninstalling.
+      ;;
+    swig,dist|swig,check|swig,distcheck|swig,all)
+      # Need to ensure swig is built before "make dist", "make check", etc.
+      echo "	cd $d && \$(MAKE)" ;;
+    swig,mostlyclean)
+      echo "	cd $d && \$(MAKE) clean" ;;
+    xapian-bindings,distcheck)
+      # FIXME: distcheck doesn't currently work for xapian-bindings because
+      # xapian-core isn't installed.
+      echo "	cd $d && \$(MAKE) check && \$(MAKE) dist" ;;
+    *)
+      echo "	cd $d && \$(MAKE) $target" ;;
+    esac
+  done
+  case $target in
+    distclean|maintainer-clean) echo "	rm -f Makefile config.cache" ;;
+  esac
+done >> Makefile.tmp
+cat <<EOF >> Makefile.tmp
+
+recheck:
+	\$(CONFIGURE_COMMAND)
+
+Makefile: $srcdir/configure
+	\$(CONFIGURE_COMMAND)
+
+$srcdir/configure: \\
+END_OF_CONFIGURE
+
+: > configure.tmp2
+
+# We want to rerun bootstrap if a series file changes (patch added or removed)
+# or an existing patch changes.  Since we always have an series file (even if
+# it is empty), this also handles us adding the first patch for something.
+patches=
+for d in patches/* ; do
+  series=$d/series
+  echo "$series:" >> configure.tmp2
+  cat << END
+    $series\\\\
+END
+  sed -n 's/[	 ]*\(#.*\)\?$//;/./p' "$series" |\
+      while read p ; do
+    patch=$d/$p
+    cat << END
+    $patch\\\\
+END
+    # Because there's a pipeline, this is a subshell, so use a temporary file
+    # rather than a variable to compile a list of patches to use below.
+    echo "$patch:" >> configure.tmp2
+  done
+done >> configure.tmp
+
+cat <<'END_OF_CONFIGURE' >> configure.tmp
+    $srcdir/bootstrap
+END_OF_CONFIGURE
+echo "	\$srcdir/bootstrap$bootstrap_sticky_opts" >> configure.tmp
+cat <<'END_OF_CONFIGURE' >> configure.tmp
+
+.PHONY: $targets recheck
+
+# Dummy dependencies to allow removing patches we no longer need.
+END_OF_CONFIGURE
+
+cat configure.tmp2 >> configure.tmp
+
+cat <<'END_OF_CONFIGURE' >> configure.tmp
+EOF
+mv -f Makefile.tmp Makefile
+trap - EXIT
+echo "Configured successfully - now run \"${MAKE-make}\""
+END_OF_CONFIGURE
+
+rm -f configure.tmp2
+
+chmod +x configure.tmp
+mv -f configure.tmp configure
+
+# git defaults to showing 7 character abbreviated hashes if that's enough to be
+# unique for a particular commit.  But you can't paste these into trac as it
+# needs at least 8 hex digits to recognise a hex string as a commit hash.  You
+# need 9 characters to be unique across all of Xapian at the time of writing,
+# and 12 for the Linux kernel currently (a much larger number of objects than
+# Xapian).  12 is a manageable length and decently future-proof, so let's use
+# that.
+core_abbrev_recommended=12
+core_abbrev=`git config --get core.abbrev||:`
+if [ -z "$core_abbrev" ] ; then
+  echo "*** Setting core.abbrev=$core_abbrev_recommended in repo config"
+  git config --local core.abbrev "$core_abbrev_recommended"
+elif [ "$core_abbrev" -lt "$core_abbrev_recommended" ] ; then
+  if [ -z "`git config --local core.abbrev`" ] ; then
+    # Set globally to < $core_abbrev_recommended, override in this repo.
+    echo "*** Setting core.abbrev=$core_abbrev_recommended in repo config to override global core.abbrev=$core_abbrev"
+    git config --local core.abbrev "$core_abbrev_recommended"
+  else
+    # Just warn.
+    echo "warning: core.abbrev=$core_abbrev set on this repo, at least $core_abbrev_recommended is recommended"
+  fi
+fi
+
+trap - EXIT
+echo "Bootstrapped successfully - now run \"$srcdir/configure\" and \"${MAKE-make}\""

@@ -588,7 +588,7 @@ int64_t number_from_bin(const char * s, uint32 len)
 	if(len > 64) 
 		return 0;
 	int64_t value = 0;
-	for(uint32 i = 0; i<len; ++i) {
+	for(uint32 i = 0; i < len; ++i) {
 		int c = s[i];
 		value = (value << 1) + (c - '0');
 	}

@@ -370,19 +370,19 @@ static void per_scan_setup(j_decompress_ptr cinfo)
 		cinfo->blocks_in_MCU = 0;
 		for(ci = 0; ci < cinfo->comps_in_scan; ci++) {
 			compptr = cinfo->cur_comp_info[ci];
-			/* Sampling factors give # of blocks of component in each MCU */
+			// Sampling factors give # of blocks of component in each MCU 
 			compptr->MCU_width = compptr->h_samp_factor;
 			compptr->MCU_height = compptr->v_samp_factor;
 			compptr->MCU_blocks = compptr->MCU_width * compptr->MCU_height;
 			compptr->MCU_sample_width = compptr->MCU_width * compptr->DCT_h_scaled_size;
-			/* Figure number of non-dummy blocks in last MCU column & row */
+			// Figure number of non-dummy blocks in last MCU column & row 
 			tmp = (int)(compptr->width_in_blocks % compptr->MCU_width);
-			if(tmp == 0) tmp = compptr->MCU_width;
+			SETIFZ(tmp, compptr->MCU_width);
 			compptr->last_col_width = tmp;
 			tmp = (int)(compptr->height_in_blocks % compptr->MCU_height);
-			if(tmp == 0) tmp = compptr->MCU_height;
+			SETIFZ(tmp, compptr->MCU_height);
 			compptr->last_row_height = tmp;
-			/* Prepare array describing MCU composition */
+			// Prepare array describing MCU composition 
 			mcublks = compptr->MCU_blocks;
 			if(cinfo->blocks_in_MCU + mcublks > D_MAX_BLOCKS_IN_MCU)
 				ERREXIT(cinfo, JERR_BAD_MCU_SIZE);

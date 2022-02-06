@@ -58,7 +58,7 @@ static inline bool u_growAnyBufferFromStatic(void * context,
 }
 
 /* helper function */
-static wchar_t* _strToWCS(wchar_t * dest,
+static wchar_t * _strToWCS(wchar_t * dest,
     int32_t destCapacity,
     int32_t * pDestLength,
     const UChar * src,
@@ -70,7 +70,7 @@ static wchar_t* _strToWCS(wchar_t * dest,
 	char * tempBufLimit = stackBuffer + tempBufCapacity;
 	UConverter * conv = NULL;
 	char * saveBuf = tempBuf;
-	wchar_t* intTarget = NULL;
+	wchar_t * intTarget = NULL;
 	int32_t intTargetCapacity = 0;
 	int count = 0, retVal = 0;
 
@@ -142,12 +142,12 @@ static wchar_t* _strToWCS(wchar_t * dest,
 	 * no more than 2 wchar_ts
 	 */
 	intTargetCapacity =  (count * _BUFFER_CAPACITY_MULTIPLIER + 1) /*for null termination */;
-	intTarget = (wchar_t*)uprv_malloc(intTargetCapacity * sizeof(wchar_t));
+	intTarget = (wchar_t *)uprv_malloc(intTargetCapacity * sizeof(wchar_t));
 
 	if(intTarget) {
 		int32_t nulLen = 0;
 		int32_t remaining = intTargetCapacity;
-		wchar_t* pIntTarget = intTarget;
+		wchar_t * pIntTarget = intTarget;
 		tempBuf = saveBuf;
 
 		/* now convert the mbs to wcs */
@@ -222,7 +222,7 @@ cleanup:
 
 #endif
 
-U_CAPI wchar_t* U_EXPORT2 u_strToWCS(wchar_t * dest,
+U_CAPI wchar_t * U_EXPORT2 u_strToWCS(wchar_t * dest,
     int32_t destCapacity,
     int32_t * pDestLength,
     const UChar * src,
@@ -258,7 +258,7 @@ U_CAPI wchar_t* U_EXPORT2 u_strToWCS(wchar_t * dest,
 
 #elif defined U_WCHAR_IS_UTF32
 
-	return (wchar_t*)u_strToUTF32((UChar32*)dest, destCapacity, pDestLength,
+	return (wchar_t *)u_strToUTF32((UChar32*)dest, destCapacity, pDestLength,
 		   src, srcLength, pErrorCode);
 
 #else
@@ -286,7 +286,7 @@ static UChar * _strFromWCS(UChar * dest,
 	UChar uStack [_STACK_BUFFER_CAPACITY];
 
 	wchar_t wStack[_STACK_BUFFER_CAPACITY];
-	wchar_t* pWStack = wStack;
+	wchar_t * pWStack = wStack;
 
 	char cStack[_STACK_BUFFER_CAPACITY];
 	int32_t cStackCap = _STACK_BUFFER_CAPACITY;
@@ -294,8 +294,8 @@ static UChar * _strFromWCS(UChar * dest,
 	char * pCSave = pCSrc;
 	char * pCSrcLimit = NULL;
 
-	const wchar_t* pSrc = src;
-	const wchar_t* pSrcLimit = NULL;
+	const wchar_t * pSrc = src;
+	const wchar_t * pSrcLimit = NULL;
 
 	if(srcLength ==-1) {
 		/* if the wchar_t source is null terminated we can safely
@@ -379,7 +379,7 @@ static UChar * _strFromWCS(UChar * dest,
 				if(nulLen >= _STACK_BUFFER_CAPACITY) {
 					/* Should rarely occur */
 					/* allocate new buffer buffer */
-					pWStack = (wchar_t*)uprv_malloc(sizeof(wchar_t) * (nulLen + 1));
+					pWStack = (wchar_t *)uprv_malloc(sizeof(wchar_t) * (nulLen + 1));
 					if(pWStack==NULL) {
 						*pErrorCode = U_MEMORY_ALLOCATION_ERROR;
 						goto cleanup;

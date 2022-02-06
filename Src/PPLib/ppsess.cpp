@@ -1753,10 +1753,7 @@ int PPSession::InitExtCfgDb()
 				createDir(temp_buf);
 			if(IsDirectory(temp_buf))
 				P_ExtCfgDb = new PPConfigDatabase(temp_buf);
-			if(P_ExtCfgDb)
-				ok = 1;
-			else 
-				ok = 0;
+			ok = BIN(P_ExtCfgDb);
 		}
 		else
 			ok = 0;
@@ -5261,8 +5258,8 @@ int PPSession::GetObjectTitle(PPID objType, SString & rBuf)
 				ENTER_CRITICAL_SECTION
 				SString name_buf;
 				if(PPLoadString(PPSTR_OBJNAMES, (uint)objType, name_buf)) {
-					P_ObjIdentBlk->TitleList.AddFast(objType, name_buf); // @v9.9.3 Add-->AddFast
-					P_ObjIdentBlk->TitleList.SortByID(); // @v9.9.3
+					P_ObjIdentBlk->TitleList.AddFast(objType, name_buf);
+					P_ObjIdentBlk->TitleList.SortByID();
 					rBuf = name_buf;
 					found = 1;
 				}

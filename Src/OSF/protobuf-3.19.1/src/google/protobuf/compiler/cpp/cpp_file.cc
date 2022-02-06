@@ -53,62 +53,43 @@ namespace cpp {
 namespace {
 // When we forward-declare things, we want to create a sorted order so our
 // output is deterministic and minimizes namespace changes.
-template <class T>
-std::string GetSortKey(const T& val) {
-	return val.full_name();
-}
+template <class T> std::string GetSortKey(const T& val) { return val.full_name(); }
+template <> std::string GetSortKey<FileDescriptor>(const FileDescriptor& val) { return val.name(); }
+template <class T> bool CompareSortKeys(const T* a, const T* b) { return GetSortKey(*a) < GetSortKey(*b); }
 
-template <>
-std::string GetSortKey<FileDescriptor>(const FileDescriptor& val) {
-	return val.name();
-}
-
-template <class T>
-bool CompareSortKeys(const T* a, const T* b) {
-	return GetSortKey(*a) < GetSortKey(*b);
-}
-
-template <class T>
-std::vector<const T*> Sorted(const std::unordered_set<const T*>& vals) {
+template <class T> std::vector<const T*> Sorted(const std::unordered_set<const T*>& vals) 
+{
 	std::vector<const T*> sorted(vals.begin(), vals.end());
 	std::sort(sorted.begin(), sorted.end(), CompareSortKeys<T>);
 	return sorted;
 }
 }  // namespace
 
-FileGenerator::FileGenerator(const FileDescriptor* file, const Options& options)
-	: file_(file), options_(options), scc_analyzer_(options) {
+FileGenerator::FileGenerator(const FileDescriptor* file, const Options& options) : file_(file), options_(options), scc_analyzer_(options) {
 	// These variables are the same on a file level
 	SetCommonVars(options, &variables_);
 	variables_["dllexport_decl"] = options.dllexport_decl;
 	variables_["tablename"] = UniqueName("TableStruct", file_, options_);
-	variables_["file_level_metadata"] =
-	    UniqueName("file_level_metadata", file_, options_);
+	variables_["file_level_metadata"] = UniqueName("file_level_metadata", file_, options_);
 	variables_["desc_table"] = DescriptorTableName(file_, options_);
-	variables_["file_level_enum_descriptors"] =
-	    UniqueName("file_level_enum_descriptors", file_, options_);
-	variables_["file_level_service_descriptors"] =
-	    UniqueName("file_level_service_descriptors", file_, options_);
+	variables_["file_level_enum_descriptors"] = UniqueName("file_level_enum_descriptors", file_, options_);
+	variables_["file_level_service_descriptors"] = UniqueName("file_level_service_descriptors", file_, options_);
 	variables_["filename"] = file_->name();
 	variables_["package_ns"] = Namespace(file_, options);
 
 	std::vector<const Descriptor*> msgs = FlattenMessagesInFile(file);
 	for(int i = 0; i < msgs.size(); i++) {
 		// Deleted in destructor
-		MessageGenerator* msg_gen =
-		    new MessageGenerator(msgs[i], variables_, i, options, &scc_analyzer_);
+		MessageGenerator* msg_gen = new MessageGenerator(msgs[i], variables_, i, options, &scc_analyzer_);
 		message_generators_.emplace_back(msg_gen);
 		msg_gen->AddGenerators(&enum_generators_, &extension_generators_);
 	}
 
 	for(int i = 0; i < file->enum_type_count(); i++) {
-		enum_generators_.emplace_back(
-			new EnumGenerator(file->enum_type(i), variables_, options));
+		enum_generators_.emplace_back(new EnumGenerator(file->enum_type(i), variables_, options));
 	}
-
 	for(int i = 0; i < file->service_count(); i++) {
-		service_generators_.emplace_back(
-			new ServiceGenerator(file->service(i), variables_, options));
+		service_generators_.emplace_back(new ServiceGenerator(file->service(i), variables_, options));
 	}
 	if(HasGenericServices(file_, options_)) {
 		for(int i = 0; i < service_generators_.size(); i++) {
@@ -116,8 +97,7 @@ FileGenerator::FileGenerator(const FileDescriptor* file, const Options& options)
 		}
 	}
 	for(int i = 0; i < file->extension_count(); i++) {
-		extension_generators_.emplace_back(
-			new ExtensionGenerator(file->extension(i), options, &scc_analyzer_));
+		extension_generators_.emplace_back(new ExtensionGenerator(file->extension(i), options, &scc_analyzer_));
 	}
 	for(int i = 0; i < file->weak_dependency_count(); ++i) {
 		weak_deps_.insert(file->weak_dependency(i));
@@ -131,8 +111,7 @@ void FileGenerator::GenerateMacroUndefs(io::Printer* printer) {
 	// Only do this for protobuf's own types. There are some google3 protos using
 	// macros as field names and the generated code compiles after the macro
 	// expansion. Undefing these macros actually breaks such code.
-	if(file_->name() != "net/proto2/compiler/proto/plugin.proto" &&
-	    file_->name() != "google/protobuf/compiler/plugin.proto") {
+	if(file_->name() != "net/proto2/compiler/proto/plugin.proto" && file_->name() != "google/protobuf/compiler/plugin.proto") {
 		return;
 	}
 	std::vector<std::string> names_to_undef;
@@ -157,9 +136,9 @@ void FileGenerator::GenerateMacroUndefs(io::Printer* printer) {
 	}
 }
 
-void FileGenerator::GenerateHeader(io::Printer* printer) {
+void FileGenerator::GenerateHeader(io::Printer* printer) 
+{
 	Formatter format(printer, variables_);
-
 	// port_def.inc must be included after all other includes.
 	IncludeFile("net/proto2/public/port_def.inc", printer);
 	format("#define $1$$ dllexport_decl$\n", FileDllExport(file_, options_));
@@ -173,39 +152,26 @@ void FileGenerator::GenerateHeader(io::Printer* printer) {
 		"class AnyMetadata;\n"
 		"}  // namespace internal\n"
 		"PROTOBUF_NAMESPACE_CLOSE\n");
-
 	GenerateGlobalStateFunctionDeclarations(printer);
-
 	GenerateForwardDeclarations(printer);
-
 	{
 		NamespaceOpener ns(Namespace(file_, options_), format);
-
 		format("\n");
-
 		GenerateEnumDefinitions(printer);
-
 		format(kThickSeparator);
 		format("\n");
-
 		GenerateMessageDefinitions(printer);
-
 		format("\n");
 		format(kThickSeparator);
 		format("\n");
-
 		GenerateServiceDefinitions(printer);
-
 		GenerateExtensionIdentifiers(printer);
-
 		format("\n");
 		format(kThickSeparator);
 		format("\n");
-
 		GenerateInlineFunctionDefinitions(printer);
 		format("\n// @@protoc_insertion_point(namespace_scope)\n\n");
 	}
-
 	// We need to specialize some templates in the ::google::protobuf namespace:
 	GenerateProto2NamespaceEnumSpecializations(printer);
 	format("\n// @@protoc_insertion_point(global_scope)\n\n");

@@ -1,5 +1,5 @@
 // MACADDR.CPP
-// Copyright (c) A.Sobolev 2005, 2008, 2010, 2011, 2014, 2016, 2019, 2020
+// Copyright (c) A.Sobolev 2005, 2008, 2010, 2011, 2014, 2016, 2019, 2020, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -73,12 +73,12 @@ void MACAddr::Init()
 	memzero(Addr, sizeof(Addr));
 }
 
-int  MACAddr::IsEmpty() const
+bool MACAddr::IsEmpty() const
 {
 	for(size_t i = 0; i < sizeof(Addr); i++)
 		if(Addr[i] != 0)
-			return 0;
-	return 1;
+			return false;
+	return true;
 }
 
 SString & FASTCALL MACAddr::ToStr(SString & rBuf) const

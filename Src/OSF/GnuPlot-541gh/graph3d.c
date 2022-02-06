@@ -136,7 +136,7 @@ void GnuPlot::Boundary3D(GpTermEntry * pTerm, const GpSurfacePoints * plots, int
 		}
 	// Sanity check top and bottom margins, in case the user got confused 
 	if(V.MarginB.scalex == screen && V.MarginT.scalex == screen) {
-		ExchangeForOrder(&V.MarginB.x, &V.MarginT.x);
+		SExchangeForOrder(&V.MarginB.x, &V.MarginT.x);
 	}
 	// this should also consider the view and number of lines in xformat || yformat || xlabel || ylabel 
 	if(V.MarginB.scalex == screen)
@@ -1655,8 +1655,8 @@ void GnuPlot::Setup3DBoxCorners()
 	}
 	quadrant = static_cast<int>(_3DBlk.SurfaceRotX / 90.0f);
 	if((quadrant & 2) && !_3DBlk.splot_map) {
-		Exchange(&_3DBlk.Front.y, &_3DBlk.Back.y);
-		Exchange(&_3DBlk.Front.x, &_3DBlk.Back.x);
+		SExchange(&_3DBlk.Front.y, &_3DBlk.Back.y);
+		SExchange(&_3DBlk.Front.x, &_3DBlk.Back.x);
 	}
 	if((quadrant + 1) & 2) {
 		// labels on the back axes 
@@ -2171,7 +2171,7 @@ void GnuPlot::Draw3DGraphBox(GpTermEntry * pTerm, const GpSurfacePoints * pPlot,
 	V.P_ClipArea = clip_save;
 }
 
-void GnuPlot::XTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, char * text, int ticlevel, const lp_style_type & rGrid/* linetype or -2 for none */, ticmark * userlabels)
+void GnuPlot::XTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, const char * text, int ticlevel, const lp_style_type & rGrid/* linetype or -2 for none */, ticmark * userlabels)
 {
 	double scale = tic_scale(ticlevel, pAx) * (pAx->TicIn ? 1 : -1);
 	double other_end = AxS.__Y().min + AxS.__Y().max - _3DBlk.XAxisY;
@@ -2281,7 +2281,7 @@ void GnuPlot::XTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, cha
 	}
 }
 
-void GnuPlot::YTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, char * text, int ticlevel, const lp_style_type & rGrid, ticmark * userlabels)
+void GnuPlot::YTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, const char * text, int ticlevel, const lp_style_type & rGrid, ticmark * userlabels)
 {
 	double scale = tic_scale(ticlevel, pAx) * (pAx->TicIn ? 1 : -1);
 	double other_end = AxS.__X().min + AxS.__X().max - _3DBlk.YAxisX;
@@ -2390,7 +2390,7 @@ void GnuPlot::YTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, cha
 	}
 }
 
-void GnuPlot::ZTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, char * text, int ticlevel, const lp_style_type & rGrid, ticmark * userlabels)
+void GnuPlot::ZTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, const char * text, int ticlevel, const lp_style_type & rGrid, ticmark * userlabels)
 {
 	int len = static_cast<int>(pTerm->MulTicH(tic_scale(ticlevel, pAx) * (pAx->TicIn ? 1 : -1)));
 	GpVertex v1, v2, v3;

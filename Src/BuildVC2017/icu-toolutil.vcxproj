@@ -177,7 +177,7 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <AdditionalIncludeDirectories>..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include;</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>U_STATIC_IMPLEMENTATION;U_TOOLUTIL_IMPLEMENTATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>U_TOOLUTIL_IMPLEMENTATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableLanguageExtensions>false</DisableLanguageExtensions>
       <WarningLevel>Level3</WarningLevel>
       <CompileAs>CompileAsCpp</CompileAs>
@@ -235,6 +235,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
       <ConformanceMode>true</ConformanceMode>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -259,6 +260,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
       <ConformanceMode>true</ConformanceMode>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
     </ClCompile>
   </ItemDefinitionGroup>
   <!-- Options that are common to all 'x64' project configurations -->
@@ -286,6 +288,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
       <ConformanceMode>true</ConformanceMode>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
     </ClCompile>
     <Link>
       <OutputFile>..\..\..\bin64\icutu70.dll</OutputFile>
@@ -314,6 +317,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
       <ConformanceMode>true</ConformanceMode>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Platform)'=='ARM'">

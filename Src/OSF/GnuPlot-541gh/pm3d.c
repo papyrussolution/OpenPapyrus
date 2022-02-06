@@ -63,8 +63,8 @@ static double harmean4(double x1, double x2, double x3, double x4)
 static double median4(double x1, double x2, double x3, double x4)
 {
 	// sort them: x1 < x2 and x3 < x4 
-	ExchangeForOrder(&x1, &x2);
-	ExchangeForOrder(&x3, &x4);
+	SExchangeForOrder(&x1, &x2);
+	SExchangeForOrder(&x3, &x4);
 	// sum middle numbers 
 	double tmp  = (x1 < x3) ? x3 : x1;
 	tmp += (x2 < x4) ? x2 : x4;

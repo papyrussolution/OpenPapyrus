@@ -804,7 +804,7 @@ static gnode_t * parse_analyze_literal_string(gravity_parser_t * parser, gtoken_
 				    uint32 j = i;
 				    uint32 nesting_level = 0;
 				    bool subfound = false;
-				    while(i<len) {
+				    while(i < len) {
 					    if(s[i] == ')') {
 						    if(nesting_level == 0) 
 								subfound = true;

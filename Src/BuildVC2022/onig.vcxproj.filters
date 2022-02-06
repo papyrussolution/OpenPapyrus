@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\OSF\oniguruma\test\test_back.c">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\oniguruma\test\test_options.c">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\oniguruma\test\test_regset.c">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\oniguruma\test\test_syntax.c">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\oniguruma\test\test_utf8.c">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\oniguruma\test\testc.c">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\oniguruma\test\testp.c">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\oniguruma\test\testu.c">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\oniguruma\test\testc-windows.c">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\oniguruma\src\ascii.c" />
+    <ClCompile Include="..\osf\oniguruma\src\big5.c" />
+    <ClCompile Include="..\osf\oniguruma\src\cp1251.c" />
+    <ClCompile Include="..\osf\oniguruma\src\euc_jp.c" />
+    <ClCompile Include="..\osf\oniguruma\src\euc_jp_prop.c" />
+    <ClCompile Include="..\osf\oniguruma\src\euc_kr.c" />
+    <ClCompile Include="..\osf\oniguruma\src\euc_tw.c" />
+    <ClCompile Include="..\osf\oniguruma\src\gb18030.c" />
+    <ClCompile Include="..\osf\oniguruma\src\iso8859_1.c" />
+    <ClCompile Include="..\osf\oniguruma\src\iso8859_2.c" />
+    <ClCompile Include="..\osf\oniguruma\src\iso8859_3.c" />
+    <ClCompile Include="..\osf\oniguruma\src\iso8859_4.c" />
+    <ClCompile Include="..\osf\oniguruma\src\iso8859_5.c" />
+    <ClCompile Include="..\osf\oniguruma\src\iso8859_6.c" />
+    <ClCompile Include="..\osf\oniguruma\src\iso8859_7.c" />
+    <ClCompile Include="..\osf\oniguruma\src\iso8859_8.c" />
+    <ClCompile Include="..\osf\oniguruma\src\iso8859_9.c" />
+    <ClCompile Include="..\osf\oniguruma\src\iso8859_10.c" />
+    <ClCompile Include="..\osf\oniguruma\src\iso8859_11.c" />
+    <ClCompile Include="..\osf\oniguruma\src\iso8859_13.c" />
+    <ClCompile Include="..\osf\oniguruma\src\iso8859_14.c" />
+    <ClCompile Include="..\osf\oniguruma\src\iso8859_15.c" />
+    <ClCompile Include="..\osf\oniguruma\src\iso8859_16.c" />
+    <ClCompile Include="..\OSF\oniguruma\src\koi8.c" />
+    <ClCompile Include="..\osf\oniguruma\src\koi8_r.c" />
+    <ClCompile Include="..\osf\oniguruma\src\onig_init.c" />
+    <ClCompile Include="..\OSF\oniguruma\src\onig-pch.cpp" />
+    <ClCompile Include="..\osf\oniguruma\src\regcomp.c" />
+    <ClCompile Include="..\osf\oniguruma\src\regenc.c" />
+    <ClCompile Include="..\osf\oniguruma\src\regerror.c" />
+    <ClCompile Include="..\osf\oniguruma\src\regexec.c" />
+    <ClCompile Include="..\osf\oniguruma\src\regext.c" />
+    <ClCompile Include="..\osf\oniguruma\src\reggnu.c" />
+    <ClCompile Include="..\osf\oniguruma\src\regparse.c" />
+    <ClCompile Include="..\OSF\oniguruma\src\regposerr.c" />
+    <ClCompile Include="..\OSF\oniguruma\src\regposix.c" />
+    <ClCompile Include="..\osf\oniguruma\src\regsyntax.c" />
+    <ClCompile Include="..\osf\oniguruma\src\regtrav.c" />
+    <ClCompile Include="..\osf\oniguruma\src\regversion.c" />
+    <ClCompile Include="..\osf\oniguruma\src\sjis.c" />
+    <ClCompile Include="..\osf\oniguruma\src\sjis_prop.c" />
+    <ClCompile Include="..\osf\oniguruma\src\st.c" />
+    <ClCompile Include="..\osf\oniguruma\src\unicode.c" />
+    <ClCompile Include="..\osf\oniguruma\src\unicode_fold1_key.c" />
+    <ClCompile Include="..\osf\oniguruma\src\unicode_fold2_key.c" />
+    <ClCompile Include="..\osf\oniguruma\src\unicode_fold3_key.c" />
+    <ClCompile Include="..\osf\oniguruma\src\unicode_unfold_key.c" />
+    <ClCompile Include="..\osf\oniguruma\src\utf8.c" />
+    <ClCompile Include="..\osf\oniguruma\src\utf16_be.c" />
+    <ClCompile Include="..\osf\oniguruma\src\utf16_le.c" />
+    <ClCompile Include="..\osf\oniguruma\src\utf32_be.c" />
+    <ClCompile Include="..\osf\oniguruma\src\utf32_le.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\osf\oniguruma\src\regint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\oniguruma\src\regparse.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\oniguruma\src\regenc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\oniguruma\src\st.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\oniguruma\src\oniguruma.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\oniguruma\src\oniggnu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{B76D3BD4-97C1-3C08-9B6E-E6F2D73EA1DE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Test">
+      <UniqueIdentifier>{6b99e639-e857-45da-97a7-b4a34dbac422}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

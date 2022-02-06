@@ -809,7 +809,7 @@ void dump(UChar32 c)
 
 void dump(const UChar32* list, int32_t len) {
 	printf("[");
-	for(int32_t i = 0; i<len; ++i) {
+	for(int32_t i = 0; i < len; ++i) {
 		if(i != 0) printf(", ");
 		dump(list[i]);
 	}
@@ -916,7 +916,7 @@ UnicodeSet & UnicodeSet::add(UChar32 c) {
 	dump(list, len);
 	printf("\n");
 
-	for(i = 1; i<len; ++i) {
+	for(i = 1; i < len; ++i) {
 		if(list[i] <= list[i-1]) {
 			// Corrupt array!
 			printf("ERROR: list has been corrupted\n");

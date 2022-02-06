@@ -528,7 +528,7 @@ void GnuPlot::DrawInsideColorBoxBitmapSmooth(GpTermEntry * pTerm)
 }
 
 //static void cbtick_callback(GpAxis * pAx, double place, char * text, int ticlevel, lp_style_type grid/* linetype or -2 for no grid */, ticmark * userlabels)
-void GnuPlot::CbTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, char * text, int ticlevel, const lp_style_type & rGrid/* linetype or -2 for no grid */, ticmark * userlabels)
+void GnuPlot::CbTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, const char * text, int ticlevel, const lp_style_type & rGrid/* linetype or -2 for no grid */, ticmark * userlabels)
 {
 	int len = static_cast<int>(tic_scale(ticlevel, pAx) * (pAx->TicIn ? -1 : 1) * (pTerm->TicH));
 	uint x1, y1, x2, y2;
@@ -715,9 +715,9 @@ void GnuPlot::DrawColorSmoothBox(GpTermEntry * pTerm, int plotMode)
 			}
 		}
 	}
-	ExchangeForOrder(&Gg.ColorBox.bounds.ybot, &Gg.ColorBox.bounds.ytop);
+	SExchangeForOrder(&Gg.ColorBox.bounds.ybot, &Gg.ColorBox.bounds.ytop);
 	if(Gg.ColorBox.invert && Gg.ColorBox.rotation == 'v')
-		Exchange(&Gg.ColorBox.bounds.ytop, &Gg.ColorBox.bounds.ybot);
+		SExchange(&Gg.ColorBox.bounds.ytop, &Gg.ColorBox.bounds.ybot);
 	pTerm->Layer_(TERM_LAYER_BEGIN_COLORBOX);
 	// The PostScript terminal has an Optimized version 
 	if(pTerm->CheckFlag(TERM_IS_POSTSCRIPT))

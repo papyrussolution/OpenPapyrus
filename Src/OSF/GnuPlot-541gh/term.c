@@ -515,12 +515,20 @@ void GnuPlot::TermCheckMultiplotOkay(bool fInteractive)
 //void write_multiline(GpTermEntry * pTerm, int x, int y, char * pText, JUSTIFY hor/* horizontal ... */,
     //VERT_JUSTIFY vert/* ... and vertical just - text in hor direction despite angle */, int angle/* assume term has already been set for this */,
     //const char * pFont/* NULL or "" means use default */)
-void GnuPlot::WriteMultiline(GpTermEntry * pTerm, int x, int y, char * pText, JUSTIFY hor/* horizontal ... */,
+void GnuPlot::WriteMultiline(GpTermEntry * pTerm, int x, int y, const char * pText_, JUSTIFY hor/* horizontal ... */,
 	VERT_JUSTIFY vert/* ... and vertical just - text in hor direction despite angle */, int angle/* assume term has already been set for this */,
 	const char * pFont/* NULL or "" means use default */)
 {
-	char * p = pText;
-	if(p) {
+	if(pText_) {
+		char * p_local_buf = 0;
+		char * p_text = 0;
+		if(strchr(pText_, '\n') || strchr(pText_, '\r')) {
+			p_local_buf = sstrdup(pText_);
+			p_text = p_local_buf;
+		}
+		else
+			p_text = const_cast<char *>(pText_);
+		char * p = p_text;
 		// EAM 9-Feb-2003 - Set font before calculating sizes 
 		if(!isempty(pFont))
 			(pTerm->set_font)(pTerm, pFont);
@@ -537,14 +545,14 @@ void GnuPlot::WriteMultiline(GpTermEntry * pTerm, int x, int y, char * pText, JU
 				y += (vert * lines * pTerm->CV()) / 2;
 		}
 		for(;;) { // we will explicitly break out 
-			if(pText && (p = strchr(pText, '\n')) != NULL)
+			if(p_text && (p = strchr(p_text, '\n')) != NULL)
 				*p = 0; // terminate the string 
 			if(pTerm->justify_text(pTerm, hor)) {
 				if(on_page(pTerm, x, y))
-					pTerm->put_text(pTerm, x, y, pText);
+					pTerm->put_text(pTerm, x, y, p_text);
 			}
 			else {
-				int len = EstimateStrlen(pText, NULL);
+				int len = EstimateStrlen(p_text, NULL);
 				int hfix, vfix;
 				if(angle == 0) {
 					hfix = hor * pTerm->CH() * len / 2;
@@ -556,7 +564,7 @@ void GnuPlot::WriteMultiline(GpTermEntry * pTerm, int x, int y, char * pText, JU
 					vfix = static_cast<int>(hor * pTerm->CV() * len * sin(angle * SMathConst::PiDiv180) / 2 + 0.5);
 				}
 				if(on_page(pTerm, x - hfix, y - vfix))
-					pTerm->put_text(pTerm, x - hfix, y - vfix, pText);
+					pTerm->put_text(pTerm, x - hfix, y - vfix, p_text);
 			}
 			if(angle == 90 || angle == TEXT_VERTICAL)
 				x += pTerm->CV();
@@ -567,13 +575,13 @@ void GnuPlot::WriteMultiline(GpTermEntry * pTerm, int x, int y, char * pText, JU
 			if(!p)
 				break;
 			else {
-				// put it back 
-				*p = '\n';
+				*p = '\n'; // put it back 
 			}
-			pText = p + 1;
+			p_text = p + 1;
 		} // unconditional branch back to the for(;;) - just a goto ! 
 		if(!isempty(pFont))
 			(pTerm->set_font)(pTerm, "");
+		SAlloc::F(p_local_buf);
 	}
 }
 

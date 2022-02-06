@@ -197,7 +197,7 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 	V.BbPlot.ytop = (int)(0.5 + (V.Size.y + V.Offset.y) * (pTerm->MaxY-1));
 	// Sanity check top and bottom margins, in case the user got confused 
 	if(V.MarginB.scalex == screen && V.MarginT.scalex == screen) {
-		ExchangeForOrder(&V.MarginB.x, &V.MarginT.x);
+		SExchangeForOrder(&V.MarginB.x, &V.MarginT.x);
 	}
 	if(V.MarginT.scalex == screen) {
 		V.BbPlot.ytop = static_cast<int>((V.MarginT.x) * (float)(pTerm->MaxY-1)); // Specified as absolute position on the canvas 

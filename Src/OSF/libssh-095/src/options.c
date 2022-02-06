@@ -449,7 +449,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 	switch(type) {
 		case SSH_OPTIONS_HOST:
 		    v = static_cast<const char *>(value);
-		    if(v == NULL || v[0] == '\0') {
+		    if(isempty(v)) {
 			    ssh_set_error_invalid(session);
 			    return -1;
 		    }
@@ -502,7 +502,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 		    break;
 		case SSH_OPTIONS_PORT_STR:
 		    v = static_cast<const char *>(value);
-		    if(v == NULL || v[0] == '\0') {
+		    if(isempty(v)) {
 			    ssh_set_error_invalid(session);
 			    return -1;
 		    }
@@ -544,7 +544,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 		    break;
 		case SSH_OPTIONS_BINDADDR:
 		    v = static_cast<const char *>(value);
-		    if(v == NULL || v[0] == '\0') {
+		    if(isempty(v)) {
 			    ssh_set_error_invalid(session);
 			    return -1;
 		    }
@@ -603,7 +603,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 		case SSH_OPTIONS_IDENTITY:
 		case SSH_OPTIONS_ADD_IDENTITY:
 		    v = static_cast<const char *>(value);
-		    if(v == NULL || v[0] == '\0') {
+		    if(isempty(v)) {
 			    ssh_set_error_invalid(session);
 			    return -1;
 		    }
@@ -703,14 +703,13 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 				    ssh_set_error_invalid(session);
 				    return -1;
 			    }
-
 			    session->common.log_verbosity = *x & 0xffffU;
 			    ssh_set_log_level(*x & 0xffffU);
 		    }
 		    break;
 		case SSH_OPTIONS_LOG_VERBOSITY_STR:
 		    v = static_cast<const char *>(value);
-		    if(v == NULL || v[0] == '\0') {
+		    if(isempty(v)) {
 			    session->common.log_verbosity = 0;
 			    ssh_set_error_invalid(session);
 			    return -1;
@@ -737,7 +736,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 		    break;
 		case SSH_OPTIONS_CIPHERS_C_S:
 		    v = static_cast<const char *>(value);
-		    if(v == NULL || v[0] == '\0') {
+		    if(isempty(v)) {
 			    ssh_set_error_invalid(session);
 			    return -1;
 		    }
@@ -748,7 +747,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 		    break;
 		case SSH_OPTIONS_CIPHERS_S_C:
 		    v = static_cast<const char *>(value);
-		    if(v == NULL || v[0] == '\0') {
+		    if(isempty(v)) {
 			    ssh_set_error_invalid(session);
 			    return -1;
 		    }
@@ -759,7 +758,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 		    break;
 		case SSH_OPTIONS_KEY_EXCHANGE:
 		    v = static_cast<const char *>(value);
-		    if(v == NULL || v[0] == '\0') {
+		    if(isempty(v)) {
 			    ssh_set_error_invalid(session);
 			    return -1;
 		    }
@@ -770,7 +769,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 		    break;
 		case SSH_OPTIONS_HOSTKEYS:
 		    v = static_cast<const char *>(value);
-		    if(v == NULL || v[0] == '\0') {
+		    if(isempty(v)) {
 			    ssh_set_error_invalid(session);
 			    return -1;
 		    }
@@ -781,7 +780,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 		    break;
 		case SSH_OPTIONS_PUBLICKEY_ACCEPTED_TYPES:
 		    v = static_cast<const char *>(value);
-		    if(v == NULL || v[0] == '\0') {
+		    if(isempty(v)) {
 			    ssh_set_error_invalid(session);
 			    return -1;
 		    }
@@ -805,7 +804,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 		    break;
 		case SSH_OPTIONS_HMAC_C_S:
 		    v = static_cast<const char *>(value);
-		    if(v == NULL || v[0] == '\0') {
+		    if(isempty(v)) {
 			    ssh_set_error_invalid(session);
 			    return -1;
 		    }
@@ -816,7 +815,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 		    break;
 		case SSH_OPTIONS_HMAC_S_C:
 		    v = static_cast<const char *>(value);
-		    if(v == NULL || v[0] == '\0') {
+		    if(isempty(v)) {
 			    ssh_set_error_invalid(session);
 			    return -1;
 		    }
@@ -827,7 +826,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 		    break;
 		case SSH_OPTIONS_COMPRESSION_C_S:
 		    v = static_cast<const char *>(value);
-		    if(v == NULL || v[0] == '\0') {
+		    if(isempty(v)) {
 			    ssh_set_error_invalid(session);
 			    return -1;
 		    }
@@ -848,7 +847,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 		    break;
 		case SSH_OPTIONS_COMPRESSION_S_C:
 		    v = static_cast<const char *>(value);
-		    if(v == NULL || v[0] == '\0') {
+		    if(isempty(v)) {
 			    ssh_set_error_invalid(session);
 			    return -1;
 		    }
@@ -869,7 +868,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 		    break;
 		case SSH_OPTIONS_COMPRESSION:
 		    v = static_cast<const char *>(value);
-		    if(v == NULL || v[0] == '\0') {
+		    if(isempty(v)) {
 			    ssh_set_error_invalid(session);
 			    return -1;
 		    }
@@ -906,7 +905,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 		    break;
 		case SSH_OPTIONS_PROXYCOMMAND:
 		    v = static_cast<const char *>(value);
-		    if(v == NULL || v[0] == '\0') {
+		    if(isempty(v)) {
 			    ssh_set_error_invalid(session);
 			    return -1;
 		    }
@@ -925,7 +924,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 		    break;
 		case SSH_OPTIONS_GSSAPI_SERVER_IDENTITY:
 		    v = static_cast<const char *>(value);
-		    if(v == NULL || v[0] == '\0') {
+		    if(isempty(v)) {
 			    ssh_set_error_invalid(session);
 			    return -1;
 		    }
@@ -940,7 +939,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 		    break;
 		case SSH_OPTIONS_GSSAPI_CLIENT_IDENTITY:
 		    v = static_cast<const char *>(value);
-		    if(v == NULL || v[0] == '\0') {
+		    if(isempty(v)) {
 			    ssh_set_error_invalid(session);
 			    return -1;
 		    }
@@ -1901,7 +1900,7 @@ int ssh_bind_options_set(ssh_bind sshbind, enum ssh_bind_options_e type,
 		    break;
 		case SSH_BIND_OPTIONS_CIPHERS_C_S:
 		    v = static_cast<const char *>(value);
-		    if(v == NULL || v[0] == '\0') {
+		    if(isempty(v)) {
 			    ssh_set_error_invalid(sshbind);
 			    return -1;
 		    }
@@ -1912,7 +1911,7 @@ int ssh_bind_options_set(ssh_bind sshbind, enum ssh_bind_options_e type,
 		    break;
 		case SSH_BIND_OPTIONS_CIPHERS_S_C:
 		    v = static_cast<const char *>(value);
-		    if(v == NULL || v[0] == '\0') {
+		    if(isempty(v)) {
 			    ssh_set_error_invalid(sshbind);
 			    return -1;
 		    }
@@ -1923,7 +1922,7 @@ int ssh_bind_options_set(ssh_bind sshbind, enum ssh_bind_options_e type,
 		    break;
 		case SSH_BIND_OPTIONS_KEY_EXCHANGE:
 		    v = static_cast<const char *>(value);
-		    if(v == NULL || v[0] == '\0') {
+		    if(isempty(v)) {
 			    ssh_set_error_invalid(sshbind);
 			    return -1;
 		    }
@@ -1936,7 +1935,7 @@ int ssh_bind_options_set(ssh_bind sshbind, enum ssh_bind_options_e type,
 		    break;
 		case SSH_BIND_OPTIONS_HMAC_C_S:
 		    v = static_cast<const char *>(value);
-		    if(v == NULL || v[0] == '\0') {
+		    if(isempty(v)) {
 			    ssh_set_error_invalid(sshbind);
 			    return -1;
 		    }
@@ -1947,7 +1946,7 @@ int ssh_bind_options_set(ssh_bind sshbind, enum ssh_bind_options_e type,
 		    break;
 		case SSH_BIND_OPTIONS_HMAC_S_C:
 		    v = static_cast<const char *>(value);
-		    if(v == NULL || v[0] == '\0') {
+		    if(isempty(v)) {
 			    ssh_set_error_invalid(sshbind);
 			    return -1;
 		    }
@@ -1976,7 +1975,7 @@ int ssh_bind_options_set(ssh_bind sshbind, enum ssh_bind_options_e type,
 		    break;
 		case SSH_BIND_OPTIONS_PUBKEY_ACCEPTED_KEY_TYPES:
 		    v = static_cast<const char *>(value);
-		    if(v == NULL || v[0] == '\0') {
+		    if(isempty(v)) {
 			    ssh_set_error_invalid(sshbind);
 			    return -1;
 		    }
@@ -1997,7 +1996,7 @@ int ssh_bind_options_set(ssh_bind sshbind, enum ssh_bind_options_e type,
 		    break;
 		case SSH_BIND_OPTIONS_HOSTKEY_ALGORITHMS:
 		    v = static_cast<const char *>(value);
-		    if(v == NULL || v[0] == '\0') {
+		    if(isempty(v)) {
 			    ssh_set_error_invalid(sshbind);
 			    return -1;
 		    }

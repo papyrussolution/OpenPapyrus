@@ -1,5 +1,5 @@
 // SSVG.CPP
-// Copyright (c) A.Sobolev 2010, 2012, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2010, 2012, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -116,7 +116,7 @@ private:
 	int    _GetPoints(SStrScan & rScan, const char * pTxt, FloatArray & rList);
 	int    _GetCommonFigAttrAndInsert(const StrAssocArray & rAttrList, CommonFigAttr & rA, SDrawFigure * pFig, SDrawGroup * pParent);
 	int    GetAttr(const xmlNode * pNode, const char * pAttr, SString & rVal);
-	int    GetAttrList(xmlNode * pNode, StrAssocArray & rList);
+	int    GetAttrList(const xmlNode * pNode, StrAssocArray & rList);
 	int    GetColor(const SString & rProp, SColor & rC) const;
 
 	enum {
@@ -126,8 +126,8 @@ private:
 	};
 
 	int    ProcessStyleItem(int token, const SString & rVal, StyleBlock & rBlk);
-	int    ParseStyle(xmlNode * pNode, SDraw & rDraw, StyleBlock & rBlk);
-	int    ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & rTempScan);
+	int    ParseStyle(const xmlNode * pNode, SDraw & rDraw, StyleBlock & rBlk);
+	int    ParsePrimitivs(const xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & rTempScan);
 	int    GetViewPortAttr(const StrAssocArray & rAttrList, SViewPort & rVp);
 
 	SColor CurColor;
@@ -193,7 +193,7 @@ int SSvg::GetAttr(const xmlNode * pNode, const char * pAttr, SString & rVal)
 	return ok;
 }
 
-int SSvg::GetAttrList(xmlNode * pNode, StrAssocArray & rList)
+int SSvg::GetAttrList(const xmlNode * pNode, StrAssocArray & rList)
 {
 	int    ok = 1;
 	rList.Z();
@@ -474,7 +474,7 @@ int SSvg::ProcessStyleItem(int token, const SString & rVal, StyleBlock & rBlk)
 	return ok;
 }
 
-int SSvg::ParseStyle(xmlNode * pNode, SDraw & rDraw, StyleBlock & rBlk)
+int SSvg::ParseStyle(const xmlNode * pNode, SDraw & rDraw, StyleBlock & rBlk)
 {
 	int    ok = 1;
 	SString val;
@@ -614,7 +614,7 @@ int SSvg::_GetCommonFigAttrAndInsert(const StrAssocArray & rAttrList, CommonFigA
 	return ok;
 }
 
-int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & rTempScan)
+int SSvg::ParsePrimitivs(const xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & rTempScan)
 {
 	int    ok = 1;
 	StrAssocArray attr_list;
@@ -623,7 +623,7 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 	CommonFigAttr cfa;
 	StringSet ss_style;
 	SPaintToolBox * p_tb = P_Result ? P_Result->GetToolBox() : 0;
-	for(xmlNode * p_node = pParentNode->children; p_node != 0; p_node = p_node->next) {
+	for(const xmlNode * p_node = pParentNode->children; p_node != 0; p_node = p_node->next) {
 		int    token = (p_node->type == XML_ELEMENT_NODE) ? GetToken(reinterpret_cast<const char *>(p_node->name)) : 0;
 		uint32 coord_ready = 0;
 		switch(token) {
@@ -992,7 +992,7 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 					//
 					// Stops
 					//
-					for(xmlNode * p_gr_node = p_node->children; p_gr_node != 0; p_gr_node = p_gr_node->next) {
+					for(const xmlNode * p_gr_node = p_node->children; p_gr_node != 0; p_gr_node = p_gr_node->next) {
 						int    gr_token = GetToken(reinterpret_cast<const char *>(p_gr_node->name));
 						if(gr_token == tStop) {
 							GetAttrList(p_gr_node, attr_list);

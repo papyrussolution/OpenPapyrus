@@ -1,0 +1,57 @@
+EXTRA_DIST +=\
+	harness/Makefile
+
+noinst_HEADERS +=\
+	harness/backendmanager.h\
+	harness/backendmanager_glass.h\
+	harness/backendmanager_honey.h\
+	harness/backendmanager_inmemory.h\
+	harness/backendmanager_multi.h\
+	harness/backendmanager_remote.h\
+	harness/backendmanager_remoteprog.h\
+	harness/backendmanager_remotetcp.h\
+	harness/backendmanager_singlefile.h\
+	harness/cputimer.h\
+	harness/fdtracker.h\
+	harness/index_utils.h\
+	harness/unixcmds.h\
+	harness/scalability.h\
+	harness/testmacros.h\
+	harness/testrunner.h\
+	harness/testsuite.h\
+	harness/testutils.h
+
+testharness_sources =\
+	../common/errno_to_string.cc\
+	harness/backendmanager.cc\
+	harness/backendmanager_multi.cc\
+	harness/cputimer.cc\
+	harness/fdtracker.cc\
+	harness/index_utils.cc\
+	harness/scalability.cc\
+	harness/testrunner.cc\
+	harness/testsuite.cc\
+	harness/testutils.cc\
+	harness/unixcmds.cc
+
+# CYGWIN and MINGW lack std::to_string(), so we use str() which is private to
+# the library, and then have to link its object directly.
+testharness_sources += ../common/str.cc
+
+utestharness_sources =\
+	harness/fdtracker.cc\
+	harness/utestsuite.cc
+
+testharness_sources +=\
+	harness/backendmanager_glass.cc\
+	harness/backendmanager_singlefile.cc
+
+testharness_sources +=\
+	harness/backendmanager_honey.cc
+
+testharness_sources += harness/backendmanager_inmemory.cc
+
+testharness_sources +=\
+	harness/backendmanager_remote.cc\
+	harness/backendmanager_remoteprog.cc\
+	harness/backendmanager_remotetcp.cc

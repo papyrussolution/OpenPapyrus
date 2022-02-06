@@ -1915,7 +1915,7 @@ static void _appendPrivateuseToLanguageTag(const char * localeID, icu::ByteSink&
 							}
 							len = (int32_t)uprv_strlen(PRIVUSE_VARIANT_PREFIX);
 							if(reslen < capacity) {
-								uprv_memcpy(tmpAppend + reslen, PRIVUSE_VARIANT_PREFIX, uprv_min(len, capacity - reslen));
+								uprv_memcpy(tmpAppend + reslen, PRIVUSE_VARIANT_PREFIX, smin(len, capacity - reslen));
 							}
 							reslen += len;
 							if(reslen < capacity) {
@@ -1925,7 +1925,7 @@ static void _appendPrivateuseToLanguageTag(const char * localeID, icu::ByteSink&
 						}
 						len = (int32_t)uprv_strlen(pPriv);
 						if(reslen < capacity) {
-							uprv_memcpy(tmpAppend + reslen, pPriv, uprv_min(len, capacity - reslen));
+							uprv_memcpy(tmpAppend + reslen, pPriv, smin(len, capacity - reslen));
 						}
 						reslen += len;
 					}

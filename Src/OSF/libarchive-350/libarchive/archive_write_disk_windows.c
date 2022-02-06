@@ -1632,7 +1632,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 		return symlink(linkname, a->name) ? errno : 0;
 #else
 		errno = 0;
-		r = la_CreateSymbolicLinkW((const wchar_t*)a->name, linkname,
+		r = la_CreateSymbolicLinkW((const wchar_t *)a->name, linkname,
 			archive_entry_symlink_type(a->entry));
 		if(r == 0) {
 			if(errno == 0)

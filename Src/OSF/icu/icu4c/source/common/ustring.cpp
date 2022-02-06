@@ -992,7 +992,7 @@ U_CAPI UChar * U_EXPORT2 u_strncpy(UChar * dst,
 U_CAPI int32_t U_EXPORT2 u_strlen(const UChar * s)
 {
 #if U_SIZEOF_WCHAR_T == U_SIZEOF_UCHAR
-	return (int32_t)uprv_wcslen((const wchar_t*)s);
+	return (int32_t)uprv_wcslen((const wchar_t *)s);
 #else
 	const UChar * t = s;
 	while(*t != 0) {
@@ -1494,7 +1494,7 @@ U_CAPI int32_t U_EXPORT2 u_terminateWChars(wchar_t * dest, int32_t destCapacity,
 			int32_t len = (int32_t)(STRLEN);      \
 			int32_t inc = ((len - 32) / 32) + 1;  \
 			const TYPE * limit = p + len;          \
-			while(p<limit) {                     \
+			while(p < limit) {                     \
 				hash = (hash * 37) + DEREF;       \
 				p += inc;                         \
 			}                                     \

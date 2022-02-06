@@ -118,8 +118,7 @@ TestAny::TestAny(const TestAny& from)
     text_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(!from._internal_text().empty()) {
-    text_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_text(), 
-      GetArenaForAllocation());
+    text_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_text(), GetArenaForAllocation());
   }
   if(from._internal_has_any_value()) {
     any_value_ = new ::PROTOBUF_NAMESPACE_ID::Any(*from.any_value_);
@@ -282,8 +281,7 @@ uint8_t* TestAny::_InternalSerialize(
       this->_internal_text().data(), static_cast<int>(this->_internal_text().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "protobuf_unittest.TestAny.text");
-    target = stream->WriteStringMaybeAliased(
-        4, this->_internal_text(), target);
+    target = stream->WriteStringMaybeAliased(4, this->_internal_text(), target);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -310,9 +308,7 @@ size_t TestAny::ByteSizeLong() const {
 
   // string text = 4;
   if(!this->_internal_text().empty()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_text());
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_text());
   }
 
   // .google.protobuf.Any any_value = 2;
@@ -393,9 +389,7 @@ void TestAny::InternalSwap(TestAny* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestAny::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2fany_5ftest_2eproto_getter, &descriptor_table_google_2fprotobuf_2fany_5ftest_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2fany_5ftest_2eproto[0]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2fany_5ftest_2eproto_getter, &descriptor_table_google_2fprotobuf_2fany_5ftest_2eproto_once, file_level_metadata_google_2fprotobuf_2fany_5ftest_2eproto[0]);
 }
 
 // @@protoc_insertion_point(namespace_scope)

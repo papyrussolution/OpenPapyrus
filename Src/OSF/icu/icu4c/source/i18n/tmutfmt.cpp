@@ -1,11 +1,8 @@
+// TMUTFMT.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- * Copyright (C) 2008-2015, Google, International Business Machines Corporation
- * and others. All Rights Reserved.
- *******************************************************************************
- */
+// Copyright (C) 2008-2015, Google, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/tmutfmt.h"
@@ -302,9 +299,9 @@ void TimeUnitFormat::create(UTimeUnitFormatStyle style, UErrorCode & status) {
 	setup(status);
 }
 
-void TimeUnitFormat::setup(UErrorCode & err) {
+void TimeUnitFormat::setup(UErrorCode & err) 
+{
 	initDataMembers(err);
-
 	UVector pluralCounts(0, uhash_compareUnicodeString, 6, err);
 	LocalPointer<StringEnumeration> keywords(getPluralRules().getKeywords(err), err);
 	if(U_FAILURE(err)) {
@@ -320,7 +317,8 @@ void TimeUnitFormat::setup(UErrorCode & err) {
 	checkConsistency(UTMUTFMT_ABBREVIATED_STYLE, gShortUnitsTag, err);
 }
 
-void TimeUnitFormat::initDataMembers(UErrorCode & err) {
+void TimeUnitFormat::initDataMembers(UErrorCode & err) 
+{
 	if(U_FAILURE(err)) {
 		return;
 	}
@@ -337,16 +335,13 @@ struct TimeUnitFormatReadSink : public ResourceSink {
 	const UVector &pluralCounts;
 	UTimeUnitFormatStyle style;
 	bool beenHere;
-
-	TimeUnitFormatReadSink(TimeUnitFormat * timeUnitFormatObj,
-	    const UVector &pluralCounts, UTimeUnitFormatStyle style) :
-		timeUnitFormatObj(timeUnitFormatObj), pluralCounts(pluralCounts),
-		style(style), beenHere(FALSE) {
+	TimeUnitFormatReadSink(TimeUnitFormat * timeUnitFormatObj, const UVector &pluralCounts, UTimeUnitFormatStyle style) :
+		timeUnitFormatObj(timeUnitFormatObj), pluralCounts(pluralCounts), style(style), beenHere(FALSE) 
+	{
 	}
-
 	virtual ~TimeUnitFormatReadSink();
-
-	virtual void put(const char * key, ResourceValue &value, bool, UErrorCode & errorCode) override {
+	virtual void put(const char * key, ResourceValue &value, bool, UErrorCode & errorCode) override 
+	{
 		// Skip all put() calls except the first one -- discard all fallback data.
 		if(beenHere) {
 			return;
@@ -354,55 +349,41 @@ struct TimeUnitFormatReadSink : public ResourceSink {
 		else {
 			beenHere = TRUE;
 		}
-
 		ResourceTable units = value.getTable(errorCode);
 		if(U_FAILURE(errorCode)) {
 			return;
 		}
-
 		for(int32_t i = 0; units.getKeyAndValue(i, key, value); ++i) {
 			const char * timeUnitName = key;
 			if(timeUnitName == NULL) {
 				continue;
 			}
-
 			TimeUnit::UTimeUnitFields timeUnitField = TimeUnit::UTIMEUNIT_FIELD_COUNT;
-			if(uprv_strcmp(timeUnitName, gTimeUnitYear) == 0) {
+			if(sstreq(timeUnitName, gTimeUnitYear))
 				timeUnitField = TimeUnit::UTIMEUNIT_YEAR;
-			}
-			else if(uprv_strcmp(timeUnitName, gTimeUnitMonth) == 0) {
+			else if(sstreq(timeUnitName, gTimeUnitMonth))
 				timeUnitField = TimeUnit::UTIMEUNIT_MONTH;
-			}
-			else if(uprv_strcmp(timeUnitName, gTimeUnitDay) == 0) {
+			else if(sstreq(timeUnitName, gTimeUnitDay))
 				timeUnitField = TimeUnit::UTIMEUNIT_DAY;
-			}
-			else if(uprv_strcmp(timeUnitName, gTimeUnitHour) == 0) {
+			else if(sstreq(timeUnitName, gTimeUnitHour))
 				timeUnitField = TimeUnit::UTIMEUNIT_HOUR;
-			}
-			else if(uprv_strcmp(timeUnitName, gTimeUnitMinute) == 0) {
+			else if(sstreq(timeUnitName, gTimeUnitMinute))
 				timeUnitField = TimeUnit::UTIMEUNIT_MINUTE;
-			}
-			else if(uprv_strcmp(timeUnitName, gTimeUnitSecond) == 0) {
+			else if(sstreq(timeUnitName, gTimeUnitSecond))
 				timeUnitField = TimeUnit::UTIMEUNIT_SECOND;
-			}
-			else if(uprv_strcmp(timeUnitName, gTimeUnitWeek) == 0) {
+			else if(sstreq(timeUnitName, gTimeUnitWeek))
 				timeUnitField = TimeUnit::UTIMEUNIT_WEEK;
-			}
-			else {
+			else
 				continue;
-			}
 			LocalPointer<Hashtable> localCountToPatterns;
-			Hashtable * countToPatterns =
-			    timeUnitFormatObj->fTimeUnitToCountToPatterns[timeUnitField];
+			Hashtable * countToPatterns = timeUnitFormatObj->fTimeUnitToCountToPatterns[timeUnitField];
 			if(countToPatterns == NULL) {
-				localCountToPatterns.adoptInsteadAndCheckErrorCode(
-					timeUnitFormatObj->initHash(errorCode), errorCode);
+				localCountToPatterns.adoptInsteadAndCheckErrorCode(timeUnitFormatObj->initHash(errorCode), errorCode);
 				countToPatterns = localCountToPatterns.getAlias();
 				if(U_FAILURE(errorCode)) {
 					return;
 				}
 			}
-
 			ResourceTable countsToPatternTable = value.getTable(errorCode);
 			if(U_FAILURE(errorCode)) {
 				continue;
@@ -422,11 +403,9 @@ struct TimeUnitFormatReadSink : public ResourceSink {
 				if(U_FAILURE(errorCode)) {
 					return;
 				}
-				MessageFormat** formatters =
-				    (MessageFormat**)countToPatterns->get(pluralCountUniStr);
+				MessageFormat** formatters = (MessageFormat**)countToPatterns->get(pluralCountUniStr);
 				if(formatters == NULL) {
-					LocalMemory<MessageFormat *> localFormatters(
-						(MessageFormat**)uprv_malloc(UTMUTFMT_FORMAT_STYLE_COUNT*sizeof(MessageFormat*)));
+					LocalMemory<MessageFormat *> localFormatters((MessageFormat**)uprv_malloc(UTMUTFMT_FORMAT_STYLE_COUNT*sizeof(MessageFormat*)));
 					if(localFormatters.isNull()) {
 						errorCode = U_MEMORY_ALLOCATION_ERROR;
 						return;
@@ -441,7 +420,6 @@ struct TimeUnitFormatReadSink : public ResourceSink {
 				}
 				formatters[style] = messageFormat.orphan();
 			}
-
 			if(timeUnitFormatObj->fTimeUnitToCountToPatterns[timeUnitField] == NULL) {
 				timeUnitFormatObj->fTimeUnitToCountToPatterns[timeUnitField] = localCountToPatterns.orphan();
 			}
@@ -663,25 +641,27 @@ void TimeUnitFormat::searchInLocaleChain(UTimeUnitFormatStyle style, const char 
 	}
 	else {
 		// fall back to rule "other", and search in parents
-		searchInLocaleChain(style, key, localeName, srcTimeUnitField, srcPluralCount,
-		    gPluralCountOther, countToPatterns, err);
+		searchInLocaleChain(style, key, localeName, srcTimeUnitField, srcPluralCount, gPluralCountOther, countToPatterns, err);
 	}
 }
 
-void TimeUnitFormat::setLocale(const Locale & locale, UErrorCode & status) {
+void TimeUnitFormat::setLocale(const Locale & locale, UErrorCode & status) 
+{
 	if(setMeasureFormatLocale(locale, status)) {
 		setup(status);
 	}
 }
 
-void TimeUnitFormat::setNumberFormat(const NumberFormat& format, UErrorCode & status) {
+void TimeUnitFormat::setNumberFormat(const NumberFormat& format, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
 	adoptNumberFormat(format.clone(), status);
 }
 
-void TimeUnitFormat::deleteHash(Hashtable* htable) {
+void TimeUnitFormat::deleteHash(Hashtable* htable) 
+{
 	int32_t pos = UHASH_FIRST;
 	const UHashElement* element = NULL;
 	if(htable) {
@@ -734,8 +714,8 @@ U_CDECL_BEGIN
  */
 static bool U_CALLCONV tmutfmtHashTableValueComparator(UHashTok val1, UHashTok val2);
 
-static bool
-U_CALLCONV tmutfmtHashTableValueComparator(UHashTok val1, UHashTok val2) {
+static bool U_CALLCONV tmutfmtHashTableValueComparator(UHashTok val1, UHashTok val2) 
+{
 	const MessageFormat** pattern1 = (const MessageFormat**)val1.pointer;
 	const MessageFormat** pattern2 = (const MessageFormat**)val2.pointer;
 	return *pattern1[0] == *pattern2[0] && *pattern1[1] == *pattern2[1];
@@ -743,7 +723,8 @@ U_CALLCONV tmutfmtHashTableValueComparator(UHashTok val1, UHashTok val2) {
 
 U_CDECL_END
 
-Hashtable* TimeUnitFormat::initHash(UErrorCode & status) {
+Hashtable* TimeUnitFormat::initHash(UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return NULL;
 	}
@@ -760,26 +741,19 @@ Hashtable* TimeUnitFormat::initHash(UErrorCode & status) {
 	return hTable;
 }
 
-const char * TimeUnitFormat::getTimeUnitName(TimeUnit::UTimeUnitFields unitField,
-    UErrorCode & status) {
+const char * TimeUnitFormat::getTimeUnitName(TimeUnit::UTimeUnitFields unitField, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return NULL;
 	}
 	switch(unitField) {
-		case TimeUnit::UTIMEUNIT_YEAR:
-		    return gTimeUnitYear;
-		case TimeUnit::UTIMEUNIT_MONTH:
-		    return gTimeUnitMonth;
-		case TimeUnit::UTIMEUNIT_DAY:
-		    return gTimeUnitDay;
-		case TimeUnit::UTIMEUNIT_WEEK:
-		    return gTimeUnitWeek;
-		case TimeUnit::UTIMEUNIT_HOUR:
-		    return gTimeUnitHour;
-		case TimeUnit::UTIMEUNIT_MINUTE:
-		    return gTimeUnitMinute;
-		case TimeUnit::UTIMEUNIT_SECOND:
-		    return gTimeUnitSecond;
+		case TimeUnit::UTIMEUNIT_YEAR: return gTimeUnitYear;
+		case TimeUnit::UTIMEUNIT_MONTH: return gTimeUnitMonth;
+		case TimeUnit::UTIMEUNIT_DAY: return gTimeUnitDay;
+		case TimeUnit::UTIMEUNIT_WEEK: return gTimeUnitWeek;
+		case TimeUnit::UTIMEUNIT_HOUR: return gTimeUnitHour;
+		case TimeUnit::UTIMEUNIT_MINUTE: return gTimeUnitMinute;
+		case TimeUnit::UTIMEUNIT_SECOND: return gTimeUnitSecond;
 		default:
 		    status = U_ILLEGAL_ARGUMENT_ERROR;
 		    return NULL;

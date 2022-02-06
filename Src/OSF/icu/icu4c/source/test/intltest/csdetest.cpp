@@ -11,10 +11,6 @@
 #include "csdetest.h"
 #include "xmlparser.h"
 
-#ifdef DEBUG_DETECT
-#include <stdio.h>
-#endif
-
 #define CH_SPACE 0x0020
 #define CH_SLASH 0x002F
 

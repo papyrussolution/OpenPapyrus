@@ -134,8 +134,7 @@ class DefaultValueTest final :
   inline void Swap(DefaultValueTest* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -167,8 +166,7 @@ class DefaultValueTest final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -179,19 +177,16 @@ class DefaultValueTest final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "proto_util_converter.testing.DefaultValueTest";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "proto_util_converter.testing.DefaultValueTest"; }
   protected:
-  explicit DefaultValueTest(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit DefaultValueTest(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -405,35 +400,29 @@ class DefaultValueTest final :
 inline void DefaultValueTest::clear_double_value() {
   double_value_ = 0;
 }
-inline double DefaultValueTest::_internal_double_value() const {
-  return double_value_;
-}
+inline double DefaultValueTest::_internal_double_value() const { return double_value_; }
 inline double DefaultValueTest::double_value() const {
-  // @@protoc_insertion_point(field_get:proto_util_converter.testing.DefaultValueTest.double_value)
-  return _internal_double_value();
+	// @@protoc_insertion_point(field_get:proto_util_converter.testing.DefaultValueTest.double_value)
+	return _internal_double_value();
 }
 inline void DefaultValueTest::_internal_set_double_value(double value) {
-  
-  double_value_ = value;
+	
+	double_value_ = value;
 }
 inline void DefaultValueTest::set_double_value(double value) {
-  _internal_set_double_value(value);
-  // @@protoc_insertion_point(field_set:proto_util_converter.testing.DefaultValueTest.double_value)
+	_internal_set_double_value(value);
+	// @@protoc_insertion_point(field_set:proto_util_converter.testing.DefaultValueTest.double_value)
 }
 
 // repeated double repeated_double = 2;
-inline int DefaultValueTest::_internal_repeated_double_size() const {
-  return repeated_double_.size();
-}
+inline int DefaultValueTest::_internal_repeated_double_size() const { return repeated_double_.size(); }
 inline int DefaultValueTest::repeated_double_size() const {
   return _internal_repeated_double_size();
 }
 inline void DefaultValueTest::clear_repeated_double() {
   repeated_double_.Clear();
 }
-inline double DefaultValueTest::_internal_repeated_double(int index) const {
-  return repeated_double_.Get(index);
-}
+inline double DefaultValueTest::_internal_repeated_double(int index) const { return repeated_double_.Get(index); }
 inline double DefaultValueTest::repeated_double(int index) const {
   // @@protoc_insertion_point(field_get:proto_util_converter.testing.DefaultValueTest.repeated_double)
   return _internal_repeated_double(index);
@@ -442,9 +431,7 @@ inline void DefaultValueTest::set_repeated_double(int index, double value) {
   repeated_double_.Set(index, value);
   // @@protoc_insertion_point(field_set:proto_util_converter.testing.DefaultValueTest.repeated_double)
 }
-inline void DefaultValueTest::_internal_add_repeated_double(double value) {
-  repeated_double_.Add(value);
-}
+inline void DefaultValueTest::_internal_add_repeated_double(double value) { repeated_double_.Add(value); }
 inline void DefaultValueTest::add_repeated_double(double value) {
   _internal_add_repeated_double(value);
   // @@protoc_insertion_point(field_add:proto_util_converter.testing.DefaultValueTest.repeated_double)
@@ -472,120 +459,108 @@ DefaultValueTest::mutable_repeated_double() {
 inline void DefaultValueTest::clear_float_value() {
   float_value_ = 0;
 }
-inline float DefaultValueTest::_internal_float_value() const {
-  return float_value_;
-}
+inline float DefaultValueTest::_internal_float_value() const { return float_value_; }
 inline float DefaultValueTest::float_value() const {
-  // @@protoc_insertion_point(field_get:proto_util_converter.testing.DefaultValueTest.float_value)
-  return _internal_float_value();
+	// @@protoc_insertion_point(field_get:proto_util_converter.testing.DefaultValueTest.float_value)
+	return _internal_float_value();
 }
 inline void DefaultValueTest::_internal_set_float_value(float value) {
-  
-  float_value_ = value;
+	
+	float_value_ = value;
 }
 inline void DefaultValueTest::set_float_value(float value) {
-  _internal_set_float_value(value);
-  // @@protoc_insertion_point(field_set:proto_util_converter.testing.DefaultValueTest.float_value)
+	_internal_set_float_value(value);
+	// @@protoc_insertion_point(field_set:proto_util_converter.testing.DefaultValueTest.float_value)
 }
 
 // int64 int64_value = 5;
 inline void DefaultValueTest::clear_int64_value() {
   int64_value_ = int64_t{0};
 }
-inline int64_t DefaultValueTest::_internal_int64_value() const {
-  return int64_value_;
-}
+inline int64_t DefaultValueTest::_internal_int64_value() const { return int64_value_; }
 inline int64_t DefaultValueTest::int64_value() const {
-  // @@protoc_insertion_point(field_get:proto_util_converter.testing.DefaultValueTest.int64_value)
-  return _internal_int64_value();
+	// @@protoc_insertion_point(field_get:proto_util_converter.testing.DefaultValueTest.int64_value)
+	return _internal_int64_value();
 }
 inline void DefaultValueTest::_internal_set_int64_value(int64_t value) {
-  
-  int64_value_ = value;
+	
+	int64_value_ = value;
 }
 inline void DefaultValueTest::set_int64_value(int64_t value) {
-  _internal_set_int64_value(value);
-  // @@protoc_insertion_point(field_set:proto_util_converter.testing.DefaultValueTest.int64_value)
+	_internal_set_int64_value(value);
+	// @@protoc_insertion_point(field_set:proto_util_converter.testing.DefaultValueTest.int64_value)
 }
 
 // uint64 uint64_value = 7;
 inline void DefaultValueTest::clear_uint64_value() {
   uint64_value_ = uint64_t{0u};
 }
-inline uint64_t DefaultValueTest::_internal_uint64_value() const {
-  return uint64_value_;
-}
+inline uint64_t DefaultValueTest::_internal_uint64_value() const { return uint64_value_; }
 inline uint64_t DefaultValueTest::uint64_value() const {
-  // @@protoc_insertion_point(field_get:proto_util_converter.testing.DefaultValueTest.uint64_value)
-  return _internal_uint64_value();
+	// @@protoc_insertion_point(field_get:proto_util_converter.testing.DefaultValueTest.uint64_value)
+	return _internal_uint64_value();
 }
 inline void DefaultValueTest::_internal_set_uint64_value(uint64_t value) {
-  
-  uint64_value_ = value;
+	
+	uint64_value_ = value;
 }
 inline void DefaultValueTest::set_uint64_value(uint64_t value) {
-  _internal_set_uint64_value(value);
-  // @@protoc_insertion_point(field_set:proto_util_converter.testing.DefaultValueTest.uint64_value)
+	_internal_set_uint64_value(value);
+	// @@protoc_insertion_point(field_set:proto_util_converter.testing.DefaultValueTest.uint64_value)
 }
 
 // int32 int32_value = 9;
 inline void DefaultValueTest::clear_int32_value() {
   int32_value_ = 0;
 }
-inline int32_t DefaultValueTest::_internal_int32_value() const {
-  return int32_value_;
-}
+inline int32_t DefaultValueTest::_internal_int32_value() const { return int32_value_; }
 inline int32_t DefaultValueTest::int32_value() const {
-  // @@protoc_insertion_point(field_get:proto_util_converter.testing.DefaultValueTest.int32_value)
-  return _internal_int32_value();
+	// @@protoc_insertion_point(field_get:proto_util_converter.testing.DefaultValueTest.int32_value)
+	return _internal_int32_value();
 }
 inline void DefaultValueTest::_internal_set_int32_value(int32_t value) {
-  
-  int32_value_ = value;
+	
+	int32_value_ = value;
 }
 inline void DefaultValueTest::set_int32_value(int32_t value) {
-  _internal_set_int32_value(value);
-  // @@protoc_insertion_point(field_set:proto_util_converter.testing.DefaultValueTest.int32_value)
+	_internal_set_int32_value(value);
+	// @@protoc_insertion_point(field_set:proto_util_converter.testing.DefaultValueTest.int32_value)
 }
 
 // uint32 uint32_value = 11;
 inline void DefaultValueTest::clear_uint32_value() {
   uint32_value_ = 0u;
 }
-inline uint32_t DefaultValueTest::_internal_uint32_value() const {
-  return uint32_value_;
-}
+inline uint32_t DefaultValueTest::_internal_uint32_value() const { return uint32_value_; }
 inline uint32_t DefaultValueTest::uint32_value() const {
-  // @@protoc_insertion_point(field_get:proto_util_converter.testing.DefaultValueTest.uint32_value)
-  return _internal_uint32_value();
+	// @@protoc_insertion_point(field_get:proto_util_converter.testing.DefaultValueTest.uint32_value)
+	return _internal_uint32_value();
 }
 inline void DefaultValueTest::_internal_set_uint32_value(uint32_t value) {
-  
-  uint32_value_ = value;
+	
+	uint32_value_ = value;
 }
 inline void DefaultValueTest::set_uint32_value(uint32_t value) {
-  _internal_set_uint32_value(value);
-  // @@protoc_insertion_point(field_set:proto_util_converter.testing.DefaultValueTest.uint32_value)
+	_internal_set_uint32_value(value);
+	// @@protoc_insertion_point(field_set:proto_util_converter.testing.DefaultValueTest.uint32_value)
 }
 
 // bool bool_value = 13;
 inline void DefaultValueTest::clear_bool_value() {
   bool_value_ = false;
 }
-inline bool DefaultValueTest::_internal_bool_value() const {
-  return bool_value_;
-}
+inline bool DefaultValueTest::_internal_bool_value() const { return bool_value_; }
 inline bool DefaultValueTest::bool_value() const {
-  // @@protoc_insertion_point(field_get:proto_util_converter.testing.DefaultValueTest.bool_value)
-  return _internal_bool_value();
+	// @@protoc_insertion_point(field_get:proto_util_converter.testing.DefaultValueTest.bool_value)
+	return _internal_bool_value();
 }
 inline void DefaultValueTest::_internal_set_bool_value(bool value) {
-  
-  bool_value_ = value;
+	
+	bool_value_ = value;
 }
 inline void DefaultValueTest::set_bool_value(bool value) {
-  _internal_set_bool_value(value);
-  // @@protoc_insertion_point(field_set:proto_util_converter.testing.DefaultValueTest.bool_value)
+	_internal_set_bool_value(value);
+	// @@protoc_insertion_point(field_set:proto_util_converter.testing.DefaultValueTest.bool_value)
 }
 
 // string string_value = 15;
@@ -593,8 +568,8 @@ inline void DefaultValueTest::clear_string_value() {
   string_value_.ClearToEmpty();
 }
 inline const std::string& DefaultValueTest::string_value() const {
-  // @@protoc_insertion_point(field_get:proto_util_converter.testing.DefaultValueTest.string_value)
-  return _internal_string_value();
+	// @@protoc_insertion_point(field_get:proto_util_converter.testing.DefaultValueTest.string_value)
+	return _internal_string_value();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -604,35 +579,32 @@ void DefaultValueTest::set_string_value(ArgT0&& arg0, ArgT... args) {
   // @@protoc_insertion_point(field_set:proto_util_converter.testing.DefaultValueTest.string_value)
 }
 inline std::string* DefaultValueTest::mutable_string_value() {
-  std::string* _s = _internal_mutable_string_value();
-  // @@protoc_insertion_point(field_mutable:proto_util_converter.testing.DefaultValueTest.string_value)
-  return _s;
+	std::string* _s = _internal_mutable_string_value();
+	// @@protoc_insertion_point(field_mutable:proto_util_converter.testing.DefaultValueTest.string_value)
+	return _s;
 }
-inline const std::string& DefaultValueTest::_internal_string_value() const {
-  return string_value_.Get();
-}
+inline const std::string& DefaultValueTest::_internal_string_value() const { return string_value_.Get(); }
 inline void DefaultValueTest::_internal_set_string_value(const std::string& value) {
-  
-  string_value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	
+	string_value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* DefaultValueTest::_internal_mutable_string_value() {
-  
-  return string_value_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	
+	return string_value_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* DefaultValueTest::release_string_value() {
   // @@protoc_insertion_point(field_release:proto_util_converter.testing.DefaultValueTest.string_value)
   return string_value_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 }
 inline void DefaultValueTest::set_allocated_string_value(std::string* string_value) {
-  if (string_value != nullptr) {
+  if(string_value != nullptr) {
     
   } else {
     
   }
-  string_value_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), string_value,
-      GetArenaForAllocation());
+  string_value_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), string_value, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (string_value_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(string_value_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     string_value_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -644,8 +616,8 @@ inline void DefaultValueTest::clear_bytes_value() {
   bytes_value_.ClearToEmpty();
 }
 inline const std::string& DefaultValueTest::bytes_value() const {
-  // @@protoc_insertion_point(field_get:proto_util_converter.testing.DefaultValueTest.bytes_value)
-  return _internal_bytes_value();
+	// @@protoc_insertion_point(field_get:proto_util_converter.testing.DefaultValueTest.bytes_value)
+	return _internal_bytes_value();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -655,35 +627,32 @@ void DefaultValueTest::set_bytes_value(ArgT0&& arg0, ArgT... args) {
   // @@protoc_insertion_point(field_set:proto_util_converter.testing.DefaultValueTest.bytes_value)
 }
 inline std::string* DefaultValueTest::mutable_bytes_value() {
-  std::string* _s = _internal_mutable_bytes_value();
-  // @@protoc_insertion_point(field_mutable:proto_util_converter.testing.DefaultValueTest.bytes_value)
-  return _s;
+	std::string* _s = _internal_mutable_bytes_value();
+	// @@protoc_insertion_point(field_mutable:proto_util_converter.testing.DefaultValueTest.bytes_value)
+	return _s;
 }
-inline const std::string& DefaultValueTest::_internal_bytes_value() const {
-  return bytes_value_.Get();
-}
+inline const std::string& DefaultValueTest::_internal_bytes_value() const { return bytes_value_.Get(); }
 inline void DefaultValueTest::_internal_set_bytes_value(const std::string& value) {
-  
-  bytes_value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	
+	bytes_value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* DefaultValueTest::_internal_mutable_bytes_value() {
-  
-  return bytes_value_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	
+	return bytes_value_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* DefaultValueTest::release_bytes_value() {
   // @@protoc_insertion_point(field_release:proto_util_converter.testing.DefaultValueTest.bytes_value)
   return bytes_value_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 }
 inline void DefaultValueTest::set_allocated_bytes_value(std::string* bytes_value) {
-  if (bytes_value != nullptr) {
+  if(bytes_value != nullptr) {
     
   } else {
     
   }
-  bytes_value_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), bytes_value,
-      GetArenaForAllocation());
+  bytes_value_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), bytes_value, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (bytes_value_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(bytes_value_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     bytes_value_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING

@@ -1,5 +1,5 @@
 // PPSUPPLIX.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022
 //
 #include <pp.h>
 #pragma hdrstop
@@ -5905,7 +5905,7 @@ private:
 		if(SXml::IsName(pNode, "Error")) {
 			if(pNode->children) {
 				if(pInfo) {
-					for(xmlNode * p_r = pNode->children; p_r; p_r = p_r->next) {
+					for(const xmlNode * p_r = pNode->children; p_r; p_r = p_r->next) {
 						if(SXml::GetContentByName(p_r, "ErrorID", temp_buf))
 							pInfo->ErrCode = temp_buf.ToLong();
 						else if(SXml::GetContentByName(p_r, "InternalErrorID", temp_buf))
@@ -5937,21 +5937,21 @@ private:
 		if(pSrc && pSrc->NotEmpty()) {
 			const size_t avl_size = pSrc->Len();
 			SString temp_buf;
-			xmlNode * p_root = 0;
+			const xmlNode * p_root = 0;
 			THROW(p_ctx = xmlNewParserCtxt());
 			THROW_LXML(p_doc = xmlCtxtReadMemory(p_ctx, pSrc->cptr(), avl_size, 0, 0, XML_PARSE_NOENT), p_ctx);
 			THROW(p_root = xmlDocGetRootElement(p_doc));
 			if(SXml::IsName(p_root, "DRP_GetOrders") || SXml::IsName(p_root, "DRP_GetOrdersDemo") || SXml::IsName(p_root, "DRP_GetOrdersByDate")) {
-				for(xmlNode * p_c = p_root->children; p_c; p_c = p_c->next) {
+				for(const xmlNode * p_c = p_root->children; p_c; p_c = p_c->next) {
 					if(ParseReplyInfo(p_c, pInfo) > 0) {
 						;
 					}
 					else if(SXml::IsName(p_c, "ResultObject")) {
-						for(xmlNode * p_r = p_c->children; p_r; p_r = p_r->next) {
+						for(const xmlNode * p_r = p_c->children; p_r; p_r = p_r->next) {
 							if(SXml::IsName(p_r, "Order")) {
 								OrderEntry * p_new_entry = rList.CreateNewItem();
 								THROW_SL(p_new_entry);
-								for(xmlNode * p_ord = p_r->children; p_ord; p_ord = p_ord->next) {
+								for(const xmlNode * p_ord = p_r->children; p_ord; p_ord = p_ord->next) {
 									if(SXml::GetContentByName(p_ord, "OrderID", temp_buf))
 										p_new_entry->Uuid.FromStr(temp_buf);
 									else if(SXml::GetContentByName(p_ord, "DateTime", temp_buf))
@@ -5975,11 +5975,11 @@ private:
 									else if(SXml::GetContentByName(p_ord, "WareHouseID", temp_buf))
 										p_new_entry->WarehouseID = temp_buf.ToLong();
 									else if(SXml::IsName(p_ord, "OrderPositions")) {
-										for(xmlNode * p_items = p_ord->children; p_items; p_items = p_items->next) {
+										for(const xmlNode * p_items = p_ord->children; p_items; p_items = p_items->next) {
 											if(SXml::IsName(p_items, "OrderPosition")) {
 												OrderEntry::Item * p_new_item = p_new_entry->ItemList.CreateNewItem();
 												THROW_SL(p_new_item);
-												for(xmlNode * p_it = p_items->children; p_it; p_it = p_it->next) {
+												for(const xmlNode * p_it = p_items->children; p_it; p_it = p_it->next) {
 													if(SXml::GetContentByName(p_it, "SkuID", temp_buf))
 														p_new_item->SkuID = temp_buf.ToLong();
 													else if(SXml::GetContentByName(p_it, "SkuName", temp_buf))
@@ -6013,19 +6013,19 @@ private:
 		if(pSrc && pSrc->NotEmpty()) {
 			const size_t avl_size = pSrc->Len();
 			SString temp_buf;
-			xmlNode * p_root = 0;
+			const xmlNode * p_root = 0;
 			THROW(p_ctx = xmlNewParserCtxt());
 			THROW_LXML(p_doc = xmlCtxtReadMemory(p_ctx, pSrc->cptr(), avl_size, 0, 0, XML_PARSE_NOENT), p_ctx);
 			THROW(p_root = xmlDocGetRootElement(p_doc));
 			if(SXml::IsName(p_root, "DRP_GetSkuAssortment")) {
-				for(xmlNode * p_c = p_root->children; p_c; p_c = p_c->next) {
+				for(const xmlNode * p_c = p_root->children; p_c; p_c = p_c->next) {
 					if(ParseReplyInfo(p_c, pInfo) > 0) {
 						;
 					}
 					else if(SXml::IsName(p_c, "ResultObject")) {
-						for(xmlNode * p_r = p_c->children; p_r; p_r = p_r->next) {
+						for(const xmlNode * p_r = p_c->children; p_r; p_r = p_r->next) {
 							if(SXml::IsName(p_r, "Sku")) {
-								for(xmlNode * p_sku = p_r->children; p_sku; p_sku = p_sku->next) {
+								for(const xmlNode * p_sku = p_r->children; p_sku; p_sku = p_sku->next) {
 									GoodsEntry * p_new_entry = rList.CreateNewItem();
 									THROW_SL(p_new_entry);
 									if(SXml::GetContentByName(p_sku, "ID", temp_buf)) {

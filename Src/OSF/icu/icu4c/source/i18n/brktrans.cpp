@@ -1,10 +1,10 @@
+// BRKTRANS.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *   Copyright (C) 2008-2015, International Business Machines Corporation and others.  All Rights Reserved.
- *   Date        Name        Description
- *   05/11/2008  Andy Heninger  Port from Java
- */
+// Copyright (C) 2008-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// Date        Name        Description
+// 05/11/2008  Andy Heninger  Port from Java
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -131,7 +131,6 @@ void BreakTransliterator::handleTransliterate(Replaceable& text, UTransPosition&
 			nonConstThis->cachedBoundaries = std::move(boundaries);
 		}
 	}
-
 	// TODO:  do something with U_FAILURE(status);
 	//        (need to look at transliterators overall, not just here.)
 }
@@ -139,14 +138,13 @@ void BreakTransliterator::handleTransliterate(Replaceable& text, UTransPosition&
 //
 //  getInsertion()
 //
-const UnicodeString & BreakTransliterator::getInsertion() const {
-	return fInsertion;
-}
+const UnicodeString & BreakTransliterator::getInsertion() const { return fInsertion; }
 
 //
 //  setInsertion()
 //
-void BreakTransliterator::setInsertion(const UnicodeString & insertion) {
+void BreakTransliterator::setInsertion(const UnicodeString & insertion) 
+{
 	this->fInsertion = insertion;
 }
 

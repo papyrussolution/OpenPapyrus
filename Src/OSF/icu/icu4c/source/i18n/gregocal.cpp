@@ -686,7 +686,7 @@ UDate GregorianCalendar::julianDayToMillis(double julian)
 int32_t GregorianCalendar::aggregateStamp(int32_t stamp_a, int32_t stamp_b)
 {
 	return (((stamp_a != kUnset && stamp_b != kUnset)
-	       ? uprv_max(stamp_a, stamp_b)
+	       ? smax(stamp_a, stamp_b)
 	       : (int32_t)kUnset));
 }
 /**

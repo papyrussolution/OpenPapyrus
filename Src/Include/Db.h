@@ -1648,7 +1648,7 @@ public:
 	int    open(const char * pTblName, const char * pFileName = 0, int openMode = omNormal);
 	int    close();
 	int    IsOpened() const;
-	int    FASTCALL getField(uint fldN, DBField *) const;
+	bool   FASTCALL getField(uint fldN, DBField *) const;
 	int    getFieldByName(const char * pName, DBField *) const;
 	int    getFieldValue(uint fldN, void * pVal, size_t * pSize) const;
 	int    setFieldValue(uint fldN, const void * pVal);
@@ -1807,9 +1807,9 @@ public:
 		long   Sf;
 		int8   Key[512];
 	};
-	int    SetStmt(SelectStmt * pStmt); // @private
+	void   SetStmt(SelectStmt * pStmt); // @private
 	SelectStmt * GetStmt();             // @private
-	int    ToggleStmt(int release);     // @private
+	void   ToggleStmt(bool release);    // @private
 protected:
 	DBTable(const char *, const char *, void * pFlds, void * pData, int openMode, DbProvider * pDbP = 0);
 	int    getStat(void ** ppInfo, uint16 * pBufSize);

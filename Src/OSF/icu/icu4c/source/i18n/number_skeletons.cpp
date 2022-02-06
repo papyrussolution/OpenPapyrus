@@ -472,8 +472,8 @@ UnlocalizedNumberFormatter skeleton::create(const UnicodeString & skeletonString
 
 	// Populate the UParseError with the error location
 	perror->offset = errOffset;
-	int32_t contextStart = uprv_max(0, errOffset - U_PARSE_CONTEXT_LEN + 1);
-	int32_t contextEnd = uprv_min(skeletonString.length(), errOffset + U_PARSE_CONTEXT_LEN - 1);
+	int32_t contextStart = smax(0, errOffset - U_PARSE_CONTEXT_LEN + 1);
+	int32_t contextEnd = smin(skeletonString.length(), errOffset + U_PARSE_CONTEXT_LEN - 1);
 	skeletonString.extract(contextStart, errOffset - contextStart, perror->preContext, 0);
 	perror->preContext[errOffset - contextStart] = 0;
 	skeletonString.extract(errOffset, contextEnd - errOffset, perror->postContext, 0);

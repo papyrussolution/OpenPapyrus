@@ -91,10 +91,10 @@ void FormattedValueFieldPositionIteratorImpl::addOverlapSpans(UFieldCategory spa
 				continue;
 			}
 			// Found a duplicate
-			s1a = uprv_min(s1a, fFields.elementAti(i * 4 + 2));
-			s1b = uprv_max(s1b, fFields.elementAti(i * 4 + 3));
-			s2a = uprv_min(s2a, fFields.elementAti(j * 4 + 2));
-			s2b = uprv_max(s2b, fFields.elementAti(j * 4 + 3));
+			s1a = smin(s1a, fFields.elementAti(i * 4 + 2));
+			s1b = smax(s1b, fFields.elementAti(i * 4 + 3));
+			s2a = smin(s2a, fFields.elementAti(j * 4 + 2));
+			s2b = smax(s2b, fFields.elementAti(j * 4 + 3));
 			break;
 		}
 	}

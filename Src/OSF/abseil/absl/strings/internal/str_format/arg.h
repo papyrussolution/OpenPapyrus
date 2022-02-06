@@ -293,7 +293,7 @@ constexpr FormatConversionCharSet ArgumentToConv() {
 		decltype(str_format_internal::FormatConvertImpl(
 			std::declval<const Arg&>(),
 			std::declval<const FormatConversionSpecImpl&>(),
-			std::declval<FormatSinkImpl*>())){});
+			std::declval<FormatSinkImpl*>())) {});
 }
 
 // A type-erased handle to a format argument.

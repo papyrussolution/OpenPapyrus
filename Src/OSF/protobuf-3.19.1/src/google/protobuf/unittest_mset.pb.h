@@ -124,8 +124,7 @@ class TestMessageSetContainer final :
   inline void Swap(TestMessageSetContainer* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -157,8 +156,7 @@ class TestMessageSetContainer final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -169,19 +167,16 @@ class TestMessageSetContainer final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestMessageSetContainer";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestMessageSetContainer"; }
   protected:
-  explicit TestMessageSetContainer(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestMessageSetContainer(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -269,8 +264,7 @@ class TestMessageSetExtension1 final :
   inline void Swap(TestMessageSetExtension1* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -302,8 +296,7 @@ class TestMessageSetExtension1 final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -314,19 +307,16 @@ class TestMessageSetExtension1 final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestMessageSetExtension1";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestMessageSetExtension1"; }
   protected:
-  explicit TestMessageSetExtension1(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestMessageSetExtension1(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -456,8 +446,7 @@ class TestMessageSetExtension2 final :
   inline void Swap(TestMessageSetExtension2* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -489,8 +478,7 @@ class TestMessageSetExtension2 final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -501,19 +489,16 @@ class TestMessageSetExtension2 final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestMessageSetExtension2";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestMessageSetExtension2"; }
   protected:
-  explicit TestMessageSetExtension2(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestMessageSetExtension2(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -605,8 +590,7 @@ class RawMessageSet_Item final :
   inline void Swap(RawMessageSet_Item* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -638,8 +622,7 @@ class RawMessageSet_Item final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -650,19 +633,16 @@ class RawMessageSet_Item final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.RawMessageSet.Item";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.RawMessageSet.Item"; }
   protected:
-  explicit RawMessageSet_Item(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit RawMessageSet_Item(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -709,8 +689,7 @@ class RawMessageSet_Item final :
  private:
   class _Internal;
 
-  // helper for ByteSizeLong()
-  size_t RequiredFieldsByteSizeFallback() const;
+  size_t RequiredFieldsByteSizeFallback() const; // helper for ByteSizeLong()
 
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
@@ -768,8 +747,7 @@ class RawMessageSet final :
   inline void Swap(RawMessageSet* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -801,8 +779,7 @@ class RawMessageSet final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -813,19 +790,16 @@ class RawMessageSet final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.RawMessageSet";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.RawMessageSet"; }
   protected:
-  explicit RawMessageSet(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit RawMessageSet(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -982,20 +956,18 @@ inline void TestMessageSetExtension1::clear_i() {
   i_ = 0;
   _has_bits_[0] &= ~0x00000004u;
 }
-inline int32_t TestMessageSetExtension1::_internal_i() const {
-  return i_;
-}
+inline int32_t TestMessageSetExtension1::_internal_i() const { return i_; }
 inline int32_t TestMessageSetExtension1::i() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestMessageSetExtension1.i)
-  return _internal_i();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestMessageSetExtension1.i)
+	return _internal_i();
 }
 inline void TestMessageSetExtension1::_internal_set_i(int32_t value) {
-  _has_bits_[0] |= 0x00000004u;
-  i_ = value;
+	_has_bits_[0] |= 0x00000004u;
+	i_ = value;
 }
 inline void TestMessageSetExtension1::set_i(int32_t value) {
-  _internal_set_i(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.TestMessageSetExtension1.i)
+	_internal_set_i(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.TestMessageSetExtension1.i)
 }
 
 // optional .proto2_wireformat_unittest.TestMessageSet recursive = 16;
@@ -1099,8 +1071,8 @@ inline void TestMessageSetExtension1::clear_test_aliasing() {
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const std::string& TestMessageSetExtension1::test_aliasing() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestMessageSetExtension1.test_aliasing)
-  return _internal_test_aliasing();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestMessageSetExtension1.test_aliasing)
+	return _internal_test_aliasing();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -1110,45 +1082,40 @@ void TestMessageSetExtension1::set_test_aliasing(ArgT0&& arg0, ArgT... args) {
   // @@protoc_insertion_point(field_set:protobuf_unittest.TestMessageSetExtension1.test_aliasing)
 }
 inline std::string* TestMessageSetExtension1::mutable_test_aliasing() {
-  std::string* _s = _internal_mutable_test_aliasing();
-  // @@protoc_insertion_point(field_mutable:protobuf_unittest.TestMessageSetExtension1.test_aliasing)
-  return _s;
+	std::string* _s = _internal_mutable_test_aliasing();
+	// @@protoc_insertion_point(field_mutable:protobuf_unittest.TestMessageSetExtension1.test_aliasing)
+	return _s;
 }
-inline const std::string& TestMessageSetExtension1::_internal_test_aliasing() const {
-  return test_aliasing_.Get();
-}
+inline const std::string& TestMessageSetExtension1::_internal_test_aliasing() const { return test_aliasing_.Get(); }
 inline void TestMessageSetExtension1::_internal_set_test_aliasing(const std::string& value) {
-  _has_bits_[0] |= 0x00000001u;
-  test_aliasing_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000001u;
+	test_aliasing_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* TestMessageSetExtension1::_internal_mutable_test_aliasing() {
-  _has_bits_[0] |= 0x00000001u;
-  return test_aliasing_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000001u;
+	return test_aliasing_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* TestMessageSetExtension1::release_test_aliasing() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.TestMessageSetExtension1.test_aliasing)
-  if (!_internal_has_test_aliasing()) {
-    return nullptr;
-  }
+  if(!_internal_has_test_aliasing()) { return nullptr; }
   _has_bits_[0] &= ~0x00000001u;
   auto* p = test_aliasing_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (test_aliasing_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(test_aliasing_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     test_aliasing_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void TestMessageSetExtension1::set_allocated_test_aliasing(std::string* test_aliasing) {
-  if (test_aliasing != nullptr) {
+  if(test_aliasing != nullptr) {
     _has_bits_[0] |= 0x00000001u;
   } else {
     _has_bits_[0] &= ~0x00000001u;
   }
-  test_aliasing_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), test_aliasing,
-      GetArenaForAllocation());
+  test_aliasing_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), test_aliasing, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (test_aliasing_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(test_aliasing_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     test_aliasing_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -1172,8 +1139,8 @@ inline void TestMessageSetExtension2::clear_str() {
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const std::string& TestMessageSetExtension2::str() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.TestMessageSetExtension2.str)
-  return _internal_str();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.TestMessageSetExtension2.str)
+	return _internal_str();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -1183,45 +1150,40 @@ void TestMessageSetExtension2::set_str(ArgT0&& arg0, ArgT... args) {
   // @@protoc_insertion_point(field_set:protobuf_unittest.TestMessageSetExtension2.str)
 }
 inline std::string* TestMessageSetExtension2::mutable_str() {
-  std::string* _s = _internal_mutable_str();
-  // @@protoc_insertion_point(field_mutable:protobuf_unittest.TestMessageSetExtension2.str)
-  return _s;
+	std::string* _s = _internal_mutable_str();
+	// @@protoc_insertion_point(field_mutable:protobuf_unittest.TestMessageSetExtension2.str)
+	return _s;
 }
-inline const std::string& TestMessageSetExtension2::_internal_str() const {
-  return str_.Get();
-}
+inline const std::string& TestMessageSetExtension2::_internal_str() const { return str_.Get(); }
 inline void TestMessageSetExtension2::_internal_set_str(const std::string& value) {
-  _has_bits_[0] |= 0x00000001u;
-  str_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000001u;
+	str_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* TestMessageSetExtension2::_internal_mutable_str() {
-  _has_bits_[0] |= 0x00000001u;
-  return str_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000001u;
+	return str_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* TestMessageSetExtension2::release_str() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.TestMessageSetExtension2.str)
-  if (!_internal_has_str()) {
-    return nullptr;
-  }
+  if(!_internal_has_str()) { return nullptr; }
   _has_bits_[0] &= ~0x00000001u;
   auto* p = str_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (str_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(str_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     str_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void TestMessageSetExtension2::set_allocated_str(std::string* str) {
-  if (str != nullptr) {
+  if(str != nullptr) {
     _has_bits_[0] |= 0x00000001u;
   } else {
     _has_bits_[0] &= ~0x00000001u;
   }
-  str_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), str,
-      GetArenaForAllocation());
+  str_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), str, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (str_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(str_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     str_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -1244,20 +1206,18 @@ inline void RawMessageSet_Item::clear_type_id() {
   type_id_ = 0;
   _has_bits_[0] &= ~0x00000002u;
 }
-inline int32_t RawMessageSet_Item::_internal_type_id() const {
-  return type_id_;
-}
+inline int32_t RawMessageSet_Item::_internal_type_id() const { return type_id_; }
 inline int32_t RawMessageSet_Item::type_id() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.RawMessageSet.Item.type_id)
-  return _internal_type_id();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.RawMessageSet.Item.type_id)
+	return _internal_type_id();
 }
 inline void RawMessageSet_Item::_internal_set_type_id(int32_t value) {
-  _has_bits_[0] |= 0x00000002u;
-  type_id_ = value;
+	_has_bits_[0] |= 0x00000002u;
+	type_id_ = value;
 }
 inline void RawMessageSet_Item::set_type_id(int32_t value) {
-  _internal_set_type_id(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest.RawMessageSet.Item.type_id)
+	_internal_set_type_id(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest.RawMessageSet.Item.type_id)
 }
 
 // required bytes message = 3;
@@ -1273,8 +1233,8 @@ inline void RawMessageSet_Item::clear_message() {
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const std::string& RawMessageSet_Item::message() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest.RawMessageSet.Item.message)
-  return _internal_message();
+	// @@protoc_insertion_point(field_get:protobuf_unittest.RawMessageSet.Item.message)
+	return _internal_message();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -1284,45 +1244,40 @@ void RawMessageSet_Item::set_message(ArgT0&& arg0, ArgT... args) {
   // @@protoc_insertion_point(field_set:protobuf_unittest.RawMessageSet.Item.message)
 }
 inline std::string* RawMessageSet_Item::mutable_message() {
-  std::string* _s = _internal_mutable_message();
-  // @@protoc_insertion_point(field_mutable:protobuf_unittest.RawMessageSet.Item.message)
-  return _s;
+	std::string* _s = _internal_mutable_message();
+	// @@protoc_insertion_point(field_mutable:protobuf_unittest.RawMessageSet.Item.message)
+	return _s;
 }
-inline const std::string& RawMessageSet_Item::_internal_message() const {
-  return message_.Get();
-}
+inline const std::string& RawMessageSet_Item::_internal_message() const { return message_.Get(); }
 inline void RawMessageSet_Item::_internal_set_message(const std::string& value) {
-  _has_bits_[0] |= 0x00000001u;
-  message_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000001u;
+	message_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* RawMessageSet_Item::_internal_mutable_message() {
-  _has_bits_[0] |= 0x00000001u;
-  return message_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000001u;
+	return message_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* RawMessageSet_Item::release_message() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.RawMessageSet.Item.message)
-  if (!_internal_has_message()) {
-    return nullptr;
-  }
+  if(!_internal_has_message()) { return nullptr; }
   _has_bits_[0] &= ~0x00000001u;
   auto* p = message_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (message_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(message_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     message_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void RawMessageSet_Item::set_allocated_message(std::string* message) {
-  if (message != nullptr) {
+  if(message != nullptr) {
     _has_bits_[0] |= 0x00000001u;
   } else {
     _has_bits_[0] &= ~0x00000001u;
   }
-  message_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), message,
-      GetArenaForAllocation());
+  message_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), message, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (message_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(message_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     message_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -1334,9 +1289,7 @@ inline void RawMessageSet_Item::set_allocated_message(std::string* message) {
 // RawMessageSet
 
 // repeated group Item = 1 { ... };
-inline int RawMessageSet::_internal_item_size() const {
-  return item_.size();
-}
+inline int RawMessageSet::_internal_item_size() const { return item_.size(); }
 inline int RawMessageSet::item_size() const {
   return _internal_item_size();
 }

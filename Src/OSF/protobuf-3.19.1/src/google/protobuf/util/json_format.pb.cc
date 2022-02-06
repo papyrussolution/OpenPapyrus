@@ -600,12 +600,8 @@ bool EnumValue_IsValid(int value) {
 class TestFlagsAndStrings_RepeatedGroup::_Internal {
  public:
   using HasBits = decltype(std::declval<TestFlagsAndStrings_RepeatedGroup>()._has_bits_);
-  static void set_has_f(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
-  static bool MissingRequiredFields(const HasBits& has_bits) {
-    return ((has_bits[0] & 0x00000001) ^ 0x00000001) != 0;
-  }
+  static void set_has_f(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
+  static bool MissingRequiredFields(const HasBits& has_bits) { return ((has_bits[0] & 0x00000001) ^ 0x00000001) != 0; }
 };
 
 TestFlagsAndStrings_RepeatedGroup::TestFlagsAndStrings_RepeatedGroup(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -626,8 +622,7 @@ TestFlagsAndStrings_RepeatedGroup::TestFlagsAndStrings_RepeatedGroup(const TestF
     f_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_f()) {
-    f_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_f(), 
-      GetArenaForAllocation());
+    f_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_f(), GetArenaForAllocation());
   }
   // @@protoc_insertion_point(copy_constructor:protobuf_unittest.TestFlagsAndStrings.RepeatedGroup)
 }
@@ -731,8 +726,7 @@ uint8_t* TestFlagsAndStrings_RepeatedGroup::_InternalSerialize(
       this->_internal_f().data(), static_cast<int>(this->_internal_f().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
       "protobuf_unittest.TestFlagsAndStrings.RepeatedGroup.f");
-    target = stream->WriteStringMaybeAliased(
-        3, this->_internal_f(), target);
+    target = stream->WriteStringMaybeAliased(3, this->_internal_f(), target);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -749,9 +743,7 @@ size_t TestFlagsAndStrings_RepeatedGroup::ByteSizeLong() const {
 
   // required string f = 3;
   if(_internal_has_f()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_f());
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_f());
   }
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -811,9 +803,7 @@ void TestFlagsAndStrings_RepeatedGroup::InternalSwap(TestFlagsAndStrings_Repeate
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestFlagsAndStrings_RepeatedGroup::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[0]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[0]);
 }
 
 // ===================================================================
@@ -821,12 +811,8 @@ void TestFlagsAndStrings_RepeatedGroup::InternalSwap(TestFlagsAndStrings_Repeate
 class TestFlagsAndStrings::_Internal {
  public:
   using HasBits = decltype(std::declval<TestFlagsAndStrings>()._has_bits_);
-  static void set_has_a(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
-  static bool MissingRequiredFields(const HasBits& has_bits) {
-    return ((has_bits[0] & 0x00000001) ^ 0x00000001) != 0;
-  }
+  static void set_has_a(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
+  static bool MissingRequiredFields(const HasBits& has_bits) { return ((has_bits[0] & 0x00000001) ^ 0x00000001) != 0; }
 };
 
 TestFlagsAndStrings::TestFlagsAndStrings(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -1037,9 +1023,7 @@ void TestFlagsAndStrings::InternalSwap(TestFlagsAndStrings* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestFlagsAndStrings::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[1]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[1]);
 }
 
 // ===================================================================
@@ -1047,12 +1031,8 @@ void TestFlagsAndStrings::InternalSwap(TestFlagsAndStrings* other) {
 class TestBase64ByteArrays::_Internal {
  public:
   using HasBits = decltype(std::declval<TestBase64ByteArrays>()._has_bits_);
-  static void set_has_a(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
-  static bool MissingRequiredFields(const HasBits& has_bits) {
-    return ((has_bits[0] & 0x00000001) ^ 0x00000001) != 0;
-  }
+  static void set_has_a(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
+  static bool MissingRequiredFields(const HasBits& has_bits) { return ((has_bits[0] & 0x00000001) ^ 0x00000001) != 0; }
 };
 
 TestBase64ByteArrays::TestBase64ByteArrays(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -1073,8 +1053,7 @@ TestBase64ByteArrays::TestBase64ByteArrays(const TestBase64ByteArrays& from)
     a_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_a()) {
-    a_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_a(), 
-      GetArenaForAllocation());
+    a_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_a(), GetArenaForAllocation());
   }
   // @@protoc_insertion_point(copy_constructor:protobuf_unittest.TestBase64ByteArrays)
 }
@@ -1171,8 +1150,7 @@ uint8_t* TestBase64ByteArrays::_InternalSerialize(
   cached_has_bits = _has_bits_[0];
   // required bytes a = 1;
   if(cached_has_bits & 0x00000001u) {
-    target = stream->WriteBytesMaybeAliased(
-        1, this->_internal_a(), target);
+    target = stream->WriteBytesMaybeAliased(1, this->_internal_a(), target);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1189,9 +1167,7 @@ size_t TestBase64ByteArrays::ByteSizeLong() const {
 
   // required bytes a = 1;
   if(_internal_has_a()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
-        this->_internal_a());
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(this->_internal_a());
   }
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -1251,9 +1227,7 @@ void TestBase64ByteArrays::InternalSwap(TestBase64ByteArrays* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestBase64ByteArrays::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[2]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[2]);
 }
 
 // ===================================================================
@@ -1261,18 +1235,10 @@ void TestBase64ByteArrays::InternalSwap(TestBase64ByteArrays* other) {
 class TestJavaScriptJSON::_Internal {
  public:
   using HasBits = decltype(std::declval<TestJavaScriptJSON>()._has_bits_);
-  static void set_has_a(HasBits* has_bits) {
-    (*has_bits)[0] |= 4u;
-  }
-  static void set_has_final(HasBits* has_bits) {
-    (*has_bits)[0] |= 8u;
-  }
-  static void set_has_in(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
-  static void set_has_var(HasBits* has_bits) {
-    (*has_bits)[0] |= 2u;
-  }
+  static void set_has_a(HasBits* has_bits) { (*has_bits)[0] |= 4u; }
+  static void set_has_final(HasBits* has_bits) { (*has_bits)[0] |= 8u; }
+  static void set_has_in(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
+  static void set_has_var(HasBits* has_bits) { (*has_bits)[0] |= 2u; }
 };
 
 TestJavaScriptJSON::TestJavaScriptJSON(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -1293,16 +1259,14 @@ TestJavaScriptJSON::TestJavaScriptJSON(const TestJavaScriptJSON& from)
     in_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_in()) {
-    in_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_in(), 
-      GetArenaForAllocation());
+    in_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_in(), GetArenaForAllocation());
   }
   var_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     var_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_var()) {
-    var_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_var(), 
-      GetArenaForAllocation());
+    var_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_var(), GetArenaForAllocation());
   }
   ::memcpy(&a_, &from.a_,
     static_cast<size_t>(reinterpret_cast<char*>(&final_) -
@@ -1470,8 +1434,7 @@ uint8_t* TestJavaScriptJSON::_InternalSerialize(
       this->_internal_in().data(), static_cast<int>(this->_internal_in().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
       "protobuf_unittest.TestJavaScriptJSON.in");
-    target = stream->WriteStringMaybeAliased(
-        3, this->_internal_in(), target);
+    target = stream->WriteStringMaybeAliased(3, this->_internal_in(), target);
   }
 
   // optional string Var = 4;
@@ -1480,8 +1443,7 @@ uint8_t* TestJavaScriptJSON::_InternalSerialize(
       this->_internal_var().data(), static_cast<int>(this->_internal_var().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
       "protobuf_unittest.TestJavaScriptJSON.Var");
-    target = stream->WriteStringMaybeAliased(
-        4, this->_internal_var(), target);
+    target = stream->WriteStringMaybeAliased(4, this->_internal_var(), target);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1504,16 +1466,12 @@ size_t TestJavaScriptJSON::ByteSizeLong() const {
   if(cached_has_bits & 0x0000000fu) {
     // optional string in = 3;
     if(cached_has_bits & 0x00000001u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_in());
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_in());
     }
 
     // optional string Var = 4;
     if(cached_has_bits & 0x00000002u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_var());
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_var());
     }
 
     // optional int32 a = 1;
@@ -1604,9 +1562,7 @@ void TestJavaScriptJSON::InternalSwap(TestJavaScriptJSON* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestJavaScriptJSON::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[3]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[3]);
 }
 
 // ===================================================================
@@ -1614,21 +1570,11 @@ void TestJavaScriptJSON::InternalSwap(TestJavaScriptJSON* other) {
 class TestJavaScriptOrderJSON1::_Internal {
  public:
   using HasBits = decltype(std::declval<TestJavaScriptOrderJSON1>()._has_bits_);
-  static void set_has_d(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
-  static void set_has_c(HasBits* has_bits) {
-    (*has_bits)[0] |= 2u;
-  }
-  static void set_has_x(HasBits* has_bits) {
-    (*has_bits)[0] |= 4u;
-  }
-  static void set_has_b(HasBits* has_bits) {
-    (*has_bits)[0] |= 8u;
-  }
-  static void set_has_a(HasBits* has_bits) {
-    (*has_bits)[0] |= 16u;
-  }
+  static void set_has_d(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
+  static void set_has_c(HasBits* has_bits) { (*has_bits)[0] |= 2u; }
+  static void set_has_x(HasBits* has_bits) { (*has_bits)[0] |= 4u; }
+  static void set_has_b(HasBits* has_bits) { (*has_bits)[0] |= 8u; }
+  static void set_has_a(HasBits* has_bits) { (*has_bits)[0] |= 16u; }
 };
 
 TestJavaScriptOrderJSON1::TestJavaScriptOrderJSON1(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -1919,9 +1865,7 @@ void TestJavaScriptOrderJSON1::InternalSwap(TestJavaScriptOrderJSON1* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestJavaScriptOrderJSON1::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[4]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[4]);
 }
 
 // ===================================================================
@@ -1929,21 +1873,11 @@ void TestJavaScriptOrderJSON1::InternalSwap(TestJavaScriptOrderJSON1* other) {
 class TestJavaScriptOrderJSON2::_Internal {
  public:
   using HasBits = decltype(std::declval<TestJavaScriptOrderJSON2>()._has_bits_);
-  static void set_has_d(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
-  static void set_has_c(HasBits* has_bits) {
-    (*has_bits)[0] |= 2u;
-  }
-  static void set_has_x(HasBits* has_bits) {
-    (*has_bits)[0] |= 4u;
-  }
-  static void set_has_b(HasBits* has_bits) {
-    (*has_bits)[0] |= 8u;
-  }
-  static void set_has_a(HasBits* has_bits) {
-    (*has_bits)[0] |= 16u;
-  }
+  static void set_has_d(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
+  static void set_has_c(HasBits* has_bits) { (*has_bits)[0] |= 2u; }
+  static void set_has_x(HasBits* has_bits) { (*has_bits)[0] |= 4u; }
+  static void set_has_b(HasBits* has_bits) { (*has_bits)[0] |= 8u; }
+  static void set_has_a(HasBits* has_bits) { (*has_bits)[0] |= 16u; }
 };
 
 TestJavaScriptOrderJSON2::TestJavaScriptOrderJSON2(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -2266,9 +2200,7 @@ void TestJavaScriptOrderJSON2::InternalSwap(TestJavaScriptOrderJSON2* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestJavaScriptOrderJSON2::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[5]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[5]);
 }
 
 // ===================================================================
@@ -2276,15 +2208,9 @@ void TestJavaScriptOrderJSON2::InternalSwap(TestJavaScriptOrderJSON2* other) {
 class TestLargeInt::_Internal {
  public:
   using HasBits = decltype(std::declval<TestLargeInt>()._has_bits_);
-  static void set_has_a(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
-  static void set_has_b(HasBits* has_bits) {
-    (*has_bits)[0] |= 2u;
-  }
-  static bool MissingRequiredFields(const HasBits& has_bits) {
-    return ((has_bits[0] & 0x00000003) ^ 0x00000003) != 0;
-  }
+  static void set_has_a(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
+  static void set_has_b(HasBits* has_bits) { (*has_bits)[0] |= 2u; }
+  static bool MissingRequiredFields(const HasBits& has_bits) { return ((has_bits[0] & 0x00000003) ^ 0x00000003) != 0; }
 };
 
 TestLargeInt::TestLargeInt(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -2520,9 +2446,7 @@ void TestLargeInt::InternalSwap(TestLargeInt* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestLargeInt::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[6]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[6]);
 }
 
 // ===================================================================
@@ -2530,24 +2454,12 @@ void TestLargeInt::InternalSwap(TestLargeInt* other) {
 class TestNumbers::_Internal {
  public:
   using HasBits = decltype(std::declval<TestNumbers>()._has_bits_);
-  static void set_has_a(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
-  static void set_has_b(HasBits* has_bits) {
-    (*has_bits)[0] |= 2u;
-  }
-  static void set_has_c(HasBits* has_bits) {
-    (*has_bits)[0] |= 4u;
-  }
-  static void set_has_d(HasBits* has_bits) {
-    (*has_bits)[0] |= 8u;
-  }
-  static void set_has_e(HasBits* has_bits) {
-    (*has_bits)[0] |= 16u;
-  }
-  static void set_has_f(HasBits* has_bits) {
-    (*has_bits)[0] |= 32u;
-  }
+  static void set_has_a(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
+  static void set_has_b(HasBits* has_bits) { (*has_bits)[0] |= 2u; }
+  static void set_has_c(HasBits* has_bits) { (*has_bits)[0] |= 4u; }
+  static void set_has_d(HasBits* has_bits) { (*has_bits)[0] |= 8u; }
+  static void set_has_e(HasBits* has_bits) { (*has_bits)[0] |= 16u; }
+  static void set_has_f(HasBits* has_bits) { (*has_bits)[0] |= 32u; }
 };
 
 TestNumbers::TestNumbers(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -2866,9 +2778,7 @@ void TestNumbers::InternalSwap(TestNumbers* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestNumbers::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[7]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[7]);
 }
 
 // ===================================================================
@@ -2876,15 +2786,9 @@ void TestNumbers::InternalSwap(TestNumbers* other) {
 class TestCamelCase::_Internal {
  public:
   using HasBits = decltype(std::declval<TestCamelCase>()._has_bits_);
-  static void set_has_normal_field(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
-  static void set_has_capital_field(HasBits* has_bits) {
-    (*has_bits)[0] |= 2u;
-  }
-  static void set_has_camelcasefield(HasBits* has_bits) {
-    (*has_bits)[0] |= 4u;
-  }
+  static void set_has_normal_field(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
+  static void set_has_capital_field(HasBits* has_bits) { (*has_bits)[0] |= 2u; }
+  static void set_has_camelcasefield(HasBits* has_bits) { (*has_bits)[0] |= 4u; }
 };
 
 TestCamelCase::TestCamelCase(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -2905,8 +2809,7 @@ TestCamelCase::TestCamelCase(const TestCamelCase& from)
     normal_field_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_normal_field()) {
-    normal_field_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_normal_field(), 
-      GetArenaForAllocation());
+    normal_field_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_normal_field(), GetArenaForAllocation());
   }
   ::memcpy(&capital_field_, &from.capital_field_,
     static_cast<size_t>(reinterpret_cast<char*>(&camelcasefield_) -
@@ -3040,8 +2943,7 @@ uint8_t* TestCamelCase::_InternalSerialize(
       this->_internal_normal_field().data(), static_cast<int>(this->_internal_normal_field().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
       "protobuf_unittest.TestCamelCase.normal_field");
-    target = stream->WriteStringMaybeAliased(
-        1, this->_internal_normal_field(), target);
+    target = stream->WriteStringMaybeAliased(1, this->_internal_normal_field(), target);
   }
 
   // optional int32 CAPITAL_FIELD = 2;
@@ -3076,9 +2978,7 @@ size_t TestCamelCase::ByteSizeLong() const {
   if(cached_has_bits & 0x00000007u) {
     // optional string normal_field = 1;
     if(cached_has_bits & 0x00000001u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_normal_field());
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_normal_field());
     }
 
     // optional int32 CAPITAL_FIELD = 2;
@@ -3161,23 +3061,16 @@ void TestCamelCase::InternalSwap(TestCamelCase* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestCamelCase::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[8]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[8]);
 }
 
 // ===================================================================
 
 TestBoolMap_BoolMapEntry_DoNotUse::TestBoolMap_BoolMapEntry_DoNotUse() {}
-TestBoolMap_BoolMapEntry_DoNotUse::TestBoolMap_BoolMapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestBoolMap_BoolMapEntry_DoNotUse::MergeFrom(const TestBoolMap_BoolMapEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestBoolMap_BoolMapEntry_DoNotUse::TestBoolMap_BoolMapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestBoolMap_BoolMapEntry_DoNotUse::MergeFrom(const TestBoolMap_BoolMapEntry_DoNotUse& other) { MergeFromInternal(other); }
 ::PROTOBUF_NAMESPACE_ID::Metadata TestBoolMap_BoolMapEntry_DoNotUse::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[9]);
+	return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[9]);
 }
 
 // ===================================================================
@@ -3305,11 +3198,11 @@ uint8_t* TestBoolMap::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestBoolMap_BoolMapEntry_DoNotUse::Funcs::InternalSerialize(1, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< bool, int32_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< bool, int32_t >::const_iterator
           it = this->_internal_bool_map().begin();
           it != this->_internal_bool_map().end(); ++it) {
         target = TestBoolMap_BoolMapEntry_DoNotUse::Funcs::InternalSerialize(1, it->first, it->second, target, stream);
@@ -3386,9 +3279,7 @@ void TestBoolMap::InternalSwap(TestBoolMap* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestBoolMap::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[10]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[10]);
 }
 
 // ===================================================================
@@ -3396,13 +3287,9 @@ void TestBoolMap::InternalSwap(TestBoolMap* other) {
 class TestRecursion::_Internal {
  public:
   using HasBits = decltype(std::declval<TestRecursion>()._has_bits_);
-  static void set_has_value(HasBits* has_bits) {
-    (*has_bits)[0] |= 2u;
-  }
+  static void set_has_value(HasBits* has_bits) { (*has_bits)[0] |= 2u; }
   static const ::protobuf_unittest::TestRecursion& child(const TestRecursion* msg);
-  static void set_has_child(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
+  static void set_has_child(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
 const ::protobuf_unittest::TestRecursion&
@@ -3635,23 +3522,16 @@ void TestRecursion::InternalSwap(TestRecursion* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestRecursion::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[11]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[11]);
 }
 
 // ===================================================================
 
 TestStringMap_StringMapEntry_DoNotUse::TestStringMap_StringMapEntry_DoNotUse() {}
-TestStringMap_StringMapEntry_DoNotUse::TestStringMap_StringMapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestStringMap_StringMapEntry_DoNotUse::MergeFrom(const TestStringMap_StringMapEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestStringMap_StringMapEntry_DoNotUse::TestStringMap_StringMapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestStringMap_StringMapEntry_DoNotUse::MergeFrom(const TestStringMap_StringMapEntry_DoNotUse& other) { MergeFromInternal(other); }
 ::PROTOBUF_NAMESPACE_ID::Metadata TestStringMap_StringMapEntry_DoNotUse::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[12]);
+	return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[12]);
 }
 
 // ===================================================================
@@ -3792,12 +3672,12 @@ uint8_t* TestStringMap::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestStringMap_StringMapEntry_DoNotUse::Funcs::InternalSerialize(1, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
           it = this->_internal_string_map().begin();
           it != this->_internal_string_map().end(); ++it) {
         target = TestStringMap_StringMapEntry_DoNotUse::Funcs::InternalSerialize(1, it->first, it->second, target, stream);
@@ -3875,23 +3755,16 @@ void TestStringMap::InternalSwap(TestStringMap* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestStringMap::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[13]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[13]);
 }
 
 // ===================================================================
 
 TestStringSerializer_StringMapEntry_DoNotUse::TestStringSerializer_StringMapEntry_DoNotUse() {}
-TestStringSerializer_StringMapEntry_DoNotUse::TestStringSerializer_StringMapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestStringSerializer_StringMapEntry_DoNotUse::MergeFrom(const TestStringSerializer_StringMapEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestStringSerializer_StringMapEntry_DoNotUse::TestStringSerializer_StringMapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestStringSerializer_StringMapEntry_DoNotUse::MergeFrom(const TestStringSerializer_StringMapEntry_DoNotUse& other) { MergeFromInternal(other); }
 ::PROTOBUF_NAMESPACE_ID::Metadata TestStringSerializer_StringMapEntry_DoNotUse::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[14]);
+	return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[14]);
 }
 
 // ===================================================================
@@ -3899,9 +3772,7 @@ void TestStringSerializer_StringMapEntry_DoNotUse::MergeFrom(const TestStringSer
 class TestStringSerializer::_Internal {
  public:
   using HasBits = decltype(std::declval<TestStringSerializer>()._has_bits_);
-  static void set_has_scalar_string(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
+  static void set_has_scalar_string(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
 TestStringSerializer::TestStringSerializer(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -3926,8 +3797,7 @@ TestStringSerializer::TestStringSerializer(const TestStringSerializer& from)
     scalar_string_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_scalar_string()) {
-    scalar_string_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_scalar_string(), 
-      GetArenaForAllocation());
+    scalar_string_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_scalar_string(), GetArenaForAllocation());
   }
   // @@protoc_insertion_point(copy_constructor:protobuf_unittest.TestStringSerializer)
 }
@@ -4067,12 +3937,11 @@ uint8_t* TestStringSerializer::_InternalSerialize(
       this->_internal_scalar_string().data(), static_cast<int>(this->_internal_scalar_string().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
       "protobuf_unittest.TestStringSerializer.scalar_string");
-    target = stream->WriteStringMaybeAliased(
-        1, this->_internal_scalar_string(), target);
+    target = stream->WriteStringMaybeAliased(1, this->_internal_scalar_string(), target);
   }
 
   // repeated string repeated_string = 2;
-  for (int i = 0, n = this->_internal_repeated_string_size(); i < n; i++) {
+  for(int i = 0, n = this->_internal_repeated_string_size(); i < n; i++) {
     const auto& s = this->_internal_repeated_string(i);
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
       s.data(), static_cast<int>(s.length()),
@@ -4110,12 +3979,12 @@ uint8_t* TestStringSerializer::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestStringSerializer_StringMapEntry_DoNotUse::Funcs::InternalSerialize(3, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
           it = this->_internal_string_map().begin();
           it != this->_internal_string_map().end(); ++it) {
         target = TestStringSerializer_StringMapEntry_DoNotUse::Funcs::InternalSerialize(3, it->first, it->second, target, stream);
@@ -4141,11 +4010,9 @@ size_t TestStringSerializer::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // repeated string repeated_string = 2;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(repeated_string_.size());
-  for (int i = 0, n = repeated_string_.size(); i < n; i++) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-      repeated_string_.Get(i));
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(repeated_string_.size());
+  for(int i = 0, n = repeated_string_.size(); i < n; i++) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(repeated_string_.Get(i));
   }
 
   // map<string, string> string_map = 3;
@@ -4160,9 +4027,7 @@ size_t TestStringSerializer::ByteSizeLong() const {
   // optional string scalar_string = 1;
   cached_has_bits = _has_bits_[0];
   if(cached_has_bits & 0x00000001u) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_scalar_string());
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_scalar_string());
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -4222,9 +4087,7 @@ void TestStringSerializer::InternalSwap(TestStringSerializer* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestStringSerializer::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[15]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[15]);
 }
 
 // ===================================================================
@@ -4389,9 +4252,7 @@ void TestMessageWithExtension::InternalSwap(TestMessageWithExtension* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestMessageWithExtension::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[16]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[16]);
 }
 
 // ===================================================================
@@ -4399,9 +4260,7 @@ void TestMessageWithExtension::InternalSwap(TestMessageWithExtension* other) {
 class TestExtension::_Internal {
  public:
   using HasBits = decltype(std::declval<TestExtension>()._has_bits_);
-  static void set_has_value(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
+  static void set_has_value(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
 TestExtension::TestExtension(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -4422,8 +4281,7 @@ TestExtension::TestExtension(const TestExtension& from)
     value_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_value()) {
-    value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_value(), 
-      GetArenaForAllocation());
+    value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_value(), GetArenaForAllocation());
   }
   // @@protoc_insertion_point(copy_constructor:protobuf_unittest.TestExtension)
 }
@@ -4527,8 +4385,7 @@ uint8_t* TestExtension::_InternalSerialize(
       this->_internal_value().data(), static_cast<int>(this->_internal_value().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
       "protobuf_unittest.TestExtension.value");
-    target = stream->WriteStringMaybeAliased(
-        1, this->_internal_value(), target);
+    target = stream->WriteStringMaybeAliased(1, this->_internal_value(), target);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -4550,9 +4407,7 @@ size_t TestExtension::ByteSizeLong() const {
   // optional string value = 1;
   cached_has_bits = _has_bits_[0];
   if(cached_has_bits & 0x00000001u) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_value());
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_value());
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -4608,9 +4463,7 @@ void TestExtension::InternalSwap(TestExtension* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestExtension::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[17]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[17]);
 }
 
 // ===================================================================
@@ -4618,9 +4471,7 @@ void TestExtension::InternalSwap(TestExtension* other) {
 class TestDefaultEnumValue::_Internal {
  public:
   using HasBits = decltype(std::declval<TestDefaultEnumValue>()._has_bits_);
-  static void set_has_enum_value(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
+  static void set_has_enum_value(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
 TestDefaultEnumValue::TestDefaultEnumValue(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -4803,9 +4654,7 @@ void TestDefaultEnumValue::InternalSwap(TestDefaultEnumValue* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestDefaultEnumValue::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[18]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2fjson_5fformat_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2fjson_5fformat_2eproto[18]);
 }
 #if !defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912)
 const int TestExtension::kExtFieldNumber;

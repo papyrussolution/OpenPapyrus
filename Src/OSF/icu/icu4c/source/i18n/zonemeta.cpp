@@ -1,8 +1,8 @@
+// ZONEMETA.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- Copyright (C) 2007-2014, International Business Machines Corporation and others. All Rights Reserved.
- */
+// Copyright (C) 2007-2014, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -804,21 +804,21 @@ static void U_CALLCONV initAvailableMetaZoneIDs() {
 	}
 	ures_close(bundle);
 	ures_close(rb);
-
 	if(U_FAILURE(status)) {
 		uhash_close(gMetaZoneIDTable);
-		delete gMetaZoneIDs;
-		gMetaZoneIDTable = NULL;
+		ZDELETE(gMetaZoneIDs);
 		gMetaZoneIDs = NULL;
 	}
 }
 
-const UVector* ZoneMeta::getAvailableMetazoneIDs() {
+const UVector* ZoneMeta::getAvailableMetazoneIDs() 
+{
 	umtx_initOnce(gMetaZoneIDsInitOnce, &initAvailableMetaZoneIDs);
 	return gMetaZoneIDs;
 }
 
-const UChar * ZoneMeta::findMetaZoneID(const UnicodeString & mzid) {
+const UChar * ZoneMeta::findMetaZoneID(const UnicodeString & mzid) 
+{
 	umtx_initOnce(gMetaZoneIDsInitOnce, &initAvailableMetaZoneIDs);
 	if(gMetaZoneIDTable == NULL) {
 		return NULL;
@@ -826,11 +826,10 @@ const UChar * ZoneMeta::findMetaZoneID(const UnicodeString & mzid) {
 	return (const UChar *)uhash_get(gMetaZoneIDTable, &mzid);
 }
 
-const UChar * ZoneMeta::findTimeZoneID(const UnicodeString & tzid) {
-	return TimeZone::findID(tzid);
-}
+const UChar * ZoneMeta::findTimeZoneID(const UnicodeString & tzid) { return TimeZone::findID(tzid); }
 
-TimeZone* ZoneMeta::createCustomTimeZone(int32_t offset) {
+TimeZone* ZoneMeta::createCustomTimeZone(int32_t offset) 
+{
 	bool negative = FALSE;
 	int32_t tmp = offset;
 	if(offset < 0) {
@@ -850,7 +849,8 @@ TimeZone* ZoneMeta::createCustomTimeZone(int32_t offset) {
 	return new SimpleTimeZone(offset, zid);
 }
 
-UnicodeString &ZoneMeta::formatCustomID(uint8 hour, uint8 min, uint8 sec, bool negative, UnicodeString & id) {
+UnicodeString &ZoneMeta::formatCustomID(uint8 hour, uint8 min, uint8 sec, bool negative, UnicodeString & id) 
+{
 	// Create normalized time zone ID - GMT[+|-]HH:mm[:ss]
 	id.setTo(gCustomTzPrefix, -1);
 	if(hour != 0 || min != 0) {

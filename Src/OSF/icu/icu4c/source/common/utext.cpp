@@ -2222,7 +2222,7 @@ static UText * U_CALLCONV ucstrTextClone(UText * dest, const UText * src, bool d
 		}
 		else {
 			int64_t i;
-			for(i = 0; i<len; i++) {
+			for(i = 0; i < len; i++) {
 				copyStr[i] = srcStr[i];
 			}
 			copyStr[len] = 0;

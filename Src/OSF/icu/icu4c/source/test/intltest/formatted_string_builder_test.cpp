@@ -80,8 +80,8 @@ void FormattedStringBuilderTest::testInsertAppendUnicodeString() {
 		assertSuccess("Inserting into sb5", status);
 		assertEqualsImpl(sb4, sb5);
 
-		int start = uprv_min(1, str.length());
-		int end = uprv_min(10, str.length());
+		int start = smin(1, str.length());
+		int end = smin(10, str.length());
 		sb4.insert(3, str, start, end - start); // UnicodeString uses length instead of end index
 		sb5.insert(3, str, start, end, kUndefinedField, status);
 		assertSuccess("Inserting into sb5 again", status);

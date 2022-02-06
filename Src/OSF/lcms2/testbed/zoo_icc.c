@@ -62,7 +62,7 @@ static void ReadAllRAWTags(cmsHPROFILE h)
 
 static void PrintInfo(cmsHPROFILE h, cmsInfoType Info)
 {
-	wchar_t* text;
+	wchar_t * text;
 	cmsContext id = 0;
 	cmsInt32Number len = cmsGetProfileInfo(h, Info, "en", "US", NULL, 0);
 	if(len == 0) return;

@@ -110,7 +110,7 @@ protected:
 
 class SJISContextAnalysis : public JapaneseContextAnalysis
 {
-	//SJISContextAnalysis(){};
+	//SJISContextAnalysis() {};
 protected:
 	PRInt32 GetOrder(const char * str, PRUint32 * charLen);
 

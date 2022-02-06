@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\Osf\gSOAP\stdsoap2.cpp" />
+    <ClCompile Include="..\OSF\gSOAP\wsdl2h\gsoap-wsdl2h-pch.cpp" />
+    <ClCompile Include="..\Osf\gSOAP\wsdl2h\mime.cpp" />
+    <ClCompile Include="..\Osf\gSOAP\wsdl2h\schema.cpp" />
+    <ClCompile Include="..\Osf\gSOAP\wsdl2h\service.cpp" />
+    <ClCompile Include="..\Osf\gSOAP\wsdl2h\soap.cpp" />
+    <ClCompile Include="..\Osf\gSOAP\wsdl2h\types.cpp" />
+    <ClCompile Include="..\Osf\gSOAP\wsdl2h\wsdl.cpp" />
+    <ClCompile Include="..\Osf\gSOAP\wsdl2h\wsdl2h.cpp" />
+    <ClCompile Include="..\Osf\gSOAP\wsdl2h\wsdlC.cpp" />
+    <ClCompile Include="..\Osf\gSOAP\wsdl2h\wsp.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Osf\gSOAP\wsdl2h\gwsdl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\gSOAP\wsdl2h\http.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\gSOAP\wsdl2h\imports.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\gSOAP\wsdl2h\includes.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\gSOAP\wsdl2h\mime.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\gSOAP\wsdl2h\schema.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\gSOAP\wsdl2h\service.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\gSOAP\wsdl2h\soap.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\gSOAP\wsdl2h\sp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\stdsoap2.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\gSOAP\wsdl2h\stlvector.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\gSOAP\wsdl2h\types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\gSOAP\wsdl2h\wsam.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\gSOAP\wsdl2h\wsdlH.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\gSOAP\wsdl2h\wsdlStub.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\gSOAP\wsdl2h\wsp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\gSOAP\wsdl2h\wsrmp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\gSOAP\wsdl2h\wst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\gSOAP\wsdl2h\dime.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\gSOAP\wsdl2h\wsu.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{722250d3-f7ea-45f0-b80f-e159271bf400}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\Osf\gSOAP\wsdl2h\wsdl.h">
+      <Filter>Header</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>

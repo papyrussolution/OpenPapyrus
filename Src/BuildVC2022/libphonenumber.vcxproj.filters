@@ -1,0 +1,232 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Proto">
+      <UniqueIdentifier>{3b8ba6a1-38c6-4d35-934c-49b77da7281c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Generated">
+      <UniqueIdentifier>{beb31367-480a-45b6-86d9-21b664a5133a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\libphonenumber\alternate_format.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\asyoutypeformatter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\callback.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\default_logger.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\encoding_utils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\logger.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\matcher_api.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\metadata.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\normalize_utf8.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\phonenumber.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\phonenumbermatch.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\phonenumbermatcher.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\phonenumberutil.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\regex_based_matcher.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\regexp_adapter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\regexp_adapter_icu.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\regexp_adapter_re2.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\regexp_cache.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\regexp_factory.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\region_code.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\short_metadata.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\shortnumberinfo.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\stl_util.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\string_byte_sink.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\stringutil.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\unicodestring.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\area_code_map.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\basictypes.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\default_map_storage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\geocoding_data.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\lock.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\lock_boost.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\lock_posix.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\lock_stdmutex.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\lock_unsafe.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\lock_win32.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\logging.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\mapping_file_provider.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\phonenumber_offline_geocoder.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\scoped_ptr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\singleton.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\singleton_boost.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\singleton_posix.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\singleton_stdmutex.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\singleton_unsafe.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\singleton_win32.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\string_piece.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\stringpiece.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\template_util.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\thread_checker.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\unicodetext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\unilib.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\utf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\utfdef.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libphonenumber\libphonenumber-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\libphonenumber\rune.c" />
+    <ClCompile Include="..\OSF\libphonenumber\alternate_format.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\area_code_map.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\asyoutypeformatter.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\default_logger.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\default_map_storage.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\lite_metadata.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\logger.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\mapping_file_provider.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\metadata.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\phonenumber.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\phonenumber_offline_geocoder.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\phonenumbermatch.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\phonenumbermatcher.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\phonenumberutil.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\regex_based_matcher.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\regexp_adapter_icu.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\regexp_adapter_re2.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\regexp_cache.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\short_metadata.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\shortnumberinfo.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\string_byte_sink.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\string_piece.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\stringutil.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\test_metadata.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\unicodestring.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\unicodetext.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\unilib.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\libphonenumber-pch.cpp" />
+    <ClCompile Include="..\OSF\libphonenumber\slib-phonenumber.cpp" />
+    <ClCompile Include="..\OSF\libphonenumber\phonemetadata.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\libphonenumber\phonenumber.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\OSF\libphonenumber\resources\phonemetadata.proto">
+      <Filter>Proto</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\libphonenumber\resources\phonenumber.proto">
+      <Filter>Proto</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>

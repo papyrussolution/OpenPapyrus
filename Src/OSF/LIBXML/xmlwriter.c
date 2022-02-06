@@ -795,7 +795,7 @@ int FASTCALL xmlTextWriterStartElement(xmlTextWriter * writer, const xmlChar * n
 	int sum = 0;
 	int count;
 	xmlTextWriterStackEntry * p;
-	if(!writer || !name || name[0] == '\0')
+	if(!writer || isempty(name))
 		sum = -1;
 	else {
 		xmlLink * lk = xmlListFront(writer->nodes);

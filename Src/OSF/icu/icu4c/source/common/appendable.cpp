@@ -1,27 +1,22 @@
+// APPENDABLE.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *   Copyright (C) 2011-2012, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *******************************************************************************
- *   file name:  appendable.cpp
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2010dec07
- *   created by: Markus W. Scherer
- */
+// Copyright (C) 2011-2012, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2010dec07
+// created by: Markus W. Scherer
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
 U_NAMESPACE_BEGIN
 
-Appendable::~Appendable() {
+Appendable::~Appendable() 
+{
 }
 
-bool Appendable::appendCodePoint(UChar32 c) {
+bool Appendable::appendCodePoint(UChar32 c) 
+{
 	if(c<=0xffff) {
 		return appendCodeUnit((UChar)c);
 	}
@@ -30,7 +25,8 @@ bool Appendable::appendCodePoint(UChar32 c) {
 	}
 }
 
-bool Appendable::appendString(const UChar * s, int32_t length) {
+bool Appendable::appendString(const UChar * s, int32_t length) 
+{
 	if(length<0) {
 		UChar c;
 		while((c = *s++)!=0) {
@@ -50,14 +46,10 @@ bool Appendable::appendString(const UChar * s, int32_t length) {
 	return TRUE;
 }
 
-bool Appendable::reserveAppendCapacity(int32_t /*appendCapacity*/) {
-	return TRUE;
-}
+bool Appendable::reserveAppendCapacity(int32_t /*appendCapacity*/) { return true; }
 
-UChar * Appendable::getAppendBuffer(int32_t minCapacity,
-    int32_t /*desiredCapacityHint*/,
-    UChar * scratch, int32_t scratchCapacity,
-    int32_t * resultCapacity) {
+UChar * Appendable::getAppendBuffer(int32_t minCapacity, int32_t /*desiredCapacityHint*/, UChar * scratch, int32_t scratchCapacity, int32_t * resultCapacity) 
+{
 	if(minCapacity<1 || scratchCapacity<minCapacity) {
 		*resultCapacity = 0;
 		return NULL;

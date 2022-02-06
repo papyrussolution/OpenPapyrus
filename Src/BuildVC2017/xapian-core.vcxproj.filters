@@ -1,0 +1,1289 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="backends">
+      <UniqueIdentifier>{d3b139cf-3a45-48ff-92f4-cd6368ef8271}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="backends\glass">
+      <UniqueIdentifier>{a4448bed-6264-4bc7-8251-3c0a03efb440}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="backends\inmemory">
+      <UniqueIdentifier>{e3e46a69-d56c-4555-9fda-be0d9251f1b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{79d57c31-7658-4e8a-ba23-e507267512b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="matcher">
+      <UniqueIdentifier>{4c67fd1e-bde9-4f4c-8663-57a10ba63d96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="weight">
+      <UniqueIdentifier>{f4b025f7-47f8-465c-869f-fb18990cf7d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="unicode">
+      <UniqueIdentifier>{b6fba7fd-d9eb-4b42-bfd6-7e6d2d565db2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="languages">
+      <UniqueIdentifier>{afbbe934-a81b-4835-acee-0a0f7d7b47fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="net">
+      <UniqueIdentifier>{1b650836-46bb-44bd-be74-95fbe7dfd548}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="api">
+      <UniqueIdentifier>{088db131-aa75-423b-8ca3-f64704122840}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="snowball-files">
+      <UniqueIdentifier>{4a01ba25-0120-43b9-a560-171663337c95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Generated">
+      <UniqueIdentifier>{6ebc354b-cefb-41d9-b5ad-0e0df6e2ad3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="backends\remote">
+      <UniqueIdentifier>{06045c5e-aa2d-4cc6-b27e-eb7547c6e75c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="backends\multi">
+      <UniqueIdentifier>{7b057b8f-0ac6-47d5-b33c-d75c8db74b7c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\alltermslist.cc">
+      <Filter>backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\contiguousalldocspostlist.cc">
+      <Filter>backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\databasehelpers.cc">
+      <Filter>backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\databaseinternal.cc">
+      <Filter>backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\databasereplicator.cc">
+      <Filter>backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\dbcheck.cc">
+      <Filter>backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\dbfactory.cc">
+      <Filter>backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\dbfactory_remote.cc">
+      <Filter>backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\documentinternal.cc">
+      <Filter>backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\empty_database.cc">
+      <Filter>backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\flint_lock.cc">
+      <Filter>backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\leafpostlist.cc">
+      <Filter>backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\postlist.cc">
+      <Filter>backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\slowvaluelist.cc">
+      <Filter>backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\uuids.cc">
+      <Filter>backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\valuelist.cc">
+      <Filter>backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_alldocspostlist.cc">
+      <Filter>backends\glass</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_alltermslist.cc">
+      <Filter>backends\glass</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_changes.cc">
+      <Filter>backends\glass</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_check.cc">
+      <Filter>backends\glass</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_compact.cc">
+      <Filter>backends\glass</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_cursor.cc">
+      <Filter>backends\glass</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_database.cc">
+      <Filter>backends\glass</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_databasereplicator.cc">
+      <Filter>backends\glass</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_dbcheck.cc">
+      <Filter>backends\glass</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_document.cc">
+      <Filter>backends\glass</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_freelist.cc">
+      <Filter>backends\glass</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_inverter.cc">
+      <Filter>backends\glass</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_metadata.cc">
+      <Filter>backends\glass</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_positionlist.cc">
+      <Filter>backends\glass</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_postlist.cc">
+      <Filter>backends\glass</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_spelling.cc">
+      <Filter>backends\glass</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_spellingwordslist.cc">
+      <Filter>backends\glass</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_synonym.cc">
+      <Filter>backends\glass</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_table.cc">
+      <Filter>backends\glass</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_termlist.cc">
+      <Filter>backends\glass</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_termlisttable.cc">
+      <Filter>backends\glass</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_valuelist.cc">
+      <Filter>backends\glass</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_values.cc">
+      <Filter>backends\glass</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_version.cc">
+      <Filter>backends\glass</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\backends\inmemory\inmemory_alltermslist.cc">
+      <Filter>backends\inmemory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\backends\inmemory\inmemory_database.cc">
+      <Filter>backends\inmemory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\backends\inmemory\inmemory_document.cc">
+      <Filter>backends\inmemory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\backends\inmemory\inmemory_positionlist.cc">
+      <Filter>backends\inmemory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\bitstream.cc">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\closefrom.cc">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\compression_stream.cc">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\debuglog.cc">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\errno_to_string.cc">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\fileutils.cc">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\getopt.cc">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\io_utils.cc">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\keyword.cc">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\msvc_dirent.cc">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\omassert.cc">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\pack.cc">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\posixy_wrapper.cc">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\replicate_utils.cc">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\safe.cc">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\serialise-double.cc">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\socket_utils.cc">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\str.cc">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\xapian-pch.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\andmaybepostlist.cc">
+      <Filter>matcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\andnotpostlist.cc">
+      <Filter>matcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\boolorpostlist.cc">
+      <Filter>matcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\collapser.cc">
+      <Filter>matcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\deciderpostlist.cc">
+      <Filter>matcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\exactphrasepostlist.cc">
+      <Filter>matcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\externalpostlist.cc">
+      <Filter>matcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\extraweightpostlist.cc">
+      <Filter>matcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\localsubmatch.cc">
+      <Filter>matcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\matcher.cc">
+      <Filter>matcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\maxpostlist.cc">
+      <Filter>matcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\msetcmp.cc">
+      <Filter>matcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\multiandpostlist.cc">
+      <Filter>matcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\multixorpostlist.cc">
+      <Filter>matcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\nearpostlist.cc">
+      <Filter>matcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\orpositionlist.cc">
+      <Filter>matcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\orpospostlist.cc">
+      <Filter>matcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\orpostlist.cc">
+      <Filter>matcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\phrasepostlist.cc">
+      <Filter>matcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\remotesubmatch.cc">
+      <Filter>matcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\selectpostlist.cc">
+      <Filter>matcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\synonympostlist.cc">
+      <Filter>matcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\valuegepostlist.cc">
+      <Filter>matcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\valuerangepostlist.cc">
+      <Filter>matcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\valuestreamdocument.cc">
+      <Filter>matcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\wrapperpostlist.cc">
+      <Filter>matcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\bb2weight.cc">
+      <Filter>weight</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\bm25plusweight.cc">
+      <Filter>weight</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\bm25weight.cc">
+      <Filter>weight</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\boolweight.cc">
+      <Filter>weight</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\coordweight.cc">
+      <Filter>weight</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\dicecoeffweight.cc">
+      <Filter>weight</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\dlhweight.cc">
+      <Filter>weight</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\dphweight.cc">
+      <Filter>weight</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\ifb2weight.cc">
+      <Filter>weight</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\ineb2weight.cc">
+      <Filter>weight</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\inl2weight.cc">
+      <Filter>weight</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\lmweight.cc">
+      <Filter>weight</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\pl2plusweight.cc">
+      <Filter>weight</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\pl2weight.cc">
+      <Filter>weight</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\tfidfweight.cc">
+      <Filter>weight</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\tradweight.cc">
+      <Filter>weight</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\weight.cc">
+      <Filter>weight</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\weightinternal.cc">
+      <Filter>weight</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\unicode\description_append.cc">
+      <Filter>unicode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\unicode\utf8itor.cc">
+      <Filter>unicode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\stem.cc">
+      <Filter>languages</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\steminternal.cc">
+      <Filter>languages</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\net\progclient.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\net\remoteconnection.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\net\remoteserver.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\net\remotetcpclient.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\net\replicatetcpclient.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\net\replicatetcpserver.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\net\serialise.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\net\serialise-error.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\net\tcpclient.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\net\tcpserver.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\compactor.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\constinfo.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\database.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\decvalwtsource.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\document.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\documenttermlist.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\documentvaluelist.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\editdistance.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\enquire.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\error.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\expanddecider.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\keymaker.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\matchspy.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\mset.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\msetiterator.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\positioniterator.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\postingiterator.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\postingsource.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\query.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\queryinternal.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\registry.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\replication.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\result.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\rset.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\smallvector.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\sortable-serialise.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\terminfo.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\termiterator.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\termlist.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\valueiterator.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\valuerangeproc.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\valuesetmatchdecider.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\vectortermlist.cc">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\diversify\diversify.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\expand\bo1eweight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\expand\esetinternal.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\expand\expandweight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\expand\ortermlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\expand\tradeweight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\geospatial\geoencode.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\geospatial\latlong_distance_keymaker.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\geospatial\latlong_metrics.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\geospatial\latlong_posting_source.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\geospatial\latlongcoord.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\queryparser\lemon.c" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\queryparser\cjk-tokenizer.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\queryparser\queryparser.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\queryparser\termgenerator.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\queryparser\termgenerator_internal.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\cluster\cluster.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\cluster\cosine_sim.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\cluster\kmeans.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\cluster\lcd_clusterer.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\arabic.sbl.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\armenian.sbl.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\basque.sbl.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\catalan.sbl.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\danish.sbl.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\dutch.sbl.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\earlyenglish.sbl.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\english.sbl.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\finnish.sbl.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\french.sbl.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\german.sbl.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\german2.sbl.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\hungarian.sbl.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\indonesian.sbl.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\irish.sbl.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\italian.sbl.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\kraaij_pohlmann.sbl.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\lithuanian.sbl.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\lovins.sbl.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\nepali.sbl.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\norwegian.sbl.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\porter.sbl.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\portuguese.sbl.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\romanian.sbl.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\russian.sbl.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\spanish.sbl.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\swedish.sbl.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\tamil.sbl.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\turkish.sbl.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\unicode\unicode-data.cc">
+      <Filter>unicode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\backends\remote\net_postlist.cc">
+      <Filter>backends\remote</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\backends\remote\remote_alltermslist.cc">
+      <Filter>backends\remote</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\backends\remote\remote_keylist.cc">
+      <Filter>backends\remote</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\backends\remote\remote_termlist.cc">
+      <Filter>backends\remote</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\backends\remote\remote-database.cc">
+      <Filter>backends\remote</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\backends\remote\remote-document.cc">
+      <Filter>backends\remote</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\backends\multi\multi_alltermslist.cc">
+      <Filter>backends\multi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\backends\multi\multi_database.cc">
+      <Filter>backends\multi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\backends\multi\multi_postlist.cc">
+      <Filter>backends\multi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\backends\multi\multi_termlist.cc">
+      <Filter>backends\multi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\backends\multi\multi_valuelist.cc">
+      <Filter>backends\multi</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\andmaybepostlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\andnotpostlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\boolorpostlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\collapser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\deciderpostlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\exactphrasepostlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\externalpostlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\extraweightpostlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\localsubmatch.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\matcher.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\matchtimeout.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\maxpostlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\msetcmp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\multiandpostlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\multixorpostlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\nearpostlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\orpositionlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\orpospostlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\orpostlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\phrasepostlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\postlisttree.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\protomset.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\queryoptimiser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\remotesubmatch.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\selectpostlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\spymaster.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\synonympostlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\valuegepostlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\valuerangepostlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\valuestreamdocument.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\wrapperpostlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\alignment_cast.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\append_filename_arg.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\bitstream.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\closefrom.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\compression_stream.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\debuglog.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\errno_to_string.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\exp10.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\fd.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\filetests.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\fileutils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\gnu_getopt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\heap.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\internaltypes.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\io_utils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\keyword.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\log2.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\min_non_zero.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\msvc_dirent.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\msvcignoreinvalidparam.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\omassert.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\output.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\overflow.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\pack.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\parseint.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\popcount.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\posixy_wrapper.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\pretty.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\realtime.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\replicate_utils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\replicationprotocol.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\safedirent.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\safefcntl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\safenetdb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\safesysselect.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\safesyssocket.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\safesysstat.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\safesyswait.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\safeunistd.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\safewindows.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\safewinsock2.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\serialise-double.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\setenv.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\socket_utils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\stdclamp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\str.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\stringutils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\wordaccess.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\alltermslist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\backends.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\byte_length_strings.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\contiguousalldocspostlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\databasehelpers.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\databaseinternal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\databasereplicator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\documentinternal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\empty_database.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\flint_lock.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\leafpostlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\multi.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\positionlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\postlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\prefix_compressed_strings.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\slowvaluelist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\uuids.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\valuelist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\valuestats.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\weight\weightinternal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\unicode\description_append.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\documenttermlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\documentvaluelist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\editdistance.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\enquireinternal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\msetinternal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\postingiteratorinternal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\queryinternal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\queryvector.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\replication.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\result.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\roundestimate.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\rsetinternal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\smallvector.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\terminfo.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\termlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\vectortermlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\diversify\diversifyinternal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\expand\esetinternal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\expand\expandweight.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\expand\ortermlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\expand\termlistmerger.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\geospatial\geoencode.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\queryparser\cjk-tokenizer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\queryparser\queryparser_internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\queryparser\termgenerator_internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\cluster\clusterinternal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\multi\multi_alltermslist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\multi\multi_database.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\multi\multi_postlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\multi\multi_termlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\multi\multi_valuelist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\remote\net_postlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\remote\remote_alltermslist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\remote\remote_keylist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\remote\remote_termlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\remote\remote-database.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\remote\remote-document.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\inmemory\inmemory_alltermslist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\inmemory\inmemory_database.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\inmemory\inmemory_document.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\inmemory\inmemory_positionlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_alldocspostlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_alltermslist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_changes.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_check.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_cursor.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_database.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_databasereplicator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_dbcheck.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_defs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_docdata.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_document.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_freelist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_inverter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_lazytable.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_metadata.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_positionlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_postlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_replicate_internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_spelling.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_spellingwordslist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_synonym.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_table.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_termlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_termlisttable.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_valuelist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_values.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_version.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\net\progclient.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\net\remoteconnection.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\net\remoteprotocol.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\net\remoteserver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\net\remotetcpclient.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\net\replicatetcpclient.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\net\replicatetcpserver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\net\resolver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\net\serialise.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\net\serialise-error.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\net\tcpclient.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\net\tcpserver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\turkish.sbl">
+      <Filter>snowball-files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\arabic.sbl">
+      <Filter>snowball-files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\armenian.sbl">
+      <Filter>snowball-files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\basque.sbl">
+      <Filter>snowball-files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\catalan.sbl">
+      <Filter>snowball-files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\danish.sbl">
+      <Filter>snowball-files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\dutch.sbl">
+      <Filter>snowball-files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\earlyenglish.sbl">
+      <Filter>snowball-files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\english.sbl">
+      <Filter>snowball-files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\finnish.sbl">
+      <Filter>snowball-files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\french.sbl">
+      <Filter>snowball-files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\german.sbl">
+      <Filter>snowball-files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\german2.sbl">
+      <Filter>snowball-files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\hungarian.sbl">
+      <Filter>snowball-files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\indonesian.sbl">
+      <Filter>snowball-files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\irish.sbl">
+      <Filter>snowball-files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\italian.sbl">
+      <Filter>snowball-files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\kraaij_pohlmann.sbl">
+      <Filter>snowball-files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\lithuanian.sbl">
+      <Filter>snowball-files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\lovins.sbl">
+      <Filter>snowball-files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\nepali.sbl">
+      <Filter>snowball-files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\norwegian.sbl">
+      <Filter>snowball-files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\porter.sbl">
+      <Filter>snowball-files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\portuguese.sbl">
+      <Filter>snowball-files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\romanian.sbl">
+      <Filter>snowball-files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\russian.sbl">
+      <Filter>snowball-files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\spanish.sbl">
+      <Filter>snowball-files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\swedish.sbl">
+      <Filter>snowball-files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\tamil.sbl">
+      <Filter>snowball-files</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>

@@ -651,9 +651,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestConflictingSymbolNames_Bui
 
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestConflictingSymbolNames_BuildDescriptors::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once,
-      file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[0]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once, file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[0]);
 }
 
 // ===================================================================
@@ -690,9 +688,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestConflictingSymbolNames_Typ
 
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestConflictingSymbolNames_TypeTraits::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once,
-      file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[1]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once, file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[1]);
 }
 
 // ===================================================================
@@ -805,8 +801,8 @@ uint8_t* TestConflictingSymbolNames_Data1::_InternalSerialize(
 
   // repeated int32 data = 1;
   for(int i = 0, n = this->_internal_data_size(); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_data(i), target);
+  	target = stream->EnsureSpace(target);
+  	target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_data(i), target);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -827,8 +823,7 @@ size_t TestConflictingSymbolNames_Data1::ByteSizeLong() const {
 
   // repeated int32 data = 1;
   {
-    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      Int32Size(this->data_);
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(this->data_);
     total_size += 1 *
                   ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_data_size());
     total_size += data_size;
@@ -878,9 +873,7 @@ void TestConflictingSymbolNames_Data1::InternalSwap(TestConflictingSymbolNames_D
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestConflictingSymbolNames_Data1::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once,
-      file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[2]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once, file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[2]);
 }
 
 // ===================================================================
@@ -1072,9 +1065,7 @@ void TestConflictingSymbolNames_Data2::InternalSwap(TestConflictingSymbolNames_D
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestConflictingSymbolNames_Data2::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once,
-      file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[3]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once, file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[3]);
 }
 
 // ===================================================================
@@ -1187,7 +1178,7 @@ uint8_t* TestConflictingSymbolNames_Data3::_InternalSerialize(
   (void) cached_has_bits;
 
   // repeated string data = 1;
-  for (int i = 0, n = this->_internal_data_size(); i < n; i++) {
+  for(int i = 0, n = this->_internal_data_size(); i < n; i++) {
     const auto& s = this->_internal_data(i);
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
       s.data(), static_cast<int>(s.length()),
@@ -1213,11 +1204,9 @@ size_t TestConflictingSymbolNames_Data3::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // repeated string data = 1;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(data_.size());
-  for (int i = 0, n = data_.size(); i < n; i++) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-      data_.Get(i));
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(data_.size());
+  for(int i = 0, n = data_.size(); i < n; i++) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(data_.Get(i));
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -1264,9 +1253,7 @@ void TestConflictingSymbolNames_Data3::InternalSwap(TestConflictingSymbolNames_D
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestConflictingSymbolNames_Data3::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once,
-      file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[4]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once, file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[4]);
 }
 
 // ===================================================================
@@ -1448,9 +1435,7 @@ void TestConflictingSymbolNames_Data4::InternalSwap(TestConflictingSymbolNames_D
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestConflictingSymbolNames_Data4::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once,
-      file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[5]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once, file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[5]);
 }
 
 // ===================================================================
@@ -1563,7 +1548,7 @@ uint8_t* TestConflictingSymbolNames_Data5::_InternalSerialize(
   (void) cached_has_bits;
 
   // repeated string data = 1 [ctype = STRING_PIECE];
-  for (int i = 0, n = this->_internal_data_size(); i < n; i++) {
+  for(int i = 0, n = this->_internal_data_size(); i < n; i++) {
     const auto& s = this->_internal_data(i);
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
       s.data(), static_cast<int>(s.length()),
@@ -1589,11 +1574,9 @@ size_t TestConflictingSymbolNames_Data5::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // repeated string data = 1 [ctype = STRING_PIECE];
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(data_.size());
-  for (int i = 0, n = data_.size(); i < n; i++) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-      data_.Get(i));
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(data_.size());
+  for(int i = 0, n = data_.size(); i < n; i++) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(data_.Get(i));
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -1640,9 +1623,7 @@ void TestConflictingSymbolNames_Data5::InternalSwap(TestConflictingSymbolNames_D
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestConflictingSymbolNames_Data5::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once,
-      file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[6]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once, file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[6]);
 }
 
 // ===================================================================
@@ -1755,7 +1736,7 @@ uint8_t* TestConflictingSymbolNames_Data6::_InternalSerialize(
   (void) cached_has_bits;
 
   // repeated string data = 1 [ctype = CORD];
-  for (int i = 0, n = this->_internal_data_size(); i < n; i++) {
+  for(int i = 0, n = this->_internal_data_size(); i < n; i++) {
     const auto& s = this->_internal_data(i);
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
       s.data(), static_cast<int>(s.length()),
@@ -1781,11 +1762,9 @@ size_t TestConflictingSymbolNames_Data6::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // repeated string data = 1 [ctype = CORD];
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(data_.size());
-  for (int i = 0, n = data_.size(); i < n; i++) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-      data_.Get(i));
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(data_.size());
+  for(int i = 0, n = data_.size(); i < n; i++) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(data_.Get(i));
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -1832,9 +1811,7 @@ void TestConflictingSymbolNames_Data6::InternalSwap(TestConflictingSymbolNames_D
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestConflictingSymbolNames_Data6::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once,
-      file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[7]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once, file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[7]);
 }
 
 // ===================================================================
@@ -1871,9 +1848,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestConflictingSymbolNames_Cor
 
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestConflictingSymbolNames_Cord::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once,
-      file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[8]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once, file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[8]);
 }
 
 // ===================================================================
@@ -1910,9 +1885,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestConflictingSymbolNames_Str
 
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestConflictingSymbolNames_StringPiece::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once,
-      file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[9]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once, file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[9]);
 }
 
 // ===================================================================
@@ -1949,9 +1922,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestConflictingSymbolNames_DO:
 
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestConflictingSymbolNames_DO::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once,
-      file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[10]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once, file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[10]);
 }
 
 // ===================================================================
@@ -1959,119 +1930,45 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestConflictingSymbolNames_DO:
 class TestConflictingSymbolNames::_Internal {
  public:
   using HasBits = decltype(std::declval<TestConflictingSymbolNames>()._has_bits_);
-  static void set_has_input(HasBits* has_bits) {
-    (*has_bits)[0] |= 256u;
-  }
-  static void set_has_output(HasBits* has_bits) {
-    (*has_bits)[0] |= 512u;
-  }
-  static void set_has_length(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
-  static void set_has_total_size(HasBits* has_bits) {
-    (*has_bits)[0] |= 1024u;
-  }
-  static void set_has_tag(HasBits* has_bits) {
-    (*has_bits)[0] |= 2048u;
-  }
-  static void set_has_source(HasBits* has_bits) {
-    (*has_bits)[0] |= 4096u;
-  }
-  static void set_has_value(HasBits* has_bits) {
-    (*has_bits)[0] |= 8192u;
-  }
-  static void set_has_file(HasBits* has_bits) {
-    (*has_bits)[0] |= 16384u;
-  }
-  static void set_has_from(HasBits* has_bits) {
-    (*has_bits)[0] |= 32768u;
-  }
-  static void set_has_handle_uninterpreted(HasBits* has_bits) {
-    (*has_bits)[0] |= 65536u;
-  }
-  static void set_has_controller(HasBits* has_bits) {
-    (*has_bits)[0] |= 131072u;
-  }
-  static void set_has_already_here(HasBits* has_bits) {
-    (*has_bits)[0] |= 262144u;
-  }
-  static void set_has_uint32(HasBits* has_bits) {
-    (*has_bits)[0] |= 524288u;
-  }
-  static void set_has_uint64(HasBits* has_bits) {
-    (*has_bits)[0] |= 1048576u;
-  }
-  static void set_has_string(HasBits* has_bits) {
-    (*has_bits)[0] |= 2u;
-  }
-  static void set_has_memset(HasBits* has_bits) {
-    (*has_bits)[0] |= 2097152u;
-  }
-  static void set_has_int32(HasBits* has_bits) {
-    (*has_bits)[0] |= 4194304u;
-  }
-  static void set_has_int64(HasBits* has_bits) {
-    (*has_bits)[0] |= 8388608u;
-  }
-  static void set_has_cached_size(HasBits* has_bits) {
-    (*has_bits)[0] |= 16777216u;
-  }
-  static void set_has_extensions(HasBits* has_bits) {
-    (*has_bits)[0] |= 33554432u;
-  }
-  static void set_has_bit(HasBits* has_bits) {
-    (*has_bits)[0] |= 67108864u;
-  }
-  static void set_has_bits(HasBits* has_bits) {
-    (*has_bits)[0] |= 134217728u;
-  }
-  static void set_has_offsets(HasBits* has_bits) {
-    (*has_bits)[0] |= 268435456u;
-  }
-  static void set_has_reflection(HasBits* has_bits) {
-    (*has_bits)[0] |= 536870912u;
-  }
-  static void set_has_some_cord(HasBits* has_bits) {
-    (*has_bits)[0] |= 4u;
-  }
-  static void set_has_some_string_piece(HasBits* has_bits) {
-    (*has_bits)[0] |= 8u;
-  }
-  static void set_has_int_(HasBits* has_bits) {
-    (*has_bits)[0] |= 1073741824u;
-  }
-  static void set_has_friend_(HasBits* has_bits) {
-    (*has_bits)[0] |= 2147483648u;
-  }
-  static void set_has_class_(HasBits* has_bits) {
-    (*has_bits)[1] |= 4u;
-  }
-  static void set_has_typedecl(HasBits* has_bits) {
-    (*has_bits)[1] |= 8u;
-  }
-  static void set_has_auto_(HasBits* has_bits) {
-    (*has_bits)[1] |= 16u;
-  }
+  static void set_has_input(HasBits* has_bits) { (*has_bits)[0] |= 256u; }
+  static void set_has_output(HasBits* has_bits) { (*has_bits)[0] |= 512u; }
+  static void set_has_length(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
+  static void set_has_total_size(HasBits* has_bits) { (*has_bits)[0] |= 1024u; }
+  static void set_has_tag(HasBits* has_bits) { (*has_bits)[0] |= 2048u; }
+  static void set_has_source(HasBits* has_bits) { (*has_bits)[0] |= 4096u; }
+  static void set_has_value(HasBits* has_bits) { (*has_bits)[0] |= 8192u; }
+  static void set_has_file(HasBits* has_bits) { (*has_bits)[0] |= 16384u; }
+  static void set_has_from(HasBits* has_bits) { (*has_bits)[0] |= 32768u; }
+  static void set_has_handle_uninterpreted(HasBits* has_bits) { (*has_bits)[0] |= 65536u; }
+  static void set_has_controller(HasBits* has_bits) { (*has_bits)[0] |= 131072u; }
+  static void set_has_already_here(HasBits* has_bits) { (*has_bits)[0] |= 262144u; }
+  static void set_has_uint32(HasBits* has_bits) { (*has_bits)[0] |= 524288u; }
+  static void set_has_uint64(HasBits* has_bits) { (*has_bits)[0] |= 1048576u; }
+  static void set_has_string(HasBits* has_bits) { (*has_bits)[0] |= 2u; }
+  static void set_has_memset(HasBits* has_bits) { (*has_bits)[0] |= 2097152u; }
+  static void set_has_int32(HasBits* has_bits) { (*has_bits)[0] |= 4194304u; }
+  static void set_has_int64(HasBits* has_bits) { (*has_bits)[0] |= 8388608u; }
+  static void set_has_cached_size(HasBits* has_bits) { (*has_bits)[0] |= 16777216u; }
+  static void set_has_extensions(HasBits* has_bits) { (*has_bits)[0] |= 33554432u; }
+  static void set_has_bit(HasBits* has_bits) { (*has_bits)[0] |= 67108864u; }
+  static void set_has_bits(HasBits* has_bits) { (*has_bits)[0] |= 134217728u; }
+  static void set_has_offsets(HasBits* has_bits) { (*has_bits)[0] |= 268435456u; }
+  static void set_has_reflection(HasBits* has_bits) { (*has_bits)[0] |= 536870912u; }
+  static void set_has_some_cord(HasBits* has_bits) { (*has_bits)[0] |= 4u; }
+  static void set_has_some_string_piece(HasBits* has_bits) { (*has_bits)[0] |= 8u; }
+  static void set_has_int_(HasBits* has_bits) { (*has_bits)[0] |= 1073741824u; }
+  static void set_has_friend_(HasBits* has_bits) { (*has_bits)[0] |= 2147483648u; }
+  static void set_has_class_(HasBits* has_bits) { (*has_bits)[1] |= 4u; }
+  static void set_has_typedecl(HasBits* has_bits) { (*has_bits)[1] |= 8u; }
+  static void set_has_auto_(HasBits* has_bits) { (*has_bits)[1] |= 16u; }
   static const ::protobuf_unittest::TestConflictingSymbolNames_DO& do_(const TestConflictingSymbolNames* msg);
-  static void set_has_do_(HasBits* has_bits) {
-    (*has_bits)[0] |= 64u;
-  }
-  static void set_has_field_type(HasBits* has_bits) {
-    (*has_bits)[1] |= 1u;
-  }
-  static void set_has_is_packed(HasBits* has_bits) {
-    (*has_bits)[1] |= 2u;
-  }
-  static void set_has_release_length(HasBits* has_bits) {
-    (*has_bits)[0] |= 16u;
-  }
+  static void set_has_do_(HasBits* has_bits) { (*has_bits)[0] |= 64u; }
+  static void set_has_field_type(HasBits* has_bits) { (*has_bits)[1] |= 1u; }
+  static void set_has_is_packed(HasBits* has_bits) { (*has_bits)[1] |= 2u; }
+  static void set_has_release_length(HasBits* has_bits) { (*has_bits)[0] |= 16u; }
   static const ::protobuf_unittest::TestConflictingSymbolNames_DO& release_do(const TestConflictingSymbolNames* msg);
-  static void set_has_release_do(HasBits* has_bits) {
-    (*has_bits)[0] |= 128u;
-  }
-  static void set_has_target(HasBits* has_bits) {
-    (*has_bits)[0] |= 32u;
-  }
+  static void set_has_release_do(HasBits* has_bits) { (*has_bits)[0] |= 128u; }
+  static void set_has_target(HasBits* has_bits) { (*has_bits)[0] |= 32u; }
 };
 
 const ::protobuf_unittest::TestConflictingSymbolNames_DO&
@@ -2108,48 +2005,42 @@ TestConflictingSymbolNames::TestConflictingSymbolNames(const TestConflictingSymb
     length_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_length()) {
-    length_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_length(), 
-      GetArenaForAllocation());
+    length_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_length(), GetArenaForAllocation());
   }
   string_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     string_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_string()) {
-    string_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_string(), 
-      GetArenaForAllocation());
+    string_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_string(), GetArenaForAllocation());
   }
   some_cord_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     some_cord_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_some_cord()) {
-    some_cord_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_some_cord(), 
-      GetArenaForAllocation());
+    some_cord_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_some_cord(), GetArenaForAllocation());
   }
   some_string_piece_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     some_string_piece_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_some_string_piece()) {
-    some_string_piece_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_some_string_piece(), 
-      GetArenaForAllocation());
+    some_string_piece_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_some_string_piece(), GetArenaForAllocation());
   }
   release_length_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     release_length_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_release_length()) {
-    release_length_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_release_length(), 
-      GetArenaForAllocation());
+    release_length_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_release_length(), GetArenaForAllocation());
   }
   target_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     target_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_target()) {
-    target_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_target(), 
-      GetArenaForAllocation());
+    target_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_target(), GetArenaForAllocation());
   }
   if(from._internal_has_do_()) {
     do__ = new ::protobuf_unittest::TestConflictingSymbolNames_DO(*from.do__);
@@ -2748,18 +2639,17 @@ uint8_t* TestConflictingSymbolNames::_InternalSerialize(
       this->_internal_length().data(), static_cast<int>(this->_internal_length().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
       "protobuf_unittest.TestConflictingSymbolNames.length");
-    target = stream->WriteStringMaybeAliased(
-        3, this->_internal_length(), target);
+    target = stream->WriteStringMaybeAliased(3, this->_internal_length(), target);
   }
 
   // repeated int32 i = 4;
   for(int i = 0, n = this->_internal_i_size(); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(4, this->_internal_i(i), target);
+  	target = stream->EnsureSpace(target);
+  	target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(4, this->_internal_i(i), target);
   }
 
   // repeated string new_element = 5 [ctype = STRING_PIECE];
-  for (int i = 0, n = this->_internal_new_element_size(); i < n; i++) {
+  for(int i = 0, n = this->_internal_new_element_size(); i < n; i++) {
     const auto& s = this->_internal_new_element(i);
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
       s.data(), static_cast<int>(s.length()),
@@ -2812,8 +2702,8 @@ uint8_t* TestConflictingSymbolNames::_InternalSerialize(
 
   // repeated int32 index = 13;
   for(int i = 0, n = this->_internal_index_size(); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(13, this->_internal_index(i), target);
+  	target = stream->EnsureSpace(target);
+  	target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(13, this->_internal_index(i), target);
   }
 
   // optional int32 controller = 14;
@@ -2846,8 +2736,7 @@ uint8_t* TestConflictingSymbolNames::_InternalSerialize(
       this->_internal_string().data(), static_cast<int>(this->_internal_string().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
       "protobuf_unittest.TestConflictingSymbolNames.string");
-    target = stream->WriteStringMaybeAliased(
-        18, this->_internal_string(), target);
+    target = stream->WriteStringMaybeAliased(18, this->_internal_string(), target);
   }
 
   // optional int32 memset = 19;
@@ -2910,8 +2799,7 @@ uint8_t* TestConflictingSymbolNames::_InternalSerialize(
       this->_internal_some_cord().data(), static_cast<int>(this->_internal_some_cord().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
       "protobuf_unittest.TestConflictingSymbolNames.some_cord");
-    target = stream->WriteStringMaybeAliased(
-        28, this->_internal_some_cord(), target);
+    target = stream->WriteStringMaybeAliased(28, this->_internal_some_cord(), target);
   }
 
   // optional string some_string_piece = 29 [ctype = STRING_PIECE];
@@ -2920,8 +2808,7 @@ uint8_t* TestConflictingSymbolNames::_InternalSerialize(
       this->_internal_some_string_piece().data(), static_cast<int>(this->_internal_some_string_piece().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
       "protobuf_unittest.TestConflictingSymbolNames.some_string_piece");
-    target = stream->WriteStringMaybeAliased(
-        29, this->_internal_some_string_piece(), target);
+    target = stream->WriteStringMaybeAliased(29, this->_internal_some_string_piece(), target);
   }
 
   // optional uint32 int = 30;
@@ -2964,8 +2851,7 @@ uint8_t* TestConflictingSymbolNames::_InternalSerialize(
       this->_internal_release_length().data(), static_cast<int>(this->_internal_release_length().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
       "protobuf_unittest.TestConflictingSymbolNames.release_length");
-    target = stream->WriteStringMaybeAliased(
-        35, this->_internal_release_length(), target);
+    target = stream->WriteStringMaybeAliased(35, this->_internal_release_length(), target);
   }
 
   // optional .protobuf_unittest.TestConflictingSymbolNames.DO release_do = 36;
@@ -2990,8 +2876,7 @@ uint8_t* TestConflictingSymbolNames::_InternalSerialize(
       this->_internal_target().data(), static_cast<int>(this->_internal_target().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
       "protobuf_unittest.TestConflictingSymbolNames.target");
-    target = stream->WriteStringMaybeAliased(
-        38, this->_internal_target(), target);
+    target = stream->WriteStringMaybeAliased(38, this->_internal_target(), target);
   }
 
   cached_has_bits = _has_bits_[1];
@@ -3031,25 +2916,21 @@ size_t TestConflictingSymbolNames::ByteSizeLong() const {
 
   // repeated int32 i = 4;
   {
-    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      Int32Size(this->i_);
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(this->i_);
     total_size += 1 *
                   ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_i_size());
     total_size += data_size;
   }
 
   // repeated string new_element = 5 [ctype = STRING_PIECE];
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(new_element_.size());
-  for (int i = 0, n = new_element_.size(); i < n; i++) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-      new_element_.Get(i));
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(new_element_.size());
+  for(int i = 0, n = new_element_.size(); i < n; i++) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(new_element_.Get(i));
   }
 
   // repeated int32 index = 13;
   {
-    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      Int32Size(this->index_);
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(this->index_);
     total_size += 1 *
                   ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_index_size());
     total_size += data_size;
@@ -3059,44 +2940,32 @@ size_t TestConflictingSymbolNames::ByteSizeLong() const {
   if(cached_has_bits & 0x000000ffu) {
     // optional string length = 3;
     if(cached_has_bits & 0x00000001u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_length());
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_length());
     }
 
     // optional string string = 18;
     if(cached_has_bits & 0x00000002u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_string());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_string());
     }
 
     // optional string some_cord = 28 [ctype = CORD];
     if(cached_has_bits & 0x00000004u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_some_cord());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_some_cord());
     }
 
     // optional string some_string_piece = 29 [ctype = STRING_PIECE];
     if(cached_has_bits & 0x00000008u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_some_string_piece());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_some_string_piece());
     }
 
     // optional string release_length = 35;
     if(cached_has_bits & 0x00000010u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_release_length());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_release_length());
     }
 
     // optional string target = 38;
     if(cached_has_bits & 0x00000020u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_target());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_target());
     }
 
     // optional .protobuf_unittest.TestConflictingSymbolNames.DO do = 32;
@@ -3174,95 +3043,69 @@ size_t TestConflictingSymbolNames::ByteSizeLong() const {
 
     // optional uint32 uint32 = 16;
     if(cached_has_bits & 0x00080000u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-          this->_internal_uint32());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(this->_internal_uint32());
     }
 
     // optional uint64 uint64 = 17;
     if(cached_has_bits & 0x00100000u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
-          this->_internal_uint64());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(this->_internal_uint64());
     }
 
     // optional int32 memset = 19;
     if(cached_has_bits & 0x00200000u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
-          this->_internal_memset());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(this->_internal_memset());
     }
 
     // optional int32 int32 = 20;
     if(cached_has_bits & 0x00400000u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
-          this->_internal_int32());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(this->_internal_int32());
     }
 
     // optional int64 int64 = 21;
     if(cached_has_bits & 0x00800000u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int64Size(
-          this->_internal_int64());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int64Size(this->_internal_int64());
     }
 
   }
   if(cached_has_bits & 0xff000000u) {
     // optional uint32 cached_size = 22;
     if(cached_has_bits & 0x01000000u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-          this->_internal_cached_size());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(this->_internal_cached_size());
     }
 
     // optional uint32 extensions = 23;
     if(cached_has_bits & 0x02000000u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-          this->_internal_extensions());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(this->_internal_extensions());
     }
 
     // optional uint32 bit = 24;
     if(cached_has_bits & 0x04000000u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-          this->_internal_bit());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(this->_internal_bit());
     }
 
     // optional uint32 bits = 25;
     if(cached_has_bits & 0x08000000u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-          this->_internal_bits());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(this->_internal_bits());
     }
 
     // optional uint32 offsets = 26;
     if(cached_has_bits & 0x10000000u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-          this->_internal_offsets());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(this->_internal_offsets());
     }
 
     // optional uint32 reflection = 27;
     if(cached_has_bits & 0x20000000u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-          this->_internal_reflection());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(this->_internal_reflection());
     }
 
     // optional uint32 int = 30;
     if(cached_has_bits & 0x40000000u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-          this->_internal_int_());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(this->_internal_int_());
     }
 
     // optional uint32 friend = 31;
     if(cached_has_bits & 0x80000000u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-          this->_internal_friend_());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(this->_internal_friend_());
     }
 
   }
@@ -3270,9 +3113,7 @@ size_t TestConflictingSymbolNames::ByteSizeLong() const {
   if(cached_has_bits & 0x0000001fu) {
     // optional int32 field_type = 33;
     if(cached_has_bits & 0x00000001u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
-          this->_internal_field_type());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(this->_internal_field_type());
     }
 
     // optional bool is_packed = 34;
@@ -3282,23 +3123,17 @@ size_t TestConflictingSymbolNames::ByteSizeLong() const {
 
     // optional uint32 class = 37;
     if(cached_has_bits & 0x00000004u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-          this->_internal_class_());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(this->_internal_class_());
     }
 
     // optional uint32 typedecl = 39;
     if(cached_has_bits & 0x00000008u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-          this->_internal_typedecl());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(this->_internal_typedecl());
     }
 
     // optional uint32 auto = 40;
     if(cached_has_bits & 0x00000010u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-          this->_internal_auto_());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(this->_internal_auto_());
     }
 
   }
@@ -3523,9 +3358,7 @@ void TestConflictingSymbolNames::InternalSwap(TestConflictingSymbolNames* other)
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestConflictingSymbolNames::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once,
-      file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[11]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once, file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[11]);
 }
 
 // ===================================================================
@@ -3562,9 +3395,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestConflictingSymbolNamesExte
 
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestConflictingSymbolNamesExtension::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once,
-      file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[12]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once, file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[12]);
 }
 
 // ===================================================================
@@ -3572,9 +3403,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestConflictingSymbolNamesExte
 class TestConflictingEnumNames::_Internal {
  public:
   using HasBits = decltype(std::declval<TestConflictingEnumNames>()._has_bits_);
-  static void set_has_conflicting_enum(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
+  static void set_has_conflicting_enum(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
 TestConflictingEnumNames::TestConflictingEnumNames(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -3757,9 +3586,7 @@ void TestConflictingEnumNames::InternalSwap(TestConflictingEnumNames* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestConflictingEnumNames::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once,
-      file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[13]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once, file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[13]);
 }
 
 // ===================================================================
@@ -3796,9 +3623,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*DummyMessage::GetClassData() c
 
 
 ::PROTOBUF_NAMESPACE_ID::Metadata DummyMessage::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once,
-      file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[14]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once, file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[14]);
 }
 
 // ===================================================================
@@ -3806,9 +3631,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*DummyMessage::GetClassData() c
 class NULL_::_Internal {
  public:
   using HasBits = decltype(std::declval<NULL_>()._has_bits_);
-  static void set_has_int_(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
+  static void set_has_int_(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
 NULL_::NULL_(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -3986,9 +3809,7 @@ void NULL_::InternalSwap(NULL_* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata NULL_::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once,
-      file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[15]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once, file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[15]);
 }
 
 // ===================================================================
@@ -4025,9 +3846,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Shutdown::GetClassData() const
 
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Shutdown::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once,
-      file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[16]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once, file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[16]);
 }
 
 // ===================================================================
@@ -4064,9 +3883,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TableStruct::GetClassData() co
 
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TableStruct::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once,
-      file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[17]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_getter, &descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto_once, file_level_metadata_cpp_5ftest_5fbad_5fidentifiers_2eproto[17]);
 }
 
 // ===================================================================

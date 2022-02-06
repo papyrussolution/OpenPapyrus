@@ -1,0 +1,751 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\codeblocks-code\src\base\tinyxml\tinystr.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\base\tinyxml\tinyxml.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\base\tinyxml\tinyxmlerror.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\base\tinyxml\tinyxmlparser.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\annoyingdialog.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\autodetectcompilers.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\base64.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\blockallocated.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\cbart_provider.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\cbauibook.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\cbcolourmanager.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\cbdebugger_interfaces.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\cbeditor.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\cbeditorprintout.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\cbexception.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\cbplugin.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\cbproject.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\cbstatusbar.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\cbstyledtextctrl.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\cbthreadpool.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\cbtreectrl.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\cbworkspace.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\ccmanager.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\compileoptionsbase.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\compiler.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\compilercommandgenerator.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\compilerfactory.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\compileroptions.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\compiletargetbase.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\configmanager-revision.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\configmanager.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\configurationpanel.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\configuretoolsdlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\confirmreplacedlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\crc32.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\debuggermanager.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\editarrayfiledlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\editarrayorderdlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\editarraystringdlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\editorbase.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\editorcolourset.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\editorlexerloader.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\editormanager.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\editor_hooks.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\editor_utils.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\editpairdlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\editpathdlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\edittooldlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\encodingdetector.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\externaldepsdlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\filefilters.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\filegroupsandmasks.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\filemanager.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\findreplacedlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\genericmultilinenotesdlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\globals.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\importers_globals.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\incremental_select_helper.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\infowindow.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\loggers.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\logmanager.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\macrosmanager.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\manager.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\menuitemsmanager.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\mozilla_chardet\src\CharDistribution.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\mozilla_chardet\src\JpCntx.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\mozilla_chardet\src\LangBulgarianModel.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\mozilla_chardet\src\LangCyrillicModel.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\mozilla_chardet\src\LangGreekModel.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\mozilla_chardet\src\LangHebrewModel.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\mozilla_chardet\src\LangHungarianModel.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\mozilla_chardet\src\LangThaiModel.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\mozilla_chardet\src\nsBig5Prober.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\mozilla_chardet\src\nsCharSetProber.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\mozilla_chardet\src\nsEscCharsetProber.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\mozilla_chardet\src\nsEscSM.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\mozilla_chardet\src\nsEUCJPProber.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\mozilla_chardet\src\nsEUCKRProber.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\mozilla_chardet\src\nsEUCTWProber.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\mozilla_chardet\src\nsGB2312Prober.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\mozilla_chardet\src\nsHebrewProber.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\mozilla_chardet\src\nsLatin1Prober.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\mozilla_chardet\src\nsMBCSGroupProber.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\mozilla_chardet\src\nsMBCSSM.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\mozilla_chardet\src\nsSBCharSetProber.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\mozilla_chardet\src\nsSBCSGroupProber.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\mozilla_chardet\src\nsSJISProber.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\mozilla_chardet\src\nsUniversalDetector.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\mozilla_chardet\src\nsUTF8Prober.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\multiselectdlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\newfromtemplatedlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\nullptr.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\personalitymanager.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\pipedprocess.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\pluginmanager.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\pluginsconfigurationdlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\printing_types.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\projectbuildtarget.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\projectfile.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\projectfileoptionsdlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\projectlayoutloader.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\projectloader.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\projectloader_hooks.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\projectmanager.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\projectsfilemasksdlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\projecttemplateloader.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scriptingmanager.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\bindings\scriptbindings.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\bindings\sc_consts.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\bindings\sc_dialog.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\bindings\sc_globals.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\bindings\sc_io.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\bindings\sc_plugin.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\bindings\sc_progress.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\bindings\sc_util_dialogs.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\bindings\sc_wxtypes.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\sqplus\SqPlus.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\sqplus\SquirrelBindingsUtils.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\sqplus\SquirrelBindingsUtilsWin32.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\sqplus\SquirrelObject.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\sqplus\SquirrelVM.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\sqstdlib\sqstdaux.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\sqstdlib\sqstdblob.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\sqstdlib\sqstdio.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\sqstdlib\sqstdmath.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\sqstdlib\sqstdrex.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\sqstdlib\sqstdstream.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\sqstdlib\sqstdstring.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\sqstdlib\sqstdsystem.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\squirrel\sqapi.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\squirrel\sqbaselib.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\squirrel\sqclass.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\squirrel\sqcompiler.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\squirrel\sqdebug.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\squirrel\sqfuncstate.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\squirrel\sqlexer.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\squirrel\sqmem.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\squirrel\sqobject.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\squirrel\sqstate.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\squirrel\sqtable.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scripting\squirrel\sqvm.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scriptsecuritywarningdlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\scrollingdialog.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\sdk_events.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\searchresultslog.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\selecttargetdlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\templatemanager.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\tinywxuni.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\toolsmanager.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\uservarmanager.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\workspaceloader.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\sdk\xtra_res.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\app.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\appglobals.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\associations.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\backtracedlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\breakpointsdlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\cb-pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\compilersettingsdlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\cpuregistersdlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\crashhandler.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\debuggermenu.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\debuggersettingscommonpanel.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\debuggersettingsdlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\debuggersettingspanel.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\debugger_interface_creator.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\disassemblydlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\dlgabout.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\dlgaboutplugin.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\editkeywordsdlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\editorconfigurationdlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\environmentsettingsdlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\examinememorydlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\find_replace.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\goto_file.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\infopane.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\ipc.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\main.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\notebookstyles.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\printdlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\projectdepsdlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\projectmanagerui.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\projectoptionsdlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\recentitemslist.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\scriptconsole.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\scriptingsettingsdlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\splashscreen.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\startherepage.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\switcherdlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\threadsdlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\virtualbuildtargetsdlg.cpp" />
+    <ClCompile Include="..\OSF\codeblocks-code\src\src\watchesdlg.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\annoyingdialog.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\autodetectcompilers.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\backgroundthread.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\base64.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\blockallocated.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\cb-internal.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\cbart_provider.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\cbauibook.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\cbcolourmanager.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\cbdebugger_interfaces.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\cbeditor.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\cbeditorprintout.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\cbexception.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\cbexecute.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\cbfunctor.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\cbplugin.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\cbproject.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\cbstatusbar.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\cbstyledtextctrl.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\cbthreadedtask.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\cbthreadpool.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\cbtool.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\cbtreectrl.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\cbworkspace.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\ccmanager.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\compileoptionsbase.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\compiler.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\compilercommandgenerator.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\compilerfactory.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\compileroptions.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\compiletargetbase.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\configmanager.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\configurationpanel.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\configuretoolsdlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\confirmreplacedlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\crc32.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\debuggermanager.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\editarrayfiledlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\editarrayorderdlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\editarraystringdlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\editorbase.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\editorcolourset.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\editorlexerloader.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\editormanager.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\editor_hooks.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\editor_utils.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\editpairdlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\editpathdlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\edittooldlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\encodingdetector.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\externaldepsdlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\filefilters.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\filegroupsandmasks.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\filemanager.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\findreplacebase.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\findreplacedlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\genericmultilinenotesdlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\globals.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\ibaseloader.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\ibaseworkspaceloader.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\id.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\importers_globals.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\incremental_select_helper.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\infowindow.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\licenses.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\logger.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\loggers.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\logmanager.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\macrosmanager.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\manager.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\menuitemsmanager.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\misctreeitemdata.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\multiselectdlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\newfromtemplatedlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\personalitymanager.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\pipedprocess.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\pluginmanager.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\pluginsconfigurationdlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\prep.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\printing_types.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\projectbuildtarget.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\projectfile.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\projectfileoptionsdlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\projectlayoutloader.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\projectloader.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\projectloader_hooks.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\projectmanager.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\projectsfilemasksdlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\projecttemplateloader.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\safedelete.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\scriptingmanager.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\scripting\include\sqdbgserver.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\scripting\include\sqrdbg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\scripting\include\sqstdaux.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\scripting\include\sqstdblob.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\scripting\include\sqstdio.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\scripting\include\sqstdmath.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\scripting\include\sqstdstring.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\scripting\include\sqstdsystem.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\scripting\include\squirrel.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\scripting\sqplus\sqplus.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\scripting\sqplus\SqPlusConst.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\scripting\sqplus\sqplusWin32.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\scripting\sqplus\SquirrelBindingsUtils.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\scripting\sqplus\SquirrelBindingsUtilsWin32.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\scripting\sqplus\SquirrelObject.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\scripting\sqplus\SquirrelVM.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\scriptsecuritywarningdlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\scrollingdialog.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\sdk.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\sdk_common.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\sdk_events.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\sdk_precomp.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\searchresultslog.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\selecttargetdlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\settings.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\templatemanager.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\tinywxuni.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\tinyxml\tinystr.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\tinyxml\tinyxml.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\toolsmanager.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\uservarmanager.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\workspaceloader.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\include\xtra_res.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\app.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\appglobals.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\associations.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\backtracedlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\batchbuild.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\breakpointsdlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\compilersettingsdlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\cpuregistersdlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\crashhandler.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\debuggermenu.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\debuggersettingscommonpanel.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\debuggersettingsdlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\debuggersettingspanel.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\debugger_interface_creator.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\disassemblydlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\dlgabout.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\dlgaboutplugin.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\editkeywordsdlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\editorconfigurationdlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\environmentsettingsdlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\examinememorydlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\find_replace.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\goto_file.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\infopane.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\ipc.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\main.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\notebookstyles.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\printdlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\projectdepsdlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\projectmanagerui.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\projectoptionsdlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\recentitemslist.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\scriptconsole.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\scriptingsettingsdlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\splashscreen.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\startherepage.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\switcherdlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\threadsdlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\virtualbuildtargetsdlg.h" />
+    <ClInclude Include="..\OSF\codeblocks-code\src\src\watchesdlg.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BuildVC2017\libjpeg.vcxproj">
+      <Project>{270b7cae-41a6-43ae-a53d-d06dd9ee84e9}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\BuildVC2017\liblzma.vcxproj">
+      <Project>{c241e0ad-81ff-4a43-9b39-f3712e9c0d4e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\BuildVC2017\libpng.vcxproj">
+      <Project>{04aa636d-9d3e-4e79-9c2e-b8d0470719da}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\BuildVC2017\openssl-111-crypto.vcxproj">
+      <Project>{26070ad0-2d76-41a2-ab8b-864ea198cc6f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\BuildVC2017\openssl-111.vcxproj">
+      <Project>{0796c89c-07e1-4bda-bdae-f023aeb5366c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\BuildVC2017\slib.vcxproj">
+      <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\BuildVC2017\tiff.vcxproj">
+      <Project>{be973138-3d24-4e02-a136-d1592bc5e1f3}</Project>
+    </ProjectReference>
+    <ProjectReference Include="wx_adv.vcxproj">
+      <Project>{24c45343-fd20-5c92-81c1-35a2ae841e79}</Project>
+    </ProjectReference>
+    <ProjectReference Include="wx_aui.vcxproj">
+      <Project>{a16d3832-0f42-57ce-8f48-50e06649ade8}</Project>
+    </ProjectReference>
+    <ProjectReference Include="wx_base.vcxproj">
+      <Project>{3fcc50c2-81e9-5db2-b8d8-2129427568b1}</Project>
+    </ProjectReference>
+    <ProjectReference Include="wx_core.vcxproj">
+      <Project>{6744dad8-9c70-574a-bff2-9f8dddb24a75}</Project>
+    </ProjectReference>
+    <ProjectReference Include="wx_gl.vcxproj">
+      <Project>{da8b15ef-6750-5928-bc0e-c748213cf9b2}</Project>
+    </ProjectReference>
+    <ProjectReference Include="wx_html.vcxproj">
+      <Project>{33cc42f9-7756-5587-863c-8d4461b7c5dd}</Project>
+    </ProjectReference>
+    <ProjectReference Include="wx_media.vcxproj">
+      <Project>{8bd8f8d9-4275-5b42-a8f4-f1db2970a550}</Project>
+    </ProjectReference>
+    <ProjectReference Include="wx_net.vcxproj">
+      <Project>{69f2ede4-7d21-5738-9bc0-f66f61c9ae00}</Project>
+    </ProjectReference>
+    <ProjectReference Include="wx_propgrid.vcxproj">
+      <Project>{97fdab45-9c58-5bc5-a2f4-ee42739ebc63}</Project>
+    </ProjectReference>
+    <ProjectReference Include="wx_qa.vcxproj">
+      <Project>{e21129e0-7c08-5936-9d8c-0d60b5319ba7}</Project>
+    </ProjectReference>
+    <ProjectReference Include="wx_ribbon.vcxproj">
+      <Project>{87b42a9c-3f5c-53d7-9017-2b1cae39457d}</Project>
+    </ProjectReference>
+    <ProjectReference Include="wx_richtext.vcxproj">
+      <Project>{7fb0902d-8579-5dce-b883-daf66a885005}</Project>
+    </ProjectReference>
+    <ProjectReference Include="wx_wxexpat.vcxproj">
+      <Project>{a1a8355b-0988-528e-9cc2-b971d6266669}</Project>
+    </ProjectReference>
+    <ProjectReference Include="wx_wxregex.vcxproj">
+      <Project>{56a4b526-bb81-5d01-aaa9-16d23bbb169d}</Project>
+    </ProjectReference>
+    <ProjectReference Include="wx_wxscintilla-codeblocks.vcxproj">
+      <Project>{5d92e135-4d6f-4af7-b3cd-723069013fe1}</Project>
+    </ProjectReference>
+    <ProjectReference Include="wx_xml.vcxproj">
+      <Project>{3e6dca27-5fa3-53ec-bbd6-2d42294b7ae6}</Project>
+    </ProjectReference>
+    <ProjectReference Include="wx_xrc.vcxproj">
+      <Project>{09f2f96a-1cc6-5e43-af1d-956ec2a4888d}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{0E0C359E-CB1D-403A-94FE-EBC0A39CF24B}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>CodeBlocks</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
+      <AdditionalIncludeDirectories>..\include;..\OSF\codeblocks-code\src\include;..\osf\wxWidgets\include;..\OSF\codeblocks-code\src\exchndl\win32\include;..\OSF\codeblocks-code\src\include\tinyxml;..\OSF\codeblocks-code\src\include\scripting\sqplus;..\OSF\codeblocks-code\src\include\scripting\include;..\OSF\codeblocks-code\src\include\scripting\bindings;..\OSF\codeblocks-code\src\include\scripting\squirrel;..\OSF\codeblocks-code\src\include\scripting\sqstdlib;..\OSF\codeblocks-code\src\sdk\mozilla_chardet\include;..\OSF\codeblocks-code\src\sdk\mozilla_chardet\include\xpcom\base;..\OSF\codeblocks-code\src\sdk\mozilla_chardet\include\mfbt;..\OSF\wxWidgets\src\wxscintilla-codeblocks\include;..\OSF\codeblocks-code\src\sdk\mozilla_chardet\include\xpcom\glue;..\OSF\codeblocks-code\src\sdk\mozilla_chardet\include\nsprpub\pr\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeaderFile />
+      <StringPooling>true</StringPooling>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>comctl32.lib;Rpcrt4.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(ProjectDir)..\..\tools\$(TargetName)$(TargetExt)</OutputFile>
+      <ProgramDatabaseFile>$(ProjectDir)..\..\tools\$(TargetName).pdb</ProgramDatabaseFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
+      <AdditionalIncludeDirectories>..\include;..\OSF\codeblocks-code\src\include;..\osf\wxWidgets\include;..\OSF\codeblocks-code\src\exchndl\win32\include;..\OSF\codeblocks-code\src\include\tinyxml;..\OSF\codeblocks-code\src\include\scripting\sqplus;..\OSF\codeblocks-code\src\include\scripting\include;..\OSF\codeblocks-code\src\include\scripting\bindings;..\OSF\codeblocks-code\src\include\scripting\squirrel;..\OSF\codeblocks-code\src\include\scripting\sqstdlib;..\OSF\codeblocks-code\src\sdk\mozilla_chardet\include;..\OSF\codeblocks-code\src\sdk\mozilla_chardet\include\xpcom\base;..\OSF\codeblocks-code\src\sdk\mozilla_chardet\include\mfbt;..\OSF\wxWidgets\src\wxscintilla-codeblocks\include;..\OSF\codeblocks-code\src\sdk\mozilla_chardet\include\xpcom\glue;..\OSF\codeblocks-code\src\sdk\mozilla_chardet\include\nsprpub\pr\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeaderFile />
+      <StringPooling>true</StringPooling>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>comctl32.lib;Rpcrt4.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(ProjectDir)..\..\tools\$(TargetName)$(TargetExt)</OutputFile>
+      <ProgramDatabaseFile>$(ProjectDir)..\..\tools\$(TargetName).pdb</ProgramDatabaseFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
+      <AdditionalIncludeDirectories>..\include;..\OSF\codeblocks-code\src\include;..\osf\wxWidgets\include;..\OSF\codeblocks-code\src\exchndl\win32\include;..\OSF\codeblocks-code\src\include\tinyxml;..\OSF\codeblocks-code\src\include\scripting\sqplus;..\OSF\codeblocks-code\src\include\scripting\include;..\OSF\codeblocks-code\src\include\scripting\bindings;..\OSF\codeblocks-code\src\include\scripting\squirrel;..\OSF\codeblocks-code\src\include\scripting\sqstdlib;..\OSF\codeblocks-code\src\sdk\mozilla_chardet\include;..\OSF\codeblocks-code\src\sdk\mozilla_chardet\include\xpcom\base;..\OSF\codeblocks-code\src\sdk\mozilla_chardet\include\mfbt;..\OSF\wxWidgets\src\wxscintilla-codeblocks\include;..\OSF\codeblocks-code\src\sdk\mozilla_chardet\include\xpcom\glue;..\OSF\codeblocks-code\src\sdk\mozilla_chardet\include\nsprpub\pr\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <PrecompiledHeaderFile />
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>comctl32.lib;Rpcrt4.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(ProjectDir)..\..\tools\$(TargetName)$(TargetExt)</OutputFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
+      <AdditionalIncludeDirectories>..\include;..\OSF\codeblocks-code\src\include;..\osf\wxWidgets\include;..\OSF\codeblocks-code\src\exchndl\win32\include;..\OSF\codeblocks-code\src\include\tinyxml;..\OSF\codeblocks-code\src\include\scripting\sqplus;..\OSF\codeblocks-code\src\include\scripting\include;..\OSF\codeblocks-code\src\include\scripting\bindings;..\OSF\codeblocks-code\src\include\scripting\squirrel;..\OSF\codeblocks-code\src\include\scripting\sqstdlib;..\OSF\codeblocks-code\src\sdk\mozilla_chardet\include;..\OSF\codeblocks-code\src\sdk\mozilla_chardet\include\xpcom\base;..\OSF\codeblocks-code\src\sdk\mozilla_chardet\include\mfbt;..\OSF\wxWidgets\src\wxscintilla-codeblocks\include;..\OSF\codeblocks-code\src\sdk\mozilla_chardet\include\xpcom\glue;..\OSF\codeblocks-code\src\sdk\mozilla_chardet\include\nsprpub\pr\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <PrecompiledHeaderFile />
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>comctl32.lib;Rpcrt4.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(ProjectDir)..\..\tools\$(TargetName)$(TargetExt)</OutputFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

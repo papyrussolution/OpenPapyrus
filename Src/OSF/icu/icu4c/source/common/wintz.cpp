@@ -112,10 +112,8 @@ U_CAPI const char * U_EXPORT2 uprv_detectWindowsTimeZone()
 	//
 	if(dynamicTZI.DynamicDaylightTimeDisabled != 0 &&
 	    uprv_memcmp(&dynamicTZI.StandardDate, &dynamicTZI.DaylightDate, sizeof(dynamicTZI.StandardDate)) == 0 &&
-	    ((dynamicTZI.TimeZoneKeyName[0] != L'\0' &&
-	    uprv_memcmp(&dynamicTZI.StandardDate, &systemTimeAllZero, sizeof(systemTimeAllZero)) == 0) ||
-	    (dynamicTZI.TimeZoneKeyName[0] == L'\0' &&
-	    uprv_memcmp(&dynamicTZI.StandardDate, &systemTimeAllZero, sizeof(systemTimeAllZero)) != 0))) {
+	    ((dynamicTZI.TimeZoneKeyName[0] != L'\0' && uprv_memcmp(&dynamicTZI.StandardDate, &systemTimeAllZero, sizeof(systemTimeAllZero)) == 0) ||
+	    (dynamicTZI.TimeZoneKeyName[0] == L'\0' && uprv_memcmp(&dynamicTZI.StandardDate, &systemTimeAllZero, sizeof(systemTimeAllZero)) != 0))) {
 		LONG utcOffsetMins = dynamicTZI.Bias;
 		if(utcOffsetMins == 0) {
 			return uprv_strdup("Etc/UTC");

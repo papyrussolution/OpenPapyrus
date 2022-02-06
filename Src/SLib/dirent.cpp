@@ -41,7 +41,7 @@ _WDIR * _wopendir(const wchar_t * dirname)
 {
 	wchar_t * p;
 	// Must have directory name 
-	if(dirname == NULL || dirname[0] == '\0') {
+	if(isempty(dirname)) {
 		dirent_set_errno(ENOENT);
 		return NULL;
 	}
@@ -67,7 +67,7 @@ _WDIR * _wopendir(const wchar_t * dirname)
 	size_t n = wcslen(dirname);
 #endif
 	// Allocate room for absolute directory name and search pattern 
-	dirp->patt = (wchar_t*)SAlloc::M(sizeof(wchar_t) * n + 16);
+	dirp->patt = (wchar_t *)SAlloc::M(sizeof(wchar_t) * n + 16);
 	if(dirp->patt == NULL)
 		goto exit_closedir;
 	/*
@@ -259,22 +259,22 @@ exit_close:
 //
 DIR * opendir(const char * dirname)
 {
-	/* Must have directory name */
-	if(dirname == NULL || dirname[0] == '\0') {
+	// Must have directory name 
+	if(isempty(dirname)) {
 		dirent_set_errno(ENOENT);
 		return NULL;
 	}
-	/* Allocate memory for DIR structure */
+	// Allocate memory for DIR structure 
 	struct DIR * dirp = (DIR *)SAlloc::M(sizeof(struct DIR));
 	if(!dirp)
 		return NULL;
-	/* Convert directory name to wide-character string */
+	// Convert directory name to wide-character string 
 	wchar_t wname[PATH_MAX + 1];
 	size_t n;
 	int error = mbstowcs_s(&n, wname, PATH_MAX + 1, dirname, PATH_MAX+1);
 	if(error)
 		goto exit_failure;
-	/* Open directory stream using wide-character name */
+	// Open directory stream using wide-character name 
 	dirp->wdirp = _wopendir(wname);
 	if(!dirp->wdirp)
 		goto exit_failure;

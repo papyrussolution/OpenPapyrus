@@ -396,7 +396,7 @@ U_CAPI int32_t paramStatic(const USystemParams * param, char * target, int32_t t
 	if(U_FAILURE(*status)) return 0;
 	int32_t len = static_cast<int32_t>(uprv_strlen(param->paramStr));
 	if(target!=NULL) {
-		uprv_strncpy(target, param->paramStr, uprv_min(len, targetCapacity));
+		uprv_strncpy(target, param->paramStr, smin(len, targetCapacity));
 	}
 	return u_terminateChars(target, targetCapacity, len, status);
 }
@@ -409,14 +409,14 @@ static int32_t stringToStringBuffer(char * target, int32_t targetCapacity, const
 	int32_t len = static_cast<int32_t>(uprv_strlen(str));
 	if(U_SUCCESS(*status)) {
 		if(target!=NULL) {
-			uprv_strncpy(target, str, uprv_min(len, targetCapacity));
+			uprv_strncpy(target, str, smin(len, targetCapacity));
 		}
 	}
 	else {
 		const char * s = u_errorName(*status);
 		len = static_cast<int32_t>(uprv_strlen(s));
 		if(target!=NULL) {
-			uprv_strncpy(target, s, uprv_min(len, targetCapacity));
+			uprv_strncpy(target, s, smin(len, targetCapacity));
 		}
 	}
 	return u_terminateChars(target, targetCapacity, len, status);

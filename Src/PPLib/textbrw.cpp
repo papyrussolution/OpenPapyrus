@@ -1,5 +1,5 @@
 // TEXTBRW.CPP
-// Copyright (c) A.Starodub 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Starodub 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // STextBrowser
 //
 #include <pp.h>
@@ -296,9 +296,9 @@ int SScEditorStyleSet::ParseStylesXml(const char * pFileName)
 	THROW_LXML((p_doc = xmlCtxtReadFile(p_ctx, pFileName, 0, XML_PARSE_NOENT)), p_ctx);
 	THROW(p_root = xmlDocGetRootElement(p_doc));
 	if(SXml::IsName(p_root, "EditorStyles")) {
-		for(xmlNode * p_n = p_root->children; p_n; p_n = p_n->next) {
+		for(const xmlNode * p_n = p_root->children; p_n; p_n = p_n->next) {
 			if(SXml::IsName(p_n, "LexerStyles")) {
-				for(xmlNode * p_s = p_n->children; p_s; p_s = p_s->next) {
+				for(const xmlNode * p_s = p_n->children; p_s; p_s = p_s->next) {
 					if(SXml::IsName(p_s, "LexerType")) {
 						if(SXml::GetAttrib(p_s, "name", lexer_name) > 0) {
 							uint   lexer_id = SScGetLexerIdByName(lexer_name);
@@ -306,7 +306,7 @@ int SScEditorStyleSet::ParseStylesXml(const char * pFileName)
 								uint   lexer_descr_p = 0;
 								if(SXml::GetAttrib(p_s, "desc", lexer_descr) > 0) 
 									AddS(lexer_descr, &lexer_descr_p);
-								for(xmlNode * p_e = p_s->children; p_e; p_e = p_e->next) {
+								for(const xmlNode * p_e = p_s->children; p_e; p_e = p_e->next) {
 									if(SXml::IsName(p_e, "WordsStyle")) {
 										InnerStyle st;
 										MEMSZERO(st);
@@ -350,7 +350,7 @@ int SScEditorStyleSet::ParseStylesXml(const char * pFileName)
 				}
 			}
 			else if(SXml::IsName(p_n, "GlobalStyles")) {
-				for(xmlNode * p_s = p_n->children; p_s; p_s = p_s->next) {
+				for(const xmlNode * p_s = p_n->children; p_s; p_s = p_s->next) {
 					if(SXml::IsName(p_s, "WidgetStyle")) {
 						InnerStyle st;
 						MEMSZERO(st);
@@ -409,9 +409,9 @@ int SScEditorStyleSet::ParseModelXml(const char * pFileName)
 	THROW_LXML((p_doc = xmlCtxtReadFile(p_ctx, pFileName, 0, XML_PARSE_NOENT)), p_ctx);
 	THROW(p_root = xmlDocGetRootElement(p_doc));
 	if(SXml::IsName(p_root, "EditorLangModels")) {
-		for(xmlNode * p_n = p_root->children; p_n; p_n = p_n->next) {
+		for(const xmlNode * p_n = p_root->children; p_n; p_n = p_n->next) {
 			if(SXml::IsName(p_n, "Languages")) {
-				for(xmlNode * p_s = p_n->children; p_s; p_s = p_s->next) {
+				for(const xmlNode * p_s = p_n->children; p_s; p_s = p_s->next) {
 					if(SXml::IsName(p_s, "Language")) {
 						if(SXml::GetAttrib(p_s, "name", lexer_name) > 0) {
 							uint   lexer_id = SScGetLexerIdByName(lexer_name);
@@ -428,7 +428,7 @@ int SScEditorStyleSet::ParseModelXml(const char * pFileName)
 								if(SXml::GetAttrib(p_s, "commentEnd", temp_buf) > 0)
 									AddS(temp_buf, &model.CommentEndP);
 								THROW_SL(ML.insert(&model));
-								for(xmlNode * p_e = p_s->children; p_e; p_e = p_e->next) {
+								for(const xmlNode * p_e = p_s->children; p_e; p_e = p_e->next) {
 									if(SXml::IsName(p_e, "Keywords")) {
 										if(SXml::GetContent(p_e, temp_buf) > 0 && temp_buf.NotEmptyS()) {
 											InnerLangModelKeywords entry;

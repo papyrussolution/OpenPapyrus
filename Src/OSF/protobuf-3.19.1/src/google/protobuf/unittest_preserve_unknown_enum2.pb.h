@@ -138,8 +138,7 @@ class MyMessage final :
   inline void Swap(MyMessage* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -171,8 +170,7 @@ class MyMessage final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -183,19 +181,16 @@ class MyMessage final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "proto2_preserve_unknown_enum_unittest.MyMessage";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "proto2_preserve_unknown_enum_unittest.MyMessage"; }
   protected:
-  explicit MyMessage(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit MyMessage(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -371,9 +366,7 @@ inline void MyMessage::set_e(::proto2_preserve_unknown_enum_unittest::MyEnum val
 }
 
 // repeated .proto2_preserve_unknown_enum_unittest.MyEnum repeated_e = 2;
-inline int MyMessage::_internal_repeated_e_size() const {
-  return repeated_e_.size();
-}
+inline int MyMessage::_internal_repeated_e_size() const { return repeated_e_.size(); }
 inline int MyMessage::repeated_e_size() const {
   return _internal_repeated_e_size();
 }
@@ -414,9 +407,7 @@ MyMessage::mutable_repeated_e() {
 }
 
 // repeated .proto2_preserve_unknown_enum_unittest.MyEnum repeated_packed_e = 3 [packed = true];
-inline int MyMessage::_internal_repeated_packed_e_size() const {
-  return repeated_packed_e_.size();
-}
+inline int MyMessage::_internal_repeated_packed_e_size() const { return repeated_packed_e_.size(); }
 inline int MyMessage::repeated_packed_e_size() const {
   return _internal_repeated_packed_e_size();
 }
@@ -457,9 +448,7 @@ MyMessage::mutable_repeated_packed_e() {
 }
 
 // repeated .proto2_preserve_unknown_enum_unittest.MyEnum repeated_packed_unexpected_e = 4;
-inline int MyMessage::_internal_repeated_packed_unexpected_e_size() const {
-  return repeated_packed_unexpected_e_.size();
-}
+inline int MyMessage::_internal_repeated_packed_unexpected_e_size() const { return repeated_packed_unexpected_e_.size(); }
 inline int MyMessage::repeated_packed_unexpected_e_size() const {
   return _internal_repeated_packed_unexpected_e_size();
 }
@@ -583,9 +572,7 @@ inline bool MyMessage::has_o() const {
 inline void MyMessage::clear_has_o() {
   _oneof_case_[0] = O_NOT_SET;
 }
-inline MyMessage::OCase MyMessage::o_case() const {
-  return MyMessage::OCase(_oneof_case_[0]);
-}
+inline MyMessage::OCase MyMessage::o_case() const { return MyMessage::OCase(_oneof_case_[0]); }
 #ifdef __GNUC__
 	#pragma GCC diagnostic pop
 #endif  // __GNUC__

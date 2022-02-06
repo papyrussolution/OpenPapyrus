@@ -58,26 +58,18 @@ int archive_write_open_file(struct archive * a, const char * filename)
 
 int archive_write_open_filename(struct archive * a, const char * filename)
 {
-	if(filename == NULL || filename[0] == '\0')
-		return (archive_write_open_fd(a, 1));
-
-	return (open_filename(a, 1, filename));
+	return isempty(filename) ? archive_write_open_fd(a, 1) : open_filename(a, 1, filename);
 }
 
 int archive_write_open_filename_w(struct archive * a, const wchar_t * filename)
 {
-	if(filename == NULL || filename[0] == L'\0')
-		return (archive_write_open_fd(a, 1));
-
-	return (open_filename(a, 0, filename));
+	return isempty(filename) ? archive_write_open_fd(a, 1) : open_filename(a, 0, filename);
 }
 
 static int open_filename(struct archive * a, int mbs_fn, const void * filename)
 {
-	struct write_file_data * mine;
 	int r;
-
-	mine = (struct write_file_data *)SAlloc::C(1, sizeof(*mine));
+	struct write_file_data * mine = (struct write_file_data *)SAlloc::C(1, sizeof(*mine));
 	if(mine == NULL) {
 		archive_set_error(a, ENOMEM, "No memory");
 		return ARCHIVE_FATAL;
@@ -94,7 +86,7 @@ static int open_filename(struct archive * a, int mbs_fn, const void * filename)
 		if(mbs_fn)
 			archive_set_error(a, ARCHIVE_ERRNO_MISC, "Can't convert '%s' to WCS", (const char *)filename);
 		else
-			archive_set_error(a, ARCHIVE_ERRNO_MISC, "Can't convert '%S' to MBS", (const wchar_t*)filename);
+			archive_set_error(a, ARCHIVE_ERRNO_MISC, "Can't convert '%S' to MBS", (const wchar_t *)filename);
 		return ARCHIVE_FAILED;
 	}
 	mine->fd = -1;

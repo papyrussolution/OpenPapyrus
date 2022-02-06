@@ -93,8 +93,7 @@ SourceContext::SourceContext(const SourceContext& from)
     file_name_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(!from._internal_file_name().empty()) {
-    file_name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_file_name(), 
-      GetArenaForAllocation());
+    file_name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_file_name(), GetArenaForAllocation());
   }
   // @@protoc_insertion_point(copy_constructor:google.protobuf.SourceContext)
 }
@@ -189,8 +188,7 @@ uint8_t* SourceContext::_InternalSerialize(
       this->_internal_file_name().data(), static_cast<int>(this->_internal_file_name().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.protobuf.SourceContext.file_name");
-    target = stream->WriteStringMaybeAliased(
-        1, this->_internal_file_name(), target);
+    target = stream->WriteStringMaybeAliased(1, this->_internal_file_name(), target);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -211,9 +209,7 @@ size_t SourceContext::ByteSizeLong() const {
 
   // string file_name = 1;
   if(!this->_internal_file_name().empty()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_file_name());
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_file_name());
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -268,9 +264,7 @@ void SourceContext::InternalSwap(SourceContext* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata SourceContext::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2fsource_5fcontext_2eproto_getter, &descriptor_table_google_2fprotobuf_2fsource_5fcontext_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2fsource_5fcontext_2eproto[0]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2fsource_5fcontext_2eproto_getter, &descriptor_table_google_2fprotobuf_2fsource_5fcontext_2eproto_once, file_level_metadata_google_2fprotobuf_2fsource_5fcontext_2eproto[0]);
 }
 
 // @@protoc_insertion_point(namespace_scope)

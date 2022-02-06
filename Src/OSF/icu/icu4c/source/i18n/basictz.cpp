@@ -1,6 +1,5 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-//
 // Copyright (C) 2007-2013, International Business Machines Corporation and others. All Rights Reserved.
 //
 #include <icu-internal.h>
@@ -493,9 +492,8 @@ void BasicTimeZone::getTimeZoneRulesAfter(UDate start, InitialTimeZoneRule*& ini
 }
 
 void BasicTimeZone::getOffsetFromLocal(UDate /*date*/, UTimeZoneLocalOption /*nonExistingTimeOpt*/,
-    UTimeZoneLocalOption /*duplicatedTimeOpt*/,
-    int32_t& /*rawOffset*/, int32_t& /*dstOffset*/,
-    UErrorCode & status) const {
+    UTimeZoneLocalOption /*duplicatedTimeOpt*/, int32_t& /*rawOffset*/, int32_t& /*dstOffset*/, UErrorCode & status) const 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
@@ -512,5 +510,3 @@ void BasicTimeZone::getOffsetFromLocal(UDate date, int32_t nonExistingTimeOpt, i
 U_NAMESPACE_END
 
 #endif /* #if !UCONFIG_NO_FORMATTING */
-
-//eof

@@ -1,0 +1,2286 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllDebug|Win32">
+      <Configuration>MtDllDebug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllDebug|x64">
+      <Configuration>MtDllDebug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllRelease|Win32">
+      <Configuration>MtDllRelease</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllRelease|x64">
+      <Configuration>MtDllRelease</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerDebug|Win32">
+      <Configuration>ServerDebug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerDebug|x64">
+      <Configuration>ServerDebug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerRelease|Win32">
+      <Configuration>ServerRelease</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerRelease|x64">
+      <Configuration>ServerRelease</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Universe-HTT|Win32">
+      <Configuration>Universe-HTT</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Universe-HTT|x64">
+      <Configuration>Universe-HTT</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{45586DBF-6009-49EA-8FFA-B9330F6A9488}</ProjectGuid>
+    <RootNamespace>papyrus</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>14.0.24720.0</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <TargetName>ppw</TargetName>
+    <IncludePath>$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <TargetName>ppw</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>ppw</TargetName>
+    <IncludePath>$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <TargetName>ppw</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>ppws</TargetName>
+    <IncludePath>$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <TargetName>ppws</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>ppws</TargetName>
+    <IncludePath>$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <TargetName>ppws</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>ppwmt</TargetName>
+    <IncludePath>$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <TargetName>ppwmt</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>ppwmt</TargetName>
+    <IncludePath>$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <TargetName>ppwmt</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-111\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <AdditionalOptions />
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <BrowseInformation>false</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <CompileAsManaged>false</CompileAsManaged>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <OmitDefaultLibName>false</OmitDefaultLibName>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
+      <OpenMPSupport>false</OpenMPSupport>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <EnableModules>false</EnableModules>
+      <SDLCheck>
+      </SDLCheck>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ShowProgress>NotSet</ShowProgress>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile />
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(ProjectDir)..\..\ppy\bin\$(TargetName).pdb</ProgramDatabaseFile>
+      <GenerateMapFile>false</GenerateMapFile>
+      <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>false</LargeAddressAware>
+      <TerminalServerAware>true</TerminalServerAware>
+      <SwapRunFromNET>true</SwapRunFromNET>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
+      <SetChecksum>true</SetChecksum>
+      <DataExecutionPrevention>false</DataExecutionPrevention>
+      <TurnOffAssemblyGeneration>false</TurnOffAssemblyGeneration>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <LinkStatus>
+      </LinkStatus>
+    </Link>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-111\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <AdditionalOptions>
+      </AdditionalOptions>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <BrowseInformation>false</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <OmitFramePointers>false</OmitFramePointers>
+      <CompileAsManaged>false</CompileAsManaged>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <OpenMPSupport>false</OpenMPSupport>
+      <EnableModules>false</EnableModules>
+      <SDLCheck>
+      </SDLCheck>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ShowProgress>NotSet</ShowProgress>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(ProjectDir)..\..\ppy\bin\$(TargetName).pdb</ProgramDatabaseFile>
+      <GenerateMapFile>false</GenerateMapFile>
+      <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>false</LargeAddressAware>
+      <TerminalServerAware>true</TerminalServerAware>
+      <SwapRunFromNET>true</SwapRunFromNET>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
+      <SetChecksum>true</SetChecksum>
+      <DataExecutionPrevention>false</DataExecutionPrevention>
+      <TurnOffAssemblyGeneration>false</TurnOffAssemblyGeneration>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <LinkStatus>
+      </LinkStatus>
+    </Link>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-111\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <AdditionalOptions />
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <CompileAsManaged>false</CompileAsManaged>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <OmitDefaultLibName>false</OmitDefaultLibName>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
+      <OpenMPSupport>false</OpenMPSupport>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <SDLCheck>
+      </SDLCheck>
+      <EnableModules>false</EnableModules>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile />
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(ProjectDir)..\..\ppy\bin\$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>false</LargeAddressAware>
+      <TerminalServerAware>true</TerminalServerAware>
+      <SwapRunFromNET>true</SwapRunFromNET>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <FullProgramDatabaseFile>false</FullProgramDatabaseFile>
+      <AssemblyDebug>false</AssemblyDebug>
+      <SetChecksum>true</SetChecksum>
+      <DataExecutionPrevention>false</DataExecutionPrevention>
+      <TurnOffAssemblyGeneration>false</TurnOffAssemblyGeneration>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <GenerateMapFile>false</GenerateMapFile>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <LinkStatus>
+      </LinkStatus>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-111\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <AdditionalOptions>
+      </AdditionalOptions>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <CompileAsManaged>false</CompileAsManaged>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <SDLCheck>
+      </SDLCheck>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <OpenMPSupport>false</OpenMPSupport>
+      <EnableModules>false</EnableModules>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(ProjectDir)..\..\ppy\bin\$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>false</LargeAddressAware>
+      <TerminalServerAware>true</TerminalServerAware>
+      <SwapRunFromNET>true</SwapRunFromNET>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <FullProgramDatabaseFile>false</FullProgramDatabaseFile>
+      <AssemblyDebug>false</AssemblyDebug>
+      <SetChecksum>true</SetChecksum>
+      <DataExecutionPrevention>false</DataExecutionPrevention>
+      <TurnOffAssemblyGeneration>false</TurnOffAssemblyGeneration>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <LinkStatus>
+      </LinkStatus>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-111\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <AdditionalOptions />
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <BrowseInformation>false</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <CompileAsManaged>false</CompileAsManaged>
+      <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
+      <OpenMPSupport>false</OpenMPSupport>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <EnableModules>false</EnableModules>
+      <SDLCheck>
+      </SDLCheck>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <ModuleDefinitionFile />
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(ProjectDir)..\..\ppy\bin\$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Console</SubSystem>
+      <LargeAddressAware>false</LargeAddressAware>
+      <TerminalServerAware>true</TerminalServerAware>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <SwapRunFromNET>true</SwapRunFromNET>
+      <SetChecksum>true</SetChecksum>
+      <DataExecutionPrevention>false</DataExecutionPrevention>
+      <TurnOffAssemblyGeneration>false</TurnOffAssemblyGeneration>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
+      <LinkStatus>
+      </LinkStatus>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-111\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <AdditionalOptions>
+      </AdditionalOptions>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <BrowseInformation>false</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <OmitFramePointers>false</OmitFramePointers>
+      <CompileAsManaged>false</CompileAsManaged>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <OpenMPSupport>false</OpenMPSupport>
+      <EnableModules>false</EnableModules>
+      <SDLCheck>
+      </SDLCheck>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(ProjectDir)..\..\ppy\bin\$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Console</SubSystem>
+      <LargeAddressAware>false</LargeAddressAware>
+      <TerminalServerAware>true</TerminalServerAware>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <SetChecksum>true</SetChecksum>
+      <DataExecutionPrevention>false</DataExecutionPrevention>
+      <TurnOffAssemblyGeneration>false</TurnOffAssemblyGeneration>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
+      <SwapRunFromNET>true</SwapRunFromNET>
+      <LinkStatus>
+      </LinkStatus>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-111\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <AdditionalOptions />
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <BrowseInformation>false</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <CompileAsManaged>false</CompileAsManaged>
+      <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
+      <OpenMPSupport>false</OpenMPSupport>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <SDLCheck>
+      </SDLCheck>
+      <EnableModules>false</EnableModules>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile />
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(ProjectDir)..\..\ppy\bin\$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Console</SubSystem>
+      <LargeAddressAware>false</LargeAddressAware>
+      <TerminalServerAware>true</TerminalServerAware>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <SwapRunFromNET>true</SwapRunFromNET>
+      <SetChecksum>true</SetChecksum>
+      <DataExecutionPrevention>false</DataExecutionPrevention>
+      <TurnOffAssemblyGeneration>false</TurnOffAssemblyGeneration>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <LinkStatus>
+      </LinkStatus>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-111\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <AdditionalOptions>
+      </AdditionalOptions>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <BrowseInformation>false</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <CompileAsManaged>false</CompileAsManaged>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <SDLCheck>
+      </SDLCheck>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <OpenMPSupport>false</OpenMPSupport>
+      <EnableModules>false</EnableModules>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(ProjectDir)..\..\ppy\bin\$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Console</SubSystem>
+      <LargeAddressAware>false</LargeAddressAware>
+      <TerminalServerAware>true</TerminalServerAware>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <SetChecksum>true</SetChecksum>
+      <DataExecutionPrevention>false</DataExecutionPrevention>
+      <TurnOffAssemblyGeneration>false</TurnOffAssemblyGeneration>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <SwapRunFromNET>true</SwapRunFromNET>
+      <LinkStatus>
+      </LinkStatus>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-111\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <AdditionalOptions />
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <BrowseInformation>false</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <CompileAsManaged>false</CompileAsManaged>
+      <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
+      <OpenMPSupport>false</OpenMPSupport>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <EnableModules>false</EnableModules>
+      <SDLCheck>
+      </SDLCheck>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ShowProgress>NotSet</ShowProgress>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile>..\ppmain\papyrus.def</ModuleDefinitionFile>
+      <TypeLibraryResourceID>1</TypeLibraryResourceID>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(ProjectDir)..\..\ppy\bin\$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Console</SubSystem>
+      <LargeAddressAware>false</LargeAddressAware>
+      <TerminalServerAware>true</TerminalServerAware>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <SwapRunFromNET>true</SwapRunFromNET>
+      <SetChecksum>true</SetChecksum>
+      <DataExecutionPrevention>false</DataExecutionPrevention>
+      <TurnOffAssemblyGeneration>false</TurnOffAssemblyGeneration>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <LinkStatus>
+      </LinkStatus>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-111\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <AdditionalOptions>
+      </AdditionalOptions>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <BrowseInformation>false</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <OmitFramePointers>false</OmitFramePointers>
+      <CompileAsManaged>false</CompileAsManaged>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <OpenMPSupport>false</OpenMPSupport>
+      <EnableModules>false</EnableModules>
+      <SDLCheck>
+      </SDLCheck>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ShowProgress>NotSet</ShowProgress>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile>..\ppmain\papyrus.def</ModuleDefinitionFile>
+      <TypeLibraryResourceID>1</TypeLibraryResourceID>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(ProjectDir)..\..\ppy\bin\$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Console</SubSystem>
+      <LargeAddressAware>false</LargeAddressAware>
+      <TerminalServerAware>true</TerminalServerAware>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <SetChecksum>true</SetChecksum>
+      <DataExecutionPrevention>false</DataExecutionPrevention>
+      <TurnOffAssemblyGeneration>false</TurnOffAssemblyGeneration>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <SwapRunFromNET>true</SwapRunFromNET>
+      <LinkStatus>
+      </LinkStatus>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-111\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <AdditionalOptions />
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <BrowseInformation>false</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <CompileAsManaged>false</CompileAsManaged>
+      <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
+      <OpenMPSupport>false</OpenMPSupport>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <SDLCheck>
+      </SDLCheck>
+      <EnableModules>false</EnableModules>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <ModuleDefinitionFile>..\ppmain\papyrus.def</ModuleDefinitionFile>
+      <TypeLibraryResourceID>1</TypeLibraryResourceID>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(ProjectDir)..\..\ppy\bin\$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Console</SubSystem>
+      <LargeAddressAware>false</LargeAddressAware>
+      <TerminalServerAware>true</TerminalServerAware>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <SwapRunFromNET>true</SwapRunFromNET>
+      <SetChecksum>true</SetChecksum>
+      <DataExecutionPrevention>false</DataExecutionPrevention>
+      <TurnOffAssemblyGeneration>false</TurnOffAssemblyGeneration>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <LinkStatus>
+      </LinkStatus>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-111\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <AdditionalOptions>
+      </AdditionalOptions>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <BrowseInformation>false</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <CompileAsManaged>false</CompileAsManaged>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <SDLCheck>
+      </SDLCheck>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <OpenMPSupport>false</OpenMPSupport>
+      <EnableModules>false</EnableModules>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <ModuleDefinitionFile>..\ppmain\papyrus.def</ModuleDefinitionFile>
+      <TypeLibraryResourceID>1</TypeLibraryResourceID>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(ProjectDir)..\..\ppy\bin\$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Console</SubSystem>
+      <LargeAddressAware>false</LargeAddressAware>
+      <TerminalServerAware>true</TerminalServerAware>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <SetChecksum>true</SetChecksum>
+      <DataExecutionPrevention>false</DataExecutionPrevention>
+      <TurnOffAssemblyGeneration>false</TurnOffAssemblyGeneration>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <SwapRunFromNET>true</SwapRunFromNET>
+      <LinkStatus>
+      </LinkStatus>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-111\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <CompileAsManaged>false</CompileAsManaged>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <WarningLevel>Level3</WarningLevel>
+      <OpenMPSupport>false</OpenMPSupport>
+      <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <AssemblerOutput>NoListing</AssemblerOutput>
+      <PrecompiledHeaderFile />
+      <SDLCheck>
+      </SDLCheck>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnableModules>false</EnableModules>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SwapRunFromNET>true</SwapRunFromNET>
+      <SubSystem>NotSet</SubSystem>
+      <AdditionalLibraryDirectories>..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <ProgramDatabaseFile>$(ProjectDir)..\..\ppy\bin\$(TargetName).pdb</ProgramDatabaseFile>
+      <SetChecksum>true</SetChecksum>
+      <DataExecutionPrevention>false</DataExecutionPrevention>
+      <TurnOffAssemblyGeneration>false</TurnOffAssemblyGeneration>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <TerminalServerAware>true</TerminalServerAware>
+      <LargeAddressAware>false</LargeAddressAware>
+      <OptimizeReferences>true</OptimizeReferences>
+      <LinkStatus>
+      </LinkStatus>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-111\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeaderFile />
+      <AssemblerOutput>NoListing</AssemblerOutput>
+      <CompileAsManaged>false</CompileAsManaged>
+      <WarningLevel>Level3</WarningLevel>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <SDLCheck>
+      </SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <EnableModules>false</EnableModules>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <OpenMPSupport>false</OpenMPSupport>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SetChecksum>true</SetChecksum>
+      <DataExecutionPrevention>false</DataExecutionPrevention>
+      <TurnOffAssemblyGeneration>false</TurnOffAssemblyGeneration>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <ProgramDatabaseFile>$(ProjectDir)..\..\ppy\bin\$(TargetName).pdb</ProgramDatabaseFile>
+      <TerminalServerAware>true</TerminalServerAware>
+      <SwapRunFromNET>true</SwapRunFromNET>
+      <LargeAddressAware>false</LargeAddressAware>
+      <OptimizeReferences>true</OptimizeReferences>
+      <LinkStatus>
+      </LinkStatus>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\PPLib\alcodecl-ru.cpp" />
+    <ClCompile Include="..\PPLib\styloq.cpp" />
+    <ClCompile Include="..\PPLib\v_styloqbindery.cpp" />
+    <ClCompile Include="..\Tools\Dl200\dl200.cpp" />
+    <ClCompile Include="..\Tools\Dl200\dl200prs.cpp" />
+    <ClCompile Include="..\Tools\Dl200\dl200r.cpp" />
+    <ClCompile Include="..\PPEquip\Acs_1.cpp" />
+    <ClCompile Include="..\PPEquip\Atol-pre.cpp" />
+    <ClCompile Include="..\PPEquip\atoldrv.cpp" />
+    <ClCompile Include="..\PPEquip\Bclprn.cpp" />
+    <ClCompile Include="..\PPEquip\Bht.cpp" />
+    <ClCompile Include="..\PPEquip\Bnkterminal.cpp" />
+    <ClCompile Include="..\PPEquip\Checkfmt.cpp" />
+    <ClCompile Include="..\PPEquip\Crcshsrv.cpp" />
+    <ClCompile Include="..\PPEquip\Crukm.cpp" />
+    <ClCompile Include="..\PPEquip\Custdisp.cpp" />
+    <ClCompile Include="..\PPEquip\dls.cpp" />
+    <ClCompile Include="..\PPEquip\DreamKas.cpp" />
+    <ClCompile Include="..\PPEquip\Ecr930.cpp" />
+    <ClCompile Include="..\PPEquip\El92aq.cpp" />
+    <ClCompile Include="..\PPEquip\emu_scs.cpp" />
+    <ClCompile Include="..\PPEquip\frontol.cpp" />
+    <ClCompile Include="..\PPEquip\Objscale.cpp" />
+    <ClCompile Include="..\PPEquip\Palm.cpp" />
+    <ClCompile Include="..\PPEquip\palmexch.cpp" />
+    <ClCompile Include="..\PPEquip\PPDrvAPI\ppdrvapi.cpp" />
+    <ClCompile Include="..\PPEquip\SetStart.cpp" />
+    <ClCompile Include="..\PPEquip\Shtrihfr.cpp" />
+    <ClCompile Include="..\PPEquip\Shtrihmf.cpp" />
+    <ClCompile Include="..\PPEquip\Smukm30.cpp" />
+    <ClCompile Include="..\PPEquip\stylopalm.cpp" />
+    <ClCompile Include="..\PPEquip\Synccash.cpp" />
+    <ClCompile Include="..\PPEquip\wincexch.cpp" />
+    <ClCompile Include="..\PPLib\Account.cpp" />
+    <ClCompile Include="..\PPLib\Acct.cpp" />
+    <ClCompile Include="..\PPLib\Accturn.cpp" />
+    <ClCompile Include="..\PPLib\Advbill.cpp" />
+    <ClCompile Include="..\PPLib\albatros.cpp" />
+    <ClCompile Include="..\PPLib\Amtdlg.cpp" />
+    <ClCompile Include="..\PPLib\Asstwrof.cpp" />
+    <ClCompile Include="..\PPLib\Atrntmpl.cpp" />
+    <ClCompile Include="..\PPLib\Autocmpl.cpp" />
+    <ClCompile Include="..\PPLib\Balance.cpp" />
+    <ClCompile Include="..\PPLib\BILL.CPP" />
+    <ClCompile Include="..\PPLib\Billdlg.cpp" />
+    <ClCompile Include="..\PPLib\billhist.cpp" />
+    <ClCompile Include="..\PPLib\bilvatax.cpp" />
+    <ClCompile Include="..\PPLib\bitmbrow.cpp" />
+    <ClCompile Include="..\PPLib\Bnkodlg.cpp" />
+    <ClCompile Include="..\PPLib\Bpakcore.cpp" />
+    <ClCompile Include="..\PPLib\calendar.cpp" />
+    <ClCompile Include="..\PPLib\CCHECK.CPP" />
+    <ClCompile Include="..\PPLib\chkinpsn.cpp" />
+    <ClCompile Include="..\PPLib\Chkpan.cpp" />
+    <ClCompile Include="..\PPLib\chzn.cpp" />
+    <ClCompile Include="..\PPLib\Cliagt.cpp" />
+    <ClCompile Include="..\PPLib\clibnk2.cpp" />
+    <ClCompile Include="..\PPLib\Commcfg.cpp" />
+    <ClCompile Include="..\PPLib\Cptransf.cpp" />
+    <ClCompile Include="..\PPLib\Creval.cpp" />
+    <ClCompile Include="..\PPLib\crosstab.cpp" />
+    <ClCompile Include="..\PPLib\csess.cpp" />
+    <ClCompile Include="..\PPLib\Cshmchn.cpp" />
+    <ClCompile Include="..\PPLib\Cshses.cpp" />
+    <ClCompile Include="..\PPLib\Ctrandlg.cpp" />
+    <ClCompile Include="..\PPLib\Cutting.cpp" />
+    <ClCompile Include="..\PPLib\C_aturn.cpp" />
+    <ClCompile Include="..\PPLib\C_bill.cpp" />
+    <ClCompile Include="..\PPLib\C_trfr.cpp" />
+    <ClCompile Include="..\PPLib\Dbentset.cpp" />
+    <ClCompile Include="..\PPLib\Declstru.cpp" />
+    <ClCompile Include="..\PPLib\Dgacc.cpp" />
+    <ClCompile Include="..\PPLib\dl600.cpp" />
+    <ClCompile Include="..\PPLib\dl600r.cpp" />
+    <ClCompile Include="..\PPLib\dlscope.cpp" />
+    <ClCompile Include="..\PPLib\Draftwof.cpp" />
+    <ClCompile Include="..\PPLib\d_charry.cpp" />
+    <ClCompile Include="..\PPLib\egais.cpp" />
+    <ClCompile Include="..\PPLib\Elinkdlg.cpp" />
+    <ClCompile Include="..\PPLib\Extgsel.cpp" />
+    <ClCompile Include="..\PPLib\FilTrnsm.cpp" />
+    <ClCompile Include="..\PPLib\gct.cpp" />
+    <ClCompile Include="..\PPLib\gctiter.cpp" />
+    <ClCompile Include="..\PPLib\gds2obja.cpp" />
+    <ClCompile Include="..\PPLib\Gdscls.cpp" />
+    <ClCompile Include="..\PPLib\Gdsgrpng.cpp" />
+    <ClCompile Include="..\PPLib\GDSITER.CPP" />
+    <ClCompile Include="..\PPLib\Gdspack.cpp" />
+    <ClCompile Include="..\PPLib\Gdssaldo.cpp" />
+    <ClCompile Include="..\PPLib\Gdsutil.cpp" />
+    <ClCompile Include="..\PPLib\GENVER.CPP" />
+    <ClCompile Include="..\PPLib\Glblsrvs.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-111\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <ClCompile Include="..\PPLib\Goods.cpp" />
+    <ClCompile Include="..\PPLib\Goodsdlg.cpp" />
+    <ClCompile Include="..\PPLib\Gtaxdlg.cpp" />
+    <ClCompile Include="..\PPLib\holidays.cpp" />
+    <ClCompile Include="..\PPLib\ie_bill.cpp" />
+    <ClCompile Include="..\PPLib\ie_goods.cpp" />
+    <ClCompile Include="..\PPLib\Ilbpack.cpp" />
+    <ClCompile Include="..\PPLib\Import.cpp" />
+    <ClCompile Include="..\PPLib\INVCORE.CPP" />
+    <ClCompile Include="..\PPLib\Inventry.cpp" />
+    <ClCompile Include="..\PPLib\ld2.cpp" />
+    <ClCompile Include="..\PPLib\Loadtrfr.cpp" />
+    <ClCompile Include="..\PPLib\LOCATION.CPP" />
+    <ClCompile Include="..\PPLib\loctransf.cpp" />
+    <ClCompile Include="..\PPLib\mrp.cpp" />
+    <ClCompile Include="..\PPLib\Nmbtotxt.cpp" />
+    <ClCompile Include="..\PPLib\Objacct.cpp" />
+    <ClCompile Include="..\PPLib\Objacsht.cpp" />
+    <ClCompile Include="..\PPLib\Objamtt.cpp" />
+    <ClCompile Include="..\PPLib\Objartcl.cpp" />
+    <ClCompile Include="..\PPLib\OBJASSOC.CPP" />
+    <ClCompile Include="..\PPLib\Objaturn.cpp" />
+    <ClCompile Include="..\PPLib\Objbill.cpp" />
+    <ClCompile Include="..\PPLib\objbilst.cpp" />
+    <ClCompile Include="..\PPLib\objbizsc.cpp" />
+    <ClCompile Include="..\PPLib\Objbrows.cpp" />
+    <ClCompile Include="..\PPLib\objbskt.cpp" />
+    <ClCompile Include="..\PPLib\OBJCACHE.CPP" />
+    <ClCompile Include="..\PPLib\Objcashn.cpp" />
+    <ClCompile Include="..\PPLib\objcntr.cpp" />
+    <ClCompile Include="..\PPLib\objcsess.cpp" />
+    <ClCompile Include="..\PPLib\Objdbdiv.cpp" />
+    <ClCompile Include="..\PPLib\Objggrp.cpp" />
+    <ClCompile Include="..\PPLib\Objgoods.cpp" />
+    <ClCompile Include="..\PPLib\Objgs.cpp" />
+    <ClCompile Include="..\PPLib\objgtax.cpp" />
+    <ClCompile Include="..\PPLib\objg_etc.cpp" />
+    <ClCompile Include="..\PPLib\Objloctn.cpp" />
+    <ClCompile Include="..\PPLib\Objoprk.cpp" />
+    <ClCompile Include="..\PPLib\Objpersn.cpp" />
+    <ClCompile Include="..\PPLib\objphsvc.cpp" />
+    <ClCompile Include="..\PPLib\Objqcert.cpp" />
+    <ClCompile Include="..\PPLib\Objquotk.cpp" />
+    <ClCompile Include="..\PPLib\Objref.cpp" />
+    <ClCompile Include="..\PPLib\objreg.cpp" />
+    <ClCompile Include="..\PPLib\Objregt.cpp" />
+    <ClCompile Include="..\PPLib\objsalar.cpp" />
+    <ClCompile Include="..\PPLib\objscard.cpp" />
+    <ClCompile Include="..\PPLib\Objsecur.cpp" />
+    <ClCompile Include="..\PPLib\Objstaff.cpp" />
+    <ClCompile Include="..\PPLib\objsync.cpp" />
+    <ClCompile Include="..\PPLib\Objtag.cpp" />
+    <ClCompile Include="..\PPLib\objtimeseries.cpp" />
+    <ClCompile Include="..\PPLib\objtrnsm.cpp" />
+    <ClCompile Include="..\PPLib\objtsess.cpp" />
+    <ClCompile Include="..\PPLib\Objutil.cpp" />
+    <ClCompile Include="..\PPLib\Objvatbk.cpp" />
+    <ClCompile Include="..\PPLib\objworld.cpp" />
+    <ClCompile Include="..\PPLib\ofd.cpp" />
+    <ClCompile Include="..\PPLib\PACKAGE.CPP" />
+    <ClCompile Include="..\PPLib\Path.cpp" />
+    <ClCompile Include="..\PPLib\Payment.cpp" />
+    <ClCompile Include="..\PPLib\Person.cpp" />
+    <ClCompile Include="..\PPLib\phnpan.cpp" />
+    <ClCompile Include="..\PPLib\pp-pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\PPLib\Ppaction.cpp" />
+    <ClCompile Include="..\PPLib\Ppappo.cpp" />
+    <ClCompile Include="..\PPLib\PPARRAY.CPP" />
+    <ClCompile Include="..\PPLib\ppbuild.cpp" />
+    <ClCompile Include="..\PPLib\ppbulletinboard.cpp" />
+    <ClCompile Include="..\PPLib\Ppcalc.cpp" />
+    <ClCompile Include="..\PPLib\ppcmd.cpp" />
+    <ClCompile Include="..\PPLib\ppcolors.cpp" />
+    <ClCompile Include="..\PPLib\Ppconvrt.cpp" />
+    <ClCompile Include="..\PPLib\ppdbmake.cpp" />
+    <ClCompile Include="..\PPLib\ppdbqf.cpp" />
+    <ClCompile Include="..\PPLib\ppdbs.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\PPLib\Ppdbutil.cpp" />
+    <ClCompile Include="..\PPLib\ppdeltmp.cpp" />
+    <ClCompile Include="..\PPLib\ppdesktp.cpp" />
+    <ClCompile Include="..\PPLib\ppdevice.cpp" />
+    <ClCompile Include="..\PPLib\PPDS.CPP" />
+    <ClCompile Include="..\PPLib\PPDSP.CPP" />
+    <ClCompile Include="..\PPLib\ppedi-base.cpp" />
+    <ClCompile Include="..\PPLib\ppedi.cpp" />
+    <ClCompile Include="..\PPLib\ppeds.cpp" />
+    <ClCompile Include="..\PPLib\ppevent.cpp" />
+    <ClCompile Include="..\PPLib\Ppexport.cpp" />
+    <ClCompile Include="..\PPLib\PPEXPR.CPP" />
+    <ClCompile Include="..\PPLib\ppgeo.cpp" />
+    <ClCompile Include="..\PPLib\ppgplot.cpp" />
+    <ClCompile Include="..\PPLib\ppgravity.cpp" />
+    <ClCompile Include="..\PPLib\ppidata.cpp" />
+    <ClCompile Include="..\PPLib\ppifcimp.cpp" />
+    <ClCompile Include="..\PPLib\ppifclua.cpp" />
+    <ClCompile Include="..\PPLib\Ppinicfg.cpp" />
+    <ClCompile Include="..\PPLib\ppjob.cpp" />
+    <ClCompile Include="..\PPLib\Pplog.cpp" />
+    <ClCompile Include="..\PPLib\ppmail.cpp" />
+    <ClCompile Include="..\PPLib\ppmqc.cpp" />
+    <ClCompile Include="..\PPLib\Ppmsg.cpp" />
+    <ClCompile Include="..\PPLib\ppNamedFilt.cpp" />
+    <ClCompile Include="..\PPLib\ppngx.cpp" />
+    <ClCompile Include="..\PPLib\PPPosProtocol.cpp" />
+    <ClCompile Include="..\PPLib\PPREGKEY.CPP" />
+    <ClCompile Include="..\PPLib\ppreport.cpp" />
+    <ClCompile Include="..\PPLib\Pprights.cpp" />
+    <ClCompile Include="..\PPLib\ppserver.cpp" />
+    <ClCompile Include="..\PPLib\ppsess.cpp" />
+    <ClCompile Include="..\PPLib\ppsms.cpp" />
+    <ClCompile Include="..\PPLib\ppsoapclient.cpp" />
+    <ClCompile Include="..\PPLib\ppsprot.cpp" />
+    <ClCompile Include="..\PPLib\ppsupplix.cpp" />
+    <ClCompile Include="..\PPLib\PPSYNC.CPP" />
+    <ClCompile Include="..\PPLib\pptex2html.cpp" />
+    <ClCompile Include="..\PPLib\Pptvutil.cpp" />
+    <ClCompile Include="..\PPLib\Pputil.cpp" />
+    <ClCompile Include="..\PPLib\PPVER.CPP" />
+    <ClCompile Include="..\PPLib\ppview.cpp" />
+    <ClCompile Include="..\PPLib\ppwg.cpp" />
+    <ClCompile Include="..\PPLib\ppwtm.cpp" />
+    <ClCompile Include="..\PPLib\prcpan.cpp" />
+    <ClCompile Include="..\PPLib\prc_billautocreate.cpp" />
+    <ClCompile Include="..\PPLib\predict.cpp" />
+    <ClCompile Include="..\PPLib\prnbill.cpp" />
+    <ClCompile Include="..\PPLib\processr.cpp" />
+    <ClCompile Include="..\PPLib\Profile.cpp" />
+    <ClCompile Include="..\PPLib\project.cpp" />
+    <ClCompile Include="..\PPLib\psales.cpp" />
+    <ClCompile Include="..\PPLib\Psnevent.cpp" />
+    <ClCompile Include="..\PPLib\Psnopk.cpp" />
+    <ClCompile Include="..\PPLib\Quot.cpp" />
+    <ClCompile Include="..\PPLib\QUOTCORE.CPP" />
+    <ClCompile Include="..\PPLib\RECEIPT.CPP" />
+    <ClCompile Include="..\PPLib\Referenc.cpp" />
+    <ClCompile Include="..\PPLib\Register.cpp" />
+    <ClCompile Include="..\PPLib\Rent.cpp" />
+    <ClCompile Include="..\PPLib\reptdlg.cpp" />
+    <ClCompile Include="..\PPLib\rfldcorr.cpp" />
+    <ClCompile Include="..\PPLib\salary.cpp" />
+    <ClCompile Include="..\PPLib\sartre.cpp" />
+    <ClCompile Include="..\PPLib\sartre_db.cpp" />
+    <ClCompile Include="..\PPLib\sartre_imp.cpp" />
+    <ClCompile Include="..\PPLib\SCARD.CPP" />
+    <ClCompile Include="..\PPLib\scoclass.cpp" />
+    <ClCompile Include="..\PPLib\scspctrt.cpp" />
+    <ClCompile Include="..\PPLib\Securdlg.cpp" />
+    <ClCompile Include="..\PPLib\soblk.cpp" />
+    <ClCompile Include="..\PPLib\specsn.cpp" />
+    <ClCompile Include="..\PPLib\stockopt.cpp" />
+    <ClCompile Include="..\PPLib\Strstore.cpp" />
+    <ClCompile Include="..\PPLib\TAGCORE.CPP" />
+    <ClCompile Include="..\PPLib\tddo.cpp" />
+    <ClCompile Include="..\PPLib\tddo2.cpp" />
+    <ClCompile Include="..\PPLib\tech.cpp" />
+    <ClCompile Include="..\PPLib\textbrw.cpp" />
+    <ClCompile Include="..\PPLib\transfer.cpp" />
+    <ClCompile Include="..\PPLib\Trfridlg.cpp" />
+    <ClCompile Include="..\PPLib\Trfritem.cpp" />
+    <ClCompile Include="..\PPLib\tsenv.cpp" />
+    <ClCompile Include="..\PPLib\tsess.cpp" />
+    <ClCompile Include="..\PPLib\tsessdlg.cpp" />
+    <ClCompile Include="..\PPLib\txtanlz.cpp" />
+    <ClCompile Include="..\PPLib\uds.cpp" />
+    <ClCompile Include="..\PPLib\uniprice.cpp" />
+    <ClCompile Include="..\PPLib\vetis.cpp" />
+    <ClCompile Include="..\PPLib\V_acanlz.cpp" />
+    <ClCompile Include="..\PPLib\V_acct.cpp" />
+    <ClCompile Include="..\PPLib\v_amttyp.cpp" />
+    <ClCompile Include="..\PPLib\v_artcl.cpp" />
+    <ClCompile Include="..\PPLib\v_asset.cpp" />
+    <ClCompile Include="..\PPLib\V_aturn.cpp" />
+    <ClCompile Include="..\PPLib\V_balanc.cpp" />
+    <ClCompile Include="..\PPLib\v_bboard.cpp" />
+    <ClCompile Include="..\PPLib\v_bcmp.cpp" />
+    <ClCompile Include="..\PPLib\V_bill.cpp" />
+    <ClCompile Include="..\PPLib\v_bizsc.cpp" />
+    <ClCompile Include="..\PPLib\v_budget.cpp" />
+    <ClCompile Include="..\PPLib\v_cashn.cpp" />
+    <ClCompile Include="..\PPLib\V_ccheck.cpp" />
+    <ClCompile Include="..\PPLib\v_chkopj.cpp" />
+    <ClCompile Include="..\PPLib\v_cmdp.cpp" />
+    <ClCompile Include="..\PPLib\v_compgds.cpp" />
+    <ClCompile Include="..\PPLib\V_crate.cpp" />
+    <ClCompile Include="..\PPLib\V_csess.cpp" />
+    <ClCompile Include="..\PPLib\v_dbdiv.cpp" />
+    <ClCompile Include="..\PPLib\V_debt.cpp" />
+    <ClCompile Include="..\PPLib\v_dlg.cpp" />
+    <ClCompile Include="..\PPLib\v_frght.cpp" />
+    <ClCompile Include="..\PPLib\V_gdsmov.cpp" />
+    <ClCompile Include="..\PPLib\v_gdsmov2.cpp" />
+    <ClCompile Include="..\PPLib\V_gdsopr.cpp" />
+    <ClCompile Include="..\PPLib\v_globus.cpp" />
+    <ClCompile Include="..\PPLib\v_goods.cpp" />
+    <ClCompile Include="..\PPLib\V_grest.cpp" />
+    <ClCompile Include="..\PPLib\v_gstruc.cpp" />
+    <ClCompile Include="..\PPLib\V_gtanlz.cpp" />
+    <ClCompile Include="..\PPLib\v_inv.cpp" />
+    <ClCompile Include="..\PPLib\v_jobp.cpp" />
+    <ClCompile Include="..\PPLib\v_likens.cpp" />
+    <ClCompile Include="..\PPLib\v_loctr.cpp" />
+    <ClCompile Include="..\PPLib\v_log.cpp" />
+    <ClCompile Include="..\PPLib\v_logsmon.cpp" />
+    <ClCompile Include="..\PPLib\v_lot.cpp" />
+    <ClCompile Include="..\PPLib\V_lotop.cpp" />
+    <ClCompile Include="..\PPLib\v_mrp.cpp" />
+    <ClCompile Include="..\PPLib\V_opgrp.cpp" />
+    <ClCompile Include="..\PPLib\v_opkind.cpp" />
+    <ClCompile Include="..\PPLib\v_palm.cpp" />
+    <ClCompile Include="..\PPLib\v_panlz.cpp" />
+    <ClCompile Include="..\PPLib\V_paypln.cpp" />
+    <ClCompile Include="..\PPLib\V_pckg.cpp" />
+    <ClCompile Include="..\PPLib\v_person.cpp" />
+    <ClCompile Include="..\PPLib\v_plist.cpp" />
+    <ClCompile Include="..\PPLib\v_prcfre.cpp" />
+    <ClCompile Include="..\PPLib\v_psnev.cpp" />
+    <ClCompile Include="..\PPLib\v_psnrel.cpp" />
+    <ClCompile Include="..\PPLib\v_qcert.cpp" />
+    <ClCompile Include="..\PPLib\v_qreq.cpp" />
+    <ClCompile Include="..\PPLib\v_quot.cpp" />
+    <ClCompile Include="..\PPLib\v_regtyp.cpp" />
+    <ClCompile Include="..\PPLib\v_report.cpp" />
+    <ClCompile Include="..\PPLib\v_scale.cpp" />
+    <ClCompile Include="..\PPLib\v_scard.cpp" />
+    <ClCompile Include="..\PPLib\V_sell.cpp" />
+    <ClCompile Include="..\PPLib\V_shipm.cpp" />
+    <ClCompile Include="..\PPLib\v_spcser.cpp" />
+    <ClCompile Include="..\PPLib\v_sstat.cpp" />
+    <ClCompile Include="..\PPLib\v_staff.cpp" />
+    <ClCompile Include="..\PPLib\v_stcal.cpp" />
+    <ClCompile Include="..\PPLib\V_sync.cpp" />
+    <ClCompile Include="..\PPLib\V_sysj.cpp" />
+    <ClCompile Include="..\PPLib\v_todo.cpp" />
+    <ClCompile Include="..\PPLib\V_tranlz.cpp" />
+    <ClCompile Include="..\PPLib\v_transp.cpp" />
+    <ClCompile Include="..\PPLib\v_tsanlz.cpp" />
+    <ClCompile Include="..\PPLib\v_tsess.cpp" />
+    <ClCompile Include="..\PPLib\v_usprof.cpp" />
+    <ClCompile Include="..\PPLib\workbook.cpp" />
+    <ClCompile Include="..\PPMain\Ppmain.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\Pptest\pptest.cpp" />
+    <ClCompile Include="..\Rsrc\dl600\ppifc_i.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">CompileAsC</CompileAs>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">NotUsing</PrecompiledHeader>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">CompileAsC</CompileAs>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Default</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Default</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Default</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Default</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">Default</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Default</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Default</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Default</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">Default</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">Default</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">Default</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">Default</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Default</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Default</StructMemberAlignment>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Include\ATOL-DTO\libfptr10.h" />
+    <ClInclude Include="..\Include\berkeleydb.h" />
+    <ClInclude Include="..\Include\dl600.h" />
+    <ClInclude Include="..\Include\frontol.h" />
+    <ClInclude Include="..\Include\Pp.h" />
+    <ClInclude Include="..\Include\ppbrow.H" />
+    <ClInclude Include="..\Include\ppdbs.h" />
+    <ClInclude Include="..\Include\Ppdefs.h" />
+    <ClInclude Include="..\Include\ppdrvapi.h" />
+    <ClInclude Include="..\Include\PPDS.H" />
+    <ClInclude Include="..\Include\ppedi.h" />
+    <ClInclude Include="..\Include\PPMENU.H" />
+    <ClInclude Include="..\Include\ppsoapclient.h" />
+    <ClInclude Include="..\Include\Report.h" />
+    <ClInclude Include="..\Include\sartre.h" />
+    <ClInclude Include="..\Include\Slib.h" />
+    <ClInclude Include="..\PPMain\resrc1.h" />
+    <ClInclude Include="..\Rsrc\Str\ppstr2.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\Clipart\R\etc\gear-0001.gif" />
+    <Image Include="..\Rsrc\Bitmap\184-.bmp" />
+    <Image Include="..\Rsrc\Bitmap\2746e_lg.bmp" />
+    <Image Include="..\Rsrc\Bitmap\add.bmp" />
+    <Image Include="..\Rsrc\Bitmap\arrow_down.bmp" />
+    <Image Include="..\Rsrc\Bitmap\arrow_levelup.bmp" />
+    <Image Include="..\Rsrc\Bitmap\arrow_up.bmp" />
+    <Image Include="..\Rsrc\Bitmap\banking.bmp" />
+    <Image Include="..\Rsrc\Bitmap\BARCODE.bmp" />
+    <Image Include="..\Rsrc\Bitmap\barcodeprinter.bmp" />
+    <Image Include="..\Rsrc\Bitmap\bg-papyrus.bmp" />
+    <Image Include="..\Rsrc\Bitmap\bht.bmp" />
+    <Image Include="..\Rsrc\Bitmap\bitmap1.bmp" />
+    <Image Include="..\Rsrc\Bitmap\bitmap2.bmp" />
+    <Image Include="..\Rsrc\Bitmap\bmp00001.bmp" />
+    <Image Include="..\Rsrc\Bitmap\bycash.bmp" />
+    <Image Include="..\Rsrc\Bitmap\byname.bmp" />
+    <Image Include="..\Rsrc\Bitmap\byprice.bmp" />
+    <Image Include="..\Rsrc\Bitmap\calendar.bmp" />
+    <Image Include="..\Rsrc\Bitmap\cancel.bmp" />
+    <Image Include="..\Rsrc\Bitmap\cash01.bmp" />
+    <Image Include="..\Rsrc\Bitmap\cash01s.bmp" />
+    <Image Include="..\Rsrc\Bitmap\CCHSB.bmp" />
+    <Image Include="..\Rsrc\Bitmap\ccrgb.bmp" />
+    <Image Include="..\Rsrc\Bitmap\city.bmp" />
+    <Image Include="..\Rsrc\Bitmap\clock.bmp" />
+    <Image Include="..\Rsrc\Bitmap\clock16x16.bmp" />
+    <Image Include="..\Rsrc\Bitmap\close.bmp" />
+    <Image Include="..\Rsrc\Bitmap\crdcard.bmp" />
+    <Image Include="..\Rsrc\Bitmap\daterange.bmp" />
+    <Image Include="..\Rsrc\Bitmap\defgrp.bmp" />
+    <Image Include="..\Rsrc\Bitmap\del448.bmp" />
+    <Image Include="..\Rsrc\Bitmap\delivery.bmp" />
+    <Image Include="..\Rsrc\Bitmap\del_448.bmp" />
+    <Image Include="..\Rsrc\Bitmap\division.bmp" />
+    <Image Include="..\Rsrc\Bitmap\edit.bmp" />
+    <Image Include="..\Rsrc\Bitmap\edit448.bmp" />
+    <Image Include="..\Rsrc\Bitmap\edit_448.bmp" />
+    <Image Include="..\Rsrc\Bitmap\enter.bmp" />
+    <Image Include="..\Rsrc\Bitmap\filbrw.bmp" />
+    <Image Include="..\Rsrc\Bitmap\filebrowse.bmp" />
+    <Image Include="..\Rsrc\Bitmap\fillsalestbl.bmp" />
+    <Image Include="..\Rsrc\Bitmap\gdsgrp.bmp" />
+    <Image Include="..\Rsrc\Bitmap\gear.bmp" />
+    <Image Include="..\Rsrc\Bitmap\green.bmp" />
+    <Image Include="..\Rsrc\Bitmap\guests.bmp" />
+    <Image Include="..\Rsrc\Bitmap\hsb.bmp" />
+    <Image Include="..\Rsrc\Bitmap\inlncalc.bmp" />
+    <Image Include="..\Rsrc\Bitmap\inlncalcl.bmp" />
+    <Image Include="..\Rsrc\Bitmap\inlnclcl.bmp" />
+    <Image Include="..\Rsrc\Bitmap\ins448.bmp" />
+    <Image Include="..\Rsrc\Bitmap\ins_448.bmp" />
+    <Image Include="..\Rsrc\Bitmap\keys.bmp" />
+    <Image Include="..\Rsrc\Bitmap\lock.bmp" />
+    <Image Include="..\Rsrc\Bitmap\magn448.bmp" />
+    <Image Include="..\Rsrc\Bitmap\magn_448.bmp" />
+    <Image Include="..\Rsrc\Bitmap\mail_send.bmp" />
+    <Image Include="..\Rsrc\Bitmap\matrix.bmp" />
+    <Image Include="..\Rsrc\Bitmap\menu.bmp" />
+    <Image Include="..\Rsrc\Bitmap\money01.bmp" />
+    <Image Include="..\Rsrc\Bitmap\money012.bmp" />
+    <Image Include="..\Rsrc\Bitmap\ok.bmp" />
+    <Image Include="..\Rsrc\Bitmap\paste.bmp" />
+    <Image Include="..\Rsrc\Bitmap\phone.bmp" />
+    <Image Include="..\Rsrc\Bitmap\pict_status.bmp" />
+    <Image Include="..\Rsrc\Bitmap\print448.bmp" />
+    <Image Include="..\Rsrc\Bitmap\printdef.bmp" />
+    <Image Include="..\Rsrc\Bitmap\printdefmark.bmp" />
+    <Image Include="..\Rsrc\Bitmap\printer.bmp" />
+    <Image Include="..\Rsrc\Bitmap\print_448.bmp" />
+    <Image Include="..\Rsrc\Bitmap\quantity.bmp" />
+    <Image Include="..\Rsrc\Bitmap\red.bmp" />
+    <Image Include="..\Rsrc\Bitmap\redo.bmp" />
+    <Image Include="..\Rsrc\Bitmap\return.bmp" />
+    <Image Include="..\Rsrc\Bitmap\rgb.bmp" />
+    <Image Include="..\Rsrc\Bitmap\rtable.bmp" />
+    <Image Include="..\Rsrc\Bitmap\scard.bmp" />
+    <Image Include="..\Rsrc\Bitmap\selmodifier.bmp" />
+    <Image Include="..\Rsrc\Bitmap\suscheck.bmp" />
+    <Image Include="..\Rsrc\Bitmap\table.bmp" />
+    <Image Include="..\Rsrc\Bitmap\table_orders.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\abc.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\accanlz.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\accbills.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\accturnsbybill.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\addbillbyscard.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\addpersonrel.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\addtifromord.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\addtisfrombasket.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\addtistobasket.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\amounts.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\arcode.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\arrowdn.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\arrowup.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\aturnlist.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\aturnlist2.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\balance.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\barcode.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\barlabel.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\basket.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\bills.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\bizscore.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\browse.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\cashbook.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\cchecks.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\charge.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\checked.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\checkstat.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\chgflags.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\chngprice.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\chngqcert.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\closecsess.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\compare.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\completecsess.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\config.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\copybysample.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\csessexc.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\csessexcall.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\csexcag.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\curpersonattr.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\debtcard.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\delete.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\deleteall.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\device.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\dfctbills.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\division.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\draftbills.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\edit.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\export.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\exportuhtt.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\extaddti.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\extraview.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\filter.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\folder.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\gengoods.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\ggrpview.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\gold1.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\gold2.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\goods.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\goodsanlz.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\goodsbills.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\goodsrest.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\goodsret.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\goodsstrct.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\goodsview.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\goodsview2.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\hammer.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\handshake.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\house.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\insert.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\inventory.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\link.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\lins.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\lots.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\lotsoper.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\mail.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\mark.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\matrix.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\membership.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\memo.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\mrptab.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\newfolder.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\noicon.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\opermove.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\opgrpng.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\oplist.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\orderbills.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\ordlots.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\pane.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\payment.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\pckglines.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\pckgnew.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\percent.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\personrellist.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\personrellist_r.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\persons.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\plot.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\posprint.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\postalbatros.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\prc.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\pricelist.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\print.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\printlist.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\prjtask.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\prnlabels.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\prognosis.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\psnevents.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\psnopkind.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\qcert.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\quotation.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\reckon.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\reckonbills.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\reckondebt.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\reckonpaym.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\refresh.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\refreshview.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\register.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\renta.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\replace.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\salary.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\scard.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\selltab.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\sendobj.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\serialgen.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\sigm.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\sort.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\staffcal.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\stat.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\supplquots.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\switch.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\sysj.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\systeminfo.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\tags.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\tagsall.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\tech.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\test.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\test2.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\timegraph.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\toggleshipmtag.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\to_trash.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\transport.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\trfranlz.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\tsess.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\tsessanlz.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\unchecked.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\unifyprice.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\unite.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\vatbook.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\whcell.bmp" />
+    <Image Include="..\Rsrc\Bitmap\Tbbutton\wroffdraft.bmp" />
+    <Image Include="..\Rsrc\Bitmap\tblord.bmp" />
+    <Image Include="..\Rsrc\Bitmap\tb_first.bmp" />
+    <Image Include="..\Rsrc\Bitmap\tb_global.bmp" />
+    <Image Include="..\Rsrc\Bitmap\toolbar1.bmp" />
+    <Image Include="..\Rsrc\Ico\015251.ico" />
+    <Image Include="..\Rsrc\Ico\accanlz.ico" />
+    <Image Include="..\Rsrc\Ico\account.ico" />
+    <Image Include="..\Rsrc\Ico\account_alias.ico" />
+    <Image Include="..\Rsrc\Ico\account_bal.ico" />
+    <Image Include="..\Rsrc\Ico\account_outbal.ico" />
+    <Image Include="..\Rsrc\Ico\account_reg.ico" />
+    <Image Include="..\Rsrc\Ico\accturnlist.ico" />
+    <Image Include="..\Rsrc\Ico\addbill.ico" />
+    <Image Include="..\Rsrc\Ico\addpsn.ico" />
+    <Image Include="..\Rsrc\Ico\addtask.ico" />
+    <Image Include="..\Rsrc\Ico\altgrp.ico" />
+    <Image Include="..\Rsrc\Ico\amount.ico" />
+    <Image Include="..\Rsrc\Ico\anlzsalcharge.ico" />
+    <Image Include="..\Rsrc\Ico\article.ico" />
+    <Image Include="..\Rsrc\Ico\autocharge.ico" />
+    <Image Include="..\Rsrc\Ico\balance.ico" />
+    <Image Include="..\Rsrc\Ico\basket.ico" />
+    <Image Include="..\Rsrc\Ico\basket_small.ico" />
+    <Image Include="..\Rsrc\Ico\billcfg.ico" />
+    <Image Include="..\Rsrc\Ico\bills-acc.ico" />
+    <Image Include="..\Rsrc\Ico\bills-draft.ico" />
+    <Image Include="..\Rsrc\Ico\bills-goods.ico" />
+    <Image Include="..\Rsrc\Ico\bills-inventory.ico" />
+    <Image Include="..\Rsrc\Ico\bills-order.ico" />
+    <Image Include="..\Rsrc\Ico\bills-pool.ico" />
+    <Image Include="..\Rsrc\Ico\bills.ico" />
+    <Image Include="..\Rsrc\Ico\bizscore.ico" />
+    <Image Include="..\Rsrc\Ico\cashbook.ico" />
+    <Image Include="..\Rsrc\Ico\caution.ico" />
+    <Image Include="..\Rsrc\Ico\cfgbyusersandgroups.ico" />
+    <Image Include="..\Rsrc\Ico\csess.ico" />
+    <Image Include="..\Rsrc\Ico\ctblord.ico" />
+    <Image Include="..\Rsrc\Ico\curreval.ico" />
+    <Image Include="..\Rsrc\Ico\dbxchg_queue.ico" />
+    <Image Include="..\Rsrc\Ico\dbxchg_rcv.ico" />
+    <Image Include="..\Rsrc\Ico\debtsuppltrnovr.ico" />
+    <Image Include="..\Rsrc\Ico\default.ico" />
+    <Image Include="..\Rsrc\Ico\division.ico" />
+    <Image Include="..\Rsrc\Ico\division16.ico" />
+    <Image Include="..\Rsrc\Ico\dosalcharge.ico" />
+    <Image Include="..\Rsrc\Ico\dynalt.ico" />
+    <Image Include="..\Rsrc\Ico\egypt01.ico" />
+    <Image Include="..\Rsrc\Ico\exit.ico" />
+    <Image Include="..\Rsrc\Ico\foldgrp.ico" />
+    <Image Include="..\Rsrc\Ico\gear.ico" />
+    <Image Include="..\Rsrc\Ico\gear16.ico" />
+    <Image Include="..\Rsrc\Ico\ggroup.ico" />
+    <Image Include="..\Rsrc\Ico\goods.ico" />
+    <Image Include="..\Rsrc\Ico\goodsgroup.ico" />
+    <Image Include="..\Rsrc\Ico\goodsopanlz.ico" />
+    <Image Include="..\Rsrc\Ico\goodsrest.ico" />
+    <Image Include="..\Rsrc\Ico\ico00001.ico" />
+    <Image Include="..\Rsrc\Ico\ico00002.ico" />
+    <Image Include="..\Rsrc\Ico\ico00003.ico" />
+    <Image Include="..\Rsrc\Ico\ico00004.ico" />
+    <Image Include="..\Rsrc\Ico\ico00005.ico" />
+    <Image Include="..\Rsrc\Ico\ico00006.ico" />
+    <Image Include="..\Rsrc\Ico\ico00007.ico" />
+    <Image Include="..\Rsrc\Ico\ico00008.ico" />
+    <Image Include="..\Rsrc\Ico\ico00009.ico" />
+    <Image Include="..\Rsrc\Ico\ico00010.ico" />
+    <Image Include="..\Rsrc\Ico\ico00011.ico" />
+    <Image Include="..\Rsrc\Ico\ico00012.ico" />
+    <Image Include="..\Rsrc\Ico\ico00013.ico" />
+    <Image Include="..\Rsrc\Ico\ico00014.ico" />
+    <Image Include="..\Rsrc\Ico\ico00015.ico" />
+    <Image Include="..\Rsrc\Ico\ico00016.ico" />
+    <Image Include="..\Rsrc\Ico\ico00017.ico" />
+    <Image Include="..\Rsrc\Ico\ico00018.ico" />
+    <Image Include="..\Rsrc\Ico\ico00019.ico" />
+    <Image Include="..\Rsrc\Ico\ico00020.ico" />
+    <Image Include="..\Rsrc\Ico\ico00021.ico" />
+    <Image Include="..\Rsrc\Ico\ico00022.ico" />
+    <Image Include="..\Rsrc\Ico\ico00023.ico" />
+    <Image Include="..\Rsrc\Ico\ico00024.ico" />
+    <Image Include="..\Rsrc\Ico\ico00025.ico" />
+    <Image Include="..\Rsrc\Ico\ico00026.ico" />
+    <Image Include="..\Rsrc\Ico\ico00027.ico" />
+    <Image Include="..\Rsrc\Ico\ico00028.ico" />
+    <Image Include="..\Rsrc\Ico\ico00029.ico" />
+    <Image Include="..\Rsrc\Ico\ico00030.ico" />
+    <Image Include="..\Rsrc\Ico\ico00031.ico" />
+    <Image Include="..\Rsrc\Ico\ico00032.ico" />
+    <Image Include="..\Rsrc\Ico\ico00033.ico" />
+    <Image Include="..\Rsrc\Ico\ico00034.ico" />
+    <Image Include="..\Rsrc\Ico\ico00035.ico" />
+    <Image Include="..\Rsrc\Ico\ico00036.ico" />
+    <Image Include="..\Rsrc\Ico\ico00037.ico" />
+    <Image Include="..\Rsrc\Ico\ico00038.ico" />
+    <Image Include="..\Rsrc\Ico\ico00039.ico" />
+    <Image Include="..\Rsrc\Ico\ico00040.ico" />
+    <Image Include="..\Rsrc\Ico\ico00041.ico" />
+    <Image Include="..\Rsrc\Ico\ico00042.ico" />
+    <Image Include="..\Rsrc\Ico\ico00043.ico" />
+    <Image Include="..\Rsrc\Ico\ico00044.ico" />
+    <Image Include="..\Rsrc\Ico\ico00045.ico" />
+    <Image Include="..\Rsrc\Ico\ico00046.ico" />
+    <Image Include="..\Rsrc\Ico\ico00047.ico" />
+    <Image Include="..\Rsrc\Ico\ico00048.ico" />
+    <Image Include="..\Rsrc\Ico\ico00049.ico" />
+    <Image Include="..\Rsrc\Ico\ico00050.ico" />
+    <Image Include="..\Rsrc\Ico\ico00051.ico" />
+    <Image Include="..\Rsrc\Ico\icon1.ico" />
+    <Image Include="..\Rsrc\Ico\icon2.ico" />
+    <Image Include="..\Rsrc\Ico\icon3.ico" />
+    <Image Include="..\Rsrc\Ico\icon4.ico" />
+    <Image Include="..\Rsrc\Ico\importbills.ico" />
+    <Image Include="..\Rsrc\Ico\importclibnk.ico" />
+    <Image Include="..\Rsrc\Ico\infokiosk.ico" />
+    <Image Include="..\Rsrc\Ico\jobpool.ico" />
+    <Image Include="..\Rsrc\Ico\labelprinter.ico" />
+    <Image Include="..\Rsrc\Ico\labelprinterfont.ico" />
+    <Image Include="..\Rsrc\Ico\loctransf.ico" />
+    <Image Include="..\Rsrc\Ico\newtask.ico" />
+    <Image Include="..\Rsrc\Ico\newtask1.ico" />
+    <Image Include="..\Rsrc\Ico\OpenTextFile.ico" />
+    <Image Include="..\Rsrc\Ico\p1.ico" />
+    <Image Include="..\Rsrc\Ico\p2.ico" />
+    <Image Include="..\Rsrc\Ico\pallet16.ico" />
+    <Image Include="..\Rsrc\Ico\pallet32.ico" />
+    <Image Include="..\Rsrc\Ico\paste.ico" />
+    <Image Include="..\Rsrc\Ico\personcfg.ico" />
+    <Image Include="..\Rsrc\Ico\personevent.ico" />
+    <Image Include="..\Rsrc\Ico\personevent_add.ico" />
+    <Image Include="..\Rsrc\Ico\personrel.ico" />
+    <Image Include="..\Rsrc\Ico\persons.ico" />
+    <Image Include="..\rsrc\ico\phone.ico" />
+    <Image Include="..\Rsrc\Ico\posmchn.ico" />
+    <Image Include="..\Rsrc\Ico\prcfree.ico" />
+    <Image Include="..\Rsrc\Ico\prjtask-maintain.ico" />
+    <Image Include="..\Rsrc\Ico\prjtask.ico" />
+    <Image Include="..\Rsrc\Ico\project.ico" />
+    <Image Include="..\Rsrc\Ico\qcert.ico" />
+    <Image Include="..\Rsrc\Ico\quotation.ico" />
+    <Image Include="..\Rsrc\Ico\revalassets.ico" />
+    <Image Include="..\Rsrc\Ico\scale.ico" />
+    <Image Include="..\Rsrc\Ico\scard.ico" />
+    <Image Include="..\Rsrc\Ico\selltrnovr.ico" />
+    <Image Include="..\Rsrc\Ico\smallall.ico" />
+    <Image Include="..\Rsrc\Ico\smallcal.ico" />
+    <Image Include="..\Rsrc\Ico\smallemp.ico" />
+    <Image Include="..\Rsrc\Ico\smallpsn.ico" />
+    <Image Include="..\Rsrc\Ico\smallstf.ico" />
+    <Image Include="..\Rsrc\Ico\smallstp.ico" />
+    <Image Include="..\Rsrc\Ico\sphere.ico" />
+    <Image Include="..\Rsrc\Ico\staffcal.ico" />
+    <Image Include="..\Rsrc\Ico\staryellow16.ico" />
+    <Image Include="..\Rsrc\Ico\stylopalmimpexp.ico" />
+    <Image Include="..\Rsrc\Ico\sysj.ico" />
+    <Image Include="..\Rsrc\Ico\tags.ico" />
+    <Image Include="..\Rsrc\Ico\tags_person.ico" />
+    <Image Include="..\Rsrc\Ico\taskrem.ico" />
+    <Image Include="..\Rsrc\Ico\tempalt.ico" />
+    <Image Include="..\Rsrc\Ico\test.ico" />
+    <Image Include="..\Rsrc\Ico\timegrid.ico" />
+    <Image Include="..\Rsrc\Ico\transportcar.ico" />
+    <Image Include="..\Rsrc\Ico\transportship.ico" />
+    <Image Include="..\Rsrc\Ico\trfranlz.ico" />
+    <Image Include="..\Rsrc\Ico\tsess.ico" />
+    <Image Include="..\Rsrc\Ico\ui-button.ico" />
+    <Image Include="..\Rsrc\Ico\ui-checkcluster.ico" />
+    <Image Include="..\Rsrc\Ico\ui-combobox.ico" />
+    <Image Include="..\Rsrc\Ico\ui-dialog.ico" />
+    <Image Include="..\Rsrc\Ico\ui-groupbox.ico" />
+    <Image Include="..\Rsrc\Ico\ui-input.ico" />
+    <Image Include="..\Rsrc\Ico\ui-listbox.ico" />
+    <Image Include="..\Rsrc\Ico\ui-radiocluster.ico" />
+    <Image Include="..\Rsrc\Ico\ui-treelistbox.ico" />
+    <Image Include="..\Rsrc\Ico\unifygoodsprice.ico" />
+    <Image Include="..\Rsrc\Ico\user16.ico" />
+    <Image Include="..\Rsrc\Ico\usergroup16.ico" />
+    <Image Include="..\Rsrc\Ico\usersandgroups.ico" />
+    <Image Include="..\Rsrc\Ico\v-asset.ico" />
+    <Image Include="..\Rsrc\Ico\v-lot.ico" />
+    <Image Include="..\Rsrc\Ico\v-lotord.ico" />
+    <Image Include="..\Rsrc\Ico\v-priceanlz.ico" />
+    <Image Include="..\Rsrc\Ico\v-pricelist.ico" />
+    <Image Include="..\Rsrc\Ico\v-shipmanlz.ico" />
+    <Image Include="..\Rsrc\Ico\vatbook.ico" />
+    <Image Include="..\Rsrc\Ico\viewccheck.ico" />
+    <Image Include="..\Rsrc\Ico\v_staffcal.ico" />
+    <Image Include="..\Rsrc\Ico\warehouse.ico" />
+    <Image Include="..\Rsrc\Ico\wh16.ico" />
+    <Image Include="..\Rsrc\Ico\whcell.ico" />
+    <Image Include="..\Rsrc\Ico\whcolumn.ico" />
+    <Image Include="..\Rsrc\Ico\whzone.ico" />
+    <Image Include="..\Rsrc\Ico\workbook.ico" />
+    <Image Include="..\Rsrc\Ico\world.ico" />
+    <Image Include="..\Rsrc\Ico\wroffdrafts.ico" />
+    <Image Include="..\Rsrc\Ico\wroffdraftsl.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\PpyDll\nodrop.cur" />
+    <None Include="..\Rsrc\Dl600\ppifc.tlb">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\Rsrc\Ico\Arr-move.cur" />
+    <None Include="..\Rsrc\Ico\Arr-size-ew.cur" />
+    <None Include="..\Rsrc\Ico\Arr-size-nesw.cur" />
+    <None Include="..\Rsrc\Ico\Arr-size-ns.cur" />
+    <None Include="..\Rsrc\Ico\Arr-size-nwse.cur" />
+    <None Include="..\Rsrc\Ico\arr_roze.cur" />
+    <None Include="..\Rsrc\Ico\calendar.cur" />
+    <None Include="..\Rsrc\Ico\cursor1.cur" />
+    <None Include="..\Rsrc\Ico\H_point.cur" />
+    <None Include="..\Rsrc\Ico\odious.cur" />
+    <None Include="..\Rsrc\Ico\twoarr_horz.cur" />
+    <None Include="..\Rsrc\Ico\twoarr_vert.cur" />
+    <None Include="..\Rsrc\Ico\typelib1.bin" />
+    <None Include="..\Rsrc\Ico\Wait07.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\PPMain\ppbrow-embed.rc">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <ResourceCompile Include="..\PPMain\ppw.rc">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="absl.vcxproj">
+      <Project>{3bb14255-1f39-4fc6-bb9d-6c8dac9e5d13}</Project>
+    </ProjectReference>
+    <ProjectReference Include="BDB.vcxproj">
+      <Project>{151f44bb-2aaa-4e54-91a6-79ba38f41639}</Project>
+    </ProjectReference>
+    <ProjectReference Include="cairo-1.16.0.vcxproj">
+      <Project>{530693b1-8b95-4993-8bcf-c0d0e225f4df}</Project>
+    </ProjectReference>
+    <ProjectReference Include="freetype.vcxproj">
+      <Project>{d7c20ac1-2566-446f-b49a-598fe7a67094}</Project>
+    </ProjectReference>
+    <ProjectReference Include="gravity.vcxproj">
+      <Project>{ec12be0a-025e-4168-9d2d-419a18cb2ef5}</Project>
+    </ProjectReference>
+    <ProjectReference Include="harfbuzz.vcxproj">
+      <Project>{be9c6ddf-e9c7-3ecb-9ff3-1fd8a3eb2410}</Project>
+    </ProjectReference>
+    <ProjectReference Include="icu-stubdata.vcxproj">
+      <Project>{203ec78a-0531-43f0-a636-285439bde025}</Project>
+    </ProjectReference>
+    <ProjectReference Include="lcms2.vcxproj">
+      <Project>{71dede59-3f1e-486b-a899-4283000f76b5}</Project>
+    </ProjectReference>
+    <ProjectReference Include="libcurl-7730.vcxproj">
+      <Project>{fd47df9e-fd33-443d-9048-d802d3364469}</Project>
+    </ProjectReference>
+    <ProjectReference Include="libicu.vcxproj">
+      <Project>{6d226127-c063-4702-b4b9-118233d7354c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="libjpeg.vcxproj">
+      <Project>{270b7cae-41a6-43ae-a53d-d06dd9ee84e9}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="libphonenumber.vcxproj">
+      <Project>{8614d47b-23e6-4a77-9618-db89c420be35}</Project>
+    </ProjectReference>
+    <ProjectReference Include="libpng.vcxproj">
+      <Project>{04aa636d-9d3e-4e79-9c2e-b8d0470719da}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="libprotobuf.vcxproj">
+      <Project>{f794984c-5ecc-3922-ba3f-6d27cd4bdec7}</Project>
+    </ProjectReference>
+    <ProjectReference Include="libxml.vcxproj">
+      <Project>{82523a80-856a-4957-bcea-1a5738139141}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="libzint.vcxproj">
+      <Project>{f0604a96-528f-40e6-8800-c696f03307a1}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="lualib.vcxproj">
+      <Project>{86b30cd8-8c99-4cff-804e-16eb5891a1d8}</Project>
+    </ProjectReference>
+    <ProjectReference Include="mariadbclient.vcxproj">
+      <Project>{ff98372f-431d-34c6-99e2-6f65b53795d6}</Project>
+    </ProjectReference>
+    <ProjectReference Include="nginx.vcxproj">
+      <Project>{7e739c8a-b894-4f22-90ac-8b224ffa76a4}</Project>
+    </ProjectReference>
+    <ProjectReference Include="onig.vcxproj">
+      <Project>{d115c575-b8ee-3bd7-8046-688a4d145686}</Project>
+    </ProjectReference>
+    <ProjectReference Include="openssl-111-crypto.vcxproj">
+      <Project>{26070ad0-2d76-41a2-ab8b-864ea198cc6f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="openssl-111.vcxproj">
+      <Project>{0796c89c-07e1-4bda-bdae-f023aeb5366c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="pcre.vcxproj">
+      <Project>{d4b6d08a-d79e-428e-85ea-f9929c6aa367}</Project>
+    </ProjectReference>
+    <ProjectReference Include="ppres.vcxproj">
+      <Project>{696dfcc9-ea0f-4232-83b5-21d0657a61c7}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="pthreads4w.vcxproj">
+      <Project>{6ee235a2-2941-44d4-bc0e-2d2ae9e7f0b0}</Project>
+    </ProjectReference>
+    <ProjectReference Include="scintilla2.vcxproj">
+      <Project>{6824fe2f-b7df-4338-8025-a1b145da91b6}</Project>
+    </ProjectReference>
+    <ProjectReference Include="slib.vcxproj">
+      <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="ucl.vcxproj">
+      <Project>{f4087f62-03d8-4649-84d3-7212f505e38e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="ZBAR.vcxproj">
+      <Project>{64adc8ff-d2ce-4d6e-a2c0-a0c75f5ba7d5}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="..\PPMain\ppw.rc" />
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

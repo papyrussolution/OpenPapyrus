@@ -5238,7 +5238,7 @@ typedef double GpFiveDiag[5];
 //
 // Function pointer type for callback functions to generate ticmarks 
 //
-typedef void (GnuPlot::*GpTicCallback)(GpTermEntry * pTerm, GpAxis *, double, char *, int, const lp_style_type & rGrid, ticmark *);
+typedef void (GnuPlot::*GpTicCallback)(GpTermEntry * pTerm, GpAxis *, double, const char *, int, const lp_style_type & rGrid, ticmark *);
 typedef char * (GnuPlot::*BuiltinEventHandler)(GpEvent * ge, GpTermEntry * pTerm);
 typedef void (GnuPlot::*RegressCleanUpProc)();
 
@@ -6885,15 +6885,15 @@ private:
 	int    ApplyLightingModel(GpCoordinate * v0, GpCoordinate * v1, GpCoordinate * v2, GpCoordinate * v3, double gray, bool grayIsRgb);
 	void   ApplyHeadProperties(GpTermEntry * pTerm, const arrow_style_type * pArrowProperties);
 	//
-	void   WidestTicCallback(GpTermEntry * pTerm, GpAxis * this_axis, double place, char * text, int ticlevel, const lp_style_type & rGrid, ticmark * userlabels); // callback
-	void   CbTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, char * text, int ticlevel, const lp_style_type & rGrid/* linetype or -2 for no grid */, ticmark * userlabels);
-	void   XTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, char * text, int ticlevel, const lp_style_type & rGrid/* linetype or -2 for none */, ticmark * userlabels);
-	void   YTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, char * text, int ticlevel, const lp_style_type & rGrid, ticmark * userlabels);
-	void   ZTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, char * text, int ticlevel, const lp_style_type & rGrid, ticmark * userlabels);
-	void   YTick2DCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, char * text, int ticlevel, const lp_style_type & rGrid/* grid.l_type == LT_NODRAW means no grid */, ticmark * userlabels/* User-specified tic labels */);
-	void   XTick2DCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, char * text, int ticlevel, const lp_style_type & rGrid/* grid.l_type == LT_NODRAW means no grid */, ticmark * userlabels/* User-specified tic labels */);
-	void   TTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, char * text, int ticlevel, const lp_style_type & rGrid/* grid.l_type == LT_NODRAW means no grid */, ticmark * userlabels/* User-specified tic labels */);
-	void   SpiderTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, char * text, int ticlevel, const lp_style_type & rGrid, ticmark * userlabels);
+	void   WidestTicCallback(GpTermEntry * pTerm, GpAxis * this_axis, double place, const char * text, int ticlevel, const lp_style_type & rGrid, ticmark * userlabels); // callback
+	void   CbTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, const char * text, int ticlevel, const lp_style_type & rGrid/* linetype or -2 for no grid */, ticmark * userlabels);
+	void   XTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, const char * text, int ticlevel, const lp_style_type & rGrid/* linetype or -2 for none */, ticmark * userlabels);
+	void   YTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, const char * text, int ticlevel, const lp_style_type & rGrid, ticmark * userlabels);
+	void   ZTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, const char * text, int ticlevel, const lp_style_type & rGrid, ticmark * userlabels);
+	void   YTick2DCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, const char * text, int ticlevel, const lp_style_type & rGrid/* grid.l_type == LT_NODRAW means no grid */, ticmark * userlabels/* User-specified tic labels */);
+	void   XTick2DCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, const char * text, int ticlevel, const lp_style_type & rGrid/* grid.l_type == LT_NODRAW means no grid */, ticmark * userlabels/* User-specified tic labels */);
+	void   TTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, const char * text, int ticlevel, const lp_style_type & rGrid/* grid.l_type == LT_NODRAW means no grid */, ticmark * userlabels/* User-specified tic labels */);
+	void   SpiderTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, const char * text, int ticlevel, const lp_style_type & rGrid, ticmark * userlabels);
 	void   ClearOneVar(const char * pPrefix, const char * pBase);
 	void   ClearStatsVariables(const char * pPrefix);
 	void   CreateAndStoreVar(const GpValue * pData, const char * pPrefix, const char * pBase, const char * pSuffix);
@@ -7185,7 +7185,7 @@ private:
 	bool   GetPlane(GpMeshTriangle * poly, t_plane plane);
 	void   SortEdgesByZ();
 	long   SplitLineAtRatio(long vnum1, long vnum2/* vertex indices of line to split */, double w/* where to split it */);
-	void   WriteMultiline(GpTermEntry * pTerm, int x, int y, char * pText, JUSTIFY hor/* horizontal ... */,
+	void   WriteMultiline(GpTermEntry * pTerm, int x, int y, const char * pText, JUSTIFY hor/* horizontal ... */,
 		VERT_JUSTIFY vert/* ... and vertical just - text in hor direction despite angle */, int angle/* assume term has already been set for this */,
 		const char * pFont/* NULL or "" means use default */);
 	char * LocaleHandler(int action, char * newlocale);

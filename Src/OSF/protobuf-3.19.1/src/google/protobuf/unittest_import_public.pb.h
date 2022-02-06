@@ -107,8 +107,7 @@ class PublicImportMessage final :
   inline void Swap(PublicImportMessage* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -140,8 +139,7 @@ class PublicImportMessage final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -152,19 +150,16 @@ class PublicImportMessage final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest_import.PublicImportMessage";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest_import.PublicImportMessage"; }
   protected:
-  explicit PublicImportMessage(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit PublicImportMessage(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -223,20 +218,18 @@ inline void PublicImportMessage::clear_e() {
   e_ = 0;
   _has_bits_[0] &= ~0x00000001u;
 }
-inline int32_t PublicImportMessage::_internal_e() const {
-  return e_;
-}
+inline int32_t PublicImportMessage::_internal_e() const { return e_; }
 inline int32_t PublicImportMessage::e() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest_import.PublicImportMessage.e)
-  return _internal_e();
+	// @@protoc_insertion_point(field_get:protobuf_unittest_import.PublicImportMessage.e)
+	return _internal_e();
 }
 inline void PublicImportMessage::_internal_set_e(int32_t value) {
-  _has_bits_[0] |= 0x00000001u;
-  e_ = value;
+	_has_bits_[0] |= 0x00000001u;
+	e_ = value;
 }
 inline void PublicImportMessage::set_e(int32_t value) {
-  _internal_set_e(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest_import.PublicImportMessage.e)
+	_internal_set_e(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest_import.PublicImportMessage.e)
 }
 
 #ifdef __GNUC__

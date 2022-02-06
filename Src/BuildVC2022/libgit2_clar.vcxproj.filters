@@ -1,0 +1,1560 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\main.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\clar_libgit2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\clar_libgit2_trace.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\clar_libgit2_timer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\clar.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\precompiled.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\apply\apply_helpers.c">
+      <Filter>tests\apply</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\apply\both.c">
+      <Filter>tests\apply</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\apply\callbacks.c">
+      <Filter>tests\apply</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\apply\check.c">
+      <Filter>tests\apply</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\apply\fromdiff.c">
+      <Filter>tests\apply</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\apply\fromfile.c">
+      <Filter>tests\apply</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\apply\index.c">
+      <Filter>tests\apply</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\apply\partial.c">
+      <Filter>tests\apply</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\apply\tree.c">
+      <Filter>tests\apply</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\apply\workdir.c">
+      <Filter>tests\apply</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\attr\file.c">
+      <Filter>tests\attr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\attr\flags.c">
+      <Filter>tests\attr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\attr\lookup.c">
+      <Filter>tests\attr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\attr\macro.c">
+      <Filter>tests\attr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\attr\repo.c">
+      <Filter>tests\attr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\blame\blame_helpers.c">
+      <Filter>tests\blame</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\blame\buffer.c">
+      <Filter>tests\blame</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\blame\getters.c">
+      <Filter>tests\blame</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\blame\harder.c">
+      <Filter>tests\blame</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\blame\simple.c">
+      <Filter>tests\blame</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\buf\basic.c">
+      <Filter>tests\buf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\buf\oom.c">
+      <Filter>tests\buf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\buf\percent.c">
+      <Filter>tests\buf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\buf\quote.c">
+      <Filter>tests\buf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\buf\splice.c">
+      <Filter>tests\buf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\checkout\binaryunicode.c">
+      <Filter>tests\checkout</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\checkout\checkout_helpers.c">
+      <Filter>tests\checkout</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\checkout\conflict.c">
+      <Filter>tests\checkout</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\checkout\crlf.c">
+      <Filter>tests\checkout</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\checkout\head.c">
+      <Filter>tests\checkout</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\checkout\icase.c">
+      <Filter>tests\checkout</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\checkout\index.c">
+      <Filter>tests\checkout</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\checkout\nasty.c">
+      <Filter>tests\checkout</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\checkout\tree.c">
+      <Filter>tests\checkout</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\checkout\typechange.c">
+      <Filter>tests\checkout</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\cherrypick\bare.c">
+      <Filter>tests\cherrypick</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\cherrypick\workdir.c">
+      <Filter>tests\cherrypick</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\clone\empty.c">
+      <Filter>tests\clone</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\clone\local.c">
+      <Filter>tests\clone</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\clone\nonetwork.c">
+      <Filter>tests\clone</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\clone\transport.c">
+      <Filter>tests\clone</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\commit\commit.c">
+      <Filter>tests\commit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\commit\parent.c">
+      <Filter>tests\commit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\commit\parse.c">
+      <Filter>tests\commit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\commit\signature.c">
+      <Filter>tests\commit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\commit\write.c">
+      <Filter>tests\commit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\add.c">
+      <Filter>tests\config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\backend.c">
+      <Filter>tests\config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\conditionals.c">
+      <Filter>tests\config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\config_helpers.c">
+      <Filter>tests\config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\configlevel.c">
+      <Filter>tests\config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\global.c">
+      <Filter>tests\config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\include.c">
+      <Filter>tests\config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\memory.c">
+      <Filter>tests\config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\multivar.c">
+      <Filter>tests\config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\new.c">
+      <Filter>tests\config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\read.c">
+      <Filter>tests\config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\readonly.c">
+      <Filter>tests\config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\rename.c">
+      <Filter>tests\config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\snapshot.c">
+      <Filter>tests\config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\stress.c">
+      <Filter>tests\config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\validkeyname.c">
+      <Filter>tests\config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\write.c">
+      <Filter>tests\config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\array.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\assert.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\bitvec.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\buffer.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\copy.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\dirent.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\encoding.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\env.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\errors.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\features.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\filebuf.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\ftruncate.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\futils.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\hex.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\iconv.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\init.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\link.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\memmem.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\mkdir.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\oid.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\oidmap.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\opts.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\path.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\pool.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\posix.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\pqueue.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\qsort.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\regexp.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\rmdir.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\sha1.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\sortedcache.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\stat.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\string.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\strmap.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\strtol.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\structinit.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\useragent.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\vector.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\wildmatch.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\zstream.c">
+      <Filter>tests\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\date\date.c">
+      <Filter>tests\date</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\date\rfc2822.c">
+      <Filter>tests\date</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\delta\apply.c">
+      <Filter>tests\delta</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\describe\describe.c">
+      <Filter>tests\describe</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\describe\describe_helpers.c">
+      <Filter>tests\describe</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\describe\t6120.c">
+      <Filter>tests\describe</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\binary.c">
+      <Filter>tests\diff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\blob.c">
+      <Filter>tests\diff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\diff_helpers.c">
+      <Filter>tests\diff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\diffiter.c">
+      <Filter>tests\diff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\drivers.c">
+      <Filter>tests\diff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\format_email.c">
+      <Filter>tests\diff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\index.c">
+      <Filter>tests\diff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\notify.c">
+      <Filter>tests\diff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\parse.c">
+      <Filter>tests\diff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\patch.c">
+      <Filter>tests\diff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\patchid.c">
+      <Filter>tests\diff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\pathspec.c">
+      <Filter>tests\diff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\racediffiter.c">
+      <Filter>tests\diff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\rename.c">
+      <Filter>tests\diff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\stats.c">
+      <Filter>tests\diff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\submodules.c">
+      <Filter>tests\diff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\tree.c">
+      <Filter>tests\diff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\workdir.c">
+      <Filter>tests\diff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\fetchhead\nonetwork.c">
+      <Filter>tests\fetchhead</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\filter\bare.c">
+      <Filter>tests\filter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\filter\blob.c">
+      <Filter>tests\filter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\filter\crlf.c">
+      <Filter>tests\filter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\filter\custom.c">
+      <Filter>tests\filter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\filter\custom_helpers.c">
+      <Filter>tests\filter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\filter\file.c">
+      <Filter>tests\filter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\filter\ident.c">
+      <Filter>tests\filter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\filter\query.c">
+      <Filter>tests\filter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\filter\stream.c">
+      <Filter>tests\filter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\filter\systemattrs.c">
+      <Filter>tests\filter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\filter\wildcard.c">
+      <Filter>tests\filter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\graph\ahead_behind.c">
+      <Filter>tests\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\graph\descendant_of.c">
+      <Filter>tests\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\ignore\path.c">
+      <Filter>tests\ignore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\ignore\status.c">
+      <Filter>tests\ignore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\add.c">
+      <Filter>tests\index</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\addall.c">
+      <Filter>tests\index</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\bypath.c">
+      <Filter>tests\index</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\cache.c">
+      <Filter>tests\index</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\collision.c">
+      <Filter>tests\index</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\conflicts.c">
+      <Filter>tests\index</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\crlf.c">
+      <Filter>tests\index</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\filemodes.c">
+      <Filter>tests\index</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\inmemory.c">
+      <Filter>tests\index</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\names.c">
+      <Filter>tests\index</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\nsec.c">
+      <Filter>tests\index</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\racy.c">
+      <Filter>tests\index</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\read_index.c">
+      <Filter>tests\index</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\read_tree.c">
+      <Filter>tests\index</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\rename.c">
+      <Filter>tests\index</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\reuc.c">
+      <Filter>tests\index</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\splitindex.c">
+      <Filter>tests\index</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\stage.c">
+      <Filter>tests\index</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\tests.c">
+      <Filter>tests\index</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\version.c">
+      <Filter>tests\index</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\iterator\index.c">
+      <Filter>tests\iterator</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\iterator\iterator_helpers.c">
+      <Filter>tests\iterator</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\iterator\tree.c">
+      <Filter>tests\iterator</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\iterator\workdir.c">
+      <Filter>tests\iterator</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\mailmap\basic.c">
+      <Filter>tests\mailmap</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\mailmap\blame.c">
+      <Filter>tests\mailmap</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\mailmap\parsing.c">
+      <Filter>tests\mailmap</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\analysis.c">
+      <Filter>tests\merge</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\annotated_commit.c">
+      <Filter>tests\merge</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\driver.c">
+      <Filter>tests\merge</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\files.c">
+      <Filter>tests\merge</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\merge_helpers.c">
+      <Filter>tests\merge</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\trees\automerge.c">
+      <Filter>tests\merge\trees</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\trees\commits.c">
+      <Filter>tests\merge\trees</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\trees\modeconflict.c">
+      <Filter>tests\merge\trees</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\trees\recursive.c">
+      <Filter>tests\merge\trees</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\trees\renames.c">
+      <Filter>tests\merge\trees</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\trees\treediff.c">
+      <Filter>tests\merge\trees</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\trees\trivial.c">
+      <Filter>tests\merge\trees</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\trees\whitespace.c">
+      <Filter>tests\merge\trees</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\workdir\dirty.c">
+      <Filter>tests\merge\workdir</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\workdir\recursive.c">
+      <Filter>tests\merge\workdir</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\workdir\renames.c">
+      <Filter>tests\merge\workdir</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\workdir\setup.c">
+      <Filter>tests\merge\workdir</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\workdir\simple.c">
+      <Filter>tests\merge\workdir</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\workdir\submodules.c">
+      <Filter>tests\merge\workdir</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\workdir\trivial.c">
+      <Filter>tests\merge\workdir</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\message\trailer.c">
+      <Filter>tests\message</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\network\cred.c">
+      <Filter>tests\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\network\fetchlocal.c">
+      <Filter>tests\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\network\joinpath.c">
+      <Filter>tests\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\network\matchhost.c">
+      <Filter>tests\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\network\redirect.c">
+      <Filter>tests\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\network\refspecs.c">
+      <Filter>tests\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\network\remote\defaultbranch.c">
+      <Filter>tests\network\remote</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\network\remote\delete.c">
+      <Filter>tests\network\remote</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\network\remote\isvalidname.c">
+      <Filter>tests\network\remote</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\network\remote\local.c">
+      <Filter>tests\network\remote</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\network\remote\push.c">
+      <Filter>tests\network\remote</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\network\remote\remotes.c">
+      <Filter>tests\network\remote</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\network\remote\rename.c">
+      <Filter>tests\network\remote</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\network\urlparse.c">
+      <Filter>tests\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\notes\notes.c">
+      <Filter>tests\notes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\notes\notesref.c">
+      <Filter>tests\notes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\blob\filter.c">
+      <Filter>tests\object\blob</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\blob\fromstream.c">
+      <Filter>tests\object\blob</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\blob\write.c">
+      <Filter>tests\object\blob</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\cache.c">
+      <Filter>tests\object</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\commit\commitstagedfile.c">
+      <Filter>tests\object\commit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\commit\parse.c">
+      <Filter>tests\object\commit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\lookup.c">
+      <Filter>tests\object</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\lookupbypath.c">
+      <Filter>tests\object</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\message.c">
+      <Filter>tests\object</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\peel.c">
+      <Filter>tests\object</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\raw\chars.c">
+      <Filter>tests\object\raw</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\raw\compare.c">
+      <Filter>tests\object\raw</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\raw\convert.c">
+      <Filter>tests\object\raw</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\raw\fromstr.c">
+      <Filter>tests\object\raw</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\raw\hash.c">
+      <Filter>tests\object\raw</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\raw\short.c">
+      <Filter>tests\object\raw</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\raw\size.c">
+      <Filter>tests\object\raw</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\raw\type2string.c">
+      <Filter>tests\object\raw</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\raw\write.c">
+      <Filter>tests\object\raw</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\shortid.c">
+      <Filter>tests\object</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\tag\list.c">
+      <Filter>tests\object\tag</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\tag\parse.c">
+      <Filter>tests\object\tag</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\tag\peel.c">
+      <Filter>tests\object\tag</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\tag\read.c">
+      <Filter>tests\object\tag</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\tag\write.c">
+      <Filter>tests\object\tag</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\tree\attributes.c">
+      <Filter>tests\object\tree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\tree\duplicateentries.c">
+      <Filter>tests\object\tree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\tree\frompath.c">
+      <Filter>tests\object\tree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\tree\parse.c">
+      <Filter>tests\object\tree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\tree\read.c">
+      <Filter>tests\object\tree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\tree\update.c">
+      <Filter>tests\object\tree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\tree\walk.c">
+      <Filter>tests\object\tree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\tree\write.c">
+      <Filter>tests\object\tree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\alternates.c">
+      <Filter>tests\odb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\backend\backend_helpers.c">
+      <Filter>tests\odb\backend</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\backend\mempack.c">
+      <Filter>tests\odb\backend</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\backend\multiple.c">
+      <Filter>tests\odb\backend</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\backend\nobackend.c">
+      <Filter>tests\odb\backend</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\backend\nonrefreshing.c">
+      <Filter>tests\odb\backend</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\backend\simple.c">
+      <Filter>tests\odb\backend</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\emptyobjects.c">
+      <Filter>tests\odb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\foreach.c">
+      <Filter>tests\odb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\freshen.c">
+      <Filter>tests\odb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\largefiles.c">
+      <Filter>tests\odb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\loose.c">
+      <Filter>tests\odb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\mixed.c">
+      <Filter>tests\odb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\packed.c">
+      <Filter>tests\odb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\packed_one.c">
+      <Filter>tests\odb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\sorting.c">
+      <Filter>tests\odb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\streamwrite.c">
+      <Filter>tests\odb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\online\badssl.c">
+      <Filter>tests\online</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\online\clone.c">
+      <Filter>tests\online</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\online\fetch.c">
+      <Filter>tests\online</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\online\fetchhead.c">
+      <Filter>tests\online</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\online\push.c">
+      <Filter>tests\online</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\online\push_util.c">
+      <Filter>tests\online</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\online\remotes.c">
+      <Filter>tests\online</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\pack\filelimit.c">
+      <Filter>tests\pack</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\pack\indexer.c">
+      <Filter>tests\pack</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\pack\midx.c">
+      <Filter>tests\pack</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\pack\packbuilder.c">
+      <Filter>tests\pack</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\pack\sharing.c">
+      <Filter>tests\pack</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\patch\parse.c">
+      <Filter>tests\patch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\patch\print.c">
+      <Filter>tests\patch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\path\core.c">
+      <Filter>tests\path</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\path\dotgit.c">
+      <Filter>tests\path</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\path\win32.c">
+      <Filter>tests\path</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\perf\helper__perf__do_merge.c">
+      <Filter>tests\perf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\perf\helper__perf__timer.c">
+      <Filter>tests\perf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\perf\merge.c">
+      <Filter>tests\perf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\rebase\abort.c">
+      <Filter>tests\rebase</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\rebase\inmemory.c">
+      <Filter>tests\rebase</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\rebase\iterator.c">
+      <Filter>tests\rebase</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\rebase\merge.c">
+      <Filter>tests\rebase</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\rebase\setup.c">
+      <Filter>tests\rebase</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\rebase\sign.c">
+      <Filter>tests\rebase</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\rebase\submodule.c">
+      <Filter>tests\rebase</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\basic.c">
+      <Filter>tests\refs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\branches\checkedout.c">
+      <Filter>tests\refs\branches</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\branches\create.c">
+      <Filter>tests\refs\branches</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\branches\delete.c">
+      <Filter>tests\refs\branches</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\branches\ishead.c">
+      <Filter>tests\refs\branches</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\branches\iterator.c">
+      <Filter>tests\refs\branches</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\branches\lookup.c">
+      <Filter>tests\refs\branches</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\branches\move.c">
+      <Filter>tests\refs\branches</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\branches\name.c">
+      <Filter>tests\refs\branches</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\branches\remote.c">
+      <Filter>tests\refs\branches</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\branches\upstream.c">
+      <Filter>tests\refs\branches</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\branches\upstreamname.c">
+      <Filter>tests\refs\branches</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\crashes.c">
+      <Filter>tests\refs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\create.c">
+      <Filter>tests\refs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\delete.c">
+      <Filter>tests\refs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\dup.c">
+      <Filter>tests\refs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\foreachglob.c">
+      <Filter>tests\refs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\isvalidname.c">
+      <Filter>tests\refs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\iterator.c">
+      <Filter>tests\refs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\list.c">
+      <Filter>tests\refs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\listall.c">
+      <Filter>tests\refs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\lookup.c">
+      <Filter>tests\refs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\namespaces.c">
+      <Filter>tests\refs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\normalize.c">
+      <Filter>tests\refs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\overwrite.c">
+      <Filter>tests\refs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\pack.c">
+      <Filter>tests\refs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\peel.c">
+      <Filter>tests\refs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\races.c">
+      <Filter>tests\refs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\read.c">
+      <Filter>tests\refs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\ref_helpers.c">
+      <Filter>tests\refs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\reflog\drop.c">
+      <Filter>tests\refs\reflog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\reflog\messages.c">
+      <Filter>tests\refs\reflog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\reflog\reflog.c">
+      <Filter>tests\refs\reflog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\reflog\reflog_helpers.c">
+      <Filter>tests\refs\reflog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\rename.c">
+      <Filter>tests\refs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\revparse.c">
+      <Filter>tests\refs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\setter.c">
+      <Filter>tests\refs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\shorthand.c">
+      <Filter>tests\refs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\transactions.c">
+      <Filter>tests\refs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\unicode.c">
+      <Filter>tests\refs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\update.c">
+      <Filter>tests\refs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\remote\create.c">
+      <Filter>tests\remote</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\remote\insteadof.c">
+      <Filter>tests\remote</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\remote\list.c">
+      <Filter>tests\remote</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\config.c">
+      <Filter>tests\repo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\discover.c">
+      <Filter>tests\repo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\env.c">
+      <Filter>tests\repo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\getters.c">
+      <Filter>tests\repo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\hashfile.c">
+      <Filter>tests\repo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\head.c">
+      <Filter>tests\repo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\headtree.c">
+      <Filter>tests\repo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\init.c">
+      <Filter>tests\repo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\message.c">
+      <Filter>tests\repo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\new.c">
+      <Filter>tests\repo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\open.c">
+      <Filter>tests\repo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\pathspec.c">
+      <Filter>tests\repo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\repo_helpers.c">
+      <Filter>tests\repo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\reservedname.c">
+      <Filter>tests\repo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\setters.c">
+      <Filter>tests\repo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\shallow.c">
+      <Filter>tests\repo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\state.c">
+      <Filter>tests\repo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\template.c">
+      <Filter>tests\repo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\reset\default.c">
+      <Filter>tests\reset</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\reset\hard.c">
+      <Filter>tests\reset</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\reset\mixed.c">
+      <Filter>tests\reset</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\reset\reset_helpers.c">
+      <Filter>tests\reset</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\reset\soft.c">
+      <Filter>tests\reset</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\revert\bare.c">
+      <Filter>tests\revert</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\revert\workdir.c">
+      <Filter>tests\revert</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\revwalk\basic.c">
+      <Filter>tests\revwalk</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\revwalk\hidecb.c">
+      <Filter>tests\revwalk</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\revwalk\mergebase.c">
+      <Filter>tests\revwalk</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\revwalk\signatureparsing.c">
+      <Filter>tests\revwalk</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\revwalk\simplify.c">
+      <Filter>tests\revwalk</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\stash\apply.c">
+      <Filter>tests\stash</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\stash\drop.c">
+      <Filter>tests\stash</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\stash\foreach.c">
+      <Filter>tests\stash</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\stash\save.c">
+      <Filter>tests\stash</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\stash\stash_helpers.c">
+      <Filter>tests\stash</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\stash\submodules.c">
+      <Filter>tests\stash</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\status\renames.c">
+      <Filter>tests\status</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\status\single.c">
+      <Filter>tests\status</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\status\status_helpers.c">
+      <Filter>tests\status</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\status\submodules.c">
+      <Filter>tests\status</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\status\worktree.c">
+      <Filter>tests\status</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\status\worktree_init.c">
+      <Filter>tests\status</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\stream\deprecated.c">
+      <Filter>tests\stream</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\stream\registration.c">
+      <Filter>tests\stream</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\stress\diff.c">
+      <Filter>tests\stress</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\submodule\add.c">
+      <Filter>tests\submodule</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\submodule\escape.c">
+      <Filter>tests\submodule</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\submodule\init.c">
+      <Filter>tests\submodule</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\submodule\inject_option.c">
+      <Filter>tests\submodule</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\submodule\lookup.c">
+      <Filter>tests\submodule</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\submodule\modify.c">
+      <Filter>tests\submodule</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\submodule\nosubs.c">
+      <Filter>tests\submodule</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\submodule\open.c">
+      <Filter>tests\submodule</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\submodule\repository_init.c">
+      <Filter>tests\submodule</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\submodule\status.c">
+      <Filter>tests\submodule</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\submodule\submodule_helpers.c">
+      <Filter>tests\submodule</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\submodule\update.c">
+      <Filter>tests\submodule</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\threads\basic.c">
+      <Filter>tests\threads</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\threads\diff.c">
+      <Filter>tests\threads</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\threads\iterator.c">
+      <Filter>tests\threads</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\threads\refdb.c">
+      <Filter>tests\threads</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\threads\thread_helpers.c">
+      <Filter>tests\threads</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\trace\trace.c">
+      <Filter>tests\trace</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\trace\windows\stacktrace.c">
+      <Filter>tests\trace\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\transport\register.c">
+      <Filter>tests\transport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\transports\smart\packet.c">
+      <Filter>tests\transports\smart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\win32\forbidden.c">
+      <Filter>tests\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\win32\longpath.c">
+      <Filter>tests\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\worktree\bare.c">
+      <Filter>tests\worktree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\worktree\config.c">
+      <Filter>tests\worktree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\worktree\merge.c">
+      <Filter>tests\worktree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\worktree\open.c">
+      <Filter>tests\worktree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\worktree\reflog.c">
+      <Filter>tests\worktree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\worktree\refs.c">
+      <Filter>tests\worktree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\worktree\repository.c">
+      <Filter>tests\worktree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\worktree\submodule.c">
+      <Filter>tests\worktree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\worktree\worktree.c">
+      <Filter>tests\worktree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\worktree\worktree_helpers.c">
+      <Filter>tests\worktree</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\apply\apply_helpers.h">
+      <Filter>tests\apply</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\attr\attr_expect.h">
+      <Filter>tests\attr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\blame\blame_helpers.h">
+      <Filter>tests\blame</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\checkout\checkout_helpers.h">
+      <Filter>tests\checkout</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\clar\fixtures.h">
+      <Filter>tests\clar</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\clar\fs.h">
+      <Filter>tests\clar</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\clar\print.h">
+      <Filter>tests\clar</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\clar\sandbox.h">
+      <Filter>tests\clar</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\clar\summary.h">
+      <Filter>tests\clar</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\config\config_helpers.h">
+      <Filter>tests\config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\describe\describe_helpers.h">
+      <Filter>tests\describe</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\diff\diff_helpers.h">
+      <Filter>tests\diff</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\fetchhead\fetchhead_data.h">
+      <Filter>tests\fetchhead</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\filter\crlf.h">
+      <Filter>tests\filter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\filter\custom_helpers.h">
+      <Filter>tests\filter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\index\conflicts.h">
+      <Filter>tests\index</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\iterator\iterator_helpers.h">
+      <Filter>tests\iterator</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\mailmap\mailmap_testdata.h">
+      <Filter>tests\mailmap</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\merge\conflict_data.h">
+      <Filter>tests\merge</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\merge\merge_helpers.h">
+      <Filter>tests\merge</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\object\raw\data.h">
+      <Filter>tests\object\raw</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\odb\backend\backend_helpers.h">
+      <Filter>tests\odb\backend</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\odb\loose_data.h">
+      <Filter>tests\odb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\odb\pack_data.h">
+      <Filter>tests\odb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\odb\pack_data_one.h">
+      <Filter>tests\odb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\online\push_util.h">
+      <Filter>tests\online</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\patch\patch_common.h">
+      <Filter>tests\patch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\perf\helper__perf__do_merge.h">
+      <Filter>tests\perf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\perf\helper__perf__timer.h">
+      <Filter>tests\perf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\refs\ref_helpers.h">
+      <Filter>tests\refs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\refs\reflog\reflog_helpers.h">
+      <Filter>tests\refs\reflog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\repo\repo_helpers.h">
+      <Filter>tests\repo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\reset\reset_helpers.h">
+      <Filter>tests\reset</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\stash\stash_helpers.h">
+      <Filter>tests\stash</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\status\status_data.h">
+      <Filter>tests\status</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\status\status_helpers.h">
+      <Filter>tests\status</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\submodule\submodule_helpers.h">
+      <Filter>tests\submodule</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\threads\thread_helpers.h">
+      <Filter>tests\threads</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\worktree\worktree_helpers.h">
+      <Filter>tests\worktree</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{06A2C3BE-53E3-3F34-A2B9-05DCA34201B3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests">
+      <UniqueIdentifier>{5BBA7411-E886-354B-9792-A38F6F318D92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\apply">
+      <UniqueIdentifier>{10621742-3891-342C-84E7-42F996CEAE0F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\attr">
+      <UniqueIdentifier>{D1250846-76C7-3EA9-9DDC-00282F3C9B85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\blame">
+      <UniqueIdentifier>{361D7694-0C42-3276-8E8E-CA22FD2AE00F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\buf">
+      <UniqueIdentifier>{9E0893CB-9EDA-35FE-8662-9A51206B8720}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\checkout">
+      <UniqueIdentifier>{0047533F-38CB-3CE7-9E38-B228AAA0F9C8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\cherrypick">
+      <UniqueIdentifier>{2074D972-1482-3665-9112-B4C1BA91C8F3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\clar">
+      <UniqueIdentifier>{745F6938-4A27-30FE-A724-B3DAF767411C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\clone">
+      <UniqueIdentifier>{E8ADC5A4-2F96-373E-A674-8D4D324013FD}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\commit">
+      <UniqueIdentifier>{F4C873EA-5B67-358F-95E8-4B0D0E08912D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\config">
+      <UniqueIdentifier>{D9193108-04D8-310E-A6E1-78A90D871716}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\core">
+      <UniqueIdentifier>{EE68D958-04B7-32DB-8553-00CF78F2E8F7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\date">
+      <UniqueIdentifier>{A3F7A3BE-35D6-3342-A159-5228F1E2BAD6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\delta">
+      <UniqueIdentifier>{80BDF1E4-C577-35F8-9677-8D8FB64E059D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\describe">
+      <UniqueIdentifier>{526FEF83-329F-360E-8580-1B803FC1F4D0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\diff">
+      <UniqueIdentifier>{60552DD9-2160-34FA-A6A1-2E2ECA7CF999}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\fetchhead">
+      <UniqueIdentifier>{847E368F-D886-356C-9878-5072657AE04A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\filter">
+      <UniqueIdentifier>{F9234A89-FAA0-3F10-BEEC-B19035A9311D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\graph">
+      <UniqueIdentifier>{AC8DB34B-17A8-3A03-8969-B350DF663492}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\ignore">
+      <UniqueIdentifier>{181E6AC9-7318-31A4-B075-939EBEBDC414}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\index">
+      <UniqueIdentifier>{34686B19-A865-3270-B065-41B054C5B32F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\iterator">
+      <UniqueIdentifier>{587FA8C3-4102-3443-BD0B-EAAAF99A919B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\mailmap">
+      <UniqueIdentifier>{D3CE7B91-923A-3AF6-90CA-EA9452341ECC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\merge">
+      <UniqueIdentifier>{7F0A6F06-25BC-3F3F-BFCA-0786A7BEF999}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\merge\trees">
+      <UniqueIdentifier>{ABBD7601-B0F4-3705-897F-2523E4CA6258}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\merge\workdir">
+      <UniqueIdentifier>{8C4BFAC7-4CFD-3A63-8D84-DF779E6A07C4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\message">
+      <UniqueIdentifier>{613D5A7F-D5B6-3C8D-B7EB-5A5F98F1880C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\network">
+      <UniqueIdentifier>{5B235EA1-E3E9-3163-A6C8-0A8E23A54F8C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\network\remote">
+      <UniqueIdentifier>{9B0789DA-9BCC-3D4F-A474-2FF656A95EF4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\notes">
+      <UniqueIdentifier>{0F816C5F-37FC-3239-B969-1C7CED344995}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\object">
+      <UniqueIdentifier>{C1973F7A-3735-353C-937B-A187028D8654}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\object\blob">
+      <UniqueIdentifier>{54F9A8A5-5A5E-36E4-A39F-6328ED6992FD}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\object\commit">
+      <UniqueIdentifier>{5B8B45DB-4987-3B3B-B5EB-CEE72460C5B9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\object\raw">
+      <UniqueIdentifier>{329ABB8F-59DB-3822-8A78-4FE2F9BC0611}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\object\tag">
+      <UniqueIdentifier>{CB18C8C8-8085-3127-961C-CBA20697150D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\object\tree">
+      <UniqueIdentifier>{69A10C1C-CA6E-300A-9BED-273BEBEAD1DC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\odb">
+      <UniqueIdentifier>{7B0F62A8-D98C-33A3-B8EF-CD70CF8B0826}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\odb\backend">
+      <UniqueIdentifier>{E1A354A5-2132-390C-83C7-AC3F91854E7D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\online">
+      <UniqueIdentifier>{0FD7270A-D7A5-3EB0-BD5E-5A49CB630DCE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\pack">
+      <UniqueIdentifier>{6C8C49EE-472F-3884-A02C-57A4507FA696}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\patch">
+      <UniqueIdentifier>{C8AE007A-433A-39B5-A607-8CE11D1ABB7C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\path">
+      <UniqueIdentifier>{90797EAB-C865-347F-BD62-A507AB483B2E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\perf">
+      <UniqueIdentifier>{55A4664F-A971-3875-8AE0-29073A4668EC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\rebase">
+      <UniqueIdentifier>{E7000146-95C1-3AF6-8702-CFD2ACFA5648}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\refs">
+      <UniqueIdentifier>{85AADFC1-0B82-3B94-932B-AFCECDEC1D63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\refs\branches">
+      <UniqueIdentifier>{0A24F236-16AD-379E-8342-E2E3ECB38D25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\refs\reflog">
+      <UniqueIdentifier>{934BB42C-BB3C-35CF-A295-E284852E980B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\remote">
+      <UniqueIdentifier>{6A788B76-BE6A-366B-87BF-1DBDBA44A8A4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\repo">
+      <UniqueIdentifier>{3D85FE1C-6ADE-32A1-B200-C40D9E05EE8E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\reset">
+      <UniqueIdentifier>{460911B0-A0F5-3F7E-BE6F-2E56AB2AC8EC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\revert">
+      <UniqueIdentifier>{D5A2A45A-054D-3700-85B8-DFCB0DBB8B07}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\revwalk">
+      <UniqueIdentifier>{F2F77B15-BCBB-347F-8827-A4FA93E8DF5D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\stash">
+      <UniqueIdentifier>{470B490C-8E9F-35AC-8274-876ECE77AFCE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\status">
+      <UniqueIdentifier>{83CFCFE7-9AB9-3B00-8C8F-7858425062F5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\stream">
+      <UniqueIdentifier>{8AD15913-721E-3B0B-8F0B-14400EC5AE77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\stress">
+      <UniqueIdentifier>{6FFB5CA1-E250-37F1-900F-C53A4E936D2C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\submodule">
+      <UniqueIdentifier>{FF47F225-D690-30D2-BC39-FE86E68B1EB1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\threads">
+      <UniqueIdentifier>{A9041CF6-DE5E-3DC5-9F0E-A61947F6B560}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\trace">
+      <UniqueIdentifier>{EF464BB5-63C3-32E7-9800-3C408C799B64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\trace\windows">
+      <UniqueIdentifier>{05BD19DE-D94B-3A1E-814A-5A63A34E7D66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\transport">
+      <UniqueIdentifier>{F4F6D3BE-CAF6-3FB5-A23E-EC6B13183C98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\transports">
+      <UniqueIdentifier>{8149067D-5FB0-3199-A528-80B7A158E598}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\transports\smart">
+      <UniqueIdentifier>{29EF92C7-0A3F-35A9-A378-C9BBC790B48D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\win32">
+      <UniqueIdentifier>{18DCBB1C-FDC6-3F83-A5A1-4304CF94B0F3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\worktree">
+      <UniqueIdentifier>{6C652C60-BB74-3263-A7AE-136AEBA92B3F}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

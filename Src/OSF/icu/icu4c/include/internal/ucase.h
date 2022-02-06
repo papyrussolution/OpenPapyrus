@@ -225,10 +225,15 @@ UCaseContextIterator(void *context, int8_t dir);
  */
 struct UCaseContext {
     void *p;
-    int32_t start, index, limit;
-    int32_t cpStart, cpLimit;
+    int32_t start;
+	int32_t index;
+	int32_t limit;
+    int32_t cpStart;
+	int32_t cpLimit;
     int8_t dir;
-    int8_t b1, b2, b3;
+    int8_t b1;
+	int8_t b2;
+	int8_t b3;
 };
 typedef struct UCaseContext UCaseContext;
 

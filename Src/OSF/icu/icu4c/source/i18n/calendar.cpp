@@ -1,23 +1,18 @@
 // CALENDAR.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- * Copyright (C) 1997-2016, International Business Machines Corporation and others. All Rights Reserved.
- * Modification History:
- *   Date        Name        Description
- *   02/03/97    clhuang     Creation.
- *   04/22/97    aliu        Cleaned up, fixed memory leak, made
- *        setWeekCountData() more robust.
- *        Moved platform code to TPlatformUtilities.
- *   05/01/97    aliu        Made equals(), before(), after() arguments const.
- *   05/20/97    aliu        Changed logic of when to compute fields and time
- *        to fix bugs.
- *   08/12/97    aliu        Added equivalentTo.  Misc other fixes.
- *   07/28/98    stephen     Sync up with JDK 1.2
- *   09/02/98    stephen     Sync with JDK 1.2 8/31 build (getActualMin/Max)
- *   03/17/99    stephen     Changed adoptTimeZone() - now fAreFieldsSet is
- *        set to FALSE to force update of time.
- */
+// Copyright (C) 1997-2016, International Business Machines Corporation and others. All Rights Reserved.
+// Modification History:
+// Date        Name        Description
+// 02/03/97    clhuang     Creation.
+// 04/22/97    aliu        Cleaned up, fixed memory leak, made setWeekCountData() more robust. Moved platform code to TPlatformUtilities.
+// 05/01/97    aliu        Made equals(), before(), after() arguments const.
+// 05/20/97    aliu        Changed logic of when to compute fields and time to fix bugs.
+// 08/12/97    aliu        Added equivalentTo.  Misc other fixes.
+// 07/28/98    stephen     Sync up with JDK 1.2
+// 09/02/98    stephen     Sync with JDK 1.2 8/31 build (getActualMin/Max)
+// 03/17/99    stephen     Changed adoptTimeZone() - now fAreFieldsSet is set to FALSE to force update of time.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -292,10 +287,8 @@ static ECalType getCalendarTypeForLocale(const char * locid)
 			calType = getCalendarType(calTypeBuf);
 		}
 	}
-
 	ures_close(order);
 	ures_close(rb);
-
 	if(calType == CALTYPE_UNKNOWN) {
 		// final fallback
 		calType = CALTYPE_GREGORIAN;
@@ -303,7 +296,8 @@ static ECalType getCalendarTypeForLocale(const char * locid)
 	return calType;
 }
 
-static Calendar * createStandardCalendar(ECalType calType, const Locale &loc, UErrorCode & status) {
+static Calendar * createStandardCalendar(ECalType calType, const Locale &loc, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return nullptr;
 	}
@@ -3346,13 +3340,12 @@ int32_t Calendar::handleGetExtendedYearFromWeekFields(int32_t yearWoy, int32_t w
 
 int32_t Calendar::handleGetMonthLength(int32_t extendedYear, int32_t month) const
 {
-	return handleComputeMonthStart(extendedYear, month+1, TRUE) -
-	       handleComputeMonthStart(extendedYear, month, TRUE);
+	return handleComputeMonthStart(extendedYear, month+1, TRUE) - handleComputeMonthStart(extendedYear, month, TRUE);
 }
 
-int32_t Calendar::handleGetYearLength(int32_t eyear) const {
-	return handleComputeMonthStart(eyear+1, 0, FALSE) -
-	       handleComputeMonthStart(eyear, 0, FALSE);
+int32_t Calendar::handleGetYearLength(int32_t eyear) const 
+{
+	return handleComputeMonthStart(eyear+1, 0, FALSE) - handleComputeMonthStart(eyear, 0, FALSE);
 }
 
 int32_t Calendar::getActualMaximum(UCalendarDateFields field, UErrorCode & status) const
@@ -3361,7 +3354,8 @@ int32_t Calendar::getActualMaximum(UCalendarDateFields field, UErrorCode & statu
 	switch(field) {
 		case UCAL_DATE:
 	    {
-		    if(U_FAILURE(status)) return 0;
+		    if(U_FAILURE(status)) 
+				return 0;
 		    Calendar * cal = clone();
 		    if(!cal) {
 			    status = U_MEMORY_ALLOCATION_ERROR; return 0;
@@ -3372,10 +3366,10 @@ int32_t Calendar::getActualMaximum(UCalendarDateFields field, UErrorCode & statu
 		    delete cal;
 	    }
 	    break;
-
 		case UCAL_DAY_OF_YEAR:
 	    {
-		    if(U_FAILURE(status)) return 0;
+		    if(U_FAILURE(status)) 
+				return 0;
 		    Calendar * cal = clone();
 		    if(!cal) {
 			    status = U_MEMORY_ALLOCATION_ERROR; return 0;
@@ -3491,9 +3485,7 @@ int32_t Calendar::getActualHelper(UCalendarDateFields field, int32_t startValue,
 		// if we know that the maximum value is always the same, just return it
 		return startValue;
 	}
-
 	int32_t delta = (endValue > startValue) ? 1 : -1;
-
 	// clone the calendar so we don't mess with the real one, and set it to
 	// accept anything for the field values
 	if(U_FAILURE(status)) return startValue;
@@ -3501,19 +3493,15 @@ int32_t Calendar::getActualHelper(UCalendarDateFields field, int32_t startValue,
 	if(!work) {
 		status = U_MEMORY_ALLOCATION_ERROR; return startValue;
 	}
-
 	// need to resolve time here, otherwise, fields set for actual limit
 	// may cause conflict with fields previously set (but not yet resolved).
 	work->complete(status);
-
 	work->setLenient(TRUE);
 	work->prepareGetActual(field, delta < 0, status);
-
 	// now try each value from the start to the end one by one until
 	// we get a value that normalizes to another value.  The last value that
 	// normalizes to itself is the actual maximum for the current date
 	work->set(field, startValue);
-
 	// prepareGetActual sets the first day of week in the same week with
 	// the first day of a month.  Unlike WEEK_OF_YEAR, week number for the
 	// week which contains days from both previous and current month is
@@ -3608,12 +3596,9 @@ void Calendar::setWeekData(const Locale & desiredLocale, const char * type, UErr
 
 	if(monthNames.isNull() || status == U_MISSING_RESOURCE_ERROR) {
 		status = U_ZERO_ERROR;
-		monthNames.adoptInstead(ures_getByKeyWithFallback(calData.getAlias(), gGregorian,
-		    monthNames.orphan(), &status));
-		ures_getByKeyWithFallback(monthNames.getAlias(), gMonthNames,
-		    monthNames.getAlias(), &status);
+		monthNames.adoptInstead(ures_getByKeyWithFallback(calData.getAlias(), gGregorian, monthNames.orphan(), &status));
+		ures_getByKeyWithFallback(monthNames.getAlias(), gMonthNames, monthNames.getAlias(), &status);
 	}
-
 	if(U_SUCCESS(status)) {
 		U_LOCALE_BASED(locBased, *this);
 		locBased.setLocaleIDs(ures_getLocaleByType(monthNames.getAlias(), ULOC_VALID_LOCALE, &status),
@@ -3635,18 +3620,14 @@ void Calendar::setWeekData(const Locale & desiredLocale, const char * type, UErr
 		status = U_ZERO_ERROR;
 		weekData = ures_getByKey(rb, "001", NULL, &status);
 	}
-
 	if(U_FAILURE(status)) {
 		status = U_USING_FALLBACK_WARNING;
 	}
 	else {
 		int32_t arrLen;
 		const int32_t * weekDataArr = ures_getIntVector(weekData, &arrLen, &status);
-		if(U_SUCCESS(status) && arrLen == 6
-		 && 1 <= weekDataArr[0] && weekDataArr[0] <= 7
-		 && 1 <= weekDataArr[1] && weekDataArr[1] <= 7
-		 && 1 <= weekDataArr[2] && weekDataArr[2] <= 7
-		 && 1 <= weekDataArr[4] && weekDataArr[4] <= 7) {
+		if(U_SUCCESS(status) && arrLen == 6 && 1 <= weekDataArr[0] && weekDataArr[0] <= 7 && 1 <= weekDataArr[1] && weekDataArr[1] <= 7 && 
+			1 <= weekDataArr[2] && weekDataArr[2] <= 7 && 1 <= weekDataArr[4] && weekDataArr[4] <= 7) {
 			fFirstDayOfWeek = (UCalendarDaysOfWeek)weekDataArr[0];
 			fMinimalDaysInFirstWeek = (uint8)weekDataArr[1];
 			fWeekendOnset = (UCalendarDaysOfWeek)weekDataArr[2];
@@ -3680,12 +3661,14 @@ void Calendar::updateTime(UErrorCode & status)
 	fAreFieldsVirtuallySet = FALSE;
 }
 
-Locale Calendar::getLocale(ULocDataLocaleType type, UErrorCode & status) const {
+Locale Calendar::getLocale(ULocDataLocaleType type, UErrorCode & status) const 
+{
 	U_LOCALE_BASED(locBased, *this);
 	return locBased.getLocale(type, status);
 }
 
-const char * Calendar::getLocaleID(ULocDataLocaleType type, UErrorCode & status) const {
+const char * Calendar::getLocaleID(ULocDataLocaleType type, UErrorCode & status) const 
+{
 	U_LOCALE_BASED(locBased, *this);
 	return locBased.getLocaleID(type, status);
 }

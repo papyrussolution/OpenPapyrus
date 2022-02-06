@@ -550,10 +550,10 @@ void MessageOneofFieldGenerator::GenerateInlineAccessorDefinitions(io::Printer* 
 		"inline $type$* $classname$::$release_name$() {\n"
 		"$annotate_release$"
 		"  // @@protoc_insertion_point(field_release:$full_name$)\n"
-		"  if (_internal_has_$name$()) {\n"
+		"  if(_internal_has_$name$()) {\n"
 		"    clear_has_$oneof_name$();\n"
 		"      $type$* temp = $field_member$;\n"
-		"    if (GetArenaForAllocation() != nullptr) {\n"
+		"    if(GetArenaForAllocation() != nullptr) {\n"
 		"      temp = ::$proto_ns$::internal::DuplicateIfNonNull(temp);\n"
 		"    }\n"
 		"    $field_member$ = nullptr;\n"
@@ -564,11 +564,7 @@ void MessageOneofFieldGenerator::GenerateInlineAccessorDefinitions(io::Printer* 
 		"}\n");
 
 	format(
-		"inline const $type$& $classname$::_internal_$name$() const {\n"
-		"  return _internal_has_$name$()\n"
-		"      ? *$field_member$\n"
-		"      : reinterpret_cast< $type$&>($type_default_instance$);\n"
-		"}\n"
+		"inline const $type$& $classname$::_internal_$name$() const { return _internal_has_$name$() ? *$field_member$ : reinterpret_cast< $type$&>($type_default_instance$); }\n"
 		"inline const $type$& $classname$::$name$() const {\n"
 		"$annotate_get$"
 		"  // @@protoc_insertion_point(field_get:$full_name$)\n"
@@ -578,7 +574,7 @@ void MessageOneofFieldGenerator::GenerateInlineAccessorDefinitions(io::Printer* 
 		"$annotate_release$"
 		"  // @@protoc_insertion_point(field_unsafe_arena_release"
 		":$full_name$)\n"
-		"  if (_internal_has_$name$()) {\n"
+		"  if(_internal_has_$name$()) {\n"
 		"    clear_has_$oneof_name$();\n"
 		"    $type$* temp = $field_member$;\n"
 		"    $field_member$ = nullptr;\n"
@@ -593,7 +589,7 @@ void MessageOneofFieldGenerator::GenerateInlineAccessorDefinitions(io::Printer* 
 		// this oneof. We can directly use the pointer we're given to set the
 		// new value.
 		"  clear_$oneof_name$();\n"
-		"  if ($name$) {\n"
+		"  if($name$) {\n"
 		"    set_has_$name$();\n"
 		"    $field_member$ = $name$;\n"
 		"  }\n"
@@ -602,7 +598,7 @@ void MessageOneofFieldGenerator::GenerateInlineAccessorDefinitions(io::Printer* 
 		"$full_name$)\n"
 		"}\n"
 		"inline $type$* $classname$::_internal_mutable_$name$() {\n"
-		"  if (!_internal_has_$name$()) {\n"
+		"  if(!_internal_has_$name$()) {\n"
 		"    clear_$oneof_name$();\n"
 		"    set_has_$name$();\n"
 		"    $field_member$ = CreateMaybeMessage< $type$ "

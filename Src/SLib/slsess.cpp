@@ -382,6 +382,15 @@ static void InitTest()
 	assert(smin(1.5f, -7.3f) == -7.3f);
 	assert(smin(1, 2) == 1);
 	assert(smax(-5, 5) == 5);
+	assert(smax(-5U, 5U) == -5U);
+	assert(smin(-5U, 5U) == 5U);
+	assert(smax(0.00001, 0.0000101) == 0.0000101);
+	assert(smax(0.00001f, 0.0000101f) == 0.0000101f);
+	assert(smin('a', 'A') == 'A');
+	assert(smin('A', 'a') == 'A');
+	assert(smax('z', 'Z') == 'z');
+	assert(smax('Z', 'z') == 'z');
+	assert(smax(100L, 100L) == smin(100L, 100L));
 	STATIC_ASSERT(MIN(1.00175120103, 1.00175120103) == 1.00175120103);
 	STATIC_ASSERT(MAX(1.00175120103, 1.00175120103) == 1.00175120103);
 	{
@@ -897,7 +906,7 @@ SGlobalSecureConfig::SGlobalSecureConfig() : Flags(0)
 {
 }
 
-int SGlobalSecureConfig::IsEmpty() const { return BIN(!Flags && CaFile.IsEmpty() && CaPath.IsEmpty()); }
+bool SGlobalSecureConfig::IsEmpty() const { return (!Flags && CaFile.IsEmpty() && CaPath.IsEmpty()); }
 
 const SGlobalSecureConfig & SlSession::GetGlobalSecureConfig()
 {

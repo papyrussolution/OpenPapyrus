@@ -101,9 +101,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Empty::GetClassData() const { 
 
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Empty::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2fempty_2eproto_getter, &descriptor_table_google_2fprotobuf_2fempty_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2fempty_2eproto[0]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2fempty_2eproto_getter, &descriptor_table_google_2fprotobuf_2fempty_2eproto_once, file_level_metadata_google_2fprotobuf_2fempty_2eproto[0]);
 }
 
 // @@protoc_insertion_point(namespace_scope)

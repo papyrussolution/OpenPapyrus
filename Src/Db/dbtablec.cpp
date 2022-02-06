@@ -1,5 +1,5 @@
 // DBTABLEC.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Классы и функции DBTable, не зависящие от провайдера DBMS
 //
@@ -290,21 +290,23 @@ DBTable::SelectStmt::SelectStmt(DbProvider * pDb, const char * pText, int idx, i
 {
 }
 
-int DBTable::SetStmt(SelectStmt * pStmt)
+void DBTable::SetStmt(SelectStmt * pStmt)
 {
+	DELETEANDASSIGN(P_Stmt, pStmt); // @v11.3.0
+	/* @v11.3.0
 	if(pStmt) {
 		if(pStmt != P_Stmt) {
-			ZDELETE(P_Stmt);
-			P_Stmt = pStmt;
+			DELETEANDASSIGN(P_Stmt, pStmt);
 		}
 	}
 	else {
 		ZDELETE(P_Stmt);
 	}
 	return 1;
+	*/
 }
 
-int DBTable::ToggleStmt(int release)
+void DBTable::ToggleStmt(bool release)
 {
 	if(release)
 		ZDELETE(P_OppStmt);
@@ -313,7 +315,6 @@ int DBTable::ToggleStmt(int release)
 		P_OppStmt = P_Stmt;
 		P_Stmt = p_temp;
 	}
-	return 1;
 }
 
 int (*DBTable::OpenExceptionProc)(const char * pFileName, int btrErr) = 0; // @global
@@ -332,7 +333,7 @@ int DBTable::Init(DbProvider * pDbP)
 	flags   = 0;
 	tableID = 0;
 	ownrLvl = 0;
-	tableName[0] = 0;
+	PTR32(tableName)[0] = 0;
 	fileName.Z();
 	indexes.setTableRef(offsetof(DBTable, indexes));
 	PageSize = 0;
@@ -488,17 +489,17 @@ int    DBTable::getLobSize(DBField fld, size_t * pSz) const { return LobB.GetSiz
 RECORDSIZE FASTCALL DBTable::getRecSize() const { return FixRecSize; }
 DBTable::SelectStmt * DBTable::GetStmt() { return P_Stmt; }
 
-int FASTCALL DBTable::getField(uint fldN, DBField * pFld) const
+bool FASTCALL DBTable::getField(uint fldN, DBField * pFld) const
 {
 	if(fldN < fields.getCount()) {
 		DBField fld;
 		fld.Id = handle;
 		fld.fld = fldN;
 		ASSIGN_PTR(pFld, fld);
-		return 1;
+		return true;
 	}
 	else
-		return 0;
+		return false;
 }
 
 int DBTable::getFieldByName(const char * pName, DBField * pFld) const
@@ -552,8 +553,8 @@ int DBTable::putRecToString(SString & rBuf, int withFieldNames)
 int DBTable::allocOwnBuffer(int size)
 {
 	int    ok = 1;
-	RECORDSIZE rec_size = (size < 0) ? fields.getRecSize() : static_cast<RECORDSIZE>(size);
-	if(P_DBuf && State & sOwnDataBuf) {
+	const  RECORDSIZE rec_size = (size < 0) ? fields.getRecSize() : static_cast<RECORDSIZE>(size);
+	if(State & sOwnDataBuf) {
 		ZFREE(P_DBuf);
 	}
 	P_DBuf = static_cast<char *>(SAlloc::C(rec_size+1, 1));
@@ -600,7 +601,7 @@ void FASTCALL DBTable::copyBufFrom(const void * pBuf)
 void FASTCALL DBTable::copyBufFrom(const void * pBuf, size_t srcBufSize)
 {
 	if(pBuf && P_DBuf) {
-		size_t s = (srcBufSize && srcBufSize < bufLen) ? srcBufSize : bufLen;
+		const size_t s = (srcBufSize && srcBufSize < bufLen) ? srcBufSize : bufLen;
 		memcpy(P_DBuf, pBuf, s);
 	}
 }
@@ -617,7 +618,7 @@ int DBTable::copyBufToKey(int idx, void * pKey) const
 	if(!pKey)
 		ok = -1;
 	else if(idx >= 0 && idx < (int)indexes.getNumKeys()) {
-		BNKey k = indexes.getKey(idx);
+		const BNKey k = indexes.getKey(idx);
 		const int ns = k.getNumSeg();
 		size_t offs = 0;
 		for(int i = 0; i < ns; i++) {
@@ -637,7 +638,7 @@ int FASTCALL DBTable::HasNote(DBField * pLastFld) const
 	if(State & sHasNote) {
 		ok = 1;
 		if(pLastFld) {
-			int    last_note_field_found = getField(fields.getCount()-1, pLastFld);
+			const bool last_note_field_found = getField(fields.getCount()-1, pLastFld);
 			if(!last_note_field_found) {
 				assert(last_note_field_found);
 				ok = 0;
@@ -660,7 +661,7 @@ int FASTCALL DBTable::HasLob(DBField * pLastFld) const
 	if(State & sHasLob) {
 		ok = 1;
 		if(pLastFld) {
-			int    last_lob_field_found = getField(fields.getCount()-1, pLastFld);
+			const bool last_lob_field_found = getField(fields.getCount()-1, pLastFld);
 			if(!last_lob_field_found) {
 				assert(last_lob_field_found);
 				ok = 0;

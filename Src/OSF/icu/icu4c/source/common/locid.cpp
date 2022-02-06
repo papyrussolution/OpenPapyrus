@@ -2557,7 +2557,7 @@ void Locale::setKeywordValue(const char * keywordName, const char * keywordValue
 	if(status == U_STRING_NOT_TERMINATED_WARNING) {
 		status = U_ZERO_ERROR;
 	}
-	int32_t bufferLength = uprv_max((int32_t)(uprv_strlen(fullName) + 1), ULOC_FULLNAME_CAPACITY);
+	int32_t bufferLength = smax((int32_t)(uprv_strlen(fullName) + 1), ULOC_FULLNAME_CAPACITY);
 	int32_t newLength = uloc_setKeywordValue(keywordName, keywordValue, fullName,
 		bufferLength, &status) + 1;
 	U_ASSERT(status != U_STRING_NOT_TERMINATED_WARNING);

@@ -1122,7 +1122,7 @@ int32_t TimeZone::getRegion(const UnicodeString & id, char * region, int32_t cap
 	}
 	resultLen = u_strlen(uregion);
 	// A region code is represented by invariant characters
-	u_UCharsToChars(uregion, region, uprv_min(resultLen, capacity));
+	u_UCharsToChars(uregion, region, smin(resultLen, capacity));
 
 	if(capacity < resultLen) {
 		status = U_BUFFER_OVERFLOW_ERROR;

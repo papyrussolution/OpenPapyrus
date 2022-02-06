@@ -1,23 +1,21 @@
+// BYTESTREAM.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-// Copyright (C) 2009-2011, International Business Machines
-// Corporation and others. All Rights Reserved.
-//
+// Copyright (C) 2009-2011, International Business Machines Corporation and others. All Rights Reserved.
 // Copyright 2007 Google Inc. All Rights Reserved.
 // Author: sanjay@google.com (Sanjay Ghemawat)
-
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
 U_NAMESPACE_BEGIN
 
-ByteSink::~ByteSink() {
+ByteSink::~ByteSink() 
+{
 }
 
-char * ByteSink::GetAppendBuffer(int32_t min_capacity,
-    int32_t /*desired_capacity_hint*/,
-    char * scratch, int32_t scratch_capacity,
-    int32_t* result_capacity) {
+char * ByteSink::GetAppendBuffer(int32_t min_capacity, int32_t /*desired_capacity_hint*/, char * scratch, int32_t scratch_capacity, int32_t* result_capacity) 
+{
 	if(min_capacity < 1 || scratch_capacity < min_capacity) {
 		*result_capacity = 0;
 		return NULL;
@@ -26,24 +24,27 @@ char * ByteSink::GetAppendBuffer(int32_t min_capacity,
 	return scratch;
 }
 
-void ByteSink::Flush() {
+void ByteSink::Flush() 
+{
 }
 
-CheckedArrayByteSink::CheckedArrayByteSink(char * outbuf, int32_t capacity)
-	: outbuf_(outbuf), capacity_(capacity < 0 ? 0 : capacity),
-	size_(0), appended_(0), overflowed_(FALSE) {
+CheckedArrayByteSink::CheckedArrayByteSink(char * outbuf, int32_t capacity) : outbuf_(outbuf), capacity_(capacity < 0 ? 0 : capacity), size_(0), appended_(0), overflowed_(FALSE) 
+{
 }
 
-CheckedArrayByteSink::~CheckedArrayByteSink() {
+CheckedArrayByteSink::~CheckedArrayByteSink() 
+{
 }
 
-CheckedArrayByteSink& CheckedArrayByteSink::Reset() {
+CheckedArrayByteSink& CheckedArrayByteSink::Reset() 
+{
 	size_ = appended_ = 0;
 	overflowed_ = FALSE;
 	return *this;
 }
 
-void CheckedArrayByteSink::Append(const char * bytes, int32_t n) {
+void CheckedArrayByteSink::Append(const char * bytes, int32_t n) 
+{
 	if(n <= 0) {
 		return;
 	}
@@ -65,11 +66,8 @@ void CheckedArrayByteSink::Append(const char * bytes, int32_t n) {
 	size_ += n;
 }
 
-char * CheckedArrayByteSink::GetAppendBuffer(int32_t min_capacity,
-    int32_t /*desired_capacity_hint*/,
-    char * scratch,
-    int32_t scratch_capacity,
-    int32_t* result_capacity) {
+char * CheckedArrayByteSink::GetAppendBuffer(int32_t min_capacity, int32_t /*desired_capacity_hint*/, char * scratch, int32_t scratch_capacity, int32_t* result_capacity) 
+{
 	if(min_capacity < 1 || scratch_capacity < min_capacity) {
 		*result_capacity = 0;
 		return NULL;

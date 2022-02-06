@@ -294,7 +294,7 @@ void Win32DateFormat::formatDate(const SYSTEMTIME * st, UnicodeString & appendTo
 	const wchar_t * localeName = nullptr;
 
 	if(fWindowsLocaleName != nullptr) {
-		localeName = reinterpret_cast<const wchar_t*>(toOldUCharPtr(fWindowsLocaleName->getTerminatedBuffer()));
+		localeName = reinterpret_cast<const wchar_t *>(toOldUCharPtr(fWindowsLocaleName->getTerminatedBuffer()));
 	}
 
 	result = GetDateFormatEx(localeName, dfFlags[fDateStyle - kDateOffset], st, NULL, buffer, STACK_BUFFER_SIZE, NULL);
@@ -326,7 +326,7 @@ void Win32DateFormat::formatTime(const SYSTEMTIME * st, UnicodeString & appendTo
 	const wchar_t * localeName = nullptr;
 
 	if(fWindowsLocaleName != nullptr) {
-		localeName = reinterpret_cast<const wchar_t*>(toOldUCharPtr(fWindowsLocaleName->getTerminatedBuffer()));
+		localeName = reinterpret_cast<const wchar_t *>(toOldUCharPtr(fWindowsLocaleName->getTerminatedBuffer()));
 	}
 
 	result = GetTimeFormatEx(localeName, tfFlags[fTimeStyle], st, NULL, buffer, STACK_BUFFER_SIZE);

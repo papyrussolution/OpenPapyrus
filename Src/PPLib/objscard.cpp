@@ -477,17 +477,16 @@ void PPSCardSerPacket::Ext::Init()
 	THISZERO();
 }
 
-int PPSCardSerPacket::Ext::IsEmpty() const
+bool PPSCardSerPacket::Ext::IsEmpty() const
 {
-	return BIN(!UsageTmStart && !UsageTmEnd &&
-		(!UsageTmStart || !checktime(UsageTmStart)) && (!UsageTmEnd || !checktime(UsageTmEnd)) && !CodeTempl[0]);
+	return (!UsageTmStart && !UsageTmEnd && (!UsageTmStart || !checktime(UsageTmStart)) && (!UsageTmEnd || !checktime(UsageTmEnd)) && !CodeTempl[0]);
 }
 
-int FASTCALL PPSCardSerPacket::Ext::IsEq(const Ext & rS) const
+bool FASTCALL PPSCardSerPacket::Ext::IsEq(const Ext & rS) const
 {
-	int    yes = 1;
+	bool   yes = true;
 	if(UsageTmStart != rS.UsageTmStart || UsageTmEnd != rS.UsageTmEnd || strcmp(CodeTempl, rS.CodeTempl) != 0)
-		yes = 0;
+		yes = false;
 	return yes;
 }
 

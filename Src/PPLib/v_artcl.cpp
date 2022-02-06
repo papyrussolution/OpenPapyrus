@@ -1,5 +1,5 @@
 // V_ARTCL.CPP
-// A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Реализация контроллера анализ данных PPViewArticle
 //
@@ -33,7 +33,7 @@ PPViewArticle::~PPViewArticle()
 
 void * PPViewArticle::GetEditExtraParam()
 {
-	return (void *)ArObj.GetCurrFilt(); // @badcast
+	return const_cast<ArticleFilt *>(ArObj.GetCurrFilt()); // @badcast
 }
 
 PPBaseFilt * PPViewArticle::CreateFilt(void * extraPtr) const
@@ -396,14 +396,15 @@ int FASTCALL PPViewArticle::NextIteration(ArticleViewItem * pItem)
 int PPViewArticle::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	class ArticleFiltDialog : public TDialog {
+		DECL_DIALOG_DATA(ArticleFilt);
 	public:
 		ArticleFiltDialog() : TDialog(DLG_ARTICLEFLT)
 		{
 		}
-		int setDTS(ArticleFilt * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			int    ok = 1;
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			setCtrlData(CTL_ARTICLEFLT_ORDER, &Data.Order);
 			SetupPPObjCombo(this, CTLSEL_ARTICLEFLT_ACCSID, PPOBJ_ACCSHEET, Data.AccSheetID, 0, 0);
 			//disableCtrl(CTLSEL_ARTICLEFLT_ACCSID, 1);
@@ -429,7 +430,7 @@ int PPViewArticle::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			SetClusterData(CTL_ARTICLEFLT_FLAGS, Data.Flags);
 			return ok;
 		}
-		int getDTS(ArticleFilt * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
@@ -466,7 +467,6 @@ int PPViewArticle::EditBaseFilt(PPBaseFilt * pBaseFilt)
 				return;
 			clearEvent(event);
 		}
-		ArticleFilt Data;
 	};
 	int    ok = -1;
 	ArticleFiltDialog * dlg = 0;
@@ -601,11 +601,12 @@ ArMassUpdParam::ArMassUpdParam() : Action(aUpdate), Flags(0), PayPeriod(0), Deli
 }
 
 class ArMassUpdDialog : public TDialog {
+	DECL_DIALOG_DATA(ArMassUpdParam);
 public:
 	ArMassUpdDialog() : TDialog(DLG_ARMASSUPD)
 	{
 	}
-	int    setDTS(const ArMassUpdParam * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
 		RVALUEPTR(Data, pData);
@@ -619,7 +620,7 @@ public:
 		SetupCtrls();
 		return ok;
 	}
-	int    getDTS(ArMassUpdParam * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		uint   sel = 0;
@@ -652,10 +653,8 @@ private:
 		disableCtrl(CTL_ARMASSUPD_PAYPERIOD, (Data.Action == ArMassUpdParam::aRemoveAll));
 		disableCtrl(CTL_ARMASSUPD_DELIVERY,  (Data.Action == ArMassUpdParam::aRemoveAll));
 	}
-	ArMassUpdParam Data;
 };
 
-// @v9.8.8 {
 int PPViewArticle::UpdateAll()
 {
 	int    ok = -1;
@@ -770,44 +769,6 @@ int PPViewArticle::UpdateAll()
 	return ok;
 }
 
-#if 0 // @v9.8.8 {
-int PPViewArticle::DeleteAll()
-{
-	int    ok = -1;
-	THROW(ArObj.CheckRights(PPR_DEL));
-	THROW(ArObj.CheckRights(ARTRT_MULTUPD));
-	if(CONFIRMCRIT(PPCFM_DELALLARTICLE)) {
-		PPIDArray id_list;
-		ArticleViewItem item;
-		PPWaitStart();
-		for(InitIteration(); NextIteration(&item) > 0;) {
-			id_list.addUnique(item.ID);
-		}
-		const uint cnt = id_list.getCount();
-		if(cnt) {
-			PPLogger logger;
-			PPTransaction tra(1);
-			THROW(tra);
-			for(uint i = 0; i < cnt; i++) {
-				const PPID _id = id_list.get(i);
-				if(_id) {
-					if(!ArObj.RemoveObjV(_id, 0, 0, 0)) {
-						logger.LogLastError();
-					}
-					else
-						ok = 1;
-				}
-				PPWaitPercent(i+1, cnt);
-			}
-			THROW(tra.Commit());
-		}
-		PPWaitStop();
-	}
-	CATCHZOKPPERR
-	return ok;
-}
-#endif // } 0 @v9.8.8
-
 int PPViewArticle::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
@@ -815,8 +776,7 @@ int PPViewArticle::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_DELETEALL:
-				// @v9.8.8 ok = DeleteAll();
-				ok = UpdateAll(); // @v9.8.8
+				ok = UpdateAll();
 				break;
 			case PPVCMD_ADDGROUP:
 				ok = ArObj.EditGrpArticle(&(id = 0), Filt.AccSheetID);

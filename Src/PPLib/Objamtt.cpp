@@ -1,5 +1,5 @@
 // OBJAMTT.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 //
 #include <pp.h>
 #pragma hdrstop
@@ -625,8 +625,8 @@ AmountTypeCache::AmountTypeCache() : ObjCache(PPOBJ_AMOUNTTYPE, sizeof(AmountTyp
 static void SwapVat(TaxAmountIDs * pData, uint i1, uint i2)
 {
 	if(pData->VatAmtID[i1] && pData->VatAmtID[i2] && pData->VatRate[i1] > pData->VatRate[i2]) {
-		Exchange(&pData->VatAmtID[i1], &pData->VatAmtID[i2]);
-		Exchange(&pData->VatRate[i1], &pData->VatRate[i2]);
+		SExchange(&pData->VatAmtID[i1], &pData->VatAmtID[i2]);
+		SExchange(&pData->VatRate[i1],  &pData->VatRate[i2]);
 	}
 }
 

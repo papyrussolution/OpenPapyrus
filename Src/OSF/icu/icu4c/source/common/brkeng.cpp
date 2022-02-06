@@ -1,3 +1,4 @@
+// BRKENG.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 // Copyright (C) 2006-2016, International Business Machines Corporation and others. All Rights Reserved.
@@ -202,14 +203,14 @@ const LanguageBreakEngine * ICULanguageBreakFactory::loadEngineFor(UChar32 c)
 	return NULL;
 }
 
-DictionaryMatcher * ICULanguageBreakFactory::loadDictionaryMatcherFor(UScriptCode script) {
+DictionaryMatcher * ICULanguageBreakFactory::loadDictionaryMatcherFor(UScriptCode script) 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	// open root from brkitr tree.
 	UResourceBundle * b = ures_open(U_ICUDATA_BRKITR, "", &status);
 	b = ures_getByKeyWithFallback(b, "dictionaries", b, &status);
 	int32_t dictnlength = 0;
-	const UChar * dictfname =
-	    ures_getStringByKeyWithFallback(b, uscript_getShortName(script), &dictnlength, &status);
+	const UChar * dictfname = ures_getStringByKeyWithFallback(b, uscript_getShortName(script), &dictnlength, &status);
 	if(U_FAILURE(status)) {
 		ures_close(b);
 		return NULL;
@@ -224,7 +225,6 @@ DictionaryMatcher * ICULanguageBreakFactory::loadDictionaryMatcherFor(UScriptCod
 	}
 	dictnbuf.appendInvariantChars(UnicodeString(FALSE, dictfname, dictnlength), status);
 	ures_close(b);
-
 	UDataMemory * file = udata_open(U_ICUDATA_BRKITR, ext.data(), dictnbuf.data(), &status);
 	if(U_SUCCESS(status)) {
 		// build trie
@@ -249,7 +249,7 @@ DictionaryMatcher * ICULanguageBreakFactory::loadDictionaryMatcherFor(UScriptCod
 		}
 		return m;
 	}
-	else if(dictfname != NULL) {
+	else if(dictfname) {
 		// we don't have a dictionary matcher.
 		// returning NULL here will cause us to fail to find a dictionary break engine, as expected
 		status = U_ZERO_ERROR;

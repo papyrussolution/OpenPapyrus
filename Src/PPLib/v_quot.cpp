@@ -1719,9 +1719,9 @@ int PPViewQuot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * p
 									quot_list.atFree(i);
 							} while(i);
 						if(P_Qc)
-							ok = P_Qc->SetCurrList(quot_list, 0, 0, 1) ? 1 : PPErrorZ();
+							ok = P_Qc->SetCurrList(quot_list, 0, false, 1) ? 1 : PPErrorZ();
 						else if(P_Qc2)
-							ok = P_Qc2->Set(quot_list, 0, 0, 0, 1) ? 1 : PPErrorZ();
+							ok = P_Qc2->Set_(quot_list, 0, 0, false, false, 1) ? 1 : PPErrorZ();
 					}
 				}
 				break;
@@ -1907,7 +1907,7 @@ int PPViewQuot::EditItem(const BrwHdr * pHdr, int simple)
 				qary.GetQuot(qi, &quot);
 				if(EditQuotVal(&quot, Filt.QkCls) > 0) {
 					qary.SetQuot(qi, quot.Quot, quot.Flags, quot.MinQtty, &quot.Period);
-					THROW(ok = GObj.P_Tbl->SetQuotList(qary, 1));
+					THROW(ok = GObj.P_Tbl->SetQuotList(qary, false, 1));
 				}
 			}
 		}
@@ -1984,7 +1984,7 @@ int PPViewQuot::Recover()
 						if(rec.GoodsID != quot_list.GoodsID) {
 							if(quot_list.GoodsID) {
 								if(quot_list.Correct721(&logger) > 0) {
-									THROW(P_Qc->SetCurrList(quot_list, 0, 0, 0));
+									THROW(P_Qc->SetCurrList(quot_list, 0, false, 0));
 								}
 							}
 							quot_list.clear();
@@ -2016,7 +2016,7 @@ int PPViewQuot::Recover()
 				} while(P_Qc->search(2, &k2, spNext));
 				if(quot_list.GoodsID) {
 					if(quot_list.Correct721(&logger) > 0) {
-						THROW(P_Qc->SetCurrList(quot_list, 0, 0, 0));
+						THROW(P_Qc->SetCurrList(quot_list, 0, false, 0));
 					}
 				}
 			}

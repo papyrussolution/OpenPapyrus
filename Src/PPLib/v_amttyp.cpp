@@ -1,7 +1,6 @@
 // V_AMTTYP.CPP
-// Copyright (c) A.Starodub 2010, 2012, 2015, 2016, 2017, 2018, 2020, 2021
+// Copyright (c) A.Starodub 2010, 2012, 2015, 2016, 2017, 2018, 2020, 2021, 2022
 // @codepage UTF-8
-//
 // Типы сумм документа
 //
 #include <pp.h>
@@ -20,9 +19,9 @@ AmountTypeFilt & FASTCALL AmountTypeFilt::operator = (const AmountTypeFilt & s)
 	return *this;
 }
 
-int AmountTypeFilt::IsComplementary() const
+bool AmountTypeFilt::IsComplementary() const
 {
-	return BIN(Flags & (PPAmountType::fInAmount | PPAmountType::fOutAmount));
+	return LOGIC(Flags & (PPAmountType::fInAmount | PPAmountType::fOutAmount));
 }
 
 PPViewAmountType::PPViewAmountType() : 

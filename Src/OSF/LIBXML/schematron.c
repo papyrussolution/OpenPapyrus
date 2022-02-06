@@ -1239,21 +1239,17 @@ void xmlSchematronFreeValidCtxt(xmlSchematronValidCtxt * ctxt)
 static xmlNode * xmlSchematronNextNode(xmlNode * cur)
 {
 	if(cur->children) {
-		/*
-		 * Do not descend on entities declarations
-		 */
+		// Do not descend on entities declarations
 		if(cur->children->type != XML_ENTITY_DECL) {
 			cur = cur->children;
-			/*
-			 * Skip DTDs
-			 */
+			// Skip DTDs
 			if(cur->type != XML_DTD_NODE)
 				return cur;
 		}
 	}
 	while(cur->next) {
 		cur = cur->next;
-		if((cur->type != XML_ENTITY_DECL) && (cur->type != XML_DTD_NODE))
+		if(!oneof2(cur->type, XML_ENTITY_DECL, XML_DTD_NODE))
 			return cur;
 	}
 	do {

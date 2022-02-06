@@ -1,46 +1,33 @@
+// UCNVMBCS.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- *
- *   Copyright (C) 2000-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ******************************************************************************
- *   file name:  ucnvmbcs.cpp
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2000jul03
- *   created by: Markus W. Scherer
- *
- *   The current code in this file replaces the previous implementation
- *   of conversion code from multi-byte codepages to Unicode and back.
- *   This implementation supports the following:
- *   - legacy variable-length codepages with up to 4 bytes per character
- *   - all Unicode code points (up to 0x10ffff)
- *   - efficient distinction of unassigned vs. illegal byte sequences
- *   - it is possible in fromUnicode() to directly deal with simple
- *     stateful encodings (used for EBCDIC_STATEFUL)
- *   - it is possible to convert Unicode code points
- *     to a single zero byte (but not as a fallback except for SBCS)
- *
- *   Remaining limitations in fromUnicode:
- *   - byte sequences must not have leading zero bytes
- *   - except for SBCS codepages: no fallback mapping from Unicode to a zero byte
- *   - limitation to up to 4 bytes per character
- *
- *   ICU 2.8 (late 2003) adds a secondary data structure which lifts some of these
- *   limitations and adds m:n character mappings and other features.
- *   See ucnv_ext.h for details.
- *
- *   Change history:
- *
- *    5/6/2001       Ram       Moved  MBCS_SINGLE_RESULT_FROM_U,MBCS_STAGE_2_FROM_U,
- *          MBCS_VALUE_2_FROM_STAGE_2, MBCS_VALUE_4_FROM_STAGE_2
- *          macros to ucnvmbcs.h file
- */
+// Copyright (C) 2000-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2000jul03
+// created by: Markus W. Scherer
+// 
+// The current code in this file replaces the previous implementation
+// of conversion code from multi-byte codepages to Unicode and back.
+// This implementation supports the following:
+// - legacy variable-length codepages with up to 4 bytes per character
+// - all Unicode code points (up to 0x10ffff)
+// - efficient distinction of unassigned vs. illegal byte sequences
+// - it is possible in fromUnicode() to directly deal with simple
+//   stateful encodings (used for EBCDIC_STATEFUL)
+// - it is possible to convert Unicode code points
+//   to a single zero byte (but not as a fallback except for SBCS)
+// 
+// Remaining limitations in fromUnicode:
+// - byte sequences must not have leading zero bytes
+// - except for SBCS codepages: no fallback mapping from Unicode to a zero byte
+// - limitation to up to 4 bytes per character
+// 
+// ICU 2.8 (late 2003) adds a secondary data structure which lifts some of these
+// limitations and adds m:n character mappings and other features.
+// See ucnv_ext.h for details.
+// Change history:
+// 5/6/2001       Ram       Moved  MBCS_SINGLE_RESULT_FROM_U,MBCS_STAGE_2_FROM_U, MBCS_VALUE_2_FROM_STAGE_2, MBCS_VALUE_4_FROM_STAGE_2 macros to ucnvmbcs.h file
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -385,96 +372,65 @@ static void U_CALLCONV ucnv_MBCSOpen(UConverter * cnv,
 static UChar32 U_CALLCONV ucnv_MBCSGetNextUChar(UConverterToUnicodeArgs * pArgs,
     UErrorCode * pErrorCode);
 
-static void U_CALLCONV ucnv_MBCSGetStarters(const UConverter * cnv,
-    bool starters[256],
-    UErrorCode * pErrorCode);
-
+static void U_CALLCONV ucnv_MBCSGetStarters(const UConverter * cnv, bool starters[256], UErrorCode * pErrorCode);
 U_CDECL_BEGIN
 static const char * U_CALLCONV ucnv_MBCSGetName(const UConverter * cnv);
 U_CDECL_END
-
-static void U_CALLCONV ucnv_MBCSWriteSub(UConverterFromUnicodeArgs * pArgs,
-    int32_t offsetIndex,
-    UErrorCode * pErrorCode);
-
-static UChar32 U_CALLCONV ucnv_MBCSGetNextUChar(UConverterToUnicodeArgs * pArgs,
-    UErrorCode * pErrorCode);
-
-static void U_CALLCONV ucnv_SBCSFromUTF8(UConverterFromUnicodeArgs * pFromUArgs,
-    UConverterToUnicodeArgs * pToUArgs,
-    UErrorCode * pErrorCode);
-
-static void U_CALLCONV ucnv_MBCSGetUnicodeSet(const UConverter * cnv,
-    const USetAdder * sa,
-    UConverterUnicodeSet which,
-    UErrorCode * pErrorCode);
-
-static void U_CALLCONV ucnv_DBCSFromUTF8(UConverterFromUnicodeArgs * pFromUArgs,
-    UConverterToUnicodeArgs * pToUArgs,
-    UErrorCode * pErrorCode);
+static void U_CALLCONV ucnv_MBCSWriteSub(UConverterFromUnicodeArgs * pArgs, int32_t offsetIndex, UErrorCode * pErrorCode);
+static UChar32 U_CALLCONV ucnv_MBCSGetNextUChar(UConverterToUnicodeArgs * pArgs, UErrorCode * pErrorCode);
+static void U_CALLCONV ucnv_SBCSFromUTF8(UConverterFromUnicodeArgs * pFromUArgs, UConverterToUnicodeArgs * pToUArgs, UErrorCode * pErrorCode);
+static void U_CALLCONV ucnv_MBCSGetUnicodeSet(const UConverter * cnv, const USetAdder * sa, UConverterUnicodeSet which, UErrorCode * pErrorCode);
+static void U_CALLCONV ucnv_DBCSFromUTF8(UConverterFromUnicodeArgs * pFromUArgs, UConverterToUnicodeArgs * pToUArgs, UErrorCode * pErrorCode);
 
 static const UConverterImpl _SBCSUTF8Impl = {
 	UCNV_MBCS,
-
 	ucnv_MBCSLoad,
 	ucnv_MBCSUnload,
-
 	ucnv_MBCSOpen,
 	NULL,
 	NULL,
-
 	ucnv_MBCSToUnicodeWithOffsets,
 	ucnv_MBCSToUnicodeWithOffsets,
 	ucnv_MBCSFromUnicodeWithOffsets,
 	ucnv_MBCSFromUnicodeWithOffsets,
 	ucnv_MBCSGetNextUChar,
-
 	ucnv_MBCSGetStarters,
 	ucnv_MBCSGetName,
 	ucnv_MBCSWriteSub,
 	NULL,
 	ucnv_MBCSGetUnicodeSet,
-
 	NULL,
 	ucnv_SBCSFromUTF8
 };
 
 static const UConverterImpl _DBCSUTF8Impl = {
 	UCNV_MBCS,
-
 	ucnv_MBCSLoad,
 	ucnv_MBCSUnload,
-
 	ucnv_MBCSOpen,
 	NULL,
 	NULL,
-
 	ucnv_MBCSToUnicodeWithOffsets,
 	ucnv_MBCSToUnicodeWithOffsets,
 	ucnv_MBCSFromUnicodeWithOffsets,
 	ucnv_MBCSFromUnicodeWithOffsets,
 	ucnv_MBCSGetNextUChar,
-
 	ucnv_MBCSGetStarters,
 	ucnv_MBCSGetName,
 	ucnv_MBCSWriteSub,
 	NULL,
 	ucnv_MBCSGetUnicodeSet,
-
 	NULL,
 	ucnv_DBCSFromUTF8
 };
 
 static const UConverterImpl _MBCSImpl = {
 	UCNV_MBCS,
-
 	ucnv_MBCSLoad,
 	ucnv_MBCSUnload,
-
 	ucnv_MBCSOpen,
 	NULL,
 	NULL,
-
 	ucnv_MBCSToUnicodeWithOffsets,
 	ucnv_MBCSToUnicodeWithOffsets,
 	ucnv_MBCSFromUnicodeWithOffsets,
@@ -504,11 +460,8 @@ const UConverterSharedData _MBCSData = {
 
 /* helper macros for linear values for GB 18030 four-byte sequences */
 #define LINEAR_18030(a, b, c, d) ((((a)*10+(b))*126L+(c))*10L+(d))
-
 #define LINEAR_18030_BASE LINEAR_18030(0x81, 0x30, 0x81, 0x30)
-
 #define LINEAR(x) LINEAR_18030(x>>24, (x>>16)&0xff, (x>>8)&0xff, x&0xff)
-
 /*
  * Some ranges of GB 18030 where both the Unicode code points and the
  * GB four-byte sequences are contiguous and are handled algorithmically by
@@ -536,9 +489,7 @@ static const uint32_t
 	{0xFFE6, 0xFFFF, LINEAR(0x8431A234), LINEAR(0x8431A439)}
 };
 
-/* bit flag for UConverter.options indicating GB 18030 special handling */
-#define _MBCS_OPTION_GB18030 0x8000
-
+#define _MBCS_OPTION_GB18030 0x8000 /* bit flag for UConverter.options indicating GB 18030 special handling */
 /* bit flag for UConverter.options indicating KEIS,JEF,JIF special handling */
 #define _MBCS_OPTION_KEIS 0x01000
 #define _MBCS_OPTION_JEF  0x02000
@@ -564,9 +515,9 @@ enum SISO_Option {
 
 typedef enum SISO_Option SISO_Option;
 
-static int32_t getSISOBytes(SISO_Option option, uint32_t cnvOption, uint8 * value) {
+static int32_t getSISOBytes(SISO_Option option, uint32_t cnvOption, uint8 * value) 
+{
 	int32_t SISOLength = 0;
-
 	switch(option) {
 		case SI:
 		    if((cnvOption&_MBCS_OPTION_KEIS)!=0) {
@@ -619,23 +570,16 @@ static int32_t getSISOBytes(SISO_Option option, uint32_t cnvOption, uint8 * valu
 /* Miscellaneous ------------------------------------------------------------ */
 
 /* similar to ucnv_MBCSGetNextUChar() but recursive */
-static bool enumToU(UConverterMBCSTable * mbcsTable, int8_t stateProps[],
-    int32_t state, uint32_t offset,
-    uint32_t value,
-    UConverterEnumToUCallback * callback, const void * context,
-    UErrorCode * pErrorCode) {
+static bool enumToU(UConverterMBCSTable * mbcsTable, int8_t stateProps[], int32_t state, uint32_t offset,
+    uint32_t value, UConverterEnumToUCallback * callback, const void * context, UErrorCode * pErrorCode) 
+{
 	UChar32 codePoints[32];
-	const int32_t * row;
-	const uint16_t * unicodeCodeUnits;
 	UChar32 anyCodePoints;
 	int32_t b, limit;
-
-	row = mbcsTable->stateTable[state];
-	unicodeCodeUnits = mbcsTable->unicodeCodeUnits;
-
+	const int32_t * row = mbcsTable->stateTable[state];
+	const uint16_t * unicodeCodeUnits = mbcsTable->unicodeCodeUnits;
 	value <<= 8;
 	anyCodePoints = -1; /* becomes non-negative if there is a mapping */
-
 	b = (stateProps[state]&0x38)<<2;
 	if(b==0 && stateProps[state]>=0x40) {
 		/* skip byte sequences with leading zeros because they are not stored in the fromUnicode table */
@@ -662,13 +606,11 @@ static bool enumToU(UConverterMBCSTable * mbcsTable, int8_t stateProps[],
 		}
 		else {
 			UChar32 c;
-			int32_t action;
-
 			/*
 			 * An if-else-if chain provides more reliable performance for
 			 * the most common cases compared to a switch.
 			 */
-			action = MBCS_ENTRY_FINAL_ACTION(entry);
+			int32_t action = MBCS_ENTRY_FINAL_ACTION(entry);
 			if(action==MBCS_STATE_VALID_DIRECT_16) {
 				/* output BMP code point */
 				c = (UChar)MBCS_ENTRY_FINAL_VALUE_16(entry);
@@ -722,7 +664,6 @@ static bool enumToU(UConverterMBCSTable * mbcsTable, int8_t stateProps[],
 	}
 	return TRUE;
 }
-
 /*
  * Only called if stateProps[state]==-1.
  * A recursive call may do stateProps[state]|=0x40 if this state is the target of an
@@ -4963,10 +4904,7 @@ unassigned:
 	 *   EBCDIC_STATEFUL in DBCS mode
 	 *   end of input and no truncated input
 	 */
-	if(U_SUCCESS(*pErrorCode) &&
-	    outputType==MBCS_OUTPUT_2_SISO && prevLength==2 &&
-	    pArgs->flush && source>=sourceLimit && c==0
-	    ) {
+	if(U_SUCCESS(*pErrorCode) && outputType==MBCS_OUTPUT_2_SISO && prevLength==2 && pArgs->flush && source>=sourceLimit && c==0) {
 		/* EBCDIC_STATEFUL ending with DBCS: emit an SI to return the output stream to SBCS */
 		if(targetCapacity>0) {
 			*target++ = (uint8)siBytes[0];
@@ -5024,9 +4962,8 @@ unassigned:
  * the second to last byte in bits 15..8, etc.
  * Currently, the function assumes but does not check that 0<=c<=0x10ffff.
  */
-U_CFUNC int32_t ucnv_MBCSFromUChar32(UConverterSharedData * sharedData,
-    UChar32 c, uint32_t * pValue,
-    bool useFallback) {
+U_CFUNC int32_t ucnv_MBCSFromUChar32(UConverterSharedData * sharedData, UChar32 c, uint32_t * pValue, bool useFallback) 
+{
 	const int32_t * cx;
 	const uint16_t * table;
 #if 0
@@ -5036,11 +4973,9 @@ U_CFUNC int32_t ucnv_MBCSFromUChar32(UConverterSharedData * sharedData,
 	uint32_t stage2Entry;
 	uint32_t value;
 	int32_t length;
-
 	/* BMP-only codepages are stored without stage 1 entries for supplementary code points */
 	if(c<=0xffff || (sharedData->mbcs.unicodeMask&UCNV_HAS_SUPPLEMENTARY)) {
 		table = sharedData->mbcs.fromUnicodeTable;
-
 		/* convert the Unicode code point in c into codepage bytes (same as in _MBCSFromUnicodeWithOffsets) */
 		if(sharedData->mbcs.outputType==MBCS_OUTPUT_1) {
 			value = MBCS_SINGLE_RESULT_FROM_U(table, (uint16_t*)sharedData->mbcs.fromUnicodeBytes, c);
@@ -5052,7 +4987,6 @@ U_CFUNC int32_t ucnv_MBCSFromUChar32(UConverterSharedData * sharedData,
 		}
 		else { /* outputType!=MBCS_OUTPUT_1 */
 			stage2Entry = MBCS_STAGE_2_FROM_U(table, c);
-
 			/* get the bytes and the length for the output */
 			switch(sharedData->mbcs.outputType) {
 				case MBCS_OUTPUT_2:
@@ -5167,13 +5101,11 @@ U_CFUNC int32_t ucnv_MBCSFromUChar32(UConverterSharedData * sharedData,
 			}
 		}
 	}
-
 	cx = sharedData->mbcs.extIndexes;
-	if(cx!=NULL) {
+	if(cx) {
 		length = ucnv_extSimpleMatchFromU(cx, c, pValue, useFallback);
 		return length>=0 ? length : -length; /* return abs(length); */
 	}
-
 	/* unassigned */
 	return 0;
 }
@@ -5764,15 +5696,11 @@ moreBytes:
 						*pErrorCode = U_ILLEGAL_CHAR_FOUND;
 						return;
 					}
-
 					/* get the bytes and the length for the output */
 					/* MBCS_OUTPUT_2 */
 					value = MBCS_VALUE_2_FROM_STAGE_2(results, stage2Entry, c);
-
 					/* is this code point assigned, or do we use fallbacks? */
-					if(!(MBCS_FROM_U_IS_ROUNDTRIP(stage2Entry, c) ||
-					    (UCNV_FROM_U_USE_FALLBACK(cnv, c) && value!=0))
-					    ) {
+					if(!(MBCS_FROM_U_IS_ROUNDTRIP(stage2Entry, c) || (UCNV_FROM_U_USE_FALLBACK(cnv, c) && value!=0))) {
 						goto unassigned;
 					}
 				}
@@ -5794,7 +5722,6 @@ moreBytes:
 				else {
 					cnv->charErrorBuffer[0] = (char)value;
 					cnv->charErrorBufferLength = 1;
-
 					/* target overflow */
 					*pErrorCode = U_BUFFER_OVERFLOW_ERROR;
 					break;
@@ -5812,13 +5739,7 @@ unassigned:
 				 */
 				static const UChar nul = 0;
 				const UChar * noSource = &nul;
-				c = _extFromU(cnv, cnv->sharedData,
-					c, &noSource, noSource,
-					&target, target+targetCapacity,
-					NULL, -1,
-					pFromUArgs->flush,
-					pErrorCode);
-
+				c = _extFromU(cnv, cnv->sharedData, c, &noSource, noSource, &target, target+targetCapacity, NULL, -1, pFromUArgs->flush, pErrorCode);
 				if(U_FAILURE(*pErrorCode)) {
 					/* not mappable or buffer overflow */
 					cnv->fromUChar32 = c;
@@ -5855,9 +5776,7 @@ unassigned:
 	 * to stop before a truncated sequence.
 	 * If so, then collect the truncated sequence now.
 	 */
-	if(U_SUCCESS(*pErrorCode) &&
-	    cnv->preFromUFirstCP<0 &&
-	    source<(sourceLimit = (uint8 *)pToUArgs->sourceLimit)) {
+	if(U_SUCCESS(*pErrorCode) && cnv->preFromUFirstCP<0 && source<(sourceLimit = (uint8 *)pToUArgs->sourceLimit)) {
 		c = utf8->toUBytes[0] = b = *source++;
 		toULength = 1;
 		toULimit = U8_COUNT_BYTES(b);
@@ -5869,7 +5788,6 @@ unassigned:
 		utf8->toULength = toULength;
 		utf8->mode = toULimit;
 	}
-
 	/* write back the updated pointers */
 	pToUArgs->source = (char *)source;
 	pFromUArgs->target = (char *)target;
@@ -5877,24 +5795,20 @@ unassigned:
 
 /* miscellaneous ------------------------------------------------------------ */
 
-static void U_CALLCONV ucnv_MBCSGetStarters(const UConverter * cnv,
-    bool starters[256],
-    UErrorCode *) {
-	const int32_t * state0;
-	int i;
-
-	state0 = cnv->sharedData->mbcs.stateTable[cnv->sharedData->mbcs.dbcsOnlyState];
-	for(i = 0; i<256; ++i) {
+static void U_CALLCONV ucnv_MBCSGetStarters(const UConverter * cnv, bool starters[256], UErrorCode *) 
+{
+	const int32_t * state0 = cnv->sharedData->mbcs.stateTable[cnv->sharedData->mbcs.dbcsOnlyState];
+	for(int i = 0; i<256; ++i) {
 		/* all bytes that cause a state transition from state 0 are lead bytes */
 		starters[i] = (bool)MBCS_ENTRY_IS_TRANSITION(state0[i]);
 	}
 }
-
 /*
  * This is an internal function that allows other converter implementations
  * to check whether a byte is a lead byte.
  */
-U_CFUNC bool ucnv_MBCSIsLeadByte(UConverterSharedData * sharedData, char byte) {
+U_CFUNC bool ucnv_MBCSIsLeadByte(UConverterSharedData * sharedData, char byte) 
+{
 	return (bool)MBCS_ENTRY_IS_TRANSITION(sharedData->mbcs.stateTable[0][(uint8)byte]);
 }
 
@@ -5922,13 +5836,10 @@ static void U_CALLCONV ucnv_MBCSWriteSub(UConverterFromUnicodeArgs * pArgs,
 		subchar = (char *)cnv->subChars;
 		length = cnv->subCharLen;
 	}
-
 	/* reset the selector for the next code point */
 	cnv->useSubChar1 = FALSE;
-
 	if(cnv->sharedData->mbcs.outputType == MBCS_OUTPUT_2_SISO) {
 		p = buffer;
-
 		/* fromUnicodeStatus contains prevLength */
 		switch(length) {
 			case 1:

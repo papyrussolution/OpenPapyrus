@@ -682,23 +682,17 @@ static bool isValidOlsonID(const char * id) {
 	while(id[idx] && isNonDigit(id[idx]) && id[idx] != ',') {
 		idx++;
 	}
-
 	/* Allow at maximum 2 numbers at the end of the id to support zone id's
 	   like GMT+11. */
 	idxMax = idx + 2;
 	while(id[idx] && isDigit(id[idx]) && idx < idxMax) {
 		idx++;
 	}
-
 	/* If we went through the whole string, then it might be okay.
 	   The timezone is sometimes set to "CST-7CDT", "CST6CDT5,J129,J131/19:30",
 	   "GRNLNDST3GRNLNDDT" or similar, so we cannot use it.
 	   The rest of the time it could be an Olson ID. George */
-	return (bool)(id[idx] == 0
-	 || uprv_strcmp(id, "PST8PDT") == 0
-	 || uprv_strcmp(id, "MST7MDT") == 0
-	 || uprv_strcmp(id, "CST6CDT") == 0
-	 || uprv_strcmp(id, "EST5EDT") == 0);
+	return (bool)(id[idx] == 0 || uprv_strcmp(id, "PST8PDT") == 0 || uprv_strcmp(id, "MST7MDT") == 0 || uprv_strcmp(id, "CST6CDT") == 0 || uprv_strcmp(id, "EST5EDT") == 0);
 }
 
 /* On some Unix-like OS, 'posix' subdirectory in
@@ -713,9 +707,9 @@ static bool isValidOlsonID(const char * id) {
    fails because, say, 'posix/America/New_York' is not an Olson
    timezone id ('America/New_York' is). So, we have to skip
    'posix/' and 'right/' at the beginning. */
-static void skipZoneIDPrefix(const char ** id) {
-	if(uprv_strncmp(*id, "posix/", 6) == 0
-	 || uprv_strncmp(*id, "right/", 6) == 0) {
+static void skipZoneIDPrefix(const char ** id) 
+{
+	if(uprv_strncmp(*id, "posix/", 6) == 0 || uprv_strncmp(*id, "right/", 6) == 0) {
 		*id += 6;
 	}
 }
@@ -1355,19 +1349,18 @@ static BOOL U_CALLCONV getIcuDataDirectoryUnderWindowsDirectory(char * directory
 
 #endif
 
-static void U_CALLCONV dataDirectoryInitFn() {
+static void U_CALLCONV dataDirectoryInitFn() 
+{
 	/* If we already have the directory, then return immediately. Will happen if user called
 	 * u_setDataDirectory().
 	 */
 	if(gDataDirectory) {
 		return;
 	}
-
 	const char * path = NULL;
 #if defined(ICU_DATA_DIR_PREFIX_ENV_VAR)
 	char datadir_path_buffer[PATH_MAX];
 #endif
-
 	/*
 	   When ICU_NO_USER_DATA_OVERRIDE is defined, users aren't allowed to
 	   override ICU's data with the ICU_DATA environment variable. This prevents
@@ -1387,7 +1380,6 @@ static void U_CALLCONV dataDirectoryInitFn() {
 	path = getenv("ICU_DATA");
 #endif
 #   endif
-
 	/* ICU_DATA_DIR may be set as a compile option.
 	 * U_ICU_DATA_DEFAULT_DIR is provided and is set by ICU at compile time
 	 * and is used only when data is built in archive mode eliminating the need
@@ -1419,9 +1411,8 @@ static void U_CALLCONV dataDirectoryInitFn() {
 		path = datadir_path_buffer;
 	}
 #endif
-	if(path==NULL) {
-		/* It looks really bad, set it to something. */
-		path = "";
+	if(!path) {
+		path = ""; // It looks really bad, set it to something
 	}
 	u_setDataDirectory(path);
 	return;
@@ -1545,18 +1536,16 @@ static const char * uprv_getPOSIXIDForCategory(int category)
 		 * of NULL, will modify the libc behavior.
 		 */
 		posixID = setlocale(category, NULL);
-		if((posixID == 0)
-		 || (uprv_strcmp("C", posixID) == 0)
-		 || (uprv_strcmp("POSIX", posixID) == 0)) {
+		if((posixID == 0) || (uprv_strcmp("C", posixID) == 0) || (uprv_strcmp("POSIX", posixID) == 0)) {
 			/* Maybe we got some garbage.  Try something more reasonable */
 			posixID = getenv("LC_ALL");
 			/* Solaris speaks POSIX -  See IEEE Std 1003.1-2008
 			 * This is needed to properly handle empty env. variables
 			 */
 #if U_PLATFORM == U_PF_SOLARIS
-			if((posixID == 0) || (posixID[0] == '\0')) {
+			if(isempty(posixID)) {
 				posixID = getenv(category == LC_MESSAGES ? "LC_MESSAGES" : "LC_CTYPE");
-				if((posixID == 0) || (posixID[0] == '\0')) {
+				if(isempty(posixID)) {
 #else
 			if(posixID == 0) {
 				posixID = getenv(category == LC_MESSAGES ? "LC_MESSAGES" : "LC_CTYPE");
@@ -1567,9 +1556,7 @@ static const char * uprv_getPOSIXIDForCategory(int category)
 			}
 		}
 	}
-	if((posixID==0)
-	 || (uprv_strcmp("C", posixID) == 0)
-	 || (uprv_strcmp("POSIX", posixID) == 0)) {
+	if((posixID==0) || (uprv_strcmp("C", posixID) == 0) || (uprv_strcmp("POSIX", posixID) == 0)) {
 		/* Nothing worked.  Give it a nice POSIX default value. */
 		posixID = "en_US_POSIX";
 		// Note: this test will not catch 'C.UTF-8',
@@ -1653,7 +1640,6 @@ U_CAPI const char * U_EXPORT2 uprv_getDefaultLocaleID()
 		return nullptr;
 	}
 	uprv_strcpy(correctedPOSIXLocale, posixID);
-
 	char * limit;
 	if((limit = uprv_strchr(correctedPOSIXLocale, '.')) != nullptr) {
 		*limit = 0;
@@ -1661,7 +1647,6 @@ U_CAPI const char * U_EXPORT2 uprv_getDefaultLocaleID()
 	if((limit = uprv_strchr(correctedPOSIXLocale, '@')) != nullptr) {
 		*limit = 0;
 	}
-
 	if((uprv_strcmp("C", correctedPOSIXLocale) == 0) // no @ variant
 	 || (uprv_strcmp("POSIX", correctedPOSIXLocale) == 0)) {
 		// Raw input was C.* or POSIX.*, Give it a nice POSIX default value.
@@ -2004,7 +1989,7 @@ static const char * getCodepageFromPOSIXID(const char * localeName, char * buffe
 	const char * name = NULL;
 	char * variant = NULL;
 	if(localeName != NULL && (name = (uprv_strchr(localeName, '.'))) != NULL) {
-		size_t localeCapacity = uprv_min(sizeof(localeBuf), (name-localeName)+1);
+		size_t localeCapacity = smin(sizeof(localeBuf), (name-localeName)+1);
 		uprv_strncpy(localeBuf, localeName, localeCapacity);
 		localeBuf[localeCapacity-1] = 0; /* ensure NULL termination */
 		name = uprv_strncpy(buffer, name+1, buffCapacity);

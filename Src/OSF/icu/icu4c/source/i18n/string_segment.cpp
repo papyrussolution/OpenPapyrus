@@ -84,7 +84,7 @@ int32_t StringSegment::getCaseSensitivePrefixLength(const UnicodeString & other)
 int32_t StringSegment::getPrefixLengthInternal(const UnicodeString & other, bool foldCase) {
 	U_ASSERT(other.length() > 0);
 	int32_t offset = 0;
-	for(; offset < uprv_min(length(), other.length());) {
+	for(; offset < smin(length(), other.length());) {
 		// TODO: case-fold code points, not chars
 		char16_t c1 = charAt(offset);
 		char16_t c2 = other.charAt(offset);

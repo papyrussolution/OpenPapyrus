@@ -24,7 +24,7 @@ constexpr PhoneNumber::PhoneNumber(
   , italian_leading_zero_(false)
   , country_code_source_(0)
 
-  , number_of_leading_zeros_(1){}
+  , number_of_leading_zeros_(1) {}
 struct PhoneNumberDefaultTypeInternal {
 	constexpr PhoneNumberDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~PhoneNumberDefaultTypeInternal() {}

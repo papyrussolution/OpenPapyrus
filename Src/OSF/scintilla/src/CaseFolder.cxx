@@ -1,10 +1,9 @@
+// CaseFolder.cxx
 // Scintilla source code edit control
-/** @file CaseFolder.cxx
-** Classes for case folding.
-**/
 // Copyright 1998-2013 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
-
+// Classes for case folding.
+//
 #include <Platform.h>
 #include <Scintilla.h>
 #include <scintilla-internal.h>

@@ -356,8 +356,7 @@ class TestMessage_NestedMessage final :
   inline void Swap(TestMessage_NestedMessage* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -389,8 +388,7 @@ class TestMessage_NestedMessage final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -401,19 +399,16 @@ class TestMessage_NestedMessage final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "A.B.C.TestMessage.NestedMessage";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "A.B.C.TestMessage.NestedMessage"; }
   protected:
-  explicit TestMessage_NestedMessage(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestMessage_NestedMessage(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -503,8 +498,7 @@ class TestMessage final :
   inline void Swap(TestMessage* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -536,8 +530,7 @@ class TestMessage final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -548,19 +541,16 @@ class TestMessage final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "A.B.C.TestMessage";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "A.B.C.TestMessage"; }
   protected:
-  explicit TestMessage(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestMessage(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -781,7 +771,7 @@ class TestMessage final :
   std::string* mutable_repeated_string(int index);
   void set_repeated_string(int index, const std::string& value);
   void set_repeated_string(int index, std::string&& value);
-  void set_repeated_string(int index, const char* value);
+  void set_repeated_string(int index, const char * value);
   void set_repeated_string(int index, const char* value, size_t size);
   std::string* add_repeated_string();
   void add_repeated_string(const std::string& value);
@@ -805,7 +795,7 @@ class TestMessage final :
   std::string* mutable_repeated_bytes(int index);
   void set_repeated_bytes(int index, const std::string& value);
   void set_repeated_bytes(int index, std::string&& value);
-  void set_repeated_bytes(int index, const char* value);
+  void set_repeated_bytes(int index, const char * value);
   void set_repeated_bytes(int index, const void* value, size_t size);
   std::string* add_repeated_bytes();
   void add_repeated_bytes(const std::string& value);
@@ -1493,20 +1483,18 @@ class TestMessage final :
 inline void TestMessage_NestedMessage::clear_foo() {
   foo_ = 0;
 }
-inline int32_t TestMessage_NestedMessage::_internal_foo() const {
-  return foo_;
-}
+inline int32_t TestMessage_NestedMessage::_internal_foo() const { return foo_; }
 inline int32_t TestMessage_NestedMessage::foo() const {
-  // @@protoc_insertion_point(field_get:A.B.C.TestMessage.NestedMessage.foo)
-  return _internal_foo();
+	// @@protoc_insertion_point(field_get:A.B.C.TestMessage.NestedMessage.foo)
+	return _internal_foo();
 }
 inline void TestMessage_NestedMessage::_internal_set_foo(int32_t value) {
-  
-  foo_ = value;
+	
+	foo_ = value;
 }
 inline void TestMessage_NestedMessage::set_foo(int32_t value) {
-  _internal_set_foo(value);
-  // @@protoc_insertion_point(field_set:A.B.C.TestMessage.NestedMessage.foo)
+	_internal_set_foo(value);
+	// @@protoc_insertion_point(field_set:A.B.C.TestMessage.NestedMessage.foo)
 }
 
 // -------------------------------------------------------------------
@@ -1517,140 +1505,126 @@ inline void TestMessage_NestedMessage::set_foo(int32_t value) {
 inline void TestMessage::clear_optional_int32() {
   optional_int32_ = 0;
 }
-inline int32_t TestMessage::_internal_optional_int32() const {
-  return optional_int32_;
-}
+inline int32_t TestMessage::_internal_optional_int32() const { return optional_int32_; }
 inline int32_t TestMessage::optional_int32() const {
-  // @@protoc_insertion_point(field_get:A.B.C.TestMessage.optional_int32)
-  return _internal_optional_int32();
+	// @@protoc_insertion_point(field_get:A.B.C.TestMessage.optional_int32)
+	return _internal_optional_int32();
 }
 inline void TestMessage::_internal_set_optional_int32(int32_t value) {
-  
-  optional_int32_ = value;
+	
+	optional_int32_ = value;
 }
 inline void TestMessage::set_optional_int32(int32_t value) {
-  _internal_set_optional_int32(value);
-  // @@protoc_insertion_point(field_set:A.B.C.TestMessage.optional_int32)
+	_internal_set_optional_int32(value);
+	// @@protoc_insertion_point(field_set:A.B.C.TestMessage.optional_int32)
 }
 
 // int64 optional_int64 = 2;
 inline void TestMessage::clear_optional_int64() {
   optional_int64_ = int64_t{0};
 }
-inline int64_t TestMessage::_internal_optional_int64() const {
-  return optional_int64_;
-}
+inline int64_t TestMessage::_internal_optional_int64() const { return optional_int64_; }
 inline int64_t TestMessage::optional_int64() const {
-  // @@protoc_insertion_point(field_get:A.B.C.TestMessage.optional_int64)
-  return _internal_optional_int64();
+	// @@protoc_insertion_point(field_get:A.B.C.TestMessage.optional_int64)
+	return _internal_optional_int64();
 }
 inline void TestMessage::_internal_set_optional_int64(int64_t value) {
-  
-  optional_int64_ = value;
+	
+	optional_int64_ = value;
 }
 inline void TestMessage::set_optional_int64(int64_t value) {
-  _internal_set_optional_int64(value);
-  // @@protoc_insertion_point(field_set:A.B.C.TestMessage.optional_int64)
+	_internal_set_optional_int64(value);
+	// @@protoc_insertion_point(field_set:A.B.C.TestMessage.optional_int64)
 }
 
 // uint32 optional_uint32 = 3;
 inline void TestMessage::clear_optional_uint32() {
   optional_uint32_ = 0u;
 }
-inline uint32_t TestMessage::_internal_optional_uint32() const {
-  return optional_uint32_;
-}
+inline uint32_t TestMessage::_internal_optional_uint32() const { return optional_uint32_; }
 inline uint32_t TestMessage::optional_uint32() const {
-  // @@protoc_insertion_point(field_get:A.B.C.TestMessage.optional_uint32)
-  return _internal_optional_uint32();
+	// @@protoc_insertion_point(field_get:A.B.C.TestMessage.optional_uint32)
+	return _internal_optional_uint32();
 }
 inline void TestMessage::_internal_set_optional_uint32(uint32_t value) {
-  
-  optional_uint32_ = value;
+	
+	optional_uint32_ = value;
 }
 inline void TestMessage::set_optional_uint32(uint32_t value) {
-  _internal_set_optional_uint32(value);
-  // @@protoc_insertion_point(field_set:A.B.C.TestMessage.optional_uint32)
+	_internal_set_optional_uint32(value);
+	// @@protoc_insertion_point(field_set:A.B.C.TestMessage.optional_uint32)
 }
 
 // uint64 optional_uint64 = 4;
 inline void TestMessage::clear_optional_uint64() {
   optional_uint64_ = uint64_t{0u};
 }
-inline uint64_t TestMessage::_internal_optional_uint64() const {
-  return optional_uint64_;
-}
+inline uint64_t TestMessage::_internal_optional_uint64() const { return optional_uint64_; }
 inline uint64_t TestMessage::optional_uint64() const {
-  // @@protoc_insertion_point(field_get:A.B.C.TestMessage.optional_uint64)
-  return _internal_optional_uint64();
+	// @@protoc_insertion_point(field_get:A.B.C.TestMessage.optional_uint64)
+	return _internal_optional_uint64();
 }
 inline void TestMessage::_internal_set_optional_uint64(uint64_t value) {
-  
-  optional_uint64_ = value;
+	
+	optional_uint64_ = value;
 }
 inline void TestMessage::set_optional_uint64(uint64_t value) {
-  _internal_set_optional_uint64(value);
-  // @@protoc_insertion_point(field_set:A.B.C.TestMessage.optional_uint64)
+	_internal_set_optional_uint64(value);
+	// @@protoc_insertion_point(field_set:A.B.C.TestMessage.optional_uint64)
 }
 
 // bool optional_bool = 5;
 inline void TestMessage::clear_optional_bool() {
   optional_bool_ = false;
 }
-inline bool TestMessage::_internal_optional_bool() const {
-  return optional_bool_;
-}
+inline bool TestMessage::_internal_optional_bool() const { return optional_bool_; }
 inline bool TestMessage::optional_bool() const {
-  // @@protoc_insertion_point(field_get:A.B.C.TestMessage.optional_bool)
-  return _internal_optional_bool();
+	// @@protoc_insertion_point(field_get:A.B.C.TestMessage.optional_bool)
+	return _internal_optional_bool();
 }
 inline void TestMessage::_internal_set_optional_bool(bool value) {
-  
-  optional_bool_ = value;
+	
+	optional_bool_ = value;
 }
 inline void TestMessage::set_optional_bool(bool value) {
-  _internal_set_optional_bool(value);
-  // @@protoc_insertion_point(field_set:A.B.C.TestMessage.optional_bool)
+	_internal_set_optional_bool(value);
+	// @@protoc_insertion_point(field_set:A.B.C.TestMessage.optional_bool)
 }
 
 // double optional_double = 6;
 inline void TestMessage::clear_optional_double() {
   optional_double_ = 0;
 }
-inline double TestMessage::_internal_optional_double() const {
-  return optional_double_;
-}
+inline double TestMessage::_internal_optional_double() const { return optional_double_; }
 inline double TestMessage::optional_double() const {
-  // @@protoc_insertion_point(field_get:A.B.C.TestMessage.optional_double)
-  return _internal_optional_double();
+	// @@protoc_insertion_point(field_get:A.B.C.TestMessage.optional_double)
+	return _internal_optional_double();
 }
 inline void TestMessage::_internal_set_optional_double(double value) {
-  
-  optional_double_ = value;
+	
+	optional_double_ = value;
 }
 inline void TestMessage::set_optional_double(double value) {
-  _internal_set_optional_double(value);
-  // @@protoc_insertion_point(field_set:A.B.C.TestMessage.optional_double)
+	_internal_set_optional_double(value);
+	// @@protoc_insertion_point(field_set:A.B.C.TestMessage.optional_double)
 }
 
 // float optional_float = 7;
 inline void TestMessage::clear_optional_float() {
   optional_float_ = 0;
 }
-inline float TestMessage::_internal_optional_float() const {
-  return optional_float_;
-}
+inline float TestMessage::_internal_optional_float() const { return optional_float_; }
 inline float TestMessage::optional_float() const {
-  // @@protoc_insertion_point(field_get:A.B.C.TestMessage.optional_float)
-  return _internal_optional_float();
+	// @@protoc_insertion_point(field_get:A.B.C.TestMessage.optional_float)
+	return _internal_optional_float();
 }
 inline void TestMessage::_internal_set_optional_float(float value) {
-  
-  optional_float_ = value;
+	
+	optional_float_ = value;
 }
 inline void TestMessage::set_optional_float(float value) {
-  _internal_set_optional_float(value);
-  // @@protoc_insertion_point(field_set:A.B.C.TestMessage.optional_float)
+	_internal_set_optional_float(value);
+	// @@protoc_insertion_point(field_set:A.B.C.TestMessage.optional_float)
 }
 
 // string optional_string = 8;
@@ -1658,8 +1632,8 @@ inline void TestMessage::clear_optional_string() {
   optional_string_.ClearToEmpty();
 }
 inline const std::string& TestMessage::optional_string() const {
-  // @@protoc_insertion_point(field_get:A.B.C.TestMessage.optional_string)
-  return _internal_optional_string();
+	// @@protoc_insertion_point(field_get:A.B.C.TestMessage.optional_string)
+	return _internal_optional_string();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -1669,35 +1643,32 @@ void TestMessage::set_optional_string(ArgT0&& arg0, ArgT... args) {
   // @@protoc_insertion_point(field_set:A.B.C.TestMessage.optional_string)
 }
 inline std::string* TestMessage::mutable_optional_string() {
-  std::string* _s = _internal_mutable_optional_string();
-  // @@protoc_insertion_point(field_mutable:A.B.C.TestMessage.optional_string)
-  return _s;
+	std::string* _s = _internal_mutable_optional_string();
+	// @@protoc_insertion_point(field_mutable:A.B.C.TestMessage.optional_string)
+	return _s;
 }
-inline const std::string& TestMessage::_internal_optional_string() const {
-  return optional_string_.Get();
-}
+inline const std::string& TestMessage::_internal_optional_string() const { return optional_string_.Get(); }
 inline void TestMessage::_internal_set_optional_string(const std::string& value) {
-  
-  optional_string_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	
+	optional_string_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* TestMessage::_internal_mutable_optional_string() {
-  
-  return optional_string_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	
+	return optional_string_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* TestMessage::release_optional_string() {
   // @@protoc_insertion_point(field_release:A.B.C.TestMessage.optional_string)
   return optional_string_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 }
 inline void TestMessage::set_allocated_optional_string(std::string* optional_string) {
-  if (optional_string != nullptr) {
+  if(optional_string != nullptr) {
     
   } else {
     
   }
-  optional_string_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), optional_string,
-      GetArenaForAllocation());
+  optional_string_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), optional_string, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (optional_string_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(optional_string_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     optional_string_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -1709,8 +1680,8 @@ inline void TestMessage::clear_optional_bytes() {
   optional_bytes_.ClearToEmpty();
 }
 inline const std::string& TestMessage::optional_bytes() const {
-  // @@protoc_insertion_point(field_get:A.B.C.TestMessage.optional_bytes)
-  return _internal_optional_bytes();
+	// @@protoc_insertion_point(field_get:A.B.C.TestMessage.optional_bytes)
+	return _internal_optional_bytes();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -1720,35 +1691,32 @@ void TestMessage::set_optional_bytes(ArgT0&& arg0, ArgT... args) {
   // @@protoc_insertion_point(field_set:A.B.C.TestMessage.optional_bytes)
 }
 inline std::string* TestMessage::mutable_optional_bytes() {
-  std::string* _s = _internal_mutable_optional_bytes();
-  // @@protoc_insertion_point(field_mutable:A.B.C.TestMessage.optional_bytes)
-  return _s;
+	std::string* _s = _internal_mutable_optional_bytes();
+	// @@protoc_insertion_point(field_mutable:A.B.C.TestMessage.optional_bytes)
+	return _s;
 }
-inline const std::string& TestMessage::_internal_optional_bytes() const {
-  return optional_bytes_.Get();
-}
+inline const std::string& TestMessage::_internal_optional_bytes() const { return optional_bytes_.Get(); }
 inline void TestMessage::_internal_set_optional_bytes(const std::string& value) {
-  
-  optional_bytes_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	
+	optional_bytes_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* TestMessage::_internal_mutable_optional_bytes() {
-  
-  return optional_bytes_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	
+	return optional_bytes_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* TestMessage::release_optional_bytes() {
   // @@protoc_insertion_point(field_release:A.B.C.TestMessage.optional_bytes)
   return optional_bytes_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 }
 inline void TestMessage::set_allocated_optional_bytes(std::string* optional_bytes) {
-  if (optional_bytes != nullptr) {
+  if(optional_bytes != nullptr) {
     
   } else {
     
   }
-  optional_bytes_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), optional_bytes,
-      GetArenaForAllocation());
+  optional_bytes_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), optional_bytes, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (optional_bytes_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(optional_bytes_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     optional_bytes_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -1950,18 +1918,14 @@ inline void TestMessage::set_allocated_optional_proto2_submessage(::A::B::C::Tes
 }
 
 // repeated int32 repeated_int32 = 21;
-inline int TestMessage::_internal_repeated_int32_size() const {
-  return repeated_int32_.size();
-}
+inline int TestMessage::_internal_repeated_int32_size() const { return repeated_int32_.size(); }
 inline int TestMessage::repeated_int32_size() const {
   return _internal_repeated_int32_size();
 }
 inline void TestMessage::clear_repeated_int32() {
   repeated_int32_.Clear();
 }
-inline int32_t TestMessage::_internal_repeated_int32(int index) const {
-  return repeated_int32_.Get(index);
-}
+inline int32_t TestMessage::_internal_repeated_int32(int index) const { return repeated_int32_.Get(index); }
 inline int32_t TestMessage::repeated_int32(int index) const {
   // @@protoc_insertion_point(field_get:A.B.C.TestMessage.repeated_int32)
   return _internal_repeated_int32(index);
@@ -1970,9 +1934,7 @@ inline void TestMessage::set_repeated_int32(int index, int32_t value) {
   repeated_int32_.Set(index, value);
   // @@protoc_insertion_point(field_set:A.B.C.TestMessage.repeated_int32)
 }
-inline void TestMessage::_internal_add_repeated_int32(int32_t value) {
-  repeated_int32_.Add(value);
-}
+inline void TestMessage::_internal_add_repeated_int32(int32_t value) { repeated_int32_.Add(value); }
 inline void TestMessage::add_repeated_int32(int32_t value) {
   _internal_add_repeated_int32(value);
   // @@protoc_insertion_point(field_add:A.B.C.TestMessage.repeated_int32)
@@ -1997,18 +1959,14 @@ TestMessage::mutable_repeated_int32() {
 }
 
 // repeated int64 repeated_int64 = 22;
-inline int TestMessage::_internal_repeated_int64_size() const {
-  return repeated_int64_.size();
-}
+inline int TestMessage::_internal_repeated_int64_size() const { return repeated_int64_.size(); }
 inline int TestMessage::repeated_int64_size() const {
   return _internal_repeated_int64_size();
 }
 inline void TestMessage::clear_repeated_int64() {
   repeated_int64_.Clear();
 }
-inline int64_t TestMessage::_internal_repeated_int64(int index) const {
-  return repeated_int64_.Get(index);
-}
+inline int64_t TestMessage::_internal_repeated_int64(int index) const { return repeated_int64_.Get(index); }
 inline int64_t TestMessage::repeated_int64(int index) const {
   // @@protoc_insertion_point(field_get:A.B.C.TestMessage.repeated_int64)
   return _internal_repeated_int64(index);
@@ -2017,9 +1975,7 @@ inline void TestMessage::set_repeated_int64(int index, int64_t value) {
   repeated_int64_.Set(index, value);
   // @@protoc_insertion_point(field_set:A.B.C.TestMessage.repeated_int64)
 }
-inline void TestMessage::_internal_add_repeated_int64(int64_t value) {
-  repeated_int64_.Add(value);
-}
+inline void TestMessage::_internal_add_repeated_int64(int64_t value) { repeated_int64_.Add(value); }
 inline void TestMessage::add_repeated_int64(int64_t value) {
   _internal_add_repeated_int64(value);
   // @@protoc_insertion_point(field_add:A.B.C.TestMessage.repeated_int64)
@@ -2044,18 +2000,14 @@ TestMessage::mutable_repeated_int64() {
 }
 
 // repeated uint32 repeated_uint32 = 23;
-inline int TestMessage::_internal_repeated_uint32_size() const {
-  return repeated_uint32_.size();
-}
+inline int TestMessage::_internal_repeated_uint32_size() const { return repeated_uint32_.size(); }
 inline int TestMessage::repeated_uint32_size() const {
   return _internal_repeated_uint32_size();
 }
 inline void TestMessage::clear_repeated_uint32() {
   repeated_uint32_.Clear();
 }
-inline uint32_t TestMessage::_internal_repeated_uint32(int index) const {
-  return repeated_uint32_.Get(index);
-}
+inline uint32_t TestMessage::_internal_repeated_uint32(int index) const { return repeated_uint32_.Get(index); }
 inline uint32_t TestMessage::repeated_uint32(int index) const {
   // @@protoc_insertion_point(field_get:A.B.C.TestMessage.repeated_uint32)
   return _internal_repeated_uint32(index);
@@ -2064,9 +2016,7 @@ inline void TestMessage::set_repeated_uint32(int index, uint32_t value) {
   repeated_uint32_.Set(index, value);
   // @@protoc_insertion_point(field_set:A.B.C.TestMessage.repeated_uint32)
 }
-inline void TestMessage::_internal_add_repeated_uint32(uint32_t value) {
-  repeated_uint32_.Add(value);
-}
+inline void TestMessage::_internal_add_repeated_uint32(uint32_t value) { repeated_uint32_.Add(value); }
 inline void TestMessage::add_repeated_uint32(uint32_t value) {
   _internal_add_repeated_uint32(value);
   // @@protoc_insertion_point(field_add:A.B.C.TestMessage.repeated_uint32)
@@ -2091,18 +2041,14 @@ TestMessage::mutable_repeated_uint32() {
 }
 
 // repeated uint64 repeated_uint64 = 24;
-inline int TestMessage::_internal_repeated_uint64_size() const {
-  return repeated_uint64_.size();
-}
+inline int TestMessage::_internal_repeated_uint64_size() const { return repeated_uint64_.size(); }
 inline int TestMessage::repeated_uint64_size() const {
   return _internal_repeated_uint64_size();
 }
 inline void TestMessage::clear_repeated_uint64() {
   repeated_uint64_.Clear();
 }
-inline uint64_t TestMessage::_internal_repeated_uint64(int index) const {
-  return repeated_uint64_.Get(index);
-}
+inline uint64_t TestMessage::_internal_repeated_uint64(int index) const { return repeated_uint64_.Get(index); }
 inline uint64_t TestMessage::repeated_uint64(int index) const {
   // @@protoc_insertion_point(field_get:A.B.C.TestMessage.repeated_uint64)
   return _internal_repeated_uint64(index);
@@ -2111,9 +2057,7 @@ inline void TestMessage::set_repeated_uint64(int index, uint64_t value) {
   repeated_uint64_.Set(index, value);
   // @@protoc_insertion_point(field_set:A.B.C.TestMessage.repeated_uint64)
 }
-inline void TestMessage::_internal_add_repeated_uint64(uint64_t value) {
-  repeated_uint64_.Add(value);
-}
+inline void TestMessage::_internal_add_repeated_uint64(uint64_t value) { repeated_uint64_.Add(value); }
 inline void TestMessage::add_repeated_uint64(uint64_t value) {
   _internal_add_repeated_uint64(value);
   // @@protoc_insertion_point(field_add:A.B.C.TestMessage.repeated_uint64)
@@ -2138,18 +2082,14 @@ TestMessage::mutable_repeated_uint64() {
 }
 
 // repeated bool repeated_bool = 25;
-inline int TestMessage::_internal_repeated_bool_size() const {
-  return repeated_bool_.size();
-}
+inline int TestMessage::_internal_repeated_bool_size() const { return repeated_bool_.size(); }
 inline int TestMessage::repeated_bool_size() const {
   return _internal_repeated_bool_size();
 }
 inline void TestMessage::clear_repeated_bool() {
   repeated_bool_.Clear();
 }
-inline bool TestMessage::_internal_repeated_bool(int index) const {
-  return repeated_bool_.Get(index);
-}
+inline bool TestMessage::_internal_repeated_bool(int index) const { return repeated_bool_.Get(index); }
 inline bool TestMessage::repeated_bool(int index) const {
   // @@protoc_insertion_point(field_get:A.B.C.TestMessage.repeated_bool)
   return _internal_repeated_bool(index);
@@ -2158,9 +2098,7 @@ inline void TestMessage::set_repeated_bool(int index, bool value) {
   repeated_bool_.Set(index, value);
   // @@protoc_insertion_point(field_set:A.B.C.TestMessage.repeated_bool)
 }
-inline void TestMessage::_internal_add_repeated_bool(bool value) {
-  repeated_bool_.Add(value);
-}
+inline void TestMessage::_internal_add_repeated_bool(bool value) { repeated_bool_.Add(value); }
 inline void TestMessage::add_repeated_bool(bool value) {
   _internal_add_repeated_bool(value);
   // @@protoc_insertion_point(field_add:A.B.C.TestMessage.repeated_bool)
@@ -2185,18 +2123,14 @@ TestMessage::mutable_repeated_bool() {
 }
 
 // repeated double repeated_double = 26;
-inline int TestMessage::_internal_repeated_double_size() const {
-  return repeated_double_.size();
-}
+inline int TestMessage::_internal_repeated_double_size() const { return repeated_double_.size(); }
 inline int TestMessage::repeated_double_size() const {
   return _internal_repeated_double_size();
 }
 inline void TestMessage::clear_repeated_double() {
   repeated_double_.Clear();
 }
-inline double TestMessage::_internal_repeated_double(int index) const {
-  return repeated_double_.Get(index);
-}
+inline double TestMessage::_internal_repeated_double(int index) const { return repeated_double_.Get(index); }
 inline double TestMessage::repeated_double(int index) const {
   // @@protoc_insertion_point(field_get:A.B.C.TestMessage.repeated_double)
   return _internal_repeated_double(index);
@@ -2205,9 +2139,7 @@ inline void TestMessage::set_repeated_double(int index, double value) {
   repeated_double_.Set(index, value);
   // @@protoc_insertion_point(field_set:A.B.C.TestMessage.repeated_double)
 }
-inline void TestMessage::_internal_add_repeated_double(double value) {
-  repeated_double_.Add(value);
-}
+inline void TestMessage::_internal_add_repeated_double(double value) { repeated_double_.Add(value); }
 inline void TestMessage::add_repeated_double(double value) {
   _internal_add_repeated_double(value);
   // @@protoc_insertion_point(field_add:A.B.C.TestMessage.repeated_double)
@@ -2232,18 +2164,14 @@ TestMessage::mutable_repeated_double() {
 }
 
 // repeated float repeated_float = 27;
-inline int TestMessage::_internal_repeated_float_size() const {
-  return repeated_float_.size();
-}
+inline int TestMessage::_internal_repeated_float_size() const { return repeated_float_.size(); }
 inline int TestMessage::repeated_float_size() const {
   return _internal_repeated_float_size();
 }
 inline void TestMessage::clear_repeated_float() {
   repeated_float_.Clear();
 }
-inline float TestMessage::_internal_repeated_float(int index) const {
-  return repeated_float_.Get(index);
-}
+inline float TestMessage::_internal_repeated_float(int index) const { return repeated_float_.Get(index); }
 inline float TestMessage::repeated_float(int index) const {
   // @@protoc_insertion_point(field_get:A.B.C.TestMessage.repeated_float)
   return _internal_repeated_float(index);
@@ -2252,9 +2180,7 @@ inline void TestMessage::set_repeated_float(int index, float value) {
   repeated_float_.Set(index, value);
   // @@protoc_insertion_point(field_set:A.B.C.TestMessage.repeated_float)
 }
-inline void TestMessage::_internal_add_repeated_float(float value) {
-  repeated_float_.Add(value);
-}
+inline void TestMessage::_internal_add_repeated_float(float value) { repeated_float_.Add(value); }
 inline void TestMessage::add_repeated_float(float value) {
   _internal_add_repeated_float(value);
   // @@protoc_insertion_point(field_add:A.B.C.TestMessage.repeated_float)
@@ -2279,9 +2205,7 @@ TestMessage::mutable_repeated_float() {
 }
 
 // repeated string repeated_string = 28;
-inline int TestMessage::_internal_repeated_string_size() const {
-  return repeated_string_.size();
-}
+inline int TestMessage::_internal_repeated_string_size() const { return repeated_string_.size(); }
 inline int TestMessage::repeated_string_size() const {
   return _internal_repeated_string_size();
 }
@@ -2293,9 +2217,7 @@ inline std::string* TestMessage::add_repeated_string() {
   // @@protoc_insertion_point(field_add_mutable:A.B.C.TestMessage.repeated_string)
   return _s;
 }
-inline const std::string& TestMessage::_internal_repeated_string(int index) const {
-  return repeated_string_.Get(index);
-}
+inline const std::string& TestMessage::_internal_repeated_string(int index) const { return repeated_string_.Get(index); }
 inline const std::string& TestMessage::repeated_string(int index) const {
   // @@protoc_insertion_point(field_get:A.B.C.TestMessage.repeated_string)
   return _internal_repeated_string(index);
@@ -2322,9 +2244,7 @@ inline void TestMessage::set_repeated_string(int index, const char* value, size_
     reinterpret_cast<const char*>(value), size);
   // @@protoc_insertion_point(field_set_pointer:A.B.C.TestMessage.repeated_string)
 }
-inline std::string* TestMessage::_internal_add_repeated_string() {
-  return repeated_string_.Add();
-}
+inline std::string* TestMessage::_internal_add_repeated_string() { return repeated_string_.Add(); }
 inline void TestMessage::add_repeated_string(const std::string& value) {
   repeated_string_.Add()->assign(value);
   // @@protoc_insertion_point(field_add:A.B.C.TestMessage.repeated_string)
@@ -2354,9 +2274,7 @@ TestMessage::mutable_repeated_string() {
 }
 
 // repeated bytes repeated_bytes = 29;
-inline int TestMessage::_internal_repeated_bytes_size() const {
-  return repeated_bytes_.size();
-}
+inline int TestMessage::_internal_repeated_bytes_size() const { return repeated_bytes_.size(); }
 inline int TestMessage::repeated_bytes_size() const {
   return _internal_repeated_bytes_size();
 }
@@ -2368,9 +2286,7 @@ inline std::string* TestMessage::add_repeated_bytes() {
   // @@protoc_insertion_point(field_add_mutable:A.B.C.TestMessage.repeated_bytes)
   return _s;
 }
-inline const std::string& TestMessage::_internal_repeated_bytes(int index) const {
-  return repeated_bytes_.Get(index);
-}
+inline const std::string& TestMessage::_internal_repeated_bytes(int index) const { return repeated_bytes_.Get(index); }
 inline const std::string& TestMessage::repeated_bytes(int index) const {
   // @@protoc_insertion_point(field_get:A.B.C.TestMessage.repeated_bytes)
   return _internal_repeated_bytes(index);
@@ -2397,9 +2313,7 @@ inline void TestMessage::set_repeated_bytes(int index, const void* value, size_t
     reinterpret_cast<const char*>(value), size);
   // @@protoc_insertion_point(field_set_pointer:A.B.C.TestMessage.repeated_bytes)
 }
-inline std::string* TestMessage::_internal_add_repeated_bytes() {
-  return repeated_bytes_.Add();
-}
+inline std::string* TestMessage::_internal_add_repeated_bytes() { return repeated_bytes_.Add(); }
 inline void TestMessage::add_repeated_bytes(const std::string& value) {
   repeated_bytes_.Add()->assign(value);
   // @@protoc_insertion_point(field_add:A.B.C.TestMessage.repeated_bytes)
@@ -2429,9 +2343,7 @@ TestMessage::mutable_repeated_bytes() {
 }
 
 // repeated .A.B.C.TestEnum repeated_enum = 30;
-inline int TestMessage::_internal_repeated_enum_size() const {
-  return repeated_enum_.size();
-}
+inline int TestMessage::_internal_repeated_enum_size() const { return repeated_enum_.size(); }
 inline int TestMessage::repeated_enum_size() const {
   return _internal_repeated_enum_size();
 }
@@ -2470,9 +2382,7 @@ TestMessage::mutable_repeated_enum() {
 }
 
 // repeated .A.B.C.TestMessage repeated_msg = 31;
-inline int TestMessage::_internal_repeated_msg_size() const {
-  return repeated_msg_.size();
-}
+inline int TestMessage::_internal_repeated_msg_size() const { return repeated_msg_.size(); }
 inline int TestMessage::repeated_msg_size() const {
   return _internal_repeated_msg_size();
 }
@@ -2526,17 +2436,14 @@ inline void TestMessage::clear_oneof_int32() {
   }
 }
 inline int32_t TestMessage::_internal_oneof_int32() const {
-  if (_internal_has_oneof_int32()) {
-    return my_oneof_.oneof_int32_;
-  }
-  return 0;
+	return _internal_has_oneof_int32() ? my_oneof_.oneof_int32_ : 0;
 }
 inline void TestMessage::_internal_set_oneof_int32(int32_t value) {
-  if (!_internal_has_oneof_int32()) {
-    clear_my_oneof();
-    set_has_oneof_int32();
-  }
-  my_oneof_.oneof_int32_ = value;
+	if(!_internal_has_oneof_int32()) {
+		clear_my_oneof();
+		set_has_oneof_int32();
+	}
+	my_oneof_.oneof_int32_ = value;
 }
 inline int32_t TestMessage::oneof_int32() const {
   // @@protoc_insertion_point(field_get:A.B.C.TestMessage.oneof_int32)
@@ -2564,17 +2471,14 @@ inline void TestMessage::clear_oneof_int64() {
   }
 }
 inline int64_t TestMessage::_internal_oneof_int64() const {
-  if (_internal_has_oneof_int64()) {
-    return my_oneof_.oneof_int64_;
-  }
-  return int64_t{0};
+	return _internal_has_oneof_int64() ? my_oneof_.oneof_int64_ : int64_t{0};
 }
 inline void TestMessage::_internal_set_oneof_int64(int64_t value) {
-  if (!_internal_has_oneof_int64()) {
-    clear_my_oneof();
-    set_has_oneof_int64();
-  }
-  my_oneof_.oneof_int64_ = value;
+	if(!_internal_has_oneof_int64()) {
+		clear_my_oneof();
+		set_has_oneof_int64();
+	}
+	my_oneof_.oneof_int64_ = value;
 }
 inline int64_t TestMessage::oneof_int64() const {
   // @@protoc_insertion_point(field_get:A.B.C.TestMessage.oneof_int64)
@@ -2602,17 +2506,14 @@ inline void TestMessage::clear_oneof_uint32() {
   }
 }
 inline uint32_t TestMessage::_internal_oneof_uint32() const {
-  if (_internal_has_oneof_uint32()) {
-    return my_oneof_.oneof_uint32_;
-  }
-  return 0u;
+	return _internal_has_oneof_uint32() ? my_oneof_.oneof_uint32_ : 0u;
 }
 inline void TestMessage::_internal_set_oneof_uint32(uint32_t value) {
-  if (!_internal_has_oneof_uint32()) {
-    clear_my_oneof();
-    set_has_oneof_uint32();
-  }
-  my_oneof_.oneof_uint32_ = value;
+	if(!_internal_has_oneof_uint32()) {
+		clear_my_oneof();
+		set_has_oneof_uint32();
+	}
+	my_oneof_.oneof_uint32_ = value;
 }
 inline uint32_t TestMessage::oneof_uint32() const {
   // @@protoc_insertion_point(field_get:A.B.C.TestMessage.oneof_uint32)
@@ -2640,17 +2541,14 @@ inline void TestMessage::clear_oneof_uint64() {
   }
 }
 inline uint64_t TestMessage::_internal_oneof_uint64() const {
-  if (_internal_has_oneof_uint64()) {
-    return my_oneof_.oneof_uint64_;
-  }
-  return uint64_t{0u};
+	return _internal_has_oneof_uint64() ? my_oneof_.oneof_uint64_ : uint64_t{0u};
 }
 inline void TestMessage::_internal_set_oneof_uint64(uint64_t value) {
-  if (!_internal_has_oneof_uint64()) {
-    clear_my_oneof();
-    set_has_oneof_uint64();
-  }
-  my_oneof_.oneof_uint64_ = value;
+	if(!_internal_has_oneof_uint64()) {
+		clear_my_oneof();
+		set_has_oneof_uint64();
+	}
+	my_oneof_.oneof_uint64_ = value;
 }
 inline uint64_t TestMessage::oneof_uint64() const {
   // @@protoc_insertion_point(field_get:A.B.C.TestMessage.oneof_uint64)
@@ -2678,17 +2576,14 @@ inline void TestMessage::clear_oneof_bool() {
   }
 }
 inline bool TestMessage::_internal_oneof_bool() const {
-  if (_internal_has_oneof_bool()) {
-    return my_oneof_.oneof_bool_;
-  }
-  return false;
+	return _internal_has_oneof_bool() ? my_oneof_.oneof_bool_ : false;
 }
 inline void TestMessage::_internal_set_oneof_bool(bool value) {
-  if (!_internal_has_oneof_bool()) {
-    clear_my_oneof();
-    set_has_oneof_bool();
-  }
-  my_oneof_.oneof_bool_ = value;
+	if(!_internal_has_oneof_bool()) {
+		clear_my_oneof();
+		set_has_oneof_bool();
+	}
+	my_oneof_.oneof_bool_ = value;
 }
 inline bool TestMessage::oneof_bool() const {
   // @@protoc_insertion_point(field_get:A.B.C.TestMessage.oneof_bool)
@@ -2716,17 +2611,14 @@ inline void TestMessage::clear_oneof_double() {
   }
 }
 inline double TestMessage::_internal_oneof_double() const {
-  if (_internal_has_oneof_double()) {
-    return my_oneof_.oneof_double_;
-  }
-  return 0;
+	return _internal_has_oneof_double() ? my_oneof_.oneof_double_ : 0;
 }
 inline void TestMessage::_internal_set_oneof_double(double value) {
-  if (!_internal_has_oneof_double()) {
-    clear_my_oneof();
-    set_has_oneof_double();
-  }
-  my_oneof_.oneof_double_ = value;
+	if(!_internal_has_oneof_double()) {
+		clear_my_oneof();
+		set_has_oneof_double();
+	}
+	my_oneof_.oneof_double_ = value;
 }
 inline double TestMessage::oneof_double() const {
   // @@protoc_insertion_point(field_get:A.B.C.TestMessage.oneof_double)
@@ -2754,17 +2646,14 @@ inline void TestMessage::clear_oneof_float() {
   }
 }
 inline float TestMessage::_internal_oneof_float() const {
-  if (_internal_has_oneof_float()) {
-    return my_oneof_.oneof_float_;
-  }
-  return 0;
+	return _internal_has_oneof_float() ? my_oneof_.oneof_float_ : 0;
 }
 inline void TestMessage::_internal_set_oneof_float(float value) {
-  if (!_internal_has_oneof_float()) {
-    clear_my_oneof();
-    set_has_oneof_float();
-  }
-  my_oneof_.oneof_float_ = value;
+	if(!_internal_has_oneof_float()) {
+		clear_my_oneof();
+		set_has_oneof_float();
+	}
+	my_oneof_.oneof_float_ = value;
 }
 inline float TestMessage::oneof_float() const {
   // @@protoc_insertion_point(field_get:A.B.C.TestMessage.oneof_float)
@@ -2797,7 +2686,7 @@ inline const std::string& TestMessage::oneof_string() const {
 }
 template <typename ArgT0, typename... ArgT>
 inline void TestMessage::set_oneof_string(ArgT0&& arg0, ArgT... args) {
-  if (!_internal_has_oneof_string()) {
+  if(!_internal_has_oneof_string()) {
     clear_my_oneof();
     set_has_oneof_string();
     my_oneof_.oneof_string_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
@@ -2811,13 +2700,13 @@ inline std::string* TestMessage::mutable_oneof_string() {
   return _s;
 }
 inline const std::string& TestMessage::_internal_oneof_string() const {
-  if (_internal_has_oneof_string()) {
+  if(_internal_has_oneof_string()) {
     return my_oneof_.oneof_string_.Get();
   }
   return ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited();
 }
 inline void TestMessage::_internal_set_oneof_string(const std::string& value) {
-  if (!_internal_has_oneof_string()) {
+  if(!_internal_has_oneof_string()) {
     clear_my_oneof();
     set_has_oneof_string();
     my_oneof_.oneof_string_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
@@ -2825,17 +2714,16 @@ inline void TestMessage::_internal_set_oneof_string(const std::string& value) {
   my_oneof_.oneof_string_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* TestMessage::_internal_mutable_oneof_string() {
-  if (!_internal_has_oneof_string()) {
+  if(!_internal_has_oneof_string()) {
     clear_my_oneof();
     set_has_oneof_string();
     my_oneof_.oneof_string_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   }
-  return my_oneof_.oneof_string_.Mutable(
-      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+  return my_oneof_.oneof_string_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* TestMessage::release_oneof_string() {
   // @@protoc_insertion_point(field_release:A.B.C.TestMessage.oneof_string)
-  if (_internal_has_oneof_string()) {
+  if(_internal_has_oneof_string()) {
     clear_has_my_oneof();
     return my_oneof_.oneof_string_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
   } else {
@@ -2843,14 +2731,14 @@ inline std::string* TestMessage::release_oneof_string() {
   }
 }
 inline void TestMessage::set_allocated_oneof_string(std::string* oneof_string) {
-  if (has_my_oneof()) {
+  if(has_my_oneof()) {
     clear_my_oneof();
   }
-  if (oneof_string != nullptr) {
+  if(oneof_string != nullptr) {
     set_has_oneof_string();
     my_oneof_.oneof_string_.UnsafeSetDefault(oneof_string);
     ::PROTOBUF_NAMESPACE_ID::Arena* arena = GetArenaForAllocation();
-    if (arena != nullptr) {
+    if(arena != nullptr) {
       arena->Own(oneof_string);
     }
   }
@@ -2879,7 +2767,7 @@ inline const std::string& TestMessage::oneof_bytes() const {
 }
 template <typename ArgT0, typename... ArgT>
 inline void TestMessage::set_oneof_bytes(ArgT0&& arg0, ArgT... args) {
-  if (!_internal_has_oneof_bytes()) {
+  if(!_internal_has_oneof_bytes()) {
     clear_my_oneof();
     set_has_oneof_bytes();
     my_oneof_.oneof_bytes_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
@@ -2893,13 +2781,13 @@ inline std::string* TestMessage::mutable_oneof_bytes() {
   return _s;
 }
 inline const std::string& TestMessage::_internal_oneof_bytes() const {
-  if (_internal_has_oneof_bytes()) {
+  if(_internal_has_oneof_bytes()) {
     return my_oneof_.oneof_bytes_.Get();
   }
   return ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited();
 }
 inline void TestMessage::_internal_set_oneof_bytes(const std::string& value) {
-  if (!_internal_has_oneof_bytes()) {
+  if(!_internal_has_oneof_bytes()) {
     clear_my_oneof();
     set_has_oneof_bytes();
     my_oneof_.oneof_bytes_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
@@ -2907,17 +2795,16 @@ inline void TestMessage::_internal_set_oneof_bytes(const std::string& value) {
   my_oneof_.oneof_bytes_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* TestMessage::_internal_mutable_oneof_bytes() {
-  if (!_internal_has_oneof_bytes()) {
+  if(!_internal_has_oneof_bytes()) {
     clear_my_oneof();
     set_has_oneof_bytes();
     my_oneof_.oneof_bytes_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   }
-  return my_oneof_.oneof_bytes_.Mutable(
-      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+  return my_oneof_.oneof_bytes_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* TestMessage::release_oneof_bytes() {
   // @@protoc_insertion_point(field_release:A.B.C.TestMessage.oneof_bytes)
-  if (_internal_has_oneof_bytes()) {
+  if(_internal_has_oneof_bytes()) {
     clear_has_my_oneof();
     return my_oneof_.oneof_bytes_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
   } else {
@@ -2925,14 +2812,14 @@ inline std::string* TestMessage::release_oneof_bytes() {
   }
 }
 inline void TestMessage::set_allocated_oneof_bytes(std::string* oneof_bytes) {
-  if (has_my_oneof()) {
+  if(has_my_oneof()) {
     clear_my_oneof();
   }
-  if (oneof_bytes != nullptr) {
+  if(oneof_bytes != nullptr) {
     set_has_oneof_bytes();
     my_oneof_.oneof_bytes_.UnsafeSetDefault(oneof_bytes);
     ::PROTOBUF_NAMESPACE_ID::Arena* arena = GetArenaForAllocation();
-    if (arena != nullptr) {
+    if(arena != nullptr) {
       arena->Own(oneof_bytes);
     }
   }
@@ -2997,10 +2884,10 @@ inline void TestMessage::clear_oneof_msg() {
 }
 inline ::A::B::C::TestMessage* TestMessage::release_oneof_msg() {
   // @@protoc_insertion_point(field_release:A.B.C.TestMessage.oneof_msg)
-  if (_internal_has_oneof_msg()) {
+  if(_internal_has_oneof_msg()) {
     clear_has_my_oneof();
       ::A::B::C::TestMessage* temp = my_oneof_.oneof_msg_;
-    if (GetArenaForAllocation() != nullptr) {
+    if(GetArenaForAllocation() != nullptr) {
       temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
     }
     my_oneof_.oneof_msg_ = nullptr;
@@ -3009,18 +2896,14 @@ inline ::A::B::C::TestMessage* TestMessage::release_oneof_msg() {
     return nullptr;
   }
 }
-inline const ::A::B::C::TestMessage& TestMessage::_internal_oneof_msg() const {
-  return _internal_has_oneof_msg()
-      ? *my_oneof_.oneof_msg_
-      : reinterpret_cast< ::A::B::C::TestMessage&>(::A::B::C::_TestMessage_default_instance_);
-}
+inline const ::A::B::C::TestMessage& TestMessage::_internal_oneof_msg() const { return _internal_has_oneof_msg() ? *my_oneof_.oneof_msg_ : reinterpret_cast< ::A::B::C::TestMessage&>(::A::B::C::_TestMessage_default_instance_); }
 inline const ::A::B::C::TestMessage& TestMessage::oneof_msg() const {
   // @@protoc_insertion_point(field_get:A.B.C.TestMessage.oneof_msg)
   return _internal_oneof_msg();
 }
 inline ::A::B::C::TestMessage* TestMessage::unsafe_arena_release_oneof_msg() {
   // @@protoc_insertion_point(field_unsafe_arena_release:A.B.C.TestMessage.oneof_msg)
-  if (_internal_has_oneof_msg()) {
+  if(_internal_has_oneof_msg()) {
     clear_has_my_oneof();
     ::A::B::C::TestMessage* temp = my_oneof_.oneof_msg_;
     my_oneof_.oneof_msg_ = nullptr;
@@ -3031,14 +2914,14 @@ inline ::A::B::C::TestMessage* TestMessage::unsafe_arena_release_oneof_msg() {
 }
 inline void TestMessage::unsafe_arena_set_allocated_oneof_msg(::A::B::C::TestMessage* oneof_msg) {
   clear_my_oneof();
-  if (oneof_msg) {
+  if(oneof_msg) {
     set_has_oneof_msg();
     my_oneof_.oneof_msg_ = oneof_msg;
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:A.B.C.TestMessage.oneof_msg)
 }
 inline ::A::B::C::TestMessage* TestMessage::_internal_mutable_oneof_msg() {
-  if (!_internal_has_oneof_msg()) {
+  if(!_internal_has_oneof_msg()) {
     clear_my_oneof();
     set_has_oneof_msg();
     my_oneof_.oneof_msg_ = CreateMaybeMessage< ::A::B::C::TestMessage >(GetArenaForAllocation());
@@ -3052,9 +2935,7 @@ inline ::A::B::C::TestMessage* TestMessage::mutable_oneof_msg() {
 }
 
 // map<int32, string> map_int32_string = 61;
-inline int TestMessage::_internal_map_int32_string_size() const {
-  return map_int32_string_.size();
-}
+inline int TestMessage::_internal_map_int32_string_size() const { return map_int32_string_.size(); }
 inline int TestMessage::map_int32_string_size() const {
   return _internal_map_int32_string_size();
 }
@@ -3081,9 +2962,7 @@ TestMessage::mutable_map_int32_string() {
 }
 
 // map<int64, string> map_int64_string = 62;
-inline int TestMessage::_internal_map_int64_string_size() const {
-  return map_int64_string_.size();
-}
+inline int TestMessage::_internal_map_int64_string_size() const { return map_int64_string_.size(); }
 inline int TestMessage::map_int64_string_size() const {
   return _internal_map_int64_string_size();
 }
@@ -3110,9 +2989,7 @@ TestMessage::mutable_map_int64_string() {
 }
 
 // map<uint32, string> map_uint32_string = 63;
-inline int TestMessage::_internal_map_uint32_string_size() const {
-  return map_uint32_string_.size();
-}
+inline int TestMessage::_internal_map_uint32_string_size() const { return map_uint32_string_.size(); }
 inline int TestMessage::map_uint32_string_size() const {
   return _internal_map_uint32_string_size();
 }
@@ -3139,9 +3016,7 @@ TestMessage::mutable_map_uint32_string() {
 }
 
 // map<uint64, string> map_uint64_string = 64;
-inline int TestMessage::_internal_map_uint64_string_size() const {
-  return map_uint64_string_.size();
-}
+inline int TestMessage::_internal_map_uint64_string_size() const { return map_uint64_string_.size(); }
 inline int TestMessage::map_uint64_string_size() const {
   return _internal_map_uint64_string_size();
 }
@@ -3168,9 +3043,7 @@ TestMessage::mutable_map_uint64_string() {
 }
 
 // map<bool, string> map_bool_string = 65;
-inline int TestMessage::_internal_map_bool_string_size() const {
-  return map_bool_string_.size();
-}
+inline int TestMessage::_internal_map_bool_string_size() const { return map_bool_string_.size(); }
 inline int TestMessage::map_bool_string_size() const {
   return _internal_map_bool_string_size();
 }
@@ -3197,9 +3070,7 @@ TestMessage::mutable_map_bool_string() {
 }
 
 // map<string, string> map_string_string = 66;
-inline int TestMessage::_internal_map_string_string_size() const {
-  return map_string_string_.size();
-}
+inline int TestMessage::_internal_map_string_string_size() const { return map_string_string_.size(); }
 inline int TestMessage::map_string_string_size() const {
   return _internal_map_string_string_size();
 }
@@ -3226,9 +3097,7 @@ TestMessage::mutable_map_string_string() {
 }
 
 // map<string, .A.B.C.TestMessage> map_string_msg = 67;
-inline int TestMessage::_internal_map_string_msg_size() const {
-  return map_string_msg_.size();
-}
+inline int TestMessage::_internal_map_string_msg_size() const { return map_string_msg_.size(); }
 inline int TestMessage::map_string_msg_size() const {
   return _internal_map_string_msg_size();
 }
@@ -3255,9 +3124,7 @@ TestMessage::mutable_map_string_msg() {
 }
 
 // map<string, .A.B.C.TestEnum> map_string_enum = 68;
-inline int TestMessage::_internal_map_string_enum_size() const {
-  return map_string_enum_.size();
-}
+inline int TestMessage::_internal_map_string_enum_size() const { return map_string_enum_.size(); }
 inline int TestMessage::map_string_enum_size() const {
   return _internal_map_string_enum_size();
 }
@@ -3284,9 +3151,7 @@ TestMessage::mutable_map_string_enum() {
 }
 
 // map<string, int32> map_string_int32 = 69;
-inline int TestMessage::_internal_map_string_int32_size() const {
-  return map_string_int32_.size();
-}
+inline int TestMessage::_internal_map_string_int32_size() const { return map_string_int32_.size(); }
 inline int TestMessage::map_string_int32_size() const {
   return _internal_map_string_int32_size();
 }
@@ -3313,9 +3178,7 @@ TestMessage::mutable_map_string_int32() {
 }
 
 // map<string, bool> map_string_bool = 70;
-inline int TestMessage::_internal_map_string_bool_size() const {
-  return map_string_bool_.size();
-}
+inline int TestMessage::_internal_map_string_bool_size() const { return map_string_bool_.size(); }
 inline int TestMessage::map_string_bool_size() const {
   return _internal_map_string_bool_size();
 }
@@ -3437,9 +3300,7 @@ inline bool TestMessage::has_my_oneof() const {
 inline void TestMessage::clear_has_my_oneof() {
   _oneof_case_[0] = MY_ONEOF_NOT_SET;
 }
-inline TestMessage::MyOneofCase TestMessage::my_oneof_case() const {
-  return TestMessage::MyOneofCase(_oneof_case_[0]);
-}
+inline TestMessage::MyOneofCase TestMessage::my_oneof_case() const { return TestMessage::MyOneofCase(_oneof_case_[0]); }
 #ifdef __GNUC__
 	#pragma GCC diagnostic pop
 #endif  // __GNUC__

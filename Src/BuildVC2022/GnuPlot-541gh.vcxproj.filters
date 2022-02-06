@@ -1,0 +1,355 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\Osf\GnuPlot-541gh\axis.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\bitmap.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\boundary.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\breaders.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\color.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\command.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\contour.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\datablock.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\datafile.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\encoding.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\eval.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\external.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\fit.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\gadgets.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\getcolor.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\gnuplot-pch.cpp" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\gnuplot.cpp" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\gpexecute.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\graph3d.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\graphics.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\help.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\hidden3d.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\history.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\internal.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\interpol.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\jitter.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\libcerf.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\matrix.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\misc.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\mouse.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\multiplot.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\parse.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\plot.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\plot2d.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\plot3d.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\pm3d.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\readline.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\save.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\scanner.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\set.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\show.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\specfun.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\standard.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\stats.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\stdfn.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\tables.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\tabulate.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\term.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\time.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\unset.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\util.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\util3d.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\variable.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\win\screenbuf.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\win\wgnuplib.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\win\wgraph.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\win\winmain.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\win\wmenu.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\win\wpause.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\win\wprinter.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\win\wredirect.cpp" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\win\wtext.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\amos_airy.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\bf_test.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\complexfun.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\gplt_x11.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\voxelgrid.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\vplot.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\xdg.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-win.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-estimate.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-canvas.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-cgm.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-svg.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-emf.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-dumb.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-block.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-post.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-pslatex.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-dxf.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-fig.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-hpgl.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-debug.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-pbm.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-epson.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-pict2e.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-hp500c.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-hpljii.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-hppj.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-pstricks.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-texdraw.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-metafont.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-context.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-metapost.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-lua.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-corel.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-cairo.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\write_png_image.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-tkcanvas.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\wxterminal\gp_cairo.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\wxterminal\gp_cairo_helpers.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\GnuPlot-541gh\gnuplot.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\GnuPlot-541gh\gplt_x11.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\GnuPlot-541gh\term\impcodes.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\GnuPlot-541gh\term\post.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\GnuPlot-541gh\win\screenbuf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\GnuPlot-541gh\term.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\GnuPlot-541gh\win\wresourc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\GnuPlot-541gh\win\wtext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\GnuPlot-541gh\win\wgnuplib.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\GnuPlot-541gh\win\wgdiplus.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\GnuPlot-541gh\win\wd2d.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\GnuPlot-541gh\win\wcommon.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\GnuPlot-541gh\win\winmain.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\GnuPlot-541gh\marching_cubes.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\GnuPlot-541gh\qt_table.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\GnuPlot-541gh\stdfn.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\GnuPlot-541gh\syscfg.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\GnuPlot-541gh\term\driver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\OSF\GnuPlot-541gh\win\grpicon.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\GnuPlot-541gh\win\texticon.ico">
+      <Filter>Resource</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\OSF\GnuPlot-541gh\term\aquaterm.trm">
+      <Filter>Term</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\term\be.trm">
+      <Filter>Term</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\term\djsvga.trm">
+      <Filter>Term</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\term\dxy.trm">
+      <Filter>Term</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\term\emxvga.trm">
+      <Filter>Term</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\term\excl.trm">
+      <Filter>Term</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\term\gd.trm">
+      <Filter>Term</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\term\ggi.trm">
+      <Filter>Term</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\term\gpic.trm">
+      <Filter>Term</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\term\grass.trm">
+      <Filter>Term</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\term\hp26.trm">
+      <Filter>Term</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\term\hp2648.trm">
+      <Filter>Term</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\term\imagen.trm">
+      <Filter>Term</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\term\kyo.trm">
+      <Filter>Term</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\term\linux.trm">
+      <Filter>Term</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\term\metapost.trm">
+      <Filter>Term</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\term\pc.trm">
+      <Filter>Term</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\term\pdf.trm">
+      <Filter>Term</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\term\qms.trm">
+      <Filter>Term</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\term\mif.trm">
+      <Filter>Term</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\term\regis.trm">
+      <Filter>Term</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\term\qt.trm">
+      <Filter>Term</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\term\t410x.trm">
+      <Filter>Term</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\term\tek.trm">
+      <Filter>Term</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\term\tgif.trm">
+      <Filter>Term</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\term\vgagl.trm">
+      <Filter>Term</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\term\vws.trm">
+      <Filter>Term</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\term\wxt.trm">
+      <Filter>Term</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\term\x11.trm">
+      <Filter>Term</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\term\xlib.trm">
+      <Filter>Term</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\win\rotating.cur">
+      <Filter>Resource</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\win\scaling.cur">
+      <Filter>Resource</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\win\wgnuplot.mnu">
+      <Filter>Resource</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\term\linux-vgagl.trm">
+      <Filter>Term</Filter>
+    </None>
+    <None Include="..\OSF\GnuPlot-541gh\term\webp.trm">
+      <Filter>Term</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Term">
+      <UniqueIdentifier>{34cf4cb6-1538-4dec-84a2-8b86d353724c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{4b766635-2ebc-4fbf-9761-4d24a7ee5203}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{6cf1a928-b5e9-4afe-b79d-9e62eccefc09}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\OSF\GnuPlot-541gh\win\wgnuplib.rc">
+      <Filter>Resource</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

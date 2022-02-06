@@ -2714,32 +2714,24 @@ Sci::Position Document::ExtendStyleRange(Sci::Position pos, int delta, bool sing
 	return pos;
 }
 
-static char BraceOpposite(char ch) noexcept {
+static char BraceOpposite(char ch) noexcept 
+{
 	switch(ch) {
-		case '(':
-		    return ')';
-		case ')':
-		    return '(';
-		case '[':
-		    return ']';
-		case ']':
-		    return '[';
-		case '{':
-		    return '}';
-		case '}':
-		    return '{';
-		case '<':
-		    return '>';
-		case '>':
-		    return '<';
-		default:
-		    return '\0';
+		case '(': return ')';
+		case ')': return '(';
+		case '[': return ']';
+		case ']': return '[';
+		case '{': return '}';
+		case '}': return '{';
+		case '<': return '>';
+		case '>': return '<';
+		default: return '\0';
 	}
 }
 
 // TODO: should be able to extend styled region to find matching brace
-Sci::Position Document::BraceMatch(Sci::Position position, Sci::Position /*maxReStyle*/, Sci::Position startPos,
-    bool useStartPos) noexcept {
+Sci::Position Document::BraceMatch(Sci::Position position, Sci::Position /*maxReStyle*/, Sci::Position startPos, bool useStartPos) noexcept 
+{
 	const char chBrace = CharAt(position);
 	const char chSeek = BraceOpposite(chBrace);
 	if(chSeek == '\0')

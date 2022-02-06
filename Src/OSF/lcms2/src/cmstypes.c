@@ -104,7 +104,7 @@ static cmsTagTypeHandler* GetHandler(cmsTagTypeSignature sig, _cmsTagTypeLinkedL
 }
 
 // Auxiliary to convert UTF-32 to UTF-16 in some cases
-static boolint _cmsWriteWCharArray(cmsIOHANDLER* io, cmsUInt32Number n, const wchar_t* Array)
+static boolint _cmsWriteWCharArray(cmsIOHANDLER* io, cmsUInt32Number n, const wchar_t * Array)
 {
 	cmsUInt32Number i;
 	_cmsAssert(io != NULL);
@@ -116,7 +116,7 @@ static boolint _cmsWriteWCharArray(cmsIOHANDLER* io, cmsUInt32Number n, const wc
 }
 
 // Auxiliary to read an array of wchar_t
-static boolint _cmsReadWCharArray(cmsIOHANDLER* io, cmsUInt32Number n, wchar_t* Array)
+static boolint _cmsReadWCharArray(cmsIOHANDLER* io, cmsUInt32Number n, wchar_t * Array)
 {
 	cmsUInt32Number i;
 	uint16 tmp;
@@ -824,14 +824,14 @@ static boolint Type_Text_Description_Write(struct _cms_typehandler_struct* self,
 	// Null strings
 	if(len <= 0) {
 		Text = (char *)_cmsDupMem(self->ContextID, "", sizeof(char));
-		Wide = (wchar_t*)_cmsDupMem(self->ContextID, L"", sizeof(wchar_t));
+		Wide = (wchar_t *)_cmsDupMem(self->ContextID, L"", sizeof(wchar_t));
 	}
 	else {
 		// Create independent buffers
 		Text = (char *)_cmsCalloc(self->ContextID, len, sizeof(char));
 		if(Text == NULL) goto Error;
 
-		Wide = (wchar_t*)_cmsCalloc(self->ContextID, len, sizeof(wchar_t));
+		Wide = (wchar_t *)_cmsCalloc(self->ContextID, len, sizeof(wchar_t));
 		if(Wide == NULL) goto Error;
 
 		// Get both representations.
@@ -1197,7 +1197,7 @@ static void * Type_MLU_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* 
 	cmsUInt32Number SizeOfHeader;
 	cmsUInt32Number Len, Offset;
 	cmsUInt32Number i;
-	wchar_t*         Block;
+	wchar_t *         Block;
 	cmsUInt32Number BeginOfThisString, EndOfThisString, LargestPosition;
 
 	*nItems = 0;
@@ -1249,7 +1249,7 @@ static void * Type_MLU_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* 
 		NumOfWchar = 0;
 	}
 	else {
-		Block = (wchar_t*)_cmsMalloc(self->ContextID, SizeOfTag);
+		Block = (wchar_t *)_cmsMalloc(self->ContextID, SizeOfTag);
 		if(Block == NULL) goto Error;
 		NumOfWchar = SizeOfTag / sizeof(wchar_t);
 		if(!_cmsReadWCharArray(io, NumOfWchar, Block)) goto Error;
@@ -1298,7 +1298,7 @@ static boolint Type_MLU_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER
 		if(!_cmsWriteUInt32Number(io, Offset)) return FALSE;
 	}
 
-	if(!_cmsWriteWCharArray(io, mlu->PoolUsed / sizeof(wchar_t), (wchar_t*)mlu->MemPool)) return FALSE;
+	if(!_cmsWriteWCharArray(io, mlu->PoolUsed / sizeof(wchar_t), (wchar_t *)mlu->MemPool)) return FALSE;
 
 	return TRUE;
 
@@ -4435,7 +4435,7 @@ static boolint ReadOneWChar(cmsIOHANDLER* io,  _cmsDICelem* e, cmsUInt32Number i
 	}
 	if(!io->Seek(io, e->Offsets[i])) return FALSE;
 	nChars = e->Sizes[i] / sizeof(uint16);
-	*wcstr = (wchar_t*)_cmsMallocZero(e->ContextID, (nChars + 1) * sizeof(wchar_t));
+	*wcstr = (wchar_t *)_cmsMallocZero(e->ContextID, (nChars + 1) * sizeof(wchar_t));
 	if(*wcstr == NULL) return FALSE;
 	if(!_cmsReadWCharArray(io, nChars, *wcstr)) {
 		_cmsFree(e->ContextID, *wcstr);

@@ -1613,7 +1613,7 @@ U_CAPI int32_t U_EXPORT2 u_shapeArabic(const UChar * source, int32_t sourceLengt
 			countSpaces(tempbuffer, destLength, options, &spacesCountl, &spacesCountr);
 			invertBuffer(tempbuffer, destLength, options, spacesCountl, spacesCountr);
 		}
-		u_memcpy(dest, tempbuffer, uprv_min(destLength, destCapacity));
+		u_memcpy(dest, tempbuffer, smin(destLength, destCapacity));
 
 		if(tempbuffer!=buffer) {
 			uprv_free(tempbuffer);

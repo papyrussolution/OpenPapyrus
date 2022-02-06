@@ -11384,7 +11384,7 @@ SOAP_FMAC1 wchar_t ** SOAP_FMAC2 soap_inwstring(struct soap * soap, const char *
 		soap->error = SOAP_OK;
 	}
 	if(!p) {
-		if(!(p = (wchar_t**)soap_malloc(soap, sizeof(wchar_t *))))
+		if(!(p = (wchar_t **)soap_malloc(soap, sizeof(wchar_t *))))
 			return NULL;
 	}
 	if(soap->body) {
@@ -11405,7 +11405,7 @@ SOAP_FMAC1 wchar_t ** SOAP_FMAC2 soap_inwstring(struct soap * soap, const char *
 	else
 		*p = soap_wstrdup(soap, (wchar_t *)SOAP_STR_EOS);
 	if(*soap->href)
-		p = (wchar_t**)soap_id_lookup(soap, soap->href, (void **)p, t, sizeof(wchar_t **), 0);
+		p = (wchar_t **)soap_id_lookup(soap, soap->href, (void **)p, t, sizeof(wchar_t **), 0);
 	return (soap->body && soap_element_end_in(soap, tag)) ? NULL : p;
 }
 #endif
@@ -11705,7 +11705,7 @@ SOAP_FMAC1 wchar_t ** SOAP_FMAC2 soap_inwliteral(struct soap * soap, const char 
 		soap->error = SOAP_OK;
 	}
 	if(!p) {
-		if(!(p = (wchar_t**)soap_malloc(soap, sizeof(wchar_t *))))
+		if(!(p = (wchar_t **)soap_malloc(soap, sizeof(wchar_t *))))
 			return NULL;
 	}
 	if(soap->body) {

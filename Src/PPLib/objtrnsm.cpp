@@ -842,9 +842,15 @@ int PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updProtocol
 		//
 		if(this_obj_upd_protocol == PPOTUP_FORCE) {
 			pack.Flags |= PPObjPack::fForceUpdate;
-			pack.Flags &= ~(PPObjPack::fUpdate); // @v11.2.12
+			pack.Flags &= ~(PPObjPack::fUpdate|PPObjPack::fLateUpdatingDecision); // @v11.2.12
 		}
-		else if(!(pack.Flags & PPObjPack::fForceUpdate)) { // @v11.2.12
+		// @v11.3.0 {
+		else if(this_obj_upd_protocol == PPOTUP_LATEUPDATINGDECISION) {
+			pack.Flags |= PPObjPack::fLateUpdatingDecision;
+			pack.Flags &= ~(PPObjPack::fUpdate);
+		}
+		// } @v11.3.0 
+		else if(!(pack.Flags & (PPObjPack::fForceUpdate|PPObjPack::fLateUpdatingDecision))) { // @v11.2.12
 			if(this_obj_upd_protocol == PPOTUP_BYTIME) {
 				// @v11.2.12 pack.Flags &= ~PPObjPack::fForceUpdate;
 				pack.Flags |= PPObjPack::fUpdate;
@@ -887,8 +893,12 @@ int PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updProtocol
 			Ctx.Flags &= ~ObjTransmContext::fNotTrnsmLots;
 		   	THROW(p_obj->ProcessObjRefs(&pack, &temp, 0, &Ctx));
 			p_obj->Destroy(&pack);
-			if(innerUpdProtocol == PPOTUP_DEFAULT)
-				innerUpdProtocol = updProtocol;
+			if(innerUpdProtocol == PPOTUP_DEFAULT) {
+				if(updProtocol == PPOTUP_LATEUPDATINGDECISION) // @v11.3.0
+					innerUpdProtocol = PPOTUP_BYTIME;
+				else
+					innerUpdProtocol = updProtocol;
+			}
 			{
 				const uint oc = temp.getCount();
 				for(i = 0; i < oc; i++) {
@@ -1444,8 +1454,8 @@ int PPObjectTransmit::LogRcvObj(int msgId, const PPObjectTransmit::RestoreObjIte
 int PPObjectTransmit::NeedRestoreObj(PPID objType, const PPObjectTransmit::RestoreObjItem & rItem, PPID * pPrimID)
 {
 	int    ok = -1;
-	int    is_unified_obj = 0;
-	const  int _debug = BIN(CConfig.Flags & CCFLG_DEBUG);
+	bool   is_unified_obj = false;
+	const  bool _debug = LOGIC(CConfig.Flags & CCFLG_DEBUG);
 	PPID   primary_id = 0;
 	LDATETIME mod;
 	int    is_cr = 0;
@@ -1455,7 +1465,7 @@ int PPObjectTransmit::NeedRestoreObj(PPID objType, const PPObjectTransmit::Resto
 		SysJournal * p_sj = DS.GetTLA().P_SysJ;
 		int    r = SyncTbl.SearchCommonObj(objType, rItem.CommID, &primary_id, &sync_rec);
 		if(r) {
-			int    was_deleted = BIN(r > 0 && sync_rec.Flags & OBJSYNCF_DELETED);
+			const  bool was_deleted = (r > 0 && sync_rec.Flags & OBJSYNCF_DELETED);
 			int    nfound = 0;
 			if(primary_id == 0 || was_deleted || (nfound = BIN(ppobj->Search(primary_id) < 0)) != 0) {
 				ok = 1;
@@ -1479,7 +1489,7 @@ int PPObjectTransmit::NeedRestoreObj(PPID objType, const PPObjectTransmit::Resto
 										LogRcvObj(PPTXT_LOG_OBJSYNC_RCVUNI, rItem);
 									primary_id = subst_id;
 									if(subst_id && ppobj->Search(subst_id) > 0) {
-										is_unified_obj = 1;
+										is_unified_obj = true;
 										ok = -100;
 										break;
 									}
@@ -1495,13 +1505,13 @@ int PPObjectTransmit::NeedRestoreObj(PPID objType, const PPObjectTransmit::Resto
 							primary_id = 0;
 					}
 					else {
-						long   oldfashion_comm_id = (long)((rItem.CommID.P << 24) | rItem.CommID.I);
+						const  long oldfashion_comm_id = (long)((rItem.CommID.P << 24) | rItem.CommID.I);
 						PPID   subst_id = 0;
 						if(p_sj->GetLastObjUnifyEvent(objType, oldfashion_comm_id, &subst_id, &sj_rec) > 0 && ppobj->Search(subst_id) > 0) {
 							primary_id = subst_id;
 							if(_debug)
 								LogRcvObj(PPTXT_LOG_OBJSYNC_RCVUNIO, rItem);
-							is_unified_obj = 1;
+							is_unified_obj = true;
 							ok = -100;
 						}
 						else
@@ -1513,9 +1523,9 @@ int PPObjectTransmit::NeedRestoreObj(PPID objType, const PPObjectTransmit::Resto
 			}
 			if(primary_id > 0) {
 				if(!(rItem.Flags & PPObjPack::fProcessed)) {
-					if(rItem.Flags & PPObjPack::fForceUpdate || Ctx.IsForced(rItem.Oi))
+					if(rItem.Flags & (PPObjPack::fForceUpdate|PPObjPack::fLateUpdatingDecision) || Ctx.IsForced(rItem.Oi)) // @v11.3.0 PPObjPack::fLateUpdatingDecision
 						ok = 1;
-					else if(rItem.Flags & PPObjPack::fUpdate && p_sj)
+					else if(rItem.Flags & PPObjPack::fUpdate && p_sj) {
 						if(p_sj->GetLastObjModifEvent(objType, primary_id, &mod, &is_cr) > 0) {
 							if(cmp(rItem.Mod, mod) > 0)
 								ok = 1;
@@ -1526,6 +1536,7 @@ int PPObjectTransmit::NeedRestoreObj(PPID objType, const PPObjectTransmit::Resto
 						}
 						else
 							ok = 1;
+					}
 				}
 				if(ok > 0 && is_unified_obj)
 					ok = -100;
@@ -1542,14 +1553,17 @@ int PPObjectTransmit::NeedRestoreObj(PPID objType, const PPObjectTransmit::Resto
 //
 int PPObjectTransmit::RestoreObj(RestoreObjBlock & rBlk, RestoreObjItem & rItem, PPID * pPrimID)
 {
-	int    ok = 1, r, pushed = 0;
-	int    mark_item_as_processed = 0;
+	int    ok = 1;
+	int    r;
+	bool   pushed = false;
+	bool   mark_item_as_processed = false;
 	PPObject * ppobj = 0;
 	PPID   primary_id = 0;
 	PPObjID oi_f = rItem.Oi;
 	PPCommSyncID comm_id(rItem.CommID);
 	PPObjID dont_process_pair;
-	SString added_buf, msg_buf;
+	SString added_buf;
+	SString msg_buf;
 	SString temp_buf;
 	THROW(PPCheckUserBreak());
 	if(IS_DYN_OBJTYPE(oi_f.Obj)) {
@@ -1589,7 +1603,7 @@ int PPObjectTransmit::RestoreObj(RestoreObjBlock & rBlk, RestoreObjItem & rItem,
 				// Запоминаем в стеке восстанавливаемый объект (для проверки на рекурсию)
 				//
 				THROW(rBlk.PushRestoredObj(rItem.DBID, oi_f));
-				pushed = 1;
+				pushed = true;
 				//
 				OtFilePoolItem * p_fpi = rBlk.SearchFile(rItem.FileId);
 				THROW(p_fpi);
@@ -1600,6 +1614,8 @@ int PPObjectTransmit::RestoreObj(RestoreObjBlock & rBlk, RestoreObjItem & rItem,
 				}
 				p_fpi->F.Seek(rItem.ObjOffs);
 				THROW(ppobj->Read(&pack, oi_f.Id, static_cast<FILE *>(p_fpi->F), &Ctx));
+				SETFLAGBYSAMPLE(pack.Flags, PPObjPack::fLateUpdatingDecision, rItem.Flags); // @v11.3.0
+				SETFLAGBYSAMPLE(pack.Flags, PPObjPack::fForceUpdate, rItem.Flags); // @v11.3.0
 				SETFLAG(pack.Flags, PPObjPack::fDispatcher, DestDbDivPack.Rec.Flags & DBDIVF_DISPATCH);
 				THROW(ppobj->ProcessObjRefs(&pack, &temp, 0, &Ctx));
 				for(uint i = 0; temp.enumItems(&i, (void **)&p_entry);) {
@@ -1649,7 +1665,7 @@ int PPObjectTransmit::RestoreObj(RestoreObjBlock & rBlk, RestoreObjItem & rItem,
 					r = ppobj->Write(&pack, &primary_id, 0, &Ctx);
 					THROW(r);
 					if(r > 0) {
-						mark_item_as_processed = 1;
+						mark_item_as_processed = true;
 						if(r == 101 || (r == 102 && !(Ctx.Cfg.Flags & DBDXF_DONTLOGOBJUPD)))
 							Ctx.OutputAcceptMsg(oi_f.Obj, primary_id, BIN(r == 102));
 					}
@@ -1660,7 +1676,7 @@ int PPObjectTransmit::RestoreObj(RestoreObjBlock & rBlk, RestoreObjItem & rItem,
 				Ctx.P_Logger->LogString(PPTXT_LOG_UNIDENTOBJ, added_buf.Cat(oi_f.Obj).CatDiv(';', 2).Cat(oi_f.Id));
 		}
 		else
-			mark_item_as_processed = 1;
+			mark_item_as_processed = true;
 		if(mark_item_as_processed) {
 			PPTransaction tra(1);
 			THROW(tra);
@@ -2160,7 +2176,7 @@ int PPObjectTransmit::MakeTransmitFileName(SString & rFileName, S_GUID * pDbDivU
 		sj_flt.Period.low = param.Since_.d;
 		sj_flt.BegTm = param.Since_.t;
 		sj_flt.ActionIDList.addzlist(PPACN_OBJADD, PPACN_OBJUPD, 0);
-		sj_flt.ActionIDList.addzlist(PPACN_OBJTAGADD, PPACN_OBJTAGUPD, PPACN_OBJTAGRMV, 0); // @v9.2.8
+		sj_flt.ActionIDList.addzlist(PPACN_OBJTAGADD, PPACN_OBJTAGUPD, PPACN_OBJTAGRMV, 0);
 		if(p_ot->DestDbDivPack.Rec.Flags & DBDIVF_SCARDSONLY) {
 			sj_flt.ObjType = PPOBJ_SCARD;
 		}
@@ -2182,8 +2198,10 @@ int PPObjectTransmit::MakeTransmitFileName(SString & rFileName, S_GUID * pDbDivU
 					// Специальный случай: товар не менялся, а надо передать измененя котировок - устанавливаем режим
 					// акцепта в "безусловный" ибо в противном случае принимающая сторона не станет пытаться принимать пакет товара,
 					// хотя в нем содержатся измененные котировки.
-					if(sj_item.ObjType == PPOBJ_GOODS && oneof3(sj_item.Action, PPACN_GOODSQUOTUPD, PPACN_QUOTUPD2, PPACN_QUOTRMV2))
-						update_mode = PPOTUP_FORCE;
+					if(sj_item.ObjType == PPOBJ_GOODS && oneof3(sj_item.Action, PPACN_GOODSQUOTUPD, PPACN_QUOTUPD2, PPACN_QUOTRMV2)) {
+						update_mode = PPOTUP_LATEUPDATINGDECISION;
+						//PPObjPack::fLateUpdatingDecision
+					}
 					// } @v11.2.12 
 					THROW(p_ot->PostObject(sj_item.ObjType, sj_item.ObjID, update_mode, BIN(param.Flags & ObjTransmitParam::fSyncCmp)));
 				}

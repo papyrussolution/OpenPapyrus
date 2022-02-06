@@ -1,5 +1,5 @@
 // QUOTCORE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022
 // @codepage UTF-8
 // @Kernel
 //
@@ -257,23 +257,23 @@ QuotIdent & FASTCALL PPQuot::MakeIdent(QuotIdent & rQi) const
 	return rQi;
 }
 
-int PPQuot::IsEq(const PPQuot & rS, long flags) const
+bool PPQuot::IsEq(const PPQuot & rS, long flags) const
 {
 	if(!(flags & cmpNoID) && ID != rS.ID)
-		return 0;
+		return false;
 	else {
 		const long  f = (Flags & fDbMask);
 		const long  sf = (rS.Flags & fDbMask);
 		if(ArID != rS.ArID || GoodsID != rS.GoodsID || LocID != rS.LocID ||
 			Kind != rS.Kind || CurID != rS.CurID || MinQtty != rS.MinQtty || Period != rS.Period)
-			return 0;
+			return false;
 		else
-			return (flags & cmpNoVal) ? 1 : BIN(Quot == rS.Quot && f == sf);
+			return (flags & cmpNoVal) ? true : (Quot == rS.Quot && f == sf);
 	}
 }
 
-int PPQuot::IsRelative() const { return BIN(Flags & (fPctOnCost|fPctOnPrice|fPctOnAddition|fPctOnBase)); }
-int PPQuot::IsEmpty() const { return BIN(Quot == 0.0 && !(Flags & (fPctDisabled|fZero)) && !IsRelative()); }
+bool PPQuot::IsRelative() const { return LOGIC(Flags & (fPctOnCost|fPctOnPrice|fPctOnAddition|fPctOnBase)); }
+bool PPQuot::IsEmpty() const { return (Quot == 0.0 && !(Flags & (fPctDisabled|fZero)) && !IsRelative()); }
 
 static double __CalcSelling(PPID quotKindID, double cost, double pc) 
 { 
@@ -993,13 +993,19 @@ int QuotationCore::SetCurr(PPID * pID, const PPQuot * pQuot, int logSj, int use_
 	return ok;
 }
 
-int QuotationCore::SetCurrList(const PPQuotArray & rQuotList, const PPQuotArray * pTemplate, int noRmv, int use_ta)
+int QuotationCore::SetCurrList(const PPQuotArray & rQuotList, const PPQuotArray * pTemplate, bool noRmv, int use_ta)
 {
 	assert(!pTemplate || pTemplate->GoodsID == rQuotList.GoodsID);
 	int    ok = 1, r = 0;
-	int    is_updated = 0, is_mtx_updated = 0, is_mtx_restr_updated = 0, is_suppl_deal_upd = 0;
-	PPIDArray mtx_loc_list, mtx_restr_loc_list, suppl_deal_ar_list;
-	uint   i, pos;
+	bool   is_updated = false;
+	bool   is_mtx_updated = false;
+	bool   is_mtx_restr_updated = false;
+	bool   is_suppl_deal_upd = false;
+	PPIDArray mtx_loc_list;
+	PPIDArray mtx_restr_loc_list;
+	PPIDArray suppl_deal_ar_list;
+	uint   i;
+	uint   pos;
 	int    unupd = 0; // @debug
 	PPQuot * p_quot;
 	PPQuotArray templ(rQuotList.GoodsID);
@@ -1032,18 +1038,18 @@ int QuotationCore::SetCurrList(const PPQuotArray & rQuotList, const PPQuotArray 
 					}
 					if(r > 0) {
 						p_quot->Flags |= PPQuot::fDbUpd;
-						is_updated = 1;
+						is_updated = true;
 						if(r == 1000) {
 							mtx_loc_list.addUnique(loc_id);
-							is_mtx_updated = 1;
+							is_mtx_updated = true;
 						}
 						else if(r == 2000) {
 							mtx_restr_loc_list.addUnique(loc_id);
-							is_mtx_restr_updated = 1;
+							is_mtx_restr_updated = true;
 						}
 						else if(r == 3000) {
 							suppl_deal_ar_list.addUnique(ar_id);
-							is_suppl_deal_upd = 1;
+							is_suppl_deal_upd = true;
 						}
 					}
 				}
@@ -1055,18 +1061,18 @@ int QuotationCore::SetCurrList(const PPQuotArray & rQuotList, const PPQuotArray 
 				if(rQuotList.CanUpdateQuot(r_quot) > 0) {
 					THROW(r = SetCurr(&r_quot.ID, 0, 0, 0));
 					if(r > 0) {
-						is_updated = 1;
-						if(r == 1000) { // @v8.2.5 @fix (r = 1000)-->(r == 1000)
+						is_updated = true;
+						if(r == 1000) {
 							mtx_loc_list.addUnique(r_quot.LocID);
-							is_mtx_updated = 1;
+							is_mtx_updated = true;
 						}
 						else if(r == 2000) {
 							mtx_restr_loc_list.addUnique(r_quot.LocID);
-							is_mtx_restr_updated = 1;
+							is_mtx_restr_updated = true;
 						}
 						else if(r == 3000) {
 							suppl_deal_ar_list.addUnique(r_quot.ArID);
-							is_suppl_deal_upd = 1;
+							is_suppl_deal_upd = true;
 						}
 					}
 				}
@@ -2672,7 +2678,7 @@ int Quotation2Core::GetMatrix(PPID mtxQkID, PPID locID, PPIDArray * pList)
 	return Helper_GetMatrix(2, this, mtxQkID, locID, pList);
 }
 
-int Quotation2Core::Set(const PPQuotArray & rQList, long qtaID, const PPQuotArray * pTemplate, int noRmv, int use_ta)
+int Quotation2Core::Set_(const PPQuotArray & rQList, long qtaID, const PPQuotArray * pTemplate, bool noRmv, bool updByTime, int use_ta)
 {
 	assert(!pTemplate || pTemplate->GoodsID == rQList.GoodsID);
 	int    ok = 1;
@@ -2684,7 +2690,8 @@ int Quotation2Core::Set(const PPQuotArray & rQList, long qtaID, const PPQuotArra
 	PPIDArray mtx_loc_list;
 	PPIDArray mtx_restr_loc_list;
 	PPIDArray suppl_deal_ar_list;
-	uint   i, pos;
+	uint   i;
+	uint   pos;
 	int    unupd = 0; // @debug
 	PPQuotArray templ(rQList.GoodsID);
 	{
@@ -2700,6 +2707,8 @@ int Quotation2Core::Set(const PPQuotArray & rQList, long qtaID, const PPQuotArra
 					; // Инвалидное значение с нулевым видом котировки - должно быть удалено
 				}
 				else if(rQList.CanUpdateQuot(r_quot) > 0) {
+					bool skip = false;
+					bool keep_time = false;
 					r_quot.GoodsID = rQList.GoodsID;
 					const PPID loc_id = r_quot.LocID;
 					const PPID ar_id = r_quot.ArID;
@@ -2707,24 +2716,36 @@ int Quotation2Core::Set(const PPQuotArray & rQList, long qtaID, const PPQuotArra
 						QuotIdent qi(loc_id, r_quot.Kind, r_quot.CurID, ar_id);
 						qi.SetIdentPeriod(&r_quot.Period);
 						qi.SetIdentQtty(&r_quot.MinQtty);
-						if(templ.SearchQi(qi, &(pos = 0)) > 0)
-							templ.atFree(pos);
+						if(templ.SearchQi(qi, &(pos = 0)) > 0) {
+							// @v11.3.0 {
+							if(updByTime) {
+								const PPQuot & r_templ_item = templ.at(pos);
+								if(cmp(r_quot.Dtm, r_templ_item.Dtm) < 0)
+									skip = true;
+								else
+									keep_time = true;
+							}
+							// } @v11.3.0 
+							templ.atFree(pos); // если skip == true то удалить из этого списка элемент все равно нужно: иначе соответствующая запись будет удалена в цикле ниже!
+						}
 					}
-					THROW(r = Set(r_quot, qtaID, 0, 0));
-					if(r > 0) {
-						r_quot.Flags |= PPQuot::fDbUpd;
-						is_updated = 1;
-						if(r == 1000) {
-							mtx_loc_list.addUnique(loc_id);
-							is_mtx_updated = 1;
-						}
-						else if(r == 2000) {
-							mtx_restr_loc_list.addUnique(loc_id);
-							is_mtx_restr_updated = 1;
-						}
-						else if(r == 3000) {
-							suppl_deal_ar_list.addUnique(ar_id);
-							is_suppl_deal_upd = 1;
+					if(!skip) { // @v11.3.0
+						THROW(r = Implement_Set(r_quot, qtaID, 0, keep_time, 0));
+						if(r > 0) {
+							r_quot.Flags |= PPQuot::fDbUpd;
+							is_updated = 1;
+							if(r == 1000) {
+								mtx_loc_list.addUnique(loc_id);
+								is_mtx_updated = 1;
+							}
+							else if(r == 2000) {
+								mtx_restr_loc_list.addUnique(loc_id);
+								is_mtx_restr_updated = 1;
+							}
+							else if(r == 3000) {
+								suppl_deal_ar_list.addUnique(ar_id);
+								is_suppl_deal_upd = 1;
+							}
 						}
 					}
 				}
@@ -2743,8 +2764,7 @@ int Quotation2Core::Set(const PPQuotArray & rQList, long qtaID, const PPQuotArra
 					zero_quot.Flags = 0;
 					THROW(r = Set(zero_quot, qtaID, 0, 0));
 					if(r > 0) {
-						if(!is_updated)
-							is_updated = 2;
+						SETIFZ(is_updated, 2);
 						if(r == 1000) {
 							mtx_loc_list.addUnique(r_quot.LocID);
 							is_mtx_updated = 2;
@@ -2837,6 +2857,11 @@ int Quotation2Core::AdjustTime(Quotation2Tbl::Rec & rRec)
 }
 
 int Quotation2Core::Set(const PPQuot & rQ, long qtaID, int logSj, int use_ta)
+{
+	return Implement_Set(rQ, qtaID, logSj, false, use_ta);
+}
+
+int Quotation2Core::Implement_Set(const PPQuot & rQ, long qtaID, int logSj, bool keepTime, int use_ta)
 {
 	int    ok = 1;
 	PROFILE_START
@@ -2938,6 +2963,12 @@ int Quotation2Core::Set(const PPQuot & rQ, long qtaID, int logSj, int use_ta)
 				// @v9.9.1 @fix const long mask = (PPQuot::fZero|PPQuot::fPctOnCost|PPQuot::fPctOnPrice|PPQuot::fPctOnAddition|PPQuot::fPctOnBase);
 				const long mask = PPQuot::fDbMask; // @v9.9.1 @fix
 				if((rec.Flags & mask) || rec.Quot != 0.0) {
+					// @v11.3.0 {
+					if(keepTime && checkdate(rQ.Dtm.d) && checktime(rQ.Dtm.t)) {
+						rec.Dt = rQ.Dtm.d;
+						rec.Tm = rQ.Dtm.t;
+					}
+					// } @v11.3.0 
 					THROW(AdjustTime(rec));
 					THROW_DB(insertRecBuf(&rec));
 					if(logSj)
@@ -3436,9 +3467,8 @@ public:
 		long   MinQtty;
 		int32  PeriodIdx;
 	};
-	Quot2RelCache() : ObjCacheHash(PPOBJ_QUOT2REL, sizeof(Data), 512*1024, 4)
+	Quot2RelCache() : ObjCacheHash(PPOBJ_QUOT2REL, sizeof(Data), 512*1024, 4), P_Qc(0)
 	{
-		P_Qc = 0;
 	}
 	int    Fetch(Quotation2Core * pTbl, PPID id, PPQuot * pVal)
 	{

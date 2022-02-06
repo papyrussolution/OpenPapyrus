@@ -1,0 +1,45 @@
+Xapian-core @VERSION@ (@DATE@):
+
+
+API:
+
+
+testsuite:
+
+
+matcher:
+
+
+glass backend:
+
+
+honey backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+
+documentation:
+
+
+tools:
+
+
+examples:
+
+
+portability:
+
+
+packaging:
+
+
+debug code:
+
+

@@ -960,13 +960,13 @@ static void xmlCtxtDumpEntityCallback(xmlEntity * cur, xmlDebugCtxt * ctxt)
 				case XML_EXTERNAL_PARAMETER_ENTITY: fprintf(ctxt->output, "EXTERNAL PARAMETER, "); break;
 				default: xmlDebugErr2(ctxt, XML_CHECK_ENTITY_TYPE, "Unknown entity type %d\n", cur->etype);
 			}
-			if(cur->ExternalID != NULL)
+			if(cur->ExternalID)
 				fprintf(ctxt->output, "ID \"%s\"", (char *)cur->ExternalID);
-			if(cur->SystemID != NULL)
+			if(cur->SystemID)
 				fprintf(ctxt->output, "SYSTEM \"%s\"", (char *)cur->SystemID);
-			if(cur->orig != NULL)
+			if(cur->orig)
 				fprintf(ctxt->output, "\n orig \"%s\"", (char *)cur->orig);
-			if((cur->type != XML_ELEMENT_NODE) && (cur->content != NULL))
+			if(cur->type != XML_ELEMENT_NODE && cur->content)
 				fprintf(ctxt->output, "\n content \"%s\"", (char *)cur->content);
 			fprintf(ctxt->output, "\n");
 		}

@@ -1,0 +1,653 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{73632960-B3A6-464D-83A3-4B43365F19B8}</ProjectGuid>
+    <RootNamespace>intltest</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <ProjectName>icu-intltest</ProjectName>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <!-- The following import will include the 'default' configuration options for VS projects. -->
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup>
+    <BuildToolVersion>$(VisualStudioVersion)</BuildToolVersion>
+    <BuildToolVersion Condition="'$(BuildToolVersion)'=='' and '$(MSBuildToolsVersion)' != 'Current'">$(MSBuildToolsVersion)</BuildToolVersion>
+    <AutoDetectedPlatformToolset Condition="'$(BuildToolVersion)'=='14.0'">v140</AutoDetectedPlatformToolset>
+    <AutoDetectedPlatformToolset Condition="'$(BuildToolVersion)'=='15.0'">v141</AutoDetectedPlatformToolset>
+    <AutoDetectedPlatformToolset Condition="'$(BuildToolVersion)'=='16.0'">v142</AutoDetectedPlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Label="EmptyDefaultPlatformToolset">
+    <DefaultPlatformToolset Condition=" '$(DefaultPlatformToolset)' == '' ">$(AutoDetectedPlatformToolset)</DefaultPlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Label="PlatformToolset">
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(WindowsTargetPlatformVersion)'=='' and '$(PlatformToolset)'=='v142'">
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(WindowsTargetPlatformVersion)'=='' and ('$(PlatformToolset)'=='v141' or '$(AutodetectWin10SDK)'=='true')">
+    <WindowsSdkInstallFolder_10 Condition="'$(WindowsSdkInstallFolder_10)' == ''">$(Registry:HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v10.0@InstallationFolder)</WindowsSdkInstallFolder_10>
+    <WindowsSdkInstallFolder_10 Condition="'$(WindowsSdkInstallFolder_10)' == ''">$(Registry:HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Microsoft SDKs\Windows\v10.0@InstallationFolder)</WindowsSdkInstallFolder_10>
+    <WindowsTargetPlatformVersion_10 Condition="'$(WindowsTargetPlatformVersion_10)' == ''">$(Registry:HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v10.0@ProductVersion)</WindowsTargetPlatformVersion_10>
+    <WindowsTargetPlatformVersion_10 Condition="'$(WindowsTargetPlatformVersion_10)' == ''">$(Registry:HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Microsoft SDKs\Windows\v10.0@ProductVersion)</WindowsTargetPlatformVersion_10>
+    <WindowsTargetPlatformVersion_10 Condition="'$(WindowsTargetPlatformVersion_10)' != '' and !$(WindowsTargetPlatformVersion_10.EndsWith('.0'))">$(WindowsTargetPlatformVersion_10).0</WindowsTargetPlatformVersion_10>
+    <WindowsTargetPlatformVersion>$(WindowsTargetPlatformVersion_10)</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(WindowsTargetPlatformVersion)'=='' and '$(PlatformToolset)'=='v140'">
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <DiagnosticsFormat>Caret</DiagnosticsFormat>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <PropertyGroup Condition="'$(Platform)'=='Win32'">
+    <IcuBinOutputDir>bin</IcuBinOutputDir>
+    <IcuLibOutputDir>lib</IcuLibOutputDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Platform)'=='x64'">
+    <IcuBinOutputDir>bin64</IcuBinOutputDir>
+    <IcuLibOutputDir>lib64</IcuLibOutputDir>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Win32_WinNTVersion>0x0601</Win32_WinNTVersion>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Midl>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Midl>
+    <ClCompile>
+      <PreprocessorDefinitions>
+        WINVER=$(Win32_WinNTVersion);
+        _WIN32_WINNT=$(Win32_WinNTVersion);
+        _CRT_SECURE_NO_DEPRECATE;
+        %(PreprocessorDefinitions)
+      </PreprocessorDefinitions>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Link>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ClCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
+    <Midl>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ClCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Optimization>Disabled</Optimization>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
+    <Midl>
+      <TargetEnvironment>Win32</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Platform)'=='x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <PreprocessorDefinitions>WIN64;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir>\papyrus\__TEMP__\VC2017\icu\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>\papyrus\__TEMP__\VC2017\icu\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <!-- The ICU projects use "Win32" to mean "x86", so we need to special case it. -->
+    <OutDir Condition="'$(Platform)'=='Win32'">\papyrus\__TEMP__\VC2017\icu\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir Condition="'$(Platform)'=='Win32'">\papyrus\__TEMP__\VC2017\icu\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <!-- Disable Incremental Linking for Release builds as it prevents Link-time Code Generation -->
+    <LinkIncremental Condition="'$(Configuration)'=='Debug'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)'=='Release'">false</LinkIncremental>
+  </PropertyGroup>
+  <!-- Options that are common to *all* project configurations -->
+  <ItemDefinitionGroup>
+    <Midl>
+      <TypeLibraryName>$(OutDir)\intltest.tlb</TypeLibraryName>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\osf\icu\icu4c\source\tools\toolutil;..\osf\icu\icu4c\source\tools\ctestfw;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>U_ATTRIBUTE_DEPRECATED=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <WarningLevel>Level3</WarningLevel>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(OutDir)/</AssemblerListingLocation>
+      <ObjectFileName>$(OutDir)/</ObjectFileName>
+      <ProgramDataBaseFileName>$(OutDir)/intltest.pdb</ProgramDataBaseFileName>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>..\..\..\$(IcuLibOutputDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <!-- Options that are common to all 'Debug' project configurations -->
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
+    <ClCompile>
+      <BrowseInformation>true</BrowseInformation>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StringPooling Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</StringPooling>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">Default</BasicRuntimeChecks>
+      <BufferSecurityCheck Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</BufferSecurityCheck>
+      <StringPooling Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</StringPooling>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">Default</BasicRuntimeChecks>
+      <BufferSecurityCheck Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">false</BufferSecurityCheck>
+      <StringPooling Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</StringPooling>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Default</BasicRuntimeChecks>
+      <BufferSecurityCheck Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</BufferSecurityCheck>
+      <StringPooling Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</StringPooling>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Default</BasicRuntimeChecks>
+      <BufferSecurityCheck Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</BufferSecurityCheck>
+      <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</OmitFramePointers>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" />
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" />
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;Rpcrt4.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <!-- Options that are common to all 'Release' project configurations -->
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <DebugInformationFormat Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">None</DebugInformationFormat>
+      <DebugInformationFormat Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">None</DebugInformationFormat>
+      <DebugInformationFormat Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">None</DebugInformationFormat>
+      <DebugInformationFormat Condition="'$(Configuration)|$(Platform)'=='Release|x64'">None</DebugInformationFormat>
+      <BufferSecurityCheck Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</BufferSecurityCheck>
+      <BufferSecurityCheck Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">false</BufferSecurityCheck>
+      <BufferSecurityCheck Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</BufferSecurityCheck>
+      <BufferSecurityCheck Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</BufferSecurityCheck>
+      <InlineFunctionExpansion Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">OnlyExplicitInline</InlineFunctionExpansion>
+      <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</OmitFramePointers>
+      <InlineFunctionExpansion Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">OnlyExplicitInline</InlineFunctionExpansion>
+      <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</OmitFramePointers>
+      <InlineFunctionExpansion Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">OnlyExplicitInline</InlineFunctionExpansion>
+      <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</OmitFramePointers>
+      <InlineFunctionExpansion Condition="'$(Configuration)|$(Platform)'=='Release|x64'">OnlyExplicitInline</InlineFunctionExpansion>
+      <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</OmitFramePointers>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" />
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" />
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;Rpcrt4.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\icu\icu4c\source\common\icu-pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\bytestrietest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\collationtest.cpp">
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+    </ClCompile>
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\colldata.cpp">
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+    </ClCompile>
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\erarulestest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numfmtspectest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\regiontst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\ucharstrietest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\itrbbi.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\lstmbetst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\rbbiapts.cpp">
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+    </ClCompile>
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\rbbitst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\rbbimonkeytest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\itspoof.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\allcoll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\alphaindextst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\apicoll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\currcoll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\decoll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\encoll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\escoll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\ficoll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\frcoll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\g7coll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\itercoll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\jacoll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\lcukocol.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\mnkytst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\regcoll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\srchtest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\ssearch.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\svccoll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\thcoll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\trcoll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tscoll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\ucaconf.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\uvectest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\v32test.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\simplethread.cpp">
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+    </ClCompile>
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\strtest.cpp">
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+    </ClCompile>
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tsmthred.cpp">
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+    </ClCompile>
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tsputil.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\uobjtest.cpp">
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+    </ClCompile>
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\astrotst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\calcasts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\callimts.cpp">
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+    </ClCompile>
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\calregts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\caltest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\caltztst.cpp">
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+    </ClCompile>
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\compactdecimalformattest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\dadrcal.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\dadrfmt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\datadrivennumberformattestsuite.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\dcfmapts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\dcfmtest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\dtfmapts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\dtfmrgts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\dtfmtrtts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\dtfmttst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\dtifmtts.cpp">
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+    </ClCompile>
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\dtptngts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\fldset.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\formatted_string_builder_test.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\genderinfotest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\incaltst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\itformat.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\itrbnf.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\itrbnfp.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\itrbnfrt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\locnmtst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\measfmttest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\miscdtfm.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\msfmrgts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\nmfmapts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\nmfmtrt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numberformattesttuple.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numbertest_affixutils.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numbertest_api.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numbertest_decimalquantity.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numbertest_modifiers.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numbertest_patternmodifier.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numbertest_patternstring.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\string_segment_test.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numbertest_parse.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numbertest_doubleconversion.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numbertest_skeletons.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numbertest_range.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numbertest_permutation.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numfmtst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numfmtdatadriventest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numrgts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\pluralmaptest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\plurfmts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\plurults.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\pptest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\quantityformattertest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\reldatefmttest.cpp">
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+    </ClCompile>
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\scientificnumberformattertest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\sdtfmtts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\selfmts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\simpleformattertest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\static_unisets_test.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tchcfmt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tfsmalls.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tmsgfmt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tsdate.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tsdcfmsy.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tsdtfmsy.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tsnmfmt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tufmtts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tzbdtest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tzfmttst.cpp">
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+    </ClCompile>
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tzoffloc.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tzregts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tzrulets.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tztest.cpp">
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+    </ClCompile>
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\unifiedcachetest.cpp">
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+    </ClCompile>
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\windttst.cpp">
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+    </ClCompile>
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\winnmtst.cpp">
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+    </ClCompile>
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\idnaconf.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\idnaref.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\nptrans.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\punyref.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\testidn.cpp">
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+    </ClCompile>
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\testidna.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\uts46test.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\aliastst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\loctest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\restest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\restsnew.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\intltest.cpp">
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+    </ClCompile>
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\itmajor.cpp">
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+    </ClCompile>
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\itutil.cpp">
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+    </ClCompile>
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\testutil.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\textfile.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tokiter.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\winutil.cpp">
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+    </ClCompile>
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\canittst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\normconf.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tstnorm.cpp">
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+    </ClCompile>
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tstnrapi.cpp">
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+    </ClCompile>
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\ucdtest.cpp">
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+    </ClCompile>
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\usettest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\regextst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\icusvtst.cpp">
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+    </ClCompile>
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\citrtest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\reptest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\sfwdchit.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\strcase.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\ustrtest.cpp">
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+    </ClCompile>
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\utxttest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\cpdtrtst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\ittrans.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\jamotest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\transapi.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\transrt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\transtst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\trnserr.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\convtest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\csdetest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\bidiconf.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\listformattertest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\formattedvaluetest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\localebuildertest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\localematchertest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\units_data_test.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\units_router_test.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\units_test.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\colldata.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\erarulestest.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\itrbbi.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\rbbiapts.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\rbbitst.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\rbbimonkeytest.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\itspoof.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\allcoll.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\alphaindextst.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\apicoll.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\currcoll.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\decoll.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\encoll.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\escoll.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\ficoll.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\frcoll.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\g7coll.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\itercoll.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\jacoll.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\lcukocol.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\mnkytst.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\regcoll.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\regiontst.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\srchtest.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\ssearch.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\svccoll.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\thcoll.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\trcoll.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tscoll.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\ucaconf.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\uvectest.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\v32test.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\simplethread.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\strtest.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tsmthred.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tsputil.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\uobjtest.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\astrotst.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\calcasts.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\callimts.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\calregts.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\caltest.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\caltztst.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\dadrcal.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\dadrfmt.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\datadrivennumberformattestsuite.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\dcfmapts.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\dcfmtest.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\dtfmapts.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\dtfmrgts.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\dtfmtrtts.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\dtfmttst.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\dtifmtts.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\dtptngts.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\fldset.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\incaltst.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\itformat.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\itrbnf.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\itrbnfp.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\itrbnfrt.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\locnmtst.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\miscdtfm.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\msfmrgts.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\nmfmapts.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\nmfmtrt.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\numbertest.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\numberformattesttuple.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\numfmtst.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\numrgts.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\plurfmts.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\plurults.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\pptest.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\sdtfmtts.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\selfmts.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tchcfmt.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tfsmalls.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tmsgfmt.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tsdate.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tsdcfmsy.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tsdtfmsy.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tsnmfmt.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tufmtts.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tzbdtest.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tzfmttst.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tzoffloc.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tzregts.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tzrulets.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tztest.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\windttst.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\winnmtst.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\idnaconf.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\idnaref.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\nptrans.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\punyref.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\testidna.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\aliastst.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\loctest.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\restest.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\restsnew.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\intltest.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\itmajor.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\itutil.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\testutil.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\textfile.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tokiter.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\winutil.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\canittst.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\normconf.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tstnorm.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\ucdtest.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\usettest.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\regextst.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\icusvtst.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\citrtest.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\reptest.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\sfwdchit.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\ustrtest.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\utxttest.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\cpdtrtst.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\ittrans.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\jamotest.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\transapi.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\transrt.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\transtst.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\trnserr.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\convtest.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\csdetest.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\listformattertest.h" />
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\localebuildertest.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="icu-ctestfw.vcxproj">
+      <Project>{eca6b435-b4fa-4f9f-bf95-f451d078fc47}</Project>
+    </ProjectReference>
+    <ProjectReference Include="icu-toolutil.vcxproj">
+      <Project>{6b231032-3cb5-4eed-9210-810d666a23a0}</Project>
+    </ProjectReference>
+    <ProjectReference Include="icu-stubdata.vcxproj">
+      <Project>{203ec78a-0531-43f0-a636-285439bde025}</Project>
+    </ProjectReference>
+    <ProjectReference Include="libicu.vcxproj">
+      <Project>{6d226127-c063-4702-b4b9-118233d7354c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="openssl-111-crypto.vcxproj">
+      <Project>{26070ad0-2d76-41a2-ab8b-864ea198cc6f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="openssl-111.vcxproj">
+      <Project>{0796c89c-07e1-4bda-bdae-f023aeb5366c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="slib.vcxproj">
+      <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

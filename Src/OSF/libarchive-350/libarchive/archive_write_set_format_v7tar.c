@@ -260,15 +260,12 @@ static int archive_write_v7tar_header(struct archive_write * a, struct archive_e
 		 * case getting WCS failed. On POSIX, this is a
 		 * normal operation.
 		 */
-		if(p != NULL && p[0] != '\0' && p[strlen(p) - 1] != '/') {
+		if(!isempty(p) && p[strlen(p)-1] != '/') {
 			struct archive_string as;
-
 			archive_string_init(&as);
 			path_length = strlen(p);
-			if(archive_string_ensure(&as,
-			    path_length + 2) == NULL) {
-				archive_set_error(&a->archive, ENOMEM,
-				    "Can't allocate v7tar data");
+			if(archive_string_ensure(&as, path_length + 2) == NULL) {
+				archive_set_error(&a->archive, ENOMEM, "Can't allocate v7tar data");
 				archive_string_free(&as);
 				return(ARCHIVE_FATAL);
 			}

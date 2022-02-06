@@ -1,0 +1,1078 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllDebug|Win32">
+      <Configuration>MtDllDebug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllDebug|x64">
+      <Configuration>MtDllDebug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllRelease|Win32">
+      <Configuration>MtDllRelease</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllRelease|x64">
+      <Configuration>MtDllRelease</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerDebug|Win32">
+      <Configuration>ServerDebug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerDebug|x64">
+      <Configuration>ServerDebug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerRelease|Win32">
+      <Configuration>ServerRelease</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerRelease|x64">
+      <Configuration>ServerRelease</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{8614D47B-23E6-4A77-9618-DB89C420BE35}</ProjectGuid>
+    <RootNamespace>libphonenumber</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>
+      </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;I18N_PHONENUMBERS_USE_ICU_REGEXP;__STDC_LIMIT_MACROS;U_STATIC_IMPLEMENTATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <CompileAs>CompileAsCpp</CompileAs>
+      <BrowseInformationFile />
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <StringPooling>true</StringPooling>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>
+      </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;I18N_PHONENUMBERS_USE_ICU_REGEXP;__STDC_LIMIT_MACROS;U_STATIC_IMPLEMENTATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <BrowseInformationFile>
+      </BrowseInformationFile>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <StringPooling>true</StringPooling>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>
+      </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;I18N_PHONENUMBERS_USE_ICU_REGEXP;__STDC_LIMIT_MACROS;U_STATIC_IMPLEMENTATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <BrowseInformationFile>
+      </BrowseInformationFile>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <StringPooling>true</StringPooling>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>
+      </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;I18N_PHONENUMBERS_USE_ICU_REGEXP;__STDC_LIMIT_MACROS;U_STATIC_IMPLEMENTATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <CompileAs>CompileAsCpp</CompileAs>
+      <BrowseInformationFile />
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <StringPooling>true</StringPooling>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>
+      </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;I18N_PHONENUMBERS_USE_ICU_REGEXP;__STDC_LIMIT_MACROS;U_STATIC_IMPLEMENTATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <BrowseInformationFile>
+      </BrowseInformationFile>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <StringPooling>true</StringPooling>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>
+      </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;I18N_PHONENUMBERS_USE_ICU_REGEXP;__STDC_LIMIT_MACROS;U_STATIC_IMPLEMENTATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <BrowseInformationFile>
+      </BrowseInformationFile>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <StringPooling>true</StringPooling>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>
+      </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;I18N_PHONENUMBERS_USE_ICU_REGEXP;__STDC_LIMIT_MACROS;U_STATIC_IMPLEMENTATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <CompileAs>CompileAsCpp</CompileAs>
+      <BrowseInformationFile />
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <StringPooling>true</StringPooling>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>
+      </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;I18N_PHONENUMBERS_USE_ICU_REGEXP;__STDC_LIMIT_MACROS;U_STATIC_IMPLEMENTATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <BrowseInformationFile>
+      </BrowseInformationFile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <StringPooling>true</StringPooling>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>
+      </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;I18N_PHONENUMBERS_USE_ICU_REGEXP;__STDC_LIMIT_MACROS;U_STATIC_IMPLEMENTATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <BrowseInformationFile>
+      </BrowseInformationFile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <StringPooling>true</StringPooling>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>
+      </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;I18N_PHONENUMBERS_USE_ICU_REGEXP;__STDC_LIMIT_MACROS;U_STATIC_IMPLEMENTATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <CompileAs>CompileAsCpp</CompileAs>
+      <BrowseInformationFile />
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <StringPooling>true</StringPooling>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>
+      </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;I18N_PHONENUMBERS_USE_ICU_REGEXP;__STDC_LIMIT_MACROS;U_STATIC_IMPLEMENTATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <BrowseInformationFile>
+      </BrowseInformationFile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <StringPooling>true</StringPooling>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>
+      </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;I18N_PHONENUMBERS_USE_ICU_REGEXP;__STDC_LIMIT_MACROS;U_STATIC_IMPLEMENTATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <BrowseInformationFile>
+      </BrowseInformationFile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <StringPooling>true</StringPooling>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\libphonenumber\alternate_format.h" />
+    <ClInclude Include="..\OSF\libphonenumber\area_code_map.h" />
+    <ClInclude Include="..\OSF\libphonenumber\asyoutypeformatter.h" />
+    <ClInclude Include="..\OSF\libphonenumber\basictypes.h" />
+    <ClInclude Include="..\OSF\libphonenumber\callback.h" />
+    <ClInclude Include="..\OSF\libphonenumber\default_logger.h" />
+    <ClInclude Include="..\OSF\libphonenumber\default_map_storage.h" />
+    <ClInclude Include="..\OSF\libphonenumber\encoding_utils.h" />
+    <ClInclude Include="..\OSF\libphonenumber\geocoding_data.h" />
+    <ClInclude Include="..\OSF\libphonenumber\libphonenumber-internal.h" />
+    <ClInclude Include="..\OSF\libphonenumber\lock.h" />
+    <ClInclude Include="..\OSF\libphonenumber\lock_boost.h" />
+    <ClInclude Include="..\OSF\libphonenumber\lock_posix.h" />
+    <ClInclude Include="..\OSF\libphonenumber\lock_stdmutex.h" />
+    <ClInclude Include="..\OSF\libphonenumber\lock_unsafe.h" />
+    <ClInclude Include="..\OSF\libphonenumber\lock_win32.h" />
+    <ClInclude Include="..\OSF\libphonenumber\logger.h" />
+    <ClInclude Include="..\OSF\libphonenumber\logging.h" />
+    <ClInclude Include="..\OSF\libphonenumber\mapping_file_provider.h" />
+    <ClInclude Include="..\OSF\libphonenumber\matcher_api.h" />
+    <ClInclude Include="..\OSF\libphonenumber\metadata.h" />
+    <ClInclude Include="..\OSF\libphonenumber\normalize_utf8.h" />
+    <ClInclude Include="..\OSF\libphonenumber\phonenumber.h" />
+    <ClInclude Include="..\OSF\libphonenumber\phonenumbermatch.h" />
+    <ClInclude Include="..\OSF\libphonenumber\phonenumbermatcher.h" />
+    <ClInclude Include="..\OSF\libphonenumber\phonenumberutil.h" />
+    <ClInclude Include="..\OSF\libphonenumber\phonenumber_offline_geocoder.h" />
+    <ClInclude Include="..\OSF\libphonenumber\regexp_adapter.h" />
+    <ClInclude Include="..\OSF\libphonenumber\regexp_adapter_icu.h" />
+    <ClInclude Include="..\OSF\libphonenumber\regexp_adapter_re2.h" />
+    <ClInclude Include="..\OSF\libphonenumber\regexp_cache.h" />
+    <ClInclude Include="..\OSF\libphonenumber\regexp_factory.h" />
+    <ClInclude Include="..\OSF\libphonenumber\regex_based_matcher.h" />
+    <ClInclude Include="..\OSF\libphonenumber\region_code.h" />
+    <ClInclude Include="..\OSF\libphonenumber\scoped_ptr.h" />
+    <ClInclude Include="..\OSF\libphonenumber\shortnumberinfo.h" />
+    <ClInclude Include="..\OSF\libphonenumber\short_metadata.h" />
+    <ClInclude Include="..\OSF\libphonenumber\singleton.h" />
+    <ClInclude Include="..\OSF\libphonenumber\singleton_boost.h" />
+    <ClInclude Include="..\OSF\libphonenumber\singleton_posix.h" />
+    <ClInclude Include="..\OSF\libphonenumber\singleton_stdmutex.h" />
+    <ClInclude Include="..\OSF\libphonenumber\singleton_unsafe.h" />
+    <ClInclude Include="..\OSF\libphonenumber\singleton_win32.h" />
+    <ClInclude Include="..\OSF\libphonenumber\stl_util.h" />
+    <ClInclude Include="..\OSF\libphonenumber\stringpiece.h" />
+    <ClInclude Include="..\OSF\libphonenumber\stringutil.h" />
+    <ClInclude Include="..\OSF\libphonenumber\string_byte_sink.h" />
+    <ClInclude Include="..\OSF\libphonenumber\string_piece.h" />
+    <ClInclude Include="..\OSF\libphonenumber\template_util.h" />
+    <ClInclude Include="..\OSF\libphonenumber\thread_checker.h" />
+    <ClInclude Include="..\OSF\libphonenumber\unicodestring.h" />
+    <ClInclude Include="..\OSF\libphonenumber\unicodetext.h" />
+    <ClInclude Include="..\OSF\libphonenumber\unilib.h" />
+    <ClInclude Include="..\OSF\libphonenumber\utf.h" />
+    <ClInclude Include="..\OSF\libphonenumber\utfdef.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\libphonenumber\alternate_format.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\area_code_map.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\asyoutypeformatter.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\default_logger.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\default_map_storage.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\libphonenumber-pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\OSF\libphonenumber\lite_metadata.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\libphonenumber\logger.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\mapping_file_provider.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\metadata.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\phonemetadata.pb.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\OSF\libphonenumber\phonenumber.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\phonenumber.pb.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\OSF\libphonenumber\phonenumbermatch.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\phonenumbermatcher.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\phonenumberutil.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\phonenumber_offline_geocoder.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\regexp_adapter_icu.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\regexp_adapter_re2.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\libphonenumber\regexp_cache.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\regex_based_matcher.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\rune.c" />
+    <ClCompile Include="..\OSF\libphonenumber\shortnumberinfo.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\short_metadata.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\slib-phonenumber.cpp" />
+    <ClCompile Include="..\OSF\libphonenumber\stringutil.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\string_byte_sink.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\string_piece.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\test_metadata.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\libphonenumber\unicodestring.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\unicodetext.cc" />
+    <ClCompile Include="..\OSF\libphonenumber\unilib.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\OSF\libphonenumber\resources\phonemetadata.proto">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)..
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)..
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)..
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)..
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)..
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)..
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)..
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)..
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)..
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)..
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)..
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)..
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Generating %(RootDir)%(Directory)%(Filename).pb.cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Generating %(RootDir)%(Directory)%(Filename).pb.cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Generating %(RootDir)%(Directory)%(Filename).pb.cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Generating %(RootDir)%(Directory)%(Filename).pb.cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Generating %(RootDir)%(Directory)%(Filename).pb.cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Generating %(RootDir)%(Directory)%(Filename).pb.cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating %(RootDir)%(Directory)%(Filename).pb.cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">Generating %(RootDir)%(Directory)%(Filename).pb.cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">Generating %(RootDir)%(Directory)%(Filename).pb.cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating %(RootDir)%(Directory)%(Filename).pb.cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">Generating %(RootDir)%(Directory)%(Filename).pb.cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Generating %(RootDir)%(Directory)%(Filename).pb.cc</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).pb.cc;%(RootDir)%(Directory)%(Filename).pb.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RootDir)%(Directory)%(Filename).pb.cc;%(RootDir)%(Directory)%(Filename).pb.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RootDir)%(Directory)%(Filename).pb.cc;%(RootDir)%(Directory)%(Filename).pb.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).pb.cc;%(RootDir)%(Directory)%(Filename).pb.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RootDir)%(Directory)%(Filename).pb.cc;%(RootDir)%(Directory)%(Filename).pb.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RootDir)%(Directory)%(Filename).pb.cc;%(RootDir)%(Directory)%(Filename).pb.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)%(Filename).pb.cc;%(RootDir)%(Directory)%(Filename).pb.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(RootDir)%(Directory)%(Filename).pb.cc;%(RootDir)%(Directory)%(Filename).pb.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(RootDir)%(Directory)%(Filename).pb.cc;%(RootDir)%(Directory)%(Filename).pb.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)%(Filename).pb.cc;%(RootDir)%(Directory)%(Filename).pb.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(RootDir)%(Directory)%(Filename).pb.cc;%(RootDir)%(Directory)%(Filename).pb.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(RootDir)%(Directory)%(Filename).pb.cc;%(RootDir)%(Directory)%(Filename).pb.h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\libphonenumber\resources\phonenumber.proto">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)..
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)..
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)..
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)..
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)..
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)..
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)..
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)..
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)..
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)..
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)..
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)..
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Generating %(RootDir)%(Directory)%(Filename).pb.cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Generating %(RootDir)%(Directory)%(Filename).pb.cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Generating %(RootDir)%(Directory)%(Filename).pb.cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Generating %(RootDir)%(Directory)%(Filename).pb.cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Generating %(RootDir)%(Directory)%(Filename).pb.cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Generating %(RootDir)%(Directory)%(Filename).pb.cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating %(RootDir)%(Directory)%(Filename).pb.cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">Generating %(RootDir)%(Directory)%(Filename).pb.cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">Generating %(RootDir)%(Directory)%(Filename).pb.cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating %(RootDir)%(Directory)%(Filename).pb.cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">Generating %(RootDir)%(Directory)%(Filename).pb.cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Generating %(RootDir)%(Directory)%(Filename).pb.cc</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).pb.cc;%(RootDir)%(Directory)%(Filename).pb.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RootDir)%(Directory)%(Filename).pb.cc;%(RootDir)%(Directory)%(Filename).pb.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RootDir)%(Directory)%(Filename).pb.cc;%(RootDir)%(Directory)%(Filename).pb.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).pb.cc;%(RootDir)%(Directory)%(Filename).pb.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RootDir)%(Directory)%(Filename).pb.cc;%(RootDir)%(Directory)%(Filename).pb.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RootDir)%(Directory)%(Filename).pb.cc;%(RootDir)%(Directory)%(Filename).pb.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)%(Filename).pb.cc;%(RootDir)%(Directory)%(Filename).pb.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(RootDir)%(Directory)%(Filename).pb.cc;%(RootDir)%(Directory)%(Filename).pb.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(RootDir)%(Directory)%(Filename).pb.cc;%(RootDir)%(Directory)%(Filename).pb.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)%(Filename).pb.cc;%(RootDir)%(Directory)%(Filename).pb.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(RootDir)%(Directory)%(Filename).pb.cc;%(RootDir)%(Directory)%(Filename).pb.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(RootDir)%(Directory)%(Filename).pb.cc;%(RootDir)%(Directory)%(Filename).pb.h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

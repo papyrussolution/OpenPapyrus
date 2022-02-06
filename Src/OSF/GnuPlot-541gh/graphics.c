@@ -2126,7 +2126,7 @@ void GnuPlot::PlotCBars(GpTermEntry * pTerm, curve_points * pPlot)
 		yopen  = pPlot->points[i].Pt.y;
 		ymed   = pPlot->points[i].xhigh;
 		// HBB 20010928: To make code match the documentation, ensure yhigh is actually higher than ylow 
-		ExchangeForOrder(&ylow, &yhigh);
+		SExchangeForOrder(&ylow, &yhigh);
 		high_inrange = AxS[AxS.Idx_Y].InRange(yhigh);
 		low_inrange  = AxS[AxS.Idx_Y].InRange(ylow);
 		// compute the pPlot position of yhigh 
@@ -2699,7 +2699,7 @@ outliers:
 // display a x-axis ticmark - called by gen_ticks 
 // also uses global tic_start, tic_direction, tic_text and tic_just 
 //
-void GnuPlot::XTick2DCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, char * text, int ticlevel, const lp_style_type & rGrid/* grid.l_type == LT_NODRAW means no grid */, ticmark * userlabels/* User-specified tic labels */)
+void GnuPlot::XTick2DCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, const char * text, int ticlevel, const lp_style_type & rGrid/* grid.l_type == LT_NODRAW means no grid */, ticmark * userlabels/* User-specified tic labels */)
 {
 	// minitick if text is NULL - beware - TicH is unsigned 
 	int ticsize = static_cast<int>(pTerm->MulTicV(AxS.tic_direction * tic_scale(ticlevel, pAx)));
@@ -2769,7 +2769,7 @@ void GnuPlot::XTick2DCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, c
 // display a y-axis ticmark - called by gen_ticks 
 // also uses global tic_start, tic_direction, tic_text and tic_just 
 //
-void GnuPlot::YTick2DCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, char * text, int ticlevel, const lp_style_type & rGrid/* grid.l_type == LT_NODRAW means no grid */, ticmark * userlabels/* User-specified tic labels */)
+void GnuPlot::YTick2DCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, const char * text, int ticlevel, const lp_style_type & rGrid/* grid.l_type == LT_NODRAW means no grid */, ticmark * userlabels/* User-specified tic labels */)
 {
 	// minitick if text is NULL - TicV is unsigned 
 	int ticsize = static_cast<int>(AxS.tic_direction * (int)pTerm->TicH * tic_scale(ticlevel, pAx));
@@ -2835,7 +2835,7 @@ void GnuPlot::YTick2DCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, c
 // called by gen_ticks to place ticmarks on perimeter of polar grid circle 
 // also uses global tic_start, tic_direction, tic_text and tic_just 
 // 
-void GnuPlot::TTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, char * text, int ticlevel, const lp_style_type & rGrid/* grid.l_type == LT_NODRAW means no grid */, ticmark * userlabels/* User-specified tic labels */)
+void GnuPlot::TTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, const char * text, int ticlevel, const lp_style_type & rGrid/* grid.l_type == LT_NODRAW means no grid */, ticmark * userlabels/* User-specified tic labels */)
 {
 	int xl, yl; // Inner limit of ticmark 
 	int xu, yu; // Outer limit of ticmark 
@@ -3348,9 +3348,9 @@ void GnuPlot::DoRectangle(GpTermEntry * pTerm, int dimensions, t_object * pObjec
 		else
 			return;
 		//if(x1 > x2) { double t = x1; x1 = x2; x2 = t; }
-		ExchangeForOrder(&x1, &x2);
+		SExchangeForOrder(&x1, &x2);
 		//if(y1 > y2) { double t = y1; y1 = y2; y2 = t; }
-		ExchangeForOrder(&y1, &y2);
+		SExchangeForOrder(&y1, &y2);
 		if(pObject->clip == OBJ_CLIP) {
 			if(this_rect->bl.scalex != screen && this_rect->tr.scalex != screen)
 				clip_x = TRUE;
@@ -4275,7 +4275,7 @@ void GnuPlot::PlaceSpiderPlotAxes(GpTermEntry * pTerm, const curve_points * pFir
 	}
 }
 
-void GnuPlot::SpiderTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, char * text, int ticlevel, const lp_style_type & rGrid, ticmark * userlabels)
+void GnuPlot::SpiderTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, const char * text, int ticlevel, const lp_style_type & rGrid, ticmark * userlabels)
 {
 	const  double fraction = (place - pAx->min) / pAx->GetRange();
 	if(fraction > 0.0) {

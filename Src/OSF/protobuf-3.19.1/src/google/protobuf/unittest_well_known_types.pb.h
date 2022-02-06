@@ -201,8 +201,7 @@ class TestWellKnownTypes final :
   inline void Swap(TestWellKnownTypes* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -234,8 +233,7 @@ class TestWellKnownTypes final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -246,19 +244,16 @@ class TestWellKnownTypes final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestWellKnownTypes";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestWellKnownTypes"; }
   protected:
-  explicit TestWellKnownTypes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestWellKnownTypes(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -702,8 +697,7 @@ class RepeatedWellKnownTypes final :
   inline void Swap(RepeatedWellKnownTypes* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -735,8 +729,7 @@ class RepeatedWellKnownTypes final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -747,19 +740,16 @@ class RepeatedWellKnownTypes final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.RepeatedWellKnownTypes";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.RepeatedWellKnownTypes"; }
   protected:
-  explicit RepeatedWellKnownTypes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit RepeatedWellKnownTypes(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -1205,8 +1195,7 @@ class OneofWellKnownTypes final :
   inline void Swap(OneofWellKnownTypes* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -1238,8 +1227,7 @@ class OneofWellKnownTypes final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -1250,19 +1238,16 @@ class OneofWellKnownTypes final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.OneofWellKnownTypes";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.OneofWellKnownTypes"; }
   protected:
-  explicit OneofWellKnownTypes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit OneofWellKnownTypes(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -2021,8 +2006,7 @@ class MapWellKnownTypes final :
   inline void Swap(MapWellKnownTypes* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -2054,8 +2038,7 @@ class MapWellKnownTypes final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -2066,19 +2049,16 @@ class MapWellKnownTypes final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.MapWellKnownTypes";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.MapWellKnownTypes"; }
   protected:
-  explicit MapWellKnownTypes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit MapWellKnownTypes(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -4163,9 +4143,7 @@ inline void TestWellKnownTypes::set_allocated_value_field(::PROTOBUF_NAMESPACE_I
 // RepeatedWellKnownTypes
 
 // repeated .google.protobuf.Any any_field = 1;
-inline int RepeatedWellKnownTypes::_internal_any_field_size() const {
-  return any_field_.size();
-}
+inline int RepeatedWellKnownTypes::_internal_any_field_size() const { return any_field_.size(); }
 inline int RepeatedWellKnownTypes::any_field_size() const {
   return _internal_any_field_size();
 }
@@ -4200,9 +4178,7 @@ RepeatedWellKnownTypes::any_field() const {
 }
 
 // repeated .google.protobuf.Api api_field = 2;
-inline int RepeatedWellKnownTypes::_internal_api_field_size() const {
-  return api_field_.size();
-}
+inline int RepeatedWellKnownTypes::_internal_api_field_size() const { return api_field_.size(); }
 inline int RepeatedWellKnownTypes::api_field_size() const {
   return _internal_api_field_size();
 }
@@ -4237,9 +4213,7 @@ RepeatedWellKnownTypes::api_field() const {
 }
 
 // repeated .google.protobuf.Duration duration_field = 3;
-inline int RepeatedWellKnownTypes::_internal_duration_field_size() const {
-  return duration_field_.size();
-}
+inline int RepeatedWellKnownTypes::_internal_duration_field_size() const { return duration_field_.size(); }
 inline int RepeatedWellKnownTypes::duration_field_size() const {
   return _internal_duration_field_size();
 }
@@ -4274,9 +4248,7 @@ RepeatedWellKnownTypes::duration_field() const {
 }
 
 // repeated .google.protobuf.Empty empty_field = 4;
-inline int RepeatedWellKnownTypes::_internal_empty_field_size() const {
-  return empty_field_.size();
-}
+inline int RepeatedWellKnownTypes::_internal_empty_field_size() const { return empty_field_.size(); }
 inline int RepeatedWellKnownTypes::empty_field_size() const {
   return _internal_empty_field_size();
 }
@@ -4311,9 +4283,7 @@ RepeatedWellKnownTypes::empty_field() const {
 }
 
 // repeated .google.protobuf.FieldMask field_mask_field = 5;
-inline int RepeatedWellKnownTypes::_internal_field_mask_field_size() const {
-  return field_mask_field_.size();
-}
+inline int RepeatedWellKnownTypes::_internal_field_mask_field_size() const { return field_mask_field_.size(); }
 inline int RepeatedWellKnownTypes::field_mask_field_size() const {
   return _internal_field_mask_field_size();
 }
@@ -4348,9 +4318,7 @@ RepeatedWellKnownTypes::field_mask_field() const {
 }
 
 // repeated .google.protobuf.SourceContext source_context_field = 6;
-inline int RepeatedWellKnownTypes::_internal_source_context_field_size() const {
-  return source_context_field_.size();
-}
+inline int RepeatedWellKnownTypes::_internal_source_context_field_size() const { return source_context_field_.size(); }
 inline int RepeatedWellKnownTypes::source_context_field_size() const {
   return _internal_source_context_field_size();
 }
@@ -4385,9 +4353,7 @@ RepeatedWellKnownTypes::source_context_field() const {
 }
 
 // repeated .google.protobuf.Struct struct_field = 7;
-inline int RepeatedWellKnownTypes::_internal_struct_field_size() const {
-  return struct_field_.size();
-}
+inline int RepeatedWellKnownTypes::_internal_struct_field_size() const { return struct_field_.size(); }
 inline int RepeatedWellKnownTypes::struct_field_size() const {
   return _internal_struct_field_size();
 }
@@ -4422,9 +4388,7 @@ RepeatedWellKnownTypes::struct_field() const {
 }
 
 // repeated .google.protobuf.Timestamp timestamp_field = 8;
-inline int RepeatedWellKnownTypes::_internal_timestamp_field_size() const {
-  return timestamp_field_.size();
-}
+inline int RepeatedWellKnownTypes::_internal_timestamp_field_size() const { return timestamp_field_.size(); }
 inline int RepeatedWellKnownTypes::timestamp_field_size() const {
   return _internal_timestamp_field_size();
 }
@@ -4459,9 +4423,7 @@ RepeatedWellKnownTypes::timestamp_field() const {
 }
 
 // repeated .google.protobuf.Type type_field = 9;
-inline int RepeatedWellKnownTypes::_internal_type_field_size() const {
-  return type_field_.size();
-}
+inline int RepeatedWellKnownTypes::_internal_type_field_size() const { return type_field_.size(); }
 inline int RepeatedWellKnownTypes::type_field_size() const {
   return _internal_type_field_size();
 }
@@ -4496,9 +4458,7 @@ RepeatedWellKnownTypes::type_field() const {
 }
 
 // repeated .google.protobuf.DoubleValue double_field = 10;
-inline int RepeatedWellKnownTypes::_internal_double_field_size() const {
-  return double_field_.size();
-}
+inline int RepeatedWellKnownTypes::_internal_double_field_size() const { return double_field_.size(); }
 inline int RepeatedWellKnownTypes::double_field_size() const {
   return _internal_double_field_size();
 }
@@ -4533,9 +4493,7 @@ RepeatedWellKnownTypes::double_field() const {
 }
 
 // repeated .google.protobuf.FloatValue float_field = 11;
-inline int RepeatedWellKnownTypes::_internal_float_field_size() const {
-  return float_field_.size();
-}
+inline int RepeatedWellKnownTypes::_internal_float_field_size() const { return float_field_.size(); }
 inline int RepeatedWellKnownTypes::float_field_size() const {
   return _internal_float_field_size();
 }
@@ -4570,9 +4528,7 @@ RepeatedWellKnownTypes::float_field() const {
 }
 
 // repeated .google.protobuf.Int64Value int64_field = 12;
-inline int RepeatedWellKnownTypes::_internal_int64_field_size() const {
-  return int64_field_.size();
-}
+inline int RepeatedWellKnownTypes::_internal_int64_field_size() const { return int64_field_.size(); }
 inline int RepeatedWellKnownTypes::int64_field_size() const {
   return _internal_int64_field_size();
 }
@@ -4607,9 +4563,7 @@ RepeatedWellKnownTypes::int64_field() const {
 }
 
 // repeated .google.protobuf.UInt64Value uint64_field = 13;
-inline int RepeatedWellKnownTypes::_internal_uint64_field_size() const {
-  return uint64_field_.size();
-}
+inline int RepeatedWellKnownTypes::_internal_uint64_field_size() const { return uint64_field_.size(); }
 inline int RepeatedWellKnownTypes::uint64_field_size() const {
   return _internal_uint64_field_size();
 }
@@ -4644,9 +4598,7 @@ RepeatedWellKnownTypes::uint64_field() const {
 }
 
 // repeated .google.protobuf.Int32Value int32_field = 14;
-inline int RepeatedWellKnownTypes::_internal_int32_field_size() const {
-  return int32_field_.size();
-}
+inline int RepeatedWellKnownTypes::_internal_int32_field_size() const { return int32_field_.size(); }
 inline int RepeatedWellKnownTypes::int32_field_size() const {
   return _internal_int32_field_size();
 }
@@ -4681,9 +4633,7 @@ RepeatedWellKnownTypes::int32_field() const {
 }
 
 // repeated .google.protobuf.UInt32Value uint32_field = 15;
-inline int RepeatedWellKnownTypes::_internal_uint32_field_size() const {
-  return uint32_field_.size();
-}
+inline int RepeatedWellKnownTypes::_internal_uint32_field_size() const { return uint32_field_.size(); }
 inline int RepeatedWellKnownTypes::uint32_field_size() const {
   return _internal_uint32_field_size();
 }
@@ -4718,9 +4668,7 @@ RepeatedWellKnownTypes::uint32_field() const {
 }
 
 // repeated .google.protobuf.BoolValue bool_field = 16;
-inline int RepeatedWellKnownTypes::_internal_bool_field_size() const {
-  return bool_field_.size();
-}
+inline int RepeatedWellKnownTypes::_internal_bool_field_size() const { return bool_field_.size(); }
 inline int RepeatedWellKnownTypes::bool_field_size() const {
   return _internal_bool_field_size();
 }
@@ -4755,9 +4703,7 @@ RepeatedWellKnownTypes::bool_field() const {
 }
 
 // repeated .google.protobuf.StringValue string_field = 17;
-inline int RepeatedWellKnownTypes::_internal_string_field_size() const {
-  return string_field_.size();
-}
+inline int RepeatedWellKnownTypes::_internal_string_field_size() const { return string_field_.size(); }
 inline int RepeatedWellKnownTypes::string_field_size() const {
   return _internal_string_field_size();
 }
@@ -4792,9 +4738,7 @@ RepeatedWellKnownTypes::string_field() const {
 }
 
 // repeated .google.protobuf.BytesValue bytes_field = 18;
-inline int RepeatedWellKnownTypes::_internal_bytes_field_size() const {
-  return bytes_field_.size();
-}
+inline int RepeatedWellKnownTypes::_internal_bytes_field_size() const { return bytes_field_.size(); }
 inline int RepeatedWellKnownTypes::bytes_field_size() const {
   return _internal_bytes_field_size();
 }
@@ -4844,10 +4788,10 @@ inline void OneofWellKnownTypes::set_has_any_field() {
 }
 inline ::PROTOBUF_NAMESPACE_ID::Any* OneofWellKnownTypes::release_any_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.any_field)
-  if (_internal_has_any_field()) {
+  if(_internal_has_any_field()) {
     clear_has_oneof_field();
       ::PROTOBUF_NAMESPACE_ID::Any* temp = oneof_field_.any_field_;
-    if (GetArenaForAllocation() != nullptr) {
+    if(GetArenaForAllocation() != nullptr) {
       temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
     }
     oneof_field_.any_field_ = nullptr;
@@ -4856,18 +4800,14 @@ inline ::PROTOBUF_NAMESPACE_ID::Any* OneofWellKnownTypes::release_any_field() {
     return nullptr;
   }
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Any& OneofWellKnownTypes::_internal_any_field() const {
-  return _internal_has_any_field()
-      ? *oneof_field_.any_field_
-      : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::Any&>(::PROTOBUF_NAMESPACE_ID::_Any_default_instance_);
-}
+inline const ::PROTOBUF_NAMESPACE_ID::Any& OneofWellKnownTypes::_internal_any_field() const { return _internal_has_any_field() ? *oneof_field_.any_field_ : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::Any&>(::PROTOBUF_NAMESPACE_ID::_Any_default_instance_); }
 inline const ::PROTOBUF_NAMESPACE_ID::Any& OneofWellKnownTypes::any_field() const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.OneofWellKnownTypes.any_field)
   return _internal_any_field();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Any* OneofWellKnownTypes::unsafe_arena_release_any_field() {
   // @@protoc_insertion_point(field_unsafe_arena_release:protobuf_unittest.OneofWellKnownTypes.any_field)
-  if (_internal_has_any_field()) {
+  if(_internal_has_any_field()) {
     clear_has_oneof_field();
     ::PROTOBUF_NAMESPACE_ID::Any* temp = oneof_field_.any_field_;
     oneof_field_.any_field_ = nullptr;
@@ -4878,14 +4818,14 @@ inline ::PROTOBUF_NAMESPACE_ID::Any* OneofWellKnownTypes::unsafe_arena_release_a
 }
 inline void OneofWellKnownTypes::unsafe_arena_set_allocated_any_field(::PROTOBUF_NAMESPACE_ID::Any* any_field) {
   clear_oneof_field();
-  if (any_field) {
+  if(any_field) {
     set_has_any_field();
     oneof_field_.any_field_ = any_field;
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:protobuf_unittest.OneofWellKnownTypes.any_field)
 }
 inline ::PROTOBUF_NAMESPACE_ID::Any* OneofWellKnownTypes::_internal_mutable_any_field() {
-  if (!_internal_has_any_field()) {
+  if(!_internal_has_any_field()) {
     clear_oneof_field();
     set_has_any_field();
     oneof_field_.any_field_ = CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::Any >(GetArenaForAllocation());
@@ -4910,10 +4850,10 @@ inline void OneofWellKnownTypes::set_has_api_field() {
 }
 inline ::PROTOBUF_NAMESPACE_ID::Api* OneofWellKnownTypes::release_api_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.api_field)
-  if (_internal_has_api_field()) {
+  if(_internal_has_api_field()) {
     clear_has_oneof_field();
       ::PROTOBUF_NAMESPACE_ID::Api* temp = oneof_field_.api_field_;
-    if (GetArenaForAllocation() != nullptr) {
+    if(GetArenaForAllocation() != nullptr) {
       temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
     }
     oneof_field_.api_field_ = nullptr;
@@ -4922,18 +4862,14 @@ inline ::PROTOBUF_NAMESPACE_ID::Api* OneofWellKnownTypes::release_api_field() {
     return nullptr;
   }
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Api& OneofWellKnownTypes::_internal_api_field() const {
-  return _internal_has_api_field()
-      ? *oneof_field_.api_field_
-      : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::Api&>(::PROTOBUF_NAMESPACE_ID::_Api_default_instance_);
-}
+inline const ::PROTOBUF_NAMESPACE_ID::Api& OneofWellKnownTypes::_internal_api_field() const { return _internal_has_api_field() ? *oneof_field_.api_field_ : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::Api&>(::PROTOBUF_NAMESPACE_ID::_Api_default_instance_); }
 inline const ::PROTOBUF_NAMESPACE_ID::Api& OneofWellKnownTypes::api_field() const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.OneofWellKnownTypes.api_field)
   return _internal_api_field();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Api* OneofWellKnownTypes::unsafe_arena_release_api_field() {
   // @@protoc_insertion_point(field_unsafe_arena_release:protobuf_unittest.OneofWellKnownTypes.api_field)
-  if (_internal_has_api_field()) {
+  if(_internal_has_api_field()) {
     clear_has_oneof_field();
     ::PROTOBUF_NAMESPACE_ID::Api* temp = oneof_field_.api_field_;
     oneof_field_.api_field_ = nullptr;
@@ -4944,14 +4880,14 @@ inline ::PROTOBUF_NAMESPACE_ID::Api* OneofWellKnownTypes::unsafe_arena_release_a
 }
 inline void OneofWellKnownTypes::unsafe_arena_set_allocated_api_field(::PROTOBUF_NAMESPACE_ID::Api* api_field) {
   clear_oneof_field();
-  if (api_field) {
+  if(api_field) {
     set_has_api_field();
     oneof_field_.api_field_ = api_field;
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:protobuf_unittest.OneofWellKnownTypes.api_field)
 }
 inline ::PROTOBUF_NAMESPACE_ID::Api* OneofWellKnownTypes::_internal_mutable_api_field() {
-  if (!_internal_has_api_field()) {
+  if(!_internal_has_api_field()) {
     clear_oneof_field();
     set_has_api_field();
     oneof_field_.api_field_ = CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::Api >(GetArenaForAllocation());
@@ -4976,10 +4912,10 @@ inline void OneofWellKnownTypes::set_has_duration_field() {
 }
 inline ::PROTOBUF_NAMESPACE_ID::Duration* OneofWellKnownTypes::release_duration_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.duration_field)
-  if (_internal_has_duration_field()) {
+  if(_internal_has_duration_field()) {
     clear_has_oneof_field();
       ::PROTOBUF_NAMESPACE_ID::Duration* temp = oneof_field_.duration_field_;
-    if (GetArenaForAllocation() != nullptr) {
+    if(GetArenaForAllocation() != nullptr) {
       temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
     }
     oneof_field_.duration_field_ = nullptr;
@@ -4988,18 +4924,14 @@ inline ::PROTOBUF_NAMESPACE_ID::Duration* OneofWellKnownTypes::release_duration_
     return nullptr;
   }
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Duration& OneofWellKnownTypes::_internal_duration_field() const {
-  return _internal_has_duration_field()
-      ? *oneof_field_.duration_field_
-      : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::Duration&>(::PROTOBUF_NAMESPACE_ID::_Duration_default_instance_);
-}
+inline const ::PROTOBUF_NAMESPACE_ID::Duration& OneofWellKnownTypes::_internal_duration_field() const { return _internal_has_duration_field() ? *oneof_field_.duration_field_ : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::Duration&>(::PROTOBUF_NAMESPACE_ID::_Duration_default_instance_); }
 inline const ::PROTOBUF_NAMESPACE_ID::Duration& OneofWellKnownTypes::duration_field() const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.OneofWellKnownTypes.duration_field)
   return _internal_duration_field();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Duration* OneofWellKnownTypes::unsafe_arena_release_duration_field() {
   // @@protoc_insertion_point(field_unsafe_arena_release:protobuf_unittest.OneofWellKnownTypes.duration_field)
-  if (_internal_has_duration_field()) {
+  if(_internal_has_duration_field()) {
     clear_has_oneof_field();
     ::PROTOBUF_NAMESPACE_ID::Duration* temp = oneof_field_.duration_field_;
     oneof_field_.duration_field_ = nullptr;
@@ -5010,14 +4942,14 @@ inline ::PROTOBUF_NAMESPACE_ID::Duration* OneofWellKnownTypes::unsafe_arena_rele
 }
 inline void OneofWellKnownTypes::unsafe_arena_set_allocated_duration_field(::PROTOBUF_NAMESPACE_ID::Duration* duration_field) {
   clear_oneof_field();
-  if (duration_field) {
+  if(duration_field) {
     set_has_duration_field();
     oneof_field_.duration_field_ = duration_field;
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:protobuf_unittest.OneofWellKnownTypes.duration_field)
 }
 inline ::PROTOBUF_NAMESPACE_ID::Duration* OneofWellKnownTypes::_internal_mutable_duration_field() {
-  if (!_internal_has_duration_field()) {
+  if(!_internal_has_duration_field()) {
     clear_oneof_field();
     set_has_duration_field();
     oneof_field_.duration_field_ = CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::Duration >(GetArenaForAllocation());
@@ -5042,10 +4974,10 @@ inline void OneofWellKnownTypes::set_has_empty_field() {
 }
 inline ::PROTOBUF_NAMESPACE_ID::Empty* OneofWellKnownTypes::release_empty_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.empty_field)
-  if (_internal_has_empty_field()) {
+  if(_internal_has_empty_field()) {
     clear_has_oneof_field();
       ::PROTOBUF_NAMESPACE_ID::Empty* temp = oneof_field_.empty_field_;
-    if (GetArenaForAllocation() != nullptr) {
+    if(GetArenaForAllocation() != nullptr) {
       temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
     }
     oneof_field_.empty_field_ = nullptr;
@@ -5054,18 +4986,14 @@ inline ::PROTOBUF_NAMESPACE_ID::Empty* OneofWellKnownTypes::release_empty_field(
     return nullptr;
   }
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Empty& OneofWellKnownTypes::_internal_empty_field() const {
-  return _internal_has_empty_field()
-      ? *oneof_field_.empty_field_
-      : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::Empty&>(::PROTOBUF_NAMESPACE_ID::_Empty_default_instance_);
-}
+inline const ::PROTOBUF_NAMESPACE_ID::Empty& OneofWellKnownTypes::_internal_empty_field() const { return _internal_has_empty_field() ? *oneof_field_.empty_field_ : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::Empty&>(::PROTOBUF_NAMESPACE_ID::_Empty_default_instance_); }
 inline const ::PROTOBUF_NAMESPACE_ID::Empty& OneofWellKnownTypes::empty_field() const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.OneofWellKnownTypes.empty_field)
   return _internal_empty_field();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Empty* OneofWellKnownTypes::unsafe_arena_release_empty_field() {
   // @@protoc_insertion_point(field_unsafe_arena_release:protobuf_unittest.OneofWellKnownTypes.empty_field)
-  if (_internal_has_empty_field()) {
+  if(_internal_has_empty_field()) {
     clear_has_oneof_field();
     ::PROTOBUF_NAMESPACE_ID::Empty* temp = oneof_field_.empty_field_;
     oneof_field_.empty_field_ = nullptr;
@@ -5076,14 +5004,14 @@ inline ::PROTOBUF_NAMESPACE_ID::Empty* OneofWellKnownTypes::unsafe_arena_release
 }
 inline void OneofWellKnownTypes::unsafe_arena_set_allocated_empty_field(::PROTOBUF_NAMESPACE_ID::Empty* empty_field) {
   clear_oneof_field();
-  if (empty_field) {
+  if(empty_field) {
     set_has_empty_field();
     oneof_field_.empty_field_ = empty_field;
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:protobuf_unittest.OneofWellKnownTypes.empty_field)
 }
 inline ::PROTOBUF_NAMESPACE_ID::Empty* OneofWellKnownTypes::_internal_mutable_empty_field() {
-  if (!_internal_has_empty_field()) {
+  if(!_internal_has_empty_field()) {
     clear_oneof_field();
     set_has_empty_field();
     oneof_field_.empty_field_ = CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::Empty >(GetArenaForAllocation());
@@ -5108,10 +5036,10 @@ inline void OneofWellKnownTypes::set_has_field_mask_field() {
 }
 inline ::PROTOBUF_NAMESPACE_ID::FieldMask* OneofWellKnownTypes::release_field_mask_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.field_mask_field)
-  if (_internal_has_field_mask_field()) {
+  if(_internal_has_field_mask_field()) {
     clear_has_oneof_field();
       ::PROTOBUF_NAMESPACE_ID::FieldMask* temp = oneof_field_.field_mask_field_;
-    if (GetArenaForAllocation() != nullptr) {
+    if(GetArenaForAllocation() != nullptr) {
       temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
     }
     oneof_field_.field_mask_field_ = nullptr;
@@ -5120,18 +5048,14 @@ inline ::PROTOBUF_NAMESPACE_ID::FieldMask* OneofWellKnownTypes::release_field_ma
     return nullptr;
   }
 }
-inline const ::PROTOBUF_NAMESPACE_ID::FieldMask& OneofWellKnownTypes::_internal_field_mask_field() const {
-  return _internal_has_field_mask_field()
-      ? *oneof_field_.field_mask_field_
-      : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::FieldMask&>(::PROTOBUF_NAMESPACE_ID::_FieldMask_default_instance_);
-}
+inline const ::PROTOBUF_NAMESPACE_ID::FieldMask& OneofWellKnownTypes::_internal_field_mask_field() const { return _internal_has_field_mask_field() ? *oneof_field_.field_mask_field_ : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::FieldMask&>(::PROTOBUF_NAMESPACE_ID::_FieldMask_default_instance_); }
 inline const ::PROTOBUF_NAMESPACE_ID::FieldMask& OneofWellKnownTypes::field_mask_field() const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.OneofWellKnownTypes.field_mask_field)
   return _internal_field_mask_field();
 }
 inline ::PROTOBUF_NAMESPACE_ID::FieldMask* OneofWellKnownTypes::unsafe_arena_release_field_mask_field() {
   // @@protoc_insertion_point(field_unsafe_arena_release:protobuf_unittest.OneofWellKnownTypes.field_mask_field)
-  if (_internal_has_field_mask_field()) {
+  if(_internal_has_field_mask_field()) {
     clear_has_oneof_field();
     ::PROTOBUF_NAMESPACE_ID::FieldMask* temp = oneof_field_.field_mask_field_;
     oneof_field_.field_mask_field_ = nullptr;
@@ -5142,14 +5066,14 @@ inline ::PROTOBUF_NAMESPACE_ID::FieldMask* OneofWellKnownTypes::unsafe_arena_rel
 }
 inline void OneofWellKnownTypes::unsafe_arena_set_allocated_field_mask_field(::PROTOBUF_NAMESPACE_ID::FieldMask* field_mask_field) {
   clear_oneof_field();
-  if (field_mask_field) {
+  if(field_mask_field) {
     set_has_field_mask_field();
     oneof_field_.field_mask_field_ = field_mask_field;
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:protobuf_unittest.OneofWellKnownTypes.field_mask_field)
 }
 inline ::PROTOBUF_NAMESPACE_ID::FieldMask* OneofWellKnownTypes::_internal_mutable_field_mask_field() {
-  if (!_internal_has_field_mask_field()) {
+  if(!_internal_has_field_mask_field()) {
     clear_oneof_field();
     set_has_field_mask_field();
     oneof_field_.field_mask_field_ = CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::FieldMask >(GetArenaForAllocation());
@@ -5174,10 +5098,10 @@ inline void OneofWellKnownTypes::set_has_source_context_field() {
 }
 inline ::PROTOBUF_NAMESPACE_ID::SourceContext* OneofWellKnownTypes::release_source_context_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.source_context_field)
-  if (_internal_has_source_context_field()) {
+  if(_internal_has_source_context_field()) {
     clear_has_oneof_field();
       ::PROTOBUF_NAMESPACE_ID::SourceContext* temp = oneof_field_.source_context_field_;
-    if (GetArenaForAllocation() != nullptr) {
+    if(GetArenaForAllocation() != nullptr) {
       temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
     }
     oneof_field_.source_context_field_ = nullptr;
@@ -5186,18 +5110,14 @@ inline ::PROTOBUF_NAMESPACE_ID::SourceContext* OneofWellKnownTypes::release_sour
     return nullptr;
   }
 }
-inline const ::PROTOBUF_NAMESPACE_ID::SourceContext& OneofWellKnownTypes::_internal_source_context_field() const {
-  return _internal_has_source_context_field()
-      ? *oneof_field_.source_context_field_
-      : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::SourceContext&>(::PROTOBUF_NAMESPACE_ID::_SourceContext_default_instance_);
-}
+inline const ::PROTOBUF_NAMESPACE_ID::SourceContext& OneofWellKnownTypes::_internal_source_context_field() const { return _internal_has_source_context_field() ? *oneof_field_.source_context_field_ : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::SourceContext&>(::PROTOBUF_NAMESPACE_ID::_SourceContext_default_instance_); }
 inline const ::PROTOBUF_NAMESPACE_ID::SourceContext& OneofWellKnownTypes::source_context_field() const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.OneofWellKnownTypes.source_context_field)
   return _internal_source_context_field();
 }
 inline ::PROTOBUF_NAMESPACE_ID::SourceContext* OneofWellKnownTypes::unsafe_arena_release_source_context_field() {
   // @@protoc_insertion_point(field_unsafe_arena_release:protobuf_unittest.OneofWellKnownTypes.source_context_field)
-  if (_internal_has_source_context_field()) {
+  if(_internal_has_source_context_field()) {
     clear_has_oneof_field();
     ::PROTOBUF_NAMESPACE_ID::SourceContext* temp = oneof_field_.source_context_field_;
     oneof_field_.source_context_field_ = nullptr;
@@ -5208,14 +5128,14 @@ inline ::PROTOBUF_NAMESPACE_ID::SourceContext* OneofWellKnownTypes::unsafe_arena
 }
 inline void OneofWellKnownTypes::unsafe_arena_set_allocated_source_context_field(::PROTOBUF_NAMESPACE_ID::SourceContext* source_context_field) {
   clear_oneof_field();
-  if (source_context_field) {
+  if(source_context_field) {
     set_has_source_context_field();
     oneof_field_.source_context_field_ = source_context_field;
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:protobuf_unittest.OneofWellKnownTypes.source_context_field)
 }
 inline ::PROTOBUF_NAMESPACE_ID::SourceContext* OneofWellKnownTypes::_internal_mutable_source_context_field() {
-  if (!_internal_has_source_context_field()) {
+  if(!_internal_has_source_context_field()) {
     clear_oneof_field();
     set_has_source_context_field();
     oneof_field_.source_context_field_ = CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::SourceContext >(GetArenaForAllocation());
@@ -5240,10 +5160,10 @@ inline void OneofWellKnownTypes::set_has_struct_field() {
 }
 inline ::PROTOBUF_NAMESPACE_ID::Struct* OneofWellKnownTypes::release_struct_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.struct_field)
-  if (_internal_has_struct_field()) {
+  if(_internal_has_struct_field()) {
     clear_has_oneof_field();
       ::PROTOBUF_NAMESPACE_ID::Struct* temp = oneof_field_.struct_field_;
-    if (GetArenaForAllocation() != nullptr) {
+    if(GetArenaForAllocation() != nullptr) {
       temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
     }
     oneof_field_.struct_field_ = nullptr;
@@ -5252,18 +5172,14 @@ inline ::PROTOBUF_NAMESPACE_ID::Struct* OneofWellKnownTypes::release_struct_fiel
     return nullptr;
   }
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Struct& OneofWellKnownTypes::_internal_struct_field() const {
-  return _internal_has_struct_field()
-      ? *oneof_field_.struct_field_
-      : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::Struct&>(::PROTOBUF_NAMESPACE_ID::_Struct_default_instance_);
-}
+inline const ::PROTOBUF_NAMESPACE_ID::Struct& OneofWellKnownTypes::_internal_struct_field() const { return _internal_has_struct_field() ? *oneof_field_.struct_field_ : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::Struct&>(::PROTOBUF_NAMESPACE_ID::_Struct_default_instance_); }
 inline const ::PROTOBUF_NAMESPACE_ID::Struct& OneofWellKnownTypes::struct_field() const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.OneofWellKnownTypes.struct_field)
   return _internal_struct_field();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Struct* OneofWellKnownTypes::unsafe_arena_release_struct_field() {
   // @@protoc_insertion_point(field_unsafe_arena_release:protobuf_unittest.OneofWellKnownTypes.struct_field)
-  if (_internal_has_struct_field()) {
+  if(_internal_has_struct_field()) {
     clear_has_oneof_field();
     ::PROTOBUF_NAMESPACE_ID::Struct* temp = oneof_field_.struct_field_;
     oneof_field_.struct_field_ = nullptr;
@@ -5274,14 +5190,14 @@ inline ::PROTOBUF_NAMESPACE_ID::Struct* OneofWellKnownTypes::unsafe_arena_releas
 }
 inline void OneofWellKnownTypes::unsafe_arena_set_allocated_struct_field(::PROTOBUF_NAMESPACE_ID::Struct* struct_field) {
   clear_oneof_field();
-  if (struct_field) {
+  if(struct_field) {
     set_has_struct_field();
     oneof_field_.struct_field_ = struct_field;
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:protobuf_unittest.OneofWellKnownTypes.struct_field)
 }
 inline ::PROTOBUF_NAMESPACE_ID::Struct* OneofWellKnownTypes::_internal_mutable_struct_field() {
-  if (!_internal_has_struct_field()) {
+  if(!_internal_has_struct_field()) {
     clear_oneof_field();
     set_has_struct_field();
     oneof_field_.struct_field_ = CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::Struct >(GetArenaForAllocation());
@@ -5306,10 +5222,10 @@ inline void OneofWellKnownTypes::set_has_timestamp_field() {
 }
 inline ::PROTOBUF_NAMESPACE_ID::Timestamp* OneofWellKnownTypes::release_timestamp_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.timestamp_field)
-  if (_internal_has_timestamp_field()) {
+  if(_internal_has_timestamp_field()) {
     clear_has_oneof_field();
       ::PROTOBUF_NAMESPACE_ID::Timestamp* temp = oneof_field_.timestamp_field_;
-    if (GetArenaForAllocation() != nullptr) {
+    if(GetArenaForAllocation() != nullptr) {
       temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
     }
     oneof_field_.timestamp_field_ = nullptr;
@@ -5318,18 +5234,14 @@ inline ::PROTOBUF_NAMESPACE_ID::Timestamp* OneofWellKnownTypes::release_timestam
     return nullptr;
   }
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Timestamp& OneofWellKnownTypes::_internal_timestamp_field() const {
-  return _internal_has_timestamp_field()
-      ? *oneof_field_.timestamp_field_
-      : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::Timestamp&>(::PROTOBUF_NAMESPACE_ID::_Timestamp_default_instance_);
-}
+inline const ::PROTOBUF_NAMESPACE_ID::Timestamp& OneofWellKnownTypes::_internal_timestamp_field() const { return _internal_has_timestamp_field() ? *oneof_field_.timestamp_field_ : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::Timestamp&>(::PROTOBUF_NAMESPACE_ID::_Timestamp_default_instance_); }
 inline const ::PROTOBUF_NAMESPACE_ID::Timestamp& OneofWellKnownTypes::timestamp_field() const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.OneofWellKnownTypes.timestamp_field)
   return _internal_timestamp_field();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Timestamp* OneofWellKnownTypes::unsafe_arena_release_timestamp_field() {
   // @@protoc_insertion_point(field_unsafe_arena_release:protobuf_unittest.OneofWellKnownTypes.timestamp_field)
-  if (_internal_has_timestamp_field()) {
+  if(_internal_has_timestamp_field()) {
     clear_has_oneof_field();
     ::PROTOBUF_NAMESPACE_ID::Timestamp* temp = oneof_field_.timestamp_field_;
     oneof_field_.timestamp_field_ = nullptr;
@@ -5340,14 +5252,14 @@ inline ::PROTOBUF_NAMESPACE_ID::Timestamp* OneofWellKnownTypes::unsafe_arena_rel
 }
 inline void OneofWellKnownTypes::unsafe_arena_set_allocated_timestamp_field(::PROTOBUF_NAMESPACE_ID::Timestamp* timestamp_field) {
   clear_oneof_field();
-  if (timestamp_field) {
+  if(timestamp_field) {
     set_has_timestamp_field();
     oneof_field_.timestamp_field_ = timestamp_field;
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:protobuf_unittest.OneofWellKnownTypes.timestamp_field)
 }
 inline ::PROTOBUF_NAMESPACE_ID::Timestamp* OneofWellKnownTypes::_internal_mutable_timestamp_field() {
-  if (!_internal_has_timestamp_field()) {
+  if(!_internal_has_timestamp_field()) {
     clear_oneof_field();
     set_has_timestamp_field();
     oneof_field_.timestamp_field_ = CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::Timestamp >(GetArenaForAllocation());
@@ -5372,10 +5284,10 @@ inline void OneofWellKnownTypes::set_has_type_field() {
 }
 inline ::PROTOBUF_NAMESPACE_ID::Type* OneofWellKnownTypes::release_type_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.type_field)
-  if (_internal_has_type_field()) {
+  if(_internal_has_type_field()) {
     clear_has_oneof_field();
       ::PROTOBUF_NAMESPACE_ID::Type* temp = oneof_field_.type_field_;
-    if (GetArenaForAllocation() != nullptr) {
+    if(GetArenaForAllocation() != nullptr) {
       temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
     }
     oneof_field_.type_field_ = nullptr;
@@ -5384,18 +5296,14 @@ inline ::PROTOBUF_NAMESPACE_ID::Type* OneofWellKnownTypes::release_type_field() 
     return nullptr;
   }
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Type& OneofWellKnownTypes::_internal_type_field() const {
-  return _internal_has_type_field()
-      ? *oneof_field_.type_field_
-      : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::Type&>(::PROTOBUF_NAMESPACE_ID::_Type_default_instance_);
-}
+inline const ::PROTOBUF_NAMESPACE_ID::Type& OneofWellKnownTypes::_internal_type_field() const { return _internal_has_type_field() ? *oneof_field_.type_field_ : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::Type&>(::PROTOBUF_NAMESPACE_ID::_Type_default_instance_); }
 inline const ::PROTOBUF_NAMESPACE_ID::Type& OneofWellKnownTypes::type_field() const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.OneofWellKnownTypes.type_field)
   return _internal_type_field();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Type* OneofWellKnownTypes::unsafe_arena_release_type_field() {
   // @@protoc_insertion_point(field_unsafe_arena_release:protobuf_unittest.OneofWellKnownTypes.type_field)
-  if (_internal_has_type_field()) {
+  if(_internal_has_type_field()) {
     clear_has_oneof_field();
     ::PROTOBUF_NAMESPACE_ID::Type* temp = oneof_field_.type_field_;
     oneof_field_.type_field_ = nullptr;
@@ -5406,14 +5314,14 @@ inline ::PROTOBUF_NAMESPACE_ID::Type* OneofWellKnownTypes::unsafe_arena_release_
 }
 inline void OneofWellKnownTypes::unsafe_arena_set_allocated_type_field(::PROTOBUF_NAMESPACE_ID::Type* type_field) {
   clear_oneof_field();
-  if (type_field) {
+  if(type_field) {
     set_has_type_field();
     oneof_field_.type_field_ = type_field;
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:protobuf_unittest.OneofWellKnownTypes.type_field)
 }
 inline ::PROTOBUF_NAMESPACE_ID::Type* OneofWellKnownTypes::_internal_mutable_type_field() {
-  if (!_internal_has_type_field()) {
+  if(!_internal_has_type_field()) {
     clear_oneof_field();
     set_has_type_field();
     oneof_field_.type_field_ = CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::Type >(GetArenaForAllocation());
@@ -5438,10 +5346,10 @@ inline void OneofWellKnownTypes::set_has_double_field() {
 }
 inline ::PROTOBUF_NAMESPACE_ID::DoubleValue* OneofWellKnownTypes::release_double_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.double_field)
-  if (_internal_has_double_field()) {
+  if(_internal_has_double_field()) {
     clear_has_oneof_field();
       ::PROTOBUF_NAMESPACE_ID::DoubleValue* temp = oneof_field_.double_field_;
-    if (GetArenaForAllocation() != nullptr) {
+    if(GetArenaForAllocation() != nullptr) {
       temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
     }
     oneof_field_.double_field_ = nullptr;
@@ -5450,18 +5358,14 @@ inline ::PROTOBUF_NAMESPACE_ID::DoubleValue* OneofWellKnownTypes::release_double
     return nullptr;
   }
 }
-inline const ::PROTOBUF_NAMESPACE_ID::DoubleValue& OneofWellKnownTypes::_internal_double_field() const {
-  return _internal_has_double_field()
-      ? *oneof_field_.double_field_
-      : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::DoubleValue&>(::PROTOBUF_NAMESPACE_ID::_DoubleValue_default_instance_);
-}
+inline const ::PROTOBUF_NAMESPACE_ID::DoubleValue& OneofWellKnownTypes::_internal_double_field() const { return _internal_has_double_field() ? *oneof_field_.double_field_ : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::DoubleValue&>(::PROTOBUF_NAMESPACE_ID::_DoubleValue_default_instance_); }
 inline const ::PROTOBUF_NAMESPACE_ID::DoubleValue& OneofWellKnownTypes::double_field() const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.OneofWellKnownTypes.double_field)
   return _internal_double_field();
 }
 inline ::PROTOBUF_NAMESPACE_ID::DoubleValue* OneofWellKnownTypes::unsafe_arena_release_double_field() {
   // @@protoc_insertion_point(field_unsafe_arena_release:protobuf_unittest.OneofWellKnownTypes.double_field)
-  if (_internal_has_double_field()) {
+  if(_internal_has_double_field()) {
     clear_has_oneof_field();
     ::PROTOBUF_NAMESPACE_ID::DoubleValue* temp = oneof_field_.double_field_;
     oneof_field_.double_field_ = nullptr;
@@ -5472,14 +5376,14 @@ inline ::PROTOBUF_NAMESPACE_ID::DoubleValue* OneofWellKnownTypes::unsafe_arena_r
 }
 inline void OneofWellKnownTypes::unsafe_arena_set_allocated_double_field(::PROTOBUF_NAMESPACE_ID::DoubleValue* double_field) {
   clear_oneof_field();
-  if (double_field) {
+  if(double_field) {
     set_has_double_field();
     oneof_field_.double_field_ = double_field;
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:protobuf_unittest.OneofWellKnownTypes.double_field)
 }
 inline ::PROTOBUF_NAMESPACE_ID::DoubleValue* OneofWellKnownTypes::_internal_mutable_double_field() {
-  if (!_internal_has_double_field()) {
+  if(!_internal_has_double_field()) {
     clear_oneof_field();
     set_has_double_field();
     oneof_field_.double_field_ = CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::DoubleValue >(GetArenaForAllocation());
@@ -5504,10 +5408,10 @@ inline void OneofWellKnownTypes::set_has_float_field() {
 }
 inline ::PROTOBUF_NAMESPACE_ID::FloatValue* OneofWellKnownTypes::release_float_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.float_field)
-  if (_internal_has_float_field()) {
+  if(_internal_has_float_field()) {
     clear_has_oneof_field();
       ::PROTOBUF_NAMESPACE_ID::FloatValue* temp = oneof_field_.float_field_;
-    if (GetArenaForAllocation() != nullptr) {
+    if(GetArenaForAllocation() != nullptr) {
       temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
     }
     oneof_field_.float_field_ = nullptr;
@@ -5516,18 +5420,14 @@ inline ::PROTOBUF_NAMESPACE_ID::FloatValue* OneofWellKnownTypes::release_float_f
     return nullptr;
   }
 }
-inline const ::PROTOBUF_NAMESPACE_ID::FloatValue& OneofWellKnownTypes::_internal_float_field() const {
-  return _internal_has_float_field()
-      ? *oneof_field_.float_field_
-      : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::FloatValue&>(::PROTOBUF_NAMESPACE_ID::_FloatValue_default_instance_);
-}
+inline const ::PROTOBUF_NAMESPACE_ID::FloatValue& OneofWellKnownTypes::_internal_float_field() const { return _internal_has_float_field() ? *oneof_field_.float_field_ : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::FloatValue&>(::PROTOBUF_NAMESPACE_ID::_FloatValue_default_instance_); }
 inline const ::PROTOBUF_NAMESPACE_ID::FloatValue& OneofWellKnownTypes::float_field() const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.OneofWellKnownTypes.float_field)
   return _internal_float_field();
 }
 inline ::PROTOBUF_NAMESPACE_ID::FloatValue* OneofWellKnownTypes::unsafe_arena_release_float_field() {
   // @@protoc_insertion_point(field_unsafe_arena_release:protobuf_unittest.OneofWellKnownTypes.float_field)
-  if (_internal_has_float_field()) {
+  if(_internal_has_float_field()) {
     clear_has_oneof_field();
     ::PROTOBUF_NAMESPACE_ID::FloatValue* temp = oneof_field_.float_field_;
     oneof_field_.float_field_ = nullptr;
@@ -5538,14 +5438,14 @@ inline ::PROTOBUF_NAMESPACE_ID::FloatValue* OneofWellKnownTypes::unsafe_arena_re
 }
 inline void OneofWellKnownTypes::unsafe_arena_set_allocated_float_field(::PROTOBUF_NAMESPACE_ID::FloatValue* float_field) {
   clear_oneof_field();
-  if (float_field) {
+  if(float_field) {
     set_has_float_field();
     oneof_field_.float_field_ = float_field;
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:protobuf_unittest.OneofWellKnownTypes.float_field)
 }
 inline ::PROTOBUF_NAMESPACE_ID::FloatValue* OneofWellKnownTypes::_internal_mutable_float_field() {
-  if (!_internal_has_float_field()) {
+  if(!_internal_has_float_field()) {
     clear_oneof_field();
     set_has_float_field();
     oneof_field_.float_field_ = CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::FloatValue >(GetArenaForAllocation());
@@ -5570,10 +5470,10 @@ inline void OneofWellKnownTypes::set_has_int64_field() {
 }
 inline ::PROTOBUF_NAMESPACE_ID::Int64Value* OneofWellKnownTypes::release_int64_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.int64_field)
-  if (_internal_has_int64_field()) {
+  if(_internal_has_int64_field()) {
     clear_has_oneof_field();
       ::PROTOBUF_NAMESPACE_ID::Int64Value* temp = oneof_field_.int64_field_;
-    if (GetArenaForAllocation() != nullptr) {
+    if(GetArenaForAllocation() != nullptr) {
       temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
     }
     oneof_field_.int64_field_ = nullptr;
@@ -5582,18 +5482,14 @@ inline ::PROTOBUF_NAMESPACE_ID::Int64Value* OneofWellKnownTypes::release_int64_f
     return nullptr;
   }
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Int64Value& OneofWellKnownTypes::_internal_int64_field() const {
-  return _internal_has_int64_field()
-      ? *oneof_field_.int64_field_
-      : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::Int64Value&>(::PROTOBUF_NAMESPACE_ID::_Int64Value_default_instance_);
-}
+inline const ::PROTOBUF_NAMESPACE_ID::Int64Value& OneofWellKnownTypes::_internal_int64_field() const { return _internal_has_int64_field() ? *oneof_field_.int64_field_ : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::Int64Value&>(::PROTOBUF_NAMESPACE_ID::_Int64Value_default_instance_); }
 inline const ::PROTOBUF_NAMESPACE_ID::Int64Value& OneofWellKnownTypes::int64_field() const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.OneofWellKnownTypes.int64_field)
   return _internal_int64_field();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Int64Value* OneofWellKnownTypes::unsafe_arena_release_int64_field() {
   // @@protoc_insertion_point(field_unsafe_arena_release:protobuf_unittest.OneofWellKnownTypes.int64_field)
-  if (_internal_has_int64_field()) {
+  if(_internal_has_int64_field()) {
     clear_has_oneof_field();
     ::PROTOBUF_NAMESPACE_ID::Int64Value* temp = oneof_field_.int64_field_;
     oneof_field_.int64_field_ = nullptr;
@@ -5604,14 +5500,14 @@ inline ::PROTOBUF_NAMESPACE_ID::Int64Value* OneofWellKnownTypes::unsafe_arena_re
 }
 inline void OneofWellKnownTypes::unsafe_arena_set_allocated_int64_field(::PROTOBUF_NAMESPACE_ID::Int64Value* int64_field) {
   clear_oneof_field();
-  if (int64_field) {
+  if(int64_field) {
     set_has_int64_field();
     oneof_field_.int64_field_ = int64_field;
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:protobuf_unittest.OneofWellKnownTypes.int64_field)
 }
 inline ::PROTOBUF_NAMESPACE_ID::Int64Value* OneofWellKnownTypes::_internal_mutable_int64_field() {
-  if (!_internal_has_int64_field()) {
+  if(!_internal_has_int64_field()) {
     clear_oneof_field();
     set_has_int64_field();
     oneof_field_.int64_field_ = CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::Int64Value >(GetArenaForAllocation());
@@ -5636,10 +5532,10 @@ inline void OneofWellKnownTypes::set_has_uint64_field() {
 }
 inline ::PROTOBUF_NAMESPACE_ID::UInt64Value* OneofWellKnownTypes::release_uint64_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.uint64_field)
-  if (_internal_has_uint64_field()) {
+  if(_internal_has_uint64_field()) {
     clear_has_oneof_field();
       ::PROTOBUF_NAMESPACE_ID::UInt64Value* temp = oneof_field_.uint64_field_;
-    if (GetArenaForAllocation() != nullptr) {
+    if(GetArenaForAllocation() != nullptr) {
       temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
     }
     oneof_field_.uint64_field_ = nullptr;
@@ -5648,18 +5544,14 @@ inline ::PROTOBUF_NAMESPACE_ID::UInt64Value* OneofWellKnownTypes::release_uint64
     return nullptr;
   }
 }
-inline const ::PROTOBUF_NAMESPACE_ID::UInt64Value& OneofWellKnownTypes::_internal_uint64_field() const {
-  return _internal_has_uint64_field()
-      ? *oneof_field_.uint64_field_
-      : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::UInt64Value&>(::PROTOBUF_NAMESPACE_ID::_UInt64Value_default_instance_);
-}
+inline const ::PROTOBUF_NAMESPACE_ID::UInt64Value& OneofWellKnownTypes::_internal_uint64_field() const { return _internal_has_uint64_field() ? *oneof_field_.uint64_field_ : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::UInt64Value&>(::PROTOBUF_NAMESPACE_ID::_UInt64Value_default_instance_); }
 inline const ::PROTOBUF_NAMESPACE_ID::UInt64Value& OneofWellKnownTypes::uint64_field() const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.OneofWellKnownTypes.uint64_field)
   return _internal_uint64_field();
 }
 inline ::PROTOBUF_NAMESPACE_ID::UInt64Value* OneofWellKnownTypes::unsafe_arena_release_uint64_field() {
   // @@protoc_insertion_point(field_unsafe_arena_release:protobuf_unittest.OneofWellKnownTypes.uint64_field)
-  if (_internal_has_uint64_field()) {
+  if(_internal_has_uint64_field()) {
     clear_has_oneof_field();
     ::PROTOBUF_NAMESPACE_ID::UInt64Value* temp = oneof_field_.uint64_field_;
     oneof_field_.uint64_field_ = nullptr;
@@ -5670,14 +5562,14 @@ inline ::PROTOBUF_NAMESPACE_ID::UInt64Value* OneofWellKnownTypes::unsafe_arena_r
 }
 inline void OneofWellKnownTypes::unsafe_arena_set_allocated_uint64_field(::PROTOBUF_NAMESPACE_ID::UInt64Value* uint64_field) {
   clear_oneof_field();
-  if (uint64_field) {
+  if(uint64_field) {
     set_has_uint64_field();
     oneof_field_.uint64_field_ = uint64_field;
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:protobuf_unittest.OneofWellKnownTypes.uint64_field)
 }
 inline ::PROTOBUF_NAMESPACE_ID::UInt64Value* OneofWellKnownTypes::_internal_mutable_uint64_field() {
-  if (!_internal_has_uint64_field()) {
+  if(!_internal_has_uint64_field()) {
     clear_oneof_field();
     set_has_uint64_field();
     oneof_field_.uint64_field_ = CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::UInt64Value >(GetArenaForAllocation());
@@ -5702,10 +5594,10 @@ inline void OneofWellKnownTypes::set_has_int32_field() {
 }
 inline ::PROTOBUF_NAMESPACE_ID::Int32Value* OneofWellKnownTypes::release_int32_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.int32_field)
-  if (_internal_has_int32_field()) {
+  if(_internal_has_int32_field()) {
     clear_has_oneof_field();
       ::PROTOBUF_NAMESPACE_ID::Int32Value* temp = oneof_field_.int32_field_;
-    if (GetArenaForAllocation() != nullptr) {
+    if(GetArenaForAllocation() != nullptr) {
       temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
     }
     oneof_field_.int32_field_ = nullptr;
@@ -5714,18 +5606,14 @@ inline ::PROTOBUF_NAMESPACE_ID::Int32Value* OneofWellKnownTypes::release_int32_f
     return nullptr;
   }
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Int32Value& OneofWellKnownTypes::_internal_int32_field() const {
-  return _internal_has_int32_field()
-      ? *oneof_field_.int32_field_
-      : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::Int32Value&>(::PROTOBUF_NAMESPACE_ID::_Int32Value_default_instance_);
-}
+inline const ::PROTOBUF_NAMESPACE_ID::Int32Value& OneofWellKnownTypes::_internal_int32_field() const { return _internal_has_int32_field() ? *oneof_field_.int32_field_ : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::Int32Value&>(::PROTOBUF_NAMESPACE_ID::_Int32Value_default_instance_); }
 inline const ::PROTOBUF_NAMESPACE_ID::Int32Value& OneofWellKnownTypes::int32_field() const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.OneofWellKnownTypes.int32_field)
   return _internal_int32_field();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Int32Value* OneofWellKnownTypes::unsafe_arena_release_int32_field() {
   // @@protoc_insertion_point(field_unsafe_arena_release:protobuf_unittest.OneofWellKnownTypes.int32_field)
-  if (_internal_has_int32_field()) {
+  if(_internal_has_int32_field()) {
     clear_has_oneof_field();
     ::PROTOBUF_NAMESPACE_ID::Int32Value* temp = oneof_field_.int32_field_;
     oneof_field_.int32_field_ = nullptr;
@@ -5736,14 +5624,14 @@ inline ::PROTOBUF_NAMESPACE_ID::Int32Value* OneofWellKnownTypes::unsafe_arena_re
 }
 inline void OneofWellKnownTypes::unsafe_arena_set_allocated_int32_field(::PROTOBUF_NAMESPACE_ID::Int32Value* int32_field) {
   clear_oneof_field();
-  if (int32_field) {
+  if(int32_field) {
     set_has_int32_field();
     oneof_field_.int32_field_ = int32_field;
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:protobuf_unittest.OneofWellKnownTypes.int32_field)
 }
 inline ::PROTOBUF_NAMESPACE_ID::Int32Value* OneofWellKnownTypes::_internal_mutable_int32_field() {
-  if (!_internal_has_int32_field()) {
+  if(!_internal_has_int32_field()) {
     clear_oneof_field();
     set_has_int32_field();
     oneof_field_.int32_field_ = CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::Int32Value >(GetArenaForAllocation());
@@ -5768,10 +5656,10 @@ inline void OneofWellKnownTypes::set_has_uint32_field() {
 }
 inline ::PROTOBUF_NAMESPACE_ID::UInt32Value* OneofWellKnownTypes::release_uint32_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.uint32_field)
-  if (_internal_has_uint32_field()) {
+  if(_internal_has_uint32_field()) {
     clear_has_oneof_field();
       ::PROTOBUF_NAMESPACE_ID::UInt32Value* temp = oneof_field_.uint32_field_;
-    if (GetArenaForAllocation() != nullptr) {
+    if(GetArenaForAllocation() != nullptr) {
       temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
     }
     oneof_field_.uint32_field_ = nullptr;
@@ -5780,18 +5668,14 @@ inline ::PROTOBUF_NAMESPACE_ID::UInt32Value* OneofWellKnownTypes::release_uint32
     return nullptr;
   }
 }
-inline const ::PROTOBUF_NAMESPACE_ID::UInt32Value& OneofWellKnownTypes::_internal_uint32_field() const {
-  return _internal_has_uint32_field()
-      ? *oneof_field_.uint32_field_
-      : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::UInt32Value&>(::PROTOBUF_NAMESPACE_ID::_UInt32Value_default_instance_);
-}
+inline const ::PROTOBUF_NAMESPACE_ID::UInt32Value& OneofWellKnownTypes::_internal_uint32_field() const { return _internal_has_uint32_field() ? *oneof_field_.uint32_field_ : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::UInt32Value&>(::PROTOBUF_NAMESPACE_ID::_UInt32Value_default_instance_); }
 inline const ::PROTOBUF_NAMESPACE_ID::UInt32Value& OneofWellKnownTypes::uint32_field() const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.OneofWellKnownTypes.uint32_field)
   return _internal_uint32_field();
 }
 inline ::PROTOBUF_NAMESPACE_ID::UInt32Value* OneofWellKnownTypes::unsafe_arena_release_uint32_field() {
   // @@protoc_insertion_point(field_unsafe_arena_release:protobuf_unittest.OneofWellKnownTypes.uint32_field)
-  if (_internal_has_uint32_field()) {
+  if(_internal_has_uint32_field()) {
     clear_has_oneof_field();
     ::PROTOBUF_NAMESPACE_ID::UInt32Value* temp = oneof_field_.uint32_field_;
     oneof_field_.uint32_field_ = nullptr;
@@ -5802,14 +5686,14 @@ inline ::PROTOBUF_NAMESPACE_ID::UInt32Value* OneofWellKnownTypes::unsafe_arena_r
 }
 inline void OneofWellKnownTypes::unsafe_arena_set_allocated_uint32_field(::PROTOBUF_NAMESPACE_ID::UInt32Value* uint32_field) {
   clear_oneof_field();
-  if (uint32_field) {
+  if(uint32_field) {
     set_has_uint32_field();
     oneof_field_.uint32_field_ = uint32_field;
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:protobuf_unittest.OneofWellKnownTypes.uint32_field)
 }
 inline ::PROTOBUF_NAMESPACE_ID::UInt32Value* OneofWellKnownTypes::_internal_mutable_uint32_field() {
-  if (!_internal_has_uint32_field()) {
+  if(!_internal_has_uint32_field()) {
     clear_oneof_field();
     set_has_uint32_field();
     oneof_field_.uint32_field_ = CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::UInt32Value >(GetArenaForAllocation());
@@ -5834,10 +5718,10 @@ inline void OneofWellKnownTypes::set_has_bool_field() {
 }
 inline ::PROTOBUF_NAMESPACE_ID::BoolValue* OneofWellKnownTypes::release_bool_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.bool_field)
-  if (_internal_has_bool_field()) {
+  if(_internal_has_bool_field()) {
     clear_has_oneof_field();
       ::PROTOBUF_NAMESPACE_ID::BoolValue* temp = oneof_field_.bool_field_;
-    if (GetArenaForAllocation() != nullptr) {
+    if(GetArenaForAllocation() != nullptr) {
       temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
     }
     oneof_field_.bool_field_ = nullptr;
@@ -5846,18 +5730,14 @@ inline ::PROTOBUF_NAMESPACE_ID::BoolValue* OneofWellKnownTypes::release_bool_fie
     return nullptr;
   }
 }
-inline const ::PROTOBUF_NAMESPACE_ID::BoolValue& OneofWellKnownTypes::_internal_bool_field() const {
-  return _internal_has_bool_field()
-      ? *oneof_field_.bool_field_
-      : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::BoolValue&>(::PROTOBUF_NAMESPACE_ID::_BoolValue_default_instance_);
-}
+inline const ::PROTOBUF_NAMESPACE_ID::BoolValue& OneofWellKnownTypes::_internal_bool_field() const { return _internal_has_bool_field() ? *oneof_field_.bool_field_ : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::BoolValue&>(::PROTOBUF_NAMESPACE_ID::_BoolValue_default_instance_); }
 inline const ::PROTOBUF_NAMESPACE_ID::BoolValue& OneofWellKnownTypes::bool_field() const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.OneofWellKnownTypes.bool_field)
   return _internal_bool_field();
 }
 inline ::PROTOBUF_NAMESPACE_ID::BoolValue* OneofWellKnownTypes::unsafe_arena_release_bool_field() {
   // @@protoc_insertion_point(field_unsafe_arena_release:protobuf_unittest.OneofWellKnownTypes.bool_field)
-  if (_internal_has_bool_field()) {
+  if(_internal_has_bool_field()) {
     clear_has_oneof_field();
     ::PROTOBUF_NAMESPACE_ID::BoolValue* temp = oneof_field_.bool_field_;
     oneof_field_.bool_field_ = nullptr;
@@ -5868,14 +5748,14 @@ inline ::PROTOBUF_NAMESPACE_ID::BoolValue* OneofWellKnownTypes::unsafe_arena_rel
 }
 inline void OneofWellKnownTypes::unsafe_arena_set_allocated_bool_field(::PROTOBUF_NAMESPACE_ID::BoolValue* bool_field) {
   clear_oneof_field();
-  if (bool_field) {
+  if(bool_field) {
     set_has_bool_field();
     oneof_field_.bool_field_ = bool_field;
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:protobuf_unittest.OneofWellKnownTypes.bool_field)
 }
 inline ::PROTOBUF_NAMESPACE_ID::BoolValue* OneofWellKnownTypes::_internal_mutable_bool_field() {
-  if (!_internal_has_bool_field()) {
+  if(!_internal_has_bool_field()) {
     clear_oneof_field();
     set_has_bool_field();
     oneof_field_.bool_field_ = CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::BoolValue >(GetArenaForAllocation());
@@ -5900,10 +5780,10 @@ inline void OneofWellKnownTypes::set_has_string_field() {
 }
 inline ::PROTOBUF_NAMESPACE_ID::StringValue* OneofWellKnownTypes::release_string_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.string_field)
-  if (_internal_has_string_field()) {
+  if(_internal_has_string_field()) {
     clear_has_oneof_field();
       ::PROTOBUF_NAMESPACE_ID::StringValue* temp = oneof_field_.string_field_;
-    if (GetArenaForAllocation() != nullptr) {
+    if(GetArenaForAllocation() != nullptr) {
       temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
     }
     oneof_field_.string_field_ = nullptr;
@@ -5912,18 +5792,14 @@ inline ::PROTOBUF_NAMESPACE_ID::StringValue* OneofWellKnownTypes::release_string
     return nullptr;
   }
 }
-inline const ::PROTOBUF_NAMESPACE_ID::StringValue& OneofWellKnownTypes::_internal_string_field() const {
-  return _internal_has_string_field()
-      ? *oneof_field_.string_field_
-      : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::StringValue&>(::PROTOBUF_NAMESPACE_ID::_StringValue_default_instance_);
-}
+inline const ::PROTOBUF_NAMESPACE_ID::StringValue& OneofWellKnownTypes::_internal_string_field() const { return _internal_has_string_field() ? *oneof_field_.string_field_ : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::StringValue&>(::PROTOBUF_NAMESPACE_ID::_StringValue_default_instance_); }
 inline const ::PROTOBUF_NAMESPACE_ID::StringValue& OneofWellKnownTypes::string_field() const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.OneofWellKnownTypes.string_field)
   return _internal_string_field();
 }
 inline ::PROTOBUF_NAMESPACE_ID::StringValue* OneofWellKnownTypes::unsafe_arena_release_string_field() {
   // @@protoc_insertion_point(field_unsafe_arena_release:protobuf_unittest.OneofWellKnownTypes.string_field)
-  if (_internal_has_string_field()) {
+  if(_internal_has_string_field()) {
     clear_has_oneof_field();
     ::PROTOBUF_NAMESPACE_ID::StringValue* temp = oneof_field_.string_field_;
     oneof_field_.string_field_ = nullptr;
@@ -5934,14 +5810,14 @@ inline ::PROTOBUF_NAMESPACE_ID::StringValue* OneofWellKnownTypes::unsafe_arena_r
 }
 inline void OneofWellKnownTypes::unsafe_arena_set_allocated_string_field(::PROTOBUF_NAMESPACE_ID::StringValue* string_field) {
   clear_oneof_field();
-  if (string_field) {
+  if(string_field) {
     set_has_string_field();
     oneof_field_.string_field_ = string_field;
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:protobuf_unittest.OneofWellKnownTypes.string_field)
 }
 inline ::PROTOBUF_NAMESPACE_ID::StringValue* OneofWellKnownTypes::_internal_mutable_string_field() {
-  if (!_internal_has_string_field()) {
+  if(!_internal_has_string_field()) {
     clear_oneof_field();
     set_has_string_field();
     oneof_field_.string_field_ = CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::StringValue >(GetArenaForAllocation());
@@ -5966,10 +5842,10 @@ inline void OneofWellKnownTypes::set_has_bytes_field() {
 }
 inline ::PROTOBUF_NAMESPACE_ID::BytesValue* OneofWellKnownTypes::release_bytes_field() {
   // @@protoc_insertion_point(field_release:protobuf_unittest.OneofWellKnownTypes.bytes_field)
-  if (_internal_has_bytes_field()) {
+  if(_internal_has_bytes_field()) {
     clear_has_oneof_field();
       ::PROTOBUF_NAMESPACE_ID::BytesValue* temp = oneof_field_.bytes_field_;
-    if (GetArenaForAllocation() != nullptr) {
+    if(GetArenaForAllocation() != nullptr) {
       temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
     }
     oneof_field_.bytes_field_ = nullptr;
@@ -5978,18 +5854,14 @@ inline ::PROTOBUF_NAMESPACE_ID::BytesValue* OneofWellKnownTypes::release_bytes_f
     return nullptr;
   }
 }
-inline const ::PROTOBUF_NAMESPACE_ID::BytesValue& OneofWellKnownTypes::_internal_bytes_field() const {
-  return _internal_has_bytes_field()
-      ? *oneof_field_.bytes_field_
-      : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::BytesValue&>(::PROTOBUF_NAMESPACE_ID::_BytesValue_default_instance_);
-}
+inline const ::PROTOBUF_NAMESPACE_ID::BytesValue& OneofWellKnownTypes::_internal_bytes_field() const { return _internal_has_bytes_field() ? *oneof_field_.bytes_field_ : reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::BytesValue&>(::PROTOBUF_NAMESPACE_ID::_BytesValue_default_instance_); }
 inline const ::PROTOBUF_NAMESPACE_ID::BytesValue& OneofWellKnownTypes::bytes_field() const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.OneofWellKnownTypes.bytes_field)
   return _internal_bytes_field();
 }
 inline ::PROTOBUF_NAMESPACE_ID::BytesValue* OneofWellKnownTypes::unsafe_arena_release_bytes_field() {
   // @@protoc_insertion_point(field_unsafe_arena_release:protobuf_unittest.OneofWellKnownTypes.bytes_field)
-  if (_internal_has_bytes_field()) {
+  if(_internal_has_bytes_field()) {
     clear_has_oneof_field();
     ::PROTOBUF_NAMESPACE_ID::BytesValue* temp = oneof_field_.bytes_field_;
     oneof_field_.bytes_field_ = nullptr;
@@ -6000,14 +5872,14 @@ inline ::PROTOBUF_NAMESPACE_ID::BytesValue* OneofWellKnownTypes::unsafe_arena_re
 }
 inline void OneofWellKnownTypes::unsafe_arena_set_allocated_bytes_field(::PROTOBUF_NAMESPACE_ID::BytesValue* bytes_field) {
   clear_oneof_field();
-  if (bytes_field) {
+  if(bytes_field) {
     set_has_bytes_field();
     oneof_field_.bytes_field_ = bytes_field;
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:protobuf_unittest.OneofWellKnownTypes.bytes_field)
 }
 inline ::PROTOBUF_NAMESPACE_ID::BytesValue* OneofWellKnownTypes::_internal_mutable_bytes_field() {
-  if (!_internal_has_bytes_field()) {
+  if(!_internal_has_bytes_field()) {
     clear_oneof_field();
     set_has_bytes_field();
     oneof_field_.bytes_field_ = CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::BytesValue >(GetArenaForAllocation());
@@ -6026,9 +5898,7 @@ inline bool OneofWellKnownTypes::has_oneof_field() const {
 inline void OneofWellKnownTypes::clear_has_oneof_field() {
   _oneof_case_[0] = ONEOF_FIELD_NOT_SET;
 }
-inline OneofWellKnownTypes::OneofFieldCase OneofWellKnownTypes::oneof_field_case() const {
-  return OneofWellKnownTypes::OneofFieldCase(_oneof_case_[0]);
-}
+inline OneofWellKnownTypes::OneofFieldCase OneofWellKnownTypes::oneof_field_case() const { return OneofWellKnownTypes::OneofFieldCase(_oneof_case_[0]); }
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
@@ -6070,9 +5940,7 @@ inline OneofWellKnownTypes::OneofFieldCase OneofWellKnownTypes::oneof_field_case
 // MapWellKnownTypes
 
 // map<int32, .google.protobuf.Any> any_field = 1;
-inline int MapWellKnownTypes::_internal_any_field_size() const {
-  return any_field_.size();
-}
+inline int MapWellKnownTypes::_internal_any_field_size() const { return any_field_.size(); }
 inline int MapWellKnownTypes::any_field_size() const {
   return _internal_any_field_size();
 }
@@ -6096,9 +5964,7 @@ MapWellKnownTypes::mutable_any_field() {
 }
 
 // map<int32, .google.protobuf.Api> api_field = 2;
-inline int MapWellKnownTypes::_internal_api_field_size() const {
-  return api_field_.size();
-}
+inline int MapWellKnownTypes::_internal_api_field_size() const { return api_field_.size(); }
 inline int MapWellKnownTypes::api_field_size() const {
   return _internal_api_field_size();
 }
@@ -6122,9 +5988,7 @@ MapWellKnownTypes::mutable_api_field() {
 }
 
 // map<int32, .google.protobuf.Duration> duration_field = 3;
-inline int MapWellKnownTypes::_internal_duration_field_size() const {
-  return duration_field_.size();
-}
+inline int MapWellKnownTypes::_internal_duration_field_size() const { return duration_field_.size(); }
 inline int MapWellKnownTypes::duration_field_size() const {
   return _internal_duration_field_size();
 }
@@ -6148,9 +6012,7 @@ MapWellKnownTypes::mutable_duration_field() {
 }
 
 // map<int32, .google.protobuf.Empty> empty_field = 4;
-inline int MapWellKnownTypes::_internal_empty_field_size() const {
-  return empty_field_.size();
-}
+inline int MapWellKnownTypes::_internal_empty_field_size() const { return empty_field_.size(); }
 inline int MapWellKnownTypes::empty_field_size() const {
   return _internal_empty_field_size();
 }
@@ -6174,9 +6036,7 @@ MapWellKnownTypes::mutable_empty_field() {
 }
 
 // map<int32, .google.protobuf.FieldMask> field_mask_field = 5;
-inline int MapWellKnownTypes::_internal_field_mask_field_size() const {
-  return field_mask_field_.size();
-}
+inline int MapWellKnownTypes::_internal_field_mask_field_size() const { return field_mask_field_.size(); }
 inline int MapWellKnownTypes::field_mask_field_size() const {
   return _internal_field_mask_field_size();
 }
@@ -6200,9 +6060,7 @@ MapWellKnownTypes::mutable_field_mask_field() {
 }
 
 // map<int32, .google.protobuf.SourceContext> source_context_field = 6;
-inline int MapWellKnownTypes::_internal_source_context_field_size() const {
-  return source_context_field_.size();
-}
+inline int MapWellKnownTypes::_internal_source_context_field_size() const { return source_context_field_.size(); }
 inline int MapWellKnownTypes::source_context_field_size() const {
   return _internal_source_context_field_size();
 }
@@ -6226,9 +6084,7 @@ MapWellKnownTypes::mutable_source_context_field() {
 }
 
 // map<int32, .google.protobuf.Struct> struct_field = 7;
-inline int MapWellKnownTypes::_internal_struct_field_size() const {
-  return struct_field_.size();
-}
+inline int MapWellKnownTypes::_internal_struct_field_size() const { return struct_field_.size(); }
 inline int MapWellKnownTypes::struct_field_size() const {
   return _internal_struct_field_size();
 }
@@ -6252,9 +6108,7 @@ MapWellKnownTypes::mutable_struct_field() {
 }
 
 // map<int32, .google.protobuf.Timestamp> timestamp_field = 8;
-inline int MapWellKnownTypes::_internal_timestamp_field_size() const {
-  return timestamp_field_.size();
-}
+inline int MapWellKnownTypes::_internal_timestamp_field_size() const { return timestamp_field_.size(); }
 inline int MapWellKnownTypes::timestamp_field_size() const {
   return _internal_timestamp_field_size();
 }
@@ -6278,9 +6132,7 @@ MapWellKnownTypes::mutable_timestamp_field() {
 }
 
 // map<int32, .google.protobuf.Type> type_field = 9;
-inline int MapWellKnownTypes::_internal_type_field_size() const {
-  return type_field_.size();
-}
+inline int MapWellKnownTypes::_internal_type_field_size() const { return type_field_.size(); }
 inline int MapWellKnownTypes::type_field_size() const {
   return _internal_type_field_size();
 }
@@ -6304,9 +6156,7 @@ MapWellKnownTypes::mutable_type_field() {
 }
 
 // map<int32, .google.protobuf.DoubleValue> double_field = 10;
-inline int MapWellKnownTypes::_internal_double_field_size() const {
-  return double_field_.size();
-}
+inline int MapWellKnownTypes::_internal_double_field_size() const { return double_field_.size(); }
 inline int MapWellKnownTypes::double_field_size() const {
   return _internal_double_field_size();
 }
@@ -6330,9 +6180,7 @@ MapWellKnownTypes::mutable_double_field() {
 }
 
 // map<int32, .google.protobuf.FloatValue> float_field = 11;
-inline int MapWellKnownTypes::_internal_float_field_size() const {
-  return float_field_.size();
-}
+inline int MapWellKnownTypes::_internal_float_field_size() const { return float_field_.size(); }
 inline int MapWellKnownTypes::float_field_size() const {
   return _internal_float_field_size();
 }
@@ -6356,9 +6204,7 @@ MapWellKnownTypes::mutable_float_field() {
 }
 
 // map<int32, .google.protobuf.Int64Value> int64_field = 12;
-inline int MapWellKnownTypes::_internal_int64_field_size() const {
-  return int64_field_.size();
-}
+inline int MapWellKnownTypes::_internal_int64_field_size() const { return int64_field_.size(); }
 inline int MapWellKnownTypes::int64_field_size() const {
   return _internal_int64_field_size();
 }
@@ -6382,9 +6228,7 @@ MapWellKnownTypes::mutable_int64_field() {
 }
 
 // map<int32, .google.protobuf.UInt64Value> uint64_field = 13;
-inline int MapWellKnownTypes::_internal_uint64_field_size() const {
-  return uint64_field_.size();
-}
+inline int MapWellKnownTypes::_internal_uint64_field_size() const { return uint64_field_.size(); }
 inline int MapWellKnownTypes::uint64_field_size() const {
   return _internal_uint64_field_size();
 }
@@ -6408,9 +6252,7 @@ MapWellKnownTypes::mutable_uint64_field() {
 }
 
 // map<int32, .google.protobuf.Int32Value> int32_field = 14;
-inline int MapWellKnownTypes::_internal_int32_field_size() const {
-  return int32_field_.size();
-}
+inline int MapWellKnownTypes::_internal_int32_field_size() const { return int32_field_.size(); }
 inline int MapWellKnownTypes::int32_field_size() const {
   return _internal_int32_field_size();
 }
@@ -6434,9 +6276,7 @@ MapWellKnownTypes::mutable_int32_field() {
 }
 
 // map<int32, .google.protobuf.UInt32Value> uint32_field = 15;
-inline int MapWellKnownTypes::_internal_uint32_field_size() const {
-  return uint32_field_.size();
-}
+inline int MapWellKnownTypes::_internal_uint32_field_size() const { return uint32_field_.size(); }
 inline int MapWellKnownTypes::uint32_field_size() const {
   return _internal_uint32_field_size();
 }
@@ -6460,9 +6300,7 @@ MapWellKnownTypes::mutable_uint32_field() {
 }
 
 // map<int32, .google.protobuf.BoolValue> bool_field = 16;
-inline int MapWellKnownTypes::_internal_bool_field_size() const {
-  return bool_field_.size();
-}
+inline int MapWellKnownTypes::_internal_bool_field_size() const { return bool_field_.size(); }
 inline int MapWellKnownTypes::bool_field_size() const {
   return _internal_bool_field_size();
 }
@@ -6486,9 +6324,7 @@ MapWellKnownTypes::mutable_bool_field() {
 }
 
 // map<int32, .google.protobuf.StringValue> string_field = 17;
-inline int MapWellKnownTypes::_internal_string_field_size() const {
-  return string_field_.size();
-}
+inline int MapWellKnownTypes::_internal_string_field_size() const { return string_field_.size(); }
 inline int MapWellKnownTypes::string_field_size() const {
   return _internal_string_field_size();
 }
@@ -6512,9 +6348,7 @@ MapWellKnownTypes::mutable_string_field() {
 }
 
 // map<int32, .google.protobuf.BytesValue> bytes_field = 18;
-inline int MapWellKnownTypes::_internal_bytes_field_size() const {
-  return bytes_field_.size();
-}
+inline int MapWellKnownTypes::_internal_bytes_field_size() const { return bytes_field_.size(); }
 inline int MapWellKnownTypes::bytes_field_size() const {
   return _internal_bytes_field_size();
 }

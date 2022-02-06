@@ -101,7 +101,7 @@ int GetHangulOfHanja(wchar_t * inout)
 		const size_t len = wcslen(inout);
 		wchar_t conv[UTF8MaxBytes] = {0};
 		BSTR bstrHangul = SysAllocString(conv);
-		for(size_t i = 0; i<len; i++) {
+		for(size_t i = 0; i < len; i++) {
 			if(dict.IsHanja(static_cast<int>(inout[i]))) {  // Pass hanja only!
 				conv[0] = inout[i];
 				BSTR bstrHanja = SysAllocString(conv);

@@ -239,8 +239,7 @@ NestedFieldMask::NestedFieldMask(const NestedFieldMask& from)
     data_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(!from._internal_data().empty()) {
-    data_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_data(), 
-      GetArenaForAllocation());
+    data_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_data(), GetArenaForAllocation());
   }
   if(from._internal_has_single_mask()) {
     single_mask_ = new ::PROTOBUF_NAMESPACE_ID::FieldMask(*from.single_mask_);
@@ -368,8 +367,7 @@ uint8_t* NestedFieldMask::_InternalSerialize(
       this->_internal_data().data(), static_cast<int>(this->_internal_data().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "proto_util_converter.testing.NestedFieldMask.data");
-    target = stream->WriteStringMaybeAliased(
-        1, this->_internal_data(), target);
+    target = stream->WriteStringMaybeAliased(1, this->_internal_data(), target);
   }
 
   // .google.protobuf.FieldMask single_mask = 2;
@@ -412,9 +410,7 @@ size_t NestedFieldMask::ByteSizeLong() const {
 
   // string data = 1;
   if(!this->_internal_data().empty()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_data());
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_data());
   }
 
   // .google.protobuf.FieldMask single_mask = 2;
@@ -482,9 +478,7 @@ void NestedFieldMask::InternalSwap(NestedFieldMask* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata NestedFieldMask::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ffield_5fmask_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ffield_5fmask_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2ffield_5fmask_2eproto[0]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ffield_5fmask_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ffield_5fmask_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2ffield_5fmask_2eproto[0]);
 }
 
 // ===================================================================
@@ -528,8 +522,7 @@ FieldMaskTest::FieldMaskTest(const FieldMaskTest& from)
     id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(!from._internal_id().empty()) {
-    id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_id(), 
-      GetArenaForAllocation());
+    id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_id(), GetArenaForAllocation());
   }
   if(from._internal_has_single_mask()) {
     single_mask_ = new ::PROTOBUF_NAMESPACE_ID::FieldMask(*from.single_mask_);
@@ -671,8 +664,7 @@ uint8_t* FieldMaskTest::_InternalSerialize(
       this->_internal_id().data(), static_cast<int>(this->_internal_id().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "proto_util_converter.testing.FieldMaskTest.id");
-    target = stream->WriteStringMaybeAliased(
-        1, this->_internal_id(), target);
+    target = stream->WriteStringMaybeAliased(1, this->_internal_id(), target);
   }
 
   // .google.protobuf.FieldMask single_mask = 2;
@@ -729,9 +721,7 @@ size_t FieldMaskTest::ByteSizeLong() const {
 
   // string id = 1;
   if(!this->_internal_id().empty()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_id());
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_id());
   }
 
   // .google.protobuf.FieldMask single_mask = 2;
@@ -801,9 +791,7 @@ void FieldMaskTest::InternalSwap(FieldMaskTest* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata FieldMaskTest::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ffield_5fmask_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ffield_5fmask_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2ffield_5fmask_2eproto[1]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ffield_5fmask_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ffield_5fmask_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2ffield_5fmask_2eproto[1]);
 }
 
 // ===================================================================
@@ -1455,9 +1443,7 @@ void FieldMaskTestCases::InternalSwap(FieldMaskTestCases* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata FieldMaskTestCases::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ffield_5fmask_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ffield_5fmask_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2ffield_5fmask_2eproto[2]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ffield_5fmask_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ffield_5fmask_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2ffield_5fmask_2eproto[2]);
 }
 
 // ===================================================================
@@ -1656,9 +1642,7 @@ void FieldMaskWrapper::InternalSwap(FieldMaskWrapper* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata FieldMaskWrapper::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ffield_5fmask_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ffield_5fmask_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2ffield_5fmask_2eproto[3]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ffield_5fmask_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ffield_5fmask_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2ffield_5fmask_2eproto[3]);
 }
 
 // @@protoc_insertion_point(namespace_scope)

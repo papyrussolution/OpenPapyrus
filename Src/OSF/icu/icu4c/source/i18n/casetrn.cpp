@@ -1,22 +1,12 @@
+// CASETRN.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *
- *   Copyright (C) 2001-2011, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  casetrn.cpp
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2004sep03
- *   created by: Markus W. Scherer
- *
- *   Implementation class for lower-/upper-/title-casing transliterators.
- */
+// Copyright (C) 2001-2011, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2004sep03
+// created by: Markus W. Scherer
+// Implementation class for lower-/upper-/title-casing transliterators.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -30,11 +20,9 @@
 U_CFUNC UChar32 U_CALLCONV utrans_rep_caseContextIterator(void * context, int8_t dir)
 {
 	U_NAMESPACE_USE
-
 	UCaseContext * csc = (UCaseContext*)context;
 	Replaceable * rep = (Replaceable*)csc->p;
 	UChar32 c;
-
 	if(dir<0) {
 		/* reset for backward iteration */
 		csc->index = csc->cpStart;
@@ -131,9 +119,7 @@ CaseMapTransliterator::CaseMapTransliterator(const CaseMapTransliterator& o) :
 /**
  * Implements {@link Transliterator#handleTransliterate}.
  */
-void CaseMapTransliterator::handleTransliterate(Replaceable& text,
-    UTransPosition& offsets,
-    bool isIncremental) const
+void CaseMapTransliterator::handleTransliterate(Replaceable& text, UTransPosition& offsets, bool isIncremental) const
 {
 	if(offsets.start >= offsets.limit) {
 		return;
@@ -153,9 +139,7 @@ void CaseMapTransliterator::handleTransliterate(Replaceable& text,
 		csc.cpStart = textPos;
 		c = text.char32At(textPos);
 		csc.cpLimit = textPos += U16_LENGTH(c);
-
 		result = fMap(c, utrans_rep_caseContextIterator, &csc, &s, UCASE_LOC_ROOT);
-
 		if(csc.b1 && isIncremental) {
 			// fMap() tried to look beyond the context limit
 			// wait for more input

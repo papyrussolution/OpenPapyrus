@@ -762,14 +762,14 @@ int FASTCALL DbfTable::getFieldNumber(const char * pFldName, int * pFldNumber) c
 	return 0;
 }
 
-int FASTCALL DbfTable::getField(uint fldN, DBFF * pField) const
+bool FASTCALL DbfTable::getField(uint fldN, DBFF * pField) const
 {
 	if(fldN > 0 && fldN <= NumFlds) {
 		ASSIGN_PTR(pField, P_Flds[fldN-1]);
-		return 1;
+		return true;
 	}
 	else
-		return 0;
+		return false;
 }
 
 int FASTCALL DbfTable::goToRec(ulong recNo)

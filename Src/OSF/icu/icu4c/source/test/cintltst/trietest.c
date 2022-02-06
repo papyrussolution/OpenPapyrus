@@ -160,7 +160,7 @@ static void testTrieIteration(const char * testName,
 	/* try forward */
 	p = s;
 	i = 0;
-	while(p<limit) {
+	while(p < limit) {
 		c = c2 = 0x33;
 		if(trie->data32!=NULL) {
 			UTRIE_NEXT32(trie, p, limit, c, c2, value);
@@ -169,21 +169,14 @@ static void testTrieIteration(const char * testName,
 			UTRIE_NEXT16(trie, p, limit, c, c2, value);
 		}
 		if(value!=values[i]) {
-			log_err("error: wrong value from UTRIE_NEXT(%s)(U+%04lx, U+%04lx): 0x%lx instead of 0x%lx\n",
-			    testName, c, c2, value, values[i]);
+			log_err("error: wrong value from UTRIE_NEXT(%s)(U+%04lx, U+%04lx): 0x%lx instead of 0x%lx\n", testName, c, c2, value, values[i]);
 		}
-		if(
-			c2==0 ?
-			c!=*(p-1) :
-			!U16_IS_LEAD(c) || !U16_IS_TRAIL(c2) || c!=*(p-2) || c2!=*(p-1)
-			) {
-			log_err("error: wrong (c, c2) from UTRIE_NEXT(%s): (U+%04lx, U+%04lx)\n",
-			    testName, c, c2);
+		if(c2==0 ? c!=*(p-1) : !U16_IS_LEAD(c) || !U16_IS_TRAIL(c2) || c!=*(p-2) || c2!=*(p-1)) {
+			log_err("error: wrong (c, c2) from UTRIE_NEXT(%s): (U+%04lx, U+%04lx)\n", testName, c, c2);
 			continue;
 		}
 		if(c2!=0) {
 			int32_t offset;
-
 			if(trie->data32==NULL) {
 				value = UTRIE_GET16_FROM_LEAD(trie, c);
 				offset = trie->getFoldingOffset(value);

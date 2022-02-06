@@ -367,7 +367,7 @@ struct TEvent {
 class TCommandSet {
 public:
 	TCommandSet();
-	int    IsEmpty() const;
+	bool   IsEmpty() const;
 	int    has(int cmd) const;
 	void   enableAll();
 	void   enableCmd(int cmd, int is_enable);

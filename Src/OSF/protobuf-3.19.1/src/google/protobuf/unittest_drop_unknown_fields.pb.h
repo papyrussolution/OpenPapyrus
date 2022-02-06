@@ -162,8 +162,7 @@ class Foo final :
   inline void Swap(Foo* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -195,8 +194,7 @@ class Foo final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -207,19 +205,16 @@ class Foo final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "unittest_drop_unknown_fields.Foo";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "unittest_drop_unknown_fields.Foo"; }
   protected:
-  explicit Foo(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit Foo(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -337,8 +332,7 @@ class FooWithExtraFields final :
   inline void Swap(FooWithExtraFields* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -370,8 +364,7 @@ class FooWithExtraFields final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -382,19 +375,16 @@ class FooWithExtraFields final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "unittest_drop_unknown_fields.FooWithExtraFields";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "unittest_drop_unknown_fields.FooWithExtraFields"; }
   protected:
-  explicit FooWithExtraFields(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit FooWithExtraFields(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -496,20 +486,18 @@ class FooWithExtraFields final :
 inline void Foo::clear_int32_value() {
   int32_value_ = 0;
 }
-inline int32_t Foo::_internal_int32_value() const {
-  return int32_value_;
-}
+inline int32_t Foo::_internal_int32_value() const { return int32_value_; }
 inline int32_t Foo::int32_value() const {
-  // @@protoc_insertion_point(field_get:unittest_drop_unknown_fields.Foo.int32_value)
-  return _internal_int32_value();
+	// @@protoc_insertion_point(field_get:unittest_drop_unknown_fields.Foo.int32_value)
+	return _internal_int32_value();
 }
 inline void Foo::_internal_set_int32_value(int32_t value) {
-  
-  int32_value_ = value;
+	
+	int32_value_ = value;
 }
 inline void Foo::set_int32_value(int32_t value) {
-  _internal_set_int32_value(value);
-  // @@protoc_insertion_point(field_set:unittest_drop_unknown_fields.Foo.int32_value)
+	_internal_set_int32_value(value);
+	// @@protoc_insertion_point(field_set:unittest_drop_unknown_fields.Foo.int32_value)
 }
 
 // .unittest_drop_unknown_fields.Foo.NestedEnum enum_value = 2;
@@ -538,20 +526,18 @@ inline void Foo::set_enum_value(::unittest_drop_unknown_fields::Foo_NestedEnum v
 inline void FooWithExtraFields::clear_int32_value() {
   int32_value_ = 0;
 }
-inline int32_t FooWithExtraFields::_internal_int32_value() const {
-  return int32_value_;
-}
+inline int32_t FooWithExtraFields::_internal_int32_value() const { return int32_value_; }
 inline int32_t FooWithExtraFields::int32_value() const {
-  // @@protoc_insertion_point(field_get:unittest_drop_unknown_fields.FooWithExtraFields.int32_value)
-  return _internal_int32_value();
+	// @@protoc_insertion_point(field_get:unittest_drop_unknown_fields.FooWithExtraFields.int32_value)
+	return _internal_int32_value();
 }
 inline void FooWithExtraFields::_internal_set_int32_value(int32_t value) {
-  
-  int32_value_ = value;
+	
+	int32_value_ = value;
 }
 inline void FooWithExtraFields::set_int32_value(int32_t value) {
-  _internal_set_int32_value(value);
-  // @@protoc_insertion_point(field_set:unittest_drop_unknown_fields.FooWithExtraFields.int32_value)
+	_internal_set_int32_value(value);
+	// @@protoc_insertion_point(field_set:unittest_drop_unknown_fields.FooWithExtraFields.int32_value)
 }
 
 // .unittest_drop_unknown_fields.FooWithExtraFields.NestedEnum enum_value = 2;
@@ -576,20 +562,18 @@ inline void FooWithExtraFields::set_enum_value(::unittest_drop_unknown_fields::F
 inline void FooWithExtraFields::clear_extra_int32_value() {
   extra_int32_value_ = 0;
 }
-inline int32_t FooWithExtraFields::_internal_extra_int32_value() const {
-  return extra_int32_value_;
-}
+inline int32_t FooWithExtraFields::_internal_extra_int32_value() const { return extra_int32_value_; }
 inline int32_t FooWithExtraFields::extra_int32_value() const {
-  // @@protoc_insertion_point(field_get:unittest_drop_unknown_fields.FooWithExtraFields.extra_int32_value)
-  return _internal_extra_int32_value();
+	// @@protoc_insertion_point(field_get:unittest_drop_unknown_fields.FooWithExtraFields.extra_int32_value)
+	return _internal_extra_int32_value();
 }
 inline void FooWithExtraFields::_internal_set_extra_int32_value(int32_t value) {
-  
-  extra_int32_value_ = value;
+	
+	extra_int32_value_ = value;
 }
 inline void FooWithExtraFields::set_extra_int32_value(int32_t value) {
-  _internal_set_extra_int32_value(value);
-  // @@protoc_insertion_point(field_set:unittest_drop_unknown_fields.FooWithExtraFields.extra_int32_value)
+	_internal_set_extra_int32_value(value);
+	// @@protoc_insertion_point(field_set:unittest_drop_unknown_fields.FooWithExtraFields.extra_int32_value)
 }
 
 #ifdef __GNUC__

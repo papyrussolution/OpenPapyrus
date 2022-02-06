@@ -1713,9 +1713,9 @@ char * FASTCALL stpcpy(char * to, const char * from)
 //
 //
 //
-bool   FASTCALL isempty(const char * pStr) { return (pStr == 0 || pStr[0] == 0); }
-bool   FASTCALL isempty(const uchar * pStr) { return (pStr == 0 || pStr[0] == 0); }
-bool   FASTCALL isempty(const wchar_t * pStr) { return (pStr == 0 || pStr[0] == 0); }
+//bool   FASTCALL isempty(const char * pStr) { return (pStr == 0 || pStr[0] == 0); }
+//bool   FASTCALL isempty(const uchar * pStr) { return (pStr == 0 || pStr[0] == 0); }
+//bool   FASTCALL isempty(const wchar_t * pStr) { return (pStr == 0 || pStr[0] == 0); }
 //size_t FASTCALL sstrlen(const char * pStr) { return implement_sstrlen(pStr); }
 //size_t FASTCALL sstrlen(const uchar * pStr) { return implement_sstrlen(pStr); }
 //size_t FASTCALL sstrlen(const wchar_t * pStr) { return implement_sstrlen(pStr); }

@@ -1,0 +1,288 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\Osf\leptonica\src\adaptmap.c" />
+    <ClCompile Include="..\Osf\leptonica\src\affine.c" />
+    <ClCompile Include="..\Osf\leptonica\src\affinecompose.c" />
+    <ClCompile Include="..\Osf\leptonica\src\arrayaccess.c" />
+    <ClCompile Include="..\Osf\leptonica\src\bardecode.c" />
+    <ClCompile Include="..\Osf\leptonica\src\baseline.c" />
+    <ClCompile Include="..\Osf\leptonica\src\bbuffer.c" />
+    <ClCompile Include="..\Osf\leptonica\src\bilateral.c" />
+    <ClCompile Include="..\Osf\leptonica\src\bilinear.c" />
+    <ClCompile Include="..\Osf\leptonica\src\binarize.c" />
+    <ClCompile Include="..\Osf\leptonica\src\binexpand.c" />
+    <ClCompile Include="..\Osf\leptonica\src\binreduce.c" />
+    <ClCompile Include="..\Osf\leptonica\src\blend.c" />
+    <ClCompile Include="..\Osf\leptonica\src\bmf.c" />
+    <ClCompile Include="..\Osf\leptonica\src\bmpio.c" />
+    <ClCompile Include="..\Osf\leptonica\src\bmpiostub.c" />
+    <ClCompile Include="..\Osf\leptonica\src\bootnumgen1.c" />
+    <ClCompile Include="..\Osf\leptonica\src\bootnumgen2.c" />
+    <ClCompile Include="..\Osf\leptonica\src\bootnumgen3.c" />
+    <ClCompile Include="..\Osf\leptonica\src\boxbasic.c" />
+    <ClCompile Include="..\Osf\leptonica\src\boxfunc1.c" />
+    <ClCompile Include="..\Osf\leptonica\src\boxfunc2.c" />
+    <ClCompile Include="..\Osf\leptonica\src\boxfunc3.c" />
+    <ClCompile Include="..\Osf\leptonica\src\boxfunc4.c" />
+    <ClCompile Include="..\Osf\leptonica\src\bytearray.c" />
+    <ClCompile Include="..\Osf\leptonica\src\ccbord.c" />
+    <ClCompile Include="..\Osf\leptonica\src\ccthin.c" />
+    <ClCompile Include="..\Osf\leptonica\src\classapp.c" />
+    <ClCompile Include="..\Osf\leptonica\src\colorcontent.c" />
+    <ClCompile Include="..\Osf\leptonica\src\coloring.c" />
+    <ClCompile Include="..\Osf\leptonica\src\colormap.c" />
+    <ClCompile Include="..\Osf\leptonica\src\colormorph.c" />
+    <ClCompile Include="..\Osf\leptonica\src\colorquant1.c" />
+    <ClCompile Include="..\Osf\leptonica\src\colorquant2.c" />
+    <ClCompile Include="..\Osf\leptonica\src\colorseg.c" />
+    <ClCompile Include="..\Osf\leptonica\src\colorspace.c" />
+    <ClCompile Include="..\Osf\leptonica\src\compare.c" />
+    <ClCompile Include="..\Osf\leptonica\src\conncomp.c" />
+    <ClCompile Include="..\Osf\leptonica\src\convertfiles.c" />
+    <ClCompile Include="..\Osf\leptonica\src\convolve.c" />
+    <ClCompile Include="..\Osf\leptonica\src\correlscore.c" />
+    <ClCompile Include="..\Osf\leptonica\src\dewarp1.c" />
+    <ClCompile Include="..\Osf\leptonica\src\dewarp2.c" />
+    <ClCompile Include="..\Osf\leptonica\src\dewarp3.c" />
+    <ClCompile Include="..\Osf\leptonica\src\dewarp4.c" />
+    <ClCompile Include="..\Osf\leptonica\src\dnabasic.c" />
+    <ClCompile Include="..\Osf\leptonica\src\dnafunc1.c" />
+    <ClCompile Include="..\Osf\leptonica\src\dnahash.c" />
+    <ClCompile Include="..\Osf\leptonica\src\dwacomb.2.c" />
+    <ClCompile Include="..\Osf\leptonica\src\dwacomblow.2.c" />
+    <ClCompile Include="..\Osf\leptonica\src\edge.c" />
+    <ClCompile Include="..\Osf\leptonica\src\encoding.c" />
+    <ClCompile Include="..\Osf\leptonica\src\enhance.c" />
+    <ClCompile Include="..\Osf\leptonica\src\fhmtauto.c" />
+    <ClCompile Include="..\Osf\leptonica\src\fhmtgen.1.c" />
+    <ClCompile Include="..\Osf\leptonica\src\fhmtgenlow.1.c" />
+    <ClCompile Include="..\Osf\leptonica\src\finditalic.c" />
+    <ClCompile Include="..\Osf\leptonica\src\flipdetect.c" />
+    <ClCompile Include="..\Osf\leptonica\src\fmorphauto.c" />
+    <ClCompile Include="..\Osf\leptonica\src\fmorphgen.1.c" />
+    <ClCompile Include="..\Osf\leptonica\src\fmorphgenlow.1.c" />
+    <ClCompile Include="..\Osf\leptonica\src\fpix1.c" />
+    <ClCompile Include="..\Osf\leptonica\src\fpix2.c" />
+    <ClCompile Include="..\Osf\leptonica\src\gifio.c" />
+    <ClCompile Include="..\Osf\leptonica\src\gifiostub.c" />
+    <ClCompile Include="..\Osf\leptonica\src\gplot.c" />
+    <ClCompile Include="..\Osf\leptonica\src\graphics.c" />
+    <ClCompile Include="..\Osf\leptonica\src\graymorph.c" />
+    <ClCompile Include="..\Osf\leptonica\src\grayquant.c" />
+    <ClCompile Include="..\Osf\leptonica\src\heap.c" />
+    <ClCompile Include="..\Osf\leptonica\src\jbclass.c" />
+    <ClCompile Include="..\Osf\leptonica\src\jp2kheader.c" />
+    <ClCompile Include="..\Osf\leptonica\src\jp2kheaderstub.c" />
+    <ClCompile Include="..\Osf\leptonica\src\jp2kio.c" />
+    <ClCompile Include="..\Osf\leptonica\src\jp2kiostub.c" />
+    <ClCompile Include="..\Osf\leptonica\src\jpegio.c" />
+    <ClCompile Include="..\Osf\leptonica\src\jpegiostub.c" />
+    <ClCompile Include="..\Osf\leptonica\src\kernel.c" />
+    <ClCompile Include="..\Osf\leptonica\src\leptonica-pch.cpp" />
+    <ClCompile Include="..\Osf\leptonica\src\leptwin.c" />
+    <ClCompile Include="..\Osf\leptonica\src\libversions.c" />
+    <ClCompile Include="..\Osf\leptonica\src\list.c" />
+    <ClCompile Include="..\Osf\leptonica\src\map.c" />
+    <ClCompile Include="..\Osf\leptonica\src\maze.c" />
+    <ClCompile Include="..\Osf\leptonica\src\morph.c" />
+    <ClCompile Include="..\Osf\leptonica\src\morphapp.c" />
+    <ClCompile Include="..\Osf\leptonica\src\morphdwa.c" />
+    <ClCompile Include="..\Osf\leptonica\src\morphseq.c" />
+    <ClCompile Include="..\Osf\leptonica\src\numabasic.c" />
+    <ClCompile Include="..\Osf\leptonica\src\numafunc1.c" />
+    <ClCompile Include="..\Osf\leptonica\src\numafunc2.c" />
+    <ClCompile Include="..\Osf\leptonica\src\pageseg.c" />
+    <ClCompile Include="..\Osf\leptonica\src\paintcmap.c" />
+    <ClCompile Include="..\Osf\leptonica\src\parseprotos.c" />
+    <ClCompile Include="..\Osf\leptonica\src\partition.c" />
+    <ClCompile Include="..\Osf\leptonica\src\pdfio1.c" />
+    <ClCompile Include="..\Osf\leptonica\src\pdfio1stub.c" />
+    <ClCompile Include="..\Osf\leptonica\src\pdfio2.c" />
+    <ClCompile Include="..\Osf\leptonica\src\pdfio2stub.c" />
+    <ClCompile Include="..\Osf\leptonica\src\pix1.c" />
+    <ClCompile Include="..\Osf\leptonica\src\pix2.c" />
+    <ClCompile Include="..\Osf\leptonica\src\pix3.c" />
+    <ClCompile Include="..\Osf\leptonica\src\pix4.c" />
+    <ClCompile Include="..\Osf\leptonica\src\pix5.c" />
+    <ClCompile Include="..\Osf\leptonica\src\pixabasic.c" />
+    <ClCompile Include="..\Osf\leptonica\src\pixacc.c" />
+    <ClCompile Include="..\Osf\leptonica\src\pixafunc1.c" />
+    <ClCompile Include="..\Osf\leptonica\src\pixafunc2.c" />
+    <ClCompile Include="..\Osf\leptonica\src\pixalloc.c" />
+    <ClCompile Include="..\Osf\leptonica\src\pixarith.c" />
+    <ClCompile Include="..\Osf\leptonica\src\pixcomp.c" />
+    <ClCompile Include="..\Osf\leptonica\src\pixconv.c" />
+    <ClCompile Include="..\Osf\leptonica\src\pixlabel.c" />
+    <ClCompile Include="..\Osf\leptonica\src\pixtiling.c" />
+    <ClCompile Include="..\Osf\leptonica\src\pngio.c" />
+    <ClCompile Include="..\Osf\leptonica\src\pngiostub.c" />
+    <ClCompile Include="..\Osf\leptonica\src\pnmio.c" />
+    <ClCompile Include="..\Osf\leptonica\src\pnmiostub.c" />
+    <ClCompile Include="..\Osf\leptonica\src\projective.c" />
+    <ClCompile Include="..\Osf\leptonica\src\psio1.c" />
+    <ClCompile Include="..\Osf\leptonica\src\psio1stub.c" />
+    <ClCompile Include="..\Osf\leptonica\src\psio2.c" />
+    <ClCompile Include="..\Osf\leptonica\src\psio2stub.c" />
+    <ClCompile Include="..\Osf\leptonica\src\ptabasic.c" />
+    <ClCompile Include="..\Osf\leptonica\src\ptafunc1.c" />
+    <ClCompile Include="..\Osf\leptonica\src\ptafunc2.c" />
+    <ClCompile Include="..\Osf\leptonica\src\ptra.c" />
+    <ClCompile Include="..\Osf\leptonica\src\quadtree.c" />
+    <ClCompile Include="..\Osf\leptonica\src\queue.c" />
+    <ClCompile Include="..\Osf\leptonica\src\rank.c" />
+    <ClCompile Include="..\Osf\leptonica\src\rbtree.c" />
+    <ClCompile Include="..\Osf\leptonica\src\readbarcode.c" />
+    <ClCompile Include="..\Osf\leptonica\src\readfile.c" />
+    <ClCompile Include="..\Osf\leptonica\src\recogbasic.c" />
+    <ClCompile Include="..\Osf\leptonica\src\recogdid.c" />
+    <ClCompile Include="..\Osf\leptonica\src\recogident.c" />
+    <ClCompile Include="..\Osf\leptonica\src\recogtrain.c" />
+    <ClCompile Include="..\Osf\leptonica\src\regutils.c" />
+    <ClCompile Include="..\Osf\leptonica\src\rop.c" />
+    <ClCompile Include="..\Osf\leptonica\src\roplow.c" />
+    <ClCompile Include="..\Osf\leptonica\src\rotate.c" />
+    <ClCompile Include="..\Osf\leptonica\src\rotateam.c" />
+    <ClCompile Include="..\Osf\leptonica\src\rotateorth.c" />
+    <ClCompile Include="..\Osf\leptonica\src\rotateshear.c" />
+    <ClCompile Include="..\Osf\leptonica\src\runlength.c" />
+    <ClCompile Include="..\Osf\leptonica\src\sarray1.c" />
+    <ClCompile Include="..\Osf\leptonica\src\sarray2.c" />
+    <ClCompile Include="..\Osf\leptonica\src\seedfill.c" />
+    <ClCompile Include="..\Osf\leptonica\src\sel1.c" />
+    <ClCompile Include="..\Osf\leptonica\src\sel2.c" />
+    <ClCompile Include="..\Osf\leptonica\src\selgen.c" />
+    <ClCompile Include="..\Osf\leptonica\src\shear.c" />
+    <ClCompile Include="..\Osf\leptonica\src\skew.c" />
+    <ClCompile Include="..\Osf\leptonica\src\spixio.c" />
+    <ClCompile Include="..\Osf\leptonica\src\stack.c" />
+    <ClCompile Include="..\Osf\leptonica\src\stringcode.c" />
+    <ClCompile Include="..\Osf\leptonica\src\sudoku.c" />
+    <ClCompile Include="..\Osf\leptonica\src\textops.c" />
+    <ClCompile Include="..\Osf\leptonica\src\tiffio.c" />
+    <ClCompile Include="..\Osf\leptonica\src\tiffiostub.c" />
+    <ClCompile Include="..\Osf\leptonica\src\warper.c" />
+    <ClCompile Include="..\Osf\leptonica\src\watershed.c" />
+    <ClCompile Include="..\Osf\leptonica\src\webpio.c" />
+    <ClCompile Include="..\Osf\leptonica\src\webpiostub.c" />
+    <ClCompile Include="..\Osf\leptonica\src\writefile.c" />
+    <ClCompile Include="..\Osf\leptonica\src\zlibmem.c" />
+    <ClCompile Include="..\Osf\leptonica\src\zlibmemstub.c" />
+    <ClCompile Include="..\OSF\leptonica\src\bootnumgen4.c" />
+    <ClCompile Include="..\OSF\leptonica\src\boxfunc5.c" />
+    <ClCompile Include="..\OSF\leptonica\src\checkerboard.c" />
+    <ClCompile Include="..\OSF\leptonica\src\colorfill.c" />
+    <ClCompile Include="..\OSF\leptonica\src\hashmap.c" />
+    <ClCompile Include="..\OSF\leptonica\src\partify.c" />
+    <ClCompile Include="..\OSF\leptonica\src\scale1.c" />
+    <ClCompile Include="..\OSF\leptonica\src\scale2.c" />
+    <ClCompile Include="..\OSF\leptonica\src\strokes.c" />
+    <ClCompile Include="..\OSF\leptonica\src\utils1.c" />
+    <ClCompile Include="..\OSF\leptonica\src\utils2.c" />
+    <ClCompile Include="..\OSF\leptonica\src\webpanimio.c" />
+    <ClCompile Include="..\OSF\leptonica\src\webpanimiostub.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Osf\leptonica\src\allheaders.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\leptonica\src\alltypes.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\leptonica\src\array.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\leptonica\src\arrayaccess.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\leptonica\src\bbuffer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\leptonica\src\bilateral.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\leptonica\src\bmf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\leptonica\src\bmfdata.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\leptonica\src\bmp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\leptonica\src\ccbord.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\leptonica\src\dewarp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\leptonica\src\environ.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\leptonica\src\gplot.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\leptonica\src\heap.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\leptonica\src\imageio.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\leptonica\src\jbclass.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\leptonica\src\leptwin.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\leptonica\src\list.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\leptonica\src\morph.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\leptonica\src\pix.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\leptonica\src\ptra.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\leptonica\src\queue.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\leptonica\src\rbtree.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\leptonica\src\readbarcode.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\leptonica\src\recog.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\leptonica\src\regutils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\leptonica\src\stack.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\leptonica\src\stringcode.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\leptonica\src\sudoku.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\leptonica\src\watershed.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\leptonica\src\colorfill.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\leptonica\src\hashmap.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{47d538ed-d08c-4ba8-acce-10ca6c727105}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

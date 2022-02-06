@@ -132,14 +132,14 @@ int mi_wdupenv_s(unsigned short** buf, size_t* size, const unsigned short* name)
 	*buf = NULL;
 	return EINVAL;
 #else
-	unsigned short* p = (unsigned short*)_wgetenv((const wchar_t*)name); // msvc warning 4996
+	unsigned short* p = (unsigned short*)_wgetenv((const wchar_t *)name); // msvc warning 4996
 	if(p==NULL) {
 		*buf = NULL;
 	}
 	else {
 		*buf = mi_wcsdup(p);
 		if(*buf==NULL) return ENOMEM;
-		if(size != NULL) *size = wcslen((const wchar_t*)p);
+		if(size != NULL) *size = wcslen((const wchar_t *)p);
 	}
 	return 0;
 #endif

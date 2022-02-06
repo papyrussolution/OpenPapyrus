@@ -1,6 +1,6 @@
 // TVIEW.CPP  Turbo Vision 1.0
 // Copyright (c) 1991 by Borland International
-// Adopted to SLIB by A.Sobolev 1995-2021
+// Adopted to SLIB by A.Sobolev 1995-2021, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -132,12 +132,12 @@ TCommandSet operator | (const TCommandSet& tc1, const TCommandSet& tc2)
 	return (TCommandSet(tc1) |= tc2);
 }
 
-int TCommandSet::IsEmpty() const
+bool TCommandSet::IsEmpty() const
 {
 	for(int i = 0; i < SIZEOFARRAY(cmds); i++)
 		if(cmds[i])
-			return 0;
-	return 1;
+			return false;
+	return true;
 }
 
 int operator == (const TCommandSet& tc1, const TCommandSet& tc2)

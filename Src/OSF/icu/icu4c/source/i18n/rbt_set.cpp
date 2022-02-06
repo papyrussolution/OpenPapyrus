@@ -139,14 +139,14 @@ static void maskingError(const icu::TransliterationRule& rule1,
 
 	// for pre-context
 	rule1.toRule(r, FALSE);
-	len = uprv_min(r.length(), U_PARSE_CONTEXT_LEN-1);
+	len = smin(r.length(), U_PARSE_CONTEXT_LEN-1);
 	r.extract(0, len, parseError.preContext);
 	parseError.preContext[len] = 0;
 
 	//for post-context
 	r.truncate(0);
 	rule2.toRule(r, FALSE);
-	len = uprv_min(r.length(), U_PARSE_CONTEXT_LEN-1);
+	len = smin(r.length(), U_PARSE_CONTEXT_LEN-1);
 	r.extract(0, len, parseError.postContext);
 	parseError.postContext[len] = 0;
 }
@@ -182,7 +182,7 @@ TransliterationRuleSet::TransliterationRuleSet(const TransliterationRuleSet& oth
 	ruleVector = new UVector(&_deleteRule, NULL, status);
 	if(other.ruleVector != 0 && ruleVector != 0 && U_SUCCESS(status)) {
 		len = other.ruleVector->size();
-		for(i = 0; i<len && U_SUCCESS(status); ++i) {
+		for(i = 0; i < len && U_SUCCESS(status); ++i) {
 			TransliterationRule * tempTranslitRule =
 			    new TransliterationRule(*(TransliterationRule*)other.ruleVector->elementAt(i));
 			// Null pointer test
@@ -215,7 +215,7 @@ void TransliterationRuleSet::setData(const TransliterationRuleData* d) {
 	 * We assume that the ruleset has already been frozen.
 	 */
 	int32_t len = index[256]; // see freeze()
-	for(int32_t i = 0; i<len; ++i) {
+	for(int32_t i = 0; i < len; ++i) {
 		rules[i]->setData(d);
 	}
 }

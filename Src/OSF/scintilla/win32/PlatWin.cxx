@@ -898,7 +898,7 @@ void SurfaceGDI::DrawTextTransparent(PRectangle rc, SciFont &font_, XYPOSITION y
     ColourDesired fore)
 {
 	// Avoid drawing spaces in transparent mode
-	for(int i = 0; i<len; i++) {
+	for(int i = 0; i < len; i++) {
 		if(s[i] != ' ') {
 			::SetTextColor(hdc, fore.AsLong());
 			::SetBkMode(hdc, TRANSPARENT);
@@ -944,7 +944,7 @@ void SurfaceGDI::MeasureWidths(SciFont &font_, const char * s, int len, XYPOSITI
 			if(lenChar == 4) {      // Non-BMP
 				ui++;
 			}
-			for(uint bytePos = 0; (bytePos<lenChar) && (i<len); bytePos++) {
+			for(uint bytePos = 0; (bytePos<lenChar) && (i < len); bytePos++) {
 				positions[i++] = static_cast<XYPOSITION>(poses.buffer[ui]);
 			}
 		}
@@ -1647,7 +1647,7 @@ void SurfaceD2D::MeasureWidths(SciFont &font_, const char * s, int len, XYPOSITI
 			else if(uch >= (0x80)) {
 				lenChar = 2;
 			}
-			for(uint bytePos = 0; (bytePos<lenChar) && (i<len); bytePos++) {
+			for(uint bytePos = 0; (bytePos<lenChar) && (i < len); bytePos++) {
 				positions[i++] = poses.buffer[ui];
 			}
 			ui++;
@@ -1655,7 +1655,7 @@ void SurfaceD2D::MeasureWidths(SciFont &font_, const char * s, int len, XYPOSITI
 		XYPOSITION lastPos = 0.0f;
 		if(i > 0)
 			lastPos = positions[i-1];
-		while(i<len) {
+		while(i < len) {
 			positions[i++] = lastPos;
 		}
 	}
@@ -1670,7 +1670,7 @@ void SurfaceD2D::MeasureWidths(SciFont &font_, const char * s, int len, XYPOSITI
 		// May be more than one byte per position
 		uint ui = 0;
 		FLOAT position = 0.0f;
-		for(int i = 0; i<len; ) {
+		for(int i = 0; i < len; ) {
 			if(ui < count)
 				position = poses.buffer[ui];
 			if(Platform::IsDBCSLeadByte(codePageText, s[i])) {

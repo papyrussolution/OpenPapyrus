@@ -1,5 +1,5 @@
 // CROSSTAB.CPP
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -623,29 +623,32 @@ int Crosstab::Create(int use_ta)
 
 DBQuery * Crosstab::CreateBrowserQuery()
 {
+	DBQuery * p_q = 0;
 	DBFieldList fld_list;
 	DBField fld;
 	DBTable * p_tbl = new DBTable(P_RTbl->GetTableName(), P_RTbl->GetName());
-	p_tbl->allocOwnBuffer();
-	for(uint i = 0; i < p_tbl->GetFields().getCount(); i++) {
-		p_tbl->getField(i, &fld);
-		fld_list.Add(fld);
-	}
-	DBQuery * p_q = &select(fld_list).from(p_tbl, 0L);
-	if(SortIdxList.getCount()) {
-		SString seg_name;
-		if(Flags & fHasExtSortField) {
-			uint   fld_pos = 0;
-			if(&p_tbl->GetFields().getField("CTIX", &fld_pos) != 0) {
-				p_tbl->getField(fld_pos, &fld);
-				p_q->addOrderField(fld);
-			}
+	if(p_tbl) {
+		p_tbl->allocOwnBuffer();
+		for(uint i = 0; i < p_tbl->GetFields().getCount(); i++) {
+			p_tbl->getField(i, &fld);
+			fld_list.Add(fld);
 		}
-		for(uint p = 0; SortIdxList.get(&p, seg_name);) {
-			uint   fld_pos = 0;
-			if(&p_tbl->GetFields().getField(seg_name, &fld_pos) != 0) {
-				p_tbl->getField(fld_pos, &fld);
-				p_q->addOrderField(fld);
+		p_q = &select(fld_list).from(p_tbl, 0L);
+		if(SortIdxList.getCount()) {
+			SString seg_name;
+			if(Flags & fHasExtSortField) {
+				uint   fld_pos = 0;
+				if(&p_tbl->GetFields().getField("CTIX", &fld_pos) != 0) {
+					p_tbl->getField(fld_pos, &fld);
+					p_q->addOrderField(fld);
+				}
+			}
+			for(uint p = 0; SortIdxList.get(&p, seg_name);) {
+				uint   fld_pos = 0;
+				if(&p_tbl->GetFields().getField(seg_name, &fld_pos) != 0) {
+					p_tbl->getField(fld_pos, &fld);
+					p_q->addOrderField(fld);
+				}
 			}
 		}
 	}

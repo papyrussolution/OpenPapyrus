@@ -1685,7 +1685,7 @@ static const uint16_t hwkana_fb[HWKANA_END - HWKANA_START + 1] = {
 	0x212C /* U+FF9F */
 };
 
-static void U_CALLCONV UConverter_fromUnicode_ISO_2022_JP_OFFSETS_LOGIC(UConverterFromUnicodeArgs* args, UErrorCode * err) {
+static void U_CALLCONV UConverter_fromUnicode_ISO_2022_JP_OFFSETS_LOGIC(UConverterFromUnicodeArgs * args, UErrorCode * err) {
 	UConverter * cnv = args->converter;
 	UConverterDataISO2022 * converterData;
 	ISO2022State * pFromU2022State;
@@ -2385,7 +2385,7 @@ endloop:
  *  ii) There are only 2 shifting sequences SO to shift into double byte mode
  *      and SI to shift into single byte mode
  */
-static void U_CALLCONV UConverter_fromUnicode_ISO_2022_KR_OFFSETS_LOGIC_IBM(UConverterFromUnicodeArgs* args, UErrorCode * err) {
+static void U_CALLCONV UConverter_fromUnicode_ISO_2022_KR_OFFSETS_LOGIC_IBM(UConverterFromUnicodeArgs * args, UErrorCode * err) {
 	UConverter * saveConv = args->converter;
 	UConverterDataISO2022 * myConverterData = (UConverterDataISO2022*)saveConv->extraInfo;
 	args->converter = myConverterData->currentConverter;
@@ -2407,7 +2407,7 @@ static void U_CALLCONV UConverter_fromUnicode_ISO_2022_KR_OFFSETS_LOGIC_IBM(UCon
 	args->converter = saveConv;
 }
 
-static void U_CALLCONV UConverter_fromUnicode_ISO_2022_KR_OFFSETS_LOGIC(UConverterFromUnicodeArgs* args, UErrorCode * err) {
+static void U_CALLCONV UConverter_fromUnicode_ISO_2022_KR_OFFSETS_LOGIC(UConverterFromUnicodeArgs * args, UErrorCode * err) {
 	const UChar * source = args->source;
 	const UChar * sourceLimit = args->sourceLimit;
 	unsigned char * target = (unsigned char *)args->target;
@@ -2981,7 +2981,7 @@ static const char * const escSeqCharsCN[10] = {
 	CNS_11643_1992_Plane_7_STR
 };
 
-static void U_CALLCONV UConverter_fromUnicode_ISO_2022_CN_OFFSETS_LOGIC(UConverterFromUnicodeArgs* args, UErrorCode * err) {
+static void U_CALLCONV UConverter_fromUnicode_ISO_2022_CN_OFFSETS_LOGIC(UConverterFromUnicodeArgs * args, UErrorCode * err) {
 	UConverter * cnv = args->converter;
 	UConverterDataISO2022 * converterData;
 	ISO2022State * pFromU2022State;

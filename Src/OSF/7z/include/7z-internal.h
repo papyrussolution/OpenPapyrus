@@ -2871,14 +2871,14 @@ void UnicodeStringToMultiByte2(AString &dest, const UString &src, UINT codePage)
 AString FASTCALL UnicodeStringToMultiByte(const UString &src, UINT codePage, char defaultChar, bool &defaultCharWasUsed);
 AString FASTCALL UnicodeStringToMultiByte(const UString &src, UINT codePage = CP_ACP);
 
-inline const wchar_t* GetUnicodeString(const wchar_t *u) { return u; }
+inline const wchar_t * GetUnicodeString(const wchar_t *u) { return u; }
 inline const UString& GetUnicodeString(const UString &u) { return u; }
 
 inline UString GetUnicodeString(const AString &a) { return MultiByteToUnicodeString(a); }
 inline UString GetUnicodeString(const char *a)     { return MultiByteToUnicodeString(a); }
 inline UString GetUnicodeString(const AString &a, UINT codePage) { return MultiByteToUnicodeString(a, codePage); }
 inline UString GetUnicodeString(const char *a, UINT codePage) { return MultiByteToUnicodeString(a, codePage); }
-inline const wchar_t* GetUnicodeString(const wchar_t *u, UINT) { return u; }
+inline const wchar_t * GetUnicodeString(const wchar_t *u, UINT) { return u; }
 inline const UString& GetUnicodeString(const UString &u, UINT) { return u; }
 inline const char*    GetAnsiString(const char    *a) { return a; }
 inline const AString& GetAnsiString(const AString &a) { return a; }
@@ -2890,9 +2890,9 @@ const char * GetOemString(const char* oem);
 const AString & GetOemString(const AString &oem);
 inline AString GetOemString(const UString &u) { return UnicodeStringToMultiByte(u, CP_OEMCP); }
 #ifdef _UNICODE
-  inline const wchar_t* GetSystemString(const wchar_t *u) { return u;}
+  inline const wchar_t * GetSystemString(const wchar_t *u) { return u;}
   inline const UString& GetSystemString(const UString &u) { return u;}
-  inline const wchar_t* GetSystemString(const wchar_t *u, UINT /* codePage */) { return u;}
+  inline const wchar_t * GetSystemString(const wchar_t *u, UINT /* codePage */) { return u;}
   inline const UString& GetSystemString(const UString &u, UINT /* codePage */) { return u;}
  
   inline UString GetSystemString(const AString &a, UINT codePage) { return MultiByteToUnicodeString(a, codePage); }

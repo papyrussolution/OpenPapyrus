@@ -235,18 +235,17 @@ private:
 
 class CommandLineInterfaceTest::NullCodeGenerator : public CodeGenerator {
 public:
-	NullCodeGenerator() : called_(false) {
+	NullCodeGenerator() : called_(false) 
+	{
 	}
-
-	~NullCodeGenerator() {
+	~NullCodeGenerator() 
+	{
 	}
-
 	mutable bool called_;
 	mutable std::string parameter_;
-
 	// implements CodeGenerator ----------------------------------------
-	bool Generate(const FileDescriptor* file, const std::string& parameter,
-	    GeneratorContext* context, std::string* error) const {
+	bool Generate(const FileDescriptor* file, const std::string& parameter, GeneratorContext* context, std::string* error) const 
+	{
 		called_ = true;
 		parameter_ = parameter;
 		return true;

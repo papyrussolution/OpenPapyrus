@@ -303,7 +303,7 @@ static int32_t _getStringOrCopyKey(const char * path, const char * locale,
 	}
 
 	if(U_SUCCESS(*pErrorCode)) {
-		int32_t copyLength = uprv_min(length, destCapacity);
+		int32_t copyLength = smin(length, destCapacity);
 		if(copyLength>0 && s != NULL) {
 			u_memcpy(dest, s, copyLength);
 		}
@@ -311,7 +311,7 @@ static int32_t _getStringOrCopyKey(const char * path, const char * locale,
 	else {
 		/* no string from a resource bundle: convert the substitute */
 		length = (int32_t)uprv_strlen(substitute);
-		u_charsToUChars(substitute, dest, uprv_min(length, destCapacity));
+		u_charsToUChars(substitute, dest, smin(length, destCapacity));
 		*pErrorCode = U_USING_DEFAULT_WARNING;
 	}
 

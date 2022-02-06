@@ -241,7 +241,7 @@ void json_add_string(GravityJson * json, const char * key, const char * value, s
 		json_write_key(json, key);
 		// check if string value needs to be escaped
 		bool write_escaped = false;
-		for(size_t i = 0; i<len; ++i) {
+		for(size_t i = 0; i < len; ++i) {
 			if(value[i] == '"') {
 				write_escaped = true; break;
 			}

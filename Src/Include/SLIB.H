@@ -9,6 +9,7 @@
 	#include <slconfig.h>
 #endif
 #define WINDOWS_IGNORE_PACKING_MISMATCH // @v10.9.11
+#define U_STATIC_IMPLEMENTATION // @v11.3.0 ICU включается как статическая библиотека
 #ifndef RC_INVOKED
 	#include <slport.h>
 	#ifndef __STDIO_H
@@ -3290,7 +3291,7 @@ struct SSzChunk { // @flat @noctr @novtbl
 	int    operator !() const;
 	int    operator == (const SSzChunk & rS) const;
 	int    GetEnd() const;
-	int    IsEmpty() const;
+	bool   IsEmpty() const;
 
 	int    Begin;
 	int    Len;
@@ -3851,7 +3852,7 @@ public:
 	int    Single() const;
 	bool   IsEmpty() const;
 	//int    operator !() const { return Empty(); }
-	bool   NotEmpty() const;
+	bool   NotEmpty() const { return (Len() != 0); }
 	//
 	// Descr: Возвращает true если после применения метода Strip строка становится пустой.
 	//
@@ -4236,8 +4237,8 @@ public:
 	SString & Cat(double v); // MKSFMTD(0, 6, NMBF_NOTRAILZ)
 	SString & CatReal(double v);
 	SString & Cat(const RealRange & rR, long fmt);
-	SString & FASTCALL Cat(LDATE, long fmt); // @v9.6.4 defargremoved
-	SString & FASTCALL Cat(LTIME, long fmt); // @v9.6.4 defargremoved
+	SString & FASTCALL Cat(LDATE, long fmt);
+	SString & FASTCALL Cat(LTIME, long fmt);
 	//
 	// Descr: == Cat(LDATE, DATF_DMY)
 	//
@@ -4341,8 +4342,7 @@ public:
 	//   формируемые сторонними программами, в формате "filename(lineno): message"
 	//
 	SString & FormatFileParsingMessage(const char * pFileName, int lineNo, const char * pAddedText);
-	SString & Helper_MbToMb(uint srcCodepage, uint destCodepage); // @v9.8.3 private-->public
-
+	SString & Helper_MbToMb(uint srcCodepage, uint destCodepage);
 	void   Cat_Unsafe(const uint8 * pChr, size_t numChr); // very-very dangerous function
 private:
 	int    FASTCALL Alloc(size_t);
@@ -4581,7 +4581,7 @@ protected:
 	size_t DataLen; // @#{DataLen<=BufLen} Length of data with delimiters and trailings
 	size_t Size;    // @#{BufLen>=DataLen} Length of buffer
 	char * P_Buf;
-	char   Delim[12]; // @v9.9.5 [32]-->[12]
+	char   Delim[12];
 };
 //
 //
@@ -4762,15 +4762,19 @@ uchar   * FASTCALL sstrcpy(uchar * pDest, const uchar * pSrc);
 wchar_t * FASTCALL sstrcpy(wchar_t * pDest, const wchar_t * pSrc);
 char * FASTCALL trimleft(char * pStr);
 char * FASTCALL trimright(char * pStr);
-bool   FASTCALL isempty(const char * pStr); // BIN(pStr || pStr[0])
-bool   FASTCALL isempty(const uchar * pStr); // BIN(pStr || pStr[0])
-bool   FASTCALL isempty(const wchar_t * pStr); // BIN(pStr || pStr[0])
-FORCEINLINE size_t FASTCALL sstrlen(const char * pStr) { return pStr ? strlen(pStr) : 0; }
-FORCEINLINE size_t FASTCALL sstrlen(const uchar * pStr) { return pStr ? strlen(reinterpret_cast<const char *>(pStr)) : 0; }
-FORCEINLINE size_t FASTCALL sstrlen(const wchar_t * pStr) { return pStr  ? wcslen(pStr) : 0; }
-FORCEINLINE int FASTCALL sstrleni(const char * pStr) { return static_cast<int>(sstrlen(pStr)); }
-FORCEINLINE int FASTCALL sstrleni(const uchar * pStr) { return static_cast<int>(sstrlen(pStr)); }
-FORCEINLINE int FASTCALL sstrleni(const wchar_t * pStr) { return static_cast<int>(sstrlen(pStr)); }
+//bool   FASTCALL isempty(const char * pStr); // BIN(pStr || pStr[0])
+//bool   FASTCALL isempty(const uchar * pStr); // BIN(pStr || pStr[0])
+//bool   FASTCALL isempty(const wchar_t * pStr); // BIN(pStr || pStr[0])
+// @v11.3.0 Функции isempty() теперь в inline-варианте. Это снижает размер кода (и, очевидно, быстрее работает)
+FORCEINLINE bool   isempty(const char * pStr) { return (pStr == 0 || pStr[0] == 0); }
+FORCEINLINE bool   isempty(const uchar * pStr) { return (pStr == 0 || pStr[0] == 0); }
+FORCEINLINE bool   isempty(const wchar_t * pStr) { return (pStr == 0 || pStr[0] == 0); }
+FORCEINLINE size_t sstrlen(const char * pStr) { return pStr ? strlen(pStr) : 0; }
+FORCEINLINE size_t sstrlen(const uchar * pStr) { return pStr ? strlen(reinterpret_cast<const char *>(pStr)) : 0; }
+FORCEINLINE size_t sstrlen(const wchar_t * pStr) { return pStr  ? wcslen(pStr) : 0; }
+FORCEINLINE int    sstrleni(const char * pStr) { return static_cast<int>(sstrlen(pStr)); }
+FORCEINLINE int    sstrleni(const uchar * pStr) { return static_cast<int>(sstrlen(pStr)); }
+FORCEINLINE int    sstrleni(const wchar_t * pStr) { return static_cast<int>(sstrlen(pStr)); }
 size_t FASTCALL sstrnlen(const char * pStr, size_t maxLen);
 const char * FASTCALL sstrchr(const char * pStr, char c);
 char  * FASTCALL sstrchr(char * pStr, char c);
@@ -4788,8 +4792,8 @@ wchar_t * FASTCALL sstrdup(const wchar_t * pStr);
 //
 bool   FASTCALL sstreq(const char * pS1, const char * pS2);
 bool   FASTCALL sstreq(const uchar * pS1, const uchar * pS2);
-bool   STDCALL sstrneq(const char * pS1, const char * pS2, uint len);
-bool   STDCALL sstrneq(const uchar * pS1, const uchar * pS2, uint len);
+bool   STDCALL  sstrneq(const char * pS1, const char * pS2, uint len);
+bool   STDCALL  sstrneq(const uchar * pS1, const uchar * pS2, uint len);
 //
 // Descr: Специальный вариант для libxml - сравнение переменной типа xmlChar * с константой "xxx".
 //
@@ -4840,12 +4844,6 @@ char * FASTCALL strip(char * pStr);
 char * FASTCALL chomp(char * pStr);
 // @v10.0.0 const  char * skipws(const char * pStr, size_t * pPos);
 //
-// Descr: Функция заменяет символ 'c' на строку из одиночного того же символа "c".
-// Note: Функция рудиментарная сделана еще во времена DOS с целью снизить размер кода.
-//   Не использовать.
-//
-// @v9.6.5 const  char * FASTCALL onecstr(char c);
-//
 // Descr: Сдвигает все символы строки pStr вправо на n символов и освободившееся
 //   слева место забивает символами pad.
 // Note: Предполает, что под указатель pStr выделено достаточно места чтобы вместить еще n символов.
@@ -4892,21 +4890,10 @@ SString & FASTCALL FormatInt64(int64 value, SString & rBuf);
 SString & FASTCALL FormatUInt64(uint64 value, SString & rBuf);
 int    SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount);
 //
-// Descr: Добавляет по указателю pStr разделительный символ div, возможно (addSpaces != 0), обрамленный
-//   пробелами и возвращает указатель на следующий за разделителем байт.
-//   Например (точка показывает байт, на который ссылается указатель):
-//   buf                       // -> .abc
-//   ptr                       // -> abc.
-//   ptr = catdiv(ptr, '-', 1) // -> abc - .
-//
-// @v9.4.10 (unused) char * catdiv(char * pStr, int div, int addSpaces);
-
 //get string - used in network @vantonov
 // @v10.3.0 (unused) int QuotedStringToStr(char **pStr, char * pBuf, int maxBytes, char dStr = '\"');
 //
 // Функции для классификации и конвертации символов
-//
-// @v8.6.4 #define IS_DIGIT(c) ((c)>='0'&&(c)<='9')
 //
 // Descr: Возвращает !0 если символ c является шестнадцатиричным знаком [0-9A-Fa-f]
 //
@@ -5779,26 +5766,48 @@ char * FASTCALL newStr(const char *);
 //
 // Descr: Меняет значения по указателям pA и pB один с другим
 //
-void   FASTCALL Exchange(int * pA, int * pB);
-void   FASTCALL Exchange(uint * pA, uint * pB);
-void   FASTCALL ExchangeForOrder(int * pA, int * pB);
-void   FASTCALL Exchange(long * pA, long * pB);
+//void   FASTCALL Exchange(int * pA, int * pB);
+//void   FASTCALL Exchange(uint * pA, uint * pB);
+//void   FASTCALL ExchangeForOrder(int * pA, int * pB);
+//void   FASTCALL Exchange(long * pA, long * pB);
 //
 // Descr: Если *pA > *pB, то меняет значения по этим указателям местами,
 //   в противном случае ничего не делает
 //
-void   FASTCALL ExchangeForOrder(long * pA, long * pB);
-void   FASTCALL Exchange(ulong * pA, ulong * pB);
-void   FASTCALL Exchange(int16 * pA, int16 * pB);
-void   FASTCALL ExchangeForOrder(int16 * pA, int16 * pB);
-void   FASTCALL Exchange(int64 * pA, int64 * pB);
-void   FASTCALL Exchange(float * pA, float * pB);
-void   FASTCALL Exchange(double * pA, double * pB);
+//void   FASTCALL ExchangeForOrder(long * pA, long * pB);
+//void   FASTCALL Exchange(ulong * pA, ulong * pB);
+//void   FASTCALL Exchange(int16 * pA, int16 * pB);
+//void   FASTCALL ExchangeForOrder(int16 * pA, int16 * pB);
+//void   FASTCALL Exchange(int64 * pA, int64 * pB);
+//void   FASTCALL Exchange(float * pA, float * pB);
+//void   FASTCALL Exchange(double * pA, double * pB);
+//
+// Descr: Меняет значения по указателям pA и pB один с другим
+//
+template <class T> void SExchange(T * pA, T * pB)
+{
+	T temp = *pA;
+	*pA = *pB;
+	*pB = temp;
+}
 //
 // Descr: Если *pA > *pB, то меняет значения по этим указателям местами,
 //   в противном случае ничего не делает
 //
-void   FASTCALL ExchangeForOrder(double * pA, double * pB);
+template <class T> void SExchangeForOrder(T * pA, T * pB)
+{
+	assert(pA && pB);
+	if(*pA > *pB) {
+		T temp = *pA;
+		*pA = *pB;
+		*pB = temp;
+	}
+}
+//
+// Descr: Если *pA > *pB, то меняет значения по этим указателям местами,
+//   в противном случае ничего не делает
+//
+//void   FASTCALL ExchangeForOrder(double * pA, double * pB);
 int    FASTCALL cmp_long(long a, long b);
 int    FASTCALL cmp_ulong(ulong a, ulong b);
 int    FASTCALL cmp_int64(int64 a, int64 b);
@@ -5986,6 +5995,7 @@ public:
 	//    0 - ошибка
 	//
 	int    Cat(const void * pData, size_t len);
+	int    Cat(const SBinaryChunk & rS);
 	//
 	// Descr: Формирует отрезок длиной len и заполняет его содержимое байтом byte.
 	//   При успешном завершении GetLen() == len.
@@ -6022,7 +6032,7 @@ public:
 		ffAryForceEmpty = 0x0002  // Сохранить массив как имеющий 0 элементов, даже если он не пустой.
 	};
 	int    InvariantC(SInvariantParam *) const;
-	SBuffer(size_t initSize = 0, long flags = fMovable);
+	explicit SBuffer(size_t initSize = 0, long flags = fMovable);
 	SBuffer(const SBuffer &);
 	~SBuffer();
 	void   Destroy();
@@ -6039,7 +6049,7 @@ public:
 	//   и rS.P_Buf[0..rS.WrOffs-1].
 	//   Пустые буферы (WrOffs == 0) считаются равными.
 	//
-	int    FASTCALL IsEq(const SBuffer & rS) const;
+	bool   FASTCALL IsEq(const SBuffer & rS) const;
 	//operator const void * () const { return P_Buf; }
 	const void * constptr() const { return P_Buf; }
 	size_t GetSize() const { return Size; }
@@ -6882,11 +6892,6 @@ void   delbit(void * pBuf, size_t len, size_t);
 uint8  FASTCALL bitscanforward(uint32 * pIdx, uint32 mask);
 uint8  FASTCALL bitscanreverse(uint32 * pIdx, uint32 mask);
 //
-// Table search functions
-//
-// @v9.4.3 (moved to sformat.cpp as static) int    i_tab(const void * tbl, int req, int def);
-// @v9.4.3 (moved to sformat.cpp as static) int    ai_tab(const void * tbl, int req, int def);
-//
 // Encrypt / Decrypt functions
 //
 void * encrypt(void *, size_t);
@@ -6903,8 +6908,6 @@ public:
 	MIME64();
 	int    Encode(const void * pIn, size_t inLen, char * pOut, size_t outBufLen, size_t * pOutDataLen) const;
 	int    Decode(const char * pIn, size_t inLen, char * pOut, size_t * pOutDataLen) const;
-private:
-	// @v9.9.5 char   Basis64[256];
 };
 //
 // Punycode
@@ -7468,7 +7471,7 @@ public:
 class SCollection : public SArray {
 public:
 	SCollection();
-	SCollection(/*uint aDelta = DEFCOLLECTDELTA,*/ uint o /*= O_COLLECTION*/);
+	explicit SCollection(uint o /*= O_COLLECTION*/);
 	SCollection(const SCollection & src) : SArray(src) {}
 protected:
 	int    FASTCALL Helper_CreateNewItem(void * pNewItem, uint * pPos);
@@ -7479,7 +7482,7 @@ protected:
 //
 class SStack : public SArray {
 public:
-	SStack(uint itemSize, /*uint aDelta = 8,*/ uint o = O_ARRAY); // @v8.9.12 aDelta 1-->8
+	explicit SStack(uint itemSize, uint o = O_ARRAY);
 	// @v11.1.12 int    FASTCALL push(const void *);
 	void * FASTCALL push(const void *); // @v11.1.12 returns result item's ptr now
 	int    FASTCALL pop(void *);
@@ -7509,7 +7512,6 @@ private:
 class STypArray : public SArray {
 public:
 	STypArray(TYPEID, /*uint aDelta = 8,*/ uint o /*= O_ARRAY*/);
-	// @v9.0.5 virtual int FASTCALL insert(const void *);
 	virtual	void FASTCALL freeItem(void *);
 	TYPEID getType() const { return type; }
 	int    search(const void *, uint *) const;
@@ -10044,7 +10046,7 @@ private:
 	int    IH;
 	SString Name;
 	SBuffer BufR; // Буфер чтения ((Mode&mNoStd)&&(Mode&mBuffRd))
-	STempBuffer LB; // @v9.5.5 Временный буфер для чтения строк и т.д.
+	STempBuffer LB; // Временный буфер для чтения строк и т.д.
 	//
 	// Таблица дескрипторов блокировок. Таблица в течении жизни объекта никогда не уменьшается в размере.
 	// Дескриптором блокировки является индекс позиции блока LckChunk в массиве, увеличенный на 1.
@@ -11653,29 +11655,14 @@ void json_strip_white_spaces(char *text);
 // @param text a JSON formatted document
 // @return a pointer to a char string holding the formated document
 //
-//char *json_format_string(const char *text);
 int json_format_string(const char * pText, SString & rBuf);
-//
-// Outputs a new UTF8 c-string which replaces all characters that must be escaped with their respective escaped versions
-// @param text an UTF8 char text string
-// @return an UTF-8 c-string holding the same text string but with escaped characters
-//
-// @v9.7.10 @obsolte char * json_escape(const char *text);
-//
-// Outputs a new UTF-8 c-string which has all escaped characters replaced by
-// their unescaped, UTF-8 encoded variants.
-//
-// @param test a UTF-8 c-string
-// @return a newly allocated UTF-8 c-string; free with free()
-//
-// @v9.7.10 @obsolte char * json_unescape(char *text);
 //
 // Produces a document tree sequentially from a JSON markup text fragment
 // @param info the information necessary to resume parsing any incomplete document
 // @param buffer a null-terminated c-string containing a JSON document fragment
 // @return /*a code describing how the operation ended up*/
 //
-/*enum json_error*/int FASTCALL json_parse_fragment(JsonParsingBlock * info, const char * buffer);
+int FASTCALL json_parse_fragment(JsonParsingBlock * info, const char * buffer);
 //
 // Produces a document tree from a JSON markup text string that contains a complete document
 // @param root a reference to a pointer to a SJson type. The function allocates memory to the passed pointer and sets up the value
@@ -12094,7 +12081,7 @@ private:
 	int    Sign;
 	long   Count;
 	Spike  Prev[2];
-	SVector * P_Spikes; // @v9.8.12 SArray-->SVector
+	SVector * P_Spikes;
 };
 
 class ARMA {
@@ -12606,7 +12593,9 @@ inline bool feqeps(double v1, double v2, double epsilon) { return (fabs(v1-v2) <
 //
 // Descr: ret = (dr != 0) ? (dd / dr) : 0
 //
-double FASTCALL fdivnz(double dd, double dr);
+//double FASTCALL fdivnz(double dd, double dr);
+// @v11.3.0 Функция fdivnz() теперь в inline-варианте. Это снижает размер кода (и, очевидно, быстрее работает)
+FORCEINLINE double fdivnz(double dd, double dr) { return (dr != 0.0) ? (dd / dr) : 0.0; }
 //
 // Descr: Возвращает целую часть аргумента v
 //
@@ -12633,10 +12622,10 @@ double FASTCALL ffrac(double v); // @>>modf
 //   0 - ERROR
 //
 int    fsplitintofractions(double value, uint fragmentation, double tolerance, double * pIntPart, double * pNumerator, double * pDenominator);
-int __forceinline fceili(double v) { return static_cast<int>(ceil(v)); }
-int __forceinline ffloori(double v) { return static_cast<int>(floor(v)); }
-int __forceinline fceili(float v) { return static_cast<int>(ceil(v)); }
-int __forceinline ffloori(float v) { return static_cast<int>(floor(v)); }
+FORCEINLINE int fceili(double v) { return static_cast<int>(ceil(v)); }
+FORCEINLINE int ffloori(double v) { return static_cast<int>(floor(v)); }
+FORCEINLINE int fceili(float v) { return static_cast<int>(ceil(v)); }
+FORCEINLINE int ffloori(float v) { return static_cast<int>(floor(v)); }
 //
 // Descr: Если sign < 0, возвращает (val-addendum)
 //   Если sign > 0, возвращает (val+addendum)
@@ -12792,7 +12781,7 @@ struct FRect { // @persistent
 	FRect & Move__(float aDX, float aDY);
 	FRect & FASTCALL MoveCenterTo(SPoint2F center);
 	int    FASTCALL IsEq(const FRect & rS) const;
-	int    IsEmpty() const;
+	bool   IsEmpty() const;
 	int    Contains(SPoint2F p) const;
 	int    FASTCALL Contains(const FRect & rR) const;
 	float  Width() const;
@@ -12960,7 +12949,7 @@ public:
 	TRect(const RECT &);
 	TRect & FASTCALL operator = (const RECT &);
 	TRect & FASTCALL operator = (SPoint2S p);
-	int    IsEmpty() const;
+	bool   IsEmpty() const;
 	//
 	// Descr: Если прямоугольник вырожден до прямой линии, то возвращает !0.
 	// Returns:
@@ -13141,7 +13130,7 @@ struct UiCoord { // @noctr
 	};
 	void   Set(float v, int f);
 	void   Reset();
-	int    IsEmpty() const;
+	bool   IsEmpty() const;
 
 	float  Val;   // @v11.0.4 int16-->float
 	int16  Flags; // UiCoord::dfXXX
@@ -13157,7 +13146,7 @@ struct UiRelPoint { // @noctr
 
 struct UiRelRect { // @noctr
 	void   Reset();
-	int    IsEmpty() const;
+	bool   IsEmpty() const;
 	UiRelRect & FASTCALL Set(const TRect & rR);
 
 	UiRelPoint L;
@@ -13341,7 +13330,7 @@ struct SColorBase { // @persistent
 
 	operator COLORREF() const;
 	operator RGBQUAD() const;
-	int    IsEmpty() const { return (!B && !G && !R && !Alpha); }
+	bool   IsEmpty() const { return (!B && !G && !R && !Alpha); }
 	SColorBase Z();
 	SColorBase Set(uint r, uint g, uint b);
 	SColorBase FASTCALL Set(uint v);
@@ -13699,7 +13688,6 @@ public:
 	int    GetSections(StringSet * pSects);
 	int    IsSectExists(const char * pSect);
 	int    GetEntries(const char * pSect, StringSet * pEntries, int storeAllString = 0);
-	// @v9.2.10 int    GetParam(const char * pSect, const char * pParam, char *, size_t);
 	int    GetParam(const char * pSect, const char * pParam, SString & rBuf);
 	int    GetIntParam(const char * pSect, const char * param, int *);
 	int    GetDataSizeParam(const char * pSect, const char * pParam, int64 * pVal);
@@ -14799,7 +14787,7 @@ protected:
 	void   ResetIdleState();
 
 	volatile void * P_InitData;
-	const void * P_Tla; // @v9.8.1
+	const void * P_Tla; //
 	Evnt   EvLocalStop; // Событие активируется при вызове SlThread::SetStopState()
 		// Этот сигнал означает, что поток должен остановиться.
 private:
@@ -14842,7 +14830,7 @@ protected:
 
 struct SGlobalSecureConfig {
 	SGlobalSecureConfig();
-	int    IsEmpty() const;
+	bool   IsEmpty() const;
 
 	long   Flags;
 	SString CaFile;
@@ -14960,9 +14948,8 @@ public:
 	int    DefaultYear_;
 	int    DefaultMonth_;
 	int    UiLanguageId;
-	long   UiFlags;            // @v9.1.1 sluifXXX
+	long   UiFlags;            // sluifXXX
 	SCodepageIdent CurrentCp;  //
-	// @v9.6.5 char   OneCStrBuf[4];      // used in onecstr()
 	CompFunc SAry_OrgFCMP;
 	int    SAry_PtrContainer;
 	void * SAry_SortExtraData;
@@ -14973,8 +14960,8 @@ public:
 	SGlobalSecureConfig Gsc; // Конфигурация SSL, шифрования и др. для секьюритизации глобального обмена данными
 	SRevolver_SString  RvlSStA; // @v9.9.3 Револьверная коллекция shortlived-строк
 	SRevolver_SStringU RvlSStW; // @v9.9.3 Револьверная коллекция shortlived-строк(unicode)
-	SProfile Prf;            // @v9.7.11 Локальный по отношению к потоку профайлер
-	SLockStack LckStk;       // @v9.8.1 Отладочный стэк блокировок
+	SProfile Prf;            // Локальный по отношению к потоку профайлер
+	SLockStack LckStk;       // Отладочный стэк блокировок
 private:
 	TVRez * P_Rez;
 	HDC    FontDc;          // Искусственный глобальный контекст вывода для манипулирования шрифтами.
@@ -15006,8 +14993,6 @@ public:
 	//
 	const void * InitThread();
 	void   ReleaseThread();
-	//SlThreadLocalArea & GetTLA();
-	//const  SlThreadLocalArea & GetConstTLA() const;
 	FORCEINLINE SlThreadLocalArea & GetTLA() { return *static_cast<SlThreadLocalArea *>(SGetTls(TlsIdx)); }
 	FORCEINLINE const SlThreadLocalArea & GetConstTLA() const { return *static_cast<SlThreadLocalArea *>(SGetTls(TlsIdx)); }
 	const SString & GetExePath() const;
@@ -15146,7 +15131,6 @@ private:
 	long   Id;              // @anchor
 	ACount SeqValue;        // @anchor Последнее значение, возвращенное функций GetSequenceValue().
 		// Положение переменной должно быть выровнено по 64-битной границе.
-	// @v9.8.1 ACount LastThread;      //
 	int    WsaInitCounter;
 	ACount SslInitCounter;  //
 	int    StopFlag;        //
@@ -15155,14 +15139,13 @@ private:
 	Evnt * P_StopEvnt;
 	S_GUID SessUuid;        // Уникальный идентификатор сессии
 	int    UiLanguageId;
-	// @v9.9.5 const SSystem SSys;
-	SlExtraProcBlock ExtraProcBlk; // @v9.1.2
+	SlExtraProcBlock ExtraProcBlk;
 	SString ExePath;
 	SString AppName;
 	HINSTANCE H_Inst;
 	ULONG_PTR GdiplusToken;
 
-	class GlobalObjectArray : public SVector { // @v9.8.5 SArray-->SVector
+	class GlobalObjectArray : public SVector {
 	public:
 		GlobalObjectArray();
 		~GlobalObjectArray();
@@ -15176,7 +15159,6 @@ private:
 	GlobalObjectArray GlobObjList;
 	SymbHashTable GlobSymbList;
 	SAlloc::Stat AllocStat;
-	// @v9.8.1 (теперь используется SeqValue) ACount LastGlobSymbId;
 };
 
 extern SlSession SLS;
@@ -15482,7 +15464,7 @@ public:
 		fDraw = 0x0002, // Устанавливается классом SDraw для того,
 			// чтобы члены контейнера могли распознать его как родителя, имеющего специфические атрибуты (SPaintToolBox, например).
 		fDefinedSize  = 0x0004, // @!{SDrawFigure::SetSize} Размер элемента определен из-вне (то есть, он не должен рассчитываться).
-		fNullBrush    = 0x0008, // @v9.7.10 Без заливки (IdBrush игнорируется)
+		fNullBrush    = 0x0008, // Без заливки (IdBrush игнорируется)
 		fSymbolGroup  = 0x0010  // @v10.4.5 Флаг устанавливается у экземпляров вида kGroup, которые сами по себе не отрисовываются
 			// непосредственно, однако могут быть использованы как образцы для отрисовки по ссылке.
 	};
@@ -15587,7 +15569,7 @@ public:
 	virtual SDrawFigure * Dup() const;
 	virtual int  Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    FASTCALL Copy(const SDrawPath & rS);
-	int    IsEmpty() const;
+	bool   IsEmpty() const;
 	int    HasCurrent() const;
 	const  SPoint2F & GetCurrent();
 	void   Clear();
@@ -16855,5 +16837,4 @@ extern "C" typedef STestCase * (*FN_SLTEST_FACTORY)(STestSuite * pSuite);
 	int SLTEST_CLS(test)::Run(const char * pBenchmark)
 
 #endif /* RC_INVOKED */
-
 #endif /* __SLIB_H */

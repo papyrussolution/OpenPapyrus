@@ -1,0 +1,182 @@
+#!/bin/sh
+#
+# Copyright (C) 2004,2005,2007,2008,2010,2012,2013,2014,2015,2016,2020 Olly Betts
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to
+# deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+# IN THE SOFTWARE.
+
+set -e
+
+BRANCH=master
+
+RELEASE_WEB_BASE_URL=https://oligarchy.co.uk/xapian
+RELEASE_WEB_BASE_DIR=/srv/www/oligarchy.co.uk/xapian
+
+version=$1
+
+# check parameter was passed and that it looks like a version
+case $version in
+[0-9].[0-9].[0-9]) ;;
+[0-9].[0-9].[1-9][0-9]) ;;
+*)
+    echo "Syntax: $0 VERSION"
+    echo "e.g. $0 1.0.18"
+    exit 1
+    ;;
+esac
+
+# Check that we've not already done this version.
+RELEASE_URL=$RELEASE_WEB_BASE_URL/$version/
+RELEASE_DIR=$RELEASE_WEB_BASE_DIR/$version/
+
+if [ "`git branch --color=never --contains|cut -d' ' -f2-`" != "$BRANCH" ] ; then
+    echo "Not on branch $BRANCH"
+    exit 1
+fi
+
+# Avoid tagging a release with the wrong versions in the tarballs (as
+# happened with 1.1.4).
+bad=0
+escaped_version=`echo "$version"|sed 's/\([^0-9]\)/\\\\\\1/g'`
+for d in xapian-core xapian-bindings xapian-applications/omega ; do
+    grep '^\(AC_INIT(\|m4_define(\[project_version\],\).*\<'"$escaped_version"'\>' "$d/configure.ac" >/dev/null || {
+	echo "$d/configure.ac not version $version" 1>&2
+	bad=1
+    }
+done
+[ "$bad" = "0" ] || exit 1
+
+head_output=`HEAD "$RELEASE_URL" 2>/dev/null||true`
+case $head_output in
+"404 "*) ;;
+*)
+    cat <<END
+Version $version already has a download directory:
+$ HEAD '$RELEASE_URL'
+$head_output
+END
+    exit 1
+    ;;
+esac
+
+echo "Setting up temporary source tree"
+DIR=`mktemp -d TMP.make_dist.XXXXXXXXXX`
+git clone . "$DIR"
+mkdir "$DIR/BUILD"
+# Ignore failure - there may be no cached tarballs.
+ln BUILD/*.tar* "$DIR/BUILD" || true
+cd "$DIR"
+git clone ../swig
+
+echo "Building release tarballs"
+./bootstrap --download-tools=always
+./configure
+time make -sj8
+time make -sj8 distcheck XAPIAN_CONFIG=`pwd`/xapian-core/xapian-config LD_LIBRARY_PATH=`pwd`/xapian-core/.libs
+cd ..
+
+RESULT=`mktemp -d "RESULT-$version-XXXXXXXXXX"`
+echo "Signing tarballs"
+find "$DIR" -name "xapian-*-$version.tar.*"|while read f ; do
+    # Retry signing until successful.
+    while ! gpg --detach-sign --armour "$f" ; do sleep 60 ; done
+    mv "$f" "$f.asc" "$RESULT"
+done
+
+echo "Deleting build tree"
+rm -rf "$DIR"
+
+echo "Tagging"
+tag=v$version
+if git tag -v "$tag" > /dev/null 2>&1 ; then
+    echo "Tag '$tag' exists"
+else
+    echo "Tagging '$tag'"
+    git tag -s -m "Xapian $version release" "$tag" "$BRANCH"
+fi
+
+echo "Copying to server"
+chmod 755 "$RESULT"
+scp -r "$RESULT" thyestes.tartarus.org:"$RELEASE_DIR"
+
+echo "Adding to trac"
+# Add the version to the list in trac, close old milestone, ensure new
+# milestone exists, and create the ReleaseNotes and ReleaseOverview
+# pages:
+ssh thyestes.tartarus.org bin/xapian-trac-new-release "$version"
+
+checksums=`cd "$RESULT" && sha256sum *.tar.*|grep -v '\.asc$'`
+echo "Checksums:"
+echo "$checksums"
+
+cat <<END > tmp.msg
+From: Olly Betts <olly@survex.com>
+To: xapian-discuss@lists.xapian.org
+Subject: Xapian $version released
+Reply-To: xapian-discuss@lists.xapian.org
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="=-=-=-=-=-=-=--"
+Content-Disposition: inline
+
+--=-=-=-=-=-=-=--
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+
+Xapian $version can now be downloaded from:
+
+https://xapian.org/download
+
+This release is mainly composed of
+optimisations,
+FIXME
+and
+bug fixes.
+
+The wiki has the usual summary of the most notable changes:
+
+https://trac.xapian.org/wiki/ReleaseOverview/$version
+
+A big thanks to
+FIXME
+for helping to make this release a reality.
+
+If I've missed anyone out, you can claim an extra big thankyou.
+
+As always, if you encounter problems, please report them here, or to
+the bug-tracker: https://xapian.org/bugs
+
+You can find detached GPG signatures for each of the release tarballs
+in a corresponding file with ".asc" appended.
+
+Here are the SHA256 checksums of the released files:
+
+$checksums
+
+Cheers,
+    Olly
+
+--=-=-=-=-=-=-=--
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+-----END PGP SIGNATURE-----
+
+--=-=-=-=-=-=-=--
+END
+mutt -E -H tmp.msg

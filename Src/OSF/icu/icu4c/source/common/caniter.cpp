@@ -1,8 +1,8 @@
+// CANITER.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- * Copyright (C) 1996-2015, International Business Machines Corporation and others. All Rights Reserved.
- */
+// Copyright (C) 1996-2015, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -68,14 +68,15 @@ CanonicalIterator::CanonicalIterator(const UnicodeString & sourceStr, UErrorCode
 	}
 }
 
-CanonicalIterator::~CanonicalIterator() {
+CanonicalIterator::~CanonicalIterator() 
+{
 	cleanPieces();
 }
 
-void CanonicalIterator::cleanPieces() {
-	int32_t i = 0;
-	if(pieces != NULL) {
-		for(i = 0; i < pieces_length; i++) {
+void CanonicalIterator::cleanPieces() 
+{
+	if(pieces) {
+		for(int32_t i = 0; i < pieces_length; i++) {
 			if(pieces[i] != NULL) {
 				delete[] pieces[i];
 			}
@@ -94,48 +95,40 @@ void CanonicalIterator::cleanPieces() {
 		current_length = 0;
 	}
 }
-
 /**
  *@return gets the source: NOTE: it is the NFD form of source
  */
-UnicodeString CanonicalIterator::getSource() {
-	return source;
-}
+UnicodeString CanonicalIterator::getSource() { return source; }
 
 /**
  * Resets the iterator so that one can start again from the beginning.
  */
-void CanonicalIterator::reset() {
+void CanonicalIterator::reset() 
+{
 	done = FALSE;
-	for(int i = 0; i < current_length; ++i) {
+	for(int i = 0; i < current_length; ++i)
 		current[i] = 0;
-	}
 }
 
 /**
  *@return the next string that is canonically equivalent. The value null is returned when
  * the iteration is done.
  */
-UnicodeString CanonicalIterator::next() {
+UnicodeString CanonicalIterator::next() 
+{
 	int32_t i = 0;
-
 	if(done) {
 		buffer.setToBogus();
 		return buffer;
 	}
-
 	// delete old contents
 	buffer.remove();
-
 	// construct return value
-
 	for(i = 0; i < pieces_length; ++i) {
 		buffer.append(pieces[i][current[i]]);
 	}
 	//String result = buffer.toString(); // not needed
-
 	// find next value for next time
-
 	for(i = current_length - 1;; --i) {
 		if(i < 0) {
 			done = TRUE;
@@ -553,9 +546,7 @@ Hashtable * CanonicalIterator::extract(Hashtable * fillinResult,
 	}
 	if(!ok)
 		return NULL; // we failed, characters left over
-
 	//if(PROGRESS) printf("Matches\n");
-
 	if(inputLen == temp.length()) {
 		fillinResult->put(UnicodeString(), new UnicodeString(), status);
 		return fillinResult; // succeed, but no remainder
@@ -568,7 +559,6 @@ Hashtable * CanonicalIterator::extract(Hashtable * fillinResult,
 	if(U_FAILURE(status) || trial.compare(segment+segmentPos, segLen - segmentPos) != 0) {
 		return NULL;
 	}
-
 	return getEquivalents2(fillinResult, temp.getBuffer()+inputLen, temp.length()-inputLen, status);
 }
 

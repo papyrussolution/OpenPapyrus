@@ -122,9 +122,7 @@ class ImportedMessage::_Internal {
  public:
   using HasBits = decltype(std::declval<ImportedMessage>()._has_bits_);
   static const ::protobuf_unittest::lazy_imports::LazyMessage& lazy_message(const ImportedMessage* msg);
-  static void set_has_lazy_message(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
+  static void set_has_lazy_message(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
 const ::protobuf_unittest::lazy_imports::LazyMessage&
@@ -322,9 +320,7 @@ void ImportedMessage::InternalSwap(ImportedMessage* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata ImportedMessage::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2funittest_5flazy_5fdependencies_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5flazy_5fdependencies_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2funittest_5flazy_5fdependencies_2eproto[0]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5flazy_5fdependencies_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5flazy_5fdependencies_2eproto_once, file_level_metadata_google_2fprotobuf_2funittest_5flazy_5fdependencies_2eproto[0]);
 }
 
 // ===================================================================
@@ -361,9 +357,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*MessageCustomOption::GetClassD
 
 
 ::PROTOBUF_NAMESPACE_ID::Metadata MessageCustomOption::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2funittest_5flazy_5fdependencies_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5flazy_5fdependencies_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2funittest_5flazy_5fdependencies_2eproto[1]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5flazy_5fdependencies_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5flazy_5fdependencies_2eproto_once, file_level_metadata_google_2fprotobuf_2funittest_5flazy_5fdependencies_2eproto[1]);
 }
 
 // ===================================================================
@@ -400,9 +394,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*MessageCustomOption2::GetClass
 
 
 ::PROTOBUF_NAMESPACE_ID::Metadata MessageCustomOption2::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2funittest_5flazy_5fdependencies_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5flazy_5fdependencies_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2funittest_5flazy_5fdependencies_2eproto[2]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5flazy_5fdependencies_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5flazy_5fdependencies_2eproto_once, file_level_metadata_google_2fprotobuf_2funittest_5flazy_5fdependencies_2eproto[2]);
 }
 
 // @@protoc_insertion_point(namespace_scope)

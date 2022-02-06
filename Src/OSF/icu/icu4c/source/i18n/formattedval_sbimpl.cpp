@@ -120,12 +120,9 @@ bool FormattedValueStringBuilderImpl::nextPositionImpl(ConstrainedFieldPosition&
 	}
 	bool prevIsNumeric = false;
 	if(numericField != kUndefinedField) {
-		prevIsNumeric = cfpos.getCategory() == numericField.getCategory()
-		 && cfpos.getField() == numericField.getField();
+		prevIsNumeric = cfpos.getCategory() == numericField.getCategory() && cfpos.getField() == numericField.getField();
 	}
-	bool prevIsInteger = cfpos.getCategory() == UFIELD_CATEGORY_NUMBER
-	 && cfpos.getField() == UNUM_INTEGER_FIELD;
-
+	bool prevIsInteger = cfpos.getCategory() == UFIELD_CATEGORY_NUMBER && cfpos.getField() == UNUM_INTEGER_FIELD;
 	for(int32_t i = fString.fZero + cfpos.getLimit(); i <= fString.fZero + fString.fLength; i++) {
 		Field _field = (i < fString.fZero + fString.fLength) ? fString.getFieldPtr()[i] : kEndField;
 		// Case 1: currently scanning a field.
@@ -195,21 +192,13 @@ bool FormattedValueStringBuilderImpl::nextPositionImpl(ConstrainedFieldPosition&
 			return true;
 		}
 		// Special case: coalesce NUMERIC if we are pointing at the end of the NUMERIC.
-		if(numericField != kUndefinedField
-		 && cfpos.matchesField(numericField.getCategory(), numericField.getField())
-		 && i > fString.fZero
-		 && !prevIsNumeric
-		 && fString.getFieldPtr()[i - 1].isNumeric()
-		 && !_field.isNumeric()) {
+		if(numericField != kUndefinedField && cfpos.matchesField(numericField.getCategory(), numericField.getField()) && 
+			i > fString.fZero && !prevIsNumeric && fString.getFieldPtr()[i - 1].isNumeric() && !_field.isNumeric()) {
 			// Re-wind to the beginning of the field and then emit it
 			int32_t j = i - 1;
 			for(; j >= fString.fZero && fString.getFieldPtr()[j].isNumeric(); j--) {
 			}
-			cfpos.setState(
-				numericField.getCategory(),
-				numericField.getField(),
-				j - fString.fZero + 1,
-				i - fString.fZero);
+			cfpos.setState(numericField.getCategory(), numericField.getField(), j - fString.fZero + 1, i - fString.fZero);
 			return true;
 		}
 		// Check for span field
@@ -268,14 +257,9 @@ bool FormattedValueStringBuilderImpl::nextPositionImpl(ConstrainedFieldPosition&
 		prevIsNumeric = false;
 		prevIsInteger = false;
 	}
-
 	U_ASSERT(currField == kUndefinedField);
 	// Always set the position to the end so that we don't revisit previous sections
-	cfpos.setState(
-		cfpos.getCategory(),
-		cfpos.getField(),
-		fString.fLength,
-		fString.fLength);
+	cfpos.setState(cfpos.getCategory(), cfpos.getField(), fString.fLength, fString.fLength);
 	return false;
 }
 

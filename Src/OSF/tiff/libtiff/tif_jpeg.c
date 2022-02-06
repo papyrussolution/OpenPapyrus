@@ -1340,7 +1340,7 @@ static int JPEGDecode(TIFF* tif, uint8 * buf, tmsize_t cc, uint16 s)
 				if(sp->cinfo.d.data_precision == 8) {
 					int i = 0;
 					int len = sp->cinfo.d.output_width * sp->cinfo.d.num_components;
-					for(i = 0; i<len; i++) {
+					for(i = 0; i < len; i++) {
 						((uchar *)buf)[i] = tmpbuf[i] & 0xff;
 					}
 				}

@@ -110,8 +110,7 @@ class Four final :
   inline void Swap(Four* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -143,8 +142,7 @@ class Four final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -155,19 +153,16 @@ class Four final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "one.two.a_three.Four";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "one.two.a_three.Four"; }
   protected:
-  explicit Four(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit Four(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -219,8 +214,8 @@ inline void Four::clear_a_string() {
   a_string_.ClearToEmpty();
 }
 inline const std::string& Four::a_string() const {
-  // @@protoc_insertion_point(field_get:one.two.a_three.Four.a_string)
-  return _internal_a_string();
+	// @@protoc_insertion_point(field_get:one.two.a_three.Four.a_string)
+	return _internal_a_string();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -230,35 +225,32 @@ void Four::set_a_string(ArgT0&& arg0, ArgT... args) {
   // @@protoc_insertion_point(field_set:one.two.a_three.Four.a_string)
 }
 inline std::string* Four::mutable_a_string() {
-  std::string* _s = _internal_mutable_a_string();
-  // @@protoc_insertion_point(field_mutable:one.two.a_three.Four.a_string)
-  return _s;
+	std::string* _s = _internal_mutable_a_string();
+	// @@protoc_insertion_point(field_mutable:one.two.a_three.Four.a_string)
+	return _s;
 }
-inline const std::string& Four::_internal_a_string() const {
-  return a_string_.Get();
-}
+inline const std::string& Four::_internal_a_string() const { return a_string_.Get(); }
 inline void Four::_internal_set_a_string(const std::string& value) {
-  
-  a_string_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	
+	a_string_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* Four::_internal_mutable_a_string() {
-  
-  return a_string_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	
+	return a_string_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* Four::release_a_string() {
   // @@protoc_insertion_point(field_release:one.two.a_three.Four.a_string)
   return a_string_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 }
 inline void Four::set_allocated_a_string(std::string* a_string) {
-  if (a_string != nullptr) {
+  if(a_string != nullptr) {
     
   } else {
     
   }
-  a_string_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), a_string,
-      GetArenaForAllocation());
+  a_string_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), a_string, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (a_string_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(a_string_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     a_string_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING

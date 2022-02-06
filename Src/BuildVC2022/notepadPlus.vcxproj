@@ -1,0 +1,1263 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|ARM64">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllRelease|ARM64">
+      <Configuration>MtDllRelease</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllRelease|Win32">
+      <Configuration>MtDllRelease</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllRelease|x64">
+      <Configuration>MtDllRelease</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM64">
+      <Configuration>Release</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>Notepad++</ProjectName>
+    <ProjectGuid>{FCF60E65-1B78-4D1D-AB59-4FC00AC8C248}</ProjectGuid>
+    <RootNamespace>Notepad++</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC70.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC70.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC70.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC70.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC70.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC70.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC70.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC70.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC70.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.21005.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>npp</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>npp</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName>npp</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>npp</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>npp</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>npp</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>npp</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <LinkIncremental>false</LinkIncremental>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName>npp</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <LinkIncremental>false</LinkIncremental>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName>npp</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>..\include;..\osf\npp-gh20210917\scintilla\include;..\OSF\npp-gh20210917\PowerEditor\include;..\OSF\npp-gh20210917\PowerEditor\src;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml;..\OSF\npp-gh20210917\PowerEditor\src\Win32Explr;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml\tinyXmlA;..\OSF\npp-gh20210917\PowerEditor\src\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <BasicRuntimeChecks>UninitializedLocalUsageCheck</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <SmallerTypeCheck>false</SmallerTypeCheck>
+      <DisableSpecificWarnings>4091;4456;4457;4459</DisableSpecificWarnings>
+      <AdditionalOptions>/Zc:strictStrings %(AdditionalOptions)</AdditionalOptions>
+      <ConformanceMode>true</ConformanceMode>
+      <StringPooling>true</StringPooling>
+      <BrowseInformation>true</BrowseInformation>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+    </ClCompile>
+    <Link>
+      <AdditionalOptions>/fixed:no %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>comctl32.lib;shlwapi.lib;shell32.lib;Oleacc.lib;Dbghelp.lib;Version.lib;Crypt32.lib;wintrust.lib;Sensapi.lib;wininet.lib;imm32.lib;msimg32.lib;wsock32.lib;Ws2_32.lib;mpr.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ShowProgress>NotSet</ShowProgress>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <Version>1.0</Version>
+      <TypeLibraryFile>/TLBID</TypeLibraryFile>
+      <TypeLibraryResourceID>5</TypeLibraryResourceID>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)notepadPlus.pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <MinimumRequiredVersion>5.01</MinimumRequiredVersion>
+      <AdditionalLibraryDirectories>..\OSF\npp-gh20210917\scintilla\bin;$(IntDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <Manifest>
+      <AdditionalManifestFiles>..\OSF\npp-gh20210917\PowerEditor\src\dpiAware.manifest;%(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
+    <PostBuildEvent>
+      <Command>copy ..\OSF\npp-gh20210917\PowerEditor\src\langs.model.xml $(ProjectDir)..\..\ppy\bin\langs.model.xml
+copy ..\OSF\npp-gh20210917\PowerEditor\src\stylers.model.xml $(ProjectDir)..\..\ppy\bin\stylers.model.xml
+copy ..\OSF\npp-gh20210917\PowerEditor\src\shortcuts.xml $(ProjectDir)..\..\ppy\bin\shortcuts.xml
+copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\ppy\bin\contextMenu.xml
+</Command>
+    </PostBuildEvent>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
+    <ProjectReference>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>..\include;..\osf\npp-gh20210917\scintilla\include;..\OSF\npp-gh20210917\PowerEditor\include;..\OSF\npp-gh20210917\PowerEditor\src;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml;..\OSF\npp-gh20210917\PowerEditor\src\Win32Explr;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml\tinyXmlA;..\OSF\npp-gh20210917\PowerEditor\src\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <BasicRuntimeChecks>UninitializedLocalUsageCheck</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <SmallerTypeCheck>false</SmallerTypeCheck>
+      <DisableSpecificWarnings>4091;4456;4457;4459</DisableSpecificWarnings>
+      <AdditionalOptions>/Zc:strictStrings %(AdditionalOptions)</AdditionalOptions>
+      <ConformanceMode>true</ConformanceMode>
+      <StringPooling>true</StringPooling>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+    </ClCompile>
+    <Link>
+      <AdditionalOptions>/fixed:no %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>comctl32.lib;shlwapi.lib;shell32.lib;Oleacc.lib;Dbghelp.lib;Version.lib;Crypt32.lib;wintrust.lib;Sensapi.lib;wininet.lib;imm32.lib;msimg32.lib;wsock32.lib;Ws2_32.lib;mpr.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ShowProgress>NotSet</ShowProgress>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <Version>1.0</Version>
+      <TypeLibraryFile>/TLBID</TypeLibraryFile>
+      <TypeLibraryResourceID>5</TypeLibraryResourceID>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)notepadPlus.pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <MinimumRequiredVersion>5.02</MinimumRequiredVersion>
+      <AdditionalLibraryDirectories>..\OSF\npp-gh20210917\scintilla\bin;$(IntDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <Manifest>
+      <AdditionalManifestFiles>..\OSF\npp-gh20210917\PowerEditor\src\dpiAware.manifest;%(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
+    <PostBuildEvent>
+      <Command>copy ..\OSF\npp-gh20210917\PowerEditor\src\langs.model.xml $(ProjectDir)..\..\ppy\bin\langs.model.xml
+copy ..\OSF\npp-gh20210917\PowerEditor\src\stylers.model.xml $(ProjectDir)..\..\ppy\bin\stylers.model.xml
+copy ..\OSF\npp-gh20210917\PowerEditor\src\shortcuts.xml $(ProjectDir)..\..\ppy\bin\shortcuts.xml
+copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\ppy\bin\contextMenu.xml
+</Command>
+    </PostBuildEvent>
+    <ProjectReference>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>..\include;..\osf\npp-gh20210917\scintilla\include;..\OSF\npp-gh20210917\PowerEditor\include;..\OSF\npp-gh20210917\PowerEditor\src;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml;..\OSF\npp-gh20210917\PowerEditor\src\Win32Explr;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml\tinyXmlA;..\OSF\npp-gh20210917\PowerEditor\src\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <BasicRuntimeChecks>UninitializedLocalUsageCheck</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <SmallerTypeCheck>false</SmallerTypeCheck>
+      <DisableSpecificWarnings>4091;4456;4457;4459</DisableSpecificWarnings>
+      <AdditionalOptions>/Zc:strictStrings %(AdditionalOptions)</AdditionalOptions>
+      <ConformanceMode>true</ConformanceMode>
+      <StringPooling>true</StringPooling>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <LanguageStandard>Default</LanguageStandard>
+      <LanguageStandard_C>Default</LanguageStandard_C>
+    </ClCompile>
+    <Link>
+      <AdditionalOptions>/fixed:no %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>comctl32.lib;shlwapi.lib;shell32.lib;Oleacc.lib;Dbghelp.lib;Version.lib;Crypt32.lib;wintrust.lib;Sensapi.lib;wininet.lib;imm32.lib;msimg32.lib;wsock32.lib;Ws2_32.lib;mpr.lib;gdiplus.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ShowProgress>NotSet</ShowProgress>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <Version>1.0</Version>
+      <TypeLibraryFile>/TLBID</TypeLibraryFile>
+      <TypeLibraryResourceID>5</TypeLibraryResourceID>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)notepadPlus.pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalLibraryDirectories>..\OSF\npp-gh20210917\scintilla\bin;$(IntDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <Manifest>
+      <AdditionalManifestFiles>..\OSF\npp-gh20210917\PowerEditor\src\dpiAware.manifest;%(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
+    <PostBuildEvent>
+      <Command>copy ..\OSF\npp-gh20210917\PowerEditor\src\langs.model.xml $(ProjectDir)..\..\ppy\bin\langs.model.xml
+copy ..\OSF\npp-gh20210917\PowerEditor\src\stylers.model.xml $(ProjectDir)..\..\ppy\bin\stylers.model.xml
+copy ..\OSF\npp-gh20210917\PowerEditor\src\shortcuts.xml $(ProjectDir)..\..\ppy\bin\shortcuts.xml
+copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\ppy\bin\contextMenu.xml
+</Command>
+    </PostBuildEvent>
+    <ProjectReference>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>false</OmitFramePointers>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\include;..\osf\npp-gh20210917\scintilla\include;..\OSF\npp-gh20210917\PowerEditor\include;..\OSF\npp-gh20210917\PowerEditor\src;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml;..\OSF\npp-gh20210917\PowerEditor\src\Win32Explr;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml\tinyXmlA;..\OSF\npp-gh20210917\PowerEditor\src\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DisableSpecificWarnings>4091;4456;4457;4459</DisableSpecificWarnings>
+      <AdditionalOptions>/Zc:strictStrings %(AdditionalOptions)</AdditionalOptions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;shlwapi.lib;shell32.lib;Oleacc.lib;Dbghelp.lib;Version.lib;Crypt32.lib;wintrust.lib;Sensapi.lib;wininet.lib;imm32.lib;msimg32.lib;wsock32.lib;Ws2_32.lib;mpr.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ShowProgress>NotSet</ShowProgress>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <Version>1.0</Version>
+      <TypeLibraryFile />
+      <TypeLibraryResourceID>1</TypeLibraryResourceID>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)npp.pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <TargetMachine>MachineX86</TargetMachine>
+      <MinimumRequiredVersion>5.01</MinimumRequiredVersion>
+      <AdditionalLibraryDirectories>..\OSF\npp-gh20210917\scintilla\bin;$(IntDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <Manifest>
+      <AdditionalManifestFiles>..\OSF\npp-gh20210917\PowerEditor\src\dpiAware.manifest;%(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
+    <PostBuildEvent>
+      <Command>copy ..\OSF\npp-gh20210917\PowerEditor\src\langs.model.xml $(ProjectDir)..\..\ppy\bin\langs.model.xml
+copy ..\OSF\npp-gh20210917\PowerEditor\src\stylers.model.xml $(ProjectDir)..\..\ppy\bin\stylers.model.xml
+copy ..\OSF\npp-gh20210917\PowerEditor\src\shortcuts.xml $(ProjectDir)..\..\ppy\bin\shortcuts.xml
+copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\ppy\bin\contextMenu.xml
+</Command>
+    </PostBuildEvent>
+    <ProjectReference>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
+    <ClCompile>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>false</OmitFramePointers>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\include;..\osf\npp-gh20210917\scintilla\include;..\OSF\npp-gh20210917\PowerEditor\include;..\OSF\npp-gh20210917\PowerEditor\src;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml;..\OSF\npp-gh20210917\PowerEditor\src\Win32Explr;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml\tinyXmlA;..\OSF\npp-gh20210917\PowerEditor\src\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DisableSpecificWarnings>4091;4456;4457;4459</DisableSpecificWarnings>
+      <AdditionalOptions>/Zc:strictStrings %(AdditionalOptions)</AdditionalOptions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;shlwapi.lib;shell32.lib;Oleacc.lib;Dbghelp.lib;Version.lib;Crypt32.lib;wintrust.lib;Sensapi.lib;wininet.lib;imm32.lib;msimg32.lib;wsock32.lib;Ws2_32.lib;mpr.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ShowProgress>NotSet</ShowProgress>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <Version>1.0</Version>
+      <TypeLibraryFile>
+      </TypeLibraryFile>
+      <TypeLibraryResourceID>1</TypeLibraryResourceID>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)npp.pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <TargetMachine>MachineX86</TargetMachine>
+      <MinimumRequiredVersion>5.01</MinimumRequiredVersion>
+      <AdditionalLibraryDirectories>..\OSF\npp-gh20210917\scintilla\bin;$(IntDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <Manifest>
+      <AdditionalManifestFiles>..\OSF\npp-gh20210917\PowerEditor\src\dpiAware.manifest;%(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
+    <PostBuildEvent>
+      <Command>copy ..\OSF\npp-gh20210917\PowerEditor\src\langs.model.xml $(ProjectDir)..\..\ppy\bin\langs.model.xml
+copy ..\OSF\npp-gh20210917\PowerEditor\src\stylers.model.xml $(ProjectDir)..\..\ppy\bin\stylers.model.xml
+copy ..\OSF\npp-gh20210917\PowerEditor\src\shortcuts.xml $(ProjectDir)..\..\ppy\bin\shortcuts.xml
+copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\ppy\bin\contextMenu.xml
+</Command>
+    </PostBuildEvent>
+    <ProjectReference>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>false</OmitFramePointers>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\include;..\osf\npp-gh20210917\scintilla\include;..\OSF\npp-gh20210917\PowerEditor\include;..\OSF\npp-gh20210917\PowerEditor\src;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml;..\OSF\npp-gh20210917\PowerEditor\src\Win32Explr;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml\tinyXmlA;..\OSF\npp-gh20210917\PowerEditor\src\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DisableSpecificWarnings>4091;4456;4457;4459</DisableSpecificWarnings>
+      <AdditionalOptions>/Zc:strictStrings %(AdditionalOptions)</AdditionalOptions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;shlwapi.lib;shell32.lib;Oleacc.lib;Dbghelp.lib;Version.lib;Crypt32.lib;wintrust.lib;Sensapi.lib;wininet.lib;imm32.lib;msimg32.lib;wsock32.lib;Ws2_32.lib;mpr.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ShowProgress>NotSet</ShowProgress>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <Version>1.0</Version>
+      <TypeLibraryFile>
+      </TypeLibraryFile>
+      <TypeLibraryResourceID>1</TypeLibraryResourceID>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)npp.pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <MinimumRequiredVersion>5.02</MinimumRequiredVersion>
+      <AdditionalLibraryDirectories>..\OSF\npp-gh20210917\scintilla\bin;$(IntDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <Manifest>
+      <AdditionalManifestFiles>..\OSF\npp-gh20210917\PowerEditor\src\dpiAware.manifest;%(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
+    <PostBuildEvent>
+      <Command>copy ..\OSF\npp-gh20210917\PowerEditor\src\langs.model.xml $(ProjectDir)..\..\ppy\bin\langs.model.xml
+copy ..\OSF\npp-gh20210917\PowerEditor\src\stylers.model.xml $(ProjectDir)..\..\ppy\bin\stylers.model.xml
+copy ..\OSF\npp-gh20210917\PowerEditor\src\shortcuts.xml $(ProjectDir)..\..\ppy\bin\shortcuts.xml
+copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\ppy\bin\contextMenu.xml
+</Command>
+    </PostBuildEvent>
+    <ProjectReference>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
+    <ClCompile>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>false</OmitFramePointers>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\include;..\osf\npp-gh20210917\scintilla\include;..\OSF\npp-gh20210917\PowerEditor\include;..\OSF\npp-gh20210917\PowerEditor\src;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml;..\OSF\npp-gh20210917\PowerEditor\src\Win32Explr;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml\tinyXmlA;..\OSF\npp-gh20210917\PowerEditor\src\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DisableSpecificWarnings>4091;4456;4457;4459</DisableSpecificWarnings>
+      <AdditionalOptions>/Zc:strictStrings %(AdditionalOptions)</AdditionalOptions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;shlwapi.lib;shell32.lib;Oleacc.lib;Dbghelp.lib;Version.lib;Crypt32.lib;wintrust.lib;Sensapi.lib;wininet.lib;imm32.lib;msimg32.lib;wsock32.lib;Ws2_32.lib;mpr.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ShowProgress>NotSet</ShowProgress>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <Version>1.0</Version>
+      <TypeLibraryFile>
+      </TypeLibraryFile>
+      <TypeLibraryResourceID>1</TypeLibraryResourceID>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)npp.pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <MinimumRequiredVersion>5.02</MinimumRequiredVersion>
+      <AdditionalLibraryDirectories>..\OSF\npp-gh20210917\scintilla\bin;$(IntDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <Manifest>
+      <AdditionalManifestFiles>..\OSF\npp-gh20210917\PowerEditor\src\dpiAware.manifest;%(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
+    <PostBuildEvent>
+      <Command>copy ..\OSF\npp-gh20210917\PowerEditor\src\langs.model.xml $(ProjectDir)..\..\ppy\bin\langs.model.xml
+copy ..\OSF\npp-gh20210917\PowerEditor\src\stylers.model.xml $(ProjectDir)..\..\ppy\bin\stylers.model.xml
+copy ..\OSF\npp-gh20210917\PowerEditor\src\shortcuts.xml $(ProjectDir)..\..\ppy\bin\shortcuts.xml
+copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\ppy\bin\contextMenu.xml
+</Command>
+    </PostBuildEvent>
+    <ProjectReference>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <ClCompile>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>false</OmitFramePointers>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\include;..\osf\npp-gh20210917\scintilla\include;..\OSF\npp-gh20210917\PowerEditor\include;..\OSF\npp-gh20210917\PowerEditor\src;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml;..\OSF\npp-gh20210917\PowerEditor\src\Win32Explr;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml\tinyXmlA;..\OSF\npp-gh20210917\PowerEditor\src\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DisableSpecificWarnings>4091;4456;4457;4459</DisableSpecificWarnings>
+      <AdditionalOptions>/Zc:strictStrings %(AdditionalOptions)</AdditionalOptions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <LanguageStandard>Default</LanguageStandard>
+      <LanguageStandard_C>Default</LanguageStandard_C>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;shlwapi.lib;shell32.lib;Oleacc.lib;Dbghelp.lib;Version.lib;Crypt32.lib;wintrust.lib;Sensapi.lib;wininet.lib;imm32.lib;msimg32.lib;wsock32.lib;Ws2_32.lib;mpr.lib;gdiplus.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ShowProgress>NotSet</ShowProgress>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <Version>1.0</Version>
+      <TypeLibraryFile>
+      </TypeLibraryFile>
+      <TypeLibraryResourceID>1</TypeLibraryResourceID>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)npp.pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <AdditionalLibraryDirectories>..\OSF\npp-gh20210917\scintilla\bin;$(IntDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <Manifest>
+      <AdditionalManifestFiles>..\OSF\npp-gh20210917\PowerEditor\src\dpiAware.manifest;%(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
+    <PostBuildEvent>
+      <Command>copy ..\OSF\npp-gh20210917\PowerEditor\src\langs.model.xml $(ProjectDir)..\..\ppy\bin\langs.model.xml
+copy ..\OSF\npp-gh20210917\PowerEditor\src\stylers.model.xml $(ProjectDir)..\..\ppy\bin\stylers.model.xml
+copy ..\OSF\npp-gh20210917\PowerEditor\src\shortcuts.xml $(ProjectDir)..\..\ppy\bin\shortcuts.xml
+copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\ppy\bin\contextMenu.xml
+</Command>
+    </PostBuildEvent>
+    <ProjectReference>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">
+    <ClCompile>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>false</OmitFramePointers>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\include;..\osf\npp-gh20210917\scintilla\include;..\OSF\npp-gh20210917\PowerEditor\include;..\OSF\npp-gh20210917\PowerEditor\src;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml;..\OSF\npp-gh20210917\PowerEditor\src\Win32Explr;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml\tinyXmlA;..\OSF\npp-gh20210917\PowerEditor\src\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DisableSpecificWarnings>4091;4456;4457;4459</DisableSpecificWarnings>
+      <AdditionalOptions>/Zc:strictStrings %(AdditionalOptions)</AdditionalOptions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <LanguageStandard>Default</LanguageStandard>
+      <LanguageStandard_C>Default</LanguageStandard_C>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;shlwapi.lib;shell32.lib;Oleacc.lib;Dbghelp.lib;Version.lib;Crypt32.lib;wintrust.lib;Sensapi.lib;wininet.lib;imm32.lib;msimg32.lib;wsock32.lib;Ws2_32.lib;mpr.lib;gdiplus.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ShowProgress>NotSet</ShowProgress>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <Version>1.0</Version>
+      <TypeLibraryFile>
+      </TypeLibraryFile>
+      <TypeLibraryResourceID>1</TypeLibraryResourceID>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)npp.pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <AdditionalLibraryDirectories>..\OSF\npp-gh20210917\scintilla\bin;$(IntDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <Manifest>
+      <AdditionalManifestFiles>..\OSF\npp-gh20210917\PowerEditor\src\dpiAware.manifest;%(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
+    <PostBuildEvent>
+      <Command>copy ..\OSF\npp-gh20210917\PowerEditor\src\langs.model.xml $(ProjectDir)..\..\ppy\bin\langs.model.xml
+copy ..\OSF\npp-gh20210917\PowerEditor\src\stylers.model.xml $(ProjectDir)..\..\ppy\bin\stylers.model.xml
+copy ..\OSF\npp-gh20210917\PowerEditor\src\shortcuts.xml $(ProjectDir)..\..\ppy\bin\shortcuts.xml
+copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\ppy\bin\contextMenu.xml
+</Command>
+    </PostBuildEvent>
+    <ProjectReference>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\DarkMode.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\Common.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\IDAllocator.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\md5Dlgs.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\npp-etc.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\PluginsManager.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\regExtDlg.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\Sorters.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\verifySignedfile.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\npp-pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\NppDarkMode.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\AboutDlg.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\ansiCharPanel.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\AutoCompletion.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\asciiListView.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\BabyGrid.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\clipboardHistoryPanel.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\ColourPicker.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\ColourPopup.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\ContextMenu.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\CustomFileDialog.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\DockingCont.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\DockingManager.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\DockingSplitter.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\documentMap.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\documentSnapshot.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\fileBrowser.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\FindCharsInRange.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\functionListPanel.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\functionParser.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\Buffer.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\CharDistribution.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\columnEditor.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\Gripper.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\ImageListSet.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\ListView.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\pluginsAdmin.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\preferenceDlg.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\ProjectPanel.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\RunDlg.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\RunMacroDlg.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\shortcut.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\ShortcutMapper.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\Splitter.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\SplitterContainer.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\StaticDialog.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\StatusBar.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\TabBar.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\DocTabView.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\EncodingMapper.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\FindReplaceDlg.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\FunctionCallTip.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\GoToLineDlg.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\JpCntx.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\LangBulgarianModel.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\LangCyrillicModel.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\LangGreekModel.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\LangHebrewModel.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\LangHungarianModel.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\LangThaiModel.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\lastRecentFileList.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\lesDlgs.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\localization.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\Notepad_plus.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\Notepad_plus_Window.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\NppBigSwitch.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\NppCommands.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\NppIO.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\NppNotification.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsBig5Prober.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsCharSetProber.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsEscCharsetProber.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsEscSM.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsEUCJPProber.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsEUCKRProber.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsEUCTWProber.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsGB2312Prober.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsHebrewProber.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsLatin1Prober.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsMBCSGroupProber.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsMBCSSM.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsSBCharSetProber.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsSBCSGroupProber.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsSJISProber.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsUniversalDetector.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsUTF8Prober.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\Parameters.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\Printer.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\ScintillaEditView.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\TaskList.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\TaskListDlg.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\ToolBar.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\trayIconControler.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\TreeView.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\URLCtrl.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\VerticalFileSwitcher.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\VerticalFileSwitcherListView.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\WindowsDlg.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\SmartHighlighter.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\TinyXml\tinystr.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\TinyXml\tinyXmlA\tinystrA.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\TinyXml\tinyxml.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\TinyXml\tinyXmlA\tinyxmlA.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\TinyXml\tinyxmlerror.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\TinyXml\tinyXmlA\tinyxmlerrorA.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\TinyXml\tinyxmlparser.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\TinyXml\tinyXmlA\tinyxmlparserA.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\uchardet.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\UserDefineDialog.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\Utf8_16.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\WinMgr.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\WordStyleDlg.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\winmain.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\xmlMatchedTagsHighlighter.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\allChars_off.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\allChars_on.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\closeAll.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\closefile.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\closeTabButton.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\closeTabButton_hover.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\closeTabButton_inact.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\closeTabButton_push.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\copy.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\cut.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\cut_dis.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\cut_off.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\cut_on.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\delete.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\dupli_dis.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\dupli_off.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\dupli_on.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\find.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\find_off.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\find_on.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\findrep_off.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\findrep_on.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\findReplace.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\findResult.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\imprim_off.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\imprim_on.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\indentGuide.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\indentGuide_off.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\indentGuide_on.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\invisibleChar.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\new_off.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\new_on.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\newFile.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\npp.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\open_off.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\open_on.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\openFile.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\paste.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\paste_dis.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\paste_off.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\paste_on.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\playRecord.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\playrecord_dis.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\playRecord_m.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\playrecord_m_dis.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\playrecord_m_off.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\playrecord_m_on.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\playrecord_off.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\playrecord_on.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\print.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\readonly.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\redo.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\redo_dis.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\redo_off.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\redo_on.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\save_dis.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\save_off.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\save_on.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\saveAll.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\saveall_dis.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\saveall_off.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\saveall_on.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\saved.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\saveFile.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\saveRecord.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\saverecord_dis.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\saverecord_off.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\saverecord_on.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\showPannel.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\startRecord.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\startrecord_dis.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\startrecord_off.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\startrecord_on.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\stopRecord.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\stoprecord_dis.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\stoprecord_off.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\stoprecord_on.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\supp_off.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\supp_on.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\suppall_off.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\suppall_on.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\syncH.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\syncH_dis.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\syncH_off.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\syncH_on.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\syncV.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\syncV_dis.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\syncV_off.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\syncV_on.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\undo.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\undo_dis.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\undo_off.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\undo_on.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\unsaved.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\userDefineDlg_off.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\userDefineDlg_on.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\wrap.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\wrap_off.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\wrap_on.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\zoomIn.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\zoomIn_off.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\zoomIn_on.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\zoomOut.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\zoomOut_off.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\zoomOut_on.ico" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\CloseDown.bmp" />
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\CloseUp.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\npp.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\OSF\npp-gh20210917\PowerEditor\src\cursors\drag.cur" />
+    <None Include="..\OSF\npp-gh20210917\PowerEditor\src\cursors\drag_interdit.cur" />
+    <None Include="..\OSF\npp-gh20210917\PowerEditor\src\cursors\drag_plus.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\Crc16.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\Notepad_plus_msgs.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\npp-resource.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\PluginInterface.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\npp-internal.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\Utf8.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\Docking.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\CharDistribution.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\JpCntx.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsBig5Prober.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsCharSetProber.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsCodingStateMachine.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nscore.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsEscCharsetProber.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsEUCJPProber.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsEUCKRProber.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsEUCTWProber.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsGB2312Prober.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsHebrewProber.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsLatin1Prober.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsMBCSGroupProber.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsPkgInt.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsSBCharSetProber.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsSBCSGroupProber.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsSJISProber.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsUniversalDetector.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsUTF8Prober.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\prmem.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\TinyXml\tinystr.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\TinyXml\tinyXmlA\tinystrA.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\TinyXml\tinyxml.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\TinyXml\tinyXmlA\tinyxmlA.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\uchardet.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\Utf8_16.h" />
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\rgba_icons.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="..\OSF\npp-gh20210917\PowerEditor\src\notepad++.exe.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="libjpeg.vcxproj">
+      <Project>{270b7cae-41a6-43ae-a53d-d06dd9ee84e9}</Project>
+    </ProjectReference>
+    <ProjectReference Include="libpng.vcxproj">
+      <Project>{04aa636d-9d3e-4e79-9c2e-b8d0470719da}</Project>
+    </ProjectReference>
+    <ProjectReference Include="libxml.vcxproj">
+      <Project>{82523a80-856a-4957-bcea-1a5738139141}</Project>
+    </ProjectReference>
+    <ProjectReference Include="openssl-111-crypto.vcxproj">
+      <Project>{26070ad0-2d76-41a2-ab8b-864ea198cc6f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="openssl-111.vcxproj">
+      <Project>{0796c89c-07e1-4bda-bdae-f023aeb5366c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="scintilla2.vcxproj">
+      <Project>{6824fe2f-b7df-4338-8025-a1b145da91b6}</Project>
+    </ProjectReference>
+    <ProjectReference Include="slib.vcxproj">
+      <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

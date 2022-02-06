@@ -1232,9 +1232,7 @@ void WrappersTestCases::InternalSwap(WrappersTestCases* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata WrappersTestCases::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto[0]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto[0]);
 }
 
 // ===================================================================
@@ -1433,9 +1431,7 @@ void DoubleWrapper::InternalSwap(DoubleWrapper* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata DoubleWrapper::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto[1]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto[1]);
 }
 
 // ===================================================================
@@ -1634,9 +1630,7 @@ void FloatWrapper::InternalSwap(FloatWrapper* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata FloatWrapper::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto[2]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto[2]);
 }
 
 // ===================================================================
@@ -1835,9 +1829,7 @@ void Int64Wrapper::InternalSwap(Int64Wrapper* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Int64Wrapper::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto[3]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto[3]);
 }
 
 // ===================================================================
@@ -2036,9 +2028,7 @@ void UInt64Wrapper::InternalSwap(UInt64Wrapper* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata UInt64Wrapper::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto[4]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto[4]);
 }
 
 // ===================================================================
@@ -2237,9 +2227,7 @@ void Int32Wrapper::InternalSwap(Int32Wrapper* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Int32Wrapper::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto[5]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto[5]);
 }
 
 // ===================================================================
@@ -2438,9 +2426,7 @@ void UInt32Wrapper::InternalSwap(UInt32Wrapper* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata UInt32Wrapper::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto[6]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto[6]);
 }
 
 // ===================================================================
@@ -2639,9 +2625,7 @@ void BoolWrapper::InternalSwap(BoolWrapper* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata BoolWrapper::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto[7]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto[7]);
 }
 
 // ===================================================================
@@ -2840,9 +2824,7 @@ void StringWrapper::InternalSwap(StringWrapper* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata StringWrapper::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto[8]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto[8]);
 }
 
 // ===================================================================
@@ -3041,9 +3023,7 @@ void BytesWrapper::InternalSwap(BytesWrapper* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata BytesWrapper::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto[9]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2fwrappers_2eproto[9]);
 }
 
 // @@protoc_insertion_point(namespace_scope)

@@ -1753,7 +1753,7 @@ char * ScintillaEditView::getWordFromRange(char * txt, int size, int pos1, int p
 {
 	if(!size)
 		return NULL;
-	ExchangeForOrder(&pos1, &pos2);
+	SExchangeForOrder(&pos1, &pos2);
 	if(size < pos2-pos1)
 		return NULL;
 	getText(txt, pos1, pos2);

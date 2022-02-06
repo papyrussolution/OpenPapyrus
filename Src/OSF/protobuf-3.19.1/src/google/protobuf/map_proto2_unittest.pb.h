@@ -287,8 +287,7 @@ class TestEnumMap final :
   inline void Swap(TestEnumMap* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -320,8 +319,7 @@ class TestEnumMap final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -332,19 +330,16 @@ class TestEnumMap final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestEnumMap";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestEnumMap"; }
   protected:
-  explicit TestEnumMap(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestEnumMap(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -492,8 +487,7 @@ class TestEnumMapPlusExtra final :
   inline void Swap(TestEnumMapPlusExtra* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -525,8 +519,7 @@ class TestEnumMapPlusExtra final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -537,19 +530,16 @@ class TestEnumMapPlusExtra final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestEnumMapPlusExtra";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestEnumMapPlusExtra"; }
   protected:
-  explicit TestEnumMapPlusExtra(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestEnumMapPlusExtra(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -680,8 +670,7 @@ class TestImportEnumMap final :
   inline void Swap(TestImportEnumMap* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -713,8 +702,7 @@ class TestImportEnumMap final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -725,19 +713,16 @@ class TestImportEnumMap final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestImportEnumMap";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestImportEnumMap"; }
   protected:
-  explicit TestImportEnumMap(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestImportEnumMap(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -845,8 +830,7 @@ class TestIntIntMap final :
   inline void Swap(TestIntIntMap* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -878,8 +862,7 @@ class TestIntIntMap final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -890,19 +873,16 @@ class TestIntIntMap final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestIntIntMap";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestIntIntMap"; }
   protected:
-  explicit TestIntIntMap(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestIntIntMap(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -1204,8 +1184,7 @@ class TestMaps final :
   inline void Swap(TestMaps* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -1237,8 +1216,7 @@ class TestMaps final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -1249,19 +1227,16 @@ class TestMaps final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestMaps";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestMaps"; }
   protected:
-  explicit TestMaps(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestMaps(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -1605,8 +1580,7 @@ class TestSubmessageMaps final :
   inline void Swap(TestSubmessageMaps* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -1638,8 +1612,7 @@ class TestSubmessageMaps final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -1650,19 +1623,16 @@ class TestSubmessageMaps final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestSubmessageMaps";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestSubmessageMaps"; }
   protected:
-  explicit TestSubmessageMaps(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestSubmessageMaps(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -1719,9 +1689,7 @@ class TestSubmessageMaps final :
 // TestEnumMap
 
 // map<int32, .protobuf_unittest.Proto2MapEnum> known_map_field = 101;
-inline int TestEnumMap::_internal_known_map_field_size() const {
-  return known_map_field_.size();
-}
+inline int TestEnumMap::_internal_known_map_field_size() const { return known_map_field_.size(); }
 inline int TestEnumMap::known_map_field_size() const {
   return _internal_known_map_field_size();
 }
@@ -1748,9 +1716,7 @@ TestEnumMap::mutable_known_map_field() {
 }
 
 // map<int32, .protobuf_unittest.Proto2MapEnum> unknown_map_field = 102;
-inline int TestEnumMap::_internal_unknown_map_field_size() const {
-  return unknown_map_field_.size();
-}
+inline int TestEnumMap::_internal_unknown_map_field_size() const { return unknown_map_field_.size(); }
 inline int TestEnumMap::unknown_map_field_size() const {
   return _internal_unknown_map_field_size();
 }
@@ -1785,9 +1751,7 @@ TestEnumMap::mutable_unknown_map_field() {
 // TestEnumMapPlusExtra
 
 // map<int32, .protobuf_unittest.Proto2MapEnumPlusExtra> known_map_field = 101;
-inline int TestEnumMapPlusExtra::_internal_known_map_field_size() const {
-  return known_map_field_.size();
-}
+inline int TestEnumMapPlusExtra::_internal_known_map_field_size() const { return known_map_field_.size(); }
 inline int TestEnumMapPlusExtra::known_map_field_size() const {
   return _internal_known_map_field_size();
 }
@@ -1814,9 +1778,7 @@ TestEnumMapPlusExtra::mutable_known_map_field() {
 }
 
 // map<int32, .protobuf_unittest.Proto2MapEnumPlusExtra> unknown_map_field = 102;
-inline int TestEnumMapPlusExtra::_internal_unknown_map_field_size() const {
-  return unknown_map_field_.size();
-}
+inline int TestEnumMapPlusExtra::_internal_unknown_map_field_size() const { return unknown_map_field_.size(); }
 inline int TestEnumMapPlusExtra::unknown_map_field_size() const {
   return _internal_unknown_map_field_size();
 }
@@ -1849,9 +1811,7 @@ TestEnumMapPlusExtra::mutable_unknown_map_field() {
 // TestImportEnumMap
 
 // map<int32, .protobuf_unittest_import.ImportEnumForMap> import_enum_amp = 1;
-inline int TestImportEnumMap::_internal_import_enum_amp_size() const {
-  return import_enum_amp_.size();
-}
+inline int TestImportEnumMap::_internal_import_enum_amp_size() const { return import_enum_amp_.size(); }
 inline int TestImportEnumMap::import_enum_amp_size() const {
   return _internal_import_enum_amp_size();
 }
@@ -1884,9 +1844,7 @@ TestImportEnumMap::mutable_import_enum_amp() {
 // TestIntIntMap
 
 // map<int32, int32> m = 1;
-inline int TestIntIntMap::_internal_m_size() const {
-  return m_.size();
-}
+inline int TestIntIntMap::_internal_m_size() const { return m_.size(); }
 inline int TestIntIntMap::m_size() const {
   return _internal_m_size();
 }
@@ -1941,9 +1899,7 @@ TestIntIntMap::mutable_m() {
 // TestMaps
 
 // map<int32, .protobuf_unittest.TestIntIntMap> m_int32 = 1;
-inline int TestMaps::_internal_m_int32_size() const {
-  return m_int32_.size();
-}
+inline int TestMaps::_internal_m_int32_size() const { return m_int32_.size(); }
 inline int TestMaps::m_int32_size() const {
   return _internal_m_int32_size();
 }
@@ -1970,9 +1926,7 @@ TestMaps::mutable_m_int32() {
 }
 
 // map<int64, .protobuf_unittest.TestIntIntMap> m_int64 = 2;
-inline int TestMaps::_internal_m_int64_size() const {
-  return m_int64_.size();
-}
+inline int TestMaps::_internal_m_int64_size() const { return m_int64_.size(); }
 inline int TestMaps::m_int64_size() const {
   return _internal_m_int64_size();
 }
@@ -1999,9 +1953,7 @@ TestMaps::mutable_m_int64() {
 }
 
 // map<uint32, .protobuf_unittest.TestIntIntMap> m_uint32 = 3;
-inline int TestMaps::_internal_m_uint32_size() const {
-  return m_uint32_.size();
-}
+inline int TestMaps::_internal_m_uint32_size() const { return m_uint32_.size(); }
 inline int TestMaps::m_uint32_size() const {
   return _internal_m_uint32_size();
 }
@@ -2028,9 +1980,7 @@ TestMaps::mutable_m_uint32() {
 }
 
 // map<uint64, .protobuf_unittest.TestIntIntMap> m_uint64 = 4;
-inline int TestMaps::_internal_m_uint64_size() const {
-  return m_uint64_.size();
-}
+inline int TestMaps::_internal_m_uint64_size() const { return m_uint64_.size(); }
 inline int TestMaps::m_uint64_size() const {
   return _internal_m_uint64_size();
 }
@@ -2057,9 +2007,7 @@ TestMaps::mutable_m_uint64() {
 }
 
 // map<sint32, .protobuf_unittest.TestIntIntMap> m_sint32 = 5;
-inline int TestMaps::_internal_m_sint32_size() const {
-  return m_sint32_.size();
-}
+inline int TestMaps::_internal_m_sint32_size() const { return m_sint32_.size(); }
 inline int TestMaps::m_sint32_size() const {
   return _internal_m_sint32_size();
 }
@@ -2086,9 +2034,7 @@ TestMaps::mutable_m_sint32() {
 }
 
 // map<sint64, .protobuf_unittest.TestIntIntMap> m_sint64 = 6;
-inline int TestMaps::_internal_m_sint64_size() const {
-  return m_sint64_.size();
-}
+inline int TestMaps::_internal_m_sint64_size() const { return m_sint64_.size(); }
 inline int TestMaps::m_sint64_size() const {
   return _internal_m_sint64_size();
 }
@@ -2115,9 +2061,7 @@ TestMaps::mutable_m_sint64() {
 }
 
 // map<fixed32, .protobuf_unittest.TestIntIntMap> m_fixed32 = 7;
-inline int TestMaps::_internal_m_fixed32_size() const {
-  return m_fixed32_.size();
-}
+inline int TestMaps::_internal_m_fixed32_size() const { return m_fixed32_.size(); }
 inline int TestMaps::m_fixed32_size() const {
   return _internal_m_fixed32_size();
 }
@@ -2144,9 +2088,7 @@ TestMaps::mutable_m_fixed32() {
 }
 
 // map<fixed64, .protobuf_unittest.TestIntIntMap> m_fixed64 = 8;
-inline int TestMaps::_internal_m_fixed64_size() const {
-  return m_fixed64_.size();
-}
+inline int TestMaps::_internal_m_fixed64_size() const { return m_fixed64_.size(); }
 inline int TestMaps::m_fixed64_size() const {
   return _internal_m_fixed64_size();
 }
@@ -2173,9 +2115,7 @@ TestMaps::mutable_m_fixed64() {
 }
 
 // map<sfixed32, .protobuf_unittest.TestIntIntMap> m_sfixed32 = 9;
-inline int TestMaps::_internal_m_sfixed32_size() const {
-  return m_sfixed32_.size();
-}
+inline int TestMaps::_internal_m_sfixed32_size() const { return m_sfixed32_.size(); }
 inline int TestMaps::m_sfixed32_size() const {
   return _internal_m_sfixed32_size();
 }
@@ -2202,9 +2142,7 @@ TestMaps::mutable_m_sfixed32() {
 }
 
 // map<sfixed64, .protobuf_unittest.TestIntIntMap> m_sfixed64 = 10;
-inline int TestMaps::_internal_m_sfixed64_size() const {
-  return m_sfixed64_.size();
-}
+inline int TestMaps::_internal_m_sfixed64_size() const { return m_sfixed64_.size(); }
 inline int TestMaps::m_sfixed64_size() const {
   return _internal_m_sfixed64_size();
 }
@@ -2231,9 +2169,7 @@ TestMaps::mutable_m_sfixed64() {
 }
 
 // map<bool, .protobuf_unittest.TestIntIntMap> m_bool = 11;
-inline int TestMaps::_internal_m_bool_size() const {
-  return m_bool_.size();
-}
+inline int TestMaps::_internal_m_bool_size() const { return m_bool_.size(); }
 inline int TestMaps::m_bool_size() const {
   return _internal_m_bool_size();
 }
@@ -2260,9 +2196,7 @@ TestMaps::mutable_m_bool() {
 }
 
 // map<string, .protobuf_unittest.TestIntIntMap> m_string = 12;
-inline int TestMaps::_internal_m_string_size() const {
-  return m_string_.size();
-}
+inline int TestMaps::_internal_m_string_size() const { return m_string_.size(); }
 inline int TestMaps::m_string_size() const {
   return _internal_m_string_size();
 }

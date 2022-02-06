@@ -447,11 +447,10 @@ static void testTrieUTF16(const char * testName,
 		log_err("UTF-16 test values length %d > capacity %d\n", (int)countValues, (int)UPRV_LENGTHOF(values));
 		return;
 	}
-
 	/* try forward */
 	p = s;
 	i = 0;
-	while(p<limit) {
+	while(p < limit) {
 		sIndex = (int32_t)(p-s);
 		U16_NEXT(s, sIndex, length, c2);
 		c = 0x33;
@@ -618,11 +617,10 @@ static void testTrieUTF8(const char * testName,
 		log_err("UTF-8 test values length %d > capacity %d\n", (int)countValues, (int)UPRV_LENGTHOF(values));
 		return;
 	}
-
 	/* try forward */
 	p = s;
 	i = 0;
-	while(p<limit) {
+	while(p < limit) {
 		prev8 = i8 = (int32_t)(p-s);
 		U8_NEXT(s, i8, length, c);
 		if(valueWidth==UCPTRIE_VALUE_BITS_16) {
@@ -652,16 +650,12 @@ static void testTrieUTF8(const char * testName,
 			}
 		}
 		if(value!=values[i]) {
-			log_err("error: wrong value from UCPTRIE_FAST_U8_NEXT(%s)(from %d %lx->U+%04lx) (read %d bytes): "
-			    "0x%lx instead of 0x%lx (from bytes %lx)\n",
-			    testName, (int)prev8, (unsigned long)actualBytes, (long)c, (int)((p-s)-prev8),
-			    (long)value, (long)values[i], (unsigned long)expectedBytes);
+			log_err("error: wrong value from UCPTRIE_FAST_U8_NEXT(%s)(from %d %lx->U+%04lx) (read %d bytes): 0x%lx instead of 0x%lx (from bytes %lx)\n",
+			    testName, (int)prev8, (unsigned long)actualBytes, (long)c, (int)((p-s)-prev8), (long)value, (long)values[i], (unsigned long)expectedBytes);
 		}
 		if(i8!=(p-s)) {
-			log_err("error: wrong end index from UCPTRIE_FAST_U8_NEXT(%s)(from %d %lx->U+%04lx): "
-			    "%ld != %ld (bytes %lx)\n",
-			    testName, (int)prev8, (unsigned long)actualBytes, (long)c,
-			    (long)(p-s), (long)i8, (unsigned long)expectedBytes);
+			log_err("error: wrong end index from UCPTRIE_FAST_U8_NEXT(%s)(from %d %lx->U+%04lx): %ld != %ld (bytes %lx)\n",
+			    testName, (int)prev8, (unsigned long)actualBytes, (long)c, (long)(p-s), (long)i8, (unsigned long)expectedBytes);
 			break;
 		}
 		++i;
@@ -685,40 +679,33 @@ static void testTrieUTF8(const char * testName,
 		}
 		expectedBytes = 0;
 		if(value!=values[i] || i8!=(p-s)) {
-			int32_t k = i8;
-			while(k<prev8) {
+			for(int32_t k = i8; k < prev8;)
 				expectedBytes = (expectedBytes<<8)|s[k++];
-			}
 		}
 		if(i8==(p-s)) {
 			actualBytes = expectedBytes;
 		}
 		else {
 			actualBytes = 0;
-			int32_t k = (int32_t)(p-s);
-			while(k<prev8) {
+			for(int32_t k = (int32_t)(p-s); k < prev8;)
 				actualBytes = (actualBytes<<8)|s[k++];
-			}
 		}
 		if(value!=values[i]) {
-			log_err("error: wrong value from UCPTRIE_FAST_U8_PREV(%s)(from %d %lx->U+%04lx) (read %d bytes): "
-			    "0x%lx instead of 0x%lx (from bytes %lx)\n",
+			log_err("error: wrong value from UCPTRIE_FAST_U8_PREV(%s)(from %d %lx->U+%04lx) (read %d bytes): 0x%lx instead of 0x%lx (from bytes %lx)\n",
 			    testName, (int)prev8, (unsigned long)actualBytes, (long)c, (int)(prev8-(p-s)),
 			    (long)value, (long)values[i], (unsigned long)expectedBytes);
 		}
 		if(i8!=(p-s)) {
-			log_err("error: wrong end index from UCPTRIE_FAST_U8_PREV(%s)(from %d %lx->U+%04lx): "
-			    "%ld != %ld (bytes %lx)\n",
-			    testName, (int)prev8, (unsigned long)actualBytes, (long)c,
-			    (long)(p-s), (long)i8, (unsigned long)expectedBytes);
+			log_err("error: wrong end index from UCPTRIE_FAST_U8_PREV(%s)(from %d %lx->U+%04lx): %ld != %ld (bytes %lx)\n",
+			    testName, (int)prev8, (unsigned long)actualBytes, (long)c, (long)(p-s), (long)i8, (unsigned long)expectedBytes);
 			break;
 		}
 	}
 }
 
-static void testTrie(const char * testName, const UCPTrie * trie,
-    UCPTrieType type, UCPTrieValueWidth valueWidth,
-    const CheckRange checkRanges[], int32_t countCheckRanges) {
+static void testTrie(const char * testName, const UCPTrie * trie, UCPTrieType type, UCPTrieValueWidth valueWidth,
+    const CheckRange checkRanges[], int32_t countCheckRanges) 
+{
 	testTrieGetters(testName, trie, type, valueWidth, checkRanges, countCheckRanges);
 	testTrieGetRanges(testName, trie, NULL, UCPMAP_RANGE_NORMAL, 0, checkRanges, countCheckRanges);
 	if(type == UCPTRIE_TYPE_FAST) {

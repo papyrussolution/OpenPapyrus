@@ -1,5 +1,5 @@
 // GDSUTIL.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Утилиты для работы с товарами
 //
@@ -18,7 +18,7 @@ char * FASTCALL AddBarcodeCheckDigit(char * pBarcode)
 {
 	const size_t len = sstrlen(pBarcode);
 	if(len) {
-		int    cdig = SCalcBarcodeCheckDigitL(pBarcode, len);
+		const int cdig = SCalcBarcodeCheckDigitL(pBarcode, len);
 		pBarcode[len] = '0' + cdig;
 		pBarcode[len+1] = 0;
 	}
@@ -2330,7 +2330,7 @@ int PPObjGoods::EditQuotations(PPID id, PPID initLocID, PPID initCurID, PPID ini
 				PPError();
 		}
 		if(ok > 0)
-			THROW(P_Tbl->SetQuotList(qary, 1));
+			THROW(P_Tbl->SetQuotList(qary, false, 1));
 	}
 	CATCHZOKPPERR
 	delete dlg;
@@ -2489,7 +2489,7 @@ int PPObjGoods::SetSupplDeal(PPID goodsID, const QuotIdent & rQi, const PPSupplD
 	THROW(qary.SetQuot(qi, pDeal->DnDev, 0, 0, 0 /* period */));
 	qi.QuotKindID = up_qk_id;
 	THROW(qary.SetQuot(qi, pDeal->UpDev, 0, 0, 0 /* period */));
-	THROW(P_Tbl->SetQuotList(qary, useTa));
+	THROW(P_Tbl->SetQuotList(qary, false, useTa));
 	CATCHZOK
 	return ok;
 }
@@ -2611,14 +2611,14 @@ int PPObjGoods::BelongToMatrix(PPID goodsID, PPID locID)
 int PPObjGoods::GetQuotList(PPID goodsID, PPID locID, PPQuotArray & rList)
 	{ return P_Tbl->GetQuotList(goodsID, locID, rList); }
 
-int PPObjGoods::PutQuotList(PPID goodsID, const PPQuotArray * pList, int use_ta)
+int PPObjGoods::PutQuotList(PPID goodsID, const PPQuotArray * pList, bool updByTime, int use_ta)
 {
 	int    ok = 1;
 	if(pList)
-		ok = (pList->GoodsID == goodsID) ? P_Tbl->SetQuotList(*pList, use_ta) : PPSetError(PPERR_INVQUOTLIST);
+		ok = (pList->GoodsID == goodsID) ? P_Tbl->SetQuotList(*pList, updByTime, use_ta) : PPSetError(PPERR_INVQUOTLIST);
 	else {
 		PPQuotArray zero_list(goodsID);
-		ok = P_Tbl->SetQuotList(zero_list, use_ta);
+		ok = P_Tbl->SetQuotList(zero_list, false, use_ta);
 	}
 	return ok;
 }

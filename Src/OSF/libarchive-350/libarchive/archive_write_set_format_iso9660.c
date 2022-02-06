@@ -4470,11 +4470,10 @@ static int isofile_gen_utility_names(struct archive_write * a, struct isofile * 
 	archive_string_empty(&(file->basename_utf16));
 	archive_string_empty(&(file->symlink));
 	pathname =  archive_entry_pathname(file->entry);
-	if(pathname == NULL || pathname[0] == '\0') { /* virtual root */
+	if(isempty(pathname)) { // virtual root 
 		file->dircnt = 0;
 		return ret;
 	}
-
 	/*
 	 * Make a UTF-16BE basename if Joliet extension enabled.
 	 */

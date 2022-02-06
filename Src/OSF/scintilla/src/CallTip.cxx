@@ -1,10 +1,9 @@
+// CallTip.cxx
 // Scintilla source code edit control
-/** @file CallTip.cxx
-** Code for displaying call tips.
-**/
 // Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
-
+// Code for displaying call tips.
+//
 #include <Platform.h>
 #include <Scintilla.h>
 #include <scintilla-internal.h>
@@ -83,7 +82,7 @@ void CallTip::DrawChunk(SciSurface * surface, int &x, const char * s,
 	int maxEnd = 0;
 	const int numEnds = 10;
 	int ends[numEnds + 2];
-	for(int i = 0; i<len; i++) {
+	for(int i = 0; i < len; i++) {
 		if((maxEnd < numEnds) && (IsArrowCharacter(s[i]) || IsTabCharacter(s[i]))) {
 			if(i > 0)
 				ends[maxEnd++] = i;

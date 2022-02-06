@@ -33,7 +33,6 @@
 
 #include <map>
 #include <string>
-
 #include <google/protobuf/compiler/cpp/cpp_helpers.h>
 #include <google/protobuf/compiler/cpp/cpp_message_field.h>
 
@@ -41,35 +40,31 @@ namespace google {
 namespace protobuf {
 namespace compiler {
 namespace cpp {
-
 class MapFieldGenerator : public FieldGenerator {
- public:
-  MapFieldGenerator(const FieldDescriptor* descriptor, const Options& options,
-                    MessageSCCAnalyzer* scc_analyzer);
-  ~MapFieldGenerator() override;
+public:
+	MapFieldGenerator(const FieldDescriptor* descriptor, const Options& options, MessageSCCAnalyzer* scc_analyzer);
+	~MapFieldGenerator() override;
 
-  // implements FieldGenerator ---------------------------------------
-  void GeneratePrivateMembers(io::Printer* printer) const override;
-  void GenerateAccessorDeclarations(io::Printer* printer) const override;
-  void GenerateInlineAccessorDefinitions(io::Printer* printer) const override;
-  void GenerateClearingCode(io::Printer* printer) const override;
-  void GenerateMergingCode(io::Printer* printer) const override;
-  void GenerateSwappingCode(io::Printer* printer) const override;
-  void GenerateConstructorCode(io::Printer* printer) const override {}
-  void GenerateCopyConstructorCode(io::Printer* printer) const override;
-  void GenerateSerializeWithCachedSizesToArray(
-      io::Printer* printer) const override;
-  void GenerateByteSize(io::Printer* printer) const override;
-  void GenerateIsInitialized(io::Printer* printer) const override;
-  void GenerateConstinitInitializer(io::Printer* printer) const override;
-  bool GenerateArenaDestructorCode(io::Printer* printer) const override;
-
- private:
-  const bool has_required_fields_;
-
-  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(MapFieldGenerator);
+	// implements FieldGenerator ---------------------------------------
+	void GeneratePrivateMembers(io::Printer* printer) const override;
+	void GenerateAccessorDeclarations(io::Printer* printer) const override;
+	void GenerateInlineAccessorDefinitions(io::Printer* printer) const override;
+	void GenerateClearingCode(io::Printer* printer) const override;
+	void GenerateMergingCode(io::Printer* printer) const override;
+	void GenerateSwappingCode(io::Printer* printer) const override;
+	void GenerateConstructorCode(io::Printer* printer) const override 
+	{
+	}
+	void GenerateCopyConstructorCode(io::Printer* printer) const override;
+	void GenerateSerializeWithCachedSizesToArray(io::Printer* printer) const override;
+	void GenerateByteSize(io::Printer* printer) const override;
+	void GenerateIsInitialized(io::Printer* printer) const override;
+	void GenerateConstinitInitializer(io::Printer* printer) const override;
+	bool GenerateArenaDestructorCode(io::Printer* printer) const override;
+private:
+	const bool has_required_fields_;
+	GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(MapFieldGenerator);
 };
-
 }  // namespace cpp
 }  // namespace compiler
 }  // namespace protobuf

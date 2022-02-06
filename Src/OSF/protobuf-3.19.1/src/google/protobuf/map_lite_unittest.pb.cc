@@ -723,164 +723,110 @@ bool MapEnumLite_Parse(
 // ===================================================================
 
 TestMapLite_MapInt32Int32Entry_DoNotUse::TestMapLite_MapInt32Int32Entry_DoNotUse() {}
-TestMapLite_MapInt32Int32Entry_DoNotUse::TestMapLite_MapInt32Int32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestMapLite_MapInt32Int32Entry_DoNotUse::MergeFrom(const TestMapLite_MapInt32Int32Entry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestMapLite_MapInt32Int32Entry_DoNotUse::TestMapLite_MapInt32Int32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestMapLite_MapInt32Int32Entry_DoNotUse::MergeFrom(const TestMapLite_MapInt32Int32Entry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestMapLite_MapInt64Int64Entry_DoNotUse::TestMapLite_MapInt64Int64Entry_DoNotUse() {}
-TestMapLite_MapInt64Int64Entry_DoNotUse::TestMapLite_MapInt64Int64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestMapLite_MapInt64Int64Entry_DoNotUse::MergeFrom(const TestMapLite_MapInt64Int64Entry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestMapLite_MapInt64Int64Entry_DoNotUse::TestMapLite_MapInt64Int64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestMapLite_MapInt64Int64Entry_DoNotUse::MergeFrom(const TestMapLite_MapInt64Int64Entry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestMapLite_MapUint32Uint32Entry_DoNotUse::TestMapLite_MapUint32Uint32Entry_DoNotUse() {}
-TestMapLite_MapUint32Uint32Entry_DoNotUse::TestMapLite_MapUint32Uint32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestMapLite_MapUint32Uint32Entry_DoNotUse::MergeFrom(const TestMapLite_MapUint32Uint32Entry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestMapLite_MapUint32Uint32Entry_DoNotUse::TestMapLite_MapUint32Uint32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestMapLite_MapUint32Uint32Entry_DoNotUse::MergeFrom(const TestMapLite_MapUint32Uint32Entry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestMapLite_MapUint64Uint64Entry_DoNotUse::TestMapLite_MapUint64Uint64Entry_DoNotUse() {}
-TestMapLite_MapUint64Uint64Entry_DoNotUse::TestMapLite_MapUint64Uint64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestMapLite_MapUint64Uint64Entry_DoNotUse::MergeFrom(const TestMapLite_MapUint64Uint64Entry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestMapLite_MapUint64Uint64Entry_DoNotUse::TestMapLite_MapUint64Uint64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestMapLite_MapUint64Uint64Entry_DoNotUse::MergeFrom(const TestMapLite_MapUint64Uint64Entry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestMapLite_MapSint32Sint32Entry_DoNotUse::TestMapLite_MapSint32Sint32Entry_DoNotUse() {}
-TestMapLite_MapSint32Sint32Entry_DoNotUse::TestMapLite_MapSint32Sint32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestMapLite_MapSint32Sint32Entry_DoNotUse::MergeFrom(const TestMapLite_MapSint32Sint32Entry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestMapLite_MapSint32Sint32Entry_DoNotUse::TestMapLite_MapSint32Sint32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestMapLite_MapSint32Sint32Entry_DoNotUse::MergeFrom(const TestMapLite_MapSint32Sint32Entry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestMapLite_MapSint64Sint64Entry_DoNotUse::TestMapLite_MapSint64Sint64Entry_DoNotUse() {}
-TestMapLite_MapSint64Sint64Entry_DoNotUse::TestMapLite_MapSint64Sint64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestMapLite_MapSint64Sint64Entry_DoNotUse::MergeFrom(const TestMapLite_MapSint64Sint64Entry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestMapLite_MapSint64Sint64Entry_DoNotUse::TestMapLite_MapSint64Sint64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestMapLite_MapSint64Sint64Entry_DoNotUse::MergeFrom(const TestMapLite_MapSint64Sint64Entry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestMapLite_MapFixed32Fixed32Entry_DoNotUse::TestMapLite_MapFixed32Fixed32Entry_DoNotUse() {}
-TestMapLite_MapFixed32Fixed32Entry_DoNotUse::TestMapLite_MapFixed32Fixed32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestMapLite_MapFixed32Fixed32Entry_DoNotUse::MergeFrom(const TestMapLite_MapFixed32Fixed32Entry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestMapLite_MapFixed32Fixed32Entry_DoNotUse::TestMapLite_MapFixed32Fixed32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestMapLite_MapFixed32Fixed32Entry_DoNotUse::MergeFrom(const TestMapLite_MapFixed32Fixed32Entry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestMapLite_MapFixed64Fixed64Entry_DoNotUse::TestMapLite_MapFixed64Fixed64Entry_DoNotUse() {}
-TestMapLite_MapFixed64Fixed64Entry_DoNotUse::TestMapLite_MapFixed64Fixed64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestMapLite_MapFixed64Fixed64Entry_DoNotUse::MergeFrom(const TestMapLite_MapFixed64Fixed64Entry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestMapLite_MapFixed64Fixed64Entry_DoNotUse::TestMapLite_MapFixed64Fixed64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestMapLite_MapFixed64Fixed64Entry_DoNotUse::MergeFrom(const TestMapLite_MapFixed64Fixed64Entry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestMapLite_MapSfixed32Sfixed32Entry_DoNotUse::TestMapLite_MapSfixed32Sfixed32Entry_DoNotUse() {}
-TestMapLite_MapSfixed32Sfixed32Entry_DoNotUse::TestMapLite_MapSfixed32Sfixed32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestMapLite_MapSfixed32Sfixed32Entry_DoNotUse::MergeFrom(const TestMapLite_MapSfixed32Sfixed32Entry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestMapLite_MapSfixed32Sfixed32Entry_DoNotUse::TestMapLite_MapSfixed32Sfixed32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestMapLite_MapSfixed32Sfixed32Entry_DoNotUse::MergeFrom(const TestMapLite_MapSfixed32Sfixed32Entry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestMapLite_MapSfixed64Sfixed64Entry_DoNotUse::TestMapLite_MapSfixed64Sfixed64Entry_DoNotUse() {}
-TestMapLite_MapSfixed64Sfixed64Entry_DoNotUse::TestMapLite_MapSfixed64Sfixed64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestMapLite_MapSfixed64Sfixed64Entry_DoNotUse::MergeFrom(const TestMapLite_MapSfixed64Sfixed64Entry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestMapLite_MapSfixed64Sfixed64Entry_DoNotUse::TestMapLite_MapSfixed64Sfixed64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestMapLite_MapSfixed64Sfixed64Entry_DoNotUse::MergeFrom(const TestMapLite_MapSfixed64Sfixed64Entry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestMapLite_MapInt32FloatEntry_DoNotUse::TestMapLite_MapInt32FloatEntry_DoNotUse() {}
-TestMapLite_MapInt32FloatEntry_DoNotUse::TestMapLite_MapInt32FloatEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestMapLite_MapInt32FloatEntry_DoNotUse::MergeFrom(const TestMapLite_MapInt32FloatEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestMapLite_MapInt32FloatEntry_DoNotUse::TestMapLite_MapInt32FloatEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestMapLite_MapInt32FloatEntry_DoNotUse::MergeFrom(const TestMapLite_MapInt32FloatEntry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestMapLite_MapInt32DoubleEntry_DoNotUse::TestMapLite_MapInt32DoubleEntry_DoNotUse() {}
-TestMapLite_MapInt32DoubleEntry_DoNotUse::TestMapLite_MapInt32DoubleEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestMapLite_MapInt32DoubleEntry_DoNotUse::MergeFrom(const TestMapLite_MapInt32DoubleEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestMapLite_MapInt32DoubleEntry_DoNotUse::TestMapLite_MapInt32DoubleEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestMapLite_MapInt32DoubleEntry_DoNotUse::MergeFrom(const TestMapLite_MapInt32DoubleEntry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestMapLite_MapBoolBoolEntry_DoNotUse::TestMapLite_MapBoolBoolEntry_DoNotUse() {}
-TestMapLite_MapBoolBoolEntry_DoNotUse::TestMapLite_MapBoolBoolEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestMapLite_MapBoolBoolEntry_DoNotUse::MergeFrom(const TestMapLite_MapBoolBoolEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestMapLite_MapBoolBoolEntry_DoNotUse::TestMapLite_MapBoolBoolEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestMapLite_MapBoolBoolEntry_DoNotUse::MergeFrom(const TestMapLite_MapBoolBoolEntry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestMapLite_MapStringStringEntry_DoNotUse::TestMapLite_MapStringStringEntry_DoNotUse() {}
-TestMapLite_MapStringStringEntry_DoNotUse::TestMapLite_MapStringStringEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestMapLite_MapStringStringEntry_DoNotUse::MergeFrom(const TestMapLite_MapStringStringEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestMapLite_MapStringStringEntry_DoNotUse::TestMapLite_MapStringStringEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestMapLite_MapStringStringEntry_DoNotUse::MergeFrom(const TestMapLite_MapStringStringEntry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestMapLite_MapInt32BytesEntry_DoNotUse::TestMapLite_MapInt32BytesEntry_DoNotUse() {}
-TestMapLite_MapInt32BytesEntry_DoNotUse::TestMapLite_MapInt32BytesEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestMapLite_MapInt32BytesEntry_DoNotUse::MergeFrom(const TestMapLite_MapInt32BytesEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestMapLite_MapInt32BytesEntry_DoNotUse::TestMapLite_MapInt32BytesEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestMapLite_MapInt32BytesEntry_DoNotUse::MergeFrom(const TestMapLite_MapInt32BytesEntry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestMapLite_MapInt32EnumEntry_DoNotUse::TestMapLite_MapInt32EnumEntry_DoNotUse() {}
-TestMapLite_MapInt32EnumEntry_DoNotUse::TestMapLite_MapInt32EnumEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestMapLite_MapInt32EnumEntry_DoNotUse::MergeFrom(const TestMapLite_MapInt32EnumEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestMapLite_MapInt32EnumEntry_DoNotUse::TestMapLite_MapInt32EnumEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestMapLite_MapInt32EnumEntry_DoNotUse::MergeFrom(const TestMapLite_MapInt32EnumEntry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestMapLite_MapInt32ForeignMessageEntry_DoNotUse::TestMapLite_MapInt32ForeignMessageEntry_DoNotUse() {}
-TestMapLite_MapInt32ForeignMessageEntry_DoNotUse::TestMapLite_MapInt32ForeignMessageEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestMapLite_MapInt32ForeignMessageEntry_DoNotUse::MergeFrom(const TestMapLite_MapInt32ForeignMessageEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestMapLite_MapInt32ForeignMessageEntry_DoNotUse::TestMapLite_MapInt32ForeignMessageEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestMapLite_MapInt32ForeignMessageEntry_DoNotUse::MergeFrom(const TestMapLite_MapInt32ForeignMessageEntry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestMapLite_TeboringEntry_DoNotUse::TestMapLite_TeboringEntry_DoNotUse() {}
-TestMapLite_TeboringEntry_DoNotUse::TestMapLite_TeboringEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestMapLite_TeboringEntry_DoNotUse::MergeFrom(const TestMapLite_TeboringEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestMapLite_TeboringEntry_DoNotUse::TestMapLite_TeboringEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestMapLite_TeboringEntry_DoNotUse::MergeFrom(const TestMapLite_TeboringEntry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
@@ -1279,11 +1225,11 @@ uint8_t* TestMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestMapLite_MapInt32Int32Entry_DoNotUse::Funcs::InternalSerialize(1, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
           it = this->_internal_map_int32_int32().begin();
           it != this->_internal_map_int32_int32().end(); ++it) {
         target = TestMapLite_MapInt32Int32Entry_DoNotUse::Funcs::InternalSerialize(1, it->first, it->second, target, stream);
@@ -1307,11 +1253,11 @@ uint8_t* TestMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestMapLite_MapInt64Int64Entry_DoNotUse::Funcs::InternalSerialize(2, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
           it = this->_internal_map_int64_int64().begin();
           it != this->_internal_map_int64_int64().end(); ++it) {
         target = TestMapLite_MapInt64Int64Entry_DoNotUse::Funcs::InternalSerialize(2, it->first, it->second, target, stream);
@@ -1335,11 +1281,11 @@ uint8_t* TestMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestMapLite_MapUint32Uint32Entry_DoNotUse::Funcs::InternalSerialize(3, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator
           it = this->_internal_map_uint32_uint32().begin();
           it != this->_internal_map_uint32_uint32().end(); ++it) {
         target = TestMapLite_MapUint32Uint32Entry_DoNotUse::Funcs::InternalSerialize(3, it->first, it->second, target, stream);
@@ -1363,11 +1309,11 @@ uint8_t* TestMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestMapLite_MapUint64Uint64Entry_DoNotUse::Funcs::InternalSerialize(4, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator
           it = this->_internal_map_uint64_uint64().begin();
           it != this->_internal_map_uint64_uint64().end(); ++it) {
         target = TestMapLite_MapUint64Uint64Entry_DoNotUse::Funcs::InternalSerialize(4, it->first, it->second, target, stream);
@@ -1391,11 +1337,11 @@ uint8_t* TestMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestMapLite_MapSint32Sint32Entry_DoNotUse::Funcs::InternalSerialize(5, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
           it = this->_internal_map_sint32_sint32().begin();
           it != this->_internal_map_sint32_sint32().end(); ++it) {
         target = TestMapLite_MapSint32Sint32Entry_DoNotUse::Funcs::InternalSerialize(5, it->first, it->second, target, stream);
@@ -1419,11 +1365,11 @@ uint8_t* TestMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestMapLite_MapSint64Sint64Entry_DoNotUse::Funcs::InternalSerialize(6, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
           it = this->_internal_map_sint64_sint64().begin();
           it != this->_internal_map_sint64_sint64().end(); ++it) {
         target = TestMapLite_MapSint64Sint64Entry_DoNotUse::Funcs::InternalSerialize(6, it->first, it->second, target, stream);
@@ -1447,11 +1393,11 @@ uint8_t* TestMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestMapLite_MapFixed32Fixed32Entry_DoNotUse::Funcs::InternalSerialize(7, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator
           it = this->_internal_map_fixed32_fixed32().begin();
           it != this->_internal_map_fixed32_fixed32().end(); ++it) {
         target = TestMapLite_MapFixed32Fixed32Entry_DoNotUse::Funcs::InternalSerialize(7, it->first, it->second, target, stream);
@@ -1475,11 +1421,11 @@ uint8_t* TestMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestMapLite_MapFixed64Fixed64Entry_DoNotUse::Funcs::InternalSerialize(8, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator
           it = this->_internal_map_fixed64_fixed64().begin();
           it != this->_internal_map_fixed64_fixed64().end(); ++it) {
         target = TestMapLite_MapFixed64Fixed64Entry_DoNotUse::Funcs::InternalSerialize(8, it->first, it->second, target, stream);
@@ -1503,11 +1449,11 @@ uint8_t* TestMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestMapLite_MapSfixed32Sfixed32Entry_DoNotUse::Funcs::InternalSerialize(9, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
           it = this->_internal_map_sfixed32_sfixed32().begin();
           it != this->_internal_map_sfixed32_sfixed32().end(); ++it) {
         target = TestMapLite_MapSfixed32Sfixed32Entry_DoNotUse::Funcs::InternalSerialize(9, it->first, it->second, target, stream);
@@ -1531,11 +1477,11 @@ uint8_t* TestMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestMapLite_MapSfixed64Sfixed64Entry_DoNotUse::Funcs::InternalSerialize(10, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
           it = this->_internal_map_sfixed64_sfixed64().begin();
           it != this->_internal_map_sfixed64_sfixed64().end(); ++it) {
         target = TestMapLite_MapSfixed64Sfixed64Entry_DoNotUse::Funcs::InternalSerialize(10, it->first, it->second, target, stream);
@@ -1559,11 +1505,11 @@ uint8_t* TestMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestMapLite_MapInt32FloatEntry_DoNotUse::Funcs::InternalSerialize(11, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >::const_iterator
           it = this->_internal_map_int32_float().begin();
           it != this->_internal_map_int32_float().end(); ++it) {
         target = TestMapLite_MapInt32FloatEntry_DoNotUse::Funcs::InternalSerialize(11, it->first, it->second, target, stream);
@@ -1587,11 +1533,11 @@ uint8_t* TestMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestMapLite_MapInt32DoubleEntry_DoNotUse::Funcs::InternalSerialize(12, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >::const_iterator
           it = this->_internal_map_int32_double().begin();
           it != this->_internal_map_int32_double().end(); ++it) {
         target = TestMapLite_MapInt32DoubleEntry_DoNotUse::Funcs::InternalSerialize(12, it->first, it->second, target, stream);
@@ -1615,11 +1561,11 @@ uint8_t* TestMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestMapLite_MapBoolBoolEntry_DoNotUse::Funcs::InternalSerialize(13, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< bool, bool >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< bool, bool >::const_iterator
           it = this->_internal_map_bool_bool().begin();
           it != this->_internal_map_bool_bool().end(); ++it) {
         target = TestMapLite_MapBoolBoolEntry_DoNotUse::Funcs::InternalSerialize(13, it->first, it->second, target, stream);
@@ -1648,12 +1594,12 @@ uint8_t* TestMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestMapLite_MapStringStringEntry_DoNotUse::Funcs::InternalSerialize(14, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
           it = this->_internal_map_string_string().begin();
           it != this->_internal_map_string_string().end(); ++it) {
         target = TestMapLite_MapStringStringEntry_DoNotUse::Funcs::InternalSerialize(14, it->first, it->second, target, stream);
@@ -1678,11 +1624,11 @@ uint8_t* TestMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestMapLite_MapInt32BytesEntry_DoNotUse::Funcs::InternalSerialize(15, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_iterator
           it = this->_internal_map_int32_bytes().begin();
           it != this->_internal_map_int32_bytes().end(); ++it) {
         target = TestMapLite_MapInt32BytesEntry_DoNotUse::Funcs::InternalSerialize(15, it->first, it->second, target, stream);
@@ -1706,11 +1652,11 @@ uint8_t* TestMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestMapLite_MapInt32EnumEntry_DoNotUse::Funcs::InternalSerialize(16, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnumLite >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnumLite >::const_iterator
           it = this->_internal_map_int32_enum().begin();
           it != this->_internal_map_int32_enum().end(); ++it) {
         target = TestMapLite_MapInt32EnumEntry_DoNotUse::Funcs::InternalSerialize(16, it->first, it->second, target, stream);
@@ -1734,11 +1680,11 @@ uint8_t* TestMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestMapLite_MapInt32ForeignMessageEntry_DoNotUse::Funcs::InternalSerialize(17, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessageLite >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessageLite >::const_iterator
           it = this->_internal_map_int32_foreign_message().begin();
           it != this->_internal_map_int32_foreign_message().end(); ++it) {
         target = TestMapLite_MapInt32ForeignMessageEntry_DoNotUse::Funcs::InternalSerialize(17, it->first, it->second, target, stream);
@@ -1762,11 +1708,11 @@ uint8_t* TestMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestMapLite_TeboringEntry_DoNotUse::Funcs::InternalSerialize(18, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
           it = this->_internal_teboring().begin();
           it != this->_internal_teboring().end(); ++it) {
         target = TestMapLite_TeboringEntry_DoNotUse::Funcs::InternalSerialize(18, it->first, it->second, target, stream);
@@ -2027,163 +1973,110 @@ void TestMapLite::InternalSwap(TestMapLite* other) {
   teboring_.InternalSwap(&other->teboring_);
 }
 
-std::string TestMapLite::GetTypeName() const {
-  return "protobuf_unittest.TestMapLite";
-}
+std::string TestMapLite::GetTypeName() const { return "protobuf_unittest.TestMapLite"; }
 
 
 // ===================================================================
 
 TestArenaMapLite_MapInt32Int32Entry_DoNotUse::TestArenaMapLite_MapInt32Int32Entry_DoNotUse() {}
-TestArenaMapLite_MapInt32Int32Entry_DoNotUse::TestArenaMapLite_MapInt32Int32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestArenaMapLite_MapInt32Int32Entry_DoNotUse::MergeFrom(const TestArenaMapLite_MapInt32Int32Entry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestArenaMapLite_MapInt32Int32Entry_DoNotUse::TestArenaMapLite_MapInt32Int32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestArenaMapLite_MapInt32Int32Entry_DoNotUse::MergeFrom(const TestArenaMapLite_MapInt32Int32Entry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestArenaMapLite_MapInt64Int64Entry_DoNotUse::TestArenaMapLite_MapInt64Int64Entry_DoNotUse() {}
-TestArenaMapLite_MapInt64Int64Entry_DoNotUse::TestArenaMapLite_MapInt64Int64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestArenaMapLite_MapInt64Int64Entry_DoNotUse::MergeFrom(const TestArenaMapLite_MapInt64Int64Entry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestArenaMapLite_MapInt64Int64Entry_DoNotUse::TestArenaMapLite_MapInt64Int64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestArenaMapLite_MapInt64Int64Entry_DoNotUse::MergeFrom(const TestArenaMapLite_MapInt64Int64Entry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestArenaMapLite_MapUint32Uint32Entry_DoNotUse::TestArenaMapLite_MapUint32Uint32Entry_DoNotUse() {}
-TestArenaMapLite_MapUint32Uint32Entry_DoNotUse::TestArenaMapLite_MapUint32Uint32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestArenaMapLite_MapUint32Uint32Entry_DoNotUse::MergeFrom(const TestArenaMapLite_MapUint32Uint32Entry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestArenaMapLite_MapUint32Uint32Entry_DoNotUse::TestArenaMapLite_MapUint32Uint32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestArenaMapLite_MapUint32Uint32Entry_DoNotUse::MergeFrom(const TestArenaMapLite_MapUint32Uint32Entry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestArenaMapLite_MapUint64Uint64Entry_DoNotUse::TestArenaMapLite_MapUint64Uint64Entry_DoNotUse() {}
-TestArenaMapLite_MapUint64Uint64Entry_DoNotUse::TestArenaMapLite_MapUint64Uint64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestArenaMapLite_MapUint64Uint64Entry_DoNotUse::MergeFrom(const TestArenaMapLite_MapUint64Uint64Entry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestArenaMapLite_MapUint64Uint64Entry_DoNotUse::TestArenaMapLite_MapUint64Uint64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestArenaMapLite_MapUint64Uint64Entry_DoNotUse::MergeFrom(const TestArenaMapLite_MapUint64Uint64Entry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestArenaMapLite_MapSint32Sint32Entry_DoNotUse::TestArenaMapLite_MapSint32Sint32Entry_DoNotUse() {}
-TestArenaMapLite_MapSint32Sint32Entry_DoNotUse::TestArenaMapLite_MapSint32Sint32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestArenaMapLite_MapSint32Sint32Entry_DoNotUse::MergeFrom(const TestArenaMapLite_MapSint32Sint32Entry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestArenaMapLite_MapSint32Sint32Entry_DoNotUse::TestArenaMapLite_MapSint32Sint32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestArenaMapLite_MapSint32Sint32Entry_DoNotUse::MergeFrom(const TestArenaMapLite_MapSint32Sint32Entry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestArenaMapLite_MapSint64Sint64Entry_DoNotUse::TestArenaMapLite_MapSint64Sint64Entry_DoNotUse() {}
-TestArenaMapLite_MapSint64Sint64Entry_DoNotUse::TestArenaMapLite_MapSint64Sint64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestArenaMapLite_MapSint64Sint64Entry_DoNotUse::MergeFrom(const TestArenaMapLite_MapSint64Sint64Entry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestArenaMapLite_MapSint64Sint64Entry_DoNotUse::TestArenaMapLite_MapSint64Sint64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestArenaMapLite_MapSint64Sint64Entry_DoNotUse::MergeFrom(const TestArenaMapLite_MapSint64Sint64Entry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestArenaMapLite_MapFixed32Fixed32Entry_DoNotUse::TestArenaMapLite_MapFixed32Fixed32Entry_DoNotUse() {}
-TestArenaMapLite_MapFixed32Fixed32Entry_DoNotUse::TestArenaMapLite_MapFixed32Fixed32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestArenaMapLite_MapFixed32Fixed32Entry_DoNotUse::MergeFrom(const TestArenaMapLite_MapFixed32Fixed32Entry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestArenaMapLite_MapFixed32Fixed32Entry_DoNotUse::TestArenaMapLite_MapFixed32Fixed32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestArenaMapLite_MapFixed32Fixed32Entry_DoNotUse::MergeFrom(const TestArenaMapLite_MapFixed32Fixed32Entry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestArenaMapLite_MapFixed64Fixed64Entry_DoNotUse::TestArenaMapLite_MapFixed64Fixed64Entry_DoNotUse() {}
-TestArenaMapLite_MapFixed64Fixed64Entry_DoNotUse::TestArenaMapLite_MapFixed64Fixed64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestArenaMapLite_MapFixed64Fixed64Entry_DoNotUse::MergeFrom(const TestArenaMapLite_MapFixed64Fixed64Entry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestArenaMapLite_MapFixed64Fixed64Entry_DoNotUse::TestArenaMapLite_MapFixed64Fixed64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestArenaMapLite_MapFixed64Fixed64Entry_DoNotUse::MergeFrom(const TestArenaMapLite_MapFixed64Fixed64Entry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestArenaMapLite_MapSfixed32Sfixed32Entry_DoNotUse::TestArenaMapLite_MapSfixed32Sfixed32Entry_DoNotUse() {}
-TestArenaMapLite_MapSfixed32Sfixed32Entry_DoNotUse::TestArenaMapLite_MapSfixed32Sfixed32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestArenaMapLite_MapSfixed32Sfixed32Entry_DoNotUse::MergeFrom(const TestArenaMapLite_MapSfixed32Sfixed32Entry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestArenaMapLite_MapSfixed32Sfixed32Entry_DoNotUse::TestArenaMapLite_MapSfixed32Sfixed32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestArenaMapLite_MapSfixed32Sfixed32Entry_DoNotUse::MergeFrom(const TestArenaMapLite_MapSfixed32Sfixed32Entry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestArenaMapLite_MapSfixed64Sfixed64Entry_DoNotUse::TestArenaMapLite_MapSfixed64Sfixed64Entry_DoNotUse() {}
-TestArenaMapLite_MapSfixed64Sfixed64Entry_DoNotUse::TestArenaMapLite_MapSfixed64Sfixed64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestArenaMapLite_MapSfixed64Sfixed64Entry_DoNotUse::MergeFrom(const TestArenaMapLite_MapSfixed64Sfixed64Entry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestArenaMapLite_MapSfixed64Sfixed64Entry_DoNotUse::TestArenaMapLite_MapSfixed64Sfixed64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestArenaMapLite_MapSfixed64Sfixed64Entry_DoNotUse::MergeFrom(const TestArenaMapLite_MapSfixed64Sfixed64Entry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestArenaMapLite_MapInt32FloatEntry_DoNotUse::TestArenaMapLite_MapInt32FloatEntry_DoNotUse() {}
-TestArenaMapLite_MapInt32FloatEntry_DoNotUse::TestArenaMapLite_MapInt32FloatEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestArenaMapLite_MapInt32FloatEntry_DoNotUse::MergeFrom(const TestArenaMapLite_MapInt32FloatEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestArenaMapLite_MapInt32FloatEntry_DoNotUse::TestArenaMapLite_MapInt32FloatEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestArenaMapLite_MapInt32FloatEntry_DoNotUse::MergeFrom(const TestArenaMapLite_MapInt32FloatEntry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestArenaMapLite_MapInt32DoubleEntry_DoNotUse::TestArenaMapLite_MapInt32DoubleEntry_DoNotUse() {}
-TestArenaMapLite_MapInt32DoubleEntry_DoNotUse::TestArenaMapLite_MapInt32DoubleEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestArenaMapLite_MapInt32DoubleEntry_DoNotUse::MergeFrom(const TestArenaMapLite_MapInt32DoubleEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestArenaMapLite_MapInt32DoubleEntry_DoNotUse::TestArenaMapLite_MapInt32DoubleEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestArenaMapLite_MapInt32DoubleEntry_DoNotUse::MergeFrom(const TestArenaMapLite_MapInt32DoubleEntry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestArenaMapLite_MapBoolBoolEntry_DoNotUse::TestArenaMapLite_MapBoolBoolEntry_DoNotUse() {}
-TestArenaMapLite_MapBoolBoolEntry_DoNotUse::TestArenaMapLite_MapBoolBoolEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestArenaMapLite_MapBoolBoolEntry_DoNotUse::MergeFrom(const TestArenaMapLite_MapBoolBoolEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestArenaMapLite_MapBoolBoolEntry_DoNotUse::TestArenaMapLite_MapBoolBoolEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestArenaMapLite_MapBoolBoolEntry_DoNotUse::MergeFrom(const TestArenaMapLite_MapBoolBoolEntry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestArenaMapLite_MapStringStringEntry_DoNotUse::TestArenaMapLite_MapStringStringEntry_DoNotUse() {}
-TestArenaMapLite_MapStringStringEntry_DoNotUse::TestArenaMapLite_MapStringStringEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestArenaMapLite_MapStringStringEntry_DoNotUse::MergeFrom(const TestArenaMapLite_MapStringStringEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestArenaMapLite_MapStringStringEntry_DoNotUse::TestArenaMapLite_MapStringStringEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestArenaMapLite_MapStringStringEntry_DoNotUse::MergeFrom(const TestArenaMapLite_MapStringStringEntry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestArenaMapLite_MapInt32BytesEntry_DoNotUse::TestArenaMapLite_MapInt32BytesEntry_DoNotUse() {}
-TestArenaMapLite_MapInt32BytesEntry_DoNotUse::TestArenaMapLite_MapInt32BytesEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestArenaMapLite_MapInt32BytesEntry_DoNotUse::MergeFrom(const TestArenaMapLite_MapInt32BytesEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestArenaMapLite_MapInt32BytesEntry_DoNotUse::TestArenaMapLite_MapInt32BytesEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestArenaMapLite_MapInt32BytesEntry_DoNotUse::MergeFrom(const TestArenaMapLite_MapInt32BytesEntry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestArenaMapLite_MapInt32EnumEntry_DoNotUse::TestArenaMapLite_MapInt32EnumEntry_DoNotUse() {}
-TestArenaMapLite_MapInt32EnumEntry_DoNotUse::TestArenaMapLite_MapInt32EnumEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestArenaMapLite_MapInt32EnumEntry_DoNotUse::MergeFrom(const TestArenaMapLite_MapInt32EnumEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestArenaMapLite_MapInt32EnumEntry_DoNotUse::TestArenaMapLite_MapInt32EnumEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestArenaMapLite_MapInt32EnumEntry_DoNotUse::MergeFrom(const TestArenaMapLite_MapInt32EnumEntry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestArenaMapLite_MapInt32ForeignMessageEntry_DoNotUse::TestArenaMapLite_MapInt32ForeignMessageEntry_DoNotUse() {}
-TestArenaMapLite_MapInt32ForeignMessageEntry_DoNotUse::TestArenaMapLite_MapInt32ForeignMessageEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestArenaMapLite_MapInt32ForeignMessageEntry_DoNotUse::MergeFrom(const TestArenaMapLite_MapInt32ForeignMessageEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestArenaMapLite_MapInt32ForeignMessageEntry_DoNotUse::TestArenaMapLite_MapInt32ForeignMessageEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestArenaMapLite_MapInt32ForeignMessageEntry_DoNotUse::MergeFrom(const TestArenaMapLite_MapInt32ForeignMessageEntry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
@@ -2563,11 +2456,11 @@ uint8_t* TestArenaMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestArenaMapLite_MapInt32Int32Entry_DoNotUse::Funcs::InternalSerialize(1, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
           it = this->_internal_map_int32_int32().begin();
           it != this->_internal_map_int32_int32().end(); ++it) {
         target = TestArenaMapLite_MapInt32Int32Entry_DoNotUse::Funcs::InternalSerialize(1, it->first, it->second, target, stream);
@@ -2591,11 +2484,11 @@ uint8_t* TestArenaMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestArenaMapLite_MapInt64Int64Entry_DoNotUse::Funcs::InternalSerialize(2, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
           it = this->_internal_map_int64_int64().begin();
           it != this->_internal_map_int64_int64().end(); ++it) {
         target = TestArenaMapLite_MapInt64Int64Entry_DoNotUse::Funcs::InternalSerialize(2, it->first, it->second, target, stream);
@@ -2619,11 +2512,11 @@ uint8_t* TestArenaMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestArenaMapLite_MapUint32Uint32Entry_DoNotUse::Funcs::InternalSerialize(3, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator
           it = this->_internal_map_uint32_uint32().begin();
           it != this->_internal_map_uint32_uint32().end(); ++it) {
         target = TestArenaMapLite_MapUint32Uint32Entry_DoNotUse::Funcs::InternalSerialize(3, it->first, it->second, target, stream);
@@ -2647,11 +2540,11 @@ uint8_t* TestArenaMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestArenaMapLite_MapUint64Uint64Entry_DoNotUse::Funcs::InternalSerialize(4, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator
           it = this->_internal_map_uint64_uint64().begin();
           it != this->_internal_map_uint64_uint64().end(); ++it) {
         target = TestArenaMapLite_MapUint64Uint64Entry_DoNotUse::Funcs::InternalSerialize(4, it->first, it->second, target, stream);
@@ -2675,11 +2568,11 @@ uint8_t* TestArenaMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestArenaMapLite_MapSint32Sint32Entry_DoNotUse::Funcs::InternalSerialize(5, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
           it = this->_internal_map_sint32_sint32().begin();
           it != this->_internal_map_sint32_sint32().end(); ++it) {
         target = TestArenaMapLite_MapSint32Sint32Entry_DoNotUse::Funcs::InternalSerialize(5, it->first, it->second, target, stream);
@@ -2703,11 +2596,11 @@ uint8_t* TestArenaMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestArenaMapLite_MapSint64Sint64Entry_DoNotUse::Funcs::InternalSerialize(6, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
           it = this->_internal_map_sint64_sint64().begin();
           it != this->_internal_map_sint64_sint64().end(); ++it) {
         target = TestArenaMapLite_MapSint64Sint64Entry_DoNotUse::Funcs::InternalSerialize(6, it->first, it->second, target, stream);
@@ -2731,11 +2624,11 @@ uint8_t* TestArenaMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestArenaMapLite_MapFixed32Fixed32Entry_DoNotUse::Funcs::InternalSerialize(7, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator
           it = this->_internal_map_fixed32_fixed32().begin();
           it != this->_internal_map_fixed32_fixed32().end(); ++it) {
         target = TestArenaMapLite_MapFixed32Fixed32Entry_DoNotUse::Funcs::InternalSerialize(7, it->first, it->second, target, stream);
@@ -2759,11 +2652,11 @@ uint8_t* TestArenaMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestArenaMapLite_MapFixed64Fixed64Entry_DoNotUse::Funcs::InternalSerialize(8, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator
           it = this->_internal_map_fixed64_fixed64().begin();
           it != this->_internal_map_fixed64_fixed64().end(); ++it) {
         target = TestArenaMapLite_MapFixed64Fixed64Entry_DoNotUse::Funcs::InternalSerialize(8, it->first, it->second, target, stream);
@@ -2787,11 +2680,11 @@ uint8_t* TestArenaMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestArenaMapLite_MapSfixed32Sfixed32Entry_DoNotUse::Funcs::InternalSerialize(9, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
           it = this->_internal_map_sfixed32_sfixed32().begin();
           it != this->_internal_map_sfixed32_sfixed32().end(); ++it) {
         target = TestArenaMapLite_MapSfixed32Sfixed32Entry_DoNotUse::Funcs::InternalSerialize(9, it->first, it->second, target, stream);
@@ -2815,11 +2708,11 @@ uint8_t* TestArenaMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestArenaMapLite_MapSfixed64Sfixed64Entry_DoNotUse::Funcs::InternalSerialize(10, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
           it = this->_internal_map_sfixed64_sfixed64().begin();
           it != this->_internal_map_sfixed64_sfixed64().end(); ++it) {
         target = TestArenaMapLite_MapSfixed64Sfixed64Entry_DoNotUse::Funcs::InternalSerialize(10, it->first, it->second, target, stream);
@@ -2843,11 +2736,11 @@ uint8_t* TestArenaMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestArenaMapLite_MapInt32FloatEntry_DoNotUse::Funcs::InternalSerialize(11, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >::const_iterator
           it = this->_internal_map_int32_float().begin();
           it != this->_internal_map_int32_float().end(); ++it) {
         target = TestArenaMapLite_MapInt32FloatEntry_DoNotUse::Funcs::InternalSerialize(11, it->first, it->second, target, stream);
@@ -2871,11 +2764,11 @@ uint8_t* TestArenaMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestArenaMapLite_MapInt32DoubleEntry_DoNotUse::Funcs::InternalSerialize(12, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >::const_iterator
           it = this->_internal_map_int32_double().begin();
           it != this->_internal_map_int32_double().end(); ++it) {
         target = TestArenaMapLite_MapInt32DoubleEntry_DoNotUse::Funcs::InternalSerialize(12, it->first, it->second, target, stream);
@@ -2899,11 +2792,11 @@ uint8_t* TestArenaMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestArenaMapLite_MapBoolBoolEntry_DoNotUse::Funcs::InternalSerialize(13, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< bool, bool >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< bool, bool >::const_iterator
           it = this->_internal_map_bool_bool().begin();
           it != this->_internal_map_bool_bool().end(); ++it) {
         target = TestArenaMapLite_MapBoolBoolEntry_DoNotUse::Funcs::InternalSerialize(13, it->first, it->second, target, stream);
@@ -2932,12 +2825,12 @@ uint8_t* TestArenaMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestArenaMapLite_MapStringStringEntry_DoNotUse::Funcs::InternalSerialize(14, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
           it = this->_internal_map_string_string().begin();
           it != this->_internal_map_string_string().end(); ++it) {
         target = TestArenaMapLite_MapStringStringEntry_DoNotUse::Funcs::InternalSerialize(14, it->first, it->second, target, stream);
@@ -2962,11 +2855,11 @@ uint8_t* TestArenaMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestArenaMapLite_MapInt32BytesEntry_DoNotUse::Funcs::InternalSerialize(15, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_iterator
           it = this->_internal_map_int32_bytes().begin();
           it != this->_internal_map_int32_bytes().end(); ++it) {
         target = TestArenaMapLite_MapInt32BytesEntry_DoNotUse::Funcs::InternalSerialize(15, it->first, it->second, target, stream);
@@ -2990,11 +2883,11 @@ uint8_t* TestArenaMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestArenaMapLite_MapInt32EnumEntry_DoNotUse::Funcs::InternalSerialize(16, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnumLite >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnumLite >::const_iterator
           it = this->_internal_map_int32_enum().begin();
           it != this->_internal_map_int32_enum().end(); ++it) {
         target = TestArenaMapLite_MapInt32EnumEntry_DoNotUse::Funcs::InternalSerialize(16, it->first, it->second, target, stream);
@@ -3018,11 +2911,11 @@ uint8_t* TestArenaMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestArenaMapLite_MapInt32ForeignMessageEntry_DoNotUse::Funcs::InternalSerialize(17, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessageArenaLite >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessageArenaLite >::const_iterator
           it = this->_internal_map_int32_foreign_message().begin();
           it != this->_internal_map_int32_foreign_message().end(); ++it) {
         target = TestArenaMapLite_MapInt32ForeignMessageEntry_DoNotUse::Funcs::InternalSerialize(17, it->first, it->second, target, stream);
@@ -3272,19 +3165,14 @@ void TestArenaMapLite::InternalSwap(TestArenaMapLite* other) {
   map_int32_foreign_message_.InternalSwap(&other->map_int32_foreign_message_);
 }
 
-std::string TestArenaMapLite::GetTypeName() const {
-  return "protobuf_unittest.TestArenaMapLite";
-}
+std::string TestArenaMapLite::GetTypeName() const { return "protobuf_unittest.TestArenaMapLite"; }
 
 
 // ===================================================================
 
 TestRequiredMessageMapLite_MapFieldEntry_DoNotUse::TestRequiredMessageMapLite_MapFieldEntry_DoNotUse() {}
-TestRequiredMessageMapLite_MapFieldEntry_DoNotUse::TestRequiredMessageMapLite_MapFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestRequiredMessageMapLite_MapFieldEntry_DoNotUse::MergeFrom(const TestRequiredMessageMapLite_MapFieldEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestRequiredMessageMapLite_MapFieldEntry_DoNotUse::TestRequiredMessageMapLite_MapFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestRequiredMessageMapLite_MapFieldEntry_DoNotUse::MergeFrom(const TestRequiredMessageMapLite_MapFieldEntry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
@@ -3407,11 +3295,11 @@ uint8_t* TestRequiredMessageMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestRequiredMessageMapLite_MapFieldEntry_DoNotUse::Funcs::InternalSerialize(1, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestRequiredLite >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestRequiredLite >::const_iterator
           it = this->_internal_map_field().begin();
           it != this->_internal_map_field().end(); ++it) {
         target = TestRequiredMessageMapLite_MapFieldEntry_DoNotUse::Funcs::InternalSerialize(1, it->first, it->second, target, stream);
@@ -3486,28 +3374,20 @@ void TestRequiredMessageMapLite::InternalSwap(TestRequiredMessageMapLite* other)
   map_field_.InternalSwap(&other->map_field_);
 }
 
-std::string TestRequiredMessageMapLite::GetTypeName() const {
-  return "protobuf_unittest.TestRequiredMessageMapLite";
-}
+std::string TestRequiredMessageMapLite::GetTypeName() const { return "protobuf_unittest.TestRequiredMessageMapLite"; }
 
 
 // ===================================================================
 
 TestEnumMapLite_KnownMapFieldEntry_DoNotUse::TestEnumMapLite_KnownMapFieldEntry_DoNotUse() {}
-TestEnumMapLite_KnownMapFieldEntry_DoNotUse::TestEnumMapLite_KnownMapFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestEnumMapLite_KnownMapFieldEntry_DoNotUse::MergeFrom(const TestEnumMapLite_KnownMapFieldEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestEnumMapLite_KnownMapFieldEntry_DoNotUse::TestEnumMapLite_KnownMapFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestEnumMapLite_KnownMapFieldEntry_DoNotUse::MergeFrom(const TestEnumMapLite_KnownMapFieldEntry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestEnumMapLite_UnknownMapFieldEntry_DoNotUse::TestEnumMapLite_UnknownMapFieldEntry_DoNotUse() {}
-TestEnumMapLite_UnknownMapFieldEntry_DoNotUse::TestEnumMapLite_UnknownMapFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestEnumMapLite_UnknownMapFieldEntry_DoNotUse::MergeFrom(const TestEnumMapLite_UnknownMapFieldEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestEnumMapLite_UnknownMapFieldEntry_DoNotUse::TestEnumMapLite_UnknownMapFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestEnumMapLite_UnknownMapFieldEntry_DoNotUse::MergeFrom(const TestEnumMapLite_UnknownMapFieldEntry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
@@ -3648,11 +3528,11 @@ uint8_t* TestEnumMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestEnumMapLite_KnownMapFieldEntry_DoNotUse::Funcs::InternalSerialize(101, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumLite >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumLite >::const_iterator
           it = this->_internal_known_map_field().begin();
           it != this->_internal_known_map_field().end(); ++it) {
         target = TestEnumMapLite_KnownMapFieldEntry_DoNotUse::Funcs::InternalSerialize(101, it->first, it->second, target, stream);
@@ -3676,11 +3556,11 @@ uint8_t* TestEnumMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestEnumMapLite_UnknownMapFieldEntry_DoNotUse::Funcs::InternalSerialize(102, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumLite >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumLite >::const_iterator
           it = this->_internal_unknown_map_field().begin();
           it != this->_internal_unknown_map_field().end(); ++it) {
         target = TestEnumMapLite_UnknownMapFieldEntry_DoNotUse::Funcs::InternalSerialize(102, it->first, it->second, target, stream);
@@ -3765,28 +3645,20 @@ void TestEnumMapLite::InternalSwap(TestEnumMapLite* other) {
   unknown_map_field_.InternalSwap(&other->unknown_map_field_);
 }
 
-std::string TestEnumMapLite::GetTypeName() const {
-  return "protobuf_unittest.TestEnumMapLite";
-}
+std::string TestEnumMapLite::GetTypeName() const { return "protobuf_unittest.TestEnumMapLite"; }
 
 
 // ===================================================================
 
 TestEnumMapPlusExtraLite_KnownMapFieldEntry_DoNotUse::TestEnumMapPlusExtraLite_KnownMapFieldEntry_DoNotUse() {}
-TestEnumMapPlusExtraLite_KnownMapFieldEntry_DoNotUse::TestEnumMapPlusExtraLite_KnownMapFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestEnumMapPlusExtraLite_KnownMapFieldEntry_DoNotUse::MergeFrom(const TestEnumMapPlusExtraLite_KnownMapFieldEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestEnumMapPlusExtraLite_KnownMapFieldEntry_DoNotUse::TestEnumMapPlusExtraLite_KnownMapFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestEnumMapPlusExtraLite_KnownMapFieldEntry_DoNotUse::MergeFrom(const TestEnumMapPlusExtraLite_KnownMapFieldEntry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
 TestEnumMapPlusExtraLite_UnknownMapFieldEntry_DoNotUse::TestEnumMapPlusExtraLite_UnknownMapFieldEntry_DoNotUse() {}
-TestEnumMapPlusExtraLite_UnknownMapFieldEntry_DoNotUse::TestEnumMapPlusExtraLite_UnknownMapFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestEnumMapPlusExtraLite_UnknownMapFieldEntry_DoNotUse::MergeFrom(const TestEnumMapPlusExtraLite_UnknownMapFieldEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestEnumMapPlusExtraLite_UnknownMapFieldEntry_DoNotUse::TestEnumMapPlusExtraLite_UnknownMapFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestEnumMapPlusExtraLite_UnknownMapFieldEntry_DoNotUse::MergeFrom(const TestEnumMapPlusExtraLite_UnknownMapFieldEntry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
@@ -3927,11 +3799,11 @@ uint8_t* TestEnumMapPlusExtraLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestEnumMapPlusExtraLite_KnownMapFieldEntry_DoNotUse::Funcs::InternalSerialize(101, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtraLite >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtraLite >::const_iterator
           it = this->_internal_known_map_field().begin();
           it != this->_internal_known_map_field().end(); ++it) {
         target = TestEnumMapPlusExtraLite_KnownMapFieldEntry_DoNotUse::Funcs::InternalSerialize(101, it->first, it->second, target, stream);
@@ -3955,11 +3827,11 @@ uint8_t* TestEnumMapPlusExtraLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestEnumMapPlusExtraLite_UnknownMapFieldEntry_DoNotUse::Funcs::InternalSerialize(102, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtraLite >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtraLite >::const_iterator
           it = this->_internal_unknown_map_field().begin();
           it != this->_internal_unknown_map_field().end(); ++it) {
         target = TestEnumMapPlusExtraLite_UnknownMapFieldEntry_DoNotUse::Funcs::InternalSerialize(102, it->first, it->second, target, stream);
@@ -4044,19 +3916,14 @@ void TestEnumMapPlusExtraLite::InternalSwap(TestEnumMapPlusExtraLite* other) {
   unknown_map_field_.InternalSwap(&other->unknown_map_field_);
 }
 
-std::string TestEnumMapPlusExtraLite::GetTypeName() const {
-  return "protobuf_unittest.TestEnumMapPlusExtraLite";
-}
+std::string TestEnumMapPlusExtraLite::GetTypeName() const { return "protobuf_unittest.TestEnumMapPlusExtraLite"; }
 
 
 // ===================================================================
 
 TestMessageMapLite_MapInt32MessageEntry_DoNotUse::TestMessageMapLite_MapInt32MessageEntry_DoNotUse() {}
-TestMessageMapLite_MapInt32MessageEntry_DoNotUse::TestMessageMapLite_MapInt32MessageEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void TestMessageMapLite_MapInt32MessageEntry_DoNotUse::MergeFrom(const TestMessageMapLite_MapInt32MessageEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
+TestMessageMapLite_MapInt32MessageEntry_DoNotUse::TestMessageMapLite_MapInt32MessageEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena) : SuperType(arena) {}
+void TestMessageMapLite_MapInt32MessageEntry_DoNotUse::MergeFrom(const TestMessageMapLite_MapInt32MessageEntry_DoNotUse& other) { MergeFromInternal(other); }
 
 // ===================================================================
 
@@ -4182,11 +4049,11 @@ uint8_t* TestMessageMapLite::_InternalSerialize(
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
+      for(size_type i = 0; i < n; i++) {
         target = TestMessageMapLite_MapInt32MessageEntry_DoNotUse::Funcs::InternalSerialize(1, items[static_cast<ptrdiff_t>(i)].second->first, items[static_cast<ptrdiff_t>(i)].second->second, target, stream);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypesLite >::const_iterator
+      for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypesLite >::const_iterator
           it = this->_internal_map_int32_message().begin();
           it != this->_internal_map_int32_message().end(); ++it) {
         target = TestMessageMapLite_MapInt32MessageEntry_DoNotUse::Funcs::InternalSerialize(1, it->first, it->second, target, stream);
@@ -4260,9 +4127,7 @@ void TestMessageMapLite::InternalSwap(TestMessageMapLite* other) {
   map_int32_message_.InternalSwap(&other->map_int32_message_);
 }
 
-std::string TestMessageMapLite::GetTypeName() const {
-  return "protobuf_unittest.TestMessageMapLite";
-}
+std::string TestMessageMapLite::GetTypeName() const { return "protobuf_unittest.TestMessageMapLite"; }
 
 
 // ===================================================================
@@ -4270,18 +4135,10 @@ std::string TestMessageMapLite::GetTypeName() const {
 class TestRequiredLite::_Internal {
  public:
   using HasBits = decltype(std::declval<TestRequiredLite>()._has_bits_);
-  static void set_has_a(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
-  static void set_has_b(HasBits* has_bits) {
-    (*has_bits)[0] |= 2u;
-  }
-  static void set_has_c(HasBits* has_bits) {
-    (*has_bits)[0] |= 4u;
-  }
-  static bool MissingRequiredFields(const HasBits& has_bits) {
-    return ((has_bits[0] & 0x00000007) ^ 0x00000007) != 0;
-  }
+  static void set_has_a(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
+  static void set_has_b(HasBits* has_bits) { (*has_bits)[0] |= 2u; }
+  static void set_has_c(HasBits* has_bits) { (*has_bits)[0] |= 4u; }
+  static bool MissingRequiredFields(const HasBits& has_bits) { return ((has_bits[0] & 0x00000007) ^ 0x00000007) != 0; }
 };
 
 TestRequiredLite::TestRequiredLite(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -4540,9 +4397,7 @@ void TestRequiredLite::InternalSwap(TestRequiredLite* other) {
           reinterpret_cast<char*>(&other->a_));
 }
 
-std::string TestRequiredLite::GetTypeName() const {
-  return "protobuf_unittest.TestRequiredLite";
-}
+std::string TestRequiredLite::GetTypeName() const { return "protobuf_unittest.TestRequiredLite"; }
 
 
 // ===================================================================
@@ -4550,9 +4405,7 @@ std::string TestRequiredLite::GetTypeName() const {
 class ForeignMessageArenaLite::_Internal {
  public:
   using HasBits = decltype(std::declval<ForeignMessageArenaLite>()._has_bits_);
-  static void set_has_c(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
+  static void set_has_c(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
 ForeignMessageArenaLite::ForeignMessageArenaLite(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -4727,9 +4580,7 @@ void ForeignMessageArenaLite::InternalSwap(ForeignMessageArenaLite* other) {
   swap(c_, other->c_);
 }
 
-std::string ForeignMessageArenaLite::GetTypeName() const {
-  return "protobuf_unittest.ForeignMessageArenaLite";
-}
+std::string ForeignMessageArenaLite::GetTypeName() const { return "protobuf_unittest.ForeignMessageArenaLite"; }
 
 
 // @@protoc_insertion_point(namespace_scope)

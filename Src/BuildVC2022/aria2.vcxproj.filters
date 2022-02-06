@@ -1,0 +1,2008 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\aria2\src\alloca.c" />
+    <ClCompile Include="..\OSF\aria2\src\asctime_r.c" />
+    <ClCompile Include="..\OSF\aria2\src\gai_strerror.c" />
+    <ClCompile Include="..\OSF\aria2\src\getaddrinfo.c" />
+    <ClCompile Include="..\OSF\aria2\src\gettimeofday.c" />
+    <ClCompile Include="..\OSF\aria2\src\libgen.c" />
+    <ClCompile Include="..\OSF\aria2\src\localtime_r.c" />
+    <ClCompile Include="..\OSF\aria2\src\strptime.c" />
+    <ClCompile Include="..\OSF\aria2\src\timegm.c" />
+    <ClCompile Include="..\OSF\aria2\src\uri_split.c" />
+    <ClCompile Include="..\OSF\aria2\src\a2gmp.cc" />
+    <ClCompile Include="..\OSF\aria2\src\A2STR.cc" />
+    <ClCompile Include="..\OSF\aria2\src\AbstractAuthResolver.cc" />
+    <ClCompile Include="..\OSF\aria2\src\AbstractBtMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\AbstractCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\AbstractDiskWriter.cc" />
+    <ClCompile Include="..\OSF\aria2\src\AbstractHttpServerResponseCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\AbstractOptionHandler.cc" />
+    <ClCompile Include="..\OSF\aria2\src\AbstractProxyRequestCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\AbstractProxyResponseCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\AbstractSingleDiskAdaptor.cc" />
+    <ClCompile Include="..\OSF\aria2\src\ActivePeerConnectionCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\AdaptiveFileAllocationIterator.cc" />
+    <ClCompile Include="..\OSF\aria2\src\AdaptiveURISelector.cc" />
+    <ClCompile Include="..\OSF\aria2\src\Adler32MessageDigestImpl.cc" />
+    <ClCompile Include="..\OSF\aria2\src\AnnounceList.cc" />
+    <ClCompile Include="..\OSF\aria2\src\AnnounceTier.cc" />
+    <ClCompile Include="..\OSF\aria2\src\ApiCallbackDownloadEventListener.cc" />
+    <ClCompile Include="..\OSF\aria2\src\AppleMessageDigestImpl.cc" />
+    <ClCompile Include="..\OSF\aria2\src\AppleTLSContext.cc" />
+    <ClCompile Include="..\OSF\aria2\src\AppleTLSSession.cc" />
+    <ClCompile Include="..\OSF\aria2\src\aria2api.cc" />
+    <ClCompile Include="..\OSF\aria2\src\AsyncNameResolver.cc" />
+    <ClCompile Include="..\OSF\aria2\src\AsyncNameResolverMan.cc" />
+    <ClCompile Include="..\OSF\aria2\src\AuthConfig.cc" />
+    <ClCompile Include="..\OSF\aria2\src\AuthConfigFactory.cc" />
+    <ClCompile Include="..\OSF\aria2\src\AutoSaveCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BackupIPv4ConnectCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\base32.cc" />
+    <ClCompile Include="..\OSF\aria2\src\bencode2.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BencodeParser.cc" />
+    <ClCompile Include="..\OSF\aria2\src\bitfield.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BitfieldMan.cc" />
+    <ClCompile Include="..\OSF\aria2\src\bittorrent_helper.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtAbortOutstandingRequestEvent.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtAllowedFastMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtAnnounce.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtBitfieldMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtBitfieldMessageValidator.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtCancelMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtCheckIntegrityEntry.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtChokeMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtDependency.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtExtendedMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtFileAllocationEntry.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtHandshakeMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtHandshakeMessageValidator.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtHaveAllMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtHaveMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtHaveNoneMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtInterestedMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtKeepAliveMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtLeecherStateChoke.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtNotInterestedMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtPieceMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtPieceMessageValidator.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtPortMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtPostDownloadHandler.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtRegistry.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtRejectMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtRequestMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtRuntime.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtSeederStateChoke.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtSetup.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtStopDownloadCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtSuggestPieceMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BtUnchokeMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\BufferedFile.cc" />
+    <ClCompile Include="..\OSF\aria2\src\ByteArrayDiskWriter.cc" />
+    <ClCompile Include="..\OSF\aria2\src\CheckIntegrityCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\CheckIntegrityDispatcherCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\CheckIntegrityEntry.cc" />
+    <ClCompile Include="..\OSF\aria2\src\Checksum.cc" />
+    <ClCompile Include="..\OSF\aria2\src\ChecksumCheckIntegrityEntry.cc" />
+    <ClCompile Include="..\OSF\aria2\src\ChunkChecksum.cc" />
+    <ClCompile Include="..\OSF\aria2\src\ChunkedDecodingStreamFilter.cc" />
+    <ClCompile Include="..\OSF\aria2\src\ColorizedStream.cc" />
+    <ClCompile Include="..\OSF\aria2\src\Command.cc" />
+    <ClCompile Include="..\OSF\aria2\src\ConnectCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\console.cc" />
+    <ClCompile Include="..\OSF\aria2\src\ConsoleStatCalc.cc" />
+    <ClCompile Include="..\OSF\aria2\src\ContentTypeRequestGroupCriteria.cc" />
+    <ClCompile Include="..\OSF\aria2\src\Context.cc" />
+    <ClCompile Include="..\OSF\aria2\src\ContextAttribute.cc" />
+    <ClCompile Include="..\OSF\aria2\src\Cookie.cc" />
+    <ClCompile Include="..\OSF\aria2\src\cookie_helper.cc" />
+    <ClCompile Include="..\OSF\aria2\src\CookieStorage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\CreateRequestCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\crypto_hash.cc" />
+    <ClCompile Include="..\OSF\aria2\src\CUIDCounter.cc" />
+    <ClCompile Include="..\OSF\aria2\src\daemon.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DefaultAuthResolver.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DefaultBtAnnounce.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DefaultBtInteractive.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DefaultBtMessageDispatcher.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DefaultBtMessageFactory.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DefaultBtMessageReceiver.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DefaultBtProgressInfoFile.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DefaultBtRequestFactory.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DefaultDiskWriter.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DefaultDiskWriterFactory.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DefaultExtensionMessageFactory.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DefaultPeerStorage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DefaultPieceStorage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DefaultStreamPieceSelector.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTAbstractMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTAbstractTask.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTAnnouncePeerMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTAnnouncePeerReplyMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTAutoSaveCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTBucket.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTBucketRefreshCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTBucketRefreshTask.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTBucketTree.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTConnectionImpl.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTEntryPointNameResolveCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTFindNodeMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTFindNodeReplyMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTGetPeersCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTGetPeersMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTGetPeersReplyMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTInteractionCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTMessageDispatcherImpl.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTMessageEntry.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTMessageFactoryImpl.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTMessageReceiver.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTMessageTracker.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTMessageTrackerEntry.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTNode.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTNodeLookupEntry.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTNodeLookupTask.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTNodeLookupTaskCallback.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTPeerAnnounceCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTPeerAnnounceEntry.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTPeerAnnounceStorage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTPeerLookupTask.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTPeerLookupTaskCallback.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTPingMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTPingReplyMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTPingTask.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTQueryMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTRegistry.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTReplaceNodeTask.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTResponseMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTRoutingTable.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTRoutingTableDeserializer.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTRoutingTableSerializer.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTSetup.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTTaskExecutor.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTTaskFactoryImpl.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTTaskQueueImpl.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTTokenTracker.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTTokenUpdateCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DHTUnknownMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DirectDiskAdaptor.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DiskAdaptor.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DlAbortEx.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DlRetryEx.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DNSCache.cc" />
+    <ClCompile Include="..\OSF\aria2\src\download_handlers.cc" />
+    <ClCompile Include="..\OSF\aria2\src\download_helper.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DownloadCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DownloadContext.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DownloadEngine.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DownloadEngineFactory.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DownloadFailureException.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DownloadHandler.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DownloadHandlerConstants.cc" />
+    <ClCompile Include="..\OSF\aria2\src\DownloadResult.cc" />
+    <ClCompile Include="..\OSF\aria2\src\EpollEventPoll.cc" />
+    <ClCompile Include="..\OSF\aria2\src\EvictSocketPoolCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\Exception.cc" />
+    <ClCompile Include="..\OSF\aria2\src\ExpatXmlParser.cc" />
+    <ClCompile Include="..\OSF\aria2\src\ExtensionMessageRegistry.cc" />
+    <ClCompile Include="..\OSF\aria2\src\FallocFileAllocationIterator.cc" />
+    <ClCompile Include="..\OSF\aria2\src\FatalException.cc" />
+    <ClCompile Include="..\OSF\aria2\src\FeatureConfig.cc" />
+    <ClCompile Include="..\OSF\aria2\src\FeedbackURISelector.cc" />
+    <ClCompile Include="..\OSF\aria2\src\File.cc" />
+    <ClCompile Include="..\OSF\aria2\src\FileAllocationCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\FileAllocationDispatcherCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\FileAllocationEntry.cc" />
+    <ClCompile Include="..\OSF\aria2\src\FileEntry.cc" />
+    <ClCompile Include="..\OSF\aria2\src\FillRequestGroupCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\fmt.cc" />
+    <ClCompile Include="..\OSF\aria2\src\FtpConnection.cc" />
+    <ClCompile Include="..\OSF\aria2\src\FtpDownloadCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\FtpFinishDownloadCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\FtpInitiateConnectionCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\FtpNegotiationCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\FtpTunnelRequestCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\FtpTunnelResponseCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\GeomStreamPieceSelector.cc" />
+    <ClCompile Include="..\OSF\aria2\src\GroupId.cc" />
+    <ClCompile Include="..\OSF\aria2\src\GrowSegment.cc" />
+    <ClCompile Include="..\OSF\aria2\src\GZipDecodingStreamFilter.cc" />
+    <ClCompile Include="..\OSF\aria2\src\GZipEncoder.cc" />
+    <ClCompile Include="..\OSF\aria2\src\GZipFile.cc" />
+    <ClCompile Include="..\OSF\aria2\src\HandshakeExtensionMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\HaveEraseCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\help_tags.cc" />
+    <ClCompile Include="..\OSF\aria2\src\HttpConnection.cc" />
+    <ClCompile Include="..\OSF\aria2\src\HttpDownloadCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\HttpHeader.cc" />
+    <ClCompile Include="..\OSF\aria2\src\HttpHeaderProcessor.cc" />
+    <ClCompile Include="..\OSF\aria2\src\HttpInitiateConnectionCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\HttpListenCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\HttpProxyRequestCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\HttpProxyResponseCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\HttpRequest.cc" />
+    <ClCompile Include="..\OSF\aria2\src\HttpRequestCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\HttpResponse.cc" />
+    <ClCompile Include="..\OSF\aria2\src\HttpResponseCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\HttpServer.cc" />
+    <ClCompile Include="..\OSF\aria2\src\HttpServerBodyCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\HttpServerCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\HttpServerResponseCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\HttpSkipResponseCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\IndexBtMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\IndexBtMessageValidator.cc" />
+    <ClCompile Include="..\OSF\aria2\src\InitiateConnectionCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\InitiateConnectionCommandFactory.cc" />
+    <ClCompile Include="..\OSF\aria2\src\InitiatorMSEHandshakeCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\InorderStreamPieceSelector.cc" />
+    <ClCompile Include="..\OSF\aria2\src\InorderURISelector.cc" />
+    <ClCompile Include="..\OSF\aria2\src\InternalARC4Encryptor.cc" />
+    <ClCompile Include="..\OSF\aria2\src\InternalDHKeyExchange.cc" />
+    <ClCompile Include="..\OSF\aria2\src\InternalMessageDigestImpl.cc" />
+    <ClCompile Include="..\OSF\aria2\src\IOFile.cc" />
+    <ClCompile Include="..\OSF\aria2\src\IteratableChecksumValidator.cc" />
+    <ClCompile Include="..\OSF\aria2\src\IteratableChunkChecksumValidator.cc" />
+    <ClCompile Include="..\OSF\aria2\src\json.cc" />
+    <ClCompile Include="..\OSF\aria2\src\JsonParser.cc" />
+    <ClCompile Include="..\OSF\aria2\src\KeepRunningCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\KqueueEventPoll.cc" />
+    <ClCompile Include="..\OSF\aria2\src\LibgcryptARC4Encryptor.cc" />
+    <ClCompile Include="..\OSF\aria2\src\LibgcryptDHKeyExchange.cc" />
+    <ClCompile Include="..\OSF\aria2\src\LibgcryptMessageDigestImpl.cc" />
+    <ClCompile Include="..\OSF\aria2\src\LibgmpDHKeyExchange.cc" />
+    <ClCompile Include="..\OSF\aria2\src\LibgnutlsTLSContext.cc" />
+    <ClCompile Include="..\OSF\aria2\src\LibgnutlsTLSSession.cc" />
+    <ClCompile Include="..\OSF\aria2\src\LibnettleARC4Encryptor.cc" />
+    <ClCompile Include="..\OSF\aria2\src\LibnettleMessageDigestImpl.cc" />
+    <ClCompile Include="..\OSF\aria2\src\LibsslARC4Encryptor.cc" />
+    <ClCompile Include="..\OSF\aria2\src\LibsslDHKeyExchange.cc" />
+    <ClCompile Include="..\OSF\aria2\src\LibsslMessageDigestImpl.cc" />
+    <ClCompile Include="..\OSF\aria2\src\LibsslTLSContext.cc" />
+    <ClCompile Include="..\OSF\aria2\src\LibsslTLSSession.cc" />
+    <ClCompile Include="..\OSF\aria2\src\LibuvEventPoll.cc" />
+    <ClCompile Include="..\OSF\aria2\src\LogFactory.cc" />
+    <ClCompile Include="..\OSF\aria2\src\Logger.cc" />
+    <ClCompile Include="..\OSF\aria2\src\LongestSequencePieceSelector.cc" />
+    <ClCompile Include="..\OSF\aria2\src\LpdDispatchMessageCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\LpdMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\LpdMessageDispatcher.cc" />
+    <ClCompile Include="..\OSF\aria2\src\LpdMessageReceiver.cc" />
+    <ClCompile Include="..\OSF\aria2\src\LpdReceiveMessageCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\magnet.cc" />
+    <ClCompile Include="..\OSF\aria2\src\main.cc" />
+    <ClCompile Include="..\OSF\aria2\src\message_digest_helper.cc" />
+    <ClCompile Include="..\OSF\aria2\src\MessageDigest.cc" />
+    <ClCompile Include="..\OSF\aria2\src\MetadataInfo.cc" />
+    <ClCompile Include="..\OSF\aria2\src\metalink_helper.cc" />
+    <ClCompile Include="..\OSF\aria2\src\Metalink2RequestGroup.cc" />
+    <ClCompile Include="..\OSF\aria2\src\MetalinkEntry.cc" />
+    <ClCompile Include="..\OSF\aria2\src\Metalinker.cc" />
+    <ClCompile Include="..\OSF\aria2\src\MetalinkHttpEntry.cc" />
+    <ClCompile Include="..\OSF\aria2\src\MetalinkMetaurl.cc" />
+    <ClCompile Include="..\OSF\aria2\src\MetalinkParserController.cc" />
+    <ClCompile Include="..\OSF\aria2\src\MetalinkParserState.cc" />
+    <ClCompile Include="..\OSF\aria2\src\MetalinkParserStateImpl.cc" />
+    <ClCompile Include="..\OSF\aria2\src\MetalinkParserStateMachine.cc" />
+    <ClCompile Include="..\OSF\aria2\src\MetalinkParserStateV3Impl.cc" />
+    <ClCompile Include="..\OSF\aria2\src\MetalinkParserStateV4Impl.cc" />
+    <ClCompile Include="..\OSF\aria2\src\MetalinkPostDownloadHandler.cc" />
+    <ClCompile Include="..\OSF\aria2\src\MetalinkResource.cc" />
+    <ClCompile Include="..\OSF\aria2\src\MSEHandshake.cc" />
+    <ClCompile Include="..\OSF\aria2\src\MultiDiskAdaptor.cc" />
+    <ClCompile Include="..\OSF\aria2\src\MultiFileAllocationIterator.cc" />
+    <ClCompile Include="..\OSF\aria2\src\MultiUrlRequestInfo.cc" />
+    <ClCompile Include="..\OSF\aria2\src\NameResolveCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\NameResolver.cc" />
+    <ClCompile Include="..\OSF\aria2\src\Netrc.cc" />
+    <ClCompile Include="..\OSF\aria2\src\NetrcAuthResolver.cc" />
+    <ClCompile Include="..\OSF\aria2\src\NetStat.cc" />
+    <ClCompile Include="..\OSF\aria2\src\Notifier.cc" />
+    <ClCompile Include="..\OSF\aria2\src\NsCookieParser.cc" />
+    <ClCompile Include="..\OSF\aria2\src\NullSinkStreamFilter.cc" />
+    <ClCompile Include="..\OSF\aria2\src\OpenedFileCounter.cc" />
+    <ClCompile Include="..\OSF\aria2\src\Option.cc" />
+    <ClCompile Include="..\OSF\aria2\src\option_processing.cc" />
+    <ClCompile Include="..\OSF\aria2\src\OptionHandler.cc" />
+    <ClCompile Include="..\OSF\aria2\src\OptionHandlerException.cc" />
+    <ClCompile Include="..\OSF\aria2\src\OptionHandlerFactory.cc" />
+    <ClCompile Include="..\OSF\aria2\src\OptionHandlerImpl.cc" />
+    <ClCompile Include="..\OSF\aria2\src\OptionParser.cc" />
+    <ClCompile Include="..\OSF\aria2\src\paramed_string.cc" />
+    <ClCompile Include="..\OSF\aria2\src\Peer.cc" />
+    <ClCompile Include="..\OSF\aria2\src\PeerAbstractCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\PeerAddrEntry.cc" />
+    <ClCompile Include="..\OSF\aria2\src\PeerChokeCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\PeerConnection.cc" />
+    <ClCompile Include="..\OSF\aria2\src\PeerInitiateConnectionCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\PeerInteractionCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\PeerListenCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\PeerReceiveHandshakeCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\PeerSessionResource.cc" />
+    <ClCompile Include="..\OSF\aria2\src\PeerStat.cc" />
+    <ClCompile Include="..\OSF\aria2\src\Piece.cc" />
+    <ClCompile Include="..\OSF\aria2\src\PiecedSegment.cc" />
+    <ClCompile Include="..\OSF\aria2\src\PieceHashCheckIntegrityEntry.cc" />
+    <ClCompile Include="..\OSF\aria2\src\PieceStatMan.cc" />
+    <ClCompile Include="..\OSF\aria2\src\Platform.cc" />
+    <ClCompile Include="..\OSF\aria2\src\PollEventPoll.cc" />
+    <ClCompile Include="..\OSF\aria2\src\PortEventPoll.cc" />
+    <ClCompile Include="..\OSF\aria2\src\prefs.cc" />
+    <ClCompile Include="..\OSF\aria2\src\PriorityPieceSelector.cc" />
+    <ClCompile Include="..\OSF\aria2\src\ProtocolDetector.cc" />
+    <ClCompile Include="..\OSF\aria2\src\RandomStreamPieceSelector.cc" />
+    <ClCompile Include="..\OSF\aria2\src\Range.cc" />
+    <ClCompile Include="..\OSF\aria2\src\RangeBtMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\RangeBtMessageValidator.cc" />
+    <ClCompile Include="..\OSF\aria2\src\RarestPieceSelector.cc" />
+    <ClCompile Include="..\OSF\aria2\src\RealtimeCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\ReceiverMSEHandshakeCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\RecoverableException.cc" />
+    <ClCompile Include="..\OSF\aria2\src\Request.cc" />
+    <ClCompile Include="..\OSF\aria2\src\RequestGroup.cc" />
+    <ClCompile Include="..\OSF\aria2\src\RequestGroupEntry.cc" />
+    <ClCompile Include="..\OSF\aria2\src\RequestGroupMan.cc" />
+    <ClCompile Include="..\OSF\aria2\src\RequestSlot.cc" />
+    <ClCompile Include="..\OSF\aria2\src\rpc_helper.cc" />
+    <ClCompile Include="..\OSF\aria2\src\RpcMethod.cc" />
+    <ClCompile Include="..\OSF\aria2\src\RpcMethodFactory.cc" />
+    <ClCompile Include="..\OSF\aria2\src\RpcMethodImpl.cc" />
+    <ClCompile Include="..\OSF\aria2\src\RpcRequest.cc" />
+    <ClCompile Include="..\OSF\aria2\src\RpcResponse.cc" />
+    <ClCompile Include="..\OSF\aria2\src\SaveSessionCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\SeedCheckCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\SegmentMan.cc" />
+    <ClCompile Include="..\OSF\aria2\src\SelectEventPoll.cc" />
+    <ClCompile Include="..\OSF\aria2\src\ServerStat.cc" />
+    <ClCompile Include="..\OSF\aria2\src\ServerStatMan.cc" />
+    <ClCompile Include="..\OSF\aria2\src\SessionSerializer.cc" />
+    <ClCompile Include="..\OSF\aria2\src\SftpDownloadCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\SftpFinishDownloadCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\SftpNegotiationCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\SHA1IOFile.cc" />
+    <ClCompile Include="..\OSF\aria2\src\ShareRatioSeedCriteria.cc" />
+    <ClCompile Include="..\OSF\aria2\src\Signature.cc" />
+    <ClCompile Include="..\OSF\aria2\src\SimpleBtMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\SimpleRandomizer.cc" />
+    <ClCompile Include="..\OSF\aria2\src\SingleFileAllocationIterator.cc" />
+    <ClCompile Include="..\OSF\aria2\src\SinkStreamFilter.cc" />
+    <ClCompile Include="..\OSF\aria2\src\SocketBuffer.cc" />
+    <ClCompile Include="..\OSF\aria2\src\SocketCore.cc" />
+    <ClCompile Include="..\OSF\aria2\src\SocketRecvBuffer.cc" />
+    <ClCompile Include="..\OSF\aria2\src\SpeedCalc.cc" />
+    <ClCompile Include="..\OSF\aria2\src\Sqlite3CookieParser.cc" />
+    <ClCompile Include="..\OSF\aria2\src\Sqlite3CookieParserImpl.cc" />
+    <ClCompile Include="..\OSF\aria2\src\SSHSession.cc" />
+    <ClCompile Include="..\OSF\aria2\src\StreamCheckIntegrityEntry.cc" />
+    <ClCompile Include="..\OSF\aria2\src\StreamFileAllocationEntry.cc" />
+    <ClCompile Include="..\OSF\aria2\src\StreamFilter.cc" />
+    <ClCompile Include="..\OSF\aria2\src\TimeA2.cc" />
+    <ClCompile Include="..\OSF\aria2\src\TimeBasedCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\TimedHaltCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\TimerA2.cc" />
+    <ClCompile Include="..\OSF\aria2\src\TimeSeedCriteria.cc" />
+    <ClCompile Include="..\OSF\aria2\src\TorrentAttribute.cc" />
+    <ClCompile Include="..\OSF\aria2\src\TrackerWatcherCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\TransferStat.cc" />
+    <ClCompile Include="..\OSF\aria2\src\TruncFileAllocationIterator.cc" />
+    <ClCompile Include="..\OSF\aria2\src\UDPTrackerClient.cc" />
+    <ClCompile Include="..\OSF\aria2\src\UDPTrackerRequest.cc" />
+    <ClCompile Include="..\OSF\aria2\src\UnionSeedCriteria.cc" />
+    <ClCompile Include="..\OSF\aria2\src\UnknownLengthPieceStorage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\UnknownOptionException.cc" />
+    <ClCompile Include="..\OSF\aria2\src\uri.cc" />
+    <ClCompile Include="..\OSF\aria2\src\UriListParser.cc" />
+    <ClCompile Include="..\OSF\aria2\src\URIResult.cc" />
+    <ClCompile Include="..\OSF\aria2\src\util.cc" />
+    <ClCompile Include="..\OSF\aria2\src\util_security.cc" />
+    <ClCompile Include="..\OSF\aria2\src\UTMetadataDataExtensionMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\UTMetadataExtensionMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\UTMetadataPostDownloadHandler.cc" />
+    <ClCompile Include="..\OSF\aria2\src\UTMetadataRejectExtensionMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\UTMetadataRequestExtensionMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\UTMetadataRequestFactory.cc" />
+    <ClCompile Include="..\OSF\aria2\src\UTMetadataRequestTracker.cc" />
+    <ClCompile Include="..\OSF\aria2\src\UTPexExtensionMessage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\ValueBase.cc" />
+    <ClCompile Include="..\OSF\aria2\src\ValueBaseStructParserStateImpl.cc" />
+    <ClCompile Include="..\OSF\aria2\src\ValueBaseStructParserStateMachine.cc" />
+    <ClCompile Include="..\OSF\aria2\src\version_usage.cc" />
+    <ClCompile Include="..\OSF\aria2\src\wallclock.cc" />
+    <ClCompile Include="..\OSF\aria2\src\WatchProcessCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\WebSocketInteractionCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\WebSocketResponseCommand.cc" />
+    <ClCompile Include="..\OSF\aria2\src\WebSocketSession.cc" />
+    <ClCompile Include="..\OSF\aria2\src\WebSocketSessionMan.cc" />
+    <ClCompile Include="..\OSF\aria2\src\WinConsoleFile.cc" />
+    <ClCompile Include="..\OSF\aria2\src\WinTLSContext.cc" />
+    <ClCompile Include="..\OSF\aria2\src\WinTLSSession.cc" />
+    <ClCompile Include="..\OSF\aria2\src\WrDiskCache.cc" />
+    <ClCompile Include="..\OSF\aria2\src\WrDiskCacheEntry.cc" />
+    <ClCompile Include="..\OSF\aria2\src\Xml2XmlParser.cc" />
+    <ClCompile Include="..\OSF\aria2\src\XmlAttr.cc" />
+    <ClCompile Include="..\OSF\aria2\src\XmlParser.cc" />
+    <ClCompile Include="..\OSF\aria2\src\XmlRpcDiskWriter.cc" />
+    <ClCompile Include="..\OSF\aria2\src\XmlRpcRequestParserController.cc" />
+    <ClCompile Include="..\OSF\aria2\src\XmlRpcRequestParserStateImpl.cc" />
+    <ClCompile Include="..\OSF\aria2\src\XmlRpcRequestParserStateMachine.cc" />
+    <ClCompile Include="..\OSF\aria2\src\ZeroBtMessage.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\aria2\src\a2algo.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\a2functional.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\a2gmp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\a2io.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\a2iterator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\a2netcompat.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\A2STR.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\a2time.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\AbstractAuthResolver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\AbstractBtMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\AbstractCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\AbstractDiskWriter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\AbstractHttpServerResponseCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\AbstractOptionHandler.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\AbstractProxyRequestCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\AbstractProxyResponseCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\AbstractSingleDiskAdaptor.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ActivePeerConnectionCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\AdaptiveFileAllocationIterator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\AdaptiveURISelector.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\Adler32MessageDigestImpl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\AnnounceList.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\AnnounceTier.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\AnonDiskWriterFactory.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ApiCallbackDownloadEventListener.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\AppleTLSContext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\AppleTLSSession.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ARC4Encryptor.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\aria2api.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\array_fun.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\asctime_r.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\AsyncNameResolver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\AsyncNameResolverMan.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\AuthConfig.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\AuthConfigFactory.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\AuthResolver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\AutoSaveCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BackupIPv4ConnectCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\base32.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\base64.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\bencode2.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BencodeDiskWriter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BencodeDiskWriterFactory.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BencodeParser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\bignum.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BinaryStream.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\bitfield.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BitfieldMan.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\bittorrent_helper.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtAbortOutstandingRequestEvent.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtAllowedFastMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtAnnounce.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtBitfieldMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtBitfieldMessageValidator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtCancelMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtCancelSendingPieceEvent.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtCheckIntegrityEntry.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtChokeMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtChokingEvent.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtConstants.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtDependency.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtExtendedMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtFileAllocationEntry.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtHandshakeMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtHandshakeMessageValidator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtHaveAllMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtHaveMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtHaveNoneMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtInteractive.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtInterestedMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtKeepAliveMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtLeecherStateChoke.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtMessageDispatcher.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtMessageFactory.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtMessageReceiver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtMessageValidator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtNotInterestedMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtPieceMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtPieceMessageValidator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtPortMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtPostDownloadHandler.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtProgressInfoFile.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtRegistry.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtRejectMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtRequestFactory.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtRequestMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtRuntime.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtSeederStateChoke.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtSetup.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtStopDownloadCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtSuggestPieceMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BtUnchokeMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\BufferedFile.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ByteArrayDiskWriter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ByteArrayDiskWriterFactory.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\CheckIntegrityCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\CheckIntegrityDispatcherCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\CheckIntegrityEntry.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\CheckIntegrityMan.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\Checksum.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ChecksumCheckIntegrityEntry.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ChunkChecksum.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ChunkedDecodingStreamFilter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ColorizedStream.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\Command.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\common.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ConnectCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\console.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ConsoleStatCalc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ContentTypeRequestGroupCriteria.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\Context.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ContextAttribute.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ControlChain.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\Cookie.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\cookie_helper.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\CookieStorage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\CreateRequestCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\crypto_endian.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\crypto_hash.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\CUIDCounter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\daemon.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DefaultAuthResolver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DefaultBtAnnounce.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DefaultBtInteractive.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DefaultBtMessageDispatcher.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DefaultBtMessageFactory.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DefaultBtMessageReceiver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DefaultBtProgressInfoFile.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DefaultBtRequestFactory.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DefaultDiskWriter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DefaultDiskWriterFactory.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DefaultExtensionMessageFactory.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DefaultPeerStorage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DefaultPieceStorage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DefaultStreamPieceSelector.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DelayedCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\Dependency.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHKeyExchange.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTAbstractMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTAbstractNodeLookupTask.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTAbstractTask.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTAnnouncePeerMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTAnnouncePeerReplyMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTAutoSaveCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTBucket.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTBucketRefreshCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTBucketRefreshTask.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTBucketTree.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTConnection.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTConnectionImpl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTConstants.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTEntryPointNameResolveCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTFindNodeMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTFindNodeReplyMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTGetPeersCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTGetPeersMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTGetPeersReplyMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTIDCloser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTInteractionCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTMessageCallback.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTMessageDispatcher.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTMessageDispatcherImpl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTMessageEntry.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTMessageFactory.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTMessageFactoryImpl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTMessageReceiver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTMessageTracker.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTMessageTrackerEntry.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTNode.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTNodeLookupEntry.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTNodeLookupTask.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTNodeLookupTaskCallback.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTPeerAnnounceCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTPeerAnnounceEntry.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTPeerAnnounceStorage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTPeerLookupTask.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTPeerLookupTaskCallback.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTPingMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTPingReplyMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTPingReplyMessageCallback.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTPingTask.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTQueryMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTRegistry.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTReplaceNodeTask.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTResponseMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTRoutingTable.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTRoutingTableDeserializer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTRoutingTableSerializer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTSetup.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTTask.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTTaskExecutor.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTTaskFactory.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTTaskFactoryImpl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTTaskQueue.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTTaskQueueImpl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTTokenTracker.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTTokenUpdateCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DHTUnknownMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DirectDiskAdaptor.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DiskAdaptor.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DiskWriter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DiskWriterFactory.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DlAbortEx.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DlRetryEx.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DNSCache.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\download_handlers.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\download_helper.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DownloadCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DownloadContext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DownloadEngine.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DownloadEngineFactory.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DownloadFailureException.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DownloadHandler.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DownloadHandlerConstants.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\DownloadResult.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\EpollEventPoll.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\error_code.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\Event.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\EventPoll.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\EvictSocketPoolCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\Exception.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ExpatXmlParser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ExtensionMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ExtensionMessageFactory.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ExtensionMessageRegistry.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\FallocFileAllocationIterator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\FatalException.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\FeatureConfig.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\FeedbackURISelector.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\File.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\FileAllocationCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\FileAllocationDispatcherCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\FileAllocationEntry.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\FileAllocationIterator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\FileAllocationMan.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\FileEntry.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\FillRequestGroupCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\fmt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\FtpConnection.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\FtpDownloadCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\FtpFinishDownloadCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\FtpInitiateConnectionCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\FtpNegotiationCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\FtpNegotiationConnectChain.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\FtpTunnelRequestCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\FtpTunnelRequestConnectChain.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\FtpTunnelResponseCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\gai_strerror.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\GenericParser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\GeomStreamPieceSelector.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\getaddrinfo.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\gettimeofday.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\GroupId.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\GrowSegment.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\GZipDecodingStreamFilter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\GZipEncoder.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\GZipFile.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\HandshakeExtensionMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\HashFuncEntry.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\HaveEraseCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\help_tags.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\HttpConnection.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\HttpDownloadCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\HttpHeader.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\HttpHeaderProcessor.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\HttpInitiateConnectionCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\HttpListenCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\HttpProxyRequestCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\HttpProxyRequestConnectChain.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\HttpProxyResponseCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\HttpRequest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\HttpRequestCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\HttpRequestConnectChain.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\HttpResponse.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\HttpResponseCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\HttpServer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\HttpServerBodyCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\HttpServerCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\HttpServerResponseCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\HttpSkipResponseCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\IndexBtMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\IndexBtMessageValidator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\IndexedList.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\InitiateConnectionCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\InitiateConnectionCommandFactory.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\InitiatorMSEHandshakeCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\InorderStreamPieceSelector.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\InorderURISelector.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\InternalARC4Encryptor.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\InternalDHKeyExchange.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\IOFile.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\IteratableChecksumValidator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\IteratableChunkChecksumValidator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\IteratableValidator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\json.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\JsonDiskWriter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\JsonParser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\KeepRunningCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\KqueueEventPoll.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\LibgcryptARC4Encryptor.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\LibgcryptDHKeyExchange.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\libgen.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\LibgmpDHKeyExchange.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\LibgnutlsTLSContext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\LibgnutlsTLSSession.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\LibnettleARC4Encryptor.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\libssl_compat.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\LibsslARC4Encryptor.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\LibsslDHKeyExchange.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\LibsslTLSContext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\LibsslTLSSession.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\LibuvEventPoll.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\localtime_r.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\Lock.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\LogFactory.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\Logger.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\LongestSequencePieceSelector.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\LpdDispatchMessageCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\LpdMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\LpdMessageDispatcher.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\LpdMessageReceiver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\LpdReceiveMessageCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\magnet.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\MemoryBencodePreDownloadHandler.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\MemoryBufferPreDownloadHandler.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\MemoryPreDownloadHandler.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\message.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\message_digest_helper.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\MessageDigest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\MessageDigestImpl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\MetadataInfo.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\metalink_helper.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\Metalink2RequestGroup.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\MetalinkEntry.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\Metalinker.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\MetalinkHttpEntry.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\MetalinkMetaurl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\MetalinkParserController.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\MetalinkParserState.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\MetalinkParserStateImpl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\MetalinkParserStateMachine.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\MetalinkParserStateV3Impl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\MetalinkParserStateV4Impl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\MetalinkPostDownloadHandler.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\MetalinkResource.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\MSEHandshake.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\MultiDiskAdaptor.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\MultiFileAllocationIterator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\MultiUrlRequestInfo.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\NameResolveCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\NameResolver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\Netrc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\NetrcAuthResolver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\NetStat.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\Notifier.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\NsCookieParser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\NullHandle.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\NullOutputFile.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\NullProgressInfoFile.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\NullSinkStreamFilter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\NullStatCalc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\NullWebSocketSessionMan.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\OpenedFileCounter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\Option.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\OptionHandler.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\OptionHandlerException.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\OptionHandlerFactory.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\OptionHandlerImpl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\OptionParser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\OutputFile.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\paramed_string.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ParserStateMachine.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\Peer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\PeerAbstractCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\PeerAddrEntry.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\PeerChokeCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\PeerConnection.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\PeerInitiateConnectionCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\PeerInteractionCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\PeerListenCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\PeerReceiveHandshakeCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\PeerSessionResource.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\PeerStat.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\PeerStorage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\Piece.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\PiecedSegment.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\PieceHashCheckIntegrityEntry.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\PieceSelector.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\PieceStatMan.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\PieceStorage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\Platform.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\PollEventPoll.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\PortEventPoll.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\PostDownloadHandler.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\PreDownloadHandler.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\prefs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\PriorityPieceSelector.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ProgressAwareEntry.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ProtocolDetector.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\Randomizer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\RandomStreamPieceSelector.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\Range.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\RangeBtMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\RangeBtMessageValidator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\RarestPieceSelector.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\RealtimeCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ReceiverMSEHandshakeCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\RecoverableException.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\Request.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\RequestGroup.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\RequestGroupCriteria.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\RequestGroupEntry.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\RequestGroupMan.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\RequestSlot.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\rpc_helper.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\RpcMethod.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\RpcMethodFactory.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\RpcMethodImpl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\RpcRequest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\RpcResponse.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\SaveSessionCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\SeedCheckCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\SeedCriteria.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\SegList.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\Segment.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\SegmentMan.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\SelectEventPoll.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\SequentialDispatcherCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\SequentialPicker.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ServerStat.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ServerStatMan.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\SessionSerializer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\SftpDownloadCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\SftpFinishDownloadCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\SftpNegotiationCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\SftpNegotiationConnectChain.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\SHA1IOFile.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ShareRatioSeedCriteria.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\Signature.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\SimpleBtMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\SimpleRandomizer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\SingleFileAllocationIterator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\SingletonHolder.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\SinkStreamFilter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\SocketBuffer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\SocketCore.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\SocketRecvBuffer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\SpeedCalc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\Sqlite3CookieParser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\Sqlite3CookieParserImpl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\SSHSession.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\StatCalc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\StreamCheckIntegrityEntry.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\StreamFileAllocationEntry.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\StreamFilter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\StreamPieceSelector.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\strptime.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\StructParserStateMachine.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\TimeA2.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\TimeBasedCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\TimedHaltCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\timegm.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\TimerA2.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\TimeSeedCriteria.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\timespec.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\TLSContext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\TLSSession.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\TorrentAttribute.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\TrackerWatcherCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\TransferStat.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\TruncFileAllocationIterator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\UDPTrackerClient.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\UDPTrackerRequest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\UnionSeedCriteria.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\UnknownLengthPieceStorage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\UnknownOptionException.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\uri.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\uri_split.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\UriListParser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\URIResult.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\URISelector.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\usage_text.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\util.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\util_security.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\UTMetadataDataExtensionMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\UTMetadataExtensionMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\UTMetadataPostDownloadHandler.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\UTMetadataRejectExtensionMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\UTMetadataRequestExtensionMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\UTMetadataRequestFactory.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\UTMetadataRequestTracker.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\UTPexExtensionMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ValueBase.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ValueBaseBencodeParser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ValueBaseDiskWriter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ValueBaseJsonParser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ValueBaseStructParserState.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ValueBaseStructParserStateImpl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ValueBaseStructParserStateMachine.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\wallclock.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\WatchProcessCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\WebSocketInteractionCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\WebSocketResponseCommand.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\WebSocketSession.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\WebSocketSessionMan.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\WinConsoleFile.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\WinTLSContext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\WinTLSSession.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\WrDiskCache.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\WrDiskCacheEntry.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\Xml2XmlParser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\XmlAttr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\XmlParser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\XmlRpcDiskWriter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\XmlRpcRequestParserController.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\XmlRpcRequestParserState.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\XmlRpcRequestParserStateImpl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\XmlRpcRequestParserStateMachine.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\XORCloser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\aria2\src\ZeroBtMessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

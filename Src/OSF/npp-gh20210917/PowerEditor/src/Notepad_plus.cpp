@@ -2285,9 +2285,7 @@ void Notepad_plus::findMatchingBracePos(int & braceAtCaret, int & braceOpposite)
 	braceAtCaret = -1;
 	braceOpposite = -1;
 	TCHAR charBefore = '\0';
-
 	int lengthDoc = int(_pEditView->execute(SCI_GETLENGTH));
-
 	if((lengthDoc > 0) && (caretPos > 0)) {
 		charBefore = TCHAR(_pEditView->execute(SCI_GETCHARAT, caretPos - 1, 0));
 	}
@@ -6225,7 +6223,7 @@ struct TextPlayerParams {
 
 struct TextTrollerParams {
 	ScintillaEditView * _pCurrentView;
-	const wchar_t* _text2display;
+	const wchar_t * _text2display;
 	BufferID _targetBufID;
 	HANDLE _mutex;
 };
@@ -6671,7 +6669,7 @@ static const QuoteParams quotes[] =
 };
 
 const int nbWtf = 5;
-const wchar_t* wtf[nbWtf] =
+const wchar_t * wtf[nbWtf] =
 {
 	TEXT("WTF?!"),
 	TEXT("lol"),
@@ -6714,7 +6712,7 @@ DWORD WINAPI Notepad_plus::threadTextPlayer(void * params)
 	HWND hNpp = textPlayerParams->_nppHandle;
 	ScintillaEditView * pCurrentView = textPlayerParams->_pCurrentView;
 	QuoteParams* qParams = textPlayerParams->_quotParams;
-	const wchar_t* text2display = qParams->_quote;
+	const wchar_t * text2display = qParams->_quote;
 	bool shouldBeTrolling = qParams->_shouldBeTrolling;
 
 	// Open a new document
@@ -6805,7 +6803,7 @@ DWORD WINAPI Notepad_plus::threadTextPlayer(void * params)
 		//writeLog(TEXT("c:\\tmp\\log.txt"), ch);
 	}
 	//writeLog(TEXT("c:\\tmp\\log.txt"), "\n\n\n\n");
-	const wchar_t* quoter = qParams->_quoter;
+	const wchar_t * quoter = qParams->_quoter;
 	wstring quoter_str = quoter;
 	size_t pos = quoter_str.find(TEXT("Anonymous"));
 	if(pos == string::npos) {
@@ -6837,7 +6835,7 @@ DWORD WINAPI Notepad_plus::threadTextTroller(void * params)
 	srand(static_cast<UINT>(time(NULL)));
 
 	ScintillaEditView * pCurrentView = textTrollerParams->_pCurrentView;
-	const wchar_t* text2display = textTrollerParams->_text2display;
+	const wchar_t * text2display = textTrollerParams->_text2display;
 	HWND curScintilla = pCurrentView->getHSelf();
 	BufferID targetBufID = textTrollerParams->_targetBufID;
 
@@ -6938,7 +6936,7 @@ bool Notepad_plus::selectBack(ScintillaEditView * pCurrentView, BufferID targetB
 	}
 }
 
-int Notepad_plus::getQuoteIndexFrom(const wchar_t* quoter) const
+int Notepad_plus::getQuoteIndexFrom(const wchar_t * quoter) const
 {
 	if(!quoter)
 		return -1;

@@ -45,6 +45,7 @@
     <ClCompile Include="..\OSF\filemagic\src\strlcat.c" />
     <ClCompile Include="..\OSF\filemagic\src\strlcpy.c" />
     <ClCompile Include="..\OSF\filemagic\src\vasprintf.c" />
+    <ClCompile Include="..\OSF\filemagic\src\filemagic-pch.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\filemagic\src\cdf.h">

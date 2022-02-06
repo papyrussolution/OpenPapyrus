@@ -1,5 +1,5 @@
 // XMLTABLE.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2020, 2021
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2020, 2021, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -521,7 +521,7 @@ int XmlDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 				const xmlNode * p_rec = St.P_CurRec;
 				for(uint fp = 0, fno = 0; r < 0 && fld_set.get(&fp, temp_buf);) {
 					fno++;
-					for(xmlNode * p_fld = p_rec->children; p_fld != 0; p_fld = p_fld->next) {
+					for(const xmlNode * p_fld = p_rec->children; p_fld != 0; p_fld = p_fld->next) {
 						if(temp_buf.CmpNC((const char *)p_fld->name) == 0) {
 							if(fno == fld_count) {
 								p_fld = p_fld->children;

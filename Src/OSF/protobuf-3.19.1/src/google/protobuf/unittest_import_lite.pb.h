@@ -123,8 +123,7 @@ class ImportMessageLite final :
   inline void Swap(ImportMessageLite* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -144,7 +143,7 @@ class ImportMessageLite final :
   ImportMessageLite* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
     return CreateMaybeMessage<ImportMessageLite>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)  final;
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) final;
   void CopyFrom(const ImportMessageLite& from);
   void MergeFrom(const ImportMessageLite& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -152,8 +151,7 @@ class ImportMessageLite final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -164,12 +162,9 @@ class ImportMessageLite final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest_import.ImportMessageLite";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest_import.ImportMessageLite"; }
   protected:
-  explicit ImportMessageLite(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit ImportMessageLite(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
@@ -232,20 +227,18 @@ inline void ImportMessageLite::clear_d() {
   d_ = 0;
   _has_bits_[0] &= ~0x00000001u;
 }
-inline int32_t ImportMessageLite::_internal_d() const {
-  return d_;
-}
+inline int32_t ImportMessageLite::_internal_d() const { return d_; }
 inline int32_t ImportMessageLite::d() const {
-  // @@protoc_insertion_point(field_get:protobuf_unittest_import.ImportMessageLite.d)
-  return _internal_d();
+	// @@protoc_insertion_point(field_get:protobuf_unittest_import.ImportMessageLite.d)
+	return _internal_d();
 }
 inline void ImportMessageLite::_internal_set_d(int32_t value) {
-  _has_bits_[0] |= 0x00000001u;
-  d_ = value;
+	_has_bits_[0] |= 0x00000001u;
+	d_ = value;
 }
 inline void ImportMessageLite::set_d(int32_t value) {
-  _internal_set_d(value);
-  // @@protoc_insertion_point(field_set:protobuf_unittest_import.ImportMessageLite.d)
+	_internal_set_d(value);
+	// @@protoc_insertion_point(field_set:protobuf_unittest_import.ImportMessageLite.d)
 }
 
 #ifdef __GNUC__

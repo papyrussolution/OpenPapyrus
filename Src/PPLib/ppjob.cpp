@@ -290,11 +290,11 @@ int PPJobMngr::LoadPool2(const char * pDbSymb, PPJobPool * pPool, int readOnly)
 		THROW(fileExists(XmlFilePath));
 		THROW(p_xml_parser = xmlNewParserCtxt());
 		THROW_LXML(p_doc = xmlCtxtReadFile(p_xml_parser, XmlFilePath, 0, XML_PARSE_NOENT), p_xml_parser);
-		for(xmlNode * p_root = p_doc->children; p_root; p_root = p_root->next) {
+		for(const xmlNode * p_root = p_doc->children; p_root; p_root = p_root->next) {
 			if(SXml::IsName(p_root, "JobPool")) {
-				for(xmlNode * p_node = p_root->children; p_node; p_node = p_node->next) {
+				for(const xmlNode * p_node = p_root->children; p_node; p_node = p_node->next) {
 					if(SXml::IsName(p_node, "JobStrgHeader")) {
-						for(xmlNode * p_hdr_node = p_node->children; p_hdr_node; p_hdr_node = p_hdr_node->next) {
+						for(const xmlNode * p_hdr_node = p_node->children; p_hdr_node; p_hdr_node = p_hdr_node->next) {
 							if(SXml::GetContentByName(p_hdr_node, "Count", temp_buf))
 								hdr.Count = temp_buf.ToULong();
 							else if(SXml::GetContentByName(p_hdr_node, "Locking", temp_buf))
@@ -511,12 +511,12 @@ int FASTCALL PPJobDescr::Write2(xmlTextWriter * pXmlWriter) const //@erik v10.7.
 	return ok;
 }
 
-int FASTCALL PPJobDescr::Read2(xmlNode * pParentNode) //@erik v10.7.1
+int FASTCALL PPJobDescr::Read2(const xmlNode * pParentNode) //@erik v10.7.1
 {
-	int ok = 1;
+	int    ok = 1;
 	SString temp_buf;
 	{
-		for(xmlNode * p_node = pParentNode->children; p_node; p_node = p_node->next) {
+		for(const xmlNode * p_node = pParentNode->children; p_node; p_node = p_node->next) {
 			if(SXml::GetContentByName(p_node, "CmdID", temp_buf)!=0) {
 				CmdID = temp_buf.ToLong();
 			}
@@ -663,13 +663,13 @@ int PPJob::Write2(xmlTextWriter * pXmlWriter) const //@erik v10.7.4
 	return ok;
 }
 
-int PPJob::Read2(xmlNode * pParentNode) //@erik v10.7.1
+int PPJob::Read2(const xmlNode * pParentNode) //@erik v10.7.1
 {
 	int    ok = 1;
 	SString temp_buf;
 	assert(pParentNode);
 	{
-		for(xmlNode * p_node = pParentNode->children; p_node; p_node = p_node->next) {
+		for(const xmlNode * p_node = pParentNode->children; p_node; p_node = p_node->next) {
 			if(SXml::GetContentByName(p_node, "ID", temp_buf))
 				ID = temp_buf.ToLong();
 			else if(SXml::GetContentByName(p_node, "Name", temp_buf))

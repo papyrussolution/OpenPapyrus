@@ -1708,14 +1708,13 @@ void GnuPlot::EventButtonPress(GpEvent * pGe, GpTermEntry * pTerm)
 			}
 			if(dist > 10 /* more ore less arbitrary */) {
 				double xmin, ymin, x2min, y2min;
-				double xmax, ymax, x2max, y2max;
 				MousePosToGraphPosReal(_Mse.SettingZoom, &xmin, &ymin, &x2min, &y2min);
-				xmax = _Mse.RealPos.x;
-				x2max = _Mse.RealPos2.x;
-				ymax = _Mse.RealPos.y;
-				y2max = _Mse.RealPos2.y;
+				double xmax = _Mse.RealPos.x;
+				double x2max = _Mse.RealPos2.x;
+				double ymax = _Mse.RealPos.y;
+				double y2max = _Mse.RealPos2.y;
 				// keep the axes (no)reversed as they are now 
-#define rev(a1, a2, A) if(sgn(a2-a1) != sgn(AxS[A].GetRange())) { Exchange(&a1, &a2); }
+#define rev(a1, a2, A) if(sgn(a2-a1) != sgn(AxS[A].GetRange())) { SExchange(&a1, &a2); }
 				rev(xmin,  xmax,  FIRST_X_AXIS);
 				rev(ymin,  ymax,  FIRST_Y_AXIS);
 				rev(x2min, x2max, SECOND_X_AXIS);
@@ -1727,9 +1726,9 @@ void GnuPlot::EventButtonPress(GpEvent * pGe, GpTermEntry * pTerm)
 				}
 			}
 			else {
-				/* silently ignore a tiny zoom box. This might
-				 * happen, if the user starts and finishes the
-				 * zoom box at the same position. */
+				// silently ignore a tiny zoom box. This might
+				// happen, if the user starts and finishes the
+				// zoom box at the same position. 
 			}
 			_Mse.SettingZoomRegion = false;
 		}

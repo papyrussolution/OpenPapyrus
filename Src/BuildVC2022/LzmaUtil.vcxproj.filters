@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{6febf57e-9d8c-40f7-962d-448efaf4dfe1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\osf\7z\c\7zFile.c" />
+    <ClCompile Include="..\osf\7z\c\7zStream.c" />
+    <ClCompile Include="..\osf\7z\c\Alloc.c" />
+    <ClCompile Include="..\osf\7z\c\LzFind.c" />
+    <ClCompile Include="..\osf\7z\c\LzFindMt.c" />
+    <ClCompile Include="..\osf\7z\c\LzmaDec.c" />
+    <ClCompile Include="..\osf\7z\c\LzmaEnc.c" />
+    <ClCompile Include="..\Osf\7z\C\LzmaUtil.c" />
+    <ClCompile Include="..\osf\7z\c\Threads.c" />
+    <ClCompile Include="..\OSF\7z\C\7z-pch.c" />
+  </ItemGroup>
+</Project>

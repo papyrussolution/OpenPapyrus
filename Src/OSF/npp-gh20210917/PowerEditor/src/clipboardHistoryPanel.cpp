@@ -30,7 +30,7 @@ ClipboardData ClipboardHistoryPanel::getClipboadData()
 	HGLOBAL hglb = GetClipboardData(CLIPBOARD_TEXTFORMAT);
 	if(hglb != NULL) {
 		char * lpchar = (char *)GlobalLock(hglb);
-		wchar_t * lpWchar = (wchar_t*)GlobalLock(hglb);
+		wchar_t * lpWchar = (wchar_t *)GlobalLock(hglb);
 		if(lpchar != NULL) {
 			UINT cf_nppTextLen = RegisterClipboardFormat(CF_NPPTEXTLEN);
 			if(IsClipboardFormatAvailable(cf_nppTextLen)) {
@@ -209,7 +209,7 @@ INT_PTR CALLBACK ClipboardHistoryPanel::run_dlgProc(UINT message, WPARAM wParam,
 						try {
 							int nbChar = WideCharToMultiByte(codepage,
 								0,
-								(wchar_t*)ba.getPointer(),
+								(wchar_t *)ba.getPointer(),
 								static_cast<int32_t>(ba.getLength()),
 								NULL,
 								0,
@@ -217,7 +217,7 @@ INT_PTR CALLBACK ClipboardHistoryPanel::run_dlgProc(UINT message, WPARAM wParam,
 								NULL);
 
 							c = new char[nbChar + 1];
-							WideCharToMultiByte(codepage, 0, (wchar_t*)ba.getPointer(),
+							WideCharToMultiByte(codepage, 0, (wchar_t *)ba.getPointer(),
 							    static_cast<int32_t>(ba.getLength()), c, nbChar + 1, NULL, NULL);
 
 							(*_ppEditView)->execute(SCI_REPLACESEL, 0, reinterpret_cast<LPARAM>(""));

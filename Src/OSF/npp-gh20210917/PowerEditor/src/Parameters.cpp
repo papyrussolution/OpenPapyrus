@@ -5662,7 +5662,7 @@ void NppParameters::createXmlTreeFromGUIParams()
 		GUIConfigElement->SetAttribute(TEXT("name"), TEXT("wordCharList"));
 		GUIConfigElement->SetAttribute(TEXT("useDefault"), _nppGUI._isWordCharDefault ? TEXT("yes") : TEXT("no"));
 		WcharMbcsConvertor& wmc = WcharMbcsConvertor::getInstance();
-		const wchar_t* charsAddStr = wmc.char2wchar(_nppGUI._customWordChars.c_str(), SC_CP_UTF8);
+		const wchar_t * charsAddStr = wmc.char2wchar(_nppGUI._customWordChars.c_str(), SC_CP_UTF8);
 		GUIConfigElement->SetAttribute(TEXT("charsAdded"), charsAddStr);
 	}
 

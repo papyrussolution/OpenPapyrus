@@ -454,7 +454,7 @@ void RoundingImpl::apply(impl::DecimalQuantity &value, UErrorCode & status) cons
 			    fRoundingMode,
 			    status);
 		    resolvedMinFraction =
-			uprv_max(0, -getDisplayMagnitudeFraction(fPrecision.fUnion.fracSig.fMinFrac));
+			smax(0, -getDisplayMagnitudeFraction(fPrecision.fUnion.fracSig.fMinFrac));
 		    break;
 
 		case Precision::RND_SIGNIFICANT:
@@ -463,7 +463,7 @@ void RoundingImpl::apply(impl::DecimalQuantity &value, UErrorCode & status) cons
 			    fRoundingMode,
 			    status);
 		    resolvedMinFraction =
-			uprv_max(0, -getDisplayMagnitudeSignificant(value, fPrecision.fUnion.fracSig.fMinSig));
+			smax(0, -getDisplayMagnitudeSignificant(value, fPrecision.fUnion.fracSig.fMinSig));
 		    // Make sure that digits are displayed on zero.
 		    if(value.isZeroish() && fPrecision.fUnion.fracSig.fMinSig > 0) {
 			    value.setMinInteger(1);
@@ -475,17 +475,17 @@ void RoundingImpl::apply(impl::DecimalQuantity &value, UErrorCode & status) cons
 		    int32_t roundingMag2 = getRoundingMagnitudeSignificant(value, fPrecision.fUnion.fracSig.fMaxSig);
 		    int32_t roundingMag;
 		    if(fPrecision.fUnion.fracSig.fPriority == UNUM_ROUNDING_PRIORITY_RELAXED) {
-			    roundingMag = uprv_min(roundingMag1, roundingMag2);
+			    roundingMag = smin(roundingMag1, roundingMag2);
 		    }
 		    else {
-			    roundingMag = uprv_max(roundingMag1, roundingMag2);
+			    roundingMag = smax(roundingMag1, roundingMag2);
 		    }
 		    value.roundToMagnitude(roundingMag, fRoundingMode, status);
 
 		    int32_t displayMag1 = getDisplayMagnitudeFraction(fPrecision.fUnion.fracSig.fMinFrac);
 		    int32_t displayMag2 = getDisplayMagnitudeSignificant(value, fPrecision.fUnion.fracSig.fMinSig);
-		    int32_t displayMag = uprv_min(displayMag1, displayMag2);
-		    resolvedMinFraction = uprv_max(0, -displayMag);
+		    int32_t displayMag = smin(displayMag1, displayMag2);
+		    resolvedMinFraction = smax(0, -displayMag);
 
 		    break;
 	    }

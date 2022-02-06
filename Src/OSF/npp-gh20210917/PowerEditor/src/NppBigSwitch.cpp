@@ -881,7 +881,7 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		case NPPM_GETNBSESSIONFILES:
 	    {
 		    const TCHAR * sessionFileName = reinterpret_cast<const TCHAR *>(lParam);
-		    if((!sessionFileName) || (sessionFileName[0] == '\0'))
+		    if(isempty(sessionFileName))
 			    return 0;
 		    Session session2Load;
 		    if(nppParam.loadSession(session2Load, sessionFileName))
@@ -893,10 +893,8 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 	    {
 		    const TCHAR * sessionFileName = reinterpret_cast<const TCHAR *>(lParam);
 		    TCHAR ** sessionFileArray = reinterpret_cast<TCHAR **>(wParam);
-
-		    if((!sessionFileName) || (sessionFileName[0] == '\0'))
+		    if(isempty(sessionFileName))
 			    return FALSE;
-
 		    Session session2Load;
 		    if(nppParam.loadSession(session2Load, sessionFileName)) {
 			    size_t i = 0;

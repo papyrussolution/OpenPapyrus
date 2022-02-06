@@ -108,8 +108,7 @@ class TestEmbedOptimizedForSize final :
   inline void Swap(TestEmbedOptimizedForSize* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -141,8 +140,7 @@ class TestEmbedOptimizedForSize final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -153,19 +151,16 @@ class TestEmbedOptimizedForSize final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_unittest.TestEmbedOptimizedForSize";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_unittest.TestEmbedOptimizedForSize"; }
   protected:
-  explicit TestEmbedOptimizedForSize(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestEmbedOptimizedForSize(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -326,9 +321,7 @@ inline void TestEmbedOptimizedForSize::set_allocated_optional_message(::protobuf
 }
 
 // repeated .protobuf_unittest.TestOptimizedForSize repeated_message = 2;
-inline int TestEmbedOptimizedForSize::_internal_repeated_message_size() const {
-  return repeated_message_.size();
-}
+inline int TestEmbedOptimizedForSize::_internal_repeated_message_size() const { return repeated_message_.size(); }
 inline int TestEmbedOptimizedForSize::repeated_message_size() const {
   return _internal_repeated_message_size();
 }

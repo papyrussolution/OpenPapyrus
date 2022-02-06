@@ -276,14 +276,10 @@ int64 FASTCALL _zip_add_entry(zip_t * za)
 	if(za->nentry+1 >= za->nentry_alloc) {
 		zip_entry_t * rentries;
 		uint64 nalloc = za->nentry_alloc;
-		uint64 additional_entries = 2 * nalloc;
 		uint64 realloc_size;
-		if(additional_entries < 16) {
-			additional_entries = 16;
-		}
-		else if(additional_entries > 1024) {
-			additional_entries = 1024;
-		}
+		const uint64 additional_entries = sclamp(2 * nalloc, 16ULL, 1024ULL);
+		//uint64 additional_entries = 2 * nalloc;
+		//if(additional_entries < 16) { additional_entries = 16; } else if(additional_entries > 1024) { additional_entries = 1024; }
 		// neither + nor * overflows can happen: nentry_alloc * sizeof(struct zip_entry) < UINT64_MAX 
 		nalloc += additional_entries;
 		realloc_size = sizeof(struct zip_entry) * (size_t)nalloc;
@@ -935,7 +931,8 @@ static int64 window_read(zip_source_t * src, void * _ctx, void * data, uint64 le
 				    return -1;
 			    }
 		    }
-		    if((ret = zip_source_read(src, data, len)) < 0)
+			ret = zip_source_read(src, data, len);
+		    if(ret < 0)
 			    return zip_error_set(&ctx->error, SLERR_ZIP_EOF, 0);
 		    ctx->offset += (uint64)ret;
 		    if(!ret) {
@@ -5763,7 +5760,7 @@ uint8 * _zip_cp437_to_utf8(const uint8 * const _cp437buf, uint32 len, uint32 * u
 		}
 		else {
 			uint32 offset = 0;
-			for(i = 0; i<len; i++)
+			for(i = 0; i < len; i++)
 				offset += _zip_unicode_to_utf8(_cp437_to_unicode[cp437buf[i]], utf8buf+offset);
 			utf8buf[buflen-1] = 0;
 			ASSIGN_PTR(utf8_lenp, buflen-1);

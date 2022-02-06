@@ -1,5 +1,5 @@
 // BPAKCORE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // @Kernel
 //
@@ -521,44 +521,44 @@ int FASTCALL PPFreight::CheckForFilt(const FreightFilt & rFilt) const
 	return ok;
 }
 
-int PPFreight::IsEmpty() const
+bool PPFreight::IsEmpty() const
 {
-	return BIN(!ShipID && !AgentID && Name[0] == 0 && !PortOfDischarge &&
+	return (!ShipID && !AgentID && Name[0] == 0 && !PortOfDischarge &&
 		!PortOfLoading && !CaptainID && !DlvrAddrID && !ArrivalDate && Cost == 0.0 && !StorageLocID && !Captain2ID); // @v10.9.2 Captain2ID
 }
 
-int FASTCALL PPFreight::IsEq(const PPFreight & s) const
+bool FASTCALL PPFreight::IsEq(const PPFreight & s) const
 {
 	if(DlvrAddrID != s.DlvrAddrID)
-		return 0;
+		return false;
 	else if(NmbOrigsBsL != s.NmbOrigsBsL)
-		return 0;
+		return false;
 	else if(TrType != s.TrType)
-		return 0;
+		return false;
 	else if(PortOfLoading != s.PortOfLoading)
-		return 0;
+		return false;
 	else if(PortOfDischarge != s.PortOfDischarge)
-		return 0;
+		return false;
 	else if(IssueDate != s.IssueDate)
-		return 0;
+		return false;
 	else if(ArrivalDate != s.ArrivalDate)
-		return 0;
+		return false;
 	else if(CaptainID != s.CaptainID)
-		return 0;
+		return false;
 	else if(Captain2ID != s.Captain2ID) // @v10.9.2
-		return 0;
+		return false;
 	else if(R6(Cost - s.Cost) != 0)
-		return 0;
+		return false;
 	else if(AgentID != s.AgentID)
-		return 0;
+		return false;
 	else if(ShipID != s.ShipID)
-		return 0;
+		return false;
 	else if(StorageLocID != s.StorageLocID)
-		return 0;
+		return false;
 	else if(stricmp866(Name, s.Name) != 0)
-		return 0;
+		return false;
 	else
-		return 1;
+		return true;
 }
 
 int PPFreight::SetupDlvrAddr(PPID dlvrAddrID)
@@ -1960,7 +1960,7 @@ PPBankingOrder::PPBankingOrder()
 	PropID = BILLPRP_PAYMORDER;
 }
 
-int PPBankingOrder::TaxMarkers::IsEmpty() const
+bool PPBankingOrder::TaxMarkers::IsEmpty() const
 {
 	return !(TaxClass[0] || OKATO[0] || Reason[0] || Period.Year || DocNumber[0] || DocDate || PaymType[0] || TaxClass2[0]);
 }
@@ -2575,11 +2575,11 @@ PPBillExt::PPBillExt()
 	OrderFulfillmentStatus = -1; // @useless
 }
 
-int PPBillExt::IsEmpty() const
+bool PPBillExt::IsEmpty() const
 { 
 	// @v10.9.7 CcID // @v11.0.11 GoodsGroupID
 	return (AgentID || PayerID || InvoiceCode[0] || InvoiceDate || PaymBillCode[0] || PaymBillDate || 
-		ExtPriceQuotKindID || CcID || GoodsGroupID || CliPsnCategoryID) ? 0 : 1; 
+		ExtPriceQuotKindID || CcID || GoodsGroupID || CliPsnCategoryID) ? false : true; 
 }
 
 int FASTCALL PPBillExt::IsEq(const PPBillExt & rS) const
@@ -2655,6 +2655,11 @@ PPBillPacket::TiDifferenceItem::TiDifferenceItem(long flags, const LongArray * p
 //
 void PPBillPacket::Helper_Init()
 {
+	ErrCause = 0; // @v11.3.0
+	ErrLine = 0; // @v11.3.0
+	OpTypeID = 0; // @v11.3.0
+	AccSheetID = 0; // @v11.3.0
+	Counter = 0; // @v11.3.0
 	P_BObj = BillObj;
 	P_ShLots = 0;
 	P_ACPack = 0;
@@ -3158,7 +3163,7 @@ int PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int dontI
 				freight.ShipID = 0;
 				freight.CaptainID = 0;
 				if(freight.PortOfDischarge || freight.PortOfLoading)
-					Exchange(&freight.PortOfDischarge, &freight.PortOfLoading);
+					SExchange(&freight.PortOfDischarge, &freight.PortOfLoading);
 				SetFreight(&freight);
 			}
 		}

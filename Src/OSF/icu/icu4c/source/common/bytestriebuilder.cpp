@@ -1,12 +1,11 @@
-// bytestriebuilder.cpp
+// BYTESTRIEBUILDER.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-	Copyright (C) 2010-2012, International Business Machines Corporation and others.  All Rights Reserved.
-	encoding:   UTF-8
-	created on: 2010sep25
-	created by: Markus W. Scherer
-*/
+// Copyright (C) 2010-2012, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2010sep25
+// created by: Markus W. Scherer
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/bytestriebuilder.h"
@@ -263,26 +262,20 @@ void BytesTrieBuilder::buildBytes(UStringTrieBuildOption buildOption, UErrorCode
 	}
 }
 
-BytesTrieBuilder &BytesTrieBuilder::clear() {
+BytesTrieBuilder &BytesTrieBuilder::clear() 
+{
 	strings->clear();
 	elementsLength = 0;
 	bytesLength = 0;
 	return *this;
 }
 
-int32_t BytesTrieBuilder::getElementStringLength(int32_t i) const {
-	return elements[i].getStringLength(*strings);
-}
+int32_t BytesTrieBuilder::getElementStringLength(int32_t i) const { return elements[i].getStringLength(*strings); }
+UChar BytesTrieBuilder::getElementUnit(int32_t i, int32_t byteIndex) const { return (uint8)elements[i].charAt(byteIndex, *strings); }
+int32_t BytesTrieBuilder::getElementValue(int32_t i) const { return elements[i].getValue(); }
 
-UChar BytesTrieBuilder::getElementUnit(int32_t i, int32_t byteIndex) const {
-	return (uint8)elements[i].charAt(byteIndex, *strings);
-}
-
-int32_t BytesTrieBuilder::getElementValue(int32_t i) const {
-	return elements[i].getValue();
-}
-
-int32_t BytesTrieBuilder::getLimitOfLinearMatch(int32_t first, int32_t last, int32_t byteIndex) const {
+int32_t BytesTrieBuilder::getLimitOfLinearMatch(int32_t first, int32_t last, int32_t byteIndex) const 
+{
 	const BytesTrieElement &firstElement = elements[first];
 	const BytesTrieElement &lastElement = elements[last];
 	int32_t minStringLength = firstElement.getStringLength(*strings);
@@ -293,7 +286,8 @@ int32_t BytesTrieBuilder::getLimitOfLinearMatch(int32_t first, int32_t last, int
 	return byteIndex;
 }
 
-int32_t BytesTrieBuilder::countElementUnits(int32_t start, int32_t limit, int32_t byteIndex) const {
+int32_t BytesTrieBuilder::countElementUnits(int32_t start, int32_t limit, int32_t byteIndex) const 
+{
 	int32_t length = 0; // Number of different bytes at byteIndex.
 	int32_t i = start;
 	do {
@@ -306,7 +300,8 @@ int32_t BytesTrieBuilder::countElementUnits(int32_t start, int32_t limit, int32_
 	return length;
 }
 
-int32_t BytesTrieBuilder::skipElementsBySomeUnits(int32_t i, int32_t byteIndex, int32_t count) const {
+int32_t BytesTrieBuilder::skipElementsBySomeUnits(int32_t i, int32_t byteIndex, int32_t count) const 
+{
 	do {
 		char byte = elements[i++].charAt(byteIndex, *strings);
 		while(byte==elements[i].charAt(byteIndex, *strings)) {
@@ -316,7 +311,8 @@ int32_t BytesTrieBuilder::skipElementsBySomeUnits(int32_t i, int32_t byteIndex, 
 	return i;
 }
 
-int32_t BytesTrieBuilder::indexOfElementWithNextUnit(int32_t i, int32_t byteIndex, UChar byte) const {
+int32_t BytesTrieBuilder::indexOfElementWithNextUnit(int32_t i, int32_t byteIndex, UChar byte) const 
+{
 	char b = (char)byte;
 	while(b==elements[i].charAt(byteIndex, *strings)) {
 		++i;
@@ -324,13 +320,13 @@ int32_t BytesTrieBuilder::indexOfElementWithNextUnit(int32_t i, int32_t byteInde
 	return i;
 }
 
-BytesTrieBuilder::BTLinearMatchNode::BTLinearMatchNode(const char * bytes, int32_t len, Node * nextNode)
-	: LinearMatchNode(len, nextNode), s(bytes) {
-	hash = static_cast<int32_t>(
-		static_cast<uint32_t>(hash)*37u + static_cast<uint32_t>(ustr_hashCharsN(bytes, len)));
+BytesTrieBuilder::BTLinearMatchNode::BTLinearMatchNode(const char * bytes, int32_t len, Node * nextNode) : LinearMatchNode(len, nextNode), s(bytes) 
+{
+	hash = static_cast<int32_t>(static_cast<uint32_t>(hash)*37u + static_cast<uint32_t>(ustr_hashCharsN(bytes, len)));
 }
 
-bool BytesTrieBuilder::BTLinearMatchNode::operator == (const Node &other) const {
+bool BytesTrieBuilder::BTLinearMatchNode::operator == (const Node &other) const 
+{
 	if(this==&other) {
 		return true;
 	}
@@ -341,20 +337,17 @@ bool BytesTrieBuilder::BTLinearMatchNode::operator == (const Node &other) const 
 	return 0==uprv_memcmp(s, o.s, length);
 }
 
-void
-BytesTrieBuilder::BTLinearMatchNode::write(StringTrieBuilder &builder) {
+void BytesTrieBuilder::BTLinearMatchNode::write(StringTrieBuilder &builder) 
+{
 	BytesTrieBuilder &b = (BytesTrieBuilder &)builder;
 	next->write(builder);
 	b.write(s, length);
 	offset = b.write(b.getMinLinearMatch()+length-1);
 }
 
-StringTrieBuilder::Node * BytesTrieBuilder::createLinearMatchNode(int32_t i, int32_t byteIndex, int32_t length,
-    Node * nextNode) const {
-	return new BTLinearMatchNode(
-		elements[i].getString(*strings).data()+byteIndex,
-		length,
-		nextNode);
+StringTrieBuilder::Node * BytesTrieBuilder::createLinearMatchNode(int32_t i, int32_t byteIndex, int32_t length, Node * nextNode) const 
+{
+	return new BTLinearMatchNode(elements[i].getString(*strings).data()+byteIndex, length, nextNode);
 }
 
 bool BytesTrieBuilder::ensureCapacity(int32_t length) 

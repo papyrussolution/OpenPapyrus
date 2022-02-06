@@ -1,29 +1,18 @@
+// UCNV_LMB.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (C) 2000-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- *   file name:  ucnv_lmb.cpp
- *   encoding:   UTF-8
- *   tab size:   4 (not used)
- *   indentation:4
- *
- *   created on: 2000feb09
- *   created by: Brendan Murray
- *   extensively hacked up by: Jim Snyder-Grant
- *
- * Modification History:
- *
- *   Date        Name             Description
- *
- *   06/20/2000  helena           OS/400 port changes; mostly typecast.
- *   06/27/2000  Jim Snyder-Grant Deal with partial characters and small buffers.
- *             Add comments to document LMBCS format and implementation
- *             restructured order & breakdown of functions
- *   06/28/2000  helena           Major rewrite for the callback API changes.
- */
+// Copyright (C) 2000-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2000feb09
+// created by: Brendan Murray
+// extensively hacked up by: Jim Snyder-Grant
+// Modification History:
+// Date        Name             Description
+// 06/20/2000  helena           OS/400 port changes; mostly typecast.
+// 06/27/2000  Jim Snyder-Grant Deal with partial characters and small buffers.
+//   Add comments to document LMBCS format and implementation restructured order & breakdown of functions
+// 06/28/2000  helena           Major rewrite for the callback API changes.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -606,7 +595,7 @@ U_CDECL_END
 /* Here's the open worker & the common close function */
 static void _LMBCSOpenWorker(UConverter * _this,
     UConverterLoadArgs * pArgs,
-    UErrorCode *  err,
+    UErrorCode * err,
     ulmbcs_byte_t OptGroup)
 {
 	UConverterDataLMBCS * extraInfo = (UConverterDataLMBCS*)uprv_malloc(sizeof(UConverterDataLMBCS));
@@ -658,34 +647,26 @@ typedef struct LMBCSClone {
 	UConverterDataLMBCS lmbcs;
 } LMBCSClone;
 
-static UConverter * U_CALLCONV _LMBCSSafeClone(const UConverter * cnv,
-    void * stackBuffer,
-    int32_t * pBufferSize,
-    UErrorCode * status) {
+static UConverter * U_CALLCONV _LMBCSSafeClone(const UConverter * cnv, void * stackBuffer, int32_t * pBufferSize, UErrorCode * status) 
+{
 	(void)status;
 	LMBCSClone * newLMBCS;
 	UConverterDataLMBCS * extraInfo;
 	int32_t i;
-
 	if(*pBufferSize<=0) {
 		*pBufferSize = (int32_t)sizeof(LMBCSClone);
 		return NULL;
 	}
-
 	extraInfo = (UConverterDataLMBCS*)cnv->extraInfo;
 	newLMBCS = (LMBCSClone*)stackBuffer;
-
 	/* ucnv.c/ucnv_safeClone() copied the main UConverter already */
-
 	uprv_memcpy(&newLMBCS->lmbcs, extraInfo, sizeof(UConverterDataLMBCS));
-
 	/* share the subconverters */
 	for(i = 0; i <= ULMBCS_GRP_LAST; ++i) {
 		if(extraInfo->OptGrpConverter[i] != NULL) {
 			ucnv_incrementRefCount(extraInfo->OptGrpConverter[i]);
 		}
 	}
-
 	newLMBCS->cnv.extraInfo = &newLMBCS->lmbcs;
 	newLMBCS->cnv.isExtraLocal = TRUE;
 	return &newLMBCS->cnv;
@@ -753,31 +734,21 @@ static size_t LMBCSConversionWorker(UConverterDataLMBCS * extraInfo,    /* subco
 			*pLMBCS++ = group;
 		}
 	}
-
 	/* don't emit control chars */
 	if(bytesConverted == 1 && firstByte < 0x20)
 		return 0;
-
 	/* then move over the converted data */
-	switch(bytesConverted)
-	{
-		case 4:
-		    *pLMBCS++ = (ulmbcs_byte_t)(value >> 24);
+	switch(bytesConverted) {
+		case 4: *pLMBCS++ = (ulmbcs_byte_t)(value >> 24);
 		    U_FALLTHROUGH;
-		case 3:
-		    *pLMBCS++ = (ulmbcs_byte_t)(value >> 16);
+		case 3: *pLMBCS++ = (ulmbcs_byte_t)(value >> 16);
 		    U_FALLTHROUGH;
-		case 2:
-		    *pLMBCS++ = (ulmbcs_byte_t)(value >> 8);
+		case 2: *pLMBCS++ = (ulmbcs_byte_t)(value >> 8);
 		    U_FALLTHROUGH;
-		case 1:
-		    *pLMBCS++ = (ulmbcs_byte_t)value;
+		case 1: *pLMBCS++ = (ulmbcs_byte_t)value;
 		    U_FALLTHROUGH;
-		default:
-		    /* will never occur */
-		    break;
+		default: break; /* will never occur */
 	}
-
 	return (pLMBCS - pStartLMBCS);
 }
 
@@ -804,8 +775,7 @@ static size_t LMBCSConvertUni(ulmbcs_byte_t * pLMBCS, UChar uniChar)
 }
 
 /* The main Unicode to LMBCS conversion function */
-static void U_CALLCONV _LMBCSFromUnicode(UConverterFromUnicodeArgs*     args,
-    UErrorCode *  err)
+static void U_CALLCONV _LMBCSFromUnicode(UConverterFromUnicodeArgs * args, UErrorCode * err)
 {
 	ulmbcs_byte_t lastConverterIndex = 0;
 	UChar uniChar;

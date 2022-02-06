@@ -483,7 +483,7 @@ SECURITY_STATUS schannel_verify_server_certificate(const CERT_CONTEXT* cert, HCE
     const char * server_name, BOOL check_server_name, char * errmsg, size_t errmsg_len)
 {
 	SECURITY_STATUS status = SEC_E_OK;
-	wchar_t* wserver_name = NULL;
+	wchar_t * wserver_name = NULL;
 	DWORD dwVerifyFlags;
 	DWORD dwRevocationFlags;
 	if(check_server_name) {

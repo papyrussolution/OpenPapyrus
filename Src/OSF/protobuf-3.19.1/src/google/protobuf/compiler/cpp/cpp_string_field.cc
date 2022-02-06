@@ -73,21 +73,14 @@ void SetStringVariables(const FieldDescriptor* descriptor,
 	    "::" + (*variables)["proto_ns"] + "::internal::ArenaStringPtr::" +
 	    (descriptor->default_value_string().empty() ? "Empty" : "NonEmpty") +
 	    "Default{}";
-	(*variables)["default_variable_or_tag"] =
-	    (*variables)[descriptor->default_value_string().empty()
-	    ? "default_value_tag"
-	    : "lazy_variable"];
-	(*variables)["pointer_type"] =
-	    descriptor->type() == FieldDescriptor::TYPE_BYTES ? "void" : "char";
-	(*variables)["setter"] =
-	    descriptor->type() == FieldDescriptor::TYPE_BYTES ? "SetBytes" : "Set";
+	(*variables)["default_variable_or_tag"] = (*variables)[descriptor->default_value_string().empty() ? "default_value_tag" : "lazy_variable"];
+	(*variables)["pointer_type"] = descriptor->type() == FieldDescriptor::TYPE_BYTES ? "void" : "char";
+	(*variables)["setter"] = descriptor->type() == FieldDescriptor::TYPE_BYTES ? "SetBytes" : "Set";
 	(*variables)["null_check"] = (*variables)["DCHK"] + "(value != nullptr);\n";
 	// NOTE: Escaped here to unblock proto1->proto2 migration.
 	// TODO(liujisi): Extend this to apply for other conflicting methods.
-	(*variables)["release_name"] =
-	    SafeFunctionName(descriptor->containing_type(), descriptor, "release_");
+	(*variables)["release_name"] = SafeFunctionName(descriptor->containing_type(), descriptor, "release_");
 	(*variables)["full_name"] = descriptor->full_name();
-
 	if(options.opensource_runtime) {
 		(*variables)["string_piece"] = "::std::string";
 	}
@@ -99,10 +92,9 @@ void SetStringVariables(const FieldDescriptor* descriptor,
 
 // ===================================================================
 
-StringFieldGenerator::StringFieldGenerator(const FieldDescriptor* descriptor,
-    const Options& options)
-	: FieldGenerator(descriptor, options),
-	inlined_(IsStringInlined(descriptor, options)) {
+StringFieldGenerator::StringFieldGenerator(const FieldDescriptor* descriptor, const Options& options) : FieldGenerator(descriptor, options),
+	inlined_(IsStringInlined(descriptor, options)) 
+{
 	SetStringVariables(descriptor, &variables_, options);
 }
 
@@ -126,8 +118,7 @@ void StringFieldGenerator::GenerateStaticMembers(io::Printer* printer) const {
 	Formatter format(printer, variables_);
 	if(!descriptor_->default_value_string().empty()) {
 		format(
-			"static const ::$proto_ns$::internal::LazyString"
-			" $default_variable_name$;\n");
+			"static const ::$proto_ns$::internal::LazyString $default_variable_name$;\n");
 	}
 }
 
@@ -198,15 +189,12 @@ void StringFieldGenerator::GenerateInlineAccessorDefinitions(io::Printer* printe
 	format(
 		"inline const std::string& $classname$::$name$() const {\n"
 		"$annotate_get$"
-		"  // @@protoc_insertion_point(field_get:$full_name$)\n");
+		"\t// @@protoc_insertion_point(field_get:$full_name$)\n");
 	if(!descriptor_->default_value_string().empty()) {
 		format(
-			"  if ($name$_.IsDefault(nullptr)) return "
-			"$default_variable_name$.get();\n");
+			"\tif($name$_.IsDefault(nullptr)) return $default_variable_name$.get();\n");
 	}
-	format(
-		"  return _internal_$name$();\n"
-		"}\n");
+	format("\treturn _internal_$name$();\n}\n");
 	if(!inlined_) {
 		format(
 			"template <typename ArgT0, typename... ArgT>\n"
@@ -232,49 +220,41 @@ void StringFieldGenerator::GenerateInlineAccessorDefinitions(io::Printer* printe
 			"  // @@protoc_insertion_point(field_set:$full_name$)\n"
 			"}\n"
 			"inline bool $classname$::_internal_$name$_donated() const {\n"
-			"  bool value = $inlined_string_donated$\n"
-			"  return value;\n"
+			"\tbool value = $inlined_string_donated$\n"
+			"\treturn value;\n"
 			"}\n");
 	}
 	format(
 		"inline std::string* $classname$::mutable_$name$() {\n"
-		"  std::string* _s = _internal_mutable_$name$();\n"
+		"\tstd::string* _s = _internal_mutable_$name$();\n"
 		"$annotate_mutable$"
-		"  // @@protoc_insertion_point(field_mutable:$full_name$)\n"
-		"  return _s;\n"
+		"\t// @@protoc_insertion_point(field_mutable:$full_name$)\n"
+		"\treturn _s;\n"
 		"}\n"
-		"inline const std::string& $classname$::_internal_$name$() const {\n"
-		"  return $name$_.Get();\n"
-		"}\n"
-		"inline void $classname$::_internal_set_$name$(const std::string& "
-		"value) {\n"
-		"  $set_hasbit$\n");
+		"inline const std::string& $classname$::_internal_$name$() const { return $name$_.Get(); }\n"
+		"inline void $classname$::_internal_set_$name$(const std::string& value) {\n"
+		"\t$set_hasbit$\n");
 	if(!inlined_) {
 		format(
-			"  $name$_.Set($default_value_tag$, value, GetArenaForAllocation());\n"
+			"\t$name$_.Set($default_value_tag$, value, GetArenaForAllocation());\n"
 			"}\n");
 	}
 	else {
 		format(
-			"  $name$_.Set(nullptr, value, GetArenaForAllocation(),\n"
-			"    _internal_$name$_donated(), &$donating_states_word$, "
-			"$mask_for_undonate$);\n"
+			"\t$name$_.Set(nullptr, value, GetArenaForAllocation(), _internal_$name$_donated(), &$donating_states_word$, $mask_for_undonate$);\n"
 			"}\n");
 	}
 	format(
 		"inline std::string* $classname$::_internal_mutable_$name$() {\n"
-		"  $set_hasbit$\n");
+		"\t$set_hasbit$\n");
 	if(!inlined_) {
 		format(
-			"  return $name$_.Mutable($default_variable_or_tag$, "
-			"GetArenaForAllocation());\n"
+			"\treturn $name$_.Mutable($default_variable_or_tag$, GetArenaForAllocation());\n"
 			"}\n");
 	}
 	else {
 		format(
-			"  return $name$_.Mutable($default_variable_or_tag$, "
-			"GetArenaForAllocation(), _internal_$name$_donated(), "
-			"&$donating_states_word$, $mask_for_undonate$);\n"
+			"\treturn $name$_.Mutable($default_variable_or_tag$, GetArenaForAllocation(), _internal_$name$_donated(), &$donating_states_word$, $mask_for_undonate$);\n"
 			"}\n");
 	}
 	format(
@@ -284,9 +264,7 @@ void StringFieldGenerator::GenerateInlineAccessorDefinitions(io::Printer* printe
 
 	if(HasHasbit(descriptor_)) {
 		format(
-			"  if (!_internal_has_$name$()) {\n"
-			"    return nullptr;\n"
-			"  }\n"
+			"  if(!_internal_has_$name$()) { return nullptr; }\n"
 			"  $clear_hasbit$\n");
 		if(!inlined_) {
 			format(
@@ -295,7 +273,7 @@ void StringFieldGenerator::GenerateInlineAccessorDefinitions(io::Printer* printe
 			if(descriptor_->default_value_string().empty()) {
 				format(
 					"#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING\n"
-					"  if ($name$_.IsDefault($init_value$)) {\n"
+					"  if($name$_.IsDefault($init_value$)) {\n"
 					"    $name$_.Set($init_value$, \"\", GetArenaForAllocation());\n"
 					"  }\n"
 					"#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING\n");
@@ -304,8 +282,7 @@ void StringFieldGenerator::GenerateInlineAccessorDefinitions(io::Printer* printe
 		}
 		else {
 			format(
-				"  return $name$_.Release(nullptr, GetArenaForAllocation(), "
-				"_internal_$name$_donated());\n");
+				"  return $name$_.Release(nullptr, GetArenaForAllocation(), _internal_$name$_donated());\n");
 		}
 	}
 	else {
@@ -316,19 +293,18 @@ void StringFieldGenerator::GenerateInlineAccessorDefinitions(io::Printer* printe
 	format(
 		"}\n"
 		"inline void $classname$::set_allocated_$name$(std::string* $name$) {\n"
-		"  if ($name$ != nullptr) {\n"
+		"  if($name$ != nullptr) {\n"
 		"    $set_hasbit$\n"
 		"  } else {\n"
 		"    $clear_hasbit$\n"
 		"  }\n");
 	if(!inlined_) {
 		format(
-			"  $name$_.SetAllocated($init_value$, $name$,\n"
-			"      GetArenaForAllocation());\n");
+			"  $name$_.SetAllocated($init_value$, $name$, GetArenaForAllocation());\n");
 		if(descriptor_->default_value_string().empty()) {
 			format(
 				"#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING\n"
-				"  if ($name$_.IsDefault($init_value$)) {\n"
+				"  if($name$_.IsDefault($init_value$)) {\n"
 				"    $name$_.Set($init_value$, \"\", GetArenaForAllocation());\n"
 				"  }\n"
 				"#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING\n");
@@ -364,8 +340,7 @@ void StringFieldGenerator::GenerateClearingCode(io::Printer* printer) const {
 	}
 	else {
 		GOOGLE_DCHECK(!inlined_);
-		format(
-			"$name$_.ClearToDefault($lazy_variable$, GetArenaForAllocation());\n");
+		format("$name$_.ClearToDefault($lazy_variable$, GetArenaForAllocation());\n");
 	}
 }
 
@@ -404,8 +379,7 @@ void StringFieldGenerator::GenerateMessageClearingCode(io::Printer* printer) con
 	else {
 		// Clear to a non-empty default is more involved, as we try to use the
 		// Arena if one is present and may need to reallocate the string.
-		format(
-			"$name$_.ClearToDefault($lazy_variable$, GetArenaForAllocation());\n ");
+		format("$name$_.ClearToDefault($lazy_variable$, GetArenaForAllocation());\n ");
 	}
 }
 
@@ -461,21 +435,14 @@ void StringFieldGenerator::GenerateCopyConstructorCode(io::Printer* printer) con
 	else {
 		format("if(!from._internal_$name$().empty()) {\n");
 	}
-
 	format.Indent();
 
 	if(!inlined_) {
-		format(
-			"$name$_.Set($default_value_tag$, from._internal_$name$(), \n"
-			"  GetArenaForAllocation());\n");
+		format("$name$_.Set($default_value_tag$, from._internal_$name$(), GetArenaForAllocation());\n");
 	}
 	else {
-		format(
-			"$name$_.Set(nullptr, from._internal_$name$(),\n"
-			"  GetArenaForAllocation(), _internal_$name$_donated(), "
-			"&$donating_states_word$, $mask_for_undonate$);\n");
+		format("$name$_.Set(nullptr, from._internal_$name$(), GetArenaForAllocation(), _internal_$name$_donated(), &$donating_states_word$, $mask_for_undonate$);\n");
 	}
-
 	format.Outdent();
 	format("}\n");
 }
@@ -486,7 +453,6 @@ void StringFieldGenerator::GenerateDestructorCode(io::Printer* printer) const {
 		// The destructor is automatically invoked.
 		return;
 	}
-
 	format("$name$_.DestroyNoArena($init_value$);\n");
 }
 
@@ -495,21 +461,15 @@ void StringFieldGenerator::GenerateSerializeWithCachedSizesToArray(io::Printer* 
 	if(descriptor_->type() == FieldDescriptor::TYPE_STRING) {
 		GenerateUtf8CheckCodeForString(
 			descriptor_, options_, false,
-			"this->_internal_$name$().data(), "
-			"static_cast<int>(this->_internal_$name$().length()),\n",
+			"this->_internal_$name$().data(), static_cast<int>(this->_internal_$name$().length()),\n",
 			format);
 	}
-	format(
-		"target = stream->Write$declared_type$MaybeAliased(\n"
-		"    $number$, this->_internal_$name$(), target);\n");
+	format("target = stream->Write$declared_type$MaybeAliased($number$, this->_internal_$name$(), target);\n");
 }
 
 void StringFieldGenerator::GenerateByteSize(io::Printer* printer) const {
 	Formatter format(printer, variables_);
-	format(
-		"total_size += $tag_size$ +\n"
-		"  ::$proto_ns$::internal::WireFormatLite::$declared_type$Size(\n"
-		"    this->_internal_$name$());\n");
+	format("total_size += $tag_size$ + ::$proto_ns$::internal::WireFormatLite::$declared_type$Size(this->_internal_$name$());\n");
 }
 
 void StringFieldGenerator::GenerateConstinitInitializer(io::Printer* printer) const {
@@ -532,8 +492,7 @@ StringOneofFieldGenerator::StringOneofFieldGenerator(const FieldDescriptor* desc
 	: StringFieldGenerator(descriptor, options) {
 	SetCommonOneofFieldVariables(descriptor, &variables_);
 	variables_["field_name"] = UnderscoresToCamelCase(descriptor->name(), true);
-	variables_["oneof_index"] =
-	    StrCat(descriptor->containing_oneof()->index());
+	variables_["oneof_index"] = StrCat(descriptor->containing_oneof()->index());
 }
 
 StringOneofFieldGenerator::~StringOneofFieldGenerator() {
@@ -549,7 +508,7 @@ void StringOneofFieldGenerator::GenerateInlineAccessorDefinitions(io::Printer* p
 		"}\n"
 		"template <typename ArgT0, typename... ArgT>\n"
 		"inline void $classname$::set_$name$(ArgT0&& arg0, ArgT... args) {\n"
-		"  if (!_internal_has_$name$()) {\n"
+		"  if(!_internal_has_$name$()) {\n"
 		"    clear_$oneof_name$();\n"
 		"    set_has_$name$();\n"
 		"    $field_member$.UnsafeSetDefault($init_value$);\n"
@@ -566,14 +525,14 @@ void StringOneofFieldGenerator::GenerateInlineAccessorDefinitions(io::Printer* p
 		"  return _s;\n"
 		"}\n"
 		"inline const std::string& $classname$::_internal_$name$() const {\n"
-		"  if (_internal_has_$name$()) {\n"
+		"  if(_internal_has_$name$()) {\n"
 		"    return $field_member$.Get();\n"
 		"  }\n"
 		"  return $default_string$;\n"
 		"}\n"
 		"inline void $classname$::_internal_set_$name$(const std::string& "
 		"value) {\n"
-		"  if (!_internal_has_$name$()) {\n"
+		"  if(!_internal_has_$name$()) {\n"
 		"    clear_$oneof_name$();\n"
 		"    set_has_$name$();\n"
 		"    $field_member$.UnsafeSetDefault($init_value$);\n"
@@ -583,18 +542,17 @@ void StringOneofFieldGenerator::GenerateInlineAccessorDefinitions(io::Printer* p
 		"}\n");
 	format(
 		"inline std::string* $classname$::_internal_mutable_$name$() {\n"
-		"  if (!_internal_has_$name$()) {\n"
+		"  if(!_internal_has_$name$()) {\n"
 		"    clear_$oneof_name$();\n"
 		"    set_has_$name$();\n"
 		"    $field_member$.UnsafeSetDefault($init_value$);\n"
 		"  }\n"
-		"  return $field_member$.Mutable(\n"
-		"      $default_variable_or_tag$, GetArenaForAllocation());\n"
+		"  return $field_member$.Mutable($default_variable_or_tag$, GetArenaForAllocation());\n"
 		"}\n"
 		"inline std::string* $classname$::$release_name$() {\n"
 		"$annotate_release$"
 		"  // @@protoc_insertion_point(field_release:$full_name$)\n"
-		"  if (_internal_has_$name$()) {\n"
+		"  if(_internal_has_$name$()) {\n"
 		"    clear_has_$oneof_name$();\n"
 		"    return $field_member$.ReleaseNonDefault($init_value$, "
 		"GetArenaForAllocation());\n"
@@ -603,14 +561,14 @@ void StringOneofFieldGenerator::GenerateInlineAccessorDefinitions(io::Printer* p
 		"  }\n"
 		"}\n"
 		"inline void $classname$::set_allocated_$name$(std::string* $name$) {\n"
-		"  if (has_$oneof_name$()) {\n"
+		"  if(has_$oneof_name$()) {\n"
 		"    clear_$oneof_name$();\n"
 		"  }\n"
-		"  if ($name$ != nullptr) {\n"
+		"  if($name$ != nullptr) {\n"
 		"    set_has_$name$();\n"
 		"    $field_member$.UnsafeSetDefault($name$);\n"
 		"    ::$proto_ns$::Arena* arena = GetArenaForAllocation();\n"
-		"    if (arena != nullptr) {\n"
+		"    if(arena != nullptr) {\n"
 		"      arena->Own($name$);\n"
 		"    }\n"
 		"  }\n"
@@ -621,9 +579,7 @@ void StringOneofFieldGenerator::GenerateInlineAccessorDefinitions(io::Printer* p
 
 void StringOneofFieldGenerator::GenerateClearingCode(io::Printer* printer) const {
 	Formatter format(printer, variables_);
-	format(
-		"$field_member$.Destroy($default_value_tag$, "
-		"GetArenaForAllocation());\n");
+	format("$field_member$.Destroy($default_value_tag$, GetArenaForAllocation());\n");
 }
 
 void StringOneofFieldGenerator::GenerateMessageClearingCode(io::Printer* printer) const {
@@ -661,8 +617,7 @@ void RepeatedStringFieldGenerator::GenerateAccessorDeclarations(io::Printer* pri
 
 	if(unknown_ctype) {
 		format.Outdent();
-		format(
-			" private:\n"
+		format(" private:\n"
 			"  // Hidden due to unknown ctype option.\n");
 		format.Indent();
 	}
@@ -672,40 +627,28 @@ void RepeatedStringFieldGenerator::GenerateAccessorDeclarations(io::Printer* pri
 		"$deprecated_attr$std::string* ${1$mutable_$name$$}$(int index);\n"
 		"$deprecated_attr$void ${1$set_$name$$}$(int index, const "
 		"std::string& value);\n"
-		"$deprecated_attr$void ${1$set_$name$$}$(int index, std::string&& "
-		"value);\n"
-		"$deprecated_attr$void ${1$set_$name$$}$(int index, const "
-		"char* value);\n",
+		"$deprecated_attr$void ${1$set_$name$$}$(int index, std::string&& value);\n"
+		"$deprecated_attr$void ${1$set_$name$$}$(int index, const char * value);\n",
 		descriptor_);
 	if(!options_.opensource_runtime) {
-		format(
-			"$deprecated_attr$void ${1$set_$name$$}$(int index, "
-			"StringPiece value);\n",
+		format("$deprecated_attr$void ${1$set_$name$$}$(int index, StringPiece value);\n",
 			descriptor_);
 	}
 	format(
-		"$deprecated_attr$void ${1$set_$name$$}$("
-		"int index, const $pointer_type$* value, size_t size);\n"
+		"$deprecated_attr$void ${1$set_$name$$}$(int index, const $pointer_type$* value, size_t size);\n"
 		"$deprecated_attr$std::string* ${1$add_$name$$}$();\n"
 		"$deprecated_attr$void ${1$add_$name$$}$(const std::string& value);\n"
 		"$deprecated_attr$void ${1$add_$name$$}$(std::string&& value);\n"
 		"$deprecated_attr$void ${1$add_$name$$}$(const char* value);\n",
 		descriptor_);
 	if(!options_.opensource_runtime) {
-		format(
-			"$deprecated_attr$void ${1$add_$name$$}$(StringPiece value);\n",
-			descriptor_);
+		format("$deprecated_attr$void ${1$add_$name$$}$(StringPiece value);\n", descriptor_);
 	}
 	format(
-		"$deprecated_attr$void ${1$add_$name$$}$(const $pointer_type$* "
-		"value, size_t size)"
+		"$deprecated_attr$void ${1$add_$name$$}$(const $pointer_type$* value, size_t size)"
 		";\n"
-		"$deprecated_attr$const ::$proto_ns$::RepeatedPtrField<std::string>& "
-		"${1$$name$$}$() "
-		"const;\n"
-		"$deprecated_attr$::$proto_ns$::RepeatedPtrField<std::string>* "
-		"${1$mutable_$name$$}$()"
-		";\n"
+		"$deprecated_attr$const ::$proto_ns$::RepeatedPtrField<std::string>& ${1$$name$$}$() const;\n"
+		"$deprecated_attr$::$proto_ns$::RepeatedPtrField<std::string>* ${1$mutable_$name$$}$();\n"
 		"private:\n"
 		"const std::string& ${1$_internal_$name$$}$(int index) const;\n"
 		"std::string* _internal_add_$name$();\n"
@@ -730,18 +673,12 @@ void RepeatedStringFieldGenerator::GenerateInlineAccessorDefinitions(io::Printer
 		"}\n");
 	if(options_.safe_boundary_check) {
 		format(
-			"inline const std::string& $classname$::_internal_$name$(int index) "
-			"const {\n"
-			"  return $name$_.InternalCheckedGet(\n"
-			"      index, ::$proto_ns$::internal::GetEmptyStringAlreadyInited());\n"
+			"inline const std::string& $classname$::_internal_$name$(int index) const {\n"
+			"  return $name$_.InternalCheckedGet(index, ::$proto_ns$::internal::GetEmptyStringAlreadyInited());\n"
 			"}\n");
 	}
 	else {
-		format(
-			"inline const std::string& $classname$::_internal_$name$(int index) "
-			"const {\n"
-			"  return $name$_.Get(index);\n"
-			"}\n");
+		format("inline const std::string& $classname$::_internal_$name$(int index) const { return $name$_.Get(index); }\n");
 	}
 	format(
 		"inline const std::string& $classname$::$name$(int index) const {\n"
@@ -754,9 +691,7 @@ void RepeatedStringFieldGenerator::GenerateInlineAccessorDefinitions(io::Printer
 		"  // @@protoc_insertion_point(field_mutable:$full_name$)\n"
 		"  return $name$_.Mutable(index);\n"
 		"}\n"
-		"inline void $classname$::set_$name$(int index, const std::string& "
-		"value) "
-		"{\n"
+		"inline void $classname$::set_$name$(int index, const std::string& value) {\n"
 		"  $name$_.Mutable(index)->assign(value);\n"
 		"$annotate_set$"
 		"  // @@protoc_insertion_point(field_set:$full_name$)\n"
@@ -774,25 +709,20 @@ void RepeatedStringFieldGenerator::GenerateInlineAccessorDefinitions(io::Printer
 		"}\n");
 	if(!options_.opensource_runtime) {
 		format(
-			"inline void "
-			"$classname$::set_$name$(int index, StringPiece value) {\n"
+			"inline void $classname$::set_$name$(int index, StringPiece value) {\n"
 			"  $name$_.Mutable(index)->assign(value.data(), value.size());\n"
 			"$annotate_set$"
 			"  // @@protoc_insertion_point(field_set_string_piece:$full_name$)\n"
 			"}\n");
 	}
 	format(
-		"inline void "
-		"$classname$::set_$name$"
-		"(int index, const $pointer_type$* value, size_t size) {\n"
+		"inline void $classname$::set_$name$(int index, const $pointer_type$* value, size_t size) {\n"
 		"  $name$_.Mutable(index)->assign(\n"
 		"    reinterpret_cast<const char*>(value), size);\n"
 		"$annotate_set$"
 		"  // @@protoc_insertion_point(field_set_pointer:$full_name$)\n"
 		"}\n"
-		"inline std::string* $classname$::_internal_add_$name$() {\n"
-		"  return $name$_.Add();\n"
-		"}\n"
+		"inline std::string* $classname$::_internal_add_$name$() { return $name$_.Add(); }\n"
 		"inline void $classname$::add_$name$(const std::string& value) {\n"
 		"  $name$_.Add()->assign(value);\n"
 		"$annotate_add$"
@@ -865,34 +795,28 @@ void RepeatedStringFieldGenerator::GenerateCopyConstructorCode(io::Printer* prin
 void RepeatedStringFieldGenerator::GenerateSerializeWithCachedSizesToArray(io::Printer* printer) const {
 	Formatter format(printer, variables_);
 	format(
-		"for (int i = 0, n = this->_internal_$name$_size(); i < n; i++) {\n"
+		"for(int i = 0, n = this->_internal_$name$_size(); i < n; i++) {\n"
 		"  const auto& s = this->_internal_$name$(i);\n");
 	// format("for (const std::string& s : this->$name$()) {\n");
 	format.Indent();
 	if(descriptor_->type() == FieldDescriptor::TYPE_STRING) {
-		GenerateUtf8CheckCodeForString(descriptor_, options_, false,
-		    "s.data(), static_cast<int>(s.length()),\n",
-		    format);
+		GenerateUtf8CheckCodeForString(descriptor_, options_, false, "s.data(), static_cast<int>(s.length()),\n", format);
 	}
 	format.Outdent();
-	format(
-		"  target = stream->Write$declared_type$($number$, s, target);\n"
-		"}\n");
+	format("  target = stream->Write$declared_type$($number$, s, target);\n}\n");
 }
 
 void RepeatedStringFieldGenerator::GenerateByteSize(io::Printer* printer) const {
 	Formatter format(printer, variables_);
 	format(
-		"total_size += $tag_size$ *\n"
-		"    ::$proto_ns$::internal::FromIntSize($name$_.size());\n"
-		"for (int i = 0, n = $name$_.size(); i < n; i++) {\n"
-		"  total_size += "
-		"::$proto_ns$::internal::WireFormatLite::$declared_type$Size(\n"
-		"    $name$_.Get(i));\n"
+		"total_size += $tag_size$ * ::$proto_ns$::internal::FromIntSize($name$_.size());\n"
+		"for(int i = 0, n = $name$_.size(); i < n; i++) {\n"
+		"  total_size += ::$proto_ns$::internal::WireFormatLite::$declared_type$Size($name$_.Get(i));\n"
 		"}\n");
 }
 
-void RepeatedStringFieldGenerator::GenerateConstinitInitializer(io::Printer* printer) const {
+void RepeatedStringFieldGenerator::GenerateConstinitInitializer(io::Printer* printer) const 
+{
 	Formatter format(printer, variables_);
 	format("$name$_()");
 }

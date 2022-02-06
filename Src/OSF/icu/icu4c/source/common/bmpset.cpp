@@ -1,20 +1,11 @@
+// BMPSET.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- *
- *   Copyright (C) 2007-2012, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ******************************************************************************
- *   file name:  bmpset.cpp
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2007jan29
- *   created by: Markus W. Scherer
- */
+// Copyright (C) 2007-2012, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2007jan29
+// created by: Markus W. Scherer
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -51,9 +42,9 @@ BMPSet::BMPSet(const BMPSet &otherBMPSet, const int32_t * newParentList, int32_t
 	uprv_memcpy(list4kStarts, otherBMPSet.list4kStarts, sizeof(list4kStarts));
 }
 
-BMPSet::~BMPSet() {
+BMPSet::~BMPSet() 
+{
 }
-
 /*
  * Set bits in a bit rectangle in "vertical" bit organization.
  * start<limit<=0x800
@@ -652,13 +643,12 @@ const uint8 * BMPSet::spanUTF8(const uint8 * s, int32_t length, USetSpanConditio
  * preceding bytes there should be. Therefore, going backwards through UTF-8
  * is much harder than going forward.
  */
-int32_t BMPSet::spanBackUTF8(const uint8 * s, int32_t length, USetSpanCondition spanCondition) const {
+int32_t BMPSet::spanBackUTF8(const uint8 * s, int32_t length, USetSpanCondition spanCondition) const 
+{
 	if(spanCondition!=USET_SPAN_NOT_CONTAINED) {
 		spanCondition = USET_SPAN_CONTAINED; // Pin to 0/1 values.
 	}
-
 	uint8 b;
-
 	do {
 		b = s[--length];
 		if(U8_IS_SINGLE(b)) {

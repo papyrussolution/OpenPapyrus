@@ -34,13 +34,9 @@ class TestLiteImportsNonlite::_Internal {
  public:
   using HasBits = decltype(std::declval<TestLiteImportsNonlite>()._has_bits_);
   static const ::protobuf_unittest::TestAllTypes& message(const TestLiteImportsNonlite* msg);
-  static void set_has_message(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
+  static void set_has_message(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
   static const ::protobuf_unittest::TestRequired& message_with_required(const TestLiteImportsNonlite* msg);
-  static void set_has_message_with_required(HasBits* has_bits) {
-    (*has_bits)[0] |= 2u;
-  }
+  static void set_has_message_with_required(HasBits* has_bits) { (*has_bits)[0] |= 2u; }
 };
 
 const ::protobuf_unittest::TestAllTypes&
@@ -297,9 +293,7 @@ void TestLiteImportsNonlite::InternalSwap(TestLiteImportsNonlite* other) {
           reinterpret_cast<char*>(&other->message_));
 }
 
-std::string TestLiteImportsNonlite::GetTypeName() const {
-  return "protobuf_unittest.TestLiteImportsNonlite";
-}
+std::string TestLiteImportsNonlite::GetTypeName() const { return "protobuf_unittest.TestLiteImportsNonlite"; }
 
 
 // @@protoc_insertion_point(namespace_scope)

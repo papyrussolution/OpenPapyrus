@@ -48,7 +48,7 @@ void UVector32::_init(int32_t initialCapacity, UErrorCode & status) {
 		initialCapacity = maxCapacity;
 	}
 	if(initialCapacity > (int32_t)(INT32_MAX / sizeof(int32_t))) {
-		initialCapacity = uprv_min(DEFAULT_CAPACITY, maxCapacity);
+		initialCapacity = smin(DEFAULT_CAPACITY, maxCapacity);
 	}
 	elements = (int32_t*)uprv_malloc(sizeof(int32_t)*initialCapacity);
 	if(elements == 0) {

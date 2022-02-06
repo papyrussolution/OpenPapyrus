@@ -1,5 +1,5 @@
 // SGEO.CPP
-// Copyright (c) A.Sobolev 2009, 2010, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2009, 2010, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -593,7 +593,7 @@ static double atan2dx(double y, double x)
 	// converting it to degrees and mapping the result to the correct quadrant.
 	int    q = 0;
 	if(fabs(y) > fabs(x)) {
-		Exchange(&x, &y);
+		SExchange(&x, &y);
 		q = 2;
 	}
 	if(x < 0) {
@@ -1830,7 +1830,7 @@ double SGeo::Inverse_Int(SGeoPosLL & rP1, SGeoPosLL & rP2, double * ps12,
 	swapp = (fabs(rP1.Lat) < fabs(rP2.Lat)) ? -1 : 1;
 	if(swapp < 0) {
 		lonsign *= -1;
-		Exchange(&rP1.Lat, &rP2.Lat);
+		SExchange(&rP1.Lat, &rP2.Lat);
 	}
 	// Make lat1 <= 0
 	latsign = (rP1.Lat < 0) ? 1 : -1;
@@ -2077,10 +2077,10 @@ double SGeo::Inverse_Int(SGeoPosLL & rP1, SGeoPosLL & rP2, double * ps12,
 	}
 	// Convert calp, salp to azimuth accounting for lonsign, swapp, latsign.
 	if(swapp < 0) {
-		Exchange(&sc_alp1.S, &sc_alp2.S);
-		Exchange(&sc_alp1.C, &sc_alp2.C);
+		SExchange(&sc_alp1.S, &sc_alp2.S);
+		SExchange(&sc_alp1.C, &sc_alp2.C);
 		if(outmask & GEOD_GEODESICSCALE)
-			Exchange(&M12, &M21);
+			SExchange(&M12, &M21);
 	}
 	sc_alp1.S *= swapp * lonsign;
 	sc_alp1.C *= swapp * latsign;

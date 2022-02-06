@@ -1417,7 +1417,7 @@ void subclassComboBoxControl(HWND hwnd)
 void autoSubclassAndThemeChildControls(HWND hwndParent, bool subclass, bool theme)
 {
 	struct Params {
-		const wchar_t* themeClassName = nullptr;
+		const wchar_t * themeClassName = nullptr;
 		bool subclass = false;
 		bool theme = false;
 	};

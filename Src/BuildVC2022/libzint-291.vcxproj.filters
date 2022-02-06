@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\Osf\zint-291\2of5.c" />
+    <ClCompile Include="..\Osf\zint-291\auspost.c" />
+    <ClCompile Include="..\Osf\zint-291\aztec.c" />
+    <ClCompile Include="..\OSF\zint-291\bmp.c" />
+    <ClCompile Include="..\OSF\zint-291\codablock.c" />
+    <ClCompile Include="..\Osf\zint-291\code.c" />
+    <ClCompile Include="..\Osf\zint-291\code1.c" />
+    <ClCompile Include="..\Osf\zint-291\code128.c" />
+    <ClCompile Include="..\Osf\zint-291\code16k.c" />
+    <ClCompile Include="..\Osf\zint-291\code49.c" />
+    <ClCompile Include="..\Osf\zint-291\common.c" />
+    <ClCompile Include="..\Osf\zint-291\composite.c" />
+    <ClCompile Include="..\Osf\zint-291\dllversion.c" />
+    <ClCompile Include="..\Osf\zint-291\dmatrix.c" />
+    <ClCompile Include="..\OSF\zint-291\dotcode.c" />
+    <ClCompile Include="..\OSF\zint-291\eci.c" />
+    <ClCompile Include="..\OSF\zint-291\gif.c" />
+    <ClCompile Include="..\Osf\zint-291\gridmtx.c" />
+    <ClCompile Include="..\Osf\zint-291\gs1.c" />
+    <ClCompile Include="..\OSF\zint-291\hanxin.c" />
+    <ClCompile Include="..\Osf\zint-291\imail.c" />
+    <ClCompile Include="..\Osf\zint-291\large.c" />
+    <ClCompile Include="..\Osf\zint-291\library.c" />
+    <ClCompile Include="..\Osf\zint-291\maxicode.c" />
+    <ClCompile Include="..\Osf\zint-291\medical.c" />
+    <ClCompile Include="..\OSF\zint-291\pcx.c" />
+    <ClCompile Include="..\Osf\zint-291\pdf417.c" />
+    <ClCompile Include="..\Osf\zint-291\plessey.c" />
+    <ClCompile Include="..\Osf\zint-291\png.c" />
+    <ClCompile Include="..\Osf\zint-291\postal.c" />
+    <ClCompile Include="..\Osf\zint-291\ps.c" />
+    <ClCompile Include="..\Osf\zint-291\qr.c" />
+    <ClCompile Include="..\OSF\zint-291\raster.c" />
+    <ClCompile Include="..\Osf\zint-291\reedsol.c" />
+    <ClCompile Include="..\Osf\zint-291\rss.c" />
+    <ClCompile Include="..\Osf\zint-291\svg.c" />
+    <ClCompile Include="..\Osf\zint-291\telepen.c" />
+    <ClCompile Include="..\Osf\zint-291\upcean.c" />
+    <ClCompile Include="..\OSF\zint-291\zint-pch.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Osf\zint-291\common.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\zint-291\gb2312.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zint-291\gb18030.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zint-291\hanxin.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\zint-291\maxipng.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\zint-291\pdf417.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\zint-291\sjis.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zint-291\stdint_msvc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\zint-291\zint.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{fdc4508a-2366-4c27-a38a-6ad996574622}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

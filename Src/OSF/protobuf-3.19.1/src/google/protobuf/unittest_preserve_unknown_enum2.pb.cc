@@ -117,9 +117,7 @@ bool MyEnum_IsValid(int value) {
 class MyMessage::_Internal {
  public:
   using HasBits = decltype(std::declval<MyMessage>()._has_bits_);
-  static void set_has_e(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
+  static void set_has_e(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
 MyMessage::MyMessage(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -454,7 +452,7 @@ size_t MyMessage::ByteSizeLong() const {
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_e());
   }
 
-  switch (o_case()) {
+  switch(o_case()) {
     // .proto2_preserve_unknown_enum_unittest.MyEnum oneof_e_1 = 5;
     case kOneofE1: {
       total_size += 1 +
@@ -467,9 +465,7 @@ size_t MyMessage::ByteSizeLong() const {
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_oneof_e_2());
       break;
     }
-    case O_NOT_SET: {
-      break;
-    }
+    case O_NOT_SET: break;
   }
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
 }
@@ -539,9 +535,7 @@ void MyMessage::InternalSwap(MyMessage* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata MyMessage::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2funittest_5fpreserve_5funknown_5fenum2_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5fpreserve_5funknown_5fenum2_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2funittest_5fpreserve_5funknown_5fenum2_2eproto[0]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5fpreserve_5funknown_5fenum2_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5fpreserve_5funknown_5fenum2_2eproto_once, file_level_metadata_google_2fprotobuf_2funittest_5fpreserve_5funknown_5fenum2_2eproto[0]);
 }
 
 // @@protoc_insertion_point(namespace_scope)

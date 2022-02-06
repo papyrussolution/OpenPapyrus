@@ -281,7 +281,7 @@ SString & STDCALL MakeTempFileName(const char * pDir, const char * pPrefix, cons
 	if(pPrefix)
 		prefix_len = sstrlen(strnzcpy(prefix, pPrefix, 20));
 	else
-		prefix[0] = 0;
+		PTR32(prefix)[0] = 0;
 	const uint nd = (prefix_len <= 6) ? (8-prefix_len) : 4;
 	if(pExt)
 		if(pExt[0] == '.')
@@ -289,7 +289,7 @@ SString & STDCALL MakeTempFileName(const char * pDir, const char * pPrefix, cons
 		else
 			strnzcpy(ext, pExt, sizeof(ext));
 	else
-		ext[0] = 0;
+		PTR32(ext)[0] = 0;
 	for(rBuf.Z(); rBuf.IsEmpty() && start < 9999999L;) {
 		if(pDir)
 			(rBuf = pDir).Strip().SetLastSlash();

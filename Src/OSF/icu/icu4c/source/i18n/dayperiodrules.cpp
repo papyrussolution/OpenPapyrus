@@ -1,15 +1,10 @@
+// DAYPERIODRULES.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- * Copyright (C) 2016, International Business Machines
- * Corporation and others.  All Rights Reserved.
- *******************************************************************************
- * dayperiodrules.cpp
- *
- * created on: 2016-01-20
- * created by: kazede
- */
+// Copyright (C) 2016, International Business Machines Corporation and others.  All Rights Reserved.
+// created on: 2016-01-20
+// created by: kazede
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include "dayperiodrules.h"
@@ -20,9 +15,9 @@ U_NAMESPACE_BEGIN
 
 namespace {
 struct DayPeriodRulesData : public UMemory {
-	DayPeriodRulesData() : localeToRuleSetNumMap(NULL), rules(NULL), maxRuleSetNum(0) {
+	DayPeriodRulesData() : localeToRuleSetNumMap(NULL), rules(NULL), maxRuleSetNum(0) 
+	{
 	}
-
 	UHashtable * localeToRuleSetNumMap;
 	DayPeriodRules * rules;
 	int32_t maxRuleSetNum;
@@ -420,26 +415,25 @@ const DayPeriodRules * DayPeriodRules::getInstance(const Locale &locale, UErrorC
 	}
 }
 
-DayPeriodRules::DayPeriodRules() : fHasMidnight(FALSE), fHasNoon(FALSE) {
+DayPeriodRules::DayPeriodRules() : fHasMidnight(FALSE), fHasNoon(FALSE) 
+{
 	for(int32_t i = 0; i < 24; ++i) {
 		fDayPeriodForHour[i] = DayPeriodRules::DAYPERIOD_UNKNOWN;
 	}
 }
 
-double DayPeriodRules::getMidPointForDayPeriod(DayPeriodRules::DayPeriod dayPeriod, UErrorCode & errorCode) const {
+double DayPeriodRules::getMidPointForDayPeriod(DayPeriodRules::DayPeriod dayPeriod, UErrorCode & errorCode) const 
+{
 	if(U_FAILURE(errorCode)) {
 		return -1;
 	}
-
 	int32_t startHour = getStartHourForDayPeriod(dayPeriod, errorCode);
 	int32_t endHour = getEndHourForDayPeriod(dayPeriod, errorCode);
 	// Can't obtain startHour or endHour; bail out.
 	if(U_FAILURE(errorCode)) {
 		return -1;
 	}
-
 	double midPoint = (startHour + endHour) / 2.0;
-
 	if(startHour > endHour) {
 		// dayPeriod wraps around midnight. Shift midPoint by 12 hours, in the direction that
 		// lands it in [0, 24).
@@ -452,18 +446,17 @@ double DayPeriodRules::getMidPointForDayPeriod(DayPeriodRules::DayPeriod dayPeri
 	return midPoint;
 }
 
-int32_t DayPeriodRules::getStartHourForDayPeriod(DayPeriodRules::DayPeriod dayPeriod, UErrorCode & errorCode) const {
+int32_t DayPeriodRules::getStartHourForDayPeriod(DayPeriodRules::DayPeriod dayPeriod, UErrorCode & errorCode) const 
+{
 	if(U_FAILURE(errorCode)) {
 		return -1;
 	}
-
 	if(dayPeriod == DAYPERIOD_MIDNIGHT) {
 		return 0;
 	}
 	if(dayPeriod == DAYPERIOD_NOON) {
 		return 12;
 	}
-
 	if(fDayPeriodForHour[0] == dayPeriod && fDayPeriodForHour[23] == dayPeriod) {
 		// dayPeriod wraps around midnight. Start hour is later than end hour.
 		for(int32_t i = 22; i >= 1; --i) {
@@ -479,24 +472,22 @@ int32_t DayPeriodRules::getStartHourForDayPeriod(DayPeriodRules::DayPeriod dayPe
 			}
 		}
 	}
-
 	// dayPeriod doesn't exist in rule set; set error and exit.
 	errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 	return -1;
 }
 
-int32_t DayPeriodRules::getEndHourForDayPeriod(DayPeriodRules::DayPeriod dayPeriod, UErrorCode & errorCode) const {
+int32_t DayPeriodRules::getEndHourForDayPeriod(DayPeriodRules::DayPeriod dayPeriod, UErrorCode & errorCode) const 
+{
 	if(U_FAILURE(errorCode)) {
 		return -1;
 	}
-
 	if(dayPeriod == DAYPERIOD_MIDNIGHT) {
 		return 0;
 	}
 	if(dayPeriod == DAYPERIOD_NOON) {
 		return 12;
 	}
-
 	if(fDayPeriodForHour[0] == dayPeriod && fDayPeriodForHour[23] == dayPeriod) {
 		// dayPeriod wraps around midnight. End hour is before start hour.
 		for(int32_t i = 1; i <= 22; ++i) {
@@ -513,55 +504,43 @@ int32_t DayPeriodRules::getEndHourForDayPeriod(DayPeriodRules::DayPeriod dayPeri
 			}
 		}
 	}
-
 	// dayPeriod doesn't exist in rule set; set error and exit.
 	errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 	return -1;
 }
 
-DayPeriodRules::DayPeriod DayPeriodRules::getDayPeriodFromString(const char * type_str) {
-	if(uprv_strcmp(type_str, "midnight") == 0) {
+DayPeriodRules::DayPeriod DayPeriodRules::getDayPeriodFromString(const char * type_str) 
+{
+	if(sstreq(type_str, "midnight"))
 		return DAYPERIOD_MIDNIGHT;
-	}
-	else if(uprv_strcmp(type_str, "noon") == 0) {
+	else if(sstreq(type_str, "noon"))
 		return DAYPERIOD_NOON;
-	}
-	else if(uprv_strcmp(type_str, "morning1") == 0) {
+	else if(sstreq(type_str, "morning1"))
 		return DAYPERIOD_MORNING1;
-	}
-	else if(uprv_strcmp(type_str, "afternoon1") == 0) {
+	else if(sstreq(type_str, "afternoon1"))
 		return DAYPERIOD_AFTERNOON1;
-	}
-	else if(uprv_strcmp(type_str, "evening1") == 0) {
+	else if(sstreq(type_str, "evening1"))
 		return DAYPERIOD_EVENING1;
-	}
-	else if(uprv_strcmp(type_str, "night1") == 0) {
+	else if(sstreq(type_str, "night1"))
 		return DAYPERIOD_NIGHT1;
-	}
-	else if(uprv_strcmp(type_str, "morning2") == 0) {
+	else if(sstreq(type_str, "morning2"))
 		return DAYPERIOD_MORNING2;
-	}
-	else if(uprv_strcmp(type_str, "afternoon2") == 0) {
+	else if(sstreq(type_str, "afternoon2"))
 		return DAYPERIOD_AFTERNOON2;
-	}
-	else if(uprv_strcmp(type_str, "evening2") == 0) {
+	else if(sstreq(type_str, "evening2"))
 		return DAYPERIOD_EVENING2;
-	}
-	else if(uprv_strcmp(type_str, "night2") == 0) {
+	else if(sstreq(type_str, "night2"))
 		return DAYPERIOD_NIGHT2;
-	}
-	else if(uprv_strcmp(type_str, "am") == 0) {
+	else if(sstreq(type_str, "am"))
 		return DAYPERIOD_AM;
-	}
-	else if(uprv_strcmp(type_str, "pm") == 0) {
+	else if(sstreq(type_str, "pm"))
 		return DAYPERIOD_PM;
-	}
-	else {
+	else
 		return DAYPERIOD_UNKNOWN;
-	}
 }
 
-void DayPeriodRules::add(int32_t startHour, int32_t limitHour, DayPeriod period) {
+void DayPeriodRules::add(int32_t startHour, int32_t limitHour, DayPeriod period) 
+{
 	for(int32_t i = startHour; i != limitHour; ++i) {
 		if(i == 24) {
 			i = 0;
@@ -570,14 +549,13 @@ void DayPeriodRules::add(int32_t startHour, int32_t limitHour, DayPeriod period)
 	}
 }
 
-bool DayPeriodRules::allHoursAreSet() {
+bool DayPeriodRules::allHoursAreSet() 
+{
 	for(int32_t i = 0; i < 24; ++i) {
-		if(fDayPeriodForHour[i] == DAYPERIOD_UNKNOWN) {
-			return FALSE;
-		}
+		if(fDayPeriodForHour[i] == DAYPERIOD_UNKNOWN)
+			return false;
 	}
-
-	return TRUE;
+	return true;
 }
 
 U_NAMESPACE_END

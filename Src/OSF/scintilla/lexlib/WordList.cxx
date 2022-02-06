@@ -77,7 +77,7 @@ bool FASTCALL WordList::operator != (const WordList &other) const
 {
 	if(len != other.len)
 		return true;
-	for(int i = 0; i<len; i++) {
+	for(int i = 0; i < len; i++) {
 		if(strcmp(words[i], other.words[i]) != 0)
 			return true;
 	}

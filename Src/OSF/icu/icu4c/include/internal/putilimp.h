@@ -282,12 +282,12 @@ U_CAPI double U_EXPORT2 uprv_fmin(double d, double y);
  * Private utility to calculate the maximum value of two integers.
  * @internal
  */
-U_CAPI int32_t U_EXPORT2 uprv_max(int32_t d, int32_t y);
+// @sobolev U_CAPI int32_t U_EXPORT2 uprv_max__Removed(int32_t d, int32_t y);
 /**
  * Private utility to calculate the minimum value of two integers.
  * @internal
  */
-U_CAPI int32_t U_EXPORT2 uprv_min(int32_t d, int32_t y);
+// @sobolev U_CAPI int32_t U_EXPORT2 uprv_min__Removed(int32_t d, int32_t y);
 
 #if U_IS_BIG_ENDIAN
 #define uprv_isNegative(number) (*((signed char*)&(number)) < 0)

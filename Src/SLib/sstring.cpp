@@ -874,7 +874,7 @@ bool   FASTCALL SString::IsEqNC(const SString & rS) const { return (CmpNC(rS) ==
 bool   FASTCALL SString::IsEqNC(const char * pS) const { return (CmpNC(pS) == 0); }
 int    SString::Last() const { return (L > 1) ? P_Buf[L-2] : 0; }
 bool   SString::IsEmpty() const { return (Len() == 0); }
-bool   SString::NotEmpty() const { return (Len() != 0); }
+//bool   SString::NotEmpty() const { return (Len() != 0); }
 bool   SString::NotEmptyS() { return Strip().NotEmpty(); }
 SString & FASTCALL SString::Tab(uint c) { return (oneof2(c, 1, 0) || c > 1000) ? CatChar('\t') : CatCharN('\t', c); }
 SString & SString::Tab()     { return CatChar('\t'); }
@@ -1795,6 +1795,7 @@ SString & SString::Unescape()
 
 SString & SString::ToUrl()
 {
+	// "/:$-_.+!*'(),"
 #define NORMURLC(c) (((c)>='0'&&(c)<= '9')||((c)>='a'&&(c)<='z')||((c)>='A'&&(c)<='Z')||oneof9((c),'-','_','.','!','~','*','\'','(',')'))
     const size_t _len = Len();
     if(_len) {

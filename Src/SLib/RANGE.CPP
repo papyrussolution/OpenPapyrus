@@ -1,5 +1,5 @@
 // RANGE.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -159,7 +159,7 @@ SSzChunk & SSzChunk::SetRange(int begin, int end)
 int SSzChunk::operator !() const { return (Len <= 0); }
 int SSzChunk::operator == (const SSzChunk & rS) const { return (Begin == rS.Begin && Len == rS.Len); }
 int SSzChunk::GetEnd() const { return (Begin+Len-1); }
-int SSzChunk::IsEmpty() const { return BIN(Len <= 0); }
+bool SSzChunk::IsEmpty() const { return (Len <= 0); }
 //
 //
 //
@@ -254,7 +254,7 @@ RealRange & RealRange::Scale(double sc)
 
 RealRange & RealRange::Normalize()
 {
-	ExchangeForOrder(&low, &upp);
+	SExchangeForOrder(&low, &upp);
 	return *this;
 }
 
@@ -503,8 +503,8 @@ void FASTCALL DateRange::SetDate(LDATE dt)
 
 void DateRange::CheckAndSwap()
 {
-	if(upp && low > upp)
-		Exchange(&low.v, &upp.v);
+	if(upp)
+		SExchangeForOrder(&low.v, &upp.v);
 }
 
 int FASTCALL DateRange::Intersect(const DateRange * pR)

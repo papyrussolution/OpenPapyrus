@@ -78,14 +78,12 @@ static int64  file_seek(struct archive *, void *, int64 request, int);
 static int64  file_skip(struct archive *, void *, int64 request);
 static int64  file_skip_lseek(struct archive *, void *, int64 request);
 
-int archive_read_open_file(struct archive * a, const char * filename,
-    size_t block_size)
+int archive_read_open_file(struct archive * a, const char * filename, size_t block_size)
 {
 	return (archive_read_open_filename(a, filename, block_size));
 }
 
-int archive_read_open_filename(struct archive * a, const char * filename,
-    size_t block_size)
+int archive_read_open_filename(struct archive * a, const char * filename, size_t block_size)
 {
 	const char * filenames[2];
 	filenames[0] = filename;
@@ -93,20 +91,16 @@ int archive_read_open_filename(struct archive * a, const char * filename,
 	return archive_read_open_filenames(a, filenames, block_size);
 }
 
-int archive_read_open_filenames(struct archive * a, const char ** filenames,
-    size_t block_size)
+int archive_read_open_filenames(struct archive * a, const char ** filenames, size_t block_size)
 {
 	struct read_file_data * mine;
 	const char * filename = NULL;
 	if(filenames)
 		filename = *(filenames++);
-
 	archive_clear_error(a);
 	do {
-		if(filename == NULL)
-			filename = "";
-		mine = (struct read_file_data *)SAlloc::C(1,
-			sizeof(*mine) + strlen(filename));
+		SETIFZQ(filename, "");
+		mine = (struct read_file_data *)SAlloc::C(1, sizeof(*mine) + strlen(filename));
 		if(mine == NULL)
 			goto no_memory;
 		strcpy(mine->filename.m, filename);
@@ -114,17 +108,13 @@ int archive_read_open_filenames(struct archive * a, const char ** filenames,
 		mine->fd = -1;
 		mine->buffer = NULL;
 		mine->st_mode = mine->use_lseek = 0;
-		if(filename == NULL || filename[0] == '\0') {
-			mine->filename_type = read_file_data::FNT_STDIN;
-		}
-		else
-			mine->filename_type = read_file_data::FNT_MBS;
+		mine->filename_type = isempty(filename) ? read_file_data::FNT_STDIN : read_file_data::FNT_MBS;
 		if(archive_read_append_callback_data(a, mine) != (ARCHIVE_OK))
 			return ARCHIVE_FATAL;
 		if(filenames == NULL)
 			break;
 		filename = *(filenames++);
-	} while(filename != NULL && filename[0] != '\0');
+	} while(!isempty(filename));
 	archive_read_set_open_callback(a, file_open);
 	archive_read_set_read_callback(a, reinterpret_cast<archive_read_callback *>(file_read));
 	archive_read_set_skip_callback(a, file_skip);
@@ -146,8 +136,7 @@ int archive_read_open_filename_w(struct archive * a, const wchar_t * wfilename, 
 	}
 	mine->fd = -1;
 	mine->block_size = block_size;
-
-	if(wfilename == NULL || wfilename[0] == L'\0') {
+	if(isempty(wfilename)) {
 		mine->filename_type = read_file_data::FNT_STDIN;
 	}
 	else {
@@ -286,32 +275,22 @@ static int file_open(struct archive * a, void * client_data)
 	}
 #if defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
 	/* FreeBSD: if it supports DIOCGMEDIASIZE ioctl, it's disk-like. */
-	else if(S_ISCHR(st.st_mode) &&
-	    ioctl(fd, DIOCGMEDIASIZE, &mediasize) == 0 &&
-	    mediasize > 0) {
+	else if(S_ISCHR(st.st_mode) && ioctl(fd, DIOCGMEDIASIZE, &mediasize) == 0 && mediasize > 0) {
 		is_disk_like = 1;
 	}
 #elif defined(__NetBSD__) || defined(__OpenBSD__)
 	/* Net/OpenBSD: if it supports DIOCGDINFO ioctl, it's disk-like. */
-	else if((S_ISCHR(st.st_mode) || S_ISBLK(st.st_mode)) &&
-	    ioctl(fd, DIOCGDINFO, &dl) == 0 &&
-	    dl.d_partitions[DISKPART(st.st_rdev)].p_size > 0) {
+	else if((S_ISCHR(st.st_mode) || S_ISBLK(st.st_mode)) && ioctl(fd, DIOCGDINFO, &dl) == 0 && dl.d_partitions[DISKPART(st.st_rdev)].p_size > 0) {
 		is_disk_like = 1;
 	}
 #elif defined(__DragonFly__)
 	/* DragonFly BSD:  if it supports DIOCGPART ioctl, it's disk-like. */
-	else if(S_ISCHR(st.st_mode) &&
-	    ioctl(fd, DIOCGPART, &pi) == 0 &&
-	    pi.media_size > 0) {
+	else if(S_ISCHR(st.st_mode) && ioctl(fd, DIOCGPART, &pi) == 0 && pi.media_size > 0) {
 		is_disk_like = 1;
 	}
 #elif defined(__linux__)
 	/* Linux:  All block devices are disk-like. */
-	else if(S_ISBLK(st.st_mode) &&
-	    lseek(fd, 0, SEEK_CUR) == 0 &&
-	    lseek(fd, 0, SEEK_SET) == 0 &&
-	    lseek(fd, 0, SEEK_END) > 0 &&
-	    lseek(fd, 0, SEEK_SET) == 0) {
+	else if(S_ISBLK(st.st_mode) && lseek(fd, 0, SEEK_CUR) == 0 && lseek(fd, 0, SEEK_SET) == 0 && lseek(fd, 0, SEEK_END) > 0 && lseek(fd, 0, SEEK_SET) == 0) {
 		is_disk_like = 1;
 	}
 #endif
@@ -321,8 +300,7 @@ static int file_open(struct archive * a, void * client_data)
 	/* Use provided block_size as a guide so users have some control. */
 	if(is_disk_like) {
 		size_t new_block_size = 64 * 1024;
-		while(new_block_size < mine->block_size
-		    && new_block_size < 64 * 1024 * 1024)
+		while(new_block_size < mine->block_size && new_block_size < 64 * 1024 * 1024)
 			new_block_size *= 2;
 		mine->block_size = new_block_size;
 	}
@@ -446,11 +424,9 @@ static int64 file_skip_lseek(struct archive * a, void * client_data, int64 reque
 static int64 file_skip(struct archive * a, void * client_data, int64 request)
 {
 	struct read_file_data * mine = (struct read_file_data *)client_data;
-
 	/* Delegate skip requests. */
 	if(mine->use_lseek)
 		return (file_skip_lseek(a, client_data, request));
-
 	/* If we can't skip, return 0; libarchive will read+discard instead. */
 	return 0;
 }
@@ -461,21 +437,21 @@ static int64 file_skip(struct archive * a, void * client_data, int64 request)
 static int64 file_seek(struct archive * a, void * client_data, int64 request, int whence)
 {
 	struct read_file_data * mine = (struct read_file_data *)client_data;
-	int64 r;
-
 	/* We use off_t here because lseek() is declared that way. */
 	/* See above for notes about when off_t is less than 64 bits. */
-	r = lseek(mine->fd, request, whence);
+	int64 r = lseek(mine->fd, request, whence);
 	if(r >= 0)
 		return r;
-	/* If the input is corrupted or truncated, fail. */
-	if(mine->filename_type == read_file_data::FNT_STDIN)
-		archive_set_error(a, errno, "Error seeking in stdin");
-	else if(mine->filename_type == read_file_data::FNT_MBS)
-		archive_set_error(a, errno, "Error seeking in '%s'", mine->filename.m);
-	else
-		archive_set_error(a, errno, "Error seeking in '%S'", mine->filename.w);
-	return ARCHIVE_FATAL;
+	else {
+		// If the input is corrupted or truncated, fail
+		if(mine->filename_type == read_file_data::FNT_STDIN)
+			archive_set_error(a, errno, "Error seeking in stdin");
+		else if(mine->filename_type == read_file_data::FNT_MBS)
+			archive_set_error(a, errno, "Error seeking in '%s'", mine->filename.m);
+		else
+			archive_set_error(a, errno, "Error seeking in '%S'", mine->filename.w);
+		return ARCHIVE_FATAL;
+	}
 }
 
 static int file_close2(struct archive * a, void * client_data)

@@ -1,5 +1,5 @@
 // SCSPCTRT.CPP
-// Copyright (c) A.Sobolev 2018, 2020, 2021
+// Copyright (c) A.Sobolev 2018, 2020, 2021, 2022
 // @codepage UTF-8
 // Реализация специальных интерпретаций поведения персональных карт
 //
@@ -468,7 +468,7 @@ int SCardSpecialTreatment_AstraZeneca::QueryDiscount(const CardBlock * pScBlk, T
 				for(uint i = 0; i < rDL.getCount(); i++) {
 					barcode.Z();
 					DiscountBlock & r_line = rDL.at(i);
-					r_line.TaIdent[0] = 0;
+					PTR32(r_line.TaIdent)[0] = 0;
 					r_line.ResultPrice = r_line.InPrice;
 					if(p_ref->Ot.GetTag(PPOBJ_GOODS, r_line.GoodsID, tag_id, 0) > 0) {
 						goods_obj.P_Tbl->ReadBarcodes(r_line.GoodsID, bc_list);

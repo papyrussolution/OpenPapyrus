@@ -450,7 +450,7 @@ UMatchDegree TransliterationRule::matchAndReplace(Replaceable& text,
 	pos.limit += lenDelta;
 	pos.contextLimit += lenDelta;
 	// Restrict new value of start to [minOText, min(oText, pos.limit)].
-	pos.start = uprv_max(minOText, uprv_min(uprv_min(oText, pos.limit), newStart));
+	pos.start = smax(minOText, smin(smin(oText, pos.limit), newStart));
 	return U_MATCH;
 }
 

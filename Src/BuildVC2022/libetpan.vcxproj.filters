@@ -1,0 +1,838 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\acl.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\acl_parser.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\acl_sender.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\acl_types.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\annotatemore.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\annotatemore_parser.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\annotatemore_sender.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\annotatemore_types.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\data-types\base64.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\data-types\carray.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\data-types\charconv.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\data-types\chash.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\data-types\clist.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\condstore.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\condstore_types.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\data-types\connect.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\data-message\data_message_driver.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\feed\date.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\enable.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\feed\feeddriver.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\feed\feeddriver_message.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\feed\feedstorage.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\tools\generic_cache.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\hotmail\hotmailstorage.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\idle.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\imap\imapdriver.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\imap\imapdriver_cached.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\imap\imapdriver_cached_message.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\imap\imapdriver_message.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\imap\imapdriver_tools.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\imap\imapstorage.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\tools\imfcache.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\windows\inet_aton.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\libetpan-pch.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\data-types\mail_cache_db.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\maildir\maildir.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\maildir\maildirdriver.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\maildir\maildirdriver_cached.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\maildir\maildirdriver_cached_message.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\maildir\maildirdriver_message.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\maildir\maildirdriver_tools.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\maildir\maildirstorage.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\interface\maildriver.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\interface\maildriver_tools.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\interface\maildriver_types.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\interface\maildriver_types_helper.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\interface\mailfolder.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\mailimap.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\mailimap_compress.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\mailimap_extension.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\mailimap_helper.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\mailimap_id.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\mailimap_id_parser.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\mailimap_id_sender.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\mailimap_id_types.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\mailimap_keywords.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\mailimap_oauth2.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\mailimap_parser.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\mailimap_print.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\mailimap_sender.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\mailimap_socket.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\mailimap_sort.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\mailimap_sort_types.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\mailimap_ssl.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\mailimap_types.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\mailimap_types_helper.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imf\mailimf.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imf\mailimf_types.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imf\mailimf_types_helper.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imf\mailimf_write_file.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imf\mailimf_write_generic.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imf\mailimf_write_mem.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\data-types\maillock.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\mbox\mailmbox.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\mbox\mailmbox_parse.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\mbox\mailmbox_types.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\interface\mailmessage.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\interface\mailmessage_tools.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\interface\mailmessage_types.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\mh\mailmh.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\mime\mailmime.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\mime\mailmime_content.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\mime\mailmime_decode.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\mime\mailmime_disposition.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\mime\mailmime_types.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\mime\mailmime_types_helper.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\mime\mailmime_write_file.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\mime\mailmime_write_generic.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\mime\mailmime_write_mem.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\pop3\mailpop3.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\pop3\mailpop3_helper.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\pop3\mailpop3_socket.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\pop3\mailpop3_ssl.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\data-types\mailsasl.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\data-types\mailsem.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\smtp\mailsmtp.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\smtp\mailsmtp_helper.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\smtp\mailsmtp_oauth2.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\smtp\mailsmtp_socket.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\smtp\mailsmtp_ssl.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\interface\mailstorage.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\interface\mailstorage_tools.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\data-types\mailstream.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\data-types\mailstream_cancel.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\data-types\mailstream_cfstream.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\data-types\mailstream_compress.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\data-types\mailstream_helper.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\data-types\mailstream_low.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\data-types\mailstream_socket.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\data-types\mailstream_ssl.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\tools\mailthread.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\tools\mailthread_types.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\mbox\mboxdriver.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\mbox\mboxdriver_cached.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\mbox\mboxdriver_cached_message.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\mbox\mboxdriver_message.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\mbox\mboxdriver_tools.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\mbox\mboxstorage.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\data-types\md5.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\mh\mhdriver.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\mh\mhdriver_cached.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\mh\mhdriver_cached_message.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\mh\mhdriver_message.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\mh\mhdriver_tools.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\mh\mhstorage.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\mime-message\mime_message_driver.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\windows\misc.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\windows\mmap.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\data-types\mmapstring.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\namespace.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\namespace_parser.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\namespace_sender.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\namespace_types.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\feed\newsfeed.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\feed\newsfeed_item.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\feed\newsfeed_item_enclosure.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\feed\newsfeed_private.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\nntp\newsnntp.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\nntp\newsnntp_socket.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\nntp\newsnntp_ssl.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\nntp\nntpdriver.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\nntp\nntpdriver_cached.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\nntp\nntpdriver_cached_message.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\nntp\nntpdriver_message.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\nntp\nntpdriver_tools.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\nntp\nntpstorage.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\feed\parser.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\feed\parser_atom03.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\feed\parser_atom10.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\feed\parser_rdf.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\feed\parser_rss20.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\pop3\pop3driver.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\pop3\pop3driver_cached.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\pop3\pop3driver_cached_message.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\pop3\pop3driver_message.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\pop3\pop3driver_tools.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\driver\implementation\pop3\pop3storage.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\qresync.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\qresync_types.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\quota.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\quota_parser.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\quota_sender.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\quota_types.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\windows\time_r.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\data-types\timeutils.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\uidplus.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\uidplus_parser.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\uidplus_sender.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\uidplus_types.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\windows\win_init.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\xgmlabels.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\xgmmsgid.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\xgmthrid.c" />
+    <ClCompile Include="..\osf\Mailspring-Sync\libetpan\src\low-level\imap\xlist.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\build-windows\libetpan-config.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\build-windows\libetpan_version.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\acl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\acl_parser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\acl_sender.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\acl_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\annotatemore.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\annotatemore_parser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\annotatemore_sender.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\annotatemore_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\base64.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\carray.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\charconv.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\chash.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\clist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\condstore.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\condstore_private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\condstore_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\connect.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\data_message_driver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\date.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\dbdriver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\dbdriver_message.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\dbdriver_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\dbstorage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\enable.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\feeddriver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\feeddriver_message.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\feeddriver_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\feedstorage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\generic_cache.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\generic_cache_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\getopt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\hmac-md5.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\hotmailstorage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\idle.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\imapdriver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\imapdriver_cached.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\imapdriver_cached_message.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\imapdriver_message.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\imapdriver_tools.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\imapdriver_tools_private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\imapdriver_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\imapstorage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\imfcache.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\libetpan.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mail.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mail_cache_db.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mail_cache_db_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\maildir.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\maildir_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\maildirdriver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\maildirdriver_cached.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\maildirdriver_cached_message.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\maildirdriver_message.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\maildirdriver_tools.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\maildirdriver_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\maildirstorage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\maildriver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\maildriver_errors.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\maildriver_tools.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\maildriver_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\maildriver_types_helper.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailengine.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailfolder.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailimap.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailimap_compress.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailimap_extension.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailimap_extension_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailimap_helper.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailimap_id.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailimap_id_parser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailimap_id_sender.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailimap_id_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailimap_keywords.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailimap_oauth2.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailimap_parser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailimap_print.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailimap_sender.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailimap_socket.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailimap_sort.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailimap_sort_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailimap_ssl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailimap_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailimap_types_helper.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailimf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailimf_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailimf_types_helper.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailimf_write.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailimf_write_file.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailimf_write_generic.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailimf_write_mem.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\maillock.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailmbox.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailmbox_parse.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailmbox_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailmessage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailmessage_tools.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailmessage_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailmh.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailmime.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailmime_content.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailmime_decode.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailmime_disposition.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailmime_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailmime_types_helper.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailmime_write.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailmime_write_file.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailmime_write_generic.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailmime_write_mem.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailpop3.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailpop3_helper.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailpop3_socket.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailpop3_ssl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailpop3_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailprivacy.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailprivacy_gnupg.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailprivacy_smime.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailprivacy_tools.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailprivacy_tools_private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailprivacy_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailsasl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailsasl_private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailsem.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailsmtp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailsmtp_helper.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailsmtp_oauth2.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailsmtp_private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailsmtp_socket.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailsmtp_ssl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailsmtp_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailstorage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailstorage_tools.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailstorage_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailstream.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailstream_cancel.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailstream_cancel_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailstream_cfstream.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailstream_compress.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailstream_helper.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailstream_low.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailstream_socket.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailstream_ssl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailstream_ssl_private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailstream_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailthread.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mailthread_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mboxdriver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mboxdriver_cached.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mboxdriver_cached_message.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mboxdriver_message.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mboxdriver_tools.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mboxdriver_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mboxstorage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\md5.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\md5global.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\md5namespace.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mhdriver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mhdriver_cached.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mhdriver_cached_message.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mhdriver_message.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mhdriver_tools.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mhdriver_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mhstorage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mime_message_driver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mmapstring.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\mmapstring_private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\namespace.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\namespace_parser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\namespace_sender.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\namespace_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\newsfeed.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\newsfeed_item.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\newsfeed_item_enclosure.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\newsfeed_private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\newsfeed_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\newsnntp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\newsnntp_socket.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\newsnntp_ssl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\newsnntp_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\nntpdriver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\nntpdriver_cached.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\nntpdriver_cached_message.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\nntpdriver_message.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\nntpdriver_tools.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\nntpdriver_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\nntpstorage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\parser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\parser_atom03.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\parser_atom10.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\parser_rdf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\parser_rss20.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\pop3driver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\pop3driver_cached.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\pop3driver_cached_message.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\pop3driver_message.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\pop3driver_tools.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\pop3driver_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\pop3storage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\qresync.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\qresync_private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\qresync_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\quota.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\quota_parser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\quota_sender.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\quota_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\timeutils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\uidplus.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\uidplus_parser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\uidplus_sender.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\uidplus_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\win_etpan.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\xgmlabels.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\xgmmsgid.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\xgmthrid.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\xlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\libetpan-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

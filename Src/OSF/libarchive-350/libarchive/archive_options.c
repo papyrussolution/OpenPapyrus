@@ -36,9 +36,9 @@ int _archive_set_option(struct archive * a, const char * m, const char * o, cons
 	const char * mp, * op, * vp;
 	int r;
 	archive_check_magic(a, magic, ARCHIVE_STATE_NEW, fn);
-	mp = (m != NULL && m[0] != '\0') ? m : NULL;
-	op = (o != NULL && o[0] != '\0') ? o : NULL;
-	vp = (v != NULL && v[0] != '\0') ? v : NULL;
+	mp = isempty(m) ? 0 : m;
+	op = isempty(o) ? 0 : o;
+	vp = isempty(v) ? 0 : v;
 	if(op == NULL && vp == NULL)
 		return ARCHIVE_OK;
 	if(op == NULL) {
@@ -51,8 +51,7 @@ int _archive_set_option(struct archive * a, const char * m, const char * o, cons
 		return ARCHIVE_FAILED;
 	}
 	if(r == ARCHIVE_WARN) {
-		archive_set_error(a, ARCHIVE_ERRNO_MISC, "Undefined option: `%s%s%s%s%s%s'",
-		    vp ? "" : "!", mp ? mp : "", mp ? ":" : "", op, vp ? "=" : "", vp ? vp : "");
+		archive_set_error(a, ARCHIVE_ERRNO_MISC, "Undefined option: `%s%s%s%s%s%s'", vp ? "" : "!", mp ? mp : "", mp ? ":" : "", op, vp ? "=" : "", vp ? vp : "");
 		return ARCHIVE_FAILED;
 	}
 	return r;
@@ -83,7 +82,7 @@ int _archive_set_options(struct archive * a, const char * options, int magic, co
 	char * data;
 	const char * s, * mod, * opt, * val;
 	archive_check_magic(a, magic, ARCHIVE_STATE_NEW, fn);
-	if(options == NULL || options[0] == '\0')
+	if(isempty(options))
 		return ARCHIVE_OK;
 	if((data = sstrdup(options)) == NULL) {
 		archive_set_error(a, ENOMEM, "Out of memory adding file to list");
@@ -93,10 +92,9 @@ int _archive_set_options(struct archive * a, const char * options, int magic, co
 	do {
 		mod = opt = val = NULL;
 		parse_option(&s, &mod, &opt, &val);
-		if(mod == NULL && opt != NULL &&
-		    strcmp("__ignore_wrong_module_name__", opt) == 0) {
-			/* Ignore module name error */
-			if(val != NULL) {
+		if(mod == NULL && opt && sstreq("__ignore_wrong_module_name__", opt)) {
+			// Ignore module name error 
+			if(val) {
 				ignore_mod_err = 1;
 				anyok = 1;
 			}

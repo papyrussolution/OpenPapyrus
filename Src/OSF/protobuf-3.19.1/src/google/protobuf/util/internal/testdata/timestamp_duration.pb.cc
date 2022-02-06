@@ -1209,9 +1209,7 @@ void TimestampDurationTestCases::InternalSwap(TimestampDurationTestCases* other)
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TimestampDurationTestCases::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ftimestamp_5fduration_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ftimestamp_5fduration_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2ftimestamp_5fduration_2eproto[0]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ftimestamp_5fduration_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ftimestamp_5fduration_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2ftimestamp_5fduration_2eproto[0]);
 }
 
 // ===================================================================
@@ -1410,9 +1408,7 @@ void TimeStampType::InternalSwap(TimeStampType* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TimeStampType::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ftimestamp_5fduration_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ftimestamp_5fduration_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2ftimestamp_5fduration_2eproto[1]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ftimestamp_5fduration_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ftimestamp_5fduration_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2ftimestamp_5fduration_2eproto[1]);
 }
 
 // ===================================================================
@@ -1611,9 +1607,7 @@ void DurationType::InternalSwap(DurationType* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata DurationType::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ftimestamp_5fduration_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ftimestamp_5fduration_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2ftimestamp_5fduration_2eproto[2]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ftimestamp_5fduration_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ftimestamp_5fduration_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2ftimestamp_5fduration_2eproto[2]);
 }
 
 // ===================================================================
@@ -1902,9 +1896,7 @@ void TimestampDuration::InternalSwap(TimestampDuration* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TimestampDuration::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ftimestamp_5fduration_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ftimestamp_5fduration_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2ftimestamp_5fduration_2eproto[3]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ftimestamp_5fduration_2eproto_getter, &descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2ftimestamp_5fduration_2eproto_once, file_level_metadata_google_2fprotobuf_2futil_2finternal_2ftestdata_2ftimestamp_5fduration_2eproto[3]);
 }
 
 // @@protoc_insertion_point(namespace_scope)

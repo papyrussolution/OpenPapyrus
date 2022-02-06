@@ -770,7 +770,7 @@ int PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 				}
 				else if(Filt.ArList.GetSingle()) {
 					LDATE  start_dt = Filt.Period.low;
-					if(start_dt)
+					if(checkdate(start_dt)) // @v11.3.0 start_dt-->checkdate(start_dt)
 						start_dt = plusdate(start_dt, -1);
 					GetSaldo(Filt.GoodsID, Filt.ArList.GetSingle(), Filt.DlvrAddrID, start_dt, &InRest, 0);
 				}
@@ -960,11 +960,13 @@ int PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 				P_Ct->SetTable(p_tgt, p_tgt->Dt);
 			*/
 			P_Ct->AddIdxField(p_tgt->GoodsID);
-			P_Ct->AddIdxField(p_tgt->PersonID);
+			if(Filt.CtKind != TrfrAnlzFilt::ctCntragent) // @v11.3.0
+				P_Ct->AddIdxField(p_tgt->PersonID);
 			if(Filt.Flags & TrfrAnlzFilt::fDiffByDlvrAddr)
 				P_Ct->AddIdxField(p_tgt->DlvrLocID);
 			P_Ct->AddInheritedFixField(p_tgt->GoodsText);
-			P_Ct->AddInheritedFixField(p_tgt->PersonText);
+			if(Filt.CtKind != TrfrAnlzFilt::ctCntragent) // @v11.3.0
+				P_Ct->AddInheritedFixField(p_tgt->PersonText);
 			if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvQtty) > 0) {
 				P_Ct->AddAggrField(p_tgt->Qtty);
 				total_list.Add(p_tgt->Qtty);
@@ -2233,6 +2235,10 @@ DBQuery * PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			brw_id = (Filt.Flags & TrfrAnlzFilt::fDiffByDlvrAddr) ? BROWSER_TRFRGR_CT_PD : BROWSER_TRFRGR_CT_P;
 		else if(Filt.Grp == TrfrAnlzFilt::gGoodsDate)
 			brw_id = BROWSER_TRFRGR_CT_G;
+		// @v11.3.0 {
+		else if(Filt.Grp == TrfrAnlzFilt::gGoodsCntragent && Filt.CtKind == TrfrAnlzFilt::ctCntragent) 
+			brw_id = BROWSER_TRFRGR_CT_G2;
+		// } @v11.3.0 
 		else //if(Filt.Grp == TrfrAnlzFilt::gGoodsCntragentDate)
 			brw_id = (Filt.Flags & TrfrAnlzFilt::fDiffByDlvrAddr) ? BROWSER_TRFRGR_CT_GPD : BROWSER_TRFRGR_CT_GP;
 		q = PPView::CrosstabDbQueryStub;

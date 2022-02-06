@@ -1,11 +1,8 @@
+// ALPHAINDEX.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- * Copyright (C) 2009-2014, International Business Machines Corporation and
- * others. All Rights Reserved.
- *******************************************************************************
- */
+// Copyright (C) 2009-2014, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -21,8 +18,7 @@ namespace {
 const UChar BASE[1] = { 0xFDD0 };
 const int32_t BASE_LENGTH = 1;
 
-bool isOneLabelBetterThanOther(const Normalizer2 &nfkdNormalizer,
-    const UnicodeString & one, const UnicodeString & other);
+bool isOneLabelBetterThanOther(const Normalizer2 &nfkdNormalizer, const UnicodeString & one, const UnicodeString & other);
 }  // namespace
 
 static int32_t U_CALLCONV collatorComparator(const void * context, const void * left, const void * right);
@@ -94,24 +90,19 @@ int32_t binarySearch(const UVector &list, const UnicodeString & s, const Collato
 // However, we also don't need U_I18N_API because it is not used from outside the i18n library.
 class BucketList : public UObject {
 public:
-	BucketList(UVector * bucketList, UVector * publicBucketList)
-		: bucketList_(bucketList), immutableVisibleList_(publicBucketList) {
+	BucketList(UVector * bucketList, UVector * publicBucketList) : bucketList_(bucketList), immutableVisibleList_(publicBucketList) 
+	{
 		int32_t displayIndex = 0;
 		for(int32_t i = 0; i < publicBucketList->size(); ++i) {
 			getBucket(*publicBucketList, i)->displayIndex_ = displayIndex++;
 		}
 	}
-
 	// The virtual destructor must not be inline.
 	// See ticket #8454 for details.
 	virtual ~BucketList();
-
-	int32_t getBucketCount() const {
-		return immutableVisibleList_->size();
-	}
-
-	int32_t getBucketIndex(const UnicodeString & name, const Collator &collatorPrimaryOnly,
-	    UErrorCode & errorCode) {
+	int32_t getBucketCount() const { return immutableVisibleList_->size(); }
+	int32_t getBucketIndex(const UnicodeString & name, const Collator &collatorPrimaryOnly, UErrorCode & errorCode) 
+	{
 		// binary search
 		int32_t start = 0;
 		int32_t limit = bucketList_->size();
@@ -133,11 +124,8 @@ public:
 		}
 		return bucket->displayIndex_;
 	}
-
-	/** All of the buckets, visible and invisible. */
-	UVector * bucketList_;
-	/** Just the visible buckets. */
-	UVector * immutableVisibleList_;
+	UVector * bucketList_; /** All of the buckets, visible and invisible. */
+	UVector * immutableVisibleList_; /** Just the visible buckets. */
 };
 
 BucketList::~BucketList() 
@@ -250,24 +238,23 @@ int32_t AlphabeticIndex::getBucketCount(UErrorCode & status)
 	return buckets_->getBucketCount();
 }
 
-int32_t AlphabeticIndex::getRecordCount(UErrorCode & status) {
-	if(U_FAILURE(status) || inputList_ == NULL) {
+int32_t AlphabeticIndex::getRecordCount(UErrorCode & status) 
+{
+	if(U_FAILURE(status) || !inputList_) {
 		return 0;
 	}
 	return inputList_->size();
 }
 
-void AlphabeticIndex::initLabels(UVector &indexCharacters, UErrorCode & errorCode) const {
+void AlphabeticIndex::initLabels(UVector &indexCharacters, UErrorCode & errorCode) const 
+{
 	U_ASSERT(indexCharacters.hasDeleter());
 	const Normalizer2 * nfkdNormalizer = Normalizer2::getNFKDInstance(errorCode);
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
-
 	const UnicodeString & firstScriptBoundary = *getString(*firstCharsInScripts_, 0);
-	const UnicodeString & overflowBoundary =
-	    *getString(*firstCharsInScripts_, firstCharsInScripts_->size() - 1);
-
+	const UnicodeString & overflowBoundary = *getString(*firstCharsInScripts_, firstCharsInScripts_->size() - 1);
 	// We make a sorted array of elements.
 	// Some of the input may be redundant.
 	// That is, we might have c, ch, d, where "ch" sorts just like "c", "h".
@@ -1017,15 +1004,17 @@ bool isOneLabelBetterThanOther(const Normalizer2 &nfkdNormalizer,
 //
 //     Records are internal only, instances are not directly surfaced in the public API.
 //     This class is mostly struct-like, with all public fields.
-
-AlphabeticIndex::Record::Record(const UnicodeString & name, const void * data)
-	: name_(name), data_(data) {
+//
+AlphabeticIndex::Record::Record(const UnicodeString & name, const void * data) : name_(name), data_(data) 
+{
 }
 
-AlphabeticIndex::Record::~Record() {
+AlphabeticIndex::Record::~Record() 
+{
 }
 
-AlphabeticIndex & AlphabeticIndex::addRecord(const UnicodeString & name, const void * data, UErrorCode & status) {
+AlphabeticIndex & AlphabeticIndex::addRecord(const UnicodeString & name, const void * data, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return *this;
 	}
@@ -1059,7 +1048,8 @@ AlphabeticIndex &AlphabeticIndex::clearRecords(UErrorCode & status) {
 	return *this;
 }
 
-int32_t AlphabeticIndex::getBucketIndex(const UnicodeString & name, UErrorCode & status) {
+int32_t AlphabeticIndex::getBucketIndex(const UnicodeString & name, UErrorCode & status) 
+{
 	initBuckets(status);
 	if(U_FAILURE(status)) {
 		return 0;
@@ -1067,9 +1057,7 @@ int32_t AlphabeticIndex::getBucketIndex(const UnicodeString & name, UErrorCode &
 	return buckets_->getBucketIndex(name, *collatorPrimaryOnly_, status);
 }
 
-int32_t AlphabeticIndex::getBucketIndex() const {
-	return labelsIterIndex_;
-}
+int32_t AlphabeticIndex::getBucketIndex() const { return labelsIterIndex_; }
 
 bool AlphabeticIndex::nextBucket(UErrorCode & status) {
 	if(U_FAILURE(status)) {
@@ -1093,34 +1081,23 @@ bool AlphabeticIndex::nextBucket(UErrorCode & status) {
 	return TRUE;
 }
 
-const UnicodeString & AlphabeticIndex::getBucketLabel() const {
-	if(currentBucket_ != NULL) {
-		return currentBucket_->label_;
-	}
-	else {
-		return emptyString_;
-	}
+const UnicodeString & AlphabeticIndex::getBucketLabel() const 
+{
+	return currentBucket_ ? currentBucket_->label_ : emptyString_;
 }
 
-UAlphabeticIndexLabelType AlphabeticIndex::getBucketLabelType() const {
-	if(currentBucket_ != NULL) {
-		return currentBucket_->labelType_;
-	}
-	else {
-		return U_ALPHAINDEX_NORMAL;
-	}
+UAlphabeticIndexLabelType AlphabeticIndex::getBucketLabelType() const 
+{
+	return currentBucket_ ? currentBucket_->labelType_ : U_ALPHAINDEX_NORMAL;
 }
 
-int32_t AlphabeticIndex::getBucketRecordCount() const {
-	if(currentBucket_ != NULL && currentBucket_->records_ != NULL) {
-		return currentBucket_->records_->size();
-	}
-	else {
-		return 0;
-	}
+int32_t AlphabeticIndex::getBucketRecordCount() const 
+{
+	return (currentBucket_ && currentBucket_->records_) ? currentBucket_->records_->size() : 0;
 }
 
-AlphabeticIndex &AlphabeticIndex::resetBucketIterator(UErrorCode & status) {
+AlphabeticIndex &AlphabeticIndex::resetBucketIterator(UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return *this;
 	}
@@ -1128,7 +1105,8 @@ AlphabeticIndex &AlphabeticIndex::resetBucketIterator(UErrorCode & status) {
 	return *this;
 }
 
-bool AlphabeticIndex::nextRecord(UErrorCode & status) {
+bool AlphabeticIndex::nextRecord(UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return FALSE;
 	}

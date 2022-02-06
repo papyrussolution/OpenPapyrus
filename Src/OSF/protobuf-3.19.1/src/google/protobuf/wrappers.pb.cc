@@ -421,9 +421,7 @@ void DoubleValue::InternalSwap(DoubleValue* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata DoubleValue::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2fwrappers_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2fwrappers_2eproto[0]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2fwrappers_2eproto_once, file_level_metadata_google_2fprotobuf_2fwrappers_2eproto[0]);
 }
 
 // ===================================================================
@@ -611,9 +609,7 @@ void FloatValue::InternalSwap(FloatValue* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata FloatValue::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2fwrappers_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2fwrappers_2eproto[1]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2fwrappers_2eproto_once, file_level_metadata_google_2fprotobuf_2fwrappers_2eproto[1]);
 }
 
 // ===================================================================
@@ -789,9 +785,7 @@ void Int64Value::InternalSwap(Int64Value* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Int64Value::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2fwrappers_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2fwrappers_2eproto[2]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2fwrappers_2eproto_once, file_level_metadata_google_2fprotobuf_2fwrappers_2eproto[2]);
 }
 
 // ===================================================================
@@ -967,9 +961,7 @@ void UInt64Value::InternalSwap(UInt64Value* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata UInt64Value::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2fwrappers_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2fwrappers_2eproto[3]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2fwrappers_2eproto_once, file_level_metadata_google_2fprotobuf_2fwrappers_2eproto[3]);
 }
 
 // ===================================================================
@@ -1145,9 +1137,7 @@ void Int32Value::InternalSwap(Int32Value* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Int32Value::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2fwrappers_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2fwrappers_2eproto[4]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2fwrappers_2eproto_once, file_level_metadata_google_2fprotobuf_2fwrappers_2eproto[4]);
 }
 
 // ===================================================================
@@ -1323,9 +1313,7 @@ void UInt32Value::InternalSwap(UInt32Value* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata UInt32Value::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2fwrappers_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2fwrappers_2eproto[5]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2fwrappers_2eproto_once, file_level_metadata_google_2fprotobuf_2fwrappers_2eproto[5]);
 }
 
 // ===================================================================
@@ -1501,9 +1489,7 @@ void BoolValue::InternalSwap(BoolValue* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata BoolValue::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2fwrappers_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2fwrappers_2eproto[6]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2fwrappers_2eproto_once, file_level_metadata_google_2fprotobuf_2fwrappers_2eproto[6]);
 }
 
 // ===================================================================
@@ -1529,8 +1515,7 @@ StringValue::StringValue(const StringValue& from)
     value_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(!from._internal_value().empty()) {
-    value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_value(), 
-      GetArenaForAllocation());
+    value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_value(), GetArenaForAllocation());
   }
   // @@protoc_insertion_point(copy_constructor:google.protobuf.StringValue)
 }
@@ -1625,8 +1610,7 @@ uint8_t* StringValue::_InternalSerialize(
       this->_internal_value().data(), static_cast<int>(this->_internal_value().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.protobuf.StringValue.value");
-    target = stream->WriteStringMaybeAliased(
-        1, this->_internal_value(), target);
+    target = stream->WriteStringMaybeAliased(1, this->_internal_value(), target);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1647,9 +1631,7 @@ size_t StringValue::ByteSizeLong() const {
 
   // string value = 1;
   if(!this->_internal_value().empty()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_value());
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_value());
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -1704,9 +1686,7 @@ void StringValue::InternalSwap(StringValue* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata StringValue::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2fwrappers_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2fwrappers_2eproto[7]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2fwrappers_2eproto_once, file_level_metadata_google_2fprotobuf_2fwrappers_2eproto[7]);
 }
 
 // ===================================================================
@@ -1732,8 +1712,7 @@ BytesValue::BytesValue(const BytesValue& from)
     value_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(!from._internal_value().empty()) {
-    value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_value(), 
-      GetArenaForAllocation());
+    value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_value(), GetArenaForAllocation());
   }
   // @@protoc_insertion_point(copy_constructor:google.protobuf.BytesValue)
 }
@@ -1823,8 +1802,7 @@ uint8_t* BytesValue::_InternalSerialize(
 
   // bytes value = 1;
   if(!this->_internal_value().empty()) {
-    target = stream->WriteBytesMaybeAliased(
-        1, this->_internal_value(), target);
+    target = stream->WriteBytesMaybeAliased(1, this->_internal_value(), target);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1845,9 +1823,7 @@ size_t BytesValue::ByteSizeLong() const {
 
   // bytes value = 1;
   if(!this->_internal_value().empty()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
-        this->_internal_value());
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(this->_internal_value());
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -1902,9 +1878,7 @@ void BytesValue::InternalSwap(BytesValue* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata BytesValue::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2fwrappers_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2fwrappers_2eproto[8]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2fwrappers_2eproto_getter, &descriptor_table_google_2fprotobuf_2fwrappers_2eproto_once, file_level_metadata_google_2fprotobuf_2fwrappers_2eproto[8]);
 }
 
 // @@protoc_insertion_point(namespace_scope)

@@ -70,7 +70,7 @@ struct nsPkgInt {
   nsUnitMsk unitmsk;
   const PRUint32* const data;
   nsPkgInt(nsIdxSft a,nsSftMsk b, nsBitSft c,nsUnitMsk d,const PRUint32* const  e)
-	  :idxsft(a), sftmsk(b), bitsft(c), unitmsk(d), data(e){}
+	  :idxsft(a), sftmsk(b), bitsft(c), unitmsk(d), data(e) {}
   nsPkgInt();
   nsPkgInt operator= (const nsPkgInt&);
 };

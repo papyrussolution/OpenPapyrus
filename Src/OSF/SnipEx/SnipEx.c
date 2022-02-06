@@ -120,9 +120,9 @@
 	BOOL CopyButton_Click(void);
 	//BOOL TextButton_Click(void);
 	// Save a 32-bit bitmap to a file. Returns FALSE if it fails.
-	BOOL SaveBitmapToFile(_In_ wchar_t* FilePath);
+	BOOL SaveBitmapToFile(_In_ wchar_t * FilePath);
 	// Save png image to a file. Returns FALSE if it fails.
-	BOOL SavePngToFile(_In_ wchar_t* FilePath);
+	BOOL SavePngToFile(_In_ wchar_t * FilePath);
 	//HRESULT AddAllMenuItems(_In_ HINSTANCE Instance);
 	BOOL IsAppRunningElevated(void);
 	// OutputDebugStringW enhanced with varargs. Only works in debug builds.
@@ -130,7 +130,7 @@
 	BOOL AdjustForCustomScaling(void);
 	LSTATUS SetSnipExRegValue(_In_ const wchar_t * ValueName, _In_ DWORD* ValueData);
 	LSTATUS GetSnipExRegValue(_In_ const wchar_t * ValueName, _In_ DWORD* ValueData);
-	LSTATUS DeleteSnipExRegValue(_In_ const wchar_t* ValueName);
+	LSTATUS DeleteSnipExRegValue(_In_ const wchar_t * ValueName);
 //
 //
 //
@@ -2042,7 +2042,7 @@ Cleanup:
 	return Result;
 }
 
-BOOL SaveBitmapToFile(_In_ wchar_t* FilePath)
+BOOL SaveBitmapToFile(_In_ wchar_t * FilePath)
 {
 	BOOL Success = FALSE;
 	BITMAPFILEHEADER BitmapFileHeader = { 0 };
@@ -2155,7 +2155,7 @@ Cleanup:
 	}
 }
 
-BOOL SavePngToFile(_In_ wchar_t* FilePath)
+BOOL SavePngToFile(_In_ wchar_t * FilePath)
 {
 	BOOL Result       = FALSE;
 	CLSID PngCLSID     = { 0 };
@@ -2456,7 +2456,7 @@ Exit:
 	return Result;
 }
 
-LSTATUS SetSnipExRegValue(_In_ const wchar_t* ValueName, _In_ DWORD* ValueData)
+LSTATUS SetSnipExRegValue(_In_ const wchar_t * ValueName, _In_ DWORD* ValueData)
 {
 	LSTATUS Result = ERROR_SUCCESS;
 	HKEY SoftwareKey = NULL;

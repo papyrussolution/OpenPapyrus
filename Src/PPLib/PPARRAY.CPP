@@ -404,9 +404,9 @@ ObjIdListFilt & ObjIdListFilt::InitEmpty()
 	return *this;
 }
 
-int ObjIdListFilt::IsEmpty() const
+bool ObjIdListFilt::IsEmpty() const
 {
-	return BIN(!P_List || !P_List->getCount() || (P_List->getCount() == 1 && P_List->at(0) == 0));
+	return (!P_List || !P_List->getCount() || (P_List->getCount() == 1 && P_List->at(0) == 0));
 }
 
 int FASTCALL ObjIdListFilt::CheckID(PPID id) const

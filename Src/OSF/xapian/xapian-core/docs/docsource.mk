@@ -1,0 +1,24 @@
+APIDOC_SRC=\
+	$(top_builddir)/include/xapian/error.h
+SOURCEDOC_SRC=\
+	$(top_builddir)/\\
+	$(top_builddir)/\\\
+	$T/bin/remotetcpserver.cc\
+	$T/bin/xapian-check.cc\
+	$T/bin/xapian-compact.cc\
+	$T/bin/xapian-delve.cc\
+	$T/bin/xapian-inspect-honey.cc\\
+	$T/bin/xapian-inspect.cc\\
+	$T/bin/xapian-progsrv.cc\
+	$T/bin/xapian-replicate-server.cc\
+	$T/bin/xapian-replicate.cc\
+	$T/bin/xapian-tcpsrv.cc\
+	$T/examples/copydatabase.cc\
+	$T/examples/quest.cc\
+	$T/examples/simpleexpand.cc\
+	$T/examples/simpleindex.cc\
+	$T/examples/simplesearch.cc\
+	$T/examples/xapian-metadata.cc\
+	$T/examples/xapian-pos.cc\
+	$(top_builddir)/unicode/c_istab.h\
+	$(top_builddir)/unicode/unicode-data.cc

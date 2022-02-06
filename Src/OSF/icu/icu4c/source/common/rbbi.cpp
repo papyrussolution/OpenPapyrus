@@ -400,7 +400,8 @@ CharacterIterator&RuleBasedBreakIterator::getText() const {
  * the current iteration position to the beginning of the text.
  * @param newText An iterator over the text to analyze.
  */
-void RuleBasedBreakIterator::adoptText(CharacterIterator* newText) {
+void RuleBasedBreakIterator::adoptText(CharacterIterator* newText) 
+{
 	// If we are holding a CharacterIterator adopted from a
 	//   previous call to this function, delete it now.
 	if(fCharIter != &fSCharIter) {
@@ -427,24 +428,21 @@ void RuleBasedBreakIterator::adoptText(CharacterIterator* newText) {
  * the current iteration position to the beginning of the text.
  * @param newText An iterator over the text to analyze.
  */
-void RuleBasedBreakIterator::setText(const UnicodeString & newText) {
+void RuleBasedBreakIterator::setText(const UnicodeString & newText) 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	fBreakCache->reset();
 	fDictionaryCache->reset();
 	utext_openConstUnicodeString(&fText, &newText, &status);
-
 	// Set up a character iterator on the string.
 	//   Needed in case someone calls getText().
 	//  Can not, unfortunately, do this lazily on the (probably never)
 	//  call to getText(), because getText is const.
 	fSCharIter.setText(newText);
-
 	if(fCharIter != &fSCharIter) {
-		// old fCharIter was adopted from the outside.  Delete it.
-		delete fCharIter;
+		delete fCharIter; // old fCharIter was adopted from the outside.  Delete it.
 	}
 	fCharIter = &fSCharIter;
-
 	this->first();
 }
 
@@ -454,7 +452,8 @@ void RuleBasedBreakIterator::setText(const UnicodeString & newText) {
  *  Intended for use with text data originating in Java (garbage collected) environments
  *  where the data may be moved in memory at arbitrary times.
  */
-RuleBasedBreakIterator &RuleBasedBreakIterator::refreshInputText(UText * input, UErrorCode & status) {
+RuleBasedBreakIterator &RuleBasedBreakIterator::refreshInputText(UText * input, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return *this;
 	}
@@ -483,7 +482,8 @@ RuleBasedBreakIterator &RuleBasedBreakIterator::refreshInputText(UText * input, 
  * Sets the current iteration position to the beginning of the text, position zero.
  * @return The new iterator position, which is zero.
  */
-int32_t RuleBasedBreakIterator::first() {
+int32_t RuleBasedBreakIterator::first() 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	if(!fBreakCache->seek(0)) {
 		fBreakCache->populateNear(0, status);
@@ -492,12 +492,12 @@ int32_t RuleBasedBreakIterator::first() {
 	U_ASSERT(fPosition == 0);
 	return 0;
 }
-
 /**
  * Sets the current iteration position to the end of the text.
  * @return The text's past-the-end offset.
  */
-int32_t RuleBasedBreakIterator::last() {
+int32_t RuleBasedBreakIterator::last() 
+{
 	int32_t endPos = (int32_t)utext_nativeLength(&fText);
 	bool endShouldBeBoundary = isBoundary(endPos);  // Has side effect of setting iterator position.
 	(void)endShouldBeBoundary;
@@ -505,7 +505,6 @@ int32_t RuleBasedBreakIterator::last() {
 	U_ASSERT(fPosition == endPos);
 	return endPos;
 }
-
 /**
  * Advances the iterator either forward or backward the specified number of steps.
  * Negative values move backward, and positive values move forward.  This is
@@ -515,7 +514,8 @@ int32_t RuleBasedBreakIterator::last() {
  * @return The character offset of the boundary position n boundaries away from
  * the current one.
  */
-int32_t RuleBasedBreakIterator::next(int32_t n) {
+int32_t RuleBasedBreakIterator::next(int32_t n) 
+{
 	int32_t result = 0;
 	if(n > 0) {
 		for(; n > 0 && result != UBRK_DONE; --n) {
@@ -532,12 +532,12 @@ int32_t RuleBasedBreakIterator::next(int32_t n) {
 	}
 	return result;
 }
-
 /**
  * Advances the iterator to the next boundary position.
  * @return The position of the first boundary after this one.
  */
-int32_t RuleBasedBreakIterator::next() {
+int32_t RuleBasedBreakIterator::next() 
+{
 	fBreakCache->next();
 	return fDone ? UBRK_DONE : fPosition;
 }

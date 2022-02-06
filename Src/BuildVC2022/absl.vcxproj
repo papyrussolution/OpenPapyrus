@@ -1,0 +1,823 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllDebug|Win32">
+      <Configuration>MtDllDebug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllDebug|x64">
+      <Configuration>MtDllDebug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllRelease|Win32">
+      <Configuration>MtDllRelease</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllRelease|x64">
+      <Configuration>MtDllRelease</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerDebug|Win32">
+      <Configuration>ServerDebug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerDebug|x64">
+      <Configuration>ServerDebug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerRelease|Win32">
+      <Configuration>ServerRelease</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerRelease|x64">
+      <Configuration>ServerRelease</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\abseil\absl\absl-internal.h" />
+    <ClInclude Include="..\osf\abseil\absl\base\call_once.h" />
+    <ClInclude Include="..\osf\abseil\absl\base\casts.h" />
+    <ClInclude Include="..\osf\abseil\absl\base\internal\cycleclock.h" />
+    <ClInclude Include="..\osf\abseil\absl\base\internal\direct_mmap.h" />
+    <ClInclude Include="..\osf\abseil\absl\base\internal\low_level_alloc.h" />
+    <ClInclude Include="..\osf\abseil\absl\base\internal\low_level_scheduling.h" />
+    <ClInclude Include="..\osf\abseil\absl\base\internal\per_thread_tls.h" />
+    <ClInclude Include="..\osf\abseil\absl\base\internal\raw_logging.h" />
+    <ClInclude Include="..\osf\abseil\absl\base\internal\scoped_set_env.h" />
+    <ClInclude Include="..\osf\abseil\absl\base\internal\spinlock.h" />
+    <ClInclude Include="..\osf\abseil\absl\base\internal\spinlock_wait.h" />
+    <ClInclude Include="..\osf\abseil\absl\base\internal\strerror.h" />
+    <ClInclude Include="..\osf\abseil\absl\base\internal\sysinfo.h" />
+    <ClInclude Include="..\osf\abseil\absl\base\internal\thread_identity.h" />
+    <ClInclude Include="..\osf\abseil\absl\base\internal\throw_delegate.h" />
+    <ClInclude Include="..\osf\abseil\absl\base\internal\tsan_mutex_interface.h" />
+    <ClInclude Include="..\osf\abseil\absl\base\internal\unscaledcycleclock.h" />
+    <ClInclude Include="..\osf\abseil\absl\base\log_severity.h" />
+    <ClInclude Include="..\osf\abseil\absl\container\internal\hashtablez_sampler.h" />
+    <ClInclude Include="..\osf\abseil\absl\container\internal\raw_hash_set.h" />
+    <ClInclude Include="..\osf\abseil\absl\debugging\failure_signal_handler.h" />
+    <ClInclude Include="..\osf\abseil\absl\debugging\internal\address_is_readable.h" />
+    <ClInclude Include="..\osf\abseil\absl\debugging\internal\demangle.h" />
+    <ClInclude Include="..\osf\abseil\absl\debugging\internal\elf_mem_image.h" />
+    <ClInclude Include="..\osf\abseil\absl\debugging\internal\examine_stack.h" />
+    <ClInclude Include="..\osf\abseil\absl\debugging\internal\stacktrace_config.h" />
+    <ClInclude Include="..\osf\abseil\absl\debugging\internal\symbolize.h" />
+    <ClInclude Include="..\osf\abseil\absl\debugging\internal\vdso_support.h" />
+    <ClInclude Include="..\osf\abseil\absl\debugging\leak_check.h" />
+    <ClInclude Include="..\osf\abseil\absl\debugging\stacktrace.h" />
+    <ClInclude Include="..\osf\abseil\absl\debugging\symbolize.h" />
+    <ClInclude Include="..\osf\abseil\absl\flags\commandlineflag.h" />
+    <ClInclude Include="..\osf\abseil\absl\flags\config.h" />
+    <ClInclude Include="..\osf\abseil\absl\flags\declare.h" />
+    <ClInclude Include="..\osf\abseil\absl\flags\flag.h" />
+    <ClInclude Include="..\osf\abseil\absl\flags\internal\commandlineflag.h" />
+    <ClInclude Include="..\osf\abseil\absl\flags\internal\flag.h" />
+    <ClInclude Include="..\osf\abseil\absl\flags\internal\parse.h" />
+    <ClInclude Include="..\osf\abseil\absl\flags\internal\private_handle_accessor.h" />
+    <ClInclude Include="..\osf\abseil\absl\flags\internal\program_name.h" />
+    <ClInclude Include="..\osf\abseil\absl\flags\internal\registry.h" />
+    <ClInclude Include="..\osf\abseil\absl\flags\internal\sequence_lock.h" />
+    <ClInclude Include="..\osf\abseil\absl\flags\internal\usage.h" />
+    <ClInclude Include="..\osf\abseil\absl\flags\marshalling.h" />
+    <ClInclude Include="..\osf\abseil\absl\flags\parse.h" />
+    <ClInclude Include="..\osf\abseil\absl\flags\reflection.h" />
+    <ClInclude Include="..\osf\abseil\absl\flags\usage.h" />
+    <ClInclude Include="..\osf\abseil\absl\flags\usage_config.h" />
+    <ClInclude Include="..\osf\abseil\absl\hash\hash.h" />
+    <ClInclude Include="..\osf\abseil\absl\hash\internal\city.h" />
+    <ClInclude Include="..\osf\abseil\absl\hash\internal\hash.h" />
+    <ClInclude Include="..\osf\abseil\absl\hash\internal\low_level_hash.h" />
+    <ClInclude Include="..\osf\abseil\absl\numeric\int128.h" />
+    <ClInclude Include="..\osf\abseil\absl\profiling\internal\exponential_biased.h" />
+    <ClInclude Include="..\osf\abseil\absl\profiling\internal\periodic_sampler.h" />
+    <ClInclude Include="..\osf\abseil\absl\random\bernoulli_distribution.h" />
+    <ClInclude Include="..\osf\abseil\absl\random\beta_distribution.h" />
+    <ClInclude Include="..\osf\abseil\absl\random\discrete_distribution.h" />
+    <ClInclude Include="..\osf\abseil\absl\random\distributions.h" />
+    <ClInclude Include="..\osf\abseil\absl\random\exponential_distribution.h" />
+    <ClInclude Include="..\osf\abseil\absl\random\gaussian_distribution.h" />
+    <ClInclude Include="..\osf\abseil\absl\random\internal\chi_square.h" />
+    <ClInclude Include="..\osf\abseil\absl\random\internal\distribution_test_util.h" />
+    <ClInclude Include="..\osf\abseil\absl\random\internal\platform.h" />
+    <ClInclude Include="..\osf\abseil\absl\random\internal\pool_urbg.h" />
+    <ClInclude Include="..\osf\abseil\absl\random\internal\randen.h" />
+    <ClInclude Include="..\osf\abseil\absl\random\internal\randen_detect.h" />
+    <ClInclude Include="..\osf\abseil\absl\random\internal\randen_hwaes.h" />
+    <ClInclude Include="..\osf\abseil\absl\random\internal\randen_slow.h" />
+    <ClInclude Include="..\osf\abseil\absl\random\internal\randen_traits.h" />
+    <ClInclude Include="..\osf\abseil\absl\random\internal\seed_material.h" />
+    <ClInclude Include="..\osf\abseil\absl\random\log_uniform_int_distribution.h" />
+    <ClInclude Include="..\osf\abseil\absl\random\poisson_distribution.h" />
+    <ClInclude Include="..\osf\abseil\absl\random\seed_gen_exception.h" />
+    <ClInclude Include="..\osf\abseil\absl\random\seed_sequences.h" />
+    <ClInclude Include="..\osf\abseil\absl\random\uniform_int_distribution.h" />
+    <ClInclude Include="..\osf\abseil\absl\random\uniform_real_distribution.h" />
+    <ClInclude Include="..\osf\abseil\absl\random\zipf_distribution.h" />
+    <ClInclude Include="..\osf\abseil\absl\status\internal\statusor_internal.h" />
+    <ClInclude Include="..\osf\abseil\absl\status\internal\status_internal.h" />
+    <ClInclude Include="..\osf\abseil\absl\status\status.h" />
+    <ClInclude Include="..\osf\abseil\absl\status\statusor.h" />
+    <ClInclude Include="..\osf\abseil\absl\status\status_payload_printer.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\ascii.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\charconv.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\cord.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\cord_analysis.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\escaping.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\charconv_bigint.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\charconv_parse.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\char_map.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\cordz_functions.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\cordz_handle.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\cordz_info.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\cordz_sample_token.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\cord_internal.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\cord_rep_btree.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\cord_rep_btree_navigator.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\cord_rep_btree_reader.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\cord_rep_consume.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\cord_rep_crc.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\cord_rep_flat.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\cord_rep_ring.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\cord_rep_ring_reader.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\escaping.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\memutil.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\ostringstream.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\resize_uninitialized.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\stl_type_traits.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\string_constant.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\str_format\arg.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\str_format\bind.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\str_format\checker.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\str_format\extension.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\str_format\float_conversion.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\str_format\output.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\str_format\parser.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\str_join_internal.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\str_split_internal.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\internal\utf8.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\match.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\numbers.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\string_view.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\strip.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\str_cat.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\str_join.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\str_replace.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\str_split.h" />
+    <ClInclude Include="..\osf\abseil\absl\strings\substitute.h" />
+    <ClInclude Include="..\osf\abseil\absl\synchronization\barrier.h" />
+    <ClInclude Include="..\osf\abseil\absl\synchronization\blocking_counter.h" />
+    <ClInclude Include="..\osf\abseil\absl\synchronization\internal\create_thread_identity.h" />
+    <ClInclude Include="..\osf\abseil\absl\synchronization\internal\futex.h" />
+    <ClInclude Include="..\osf\abseil\absl\synchronization\internal\graphcycles.h" />
+    <ClInclude Include="..\osf\abseil\absl\synchronization\internal\per_thread_sem.h" />
+    <ClInclude Include="..\osf\abseil\absl\synchronization\internal\waiter.h" />
+    <ClInclude Include="..\osf\abseil\absl\synchronization\mutex.h" />
+    <ClInclude Include="..\osf\abseil\absl\synchronization\notification.h" />
+    <ClInclude Include="..\osf\abseil\absl\time\civil_time.h" />
+    <ClInclude Include="..\osf\abseil\absl\time\clock.h" />
+    <ClInclude Include="..\osf\abseil\absl\time\internal\cctz\include\cctz\civil_time.h" />
+    <ClInclude Include="..\osf\abseil\absl\time\internal\cctz\include\cctz\civil_time_detail.h" />
+    <ClInclude Include="..\osf\abseil\absl\time\internal\cctz\include\cctz\time_zone.h" />
+    <ClInclude Include="..\osf\abseil\absl\time\internal\cctz\include\cctz\zone_info_source.h" />
+    <ClInclude Include="..\osf\abseil\absl\time\internal\cctz\src\time_zone_fixed.h" />
+    <ClInclude Include="..\osf\abseil\absl\time\internal\cctz\src\time_zone_if.h" />
+    <ClInclude Include="..\osf\abseil\absl\time\internal\cctz\src\time_zone_impl.h" />
+    <ClInclude Include="..\osf\abseil\absl\time\internal\cctz\src\time_zone_info.h" />
+    <ClInclude Include="..\osf\abseil\absl\time\internal\cctz\src\time_zone_libc.h" />
+    <ClInclude Include="..\osf\abseil\absl\time\internal\cctz\src\time_zone_posix.h" />
+    <ClInclude Include="..\osf\abseil\absl\time\internal\cctz\src\tzfile.h" />
+    <ClInclude Include="..\osf\abseil\absl\time\time.h" />
+    <ClInclude Include="..\osf\abseil\absl\types\bad_any_cast.h" />
+    <ClInclude Include="..\osf\abseil\absl\types\bad_optional_access.h" />
+    <ClInclude Include="..\osf\abseil\absl\types\bad_variant_access.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\abseil\absl\absl-pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\osf\abseil\absl\base\internal\cycleclock.cc" />
+    <ClCompile Include="..\osf\abseil\absl\base\internal\low_level_alloc.cc" />
+    <ClCompile Include="..\osf\abseil\absl\base\internal\raw_logging.cc" />
+    <ClCompile Include="..\osf\abseil\absl\base\internal\scoped_set_env.cc" />
+    <ClCompile Include="..\osf\abseil\absl\base\internal\spinlock.cc" />
+    <ClCompile Include="..\osf\abseil\absl\base\internal\spinlock_wait.cc" />
+    <ClCompile Include="..\osf\abseil\absl\base\internal\strerror.cc" />
+    <ClCompile Include="..\osf\abseil\absl\base\internal\sysinfo.cc" />
+    <ClCompile Include="..\osf\abseil\absl\base\internal\thread_identity.cc" />
+    <ClCompile Include="..\osf\abseil\absl\base\internal\throw_delegate.cc" />
+    <ClCompile Include="..\osf\abseil\absl\base\internal\unscaledcycleclock.cc" />
+    <ClCompile Include="..\osf\abseil\absl\base\log_severity.cc" />
+    <ClCompile Include="..\osf\abseil\absl\container\internal\hashtablez_sampler.cc" />
+    <ClCompile Include="..\osf\abseil\absl\container\internal\hashtablez_sampler_force_weak_definition.cc" />
+    <ClCompile Include="..\osf\abseil\absl\container\internal\raw_hash_set.cc" />
+    <ClCompile Include="..\osf\abseil\absl\debugging\failure_signal_handler.cc" />
+    <ClCompile Include="..\osf\abseil\absl\debugging\internal\address_is_readable.cc" />
+    <ClCompile Include="..\osf\abseil\absl\debugging\internal\demangle.cc" />
+    <ClCompile Include="..\osf\abseil\absl\debugging\internal\elf_mem_image.cc" />
+    <ClCompile Include="..\osf\abseil\absl\debugging\internal\examine_stack.cc" />
+    <ClCompile Include="..\osf\abseil\absl\debugging\internal\vdso_support.cc" />
+    <ClCompile Include="..\osf\abseil\absl\debugging\leak_check.cc" />
+    <ClCompile Include="..\osf\abseil\absl\debugging\leak_check_disable.cc" />
+    <ClCompile Include="..\osf\abseil\absl\debugging\stacktrace.cc" />
+    <ClCompile Include="..\osf\abseil\absl\debugging\symbolize.cc" />
+    <ClCompile Include="..\osf\abseil\absl\flags\commandlineflag.cc" />
+    <ClCompile Include="..\osf\abseil\absl\flags\flag.cc" />
+    <ClCompile Include="..\osf\abseil\absl\flags\internal\commandlineflag-internal.cc" />
+    <ClCompile Include="..\osf\abseil\absl\flags\internal\flag-internal.cc" />
+    <ClCompile Include="..\osf\abseil\absl\flags\internal\private_handle_accessor.cc" />
+    <ClCompile Include="..\osf\abseil\absl\flags\internal\program_name.cc" />
+    <ClCompile Include="..\osf\abseil\absl\flags\internal\usage-internal.cc" />
+    <ClCompile Include="..\osf\abseil\absl\flags\marshalling.cc" />
+    <ClCompile Include="..\osf\abseil\absl\flags\parse.cc" />
+    <ClCompile Include="..\osf\abseil\absl\flags\reflection.cc" />
+    <ClCompile Include="..\osf\abseil\absl\flags\usage.cc" />
+    <ClCompile Include="..\osf\abseil\absl\flags\usage_config.cc" />
+    <ClCompile Include="..\osf\abseil\absl\hash\internal\city.cc" />
+    <ClCompile Include="..\osf\abseil\absl\hash\internal\hash.cc" />
+    <ClCompile Include="..\osf\abseil\absl\hash\internal\low_level_hash.cc" />
+    <ClCompile Include="..\osf\abseil\absl\numeric\int128.cc" />
+    <ClCompile Include="..\osf\abseil\absl\profiling\internal\exponential_biased.cc" />
+    <ClCompile Include="..\osf\abseil\absl\profiling\internal\periodic_sampler.cc" />
+    <ClCompile Include="..\osf\abseil\absl\random\discrete_distribution.cc" />
+    <ClCompile Include="..\osf\abseil\absl\random\gaussian_distribution.cc" />
+    <ClCompile Include="..\osf\abseil\absl\random\internal\chi_square.cc" />
+    <ClCompile Include="..\osf\abseil\absl\random\internal\distribution_test_util.cc" />
+    <ClCompile Include="..\osf\abseil\absl\random\internal\pool_urbg.cc" />
+    <ClCompile Include="..\osf\abseil\absl\random\internal\randen.cc" />
+    <ClCompile Include="..\osf\abseil\absl\random\internal\randen_detect.cc" />
+    <ClCompile Include="..\osf\abseil\absl\random\internal\randen_hwaes.cc" />
+    <ClCompile Include="..\osf\abseil\absl\random\internal\randen_round_keys.cc" />
+    <ClCompile Include="..\osf\abseil\absl\random\internal\randen_slow.cc" />
+    <ClCompile Include="..\osf\abseil\absl\random\internal\seed_material.cc" />
+    <ClCompile Include="..\osf\abseil\absl\random\seed_gen_exception.cc" />
+    <ClCompile Include="..\osf\abseil\absl\random\seed_sequences.cc" />
+    <ClCompile Include="..\osf\abseil\absl\status\status.cc" />
+    <ClCompile Include="..\osf\abseil\absl\status\statusor.cc" />
+    <ClCompile Include="..\osf\abseil\absl\status\status_payload_printer.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\ascii.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\charconv.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\cord.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\cord_analysis.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\escaping.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\internal\charconv_bigint.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\internal\charconv_parse.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\internal\cordz_functions.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\internal\cordz_handle.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\internal\cordz_info.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\internal\cordz_sample_token.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\internal\cord_internal.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\internal\cord_rep_btree.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\internal\cord_rep_btree_navigator.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\internal\cord_rep_btree_reader.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\internal\cord_rep_concat.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\internal\cord_rep_consume.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\internal\cord_rep_crc.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\internal\cord_rep_ring.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\internal\escaping-internal.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\internal\memutil.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\internal\ostringstream.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\internal\str_format\arg.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\internal\str_format\bind.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\internal\str_format\extension.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\internal\str_format\float_conversion.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\internal\str_format\output.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\internal\str_format\parser.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\internal\utf8.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\match.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\numbers.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\string_view.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\str_cat.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\str_replace.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\str_split.cc" />
+    <ClCompile Include="..\osf\abseil\absl\strings\substitute.cc" />
+    <ClCompile Include="..\osf\abseil\absl\synchronization\barrier.cc" />
+    <ClCompile Include="..\osf\abseil\absl\synchronization\blocking_counter.cc" />
+    <ClCompile Include="..\osf\abseil\absl\synchronization\internal\create_thread_identity.cc" />
+    <ClCompile Include="..\osf\abseil\absl\synchronization\internal\graphcycles.cc" />
+    <ClCompile Include="..\osf\abseil\absl\synchronization\internal\per_thread_sem.cc" />
+    <ClCompile Include="..\osf\abseil\absl\synchronization\internal\waiter.cc" />
+    <ClCompile Include="..\osf\abseil\absl\synchronization\mutex.cc" />
+    <ClCompile Include="..\osf\abseil\absl\synchronization\notification.cc" />
+    <ClCompile Include="..\osf\abseil\absl\time\civil_time.cc" />
+    <ClCompile Include="..\osf\abseil\absl\time\clock.cc" />
+    <ClCompile Include="..\osf\abseil\absl\time\duration.cc" />
+    <ClCompile Include="..\osf\abseil\absl\time\format.cc" />
+    <ClCompile Include="..\osf\abseil\absl\time\internal\cctz\src\civil_time_detail.cc" />
+    <ClCompile Include="..\osf\abseil\absl\time\internal\cctz\src\time_zone_fixed.cc" />
+    <ClCompile Include="..\osf\abseil\absl\time\internal\cctz\src\time_zone_format.cc" />
+    <ClCompile Include="..\osf\abseil\absl\time\internal\cctz\src\time_zone_if.cc" />
+    <ClCompile Include="..\osf\abseil\absl\time\internal\cctz\src\time_zone_impl.cc" />
+    <ClCompile Include="..\osf\abseil\absl\time\internal\cctz\src\time_zone_info.cc" />
+    <ClCompile Include="..\osf\abseil\absl\time\internal\cctz\src\time_zone_libc.cc" />
+    <ClCompile Include="..\osf\abseil\absl\time\internal\cctz\src\time_zone_lookup.cc" />
+    <ClCompile Include="..\osf\abseil\absl\time\internal\cctz\src\time_zone_posix.cc" />
+    <ClCompile Include="..\osf\abseil\absl\time\internal\cctz\src\zone_info_source.cc" />
+    <ClCompile Include="..\osf\abseil\absl\time\time.cc" />
+    <ClCompile Include="..\osf\abseil\absl\types\bad_any_cast.cc" />
+    <ClCompile Include="..\osf\abseil\absl\types\bad_optional_access.cc" />
+    <ClCompile Include="..\osf\abseil\absl\types\bad_variant_access.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\osf\abseil\absl\base\internal\spinlock_akaros.inc" />
+    <None Include="..\osf\abseil\absl\base\internal\spinlock_linux.inc" />
+    <None Include="..\osf\abseil\absl\base\internal\spinlock_posix.inc" />
+    <None Include="..\osf\abseil\absl\base\internal\spinlock_win32.inc" />
+    <None Include="..\osf\abseil\absl\debugging\internal\stacktrace_aarch64-inl.inc" />
+    <None Include="..\osf\abseil\absl\debugging\internal\stacktrace_arm-inl.inc" />
+    <None Include="..\osf\abseil\absl\debugging\internal\stacktrace_emscripten-inl.inc" />
+    <None Include="..\osf\abseil\absl\debugging\internal\stacktrace_generic-inl.inc" />
+    <None Include="..\osf\abseil\absl\debugging\internal\stacktrace_powerpc-inl.inc" />
+    <None Include="..\osf\abseil\absl\debugging\internal\stacktrace_riscv-inl.inc" />
+    <None Include="..\osf\abseil\absl\debugging\internal\stacktrace_unimplemented-inl.inc" />
+    <None Include="..\osf\abseil\absl\debugging\internal\stacktrace_win32-inl.inc" />
+    <None Include="..\osf\abseil\absl\debugging\internal\stacktrace_x86-inl.inc" />
+    <None Include="..\osf\abseil\absl\debugging\symbolize_darwin.inc" />
+    <None Include="..\osf\abseil\absl\debugging\symbolize_elf.inc" />
+    <None Include="..\osf\abseil\absl\debugging\symbolize_emscripten.inc" />
+    <None Include="..\osf\abseil\absl\debugging\symbolize_unimplemented.inc" />
+    <None Include="..\osf\abseil\absl\debugging\symbolize_win32.inc" />
+    <None Include="..\osf\abseil\absl\flags\internal\flag_msvc.inc" />
+    <None Include="..\osf\abseil\absl\numeric\int128_have_intrinsic.inc" />
+    <None Include="..\osf\abseil\absl\numeric\int128_no_intrinsic.inc" />
+    <None Include="..\osf\abseil\absl\time\internal\get_current_time_chrono.inc" />
+    <None Include="..\osf\abseil\absl\time\internal\get_current_time_posix.inc" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{3BB14255-1F39-4FC6-BB9D-6C8DAC9E5D13}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>Win32</Platform>
+    <ProjectName>absl</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;..\osf\abseil;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsManaged>false</CompileAsManaged>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;..\osf\abseil;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsManaged>false</CompileAsManaged>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;..\osf\abseil;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsManaged>false</CompileAsManaged>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;..\osf\abseil;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsManaged>false</CompileAsManaged>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;..\osf\abseil;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsManaged>false</CompileAsManaged>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;..\osf\abseil;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsManaged>false</CompileAsManaged>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;..\osf\abseil;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsManaged>false</CompileAsManaged>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;..\osf\abseil;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsManaged>false</CompileAsManaged>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;..\osf\abseil;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsManaged>false</CompileAsManaged>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;..\osf\abseil;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsManaged>false</CompileAsManaged>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;..\osf\abseil;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsManaged>false</CompileAsManaged>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;..\osf\abseil;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsManaged>false</CompileAsManaged>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

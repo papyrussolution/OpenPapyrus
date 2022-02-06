@@ -386,7 +386,7 @@ void Transliterator::_transliterate(Replaceable& text,
 		--newCS;
 		newCS -= U16_LENGTH(text.char32At(newCS)) - 1;
 	}
-	index.contextStart = uprv_max(newCS, originalStart);
+	index.contextStart = smax(newCS, originalStart);
 #endif
 }
 

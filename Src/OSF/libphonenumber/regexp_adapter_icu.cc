@@ -91,11 +91,11 @@ private:
 // ICU implementation of the RegExp abstract class.
 class IcuRegExp : public RegExp {
 public:
-	explicit IcuRegExp(const string& utf8_regexp) {
+	explicit IcuRegExp(const string& utf8_regexp) 
+	{
 		UParseError parse_error;
 		UErrorCode status = U_ZERO_ERROR;
-		utf8_regexp_.reset(RegexPattern::compile(
-			    Utf8StringToUnicodeString(utf8_regexp), 0, parse_error, status));
+		utf8_regexp_.reset(RegexPattern::compile(Utf8StringToUnicodeString(utf8_regexp), 0, parse_error, status));
 		if(U_FAILURE(status)) {
 			// The provided regular expressions should compile correctly.
 			LOG(ERROR) << "Error compiling regular expression: " << utf8_regexp;

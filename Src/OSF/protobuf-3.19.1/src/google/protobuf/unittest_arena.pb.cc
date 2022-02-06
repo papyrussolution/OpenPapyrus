@@ -95,9 +95,7 @@ namespace proto2_arena_unittest {
 class NestedMessage::_Internal {
  public:
   using HasBits = decltype(std::declval<NestedMessage>()._has_bits_);
-  static void set_has_d(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
+  static void set_has_d(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
 NestedMessage::NestedMessage(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -275,9 +273,7 @@ void NestedMessage::InternalSwap(NestedMessage* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata NestedMessage::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2funittest_5farena_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5farena_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2funittest_5farena_2eproto[0]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5farena_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5farena_2eproto_once, file_level_metadata_google_2fprotobuf_2funittest_5farena_2eproto[0]);
 }
 
 // ===================================================================
@@ -459,9 +455,7 @@ void ArenaMessage::InternalSwap(ArenaMessage* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata ArenaMessage::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2funittest_5farena_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5farena_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2funittest_5farena_2eproto[1]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5farena_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5farena_2eproto_once, file_level_metadata_google_2fprotobuf_2funittest_5farena_2eproto[1]);
 }
 
 // @@protoc_insertion_point(namespace_scope)

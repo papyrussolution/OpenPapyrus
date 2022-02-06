@@ -261,7 +261,7 @@ FRect & FASTCALL FRect::operator = (SPoint2F p)
 	return *this;
 }
 
-int    FRect::IsEmpty() const { return (a.x == 0.0f && b.x == 0.0f && a.y == 0.0f && b.y == 0.0f); }
+bool   FRect::IsEmpty() const { return (a.x == 0.0f && b.x == 0.0f && a.y == 0.0f && b.y == 0.0f); }
 float  FRect::Width() const { return (b.x - a.x); }
 float  FRect::Height() const { return (b.y - a.y); }
 SPoint2F FRect::GetSize() const { return SPoint2F((b.x - a.x), (b.y - a.y)); }
@@ -994,15 +994,15 @@ int FASTCALL TRect::contains(SPoint2S p) const
 	//return (p.x >= a.x && p.x <= b.x && p.y >= a.y && p.y <= b.y);
 }
 
-int FASTCALL TRect::operator == (const TRect& r) const { return (a == r.a && b == r.b); }
-int FASTCALL TRect::operator != (const TRect& r) const { return (!(*this == r)); }
-int TRect::IsEmpty() const { return (a.x == 0 && b.x == 0 && a.y == 0 && b.y == 0); }
-int TRect::IsDegenerated() const { return (a.x == b.x) ? ((a.y == b.y) ? SIDE_CENTER : SIDE_RIGHT) : ((a.y == b.y) ? SIDE_TOP : 0); }
+int  FASTCALL TRect::operator == (const TRect& r) const { return (a == r.a && b == r.b); }
+int  FASTCALL TRect::operator != (const TRect& r) const { return (!(*this == r)); }
+bool TRect::IsEmpty() const { return (a.x == 0 && b.x == 0 && a.y == 0 && b.y == 0); }
+int  TRect::IsDegenerated() const { return (a.x == b.x) ? ((a.y == b.y) ? SIDE_CENTER : SIDE_RIGHT) : ((a.y == b.y) ? SIDE_TOP : 0); }
 
 TRect & TRect::Normalize()
 {
-	ExchangeForOrder(&a.x, &b.x);
-	ExchangeForOrder(&a.y, &b.y);
+	SExchangeForOrder(&a.x, &b.x);
+	SExchangeForOrder(&a.y, &b.y);
 	return *this;
 }
 //
@@ -1698,7 +1698,7 @@ void UiCoord::Reset()
 	Reserve = 0;
 }
 
-int UiCoord::IsEmpty() const
+bool UiCoord::IsEmpty() const
 {
 	return (Val == 0.0f && Flags == 0);
 }
@@ -1725,7 +1725,7 @@ void UiRelRect::Reset()
 	R.Y.Reset();
 }
 
-int UiRelRect::IsEmpty() const
+bool UiRelRect::IsEmpty() const
 {
 	return (L.X.IsEmpty() && L.Y.IsEmpty() && R.X.IsEmpty() && R.Y.IsEmpty());
 }

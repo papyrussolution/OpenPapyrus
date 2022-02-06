@@ -104,8 +104,7 @@ class Timestamp final :
   inline void Swap(Timestamp* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -137,8 +136,7 @@ class Timestamp final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -149,19 +147,16 @@ class Timestamp final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "google.protobuf.Timestamp";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "google.protobuf.Timestamp"; }
   protected:
-  explicit Timestamp(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit Timestamp(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -218,40 +213,36 @@ class Timestamp final :
 inline void Timestamp::clear_seconds() {
   seconds_ = int64_t{0};
 }
-inline int64_t Timestamp::_internal_seconds() const {
-  return seconds_;
-}
+inline int64_t Timestamp::_internal_seconds() const { return seconds_; }
 inline int64_t Timestamp::seconds() const {
-  // @@protoc_insertion_point(field_get:google.protobuf.Timestamp.seconds)
-  return _internal_seconds();
+	// @@protoc_insertion_point(field_get:google.protobuf.Timestamp.seconds)
+	return _internal_seconds();
 }
 inline void Timestamp::_internal_set_seconds(int64_t value) {
-  
-  seconds_ = value;
+	
+	seconds_ = value;
 }
 inline void Timestamp::set_seconds(int64_t value) {
-  _internal_set_seconds(value);
-  // @@protoc_insertion_point(field_set:google.protobuf.Timestamp.seconds)
+	_internal_set_seconds(value);
+	// @@protoc_insertion_point(field_set:google.protobuf.Timestamp.seconds)
 }
 
 // int32 nanos = 2;
 inline void Timestamp::clear_nanos() {
   nanos_ = 0;
 }
-inline int32_t Timestamp::_internal_nanos() const {
-  return nanos_;
-}
+inline int32_t Timestamp::_internal_nanos() const { return nanos_; }
 inline int32_t Timestamp::nanos() const {
-  // @@protoc_insertion_point(field_get:google.protobuf.Timestamp.nanos)
-  return _internal_nanos();
+	// @@protoc_insertion_point(field_get:google.protobuf.Timestamp.nanos)
+	return _internal_nanos();
 }
 inline void Timestamp::_internal_set_nanos(int32_t value) {
-  
-  nanos_ = value;
+	
+	nanos_ = value;
 }
 inline void Timestamp::set_nanos(int32_t value) {
-  _internal_set_nanos(value);
-  // @@protoc_insertion_point(field_set:google.protobuf.Timestamp.nanos)
+	_internal_set_nanos(value);
+	// @@protoc_insertion_point(field_set:google.protobuf.Timestamp.nanos)
 }
 
 #ifdef __GNUC__

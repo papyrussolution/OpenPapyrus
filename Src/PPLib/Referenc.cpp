@@ -1094,7 +1094,7 @@ int PPRights::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 }
 
 size_t PPRights::Size() const { return P_Rt ? (sizeof(_PPRights) + P_Rt->ORTailSize) : 0; }
-int    PPRights::IsEmpty() const { return (P_Rt == 0); }
+bool   PPRights::IsEmpty() const { return (P_Rt == 0); }
 int    PPRights::IsInherited() const { return BIN(P_Rt && P_Rt->OprFlags & PPORF_INHERITED); }
 
 void PPRights::Empty()

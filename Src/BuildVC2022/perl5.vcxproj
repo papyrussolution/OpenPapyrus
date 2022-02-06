@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\perl5\av.c" />
+    <ClCompile Include="..\OSF\perl5\caretx.c" />
+    <ClCompile Include="..\OSF\perl5\deb.c" />
+    <ClCompile Include="..\OSF\perl5\doio.c" />
+    <ClCompile Include="..\OSF\perl5\doop.c" />
+    <ClCompile Include="..\OSF\perl5\dquote.c" />
+    <ClCompile Include="..\OSF\perl5\dump.c" />
+    <ClCompile Include="..\OSF\perl5\generate_uudmap.c" />
+    <ClCompile Include="..\OSF\perl5\globals.c" />
+    <ClCompile Include="..\OSF\perl5\gv.c" />
+    <ClCompile Include="..\OSF\perl5\hv.c" />
+    <ClCompile Include="..\OSF\perl5\keywords.c" />
+    <ClCompile Include="..\OSF\perl5\locale.c" />
+    <ClCompile Include="..\OSF\perl5\malloc.c" />
+    <ClCompile Include="..\OSF\perl5\mathoms.c" />
+    <ClCompile Include="..\OSF\perl5\mg.c" />
+    <ClCompile Include="..\OSF\perl5\miniperlmain.c" />
+    <ClCompile Include="..\OSF\perl5\mro_core.c" />
+    <ClCompile Include="..\OSF\perl5\numeric.c" />
+    <ClCompile Include="..\OSF\perl5\op.c" />
+    <ClCompile Include="..\OSF\perl5\pad.c" />
+    <ClCompile Include="..\OSF\perl5\perl.c" />
+    <ClCompile Include="..\OSF\perl5\perlio.c" />
+    <ClCompile Include="..\OSF\perl5\perly.c" />
+    <ClCompile Include="..\OSF\perl5\pp.c" />
+    <ClCompile Include="..\OSF\perl5\pp_ctl.c" />
+    <ClCompile Include="..\OSF\perl5\pp_hot.c" />
+    <ClCompile Include="..\OSF\perl5\pp_pack.c" />
+    <ClCompile Include="..\OSF\perl5\pp_sort.c" />
+    <ClCompile Include="..\OSF\perl5\pp_sys.c" />
+    <ClCompile Include="..\OSF\perl5\reentr.c" />
+    <ClCompile Include="..\OSF\perl5\regcomp.c" />
+    <ClCompile Include="..\OSF\perl5\regexec.c" />
+    <ClCompile Include="..\OSF\perl5\run.c" />
+    <ClCompile Include="..\OSF\perl5\scope.c" />
+    <ClCompile Include="..\OSF\perl5\sv.c" />
+    <ClCompile Include="..\OSF\perl5\taint.c" />
+    <ClCompile Include="..\OSF\perl5\time64.c" />
+    <ClCompile Include="..\OSF\perl5\toke.c" />
+    <ClCompile Include="..\OSF\perl5\universal.c" />
+    <ClCompile Include="..\OSF\perl5\utf8.c" />
+    <ClCompile Include="..\OSF\perl5\util.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\perl5\av.h" />
+    <ClInclude Include="..\OSF\perl5\charclass_invlists.h" />
+    <ClInclude Include="..\OSF\perl5\cop.h" />
+    <ClInclude Include="..\OSF\perl5\cv.h" />
+    <ClInclude Include="..\OSF\perl5\dosish.h" />
+    <ClInclude Include="..\OSF\perl5\ebcdic_tables.h" />
+    <ClInclude Include="..\OSF\perl5\embed.h" />
+    <ClInclude Include="..\OSF\perl5\embedvar.h" />
+    <ClInclude Include="..\OSF\perl5\EXTERN.h" />
+    <ClInclude Include="..\OSF\perl5\fakesdio.h" />
+    <ClInclude Include="..\OSF\perl5\feature.h" />
+    <ClInclude Include="..\OSF\perl5\form.h" />
+    <ClInclude Include="..\OSF\perl5\gv.h" />
+    <ClInclude Include="..\OSF\perl5\handy.h" />
+    <ClInclude Include="..\OSF\perl5\hv.h" />
+    <ClInclude Include="..\OSF\perl5\hv_func.h" />
+    <ClInclude Include="..\OSF\perl5\hv_macro.h" />
+    <ClInclude Include="..\OSF\perl5\inline.h" />
+    <ClInclude Include="..\OSF\perl5\INTERN.h" />
+    <ClInclude Include="..\OSF\perl5\intrpvar.h" />
+    <ClInclude Include="..\OSF\perl5\invlist_inline.h" />
+    <ClInclude Include="..\OSF\perl5\iperlsys.h" />
+    <ClInclude Include="..\OSF\perl5\keywords.h" />
+    <ClInclude Include="..\OSF\perl5\l1_char_class_tab.h" />
+    <ClInclude Include="..\OSF\perl5\malloc_ctl.h" />
+    <ClInclude Include="..\OSF\perl5\metaconfig.h" />
+    <ClInclude Include="..\OSF\perl5\mg.h" />
+    <ClInclude Include="..\OSF\perl5\mg_raw.h" />
+    <ClInclude Include="..\OSF\perl5\mg_vtable.h" />
+    <ClInclude Include="..\OSF\perl5\mydtrace.h" />
+    <ClInclude Include="..\OSF\perl5\nostdio.h" />
+    <ClInclude Include="..\OSF\perl5\op.h" />
+    <ClInclude Include="..\OSF\perl5\opcode.h" />
+    <ClInclude Include="..\OSF\perl5\opnames.h" />
+    <ClInclude Include="..\OSF\perl5\op_reg_common.h" />
+    <ClInclude Include="..\OSF\perl5\overload.h" />
+    <ClInclude Include="..\OSF\perl5\pad.h" />
+    <ClInclude Include="..\OSF\perl5\parser.h" />
+    <ClInclude Include="..\OSF\perl5\patchlevel.h" />
+    <ClInclude Include="..\OSF\perl5\perl.h" />
+    <ClInclude Include="..\OSF\perl5\perlapi.h" />
+    <ClInclude Include="..\OSF\perl5\perlio.h" />
+    <ClInclude Include="..\OSF\perl5\perliol.h" />
+    <ClInclude Include="..\OSF\perl5\perlsdio.h" />
+    <ClInclude Include="..\OSF\perl5\perlvars.h" />
+    <ClInclude Include="..\OSF\perl5\perly.h" />
+    <ClInclude Include="..\OSF\perl5\perl_inc_macro.h" />
+    <ClInclude Include="..\OSF\perl5\perl_langinfo.h" />
+    <ClInclude Include="..\OSF\perl5\perl_siphash.h" />
+    <ClInclude Include="..\OSF\perl5\pp.h" />
+    <ClInclude Include="..\OSF\perl5\pp_proto.h" />
+    <ClInclude Include="..\OSF\perl5\proto.h" />
+    <ClInclude Include="..\OSF\perl5\reentr.h" />
+    <ClInclude Include="..\OSF\perl5\regcharclass.h" />
+    <ClInclude Include="..\OSF\perl5\regcomp.h" />
+    <ClInclude Include="..\OSF\perl5\regexp.h" />
+    <ClInclude Include="..\OSF\perl5\regnodes.h" />
+    <ClInclude Include="..\OSF\perl5\sbox32_hash.h" />
+    <ClInclude Include="..\OSF\perl5\scope.h" />
+    <ClInclude Include="..\OSF\perl5\sv.h" />
+    <ClInclude Include="..\OSF\perl5\thread.h" />
+    <ClInclude Include="..\OSF\perl5\time64.h" />
+    <ClInclude Include="..\OSF\perl5\time64_config.h" />
+    <ClInclude Include="..\OSF\perl5\uconfig.h" />
+    <ClInclude Include="..\OSF\perl5\unicode_constants.h" />
+    <ClInclude Include="..\OSF\perl5\unixish.h" />
+    <ClInclude Include="..\OSF\perl5\uni_keywords.h" />
+    <ClInclude Include="..\OSF\perl5\utf8.h" />
+    <ClInclude Include="..\OSF\perl5\utfebcdic.h" />
+    <ClInclude Include="..\OSF\perl5\util.h" />
+    <ClInclude Include="..\OSF\perl5\vutil.h" />
+    <ClInclude Include="..\OSF\perl5\warnings.h" />
+    <ClInclude Include="..\OSF\perl5\win32\config.h" />
+    <ClInclude Include="..\OSF\perl5\XSUB.h" />
+    <ClInclude Include="..\OSF\perl5\zaphod32_hash.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{36CECA27-6B36-4909-BFAB-4542D8C30688}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>perl5</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>PERL_CORE;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\OSF\perl5\win32;..\OSF\perl5\win32\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>PERL_CORE;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\OSF\perl5\win32;..\OSF\perl5\win32\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>PERL_CORE;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\OSF\perl5\win32;..\OSF\perl5\win32\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>PERL_CORE;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\OSF\perl5\win32;..\OSF\perl5\win32\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

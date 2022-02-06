@@ -45,7 +45,7 @@ typedef enum ufmt_type_info {
     ufmt_uchar,      /* int, cast to UChar */
     ufmt_ustring     /* UChar * */
     /*ufmt_wchar,*/      /* wchar_t */
-    /*ufmt_wstring,*/    /* wchar_t* */
+    /*ufmt_wstring,*/    /* wchar_t * */
     /*ufmt_date,*/       /* Date */
     /*ufmt_last*/
 } ufmt_type_info;
@@ -57,7 +57,7 @@ typedef union ufmt_args {
     int64_t int64Value; /* int, UChar */
     float   floatValue; /* float */
     double  doubleValue; /* double */
-    void   *ptrValue; /* any pointer - void *, char *, wchar_t*, UChar * */
+    void   *ptrValue; /* any pointer - void *, char *, wchar_t *, UChar * */
     /*wchar_t wcharValue;*/    /* wchar_t */    /* TODO: Should wchar_t be used? */
     /*UDate dateValue;*/     /* Date */
 } ufmt_args;

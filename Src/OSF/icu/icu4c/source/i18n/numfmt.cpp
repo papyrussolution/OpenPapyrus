@@ -1027,7 +1027,7 @@ int32_t NumberFormat::getMaximumIntegerDigits() const
 //
 void NumberFormat::setMaximumIntegerDigits(int32_t newValue)
 {
-	fMaxIntegerDigits = uprv_max(0, uprv_min(newValue, gDefaultMaxIntegerDigits));
+	fMaxIntegerDigits = smax(0, smin(newValue, gDefaultMaxIntegerDigits));
 	if(fMinIntegerDigits > fMaxIntegerDigits)
 		fMinIntegerDigits = fMaxIntegerDigits;
 }
@@ -1045,7 +1045,7 @@ int32_t NumberFormat::getMinimumIntegerDigits() const
 //
 void NumberFormat::setMinimumIntegerDigits(int32_t newValue)
 {
-	fMinIntegerDigits = uprv_max(0, uprv_min(newValue, gDefaultMinIntegerDigits));
+	fMinIntegerDigits = smax(0, smin(newValue, gDefaultMinIntegerDigits));
 	if(fMinIntegerDigits > fMaxIntegerDigits)
 		fMaxIntegerDigits = fMinIntegerDigits;
 }
@@ -1063,7 +1063,7 @@ int32_t NumberFormat::getMaximumFractionDigits() const
 //
 void NumberFormat::setMaximumFractionDigits(int32_t newValue)
 {
-	fMaxFractionDigits = uprv_max(0, uprv_min(newValue, gDefaultMaxIntegerDigits));
+	fMaxFractionDigits = smax(0, smin(newValue, gDefaultMaxIntegerDigits));
 	if(fMaxFractionDigits < fMinFractionDigits)
 		fMinFractionDigits = fMaxFractionDigits;
 }
@@ -1081,7 +1081,7 @@ int32_t NumberFormat::getMinimumFractionDigits() const
 //
 void NumberFormat::setMinimumFractionDigits(int32_t newValue)
 {
-	fMinFractionDigits = uprv_max(0, uprv_min(newValue, gDefaultMinIntegerDigits));
+	fMinFractionDigits = smax(0, smin(newValue, gDefaultMinIntegerDigits));
 	if(fMaxFractionDigits < fMinFractionDigits)
 		fMaxFractionDigits = fMinFractionDigits;
 }

@@ -1,20 +1,10 @@
+// APICOLL.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/********************************************************************
-* COPYRIGHT:
-* Copyright (c) 1997-2016, International Business Machines Corporation and
-* others. All Rights Reserved.
-********************************************************************/
-//===============================================================================
-//
-// File apicoll.cpp
-//
-//
+// Copyright (c) 1997-2016, International Business Machines Corporation and others. All Rights Reserved.
 //
 // Created by: Helena Shih
-//
 // Modification History:
-//
 //  Date         Name          Description
 //  2/5/97      aliu        Added streamIn and streamOut methods.  Added
 //                          constructor which reads RuleBasedCollator object from
@@ -27,8 +17,7 @@
 //                          DecompositionIterator is made public so add class scope
 //                          testing.
 //  02/10/98    damiba      Added test for compare(UnicodeString &, UnicodeString &, int32_t)
-//===============================================================================
-
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -63,7 +52,6 @@ void CollationAPITest::TestProperty(/* char * par */)
 	 */
 	UVersionInfo currVersionArray = {0x31, 0xC0, 0x05, 0x2A}; // from ICU 4.4/UCA 5.2
 	UVersionInfo versionArray;
-
 	logln("The property tests begin : ");
 	logln("Test ctors : ");
 	col = Collator::createInstance(Locale::getEnglish(), success);
@@ -71,28 +59,22 @@ void CollationAPITest::TestProperty(/* char * par */)
 		errcheckln(success, "English Collator creation failed. - %s", u_errorName(success));
 		return;
 	}
-
 	col->getVersion(versionArray);
 	// Check for a version greater than some value rather than equality
 	// so that we need not update the expected version each time.
 	if(uprv_memcmp(versionArray, currVersionArray, 4) < 0) {
-		errln("Testing Collator::getVersion() - unexpected result: %02x.%02x.%02x.%02x",
-		    versionArray[0], versionArray[1], versionArray[2], versionArray[3]);
+		errln("Testing Collator::getVersion() - unexpected result: %02x.%02x.%02x.%02x", versionArray[0], versionArray[1], versionArray[2], versionArray[3]);
 	}
 	else {
-		logln("Collator::getVersion() result: %02x.%02x.%02x.%02x",
-		    versionArray[0], versionArray[1], versionArray[2], versionArray[3]);
+		logln("Collator::getVersion() result: %02x.%02x.%02x.%02x", versionArray[0], versionArray[1], versionArray[2], versionArray[3]);
 	}
-
 	doAssert((col->compare("ab", "abc") == Collator::LESS), "ab < abc comparison failed");
 	doAssert((col->compare("ab", "AB") == Collator::LESS), "ab < AB comparison failed");
 	doAssert((col->compare("blackbird", "black-bird") == Collator::GREATER), "black-bird > blackbird comparison failed");
 	doAssert((col->compare("black bird", "black-bird") == Collator::LESS), "black bird > black-bird comparison failed");
 	doAssert((col->compare("Hello", "hello") == Collator::GREATER), "Hello > hello comparison failed");
 	doAssert((col->compare("", "", success) == UCOL_EQUAL), "Comparison between empty strings failed");
-
-	doAssert((col->compareUTF8("\x61\x62\xc3\xa4", "\x61\x62\xc3\x9f", success) == UCOL_LESS),
-	    "ab a-umlaut < ab sharp-s UTF-8 comparison failed");
+	doAssert((col->compareUTF8("\x61\x62\xc3\xa4", "\x61\x62\xc3\x9f", success) == UCOL_LESS), "ab a-umlaut < ab sharp-s UTF-8 comparison failed");
 	success = U_ZERO_ERROR;
 	{
 		UnicodeString abau = UNICODE_STRING_SIMPLE("\\x61\\x62\\xe4").unescape();
@@ -100,11 +82,9 @@ void CollationAPITest::TestProperty(/* char * par */)
 		UCharIterator abauIter, abssIter;
 		uiter_setReplaceable(&abauIter, &abau);
 		uiter_setReplaceable(&abssIter, &abss);
-		doAssert((col->compare(abauIter, abssIter, success) == UCOL_LESS),
-		    "ab a-umlaut < ab sharp-s UCharIterator comparison failed");
+		doAssert((col->compare(abauIter, abssIter, success) == UCOL_LESS), "ab a-umlaut < ab sharp-s UCharIterator comparison failed");
 		success = U_ZERO_ERROR;
 	}
-
 	/*start of update [Bertrand A. D. 02/10/98]*/
 	doAssert((col->compare("ab", "abc", 2) == Collator::EQUAL), "ab = abc with length 2 comparison failed");
 	doAssert((col->compare("ab", "AB", 2) == Collator::LESS), "ab < AB  with length 2 comparison failed");

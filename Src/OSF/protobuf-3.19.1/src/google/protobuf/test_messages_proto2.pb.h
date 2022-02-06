@@ -303,8 +303,7 @@ class TestAllTypesProto2_NestedMessage final :
   inline void Swap(TestAllTypesProto2_NestedMessage* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -336,8 +335,7 @@ class TestAllTypesProto2_NestedMessage final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -348,19 +346,16 @@ class TestAllTypesProto2_NestedMessage final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_test_messages.proto2.TestAllTypesProto2.NestedMessage";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_test_messages.proto2.TestAllTypesProto2.NestedMessage"; }
   protected:
-  explicit TestAllTypesProto2_NestedMessage(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestAllTypesProto2_NestedMessage(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -835,8 +830,7 @@ class TestAllTypesProto2_Data final :
   inline void Swap(TestAllTypesProto2_Data* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -868,8 +862,7 @@ class TestAllTypesProto2_Data final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -880,19 +873,16 @@ class TestAllTypesProto2_Data final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_test_messages.proto2.TestAllTypesProto2.Data";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_test_messages.proto2.TestAllTypesProto2.Data"; }
   protected:
-  explicit TestAllTypesProto2_Data(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestAllTypesProto2_Data(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -990,8 +980,7 @@ class TestAllTypesProto2_MessageSetCorrect final :
   inline void Swap(TestAllTypesProto2_MessageSetCorrect* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -1023,8 +1012,7 @@ class TestAllTypesProto2_MessageSetCorrect final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -1035,19 +1023,16 @@ class TestAllTypesProto2_MessageSetCorrect final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_test_messages.proto2.TestAllTypesProto2.MessageSetCorrect";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_test_messages.proto2.TestAllTypesProto2.MessageSetCorrect"; }
   protected:
-  explicit TestAllTypesProto2_MessageSetCorrect(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestAllTypesProto2_MessageSetCorrect(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -1165,84 +1150,49 @@ class TestAllTypesProto2_MessageSetCorrect final :
                                                  &_extensions_);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Repeated::ConstType GetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestAllTypesProto2_MessageSetCorrect, _proto_TypeTraits, _field_type, _is_packed>& id,
-      int index) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Repeated::ConstType GetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestAllTypesProto2_MessageSetCorrect, _proto_TypeTraits, _field_type, _is_packed>& id, int index) const {
 
     return _proto_TypeTraits::Get(id.number(), _extensions_, index);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Repeated::MutableType MutableExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestAllTypesProto2_MessageSetCorrect, _proto_TypeTraits, _field_type, _is_packed>& id,
-      int index) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Repeated::MutableType MutableExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestAllTypesProto2_MessageSetCorrect, _proto_TypeTraits, _field_type, _is_packed>& id, int index) {
 
     return _proto_TypeTraits::Mutable(id.number(), index, &_extensions_);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestAllTypesProto2_MessageSetCorrect, _proto_TypeTraits, _field_type, _is_packed>& id,
-      int index, typename _proto_TypeTraits::Repeated::ConstType value) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestAllTypesProto2_MessageSetCorrect, _proto_TypeTraits, _field_type, _is_packed>& id, int index, typename _proto_TypeTraits::Repeated::ConstType value) {
     _proto_TypeTraits::Set(id.number(), index, value, &_extensions_);
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Repeated::MutableType AddExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestAllTypesProto2_MessageSetCorrect, _proto_TypeTraits, _field_type, _is_packed>& id) {
-    typename _proto_TypeTraits::Repeated::MutableType to_add =
-        _proto_TypeTraits::Add(id.number(), _field_type, &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Repeated::MutableType AddExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestAllTypesProto2_MessageSetCorrect, _proto_TypeTraits, _field_type, _is_packed>& id) {
+    typename _proto_TypeTraits::Repeated::MutableType to_add = _proto_TypeTraits::Add(id.number(), _field_type, &_extensions_);
 
     return to_add;
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void AddExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestAllTypesProto2_MessageSetCorrect, _proto_TypeTraits, _field_type, _is_packed>& id,
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void AddExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestAllTypesProto2_MessageSetCorrect, _proto_TypeTraits, _field_type, _is_packed>& id,
       typename _proto_TypeTraits::Repeated::ConstType value) {
-    _proto_TypeTraits::Add(id.number(), _field_type, _is_packed, value,
-                           &_extensions_);
+    _proto_TypeTraits::Add(id.number(), _field_type, _is_packed, value, &_extensions_);
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
   inline const typename _proto_TypeTraits::Repeated::RepeatedFieldType&
-  GetRepeatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestAllTypesProto2_MessageSetCorrect, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  GetRepeatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestAllTypesProto2_MessageSetCorrect, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _proto_TypeTraits::GetRepeated(id.number(), _extensions_);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Repeated::RepeatedFieldType*
-  MutableRepeatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestAllTypesProto2_MessageSetCorrect, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Repeated::RepeatedFieldType * MutableRepeatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestAllTypesProto2_MessageSetCorrect, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::MutableRepeated(id.number(), _field_type,
-                                              _is_packed, &_extensions_);
+    return _proto_TypeTraits::MutableRepeated(id.number(), _field_type, _is_packed, &_extensions_);
   }
 
   // @@protoc_insertion_point(class_scope:protobuf_test_messages.proto2.TestAllTypesProto2.MessageSetCorrect)
@@ -1304,8 +1254,7 @@ class TestAllTypesProto2_MessageSetCorrectExtension1 final :
   inline void Swap(TestAllTypesProto2_MessageSetCorrectExtension1* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -1337,8 +1286,7 @@ class TestAllTypesProto2_MessageSetCorrectExtension1 final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -1349,19 +1297,16 @@ class TestAllTypesProto2_MessageSetCorrectExtension1 final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_test_messages.proto2.TestAllTypesProto2.MessageSetCorrectExtension1";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_test_messages.proto2.TestAllTypesProto2.MessageSetCorrectExtension1"; }
   protected:
-  explicit TestAllTypesProto2_MessageSetCorrectExtension1(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestAllTypesProto2_MessageSetCorrectExtension1(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -1453,8 +1398,7 @@ class TestAllTypesProto2_MessageSetCorrectExtension2 final :
   inline void Swap(TestAllTypesProto2_MessageSetCorrectExtension2* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -1486,8 +1430,7 @@ class TestAllTypesProto2_MessageSetCorrectExtension2 final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -1498,19 +1441,16 @@ class TestAllTypesProto2_MessageSetCorrectExtension2 final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_test_messages.proto2.TestAllTypesProto2.MessageSetCorrectExtension2";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_test_messages.proto2.TestAllTypesProto2.MessageSetCorrectExtension2"; }
   protected:
-  explicit TestAllTypesProto2_MessageSetCorrectExtension2(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestAllTypesProto2_MessageSetCorrectExtension2(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -1610,8 +1550,7 @@ class TestAllTypesProto2 final :
   inline void Swap(TestAllTypesProto2* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -1643,8 +1582,7 @@ class TestAllTypesProto2 final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -1655,19 +1593,16 @@ class TestAllTypesProto2 final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_test_messages.proto2.TestAllTypesProto2";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_test_messages.proto2.TestAllTypesProto2"; }
   protected:
-  explicit TestAllTypesProto2(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit TestAllTypesProto2(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -2145,7 +2080,7 @@ class TestAllTypesProto2 final :
   std::string* mutable_repeated_string(int index);
   void set_repeated_string(int index, const std::string& value);
   void set_repeated_string(int index, std::string&& value);
-  void set_repeated_string(int index, const char* value);
+  void set_repeated_string(int index, const char * value);
   void set_repeated_string(int index, const char* value, size_t size);
   std::string* add_repeated_string();
   void add_repeated_string(const std::string& value);
@@ -2169,7 +2104,7 @@ class TestAllTypesProto2 final :
   std::string* mutable_repeated_bytes(int index);
   void set_repeated_bytes(int index, const std::string& value);
   void set_repeated_bytes(int index, std::string&& value);
-  void set_repeated_bytes(int index, const char* value);
+  void set_repeated_bytes(int index, const char * value);
   void set_repeated_bytes(int index, const void* value, size_t size);
   std::string* add_repeated_bytes();
   void add_repeated_bytes(const std::string& value);
@@ -2265,7 +2200,7 @@ class TestAllTypesProto2 final :
   std::string* mutable_repeated_string_piece(int index);
   void set_repeated_string_piece(int index, const std::string& value);
   void set_repeated_string_piece(int index, std::string&& value);
-  void set_repeated_string_piece(int index, const char* value);
+  void set_repeated_string_piece(int index, const char * value);
   void set_repeated_string_piece(int index, const char* value, size_t size);
   std::string* add_repeated_string_piece();
   void add_repeated_string_piece(const std::string& value);
@@ -2292,7 +2227,7 @@ class TestAllTypesProto2 final :
   std::string* mutable_repeated_cord(int index);
   void set_repeated_cord(int index, const std::string& value);
   void set_repeated_cord(int index, std::string&& value);
-  void set_repeated_cord(int index, const char* value);
+  void set_repeated_cord(int index, const char * value);
   void set_repeated_cord(int index, const char* value, size_t size);
   std::string* add_repeated_cord();
   void add_repeated_cord(const std::string& value);
@@ -4244,84 +4179,49 @@ class TestAllTypesProto2 final :
                                                  &_extensions_);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Repeated::ConstType GetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestAllTypesProto2, _proto_TypeTraits, _field_type, _is_packed>& id,
-      int index) const {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Repeated::ConstType GetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestAllTypesProto2, _proto_TypeTraits, _field_type, _is_packed>& id, int index) const {
 
     return _proto_TypeTraits::Get(id.number(), _extensions_, index);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Repeated::MutableType MutableExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestAllTypesProto2, _proto_TypeTraits, _field_type, _is_packed>& id,
-      int index) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Repeated::MutableType MutableExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestAllTypesProto2, _proto_TypeTraits, _field_type, _is_packed>& id, int index) {
 
     return _proto_TypeTraits::Mutable(id.number(), index, &_extensions_);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void SetExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestAllTypesProto2, _proto_TypeTraits, _field_type, _is_packed>& id,
-      int index, typename _proto_TypeTraits::Repeated::ConstType value) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void SetExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestAllTypesProto2, _proto_TypeTraits, _field_type, _is_packed>& id, int index, typename _proto_TypeTraits::Repeated::ConstType value) {
     _proto_TypeTraits::Set(id.number(), index, value, &_extensions_);
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Repeated::MutableType AddExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestAllTypesProto2, _proto_TypeTraits, _field_type, _is_packed>& id) {
-    typename _proto_TypeTraits::Repeated::MutableType to_add =
-        _proto_TypeTraits::Add(id.number(), _field_type, &_extensions_);
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Repeated::MutableType AddExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestAllTypesProto2, _proto_TypeTraits, _field_type, _is_packed>& id) {
+    typename _proto_TypeTraits::Repeated::MutableType to_add = _proto_TypeTraits::Add(id.number(), _field_type, &_extensions_);
 
     return to_add;
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline void AddExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestAllTypesProto2, _proto_TypeTraits, _field_type, _is_packed>& id,
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline void AddExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestAllTypesProto2, _proto_TypeTraits, _field_type, _is_packed>& id,
       typename _proto_TypeTraits::Repeated::ConstType value) {
-    _proto_TypeTraits::Add(id.number(), _field_type, _is_packed, value,
-                           &_extensions_);
+    _proto_TypeTraits::Add(id.number(), _field_type, _is_packed, value, &_extensions_);
 
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
   inline const typename _proto_TypeTraits::Repeated::RepeatedFieldType&
-  GetRepeatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestAllTypesProto2, _proto_TypeTraits, _field_type, _is_packed>& id) const {
+  GetRepeatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestAllTypesProto2, _proto_TypeTraits, _field_type, _is_packed>& id) const {
 
     return _proto_TypeTraits::GetRepeated(id.number(), _extensions_);
   }
 
-  template <typename _proto_TypeTraits,
-            ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type,
-            bool _is_packed>
-  inline typename _proto_TypeTraits::Repeated::RepeatedFieldType*
-  MutableRepeatedExtension(
-      const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<
-          TestAllTypesProto2, _proto_TypeTraits, _field_type, _is_packed>& id) {
+  template <typename _proto_TypeTraits, ::PROTOBUF_NAMESPACE_ID::internal::FieldType _field_type, bool _is_packed>
+  inline typename _proto_TypeTraits::Repeated::RepeatedFieldType * MutableRepeatedExtension(const ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIdentifier<TestAllTypesProto2, _proto_TypeTraits, _field_type, _is_packed>& id) {
 
-    return _proto_TypeTraits::MutableRepeated(id.number(), _field_type,
-                                              _is_packed, &_extensions_);
+    return _proto_TypeTraits::MutableRepeated(id.number(), _field_type, _is_packed, &_extensions_);
   }
 
   void clear_oneof_field();
@@ -4620,8 +4520,7 @@ class ForeignMessageProto2 final :
   inline void Swap(ForeignMessageProto2* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -4653,8 +4552,7 @@ class ForeignMessageProto2 final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -4665,19 +4563,16 @@ class ForeignMessageProto2 final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_test_messages.proto2.ForeignMessageProto2";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_test_messages.proto2.ForeignMessageProto2"; }
   protected:
-  explicit ForeignMessageProto2(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit ForeignMessageProto2(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -4760,8 +4655,7 @@ class UnknownToTestAllTypes_OptionalGroup final :
   inline void Swap(UnknownToTestAllTypes_OptionalGroup* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -4793,8 +4687,7 @@ class UnknownToTestAllTypes_OptionalGroup final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -4805,19 +4698,16 @@ class UnknownToTestAllTypes_OptionalGroup final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_test_messages.proto2.UnknownToTestAllTypes.OptionalGroup";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_test_messages.proto2.UnknownToTestAllTypes.OptionalGroup"; }
   protected:
-  explicit UnknownToTestAllTypes_OptionalGroup(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit UnknownToTestAllTypes_OptionalGroup(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -4900,8 +4790,7 @@ class UnknownToTestAllTypes final :
   inline void Swap(UnknownToTestAllTypes* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -4933,8 +4822,7 @@ class UnknownToTestAllTypes final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -4945,19 +4833,16 @@ class UnknownToTestAllTypes final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_test_messages.proto2.UnknownToTestAllTypes";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_test_messages.proto2.UnknownToTestAllTypes"; }
   protected:
-  explicit UnknownToTestAllTypes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit UnknownToTestAllTypes(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -5140,8 +5025,7 @@ class NullHypothesisProto2 final :
   inline void Swap(NullHypothesisProto2* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -5162,28 +5046,21 @@ class NullHypothesisProto2 final :
     return CreateMaybeMessage<NullHypothesisProto2>(arena);
   }
   using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyFrom;
-  inline void CopyFrom(const NullHypothesisProto2& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(this, from);
-  }
+  inline void CopyFrom(const NullHypothesisProto2& from) { ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(this, from); }
   using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeFrom;
-  void MergeFrom(const NullHypothesisProto2& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(this, from);
-  }
+  void MergeFrom(const NullHypothesisProto2& from) { ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(this, from); }
   public:
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_test_messages.proto2.NullHypothesisProto2";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_test_messages.proto2.NullHypothesisProto2"; }
   protected:
-  explicit NullHypothesisProto2(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit NullHypothesisProto2(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -5247,8 +5124,7 @@ class EnumOnlyProto2 final :
   inline void Swap(EnumOnlyProto2* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -5269,28 +5145,21 @@ class EnumOnlyProto2 final :
     return CreateMaybeMessage<EnumOnlyProto2>(arena);
   }
   using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyFrom;
-  inline void CopyFrom(const EnumOnlyProto2& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(this, from);
-  }
+  inline void CopyFrom(const EnumOnlyProto2& from) { ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(this, from); }
   using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeFrom;
-  void MergeFrom(const EnumOnlyProto2& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(this, from);
-  }
+  void MergeFrom(const EnumOnlyProto2& from) { ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(this, from); }
   public:
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "protobuf_test_messages.proto2.EnumOnlyProto2";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "protobuf_test_messages.proto2.EnumOnlyProto2"; }
   protected:
-  explicit EnumOnlyProto2(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit EnumOnlyProto2(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -5365,20 +5234,18 @@ inline void TestAllTypesProto2_NestedMessage::clear_a() {
   a_ = 0;
   _has_bits_[0] &= ~0x00000002u;
 }
-inline int32_t TestAllTypesProto2_NestedMessage::_internal_a() const {
-  return a_;
-}
+inline int32_t TestAllTypesProto2_NestedMessage::_internal_a() const { return a_; }
 inline int32_t TestAllTypesProto2_NestedMessage::a() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.NestedMessage.a)
-  return _internal_a();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.NestedMessage.a)
+	return _internal_a();
 }
 inline void TestAllTypesProto2_NestedMessage::_internal_set_a(int32_t value) {
-  _has_bits_[0] |= 0x00000002u;
-  a_ = value;
+	_has_bits_[0] |= 0x00000002u;
+	a_ = value;
 }
 inline void TestAllTypesProto2_NestedMessage::set_a(int32_t value) {
-  _internal_set_a(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.NestedMessage.a)
+	_internal_set_a(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.NestedMessage.a)
 }
 
 // optional .protobuf_test_messages.proto2.TestAllTypesProto2 corecursive = 2;
@@ -5525,20 +5392,18 @@ inline void TestAllTypesProto2_Data::clear_group_int32() {
   group_int32_ = 0;
   _has_bits_[0] &= ~0x00000001u;
 }
-inline int32_t TestAllTypesProto2_Data::_internal_group_int32() const {
-  return group_int32_;
-}
+inline int32_t TestAllTypesProto2_Data::_internal_group_int32() const { return group_int32_; }
 inline int32_t TestAllTypesProto2_Data::group_int32() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.Data.group_int32)
-  return _internal_group_int32();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.Data.group_int32)
+	return _internal_group_int32();
 }
 inline void TestAllTypesProto2_Data::_internal_set_group_int32(int32_t value) {
-  _has_bits_[0] |= 0x00000001u;
-  group_int32_ = value;
+	_has_bits_[0] |= 0x00000001u;
+	group_int32_ = value;
 }
 inline void TestAllTypesProto2_Data::set_group_int32(int32_t value) {
-  _internal_set_group_int32(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.Data.group_int32)
+	_internal_set_group_int32(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.Data.group_int32)
 }
 
 // optional uint32 group_uint32 = 203;
@@ -5553,20 +5418,18 @@ inline void TestAllTypesProto2_Data::clear_group_uint32() {
   group_uint32_ = 0u;
   _has_bits_[0] &= ~0x00000002u;
 }
-inline uint32_t TestAllTypesProto2_Data::_internal_group_uint32() const {
-  return group_uint32_;
-}
+inline uint32_t TestAllTypesProto2_Data::_internal_group_uint32() const { return group_uint32_; }
 inline uint32_t TestAllTypesProto2_Data::group_uint32() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.Data.group_uint32)
-  return _internal_group_uint32();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.Data.group_uint32)
+	return _internal_group_uint32();
 }
 inline void TestAllTypesProto2_Data::_internal_set_group_uint32(uint32_t value) {
-  _has_bits_[0] |= 0x00000002u;
-  group_uint32_ = value;
+	_has_bits_[0] |= 0x00000002u;
+	group_uint32_ = value;
 }
 inline void TestAllTypesProto2_Data::set_group_uint32(uint32_t value) {
-  _internal_set_group_uint32(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.Data.group_uint32)
+	_internal_set_group_uint32(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.Data.group_uint32)
 }
 
 // -------------------------------------------------------------------
@@ -5590,8 +5453,8 @@ inline void TestAllTypesProto2_MessageSetCorrectExtension1::clear_str() {
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const std::string& TestAllTypesProto2_MessageSetCorrectExtension1::str() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.MessageSetCorrectExtension1.str)
-  return _internal_str();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.MessageSetCorrectExtension1.str)
+	return _internal_str();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -5601,45 +5464,40 @@ void TestAllTypesProto2_MessageSetCorrectExtension1::set_str(ArgT0&& arg0, ArgT.
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.MessageSetCorrectExtension1.str)
 }
 inline std::string* TestAllTypesProto2_MessageSetCorrectExtension1::mutable_str() {
-  std::string* _s = _internal_mutable_str();
-  // @@protoc_insertion_point(field_mutable:protobuf_test_messages.proto2.TestAllTypesProto2.MessageSetCorrectExtension1.str)
-  return _s;
+	std::string* _s = _internal_mutable_str();
+	// @@protoc_insertion_point(field_mutable:protobuf_test_messages.proto2.TestAllTypesProto2.MessageSetCorrectExtension1.str)
+	return _s;
 }
-inline const std::string& TestAllTypesProto2_MessageSetCorrectExtension1::_internal_str() const {
-  return str_.Get();
-}
+inline const std::string& TestAllTypesProto2_MessageSetCorrectExtension1::_internal_str() const { return str_.Get(); }
 inline void TestAllTypesProto2_MessageSetCorrectExtension1::_internal_set_str(const std::string& value) {
-  _has_bits_[0] |= 0x00000001u;
-  str_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000001u;
+	str_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* TestAllTypesProto2_MessageSetCorrectExtension1::_internal_mutable_str() {
-  _has_bits_[0] |= 0x00000001u;
-  return str_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000001u;
+	return str_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* TestAllTypesProto2_MessageSetCorrectExtension1::release_str() {
   // @@protoc_insertion_point(field_release:protobuf_test_messages.proto2.TestAllTypesProto2.MessageSetCorrectExtension1.str)
-  if (!_internal_has_str()) {
-    return nullptr;
-  }
+  if(!_internal_has_str()) { return nullptr; }
   _has_bits_[0] &= ~0x00000001u;
   auto* p = str_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (str_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(str_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     str_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void TestAllTypesProto2_MessageSetCorrectExtension1::set_allocated_str(std::string* str) {
-  if (str != nullptr) {
+  if(str != nullptr) {
     _has_bits_[0] |= 0x00000001u;
   } else {
     _has_bits_[0] &= ~0x00000001u;
   }
-  str_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), str,
-      GetArenaForAllocation());
+  str_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), str, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (str_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(str_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     str_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -5662,20 +5520,18 @@ inline void TestAllTypesProto2_MessageSetCorrectExtension2::clear_i() {
   i_ = 0;
   _has_bits_[0] &= ~0x00000001u;
 }
-inline int32_t TestAllTypesProto2_MessageSetCorrectExtension2::_internal_i() const {
-  return i_;
-}
+inline int32_t TestAllTypesProto2_MessageSetCorrectExtension2::_internal_i() const { return i_; }
 inline int32_t TestAllTypesProto2_MessageSetCorrectExtension2::i() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.MessageSetCorrectExtension2.i)
-  return _internal_i();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.MessageSetCorrectExtension2.i)
+	return _internal_i();
 }
 inline void TestAllTypesProto2_MessageSetCorrectExtension2::_internal_set_i(int32_t value) {
-  _has_bits_[0] |= 0x00000001u;
-  i_ = value;
+	_has_bits_[0] |= 0x00000001u;
+	i_ = value;
 }
 inline void TestAllTypesProto2_MessageSetCorrectExtension2::set_i(int32_t value) {
-  _internal_set_i(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.MessageSetCorrectExtension2.i)
+	_internal_set_i(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.MessageSetCorrectExtension2.i)
 }
 
 // -------------------------------------------------------------------
@@ -5694,20 +5550,18 @@ inline void TestAllTypesProto2::clear_optional_int32() {
   optional_int32_ = 0;
   _has_bits_[0] &= ~0x00000400u;
 }
-inline int32_t TestAllTypesProto2::_internal_optional_int32() const {
-  return optional_int32_;
-}
+inline int32_t TestAllTypesProto2::_internal_optional_int32() const { return optional_int32_; }
 inline int32_t TestAllTypesProto2::optional_int32() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_int32)
-  return _internal_optional_int32();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_int32)
+	return _internal_optional_int32();
 }
 inline void TestAllTypesProto2::_internal_set_optional_int32(int32_t value) {
-  _has_bits_[0] |= 0x00000400u;
-  optional_int32_ = value;
+	_has_bits_[0] |= 0x00000400u;
+	optional_int32_ = value;
 }
 inline void TestAllTypesProto2::set_optional_int32(int32_t value) {
-  _internal_set_optional_int32(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.optional_int32)
+	_internal_set_optional_int32(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.optional_int32)
 }
 
 // optional int64 optional_int64 = 2;
@@ -5722,20 +5576,18 @@ inline void TestAllTypesProto2::clear_optional_int64() {
   optional_int64_ = int64_t{0};
   _has_bits_[0] &= ~0x00000200u;
 }
-inline int64_t TestAllTypesProto2::_internal_optional_int64() const {
-  return optional_int64_;
-}
+inline int64_t TestAllTypesProto2::_internal_optional_int64() const { return optional_int64_; }
 inline int64_t TestAllTypesProto2::optional_int64() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_int64)
-  return _internal_optional_int64();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_int64)
+	return _internal_optional_int64();
 }
 inline void TestAllTypesProto2::_internal_set_optional_int64(int64_t value) {
-  _has_bits_[0] |= 0x00000200u;
-  optional_int64_ = value;
+	_has_bits_[0] |= 0x00000200u;
+	optional_int64_ = value;
 }
 inline void TestAllTypesProto2::set_optional_int64(int64_t value) {
-  _internal_set_optional_int64(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.optional_int64)
+	_internal_set_optional_int64(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.optional_int64)
 }
 
 // optional uint32 optional_uint32 = 3;
@@ -5750,20 +5602,18 @@ inline void TestAllTypesProto2::clear_optional_uint32() {
   optional_uint32_ = 0u;
   _has_bits_[0] &= ~0x00000800u;
 }
-inline uint32_t TestAllTypesProto2::_internal_optional_uint32() const {
-  return optional_uint32_;
-}
+inline uint32_t TestAllTypesProto2::_internal_optional_uint32() const { return optional_uint32_; }
 inline uint32_t TestAllTypesProto2::optional_uint32() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_uint32)
-  return _internal_optional_uint32();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_uint32)
+	return _internal_optional_uint32();
 }
 inline void TestAllTypesProto2::_internal_set_optional_uint32(uint32_t value) {
-  _has_bits_[0] |= 0x00000800u;
-  optional_uint32_ = value;
+	_has_bits_[0] |= 0x00000800u;
+	optional_uint32_ = value;
 }
 inline void TestAllTypesProto2::set_optional_uint32(uint32_t value) {
-  _internal_set_optional_uint32(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.optional_uint32)
+	_internal_set_optional_uint32(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.optional_uint32)
 }
 
 // optional uint64 optional_uint64 = 4;
@@ -5778,20 +5628,18 @@ inline void TestAllTypesProto2::clear_optional_uint64() {
   optional_uint64_ = uint64_t{0u};
   _has_bits_[0] &= ~0x00001000u;
 }
-inline uint64_t TestAllTypesProto2::_internal_optional_uint64() const {
-  return optional_uint64_;
-}
+inline uint64_t TestAllTypesProto2::_internal_optional_uint64() const { return optional_uint64_; }
 inline uint64_t TestAllTypesProto2::optional_uint64() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_uint64)
-  return _internal_optional_uint64();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_uint64)
+	return _internal_optional_uint64();
 }
 inline void TestAllTypesProto2::_internal_set_optional_uint64(uint64_t value) {
-  _has_bits_[0] |= 0x00001000u;
-  optional_uint64_ = value;
+	_has_bits_[0] |= 0x00001000u;
+	optional_uint64_ = value;
 }
 inline void TestAllTypesProto2::set_optional_uint64(uint64_t value) {
-  _internal_set_optional_uint64(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.optional_uint64)
+	_internal_set_optional_uint64(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.optional_uint64)
 }
 
 // optional sint32 optional_sint32 = 5;
@@ -5806,20 +5654,18 @@ inline void TestAllTypesProto2::clear_optional_sint32() {
   optional_sint32_ = 0;
   _has_bits_[0] &= ~0x00004000u;
 }
-inline int32_t TestAllTypesProto2::_internal_optional_sint32() const {
-  return optional_sint32_;
-}
+inline int32_t TestAllTypesProto2::_internal_optional_sint32() const { return optional_sint32_; }
 inline int32_t TestAllTypesProto2::optional_sint32() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_sint32)
-  return _internal_optional_sint32();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_sint32)
+	return _internal_optional_sint32();
 }
 inline void TestAllTypesProto2::_internal_set_optional_sint32(int32_t value) {
-  _has_bits_[0] |= 0x00004000u;
-  optional_sint32_ = value;
+	_has_bits_[0] |= 0x00004000u;
+	optional_sint32_ = value;
 }
 inline void TestAllTypesProto2::set_optional_sint32(int32_t value) {
-  _internal_set_optional_sint32(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.optional_sint32)
+	_internal_set_optional_sint32(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.optional_sint32)
 }
 
 // optional sint64 optional_sint64 = 6;
@@ -5834,20 +5680,18 @@ inline void TestAllTypesProto2::clear_optional_sint64() {
   optional_sint64_ = int64_t{0};
   _has_bits_[0] &= ~0x00002000u;
 }
-inline int64_t TestAllTypesProto2::_internal_optional_sint64() const {
-  return optional_sint64_;
-}
+inline int64_t TestAllTypesProto2::_internal_optional_sint64() const { return optional_sint64_; }
 inline int64_t TestAllTypesProto2::optional_sint64() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_sint64)
-  return _internal_optional_sint64();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_sint64)
+	return _internal_optional_sint64();
 }
 inline void TestAllTypesProto2::_internal_set_optional_sint64(int64_t value) {
-  _has_bits_[0] |= 0x00002000u;
-  optional_sint64_ = value;
+	_has_bits_[0] |= 0x00002000u;
+	optional_sint64_ = value;
 }
 inline void TestAllTypesProto2::set_optional_sint64(int64_t value) {
-  _internal_set_optional_sint64(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.optional_sint64)
+	_internal_set_optional_sint64(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.optional_sint64)
 }
 
 // optional fixed32 optional_fixed32 = 7;
@@ -5862,20 +5706,18 @@ inline void TestAllTypesProto2::clear_optional_fixed32() {
   optional_fixed32_ = 0u;
   _has_bits_[0] &= ~0x00008000u;
 }
-inline uint32_t TestAllTypesProto2::_internal_optional_fixed32() const {
-  return optional_fixed32_;
-}
+inline uint32_t TestAllTypesProto2::_internal_optional_fixed32() const { return optional_fixed32_; }
 inline uint32_t TestAllTypesProto2::optional_fixed32() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_fixed32)
-  return _internal_optional_fixed32();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_fixed32)
+	return _internal_optional_fixed32();
 }
 inline void TestAllTypesProto2::_internal_set_optional_fixed32(uint32_t value) {
-  _has_bits_[0] |= 0x00008000u;
-  optional_fixed32_ = value;
+	_has_bits_[0] |= 0x00008000u;
+	optional_fixed32_ = value;
 }
 inline void TestAllTypesProto2::set_optional_fixed32(uint32_t value) {
-  _internal_set_optional_fixed32(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.optional_fixed32)
+	_internal_set_optional_fixed32(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.optional_fixed32)
 }
 
 // optional fixed64 optional_fixed64 = 8;
@@ -5890,20 +5732,18 @@ inline void TestAllTypesProto2::clear_optional_fixed64() {
   optional_fixed64_ = uint64_t{0u};
   _has_bits_[0] &= ~0x00010000u;
 }
-inline uint64_t TestAllTypesProto2::_internal_optional_fixed64() const {
-  return optional_fixed64_;
-}
+inline uint64_t TestAllTypesProto2::_internal_optional_fixed64() const { return optional_fixed64_; }
 inline uint64_t TestAllTypesProto2::optional_fixed64() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_fixed64)
-  return _internal_optional_fixed64();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_fixed64)
+	return _internal_optional_fixed64();
 }
 inline void TestAllTypesProto2::_internal_set_optional_fixed64(uint64_t value) {
-  _has_bits_[0] |= 0x00010000u;
-  optional_fixed64_ = value;
+	_has_bits_[0] |= 0x00010000u;
+	optional_fixed64_ = value;
 }
 inline void TestAllTypesProto2::set_optional_fixed64(uint64_t value) {
-  _internal_set_optional_fixed64(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.optional_fixed64)
+	_internal_set_optional_fixed64(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.optional_fixed64)
 }
 
 // optional sfixed32 optional_sfixed32 = 9;
@@ -5918,20 +5758,18 @@ inline void TestAllTypesProto2::clear_optional_sfixed32() {
   optional_sfixed32_ = 0;
   _has_bits_[0] &= ~0x00040000u;
 }
-inline int32_t TestAllTypesProto2::_internal_optional_sfixed32() const {
-  return optional_sfixed32_;
-}
+inline int32_t TestAllTypesProto2::_internal_optional_sfixed32() const { return optional_sfixed32_; }
 inline int32_t TestAllTypesProto2::optional_sfixed32() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_sfixed32)
-  return _internal_optional_sfixed32();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_sfixed32)
+	return _internal_optional_sfixed32();
 }
 inline void TestAllTypesProto2::_internal_set_optional_sfixed32(int32_t value) {
-  _has_bits_[0] |= 0x00040000u;
-  optional_sfixed32_ = value;
+	_has_bits_[0] |= 0x00040000u;
+	optional_sfixed32_ = value;
 }
 inline void TestAllTypesProto2::set_optional_sfixed32(int32_t value) {
-  _internal_set_optional_sfixed32(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.optional_sfixed32)
+	_internal_set_optional_sfixed32(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.optional_sfixed32)
 }
 
 // optional sfixed64 optional_sfixed64 = 10;
@@ -5946,20 +5784,18 @@ inline void TestAllTypesProto2::clear_optional_sfixed64() {
   optional_sfixed64_ = int64_t{0};
   _has_bits_[0] &= ~0x00020000u;
 }
-inline int64_t TestAllTypesProto2::_internal_optional_sfixed64() const {
-  return optional_sfixed64_;
-}
+inline int64_t TestAllTypesProto2::_internal_optional_sfixed64() const { return optional_sfixed64_; }
 inline int64_t TestAllTypesProto2::optional_sfixed64() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_sfixed64)
-  return _internal_optional_sfixed64();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_sfixed64)
+	return _internal_optional_sfixed64();
 }
 inline void TestAllTypesProto2::_internal_set_optional_sfixed64(int64_t value) {
-  _has_bits_[0] |= 0x00020000u;
-  optional_sfixed64_ = value;
+	_has_bits_[0] |= 0x00020000u;
+	optional_sfixed64_ = value;
 }
 inline void TestAllTypesProto2::set_optional_sfixed64(int64_t value) {
-  _internal_set_optional_sfixed64(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.optional_sfixed64)
+	_internal_set_optional_sfixed64(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.optional_sfixed64)
 }
 
 // optional float optional_float = 11;
@@ -5974,20 +5810,18 @@ inline void TestAllTypesProto2::clear_optional_float() {
   optional_float_ = 0;
   _has_bits_[0] &= ~0x00080000u;
 }
-inline float TestAllTypesProto2::_internal_optional_float() const {
-  return optional_float_;
-}
+inline float TestAllTypesProto2::_internal_optional_float() const { return optional_float_; }
 inline float TestAllTypesProto2::optional_float() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_float)
-  return _internal_optional_float();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_float)
+	return _internal_optional_float();
 }
 inline void TestAllTypesProto2::_internal_set_optional_float(float value) {
-  _has_bits_[0] |= 0x00080000u;
-  optional_float_ = value;
+	_has_bits_[0] |= 0x00080000u;
+	optional_float_ = value;
 }
 inline void TestAllTypesProto2::set_optional_float(float value) {
-  _internal_set_optional_float(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.optional_float)
+	_internal_set_optional_float(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.optional_float)
 }
 
 // optional double optional_double = 12;
@@ -6002,20 +5836,18 @@ inline void TestAllTypesProto2::clear_optional_double() {
   optional_double_ = 0;
   _has_bits_[0] &= ~0x00100000u;
 }
-inline double TestAllTypesProto2::_internal_optional_double() const {
-  return optional_double_;
-}
+inline double TestAllTypesProto2::_internal_optional_double() const { return optional_double_; }
 inline double TestAllTypesProto2::optional_double() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_double)
-  return _internal_optional_double();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_double)
+	return _internal_optional_double();
 }
 inline void TestAllTypesProto2::_internal_set_optional_double(double value) {
-  _has_bits_[0] |= 0x00100000u;
-  optional_double_ = value;
+	_has_bits_[0] |= 0x00100000u;
+	optional_double_ = value;
 }
 inline void TestAllTypesProto2::set_optional_double(double value) {
-  _internal_set_optional_double(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.optional_double)
+	_internal_set_optional_double(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.optional_double)
 }
 
 // optional bool optional_bool = 13;
@@ -6030,20 +5862,18 @@ inline void TestAllTypesProto2::clear_optional_bool() {
   optional_bool_ = false;
   _has_bits_[0] &= ~0x00200000u;
 }
-inline bool TestAllTypesProto2::_internal_optional_bool() const {
-  return optional_bool_;
-}
+inline bool TestAllTypesProto2::_internal_optional_bool() const { return optional_bool_; }
 inline bool TestAllTypesProto2::optional_bool() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_bool)
-  return _internal_optional_bool();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_bool)
+	return _internal_optional_bool();
 }
 inline void TestAllTypesProto2::_internal_set_optional_bool(bool value) {
-  _has_bits_[0] |= 0x00200000u;
-  optional_bool_ = value;
+	_has_bits_[0] |= 0x00200000u;
+	optional_bool_ = value;
 }
 inline void TestAllTypesProto2::set_optional_bool(bool value) {
-  _internal_set_optional_bool(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.optional_bool)
+	_internal_set_optional_bool(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.optional_bool)
 }
 
 // optional string optional_string = 14;
@@ -6059,8 +5889,8 @@ inline void TestAllTypesProto2::clear_optional_string() {
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const std::string& TestAllTypesProto2::optional_string() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_string)
-  return _internal_optional_string();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_string)
+	return _internal_optional_string();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -6070,45 +5900,40 @@ void TestAllTypesProto2::set_optional_string(ArgT0&& arg0, ArgT... args) {
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.optional_string)
 }
 inline std::string* TestAllTypesProto2::mutable_optional_string() {
-  std::string* _s = _internal_mutable_optional_string();
-  // @@protoc_insertion_point(field_mutable:protobuf_test_messages.proto2.TestAllTypesProto2.optional_string)
-  return _s;
+	std::string* _s = _internal_mutable_optional_string();
+	// @@protoc_insertion_point(field_mutable:protobuf_test_messages.proto2.TestAllTypesProto2.optional_string)
+	return _s;
 }
-inline const std::string& TestAllTypesProto2::_internal_optional_string() const {
-  return optional_string_.Get();
-}
+inline const std::string& TestAllTypesProto2::_internal_optional_string() const { return optional_string_.Get(); }
 inline void TestAllTypesProto2::_internal_set_optional_string(const std::string& value) {
-  _has_bits_[0] |= 0x00000001u;
-  optional_string_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000001u;
+	optional_string_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* TestAllTypesProto2::_internal_mutable_optional_string() {
-  _has_bits_[0] |= 0x00000001u;
-  return optional_string_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000001u;
+	return optional_string_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* TestAllTypesProto2::release_optional_string() {
   // @@protoc_insertion_point(field_release:protobuf_test_messages.proto2.TestAllTypesProto2.optional_string)
-  if (!_internal_has_optional_string()) {
-    return nullptr;
-  }
+  if(!_internal_has_optional_string()) { return nullptr; }
   _has_bits_[0] &= ~0x00000001u;
   auto* p = optional_string_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (optional_string_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(optional_string_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     optional_string_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void TestAllTypesProto2::set_allocated_optional_string(std::string* optional_string) {
-  if (optional_string != nullptr) {
+  if(optional_string != nullptr) {
     _has_bits_[0] |= 0x00000001u;
   } else {
     _has_bits_[0] &= ~0x00000001u;
   }
-  optional_string_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), optional_string,
-      GetArenaForAllocation());
+  optional_string_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), optional_string, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (optional_string_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(optional_string_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     optional_string_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -6128,8 +5953,8 @@ inline void TestAllTypesProto2::clear_optional_bytes() {
   _has_bits_[0] &= ~0x00000002u;
 }
 inline const std::string& TestAllTypesProto2::optional_bytes() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_bytes)
-  return _internal_optional_bytes();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_bytes)
+	return _internal_optional_bytes();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -6139,45 +5964,40 @@ void TestAllTypesProto2::set_optional_bytes(ArgT0&& arg0, ArgT... args) {
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.optional_bytes)
 }
 inline std::string* TestAllTypesProto2::mutable_optional_bytes() {
-  std::string* _s = _internal_mutable_optional_bytes();
-  // @@protoc_insertion_point(field_mutable:protobuf_test_messages.proto2.TestAllTypesProto2.optional_bytes)
-  return _s;
+	std::string* _s = _internal_mutable_optional_bytes();
+	// @@protoc_insertion_point(field_mutable:protobuf_test_messages.proto2.TestAllTypesProto2.optional_bytes)
+	return _s;
 }
-inline const std::string& TestAllTypesProto2::_internal_optional_bytes() const {
-  return optional_bytes_.Get();
-}
+inline const std::string& TestAllTypesProto2::_internal_optional_bytes() const { return optional_bytes_.Get(); }
 inline void TestAllTypesProto2::_internal_set_optional_bytes(const std::string& value) {
-  _has_bits_[0] |= 0x00000002u;
-  optional_bytes_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000002u;
+	optional_bytes_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* TestAllTypesProto2::_internal_mutable_optional_bytes() {
-  _has_bits_[0] |= 0x00000002u;
-  return optional_bytes_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000002u;
+	return optional_bytes_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* TestAllTypesProto2::release_optional_bytes() {
   // @@protoc_insertion_point(field_release:protobuf_test_messages.proto2.TestAllTypesProto2.optional_bytes)
-  if (!_internal_has_optional_bytes()) {
-    return nullptr;
-  }
+  if(!_internal_has_optional_bytes()) { return nullptr; }
   _has_bits_[0] &= ~0x00000002u;
   auto* p = optional_bytes_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (optional_bytes_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(optional_bytes_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     optional_bytes_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void TestAllTypesProto2::set_allocated_optional_bytes(std::string* optional_bytes) {
-  if (optional_bytes != nullptr) {
+  if(optional_bytes != nullptr) {
     _has_bits_[0] |= 0x00000002u;
   } else {
     _has_bits_[0] &= ~0x00000002u;
   }
-  optional_bytes_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), optional_bytes,
-      GetArenaForAllocation());
+  optional_bytes_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), optional_bytes, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (optional_bytes_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(optional_bytes_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     optional_bytes_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -6431,8 +6251,8 @@ inline void TestAllTypesProto2::clear_optional_string_piece() {
   _has_bits_[0] &= ~0x00000004u;
 }
 inline const std::string& TestAllTypesProto2::optional_string_piece() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_string_piece)
-  return _internal_optional_string_piece();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_string_piece)
+	return _internal_optional_string_piece();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -6442,45 +6262,40 @@ void TestAllTypesProto2::set_optional_string_piece(ArgT0&& arg0, ArgT... args) {
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.optional_string_piece)
 }
 inline std::string* TestAllTypesProto2::mutable_optional_string_piece() {
-  std::string* _s = _internal_mutable_optional_string_piece();
-  // @@protoc_insertion_point(field_mutable:protobuf_test_messages.proto2.TestAllTypesProto2.optional_string_piece)
-  return _s;
+	std::string* _s = _internal_mutable_optional_string_piece();
+	// @@protoc_insertion_point(field_mutable:protobuf_test_messages.proto2.TestAllTypesProto2.optional_string_piece)
+	return _s;
 }
-inline const std::string& TestAllTypesProto2::_internal_optional_string_piece() const {
-  return optional_string_piece_.Get();
-}
+inline const std::string& TestAllTypesProto2::_internal_optional_string_piece() const { return optional_string_piece_.Get(); }
 inline void TestAllTypesProto2::_internal_set_optional_string_piece(const std::string& value) {
-  _has_bits_[0] |= 0x00000004u;
-  optional_string_piece_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000004u;
+	optional_string_piece_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* TestAllTypesProto2::_internal_mutable_optional_string_piece() {
-  _has_bits_[0] |= 0x00000004u;
-  return optional_string_piece_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000004u;
+	return optional_string_piece_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* TestAllTypesProto2::release_optional_string_piece() {
   // @@protoc_insertion_point(field_release:protobuf_test_messages.proto2.TestAllTypesProto2.optional_string_piece)
-  if (!_internal_has_optional_string_piece()) {
-    return nullptr;
-  }
+  if(!_internal_has_optional_string_piece()) { return nullptr; }
   _has_bits_[0] &= ~0x00000004u;
   auto* p = optional_string_piece_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (optional_string_piece_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(optional_string_piece_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     optional_string_piece_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void TestAllTypesProto2::set_allocated_optional_string_piece(std::string* optional_string_piece) {
-  if (optional_string_piece != nullptr) {
+  if(optional_string_piece != nullptr) {
     _has_bits_[0] |= 0x00000004u;
   } else {
     _has_bits_[0] &= ~0x00000004u;
   }
-  optional_string_piece_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), optional_string_piece,
-      GetArenaForAllocation());
+  optional_string_piece_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), optional_string_piece, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (optional_string_piece_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(optional_string_piece_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     optional_string_piece_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -6500,8 +6315,8 @@ inline void TestAllTypesProto2::clear_optional_cord() {
   _has_bits_[0] &= ~0x00000008u;
 }
 inline const std::string& TestAllTypesProto2::optional_cord() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_cord)
-  return _internal_optional_cord();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.optional_cord)
+	return _internal_optional_cord();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -6511,45 +6326,40 @@ void TestAllTypesProto2::set_optional_cord(ArgT0&& arg0, ArgT... args) {
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.optional_cord)
 }
 inline std::string* TestAllTypesProto2::mutable_optional_cord() {
-  std::string* _s = _internal_mutable_optional_cord();
-  // @@protoc_insertion_point(field_mutable:protobuf_test_messages.proto2.TestAllTypesProto2.optional_cord)
-  return _s;
+	std::string* _s = _internal_mutable_optional_cord();
+	// @@protoc_insertion_point(field_mutable:protobuf_test_messages.proto2.TestAllTypesProto2.optional_cord)
+	return _s;
 }
-inline const std::string& TestAllTypesProto2::_internal_optional_cord() const {
-  return optional_cord_.Get();
-}
+inline const std::string& TestAllTypesProto2::_internal_optional_cord() const { return optional_cord_.Get(); }
 inline void TestAllTypesProto2::_internal_set_optional_cord(const std::string& value) {
-  _has_bits_[0] |= 0x00000008u;
-  optional_cord_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000008u;
+	optional_cord_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* TestAllTypesProto2::_internal_mutable_optional_cord() {
-  _has_bits_[0] |= 0x00000008u;
-  return optional_cord_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000008u;
+	return optional_cord_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* TestAllTypesProto2::release_optional_cord() {
   // @@protoc_insertion_point(field_release:protobuf_test_messages.proto2.TestAllTypesProto2.optional_cord)
-  if (!_internal_has_optional_cord()) {
-    return nullptr;
-  }
+  if(!_internal_has_optional_cord()) { return nullptr; }
   _has_bits_[0] &= ~0x00000008u;
   auto* p = optional_cord_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (optional_cord_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(optional_cord_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     optional_cord_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void TestAllTypesProto2::set_allocated_optional_cord(std::string* optional_cord) {
-  if (optional_cord != nullptr) {
+  if(optional_cord != nullptr) {
     _has_bits_[0] |= 0x00000008u;
   } else {
     _has_bits_[0] &= ~0x00000008u;
   }
-  optional_cord_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), optional_cord,
-      GetArenaForAllocation());
+  optional_cord_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), optional_cord, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (optional_cord_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(optional_cord_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     optional_cord_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -6647,18 +6457,14 @@ inline void TestAllTypesProto2::set_allocated_recursive_message(::protobuf_test_
 }
 
 // repeated int32 repeated_int32 = 31;
-inline int TestAllTypesProto2::_internal_repeated_int32_size() const {
-  return repeated_int32_.size();
-}
+inline int TestAllTypesProto2::_internal_repeated_int32_size() const { return repeated_int32_.size(); }
 inline int TestAllTypesProto2::repeated_int32_size() const {
   return _internal_repeated_int32_size();
 }
 inline void TestAllTypesProto2::clear_repeated_int32() {
   repeated_int32_.Clear();
 }
-inline int32_t TestAllTypesProto2::_internal_repeated_int32(int index) const {
-  return repeated_int32_.Get(index);
-}
+inline int32_t TestAllTypesProto2::_internal_repeated_int32(int index) const { return repeated_int32_.Get(index); }
 inline int32_t TestAllTypesProto2::repeated_int32(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_int32)
   return _internal_repeated_int32(index);
@@ -6667,9 +6473,7 @@ inline void TestAllTypesProto2::set_repeated_int32(int index, int32_t value) {
   repeated_int32_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_int32)
 }
-inline void TestAllTypesProto2::_internal_add_repeated_int32(int32_t value) {
-  repeated_int32_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_repeated_int32(int32_t value) { repeated_int32_.Add(value); }
 inline void TestAllTypesProto2::add_repeated_int32(int32_t value) {
   _internal_add_repeated_int32(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_int32)
@@ -6694,18 +6498,14 @@ TestAllTypesProto2::mutable_repeated_int32() {
 }
 
 // repeated int64 repeated_int64 = 32;
-inline int TestAllTypesProto2::_internal_repeated_int64_size() const {
-  return repeated_int64_.size();
-}
+inline int TestAllTypesProto2::_internal_repeated_int64_size() const { return repeated_int64_.size(); }
 inline int TestAllTypesProto2::repeated_int64_size() const {
   return _internal_repeated_int64_size();
 }
 inline void TestAllTypesProto2::clear_repeated_int64() {
   repeated_int64_.Clear();
 }
-inline int64_t TestAllTypesProto2::_internal_repeated_int64(int index) const {
-  return repeated_int64_.Get(index);
-}
+inline int64_t TestAllTypesProto2::_internal_repeated_int64(int index) const { return repeated_int64_.Get(index); }
 inline int64_t TestAllTypesProto2::repeated_int64(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_int64)
   return _internal_repeated_int64(index);
@@ -6714,9 +6514,7 @@ inline void TestAllTypesProto2::set_repeated_int64(int index, int64_t value) {
   repeated_int64_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_int64)
 }
-inline void TestAllTypesProto2::_internal_add_repeated_int64(int64_t value) {
-  repeated_int64_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_repeated_int64(int64_t value) { repeated_int64_.Add(value); }
 inline void TestAllTypesProto2::add_repeated_int64(int64_t value) {
   _internal_add_repeated_int64(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_int64)
@@ -6741,18 +6539,14 @@ TestAllTypesProto2::mutable_repeated_int64() {
 }
 
 // repeated uint32 repeated_uint32 = 33;
-inline int TestAllTypesProto2::_internal_repeated_uint32_size() const {
-  return repeated_uint32_.size();
-}
+inline int TestAllTypesProto2::_internal_repeated_uint32_size() const { return repeated_uint32_.size(); }
 inline int TestAllTypesProto2::repeated_uint32_size() const {
   return _internal_repeated_uint32_size();
 }
 inline void TestAllTypesProto2::clear_repeated_uint32() {
   repeated_uint32_.Clear();
 }
-inline uint32_t TestAllTypesProto2::_internal_repeated_uint32(int index) const {
-  return repeated_uint32_.Get(index);
-}
+inline uint32_t TestAllTypesProto2::_internal_repeated_uint32(int index) const { return repeated_uint32_.Get(index); }
 inline uint32_t TestAllTypesProto2::repeated_uint32(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_uint32)
   return _internal_repeated_uint32(index);
@@ -6761,9 +6555,7 @@ inline void TestAllTypesProto2::set_repeated_uint32(int index, uint32_t value) {
   repeated_uint32_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_uint32)
 }
-inline void TestAllTypesProto2::_internal_add_repeated_uint32(uint32_t value) {
-  repeated_uint32_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_repeated_uint32(uint32_t value) { repeated_uint32_.Add(value); }
 inline void TestAllTypesProto2::add_repeated_uint32(uint32_t value) {
   _internal_add_repeated_uint32(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_uint32)
@@ -6788,18 +6580,14 @@ TestAllTypesProto2::mutable_repeated_uint32() {
 }
 
 // repeated uint64 repeated_uint64 = 34;
-inline int TestAllTypesProto2::_internal_repeated_uint64_size() const {
-  return repeated_uint64_.size();
-}
+inline int TestAllTypesProto2::_internal_repeated_uint64_size() const { return repeated_uint64_.size(); }
 inline int TestAllTypesProto2::repeated_uint64_size() const {
   return _internal_repeated_uint64_size();
 }
 inline void TestAllTypesProto2::clear_repeated_uint64() {
   repeated_uint64_.Clear();
 }
-inline uint64_t TestAllTypesProto2::_internal_repeated_uint64(int index) const {
-  return repeated_uint64_.Get(index);
-}
+inline uint64_t TestAllTypesProto2::_internal_repeated_uint64(int index) const { return repeated_uint64_.Get(index); }
 inline uint64_t TestAllTypesProto2::repeated_uint64(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_uint64)
   return _internal_repeated_uint64(index);
@@ -6808,9 +6596,7 @@ inline void TestAllTypesProto2::set_repeated_uint64(int index, uint64_t value) {
   repeated_uint64_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_uint64)
 }
-inline void TestAllTypesProto2::_internal_add_repeated_uint64(uint64_t value) {
-  repeated_uint64_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_repeated_uint64(uint64_t value) { repeated_uint64_.Add(value); }
 inline void TestAllTypesProto2::add_repeated_uint64(uint64_t value) {
   _internal_add_repeated_uint64(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_uint64)
@@ -6835,18 +6621,14 @@ TestAllTypesProto2::mutable_repeated_uint64() {
 }
 
 // repeated sint32 repeated_sint32 = 35;
-inline int TestAllTypesProto2::_internal_repeated_sint32_size() const {
-  return repeated_sint32_.size();
-}
+inline int TestAllTypesProto2::_internal_repeated_sint32_size() const { return repeated_sint32_.size(); }
 inline int TestAllTypesProto2::repeated_sint32_size() const {
   return _internal_repeated_sint32_size();
 }
 inline void TestAllTypesProto2::clear_repeated_sint32() {
   repeated_sint32_.Clear();
 }
-inline int32_t TestAllTypesProto2::_internal_repeated_sint32(int index) const {
-  return repeated_sint32_.Get(index);
-}
+inline int32_t TestAllTypesProto2::_internal_repeated_sint32(int index) const { return repeated_sint32_.Get(index); }
 inline int32_t TestAllTypesProto2::repeated_sint32(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_sint32)
   return _internal_repeated_sint32(index);
@@ -6855,9 +6637,7 @@ inline void TestAllTypesProto2::set_repeated_sint32(int index, int32_t value) {
   repeated_sint32_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_sint32)
 }
-inline void TestAllTypesProto2::_internal_add_repeated_sint32(int32_t value) {
-  repeated_sint32_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_repeated_sint32(int32_t value) { repeated_sint32_.Add(value); }
 inline void TestAllTypesProto2::add_repeated_sint32(int32_t value) {
   _internal_add_repeated_sint32(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_sint32)
@@ -6882,18 +6662,14 @@ TestAllTypesProto2::mutable_repeated_sint32() {
 }
 
 // repeated sint64 repeated_sint64 = 36;
-inline int TestAllTypesProto2::_internal_repeated_sint64_size() const {
-  return repeated_sint64_.size();
-}
+inline int TestAllTypesProto2::_internal_repeated_sint64_size() const { return repeated_sint64_.size(); }
 inline int TestAllTypesProto2::repeated_sint64_size() const {
   return _internal_repeated_sint64_size();
 }
 inline void TestAllTypesProto2::clear_repeated_sint64() {
   repeated_sint64_.Clear();
 }
-inline int64_t TestAllTypesProto2::_internal_repeated_sint64(int index) const {
-  return repeated_sint64_.Get(index);
-}
+inline int64_t TestAllTypesProto2::_internal_repeated_sint64(int index) const { return repeated_sint64_.Get(index); }
 inline int64_t TestAllTypesProto2::repeated_sint64(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_sint64)
   return _internal_repeated_sint64(index);
@@ -6902,9 +6678,7 @@ inline void TestAllTypesProto2::set_repeated_sint64(int index, int64_t value) {
   repeated_sint64_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_sint64)
 }
-inline void TestAllTypesProto2::_internal_add_repeated_sint64(int64_t value) {
-  repeated_sint64_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_repeated_sint64(int64_t value) { repeated_sint64_.Add(value); }
 inline void TestAllTypesProto2::add_repeated_sint64(int64_t value) {
   _internal_add_repeated_sint64(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_sint64)
@@ -6929,18 +6703,14 @@ TestAllTypesProto2::mutable_repeated_sint64() {
 }
 
 // repeated fixed32 repeated_fixed32 = 37;
-inline int TestAllTypesProto2::_internal_repeated_fixed32_size() const {
-  return repeated_fixed32_.size();
-}
+inline int TestAllTypesProto2::_internal_repeated_fixed32_size() const { return repeated_fixed32_.size(); }
 inline int TestAllTypesProto2::repeated_fixed32_size() const {
   return _internal_repeated_fixed32_size();
 }
 inline void TestAllTypesProto2::clear_repeated_fixed32() {
   repeated_fixed32_.Clear();
 }
-inline uint32_t TestAllTypesProto2::_internal_repeated_fixed32(int index) const {
-  return repeated_fixed32_.Get(index);
-}
+inline uint32_t TestAllTypesProto2::_internal_repeated_fixed32(int index) const { return repeated_fixed32_.Get(index); }
 inline uint32_t TestAllTypesProto2::repeated_fixed32(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_fixed32)
   return _internal_repeated_fixed32(index);
@@ -6949,9 +6719,7 @@ inline void TestAllTypesProto2::set_repeated_fixed32(int index, uint32_t value) 
   repeated_fixed32_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_fixed32)
 }
-inline void TestAllTypesProto2::_internal_add_repeated_fixed32(uint32_t value) {
-  repeated_fixed32_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_repeated_fixed32(uint32_t value) { repeated_fixed32_.Add(value); }
 inline void TestAllTypesProto2::add_repeated_fixed32(uint32_t value) {
   _internal_add_repeated_fixed32(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_fixed32)
@@ -6976,18 +6744,14 @@ TestAllTypesProto2::mutable_repeated_fixed32() {
 }
 
 // repeated fixed64 repeated_fixed64 = 38;
-inline int TestAllTypesProto2::_internal_repeated_fixed64_size() const {
-  return repeated_fixed64_.size();
-}
+inline int TestAllTypesProto2::_internal_repeated_fixed64_size() const { return repeated_fixed64_.size(); }
 inline int TestAllTypesProto2::repeated_fixed64_size() const {
   return _internal_repeated_fixed64_size();
 }
 inline void TestAllTypesProto2::clear_repeated_fixed64() {
   repeated_fixed64_.Clear();
 }
-inline uint64_t TestAllTypesProto2::_internal_repeated_fixed64(int index) const {
-  return repeated_fixed64_.Get(index);
-}
+inline uint64_t TestAllTypesProto2::_internal_repeated_fixed64(int index) const { return repeated_fixed64_.Get(index); }
 inline uint64_t TestAllTypesProto2::repeated_fixed64(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_fixed64)
   return _internal_repeated_fixed64(index);
@@ -6996,9 +6760,7 @@ inline void TestAllTypesProto2::set_repeated_fixed64(int index, uint64_t value) 
   repeated_fixed64_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_fixed64)
 }
-inline void TestAllTypesProto2::_internal_add_repeated_fixed64(uint64_t value) {
-  repeated_fixed64_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_repeated_fixed64(uint64_t value) { repeated_fixed64_.Add(value); }
 inline void TestAllTypesProto2::add_repeated_fixed64(uint64_t value) {
   _internal_add_repeated_fixed64(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_fixed64)
@@ -7023,18 +6785,14 @@ TestAllTypesProto2::mutable_repeated_fixed64() {
 }
 
 // repeated sfixed32 repeated_sfixed32 = 39;
-inline int TestAllTypesProto2::_internal_repeated_sfixed32_size() const {
-  return repeated_sfixed32_.size();
-}
+inline int TestAllTypesProto2::_internal_repeated_sfixed32_size() const { return repeated_sfixed32_.size(); }
 inline int TestAllTypesProto2::repeated_sfixed32_size() const {
   return _internal_repeated_sfixed32_size();
 }
 inline void TestAllTypesProto2::clear_repeated_sfixed32() {
   repeated_sfixed32_.Clear();
 }
-inline int32_t TestAllTypesProto2::_internal_repeated_sfixed32(int index) const {
-  return repeated_sfixed32_.Get(index);
-}
+inline int32_t TestAllTypesProto2::_internal_repeated_sfixed32(int index) const { return repeated_sfixed32_.Get(index); }
 inline int32_t TestAllTypesProto2::repeated_sfixed32(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_sfixed32)
   return _internal_repeated_sfixed32(index);
@@ -7043,9 +6801,7 @@ inline void TestAllTypesProto2::set_repeated_sfixed32(int index, int32_t value) 
   repeated_sfixed32_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_sfixed32)
 }
-inline void TestAllTypesProto2::_internal_add_repeated_sfixed32(int32_t value) {
-  repeated_sfixed32_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_repeated_sfixed32(int32_t value) { repeated_sfixed32_.Add(value); }
 inline void TestAllTypesProto2::add_repeated_sfixed32(int32_t value) {
   _internal_add_repeated_sfixed32(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_sfixed32)
@@ -7070,18 +6826,14 @@ TestAllTypesProto2::mutable_repeated_sfixed32() {
 }
 
 // repeated sfixed64 repeated_sfixed64 = 40;
-inline int TestAllTypesProto2::_internal_repeated_sfixed64_size() const {
-  return repeated_sfixed64_.size();
-}
+inline int TestAllTypesProto2::_internal_repeated_sfixed64_size() const { return repeated_sfixed64_.size(); }
 inline int TestAllTypesProto2::repeated_sfixed64_size() const {
   return _internal_repeated_sfixed64_size();
 }
 inline void TestAllTypesProto2::clear_repeated_sfixed64() {
   repeated_sfixed64_.Clear();
 }
-inline int64_t TestAllTypesProto2::_internal_repeated_sfixed64(int index) const {
-  return repeated_sfixed64_.Get(index);
-}
+inline int64_t TestAllTypesProto2::_internal_repeated_sfixed64(int index) const { return repeated_sfixed64_.Get(index); }
 inline int64_t TestAllTypesProto2::repeated_sfixed64(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_sfixed64)
   return _internal_repeated_sfixed64(index);
@@ -7090,9 +6842,7 @@ inline void TestAllTypesProto2::set_repeated_sfixed64(int index, int64_t value) 
   repeated_sfixed64_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_sfixed64)
 }
-inline void TestAllTypesProto2::_internal_add_repeated_sfixed64(int64_t value) {
-  repeated_sfixed64_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_repeated_sfixed64(int64_t value) { repeated_sfixed64_.Add(value); }
 inline void TestAllTypesProto2::add_repeated_sfixed64(int64_t value) {
   _internal_add_repeated_sfixed64(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_sfixed64)
@@ -7117,18 +6867,14 @@ TestAllTypesProto2::mutable_repeated_sfixed64() {
 }
 
 // repeated float repeated_float = 41;
-inline int TestAllTypesProto2::_internal_repeated_float_size() const {
-  return repeated_float_.size();
-}
+inline int TestAllTypesProto2::_internal_repeated_float_size() const { return repeated_float_.size(); }
 inline int TestAllTypesProto2::repeated_float_size() const {
   return _internal_repeated_float_size();
 }
 inline void TestAllTypesProto2::clear_repeated_float() {
   repeated_float_.Clear();
 }
-inline float TestAllTypesProto2::_internal_repeated_float(int index) const {
-  return repeated_float_.Get(index);
-}
+inline float TestAllTypesProto2::_internal_repeated_float(int index) const { return repeated_float_.Get(index); }
 inline float TestAllTypesProto2::repeated_float(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_float)
   return _internal_repeated_float(index);
@@ -7137,9 +6883,7 @@ inline void TestAllTypesProto2::set_repeated_float(int index, float value) {
   repeated_float_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_float)
 }
-inline void TestAllTypesProto2::_internal_add_repeated_float(float value) {
-  repeated_float_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_repeated_float(float value) { repeated_float_.Add(value); }
 inline void TestAllTypesProto2::add_repeated_float(float value) {
   _internal_add_repeated_float(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_float)
@@ -7164,18 +6908,14 @@ TestAllTypesProto2::mutable_repeated_float() {
 }
 
 // repeated double repeated_double = 42;
-inline int TestAllTypesProto2::_internal_repeated_double_size() const {
-  return repeated_double_.size();
-}
+inline int TestAllTypesProto2::_internal_repeated_double_size() const { return repeated_double_.size(); }
 inline int TestAllTypesProto2::repeated_double_size() const {
   return _internal_repeated_double_size();
 }
 inline void TestAllTypesProto2::clear_repeated_double() {
   repeated_double_.Clear();
 }
-inline double TestAllTypesProto2::_internal_repeated_double(int index) const {
-  return repeated_double_.Get(index);
-}
+inline double TestAllTypesProto2::_internal_repeated_double(int index) const { return repeated_double_.Get(index); }
 inline double TestAllTypesProto2::repeated_double(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_double)
   return _internal_repeated_double(index);
@@ -7184,9 +6924,7 @@ inline void TestAllTypesProto2::set_repeated_double(int index, double value) {
   repeated_double_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_double)
 }
-inline void TestAllTypesProto2::_internal_add_repeated_double(double value) {
-  repeated_double_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_repeated_double(double value) { repeated_double_.Add(value); }
 inline void TestAllTypesProto2::add_repeated_double(double value) {
   _internal_add_repeated_double(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_double)
@@ -7211,18 +6949,14 @@ TestAllTypesProto2::mutable_repeated_double() {
 }
 
 // repeated bool repeated_bool = 43;
-inline int TestAllTypesProto2::_internal_repeated_bool_size() const {
-  return repeated_bool_.size();
-}
+inline int TestAllTypesProto2::_internal_repeated_bool_size() const { return repeated_bool_.size(); }
 inline int TestAllTypesProto2::repeated_bool_size() const {
   return _internal_repeated_bool_size();
 }
 inline void TestAllTypesProto2::clear_repeated_bool() {
   repeated_bool_.Clear();
 }
-inline bool TestAllTypesProto2::_internal_repeated_bool(int index) const {
-  return repeated_bool_.Get(index);
-}
+inline bool TestAllTypesProto2::_internal_repeated_bool(int index) const { return repeated_bool_.Get(index); }
 inline bool TestAllTypesProto2::repeated_bool(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_bool)
   return _internal_repeated_bool(index);
@@ -7231,9 +6965,7 @@ inline void TestAllTypesProto2::set_repeated_bool(int index, bool value) {
   repeated_bool_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_bool)
 }
-inline void TestAllTypesProto2::_internal_add_repeated_bool(bool value) {
-  repeated_bool_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_repeated_bool(bool value) { repeated_bool_.Add(value); }
 inline void TestAllTypesProto2::add_repeated_bool(bool value) {
   _internal_add_repeated_bool(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_bool)
@@ -7258,9 +6990,7 @@ TestAllTypesProto2::mutable_repeated_bool() {
 }
 
 // repeated string repeated_string = 44;
-inline int TestAllTypesProto2::_internal_repeated_string_size() const {
-  return repeated_string_.size();
-}
+inline int TestAllTypesProto2::_internal_repeated_string_size() const { return repeated_string_.size(); }
 inline int TestAllTypesProto2::repeated_string_size() const {
   return _internal_repeated_string_size();
 }
@@ -7272,9 +7002,7 @@ inline std::string* TestAllTypesProto2::add_repeated_string() {
   // @@protoc_insertion_point(field_add_mutable:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_string)
   return _s;
 }
-inline const std::string& TestAllTypesProto2::_internal_repeated_string(int index) const {
-  return repeated_string_.Get(index);
-}
+inline const std::string& TestAllTypesProto2::_internal_repeated_string(int index) const { return repeated_string_.Get(index); }
 inline const std::string& TestAllTypesProto2::repeated_string(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_string)
   return _internal_repeated_string(index);
@@ -7301,9 +7029,7 @@ inline void TestAllTypesProto2::set_repeated_string(int index, const char* value
     reinterpret_cast<const char*>(value), size);
   // @@protoc_insertion_point(field_set_pointer:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_string)
 }
-inline std::string* TestAllTypesProto2::_internal_add_repeated_string() {
-  return repeated_string_.Add();
-}
+inline std::string* TestAllTypesProto2::_internal_add_repeated_string() { return repeated_string_.Add(); }
 inline void TestAllTypesProto2::add_repeated_string(const std::string& value) {
   repeated_string_.Add()->assign(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_string)
@@ -7333,9 +7059,7 @@ TestAllTypesProto2::mutable_repeated_string() {
 }
 
 // repeated bytes repeated_bytes = 45;
-inline int TestAllTypesProto2::_internal_repeated_bytes_size() const {
-  return repeated_bytes_.size();
-}
+inline int TestAllTypesProto2::_internal_repeated_bytes_size() const { return repeated_bytes_.size(); }
 inline int TestAllTypesProto2::repeated_bytes_size() const {
   return _internal_repeated_bytes_size();
 }
@@ -7347,9 +7071,7 @@ inline std::string* TestAllTypesProto2::add_repeated_bytes() {
   // @@protoc_insertion_point(field_add_mutable:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_bytes)
   return _s;
 }
-inline const std::string& TestAllTypesProto2::_internal_repeated_bytes(int index) const {
-  return repeated_bytes_.Get(index);
-}
+inline const std::string& TestAllTypesProto2::_internal_repeated_bytes(int index) const { return repeated_bytes_.Get(index); }
 inline const std::string& TestAllTypesProto2::repeated_bytes(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_bytes)
   return _internal_repeated_bytes(index);
@@ -7376,9 +7098,7 @@ inline void TestAllTypesProto2::set_repeated_bytes(int index, const void* value,
     reinterpret_cast<const char*>(value), size);
   // @@protoc_insertion_point(field_set_pointer:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_bytes)
 }
-inline std::string* TestAllTypesProto2::_internal_add_repeated_bytes() {
-  return repeated_bytes_.Add();
-}
+inline std::string* TestAllTypesProto2::_internal_add_repeated_bytes() { return repeated_bytes_.Add(); }
 inline void TestAllTypesProto2::add_repeated_bytes(const std::string& value) {
   repeated_bytes_.Add()->assign(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_bytes)
@@ -7408,9 +7128,7 @@ TestAllTypesProto2::mutable_repeated_bytes() {
 }
 
 // repeated .protobuf_test_messages.proto2.TestAllTypesProto2.NestedMessage repeated_nested_message = 48;
-inline int TestAllTypesProto2::_internal_repeated_nested_message_size() const {
-  return repeated_nested_message_.size();
-}
+inline int TestAllTypesProto2::_internal_repeated_nested_message_size() const { return repeated_nested_message_.size(); }
 inline int TestAllTypesProto2::repeated_nested_message_size() const {
   return _internal_repeated_nested_message_size();
 }
@@ -7448,9 +7166,7 @@ TestAllTypesProto2::repeated_nested_message() const {
 }
 
 // repeated .protobuf_test_messages.proto2.ForeignMessageProto2 repeated_foreign_message = 49;
-inline int TestAllTypesProto2::_internal_repeated_foreign_message_size() const {
-  return repeated_foreign_message_.size();
-}
+inline int TestAllTypesProto2::_internal_repeated_foreign_message_size() const { return repeated_foreign_message_.size(); }
 inline int TestAllTypesProto2::repeated_foreign_message_size() const {
   return _internal_repeated_foreign_message_size();
 }
@@ -7488,9 +7204,7 @@ TestAllTypesProto2::repeated_foreign_message() const {
 }
 
 // repeated .protobuf_test_messages.proto2.TestAllTypesProto2.NestedEnum repeated_nested_enum = 51;
-inline int TestAllTypesProto2::_internal_repeated_nested_enum_size() const {
-  return repeated_nested_enum_.size();
-}
+inline int TestAllTypesProto2::_internal_repeated_nested_enum_size() const { return repeated_nested_enum_.size(); }
 inline int TestAllTypesProto2::repeated_nested_enum_size() const {
   return _internal_repeated_nested_enum_size();
 }
@@ -7531,9 +7245,7 @@ TestAllTypesProto2::mutable_repeated_nested_enum() {
 }
 
 // repeated .protobuf_test_messages.proto2.ForeignEnumProto2 repeated_foreign_enum = 52;
-inline int TestAllTypesProto2::_internal_repeated_foreign_enum_size() const {
-  return repeated_foreign_enum_.size();
-}
+inline int TestAllTypesProto2::_internal_repeated_foreign_enum_size() const { return repeated_foreign_enum_.size(); }
 inline int TestAllTypesProto2::repeated_foreign_enum_size() const {
   return _internal_repeated_foreign_enum_size();
 }
@@ -7574,9 +7286,7 @@ TestAllTypesProto2::mutable_repeated_foreign_enum() {
 }
 
 // repeated string repeated_string_piece = 54 [ctype = STRING_PIECE];
-inline int TestAllTypesProto2::_internal_repeated_string_piece_size() const {
-  return repeated_string_piece_.size();
-}
+inline int TestAllTypesProto2::_internal_repeated_string_piece_size() const { return repeated_string_piece_.size(); }
 inline int TestAllTypesProto2::repeated_string_piece_size() const {
   return _internal_repeated_string_piece_size();
 }
@@ -7588,9 +7298,7 @@ inline std::string* TestAllTypesProto2::add_repeated_string_piece() {
   // @@protoc_insertion_point(field_add_mutable:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_string_piece)
   return _s;
 }
-inline const std::string& TestAllTypesProto2::_internal_repeated_string_piece(int index) const {
-  return repeated_string_piece_.Get(index);
-}
+inline const std::string& TestAllTypesProto2::_internal_repeated_string_piece(int index) const { return repeated_string_piece_.Get(index); }
 inline const std::string& TestAllTypesProto2::repeated_string_piece(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_string_piece)
   return _internal_repeated_string_piece(index);
@@ -7617,9 +7325,7 @@ inline void TestAllTypesProto2::set_repeated_string_piece(int index, const char*
     reinterpret_cast<const char*>(value), size);
   // @@protoc_insertion_point(field_set_pointer:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_string_piece)
 }
-inline std::string* TestAllTypesProto2::_internal_add_repeated_string_piece() {
-  return repeated_string_piece_.Add();
-}
+inline std::string* TestAllTypesProto2::_internal_add_repeated_string_piece() { return repeated_string_piece_.Add(); }
 inline void TestAllTypesProto2::add_repeated_string_piece(const std::string& value) {
   repeated_string_piece_.Add()->assign(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_string_piece)
@@ -7649,9 +7355,7 @@ TestAllTypesProto2::mutable_repeated_string_piece() {
 }
 
 // repeated string repeated_cord = 55 [ctype = CORD];
-inline int TestAllTypesProto2::_internal_repeated_cord_size() const {
-  return repeated_cord_.size();
-}
+inline int TestAllTypesProto2::_internal_repeated_cord_size() const { return repeated_cord_.size(); }
 inline int TestAllTypesProto2::repeated_cord_size() const {
   return _internal_repeated_cord_size();
 }
@@ -7663,9 +7367,7 @@ inline std::string* TestAllTypesProto2::add_repeated_cord() {
   // @@protoc_insertion_point(field_add_mutable:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_cord)
   return _s;
 }
-inline const std::string& TestAllTypesProto2::_internal_repeated_cord(int index) const {
-  return repeated_cord_.Get(index);
-}
+inline const std::string& TestAllTypesProto2::_internal_repeated_cord(int index) const { return repeated_cord_.Get(index); }
 inline const std::string& TestAllTypesProto2::repeated_cord(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_cord)
   return _internal_repeated_cord(index);
@@ -7692,9 +7394,7 @@ inline void TestAllTypesProto2::set_repeated_cord(int index, const char* value, 
     reinterpret_cast<const char*>(value), size);
   // @@protoc_insertion_point(field_set_pointer:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_cord)
 }
-inline std::string* TestAllTypesProto2::_internal_add_repeated_cord() {
-  return repeated_cord_.Add();
-}
+inline std::string* TestAllTypesProto2::_internal_add_repeated_cord() { return repeated_cord_.Add(); }
 inline void TestAllTypesProto2::add_repeated_cord(const std::string& value) {
   repeated_cord_.Add()->assign(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.repeated_cord)
@@ -7724,18 +7424,14 @@ TestAllTypesProto2::mutable_repeated_cord() {
 }
 
 // repeated int32 packed_int32 = 75 [packed = true];
-inline int TestAllTypesProto2::_internal_packed_int32_size() const {
-  return packed_int32_.size();
-}
+inline int TestAllTypesProto2::_internal_packed_int32_size() const { return packed_int32_.size(); }
 inline int TestAllTypesProto2::packed_int32_size() const {
   return _internal_packed_int32_size();
 }
 inline void TestAllTypesProto2::clear_packed_int32() {
   packed_int32_.Clear();
 }
-inline int32_t TestAllTypesProto2::_internal_packed_int32(int index) const {
-  return packed_int32_.Get(index);
-}
+inline int32_t TestAllTypesProto2::_internal_packed_int32(int index) const { return packed_int32_.Get(index); }
 inline int32_t TestAllTypesProto2::packed_int32(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.packed_int32)
   return _internal_packed_int32(index);
@@ -7744,9 +7440,7 @@ inline void TestAllTypesProto2::set_packed_int32(int index, int32_t value) {
   packed_int32_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.packed_int32)
 }
-inline void TestAllTypesProto2::_internal_add_packed_int32(int32_t value) {
-  packed_int32_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_packed_int32(int32_t value) { packed_int32_.Add(value); }
 inline void TestAllTypesProto2::add_packed_int32(int32_t value) {
   _internal_add_packed_int32(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.packed_int32)
@@ -7771,18 +7465,14 @@ TestAllTypesProto2::mutable_packed_int32() {
 }
 
 // repeated int64 packed_int64 = 76 [packed = true];
-inline int TestAllTypesProto2::_internal_packed_int64_size() const {
-  return packed_int64_.size();
-}
+inline int TestAllTypesProto2::_internal_packed_int64_size() const { return packed_int64_.size(); }
 inline int TestAllTypesProto2::packed_int64_size() const {
   return _internal_packed_int64_size();
 }
 inline void TestAllTypesProto2::clear_packed_int64() {
   packed_int64_.Clear();
 }
-inline int64_t TestAllTypesProto2::_internal_packed_int64(int index) const {
-  return packed_int64_.Get(index);
-}
+inline int64_t TestAllTypesProto2::_internal_packed_int64(int index) const { return packed_int64_.Get(index); }
 inline int64_t TestAllTypesProto2::packed_int64(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.packed_int64)
   return _internal_packed_int64(index);
@@ -7791,9 +7481,7 @@ inline void TestAllTypesProto2::set_packed_int64(int index, int64_t value) {
   packed_int64_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.packed_int64)
 }
-inline void TestAllTypesProto2::_internal_add_packed_int64(int64_t value) {
-  packed_int64_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_packed_int64(int64_t value) { packed_int64_.Add(value); }
 inline void TestAllTypesProto2::add_packed_int64(int64_t value) {
   _internal_add_packed_int64(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.packed_int64)
@@ -7818,18 +7506,14 @@ TestAllTypesProto2::mutable_packed_int64() {
 }
 
 // repeated uint32 packed_uint32 = 77 [packed = true];
-inline int TestAllTypesProto2::_internal_packed_uint32_size() const {
-  return packed_uint32_.size();
-}
+inline int TestAllTypesProto2::_internal_packed_uint32_size() const { return packed_uint32_.size(); }
 inline int TestAllTypesProto2::packed_uint32_size() const {
   return _internal_packed_uint32_size();
 }
 inline void TestAllTypesProto2::clear_packed_uint32() {
   packed_uint32_.Clear();
 }
-inline uint32_t TestAllTypesProto2::_internal_packed_uint32(int index) const {
-  return packed_uint32_.Get(index);
-}
+inline uint32_t TestAllTypesProto2::_internal_packed_uint32(int index) const { return packed_uint32_.Get(index); }
 inline uint32_t TestAllTypesProto2::packed_uint32(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.packed_uint32)
   return _internal_packed_uint32(index);
@@ -7838,9 +7522,7 @@ inline void TestAllTypesProto2::set_packed_uint32(int index, uint32_t value) {
   packed_uint32_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.packed_uint32)
 }
-inline void TestAllTypesProto2::_internal_add_packed_uint32(uint32_t value) {
-  packed_uint32_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_packed_uint32(uint32_t value) { packed_uint32_.Add(value); }
 inline void TestAllTypesProto2::add_packed_uint32(uint32_t value) {
   _internal_add_packed_uint32(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.packed_uint32)
@@ -7865,18 +7547,14 @@ TestAllTypesProto2::mutable_packed_uint32() {
 }
 
 // repeated uint64 packed_uint64 = 78 [packed = true];
-inline int TestAllTypesProto2::_internal_packed_uint64_size() const {
-  return packed_uint64_.size();
-}
+inline int TestAllTypesProto2::_internal_packed_uint64_size() const { return packed_uint64_.size(); }
 inline int TestAllTypesProto2::packed_uint64_size() const {
   return _internal_packed_uint64_size();
 }
 inline void TestAllTypesProto2::clear_packed_uint64() {
   packed_uint64_.Clear();
 }
-inline uint64_t TestAllTypesProto2::_internal_packed_uint64(int index) const {
-  return packed_uint64_.Get(index);
-}
+inline uint64_t TestAllTypesProto2::_internal_packed_uint64(int index) const { return packed_uint64_.Get(index); }
 inline uint64_t TestAllTypesProto2::packed_uint64(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.packed_uint64)
   return _internal_packed_uint64(index);
@@ -7885,9 +7563,7 @@ inline void TestAllTypesProto2::set_packed_uint64(int index, uint64_t value) {
   packed_uint64_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.packed_uint64)
 }
-inline void TestAllTypesProto2::_internal_add_packed_uint64(uint64_t value) {
-  packed_uint64_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_packed_uint64(uint64_t value) { packed_uint64_.Add(value); }
 inline void TestAllTypesProto2::add_packed_uint64(uint64_t value) {
   _internal_add_packed_uint64(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.packed_uint64)
@@ -7912,18 +7588,14 @@ TestAllTypesProto2::mutable_packed_uint64() {
 }
 
 // repeated sint32 packed_sint32 = 79 [packed = true];
-inline int TestAllTypesProto2::_internal_packed_sint32_size() const {
-  return packed_sint32_.size();
-}
+inline int TestAllTypesProto2::_internal_packed_sint32_size() const { return packed_sint32_.size(); }
 inline int TestAllTypesProto2::packed_sint32_size() const {
   return _internal_packed_sint32_size();
 }
 inline void TestAllTypesProto2::clear_packed_sint32() {
   packed_sint32_.Clear();
 }
-inline int32_t TestAllTypesProto2::_internal_packed_sint32(int index) const {
-  return packed_sint32_.Get(index);
-}
+inline int32_t TestAllTypesProto2::_internal_packed_sint32(int index) const { return packed_sint32_.Get(index); }
 inline int32_t TestAllTypesProto2::packed_sint32(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.packed_sint32)
   return _internal_packed_sint32(index);
@@ -7932,9 +7604,7 @@ inline void TestAllTypesProto2::set_packed_sint32(int index, int32_t value) {
   packed_sint32_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.packed_sint32)
 }
-inline void TestAllTypesProto2::_internal_add_packed_sint32(int32_t value) {
-  packed_sint32_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_packed_sint32(int32_t value) { packed_sint32_.Add(value); }
 inline void TestAllTypesProto2::add_packed_sint32(int32_t value) {
   _internal_add_packed_sint32(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.packed_sint32)
@@ -7959,18 +7629,14 @@ TestAllTypesProto2::mutable_packed_sint32() {
 }
 
 // repeated sint64 packed_sint64 = 80 [packed = true];
-inline int TestAllTypesProto2::_internal_packed_sint64_size() const {
-  return packed_sint64_.size();
-}
+inline int TestAllTypesProto2::_internal_packed_sint64_size() const { return packed_sint64_.size(); }
 inline int TestAllTypesProto2::packed_sint64_size() const {
   return _internal_packed_sint64_size();
 }
 inline void TestAllTypesProto2::clear_packed_sint64() {
   packed_sint64_.Clear();
 }
-inline int64_t TestAllTypesProto2::_internal_packed_sint64(int index) const {
-  return packed_sint64_.Get(index);
-}
+inline int64_t TestAllTypesProto2::_internal_packed_sint64(int index) const { return packed_sint64_.Get(index); }
 inline int64_t TestAllTypesProto2::packed_sint64(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.packed_sint64)
   return _internal_packed_sint64(index);
@@ -7979,9 +7645,7 @@ inline void TestAllTypesProto2::set_packed_sint64(int index, int64_t value) {
   packed_sint64_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.packed_sint64)
 }
-inline void TestAllTypesProto2::_internal_add_packed_sint64(int64_t value) {
-  packed_sint64_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_packed_sint64(int64_t value) { packed_sint64_.Add(value); }
 inline void TestAllTypesProto2::add_packed_sint64(int64_t value) {
   _internal_add_packed_sint64(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.packed_sint64)
@@ -8006,18 +7670,14 @@ TestAllTypesProto2::mutable_packed_sint64() {
 }
 
 // repeated fixed32 packed_fixed32 = 81 [packed = true];
-inline int TestAllTypesProto2::_internal_packed_fixed32_size() const {
-  return packed_fixed32_.size();
-}
+inline int TestAllTypesProto2::_internal_packed_fixed32_size() const { return packed_fixed32_.size(); }
 inline int TestAllTypesProto2::packed_fixed32_size() const {
   return _internal_packed_fixed32_size();
 }
 inline void TestAllTypesProto2::clear_packed_fixed32() {
   packed_fixed32_.Clear();
 }
-inline uint32_t TestAllTypesProto2::_internal_packed_fixed32(int index) const {
-  return packed_fixed32_.Get(index);
-}
+inline uint32_t TestAllTypesProto2::_internal_packed_fixed32(int index) const { return packed_fixed32_.Get(index); }
 inline uint32_t TestAllTypesProto2::packed_fixed32(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.packed_fixed32)
   return _internal_packed_fixed32(index);
@@ -8026,9 +7686,7 @@ inline void TestAllTypesProto2::set_packed_fixed32(int index, uint32_t value) {
   packed_fixed32_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.packed_fixed32)
 }
-inline void TestAllTypesProto2::_internal_add_packed_fixed32(uint32_t value) {
-  packed_fixed32_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_packed_fixed32(uint32_t value) { packed_fixed32_.Add(value); }
 inline void TestAllTypesProto2::add_packed_fixed32(uint32_t value) {
   _internal_add_packed_fixed32(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.packed_fixed32)
@@ -8053,18 +7711,14 @@ TestAllTypesProto2::mutable_packed_fixed32() {
 }
 
 // repeated fixed64 packed_fixed64 = 82 [packed = true];
-inline int TestAllTypesProto2::_internal_packed_fixed64_size() const {
-  return packed_fixed64_.size();
-}
+inline int TestAllTypesProto2::_internal_packed_fixed64_size() const { return packed_fixed64_.size(); }
 inline int TestAllTypesProto2::packed_fixed64_size() const {
   return _internal_packed_fixed64_size();
 }
 inline void TestAllTypesProto2::clear_packed_fixed64() {
   packed_fixed64_.Clear();
 }
-inline uint64_t TestAllTypesProto2::_internal_packed_fixed64(int index) const {
-  return packed_fixed64_.Get(index);
-}
+inline uint64_t TestAllTypesProto2::_internal_packed_fixed64(int index) const { return packed_fixed64_.Get(index); }
 inline uint64_t TestAllTypesProto2::packed_fixed64(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.packed_fixed64)
   return _internal_packed_fixed64(index);
@@ -8073,9 +7727,7 @@ inline void TestAllTypesProto2::set_packed_fixed64(int index, uint64_t value) {
   packed_fixed64_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.packed_fixed64)
 }
-inline void TestAllTypesProto2::_internal_add_packed_fixed64(uint64_t value) {
-  packed_fixed64_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_packed_fixed64(uint64_t value) { packed_fixed64_.Add(value); }
 inline void TestAllTypesProto2::add_packed_fixed64(uint64_t value) {
   _internal_add_packed_fixed64(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.packed_fixed64)
@@ -8100,18 +7752,14 @@ TestAllTypesProto2::mutable_packed_fixed64() {
 }
 
 // repeated sfixed32 packed_sfixed32 = 83 [packed = true];
-inline int TestAllTypesProto2::_internal_packed_sfixed32_size() const {
-  return packed_sfixed32_.size();
-}
+inline int TestAllTypesProto2::_internal_packed_sfixed32_size() const { return packed_sfixed32_.size(); }
 inline int TestAllTypesProto2::packed_sfixed32_size() const {
   return _internal_packed_sfixed32_size();
 }
 inline void TestAllTypesProto2::clear_packed_sfixed32() {
   packed_sfixed32_.Clear();
 }
-inline int32_t TestAllTypesProto2::_internal_packed_sfixed32(int index) const {
-  return packed_sfixed32_.Get(index);
-}
+inline int32_t TestAllTypesProto2::_internal_packed_sfixed32(int index) const { return packed_sfixed32_.Get(index); }
 inline int32_t TestAllTypesProto2::packed_sfixed32(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.packed_sfixed32)
   return _internal_packed_sfixed32(index);
@@ -8120,9 +7768,7 @@ inline void TestAllTypesProto2::set_packed_sfixed32(int index, int32_t value) {
   packed_sfixed32_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.packed_sfixed32)
 }
-inline void TestAllTypesProto2::_internal_add_packed_sfixed32(int32_t value) {
-  packed_sfixed32_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_packed_sfixed32(int32_t value) { packed_sfixed32_.Add(value); }
 inline void TestAllTypesProto2::add_packed_sfixed32(int32_t value) {
   _internal_add_packed_sfixed32(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.packed_sfixed32)
@@ -8147,18 +7793,14 @@ TestAllTypesProto2::mutable_packed_sfixed32() {
 }
 
 // repeated sfixed64 packed_sfixed64 = 84 [packed = true];
-inline int TestAllTypesProto2::_internal_packed_sfixed64_size() const {
-  return packed_sfixed64_.size();
-}
+inline int TestAllTypesProto2::_internal_packed_sfixed64_size() const { return packed_sfixed64_.size(); }
 inline int TestAllTypesProto2::packed_sfixed64_size() const {
   return _internal_packed_sfixed64_size();
 }
 inline void TestAllTypesProto2::clear_packed_sfixed64() {
   packed_sfixed64_.Clear();
 }
-inline int64_t TestAllTypesProto2::_internal_packed_sfixed64(int index) const {
-  return packed_sfixed64_.Get(index);
-}
+inline int64_t TestAllTypesProto2::_internal_packed_sfixed64(int index) const { return packed_sfixed64_.Get(index); }
 inline int64_t TestAllTypesProto2::packed_sfixed64(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.packed_sfixed64)
   return _internal_packed_sfixed64(index);
@@ -8167,9 +7809,7 @@ inline void TestAllTypesProto2::set_packed_sfixed64(int index, int64_t value) {
   packed_sfixed64_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.packed_sfixed64)
 }
-inline void TestAllTypesProto2::_internal_add_packed_sfixed64(int64_t value) {
-  packed_sfixed64_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_packed_sfixed64(int64_t value) { packed_sfixed64_.Add(value); }
 inline void TestAllTypesProto2::add_packed_sfixed64(int64_t value) {
   _internal_add_packed_sfixed64(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.packed_sfixed64)
@@ -8194,18 +7834,14 @@ TestAllTypesProto2::mutable_packed_sfixed64() {
 }
 
 // repeated float packed_float = 85 [packed = true];
-inline int TestAllTypesProto2::_internal_packed_float_size() const {
-  return packed_float_.size();
-}
+inline int TestAllTypesProto2::_internal_packed_float_size() const { return packed_float_.size(); }
 inline int TestAllTypesProto2::packed_float_size() const {
   return _internal_packed_float_size();
 }
 inline void TestAllTypesProto2::clear_packed_float() {
   packed_float_.Clear();
 }
-inline float TestAllTypesProto2::_internal_packed_float(int index) const {
-  return packed_float_.Get(index);
-}
+inline float TestAllTypesProto2::_internal_packed_float(int index) const { return packed_float_.Get(index); }
 inline float TestAllTypesProto2::packed_float(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.packed_float)
   return _internal_packed_float(index);
@@ -8214,9 +7850,7 @@ inline void TestAllTypesProto2::set_packed_float(int index, float value) {
   packed_float_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.packed_float)
 }
-inline void TestAllTypesProto2::_internal_add_packed_float(float value) {
-  packed_float_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_packed_float(float value) { packed_float_.Add(value); }
 inline void TestAllTypesProto2::add_packed_float(float value) {
   _internal_add_packed_float(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.packed_float)
@@ -8241,18 +7875,14 @@ TestAllTypesProto2::mutable_packed_float() {
 }
 
 // repeated double packed_double = 86 [packed = true];
-inline int TestAllTypesProto2::_internal_packed_double_size() const {
-  return packed_double_.size();
-}
+inline int TestAllTypesProto2::_internal_packed_double_size() const { return packed_double_.size(); }
 inline int TestAllTypesProto2::packed_double_size() const {
   return _internal_packed_double_size();
 }
 inline void TestAllTypesProto2::clear_packed_double() {
   packed_double_.Clear();
 }
-inline double TestAllTypesProto2::_internal_packed_double(int index) const {
-  return packed_double_.Get(index);
-}
+inline double TestAllTypesProto2::_internal_packed_double(int index) const { return packed_double_.Get(index); }
 inline double TestAllTypesProto2::packed_double(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.packed_double)
   return _internal_packed_double(index);
@@ -8261,9 +7891,7 @@ inline void TestAllTypesProto2::set_packed_double(int index, double value) {
   packed_double_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.packed_double)
 }
-inline void TestAllTypesProto2::_internal_add_packed_double(double value) {
-  packed_double_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_packed_double(double value) { packed_double_.Add(value); }
 inline void TestAllTypesProto2::add_packed_double(double value) {
   _internal_add_packed_double(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.packed_double)
@@ -8288,18 +7916,14 @@ TestAllTypesProto2::mutable_packed_double() {
 }
 
 // repeated bool packed_bool = 87 [packed = true];
-inline int TestAllTypesProto2::_internal_packed_bool_size() const {
-  return packed_bool_.size();
-}
+inline int TestAllTypesProto2::_internal_packed_bool_size() const { return packed_bool_.size(); }
 inline int TestAllTypesProto2::packed_bool_size() const {
   return _internal_packed_bool_size();
 }
 inline void TestAllTypesProto2::clear_packed_bool() {
   packed_bool_.Clear();
 }
-inline bool TestAllTypesProto2::_internal_packed_bool(int index) const {
-  return packed_bool_.Get(index);
-}
+inline bool TestAllTypesProto2::_internal_packed_bool(int index) const { return packed_bool_.Get(index); }
 inline bool TestAllTypesProto2::packed_bool(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.packed_bool)
   return _internal_packed_bool(index);
@@ -8308,9 +7932,7 @@ inline void TestAllTypesProto2::set_packed_bool(int index, bool value) {
   packed_bool_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.packed_bool)
 }
-inline void TestAllTypesProto2::_internal_add_packed_bool(bool value) {
-  packed_bool_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_packed_bool(bool value) { packed_bool_.Add(value); }
 inline void TestAllTypesProto2::add_packed_bool(bool value) {
   _internal_add_packed_bool(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.packed_bool)
@@ -8335,9 +7957,7 @@ TestAllTypesProto2::mutable_packed_bool() {
 }
 
 // repeated .protobuf_test_messages.proto2.TestAllTypesProto2.NestedEnum packed_nested_enum = 88 [packed = true];
-inline int TestAllTypesProto2::_internal_packed_nested_enum_size() const {
-  return packed_nested_enum_.size();
-}
+inline int TestAllTypesProto2::_internal_packed_nested_enum_size() const { return packed_nested_enum_.size(); }
 inline int TestAllTypesProto2::packed_nested_enum_size() const {
   return _internal_packed_nested_enum_size();
 }
@@ -8378,18 +7998,14 @@ TestAllTypesProto2::mutable_packed_nested_enum() {
 }
 
 // repeated int32 unpacked_int32 = 89 [packed = false];
-inline int TestAllTypesProto2::_internal_unpacked_int32_size() const {
-  return unpacked_int32_.size();
-}
+inline int TestAllTypesProto2::_internal_unpacked_int32_size() const { return unpacked_int32_.size(); }
 inline int TestAllTypesProto2::unpacked_int32_size() const {
   return _internal_unpacked_int32_size();
 }
 inline void TestAllTypesProto2::clear_unpacked_int32() {
   unpacked_int32_.Clear();
 }
-inline int32_t TestAllTypesProto2::_internal_unpacked_int32(int index) const {
-  return unpacked_int32_.Get(index);
-}
+inline int32_t TestAllTypesProto2::_internal_unpacked_int32(int index) const { return unpacked_int32_.Get(index); }
 inline int32_t TestAllTypesProto2::unpacked_int32(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_int32)
   return _internal_unpacked_int32(index);
@@ -8398,9 +8014,7 @@ inline void TestAllTypesProto2::set_unpacked_int32(int index, int32_t value) {
   unpacked_int32_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_int32)
 }
-inline void TestAllTypesProto2::_internal_add_unpacked_int32(int32_t value) {
-  unpacked_int32_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_unpacked_int32(int32_t value) { unpacked_int32_.Add(value); }
 inline void TestAllTypesProto2::add_unpacked_int32(int32_t value) {
   _internal_add_unpacked_int32(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_int32)
@@ -8425,18 +8039,14 @@ TestAllTypesProto2::mutable_unpacked_int32() {
 }
 
 // repeated int64 unpacked_int64 = 90 [packed = false];
-inline int TestAllTypesProto2::_internal_unpacked_int64_size() const {
-  return unpacked_int64_.size();
-}
+inline int TestAllTypesProto2::_internal_unpacked_int64_size() const { return unpacked_int64_.size(); }
 inline int TestAllTypesProto2::unpacked_int64_size() const {
   return _internal_unpacked_int64_size();
 }
 inline void TestAllTypesProto2::clear_unpacked_int64() {
   unpacked_int64_.Clear();
 }
-inline int64_t TestAllTypesProto2::_internal_unpacked_int64(int index) const {
-  return unpacked_int64_.Get(index);
-}
+inline int64_t TestAllTypesProto2::_internal_unpacked_int64(int index) const { return unpacked_int64_.Get(index); }
 inline int64_t TestAllTypesProto2::unpacked_int64(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_int64)
   return _internal_unpacked_int64(index);
@@ -8445,9 +8055,7 @@ inline void TestAllTypesProto2::set_unpacked_int64(int index, int64_t value) {
   unpacked_int64_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_int64)
 }
-inline void TestAllTypesProto2::_internal_add_unpacked_int64(int64_t value) {
-  unpacked_int64_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_unpacked_int64(int64_t value) { unpacked_int64_.Add(value); }
 inline void TestAllTypesProto2::add_unpacked_int64(int64_t value) {
   _internal_add_unpacked_int64(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_int64)
@@ -8472,18 +8080,14 @@ TestAllTypesProto2::mutable_unpacked_int64() {
 }
 
 // repeated uint32 unpacked_uint32 = 91 [packed = false];
-inline int TestAllTypesProto2::_internal_unpacked_uint32_size() const {
-  return unpacked_uint32_.size();
-}
+inline int TestAllTypesProto2::_internal_unpacked_uint32_size() const { return unpacked_uint32_.size(); }
 inline int TestAllTypesProto2::unpacked_uint32_size() const {
   return _internal_unpacked_uint32_size();
 }
 inline void TestAllTypesProto2::clear_unpacked_uint32() {
   unpacked_uint32_.Clear();
 }
-inline uint32_t TestAllTypesProto2::_internal_unpacked_uint32(int index) const {
-  return unpacked_uint32_.Get(index);
-}
+inline uint32_t TestAllTypesProto2::_internal_unpacked_uint32(int index) const { return unpacked_uint32_.Get(index); }
 inline uint32_t TestAllTypesProto2::unpacked_uint32(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_uint32)
   return _internal_unpacked_uint32(index);
@@ -8492,9 +8096,7 @@ inline void TestAllTypesProto2::set_unpacked_uint32(int index, uint32_t value) {
   unpacked_uint32_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_uint32)
 }
-inline void TestAllTypesProto2::_internal_add_unpacked_uint32(uint32_t value) {
-  unpacked_uint32_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_unpacked_uint32(uint32_t value) { unpacked_uint32_.Add(value); }
 inline void TestAllTypesProto2::add_unpacked_uint32(uint32_t value) {
   _internal_add_unpacked_uint32(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_uint32)
@@ -8519,18 +8121,14 @@ TestAllTypesProto2::mutable_unpacked_uint32() {
 }
 
 // repeated uint64 unpacked_uint64 = 92 [packed = false];
-inline int TestAllTypesProto2::_internal_unpacked_uint64_size() const {
-  return unpacked_uint64_.size();
-}
+inline int TestAllTypesProto2::_internal_unpacked_uint64_size() const { return unpacked_uint64_.size(); }
 inline int TestAllTypesProto2::unpacked_uint64_size() const {
   return _internal_unpacked_uint64_size();
 }
 inline void TestAllTypesProto2::clear_unpacked_uint64() {
   unpacked_uint64_.Clear();
 }
-inline uint64_t TestAllTypesProto2::_internal_unpacked_uint64(int index) const {
-  return unpacked_uint64_.Get(index);
-}
+inline uint64_t TestAllTypesProto2::_internal_unpacked_uint64(int index) const { return unpacked_uint64_.Get(index); }
 inline uint64_t TestAllTypesProto2::unpacked_uint64(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_uint64)
   return _internal_unpacked_uint64(index);
@@ -8539,9 +8137,7 @@ inline void TestAllTypesProto2::set_unpacked_uint64(int index, uint64_t value) {
   unpacked_uint64_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_uint64)
 }
-inline void TestAllTypesProto2::_internal_add_unpacked_uint64(uint64_t value) {
-  unpacked_uint64_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_unpacked_uint64(uint64_t value) { unpacked_uint64_.Add(value); }
 inline void TestAllTypesProto2::add_unpacked_uint64(uint64_t value) {
   _internal_add_unpacked_uint64(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_uint64)
@@ -8566,18 +8162,14 @@ TestAllTypesProto2::mutable_unpacked_uint64() {
 }
 
 // repeated sint32 unpacked_sint32 = 93 [packed = false];
-inline int TestAllTypesProto2::_internal_unpacked_sint32_size() const {
-  return unpacked_sint32_.size();
-}
+inline int TestAllTypesProto2::_internal_unpacked_sint32_size() const { return unpacked_sint32_.size(); }
 inline int TestAllTypesProto2::unpacked_sint32_size() const {
   return _internal_unpacked_sint32_size();
 }
 inline void TestAllTypesProto2::clear_unpacked_sint32() {
   unpacked_sint32_.Clear();
 }
-inline int32_t TestAllTypesProto2::_internal_unpacked_sint32(int index) const {
-  return unpacked_sint32_.Get(index);
-}
+inline int32_t TestAllTypesProto2::_internal_unpacked_sint32(int index) const { return unpacked_sint32_.Get(index); }
 inline int32_t TestAllTypesProto2::unpacked_sint32(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_sint32)
   return _internal_unpacked_sint32(index);
@@ -8586,9 +8178,7 @@ inline void TestAllTypesProto2::set_unpacked_sint32(int index, int32_t value) {
   unpacked_sint32_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_sint32)
 }
-inline void TestAllTypesProto2::_internal_add_unpacked_sint32(int32_t value) {
-  unpacked_sint32_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_unpacked_sint32(int32_t value) { unpacked_sint32_.Add(value); }
 inline void TestAllTypesProto2::add_unpacked_sint32(int32_t value) {
   _internal_add_unpacked_sint32(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_sint32)
@@ -8613,18 +8203,14 @@ TestAllTypesProto2::mutable_unpacked_sint32() {
 }
 
 // repeated sint64 unpacked_sint64 = 94 [packed = false];
-inline int TestAllTypesProto2::_internal_unpacked_sint64_size() const {
-  return unpacked_sint64_.size();
-}
+inline int TestAllTypesProto2::_internal_unpacked_sint64_size() const { return unpacked_sint64_.size(); }
 inline int TestAllTypesProto2::unpacked_sint64_size() const {
   return _internal_unpacked_sint64_size();
 }
 inline void TestAllTypesProto2::clear_unpacked_sint64() {
   unpacked_sint64_.Clear();
 }
-inline int64_t TestAllTypesProto2::_internal_unpacked_sint64(int index) const {
-  return unpacked_sint64_.Get(index);
-}
+inline int64_t TestAllTypesProto2::_internal_unpacked_sint64(int index) const { return unpacked_sint64_.Get(index); }
 inline int64_t TestAllTypesProto2::unpacked_sint64(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_sint64)
   return _internal_unpacked_sint64(index);
@@ -8633,9 +8219,7 @@ inline void TestAllTypesProto2::set_unpacked_sint64(int index, int64_t value) {
   unpacked_sint64_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_sint64)
 }
-inline void TestAllTypesProto2::_internal_add_unpacked_sint64(int64_t value) {
-  unpacked_sint64_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_unpacked_sint64(int64_t value) { unpacked_sint64_.Add(value); }
 inline void TestAllTypesProto2::add_unpacked_sint64(int64_t value) {
   _internal_add_unpacked_sint64(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_sint64)
@@ -8660,18 +8244,14 @@ TestAllTypesProto2::mutable_unpacked_sint64() {
 }
 
 // repeated fixed32 unpacked_fixed32 = 95 [packed = false];
-inline int TestAllTypesProto2::_internal_unpacked_fixed32_size() const {
-  return unpacked_fixed32_.size();
-}
+inline int TestAllTypesProto2::_internal_unpacked_fixed32_size() const { return unpacked_fixed32_.size(); }
 inline int TestAllTypesProto2::unpacked_fixed32_size() const {
   return _internal_unpacked_fixed32_size();
 }
 inline void TestAllTypesProto2::clear_unpacked_fixed32() {
   unpacked_fixed32_.Clear();
 }
-inline uint32_t TestAllTypesProto2::_internal_unpacked_fixed32(int index) const {
-  return unpacked_fixed32_.Get(index);
-}
+inline uint32_t TestAllTypesProto2::_internal_unpacked_fixed32(int index) const { return unpacked_fixed32_.Get(index); }
 inline uint32_t TestAllTypesProto2::unpacked_fixed32(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_fixed32)
   return _internal_unpacked_fixed32(index);
@@ -8680,9 +8260,7 @@ inline void TestAllTypesProto2::set_unpacked_fixed32(int index, uint32_t value) 
   unpacked_fixed32_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_fixed32)
 }
-inline void TestAllTypesProto2::_internal_add_unpacked_fixed32(uint32_t value) {
-  unpacked_fixed32_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_unpacked_fixed32(uint32_t value) { unpacked_fixed32_.Add(value); }
 inline void TestAllTypesProto2::add_unpacked_fixed32(uint32_t value) {
   _internal_add_unpacked_fixed32(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_fixed32)
@@ -8707,18 +8285,14 @@ TestAllTypesProto2::mutable_unpacked_fixed32() {
 }
 
 // repeated fixed64 unpacked_fixed64 = 96 [packed = false];
-inline int TestAllTypesProto2::_internal_unpacked_fixed64_size() const {
-  return unpacked_fixed64_.size();
-}
+inline int TestAllTypesProto2::_internal_unpacked_fixed64_size() const { return unpacked_fixed64_.size(); }
 inline int TestAllTypesProto2::unpacked_fixed64_size() const {
   return _internal_unpacked_fixed64_size();
 }
 inline void TestAllTypesProto2::clear_unpacked_fixed64() {
   unpacked_fixed64_.Clear();
 }
-inline uint64_t TestAllTypesProto2::_internal_unpacked_fixed64(int index) const {
-  return unpacked_fixed64_.Get(index);
-}
+inline uint64_t TestAllTypesProto2::_internal_unpacked_fixed64(int index) const { return unpacked_fixed64_.Get(index); }
 inline uint64_t TestAllTypesProto2::unpacked_fixed64(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_fixed64)
   return _internal_unpacked_fixed64(index);
@@ -8727,9 +8301,7 @@ inline void TestAllTypesProto2::set_unpacked_fixed64(int index, uint64_t value) 
   unpacked_fixed64_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_fixed64)
 }
-inline void TestAllTypesProto2::_internal_add_unpacked_fixed64(uint64_t value) {
-  unpacked_fixed64_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_unpacked_fixed64(uint64_t value) { unpacked_fixed64_.Add(value); }
 inline void TestAllTypesProto2::add_unpacked_fixed64(uint64_t value) {
   _internal_add_unpacked_fixed64(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_fixed64)
@@ -8754,18 +8326,14 @@ TestAllTypesProto2::mutable_unpacked_fixed64() {
 }
 
 // repeated sfixed32 unpacked_sfixed32 = 97 [packed = false];
-inline int TestAllTypesProto2::_internal_unpacked_sfixed32_size() const {
-  return unpacked_sfixed32_.size();
-}
+inline int TestAllTypesProto2::_internal_unpacked_sfixed32_size() const { return unpacked_sfixed32_.size(); }
 inline int TestAllTypesProto2::unpacked_sfixed32_size() const {
   return _internal_unpacked_sfixed32_size();
 }
 inline void TestAllTypesProto2::clear_unpacked_sfixed32() {
   unpacked_sfixed32_.Clear();
 }
-inline int32_t TestAllTypesProto2::_internal_unpacked_sfixed32(int index) const {
-  return unpacked_sfixed32_.Get(index);
-}
+inline int32_t TestAllTypesProto2::_internal_unpacked_sfixed32(int index) const { return unpacked_sfixed32_.Get(index); }
 inline int32_t TestAllTypesProto2::unpacked_sfixed32(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_sfixed32)
   return _internal_unpacked_sfixed32(index);
@@ -8774,9 +8342,7 @@ inline void TestAllTypesProto2::set_unpacked_sfixed32(int index, int32_t value) 
   unpacked_sfixed32_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_sfixed32)
 }
-inline void TestAllTypesProto2::_internal_add_unpacked_sfixed32(int32_t value) {
-  unpacked_sfixed32_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_unpacked_sfixed32(int32_t value) { unpacked_sfixed32_.Add(value); }
 inline void TestAllTypesProto2::add_unpacked_sfixed32(int32_t value) {
   _internal_add_unpacked_sfixed32(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_sfixed32)
@@ -8801,18 +8367,14 @@ TestAllTypesProto2::mutable_unpacked_sfixed32() {
 }
 
 // repeated sfixed64 unpacked_sfixed64 = 98 [packed = false];
-inline int TestAllTypesProto2::_internal_unpacked_sfixed64_size() const {
-  return unpacked_sfixed64_.size();
-}
+inline int TestAllTypesProto2::_internal_unpacked_sfixed64_size() const { return unpacked_sfixed64_.size(); }
 inline int TestAllTypesProto2::unpacked_sfixed64_size() const {
   return _internal_unpacked_sfixed64_size();
 }
 inline void TestAllTypesProto2::clear_unpacked_sfixed64() {
   unpacked_sfixed64_.Clear();
 }
-inline int64_t TestAllTypesProto2::_internal_unpacked_sfixed64(int index) const {
-  return unpacked_sfixed64_.Get(index);
-}
+inline int64_t TestAllTypesProto2::_internal_unpacked_sfixed64(int index) const { return unpacked_sfixed64_.Get(index); }
 inline int64_t TestAllTypesProto2::unpacked_sfixed64(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_sfixed64)
   return _internal_unpacked_sfixed64(index);
@@ -8821,9 +8383,7 @@ inline void TestAllTypesProto2::set_unpacked_sfixed64(int index, int64_t value) 
   unpacked_sfixed64_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_sfixed64)
 }
-inline void TestAllTypesProto2::_internal_add_unpacked_sfixed64(int64_t value) {
-  unpacked_sfixed64_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_unpacked_sfixed64(int64_t value) { unpacked_sfixed64_.Add(value); }
 inline void TestAllTypesProto2::add_unpacked_sfixed64(int64_t value) {
   _internal_add_unpacked_sfixed64(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_sfixed64)
@@ -8848,18 +8408,14 @@ TestAllTypesProto2::mutable_unpacked_sfixed64() {
 }
 
 // repeated float unpacked_float = 99 [packed = false];
-inline int TestAllTypesProto2::_internal_unpacked_float_size() const {
-  return unpacked_float_.size();
-}
+inline int TestAllTypesProto2::_internal_unpacked_float_size() const { return unpacked_float_.size(); }
 inline int TestAllTypesProto2::unpacked_float_size() const {
   return _internal_unpacked_float_size();
 }
 inline void TestAllTypesProto2::clear_unpacked_float() {
   unpacked_float_.Clear();
 }
-inline float TestAllTypesProto2::_internal_unpacked_float(int index) const {
-  return unpacked_float_.Get(index);
-}
+inline float TestAllTypesProto2::_internal_unpacked_float(int index) const { return unpacked_float_.Get(index); }
 inline float TestAllTypesProto2::unpacked_float(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_float)
   return _internal_unpacked_float(index);
@@ -8868,9 +8424,7 @@ inline void TestAllTypesProto2::set_unpacked_float(int index, float value) {
   unpacked_float_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_float)
 }
-inline void TestAllTypesProto2::_internal_add_unpacked_float(float value) {
-  unpacked_float_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_unpacked_float(float value) { unpacked_float_.Add(value); }
 inline void TestAllTypesProto2::add_unpacked_float(float value) {
   _internal_add_unpacked_float(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_float)
@@ -8895,18 +8449,14 @@ TestAllTypesProto2::mutable_unpacked_float() {
 }
 
 // repeated double unpacked_double = 100 [packed = false];
-inline int TestAllTypesProto2::_internal_unpacked_double_size() const {
-  return unpacked_double_.size();
-}
+inline int TestAllTypesProto2::_internal_unpacked_double_size() const { return unpacked_double_.size(); }
 inline int TestAllTypesProto2::unpacked_double_size() const {
   return _internal_unpacked_double_size();
 }
 inline void TestAllTypesProto2::clear_unpacked_double() {
   unpacked_double_.Clear();
 }
-inline double TestAllTypesProto2::_internal_unpacked_double(int index) const {
-  return unpacked_double_.Get(index);
-}
+inline double TestAllTypesProto2::_internal_unpacked_double(int index) const { return unpacked_double_.Get(index); }
 inline double TestAllTypesProto2::unpacked_double(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_double)
   return _internal_unpacked_double(index);
@@ -8915,9 +8465,7 @@ inline void TestAllTypesProto2::set_unpacked_double(int index, double value) {
   unpacked_double_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_double)
 }
-inline void TestAllTypesProto2::_internal_add_unpacked_double(double value) {
-  unpacked_double_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_unpacked_double(double value) { unpacked_double_.Add(value); }
 inline void TestAllTypesProto2::add_unpacked_double(double value) {
   _internal_add_unpacked_double(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_double)
@@ -8942,18 +8490,14 @@ TestAllTypesProto2::mutable_unpacked_double() {
 }
 
 // repeated bool unpacked_bool = 101 [packed = false];
-inline int TestAllTypesProto2::_internal_unpacked_bool_size() const {
-  return unpacked_bool_.size();
-}
+inline int TestAllTypesProto2::_internal_unpacked_bool_size() const { return unpacked_bool_.size(); }
 inline int TestAllTypesProto2::unpacked_bool_size() const {
   return _internal_unpacked_bool_size();
 }
 inline void TestAllTypesProto2::clear_unpacked_bool() {
   unpacked_bool_.Clear();
 }
-inline bool TestAllTypesProto2::_internal_unpacked_bool(int index) const {
-  return unpacked_bool_.Get(index);
-}
+inline bool TestAllTypesProto2::_internal_unpacked_bool(int index) const { return unpacked_bool_.Get(index); }
 inline bool TestAllTypesProto2::unpacked_bool(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_bool)
   return _internal_unpacked_bool(index);
@@ -8962,9 +8506,7 @@ inline void TestAllTypesProto2::set_unpacked_bool(int index, bool value) {
   unpacked_bool_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_bool)
 }
-inline void TestAllTypesProto2::_internal_add_unpacked_bool(bool value) {
-  unpacked_bool_.Add(value);
-}
+inline void TestAllTypesProto2::_internal_add_unpacked_bool(bool value) { unpacked_bool_.Add(value); }
 inline void TestAllTypesProto2::add_unpacked_bool(bool value) {
   _internal_add_unpacked_bool(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.TestAllTypesProto2.unpacked_bool)
@@ -8989,9 +8531,7 @@ TestAllTypesProto2::mutable_unpacked_bool() {
 }
 
 // repeated .protobuf_test_messages.proto2.TestAllTypesProto2.NestedEnum unpacked_nested_enum = 102 [packed = false];
-inline int TestAllTypesProto2::_internal_unpacked_nested_enum_size() const {
-  return unpacked_nested_enum_.size();
-}
+inline int TestAllTypesProto2::_internal_unpacked_nested_enum_size() const { return unpacked_nested_enum_.size(); }
 inline int TestAllTypesProto2::unpacked_nested_enum_size() const {
   return _internal_unpacked_nested_enum_size();
 }
@@ -9032,9 +8572,7 @@ TestAllTypesProto2::mutable_unpacked_nested_enum() {
 }
 
 // map<int32, int32> map_int32_int32 = 56;
-inline int TestAllTypesProto2::_internal_map_int32_int32_size() const {
-  return map_int32_int32_.size();
-}
+inline int TestAllTypesProto2::_internal_map_int32_int32_size() const { return map_int32_int32_.size(); }
 inline int TestAllTypesProto2::map_int32_int32_size() const {
   return _internal_map_int32_int32_size();
 }
@@ -9061,9 +8599,7 @@ TestAllTypesProto2::mutable_map_int32_int32() {
 }
 
 // map<int64, int64> map_int64_int64 = 57;
-inline int TestAllTypesProto2::_internal_map_int64_int64_size() const {
-  return map_int64_int64_.size();
-}
+inline int TestAllTypesProto2::_internal_map_int64_int64_size() const { return map_int64_int64_.size(); }
 inline int TestAllTypesProto2::map_int64_int64_size() const {
   return _internal_map_int64_int64_size();
 }
@@ -9090,9 +8626,7 @@ TestAllTypesProto2::mutable_map_int64_int64() {
 }
 
 // map<uint32, uint32> map_uint32_uint32 = 58;
-inline int TestAllTypesProto2::_internal_map_uint32_uint32_size() const {
-  return map_uint32_uint32_.size();
-}
+inline int TestAllTypesProto2::_internal_map_uint32_uint32_size() const { return map_uint32_uint32_.size(); }
 inline int TestAllTypesProto2::map_uint32_uint32_size() const {
   return _internal_map_uint32_uint32_size();
 }
@@ -9119,9 +8653,7 @@ TestAllTypesProto2::mutable_map_uint32_uint32() {
 }
 
 // map<uint64, uint64> map_uint64_uint64 = 59;
-inline int TestAllTypesProto2::_internal_map_uint64_uint64_size() const {
-  return map_uint64_uint64_.size();
-}
+inline int TestAllTypesProto2::_internal_map_uint64_uint64_size() const { return map_uint64_uint64_.size(); }
 inline int TestAllTypesProto2::map_uint64_uint64_size() const {
   return _internal_map_uint64_uint64_size();
 }
@@ -9148,9 +8680,7 @@ TestAllTypesProto2::mutable_map_uint64_uint64() {
 }
 
 // map<sint32, sint32> map_sint32_sint32 = 60;
-inline int TestAllTypesProto2::_internal_map_sint32_sint32_size() const {
-  return map_sint32_sint32_.size();
-}
+inline int TestAllTypesProto2::_internal_map_sint32_sint32_size() const { return map_sint32_sint32_.size(); }
 inline int TestAllTypesProto2::map_sint32_sint32_size() const {
   return _internal_map_sint32_sint32_size();
 }
@@ -9177,9 +8707,7 @@ TestAllTypesProto2::mutable_map_sint32_sint32() {
 }
 
 // map<sint64, sint64> map_sint64_sint64 = 61;
-inline int TestAllTypesProto2::_internal_map_sint64_sint64_size() const {
-  return map_sint64_sint64_.size();
-}
+inline int TestAllTypesProto2::_internal_map_sint64_sint64_size() const { return map_sint64_sint64_.size(); }
 inline int TestAllTypesProto2::map_sint64_sint64_size() const {
   return _internal_map_sint64_sint64_size();
 }
@@ -9206,9 +8734,7 @@ TestAllTypesProto2::mutable_map_sint64_sint64() {
 }
 
 // map<fixed32, fixed32> map_fixed32_fixed32 = 62;
-inline int TestAllTypesProto2::_internal_map_fixed32_fixed32_size() const {
-  return map_fixed32_fixed32_.size();
-}
+inline int TestAllTypesProto2::_internal_map_fixed32_fixed32_size() const { return map_fixed32_fixed32_.size(); }
 inline int TestAllTypesProto2::map_fixed32_fixed32_size() const {
   return _internal_map_fixed32_fixed32_size();
 }
@@ -9235,9 +8761,7 @@ TestAllTypesProto2::mutable_map_fixed32_fixed32() {
 }
 
 // map<fixed64, fixed64> map_fixed64_fixed64 = 63;
-inline int TestAllTypesProto2::_internal_map_fixed64_fixed64_size() const {
-  return map_fixed64_fixed64_.size();
-}
+inline int TestAllTypesProto2::_internal_map_fixed64_fixed64_size() const { return map_fixed64_fixed64_.size(); }
 inline int TestAllTypesProto2::map_fixed64_fixed64_size() const {
   return _internal_map_fixed64_fixed64_size();
 }
@@ -9264,9 +8788,7 @@ TestAllTypesProto2::mutable_map_fixed64_fixed64() {
 }
 
 // map<sfixed32, sfixed32> map_sfixed32_sfixed32 = 64;
-inline int TestAllTypesProto2::_internal_map_sfixed32_sfixed32_size() const {
-  return map_sfixed32_sfixed32_.size();
-}
+inline int TestAllTypesProto2::_internal_map_sfixed32_sfixed32_size() const { return map_sfixed32_sfixed32_.size(); }
 inline int TestAllTypesProto2::map_sfixed32_sfixed32_size() const {
   return _internal_map_sfixed32_sfixed32_size();
 }
@@ -9293,9 +8815,7 @@ TestAllTypesProto2::mutable_map_sfixed32_sfixed32() {
 }
 
 // map<sfixed64, sfixed64> map_sfixed64_sfixed64 = 65;
-inline int TestAllTypesProto2::_internal_map_sfixed64_sfixed64_size() const {
-  return map_sfixed64_sfixed64_.size();
-}
+inline int TestAllTypesProto2::_internal_map_sfixed64_sfixed64_size() const { return map_sfixed64_sfixed64_.size(); }
 inline int TestAllTypesProto2::map_sfixed64_sfixed64_size() const {
   return _internal_map_sfixed64_sfixed64_size();
 }
@@ -9322,9 +8842,7 @@ TestAllTypesProto2::mutable_map_sfixed64_sfixed64() {
 }
 
 // map<int32, float> map_int32_float = 66;
-inline int TestAllTypesProto2::_internal_map_int32_float_size() const {
-  return map_int32_float_.size();
-}
+inline int TestAllTypesProto2::_internal_map_int32_float_size() const { return map_int32_float_.size(); }
 inline int TestAllTypesProto2::map_int32_float_size() const {
   return _internal_map_int32_float_size();
 }
@@ -9351,9 +8869,7 @@ TestAllTypesProto2::mutable_map_int32_float() {
 }
 
 // map<int32, double> map_int32_double = 67;
-inline int TestAllTypesProto2::_internal_map_int32_double_size() const {
-  return map_int32_double_.size();
-}
+inline int TestAllTypesProto2::_internal_map_int32_double_size() const { return map_int32_double_.size(); }
 inline int TestAllTypesProto2::map_int32_double_size() const {
   return _internal_map_int32_double_size();
 }
@@ -9380,9 +8896,7 @@ TestAllTypesProto2::mutable_map_int32_double() {
 }
 
 // map<bool, bool> map_bool_bool = 68;
-inline int TestAllTypesProto2::_internal_map_bool_bool_size() const {
-  return map_bool_bool_.size();
-}
+inline int TestAllTypesProto2::_internal_map_bool_bool_size() const { return map_bool_bool_.size(); }
 inline int TestAllTypesProto2::map_bool_bool_size() const {
   return _internal_map_bool_bool_size();
 }
@@ -9409,9 +8923,7 @@ TestAllTypesProto2::mutable_map_bool_bool() {
 }
 
 // map<string, string> map_string_string = 69;
-inline int TestAllTypesProto2::_internal_map_string_string_size() const {
-  return map_string_string_.size();
-}
+inline int TestAllTypesProto2::_internal_map_string_string_size() const { return map_string_string_.size(); }
 inline int TestAllTypesProto2::map_string_string_size() const {
   return _internal_map_string_string_size();
 }
@@ -9438,9 +8950,7 @@ TestAllTypesProto2::mutable_map_string_string() {
 }
 
 // map<string, bytes> map_string_bytes = 70;
-inline int TestAllTypesProto2::_internal_map_string_bytes_size() const {
-  return map_string_bytes_.size();
-}
+inline int TestAllTypesProto2::_internal_map_string_bytes_size() const { return map_string_bytes_.size(); }
 inline int TestAllTypesProto2::map_string_bytes_size() const {
   return _internal_map_string_bytes_size();
 }
@@ -9467,9 +8977,7 @@ TestAllTypesProto2::mutable_map_string_bytes() {
 }
 
 // map<string, .protobuf_test_messages.proto2.TestAllTypesProto2.NestedMessage> map_string_nested_message = 71;
-inline int TestAllTypesProto2::_internal_map_string_nested_message_size() const {
-  return map_string_nested_message_.size();
-}
+inline int TestAllTypesProto2::_internal_map_string_nested_message_size() const { return map_string_nested_message_.size(); }
 inline int TestAllTypesProto2::map_string_nested_message_size() const {
   return _internal_map_string_nested_message_size();
 }
@@ -9496,9 +9004,7 @@ TestAllTypesProto2::mutable_map_string_nested_message() {
 }
 
 // map<string, .protobuf_test_messages.proto2.ForeignMessageProto2> map_string_foreign_message = 72;
-inline int TestAllTypesProto2::_internal_map_string_foreign_message_size() const {
-  return map_string_foreign_message_.size();
-}
+inline int TestAllTypesProto2::_internal_map_string_foreign_message_size() const { return map_string_foreign_message_.size(); }
 inline int TestAllTypesProto2::map_string_foreign_message_size() const {
   return _internal_map_string_foreign_message_size();
 }
@@ -9525,9 +9031,7 @@ TestAllTypesProto2::mutable_map_string_foreign_message() {
 }
 
 // map<string, .protobuf_test_messages.proto2.TestAllTypesProto2.NestedEnum> map_string_nested_enum = 73;
-inline int TestAllTypesProto2::_internal_map_string_nested_enum_size() const {
-  return map_string_nested_enum_.size();
-}
+inline int TestAllTypesProto2::_internal_map_string_nested_enum_size() const { return map_string_nested_enum_.size(); }
 inline int TestAllTypesProto2::map_string_nested_enum_size() const {
   return _internal_map_string_nested_enum_size();
 }
@@ -9554,9 +9058,7 @@ TestAllTypesProto2::mutable_map_string_nested_enum() {
 }
 
 // map<string, .protobuf_test_messages.proto2.ForeignEnumProto2> map_string_foreign_enum = 74;
-inline int TestAllTypesProto2::_internal_map_string_foreign_enum_size() const {
-  return map_string_foreign_enum_.size();
-}
+inline int TestAllTypesProto2::_internal_map_string_foreign_enum_size() const { return map_string_foreign_enum_.size(); }
 inline int TestAllTypesProto2::map_string_foreign_enum_size() const {
   return _internal_map_string_foreign_enum_size();
 }
@@ -9599,17 +9101,14 @@ inline void TestAllTypesProto2::clear_oneof_uint32() {
   }
 }
 inline uint32_t TestAllTypesProto2::_internal_oneof_uint32() const {
-  if (_internal_has_oneof_uint32()) {
-    return oneof_field_.oneof_uint32_;
-  }
-  return 0u;
+	return _internal_has_oneof_uint32() ? oneof_field_.oneof_uint32_ : 0u;
 }
 inline void TestAllTypesProto2::_internal_set_oneof_uint32(uint32_t value) {
-  if (!_internal_has_oneof_uint32()) {
-    clear_oneof_field();
-    set_has_oneof_uint32();
-  }
-  oneof_field_.oneof_uint32_ = value;
+	if(!_internal_has_oneof_uint32()) {
+		clear_oneof_field();
+		set_has_oneof_uint32();
+	}
+	oneof_field_.oneof_uint32_ = value;
 }
 inline uint32_t TestAllTypesProto2::oneof_uint32() const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.oneof_uint32)
@@ -9640,10 +9139,10 @@ inline void TestAllTypesProto2::clear_oneof_nested_message() {
 }
 inline ::protobuf_test_messages::proto2::TestAllTypesProto2_NestedMessage* TestAllTypesProto2::release_oneof_nested_message() {
   // @@protoc_insertion_point(field_release:protobuf_test_messages.proto2.TestAllTypesProto2.oneof_nested_message)
-  if (_internal_has_oneof_nested_message()) {
+  if(_internal_has_oneof_nested_message()) {
     clear_has_oneof_field();
       ::protobuf_test_messages::proto2::TestAllTypesProto2_NestedMessage* temp = oneof_field_.oneof_nested_message_;
-    if (GetArenaForAllocation() != nullptr) {
+    if(GetArenaForAllocation() != nullptr) {
       temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
     }
     oneof_field_.oneof_nested_message_ = nullptr;
@@ -9652,18 +9151,14 @@ inline ::protobuf_test_messages::proto2::TestAllTypesProto2_NestedMessage* TestA
     return nullptr;
   }
 }
-inline const ::protobuf_test_messages::proto2::TestAllTypesProto2_NestedMessage& TestAllTypesProto2::_internal_oneof_nested_message() const {
-  return _internal_has_oneof_nested_message()
-      ? *oneof_field_.oneof_nested_message_
-      : reinterpret_cast< ::protobuf_test_messages::proto2::TestAllTypesProto2_NestedMessage&>(::protobuf_test_messages::proto2::_TestAllTypesProto2_NestedMessage_default_instance_);
-}
+inline const ::protobuf_test_messages::proto2::TestAllTypesProto2_NestedMessage& TestAllTypesProto2::_internal_oneof_nested_message() const { return _internal_has_oneof_nested_message() ? *oneof_field_.oneof_nested_message_ : reinterpret_cast< ::protobuf_test_messages::proto2::TestAllTypesProto2_NestedMessage&>(::protobuf_test_messages::proto2::_TestAllTypesProto2_NestedMessage_default_instance_); }
 inline const ::protobuf_test_messages::proto2::TestAllTypesProto2_NestedMessage& TestAllTypesProto2::oneof_nested_message() const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.oneof_nested_message)
   return _internal_oneof_nested_message();
 }
 inline ::protobuf_test_messages::proto2::TestAllTypesProto2_NestedMessage* TestAllTypesProto2::unsafe_arena_release_oneof_nested_message() {
   // @@protoc_insertion_point(field_unsafe_arena_release:protobuf_test_messages.proto2.TestAllTypesProto2.oneof_nested_message)
-  if (_internal_has_oneof_nested_message()) {
+  if(_internal_has_oneof_nested_message()) {
     clear_has_oneof_field();
     ::protobuf_test_messages::proto2::TestAllTypesProto2_NestedMessage* temp = oneof_field_.oneof_nested_message_;
     oneof_field_.oneof_nested_message_ = nullptr;
@@ -9674,14 +9169,14 @@ inline ::protobuf_test_messages::proto2::TestAllTypesProto2_NestedMessage* TestA
 }
 inline void TestAllTypesProto2::unsafe_arena_set_allocated_oneof_nested_message(::protobuf_test_messages::proto2::TestAllTypesProto2_NestedMessage* oneof_nested_message) {
   clear_oneof_field();
-  if (oneof_nested_message) {
+  if(oneof_nested_message) {
     set_has_oneof_nested_message();
     oneof_field_.oneof_nested_message_ = oneof_nested_message;
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:protobuf_test_messages.proto2.TestAllTypesProto2.oneof_nested_message)
 }
 inline ::protobuf_test_messages::proto2::TestAllTypesProto2_NestedMessage* TestAllTypesProto2::_internal_mutable_oneof_nested_message() {
-  if (!_internal_has_oneof_nested_message()) {
+  if(!_internal_has_oneof_nested_message()) {
     clear_oneof_field();
     set_has_oneof_nested_message();
     oneof_field_.oneof_nested_message_ = CreateMaybeMessage< ::protobuf_test_messages::proto2::TestAllTypesProto2_NestedMessage >(GetArenaForAllocation());
@@ -9716,7 +9211,7 @@ inline const std::string& TestAllTypesProto2::oneof_string() const {
 }
 template <typename ArgT0, typename... ArgT>
 inline void TestAllTypesProto2::set_oneof_string(ArgT0&& arg0, ArgT... args) {
-  if (!_internal_has_oneof_string()) {
+  if(!_internal_has_oneof_string()) {
     clear_oneof_field();
     set_has_oneof_string();
     oneof_field_.oneof_string_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
@@ -9730,13 +9225,13 @@ inline std::string* TestAllTypesProto2::mutable_oneof_string() {
   return _s;
 }
 inline const std::string& TestAllTypesProto2::_internal_oneof_string() const {
-  if (_internal_has_oneof_string()) {
+  if(_internal_has_oneof_string()) {
     return oneof_field_.oneof_string_.Get();
   }
   return ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited();
 }
 inline void TestAllTypesProto2::_internal_set_oneof_string(const std::string& value) {
-  if (!_internal_has_oneof_string()) {
+  if(!_internal_has_oneof_string()) {
     clear_oneof_field();
     set_has_oneof_string();
     oneof_field_.oneof_string_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
@@ -9744,17 +9239,16 @@ inline void TestAllTypesProto2::_internal_set_oneof_string(const std::string& va
   oneof_field_.oneof_string_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* TestAllTypesProto2::_internal_mutable_oneof_string() {
-  if (!_internal_has_oneof_string()) {
+  if(!_internal_has_oneof_string()) {
     clear_oneof_field();
     set_has_oneof_string();
     oneof_field_.oneof_string_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   }
-  return oneof_field_.oneof_string_.Mutable(
-      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+  return oneof_field_.oneof_string_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* TestAllTypesProto2::release_oneof_string() {
   // @@protoc_insertion_point(field_release:protobuf_test_messages.proto2.TestAllTypesProto2.oneof_string)
-  if (_internal_has_oneof_string()) {
+  if(_internal_has_oneof_string()) {
     clear_has_oneof_field();
     return oneof_field_.oneof_string_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
   } else {
@@ -9762,14 +9256,14 @@ inline std::string* TestAllTypesProto2::release_oneof_string() {
   }
 }
 inline void TestAllTypesProto2::set_allocated_oneof_string(std::string* oneof_string) {
-  if (has_oneof_field()) {
+  if(has_oneof_field()) {
     clear_oneof_field();
   }
-  if (oneof_string != nullptr) {
+  if(oneof_string != nullptr) {
     set_has_oneof_string();
     oneof_field_.oneof_string_.UnsafeSetDefault(oneof_string);
     ::PROTOBUF_NAMESPACE_ID::Arena* arena = GetArenaForAllocation();
-    if (arena != nullptr) {
+    if(arena != nullptr) {
       arena->Own(oneof_string);
     }
   }
@@ -9798,7 +9292,7 @@ inline const std::string& TestAllTypesProto2::oneof_bytes() const {
 }
 template <typename ArgT0, typename... ArgT>
 inline void TestAllTypesProto2::set_oneof_bytes(ArgT0&& arg0, ArgT... args) {
-  if (!_internal_has_oneof_bytes()) {
+  if(!_internal_has_oneof_bytes()) {
     clear_oneof_field();
     set_has_oneof_bytes();
     oneof_field_.oneof_bytes_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
@@ -9812,13 +9306,13 @@ inline std::string* TestAllTypesProto2::mutable_oneof_bytes() {
   return _s;
 }
 inline const std::string& TestAllTypesProto2::_internal_oneof_bytes() const {
-  if (_internal_has_oneof_bytes()) {
+  if(_internal_has_oneof_bytes()) {
     return oneof_field_.oneof_bytes_.Get();
   }
   return ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited();
 }
 inline void TestAllTypesProto2::_internal_set_oneof_bytes(const std::string& value) {
-  if (!_internal_has_oneof_bytes()) {
+  if(!_internal_has_oneof_bytes()) {
     clear_oneof_field();
     set_has_oneof_bytes();
     oneof_field_.oneof_bytes_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
@@ -9826,17 +9320,16 @@ inline void TestAllTypesProto2::_internal_set_oneof_bytes(const std::string& val
   oneof_field_.oneof_bytes_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* TestAllTypesProto2::_internal_mutable_oneof_bytes() {
-  if (!_internal_has_oneof_bytes()) {
+  if(!_internal_has_oneof_bytes()) {
     clear_oneof_field();
     set_has_oneof_bytes();
     oneof_field_.oneof_bytes_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   }
-  return oneof_field_.oneof_bytes_.Mutable(
-      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+  return oneof_field_.oneof_bytes_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* TestAllTypesProto2::release_oneof_bytes() {
   // @@protoc_insertion_point(field_release:protobuf_test_messages.proto2.TestAllTypesProto2.oneof_bytes)
-  if (_internal_has_oneof_bytes()) {
+  if(_internal_has_oneof_bytes()) {
     clear_has_oneof_field();
     return oneof_field_.oneof_bytes_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
   } else {
@@ -9844,14 +9337,14 @@ inline std::string* TestAllTypesProto2::release_oneof_bytes() {
   }
 }
 inline void TestAllTypesProto2::set_allocated_oneof_bytes(std::string* oneof_bytes) {
-  if (has_oneof_field()) {
+  if(has_oneof_field()) {
     clear_oneof_field();
   }
-  if (oneof_bytes != nullptr) {
+  if(oneof_bytes != nullptr) {
     set_has_oneof_bytes();
     oneof_field_.oneof_bytes_.UnsafeSetDefault(oneof_bytes);
     ::PROTOBUF_NAMESPACE_ID::Arena* arena = GetArenaForAllocation();
-    if (arena != nullptr) {
+    if(arena != nullptr) {
       arena->Own(oneof_bytes);
     }
   }
@@ -9875,17 +9368,14 @@ inline void TestAllTypesProto2::clear_oneof_bool() {
   }
 }
 inline bool TestAllTypesProto2::_internal_oneof_bool() const {
-  if (_internal_has_oneof_bool()) {
-    return oneof_field_.oneof_bool_;
-  }
-  return false;
+	return _internal_has_oneof_bool() ? oneof_field_.oneof_bool_ : false;
 }
 inline void TestAllTypesProto2::_internal_set_oneof_bool(bool value) {
-  if (!_internal_has_oneof_bool()) {
-    clear_oneof_field();
-    set_has_oneof_bool();
-  }
-  oneof_field_.oneof_bool_ = value;
+	if(!_internal_has_oneof_bool()) {
+		clear_oneof_field();
+		set_has_oneof_bool();
+	}
+	oneof_field_.oneof_bool_ = value;
 }
 inline bool TestAllTypesProto2::oneof_bool() const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.oneof_bool)
@@ -9913,17 +9403,14 @@ inline void TestAllTypesProto2::clear_oneof_uint64() {
   }
 }
 inline uint64_t TestAllTypesProto2::_internal_oneof_uint64() const {
-  if (_internal_has_oneof_uint64()) {
-    return oneof_field_.oneof_uint64_;
-  }
-  return uint64_t{0u};
+	return _internal_has_oneof_uint64() ? oneof_field_.oneof_uint64_ : uint64_t{0u};
 }
 inline void TestAllTypesProto2::_internal_set_oneof_uint64(uint64_t value) {
-  if (!_internal_has_oneof_uint64()) {
-    clear_oneof_field();
-    set_has_oneof_uint64();
-  }
-  oneof_field_.oneof_uint64_ = value;
+	if(!_internal_has_oneof_uint64()) {
+		clear_oneof_field();
+		set_has_oneof_uint64();
+	}
+	oneof_field_.oneof_uint64_ = value;
 }
 inline uint64_t TestAllTypesProto2::oneof_uint64() const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.oneof_uint64)
@@ -9951,17 +9438,14 @@ inline void TestAllTypesProto2::clear_oneof_float() {
   }
 }
 inline float TestAllTypesProto2::_internal_oneof_float() const {
-  if (_internal_has_oneof_float()) {
-    return oneof_field_.oneof_float_;
-  }
-  return 0;
+	return _internal_has_oneof_float() ? oneof_field_.oneof_float_ : 0;
 }
 inline void TestAllTypesProto2::_internal_set_oneof_float(float value) {
-  if (!_internal_has_oneof_float()) {
-    clear_oneof_field();
-    set_has_oneof_float();
-  }
-  oneof_field_.oneof_float_ = value;
+	if(!_internal_has_oneof_float()) {
+		clear_oneof_field();
+		set_has_oneof_float();
+	}
+	oneof_field_.oneof_float_ = value;
 }
 inline float TestAllTypesProto2::oneof_float() const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.oneof_float)
@@ -9989,17 +9473,14 @@ inline void TestAllTypesProto2::clear_oneof_double() {
   }
 }
 inline double TestAllTypesProto2::_internal_oneof_double() const {
-  if (_internal_has_oneof_double()) {
-    return oneof_field_.oneof_double_;
-  }
-  return 0;
+	return _internal_has_oneof_double() ? oneof_field_.oneof_double_ : 0;
 }
 inline void TestAllTypesProto2::_internal_set_oneof_double(double value) {
-  if (!_internal_has_oneof_double()) {
-    clear_oneof_field();
-    set_has_oneof_double();
-  }
-  oneof_field_.oneof_double_ = value;
+	if(!_internal_has_oneof_double()) {
+		clear_oneof_field();
+		set_has_oneof_double();
+	}
+	oneof_field_.oneof_double_ = value;
 }
 inline double TestAllTypesProto2::oneof_double() const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.oneof_double)
@@ -10151,20 +9632,18 @@ inline void TestAllTypesProto2::clear_default_int32() {
   default_int32_ = -123456789;
   _has_bits_[1] &= ~0x00001000u;
 }
-inline int32_t TestAllTypesProto2::_internal_default_int32() const {
-  return default_int32_;
-}
+inline int32_t TestAllTypesProto2::_internal_default_int32() const { return default_int32_; }
 inline int32_t TestAllTypesProto2::default_int32() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.default_int32)
-  return _internal_default_int32();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.default_int32)
+	return _internal_default_int32();
 }
 inline void TestAllTypesProto2::_internal_set_default_int32(int32_t value) {
-  _has_bits_[1] |= 0x00001000u;
-  default_int32_ = value;
+	_has_bits_[1] |= 0x00001000u;
+	default_int32_ = value;
 }
 inline void TestAllTypesProto2::set_default_int32(int32_t value) {
-  _internal_set_default_int32(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.default_int32)
+	_internal_set_default_int32(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.default_int32)
 }
 
 // optional int64 default_int64 = 242 [default = -9123456789123456789];
@@ -10179,20 +9658,18 @@ inline void TestAllTypesProto2::clear_default_int64() {
   default_int64_ = int64_t{-9123456789123456789};
   _has_bits_[1] &= ~0x00000800u;
 }
-inline int64_t TestAllTypesProto2::_internal_default_int64() const {
-  return default_int64_;
-}
+inline int64_t TestAllTypesProto2::_internal_default_int64() const { return default_int64_; }
 inline int64_t TestAllTypesProto2::default_int64() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.default_int64)
-  return _internal_default_int64();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.default_int64)
+	return _internal_default_int64();
 }
 inline void TestAllTypesProto2::_internal_set_default_int64(int64_t value) {
-  _has_bits_[1] |= 0x00000800u;
-  default_int64_ = value;
+	_has_bits_[1] |= 0x00000800u;
+	default_int64_ = value;
 }
 inline void TestAllTypesProto2::set_default_int64(int64_t value) {
-  _internal_set_default_int64(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.default_int64)
+	_internal_set_default_int64(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.default_int64)
 }
 
 // optional uint32 default_uint32 = 243 [default = 2123456789];
@@ -10207,20 +9684,18 @@ inline void TestAllTypesProto2::clear_default_uint32() {
   default_uint32_ = 2123456789u;
   _has_bits_[1] &= ~0x00002000u;
 }
-inline uint32_t TestAllTypesProto2::_internal_default_uint32() const {
-  return default_uint32_;
-}
+inline uint32_t TestAllTypesProto2::_internal_default_uint32() const { return default_uint32_; }
 inline uint32_t TestAllTypesProto2::default_uint32() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.default_uint32)
-  return _internal_default_uint32();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.default_uint32)
+	return _internal_default_uint32();
 }
 inline void TestAllTypesProto2::_internal_set_default_uint32(uint32_t value) {
-  _has_bits_[1] |= 0x00002000u;
-  default_uint32_ = value;
+	_has_bits_[1] |= 0x00002000u;
+	default_uint32_ = value;
 }
 inline void TestAllTypesProto2::set_default_uint32(uint32_t value) {
-  _internal_set_default_uint32(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.default_uint32)
+	_internal_set_default_uint32(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.default_uint32)
 }
 
 // optional uint64 default_uint64 = 244 [default = 10123456789123456789];
@@ -10235,20 +9710,18 @@ inline void TestAllTypesProto2::clear_default_uint64() {
   default_uint64_ = uint64_t{10123456789123456789u};
   _has_bits_[1] &= ~0x00004000u;
 }
-inline uint64_t TestAllTypesProto2::_internal_default_uint64() const {
-  return default_uint64_;
-}
+inline uint64_t TestAllTypesProto2::_internal_default_uint64() const { return default_uint64_; }
 inline uint64_t TestAllTypesProto2::default_uint64() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.default_uint64)
-  return _internal_default_uint64();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.default_uint64)
+	return _internal_default_uint64();
 }
 inline void TestAllTypesProto2::_internal_set_default_uint64(uint64_t value) {
-  _has_bits_[1] |= 0x00004000u;
-  default_uint64_ = value;
+	_has_bits_[1] |= 0x00004000u;
+	default_uint64_ = value;
 }
 inline void TestAllTypesProto2::set_default_uint64(uint64_t value) {
-  _internal_set_default_uint64(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.default_uint64)
+	_internal_set_default_uint64(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.default_uint64)
 }
 
 // optional sint32 default_sint32 = 245 [default = -123456789];
@@ -10263,20 +9736,18 @@ inline void TestAllTypesProto2::clear_default_sint32() {
   default_sint32_ = -123456789;
   _has_bits_[1] &= ~0x00010000u;
 }
-inline int32_t TestAllTypesProto2::_internal_default_sint32() const {
-  return default_sint32_;
-}
+inline int32_t TestAllTypesProto2::_internal_default_sint32() const { return default_sint32_; }
 inline int32_t TestAllTypesProto2::default_sint32() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.default_sint32)
-  return _internal_default_sint32();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.default_sint32)
+	return _internal_default_sint32();
 }
 inline void TestAllTypesProto2::_internal_set_default_sint32(int32_t value) {
-  _has_bits_[1] |= 0x00010000u;
-  default_sint32_ = value;
+	_has_bits_[1] |= 0x00010000u;
+	default_sint32_ = value;
 }
 inline void TestAllTypesProto2::set_default_sint32(int32_t value) {
-  _internal_set_default_sint32(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.default_sint32)
+	_internal_set_default_sint32(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.default_sint32)
 }
 
 // optional sint64 default_sint64 = 246 [default = -9123456789123456789];
@@ -10291,20 +9762,18 @@ inline void TestAllTypesProto2::clear_default_sint64() {
   default_sint64_ = int64_t{-9123456789123456789};
   _has_bits_[1] &= ~0x00008000u;
 }
-inline int64_t TestAllTypesProto2::_internal_default_sint64() const {
-  return default_sint64_;
-}
+inline int64_t TestAllTypesProto2::_internal_default_sint64() const { return default_sint64_; }
 inline int64_t TestAllTypesProto2::default_sint64() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.default_sint64)
-  return _internal_default_sint64();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.default_sint64)
+	return _internal_default_sint64();
 }
 inline void TestAllTypesProto2::_internal_set_default_sint64(int64_t value) {
-  _has_bits_[1] |= 0x00008000u;
-  default_sint64_ = value;
+	_has_bits_[1] |= 0x00008000u;
+	default_sint64_ = value;
 }
 inline void TestAllTypesProto2::set_default_sint64(int64_t value) {
-  _internal_set_default_sint64(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.default_sint64)
+	_internal_set_default_sint64(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.default_sint64)
 }
 
 // optional fixed32 default_fixed32 = 247 [default = 2123456789];
@@ -10319,20 +9788,18 @@ inline void TestAllTypesProto2::clear_default_fixed32() {
   default_fixed32_ = 2123456789u;
   _has_bits_[1] &= ~0x00020000u;
 }
-inline uint32_t TestAllTypesProto2::_internal_default_fixed32() const {
-  return default_fixed32_;
-}
+inline uint32_t TestAllTypesProto2::_internal_default_fixed32() const { return default_fixed32_; }
 inline uint32_t TestAllTypesProto2::default_fixed32() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.default_fixed32)
-  return _internal_default_fixed32();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.default_fixed32)
+	return _internal_default_fixed32();
 }
 inline void TestAllTypesProto2::_internal_set_default_fixed32(uint32_t value) {
-  _has_bits_[1] |= 0x00020000u;
-  default_fixed32_ = value;
+	_has_bits_[1] |= 0x00020000u;
+	default_fixed32_ = value;
 }
 inline void TestAllTypesProto2::set_default_fixed32(uint32_t value) {
-  _internal_set_default_fixed32(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.default_fixed32)
+	_internal_set_default_fixed32(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.default_fixed32)
 }
 
 // optional fixed64 default_fixed64 = 248 [default = 10123456789123456789];
@@ -10347,20 +9814,18 @@ inline void TestAllTypesProto2::clear_default_fixed64() {
   default_fixed64_ = uint64_t{10123456789123456789u};
   _has_bits_[1] &= ~0x00040000u;
 }
-inline uint64_t TestAllTypesProto2::_internal_default_fixed64() const {
-  return default_fixed64_;
-}
+inline uint64_t TestAllTypesProto2::_internal_default_fixed64() const { return default_fixed64_; }
 inline uint64_t TestAllTypesProto2::default_fixed64() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.default_fixed64)
-  return _internal_default_fixed64();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.default_fixed64)
+	return _internal_default_fixed64();
 }
 inline void TestAllTypesProto2::_internal_set_default_fixed64(uint64_t value) {
-  _has_bits_[1] |= 0x00040000u;
-  default_fixed64_ = value;
+	_has_bits_[1] |= 0x00040000u;
+	default_fixed64_ = value;
 }
 inline void TestAllTypesProto2::set_default_fixed64(uint64_t value) {
-  _internal_set_default_fixed64(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.default_fixed64)
+	_internal_set_default_fixed64(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.default_fixed64)
 }
 
 // optional sfixed32 default_sfixed32 = 249 [default = -123456789];
@@ -10375,20 +9840,18 @@ inline void TestAllTypesProto2::clear_default_sfixed32() {
   default_sfixed32_ = -123456789;
   _has_bits_[1] &= ~0x00100000u;
 }
-inline int32_t TestAllTypesProto2::_internal_default_sfixed32() const {
-  return default_sfixed32_;
-}
+inline int32_t TestAllTypesProto2::_internal_default_sfixed32() const { return default_sfixed32_; }
 inline int32_t TestAllTypesProto2::default_sfixed32() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.default_sfixed32)
-  return _internal_default_sfixed32();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.default_sfixed32)
+	return _internal_default_sfixed32();
 }
 inline void TestAllTypesProto2::_internal_set_default_sfixed32(int32_t value) {
-  _has_bits_[1] |= 0x00100000u;
-  default_sfixed32_ = value;
+	_has_bits_[1] |= 0x00100000u;
+	default_sfixed32_ = value;
 }
 inline void TestAllTypesProto2::set_default_sfixed32(int32_t value) {
-  _internal_set_default_sfixed32(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.default_sfixed32)
+	_internal_set_default_sfixed32(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.default_sfixed32)
 }
 
 // optional sfixed64 default_sfixed64 = 250 [default = -9123456789123456789];
@@ -10403,20 +9866,18 @@ inline void TestAllTypesProto2::clear_default_sfixed64() {
   default_sfixed64_ = int64_t{-9123456789123456789};
   _has_bits_[1] &= ~0x00080000u;
 }
-inline int64_t TestAllTypesProto2::_internal_default_sfixed64() const {
-  return default_sfixed64_;
-}
+inline int64_t TestAllTypesProto2::_internal_default_sfixed64() const { return default_sfixed64_; }
 inline int64_t TestAllTypesProto2::default_sfixed64() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.default_sfixed64)
-  return _internal_default_sfixed64();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.default_sfixed64)
+	return _internal_default_sfixed64();
 }
 inline void TestAllTypesProto2::_internal_set_default_sfixed64(int64_t value) {
-  _has_bits_[1] |= 0x00080000u;
-  default_sfixed64_ = value;
+	_has_bits_[1] |= 0x00080000u;
+	default_sfixed64_ = value;
 }
 inline void TestAllTypesProto2::set_default_sfixed64(int64_t value) {
-  _internal_set_default_sfixed64(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.default_sfixed64)
+	_internal_set_default_sfixed64(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.default_sfixed64)
 }
 
 // optional float default_float = 251 [default = 9e+09];
@@ -10431,20 +9892,18 @@ inline void TestAllTypesProto2::clear_default_float() {
   default_float_ = 9e+09f;
   _has_bits_[1] &= ~0x00200000u;
 }
-inline float TestAllTypesProto2::_internal_default_float() const {
-  return default_float_;
-}
+inline float TestAllTypesProto2::_internal_default_float() const { return default_float_; }
 inline float TestAllTypesProto2::default_float() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.default_float)
-  return _internal_default_float();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.default_float)
+	return _internal_default_float();
 }
 inline void TestAllTypesProto2::_internal_set_default_float(float value) {
-  _has_bits_[1] |= 0x00200000u;
-  default_float_ = value;
+	_has_bits_[1] |= 0x00200000u;
+	default_float_ = value;
 }
 inline void TestAllTypesProto2::set_default_float(float value) {
-  _internal_set_default_float(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.default_float)
+	_internal_set_default_float(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.default_float)
 }
 
 // optional double default_double = 252 [default = 7e+22];
@@ -10459,20 +9918,18 @@ inline void TestAllTypesProto2::clear_default_double() {
   default_double_ = 7e+22;
   _has_bits_[1] &= ~0x00400000u;
 }
-inline double TestAllTypesProto2::_internal_default_double() const {
-  return default_double_;
-}
+inline double TestAllTypesProto2::_internal_default_double() const { return default_double_; }
 inline double TestAllTypesProto2::default_double() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.default_double)
-  return _internal_default_double();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.default_double)
+	return _internal_default_double();
 }
 inline void TestAllTypesProto2::_internal_set_default_double(double value) {
-  _has_bits_[1] |= 0x00400000u;
-  default_double_ = value;
+	_has_bits_[1] |= 0x00400000u;
+	default_double_ = value;
 }
 inline void TestAllTypesProto2::set_default_double(double value) {
-  _internal_set_default_double(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.default_double)
+	_internal_set_default_double(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.default_double)
 }
 
 // optional bool default_bool = 253 [default = true];
@@ -10487,20 +9944,18 @@ inline void TestAllTypesProto2::clear_default_bool() {
   default_bool_ = true;
   _has_bits_[1] &= ~0x00000400u;
 }
-inline bool TestAllTypesProto2::_internal_default_bool() const {
-  return default_bool_;
-}
+inline bool TestAllTypesProto2::_internal_default_bool() const { return default_bool_; }
 inline bool TestAllTypesProto2::default_bool() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.default_bool)
-  return _internal_default_bool();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.default_bool)
+	return _internal_default_bool();
 }
 inline void TestAllTypesProto2::_internal_set_default_bool(bool value) {
-  _has_bits_[1] |= 0x00000400u;
-  default_bool_ = value;
+	_has_bits_[1] |= 0x00000400u;
+	default_bool_ = value;
 }
 inline void TestAllTypesProto2::set_default_bool(bool value) {
-  _internal_set_default_bool(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.default_bool)
+	_internal_set_default_bool(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.default_bool)
 }
 
 // optional string default_string = 254 [default = "Rosebud"];
@@ -10516,9 +9971,9 @@ inline void TestAllTypesProto2::clear_default_string() {
   _has_bits_[0] &= ~0x00000010u;
 }
 inline const std::string& TestAllTypesProto2::default_string() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.default_string)
-  if (default_string_.IsDefault(nullptr)) return _i_give_permission_to_break_this_code_default_default_string_.get();
-  return _internal_default_string();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.default_string)
+	if(default_string_.IsDefault(nullptr)) return _i_give_permission_to_break_this_code_default_default_string_.get();
+	return _internal_default_string();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -10528,38 +9983,33 @@ void TestAllTypesProto2::set_default_string(ArgT0&& arg0, ArgT... args) {
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.default_string)
 }
 inline std::string* TestAllTypesProto2::mutable_default_string() {
-  std::string* _s = _internal_mutable_default_string();
-  // @@protoc_insertion_point(field_mutable:protobuf_test_messages.proto2.TestAllTypesProto2.default_string)
-  return _s;
+	std::string* _s = _internal_mutable_default_string();
+	// @@protoc_insertion_point(field_mutable:protobuf_test_messages.proto2.TestAllTypesProto2.default_string)
+	return _s;
 }
-inline const std::string& TestAllTypesProto2::_internal_default_string() const {
-  return default_string_.Get();
-}
+inline const std::string& TestAllTypesProto2::_internal_default_string() const { return default_string_.Get(); }
 inline void TestAllTypesProto2::_internal_set_default_string(const std::string& value) {
-  _has_bits_[0] |= 0x00000010u;
-  default_string_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::NonEmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000010u;
+	default_string_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::NonEmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* TestAllTypesProto2::_internal_mutable_default_string() {
-  _has_bits_[0] |= 0x00000010u;
-  return default_string_.Mutable(::protobuf_test_messages::proto2::TestAllTypesProto2::_i_give_permission_to_break_this_code_default_default_string_, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000010u;
+	return default_string_.Mutable(::protobuf_test_messages::proto2::TestAllTypesProto2::_i_give_permission_to_break_this_code_default_default_string_, GetArenaForAllocation());
 }
 inline std::string* TestAllTypesProto2::release_default_string() {
   // @@protoc_insertion_point(field_release:protobuf_test_messages.proto2.TestAllTypesProto2.default_string)
-  if (!_internal_has_default_string()) {
-    return nullptr;
-  }
+  if(!_internal_has_default_string()) { return nullptr; }
   _has_bits_[0] &= ~0x00000010u;
   auto* p = default_string_.ReleaseNonDefault(nullptr, GetArenaForAllocation());
   return p;
 }
 inline void TestAllTypesProto2::set_allocated_default_string(std::string* default_string) {
-  if (default_string != nullptr) {
+  if(default_string != nullptr) {
     _has_bits_[0] |= 0x00000010u;
   } else {
     _has_bits_[0] &= ~0x00000010u;
   }
-  default_string_.SetAllocated(nullptr, default_string,
-      GetArenaForAllocation());
+  default_string_.SetAllocated(nullptr, default_string, GetArenaForAllocation());
   // @@protoc_insertion_point(field_set_allocated:protobuf_test_messages.proto2.TestAllTypesProto2.default_string)
 }
 
@@ -10575,20 +10025,18 @@ inline void TestAllTypesProto2::clear_fieldname1() {
   fieldname1_ = 0;
   _has_bits_[0] &= ~0x02000000u;
 }
-inline int32_t TestAllTypesProto2::_internal_fieldname1() const {
-  return fieldname1_;
-}
+inline int32_t TestAllTypesProto2::_internal_fieldname1() const { return fieldname1_; }
 inline int32_t TestAllTypesProto2::fieldname1() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.fieldname1)
-  return _internal_fieldname1();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.fieldname1)
+	return _internal_fieldname1();
 }
 inline void TestAllTypesProto2::_internal_set_fieldname1(int32_t value) {
-  _has_bits_[0] |= 0x02000000u;
-  fieldname1_ = value;
+	_has_bits_[0] |= 0x02000000u;
+	fieldname1_ = value;
 }
 inline void TestAllTypesProto2::set_fieldname1(int32_t value) {
-  _internal_set_fieldname1(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.fieldname1)
+	_internal_set_fieldname1(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.fieldname1)
 }
 
 // optional int32 field_name2 = 402;
@@ -10603,20 +10051,18 @@ inline void TestAllTypesProto2::clear_field_name2() {
   field_name2_ = 0;
   _has_bits_[0] &= ~0x04000000u;
 }
-inline int32_t TestAllTypesProto2::_internal_field_name2() const {
-  return field_name2_;
-}
+inline int32_t TestAllTypesProto2::_internal_field_name2() const { return field_name2_; }
 inline int32_t TestAllTypesProto2::field_name2() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.field_name2)
-  return _internal_field_name2();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.field_name2)
+	return _internal_field_name2();
 }
 inline void TestAllTypesProto2::_internal_set_field_name2(int32_t value) {
-  _has_bits_[0] |= 0x04000000u;
-  field_name2_ = value;
+	_has_bits_[0] |= 0x04000000u;
+	field_name2_ = value;
 }
 inline void TestAllTypesProto2::set_field_name2(int32_t value) {
-  _internal_set_field_name2(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.field_name2)
+	_internal_set_field_name2(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.field_name2)
 }
 
 // optional int32 _field_name3 = 403;
@@ -10631,20 +10077,18 @@ inline void TestAllTypesProto2::clear__field_name3() {
   _field_name3_ = 0;
   _has_bits_[0] &= ~0x08000000u;
 }
-inline int32_t TestAllTypesProto2::_internal__field_name3() const {
-  return _field_name3_;
-}
+inline int32_t TestAllTypesProto2::_internal__field_name3() const { return _field_name3_; }
 inline int32_t TestAllTypesProto2::_field_name3() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2._field_name3)
-  return _internal__field_name3();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2._field_name3)
+	return _internal__field_name3();
 }
 inline void TestAllTypesProto2::_internal_set__field_name3(int32_t value) {
-  _has_bits_[0] |= 0x08000000u;
-  _field_name3_ = value;
+	_has_bits_[0] |= 0x08000000u;
+	_field_name3_ = value;
 }
 inline void TestAllTypesProto2::set__field_name3(int32_t value) {
-  _internal_set__field_name3(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2._field_name3)
+	_internal_set__field_name3(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2._field_name3)
 }
 
 // optional int32 field__name4_ = 404;
@@ -10659,20 +10103,18 @@ inline void TestAllTypesProto2::clear_field__name4_() {
   field__name4__ = 0;
   _has_bits_[0] &= ~0x10000000u;
 }
-inline int32_t TestAllTypesProto2::_internal_field__name4_() const {
-  return field__name4__;
-}
+inline int32_t TestAllTypesProto2::_internal_field__name4_() const { return field__name4__; }
 inline int32_t TestAllTypesProto2::field__name4_() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.field__name4_)
-  return _internal_field__name4_();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.field__name4_)
+	return _internal_field__name4_();
 }
 inline void TestAllTypesProto2::_internal_set_field__name4_(int32_t value) {
-  _has_bits_[0] |= 0x10000000u;
-  field__name4__ = value;
+	_has_bits_[0] |= 0x10000000u;
+	field__name4__ = value;
 }
 inline void TestAllTypesProto2::set_field__name4_(int32_t value) {
-  _internal_set_field__name4_(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.field__name4_)
+	_internal_set_field__name4_(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.field__name4_)
 }
 
 // optional int32 field0name5 = 405;
@@ -10687,20 +10129,18 @@ inline void TestAllTypesProto2::clear_field0name5() {
   field0name5_ = 0;
   _has_bits_[0] &= ~0x20000000u;
 }
-inline int32_t TestAllTypesProto2::_internal_field0name5() const {
-  return field0name5_;
-}
+inline int32_t TestAllTypesProto2::_internal_field0name5() const { return field0name5_; }
 inline int32_t TestAllTypesProto2::field0name5() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.field0name5)
-  return _internal_field0name5();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.field0name5)
+	return _internal_field0name5();
 }
 inline void TestAllTypesProto2::_internal_set_field0name5(int32_t value) {
-  _has_bits_[0] |= 0x20000000u;
-  field0name5_ = value;
+	_has_bits_[0] |= 0x20000000u;
+	field0name5_ = value;
 }
 inline void TestAllTypesProto2::set_field0name5(int32_t value) {
-  _internal_set_field0name5(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.field0name5)
+	_internal_set_field0name5(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.field0name5)
 }
 
 // optional int32 field_0_name6 = 406;
@@ -10715,20 +10155,18 @@ inline void TestAllTypesProto2::clear_field_0_name6() {
   field_0_name6_ = 0;
   _has_bits_[0] &= ~0x40000000u;
 }
-inline int32_t TestAllTypesProto2::_internal_field_0_name6() const {
-  return field_0_name6_;
-}
+inline int32_t TestAllTypesProto2::_internal_field_0_name6() const { return field_0_name6_; }
 inline int32_t TestAllTypesProto2::field_0_name6() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.field_0_name6)
-  return _internal_field_0_name6();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.field_0_name6)
+	return _internal_field_0_name6();
 }
 inline void TestAllTypesProto2::_internal_set_field_0_name6(int32_t value) {
-  _has_bits_[0] |= 0x40000000u;
-  field_0_name6_ = value;
+	_has_bits_[0] |= 0x40000000u;
+	field_0_name6_ = value;
 }
 inline void TestAllTypesProto2::set_field_0_name6(int32_t value) {
-  _internal_set_field_0_name6(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.field_0_name6)
+	_internal_set_field_0_name6(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.field_0_name6)
 }
 
 // optional int32 fieldName7 = 407;
@@ -10743,20 +10181,18 @@ inline void TestAllTypesProto2::clear_fieldname7() {
   fieldname7_ = 0;
   _has_bits_[0] &= ~0x80000000u;
 }
-inline int32_t TestAllTypesProto2::_internal_fieldname7() const {
-  return fieldname7_;
-}
+inline int32_t TestAllTypesProto2::_internal_fieldname7() const { return fieldname7_; }
 inline int32_t TestAllTypesProto2::fieldname7() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.fieldName7)
-  return _internal_fieldname7();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.fieldName7)
+	return _internal_fieldname7();
 }
 inline void TestAllTypesProto2::_internal_set_fieldname7(int32_t value) {
-  _has_bits_[0] |= 0x80000000u;
-  fieldname7_ = value;
+	_has_bits_[0] |= 0x80000000u;
+	fieldname7_ = value;
 }
 inline void TestAllTypesProto2::set_fieldname7(int32_t value) {
-  _internal_set_fieldname7(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.fieldName7)
+	_internal_set_fieldname7(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.fieldName7)
 }
 
 // optional int32 FieldName8 = 408;
@@ -10771,20 +10207,18 @@ inline void TestAllTypesProto2::clear_fieldname8() {
   fieldname8_ = 0;
   _has_bits_[1] &= ~0x00000001u;
 }
-inline int32_t TestAllTypesProto2::_internal_fieldname8() const {
-  return fieldname8_;
-}
+inline int32_t TestAllTypesProto2::_internal_fieldname8() const { return fieldname8_; }
 inline int32_t TestAllTypesProto2::fieldname8() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.FieldName8)
-  return _internal_fieldname8();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.FieldName8)
+	return _internal_fieldname8();
 }
 inline void TestAllTypesProto2::_internal_set_fieldname8(int32_t value) {
-  _has_bits_[1] |= 0x00000001u;
-  fieldname8_ = value;
+	_has_bits_[1] |= 0x00000001u;
+	fieldname8_ = value;
 }
 inline void TestAllTypesProto2::set_fieldname8(int32_t value) {
-  _internal_set_fieldname8(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.FieldName8)
+	_internal_set_fieldname8(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.FieldName8)
 }
 
 // optional int32 field_Name9 = 409;
@@ -10799,20 +10233,18 @@ inline void TestAllTypesProto2::clear_field_name9() {
   field_name9_ = 0;
   _has_bits_[1] &= ~0x00000002u;
 }
-inline int32_t TestAllTypesProto2::_internal_field_name9() const {
-  return field_name9_;
-}
+inline int32_t TestAllTypesProto2::_internal_field_name9() const { return field_name9_; }
 inline int32_t TestAllTypesProto2::field_name9() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.field_Name9)
-  return _internal_field_name9();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.field_Name9)
+	return _internal_field_name9();
 }
 inline void TestAllTypesProto2::_internal_set_field_name9(int32_t value) {
-  _has_bits_[1] |= 0x00000002u;
-  field_name9_ = value;
+	_has_bits_[1] |= 0x00000002u;
+	field_name9_ = value;
 }
 inline void TestAllTypesProto2::set_field_name9(int32_t value) {
-  _internal_set_field_name9(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.field_Name9)
+	_internal_set_field_name9(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.field_Name9)
 }
 
 // optional int32 Field_Name10 = 410;
@@ -10827,20 +10259,18 @@ inline void TestAllTypesProto2::clear_field_name10() {
   field_name10_ = 0;
   _has_bits_[1] &= ~0x00000004u;
 }
-inline int32_t TestAllTypesProto2::_internal_field_name10() const {
-  return field_name10_;
-}
+inline int32_t TestAllTypesProto2::_internal_field_name10() const { return field_name10_; }
 inline int32_t TestAllTypesProto2::field_name10() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.Field_Name10)
-  return _internal_field_name10();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.Field_Name10)
+	return _internal_field_name10();
 }
 inline void TestAllTypesProto2::_internal_set_field_name10(int32_t value) {
-  _has_bits_[1] |= 0x00000004u;
-  field_name10_ = value;
+	_has_bits_[1] |= 0x00000004u;
+	field_name10_ = value;
 }
 inline void TestAllTypesProto2::set_field_name10(int32_t value) {
-  _internal_set_field_name10(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.Field_Name10)
+	_internal_set_field_name10(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.Field_Name10)
 }
 
 // optional int32 FIELD_NAME11 = 411;
@@ -10855,20 +10285,18 @@ inline void TestAllTypesProto2::clear_field_name11() {
   field_name11_ = 0;
   _has_bits_[1] &= ~0x00000008u;
 }
-inline int32_t TestAllTypesProto2::_internal_field_name11() const {
-  return field_name11_;
-}
+inline int32_t TestAllTypesProto2::_internal_field_name11() const { return field_name11_; }
 inline int32_t TestAllTypesProto2::field_name11() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.FIELD_NAME11)
-  return _internal_field_name11();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.FIELD_NAME11)
+	return _internal_field_name11();
 }
 inline void TestAllTypesProto2::_internal_set_field_name11(int32_t value) {
-  _has_bits_[1] |= 0x00000008u;
-  field_name11_ = value;
+	_has_bits_[1] |= 0x00000008u;
+	field_name11_ = value;
 }
 inline void TestAllTypesProto2::set_field_name11(int32_t value) {
-  _internal_set_field_name11(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.FIELD_NAME11)
+	_internal_set_field_name11(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.FIELD_NAME11)
 }
 
 // optional int32 FIELD_name12 = 412;
@@ -10883,20 +10311,18 @@ inline void TestAllTypesProto2::clear_field_name12() {
   field_name12_ = 0;
   _has_bits_[1] &= ~0x00000010u;
 }
-inline int32_t TestAllTypesProto2::_internal_field_name12() const {
-  return field_name12_;
-}
+inline int32_t TestAllTypesProto2::_internal_field_name12() const { return field_name12_; }
 inline int32_t TestAllTypesProto2::field_name12() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.FIELD_name12)
-  return _internal_field_name12();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.FIELD_name12)
+	return _internal_field_name12();
 }
 inline void TestAllTypesProto2::_internal_set_field_name12(int32_t value) {
-  _has_bits_[1] |= 0x00000010u;
-  field_name12_ = value;
+	_has_bits_[1] |= 0x00000010u;
+	field_name12_ = value;
 }
 inline void TestAllTypesProto2::set_field_name12(int32_t value) {
-  _internal_set_field_name12(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.FIELD_name12)
+	_internal_set_field_name12(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.FIELD_name12)
 }
 
 // optional int32 __field_name13 = 413;
@@ -10911,20 +10337,18 @@ inline void TestAllTypesProto2::clear___field_name13() {
   __field_name13_ = 0;
   _has_bits_[1] &= ~0x00000020u;
 }
-inline int32_t TestAllTypesProto2::_internal___field_name13() const {
-  return __field_name13_;
-}
+inline int32_t TestAllTypesProto2::_internal___field_name13() const { return __field_name13_; }
 inline int32_t TestAllTypesProto2::__field_name13() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.__field_name13)
-  return _internal___field_name13();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.__field_name13)
+	return _internal___field_name13();
 }
 inline void TestAllTypesProto2::_internal_set___field_name13(int32_t value) {
-  _has_bits_[1] |= 0x00000020u;
-  __field_name13_ = value;
+	_has_bits_[1] |= 0x00000020u;
+	__field_name13_ = value;
 }
 inline void TestAllTypesProto2::set___field_name13(int32_t value) {
-  _internal_set___field_name13(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.__field_name13)
+	_internal_set___field_name13(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.__field_name13)
 }
 
 // optional int32 __Field_name14 = 414;
@@ -10939,20 +10363,18 @@ inline void TestAllTypesProto2::clear___field_name14() {
   __field_name14_ = 0;
   _has_bits_[1] &= ~0x00000040u;
 }
-inline int32_t TestAllTypesProto2::_internal___field_name14() const {
-  return __field_name14_;
-}
+inline int32_t TestAllTypesProto2::_internal___field_name14() const { return __field_name14_; }
 inline int32_t TestAllTypesProto2::__field_name14() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.__Field_name14)
-  return _internal___field_name14();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.__Field_name14)
+	return _internal___field_name14();
 }
 inline void TestAllTypesProto2::_internal_set___field_name14(int32_t value) {
-  _has_bits_[1] |= 0x00000040u;
-  __field_name14_ = value;
+	_has_bits_[1] |= 0x00000040u;
+	__field_name14_ = value;
 }
 inline void TestAllTypesProto2::set___field_name14(int32_t value) {
-  _internal_set___field_name14(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.__Field_name14)
+	_internal_set___field_name14(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.__Field_name14)
 }
 
 // optional int32 field__name15 = 415;
@@ -10967,20 +10389,18 @@ inline void TestAllTypesProto2::clear_field__name15() {
   field__name15_ = 0;
   _has_bits_[1] &= ~0x00000080u;
 }
-inline int32_t TestAllTypesProto2::_internal_field__name15() const {
-  return field__name15_;
-}
+inline int32_t TestAllTypesProto2::_internal_field__name15() const { return field__name15_; }
 inline int32_t TestAllTypesProto2::field__name15() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.field__name15)
-  return _internal_field__name15();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.field__name15)
+	return _internal_field__name15();
 }
 inline void TestAllTypesProto2::_internal_set_field__name15(int32_t value) {
-  _has_bits_[1] |= 0x00000080u;
-  field__name15_ = value;
+	_has_bits_[1] |= 0x00000080u;
+	field__name15_ = value;
 }
 inline void TestAllTypesProto2::set_field__name15(int32_t value) {
-  _internal_set_field__name15(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.field__name15)
+	_internal_set_field__name15(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.field__name15)
 }
 
 // optional int32 field__Name16 = 416;
@@ -10995,20 +10415,18 @@ inline void TestAllTypesProto2::clear_field__name16() {
   field__name16_ = 0;
   _has_bits_[1] &= ~0x00000100u;
 }
-inline int32_t TestAllTypesProto2::_internal_field__name16() const {
-  return field__name16_;
-}
+inline int32_t TestAllTypesProto2::_internal_field__name16() const { return field__name16_; }
 inline int32_t TestAllTypesProto2::field__name16() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.field__Name16)
-  return _internal_field__name16();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.field__Name16)
+	return _internal_field__name16();
 }
 inline void TestAllTypesProto2::_internal_set_field__name16(int32_t value) {
-  _has_bits_[1] |= 0x00000100u;
-  field__name16_ = value;
+	_has_bits_[1] |= 0x00000100u;
+	field__name16_ = value;
 }
 inline void TestAllTypesProto2::set_field__name16(int32_t value) {
-  _internal_set_field__name16(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.field__Name16)
+	_internal_set_field__name16(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.field__Name16)
 }
 
 // optional int32 field_name17__ = 417;
@@ -11023,20 +10441,18 @@ inline void TestAllTypesProto2::clear_field_name17__() {
   field_name17___ = 0;
   _has_bits_[1] &= ~0x00000200u;
 }
-inline int32_t TestAllTypesProto2::_internal_field_name17__() const {
-  return field_name17___;
-}
+inline int32_t TestAllTypesProto2::_internal_field_name17__() const { return field_name17___; }
 inline int32_t TestAllTypesProto2::field_name17__() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.field_name17__)
-  return _internal_field_name17__();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.field_name17__)
+	return _internal_field_name17__();
 }
 inline void TestAllTypesProto2::_internal_set_field_name17__(int32_t value) {
-  _has_bits_[1] |= 0x00000200u;
-  field_name17___ = value;
+	_has_bits_[1] |= 0x00000200u;
+	field_name17___ = value;
 }
 inline void TestAllTypesProto2::set_field_name17__(int32_t value) {
-  _internal_set_field_name17__(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.field_name17__)
+	_internal_set_field_name17__(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.field_name17__)
 }
 
 // optional int32 Field_name18__ = 418;
@@ -11051,20 +10467,18 @@ inline void TestAllTypesProto2::clear_field_name18__() {
   field_name18___ = 0;
   _has_bits_[0] &= ~0x00800000u;
 }
-inline int32_t TestAllTypesProto2::_internal_field_name18__() const {
-  return field_name18___;
-}
+inline int32_t TestAllTypesProto2::_internal_field_name18__() const { return field_name18___; }
 inline int32_t TestAllTypesProto2::field_name18__() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.Field_name18__)
-  return _internal_field_name18__();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.TestAllTypesProto2.Field_name18__)
+	return _internal_field_name18__();
 }
 inline void TestAllTypesProto2::_internal_set_field_name18__(int32_t value) {
-  _has_bits_[0] |= 0x00800000u;
-  field_name18___ = value;
+	_has_bits_[0] |= 0x00800000u;
+	field_name18___ = value;
 }
 inline void TestAllTypesProto2::set_field_name18__(int32_t value) {
-  _internal_set_field_name18__(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.Field_name18__)
+	_internal_set_field_name18__(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.TestAllTypesProto2.Field_name18__)
 }
 
 inline bool TestAllTypesProto2::has_oneof_field() const {
@@ -11073,9 +10487,7 @@ inline bool TestAllTypesProto2::has_oneof_field() const {
 inline void TestAllTypesProto2::clear_has_oneof_field() {
   _oneof_case_[0] = ONEOF_FIELD_NOT_SET;
 }
-inline TestAllTypesProto2::OneofFieldCase TestAllTypesProto2::oneof_field_case() const {
-  return TestAllTypesProto2::OneofFieldCase(_oneof_case_[0]);
-}
+inline TestAllTypesProto2::OneofFieldCase TestAllTypesProto2::oneof_field_case() const { return TestAllTypesProto2::OneofFieldCase(_oneof_case_[0]); }
 // -------------------------------------------------------------------
 
 // ForeignMessageProto2
@@ -11092,20 +10504,18 @@ inline void ForeignMessageProto2::clear_c() {
   c_ = 0;
   _has_bits_[0] &= ~0x00000001u;
 }
-inline int32_t ForeignMessageProto2::_internal_c() const {
-  return c_;
-}
+inline int32_t ForeignMessageProto2::_internal_c() const { return c_; }
 inline int32_t ForeignMessageProto2::c() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.ForeignMessageProto2.c)
-  return _internal_c();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.ForeignMessageProto2.c)
+	return _internal_c();
 }
 inline void ForeignMessageProto2::_internal_set_c(int32_t value) {
-  _has_bits_[0] |= 0x00000001u;
-  c_ = value;
+	_has_bits_[0] |= 0x00000001u;
+	c_ = value;
 }
 inline void ForeignMessageProto2::set_c(int32_t value) {
-  _internal_set_c(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.ForeignMessageProto2.c)
+	_internal_set_c(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.ForeignMessageProto2.c)
 }
 
 // -------------------------------------------------------------------
@@ -11124,20 +10534,18 @@ inline void UnknownToTestAllTypes_OptionalGroup::clear_a() {
   a_ = 0;
   _has_bits_[0] &= ~0x00000001u;
 }
-inline int32_t UnknownToTestAllTypes_OptionalGroup::_internal_a() const {
-  return a_;
-}
+inline int32_t UnknownToTestAllTypes_OptionalGroup::_internal_a() const { return a_; }
 inline int32_t UnknownToTestAllTypes_OptionalGroup::a() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.UnknownToTestAllTypes.OptionalGroup.a)
-  return _internal_a();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.UnknownToTestAllTypes.OptionalGroup.a)
+	return _internal_a();
 }
 inline void UnknownToTestAllTypes_OptionalGroup::_internal_set_a(int32_t value) {
-  _has_bits_[0] |= 0x00000001u;
-  a_ = value;
+	_has_bits_[0] |= 0x00000001u;
+	a_ = value;
 }
 inline void UnknownToTestAllTypes_OptionalGroup::set_a(int32_t value) {
-  _internal_set_a(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.UnknownToTestAllTypes.OptionalGroup.a)
+	_internal_set_a(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.UnknownToTestAllTypes.OptionalGroup.a)
 }
 
 // -------------------------------------------------------------------
@@ -11156,20 +10564,18 @@ inline void UnknownToTestAllTypes::clear_optional_int32() {
   optional_int32_ = 0;
   _has_bits_[0] &= ~0x00000008u;
 }
-inline int32_t UnknownToTestAllTypes::_internal_optional_int32() const {
-  return optional_int32_;
-}
+inline int32_t UnknownToTestAllTypes::_internal_optional_int32() const { return optional_int32_; }
 inline int32_t UnknownToTestAllTypes::optional_int32() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.UnknownToTestAllTypes.optional_int32)
-  return _internal_optional_int32();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.UnknownToTestAllTypes.optional_int32)
+	return _internal_optional_int32();
 }
 inline void UnknownToTestAllTypes::_internal_set_optional_int32(int32_t value) {
-  _has_bits_[0] |= 0x00000008u;
-  optional_int32_ = value;
+	_has_bits_[0] |= 0x00000008u;
+	optional_int32_ = value;
 }
 inline void UnknownToTestAllTypes::set_optional_int32(int32_t value) {
-  _internal_set_optional_int32(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.UnknownToTestAllTypes.optional_int32)
+	_internal_set_optional_int32(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.UnknownToTestAllTypes.optional_int32)
 }
 
 // optional string optional_string = 1002;
@@ -11185,8 +10591,8 @@ inline void UnknownToTestAllTypes::clear_optional_string() {
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const std::string& UnknownToTestAllTypes::optional_string() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.UnknownToTestAllTypes.optional_string)
-  return _internal_optional_string();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.UnknownToTestAllTypes.optional_string)
+	return _internal_optional_string();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -11196,45 +10602,40 @@ void UnknownToTestAllTypes::set_optional_string(ArgT0&& arg0, ArgT... args) {
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.UnknownToTestAllTypes.optional_string)
 }
 inline std::string* UnknownToTestAllTypes::mutable_optional_string() {
-  std::string* _s = _internal_mutable_optional_string();
-  // @@protoc_insertion_point(field_mutable:protobuf_test_messages.proto2.UnknownToTestAllTypes.optional_string)
-  return _s;
+	std::string* _s = _internal_mutable_optional_string();
+	// @@protoc_insertion_point(field_mutable:protobuf_test_messages.proto2.UnknownToTestAllTypes.optional_string)
+	return _s;
 }
-inline const std::string& UnknownToTestAllTypes::_internal_optional_string() const {
-  return optional_string_.Get();
-}
+inline const std::string& UnknownToTestAllTypes::_internal_optional_string() const { return optional_string_.Get(); }
 inline void UnknownToTestAllTypes::_internal_set_optional_string(const std::string& value) {
-  _has_bits_[0] |= 0x00000001u;
-  optional_string_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000001u;
+	optional_string_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* UnknownToTestAllTypes::_internal_mutable_optional_string() {
-  _has_bits_[0] |= 0x00000001u;
-  return optional_string_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000001u;
+	return optional_string_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* UnknownToTestAllTypes::release_optional_string() {
   // @@protoc_insertion_point(field_release:protobuf_test_messages.proto2.UnknownToTestAllTypes.optional_string)
-  if (!_internal_has_optional_string()) {
-    return nullptr;
-  }
+  if(!_internal_has_optional_string()) { return nullptr; }
   _has_bits_[0] &= ~0x00000001u;
   auto* p = optional_string_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (optional_string_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(optional_string_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     optional_string_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void UnknownToTestAllTypes::set_allocated_optional_string(std::string* optional_string) {
-  if (optional_string != nullptr) {
+  if(optional_string != nullptr) {
     _has_bits_[0] |= 0x00000001u;
   } else {
     _has_bits_[0] &= ~0x00000001u;
   }
-  optional_string_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), optional_string,
-      GetArenaForAllocation());
+  optional_string_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), optional_string, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (optional_string_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(optional_string_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     optional_string_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -11433,35 +10834,29 @@ inline void UnknownToTestAllTypes::clear_optional_bool() {
   optional_bool_ = false;
   _has_bits_[0] &= ~0x00000010u;
 }
-inline bool UnknownToTestAllTypes::_internal_optional_bool() const {
-  return optional_bool_;
-}
+inline bool UnknownToTestAllTypes::_internal_optional_bool() const { return optional_bool_; }
 inline bool UnknownToTestAllTypes::optional_bool() const {
-  // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.UnknownToTestAllTypes.optional_bool)
-  return _internal_optional_bool();
+	// @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.UnknownToTestAllTypes.optional_bool)
+	return _internal_optional_bool();
 }
 inline void UnknownToTestAllTypes::_internal_set_optional_bool(bool value) {
-  _has_bits_[0] |= 0x00000010u;
-  optional_bool_ = value;
+	_has_bits_[0] |= 0x00000010u;
+	optional_bool_ = value;
 }
 inline void UnknownToTestAllTypes::set_optional_bool(bool value) {
-  _internal_set_optional_bool(value);
-  // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.UnknownToTestAllTypes.optional_bool)
+	_internal_set_optional_bool(value);
+	// @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.UnknownToTestAllTypes.optional_bool)
 }
 
 // repeated int32 repeated_int32 = 1011;
-inline int UnknownToTestAllTypes::_internal_repeated_int32_size() const {
-  return repeated_int32_.size();
-}
+inline int UnknownToTestAllTypes::_internal_repeated_int32_size() const { return repeated_int32_.size(); }
 inline int UnknownToTestAllTypes::repeated_int32_size() const {
   return _internal_repeated_int32_size();
 }
 inline void UnknownToTestAllTypes::clear_repeated_int32() {
   repeated_int32_.Clear();
 }
-inline int32_t UnknownToTestAllTypes::_internal_repeated_int32(int index) const {
-  return repeated_int32_.Get(index);
-}
+inline int32_t UnknownToTestAllTypes::_internal_repeated_int32(int index) const { return repeated_int32_.Get(index); }
 inline int32_t UnknownToTestAllTypes::repeated_int32(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto2.UnknownToTestAllTypes.repeated_int32)
   return _internal_repeated_int32(index);
@@ -11470,9 +10865,7 @@ inline void UnknownToTestAllTypes::set_repeated_int32(int index, int32_t value) 
   repeated_int32_.Set(index, value);
   // @@protoc_insertion_point(field_set:protobuf_test_messages.proto2.UnknownToTestAllTypes.repeated_int32)
 }
-inline void UnknownToTestAllTypes::_internal_add_repeated_int32(int32_t value) {
-  repeated_int32_.Add(value);
-}
+inline void UnknownToTestAllTypes::_internal_add_repeated_int32(int32_t value) { repeated_int32_.Add(value); }
 inline void UnknownToTestAllTypes::add_repeated_int32(int32_t value) {
   _internal_add_repeated_int32(value);
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto2.UnknownToTestAllTypes.repeated_int32)

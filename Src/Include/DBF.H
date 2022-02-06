@@ -154,7 +154,7 @@ public:
 	SCodepage getCodePage() const;
 	int    getFieldName(uint fldN /* 1.. */, char * pFldName, size_t bufLen) const;
 	int    FASTCALL getFieldNumber(const char * pFldName, int * pFldN /* 1.. */) const;
-	int    FASTCALL getField(uint fldN /* 1.. */, DBFF *) const;
+	bool   FASTCALL getField(uint fldN /* 1.. */, DBFF *) const;
 	ulong  getNumRecs() const;
 	size_t getRecSize() const;
 	uint   getNumFields() const;

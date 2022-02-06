@@ -1,0 +1,255 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\duration.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\descriptor.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\source_context.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\timestamp.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\wrappers.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\api.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\any.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\empty.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\field_mask.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\struct.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\type.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\any.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\any_lite.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\arena.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\arenastring.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\stubs\bytestream.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\io\coded_stream.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\stubs\common.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\internal\datapiece.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\internal\default_value_objectwriter.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\delimited_message_util.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\descriptor.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\descriptor_database.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\dynamic_message.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\internal\error_listener.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\extension_set.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\extension_set_heavy.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\field_comparator.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\field_mask_util.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\internal\field_mask_utility.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\generated_enum_util.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\generated_message_bases.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\generated_message_reflection.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\generated_message_table_driven.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\generated_message_table_driven_lite.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\generated_message_tctable_full.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\generated_message_tctable_lite.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\generated_message_util.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\io\gzip_stream.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\implicit_weak_message.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\importer.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\inlined_string_field.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\stubs\int128.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\io\io_win32.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\internal\json_escaping.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\internal\json_objectwriter.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\internal\json_stream_parser.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\json_util.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\map.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\map_field.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\message.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\message_differencer.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\message_lite.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\internal\object_writer.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\parse_context.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\parser.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\io\printer.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\internal\proto_writer.cc" />
+    <ClCompile Include="..\OSF\protobuf-3.19.1\src\google\protobuf\protobuf-pch.cpp" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\internal\protostream_objectsource.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\internal\protostream_objectwriter.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\reflection_ops.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\repeated_field.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\repeated_ptr_field.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\service.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\stubs\status.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\stubs\statusor.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\stubs\stringpiece.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\stubs\stringprintf.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\io\strtod.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\stubs\structurally_valid.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\stubs\strutil.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\stubs\substitute.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\text_format.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\stubs\time.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\time_util.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\io\tokenizer.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\internal\type_info.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\type_resolver_util.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unknown_field_set.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\internal\utility.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\wire_format.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\wire_format_lite.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\io\zero_copy_stream.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\io\zero_copy_stream_impl.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\io\zero_copy_stream_impl_lite.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\any.pb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\api.pb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\importer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\parser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\descriptor.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\descriptor.pb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\descriptor_database.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\duration.pb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\dynamic_message.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\empty.pb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\field_access_listener.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\field_mask.pb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\generated_enum_reflection.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\generated_message_bases.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\generated_message_reflection.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\io\gzip_stream.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\io\printer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\io\tokenizer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\map_entry.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\map_field.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\map_field_inl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\message.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\metadata.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\reflection.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\reflection_ops.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\service.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\source_context.pb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\struct.pb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\text_format.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\timestamp.pb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\type.pb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\unknown_field_set.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\delimited_message_util.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\field_comparator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\field_mask_util.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\json_util.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\message_differencer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\time_util.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\type_resolver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\type_resolver_util.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\wire_format.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\wrappers.pb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\protobuf-3.19.1\src\protobuf-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\osf\protobuf-3.19.1\version.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Generated">
+      <UniqueIdentifier>{677a3ddb-b23b-4498-b255-6bb629406c4a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{B3274DDC-516E-39B6-9950-FBBD66C9FDFB}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -139,13 +139,9 @@ namespace protobuf_unittest {
 class TestOptimizedForSize::_Internal {
  public:
   using HasBits = decltype(std::declval<TestOptimizedForSize>()._has_bits_);
-  static void set_has_i(HasBits* has_bits) {
-    (*has_bits)[0] |= 2u;
-  }
+  static void set_has_i(HasBits* has_bits) { (*has_bits)[0] |= 2u; }
   static const ::protobuf_unittest::ForeignMessage& msg(const TestOptimizedForSize* msg);
-  static void set_has_msg(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
+  static void set_has_msg(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
 const ::protobuf_unittest::ForeignMessage&
@@ -251,9 +247,7 @@ void TestOptimizedForSize::InternalSwap(TestOptimizedForSize* other) {
   GetReflection()->Swap(this, other);}
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestOptimizedForSize::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2funittest_5foptimize_5ffor_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5foptimize_5ffor_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2funittest_5foptimize_5ffor_2eproto[0]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5foptimize_5ffor_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5foptimize_5ffor_2eproto_once, file_level_metadata_google_2fprotobuf_2funittest_5foptimize_5ffor_2eproto[0]);
 }
 
 // ===================================================================
@@ -261,12 +255,8 @@ void TestOptimizedForSize::InternalSwap(TestOptimizedForSize* other) {
 class TestRequiredOptimizedForSize::_Internal {
  public:
   using HasBits = decltype(std::declval<TestRequiredOptimizedForSize>()._has_bits_);
-  static void set_has_x(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
-  static bool MissingRequiredFields(const HasBits& has_bits) {
-    return ((has_bits[0] & 0x00000001) ^ 0x00000001) != 0;
-  }
+  static void set_has_x(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
+  static bool MissingRequiredFields(const HasBits& has_bits) { return ((has_bits[0] & 0x00000001) ^ 0x00000001) != 0; }
 };
 
 TestRequiredOptimizedForSize::TestRequiredOptimizedForSize(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -316,9 +306,7 @@ void TestRequiredOptimizedForSize::InternalSwap(TestRequiredOptimizedForSize* ot
   GetReflection()->Swap(this, other);}
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestRequiredOptimizedForSize::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2funittest_5foptimize_5ffor_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5foptimize_5ffor_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2funittest_5foptimize_5ffor_2eproto[1]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5foptimize_5ffor_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5foptimize_5ffor_2eproto_once, file_level_metadata_google_2fprotobuf_2funittest_5foptimize_5ffor_2eproto[1]);
 }
 
 // ===================================================================
@@ -327,9 +315,7 @@ class TestOptionalOptimizedForSize::_Internal {
  public:
   using HasBits = decltype(std::declval<TestOptionalOptimizedForSize>()._has_bits_);
   static const ::protobuf_unittest::TestRequiredOptimizedForSize& o(const TestOptionalOptimizedForSize* msg);
-  static void set_has_o(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
+  static void set_has_o(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
 const ::protobuf_unittest::TestRequiredOptimizedForSize&
@@ -388,9 +374,7 @@ void TestOptionalOptimizedForSize::InternalSwap(TestOptionalOptimizedForSize* ot
   GetReflection()->Swap(this, other);}
 
 ::PROTOBUF_NAMESPACE_ID::Metadata TestOptionalOptimizedForSize::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_google_2fprotobuf_2funittest_5foptimize_5ffor_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5foptimize_5ffor_2eproto_once,
-      file_level_metadata_google_2fprotobuf_2funittest_5foptimize_5ffor_2eproto[2]);
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5foptimize_5ffor_2eproto_getter, &descriptor_table_google_2fprotobuf_2funittest_5foptimize_5ffor_2eproto_once, file_level_metadata_google_2fprotobuf_2funittest_5foptimize_5ffor_2eproto[2]);
 }
 #if !defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912)
 const int TestOptimizedForSize::kTestExtensionFieldNumber;

@@ -1,5 +1,5 @@
 // TRANSFER.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022
 // @codepage UTF-8
 // @Kernel
 //
@@ -1492,7 +1492,7 @@ int Transfer::AddItem(PPTransferItem * ti, int16 & rByBill, int use_ta)
 				msg_buf.Z().Cat(ti->CorrLoc);
 				THROW_PP_S(ti->CorrLoc && ti->CorrLoc != ti->LocID, PPERR_INVINTRCORRLOC, msg_buf);
 				if(ti->CorrLoc)
-					Exchange(&ti->LocID, &ti->CorrLoc);
+					SExchange(&ti->LocID, &ti->CorrLoc);
 				ti->Quantity_ = -ti->Quantity_;
 				ti->WtQtty   = -ti->WtQtty;
 				ti->Flags   &= ~PPTFR_UNITEINTR;
@@ -1509,7 +1509,7 @@ int Transfer::AddItem(PPTransferItem * ti, int16 & rByBill, int use_ta)
 				ti->Discount = save_dis;
 				ti->Price   += save_dis;
 				if(ti->CorrLoc)
-					Exchange(&ti->LocID, &ti->CorrLoc);
+					SExchange(&ti->LocID, &ti->CorrLoc);
 				ti->LotID = save_lot;
 				THROW(r);
 			}
@@ -2692,7 +2692,7 @@ int Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int reverse, lon
 						ti->Price   -= ti->Discount;
 						ti->Discount = 0.0;
 						if(ti->CorrLoc)
-							Exchange(&ti->LocID, &ti->CorrLoc);
+							SExchange(&ti->LocID, &ti->CorrLoc);
 						ti->Quantity_ = fabs(ti->Quantity_);
 						ti->WtQtty   = fabs(ti->WtQtty);
 						ti->Flags   &= ~PPTFR_UNITEINTR;
@@ -2708,7 +2708,7 @@ int Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int reverse, lon
 						ti->Discount = save_dis;
 						ti->Price   += save_dis;
 						if(ti->CorrLoc)
-							Exchange(&ti->LocID, &ti->CorrLoc);
+							SExchange(&ti->LocID, &ti->CorrLoc);
 						ti->LotID    = save_lot;
 						is_row_rebuilded = 1;
 					}

@@ -136,8 +136,7 @@ class DoubleValue final :
   inline void Swap(DoubleValue* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -169,8 +168,7 @@ class DoubleValue final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -181,19 +179,16 @@ class DoubleValue final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "google.protobuf.DoubleValue";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "google.protobuf.DoubleValue"; }
   protected:
-  explicit DoubleValue(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit DoubleValue(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -268,8 +263,7 @@ class FloatValue final :
   inline void Swap(FloatValue* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -301,8 +295,7 @@ class FloatValue final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -313,19 +306,16 @@ class FloatValue final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "google.protobuf.FloatValue";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "google.protobuf.FloatValue"; }
   protected:
-  explicit FloatValue(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit FloatValue(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -400,8 +390,7 @@ class Int64Value final :
   inline void Swap(Int64Value* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -433,8 +422,7 @@ class Int64Value final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -445,19 +433,16 @@ class Int64Value final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "google.protobuf.Int64Value";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "google.protobuf.Int64Value"; }
   protected:
-  explicit Int64Value(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit Int64Value(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -532,8 +517,7 @@ class UInt64Value final :
   inline void Swap(UInt64Value* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -565,8 +549,7 @@ class UInt64Value final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -577,19 +560,16 @@ class UInt64Value final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "google.protobuf.UInt64Value";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "google.protobuf.UInt64Value"; }
   protected:
-  explicit UInt64Value(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit UInt64Value(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -664,8 +644,7 @@ class Int32Value final :
   inline void Swap(Int32Value* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -697,8 +676,7 @@ class Int32Value final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -709,19 +687,16 @@ class Int32Value final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "google.protobuf.Int32Value";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "google.protobuf.Int32Value"; }
   protected:
-  explicit Int32Value(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit Int32Value(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -796,8 +771,7 @@ class UInt32Value final :
   inline void Swap(UInt32Value* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -829,8 +803,7 @@ class UInt32Value final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -841,19 +814,16 @@ class UInt32Value final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "google.protobuf.UInt32Value";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "google.protobuf.UInt32Value"; }
   protected:
-  explicit UInt32Value(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit UInt32Value(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -928,8 +898,7 @@ class BoolValue final :
   inline void Swap(BoolValue* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -961,8 +930,7 @@ class BoolValue final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -973,19 +941,16 @@ class BoolValue final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "google.protobuf.BoolValue";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "google.protobuf.BoolValue"; }
   protected:
-  explicit BoolValue(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit BoolValue(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -1060,8 +1025,7 @@ class StringValue final :
   inline void Swap(StringValue* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -1093,8 +1057,7 @@ class StringValue final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -1105,19 +1068,16 @@ class StringValue final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "google.protobuf.StringValue";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "google.protobuf.StringValue"; }
   protected:
-  explicit StringValue(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit StringValue(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -1197,8 +1157,7 @@ class BytesValue final :
   inline void Swap(BytesValue* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -1230,8 +1189,7 @@ class BytesValue final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -1242,19 +1200,16 @@ class BytesValue final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "google.protobuf.BytesValue";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "google.protobuf.BytesValue"; }
   protected:
-  explicit BytesValue(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit BytesValue(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData * GetClassData() const final;
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
@@ -1305,20 +1260,18 @@ class BytesValue final :
 inline void DoubleValue::clear_value() {
   value_ = 0;
 }
-inline double DoubleValue::_internal_value() const {
-  return value_;
-}
+inline double DoubleValue::_internal_value() const { return value_; }
 inline double DoubleValue::value() const {
-  // @@protoc_insertion_point(field_get:google.protobuf.DoubleValue.value)
-  return _internal_value();
+	// @@protoc_insertion_point(field_get:google.protobuf.DoubleValue.value)
+	return _internal_value();
 }
 inline void DoubleValue::_internal_set_value(double value) {
-  
-  value_ = value;
+	
+	value_ = value;
 }
 inline void DoubleValue::set_value(double value) {
-  _internal_set_value(value);
-  // @@protoc_insertion_point(field_set:google.protobuf.DoubleValue.value)
+	_internal_set_value(value);
+	// @@protoc_insertion_point(field_set:google.protobuf.DoubleValue.value)
 }
 
 // -------------------------------------------------------------------
@@ -1329,20 +1282,18 @@ inline void DoubleValue::set_value(double value) {
 inline void FloatValue::clear_value() {
   value_ = 0;
 }
-inline float FloatValue::_internal_value() const {
-  return value_;
-}
+inline float FloatValue::_internal_value() const { return value_; }
 inline float FloatValue::value() const {
-  // @@protoc_insertion_point(field_get:google.protobuf.FloatValue.value)
-  return _internal_value();
+	// @@protoc_insertion_point(field_get:google.protobuf.FloatValue.value)
+	return _internal_value();
 }
 inline void FloatValue::_internal_set_value(float value) {
-  
-  value_ = value;
+	
+	value_ = value;
 }
 inline void FloatValue::set_value(float value) {
-  _internal_set_value(value);
-  // @@protoc_insertion_point(field_set:google.protobuf.FloatValue.value)
+	_internal_set_value(value);
+	// @@protoc_insertion_point(field_set:google.protobuf.FloatValue.value)
 }
 
 // -------------------------------------------------------------------
@@ -1353,20 +1304,18 @@ inline void FloatValue::set_value(float value) {
 inline void Int64Value::clear_value() {
   value_ = int64_t{0};
 }
-inline int64_t Int64Value::_internal_value() const {
-  return value_;
-}
+inline int64_t Int64Value::_internal_value() const { return value_; }
 inline int64_t Int64Value::value() const {
-  // @@protoc_insertion_point(field_get:google.protobuf.Int64Value.value)
-  return _internal_value();
+	// @@protoc_insertion_point(field_get:google.protobuf.Int64Value.value)
+	return _internal_value();
 }
 inline void Int64Value::_internal_set_value(int64_t value) {
-  
-  value_ = value;
+	
+	value_ = value;
 }
 inline void Int64Value::set_value(int64_t value) {
-  _internal_set_value(value);
-  // @@protoc_insertion_point(field_set:google.protobuf.Int64Value.value)
+	_internal_set_value(value);
+	// @@protoc_insertion_point(field_set:google.protobuf.Int64Value.value)
 }
 
 // -------------------------------------------------------------------
@@ -1377,20 +1326,18 @@ inline void Int64Value::set_value(int64_t value) {
 inline void UInt64Value::clear_value() {
   value_ = uint64_t{0u};
 }
-inline uint64_t UInt64Value::_internal_value() const {
-  return value_;
-}
+inline uint64_t UInt64Value::_internal_value() const { return value_; }
 inline uint64_t UInt64Value::value() const {
-  // @@protoc_insertion_point(field_get:google.protobuf.UInt64Value.value)
-  return _internal_value();
+	// @@protoc_insertion_point(field_get:google.protobuf.UInt64Value.value)
+	return _internal_value();
 }
 inline void UInt64Value::_internal_set_value(uint64_t value) {
-  
-  value_ = value;
+	
+	value_ = value;
 }
 inline void UInt64Value::set_value(uint64_t value) {
-  _internal_set_value(value);
-  // @@protoc_insertion_point(field_set:google.protobuf.UInt64Value.value)
+	_internal_set_value(value);
+	// @@protoc_insertion_point(field_set:google.protobuf.UInt64Value.value)
 }
 
 // -------------------------------------------------------------------
@@ -1401,20 +1348,18 @@ inline void UInt64Value::set_value(uint64_t value) {
 inline void Int32Value::clear_value() {
   value_ = 0;
 }
-inline int32_t Int32Value::_internal_value() const {
-  return value_;
-}
+inline int32_t Int32Value::_internal_value() const { return value_; }
 inline int32_t Int32Value::value() const {
-  // @@protoc_insertion_point(field_get:google.protobuf.Int32Value.value)
-  return _internal_value();
+	// @@protoc_insertion_point(field_get:google.protobuf.Int32Value.value)
+	return _internal_value();
 }
 inline void Int32Value::_internal_set_value(int32_t value) {
-  
-  value_ = value;
+	
+	value_ = value;
 }
 inline void Int32Value::set_value(int32_t value) {
-  _internal_set_value(value);
-  // @@protoc_insertion_point(field_set:google.protobuf.Int32Value.value)
+	_internal_set_value(value);
+	// @@protoc_insertion_point(field_set:google.protobuf.Int32Value.value)
 }
 
 // -------------------------------------------------------------------
@@ -1425,20 +1370,18 @@ inline void Int32Value::set_value(int32_t value) {
 inline void UInt32Value::clear_value() {
   value_ = 0u;
 }
-inline uint32_t UInt32Value::_internal_value() const {
-  return value_;
-}
+inline uint32_t UInt32Value::_internal_value() const { return value_; }
 inline uint32_t UInt32Value::value() const {
-  // @@protoc_insertion_point(field_get:google.protobuf.UInt32Value.value)
-  return _internal_value();
+	// @@protoc_insertion_point(field_get:google.protobuf.UInt32Value.value)
+	return _internal_value();
 }
 inline void UInt32Value::_internal_set_value(uint32_t value) {
-  
-  value_ = value;
+	
+	value_ = value;
 }
 inline void UInt32Value::set_value(uint32_t value) {
-  _internal_set_value(value);
-  // @@protoc_insertion_point(field_set:google.protobuf.UInt32Value.value)
+	_internal_set_value(value);
+	// @@protoc_insertion_point(field_set:google.protobuf.UInt32Value.value)
 }
 
 // -------------------------------------------------------------------
@@ -1449,20 +1392,18 @@ inline void UInt32Value::set_value(uint32_t value) {
 inline void BoolValue::clear_value() {
   value_ = false;
 }
-inline bool BoolValue::_internal_value() const {
-  return value_;
-}
+inline bool BoolValue::_internal_value() const { return value_; }
 inline bool BoolValue::value() const {
-  // @@protoc_insertion_point(field_get:google.protobuf.BoolValue.value)
-  return _internal_value();
+	// @@protoc_insertion_point(field_get:google.protobuf.BoolValue.value)
+	return _internal_value();
 }
 inline void BoolValue::_internal_set_value(bool value) {
-  
-  value_ = value;
+	
+	value_ = value;
 }
 inline void BoolValue::set_value(bool value) {
-  _internal_set_value(value);
-  // @@protoc_insertion_point(field_set:google.protobuf.BoolValue.value)
+	_internal_set_value(value);
+	// @@protoc_insertion_point(field_set:google.protobuf.BoolValue.value)
 }
 
 // -------------------------------------------------------------------
@@ -1474,8 +1415,8 @@ inline void StringValue::clear_value() {
   value_.ClearToEmpty();
 }
 inline const std::string& StringValue::value() const {
-  // @@protoc_insertion_point(field_get:google.protobuf.StringValue.value)
-  return _internal_value();
+	// @@protoc_insertion_point(field_get:google.protobuf.StringValue.value)
+	return _internal_value();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -1485,35 +1426,32 @@ void StringValue::set_value(ArgT0&& arg0, ArgT... args) {
   // @@protoc_insertion_point(field_set:google.protobuf.StringValue.value)
 }
 inline std::string* StringValue::mutable_value() {
-  std::string* _s = _internal_mutable_value();
-  // @@protoc_insertion_point(field_mutable:google.protobuf.StringValue.value)
-  return _s;
+	std::string* _s = _internal_mutable_value();
+	// @@protoc_insertion_point(field_mutable:google.protobuf.StringValue.value)
+	return _s;
 }
-inline const std::string& StringValue::_internal_value() const {
-  return value_.Get();
-}
+inline const std::string& StringValue::_internal_value() const { return value_.Get(); }
 inline void StringValue::_internal_set_value(const std::string& value) {
-  
-  value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	
+	value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* StringValue::_internal_mutable_value() {
-  
-  return value_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	
+	return value_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* StringValue::release_value() {
   // @@protoc_insertion_point(field_release:google.protobuf.StringValue.value)
   return value_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 }
 inline void StringValue::set_allocated_value(std::string* value) {
-  if (value != nullptr) {
+  if(value != nullptr) {
     
   } else {
     
   }
-  value_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value,
-      GetArenaForAllocation());
+  value_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (value_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(value_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     value_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -1529,8 +1467,8 @@ inline void BytesValue::clear_value() {
   value_.ClearToEmpty();
 }
 inline const std::string& BytesValue::value() const {
-  // @@protoc_insertion_point(field_get:google.protobuf.BytesValue.value)
-  return _internal_value();
+	// @@protoc_insertion_point(field_get:google.protobuf.BytesValue.value)
+	return _internal_value();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -1540,35 +1478,32 @@ void BytesValue::set_value(ArgT0&& arg0, ArgT... args) {
   // @@protoc_insertion_point(field_set:google.protobuf.BytesValue.value)
 }
 inline std::string* BytesValue::mutable_value() {
-  std::string* _s = _internal_mutable_value();
-  // @@protoc_insertion_point(field_mutable:google.protobuf.BytesValue.value)
-  return _s;
+	std::string* _s = _internal_mutable_value();
+	// @@protoc_insertion_point(field_mutable:google.protobuf.BytesValue.value)
+	return _s;
 }
-inline const std::string& BytesValue::_internal_value() const {
-  return value_.Get();
-}
+inline const std::string& BytesValue::_internal_value() const { return value_.Get(); }
 inline void BytesValue::_internal_set_value(const std::string& value) {
-  
-  value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	
+	value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* BytesValue::_internal_mutable_value() {
-  
-  return value_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	
+	return value_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* BytesValue::release_value() {
   // @@protoc_insertion_point(field_release:google.protobuf.BytesValue.value)
   return value_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 }
 inline void BytesValue::set_allocated_value(std::string* value) {
-  if (value != nullptr) {
+  if(value != nullptr) {
     
   } else {
     
   }
-  value_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value,
-      GetArenaForAllocation());
+  value_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (value_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(value_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     value_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING

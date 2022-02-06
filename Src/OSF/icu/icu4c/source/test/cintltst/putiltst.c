@@ -93,11 +93,11 @@ static void TestPUtilAPI() {
 	expn1 = uprv_fmin(uprv_getNaN(), 1.2);
 	doAssert(expn1, uprv_getNaN(), "uprv_fmin(uprv_getNaN(), 1.2) failed. when one parameter is NaN");
 
-	log_verbose("Testing the API uprv_max()\n");
-	doAssert(uprv_max(4, 2), 4, "uprv_max(4, 2) failed.");
+	log_verbose("Testing the API smax()\n");
+	doAssert(smax(4, 2), 4, "smax(4, 2) failed.");
 
-	log_verbose("Testing the API uprv_min()\n");
-	doAssert(uprv_min(-4, 2), -4, "uprv_min(-4, 2) failed.");
+	log_verbose("Testing the API smin()\n");
+	doAssert(smin(-4, 2), -4, "smin(-4, 2) failed.");
 
 	log_verbose("Testing the API uprv_trunc()\n");
 	doAssert(uprv_trunc(12.3456), 12, "uprv_trunc(12.3456) failed.");

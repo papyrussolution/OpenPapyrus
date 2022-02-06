@@ -1,0 +1,567 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\bidiconf.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\itrbbi.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\lstmbetst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\rbbiapts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\rbbimonkeytest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\rbbitst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\csdetest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\allcoll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\alphaindextst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\apicoll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\collationtest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\colldata.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\currcoll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\decoll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\encoll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\escoll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\ficoll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\frcoll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\g7coll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\itercoll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\jacoll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\lcukocol.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\mnkytst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\regcoll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\srchtest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\ssearch.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\svccoll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\thcoll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\trcoll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tscoll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\ucaconf.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\unifiedcachetest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\uvectest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\v32test.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\simplethread.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tsmthred.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tsputil.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\convtest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\bytestrietest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\ucharstrietest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\uobjtest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\astrotst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\calcasts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\callimts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\calregts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\caltest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\caltztst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\compactdecimalformattest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\dadrcal.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\dadrfmt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\datadrivennumberformattestsuite.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\dcfmapts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\dcfmtest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\dtfmapts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\dtfmrgts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\dtfmtrtts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\dtfmttst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\dtifmtts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\dtptngts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\erarulestest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\fldset.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\formatted_string_builder_test.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\formattedvaluetest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\genderinfotest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\incaltst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\itformat.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\itrbnf.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\itrbnfp.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\itrbnfrt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\listformattertest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\locnmtst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\measfmttest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\miscdtfm.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\msfmrgts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\nmfmapts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\nmfmtrt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numberformattesttuple.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numbertest_affixutils.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numbertest_api.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numbertest_decimalquantity.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numbertest_doubleconversion.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numbertest_modifiers.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numbertest_parse.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numbertest_patternmodifier.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numbertest_patternstring.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numbertest_permutation.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numbertest_range.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numbertest_skeletons.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numfmtdatadriventest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numfmtspectest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numfmtst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\numrgts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\pluralmaptest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\plurfmts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\plurults.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\pptest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\quantityformattertest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\regiontst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\reldatefmttest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\scientificnumberformattertest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\sdtfmtts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\selfmts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\simpleformattertest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\static_unisets_test.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\string_segment_test.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tchcfmt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tfsmalls.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tmsgfmt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tsdate.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tsdcfmsy.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tsdtfmsy.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tsnmfmt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tufmtts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tzbdtest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tzfmttst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tzoffloc.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tzregts.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tzrulets.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tztest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\units_data_test.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\units_router_test.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\units_test.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\windttst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\winnmtst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\idnaconf.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\idnaref.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\nptrans.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\punyref.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\testidn.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\testidna.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\uts46test.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\aliastst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\localebuildertest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\localematchertest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\loctest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\restest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\restsnew.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\intltest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\itmajor.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\itutil.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\testutil.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\textfile.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tokiter.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\winutil.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\canittst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\normconf.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tstnorm.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\tstnrapi.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\ucdtest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\usettest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\regextst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\icusvtst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\itspoof.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\citrtest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\reptest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\sfwdchit.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\strcase.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\strtest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\ustrtest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\utxttest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\cpdtrtst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\ittrans.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\jamotest.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\transapi.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\transrt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\transtst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\intltest\trnserr.cpp" />
+    <ClCompile Include="..\OSF\icu\icu4c\source\common\icu-pch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\aliastst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\allcoll.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\alphaindextst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\apicoll.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\astrotst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\calcasts.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\callimts.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\calregts.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\caltest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\caltztst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\canittst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\citrtest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\colldata.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\convtest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\cpdtrtst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\csdetest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\currcoll.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\dadrcal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\dadrfmt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\datadrivennumberformattestsuite.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\dcfmapts.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\dcfmtest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\decoll.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\dtfmapts.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\dtfmrgts.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\dtfmtrtts.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\dtfmttst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\dtifmtts.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\dtptngts.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\encoll.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\erarulestest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\escoll.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\ficoll.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\fldset.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\frcoll.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\g7coll.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\icusvtst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\idnaconf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\idnaref.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\incaltst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\intltest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\itercoll.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\itformat.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\itmajor.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\itrbbi.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\itrbnf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\itrbnfp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\itrbnfrt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\itspoof.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\ittrans.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\itutil.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\jacoll.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\jamotest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\lcukocol.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\listformattertest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\localebuildertest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\locnmtst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\loctest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\miscdtfm.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\mnkytst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\msfmrgts.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\nmfmapts.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\nmfmtrt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\normconf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\nptrans.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\numberformattesttuple.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\numbertest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\numfmtst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\numrgts.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\plurfmts.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\plurults.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\pptest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\punyref.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\rbbiapts.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\rbbimonkeytest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\rbbitst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\regcoll.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\regextst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\regiontst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\reptest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\restest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\restsnew.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\sdtfmtts.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\selfmts.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\sfwdchit.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\simplethread.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\srchtest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\ssearch.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\strtest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\svccoll.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tchcfmt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\testidna.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\testutil.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\textfile.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tfsmalls.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\thcoll.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tmsgfmt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tokiter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\transapi.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\transrt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\transtst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\trcoll.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\trnserr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tscoll.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tsdate.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tsdcfmsy.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tsdtfmsy.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tsmthred.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tsnmfmt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tsputil.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tstnorm.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tufmtts.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tzbdtest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tzfmttst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tzoffloc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tzregts.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tzrulets.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\tztest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\ucaconf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\ucdtest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\uobjtest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\usettest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\ustrtest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\utxttest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\uvectest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\v32test.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\windttst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\winnmtst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\intltest\winutil.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{b3cca249-fe22-4f41-bd55-2681b20fe39a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

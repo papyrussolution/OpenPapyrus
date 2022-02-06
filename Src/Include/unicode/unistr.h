@@ -295,10 +295,8 @@ class UnicodeStringAppendable;  // unicode/appendable.h
  * @see CharacterIterator
  * @stable ICU 2.0
  */
-class U_COMMON_API UnicodeString : public Replaceable
-{
+class U_COMMON_API UnicodeString : public Replaceable {
 public:
-
 	/**
 	 * Constant to be used in the UnicodeString(char *, int32_t, EInvariant) constructor
 	 * which constructs a Unicode string from an invariant-character char * string.
@@ -403,10 +401,7 @@ public:
 	 * in `text`.
 	 * @stable ICU 2.0
 	 */
-	inline int8_t compare(int32_t start,
-	    int32_t length,
-	    const UnicodeString & text) const;
-
+	inline int8_t compare(int32_t start, int32_t length, const UnicodeString & text) const;
 	/**
 	 * Compare the characters bitwise in the range
 	 * [`start`, `start + length`) with the characters
@@ -424,12 +419,7 @@ public:
 	 * in `srcText`.
 	 * @stable ICU 2.0
 	 */
-	inline int8_t compare(int32_t start,
-	    int32_t length,
-	    const UnicodeString & srcText,
-	    int32_t srcStart,
-	    int32_t srcLength) const;
-
+	inline int8_t compare(int32_t start, int32_t length, const UnicodeString & srcText, int32_t srcStart, int32_t srcLength) const;
 	/**
 	 * Compare the characters bitwise in this UnicodeString with the first
 	 * `srcLength` characters in `srcChars`.
@@ -442,9 +432,7 @@ public:
 	 * in `srcChars`.
 	 * @stable ICU 2.0
 	 */
-	inline int8_t compare(ConstChar16Ptr srcChars,
-	    int32_t srcLength) const;
-
+	inline int8_t compare(ConstChar16Ptr srcChars, int32_t srcLength) const;
 	/**
 	 * Compare the characters bitwise in the range
 	 * [`start`, `start + length`) with the first
@@ -665,7 +653,6 @@ public:
 	 * @stable ICU 2.0
 	 */
 	inline int8_t caseCompare(const UnicodeString & text, uint32_t options) const;
-
 	/**
 	 * Compare two strings case-insensitively using full case folding.
 	 * This is equivalent to this->foldCase(options).compare(srcText.foldCase(options)).
@@ -686,11 +673,7 @@ public:
 	 * @return A negative, zero, or positive integer indicating the comparison result.
 	 * @stable ICU 2.0
 	 */
-	inline int8_t caseCompare(int32_t start,
-	    int32_t length,
-	    const UnicodeString & srcText,
-	    uint32_t options) const;
-
+	inline int8_t caseCompare(int32_t start, int32_t length, const UnicodeString & srcText, uint32_t options) const;
 	/**
 	 * Compare two strings case-insensitively using full case folding.
 	 * This is equivalent to this->foldCase(options).compare(srcText.foldCase(options)).
@@ -713,13 +696,7 @@ public:
 	 * @return A negative, zero, or positive integer indicating the comparison result.
 	 * @stable ICU 2.0
 	 */
-	inline int8_t caseCompare(int32_t start,
-	    int32_t length,
-	    const UnicodeString & srcText,
-	    int32_t srcStart,
-	    int32_t srcLength,
-	    uint32_t options) const;
-
+	inline int8_t caseCompare(int32_t start, int32_t length, const UnicodeString & srcText, int32_t srcStart, int32_t srcLength, uint32_t options) const;
 	/**
 	 * Compare two strings case-insensitively using full case folding.
 	 * This is equivalent to this->foldCase(options).compare(srcChars.foldCase(options)).
@@ -739,10 +716,7 @@ public:
 	 * @return A negative, zero, or positive integer indicating the comparison result.
 	 * @stable ICU 2.0
 	 */
-	inline int8_t caseCompare(ConstChar16Ptr srcChars,
-	    int32_t srcLength,
-	    uint32_t options) const;
-
+	inline int8_t caseCompare(ConstChar16Ptr srcChars, int32_t srcLength, uint32_t options) const;
 	/**
 	 * Compare two strings case-insensitively using full case folding.
 	 * This is equivalent to this->foldCase(options).compare(srcChars.foldCase(options)).
@@ -763,11 +737,7 @@ public:
 	 * @return A negative, zero, or positive integer indicating the comparison result.
 	 * @stable ICU 2.0
 	 */
-	inline int8_t caseCompare(int32_t start,
-	    int32_t length,
-	    const char16_t * srcChars,
-	    uint32_t options) const;
-
+	inline int8_t caseCompare(int32_t start, int32_t length, const char16_t * srcChars, uint32_t options) const;
 	/**
 	 * Compare two strings case-insensitively using full case folding.
 	 * This is equivalent to this->foldCase(options).compare(srcChars.foldCase(options)).
@@ -790,13 +760,7 @@ public:
 	 * @return A negative, zero, or positive integer indicating the comparison result.
 	 * @stable ICU 2.0
 	 */
-	inline int8_t caseCompare(int32_t start,
-	    int32_t length,
-	    const char16_t * srcChars,
-	    int32_t srcStart,
-	    int32_t srcLength,
-	    uint32_t options) const;
-
+	inline int8_t caseCompare(int32_t start, int32_t length, const char16_t * srcChars, int32_t srcStart, int32_t srcLength, uint32_t options) const;
 	/**
 	 * Compare two strings case-insensitively using full case folding.
 	 * This is equivalent to this->foldCase(options).compareBetween(text.foldCase(options)).
@@ -834,7 +798,6 @@ public:
 	 * @stable ICU 2.0
 	 */
 	inline bool startsWith(const UnicodeString & text) const;
-
 	/**
 	 * Determine if this starts with the characters in `srcText`
 	 * in the range [`srcStart`, `srcStart + srcLength`).
@@ -845,10 +808,7 @@ public:
 	 * false otherwise
 	 * @stable ICU 2.0
 	 */
-	inline bool startsWith(const UnicodeString & srcText,
-	    int32_t srcStart,
-	    int32_t srcLength) const;
-
+	inline bool startsWith(const UnicodeString & srcText, int32_t srcStart, int32_t srcLength) const;
 	/**
 	 * Determine if this starts with the characters in `srcChars`
 	 * @param srcChars The characters to match.
@@ -857,9 +817,7 @@ public:
 	 * false otherwise
 	 * @stable ICU 2.0
 	 */
-	inline bool startsWith(ConstChar16Ptr srcChars,
-	    int32_t srcLength) const;
-
+	inline bool startsWith(ConstChar16Ptr srcChars, int32_t srcLength) const;
 	/**
 	 * Determine if this ends with the characters in `srcChars`
 	 * in the range  [`srcStart`, `srcStart + srcLength`).
@@ -869,10 +827,7 @@ public:
 	 * @return true if this ends with the characters in `srcChars`, false otherwise
 	 * @stable ICU 2.0
 	 */
-	inline bool startsWith(const char16_t * srcChars,
-	    int32_t srcStart,
-	    int32_t srcLength) const;
-
+	inline bool startsWith(const char16_t * srcChars, int32_t srcStart, int32_t srcLength) const;
 	/**
 	 * Determine if this ends with the characters in `text`
 	 * @param text The text to match.
@@ -881,7 +836,6 @@ public:
 	 * @stable ICU 2.0
 	 */
 	inline bool endsWith(const UnicodeString & text) const;
-
 	/**
 	 * Determine if this ends with the characters in `srcText`
 	 * in the range [`srcStart`, `srcStart + srcLength`).
@@ -892,10 +846,7 @@ public:
 	 * false otherwise
 	 * @stable ICU 2.0
 	 */
-	inline bool endsWith(const UnicodeString & srcText,
-	    int32_t srcStart,
-	    int32_t srcLength) const;
-
+	inline bool endsWith(const UnicodeString & srcText, int32_t srcStart, int32_t srcLength) const;
 	/**
 	 * Determine if this ends with the characters in `srcChars`
 	 * @param srcChars The characters to match.
@@ -904,9 +855,7 @@ public:
 	 * false otherwise
 	 * @stable ICU 2.0
 	 */
-	inline bool endsWith(ConstChar16Ptr srcChars,
-	    int32_t srcLength) const;
-
+	inline bool endsWith(ConstChar16Ptr srcChars, int32_t srcLength) const;
 	/**
 	 * Determine if this ends with the characters in `srcChars`
 	 * in the range  [`srcStart`, `srcStart + srcLength`).
@@ -917,10 +866,7 @@ public:
 	 * false otherwise
 	 * @stable ICU 2.0
 	 */
-	inline bool endsWith(const char16_t * srcChars,
-	    int32_t srcStart,
-	    int32_t srcLength) const;
-
+	inline bool endsWith(const char16_t * srcChars, int32_t srcStart, int32_t srcLength) const;
 	/* Searching - bitwise only */
 
 	/**
@@ -942,9 +888,7 @@ public:
 	 * or -1 if not found.
 	 * @stable ICU 2.0
 	 */
-	inline int32_t indexOf(const UnicodeString & text,
-	    int32_t start) const;
-
+	inline int32_t indexOf(const UnicodeString & text, int32_t start) const;
 	/**
 	 * Locate in this the first occurrence in the range
 	 * [`start`, `start + length`) of the characters
@@ -956,9 +900,7 @@ public:
 	 * or -1 if not found.
 	 * @stable ICU 2.0
 	 */
-	inline int32_t indexOf(const UnicodeString & text,
-	    int32_t start,
-	    int32_t length) const;
+	inline int32_t indexOf(const UnicodeString & text, int32_t start, int32_t length) const;
 
 	/**
 	 * Locate in this the first occurrence in the range
@@ -1428,11 +1370,7 @@ public:
 	 * will be extracted
 	 * @stable ICU 2.0
 	 */
-	inline void extract(int32_t start,
-	    int32_t length,
-	    Char16Ptr dst,
-	    int32_t dstStart = 0) const;
-
+	inline void extract(int32_t start, int32_t length, Char16Ptr dst, int32_t dstStart = 0) const;
 	/**
 	 * Copy the contents of the string into dest.
 	 * This is a convenience function that
@@ -1466,10 +1404,7 @@ public:
 	 * @param target UnicodeString into which to copy characters.
 	 * @stable ICU 2.0
 	 */
-	inline void extract(int32_t start,
-	    int32_t length,
-	    UnicodeString & target) const;
-
+	inline void extract(int32_t start, int32_t length, UnicodeString & target) const;
 	/**
 	 * Copy the characters in the range [`start`, `limit`)
 	 * into the array `dst`, beginning at `dstStart`.
@@ -1481,11 +1416,7 @@ public:
 	 * will be extracted
 	 * @stable ICU 2.0
 	 */
-	inline void extractBetween(int32_t start,
-	    int32_t limit,
-	    char16_t * dst,
-	    int32_t dstStart = 0) const;
-
+	inline void extractBetween(int32_t start, int32_t limit, char16_t * dst, int32_t dstStart = 0) const;
 	/**
 	 * Copy the characters in the range [`start`, `limit`)
 	 * into the UnicodeString `target`.  Replaceable API.
@@ -1637,10 +1568,7 @@ public:
 	 *         and a buffer of the indicated length would need to be passed in
 	 * @stable ICU 2.0
 	 */
-	int32_t extract(char * dest, int32_t destCapacity,
-	    UConverter * cnv,
-	    UErrorCode & errorCode) const;
-
+	int32_t extract(char * dest, int32_t destCapacity, UConverter * cnv, UErrorCode & errorCode) const;
 #endif
 
 	/**
@@ -1695,13 +1623,12 @@ public:
 	 * @stable ICU 4.2
 	 * @see toUTF8
 	 */
-	template <typename StringClass>
-	StringClass &toUTF8String(StringClass &result) const {
+	template <typename StringClass> StringClass & toUTF8String(StringClass &result) const 
+	{
 		StringByteSink<StringClass> sbs(&result, length());
 		toUTF8(sbs);
 		return result;
 	}
-
 	/**
 	 * Convert the UnicodeString to UTF-32.
 	 * Unpaired surrogates are replaced with U+FFFD.
@@ -1888,10 +1815,10 @@ public:
 	 * @param s2 will get s1's contents and state
 	 * @stable ICU 56
 	 */
-	friend inline void U_EXPORT2 swap(UnicodeString & s1, UnicodeString & s2) U_NOEXCEPT {
+	friend inline void U_EXPORT2 swap(UnicodeString & s1, UnicodeString & s2) U_NOEXCEPT 
+	{
 		s1.swap(s2);
 	}
-
 	/**
 	 * Assignment operator.  Replace the characters in this UnicodeString
 	 * with the code unit `ch`.
@@ -2005,9 +1932,7 @@ public:
 	 * @return a reference to this
 	 * @stable ICU 2.0
 	 */
-	UnicodeString & setTo(bool isTerminated,
-	    ConstChar16Ptr text,
-	    int32_t textLength);
+	UnicodeString & setTo(bool isTerminated, ConstChar16Ptr text, int32_t textLength);
 
 	/**
 	 * Aliasing setTo() function, analogous to the writable-aliasing char16_t* constructor.
@@ -2491,7 +2416,6 @@ public:
 	 * @stable ICU 2.0
 	 */
 	inline UnicodeString & remove();
-
 	/**
 	 * Remove the characters in the range
 	 * [`start`, `start + length`) from the UnicodeString object.
@@ -2500,9 +2424,7 @@ public:
 	 * @return a reference to this
 	 * @stable ICU 2.0
 	 */
-	inline UnicodeString & remove(int32_t start,
-	    int32_t length = (int32_t)INT32_MAX);
-
+	inline UnicodeString & remove(int32_t start, int32_t length = (int32_t)INT32_MAX);
 	/**
 	 * Remove the characters in the range
 	 * [`start`, `limit`) from the UnicodeString object.
@@ -2511,8 +2433,7 @@ public:
 	 * @return a reference to this
 	 * @stable ICU 2.0
 	 */
-	inline UnicodeString & removeBetween(int32_t start,
-	    int32_t limit = (int32_t)INT32_MAX);
+	inline UnicodeString & removeBetween(int32_t start, int32_t limit = (int32_t)INT32_MAX);
 
 	/**
 	 * Retain only the characters in the range
@@ -3199,10 +3120,7 @@ public:
 	 * @param errorCode normal ICU error code
 	 * @stable ICU 2.0
 	 */
-	UnicodeString(const char * src, int32_t srcLength,
-	    UConverter * cnv,
-	    UErrorCode & errorCode);
-
+	UnicodeString(const char * src, int32_t srcLength, UConverter * cnv, UErrorCode & errorCode);
 #endif
 
 	/**
@@ -3427,116 +3345,43 @@ private:
 	// this version: New API will be cleaner if we make callers create substrings
 	// rather than having start+length on every method,
 	// and it should take a UErrorCode&.
-	int32_t toUTF8(int32_t start, int32_t len,
-	    char * target, int32_t capacity) const;
-
+	int32_t toUTF8(int32_t start, int32_t len, char * target, int32_t capacity) const;
 	/**
 	 * Internal string contents comparison, called by operator==.
 	 * Requires: this & text not bogus and have same lengths.
 	 */
 	bool doEquals(const UnicodeString & text, int32_t len) const;
-
-	inline int8_t doCompare(int32_t start,
-	    int32_t length,
-	    const UnicodeString & srcText,
-	    int32_t srcStart,
-	    int32_t srcLength) const;
-
-	int8_t doCompare(int32_t start,
-	    int32_t length,
-	    const char16_t * srcChars,
-	    int32_t srcStart,
-	    int32_t srcLength) const;
-
-	inline int8_t doCompareCodePointOrder(int32_t start,
-	    int32_t length,
-	    const UnicodeString & srcText,
-	    int32_t srcStart,
-	    int32_t srcLength) const;
-
-	int8_t doCompareCodePointOrder(int32_t start,
-	    int32_t length,
-	    const char16_t * srcChars,
-	    int32_t srcStart,
-	    int32_t srcLength) const;
-
-	inline int8_t doCaseCompare(int32_t start,
-	    int32_t length,
-	    const UnicodeString & srcText,
-	    int32_t srcStart,
-	    int32_t srcLength,
-	    uint32_t options) const;
-
-	int8_t doCaseCompare(int32_t start,
-	    int32_t length,
-	    const char16_t * srcChars,
-	    int32_t srcStart,
-	    int32_t srcLength,
-	    uint32_t options) const;
-
-	int32_t doIndexOf(char16_t c,
-	    int32_t start,
-	    int32_t length) const;
-
-	int32_t doIndexOf(UChar32 c,
-	    int32_t start,
-	    int32_t length) const;
-
-	int32_t doLastIndexOf(char16_t c,
-	    int32_t start,
-	    int32_t length) const;
-
-	int32_t doLastIndexOf(UChar32 c,
-	    int32_t start,
-	    int32_t length) const;
-
-	void doExtract(int32_t start,
-	    int32_t length,
-	    char16_t * dst,
-	    int32_t dstStart) const;
-
-	inline void doExtract(int32_t start,
-	    int32_t length,
-	    UnicodeString & target) const;
-
+	inline int8_t doCompare(int32_t start, int32_t length, const UnicodeString & srcText, int32_t srcStart, int32_t srcLength) const;
+	int8_t doCompare(int32_t start, int32_t length, const char16_t * srcChars, int32_t srcStart, int32_t srcLength) const;
+	inline int8_t doCompareCodePointOrder(int32_t start, int32_t length, const UnicodeString & srcText, int32_t srcStart, int32_t srcLength) const;
+	int8_t doCompareCodePointOrder(int32_t start, int32_t length, const char16_t * srcChars, int32_t srcStart, int32_t srcLength) const;
+	inline int8_t doCaseCompare(int32_t start, int32_t length, const UnicodeString & srcText, int32_t srcStart, int32_t srcLength, uint32_t options) const;
+	int8_t doCaseCompare(int32_t start, int32_t length, const char16_t * srcChars, int32_t srcStart, int32_t srcLength, uint32_t options) const;
+	int32_t doIndexOf(char16_t c, int32_t start, int32_t length) const;
+	int32_t doIndexOf(UChar32 c, int32_t start, int32_t length) const;
+	int32_t doLastIndexOf(char16_t c, int32_t start, int32_t length) const;
+	int32_t doLastIndexOf(UChar32 c, int32_t start, int32_t length) const;
+	void doExtract(int32_t start, int32_t length, char16_t * dst, int32_t dstStart) const;
+	inline void doExtract(int32_t start, int32_t length, UnicodeString & target) const;
 	inline char16_t doCharAt(int32_t offset)  const;
-
-	UnicodeString & doReplace(int32_t start,
-	    int32_t length,
-	    const UnicodeString & srcText,
-	    int32_t srcStart,
-	    int32_t srcLength);
-
-	UnicodeString & doReplace(int32_t start,
-	    int32_t length,
-	    const char16_t * srcChars,
-	    int32_t srcStart,
-	    int32_t srcLength);
-
+	UnicodeString & doReplace(int32_t start, int32_t length, const UnicodeString & srcText, int32_t srcStart, int32_t srcLength);
+	UnicodeString & doReplace(int32_t start, int32_t length, const char16_t * srcChars, int32_t srcStart, int32_t srcLength);
 	UnicodeString & doAppend(const UnicodeString & src, int32_t srcStart, int32_t srcLength);
 	UnicodeString & doAppend(const char16_t * srcChars, int32_t srcStart, int32_t srcLength);
-
-	UnicodeString & doReverse(int32_t start,
-	    int32_t length);
-
+	UnicodeString & doReverse(int32_t start, int32_t length);
 	// calculate hash code
 	int32_t doHashCode() const;
-
 	// get pointer to start of array
 	// these do not check for kOpenGetBuffer, unlike the public getBuffer() function
 	inline char16_t* getArrayStart();
 	inline const char16_t* getArrayStart() const;
-
 	inline bool hasShortLength() const;
 	inline int32_t getShortLength() const;
-
 	// A UnicodeString object (not necessarily its current buffer)
 	// is writable unless it isBogus() or it has an "open" getBuffer(minCapacity).
 	inline bool isWritable() const;
-
 	// Is the current buffer writable?
 	inline bool isBufferWritable() const;
-
 	// None of the following does releaseArray().
 	inline void setZeroLength();
 	inline void setShortLength(int32_t len);
@@ -3550,32 +3395,20 @@ private:
 	// sets length to 0
 	// returns boolean for success or failure
 	bool allocate(int32_t capacity);
-
 	// release the array if owned
 	void releaseArray();
-
 	// turn a bogus string into an empty one
 	void unBogus();
-
 	// implements assignment operator, copy constructor, and fastCopyFrom()
 	UnicodeString & copyFrom(const UnicodeString & src, bool fastCopy = false);
-
 	// Copies just the fields without memory management.
 	void copyFieldsFrom(UnicodeString & src, bool setSrcToBogus) U_NOEXCEPT;
-
 	// Pin start and limit to acceptable values.
 	inline void pinIndex(int32_t& start) const;
-	inline void pinIndices(int32_t& start,
-	    int32_t& length) const;
-
+	inline void pinIndices(int32_t& start, int32_t& length) const;
 #if !UCONFIG_NO_CONVERSION
-
 	/* Internal extract() using UConverter. */
-	int32_t doExtract(int32_t start, int32_t length,
-	    char * dest, int32_t destCapacity,
-	    UConverter * cnv,
-	    UErrorCode & errorCode) const;
-
+	int32_t doExtract(int32_t start, int32_t length, char * dest, int32_t destCapacity, UConverter * cnv, UErrorCode & errorCode) const;
 	/*
 	 * Real constructor for converting from codepage data.
 	 * It assumes that it is called with !fRefCounted.
@@ -3586,10 +3419,7 @@ private:
 	 * then a simple conversion is performed on the codepage-invariant
 	 * subset ("invariant characters") of the platform encoding. See utypes.h.
 	 */
-	void doCodepageCreate(const char * codepageData,
-	    int32_t dataLength,
-	    const char * codepage);
-
+	void doCodepageCreate(const char * codepageData, int32_t dataLength, const char * codepage);
 	/*
 	 * Worker function for creating a UnicodeString from
 	 * a codepage string using a UConverter.
@@ -3782,34 +3612,37 @@ inline void UnicodeString::pinIndices(int32_t& start,
 	}
 }
 
-inline char16_t* UnicodeString::getArrayStart() {
-	return (fUnion.fFields.fLengthAndFlags&kUsingStackBuffer) ?
-	       fUnion.fStackFields.fBuffer : fUnion.fFields.fArray;
+inline char16_t* UnicodeString::getArrayStart() 
+{
+	return (fUnion.fFields.fLengthAndFlags&kUsingStackBuffer) ? fUnion.fStackFields.fBuffer : fUnion.fFields.fArray;
 }
 
-inline const char16_t* UnicodeString::getArrayStart() const {
-	return (fUnion.fFields.fLengthAndFlags&kUsingStackBuffer) ?
-	       fUnion.fStackFields.fBuffer : fUnion.fFields.fArray;
+inline const char16_t* UnicodeString::getArrayStart() const 
+{
+	return (fUnion.fFields.fLengthAndFlags&kUsingStackBuffer) ? fUnion.fStackFields.fBuffer : fUnion.fFields.fArray;
 }
 
 //========================================
 // Default constructor
 //========================================
 
-inline
-UnicodeString::UnicodeString() {
+inline UnicodeString::UnicodeString() 
+{ 
+	fUnion.fStackFields.fLengthAndFlags = kShortString; 
+}
+
+inline UnicodeString::UnicodeString(const std::nullptr_t /*text*/) 
+{
 	fUnion.fStackFields.fLengthAndFlags = kShortString;
 }
 
-inline UnicodeString::UnicodeString(const std::nullptr_t /*text*/) {
+inline UnicodeString::UnicodeString(const std::nullptr_t /*text*/, int32_t /*length*/) 
+{
 	fUnion.fStackFields.fLengthAndFlags = kShortString;
 }
 
-inline UnicodeString::UnicodeString(const std::nullptr_t /*text*/, int32_t /*length*/) {
-	fUnion.fStackFields.fLengthAndFlags = kShortString;
-}
-
-inline UnicodeString::UnicodeString(std::nullptr_t /*buffer*/, int32_t /*buffLength*/, int32_t /*buffCapacity*/) {
+inline UnicodeString::UnicodeString(std::nullptr_t /*buffer*/, int32_t /*buffLength*/, int32_t /*buffCapacity*/) 
+{
 	fUnion.fStackFields.fLengthAndFlags = kShortString;
 }
 
@@ -4450,16 +4283,15 @@ inline int32_t UnicodeString::extract(int32_t start,
 
 #endif
 
-inline void UnicodeString::extractBetween(int32_t start,
-    int32_t limit,
-    char16_t * dst,
-    int32_t dstStart) const {
+inline void UnicodeString::extractBetween(int32_t start, int32_t limit, char16_t * dst, int32_t dstStart) const 
+{
 	pinIndex(start);
 	pinIndex(limit);
 	doExtract(start, limit - start, dst, dstStart);
 }
 
-inline UnicodeString UnicodeString::tempSubStringBetween(int32_t start, int32_t limit) const {
+inline UnicodeString UnicodeString::tempSubStringBetween(int32_t start, int32_t limit) const 
+{
 	return tempSubString(start, limit - start);
 }
 

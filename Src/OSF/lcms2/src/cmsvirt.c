@@ -30,7 +30,7 @@
 // -----------------------------------------------------------------------------------
 
 static
-boolint SetTextTags(cmsHPROFILE hProfile, const wchar_t* Description)
+boolint SetTextTags(cmsHPROFILE hProfile, const wchar_t * Description)
 {
 	cmsMLU * DescriptionMLU, * CopyrightMLU;
 	boolint rc = FALSE;

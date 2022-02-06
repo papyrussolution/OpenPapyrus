@@ -1065,7 +1065,7 @@ int SCodepageMapPool::ParseXmlSingle(void * pXmlContext, const char * pFileName,
     int    ok = 1;
     xmlParserCtxt * p_ctx = 0;
 	xmlDoc * p_doc = 0;
-	xmlNode * p_root = 0;
+	const xmlNode * p_root = 0;
     SString temp_buf;
     SString u_buf, b_buf;
     LongArray nscript_list;
@@ -1090,9 +1090,9 @@ int SCodepageMapPool::ParseXmlSingle(void * pXmlContext, const char * pFileName,
 	THROW(p_root = xmlDocGetRootElement(p_doc));
 	if(SXml::IsName(p_root, "characterMapping")) {
 		SXml::GetAttrib(p_root, "id", cp_name);
-		for(xmlNode * p_n = p_root->children; p_n; p_n = p_n->next) {
+		for(const xmlNode * p_n = p_root->children; p_n; p_n = p_n->next) {
 			if(SXml::IsName(p_n, "assignments")) {
-				for(xmlNode * p_a = p_n->children; p_a; p_a = p_a->next) {
+				for(const xmlNode * p_a = p_n->children; p_a; p_a = p_a->next) {
 					if(SXml::IsName(p_a, "a")) {
 						SXml::GetAttrib(p_a, "u", u_buf);
 						SXml::GetAttrib(p_a, "b", b_buf);

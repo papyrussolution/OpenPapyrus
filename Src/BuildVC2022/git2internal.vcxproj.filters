@@ -1,0 +1,1035 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\hash\sha1\collisiondetect.c">
+      <Filter>hash\sha1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\hash\sha1\sha1dc\sha1.c">
+      <Filter>hash\sha1\sha1dc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\hash\sha1\sha1dc\ubc_check.c">
+      <Filter>hash\sha1\sha1dc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\win32\dir.c">
+      <Filter>win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\win32\error.c">
+      <Filter>win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\win32\findfile.c">
+      <Filter>win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\win32\map.c">
+      <Filter>win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\win32\path_w32.c">
+      <Filter>win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\win32\posix_w32.c">
+      <Filter>win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\win32\precompiled.c">
+      <Filter>win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\win32\thread.c">
+      <Filter>win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\win32\utf-conv.c">
+      <Filter>win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\win32\w32_buffer.c">
+      <Filter>win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\win32\w32_crtdbg_stacktrace.c">
+      <Filter>win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\win32\w32_stack.c">
+      <Filter>win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\win32\w32_util.c">
+      <Filter>win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\allocators\stdalloc.c">
+      <Filter>allocators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\allocators\win32_crtdbg.c">
+      <Filter>allocators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\streams\mbedtls.c">
+      <Filter>streams</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\streams\openssl.c">
+      <Filter>streams</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\streams\registry.c">
+      <Filter>streams</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\streams\socket.c">
+      <Filter>streams</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\streams\stransport.c">
+      <Filter>streams</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\streams\tls.c">
+      <Filter>streams</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\transports\auth.c">
+      <Filter>transports</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\transports\auth_negotiate.c">
+      <Filter>transports</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\transports\auth_ntlm.c">
+      <Filter>transports</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\transports\credential.c">
+      <Filter>transports</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\transports\credential_helpers.c">
+      <Filter>transports</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\transports\git.c">
+      <Filter>transports</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\transports\http.c">
+      <Filter>transports</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\transports\httpclient.c">
+      <Filter>transports</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\transports\local.c">
+      <Filter>transports</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\transports\smart.c">
+      <Filter>transports</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\transports\smart_pkt.c">
+      <Filter>transports</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\transports\smart_protocol.c">
+      <Filter>transports</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\transports\ssh.c">
+      <Filter>transports</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\transports\winhttp.c">
+      <Filter>transports</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\xdiff\xdiffi.c">
+      <Filter>xdiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\xdiff\xemit.c">
+      <Filter>xdiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\xdiff\xhistogram.c">
+      <Filter>xdiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\xdiff\xmerge.c">
+      <Filter>xdiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\xdiff\xpatience.c">
+      <Filter>xdiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\xdiff\xprepare.c">
+      <Filter>xdiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\xdiff\xutils.c">
+      <Filter>xdiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\libgit2-1.1.1\src\http-parser\http_parser.c">
+      <Filter>http_parser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\alloc.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\annotated_commit.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\apply.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\attr.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\attr_file.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\attrcache.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\blame.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\blame_git.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\blob.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\branch.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\buf_text.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\buffer.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\cache.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\checkout.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\cherrypick.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\clone.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\commit.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\commit_list.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\config.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\config_cache.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\config_entries.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\config_file.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\config_mem.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\config_parse.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\config_snapshot.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\crlf.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\date.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\delta.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\describe.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\diff.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\diff_driver.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\diff_file.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\diff_generate.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\diff_parse.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\diff_print.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\diff_stats.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\diff_tform.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\diff_xdiff.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\errors.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\fetch.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\fetchhead.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\filebuf.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\filter.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\futils.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\global.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\graph.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\hash.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\hashsig.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\ident.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\idxmap.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\ignore.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\index.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\indexer.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\iterator.c" />
+    <ClCompile Include="..\OSF\libgit2-1.1.1\src\libgit2-pch.cpp" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\mailmap.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\merge.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\merge_driver.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\merge_file.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\message.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\midx.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\mwindow.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\net.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\netops.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\notes.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\object.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\object_api.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\odb.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\odb_loose.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\odb_mempack.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\odb_pack.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\offmap.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\oid.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\oidarray.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\oidmap.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\pack.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\pack-objects.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\parse.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\patch.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\patch_generate.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\patch_parse.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\path.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\pathspec.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\pool.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\posix.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\pqueue.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\proxy.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\push.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\reader.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\rebase.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\refdb.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\refdb_fs.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\reflog.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\refs.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\refspec.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\regexp.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\remote.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\repository.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\reset.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\revert.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\revparse.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\revwalk.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\settings.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\signature.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\sortedcache.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\stash.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\status.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\strarray.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\strmap.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\submodule.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\sysdir.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\tag.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\thread-utils.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\trace.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\trailer.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\transaction.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\transport.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\tree.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\tree-cache.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\tsort.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\util.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\varint.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\vector.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\wildmatch.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\worktree.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\src\zstream.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\hash\sha1\collisiondetect.h">
+      <Filter>hash\sha1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\hash\sha1\sha1dc\sha1.h">
+      <Filter>hash\sha1\sha1dc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\hash\sha1\sha1dc\ubc_check.h">
+      <Filter>hash\sha1\sha1dc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\annotated_commit.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\apply.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\attr.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\blame.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\blob.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\branch.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\buffer.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\cert.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\checkout.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\cherrypick.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\clone.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\commit.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\common.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\config.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\cred_helpers.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\credential.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\credential_helpers.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\deprecated.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\describe.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\diff.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\errors.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\filter.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\global.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\graph.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\ignore.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\index.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\indexer.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\mailmap.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\merge.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\message.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\net.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\notes.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\object.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\odb.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\odb_backend.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\oid.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\oidarray.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\pack.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\patch.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\pathspec.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\proxy.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\rebase.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\refdb.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\reflog.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\refs.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\refspec.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\remote.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\repository.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\reset.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\revert.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\revparse.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\revwalk.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\signature.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\stash.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\status.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\stdint.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\strarray.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\submodule.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\sys\alloc.h">
+      <Filter>include\git2\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\sys\commit.h">
+      <Filter>include\git2\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\sys\config.h">
+      <Filter>include\git2\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\sys\cred.h">
+      <Filter>include\git2\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\sys\credential.h">
+      <Filter>include\git2\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\sys\diff.h">
+      <Filter>include\git2\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\sys\filter.h">
+      <Filter>include\git2\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\sys\hashsig.h">
+      <Filter>include\git2\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\sys\index.h">
+      <Filter>include\git2\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\sys\mempack.h">
+      <Filter>include\git2\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\sys\merge.h">
+      <Filter>include\git2\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\sys\odb_backend.h">
+      <Filter>include\git2\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\sys\openssl.h">
+      <Filter>include\git2\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\sys\path.h">
+      <Filter>include\git2\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\sys\refdb_backend.h">
+      <Filter>include\git2\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\sys\reflog.h">
+      <Filter>include\git2\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\sys\refs.h">
+      <Filter>include\git2\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\sys\repository.h">
+      <Filter>include\git2\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\sys\stream.h">
+      <Filter>include\git2\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\sys\transport.h">
+      <Filter>include\git2\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\tag.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\trace.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\transaction.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\transport.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\tree.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\types.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\version.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\include\git2\worktree.h">
+      <Filter>include\git2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\xdiff\xdiff.h">
+      <Filter>xdiff</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\xdiff\xdiffi.h">
+      <Filter>xdiff</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\xdiff\xemit.h">
+      <Filter>xdiff</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\xdiff\xinclude.h">
+      <Filter>xdiff</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\xdiff\xmacros.h">
+      <Filter>xdiff</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\xdiff\xprepare.h">
+      <Filter>xdiff</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\xdiff\xtypes.h">
+      <Filter>xdiff</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\xdiff\xutils.h">
+      <Filter>xdiff</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\alloc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\annotated_commit.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\apply.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\array.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\assert_safe.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\attr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\attr_file.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\attrcache.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\bitvec.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\blame.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\blame_git.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\blob.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\branch.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\buf_text.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\buffer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\cache.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\cc-compat.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\checkout.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\clone.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\commit.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\commit_list.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\common.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\config.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\config_backend.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\config_entries.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\config_parse.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\delta.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\diff.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\diff_driver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\diff_file.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\diff_generate.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\diff_parse.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\diff_tform.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\diff_xdiff.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\errors.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\fetch.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\fetchhead.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\filebuf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\filter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\futils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\global.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\hash.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\idxmap.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\ignore.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\index.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\indexer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\integer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\iterator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\khash.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\mailmap.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\map.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\merge.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\merge_driver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\message.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\midx.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\mwindow.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\net.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\netops.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\notes.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\object.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\odb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\zstream.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\worktree.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\wildmatch.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\vector.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\varint.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\util.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\userdiff.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\tree-cache.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\tree.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\transaction.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\trace.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\tag.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\thread-utils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\sysdir.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\submodule.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\strnlen.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\strmap.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\stream.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\status.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\sortedcache.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\signature.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\revwalk.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\repository.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\repo_template.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\remote.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\regexp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\refspec.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\refs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\reflog.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\refdb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\reader.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\push.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\proxy.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\pqueue.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\posix.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\pool.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\pathspec.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\path.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\patch_parse.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\patch_generate.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\patch.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\parse.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\pack-objects.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\pack.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\oidmap.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\oidarray.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\oid.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\offmap.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\allocators\stdalloc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\allocators\win32_crtdbg.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\streams\mbedtls.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\streams\openssl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\streams\registry.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\streams\socket.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\streams\stransport.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\streams\tls.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\transports\auth.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\transports\auth_negotiate.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\transports\auth_ntlm.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\transports\http.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\transports\httpclient.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\transports\smart.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\transports\ssh.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\win32\dir.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\win32\error.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\win32\findfile.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\win32\mingw-compat.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\win32\msvc-compat.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\win32\path_w32.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\win32\posix.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\win32\precompiled.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\win32\reparse.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\win32\thread.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\win32\utf-conv.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\win32\version.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\win32\w32_buffer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\win32\w32_common.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\win32\w32_crtdbg_stacktrace.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\win32\w32_stack.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\win32\w32_util.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libgit2-1.1.1\src\win32\win32-compat.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libgit2-1.1.1\src\http-parser\http_parser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{F266C549-ECB4-3E75-860C-17F65268573E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\git2">
+      <UniqueIdentifier>{2AF46431-5B8A-3544-803F-E309E66366E2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\git2\sys">
+      <UniqueIdentifier>{06861B4F-B452-3A56-B083-E817996A0CE4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{d6e28fa3-7251-42d4-8ceb-0716a5b5b991}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="allocators">
+      <UniqueIdentifier>{566153A3-F50F-3405-9764-852C5D60C184}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hash">
+      <UniqueIdentifier>{EA17B1FD-8C1E-35C7-A71F-BBBDDFB4615C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hash\sha1">
+      <UniqueIdentifier>{5F63C176-C3BC-35CB-9521-E165F0F37A20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hash\sha1\sha1dc">
+      <UniqueIdentifier>{86BE618D-5CE1-3E99-B590-778CB683C9C5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="http_parser">
+      <UniqueIdentifier>{7aecc90e-a64f-4312-8e10-e10648a92b55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="streams">
+      <UniqueIdentifier>{8E6FF188-A036-30F9-9D25-6D5048D113B9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="transports">
+      <UniqueIdentifier>{FAD2AB00-DADB-31C4-9234-93404341AE67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="win32">
+      <UniqueIdentifier>{35671D13-3CE3-3D77-851A-BB542AD1D84B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="xdiff">
+      <UniqueIdentifier>{C063E8DC-518C-3A66-BF17-9FD704EDB4D5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

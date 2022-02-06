@@ -1,5 +1,5 @@
 // ALBATROS.CPP
-// Copyright (c) A.Starodub 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Starodub 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -384,13 +384,13 @@ int PPAlbatrossConfig::GetPassword(int fld, SString & rPw) const
 			SString result_buf;
 			result_buf.CatN(cbuf2.cptr(), actual_size);
 			{
-				xmlNode * p_root = 0;
+				const xmlNode * p_root = 0;
 				THROW(p_ctx = xmlNewParserCtxt());
 				THROW_LXML((p_doc = xmlCtxtReadMemory(p_ctx, cbuf2.cptr(), actual_size, 0, 0, XML_PARSE_NOENT)), p_ctx);
 				THROW(p_root = xmlDocGetRootElement(p_doc));
 				if(SXml::IsName(p_root, "CommonMqsConfig")) {
 					if(pCfg) {
-						for(xmlNode * p_c = p_root->children; p_c; p_c = p_c->next) {
+						for(const xmlNode * p_c = p_root->children; p_c; p_c = p_c->next) {
 							if(SXml::GetContentByName(p_c, "host", temp_buf))
 								pCfg->PutExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);
 							else if(SXml::GetContentByName(p_c, "virtual-host", temp_buf)) // @v10.6.0

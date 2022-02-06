@@ -601,7 +601,7 @@ void PatternParser::patternInfoToProperties(DecimalFormatProperties& properties,
 	if(positive.integerTotal == 0 && positive.fractionTotal > 0) {
 		// patterns like ".##"
 		minInt = 0;
-		minFrac = uprv_max(1, positive.fractionNumerals);
+		minFrac = smax(1, positive.fractionNumerals);
 	}
 	else if(positive.integerNumerals == 0 && positive.fractionNumerals == 0) {
 		// patterns like "#.##"
@@ -774,22 +774,22 @@ UnicodeString PatternStringUtils::propertiesToPatternString(const DecimalFormatP
 	UnicodeString sb;
 
 	// Convenience references
-	// The uprv_min() calls prevent DoS
+	// The smin() calls prevent DoS
 	int32_t dosMax = 100;
-	int32_t grouping1 = uprv_max(0, uprv_min(properties.groupingSize, dosMax));
-	int32_t grouping2 = uprv_max(0, uprv_min(properties.secondaryGroupingSize, dosMax));
+	int32_t grouping1 = smax(0, smin(properties.groupingSize, dosMax));
+	int32_t grouping2 = smax(0, smin(properties.secondaryGroupingSize, dosMax));
 	bool useGrouping = properties.groupingUsed;
-	int32_t paddingWidth = uprv_min(properties.formatWidth, dosMax);
+	int32_t paddingWidth = smin(properties.formatWidth, dosMax);
 	NullableValue<PadPosition> paddingLocation = properties.padPosition;
 	UnicodeString paddingString = properties.padString;
-	int32_t minInt = uprv_max(0, uprv_min(properties.minimumIntegerDigits, dosMax));
-	int32_t maxInt = uprv_min(properties.maximumIntegerDigits, dosMax);
-	int32_t minFrac = uprv_max(0, uprv_min(properties.minimumFractionDigits, dosMax));
-	int32_t maxFrac = uprv_min(properties.maximumFractionDigits, dosMax);
-	int32_t minSig = uprv_min(properties.minimumSignificantDigits, dosMax);
-	int32_t maxSig = uprv_min(properties.maximumSignificantDigits, dosMax);
+	int32_t minInt = smax(0, smin(properties.minimumIntegerDigits, dosMax));
+	int32_t maxInt = smin(properties.maximumIntegerDigits, dosMax);
+	int32_t minFrac = smax(0, smin(properties.minimumFractionDigits, dosMax));
+	int32_t maxFrac = smin(properties.maximumFractionDigits, dosMax);
+	int32_t minSig = smin(properties.minimumSignificantDigits, dosMax);
+	int32_t maxSig = smin(properties.maximumSignificantDigits, dosMax);
 	bool alwaysShowDecimal = properties.decimalSeparatorAlwaysShown;
-	int32_t exponentDigits = uprv_min(properties.minimumExponentDigits, dosMax);
+	int32_t exponentDigits = smin(properties.minimumExponentDigits, dosMax);
 	bool exponentShowPlusSign = properties.exponentSignAlwaysShown;
 
 	AutoAffixPatternProvider affixProvider(properties, status);
@@ -812,7 +812,7 @@ UnicodeString PatternStringUtils::propertiesToPatternString(const DecimalFormatP
 	double roundingInterval = properties.roundingIncrement;
 	UnicodeString digitsString;
 	int32_t digitsStringScale = 0;
-	if(maxSig != uprv_min(dosMax, -1)) {
+	if(maxSig != smin(dosMax, -1)) {
 		// Significant Digits.
 		while(digitsString.length() < minSig) {
 			digitsString.append(u'@');
@@ -847,9 +847,9 @@ UnicodeString PatternStringUtils::propertiesToPatternString(const DecimalFormatP
 	}
 
 	// Write the digits to the string builder
-	int32_t m0 = uprv_max(groupingLength, digitsString.length() + digitsStringScale);
-	m0 = (maxInt != dosMax) ? uprv_max(maxInt, m0) - 1 : m0 - 1;
-	int32_t mN = (maxFrac != dosMax) ? uprv_min(-maxFrac, digitsStringScale) : digitsStringScale;
+	int32_t m0 = smax(groupingLength, digitsString.length() + digitsStringScale);
+	m0 = (maxInt != dosMax) ? smax(maxInt, m0) - 1 : m0 - 1;
+	int32_t mN = (maxFrac != dosMax) ? smin(-maxFrac, digitsStringScale) : digitsStringScale;
 	for(int32_t magnitude = m0; magnitude >= mN; magnitude--) {
 		int32_t di = digitsString.length() + digitsStringScale - magnitude - 1;
 		if(di < 0 || di >= digitsString.length()) {
@@ -881,7 +881,7 @@ UnicodeString PatternStringUtils::propertiesToPatternString(const DecimalFormatP
 	}
 
 	// Exponential notation
-	if(exponentDigits != uprv_min(dosMax, -1)) {
+	if(exponentDigits != smin(dosMax, -1)) {
 		sb.append(u'E');
 		if(exponentShowPlusSign) {
 			sb.append(u'+');

@@ -4108,7 +4108,7 @@ static boolint CheckOneStr(cmsMLU* mlu, cmsInt32Number n)
 	return TRUE;
 }
 
-static void SetOneStr(cmsMLU** mlu, const wchar_t* s1, const wchar_t* s2)
+static void SetOneStr(cmsMLU** mlu, const wchar_t * s1, const wchar_t * s2)
 {
 	*mlu = cmsMLUalloc(DbgThread(), 0);
 	cmsMLUsetWide(*mlu, "en", "US", s1);

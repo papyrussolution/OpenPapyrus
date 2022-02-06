@@ -366,7 +366,7 @@ static int ssh_bind_config_parse_line(ssh_bind bind,
 		    *parser_flags = IN_MATCH;
 		    do {
 			    p = p2 = ssh_config_get_str_tok(&s, NULL);
-			    if(p == NULL || p[0] == '\0') {
+			    if(isempty(p)) {
 				    break;
 			    }
 			    args++;
@@ -384,17 +384,14 @@ static int ssh_bind_config_parse_line(ssh_bind bind,
 			    switch(opt) {
 				    case BIND_MATCH_ALL:
 					p = ssh_config_get_str_tok(&s, NULL);
-					if((args == 1) && (p == NULL || p[0] == '\0')) {
-						/* The "all" keyword does not accept arguments or modifiers
-						 */
+					if(args == 1 && isempty(p)) {
+						// The "all" keyword does not accept arguments or modifiers
 						if(negate == true) {
 							result = 0;
 						}
 						break;
 					}
-					ssh_set_error(bind, SSH_FATAL,
-					    "line %d: ERROR - Match all cannot be combined with "
-					    "other Match attributes", count);
+					ssh_set_error(bind, SSH_FATAL, "line %d: ERROR - Match all cannot be combined with other Match attributes", count);
 					ZFREE(x);
 					return -1;
 				    case BIND_MATCH_USER:
@@ -407,7 +404,7 @@ static int ssh_bind_config_parse_line(ssh_bind bind,
 					/* Only "All" is supported for now */
 					/* Skip one argument */
 					p = ssh_config_get_str_tok(&s, NULL);
-					if(p == NULL || p[0] == '\0') {
+					if(isempty(p)) {
 						SSH_LOG(SSH_LOG_WARN, "line %d: Match keyword "
 						    "'%s' requires argument\n", count, p2);
 						ZFREE(x);
@@ -427,10 +424,9 @@ static int ssh_bind_config_parse_line(ssh_bind bind,
 					ZFREE(x);
 					return -1;
 			    }
-		    } while(p != NULL && p[0] != '\0');
+		    } while(!isempty(p));
 		    if(args == 0) {
-			    ssh_set_error(bind, SSH_FATAL,
-				"ERROR - Match keyword requires an argument");
+			    ssh_set_error(bind, SSH_FATAL, "ERROR - Match keyword requires an argument");
 			    ZFREE(x);
 			    return -1;
 		    }
@@ -441,11 +437,9 @@ static int ssh_bind_config_parse_line(ssh_bind bind,
 		case BIND_CFG_PUBKEY_ACCEPTED_KEY_TYPES:
 		    p = ssh_config_get_str_tok(&s, NULL);
 		    if(p && (*parser_flags & PARSING)) {
-			    rc = ssh_bind_options_set(bind,
-				    SSH_BIND_OPTIONS_PUBKEY_ACCEPTED_KEY_TYPES, p);
+			    rc = ssh_bind_options_set(bind, SSH_BIND_OPTIONS_PUBKEY_ACCEPTED_KEY_TYPES, p);
 			    if(rc != 0) {
-				    SSH_LOG(SSH_LOG_WARN,
-					"line %d: Failed to set PubKeyAcceptedKeyTypes value '%s'",
+				    SSH_LOG(SSH_LOG_WARN, "line %d: Failed to set PubKeyAcceptedKeyTypes value '%s'",
 					count, p);
 			    }
 		    }
