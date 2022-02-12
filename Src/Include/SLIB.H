@@ -401,7 +401,7 @@
 #define UNIT_SECOND          11 // Секунда
 #define UNIT_ITEM            12 // Абстрактная штука
 #define UNIT_OZ              13 // ounce = 28.3495231 gram
-#define UNIT_COLOR           14 // Специфицеская единица - количество цветов в наборе
+#define UNIT_COLOR           14 // Специфическая единица - количество цветов в наборе
 #define UNIT_CMETER          15 // Сантиметр
 #define UNIT_MMETER          16 // Миллиметр
 #define UNIT_PERCENT         17 // Процент
@@ -6244,11 +6244,11 @@ public:
 	// Descr: Ищет отрезок с идентификатором id в пуле и, если таковой найден, то
 	//   копирует содержимое отрезка в буфер по указателю pResult (если pResult != 0).
 	// Returns:
-	//   >0 - отрезок с идентификатором id найден
-	//    0 - либо идентификатор id не найден, либо возникли проблемы с распределением памяти для буфера
+	//   true - отрезок с идентификатором id найден
+	//   false - либо идентификатор id не найден, либо возникли проблемы с распределением памяти для буфера
 	//      результата pResult, либо какие-то сложности со внутрениим состояним пула.
 	//
-	int    Get(uint32 id, SBinaryChunk * pResult) const;
+	bool   Get(uint32 id, SBinaryChunk * pResult) const;
 	int    Enum(size_t * pPos, uint32 * pId, SBinaryChunk * pResult) const;
 	//
 	// Descr: Копирует из сета rS в сет this отрезки с идентификаторами, перечисленными в rIdList.
@@ -13156,7 +13156,7 @@ struct UiRelRect { // @noctr
 //
 //
 enum SColourCollection { // 0x00rrggbb
-	SClrAliceblue    = 0x00f0f8ff,
+	SClrAliceblue            = 0x00f0f8ff,
 	SClrAntiquewhite   		 = 0x00faebd7,
 	SClrAqua           		 = 0x0000ffff,
 	SClrAquamarine     		 = 0x007fffd4,

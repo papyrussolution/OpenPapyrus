@@ -1,6 +1,5 @@
 /*
         types.cpp
-
         Generate gSOAP types from XML schemas (e.g. embedded in WSDL).
 
    --------------------------------------------------------------------------------
@@ -24,11 +23,8 @@
    this program; if not, write to the Free Software Foundation, Inc., 59 Temple
    Place, Suite 330, Boston, MA 02111-1307 USA
 
-   Author contact information:
-   engelen@genivia.com / engelen@acm.org
-   --------------------------------------------------------------------------------
+   Author contact information: engelen@genivia.com / engelen@acm.org
    A commercial use license is available from Genivia, Inc., contact@genivia.com
-   --------------------------------------------------------------------------------
  */
 #include <slib.h>
 #include "wsdlH.h"
@@ -46,13 +42,9 @@ static LONG64 to_integer(const char * s);
 static void documentation(const char * text);
 
 static int comment_nest = 0; /* keep track of block comments to avoid nesting */
-
-////////////////////////////////////////////////////////////////////////////////
 //
 //	Keywords and reserved words
 //
-////////////////////////////////////////////////////////////////////////////////
-
 static const char * keywords[] = { 
 	"and",
 	"asm",
@@ -1554,40 +1546,39 @@ void Types::gen(const char * URI, const char * name, const xs__complexType & com
 				else
 					fprintf(stream, "class %s\n{ public:\n", t);
 				const xs__complexType * p = &complexType;
-				do {if(!p->simpleContent)
+				do {
+					if(!p->simpleContent)
 					    break;
 				    if(p->simpleContent->restriction) {
 					    if(p->simpleContent->restriction->complexTypePtr())
 						    p = p->simpleContent->restriction->complexTypePtr();
-					    else {base = p->simpleContent->restriction->base;
-						  if(p->simpleContent->restriction->simpleTypePtr() &&
-						     p->simpleContent->restriction->simpleTypePtr()->schemaPtr())
-							  baseURI =
-							          p->simpleContent->restriction->simpleTypePtr()->
-							          schemaPtr()
-							          ->targetNamespace;
-						  break; }
+					    else {
+							base = p->simpleContent->restriction->base;
+						  if(p->simpleContent->restriction->simpleTypePtr() && p->simpleContent->restriction->simpleTypePtr()->schemaPtr())
+							  baseURI = p->simpleContent->restriction->simpleTypePtr()->schemaPtr()->targetNamespace;
+						  break; 
+						  }
 				    }
 				    else if(p->simpleContent->extension) {
 					    if(p->simpleContent->extension->complexTypePtr())
 						    p = p->simpleContent->extension->complexTypePtr();
-					    else {base = p->simpleContent->extension->base;
-						  if(p->simpleContent->extension->simpleTypePtr() &&
-						     p->simpleContent->extension->simpleTypePtr()->schemaPtr())
-							  baseURI =
-							          p->simpleContent->extension->simpleTypePtr()->
-							          schemaPtr()
-							          ->targetNamespace;
-						  break; }
+					    else {
+							base = p->simpleContent->extension->base;
+						  if(p->simpleContent->extension->simpleTypePtr() && p->simpleContent->extension->simpleTypePtr()->schemaPtr())
+							  baseURI = p->simpleContent->extension->simpleTypePtr()->schemaPtr()->targetNamespace;
+						  break; 
+						  }
 				    }
 				    else
-					    break; } while(p);
+					    break; 
+				} while(p);
 				fprintf(stream, "/// __item wraps '%s' simpleContent.\n", base);
 				fprintf(stream, elementformat, tname(NULL, baseURI, base), "__item");
 				fprintf(stream, ";\n");
 				p = &complexType;
 				bool flag = true;
-				do {if(!p->simpleContent)
+				do {
+					if(!p->simpleContent)
 					    break;
 				    if(p->simpleContent->restriction) {
 					    gen(URI, p->simpleContent->restriction->attribute);
@@ -1608,9 +1599,11 @@ void Types::gen(const char * URI, const char * name, const xs__complexType & com
 						    break;
 				    }
 				    else
-					    break; } while(p);
+					    break; 
+				} while(p);
 			}
-			else {base = complexType.simpleContent->extension->base;
+			else {
+				base = complexType.simpleContent->extension->base;
 			      if(
 				      /* TODO: in future, may want to add check here for base type == class
 				         complexType.simpleContent->extension->simpleTypePtr()
@@ -1618,25 +1611,15 @@ void Types::gen(const char * URI, const char * name, const xs__complexType & com
 				       */
 				      complexType.simpleContent->extension->complexTypePtr()) {
 				      if(complexType.simpleContent->extension->complexTypePtr()->schemaPtr())
-					      baseURI =
-					              complexType.simpleContent->extension->complexTypePtr()->schemaPtr()
-					              ->
-					              targetNamespace;
+					      baseURI = complexType.simpleContent->extension->complexTypePtr()->schemaPtr()->targetNamespace;
 				      fprintf(stream, "class %s : public %s\n{ public:\n", t, cname(NULL, baseURI, base));
 				      soapflag = true;
 			      }
-			      else {if(complexType.simpleContent->extension->simpleTypePtr() &&
-				       complexType.simpleContent->extension->simpleTypePtr()->schemaPtr())
-					    baseURI =
-					            complexType.simpleContent->extension->simpleTypePtr()->schemaPtr()
-					            ->
+			      else {if(complexType.simpleContent->extension->simpleTypePtr() && complexType.simpleContent->extension->simpleTypePtr()->schemaPtr())
+					    baseURI = complexType.simpleContent->extension->simpleTypePtr()->schemaPtr()->
 					            targetNamespace;
-				    else if(complexType.simpleContent->extension->complexTypePtr() &&
-				            complexType.simpleContent->extension->complexTypePtr()->schemaPtr())
-					    baseURI =
-					            complexType.simpleContent->extension->complexTypePtr()->schemaPtr()
-					            ->
-					            targetNamespace;
+				    else if(complexType.simpleContent->extension->complexTypePtr() && complexType.simpleContent->extension->complexTypePtr()->schemaPtr())
+					    baseURI = complexType.simpleContent->extension->complexTypePtr()->schemaPtr()->targetNamespace;
 				    if(pflag && complexType.name)
 					    fprintf(stream, "class %s : public xsd__anyType\n{ public:\n", t);
 				    else
@@ -1653,26 +1636,20 @@ void Types::gen(const char * URI, const char * name, const xs__complexType & com
 			fprintf(stream, "//\tunrecognized\n");
 	}
 	else if(complexType.complexContent) {
-		if(complexType.complexContent->restriction)                                      {
+		if(complexType.complexContent->restriction) {
 			if(!anonymous)
-				fprintf(stream,
-					"\n/// \"%s\":%s is a%s complexType with complexContent restriction of %s.\n",
-					URI ? URI : "", name, complexType.abstract ? "n abstract" : "",
-					complexType.complexContent->restriction->base);
+				fprintf(stream, "\n/// \"%s\":%s is a%s complexType with complexContent restriction of %s.\n",
+					URI ? URI : "", name, complexType.abstract ? "n abstract" : "", complexType.complexContent->restriction->base);
 			document(complexType.annotation);
 			if(sstreq(complexType.complexContent->restriction->base, "SOAP-ENC:Array")) {
 				char * item = NULL, * type = NULL;
 				if(!complexType.complexContent->restriction->attribute.empty()) {
-					xs__attribute & attribute =
-					        complexType.complexContent->restriction->attribute.front();
+					xs__attribute & attribute = complexType.complexContent->restriction->attribute.front();
 					if(attribute.wsdl__arrayType)
 						type = attribute.wsdl__arrayType;
 				}
 				xs__seqchoice * s = complexType.complexContent->restriction->sequence;
-				if(s &&
-				   !s->__contents.empty() &&
-				   s->__contents.front().__union == SOAP_UNION_xs__union_content_element &&
-				   s->__contents.front().__content.element) {
+				if(s && !s->__contents.empty() && s->__contents.front().__union == SOAP_UNION_xs__union_content_element && s->__contents.front().__content.element) {
 					xs__element & element = *s->__contents.front().__content.element;
 					if(!type) {
 						if(element.type)
@@ -1686,19 +1663,16 @@ void Types::gen(const char * URI, const char * name, const xs__complexType & com
 						else if(element.complexTypePtr()) {
 							if(element.complexTypePtr()->name)
 								type = element.complexTypePtr()->name;
-							else if(element.complexTypePtr()->complexContent &&
-							        element.complexTypePtr()->complexContent->restriction)
-								type =
-								        element.complexTypePtr()->complexContent->
-								        restriction->
-								        base;
+							else if(element.complexTypePtr()->complexContent && element.complexTypePtr()->complexContent->restriction)
+								type = element.complexTypePtr()->complexContent->restriction->base;
 						}
 					}
 					item = element.name;
 				}
 				gen_soap_array(name, t, item, type);
 			}
-			else {if(anonymous)      {
+			else {
+				if(anonymous) {
 				      if(cflag)
 					      fprintf(stream, "    struct %s\n    {\n", t);
 				      else
@@ -1720,7 +1694,8 @@ void Types::gen(const char * URI, const char * name, const xs__complexType & com
 				      gen(URI, name, *complexType.complexContent->restriction->choice);
 			      const xs__complexType * p = &complexType;
 			      bool flag = true;
-			      do {if(p->complexContent && p->complexContent->restriction)    { // TODO: should only generate attribute when name is different?
+			      do {
+					if(p->complexContent && p->complexContent->restriction)    { // TODO: should only generate attribute when name is different?
 					  gen(URI, p->complexContent->restriction->attribute);
 					  if(p->complexContent->restriction->anyAttribute && flag) {
 						  gen(URI, *p->complexContent->restriction->anyAttribute);
@@ -1743,20 +1718,22 @@ void Types::gen(const char * URI, const char * name, const xs__complexType & com
 					  else
 						  break;
 				  }
-				  else {gen(URI, p->attribute);
+				  else {
+					gen(URI, p->attribute);
 					gen(URI, p->attributeGroup);
 					if(p->anyAttribute && flag)
 						gen(URI, *p->anyAttribute);
-					break; }} while(p); }
+					break; 
+					}
+				} while(p); 
+			}
 		}
 		else if(complexType.complexContent->extension) {
 			const char * base = complexType.complexContent->extension->base;
 			xs__complexType * p = complexType.complexContent->extension->complexTypePtr();
 			if(!anonymous)
-				fprintf(stream,
-					"\n/// \"%s\":%s is a%s complexType with complexContent extension of %s.\n",
-					URI ? URI : "", name, complexType.abstract ? "n abstract" : "",
-					base);
+				fprintf(stream, "\n/// \"%s\":%s is a%s complexType with complexContent extension of %s.\n",
+					URI ? URI : "", name, complexType.abstract ? "n abstract" : "", base);
 			document(complexType.annotation);
 			if(anonymous) {
 				if(cflag)
@@ -2560,9 +2537,7 @@ void Types::gen(const char * URI, const xs__any & any)
 		fprintf(stream, " minOccurs=\"%s\"", any.minOccurs);
 	if(any.maxOccurs)
 		fprintf(stream, " maxOccurs=\"%s\"", any.maxOccurs);
-	fprintf(
-		stream,
-		">\n/// TODO: Schema extensibility is user-definable.\n///       Consult the protocol documentation to change or insert declarations.\n///       Use wsdl2h option -x to remove this element.\n///       Use wsdl2h option -d for xsd__anyType DOM (soap_dom_element).\n");
+	fprintf(stream, ">\n/// TODO: Schema extensibility is user-definable.\n///       Consult the protocol documentation to change or insert declarations.\n///       Use wsdl2h option -x to remove this element.\n///       Use wsdl2h option -d for xsd__anyType DOM (soap_dom_element).\n");
 	if(!xflag) {
 		const char * t = tname(NULL, NULL, "xsd:any");
 		if(any.maxOccurs && strcmp(any.maxOccurs, "1")) {
@@ -2602,8 +2577,7 @@ void Types::gen(const char * URI, const xs__anyAttribute & anyAttribute)
 		const char * t = tname(NULL, NULL, "xsd:anyAttribute");
 		fprintf(stream, attributeformat, t, "__anyAttribute");
 		if(dflag)
-			fprintf(stream,
-				";\t///< Store anyAttribute content in DOM soap_dom_attribute linked node structure.\n");
+			fprintf(stream, ";\t///< Store anyAttribute content in DOM soap_dom_attribute linked node structure.\n");
 		else
 			fprintf(stream, ";\t///< A placeholder that has no effect: please see comment.\n");
 	}

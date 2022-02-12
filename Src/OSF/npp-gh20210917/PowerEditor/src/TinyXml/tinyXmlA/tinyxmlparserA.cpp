@@ -200,10 +200,10 @@ const char * TiXmlBaseA::ReadName(const char * p, TIXMLA_STRING * name)
 	 && (isalpha(static_cast<uchar>(*p)) || *p == '_')) {
 		while(p && *p
 		 &&      (               isalnum( (uchar)*p)
-		    || *p == '_'
-		    || *p == '-'
-		    || *p == '.'
-		    || *p == ':' )) {
+		   || *p == '_'
+		   || *p == '-'
+		   || *p == '.'
+		   || *p == ':' )) {
 			(*name) += *p;
 			++p;
 		}
@@ -308,7 +308,7 @@ const char * TiXmlBaseA::ReadText(const char * p,
 {
 	*text = "";
 	if(!trimWhiteSpace                      // certain tags always keep whitespace
-	    || !condenseWhiteSpace) {           // if true, whitespace is always kept
+	   || !condenseWhiteSpace) {           // if true, whitespace is always kept
 		// Keep all the white space.
 		while(p && *p
 		 && !StringEqual(p, endTag, caseInsensitive)
@@ -503,7 +503,7 @@ TiXmlNodeA* TiXmlNodeA::Identify(const char * p)
 		returnNode = new TiXmlDeclarationA();
 	}
 	else if(isalpha(*(p+1) )
-	    || *(p+1) == '_') {
+	   || *(p+1) == '_') {
 		#ifdef DEBUG_PARSER
 		TIXMLA_LOG("XML parsing Element\n");
 		#endif

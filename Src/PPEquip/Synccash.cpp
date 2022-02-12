@@ -1,4 +1,5 @@
 // SYNCCASH.CPP
+// Copyright (c) A.Sobolev 1997-2021, 2022
 // @codepage UTF-8
 // Интерфейс (синхронный) для ККМ
 //
@@ -96,7 +97,7 @@ public:
 	SCS_SYNCCASH(PPID n, char * pName, char * pPort);
 	~SCS_SYNCCASH();
 	virtual int PreprocessChZnCode(int op, const char * pCode, double qtty, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult);
-	virtual int PrintCheck(CCheckPacket *, uint flags);
+	virtual int PrintCheck(CCheckPacket * pPack, uint flags);
 	virtual int PrintFiscalCorrection(const PPCashMachine::FiscalCorrection * pFc);
 	virtual int PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
 	virtual int PrintSlipDoc(const CCheckPacket * pPack, const char * pFormatName, uint flags);
@@ -380,15 +381,7 @@ int SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 				}
 				{
 					// Определяем имя кассира
-					operator_name.Z();
-					if(PPObjPerson::GetCurUserPerson(0, &operator_name) > 0) {
-					}
-					else {
-						PPObjSecur sec_obj(PPOBJ_USR, 0);
-						PPSecur sec_rec;
-						if(sec_obj.Fetch(LConfig.UserID, &sec_rec) > 0)
-							operator_name = sec_rec.Name;
-					}
+					PPSyncCashSession::GetCurrentUserName(operator_name);
 					THROW(ArrAdd(Arr_In, DVCPARAM_CSHRNAME, operator_name));
 				}
 				THROW(ArrAdd(Arr_In, DVCPARAM_ADMINNAME, AdmName.NotEmpty() ? AdmName : operator_name)); // Имя администратора

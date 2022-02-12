@@ -852,7 +852,7 @@ static int png_colorspace_check_gamma(png_const_structrp png_ptr,
  */
 {
 	png_fixed_point gtest;
-	if((colorspace->flags & PNG_COLORSPACE_HAVE_GAMMA) != 0 && (png_muldiv(&gtest, colorspace->gamma, PNG_FP_1, gAMA) == 0  || png_gamma_significant(gtest) != 0)) {
+	if((colorspace->flags & PNG_COLORSPACE_HAVE_GAMMA) != 0 && (png_muldiv(&gtest, colorspace->gamma, PNG_FP_1, gAMA) == 0 || png_gamma_significant(gtest) != 0)) {
 		/* Either this is an sRGB image, in which case the calculated gamma
 		 * approximation should match, or this is an image with a profile and the
 		 * value libpng calculates for the gamma of the profile does not match the

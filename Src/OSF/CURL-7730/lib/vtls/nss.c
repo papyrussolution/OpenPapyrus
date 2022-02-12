@@ -1166,7 +1166,7 @@ static SECStatus SelectClientCert(void * arg, PRFileDesc * sock,
 	/* use the default NSS hook */
 	if(SECSuccess != NSS_GetClientAuthData((void *)nickname, sock, caNames,
 	    pRetCert, pRetKey)
-	    || NULL == *pRetCert) {
+	   || NULL == *pRetCert) {
 		if(NULL == nickname)
 			failf(data, "NSS: client certificate not found (nickname not "
 			    "specified)");
@@ -1495,7 +1495,7 @@ static void nss_close(struct ssl_connect_data * connssl)
 	/* before the cleanup, check whether we are using a client certificate */
 	struct ssl_backend_data * backend = connssl->backend;
 	const bool client_cert = (backend->client_nickname != NULL)
-	    || (backend->obj_clicert != NULL);
+	   || (backend->obj_clicert != NULL);
 
 	SAlloc::F(backend->client_nickname);
 	backend->client_nickname = NULL;
@@ -1530,7 +1530,7 @@ static void Curl_nss_close(struct connectdata * conn, int sockindex)
 
 	if(backend->handle
 #ifndef CURL_DISABLE_PROXY
-	    || connssl_proxy->backend->handle
+	   || connssl_proxy->backend->handle
 #endif
 	    ) {
 		/* NSS closes the socket we previously handed to it, so we must mark it

@@ -483,7 +483,7 @@ static int check_bitlen_dsa(DSA * dsa, int ispub, uint * pmagic)
 	DSA_get0_key(dsa, &pub_key, &priv_key);
 	bitlen = BN_num_bits(p);
 	if((bitlen & 7) || (BN_num_bits(q) != 160)
-	    || (BN_num_bits(g) > bitlen))
+	   || (BN_num_bits(g) > bitlen))
 		goto badkey;
 	if(ispub) {
 		if(BN_num_bits(pub_key) > bitlen)
@@ -531,10 +531,10 @@ static int check_bitlen_rsa(RSA * rsa, int ispub, uint * pmagic)
 		RSA_get0_factors(rsa, &p, &q);
 		RSA_get0_crt_params(rsa, &dmp1, &dmq1, &iqmp);
 		if((BN_num_bytes(iqmp) > hnbyte)
-		    || (BN_num_bytes(p) > hnbyte)
-		    || (BN_num_bytes(q) > hnbyte)
-		    || (BN_num_bytes(dmp1) > hnbyte)
-		    || (BN_num_bytes(dmq1) > hnbyte))
+		   || (BN_num_bytes(p) > hnbyte)
+		   || (BN_num_bytes(q) > hnbyte)
+		   || (BN_num_bytes(dmp1) > hnbyte)
+		   || (BN_num_bytes(dmq1) > hnbyte))
 			goto badkey;
 	}
 	return bitlen;

@@ -65,7 +65,7 @@ int tls13_enc(SSL * s, SSL3_RECORD * recs, size_t n_recs, int sending)
 	ivlen = EVP_CIPHER_CTX_iv_length(ctx);
 
 	if(s->early_data_state == SSL_EARLY_DATA_WRITING
-	    || s->early_data_state == SSL_EARLY_DATA_WRITE_RETRY) {
+	   || s->early_data_state == SSL_EARLY_DATA_WRITE_RETRY) {
 		if(s->session != NULL && s->session->ext.max_early_data > 0) {
 			alg_enc = s->session->cipher->algorithm_enc;
 		}
@@ -151,7 +151,7 @@ int tls13_enc(SSL * s, SSL3_RECORD * recs, size_t n_recs, int sending)
 
 	/* TODO(size_t): lenu/lenf should be a size_t but EVP doesn't support it */
 	if(EVP_CipherInit_ex(ctx, NULL, NULL, NULL, iv, sending) <= 0
-	    || (!sending && EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_AEAD_SET_TAG,
+	   || (!sending && EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_AEAD_SET_TAG,
 	    taglen,
 	    rec->data + rec->length) <= 0)) {
 		return -1;
@@ -159,12 +159,12 @@ int tls13_enc(SSL * s, SSL3_RECORD * recs, size_t n_recs, int sending)
 
 	/* Set up the AAD */
 	if(!WPACKET_init_static_len(&wpkt, recheader, sizeof(recheader), 0)
-	    || !WPACKET_put_bytes_u8(&wpkt, rec->type)
-	    || !WPACKET_put_bytes_u16(&wpkt, rec->rec_version)
-	    || !WPACKET_put_bytes_u16(&wpkt, rec->length + taglen)
-	    || !WPACKET_get_total_written(&wpkt, &hdrlen)
-	    || hdrlen != SSL3_RT_HEADER_LENGTH
-	    || !WPACKET_finish(&wpkt)) {
+	   || !WPACKET_put_bytes_u8(&wpkt, rec->type)
+	   || !WPACKET_put_bytes_u16(&wpkt, rec->rec_version)
+	   || !WPACKET_put_bytes_u16(&wpkt, rec->length + taglen)
+	   || !WPACKET_get_total_written(&wpkt, &hdrlen)
+	   || hdrlen != SSL3_RT_HEADER_LENGTH
+	   || !WPACKET_finish(&wpkt)) {
 		WPACKET_cleanup(&wpkt);
 		return -1;
 	}
@@ -176,12 +176,12 @@ int tls13_enc(SSL * s, SSL3_RECORD * recs, size_t n_recs, int sending)
 	if(((alg_enc & SSL_AESCCM) != 0
 	 && EVP_CipherUpdate(ctx, NULL, &lenu, NULL,
 	    (uint)rec->length) <= 0)
-	    || EVP_CipherUpdate(ctx, NULL, &lenu, recheader,
+	   || EVP_CipherUpdate(ctx, NULL, &lenu, recheader,
 	    sizeof(recheader)) <= 0
-	    || EVP_CipherUpdate(ctx, rec->data, &lenu, rec->input,
+	   || EVP_CipherUpdate(ctx, rec->data, &lenu, rec->input,
 	    (uint)rec->length) <= 0
-	    || EVP_CipherFinal_ex(ctx, rec->data + lenu, &lenf) <= 0
-	    || (size_t)(lenu + lenf) != rec->length) {
+	   || EVP_CipherFinal_ex(ctx, rec->data + lenu, &lenf) <= 0
+	   || (size_t)(lenu + lenf) != rec->length) {
 		return -1;
 	}
 	if(sending) {

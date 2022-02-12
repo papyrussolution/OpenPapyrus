@@ -249,6 +249,8 @@
       <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Default</BasicRuntimeChecks>
       <BufferSecurityCheck Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</BufferSecurityCheck>
       <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</OmitFramePointers>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">1Byte</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">1Byte</StructMemberAlignment>
     </ClCompile>
   </ItemDefinitionGroup>
   <!-- Options that are common to all 'Release' project configurations -->
@@ -271,6 +273,8 @@
       <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</OmitFramePointers>
       <InlineFunctionExpansion Condition="'$(Configuration)|$(Platform)'=='Release|x64'">OnlyExplicitInline</InlineFunctionExpansion>
       <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</OmitFramePointers>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">1Byte</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Release|x64'">1Byte</StructMemberAlignment>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>

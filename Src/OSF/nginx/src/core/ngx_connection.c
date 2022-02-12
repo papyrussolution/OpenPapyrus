@@ -851,7 +851,7 @@ ngx_int_t ngx_connection_error(ngx_connection_t * c, ngx_err_t err, const char *
 	// Winsock may return NGX_ECONNABORTED instead of NGX_ECONNRESET 
 	if((err == NGX_ECONNRESET
 #if (NGX_WIN32)
-		    || err == NGX_ECONNABORTED
+		   || err == NGX_ECONNABORTED
 #endif
 		    ) && c->log_error == NGX_ERROR_IGNORE_ECONNRESET) {
 		return 0;
@@ -863,11 +863,11 @@ ngx_int_t ngx_connection_error(ngx_connection_t * c, ngx_err_t err, const char *
 #endif
 	if(err == 0 || err == NGX_ECONNRESET
 #if (NGX_WIN32)
-	    || err == NGX_ECONNABORTED
+	   || err == NGX_ECONNABORTED
 #else
-	    || err == NGX_EPIPE
+	   || err == NGX_EPIPE
 #endif
-	    || oneof7(err, NGX_ENOTCONN, NGX_ETIMEDOUT, NGX_ECONNREFUSED, NGX_ENETDOWN, NGX_ENETUNREACH, NGX_EHOSTDOWN, NGX_EHOSTUNREACH)) {
+	   || oneof7(err, NGX_ENOTCONN, NGX_ETIMEDOUT, NGX_ECONNREFUSED, NGX_ENETDOWN, NGX_ENETUNREACH, NGX_EHOSTDOWN, NGX_EHOSTUNREACH)) {
 		switch(c->log_error) {
 			case NGX_ERROR_IGNORE_EINVAL:
 			case NGX_ERROR_IGNORE_ECONNRESET:

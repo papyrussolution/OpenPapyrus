@@ -518,8 +518,8 @@ static ssize_t archive_acl_text_len(struct archive_acl * acl, int want_type, int
 		 */
 		if((ap->type == ARCHIVE_ENTRY_ACL_TYPE_ACCESS)
 		    && (ap->tag == ARCHIVE_ENTRY_ACL_USER_OBJ
-		    || ap->tag == ARCHIVE_ENTRY_ACL_GROUP_OBJ
-		    || ap->tag == ARCHIVE_ENTRY_ACL_OTHER))
+		   || ap->tag == ARCHIVE_ENTRY_ACL_GROUP_OBJ
+		   || ap->tag == ARCHIVE_ENTRY_ACL_OTHER))
 			continue;
 		count++;
 		if((want_type & ARCHIVE_ENTRY_ACL_TYPE_DEFAULT) != 0
@@ -581,7 +581,7 @@ static ssize_t archive_acl_text_len(struct archive_acl * acl, int want_type, int
 		if(((flags & ARCHIVE_ENTRY_ACL_STYLE_SOLARIS) != 0)
 		    && ((want_type & ARCHIVE_ENTRY_ACL_TYPE_POSIX1E) != 0)
 		    && (ap->tag == ARCHIVE_ENTRY_ACL_OTHER
-		    || ap->tag == ARCHIVE_ENTRY_ACL_MASK)) {
+		   || ap->tag == ARCHIVE_ENTRY_ACL_MASK)) {
 			/* Solaris has no colon after other: and mask: */
 			length = length - 1;
 		}
@@ -698,8 +698,8 @@ wchar_t * archive_acl_to_text_w(struct archive_acl * acl, ssize_t * text_len, in
 		 */
 		if((ap->type == ARCHIVE_ENTRY_ACL_TYPE_ACCESS)
 		    && (ap->tag == ARCHIVE_ENTRY_ACL_USER_OBJ
-		    || ap->tag == ARCHIVE_ENTRY_ACL_GROUP_OBJ
-		    || ap->tag == ARCHIVE_ENTRY_ACL_OTHER))
+		   || ap->tag == ARCHIVE_ENTRY_ACL_GROUP_OBJ
+		   || ap->tag == ARCHIVE_ENTRY_ACL_OTHER))
 			continue;
 		if(ap->type == ARCHIVE_ENTRY_ACL_TYPE_DEFAULT &&
 		    (flags & ARCHIVE_ENTRY_ACL_STYLE_MARK_DEFAULT) != 0)
@@ -805,14 +805,14 @@ static void append_entry_w(wchar_t ** wp, const wchar_t * prefix, int type,
 			*wp += wcslen(*wp);
 		}
 		else if(tag == ARCHIVE_ENTRY_ACL_USER
-		    || tag == ARCHIVE_ENTRY_ACL_GROUP) {
+		   || tag == ARCHIVE_ENTRY_ACL_GROUP) {
 			append_id_w(wp, id);
 			if((type & ARCHIVE_ENTRY_ACL_TYPE_NFS4) == 0)
 				id = -1;
 		}
 		/* Solaris style has no second colon after other and mask */
 		if(((flags & ARCHIVE_ENTRY_ACL_STYLE_SOLARIS) == 0)
-		    || (tag != ARCHIVE_ENTRY_ACL_OTHER
+		   || (tag != ARCHIVE_ENTRY_ACL_OTHER
 		    && tag != ARCHIVE_ENTRY_ACL_MASK))
 			*(*wp)++ = L':';
 	}
@@ -929,8 +929,8 @@ char * archive_acl_to_text_l(struct archive_acl * acl, ssize_t * text_len, int f
 		 */
 		if((ap->type == ARCHIVE_ENTRY_ACL_TYPE_ACCESS)
 		    && (ap->tag == ARCHIVE_ENTRY_ACL_USER_OBJ
-		    || ap->tag == ARCHIVE_ENTRY_ACL_GROUP_OBJ
-		    || ap->tag == ARCHIVE_ENTRY_ACL_OTHER))
+		   || ap->tag == ARCHIVE_ENTRY_ACL_GROUP_OBJ
+		   || ap->tag == ARCHIVE_ENTRY_ACL_OTHER))
 			continue;
 		if(ap->type == ARCHIVE_ENTRY_ACL_TYPE_DEFAULT &&
 		    (flags & ARCHIVE_ENTRY_ACL_STYLE_MARK_DEFAULT) != 0)
@@ -1038,14 +1038,14 @@ static void append_entry(char ** p, const char * prefix, int type,
 			*p += strlen(*p);
 		}
 		else if(tag == ARCHIVE_ENTRY_ACL_USER
-		    || tag == ARCHIVE_ENTRY_ACL_GROUP) {
+		   || tag == ARCHIVE_ENTRY_ACL_GROUP) {
 			append_id(p, id);
 			if((type & ARCHIVE_ENTRY_ACL_TYPE_NFS4) == 0)
 				id = -1;
 		}
 		/* Solaris style has no second colon after other and mask */
 		if(((flags & ARCHIVE_ENTRY_ACL_STYLE_SOLARIS) == 0)
-		    || (tag != ARCHIVE_ENTRY_ACL_OTHER
+		   || (tag != ARCHIVE_ENTRY_ACL_OTHER
 		    && tag != ARCHIVE_ENTRY_ACL_MASK))
 			*(*p)++ = ':';
 	}

@@ -107,8 +107,8 @@ static int pkcs12_gen_mac(PKCS12 * p12, const char * pass, int passlen,
 	if(md_size < 0)
 		return 0;
 	if((md_type_nid == NID_id_GostR3411_94
-	    || md_type_nid == NID_id_GostR3411_2012_256
-	    || md_type_nid == NID_id_GostR3411_2012_512)
+	   || md_type_nid == NID_id_GostR3411_2012_256
+	   || md_type_nid == NID_id_GostR3411_2012_512)
 	 && ossl_safe_getenv("LEGACY_GOST_PKCS12") == NULL) {
 		md_size = TK26_MAC_KEY_LEN;
 		if(!pkcs12_gen_gost_mac_key(pass, passlen, salt, saltlen, iter,
@@ -123,10 +123,10 @@ static int pkcs12_gen_mac(PKCS12 * p12, const char * pass, int passlen,
 		goto err;
 	}
 	if((hmac = HMAC_CTX_new()) == NULL
-	    || !HMAC_Init_ex(hmac, key, md_size, md_type, NULL)
-	    || !HMAC_Update(hmac, p12->authsafes->d.data->data,
+	   || !HMAC_Init_ex(hmac, key, md_size, md_type, NULL)
+	   || !HMAC_Update(hmac, p12->authsafes->d.data->data,
 	    p12->authsafes->d.data->length)
-	    || !HMAC_Final(hmac, mac, maclen)) {
+	   || !HMAC_Final(hmac, mac, maclen)) {
 		goto err;
 	}
 	ret = 1;

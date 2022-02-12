@@ -33,11 +33,11 @@ using namespace Glass;
 // FIXME: Sort out a way we can set this dynamically while running the
 // testsuite.
 #ifdef GLASS_FREELIST_SIZE
-# define FREELIST_END_ \
+#define FREELIST_END_ \
 	(8 + (GLASS_FREELIST_SIZE < 3 ? 3 : GLASS_FREELIST_SIZE) * 4)
-# define FREELIST_END (FREELIST_END_ < 2048 ? FREELIST_END_ : 2048)
+#define FREELIST_END (FREELIST_END_ < 2048 ? FREELIST_END_ : 2048)
 #else
-# define FREELIST_END block_size
+#define FREELIST_END block_size
 #endif
 
 /** The first offset to use for storing free block info.

@@ -116,7 +116,7 @@ PPBaseFilt * PPViewTSession::CreateFilt(void * extraPtr) const
 	PPBaseFilt * p_base_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_TSESSION, &p_base_filt)) {
 		static_cast<TSessionFilt *>(p_base_filt)->StatusFlags |= 0x000000ffL;
-		if((reinterpret_cast<long>(extraPtr)) == TSESK_PLAN)
+		if(reinterpret_cast<long>(extraPtr) == TSESK_PLAN)
 			static_cast<TSessionFilt *>(p_base_filt)->Flags |= TSessionFilt::fManufPlan;
 	}
 	return p_base_filt;

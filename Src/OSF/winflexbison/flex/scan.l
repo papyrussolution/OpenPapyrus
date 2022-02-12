@@ -535,7 +535,7 @@ M4QEND      "]""]"
                     /* We're in the middle of a (?x: ) pattern. */
                     yy_push_state(COMMENT_DISCARD);
                 }
-                else{
+                else {
                     yyless( yyleng - 2 );	/* put back '/', '*' */
                     bracelevel = 0;
                     continued_action = false;
@@ -549,7 +549,7 @@ M4QEND      "]""]"
             if(sf_skip_ws()) {
                 /* We're in the middle of a (?x: ) pattern. */
             }
-            else{
+            else {
                 /* This rule is separate from the one below because
                  * otherwise we get variable trailing context, so
                  * we can't build the scanner using -{f,F}.
@@ -572,7 +572,7 @@ M4QEND      "]""]"
                 /* We're in the middle of a (?x: ) pattern. */
                 ++linenum;
             }
-            else{
+            else {
                 bracelevel = 0;
                 continued_action = false;
                 BEGIN(ACTION);
@@ -703,7 +703,7 @@ nmstr[yyleng - 2 - end_is_ws] = '\0';  /* chop trailing brace */
     "/*"        {
                     if(sf_skip_ws())
                         yy_push_state(COMMENT_DISCARD);
-                    else{
+                    else {
                         /* Push back the "*" and return "/" as usual. */
                         yyless(1);
                         return '/';

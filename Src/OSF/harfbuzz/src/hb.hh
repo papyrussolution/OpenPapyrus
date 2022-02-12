@@ -139,23 +139,23 @@
  */
 /* Enable extensions on AIX 3, Interix.  */
 #ifndef _ALL_SOURCE
-# define _ALL_SOURCE 1
+#define _ALL_SOURCE 1
 #endif
 /* Enable GNU extensions on systems that have them.  */
 #ifndef _GNU_SOURCE
-# define _GNU_SOURCE 1
+#define _GNU_SOURCE 1
 #endif
 /* Enable threading extensions on Solaris.  */
 #ifndef _POSIX_PTHREAD_SEMANTICS
-# define _POSIX_PTHREAD_SEMANTICS 1
+#define _POSIX_PTHREAD_SEMANTICS 1
 #endif
 /* Enable extensions on HP NonStop.  */
 #ifndef _TANDEM_SOURCE
-# define _TANDEM_SOURCE 1
+#define _TANDEM_SOURCE 1
 #endif
 /* Enable general extensions on Solaris.  */
 #ifndef __EXTENSIONS__
-# define __EXTENSIONS__ 1
+#define __EXTENSIONS__ 1
 #endif
 
 #if defined (_MSC_VER) && defined (HB_DLL_EXPORT)
@@ -232,7 +232,7 @@
 // @sobolev 	#define HB_UNUSED_Removed
 // @sobolev #endif
 #ifndef HB_INTERNAL
-# if !defined(HB_NO_VISIBILITY) && !defined(__MINGW32__) && !defined(__CYGWIN__) && !defined(_MSC_VER) && !defined(__SUNPRO_CC)
+#if !defined(HB_NO_VISIBILITY) && !defined(__MINGW32__) && !defined(__CYGWIN__) && !defined(_MSC_VER) && !defined(__SUNPRO_CC)
 #  define HB_INTERNAL __attribute__((__visibility__("hidden")))
 # elif defined(__MINGW32__)
 /* We use -export-symbols on mingw32, since it does not support visibility attributes. */
@@ -243,7 +243,7 @@
 #else
 #  define HB_INTERNAL
 #  define HB_NO_VISIBILITY 1
-# endif
+#endif
 #endif
 /* https://github.com/harfbuzz/harfbuzz/issues/1651 */
 #if defined(__clang__) && __clang_major__ < 10
@@ -289,7 +289,7 @@
  * MSVC's __fallthrough annotations are checked by /analyze (Code Analysis):
  * https://msdn.microsoft.com/en-us/library/ms235402%28VS.80%29.aspx
  */
-#  include <sal.h>
+#include <sal.h>
 #  define HB_FALLTHROUGH __fallthrough
 #else
 #  define HB_FALLTHROUGH /* FALLTHROUGH */
@@ -395,7 +395,7 @@
 #  endif
 #endif
 #ifdef HB_NO_ATEXIT
-#  undef HB_USE_ATEXIT
+#undef HB_USE_ATEXIT
 #endif
 #ifndef HB_USE_ATEXIT
 #  define HB_USE_ATEXIT 0
@@ -441,8 +441,8 @@ static_assert((sizeof(hb_var_int_t) == 4), "");
  * For MSVC warnings, see: https://github.com/harfbuzz/harfbuzz/pull/163
  */
 #ifdef _MSC_VER
-# pragma warning(disable:4200)
-# pragma warning(disable:4800)
+#pragma warning(disable:4200)
+#pragma warning(disable:4800)
 #endif
 #define HB_MARK_AS_FLAG_T(T) \
 	extern "C++" { \

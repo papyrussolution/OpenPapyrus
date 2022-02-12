@@ -408,7 +408,7 @@ end:
 	if(rv != X509_V_OK) {
 		/* Invalid signature or LOS errors are for previous cert */
 		if((rv == X509_V_ERR_SUITE_B_INVALID_SIGNATURE_ALGORITHM
-		    || rv == X509_V_ERR_SUITE_B_LOS_NOT_ALLOWED) && i)
+		   || rv == X509_V_ERR_SUITE_B_LOS_NOT_ALLOWED) && i)
 			i--;
 		/*
 		 * If we have LOS error and flags changed then we are signing P-384

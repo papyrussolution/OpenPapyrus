@@ -22,8 +22,8 @@
 #pragma hdrstop
 
 #ifdef __CYGWIN__
-# include "posixy_wrapper.h"
-# include "filetests.h"
+#include "posixy_wrapper.h"
+#include "filetests.h"
 
 int posixy_unlink(const char * filename)
 {

@@ -872,33 +872,30 @@ static sftp_status_message parse_status_msg(sftp_message msg)
 	if(rc != SSH_OK && msg->sftp->version >=3) {
 		/* These are mandatory from version 3 */
 		ZFREE(status);
-		ssh_set_error(msg->sftp->session, SSH_FATAL,
-		    "Invalid SSH_FXP_STATUS message");
+		ssh_set_error(msg->sftp->session, SSH_FATAL, "Invalid SSH_FXP_STATUS message");
 		sftp_set_error(msg->sftp, SSH_FX_FAILURE);
 		return NULL;
 	}
 	if(status->errormsg == NULL)
-		status->errormsg = _strdup("No error message in packet");
+		status->errormsg = sstrdup("No error message in packet");
 	if(status->langmsg == NULL)
-		status->langmsg = _strdup("");
+		status->langmsg = sstrdup("");
 	if(status->errormsg == NULL || status->langmsg == NULL) {
 		ssh_set_error_oom(msg->sftp->session);
 		sftp_set_error(msg->sftp, SSH_FX_FAILURE);
 		status_msg_free(status);
 		return NULL;
 	}
-
 	return status;
 }
 
-static void status_msg_free(sftp_status_message status){
-	if(status == NULL) {
-		return;
+static void status_msg_free(sftp_status_message status)
+{
+	if(status) {
+		ZFREE(status->errormsg);
+		ZFREE(status->langmsg);
+		ZFREE(status);
 	}
-
-	ZFREE(status->errormsg);
-	ZFREE(status->langmsg);
-	ZFREE(status);
 }
 
 static sftp_file parse_handle_msg(sftp_message msg)
@@ -998,9 +995,8 @@ sftp_dir sftp_opendir(sftp_session sftp, const char * path)
 				    SAlloc::F(file);
 				    return NULL;
 			    }
-
 			    dir->sftp = sftp;
-			    dir->name = _strdup(path);
+			    dir->name = sstrdup(path);
 			    if(dir->name == NULL) {
 				    ZFREE(dir);
 				    ZFREE(file);
@@ -1011,8 +1007,7 @@ sftp_dir sftp_opendir(sftp_session sftp, const char * path)
 		    }
 		    return dir;
 		default:
-		    ssh_set_error(sftp->session, SSH_FATAL,
-			"Received message %d during opendir!", msg->packet_type);
+		    ssh_set_error(sftp->session, SSH_FATAL, "Received message %d during opendir!", msg->packet_type);
 		    sftp_message_free(msg);
 	}
 

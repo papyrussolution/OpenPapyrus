@@ -3133,8 +3133,8 @@ static CURLcode ossl_connect_step2(struct connectdata * conn, int sockindex)
 	struct ssl_connect_data * connssl = &conn->ssl[sockindex];
 	struct ssl_backend_data * backend = connssl->backend;
 	DEBUGASSERT(ssl_connect_2 == connssl->connecting_state
-	    || ssl_connect_2_reading == connssl->connecting_state
-	    || ssl_connect_2_writing == connssl->connecting_state);
+	   || ssl_connect_2_reading == connssl->connecting_state
+	   || ssl_connect_2_writing == connssl->connecting_state);
 
 	ERR_clear_error();
 

@@ -821,9 +821,9 @@ static int process_add_entry(struct archive_read * a, struct mtree * mtree,
 		while(line_len > 0) {
 			char last_character = line[line_len - 1];
 			if(last_character == '\r'
-			    || last_character == '\n'
-			    || last_character == '\t'
-			    || last_character == ' ') {
+			   || last_character == '\n'
+			   || last_character == '\t'
+			   || last_character == ' ') {
 				line_len--;
 			}
 			else {
@@ -834,9 +834,9 @@ static int process_add_entry(struct archive_read * a, struct mtree * mtree,
 		name = line;
 		for(i = 0; i < line_len; i++) {
 			if(line[i] == '\r'
-			    || line[i] == '\n'
-			    || line[i] == '\t'
-			    || line[i] == ' ') {
+			   || line[i] == '\n'
+			   || line[i] == '\t'
+			   || line[i] == ' ') {
 				name = line + i + 1;
 			}
 		}

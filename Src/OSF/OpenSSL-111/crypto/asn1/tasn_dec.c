@@ -710,7 +710,7 @@ static int asn1_d2i_ex_primitive(ASN1_VALUE ** pval,
 	ret = 0;
 	/* SEQUENCE, SET and "OTHER" are left in encoded form */
 	if((utype == V_ASN1_SEQUENCE)
-	    || (utype == V_ASN1_SET) || (utype == V_ASN1_OTHER)) {
+	   || (utype == V_ASN1_SET) || (utype == V_ASN1_OTHER)) {
 		/*
 		 * Clear context cache for type OTHER because the auto clear when we
 		 * have a exact match won't work
@@ -739,8 +739,8 @@ static int asn1_d2i_ex_primitive(ASN1_VALUE ** pval,
 	}
 	else if(cst) {
 		if(utype == V_ASN1_NULL || utype == V_ASN1_BOOLEAN
-		    || utype == V_ASN1_OBJECT || utype == V_ASN1_INTEGER
-		    || utype == V_ASN1_ENUMERATED) {
+		   || utype == V_ASN1_OBJECT || utype == V_ASN1_INTEGER
+		   || utype == V_ASN1_ENUMERATED) {
 			ASN1err(ASN1_F_ASN1_D2I_EX_PRIMITIVE, ASN1_R_TYPE_NOT_PRIMITIVE);
 			return 0;
 		}

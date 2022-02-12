@@ -1,5 +1,5 @@
 ; PAPYRUS.NSI
-; Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021
+; Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 ; Скрипт создания инсталляции системы Papyrus
 ;
 ;
@@ -338,6 +338,7 @@ Section "Файлы приложения" SEC01
 	File "${SRC_TARGET}\ppdv.wta" ; @v9.2.0
 	File "${SRC_TARGET}\pphelp.chm"
 	File "${SRC_TARGET}\ppgplot.exe"
+	File "${SRC_TARGET}\icudt70.dll" ; @v11.3.1 Данные ICU
 	File "${SRC_TOOLS}\dl600c.exe"
 	File "${SRC_TOOLS}\dl600c-xp.exe" ; @v10.9.3
 	; @v8.9.8 File "${SRC_REDIST}\stdrpt.ini"	

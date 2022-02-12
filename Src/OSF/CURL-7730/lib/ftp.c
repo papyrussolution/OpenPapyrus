@@ -1813,8 +1813,8 @@ static CURLcode ftp_state_pasv_resp(struct connectdata * conn,
 			str++;
 		}
 
-		if(!*str || (ip[0] > 255) || (ip[1] > 255)  || (ip[2] > 255)  ||
-		    (ip[3] > 255) || (port[0] > 255)  || (port[1] > 255)) {
+		if(!*str || (ip[0] > 255) || (ip[1] > 255) || (ip[2] > 255)  ||
+		    (ip[3] > 255) || (port[0] > 255) || (port[1] > 255)) {
 			failf(data, "Couldn't interpret the 227-response");
 			return CURLE_FTP_WEIRD_227_FORMAT;
 		}

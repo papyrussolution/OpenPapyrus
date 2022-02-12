@@ -1858,9 +1858,7 @@ Locale & Locale::init(const char * localeID, bool canonicalize)
 			uprv_memcpy(language, fullName, fieldLen[0]);
 			language[fieldLen[0]] = 0;
 		}
-		if(fieldLen[1] == 4 && uprv_isASCIILetter(field[1][0]) &&
-		    uprv_isASCIILetter(field[1][1]) && uprv_isASCIILetter(field[1][2]) &&
-		    uprv_isASCIILetter(field[1][3])) {
+		if(fieldLen[1] == 4 && uprv_isASCIILetter(field[1][0]) && uprv_isASCIILetter(field[1][1]) && uprv_isASCIILetter(field[1][2]) && uprv_isASCIILetter(field[1][3])) {
 			/* We have at least a script */
 			uprv_memcpy(script, field[1], fieldLen[1]);
 			script[fieldLen[1]] = 0;

@@ -1,19 +1,7 @@
 // This file is part of Notepad++ project
 // Copyright (C)2021 Don HO <don.h@free.fr>
-
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// at your option any later version.
+// @licence GNU GPL
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 #include <npp-internal.h>
 #pragma hdrstop
 
@@ -22,24 +10,19 @@ void DocumentMap::reloadMap()
 	if(_pMapView && _ppEditView) {
 		Document currentDoc = (*_ppEditView)->execute(SCI_GETDOCPOINTER);
 		_pMapView->execute(SCI_SETDOCPOINTER, 0, static_cast<LPARAM>(currentDoc));
-
 		//
 		// sync with the current document
 		//
-
 		Buffer * editBuf = (*_ppEditView)->getCurrentBuffer();
 		_pMapView->setCurrentBuffer(editBuf);
-
 		// folding
 		std::vector<size_t> lineStateVector;
 		(*_ppEditView)->getCurrentFoldStates(lineStateVector);
 		_pMapView->syncFoldStateWith(lineStateVector);
-
 		// Wrapping
 		if((*_ppEditView)->isWrap() && needToRecomputeWith()) {
 			wrapMap();
 		}
-
 		scrollMap();
 	}
 }

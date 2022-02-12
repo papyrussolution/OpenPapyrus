@@ -25,29 +25,22 @@
 
 using namespace Xapian;
 
-DecreasingValueWeightPostingSource::DecreasingValueWeightPostingSource(Xapian::valueno slot_,
-    Xapian::docid range_start_,
-    Xapian::docid range_end_)
-	: Xapian::ValueWeightPostingSource(slot_),
-	range_start(range_start_),
-	range_end(range_end_)
+DecreasingValueWeightPostingSource::DecreasingValueWeightPostingSource(Xapian::valueno slot_, Xapian::docid range_start_, Xapian::docid range_end_) : 
+	Xapian::ValueWeightPostingSource(slot_), range_start(range_start_), range_end(range_end_)
 {
 }
 
-double DecreasingValueWeightPostingSource::get_weight() const {
-	return curr_weight;
+double DecreasingValueWeightPostingSource::get_weight() const { return curr_weight; }
+
+Xapian::DecreasingValueWeightPostingSource * DecreasingValueWeightPostingSource::clone() const 
+{
+	return new DecreasingValueWeightPostingSource(get_slot(), range_start, range_end);
 }
 
-Xapian::DecreasingValueWeightPostingSource * DecreasingValueWeightPostingSource::clone() const {
-	return new DecreasingValueWeightPostingSource(get_slot(), range_start,
-		   range_end);
-}
+std::string DecreasingValueWeightPostingSource::name() const { return "Xapian::DecreasingValueWeightPostingSource"; }
 
-std::string DecreasingValueWeightPostingSource::name() const {
-	return "Xapian::DecreasingValueWeightPostingSource";
-}
-
-std::string DecreasingValueWeightPostingSource::serialise() const {
+std::string DecreasingValueWeightPostingSource::serialise() const 
+{
 	std::string result;
 	pack_uint(result, get_slot());
 	pack_uint(result, range_start);

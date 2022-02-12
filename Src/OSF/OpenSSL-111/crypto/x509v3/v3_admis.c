@@ -106,9 +106,9 @@ static int i2r_ADMISSION_SYNTAX(const struct v3_ext_method * method, void * in, 
 
 	if(admission->admissionAuthority != NULL) {
 		if(BIO_printf(bp, "%*sadmissionAuthority:\n", ind, "") <= 0
-		    || BIO_printf(bp, "%*s  ", ind, "") <= 0
-		    || GENERAL_NAME_print(bp, admission->admissionAuthority) <= 0
-		    || BIO_printf(bp, "\n") <= 0)
+		   || BIO_printf(bp, "%*s  ", ind, "") <= 0
+		   || GENERAL_NAME_print(bp, admission->admissionAuthority) <= 0
+		   || BIO_printf(bp, "\n") <= 0)
 			goto err;
 	}
 
@@ -119,9 +119,9 @@ static int i2r_ADMISSION_SYNTAX(const struct v3_ext_method * method, void * in, 
 
 		if(entry->admissionAuthority != NULL) {
 			if(BIO_printf(bp, "%*s  admissionAuthority:\n", ind, "") <= 0
-			    || BIO_printf(bp, "%*s    ", ind, "") <= 0
-			    || GENERAL_NAME_print(bp, entry->admissionAuthority) <= 0
-			    || BIO_printf(bp, "\n") <= 0)
+			   || BIO_printf(bp, "%*s    ", ind, "") <= 0
+			   || GENERAL_NAME_print(bp, entry->admissionAuthority) <= 0
+			   || BIO_printf(bp, "\n") <= 0)
 				goto err;
 		}
 
@@ -138,8 +138,8 @@ static int i2r_ADMISSION_SYNTAX(const struct v3_ext_method * method, void * in, 
 
 			if(pinfo->registrationNumber != NULL) {
 				if(BIO_printf(bp, "%*s    registrationNumber: ", ind, "") <= 0
-				    || ASN1_STRING_print(bp, pinfo->registrationNumber) <= 0
-				    || BIO_printf(bp, "\n") <= 0)
+				   || ASN1_STRING_print(bp, pinfo->registrationNumber) <= 0
+				   || BIO_printf(bp, "\n") <= 0)
 					goto err;
 			}
 
@@ -155,8 +155,8 @@ static int i2r_ADMISSION_SYNTAX(const struct v3_ext_method * method, void * in, 
 					ASN1_STRING* val = sk_ASN1_STRING_value(pinfo->professionItems, k);
 
 					if(BIO_printf(bp, "%*s      ", ind, "") <= 0
-					    || ASN1_STRING_print(bp, val) <= 0
-					    || BIO_printf(bp, "\n") <= 0)
+					   || ASN1_STRING_print(bp, val) <= 0
+					   || BIO_printf(bp, "\n") <= 0)
 						goto err;
 				}
 			}

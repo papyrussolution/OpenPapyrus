@@ -22,10 +22,11 @@
 #ifndef XAPIAN_INCLUDED_SAFEDIRENT_H
 #define XAPIAN_INCLUDED_SAFEDIRENT_H
 
-#ifdef __WIN32__
-# include "msvc_dirent.h"
-#else
-# include <dirent.h>
-#endif
+#include <dirent.h> // @sobolev SLIB has own dirent.h
+//#ifdef __WIN32__
+//#include "msvc_dirent.h"
+//#else
+//#include <dirent.h>
+//#endif
 
 #endif // XAPIAN_INCLUDED_SAFEDIRENT_H

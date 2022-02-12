@@ -288,8 +288,8 @@ int PKCS1_MGF1(uchar * mask, long len,
 		cnt[2] = (uchar)((i >> 8)) & 255;
 		cnt[3] = (uchar)(i & 255);
 		if(!EVP_DigestInit_ex(c, dgst, NULL)
-		    || !EVP_DigestUpdate(c, seed, seedlen)
-		    || !EVP_DigestUpdate(c, cnt, 4))
+		   || !EVP_DigestUpdate(c, seed, seedlen)
+		   || !EVP_DigestUpdate(c, cnt, 4))
 			goto err;
 		if(outlen + mdlen <= len) {
 			if(!EVP_DigestFinal_ex(c, mask + outlen, NULL))

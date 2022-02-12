@@ -37,32 +37,26 @@ int CMSEXPORT cmsGetEncodedCMMversion(void)
 // compare two strings ignoring case
 int CMSEXPORT cmsstrcasecmp(const char * s1, const char * s2)
 {
-	const uchar * us1 = (const uchar *)s1,
-	    * us2 = (const uchar *)s2;
-
+	const uchar * us1 = (const uchar *)s1;
+	const uchar * us2 = (const uchar *)s2;
 	while(toupper(*us1) == toupper(*us2++))
 		if(*us1++ == '\0')
 			return 0;
-
 	return (toupper(*us1) - toupper(*--us2));
 }
 
 // long int because C99 specifies ftell in such way (7.19.9.2)
 long int CMSEXPORT cmsfilelength(FILE* f)
 {
-	long int p, n;
-
-	p = ftell(f); // register current file position
+	long n;
+	long p = ftell(f); // register current file position
 	if(p == -1L)
 		return -1L;
-
 	if(fseek(f, 0, SEEK_END) != 0) {
 		return -1L;
 	}
-
 	n = ftell(f);
 	fseek(f, p, SEEK_SET); // file position restored
-
 	return n;
 }
 

@@ -505,7 +505,7 @@ int BIO_parse_hostserv(const char * hostserv, char ** host, char ** service,
 
 	if(h != NULL && host != NULL) {
 		if(hl == 0
-		    || (hl == 1 && h[0] == '*')) {
+		   || (hl == 1 && h[0] == '*')) {
 			*host = NULL;
 		}
 		else {
@@ -516,7 +516,7 @@ int BIO_parse_hostserv(const char * hostserv, char ** host, char ** service,
 	}
 	if(p != NULL && service != NULL) {
 		if(pl == 0
-		    || (pl == 1 && p[0] == '*')) {
+		   || (pl == 1 && p[0] == '*')) {
 			*service = NULL;
 		}
 		else {

@@ -133,14 +133,10 @@ out:
 
 static int obj_name_cmp(const OBJ_NAME * a, const OBJ_NAME * b)
 {
-	int ret;
-
-	ret = a->type - b->type;
+	int ret = a->type - b->type;
 	if(ret == 0) {
-		if((name_funcs_stack != NULL)
-		 && (sk_NAME_FUNCS_num(name_funcs_stack) > a->type)) {
-			ret = sk_NAME_FUNCS_value(name_funcs_stack,
-				a->type)->cmp_func(a->name, b->name);
+		if((name_funcs_stack != NULL) && (sk_NAME_FUNCS_num(name_funcs_stack) > a->type)) {
+			ret = sk_NAME_FUNCS_value(name_funcs_stack, a->type)->cmp_func(a->name, b->name);
 		}
 		else
 			ret = strcasecmp(a->name, b->name);
@@ -151,12 +147,8 @@ static int obj_name_cmp(const OBJ_NAME * a, const OBJ_NAME * b)
 static ulong obj_name_hash(const OBJ_NAME * a)
 {
 	ulong ret;
-
-	if((name_funcs_stack != NULL)
-	 && (sk_NAME_FUNCS_num(name_funcs_stack) > a->type)) {
-		ret =
-		    sk_NAME_FUNCS_value(name_funcs_stack,
-			a->type)->hash_func(a->name);
+	if((name_funcs_stack != NULL) && (sk_NAME_FUNCS_num(name_funcs_stack) > a->type)) {
+		ret = sk_NAME_FUNCS_value(name_funcs_stack, a->type)->hash_func(a->name);
 	}
 	else {
 		ret = openssl_lh_strcasehash(a->name);
@@ -176,13 +168,10 @@ const char * OBJ_NAME_get(const char * name, int type)
 	if(!OBJ_NAME_init())
 		return NULL;
 	CRYPTO_THREAD_read_lock(obj_lock);
-
 	alias = type & OBJ_NAME_ALIAS;
 	type &= ~OBJ_NAME_ALIAS;
-
 	on.name = name;
 	on.type = type;
-
 	for(;;) {
 		ret = lh_OBJ_NAME_retrieve(names_lh, &on);
 		if(ret == NULL)
@@ -197,7 +186,6 @@ const char * OBJ_NAME_get(const char * name, int type)
 			break;
 		}
 	}
-
 	CRYPTO_THREAD_unlock(obj_lock);
 	return value;
 }

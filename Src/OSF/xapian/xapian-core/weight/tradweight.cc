@@ -19,7 +19,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "xapian/weight.h"
 #include "weightinternal.h"
 #include "serialise-double.h"
 
@@ -155,9 +154,7 @@ double TradWeight::get_maxpart() const
 	return termweight * (wdf_max / (doclen_lb * len_factor + wdf_max));
 }
 
-double TradWeight::get_sumextra(Xapian::termcount,
-    Xapian::termcount,
-    Xapian::termcount) const
+double TradWeight::get_sumextra(Xapian::termcount, Xapian::termcount, Xapian::termcount) const
 {
 	return 0;
 }

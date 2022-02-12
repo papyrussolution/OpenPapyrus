@@ -167,7 +167,7 @@ static int dh_priv_decode(EVP_PKEY * pkey, const PKCS8_PRIV_KEY_INFO * p8)
 
 	/* We have parameters now set private key */
 	if((dh->priv_key = BN_secure_new()) == NULL
-	    || !ASN1_INTEGER_to_BN(privkey, dh->priv_key)) {
+	   || !ASN1_INTEGER_to_BN(privkey, dh->priv_key)) {
 		DHerr(DH_F_DH_PRIV_DECODE, DH_R_BN_ERROR);
 		goto dherr;
 	}
@@ -271,7 +271,7 @@ static int do_dh_print(BIO * bp, const DH * x, int indent, int ptype)
 		pub_key = NULL;
 
 	if(x->p == NULL || (ptype == 2 && priv_key == NULL)
-	    || (ptype > 0 && pub_key == NULL)) {
+	   || (ptype > 0 && pub_key == NULL)) {
 		reason = ERR_R_PASSED_NULL_PARAMETER;
 		goto err;
 	}
@@ -308,7 +308,7 @@ static int do_dh_print(BIO * bp, const DH * x, int indent, int ptype)
 		for(i = 0; i < x->seedlen; i++) {
 			if((i % 15) == 0) {
 				if(BIO_puts(bp, "\n") <= 0
-				    || !BIO_indent(bp, indent + 4, 128))
+				   || !BIO_indent(bp, indent + 4, 128))
 					goto err;
 			}
 			if(BIO_printf(bp, "%02x%s", x->seed[i],

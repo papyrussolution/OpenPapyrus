@@ -298,10 +298,10 @@ static int privatekey_decrypt(int algo, int mode, uint key_len,
 	}
 
 	if(gcry_cipher_open(&cipher, algo, mode, 0)
-	    || gcry_cipher_setkey(cipher, key, key_len)
-	    || gcry_cipher_setiv(cipher, iv, iv_len)
-	    || (tmp = SAlloc::C(ssh_buffer_get_len(data), sizeof(uchar))) == NULL
-	    || gcry_cipher_decrypt(cipher, tmp, ssh_buffer_get_len(data),
+	   || gcry_cipher_setkey(cipher, key, key_len)
+	   || gcry_cipher_setiv(cipher, iv, iv_len)
+	   || (tmp = SAlloc::C(ssh_buffer_get_len(data), sizeof(uchar))) == NULL
+	   || gcry_cipher_decrypt(cipher, tmp, ssh_buffer_get_len(data),
 	    ssh_buffer_get(data), ssh_buffer_get_len(data))) {
 		gcry_cipher_close(cipher);
 		return -1;

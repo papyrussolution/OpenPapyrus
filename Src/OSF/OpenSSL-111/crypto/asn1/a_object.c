@@ -105,7 +105,7 @@ int a2d_ASN1_OBJECT(uchar * out, int olen, const char * buf, int num)
 			}
 			if(use_bn) {
 				if(!BN_mul_word(bl, 10L)
-				    || !BN_add_word(bl, c - '0'))
+				   || !BN_add_word(bl, c - '0'))
 					goto err;
 			}
 			else

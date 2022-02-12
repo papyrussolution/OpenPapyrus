@@ -74,7 +74,7 @@ int io_open_block_wr(const char * fname, bool anew)
 # ifdef FD_CLOEXEC
 		if(fd >= 0)
 			(void)fcntl(fd, F_SETFD, FD_CLOEXEC);
-# endif
+#endif
 	}
 	int save_errno = errno;
 	(void)close(badfd);
@@ -98,7 +98,7 @@ int io_open_block_wr(const char * fname, bool anew)
 		else {
 # ifdef FD_CLOEXEC
 			(void)fcntl(fd, F_SETFD, FD_CLOEXEC);
-# endif
+#endif
 		}
 	}
 #endif

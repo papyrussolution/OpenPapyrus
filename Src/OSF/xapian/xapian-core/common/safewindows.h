@@ -23,12 +23,12 @@
 #define XAPIAN_INCLUDED_SAFEWINDOWS_H
 
 #if !defined __CYGWIN__ && !defined __WIN32__
-# error Including safewindows.h, but neither __CYGWIN__ nor __WIN32__ defined!
+#error Including safewindows.h, but neither __CYGWIN__ nor __WIN32__ defined!
 #endif
 
 // Prevent windows.h from defining min and max macros.
 #ifndef NOMINMAX
-# define NOMINMAX
+#define NOMINMAX
 #endif
 
 // Prevent windows.h from including lots of obscure win32 api headers
@@ -42,7 +42,7 @@
 // with w32api 5.4.1).  MSVC does, so we treat this as a flaw to workaround and
 // include <winerror.h> if we detect it hasn't been implicitly included.
 #ifndef ERROR_PIPE_CONNECTED
-# include <winerror.h>
+#include <winerror.h>
 #endif
 
 #endif // XAPIAN_INCLUDED_SAFEWINDOWS_H

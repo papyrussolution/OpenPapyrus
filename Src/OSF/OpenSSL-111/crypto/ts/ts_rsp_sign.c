@@ -232,15 +232,15 @@ int TS_RESP_CTX_set_accuracy(TS_RESP_CTX * ctx,
 	TS_RESP_CTX_accuracy_free(ctx);
 	if(secs
 	 && ((ctx->seconds = ASN1_INTEGER_new()) == NULL
-	    || !ASN1_INTEGER_set(ctx->seconds, secs)))
+	   || !ASN1_INTEGER_set(ctx->seconds, secs)))
 		goto err;
 	if(millis
 	 && ((ctx->millis = ASN1_INTEGER_new()) == NULL
-	    || !ASN1_INTEGER_set(ctx->millis, millis)))
+	   || !ASN1_INTEGER_set(ctx->millis, millis)))
 		goto err;
 	if(micros
 	 && ((ctx->micros = ASN1_INTEGER_new()) == NULL
-	    || !ASN1_INTEGER_set(ctx->micros, micros)))
+	   || !ASN1_INTEGER_set(ctx->micros, micros)))
 		goto err;
 
 	return 1;
@@ -287,7 +287,7 @@ int TS_RESP_CTX_set_status_info(TS_RESP_CTX * ctx,
 		goto err;
 	if(text) {
 		if((utf8_text = ASN1_UTF8STRING_new()) == NULL
-		    || !ASN1_STRING_set(utf8_text, text, strlen(text)))
+		   || !ASN1_STRING_set(utf8_text, text, strlen(text)))
 			goto err;
 		if(si->text == NULL
 		 && (si->text = sk_ASN1_UTF8STRING_new_null()) == NULL)
@@ -525,13 +525,13 @@ static TS_TST_INFO * ts_RESP_create_tst_info(TS_RESP_CTX * ctx,
 	if(!TS_TST_INFO_set_msg_imprint(tst_info, ctx->request->msg_imprint))
 		goto end;
 	if((serial = ctx->serial_cb(ctx, ctx->serial_cb_data)) == NULL
-	    || !TS_TST_INFO_set_serial(tst_info, serial))
+	   || !TS_TST_INFO_set_serial(tst_info, serial))
 		goto end;
 	if(!ctx->time_cb(ctx, ctx->time_cb_data, &sec, &usec)
-	    || (asn1_time =
+	   || (asn1_time =
 	    TS_RESP_set_genTime_with_precision(NULL, sec, usec,
 	    ctx->clock_precision_digits)) == NULL
-	    || !TS_TST_INFO_set_time(tst_info, asn1_time))
+	   || !TS_TST_INFO_set_time(tst_info, asn1_time))
 		goto end;
 
 	if((ctx->seconds || ctx->millis || ctx->micros)
@@ -657,7 +657,7 @@ static int ts_RESP_sign(TS_RESP_CTX * ctx)
 
 	certs = ctx->flags & TS_ESS_CERT_ID_CHAIN ? ctx->certs : NULL;
 	if(ctx->ess_cert_id_digest == NULL
-	    || ctx->ess_cert_id_digest == EVP_sha1()) {
+	   || ctx->ess_cert_id_digest == EVP_sha1()) {
 		if((sc = ess_SIGNING_CERT_new_init(ctx->signer_cert, certs)) == NULL)
 			goto err;
 
@@ -723,12 +723,12 @@ static ESS_SIGNING_CERT * ess_SIGNING_CERT_new_init(X509 * signcert,
 		goto err;
 
 	if((cid = ess_CERT_ID_new_init(signcert, 0)) == NULL
-	    || !sk_ESS_CERT_ID_push(sc->cert_ids, cid))
+	   || !sk_ESS_CERT_ID_push(sc->cert_ids, cid))
 		goto err;
 	for(i = 0; i < sk_X509_num(certs); ++i) {
 		X509 * cert = sk_X509_value(certs, i);
 		if((cid = ess_CERT_ID_new_init(cert, 1)) == NULL
-		    || !sk_ESS_CERT_ID_push(sc->cert_ids, cid))
+		   || !sk_ESS_CERT_ID_push(sc->cert_ids, cid))
 			goto err;
 	}
 

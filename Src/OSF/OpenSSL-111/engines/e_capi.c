@@ -407,16 +407,16 @@ static int capi_init(ENGINE * e)
 		ossl_rsa_meth = RSA_PKCS1_OpenSSL();
 		if(!RSA_meth_set_pub_enc(capi_rsa_method,
 		    RSA_meth_get_pub_enc(ossl_rsa_meth))
-		    || !RSA_meth_set_pub_dec(capi_rsa_method,
+		   || !RSA_meth_set_pub_dec(capi_rsa_method,
 		    RSA_meth_get_pub_dec(ossl_rsa_meth))
-		    || !RSA_meth_set_priv_enc(capi_rsa_method, capi_rsa_priv_enc)
-		    || !RSA_meth_set_priv_dec(capi_rsa_method, capi_rsa_priv_dec)
-		    || !RSA_meth_set_mod_exp(capi_rsa_method,
+		   || !RSA_meth_set_priv_enc(capi_rsa_method, capi_rsa_priv_enc)
+		   || !RSA_meth_set_priv_dec(capi_rsa_method, capi_rsa_priv_dec)
+		   || !RSA_meth_set_mod_exp(capi_rsa_method,
 		    RSA_meth_get_mod_exp(ossl_rsa_meth))
-		    || !RSA_meth_set_bn_mod_exp(capi_rsa_method,
+		   || !RSA_meth_set_bn_mod_exp(capi_rsa_method,
 		    RSA_meth_get_bn_mod_exp(ossl_rsa_meth))
-		    || !RSA_meth_set_finish(capi_rsa_method, capi_rsa_free)
-		    || !RSA_meth_set_sign(capi_rsa_method, capi_rsa_sign)) {
+		   || !RSA_meth_set_finish(capi_rsa_method, capi_rsa_free)
+		   || !RSA_meth_set_sign(capi_rsa_method, capi_rsa_sign)) {
 			goto memerr;
 		}
 
@@ -425,12 +425,12 @@ static int capi_init(ENGINE * e)
 		dsa_capi_idx = DSA_get_ex_new_index(0, NULL, NULL, NULL, 0);
 		ossl_dsa_meth = DSA_OpenSSL();
 		if(!DSA_meth_set_sign(capi_dsa_method, capi_dsa_do_sign)
-		    || !DSA_meth_set_verify(capi_dsa_method,
+		   || !DSA_meth_set_verify(capi_dsa_method,
 		    DSA_meth_get_verify(ossl_dsa_meth))
-		    || !DSA_meth_set_finish(capi_dsa_method, capi_dsa_free)
-		    || !DSA_meth_set_mod_exp(capi_dsa_method,
+		   || !DSA_meth_set_finish(capi_dsa_method, capi_dsa_free)
+		   || !DSA_meth_set_mod_exp(capi_dsa_method,
 		    DSA_meth_get_mod_exp(ossl_dsa_meth))
-		    || !DSA_meth_set_bn_mod_exp(capi_dsa_method,
+		   || !DSA_meth_set_bn_mod_exp(capi_dsa_method,
 		    DSA_meth_get_bn_mod_exp(ossl_dsa_meth))) {
 			goto memerr;
 		}
@@ -520,20 +520,20 @@ static int bind_capi(ENGINE * e)
 		goto memerr;
 #endif
 	if(!ENGINE_set_id(e, engine_capi_id)
-	    || !ENGINE_set_name(e, engine_capi_name)
-	    || !ENGINE_set_flags(e, ENGINE_FLAGS_NO_REGISTER_ALL)
-	    || !ENGINE_set_init_function(e, capi_init)
-	    || !ENGINE_set_finish_function(e, capi_finish)
-	    || !ENGINE_set_destroy_function(e, capi_destroy)
-	    || !ENGINE_set_RSA(e, capi_rsa_method)
+	   || !ENGINE_set_name(e, engine_capi_name)
+	   || !ENGINE_set_flags(e, ENGINE_FLAGS_NO_REGISTER_ALL)
+	   || !ENGINE_set_init_function(e, capi_init)
+	   || !ENGINE_set_finish_function(e, capi_finish)
+	   || !ENGINE_set_destroy_function(e, capi_destroy)
+	   || !ENGINE_set_RSA(e, capi_rsa_method)
 #ifndef OPENSSL_NO_DSA
-	    || !ENGINE_set_DSA(e, capi_dsa_method)
+	   || !ENGINE_set_DSA(e, capi_dsa_method)
 #endif
-	    || !ENGINE_set_load_privkey_function(e, capi_load_privkey)
-	    || !ENGINE_set_load_ssl_client_cert_function(e,
+	   || !ENGINE_set_load_privkey_function(e, capi_load_privkey)
+	   || !ENGINE_set_load_ssl_client_cert_function(e,
 	    capi_load_ssl_client_cert)
-	    || !ENGINE_set_cmd_defns(e, capi_cmd_defns)
-	    || !ENGINE_set_ctrl_function(e, capi_ctrl))
+	   || !ENGINE_set_cmd_defns(e, capi_cmd_defns)
+	   || !ENGINE_set_ctrl_function(e, capi_ctrl))
 		goto memerr;
 	ERR_load_CAPI_strings();
 
@@ -993,9 +993,9 @@ static DSA_SIG * capi_dsa_do_sign(const uchar * digest, int dlen, DSA * dsa)
 		BIGNUM * r = BN_new(), * s = BN_new();
 
 		if(r == NULL || s == NULL
-		    || !lend_tobn(r, csigbuf, 20)
-		    || !lend_tobn(s, csigbuf + 20, 20)
-		    || (ret = DSA_SIG_new()) == NULL) {
+		   || !lend_tobn(r, csigbuf, 20)
+		   || !lend_tobn(s, csigbuf + 20, 20)
+		   || (ret = DSA_SIG_new()) == NULL) {
 			BN_free(r); /* BN_free checks for BIGNUM * being NULL */
 			BN_free(s);
 			goto err;

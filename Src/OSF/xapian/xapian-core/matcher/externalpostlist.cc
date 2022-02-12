@@ -1,23 +1,10 @@
 /** @file
  * @brief Return document ids from an external source.
  */
-/* Copyright 2008,2009,2010,2011,2019 Olly Betts
- * Copyright 2009 Lemur Consulting Ltd
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
- */
+// Copyright 2008,2009,2010,2011,2019 Olly Betts
+// Copyright 2009 Lemur Consulting Ltd
+// @licence GNU GPL
+//
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "externalpostlist.h"
@@ -26,12 +13,8 @@
 
 using namespace std;
 
-ExternalPostList::ExternalPostList(const Xapian::Database& db,
-    Xapian::PostingSource* source_,
-    double factor_,
-    bool* max_weight_cached_flag_ptr,
-    Xapian::doccount shard_index)
-	: current(0), factor(factor_)
+ExternalPostList::ExternalPostList(const Xapian::Database& db, Xapian::PostingSource* source_, double factor_,
+    bool* max_weight_cached_flag_ptr, Xapian::doccount shard_index) : current(0), factor(factor_)
 {
 	Assert(source_);
 	Xapian::PostingSource* newsource = source_->clone();

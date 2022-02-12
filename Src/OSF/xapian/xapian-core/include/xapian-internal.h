@@ -6,20 +6,9 @@
 #define SLIB_INCLUDE_CPPSTDLIBS
 #include <slib.h>
 #include <config.h>
-#include <xapian/version.h>
-#include <xapian/attributes.h>
-#include <xapian/visibility.h>
-#include <xapian/error.h>
-#include <xapian/constants.h>
-#include <xapian/constinfo.h>
-#include <xapian/types.h>
-#include <xapian/intrusive_ptr.h>
-#include <xapian/termiterator.h>
-#include <xapian/valueiterator.h>
-#include <xapian/document.h>
-#include <xapian/positioniterator.h>
-#include <xapian/postingiterator.h>
-#include <xapian/database.h>
+#include <dirent.h> // @sobolev SLIB implementation
+#include <xapian.h>
+
 #include "str.h"
 #include "omassert.h"
 #include "debuglog.h"

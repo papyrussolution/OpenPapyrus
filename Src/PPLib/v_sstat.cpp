@@ -404,7 +404,7 @@ int PPViewSStat::CreateOrderTable(long ord, TempOrderTbl ** ppTbl, int use_ta)
 			if(p_t->data.GoodsID != prev_goods_id) {
 				if((Filt.CountRange.IsZero() || Filt.CountRange.CheckX(p_t->data.Count)) &&
 					(Filt.QttyAvgRange.IsZero() || Filt.QttyAvgRange.CheckX(p_t->data.QttyAvg)) &&
-					(Filt.AmtAvgRange.IsZero()  || Filt.AmtAvgRange.CheckX(p_t->data.AmtAvg)) &&
+					(Filt.AmtAvgRange.IsZero() || Filt.AmtAvgRange.CheckX(p_t->data.AmtAvg)) &&
 					(Filt.QttyVarRange.IsZero() || Filt.QttyVarRange.CheckX(p_t->data.QttyVar))) {
 					TempOrderTbl::Rec ord_rec;
 					// @v10.7.9 @ctr MEMSZERO(ord_rec);

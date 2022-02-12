@@ -1,25 +1,11 @@
 /** @file
  * @brief class for TCP/IP-based server.
  */
-/* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2015,2017,2018 Olly Betts
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
- */
+// Copyright 1999,2000,2001 BrightStation PLC
+// Copyright 2002 Ananova Ltd
+// Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2015,2017,2018 Olly Betts
+// @licence GNU GPL
+//
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "tcpserver.h"
@@ -30,35 +16,30 @@
 #include "resolver.h"
 #include "socket_utils.h"
 #ifdef __WIN32__
-# include <process.h>    /* _beginthreadex, _endthreadex */
+	#include <process.h>    /* _beginthreadex, _endthreadex */
 #else
-# include <netinet/in_systm.h>
-# include <netinet/in.h>
-# include <netinet/ip.h>
-# include <netinet/tcp.h>
-# include <arpa/inet.h>
-# include <signal.h>
-# include <sys/wait.h>
+	#include <netinet/in_systm.h>
+	#include <netinet/in.h>
+	#include <netinet/ip.h>
+	#include <netinet/tcp.h>
+	#include <arpa/inet.h>
+	#include <signal.h>
+	#include <sys/wait.h>
 #endif
 using namespace std;
 
 // Handle older systems.
 #if !defined SIGCHLD && defined SIGCLD
-# define SIGCHLD SIGCLD
+	#define SIGCHLD SIGCLD
 #endif
-
 #ifdef __WIN32__
-// We must call closesocket() (instead of just close()) under __WIN32__ or
-// else the socket remains in the CLOSE_WAIT state.
-# define CLOSESOCKET(S) closesocket(S)
+	#define CLOSESOCKET(S) closesocket(S) // We must call closesocket() (instead of just close()) under __WIN32__ or else the socket remains in the CLOSE_WAIT state.
 #else
-# define CLOSESOCKET(S) close(S)
+	#define CLOSESOCKET(S) close(S)
 #endif
 
-/// The TcpServer constructor, taking a database and a listening port.
-TcpServer::TcpServer(const std::string & host, int port, bool tcp_nodelay,
-    bool verbose_)
-	: listen_socket(get_listening_socket(host, port, tcp_nodelay
+/// The XapianTcpServer constructor, taking a database and a listening port.
+XapianTcpServer::XapianTcpServer(const std::string & host, int port, bool tcp_nodelay, bool verbose_) : listen_socket(get_listening_socket(host, port, tcp_nodelay
 #if defined __CYGWIN__ || defined __WIN32__
 	    , mutex
 #endif
@@ -67,8 +48,7 @@ TcpServer::TcpServer(const std::string & host, int port, bool tcp_nodelay,
 {
 }
 
-int TcpServer::get_listening_socket(const std::string & host, int port,
-    bool tcp_nodelay
+int XapianTcpServer::get_listening_socket(const std::string & host, int port, bool tcp_nodelay
 #if defined __CYGWIN__ || defined __WIN32__
     , HANDLE &mutex
 #endif
@@ -110,11 +90,11 @@ int TcpServer::get_listening_socket(const std::string & host, int port,
 		string name = "Global\\xapian-tcpserver-listening-" + str(port);
 		if((mutex = ::CreateMutexA(NULL, TRUE, name.c_str())) == NULL) {
 			// We failed to create the mutex, probably the error is
-			// ERROR_ACCESS_DENIED, which simply means that TcpServer is
+			// ERROR_ACCESS_DENIED, which simply means that XapianTcpServer is
 			// already running on this port but as a different user.
 		}
 		else if(GetLastError() == ERROR_ALREADY_EXISTS) {
-			// The mutex already existed, so TcpServer is already running
+			// The mutex already existed, so XapianTcpServer is already running
 			// on this port.
 			CloseHandle(mutex);
 			mutex = NULL;
@@ -193,7 +173,7 @@ int TcpServer::get_listening_socket(const std::string & host, int port,
 	return socketfd;
 }
 
-int TcpServer::accept_connection()
+int XapianTcpServer::accept_connection()
 {
 	struct sockaddr_storage remote_address;
 	SOCKLEN_T remote_address_size = sizeof(remote_address);
@@ -228,7 +208,7 @@ int TcpServer::accept_connection()
 	return con_socket;
 }
 
-TcpServer::~TcpServer()
+XapianTcpServer::~XapianTcpServer()
 {
 	CLOSESOCKET(listen_socket);
 #if defined __CYGWIN__ || defined __WIN32__
@@ -263,7 +243,7 @@ static void on_SIGCHLD(int /*sig*/)
 #endif
 }
 
-void TcpServer::run()
+void XapianTcpServer::run()
 {
 	// Handle connections until shutdown.
 
@@ -357,17 +337,16 @@ static BOOL CtrlHandler(DWORD fdwCtrlType)
 		// event in the default way.
 		return FALSE;
 	}
-
 	pShutdownSocket = NULL;
 	return TRUE; // Tell the OS that we've handled the event.
 }
 
 /// Structure which is used to pass parameters to the new threads.
 struct thread_param {
-	thread_param(TcpServer * s, int c) : server(s), connected_socket(c) {
+	thread_param(XapianTcpServer * s, int c) : server(s), connected_socket(c) 
+	{
 	}
-
-	TcpServer * server;
+	XapianTcpServer * server;
 	int connected_socket;
 };
 
@@ -386,7 +365,7 @@ static unsigned __stdcall run_thread(void * param_)
 	return 0;
 }
 
-void TcpServer::run()
+void XapianTcpServer::run()
 {
 	// Handle connections until shutdown.
 
@@ -431,10 +410,10 @@ void TcpServer::run()
 }
 
 #else
-# error Neither HAVE_FORK nor __WIN32__ are defined.
+#error Neither HAVE_FORK nor __WIN32__ are defined.
 #endif
 
-void TcpServer::run_once()
+void XapianTcpServer::run_once()
 {
 	// Run a single request in the current process/thread.
 	int fd = accept_connection();
@@ -443,5 +422,5 @@ void TcpServer::run_once()
 }
 
 #ifdef DISABLE_GPL_LIBXAPIAN
-# error GPL source we cannot relicense included in libxapian
+#error GPL source we cannot relicense included in libxapian
 #endif

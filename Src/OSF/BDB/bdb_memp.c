@@ -3943,7 +3943,7 @@ int __memp_bh_thaw(DB_MPOOL * dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * fr
 	DB_ASSERT(env, F_ISSET(frozen_bhp, BH_EXCLUSIVE) || alloc_bhp == NULL);
 	h_locked = 1;
 	DB_ASSERT(env, F_ISSET(frozen_bhp, BH_FROZEN) && !F_ISSET(frozen_bhp, BH_THAWED));
-	DB_ASSERT(env, alloc_bhp  || SH_CHAIN_SINGLETON(frozen_bhp, vc) || (SH_CHAIN_HASNEXT(frozen_bhp, vc) && BH_OBSOLETE(frozen_bhp, hp->old_reader, vlsn)));
+	DB_ASSERT(env, alloc_bhp || SH_CHAIN_SINGLETON(frozen_bhp, vc) || (SH_CHAIN_HASNEXT(frozen_bhp, vc) && BH_OBSOLETE(frozen_bhp, hp->old_reader, vlsn)));
 	DB_ASSERT(env, !alloc_bhp || !F_ISSET(alloc_bhp, BH_FROZEN));
 	spgno = ((BH_FROZEN_PAGE *)frozen_bhp)->spgno;
 	if(alloc_bhp) {

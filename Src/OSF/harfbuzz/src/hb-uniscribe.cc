@@ -500,8 +500,7 @@ void _hb_uniscribe_shaper_font_data_destroy(hb_uniscribe_font_data_t * data)
 {
 	if(data->hdc)
 		ReleaseDC(nullptr, data->hdc);
-	if(data->hfont)
-		DeleteObject(data->hfont);
+	::DeleteObject(data->hfont);
 	if(data->script_cache)
 		ScriptFreeCache(&data->script_cache);
 	SAlloc::F(data);

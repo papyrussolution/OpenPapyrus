@@ -143,16 +143,16 @@ static int pm_list_w(const wchar_t * start, const wchar_t * end, const wchar_t c
  */
 static const char * pm_slashskip(const char * s) {
 	while((*s == '/')
-	    || (s[0] == '.' && s[1] == '/')
-	    || (s[0] == '.' && s[1] == '\0'))
+	   || (s[0] == '.' && s[1] == '/')
+	   || (s[0] == '.' && s[1] == '\0'))
 		++s;
 	return (s);
 }
 
 static const wchar_t * pm_slashskip_w(const wchar_t * s) {
 	while((*s == L'/')
-	    || (s[0] == L'.' && s[1] == L'/')
-	    || (s[0] == L'.' && s[1] == L'\0'))
+	   || (s[0] == L'.' && s[1] == L'/')
+	   || (s[0] == L'.' && s[1] == L'\0'))
 		++s;
 	return (s);
 }

@@ -191,29 +191,23 @@ int ssh_config_parse_uri(const char * tok, char ** username, char ** hostname, c
 	if(*endp == ']') {
 		endp++;
 	}
-
 	/* Port (optional) */
 	if(*endp != '\0') {
 		char * port_end = NULL;
-
 		/* Verify the port is valid positive number */
 		port_n = strtol(endp + 1, &port_end, 10);
 		if(port_n < 1 || *port_end != '\0') {
-			SSH_LOG(SSH_LOG_WARN, "Failed to parse port number."
-			    " The value '%ld' is invalid or there are some"
-			    " trailing characters: '%s'", port_n, port_end);
+			SSH_LOG(SSH_LOG_WARN, "Failed to parse port number. The value '%ld' is invalid or there are some trailing characters: '%s'", port_n, port_end);
 			goto error;
 		}
-		if(port != NULL) {
-			*port = _strdup(endp + 1);
+		if(port) {
+			*port = sstrdup(endp + 1);
 			if(*port == NULL) {
 				goto error;
 			}
 		}
 	}
-
 	return SSH_OK;
-
 error:
 	if(username != NULL) {
 		ZFREE(*username);

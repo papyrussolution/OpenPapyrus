@@ -220,8 +220,8 @@ int EVP_PKEY_derive_set_peer(EVP_PKEY_CTX * ctx, EVP_PKEY * peer)
 {
 	int ret;
 	if(!ctx || !ctx->pmeth
-	    || !(ctx->pmeth->derive || ctx->pmeth->encrypt || ctx->pmeth->decrypt)
-	    || !ctx->pmeth->ctrl) {
+	   || !(ctx->pmeth->derive || ctx->pmeth->encrypt || ctx->pmeth->decrypt)
+	   || !ctx->pmeth->ctrl) {
 		EVPerr(EVP_F_EVP_PKEY_DERIVE_SET_PEER,
 		    EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
 		return -2;

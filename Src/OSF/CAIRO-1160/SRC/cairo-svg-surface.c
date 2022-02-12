@@ -1715,7 +1715,7 @@ static cairo_status_t _cairo_svg_surface_emit_radial_pattern(cairo_svg_surface_t
 		 * list that maps to the original cairo stop list.
 		 */
 		if((extend == CAIRO_EXTEND_REFLECT
-		    || extend == CAIRO_EXTEND_REPEAT)
+		   || extend == CAIRO_EXTEND_REPEAT)
 		 && r0 > 0.0) {
 			double r_org = r1;
 

@@ -23,16 +23,14 @@
 #define XAPIAN_INCLUDED_SBL_DISPATCH_H
 
 enum sbl_code {
-    NONE = 0
+	NONE = 0
 };
 
 static const unsigned char tab[] = {
-    4,
-
-    1,0, 1,0, 1,0, (0&255),(0>>8),
-
-    (1 - 1),
-    NONE, 'n','o','n','e'
+	4,
+	1, 0, 1, 0, 1, 0, (0&255), (0>>8),
+	(1 - 1),
+	NONE, 'n', 'o', 'n', 'e'
 };
 
 #define LANGSTRING ""

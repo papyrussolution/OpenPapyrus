@@ -135,7 +135,7 @@ static int UnwindImpl(void** result, int* sizes, int max_depth, int skip_count,
 #ifdef __GNUC__
   void **frame_pointer = reinterpret_cast<void**>(__builtin_frame_address(0));
 #else
-# error reading stack point not yet supported on this platform.
+#error reading stack point not yet supported on this platform.
 #endif
 
   skip_count++;    // Skip the frame for this function.

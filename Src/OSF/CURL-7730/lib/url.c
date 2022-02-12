@@ -136,7 +136,7 @@ static void conn_free(struct connectdata * conn);
  * bad things will happen.
  */
 #if READBUFFER_SIZE < READBUFFER_MIN
-# error READBUFFER_SIZE is too small
+#error READBUFFER_SIZE is too small
 #endif
 
 /*
@@ -1274,7 +1274,7 @@ static bool ConnectionExists(struct Curl_easy * data,
 
 			if((needle->handler->flags&PROTOPT_SSL)
 #ifndef CURL_DISABLE_PROXY
-			    || !needle->bits.httpproxy || needle->bits.tunnel_proxy
+			   || !needle->bits.httpproxy || needle->bits.tunnel_proxy
 #endif
 			    ) {
 				/* The requested connection does not use a HTTP proxy or it uses SSL or

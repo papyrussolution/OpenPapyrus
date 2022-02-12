@@ -206,7 +206,7 @@ static int uint32_c2i(ASN1_VALUE ** pval, const uchar * cont, int len,
 	}
 	else {
 		if(((it->size & INTxx_FLAG_SIGNED) != 0 && utmp > INT32_MAX)
-		    || ((it->size & INTxx_FLAG_SIGNED) == 0 && utmp > UINT32_MAX)) {
+		   || ((it->size & INTxx_FLAG_SIGNED) == 0 && utmp > UINT32_MAX)) {
 			ASN1err(ASN1_F_UINT32_C2I, ASN1_R_TOO_LARGE);
 			return 0;
 		}

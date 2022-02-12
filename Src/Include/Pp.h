@@ -6146,7 +6146,8 @@ public:
 		mqofNoLocal    = 0x0010, // consume
 		mqofNoAck      = 0x0020, // consume cancel
 		mqofInternal   = 0x0040, // exchange
-		mqofMultiple   = 0x0080  // ack
+		mqofMultiple   = 0x0080, // ack
+		mqofRequeue    = 0x0100  // @v11.3.1 reject
 	};
 	//
 	// Descr: Блок свойств сообщения. Часть свойств зарезервирована (отдельные поля), часть -
@@ -6305,6 +6306,7 @@ public:
 	//   берется из поля Envelope::DeliveryTag.
 	//
 	int    Ack(uint64 deliveryTag, long flags /*mqofMultiple*/);
+	int    Reject(uint64 deliveryTag, long flags /*mqofRequeue*/);
 private:
 	static int  FASTCALL ProcessAmqpRpcReply(const amqp_rpc_reply_t & rR);
 	int    VerifyRpcReply();
@@ -16247,6 +16249,7 @@ public:
 	static int GetDesksDir(SString & rPath); // @erik v10.6.7
 	static int GetMenuDir(SString & rPath); // @erik v10.7.6
 private:
+	static const SString & InitStoragePath(int kind);
 	struct Hdr {
 		long   Signature;
 		uint32 Crc;
@@ -16254,13 +16257,13 @@ private:
 		char   Reserve[48];
 		uint32 Locking;
 	};
-	SString XmlDirPath;
-	SFile  F_Obsolete; // @v10.9.3 F-->F_Obsolete
+	const  SString XmlDirPath;
 	const  uint CtrFlags;
 	enum {
 		stError = 0x0001
 	};
 	uint   Status;
+	SFile  F_Obsolete; // @v10.9.3 F-->F_Obsolete
 };
 
 PPCommandMngr * GetCommandMngr(uint ctrFlags, PPCommandGroupCategory kind, const char * pPath = 0);
@@ -21786,6 +21789,17 @@ private:
 
 class PPSyncCashSession {
 public:
+	//
+	// Descr: Утилитная функция, возвращающая в буфере rBuf имя текущего пользователя.
+	//   Функция стереотипно применяется для получения имени кассира.
+	//   Имя возвращается в INNER-кодировке.
+	// Returns:
+	//   true - функции удалось получить имя текущего пользователя //
+	//   false - попытка получить результат оказалась безуспешной. В общем случае, это - почти аварийная //
+	///    ситуация: если сеанс авторизован, то у него есть пользователь, имеющий не пустой имя.
+	//
+	static bool GetCurrentUserName(SString & rBuf);
+
 	PPSyncCashSession(PPID cnID, const char * pName, const char * pPort);
 	virtual ~PPSyncCashSession();
 	int    Init(const char * pName, const char * pPort);
@@ -25870,7 +25884,7 @@ private:
 	int    DetectCityName(DetectBlock & rDb);
 	int    DetectStreetName(DetectBlock & rDb);
 	int    Recognize(const char * pText, TSCollection <AddrTok> & rTokList); // @debug
-	int    OutputTokList(const TSCollection <AddrTok> & rList, SString & rBuf); // @debug
+	void   OutputTokList(const TSCollection <AddrTok> & rList, SString & rBuf); // @debug
 	int    GetFiasAddrObjKind(PPID adrObjID, SString & rKind);
 
 	enum {
@@ -27980,6 +27994,7 @@ private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int   OnExecBrowser(PPViewBrowser *);
 	virtual void  PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void * GetEditExtraParam();
 	virtual int   Print(const void *);
 	int    InitPersonAttribIteration();
 	int    InitPersonIteration();
@@ -46798,6 +46813,7 @@ public:
 	SlSRP::Verifier * InitSrpVerifier(const SBinaryChunk & rCliIdent, const SBinaryChunk & rSrpS, const SBinaryChunk & rSrpV, const SBinaryChunk & rA, SBinaryChunk & rResultB) const;
 	SlSRP::Verifier * CreateSrpPacket_Svc_Auth(const SBinaryChunk & rMyPub, const SBinaryChunk & rCliIdent, const SBinaryChunk & rSrpS,
 		const SBinaryChunk & rSrpV, const SBinaryChunk & rA, StyloQProtocol & rP);
+	static void  SetupMqbReplyProps(const RoundTripBlock & rB, PPMqbClient::MessageProperties & rProps);
 private:
 	int    ExtractSessionFromPacket(const StyloQCore::StoragePacket & rPack, SSecretTagPool & rSessCtx);
 	int    ProcessCommand_PersonEvent(StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos);

@@ -30,7 +30,7 @@ typedef struct {
 
 #define NO_PAYLOAD_LENGTH       ((size_t)-1)
 
-#if defined(AES_ASM) && (defined(__x86_64) || defined(__x86_64__)  || defined(_M_AMD64) || defined(_M_X64))
+#if defined(AES_ASM) && (defined(__x86_64) || defined(__x86_64__) || defined(_M_AMD64) || defined(_M_X64))
 
 extern uint OPENSSL_ia32cap_P[];
 #define AESNI_CAPABLE   (1<<(57-32))
@@ -233,7 +233,7 @@ static size_t tls1_1_multi_block_encrypt(EVP_AES_HMAC_SHA256 * key,
 	/* hash bulk inputs */
 #define MAXCHUNKSIZE    2048
 #if     MAXCHUNKSIZE%64
-#   error  "MAXCHUNKSIZE is not divisible by 64"
+#error  "MAXCHUNKSIZE is not divisible by 64"
 #elif   MAXCHUNKSIZE
 	/*
 	 * goal is to minimize pressure on L1 cache by moving in shorter steps,

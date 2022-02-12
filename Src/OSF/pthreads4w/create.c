@@ -128,7 +128,7 @@ int pthread_create(pthread_t * tid, const pthread_attr_t * attr, void * (__PTW32
 		tp->detachState = a->detachstate;
 		priority = a->param.sched_priority;
 		if(a->thrname)
-			tp->name = _strdup(a->thrname);
+			tp->name = sstrdup(a->thrname);
 #if(THREAD_PRIORITY_LOWEST > THREAD_PRIORITY_NORMAL)
 		/* WinCE */
 #else

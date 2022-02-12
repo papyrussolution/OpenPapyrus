@@ -22,62 +22,57 @@
 #define XAPIAN_INCLUDED_EXPANDDECIDER_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error Never use <xapian/expanddecider.h> directly; include <xapian.h> instead.
+#error Never use <xapian/expanddecider.h> directly; include <xapian.h> instead.
 #endif
 
 #include <set>
 #include <string>
-
 #include <xapian/intrusive_ptr.h>
 #include <xapian/visibility.h>
 
 namespace Xapian {
-
 /** Virtual base class for expand decider functor. */
-class XAPIAN_VISIBILITY_DEFAULT ExpandDecider
-    : public Xapian::Internal::opt_intrusive_base {
-    /// Don't allow assignment.
-    void operator=(const ExpandDecider &) = delete;
-
-    /// Don't allow copying.
-    ExpandDecider(const ExpandDecider &) = delete;
-
-  public:
-    /// Default constructor.
-    ExpandDecider() { }
-
-    /** Do we want this term in the ESet?
-     *
-     *  @param term	The term to test.
-     */
-    virtual bool operator()(const std::string &term) const = 0;
-
-    /** Virtual destructor, because we have virtual methods. */
-    virtual ~ExpandDecider();
-
-    /** Start reference counting this object.
-     *
-     *  You can hand ownership of a dynamically allocated ExpandDecider
-     *  object to Xapian by calling release() and then passing the object to a
-     *  Xapian method.  Xapian will arrange to delete the object once it is no
-     *  longer required.
-     */
-    ExpandDecider * release() {
-	opt_intrusive_base::release();
-	return this;
-    }
-
-    /** Start reference counting this object.
-     *
-     *  You can hand ownership of a dynamically allocated ExpandDecider
-     *  object to Xapian by calling release() and then passing the object to a
-     *  Xapian method.  Xapian will arrange to delete the object once it is no
-     *  longer required.
-     */
-    const ExpandDecider * release() const {
-	opt_intrusive_base::release();
-	return this;
-    }
+class XAPIAN_VISIBILITY_DEFAULT ExpandDecider : public Xapian::Internal::opt_intrusive_base {
+	/// Don't allow assignment.
+	void operator=(const ExpandDecider &) = delete;
+	/// Don't allow copying.
+	ExpandDecider(const ExpandDecider &) = delete;
+public:
+	/// Default constructor.
+	ExpandDecider() 
+	{
+	}
+	/** Do we want this term in the ESet?
+	 *
+	 *  @param term	The term to test.
+	 */
+	virtual bool operator()(const std::string &term) const = 0;
+	/** Virtual destructor, because we have virtual methods. */
+	virtual ~ExpandDecider();
+	/** Start reference counting this object.
+	 *
+	 *  You can hand ownership of a dynamically allocated ExpandDecider
+	 *  object to Xapian by calling release() and then passing the object to a
+	 *  Xapian method.  Xapian will arrange to delete the object once it is no
+	 *  longer required.
+	 */
+	ExpandDecider * release() 
+	{
+		opt_intrusive_base::release();
+		return this;
+	}
+	/** Start reference counting this object.
+	 *
+	 *  You can hand ownership of a dynamically allocated ExpandDecider
+	 *  object to Xapian by calling release() and then passing the object to a
+	 *  Xapian method.  Xapian will arrange to delete the object once it is no
+	 *  longer required.
+	 */
+	const ExpandDecider * release() const 
+	{
+		opt_intrusive_base::release();
+		return this;
+	}
 };
 
 /** ExpandDecider subclass which rejects terms using two ExpandDeciders.
@@ -86,29 +81,26 @@ class XAPIAN_VISIBILITY_DEFAULT ExpandDecider
  *  ExpandDecider objects.
  */
 class XAPIAN_VISIBILITY_DEFAULT ExpandDeciderAnd : public ExpandDecider {
-    Internal::opt_intrusive_ptr<const ExpandDecider> first, second;
-
-  public:
-    /** Terms will be checked with @a first, and if accepted, then checked
-     *  with @a second.
-     *
-     *  @param first_	First ExpandDecider object to test with.
-     *  @param second_	ExpandDecider object to test with if first_ accepts.
-     */
-    ExpandDeciderAnd(const ExpandDecider &first_,
-		     const ExpandDecider &second_)
-	: first(&first_), second(&second_) { }
-
-    /** Compatibility method.
-     *
-     *  @param first_	First ExpandDecider object to test with.
-     *  @param second_	ExpandDecider object to test with if first_ accepts.
-     */
-    ExpandDeciderAnd(const ExpandDecider *first_,
-		     const ExpandDecider *second_)
-	: first(first_), second(second_) { }
-
-    virtual bool operator()(const std::string &term) const;
+	Internal::opt_intrusive_ptr<const ExpandDecider> first, second;
+public:
+	/** Terms will be checked with @a first, and if accepted, then checked
+	 *  with @a second.
+	 *
+	 *  @param first_	First ExpandDecider object to test with.
+	 *  @param second_	ExpandDecider object to test with if first_ accepts.
+	 */
+	ExpandDeciderAnd(const ExpandDecider &first_, const ExpandDecider &second_) : first(&first_), second(&second_) 
+	{
+	}
+	/** Compatibility method.
+	 *
+	 *  @param first_	First ExpandDecider object to test with.
+	 *  @param second_	ExpandDecider object to test with if first_ accepts.
+	 */
+	ExpandDeciderAnd(const ExpandDecider * first_, const ExpandDecider * second_) : first(first_), second(second_) 
+	{
+	}
+	virtual bool operator()(const std::string &term) const;
 };
 
 /** ExpandDecider subclass which rejects terms in a specified list.
@@ -117,22 +109,20 @@ class XAPIAN_VISIBILITY_DEFAULT ExpandDeciderAnd : public ExpandDecider {
  *  a fixed list when generating an ESet.
  */
 class XAPIAN_VISIBILITY_DEFAULT ExpandDeciderFilterTerms : public ExpandDecider {
-    std::set<std::string> rejects;
-
-  public:
-    /** The two iterators specify a list of terms to be rejected.
-     *
-     *  @param reject_begin	Begin iterator for the list of terms to
-     *				reject.  It can be any input_iterator type
-     *				which returns std::string or char * (e.g.
-     *				TermIterator or char **).
-     *  @param reject_end	End iterator for the list of terms to reject.
-     */
-    template<class Iterator>
-    ExpandDeciderFilterTerms(Iterator reject_begin, Iterator reject_end)
-	: rejects(reject_begin, reject_end) { }
-
-    virtual bool operator()(const std::string &term) const;
+	std::set<std::string> rejects;
+public:
+	/** The two iterators specify a list of terms to be rejected.
+	 *
+	 *  @param reject_begin	Begin iterator for the list of terms to
+	 *				reject.  It can be any input_iterator type
+	 *				which returns std::string or char * (e.g.
+	 *				TermIterator or char **).
+	 *  @param reject_end	End iterator for the list of terms to reject.
+	 */
+	template <class Iterator> ExpandDeciderFilterTerms(Iterator reject_begin, Iterator reject_end) : rejects(reject_begin, reject_end) 
+	{
+	}
+	virtual bool operator()(const std::string &term) const;
 };
 
 /** ExpandDecider subclass which restrict terms to a particular prefix
@@ -141,18 +131,16 @@ class XAPIAN_VISIBILITY_DEFAULT ExpandDeciderFilterTerms : public ExpandDecider 
  *  particular prefix when generating an ESet.
  */
 class XAPIAN_VISIBILITY_DEFAULT ExpandDeciderFilterPrefix : public ExpandDecider {
-    std::string prefix;
-
-  public:
-    /** The parameter specify the prefix of terms to be retained
-     *  @param prefix_   restrict terms to the particular prefix_
-     */
-    explicit ExpandDeciderFilterPrefix(const std::string &prefix_)
-	: prefix(prefix_) { }
-
-    virtual bool operator() (const std::string &term) const;
+	std::string prefix;
+public:
+	/** The parameter specify the prefix of terms to be retained
+	 *  @param prefix_   restrict terms to the particular prefix_
+	 */
+	explicit ExpandDeciderFilterPrefix(const std::string &prefix_) : prefix(prefix_) 
+	{
+	}
+	virtual bool operator()(const std::string &term) const;
 };
-
 }
 
 #endif // XAPIAN_INCLUDED_EXPANDDECIDER_H

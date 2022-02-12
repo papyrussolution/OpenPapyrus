@@ -269,7 +269,7 @@ typedef SQLITE_INT64_TYPE sqlite_int64;
 typedef SQLITE_UINT64_TYPE sqlite_uint64;
 # else
 typedef unsigned SQLITE_INT64_TYPE sqlite_uint64;
-# endif
+#endif
 #elif defined(_MSC_VER) || defined(__BORLANDC__)
 typedef __int64 sqlite_int64;
 typedef unsigned __int64 sqlite_uint64;

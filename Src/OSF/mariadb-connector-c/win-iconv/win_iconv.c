@@ -1067,7 +1067,7 @@ static int libiconv_iconv_open(rec_iconv_t * cd, const char * tocode, const char
 		cd->iconv = (f_iconv)GetProcAddressA(hlibiconv, "iconv");
 	cd->_errno = (f_errno)GetProcAddressA(hmsvcrt, "_errno");
 	if(_iconv_open == NULL || cd->iconv_close == NULL
-	    || cd->iconv == NULL || cd->_errno == NULL)
+	   || cd->iconv == NULL || cd->_errno == NULL)
 		goto failed;
 
 	cd->cd = _iconv_open(tocode, fromcode);
@@ -1201,7 +1201,7 @@ static int eucjp_mblen(csconv_t * cv UNUSED, const uchar * buf, int bufsize)
 		if(bufsize < 3)
 			return seterror(EINVAL);
 		else if(!(0xA1 <= buf[1] && buf[1] <= 0xFE)
-		    || !(0xA1 <= buf[2] && buf[2] <= 0xFE))
+		   || !(0xA1 <= buf[2] && buf[2] <= 0xFE))
 			return seterror(EILSEQ);
 		return 3;
 	}
@@ -1209,7 +1209,7 @@ static int eucjp_mblen(csconv_t * cv UNUSED, const uchar * buf, int bufsize)
 		if(bufsize < 2)
 			return seterror(EINVAL);
 		else if(!(0xA1 <= buf[0] && buf[0] <= 0xFE)
-		    || !(0xA1 <= buf[1] && buf[1] <= 0xFE))
+		   || !(0xA1 <= buf[1] && buf[1] <= 0xFE))
 			return seterror(EILSEQ);
 		return 2;
 	}
@@ -1574,7 +1574,7 @@ static int iso2022jp_mbtowc(csconv_t * cv, const uchar * buf, int bufsize, ushor
 	memcpy(tmp + esc_len, buf, len);
 
 	if((cv->codepage == 50220 || cv->codepage == 50221
-	    || cv->codepage == 50222) && shift == ISO2022_SO) {
+	   || cv->codepage == 50222) && shift == ISO2022_SO) {
 		/* XXX: shift-out cannot be used for mbtowc (both kernel and
 		 * mlang) */
 		esc_len = iesc[ISO2022JP_CS_JISX0201_KANA].esc_len;

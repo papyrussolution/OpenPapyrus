@@ -19,9 +19,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include <xapian/termgenerator.h>
-#include <xapian/types.h>
-#include <xapian/unicode.h>
 #include "termgenerator_internal.h"
 
 using namespace std;

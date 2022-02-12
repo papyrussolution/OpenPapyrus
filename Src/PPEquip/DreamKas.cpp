@@ -224,8 +224,8 @@ int ACS_DREAMKAS::ImportGoodsList(UUIDAssocArray & rList)
 				if(json_parse_document(&p_json_doc, temp_buf.cptr()) == JSON_OK) {
 					long   seq_id = 0;
 					S_GUID goods_uuid;
-					SJson * p_next = 0;
-					for(SJson * p_cur = p_json_doc; p_cur; p_cur = p_next) {
+					const  SJson * p_next = 0;
+					for(const SJson * p_cur = p_json_doc; p_cur; p_cur = p_next) {
 						p_next = p_cur->P_Next;
 						switch(p_cur->Type) {
 							case SJson::tARRAY:
@@ -603,8 +603,8 @@ int ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID)
 				temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 				f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
 				if(json_parse_document(&p_json_doc, temp_buf.cptr()) == JSON_OK) {
-					SJson * p_next = 0;
-					for(SJson * p_cur = p_json_doc; p_cur; p_cur = p_next) {
+					const SJson * p_next = 0;
+					for(const SJson * p_cur = p_json_doc; p_cur; p_cur = p_next) {
 						p_next = p_cur->P_Next;
 						switch(p_cur->Type) {
 							case SJson::tARRAY:
@@ -914,10 +914,10 @@ int ACS_DREAMKAS::AcceptCheck(const SJson * pJsonObj)
 				f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
 				THROW(json_parse_document(&p_json_doc, temp_buf.cptr()) == JSON_OK);
 				{
-					SJson * p_next = 0;
+					const SJson * p_next = 0;
 					PPTransaction tra(1);
 					THROW(tra);
-					for(SJson * p_cur = p_json_doc->P_Child; p_cur; p_cur = p_next) {
+					for(const SJson * p_cur = p_json_doc->P_Child; p_cur; p_cur = p_next) {
 						p_next = p_cur->P_Next;
 						if(p_cur->Type == SJson::tSTRING) {
 							if(p_cur->Text.IsEqiAscii("data"))

@@ -28,7 +28,7 @@
 #include <dlfcn.h>
 #define HAVE_DLINFO 1
 #if defined(__SCO_VERSION__) || defined(_SCO_ELF) || \
-	(defined(__osf__) && !defined(RTLD_NEXT))     || \
+	(defined(__osf__) && !defined(RTLD_NEXT))    || \
 	(defined(__OpenBSD__) && !defined(RTLD_SELF)) || \
 	defined(__ANDROID__)
 #undef HAVE_DLINFO
@@ -369,7 +369,7 @@ static int dladdr(void * ptr, Dl_info * dl)
 		if(((addr >= (uintptr_t)this_ldi->ldinfo_textorg)
 		 && (addr < ((uintptr_t)this_ldi->ldinfo_textorg +
 		    this_ldi->ldinfo_textsize)))
-		    || ((addr >= (uintptr_t)this_ldi->ldinfo_dataorg)
+		   || ((addr >= (uintptr_t)this_ldi->ldinfo_dataorg)
 		 && (addr < ((uintptr_t)this_ldi->ldinfo_dataorg +
 		    this_ldi->ldinfo_datasize)))) {
 			char * buffer, * member;

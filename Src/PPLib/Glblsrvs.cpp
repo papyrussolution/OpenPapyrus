@@ -687,7 +687,7 @@ int VkInterface::Market_Get(long offs, long maxItems, TSCollection <MarketWareIt
 			ok = 0;
 		}
 		else { 
-			for(SJson * p_cur = p_json_doc; p_cur; p_cur = p_cur->P_Next) {
+			for(const SJson * p_cur = p_json_doc; p_cur; p_cur = p_cur->P_Next) {
 				if(SJson::IsObject(p_cur)) {
 					for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
 						if(p_obj->Text.IsEqiAscii("response")) {
@@ -769,7 +769,7 @@ int VkInterface::ParceGoodsItemList(const SString & rJsonStr, LongArray & rList)
 	SJson * p_json_doc = 0;
 	long item_id = 0; 
 	THROW_SL(json_parse_document(&p_json_doc, rJsonStr.cptr()) == JSON_OK);
-	for(SJson * p_cur = p_json_doc; p_cur; p_cur = p_cur->P_Next) {
+	for(const SJson * p_cur = p_json_doc; p_cur; p_cur = p_cur->P_Next) {
 		if(p_cur->Type == SJson::tOBJECT) {
 			for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
 				if(p_obj->Text.IsEqiAscii("response")) {

@@ -119,7 +119,7 @@ int SXNET_add_id_ulong(SXNET ** psx, ulong lzone, const char * user,
 	ASN1_INTEGER * izone;
 
 	if((izone = ASN1_INTEGER_new()) == NULL
-	    || !ASN1_INTEGER_set(izone, lzone)) {
+	   || !ASN1_INTEGER_set(izone, lzone)) {
 		X509V3err(X509V3_F_SXNET_ADD_ID_ULONG, ERR_R_MALLOC_FAILURE);
 		ASN1_INTEGER_free(izone);
 		return 0;
@@ -202,7 +202,7 @@ ASN1_OCTET_STRING * SXNET_get_id_ulong(SXNET * sx, ulong lzone)
 	ASN1_OCTET_STRING * oct;
 
 	if((izone = ASN1_INTEGER_new()) == NULL
-	    || !ASN1_INTEGER_set(izone, lzone)) {
+	   || !ASN1_INTEGER_set(izone, lzone)) {
 		X509V3err(X509V3_F_SXNET_GET_ID_ULONG, ERR_R_MALLOC_FAILURE);
 		ASN1_INTEGER_free(izone);
 		return NULL;

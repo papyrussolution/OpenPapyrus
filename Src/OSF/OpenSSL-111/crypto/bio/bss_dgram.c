@@ -237,7 +237,7 @@ static void dgram_adjust_rcv_timeout(BIO * b)
 		 * earlier.
 		 */
 		if((data->socket_timeout.tv_sec == 0 && data->socket_timeout.tv_usec == 0)
-		    || (data->socket_timeout.tv_sec > timeleft.tv_sec) || (data->socket_timeout.tv_sec == timeleft.tv_sec
+		   || (data->socket_timeout.tv_sec > timeleft.tv_sec) || (data->socket_timeout.tv_sec == timeleft.tv_sec
 		 && data->socket_timeout.tv_usec >= timeleft.tv_usec)) {
 #ifdef OPENSSL_SYS_WINDOWS
 			timeout = timeleft.tv_sec * 1000 + timeleft.tv_usec / 1000;
@@ -484,7 +484,7 @@ static long dgram_ctrl(BIO * b, int cmd, long num, void * ptr)
 				if((ret =
 				    getsockopt(b->num, IPPROTO_IPV6, IPV6_MTU,
 				    (void *)&sockopt_val, &sockopt_len)) < 0
-				    || sockopt_val < 0) {
+				   || sockopt_val < 0) {
 					ret = 0;
 				}
 				else {

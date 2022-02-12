@@ -22,8 +22,6 @@
 #pragma hdrstop
 #include "queryinternal.h"
 #include "xapian/postingsource.h"
-#include "xapian/query.h"
-#include "xapian/unicode.h"
 #include "api/editdistance.h"
 #include "backends/postlist.h"
 #include "matcher/andmaybepostlist.h"

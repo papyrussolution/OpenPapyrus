@@ -381,7 +381,7 @@ static LIBSSH2_CHANNEL * scp_recv(LIBSSH2_SESSION * session, const char * path, 
 					goto scp_recv_error;
 				}
 				if((session->scpRecv_response_len > 1) && ((session->scpRecv_response[session->scpRecv_response_len - 1] < '0')
-					    || (session->scpRecv_response[session->scpRecv_response_len - 1] > '9'))
+					   || (session->scpRecv_response[session->scpRecv_response_len - 1] > '9'))
 				 && (session->scpRecv_response[session->scpRecv_response_len - 1] != ' ')
 				 && (session->scpRecv_response[session->scpRecv_response_len - 1] != '\r')
 				 && (session->scpRecv_response[session->scpRecv_response_len - 1] != '\n')) {
@@ -498,7 +498,7 @@ static LIBSSH2_CHANNEL * scp_recv(LIBSSH2_SESSION * session, const char * path, 
 				}
 				/* We're guaranteed not to go under response_len == 0 by the logic above */
 				while((session->scpRecv_response[session->scpRecv_response_len - 1] == '\r')
-				    || (session->scpRecv_response[session->scpRecv_response_len - 1] == '\n')) {
+				   || (session->scpRecv_response[session->scpRecv_response_len - 1] == '\n')) {
 					session->scpRecv_response_len--;
 				}
 				session->scpRecv_response[session->scpRecv_response_len] = '\0';

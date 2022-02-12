@@ -43,15 +43,13 @@ Xapian::doccount RemoteKeyList::get_termfreq() const
 
 TermList* RemoteKeyList::next()
 {
-	if(!p) {
-		p = data.data();
-	}
+	SETIFZ(p, data.data());
 	const char* p_end = data.data() + data.size();
 	if(p == p_end) {
 		data.resize(0);
 		return NULL;
 	}
-	current_term.resize(size_t(static_cast<unsigned char>(*p++)));
+	current_term.resize(size_t(static_cast<uchar>(*p++)));
 	if(!unpack_string_append(&p, p_end, current_term)) {
 		unpack_throw_serialisation_error(p);
 	}

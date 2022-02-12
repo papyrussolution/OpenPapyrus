@@ -622,7 +622,7 @@ static int check_name_constraints(X509_STORE_CTX * ctx)
 			    OBJ_obj2nid(X509_NAME_ENTRY_get_object(tmpentry));
 
 			if(last_object_nid != NID_commonName
-			    || X509_NAME_cmp(tmpsubject, tmpissuer) != 0) {
+			   || X509_NAME_cmp(tmpsubject, tmpissuer) != 0) {
 				err = X509_V_ERR_PROXY_SUBJECT_NAME_VIOLATION;
 			}
 
@@ -653,7 +653,7 @@ proxy_name_done:
 				    & X509_CHECK_FLAG_NEVER_CHECK_SUBJECT) == 0
 				 && ((ctx->param->hostflags
 				    & X509_CHECK_FLAG_ALWAYS_CHECK_SUBJECT) != 0
-				    || !has_san_id(x, GEN_DNS)))
+				   || !has_san_id(x, GEN_DNS)))
 					rv = NAME_CONSTRAINTS_check_CN(x, nc);
 
 				switch(rv) {

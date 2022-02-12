@@ -143,9 +143,9 @@ ngx_int_t ngx_event_connect_peer(ngx_peer_connection_t * pc)
 			   * Linux returns EAGAIN instead of ECONNREFUSED
 			   * for unix sockets if listen queue is full
 			     */
-			    || err == NGX_EAGAIN
+			   || err == NGX_EAGAIN
 #endif
-			    || err == NGX_ECONNRESET || err == NGX_ENETDOWN || err == NGX_ENETUNREACH || err == NGX_EHOSTDOWN || err == NGX_EHOSTUNREACH) {
+			   || err == NGX_ECONNRESET || err == NGX_ENETDOWN || err == NGX_ENETUNREACH || err == NGX_EHOSTDOWN || err == NGX_EHOSTUNREACH) {
 				level = NGX_LOG_ERR;
 			}
 			else {

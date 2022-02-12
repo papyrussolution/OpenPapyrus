@@ -194,7 +194,7 @@ int SCardSpecialTreatment_AstraZeneca::VerifyOwner(const CardBlock * pScBlk)
 					temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 					f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
 					if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
-						for(SJson * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
+						for(const SJson * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
 							if(p_cur->Type == SJson::tOBJECT) {
 								for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
 									if(p_obj->Text.IsEqiAscii("status")) {
@@ -244,7 +244,7 @@ int SCardSpecialTreatment_AstraZeneca::VerifyOwner(const CardBlock * pScBlk)
 					f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
 					json_free_value(&p_reply);
 					if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
-						for(SJson * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
+						for(const SJson * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
 							if(p_cur->Type == SJson::tOBJECT) {
 								for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
 									if(p_obj->Text.IsEqiAscii("status")) {
@@ -346,7 +346,7 @@ int SCardSpecialTreatment_AstraZeneca::CommitCheck(const CardBlock * pScBlk, con
 					temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 					f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
 					THROW_SL(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK);
-					for(SJson * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
+					for(const SJson * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
 						if(SJson::IsObject(p_cur)) {
 							for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
 								if(p_obj->Text.IsEqiAscii("status")) {
@@ -509,7 +509,7 @@ int SCardSpecialTreatment_AstraZeneca::QueryDiscount(const CardBlock * pScBlk, T
 					temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 					f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
 					THROW_SL(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK);
-					for(SJson * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
+					for(const SJson * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
 						if(p_cur->Type == SJson::tOBJECT) {
 							for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
 								if(p_obj->Text.IsEqiAscii("status")) {
@@ -915,10 +915,10 @@ int UdsGameInterface::GetSettings(Settings & rResult)
 							}
 							else if(p_cur->Text.IsEqiAscii("loyaltyProgramSettings")) {
 								if(p_cur->P_Child && p_cur->P_Child->Type == SJson::tOBJECT) {
-									for(SJson * p_lps_item = p_cur->P_Child->P_Child; p_lps_item; p_lps_item = p_lps_item->P_Next) {
+									for(const SJson * p_lps_item = p_cur->P_Child->P_Child; p_lps_item; p_lps_item = p_lps_item->P_Next) {
 										if(p_lps_item->Text.IsEqiAscii("membershipTiers")) {
 											if(p_lps_item->P_Child && p_lps_item->P_Child->Type == SJson::tARRAY) {
-												for(SJson * p_mt_item = p_lps_item->P_Child->P_Child; p_mt_item; p_mt_item = p_mt_item->P_Next) {
+												for(const SJson * p_mt_item = p_lps_item->P_Child->P_Child; p_mt_item; p_mt_item = p_mt_item->P_Next) {
 													MembershipTier * p_new_mt = rResult.MtList.CreateNewItem();
 													if(p_new_mt) {
 														ReadMembershipTier(p_mt_item, *p_new_mt);
@@ -1146,11 +1146,10 @@ int UdsGameInterface::GetCustomerList(TSCollection <Customer> & rResult) // GET 
 							if(p_cur->Text.IsEqiAscii("rows")) {
 								ok = 1;
 								if(p_cur->P_Child && p_cur->P_Child->Type == SJson::tARRAY) {
-									for(SJson * p_item = p_cur->P_Child->P_Child; p_item; p_item = p_item->P_Next) {
+									for(const SJson * p_item = p_cur->P_Child->P_Child; p_item; p_item = p_item->P_Next) {
 										Customer * p_new_cust = rResult.CreateNewItem();
-										if(p_new_cust) {
+										if(p_new_cust)
 											ReadCustomer(p_item, *p_new_cust);
-										}
 									}
 								}
 							}
@@ -1699,7 +1698,7 @@ int UdsGameInterface::GetPriceItemList(const GoodsItemFilt & rFilt, TSCollection
 							if(p_cur->Text.IsEqiAscii("rows")) {
 								ok = 1;
 								if(p_cur->P_Child && p_cur->P_Child->Type == SJson::tARRAY) {
-									for(SJson * p_item = p_cur->P_Child->P_Child; p_item; p_item = p_item->P_Next) {
+									for(const SJson * p_item = p_cur->P_Child->P_Child; p_item; p_item = p_item->P_Next) {
 										GoodsItem * p_new_item = rResult.CreateNewItem();
 										if(p_new_item) {
 											ReadPriceItem(p_item, *p_new_item);

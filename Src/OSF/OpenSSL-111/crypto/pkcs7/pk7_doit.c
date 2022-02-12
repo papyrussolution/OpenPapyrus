@@ -162,8 +162,8 @@ static int pkcs7_decrypt_rinfo(uchar ** pek, int * peklen,
 
 	if(EVP_PKEY_decrypt(pctx, ek, &eklen,
 	    ri->enc_key->data, ri->enc_key->length) <= 0
-	    || eklen == 0
-	    || (fixlen != 0 && eklen != fixlen)) {
+	   || eklen == 0
+	   || (fixlen != 0 && eklen != fixlen)) {
 		ret = 0;
 		PKCS7err(PKCS7_F_PKCS7_DECRYPT_RINFO, ERR_R_EVP_LIB);
 		goto err;

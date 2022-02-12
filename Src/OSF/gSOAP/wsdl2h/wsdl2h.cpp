@@ -134,23 +134,18 @@ This software is released under one of the following two licenses:\n\
 \n\
 This program is free software; you can redistribute it and/or modify it under\n\
 the terms of the GNU General Public License as published by the Free Software\n\
-Foundation; either version 2 of the License, or (at your option) any later\n\
-version.\n\
+Foundation; either version 2 of the License, or (at your option) any later version.\n\
 \n\
 This program is distributed in the hope that it will be useful, but WITHOUT ANY\n\
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A\n\
 PARTICULAR PURPOSE. See the GNU General Public License for more details.\n\
 \n\
 You should have received a copy of the GNU General Public License along with\n\
-this program; if not, write to the Free Software Foundation, Inc., 59 Temple\n\
-Place, Suite 330, Boston, MA 02111-1307 USA\n\
+this program; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA\n\
 \n\
-Author contact information:\n\
-engelen@genivia.com / engelen@acm.org\n\
+Author contact information: engelen@genivia.com / engelen@acm.org\n\
 \n\
-This program is released under the GPL with the additional exemption that\n\
-compiling, linking, and/or using OpenSSL is allowed.\n\
---------------------------------------------------------------------------------\n\
+This program is released under the GPL with the additional exemption that compiling, linking, and/or using OpenSSL is allowed.\n\
 2) A commercial-use license is available from Genivia, Inc., contact@genivia.com\n\
 --------------------------------------------------------------------------------\n"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ;
 
@@ -177,13 +172,9 @@ int main(int argc, char ** argv)
 	}
 	return 0;
 }
-
-////////////////////////////////////////////////////////////////////////////////
 //
 //	Initialization
 //
-////////////////////////////////////////////////////////////////////////////////
-
 static void init()
 {
 	struct Namespace * p = namespaces;
@@ -196,13 +187,9 @@ static void init()
 		}
 	}
 }
-
-////////////////////////////////////////////////////////////////////////////////
 //
 //	Parse command line options
 //
-////////////////////////////////////////////////////////////////////////////////
-
 static void options(int argc, char ** argv)
 {
 	int i;
@@ -386,11 +373,9 @@ static void options(int argc, char ** argv)
 				      break;
 				  case '?':
 				  case 'h':
-				      fprintf(
-					    stderr,
+				      fprintf(stderr,
 					    "Usage: wsdl2h [-a] [-c] [-d] [-e] [-f] [-g] [-h] [-I path] [-i] [-j] [-k] [-l] [-m] [-n name] [-N name] [-p|-P] [-q name] [-r proxyhost[:port[:uid:pwd]]] [-s] [-t typemapfile] [-u] [-v] [-w] [-W] [-x] [-y] [-z#] [-_] [-o outfile.h] infile.wsdl infile.xsd http://www... ...\n\n");
-				      fprintf(
-					    stderr,
+				      fprintf(stderr,
 					    "\
 -a      generate indexed struct names for local elements with anonymous types\n\
 -c      generate C source code\n\
@@ -432,7 +417,7 @@ infile.wsdl infile.xsd http://www... list of input sources (if none: use stdin)\
 				      exit(1); }
 			}
 		}
-		else{infile[infiles++] = argv[i];
+		else {infile[infiles++] = argv[i];
 		     if(infiles >= MAXINFILES) {
 			     slfprintf_stderr("wsdl2h: too many files\n");
 			     exit(1);
@@ -467,13 +452,9 @@ infile.wsdl infile.xsd http://www... list of input sources (if none: use stdin)\
 		}
 	}
 }
-
-////////////////////////////////////////////////////////////////////////////////
 //
 //	Namespaces
 //
-////////////////////////////////////////////////////////////////////////////////
-
 struct Namespace namespaces[] = {
 	{"SOAP-ENV", "http://schemas.xmlsoap.org/soap/envelope/", "http://www.w3.org/*/soap-envelope"},
 	{"SOAP-ENC", "http://schemas.xmlsoap.org/soap/encoding/", "http://www.w3.org/*/soap-encoding"},

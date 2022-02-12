@@ -505,7 +505,7 @@ int DTLSv1_listen(SSL * s, BIO_ADDR * client)
 
 		/* Get the record header */
 		if(!PACKET_get_1(&pkt, &rectype)
-		    || !PACKET_get_1(&pkt, &versmajor)) {
+		   || !PACKET_get_1(&pkt, &versmajor)) {
 			SSLerr(SSL_F_DTLSV1_LISTEN, SSL_R_LENGTH_MISMATCH);
 			goto end;
 		}
@@ -526,8 +526,8 @@ int DTLSv1_listen(SSL * s, BIO_ADDR * client)
 
 		if(!PACKET_forward(&pkt, 1)
 		    /* Save the sequence number: 64 bits, with top 2 bytes = epoch */
-		    || !PACKET_copy_bytes(&pkt, seq, SEQ_NUM_SIZE)
-		    || !PACKET_get_length_prefixed_2(&pkt, &msgpkt)) {
+		   || !PACKET_copy_bytes(&pkt, seq, SEQ_NUM_SIZE)
+		   || !PACKET_get_length_prefixed_2(&pkt, &msgpkt)) {
 			SSLerr(SSL_F_DTLSV1_LISTEN, SSL_R_LENGTH_MISMATCH);
 			goto end;
 		}
@@ -548,12 +548,12 @@ int DTLSv1_listen(SSL * s, BIO_ADDR * client)
 
 		/* Finished processing the record header, now process the message */
 		if(!PACKET_get_1(&msgpkt, &msgtype)
-		    || !PACKET_get_net_3_len(&msgpkt, &msglen)
-		    || !PACKET_get_net_2(&msgpkt, &msgseq)
-		    || !PACKET_get_net_3_len(&msgpkt, &fragoff)
-		    || !PACKET_get_net_3_len(&msgpkt, &fraglen)
-		    || !PACKET_get_sub_packet(&msgpkt, &msgpayload, fraglen)
-		    || PACKET_remaining(&msgpkt) != 0) {
+		   || !PACKET_get_net_3_len(&msgpkt, &msglen)
+		   || !PACKET_get_net_2(&msgpkt, &msgseq)
+		   || !PACKET_get_net_3_len(&msgpkt, &fragoff)
+		   || !PACKET_get_net_3_len(&msgpkt, &fraglen)
+		   || !PACKET_get_sub_packet(&msgpkt, &msgpayload, fraglen)
+		   || PACKET_remaining(&msgpkt) != 0) {
 			SSLerr(SSL_F_DTLSV1_LISTEN, SSL_R_LENGTH_MISMATCH);
 			goto end;
 		}
@@ -602,8 +602,8 @@ int DTLSv1_listen(SSL * s, BIO_ADDR * client)
 		}
 
 		if(!PACKET_forward(&msgpayload, SSL3_RANDOM_SIZE)
-		    || !PACKET_get_length_prefixed_1(&msgpayload, &session)
-		    || !PACKET_get_length_prefixed_1(&msgpayload, &cookiepkt)) {
+		   || !PACKET_get_length_prefixed_1(&msgpayload, &session)
+		   || !PACKET_get_length_prefixed_1(&msgpayload, &cookiepkt)) {
 			/*
 			 * Could be malformed or the cookie does not fit within the initial
 			 * ClientHello fragment. Either way we can't handle it.
@@ -676,17 +676,17 @@ int DTLSv1_listen(SSL * s, BIO_ADDR * client)
 			    ssl_get_max_send_fragment(s)
 			    + DTLS1_RT_HEADER_LENGTH,
 			    0)
-			    || !WPACKET_put_bytes_u8(&wpkt, SSL3_RT_HANDSHAKE)
-			    || !WPACKET_put_bytes_u16(&wpkt, version)
+			   || !WPACKET_put_bytes_u8(&wpkt, SSL3_RT_HANDSHAKE)
+			   || !WPACKET_put_bytes_u16(&wpkt, version)
 			    /*
 			     * Record sequence number is always the same as in the
 			     * received ClientHello
 			     */
-			    || !WPACKET_memcpy(&wpkt, seq, SEQ_NUM_SIZE)
+			   || !WPACKET_memcpy(&wpkt, seq, SEQ_NUM_SIZE)
 			    /* End of record, start sub packet for message */
-			    || !WPACKET_start_sub_packet_u16(&wpkt)
+			   || !WPACKET_start_sub_packet_u16(&wpkt)
 			    /* Message type */
-			    || !WPACKET_put_bytes_u8(&wpkt,
+			   || !WPACKET_put_bytes_u8(&wpkt,
 			    DTLS1_MT_HELLO_VERIFY_REQUEST)
 			    /*
 			     * Message length - doesn't follow normal TLS convention:
@@ -694,32 +694,32 @@ int DTLSv1_listen(SSL * s, BIO_ADDR * client)
 			     * We'll need to fill this in later when we know the
 			     * length. Set it to zero for now
 			     */
-			    || !WPACKET_put_bytes_u24(&wpkt, 0)
+			   || !WPACKET_put_bytes_u24(&wpkt, 0)
 			    /*
 			     * Message sequence number is always 0 for a
 			     * HelloVerifyRequest
 			     */
-			    || !WPACKET_put_bytes_u16(&wpkt, 0)
+			   || !WPACKET_put_bytes_u16(&wpkt, 0)
 			    /*
 			     * We never fragment a HelloVerifyRequest, so fragment
 			     * offset is 0
 			     */
-			    || !WPACKET_put_bytes_u24(&wpkt, 0)
+			   || !WPACKET_put_bytes_u24(&wpkt, 0)
 			    /*
 			     * Fragment length is the same as message length, but
 			     * this *is* the last thing in the message header so we
 			     * can just start a sub-packet. No need to come back
 			     * later for this one.
 			     */
-			    || !WPACKET_start_sub_packet_u24(&wpkt)
+			   || !WPACKET_start_sub_packet_u24(&wpkt)
 			    /* Create the actual HelloVerifyRequest body */
-			    || !dtls_raw_hello_verify_request(&wpkt, cookie, cookielen)
+			   || !dtls_raw_hello_verify_request(&wpkt, cookie, cookielen)
 			    /* Close message body */
-			    || !WPACKET_close(&wpkt)
+			   || !WPACKET_close(&wpkt)
 			    /* Close record body */
-			    || !WPACKET_close(&wpkt)
-			    || !WPACKET_get_total_written(&wpkt, &wreclen)
-			    || !WPACKET_finish(&wpkt)) {
+			   || !WPACKET_close(&wpkt)
+			   || !WPACKET_get_total_written(&wpkt, &wreclen)
+			   || !WPACKET_finish(&wpkt)) {
 				SSLerr(SSL_F_DTLSV1_LISTEN, ERR_R_INTERNAL_ERROR);
 				WPACKET_cleanup(&wpkt);
 				/* This is fatal */

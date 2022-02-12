@@ -66,14 +66,14 @@ int tls13_hkdf_expand(SSL * s, const EVP_MD * md, const uchar * secret,
 	}
 	hashlen = EVP_MD_size(md);
 	if(!WPACKET_init_static_len(&pkt, hkdflabel, sizeof(hkdflabel), 0)
-	    || !WPACKET_put_bytes_u16(&pkt, outlen)
-	    || !WPACKET_start_sub_packet_u8(&pkt)
-	    || !WPACKET_memcpy(&pkt, label_prefix, sizeof(label_prefix) - 1)
-	    || !WPACKET_memcpy(&pkt, label, labellen)
-	    || !WPACKET_close(&pkt)
-	    || !WPACKET_sub_memcpy_u8(&pkt, data, (data == NULL) ? 0 : datalen)
-	    || !WPACKET_get_total_written(&pkt, &hkdflabellen)
-	    || !WPACKET_finish(&pkt)) {
+	   || !WPACKET_put_bytes_u16(&pkt, outlen)
+	   || !WPACKET_start_sub_packet_u8(&pkt)
+	   || !WPACKET_memcpy(&pkt, label_prefix, sizeof(label_prefix) - 1)
+	   || !WPACKET_memcpy(&pkt, label, labellen)
+	   || !WPACKET_close(&pkt)
+	   || !WPACKET_sub_memcpy_u8(&pkt, data, (data == NULL) ? 0 : datalen)
+	   || !WPACKET_get_total_written(&pkt, &hkdflabellen)
+	   || !WPACKET_finish(&pkt)) {
 		EVP_PKEY_CTX_free(pctx);
 		WPACKET_cleanup(&pkt);
 		if(fatal)
@@ -265,7 +265,7 @@ size_t tls13_final_finish_mac(SSL * s, const char * str, size_t slen, uchar * ou
 		OPENSSL_cleanse(finsecret, sizeof(finsecret));
 	}
 	if(key == NULL || ctx == NULL || EVP_DigestSignInit(ctx, NULL, md, NULL, key) <= 0
-	    || EVP_DigestSignUpdate(ctx, hash, hashlen) <= 0 || EVP_DigestSignFinal(ctx, out, &hashlen) <= 0) {
+	   || EVP_DigestSignUpdate(ctx, hash, hashlen) <= 0 || EVP_DigestSignFinal(ctx, out, &hashlen) <= 0) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS13_FINAL_FINISH_MAC, ERR_R_INTERNAL_ERROR);
 		goto err;
 	}
@@ -348,16 +348,16 @@ static int derive_secret_key_and_iv(SSL * s, int sending, const EVP_MD * md,
 	}
 
 	if(!tls13_derive_key(s, md, secret, key, keylen)
-	    || !tls13_derive_iv(s, md, secret, iv, ivlen)) {
+	   || !tls13_derive_iv(s, md, secret, iv, ivlen)) {
 		/* SSLfatal() already called */
 		goto err;
 	}
 
 	if(EVP_CipherInit_ex(ciph_ctx, ciph, NULL, NULL, NULL, sending) <= 0
-	    || !EVP_CIPHER_CTX_ctrl(ciph_ctx, EVP_CTRL_AEAD_SET_IVLEN, ivlen, NULL)
-	    || (taglen != 0 && !EVP_CIPHER_CTX_ctrl(ciph_ctx, EVP_CTRL_AEAD_SET_TAG,
+	   || !EVP_CIPHER_CTX_ctrl(ciph_ctx, EVP_CTRL_AEAD_SET_IVLEN, ivlen, NULL)
+	   || (taglen != 0 && !EVP_CIPHER_CTX_ctrl(ciph_ctx, EVP_CTRL_AEAD_SET_TAG,
 	    taglen, NULL))
-	    || EVP_CipherInit_ex(ciph_ctx, NULL, NULL, key, NULL, -1) <= 0) {
+	   || EVP_CipherInit_ex(ciph_ctx, NULL, NULL, key, NULL, -1) <= 0) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_DERIVE_SECRET_KEY_AND_IV,
 		    ERR_R_EVP_LIB);
 		goto err;
@@ -450,7 +450,7 @@ int tls13_change_cipher_state(SSL * s, int which)
 	}
 
 	if(((which & SSL3_CC_CLIENT) && (which & SSL3_CC_WRITE))
-	    || ((which & SSL3_CC_SERVER) && (which & SSL3_CC_READ))) {
+	   || ((which & SSL3_CC_SERVER) && (which & SSL3_CC_READ))) {
 		if(which & SSL3_CC_EARLY) {
 			EVP_MD_CTX * mdctx = NULL;
 			long handlen;
@@ -509,8 +509,8 @@ int tls13_change_cipher_state(SSL * s, int which)
 			cipher = EVP_get_cipherbynid(SSL_CIPHER_get_cipher_nid(sslcipher));
 			md = ssl_md(sslcipher->algorithm2);
 			if(md == NULL || !EVP_DigestInit_ex(mdctx, md, NULL)
-			    || !EVP_DigestUpdate(mdctx, hdata, handlen)
-			    || !EVP_DigestFinal_ex(mdctx, hashval, &hashlenui)) {
+			   || !EVP_DigestUpdate(mdctx, hdata, handlen)
+			   || !EVP_DigestFinal_ex(mdctx, hashval, &hashlenui)) {
 				SSLfatal(s, SSL_AD_INTERNAL_ERROR,
 				    SSL_F_TLS13_CHANGE_CIPHER_STATE, ERR_R_INTERNAL_ERROR);
 				EVP_MD_CTX_free(mdctx);
@@ -590,7 +590,7 @@ int tls13_change_cipher_state(SSL * s, int which)
 		md = ssl_handshake_md(s);
 		cipher = s->s3->tmp.new_sym_enc;
 		if(!ssl3_digest_cached_records(s, 1)
-		    || !ssl_handshake_hash(s, hashval, sizeof(hashval), &hashlen)) {
+		   || !ssl_handshake_hash(s, hashval, sizeof(hashval), &hashlen)) {
 			/* SSLfatal() already called */;
 			goto err;
 		}
@@ -753,14 +753,14 @@ int tls13_export_keying_material(SSL * s, uchar * out, size_t olen,
 		contextlen = 0;
 
 	if(EVP_DigestInit_ex(ctx, md, NULL) <= 0
-	    || EVP_DigestUpdate(ctx, context, contextlen) <= 0
-	    || EVP_DigestFinal_ex(ctx, hash, &hashsize) <= 0
-	    || EVP_DigestInit_ex(ctx, md, NULL) <= 0
-	    || EVP_DigestFinal_ex(ctx, data, &datalen) <= 0
-	    || !tls13_hkdf_expand(s, md, s->exporter_master_secret,
+	   || EVP_DigestUpdate(ctx, context, contextlen) <= 0
+	   || EVP_DigestFinal_ex(ctx, hash, &hashsize) <= 0
+	   || EVP_DigestInit_ex(ctx, md, NULL) <= 0
+	   || EVP_DigestFinal_ex(ctx, data, &datalen) <= 0
+	   || !tls13_hkdf_expand(s, md, s->exporter_master_secret,
 	    (const uchar *)label, llen,
 	    data, datalen, exportsecret, hashsize, 0)
-	    || !tls13_hkdf_expand(s, md, exportsecret, exporterlabel,
+	   || !tls13_hkdf_expand(s, md, exportsecret, exporterlabel,
 	    sizeof(exporterlabel) - 1, hash, hashsize,
 	    out, olen, 0))
 		goto err;
@@ -808,14 +808,14 @@ int tls13_export_keying_material_early(SSL * s, uchar * out, size_t olen, const 
 	 * Here Transcript-Hash is the cipher suite hash algorithm.
 	 */
 	if(EVP_DigestInit_ex(ctx, md, NULL) <= 0
-	    || EVP_DigestUpdate(ctx, context, contextlen) <= 0
-	    || EVP_DigestFinal_ex(ctx, hash, &hashsize) <= 0
-	    || EVP_DigestInit_ex(ctx, md, NULL) <= 0
-	    || EVP_DigestFinal_ex(ctx, data, &datalen) <= 0
-	    || !tls13_hkdf_expand(s, md, s->early_exporter_master_secret,
+	   || EVP_DigestUpdate(ctx, context, contextlen) <= 0
+	   || EVP_DigestFinal_ex(ctx, hash, &hashsize) <= 0
+	   || EVP_DigestInit_ex(ctx, md, NULL) <= 0
+	   || EVP_DigestFinal_ex(ctx, data, &datalen) <= 0
+	   || !tls13_hkdf_expand(s, md, s->early_exporter_master_secret,
 	    (const uchar *)label, llen,
 	    data, datalen, exportsecret, hashsize, 0)
-	    || !tls13_hkdf_expand(s, md, exportsecret, exporterlabel,
+	   || !tls13_hkdf_expand(s, md, exportsecret, exporterlabel,
 	    sizeof(exporterlabel) - 1, hash, hashsize,
 	    out, olen, 0))
 		goto err;

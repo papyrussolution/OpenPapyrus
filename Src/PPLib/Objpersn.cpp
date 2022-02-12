@@ -119,7 +119,7 @@ int FASTCALL GetMainEmployerID(PPID * pID)
 	PPObjSecur sec_obj(PPOBJ_USR, 0);
 	PPSecur secur;
 	ASSIGN_PTR(pID, 0);
-	ASSIGN_PTR(pBuf, 0);
+	CALLPTRMEMB(pBuf, Z());
 	if(sec_obj.Fetch(LConfig.UserID, &secur) > 0) {
 		if(secur.PersonID) {
 			ASSIGN_PTR(pID, secur.PersonID);
@@ -4716,7 +4716,6 @@ PPObjPerson::EditBlock::EditBlock() : InitKindID(0), InitStatusID(0), ShortDialo
 void PPObjPerson::InitEditBlock(PPID kindID, EditBlock & rBlk)
 {
 	rBlk.InitKindID = kindID;
-	rBlk.InitStatusID = PPPRS_LEGAL;
 	rBlk.ShortDialog = 0;
 	rBlk.SCardSeriesID = 0;
 	rBlk.Name.Z();
@@ -4733,6 +4732,15 @@ void PPObjPerson::InitEditBlock(PPID kindID, EditBlock & rBlk)
 		}
 		else
 			rBlk.InitKindID = 0;
+	}
+	//
+	// @v11.3.1 Несколько более умное чем раньше автоматическое определение юридического статуста новой персоналии
+	//
+	if(!rBlk.InitStatusID && rBlk.InitKindID) {
+		if(oneof3(rBlk.InitKindID, PPPRK_EMPL, PPPRK_AGENT, PPPRK_CAPTAIN))
+			rBlk.InitStatusID = PPPRS_PRIVATE;
+		else
+			rBlk.InitStatusID = PPPRS_LEGAL;
 	}
 }
 

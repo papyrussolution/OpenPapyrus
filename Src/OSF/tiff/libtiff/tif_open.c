@@ -305,7 +305,7 @@ TIFF * TIFFClientOpen(const char * name, const char * mode, thandle_t clientdata
 		tif->tif_dirlist = NULL;
 		tif->tif_dirlistsize = 0;
 		tif->tif_dirnumber = 0;
-		return (tif);
+		return tif;
 	}
 	/*
 	 * Setup the byte order handling.
@@ -404,14 +404,14 @@ TIFF * TIFFClientOpen(const char * name, const char * mode, thandle_t clientdata
 		 * immediately after reading TIFF header.
 		     */
 		    if(tif->tif_flags & TIFF_HEADERONLY)
-			    return (tif);
+			    return tif;
 		    /*
 		 * Setup initial directory.
 		     */
 		    if(TIFFReadDirectory(tif)) {
 			    tif->tif_rawcc = (tmsize_t)-1;
 			    tif->tif_flags |= TIFF_BUFFERSETUP;
-			    return (tif);
+			    return tif;
 		    }
 		    break;
 		case 'a':
@@ -422,13 +422,13 @@ TIFF * TIFFClientOpen(const char * name, const char * mode, thandle_t clientdata
 		     */
 		    if(!TIFFDefaultDirectory(tif))
 			    goto bad;
-		    return (tif);
+		    return tif;
 	}
 bad:
 	tif->tif_mode = O_RDONLY; /* XXX avoid flush */
 	TIFFCleanup(tif);
 bad2:
-	return ((TIFF*)0);
+	return ((TIFF *)0);
 }
 /*
  * Query functions to access private data.
@@ -436,14 +436,14 @@ bad2:
 /*
  * Return open file's name.
  */
-const char * TIFFFileName(TIFF* tif)
+const char * TIFFFileName(TIFF * tif)
 {
 	return (tif->tif_name);
 }
 /*
  * Set the file name.
  */
-const char * TIFFSetFileName(TIFF* tif, const char * name)
+const char * TIFFSetFileName(TIFF * tif, const char * name)
 {
 	const char * old_name = tif->tif_name;
 	tif->tif_name = (char *)name;
@@ -452,14 +452,14 @@ const char * TIFFSetFileName(TIFF* tif, const char * name)
 /*
  * Return open file's I/O descriptor.
  */
-int TIFFFileno(TIFF* tif)
+int TIFFFileno(TIFF * tif)
 {
 	return (tif->tif_fd);
 }
 /*
  * Set open file's I/O descriptor, and return previous value.
  */
-int TIFFSetFileno(TIFF* tif, int fd)
+int TIFFSetFileno(TIFF * tif, int fd)
 {
 	int old_fd = tif->tif_fd;
 	tif->tif_fd = fd;
@@ -468,14 +468,14 @@ int TIFFSetFileno(TIFF* tif, int fd)
 /*
  * Return open file's clientdata.
  */
-thandle_t TIFFClientdata(TIFF* tif)
+thandle_t TIFFClientdata(TIFF * tif)
 {
 	return (tif->tif_clientdata);
 }
 /*
  * Set open file's clientdata, and return previous value.
  */
-thandle_t TIFFSetClientdata(TIFF* tif, thandle_t newvalue)
+thandle_t TIFFSetClientdata(TIFF * tif, thandle_t newvalue)
 {
 	thandle_t m = tif->tif_clientdata;
 	tif->tif_clientdata = newvalue;
@@ -484,14 +484,14 @@ thandle_t TIFFSetClientdata(TIFF* tif, thandle_t newvalue)
 /*
  * Return read/write mode.
  */
-int TIFFGetMode(TIFF* tif)
+int TIFFGetMode(TIFF * tif)
 {
 	return (tif->tif_mode);
 }
 /*
  * Return read/write mode.
  */
-int TIFFSetMode(TIFF* tif, int mode)
+int TIFFSetMode(TIFF * tif, int mode)
 {
 	int old_mode = tif->tif_mode;
 	tif->tif_mode = mode;
@@ -501,67 +501,67 @@ int TIFFSetMode(TIFF* tif, int mode)
  * Return nonzero if file is organized in
  * tiles; zero if organized as strips.
  */
-int FASTCALL TIFFIsTiled(const TIFF* tif) { return (isTiled(tif)); }
+int FASTCALL TIFFIsTiled(const TIFF * tif) { return (isTiled(tif)); }
 /*
  * Return current row being read/written.
  */
-uint32 TIFFCurrentRow(const TIFF* tif) { return (tif->tif_row); }
+uint32 TIFFCurrentRow(const TIFF * tif) { return (tif->tif_row); }
 /*
  * Return index of the current directory.
  */
-uint16 TIFFCurrentDirectory(TIFF* tif) { return (tif->tif_curdir); }
+uint16 TIFFCurrentDirectory(TIFF * tif) { return (tif->tif_curdir); }
 /*
  * Return current strip.
  */
-uint32 TIFFCurrentStrip(TIFF* tif) { return (tif->tif_curstrip); }
+uint32 TIFFCurrentStrip(TIFF * tif) { return (tif->tif_curstrip); }
 /*
  * Return current tile.
  */
-uint32 TIFFCurrentTile(TIFF* tif) { return (tif->tif_curtile); }
+uint32 TIFFCurrentTile(TIFF * tif) { return (tif->tif_curtile); }
 /*
  * Return nonzero if the file has byte-swapped data.
  */
-int TIFFIsByteSwapped(TIFF* tif) { return ((tif->tif_flags & TIFF_SWAB) != 0); }
+int TIFFIsByteSwapped(TIFF * tif) { return ((tif->tif_flags & TIFF_SWAB) != 0); }
 /*
  * Return nonzero if the data is returned up-sampled.
  */
-int TIFFIsUpSampled(TIFF* tif) { return (isUpSampled(tif)); }
+int TIFFIsUpSampled(TIFF * tif) { return (isUpSampled(tif)); }
 /*
  * Return nonzero if the data is returned in MSB-to-LSB bit order.
  */
-int TIFFIsMSB2LSB(TIFF* tif) { return (isFillOrder(tif, FILLORDER_MSB2LSB)); }
+int TIFFIsMSB2LSB(TIFF * tif) { return (isFillOrder(tif, FILLORDER_MSB2LSB)); }
 /*
  * Return nonzero if given file was written in big-endian order.
  */
-int TIFFIsBigEndian(TIFF* tif) { return (tif->tif_header.common.tiff_magic == TIFF_BIGENDIAN); }
+int TIFFIsBigEndian(TIFF * tif) { return (tif->tif_header.common.tiff_magic == TIFF_BIGENDIAN); }
 /*
  * Return pointer to file read method.
  */
-TIFFReadWriteProc TIFFGetReadProc(TIFF* tif) { return (tif->tif_readproc); }
+TIFFReadWriteProc TIFFGetReadProc(TIFF * tif) { return (tif->tif_readproc); }
 /*
  * Return pointer to file write method.
  */
-TIFFReadWriteProc TIFFGetWriteProc(TIFF* tif) { return (tif->tif_writeproc); }
+TIFFReadWriteProc TIFFGetWriteProc(TIFF * tif) { return (tif->tif_writeproc); }
 /*
  * Return pointer to file seek method.
  */
-TIFFSeekProc TIFFGetSeekProc(TIFF* tif) { return (tif->tif_seekproc); }
+TIFFSeekProc TIFFGetSeekProc(TIFF * tif) { return (tif->tif_seekproc); }
 /*
  * Return pointer to file close method.
  */
-TIFFCloseProc TIFFGetCloseProc(TIFF* tif) { return (tif->tif_closeproc); }
+TIFFCloseProc TIFFGetCloseProc(TIFF * tif) { return (tif->tif_closeproc); }
 /*
  * Return pointer to file size requesting method.
  */
-TIFFSizeProc TIFFGetSizeProc(TIFF* tif) { return (tif->tif_sizeproc); }
+TIFFSizeProc TIFFGetSizeProc(TIFF * tif) { return (tif->tif_sizeproc); }
 /*
  * Return pointer to memory mapping method.
  */
-TIFFMapFileProc TIFFGetMapFileProc(TIFF* tif) { return (tif->tif_mapproc); }
+TIFFMapFileProc TIFFGetMapFileProc(TIFF * tif) { return (tif->tif_mapproc); }
 /*
  * Return pointer to memory unmapping method.
  */
-TIFFUnmapFileProc TIFFGetUnmapFileProc(TIFF* tif) { return (tif->tif_unmapproc); }
+TIFFUnmapFileProc TIFFGetUnmapFileProc(TIFF * tif) { return (tif->tif_unmapproc); }
 
 /* vim: set ts=8 sts=8 sw=8 noet: */
 /*

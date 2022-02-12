@@ -24,13 +24,13 @@
 #define XAPIAN_INCLUDED_DATABASE_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error Never use <xapian/database.h> directly; include <xapian.h> instead.
+#error Never use <xapian/database.h> directly; include <xapian.h> instead.
 #endif
 
-#include <iosfwd>
-#include <string>
-#include <utility>
-#include <vector>
+//#include <iosfwd>
+//#include <string>
+//#include <utility>
+//#include <vector>
 #include <xapian/attributes.h>
 #include <xapian/constants.h>
 #include <xapian/intrusive_ptr.h>
@@ -142,14 +142,10 @@ public:
 	 *		   a format too old or too new to be supported.
 	 */
 	explicit Database(int fd, int flags = 0);
-
 	/// @private @internal Wrap an existing Internal.
 	XAPIAN_VISIBILITY_INTERNAL
 	explicit Database(Internal* internal) XAPIAN_NONNULL();
-
-	/// Destructor.
 	virtual ~Database();
-
 	/** Copy constructor.
 	 *
 	 *  The internals are reference counted, so copying is cheap.
@@ -161,10 +157,8 @@ public:
 	 *  The internals are reference counted, so assignment is cheap.
 	 */
 	Database& operator=(const Database& o);
-
 	/// Move constructor.
 	Database(Database&& o);
-
 	/// Move assignment operator.
 	Database& operator=(Database&& o);
 
@@ -237,12 +231,8 @@ public:
 	 *			documents in the database with a wdf of 1.
 	 */
 	PostingIterator postlist_begin(const std::string& term) const;
-
 	/** End iterator corresponding to postlist_begin(). */
-	PostingIterator postlist_end(const std::string&) const noexcept {
-		return PostingIterator();
-	}
-
+	PostingIterator postlist_end(const std::string&) const noexcept { return PostingIterator(); }
 	/** Start iterating the terms in a document.
 	 *
 	 *  @param did	The document id to iterate terms from
@@ -250,12 +240,8 @@ public:
 	 *  The terms are returned ascending string order (by byte value).
 	 */
 	TermIterator termlist_begin(Xapian::docid did) const;
-
 	/** End iterator corresponding to termlist_begin(). */
-	TermIterator termlist_end(Xapian::docid) const noexcept {
-		return TermIterator();
-	}
-
+	TermIterator termlist_end(Xapian::docid) const noexcept { return TermIterator(); }
 	/** Does this database have any positional information? */
 	bool has_positions() const;
 
@@ -272,11 +258,7 @@ public:
 	PositionIterator positionlist_begin(Xapian::docid did, const std::string& term) const;
 
 	/** End iterator corresponding to positionlist_begin(). */
-	PositionIterator positionlist_end(Xapian::docid,
-	    const std::string&) const noexcept {
-		return PositionIterator();
-	}
-
+	PositionIterator positionlist_end(Xapian::docid, const std::string&) const noexcept { return PositionIterator(); }
 	/** Start iterating all terms in the database with a given prefix.
 	 *
 	 *  @param prefix	The prefix to restrict the returned terms to (default:
@@ -285,31 +267,20 @@ public:
 	TermIterator allterms_begin(const std::string& prefix = std::string()) const;
 
 	/** End iterator corresponding to allterms_begin(prefix). */
-	TermIterator allterms_end(const std::string& = std::string()) const noexcept
-	{
-		return TermIterator();
-	}
-
+	TermIterator allterms_end(const std::string& = std::string()) const noexcept { return TermIterator(); }
 	/// Get the number of documents in the database.
 	Xapian::doccount get_doccount() const;
-
 	/// Get the highest document id which has been used in the database.
 	Xapian::docid get_lastdocid() const;
-
 	/// Get the mean document length in the database.
 	double get_average_length() const;
-
 	/// Old name for get_average_length() for backward compatibility.
-	double get_avlength() const {
-		return get_average_length();
-	}
-
+	double get_avlength() const { return get_average_length(); }
 	/** Get the total length of all the documents in the database.
 	 *
 	 *  @since Added in Xapian 1.4.5.
 	 */
 	Xapian::totallength get_total_length() const;
-
 	/** Get the number of documents indexed by a specified term.
 	 *
 	 *  @param term	The term to get the frequency of.  An empty string
@@ -378,27 +349,18 @@ public:
 	 *  This bound does not include any zero-length documents.
 	 */
 	Xapian::termcount get_doclength_lower_bound() const;
-
 	/// Get an upper bound on the length of a document in this DB.
 	Xapian::termcount get_doclength_upper_bound() const;
-
 	/// Get an upper bound on the wdf of term @a term.
 	Xapian::termcount get_wdf_upper_bound(const std::string& term) const;
-
 	/// Get a lower bound on the unique terms size of a document in this DB.
 	Xapian::termcount get_unique_terms_lower_bound() const;
-
 	/// Get an upper bound on the unique terms size of a document in this DB.
 	Xapian::termcount get_unique_terms_upper_bound() const;
-
 	/// Return an iterator over the value in slot @a slot for each document.
 	ValueIterator valuestream_begin(Xapian::valueno slot) const;
-
 	/// Return end iterator corresponding to valuestream_begin().
-	ValueIterator valuestream_end(Xapian::valueno) const noexcept {
-		return ValueIterator();
-	}
-
+	ValueIterator valuestream_end(Xapian::valueno) const noexcept { return ValueIterator(); }
 	/** Get the length of a document.
 	 *
 	 *  @param did   The document id of the document
@@ -415,9 +377,7 @@ public:
 	 *  This is the number of different terms which index the given document.
 	 */
 	Xapian::termcount get_unique_terms(Xapian::docid did) const;
-
 	Xapian::termcount get_wdfdocmax(Xapian::docid did) const;
-
 	/** Send a keep-alive message.
 	 *
 	 *  For remote databases, this method sends a message to the server to
@@ -444,8 +404,7 @@ public:
 	 *  @exception Xapian::DocNotFoundError is thrown if the specified docid
 	 *		   is not present in this database.
 	 */
-	Xapian::Document get_document(Xapian::docid did,
-	    unsigned flags = 0) const;
+	Xapian::Document get_document(Xapian::docid did, unsigned flags = 0) const;
 
 	/** Suggest a spelling correction.
 	 *
@@ -457,8 +416,7 @@ public:
 	 *					transposition of two adjacent
 	 *					characters (default is 2).
 	 */
-	std::string get_spelling_suggestion(const std::string& word,
-	    unsigned max_edit_distance = 2) const;
+	std::string get_spelling_suggestion(const std::string& word, unsigned max_edit_distance = 2) const;
 
 	/** An iterator which returns all the spelling correction targets.
 	 *
@@ -469,10 +427,7 @@ public:
 	Xapian::TermIterator spellings_begin() const;
 
 	/// End iterator corresponding to spellings_begin().
-	Xapian::TermIterator spellings_end() const noexcept {
-		return Xapian::TermIterator();
-	}
-
+	Xapian::TermIterator spellings_end() const noexcept { return Xapian::TermIterator(); }
 	/** An iterator which returns all the synonyms for a given term.
 	 *
 	 *  @param term	The term to return synonyms for.
@@ -480,9 +435,7 @@ public:
 	Xapian::TermIterator synonyms_begin(const std::string& term) const;
 
 	/// End iterator corresponding to synonyms_begin(term).
-	Xapian::TermIterator synonyms_end(const std::string&) const noexcept {
-		return Xapian::TermIterator();
-	}
+	Xapian::TermIterator synonyms_end(const std::string&) const noexcept { return Xapian::TermIterator(); }
 
 	/** An iterator which returns all terms which have synonyms.
 	 *
@@ -539,9 +492,7 @@ public:
 	Xapian::TermIterator metadata_keys_begin(const std::string&prefix = std::string()) const;
 
 	/// End iterator corresponding to metadata_keys_begin().
-	Xapian::TermIterator metadata_keys_end(const std::string& = std::string()) const noexcept {
-		return Xapian::TermIterator();
-	}
+	Xapian::TermIterator metadata_keys_end(const std::string& = std::string()) const noexcept { return Xapian::TermIterator(); }
 
 	/** Get a UUID for the database.
 	 *
@@ -688,11 +639,7 @@ public:
 	 *  @since 1.3.4 This method was added to replace various methods of the
 	 *		     Compactor class.
 	 */
-	void compact(const std::string& output,
-	    unsigned flags = 0,
-	    int block_size = 0) {
-		compact_(&output, 0, flags, block_size, NULL);
-	}
+	void compact(const std::string& output, unsigned flags = 0, int block_size = 0) { compact_(&output, 0, flags, block_size, NULL); }
 
 	/** Produce a compact version of this database.
 	 *
@@ -742,12 +689,7 @@ public:
 	 *  @since 1.3.4 This method was added to replace various methods of the
 	 *		     Compactor class.
 	 */
-	void compact(int fd,
-	    unsigned flags = 0,
-	    int block_size = 0) {
-		compact_(NULL, fd, flags, block_size, NULL);
-	}
-
+	void compact(int fd, unsigned flags = 0, int block_size = 0) { compact_(NULL, fd, flags, block_size, NULL); }
 	/** Produce a compact version of this database.
 	 *
 	 *  The @a compactor functor allows handling progress output and
@@ -797,13 +739,7 @@ public:
 	 *  @since 1.3.4 This method was added to replace various methods of the
 	 *		     Compactor class.
 	 */
-	void compact(const std::string& output,
-	    unsigned flags,
-	    int block_size,
-	    Xapian::Compactor& compactor)
-	{
-		compact_(&output, 0, flags, block_size, &compactor);
-	}
+	void compact(const std::string& output, unsigned flags, int block_size, Xapian::Compactor& compactor) { compact_(&output, 0, flags, block_size, &compactor); }
 
 	/** Produce a compact version of this database.
 	 *
@@ -858,13 +794,7 @@ public:
 	 *  @since 1.3.4 This method was added to replace various methods of the
 	 *		     Compactor class.
 	 */
-	void compact(int fd,
-	    unsigned flags,
-	    int block_size,
-	    Xapian::Compactor& compactor)
-	{
-		compact_(NULL, fd, flags, block_size, &compactor);
-	}
+	void compact(int fd, unsigned flags, int block_size, Xapian::Compactor& compactor) { compact_(NULL, fd, flags, block_size, &compactor); }
 
 	/** Reconstruct document text.
 	 *
@@ -883,11 +813,8 @@ public:
 	 *  @param start_pos  First position to reconstruct (default: 0)
 	 *  @param end_pos    Last position to reconstruct (default: 0 meaning all)
 	 */
-	std::string reconstruct_text(Xapian::docid did,
-	    size_t length = 0,
-	    const std::string& prefix = std::string(),
-	    Xapian::termpos start_pos = 0,
-	    Xapian::termpos end_pos = 0) const;
+	std::string reconstruct_text(Xapian::docid did, size_t length = 0, const std::string& prefix = std::string(),
+	    Xapian::termpos start_pos = 0, Xapian::termpos end_pos = 0) const;
 };
 
 /** This class provides read/write access to a database.

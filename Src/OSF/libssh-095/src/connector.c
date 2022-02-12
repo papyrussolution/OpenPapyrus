@@ -35,8 +35,8 @@
 #define unlink _unlink
 #endif /* HAVE_IO_H */
 #else
-# include <sys/types.h>
-# include <sys/socket.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 #endif
 
 struct ssh_connector_struct {
@@ -525,7 +525,7 @@ int ssh_connector_set_event(ssh_connector connector, ssh_event event)
 
 	if((connector->in_fd == SSH_INVALID_SOCKET &&
 	    connector->in_channel == NULL)
-	    || (connector->out_fd == SSH_INVALID_SOCKET &&
+	   || (connector->out_fd == SSH_INVALID_SOCKET &&
 	    connector->out_channel == NULL)) {
 		rc = SSH_ERROR;
 		ssh_set_error(connector->session, SSH_FATAL, "Connector not complete");

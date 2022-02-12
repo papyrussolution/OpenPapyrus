@@ -1,0 +1,1475 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{025E0EDD-F5D6-449E-B63E-3FF2490269F1}</ProjectGuid>
+    <RootNamespace>xapiancore</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>
+      </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\common;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <CompileAsManaged>false</CompileAsManaged>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <StringPooling>true</StringPooling>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <PreBuildEvent>
+      <Command>cd $(ProjectDir)..\osf\xapian\xapian-core\languages
+\papyrus\tools\xapian-snowball.exe *.sbl -c++ -u -n InternalStem -p SnowballStemImplementation
+cd $(ProjectDir)</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>
+      </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\common;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <CompileAsManaged>false</CompileAsManaged>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <StringPooling>true</StringPooling>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <PreBuildEvent>
+      <Command>cd $(ProjectDir)..\osf\xapian\xapian-core\languages
+\papyrus\tools\xapian-snowball.exe *.sbl -c++ -u -n InternalStem -p SnowballStemImplementation
+cd $(ProjectDir)</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>
+      </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\common;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <CompileAsManaged>false</CompileAsManaged>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <StringPooling>true</StringPooling>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <PreBuildEvent>
+      <Command>cd $(ProjectDir)..\osf\xapian\xapian-core\languages
+\papyrus\tools\xapian-snowball.exe *.sbl -c++ -u -n InternalStem -p SnowballStemImplementation
+cd $(ProjectDir)</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>
+      </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\common;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <CompileAsManaged>false</CompileAsManaged>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <StringPooling>true</StringPooling>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <PreBuildEvent>
+      <Command>cd $(ProjectDir)..\osf\xapian\xapian-core\languages
+\papyrus\tools\xapian-snowball.exe *.sbl -c++ -u -n InternalStem -p SnowballStemImplementation
+cd $(ProjectDir)</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\compactor.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\constinfo.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\database.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\decvalwtsource.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\document.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\documenttermlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\documentvaluelist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\editdistance.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\enquire.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\error.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\expanddecider.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\keymaker.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\matchspy.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\mset.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\msetiterator.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\positioniterator.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\postingiterator.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\postingsource.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\query.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\queryinternal.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\registry.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\replication.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\result.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\rset.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\smallvector.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\sortable-serialise.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\terminfo.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\termiterator.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\termlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\valueiterator.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\valuerangeproc.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\valuesetmatchdecider.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\api\vectortermlist.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\alltermslist.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\contiguousalldocspostlist.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\databasehelpers.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\databaseinternal.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\databasereplicator.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\dbcheck.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\dbfactory.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\dbfactory_remote.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\documentinternal.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\empty_database.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\flint_lock.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_alldocspostlist.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_alltermslist.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_changes.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_check.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_compact.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_cursor.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_database.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_databasereplicator.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_dbcheck.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_document.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_freelist.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_inverter.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_metadata.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_positionlist.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_postlist.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_spelling.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_spellingwordslist.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_synonym.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_table.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_termlist.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_termlisttable.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_valuelist.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_values.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\glass\glass_version.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\backends\inmemory\inmemory_alltermslist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\backends\inmemory\inmemory_database.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\backends\inmemory\inmemory_document.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\backends\inmemory\inmemory_positionlist.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\leafpostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\backends\multi\multi_alltermslist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\backends\multi\multi_database.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\backends\multi\multi_postlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\backends\multi\multi_termlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\backends\multi\multi_valuelist.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\postlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\backends\remote\net_postlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\backends\remote\remote-database.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\backends\remote\remote-document.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\backends\remote\remote_alltermslist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\backends\remote\remote_keylist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\backends\remote\remote_termlist.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\slowvaluelist.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\uuids.cc" />
+    <ClCompile Include="..\osf\xapian\xapian-core\backends\valuelist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\cluster\cluster.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\cluster\cosine_sim.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\cluster\kmeans.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\cluster\lcd_clusterer.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\bitstream.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\closefrom.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\compression_stream.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\debuglog.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\errno_to_string.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\fileutils.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\io_utils.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\keyword.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\omassert.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\pack.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\posixy_wrapper.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\replicate_utils.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\safe.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\serialise-double.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\socket_utils.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\str.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\common\xapian-pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\diversify\diversify.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\expand\bo1eweight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\expand\esetinternal.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\expand\expandweight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\expand\ortermlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\expand\tradeweight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\geospatial\geoencode.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\geospatial\latlongcoord.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\geospatial\latlong_distance_keymaker.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\geospatial\latlong_metrics.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\geospatial\latlong_posting_source.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\arabic.sbl.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\armenian.sbl.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\basque.sbl.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\catalan.sbl.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\danish.sbl.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\dutch.sbl.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\earlyenglish.sbl.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\english.sbl.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\finnish.sbl.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\french.sbl.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\german.sbl.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\german2.sbl.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\hungarian.sbl.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\indonesian.sbl.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\irish.sbl.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\italian.sbl.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\kraaij_pohlmann.sbl.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\lithuanian.sbl.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\lovins.sbl.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\nepali.sbl.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\norwegian.sbl.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\porter.sbl.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\portuguese.sbl.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\romanian.sbl.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\russian.sbl.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\spanish.sbl.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\stem.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\steminternal.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\swedish.sbl.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\tamil.sbl.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\languages\turkish.sbl.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\andmaybepostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\andnotpostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\boolorpostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\collapser.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\deciderpostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\exactphrasepostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\externalpostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\extraweightpostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\localsubmatch.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\matcher.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\maxpostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\msetcmp.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\multiandpostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\multixorpostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\nearpostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\orpositionlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\orpospostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\orpostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\phrasepostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\remotesubmatch.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\selectpostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\synonympostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\valuegepostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\valuerangepostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\valuestreamdocument.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\wrapperpostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\net\progclient.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\net\remoteconnection.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\net\remoteserver.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\net\remotetcpclient.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\net\replicatetcpclient.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\net\replicatetcpserver.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\net\serialise-error.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\net\serialise.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\net\tcpclient.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\net\tcpserver.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\queryparser\cjk-tokenizer.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\queryparser\queryparser.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\queryparser\queryparser_internal.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\OSF\xapian\xapian-core\queryparser\termgenerator.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\queryparser\termgenerator_internal.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\unicode\description_append.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\unicode\unicode-data.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\unicode\utf8itor.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\bb2weight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\bm25plusweight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\bm25weight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\boolweight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\coordweight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\dicecoeffweight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\dlhweight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\dphweight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\ifb2weight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\ineb2weight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\inl2weight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\lmweight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\pl2plusweight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\pl2weight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\tfidfweight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\tradweight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\weight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\weight\weightinternal.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\documenttermlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\documentvaluelist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\editdistance.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\enquireinternal.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\msetinternal.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\postingiteratorinternal.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\queryinternal.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\queryvector.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\replication.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\result.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\roundestimate.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\rsetinternal.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\smallvector.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\terminfo.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\termlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\api\vectortermlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\alltermslist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\backends.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\byte_length_strings.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\contiguousalldocspostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\databasehelpers.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\databaseinternal.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\databasereplicator.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\documentinternal.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\empty_database.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\flint_lock.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_alldocspostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_alltermslist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_changes.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_check.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_cursor.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_database.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_databasereplicator.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_dbcheck.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_defs.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_docdata.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_document.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_freelist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_inverter.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_lazytable.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_metadata.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_positionlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_postlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_replicate_internal.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_spelling.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_spellingwordslist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_synonym.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_table.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_termlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_termlisttable.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_valuelist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_values.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\glass\glass_version.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\inmemory\inmemory_alltermslist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\inmemory\inmemory_database.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\inmemory\inmemory_document.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\inmemory\inmemory_positionlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\leafpostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\multi.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\multi\multi_alltermslist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\multi\multi_database.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\multi\multi_postlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\multi\multi_termlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\multi\multi_valuelist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\positionlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\postlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\prefix_compressed_strings.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\remote\net_postlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\remote\remote-database.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\remote\remote-document.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\remote\remote_alltermslist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\remote\remote_keylist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\remote\remote_termlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\slowvaluelist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\uuids.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\valuelist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\backends\valuestats.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\cluster\clusterinternal.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\alignment_cast.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\append_filename_arg.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\bitstream.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\closefrom.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\compression_stream.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\debuglog.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\errno_to_string.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\exp10.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\fd.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\filetests.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\fileutils.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\heap.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\internaltypes.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\io_utils.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\keyword.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\log2.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\min_non_zero.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\msvcignoreinvalidparam.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\omassert.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\output.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\overflow.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\pack.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\parseint.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\popcount.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\posixy_wrapper.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\pretty.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\realtime.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\replicate_utils.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\replicationprotocol.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\safedirent.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\safefcntl.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\safenetdb.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\safesysselect.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\safesyssocket.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\safesysstat.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\safesyswait.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\safeunistd.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\safewindows.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\safewinsock2.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\serialise-double.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\setenv.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\socket_utils.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\stdclamp.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\str.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\stringutils.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\common\wordaccess.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\diversify\diversifyinternal.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\expand\esetinternal.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\expand\expandweight.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\expand\ortermlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\expand\termlistmerger.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\geospatial\geoencode.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\attributes.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\cluster.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\compactor.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\constants.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\constinfo.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\database.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\dbfactory.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\deprecated.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\derefwrapper.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\diversify.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\document.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\enquire.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\error.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\errordispatch.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\eset.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\expanddecider.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\geospatial.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\intrusive_ptr.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\iterator.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\keymaker.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\matchdecider.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\matchspy.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\mset.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\positioniterator.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\postingiterator.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\postingsource.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\query.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\queryparser.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\registry.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\rset.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\stem.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\termgenerator.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\termiterator.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\types.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\unicode.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\valueiterator.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\valuesetmatchdecider.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\version.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\visibility.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\weight.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\andmaybepostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\andnotpostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\boolorpostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\collapser.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\deciderpostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\exactphrasepostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\externalpostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\extraweightpostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\localsubmatch.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\matcher.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\matchtimeout.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\maxpostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\msetcmp.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\multiandpostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\multixorpostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\nearpostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\orpositionlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\orpospostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\orpostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\phrasepostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\postlisttree.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\protomset.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\queryoptimiser.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\remotesubmatch.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\selectpostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\spymaster.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\synonympostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\valuegepostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\valuerangepostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\valuestreamdocument.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\wrapperpostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\net\progclient.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\net\remoteconnection.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\net\remoteprotocol.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\net\remoteserver.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\net\remotetcpclient.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\net\replicatetcpclient.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\net\replicatetcpserver.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\net\resolver.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\net\serialise-error.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\net\serialise.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\net\tcpclient.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\net\tcpserver.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\queryparser\cjk-tokenizer.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\queryparser\queryparser_internal.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\queryparser\termgenerator_internal.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\unicode\description_append.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\weight\weightinternal.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\arabic.sbl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\armenian.sbl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\basque.sbl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\catalan.sbl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\danish.sbl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\dutch.sbl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\earlyenglish.sbl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\english.sbl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\finnish.sbl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\french.sbl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\german.sbl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\german2.sbl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\hungarian.sbl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\indonesian.sbl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\irish.sbl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\italian.sbl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\kraaij_pohlmann.sbl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\lithuanian.sbl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\lovins.sbl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\nepali.sbl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\norwegian.sbl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\porter.sbl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\portuguese.sbl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\romanian.sbl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\russian.sbl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\spanish.sbl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\swedish.sbl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\tamil.sbl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\languages\turkish.sbl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd %(RelativeDir)
+\papyrus\tools\xapian-snowball.exe %(FullPath) -c++ -u -n InternalStem -p SnowballStemImplementation -o %(Filename).sbl
+cd $(ProjectDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xapian-snowball.exe %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(FullPath).cc;%(FullPath).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\OSF\xapian\xapian-core\queryparser\queryparser.lemony">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\xapian-lemon.exe -q -o%(RootDir)%(Directory)queryparser_internal.cc -h%(RootDir)%(Directory)queryparser_token.h %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\xapian-lemon.exe -q -o%(RootDir)%(Directory)queryparser_internal.cc -h%(RootDir)%(Directory)queryparser_token.h %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)queryparser_internal.cc;%(RootDir)%(Directory)queryparser_token.h</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\xapian-lemon.exe -q -o%(RootDir)%(Directory)queryparser_internal.cc -h%(RootDir)%(Directory)queryparser_token.h %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\xapian-lemon.exe -q -o%(RootDir)%(Directory)queryparser_internal.cc -h%(RootDir)%(Directory)queryparser_token.h %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)queryparser_internal.cc;%(RootDir)%(Directory)queryparser_token.h</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\xapian-lemon.exe -q -o%(RootDir)%(Directory)queryparser_internal.cc -h%(RootDir)%(Directory)queryparser_token.h %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\xapian-lemon.exe -q -o%(RootDir)%(Directory)queryparser_internal.cc -h%(RootDir)%(Directory)queryparser_token.h %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)queryparser_internal.cc;%(RootDir)%(Directory)queryparser_token.h</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\xapian-lemon.exe -q -o%(RootDir)%(Directory)queryparser_internal.cc -h%(RootDir)%(Directory)queryparser_token.h %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\xapian-lemon.exe -q -o%(RootDir)%(Directory)queryparser_internal.cc -h%(RootDir)%(Directory)queryparser_token.h %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)queryparser_internal.cc;%(RootDir)%(Directory)queryparser_token.h</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

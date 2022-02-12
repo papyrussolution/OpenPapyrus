@@ -136,18 +136,18 @@ PKCS7_SIGNER_INFO * PKCS7_sign_add_signer(PKCS7 * p7, X509 * signcert,
 				goto err;
 			}
 			if(!add_cipher_smcap(smcap, NID_aes_256_cbc, -1)
-			    || !add_digest_smcap(smcap, NID_id_GostR3411_2012_256, -1)
-			    || !add_digest_smcap(smcap, NID_id_GostR3411_2012_512, -1)
-			    || !add_digest_smcap(smcap, NID_id_GostR3411_94, -1)
-			    || !add_cipher_smcap(smcap, NID_id_Gost28147_89, -1)
-			    || !add_cipher_smcap(smcap, NID_aes_192_cbc, -1)
-			    || !add_cipher_smcap(smcap, NID_aes_128_cbc, -1)
-			    || !add_cipher_smcap(smcap, NID_des_ede3_cbc, -1)
-			    || !add_cipher_smcap(smcap, NID_rc2_cbc, 128)
-			    || !add_cipher_smcap(smcap, NID_rc2_cbc, 64)
-			    || !add_cipher_smcap(smcap, NID_des_cbc, -1)
-			    || !add_cipher_smcap(smcap, NID_rc2_cbc, 40)
-			    || !PKCS7_add_attrib_smimecap(si, smcap))
+			   || !add_digest_smcap(smcap, NID_id_GostR3411_2012_256, -1)
+			   || !add_digest_smcap(smcap, NID_id_GostR3411_2012_512, -1)
+			   || !add_digest_smcap(smcap, NID_id_GostR3411_94, -1)
+			   || !add_cipher_smcap(smcap, NID_id_Gost28147_89, -1)
+			   || !add_cipher_smcap(smcap, NID_aes_192_cbc, -1)
+			   || !add_cipher_smcap(smcap, NID_aes_128_cbc, -1)
+			   || !add_cipher_smcap(smcap, NID_des_ede3_cbc, -1)
+			   || !add_cipher_smcap(smcap, NID_rc2_cbc, 128)
+			   || !add_cipher_smcap(smcap, NID_rc2_cbc, 64)
+			   || !add_cipher_smcap(smcap, NID_des_cbc, -1)
+			   || !add_cipher_smcap(smcap, NID_rc2_cbc, 40)
+			   || !PKCS7_add_attrib_smimecap(si, smcap))
 				goto err;
 			sk_X509_ALGOR_pop_free(smcap, X509_ALGOR_free);
 			smcap = NULL;

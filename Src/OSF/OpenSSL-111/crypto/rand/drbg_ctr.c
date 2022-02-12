@@ -67,7 +67,7 @@ __owur static int ctr_BCC_block(RAND_DRBG_CTR * ctr, uchar * out,
 		out[i] ^= in[i];
 
 	if(!EVP_CipherUpdate(ctr->ctx_df, out, &outlen, out, AES_BLOCK_SIZE)
-	    || outlen != AES_BLOCK_SIZE)
+	   || outlen != AES_BLOCK_SIZE)
 		return 0;
 	return 1;
 }
@@ -78,7 +78,7 @@ __owur static int ctr_BCC_block(RAND_DRBG_CTR * ctr, uchar * out,
 __owur static int ctr_BCC_blocks(RAND_DRBG_CTR * ctr, const uchar * in)
 {
 	if(!ctr_BCC_block(ctr, ctr->KX, in)
-	    || !ctr_BCC_block(ctr, ctr->KX + 16, in))
+	   || !ctr_BCC_block(ctr, ctr->KX + 16, in))
 		return 0;
 	if(ctr->keylen != 16 && !ctr_BCC_block(ctr, ctr->KX + 32, in))
 		return 0;
@@ -186,10 +186,10 @@ __owur static int ctr_df(RAND_DRBG_CTR * ctr,
 	*p = (uchar)((ctr->keylen + 16) & 0xff);
 	ctr->bltmp_pos = 8;
 	if(!ctr_BCC_update(ctr, in1, in1len)
-	    || !ctr_BCC_update(ctr, in2, in2len)
-	    || !ctr_BCC_update(ctr, in3, in3len)
-	    || !ctr_BCC_update(ctr, &c80, 1)
-	    || !ctr_BCC_final(ctr))
+	   || !ctr_BCC_update(ctr, in2, in2len)
+	   || !ctr_BCC_update(ctr, in3, in3len)
+	   || !ctr_BCC_update(ctr, &c80, 1)
+	   || !ctr_BCC_final(ctr))
 		return 0;
 	/* Set up key K */
 	if(!EVP_CipherInit_ex(ctr->ctx, ctr->cipher, NULL, ctr->KX, NULL, 1))
@@ -197,16 +197,16 @@ __owur static int ctr_df(RAND_DRBG_CTR * ctr,
 	/* X follows key K */
 	if(!EVP_CipherUpdate(ctr->ctx, ctr->KX, &outlen, ctr->KX + ctr->keylen,
 	    AES_BLOCK_SIZE)
-	    || outlen != AES_BLOCK_SIZE)
+	   || outlen != AES_BLOCK_SIZE)
 		return 0;
 	if(!EVP_CipherUpdate(ctr->ctx, ctr->KX + 16, &outlen, ctr->KX,
 	    AES_BLOCK_SIZE)
-	    || outlen != AES_BLOCK_SIZE)
+	   || outlen != AES_BLOCK_SIZE)
 		return 0;
 	if(ctr->keylen != 16)
 		if(!EVP_CipherUpdate(ctr->ctx, ctr->KX + 32, &outlen, ctr->KX + 16,
 		    AES_BLOCK_SIZE)
-		    || outlen != AES_BLOCK_SIZE)
+		   || outlen != AES_BLOCK_SIZE)
 			return 0;
 	return 1;
 }
@@ -228,7 +228,7 @@ __owur static int ctr_update(RAND_DRBG * drbg,
 	/* correct key is already set up. */
 	inc_128(ctr);
 	if(!EVP_CipherUpdate(ctr->ctx, ctr->K, &outlen, ctr->V, AES_BLOCK_SIZE)
-	    || outlen != AES_BLOCK_SIZE)
+	   || outlen != AES_BLOCK_SIZE)
 		return 0;
 
 	/* If keylen longer than 128 bits need extra encrypt */
@@ -236,12 +236,12 @@ __owur static int ctr_update(RAND_DRBG * drbg,
 		inc_128(ctr);
 		if(!EVP_CipherUpdate(ctr->ctx, ctr->K+16, &outlen, ctr->V,
 		    AES_BLOCK_SIZE)
-		    || outlen != AES_BLOCK_SIZE)
+		   || outlen != AES_BLOCK_SIZE)
 			return 0;
 	}
 	inc_128(ctr);
 	if(!EVP_CipherUpdate(ctr->ctx, ctr->V, &outlen, ctr->V, AES_BLOCK_SIZE)
-	    || outlen != AES_BLOCK_SIZE)
+	   || outlen != AES_BLOCK_SIZE)
 		return 0;
 
 	/* If 192 bit key part of V is on end of K */
@@ -320,13 +320,13 @@ __owur static int drbg_ctr_generate(RAND_DRBG * drbg,
 			/* Use K as temp space as it will be updated */
 			if(!EVP_CipherUpdate(ctr->ctx, ctr->K, &outl, ctr->V,
 			    AES_BLOCK_SIZE)
-			    || outl != AES_BLOCK_SIZE)
+			   || outl != AES_BLOCK_SIZE)
 				return 0;
 			memcpy(out, ctr->K, outlen);
 			break;
 		}
 		if(!EVP_CipherUpdate(ctr->ctx, out, &outl, ctr->V, AES_BLOCK_SIZE)
-		    || outl != AES_BLOCK_SIZE)
+		   || outl != AES_BLOCK_SIZE)
 			return 0;
 		out += 16;
 		outlen -= 16;

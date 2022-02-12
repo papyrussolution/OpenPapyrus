@@ -22,7 +22,7 @@
 #define XAPIAN_INCLUDED_SETENV_H
 
 #ifndef PACKAGE
-# error config.h must be included first in each C++ source file
+#error config.h must be included first in each C++ source file
 #endif
 
 #include <stdlib.h>
@@ -30,14 +30,14 @@
 #ifdef HAVE_SETENV
 // setenv() provided by the system.
 #elif defined HAVE__PUTENV_S
-# if !HAVE_DECL__PUTENV_S
+#if !HAVE_DECL__PUTENV_S
 // Mingw 3.20 doesn't declare this, but it's in the Microsoft C runtime DLL.
 extern "C" int _putenv_s(const char*, const char*);
-# endif
+#endif
 
 // Use a lambda function to give us a block scope to use static_assert in
 // while still being able to return a result.
-# define setenv(NAME, VALUE, OVERWRITE) ([]() { \
+#define setenv(NAME, VALUE, OVERWRITE) ([]() { \
     static_assert((OVERWRITE), "OVERWRITE must be non-zero constant"); \
     (void)(OVERWRITE); \
     return _putenv_s((NAME), (VALUE)) ? -1 : 0; \

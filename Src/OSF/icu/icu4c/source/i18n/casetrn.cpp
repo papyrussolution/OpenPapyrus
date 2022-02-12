@@ -2,7 +2,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 // Copyright (C) 2001-2011, International Business Machines Corporation and others.  All Rights Reserved.
-// encoding:   UTF-8
+// @codepage UTF-8
 // created on: 2004sep03
 // created by: Markus W. Scherer
 // Implementation class for lower-/upper-/title-casing transliterators.

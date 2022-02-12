@@ -1,19 +1,7 @@
 // This file is part of Notepad++ project
 // Copyright (C)2006 Jens Lorenz <jens.plugin.npp@gmx.de>
-
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// at your option any later version.
+// @licence GNU GPL
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 #include <npp-internal.h>
 #pragma hdrstop
 
@@ -488,78 +476,40 @@ void DockingCont::drawCaptionItem(DRAWITEMSTRUCT * pDrawItemStruct)
 
 	if(NppDarkMode::isEnabled()) {
 		::SelectObject(hDc, NppParameters::getInstance().getDefaultUIFont());
-
 		rc = pDrawItemStruct->rcItem;
 		if(_isTopCaption == TRUE) {
 			rc.left = rc.right - _closeButtonWidth - _closeButtonPosLeftDynamic;
 		}
 		else {
-			rc.bottom = rc.top + _closeButtonWidth + _closeButtonPosLeftDynamic; // non-dark uses Left
-			                                                                     // instead of Top for the
-			                                                                     // button pos so being
-			                                                                     // consistent
+			rc.bottom = rc.top + _closeButtonWidth + _closeButtonPosLeftDynamic; // non-dark uses Left instead of Top for the button pos so being consistent
 		}
-
 		if((_isMouseOver == TRUE) && (_isMouseDown == TRUE)) {
 			::SetTextColor(hDc, RGB(0xFF, 0xFF, 0xFF));
 		}
-
 		::DrawText(hDc, L"x", 1, &rc, DT_VCENTER | DT_CENTER | DT_SINGLELINE);
 	}
 	else {
 		HDC dcMem = ::CreateCompatibleDC(NULL);
-
 		// select correct bitmap
 		if((_isMouseOver == TRUE) && (_isMouseDown == TRUE))
-			hBmpCur = (HBITMAP)::LoadImage(_hInst,
-				MAKEINTRESOURCE(IDB_CLOSE_DOWN),
-				IMAGE_BITMAP,
-				_closeButtonWidth,
-				_closeButtonHeight,
-				0);
+			hBmpCur = (HBITMAP)::LoadImage(_hInst, MAKEINTRESOURCE(IDB_CLOSE_DOWN), IMAGE_BITMAP, _closeButtonWidth, _closeButtonHeight, 0);
 		else
-			hBmpCur = (HBITMAP)::LoadImage(_hInst,
-				MAKEINTRESOURCE(IDB_CLOSE_UP),
-				IMAGE_BITMAP,
-				_closeButtonWidth,
-				_closeButtonHeight,
-				0);
-
+			hBmpCur = (HBITMAP)::LoadImage(_hInst, MAKEINTRESOURCE(IDB_CLOSE_UP), IMAGE_BITMAP, _closeButtonWidth, _closeButtonHeight, 0);
 		// blit bitmap into the destination
 		::GetObject(hBmpCur, sizeof(bmp), &bmp);
 		hBmpOld = (HBITMAP)::SelectObject(dcMem, hBmpCur);
 		hBmpNew = ::CreateCompatibleBitmap(dcMem, bmp.bmWidth, bmp.bmHeight);
-
 		rc = pDrawItemStruct->rcItem;
 		::SelectObject(hDc, hBmpNew);
-
 		if(_isTopCaption == TRUE)
-			::BitBlt(hDc,
-			    rc.right - bmp.bmWidth - _closeButtonPosLeftDynamic,
-			    _closeButtonPosTopDynamic,
-			    bmp.bmWidth,
-			    bmp.bmHeight,
-			    dcMem,
-			    0,
-			    0,
-			    SRCCOPY);
+			::BitBlt(hDc, rc.right - bmp.bmWidth - _closeButtonPosLeftDynamic, _closeButtonPosTopDynamic, bmp.bmWidth, bmp.bmHeight, dcMem, 0, 0, SRCCOPY);
 		else
-			::BitBlt(hDc,
-			    _closeButtonPosLeftDynamic,
-			    _closeButtonPosLeftDynamic,
-			    bmp.bmWidth,
-			    bmp.bmHeight,
-			    dcMem,
-			    0,
-			    0,
-			    SRCCOPY);
-
+			::BitBlt(hDc, _closeButtonPosLeftDynamic, _closeButtonPosLeftDynamic, bmp.bmWidth, bmp.bmHeight, dcMem, 0, 0, SRCCOPY);
 		::SelectObject(dcMem, hBmpOld);
 		::DeleteObject(hBmpCur);
 		::DeleteObject(hBmpNew);
 		::DeleteDC(dcMem);
 	}
-
 	::RestoreDC(hDc, nSavedDC);
 }
 

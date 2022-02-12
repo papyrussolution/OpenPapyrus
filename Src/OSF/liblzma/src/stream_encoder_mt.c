@@ -449,7 +449,7 @@ static lzma_ret stream_encode_in(lzma_stream_coder * coder, const lzma_allocator
 		//
 		// TODO: LZMA_SYNC_FLUSH and LZMA_SYNC_BARRIER.
 		const bool finish = thr_in_size == coder->block_size
-		    || (*in_pos == in_size && action != LZMA_RUN);
+		   || (*in_pos == in_size && action != LZMA_RUN);
 
 		bool block_error = false;
 
@@ -518,7 +518,7 @@ static bool wait_for_work(lzma_stream_coder * coder, mythread_condtime * wait_ab
 		//  - A worker thread indicates an error.
 		//  - Time out occurs.
 		while((!has_input || coder->threads_free == NULL
-		    || !lzma_outq_has_buf(&coder->outq))
+		   || !lzma_outq_has_buf(&coder->outq))
 		 && !lzma_outq_is_readable(&coder->outq)
 		 && coder->thread_error == LZMA_OK
 		 && !timed_out) {
@@ -726,7 +726,7 @@ static lzma_ret get_options(const lzma_mt * options, lzma_options_easy * opt_eas
 		return LZMA_PROG_ERROR;
 
 	if(options->flags != 0 || options->threads == 0
-	    || options->threads > LZMA_THREADS_MAX)
+	   || options->threads > LZMA_THREADS_MAX)
 		return LZMA_OPTIONS_ERROR;
 
 	if(options->filters != NULL) {

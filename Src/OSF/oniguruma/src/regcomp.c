@@ -6537,13 +6537,13 @@ int onig_compile(regex_t* reg, const uchar * pattern, const uchar * pattern_end,
 		set_addr_in_repeat_range(reg);
 		if((reg->push_mem_end != 0)
 #ifdef USE_REPEAT_AND_EMPTY_CHECK_LOCAL_VAR
-		    || (reg->num_repeat      != 0) || (reg->num_empty_check != 0)
+		   || (reg->num_repeat      != 0) || (reg->num_empty_check != 0)
 #endif
 #ifdef USE_CALLOUT
-		    || (IS_NOT_NULL(reg->extp) && reg->extp->callout_num != 0)
+		   || (IS_NOT_NULL(reg->extp) && reg->extp->callout_num != 0)
 #endif
 #ifdef USE_CALL
-		    || scan_env.num_call > 0
+		   || scan_env.num_call > 0
 #endif
 		    )
 			reg->stack_pop_level = STACK_POP_LEVEL_ALL;

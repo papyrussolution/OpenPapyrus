@@ -33,11 +33,8 @@
 #include <icu-internal.h>
 #pragma hdrstop
 // Defines _XOPEN_SOURCE for access to POSIX functions.
-// Must be before any other #includes.
-#include "uposixdefs.h"
-
-// First, the platform type. Need this for U_PLATFORM.
-#include "unicode/platform.h"
+#include "uposixdefs.h" // Must be before any other #includes.
+#include "unicode/platform.h" // First, the platform type. Need this for U_PLATFORM.
 
 #if U_PLATFORM == U_PF_MINGW && defined __STRICT_ANSI__
 /* tzset isn't defined in strict ANSI on MinGW. */
@@ -55,9 +52,8 @@
 #include "ucln_cmn.h"
 
 /* Include standard headers. */
-
 #ifndef U_COMMON_IMPLEMENTATION
-#error U_COMMON_IMPLEMENTATION not set - must be set for all ICU source files in common/ - see https://unicode-org.github.io/icu/userguide/howtouseicu
+	#error U_COMMON_IMPLEMENTATION not set - must be set for all ICU source files in common/ - see https://unicode-org.github.io/icu/userguide/howtouseicu
 #endif
 
 /* include system headers */
@@ -85,14 +81,14 @@
 #   include "unicode/ucnv.h"   /* Needed for UCNV_SWAP_LFNL_OPTION_STRING */
 #elif U_PLATFORM_IS_DARWIN_BASED || U_PLATFORM_IS_LINUX_BASED || U_PLATFORM == U_PF_BSD || U_PLATFORM == U_PF_SOLARIS
 #   include <unistd.h>
-#   if U_PLATFORM == U_PF_SOLARIS
+#if U_PLATFORM == U_PF_SOLARIS
 #       ifndef _XPG4_2
 #           define _XPG4_2
 #       endif
 #   elif U_PLATFORM == U_PF_ANDROID
 #       include <sys/system_properties.h>
 #       include <dlfcn.h>
-#   endif
+#endif
 #elif U_PLATFORM == U_PF_QNX
 #   include <sys/neutrino.h>
 #endif
@@ -112,20 +108,20 @@
  * icucfg.h via autoheader.
  */
 #if U_PLATFORM_IMPLEMENTS_POSIX
-#   if U_PLATFORM == U_PF_OS400
+#if U_PLATFORM == U_PF_OS400
 #    define HAVE_DLFCN_H 0
 #    define HAVE_DLOPEN 0
 #   else
-#   ifndef HAVE_DLFCN_H
+#ifndef HAVE_DLFCN_H
 #    define HAVE_DLFCN_H 1
-#   endif
-#   ifndef HAVE_DLOPEN
+#endif
+#ifndef HAVE_DLOPEN
 #    define HAVE_DLOPEN 1
-#   endif
-#   endif
-#   ifndef HAVE_GETTIMEOFDAY
+#endif
+#endif
+#ifndef HAVE_GETTIMEOFDAY
 #    define HAVE_GETTIMEOFDAY 1
-#   endif
+#endif
 #else
 #define HAVE_DLFCN_H 0
 #define HAVE_DLOPEN 0
@@ -341,13 +337,9 @@ U_CAPI bool U_EXPORT2 uprv_isInfinite(double number)
 	/* Infinity is exactly 0x7FF0000000000000U. */
 	return (bool)((convertedNumber.i64 & U_INT64_MAX) == gInf.i64);
 #elif U_PLATFORM == U_PF_OS390
-	uint32_t highBits = *(uint32_t*)u_topNBytesOfDouble(&number,
-		sizeof(uint32_t));
-	uint32_t lowBits  = *(uint32_t*)u_bottomNBytesOfDouble(&number,
-		sizeof(uint32_t));
-
+	uint32_t highBits = *(uint32_t*)u_topNBytesOfDouble(&number, sizeof(uint32_t));
+	uint32_t lowBits  = *(uint32_t*)u_bottomNBytesOfDouble(&number, sizeof(uint32_t));
 	return ((highBits  & ~SIGN) == 0x70FF0000L) && (lowBits == 0x00000000L);
-
 #else
 	/* If your platform doesn't support IEEE 754 but *does* have an infinity*/
 	/* value, you'll need to replace this default implementation with what's*/
@@ -402,46 +394,14 @@ U_CAPI double U_EXPORT2 uprv_getInfinity()
 #endif
 }
 
-U_CAPI double U_EXPORT2 uprv_floor(double x)
-{
-	return floor(x);
-}
-
-U_CAPI double U_EXPORT2 uprv_ceil(double x)
-{
-	return ceil(x);
-}
-
-U_CAPI double U_EXPORT2 uprv_round(double x)
-{
-	return uprv_floor(x + 0.5);
-}
-
-U_CAPI double U_EXPORT2 uprv_fabs(double x)
-{
-	return fabs(x);
-}
-
-U_CAPI double U_EXPORT2 uprv_modf(double x, double* y)
-{
-	return modf(x, y);
-}
-
-U_CAPI double U_EXPORT2 uprv_fmod(double x, double y)
-{
-	return fmod(x, y);
-}
-
-U_CAPI double U_EXPORT2 uprv_pow(double x, double y)
-{
-	/* This is declared as "double pow(double x, double y)" */
-	return pow(x, y);
-}
-
-U_CAPI double U_EXPORT2 uprv_pow10(int32_t x)
-{
-	return pow(10.0, (double)x);
-}
+U_CAPI double U_EXPORT2 uprv_floor(double x) { return floor(x); }
+U_CAPI double U_EXPORT2 uprv_ceil(double x) { return ceil(x); }
+U_CAPI double U_EXPORT2 uprv_round(double x) { return uprv_floor(x + 0.5); }
+U_CAPI double U_EXPORT2 uprv_fabs(double x) { return fabs(x); }
+U_CAPI double U_EXPORT2 uprv_modf(double x, double* y) { return modf(x, y); }
+U_CAPI double U_EXPORT2 uprv_fmod(double x, double y) { return fmod(x, y); }
+U_CAPI double U_EXPORT2 uprv_pow(double x, double y) { return pow(x, y); /* This is declared as "double pow(double x, double y)" */ }
+U_CAPI double U_EXPORT2 uprv_pow10(int32_t x) { return pow(10.0, (double)x); }
 
 U_CAPI double U_EXPORT2 uprv_fmax(double x, double y)
 {
@@ -449,13 +409,10 @@ U_CAPI double U_EXPORT2 uprv_fmax(double x, double y)
 	/* first handle NaN*/
 	if(uprv_isNaN(x) || uprv_isNaN(y))
 		return uprv_getNaN();
-
 	/* check for -0 and 0*/
 	if(x == 0.0 && y == 0.0 && u_signBit(x))
 		return y;
-
 #endif
-
 	/* this should work for all flt point w/o NaN and Inf special cases */
 	return (x > y ? x : y);
 }
@@ -1241,21 +1198,19 @@ static bool U_CALLCONV putil_cleanup(void)
  * Set the data directory.
  *    Make a copy of the passed string, and set the global data dir to point to it.
  */
-U_CAPI void U_EXPORT2 u_setDataDirectory(const char * directory) {
+U_CAPI void U_EXPORT2 u_setDataDirectory(const char * directory) 
+{
 	char * newDataDir;
 	int32_t length;
-
 	if(directory==NULL || *directory==0) {
-		/* A small optimization to prevent the malloc and copy when the
-		   shared library is used, and this is a way to make sure that NULL
-		   is never returned.
-		 */
+		// A small optimization to prevent the malloc and copy when the
+		// shared library is used, and this is a way to make sure that NULL is never returned.
 		newDataDir = (char *)"";
 	}
 	else {
 		length = (int32_t)uprv_strlen(directory);
 		newDataDir = (char *)uprv_malloc(length + 2);
-		/* Exit out if newDataDir could not be created. */
+		// Exit out if newDataDir could not be created
 		if(newDataDir == NULL) {
 			return;
 		}
@@ -1270,7 +1225,6 @@ U_CAPI void U_EXPORT2 u_setDataDirectory(const char * directory) {
 		}
 #endif
 	}
-
 	if(gDataDirectory && *gDataDirectory) {
 		uprv_free(gDataDirectory);
 	}
@@ -1283,11 +1237,9 @@ U_CAPI bool U_EXPORT2 uprv_pathIsAbsolute(const char * path)
 	if(!path || !*path) {
 		return FALSE;
 	}
-
 	if(*path == U_FILE_SEP_CHAR) {
 		return TRUE;
 	}
-
 #if(U_FILE_SEP_CHAR != U_FILE_ALT_SEP_CHAR)
 	if(*path == U_FILE_ALT_SEP_CHAR) {
 		return TRUE;
@@ -1295,22 +1247,19 @@ U_CAPI bool U_EXPORT2 uprv_pathIsAbsolute(const char * path)
 #endif
 
 #if U_PLATFORM_USES_ONLY_WIN32_API
-	if((((path[0] >= 'A') && (path[0] <= 'Z')) ||
-	    ((path[0] >= 'a') && (path[0] <= 'z'))) &&
-	    path[1] == ':') {
+	if((((path[0] >= 'A') && (path[0] <= 'Z')) || ((path[0] >= 'a') && (path[0] <= 'z'))) && path[1] == ':') {
 		return TRUE;
 	}
 #endif
-
 	return FALSE;
 }
 
 /* Backup setting of ICU_DATA_DIR_PREFIX_ENV_VAR
    (needed for some Darwin ICU build environments) */
 #if U_PLATFORM_IS_DARWIN_BASED && defined(TARGET_OS_SIMULATOR) && TARGET_OS_SIMULATOR
-# if !defined(ICU_DATA_DIR_PREFIX_ENV_VAR)
+#if !defined(ICU_DATA_DIR_PREFIX_ENV_VAR)
 #  define ICU_DATA_DIR_PREFIX_ENV_VAR "IPHONE_SIMULATOR_ROOT"
-# endif
+#endif
 #endif
 
 #if defined(ICU_DATA_DIR_WINDOWS)
@@ -1319,7 +1268,6 @@ static BOOL U_CALLCONV getIcuDataDirectoryUnderWindowsDirectory(char * directory
 {
 	wchar_t windowsPath[MAX_PATH];
 	char windowsPathUtf8[MAX_PATH];
-
 	UINT length = GetSystemWindowsDirectoryW(windowsPath, UPRV_LENGTHOF(windowsPath));
 	if((length > 0) && (length < (UPRV_LENGTHOF(windowsPath) - 1))) {
 		// Convert UTF-16 to a UTF-8 string.
@@ -1374,12 +1322,12 @@ static void U_CALLCONV dataDirectoryInitFn()
 	   There may also be some platforms where environment variables
 	   are not allowed.
 	 */
-#   if !defined(ICU_NO_USER_DATA_OVERRIDE) && !UCONFIG_NO_FILE_IO
+#if !defined(ICU_NO_USER_DATA_OVERRIDE) && !UCONFIG_NO_FILE_IO
 	/* First try to get the environment variable */
 #     if U_PLATFORM_HAS_WINUWP_API == 0  // Windows UWP does not support getenv
 	path = getenv("ICU_DATA");
 #endif
-#   endif
+#endif
 	/* ICU_DATA_DIR may be set as a compile option.
 	 * U_ICU_DATA_DEFAULT_DIR is provided and is set by ICU at compile time
 	 * and is used only when data is built in archive mode eliminating the need
@@ -1389,20 +1337,20 @@ static void U_CALLCONV dataDirectoryInitFn()
 	 */
 #if defined(ICU_DATA_DIR) || defined(U_ICU_DATA_DEFAULT_DIR)
 	if(path==NULL || *path==0) {
-# if defined(ICU_DATA_DIR_PREFIX_ENV_VAR)
+#if defined(ICU_DATA_DIR_PREFIX_ENV_VAR)
 		const char * prefix = getenv(ICU_DATA_DIR_PREFIX_ENV_VAR);
-# endif
+#endif
 # ifdef ICU_DATA_DIR
 		path = ICU_DATA_DIR;
 # else
 		path = U_ICU_DATA_DEFAULT_DIR;
-# endif
-# if defined(ICU_DATA_DIR_PREFIX_ENV_VAR)
+#endif
+#if defined(ICU_DATA_DIR_PREFIX_ENV_VAR)
 		if(prefix != NULL) {
 			snprintf(datadir_path_buffer, PATH_MAX, "%s%s", prefix, path);
 			path = datadir_path_buffer;
 		}
-# endif
+#endif
 	}
 #endif
 #if defined(ICU_DATA_DIR_WINDOWS)
@@ -1461,13 +1409,13 @@ static void U_CALLCONV TimeZoneDataDirInitFn(UErrorCode & status) {
 #if U_PLATFORM_HAS_WINUWP_API == 1
 // The UWP version does not support the environment variable setting.
 
-# if defined(ICU_DATA_DIR_WINDOWS)
+#if defined(ICU_DATA_DIR_WINDOWS)
 	// When using the Windows system data, we can possibly pick up time zone data from the Windows directory.
 	char datadir_path_buffer[MAX_PATH];
 	if(getIcuDataDirectoryUnderWindowsDirectory(datadir_path_buffer, UPRV_LENGTHOF(datadir_path_buffer))) {
 		dir = datadir_path_buffer;
 	}
-# endif
+#endif
 
 #else
 	dir = getenv("ICU_TIMEZONE_FILES_DIR");
@@ -2243,7 +2191,8 @@ U_CAPI void U_EXPORT2 u_getVersion(UVersionInfo versionArray)
 #include <dlfcn.h>
 #endif /* HAVE_DLFCN_H */
 
-U_CAPI void * U_EXPORT2 uprv_dl_open(const char * libName, UErrorCode * status) {
+U_CAPI void * U_EXPORT2 uprv_dl_open(const char * libName, UErrorCode * status) 
+{
 	void * ret = NULL;
 	if(U_FAILURE(*status)) return ret;
 	ret =  dlopen(libName, RTLD_NOW|RTLD_GLOBAL);
@@ -2301,26 +2250,24 @@ U_CAPI void * U_EXPORT2 uprv_dl_open(const char * libName, UErrorCode * status)
 U_CAPI void U_EXPORT2 uprv_dl_close(void * lib, UErrorCode * status) 
 {
 	HMODULE handle = (HMODULE)lib;
-	if(U_FAILURE(*status)) 
-		return;
-	FreeLibrary(handle);
-	return;
+	if(U_SUCCESS(*status)) 
+		FreeLibrary(handle);
 }
 
 U_CAPI UVoidFunction* U_EXPORT2 uprv_dlsym_func(void * lib, const char * sym, UErrorCode * status) 
 {
 	HMODULE handle = (HMODULE)lib;
-	UVoidFunction* addr = NULL;
-	if(U_FAILURE(*status) || lib==NULL) 
-		return NULL;
-	addr = (UVoidFunction*)GetProcAddress(handle, sym);
-	if(addr==NULL) {
-		DWORD lastError = GetLastError();
-		if(lastError == ERROR_PROC_NOT_FOUND) {
-			*status = U_MISSING_RESOURCE_ERROR;
-		}
-		else {
-			*status = U_UNSUPPORTED_ERROR; /* other unknown error. */
+	UVoidFunction * addr = NULL;
+	if(U_SUCCESS(*status) && lib) {
+		addr = (UVoidFunction*)GetProcAddress(handle, sym);
+		if(!addr) {
+			DWORD lastError = GetLastError();
+			if(lastError == ERROR_PROC_NOT_FOUND) {
+				*status = U_MISSING_RESOURCE_ERROR;
+			}
+			else {
+				*status = U_UNSUPPORTED_ERROR; /* other unknown error. */
+			}
 		}
 	}
 	return addr;
@@ -2357,7 +2304,6 @@ U_CAPI UVoidFunction* U_EXPORT2 uprv_dlsym_func(void * lib, const char * sym, UE
 }
 
 #endif
-
 /*
  * Hey, Emacs, please set the following:
  *

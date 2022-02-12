@@ -697,15 +697,8 @@ void FASTCALL xmlFreeNs(xmlNs * cur)
  */
 void FASTCALL xmlFreeNsList(xmlNs * cur)
 {
-	xmlNs * next;
-	if(!cur) {
-#ifdef DEBUG_TREE
-		xmlGenericError(0, "xmlFreeNsList : ns == NULL\n");
-#endif
-		return;
-	}
 	while(cur) {
-		next = cur->next;
+		xmlNs * next = cur->next;
 		xmlFreeNs(cur);
 		cur = next;
 	}
@@ -1016,8 +1009,7 @@ void FASTCALL xmlFreeDoc(xmlDoc * pDoc)
 			xmlFreeDtd(intSubset);
 		}
 		xmlFreeNodeList(pDoc->children);
-		if(pDoc->oldNs)
-			xmlFreeNsList(pDoc->oldNs);
+		xmlFreeNsList(pDoc->oldNs);
 		XmlDestroyStringWithDict(p_dict, (xmlChar *)pDoc->version); // @badcast
 		XmlDestroyStringWithDict(p_dict, (xmlChar *)pDoc->name); // @badcast
 		XmlDestroyStringWithDict(p_dict, (xmlChar *)pDoc->encoding); // @badcast
@@ -3109,7 +3101,7 @@ void FASTCALL xmlFreeNodeList(xmlNode * cur)
 					if(!oneof4(cur->type, XML_ELEMENT_NODE, XML_XINCLUDE_START, XML_XINCLUDE_END, XML_ENTITY_REF_NODE) && cur->content != (xmlChar *)&(cur->properties)) {
 						XmlDestroyStringWithDict(p_dict, cur->content);
 					}
-					if(oneof3(cur->type, XML_ELEMENT_NODE, XML_XINCLUDE_START, XML_XINCLUDE_END) && cur->nsDef)
+					if(oneof3(cur->type, XML_ELEMENT_NODE, XML_XINCLUDE_START, XML_XINCLUDE_END))
 						xmlFreeNsList(cur->nsDef);
 					/*
 					* When a node is a text node or a comment, it uses a global static
@@ -3166,7 +3158,7 @@ void FASTCALL xmlFreeNode(xmlNode * pCur)
 			 */
 			if(pCur->name && !oneof2(pCur->type, XML_TEXT_NODE, XML_COMMENT_NODE))
 				XmlDestroyStringWithDict(p_dict, (xmlChar *)pCur->name); // @badcast
-			if(oneof3(pCur->type, XML_ELEMENT_NODE, XML_XINCLUDE_START, XML_XINCLUDE_END) && pCur->nsDef)
+			if(oneof3(pCur->type, XML_ELEMENT_NODE, XML_XINCLUDE_START, XML_XINCLUDE_END))
 				xmlFreeNsList(pCur->nsDef);
 			SAlloc::F(pCur);
 		}
@@ -4160,9 +4152,9 @@ xmlChar * xmlGetNodePath(const xmlNode * pNode)
 			buf = temp;
 		}
 		if(occur == 0)
-			snprintf((char *)buf, buf_len, "%s%s%s", sep, name, (char *)buffer);
+			snprintf((char *)buf, buf_len, "%s%s%s", sep, name, reinterpret_cast<const char *>(buffer));
 		else
-			snprintf((char *)buf, buf_len, "%s%s[%d]%s", sep, name, occur, (char *)buffer);
+			snprintf((char *)buf, buf_len, "%s%s[%d]%s", sep, name, occur, reinterpret_cast<const char *>(buffer));
 		snprintf((char *)buffer, buf_len, "%s", (char *)buf);
 		cur = next;
 	} while(cur);

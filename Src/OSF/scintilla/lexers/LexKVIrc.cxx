@@ -24,7 +24,7 @@ static bool FASTCALL IsAWordChar(int ch) {
 	/* Keyword list includes modules, i.e. words including '.', and
 	 * alias namespaces include ':' */
 	return (ch < 0x80) && (isalnum(ch) || ch == '_' || ch == '.'
-	    || ch == ':');
+	   || ch == ':');
 }
 
 static bool FASTCALL IsAWordStart(int ch) {

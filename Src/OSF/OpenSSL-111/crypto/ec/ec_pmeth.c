@@ -404,7 +404,7 @@ static int pkey_ec_paramgen(EVP_PKEY_CTX * ctx, EVP_PKEY * pkey)
 	if(ec == NULL)
 		return 0;
 	if(!(ret = EC_KEY_set_group(ec, dctx->gen_group))
-	    || !ossl_assert(ret = EVP_PKEY_assign_EC_KEY(pkey, ec)))
+	   || !ossl_assert(ret = EVP_PKEY_assign_EC_KEY(pkey, ec)))
 		EC_KEY_free(ec);
 	return ret;
 }

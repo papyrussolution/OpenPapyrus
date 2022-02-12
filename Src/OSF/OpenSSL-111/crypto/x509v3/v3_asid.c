@@ -266,7 +266,7 @@ static int ASIdentifierChoice_is_canonical(ASIdentifierChoice * choice)
 		    NULL;
 
 		if(!extract_min_max(a, &a_min, &a_max)
-		    || !extract_min_max(b, &b_min, &b_max))
+		   || !extract_min_max(b, &b_min, &b_max))
 			goto done;
 
 		/*
@@ -306,7 +306,7 @@ static int ASIdentifierChoice_is_canonical(ASIdentifierChoice * choice)
 		ASN1_INTEGER * a_min, * a_max;
 		if(a != NULL && a->type == ASIdOrRange_range) {
 			if(!extract_min_max(a, &a_min, &a_max)
-			    || ASN1_INTEGER_cmp(a_min, a_max) > 0)
+			   || ASN1_INTEGER_cmp(a_min, a_max) > 0)
 				goto done;
 		}
 	}
@@ -370,7 +370,7 @@ static int ASIdentifierChoice_canonize(ASIdentifierChoice * choice)
 		    NULL;
 
 		if(!extract_min_max(a, &a_min, &a_max)
-		    || !extract_min_max(b, &b_min, &b_max))
+		   || !extract_min_max(b, &b_min, &b_max))
 			goto done;
 
 		/*
@@ -450,7 +450,7 @@ static int ASIdentifierChoice_canonize(ASIdentifierChoice * choice)
 		ASN1_INTEGER * a_min, * a_max;
 		if(a != NULL && a->type == ASIdOrRange_range) {
 			if(!extract_min_max(a, &a_min, &a_max)
-			    || ASN1_INTEGER_cmp(a_min, a_max) > 0)
+			   || ASN1_INTEGER_cmp(a_min, a_max) > 0)
 				goto done;
 		}
 	}
@@ -710,8 +710,8 @@ static int asid_validate_path_internal(X509_STORE_CTX * ctx,
 	X509 * x;
 
 	if(!ossl_assert(chain != NULL && sk_X509_num(chain) > 0)
-	    || !ossl_assert(ctx != NULL || ext != NULL)
-	    || !ossl_assert(ctx == NULL || ctx->verify_cb != NULL)) {
+	   || !ossl_assert(ctx != NULL || ext != NULL)
+	   || !ossl_assert(ctx == NULL || ctx->verify_cb != NULL)) {
 		if(ctx != NULL)
 			ctx->error = X509_V_ERR_UNSPECIFIED;
 		return 0;
@@ -782,7 +782,7 @@ static int asid_validate_path_internal(X509_STORE_CTX * ctx,
 		    x->rfc3779_asid->asnum->type ==
 		    ASIdentifierChoice_asIdsOrRanges) {
 			if(inherit_as
-			    || asid_contains(x->rfc3779_asid->asnum->u.asIdsOrRanges,
+			   || asid_contains(x->rfc3779_asid->asnum->u.asIdsOrRanges,
 			    child_as)) {
 				child_as = x->rfc3779_asid->asnum->u.asIdsOrRanges;
 				inherit_as = 0;
@@ -839,8 +839,8 @@ done:
 int X509v3_asid_validate_path(X509_STORE_CTX * ctx)
 {
 	if(ctx->chain == NULL
-	    || sk_X509_num(ctx->chain) == 0
-	    || ctx->verify_cb == NULL) {
+	   || sk_X509_num(ctx->chain) == 0
+	   || ctx->verify_cb == NULL) {
 		ctx->error = X509_V_ERR_UNSPECIFIED;
 		return 0;
 	}

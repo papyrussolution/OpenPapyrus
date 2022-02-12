@@ -1117,14 +1117,14 @@ int FASTCALL PPViewBill::CheckFlagsForFilt(const BillTbl::Rec * pRec) const
 	int    ok = 1;
 	const  long f = pRec ? pRec->Flags : 0;
 	const  long f2 = pRec ? pRec->Flags2 : 0;
-	THROW(!(Filt.Flags & BillFilt::fCashOnly)      || (f & BILLF_CASH));
-	THROW(!(Filt.Flags & BillFilt::fDebtOnly)      || !(f & BILLF_PAYOUT));
-	THROW(!(Filt.Flags & BillFilt::fPaymNeeded)    || (f & BILLF_NEEDPAYMENT));
-	THROW(!(Filt.Flags & BillFilt::fLabelOnly)     || (f & BILLF_WHITELABEL));
+	THROW(!(Filt.Flags & BillFilt::fCashOnly)     || (f & BILLF_CASH));
+	THROW(!(Filt.Flags & BillFilt::fDebtOnly)     || !(f & BILLF_PAYOUT));
+	THROW(!(Filt.Flags & BillFilt::fPaymNeeded)   || (f & BILLF_NEEDPAYMENT));
+	THROW(!(Filt.Flags & BillFilt::fLabelOnly)    || (f & BILLF_WHITELABEL));
 	THROW(!(Filt.Flags & BillFilt::fFreightedOnly) || (f & BILLF_FREIGHT));
 	THROW(!(Filt.Flags & BillFilt::fUnshippedOnly) || !(f & BILLF_SHIPPED));
-	THROW(!(Filt.Flags & BillFilt::fShippedOnly)   || (f & BILLF_SHIPPED));
-	THROW(!(Filt.Flags & BillFilt::fDiscountOnly)  || (f & BILLF_TOTALDISCOUNT));
+	THROW(!(Filt.Flags & BillFilt::fShippedOnly)  || (f & BILLF_SHIPPED));
+	THROW(!(Filt.Flags & BillFilt::fDiscountOnly) || (f & BILLF_TOTALDISCOUNT));
 	// @v10.7.0 THROW(!(Filt.Flags & BillFilt::fCcNotPrintedOnly) || !(f & BILLF_CHECK)); // @erik v10.6.13
 	// @v10.7.0 THROW(!(Filt.Flags & BillFilt::fCcPrintedOnly) || (f & BILLF_CHECK)); // @v9.7.12
 	if(Filt.Ft_STax > 0)

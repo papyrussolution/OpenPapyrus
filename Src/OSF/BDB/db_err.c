@@ -603,7 +603,7 @@ int __db_rec_repl(ENV * env, uint32 data_size, uint32 data_dlen)
 	return EINVAL;
 }
 
-#if defined(DIAGNOSTIC) || defined(DEBUG_ROP)  || defined(DEBUG_WOP)
+#if defined(DIAGNOSTIC) || defined(DEBUG_ROP) || defined(DEBUG_WOP)
 /*
  * __dbc_logging --
  *	In DIAGNOSTIC mode, check for bad replication combinations.

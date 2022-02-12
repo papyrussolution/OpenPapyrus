@@ -246,7 +246,7 @@ static int write_header(struct archive_write * a, struct archive_entry * entry)
 	format_hex(archive_entry_gid(entry), h + c_gid_offset, c_gid_size);
 	format_hex(archive_entry_nlink(entry), h + c_nlink_offset, c_nlink_size);
 	if(archive_entry_filetype(entry) == AE_IFBLK
-	    || archive_entry_filetype(entry) == AE_IFCHR) {
+	   || archive_entry_filetype(entry) == AE_IFCHR) {
 		format_hex(archive_entry_rdevmajor(entry), h + c_rdevmajor_offset, c_rdevmajor_size);
 		format_hex(archive_entry_rdevminor(entry), h + c_rdevminor_offset, c_rdevminor_size);
 	}

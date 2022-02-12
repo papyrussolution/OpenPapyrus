@@ -120,14 +120,14 @@ size_t rand_pool_acquire_entropy(RAND_POOL * pool)
 #if defined(OPENSSL_SYS_VOS)
 
 #ifndef OPENSSL_RAND_SEED_OS
-#   error "Unsupported seeding method configured; must be os"
+#error "Unsupported seeding method configured; must be os"
 #endif
 
 #if defined(OPENSSL_SYS_VOS_HPPA) && defined(OPENSSL_SYS_VOS_IA32)
-#   error "Unsupported HP-PA and IA32 at the same time."
+#error "Unsupported HP-PA and IA32 at the same time."
 #endif
 #if !defined(OPENSSL_SYS_VOS_HPPA) && !defined(OPENSSL_SYS_VOS_IA32)
-#   error "Must have one of HP-PA or IA32"
+#error "Must have one of HP-PA or IA32"
 #endif
 
 /*
@@ -199,11 +199,11 @@ void rand_pool_keep_random_devices_open(int keep)
 
 #if defined(OPENSSL_RAND_SEED_EGD) && \
 	(defined(OPENSSL_NO_EGD) || !defined(DEVRANDOM_EGD))
-#   error "Seeding uses EGD but EGD is turned off or no device given"
+#error "Seeding uses EGD but EGD is turned off or no device given"
 #endif
 
 #if defined(OPENSSL_RAND_SEED_DEVRANDOM) && !defined(DEVRANDOM)
-#   error "Seeding uses urandom but DEVRANDOM is not configured"
+#error "Seeding uses urandom but DEVRANDOM is not configured"
 #endif
 
 #if defined(OPENSSL_RAND_SEED_OS)
@@ -215,7 +215,7 @@ void rand_pool_keep_random_devices_open(int keep)
 #endif
 
 #if defined(OPENSSL_RAND_SEED_LIBRANDOM)
-#   error "librandom not (yet) supported"
+#error "librandom not (yet) supported"
 #endif
 
 #if(defined(__FreeBSD__) || defined(__NetBSD__)) && defined(KERN_ARND)
@@ -400,7 +400,7 @@ static int wait_random_seeded(void)
 				p = strchr(un.release, '.');
 				kernel[1] = p == NULL ? 0 : atoi(p + 1);
 				if(kernel[0] > kernel_version[0]
-				    || (kernel[0] == kernel_version[0]
+				   || (kernel[0] == kernel_version[0]
 				 && kernel[1] >= kernel_version[1])) {
 					return 0;
 				}

@@ -8375,7 +8375,7 @@ static pcre_uchar * compile_iterator_matchingpath(compiler_common * common, pcre
 		fast_str_ptr = 0;
 
 	SLJIT_ASSERT(common->fast_forward_bc_ptr != NULL || fast_str_ptr == 0
-	    || (fast_str_ptr >= common->fast_fail_start_ptr && fast_str_ptr <= common->fast_fail_end_ptr));
+	   || (fast_str_ptr >= common->fast_fail_start_ptr && fast_str_ptr <= common->fast_fail_end_ptr));
 	cc = get_iterator_parameters(common, cc, &opcode, &type, &max, &exact, &end);
 	if(type != OP_EXTUNI) {
 		tmp_base = TMP3;

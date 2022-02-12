@@ -893,13 +893,9 @@ static const elementPriority htmlEndPriority[] = {
 
 static const char ** htmlStartCloseIndex[100];
 static int htmlStartCloseIndexinitialized = 0;
-
-/************************************************************************
-*									*
-*	functions to handle HTML specific data			*
-*									*
-************************************************************************/
-
+// 
+// functions to handle HTML specific data
+// 
 /**
  * htmlInitAutoClose:
  *
@@ -914,9 +910,9 @@ void htmlInitAutoClose()
 		for(indx = 0; indx < 100; indx++) 
 			htmlStartCloseIndex[indx] = NULL;
 		indx = 0;
-		while((htmlStartClose[i] != NULL) && (indx < 100 - 1)) {
+		while(htmlStartClose[i] && indx < (100 - 1)) {
 			htmlStartCloseIndex[indx++] = (const char **)&htmlStartClose[i];
-			while(htmlStartClose[i] != NULL) 
+			while(htmlStartClose[i]) 
 				i++;
 			i++;
 		}
@@ -5392,14 +5388,12 @@ htmlParserCtxt * htmlCreateFileParserCtxt(const char * filename, const char * en
  * Returns the resulting document tree unless SAX is NULL or the document is
  *   not well formed.
  */
-
 htmlDocPtr htmlSAXParseFile(const char * filename, const char * encoding, htmlSAXHandlerPtr sax, void * userData)
 {
 	htmlDocPtr ret;
-	htmlParserCtxt * ctxt;
 	htmlSAXHandlerPtr oldsax = NULL;
 	xmlInitParser();
-	ctxt = htmlCreateFileParserCtxt(filename, encoding);
+	htmlParserCtxt * ctxt = htmlCreateFileParserCtxt(filename, encoding);
 	if(!ctxt)
 		return NULL;
 	if(sax) {
@@ -5441,7 +5435,7 @@ htmlDocPtr htmlParseFile(const char * filename, const char * encoding)
  */
 int htmlHandleOmittedElem(int val)
 {
-	int old = htmlOmittedDefaultValue;
+	const int old = htmlOmittedDefaultValue;
 	htmlOmittedDefaultValue = val;
 	return old;
 }

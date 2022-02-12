@@ -19,7 +19,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "xapian/weight.h"
 #include "common/log2.h"
 #include "weightinternal.h"
 #include "serialise-double.h"
@@ -111,11 +110,8 @@ double InL2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
 {
 	if(wdf == 0) return 0.0;
 	double wdfn = wdf;
-
 	wdfn *= log2(1 + c_product_avlen / len);
-
 	double wdfn_product_L = wdfn / (wdfn + 1.0);
-
 	return (wqf_product_idf * wdfn_product_L);
 }
 
@@ -124,9 +120,7 @@ double InL2Weight::get_maxpart() const
 	return upper_bound;
 }
 
-double InL2Weight::get_sumextra(Xapian::termcount,
-    Xapian::termcount,
-    Xapian::termcount) const
+double InL2Weight::get_sumextra(Xapian::termcount, Xapian::termcount, Xapian::termcount) const
 {
 	return 0;
 }

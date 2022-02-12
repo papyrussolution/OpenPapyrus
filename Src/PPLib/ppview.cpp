@@ -604,12 +604,9 @@ int PPBaseFilt::Describe(long flags, SString & rBuf) const
 
 void PPBaseFilt::PutSggMembToBuf(SubstGrpGoods sgg, const char * pMembName, SString & rBuf) const
 {
-	struct SggStruc {
-		uint32 SggID;
-		const char * P_Name;
-	};
+	/* @v11.3.1 struct SggStruc { uint32 SggID; const char * P_Name; };*/
 #define __ITEM(f) {f, #f}
-	const SggStruc SggStrucList[] = {
+	static const /*SggStruc*/SIntToSymbTabEntry SggStrucList[] = {
 		__ITEM(sggNone),
 		__ITEM(sggGeneric),
 		__ITEM(sggGroup),
@@ -633,21 +630,21 @@ void PPBaseFilt::PutSggMembToBuf(SubstGrpGoods sgg, const char * pMembName, SStr
 		__ITEM(sggGroupSecondLvl)
 	};
 #undef __ITEM
-	for(uint i = 0; i < SIZEOFARRAY(SggStrucList); i++)
+	SString & r_temp_buf = SLS.AcquireRvlStr();
+	if(SIntToSymbTab_GetSymb(SggStrucList, SIZEOFARRAY(SggStrucList), sgg, r_temp_buf) > 0)
+		PutMembToBuf(r_temp_buf, pMembName, rBuf);
+	/* @v11.3.1 for(uint i = 0; i < SIZEOFARRAY(SggStrucList); i++)
 		if(SggStrucList[i].SggID == sgg) {
 			PutMembToBuf(SggStrucList[i].P_Name, pMembName, rBuf);
 			break;
-		}
+		}*/
 }
 
 void PPBaseFilt::PutSgpMembToBuf(SubstGrpPerson sgp, const char * pMembName, SString & rBuf) const
 {
-	struct SgpStruc {
-		uint32 SgpID;
-		const char * P_Name;
-	};
+	/* @v11.3.1 struct SgpStruc { uint32 SgpID; const char * P_Name; };*/
 #define __ITEM(f) {f, #f}
-	const SgpStruc SgpStrucList[] = {
+	static const /*SgpStruc*/SIntToSymbTabEntry SgpStrucList[] = {
 		__ITEM(sgpNone),
 		__ITEM(sgpCity),
 		__ITEM(sgpRegion),
@@ -660,33 +657,38 @@ void PPBaseFilt::PutSgpMembToBuf(SubstGrpPerson sgp, const char * pMembName, SSt
 		__ITEM(sgpArticleMask)
 	};
 #undef __ITEM
-	for(uint i = 0; i < SIZEOFARRAY(SgpStrucList); i++)
+	SString & r_temp_buf = SLS.AcquireRvlStr();
+	if(SIntToSymbTab_GetSymb(SgpStrucList, SIZEOFARRAY(SgpStrucList), sgp, r_temp_buf) > 0)
+		PutMembToBuf(r_temp_buf, pMembName, rBuf);
+	/* @v11.3.1 for(uint i = 0; i < SIZEOFARRAY(SgpStrucList); i++)
 		if(SgpStrucList[i].SgpID == sgp) {
 			PutMembToBuf(SgpStrucList[i].P_Name, pMembName, rBuf);
 			break;
-		}
+		}*/
 }
 
 void PPBaseFilt::PutSgdMembToBuf(SubstGrpDate sgd, const char * pMembName, SString & rBuf) const
 {
-	struct SgdStruc {
-		uint32 SgpID;
-		const char * P_Name;
-	};
+	/* @v11.3.1 struct SgdStruc { uint32 SgpID; const char * P_Name; }; */
 #define __ITEM(f) {f, #f}
-	const SgdStruc SgdStrucList[] = {
+	static const /*SgdStruc*/SIntToSymbTabEntry SgdStrucList[] = {
 		__ITEM(sgdNone),
 		__ITEM(sgdWeek),
 		__ITEM(sgdMonth),
 		__ITEM(sgdQuart),
-		__ITEM(sgdYear)
+		__ITEM(sgdYear),
+		__ITEM(sgdHour), // @v11.3.1
+		__ITEM(sgdWeekDay) // @v11.3.1
 	};
 #undef __ITEM
-	for(uint i = 0; i < SIZEOFARRAY(SgdStrucList); i++)
+	SString & r_temp_buf = SLS.AcquireRvlStr();
+	if(SIntToSymbTab_GetSymb(SgdStrucList, SIZEOFARRAY(SgdStrucList), sgd, r_temp_buf) > 0)
+		PutMembToBuf(r_temp_buf, pMembName, rBuf);
+	/* @v11.3.1 for(uint i = 0; i < SIZEOFARRAY(SgdStrucList); i++)
 		if(SgdStrucList[i].SgpID == sgd) {
 			PutMembToBuf(SgdStrucList[i].P_Name, pMembName, rBuf);
 			break;
-		}
+		}*/
 }
 
 PPBaseFilt & FASTCALL PPBaseFilt::operator = (const PPBaseFilt & s)

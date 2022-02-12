@@ -69,12 +69,12 @@
 #endif /* HAVE_SHADOW_H */
 
 #if defined(HAVE_PWCHECK) || defined(HAVE_SASLAUTHD) || defined(HAVE_AUTHDAEMON)
-# include <errno.h>
-# include <sys/types.h>
-# include <sys/socket.h>
-# include <sys/un.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/un.h>
 # ifdef HAVE_UNISTD_H
-#  include <unistd.h>
+#include <unistd.h>
 # endif
 #endif
 

@@ -348,7 +348,7 @@ static void prepare_cipher_methods(void)
 		sess.cipher = cipher_data[i].devcryptoid;
 		sess.keylen = cipher_data[i].keylen;
 		if(ioctl(cfd, CIOCGSESSION, &sess) < 0
-		    || ioctl(cfd, CIOCFSESSION, &sess.ses) < 0)
+		   || ioctl(cfd, CIOCFSESSION, &sess.ses) < 0)
 			continue;
 
 		cipher_mode = cipher_data[i].flags & EVP_CIPH_MODE;
@@ -358,22 +358,22 @@ static void prepare_cipher_methods(void)
 		    cipher_mode == EVP_CIPH_CTR_MODE ? 1 :
 		    cipher_data[i].blocksize,
 		    cipher_data[i].keylen)) == NULL
-		    || !EVP_CIPHER_meth_set_iv_length(known_cipher_methods[i],
+		   || !EVP_CIPHER_meth_set_iv_length(known_cipher_methods[i],
 		    cipher_data[i].ivlen)
-		    || !EVP_CIPHER_meth_set_flags(known_cipher_methods[i],
+		   || !EVP_CIPHER_meth_set_flags(known_cipher_methods[i],
 		    cipher_data[i].flags
 		    | EVP_CIPH_CUSTOM_COPY
 		    | EVP_CIPH_CTRL_INIT
 		    | EVP_CIPH_FLAG_DEFAULT_ASN1)
-		    || !EVP_CIPHER_meth_set_init(known_cipher_methods[i], cipher_init)
-		    || !EVP_CIPHER_meth_set_do_cipher(known_cipher_methods[i],
+		   || !EVP_CIPHER_meth_set_init(known_cipher_methods[i], cipher_init)
+		   || !EVP_CIPHER_meth_set_do_cipher(known_cipher_methods[i],
 		    cipher_mode == EVP_CIPH_CTR_MODE ?
 		    ctr_do_cipher :
 		    cipher_do_cipher)
-		    || !EVP_CIPHER_meth_set_ctrl(known_cipher_methods[i], cipher_ctrl)
-		    || !EVP_CIPHER_meth_set_cleanup(known_cipher_methods[i],
+		   || !EVP_CIPHER_meth_set_ctrl(known_cipher_methods[i], cipher_ctrl)
+		   || !EVP_CIPHER_meth_set_cleanup(known_cipher_methods[i],
 		    cipher_cleanup)
-		    || !EVP_CIPHER_meth_set_impl_ctx_size(known_cipher_methods[i],
+		   || !EVP_CIPHER_meth_set_impl_ctx_size(known_cipher_methods[i],
 		    sizeof(struct cipher_ctx))) {
 			EVP_CIPHER_meth_free(known_cipher_methods[i]);
 			known_cipher_methods[i] = NULL;
@@ -640,16 +640,16 @@ static void prepare_digest_methods(void)
 
 		if((known_digest_methods[i] = EVP_MD_meth_new(digest_data[i].nid,
 		    NID_undef)) == NULL
-		    || !EVP_MD_meth_set_input_blocksize(known_digest_methods[i],
+		   || !EVP_MD_meth_set_input_blocksize(known_digest_methods[i],
 		    digest_data[i].blocksize)
-		    || !EVP_MD_meth_set_result_size(known_digest_methods[i],
+		   || !EVP_MD_meth_set_result_size(known_digest_methods[i],
 		    digest_data[i].digestlen)
-		    || !EVP_MD_meth_set_init(known_digest_methods[i], digest_init)
-		    || !EVP_MD_meth_set_update(known_digest_methods[i], digest_update)
-		    || !EVP_MD_meth_set_final(known_digest_methods[i], digest_final)
-		    || !EVP_MD_meth_set_copy(known_digest_methods[i], digest_copy)
-		    || !EVP_MD_meth_set_cleanup(known_digest_methods[i], digest_cleanup)
-		    || !EVP_MD_meth_set_app_datasize(known_digest_methods[i],
+		   || !EVP_MD_meth_set_init(known_digest_methods[i], digest_init)
+		   || !EVP_MD_meth_set_update(known_digest_methods[i], digest_update)
+		   || !EVP_MD_meth_set_final(known_digest_methods[i], digest_final)
+		   || !EVP_MD_meth_set_copy(known_digest_methods[i], digest_copy)
+		   || !EVP_MD_meth_set_cleanup(known_digest_methods[i], digest_cleanup)
+		   || !EVP_MD_meth_set_app_datasize(known_digest_methods[i],
 		    sizeof(struct digest_ctx))) {
 			EVP_MD_meth_free(known_digest_methods[i]);
 			known_digest_methods[i] = NULL;
@@ -763,21 +763,21 @@ void engine_load_devcrypto_int()
  */
 #if 0
 #ifndef OPENSSL_NO_RSA
-	    || !ENGINE_set_RSA(e, devcrypto_rsa)
+	   || !ENGINE_set_RSA(e, devcrypto_rsa)
 #endif
 #ifndef OPENSSL_NO_DSA
-	    || !ENGINE_set_DSA(e, devcrypto_dsa)
+	   || !ENGINE_set_DSA(e, devcrypto_dsa)
 #endif
 #ifndef OPENSSL_NO_DH
-	    || !ENGINE_set_DH(e, devcrypto_dh)
+	   || !ENGINE_set_DH(e, devcrypto_dh)
 #endif
 #ifndef OPENSSL_NO_EC
-	    || !ENGINE_set_EC(e, devcrypto_ec)
+	   || !ENGINE_set_EC(e, devcrypto_ec)
 #endif
 #endif
-	    || !ENGINE_set_ciphers(e, devcrypto_ciphers)
+	   || !ENGINE_set_ciphers(e, devcrypto_ciphers)
 #ifdef IMPLEMENT_DIGEST
-	    || !ENGINE_set_digests(e, devcrypto_digests)
+	   || !ENGINE_set_digests(e, devcrypto_digests)
 #endif
 	    ) {
 		ENGINE_free(e);

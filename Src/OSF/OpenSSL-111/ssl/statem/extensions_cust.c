@@ -86,7 +86,7 @@ custom_ext_method * custom_ext_find(const custom_ext_methods * exts,
 	for(i = 0; i < exts->meths_count; i++, meth++) {
 		if(ext_type == meth->ext_type
 		 && (role == ENDPOINT_BOTH || role == meth->role
-		    || meth->role == ENDPOINT_BOTH)) {
+		   || meth->role == ENDPOINT_BOTH)) {
 			if(idx != NULL)
 				*idx = i;
 			return meth;
@@ -215,9 +215,9 @@ int custom_ext_add(SSL * s, int context, WPACKET * pkt, X509 * x, size_t chainid
 		}
 
 		if(!WPACKET_put_bytes_u16(pkt, meth->ext_type)
-		    || !WPACKET_start_sub_packet_u16(pkt)
-		    || (outlen > 0 && !WPACKET_memcpy(pkt, out, outlen))
-		    || !WPACKET_close(pkt)) {
+		   || !WPACKET_start_sub_packet_u16(pkt)
+		   || (outlen > 0 && !WPACKET_memcpy(pkt, out, outlen))
+		   || !WPACKET_close(pkt)) {
 			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_CUSTOM_EXT_ADD,
 			    ERR_R_INTERNAL_ERROR);
 			return 0;

@@ -133,10 +133,8 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 	else
 		x2label_textheight = 0;
 	// tic labels 
-	if(AxS[SECOND_X_AXIS].ticmode & TICS_ON_BORDER) {
-		// ought to consider tics on axes if axis near border 
-		x2tic_textheight = (int)(_Bry.x2ticlin * pTerm->CV());
-	}
+	if(AxS[SECOND_X_AXIS].ticmode & TICS_ON_BORDER)
+		x2tic_textheight = (int)(_Bry.x2ticlin * pTerm->CV()); // ought to consider tics on axes if axis near border 
 	else
 		x2tic_textheight = 0;
 	// tics 
@@ -149,8 +147,7 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 		x2tic_height = 0;
 	// Polar (theta) tic labels need space at top and bottom of plot 
 	if(AxS.Theta().ticmode) {
-		// FIXME:  Really 5% of polar grid radius, but we don't know that yet 
-		ttic_textheight = 2 * pTerm->CV();
+		ttic_textheight = 2 * pTerm->CV(); // FIXME:  Really 5% of polar grid radius, but we don't know that yet 
 	}
 	// timestamp 
 	if(Gg.LblTime.text) {
@@ -272,12 +269,10 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 	// compute V.BbPlot.ybot from the various components unless bmargin is explicitly specified  
 	V.BbPlot.ybot = static_cast<int>(V.Offset.y * pTerm->MaxY);
 	if(V.MarginB.scalex == screen) {
-		// Absolute position for bottom of plot 
-		V.BbPlot.ybot = static_cast<int>(V.MarginB.x * pTerm->MaxY);
+		V.BbPlot.ybot = static_cast<int>(V.MarginB.x * pTerm->MaxY); // Absolute position for bottom of plot 
 	}
 	else if(V.MarginB.x >= 0) {
-		// Position based on specified character height 
-		V.BbPlot.ybot += V.MarginB.x * (float)pTerm->CV() + 0.5;
+		V.BbPlot.ybot += V.MarginB.x * (float)pTerm->CV() + 0.5; // Position based on specified character height 
 	}
 	else {
 		V.BbPlot.ybot += xtic_height + xtic_textheight;
@@ -346,13 +341,10 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 			ytic_textwidth = (int)(pTerm->CH() * (AxS.WidestTicLen + 2));
 		}
 	}
-	else if(AxS[FIRST_Y_AXIS].label.text) {
-		// substitutes for extra space added to left of ytix labels 
-		ytic_textwidth = 2 * pTerm->CH();
-	}
-	else {
+	else if(AxS[FIRST_Y_AXIS].label.text)
+		ytic_textwidth = 2 * pTerm->CH(); // substitutes for extra space added to left of ytix labels 
+	else
 		ytic_textwidth = 0;
-	}
 	// tics 
 	if(!AxS[FIRST_Y_AXIS].TicIn && ((AxS[FIRST_Y_AXIS].ticmode & TICS_ON_BORDER) || ((AxS[SECOND_Y_AXIS].ticmode & TICS_MIRROR) && (AxS[SECOND_Y_AXIS].ticmode & TICS_ON_BORDER))))
 		ytic_width = static_cast<int>(pTerm->MulTicH(AxS[FIRST_Y_AXIS].ticscale));
@@ -392,9 +384,8 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 			y2tic_textwidth = (int)(pTerm->CH() * (AxS.WidestTicLen + 2));
 		}
 	}
-	else {
+	else
 		y2tic_textwidth = 0;
-	}
 	// EAM May 2009
 	// Check to see if any xtic labels are so long that they extend beyond
 	// the right boundary of the plot. If so, allow extra room in the margin.
@@ -1191,8 +1182,8 @@ void GnuPlot::DrawTitles(GpTermEntry * pTerm)
 	}
 	// Y2LABEL 
 	if(AxS[SECOND_Y_AXIS].label.text) {
-		int x = _Bry.y2label_x;
-		int y = (V.BbPlot.ytop + V.BbPlot.ybot) / 2;
+		const int x = _Bry.y2label_x;
+		const int y = (V.BbPlot.ytop + V.BbPlot.ybot) / 2;
 		WriteLabel(pTerm, x, y, &(AxS[SECOND_Y_AXIS].label));
 		ResetTextColor(pTerm, &(AxS[SECOND_Y_AXIS].label.textcolor));
 	}
@@ -1210,16 +1201,16 @@ void GnuPlot::DrawTitles(GpTermEntry * pTerm)
 	// X2LABEL 
 	if(AxS[SECOND_X_AXIS].label.text) {
 		// we worked out y-coordinate in boundary() 
-		int x = (V.BbPlot.xright + V.BbPlot.xleft) / 2;
-		int y = _Bry.x2label_y - pTerm->CV() / 2;
+		const int x = (V.BbPlot.xright + V.BbPlot.xleft) / 2;
+		const int y = _Bry.x2label_y - pTerm->CV() / 2;
 		WriteLabel(pTerm, x, y, &(AxS[SECOND_X_AXIS].label));
 		ResetTextColor(pTerm, &(AxS[SECOND_X_AXIS].label.textcolor));
 	}
 	// RLABEL 
 	if(AxS[POLAR_AXIS].label.text) {
 		// This assumes we always have a horizontal R axis 
-		int x = MapiX(PolarRadius(AxS.__R().max) / 2.0);
-		int y = MapiY(0.0) + pTerm->CV();
+		const int x = MapiX(PolarRadius(AxS.__R().max) / 2.0);
+		const int y = MapiY(0.0) + pTerm->CV();
 		WriteLabel(pTerm, x, y, &(AxS[POLAR_AXIS].label));
 		ResetTextColor(pTerm, &(AxS[POLAR_AXIS].label.textcolor));
 	}

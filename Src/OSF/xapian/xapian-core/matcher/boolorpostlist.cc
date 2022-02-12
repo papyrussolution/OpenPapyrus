@@ -1,22 +1,9 @@
 /** @file
  * @brief PostList class implementing unweighted Query::OP_OR
  */
-/* Copyright 2017,2018 Olly Betts
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
- */
+// Copyright 2017,2018 Olly Betts
+// @licence GNU GPL
+//
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "boolorpostlist.h"
@@ -245,22 +232,15 @@ std::string BoolOrPostList::get_description() const
 
 Xapian::termcount BoolOrPostList::get_wdf() const
 {
-	return for_all_matches([](PostList* pl) {
-		return pl->get_wdf();
-	});
+	return for_all_matches([](PostList* pl) { return pl->get_wdf(); });
 }
 
 Xapian::termcount BoolOrPostList::count_matching_subqs() const
 {
-	return for_all_matches([](PostList* pl) {
-		return pl->count_matching_subqs();
-	});
+	return for_all_matches([](PostList* pl) { return pl->count_matching_subqs(); });
 }
 
 void BoolOrPostList::gather_position_lists(OrPositionList* orposlist)
 {
-	for_all_matches([&orposlist](PostList* pl) {
-		pl->gather_position_lists(orposlist);
-		return 0;
-	});
+	for_all_matches([&orposlist](PostList* pl) { pl->gather_position_lists(orposlist); return 0; });
 }

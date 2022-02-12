@@ -165,7 +165,7 @@ int GnuPlot::ImplementMain(int argc_orig, char ** argv)
 		}
 		else if(!strncmp(argv[i], "-persist", 2) || sstreq(argv[i], "--persist")
 #ifdef _WIN32
-		    || sstreqi_ascii(argv[i], "-noend") || sstreqi_ascii(argv[i], "/noend")
+		   || sstreqi_ascii(argv[i], "-noend") || sstreqi_ascii(argv[i], "/noend")
 #endif
 		    ) {
 			_Plt.persist_cl = TRUE;
@@ -320,7 +320,7 @@ int GnuPlot::ImplementMain(int argc_orig, char ** argv)
 		Pgm.CToken = 0;
 		if(!strncmp(*argv, "-persist", 2) || sstreq(*argv, "--persist")
 #ifdef _WIN32
-		    || sstreqi_ascii(*argv, "-noend") || sstreqi_ascii(*argv, "/noend")
+		   || sstreqi_ascii(*argv, "-noend") || sstreqi_ascii(*argv, "/noend")
 #endif
 		    ) {
 			FPRINTF((stderr, "'persist' command line option recognized\n"));

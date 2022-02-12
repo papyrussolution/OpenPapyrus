@@ -129,9 +129,9 @@ static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt,
 #endif
 
 #ifdef ARCHIVE_CRYPTOR_USE_Apple_CommonCrypto
-# if MAC_OS_X_VERSION_MAX_ALLOWED < 1090
+#if MAC_OS_X_VERSION_MAX_ALLOWED < 1090
 #  define kCCAlgorithmAES kCCAlgorithmAES128
-# endif
+#endif
 
 static int aes_ctr_init(archive_crypto_ctx * ctx, const uint8 * key, size_t key_len)
 {
@@ -197,7 +197,7 @@ static int aes_ctr_init(archive_crypto_ctx * ctx, const uint8 * key, size_t key_
 		return -1;
 	}
 	if(key_lengths.dwMinLength > aes_key_len
-	    || key_lengths.dwMaxLength < aes_key_len) {
+	   || key_lengths.dwMaxLength < aes_key_len) {
 		BCryptCloseAlgorithmProvider(hAlg, 0);
 		return -1;
 	}

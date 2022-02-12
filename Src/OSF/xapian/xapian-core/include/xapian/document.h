@@ -81,22 +81,16 @@ public:
 	 *  The internals are reference counted, so assignment is cheap.
 	 */
 	Document& operator=(const Document& o);
-
 	/// Move constructor.
 	Document(Document&& o);
-
 	/// Move assignment operator.
 	Document& operator=(Document&& o);
-
 	/** Default constructor.
 	 *
 	 *  Creates an empty Document.
 	 */
 	Document();
-
-	/// Destructor.
 	~Document();
-
 	/** Get the document ID this document came from.
 	 *
 	 *  If this document didn't come from a database, this will be 0 (in Xapian
@@ -107,16 +101,12 @@ public:
 	 *  in the shard it came from, not the docid in the combined database.
 	 */
 	Xapian::docid get_docid() const;
-
 	/// Get the document data.
 	std::string get_data() const;
-
 	/// Set the document data.
 	void set_data(const std::string& data);
-
 	/// Add a term to this document.
 	void add_term(const std::string& term, Xapian::termcount wdf_inc = 1);
-
 	/** Add a boolean filter term to the document.
 	 *
 	 *  This method adds @a term to the document with wdf of 0 -

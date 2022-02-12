@@ -763,8 +763,8 @@ static int setup_sparse_fiemap(struct archive_read_disk * a,
 	const char * path;
 
 	if(archive_entry_filetype(entry) != AE_IFREG
-	    || archive_entry_size(entry) <= 0
-	    || archive_entry_hardlink(entry) != NULL)
+	   || archive_entry_size(entry) <= 0
+	   || archive_entry_hardlink(entry) != NULL)
 		return ARCHIVE_OK;
 
 	if(*fd < 0) {
@@ -869,8 +869,8 @@ static int setup_sparse(struct archive_read_disk * a,
 	const char * path;
 
 	if(archive_entry_filetype(entry) != AE_IFREG
-	    || archive_entry_size(entry) <= 0
-	    || archive_entry_hardlink(entry) != NULL)
+	   || archive_entry_size(entry) <= 0
+	   || archive_entry_hardlink(entry) != NULL)
 		return ARCHIVE_OK;
 
 	/* Does filesystem support the reporting of hole ? */

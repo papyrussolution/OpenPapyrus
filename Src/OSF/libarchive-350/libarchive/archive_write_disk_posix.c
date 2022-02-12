@@ -795,7 +795,7 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 
 	if((a->deferred & TODO_TIMES)
 	    && (archive_entry_mtime_is_set(entry)
-	    || archive_entry_atime_is_set(entry))) {
+	   || archive_entry_atime_is_set(entry))) {
 		fe = current_fixup(a, archive_entry_pathname(entry));
 		if(fe == NULL)
 			return ARCHIVE_FATAL;
@@ -3389,7 +3389,7 @@ static int set_times(struct archive_write_disk * a,
 	 * If birthtime > mtime, then this won't work, so we skip it.
 	 */
 	if(birthtime < mtime
-	    || (birthtime == mtime && birthtime_nanos < mtime_nanos))
+	   || (birthtime == mtime && birthtime_nanos < mtime_nanos))
 		r1 = set_time(fd, mode, name,
 			atime, atime_nanos,
 			birthtime, birthtime_nanos);

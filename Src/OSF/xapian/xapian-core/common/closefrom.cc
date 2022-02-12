@@ -31,7 +31,7 @@
 #endif
 #if defined __linux__
 	#include "alignment_cast.h"
-	#include "safedirent.h"
+	//#include "safedirent.h"
 	#include "parseint.h"
 #elif defined __APPLE__
 	#include <sys/attr.h>

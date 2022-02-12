@@ -2485,7 +2485,7 @@ const uint8 * _zip_string_get(zip_string_t * string, uint32 * lenp, zip_flags_t 
 		if(string->encoding == ZIP_ENCODING_UNKNOWN)
 			_zip_guess_encoding(string, ZIP_ENCODING_UNKNOWN);
 		if(((flags & ZIP_FL_ENC_STRICT) && string->encoding != ZIP_ENCODING_ASCII && string->encoding != ZIP_ENCODING_UTF8_KNOWN)
-		    || (string->encoding == ZIP_ENCODING_CP437)) {
+		   || (string->encoding == ZIP_ENCODING_CP437)) {
 			if(string->converted == NULL) {
 				if((string->converted = _zip_cp437_to_utf8(string->raw, string->length, &string->converted_length, error)) == NULL)
 					return NULL;
@@ -3527,7 +3527,7 @@ static int add_data(zip_t * za, zip_source_t * src, zip_dirent_t * de)
 		de->uncomp_size = st.size;
 		if((st.valid & ZIP_STAT_COMP_SIZE) == 0) {
 			if((((de->comp_method == ZIP_CM_DEFLATE || ZIP_CM_IS_DEFAULT(de->comp_method)) && st.size > MAX_DEFLATE_SIZE_32)
-				    || (de->comp_method != ZIP_CM_STORE && de->comp_method != ZIP_CM_DEFLATE &&
+				   || (de->comp_method != ZIP_CM_STORE && de->comp_method != ZIP_CM_DEFLATE &&
 					    !ZIP_CM_IS_DEFAULT(de->comp_method))))
 				flags |= ZIP_FL_FORCE_ZIP64;
 		}
@@ -5307,11 +5307,11 @@ static int _zip_headercomp(const zip_dirent_t * central, const zip_dirent_t * lo
 #if 0
 	    /* some zip-files have different values in local
 	       and global headers for the bitflags */
-	    || (central->bitflags != local->bitflags)
+	   || (central->bitflags != local->bitflags)
 #endif
-	    || (central->comp_method != local->comp_method)
-	    || (central->last_mod != local->last_mod)
-	    || !_zip_string_equal(central->filename, local->filename))
+	   || (central->comp_method != local->comp_method)
+	   || (central->last_mod != local->last_mod)
+	   || !_zip_string_equal(central->filename, local->filename))
 		return -1;
 	if((central->crc != local->crc) || (central->comp_size != local->comp_size) || (central->uncomp_size != local->uncomp_size)) {
 		/* InfoZip stores valid values in local header even when data descriptor is used.

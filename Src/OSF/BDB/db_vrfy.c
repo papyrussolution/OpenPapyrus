@@ -395,7 +395,7 @@ static int __db_vrfy_pagezero(DB * dbp, VRFY_DBINFO * vdp, DB_FH * fhp, uint32 f
 	if((dbp->type == DB_BTREE && (meta->version > DB_BTREEVERSION || meta->version < DB_BTREEOLDVER)) || (dbp->type == DB_HASH &&
 	    (meta->version > DB_HASHVERSION || meta->version < DB_HASHOLDVER)) || (dbp->type == DB_HEAP &&
 	    (meta->version > DB_HEAPVERSION || meta->version < DB_HEAPOLDVER)) || (dbp->type == DB_QUEUE &&
-	    (meta->version > DB_QAMVERSION  || meta->version < DB_QAMOLDVER))) {
+	    (meta->version > DB_QAMVERSION || meta->version < DB_QAMOLDVER))) {
 		isbad = 1;
 		EPRINT((env, DB_STR_A("0526", "Page %lu: unsupported DB version %lu; extraneous errors may result", "%lu %lu"), (ulong)PGNO_BASE_MD, (ulong)meta->version));
 	}

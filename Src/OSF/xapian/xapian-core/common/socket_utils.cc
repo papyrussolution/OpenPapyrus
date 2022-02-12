@@ -26,7 +26,7 @@
 using namespace std;
 
 #ifndef __WIN32__
-# include <arpa/inet.h>
+#include <arpa/inet.h>
 #else
 #include "msvcignoreinvalidparam.h"
 
@@ -59,7 +59,7 @@ void set_socket_timeouts(int fd, double timeout)
 	(void)timeout;
 #if defined SO_SNDTIMEO || defined SO_RCVTIMEO
 	{
-# ifndef __WIN32__
+#ifndef __WIN32__
 		struct timeval t;
 		RealTime::to_timeval(timeout, &t);
 # else
@@ -69,15 +69,15 @@ void set_socket_timeouts(int fd, double timeout)
 			t = timeout * 1000;
 		else
 			t = numeric_limits<DWORD>::max();
-# endif
+#endif
 # ifdef SO_SNDTIMEO
 		(void)setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO,
 		    reinterpret_cast<char*>(&t), sizeof(t));
-# endif
+#endif
 # ifdef SO_RCVTIMEO
 		(void)setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO,
 		    reinterpret_cast<char*>(&t), sizeof(t));
-# endif
+#endif
 	}
 #endif
 #ifdef SO_KEEPALIVE
@@ -85,11 +85,11 @@ void set_socket_timeouts(int fd, double timeout)
 	// SO_KEEPALIVE anyway if it exists, as it will cause stuck connections to
 	// time out eventually (though it may take ~2 hours).
 	{
-# ifndef __WIN32__
+#ifndef __WIN32__
 		int flag = 1;
 # else
 		DWORD flag = 1;
-# endif
+#endif
 		(void)setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE,
 		    reinterpret_cast<char*>(&flag), sizeof(flag));
 	}

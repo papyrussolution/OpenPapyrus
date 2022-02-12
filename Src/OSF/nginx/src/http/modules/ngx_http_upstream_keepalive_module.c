@@ -220,12 +220,12 @@ static void ngx_http_upstream_free_keepalive_peer(ngx_peer_connection_t * pc, vo
 	c = pc->connection;
 
 	if(state & NGX_PEER_FAILED
-	    || c == NULL
-	    || c->P_EvRd->eof
-	    || c->P_EvRd->error
-	    || c->P_EvRd->timedout
-	    || c->P_EvWr->error
-	    || c->P_EvWr->timedout) {
+	   || c == NULL
+	   || c->P_EvRd->eof
+	   || c->P_EvRd->error
+	   || c->P_EvRd->timedout
+	   || c->P_EvWr->error
+	   || c->P_EvWr->timedout) {
 		goto invalid;
 	}
 

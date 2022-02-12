@@ -194,7 +194,7 @@ int wsdl__definitions::read(const char * cwd, const char * loc)
 			}
 			slfprintf_stderr("Connected, receiving...\n");
 		}
-		else{soap->recvfd = open(loc, O_RDONLY, 0);
+		else {soap->recvfd = open(loc, O_RDONLY, 0);
 		     if(soap->recvfd < 0) {
 			     if(cwd)                       {
 				     char * s;
@@ -267,7 +267,7 @@ int wsdl__definitions::read(const char * cwd, const char * loc)
 			redirs--;
 			return r;
 		}
-		else{slfprintf_stderr("\nAn error occurred while parsing WSDL from '%s'\n", loc ? loc : "");
+		else {slfprintf_stderr("\nAn error occurred while parsing WSDL from '%s'\n", loc ? loc : "");
 		     soap_print_fault(soap, stderr);
 		     soap_print_fault_location(soap, stderr);
 		     exit(1); }
@@ -363,7 +363,7 @@ again:
 						endl;
 					(*j)->insert(*(*i));
 				}
-				else{if(vflag)
+				else {if(vflag)
 					     cerr << "Adding schema with namespace '" <<
 					     ((*i)->targetNamespace ? (*i)->targetNamespace : "") << "' to types in WSDL '" <<
 					     (name ? name : "") << "' namespace '" << (targetNamespace ? targetNamespace : "") << "'" <<
@@ -722,7 +722,7 @@ int wsdl__binding_operation::traverse(wsdl__definitions& definitions, wsdl__port
 			(definitions.name ? definitions.name : "") << "' namespace '" <<
 			(definitions.targetNamespace ? definitions.targetNamespace : "") << "'" << endl;
 	}
-	else{for(vector<wsdl__ext_fault>::iterator i = fault.begin(); i != fault.end(); ++i)     {
+	else {for(vector<wsdl__ext_fault>::iterator i = fault.begin(); i != fault.end(); ++i)     {
 		     if((*i).name)                                                                                      {
 			     for(vector<wsdl__fault>::iterator j = operationRef->fault.begin(); j != operationRef->fault.end();
 				    ++j)
@@ -1293,7 +1293,7 @@ again:
 			if(!found && (*import).namespace_) {
 				if((*import).schemaPtr())
 					found = true;
-				else{for(vector<xs__schema*>::const_iterator schema3 = xs__schema_.begin();
+				else {for(vector<xs__schema*>::const_iterator schema3 = xs__schema_.begin();
 					    schema3 != xs__schema_.end();
 					    ++schema3)     {
 					     if(schema3 != schema2 && (*schema3)->targetNamespace &&
@@ -1558,7 +1558,7 @@ ostream &operator<<(ostream &o, const wsdl__definitions &e)
 		soap_end(&soap);
 		soap_done(&soap);
 	}
-	else{ostream * os = e.soap->os;
+	else {ostream * os = e.soap->os;
 	     e.soap->os = &o;
 	     e.soap_serialize(e.soap);
 	     soap_begin_send(e.soap);

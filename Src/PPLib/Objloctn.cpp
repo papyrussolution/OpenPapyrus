@@ -1,5 +1,5 @@
 // OBJLOCTN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage Windows-1251
 //
 #include <pp.h>
@@ -3987,7 +3987,7 @@ struct FiasAbbrEntry {
 	int16      MainId;
 };
 
-const FiasAbbrEntry _FiasAbbrList[] = {
+static const FiasAbbrEntry _FiasAbbrList[] = {
 	{  1, "Автономная область", "Аобл", 102, 0 },
 	{  1, "Край", "край", 104, 0 },
 	{  1, "Область", "обл", 105, 0 },
@@ -4245,7 +4245,7 @@ const FiasAbbrEntry _FiasAbbrList[] = {
 	{ 91, "Шоссе", "ш", 9131, 29 }
 };
 
-static AddrItemDescr Aidl[] = {
+static const AddrItemDescr Aidl[] = {
 	{  1, "город",    0, PPLocAddrStruc::tCity, 0 },
 	{  2, "г",        AddrItemDescr::fOptSfx|AddrItemDescr::fOptDot, PPLocAddrStruc::tCity, 1 },
 	{  3, "поселок",  AddrItemDescr::fOptSfx, PPLocAddrStruc::tCity, 0 },
@@ -4875,6 +4875,10 @@ int PPLocAddrStruc::Recognize(const char * pText)
 										temp_buf2 = "Александра Невского";
 										do_merge = 2;
 									}
+									else if(temp_buf2 == "девятого января") { // @v11.3.1
+										temp_buf2 = "Девятого Января";
+										do_merge = 2;
+									}
 									fao_list.clear();
 									if(P_Fr && P_Fr->SearchObjByText(temp_buf, PPFiasReference::stfAnsiInput, 0, fao_list) > 0)
 										do_merge = 1;
@@ -4921,13 +4925,13 @@ int PPLocAddrStruc::Recognize(const char * pText)
 									if(p_prev_tok->T == AddrTok::tDescr) {
 										if(p_prev_tok->Dl.getCount() == 1) {
 											wo_idx = p_prev_tok->Dl.get(0);
-											AddrItemDescr & r_aid = Aidl[wo_idx];
+											const AddrItemDescr & r_aid = Aidl[wo_idx];
 											ProcessDescr(r_aid, ds);
 										}
 										else {
 											for(uint j = 0; j < p_prev_tok->Dl.getCount(); j++) {
 												wo_idx = p_prev_tok->Dl.get(j);
-												AddrItemDescr & r_aid = Aidl[wo_idx];
+												const AddrItemDescr & r_aid = Aidl[wo_idx];
 												prev_ds = ds;
 												if(ProcessDescr(r_aid, ds)) {
 													if(prev_ds.T && ds.T > prev_ds.T)
@@ -4949,7 +4953,7 @@ int PPLocAddrStruc::Recognize(const char * pText)
 									if(!ds.T && p_next_tok->T == AddrTok::tDescr) {
 										for(uint j = 0; j < p_next_tok->Dl.getCount(); j++) {
 											wo_idx = p_next_tok->Dl.get(j);
-											AddrItemDescr & r_aid = Aidl[wo_idx];
+											const AddrItemDescr & r_aid = Aidl[wo_idx];
 											if(r_aid.Flags & (AddrItemDescr::fSfx|AddrItemDescr::fOptSfx)) {
 												prev_ds = ds;
 												if(ProcessDescr(r_aid, ds)) {
@@ -5001,7 +5005,7 @@ int PPLocAddrStruc::Recognize(const char * pText)
 								if(p_prev_tok) {
 									if(p_prev_tok->T == AddrTok::tDescr) {
 										for(uint j = 0; j < p_prev_tok->Dl.getCount(); j++) {
-											AddrItemDescr & r_aid = Aidl[p_prev_tok->Dl.get(j)];
+											const AddrItemDescr & r_aid = Aidl[p_prev_tok->Dl.get(j)];
 											int r = ProcessDescr(r_aid, ds);
 											if(oneof4(ds.T, tHouse, tHouseAddendum, tPostBox, tApart)) {
 												temp_buf = p_tok->S;
@@ -5504,7 +5508,7 @@ int PPLocAddrStruc::Output(SString & rBuf)
 	return 1;
 }
 
-int PPLocAddrStruc::OutputTokList(const TSCollection <AddrTok> & rList, SString & rBuf)
+void PPLocAddrStruc::OutputTokList(const TSCollection <AddrTok> & rList, SString & rBuf)
 {
 	for(uint i = 0; i < rList.getCount(); i++) {
 		const AddrTok * p_tok = rList.at(i);
@@ -5530,18 +5534,16 @@ int PPLocAddrStruc::OutputTokList(const TSCollection <AddrTok> & rList, SString 
 			if(p_tok->Dl.getCount()) {
 				rBuf.CatChar('[');
 				for(uint j = 0; j < p_tok->Dl.getCount(); j++) {
-					uint idx = p_tok->Dl.get(j);
-					AddrItemDescr & r_aid = Aidl[idx];
+					const uint idx = p_tok->Dl.get(j);
+					const AddrItemDescr & r_aid = Aidl[idx];
 					if(r_aid.MainId) {
 						for(uint k = 0; k < SIZEOFARRAY(Aidl); k++) {
-							if(Aidl[k].Id == r_aid.MainId) {
+							if(Aidl[k].Id == r_aid.MainId)
 								rBuf.Cat(Aidl[k].P_Descr);
-							}
 						}
 					}
-					else {
+					else
 						rBuf.Cat(r_aid.P_Descr);
-					}
 					if((j+1) < p_tok->Dl.getCount())
 						rBuf.Semicol();
 				}
@@ -5549,7 +5551,6 @@ int PPLocAddrStruc::OutputTokList(const TSCollection <AddrTok> & rList, SString 
 			}
 		}
 	}
-	return 1;
 }
 
 int PPLocAddrStruc::Recognize(const char * pText, TSCollection <AddrTok> & rTokList) // @debug
@@ -5625,34 +5626,36 @@ int TestAddressRecognition()
 }
 
 class AddrStrucDialog : public TDialog {
+	DECL_DIALOG_DATA(SString);
 public:
 	AddrStrucDialog() : TDialog(DLG_ADDRSTRUC), Las(0, &Fr)
 	{
+		// @v11.3.1 Функция TWindow::getLabelText теперь сама предварительно очищает буфер и вызовы text.Z() элиминированы
 		SString text;
-		getLabelText(CTL_ADDRSTRUC_CITY, text.Z());
+		getLabelText(CTL_ADDRSTRUC_CITY, text);
 		OrgLabels.Add(Las.tCityKind, text.Transf(CTRANSF_INNER_TO_OUTER));
-		getLabelText(CTL_ADDRSTRUC_LOCALAREA, text.Z());
+		getLabelText(CTL_ADDRSTRUC_LOCALAREA, text);
 		OrgLabels.Add(Las.tLocalAreaKind, text.Transf(CTRANSF_INNER_TO_OUTER));
-		getLabelText(CTL_ADDRSTRUC_STREET, text.Z());
+		getLabelText(CTL_ADDRSTRUC_STREET, text);
 		OrgLabels.Add(Las.tStreetKind, text.Transf(CTRANSF_INNER_TO_OUTER));
-		getLabelText(CTL_ADDRSTRUC_HOUSE, text.Z());
+		getLabelText(CTL_ADDRSTRUC_HOUSE, text);
 		OrgLabels.Add(Las.tHouseKind, text.Transf(CTRANSF_INNER_TO_OUTER));
-		getLabelText(CTL_ADDRSTRUC_HOUSEADD, text.Z());
+		getLabelText(CTL_ADDRSTRUC_HOUSEADD, text);
 		OrgLabels.Add(Las.tHouseAddendumKind, text.Transf(CTRANSF_INNER_TO_OUTER));
-		getLabelText(CTL_ADDRSTRUC_APART, text.Z());
+		getLabelText(CTL_ADDRSTRUC_APART, text);
 		OrgLabels.Add(Las.tApartKind, text.Transf(CTRANSF_INNER_TO_OUTER));
 	}
-	int    setDTS(const SString * pStr)
+	DECL_DIALOG_SETDTS()
 	{
-		if(!RVALUEPTR(SrcLine, pStr))
-			SrcLine = 0;
-		setCtrlString(CTL_ADDRSTRUC_SRC, SrcLine);
+		if(!RVALUEPTR(Data, pData))
+			Data.Z();
+		setCtrlString(CTL_ADDRSTRUC_SRC, Data);
 		Setup();
 		return 1;
 	}
-	int    getDTS(SString * pData)
+	DECL_DIALOG_GETDTS()
 	{
-		ASSIGN_PTR(pData, SrcLine);
+		ASSIGN_PTR(pData, Data);
 		return 1;
 	}
 private:
@@ -5661,9 +5664,9 @@ private:
 		TDialog::handleEvent(event);
 		if(event.isCmd(cmInputUpdated)) {
 			if(event.isCtlEvent(CTL_ADDRSTRUC_SRC)) {
-				SString preserve_buf = SrcLine;
-				getCtrlString(CTL_ADDRSTRUC_SRC, SrcLine);
-				if(SrcLine.CmpNC(preserve_buf) != 0)
+				SString preserve_buf = Data;
+				getCtrlString(CTL_ADDRSTRUC_SRC, Data);
+				if(Data.CmpNC(preserve_buf) != 0)
 					Setup();
 			}
 			else
@@ -5673,7 +5676,7 @@ private:
 	void   Setup()
 	{
 		SString text, kind_text;
-		(text = SrcLine).Transf(CTRANSF_INNER_TO_OUTER);
+		(text = Data).Transf(CTRANSF_INNER_TO_OUTER);
 		Las.Recognize(text);
 
 		Las.GetText(Las.tCountry, text);
@@ -5758,7 +5761,6 @@ private:
 			setCtrlString(CTL_ADDRSTRUC_FIASHSEID, text);
 		}
 	}
-	SString SrcLine;
 	StrAssocArray OrgLabels;
 	PPFiasReference Fr;
 	PPLocAddrStruc Las;

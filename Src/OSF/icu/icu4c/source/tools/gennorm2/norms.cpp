@@ -163,18 +163,17 @@ void Norms::enumRanges(Enumerator &e) {
 	}
 }
 
-Norms::Enumerator::~Enumerator() {
+Norms::Enumerator::~Enumerator() 
+{
 }
 
-void CompositionBuilder::rangeHandler(UChar32 start, UChar32 end, Norm &norm) {
+void CompositionBuilder::rangeHandler(UChar32 start, UChar32 end, Norm &norm) 
+{
 	if(norm.mappingType!=Norm::ROUND_TRIP) {
 		return;
 	}
 	if(start!=end) {
-		fprintf(stderr,
-		    "gennorm2 error: same round-trip mapping for "
-		    "more than 1 code point U+%04lX..U+%04lX\n",
-		    (long)start, (long)end);
+		fprintf(stderr, "gennorm2 error: same round-trip mapping for more than 1 code point U+%04lX..U+%04lX\n", (long)start, (long)end);
 		exit(U_INVALID_FORMAT_ERROR);
 	}
 	if(norm.cc!=0) {

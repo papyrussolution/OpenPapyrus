@@ -936,10 +936,10 @@ void SCI_METHOD LexerVerilog::Fold(Sci_PositionU startPos, Sci_Position length, 
 			}
 			else if(styler.Match(j, "endcase") || styler.Match(j, "endclass") || styler.Match(j, "endfunction") ||
 			    styler.Match(j, "endgenerate") || styler.Match(j, "endgroup") || styler.Match(j, "endinterface") ||
-			    styler.Match(j, "endpackage")  || styler.Match(j, "endprimitive") || styler.Match(j, "endprogram") ||
+			    styler.Match(j, "endpackage") || styler.Match(j, "endprimitive") || styler.Match(j, "endprogram") ||
 			    styler.Match(j, "endsequence") || styler.Match(j, "endspecify") || styler.Match(j, "endtable") ||
-			    styler.Match(j, "endtask")     || styler.Match(j, "join") || styler.Match(j, "join_any") ||
-			    styler.Match(j, "join_none")   || (styler.Match(j, "endmodule") && options.foldAtModule) ||
+			    styler.Match(j, "endtask")    || styler.Match(j, "join") || styler.Match(j, "join_any") ||
+			    styler.Match(j, "join_none")  || (styler.Match(j, "endmodule") && options.foldAtModule) ||
 			    (styler.Match(j, "end") && !IsAWordChar(styler.SafeGetCharAt(j + 3)))) {
 				levelNext--;
 			}

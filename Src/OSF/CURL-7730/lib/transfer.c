@@ -1690,7 +1690,7 @@ CURLcode Curl_retry_request(struct connectdata * conn,
 	if((data->req.bytecount + data->req.headerbytecount == 0) &&
 	    conn->bits.reuse &&
 	    (!data->set.opt_no_body
-	    || (conn->handler->protocol & PROTO_FAMILY_HTTP)) &&
+	   || (conn->handler->protocol & PROTO_FAMILY_HTTP)) &&
 	    (data->set.rtspreq != RTSPREQ_RECEIVE))
 		/* We got no data, we attempted to re-use a connection. For HTTP this
 		   can be a retry so we try again regardless if we expected a body.

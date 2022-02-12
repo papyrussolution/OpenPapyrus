@@ -1,24 +1,10 @@
 /** @file
  * @brief Combine subqueries, weighting as if they are synonyms
  */
-/* Copyright 2007,2009 Lemur Consulting Ltd
- * Copyright 2009,2011,2014,2016,2017,2018 Olly Betts
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
- */
+// Copyright 2007,2009 Lemur Consulting Ltd
+// Copyright 2009,2011,2014,2016,2017,2018 Olly Betts
+// @licence GNU GPL
+//
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "synonympostlist.h"
@@ -53,9 +39,7 @@ PostList * SynonymPostList::skip_to(Xapian::docid did, double w_min)
 	RETURN(WrapperPostList::skip_to(did, 0.0));
 }
 
-double SynonymPostList::get_weight(Xapian::termcount doclen,
-    Xapian::termcount unique_terms,
-    Xapian::termcount wdfdocmax) const
+double SynonymPostList::get_weight(Xapian::termcount doclen, Xapian::termcount unique_terms, Xapian::termcount wdfdocmax) const
 {
 	LOGCALL(MATCH, double, "SynonymPostList::get_weight", doclen | unique_terms);
 	Xapian::termcount wdf = 0;

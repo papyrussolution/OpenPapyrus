@@ -493,9 +493,9 @@ struct _xmlSchema {
     void * _private; /* unused by the library for users or bindings */
     xmlHashTable * groupDecl;
     xmlDict * dict;
-    void * includes; /* the includes, this is opaque for now */
-    int    preserve; /* whether to free the document */
-    int    counter; /* used to give ononymous components unique names */
+    void * includes;  // the includes, this is opaque for now 
+    bool   Preserve_; // whether to free the document // @sobolev preserve-->Preserve_
+    int    counter;   // used to give ononymous components unique names 
     xmlHashTable * idcDef; /* All identity-constraint defs. */
     void * volatiles; /* Obsolete */
 };

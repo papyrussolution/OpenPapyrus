@@ -46,7 +46,7 @@ class SCS_ATOLDRV : public PPSyncCashSession {
 public:
 	SCS_ATOLDRV(PPID n, char * name, char * port);
 	~SCS_ATOLDRV();
-	virtual int PrintCheck(CCheckPacket *, uint flags);
+	virtual int PrintCheck(CCheckPacket * pPack, uint flags);
 	virtual int PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
 	virtual int PrintXReport(const CSessInfo *) { return PrintReport(0); }
 	virtual int CloseSession(PPID sessID) { return PrintReport(1); }
@@ -371,6 +371,7 @@ private:
 		CATCHZOK
 		return ok;
 	}
+	SJson * MakeJson_CCheck(CCheckPacket * pPack, uint flags); // @v11.3.1
 	int  ReadSettingsBulk(SString & rJsonBuf); // handler
 	int  WriteSettingsBukl(const SString & rJsonBuf); // handler
 	int  Connect(StateBlock * pStB)
@@ -775,7 +776,7 @@ SCS_ATOLDRV::SCS_ATOLDRV(PPID n, char * name, char * port) :
 				SJson * p_json_doc = 0;
 				if(json_parse_document(&p_json_doc, settings_buf.cptr()) == JSON_OK) {
 					SJson * p_next = 0;
-					for(SJson * p_cur = p_json_doc; p_cur; p_cur = p_next) {
+					for(const SJson * p_cur = p_json_doc; p_cur; p_cur = p_next) {
 						p_next = p_cur->P_Next;
 						switch(p_cur->Type) {
 							case SJson::tARRAY: p_next = p_cur->P_Child; break;
@@ -1261,9 +1262,158 @@ int SCS_ATOLDRV::ExecOper(uint id)
 	return ok;
 }
 
+SJson * SCS_ATOLDRV::MakeJson_CCheck(CCheckPacket * pPack, uint flags) // @v11.3.1 @construction
+{
+	/*
+		{
+		   "type": "sell",
+		   "taxationType": "osn",
+		   "ignoreNonFiscalPrintErrors": false,
+
+		   "operator": {
+			   "name": "Иванов",
+			   "vatin": "123654789507"
+		   },
+
+		   "items": [
+			   {
+				   "type": "position",
+				   "name": "Бананы",
+				   "price": 73.15,
+				   "quantity": 1.0,
+				   "amount": 73.15,
+				   "infoDiscountAmount": 0.0,
+				   "department": 1,
+				   "measurementUnit": "кг",
+				   "paymentMethod": "advance",
+				   "paymentObject": "commodity",
+				   "nomenclatureCode": "MTIzNDEyMzQ1Njc4MTIzNDU2Nzg5MDEyMzQ1Njc4OTA=",
+				   "tax": {
+					   "type": "vat18"
+				   },
+				   "agentInfo": {
+					   "agents": ["payingAgent", "bankPayingAgent"],
+					   "payingAgent": {
+						   "operation": "Оплата",
+						   "phones": ["+79161112233"]
+					   },
+					   "receivePaymentsOperator": {
+							"phones": ["+79163331122"]
+					   },
+					   "moneyTransferOperator": {
+							"phones": ["+79162223311"],
+							"name": "Оператор перевода",
+							"address": "Улица Оператора Перевода, д.1",
+							"vatin": "321456987121"
+					   }
+				   },
+				   "supplierInfo": {
+					   "phones": ["+79175555555"],
+					   "name": "Поставщик",
+					   "vatin": "956839506500"
+				   }
+			   },
+			   {
+				   "type": "text",
+				   "text": "--------------------------------",
+				   "alignment": "left",
+				   "font": 0,
+				   "doubleWidth": false,
+				   "doubleHeight": false
+			   },
+			   {
+				   "type": "position",
+				   "name": "Шуба",
+				   "price": 51.25,
+				   "quantity": 2.0,
+				   "amount": 102.50,
+				   "department": 1,
+				   "paymentMethod": "fullPayment",
+				   "paymentObject": "commodity",
+				   "nomenclatureCode": {
+					  "type": "furs",
+					  "gtin": "98765432101234",
+					  "serial": "RU-430302-ABC1234567"
+				   },
+				   "tax": {
+					   "type": "vat10"
+				   }
+			   },
+			   {
+				   "type": "text",
+				   "text": "--------------------------------",
+				   "alignment": "left",
+				   "font": 0,
+				   "doubleWidth": false,
+				   "doubleHeight": false
+			   },
+			   {
+				   "type": "position",
+				   "name": "Кефир",
+				   "price": 48.45,
+				   "quantity": 1.0,
+				   "amount": 48.45,
+				   "department": 1,
+				   "measurementUnit": "шт.",
+				   "paymentMethod": "fullPrepayment",
+				   "paymentObject": "excise",
+				   "additionalAttribute": "ID:iASDv3w45",
+				   "tax": {
+					   "type": "vat0"
+				   }
+			   },
+			   {
+				   "type": "barcode",
+				   "barcode": "123456789012",
+				   "barcodeType": "EAN13",
+				   "scale": 2
+			   }
+		   ],
+		   "payments": [
+			   {
+				   "type": "cash",
+				   "sum": 2000.00
+			   }
+		   ],
+		   "total": 224.00
+		}
+	*/
+	SJson * p_result = 0;
+	if(pPack) {
+		SString temp_buf;
+		PPID   tax_sys_id = 0;
+		CnObj.GetTaxSystem(NodeID, pPack->Rec.Dt, &tax_sys_id);
+		p_result = new SJson(SJson::tOBJECT);
+		p_result->InsertString("type", (pPack->Rec.Flags & CCHKF_RETURN) ? "sellReturn" : "sell");
+		{
+			const char * p_atol_taxsys_symb = 0;
+			switch(tax_sys_id) {
+				case TAXSYSK_GENERAL:           p_atol_taxsys_symb = "osn"; break;
+				case TAXSYSK_SIMPLIFIED:        p_atol_taxsys_symb = "usnIncome"; break;
+				case TAXSYSK_SIMPLIFIED_PROFIT: p_atol_taxsys_symb = "usnIncomeOutcome"; break;
+				case TAXSYSK_PATENT:            p_atol_taxsys_symb = "patent"; break;
+				case TAXSYSK_IMPUTED:           p_atol_taxsys_symb = "envd"; break;
+				case TAXSYSK_SINGLEAGRICULT:    p_atol_taxsys_symb = "esn"; break;
+			}
+			if(p_atol_taxsys_symb)
+				p_result->InsertString("taxationType", p_atol_taxsys_symb);
+		}
+		p_result->InsertBool("ignoreNonFiscalPrintErrors", false);
+		{
+			SJson * p_inner = new SJson(SJson::tOBJECT);
+			PPSyncCashSession::GetCurrentUserName(temp_buf);
+			p_inner->InsertString("name", temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
+			//
+			p_result->Insert("operator", p_inner);
+		}
+	}
+	return p_result;
+}
+
 int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 {
-	int    ok = 1, is_format = 0;
+	int    ok = 1;
+	bool   is_format = false;
 	bool   enabled = true;
 	SString temp_buf;
 	SStringU temp_buf_u;
@@ -1320,15 +1470,8 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 		//
 		// Имя кассира
 		//
-		if(PPObjPerson::GetCurUserPerson(0, &temp_buf) > 0) {
-			(operator_name = temp_buf).Transf(CTRANSF_INNER_TO_OUTER); // @v10.5.4 @fix
-		}
-		else {
-			PPObjSecur sec_obj(PPOBJ_USR, 0);
-			PPSecur sec_rec;
-			if(sec_obj.Fetch(LConfig.UserID, &sec_rec) > 0)
-				(operator_name = sec_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
-		}
+		PPSyncCashSession::GetCurrentUserName(operator_name);
+		operator_name.Transf(CTRANSF_INNER_TO_OUTER);
 		if(P_Disp) {
 			THROW(SetProp(OperatorName, operator_name));
 			// } @v10.2.5 
@@ -1336,12 +1479,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 			THROW(ExecOper(NewDocument));
 			//THROW(GetProp(CharLineLength, &CheckStrLen));
 		}
-		{
-			//int chk_no = 0;
-			//THROW(GetProp(CheckNumber, &chk_no));
-			//pPack->Rec.Code = chk_no;
-			pPack->Rec.Code = static_cast<long>(stb.ReceiptNumber);
-		}
+		pPack->Rec.Code = static_cast<long>(stb.ReceiptNumber);
 		if(P_SlipFmt) {
 			int    prn_total_sale = 1;
 			int    r = 0;
@@ -1351,7 +1489,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 			SlipLineParam sl_param;
 			THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 			if(r > 0) {
-				is_format = 1;
+				is_format = true;
 				if(sdc_param.PageWidth > static_cast<uint>(CheckStrLen))
 					WriteLogFile_PageWidthOver(format_name);
 				if(P_Fptr10) {
@@ -1904,25 +2042,8 @@ int SCS_ATOLDRV::PrintReport(int withCleaning)
 	// Закрыть сессию можно только под паролем администратора
 	cshr_pssw = CashierPassword;
 	CashierPassword = AdmPassword;
-	/* @v10.8.5 if(PPObjPerson::GetCurUserPerson(0, &temp_buf) < 0) {
-		PPObjSecur sec_obj(PPOBJ_USR, 0);
-		PPSecur sec_rec;
-		if(sec_obj.Fetch(LConfig.User, &sec_rec) > 0)
-			(operator_name = sec_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
-	}*/
-	// @v10.8.5 {
-	{
-		if(PPObjPerson::GetCurUserPerson(0, &temp_buf) > 0) {
-			(operator_name = temp_buf).Transf(CTRANSF_INNER_TO_OUTER);
-		}
-		else {
-			PPObjSecur sec_obj(PPOBJ_USR, 0);
-			PPSecur sec_rec;
-			if(sec_obj.Fetch(LConfig.UserID, &sec_rec) > 0)
-				(operator_name = sec_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
-		}
-	}
-	// } @v10.8.5
+	PPSyncCashSession::GetCurrentUserName(operator_name);
+	operator_name.Transf(CTRANSF_INNER_TO_OUTER);
 	//
 	Flags |= sfOpenCheck;
 	if(P_Fptr10) {

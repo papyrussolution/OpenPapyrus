@@ -324,34 +324,24 @@ static void ngx_mail_auth_http_ignore_status_line(ngx_mail_session_t * s,
 					goto done;
 			    }
 			    break;
-
 			/* end of status line */
 			case sw_almost_done:
 			    if(ch == LF) {
 				    goto done;
 			    }
-
-			    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
-			    "auth http server %V sent invalid response",
-			    ctx->peer.name);
+			    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0, "auth http server %V sent invalid response", ctx->peer.name);
 			    ngx_close_connection(ctx->peer.connection);
 			    ngx_destroy_pool(ctx->pool);
 			    ngx_mail_session_internal_server_error(s);
 			    return;
 		}
 	}
-
 	ctx->response->pos = p;
 	ctx->state = state;
-
 	return;
-
 next:
-
 	p = ctx->response->start - 1;
-
 done:
-
 	ctx->response->pos = p + 1;
 	ctx->state = 0;
 	ctx->handler = ngx_mail_auth_http_process_headers;

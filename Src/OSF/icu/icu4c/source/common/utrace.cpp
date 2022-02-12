@@ -1,10 +1,9 @@
 // utrace.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *   Copyright (C) 2003-2014, International Business Machines Corporation and others.  All Rights Reserved.
- *   encoding:   UTF-8
- */
+// Copyright (C) 2003-2014, International Business Machines Corporation and others.  All Rights Reserved.
+// @codepage UTF-8
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include "utracimp.h"

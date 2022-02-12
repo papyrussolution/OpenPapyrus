@@ -392,26 +392,23 @@ static int ssh_retrieve_dhgroup_file(FILE * moduli,
 		if(type != SAFE_PRIME || !(tests & PRIM_TEST_REQUIRED)) {
 			continue;
 		}
-
 		proposed_size = size + 1;
-		if(proposed_size != *best_size &&
-		    dhgroup_better_size(pmin, pn, pmax, *best_size, proposed_size)) {
+		if(proposed_size != *best_size && dhgroup_better_size(pmin, pn, pmax, *best_size, proposed_size)) {
 			best_nlines = 0;
 			*best_size = proposed_size;
 		}
 		if(proposed_size == *best_size) {
 			best_nlines++;
 		}
-
 		/* Use reservoir sampling algorithm */
 		if(proposed_size == *best_size && invn_chance(best_nlines)) {
 			ZFREE(*best_generator);
 			ZFREE(*best_modulus);
-			*best_generator = _strdup(generator);
+			*best_generator = sstrdup(generator);
 			if(*best_generator == NULL) {
 				return SSH_ERROR;
 			}
-			*best_modulus = _strdup(modulus);
+			*best_modulus = sstrdup(modulus);
 			if(*best_modulus == NULL) {
 				ZFREE(*best_generator);
 				return SSH_ERROR;
@@ -419,20 +416,11 @@ static int ssh_retrieve_dhgroup_file(FILE * moduli,
 		}
 	}
 	if(*best_size != 0) {
-		SSH_LOG(SSH_LOG_INFO,
-		    "Selected %zu bits modulus out of %zu candidates in %zu lines",
-		    *best_size,
-		    best_nlines - 1,
-		    line);
+		SSH_LOG(SSH_LOG_INFO, "Selected %zu bits modulus out of %zu candidates in %zu lines", *best_size, best_nlines - 1, line);
 	}
 	else {
-		SSH_LOG(SSH_LOG_WARNING,
-		    "No moduli found for [%u:%u:%u]",
-		    pmin,
-		    pn,
-		    pmax);
+		SSH_LOG(SSH_LOG_WARNING, "No moduli found for [%u:%u:%u]", pmin, pn, pmax);
 	}
-
 	return SSH_OK;
 }
 

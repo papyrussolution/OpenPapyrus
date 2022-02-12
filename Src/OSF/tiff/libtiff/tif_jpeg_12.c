@@ -7,7 +7,7 @@
 #define TIFFInitJPEG TIFFInitJPEG_12
 #define TIFFJPEGIsFullStripRequired TIFFJPEGIsFullStripRequired_12
 
-int TIFFInitJPEG_12(TIFF* tif, int scheme);
+int TIFFInitJPEG_12(TIFF * tif, int scheme);
 
 #include LIBJPEG_12_PATH
 #include "tif_jpeg.c"

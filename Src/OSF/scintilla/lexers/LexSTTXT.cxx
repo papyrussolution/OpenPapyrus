@@ -272,7 +272,7 @@ static void FoldSTTXTDoc(Sci_PositionU startPos, Sci_Position length, int initSt
 				levelCurrent--;
 		}
 		if(foldComment && atEOL && ( IsCommentLine(lineCurrent, styler, false)
-			    || IsCommentLine(lineCurrent, styler, true))) {
+			   || IsCommentLine(lineCurrent, styler, true))) {
 			if(!IsCommentLine(lineCurrent-1, styler, true) && IsCommentLine(lineCurrent+1, styler, true))
 				levelCurrent++;
 			if(IsCommentLine(lineCurrent-1, styler, true) && !IsCommentLine(lineCurrent+1, styler, true))

@@ -2865,7 +2865,7 @@ static BOOL compare_opcodes(const pcre_uchar * code, BOOL utf, const compile_dat
 		else if(base_list[0] == OP_CLASS || list[0] == OP_CLASS
 #ifdef COMPILE_PCRE8
                     /* In 8 bit, non-UTF mode, OP_CLASS and OP_NCLASS are the same. */
-		    || (!utf && (base_list[0] == OP_NCLASS || list[0] == OP_NCLASS))
+		   || (!utf && (base_list[0] == OP_NCLASS || list[0] == OP_NCLASS))
 #endif
 		    ) {
 #ifdef COMPILE_PCRE8
@@ -4989,7 +4989,7 @@ OUTPUT_SINGLE_REPEAT:
 #if defined SUPPORT_UTF || !defined COMPILE_PCRE8
 			    *previous == OP_XCLASS ||
 #endif
-			    *previous == OP_REF   || *previous == OP_REFI || *previous == OP_DNREF || *previous == OP_DNREFI) {
+			    *previous == OP_REF  || *previous == OP_REFI || *previous == OP_DNREF || *previous == OP_DNREFI) {
 				    if(repeat_max == 0) {
 					    code = previous;
 					    goto END_REPEAT;

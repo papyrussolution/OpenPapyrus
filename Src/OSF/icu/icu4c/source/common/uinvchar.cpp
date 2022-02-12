@@ -163,7 +163,7 @@ static const uint32_t invariantChars[4] = {
 #define CHAR_TO_UCHAR(u) asciiFromEbcdic[u]
 #define UCHAR_TO_CHAR(u) ebcdicFromAscii[u]
 #else
-#   error U_CHARSET_FAMILY is not valid
+#error U_CHARSET_FAMILY is not valid
 #endif
 
 U_CAPI void U_EXPORT2 u_charsToUChars(const char * cs, UChar * us, int32_t length) {
@@ -236,7 +236,7 @@ U_CAPI bool U_EXPORT2 uprv_isInvariantString(const char * s, int32_t length) {
 			return FALSE; /* found a variant char */
 		}
 #else
-#   error U_CHARSET_FAMILY is not valid
+#error U_CHARSET_FAMILY is not valid
 #endif
 	}
 	return TRUE;

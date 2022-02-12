@@ -46,14 +46,9 @@
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace ascii_internal {
-// Declaration for an array of bitfields holding character information.
-ABSL_DLL extern const unsigned char kPropertyBits[256];
-
-// Declaration for the array of characters to upper-case characters.
-ABSL_DLL extern const char kToUpper[256];
-
-// Declaration for the array of characters to lower-case characters.
-ABSL_DLL extern const char kToLower[256];
+	ABSL_DLL extern const unsigned char kPropertyBits[256]; // Declaration for an array of bitfields holding character information.
+	ABSL_DLL extern const char kToUpper[256]; // Declaration for the array of characters to upper-case characters.
+	ABSL_DLL extern const char kToLower[256]; // Declaration for the array of characters to lower-case characters.
 }  // namespace ascii_internal
 
 // ascii_isalpha()
@@ -85,25 +80,19 @@ inline bool ascii_isblank(unsigned char c) { return (ascii_internal::kPropertyBi
 // ascii_iscntrl()
 //
 // Determines whether the given character is a control character.
-inline bool ascii_iscntrl(unsigned char c) {
-	return (ascii_internal::kPropertyBits[c] & 0x40) != 0;
-}
+inline bool ascii_iscntrl(unsigned char c) { return (ascii_internal::kPropertyBits[c] & 0x40) != 0; }
 
 // ascii_isxdigit()
 //
 // Determines whether the given character can be represented as a hexadecimal
 // digit character (i.e. {0-9} or {A-F}).
-inline bool ascii_isxdigit(unsigned char c) {
-	return (ascii_internal::kPropertyBits[c] & 0x80) != 0;
-}
+inline bool ascii_isxdigit(unsigned char c) { return (ascii_internal::kPropertyBits[c] & 0x80) != 0; }
 
 // ascii_isdigit()
 //
 // Determines whether the given character can be represented as a decimal
 // digit character (i.e. {0-9}).
-inline bool ascii_isdigit(unsigned char c) {
-	return c >= '0' && c <= '9';
-}
+inline bool ascii_isdigit(unsigned char c) { return c >= '0' && c <= '9'; }
 
 // ascii_isprint()
 //
@@ -140,7 +129,8 @@ inline char ascii_tolower(unsigned char c) { return ascii_internal::kToLower[c];
 void AsciiStrToLower(std::string* s);
 
 // Creates a lowercase string from a given absl::string_view.
-ABSL_MUST_USE_RESULT inline std::string AsciiStrToLower(absl::string_view s) {
+ABSL_MUST_USE_RESULT inline std::string AsciiStrToLower(absl::string_view s) 
+{
 	std::string result(s);
 	absl::AsciiStrToLower(&result);
 	return result;

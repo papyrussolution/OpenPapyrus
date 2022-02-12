@@ -72,7 +72,7 @@ struct ssh_tokens_st * ssh_tokenize(const char * chain, char separator)
 	if(tokens == NULL) {
 		return NULL;
 	}
-	tokens->buffer = _strdup(chain);
+	tokens->buffer = sstrdup(chain);
 	if(tokens->buffer == NULL) {
 		goto error;
 	}
@@ -136,37 +136,30 @@ error:
  *
  * @return  A newly allocated copy of the token if found; NULL otherwise
  */
-char * ssh_find_matching(const char * available_list,
-    const char * preferred_list)
+char * ssh_find_matching(const char * available_list, const char * preferred_list)
 {
 	struct ssh_tokens_st * a_tok = NULL, * p_tok = NULL;
-
 	int i, j;
 	char * ret = NULL;
-
 	if((available_list == NULL) || (preferred_list == NULL)) {
 		return NULL;
 	}
-
 	a_tok = ssh_tokenize(available_list, ',');
 	if(a_tok == NULL) {
 		return NULL;
 	}
-
 	p_tok = ssh_tokenize(preferred_list, ',');
 	if(p_tok == NULL) {
 		goto out;
 	}
-
 	for(i = 0; p_tok->tokens[i]; i++) {
 		for(j = 0; a_tok->tokens[j]; j++) {
 			if(strcmp(a_tok->tokens[j], p_tok->tokens[i]) == 0) {
-				ret = _strdup(a_tok->tokens[j]);
+				ret = sstrdup(a_tok->tokens[j]);
 				goto out;
 			}
 		}
 	}
-
 out:
 	ssh_tokens_free(a_tok);
 	ssh_tokens_free(p_tok);

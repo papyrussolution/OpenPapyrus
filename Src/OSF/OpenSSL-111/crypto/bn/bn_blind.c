@@ -104,12 +104,12 @@ int BN_BLINDING_update(BN_BLINDING * b, BN_CTX * ctx)
 	else if(!(b->flags & BN_BLINDING_NO_UPDATE)) {
 		if(b->m_ctx != NULL) {
 			if(!bn_mul_mont_fixed_top(b->Ai, b->Ai, b->Ai, b->m_ctx, ctx)
-			    || !bn_mul_mont_fixed_top(b->A, b->A, b->A, b->m_ctx, ctx))
+			   || !bn_mul_mont_fixed_top(b->A, b->A, b->A, b->m_ctx, ctx))
 				goto err;
 		}
 		else {
 			if(!BN_mod_mul(b->Ai, b->Ai, b->Ai, b->mod, ctx)
-			    || !BN_mod_mul(b->A, b->A, b->A, b->mod, ctx))
+			   || !BN_mod_mul(b->A, b->A, b->A, b->mod, ctx))
 				goto err;
 		}
 	}
@@ -289,7 +289,7 @@ BN_BLINDING * BN_BLINDING_create_param(BN_BLINDING * b,
 
 	if(ret->m_ctx != NULL) {
 		if(!bn_to_mont_fixed_top(ret->Ai, ret->Ai, ret->m_ctx, ctx)
-		    || !bn_to_mont_fixed_top(ret->A, ret->A, ret->m_ctx, ctx))
+		   || !bn_to_mont_fixed_top(ret->A, ret->A, ret->m_ctx, ctx))
 			goto err;
 	}
 

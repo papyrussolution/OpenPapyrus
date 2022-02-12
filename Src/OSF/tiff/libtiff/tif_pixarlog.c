@@ -582,8 +582,8 @@ static int PixarLogMakeTables(PixarLogState * sp)
 #define DecoderState(tif)       ((PixarLogState*)(tif)->tif_data)
 #define EncoderState(tif)       ((PixarLogState*)(tif)->tif_data)
 
-static int PixarLogEncode(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s);
-static int PixarLogDecode(TIFF* tif, uint8 * op, tmsize_t occ, uint16 s);
+static int PixarLogEncode(TIFF * tif, uint8 * bp, tmsize_t cc, uint16 s);
+static int PixarLogDecode(TIFF * tif, uint8 * op, tmsize_t occ, uint16 s);
 
 #define PIXARLOGDATAFMT_UNKNOWN -1
 
@@ -642,13 +642,13 @@ static tmsize_t add_ms(tmsize_t m1, tmsize_t m2)
 	return m1 + m2;
 }
 
-static int PixarLogFixupTags(TIFF* tif)
+static int PixarLogFixupTags(TIFF * tif)
 {
 	(void)tif;
 	return 1;
 }
 
-static int PixarLogSetupDecode(TIFF* tif)
+static int PixarLogSetupDecode(TIFF * tif)
 {
 	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
@@ -701,7 +701,7 @@ static int PixarLogSetupDecode(TIFF* tif)
 /*
  * Setup state for decoding a strip.
  */
-static int PixarLogPreDecode(TIFF* tif, uint16 s)
+static int PixarLogPreDecode(TIFF * tif, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	PixarLogState* sp = DecoderState(tif);
@@ -718,7 +718,7 @@ static int PixarLogPreDecode(TIFF* tif, uint16 s)
 	return (inflateReset(&sp->stream) == Z_OK);
 }
 
-static int PixarLogDecode(TIFF* tif, uint8 * op, tmsize_t occ, uint16 s)
+static int PixarLogDecode(TIFF * tif, uint8 * op, tmsize_t occ, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
@@ -840,7 +840,7 @@ static int PixarLogDecode(TIFF* tif, uint8 * op, tmsize_t occ, uint16 s)
 	return 1;
 }
 
-static int PixarLogSetupEncode(TIFF* tif)
+static int PixarLogSetupEncode(TIFF * tif)
 {
 	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
@@ -874,7 +874,7 @@ static int PixarLogSetupEncode(TIFF* tif)
 /*
  * Reset encoding state at the start of a strip.
  */
-static int PixarLogPreEncode(TIFF* tif, uint16 s)
+static int PixarLogPreEncode(TIFF * tif, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	PixarLogState * sp = EncoderState(tif);
@@ -1041,7 +1041,7 @@ static void horizontalDifference8(uchar * ip, int n, int stride, ushort * wp, ui
 /*
  * Encode a chunk of pixels.
  */
-static int PixarLogEncode(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s)
+static int PixarLogEncode(TIFF * tif, uint8 * bp, tmsize_t cc, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
@@ -1129,7 +1129,7 @@ static int PixarLogEncode(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s)
  * string and tacking on an End Of Information code.
  */
 
-static int PixarLogPostEncode(TIFF* tif)
+static int PixarLogPostEncode(TIFF * tif)
 {
 	static const char module[] = __FUNCTION__;
 	PixarLogState * sp = EncoderState(tif);
@@ -1155,7 +1155,7 @@ static int PixarLogPostEncode(TIFF* tif)
 	return 1;
 }
 
-static void PixarLogClose(TIFF* tif)
+static void PixarLogClose(TIFF * tif)
 {
 	PixarLogState* sp = (PixarLogState*)tif->tif_data;
 	TIFFDirectory * td = &tif->tif_dir;
@@ -1184,7 +1184,7 @@ static void PixarLogClose(TIFF* tif)
 	}
 }
 
-static void PixarLogCleanup(TIFF* tif)
+static void PixarLogCleanup(TIFF * tif)
 {
 	PixarLogState* sp = (PixarLogState*)tif->tif_data;
 
@@ -1215,7 +1215,7 @@ static void PixarLogCleanup(TIFF* tif)
 	_TIFFSetDefaultCompressionState(tif);
 }
 
-static int PixarLogVSetField(TIFF* tif, uint32 tag, va_list ap)
+static int PixarLogVSetField(TIFF * tif, uint32 tag, va_list ap)
 {
 	static const char module[] = __FUNCTION__;
 	PixarLogState * sp = (PixarLogState*)tif->tif_data;
@@ -1274,7 +1274,7 @@ static int PixarLogVSetField(TIFF* tif, uint32 tag, va_list ap)
 	return result;
 }
 
-static int PixarLogVGetField(TIFF* tif, uint32 tag, va_list ap)
+static int PixarLogVGetField(TIFF * tif, uint32 tag, va_list ap)
 {
 	PixarLogState * sp = (PixarLogState*)tif->tif_data;
 
@@ -1296,7 +1296,7 @@ static const TIFFField pixarlogFields[] = {
 	{TIFFTAG_PIXARLOGQUALITY, 0, 0, TIFF_ANY, 0, TIFF_SETGET_INT, TIFF_SETGET_UNDEFINED, FIELD_PSEUDO, FALSE, FALSE, "", NULL}
 };
 
-int TIFFInitPixarLog(TIFF* tif, int scheme)
+int TIFFInitPixarLog(TIFF * tif, int scheme)
 {
 	static const char module[] = __FUNCTION__;
 	PixarLogState* sp;

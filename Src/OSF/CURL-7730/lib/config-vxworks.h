@@ -874,7 +874,7 @@
 
 /* Define to 1 if OS is AIX. */
 #ifndef _ALL_SOURCE
-/* #  undef _ALL_SOURCE */
+/* #undef _ALL_SOURCE */
 #endif
 
 /* Number of bits in a file offset, on hosts where this is settable. */

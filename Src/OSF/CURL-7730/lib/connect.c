@@ -1158,7 +1158,7 @@ static CURLcode singleipconnect(struct connectdata * conn,
 	/* possibly bind the local end to an IP, interface or port */
 	if(addr.family == AF_INET
 #ifdef ENABLE_IPV6
-	    || addr.family == AF_INET6
+	   || addr.family == AF_INET6
 #endif
 	    ) {
 		result = bindlocal(conn, sockfd, addr.family,

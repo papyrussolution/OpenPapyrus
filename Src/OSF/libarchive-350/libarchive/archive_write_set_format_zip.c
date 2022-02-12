@@ -524,7 +524,7 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 
 	if(type == AE_IFREG
 	    &&(!archive_entry_size_is_set(entry)
-	    || archive_entry_size(entry) > 0)) {
+	   || archive_entry_size(entry) > 0)) {
 		switch(zip->encryption_type) {
 			case ENCRYPTION_TRADITIONAL:
 			case ENCRYPTION_WINZIP_AES128:
@@ -671,8 +671,8 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 		 *    (compression might make file larger)
 		 */
 		if((zip->flags & ZIP_FLAG_FORCE_ZIP64)
-		    || (zip->entry_uncompressed_size + additional_size > ZIP_4GB_MAX)
-		    || (zip->entry_uncompressed_size > ZIP_4GB_MAX_UNCOMPRESSED
+		   || (zip->entry_uncompressed_size + additional_size > ZIP_4GB_MAX)
+		   || (zip->entry_uncompressed_size > ZIP_4GB_MAX_UNCOMPRESSED
 		    && zip->entry_compression != COMPRESSION_STORE)) {
 			zip->entry_uses_zip64 = 1;
 			version_needed = 45;
@@ -721,7 +721,7 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 	archive_le16enc(local_header + 4, version_needed);
 	archive_le16enc(local_header + 6, zip->entry_flags);
 	if(zip->entry_encryption == ENCRYPTION_WINZIP_AES128
-	    || zip->entry_encryption == ENCRYPTION_WINZIP_AES256)
+	   || zip->entry_encryption == ENCRYPTION_WINZIP_AES256)
 		archive_le16enc(local_header + 8, WINZIP_AES_ENCRYPTION);
 	else
 		archive_le16enc(local_header + 8, zip->entry_compression);
@@ -761,7 +761,7 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 	archive_le16enc(zip->file_header + 6, version_needed);
 	archive_le16enc(zip->file_header + 8, zip->entry_flags);
 	if(zip->entry_encryption == ENCRYPTION_WINZIP_AES128
-	    || zip->entry_encryption == ENCRYPTION_WINZIP_AES256)
+	   || zip->entry_encryption == ENCRYPTION_WINZIP_AES256)
 		archive_le16enc(zip->file_header + 10, WINZIP_AES_ENCRYPTION);
 	else
 		archive_le16enc(zip->file_header + 10, zip->entry_compression);
@@ -822,7 +822,7 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 	/* AES extra data field: WinZIP AES information, ID=0x9901 */
 	if((zip->entry_flags & ZIP_ENTRY_FLAG_ENCRYPTED)
 	    && (zip->entry_encryption == ENCRYPTION_WINZIP_AES128
-	    || zip->entry_encryption == ENCRYPTION_WINZIP_AES256)) {
+	   || zip->entry_encryption == ENCRYPTION_WINZIP_AES256)) {
 		memcpy(e, "\001\231\007\000\001\000AE", 8);
 		/* AES vendor version AE-2 does not store a CRC.
 		 * WinZip 11 uses AE-1, which does store the CRC,
@@ -1156,8 +1156,8 @@ static int archive_write_zip_finish_entry(struct archive_write * a)
 
 	/* Append Zip64 extra data to central directory information. */
 	if(zip->entry_compressed_written > ZIP_4GB_MAX
-	    || zip->entry_uncompressed_written > ZIP_4GB_MAX
-	    || zip->entry_offset > ZIP_4GB_MAX) {
+	   || zip->entry_uncompressed_written > ZIP_4GB_MAX
+	   || zip->entry_offset > ZIP_4GB_MAX) {
 		uchar zip64[32];
 		uchar * z = zip64, * zd;
 		memcpy(z, "\001\000\000\000", 4);
@@ -1228,9 +1228,9 @@ static int archive_write_zip_close(struct archive_write * a)
 
 	/* If central dir info is too large, write Zip64 end-of-cd */
 	if(offset_end - offset_start > ZIP_4GB_MAX
-	    || offset_start > ZIP_4GB_MAX
-	    || zip->central_directory_entries > 0xffffUL
-	    || (zip->flags & ZIP_FLAG_FORCE_ZIP64)) {
+	   || offset_start > ZIP_4GB_MAX
+	   || zip->central_directory_entries > 0xffffUL
+	   || (zip->flags & ZIP_FLAG_FORCE_ZIP64)) {
 		/* Zip64 end-of-cd record */
 		memzero(buff, 56);
 		memcpy(buff, "PK\006\006", 4);

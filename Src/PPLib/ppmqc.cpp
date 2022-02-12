@@ -582,6 +582,13 @@ int PPMqbClient::Publish(const char * pExchangeName, const char * pRoutingKey, c
 			p_local_props = &local_props;
 		}
 		int pr = amqp_basic_publish(GetNativeConnHandle(P_Conn), ChannelN, exchange, routing_key, 0, 0, p_local_props, data);
+		{ // @debug
+			SString log_buf;
+			log_buf.Cat("amqp-publish").Space().Cat(pExchangeName).Space().Cat(pRoutingKey);
+			if(pProps->CorrelationId.NotEmpty())
+				log_buf.Space().Cat(pProps->CorrelationId);
+			PPLogMessage(PPFILNAM_DEBUG_LOG, log_buf, LOGMSGF_TIME);
+		}
 		THROW_SL(SlCheckAmqpError(pr));
 	}
 	CATCHZOK
@@ -745,6 +752,18 @@ int PPMqbClient::Ack(uint64 deliveryTag, long flags /*mqofMultiple*/)
 	THROW_PP(P_Conn, PPERR_MQBC_NOTINITED);
 	{
 		int pr = amqp_basic_ack(GetNativeConnHandle(P_Conn), ChannelN, deliveryTag, BIN(flags & mqofMultiple));
+		THROW(pr >= AMQP_STATUS_OK);
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPMqbClient::Reject(uint64 deliveryTag, long flags /*mqofRequeue*/)
+{
+	int    ok = 1;
+	THROW_PP(P_Conn, PPERR_MQBC_NOTINITED);
+	{
+		int pr = amqp_basic_reject(GetNativeConnHandle(P_Conn), ChannelN, deliveryTag, BIN(flags & mqofRequeue));
 		THROW(pr >= AMQP_STATUS_OK);
 	}
 	CATCHZOK

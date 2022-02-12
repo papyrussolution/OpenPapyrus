@@ -160,7 +160,7 @@ int ssh_send_banner(ssh_session session, int server)
 		snprintf(buffer, sizeof(buffer), "%s%s", session->serverbanner, terminator);
 	}
 	else {
-		session->clientbanner = _strdup(banner);
+		session->clientbanner = sstrdup(banner);
 		if(session->clientbanner == NULL) {
 			goto end;
 		}

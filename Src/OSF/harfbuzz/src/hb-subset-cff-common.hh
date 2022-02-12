@@ -355,7 +355,7 @@ protected:
 		bool at_end(uint pos) const
 		{
 			return ((pos + 1 >= values.length) /* CFF2 */
-			       || (values[pos + 1].op == OpCode_return));
+			      || (values[pos + 1].op == OpCode_return));
 		}
 
 		bool is_parsed() const {
@@ -594,8 +594,8 @@ protected:
 			parsed_global_subrs.init(acc.globalSubrs->count);
 
 			if(UNLIKELY(remaps.in_error()
-			    || parsed_charstrings.in_error()
-			    || parsed_global_subrs.in_error())) {
+			   || parsed_charstrings.in_error()
+			   || parsed_global_subrs.in_error())) {
 				return false;
 			}
 

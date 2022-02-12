@@ -52,17 +52,14 @@ ssh_buffer base64_to_bin(const char * source)
 {
 	ssh_buffer buffer = NULL;
 	uchar block[3];
-	char * base64;
 	char * ptr;
 	size_t len;
 	int equals;
-
-	base64 = _strdup(source);
+	char * base64 = sstrdup(source);
 	if(base64 == NULL) {
 		return NULL;
 	}
 	ptr = base64;
-
 	/* Get the number of equals signs, which mirrors the padding */
 	equals = get_equals(ptr);
 	if(equals > 2) {

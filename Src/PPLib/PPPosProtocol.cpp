@@ -128,7 +128,7 @@ public:
 	virtual int InteractiveQuery()
 	{
 		int    ok = -1;
-		TSVector <PPPosProtocol::QueryBlock> qb_list; // @v9.8.4 TSArray-->TSVector
+		TSVector <PPPosProtocol::QueryBlock> qb_list;
 		if(PPPosProtocol::EditPosQuery(qb_list) > 0) {
 			SForEachVectorItem(qb_list, i) { THROW(Pp.SendQuery(NodeID, qb_list.at(i))); }
 		}
@@ -1843,6 +1843,12 @@ int PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlTag, co
 					w_s.PutInner("chznprodtype", "medicine");
 				else if(gt_rec.ChZnProdType == GTCHZNPT_CARTIRE) // @v10.9.7
 					w_s.PutInner("chznprodtype", "cartire");
+				else if(gt_rec.ChZnProdType == GTCHZNPT_TEXTILE) // @v11.3.1
+					w_s.PutInner("chznprodtype", "textile");
+				else if(gt_rec.ChZnProdType == GTCHZNPT_PERFUMERY) // @v11.3.1
+					w_s.PutInner("chznprodtype", "perfumery");
+				else if(gt_rec.ChZnProdType == GTCHZNPT_MILK) // @v11.3.1
+					w_s.PutInner("chznprodtype", "milk");
 				// } @v10.7.3 
 			}
 		}
@@ -3195,6 +3201,12 @@ int PPPosProtocol::EndElement(const char * pName)
 						chznprodtype = GTCHZNPT_MEDICINE;
 					else if(RdB.TagValue.IsEqiAscii("cartire")) // @v10.9.7
 						chznprodtype = GTCHZNPT_CARTIRE;
+					else if(RdB.TagValue.IsEqiAscii("textile")) // @v11.3.1
+						chznprodtype = GTCHZNPT_TEXTILE;
+					else if(RdB.TagValue.IsEqiAscii("perfumery")) // @v11.3.1
+						chznprodtype = GTCHZNPT_PERFUMERY;
+					else if(RdB.TagValue.IsEqiAscii("milk")) // @v11.3.1
+						chznprodtype = GTCHZNPT_MILK;
 					if(chznprodtype)
 						static_cast<GoodsBlock *>(p_item)->ChZnProdType = chznprodtype;
 				}
@@ -4383,33 +4395,36 @@ int PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 					if(r_blk.AlcoProof > 0) {
 						is_there_alc = 1;
 					}
-					if(r_blk.SpecialFlags & (r_blk.spcfLookBackPrices|r_blk.spcfUnlim)) {
+					if(r_blk.SpecialFlags & (r_blk.spcfLookBackPrices|r_blk.spcfUnlim|r_blk.spcfMarked)) { // @v11.3.1 r_blk.spcfMarked
 						long gt_flags = 0;
 						if(r_blk.SpecialFlags & r_blk.spcfLookBackPrices)
 							gt_flags |= GTF_LOOKBACKPRICES;
 						if(r_blk.SpecialFlags & r_blk.spcfUnlim)
 							gt_flags |= GTF_UNLIMITED;
-						int    is_gt_found = 0;
+						if(r_blk.SpecialFlags & r_blk.spcfMarked) // @v11.3.1
+							gt_flags |= GTF_GMARKED;
+						bool is_gt_found = false;
 						for(uint j = 0; !is_gt_found && j < gt_list.getCount(); j++) {
-							const SurrGoodsTypeEntry * p_entry = (const SurrGoodsTypeEntry *)gt_list.at(j);
-							if(p_entry->Flags == gt_flags) {
+							const SurrGoodsTypeEntry * p_entry = static_cast<const SurrGoodsTypeEntry *>(gt_list.at(j));
+							if(p_entry->Flags == gt_flags && p_entry->ChZnProdType == r_blk.ChZnProdType) { // @v11.3.1 (p_entry->ChZnProdType == r_blk.ChZnProdType)
 								r_blk.GoodsTypeID = j+1;
-								is_gt_found = 1;
+								is_gt_found = true;
 							}
 						}
 						if(!is_gt_found) {
 							SurrGoodsTypeEntry new_entry(gt_flags);
+							new_entry.ChZnProdType = r_blk.ChZnProdType; // @v11.3.1
 							gt_list.insert(&new_entry);
 							r_blk.GoodsTypeID = gt_list.getCount();
 						}
 					}
 					if(r_blk.VatRate > 0 || r_blk.SalesTaxRate > 0) {
-						int    is_tg_found = 0;
+						bool is_tg_found = false;
 						for(uint j = 0; !is_tg_found && j < tax_rate_list.getCount(); j++) {
 							const SurrTaxRateEntry * p_entry = static_cast<const SurrTaxRateEntry *>(tax_rate_list.at(j));
 							if(p_entry->VatRate == r_blk.VatRate && p_entry->SalesTaxRate == r_blk.SalesTaxRate) {
 								r_blk.TaxGrpID = j+1;
-								is_tg_found = 1;
+								is_tg_found = true;
 							}
 						}
 						if(!is_tg_found) {

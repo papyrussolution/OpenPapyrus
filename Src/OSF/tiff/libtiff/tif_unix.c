@@ -117,10 +117,7 @@ static uint64 _tiffSizeProc(thandle_t fd)
 	_TIFF_stat_s sb;
 	fd_as_handle_union_t fdh;
 	fdh.h = fd;
-	if(_TIFF_fstat_f(fdh.fd, &sb) < 0)
-		return 0;
-	else
-		return (uint64)sb.st_size;
+	return (_TIFF_fstat_f(fdh.fd, &sb) < 0) ? 0 : (uint64)sb.st_size;
 }
 
 #ifdef HAVE_MMAP
@@ -163,27 +160,27 @@ static void _tiffUnmapProc(thandle_t fd, void * base, toff_t size)
 /*
  * Open a TIFF file descriptor for read/writing.
  */
-TIFF* TIFFFdOpen(int fd, const char * name, const char * mode)
+TIFF * TIFFFdOpen(int fd, const char * name, const char * mode)
 {
-	TIFF* tif;
+	TIFF * tif;
 	fd_as_handle_union_t fdh;
 	fdh.fd = fd;
 	tif = TIFFClientOpen(name, mode, fdh.h, _tiffReadProc, _tiffWriteProc, _tiffSeekProc, _tiffCloseProc, _tiffSizeProc, _tiffMapProc, _tiffUnmapProc);
 	if(tif)
 		tif->tif_fd = fd;
-	return (tif);
+	return tif;
 }
 /*
  * Open a TIFF file for read/writing.
  */
-TIFF* TIFFOpen(const char * name, const char * mode)
+TIFF * TIFFOpen(const char * name, const char * mode)
 {
 	static const char module[] = __FUNCTION__;
-	int m, fd;
-	TIFF* tif;
-	m = _TIFFgetMode(mode, module);
+	int fd;
+	TIFF * tif;
+	int m = _TIFFgetMode(mode, module);
 	if(m == -1)
-		return ((TIFF*)0);
+		return 0;
 /* for cygwin and mingw */
 #ifdef O_BINARY
 	m |= O_BINARY;
@@ -196,7 +193,7 @@ TIFF* TIFFOpen(const char * name, const char * mode)
 		else {
 			TIFFErrorExt(0, module, "%s: Cannot open", name);
 		}
-		return ((TIFF*)0);
+		return 0;
 	}
 	tif = TIFFFdOpen((int)fd, name, mode);
 	if(!tif)
@@ -209,16 +206,16 @@ TIFF* TIFFOpen(const char * name, const char * mode)
 /*
  * Open a TIFF file with a Unicode filename, for read/writing.
  */
-TIFF* TIFFOpenW(const wchar_t * name, const char * mode)
+TIFF * TIFFOpenW(const wchar_t * name, const char * mode)
 {
 	static const char module[] = __FUNCTION__;
 	int fd;
 	int mbsize;
 	char * mbname;
-	TIFF* tif;
+	TIFF * tif;
 	int m = _TIFFgetMode(mode, module);
 	if(m == -1)
-		return ((TIFF*)0);
+		return 0;
 /* for cygwin and mingw */
 #ifdef O_BINARY
 	m |= O_BINARY;
@@ -226,7 +223,7 @@ TIFF* TIFFOpenW(const wchar_t * name, const char * mode)
 	fd = _wopen(name, m, 0666);
 	if(fd < 0) {
 		TIFFErrorExt(0, module, "%ls: Cannot open", name);
-		return ((TIFF*)0);
+		return 0;
 	}
 	mbname = NULL;
 	mbsize = WideCharToMultiByte(CP_ACP, 0, name, -1, NULL, 0, NULL, NULL);
@@ -234,7 +231,7 @@ TIFF* TIFFOpenW(const wchar_t * name, const char * mode)
 		mbname = (char *)SAlloc::M(mbsize);
 		if(!mbname) {
 			TIFFErrorExt(0, module, "Can't allocate space for filename conversion buffer");
-			return ((TIFF*)0);
+			return 0;
 		}
 		WideCharToMultiByte(CP_ACP, 0, name, -1, mbname, mbsize, NULL, NULL);
 	}

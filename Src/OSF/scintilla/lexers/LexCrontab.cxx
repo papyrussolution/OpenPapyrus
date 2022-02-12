@@ -143,8 +143,7 @@ static void ColouriseNncrontabDoc(Sci_PositionU startPos, Sci_Position length, i
 			    }
 			    // if we find the end of a string char, we simply go to default state
 			    // else we're still dealing with an string...
-			    if((ch == '"' && styler.SafeGetCharAt(i-1)!='\\') ||
-			    (ch == '\n') || (ch == '\r')) {
+			    if((ch == '"' && styler.SafeGetCharAt(i-1)!='\\') || (ch == '\n') || (ch == '\r')) {
 				    state = SCE_NNCRONTAB_DEFAULT;
 			    }
 			    styler.ColourTo(i, SCE_NNCRONTAB_STRING);
@@ -158,8 +157,7 @@ static void ColouriseNncrontabDoc(Sci_PositionU startPos, Sci_Position length, i
 				    insideString = false;
 				    break;
 			    }
-			    if((ch == '%' && styler.SafeGetCharAt(i-1)!='\\')
-			    || (ch == '\n') || (ch == '\r') || (ch == '>')) {
+			    if((ch == '%' && styler.SafeGetCharAt(i-1)!='\\') || oneof3(ch, '\n', '\r', '>')) {
 				    state = SCE_NNCRONTAB_DEFAULT;
 				    styler.ColourTo(i, SCE_NNCRONTAB_ENVIRONMENT);
 				    break;
@@ -169,9 +167,7 @@ static void ColouriseNncrontabDoc(Sci_PositionU startPos, Sci_Position length, i
 
 			case SCE_NNCRONTAB_IDENTIFIER:
 			    // stay  in CONF_IDENTIFIER state until we find a non-alphanumeric
-			    if((IsASCII(ch) && isalnum(ch)) || (ch == '_') || (ch == '-') || (ch == '/') ||
-			    (ch == '$') || (ch == '.') || (ch == '<') || (ch == '>') ||
-			    (ch == '@')) {
+			    if((IsASCII(ch) && isalnum(ch)) || oneof8(ch, '_', '-', '/', '$', '.', '<', '>', '@')) {
 				    buffer[bufferCount++] = ch;
 			    }
 			    else {

@@ -91,7 +91,7 @@ static void ColouriseFortranDoc(Sci_PositionU startPos, Sci_Position length, int
 			if((toLineStart == 0 && (tolower(sc.ch) == 'c' || sc.ch == '*')) || sc.ch == '!') {
 				if(sc.MatchIgnoreCase("cdec$") || sc.MatchIgnoreCase("*dec$") || sc.MatchIgnoreCase("!dec$") ||
 				    sc.MatchIgnoreCase("cdir$") || sc.MatchIgnoreCase("*dir$") || sc.MatchIgnoreCase("!dir$") ||
-				    sc.MatchIgnoreCase("cms$")  || sc.MatchIgnoreCase("*ms$")  || sc.MatchIgnoreCase("!ms$")  ||
+				    sc.MatchIgnoreCase("cms$") || sc.MatchIgnoreCase("*ms$") || sc.MatchIgnoreCase("!ms$")  ||
 				    sc.chNext == '$') {
 					sc.SetState(SCE_F_PREPROCESSOR);
 				}
@@ -298,7 +298,7 @@ static int classifyFoldPointFortran(const char * s, const char * prevWord, const
 			lev = 1;
 	}
 	else if((sstreq(s, "end") && chNextNonBlank != '=')
-	    || sstreq(s, "endassociate") || sstreq(s, "endblock") || 
+	   || sstreq(s, "endassociate") || sstreq(s, "endblock") || 
 		sstreq(s, "endblockdata") || sstreq(s, "endselect") || 
 		sstreq(s, "enddo") || sstreq(s, "endenum") || 
 		sstreq(s, "endif") || sstreq(s, "endforall") || 
@@ -307,7 +307,7 @@ static int classifyFoldPointFortran(const char * s, const char * prevWord, const
 		sstreq(s, "endsubroutine") || sstreq(s, "endtype") || 
 		sstreq(s, "endwhere") || sstreq(s, "endcritical") || 
 		(sstreq(prevWord, "module") && sstreq(s, "procedure")) // Take care of the "module procedure" statement
-	    || sstreq(s, "endsubmodule")) {
+	   || sstreq(s, "endsubmodule")) {
 		lev = -1;
 	}
 	else if(sstreq(prevWord, "end") && sstreq(s, "if")) {   // end if
@@ -380,7 +380,7 @@ static void FoldFortranDoc(Sci_PositionU startPos, Sci_Position length, int init
 		bool atEOL = (ch == '\r' && chNext != '\n') || (ch == '\n');
 		//
 		if(((isFixFormat && stylePrev == SCE_F_CONTINUATION) || stylePrev == SCE_F_DEFAULT
-			    || stylePrev == SCE_F_OPERATOR) && (style == SCE_F_WORD || style == SCE_F_LABEL)) {
+			   || stylePrev == SCE_F_OPERATOR) && (style == SCE_F_WORD || style == SCE_F_LABEL)) {
 			// Store last word and label start point.
 			lastStart = i;
 		}

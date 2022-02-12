@@ -642,7 +642,7 @@ static ngx_int_t ngx_http_test_expect(ngx_http_request_t * r)
 	ngx_str_t  * expect;
 	if(r->expect_tested || r->headers_in.expect == NULL || r->http_version < NGX_HTTP_VERSION_11
 #if (NGX_HTTP_V2)
-	    || r->stream != NULL
+	   || r->stream != NULL
 #endif
 	    ) {
 		return NGX_OK;

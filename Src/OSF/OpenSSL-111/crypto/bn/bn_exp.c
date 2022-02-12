@@ -637,7 +637,7 @@ int BN_mod_exp_mont_consttime(BIGNUM * rr, const BIGNUM * a, const BIGNUM * p,
 	if(a->neg || BN_ucmp(a, m) >= 0) {
 		BIGNUM * reduced = BN_CTX_get(ctx);
 		if(reduced == NULL
-		    || !BN_nnmod(reduced, a, m, ctx)) {
+		   || !BN_nnmod(reduced, a, m, ctx)) {
 			goto err;
 		}
 		a = reduced;

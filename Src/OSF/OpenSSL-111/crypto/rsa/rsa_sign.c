@@ -217,7 +217,7 @@ int int_rsa_verify(int type, const uchar * m, uint m_len,
 			goto err;
 
 		if(encoded_len != decrypt_len
-		    || memcmp(encoded, decrypt_buf, encoded_len) != 0) {
+		   || memcmp(encoded, decrypt_buf, encoded_len) != 0) {
 			RSAerr(RSA_F_INT_RSA_VERIFY, RSA_R_BAD_SIGNATURE);
 			goto err;
 		}

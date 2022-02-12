@@ -51,7 +51,7 @@ int UTF8_getc(const uchar * str, int len, ulong * val)
 		if(len < 3)
 			return -1;
 		if(((p[1] & 0xc0) != 0x80)
-		    || ((p[2] & 0xc0) != 0x80))
+		   || ((p[2] & 0xc0) != 0x80))
 			return -3;
 		value = (*p++ & 0xf) << 12;
 		value |= (*p++ & 0x3f) << 6;
@@ -64,8 +64,8 @@ int UTF8_getc(const uchar * str, int len, ulong * val)
 		if(len < 4)
 			return -1;
 		if(((p[1] & 0xc0) != 0x80)
-		    || ((p[2] & 0xc0) != 0x80)
-		    || ((p[3] & 0xc0) != 0x80))
+		   || ((p[2] & 0xc0) != 0x80)
+		   || ((p[3] & 0xc0) != 0x80))
 			return -3;
 		value = ((ulong)(*p++ & 0x7)) << 18;
 		value |= (*p++ & 0x3f) << 12;
@@ -79,9 +79,9 @@ int UTF8_getc(const uchar * str, int len, ulong * val)
 		if(len < 5)
 			return -1;
 		if(((p[1] & 0xc0) != 0x80)
-		    || ((p[2] & 0xc0) != 0x80)
-		    || ((p[3] & 0xc0) != 0x80)
-		    || ((p[4] & 0xc0) != 0x80))
+		   || ((p[2] & 0xc0) != 0x80)
+		   || ((p[3] & 0xc0) != 0x80)
+		   || ((p[4] & 0xc0) != 0x80))
 			return -3;
 		value = ((ulong)(*p++ & 0x3)) << 24;
 		value |= ((ulong)(*p++ & 0x3f)) << 18;
@@ -96,10 +96,10 @@ int UTF8_getc(const uchar * str, int len, ulong * val)
 		if(len < 6)
 			return -1;
 		if(((p[1] & 0xc0) != 0x80)
-		    || ((p[2] & 0xc0) != 0x80)
-		    || ((p[3] & 0xc0) != 0x80)
-		    || ((p[4] & 0xc0) != 0x80)
-		    || ((p[5] & 0xc0) != 0x80))
+		   || ((p[2] & 0xc0) != 0x80)
+		   || ((p[3] & 0xc0) != 0x80)
+		   || ((p[4] & 0xc0) != 0x80)
+		   || ((p[5] & 0xc0) != 0x80))
 			return -3;
 		value = ((ulong)(*p++ & 0x1)) << 30;
 		value |= ((ulong)(*p++ & 0x3f)) << 24;

@@ -99,7 +99,7 @@ static UI_STRING * general_allocate_prompt(UI * ui, const char * prompt, int pro
 		UIerr(UI_F_GENERAL_ALLOCATE_PROMPT, ERR_R_PASSED_NULL_PARAMETER);
 	}
 	else if((type == UIT_PROMPT || type == UIT_VERIFY
-	    || type == UIT_BOOLEAN) && result_buf == NULL) {
+	   || type == UIT_BOOLEAN) && result_buf == NULL) {
 		UIerr(UI_F_GENERAL_ALLOCATE_PROMPT, UI_R_NO_RESULT_BUFFER);
 	}
 	else if((ret = static_cast<UI_STRING *>(OPENSSL_malloc(sizeof(*ret)))) != NULL) {
@@ -407,7 +407,7 @@ int UI_dup_user_data(UI * ui, void * user_data)
 	void * duplicate = NULL;
 
 	if(ui->meth->ui_duplicate_data == NULL
-	    || ui->meth->ui_destroy_data == NULL) {
+	   || ui->meth->ui_destroy_data == NULL) {
 		UIerr(UI_F_UI_DUP_USER_DATA, UI_R_USER_DATA_DUPLICATION_UNSUPPORTED);
 		return -1;
 	}
@@ -594,7 +594,7 @@ UI_METHOD * UI_create_method(const char * name)
 {
 	UI_METHOD * ui_method = NULL;
 	if((ui_method = static_cast<UI_METHOD *>(OPENSSL_zalloc(sizeof(*ui_method)))) == NULL
-	    || (ui_method->name = OPENSSL_strdup(name)) == NULL || !CRYPTO_new_ex_data(CRYPTO_EX_INDEX_UI_METHOD, ui_method, &ui_method->ex_data)) {
+	   || (ui_method->name = OPENSSL_strdup(name)) == NULL || !CRYPTO_new_ex_data(CRYPTO_EX_INDEX_UI_METHOD, ui_method, &ui_method->ex_data)) {
 		if(ui_method)
 			OPENSSL_free(ui_method->name);
 		OPENSSL_free(ui_method);

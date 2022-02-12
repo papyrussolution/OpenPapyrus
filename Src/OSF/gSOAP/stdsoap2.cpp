@@ -1,6 +1,5 @@
 /*
         stdsoap2.c[pp] 2.8.8
-
         gSOAP runtime engine
 
    gSOAP XML Web services tools
@@ -41,14 +40,11 @@
    this program; if not, write to the Free Software Foundation, Inc., 59 Temple
    Place, Suite 330, Boston, MA 02111-1307 USA
 
-   Author contact information:
-   engelen@genivia.com / engelen@acm.org
+   Author contact information: engelen@genivia.com / engelen@acm.org
 
    This program is released under the GPL with the additional exemption that
    compiling, linking, and/or using OpenSSL is allowed.
-   --------------------------------------------------------------------------------
    A commercial use license is available from Genivia, Inc., contact@genivia.com
-   --------------------------------------------------------------------------------
  */
 #pragma hdrstop
 #include <slib.h>
@@ -5534,7 +5530,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_putsetcookies(struct soap * soap)
 	for(p = soap->cookies; p; p = p->next) {
 		if(p->modified
  #ifdef WITH_OPENSSL
-			    || (!p->env && !soap->ssl == !p->secure)
+			   || (!p->env && !soap->ssl == !p->secure)
  #endif
 			    ) {
 			s = tmp;
@@ -5578,7 +5574,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_putsetcookies(struct soap * soap)
 			if(s-tmp < 4073 &&
 				    (p->secure
  #ifdef WITH_OPENSSL
-					    || soap->ssl
+					   || soap->ssl
  #endif
 				    ))
 				strcpy(s, ";Secure");
@@ -10281,11 +10277,11 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_s2int(struct soap * soap, const char * s, int * p
 		n = soap_strtol(s, &r, 10);
 		if(s == r || *r
  #ifndef WITH_LEAN
-			    || n != (int)n
+			   || n != (int)n
  #endif
  #ifndef WITH_NOIO
   #ifndef WITH_LEAN
-			    || soap_errno == SOAP_ERANGE
+			   || soap_errno == SOAP_ERANGE
   #endif
  #endif
 			    )
@@ -10343,7 +10339,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_s2long(struct soap * soap, const char * s, long *
 		if(s == r || *r
  #ifndef WITH_NOIO
   #ifndef WITH_LEAN
-			    || soap_errno == SOAP_ERANGE
+			   || soap_errno == SOAP_ERANGE
   #endif
  #endif
 			    )
@@ -10403,7 +10399,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_s2LONG64(struct soap * soap, const char * s, LONG
 		if(s == r || *r
   #ifndef WITH_NOIO
    #ifndef WITH_LEAN
-			    || soap_errno == SOAP_ERANGE
+			   || soap_errno == SOAP_ERANGE
    #endif
   #endif
 			    )
@@ -10870,7 +10866,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_s2unsignedInt(struct soap * soap, const char * s,
 		if((s == r && (soap->mode&SOAP_XML_STRICT)) || *r
  #ifndef WITH_NOIO
   #ifndef WITH_LEAN
-			    || soap_errno == SOAP_ERANGE
+			   || soap_errno == SOAP_ERANGE
   #endif
  #endif
 			    )
@@ -10933,7 +10929,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_s2unsignedLong(struct soap * soap, const char * s
 		if((s == r && (soap->mode&SOAP_XML_STRICT)) || *r
  #ifndef WITH_NOIO
   #ifndef WITH_LEAN
-			    || soap_errno == SOAP_ERANGE
+			   || soap_errno == SOAP_ERANGE
   #endif
  #endif
 			    )
@@ -10995,7 +10991,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_s2ULONG64(struct soap * soap, const char * s, ULO
 		if((s == r && (soap->mode&SOAP_XML_STRICT)) || *r
   #ifndef WITH_NOIO
    #ifndef WITH_LEAN
-			    || soap_errno == SOAP_ERANGE
+			   || soap_errno == SOAP_ERANGE
    #endif
   #endif
 			    )

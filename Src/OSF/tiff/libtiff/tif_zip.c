@@ -77,16 +77,16 @@ typedef struct {
 #define DecoderState(tif)       ZState(tif)
 #define EncoderState(tif)       ZState(tif)
 
-static int ZIPEncode(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s);
-static int ZIPDecode(TIFF* tif, uint8 * op, tmsize_t occ, uint16 s);
+static int ZIPEncode(TIFF * tif, uint8 * bp, tmsize_t cc, uint16 s);
+static int ZIPDecode(TIFF * tif, uint8 * op, tmsize_t occ, uint16 s);
 
-static int ZIPFixupTags(TIFF* tif)
+static int ZIPFixupTags(TIFF * tif)
 {
 	(void)tif;
 	return 1;
 }
 
-static int ZIPSetupDecode(TIFF* tif)
+static int ZIPSetupDecode(TIFF * tif)
 {
 	static const char module[] = __FUNCTION__;
 	ZIPState* sp = DecoderState(tif);
@@ -112,7 +112,7 @@ static int ZIPSetupDecode(TIFF* tif)
 /*
  * Setup state for decoding a strip.
  */
-static int ZIPPreDecode(TIFF* tif, uint16 s)
+static int ZIPPreDecode(TIFF * tif, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	ZIPState* sp = DecoderState(tif);
@@ -131,7 +131,7 @@ static int ZIPPreDecode(TIFF* tif, uint16 s)
 	return (inflateReset(&sp->stream) == Z_OK);
 }
 
-static int ZIPDecode(TIFF* tif, uint8 * op, tmsize_t occ, uint16 s)
+static int ZIPDecode(TIFF * tif, uint8 * op, tmsize_t occ, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	ZIPState* sp = DecoderState(tif);
@@ -172,7 +172,7 @@ static int ZIPDecode(TIFF* tif, uint8 * op, tmsize_t occ, uint16 s)
 	return 1;
 }
 
-static int ZIPSetupEncode(TIFF* tif)
+static int ZIPSetupEncode(TIFF * tif)
 {
 	static const char module[] = __FUNCTION__;
 	ZIPState* sp = EncoderState(tif);
@@ -194,7 +194,7 @@ static int ZIPSetupEncode(TIFF* tif)
 /*
  * Reset encoding state at the start of a strip.
  */
-static int ZIPPreEncode(TIFF* tif, uint16 s)
+static int ZIPPreEncode(TIFF * tif, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	ZIPState * sp = EncoderState(tif);
@@ -215,7 +215,7 @@ static int ZIPPreEncode(TIFF* tif, uint16 s)
 /*
  * Encode a chunk of pixels.
  */
-static int ZIPEncode(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s)
+static int ZIPEncode(TIFF * tif, uint8 * bp, tmsize_t cc, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	ZIPState * sp = EncoderState(tif);
@@ -248,7 +248,7 @@ static int ZIPEncode(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s)
  * Finish off an encoded strip by flushing the last
  * string and tacking on an End Of Information code.
  */
-static int ZIPPostEncode(TIFF* tif)
+static int ZIPPostEncode(TIFF * tif)
 {
 	static const char module[] = __FUNCTION__;
 	ZIPState * sp = EncoderState(tif);
@@ -274,7 +274,7 @@ static int ZIPPostEncode(TIFF* tif)
 	return 1;
 }
 
-static void ZIPCleanup(TIFF* tif)
+static void ZIPCleanup(TIFF * tif)
 {
 	ZIPState* sp = ZState(tif);
 	assert(sp != 0);
@@ -294,7 +294,7 @@ static void ZIPCleanup(TIFF* tif)
 	_TIFFSetDefaultCompressionState(tif);
 }
 
-static int ZIPVSetField(TIFF* tif, uint32 tag, va_list ap)
+static int ZIPVSetField(TIFF * tif, uint32 tag, va_list ap)
 {
 	static const char module[] = __FUNCTION__;
 	ZIPState* sp = ZState(tif);
@@ -316,7 +316,7 @@ static int ZIPVSetField(TIFF* tif, uint32 tag, va_list ap)
 	/*NOTREACHED*/
 }
 
-static int ZIPVGetField(TIFF* tif, uint32 tag, va_list ap)
+static int ZIPVGetField(TIFF * tif, uint32 tag, va_list ap)
 {
 	ZIPState * sp = ZState(tif);
 	switch(tag) {
@@ -333,7 +333,7 @@ static const TIFFField zipFields[] = {
 	{ TIFFTAG_ZIPQUALITY, 0, 0, TIFF_ANY, 0, TIFF_SETGET_INT, TIFF_SETGET_UNDEFINED, FIELD_PSEUDO, TRUE, FALSE, "", NULL },
 };
 
-int TIFFInitZIP(TIFF* tif, int scheme)
+int TIFFInitZIP(TIFF * tif, int scheme)
 {
 	static const char module[] = __FUNCTION__;
 	ZIPState* sp;

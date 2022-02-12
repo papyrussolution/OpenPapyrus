@@ -37,13 +37,13 @@ posixy_open(const char *filename, int flags, int)
 /** Version of rename() which overwrites an existing destination file. */
 int posixy_rename(const char *from, const char *to);
 #else
-# include <cstdio>
-# include "safeunistd.h"
-# include <sys/types.h>
-# include "safesysstat.h"
-# include "safefcntl.h"
-# define posixy_open ::open
-# define posixy_rename(F, T) std::rename(F, T)
+#include <cstdio>
+#include "safeunistd.h"
+#include <sys/types.h>
+#include "safesysstat.h"
+#include "safefcntl.h"
+#define posixy_open ::open
+#define posixy_rename(F, T) std::rename(F, T)
 #endif
 
 #if defined __CYGWIN__ || defined __WIN32__
@@ -53,7 +53,7 @@ int posixy_rename(const char *from, const char *to);
  */
 int posixy_unlink(const char * filename);
 #else
-# define posixy_unlink(F) unlink(F)
+#define posixy_unlink(F) unlink(F)
 #endif
 
 #endif /* XAPIAN_INCLUDED_POSIXY_WRAPPER_H */

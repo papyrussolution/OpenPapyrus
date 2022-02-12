@@ -218,7 +218,7 @@ CMS_ContentInfo * CMS_EncryptedData_encrypt(BIO * in, const EVP_CIPHER * cipher,
 		CMS_set_detached(cms, 0);
 
 	if((flags & (CMS_STREAM | CMS_PARTIAL))
-	    || CMS_final(cms, in, NULL, flags))
+	   || CMS_final(cms, in, NULL, flags))
 		return cms;
 
 	CMS_ContentInfo_free(cms);
@@ -464,7 +464,7 @@ CMS_ContentInfo * CMS_sign(X509 * signcert, EVP_PKEY * pkey,
 		CMS_set_detached(cms, 0);
 
 	if((flags & (CMS_STREAM | CMS_PARTIAL))
-	    || CMS_final(cms, data, NULL, flags))
+	   || CMS_final(cms, data, NULL, flags))
 		return cms;
 	else
 		goto err;
@@ -565,7 +565,7 @@ CMS_ContentInfo * CMS_encrypt(STACK_OF(X509) * certs, BIO * data,
 		CMS_set_detached(cms, 0);
 
 	if((flags & (CMS_STREAM | CMS_PARTIAL))
-	    || CMS_final(cms, data, NULL, flags))
+	   || CMS_final(cms, data, NULL, flags))
 		return cms;
 	else
 		goto err;

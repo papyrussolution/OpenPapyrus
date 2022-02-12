@@ -29,7 +29,7 @@
 #define XAPIAN_INCLUDED_CJK_TOKENIZER_H
 
 #ifndef PACKAGE
-# error config.h must be included first in each C++ source file
+#error config.h must be included first in each C++ source file
 #endif
 
 #include "xapian/unicode.h"
@@ -42,15 +42,15 @@
 #  pragma GCC diagnostic push
 #  pragma GCC diagnostic ignored "-Wold-style-cast"
 #  pragma GCC diagnostic ignored "-Wundef"
-# endif
+#endif
 
-# include <unicode/brkiter.h>
-# include <unicode/unistr.h>
+#include <unicode/brkiter.h>
+#include <unicode/unistr.h>
 
 # ifdef __GNUC__
 // Restore the original warning state.
 #  pragma GCC diagnostic pop
-# endif
+#endif
 #endif
 
 namespace CJK {

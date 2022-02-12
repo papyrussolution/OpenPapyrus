@@ -4470,13 +4470,13 @@ void Graph_put_tmptext(GW * lpgw, int where, LPCSTR text)
 		case 1:
 		    DrawZoomBox(lpgw);
 		    SAlloc::F((char *)zoombox.text1);
-		    zoombox.text1 = _strdup(text);
+		    zoombox.text1 = sstrdup(text);
 		    DrawZoomBox(lpgw);
 		    break;
 		case 2:
 		    DrawZoomBox(lpgw);
 		    SAlloc::F((char *)zoombox.text2);
-		    zoombox.text2 = _strdup(text);
+		    zoombox.text2 = sstrdup(text);
 		    DrawZoomBox(lpgw);
 		    break;
 		default:

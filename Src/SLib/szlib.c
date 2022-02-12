@@ -5135,7 +5135,7 @@ static uInt FASTCALL longest_match(deflate_state * s, IPos cur_match)
 		len = (MAX_MATCH - 1) - (int)(strend-scan);
 		scan = strend - (MAX_MATCH-1);
 #else /* UNALIGNED_OK */
-		if(match[best_len] != scan_end  || match[best_len-1] != scan_end1 || *match != *scan || *++match != scan[1]) 
+		if(match[best_len] != scan_end || match[best_len-1] != scan_end1 || *match != *scan || *++match != scan[1]) 
 			continue;
 		// The check at best_len-1 can be removed because it will be made
 		// again later. (This heuristic is not always a win.)
@@ -5679,7 +5679,7 @@ static block_state deflate_slow(deflate_state * s, int flush)
 
 			if(s->match_length <= 5 && (s->strategy == Z_FILTERED
 #if TOO_FAR <= 32767
-				    || (s->match_length == MIN_MATCH && s->strstart - s->match_start > TOO_FAR)
+				   || (s->match_length == MIN_MATCH && s->strstart - s->match_start > TOO_FAR)
 #endif
 				    )) {
 				/* If prev_match is also MIN_MATCH, match_start is garbage

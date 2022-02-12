@@ -482,12 +482,11 @@ static cairo_status_t _cairo_win32_font_face_create_for_toy(cairo_toy_font_face_
 static void _cairo_win32_scaled_font_fini(void * abstract_font)
 {
 	cairo_win32_scaled_font_t * scaled_font = static_cast<cairo_win32_scaled_font_t *>(abstract_font);
-	if(scaled_font == NULL)
-		return;
-	if(scaled_font->scaled_hfont && scaled_font->delete_scaled_hfont)
-		DeleteObject(scaled_font->scaled_hfont);
-	if(scaled_font->unscaled_hfont)
-		DeleteObject(scaled_font->unscaled_hfont);
+	if(scaled_font) {
+		if(scaled_font->delete_scaled_hfont)
+			::DeleteObject(scaled_font->scaled_hfont);
+		::DeleteObject(scaled_font->unscaled_hfont);
+	}
 }
 
 static cairo_int_status_t _cairo_win32_scaled_font_type1_text_to_glyphs(cairo_win32_scaled_font_t * scaled_font,

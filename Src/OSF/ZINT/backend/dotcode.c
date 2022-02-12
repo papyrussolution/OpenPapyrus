@@ -149,7 +149,7 @@ int score_array(char Dots[], int Hgt, int Wid)
 			    && (!get_dot(Dots, Hgt, Wid, x - 1, y + 1))
 			    && (!get_dot(Dots, Hgt, Wid, x + 1, y + 1))
 			    && ((!get_dot(Dots, Hgt, Wid, x, y))
-				    || ((!get_dot(Dots, Hgt, Wid, x - 2, y))
+				   || ((!get_dot(Dots, Hgt, Wid, x - 2, y))
 					    && (!get_dot(Dots, Hgt, Wid, x, y - 2))
 					    && (!get_dot(Dots, Hgt, Wid, x + 2, y))
 					    && (!get_dot(Dots, Hgt, Wid, x, y + 2))))) {
@@ -921,7 +921,7 @@ int is_corner(int column, int row, int width, int height)
 	/* Top Right */
 	if(height % 2) {
 		if(((column == width - 2) && (row == 0))
-		    || ((column == width - 1) && (row == 1))) {
+		   || ((column == width - 1) && (row == 1))) {
 			corner = 1;
 		}
 	}

@@ -63,9 +63,9 @@ public:
 		{
 			TRACE_SANITIZE(this);
 			return_trace(c->check_struct(this) &&
-			    (!paletteFlagsZ  || (base+paletteFlagsZ).sanitize(c, palette_count)) &&
+			    (!paletteFlagsZ || (base+paletteFlagsZ).sanitize(c, palette_count)) &&
 			    (!paletteLabelsZ || (base+paletteLabelsZ).sanitize(c, palette_count)) &&
-			    (!colorLabelsZ   || (base+colorLabelsZ).sanitize(c, color_count)));
+			    (!colorLabelsZ  || (base+colorLabelsZ).sanitize(c, color_count)));
 		}
 protected:
 		LNNOffsetTo<UnsizedArrayOf<HBUINT32>> paletteFlagsZ; /* Offset from the beginning of CPAL table to the Palette Type Array. Set to 0 if no array is provided. */

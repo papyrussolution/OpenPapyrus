@@ -104,7 +104,7 @@ extern void lzma_lzma_optimum_fast(lzma_lzma1_encoder * coder, lzma_mf * mf, uin
 		const uint32 new_dist = coder->matches[coder->matches_count - 1].dist;
 		if((coder->longest_match_length >= len_main && new_dist < back_main) || (coder->longest_match_length == len_main + 1
 		 && !change_pair(back_main, new_dist)) || (coder->longest_match_length > len_main + 1)
-		    || (coder->longest_match_length + 1 >= len_main && len_main >= 3 && change_pair(new_dist, back_main))) {
+		   || (coder->longest_match_length + 1 >= len_main && len_main >= 3 && change_pair(new_dist, back_main))) {
 			*back_res = UINT32_MAX;
 			*len_res = 1;
 			return;

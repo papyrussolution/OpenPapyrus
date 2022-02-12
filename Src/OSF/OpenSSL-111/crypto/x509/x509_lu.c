@@ -594,9 +594,9 @@ STACK_OF(X509_CRL) *X509_STORE_CTX_get1_crls(X509_STORE_CTX *ctx, X509_NAME *nm)
 
 	/* Always do lookup to possibly add new CRLs to cache */
 	if(sk == NULL
-	    || xobj == NULL
-	    || store == NULL
-	    || !X509_STORE_CTX_get_by_subject(ctx, X509_LU_CRL, nm, xobj)) {
+	   || xobj == NULL
+	   || store == NULL
+	   || !X509_STORE_CTX_get_by_subject(ctx, X509_LU_CRL, nm, xobj)) {
 		X509_OBJECT_free(xobj);
 		sk_X509_CRL_free(sk);
 		return NULL;

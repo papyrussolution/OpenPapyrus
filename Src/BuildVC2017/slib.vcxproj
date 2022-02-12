@@ -6323,6 +6323,9 @@
     <ProjectReference Include="freetype.vcxproj">
       <Project>{d7c20ac1-2566-446f-b49a-598fe7a67094}</Project>
     </ProjectReference>
+    <ProjectReference Include="libxml.vcxproj">
+      <Project>{82523a80-856a-4957-bcea-1a5738139141}</Project>
+    </ProjectReference>
     <ProjectReference Include="libzip.vcxproj">
       <Project>{1ee9ab8f-f42f-481e-963f-5854bfdb8ec1}</Project>
     </ProjectReference>

@@ -53,16 +53,13 @@ static int match_hashed_hostname(const char * host, const char * hashed_host)
 	uchar hashed_buf[256] = {0};
 	uchar * hashed_buf_ptr = hashed_buf;
 	uint hashed_buf_size = sizeof(hashed_buf);
-	int cmp;
 	int rc;
 	int match = 0;
-
-	cmp = strncmp(hashed_host, "|1|", 3);
+	int cmp = strncmp(hashed_host, "|1|", 3);
 	if(cmp != 0) {
 		return 0;
 	}
-
-	hashed = _strdup(hashed_host + 3);
+	hashed = sstrdup(hashed_host + 3);
 	if(hashed == NULL) {
 		return 0;
 	}
@@ -568,16 +565,15 @@ char * ssh_known_hosts_get_algorithms_names(ssh_session session)
 int ssh_known_hosts_parse_line(const char * hostname, const char * line, struct ssh_knownhosts_entry ** entry)
 {
 	struct ssh_knownhosts_entry * e = NULL;
-	char * known_host = NULL;
 	char * p;
 	enum ssh_keytypes_e key_type;
 	int match = 0;
 	int rc = SSH_OK;
-	known_host = _strdup(line);
+	char * known_host = sstrdup(line);
 	if(known_host == NULL) {
 		return SSH_ERROR;
 	}
-	/* match pattern for hostname or hashed hostname */
+	// match pattern for hostname or hashed hostname 
 	p = strtok(known_host, " ");
 	if(p == NULL) {
 		SAlloc::F(known_host);
@@ -625,41 +621,35 @@ int ssh_known_hosts_parse_line(const char * hostname, const char * line, struct 
 			rc = SSH_AGAIN;
 			goto out;
 		}
-
-		e->hostname = _strdup(hostname);
+		e->hostname = sstrdup(hostname);
 		if(e->hostname == NULL) {
 			rc = SSH_ERROR;
 			goto out;
 		}
 	}
-
 	/* Restart parsing */
 	ZFREE(known_host);
-	known_host = _strdup(line);
+	known_host = sstrdup(line);
 	if(known_host == NULL) {
 		rc = SSH_ERROR;
 		goto out;
 	}
-
 	p = strtok(known_host, " ");
 	if(p == NULL) {
 		rc = SSH_ERROR;
 		goto out;
 	}
-
-	e->unparsed = _strdup(p);
+	e->unparsed = sstrdup(p);
 	if(e->unparsed == NULL) {
 		rc = SSH_ERROR;
 		goto out;
 	}
-
 	/* pubkey type */
 	p = strtok(NULL, " ");
 	if(p == NULL) {
 		rc = SSH_ERROR;
 		goto out;
 	}
-
 	key_type = ssh_key_type_from_name(p);
 	if(key_type == SSH_KEYTYPE_UNKNOWN) {
 		SSH_LOG(SSH_LOG_WARN, "key type '%s' unknown!", p);
@@ -682,7 +672,7 @@ int ssh_known_hosts_parse_line(const char * hostname, const char * line, struct 
 	if(p) {
 		const char * p2 = strstr(line, p);
 		if(p2) {
-			e->comment = _strdup(p2);
+			e->comment = sstrdup(p2);
 			if(e->comment == NULL) {
 				rc = SSH_ERROR;
 				goto out;
@@ -862,7 +852,7 @@ int ssh_session_export_known_hosts_entry(ssh_session session,
 	snprintf(entry_buf, sizeof(entry_buf), "%s %s %s\n", host, server_pubkey->type_c, b64_key);
 	ZFREE(host);
 	ZFREE(b64_key);
-	*pentry_string = _strdup(entry_buf);
+	*pentry_string = sstrdup(entry_buf);
 	if(*pentry_string == NULL) {
 		return SSH_ERROR;
 	}

@@ -119,11 +119,11 @@
 /// User code can #define XAPIAN_MOVE_SEMANTICS to force this on, and will
 /// then get a compilation failure if the compiler lacks suitable support.
 #ifndef XAPIAN_MOVE_SEMANTICS
-# if __cplusplus >= 201103L || \
+#if __cplusplus >= 201103L || \
  (defined _MSC_VER && _MSC_VER >= 1900) || \
  defined XAPIAN_LIB_BUILD
-# define XAPIAN_MOVE_SEMANTICS
-# endif
+#define XAPIAN_MOVE_SEMANTICS
+#endif
 #endif
 
 #endif /* XAPIAN_INCLUDED_VERSION_H */

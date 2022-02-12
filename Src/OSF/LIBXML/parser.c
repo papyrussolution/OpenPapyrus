@@ -1,34 +1,24 @@
-/*
- * parser.c : an XML 1.0 parser, namespaces and validity support are mostly
- * implemented on top of the SAX interfaces
- *
- * References:
- * The XML specification:
- *   http://www.w3.org/TR/REC-xml
- * Original 1.0 version:
- *   http://www.w3.org/TR/1998/REC-xml-19980210
- * XML second edition working draft
- *   http://www.w3.org/TR/2000/WD-xml-2e-20000814
- *
- * Okay this is a big file, the parser core is around 7000 lines, then it
- * is followed by the progressive parser top routines, then the various
- * high level APIs to call the parser and a few miscellaneous functions.
- * A number of helper functions and deprecated ones have been moved to
- * parserInternals.c to reduce this file size.
- * As much as possible the functions are associated with their relative
- * production in the XML specification. A few productions defining the
- * different ranges of character are actually implanted either in
- * parserInternals.h or parserInternals.c
- * The DOM tree build is realized from the default SAX callbacks in
- * the module SAX.c.
- * The routines doing the validation checks are in valid.c and called either
- * from the SAX callbacks or as standalone functions using a preparsed
- * document.
- *
- * See Copyright for the status of this software.
- *
- * daniel@veillard.com
- */
+// PARSER.C
+// an XML 1.0 parser, namespaces and validity support are mostly implemented on top of the SAX interfaces
+// References:
+// The XML specification: http://www.w3.org/TR/REC-xml
+// Original 1.0 version: http://www.w3.org/TR/1998/REC-xml-19980210
+// XML second edition working draft http://www.w3.org/TR/2000/WD-xml-2e-20000814
+// 
+// Okay this is a big file, the parser core is around 7000 lines, then it
+// is followed by the progressive parser top routines, then the various
+// high level APIs to call the parser and a few miscellaneous functions.
+// A number of helper functions and deprecated ones have been moved to parserInternals.c to reduce this file size.
+// As much as possible the functions are associated with their relative
+// production in the XML specification. A few productions defining the
+// different ranges of character are actually implanted either in parserInternals.h or parserInternals.c
+// The DOM tree build is realized from the default SAX callbacks in the module SAX.c.
+// The routines doing the validation checks are in valid.c and called either
+// from the SAX callbacks or as standalone functions using a preparsed document.
+// 
+// See Copyright for the status of this software.
+// daniel@veillard.com
+// 
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
@@ -49,7 +39,6 @@ static xmlParserCtxt * xmlCreateEntityParserCtxtInternal(const xmlChar * URL, co
 // 
 #define XML_PARSER_BIG_ENTITY 1000
 #define XML_PARSER_LOT_ENTITY 5000
-
 /*
  * XML_PARSER_NON_LINEAR is the threshold where the ratio of parsed entity
  *  replacement over the size in byte of the input indicates that you have
@@ -12534,7 +12523,6 @@ int xmlSAXUserParseMemory(xmlSAXHandler * sax, void * user_data, const char * bu
 }
 
 #endif /* LIBXML_SAX1_ENABLED */
-
 /**
  * xmlCreateDocParserCtxt:
  * @cur:  a pointer to an array of xmlChar
@@ -12590,14 +12578,11 @@ xmlDoc * xmlSAXParseDoc(xmlSAXHandler * sax, const xmlChar * cur, int recovery)
 	}
 	return ret;
 }
-/**
- * xmlParseDoc:
- * @cur:  a pointer to an array of xmlChar
- *
- * parse an XML in-memory document and build a tree.
- *
- * Returns the resulting document tree
- */
+// 
+// Descr: parse an XML in-memory document and build a tree.
+// @cur:  a pointer to an array of xmlChar
+// Returns the resulting document tree
+// 
 xmlDoc * xmlParseDoc(const xmlChar * cur)
 {
 	return xmlSAXParseDoc(NULL, cur, 0);
@@ -12759,9 +12744,8 @@ void xmlCtxtReset(xmlParserCtxt * ctxt)
 			ctxt->spaceTab[0] = -1;
 			ctxt->space = &ctxt->spaceTab[0];
 		}
-		else {
+		else
 			ctxt->space = NULL;
-		}
 		ctxt->nodeNr = 0;
 		ctxt->P_Node = NULL;
 		ctxt->nameNr = 0;
@@ -13262,13 +13246,22 @@ xmlDoc * xmlCtxtReadDoc(xmlParserCtxt * ctxt, const xmlChar * cur, const char * 
 xmlDoc * xmlCtxtReadFile(xmlParserCtxt * ctxt, const char * filename, const char * encoding, int options)
 {
 	xmlDoc * p_doc = 0;
-	if(filename && ctxt) {
+	if(!isempty(filename) && ctxt) {
 		xmlInitParser();
 		xmlCtxtReset(ctxt);
 		xmlParserInput * stream = xmlLoadExternalEntity(filename, NULL, ctxt);
 		if(stream) {
+			const int _reuse = 1;
 			inputPush(ctxt, stream);
-			p_doc = xmlDoRead(ctxt, NULL, encoding, options, 1);
+			p_doc = xmlDoRead(ctxt, NULL, encoding, options, _reuse);
+			// @v11.3.1 {
+			// Если возникала ошибка разбора, то файл не закрывался!
+			if(!p_doc && _reuse) {
+				xmlParserInput * p_stream = inputPop(ctxt);
+				if(p_stream)
+					xmlFreeInputStream(p_stream);
+			}
+			// } @v11.3.1 
 		}
 	}
 	return p_doc;

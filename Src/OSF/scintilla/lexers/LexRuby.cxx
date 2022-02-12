@@ -317,9 +317,9 @@ static bool isEmptyLine(Sci_Position pos, Accessor & styler)
 static bool RE_CanFollowKeyword(const char * keyword)
 {
 	if(sstreq(keyword, "and") || sstreq(keyword, "begin") || sstreq(keyword, "break") || sstreq(keyword, "case")
-	    || sstreq(keyword, "do") || sstreq(keyword, "else") || sstreq(keyword, "elsif") || sstreq(keyword, "if")
-	    || sstreq(keyword, "next") || sstreq(keyword, "return") || sstreq(keyword, "when") || sstreq(keyword, "unless")
-	    || sstreq(keyword, "until") || sstreq(keyword, "not") || sstreq(keyword, "or")) {
+	   || sstreq(keyword, "do") || sstreq(keyword, "else") || sstreq(keyword, "elsif") || sstreq(keyword, "if")
+	   || sstreq(keyword, "next") || sstreq(keyword, "return") || sstreq(keyword, "when") || sstreq(keyword, "unless")
+	   || sstreq(keyword, "until") || sstreq(keyword, "not") || sstreq(keyword, "or")) {
 		return true;
 	}
 	return false;
@@ -1385,8 +1385,8 @@ static void ColouriseRbDoc(Sci_PositionU startPos, Sci_Position length, int init
 			}
 		}
 		else if(state == SCE_RB_CLASS_VAR
-		    || state == SCE_RB_INSTANCE_VAR
-		    || state == SCE_RB_SYMBOL) {
+		   || state == SCE_RB_INSTANCE_VAR
+		   || state == SCE_RB_SYMBOL) {
 			if(state == SCE_RB_SYMBOL &&
 			    // FIDs suffices '?' and '!'
 			    (((ch == '!' || ch == '?') && chNext != '=') ||

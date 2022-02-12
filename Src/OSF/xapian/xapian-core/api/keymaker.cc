@@ -20,7 +20,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "xapian/keymaker.h"
 
 using namespace std;
 

@@ -168,7 +168,7 @@ static int process_pci_value(CONF_VALUE * val,
 				goto err;
 			}
 			while((n = BIO_read(b, buf, sizeof(buf))) > 0
-			    || (n == 0 && BIO_should_retry(b))) {
+			   || (n == 0 && BIO_should_retry(b))) {
 				if(!n)
 					continue;
 

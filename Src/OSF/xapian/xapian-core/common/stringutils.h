@@ -22,9 +22,9 @@
 #define XAPIAN_INCLUDED_STRINGUTILS_H
 
 #include <xapian/constinfo.h>
-#include <algorithm>
-#include <string>
-#include <cstring>
+//#include <algorithm>
+//#include <string>
+//#include <cstring>
 
 /** Helper macro for STRINGIZE - the nested call is required because of how
  *  # works in macros.

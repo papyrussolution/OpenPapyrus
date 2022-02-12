@@ -860,7 +860,7 @@ static void FASTCALL Rescale(CPpmd8 * p)
 	s->Freq += 4;
 	adder = (p->OrderFall != 0
       #ifdef PPMD8_FREEZE_SUPPORT
-	    || p->RestoreMethod > PPMD8_RESTORE_METHOD_FREEZE
+	   || p->RestoreMethod > PPMD8_RESTORE_METHOD_FREEZE
       #endif
 	    );
 	s->Freq = (Byte)((s->Freq + adder) >> 1);

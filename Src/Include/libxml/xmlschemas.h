@@ -96,7 +96,8 @@ typedef void (XMLCDECL *xmlSchemaValidityWarningFunc)(void * ctx, const char * m
 /**
  * A schemas validation context
  */
-typedef struct _xmlSchemaParserCtxt xmlSchemaParserCtxt;
+//typedef struct _xmlSchemaParserCtxt xmlSchemaParserCtxt;
+struct xmlSchemaParserCtxt;
 typedef xmlSchemaParserCtxt * xmlSchemaParserCtxtPtr;
 typedef struct _xmlSchemaValidCtxt xmlSchemaValidCtxt;
 //typedef xmlSchemaValidCtxt * xmlSchemaValidCtxtPtr;

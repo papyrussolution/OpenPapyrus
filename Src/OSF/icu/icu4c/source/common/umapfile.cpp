@@ -37,7 +37,7 @@
 #define NOIME
 #define NOMCX
 
-#   if U_PLATFORM_HAS_WINUWP_API == 1
+#if U_PLATFORM_HAS_WINUWP_API == 1
 // Some previous versions of the Windows 10 SDK don't expose various APIs for UWP applications
 // to use, even though UWP apps are allowed to call and use them.  Temporarily change the
 // WINAPI family partition below to Desktop, so that function declarations are visible for UWP.
@@ -48,10 +48,10 @@
 #           define WINAPI_PARTITION_DESKTOP 1
 #           define CHANGED_WINAPI_PARTITION_DESKTOP_VALUE
 #       endif
-#   endif
-#   if U_PLATFORM_HAS_WINUWP_API == 1 && defined(CHANGED_WINAPI_PARTITION_DESKTOP_VALUE)
+#endif
+#if U_PLATFORM_HAS_WINUWP_API == 1 && defined(CHANGED_WINAPI_PARTITION_DESKTOP_VALUE)
 #       pragma pop_macro("WINAPI_PARTITION_DESKTOP")
-#   endif
+#endif
 
 typedef HANDLE MemoryMap;
 
@@ -67,18 +67,18 @@ typedef size_t MemoryMap;
 #   include <sys/stat.h>
 #   include <fcntl.h>
 
-#   ifndef MAP_FAILED
-#       define MAP_FAILED ((void *)-1)
-#   endif
+#ifndef MAP_FAILED
+#define MAP_FAILED ((void *)-1)
+#endif
 
-#   if MAP_IMPLEMENTATION==MAP_390DLL
+#if MAP_IMPLEMENTATION==MAP_390DLL
 /* No memory mapping for 390 batch mode.  Fake it using dll loading.  */
 #       include <dll.h>
-#       define LIB_PREFIX "lib"
-#       define LIB_SUFFIX ".dll"
+#define LIB_PREFIX "lib"
+#define LIB_SUFFIX ".dll"
 /* This is inconvenient until we figure out what to do with U_ICUDATA_NAME in utypes.h */
-#       define U_ICUDATA_ENTRY_NAME "icudt" U_ICU_VERSION_SHORT U_LIB_SUFFIX_C_NAME_STRING "_dat"
-#   endif
+#define U_ICUDATA_ENTRY_NAME "icudt" U_ICU_VERSION_SHORT U_LIB_SUFFIX_C_NAME_STRING "_dat"
+#endif
 #elif MAP_IMPLEMENTATION==MAP_STDIO
 
 typedef void * MemoryMap;
@@ -504,5 +504,5 @@ U_CFUNC void uprv_unmapFile(UDataMemory * pData) {
 }
 
 #else
-#   error MAP_IMPLEMENTATION is set incorrectly
+#error MAP_IMPLEMENTATION is set incorrectly
 #endif

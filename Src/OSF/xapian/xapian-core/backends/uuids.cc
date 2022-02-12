@@ -25,24 +25,24 @@
 #include "safeunistd.h"
 
 #ifdef USE_PROC_FOR_UUID
-# include "safesysstat.h"
+#include "safesysstat.h"
 #elif defined HAVE_UUID_UUID_H
-# include <exception>
-# include <uuid/uuid.h>
+#include <exception>
+#include <uuid/uuid.h>
 #elif defined HAVE_UUID_H
 // UUID API on FreeBSD, NetBSD, OpenBSD and AIX.
-# include <arpa/inet.h> // For htonl() and htons().
-# include <exception>
-# include <uuid.h>
+#include <arpa/inet.h> // For htonl() and htons().
+#include <exception>
+#include <uuid.h>
 #elif defined USE_WIN32_UUID_API
-# include "safewindows.h"
-# include <rpc.h>
+#include "safewindows.h"
+#include <rpc.h>
 # ifdef __WIN32__
-#  include "safewinsock2.h" // For htonl() and htons().
+#include "safewinsock2.h" // For htonl() and htons().
 # else
 // Cygwin:
-#  include <arpa/inet.h> // For htonl() and htons().
-# endif
+#include <arpa/inet.h> // For htonl() and htons().
+#endif
 #endif
 
 using namespace std;
@@ -93,7 +93,7 @@ void Uuid::generate()
 	uuid.Data3 = htons(uuid.Data3);
 	memcpy(uuid_data, &uuid, BINARY_SIZE);
 #else
-# error Do not know how to generate UUIDs
+#error Do not know how to generate UUIDs
 #endif
 }
 

@@ -117,7 +117,7 @@ int DH_KDF_X9_42(uchar * out, size_t outlen,
 	for(i = 1;; i++) {
 		uchar mtmp[EVP_MAX_MD_SIZE];
 		if(!EVP_DigestInit_ex(mctx, md, NULL)
-		    || !EVP_DigestUpdate(mctx, Z, Zlen))
+		   || !EVP_DigestUpdate(mctx, Z, Zlen))
 			goto err;
 		ctr[3] = i & 0xFF;
 		ctr[2] = (i >> 8) & 0xFF;

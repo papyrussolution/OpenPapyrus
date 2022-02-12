@@ -159,8 +159,8 @@
 #endif
 
 /* Windows crypto headers */
-#if defined(ARCHIVE_CRYPTO_MD5_WIN)    || \
-	defined(ARCHIVE_CRYPTO_SHA1_WIN)   || \
+#if defined(ARCHIVE_CRYPTO_MD5_WIN)   || \
+	defined(ARCHIVE_CRYPTO_SHA1_WIN)  || \
 	defined(ARCHIVE_CRYPTO_SHA256_WIN) || \
 	defined(ARCHIVE_CRYPTO_SHA384_WIN) || \
 	defined(ARCHIVE_CRYPTO_SHA512_WIN)

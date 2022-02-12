@@ -14,7 +14,7 @@
 #include <openssl/err.h>
 //#include <openssl/crypto.h>
 
-#if(defined(__i386)   || defined(__i386__)   || defined(_M_IX86) || \
+#if(defined(__i386)  || defined(__i386__)  || defined(_M_IX86) || \
 	defined(__x86_64) || defined(__x86_64__) || \
 	defined(_M_AMD64) || defined (_M_X64)) && defined(OPENSSL_CPUID_OBJ)
 

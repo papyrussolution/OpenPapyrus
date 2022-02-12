@@ -199,14 +199,14 @@ static void x509_sig_info_init(X509_SIG_INFO * siginf, const X509_ALGOR * alg,
 	siginf->secbits = -1;
 	siginf->flags = 0;
 	if(!OBJ_find_sigid_algs(OBJ_obj2nid(alg->algorithm), &mdnid, &pknid)
-	    || pknid == NID_undef)
+	   || pknid == NID_undef)
 		return;
 	siginf->pknid = pknid;
 	if(mdnid == NID_undef) {
 		/* If we have one, use a custom handler for this algorithm */
 		const EVP_PKEY_ASN1_METHOD * ameth = EVP_PKEY_asn1_find(NULL, pknid);
 		if(ameth == NULL || ameth->siginf_set == NULL
-		    || ameth->siginf_set(siginf, alg, sig) == 0)
+		   || ameth->siginf_set(siginf, alg, sig) == 0)
 			return;
 		siginf->flags |= X509_SIG_INFO_VALID;
 		return;

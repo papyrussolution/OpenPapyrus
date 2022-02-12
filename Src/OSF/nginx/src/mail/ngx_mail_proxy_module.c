@@ -518,49 +518,34 @@ static ngx_int_t ngx_mail_proxy_read_response(ngx_mail_session_t * s, ngx_uint_t
 	ssize_t n;
 	ngx_buf_t    * b;
 	ngx_mail_proxy_conf_t  * pcf;
-
 	s->connection->log->action = "reading response from upstream";
-
 	b = s->proxy->buffer;
-
-	n = s->proxy->upstream.connection->recv(s->proxy->upstream.connection,
-	    b->last, b->end - b->last);
-
+	n = s->proxy->upstream.connection->recv(s->proxy->upstream.connection, b->last, b->end - b->last);
 	if(n == NGX_ERROR || n == 0) {
 		return NGX_ERROR;
 	}
-
 	if(n == NGX_AGAIN) {
 		return NGX_AGAIN;
 	}
-
 	b->last += n;
-
 	if(b->last - b->pos < 4) {
 		return NGX_AGAIN;
 	}
-
 	if(*(b->last - 2) != __CR || *(b->last - 1) != LF) {
 		if(b->last == b->end) {
 			*(b->last - 1) = '\0';
-			ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
-			    "upstream sent too long response line: \"%s\"",
-			    b->pos);
+			ngx_log_error(NGX_LOG_ERR, s->connection->log, 0, "upstream sent too long response line: \"%s\"", b->pos);
 			return NGX_ERROR;
 		}
-
 		return NGX_AGAIN;
 	}
-
 	p = b->pos;
-
 	switch(s->protocol) {
 		case NGX_MAIL_POP3_PROTOCOL:
 		    if(p[0] == '+' && p[1] == 'O' && p[2] == 'K') {
 			    return NGX_OK;
 		    }
 		    break;
-
 		case NGX_MAIL_IMAP_PROTOCOL:
 		    switch(state) {
 			    case ngx_imap_start:
@@ -638,16 +623,12 @@ static ngx_int_t ngx_mail_proxy_read_response(ngx_mail_session_t * s, ngx_uint_t
 
 		    break;
 	}
-
 	pcf = (ngx_mail_proxy_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_proxy_module);
-
 	if(pcf->pass_error_message == 0) {
 		*(b->last - 2) = '\0';
-		ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
-		    "upstream sent invalid response: \"%s\"", p);
+		ngx_log_error(NGX_LOG_ERR, s->connection->log, 0, "upstream sent invalid response: \"%s\"", p);
 		return NGX_ERROR;
 	}
-
 	s->out.len = b->last - p - 2;
 	s->out.data = p;
 	ngx_log_error(NGX_LOG_INFO, s->connection->log, 0, "upstream sent invalid response: \"%V\"", &s->out);

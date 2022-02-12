@@ -153,7 +153,7 @@ int dtls1_buffer_record(SSL * s, record_pqueue * queue, uchar * priority)
 	/* Store bio_dgram_sctp_rcvinfo struct */
 	if(BIO_dgram_is_sctp(SSL_get_rbio(s)) &&
 	    (SSL_get_state(s) == TLS_ST_SR_FINISHED
-	    || SSL_get_state(s) == TLS_ST_CR_FINISHED)) {
+	   || SSL_get_state(s) == TLS_ST_CR_FINISHED)) {
 		BIO_ctrl(SSL_get_rbio(s), BIO_CTRL_DGRAM_SCTP_GET_RCVINFO,
 		    sizeof(rdata->recordinfo), &rdata->recordinfo);
 	}
@@ -402,7 +402,7 @@ start:
 
 	/* get new packet if necessary */
 	if((SSL3_RECORD_get_length(rr) == 0)
-	    || (s->rlayer.rstate == SSL_ST_READ_BODY)) {
+	   || (s->rlayer.rstate == SSL_ST_READ_BODY)) {
 		RECORD_LAYER_set_numrpipes(&s->rlayer, 0);
 		iret = dtls1_get_record(s);
 		if(iret <= 0) {
@@ -536,9 +536,9 @@ start:
 		PACKET alert;
 
 		if(!PACKET_buf_init(&alert, alert_bytes, SSL3_RECORD_get_length(rr))
-		    || !PACKET_get_1(&alert, &alert_level)
-		    || !PACKET_get_1(&alert, &alert_descr)
-		    || PACKET_remaining(&alert) != 0) {
+		   || !PACKET_get_1(&alert, &alert_level)
+		   || !PACKET_get_1(&alert, &alert_descr)
+		   || PACKET_remaining(&alert) != 0) {
 			SSLfatal(s, SSL_AD_UNEXPECTED_MESSAGE, SSL_F_DTLS1_READ_BYTES,
 			    SSL_R_INVALID_ALERT);
 			return -1;
@@ -642,7 +642,7 @@ start:
 		 * at least enough record bytes for a message header
 		 */
 		if(SSL3_RECORD_get_epoch(rr) != s->rlayer.d->r_epoch
-		    || SSL3_RECORD_get_length(rr) < DTLS1_HM_HEADER_LENGTH) {
+		   || SSL3_RECORD_get_length(rr) < DTLS1_HM_HEADER_LENGTH) {
 			SSL3_RECORD_set_length(rr, 0);
 			SSL3_RECORD_set_read(rr);
 			goto start;

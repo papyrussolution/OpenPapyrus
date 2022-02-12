@@ -311,7 +311,7 @@ bool token_isexpression_statement(gtoken_t token)
 
 bool token_islabel_statement(gtoken_t token) { return ((token == TOK_KEY_CASE) || (token == TOK_KEY_DEFAULT)); }
 bool token_isflow_statement(gtoken_t token) { return ((token == TOK_KEY_IF) || (token == TOK_KEY_SWITCH)); }
-bool token_isloop_statement(gtoken_t token) { return ((token == TOK_KEY_WHILE) || (token == TOK_KEY_REPEAT)  || (token == TOK_KEY_FOR)); }
+bool token_isloop_statement(gtoken_t token) { return ((token == TOK_KEY_WHILE) || (token == TOK_KEY_REPEAT) || (token == TOK_KEY_FOR)); }
 bool token_isjump_statement(gtoken_t token) { return ((token == TOK_KEY_BREAK) || (token == TOK_KEY_CONTINUE) || (token == TOK_KEY_RETURN)); }
 bool token_iscompound_statement(gtoken_t token) { return (token == TOK_OP_OPEN_CURLYBRACE); }
 
@@ -325,8 +325,8 @@ bool token_isdeclaration_statement(gtoken_t token)
 	// event_declaration_statement (EVENT)
 	// empty_declaration (;)
 	return ((token_isaccess_specifier(token) || token_isstorage_specifier(token) || token_isvariable_declaration(token) ||
-	       (token == TOK_KEY_FUNC)    || (token == TOK_KEY_CLASS) || (token == TOK_KEY_STRUCT) || (token == TOK_KEY_ENUM) ||
-	       (token == TOK_KEY_MODULE) || (token == TOK_KEY_EVENT)  || (token == TOK_OP_SEMICOLON)));
+	       (token == TOK_KEY_FUNC)   || (token == TOK_KEY_CLASS) || (token == TOK_KEY_STRUCT) || (token == TOK_KEY_ENUM) ||
+	       (token == TOK_KEY_MODULE) || (token == TOK_KEY_EVENT) || (token == TOK_OP_SEMICOLON)));
 }
 
 bool token_isempty_statement(gtoken_t token) { return (token == TOK_OP_SEMICOLON); }

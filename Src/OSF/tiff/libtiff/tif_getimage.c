@@ -72,7 +72,7 @@ static const TIFFDisplay display_sRGB = {
  * be handled.  If 0 is returned, emsg contains the reason
  * why it is being rejected.
  */
-int TIFFRGBAImageOK(TIFF* tif, char emsg[1024])
+int TIFFRGBAImageOK(TIFF * tif, char emsg[1024])
 {
 	TIFFDirectory* td = &tif->tif_dir;
 	uint16 photometric;
@@ -197,14 +197,14 @@ void TIFFRGBAImageEnd(TIFFRGBAImage* img)
 	}
 }
 
-static int isCCITTCompression(TIFF* tif)
+static int isCCITTCompression(TIFF * tif)
 {
 	uint16 compress;
 	TIFFGetField(tif, TIFFTAG_COMPRESSION, &compress);
 	return (compress == COMPRESSION_CCITTFAX3 || compress == COMPRESSION_CCITTFAX4 || compress == COMPRESSION_CCITTRLE || compress == COMPRESSION_CCITTRLEW);
 }
 
-int TIFFRGBAImageBegin(TIFFRGBAImage* img, TIFF* tif, int stop, char emsg[1024])
+int TIFFRGBAImageBegin(TIFFRGBAImage* img, TIFF * tif, int stop, char emsg[1024])
 {
 	uint16* sampleinfo;
 	uint16 extrasamples;
@@ -427,7 +427,7 @@ int TIFFRGBAImageGet(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h)
  * Read the specified image into an ABGR-format rastertaking in account
  * specified orientation.
  */
-int TIFFReadRGBAImageOriented(TIFF* tif, uint32 rwidth, uint32 rheight, uint32* raster, int orientation, int stop)
+int TIFFReadRGBAImageOriented(TIFF * tif, uint32 rwidth, uint32 rheight, uint32* raster, int orientation, int stop)
 {
 	char emsg[1024] = "";
 	TIFFRGBAImage img;
@@ -448,7 +448,7 @@ int TIFFReadRGBAImageOriented(TIFF* tif, uint32 rwidth, uint32 rheight, uint32* 
  * Read the specified image into an ABGR-format raster. Use bottom left
  * origin for raster by default.
  */
-int TIFFReadRGBAImage(TIFF* tif, uint32 rwidth, uint32 rheight, uint32* raster, int stop)
+int TIFFReadRGBAImage(TIFF * tif, uint32 rwidth, uint32 rheight, uint32* raster, int stop)
 {
 	return TIFFReadRGBAImageOriented(tif, rwidth, rheight, raster, ORIENTATION_BOTLEFT, stop);
 }
@@ -508,7 +508,7 @@ static int FASTCALL setorientation(const TIFFRGBAImage * img)
  */
 static int gtTileContig(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h)
 {
-	TIFF* tif = img->tif;
+	TIFF * tif = img->tif;
 	tileContigRoutine put = img->put.contig;
 	uint32 col, row, y, rowstoread;
 	tmsize_t pos;
@@ -604,7 +604,7 @@ static int gtTileContig(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h)
  */
 static int gtTileSeparate(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h)
 {
-	TIFF* tif = img->tif;
+	TIFF * tif = img->tif;
 	tileSeparateRoutine put = img->put.separate;
 	uint32 col, row, y, rowstoread;
 	tmsize_t pos;
@@ -745,7 +745,7 @@ static int gtTileSeparate(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h
  */
 static int gtStripContig(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h)
 {
-	TIFF* tif = img->tif;
+	TIFF * tif = img->tif;
 	tileContigRoutine put = img->put.contig;
 	uint32 row, y, nrow, nrowsub, rowstoread;
 	tmsize_t pos;
@@ -817,7 +817,7 @@ static int gtStripContig(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h)
  */
 static int gtStripSeparate(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h)
 {
-	TIFF* tif = img->tif;
+	TIFF * tif = img->tif;
 	tileSeparateRoutine put = img->put.separate;
 	uchar * buf = NULL;
 	uchar * p0 = NULL, * p1 = NULL, * p2 = NULL, * pa = NULL;
@@ -2406,12 +2406,12 @@ static int FASTCALL BuildMapBitdepth16To8(TIFFRGBAImage* img)
  * the strip that is actually within the image space.  The result is
  * organized in bottom to top form.
  */
-int TIFFReadRGBAStrip(TIFF* tif, uint32 row, uint32 * raster)
+int TIFFReadRGBAStrip(TIFF * tif, uint32 row, uint32 * raster)
 {
 	return TIFFReadRGBAStripExt(tif, row, raster, 0);
 }
 
-int TIFFReadRGBAStripExt(TIFF* tif, uint32 row, uint32 * raster, int stop_on_error)
+int TIFFReadRGBAStripExt(TIFF * tif, uint32 row, uint32 * raster, int stop_on_error)
 {
 	char emsg[1024] = "";
 	TIFFRGBAImage img;
@@ -2447,12 +2447,12 @@ int TIFFReadRGBAStripExt(TIFF* tif, uint32 row, uint32 * raster, int stop_on_err
  * The returned RGBA data is organized from bottom to top of tile,
  * and may include zeroed areas if the tile extends off the image.
  */
-int TIFFReadRGBATile(TIFF* tif, uint32 col, uint32 row, uint32 * raster)
+int TIFFReadRGBATile(TIFF * tif, uint32 col, uint32 row, uint32 * raster)
 {
 	return TIFFReadRGBATileExt(tif, col, row, raster, 0);
 }
 
-int TIFFReadRGBATileExt(TIFF* tif, uint32 col, uint32 row, uint32 * raster, int stop_on_error)
+int TIFFReadRGBATileExt(TIFF * tif, uint32 col, uint32 row, uint32 * raster, int stop_on_error)
 {
 	char emsg[1024] = "";
 	TIFFRGBAImage img;

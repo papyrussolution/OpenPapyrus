@@ -8100,8 +8100,8 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 				    xmlRelaxNGPopErrors(ctxt, errNr);
 			    if(ctxt->errNr != 0) {
 				    while(ctxt->err && (((ctxt->err->err == XML_RELAXNG_ERR_ELEMNAME) && (sstreq(ctxt->err->arg2, p_node->name)))
-					    || ((ctxt->err->err == XML_RELAXNG_ERR_ELEMEXTRANS) && (sstreq(ctxt->err->arg1, p_node->name)))
-					    || (ctxt->err->err == XML_RELAXNG_ERR_NOELEM) || (ctxt->err->err == XML_RELAXNG_ERR_NOTELEM)))
+					   || ((ctxt->err->err == XML_RELAXNG_ERR_ELEMEXTRANS) && (sstreq(ctxt->err->arg1, p_node->name)))
+					   || (ctxt->err->err == XML_RELAXNG_ERR_NOELEM) || (ctxt->err->err == XML_RELAXNG_ERR_NOTELEM)))
 					    xmlRelaxNGValidErrorPop(ctxt);
 			    }
 			    break;

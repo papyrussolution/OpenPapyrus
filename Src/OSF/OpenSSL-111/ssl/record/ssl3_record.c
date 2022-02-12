@@ -216,7 +216,7 @@ int ssl3_get_record(SSL * s)
 			}
 			sslv2pkt = pkt;
 			if(!PACKET_get_net_2_len(&sslv2pkt, &sslv2len)
-			    || !PACKET_get_1(&sslv2pkt, &type)) {
+			   || !PACKET_get_1(&sslv2pkt, &type)) {
 				SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_SSL3_GET_RECORD,
 				    ERR_R_INTERNAL_ERROR);
 				return -1;
@@ -262,8 +262,8 @@ int ssl3_get_record(SSL * s)
 
 				/* Pull apart the header into the SSL3_RECORD */
 				if(!PACKET_get_1(&pkt, &type)
-				    || !PACKET_get_net_2(&pkt, &version)
-				    || !PACKET_get_net_2_len(&pkt, &thisrr->length)) {
+				   || !PACKET_get_net_2(&pkt, &version)
+				   || !PACKET_get_net_2_len(&pkt, &thisrr->length)) {
 					SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_SSL3_GET_RECORD,
 					    ERR_R_INTERNAL_ERROR);
 					return -1;
@@ -337,9 +337,9 @@ int ssl3_get_record(SSL * s)
 				if(SSL_IS_TLS13(s) && s->enc_read_ctx != NULL) {
 					if(thisrr->type != SSL3_RT_APPLICATION_DATA
 					 && (thisrr->type != SSL3_RT_CHANGE_CIPHER_SPEC
-					    || !SSL_IS_FIRST_HANDSHAKE(s))
+					   || !SSL_IS_FIRST_HANDSHAKE(s))
 					 && (thisrr->type != SSL3_RT_ALERT
-					    || s->statem.enc_read_state
+					   || s->statem.enc_read_state
 					    != ENC_READ_STATE_ALLOW_PLAIN_ALERTS)) {
 						SSLfatal(s, SSL_AD_UNEXPECTED_MESSAGE,
 						    SSL_F_SSL3_GET_RECORD, SSL_R_BAD_RECORD_TYPE);
@@ -699,7 +699,7 @@ int ssl3_get_record(SSL * s)
 			size_t end;
 
 			if(thisrr->length == 0
-			    || thisrr->type != SSL3_RT_APPLICATION_DATA) {
+			   || thisrr->type != SSL3_RT_APPLICATION_DATA) {
 				SSLfatal(s, SSL_AD_UNEXPECTED_MESSAGE, SSL_F_SSL3_GET_RECORD,
 				    SSL_R_BAD_RECORD_TYPE);
 				return -1;
@@ -730,7 +730,7 @@ int ssl3_get_record(SSL * s)
 		 */
 		if(SSL_IS_TLS13(s)
 		 && (thisrr->type == SSL3_RT_HANDSHAKE
-		    || thisrr->type == SSL3_RT_ALERT)
+		   || thisrr->type == SSL3_RT_ALERT)
 		 && thisrr->length == 0) {
 			SSLfatal(s, SSL_AD_UNEXPECTED_MESSAGE, SSL_F_SSL3_GET_RECORD,
 			    SSL_R_BAD_LENGTH);
@@ -1119,7 +1119,7 @@ int tls1_enc(SSL * s, SSL3_RECORD * recs, size_t n_recs, int sending)
 			}
 			if(EVP_CIPHER_CTX_ctrl(ds, EVP_CTRL_SET_PIPELINE_INPUT_BUFS,
 			    (int)n_recs, data) <= 0
-			    || EVP_CIPHER_CTX_ctrl(ds, EVP_CTRL_SET_PIPELINE_INPUT_LENS,
+			   || EVP_CIPHER_CTX_ctrl(ds, EVP_CTRL_SET_PIPELINE_INPUT_LENS,
 			    (int)n_recs, reclen) <= 0) {
 				SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS1_ENC,
 				    SSL_R_PIPELINE_FAILURE);
@@ -1262,18 +1262,18 @@ int n_ssl3_mac(SSL * ssl, SSL3_RECORD * rec, uchar * md, int sending)
 		p = md;
 		s2n(rec->length, p);
 		if(EVP_MD_CTX_copy_ex(md_ctx, hash) <= 0
-		    || EVP_DigestUpdate(md_ctx, mac_sec, md_size) <= 0
-		    || EVP_DigestUpdate(md_ctx, ssl3_pad_1, npad) <= 0
-		    || EVP_DigestUpdate(md_ctx, seq, 8) <= 0
-		    || EVP_DigestUpdate(md_ctx, &rec_char, 1) <= 0
-		    || EVP_DigestUpdate(md_ctx, md, 2) <= 0
-		    || EVP_DigestUpdate(md_ctx, rec->input, rec->length) <= 0
-		    || EVP_DigestFinal_ex(md_ctx, md, NULL) <= 0
-		    || EVP_MD_CTX_copy_ex(md_ctx, hash) <= 0
-		    || EVP_DigestUpdate(md_ctx, mac_sec, md_size) <= 0
-		    || EVP_DigestUpdate(md_ctx, ssl3_pad_2, npad) <= 0
-		    || EVP_DigestUpdate(md_ctx, md, md_size) <= 0
-		    || EVP_DigestFinal_ex(md_ctx, md, &md_size_u) <= 0) {
+		   || EVP_DigestUpdate(md_ctx, mac_sec, md_size) <= 0
+		   || EVP_DigestUpdate(md_ctx, ssl3_pad_1, npad) <= 0
+		   || EVP_DigestUpdate(md_ctx, seq, 8) <= 0
+		   || EVP_DigestUpdate(md_ctx, &rec_char, 1) <= 0
+		   || EVP_DigestUpdate(md_ctx, md, 2) <= 0
+		   || EVP_DigestUpdate(md_ctx, rec->input, rec->length) <= 0
+		   || EVP_DigestFinal_ex(md_ctx, md, NULL) <= 0
+		   || EVP_MD_CTX_copy_ex(md_ctx, hash) <= 0
+		   || EVP_DigestUpdate(md_ctx, mac_sec, md_size) <= 0
+		   || EVP_DigestUpdate(md_ctx, ssl3_pad_2, npad) <= 0
+		   || EVP_DigestUpdate(md_ctx, md, md_size) <= 0
+		   || EVP_DigestFinal_ex(md_ctx, md, &md_size_u) <= 0) {
 			EVP_MD_CTX_free(md_ctx);
 			return 0;
 		}
@@ -1364,8 +1364,8 @@ int tls1_mac(SSL * ssl, SSL3_RECORD * rec, uchar * md, int sending)
 	else {
 		/* TODO(size_t): Convert these calls */
 		if(EVP_DigestSignUpdate(mac_ctx, header, sizeof(header)) <= 0
-		    || EVP_DigestSignUpdate(mac_ctx, rec->input, rec->length) <= 0
-		    || EVP_DigestSignFinal(mac_ctx, md, &md_size) <= 0) {
+		   || EVP_DigestSignUpdate(mac_ctx, rec->input, rec->length) <= 0
+		   || EVP_DigestSignFinal(mac_ctx, md, &md_size) <= 0) {
 			EVP_MD_CTX_free(hmac);
 			return 0;
 		}

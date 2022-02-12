@@ -60,7 +60,7 @@ uprv_compareEBCDICPropertyNames(const char *name1, const char *name2);
 #elif U_CHARSET_FAMILY==U_EBCDIC_FAMILY
 #define uprv_comparePropertyNames uprv_compareEBCDICPropertyNames
 #else
-#   error U_CHARSET_FAMILY is not valid
+#error U_CHARSET_FAMILY is not valid
 #endif
 
 U_CDECL_END

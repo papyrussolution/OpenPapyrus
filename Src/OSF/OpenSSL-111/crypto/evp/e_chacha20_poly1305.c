@@ -429,7 +429,7 @@ static int chacha20_poly1305_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 		}
 	}
 	if(in == NULL                           /* explicit final */
-	    || plen != len) {                   /* or tls mode */
+	   || plen != len) {                   /* or tls mode */
 		const union {
 			long one;
 			char little;

@@ -26,8 +26,8 @@
 // we define XAPIAN_REALLY_NO_DEBUG_LOG there.
 #ifdef XAPIAN_REALLY_NO_DEBUG_LOG
 # ifdef XAPIAN_DEBUG_LOG
-#  undef XAPIAN_DEBUG_LOG
-# endif
+#undef XAPIAN_DEBUG_LOG
+#endif
 #endif
 
 #ifdef XAPIAN_DEBUG_LOG
@@ -92,29 +92,19 @@ class DebugLogger {
 
 	/// Don't allow copying.
 	DebugLogger(const DebugLogger&);
-
 	/// Mask bitmap of categories the user wants log messages for.
 	uint categories_mask;
-
 	/// File descriptor for debug logging.
 	int fd;
-
 	/// The current indent level.
 	int indent_level;
-
 	/// Initialise categories_mask.
 	void initialise_categories_mask();
-
 public:
-	/// Constructor.
-	DebugLogger()
-		: categories_mask(1 << DEBUGLOG_CATEGORY_API), fd(-1), indent_level(0)
+	DebugLogger() : categories_mask(1 << DEBUGLOG_CATEGORY_API), fd(-1), indent_level(0)
 	{
 	}
-
-	/// Destructor.
 	~DebugLogger();
-
 	/// Check if the user wants debug log messages of category @a category.
 	bool is_category_wanted(debuglog_categories category) {
 		// The argument will almost always be constant, so these inline checks
@@ -381,9 +371,9 @@ public:
 
 #ifdef __GNUC__
 // __attribute__((unused)) supported since at least GCC 2.95.3.
-# define XAPIAN_UNUSED __attribute__((unused))
+#define XAPIAN_UNUSED __attribute__((unused))
 #else
-# define XAPIAN_UNUSED
+#define XAPIAN_UNUSED
 #endif
 
 /// Log a call to a method returning non-void.

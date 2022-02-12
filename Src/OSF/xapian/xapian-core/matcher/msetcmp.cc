@@ -28,27 +28,19 @@
  */
 
 // Order by docid, inlined.  Used as the last fallback by the others.
-template <bool FORWARD_DID>
-static inline bool msetcmp_by_docid_inline(const Result& a, const Result& b)
+template <bool FORWARD_DID> static inline bool msetcmp_by_docid_inline(const Result& a, const Result& b)
 {
-	if(FORWARD_DID) {
-		return (a.get_docid() < b.get_docid());
-	}
-	else {
-		return (a.get_docid() > b.get_docid());
-	}
+	return FORWARD_DID ? (a.get_docid() < b.get_docid()) : (a.get_docid() > b.get_docid());
 }
 
 // Order by docid, used when relevance is always 0.
-template <bool FORWARD_DID>
-static bool msetcmp_by_docid(const Result& a, const Result& b)
+template <bool FORWARD_DID> static bool msetcmp_by_docid(const Result& a, const Result& b)
 {
 	return msetcmp_by_docid_inline<FORWARD_DID>(a, b);
 }
 
 // Order by relevance, then docid.
-template <bool FORWARD_DID>
-static bool msetcmp_by_relevance(const Result& a, const Result& b)
+template <bool FORWARD_DID> static bool msetcmp_by_relevance(const Result& a, const Result& b)
 {
 	if(a.get_weight() > b.get_weight()) return true;
 	if(a.get_weight() < b.get_weight()) return false;
@@ -78,8 +70,7 @@ static bool msetcmp_by_value_then_relevance(const Result& a, const Result& b)
 }
 
 // Order by relevance, then value, then docid.
-template <bool FORWARD_VALUE, bool FORWARD_DID>
-static bool msetcmp_by_relevance_then_value(const Result& a, const Result& b)
+template <bool FORWARD_VALUE, bool FORWARD_DID> static bool msetcmp_by_relevance_then_value(const Result& a, const Result& b)
 {
 	if(a.get_weight() > b.get_weight()) return true;
 	if(a.get_weight() < b.get_weight()) return false;
@@ -89,9 +80,7 @@ static bool msetcmp_by_relevance_then_value(const Result& a, const Result& b)
 	return msetcmp_by_docid_inline<FORWARD_DID>(a, b);
 }
 
-MSetCmp get_msetcmp_function(Xapian::Enquire::Internal::sort_setting sort_by,
-    bool sort_forward,
-    bool sort_val_reverse)
+MSetCmp get_msetcmp_function(Xapian::Enquire::Internal::sort_setting sort_by, bool sort_forward, bool sort_val_reverse)
 {
 	switch(sort_by) {
 		case Xapian::Enquire::Internal::DOCID:

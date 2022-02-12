@@ -33,7 +33,7 @@
 /*
  * Compute which tile an (x,y,z,s) value is in.
  */
-uint32 TIFFComputeTile(TIFF* tif, uint32 x, uint32 y, uint32 z, uint16 s)
+uint32 TIFFComputeTile(TIFF * tif, uint32 x, uint32 y, uint32 z, uint16 s)
 {
 	TIFFDirectory * td = &tif->tif_dir;
 	uint32 dx = td->td_tilewidth;
@@ -64,7 +64,7 @@ uint32 TIFFComputeTile(TIFF* tif, uint32 x, uint32 y, uint32 z, uint16 s)
  * Check an (x,y,z,s) coordinate
  * against the image bounds.
  */
-int TIFFCheckTile(TIFF* tif, uint32 x, uint32 y, uint32 z, uint16 s)
+int TIFFCheckTile(TIFF * tif, uint32 x, uint32 y, uint32 z, uint16 s)
 {
 	TIFFDirectory * td = &tif->tif_dir;
 	if(x >= td->td_imagewidth) {
@@ -88,7 +88,7 @@ int TIFFCheckTile(TIFF* tif, uint32 x, uint32 y, uint32 z, uint16 s)
 /*
  * Compute how many tiles are in an image.
  */
-uint32 TIFFNumberOfTiles(TIFF* tif)
+uint32 TIFFNumberOfTiles(TIFF * tif)
 {
 	TIFFDirectory * td = &tif->tif_dir;
 	uint32 dx = td->td_tilewidth;
@@ -112,7 +112,7 @@ uint32 TIFFNumberOfTiles(TIFF* tif)
 /*
  * Compute the # bytes in each row of a tile.
  */
-uint64 TIFFTileRowSize64(TIFF* tif)
+uint64 TIFFTileRowSize64(TIFF * tif)
 {
 	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
@@ -143,7 +143,7 @@ uint64 TIFFTileRowSize64(TIFF* tif)
 	return (tilerowsize);
 }
 
-tmsize_t TIFFTileRowSize(TIFF* tif)
+tmsize_t TIFFTileRowSize(TIFF * tif)
 {
 	static const char module[] = __FUNCTION__;
 	uint64 m = TIFFTileRowSize64(tif);
@@ -158,7 +158,7 @@ tmsize_t TIFFTileRowSize(TIFF* tif)
 /*
  * Compute the # bytes in a variable length, row-aligned tile.
  */
-uint64 TIFFVTileSize64(TIFF* tif, uint32 nrows)
+uint64 TIFFVTileSize64(TIFF * tif, uint32 nrows)
 {
 	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
@@ -193,7 +193,7 @@ uint64 TIFFVTileSize64(TIFF* tif, uint32 nrows)
 		return _TIFFMultiply64(tif, nrows, TIFFTileRowSize64(tif), module);
 }
 
-tmsize_t TIFFVTileSize(TIFF* tif, uint32 nrows)
+tmsize_t TIFFVTileSize(TIFF * tif, uint32 nrows)
 {
 	static const char module[] = __FUNCTION__;
 	uint64 m = TIFFVTileSize64(tif, nrows);
@@ -207,12 +207,12 @@ tmsize_t TIFFVTileSize(TIFF* tif, uint32 nrows)
 /*
  * Compute the # bytes in a row-aligned tile.
  */
-uint64 TIFFTileSize64(TIFF* tif)
+uint64 TIFFTileSize64(TIFF * tif)
 {
 	return (TIFFVTileSize64(tif, tif->tif_dir.td_tilelength));
 }
 
-tmsize_t TIFFTileSize(TIFF* tif)
+tmsize_t TIFFTileSize(TIFF * tif)
 {
 	static const char module[] = __FUNCTION__;
 	uint64 m = TIFFTileSize64(tif);
@@ -230,12 +230,12 @@ tmsize_t TIFFTileSize(TIFF* tif)
  * request is <1 then we choose a size according
  * to certain heuristics.
  */
-void TIFFDefaultTileSize(TIFF* tif, uint32* tw, uint32* th)
+void TIFFDefaultTileSize(TIFF * tif, uint32* tw, uint32* th)
 {
 	(*tif->tif_deftilesize)(tif, tw, th);
 }
 
-void _TIFFDefaultTileSize(TIFF* tif, uint32* tw, uint32* th)
+void _TIFFDefaultTileSize(TIFF * tif, uint32* tw, uint32* th)
 {
 	(void)tif;
 	if(*(int32 *)tw < 1)

@@ -1,22 +1,9 @@
 /** @file
  * @brief Base class for classes which filter another PostList
  */
-/* Copyright 2017 Olly Betts
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
- */
+// Copyright 2017 Olly Betts
+// @licence GNU GPL
+//
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "selectpostlist.h"
@@ -25,11 +12,9 @@
 bool SelectPostList::vet(double w_min)
 {
 	if(pl->at_end()) {
-		delete pl;
-		pl = NULL;
+		ZDELETE(pl);
 		return true;
 	}
-
 	// We assume that test_doc() is expensive compared to calculating the
 	// weight.
 	if(w_min <= 0.0) {
@@ -47,13 +32,9 @@ bool SelectPostList::vet(double w_min)
 	return test_doc();
 }
 
-double SelectPostList::get_weight(Xapian::termcount doclen,
-    Xapian::termcount unique_terms,
-    Xapian::termcount wdfdocmax) const
+double SelectPostList::get_weight(Xapian::termcount doclen, Xapian::termcount unique_terms, Xapian::termcount wdfdocmax) const
 {
-	if(cached_weight >= 0)
-		return cached_weight;
-	return pl->get_weight(doclen, unique_terms, wdfdocmax);
+	return (cached_weight >= 0.0) ? cached_weight : pl->get_weight(doclen, unique_terms, wdfdocmax);
 }
 
 bool SelectPostList::at_end() const

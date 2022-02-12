@@ -62,13 +62,13 @@ int HMAC_Init_ex(HMAC_CTX * ctx, const void * key, int len,
 		for(i = 0; i < HMAC_MAX_MD_CBLOCK_SIZE; i++)
 			pad[i] = 0x36 ^ ctx->key[i];
 		if(!EVP_DigestInit_ex(ctx->i_ctx, md, impl)
-		    || !EVP_DigestUpdate(ctx->i_ctx, pad, EVP_MD_block_size(md)))
+		   || !EVP_DigestUpdate(ctx->i_ctx, pad, EVP_MD_block_size(md)))
 			goto err;
 
 		for(i = 0; i < HMAC_MAX_MD_CBLOCK_SIZE; i++)
 			pad[i] = 0x5c ^ ctx->key[i];
 		if(!EVP_DigestInit_ex(ctx->o_ctx, md, impl)
-		    || !EVP_DigestUpdate(ctx->o_ctx, pad, EVP_MD_block_size(md)))
+		   || !EVP_DigestUpdate(ctx->o_ctx, pad, EVP_MD_block_size(md)))
 			goto err;
 	}
 	if(!EVP_MD_CTX_copy_ex(ctx->md_ctx, ctx->i_ctx))

@@ -18,7 +18,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
-
 #ifndef XAPIAN_INCLUDED_MSETCMP_H
 #define XAPIAN_INCLUDED_MSETCMP_H
 
@@ -30,8 +29,6 @@ class Result;
 typedef bool (* MSetCmp)(const Result&, const Result&);
 
 /// Select the appropriate msetcmp function.
-MSetCmp get_msetcmp_function(Xapian::Enquire::Internal::sort_setting sort_by,
-			     bool sort_forward,
-			     bool sort_value_forward);
+MSetCmp get_msetcmp_function(Xapian::Enquire::Internal::sort_setting sort_by, bool sort_forward, bool sort_value_forward);
 
 #endif // XAPIAN_INCLUDED_MSETCMP_H

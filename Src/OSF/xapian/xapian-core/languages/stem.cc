@@ -20,7 +20,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include <xapian/stem.h>
 #include "steminternal.h"
 #include "allsnowballheaders.h"
 #include "keyword.h"

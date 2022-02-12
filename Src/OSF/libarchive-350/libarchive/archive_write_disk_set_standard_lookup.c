@@ -87,17 +87,14 @@ static int64 lookup_gid(void * private_data, const char * gname, int64 gid)
 	int h;
 	struct bucket * b;
 	struct bucket * gcache = (struct bucket *)private_data;
-
 	/* If no gname, just use the gid provided. */
 	if(gname == NULL || *gname == '\0')
 		return (gid);
-
 	/* Try to find gname in the cache. */
 	h = hash(gname);
 	b = &gcache[h % cache_size ];
 	if(b->name != NULL && b->hash == h && strcmp(gname, b->name) == 0)
 		return ((gid_t)b->id);
-
 	/* Free the cache slot for a new entry. */
 	SAlloc::F(b->name);
 	b->name = sstrdup(gname);
@@ -112,7 +109,6 @@ static int64 lookup_gid(void * private_data, const char * gname, int64 gid)
 		char * allocated = NULL;
 		struct group grent, * result;
 		int r;
-
 		for(;;) {
 			result = &grent; /* Old getgrnam_r ignores last arg. */
 			r = getgrnam_r(gname, &grent, buffer, bufsize, &result);

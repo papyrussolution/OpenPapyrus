@@ -864,6 +864,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <ConformanceMode>true</ConformanceMode>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
@@ -882,6 +883,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <ConformanceMode>true</ConformanceMode>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>

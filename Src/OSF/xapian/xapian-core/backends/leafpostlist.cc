@@ -20,7 +20,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "xapian/weight.h"
 #include "leafpostlist.h"
 #include "matcher/orpositionlist.h"
 #include "omassert.h"

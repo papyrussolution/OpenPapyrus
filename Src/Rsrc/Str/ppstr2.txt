@@ -4853,6 +4853,7 @@ PPTXT_SQ_CMDSUCCESS_PSNEV           "Команда создания персо�
 PPTXT_SQ_CMDSUCCESS_DTLOGIN         "Запрос авторизации сессии Papyrus выполнен успешно"
 PPTXT_SQ_HELLO                      "Здравствуйте!"
 PPTXT_SQ_GOODBYE                    "До свидания!"
+PPTXT_MALFORMEDCMDFILEMOVED         "Сбойный командный файл перенесен в отдельный каталог: %s"
 //
 // LastText
 
@@ -4948,6 +4949,7 @@ PPTXT_SQ_GOODBYE                    "До свидания!"
 90 "Идентификация уведомительного события"
 91 "Версия последнего выполненного сеанса"
 92 "Собственная регистрация сервиса Stylo-Q у медиатора"
+93 "Установлен владелец персональной карты"
 
 [119]
 1  "Объект получен"
@@ -17186,7 +17188,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @styloqface_patronymic                        "Отчество"
 @styloqface_surname                           "Фамилия"
 @styloqface_country                           "Страна"
-@styloqface_city                              "Город"
+@styloqface_city                              "@{city}"
 @styloqface_street                            "Улица, дом, квартира"
 @styloqface_address                           "Текст адреса"
 @styloqface_geoloc                            "@{geocoord_latlng}"
@@ -17647,6 +17649,10 @@ PPHS_CHZNPRODTYPE_FUR            "fur"          // @v10.7.3
 PPHS_CHZNPRODTYPE_TOBACCO        "tobacco"      // @v10.7.3
 PPHS_CHZNPRODTYPE_SHOE           "shoe"         // @v10.7.3
 PPHS_CHZNPRODTYPE_MEDICINE       "medicine"     // @v10.7.3
+PPHS_CHZNPRODTYPE_CARTIRE        "cartire"      // @v11.3.1
+PPHS_CHZNPRODTYPE_TEXTILE        "textile"      // @v11.3.1
+PPHS_CHZNPRODTYPE_PERFUMERY      "perfumery"    // @v11.3.1
+PPHS_CHZNPRODTYPE_MILK           "milk"         // @v11.3.1
 PPHS_EGAISMARK                   "egaismark"    // @v10.7.3
 PPHS_CHZNMARK                    "chznmark"     // @v10.7.3
 PPHS_REMOTEPROCESSINGTA          "remoteprocessingta" // @v10.7.3

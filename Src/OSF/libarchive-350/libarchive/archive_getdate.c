@@ -227,7 +227,7 @@ static int datephrase(struct gdstate * gds)
 			gds->Day = gds->tokenp[4].value;
 		}
 		else if((gds->tokenp[4].value >= 13)
-		    || (gds->tokenp[2].value >= 13)) {
+		   || (gds->tokenp[2].value >= 13)) {
 			/* Last number is big:  01/07/98 */
 			/* Middle number is big:  01/29/04 */
 			gds->Month = gds->tokenp[0].value;
@@ -719,12 +719,12 @@ static time_t Convert(time_t Month, time_t Day, time_t Year,
 	/* Checking for 2038 bogusly assumes that time_t is 32 bits.  But
 	   I'm too lazy to try to check for time_t overflow in another way.  */
 	if(Year < EPOCH || Year > 2038
-	    || Month < 1 || Month > 12
+	   || Month < 1 || Month > 12
 	    /* Lint fluff:  "conversion from long may lose accuracy" */
-	    || Day < 1 || Day > DaysInMonth[(int)--Month]
-	    || Hours < 0 || Hours > 23
-	    || Minutes < 0 || Minutes > 59
-	    || Seconds < 0 || Seconds > 59)
+	   || Day < 1 || Day > DaysInMonth[(int)--Month]
+	   || Hours < 0 || Hours > 23
+	   || Minutes < 0 || Minutes > 59
+	   || Seconds < 0 || Seconds > 59)
 		return -1;
 
 	Julian = Day - 1;
@@ -748,7 +748,7 @@ static time_t Convert(time_t Month, time_t Day, time_t Year,
 	ltime = localtime(&Julian);
 #endif
 	if(DSTmode == DSTon
-	    || (DSTmode == DSTmaybe && ltime->tm_isdst))
+	   || (DSTmode == DSTmaybe && ltime->tm_isdst))
 		Julian -= HOUR;
 	return Julian;
 }
@@ -1093,13 +1093,13 @@ time_t __archive_get_date(time_t now, const char * p)
 	/* If we saw more than one time, timezone, weekday, year, month,
 	 * or day, then give up. */
 	if(gds->HaveTime > 1 || gds->HaveZone > 1 || gds->HaveWeekDay > 1
-	    || gds->HaveYear > 1 || gds->HaveMonth > 1 || gds->HaveDay > 1)
+	   || gds->HaveYear > 1 || gds->HaveMonth > 1 || gds->HaveDay > 1)
 		return -1;
 
 	/* Compute an absolute time based on whatever absolute information
 	 * we collected. */
 	if(gds->HaveYear || gds->HaveMonth || gds->HaveDay
-	    || gds->HaveTime || gds->HaveWeekDay) {
+	   || gds->HaveTime || gds->HaveWeekDay) {
 		Start = Convert(gds->Month, gds->Day, gds->Year,
 			gds->Hour, gds->Minutes, gds->Seconds,
 			gds->Timezone, gds->DSTmode);

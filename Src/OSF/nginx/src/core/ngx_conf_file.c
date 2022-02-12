@@ -157,7 +157,7 @@ char * ngx_conf_parse(ngx_conf_t * cf, ngx_str_t * filename)
 		type = parse_file;
 		if(ngx_dump_config__
 #if (NGX_DEBUG)
-		    || 1
+		   || 1
 #endif
 		    ) {
 			if(ngx_conf_add_dump(cf, filename) != NGX_OK) {

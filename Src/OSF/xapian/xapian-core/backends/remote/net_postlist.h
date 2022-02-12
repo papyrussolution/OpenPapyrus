@@ -23,66 +23,66 @@
 #ifndef XAPIAN_INCLUDED_NET_POSTLIST_H
 #define XAPIAN_INCLUDED_NET_POSTLIST_H
 
-#include <string>
-
+//#include <string>
 #include "backends/leafpostlist.h"
-#include "omassert.h"
+//#include "omassert.h"
 #include "remote-database.h"
 
 /** A postlist in a remote database.
  */
 class NetworkPostList : public LeafPostList {
-    friend class RemoteDatabase;
+	friend class RemoteDatabase;
 
-    Xapian::Internal::intrusive_ptr<const RemoteDatabase> db;
+	Xapian::Internal::intrusive_ptr<const RemoteDatabase> db;
 
-    std::string postings;
-    bool started = false;
-    const char* pos = NULL;
-    const char* pos_end = NULL;
+	std::string postings;
+	bool started = false;
+	const char* pos = NULL;
+	const char* pos_end = NULL;
 
-    Xapian::docid lastdocid = 0;
-    Xapian::termcount lastwdf = 0;
+	Xapian::docid lastdocid = 0;
+	Xapian::termcount lastwdf = 0;
 
-    Xapian::doccount termfreq;
+	Xapian::doccount termfreq;
 
-  public:
-    /// Constructor.
-    NetworkPostList(Xapian::Internal::intrusive_ptr<const RemoteDatabase> db_,
-		    const std::string& term_,
-		    Xapian::doccount termfreq_,
-		    std::string&& postings_)
-	: LeafPostList(term_),
-	  db(db_), postings(std::move(postings_)), termfreq(termfreq_) { }
+public:
+	/// Constructor.
+	NetworkPostList(Xapian::Internal::intrusive_ptr<const RemoteDatabase> db_,
+	    const std::string& term_,
+	    Xapian::doccount termfreq_,
+	    std::string&& postings_)
+		: LeafPostList(term_),
+		db(db_), postings(std::move(postings_)), termfreq(termfreq_) {
+	}
 
-    /// Get number of documents indexed by this term.
-    Xapian::doccount get_termfreq() const;
+	/// Get number of documents indexed by this term.
+	Xapian::doccount get_termfreq() const;
 
-    /// Get the current document ID.
-    Xapian::docid get_docid() const;
+	/// Get the current document ID.
+	Xapian::docid get_docid() const;
 
-    /// Get the Within Document Frequency of the term in the current document.
-    Xapian::termcount get_wdf() const;
+	/// Get the Within Document Frequency of the term in the current document.
+	Xapian::termcount get_wdf() const;
 
-    /// Read the position list for the term in the current document and
-    /// return a pointer to it (not owned by the PostList).
-    PositionList * open_position_list() const;
+	/// Read the position list for the term in the current document and
+	/// return a pointer to it (not owned by the PostList).
+	PositionList * open_position_list() const;
 
-    /// Move to the next document in the postlist (the weight parameter is
-    /// ignored).
-    PostList * next(double);
+	/// Move to the next document in the postlist (the weight parameter is
+	/// ignored).
+	PostList * next(double);
 
-    /// Skip forward to the next document with document ID >= the supplied
-    /// document ID (the weight parameter is ignored).
-    PostList * skip_to(Xapian::docid did, double weight);
+	/// Skip forward to the next document with document ID >= the supplied
+	/// document ID (the weight parameter is ignored).
+	PostList * skip_to(Xapian::docid did, double weight);
 
-    /// Return true if and only if we've moved off the end of the list.
-    bool at_end() const;
+	/// Return true if and only if we've moved off the end of the list.
+	bool at_end() const;
 
-    Xapian::termcount get_wdf_upper_bound() const;
+	Xapian::termcount get_wdf_upper_bound() const;
 
-    /// Get a description of the postlist.
-    std::string get_description() const;
+	/// Get a description of the postlist.
+	std::string get_description() const;
 };
 
 #endif /* XAPIAN_INCLUDED_NET_POSTLIST_H */

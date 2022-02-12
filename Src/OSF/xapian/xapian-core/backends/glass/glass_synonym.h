@@ -22,160 +22,148 @@
 #define XAPIAN_INCLUDED_GLASS_SYNONYM_H
 
 #include <xapian/types.h>
-
 #include "backends/alltermslist.h"
 #include "glass_lazytable.h"
 #include "api/termlist.h"
-
 #include <set>
 #include <string>
 
 class GlassDatabase;
 
 namespace Glass {
-    class RootInfo;
+class RootInfo;
 }
 using Glass::RootInfo;
 
 class GlassSynonymTable : public GlassLazyTable {
-    /// The last term which was updated.
-    mutable std::string last_term;
+	mutable std::string last_term; /// The last term which was updated.
+	mutable std::set<std::string> last_synonyms; /// The synonyms for the last term which was updated.
+public:
+	/** Create a new GlassSynonymTable object.
+	 *
+	 *  This method does not create or open the table on disk - you
+	 *  must call the create() or open() methods respectively!
+	 *
+	 *  @param dbdir		The directory the glass database is stored in.
+	 *  @param readonly		true if we're opening read-only, else false.
+	 */
+	GlassSynonymTable(const std::string & dbdir, bool readonly) : GlassLazyTable("synonym", dbdir + "/synonym.", readonly) 
+	{
+	}
+	GlassSynonymTable(int fd, off_t offset_, bool readonly) : GlassLazyTable("synonym", fd, offset_, readonly) 
+	{
+	}
+	// Merge in batched-up changes.
+	void merge_changes();
+	// Discard batched-up changes.
+	void discard_changes() 
+	{
+		last_term.resize(0);
+		last_synonyms.clear();
+	}
+	/** Add a synonym for @a term.
+	 *
+	 *  If the synonym has already been added, no action is taken.
+	 */
+	void add_synonym(const std::string & term, const std::string & synonym);
 
-    /// The synonyms for the last term which was updated.
-    mutable std::set<std::string> last_synonyms;
+	/** Remove a synonym for @a term.
+	 *
+	 *  If the synonym doesn't exist, no action is taken.
+	 */
+	void remove_synonym(const std::string & term, const std::string & synonym);
 
-  public:
-    /** Create a new GlassSynonymTable object.
-     *
-     *  This method does not create or open the table on disk - you
-     *  must call the create() or open() methods respectively!
-     *
-     *  @param dbdir		The directory the glass database is stored in.
-     *  @param readonly		true if we're opening read-only, else false.
-     */
-    GlassSynonymTable(const std::string & dbdir, bool readonly)
-	: GlassLazyTable("synonym", dbdir + "/synonym.", readonly) { }
+	/** Remove all synonyms for @a term.
+	 *
+	 *  If @a term has no synonyms, no action is taken.
+	 */
+	void clear_synonyms(const std::string & term);
 
-    GlassSynonymTable(int fd, off_t offset_, bool readonly)
-	: GlassLazyTable("synonym", fd, offset_, readonly) { }
+	/** Open synonym termlist for a term.
+	 *
+	 *  If @a term has no synonyms, NULL is returned.
+	 */
+	TermList * open_termlist(const std::string & term);
 
-    // Merge in batched-up changes.
-    void merge_changes();
+	/** Override methods of GlassTable.
+	 *
+	 *  NB: these aren't virtual, but we always call them on the subclass in
+	 *  cases where it matters.
+	 *  @{
+	 */
 
-    // Discard batched-up changes.
-    void discard_changes() {
-	last_term.resize(0);
-	last_synonyms.clear();
-    }
+	bool is_modified() const {
+		return !last_term.empty() || GlassTable::is_modified();
+	}
 
-    /** Add a synonym for @a term.
-     *
-     *  If the synonym has already been added, no action is taken.
-     */
-    void add_synonym(const std::string & term, const std::string & synonym);
+	void flush_db() {
+		merge_changes();
+		GlassTable::flush_db();
+	}
 
-    /** Remove a synonym for @a term.
-     *
-     *  If the synonym doesn't exist, no action is taken.
-     */
-    void remove_synonym(const std::string & term, const std::string & synonym);
+	void cancel(const RootInfo & root_info, glass_revision_number_t rev) {
+		discard_changes();
+		GlassTable::cancel(root_info, rev);
+	}
 
-    /** Remove all synonyms for @a term.
-     *
-     *  If @a term has no synonyms, no action is taken.
-     */
-    void clear_synonyms(const std::string & term);
-
-    /** Open synonym termlist for a term.
-     *
-     *  If @a term has no synonyms, NULL is returned.
-     */
-    TermList * open_termlist(const std::string & term);
-
-    /** Override methods of GlassTable.
-     *
-     *  NB: these aren't virtual, but we always call them on the subclass in
-     *  cases where it matters.
-     *  @{
-     */
-
-    bool is_modified() const {
-	return !last_term.empty() || GlassTable::is_modified();
-    }
-
-    void flush_db() {
-	merge_changes();
-	GlassTable::flush_db();
-    }
-
-    void cancel(const RootInfo & root_info, glass_revision_number_t rev) {
-	discard_changes();
-	GlassTable::cancel(root_info, rev);
-    }
-
-    // @}
+	// @}
 };
 
 class GlassCursor;
 
 class GlassSynonymTermList : public AllTermsList {
-    /// Copying is not allowed.
-    GlassSynonymTermList(const GlassSynonymTermList &);
+	/// Copying is not allowed.
+	GlassSynonymTermList(const GlassSynonymTermList &);
 
-    /// Assignment is not allowed.
-    void operator=(const GlassSynonymTermList &);
+	/// Assignment is not allowed.
+	void operator=(const GlassSynonymTermList &);
 
-    /// Keep a reference to our database to stop it being deleted.
-    Xapian::Internal::intrusive_ptr<const GlassDatabase> database;
+	/// Keep a reference to our database to stop it being deleted.
+	Xapian::Internal::intrusive_ptr<const GlassDatabase> database;
 
-    /** A cursor which runs through the synonym table reading termnames from
-     *  the keys.
-     */
-    GlassCursor * cursor;
+	/** A cursor which runs through the synonym table reading termnames from
+	 *  the keys.
+	 */
+	GlassCursor * cursor;
 
-    /// The prefix to restrict the terms to.
-    string prefix;
+	/// The prefix to restrict the terms to.
+	string prefix;
 
-  public:
-    GlassSynonymTermList(Xapian::Internal::intrusive_ptr<const GlassDatabase> database_,
-			 GlassCursor * cursor_,
-			 const string & prefix_)
-	    : database(database_), cursor(cursor_), prefix(prefix_)
-    {
-	// Position the cursor on the highest key before the first key we want,
-	// so that the first call to next() will put us on the first key we
-	// want.
-	if (prefix.empty()) {
-	    cursor->rewind();
-	} else {
-	    // Seek to the first key before one with the desired prefix.
-	    cursor->find_entry_lt(prefix);
+public:
+	GlassSynonymTermList(Xapian::Internal::intrusive_ptr<const GlassDatabase> database_, GlassCursor * cursor_, const string & prefix_) : 
+		database(database_), cursor(cursor_), prefix(prefix_)
+	{
+		// Position the cursor on the highest key before the first key we want,
+		// so that the first call to next() will put us on the first key we
+		// want.
+		if(prefix.empty()) {
+			cursor->rewind();
+		}
+		else {
+			// Seek to the first key before one with the desired prefix.
+			cursor->find_entry_lt(prefix);
+		}
 	}
-    }
+	~GlassSynonymTermList();
+	Xapian::termcount get_approx_size() const;
+	/** Returns the current termname.
+	 *
+	 *  Either next() or skip_to() must have been called before this
+	 *  method can be called.
+	 */
+	string get_termname() const;
 
-    /// Destructor.
-    ~GlassSynonymTermList();
+	/// Return the term frequency for the term at the current position.
+	Xapian::doccount get_termfreq() const;
 
-    Xapian::termcount get_approx_size() const;
+	/// Advance to the next term in the list.
+	TermList * next();
 
-    /** Returns the current termname.
-     *
-     *  Either next() or skip_to() must have been called before this
-     *  method can be called.
-     */
-    string get_termname() const;
+	/// Advance to the first term which is >= tname.
+	TermList * skip_to(const string &tname);
 
-    /// Return the term frequency for the term at the current position.
-    Xapian::doccount get_termfreq() const;
-
-    /// Advance to the next term in the list.
-    TermList * next();
-
-    /// Advance to the first term which is >= tname.
-    TermList * skip_to(const string &tname);
-
-    /// True if we're off the end of the list
-    bool at_end() const;
+	/// True if we're off the end of the list
+	bool at_end() const;
 };
 
 #endif // XAPIAN_INCLUDED_GLASS_SYNONYM_H

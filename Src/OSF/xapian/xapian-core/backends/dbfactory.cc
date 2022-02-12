@@ -38,7 +38,7 @@
 #endif
 #include "honey/honey_defs.h"
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
-# include "inmemory/inmemory_database.h"
+#include "inmemory/inmemory_database.h"
 #endif
 // Even if none of the above get included, we still need a definition of
 // Database::Internal.
@@ -365,7 +365,6 @@ WritableDatabase::WritableDatabase(const std::string &path, int flags, int block
 			}
 		}
 	}
-
 	switch(type) {
 		case DB_BACKEND_STUB:
 		    open_stub(*this, path, flags);
@@ -379,8 +378,7 @@ WritableDatabase::WritableDatabase(const std::string &path, int flags, int block
 		    return;
 #endif
 		case DB_BACKEND_HONEY:
-		    throw InvalidArgumentError("Honey backend doesn't support "
-			      "updating existing databases");
+		    throw InvalidArgumentError("Honey backend doesn't support updating existing databases");
 		case DB_BACKEND_CHERT:
 		    throw FeatureUnavailableError("Chert backend no longer supported");
 		case DB_BACKEND_INMEMORY:

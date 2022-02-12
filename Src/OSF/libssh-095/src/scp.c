@@ -69,7 +69,7 @@ ssh_scp ssh_scp_new(ssh_session session, int mode, const char * location)
 		ssh_set_error(session, SSH_FATAL, "Location path is too long");
 		goto error;
 	}
-	scp->location = _strdup(location);
+	scp->location = sstrdup(location);
 	if(scp->location == NULL) {
 		ssh_set_error(session, SSH_FATAL, "Error allocating memory for ssh_scp");
 		goto error;
@@ -545,40 +545,31 @@ int ssh_scp_response(ssh_scp scp, char ** response)
 	uchar code;
 	int rc;
 	char msg[128] = {0};
-
 	if(scp == NULL) {
 		return SSH_ERROR;
 	}
-
 	rc = ssh_channel_read(scp->channel, &code, 1, 0);
 	if(rc == SSH_ERROR) {
 		return SSH_ERROR;
 	}
-
 	if(code == 0) {
 		return 0;
 	}
-
 	if(code > 2) {
-		ssh_set_error(scp->session, SSH_FATAL,
-		    "SCP: invalid status code %u received", code);
+		ssh_set_error(scp->session, SSH_FATAL, "SCP: invalid status code %u received", code);
 		scp->state = SSH_SCP_ERROR;
 		return SSH_ERROR;
 	}
-
 	rc = ssh_scp_read_string(scp, msg, sizeof(msg));
 	if(rc == SSH_ERROR) {
 		return rc;
 	}
-
 	/* Warning */
 	if(code == 1) {
-		ssh_set_error(scp->session, SSH_REQUEST_DENIED,
-		    "SCP: Warning: status code 1 received: %s", msg);
-		SSH_LOG(SSH_LOG_RARE,
-		    "SCP: Warning: status code 1 received: %s", msg);
+		ssh_set_error(scp->session, SSH_REQUEST_DENIED, "SCP: Warning: status code 1 received: %s", msg);
+		SSH_LOG(SSH_LOG_RARE, "SCP: Warning: status code 1 received: %s", msg);
 		if(response) {
-			*response = _strdup(msg);
+			*response = sstrdup(msg);
 		}
 		return 1;
 	}
@@ -586,7 +577,7 @@ int ssh_scp_response(ssh_scp scp, char ** response)
 	if(code == 2) {
 		ssh_set_error(scp->session, SSH_FATAL, "SCP: Error: status code 2 received: %s", msg);
 		if(response) {
-			*response = _strdup(msg);
+			*response = sstrdup(msg);
 		}
 		return 2;
 	}
@@ -780,7 +771,7 @@ int ssh_scp_pull_request(ssh_scp scp)
 		    }
 		    *p = '\0';
 		    p++;
-		    //mode = _strdup(&buffer[1]);
+		    //mode = sstrdup(&buffer[1]);
 		    scp->request_mode = ssh_scp_integer_mode(&buffer[1]);
 		    tmp = p;
 		    p = strchr(p, ' ');
@@ -790,7 +781,7 @@ int ssh_scp_pull_request(ssh_scp scp)
 		    *p = 0;
 		    size = strtoull(tmp, NULL, 10);
 		    p++;
-		    name = _strdup(p);
+		    name = sstrdup(p);
 		    ZFREE(scp->request_name);
 		    scp->request_name = name;
 		    if(buffer[0] == 'C') {
@@ -810,21 +801,18 @@ int ssh_scp_pull_request(ssh_scp scp)
 		    ssh_channel_write(scp->channel, "", 1);
 		    return scp->request_type;
 		case 0x1:
-		    ssh_set_error(scp->session, SSH_REQUEST_DENIED,
-			"SCP: Warning: %s", &buffer[1]);
+		    ssh_set_error(scp->session, SSH_REQUEST_DENIED, "SCP: Warning: %s", &buffer[1]);
 		    scp->request_type = SSH_SCP_REQUEST_WARNING;
 		    ZFREE(scp->warning);
-		    scp->warning = _strdup(&buffer[1]);
+		    scp->warning = sstrdup(&buffer[1]);
 		    return scp->request_type;
 		case 0x2:
-		    ssh_set_error(scp->session, SSH_FATAL,
-			"SCP: Error: %s", &buffer[1]);
+		    ssh_set_error(scp->session, SSH_FATAL, "SCP: Error: %s", &buffer[1]);
 		    return SSH_ERROR;
 		case 'T':
 		/* Timestamp */
 		default:
-		    ssh_set_error(scp->session, SSH_FATAL,
-			"Unhandled message: (%d)%s", buffer[0], buffer);
+		    ssh_set_error(scp->session, SSH_FATAL, "Unhandled message: (%d)%s", buffer[0], buffer);
 		    return SSH_ERROR;
 	}
 
@@ -832,8 +820,7 @@ int ssh_scp_pull_request(ssh_scp scp)
 error:
 	ZFREE(name);
 	ZFREE(mode);
-	ssh_set_error(scp->session, SSH_FATAL,
-	    "Parsing error while parsing message: %s", buffer);
+	ssh_set_error(scp->session, SSH_FATAL, "Parsing error while parsing message: %s", buffer);
 	return SSH_ERROR;
 }
 
@@ -1066,9 +1053,8 @@ char * ssh_scp_string_mode(int mode)
 {
 	char buffer[16] = {0};
 	snprintf(buffer, sizeof(buffer), "%.4o", mode);
-	return _strdup(buffer);
+	return sstrdup(buffer);
 }
-
 /**
  * @brief Get the warning string from a scp handle.
  *
@@ -1079,11 +1065,7 @@ char * ssh_scp_string_mode(int mode)
  */
 const char * ssh_scp_request_get_warning(ssh_scp scp)
 {
-	if(scp == NULL) {
-		return NULL;
-	}
-
-	return scp->warning;
+	return scp ? scp->warning : 0;
 }
 
 /** @} */

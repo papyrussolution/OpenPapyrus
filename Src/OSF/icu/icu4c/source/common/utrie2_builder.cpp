@@ -1,20 +1,20 @@
 // utrie2_builder.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *   Copyright (C) 2001-2014, International Business Machines Corporation and others.  All Rights Reserved.
- *   encoding:   UTF-8
- *   created on: 2008sep26 (split off from utrie2.c)
- *   created by: Markus W. Scherer
- *   This is a common implementation of a Unicode trie.
- *   It is a kind of compressed, serializable table of 16- or 32-bit values associated with
- *   Unicode code points (0..0x10ffff).
- *   This is the second common version of a Unicode trie (hence the name UTrie2).
- *   See utrie2.h for a comparison.
- *
- *   This file contains only the builder code.
- *   See utrie2.c for the runtime and enumeration code.
- */
+// Copyright (C) 2001-2014, International Business Machines Corporation and others.  All Rights Reserved.
+// @codepage UTF-8
+// created on: 2008sep26 (split off from utrie2.c)
+// created by: Markus W. Scherer
+// 
+// This is a common implementation of a Unicode trie.
+// It is a kind of compressed, serializable table of 16- or 32-bit values associated with
+// Unicode code points (0..0x10ffff).
+// This is the second common version of a Unicode trie (hence the name UTrie2).
+// See utrie2.h for a comparison.
+// 
+// This file contains only the builder code.
+// See utrie2.c for the runtime and enumeration code.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 

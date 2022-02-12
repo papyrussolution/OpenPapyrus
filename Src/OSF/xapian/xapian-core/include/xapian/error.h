@@ -24,114 +24,98 @@
 #define XAPIAN_INCLUDED_ERROR_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error Never use <xapian/error.h> directly; include <xapian.h> instead.
+	#error Never use <xapian/error.h> directly; include <xapian.h> instead.
 #endif
-
 #include <string>
 #include <xapian/attributes.h>
 #include <xapian/visibility.h>
 
 namespace Xapian {
-
 /** All exceptions thrown by Xapian are subclasses of Xapian::Error.
  *
  *  This class can not be instantiated directly - instead a subclass should
  *  be used.
  */
 class XAPIAN_VISIBILITY_DEFAULT Error {
-    /// Message giving details of the error, intended for human consumption.
-    std::string msg;
+	/// Message giving details of the error, intended for human consumption.
+	std::string msg;
 
-    /** Optional context information.
-     *
-     *  This context is intended for machine use (for example to know which
-     *  remote server an error came from), but it is typically a
-     *  plain-text string, and so also fit for human consumption.
-     */
-    std::string context;
+	/** Optional context information.
+	 *
+	 *  This context is intended for machine use (for example to know which
+	 *  remote server an error came from), but it is typically a
+	 *  plain-text string, and so also fit for human consumption.
+	 */
+	std::string context;
 
-    /** The error string derived from my_errno.
-     *
-     *  This string is generated from my_errno lazily.
-     */
-    mutable std::string error_string;
+	/** The error string derived from my_errno.
+	 *
+	 *  This string is generated from my_errno lazily.
+	 */
+	mutable std::string error_string;
+	const char * type; /// The type of this error (e.g. DocNotFoundError.)
+	/** Optional value of 'errno' associated with this error.
+	 *
+	 *  If no value is associated, this member variable will be 0.
+	 *
+	 *  On UNIX, if this value is < 0, it's an error code returned from
+	 *  getaddrinfo() (negated if such error codes are positive).
+	 *
+	 *  On Windows, if this value is < 0, it's a negated Windows error code
+	 *  (as given by GetLastError()), while if it is >= WSABASEERR then it is a
+	 *  WinSock error code (as given by WSAGetLastError()).  Prior to Xapian
+	 *  1.2.20 and 1.3.3, WSAGetLastError() codes were also negated.
+	 *
+	 *  NB We don't just call this member "errno" to avoid problems on
+	 *  platforms where errno is a preprocessor macro.
+	 */
+	int my_errno;
+	/// Don't allow assignment of the base class.
+	void operator=(const Error &o);
+protected:
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	Error(const std::string &msg_, const std::string &context_,
+	    const char * type_, const char * error_string_);
 
-    /// The type of this error (e.g. DocNotFoundError.)
-    const char * type;
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	Error(const std::string &msg_, const std::string &context_,
+	    const char * type_, int errno_)
+		: msg(msg_), context(context_), error_string(), type(type_),
+		my_errno(errno_) {
+	}
 
-    /** Optional value of 'errno' associated with this error.
-     *
-     *  If no value is associated, this member variable will be 0.
-     *
-     *  On UNIX, if this value is < 0, it's an error code returned from
-     *  getaddrinfo() (negated if such error codes are positive).
-     *
-     *  On Windows, if this value is < 0, it's a negated Windows error code
-     *  (as given by GetLastError()), while if it is >= WSABASEERR then it is a
-     *  WinSock error code (as given by WSAGetLastError()).  Prior to Xapian
-     *  1.2.20 and 1.3.3, WSAGetLastError() codes were also negated.
-     *
-     *  NB We don't just call this member "errno" to avoid problems on
-     *  platforms where errno is a preprocessor macro.
-     */
-    int my_errno;
+public:
+	/** Default copy constructor.
+	 *
+	 *  We explicitly specify this to avoid warnings from GCC 9 (from
+	 *  -Wdeprecated-copy which is enabled by -Wextra).
+	 */
+	Error(const Error&) = default;
 
-    /// Don't allow assignment of the base class.
-    void operator=(const Error &o);
-
-  protected:
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    Error(const std::string &msg_, const std::string &context_,
-	  const char * type_, const char * error_string_);
-
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    Error(const std::string &msg_, const std::string &context_,
-	  const char * type_, int errno_)
-	: msg(msg_), context(context_), error_string(), type(type_),
-	  my_errno(errno_) { }
-
-  public:
-    /** Default copy constructor.
-     *
-     *  We explicitly specify this to avoid warnings from GCC 9 (from
-     *  -Wdeprecated-copy which is enabled by -Wextra).
-     */
-    Error(const Error&) = default;
-
-    /// The type of this error (e.g. "DocNotFoundError".)
-    const char* get_type() const noexcept {
-	return type + 1;
-    }
-
-    /// Message giving details of the error, intended for human consumption.
-    const std::string& get_msg() const noexcept {
-	return msg;
-    }
-
-    /** Optional context information.
-     *
-     *  This context is intended for machine use (for example to know which
-     *  remote server an error came from), but it is typically a
-     *  plain-text string, and so also fit for human consumption.
-     */
-    const std::string& get_context() const noexcept {
-	return context;
-    }
-
-    /** Returns any system error string associated with this exception.
-     *
-     *  The system error string may come from errno, h_errno (on UNIX), or
-     *  GetLastError() (on MS Windows).  If there is no associated system
-     *  error string, NULL is returned.
-     */
-    const char * get_error_string() const;
-
-    /// Return a string describing this object.
-    std::string get_description() const;
+	/// The type of this error (e.g. "DocNotFoundError".)
+	const char* get_type() const noexcept { return type + 1; }
+	/// Message giving details of the error, intended for human consumption.
+	const std::string& get_msg() const noexcept { return msg; }
+	/** Optional context information.
+	 *
+	 *  This context is intended for machine use (for example to know which
+	 *  remote server an error came from), but it is typically a
+	 *  plain-text string, and so also fit for human consumption.
+	 */
+	const std::string& get_context() const noexcept { return context; }
+	/** Returns any system error string associated with this exception.
+	 *
+	 *  The system error string may come from errno, h_errno (on UNIX), or
+	 *  GetLastError() (on MS Windows).  If there is no associated system
+	 *  error string, NULL is returned.
+	 */
+	const char * get_error_string() const;
+	/// Return a string describing this object.
+	std::string get_description() const;
 };
 
 /** The base class for exceptions indicating errors in the program logic.
@@ -140,18 +124,20 @@ class XAPIAN_VISIBILITY_DEFAULT Error {
  *  of a class invariant or a logical precondition or postcondition, etc.
  */
 class XAPIAN_VISIBILITY_DEFAULT LogicError : public Error {
-  protected:
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    LogicError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
-	: Error(msg_, context_, type_, error_string_) {}
+protected:
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	LogicError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
+		: Error(msg_, context_, type_, error_string_) {
+	}
 
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    LogicError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
-	: Error(msg_, context_, type_, errno_) {}
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	LogicError(const std::string &msg_, const std::string &context_, const char * type_, int errno_) : Error(msg_, context_, type_, errno_) 
+	{
+	}
 };
 
 /** The base class for exceptions indicating errors only detectable at runtime.
@@ -162,18 +148,19 @@ class XAPIAN_VISIBILITY_DEFAULT LogicError : public Error {
  *  than a programming mistake.
  */
 class XAPIAN_VISIBILITY_DEFAULT RuntimeError : public Error {
-  protected:
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    RuntimeError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
-	: Error(msg_, context_, type_, error_string_) {}
-
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    RuntimeError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
-	: Error(msg_, context_, type_, errno_) {}
+protected:
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	RuntimeError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_) : Error(msg_, context_, type_, error_string_) 
+	{
+	}
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	RuntimeError(const std::string &msg_, const std::string &context_, const char * type_, int errno_) : Error(msg_, context_, type_, errno_) 
+	{
+	}
 };
 
 /** AssertionError is thrown if a logical assertion inside Xapian fails.
@@ -185,337 +172,393 @@ class XAPIAN_VISIBILITY_DEFAULT RuntimeError : public Error {
  *  has been violated, or the assertion is incorrect!)
  */
 class XAPIAN_VISIBILITY_DEFAULT AssertionError : public LogicError {
-  public:
-    /** @private @internal
-     *  @brief Private constructor for use by remote backend.
-     *
-     *  @param error_string_	Optional string describing error.  May be NULL.
-     */
-    AssertionError(const std::string &msg_, const std::string &context_, const char * error_string_)
-	: LogicError(msg_, context_, "\000AssertionError", error_string_) {}
-    /** General purpose constructor.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param context_	Optional context information for this error.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    explicit AssertionError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
-	: LogicError(msg_, context_, "\000AssertionError", errno_) {}
-    /** Construct from message and errno value.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    AssertionError(const std::string &msg_, int errno_)
-	: LogicError(msg_, std::string(), "\000AssertionError", errno_) {}
-  protected:
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    AssertionError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
-	: LogicError(msg_, context_, type_, error_string_) {}
-
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    AssertionError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
-	: LogicError(msg_, context_, type_, errno_) {}
+public:
+	/** @private @internal
+	 *  @brief Private constructor for use by remote backend.
+	 *
+	 *  @param error_string_	Optional string describing error.  May be NULL.
+	 */
+	AssertionError(const std::string &msg_, const std::string &context_, const char * error_string_) : LogicError(msg_, context_, "\000AssertionError", error_string_) 
+	{
+	}
+	/** General purpose constructor.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param context_	Optional context information for this error.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	explicit AssertionError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0) : LogicError(msg_, context_, "\000AssertionError", errno_) 
+	{
+	}
+	/** Construct from message and errno value.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	AssertionError(const std::string &msg_, int errno_) : LogicError(msg_, std::string(), "\000AssertionError", errno_) 
+	{
+	}
+protected:
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	AssertionError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_) : LogicError(msg_, context_, type_, error_string_) 
+	{
+	}
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	AssertionError(const std::string &msg_, const std::string &context_, const char * type_, int errno_) : LogicError(msg_, context_, type_, errno_) 
+	{
+	}
 };
 
 /** InvalidArgumentError indicates an invalid parameter value was passed to the API.
  */
 class XAPIAN_VISIBILITY_DEFAULT InvalidArgumentError : public LogicError {
-  public:
-    /** @private @internal
-     *  @brief Private constructor for use by remote backend.
-     *
-     *  @param error_string_	Optional string describing error.  May be NULL.
-     */
-    InvalidArgumentError(const std::string &msg_, const std::string &context_, const char * error_string_)
-	: LogicError(msg_, context_, "\001InvalidArgumentError", error_string_) {}
-    /** General purpose constructor.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param context_	Optional context information for this error.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    explicit InvalidArgumentError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
-	: LogicError(msg_, context_, "\001InvalidArgumentError", errno_) {}
-    /** Construct from message and errno value.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    InvalidArgumentError(const std::string &msg_, int errno_)
-	: LogicError(msg_, std::string(), "\001InvalidArgumentError", errno_) {}
-  protected:
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    InvalidArgumentError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
-	: LogicError(msg_, context_, type_, error_string_) {}
-
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    InvalidArgumentError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
-	: LogicError(msg_, context_, type_, errno_) {}
+public:
+	/** @private @internal
+	 *  @brief Private constructor for use by remote backend.
+	 *
+	 *  @param error_string_	Optional string describing error.  May be NULL.
+	 */
+	InvalidArgumentError(const std::string &msg_, const std::string &context_, const char * error_string_) : LogicError(msg_, context_, "\001InvalidArgumentError", error_string_) 
+	{
+	}
+	/** General purpose constructor.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param context_	Optional context information for this error.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	explicit InvalidArgumentError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0) : LogicError(msg_, context_, "\001InvalidArgumentError", errno_) 
+	{
+	}
+	/** Construct from message and errno value.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	InvalidArgumentError(const std::string &msg_, int errno_) : LogicError(msg_, std::string(), "\001InvalidArgumentError", errno_) 
+	{
+	}
+protected:
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	InvalidArgumentError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_) : LogicError(msg_, context_, type_, error_string_) 
+	{
+	}
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	InvalidArgumentError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
+		: LogicError(msg_, context_, type_, errno_) {
+	}
 };
 
 /** InvalidOperationError indicates the API was used in an invalid way.
  */
 class XAPIAN_VISIBILITY_DEFAULT InvalidOperationError : public LogicError {
-  public:
-    /** @private @internal
-     *  @brief Private constructor for use by remote backend.
-     *
-     *  @param error_string_	Optional string describing error.  May be NULL.
-     */
-    InvalidOperationError(const std::string &msg_, const std::string &context_, const char * error_string_)
-	: LogicError(msg_, context_, "\002InvalidOperationError", error_string_) {}
-    /** General purpose constructor.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param context_	Optional context information for this error.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    explicit InvalidOperationError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
-	: LogicError(msg_, context_, "\002InvalidOperationError", errno_) {}
-    /** Construct from message and errno value.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    InvalidOperationError(const std::string &msg_, int errno_)
-	: LogicError(msg_, std::string(), "\002InvalidOperationError", errno_) {}
-  protected:
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    InvalidOperationError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
-	: LogicError(msg_, context_, type_, error_string_) {}
+public:
+	/** @private @internal
+	 *  @brief Private constructor for use by remote backend.
+	 *
+	 *  @param error_string_	Optional string describing error.  May be NULL.
+	 */
+	InvalidOperationError(const std::string &msg_, const std::string &context_, const char * error_string_)
+		: LogicError(msg_, context_, "\002InvalidOperationError", error_string_) {
+	}
 
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    InvalidOperationError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
-	: LogicError(msg_, context_, type_, errno_) {}
+	/** General purpose constructor.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param context_	Optional context information for this error.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	explicit InvalidOperationError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
+		: LogicError(msg_, context_, "\002InvalidOperationError", errno_) {
+	}
+
+	/** Construct from message and errno value.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	InvalidOperationError(const std::string &msg_, int errno_)
+		: LogicError(msg_, std::string(), "\002InvalidOperationError", errno_) {
+	}
+
+protected:
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	InvalidOperationError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
+		: LogicError(msg_, context_, type_, error_string_) {
+	}
+
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	InvalidOperationError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
+		: LogicError(msg_, context_, type_, errno_) {
+	}
 };
 
 /** UnimplementedError indicates an attempt to use an unimplemented feature.
  */
 class XAPIAN_VISIBILITY_DEFAULT UnimplementedError : public LogicError {
-  public:
-    /** @private @internal
-     *  @brief Private constructor for use by remote backend.
-     *
-     *  @param error_string_	Optional string describing error.  May be NULL.
-     */
-    UnimplementedError(const std::string &msg_, const std::string &context_, const char * error_string_)
-	: LogicError(msg_, context_, "\003UnimplementedError", error_string_) {}
-    /** General purpose constructor.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param context_	Optional context information for this error.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    explicit UnimplementedError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
-	: LogicError(msg_, context_, "\003UnimplementedError", errno_) {}
-    /** Construct from message and errno value.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    UnimplementedError(const std::string &msg_, int errno_)
-	: LogicError(msg_, std::string(), "\003UnimplementedError", errno_) {}
-  protected:
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    UnimplementedError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
-	: LogicError(msg_, context_, type_, error_string_) {}
+public:
+	/** @private @internal
+	 *  @brief Private constructor for use by remote backend.
+	 *
+	 *  @param error_string_	Optional string describing error.  May be NULL.
+	 */
+	UnimplementedError(const std::string &msg_, const std::string &context_, const char * error_string_)
+		: LogicError(msg_, context_, "\003UnimplementedError", error_string_) {
+	}
 
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    UnimplementedError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
-	: LogicError(msg_, context_, type_, errno_) {}
+	/** General purpose constructor.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param context_	Optional context information for this error.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	explicit UnimplementedError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
+		: LogicError(msg_, context_, "\003UnimplementedError", errno_) {
+	}
+
+	/** Construct from message and errno value.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	UnimplementedError(const std::string &msg_, int errno_)
+		: LogicError(msg_, std::string(), "\003UnimplementedError", errno_) {
+	}
+
+protected:
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	UnimplementedError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
+		: LogicError(msg_, context_, type_, error_string_) {
+	}
+
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	UnimplementedError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
+		: LogicError(msg_, context_, type_, errno_) {
+	}
 };
 
 /** DatabaseError indicates some sort of database related error.
  */
 class XAPIAN_VISIBILITY_DEFAULT DatabaseError : public RuntimeError {
-  public:
-    /** @private @internal
-     *  @brief Private constructor for use by remote backend.
-     *
-     *  @param error_string_	Optional string describing error.  May be NULL.
-     */
-    DatabaseError(const std::string &msg_, const std::string &context_, const char * error_string_)
-	: RuntimeError(msg_, context_, "\004DatabaseError", error_string_) {}
-    /** General purpose constructor.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param context_	Optional context information for this error.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    explicit DatabaseError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
-	: RuntimeError(msg_, context_, "\004DatabaseError", errno_) {}
-    /** Construct from message and errno value.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    DatabaseError(const std::string &msg_, int errno_)
-	: RuntimeError(msg_, std::string(), "\004DatabaseError", errno_) {}
-  protected:
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    DatabaseError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
-	: RuntimeError(msg_, context_, type_, error_string_) {}
+public:
+	/** @private @internal
+	 *  @brief Private constructor for use by remote backend.
+	 *
+	 *  @param error_string_	Optional string describing error.  May be NULL.
+	 */
+	DatabaseError(const std::string &msg_, const std::string &context_, const char * error_string_)
+		: RuntimeError(msg_, context_, "\004DatabaseError", error_string_) {
+	}
 
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    DatabaseError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
-	: RuntimeError(msg_, context_, type_, errno_) {}
+	/** General purpose constructor.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param context_	Optional context information for this error.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	explicit DatabaseError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
+		: RuntimeError(msg_, context_, "\004DatabaseError", errno_) {
+	}
+
+	/** Construct from message and errno value.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	DatabaseError(const std::string &msg_, int errno_)
+		: RuntimeError(msg_, std::string(), "\004DatabaseError", errno_) {
+	}
+
+protected:
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	DatabaseError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
+		: RuntimeError(msg_, context_, type_, error_string_) {
+	}
+
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	DatabaseError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
+		: RuntimeError(msg_, context_, type_, errno_) {
+	}
 };
 
 /** DatabaseCorruptError indicates database corruption was detected.
  */
 class XAPIAN_VISIBILITY_DEFAULT DatabaseCorruptError : public DatabaseError {
-  public:
-    /** @private @internal
-     *  @brief Private constructor for use by remote backend.
-     *
-     *  @param error_string_	Optional string describing error.  May be NULL.
-     */
-    DatabaseCorruptError(const std::string &msg_, const std::string &context_, const char * error_string_)
-	: DatabaseError(msg_, context_, "\005DatabaseCorruptError", error_string_) {}
-    /** General purpose constructor.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param context_	Optional context information for this error.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    explicit DatabaseCorruptError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
-	: DatabaseError(msg_, context_, "\005DatabaseCorruptError", errno_) {}
-    /** Construct from message and errno value.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    DatabaseCorruptError(const std::string &msg_, int errno_)
-	: DatabaseError(msg_, std::string(), "\005DatabaseCorruptError", errno_) {}
-  protected:
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    DatabaseCorruptError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
-	: DatabaseError(msg_, context_, type_, error_string_) {}
+public:
+	/** @private @internal
+	 *  @brief Private constructor for use by remote backend.
+	 *
+	 *  @param error_string_	Optional string describing error.  May be NULL.
+	 */
+	DatabaseCorruptError(const std::string &msg_, const std::string &context_, const char * error_string_)
+		: DatabaseError(msg_, context_, "\005DatabaseCorruptError", error_string_) {
+	}
 
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    DatabaseCorruptError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
-	: DatabaseError(msg_, context_, type_, errno_) {}
+	/** General purpose constructor.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param context_	Optional context information for this error.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	explicit DatabaseCorruptError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
+		: DatabaseError(msg_, context_, "\005DatabaseCorruptError", errno_) {
+	}
+
+	/** Construct from message and errno value.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	DatabaseCorruptError(const std::string &msg_, int errno_)
+		: DatabaseError(msg_, std::string(), "\005DatabaseCorruptError", errno_) {
+	}
+
+protected:
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	DatabaseCorruptError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
+		: DatabaseError(msg_, context_, type_, error_string_) {
+	}
+
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	DatabaseCorruptError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
+		: DatabaseError(msg_, context_, type_, errno_) {
+	}
 };
 
 /** DatabaseCreateError indicates a failure to create a database.
  */
 class XAPIAN_VISIBILITY_DEFAULT DatabaseCreateError : public DatabaseError {
-  public:
-    /** @private @internal
-     *  @brief Private constructor for use by remote backend.
-     *
-     *  @param error_string_	Optional string describing error.  May be NULL.
-     */
-    DatabaseCreateError(const std::string &msg_, const std::string &context_, const char * error_string_)
-	: DatabaseError(msg_, context_, "\006DatabaseCreateError", error_string_) {}
-    /** General purpose constructor.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param context_	Optional context information for this error.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    explicit DatabaseCreateError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
-	: DatabaseError(msg_, context_, "\006DatabaseCreateError", errno_) {}
-    /** Construct from message and errno value.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    DatabaseCreateError(const std::string &msg_, int errno_)
-	: DatabaseError(msg_, std::string(), "\006DatabaseCreateError", errno_) {}
-  protected:
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    DatabaseCreateError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
-	: DatabaseError(msg_, context_, type_, error_string_) {}
+public:
+	/** @private @internal
+	 *  @brief Private constructor for use by remote backend.
+	 *
+	 *  @param error_string_	Optional string describing error.  May be NULL.
+	 */
+	DatabaseCreateError(const std::string &msg_, const std::string &context_, const char * error_string_)
+		: DatabaseError(msg_, context_, "\006DatabaseCreateError", error_string_) {
+	}
 
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    DatabaseCreateError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
-	: DatabaseError(msg_, context_, type_, errno_) {}
+	/** General purpose constructor.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param context_	Optional context information for this error.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	explicit DatabaseCreateError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
+		: DatabaseError(msg_, context_, "\006DatabaseCreateError", errno_) {
+	}
+
+	/** Construct from message and errno value.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	DatabaseCreateError(const std::string &msg_, int errno_)
+		: DatabaseError(msg_, std::string(), "\006DatabaseCreateError", errno_) {
+	}
+
+protected:
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	DatabaseCreateError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
+		: DatabaseError(msg_, context_, type_, error_string_) {
+	}
+
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	DatabaseCreateError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
+		: DatabaseError(msg_, context_, type_, errno_) {
+	}
 };
 
 /** DatabaseLockError indicates failure to lock a database.
  */
 class XAPIAN_VISIBILITY_DEFAULT DatabaseLockError : public DatabaseError {
-  public:
-    /** @private @internal
-     *  @brief Private constructor for use by remote backend.
-     *
-     *  @param error_string_	Optional string describing error.  May be NULL.
-     */
-    DatabaseLockError(const std::string &msg_, const std::string &context_, const char * error_string_)
-	: DatabaseError(msg_, context_, "\007DatabaseLockError", error_string_) {}
-    /** General purpose constructor.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param context_	Optional context information for this error.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    explicit DatabaseLockError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
-	: DatabaseError(msg_, context_, "\007DatabaseLockError", errno_) {}
-    /** Construct from message and errno value.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    DatabaseLockError(const std::string &msg_, int errno_)
-	: DatabaseError(msg_, std::string(), "\007DatabaseLockError", errno_) {}
-  protected:
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    DatabaseLockError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
-	: DatabaseError(msg_, context_, type_, error_string_) {}
+public:
+	/** @private @internal
+	 *  @brief Private constructor for use by remote backend.
+	 *
+	 *  @param error_string_	Optional string describing error.  May be NULL.
+	 */
+	DatabaseLockError(const std::string &msg_, const std::string &context_, const char * error_string_)
+		: DatabaseError(msg_, context_, "\007DatabaseLockError", error_string_) {
+	}
 
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    DatabaseLockError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
-	: DatabaseError(msg_, context_, type_, errno_) {}
+	/** General purpose constructor.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param context_	Optional context information for this error.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	explicit DatabaseLockError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
+		: DatabaseError(msg_, context_, "\007DatabaseLockError", errno_) {
+	}
+
+	/** Construct from message and errno value.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	DatabaseLockError(const std::string &msg_, int errno_)
+		: DatabaseError(msg_, std::string(), "\007DatabaseLockError", errno_) {
+	}
+
+protected:
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	DatabaseLockError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
+		: DatabaseError(msg_, context_, type_, error_string_) {
+	}
+
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	DatabaseLockError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
+		: DatabaseError(msg_, context_, type_, errno_) {
+	}
 };
 
 /** DatabaseModifiedError indicates a database was modified.
@@ -525,85 +568,101 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseLockError : public DatabaseError {
  *  which failed.
  */
 class XAPIAN_VISIBILITY_DEFAULT DatabaseModifiedError : public DatabaseError {
-  public:
-    /** @private @internal
-     *  @brief Private constructor for use by remote backend.
-     *
-     *  @param error_string_	Optional string describing error.  May be NULL.
-     */
-    DatabaseModifiedError(const std::string &msg_, const std::string &context_, const char * error_string_)
-	: DatabaseError(msg_, context_, "\010DatabaseModifiedError", error_string_) {}
-    /** General purpose constructor.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param context_	Optional context information for this error.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    explicit DatabaseModifiedError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
-	: DatabaseError(msg_, context_, "\010DatabaseModifiedError", errno_) {}
-    /** Construct from message and errno value.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    DatabaseModifiedError(const std::string &msg_, int errno_)
-	: DatabaseError(msg_, std::string(), "\010DatabaseModifiedError", errno_) {}
-  protected:
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    DatabaseModifiedError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
-	: DatabaseError(msg_, context_, type_, error_string_) {}
+public:
+	/** @private @internal
+	 *  @brief Private constructor for use by remote backend.
+	 *
+	 *  @param error_string_	Optional string describing error.  May be NULL.
+	 */
+	DatabaseModifiedError(const std::string &msg_, const std::string &context_, const char * error_string_)
+		: DatabaseError(msg_, context_, "\010DatabaseModifiedError", error_string_) {
+	}
 
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    DatabaseModifiedError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
-	: DatabaseError(msg_, context_, type_, errno_) {}
+	/** General purpose constructor.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param context_	Optional context information for this error.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	explicit DatabaseModifiedError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
+		: DatabaseError(msg_, context_, "\010DatabaseModifiedError", errno_) {
+	}
+
+	/** Construct from message and errno value.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	DatabaseModifiedError(const std::string &msg_, int errno_)
+		: DatabaseError(msg_, std::string(), "\010DatabaseModifiedError", errno_) {
+	}
+
+protected:
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	DatabaseModifiedError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
+		: DatabaseError(msg_, context_, type_, error_string_) {
+	}
+
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	DatabaseModifiedError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
+		: DatabaseError(msg_, context_, type_, errno_) {
+	}
 };
 
 /** DatabaseOpeningError indicates failure to open a database.
  */
 class XAPIAN_VISIBILITY_DEFAULT DatabaseOpeningError : public DatabaseError {
-  public:
-    /** @private @internal
-     *  @brief Private constructor for use by remote backend.
-     *
-     *  @param error_string_	Optional string describing error.  May be NULL.
-     */
-    DatabaseOpeningError(const std::string &msg_, const std::string &context_, const char * error_string_)
-	: DatabaseError(msg_, context_, "\011DatabaseOpeningError", error_string_) {}
-    /** General purpose constructor.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param context_	Optional context information for this error.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    explicit DatabaseOpeningError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
-	: DatabaseError(msg_, context_, "\011DatabaseOpeningError", errno_) {}
-    /** Construct from message and errno value.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    DatabaseOpeningError(const std::string &msg_, int errno_)
-	: DatabaseError(msg_, std::string(), "\011DatabaseOpeningError", errno_) {}
-  protected:
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    DatabaseOpeningError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
-	: DatabaseError(msg_, context_, type_, error_string_) {}
+public:
+	/** @private @internal
+	 *  @brief Private constructor for use by remote backend.
+	 *
+	 *  @param error_string_	Optional string describing error.  May be NULL.
+	 */
+	DatabaseOpeningError(const std::string &msg_, const std::string &context_, const char * error_string_)
+		: DatabaseError(msg_, context_, "\011DatabaseOpeningError", error_string_) {
+	}
 
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    DatabaseOpeningError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
-	: DatabaseError(msg_, context_, type_, errno_) {}
+	/** General purpose constructor.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param context_	Optional context information for this error.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	explicit DatabaseOpeningError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
+		: DatabaseError(msg_, context_, "\011DatabaseOpeningError", errno_) {
+	}
+
+	/** Construct from message and errno value.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	DatabaseOpeningError(const std::string &msg_, int errno_)
+		: DatabaseError(msg_, std::string(), "\011DatabaseOpeningError", errno_) {
+	}
+
+protected:
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	DatabaseOpeningError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
+		: DatabaseError(msg_, context_, type_, error_string_) {
+	}
+
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	DatabaseOpeningError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
+		: DatabaseError(msg_, context_, type_, errno_) {
+	}
 };
 
 /** DatabaseVersionError indicates that a database is in an unsupported format.
@@ -618,85 +677,101 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseOpeningError : public DatabaseError {
  *  the current version of Xapian.
  */
 class XAPIAN_VISIBILITY_DEFAULT DatabaseVersionError : public DatabaseOpeningError {
-  public:
-    /** @private @internal
-     *  @brief Private constructor for use by remote backend.
-     *
-     *  @param error_string_	Optional string describing error.  May be NULL.
-     */
-    DatabaseVersionError(const std::string &msg_, const std::string &context_, const char * error_string_)
-	: DatabaseOpeningError(msg_, context_, "\012DatabaseVersionError", error_string_) {}
-    /** General purpose constructor.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param context_	Optional context information for this error.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    explicit DatabaseVersionError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
-	: DatabaseOpeningError(msg_, context_, "\012DatabaseVersionError", errno_) {}
-    /** Construct from message and errno value.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    DatabaseVersionError(const std::string &msg_, int errno_)
-	: DatabaseOpeningError(msg_, std::string(), "\012DatabaseVersionError", errno_) {}
-  protected:
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    DatabaseVersionError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
-	: DatabaseOpeningError(msg_, context_, type_, error_string_) {}
+public:
+	/** @private @internal
+	 *  @brief Private constructor for use by remote backend.
+	 *
+	 *  @param error_string_	Optional string describing error.  May be NULL.
+	 */
+	DatabaseVersionError(const std::string &msg_, const std::string &context_, const char * error_string_)
+		: DatabaseOpeningError(msg_, context_, "\012DatabaseVersionError", error_string_) {
+	}
 
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    DatabaseVersionError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
-	: DatabaseOpeningError(msg_, context_, type_, errno_) {}
+	/** General purpose constructor.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param context_	Optional context information for this error.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	explicit DatabaseVersionError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
+		: DatabaseOpeningError(msg_, context_, "\012DatabaseVersionError", errno_) {
+	}
+
+	/** Construct from message and errno value.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	DatabaseVersionError(const std::string &msg_, int errno_)
+		: DatabaseOpeningError(msg_, std::string(), "\012DatabaseVersionError", errno_) {
+	}
+
+protected:
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	DatabaseVersionError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
+		: DatabaseOpeningError(msg_, context_, type_, error_string_) {
+	}
+
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	DatabaseVersionError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
+		: DatabaseOpeningError(msg_, context_, type_, errno_) {
+	}
 };
 
 /** Indicates an attempt to access a document not present in the database.
  */
 class XAPIAN_VISIBILITY_DEFAULT DocNotFoundError : public RuntimeError {
-  public:
-    /** @private @internal
-     *  @brief Private constructor for use by remote backend.
-     *
-     *  @param error_string_	Optional string describing error.  May be NULL.
-     */
-    DocNotFoundError(const std::string &msg_, const std::string &context_, const char * error_string_)
-	: RuntimeError(msg_, context_, "\013DocNotFoundError", error_string_) {}
-    /** General purpose constructor.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param context_	Optional context information for this error.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    explicit DocNotFoundError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
-	: RuntimeError(msg_, context_, "\013DocNotFoundError", errno_) {}
-    /** Construct from message and errno value.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    DocNotFoundError(const std::string &msg_, int errno_)
-	: RuntimeError(msg_, std::string(), "\013DocNotFoundError", errno_) {}
-  protected:
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    DocNotFoundError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
-	: RuntimeError(msg_, context_, type_, error_string_) {}
+public:
+	/** @private @internal
+	 *  @brief Private constructor for use by remote backend.
+	 *
+	 *  @param error_string_	Optional string describing error.  May be NULL.
+	 */
+	DocNotFoundError(const std::string &msg_, const std::string &context_, const char * error_string_)
+		: RuntimeError(msg_, context_, "\013DocNotFoundError", error_string_) {
+	}
 
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    DocNotFoundError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
-	: RuntimeError(msg_, context_, type_, errno_) {}
+	/** General purpose constructor.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param context_	Optional context information for this error.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	explicit DocNotFoundError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
+		: RuntimeError(msg_, context_, "\013DocNotFoundError", errno_) {
+	}
+
+	/** Construct from message and errno value.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	DocNotFoundError(const std::string &msg_, int errno_)
+		: RuntimeError(msg_, std::string(), "\013DocNotFoundError", errno_) {
+	}
+
+protected:
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	DocNotFoundError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
+		: RuntimeError(msg_, context_, type_, error_string_) {
+	}
+
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	DocNotFoundError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
+		: RuntimeError(msg_, context_, type_, errno_) {
+	}
 };
 
 /** Indicates an attempt to use a feature which is unavailable.
@@ -705,423 +780,502 @@ class XAPIAN_VISIBILITY_DEFAULT DocNotFoundError : public RuntimeError {
  *  because it requires other software or facilities which aren't available.
  */
 class XAPIAN_VISIBILITY_DEFAULT FeatureUnavailableError : public RuntimeError {
-  public:
-    /** @private @internal
-     *  @brief Private constructor for use by remote backend.
-     *
-     *  @param error_string_	Optional string describing error.  May be NULL.
-     */
-    FeatureUnavailableError(const std::string &msg_, const std::string &context_, const char * error_string_)
-	: RuntimeError(msg_, context_, "\014FeatureUnavailableError", error_string_) {}
-    /** General purpose constructor.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param context_	Optional context information for this error.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    explicit FeatureUnavailableError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
-	: RuntimeError(msg_, context_, "\014FeatureUnavailableError", errno_) {}
-    /** Construct from message and errno value.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    FeatureUnavailableError(const std::string &msg_, int errno_)
-	: RuntimeError(msg_, std::string(), "\014FeatureUnavailableError", errno_) {}
-  protected:
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    FeatureUnavailableError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
-	: RuntimeError(msg_, context_, type_, error_string_) {}
+public:
+	/** @private @internal
+	 *  @brief Private constructor for use by remote backend.
+	 *
+	 *  @param error_string_	Optional string describing error.  May be NULL.
+	 */
+	FeatureUnavailableError(const std::string &msg_, const std::string &context_, const char * error_string_)
+		: RuntimeError(msg_, context_, "\014FeatureUnavailableError", error_string_) {
+	}
 
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    FeatureUnavailableError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
-	: RuntimeError(msg_, context_, type_, errno_) {}
+	/** General purpose constructor.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param context_	Optional context information for this error.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	explicit FeatureUnavailableError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
+		: RuntimeError(msg_, context_, "\014FeatureUnavailableError", errno_) {
+	}
+
+	/** Construct from message and errno value.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	FeatureUnavailableError(const std::string &msg_, int errno_)
+		: RuntimeError(msg_, std::string(), "\014FeatureUnavailableError", errno_) {
+	}
+
+protected:
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	FeatureUnavailableError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
+		: RuntimeError(msg_, context_, type_, error_string_) {
+	}
+
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	FeatureUnavailableError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
+		: RuntimeError(msg_, context_, type_, errno_) {
+	}
 };
 
 /** InternalError indicates a runtime problem of some sort.
  */
 class XAPIAN_VISIBILITY_DEFAULT InternalError : public RuntimeError {
-  public:
-    /** @private @internal
-     *  @brief Private constructor for use by remote backend.
-     *
-     *  @param error_string_	Optional string describing error.  May be NULL.
-     */
-    InternalError(const std::string &msg_, const std::string &context_, const char * error_string_)
-	: RuntimeError(msg_, context_, "\015InternalError", error_string_) {}
-    /** General purpose constructor.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param context_	Optional context information for this error.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    explicit InternalError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
-	: RuntimeError(msg_, context_, "\015InternalError", errno_) {}
-    /** Construct from message and errno value.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    InternalError(const std::string &msg_, int errno_)
-	: RuntimeError(msg_, std::string(), "\015InternalError", errno_) {}
-  protected:
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    InternalError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
-	: RuntimeError(msg_, context_, type_, error_string_) {}
+public:
+	/** @private @internal
+	 *  @brief Private constructor for use by remote backend.
+	 *
+	 *  @param error_string_	Optional string describing error.  May be NULL.
+	 */
+	InternalError(const std::string &msg_, const std::string &context_, const char * error_string_)
+		: RuntimeError(msg_, context_, "\015InternalError", error_string_) {
+	}
 
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    InternalError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
-	: RuntimeError(msg_, context_, type_, errno_) {}
+	/** General purpose constructor.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param context_	Optional context information for this error.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	explicit InternalError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
+		: RuntimeError(msg_, context_, "\015InternalError", errno_) {
+	}
+
+	/** Construct from message and errno value.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	InternalError(const std::string &msg_, int errno_)
+		: RuntimeError(msg_, std::string(), "\015InternalError", errno_) {
+	}
+
+protected:
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	InternalError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
+		: RuntimeError(msg_, context_, type_, error_string_) {
+	}
+
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	InternalError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
+		: RuntimeError(msg_, context_, type_, errno_) {
+	}
 };
 
 /** Indicates a problem communicating with a remote database.
  */
 class XAPIAN_VISIBILITY_DEFAULT NetworkError : public RuntimeError {
-  public:
-    /** @private @internal
-     *  @brief Private constructor for use by remote backend.
-     *
-     *  @param error_string_	Optional string describing error.  May be NULL.
-     */
-    NetworkError(const std::string &msg_, const std::string &context_, const char * error_string_)
-	: RuntimeError(msg_, context_, "\016NetworkError", error_string_) {}
-    /** General purpose constructor.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param context_	Optional context information for this error.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    explicit NetworkError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
-	: RuntimeError(msg_, context_, "\016NetworkError", errno_) {}
-    /** Construct from message and errno value.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    NetworkError(const std::string &msg_, int errno_)
-	: RuntimeError(msg_, std::string(), "\016NetworkError", errno_) {}
-  protected:
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    NetworkError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
-	: RuntimeError(msg_, context_, type_, error_string_) {}
+public:
+	/** @private @internal
+	 *  @brief Private constructor for use by remote backend.
+	 *
+	 *  @param error_string_	Optional string describing error.  May be NULL.
+	 */
+	NetworkError(const std::string &msg_, const std::string &context_, const char * error_string_)
+		: RuntimeError(msg_, context_, "\016NetworkError", error_string_) {
+	}
 
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    NetworkError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
-	: RuntimeError(msg_, context_, type_, errno_) {}
+	/** General purpose constructor.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param context_	Optional context information for this error.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	explicit NetworkError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
+		: RuntimeError(msg_, context_, "\016NetworkError", errno_) {
+	}
+
+	/** Construct from message and errno value.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	NetworkError(const std::string &msg_, int errno_)
+		: RuntimeError(msg_, std::string(), "\016NetworkError", errno_) {
+	}
+
+protected:
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	NetworkError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
+		: RuntimeError(msg_, context_, type_, error_string_) {
+	}
+
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	NetworkError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
+		: RuntimeError(msg_, context_, type_, errno_) {
+	}
 };
 
 /** Indicates a timeout expired while communicating with a remote database.
  */
 class XAPIAN_VISIBILITY_DEFAULT NetworkTimeoutError : public NetworkError {
-  public:
-    /** @private @internal
-     *  @brief Private constructor for use by remote backend.
-     *
-     *  @param error_string_	Optional string describing error.  May be NULL.
-     */
-    NetworkTimeoutError(const std::string &msg_, const std::string &context_, const char * error_string_)
-	: NetworkError(msg_, context_, "\017NetworkTimeoutError", error_string_) {}
-    /** General purpose constructor.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param context_	Optional context information for this error.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    explicit NetworkTimeoutError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
-	: NetworkError(msg_, context_, "\017NetworkTimeoutError", errno_) {}
-    /** Construct from message and errno value.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    NetworkTimeoutError(const std::string &msg_, int errno_)
-	: NetworkError(msg_, std::string(), "\017NetworkTimeoutError", errno_) {}
-  protected:
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    NetworkTimeoutError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
-	: NetworkError(msg_, context_, type_, error_string_) {}
+public:
+	/** @private @internal
+	 *  @brief Private constructor for use by remote backend.
+	 *
+	 *  @param error_string_	Optional string describing error.  May be NULL.
+	 */
+	NetworkTimeoutError(const std::string &msg_, const std::string &context_, const char * error_string_)
+		: NetworkError(msg_, context_, "\017NetworkTimeoutError", error_string_) {
+	}
 
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    NetworkTimeoutError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
-	: NetworkError(msg_, context_, type_, errno_) {}
+	/** General purpose constructor.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param context_	Optional context information for this error.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	explicit NetworkTimeoutError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
+		: NetworkError(msg_, context_, "\017NetworkTimeoutError", errno_) {
+	}
+
+	/** Construct from message and errno value.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	NetworkTimeoutError(const std::string &msg_, int errno_)
+		: NetworkError(msg_, std::string(), "\017NetworkTimeoutError", errno_) {
+	}
+
+protected:
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	NetworkTimeoutError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
+		: NetworkError(msg_, context_, type_, error_string_) {
+	}
+
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	NetworkTimeoutError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
+		: NetworkError(msg_, context_, type_, errno_) {
+	}
 };
 
 /** Indicates a query string can't be parsed.
  */
 class XAPIAN_VISIBILITY_DEFAULT QueryParserError : public RuntimeError {
-  public:
-    /** @private @internal
-     *  @brief Private constructor for use by remote backend.
-     *
-     *  @param error_string_	Optional string describing error.  May be NULL.
-     */
-    QueryParserError(const std::string &msg_, const std::string &context_, const char * error_string_)
-	: RuntimeError(msg_, context_, "\020QueryParserError", error_string_) {}
-    /** General purpose constructor.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param context_	Optional context information for this error.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    explicit QueryParserError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
-	: RuntimeError(msg_, context_, "\020QueryParserError", errno_) {}
-    /** Construct from message and errno value.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    QueryParserError(const std::string &msg_, int errno_)
-	: RuntimeError(msg_, std::string(), "\020QueryParserError", errno_) {}
-  protected:
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    QueryParserError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
-	: RuntimeError(msg_, context_, type_, error_string_) {}
+public:
+	/** @private @internal
+	 *  @brief Private constructor for use by remote backend.
+	 *
+	 *  @param error_string_	Optional string describing error.  May be NULL.
+	 */
+	QueryParserError(const std::string &msg_, const std::string &context_, const char * error_string_)
+		: RuntimeError(msg_, context_, "\020QueryParserError", error_string_) {
+	}
 
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    QueryParserError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
-	: RuntimeError(msg_, context_, type_, errno_) {}
+	/** General purpose constructor.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param context_	Optional context information for this error.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	explicit QueryParserError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
+		: RuntimeError(msg_, context_, "\020QueryParserError", errno_) {
+	}
+
+	/** Construct from message and errno value.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	QueryParserError(const std::string &msg_, int errno_)
+		: RuntimeError(msg_, std::string(), "\020QueryParserError", errno_) {
+	}
+
+protected:
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	QueryParserError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
+		: RuntimeError(msg_, context_, type_, error_string_) {
+	}
+
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	QueryParserError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
+		: RuntimeError(msg_, context_, type_, errno_) {
+	}
 };
 
 /** Indicates an error in the std::string serialisation of an object.
  */
 class XAPIAN_VISIBILITY_DEFAULT SerialisationError : public RuntimeError {
-  public:
-    /** @private @internal
-     *  @brief Private constructor for use by remote backend.
-     *
-     *  @param error_string_	Optional string describing error.  May be NULL.
-     */
-    SerialisationError(const std::string &msg_, const std::string &context_, const char * error_string_)
-	: RuntimeError(msg_, context_, "\021SerialisationError", error_string_) {}
-    /** General purpose constructor.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param context_	Optional context information for this error.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    explicit SerialisationError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
-	: RuntimeError(msg_, context_, "\021SerialisationError", errno_) {}
-    /** Construct from message and errno value.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    SerialisationError(const std::string &msg_, int errno_)
-	: RuntimeError(msg_, std::string(), "\021SerialisationError", errno_) {}
-  protected:
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    SerialisationError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
-	: RuntimeError(msg_, context_, type_, error_string_) {}
+public:
+	/** @private @internal
+	 *  @brief Private constructor for use by remote backend.
+	 *
+	 *  @param error_string_	Optional string describing error.  May be NULL.
+	 */
+	SerialisationError(const std::string &msg_, const std::string &context_, const char * error_string_)
+		: RuntimeError(msg_, context_, "\021SerialisationError", error_string_) {
+	}
 
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    SerialisationError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
-	: RuntimeError(msg_, context_, type_, errno_) {}
+	/** General purpose constructor.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param context_	Optional context information for this error.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	explicit SerialisationError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
+		: RuntimeError(msg_, context_, "\021SerialisationError", errno_) {
+	}
+
+	/** Construct from message and errno value.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	SerialisationError(const std::string &msg_, int errno_)
+		: RuntimeError(msg_, std::string(), "\021SerialisationError", errno_) {
+	}
+
+protected:
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	SerialisationError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
+		: RuntimeError(msg_, context_, type_, error_string_) {
+	}
+
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	SerialisationError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
+		: RuntimeError(msg_, context_, type_, errno_) {
+	}
 };
 
 /** RangeError indicates an attempt to access outside the bounds of a container.
  */
 class XAPIAN_VISIBILITY_DEFAULT RangeError : public RuntimeError {
-  public:
-    /** @private @internal
-     *  @brief Private constructor for use by remote backend.
-     *
-     *  @param error_string_	Optional string describing error.  May be NULL.
-     */
-    RangeError(const std::string &msg_, const std::string &context_, const char * error_string_)
-	: RuntimeError(msg_, context_, "\022RangeError", error_string_) {}
-    /** General purpose constructor.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param context_	Optional context information for this error.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    explicit RangeError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
-	: RuntimeError(msg_, context_, "\022RangeError", errno_) {}
-    /** Construct from message and errno value.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    RangeError(const std::string &msg_, int errno_)
-	: RuntimeError(msg_, std::string(), "\022RangeError", errno_) {}
-  protected:
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    RangeError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
-	: RuntimeError(msg_, context_, type_, error_string_) {}
+public:
+	/** @private @internal
+	 *  @brief Private constructor for use by remote backend.
+	 *
+	 *  @param error_string_	Optional string describing error.  May be NULL.
+	 */
+	RangeError(const std::string &msg_, const std::string &context_, const char * error_string_)
+		: RuntimeError(msg_, context_, "\022RangeError", error_string_) {
+	}
 
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    RangeError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
-	: RuntimeError(msg_, context_, type_, errno_) {}
+	/** General purpose constructor.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param context_	Optional context information for this error.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	explicit RangeError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
+		: RuntimeError(msg_, context_, "\022RangeError", errno_) {
+	}
+
+	/** Construct from message and errno value.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	RangeError(const std::string &msg_, int errno_)
+		: RuntimeError(msg_, std::string(), "\022RangeError", errno_) {
+	}
+
+protected:
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	RangeError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
+		: RuntimeError(msg_, context_, type_, error_string_) {
+	}
+
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	RangeError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
+		: RuntimeError(msg_, context_, type_, errno_) {
+	}
 };
 
 /** WildcardError indicates an error expanding a wildcarded query.
  */
 class XAPIAN_VISIBILITY_DEFAULT WildcardError : public RuntimeError {
-  public:
-    /** @private @internal
-     *  @brief Private constructor for use by remote backend.
-     *
-     *  @param error_string_	Optional string describing error.  May be NULL.
-     */
-    WildcardError(const std::string &msg_, const std::string &context_, const char * error_string_)
-	: RuntimeError(msg_, context_, "\023WildcardError", error_string_) {}
-    /** General purpose constructor.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param context_	Optional context information for this error.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    explicit WildcardError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
-	: RuntimeError(msg_, context_, "\023WildcardError", errno_) {}
-    /** Construct from message and errno value.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    WildcardError(const std::string &msg_, int errno_)
-	: RuntimeError(msg_, std::string(), "\023WildcardError", errno_) {}
-  protected:
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    WildcardError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
-	: RuntimeError(msg_, context_, type_, error_string_) {}
+public:
+	/** @private @internal
+	 *  @brief Private constructor for use by remote backend.
+	 *
+	 *  @param error_string_	Optional string describing error.  May be NULL.
+	 */
+	WildcardError(const std::string &msg_, const std::string &context_, const char * error_string_)
+		: RuntimeError(msg_, context_, "\023WildcardError", error_string_) {
+	}
 
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    WildcardError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
-	: RuntimeError(msg_, context_, type_, errno_) {}
+	/** General purpose constructor.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param context_	Optional context information for this error.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	explicit WildcardError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
+		: RuntimeError(msg_, context_, "\023WildcardError", errno_) {
+	}
+
+	/** Construct from message and errno value.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	WildcardError(const std::string &msg_, int errno_)
+		: RuntimeError(msg_, std::string(), "\023WildcardError", errno_) {
+	}
+
+protected:
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	WildcardError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
+		: RuntimeError(msg_, context_, type_, error_string_) {
+	}
+
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	WildcardError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
+		: RuntimeError(msg_, context_, type_, errno_) {
+	}
 };
 
 /** Indicates an attempt to access a database not present.
  */
 class XAPIAN_VISIBILITY_DEFAULT DatabaseNotFoundError : public DatabaseOpeningError {
-  public:
-    /** @private @internal
-     *  @brief Private constructor for use by remote backend.
-     *
-     *  @param error_string_	Optional string describing error.  May be NULL.
-     */
-    DatabaseNotFoundError(const std::string &msg_, const std::string &context_, const char * error_string_)
-	: DatabaseOpeningError(msg_, context_, "\024DatabaseNotFoundError", error_string_) {}
-    /** General purpose constructor.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param context_	Optional context information for this error.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    explicit DatabaseNotFoundError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
-	: DatabaseOpeningError(msg_, context_, "\024DatabaseNotFoundError", errno_) {}
-    /** Construct from message and errno value.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    DatabaseNotFoundError(const std::string &msg_, int errno_)
-	: DatabaseOpeningError(msg_, std::string(), "\024DatabaseNotFoundError", errno_) {}
-  protected:
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    DatabaseNotFoundError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
-	: DatabaseOpeningError(msg_, context_, type_, error_string_) {}
+public:
+	/** @private @internal
+	 *  @brief Private constructor for use by remote backend.
+	 *
+	 *  @param error_string_	Optional string describing error.  May be NULL.
+	 */
+	DatabaseNotFoundError(const std::string &msg_, const std::string &context_, const char * error_string_)
+		: DatabaseOpeningError(msg_, context_, "\024DatabaseNotFoundError", error_string_) {
+	}
 
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    DatabaseNotFoundError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
-	: DatabaseOpeningError(msg_, context_, type_, errno_) {}
+	/** General purpose constructor.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param context_	Optional context information for this error.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	explicit DatabaseNotFoundError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
+		: DatabaseOpeningError(msg_, context_, "\024DatabaseNotFoundError", errno_) {
+	}
+
+	/** Construct from message and errno value.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	DatabaseNotFoundError(const std::string &msg_, int errno_)
+		: DatabaseOpeningError(msg_, std::string(), "\024DatabaseNotFoundError", errno_) {
+	}
+
+protected:
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	DatabaseNotFoundError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
+		: DatabaseOpeningError(msg_, context_, type_, error_string_) {
+	}
+
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	DatabaseNotFoundError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
+		: DatabaseOpeningError(msg_, context_, type_, errno_) {
+	}
 };
 
 /** Indicates an attempt to access a closed database.
  */
 class XAPIAN_VISIBILITY_DEFAULT DatabaseClosedError : public DatabaseError {
-  public:
-    /** @private @internal
-     *  @brief Private constructor for use by remote backend.
-     *
-     *  @param error_string_	Optional string describing error.  May be NULL.
-     */
-    DatabaseClosedError(const std::string &msg_, const std::string &context_, const char * error_string_)
-	: DatabaseError(msg_, context_, "\025DatabaseClosedError", error_string_) {}
-    /** General purpose constructor.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param context_	Optional context information for this error.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    explicit DatabaseClosedError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
-	: DatabaseError(msg_, context_, "\025DatabaseClosedError", errno_) {}
-    /** Construct from message and errno value.
-     *
-     *  @param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  @param errno_		Optional errno value associated with this error.
-     */
-    DatabaseClosedError(const std::string &msg_, int errno_)
-	: DatabaseError(msg_, std::string(), "\025DatabaseClosedError", errno_) {}
-  protected:
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    DatabaseClosedError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
-	: DatabaseError(msg_, context_, type_, error_string_) {}
+public:
+	/** @private @internal
+	 *  @brief Private constructor for use by remote backend.
+	 *
+	 *  @param error_string_	Optional string describing error.  May be NULL.
+	 */
+	DatabaseClosedError(const std::string &msg_, const std::string &context_, const char * error_string_)
+		: DatabaseError(msg_, context_, "\025DatabaseClosedError", error_string_) {
+	}
 
-    /** @private @internal
-     *  @brief Constructor for use by constructors of derived classes.
-     */
-    DatabaseClosedError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
-	: DatabaseError(msg_, context_, type_, errno_) {}
+	/** General purpose constructor.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param context_	Optional context information for this error.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	explicit DatabaseClosedError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
+		: DatabaseError(msg_, context_, "\025DatabaseClosedError", errno_) {
+	}
+
+	/** Construct from message and errno value.
+	 *
+	 *  @param msg_		Message giving details of the error, intended
+	 *				for human consumption.
+	 *  @param errno_		Optional errno value associated with this error.
+	 */
+	DatabaseClosedError(const std::string &msg_, int errno_)
+		: DatabaseError(msg_, std::string(), "\025DatabaseClosedError", errno_) {
+	}
+
+protected:
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	DatabaseClosedError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
+		: DatabaseError(msg_, context_, type_, error_string_) {
+	}
+
+	/** @private @internal
+	 *  @brief Constructor for use by constructors of derived classes.
+	 */
+	DatabaseClosedError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
+		: DatabaseError(msg_, context_, type_, errno_) {
+	}
 };
-
 }
 
 #endif /* XAPIAN_INCLUDED_ERROR_H */

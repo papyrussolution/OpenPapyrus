@@ -633,7 +633,7 @@ static CURLcode multi_done(struct Curl_easy * data, CURLcode status/* an error i
 	    conn->proxy_negotiate_state == GSS_AUTHRECV)
 #endif
 	    ) || conn->bits.close
-	    || (premature && !(conn->handler->flags & PROTOPT_STREAM))) {
+	   || (premature && !(conn->handler->flags & PROTOPT_STREAM))) {
 		CURLcode res2;
 		connclose(conn, "disconnecting");
 		Curl_conncache_remove_conn(data, conn, FALSE);

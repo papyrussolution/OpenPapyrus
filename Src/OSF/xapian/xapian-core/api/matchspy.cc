@@ -21,9 +21,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include <xapian/matchspy.h>
-#include <xapian/queryparser.h>
-#include <xapian/registry.h>
 #include "termlist.h"
 
 using namespace std;

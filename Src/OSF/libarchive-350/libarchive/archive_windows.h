@@ -115,7 +115,7 @@
 #define	la_stat(path,stref)		__la_stat(path,stref)
 #if !defined(__WATCOMC__)
 #if !defined(__BORLANDC__)
-#define	strdup		_strdup
+//#define	strdup		_strdup
 #endif
 #define	tzset		_tzset
 #if !defined(__BORLANDC__)
@@ -299,7 +299,7 @@ WINBASEAPI BOOL WINAPI GetVolumePathNameW(
        LPWSTR lpszVolumePathName,
        DWORD cchBufferLength
        );
-# if _WIN32_WINNT < 0x0500 /* windows.h not providing 0x500 API */
+#if _WIN32_WINNT < 0x0500 /* windows.h not providing 0x500 API */
 typedef struct _FILE_ALLOCATED_RANGE_BUFFER {
        LARGE_INTEGER FileOffset;
        LARGE_INTEGER Length;
@@ -308,7 +308,7 @@ typedef struct _FILE_ALLOCATED_RANGE_BUFFER {
      CTL_CODE(FILE_DEVICE_FILE_SYSTEM, 49, METHOD_BUFFERED, FILE_WRITE_DATA)
 #  define FSCTL_QUERY_ALLOCATED_RANGES \
      CTL_CODE(FILE_DEVICE_FILE_SYSTEM, 51,  METHOD_NEITHER, FILE_READ_DATA)
-# endif
+#endif
 #endif
 
 #endif /* LIBARCHIVE_ARCHIVE_WINDOWS_H_INCLUDED */

@@ -406,7 +406,7 @@ public:
 			    // fallthrough when number is at an end or error
 			    if(numBase == BASH_BASE_ERROR
 #ifdef PEDANTIC_OCTAL
-			    || numBase == BASH_BASE_OCTAL_ERROR
+			   || numBase == BASH_BASE_OCTAL_ERROR
 #endif
 			    ) {
 				    sc.ChangeState(SCE_SH_ERROR);

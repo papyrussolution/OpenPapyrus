@@ -45,7 +45,7 @@ DatabaseReplicator * DatabaseReplicator::open(const string & path)
 		return new GlassDatabaseReplicator(path);
 # else
 		throw FeatureUnavailableError("Replication disabled");
-# endif
+#endif
 	}
 #endif
 

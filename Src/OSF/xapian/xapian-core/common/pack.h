@@ -25,11 +25,11 @@
 	#error config.h must be included first in each C++ source file
 #endif
 
-#include <cstring>
-#include <string>
-#include <type_traits>
-#include "omassert.h"
-#include "xapian/types.h"
+//#include <cstring>
+//#include <string>
+//#include <type_traits>
+//#include "omassert.h"
+//#include "xapian/types.h"
 
 /** How many bits to store the length of a sortable uint in.
  *
@@ -155,7 +155,7 @@ inline int do_clz(ulong long value) {
 	return __builtin_clzll(value);
 }
 
-# define HAVE_DO_CLZ
+#define HAVE_DO_CLZ
 #endif
 
 /** Append an encoded unsigned integer to a string, preserving the sort order.

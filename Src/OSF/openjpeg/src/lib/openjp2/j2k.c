@@ -3755,9 +3755,9 @@ static boolint opj_j2k_read_sot(opj_j2k_t * p_j2k, uint8 * p_header_data, OPJ_UI
 	if(p_j2k->m_specific_param.m_decoder.m_tile_ind_to_dec == -1) {
 		p_j2k->m_specific_param.m_decoder.m_skip_data =
 		    (l_tile_x < p_j2k->m_specific_param.m_decoder.m_start_tile_x)
-		    || (l_tile_x >= p_j2k->m_specific_param.m_decoder.m_end_tile_x)
-		    || (l_tile_y < p_j2k->m_specific_param.m_decoder.m_start_tile_y)
-		    || (l_tile_y >= p_j2k->m_specific_param.m_decoder.m_end_tile_y);
+		   || (l_tile_x >= p_j2k->m_specific_param.m_decoder.m_end_tile_x)
+		   || (l_tile_y < p_j2k->m_specific_param.m_decoder.m_start_tile_y)
+		   || (l_tile_y >= p_j2k->m_specific_param.m_decoder.m_end_tile_y);
 	}
 	else {
 		assert(p_j2k->m_specific_param.m_decoder.m_tile_ind_to_dec >= 0);
@@ -6843,7 +6843,7 @@ boolint opj_j2k_setup_encoder(opj_j2k_t * p_j2k, opj_cparameters_t * parameters,
 	/* set cinema parameters if required */
 	if(OPJ_IS_CINEMA(parameters->rsiz)) {
 		if((parameters->rsiz == OPJ_PROFILE_CINEMA_S2K)
-		    || (parameters->rsiz == OPJ_PROFILE_CINEMA_S4K)) {
+		   || (parameters->rsiz == OPJ_PROFILE_CINEMA_S4K)) {
 			opj_event_msg(p_manager, EVT_WARNING,
 			    "JPEG 2000 Scalable Digital Cinema profiles not yet supported\n");
 			parameters->rsiz = OPJ_PROFILE_NONE;
@@ -8759,7 +8759,7 @@ boolint opj_j2k_decode_tile(opj_j2k_t * p_j2k,
 	assert(p_manager != 00);
 
 	if(!(p_j2k->m_specific_param.m_decoder.m_state & J2K_STATE_DATA)
-	    || (p_tile_index != p_j2k->m_current_tile_number)) {
+	   || (p_tile_index != p_j2k->m_current_tile_number)) {
 		return FALSE;
 	}
 

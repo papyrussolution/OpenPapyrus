@@ -40,21 +40,13 @@
 // while building the library.
 #define XAPIAN_IN_XAPIAN_H
 
-// Set defines for library version and check C++ ABI versions match.
-#include <xapian/version.h>
-
-// Types
-#include <xapian/types.h>
-
-// Function attributes
-#include <xapian/attributes.h>
-
-// Constants
-#include <xapian/constants.h>
-
-// Exceptions
-#include <xapian/error.h>
-
+#include <xapian/version.h> // Set defines for library version and check C++ ABI versions match.
+#include <xapian/types.h> // Types
+#include <xapian/attributes.h> // Function attributes
+#include <xapian/constants.h> // Constants
+#include <xapian/error.h> // Exceptions
+#include <xapian/intrusive_ptr.h>
+#include <xapian/derefwrapper.h>
 // Access to databases, documents, etc.
 #include <xapian/database.h>
 #include <xapian/dbfactory.h>
@@ -63,10 +55,7 @@
 #include <xapian/postingiterator.h>
 #include <xapian/termiterator.h>
 #include <xapian/valueiterator.h>
-
-// Indexing
-#include <xapian/termgenerator.h>
-
+#include <xapian/termgenerator.h> // Indexing
 // Searching
 #include <xapian/enquire.h>
 #include <xapian/eset.h>
@@ -81,75 +70,47 @@
 #include <xapian/rset.h>
 #include <xapian/valuesetmatchdecider.h>
 #include <xapian/weight.h>
-
-// Clustering
-#include <xapian/cluster.h>
-
-// Stemming
-#include <xapian/stem.h>
-
-// Diversification
-#include <xapian/diversify.h>
-
-// Subclass registry
-#include <xapian/registry.h>
-
-// Unicode support
-#include <xapian/unicode.h>
-
-// Geospatial
-#include <xapian/geospatial.h>
-
-// Database compaction and merging
-#include <xapian/compactor.h>
-
-// ELF visibility annotations for GCC.
-#include <xapian/visibility.h>
-
-// Mechanism for accessing a struct of constant information
-#include <xapian/constinfo.h>
+#include <xapian/cluster.h> // Clustering
+#include <xapian/stem.h> // Stemming
+#include <xapian/diversify.h> // Diversification
+#include <xapian/registry.h> // Subclass registry
+#include <xapian/unicode.h> // Unicode support
+#include <xapian/geospatial.h> // Geospatial
+#include <xapian/compactor.h> // Database compaction and merging
+#include <xapian/visibility.h> // ELF visibility annotations for GCC.
+#include <xapian/constinfo.h> // Mechanism for accessing a struct of constant information
 
 /// The Xapian namespace contains public interfaces for the Xapian library.
 namespace Xapian {
+	// Functions returning library version:
 
-// Functions returning library version:
+	/** Report the version string of the library which the program is linked with.
+	 *
+	 * This may be different to the version compiled against (given by
+	 * XAPIAN_VERSION) if shared libraries are being used.
+	 */
+	inline const char* version_string() { return Internal::get_constinfo_()->str; }
 
-/** Report the version string of the library which the program is linked with.
- *
- * This may be different to the version compiled against (given by
- * XAPIAN_VERSION) if shared libraries are being used.
- */
-inline const char* version_string() {
-    return Internal::get_constinfo_()->str;
-}
+	/** Report the major version of the library which the program is linked with.
+	 *
+	 * This may be different to the version compiled against (given by
+	 * XAPIAN_MAJOR_VERSION) if shared libraries are being used.
+	 */
+	inline int major_version() { return Internal::get_constinfo_()->major; }
 
-/** Report the major version of the library which the program is linked with.
- *
- * This may be different to the version compiled against (given by
- * XAPIAN_MAJOR_VERSION) if shared libraries are being used.
- */
-inline int major_version() {
-    return Internal::get_constinfo_()->major;
-}
+	/** Report the minor version of the library which the program is linked with.
+	 *
+	 * This may be different to the version compiled against (given by
+	 * XAPIAN_MINOR_VERSION) if shared libraries are being used.
+	 */
+	inline int minor_version() { return Internal::get_constinfo_()->minor; }
 
-/** Report the minor version of the library which the program is linked with.
- *
- * This may be different to the version compiled against (given by
- * XAPIAN_MINOR_VERSION) if shared libraries are being used.
- */
-inline int minor_version() {
-    return Internal::get_constinfo_()->minor;
-}
-
-/** Report the revision of the library which the program is linked with.
- *
- * This may be different to the version compiled against (given by
- * XAPIAN_REVISION) if shared libraries are being used.
- */
-inline int revision() {
-    return Internal::get_constinfo_()->revision;
-}
-
+	/** Report the revision of the library which the program is linked with.
+	 *
+	 * This may be different to the version compiled against (given by
+	 * XAPIAN_REVISION) if shared libraries are being used.
+	 */
+	inline int revision() { return Internal::get_constinfo_()->revision; }
 }
 
 #undef XAPIAN_IN_XAPIAN_H

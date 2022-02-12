@@ -164,11 +164,11 @@ void __archive_reset_read_data(struct archive *);
 #define err_combine(a, b)        ((a) < (b) ? (a) : (b))
 
 #if defined(__BORLANDC__) || (defined(_MSC_VER) &&  _MSC_VER <= 1300)
-# define        ARCHIVE_LITERAL_LL(x)   x ## i64
-# define        ARCHIVE_LITERAL_ULL(x)  x ## ui64
+#define        ARCHIVE_LITERAL_LL(x)   x ## i64
+#define        ARCHIVE_LITERAL_ULL(x)  x ## ui64
 #else
-# define        ARCHIVE_LITERAL_LL(x)   x ## ll
-# define        ARCHIVE_LITERAL_ULL(x)  x ## ull
+#define        ARCHIVE_LITERAL_LL(x)   x ## ll
+#define        ARCHIVE_LITERAL_ULL(x)  x ## ull
 #endif
 
 #endif

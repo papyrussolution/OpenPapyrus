@@ -1,7 +1,7 @@
 // EMU_SCS.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2003, 2009, 2011, 2012, 2013, 2015, 2016, 2017, 2019, 2020, 2021
-// @codepage windows-1251
-// Интерфейс эмулятора синхронного кассового аппарата
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2003, 2009, 2011, 2012, 2013, 2015, 2016, 2017, 2019, 2020, 2021, 2022
+// @codepage UTF-8
+// РРЅС‚РµСЂС„РµР№СЃ СЌРјСѓР»СЏС‚РѕСЂР° СЃРёРЅС…СЂРѕРЅРЅРѕРіРѕ РєР°СЃСЃРѕРІРѕРіРѕ Р°РїРїР°СЂР°С‚Р°
 //
 #include <pp.h>
 #pragma hdrstop
@@ -25,7 +25,7 @@ class SCS_SYNCSYM : public PPSyncCashSession {
 public:
 	SCS_SYNCSYM(PPID n, char * name, char * port);
 	~SCS_SYNCSYM();
-	virtual int PrintCheck(CCheckPacket *, uint flags);
+	virtual int PrintCheck(CCheckPacket * pPack, uint flags);
 	// @v10.0.0 virtual int PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN);
 	virtual int PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
 	virtual int PrintXReport(const CSessInfo *);
@@ -127,19 +127,19 @@ int SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 				}
 			}
 			ClosePrinter(printer);
-			// Если номер com-порта не определен, то по умолчанию будет com1
+			// Р•СЃР»Рё РЅРѕРјРµСЂ com-РїРѕСЂС‚Р° РЅРµ РѕРїСЂРµРґРµР»РµРЅ, С‚Рѕ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ Р±СѓРґРµС‚ com1
 			name.Z().CatCharN('\\', 2).Dot().CatChar('\\').Cat("COM").Cat(port_no+1);
 			if(h_port != INVALID_HANDLE_VALUE) {
 				CloseHandle(h_port);
 				h_port = INVALID_HANDLE_VALUE;
 			}
 			h_port = ::CreateFile(SUcSwitch(name), GENERIC_READ|GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0); // @unicodeproblem
-			// Ставим кодовую таблицу CP-866
+			// РЎС‚Р°РІРёРј РєРѕРґРѕРІСѓСЋ С‚Р°Р±Р»РёС†Сѓ CP-866
 			{
 				const char cmd[] = { AXIOHM_CMD_SETCHARTBL_BYTE1, AXIOHM_CMD_SETCHARTBL_BYTE2, AXIOHM_CMD_CODETABL_CP866_ID };
 				THROW(WriteFile(h_port, cmd, sizeof(cmd), &sz, 0));
 			}
-			// Установим меньшее расстояние между строками (специально для евреев)
+			// РЈСЃС‚Р°РЅРѕРІРёРј РјРµРЅСЊС€РµРµ СЂР°СЃСЃС‚РѕСЏРЅРёРµ РјРµР¶РґСѓ СЃС‚СЂРѕРєР°РјРё (СЃРїРµС†РёР°Р»СЊРЅРѕ РґР»СЏ РµРІСЂРµРµРІ)
 			{
 				const char cmd[] = { AXIOHM_CMD_LINESPACE_BYTE1, AXIOHM_CMD_LINESPACE_BYTE2, 1 };
 				THROW(WriteFile(h_port, cmd, sizeof(cmd), &sz, 0));
@@ -150,7 +150,7 @@ int SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 				THROW(WriteFile(h_port, p_prn_line->PrnBuf, p_prn_line->PrnBuf.Len(), &sz, 0));
 				sz = 0;
 			}
-			// В конце шлем команду отрезки чека
+			// Р’ РєРѕРЅС†Рµ С€Р»РµРј РєРѕРјР°РЅРґСѓ РѕС‚СЂРµР·РєРё С‡РµРєР°
 			{
 				const char cmd = AXIOHM_CMD_FULLCUT;
 				sz = 0;
@@ -597,7 +597,7 @@ int SCS_SYNCSYM::PrintBnkTermReport(const char * pZCheck)
 		StringSet str_set('\n', pZCheck);
 		SString str;
 		for(uint pos = 0; str_set.get(&pos, str);) {
-			sl_param.FontSize = 8; // какое значение? // @v9.7.6 1-->8
+			sl_param.FontSize = 8; // РєР°РєРѕРµ Р·РЅР°С‡РµРЅРёРµ? // @v9.7.6 1-->8
 			sl_param.Flags = SlipLineParam::fRegRegular;
 			PrnLineStruc * p_prn_ls = prn_list.CreateNewItem();
 			if(p_prn_ls) {

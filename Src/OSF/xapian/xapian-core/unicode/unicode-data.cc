@@ -11,7 +11,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include <xapian/unicode.h>
 /*
  * A Unicode character is split into two parts in order to index
  * into the following tables.  The lower OFFSET_BITS comprise an offset
@@ -23,7 +22,7 @@
  * that identifies a unique page of characters.  Many Unicode characters map
  * to the same alternate page number.
  */
-static const unsigned char pageMap[] = {
+static const uchar pageMap[] = {
 	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
 	20, 17, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36,
 	37, 38, 39, 40, 33, 41, 42, 43, 44, 45, 46, 47, 48, 39, 17, 17, 17, 17,
@@ -274,7 +273,7 @@ static const unsigned char pageMap[] = {
  * the page offset and returns a group number that identifies a unique
  * set of character attributes.
  */
-static const unsigned char groupMap[] = {
+static const uchar groupMap[] = {
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 3, 3, 4, 3, 3, 3, 5, 6, 3, 7, 3, 8, 3, 3,
 	9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 3, 3, 7, 7, 7, 3, 3, 10, 10, 10, 10, 10,

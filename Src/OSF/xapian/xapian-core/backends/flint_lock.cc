@@ -36,11 +36,11 @@
 #include "errno_to_string.h"
 #include "omassert.h"
 #ifdef __CYGWIN__
-# include <cygwin/version.h>
-# include <sys/cygwin.h>
+#include <cygwin/version.h>
+#include <sys/cygwin.h>
 #endif
 #ifdef FLINTLOCK_USE_FLOCK
-# include <sys/file.h>
+#include <sys/file.h>
 #endif
 
 using namespace std;
@@ -52,7 +52,7 @@ using namespace std;
 #  define F_OFD_GETLK   36
 #  define F_OFD_SETLK   37
 #  define F_OFD_SETLKW  38
-# endif
+#endif
 #endif
 
 [[noreturn]]

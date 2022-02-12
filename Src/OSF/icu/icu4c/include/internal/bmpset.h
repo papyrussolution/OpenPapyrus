@@ -1,13 +1,11 @@
+// bmpset.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *   Copyright (C) 2007, International Business Machines Corporation and others.  All Rights Reserved.
- *   file name:  bmpset.h
- *   encoding:   UTF-8
- *   indentation:4
- *   created on: 2007jan29
- *   created by: Markus W. Scherer
- */
+// Copyright (C) 2007, International Business Machines Corporation and others.  All Rights Reserved.
+// @codepage UTF-8
+// created on: 2007jan29
+// created by: Markus W. Scherer
+//
 #ifndef __BMPSET_H__
 #define __BMPSET_H__
 

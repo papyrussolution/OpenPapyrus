@@ -17,37 +17,30 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
-
 #ifndef XAPIAN_INCLUDED_REPLICATETCPSERVER_H
 #define XAPIAN_INCLUDED_REPLICATETCPSERVER_H
 
 #include "tcpserver.h"
-
 #include "xapian/visibility.h"
 
-class XAPIAN_VISIBILITY_DEFAULT ReplicateTcpServer : public TcpServer {
-    /// The path to pass to DatabaseMaster.
-    std::string path;
-
-  public:
-    /** Construct a ReplicateTcpServer and start listening for connections.
-     *
-     *  @param host	The hostname or address for the interface to listen on
-     *			(or "" to listen on all interfaces).
-     *  @param port	The TCP port number to listen on.
-     *  @param path_	The path to the parent directory of the databases.
-     */
-    ReplicateTcpServer(const std::string & host, int port,
-		       const std::string & path_);
-
-    /// Destructor.
-    ~ReplicateTcpServer();
-
-    /** Handle a single connection on an already connected socket.
-     *
-     *  This method may be called by multiple threads.
-     */
-    void handle_one_connection(int socket);
+class XAPIAN_VISIBILITY_DEFAULT ReplicateTcpServer : public XapianTcpServer {
+	/// The path to pass to DatabaseMaster.
+	std::string path;
+public:
+	/** Construct a ReplicateTcpServer and start listening for connections.
+	 *
+	 *  @param host	The hostname or address for the interface to listen on
+	 *			(or "" to listen on all interfaces).
+	 *  @param port	The TCP port number to listen on.
+	 *  @param path_	The path to the parent directory of the databases.
+	 */
+	ReplicateTcpServer(const std::string & host, int port, const std::string & path_);
+	~ReplicateTcpServer();
+	/** Handle a single connection on an already connected socket.
+	 *
+	 *  This method may be called by multiple threads.
+	 */
+	void handle_one_connection(int socket);
 };
 
 #endif // XAPIAN_INCLUDED_REPLICATETCPSERVER_H

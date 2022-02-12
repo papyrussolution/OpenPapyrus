@@ -154,7 +154,7 @@ static bool isip(const char * domain)
 
 	if(Curl_inet_pton(AF_INET, domain, &addr)
 #ifdef ENABLE_IPV6
-	    || Curl_inet_pton(AF_INET6, domain, &addr6)
+	   || Curl_inet_pton(AF_INET6, domain, &addr6)
 #endif
 	    ) {
 		/* domain name given as IP address */
@@ -610,8 +610,8 @@ struct Cookie * Curl_cookie_add(struct Curl_easy * data,
 					is_ip = isip(domain ? domain : whatptr);
 
 					if(!domain
-					    || (is_ip && !strcmp(whatptr, domain))
-					    || (!is_ip && tailmatch(whatptr, domain))) {
+					   || (is_ip && !strcmp(whatptr, domain))
+					   || (!is_ip && tailmatch(whatptr, domain))) {
 						strstore(&co->domain, whatptr);
 						if(!co->domain) {
 							badcookie = TRUE;

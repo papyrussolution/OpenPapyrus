@@ -413,7 +413,7 @@ uint GtinStruc::RecognizeFieldLen(const char * pSrc, int currentPrefixID) const
 	SString next_prefix_;
 	while(*pSrc) {
 		uint  next_prefix_len = 0;
-		int   next_prefix_id = DetectPrefix(pSrc, 0, currentPrefixID, &next_prefix_len, next_prefix_);
+		const int next_prefix_id = DetectPrefix(pSrc, 0, currentPrefixID, &next_prefix_len, next_prefix_);
 		if(next_prefix_id > 0)
 			break;
 		else {
@@ -6230,9 +6230,8 @@ int PPEdiProcessor::SendRECADV(const PPBillIterchangeFilt & rP, const PPIDArray 
 			const PPID ar_id = rArList.get(i);
 			for(DateIter di(&rP.Period); P_BObj->P_Tbl->EnumByObj(ar_id, &di, &bill_rec) > 0;) {
 				if(bill_rec.EdiOp == PPEDIOP_DESADV && (!rP.LocID || bill_rec.LocID == rP.LocID) && op_list.bsearch(bill_rec.OpID)) {
-					if(CheckBillStatusForRecadvSending(bill_rec) > 0) {
+					if(CheckBillStatusForRecadvSending(bill_rec) > 0)
 						temp_bill_list.add(bill_rec.ID);
-					}
 				}
 			}
 		}
@@ -6808,10 +6807,10 @@ int EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, const c
 				}
 				for(const xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
 					if(SXml::GetContentByName(p_n2, "originOrder", temp_buf)) {
-						if(SXml::GetAttrib(p_n2, "number", temp_buf))
-							order_number = temp_buf;
-						if(SXml::GetAttrib(p_n2, "date", temp_buf) > 0)
-							order_date = strtodate_(temp_buf, DATF_DMY);
+						if(ReadCommonAttributes(p_n2, attrs) > 0) {
+							order_number = attrs.Num;
+							order_date = attrs.Dt;
+						}
 					}
 					else if(SXml::GetContentByName(p_n2, "blanketOrderIdentificator", temp_buf)) {
 					}
@@ -6953,6 +6952,8 @@ int EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, const c
 				}
 			}
 			else if(SXml::IsName(p_n, "despatchAdvice")) {
+				order_number.Z();
+				order_date = ZERODATE;
 				THROW(edi_op == PPEDIOP_DESADV);
 				THROW_PP(ACfg.Hdr.EdiDesadvOpID, PPERR_EDI_OPNDEF_DESADV);
 				THROW(ReadCommonAttributes(p_n, attrs));
@@ -6966,6 +6967,10 @@ int EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, const c
 				p_bpack->Rec.EdiOp = edi_op;
 				for(const xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
 					if(SXml::GetContentByName(p_n2, "originOrder", temp_buf)) {
+						if(ReadCommonAttributes(p_n2, attrs) > 0) {
+							order_number = attrs.Num;
+							order_date = attrs.Dt;
+						}
 					}
 					else if(SXml::GetContentByName(p_n2, "orderResponse", temp_buf)) {
 					}
@@ -6976,6 +6981,7 @@ int EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, const c
 					else if(SXml::GetContentByName(p_n2, "egaisFixationIdentificator", temp_buf)) {
 					}
 					else if(SXml::GetContentByName(p_n2, "deliveryNoteIdentificator", temp_buf)) {
+						//
 					}
 					else if(SXml::IsName(p_n2, "seller")) {
 						THROW(ReadOwnFormatContractor(p_n2->children, contractor));
@@ -7054,9 +7060,10 @@ int EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, const c
 										goods_name = temp_buf;
 									}
 									else if(SXml::GetContentByName(p_li, "orderedQuantity", temp_buf)) {
+										pos_blk.OrdQtty = temp_buf.ToReal();
 									}
 									else if(SXml::GetContentByName(p_li, "despatchedQuantity", temp_buf)) {
-										pos_blk.Ti.Quantity_ = R6(temp_buf.ToReal());
+										pos_blk.DlvrQtty = R6(temp_buf.ToReal());
 									}
 									else if(SXml::GetContentByName(p_li, "onePlaceQuantity", temp_buf)) {
 										pos_blk.Ti.UnitPerPack = R6(temp_buf.ToReal());
@@ -7066,6 +7073,12 @@ int EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, const c
 									}
 									else if(SXml::GetContentByName(p_li, "freshnessDate", temp_buf)) {
 									}
+									else if(SXml::GetContentByName(p_li, "netPrice", temp_buf)) {
+										pos_blk.PriceWithoutVat = temp_buf.ToReal();
+									}
+									else if(SXml::GetContentByName(p_li, "netPriceWithVAT", temp_buf)) {
+										pos_blk.PriceWithVat = temp_buf.ToReal();
+									}
 									else if(SXml::GetContentByName(p_li, "netAmount", temp_buf)) {
 									}
 									else if(SXml::GetContentByName(p_li, "amount", temp_buf)) {
@@ -7074,8 +7087,38 @@ int EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, const c
 										//
 									}
 								}
+								{
+									if(pos_blk.SetupGoods()) {
+										if(pos_blk.PriceWithVat > 0.0) {
+											pos_blk.Ti.Price = pos_blk.PriceWithVat;
+										}
+										else if(pos_blk.PriceWithoutVat > 0.0) {
+
+										}
+										pos_blk.Ti.Quantity_ = pos_blk.DlvrQtty;
+										pos_blk.Ti.Cost = pos_blk.PriceWithVat;
+										p_bpack->LoadTItem(&pos_blk.Ti, 0, 0); // @current
+									}
+									else {
+										addendum_msg_buf.Z();
+										if(pos_blk.GTIN.NotEmpty())
+											addendum_msg_buf.Cat(pos_blk.GTIN);
+										if(pos_blk.ArGoodsCode.NotEmpty())
+											addendum_msg_buf.CatDivIfNotEmpty('/', 0).Cat(pos_blk.ArGoodsCode);
+										if(goods_name.NotEmpty())
+											addendum_msg_buf.CatDivIfNotEmpty('/', 0).Cat(goods_name);
+										addendum_msg_buf.CatDivIfNotEmpty(':', 1).Cat(p_bpack->Rec.Code).CatDiv('-', 1).Cat(p_bpack->Rec.Dt, DATF_DMY);
+										CALLEXCEPT_PP_S(PPERR_EDI_UNBLRSLV_GOODS, addendum_msg_buf);
+									}
+								}
 							}
 						}
+					}
+				}
+				{
+					BillTbl::Rec ord_bill_rec;
+					if(SearchLinkedOrder(order_number, order_date, p_bpack->Rec.Object, &ord_bill_rec, static_cast<PPBillPacket *>(p_pack->P_ExtData)) > 0) {
+						p_bpack->Rec.LinkBillID = ord_bill_rec.ID;
 					}
 				}
 			}
@@ -7899,7 +7942,7 @@ int EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::Docum
 		PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "R").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
 		if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
 			const  int edi_op = pIdent->EdiOp;
-			for(SJson * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
+			for(const SJson * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
 				if(p_cur->Type == SJson::tOBJECT) {
 					for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
 						if(p_obj->Text.IsEqiAscii("intDocID")) {
@@ -7930,13 +7973,13 @@ int EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::Docum
 								THROW_PP_S(p_bpack, PPERR_EDI_INBILLNOTINITED, addendum_msg_buf);
 								THROW(p_bpack->CreateBlank_WithoutCode(ACfg.Hdr.EdiDesadvOpID, 0, 0, 1));
 								p_bpack->Rec.EdiOp = PPEDIOP_DESADV;
-								for(SJson * p_bf = p_obj->P_Child->P_Child; p_bf; p_bf = p_bf->P_Next) {
+								for(const SJson * p_bf = p_obj->P_Child->P_Child; p_bf; p_bf = p_bf->P_Next) {
 									temp_buf = p_bf->P_Child->Text;
 									if(p_bf->Text.IsEqiAscii("HEAD")) {
 										if(p_bf->P_Child && p_bf->P_Child->Type == SJson::tARRAY) {
-											for(SJson * p_hi = p_bf->P_Child->P_Child; p_hi; p_hi = p_hi->P_Next) {
+											for(const SJson * p_hi = p_bf->P_Child->P_Child; p_hi; p_hi = p_hi->P_Next) {
 												if(p_hi->Type == SJson::tOBJECT) {
-													for(SJson * p_hf = p_hi->P_Child; p_hf; p_hf = p_hf->P_Next) {
+													for(const SJson * p_hf = p_hi->P_Child; p_hf; p_hf = p_hf->P_Next) {
 														temp_buf = p_hf->P_Child->Text;
 														if(p_hf->Text.IsEqiAscii("SUPPLIER")) {
 															THROW(ResolveContractor(temp_buf, EDIPARTYQ_SUPPLIER, p_bpack));
@@ -7971,17 +8014,17 @@ int EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::Docum
 														}
 														else if(p_hf->Text.IsEqiAscii("PACKINGSEQUENCE")) {
 															if(p_hf->P_Child && p_hf->P_Child->Type == SJson::tARRAY) {
-																for(SJson * p_psi = p_hf->P_Child->P_Child; p_psi; p_psi = p_psi->P_Next) {
+																for(const SJson * p_psi = p_hf->P_Child->P_Child; p_psi; p_psi = p_psi->P_Next) {
 																	if(p_psi->Type == SJson::tOBJECT) {
-																		for(SJson * p_psf = p_psi->P_Child; p_psf; p_psf = p_psf->P_Next) {
+																		for(const SJson * p_psf = p_psi->P_Child; p_psf; p_psf = p_psf->P_Next) {
 																			if(p_psf->Text.IsEqiAscii("HIERARCHICALID")) {
 																			}
 																			else if(p_psf->Text.IsEqiAscii("POSITION")) {
 																				if(p_psf->P_Child && p_psf->P_Child->Type == SJson::tARRAY) {
-																					for(SJson * p_pli = p_psf->P_Child->P_Child; p_pli; p_pli = p_pli->P_Next) {
+																					for(const SJson * p_pli = p_psf->P_Child->P_Child; p_pli; p_pli = p_pli->P_Next) {
 																						if(p_pli->Type == SJson::tOBJECT) {
 																							THROW(pos_blk.Init(&p_bpack->Rec));
-																							for(SJson * p_pf = p_pli->P_Child; p_pf; p_pf = p_pf->P_Next) {
+																							for(const SJson * p_pf = p_pli->P_Child; p_pf; p_pf = p_pf->P_Next) {
 																								temp_buf = p_pf->P_Child->Text;
 																								if(p_pf->Text.IsEqiAscii("POSITIONNUMBER"))
 																									pos_blk.Ti.RByBill = StringToRByBill(temp_buf);
@@ -8225,13 +8268,13 @@ int EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::Docum
 								THROW_PP_S(p_bpack, PPERR_EDI_INBILLNOTINITED, addendum_msg_buf);
 								THROW(p_bpack->CreateBlank_WithoutCode(ACfg.Hdr.OpID, 0, 0, 1));
 								p_bpack->Rec.EdiOp = PPEDIOP_ORDER;
-								for(SJson * p_bf = p_obj->P_Child->P_Child; p_bf; p_bf = p_bf->P_Next) {
+								for(const SJson * p_bf = p_obj->P_Child->P_Child; p_bf; p_bf = p_bf->P_Next) {
 									temp_buf = p_bf->P_Child->Text;
 									if(p_bf->Text.IsEqiAscii("HEAD")) {
 										if(p_bf->P_Child && p_bf->P_Child->Type == SJson::tARRAY) {
-											for(SJson * p_hi = p_bf->P_Child->P_Child; p_hi; p_hi = p_hi->P_Next) {
+											for(const SJson * p_hi = p_bf->P_Child->P_Child; p_hi; p_hi = p_hi->P_Next) {
 												if(p_hi->Type == SJson::tOBJECT) {
-													for(SJson * p_hf = p_hi->P_Child; p_hf; p_hf = p_hf->P_Next) {
+													for(const SJson * p_hf = p_hi->P_Child; p_hf; p_hf = p_hf->P_Next) {
 														temp_buf = p_hf->P_Child->Text;
 														if(p_hf->Text.IsEqiAscii("SUPPLIER")) {
 															THROW(ResolveContractor(temp_buf, EDIPARTYQ_SUPPLIER, p_bpack));
@@ -8270,10 +8313,10 @@ int EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::Docum
 														}
 														else if(p_hf->Text.IsEqiAscii("POSITION")) {
 															if(p_hf->P_Child && p_hf->P_Child->Type == SJson::tARRAY) {
-																for(SJson * p_pli = p_hf->P_Child->P_Child; p_pli; p_pli = p_pli->P_Next) {
+																for(const SJson * p_pli = p_hf->P_Child->P_Child; p_pli; p_pli = p_pli->P_Next) {
 																	if(p_pli->Type == SJson::tOBJECT) {
 																		THROW(pos_blk.Init(&p_bpack->Rec));
-																		for(SJson * p_pf = p_pli->P_Child; p_pf; p_pf = p_pf->P_Next) {
+																		for(const SJson * p_pf = p_pli->P_Child; p_pf; p_pf = p_pf->P_Next) {
 																			temp_buf = p_pf->P_Child->Text;
 																			if(p_pf->Text.IsEqiAscii("POSITIONNUMBER"))
 																				pos_blk.Ti.RByBill = StringToRByBill(temp_buf);
@@ -8329,7 +8372,7 @@ int EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::Docum
 																			}
 																			else if(p_pf->Text.IsEqiAscii("CHARACTERISTIC")) {
 																				if(p_pf->P_Child && p_pf->P_Child->Type == SJson::tOBJECT) {
-																					for(SJson * p_cf = p_pf->P_Child; p_cf; p_cf = p_cf->P_Next) {
+																					for(const SJson * p_cf = p_pf->P_Child; p_cf; p_cf = p_cf->P_Next) {
 																						if(p_cf->Text.IsEqiAscii("DESCRIPTION")) {
 																						}
 																					}

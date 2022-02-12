@@ -1,5 +1,5 @@
 // PROCESSR.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -865,7 +865,7 @@ int PPObjProcessor::PutPacket(PPID * pID, PPProcessorPacket * pPack, int use_ta)
 				if(rec.Kind == PPPRCK_GROUP) {
 					if(rec.LinkObjType)
 						if(pPack->Rec.LinkObjType != rec.LinkObjType || pPack->Rec.LinkObjID != rec.LinkObjID)
-							THROW_PP(GetChildIDList(*pID, 1, 0) > 0, PPERR_UPDLINKNONEMPTYPRCGRP);
+							THROW_PP(GetChildIDList(*pID, 1, 0) < 0, PPERR_UPDLINKNONEMPTYPRCGRP); // @v11.3.1 @fix (>0)-->(<0)
 				}
 				THROW(UpdateByID(P_Tbl, Obj, *pID, &pPack->Rec, 0));
 				THROW(PutExtention(*pID, &pPack->Ext, 0));

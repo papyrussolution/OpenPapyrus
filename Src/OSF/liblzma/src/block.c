@@ -545,7 +545,7 @@ lzma_ret lzma_block_buffer_decode(lzma_block *block, const lzma_allocator *alloc
 				// Either the input was truncated or the
 				// output buffer was too small.
 				assert(*in_pos == in_size
-				    || *out_pos == out_size);
+				   || *out_pos == out_size);
 
 				// If all the input was consumed, then the
 				// input is truncated, even if the output

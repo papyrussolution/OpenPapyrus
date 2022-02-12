@@ -382,7 +382,7 @@ static int int_ts_RESP_verify_token(TS_VERIFY_CTX * ctx,
 
 	/* Some options require us to also check the signature */
 	if(((flags & TS_VFY_SIGNER) && tsa_name != NULL)
-	    || (flags & TS_VFY_TSA_NAME)) {
+	   || (flags & TS_VFY_TSA_NAME)) {
 		flags |= TS_VFY_SIGNATURE;
 	}
 
@@ -404,7 +404,7 @@ static int int_ts_RESP_verify_token(TS_VERIFY_CTX * ctx,
 	if((flags & TS_VFY_DATA)
 	 && (!ts_compute_imprint(ctx->data, tst_info,
 	    &md_alg, &imprint, &imprint_len)
-	    || !ts_check_imprints(md_alg, imprint, imprint_len, tst_info)))
+	   || !ts_check_imprints(md_alg, imprint, imprint_len, tst_info)))
 		goto err;
 	if((flags & TS_VFY_NONCE)
 	 && !ts_check_nonces(ctx->nonce, tst_info))
@@ -588,7 +588,7 @@ static int ts_check_imprints(X509_ALGOR * algor_a, const uchar * imprint_a, unsi
 		/* The parameter must be NULL in both. */
 		if((algor_a->parameter
 		 && ASN1_TYPE_get(algor_a->parameter) != V_ASN1_NULL)
-		    || (algor_b->parameter
+		   || (algor_b->parameter
 		 && ASN1_TYPE_get(algor_b->parameter) != V_ASN1_NULL))
 			goto err;
 	}

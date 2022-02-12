@@ -923,13 +923,9 @@ const MARIADB_CHARSET_INFO * mysql_find_charset_nr(unsigned int charsetnr)
 const MARIADB_CHARSET_INFO * mysql_find_charset_name(const char * name)
 {
 	MARIADB_CHARSET_INFO * c = (MARIADB_CHARSET_INFO*)mariadb_compiled_charsets;
-	const char * csname;
-	if(!strcasecmp(name, MADB_AUTODETECT_CHARSET_NAME))
-		csname = madb_get_os_character_set();
-	else
-		csname = (char *)name;
+	const char * csname = sstreqi_ascii(name, MADB_AUTODETECT_CHARSET_NAME) ? madb_get_os_character_set() : name;
 	do {
-		if(!strcasecmp(c->csname, csname)) {
+		if(sstreqi_ascii(c->csname, csname)) {
 			return(c);
 		}
 		++c;

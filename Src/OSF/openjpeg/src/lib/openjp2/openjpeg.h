@@ -76,7 +76,7 @@
 
 #if defined(OPJ_STATIC) || !defined(_WIN32)
 /* http://gcc.gnu.org/wiki/Visibility */
-#   if __GNUC__ >= 4
+#if __GNUC__ >= 4
 #       if defined(OPJ_STATIC) /* static library uses "hidden" */
 #           define OPJ_API    __attribute__ ((visibility("hidden")))
 #       else
@@ -86,7 +86,7 @@
 #   else
 #define OPJ_API
 #define OPJ_LOCAL
-#   endif
+#endif
 #   define OPJ_CALLCONV
 #else
 #   define OPJ_CALLCONV // @sobolev __stdcall
@@ -98,11 +98,11 @@
    OPJ_API functions as being imported from a DLL, whereas this DLL sees symbols
    defined with this macro as being exported.
  */
-#   if defined(OPJ_EXPORTS) || defined(DLL_EXPORT)
+#if defined(OPJ_EXPORTS) || defined(DLL_EXPORT)
 #define OPJ_API // @sobolev __declspec(dllexport)
 #   else
 #define OPJ_API // @sobolev  __declspec(dllimport)
-#   endif /* OPJ_EXPORTS */
+#endif /* OPJ_EXPORTS */
 #endif /* !OPJ_STATIC || !_WIN32 */
 
 // @sobolev (replaced with boolint) typedef int OPJ_BOOL__Removed;

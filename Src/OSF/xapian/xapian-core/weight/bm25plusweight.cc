@@ -1,26 +1,12 @@
 /** @file
  * @brief Xapian::BM25PlusWeight class - the BM25+ probabilistic formula
  */
-/* Copyright (C) 2009,2010,2011,2012,2014,2015,2016 Olly Betts
- * Copyright (C) 2016  Vivek Pal
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
- */
+// Copyright (C) 2009,2010,2011,2012,2014,2015,2016 Olly Betts
+// Copyright (C) 2016  Vivek Pal
+// @licence GNU GPL
+//
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "xapian/weight.h"
 #include "weightinternal.h"
 #include "serialise-double.h"
 
@@ -29,14 +15,12 @@ using namespace std;
 namespace Xapian {
 BM25PlusWeight * BM25PlusWeight::clone() const
 {
-	return new BM25PlusWeight(param_k1, param_k2, param_k3, param_b,
-		   param_min_normlen, param_delta);
+	return new BM25PlusWeight(param_k1, param_k2, param_k3, param_b, param_min_normlen, param_delta);
 }
 
 void BM25PlusWeight::init(double factor)
 {
 	Xapian::doccount tf = get_termfreq();
-
 	if(rare(tf == 0)) {
 		termweight = 0;
 	}
@@ -156,9 +140,7 @@ double BM25PlusWeight::get_maxpart() const
  *
  * 2 * param_k2 * query_length / (1 + normlen)
  */
-double BM25PlusWeight::get_sumextra(Xapian::termcount len,
-    Xapian::termcount,
-    Xapian::termcount) const
+double BM25PlusWeight::get_sumextra(Xapian::termcount len, Xapian::termcount, Xapian::termcount) const
 {
 	LOGCALL(WTCALC, double, "BM25PlusWeight::get_sumextra", len);
 	double num = (2.0 * param_k2 * get_query_length());

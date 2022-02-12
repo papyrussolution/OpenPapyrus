@@ -126,7 +126,7 @@ int policy_node_match(const X509_POLICY_LEVEL * lvl,
 	const X509_POLICY_DATA * x = node->data;
 
 	if((lvl->flags & X509_V_FLAG_INHIBIT_MAP)
-	    || !(x->flags & POLICY_DATA_FLAG_MAP_MASK)) {
+	   || !(x->flags & POLICY_DATA_FLAG_MAP_MASK)) {
 		if(!OBJ_cmp(x->valid_policy, oid))
 			return 1;
 		return 0;

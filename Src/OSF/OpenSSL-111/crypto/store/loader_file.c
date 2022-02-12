@@ -217,7 +217,7 @@ static OSSL_STORE_INFO * try_decode_PKCS12(const char * pem_name,
 			*matchcount = 1;
 
 			if(PKCS12_verify_mac(p12, "", 0)
-			    || PKCS12_verify_mac(p12, NULL, 0)) {
+			   || PKCS12_verify_mac(p12, NULL, 0)) {
 				pass = "";
 			}
 			else {
@@ -253,7 +253,7 @@ static OSSL_STORE_INFO * try_decode_PKCS12(const char * pem_name,
 						X509 * ca = sk_X509_value(chain, 0);
 
 						if((osi_ca = OSSL_STORE_INFO_new_CERT(ca)) == NULL
-						    || sk_OSSL_STORE_INFO_push(ctx, osi_ca) == 0) {
+						   || sk_OSSL_STORE_INFO_push(ctx, osi_ca) == 0) {
 							ok = 0;
 							break;
 						}
@@ -603,7 +603,7 @@ static OSSL_STORE_INFO * try_decode_X509Certificate(const char * pem_name,
 	}
 
 	if((cert = d2i_X509_AUX(NULL, &blob, len)) != NULL
-	    || (ignore_trusted && (cert = d2i_X509(NULL, &blob, len)) != NULL)) {
+	   || (ignore_trusted && (cert = d2i_X509(NULL, &blob, len)) != NULL)) {
 		*matchcount = 1;
 		store_info = OSSL_STORE_INFO_new_CERT(cert);
 	}
@@ -1084,8 +1084,8 @@ static int file_read_pem(BIO * bp, char ** pem_name, char ** pem_header,
 		struct pem_pass_data pass_data;
 
 		if(!PEM_get_EVP_CIPHER_INFO(*pem_header, &cipher)
-		    || !file_fill_pem_pass_data(&pass_data, "PEM", ui_method, ui_data)
-		    || !PEM_do_header(&cipher, *data, len, file_get_pem_pass,
+		   || !file_fill_pem_pass_data(&pass_data, "PEM", ui_method, ui_data)
+		   || !PEM_do_header(&cipher, *data, len, file_get_pem_pass,
 		    &pass_data)) {
 			return 0;
 		}
@@ -1155,7 +1155,7 @@ static int file_name_check(OSSL_STORE_LOADER_CTX * ctx, const char * name)
 	 */
 	if(strncasecmp(name, ctx->_.dir.search_name,
 	    sizeof(ctx->_.dir.search_name) - 1) != 0
-	    || name[sizeof(ctx->_.dir.search_name) - 1] != '.')
+	   || name[sizeof(ctx->_.dir.search_name) - 1] != '.')
 		return 0;
 	p = &name[sizeof(ctx->_.dir.search_name)];
 

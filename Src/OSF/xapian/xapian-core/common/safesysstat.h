@@ -29,10 +29,10 @@
 
 // MSVC lacks these POSIX macros and other compilers may too:
 #ifndef S_ISDIR
-# define S_ISDIR(ST_MODE) (((ST_MODE)&_S_IFMT) == _S_IFDIR)
+#define S_ISDIR(ST_MODE) (((ST_MODE)&_S_IFMT) == _S_IFDIR)
 #endif
 #ifndef S_ISREG
-# define S_ISREG(ST_MODE) (((ST_MODE)&_S_IFMT) == _S_IFREG)
+#define S_ISREG(ST_MODE) (((ST_MODE)&_S_IFMT) == _S_IFREG)
 #endif
 
 // On UNIX, mkdir() is prototyped in <sys/stat.h> but on Windows it's in
@@ -52,10 +52,10 @@ inline int(mkdir)(const char * pathname, mode_t /*mode*/) { return _mkdir(pathna
 // These were specified by POSIX.1-1996, so most platforms should have
 // these by now:
 #ifndef S_ISDIR
-# define S_ISDIR(ST_MODE) (((ST_MODE)&S_IFMT) == S_IFDIR)
+#define S_ISDIR(ST_MODE) (((ST_MODE)&S_IFMT) == S_IFDIR)
 #endif
 #ifndef S_ISREG
-# define S_ISREG(ST_MODE) (((ST_MODE)&S_IFMT) == S_IFREG)
+#define S_ISREG(ST_MODE) (((ST_MODE)&S_IFMT) == S_IFREG)
 #endif
 
 #endif

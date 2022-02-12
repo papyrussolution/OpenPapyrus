@@ -82,9 +82,9 @@ static int length_from_afi(const unsigned afi)
 uint X509v3_addr_get_afi(const IPAddressFamily * f)
 {
 	if(f == NULL
-	    || f->addressFamily == NULL
-	    || f->addressFamily->data == NULL
-	    || f->addressFamily->length < 2)
+	   || f->addressFamily == NULL
+	   || f->addressFamily->data == NULL
+	   || f->addressFamily->length < 2)
 		return 0;
 	return (f->addressFamily->data[0] << 8) | f->addressFamily->data[1];
 }
@@ -1182,8 +1182,8 @@ static int addr_validate_path_internal(X509_STORE_CTX * ctx,
 	X509 * x;
 
 	if(!ossl_assert(chain != NULL && sk_X509_num(chain) > 0)
-	    || !ossl_assert(ctx != NULL || ext != NULL)
-	    || !ossl_assert(ctx == NULL || ctx->verify_cb != NULL)) {
+	   || !ossl_assert(ctx != NULL || ext != NULL)
+	   || !ossl_assert(ctx == NULL || ctx->verify_cb != NULL)) {
 		if(ctx != NULL)
 			ctx->error = X509_V_ERR_UNSPECIFIED;
 		return 0;
@@ -1252,7 +1252,7 @@ static int addr_validate_path_internal(X509_STORE_CTX * ctx,
 			if(fp->ipAddressChoice->type ==
 			    IPAddressChoice_addressesOrRanges) {
 				if(fc->ipAddressChoice->type == IPAddressChoice_inherit
-				    || addr_contains(fp->ipAddressChoice->u.addressesOrRanges,
+				   || addr_contains(fp->ipAddressChoice->u.addressesOrRanges,
 				    fc->ipAddressChoice->u.addressesOrRanges,
 				    length_from_afi(X509v3_addr_get_afi(fc))))
 					sk_IPAddressFamily_set(child, j, fp);
@@ -1288,8 +1288,8 @@ done:
 int X509v3_addr_validate_path(X509_STORE_CTX * ctx)
 {
 	if(ctx->chain == NULL
-	    || sk_X509_num(ctx->chain) == 0
-	    || ctx->verify_cb == NULL) {
+	   || sk_X509_num(ctx->chain) == 0
+	   || ctx->verify_cb == NULL) {
 		ctx->error = X509_V_ERR_UNSPECIFIED;
 		return 0;
 	}

@@ -260,7 +260,7 @@ static SRP_user_pwd * srp_user_pwd_dup(SRP_user_pwd * src)
 
 	SRP_user_pwd_set_gN(ret, src->g, src->N);
 	if(!SRP_user_pwd_set_ids(ret, src->id, src->info)
-	    || !SRP_user_pwd_set_sv_BN(ret, BN_dup(src->s), BN_dup(src->v))) {
+	   || !SRP_user_pwd_set_sv_BN(ret, BN_dup(src->s), BN_dup(src->v))) {
 		SRP_user_pwd_free(ret);
 		return NULL;
 	}
@@ -273,7 +273,7 @@ SRP_VBASE * SRP_VBASE_new(char * seed_key)
 	if(vb == NULL)
 		return NULL;
 	if((vb->users_pwd = sk_SRP_user_pwd_new_null()) == NULL
-	    || (vb->gN_cache = sk_SRP_gN_cache_new_null()) == NULL) {
+	   || (vb->gN_cache = sk_SRP_gN_cache_new_null()) == NULL) {
 		OPENSSL_free(vb);
 		return NULL;
 	}
@@ -411,11 +411,11 @@ int SRP_VBASE_init(SRP_VBASE * vb, char * verifier_file)
 				goto err;
 
 			if((gN->id = OPENSSL_strdup(pp[DB_srpid])) == NULL
-			    || (gN->N = SRP_gN_place_bn(vb->gN_cache, pp[DB_srpverifier]))
+			   || (gN->N = SRP_gN_place_bn(vb->gN_cache, pp[DB_srpverifier]))
 			    == NULL
-			    || (gN->g = SRP_gN_place_bn(vb->gN_cache, pp[DB_srpsalt]))
+			   || (gN->g = SRP_gN_place_bn(vb->gN_cache, pp[DB_srpsalt]))
 			    == NULL
-			    || sk_SRP_gN_insert(SRP_gN_tab, gN, 0) == 0)
+			   || sk_SRP_gN_insert(SRP_gN_tab, gN, 0) == 0)
 				goto err;
 
 			gN = NULL;
@@ -550,10 +550,10 @@ SRP_user_pwd * SRP_VBASE_get1_by_user(SRP_VBASE * vb, char * username)
 		goto err;
 	ctxt = EVP_MD_CTX_new();
 	if(ctxt == NULL
-	    || !EVP_DigestInit_ex(ctxt, EVP_sha1(), NULL)
-	    || !EVP_DigestUpdate(ctxt, vb->seed_key, strlen(vb->seed_key))
-	    || !EVP_DigestUpdate(ctxt, username, strlen(username))
-	    || !EVP_DigestFinal_ex(ctxt, digs, NULL))
+	   || !EVP_DigestInit_ex(ctxt, EVP_sha1(), NULL)
+	   || !EVP_DigestUpdate(ctxt, vb->seed_key, strlen(vb->seed_key))
+	   || !EVP_DigestUpdate(ctxt, username, strlen(username))
+	   || !EVP_DigestFinal_ex(ctxt, digs, NULL))
 		goto err;
 	EVP_MD_CTX_free(ctxt);
 	ctxt = NULL;

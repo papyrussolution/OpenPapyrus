@@ -410,7 +410,7 @@ ASN1_VALUE * SMIME_read_ASN1(BIO * bio, BIO ** bcont, const ASN1_ITEM * it)
 		/* Get content type */
 
 		if((hdr = mime_hdr_find(headers, "content-type")) == NULL
-		    || hdr->value == NULL) {
+		   || hdr->value == NULL) {
 			sk_MIME_HEADER_pop_free(headers, mime_hdr_free);
 			ASN1err(ASN1_F_SMIME_READ_ASN1, ASN1_R_NO_SIG_CONTENT_TYPE);
 			sk_BIO_pop_free(parts, BIO_vfree);
@@ -519,7 +519,7 @@ int SMIME_text(BIO * in, BIO * out)
 		return 0;
 	}
 	if((hdr = mime_hdr_find(headers, "content-type")) == NULL
-	    || hdr->value == NULL) {
+	   || hdr->value == NULL) {
 		ASN1err(ASN1_F_SMIME_TEXT, ASN1_R_MIME_NO_CONTENT_TYPE);
 		sk_MIME_HEADER_pop_free(headers, mime_hdr_free);
 		return 0;

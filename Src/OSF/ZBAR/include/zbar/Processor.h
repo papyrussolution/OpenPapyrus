@@ -27,7 +27,7 @@
 /// Processor C++ wrapper
 
 #ifndef _ZBAR_H_
-# error "include zbar.h in your application, **not** zbar/Processor.h"
+#error "include zbar.h in your application, **not** zbar/Processor.h"
 #endif
 
 #include "Exception.h"

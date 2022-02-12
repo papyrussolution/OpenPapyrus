@@ -42,9 +42,9 @@ int __libarchive_cryptor_build_hack(void);
 
 #ifdef __APPLE__
 # include <AvailabilityMacros.h>
-# if MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
 #  define ARCHIVE_CRYPTOR_USE_Apple_CommonCrypto
-# endif
+#endif
 #endif
 
 #ifdef ARCHIVE_CRYPTOR_USE_Apple_CommonCrypto

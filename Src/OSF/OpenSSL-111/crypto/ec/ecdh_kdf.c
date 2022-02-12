@@ -27,7 +27,7 @@ int ecdh_KDF_X9_63(uchar * out, size_t outlen,
 	size_t mdlen;
 	uchar ctr[4];
 	if(sinfolen > ECDH_KDF_MAX || outlen > ECDH_KDF_MAX
-	    || Zlen > ECDH_KDF_MAX)
+	   || Zlen > ECDH_KDF_MAX)
 		return 0;
 	mctx = EVP_MD_CTX_new();
 	if(mctx == NULL)

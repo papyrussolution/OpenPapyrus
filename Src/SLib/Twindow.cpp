@@ -1,7 +1,7 @@
 // TWINDOW.CPP  Turbo Vision 1.0
 // Copyright (c) 1991 by Borland International
 // @codepage UTF-8
-// Modified and adopted by A.Sobolev 1996-2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Modified and adopted by A.Sobolev 1996-2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -567,6 +567,7 @@ TLabel * TWindow::getCtlLabel(uint ctlID)
 
 int TWindow::getLabelText(uint ctlID, SString & rText)
 {
+	rText.Z(); // @v11.3.1
 	TLabel * p_label = getCtlLabel(ctlID);
 	return p_label ? (p_label->getText(rText), 1) : 0;
 }

@@ -1,19 +1,7 @@
 // This file is part of Notepad++ project
 // Copyright (C)2021 Don HO <don.h@free.fr>
-
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// at your option any later version.
+// @licence GNU GPL
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 #include <npp-internal.h>
 #pragma hdrstop
 
@@ -22,18 +10,12 @@ INT_PTR CALLBACK DocumentPeeker::run_dlgProc(UINT message, WPARAM /*wParam*/, LP
 	switch(message) {
 		case WM_INITDIALOG:
 	    {
-		    HWND hwndScintilla =
-			reinterpret_cast<HWND>(::SendMessage(_hParent, NPPM_CREATESCINTILLAHANDLE, 0,
-			reinterpret_cast<LPARAM>(_hSelf)));
-		    _pPeekerView =
-			reinterpret_cast<ScintillaEditView *>(::SendMessage(_hParent, NPPM_INTERNAL_GETSCINTEDTVIEW, 0,
-			reinterpret_cast<LPARAM>(hwndScintilla)));
+		    HWND hwndScintilla = reinterpret_cast<HWND>(::SendMessage(_hParent, NPPM_CREATESCINTILLAHANDLE, 0, reinterpret_cast<LPARAM>(_hSelf)));
+		    _pPeekerView = reinterpret_cast<ScintillaEditView *>(::SendMessage(_hParent, NPPM_INTERNAL_GETSCINTEDTVIEW, 0, reinterpret_cast<LPARAM>(hwndScintilla)));
 		    _pPeekerView->execute(SCI_SETZOOM, static_cast<WPARAM>(-10), 0);
 		    _pPeekerView->execute(SCI_SETVSCROLLBAR, FALSE, 0);
 		    _pPeekerView->execute(SCI_SETHSCROLLBAR, FALSE, 0);
-
 		    _pPeekerView->showIndentGuideLine(false);
-
 		    ::MoveWindow(_pPeekerView->getHSelf(), 0, 0, _rc.right - _rc.left, _rc.bottom - _rc.top, TRUE);
 		    _pPeekerView->display();
 	    }

@@ -202,22 +202,18 @@ int filter(uint code, struct _EXCEPTION_POINTERS *)
 
 bool isInList(const TCHAR * token, const TCHAR * list)
 {
-	if((!token) || (!list))
+	if(!token || !list)
 		return false;
-
 	const size_t wordLen = 64;
 	size_t listLen = lstrlen(list);
-
 	TCHAR word[wordLen];
 	size_t i = 0;
 	size_t j = 0;
-
 	for(; i <= listLen; ++i) {
 		if((list[i] == ' ')||(list[i] == '\0')) {
 			if(j != 0) {
 				word[j] = '\0';
 				j = 0;
-
 				if(!generic_stricmp(token, word))
 					return true;
 			}
@@ -225,7 +221,6 @@ bool isInList(const TCHAR * token, const TCHAR * list)
 		else {
 			word[j] = list[i];
 			++j;
-
 			if(j >= wordLen)
 				return false;
 		}
@@ -270,7 +265,6 @@ const wchar_t * WcharMbcsConvertor::char2wchar(const char * mbcs2Convert, UINT c
 		_wideCharStr.empty();
 		return _wideCharStr;
 	}
-
 	int bytesNotProcessed = 0;
 	int lenWc = 0;
 	// If length not specified, simply convert without checking
@@ -312,12 +306,8 @@ const wchar_t * WcharMbcsConvertor::char2wchar(const char * mbcs2Convert, UINT c
 	}
 	else
 		_wideCharStr.empty();
-
-	if(pLenWc)
-		*pLenWc = lenWc;
-	if(pBytesNotProcessed)
-		*pBytesNotProcessed = bytesNotProcessed;
-
+	ASSIGN_PTR(pLenWc, lenWc);
+	ASSIGN_PTR(pBytesNotProcessed, bytesNotProcessed);
 	return _wideCharStr;
 }
 
@@ -326,13 +316,12 @@ const wchar_t * WcharMbcsConvertor::char2wchar(const char * mbcs2Convert, UINT c
 const wchar_t * WcharMbcsConvertor::char2wchar(const char * mbcs2Convert, UINT codepage, int * mstart, int * mend)
 {
 	// Do not process NULL pointer
-	if(!mbcs2Convert) return NULL;
-
+	if(!mbcs2Convert) 
+		return NULL;
 	int len = MultiByteToWideChar(codepage, 0, mbcs2Convert, -1, NULL, 0);
 	if(len > 0) {
 		_wideCharStr.sizeTo(len);
 		len = MultiByteToWideChar(codepage, 0, mbcs2Convert, -1, _wideCharStr, len);
-
 		if((size_t)*mstart < strlen(mbcs2Convert) && (size_t)*mend <= strlen(mbcs2Convert)) {
 			*mstart = MultiByteToWideChar(codepage, 0, mbcs2Convert, *mstart, _wideCharStr, 0);
 			*mend   = MultiByteToWideChar(codepage, 0, mbcs2Convert, *mend, _wideCharStr, 0);
@@ -352,9 +341,8 @@ const wchar_t * WcharMbcsConvertor::char2wchar(const char * mbcs2Convert, UINT c
 
 const char * WcharMbcsConvertor::wchar2char(const wchar_t * wcharStr2Convert, UINT codepage, int lenWc, int * pLenMbcs)
 {
-	if(nullptr == wcharStr2Convert)
+	if(!wcharStr2Convert)
 		return nullptr;
-
 	int lenMbcs = WideCharToMultiByte(codepage, 0, wcharStr2Convert, lenWc, NULL, 0, NULL, NULL);
 	if(lenMbcs > 0) {
 		_multiByteStr.sizeTo(lenMbcs);
@@ -362,9 +350,7 @@ const char * WcharMbcsConvertor::wchar2char(const wchar_t * wcharStr2Convert, UI
 	}
 	else
 		_multiByteStr.empty();
-
-	if(pLenMbcs)
-		*pLenMbcs = lenMbcs;
+	ASSIGN_PTR(pLenMbcs, lenMbcs);
 	return _multiByteStr;
 }
 
@@ -372,14 +358,11 @@ const char * WcharMbcsConvertor::wchar2char(const wchar_t * wcharStr2Convert, UI
 {
 	if(nullptr == wcharStr2Convert)
 		return nullptr;
-
 	int len = WideCharToMultiByte(codepage, 0, wcharStr2Convert, -1, NULL, 0, NULL, NULL);
 	if(len > 0) {
 		_multiByteStr.sizeTo(len);
-		len = WideCharToMultiByte(codepage, 0, wcharStr2Convert, -1, _multiByteStr, len, NULL, NULL); // not
-		                                                                                              // needed?
-
-		if(*mstart < lstrlenW(wcharStr2Convert) && *mend < lstrlenW(wcharStr2Convert)) {
+		len = WideCharToMultiByte(codepage, 0, wcharStr2Convert, -1, _multiByteStr, len, NULL, NULL); // not needed?
+		if(*mstart < sstrlen(wcharStr2Convert) && *mend < sstrlen(wcharStr2Convert)) {
 			*mstart = WideCharToMultiByte(codepage, 0, wcharStr2Convert, *mstart, NULL, 0, NULL, NULL);
 			*mend = WideCharToMultiByte(codepage, 0, wcharStr2Convert, *mend, NULL, 0, NULL, NULL);
 			if(*mstart >= len || *mend >= len) {
@@ -390,7 +373,6 @@ const char * WcharMbcsConvertor::wchar2char(const wchar_t * wcharStr2Convert, UI
 	}
 	else
 		_multiByteStr.empty();
-
 	return _multiByteStr;
 }
 
@@ -547,8 +529,7 @@ generic_string PathAppend(generic_string& strDest, const generic_string& str2app
 	}
 
 	if((strDest[strDest.length() - 1] == '\\' && (!str2append.empty() && str2append[0] != '\\'))  // toto\ + titi
-	    || (strDest[strDest.length() - 1] != '\\' && (!str2append.empty() && str2append[0] == '\\'))) {   // toto +
-	                                                                                                      // \titi
+	   || (strDest[strDest.length() - 1] != '\\' && (!str2append.empty() && str2append[0] == '\\'))) {   // toto + \titi
 		strDest += str2append;
 		return strDest;
 	}
@@ -570,14 +551,12 @@ COLORREF getCtrlBgColor(HWND hWnd)
 			if(hDC) {
 				HDC hdcMem = CreateCompatibleDC(hDC);
 				if(hdcMem) {
-					HBITMAP hBmp = CreateCompatibleBitmap(hDC,
-						rc.right, rc.bottom);
+					HBITMAP hBmp = CreateCompatibleBitmap(hDC, rc.right, rc.bottom);
 					if(hBmp) {
 						HGDIOBJ hOld = SelectObject(hdcMem, hBmp);
 						if(hOld) {
 							if(SendMessage(hWnd, WM_ERASEBKGND, reinterpret_cast<WPARAM>(hdcMem), 0)) {
-								crRet = GetPixel(hdcMem, 2, 2); // 0, 0 is usually on
-								                                // the border
+								crRet = GetPixel(hdcMem, 2, 2); // 0, 0 is usually on the border
 							}
 							SelectObject(hdcMem, hOld);
 						}
@@ -594,11 +573,7 @@ COLORREF getCtrlBgColor(HWND hWnd)
 
 generic_string stringToUpper(generic_string strToConvert)
 {
-	std::transform(strToConvert.begin(), strToConvert.end(), strToConvert.begin(),
-	    [](TCHAR ch){
-		return static_cast<TCHAR>(_totupper(ch));
-	}
-	    );
+	std::transform(strToConvert.begin(), strToConvert.end(), strToConvert.begin(), [](TCHAR ch) { return static_cast<TCHAR>(_totupper(ch)); });
 	return strToConvert;
 }
 
@@ -660,7 +635,7 @@ bool str2numberVector(generic_string str2convert, std::vector<size_t>& numVect)
 generic_string stringJoin(const std::vector<generic_string>& strings, const generic_string& separator)
 {
 	generic_string joined;
-	size_t length = strings.size();
+	const size_t length = strings.size();
 	for(size_t i = 0; i < length; ++i) {
 		joined += strings.at(i);
 		if(i != length - 1) {
@@ -1037,7 +1012,6 @@ bool deleteFileOrFolder(const generic_string& f2delete)
 	wcscpy_s(actionFolder, len + 2, f2delete.c_str());
 	actionFolder[len] = 0;
 	actionFolder[len + 1] = 0;
-
 	SHFILEOPSTRUCT fileOpStruct = { 0 };
 	fileOpStruct.hwnd = NULL;
 	fileOpStruct.pFrom = actionFolder;
@@ -1047,9 +1021,7 @@ bool deleteFileOrFolder(const generic_string& f2delete)
 	fileOpStruct.fAnyOperationsAborted = false;
 	fileOpStruct.hNameMappings = NULL;
 	fileOpStruct.lpszProgressTitle = NULL;
-
 	int res = SHFileOperation(&fileOpStruct);
-
 	delete[] actionFolder;
 	return (res == 0);
 }

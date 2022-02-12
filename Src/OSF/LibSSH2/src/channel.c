@@ -227,7 +227,7 @@ channel_error:
 		/* Clear out packets meant for this channel */
 		_libssh2_htonu32(channel_id, session->open_channel->local.id);
 		while((_libssh2_packet_ask(session, SSH_MSG_CHANNEL_DATA, &session->open_data, &session->open_data_len, 1, channel_id, 4) >= 0)
-		    || (_libssh2_packet_ask(session, SSH_MSG_CHANNEL_EXTENDED_DATA, &session->open_data, &session->open_data_len, 1, channel_id, 4) >= 0)) {
+		   || (_libssh2_packet_ask(session, SSH_MSG_CHANNEL_EXTENDED_DATA, &session->open_data, &session->open_data_len, 1, channel_id, 4) >= 0)) {
 			LIBSSH2_FREE(session, session->open_data);
 			session->open_data = NULL;
 		}
@@ -998,7 +998,7 @@ int _libssh2_channel_flush(LIBSSH2_CHANNEL * channel, int streamid)
 				long packet_stream_id = (packet_type == SSH_MSG_CHANNEL_DATA) ? 0 : _libssh2_ntohu32(packet->data + 5);
 				if((streamid == LIBSSH2_CHANNEL_FLUSH_ALL) || ((packet_type == SSH_MSG_CHANNEL_EXTENDED_DATA)
 					 && ((streamid == LIBSSH2_CHANNEL_FLUSH_EXTENDED_DATA) || (streamid == packet_stream_id)))
-				    || ((packet_type == SSH_MSG_CHANNEL_DATA) && (streamid == 0))) {
+				   || ((packet_type == SSH_MSG_CHANNEL_DATA) && (streamid == 0))) {
 					int bytes_to_flush = packet->data_len - packet->data_head;
 
 					_libssh2_debug(channel->session, LIBSSH2_TRACE_CONN, "Flushing %d bytes of data from stream %lu on channel %lu/%lu",
@@ -1308,9 +1308,9 @@ ssize_t FASTCALL _libssh2_channel_read(LIBSSH2_CHANNEL * channel, int stream_id,
 			 && (readpkt->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA)
 			 && (channel->local.id == channel->read_local_id)
 			 && (stream_id == (int)_libssh2_ntohu32(readpkt->data + 5)))
-		    || (!stream_id && (readpkt->data[0] == SSH_MSG_CHANNEL_DATA)
+		   || (!stream_id && (readpkt->data[0] == SSH_MSG_CHANNEL_DATA)
 			 && (channel->local.id == channel->read_local_id))
-		    || (!stream_id
+		   || (!stream_id
 			 && (readpkt->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA)
 			 && (channel->local.id == channel->read_local_id)
 			 && (channel->remote.extended_data_ignore_mode ==
@@ -1794,7 +1794,7 @@ int _libssh2_channel_free(LIBSSH2_CHANNEL * channel)
 	/* Clear out packets meant for this channel */
 	_libssh2_htonu32(channel_id, channel->local.id);
 	while((_libssh2_packet_ask(session, SSH_MSG_CHANNEL_DATA, &data, &data_len, 1, channel_id, 4) >= 0)
-	    || (_libssh2_packet_ask(session, SSH_MSG_CHANNEL_EXTENDED_DATA, &data, &data_len, 1, channel_id, 4) >= 0)) {
+	   || (_libssh2_packet_ask(session, SSH_MSG_CHANNEL_EXTENDED_DATA, &data, &data_len, 1, channel_id, 4) >= 0)) {
 		LIBSSH2_FREE(session, data);
 	}
 	/* free "channel_type" */

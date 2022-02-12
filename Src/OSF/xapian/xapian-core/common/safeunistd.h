@@ -23,21 +23,21 @@
 #define XAPIAN_INCLUDED_SAFEUNISTD_H
 
 #ifndef PACKAGE
-# error config.h must be included first in each C++ source file
+#error config.h must be included first in each C++ source file
 #endif
 
 #ifndef _MSC_VER
-# include <unistd.h>
+#include <unistd.h>
 #else
 
 // io.h is the nearest equivalent to unistd.h.
-# include <io.h>
+#include <io.h>
 
 // process.h is needed for getpid().
-# include <process.h>
+#include <process.h>
 
 // direct.h is needed for rmdir().
-# include <direct.h>
+#include <direct.h>
 
 #endif
 

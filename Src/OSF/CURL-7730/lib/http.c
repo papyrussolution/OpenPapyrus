@@ -1183,7 +1183,7 @@ CURLcode Curl_buffer_send(struct dynbuf * in,
 
 	if((conn->handler->flags & PROTOPT_SSL
 #ifndef CURL_DISABLE_PROXY
-	    || conn->http_proxy.proxytype == CURLPROXY_HTTPS
+	   || conn->http_proxy.proxytype == CURLPROXY_HTTPS
 #endif
 	    )
 	 && conn->httpversion != 20) {
@@ -2035,7 +2035,7 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 	}
 
 	if(((data->state.authhost.multipass && !data->state.authhost.done)
-	    || (data->state.authproxy.multipass && !data->state.authproxy.done)) &&
+	   || (data->state.authproxy.multipass && !data->state.authproxy.done)) &&
 	    (httpreq != HTTPREQ_GET) &&
 	    (httpreq != HTTPREQ_HEAD)) {
 		/* Auth is required and we are not authenticated yet. Make a PUT or POST

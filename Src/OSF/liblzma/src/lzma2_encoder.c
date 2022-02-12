@@ -191,7 +191,7 @@ static lzma_ret lzma2_encoder_options_update(void * coder_ptr, const lzma_filter
 	// only lc/lp/pb can be changed.
 	const lzma_options_lzma * opt = (const lzma_options_lzma *)filter->options;
 	if(coder->opt_cur.lc != opt->lc || coder->opt_cur.lp != opt->lp
-	    || coder->opt_cur.pb != opt->pb) {
+	   || coder->opt_cur.pb != opt->pb) {
 		// Validate the options.
 		if(opt->lc > LZMA_LCLP_MAX || opt->lp > LZMA_LCLP_MAX || opt->lc + opt->lp > LZMA_LCLP_MAX || opt->pb > LZMA_PB_MAX)
 			return LZMA_OPTIONS_ERROR;

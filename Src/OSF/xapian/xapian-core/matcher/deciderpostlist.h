@@ -23,38 +23,27 @@
 
 #include "selectpostlist.h"
 #include "valuestreamdocument.h"
-
 #include <xapian/document.h>
 #include <xapian/matchdecider.h>
 
 namespace Xapian {
-class MatchDecider;
+	class MatchDecider;
 }
 
 /// PostList which applies a MatchDecider
 class DeciderPostList : public SelectPostList {
-    /// The MatchDecider to apply.
-    const Xapian::MatchDecider* decider;
-
-    /// The document to test.
-    Xapian::Document doc;
-
-    /// Test the current with the MatchDecider.
-    bool test_doc();
-
-  public:
-    DeciderPostList(PostList* pl_,
-		    const Xapian::MatchDecider* decider_,
-		    ValueStreamDocument* vsdoc,
-		    PostListTree* pltree_)
-	: SelectPostList(pl_, pltree_), decider(decider_), doc(vsdoc)
-    {
-	// These get zeroed once per shard in use, but that all happens before
-	// the match starts so isn't a problem.
-	decider->docs_allowed_ = decider->docs_denied_ = 0;
-    }
-
-    std::string get_description() const;
+	const Xapian::MatchDecider* decider; /// The MatchDecider to apply.
+	Xapian::Document doc; /// The document to test.
+	bool test_doc(); /// Test the current with the MatchDecider.
+public:
+	DeciderPostList(PostList* pl_, const Xapian::MatchDecider* decider_, ValueStreamDocument* vsdoc, PostListTree* pltree_) : 
+		SelectPostList(pl_, pltree_), decider(decider_), doc(vsdoc)
+	{
+		// These get zeroed once per shard in use, but that all happens before
+		// the match starts so isn't a problem.
+		decider->docs_allowed_ = decider->docs_denied_ = 0;
+	}
+	std::string get_description() const;
 };
 
 #endif // XAPIAN_INCLUDED_DECIDERPOSTLIST_H

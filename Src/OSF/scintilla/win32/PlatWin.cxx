@@ -160,8 +160,7 @@ struct FormatAndMetrics {
 #endif
 	~FormatAndMetrics()
 	{
-		if(hfont)
-			::DeleteObject(hfont);
+		::DeleteObject(hfont);
 #if defined(USE_D2D)
 		CALLPTRMEMB(pTextFormat, Release());
 		pTextFormat = 0;
@@ -1947,8 +1946,7 @@ static HCURSOR GetReverseArrowCursor()
 					cursor = reverseArrowCursor;
 			}
 			::DeleteObject(info.hbmMask);
-			if(info.hbmColor != NULL)
-				::DeleteObject(info.hbmColor);
+			::DeleteObject(info.hbmColor);
 		}
 	}
 	::LeaveCriticalSection(&crPlatformLock);

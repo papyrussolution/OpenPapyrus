@@ -83,7 +83,7 @@ static int int_ctrl_helper(ENGINE * e, int cmd, long i, void * p,
 	/* Now handle cmd_name -> cmd_num conversion */
 	if(cmd == ENGINE_CTRL_GET_CMD_FROM_NAME) {
 		if((e->cmd_defns == NULL)
-		    || ((idx = int_ctrl_cmd_by_name(e->cmd_defns, s)) < 0)) {
+		   || ((idx = int_ctrl_cmd_by_name(e->cmd_defns, s)) < 0)) {
 			ENGINEerr(ENGINE_F_INT_CTRL_HELPER, ENGINE_R_INVALID_CMD_NAME);
 			return -1;
 		}
@@ -94,7 +94,7 @@ static int int_ctrl_helper(ENGINE * e, int cmd, long i, void * p,
 	 * command number - so we need to conduct a search.
 	 */
 	if((e->cmd_defns == NULL)
-	    || ((idx = int_ctrl_cmd_by_num(e->cmd_defns, (uint)i)) < 0)) {
+	   || ((idx = int_ctrl_cmd_by_num(e->cmd_defns, (uint)i)) < 0)) {
 		ENGINEerr(ENGINE_F_INT_CTRL_HELPER, ENGINE_R_INVALID_CMD_NUMBER);
 		return -1;
 	}
@@ -192,7 +192,7 @@ int ENGINE_ctrl_cmd(ENGINE * e, const char * cmd_name, long i, void * p, void (*
 		return 0;
 	}
 	if(e->ctrl == NULL
-	    || (num = ENGINE_ctrl(e, ENGINE_CTRL_GET_CMD_FROM_NAME,
+	   || (num = ENGINE_ctrl(e, ENGINE_CTRL_GET_CMD_FROM_NAME,
 	    0, (void *)cmd_name, NULL)) <= 0) {
 		/*
 		 * If the command didn't *have* to be supported, we fake success.
@@ -230,7 +230,7 @@ int ENGINE_ctrl_cmd_string(ENGINE * e, const char * cmd_name, const char * arg,
 		return 0;
 	}
 	if(e->ctrl == NULL
-	    || (num = ENGINE_ctrl(e, ENGINE_CTRL_GET_CMD_FROM_NAME,
+	   || (num = ENGINE_ctrl(e, ENGINE_CTRL_GET_CMD_FROM_NAME,
 	    0, (void *)cmd_name, NULL)) <= 0) {
 		/*
 		 * If the command didn't *have* to be supported, we fake success.

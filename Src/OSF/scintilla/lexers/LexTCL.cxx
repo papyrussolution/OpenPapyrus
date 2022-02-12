@@ -147,7 +147,7 @@ next:
 				while(*s == ':')  // ignore leading : like in ::set a 10
 					++s;
 				bool quote = sc.state == SCE_TCL_IN_QUOTE;
-				if(commentLevel  || expected) {
+				if(commentLevel || expected) {
 					if(keywords.InList(s)) {
 						sc.ChangeState(quote ? SCE_TCL_WORD_IN_QUOTE : SCE_TCL_WORD);
 					}

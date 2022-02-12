@@ -59,8 +59,8 @@ typedef struct {
 #define DecoderState(tif)       LState(tif)
 #define EncoderState(tif)       LState(tif)
 
-static int LZMAEncode(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s);
-static int LZMADecode(TIFF* tif, uint8 * op, tmsize_t occ, uint16 s);
+static int LZMAEncode(TIFF * tif, uint8 * bp, tmsize_t cc, uint16 s);
+static int LZMADecode(TIFF * tif, uint8 * op, tmsize_t occ, uint16 s);
 
 static const char * LZMAStrerror(lzma_ret ret)
 {
@@ -81,13 +81,13 @@ static const char * LZMAStrerror(lzma_ret ret)
 	}
 }
 
-static int LZMAFixupTags(TIFF* tif)
+static int LZMAFixupTags(TIFF * tif)
 {
 	(void)tif;
 	return 1;
 }
 
-static int LZMASetupDecode(TIFF* tif)
+static int LZMASetupDecode(TIFF * tif)
 {
 	LZMAState* sp = DecoderState(tif);
 	assert(sp != NULL);
@@ -102,7 +102,7 @@ static int LZMASetupDecode(TIFF* tif)
 /*
  * Setup state for decoding a strip.
  */
-static int LZMAPreDecode(TIFF* tif, uint16 s)
+static int LZMAPreDecode(TIFF * tif, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	LZMAState* sp = DecoderState(tif);
@@ -129,7 +129,7 @@ static int LZMAPreDecode(TIFF* tif, uint16 s)
 	return 1;
 }
 
-static int LZMADecode(TIFF* tif, uint8 * op, tmsize_t occ, uint16 s)
+static int LZMADecode(TIFF * tif, uint8 * op, tmsize_t occ, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	LZMAState* sp = DecoderState(tif);
@@ -177,7 +177,7 @@ static int LZMADecode(TIFF* tif, uint8 * op, tmsize_t occ, uint16 s)
 	return 1;
 }
 
-static int LZMASetupEncode(TIFF* tif)
+static int LZMASetupEncode(TIFF * tif)
 {
 	LZMAState* sp = EncoderState(tif);
 	assert(sp != NULL);
@@ -192,7 +192,7 @@ static int LZMASetupEncode(TIFF* tif)
 /*
  * Reset encoding state at the start of a strip.
  */
-static int LZMAPreEncode(TIFF* tif, uint16 s)
+static int LZMAPreEncode(TIFF * tif, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	LZMAState * sp = EncoderState(tif);
@@ -212,7 +212,7 @@ static int LZMAPreEncode(TIFF* tif, uint16 s)
 /*
  * Encode a chunk of pixels.
  */
-static int LZMAEncode(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s)
+static int LZMAEncode(TIFF * tif, uint8 * bp, tmsize_t cc, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	LZMAState * sp = EncoderState(tif);
@@ -246,7 +246,7 @@ static int LZMAEncode(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s)
  * Finish off an encoded strip by flushing the last
  * string and tacking on an End Of Information code.
  */
-static int LZMAPostEncode(TIFF* tif)
+static int LZMAPostEncode(TIFF * tif)
 {
 	static const char module[] = __FUNCTION__;
 	LZMAState * sp = EncoderState(tif);
@@ -275,7 +275,7 @@ static int LZMAPostEncode(TIFF* tif)
 	return 1;
 }
 
-static void LZMACleanup(TIFF* tif)
+static void LZMACleanup(TIFF * tif)
 {
 	LZMAState * sp = LState(tif);
 	assert(sp != 0);
@@ -291,7 +291,7 @@ static void LZMACleanup(TIFF* tif)
 	_TIFFSetDefaultCompressionState(tif);
 }
 
-static int LZMAVSetField(TIFF* tif, uint32 tag, va_list ap)
+static int LZMAVSetField(TIFF * tif, uint32 tag, va_list ap)
 {
 	static const char module[] = __FUNCTION__;
 	LZMAState* sp = LState(tif);
@@ -314,7 +314,7 @@ static int LZMAVSetField(TIFF* tif, uint32 tag, va_list ap)
 	/*NOTREACHED*/
 }
 
-static int LZMAVGetField(TIFF* tif, uint32 tag, va_list ap)
+static int LZMAVGetField(TIFF * tif, uint32 tag, va_list ap)
 {
 	LZMAState* sp = LState(tif);
 	switch(tag) {
@@ -332,7 +332,7 @@ static const TIFFField lzmaFields[] = {
 	  FIELD_PSEUDO, TRUE, FALSE, "LZMA2 Compression Preset", NULL },
 };
 
-int TIFFInitLZMA(TIFF* tif, int scheme)
+int TIFFInitLZMA(TIFF * tif, int scheme)
 {
 	static const char module[] = __FUNCTION__;
 	LZMAState* sp;

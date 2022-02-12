@@ -1,5 +1,5 @@
 // V_PERSON.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -101,7 +101,7 @@ int PPViewPerson::Init_(const PPBaseFilt * pFilt)
 	ZDELETE(P_TempPsn);
 	ZDELETE(P_Ct);
 	NewCliList.Clear();
-	StrPool.ClearS(); // @v9.8.4
+	StrPool.ClearS();
 	if(IsTempTblNeeded()) {
 		IterCounter cntr;
 		PersonTbl * pt = PsnObj.P_Tbl;
@@ -425,6 +425,15 @@ int PPViewPerson::UpdateHungedAddr(PPID addrID)
 	}
 	CATCHZOK
 	return ok;
+}
+
+/*virtual*/void * PPViewPerson::GetEditExtraParam()
+{
+	void * p_result = 0;
+	if(Filt.Kind) {
+		p_result = reinterpret_cast<void *>(Filt.Kind);
+	}
+	return p_result;
 }
 
 int PPViewPerson::AddItem(PPID * pID)

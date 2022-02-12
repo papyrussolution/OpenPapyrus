@@ -156,18 +156,14 @@ static size_t tls1_1_multi_block_encrypt(EVP_AES_HMAC_SHA1 * key,
 	/* ask for IVs in bulk */
 	if(RAND_bytes((IVs = blocks[0].c), 16 * x4) <= 0)
 		return 0;
-
 	ctx = (SHA1_MB_CTX*)(storage + 32 - ((size_t)storage % 32)); /* align */
-
 	frag = (uint)inp_len >> (1 + n4x);
 	last = (uint)inp_len + frag - (frag << (1 + n4x));
 	if(last > frag && ((last + 13 + 9) % 64) < (x4 - 1)) {
 		frag++;
 		last -= x4 - 1;
 	}
-
 	packlen = 5 + 16 + ((frag + 20 + 16) & -16);
-
 	/* populate descriptors with pointers and IVs */
 	hash_d[0].ptr = inp;
 	ciph_d[0].inp = inp;
@@ -230,7 +226,7 @@ static size_t tls1_1_multi_block_encrypt(EVP_AES_HMAC_SHA1 * key,
 	/* hash bulk inputs */
 #define MAXCHUNKSIZE    2048
 #if     MAXCHUNKSIZE%64
-#   error  "MAXCHUNKSIZE is not divisible by 64"
+#error  "MAXCHUNKSIZE is not divisible by 64"
 #elif   MAXCHUNKSIZE
 	/*
 	 * goal is to minimize pressure on L1 cache by moving in shorter steps,

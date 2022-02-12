@@ -510,8 +510,8 @@ enum ssh_keytypes_e ssh_key_type_from_name(const char * name) {
 		return SSH_KEYTYPE_DSS;
 	}
 	else if(strcmp(name, "ssh-ecdsa") == 0
-	    || strcmp(name, "ecdsa") == 0
-	    || strcmp(name, "ecdsa-sha2-nistp256") == 0) {
+	   || strcmp(name, "ecdsa") == 0
+	   || strcmp(name, "ecdsa-sha2-nistp256") == 0) {
 		return SSH_KEYTYPE_ECDSA_P256;
 	}
 	else if(strcmp(name, "ecdsa-sha2-nistp384") == 0) {

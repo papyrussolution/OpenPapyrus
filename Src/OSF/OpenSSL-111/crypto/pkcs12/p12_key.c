@@ -125,14 +125,14 @@ int PKCS12_key_gen_uni(uchar * pass, int passlen, uchar * salt,
 		*p++ = pass[i % passlen];
 	for(;;) {
 		if(!EVP_DigestInit_ex(ctx, md_type, NULL)
-		    || !EVP_DigestUpdate(ctx, D, v)
-		    || !EVP_DigestUpdate(ctx, I, Ilen)
-		    || !EVP_DigestFinal_ex(ctx, Ai, NULL))
+		   || !EVP_DigestUpdate(ctx, D, v)
+		   || !EVP_DigestUpdate(ctx, I, Ilen)
+		   || !EVP_DigestFinal_ex(ctx, Ai, NULL))
 			goto err;
 		for(j = 1; j < iter; j++) {
 			if(!EVP_DigestInit_ex(ctx, md_type, NULL)
-			    || !EVP_DigestUpdate(ctx, Ai, u)
-			    || !EVP_DigestFinal_ex(ctx, Ai, NULL))
+			   || !EVP_DigestUpdate(ctx, Ai, u)
+			   || !EVP_DigestFinal_ex(ctx, Ai, NULL))
 				goto err;
 		}
 		memcpy(out, Ai, min(n, u));

@@ -230,8 +230,8 @@ int ssl3_cbc_digest_record(const EVP_MD_CTX * ctx,
 	}
 
 	if(!ossl_assert(md_length_size <= MAX_HASH_BIT_COUNT_BYTES)
-	    || !ossl_assert(md_block_size <= MAX_HASH_BLOCK_SIZE)
-	    || !ossl_assert(md_size <= EVP_MAX_MD_SIZE))
+	   || !ossl_assert(md_block_size <= MAX_HASH_BLOCK_SIZE)
+	   || !ossl_assert(md_size <= EVP_MAX_MD_SIZE))
 		return 0;
 
 	header_length = 13;
@@ -464,7 +464,7 @@ int ssl3_cbc_digest_record(const EVP_MD_CTX * ctx,
 			hmac_pad[i] ^= 0x6a;
 
 		if(EVP_DigestUpdate(md_ctx, hmac_pad, md_block_size) <= 0
-		    || EVP_DigestUpdate(md_ctx, mac_out, md_size) <= 0)
+		   || EVP_DigestUpdate(md_ctx, mac_out, md_size) <= 0)
 			goto err;
 	}
 	/* TODO(size_t): Convert me */

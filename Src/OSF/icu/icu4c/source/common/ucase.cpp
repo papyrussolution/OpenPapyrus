@@ -736,7 +736,7 @@ U_CFUNC int32_t ucase_getCaseLocale(const char * locale) {
 	}
 	else if(c<='z') { // EBCDIC a-z = 0x81..0xa9 with two gaps, before A-Z
 #else
-#   error Unknown charset family!
+#error Unknown charset family!
 #endif
 		// lowercase c
 		if(c=='t') {

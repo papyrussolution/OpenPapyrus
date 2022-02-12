@@ -22,7 +22,6 @@
 #define XAPIAN_INCLUDED_MULTI_TERMLIST_H
 
 #include "api/termlist.h"
-
 #include <xapian/database.h>
 
 using Xapian::Internal::intrusive_ptr_nonnull;
@@ -33,65 +32,55 @@ using Xapian::Internal::intrusive_ptr_nonnull;
  *  fetches the combined term frequency from the multidatabase.
  */
 class MultiTermList : public TermList {
-    /// Don't allow assignment.
-    void operator=(const MultiTermList &) = delete;
+	/// Don't allow assignment.
+	void operator=(const MultiTermList &) = delete;
+	/// Don't allow copying.
+	MultiTermList(const MultiTermList &) = delete;
+	/// The TermList in the subdatabase.
+	TermList* real_termlist;
+	/// The multidatabase.
+	intrusive_ptr_nonnull<const Xapian::Database::Internal> db;
+public:
+	/// Constructor.
+	MultiTermList(const Xapian::Database::Internal* db_, TermList* real_termlist_);
+	~MultiTermList();
 
-    /// Don't allow copying.
-    MultiTermList(const MultiTermList &) = delete;
+	/// Return approximate size of this termlist.
+	Xapian::termcount get_approx_size() const;
 
-    /// The TermList in the subdatabase.
-    TermList* real_termlist;
+	/// Return the termname at the current position.
+	std::string get_termname() const;
 
-    /// The multidatabase.
-    intrusive_ptr_nonnull<const Xapian::Database::Internal> db;
+	/// Return the wdf for the term at the current position.
+	Xapian::termcount get_wdf() const;
 
-  public:
-    /// Constructor.
-    MultiTermList(const Xapian::Database::Internal* db_, TermList* real_termlist_);
+	/// Return the term frequency for the term at the current position.
+	Xapian::doccount get_termfreq() const;
 
-    /// Destructor.
-    ~MultiTermList();
-
-    /// Return approximate size of this termlist.
-    Xapian::termcount get_approx_size() const;
-
-    /// Return the termname at the current position.
-    std::string get_termname() const;
-
-    /// Return the wdf for the term at the current position.
-    Xapian::termcount get_wdf() const;
-
-    /// Return the term frequency for the term at the current position.
-    Xapian::doccount get_termfreq() const;
-
-    /** Advance the current position to the next term in the termlist.
-     *
-     *  The list starts before the first term in the list, so next(), skip_to()
-     *  or check() must be called before any methods which need the context of
-     *  the current position.
-     *
-     *  @return	If a non-NULL pointer is returned, then the caller should
-     *		substitute the returned pointer for its pointer to us, and then
-     *		delete us.  This "pruning" can only happen for a non-leaf
-     *		subclass of this class.
-     */
-    Internal * next();
-
-    /** Skip forward to the specified term.
-     *
-     *  If the specified term isn't in the list, position ourselves on the
-     *  first term after tname (or at_end() if no terms after tname exist).
-     */
-    Internal * skip_to(const std::string &term);
-
-    /// Return true if the current position is past the last term in this list.
-    bool at_end() const;
-
-    /// Return the length of the position list for the current position.
-    Xapian::termcount positionlist_count() const;
-
-    /// Return a PositionIterator for the current position.
-    PositionList* positionlist_begin() const;
+	/** Advance the current position to the next term in the termlist.
+	 *
+	 *  The list starts before the first term in the list, so next(), skip_to()
+	 *  or check() must be called before any methods which need the context of
+	 *  the current position.
+	 *
+	 *  @return	If a non-NULL pointer is returned, then the caller should
+	 *		substitute the returned pointer for its pointer to us, and then
+	 *		delete us.  This "pruning" can only happen for a non-leaf
+	 *		subclass of this class.
+	 */
+	Internal * next();
+	/** Skip forward to the specified term.
+	 *
+	 *  If the specified term isn't in the list, position ourselves on the
+	 *  first term after tname (or at_end() if no terms after tname exist).
+	 */
+	Internal * skip_to(const std::string &term);
+	/// Return true if the current position is past the last term in this list.
+	bool at_end() const;
+	/// Return the length of the position list for the current position.
+	Xapian::termcount positionlist_count() const;
+	/// Return a PositionIterator for the current position.
+	PositionList* positionlist_begin() const;
 };
 
 #endif // XAPIAN_INCLUDED_MULTI_TERMLIST_H

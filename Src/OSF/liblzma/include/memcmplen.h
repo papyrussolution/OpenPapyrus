@@ -67,7 +67,7 @@ static inline uint32_t lzma_attribute((__always_inline__)) lzma_memcmplen(const 
 	// version is sometimes significantly faster and sometimes
 	// slightly slower than this SSE2 version, so this SSE2
 	// version isn't used on x86-64.
-#	define LZMA_MEMCMPLEN_EXTRA 16
+#define LZMA_MEMCMPLEN_EXTRA 16
 	while(len < limit) {
 		const uint32_t x = 0xFFFF ^ _mm_movemask_epi8(_mm_cmpeq_epi8(_mm_loadu_si128((const __m128i *)(buf1 + len)), _mm_loadu_si128((const __m128i *)(buf2 + len))));
 		if(x != 0) {

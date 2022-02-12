@@ -1,5 +1,5 @@
 // IE_GOODS.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Starodub 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -376,11 +376,19 @@ int PPQuotImporter::Run(const char * pCfgName, int use_ta)
 							}
 						}
 						if(!goods_id && sdr_rec.GoodsCode[0]) {
-							if(sdr_rec.GoodsCode[0] && GObj.SearchByBarcode(sdr_rec.GoodsCode, &bc_rec, &goods_rec, 1) > 0) {
+							if(GObj.SearchByBarcode(sdr_rec.GoodsCode, &bc_rec, &goods_rec, 1) > 0) {
 								if(goods_rec.Kind == PPGDSK_GOODS && !(goods_rec.Flags & GF_GENERIC))
 									goods_id = bc_rec.GoodsID;
 							}
 						}
+						// @v11.3.1 {
+						if(!goods_id && sdr_rec.GoodsName[0]) { 
+							if(GObj.SearchByName(sdr_rec.GoodsName, 0, &goods_rec) > 0) {
+								if(goods_rec.Kind == PPGDSK_GOODS && !(goods_rec.Flags & GF_GENERIC))
+									goods_id = goods_rec.ID;
+							}
+						}
+						// } @v11.3.1 
 						if(goods_id) {
 							if(sdr_rec.ArID) {
 								if(ArObj.Search(sdr_rec.ArID, &ar_rec) > 0)

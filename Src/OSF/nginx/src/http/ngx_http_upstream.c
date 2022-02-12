@@ -2135,8 +2135,8 @@ static void ngx_http_upstream_process_upgraded(ngx_http_request_t * r, ngx_uint_
 		break;
 	}
 	if((upstream->P_EvRd->eof && u->buffer.pos == u->buffer.last)
-	    || (downstream->P_EvRd->eof && u->from_client.pos == u->from_client.last)
-	    || (downstream->P_EvRd->eof && upstream->P_EvRd->eof)) {
+	   || (downstream->P_EvRd->eof && u->from_client.pos == u->from_client.last)
+	   || (downstream->P_EvRd->eof && upstream->P_EvRd->eof)) {
 		ngx_log_debug0(NGX_LOG_DEBUG_HTTP, c->log, 0, "http upstream upgraded done");
 		ngx_http_upstream_finalize_request(r, u, 0);
 		return;
@@ -2612,7 +2612,7 @@ static void ngx_http_upstream_next(ngx_http_request_t * r, ngx_http_upstream_t *
 		ft_type |= NGX_HTTP_UPSTREAM_FT_NON_IDEMPOTENT;
 	}
 	if(u->peer.tries == 0 || ((u->conf->next_upstream & ft_type) != ft_type) || (u->request_sent && r->request_body_no_buffering)
-	    || (timeout && ngx_current_msec - u->peer.start_time >= timeout)) {
+	   || (timeout && ngx_current_msec - u->peer.start_time >= timeout)) {
 #if (NGX_HTTP_CACHE)
 		if(u->cache_status == NGX_HTTP_CACHE_EXPIRED && ((u->conf->cache_use_stale & ft_type) || r->cache->stale_error)) {
 			ngx_int_t rc = u->reinit_request(r);

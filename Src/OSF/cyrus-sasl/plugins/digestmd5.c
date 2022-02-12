@@ -56,8 +56,8 @@
 /* DES support */
 #ifdef WITH_DES
 # ifdef WITH_SSL_DES
-#  include <openssl/des.h>
-#  include <openssl/opensslv.h>
+#include <openssl/des.h>
+#include <openssl/opensslv.h>
 #  if(OPENSSL_VERSION_NUMBER >= 0x0090700f) && \
 	!defined(OPENSSL_ENABLE_OLD_DES_SUPPORT)
 #define des_cblock DES_cblock
@@ -71,15 +71,15 @@
 #  endif /* OpenSSL 0.9.7+ w/o old DES support */
 # else /* system DES library */
 #ifdef HAVE_DES_H
-#  include <des.h>
+#include <des.h>
 #endif
 # endif
 #endif /* WITH_DES */
 
 #ifdef WIN32
-# include <winsock2.h>
+#include <winsock2.h>
 #else /* Unix */
-# include <netinet/in.h>
+#include <netinet/in.h>
 #endif /* WIN32 */
 
 #include <sasl.h>

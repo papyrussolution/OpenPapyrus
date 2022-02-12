@@ -25,19 +25,16 @@
 #include "backends/databaseinternal.h"
 #include "backends/documentinternal.h"
 #include "matcher/postlisttree.h"
-#include "xapian/queryparser.h" // For sortable_unserialise().
 #include "serialise-double.h"
 
 using namespace std;
 
 namespace Xapian {
-PostingSource::~PostingSource() {
+PostingSource::~PostingSource() 
+{
 }
 
-double PostingSource::get_weight() const
-{
-	return 0;
-}
+double PostingSource::get_weight() const { return 0.0; }
 
 void PostingSource::skip_to(Xapian::docid did, double min_wt)
 {
@@ -72,8 +69,7 @@ PostingSource * PostingSource::unserialise(const string &) const
 	throw Xapian::UnimplementedError("unserialise() not supported for this PostingSource");
 }
 
-PostingSource * PostingSource::unserialise_with_registry(const std::string &s,
-    const Registry &) const
+PostingSource * PostingSource::unserialise_with_registry(const std::string &s, const Registry &) const
 {
 	return unserialise(s);
 }
@@ -85,8 +81,7 @@ void PostingSource::reset(const Database& db, Xapian::doccount)
 
 void PostingSource::init(const Database&)
 {
-	const char* msg = "Either PostingSource::reset() or PostingSource::init() "
-	    "must be overridden";
+	const char* msg = "Either PostingSource::reset() or PostingSource::init() must be overridden";
 	throw Xapian::InvalidOperationError(msg);
 }
 
@@ -95,20 +90,9 @@ string PostingSource::get_description() const
 	return "Xapian::PostingSource subclass";
 }
 
-Xapian::doccount ValuePostingSource::get_termfreq_min() const
-{
-	return termfreq_min;
-}
-
-Xapian::doccount ValuePostingSource::get_termfreq_est() const
-{
-	return termfreq_est;
-}
-
-Xapian::doccount ValuePostingSource::get_termfreq_max() const
-{
-	return termfreq_max;
-}
+Xapian::doccount ValuePostingSource::get_termfreq_min() const { return termfreq_min; }
+Xapian::doccount ValuePostingSource::get_termfreq_est() const { return termfreq_est; }
+Xapian::doccount ValuePostingSource::get_termfreq_max() const { return termfreq_max; }
 
 void ValuePostingSource::next(double min_wt)
 {
@@ -119,9 +103,8 @@ void ValuePostingSource::next(double min_wt)
 	else {
 		++value_it;
 	}
-
-	if(value_it == db.valuestream_end(slot)) return;
-
+	if(value_it == db.valuestream_end(slot)) 
+		return;
 	if(min_wt > get_maxweight()) {
 		value_it = db.valuestream_end(slot);
 		return;
@@ -133,10 +116,8 @@ void ValuePostingSource::skip_to(Xapian::docid min_docid, double min_wt)
 	if(!started) {
 		started = true;
 		value_it = db.valuestream_begin(slot);
-
 		if(value_it == db.valuestream_end(slot)) return;
 	}
-
 	if(min_wt > get_maxweight()) {
 		value_it = db.valuestream_end(slot);
 		return;
@@ -149,10 +130,9 @@ bool ValuePostingSource::check(Xapian::docid min_docid, double min_wt)
 	if(!started) {
 		started = true;
 		value_it = db.valuestream_begin(slot);
-
-		if(value_it == db.valuestream_end(slot)) return true;
+		if(value_it == db.valuestream_end(slot)) 
+			return true;
 	}
-
 	if(min_wt > get_maxweight()) {
 		value_it = db.valuestream_end(slot);
 		return true;
@@ -194,8 +174,7 @@ string ValuePostingSource::get_description() const
 	return desc;
 }
 
-ValueWeightPostingSource::ValueWeightPostingSource(Xapian::valueno slot_)
-	: ValuePostingSource(slot_)
+ValueWeightPostingSource::ValueWeightPostingSource(Xapian::valueno slot_) : ValuePostingSource(slot_)
 {
 }
 
@@ -227,19 +206,16 @@ ValueWeightPostingSource * ValueWeightPostingSource::unserialise(const string &s
 {
 	const char * p = s.data();
 	const char * end = p + s.size();
-
 	Xapian::valueno new_slot;
 	if(!unpack_uint_last(&p, end, &new_slot)) {
 		unpack_throw_serialisation_error(p);
 	}
-
 	return new ValueWeightPostingSource(new_slot);
 }
 
 void ValueWeightPostingSource::init(const Database & db_)
 {
 	ValuePostingSource::init(db_);
-
 	string upper_bound;
 	try {
 		upper_bound = get_database().get_value_upper_bound(get_slot());
@@ -403,14 +379,12 @@ void FixedWeightPostingSource::next(double min_wt)
 	else {
 		++it;
 	}
-
-	if(it == db.postlist_end(string())) return;
-
+	if(it == db.postlist_end(string())) 
+		return;
 	if(check_docid) {
 		it.skip_to(check_docid + 1);
 		check_docid = 0;
 	}
-
 	if(min_wt > get_maxweight()) {
 		it = db.postlist_end(string());
 	}
@@ -421,7 +395,6 @@ void FixedWeightPostingSource::skip_to(Xapian::docid min_docid, double min_wt)
 	if(!started) {
 		started = true;
 		it = db.postlist_begin(string());
-
 		if(it == db.postlist_end(string())) return;
 	}
 

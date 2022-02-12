@@ -620,14 +620,11 @@ static void multimerge_postlists(Xapian::Compactor * compactor,
 			root_info.init(65536, 0);
 			const int flags = Xapian::DB_DANGEROUS|Xapian::DB_NO_SYNC;
 			tmptab->create_and_open(flags, root_info);
-
-			merge_postlists(compactor, tmptab, off.begin() + i,
-			    tmp.begin() + i, tmp.begin() + j);
+			merge_postlists(compactor, tmptab, off.begin() + i, tmp.begin() + i, tmp.begin() + j);
 			if(c > 0) {
 				for(uint k = i; k < j; ++k) {
 					_unlink(tmp[k]->get_path().c_str());
-					delete tmp[k];
-					tmp[k] = NULL;
+					ZDELETE(tmp[k]);
 				}
 			}
 			tmpout.push_back(tmptab);
@@ -643,15 +640,13 @@ static void multimerge_postlists(Xapian::Compactor * compactor,
 	if(c > 0) {
 		for(size_t k = 0; k < tmp.size(); ++k) {
 			_unlink(tmp[k]->get_path().c_str());
-			delete tmp[k];
-			tmp[k] = NULL;
+			ZDELETE(tmp[k]);
 		}
 	}
 }
 
 class PositionCursor : private GlassCursor {
 	Xapian::docid offset;
-
 public:
 	string key;
 	Xapian::docid firstdid;
@@ -1103,7 +1098,6 @@ void GlassDatabase::compact(Xapian::Compactor * compactor,
 		}
 #endif
 	}
-
 	if(single_file) {
 		if(lseek(fd, version_file_out->get_offset(), SEEK_SET) < 0) {
 			throw Xapian::DatabaseError("lseek() failed", errno);
@@ -1119,6 +1113,5 @@ void GlassDatabase::compact(Xapian::Compactor * compactor,
 	for(uint j = 0; j != tabs.size(); ++j) {
 		delete tabs[j];
 	}
-
 	if(!single_file) lock.release();
 }

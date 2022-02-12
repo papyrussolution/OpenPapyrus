@@ -23,35 +23,30 @@
 #define XAPIAN_INCLUDED_CONSTANTS_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error Never use <xapian/constants.h> directly; include <xapian.h> instead.
+#error Never use <xapian/constants.h> directly; include <xapian.h> instead.
 #endif
 
 namespace Xapian {
-
 /** Create database if it doesn't already exist.
  *
  *  If no opening mode is specified, this is the default.
  */
-const int DB_CREATE_OR_OPEN	 = 0x00;
-
-/** Create database if it doesn't already exist, or overwrite if it does. */
-const int DB_CREATE_OR_OVERWRITE = 0x01;
-
+const int DB_CREATE_OR_OPEN      = 0x00;
+const int DB_CREATE_OR_OVERWRITE = 0x01; /** Create database if it doesn't already exist, or overwrite if it does. */
 /** Create a new database.
  *
  *  If the database already exists, an exception will be thrown.
  */
-const int DB_CREATE		 = 0x02;
-
+const int DB_CREATE              = 0x02;
 /** Open an existing database.
  *
  *  If the database doesn't exist, an exception will be thrown.
  */
-const int DB_OPEN		 = 0x03;
+const int DB_OPEN                = 0x03;
 
 #ifdef XAPIAN_LIB_BUILD
 /** @internal Bit mask for action codes. */
-const int DB_ACTION_MASK_	 = 0x03;
+const int DB_ACTION_MASK_        = 0x03;
 #endif
 
 /** Don't attempt to ensure changes have hit disk.
@@ -63,7 +58,7 @@ const int DB_ACTION_MASK_	 = 0x03;
  *  losing changes in the case of a crash, power failure, etc, then this option
  *  can speed up indexing significantly.
  */
-const int DB_NO_SYNC		 = 0x04;
+const int DB_NO_SYNC             = 0x04;
 
 /** Try to ensure changes are really written to disk.
  *
@@ -80,7 +75,7 @@ const int DB_NO_SYNC		 = 0x04;
  *  Currently only Mac OS X is supported, and only on some filing system types
  *  - if not supported, Xapian will use fsync() or similar instead.
  */
-const int DB_FULL_SYNC		 = 0x08;
+const int DB_FULL_SYNC           = 0x08;
 
 /** Update the database in-place.
  *
@@ -100,7 +95,7 @@ const int DB_FULL_SYNC		 = 0x08;
  *  readers from opening the database while it unsafe to do so, but there's
  *  not currently a mechanism in Xapian to handle notifying existing readers.
  */
-const int DB_DANGEROUS		 = 0x10;
+const int DB_DANGEROUS           = 0x10;
 
 /** When creating a database, don't create a termlist table.
  *
@@ -133,7 +128,7 @@ const int DB_DANGEROUS		 = 0x10;
  *  You can also convert an existing database to not have a termlist table
  *  by simply deleting termlist.*.
  */
-const int DB_NO_TERMLIST	 = 0x20;
+const int DB_NO_TERMLIST         = 0x20;
 
 /** If the database is already locked, retry the lock.
  *
@@ -142,7 +137,7 @@ const int DB_NO_TERMLIST	 = 0x20;
  *  If this flag is specified, then Xapian will instead wait for the lock
  *  (indefinitely, unless it gets an error trying to do so).
  */
-const int DB_RETRY_LOCK		 = 0x40;
+const int DB_RETRY_LOCK          = 0x40;
 
 /** Use the glass backend.
  *
@@ -155,13 +150,13 @@ const int DB_RETRY_LOCK		 = 0x40;
  *  as equivalent functionality to that provided by the namespaced open()
  *  functions in Xapian 1.2.
  */
-const int DB_BACKEND_GLASS	 = 0x100;
+const int DB_BACKEND_GLASS       = 0x100;
 
 /** Use the chert backend.
  *
  *  No longer supported as of Xapian 1.5.0.
  */
-const int DB_BACKEND_CHERT	 = 0x200;
+const int DB_BACKEND_CHERT       = 0x200;
 
 /** Open a stub database file.
  *
@@ -170,7 +165,7 @@ const int DB_BACKEND_CHERT	 = 0x200;
  *  provided as equivalent functionality to Xapian::Auto::open_stub() in
  *  Xapian 1.2.
  */
-const int DB_BACKEND_STUB	 = 0x300;
+const int DB_BACKEND_STUB        = 0x300;
 
 /** Use the "in memory" backend.
  *
@@ -186,7 +181,7 @@ const int DB_BACKEND_STUB	 = 0x300;
  *
  *  This provides an equivalent to Xapian::InMemory::open() in Xapian 1.2.
  */
-const int DB_BACKEND_INMEMORY	 = 0x400;
+const int DB_BACKEND_INMEMORY    = 0x400;
 
 /** Use the honey backend.
  *
@@ -199,35 +194,26 @@ const int DB_BACKEND_INMEMORY	 = 0x400;
  *  as equivalent functionality to that provided by the namespaced open()
  *  functions in Xapian 1.2.
  */
-const int DB_BACKEND_HONEY	 = 0x500;
-
+const int DB_BACKEND_HONEY       = 0x500;
 #ifdef XAPIAN_LIB_BUILD
-/** @internal Bit mask for backend codes. */
-const int DB_BACKEND_MASK_	 = 0x700;
-
-/** @internal Used internally to signify opening read-only. */
-const int DB_READONLY_		 = -1;
+	const int DB_BACKEND_MASK_       = 0x700; /** @internal Bit mask for backend codes. */
+	const int DB_READONLY_           = -1; /** @internal Used internally to signify opening read-only. */
 #endif
-
-
 /** Show a short-format display of the B-tree contents.
  *
  *  For use with Xapian::Database::check().
  */
 const int DBCHECK_SHORT_TREE = 1;
-
 /** Show a full display of the B-tree contents.
  *
  *  For use with Xapian::Database::check().
  */
 const int DBCHECK_FULL_TREE = 2;
-
 /** Show the bitmap for the B-tree.
  *
  *  For use with Xapian::Database::check().
  */
 const int DBCHECK_SHOW_FREELIST = 4;
-
 /** Show statistics for the B-tree.
  *
  *  For use with Xapian::Database::check().
@@ -248,7 +234,6 @@ const int DBCHECK_SHOW_STATS = 8;
  *      committed).
  */
 const int DBCHECK_FIX = 16;
-
 
 /** Use the same document ids in the output as in the input(s).
  *
@@ -285,7 +270,6 @@ const int DBCOMPACT_SINGLE_FILE = 16;
  *  does.
  */
 const int DOC_ASSUME_VALID = 1;
-
 }
 
 #endif /* XAPIAN_INCLUDED_CONSTANTS_H */

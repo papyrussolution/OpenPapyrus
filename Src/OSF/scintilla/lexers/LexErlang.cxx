@@ -490,7 +490,7 @@ static void ColouriseErlangDoc(Sci_PositionU startPos, Sci_Position length, int 
 					sc.SetState(SCE_ERLANG_UNKNOWN);
 				}
 				else if(isoperator(static_cast<char>(sc.ch))
-				    || sc.ch == '\\') {
+				   || sc.ch == '\\') {
 					sc.SetState(SCE_ERLANG_OPERATOR);
 				}
 			}
@@ -537,25 +537,19 @@ static void FoldErlangDoc(Sci_PositionU startPos, Sci_Position length, int initS
 		styleNext = styler.StyleAt(i + 1);
 		atEOL = ((ch == '\r') && (chNext != '\n')) || (ch == '\n');
 
-		if(stylePrev != SCE_ERLANG_KEYWORD
-		 && style == SCE_ERLANG_KEYWORD) {
+		if(stylePrev != SCE_ERLANG_KEYWORD && style == SCE_ERLANG_KEYWORD) {
 			keyword_start = i;
 		}
 
 		// Fold on keywords
-		if(stylePrev == SCE_ERLANG_KEYWORD
-		 && style != SCE_ERLANG_KEYWORD
-		 && style != SCE_ERLANG_ATOM
-		    ) {
+		if(stylePrev == SCE_ERLANG_KEYWORD && style != SCE_ERLANG_KEYWORD && style != SCE_ERLANG_ATOM) {
 			currentLevel += ClassifyErlangFoldPoint(styler,
 			    styleNext,
 			    keyword_start);
 		}
 
 		// Fold on comments
-		if(style == SCE_ERLANG_COMMENT
-		    || style == SCE_ERLANG_COMMENT_MODULE
-		    || style == SCE_ERLANG_COMMENT_FUNCTION) {
+		if(style == SCE_ERLANG_COMMENT || style == SCE_ERLANG_COMMENT_MODULE || style == SCE_ERLANG_COMMENT_FUNCTION) {
 			if(ch == '%' && chNext == '{') {
 				currentLevel++;
 			}
@@ -573,10 +567,8 @@ static void FoldErlangDoc(Sci_PositionU startPos, Sci_Position length, int initS
 				currentLevel--;
 			}
 		}
-
 		if(atEOL) {
 			lev = previousLevel;
-
 			if(currentLevel > previousLevel)
 				lev |= SC_FOLDLEVELHEADERFLAG;
 
@@ -589,9 +581,7 @@ static void FoldErlangDoc(Sci_PositionU startPos, Sci_Position length, int initS
 	}
 
 	// Fill in the real level of the next line, keeping the current flags as they will be filled in later
-	styler.SetLevel(currentLine,
-	    previousLevel
-	    | (styler.LevelAt(currentLine) & ~SC_FOLDLEVELNUMBERMASK));
+	styler.SetLevel(currentLine, previousLevel | (styler.LevelAt(currentLine) & ~SC_FOLDLEVELNUMBERMASK));
 }
 
 static const char * const erlangWordListDesc[] = {

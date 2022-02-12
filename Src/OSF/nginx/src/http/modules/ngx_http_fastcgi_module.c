@@ -2179,7 +2179,7 @@ static ngx_int_t ngx_http_fastcgi_script_name_variable(ngx_http_request_t * r, n
 		return NGX_ERROR;
 	}
 	if(f->script_name.len == 0
-	    || f->script_name.data[f->script_name.len - 1] != '/') {
+	   || f->script_name.data[f->script_name.len - 1] != '/') {
 		v->len = f->script_name.len;
 		v->valid = 1;
 		v->no_cacheable = 0;

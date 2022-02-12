@@ -265,7 +265,7 @@ int srp_generate_client_master_secret(SSL * s)
 		goto err;
 	}
 	if((x = SRP_Calc_x(s->srp_ctx.s, s->srp_ctx.login, passwd)) == NULL
-	    || (K = SRP_Calc_client_key(s->srp_ctx.N, s->srp_ctx.B,
+	   || (K = SRP_Calc_client_key(s->srp_ctx.N, s->srp_ctx.B,
 	    s->srp_ctx.g, x,
 	    s->srp_ctx.a, u)) == NULL) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SRP_GENERATE_CLIENT_MASTER_SECRET, ERR_R_INTERNAL_ERROR);

@@ -1,5 +1,5 @@
 // PPREPORT.CPP
-// Copyright (C) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (C) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -231,16 +231,15 @@ SReport::SReport(uint rezID, long flags)
 
 SReport::~SReport()
 {
-	int    i;
 	delete fields;
-	for(i = 0; i < grpCount; i++) {
-		delete groups[i].fields;
-		delete groups[i].lastval;
+	for(int grpidx = 0; grpidx < grpCount; grpidx++) {
+		delete groups[grpidx].fields;
+		delete groups[grpidx].lastval;
 	}
 	delete agrs;
 	delete groups;
-	for(i = 0; i < bandCount; i++)
-		delete bands[i].fields;
+	for(int bandidx = 0; bandidx < bandCount; bandidx++)
+		delete bands[bandidx].fields;
 	delete bands;
 	delete P_Prn;
 	SAlloc::F(P_Text);
@@ -404,7 +403,8 @@ int SReport::skipField(int i, int skip)
 		SETFLAG(fields[i].fldfmt, FLDFMT_SKIP, skip);
 		return 1;
 	}
-	return 0;
+	else
+		return 0;
 }
 
 int SReport::check()
@@ -491,7 +491,7 @@ static const int row_band_types[] = { DETAIL_BODY, GROUP_HEAD, GROUP_FOOT };
 //
 //
 //
-int LoadExportOptions(const char * pReportName, PEExportOptions * pOptions, int * pSilent, SString & rPath)
+int LoadExportOptions(const char * pReportName, PEExportOptions * pOptions, bool * pSilent, SString & rPath)
 {
 	int    ok = 1;
 	int    silent = 0;
@@ -538,22 +538,27 @@ int LoadExportOptions(const char * pReportName, PEExportOptions * pOptions, int 
 							case 2: // FormatTypes[2] == UXFCommaSeparatedType
 							case 3: // FormatTypes[3] == UXFTabSeparatedType
 								options.formatOptions = new UXFCommaTabSeparatedOptions;
+								options.nFormatOptionsBytes = sizeof(UXFCommaTabSeparatedOptions); // @v11.3.1
 								static_cast<UXFCommaTabSeparatedOptions *>(options.formatOptions)->structSize = UXFCommaTabSeparatedOptionsSize;
 								break;
 							case 4: // FormatTypes[4] == UXFCharSeparatedType
 								options.formatOptions = new UXFCharSeparatedOptions;
+								options.nFormatOptionsBytes = sizeof(UXFCharSeparatedOptions); // @v11.3.1
 								static_cast<UXFCharSeparatedOptions *>(options.formatOptions)->structSize = UXFCharSeparatedOptionsSize;
 								break;
 							case 6: // FormatTypes[6] == UXFXls7ExtType
 								options.formatOptions = new UXFXlsOptions;
+								options.nFormatOptionsBytes = sizeof(UXFXlsOptions); // @v11.3.1
 								static_cast<UXFXlsOptions *>(options.formatOptions)->structSize = UXFXlsOptionsSize;
 								break;
 							case 7: // FormatTypes[7] == UXFPdfType
 								options.formatOptions = new UXFPdfOptions;
+								options.nFormatOptionsBytes = sizeof(UXFPdfOptions); // @v11.3.1
 								static_cast<UXFPdfOptions *>(options.formatOptions)->structSize = UXFPdfOptionsSize;
 								break;
 							default:
 								options.formatOptions = 0;
+								options.nFormatOptionsBytes = 0; // @v11.3.1
 								break;
 						}
 					}
@@ -643,10 +648,12 @@ int LoadExportOptions(const char * pReportName, PEExportOptions * pOptions, int 
 						switch(idx) {
 							case 0: // DestinationTypes[0] == UXDApplicationType
 								options.destinationOptions = new UXDApplicationOptions;
+								options.nDestinationOptionsBytes = sizeof(UXDApplicationOptions); // @v11.3.1
 								static_cast<UXDApplicationOptions *>(options.destinationOptions)->structSize = UXDApplicationOptionsSize;
 								break;
 							case 1: // DestinationTypes[1] == UXDDiskType
 								options.destinationOptions = new UXDDiskOptions;
+								options.nDestinationOptionsBytes = sizeof(UXDDiskOptions); // @v11.3.1
 								static_cast<UXDDiskOptions *>(options.destinationOptions)->structSize = UXDDiskOptionsSize;
 								break;
 							default:
@@ -697,7 +704,7 @@ int LoadExportOptions(const char * pReportName, PEExportOptions * pOptions, int 
 	}
 	CATCHZOK
 	ASSIGN_PTR(pOptions, options);
-	ASSIGN_PTR(pSilent, ok > 0 ? silent : 0);
+	ASSIGN_PTR(pSilent, (ok > 0) ? LOGIC(silent) : false);
 	return ok;
 }
 
@@ -744,14 +751,6 @@ ReportDescrEntry::ReportDescrEntry() : Flags(0)
 			tok = tUnkn;
 	}
 	return tok;
-}
-
-int ReportDescrEntry::ParseIniString(const char * pLine, const ReportDescrEntry * pBaseEntry)
-{
-	int    ok = 1;
-	SString line_buf;
-	(line_buf = pLine).Chomp();
-	return ok;
 }
 
 int ReportDescrEntry::SetReportFileName(const char * pFileName)
@@ -986,7 +985,7 @@ public:
 		SETIFZ(Data.Dest, 1);
 		Data.Selection = 0;
 		{
-			int    silent = 0;
+			bool   silent = false;
 			/* @v10.7.6 if(LoadExportOptions(P_Data->P_ReportName, 0, &silent, temp_buf.Z()) > 0)
 				EnableEMail = 1; */
 			LoadExportOptions(Data.ReportName, 0, &silent, temp_buf.Z()); // @v10.7.6
@@ -1873,7 +1872,8 @@ int CrystalReportPrint(const char * pReportName, const char * pDir, const char *
 
 int CrystalReportExport(const char * pReportPath, const char * pDir, const char * pReportName, const char * pEMailAddr, int options)
 {
-	int    ok = 1, silent = 0;
+	int    ok = 1;
+	bool   silent = false;
 	SString path;
 	SString temp_buf;
 	PEExportOptions eo;
@@ -1889,7 +1889,11 @@ int CrystalReportExport(const char * pReportPath, const char * pDir, const char 
 	eo.formatOptions      = 0;
 	THROW(LoadExportOptions(pReportName, &eo, &silent, path));
 	if(silent || PEGetExportOptions(h_job, &eo)) {
-		const char * p_dest_fn = reinterpret_cast<const char *>(PTR8C(eo.destinationOptions)+2); // @v10.7.6
+		// Похоже, в зависимости от версии Crystal Reports, наименование файла может либо "плоско" включено в eo.destinationOptions,
+		// либо - в виде "хвоста". 
+		// Оставляем пока вариант "в виде хвоста", но возможно придется как-то гибко адаптироваться.
+		//const char * p_dest_fn1 = reinterpret_cast<const char *>(PTR8C(eo.destinationOptions)+2); // @v10.7.6
+		const char * p_dest_fn = *(const char **)(PTR8C(eo.destinationOptions)+2); // @v11.3.1
 		PEExportTo(h_job, &eo);
 		THROW(SetupReportLocations(h_job, pDir, 0));
 		if(options & SPRN_SKIPGRPS)
@@ -1948,7 +1952,7 @@ int CrystalReportExport(const char * pReportPath, const char * pDir, const char 
 
 SReport::Band * SReport::searchBand(int kind, int grp)
 {
-	Band *b = 0;
+	Band * b = 0;
 	for(int i = 0; i < bandCount && b == 0; i++)
 		if(bands[i].kind == kind && bands[i].group == grp)
 			b = bands + i;
@@ -1994,7 +1998,7 @@ int SReport::printPageHead(int kind, int _newpage)
 		line = 1;
 	}
 	b = searchBand(kind, 0);
-	while(enumFields(&f, b, &i))
+	while(enumFields(&f, b, &i)) {
 		if(f->type == 0) {
 			const char * p, * t;
 			p = t = P_Text+f->offs;
@@ -2020,6 +2024,7 @@ int SReport::printPageHead(int kind, int _newpage)
 		else {
 			THROW(printDataField(f));
 		}
+	}
 	CATCHZOK
 	return ok;
 }

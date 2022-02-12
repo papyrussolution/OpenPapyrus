@@ -46,7 +46,7 @@ int EC_GROUP_get_trinomial_basis(const EC_GROUP * group, uint * k)
 
 	if(EC_METHOD_get_field_type(EC_GROUP_method_of(group)) !=
 	    NID_X9_62_characteristic_two_field
-	    || !((group->poly[0] != 0) && (group->poly[1] != 0)
+	   || !((group->poly[0] != 0) && (group->poly[1] != 0)
 	 && (group->poly[2] == 0))) {
 		ECerr(EC_F_EC_GROUP_GET_TRINOMIAL_BASIS,
 		    ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
@@ -67,7 +67,7 @@ int EC_GROUP_get_pentanomial_basis(const EC_GROUP * group, uint * k1,
 
 	if(EC_METHOD_get_field_type(EC_GROUP_method_of(group)) !=
 	    NID_X9_62_characteristic_two_field
-	    || !((group->poly[0] != 0) && (group->poly[1] != 0)
+	   || !((group->poly[0] != 0) && (group->poly[1] != 0)
 	 && (group->poly[2] != 0) && (group->poly[3] != 0)
 	 && (group->poly[4] == 0))) {
 		ECerr(EC_F_EC_GROUP_GET_PENTANOMIAL_BASIS,
@@ -394,19 +394,19 @@ static int ec_asn1_group2curve(const EC_GROUP * group, X9_62_CURVE * curve)
 	 */
 	len = ((size_t)EC_GROUP_get_degree(group) + 7) / 8;
 	if((a_buf = static_cast<uchar *>(OPENSSL_malloc(len))) == NULL
-	    || (b_buf = static_cast<uchar *>(OPENSSL_malloc(len))) == NULL) {
+	   || (b_buf = static_cast<uchar *>(OPENSSL_malloc(len))) == NULL) {
 		ECerr(EC_F_EC_ASN1_GROUP2CURVE, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
 	if(BN_bn2binpad(tmp_1, a_buf, len) < 0
-	    || BN_bn2binpad(tmp_2, b_buf, len) < 0) {
+	   || BN_bn2binpad(tmp_2, b_buf, len) < 0) {
 		ECerr(EC_F_EC_ASN1_GROUP2CURVE, ERR_R_BN_LIB);
 		goto err;
 	}
 
 	/* set a and b */
 	if(!ASN1_OCTET_STRING_set(curve->a, a_buf, len)
-	    || !ASN1_OCTET_STRING_set(curve->b, b_buf, len)) {
+	   || !ASN1_OCTET_STRING_set(curve->b, b_buf, len)) {
 		ECerr(EC_F_EC_ASN1_GROUP2CURVE, ERR_R_ASN1_LIB);
 		goto err;
 	}
@@ -820,8 +820,8 @@ EC_GROUP * EC_GROUP_new_from_ecparameters(const ECPARAMETERS * params)
 		goto err;
 	}
 	if((dup = EC_GROUP_dup(ret)) == NULL
-	    || EC_GROUP_set_seed(dup, NULL, 0) != 1
-	    || !EC_GROUP_set_generator(dup, point, a, NULL)) {
+	   || EC_GROUP_set_seed(dup, NULL, 0) != 1
+	   || !EC_GROUP_set_generator(dup, point, a, NULL)) {
 		ECerr(EC_F_EC_GROUP_NEW_FROM_ECPARAMETERS, ERR_R_EC_LIB);
 		goto err;
 	}
@@ -1030,7 +1030,7 @@ EC_KEY * d2i_ECPrivateKey(EC_KEY ** a, const uchar ** in, long len)
 	}
 	else {
 		if(ret->group->meth->keygenpub == NULL
-		    || ret->group->meth->keygenpub(ret) == 0)
+		   || ret->group->meth->keygenpub(ret) == 0)
 			goto err;
 		/* Remember the original private-key-only encoding. */
 		ret->enc_flag |= EC_PKEY_NO_PUBKEY;

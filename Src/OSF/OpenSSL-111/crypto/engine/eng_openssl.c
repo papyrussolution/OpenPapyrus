@@ -83,35 +83,35 @@ static const char * engine_openssl_name = "Software engine support";
 static int bind_helper(ENGINE * e)
 {
 	if(!ENGINE_set_id(e, engine_openssl_id)
-	    || !ENGINE_set_name(e, engine_openssl_name)
-	    || !ENGINE_set_destroy_function(e, openssl_destroy)
+	   || !ENGINE_set_name(e, engine_openssl_name)
+	   || !ENGINE_set_destroy_function(e, openssl_destroy)
 #ifndef TEST_ENG_OPENSSL_NO_ALGORITHMS
 #ifndef OPENSSL_NO_RSA
-	    || !ENGINE_set_RSA(e, RSA_get_default_method())
+	   || !ENGINE_set_RSA(e, RSA_get_default_method())
 #endif
 #ifndef OPENSSL_NO_DSA
-	    || !ENGINE_set_DSA(e, DSA_get_default_method())
+	   || !ENGINE_set_DSA(e, DSA_get_default_method())
 #endif
 #ifndef OPENSSL_NO_EC
-	    || !ENGINE_set_EC(e, EC_KEY_OpenSSL())
+	   || !ENGINE_set_EC(e, EC_KEY_OpenSSL())
 #endif
 #ifndef OPENSSL_NO_DH
-	    || !ENGINE_set_DH(e, DH_get_default_method())
+	   || !ENGINE_set_DH(e, DH_get_default_method())
 #endif
-	    || !ENGINE_set_RAND(e, RAND_OpenSSL())
+	   || !ENGINE_set_RAND(e, RAND_OpenSSL())
 #ifdef TEST_ENG_OPENSSL_RC4
-	    || !ENGINE_set_ciphers(e, openssl_ciphers)
+	   || !ENGINE_set_ciphers(e, openssl_ciphers)
 #endif
 #ifdef TEST_ENG_OPENSSL_SHA
-	    || !ENGINE_set_digests(e, openssl_digests)
+	   || !ENGINE_set_digests(e, openssl_digests)
 #endif
 #endif
 #ifdef TEST_ENG_OPENSSL_PKEY
-	    || !ENGINE_set_load_privkey_function(e, openssl_load_privkey)
+	   || !ENGINE_set_load_privkey_function(e, openssl_load_privkey)
 #endif
 #ifdef TEST_ENG_OPENSSL_HMAC
-	    || !ossl_register_hmac_meth()
-	    || !ENGINE_set_pkey_meths(e, ossl_pkey_meths)
+	   || !ossl_register_hmac_meth()
+	   || !ENGINE_set_pkey_meths(e, ossl_pkey_meths)
 #endif
 	    )
 		return 0;
@@ -233,11 +233,11 @@ static const EVP_CIPHER * test_r4_40_cipher(void)
 		EVP_CIPHER * cipher;
 
 		if((cipher = EVP_CIPHER_meth_new(NID_rc4, 1, 5 /* 40 bits */)) == NULL
-		    || !EVP_CIPHER_meth_set_iv_length(cipher, 0)
-		    || !EVP_CIPHER_meth_set_flags(cipher, EVP_CIPH_VARIABLE_LENGTH)
-		    || !EVP_CIPHER_meth_set_init(cipher, test_rc4_init_key)
-		    || !EVP_CIPHER_meth_set_do_cipher(cipher, test_rc4_cipher)
-		    || !EVP_CIPHER_meth_set_impl_ctx_size(cipher, sizeof(TEST_RC4_KEY))) {
+		   || !EVP_CIPHER_meth_set_iv_length(cipher, 0)
+		   || !EVP_CIPHER_meth_set_flags(cipher, EVP_CIPH_VARIABLE_LENGTH)
+		   || !EVP_CIPHER_meth_set_init(cipher, test_rc4_init_key)
+		   || !EVP_CIPHER_meth_set_do_cipher(cipher, test_rc4_cipher)
+		   || !EVP_CIPHER_meth_set_impl_ctx_size(cipher, sizeof(TEST_RC4_KEY))) {
 			EVP_CIPHER_meth_free(cipher);
 			cipher = NULL;
 		}
@@ -331,14 +331,14 @@ static const EVP_MD * test_sha_md(void)
 		EVP_MD * md;
 
 		if((md = EVP_MD_meth_new(NID_sha1, NID_sha1WithRSAEncryption)) == NULL
-		    || !EVP_MD_meth_set_result_size(md, SHA_DIGEST_LENGTH)
-		    || !EVP_MD_meth_set_input_blocksize(md, SHA_CBLOCK)
-		    || !EVP_MD_meth_set_app_datasize(md,
+		   || !EVP_MD_meth_set_result_size(md, SHA_DIGEST_LENGTH)
+		   || !EVP_MD_meth_set_input_blocksize(md, SHA_CBLOCK)
+		   || !EVP_MD_meth_set_app_datasize(md,
 		    sizeof(EVP_MD *) + sizeof(SHA_CTX))
-		    || !EVP_MD_meth_set_flags(md, 0)
-		    || !EVP_MD_meth_set_init(md, test_sha1_init)
-		    || !EVP_MD_meth_set_update(md, test_sha1_update)
-		    || !EVP_MD_meth_set_final(md, test_sha1_final)) {
+		   || !EVP_MD_meth_set_flags(md, 0)
+		   || !EVP_MD_meth_set_init(md, test_sha1_init)
+		   || !EVP_MD_meth_set_update(md, test_sha1_update)
+		   || !EVP_MD_meth_set_final(md, test_sha1_final)) {
 			EVP_MD_meth_free(md);
 			md = NULL;
 		}

@@ -275,7 +275,7 @@ static int type_str(ulong value, void * arg)
 	const int native = value > INT_MAX ? INT_MAX : ossl_fromascii(value);
 
 	if((types & B_ASN1_NUMERICSTRING) && !(ossl_isdigit(native)
-	    || native == ' '))
+	   || native == ' '))
 		types &= ~B_ASN1_NUMERICSTRING;
 	if((types & B_ASN1_PRINTABLESTRING) && !ossl_isasn1print(native))
 		types &= ~B_ASN1_PRINTABLESTRING;

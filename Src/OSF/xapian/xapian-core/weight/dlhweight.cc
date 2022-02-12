@@ -1,26 +1,12 @@
 /** @file
  * @brief Xapian::DLHWeight class - The DLH weighting scheme of the DFR framework.
  */
-/* Copyright (C) 2013, 2014 Aarsh Shah
- * Copyright (C) 2016,2017,2019 Olly Betts
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
- */
+// Copyright (C) 2013, 2014 Aarsh Shah
+// Copyright (C) 2016,2017,2019 Olly Betts
+// @licence GNU GPL
+//
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "xapian/weight.h"
 #include "common/log2.h"
 
 using namespace std;
@@ -38,28 +24,21 @@ void DLHWeight::init(double factor)
 		// always zero for this scheme.
 		return;
 	}
-
 	double wdf_upper = get_wdf_upper_bound();
 	if(wdf_upper == 0) {
 		upper_bound = 0.0;
 		return;
 	}
-
 	const double wdf_lower = 1.0;
 	double len_upper = get_doclength_upper_bound();
 	double len_lower = get_doclength_lower_bound();
-
 	double F = get_collection_freq();
-
 	// Calculate constant values to be used in get_sumpart().
 	log_constant = get_total_length() / F;
 	wqf_product_factor = get_wqf() * factor;
-
 	// Calculate values for the upper bound.
-
 	// w <= l, so if the allowed ranges overlap, max w/l is 1.0.
 	double max_wdf_over_l = wdf_upper < len_lower ? wdf_upper / len_lower : 1.0;
-
 	// First term A: w/(w+.5)*log2(w/l*L) where L=total_len/coll_freq
 	// Assume log >= 0:
 	//   w/(w+.5) = 1-1/(2w+1) and w >= 1 so max A at w=w_max
@@ -167,8 +146,7 @@ DLHWeight * DLHWeight::unserialise(const string& s) const
 	return new DLHWeight();
 }
 
-double DLHWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
-    Xapian::termcount, Xapian::termcount) const
+double DLHWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len, Xapian::termcount, Xapian::termcount) const
 {
 	if(wdf == 0 || wdf == len) return 0.0;
 	double wdf_to_len = double(wdf) / len;
@@ -184,9 +162,7 @@ double DLHWeight::get_maxpart() const
 	return upper_bound;
 }
 
-double DLHWeight::get_sumextra(Xapian::termcount,
-    Xapian::termcount,
-    Xapian::termcount) const
+double DLHWeight::get_sumextra(Xapian::termcount, Xapian::termcount, Xapian::termcount) const
 {
 	return 0;
 }

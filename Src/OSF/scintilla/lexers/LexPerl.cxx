@@ -99,11 +99,11 @@ static int disambiguateBareword(LexAccessor &styler, Sci_PositionU bk, Sci_Posit
 	}
 	else if((ch == '&' && styler.SafeGetCharAt(bk - 1) != '&')
 	    // &bareword: subroutine call
-	    || styler.Match(bk - 1, "->")
+	   || styler.Match(bk - 1, "->")
 	    // ->bareword: part of variable spec
-	    || styler.Match(bk - 1, "::")
+	   || styler.Match(bk - 1, "::")
 	    // ::bareword: part of module spec
-	    || styler.Match(bk - 2, "sub")) {
+	   || styler.Match(bk - 2, "sub")) {
 		// sub bareword: subroutine declaration
 		// (implied BACK_KEYWORD, no keywords end in 'sub'!)
 		result |= 1;
@@ -117,7 +117,7 @@ static int disambiguateBareword(LexAccessor &styler, Sci_PositionU bk, Sci_Posit
 		}
 		if((ch == '}' && brace)
 		    // {bareword}: variable spec
-		    || styler.Match(fw, "=>")) {
+		   || styler.Match(fw, "=>")) {
 			// [{(, bareword=>: hash literal
 			result |= 2;
 		}
@@ -706,11 +706,11 @@ public:
 	// Includes strings (may be multi-line), numbers (additional state), format
 	// bodies, as well as POD sections.
 	if(initStyle == SCE_PL_HERE_Q
-	    || initStyle == SCE_PL_HERE_QQ
-	    || initStyle == SCE_PL_HERE_QX
-	    || initStyle == SCE_PL_FORMAT
-	    || initStyle == SCE_PL_HERE_QQ_VAR
-	    || initStyle == SCE_PL_HERE_QX_VAR
+	   || initStyle == SCE_PL_HERE_QQ
+	   || initStyle == SCE_PL_HERE_QX
+	   || initStyle == SCE_PL_FORMAT
+	   || initStyle == SCE_PL_HERE_QQ_VAR
+	   || initStyle == SCE_PL_HERE_QX_VAR
 	    ) {
 		// backtrack through multiple styles to reach the delimiter start
 		int delim = (initStyle == SCE_PL_FORMAT) ? SCE_PL_FORMAT_IDENT : SCE_PL_HERE_DELIM;
@@ -721,19 +721,19 @@ public:
 		initStyle = styler.StyleAt(startPos - 1);
 	}
 	if(initStyle == SCE_PL_STRING
-	    || initStyle == SCE_PL_STRING_QQ
-	    || initStyle == SCE_PL_BACKTICKS
-	    || initStyle == SCE_PL_STRING_QX
-	    || initStyle == SCE_PL_REGEX
-	    || initStyle == SCE_PL_STRING_QR
-	    || initStyle == SCE_PL_REGSUBST
-	    || initStyle == SCE_PL_STRING_VAR
-	    || initStyle == SCE_PL_STRING_QQ_VAR
-	    || initStyle == SCE_PL_BACKTICKS_VAR
-	    || initStyle == SCE_PL_STRING_QX_VAR
-	    || initStyle == SCE_PL_REGEX_VAR
-	    || initStyle == SCE_PL_STRING_QR_VAR
-	    || initStyle == SCE_PL_REGSUBST_VAR
+	   || initStyle == SCE_PL_STRING_QQ
+	   || initStyle == SCE_PL_BACKTICKS
+	   || initStyle == SCE_PL_STRING_QX
+	   || initStyle == SCE_PL_REGEX
+	   || initStyle == SCE_PL_STRING_QR
+	   || initStyle == SCE_PL_REGSUBST
+	   || initStyle == SCE_PL_STRING_VAR
+	   || initStyle == SCE_PL_STRING_QQ_VAR
+	   || initStyle == SCE_PL_BACKTICKS_VAR
+	   || initStyle == SCE_PL_STRING_QX_VAR
+	   || initStyle == SCE_PL_REGEX_VAR
+	   || initStyle == SCE_PL_STRING_QR_VAR
+	   || initStyle == SCE_PL_REGSUBST_VAR
 	    ) {
 		// for interpolation, must backtrack through a mix of two different styles
 		int otherStyle = (initStyle >= SCE_PL_STRING_VAR) ?
@@ -747,13 +747,13 @@ public:
 		initStyle = SCE_PL_DEFAULT;
 	}
 	else if(initStyle == SCE_PL_STRING_Q
-	    || initStyle == SCE_PL_STRING_QW
-	    || initStyle == SCE_PL_XLAT
-	    || initStyle == SCE_PL_CHARACTER
-	    || initStyle == SCE_PL_NUMBER
-	    || initStyle == SCE_PL_IDENTIFIER
-	    || initStyle == SCE_PL_ERROR
-	    || initStyle == SCE_PL_SUB_PROTOTYPE
+	   || initStyle == SCE_PL_STRING_QW
+	   || initStyle == SCE_PL_XLAT
+	   || initStyle == SCE_PL_CHARACTER
+	   || initStyle == SCE_PL_NUMBER
+	   || initStyle == SCE_PL_IDENTIFIER
+	   || initStyle == SCE_PL_ERROR
+	   || initStyle == SCE_PL_SUB_PROTOTYPE
 	    ) {
 		while((startPos > 1) && (styler.StyleAt(startPos - 1) == initStyle)) {
 			startPos--;
@@ -761,7 +761,7 @@ public:
 		initStyle = SCE_PL_DEFAULT;
 	}
 	else if(initStyle == SCE_PL_POD
-	    || initStyle == SCE_PL_POD_VERB
+	   || initStyle == SCE_PL_POD_VERB
 	    ) {
 		// POD backtracking finds preceding blank lines and goes back past them
 		Sci_Position ln = styler.GetLine(startPos);
@@ -807,8 +807,8 @@ public:
 			    break;
 			case SCE_PL_IDENTIFIER: // identifier, bareword, inputsymbol
 			    if((!setWord.Contains(sc.ch) && sc.ch != '\'')
-			    || sc.Match('.', '.')
-			    || sc.chPrev == '>') {      // end of inputsymbol
+			   || sc.Match('.', '.')
+			   || sc.chPrev == '>') {      // end of inputsymbol
 				    sc.SetState(SCE_PL_DEFAULT);
 			    }
 			    break;
@@ -969,7 +969,7 @@ public:
 					    HereDoc.Quoted = true;
 				    }
 				    else if((ws_skip == 0 && setNonHereDoc.Contains(sc.chNext))
-				    || ws_skip > 0) {
+				   || ws_skip > 0) {
 					    // left shift << or <<= operator cases
 					    // restore position if operator
 					    sc.ChangeState(SCE_PL_OPERATOR);
@@ -1558,10 +1558,10 @@ public:
 							    // needed to test for variables like ${}, @{} etc.
 							    bkstyle = styleBeforeBracePair(styler, bk);
 							    if(bkstyle == SCE_PL_SCALAR
-							    || bkstyle == SCE_PL_ARRAY
-							    || bkstyle == SCE_PL_HASH
-							    || bkstyle == SCE_PL_SYMBOLTABLE
-							    || bkstyle == SCE_PL_OPERATOR) {
+							   || bkstyle == SCE_PL_ARRAY
+							   || bkstyle == SCE_PL_HASH
+							   || bkstyle == SCE_PL_SYMBOLTABLE
+							   || bkstyle == SCE_PL_OPERATOR) {
 								    preferRE = false;
 							    }
 						    }

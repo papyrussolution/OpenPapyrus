@@ -179,7 +179,7 @@ static xmlPattern * xmlNewPattern()
 {
 	xmlPattern * cur = static_cast<xmlPattern *>(SAlloc::M(sizeof(xmlPattern)));
 	if(!cur) {
-		ERROR(0, 0, 0, "xmlNewPattern : malloc failed\n");
+		ERROR(0, 0, 0, __FUNCTION__ ": malloc failed\n");
 	}
 	else {
 		memzero(cur, sizeof(xmlPattern));
@@ -187,7 +187,7 @@ static xmlPattern * xmlNewPattern()
 		cur->steps = static_cast<xmlStepOp *>(SAlloc::M(cur->maxStep * sizeof(xmlStepOp)));
 		if(cur->steps == NULL) {
 			SAlloc::F(cur);
-			ERROR(0, 0, 0, "xmlNewPattern : malloc failed\n");
+			ERROR(0, 0, 0, __FUNCTION__ ": malloc failed\n");
 			cur = 0;
 		}
 	}
@@ -266,7 +266,7 @@ static xmlPatParserContextPtr xmlNewPatParserContext(const xmlChar * pattern, xm
 		return 0;
 	cur = (xmlPatParserContextPtr)SAlloc::M(sizeof(xmlPatParserContext));
 	if(!cur) {
-		ERROR(0, 0, 0, "xmlNewPatParserContext : malloc failed\n");
+		ERROR(0, 0, 0, __FUNCTION__ ": malloc failed\n");
 		return 0;
 	}
 	memzero(cur, sizeof(xmlPatParserContext));
@@ -1358,14 +1358,14 @@ static xmlStreamCompPtr xmlNewStreamComp(int size)
 	SETMAX(size, 4);
 	xmlStreamCompPtr cur = static_cast<xmlStreamComp *>(SAlloc::M(sizeof(xmlStreamComp)));
 	if(!cur) {
-		ERROR(0, 0, 0, "xmlNewStreamComp: malloc failed\n");
+		ERROR(0, 0, 0, __FUNCTION__ ": malloc failed\n");
 		return 0;
 	}
 	memzero(cur, sizeof(xmlStreamComp));
 	cur->steps = static_cast<xmlStreamStep *>(SAlloc::M(size * sizeof(xmlStreamStep)));
 	if(cur->steps == NULL) {
 		SAlloc::F(cur);
-		ERROR(0, 0, 0, "xmlNewStreamComp: malloc failed\n");
+		ERROR(0, 0, 0, __FUNCTION__ ": malloc failed\n");
 		return 0;
 	}
 	cur->nbStep = 0;
@@ -1389,7 +1389,7 @@ static int FASTCALL xmlStreamCompAddStep(xmlStreamCompPtr comp, const xmlChar * 
 	if(comp->nbStep >= comp->maxStep) {
 		cur = static_cast<xmlStreamStep *>(SAlloc::R(comp->steps, comp->maxStep * 2 * sizeof(xmlStreamStep)));
 		if(!cur) {
-			ERROR(0, 0, 0, "xmlNewStreamComp: malloc failed\n");
+			ERROR(0, 0, 0, __FUNCTION__ ": malloc failed\n");
 			return -1;
 		}
 		comp->steps = cur;
@@ -1585,14 +1585,14 @@ static xmlStreamCtxtPtr xmlNewStreamCtxt(xmlStreamCompPtr stream)
 {
 	xmlStreamCtxtPtr cur = (xmlStreamCtxt *)SAlloc::M(sizeof(xmlStreamCtxt));
 	if(!cur) {
-		ERROR(0, 0, 0, "xmlNewStreamCtxt: malloc failed\n");
+		ERROR(0, 0, 0, __FUNCTION__ ": malloc failed\n");
 	}
 	else {
 		memzero(cur, sizeof(xmlStreamCtxt));
 		cur->states = (int *)SAlloc::M(4 * 2 * sizeof(int));
 		if(cur->states == NULL) {
 			SAlloc::F(cur);
-			ERROR(0, 0, 0, "xmlNewStreamCtxt: malloc failed\n");
+			ERROR(0, 0, 0, __FUNCTION__ ": malloc failed\n");
 			cur = 0;
 		}
 		else {
@@ -1642,7 +1642,7 @@ static int xmlStreamCtxtAddState(xmlStreamCtxtPtr comp, int idx, int level)
 	if(comp->nbState >= comp->maxState) {
 		int * cur = (int *)SAlloc::R(comp->states, comp->maxState * 4 * sizeof(int));
 		if(!cur) {
-			ERROR(0, 0, 0, "xmlNewStreamCtxt: malloc failed\n");
+			ERROR(0, 0, 0, __FUNCTION__ ": malloc failed\n");
 			return -1;
 		}
 		comp->states = cur;

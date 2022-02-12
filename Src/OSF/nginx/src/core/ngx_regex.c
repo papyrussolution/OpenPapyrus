@@ -212,46 +212,34 @@ static void ngx_pcre_free_studies(void * data)
 
 static ngx_int_t ngx_regex_module_init(ngx_cycle_t * cycle)
 {
-	int opt;
 	const char  * errstr;
 	ngx_uint_t i;
 	ngx_list_part_t  * part;
 	ngx_regex_elt_t  * elts;
-
-	opt = 0;
-
+	int opt = 0;
 #if (NGX_HAVE_PCRE_JIT)
 	{
-		ngx_regex_conf_t  * rcf;
 		ngx_pool_cleanup_t  * cln;
-
-		rcf = (ngx_regex_conf_t*)ngx_get_conf(cycle->conf_ctx, ngx_regex_module);
-
+		ngx_regex_conf_t  * rcf = (ngx_regex_conf_t*)ngx_get_conf(cycle->conf_ctx, ngx_regex_module);
 		if(rcf->pcre_jit) {
 			opt = PCRE_STUDY_JIT_COMPILE;
-
 			/*
 			 * The PCRE JIT compiler uses mmap for its executable codes, so we
 			 * have to explicitly call the pcre_free_study() function to free
 			 * this memory.
 			 */
-
 			cln = ngx_pool_cleanup_add(cycle->pool, 0);
 			if(cln == NULL) {
 				return NGX_ERROR;
 			}
-
 			cln->handler = ngx_pcre_free_studies;
 			cln->data = ngx_pcre_studies;
 		}
 	}
 #endif
-
 	ngx_regex_malloc_init(cycle->pool);
-
 	part = &ngx_pcre_studies->part;
 	elts = (ngx_regex_elt_t*)part->elts;
-
 	for(i = 0; /* void */; i++) {
 		if(i >= part->nelts) {
 			if(part->next == NULL) {
@@ -263,45 +251,32 @@ static ngx_int_t ngx_regex_module_init(ngx_cycle_t * cycle)
 		}
 		elts[i].regex->extra = pcre_study(elts[i].regex->code, opt, &errstr);
 		if(errstr != NULL) {
-			ngx_log_error(NGX_LOG_ALERT, cycle->log, 0,
-			    "pcre_study() failed: %s in \"%s\"",
-			    errstr, elts[i].name);
+			ngx_log_error(NGX_LOG_ALERT, cycle->log, 0, "pcre_study() failed: %s in \"%s\"", errstr, elts[i].name);
 		}
 
 #if (NGX_HAVE_PCRE_JIT)
 		if(opt & PCRE_STUDY_JIT_COMPILE) {
-			int jit, n;
-
-			jit = 0;
-			n = pcre_fullinfo(elts[i].regex->code, elts[i].regex->extra,
-			    PCRE_INFO_JIT, &jit);
-
+			int jit = 0;
+			int n = pcre_fullinfo(elts[i].regex->code, elts[i].regex->extra, PCRE_INFO_JIT, &jit);
 			if(n != 0 || jit != 1) {
-				ngx_log_error(NGX_LOG_INFO, cycle->log, 0,
-				    "JIT compiler does not support pattern: \"%s\"",
-				    elts[i].name);
+				ngx_log_error(NGX_LOG_INFO, cycle->log, 0, "JIT compiler does not support pattern: \"%s\"", elts[i].name);
 			}
 		}
 #endif
 	}
-
 	ngx_regex_malloc_done();
-
 	ngx_pcre_studies = NULL;
-
 	return NGX_OK;
 }
 
 static void * ngx_regex_create_conf(ngx_cycle_t * cycle)
 {
 	ngx_regex_conf_t  * rcf = (ngx_regex_conf_t *)ngx_pcalloc(cycle->pool, sizeof(ngx_regex_conf_t));
-	if(rcf == NULL) {
-		return NULL;
-	}
-	rcf->pcre_jit = NGX_CONF_UNSET;
-	ngx_pcre_studies = ngx_list_create(cycle->pool, 8, sizeof(ngx_regex_elt_t));
-	if(ngx_pcre_studies == NULL) {
-		return NULL;
+	if(rcf) {
+		rcf->pcre_jit = NGX_CONF_UNSET;
+		ngx_pcre_studies = ngx_list_create(cycle->pool, 8, sizeof(ngx_regex_elt_t));
+		if(ngx_pcre_studies == NULL)
+			return NULL;
 	}
 	return rcf;
 }

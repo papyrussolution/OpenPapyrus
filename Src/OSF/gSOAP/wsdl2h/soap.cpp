@@ -1,8 +1,6 @@
 /*
         soap.cpp
-
         WSDL/SOAP binding schema
-
    --------------------------------------------------------------------------------
    gSOAP XML Web services tools
    Copyright (C) 2001-2008, Robert van Engelen, Genivia Inc. All Rights Reserved.
@@ -26,10 +24,7 @@
 
    Author contact information:
    engelen@genivia.com / engelen@acm.org
-   --------------------------------------------------------------------------------
    A commercial use license is available from Genivia, Inc., contact@genivia.com
-   --------------------------------------------------------------------------------
-
  */
 #include <slib.h>
 #include "wsdlH.h"              // cannot include "schemaH.h"

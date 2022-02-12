@@ -42,7 +42,7 @@ namespace UniLib {
 inline bool IsValidCodepoint(char32 c) {
   // In the range [0, 0xD800) or [0xE000, 0x10FFFF]
   return (static_cast<uint32>(c) < 0xD800)
-    || (c >= 0xE000 && c <= 0x10FFFF);
+   || (c >= 0xE000 && c <= 0x10FFFF);
 }
 
 // Table of UTF-8 character lengths, based on first byte

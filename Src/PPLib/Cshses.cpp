@@ -8,6 +8,21 @@
 //
 // PPSyncCashSession
 //
+/*static*/bool PPSyncCashSession::GetCurrentUserName(SString & rBuf)
+{
+	rBuf.Z();
+	if(PPObjPerson::GetCurUserPerson(0, &rBuf) > 0) {
+		;
+	}
+	else if(GetCurUserName(rBuf).IsEmpty()) {
+		PPObjSecur sec_obj(PPOBJ_USR, 0);
+		PPSecur sec_rec;
+		if(sec_obj.Fetch(LConfig.UserID, &sec_rec) > 0)
+			rBuf = sec_rec.Name;
+	}
+	return rBuf.NotEmptyS();
+}
+
 PPSyncCashSession::PPSyncCashSession(PPID n, const char * /*pName*/, const char * /*pPort*/) : State(0), NodeID(n), Handle(-1), PortType(0), P_SlipFmt(0)
 {
 	PTR32(Name)[0] = 0;

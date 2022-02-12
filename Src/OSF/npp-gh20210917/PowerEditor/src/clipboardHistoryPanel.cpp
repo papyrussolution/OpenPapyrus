@@ -46,7 +46,7 @@ ClipboardData ClipboardHistoryPanel::getClipboadData()
 				}
 			}
 			else {
-				int nbBytes = (lstrlenW(lpWchar) + 1) * sizeof(wchar_t);
+				const int nbBytes = (sstrlen(lpWchar) + 1) * sizeof(wchar_t);
 				for(int i = 0; i < nbBytes; ++i) {
 					clipboardData.push_back(static_cast<uchar>(lpchar[i]));
 				}

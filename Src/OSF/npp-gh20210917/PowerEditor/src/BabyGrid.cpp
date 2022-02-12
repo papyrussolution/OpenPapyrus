@@ -1114,16 +1114,16 @@ ATOM RegisterGridClass(HINSTANCE hInstance)
 		BGHS[j].columnwidths[0] = 50;
 		BGHS[j].ADVANCEROW = TRUE;
 		BGHS[j].DRAWHIGHLIGHT = TRUE;
-		BGHS[j].cursorcolor = RGB(255, 255, 255);
-		BGHS[j].protectcolor = RGB(255, 255, 255);
-		BGHS[j].unprotectcolor = RGB(255, 255, 255);
+		BGHS[j].cursorcolor = GetColorRef(SClrWhite); //RGB(255, 255, 255);
+		BGHS[j].protectcolor = GetColorRef(SClrWhite); //RGB(255, 255, 255);
+		BGHS[j].unprotectcolor = GetColorRef(SClrWhite); //RGB(255, 255, 255);
 		BGHS[j].highlightcolor = RGB(0, 0, 128);
 		BGHS[j].highlightcolorNoFocus = RGB(200, 200, 200);
 		BGHS[j].highlightcolorProtect = RGB(0, 0, 128);
 		BGHS[j].highlightcolorProtectNoFocus = RGB(200, 200, 200);
 		BGHS[j].gridlinecolor = RGB(220, 220, 220);
-		BGHS[j].highlighttextcolor = RGB(255, 255, 255);
-		BGHS[j].textcolor = RGB(0, 0, 0);
+		BGHS[j].highlighttextcolor = GetColorRef(SClrWhite); //RGB(255, 255, 255);
+		BGHS[j].textcolor = GetColorRef(SClrBlack); //RGB(0, 0, 0);
 		BGHS[j].titleheight = 0;
 		BGHS[j].EXTENDLASTCOLUMN = TRUE;
 		BGHS[j].SHOWINTEGRALROWS = TRUE;
@@ -2552,9 +2552,9 @@ LRESULT CALLBACK GridProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				BGHS[SelfIndex].cursorrow = 1;
 				BGHS[SelfIndex].columnwidths[0] = 40;
 				BGHS[SelfIndex].ADVANCEROW = TRUE;
-				BGHS[SelfIndex].cursorcolor = RGB(255, 255, 255);
+				BGHS[SelfIndex].cursorcolor = GetColorRef(SClrWhite); //RGB(255, 255, 255);
 				BGHS[SelfIndex].protectcolor = RGB(128, 128, 128);
-				BGHS[SelfIndex].unprotectcolor = RGB(255, 255, 255);
+				BGHS[SelfIndex].unprotectcolor = GetColorRef(SClrWhite); //RGB(255, 255, 255);
 				for(int k = 1; k<MAX_COLS; k++) {
 					BGHS[SelfIndex].columnwidths[k] = 50;
 				}

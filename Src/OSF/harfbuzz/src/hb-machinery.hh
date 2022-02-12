@@ -94,15 +94,15 @@ static inline Type& StructAfter(TObject &X)
 #define _DEFINE_INSTANCE_ASSERTION1(_line, _assertion) \
 	void _instance_assertion_on_line_ ## _line() const \
 	{ static_assert((_assertion), ""); }
-# define _DEFINE_INSTANCE_ASSERTION0(_line, _assertion) _DEFINE_INSTANCE_ASSERTION1(_line, _assertion)
-# define DEFINE_INSTANCE_ASSERTION(_assertion) _DEFINE_INSTANCE_ASSERTION0(__LINE__, _assertion)
+#define _DEFINE_INSTANCE_ASSERTION0(_line, _assertion) _DEFINE_INSTANCE_ASSERTION1(_line, _assertion)
+#define DEFINE_INSTANCE_ASSERTION(_assertion) _DEFINE_INSTANCE_ASSERTION0(__LINE__, _assertion)
 
 /* Check that _code compiles in a method environment */
 #define _DEFINE_COMPILES_ASSERTION1(_line, _code) \
 	void _compiles_assertion_on_line_ ## _line() const \
 	{ _code; }
-# define _DEFINE_COMPILES_ASSERTION0(_line, _code) _DEFINE_COMPILES_ASSERTION1(_line, _code)
-# define DEFINE_COMPILES_ASSERTION(_code) _DEFINE_COMPILES_ASSERTION0(__LINE__, _code)
+#define _DEFINE_COMPILES_ASSERTION0(_line, _code) _DEFINE_COMPILES_ASSERTION1(_line, _code)
+#define DEFINE_COMPILES_ASSERTION(_code) _DEFINE_COMPILES_ASSERTION0(__LINE__, _code)
 
 #define DEFINE_SIZE_STATIC(size) \
 	DEFINE_INSTANCE_ASSERTION(sizeof(*this) == (size)) \

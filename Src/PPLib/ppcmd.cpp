@@ -1677,18 +1677,24 @@ int PPCommandMngr::Backup()
 }
 */
 
+/*static*/const SString & PPCommandMngr::InitStoragePath(int kind)
+{
+	assert(oneof2(kind, cmdgrpcMenu, cmdgrpcDesktop));
+	SString & r_temp_path = SLS.AcquireRvlStr();
+	if(/*isDesktop*/kind == cmdgrpcDesktop)
+		PPCommandMngr::GetDesksDir(r_temp_path);
+	else if(kind == cmdgrpcMenu)
+		PPCommandMngr::GetMenuDir(r_temp_path);
+	return r_temp_path;
+}
+
 PPCommandMngr::PPCommandMngr(const char * pFileName, uint ctrFlags, /*int isDesktop*/PPCommandGroupCategory kind) : 
-	Status(0), CtrFlags(ctrFlags)//ReadOnly(readOnly)
+	Status(0), CtrFlags(ctrFlags), XmlDirPath(InitStoragePath(kind))
 {
 	assert(oneof2(kind, cmdgrpcMenu, cmdgrpcDesktop));
 	if(!(CtrFlags & ctrfSkipObsolete)) {
 		if(fileExists(pFileName)) { // @v10.9.5
-			long   mode = 0;
-			if(CtrFlags & ctrfReadOnly)
-				mode = (SFile::mRead | SFile::mDenyWrite);
-			else
-				mode = (SFile::mReadWrite | SFile::mDenyWrite | mDenyRead);
-			mode |= (SFile::mBinary | SFile::mNoStd);
+			const long mode = (SFile::mBinary|SFile::mNoStd|SFile::mDenyWrite) | ((CtrFlags & ctrfReadOnly) ? SFile::mRead : (SFile::mReadWrite|mDenyRead));
 			//
 			// Так как файл может быть заблокирован другим пользователем,
 			// предпримем несколько попыток его открытия.
@@ -1705,12 +1711,12 @@ PPCommandMngr::PPCommandMngr(const char * pFileName, uint ctrFlags, /*int isDesk
 				Status |= stError;
 		}
 	}
-	if(/*isDesktop*/kind == cmdgrpcDesktop) {
+	/*if(kind == cmdgrpcDesktop) {
 		PPCommandMngr::GetDesksDir(XmlDirPath);
 	}
 	else if(kind == cmdgrpcMenu) {
 		PPCommandMngr::GetMenuDir(XmlDirPath);
-	}
+	}*/
 }
 
 PPCommandMngr::~PPCommandMngr()
@@ -1878,15 +1884,16 @@ int PPCommandMngr::Load__2(PPCommandGroup * pCmdGrp, const char * pDbSymb, const
 		// Конец конвертации
 		//
 		{
+			SString src_file_name;
 			THROW(p_xml_parser = xmlNewParserCtxt()); // @v11.0.0 
-			for(SDirec direc(path, 0); direc.Next(&de)>0;) {
+			for(SDirec direc(path, 0); direc.Next(&de) > 0;) {
 				if(de.IsFile()) {
 					// @v11.0.0 PPCommandGroup * p_temp_command_group = new PPCommandGroup();
 					PPCommandGroup temp_command_group;
-					temp_buf.Z().Cat(XmlDirPath).SetLastSlash().Cat(de.FileName);
-					if(fileExists(temp_buf)) {
+					src_file_name.Z().Cat(XmlDirPath).SetLastSlash().Cat(de.FileName);
+					if(fileExists(src_file_name)) {
 						// @v11.0.0 THROW(p_xml_parser = xmlNewParserCtxt());
-						p_doc = xmlCtxtReadFile(p_xml_parser, temp_buf, 0, XML_PARSE_NOENT);
+						p_doc = xmlCtxtReadFile(p_xml_parser, src_file_name, 0, XML_PARSE_NOENT);
 						if(p_doc) {
 							xmlNode * p_root = xmlDocGetRootElement(p_doc);
 							if(p_root && SXml::IsName(p_root, "CommandGroup")) {
@@ -1906,6 +1913,31 @@ int PPCommandMngr::Load__2(PPCommandGroup * pCmdGrp, const char * pDbSymb, const
 						else {
 							PPSetLibXmlError(p_xml_parser);
 							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_DBINFO);
+							// @v11.3.1 {
+							{
+								SPathStruc ps(src_file_name);
+								SString malformed_files_storage_path;
+								(malformed_files_storage_path = XmlDirPath).SetLastSlash().Cat("malformed");
+								if(::createDir(malformed_files_storage_path)) {
+									SString malformed_file_name;
+									(malformed_file_name = malformed_files_storage_path).SetLastSlash().Cat(ps.Nam).Dot().Cat(ps.Ext);
+									long undup_serial = 0;
+									while(fileExists(malformed_file_name)) {
+										(malformed_file_name = malformed_files_storage_path).SetLastSlash().Cat(ps.Nam).CatChar('-').CatLongZ(++undup_serial, 4).Dot().Cat(ps.Ext);
+									}
+									if(SCopyFile(src_file_name, malformed_file_name, 0, FILE_SHARE_READ, 0)) {
+										SFile::Remove(src_file_name);
+									}
+									{
+										SString fmt_buf;
+										SString msg_buf;
+										PPLoadText(PPTXT_MALFORMEDCMDFILEMOVED, fmt_buf);
+										(temp_buf = src_file_name).Space().Cat("-->").Space().Cat(malformed_file_name);
+										PPLogMessage(PPFILNAM_ERR_LOG, msg_buf.Printf(fmt_buf, temp_buf.cptr()), LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_DBINFO);
+									}
+								}
+							}
+							// } @v11.3.1 
 						}
 					}
 					// @v11.0.0 xmlFreeParserCtxt(p_xml_parser); 

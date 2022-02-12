@@ -216,7 +216,7 @@ static bool FASTCALL IsPreProcLine(Sci_Position line, LexAccessor &styler)
 		int style = styler.StyleAt(i);
 		if(ch == '#' && style == SCE_BAAN_PREPROCESSOR) {
 			if(styler.Match(i, "#elif") || styler.Match(i, "#else") || styler.Match(i, "#endif")
-				    || styler.Match(i, "#if") || styler.Match(i, "#ifdef") || styler.Match(i, "#ifndef"))
+				   || styler.Match(i, "#if") || styler.Match(i, "#ifdef") || styler.Match(i, "#ifndef"))
 				// Above PreProcessors has a seperate fold mechanism.
 				return false;
 			else
@@ -300,8 +300,8 @@ static bool FASTCALL IsDeclarationLine(Sci_Position line, LexAccessor &styler)
 		int style = styler.StyleAt(i);
 		if(style == SCE_BAAN_WORD) {
 			if(styler.Match(i, "table") || styler.Match(i, "extern") || styler.Match(i, "long")
-				    || styler.Match(i, "double") || styler.Match(i, "boolean") || styler.Match(i, "string")
-				    || styler.Match(i, "domain")) {
+				   || styler.Match(i, "double") || styler.Match(i, "boolean") || styler.Match(i, "string")
+				   || styler.Match(i, "domain")) {
 				for(Sci_Position j = eol_pos; j > pos; j--) {
 					int styleFromEnd = styler.StyleAt(j);
 					if(styleFromEnd == SCE_BAAN_COMMENT)
@@ -332,8 +332,8 @@ static bool FASTCALL IsInnerLevelFold(Sci_Position line, LexAccessor &styler)
 		char ch = styler[i];
 		int style = styler.StyleAt(i);
 		if(style == SCE_BAAN_WORD && (styler.Match(i, "else") || styler.Match(i, "case")
-				    || styler.Match(i, "default") || styler.Match(i, "selectdo") || styler.Match(i, "selecteos")
-				    || styler.Match(i, "selectempty") || styler.Match(i, "selecterror")))
+				   || styler.Match(i, "default") || styler.Match(i, "selectdo") || styler.Match(i, "selecteos")
+				   || styler.Match(i, "selectempty") || styler.Match(i, "selecterror")))
 			return true;
 		else if(IsASpaceOrTab(ch))
 			continue;
@@ -877,7 +877,7 @@ void SCI_METHOD LexerBaan::Fold(Sci_PositionU startPos, Sci_Position length, int
 			}
 			else if(nextLineStyle != 0 && currLineStyle != nextLineStyle
 			 && (priorSectionIsSubSection(lineCurrent -1, styler)
-				    || !nextSectionIsSubSection(lineCurrent + 1, styler))) {
+				   || !nextSectionIsSubSection(lineCurrent + 1, styler))) {
 				for(Sci_Position j = styler.LineStart(lineCurrent + 1); j < styler.LineStart(lineCurrent + 1 + 1) - 1;
 				    j++) {
 					if(IsASpaceOrTab(styler[j]))

@@ -19,25 +19,24 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include <xapian/queryparser.h>
 
 // Disable these assertions when building the library as these functions are
 // marked not to throw exceptions in the API headers.  In unittest we define
 // UNITTEST_ASSERT_NOTHROW to set a variable to the exception message and
 // return, then the harness checks if that variable has been set.
 #ifndef XAPIAN_UNITTEST
-# define UNITTEST_ASSERT_NOTHROW(COND, RET)
+#define UNITTEST_ASSERT_NOTHROW(COND, RET)
 #endif
 
 using namespace std;
 
 #if FLT_RADIX != 2
-# error Code currently assumes FLT_RADIX == 2
+#error Code currently assumes FLT_RADIX == 2
 #endif
 
 #ifdef _MSC_VER
 // Disable warning about negating an unsigned type, which we do deliberately.
-# pragma warning(disable:4146)
+#pragma warning(disable:4146)
 #endif
 
 size_t Xapian::sortable_serialise_(double value, char* buf) noexcept

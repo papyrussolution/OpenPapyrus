@@ -1,5 +1,6 @@
 // TSESSDLG.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -262,7 +263,7 @@ private:
 	DECL_HANDLE_EVENT;
 	void   SetupSCard();
 	//
-	// ARG(master IN): 0 - ведущее значение - продолжительность, 1 - ведущее значение - время окончания //
+	// ARG(master IN): 0 - РІРµРґСѓС‰РµРµ Р·РЅР°С‡РµРЅРёРµ - РїСЂРѕРґРѕР»Р¶РёС‚РµР»СЊРЅРѕСЃС‚СЊ, 1 - РІРµРґСѓС‰РµРµ Р·РЅР°С‡РµРЅРёРµ - РІСЂРµРјСЏ РѕРєРѕРЅС‡Р°РЅРёСЏ //
 	//
 	int    SetupTiming(int master);
 	void   SetupCapacity();
@@ -284,20 +285,20 @@ private:
 
 	TSessionPacket Data;
 	int    OrgStatus;
-	int    SessUpdated; // Получает значение !0, если сессия была сохранена в процессе редактирования (переход в режим чека, либо переход в строки).
+	int    SessUpdated; // РџРѕР»СѓС‡Р°РµС‚ Р·РЅР°С‡РµРЅРёРµ !0, РµСЃР»Рё СЃРµСЃСЃРёСЏ Р±С‹Р»Р° СЃРѕС…СЂР°РЅРµРЅР° РІ РїСЂРѕС†РµСЃСЃРµ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ (РїРµСЂРµС…РѕРґ РІ СЂРµР¶РёРј С‡РµРєР°, Р»РёР±Рѕ РїРµСЂРµС…РѕРґ РІ СЃС‚СЂРѕРєРё).
 	int    InnerGetDTS;
 	long   InpUpdLock;
 	//
-	// Блок параметров перенстройки процессора.
-	// Из-за того, что извлечение параметров перенастройки - достаточно дорогая с точки зрения //
-	// производительности операция, мы сохраним в этом блоке те параметры сессии, от которых зависят
-	// характеристики перенастройки, дабы извлекать их только при изменении указанных параметров.
+	// Р‘Р»РѕРє РїР°СЂР°РјРµС‚СЂРѕРІ РїРµСЂРµРЅСЃС‚СЂРѕР№РєРё РїСЂРѕС†РµСЃСЃРѕСЂР°.
+	// РР·-Р·Р° С‚РѕРіРѕ, С‡С‚Рѕ РёР·РІР»РµС‡РµРЅРёРµ РїР°СЂР°РјРµС‚СЂРѕРІ РїРµСЂРµРЅР°СЃС‚СЂРѕР№РєРё - РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РґРѕСЂРѕРіР°СЏ СЃ С‚РѕС‡РєРё Р·СЂРµРЅРёСЏ //
+	// РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЊРЅРѕСЃС‚Рё РѕРїРµСЂР°С†РёСЏ, РјС‹ СЃРѕС…СЂР°РЅРёРј РІ СЌС‚РѕРј Р±Р»РѕРєРµ С‚Рµ РїР°СЂР°РјРµС‚СЂС‹ СЃРµСЃСЃРёРё, РѕС‚ РєРѕС‚РѕСЂС‹С… Р·Р°РІРёСЃСЏС‚
+	// С…Р°СЂР°РєС‚РµСЂРёСЃС‚РёРєРё РїРµСЂРµРЅР°СЃС‚СЂРѕР№РєРё, РґР°Р±С‹ РёР·РІР»РµРєР°С‚СЊ РёС… С‚РѕР»СЊРєРѕ РїСЂРё РёР·РјРµРЅРµРЅРёРё СѓРєР°Р·Р°РЅРЅС‹С… РїР°СЂР°РјРµС‚СЂРѕРІ.
 	//
 	struct ToolingBlock {
 		LDATETIME Start;
 		PPID   PrcID;
 		PPID   TechID;
-		long   ToolingTime; // Если -1, то перенастройка не определена
+		long   ToolingTime; // Р•СЃР»Рё -1, С‚Рѕ РїРµСЂРµРЅР°СЃС‚СЂРѕР№РєР° РЅРµ РѕРїСЂРµРґРµР»РµРЅР°
 	} TB;
 	PPObjTSession TSesObj;
 	PPObjSCard ScObj;
@@ -364,7 +365,7 @@ int TSessionDialog::AddPayment()
 			PPOprKind op_rec;
 			if(GetOpData(prc_rec.WrOffOpID, &op_rec) > 0 && op_rec.Flags & OPKF_NEEDPAYMENT) {
 				ReckonOpArList op_list;
-				PPIDArray finish_op_list; // Список зачетных операций, приемлемых для ввода документа оплаты
+				PPIDArray finish_op_list; // РЎРїРёСЃРѕРє Р·Р°С‡РµС‚РЅС‹С… РѕРїРµСЂР°С†РёР№, РїСЂРёРµРјР»РµРјС‹С… РґР»СЏ РІРІРѕРґР° РґРѕРєСѓРјРµРЅС‚Р° РѕРїР»Р°С‚С‹
 				P_BObj->GetPaymentOpListByDebtOp(prc_rec.WrOffOpID, Data.Rec.ArID, &op_list);
 				for(uint i = 0; i < op_list.getCount(); i++) {
 					const ReckonOpArItem & r_item = op_list.at(i);
@@ -585,8 +586,8 @@ void TSessionDialog::SetupTech(int force)
 		int    r = 1;
 		if(TSesObj.GetTech(tech_id, &new_tec_rec, 1) > 0) {
 			//
-			// Если сессия не новая и изменился товар, то проверяем, не следует ли изменить товар
-			// во всех строках сессии
+			// Р•СЃР»Рё СЃРµСЃСЃРёСЏ РЅРµ РЅРѕРІР°СЏ Рё РёР·РјРµРЅРёР»СЃСЏ С‚РѕРІР°СЂ, С‚Рѕ РїСЂРѕРІРµСЂСЏРµРј, РЅРµ СЃР»РµРґСѓРµС‚ Р»Рё РёР·РјРµРЅРёС‚СЊ С‚РѕРІР°СЂ
+			// РІРѕ РІСЃРµС… СЃС‚СЂРѕРєР°С… СЃРµСЃСЃРёРё
 			//
 			if(Data.Rec.ID && TSesObj.GetTech(Data.Rec.TechID, &prev_tec_rec, 1) > 0) {
 				if(new_tec_rec.GoodsID && prev_tec_rec.GoodsID && new_tec_rec.GoodsID != prev_tec_rec.GoodsID) {
@@ -899,13 +900,13 @@ long TSessionDialog::GetPlannedTiming()
 	long   nd = -1;
 	SString line_buf, temp_buf;
 	getCtrlString(CTL_TSESS_PLANTIMING, line_buf);
-	line_buf.Transf(CTRANSF_INNER_TO_OUTER);
+	line_buf.Transf(CTRANSF_INNER_TO_UTF8); // @v11.3.1 CTRANSF_INNER_TO_OUTER-->CTRANSF_INNER_TO_UTF8 (РјРѕРґСѓР»СЊ РїРµСЂРµРІРµРґРµРЅ РІ РєРѕРґРёСЂРѕРІРєСѓ UTF-8)
 	SStrScan scan(line_buf);
 	scan.Skip();
 	if(scan.GetDigits(temp_buf)) {
 		long   n1 = temp_buf.ToLong();
 		scan.Skip();
-		const char * p_days_word[] = { "days", "day", "d", "дней", "день", "д", "суток", "сутки", "сут" };
+		const char * p_days_word[] = { "days", "day", "d", "РґРЅРµР№", "РґРµРЅСЊ", "Рґ", "СЃСѓС‚РѕРє", "СЃСѓС‚РєРё", "СЃСѓС‚" };
 		for(uint i = 0; i < SIZEOFARRAY(p_days_word); i++) {
 			const char * p = p_days_word[i];
 			if(scan.Is(p)) {
@@ -1310,7 +1311,7 @@ void TSessionDialog::SetupCapacity()
 	if(planned_qtty != Data.Rec.PlannedQtty || Data.Rec.PlannedTiming <= 0) {
 		InpUpdLock++;
 		Data.Rec.PlannedQtty = planned_qtty;
-		getCtrlData(CTLSEL_TSESS_TECH, &Data.Rec.TechID); // getCtrlLong использовать нельзя, ибо поле может отсутствовать
+		getCtrlData(CTLSEL_TSESS_TECH, &Data.Rec.TechID); // getCtrlLong РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РЅРµР»СЊР·СЏ, РёР±Рѕ РїРѕР»Рµ РјРѕР¶РµС‚ РѕС‚СЃСѓС‚СЃС‚РІРѕРІР°С‚СЊ
 		TSesObj.SetPlannedTiming(&Data.Rec);
 		SetPlannedTiming(Data.Rec.PlannedTiming);
 		SetupTiming(0);
@@ -1359,7 +1360,7 @@ int TSessionDialog::SetupTiming(int master)
 		}
 		{
 			double qtty = 0.0;
-			getCtrlData(CTLSEL_TSESS_TECH, &Data.Rec.TechID); // getCtrlLong использовать нельзя, ибо поле может отсутствовать
+			getCtrlData(CTLSEL_TSESS_TECH, &Data.Rec.TechID); // getCtrlLong РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РЅРµР»СЊР·СЏ, РёР±Рѕ РїРѕР»Рµ РјРѕР¶РµС‚ РѕС‚СЃСѓС‚СЃС‚РІРѕРІР°С‚СЊ
 			if(TSesObj.CalcPlannedQtty(&Data.Rec, force_timing, &qtty) > 0) {
 				setCtrlReal(CTL_TSESS_PLANQTTY, R6(qtty));
 			}
@@ -1440,14 +1441,14 @@ int TSessionDialog::setDTS(const TSessionPacket * pData)
 	}
 	if(setGroupData(ctlgroupPrcTech, &ptcg_rec)) {
 		//
-		// Предварительно устанавливаем дату и время начала в диалоге из-за того,
-		// что вызов SetupTech (косвенно через события) приводит к тому,
-		// что из этих полей извлекается время.
+		// РџСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕ СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РґР°С‚Сѓ Рё РІСЂРµРјСЏ РЅР°С‡Р°Р»Р° РІ РґРёР°Р»РѕРіРµ РёР·-Р·Р° С‚РѕРіРѕ,
+		// С‡С‚Рѕ РІС‹Р·РѕРІ SetupTech (РєРѕСЃРІРµРЅРЅРѕ С‡РµСЂРµР· СЃРѕР±С‹С‚РёСЏ) РїСЂРёРІРѕРґРёС‚ Рє С‚РѕРјСѓ,
+		// С‡С‚Рѕ РёР· СЌС‚РёС… РїРѕР»РµР№ РёР·РІР»РµРєР°РµС‚СЃСЏ РІСЂРµРјСЏ.
 		//
 		setCtrlDatetime(CTL_TSESS_STDT, CTL_TSESS_STTM, Data.Rec.StDt, Data.Rec.StTm);
 		//
-		// Группа выбора процессора может изменить TechID, установив
-		// единственную доступную для данного процессора технологию.
+		// Р“СЂСѓРїРїР° РІС‹Р±РѕСЂР° РїСЂРѕС†РµСЃСЃРѕСЂР° РјРѕР¶РµС‚ РёР·РјРµРЅРёС‚СЊ TechID, СѓСЃС‚Р°РЅРѕРІРёРІ
+		// РµРґРёРЅСЃС‚РІРµРЅРЅСѓСЋ РґРѕСЃС‚СѓРїРЅСѓСЋ РґР»СЏ РґР°РЅРЅРѕРіРѕ РїСЂРѕС†РµСЃСЃРѕСЂР° С‚РµС…РЅРѕР»РѕРіРёСЋ.
 		//
 		SetupTech(Data.Rec.ID ? 0 : 1);
 	}
@@ -1548,7 +1549,7 @@ int TSessionDialog::getDTS(TSessionPacket * pData)
 		}
 		if(!InnerGetDTS && Data.Rec.Status == TSESST_CLOSED) {
 			//
-			// Проверка на необходимость ввода чека по закрытой тех сессии
+			// РџСЂРѕРІРµСЂРєР° РЅР° РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚СЊ РІРІРѕРґР° С‡РµРєР° РїРѕ Р·Р°РєСЂС‹С‚РѕР№ С‚РµС… СЃРµСЃСЃРёРё
 			//
 			ProcessorTbl::Rec prc_rec;
 			if(TSesObj.GetPrc(Data.Rec.PrcID, &prc_rec, 0, 1) > 0) {
@@ -1738,8 +1739,8 @@ private:
 
 	PPObjTSession TSesObj;
 	PPObjGoods GObj;
-	PPID   TSessLocID; // Склад из технологической сессии
-	double PctDis; // Процентная скидка (извлекается из дисконтой карты, привязанной к сессии)
+	PPID   TSessLocID; // РЎРєР»Р°Рґ РёР· С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРѕР№ СЃРµСЃСЃРёРё
+	double PctDis; // РџСЂРѕС†РµРЅС‚РЅР°СЏ СЃРєРёРґРєР° (РёР·РІР»РµРєР°РµС‚СЃСЏ РёР· РґРёСЃРєРѕРЅС‚РѕР№ РєР°СЂС‚С‹, РїСЂРёРІСЏР·Р°РЅРЅРѕР№ Рє СЃРµСЃСЃРёРё)
 };
 
 void TSessLineDialog::SetupCtrlsOnGoodsSelection()
@@ -1991,8 +1992,8 @@ int PPObjTSession::EditDialog(TSessionPacket * pData)
 		}
 		if(tec_id && TecObj.Fetch(tec_id, &tec_rec) > 0 && IsTimingTech(&tec_rec, 0) > 0) {
 			//
-			// Специальный случай: процессор имеет единственную повременную технологию, либо
-			// повременная технология уже установлена в сессии.
+			// РЎРїРµС†РёР°Р»СЊРЅС‹Р№ СЃР»СѓС‡Р°Р№: РїСЂРѕС†РµСЃСЃРѕСЂ РёРјРµРµС‚ РµРґРёРЅСЃС‚РІРµРЅРЅСѓСЋ РїРѕРІСЂРµРјРµРЅРЅСѓСЋ С‚РµС…РЅРѕР»РѕРіРёСЋ, Р»РёР±Рѕ
+			// РїРѕРІСЂРµРјРµРЅРЅР°СЏ С‚РµС…РЅРѕР»РѕРіРёСЏ СѓР¶Рµ СѓСЃС‚Р°РЅРѕРІР»РµРЅР° РІ СЃРµСЃСЃРёРё.
 			//
 			dlg_id = DLG_TSESSTM;
 		}
@@ -2011,7 +2012,7 @@ int PPObjTSession::EditDialog(TSessionPacket * pData)
 		if(r == cmCancel) {
 			PPID   temp_id = 0;
 			if(dlg->GetUpdatedStatus(&temp_id)) {
-				// @v8.6.4 Изменения в блоке с целью избежать потери связи с чеком при отмене редактирования
+				// @v8.6.4 РР·РјРµРЅРµРЅРёСЏ РІ Р±Р»РѕРєРµ СЃ С†РµР»СЊСЋ РёР·Р±РµР¶Р°С‚СЊ РїРѕС‚РµСЂРё СЃРІСЏР·Рё СЃ С‡РµРєРѕРј РїСЂРё РѕС‚РјРµРЅРµ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ
 				if(pData) {
 					pData->Rec.ID = temp_id;
 					SETIFZ(pData->Rec.CCheckID_, dlg->GetCCheckID());

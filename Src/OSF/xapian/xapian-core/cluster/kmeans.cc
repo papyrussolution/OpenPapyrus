@@ -20,7 +20,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "xapian/cluster.h"
 
 // Threshold value for checking convergence in KMeans
 #define CONVERGENCE_THRESHOLD 0.0000000001
@@ -33,14 +32,12 @@
 using namespace Xapian;
 using namespace std;
 
-KMeans::KMeans(uint k_, uint max_iters_)
-	: k(k_)
+KMeans::KMeans(uint k_, uint max_iters_) : k(k_)
 {
 	LOGCALL_CTOR(API, "KMeans", k_ | max_iters_);
 	max_iters = (max_iters_ == 0) ? MAX_ITERS : max_iters_;
 	if(k_ == 0)
-		throw InvalidArgumentError("Number of required clusters should be "
-			  "greater than zero");
+		throw InvalidArgumentError("Number of required clusters should be greater than zero");
 }
 
 string KMeans::get_description() const

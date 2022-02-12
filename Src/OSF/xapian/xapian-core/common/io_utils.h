@@ -23,30 +23,25 @@
 #define XAPIAN_INCLUDED_IO_UTILS_H
 
 #ifndef PACKAGE
-# error config.h must be included first in each C++ source file
+#error config.h must be included first in each C++ source file
 #endif
 
 #include <sys/types.h>
 #include "safefcntl.h"
 #include "safeunistd.h"
-#include <string>
+//#include <string>
 
 /** Open a block-based file for reading.
  *
  *  @param fname  The path of the file to open.
  */
-inline int io_open_block_rd(const char * fname) {
-    return ::_open(fname, O_RDONLY | O_BINARY | O_CLOEXEC);
-}
+inline int io_open_block_rd(const char * fname) { return ::_open(fname, O_RDONLY | O_BINARY | O_CLOEXEC); }
 
 /** Open a block-based file for reading.
  *
  *  @param fname  The path of the file to open.
  */
-inline int io_open_block_rd(const std::string & fname)
-{
-    return io_open_block_rd(fname.c_str());
-}
+inline int io_open_block_rd(const std::string & fname) { return io_open_block_rd(fname.c_str()); }
 
 /** Open a block-based file for writing.
  *
@@ -62,7 +57,7 @@ int io_open_block_wr(const char * fname, bool anew);
  */
 inline int io_open_block_wr(const std::string & fname, bool anew)
 {
-    return io_open_block_wr(fname.c_str(), anew);
+	return io_open_block_wr(fname.c_str(), anew);
 }
 
 /** Ensure all data previously written to file descriptor fd has been written to
@@ -73,35 +68,35 @@ inline int io_open_block_wr(const std::string & fname, bool anew)
 inline bool io_sync(int fd)
 {
 #if defined HAVE_FDATASYNC
-    // If we have it, prefer fdatasync() over fsync() as the former avoids
-    // updating the access time so is probably a little more efficient.
-    return fdatasync(fd) == 0;
+	// If we have it, prefer fdatasync() over fsync() as the former avoids
+	// updating the access time so is probably a little more efficient.
+	return fdatasync(fd) == 0;
 #elif defined HAVE_FSYNC
-    return fsync(fd) == 0;
+	return fsync(fd) == 0;
 #elif defined __WIN32__
-    return _commit(fd) == 0;
+	return _commit(fd) == 0;
 #else
-# error Cannot implement io_sync() without fdatasync(), fsync(), or _commit()
+#error Cannot implement io_sync() without fdatasync(), fsync(), or _commit()
 #endif
 }
 
 inline bool io_full_sync(int fd)
 {
 #ifdef F_FULLFSYNC
-    /* Only supported on Mac OS X (at the time of writing at least).
-     *
-     * This call ensures that data has actually been written to disk, not just
-     * to the drive's write cache, so it provides better protection from power
-     * failures, etc.  It does take longer though.
-     *
-     * According to the sqlite sources, this shouldn't fail on a local FS so
-     * a failure means that the file system doesn't support this operation and
-     * therefore it's best to fallback to fdatasync()/fsync().
-     */
-    if (fcntl(fd, F_FULLFSYNC, 0) == 0)
-	return true;
+	/* Only supported on Mac OS X (at the time of writing at least).
+	 *
+	 * This call ensures that data has actually been written to disk, not just
+	 * to the drive's write cache, so it provides better protection from power
+	 * failures, etc.  It does take longer though.
+	 *
+	 * According to the sqlite sources, this shouldn't fail on a local FS so
+	 * a failure means that the file system doesn't support this operation and
+	 * therefore it's best to fallback to fdatasync()/fsync().
+	 */
+	if(fcntl(fd, F_FULLFSYNC, 0) == 0)
+		return true;
 #endif
-    return io_sync(fd);
+	return io_sync(fd);
 }
 
 /** Read n bytes (or until EOF) into block pointed to by p from file descriptor
@@ -120,7 +115,7 @@ size_t io_read(int fd, char * p, size_t n, size_t min = 0);
 void io_write(int fd, const char * p, size_t n);
 
 inline void io_write(int fd, const uchar * p, size_t n) {
-    io_write(fd, reinterpret_cast<const char *>(p), n);
+	io_write(fd, reinterpret_cast<const char *>(p), n);
 }
 
 /** Read n bytes (or until EOF) into block pointed to by p from file descriptor
@@ -153,7 +148,10 @@ void io_pwrite(int fd, const char * p, size_t n, off_t o);
 #ifdef HAVE_POSIX_FADVISE
 bool io_readahead_block(int fd, size_t n, off_t b, off_t o = 0);
 #else
-inline bool io_readahead_block(int, size_t, off_t, off_t = 0) { return false; }
+inline bool io_readahead_block(int, size_t, off_t, off_t = 0) {
+	return false;
+}
+
 #endif
 
 /// Read block b size n bytes into buffer p from file descriptor fd, offset o.
@@ -163,7 +161,7 @@ void io_read_block(int fd, char * p, size_t n, off_t b, off_t o = 0);
 void io_write_block(int fd, const char * p, size_t n, off_t b, off_t o = 0);
 
 inline void io_write_block(int fd, const uchar * p, size_t n, off_t b) {
-    io_write_block(fd, reinterpret_cast<const char *>(p), n, b);
+	io_write_block(fd, reinterpret_cast<const char *>(p), n, b);
 }
 
 /** Delete a file.

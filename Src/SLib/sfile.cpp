@@ -1169,7 +1169,7 @@ int SFile::InvariantC(SInvariantParam * pInvP) const
 {
 	S_INVARIANT_PROLOG(pInvP);
 	S_ASSERT_P(T != tStdFile || F, pInvP);
-	S_ASSERT_P(T != tFile    || IH != -1, pInvP);
+	S_ASSERT_P(T != tFile   || IH != -1, pInvP);
 	S_ASSERT_P(T != tSBuffer || P_Sb, pInvP);
 	S_INVARIANT_EPILOG(pInvP);
 }

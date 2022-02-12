@@ -22,9 +22,6 @@
 #include "termgenerator_internal.h"
 #include "api/msetinternal.h"
 #include "api/queryinternal.h"
-#include <xapian/queryparser.h>
-#include <xapian/stem.h>
-#include <xapian/unicode.h>
 #include "cjk-tokenizer.h"
 
 using namespace std;

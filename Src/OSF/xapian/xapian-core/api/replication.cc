@@ -21,7 +21,6 @@
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "replication.h"
-#include "xapian/intrusive_ptr.h"
 #include "xapian/dbfactory.h"
 #include "backends/databaseinternal.h"
 #include "backends/databasereplicator.h"
@@ -196,26 +195,18 @@ class DatabaseReplica::Internal : public Xapian::Internal::intrusive_base {
 public:
 	/// Open a new DatabaseReplica::Internal for the specified path.
 	explicit Internal(const string & path_);
-
-	/// Destructor.
-	~Internal() {
+	~Internal() 
+	{
 		delete conn;
 	}
-
 	/// Get a string describing the current revision of the replica.
 	string get_revision_info() const;
-
 	/// Set the file descriptor to read changesets from.
 	void set_read_fd(int fd);
-
 	/// Read and apply the next changeset.
-	bool apply_next_changeset(ReplicationInfo * info,
-	    double reader_close_time);
-
+	bool apply_next_changeset(ReplicationInfo * info, double reader_close_time);
 	/// Return a string describing this object.
-	string get_description() const {
-		return path;
-	}
+	string get_description() const { return path; }
 };
 
 // Methods of DatabaseReplica
@@ -244,8 +235,7 @@ void DatabaseReplica::set_read_fd(int fd)
 	internal->set_read_fd(fd);
 }
 
-bool DatabaseReplica::apply_next_changeset(ReplicationInfo * info,
-    double reader_close_time)
+bool DatabaseReplica::apply_next_changeset(ReplicationInfo * info, double reader_close_time)
 {
 	LOGCALL(REPLICA, bool, "DatabaseReplica::apply_next_changeset", info | reader_close_time);
 	if(info)
@@ -263,8 +253,7 @@ string DatabaseReplica::get_description() const
 
 // Methods of DatabaseReplica::Internal
 
-void
-DatabaseReplica::Internal::update_stub_database() const
+void DatabaseReplica::Internal::update_stub_database() const
 {
 	string stub_path = path;
 	stub_path += "/XAPIANDB";
@@ -312,8 +301,7 @@ DatabaseReplica::Internal::Internal(const string & path_)
 		string stub_path = path;
 		stub_path += "/XAPIANDB";
 		try {
-			live_db = WritableDatabase(stub_path,
-				Xapian::DB_OPEN|Xapian::DB_BACKEND_STUB);
+			live_db = WritableDatabase(stub_path, Xapian::DB_OPEN|Xapian::DB_BACKEND_STUB);
 		} catch(const Xapian::DatabaseCorruptError &) {
 			// If the database is too corrupt to open, force a full copy so we
 			// auto-heal from this condition.  Instance seen in the wild was
@@ -333,14 +321,12 @@ DatabaseReplica::Internal::Internal(const string & path_)
 #endif
 }
 
-string
-DatabaseReplica::Internal::get_revision_info() const
+string DatabaseReplica::Internal::get_revision_info() const
 {
 	LOGCALL(REPLICA, string, "DatabaseReplica::Internal::get_revision_info", NO_ARGS);
 	if(live_db_corrupt) {
 		RETURN(string());
 	}
-
 	switch(live_db.internal->size()) {
 		case 0:
 		    live_db = WritableDatabase(get_replica_path(live_id), Xapian::DB_OPEN);
@@ -349,27 +335,22 @@ DatabaseReplica::Internal::get_revision_info() const
 		    // OK
 		    break;
 		default:
-		    throw Xapian::InvalidOperationError("DatabaseReplica needs to be "
-			      "pointed at exactly one "
-			      "subdatabase");
+		    throw Xapian::InvalidOperationError("DatabaseReplica needs to be pointed at exactly one subdatabase");
 	}
-
 	string buf;
 	pack_string(buf, live_db.get_uuid());
 	pack_uint(buf, live_db.get_revision());
 	RETURN(buf);
 }
 
-void
-DatabaseReplica::Internal::remove_offline_db()
+void DatabaseReplica::Internal::remove_offline_db()
 {
 	// Delete the offline database.
 	removedir(get_replica_path(live_id ^ 1));
 	have_offline_db = false;
 }
 
-void
-DatabaseReplica::Internal::apply_db_copy(double end_time)
+void DatabaseReplica::Internal::apply_db_copy(double end_time)
 {
 	have_offline_db = true;
 	last_live_changeset_time = 0;
@@ -381,10 +362,8 @@ DatabaseReplica::Internal::apply_db_copy(double end_time)
 	// database being replaced by a new database).
 	removedir(offline_path);
 	if(mkdir(offline_path.c_str(), 0777)) {
-		throw Xapian::DatabaseError("Cannot make directory '" +
-			  offline_path + "'", errno);
+		throw Xapian::DatabaseError("Cannot make directory '" + offline_path + "'", errno);
 	}
-
 	{
 		string buf;
 		int type = conn->get_message(buf, end_time);

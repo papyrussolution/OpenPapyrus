@@ -31,7 +31,7 @@
 #include "tiffiop.h"
 #pragma hdrstop
 
-static int NotConfigured(TIFF*, int);
+static int NotConfigured(TIFF *, int);
 
 #ifndef LZW_SUPPORT
 	#define TIFFInitLZW NotConfigured
@@ -102,7 +102,7 @@ TIFFCodec _TIFFBuiltinCODECS[] = {
     { NULL,             0,                      NULL }
 };
 
-static int _notConfigured(TIFF* tif)
+static int _notConfigured(TIFF * tif)
 {
 	const TIFFCodec* c = TIFFFindCODEC(tif->tif_dir.td_compression); 
 	char compression_code[20];
@@ -111,7 +111,7 @@ static int _notConfigured(TIFF* tif)
 	return 0;
 }
 
-static int NotConfigured(TIFF* tif, int scheme)
+static int NotConfigured(TIFF * tif, int scheme)
 {
 	(void) scheme;
 	tif->tif_fixuptags = _notConfigured;

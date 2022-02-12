@@ -2,7 +2,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 // Copyright (C) 2001-2014, International Business Machines Corporation and others.  All Rights Reserved.
-// encoding:   UTF-8
+// @codepage UTF-8
 // Author: Markus W. Scherer
 // Modification history:
 // 05/18/2001  weiv    Made into separate module

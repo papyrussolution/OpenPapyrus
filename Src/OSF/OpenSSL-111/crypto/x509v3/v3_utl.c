@@ -131,7 +131,7 @@ char * i2s_ASN1_ENUMERATED(X509V3_EXT_METHOD * method, const ASN1_ENUMERATED * a
 	if(!a)
 		return NULL;
 	if((bntmp = ASN1_ENUMERATED_to_BN(a, NULL)) == NULL
-	    || (strtmp = bignum_to_string(bntmp)) == NULL)
+	   || (strtmp = bignum_to_string(bntmp)) == NULL)
 		X509V3err(X509V3_F_I2S_ASN1_ENUMERATED, ERR_R_MALLOC_FAILURE);
 	BN_free(bntmp);
 	return strtmp;
@@ -145,7 +145,7 @@ char * i2s_ASN1_INTEGER(X509V3_EXT_METHOD * method, const ASN1_INTEGER * a)
 	if(!a)
 		return NULL;
 	if((bntmp = ASN1_INTEGER_to_BN(a, NULL)) == NULL
-	    || (strtmp = bignum_to_string(bntmp)) == NULL)
+	   || (strtmp = bignum_to_string(bntmp)) == NULL)
 		X509V3err(X509V3_F_I2S_ASN1_INTEGER, ERR_R_MALLOC_FAILURE);
 	BN_free(bntmp);
 	return strtmp;
@@ -1010,7 +1010,7 @@ static int ipv6_from_asc(uchar * v6, const char * in)
 		else {
 			/* Can only have one zero if *not* start or end */
 			if((v6stat.zero_pos == 0)
-			    || (v6stat.zero_pos == v6stat.total))
+			   || (v6stat.zero_pos == v6stat.total))
 				return 0;
 		}
 	}
@@ -1116,7 +1116,7 @@ int X509V3_NAME_from_section(X509_NAME * nm, STACK_OF(CONF_VALUE) * dn_sk,
 			spec_char = ((*p == ':') || (*p == ',') || (*p == '.'));
 #else
 			spec_char = ((*p == os_toascii[':']) || (*p == os_toascii[','])
-			    || (*p == os_toascii['.']));
+			   || (*p == os_toascii['.']));
 #endif
 			if(spec_char) {
 				p++;

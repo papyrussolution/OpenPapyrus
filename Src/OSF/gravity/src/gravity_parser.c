@@ -2092,7 +2092,7 @@ static gnode_t * parse_loop_statement(gravity_parser_t * parser) {
 	gtoken_t type = gravity_lexer_next(lexer);
 	gtoken_s token = gravity_lexer_token(lexer);
 	gtoken_s end_token;
-	assert((type == TOK_KEY_WHILE) || (type == TOK_KEY_REPEAT)  || (type == TOK_KEY_FOR));
+	assert((type == TOK_KEY_WHILE) || (type == TOK_KEY_REPEAT) || (type == TOK_KEY_FOR));
 
 	// 'while' '(' expression ')' statement
 	if(type == TOK_KEY_WHILE) {

@@ -1,11 +1,9 @@
-/*
- * Summary: the core parser module
- * Description: Interfaces, constants and types related to the XML parser
- *
- * Copy: See Copyright for the status of this software.
- *
- * Author: Daniel Veillard
- */
+// PARSER.H
+// Summary: the core parser module
+// Description: Interfaces, constants and types related to the XML parser
+// Copy: See Copyright for the status of this software.
+// Author: Daniel Veillard
+// 
 #ifndef __XML_PARSER_H__
 #define __XML_PARSER_H__
 
@@ -48,13 +46,13 @@ struct xmlParserInput {
 	/* Input buffer */
 	const xmlChar * cur;          // Current char being parsed 
 	xmlParserInputBuffer * buf;   // UTF-8 encoded buffer 
-	const char * filename; /* The file analyzed, if any */
-	const char * directory; /* the directory/base of the file */
-	const xmlChar * base; /* Base of the array to parse */
-	const xmlChar * end; /* end of the array to parse */
-	int length;                   /* length if known */
-	int line; /* Current line */
-	int col; /* Current column */
+	const char * filename; // The file analyzed, if any 
+	const char * directory; // the directory/base of the file 
+	const xmlChar * base; // Base of the array to parse 
+	const xmlChar * end; // end of the array to parse 
+	int length; // length if known 
+	int line;   // Current line 
+	int col;    // Current column 
 	/*
 	 * NOTE: consumed is only tested for equality in the parser code,
 	 *  so even if there is an overflow this should not give troubles

@@ -1802,7 +1802,7 @@ static CURLcode sectransp_connect_step1(struct connectdata * conn,
 
 		if((Curl_inet_pton(AF_INET, hostname, &addr))
   #ifdef ENABLE_IPV6
-		    || (Curl_inet_pton(AF_INET6, hostname, &addr))
+		   || (Curl_inet_pton(AF_INET6, hostname, &addr))
   #endif
 		    ) {
 			infof(data, "WARNING: using IP address, SNI is being disabled by "
@@ -2388,8 +2388,8 @@ static CURLcode sectransp_connect_step2(struct connectdata * conn, int sockindex
 #endif
 
 	DEBUGASSERT(ssl_connect_2 == connssl->connecting_state
-	    || ssl_connect_2_reading == connssl->connecting_state
-	    || ssl_connect_2_writing == connssl->connecting_state);
+	   || ssl_connect_2_reading == connssl->connecting_state
+	   || ssl_connect_2_writing == connssl->connecting_state);
 
 	/* Here goes nothing: */
 	err = SSLHandshake(backend->ssl_ctx);

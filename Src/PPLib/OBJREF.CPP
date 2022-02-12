@@ -3640,10 +3640,10 @@ int PPUhttStoreSelDescr::ValidateEntry(const Entry * pEntry) const
 		THROW(gc_obj.Fetch(pEntry->ClsID, &gc_pack) > 0);
 		THROW(oneof8(pEntry->GcClsf, PPGdsCls::eKind, PPGdsCls::eGrade, PPGdsCls::eAdd, PPGdsCls::eX, PPGdsCls::eY, PPGdsCls::eZ, PPGdsCls::eW, PPGdsCls::eAdd2));
 
-		THROW(gc_pack.Rec.Flags & PPGdsCls::fUsePropKind  || pEntry->GcClsf != PPGdsCls::eKind);
+		THROW(gc_pack.Rec.Flags & PPGdsCls::fUsePropKind || pEntry->GcClsf != PPGdsCls::eKind);
 		THROW(gc_pack.Rec.Flags & PPGdsCls::fUsePropGrade || pEntry->GcClsf != PPGdsCls::eGrade);
-		THROW(gc_pack.Rec.Flags & PPGdsCls::fUsePropAdd   || pEntry->GcClsf != PPGdsCls::eAdd);
-		THROW(gc_pack.Rec.Flags & PPGdsCls::fUsePropAdd2  || pEntry->GcClsf != PPGdsCls::eAdd2);
+		THROW(gc_pack.Rec.Flags & PPGdsCls::fUsePropAdd  || pEntry->GcClsf != PPGdsCls::eAdd);
+		THROW(gc_pack.Rec.Flags & PPGdsCls::fUsePropAdd2 || pEntry->GcClsf != PPGdsCls::eAdd2);
 		THROW(gc_pack.Rec.Flags & PPGdsCls::fUseDimX || pEntry->GcClsf != PPGdsCls::eX);
 		THROW(gc_pack.Rec.Flags & PPGdsCls::fUseDimY || pEntry->GcClsf != PPGdsCls::eY);
 		THROW(gc_pack.Rec.Flags & PPGdsCls::fUseDimZ || pEntry->GcClsf != PPGdsCls::eZ);

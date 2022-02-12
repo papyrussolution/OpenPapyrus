@@ -702,7 +702,7 @@ static int isSVD(struct iso9660 * iso9660, const uchar * h)
 	 * >= SYSTEM_AREA_BLOCK(16) + 2 and < Volume Space Size. */
 	location = archive_be32dec(h+SVD_type_M_path_table_offset);
 	if((location > 0 && location < SYSTEM_AREA_BLOCK+2)
-	    || location >= volume_block)
+	   || location >= volume_block)
 		return 0;
 
 	/* Read Root Directory Record in Volume Descriptor. */
@@ -771,7 +771,7 @@ static int isEVD(struct iso9660 * iso9660, const uchar * h)
 	 * >= SYSTEM_AREA_BLOCK(16) + 2 and < Volume Space Size. */
 	location = archive_be32dec(h+PVD_type_m_path_table_offset);
 	if((location > 0 && location < SYSTEM_AREA_BLOCK+2)
-	    || location >= volume_block)
+	   || location >= volume_block)
 		return 0;
 
 	/* Reserved field must be 0. */
@@ -848,7 +848,7 @@ static int isPVD(struct iso9660 * iso9660, const uchar * h)
 	 * >= SYSTEM_AREA_BLOCK(16) + 2 and < Volume Space Size. */
 	location = archive_be32dec(h+PVD_type_m_path_table_offset);
 	if((location > 0 && location < SYSTEM_AREA_BLOCK+2)
-	    || location >= volume_block)
+	   || location >= volume_block)
 		return 0;
 
 	/* Reserved field must be 0. */

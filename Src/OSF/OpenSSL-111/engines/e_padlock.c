@@ -30,7 +30,7 @@
 #define DYNAMIC_ENGINE
 #endif
 #else
-#   error "Only OpenSSL >= 0.9.7 is supported"
+#error "Only OpenSSL >= 0.9.7 is supported"
 #endif
 
 /*
@@ -480,19 +480,19 @@ static int padlock_ctr_cipher(EVP_CIPHER_CTX * ctx, uchar * out_arg,
 		    EVP_CIPHER_meth_new(NID_aes_ ## ksize ## _ ## lmode,             \
 		    EVP_CIPHER_block_size_ ## umode,         \
 		    AES_KEY_SIZE_ ## ksize)) == NULL         \
-		    || !EVP_CIPHER_meth_set_iv_length(_hidden_aes_ ## ksize ## _ ## lmode, \
+		   || !EVP_CIPHER_meth_set_iv_length(_hidden_aes_ ## ksize ## _ ## lmode, \
 		    AES_BLOCK_SIZE)           \
-		    || !EVP_CIPHER_meth_set_flags(_hidden_aes_ ## ksize ## _ ## lmode, \
+		   || !EVP_CIPHER_meth_set_flags(_hidden_aes_ ## ksize ## _ ## lmode, \
 		    0 | EVP_CIPH_ ## umode ## _MODE)  \
-		    || !EVP_CIPHER_meth_set_init(_hidden_aes_ ## ksize ## _ ## lmode, \
+		   || !EVP_CIPHER_meth_set_init(_hidden_aes_ ## ksize ## _ ## lmode, \
 		    padlock_aes_init_key)          \
-		    || !EVP_CIPHER_meth_set_do_cipher(_hidden_aes_ ## ksize ## _ ## lmode, \
+		   || !EVP_CIPHER_meth_set_do_cipher(_hidden_aes_ ## ksize ## _ ## lmode, \
 		    padlock_ ## lmode ## _cipher) \
-		    || !EVP_CIPHER_meth_set_impl_ctx_size(_hidden_aes_ ## ksize ## _ ## lmode, \
+		   || !EVP_CIPHER_meth_set_impl_ctx_size(_hidden_aes_ ## ksize ## _ ## lmode, \
 		    sizeof(struct padlock_cipher_data) + 16) \
-		    || !EVP_CIPHER_meth_set_set_asn1_params(_hidden_aes_ ## ksize ## _ ## lmode, \
+		   || !EVP_CIPHER_meth_set_set_asn1_params(_hidden_aes_ ## ksize ## _ ## lmode, \
 		    EVP_CIPHER_set_asn1_iv) \
-		    || !EVP_CIPHER_meth_set_get_asn1_params(_hidden_aes_ ## ksize ## _ ## lmode, \
+		   || !EVP_CIPHER_meth_set_get_asn1_params(_hidden_aes_ ## ksize ## _ ## lmode, \
 		    EVP_CIPHER_get_asn1_iv))) { \
 			EVP_CIPHER_meth_free(_hidden_aes_ ## ksize ## _ ## lmode);            \
 			_hidden_aes_ ## ksize ## _ ## lmode = NULL;                           \

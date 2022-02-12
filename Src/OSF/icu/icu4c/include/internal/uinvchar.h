@@ -53,7 +53,7 @@ U_CAPI bool U_EXPORT2 uprv_isInvariantUString(const UChar * s, int32_t length);
 	(((x) < 'S') ? ((x)-'J'+9) : \
 	((x)-'S'+18)))
 #else
-#   error Unknown charset family!
+#error Unknown charset family!
 #endif
 
 #ifdef __cplusplus
@@ -84,7 +84,7 @@ inline int32_t uprv_upperOrdinal(int32_t c) {
 	}
 	return c - 'S' + 18; // S-Z --> 18..25
 #else
-#   error Unknown charset family!
+#error Unknown charset family!
 #endif
 }
 
@@ -110,7 +110,7 @@ inline int32_t uprv_lowerOrdinal(int32_t c) {
 	}
 	return c - 's' + 18; // s-z --> 18..25
 #else
-#   error Unknown charset family!
+#error Unknown charset family!
 #endif
 }
 
@@ -137,7 +137,7 @@ U_CFUNC bool uprv_isEbcdicAtSign(char c);
 #elif U_CHARSET_FAMILY==U_EBCDIC_FAMILY
 #define uprv_isAtSign(c) uprv_isEbcdicAtSign(c)
 #else
-#   error Unknown charset family!
+#error Unknown charset family!
 #endif
 
 /**
@@ -152,11 +152,11 @@ U_CAPI int32_t U_EXPORT2 uprv_compareInvEbcdicAsAscii(const char * s1, const cha
  * @internal
  */
 #if U_CHARSET_FAMILY==U_ASCII_FAMILY
-#define uprv_compareInvCharsAsAscii(s1, s2) uprv_strcmp(s1, s2)
+	#define uprv_compareInvCharsAsAscii(s1, s2) uprv_strcmp(s1, s2)
 #elif U_CHARSET_FAMILY==U_EBCDIC_FAMILY
-#define uprv_compareInvCharsAsAscii(s1, s2) uprv_compareInvEbcdicAsAscii(s1, s2)
+	#define uprv_compareInvCharsAsAscii(s1, s2) uprv_compareInvEbcdicAsAscii(s1, s2)
 #else
-#   error Unknown charset family!
+	#error Unknown charset family!
 #endif
 
 /**
@@ -175,7 +175,7 @@ U_CAPI char U_EXPORT2 uprv_ebcdicToAscii(char c);
 #elif U_CHARSET_FAMILY==U_EBCDIC_FAMILY
 #define uprv_invCharToAscii(c) uprv_ebcdicToAscii(c)
 #else
-#   error Unknown charset family!
+#error Unknown charset family!
 #endif
 
 /**
@@ -183,18 +183,17 @@ U_CAPI char U_EXPORT2 uprv_ebcdicToAscii(char c);
  * @internal
  */
 U_CAPI char U_EXPORT2 uprv_ebcdicToLowercaseAscii(char c);
-
 /**
  * \def uprv_invCharToLowercaseAscii
  * Converts an invariant character to lowercase ASCII.
  * @internal
  */
 #if U_CHARSET_FAMILY==U_ASCII_FAMILY
-#define uprv_invCharToLowercaseAscii uprv_asciitolower
+	#define uprv_invCharToLowercaseAscii uprv_asciitolower
 #elif U_CHARSET_FAMILY==U_EBCDIC_FAMILY
-#define uprv_invCharToLowercaseAscii uprv_ebcdicToLowercaseAscii
+	#define uprv_invCharToLowercaseAscii uprv_ebcdicToLowercaseAscii
 #else
-#   error Unknown charset family!
+	#error Unknown charset family!
 #endif
 
 /**

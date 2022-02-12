@@ -1133,10 +1133,10 @@ static SString & GetString(const char * pInpString, size_t maxLen, const char * 
 	return rBuf;
 }
 
-struct StStatusText {
+/* @v11.3.1 struct StStatusText {
 	int    Id;
 	const char * P_Status;
-};
+};*/
 
 //StStatusText StatusTexts[];
 //StSmscErrorText SmscErrorMsgs[];
@@ -1253,7 +1253,8 @@ static StSmscErrorMsgId SmscErrorMsgs[] = {
     { ESME_RUNKNOWNERR, PPERR_ESME_RUNKNOWNERR }
 };
 
-static StStatusText StatusTexts[] = {
+//static const StStatusText StatusTexts[] = {
+static const SIntToSymbTabEntry StatusTexts[] = { // @v11.3.1 StStatusText-->SIntToSymbTabEntry
 	{SMS_DELIVERED,			"DELIVERED"},
 	{SMS_EXPIRED,			"EXPIRED"},
 	{SMS_DELETED,			"DELETED"},
@@ -1278,7 +1279,7 @@ static SString & GetSmscErrorText(int error, SString & rErrorText)
 	return rErrorText;
 }
 
-static SString & GetStatusText(int status, SString & rStatusText)
+/* @v11.3.1 static SString & GetStatusText(int status, SString & rStatusText)
 {
 	rStatusText.Z();
 	for(size_t i = 0; i < SIZEOFARRAY(StatusTexts); i++)
@@ -1287,7 +1288,7 @@ static SString & GetStatusText(int status, SString & rStatusText)
 			break;
 		}
 	return rStatusText;
-}
+}*/
 
 class SmsProtocolBuf : public SBaseBuffer {
 public:
@@ -1630,8 +1631,7 @@ int SmsClient::TryToReconnect(uint & rReconnectionTryNums)
 	int    ok = 1;
 	if(P_Logger) {
 		SString msg_buf;
-		PPLoadText(PPTXT_SMSSRVRECONNECTION, msg_buf);
-		P_Logger->Log(msg_buf);
+		P_Logger->Log(PPLoadTextS(PPTXT_SMSSRVRECONNECTION, msg_buf));
 	}
     DisconnectSocket();
 	if(Config.ReconnectTimeout > 0)
@@ -1788,7 +1788,8 @@ void SmsClient::AddStatusCode(const char * pDestNum, int statusCode, const char 
 {
 	SString status_text, status_msg;
 	status_msg.Z().Cat(pDestNum).Semicol();
-	GetStatusText(statusCode, status_text);
+	// @v11.3.1 GetStatusText(statusCode, status_text);
+	SIntToSymbTab_GetSymb(StatusTexts, SIZEOFARRAY(StatusTexts), statusCode, status_text); // @v11.3.1
 	if(status_text.NotEmpty())
 		status_msg.Cat(status_text);
 	if(strcmp(pError, "000") != 0) // Если 000 (ошибок нет), то ничего не выводим

@@ -1964,7 +1964,7 @@ void df_swap_bytes_by_endianess(char * data, int read_order, int read_size)
 {
 	if((read_order == DF_3210)
 #if SUPPORT_MIDDLE_ENDIAN
-	    || (read_order == DF_2301)
+	   || (read_order == DF_2301)
 #endif
 	    ) {
 		int k = read_size - 1;

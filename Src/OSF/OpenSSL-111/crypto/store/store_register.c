@@ -151,8 +151,8 @@ int ossl_store_register_loader_int(OSSL_STORE_LOADER * loader)
 	if(ossl_isalpha(*scheme))
 		while(*scheme != '\0'
 		 && (ossl_isalpha(*scheme)
-		    || ossl_isdigit(*scheme)
-		    || strchr("+-.", *scheme) != NULL))
+		   || ossl_isdigit(*scheme)
+		   || strchr("+-.", *scheme) != NULL))
 			scheme++;
 	if(*scheme != '\0') {
 		OSSL_STOREerr(OSSL_STORE_F_OSSL_STORE_REGISTER_LOADER_INT,
@@ -163,7 +163,7 @@ int ossl_store_register_loader_int(OSSL_STORE_LOADER * loader)
 
 	/* Check that functions we absolutely require are present */
 	if(loader->open == NULL || loader->load == NULL || loader->eof == NULL
-	    || loader->error == NULL || loader->close == NULL) {
+	   || loader->error == NULL || loader->close == NULL) {
 		OSSL_STOREerr(OSSL_STORE_F_OSSL_STORE_REGISTER_LOADER_INT,
 		    OSSL_STORE_R_LOADER_INCOMPLETE);
 		return 0;
@@ -183,7 +183,7 @@ int ossl_store_register_loader_int(OSSL_STORE_LOADER * loader)
 
 	if(loader_register != NULL
 	 && (lh_OSSL_STORE_LOADER_insert(loader_register, loader) != NULL
-	    || lh_OSSL_STORE_LOADER_error(loader_register) == 0))
+	   || lh_OSSL_STORE_LOADER_error(loader_register) == 0))
 		ok = 1;
 
 	CRYPTO_THREAD_unlock(registry_lock);

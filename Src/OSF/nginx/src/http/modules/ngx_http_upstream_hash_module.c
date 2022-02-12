@@ -418,7 +418,7 @@ static ngx_int_t ngx_http_upstream_get_chash_peer(ngx_peer_connection_t * pc, vo
 			}
 
 			if(peer->server.len != server->len
-			    || ngx_strncmp(peer->server.data, server->data, server->len)
+			   || ngx_strncmp(peer->server.data, server->data, server->len)
 			    != 0) {
 				continue;
 			}

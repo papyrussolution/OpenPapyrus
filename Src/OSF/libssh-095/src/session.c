@@ -89,29 +89,21 @@ ssh_session ssh_new()
 	session->opts.fd = -1;
 	session->opts.compressionlevel = 7;
 	session->opts.nodelay = 0;
-
-	session->opts.flags = SSH_OPT_FLAG_PASSWORD_AUTH |
-	    SSH_OPT_FLAG_PUBKEY_AUTH |
-	    SSH_OPT_FLAG_KBDINT_AUTH |
-	    SSH_OPT_FLAG_GSSAPI_AUTH;
-
+	session->opts.flags = SSH_OPT_FLAG_PASSWORD_AUTH | SSH_OPT_FLAG_PUBKEY_AUTH | SSH_OPT_FLAG_KBDINT_AUTH | SSH_OPT_FLAG_GSSAPI_AUTH;
 	session->opts.identity = ssh_list_new();
 	if(session->opts.identity == NULL) {
 		goto err;
 	}
-
-	id = _strdup("%d/id_ed25519");
+	id = sstrdup("%d/id_ed25519");
 	if(id == NULL) {
 		goto err;
 	}
-
 	rc = ssh_list_append(session->opts.identity, id);
 	if(rc == SSH_ERROR) {
 		goto err;
 	}
-
 #ifdef HAVE_ECC
-	id = _strdup("%d/id_ecdsa");
+	id = sstrdup("%d/id_ecdsa");
 	if(id == NULL) {
 		goto err;
 	}
@@ -120,8 +112,7 @@ ssh_session ssh_new()
 		goto err;
 	}
 #endif
-
-	id = _strdup("%d/id_rsa");
+	id = sstrdup("%d/id_rsa");
 	if(id == NULL) {
 		goto err;
 	}
@@ -129,9 +120,8 @@ ssh_session ssh_new()
 	if(rc == SSH_ERROR) {
 		goto err;
 	}
-
 #ifdef HAVE_DSA
-	id = _strdup("%d/id_dsa");
+	id = sstrdup("%d/id_dsa");
 	if(id == NULL) {
 		goto err;
 	}

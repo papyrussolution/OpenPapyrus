@@ -462,7 +462,7 @@ long BIO_callback_ctrl(BIO * b, int cmd, BIO_info_cb * fp)
 		return 0;
 
 	if((b->method == NULL) || (b->method->callback_ctrl == NULL)
-	    || (cmd != BIO_CTRL_SET_CALLBACK)) {
+	   || (cmd != BIO_CTRL_SET_CALLBACK)) {
 		BIOerr(BIO_F_BIO_CALLBACK_CTRL, BIO_R_UNSUPPORTED_METHOD);
 		return -2;
 	}

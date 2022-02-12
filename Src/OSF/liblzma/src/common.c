@@ -125,24 +125,24 @@ lzma_ret lzma_code(lzma_stream *strm, lzma_action action)
 {
 	// Sanity checks
 	if((strm->next_in == NULL && strm->avail_in != 0)
-	    || (strm->next_out == NULL && strm->avail_out != 0)
-	    || strm->internal == NULL
-	    || strm->internal->next.code == NULL
-	    || (uint)(action) > LZMA_ACTION_MAX
-	    || !strm->internal->supported_actions[action])
+	   || (strm->next_out == NULL && strm->avail_out != 0)
+	   || strm->internal == NULL
+	   || strm->internal->next.code == NULL
+	   || (uint)(action) > LZMA_ACTION_MAX
+	   || !strm->internal->supported_actions[action])
 		return LZMA_PROG_ERROR;
 
 	// Check if unsupported members have been set to non-zero or non-NULL,
 	// which would indicate that some new feature is wanted.
 	if(strm->reserved_ptr1 != NULL
-	    || strm->reserved_ptr2 != NULL
-	    || strm->reserved_ptr3 != NULL
-	    || strm->reserved_ptr4 != NULL
-	    || strm->reserved_int2 != 0
-	    || strm->reserved_int3 != 0
-	    || strm->reserved_int4 != 0
-	    || strm->reserved_enum1 != LZMA_RESERVED_ENUM
-	    || strm->reserved_enum2 != LZMA_RESERVED_ENUM)
+	   || strm->reserved_ptr2 != NULL
+	   || strm->reserved_ptr3 != NULL
+	   || strm->reserved_ptr4 != NULL
+	   || strm->reserved_int2 != 0
+	   || strm->reserved_int3 != 0
+	   || strm->reserved_int4 != 0
+	   || strm->reserved_enum1 != LZMA_RESERVED_ENUM
+	   || strm->reserved_enum2 != LZMA_RESERVED_ENUM)
 		return LZMA_OPTIONS_ERROR;
 
 	switch(strm->internal->sequence) {

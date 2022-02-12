@@ -256,8 +256,8 @@ int DSA_set0_pqg(DSA * d, BIGNUM * p, BIGNUM * q, BIGNUM * g)
 	 * parameters MUST be non-NULL.
 	 */
 	if((d->p == NULL && p == NULL)
-	    || (d->q == NULL && q == NULL)
-	    || (d->g == NULL && g == NULL))
+	   || (d->q == NULL && q == NULL)
+	   || (d->g == NULL && g == NULL))
 		return 0;
 
 	if(p) {

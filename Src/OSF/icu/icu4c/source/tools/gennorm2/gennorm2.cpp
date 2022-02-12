@@ -66,25 +66,21 @@ static UOption options[] = {
 	UOPTION_DEF("fast", '\1', UOPT_NO_ARG)
 };
 
-extern "C" int main(int argc, char * argv[]) {
+extern "C" int main(int argc, char * argv[]) 
+{
 	U_MAIN_INIT_ARGS(argc, argv);
-
 	/* preset then read command line options */
 	options[SOURCEDIR].value = "";
 	argc = u_parseArgs(argc, argv, sizeof(options)/sizeof(options[HELP_H]), options);
 
 	/* error handling, printing usage message */
 	if(argc<0) {
-		fprintf(stderr,
-		    "error in command line argument \"%s\"\n",
-		    argv[-argc]);
+		fprintf(stderr, "error in command line argument \"%s\"\n", argv[-argc]);
 	}
 	if(!options[OUTPUT_FILENAME].doesOccur) {
 		argc = -1;
 	}
-	if(argc<2 ||
-	    options[HELP_H].doesOccur || options[HELP_QUESTION_MARK].doesOccur
-	    ) {
+	if(argc<2 || options[HELP_H].doesOccur || options[HELP_QUESTION_MARK].doesOccur) {
 		fprintf(stderr,
 		    "Usage: %s [-options] infiles+ -o outputfilename\n"
 		    "\n"
@@ -129,10 +125,7 @@ extern "C" int main(int argc, char * argv[]) {
 
 #if UCONFIG_NO_NORMALIZATION
 
-	fprintf(stderr,
-	    "gennorm2 writes a dummy binary data file "
-	    "because UCONFIG_NO_NORMALIZATION is set, \n"
-	    "see icu/source/common/unicode/uconfig.h\n");
+	fprintf(stderr, "gennorm2 writes a dummy binary data file because UCONFIG_NO_NORMALIZATION is set, \nsee icu/source/common/unicode/uconfig.h\n");
 	udata_createDummy(NULL, NULL, options[OUTPUT_FILENAME].value, errorCode);
 	// Should not return an error since this is the expected behaviour if UCONFIG_NO_NORMALIZATION is on.
 	// return U_UNSUPPORTED_ERROR;
@@ -145,11 +138,9 @@ extern "C" int main(int argc, char * argv[]) {
 	LocalPointer<Normalizer2DataBuilder> diff;
 	Normalizer2DataBuilder * builder = b1.getAlias();
 	errorCode.assertSuccess();
-
 	if(options[UNICODE_VERSION].doesOccur) {
 		builder->setUnicodeVersion(options[UNICODE_VERSION].value);
 	}
-
 	if(options[OPT_FAST].doesOccur) {
 		builder->setOptimization(Normalizer2DataBuilder::OPTIMIZE_FAST);
 	}
@@ -292,9 +283,7 @@ void parseFile(std::ifstream &f, Normalizer2DataBuilder &builder) {
 			UnicodeString mapping(FALSE, uchars, length);
 			if(*delimiter=='=') {
 				if(rangeLength!=1) {
-					fprintf(stderr,
-					    "gennorm2 error: round-trip mapping for more than 1 code point on %s\n",
-					    line);
+					fprintf(stderr, "gennorm2 error: round-trip mapping for more than 1 code point on %s\n", line);
 					exit(U_PARSE_ERROR);
 				}
 				builder.setRoundTripMapping((UChar32)startCP, mapping);

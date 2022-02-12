@@ -338,7 +338,7 @@ static const uint8 ebcdicTypes[128] = {
 #elif U_CHARSET_FAMILY==U_EBCDIC_FAMILY
 #define GET_CHAR_TYPE(c) GET_EBCDIC_TYPE(c)
 #else
-#   error U_CHARSET_FAMILY is not valid
+#error U_CHARSET_FAMILY is not valid
 #endif
 
 /* @see ucnv_compareNames */

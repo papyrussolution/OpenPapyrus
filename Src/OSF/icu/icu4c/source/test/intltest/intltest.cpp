@@ -1621,7 +1621,7 @@ char * IntlTest::getUnidataPath(char path[])
 
 	// As a fallback, try to guess where the source data was located
 	// at the time ICU was built, and look there.
-#   ifdef U_TOPSRCDIR
+#ifdef U_TOPSRCDIR
 	strcpy(path, U_TOPSRCDIR U_FILE_SEP_STRING "data");
 #   else
 	UErrorCode errorCode = U_ZERO_ERROR;
@@ -1636,7 +1636,7 @@ char * IntlTest::getUnidataPath(char path[])
 	strcat(path, U_FILE_SEP_STRING ".." U_FILE_SEP_STRING ".."
 	    U_FILE_SEP_STRING ".." U_FILE_SEP_STRING ".."
 	    U_FILE_SEP_STRING "data");
-#   endif
+#endif
 	strcat(path, U_FILE_SEP_STRING);
 	strcat(path, "unidata" U_FILE_SEP_STRING "UnicodeData.txt");
 	f = fopen(path, "r");

@@ -226,7 +226,7 @@ void RBBITableBuilder::calcFirstPos(RBBINode * n)
 	if(n == NULL) {
 		return;
 	}
-	if(n->fType == RBBINode::leafChar  || n->fType == RBBINode::endMark || n->fType == RBBINode::lookAhead || n->fType == RBBINode::tag) {
+	if(n->fType == RBBINode::leafChar || n->fType == RBBINode::endMark || n->fType == RBBINode::lookAhead || n->fType == RBBINode::tag) {
 		// These are non-empty leaf node types.
 		// Note: In order to maintain the sort invariant on the set,
 		// this function should only be called on a node whose set is
@@ -263,7 +263,7 @@ void RBBITableBuilder::calcLastPos(RBBINode * n)
 	if(n == NULL) {
 		return;
 	}
-	if(n->fType == RBBINode::leafChar  || n->fType == RBBINode::endMark   || n->fType == RBBINode::lookAhead || n->fType == RBBINode::tag) {
+	if(n->fType == RBBINode::leafChar || n->fType == RBBINode::endMark  || n->fType == RBBINode::lookAhead || n->fType == RBBINode::tag) {
 		// These are non-empty leaf node types.
 		// Note: In order to maintain the sort invariant on the set,
 		// this function should only be called on a node whose set is

@@ -189,11 +189,11 @@ void NumberFormatRoundTripTest::test(NumberFormat * fmt)
 		test(fmt, randomDouble(1e-100));
 #elif U_PF_OS390 <= U_PLATFORM && U_PLATFORM <= U_PF_OS400
 		// i5/OS (OS/400) throws exceptions on denormalized numbers
-#   if IEEE_754
+#if IEEE_754
 		test(fmt, randomDouble(1e-78));
 		test(fmt, randomDouble(1e-78));
 		// #else we're using something like the old z/OS floating point.
-#   endif
+#endif
 #else
 		// This is a normal machine that can support IEEE754 denormalized doubles without throwing an error.
 		test(fmt, randomDouble(DBL_MIN)); /* Usually 2.2250738585072014e-308 */

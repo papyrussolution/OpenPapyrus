@@ -24,7 +24,7 @@
 #define XAPIAN_INCLUDED_REGISTRY_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error Never use <xapian/registry.h> directly; include <xapian.h> instead.
+	#error Never use <xapian/registry.h> directly; include <xapian.h> instead.
 #endif
 
 #include <xapian/intrusive_ptr.h>
@@ -32,7 +32,6 @@
 #include <string>
 
 namespace Xapian {
-
 // Forward declarations.
 class KeyMaker;
 class LatLongMetric;
@@ -46,138 +45,129 @@ class Weight;
  *  when unserialising.
  */
 class XAPIAN_VISIBILITY_DEFAULT Registry {
-  public:
-    /// Class holding details of the registry.
-    class Internal;
+public:
+	/// Class holding details of the registry.
+	class Internal;
+private:
+	/// @internal Reference counted internals.
+	Xapian::Internal::intrusive_ptr_nonnull<Internal> internal;
 
-  private:
-    /// @internal Reference counted internals.
-    Xapian::Internal::intrusive_ptr_nonnull<Internal> internal;
+public:
+	/** Copy constructor.
+	 *
+	 *  The internals are reference counted, so copying is cheap.
+	 *
+	 *  @param other	The object to copy.
+	 */
+	Registry(const Registry & other);
 
-  public:
-    /** Copy constructor.
-     *
-     *  The internals are reference counted, so copying is cheap.
-     *
-     *  @param other	The object to copy.
-     */
-    Registry(const Registry & other);
+	/** Assignment operator.
+	 *
+	 *  The internals are reference counted, so assignment is cheap.
+	 *
+	 *  @param other	The object to copy.
+	 */
+	Registry & operator=(const Registry & other);
 
-    /** Assignment operator.
-     *
-     *  The internals are reference counted, so assignment is cheap.
-     *
-     *  @param other	The object to copy.
-     */
-    Registry & operator=(const Registry & other);
+	/** Move constructor.
+	 *
+	 * @param other	The object to move.
+	 */
+	Registry(Registry && other);
 
-    /** Move constructor.
-     *
-     * @param other	The object to move.
-     */
-    Registry(Registry && other);
+	/** Move assignment operator.
+	 *
+	 * @param other	The object to move.
+	 */
+	Registry & operator=(Registry && other);
 
-    /** Move assignment operator.
-     *
-     * @param other	The object to move.
-     */
-    Registry & operator=(Registry && other);
+	/** Default constructor.
+	 *
+	 *  The registry will contain all standard subclasses of user-subclassable
+	 *  classes.
+	 */
+	Registry();
+	~Registry();
+	/** Register a weighting scheme.
+	 *
+	 *  @param wt	The weighting scheme to register.
+	 */
+	void register_weighting_scheme(const Xapian::Weight &wt);
 
-    /** Default constructor.
-     *
-     *  The registry will contain all standard subclasses of user-subclassable
-     *  classes.
-     */
-    Registry();
+	/** Get the weighting scheme given a name.
+	 *
+	 *  @param name	The name of the weighting scheme to find.
+	 *  @return		An object with the requested name, or NULL if the
+	 *			weighting scheme could not be found.  The returned
+	 *			object is owned by the registry and so must not be
+	 *			deleted by the caller.
+	 */
+	const Xapian::Weight * get_weighting_scheme(const std::string & name) const;
 
-    ~Registry();
+	/** Register a user-defined posting source class.
+	 *
+	 *  @param source	The posting source to register.
+	 */
+	void register_posting_source(const Xapian::PostingSource &source);
 
-    /** Register a weighting scheme.
-     *
-     *  @param wt	The weighting scheme to register.
-     */
-    void register_weighting_scheme(const Xapian::Weight &wt);
+	/** Get a posting source given a name.
+	 *
+	 *  @param name	The name of the posting source to find.
+	 *  @return		An object with the requested name, or NULL if the
+	 *			posting source could not be found.  The returned
+	 *			object is owned by the registry and so must not be
+	 *			deleted by the caller.
+	 */
+	const Xapian::PostingSource * get_posting_source(const std::string & name) const;
 
-    /** Get the weighting scheme given a name.
-     *
-     *  @param name	The name of the weighting scheme to find.
-     *  @return		An object with the requested name, or NULL if the
-     *			weighting scheme could not be found.  The returned
-     *			object is owned by the registry and so must not be
-     *			deleted by the caller.
-     */
-    const Xapian::Weight *
-	    get_weighting_scheme(const std::string & name) const;
+	/** Register a user-defined match spy class.
+	 *
+	 *  @param spy	The match spy to register.
+	 */
+	void register_match_spy(const Xapian::MatchSpy &spy);
 
-    /** Register a user-defined posting source class.
-     *
-     *  @param source	The posting source to register.
-     */
-    void register_posting_source(const Xapian::PostingSource &source);
+	/** Get a match spy given a name.
+	 *
+	 *  @param name	The name of the match spy to find.
+	 *  @return		An object with the requested name, or NULL if the
+	 *			match spy could not be found.  The returned
+	 *			object is owned by the registry and so must not be
+	 *			deleted by the caller.
+	 */
+	const Xapian::MatchSpy * get_match_spy(const std::string & name) const;
 
-    /** Get a posting source given a name.
-     *
-     *  @param name	The name of the posting source to find.
-     *  @return		An object with the requested name, or NULL if the
-     *			posting source could not be found.  The returned
-     *			object is owned by the registry and so must not be
-     *			deleted by the caller.
-     */
-    const Xapian::PostingSource *
-	    get_posting_source(const std::string & name) const;
+	/// Register a user-defined lat-long metric class.
+	void register_lat_long_metric(const Xapian::LatLongMetric &metric);
 
-    /** Register a user-defined match spy class.
-     *
-     *  @param spy	The match spy to register.
-     */
-    void register_match_spy(const Xapian::MatchSpy &spy);
+	/** Get a lat-long metric given a name.
+	 *
+	 *  The returned metric is owned by the registry object.
+	 *
+	 *  Returns NULL if the metric could not be found.
+	 */
+	const Xapian::LatLongMetric * get_lat_long_metric(const std::string & name) const;
 
-    /** Get a match spy given a name.
-     *
-     *  @param name	The name of the match spy to find.
-     *  @return		An object with the requested name, or NULL if the
-     *			match spy could not be found.  The returned
-     *			object is owned by the registry and so must not be
-     *			deleted by the caller.
-     */
-    const Xapian::MatchSpy *
-	    get_match_spy(const std::string & name) const;
-
-    /// Register a user-defined lat-long metric class.
-    void register_lat_long_metric(const Xapian::LatLongMetric &metric);
-
-    /** Get a lat-long metric given a name.
-     *
-     *  The returned metric is owned by the registry object.
-     *
-     *  Returns NULL if the metric could not be found.
-     */
-    const Xapian::LatLongMetric *
-	    get_lat_long_metric(const std::string & name) const;
-
-    /** Register a user-defined KeyMaker subclass.
-     *
-     *  @param keymaker	The KeyMaker subclass to register.  The clean up of
-     *		        this object is handled via Xapian's optional reference
-     *		        counting.  The simplest way to do so is to allocate it
-     *		        with <code>new</code> and call <code>release()</code>
-     *		        on it before passing it to this method to tell Xapian
-     *		        to manage its lifetime.  The alternative approach is
-     *		        for the caller to ensure the KeyMaker object remains
-     *		        valid for the lifetime of the Registry object.
-     */
-    void register_key_maker(Xapian::KeyMaker* keymaker);
-
-    /** Get a KeyMaker given a name.
-     *
-     *  @param name	The name of the KeyMaker to find.
-     *  @return		An object with the requested name, or NULL if the
-     *			KeyMaker could not be found.  The returned
-     *			object must <b>not</b> be deleted by the caller.
-     */
-    const Xapian::KeyMaker* get_key_maker(const std::string& name) const;
+	/** Register a user-defined KeyMaker subclass.
+	 *
+	 *  @param keymaker	The KeyMaker subclass to register.  The clean up of
+	 *		        this object is handled via Xapian's optional reference
+	 *		        counting.  The simplest way to do so is to allocate it
+	 *		        with <code>new</code> and call <code>release()</code>
+	 *		        on it before passing it to this method to tell Xapian
+	 *		        to manage its lifetime.  The alternative approach is
+	 *		        for the caller to ensure the KeyMaker object remains
+	 *		        valid for the lifetime of the Registry object.
+	 */
+	void register_key_maker(Xapian::KeyMaker* keymaker);
+	/** Get a KeyMaker given a name.
+	 *
+	 *  @param name	The name of the KeyMaker to find.
+	 *  @return		An object with the requested name, or NULL if the
+	 *			KeyMaker could not be found.  The returned
+	 *			object must <b>not</b> be deleted by the caller.
+	 */
+	const Xapian::KeyMaker* get_key_maker(const std::string& name) const;
 };
-
 }
 
 #endif /* XAPIAN_INCLUDED_REGISTRY_H */

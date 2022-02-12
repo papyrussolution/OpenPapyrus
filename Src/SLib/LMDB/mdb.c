@@ -196,7 +196,7 @@ extern int cacheflush(char * addr, int nbytes, int cache);
 	#define VGMEMP_DEFINED(a, s)
 #endif
 #ifndef BYTE_ORDER
-# if(defined(_LITTLE_ENDIAN) || defined(_BIG_ENDIAN)) && !(defined(_LITTLE_ENDIAN) && defined(_BIG_ENDIAN))
+#if(defined(_LITTLE_ENDIAN) || defined(_BIG_ENDIAN)) && !(defined(_LITTLE_ENDIAN) && defined(_BIG_ENDIAN))
 /* Solaris just defines one or the other */
 #  define LITTLE_ENDIAN 1234
 #  define BIG_ENDIAN    4321
@@ -207,7 +207,7 @@ extern int cacheflush(char * addr, int nbytes, int cache);
 #  endif
 # else
 #  define BYTE_ORDER   __BYTE_ORDER
-# endif
+#endif
 #endif
 #ifndef LITTLE_ENDIAN
 	#define LITTLE_ENDIAN   __LITTLE_ENDIAN
@@ -1303,11 +1303,11 @@ struct MDB_cursor {
 	indx_t mc_ki[CURSOR_STACK]; /**< stack of page indices */
 #ifdef MDB_VL32
 	MDB_page        * mc_ovpg; /**< a referenced overflow page */
-#       define MC_OVPG(mc)                      ((mc)->mc_ovpg)
-#       define MC_SET_OVPG(mc, pg)      ((mc)->mc_ovpg = (pg))
+#define MC_OVPG(mc)                      ((mc)->mc_ovpg)
+#define MC_SET_OVPG(mc, pg)      ((mc)->mc_ovpg = (pg))
 #else
-#       define MC_OVPG(mc)                      ((MDB_page*)0)
-#       define MC_SET_OVPG(mc, pg)      ((void)0)
+#define MC_OVPG(mc)                      ((MDB_page*)0)
+#define MC_SET_OVPG(mc, pg)      ((void)0)
 #endif
 };
 
@@ -1403,15 +1403,15 @@ struct MDB_env {
 	int ovs;                                        /**< Count of OVERLAPPEDs */
 #endif
 #ifdef MDB_USE_POSIX_MUTEX      /* Posix mutexes reside in shared mem */
-#       define          me_rmutex       me_txns->mti_rmutex /**< Shared reader lock */
-#       define          me_wmutex       me_txns->mti_wmutex /**< Shared writer lock */
+#define          me_rmutex       me_txns->mti_rmutex /**< Shared reader lock */
+#define          me_wmutex       me_txns->mti_wmutex /**< Shared writer lock */
 #else
 	mdb_mutex_t me_rmutex;
 	mdb_mutex_t me_wmutex;
-# if defined(_WIN32) || defined(MDB_USE_POSIX_SEM)
+#if defined(_WIN32) || defined(MDB_USE_POSIX_SEM)
 	/** Half-initialized name of mutexes, to be completed by #MUTEXNAME() */
 	char me_mutexname[sizeof(MUTEXNAME_PREFIX) + 11];
-# endif
+#endif
 #endif
 #ifdef MDB_VL32
 	MDB_ID3L me_rpages; /**< like #mt_rpages, but global to env */
@@ -2612,7 +2612,7 @@ int mdb_env_sync0(MDB_env * env, int force, pgno_t numpgs)
 		return EACCES;
 	if(force
 #ifndef _WIN32  /* Sync is normally achieved in Windows by doing WRITE_THROUGH writes */
-	    || !(env->me_flags & MDB_NOSYNC)
+	   || !(env->me_flags & MDB_NOSYNC)
 #endif
 	    ) {
 		if(env->me_flags & MDB_WRITEMAP) {
@@ -3492,7 +3492,7 @@ static int mdb_page_flush(MDB_txn * txn, int keep)
 		     * the write offset, to at least save the overhead of a Seek
 		     * system call.
 		     */
-		    || !(env->me_flags & MDB_WRITEMAP)
+		   || !(env->me_flags & MDB_WRITEMAP)
 #endif
 		    ) {
 			if(n) {
@@ -4476,7 +4476,7 @@ static int ESECT mdb_fopen(const MDB_env * env, MDB_name * fname,
 			 */
 			if((flags = fcntl(fd, F_GETFL)) != -1)
 				(void)fcntl(fd, F_SETFL, flags | O_DIRECT);
-# endif
+#endif
 		}
 	}
 #endif  /* !_WIN32 */
@@ -4803,9 +4803,9 @@ static int ESECT mdb_env_excl_lock(MDB_env * env, int * excl)
 		*excl = 1;
 	}
 	else
-# ifndef MDB_USE_POSIX_MUTEX
+#ifndef MDB_USE_POSIX_MUTEX
 	if(*excl < 0)  /* always true when MDB_USE_POSIX_MUTEX */
-# endif
+#endif
 	{
 		lock_info.l_type = F_RDLCK;
 		while((rc = fcntl(env->me_lfd, F_SETLKW, &lock_info)) &&
@@ -4908,9 +4908,9 @@ static void ESECT mdb_env_mname_init(MDB_env * env)
 static int ESECT mdb_env_setup_locks(MDB_env * env, MDB_name * fname, int mode, int * excl)
 {
 #ifdef _WIN32
-#       define MDB_ERRCODE_ROFS ERROR_WRITE_PROTECT
+#define MDB_ERRCODE_ROFS ERROR_WRITE_PROTECT
 #else
-#       define MDB_ERRCODE_ROFS EROFS
+#define MDB_ERRCODE_ROFS EROFS
 #endif
 #ifdef MDB_USE_SYSV_SEM
 	int semid;
@@ -5145,7 +5145,7 @@ fail:
 	MDB_WRITEMAP|MDB_NOTLS|MDB_NOLOCK|MDB_NORDAHEAD|MDB_PREVSNAPSHOT)
 
 #if VALID_FLAGS & PERSISTENT_FLAGS & (CHANGEABLE|CHANGELESS)
-# error "Persistent DB flags & env flags overlap, but both go in mm_flags"
+#error "Persistent DB flags & env flags overlap, but both go in mm_flags"
 #endif
 
 int ESECT mdb_env_open(MDB_env * env, const char * path, uint flags, mdb_mode_t mode)

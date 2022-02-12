@@ -27,39 +27,26 @@ class PostListTree;
 
 /// PostList class implementing Query::OP_AND_NOT
 class AndNotPostList : public WrapperPostList {
-    /// Right-hand side of OP_NOT.
-    PostList* r;
-
-    /// Current docid from r (or 0).
-    Xapian::docid r_did = 0;
-
-    /// Total number of documents in the database.
-    Xapian::doccount db_size;
-
-  public:
-    AndNotPostList(PostList* left, PostList* right,
-		   PostListTree* /*pltree*/, Xapian::doccount db_size_)
-	: WrapperPostList(left), r(right), db_size(db_size_)
-    {}
-
-    ~AndNotPostList() { delete r; }
-
-    Xapian::doccount get_termfreq_min() const;
-
-    Xapian::doccount get_termfreq_max() const;
-
-    Xapian::doccount get_termfreq_est() const;
-
-    TermFreqs get_termfreq_est_using_stats(
-	const Xapian::Weight::Internal & stats) const;
-
-    PostList* next(double w_min);
-
-    PostList* skip_to(Xapian::docid did, double w_min);
-
-    PostList* check(Xapian::docid did, double w_min, bool& valid);
-
-    std::string get_description() const;
+	PostList* r; /// Right-hand side of OP_NOT.
+	Xapian::docid r_did = 0; /// Current docid from r (or 0).
+	Xapian::doccount db_size; /// Total number of documents in the database.
+public:
+	AndNotPostList(PostList* left, PostList* right, PostListTree* /*pltree*/, Xapian::doccount db_size_) : 
+		WrapperPostList(left), r(right), db_size(db_size_)
+	{
+	}
+	~AndNotPostList() 
+	{
+		delete r;
+	}
+	Xapian::doccount get_termfreq_min() const;
+	Xapian::doccount get_termfreq_max() const;
+	Xapian::doccount get_termfreq_est() const;
+	TermFreqs get_termfreq_est_using_stats(const Xapian::Weight::Internal & stats) const;
+	PostList* next(double w_min);
+	PostList* skip_to(Xapian::docid did, double w_min);
+	PostList* check(Xapian::docid did, double w_min, bool& valid);
+	std::string get_description() const;
 };
 
 #endif // XAPIAN_INCLUDED_ANDNOTPOSTLIST_H

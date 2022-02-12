@@ -2223,7 +2223,7 @@ const char * gravity_disassemble(gravity_vm *vm, gravity_function_t *f, const ch
 //    !==       Not identical (130)
 //    ~=        Pattern match (130)
 // &&        Logical AND (120) (associativity left)
-//    ||        Logical OR (110) (associativity left)
+//   ||        Logical OR (110) (associativity left)
 //    ?:        Ternary conditional (100) (associativity right)
 //    =         Assign (90) (associativity right)
 //    *=        Multiply and assign (90) (associativity right)

@@ -22,22 +22,22 @@
 #define XAPIAN_INCLUDED_SAFESYSSELECT_H
 
 #ifndef PACKAGE
-# error You must #include <config.h> before #include "safesysselect.h"
+#error You must #include <config.h> before #include "safesysselect.h"
 #endif
 
 #ifndef __WIN32__
 # ifdef HAVE_SYS_SELECT_H
 // According to POSIX 1003.1-2001.
-#  include <sys/select.h>
+#include <sys/select.h>
 # else
 // According to earlier standards.
-#  include <sys/time.h>
-#  include <sys/types.h>
-#  include <unistd.h>
-# endif
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
+#endif
 
 // On Solaris FD_SET uses memset but fails to prototype it.
-# include <cstring>
+#include <cstring>
 
 #else
 
@@ -46,14 +46,14 @@
 // The FD_SET macro expects an unsigned type (SOCKET) for the fd and passing
 // an int can result in a warning about comparing signed and unsigned, so we
 // add a wrapper to cast the fd argument of FD_SET to unsigned.
-# include "safewinsock2.h"
+#include "safewinsock2.h"
 inline void xapian_FD_SET_(int fd, fd_set *set) {
     FD_SET(unsigned(fd), set);
 }
 # ifdef FD_SET
-#  undef FD_SET
-# endif
-# define FD_SET(FD,SET) xapian_FD_SET_(FD,SET)
+#undef FD_SET
+#endif
+#define FD_SET(FD,SET) xapian_FD_SET_(FD,SET)
 #endif
 
 #endif // XAPIAN_INCLUDED_SAFESYSSELECT_H

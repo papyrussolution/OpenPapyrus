@@ -500,7 +500,7 @@ int extension_is_relevant(SSL * s, uint extctx, uint thisctx)
 
 	if((SSL_IS_DTLS(s)
 	 && (extctx & SSL_EXT_TLS_IMPLEMENTATION_ONLY) != 0)
-	    || (s->version == SSL3_VERSION
+	   || (s->version == SSL3_VERSION
 	 && (extctx & SSL_EXT_SSL3_ALLOWED) == 0)
 	    /*
 	     * Note that SSL_IS_TLS13() means "TLS 1.3 has been negotiated",
@@ -510,11 +510,11 @@ int extension_is_relevant(SSL * s, uint extctx, uint thisctx)
 	     * Be careful to allow TLS 1.3-only extensions when generating
 	     * the ClientHello.
 	     */
-	    || (is_tls13 && (extctx & SSL_EXT_TLS1_2_AND_BELOW_ONLY) != 0)
-	    || (!is_tls13 && (extctx & SSL_EXT_TLS1_3_ONLY) != 0
+	   || (is_tls13 && (extctx & SSL_EXT_TLS1_2_AND_BELOW_ONLY) != 0)
+	   || (!is_tls13 && (extctx & SSL_EXT_TLS1_3_ONLY) != 0
 	 && (thisctx & SSL_EXT_CLIENT_HELLO) == 0)
-	    || (s->server && !is_tls13 && (extctx & SSL_EXT_TLS1_3_ONLY) != 0)
-	    || (s->hit && (extctx & SSL_EXT_IGNORE_ON_RESUMPTION) != 0))
+	   || (s->server && !is_tls13 && (extctx & SSL_EXT_TLS1_3_ONLY) != 0)
+	   || (s->hit && (extctx & SSL_EXT_IGNORE_ON_RESUMPTION) != 0))
 		return 0;
 	return 1;
 }
@@ -748,7 +748,7 @@ int tls_construct_extensions(SSL * s, WPACKET * pkt, uint context,
 	     * extensions length bytes to a ClientHello/ServerHello
 	     * (for non-TLSv1.3).
 	     */
-	    || ((context &
+	   || ((context &
 	    (SSL_EXT_CLIENT_HELLO | SSL_EXT_TLS1_2_SERVER_HELLO)) != 0
 	 && !WPACKET_set_flags(pkt,
 	    WPACKET_FLAGS_ABANDON_ON_ZERO_LENGTH))) {
@@ -1160,7 +1160,7 @@ static int final_key_share(SSL * s, uint context, int sent)
 	if(!s->server
 	 && !sent
 	 && (!s->hit
-	    || (s->ext.psk_kex_mode & TLSEXT_KEX_MODE_FLAG_KE) == 0)) {
+	   || (s->ext.psk_kex_mode & TLSEXT_KEX_MODE_FLAG_KE) == 0)) {
 		/* Nothing left we can do - just fail */
 		SSLfatal(s, SSL_AD_MISSING_EXTENSION, SSL_F_FINAL_KEY_SHARE, SSL_R_NO_SUITABLE_KEY_SHARE);
 		return 0;
@@ -1409,10 +1409,10 @@ int tls_psk_do_binder(SSL * s, const EVP_MD * md, const uchar * msgstart,
 			PACKET hashprefix, msg;
 			/* Find how many bytes are left after the first two messages */
 			if(!PACKET_buf_init(&hashprefix, static_cast<const uchar *>(hdata), hdatalen)
-			    || !PACKET_forward(&hashprefix, 1)
-			    || !PACKET_get_length_prefixed_3(&hashprefix, &msg)
-			    || !PACKET_forward(&hashprefix, 1)
-			    || !PACKET_get_length_prefixed_3(&hashprefix, &msg)) {
+			   || !PACKET_forward(&hashprefix, 1)
+			   || !PACKET_get_length_prefixed_3(&hashprefix, &msg)
+			   || !PACKET_forward(&hashprefix, 1)
+			   || !PACKET_get_length_prefixed_3(&hashprefix, &msg)) {
 				SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_PSK_DO_BINDER, ERR_R_INTERNAL_ERROR);
 				goto err;
 			}
@@ -1426,7 +1426,7 @@ int tls_psk_do_binder(SSL * s, const EVP_MD * md, const uchar * msgstart,
 	}
 
 	if(EVP_DigestUpdate(mctx, msgstart, binderoffset) <= 0
-	    || EVP_DigestFinal_ex(mctx, hash, NULL) <= 0) {
+	   || EVP_DigestFinal_ex(mctx, hash, NULL) <= 0) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_PSK_DO_BINDER, ERR_R_INTERNAL_ERROR);
 		goto err;
 	}
@@ -1443,9 +1443,9 @@ int tls_psk_do_binder(SSL * s, const EVP_MD * md, const uchar * msgstart,
 
 	bindersize = hashsize;
 	if(EVP_DigestSignInit(mctx, NULL, md, NULL, mackey) <= 0
-	    || EVP_DigestSignUpdate(mctx, hash, hashsize) <= 0
-	    || EVP_DigestSignFinal(mctx, binderout, &bindersize) <= 0
-	    || bindersize != hashsize) {
+	   || EVP_DigestSignUpdate(mctx, hash, hashsize) <= 0
+	   || EVP_DigestSignFinal(mctx, binderout, &bindersize) <= 0
+	   || bindersize != hashsize) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_PSK_DO_BINDER, ERR_R_INTERNAL_ERROR);
 		goto err;
 	}

@@ -3145,11 +3145,11 @@ int PrcssrPersonImport::ResolveAddr(AddrEntry & rEntry, LocationTbl::Rec & rAddr
 
 int PrcssrPersonImport::ProcessComplexELinkText(const char * pText, PPPersonPacket * pPack)
 {
-	struct PrefixEntry {
+	/* @v11.3.1 struct PrefixEntry {
 		const char * P_Prefix;
 		int    ELinkType;
 	};
-	PrefixEntry pe[] = {
+	static const PrefixEntry pe[] = {
 		{ "телефон", ELNKRT_PHONE },
 		{ "тел", ELNKRT_PHONE },
 		{ "phone", ELNKRT_PHONE },
@@ -3166,21 +3166,46 @@ int PrcssrPersonImport::ProcessComplexELinkText(const char * pText, PPPersonPack
 		{ "email", ELNKRT_EMAIL },
 		{ "mail", ELNKRT_EMAIL }
 	};
+	*/
+	// @v11.3.1 {
+	static const SIntToSymbTabEntry _PE[] = {
+		{ ELNKRT_PHONE, "телефон" },
+		{ ELNKRT_PHONE, "тел" },
+		{ ELNKRT_PHONE, "phone" },
+		{ ELNKRT_FAX, "fax" },
+		{ ELNKRT_FAX, "факс" },
+		{ ELNKRT_FAX, "телефакс" },
+		{ ELNKRT_WEBADDR, "website" },
+		{ ELNKRT_WEBADDR, "site" },
+		{ ELNKRT_WEBADDR, "http" },
+		{ ELNKRT_WEBADDR, "https" }, // @v10.9.1
+		{ ELNKRT_WEBADDR, "сайт" },
+		{ ELNKRT_EMAIL, "email" },
+		{ ELNKRT_EMAIL, "e-mail" },
+		{ ELNKRT_EMAIL, "email" },
+		{ ELNKRT_EMAIL, "mail" }
+	};
+	// } @v11.3.1 
 	int    ok = 1;
 	SString temp_buf;
 	SStrScan scan(pText);
 	do {
 		scan.Skip();
 		size_t sc_offs = scan.Offs;
-		int    elinktype = 0;
-		for(uint i = 0; !elinktype && i < SIZEOFARRAY(pe); i++) {
+		// @v11.3.1 int    elinktype = 0;
+		// @v11.3.1 {
+		(temp_buf = scan).Transf(CTRANSF_INNER_TO_OUTER).ToLower1251();
+		const int _elk = SIntToSymbTab_GetId(_PE, SIZEOFARRAY(_PE), temp_buf);
+		// } @v11.3.1 
+		/* @v11.3.1 for(uint i = 0; !elinktype && i < SIZEOFARRAY(pe); i++) {
 			(temp_buf = pe[i].P_Prefix).Transf(CTRANSF_OUTER_TO_INNER);
 			if(strnicmp866(temp_buf, scan, temp_buf.Len()) == 0) {
 				elinktype = pe[i].ELinkType;
 				scan.Incr(temp_buf.Len());
 			}
-		}
-		if(elinktype) {
+		}*/
+		if(/*elinktype*/_elk) {
+			scan.Incr(temp_buf.Len()); // @v11.3.1
 			scan.Skip();
 			scan.IncrChr('.');
 			scan.Skip();
@@ -3194,19 +3219,19 @@ int PrcssrPersonImport::ProcessComplexELinkText(const char * pText, PPPersonPack
 			if(scan[0])
 				scan.Incr();
 			if(temp_buf.NotEmptyS()) {
-				if(elinktype == ELNKRT_PHONE) {
+				if(_elk == ELNKRT_PHONE) {
 					if(!pPack->ELA.SearchByText(temp_buf, 0))
 						pPack->ELA.AddItem(PPELK_WORKPHONE, temp_buf);
 				}
-				else if(elinktype == ELNKRT_FAX) {
+				else if(_elk == ELNKRT_FAX) {
 					if(!pPack->ELA.SearchByText(temp_buf, 0))
 						pPack->ELA.AddItem(PPELK_FAX, temp_buf);
 				}
-				else if(elinktype == ELNKRT_EMAIL) {
+				else if(_elk == ELNKRT_EMAIL) {
 					if(!pPack->ELA.SearchByText(temp_buf, 0))
 						pPack->ELA.AddItem(PPELK_EMAIL, temp_buf);
 				}
-				else if(elinktype == ELNKRT_WEBADDR) {
+				else if(_elk == ELNKRT_WEBADDR) {
 					if(IeParam.Flags & PPPersonImpExpParam::f2GIS) {
 						if(temp_buf.HasPrefixIAscii("http://link.2gis.ru/")) {
 							size_t p_ = 0;

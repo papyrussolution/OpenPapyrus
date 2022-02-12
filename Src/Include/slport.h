@@ -632,7 +632,7 @@
 	#else
 		#define CXX_OS_CYGWIN       (0)
 	#endif
-	#define CXX_OS_BSD           (CXX_OS_FREEBSD || CXX_OS_DRAGONFLYBSD  || CXX_OS_NETBSD || CXX_OS_OPENBSD || CXX_OS_MAC)
+	#define CXX_OS_BSD           (CXX_OS_FREEBSD || CXX_OS_DRAGONFLYBSD || CXX_OS_NETBSD || CXX_OS_OPENBSD || CXX_OS_MAC)
 	//
 	// [Export|Import]
 	//

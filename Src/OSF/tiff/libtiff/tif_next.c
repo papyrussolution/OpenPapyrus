@@ -46,7 +46,7 @@
 #define LITERALSPAN     0x40
 #define WHITE           ((1<<2)-1)
 
-static int NeXTDecode(TIFF* tif, uint8 * buf, tmsize_t occ, uint16 s)
+static int NeXTDecode(TIFF * tif, uint8 * buf, tmsize_t occ, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	uchar * bp, * op;
@@ -147,7 +147,7 @@ bad:
 	return 0;
 }
 
-static int NeXTPreDecode(TIFF* tif, uint16 s)
+static int NeXTPreDecode(TIFF * tif, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
@@ -159,7 +159,7 @@ static int NeXTPreDecode(TIFF* tif, uint16 s)
 	return 1;
 }
 
-int TIFFInitNeXT(TIFF* tif, int scheme)
+int TIFFInitNeXT(TIFF * tif, int scheme)
 {
 	(void)scheme;
 	tif->tif_predecode = NeXTPreDecode;

@@ -21,7 +21,7 @@
 #define XAPIAN_INCLUDED_DEPRECATED_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error Never use <xapian/deprecated.h> directly; include <xapian.h> instead.
+#error Never use <xapian/deprecated.h> directly; include <xapian.h> instead.
 #endif
 
 // How to make use of XAPIAN_DEPRECATED, etc is documented in HACKING - see
@@ -32,11 +32,11 @@
 // Don't give deprecation warnings for features marked as externally deprecated
 // when building the library.
 #ifdef XAPIAN_IN_XAPIAN_H
-# define XAPIAN_DEPRECATED_EX(D) XAPIAN_DEPRECATED(D)
-# define XAPIAN_DEPRECATED_CLASS_EX XAPIAN_DEPRECATED_CLASS
+#define XAPIAN_DEPRECATED_EX(D) XAPIAN_DEPRECATED(D)
+#define XAPIAN_DEPRECATED_CLASS_EX XAPIAN_DEPRECATED_CLASS
 #else
-# define XAPIAN_DEPRECATED_EX(D) D
-# define XAPIAN_DEPRECATED_CLASS_EX
+#define XAPIAN_DEPRECATED_EX(D) D
+#define XAPIAN_DEPRECATED_CLASS_EX
 #endif
 
 // xapian-bindings needs to wrap deprecated functions without warnings,
@@ -55,11 +55,11 @@
 #  define XAPIAN_DEPRECATED_CLASS __declspec(deprecated)
 # else
 #  define XAPIAN_DEPRECATED(D) D
-# endif
+#endif
 #endif
 
 #ifndef XAPIAN_DEPRECATED_CLASS
-# define XAPIAN_DEPRECATED_CLASS
+#define XAPIAN_DEPRECATED_CLASS
 #endif
 
 #endif

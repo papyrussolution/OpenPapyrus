@@ -441,7 +441,8 @@ symbol * SnowballStemImplementation::slice_to(symbol * v) {
 	return v;
 }
 
-symbol * SnowballStemImplementation::assign_to(symbol * v) {
+symbol * SnowballStemImplementation::assign_to(symbol * v) 
+{
 	int len = l;
 	if(CAPACITY(v) < len) {
 		v = increase_size(v, len);

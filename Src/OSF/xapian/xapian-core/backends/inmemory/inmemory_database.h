@@ -388,7 +388,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 };
 
 #ifdef DISABLE_GPL_LIBXAPIAN
-# error GPL source we cannot relicense included in libxapian
+#error GPL source we cannot relicense included in libxapian
 #endif
 
 #endif /* XAPIAN_INCLUDED_INMEMORY_DATABASE_H */

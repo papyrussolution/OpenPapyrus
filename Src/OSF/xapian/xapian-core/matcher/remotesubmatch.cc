@@ -34,11 +34,8 @@ void RemoteSubMatch::prepare_match(Xapian::Weight::Internal& total_stats)
 	total_stats += remote_stats;
 }
 
-void RemoteSubMatch::start_match(Xapian::doccount first,
-    Xapian::doccount maxitems,
-    Xapian::doccount check_at_least,
-    const Xapian::KeyMaker* sorter,
-    Xapian::Weight::Internal & total_stats)
+void RemoteSubMatch::start_match(Xapian::doccount first, Xapian::doccount maxitems, Xapian::doccount check_at_least,
+    const Xapian::KeyMaker* sorter, Xapian::Weight::Internal & total_stats)
 {
 	LOGCALL_VOID(MATCH, "RemoteSubMatch::start_match", first | maxitems | check_at_least | sorter | total_stats);
 	db->send_global_stats(first, maxitems, check_at_least, sorter, total_stats);

@@ -1,14 +1,12 @@
+// casetrn.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *   Copyright (C) 2001-2008, International Business Machines Corporation and others.  All Rights Reserved.
- *   file name:  casetrn.h
- *   encoding:   UTF-8
- *   indentation:4
- *   created on: 2004sep03
- *   created by: Markus W. Scherer
- *   Implementation class for lower-/upper-/title-casing transliterators.
- */
+// Copyright (C) 2001-2008, International Business Machines Corporation and others.  All Rights Reserved.
+// @codepage UTF-8
+// created on: 2004sep03
+// created by: Markus W. Scherer
+// Implementation class for lower-/upper-/title-casing transliterators.
+//
 #ifndef __CASETRN_H__
 #define __CASETRN_H__
 
@@ -44,7 +42,6 @@ public:
 	 * Copy constructor.
 	 */
 	CaseMapTransliterator(const CaseMapTransliterator&);
-
 	/**
 	 * Transliterator API.
 	 * @return a copy of the object.
@@ -54,7 +51,6 @@ public:
 	 * ICU "poor man's RTTI", returns a UClassID for the actual class.
 	 */
 	//virtual UClassID getDynamicClassID() const;
-
 	/**
 	 * ICU "poor man's RTTI", returns a UClassID for this class.
 	 */

@@ -137,7 +137,7 @@ int server_set_kex(ssh_session session)
 			}
 			return -1;
 		}
-		server->methods[i] = _strdup(wanted);
+		server->methods[i] = sstrdup(wanted);
 		if(server->methods[i] == NULL) {
 			for(j = 0; j < i; j++) {
 				ZFREE(server->methods[j]);
@@ -422,8 +422,7 @@ static int callback_receive_banner(const void * data, size_t len, void * user) {
 
 		if(buffer[i] == '\n') {
 			buffer[i] = '\0';
-
-			str = _strdup(buffer);
+			str = sstrdup(buffer);
 			/* number of bytes read */
 			ret = i + 1;
 			session->clientbanner = str;
@@ -837,15 +836,14 @@ int ssh_message_auth_interactive_request(ssh_message msg, const char * name,
 	else {
 		ssh_kbdint_clean(msg->session->kbdint);
 	}
-
-	msg->session->kbdint->name = _strdup(name);
+	msg->session->kbdint->name = sstrdup(name);
 	if(msg->session->kbdint->name == NULL) {
 		ssh_set_error_oom(msg->session);
 		ssh_kbdint_free(msg->session->kbdint);
 		msg->session->kbdint = NULL;
 		return SSH_PACKET_USED;
 	}
-	msg->session->kbdint->instruction = _strdup(instruction);
+	msg->session->kbdint->instruction = sstrdup(instruction);
 	if(msg->session->kbdint->instruction == NULL) {
 		ssh_set_error_oom(msg->session);
 		ssh_kbdint_free(msg->session->kbdint);
@@ -872,7 +870,7 @@ int ssh_message_auth_interactive_request(ssh_message msg, const char * name,
 		}
 		for(i = 0; i < num_prompts; i++) {
 			msg->session->kbdint->echo[i] = echo[i];
-			msg->session->kbdint->prompts[i] = _strdup(prompts[i]);
+			msg->session->kbdint->prompts[i] = sstrdup(prompts[i]);
 			if(msg->session->kbdint->prompts[i] == NULL) {
 				ssh_set_error_oom(msg->session);
 				msg->session->kbdint->nprompts = i;

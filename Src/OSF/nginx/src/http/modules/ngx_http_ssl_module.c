@@ -424,13 +424,11 @@ static char * ngx_http_ssl_merge_srv_conf(ngx_conf_t * cf, void * parent, void *
 	conf->ssl.log = cf->log;
 	if(conf->enable) {
 		if(conf->certificates == NULL) {
-			ngx_log_error(NGX_LOG_EMERG, cf->log, 0, "no \"ssl_certificate\" is defined for the \"ssl\" directive in %s:%ui",
-			    conf->file, conf->line);
+			ngx_log_error(NGX_LOG_EMERG, cf->log, 0, "no \"ssl_certificate\" is defined for the \"ssl\" directive in %s:%ui", conf->file, conf->line);
 			return NGX_CONF_ERROR;
 		}
 		if(conf->certificate_keys == NULL) {
-			ngx_log_error(NGX_LOG_EMERG, cf->log, 0, "no \"ssl_certificate_key\" is defined for the \"ssl\" directive in %s:%ui",
-			    conf->file, conf->line);
+			ngx_log_error(NGX_LOG_EMERG, cf->log, 0, "no \"ssl_certificate_key\" is defined for the \"ssl\" directive in %s:%ui", conf->file, conf->line);
 			return NGX_CONF_ERROR;
 		}
 		if(conf->certificate_keys->nelts < conf->certificates->nelts) {
@@ -444,8 +442,7 @@ static char * ngx_http_ssl_merge_srv_conf(ngx_conf_t * cf, void * parent, void *
 			return NGX_CONF_OK;
 		}
 		if(conf->certificate_keys == NULL || conf->certificate_keys->nelts < conf->certificates->nelts) {
-			ngx_log_error(NGX_LOG_EMERG, cf->log, 0, "no \"ssl_certificate_key\" is defined for certificate \"%V\"",
-			    ((ngx_str_t *)conf->certificates->elts) + conf->certificates->nelts - 1);
+			ngx_log_error(NGX_LOG_EMERG, cf->log, 0, "no \"ssl_certificate_key\" is defined for certificate \"%V\"", ((ngx_str_t *)conf->certificates->elts) + conf->certificates->nelts - 1);
 			return NGX_CONF_ERROR;
 		}
 	}
@@ -454,8 +451,7 @@ static char * ngx_http_ssl_merge_srv_conf(ngx_conf_t * cf, void * parent, void *
 	}
 #ifdef SSL_CTRL_SET_TLSEXT_HOSTNAME
 	if(SSL_CTX_set_tlsext_servername_callback(conf->ssl.ctx, ngx_http_ssl_servername) == 0) {
-		ngx_log_error(NGX_LOG_WARN, cf->log, 0,
-		    "nginx was built with SNI support, however, now it is linked dynamically to an OpenSSL library which has no tlsext support, therefore SNI is not available");
+		ngx_log_error(NGX_LOG_WARN, cf->log, 0, "nginx was built with SNI support, however, now it is linked dynamically to an OpenSSL library which has no tlsext support, therefore SNI is not available");
 	}
 #endif
 #ifdef TLSEXT_TYPE_application_layer_protocol_negotiation
@@ -499,9 +495,7 @@ static char * ngx_http_ssl_merge_srv_conf(ngx_conf_t * cf, void * parent, void *
 		return NGX_CONF_ERROR;
 	}
 	ngx_conf_merge_value(conf->builtin_session_cache, prev->builtin_session_cache, NGX_SSL_NONE_SCACHE);
-	if(conf->shm_zone == NULL) {
-		conf->shm_zone = prev->shm_zone;
-	}
+	SETIFZ(conf->shm_zone, prev->shm_zone);
 	if(ngx_ssl_session_cache(&conf->ssl, &ngx_http_ssl_sess_id_ctx, conf->builtin_session_cache, conf->shm_zone, conf->session_timeout) != NGX_OK) {
 		return NGX_CONF_ERROR;
 	}
@@ -618,31 +612,18 @@ invalid:
 
 static ngx_int_t ngx_http_ssl_init(ngx_conf_t * cf)
 {
-	ngx_uint_t s;
-	ngx_http_ssl_srv_conf_t   * sscf;
 	ngx_http_core_loc_conf_t  * clcf;
-	ngx_http_core_srv_conf_t   ** cscfp;
-	ngx_http_core_main_conf_t * cmcf;
-
-	cmcf = (ngx_http_core_main_conf_t*)ngx_http_conf_get_module_main_conf(cf, ngx_http_core_module);
-	cscfp = (ngx_http_core_srv_conf_t **)cmcf->servers.elts;
-
-	for(s = 0; s < cmcf->servers.nelts; s++) {
-		sscf = (ngx_http_ssl_srv_conf_t *)cscfp[s]->ctx->srv_conf[ngx_http_ssl_module.ctx_index];
-
+	ngx_http_core_main_conf_t * cmcf = (ngx_http_core_main_conf_t*)ngx_http_conf_get_module_main_conf(cf, ngx_http_core_module);
+	ngx_http_core_srv_conf_t ** cscfp = (ngx_http_core_srv_conf_t **)cmcf->servers.elts;
+	for(ngx_uint_t s = 0; s < cmcf->servers.nelts; s++) {
+		ngx_http_ssl_srv_conf_t * sscf = (ngx_http_ssl_srv_conf_t *)cscfp[s]->ctx->srv_conf[ngx_http_ssl_module.ctx_index];
 		if(sscf->ssl.ctx == NULL || !sscf->stapling) {
 			continue;
 		}
-
 		clcf = (ngx_http_core_loc_conf_t*)cscfp[s]->ctx->loc_conf[ngx_http_core_module.ctx_index];
-
-		if(ngx_ssl_stapling_resolver(cf, &sscf->ssl, clcf->resolver,
-			    clcf->resolver_timeout)
-		    != NGX_OK) {
+		if(ngx_ssl_stapling_resolver(cf, &sscf->ssl, clcf->resolver, clcf->resolver_timeout) != NGX_OK) {
 			return NGX_ERROR;
 		}
 	}
-
 	return NGX_OK;
 }
-

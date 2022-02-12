@@ -640,6 +640,19 @@ private:
 	void   SetupAgreementButton();
 	int    EditAgreement();
 	void   SetupPaymDateCtrls();
+	void   SetupMarks()
+	{
+		bool show_autorcpt_mark = false;
+		bool show_whitelabel_mark = false;
+		if(P_Pack) {
+			if(P_Pack->Rec.Flags & BILLF_WHITELABEL)
+				show_whitelabel_mark = true;
+			if(P_Pack->Rec.Flags2 & BILLF2_FORCEDRECEIPT)
+				show_autorcpt_mark = true;
+		}
+		showCtrl(CTL_BILL_IND_AUTORCPT, show_autorcpt_mark);
+		showCtrl(CTL_BILL_IND_WL, show_whitelabel_mark);
+	}
 	enum {
 		fPctDis    = 0x0001, // Признак того, что скидка указана в процентах
 		fExtMainCurAmount  = 0x0002, // Признак наличия в диалоге полей валюты и валютного курса (CTL_BILL_CUR, CTLSEL_BILL_CUR, CTL_BILL_CRATE, CTL_BILL_BASEAMT)
@@ -2508,6 +2521,8 @@ void BillDialog::SetupInfoText()
 	setStaticText(CTL_BILL_ST_SCARD, info_buf);
 }
 
+
+
 int BillDialog::setDTS(PPBillPacket * pPack)
 {
 	int    ok = 1;
@@ -2732,6 +2747,7 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 		setupByCntragnt();
 		setupParentOfContragent();
 	}
+	SetupMarks(); // @v11.3.1
 	CATCHZOK
 	return ok;
 }

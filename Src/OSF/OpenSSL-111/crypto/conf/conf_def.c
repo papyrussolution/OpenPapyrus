@@ -700,7 +700,7 @@ static BIO * get_next_file(const char * path, OPENSSL_DIR_CTX ** dirctx)
 	const char * filename;
 	while((filename = OPENSSL_DIR_read(dirctx, path)) != NULL) {
 		size_t namelen = strlen(filename);
-		if((namelen > 5 && strcasecmp(filename + namelen - 5, ".conf") == 0) || (namelen > 4 && strcasecmp(filename + namelen - 4, ".cnf") == 0)) {
+		if((namelen > 5 && sstreqi_ascii(filename + namelen - 5, ".conf")) || (namelen > 4 && sstreqi_ascii(filename + namelen - 4, ".cnf"))) {
 			BIO * bio;
 			size_t newlen = strlen(path) + namelen + 2;
 			char * newpath = static_cast<char *>(OPENSSL_zalloc(newlen));

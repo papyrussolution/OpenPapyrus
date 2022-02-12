@@ -29,45 +29,29 @@ class GlassDatabase;
 
 /// Glass class for value streams.
 class GlassValueList : public Xapian::ValueIterator::Internal {
-    /// Don't allow assignment.
-    void operator=(const GlassValueList &);
-
-    /// Don't allow copying.
-    GlassValueList(const GlassValueList &);
-
-    GlassCursor * cursor;
-
-    Glass::ValueChunkReader reader;
-
-    Xapian::valueno slot;
-
-    Xapian::Internal::intrusive_ptr<const GlassDatabase> db;
-
-    /// Update @a reader to use the chunk currently pointed to by @a cursor.
-    bool update_reader();
-
-  public:
-    GlassValueList(Xapian::valueno slot_,
-		   Xapian::Internal::intrusive_ptr<const GlassDatabase> db_)
-	: cursor(NULL), slot(slot_), db(db_) { }
-
-    ~GlassValueList();
-
-    Xapian::docid get_docid() const;
-
-    Xapian::valueno get_valueno() const;
-
-    std::string get_value() const;
-
-    bool at_end() const;
-
-    void next();
-
-    void skip_to(Xapian::docid);
-
-    bool check(Xapian::docid did);
-
-    std::string get_description() const;
+	/// Don't allow assignment.
+	void operator=(const GlassValueList &);
+	/// Don't allow copying.
+	GlassValueList(const GlassValueList &);
+	GlassCursor * cursor;
+	Glass::ValueChunkReader reader;
+	Xapian::valueno slot;
+	Xapian::Internal::intrusive_ptr<const GlassDatabase> db;
+	/// Update @a reader to use the chunk currently pointed to by @a cursor.
+	bool update_reader();
+public:
+	GlassValueList(Xapian::valueno slot_, Xapian::Internal::intrusive_ptr<const GlassDatabase> db_) : cursor(NULL), slot(slot_), db(db_) 
+	{
+	}
+	~GlassValueList();
+	Xapian::docid get_docid() const;
+	Xapian::valueno get_valueno() const;
+	std::string get_value() const;
+	bool at_end() const;
+	void next();
+	void skip_to(Xapian::docid);
+	bool check(Xapian::docid did);
+	std::string get_description() const;
 };
 
 #endif // XAPIAN_INCLUDED_GLASS_VALUELIST_H

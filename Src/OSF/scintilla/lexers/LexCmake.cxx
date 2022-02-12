@@ -35,7 +35,7 @@ static bool CmakeNextLineHasElse(Sci_PositionU start, Sci_PositionU end, Accesso
 		char cNext = styler.SafeGetCharAt(firstChar);
 		if(oneof2(cNext, ' ', '\t'))
 			continue;
-		else if(styler.Match(firstChar, "ELSE")  || styler.Match(firstChar, "else"))
+		else if(styler.Match(firstChar, "ELSE") || styler.Match(firstChar, "else"))
 			return true;
 		else
 			break;
@@ -81,7 +81,7 @@ static int classifyWordCmake(Sci_PositionU start, Sci_PositionU end, WordList * 
 		return SCE_CMAKE_MACRODEF;
 	if(sstreqi_ascii(word, "IF") ||  sstreqi_ascii(word, "ENDIF"))
 		return SCE_CMAKE_IFDEFINEDEF;
-	if(sstreqi_ascii(word, "ELSEIF")  || sstreqi_ascii(word, "ELSE"))
+	if(sstreqi_ascii(word, "ELSEIF") || sstreqi_ascii(word, "ELSE"))
 		return SCE_CMAKE_IFDEFINEDEF;
 	if(sstreqi_ascii(word, "WHILE") || sstreqi_ascii(word, "ENDWHILE"))
 		return SCE_CMAKE_WHILEDEF;

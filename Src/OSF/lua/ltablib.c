@@ -199,7 +199,7 @@ static int unpack(lua_State * L)
 	lua_Integer e = luaL_opt(L, luaL_checkinteger, 3, luaL_len(L, 1));
 	if(i > e) return 0; /* empty range */
 	n = (lua_Unsigned)e - i; /* number of elements minus 1 (avoid overflows) */
-	if(n >= (uint)INT_MAX  || !lua_checkstack(L, (int)(++n)))
+	if(n >= (uint)INT_MAX || !lua_checkstack(L, (int)(++n)))
 		return luaL_error(L, "too many results to unpack");
 	for(; i < e; i++) { /* push arg[i..e - 1] (to avoid overflows) */
 		lua_geti(L, 1, i);

@@ -343,7 +343,7 @@ int dtls_get_message(SSL * s, int * mt, size_t * len)
 again:
 	if(!dtls_get_reassembled_message(s, &errtype, &tmplen)) {
 		if(errtype == DTLS1_HM_BAD_FRAGMENT
-		    || errtype == DTLS1_HM_FRAGMENT_RETRY) {
+		   || errtype == DTLS1_HM_FRAGMENT_RETRY) {
 			/* bad fragment received */
 			goto again;
 		}
@@ -420,7 +420,7 @@ static int dtls1_preprocess_fragment(SSL * s, struct hm_header_st * msg_hdr)
 
 	/* sanity checking */
 	if((frag_off + frag_len) > msg_len
-	    || msg_len > dtls1_max_handshake_message_len(s)) {
+	   || msg_len > dtls1_max_handshake_message_len(s)) {
 		SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER, SSL_F_DTLS1_PREPROCESS_FRAGMENT,
 		    SSL_R_EXCESSIVE_MESSAGE_SIZE);
 		return 0;
@@ -1220,7 +1220,7 @@ int dtls1_set_handshake_header(SSL * s, WPACKET * pkt, int htype)
 		 * filled in later
 		 */
 		if(!WPACKET_allocate_bytes(pkt, DTLS1_HM_HEADER_LENGTH, &header)
-		    || !WPACKET_start_sub_packet(pkt))
+		   || !WPACKET_start_sub_packet(pkt))
 			return 0;
 	}
 
@@ -1232,8 +1232,8 @@ int dtls1_close_construct_packet(SSL * s, WPACKET * pkt, int htype)
 	size_t msglen;
 
 	if((htype != SSL3_MT_CHANGE_CIPHER_SPEC && !WPACKET_close(pkt))
-	    || !WPACKET_get_length(pkt, &msglen)
-	    || msglen > INT_MAX)
+	   || !WPACKET_get_length(pkt, &msglen)
+	   || msglen > INT_MAX)
 		return 0;
 
 	if(htype != SSL3_MT_CHANGE_CIPHER_SPEC) {

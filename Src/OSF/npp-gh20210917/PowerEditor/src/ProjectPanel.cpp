@@ -1,19 +1,7 @@
 // This file is part of Notepad++ project
 // Copyright (C)2021 Don HO <don.h@free.fr>
-
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// at your option any later version.
+// @licence GNU GPL
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 #include <npp-internal.h>
 #pragma hdrstop
 
@@ -1381,11 +1369,9 @@ INT_PTR CALLBACK FileRelocalizerDlg::run_dlgProc(UINT Message, WPARAM wParam, LP
 				::EndDialog(_hSelf, 0);
 			}
 				return TRUE;
-
 			    case IDCANCEL:
 				::EndDialog(_hSelf, -1);
 				return TRUE;
-
 			    default:
 				return FALSE;
 		    }
@@ -1398,7 +1384,6 @@ INT_PTR CALLBACK FileRelocalizerDlg::run_dlgProc(UINT Message, WPARAM wParam, LP
 int FileRelocalizerDlg::doDialog(const TCHAR * fn, bool isRTL)
 {
 	_fullFilePath = fn;
-
 	if(isRTL) {
 		DLGTEMPLATE * pMyDlgTemplate = NULL;
 		HGLOBAL hMyDlgTemplate = makeRTLResource(IDD_FILERELOCALIZER_DIALOG, &pMyDlgTemplate);

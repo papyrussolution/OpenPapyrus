@@ -1740,7 +1740,7 @@ void archive_string_conversion_set_opt(struct archive_string_conv * sc, int opt)
 		 */
 		case SCONV_SET_OPT_UTF8_LIBARCHIVE2X:
 #if (defined(_WIN32) && !defined(__CYGWIN__)) \
-		    || defined(__STDC_ISO_10646__) || defined(__APPLE__)
+		   || defined(__STDC_ISO_10646__) || defined(__APPLE__)
 		    /*
 		     * Nothing to do for it since wchar_t on these platforms
 		     * is really Unicode.

@@ -2356,7 +2356,7 @@ static void exec_cmd(plot_struct * plot, char * command)
 				plot->lwidth *= widths[plot->lt];
 
 			if(((dashedlines == yes) && dashes[plot->lt][0])
-			    ||  (plot->lt == LT_AXIS+2 && dashes[LT_AXIS+2][0])) {
+			   ||  (plot->lt == LT_AXIS+2 && dashes[LT_AXIS+2][0])) {
 				char pattern[DASHPATTERN_LENGTH+1];
 				int len = strlen(dashes[plot->lt]);
 				int i;
@@ -4451,7 +4451,7 @@ static void process_event(XEvent * event)
 			    case 'm': /* Toggle mouse display, but only if we control the window here */
 				if(((plot != current_plot) && (!modifier_mask))
 #ifdef PIPE_IPC
-				    || pipe_died
+				   || pipe_died
 #endif
 				    ) {
 					plot->mouse_on = !(plot->mouse_on);

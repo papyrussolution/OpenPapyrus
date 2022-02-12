@@ -99,7 +99,7 @@ void errno_to_string(int e, string& s)
 		s += "Unknown error ";
 		s += str(e);
 	}
-# endif
+#endif
 #else
 	// Not thread safe.
 	//

@@ -127,8 +127,7 @@ class PhoneNumber final :
   inline void Swap(PhoneNumber* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -148,7 +147,7 @@ class PhoneNumber final :
   PhoneNumber* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
     return CreateMaybeMessage<PhoneNumber>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)  final;
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) final;
   void CopyFrom(const PhoneNumber& from);
   void MergeFrom(const PhoneNumber& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -156,8 +155,7 @@ class PhoneNumber final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -168,12 +166,9 @@ class PhoneNumber final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "i18n.phonenumbers.PhoneNumber";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "i18n.phonenumbers.PhoneNumber"; }
   protected:
-  explicit PhoneNumber(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit PhoneNumber(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
@@ -350,8 +345,7 @@ class PhoneNumber final :
  private:
   class _Internal;
 
-  // helper for ByteSizeLong()
-  size_t RequiredFieldsByteSizeFallback() const;
+  size_t RequiredFieldsByteSizeFallback() const; // helper for ByteSizeLong()
 
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
@@ -391,20 +385,18 @@ inline void PhoneNumber::clear_country_code() {
   country_code_ = 0;
   _has_bits_[0] &= ~0x00000010u;
 }
-inline int32_t PhoneNumber::_internal_country_code() const {
-  return country_code_;
-}
+inline int32_t PhoneNumber::_internal_country_code() const { return country_code_; }
 inline int32_t PhoneNumber::country_code() const {
-  // @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneNumber.country_code)
-  return _internal_country_code();
+	// @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneNumber.country_code)
+	return _internal_country_code();
 }
 inline void PhoneNumber::_internal_set_country_code(int32_t value) {
-  _has_bits_[0] |= 0x00000010u;
-  country_code_ = value;
+	_has_bits_[0] |= 0x00000010u;
+	country_code_ = value;
 }
 inline void PhoneNumber::set_country_code(int32_t value) {
-  _internal_set_country_code(value);
-  // @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneNumber.country_code)
+	_internal_set_country_code(value);
+	// @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneNumber.country_code)
 }
 
 // required uint64 national_number = 2;
@@ -419,20 +411,18 @@ inline void PhoneNumber::clear_national_number() {
   national_number_ = uint64_t{0u};
   _has_bits_[0] &= ~0x00000008u;
 }
-inline uint64_t PhoneNumber::_internal_national_number() const {
-  return national_number_;
-}
+inline uint64_t PhoneNumber::_internal_national_number() const { return national_number_; }
 inline uint64_t PhoneNumber::national_number() const {
-  // @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneNumber.national_number)
-  return _internal_national_number();
+	// @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneNumber.national_number)
+	return _internal_national_number();
 }
 inline void PhoneNumber::_internal_set_national_number(uint64_t value) {
-  _has_bits_[0] |= 0x00000008u;
-  national_number_ = value;
+	_has_bits_[0] |= 0x00000008u;
+	national_number_ = value;
 }
 inline void PhoneNumber::set_national_number(uint64_t value) {
-  _internal_set_national_number(value);
-  // @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneNumber.national_number)
+	_internal_set_national_number(value);
+	// @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneNumber.national_number)
 }
 
 // optional string extension = 3;
@@ -448,8 +438,8 @@ inline void PhoneNumber::clear_extension() {
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const std::string& PhoneNumber::extension() const {
-  // @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneNumber.extension)
-  return _internal_extension();
+	// @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneNumber.extension)
+	return _internal_extension();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -459,45 +449,40 @@ void PhoneNumber::set_extension(ArgT0&& arg0, ArgT... args) {
   // @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneNumber.extension)
 }
 inline std::string* PhoneNumber::mutable_extension() {
-  std::string* _s = _internal_mutable_extension();
-  // @@protoc_insertion_point(field_mutable:i18n.phonenumbers.PhoneNumber.extension)
-  return _s;
+	std::string* _s = _internal_mutable_extension();
+	// @@protoc_insertion_point(field_mutable:i18n.phonenumbers.PhoneNumber.extension)
+	return _s;
 }
-inline const std::string& PhoneNumber::_internal_extension() const {
-  return extension_.Get();
-}
+inline const std::string& PhoneNumber::_internal_extension() const { return extension_.Get(); }
 inline void PhoneNumber::_internal_set_extension(const std::string& value) {
-  _has_bits_[0] |= 0x00000001u;
-  extension_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000001u;
+	extension_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* PhoneNumber::_internal_mutable_extension() {
-  _has_bits_[0] |= 0x00000001u;
-  return extension_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000001u;
+	return extension_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* PhoneNumber::release_extension() {
   // @@protoc_insertion_point(field_release:i18n.phonenumbers.PhoneNumber.extension)
-  if (!_internal_has_extension()) {
-    return nullptr;
-  }
+  if(!_internal_has_extension()) { return nullptr; }
   _has_bits_[0] &= ~0x00000001u;
   auto* p = extension_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (extension_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(extension_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     extension_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void PhoneNumber::set_allocated_extension(std::string* extension) {
-  if (extension != nullptr) {
+  if(extension != nullptr) {
     _has_bits_[0] |= 0x00000001u;
   } else {
     _has_bits_[0] &= ~0x00000001u;
   }
-  extension_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), extension,
-      GetArenaForAllocation());
+  extension_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), extension, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (extension_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(extension_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     extension_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -516,20 +501,18 @@ inline void PhoneNumber::clear_italian_leading_zero() {
   italian_leading_zero_ = false;
   _has_bits_[0] &= ~0x00000020u;
 }
-inline bool PhoneNumber::_internal_italian_leading_zero() const {
-  return italian_leading_zero_;
-}
+inline bool PhoneNumber::_internal_italian_leading_zero() const { return italian_leading_zero_; }
 inline bool PhoneNumber::italian_leading_zero() const {
-  // @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneNumber.italian_leading_zero)
-  return _internal_italian_leading_zero();
+	// @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneNumber.italian_leading_zero)
+	return _internal_italian_leading_zero();
 }
 inline void PhoneNumber::_internal_set_italian_leading_zero(bool value) {
-  _has_bits_[0] |= 0x00000020u;
-  italian_leading_zero_ = value;
+	_has_bits_[0] |= 0x00000020u;
+	italian_leading_zero_ = value;
 }
 inline void PhoneNumber::set_italian_leading_zero(bool value) {
-  _internal_set_italian_leading_zero(value);
-  // @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneNumber.italian_leading_zero)
+	_internal_set_italian_leading_zero(value);
+	// @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneNumber.italian_leading_zero)
 }
 
 // optional int32 number_of_leading_zeros = 8 [default = 1];
@@ -544,20 +527,18 @@ inline void PhoneNumber::clear_number_of_leading_zeros() {
   number_of_leading_zeros_ = 1;
   _has_bits_[0] &= ~0x00000080u;
 }
-inline int32_t PhoneNumber::_internal_number_of_leading_zeros() const {
-  return number_of_leading_zeros_;
-}
+inline int32_t PhoneNumber::_internal_number_of_leading_zeros() const { return number_of_leading_zeros_; }
 inline int32_t PhoneNumber::number_of_leading_zeros() const {
-  // @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneNumber.number_of_leading_zeros)
-  return _internal_number_of_leading_zeros();
+	// @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneNumber.number_of_leading_zeros)
+	return _internal_number_of_leading_zeros();
 }
 inline void PhoneNumber::_internal_set_number_of_leading_zeros(int32_t value) {
-  _has_bits_[0] |= 0x00000080u;
-  number_of_leading_zeros_ = value;
+	_has_bits_[0] |= 0x00000080u;
+	number_of_leading_zeros_ = value;
 }
 inline void PhoneNumber::set_number_of_leading_zeros(int32_t value) {
-  _internal_set_number_of_leading_zeros(value);
-  // @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneNumber.number_of_leading_zeros)
+	_internal_set_number_of_leading_zeros(value);
+	// @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneNumber.number_of_leading_zeros)
 }
 
 // optional string raw_input = 5;
@@ -573,8 +554,8 @@ inline void PhoneNumber::clear_raw_input() {
   _has_bits_[0] &= ~0x00000002u;
 }
 inline const std::string& PhoneNumber::raw_input() const {
-  // @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneNumber.raw_input)
-  return _internal_raw_input();
+	// @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneNumber.raw_input)
+	return _internal_raw_input();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -584,45 +565,40 @@ void PhoneNumber::set_raw_input(ArgT0&& arg0, ArgT... args) {
   // @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneNumber.raw_input)
 }
 inline std::string* PhoneNumber::mutable_raw_input() {
-  std::string* _s = _internal_mutable_raw_input();
-  // @@protoc_insertion_point(field_mutable:i18n.phonenumbers.PhoneNumber.raw_input)
-  return _s;
+	std::string* _s = _internal_mutable_raw_input();
+	// @@protoc_insertion_point(field_mutable:i18n.phonenumbers.PhoneNumber.raw_input)
+	return _s;
 }
-inline const std::string& PhoneNumber::_internal_raw_input() const {
-  return raw_input_.Get();
-}
+inline const std::string& PhoneNumber::_internal_raw_input() const { return raw_input_.Get(); }
 inline void PhoneNumber::_internal_set_raw_input(const std::string& value) {
-  _has_bits_[0] |= 0x00000002u;
-  raw_input_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000002u;
+	raw_input_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* PhoneNumber::_internal_mutable_raw_input() {
-  _has_bits_[0] |= 0x00000002u;
-  return raw_input_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000002u;
+	return raw_input_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* PhoneNumber::release_raw_input() {
   // @@protoc_insertion_point(field_release:i18n.phonenumbers.PhoneNumber.raw_input)
-  if (!_internal_has_raw_input()) {
-    return nullptr;
-  }
+  if(!_internal_has_raw_input()) { return nullptr; }
   _has_bits_[0] &= ~0x00000002u;
   auto* p = raw_input_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (raw_input_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(raw_input_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     raw_input_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void PhoneNumber::set_allocated_raw_input(std::string* raw_input) {
-  if (raw_input != nullptr) {
+  if(raw_input != nullptr) {
     _has_bits_[0] |= 0x00000002u;
   } else {
     _has_bits_[0] &= ~0x00000002u;
   }
-  raw_input_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), raw_input,
-      GetArenaForAllocation());
+  raw_input_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), raw_input, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (raw_input_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(raw_input_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     raw_input_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -669,8 +645,8 @@ inline void PhoneNumber::clear_preferred_domestic_carrier_code() {
   _has_bits_[0] &= ~0x00000004u;
 }
 inline const std::string& PhoneNumber::preferred_domestic_carrier_code() const {
-  // @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneNumber.preferred_domestic_carrier_code)
-  return _internal_preferred_domestic_carrier_code();
+	// @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneNumber.preferred_domestic_carrier_code)
+	return _internal_preferred_domestic_carrier_code();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -680,45 +656,40 @@ void PhoneNumber::set_preferred_domestic_carrier_code(ArgT0&& arg0, ArgT... args
   // @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneNumber.preferred_domestic_carrier_code)
 }
 inline std::string* PhoneNumber::mutable_preferred_domestic_carrier_code() {
-  std::string* _s = _internal_mutable_preferred_domestic_carrier_code();
-  // @@protoc_insertion_point(field_mutable:i18n.phonenumbers.PhoneNumber.preferred_domestic_carrier_code)
-  return _s;
+	std::string* _s = _internal_mutable_preferred_domestic_carrier_code();
+	// @@protoc_insertion_point(field_mutable:i18n.phonenumbers.PhoneNumber.preferred_domestic_carrier_code)
+	return _s;
 }
-inline const std::string& PhoneNumber::_internal_preferred_domestic_carrier_code() const {
-  return preferred_domestic_carrier_code_.Get();
-}
+inline const std::string& PhoneNumber::_internal_preferred_domestic_carrier_code() const { return preferred_domestic_carrier_code_.Get(); }
 inline void PhoneNumber::_internal_set_preferred_domestic_carrier_code(const std::string& value) {
-  _has_bits_[0] |= 0x00000004u;
-  preferred_domestic_carrier_code_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000004u;
+	preferred_domestic_carrier_code_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* PhoneNumber::_internal_mutable_preferred_domestic_carrier_code() {
-  _has_bits_[0] |= 0x00000004u;
-  return preferred_domestic_carrier_code_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000004u;
+	return preferred_domestic_carrier_code_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* PhoneNumber::release_preferred_domestic_carrier_code() {
   // @@protoc_insertion_point(field_release:i18n.phonenumbers.PhoneNumber.preferred_domestic_carrier_code)
-  if (!_internal_has_preferred_domestic_carrier_code()) {
-    return nullptr;
-  }
+  if(!_internal_has_preferred_domestic_carrier_code()) { return nullptr; }
   _has_bits_[0] &= ~0x00000004u;
   auto* p = preferred_domestic_carrier_code_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (preferred_domestic_carrier_code_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(preferred_domestic_carrier_code_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     preferred_domestic_carrier_code_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void PhoneNumber::set_allocated_preferred_domestic_carrier_code(std::string* preferred_domestic_carrier_code) {
-  if (preferred_domestic_carrier_code != nullptr) {
+  if(preferred_domestic_carrier_code != nullptr) {
     _has_bits_[0] |= 0x00000004u;
   } else {
     _has_bits_[0] &= ~0x00000004u;
   }
-  preferred_domestic_carrier_code_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), preferred_domestic_carrier_code,
-      GetArenaForAllocation());
+  preferred_domestic_carrier_code_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), preferred_domestic_carrier_code, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (preferred_domestic_carrier_code_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(preferred_domestic_carrier_code_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     preferred_domestic_carrier_code_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING

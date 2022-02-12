@@ -26,93 +26,75 @@
 #include "xapian/enquire.h"
 #include "xapian/eset.h"
 #include "xapian/types.h"
-
 #include <algorithm>
 #include <string>
 #include <vector>
 
 namespace Xapian {
-    class Database;
-    class ExpandDecider;
+class Database;
+class ExpandDecider;
 
-    namespace Internal {
-	class ExpandWeight;
+namespace Internal {
+class ExpandWeight;
 
 /// Class combining a term and its expand weight.
 class ExpandTerm {
-    friend class Xapian::ESet::Internal;
-
-    /// The expand weight calculated for this term.
-    double wt;
-
-    /// The term.
-    std::string term;
-
-  public:
-    /// Constructor.
-    ExpandTerm(double wt_, const std::string & term_)
-	: wt(wt_), term(term_) { }
-
-    /// Implement custom swap for ESet sorting efficiency.
-    void swap(ExpandTerm & o) {
-	std::swap(wt, o.wt);
-	std::swap(term, o.term);
-    }
-
-    /// Ordering relation for ESet contents.
-    bool operator<(const ExpandTerm & o) const {
-	if (wt > o.wt) return true;
-	if (wt < o.wt) return false;
-	return term > o.term;
-    }
-
-    std::string get_term() const { return term; }
-
-    double get_weight() const { return wt; }
-
-    /// Return a string describing this object.
-    std::string get_description() const;
+	friend class Xapian::ESet::Internal;
+	double wt; /// The expand weight calculated for this term.
+	std::string term; /// The term.
+public:
+	/// Constructor.
+	ExpandTerm(double wt_, const std::string & term_) : wt(wt_), term(term_) 
+	{
+	}
+	/// Implement custom swap for ESet sorting efficiency.
+	void swap(ExpandTerm & o) 
+	{
+		std::swap(wt, o.wt);
+		std::swap(term, o.term);
+	}
+	/// Ordering relation for ESet contents.
+	bool operator<(const ExpandTerm & o) const 
+	{
+		if(wt > o.wt) return true;
+		if(wt < o.wt) return false;
+		return term > o.term;
+	}
+	std::string get_term() const { return term; }
+	double get_weight() const { return wt; }
+	/// Return a string describing this object.
+	std::string get_description() const;
 };
-
 }
 
 /// Class which actually implements Xapian::ESet.
 class ESet::Internal : public Xapian::Internal::intrusive_base {
-    friend class ESet;
-    friend class ESetIterator;
+	friend class ESet;
+	friend class ESetIterator;
 
-    /** This is a lower bound on the ESet size if an infinite number of results
-     *  were requested.
-     *
-     *  It will of course always be true that: ebound >= items.size()
-     */
-    Xapian::termcount ebound;
-
-    /// The ExpandTerm objects which represent the items in the ESet.
-    std::vector<Xapian::Internal::ExpandTerm> items;
-
-    /// Don't allow assignment.
-    void operator=(const Internal &);
-
-    /// Don't allow copying.
-    Internal(const Internal &);
-
-  public:
-    /// Construct an empty ESet::Internal.
-    Internal() : ebound(0) { }
-
-    /// Run the "expand" operation which fills the ESet.
-    void expand(Xapian::termcount max_esize,
-		const Xapian::Database & db,
-		const Xapian::RSet & rset,
-		const Xapian::ExpandDecider * edecider,
-		Xapian::Internal::ExpandWeight & eweight,
-		double min_wt);
-
-    /// Return a string describing this object.
-    std::string get_description() const;
+	/** This is a lower bound on the ESet size if an infinite number of results
+	 *  were requested.
+	 *
+	 *  It will of course always be true that: ebound >= items.size()
+	 */
+	Xapian::termcount ebound;
+	/// The ExpandTerm objects which represent the items in the ESet.
+	std::vector<Xapian::Internal::ExpandTerm> items;
+	/// Don't allow assignment.
+	void operator=(const Internal &);
+	/// Don't allow copying.
+	Internal(const Internal &);
+public:
+	/// Construct an empty ESet::Internal.
+	Internal() : ebound(0) 
+	{
+	}
+	/// Run the "expand" operation which fills the ESet.
+	void expand(Xapian::termcount max_esize, const Xapian::Database & db, const Xapian::RSet & rset,
+	    const Xapian::ExpandDecider * edecider, Xapian::Internal::ExpandWeight & eweight, double min_wt);
+	/// Return a string describing this object.
+	std::string get_description() const;
 };
-
 }
 
 #endif // XAPIAN_INCLUDED_ESETINTERNAL_H

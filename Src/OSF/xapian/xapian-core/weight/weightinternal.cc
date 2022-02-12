@@ -21,7 +21,6 @@
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "weightinternal.h"
-#include "xapian/enquire.h"
 #include "api/rsetinternal.h"
 #include "api/termlist.h"
 

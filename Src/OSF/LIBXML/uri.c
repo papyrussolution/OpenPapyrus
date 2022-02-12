@@ -1114,7 +1114,8 @@ xmlChar * xmlSaveUri(xmlURI * uri)
 		else if(uri->query) {
 			if(len + 3 >= max) {
 				temp = xmlSaveUriRealloc(ret, &max);
-				if(temp == NULL) goto mem_error;
+				if(temp == NULL) 
+					goto mem_error;
 				ret = temp;
 			}
 			ret[len++] = '?';
@@ -1165,7 +1166,8 @@ xmlChar * xmlSaveUri(xmlURI * uri)
 	}
 	if(len >= max) {
 		temp = xmlSaveUriRealloc(ret, &max);
-		if(temp == NULL) goto mem_error;
+		if(temp == NULL) 
+			goto mem_error;
 		ret = temp;
 	}
 	ret[len] = 0;

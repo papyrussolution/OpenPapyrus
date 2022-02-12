@@ -1688,8 +1688,7 @@ int ssh_userauth_kbdint_setanswer(ssh_session session, uint i, const char * answ
 	if(session == NULL) {
 		return -1;
 	}
-	if(answer == NULL || session->kbdint == NULL ||
-	    i >= session->kbdint->nprompts) {
+	if(answer == NULL || session->kbdint == NULL || i >= session->kbdint->nprompts) {
 		ssh_set_error_invalid(session);
 		return -1;
 	}
@@ -1700,20 +1699,17 @@ int ssh_userauth_kbdint_setanswer(ssh_session session, uint i, const char * answ
 			return -1;
 		}
 	}
-
 	if(session->kbdint->answers[i]) {
 		memzero(session->kbdint->answers[i], strlen(session->kbdint->answers[i]));
 		ZFREE(session->kbdint->answers[i]);
 	}
-	session->kbdint->answers[i] = _strdup(answer);
+	session->kbdint->answers[i] = sstrdup(answer);
 	if(session->kbdint->answers[i] == NULL) {
 		ssh_set_error_oom(session);
 		return -1;
 	}
-
 	return 0;
 }
-
 /**
  * @brief Try to authenticate through the "gssapi-with-mic" method.
  *

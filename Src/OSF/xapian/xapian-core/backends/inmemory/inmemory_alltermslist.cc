@@ -100,5 +100,5 @@ bool InMemoryAllTermsList::at_end() const
 }
 
 #ifdef DISABLE_GPL_LIBXAPIAN
-# error GPL source we cannot relicense included in libxapian
+#error GPL source we cannot relicense included in libxapian
 #endif

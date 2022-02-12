@@ -12,7 +12,7 @@
 //#include "e_os.h"
 //#include <openssl/safestack.h>
 
-#if defined(__i386)   || defined(__i386__)   || defined(_M_IX86) || defined(__x86_64) || defined(__x86_64__) || defined(_M_AMD64) || defined(_M_X64)
+#if defined(__i386)  || defined(__i386__)  || defined(_M_IX86) || defined(__x86_64) || defined(__x86_64__) || defined(_M_AMD64) || defined(_M_X64)
 
 extern uint OPENSSL_ia32cap_P[4];
 

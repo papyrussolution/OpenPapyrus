@@ -1,22 +1,9 @@
 /** @file
  * @brief Matcher class
  */
-/* Copyright (C) 2006,2008,2009,2010,2011,2017,2018,2019,2020 Olly Betts
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
- */
+// Copyright (C) 2006,2008,2009,2010,2011,2017,2018,2019,2020 Olly Betts
+// @licence GNU GPL
+//
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "matcher.h"
@@ -33,8 +20,8 @@
 #include "valuestreamdocument.h"
 #include "weight/weightinternal.h"
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-# include "backends/remote/remote-database.h"
-# include "remotesubmatch.h"
+#include "backends/remote/remote-database.h"
+#include "remotesubmatch.h"
 #endif
 #ifdef HAVE_POLL_H
 	#include <poll.h>
@@ -247,7 +234,7 @@ Matcher::Matcher(const Xapian::Database& db_,
 		locals.resize(n_shards);
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-# ifndef HAVE_POLL
+#ifndef HAVE_POLL
 #  ifndef __WIN32__
 	{
 		// Unfortunately select() can't monitor fds >= FD_SETSIZE, so swap those to
@@ -275,7 +262,7 @@ Matcher::Matcher(const Xapian::Database& db_,
 	// active.
 	first_oversize = 0;
 #  endif
-# endif
+#endif
 #endif
 
 	stats.set_query(query);
@@ -763,25 +750,19 @@ Xapian::MSet Matcher::get_mset(Xapian::doccount first,
 			double unique = double(docs_considered - dups_ignored);
 			unique_rate = unique / double(docs_considered);
 		}
-
 		// We can safely reduce the upper bound by the number of duplicates
 		// we've seen while merging MSet objects.
 		mseti->matches_upper_bound -= collapser.get_dups_ignored();
-
-		double estimate_scale = unique_rate;
-
+		const double estimate_scale = unique_rate;
 		if(estimate_scale != 1.0) {
 			auto l = mseti->matches_lower_bound;
 			auto u = mseti->matches_upper_bound;
 			auto e = l + Xapian::doccount((u - l) * estimate_scale + 0.5);
 			mseti->matches_estimated = e;
 		}
-
 		// Clamp the estimate the range given by the bounds.
 		AssertRel(mseti->matches_lower_bound, <=, mseti->matches_upper_bound);
-		mseti->matches_estimated = STD_CLAMP(mseti->matches_estimated,
-			mseti->matches_lower_bound,
-			mseti->matches_upper_bound);
+		mseti->matches_estimated = STD_CLAMP(mseti->matches_estimated, mseti->matches_lower_bound, mseti->matches_upper_bound);
 	}
 
 	return merged_mset;

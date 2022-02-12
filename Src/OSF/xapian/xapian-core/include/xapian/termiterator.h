@@ -23,12 +23,11 @@
 #define XAPIAN_INCLUDED_TERMITERATOR_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error Never use <xapian/termiterator.h> directly; include <xapian.h> instead.
+#error Never use <xapian/termiterator.h> directly; include <xapian.h> instead.
 #endif
 
 #include <iterator>
 #include <string>
-
 #include <xapian/attributes.h>
 #include <xapian/derefwrapper.h>
 #include <xapian/positioniterator.h>
@@ -36,144 +35,132 @@
 #include <xapian/visibility.h>
 
 namespace Xapian {
-
 /// Class for iterating over a list of terms.
 class XAPIAN_VISIBILITY_DEFAULT TermIterator {
-  public:
-    /// Class representing the TermIterator internals.
-    class Internal;
-    /// @private @internal Reference counted internals.
-    Internal * internal;
+public:
+	/// Class representing the TermIterator internals.
+	class Internal;
+	/// @private @internal Reference counted internals.
+	Internal * internal;
 
-    /// @private @internal Wrap an existing Internal.
-    XAPIAN_VISIBILITY_INTERNAL
-    explicit TermIterator(Internal *internal_);
+	/// @private @internal Wrap an existing Internal.
+	XAPIAN_VISIBILITY_INTERNAL
+	explicit TermIterator(Internal * internal_);
 
-    /// Copy constructor.
-    TermIterator(const TermIterator & o);
+	/// Copy constructor.
+	TermIterator(const TermIterator & o);
 
-    /// Assignment.
-    TermIterator & operator=(const TermIterator & o);
+	/// Assignment.
+	TermIterator & operator=(const TermIterator & o);
 
-    /// Move constructor.
-    TermIterator(TermIterator && o)
-	: internal(o.internal) {
-	o.internal = nullptr;
-    }
-
-    /// Move assignment operator.
-    TermIterator & operator=(TermIterator && o) {
-	if (this != &o) {
-	    if (internal) decref();
-	    internal = o.internal;
-	    o.internal = nullptr;
+	/// Move constructor.
+	TermIterator(TermIterator && o)
+		: internal(o.internal) {
+		o.internal = nullptr;
 	}
-	return *this;
-    }
 
-    /** Default constructor.
-     *
-     *  Creates an uninitialised iterator, which can't be used before being
-     *  assigned to, but is sometimes syntactically convenient.
-     */
-    TermIterator() noexcept
-	: internal(0) { }
+	/// Move assignment operator.
+	TermIterator & operator=(TermIterator && o) {
+		if(this != &o) {
+			if(internal) decref();
+			internal = o.internal;
+			o.internal = nullptr;
+		}
+		return *this;
+	}
 
-    /// Destructor.
-    ~TermIterator() {
-	if (internal) decref();
-    }
+	/** Default constructor.
+	 *
+	 *  Creates an uninitialised iterator, which can't be used before being
+	 *  assigned to, but is sometimes syntactically convenient.
+	 */
+	TermIterator() noexcept : internal(0) 
+	{
+	}
+	~TermIterator() 
+	{
+		if(internal) 
+			decref();
+	}
+	/// Return the term at the current position.
+	std::string operator*() const;
+	/// Return the wdf for the term at the current position.
+	Xapian::termcount get_wdf() const;
+	/// Return the term frequency for the term at the current position.
+	Xapian::doccount get_termfreq() const;
+	/// Return the length of the position list for the current position.
+	Xapian::termcount positionlist_count() const;
+	/// Return a PositionIterator for the current term.
+	PositionIterator positionlist_begin() const;
+	/// Return an end PositionIterator for the current term.
+	PositionIterator positionlist_end() const noexcept { return PositionIterator(); }
+	/// Advance the iterator to the next position.
+	TermIterator & operator++();
+	/// Advance the iterator to the next position (postfix version).
+	DerefWrapper_<std::string> operator++(int) 
+	{
+		const std::string & term(**this);
+		operator++();
+		return DerefWrapper_<std::string>(term);
+	}
 
-    /// Return the term at the current position.
-    std::string operator*() const;
+	/** Advance the iterator to term @a term.
+	 *
+	 *  If the iteration is over an unsorted list of terms, then this method
+	 *  will throw Xapian::InvalidOperationError.
+	 *
+	 *  @param term	The term to advance to.  If this term isn't in
+	 *			the stream being iterated, then the iterator is moved
+	 *			to the next term after it which is.
+	 */
+	void skip_to(const std::string &term);
 
-    /// Return the wdf for the term at the current position.
-    Xapian::termcount get_wdf() const;
+	/// Return a string describing this object.
+	std::string get_description() const;
 
-    /// Return the term frequency for the term at the current position.
-    Xapian::doccount get_termfreq() const;
+	/** @private @internal TermIterator is what the C++ STL calls an
+	 *  input_iterator.
+	 *
+	 *  The following typedefs allow std::iterator_traits<> to work so that
+	 *  this iterator can be used with the STL.
+	 *
+	 *  These are deliberately hidden from the Doxygen-generated docs, as the
+	 *  machinery here isn't interesting to API users.  They just need to know
+	 *  that Xapian iterator classes are compatible with the STL.
+	 */
+	// @{
+	/// @private
+	typedef std::input_iterator_tag iterator_category;
+	/// @private
+	typedef std::string value_type;
+	/// @private
+	typedef Xapian::termcount_diff difference_type;
+	/// @private
+	typedef std::string * pointer;
+	/// @private
+	typedef std::string & reference;
+	// @}
 
-    /// Return the length of the position list for the current position.
-    Xapian::termcount positionlist_count() const;
+private:
+	void decref();
 
-    /// Return a PositionIterator for the current term.
-    PositionIterator positionlist_begin() const;
-
-    /// Return an end PositionIterator for the current term.
-    PositionIterator positionlist_end() const noexcept {
-	return PositionIterator();
-    }
-
-    /// Advance the iterator to the next position.
-    TermIterator & operator++();
-
-    /// Advance the iterator to the next position (postfix version).
-    DerefWrapper_<std::string> operator++(int) {
-	const std::string & term(**this);
-	operator++();
-	return DerefWrapper_<std::string>(term);
-    }
-
-    /** Advance the iterator to term @a term.
-     *
-     *  If the iteration is over an unsorted list of terms, then this method
-     *  will throw Xapian::InvalidOperationError.
-     *
-     *  @param term	The term to advance to.  If this term isn't in
-     *			the stream being iterated, then the iterator is moved
-     *			to the next term after it which is.
-     */
-    void skip_to(const std::string &term);
-
-    /// Return a string describing this object.
-    std::string get_description() const;
-
-    /** @private @internal TermIterator is what the C++ STL calls an
-     *  input_iterator.
-     *
-     *  The following typedefs allow std::iterator_traits<> to work so that
-     *  this iterator can be used with the STL.
-     *
-     *  These are deliberately hidden from the Doxygen-generated docs, as the
-     *  machinery here isn't interesting to API users.  They just need to know
-     *  that Xapian iterator classes are compatible with the STL.
-     */
-    // @{
-    /// @private
-    typedef std::input_iterator_tag iterator_category;
-    /// @private
-    typedef std::string value_type;
-    /// @private
-    typedef Xapian::termcount_diff difference_type;
-    /// @private
-    typedef std::string * pointer;
-    /// @private
-    typedef std::string & reference;
-    // @}
-
-  private:
-    void decref();
-
-    XAPIAN_VISIBILITY_INTERNAL
-    void post_advance(Internal * res);
+	XAPIAN_VISIBILITY_INTERNAL
+	void post_advance(Internal * res);
 };
 
 /// Equality test for TermIterator objects.
-inline bool
-operator==(const TermIterator& a, const TermIterator& b) noexcept
+inline bool operator==(const TermIterator& a, const TermIterator& b) noexcept
 {
-    // Use a pointer comparison - this ensures both that (a == a) and correct
-    // handling of end iterators (which we ensure have NULL internals).
-    return a.internal == b.internal;
+	// Use a pointer comparison - this ensures both that (a == a) and correct
+	// handling of end iterators (which we ensure have NULL internals).
+	return a.internal == b.internal;
 }
 
 /// Inequality test for TermIterator objects.
-inline bool
-operator!=(const TermIterator& a, const TermIterator& b) noexcept
+inline bool operator!=(const TermIterator& a, const TermIterator& b) noexcept
 {
-    return !(a == b);
+	return !(a == b);
 }
-
 }
 
 #endif // XAPIAN_INCLUDED_TERMITERATOR_H

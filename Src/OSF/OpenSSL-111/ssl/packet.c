@@ -26,8 +26,8 @@ int WPACKET_sub_allocate_bytes__(WPACKET * pkt, size_t len,
     uchar ** allocbytes, size_t lenbytes)
 {
 	if(!WPACKET_start_sub_packet_len__(pkt, lenbytes)
-	    || !WPACKET_allocate_bytes(pkt, len, allocbytes)
-	    || !WPACKET_close(pkt))
+	   || !WPACKET_allocate_bytes(pkt, len, allocbytes)
+	   || !WPACKET_close(pkt))
 		return 0;
 
 	return 1;
@@ -300,8 +300,8 @@ int WPACKET_put_bytes__(WPACKET * pkt, uint val, size_t size)
 
 	/* Internal API, so should not fail */
 	if(!ossl_assert(size <= sizeof(uint))
-	    || !WPACKET_allocate_bytes(pkt, size, &data)
-	    || !put_value(data, val, size))
+	   || !WPACKET_allocate_bytes(pkt, size, &data)
+	   || !put_value(data, val, size))
 		return 0;
 
 	return 1;

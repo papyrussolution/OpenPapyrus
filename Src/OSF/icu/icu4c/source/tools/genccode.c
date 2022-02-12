@@ -35,13 +35,13 @@
 
 #ifdef U_ELF
 #   include <elf.h>
-#   if defined(ELFCLASS64)
-#       define U_ELF64
-#   endif
+#if defined(ELFCLASS64)
+#define U_ELF64
+#endif
 /* Old elf.h headers may not have EM_X86_64, or have EM_X8664 instead. */
-#   ifndef EM_X86_64
-#       define EM_X86_64 62
-#   endif
+#ifndef EM_X86_64
+#define EM_X86_64 62
+#endif
 #define ICU_ENTRY_OFFSET 0
 #endif
 #include "filestrm.h"

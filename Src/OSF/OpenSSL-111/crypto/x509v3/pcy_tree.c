@@ -26,7 +26,7 @@ static void expected_print(BIO * err, X509_POLICY_LEVEL * lev,
     X509_POLICY_NODE * node, int indent)
 {
 	if((lev->flags & X509_V_FLAG_INHIBIT_MAP)
-	    || !(node->data->flags & POLICY_DATA_FLAG_MAP_MASK))
+	   || !(node->data->flags & POLICY_DATA_FLAG_MAP_MASK))
 		BIO_puts(err, "  Not Mapped\n");
 	else {
 		int i;
@@ -326,7 +326,7 @@ static int tree_link_unmatched(X509_POLICY_LEVEL * curr,
 	int i;
 
 	if((last->flags & X509_V_FLAG_INHIBIT_MAP)
-	    || !(node->data->flags & POLICY_DATA_FLAG_MAPPED)) {
+	   || !(node->data->flags & POLICY_DATA_FLAG_MAPPED)) {
 		/* If no policy mapping: matched if one child present */
 		if(node->nchild)
 			return 1;

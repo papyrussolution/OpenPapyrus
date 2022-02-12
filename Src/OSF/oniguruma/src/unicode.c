@@ -768,7 +768,7 @@ extern int onigenc_wb_is_break_position(OnigEncoding enc, uchar * p, uchar * pre
 
 	/* WB13a: (AHLetter | Numeric | Katakana | ExtendNumLet) + ExtendNumLet */
 	if(IS_WB_AHLetter(from) || from == WB_Numeric || from == WB_Katakana
-	    || from == WB_ExtendNumLet) {
+	   || from == WB_ExtendNumLet) {
 		if(to == WB_ExtendNumLet) return FALSE;
 	}
 

@@ -188,15 +188,10 @@ public:
 	 *			   the start (e.g. date:1/1/1980..31/12/1989), and a
 	 *			   suffix only on the end (e.g. 2..12kg).
 	 */
-	explicit RangeProcessor(Xapian::valueno slot_,
-	    const std::string& str_ = std::string(),
-	    unsigned flags_ = 0)
-		: slot(slot_), str(str_), flags(flags_) {
+	explicit RangeProcessor(Xapian::valueno slot_, const std::string& str_ = std::string(), unsigned flags_ = 0) : slot(slot_), str(str_), flags(flags_) 
+	{
 	}
-
-	/// Destructor.
 	virtual ~RangeProcessor();
-
 	/** Check prefix/suffix on range.
 	 *
 	 *  If they match, remove the prefix/suffix and then call operator()()
@@ -426,11 +421,9 @@ public:
 	 *  processor has been added to the queryparser, the queryparser will
 	 *  accept "size:3K..10K" as a valid range.
 	 */
-	UnitRangeProcessor(Xapian::valueno slot_,
-	    const std::string &str_ = std::string())
-		: RangeProcessor(slot_, str_) {
+	UnitRangeProcessor(Xapian::valueno slot_, const std::string &str_ = std::string()) : RangeProcessor(slot_, str_) 
+	{
 	}
-
 	/** Check for a valid byte value range.
 	 *
 	 *  If BEGIN..END is a valid numeric byte range with the specified prefix
@@ -448,22 +441,17 @@ public:
 
 /** Base class for field processors.
  */
-class XAPIAN_VISIBILITY_DEFAULT FieldProcessor
-	: public Xapian::Internal::opt_intrusive_base {
+class XAPIAN_VISIBILITY_DEFAULT FieldProcessor : public Xapian::Internal::opt_intrusive_base {
 	/// Don't allow assignment.
 	void operator=(const FieldProcessor &);
-
 	/// Don't allow copying.
 	FieldProcessor(const FieldProcessor &);
-
 public:
 	/// Default constructor.
-	FieldProcessor() {
+	FieldProcessor() 
+	{
 	}
-
-	/// Destructor.
 	virtual ~FieldProcessor();
-
 	/** Convert a field-prefixed string to a Query object.
 	 *
 	 *  @param str	The string to convert.
@@ -479,11 +467,11 @@ public:
 	 *  Xapian method.  Xapian will arrange to delete the object once it is no
 	 *  longer required.
 	 */
-	FieldProcessor * release() {
+	FieldProcessor * release() 
+	{
 		opt_intrusive_base::release();
 		return this;
 	}
-
 	/** Start reference counting this object.
 	 *
 	 *  You can hand ownership of a dynamically allocated FieldProcessor
@@ -491,7 +479,8 @@ public:
 	 *  Xapian method.  Xapian will arrange to delete the object once it is no
 	 *  longer required.
 	 */
-	const FieldProcessor * release() const {
+	const FieldProcessor * release() const 
+	{
 		opt_intrusive_base::release();
 		return this;
 	}
@@ -713,25 +702,17 @@ public:
 	typedef enum {
 		STEM_NONE, STEM_SOME, STEM_ALL, STEM_ALL_Z, STEM_SOME_FULL_POS
 	} stem_strategy;
-
 	/// Copy constructor.
 	QueryParser(const QueryParser & o);
-
 	/// Assignment.
 	QueryParser & operator=(const QueryParser & o);
-
 	/// Move constructor.
 	QueryParser(QueryParser && o);
-
 	/// Move assignment operator.
 	QueryParser & operator=(QueryParser && o);
-
 	/// Default constructor.
 	QueryParser();
-
-	/// Destructor.
 	~QueryParser();
-
 	/** Set the stemmer.
 	 *
 	 *  This sets the stemming algorithm which will be used by the query
@@ -861,8 +842,7 @@ public:
 	 *
 	 *  @since Added in Xapian 1.5.0.
 	 */
-	void set_min_wildcard_prefix(unsigned min_prefix_len,
-	    unsigned flags = FLAG_WILDCARD|FLAG_PARTIAL);
+	void set_min_wildcard_prefix(unsigned min_prefix_len, unsigned flags = FLAG_WILDCARD|FLAG_PARTIAL);
 
 	/** Parse a query.
 	 *
@@ -887,9 +867,7 @@ public:
 	 *		   @li Syntax: &lt;expression&gt; OR &lt;expression&gt;
 	 *		   @li Syntax: &lt;expression&gt; XOR &lt;expression&gt;
 	 */
-	Query parse_query(const std::string &query_string,
-	    unsigned flags = FLAG_DEFAULT,
-	    const std::string &default_prefix = std::string());
+	Query parse_query(const std::string &query_string, unsigned flags = FLAG_DEFAULT, const std::string &default_prefix = std::string());
 
 	/** Add a free-text field term prefix.
 	 *

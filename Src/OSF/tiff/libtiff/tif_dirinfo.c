@@ -305,7 +305,7 @@ static void * td_lfind(const void * key, const void * base, size_t * nmemb, size
 const TIFFFieldArray * _TIFFGetFields(void) { return (&tiffFieldArray); }
 const TIFFFieldArray* _TIFFGetExifFields(void) { return (&exifFieldArray); }
 
-void _TIFFSetupFields(TIFF* tif, const TIFFFieldArray* fieldarray)
+void _TIFFSetupFields(TIFF * tif, const TIFFFieldArray* fieldarray)
 {
 	if(tif->tif_fields && tif->tif_nfields > 0) {
 		for(uint32 i = 0; i < tif->tif_nfields; i++) {
@@ -346,7 +346,7 @@ static int tagNameCompare(const void * a, const void * b)
 		return (ta->field_type == TIFF_ANY) ? 0 : ((int)tb->field_type - (int)ta->field_type);
 }
 
-int _TIFFMergeFields(TIFF* tif, const TIFFField info[], uint32 n)
+int _TIFFMergeFields(TIFF * tif, const TIFFField info[], uint32 n)
 {
 	static const char module[] = __FUNCTION__;
 	static const char reason[] = "for fields array";
@@ -377,7 +377,7 @@ int _TIFFMergeFields(TIFF* tif, const TIFFField info[], uint32 n)
 	return n;
 }
 
-void _TIFFPrintFieldInfo(TIFF* tif, FILE* fd)
+void _TIFFPrintFieldInfo(TIFF * tif, FILE* fd)
 {
 	fprintf(fd, "%s: \n", tif->tif_name);
 	for(uint32 i = 0; i < tif->tif_nfields; i++) {
@@ -449,7 +449,7 @@ int _TIFFDataSize(TIFFDataType type)
 	}
 }
 
-const TIFFField * TIFFFindField(TIFF* tif, uint32 tag, TIFFDataType dt)
+const TIFFField * TIFFFindField(TIFF * tif, uint32 tag, TIFFDataType dt)
 {
 	TIFFField key = {0, 0, 0, TIFF_NOTYPE, 0, (TIFFSetGetFieldType)0, (TIFFSetGetFieldType)0, 0, 0, 0, NULL, NULL};
 	TIFFField * pkey = &key;
@@ -466,7 +466,7 @@ const TIFFField * TIFFFindField(TIFF* tif, uint32 tag, TIFFDataType dt)
 	return tif->tif_foundfield = (ret ? *ret : NULL);
 }
 
-static const TIFFField* _TIFFFindFieldByName(TIFF* tif, const char * field_name, TIFFDataType dt)
+static const TIFFField* _TIFFFindFieldByName(TIFF * tif, const char * field_name, TIFFDataType dt)
 {
 	TIFFField key = {0, 0, 0, TIFF_NOTYPE, 0, (TIFFSetGetFieldType)0, (TIFFSetGetFieldType)0, 0, 0, 0, NULL, NULL};
 	TIFFField * pkey = &key;
@@ -483,7 +483,7 @@ static const TIFFField* _TIFFFindFieldByName(TIFF* tif, const char * field_name,
 	return tif->tif_foundfield = (ret ? *ret : NULL);
 }
 
-const TIFFField* TIFFFieldWithTag(TIFF* tif, uint32 tag)
+const TIFFField* TIFFFieldWithTag(TIFF * tif, uint32 tag)
 {
 	const TIFFField* fip = TIFFFindField(tif, tag, TIFF_ANY);
 	if(!fip) {
@@ -492,7 +492,7 @@ const TIFFField* TIFFFieldWithTag(TIFF* tif, uint32 tag)
 	return (fip);
 }
 
-const TIFFField* TIFFFieldWithName(TIFF* tif, const char * field_name)
+const TIFFField* TIFFFieldWithName(TIFF * tif, const char * field_name)
 {
 	const TIFFField * fip = _TIFFFindFieldByName(tif, field_name, TIFF_ANY);
 	if(!fip) {
@@ -706,7 +706,7 @@ static TIFFSetGetFieldType _TIFFSetGetType(TIFFDataType type, short count, uchar
 	return TIFF_SETGET_UNDEFINED;
 }
 
-int TIFFMergeFieldInfo(TIFF* tif, const TIFFFieldInfo info[], uint32 n)
+int TIFFMergeFieldInfo(TIFF * tif, const TIFFFieldInfo info[], uint32 n)
 {
 	static const char module[] = __FUNCTION__;
 	static const char reason[] = "for fields array";

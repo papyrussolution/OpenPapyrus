@@ -1,21 +1,11 @@
+// collationweights.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *
- *   Copyright (C) 1999-2014, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  collationweights.h
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2001mar08 as ucol_wgt.h
- *   created by: Markus W. Scherer
- */
-
+// Copyright (C) 1999-2014, International Business Machines Corporation and others.  All Rights Reserved.
+// @codepage UTF-8
+// created on: 2001mar08 as ucol_wgt.h
+// created by: Markus W. Scherer
+//
 #ifndef __COLLATIONWEIGHTS_H__
 #define __COLLATIONWEIGHTS_H__
 
@@ -34,7 +24,8 @@ U_NAMESPACE_BEGIN
 class U_I18N_API CollationWeights : public UMemory {
 public:
 	CollationWeights();
-	static inline int32_t lengthOfWeight(uint32_t weight) {
+	static inline int32_t lengthOfWeight(uint32_t weight) 
+	{
 		if((weight&0xffffff)==0) {
 			return 1;
 		}
@@ -48,11 +39,9 @@ public:
 			return 4;
 		}
 	}
-
 	void initForPrimary(bool compressible);
 	void initForSecondary();
 	void initForTertiary();
-
 	/**
 	 * Determine heuristically
 	 * what ranges to use for a given number of weights between (excluding)
@@ -85,10 +74,7 @@ public:
 
 private:
 	/** @return number of usable byte values for byte idx */
-	inline int32_t countBytes(int32_t idx) const {
-		return (int32_t)(maxBytes[idx] - minBytes[idx] + 1);
-	}
-
+	inline int32_t countBytes(int32_t idx) const { return (int32_t)(maxBytes[idx] - minBytes[idx] + 1); }
 	uint32_t incWeight(uint32_t weight, int32_t length) const;
 	uint32_t incWeightByOffset(uint32_t weight, int32_t length, int32_t offset) const;
 	void lengthenRange(WeightRange &range) const;

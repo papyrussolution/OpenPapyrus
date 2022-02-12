@@ -1296,9 +1296,9 @@ static ngx_int_t ngx_http_proxy_process_header(ngx_http_request_t * r)
 			ctx = (ngx_http_proxy_ctx_t *)ngx_http_get_module_ctx(r, ngx_http_proxy_module);
 
 			if(u->headers_in.status_n == NGX_HTTP_NO_CONTENT
-			    || u->headers_in.status_n == NGX_HTTP_NOT_MODIFIED
-			    || ctx->head
-			    || (!u->headers_in.chunked
+			   || u->headers_in.status_n == NGX_HTTP_NOT_MODIFIED
+			   || ctx->head
+			   || (!u->headers_in.chunked
 				    && u->headers_in.content_length_n == 0)) {
 				u->keepalive = !u->headers_in.connection_close;
 			}

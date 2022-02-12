@@ -270,7 +270,7 @@ static int get_alg_id_by_name(char * name)
 #if !defined(__W32API_MAJOR_VERSION) ||                                 \
 	!defined(__W32API_MINOR_VERSION) ||                                   \
 	defined(__MINGW64_VERSION_MAJOR) ||                                   \
-	(__W32API_MAJOR_VERSION > 5)     ||                                   \
+	(__W32API_MAJOR_VERSION > 5)    ||                                   \
 	((__W32API_MAJOR_VERSION == 5) && (__W32API_MINOR_VERSION > 0))
 	/* CALG_TLS1PRF has a syntax error in MinGW's w32api up to version 5.0,
 	   see https://osdn.net/projects/mingw/ticket/38391 */
@@ -817,7 +817,7 @@ static CURLcode schannel_connect_step1(struct connectdata * conn, int sockindex)
 	/* Warn if SNI is disabled due to use of an IP address */
 	if(Curl_inet_pton(AF_INET, hostname, &addr)
 #ifdef ENABLE_IPV6
-	    || Curl_inet_pton(AF_INET6, hostname, &addr6)
+	   || Curl_inet_pton(AF_INET6, hostname, &addr6)
 #endif
 	    ) {
 		infof(data, "schannel: using IP address, SNI is not supported by OS.\n");
@@ -1501,7 +1501,7 @@ static CURLcode schannel_connect_common(struct connectdata * conn, int sockindex
 
 		/* if ssl is expecting something, check if it's available. */
 		if(connssl->connecting_state == ssl_connect_2_reading
-		    || connssl->connecting_state == ssl_connect_2_writing) {
+		   || connssl->connecting_state == ssl_connect_2_writing) {
 			curl_socket_t writefd = ssl_connect_2_writing ==
 			    connssl->connecting_state ? sockfd : CURL_SOCKET_BAD;
 			curl_socket_t readfd = ssl_connect_2_reading ==

@@ -17,7 +17,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include <xapian/rset.h>
 #include "rsetinternal.h"
 
 using namespace std;
@@ -25,21 +24,20 @@ using namespace std;
 namespace Xapian {
 RSet::RSet(const RSet&) = default;
 
-RSet&
-RSet::operator=(const RSet&) = default;
-
+RSet& RSet::operator=(const RSet&) = default;
 RSet::RSet(RSet &&) = default;
+RSet& RSet::operator=(RSet &&) = default;
 
-RSet&
-RSet::operator=(RSet &&) = default;
-
-RSet::RSet() {
+RSet::RSet() 
+{
 }
 
-RSet::RSet(Internal* internal_) : internal(internal_) {
+RSet::RSet(Internal* internal_) : internal(internal_) 
+{
 }
 
-RSet::~RSet() {
+RSet::~RSet() 
+{
 }
 
 Xapian::doccount RSet::size() const

@@ -390,7 +390,7 @@ struct __cursor {
 		} else                                                          \
 			__root = root_pgno;                                     \
 		if(STD_LOCKING(dbc) && ((lock_mode) == DB_LOCK_WRITE || F_ISSET(dbc, DBC_DOWNREV) \
-		    || dbc->dbtype == DB_RECNO || F_ISSET(__cp, C_RECNUM)) && (ret = __db_lget(dbc, 0, __root, lock_mode, 0, &(lock))) != 0) \
+		   || dbc->dbtype == DB_RECNO || F_ISSET(__cp, C_RECNUM)) && (ret = __db_lget(dbc, 0, __root, lock_mode, 0, &(lock))) != 0) \
 			break;                                                  \
 		if((ret = __memp_fget((dbc)->dbp->mpf, &__root, (dbc)->thread_info, dbc->txn, get_mode, &page)) == 0) { \
 			if(__root == root_pgno)                                \

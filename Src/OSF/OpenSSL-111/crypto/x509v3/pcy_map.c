@@ -32,7 +32,7 @@ int policy_cache_set_mapping(X509 * x, POLICY_MAPPINGS * maps)
 		map = sk_POLICY_MAPPING_value(maps, i);
 		/* Reject if map to or from anyPolicy */
 		if((OBJ_obj2nid(map->subjectDomainPolicy) == NID_any_policy)
-		    || (OBJ_obj2nid(map->issuerDomainPolicy) == NID_any_policy)) {
+		   || (OBJ_obj2nid(map->issuerDomainPolicy) == NID_any_policy)) {
 			ret = -1;
 			goto bad_mapping;
 		}

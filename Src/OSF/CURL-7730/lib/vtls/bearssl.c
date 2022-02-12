@@ -406,7 +406,7 @@ static CURLcode bearssl_connect_step1(struct connectdata * conn, int sockindex)
 
 	if((1 == Curl_inet_pton(AF_INET, hostname, &addr))
 #ifdef ENABLE_IPV6
-	    || (1 == Curl_inet_pton(AF_INET6, hostname, &addr))
+	   || (1 == Curl_inet_pton(AF_INET6, hostname, &addr))
 #endif
 	    ) {
 		if(verifyhost) {

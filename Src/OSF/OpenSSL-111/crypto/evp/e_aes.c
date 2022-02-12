@@ -2119,7 +2119,7 @@ static int s390x_aes_ccm_tls_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 	const int enc = EVP_CIPHER_CTX_encrypting(ctx);
 
 	if(out != in
-	    || len < (EVP_CCM_TLS_EXPLICIT_IV_LEN + (size_t)cctx->aes.ccm.m))
+	   || len < (EVP_CCM_TLS_EXPLICIT_IV_LEN + (size_t)cctx->aes.ccm.m))
 		return -1;
 
 	if(enc) {
@@ -3058,7 +3058,7 @@ static int aes_gcm_tls_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 	int rv = -1;
 	/* Encrypt/decrypt must be performed in place */
 	if(out != in
-	    || len < (EVP_GCM_TLS_EXPLICIT_IV_LEN + EVP_GCM_TLS_TAG_LEN))
+	   || len < (EVP_GCM_TLS_EXPLICIT_IV_LEN + EVP_GCM_TLS_TAG_LEN))
 		return -1;
 	/*
 	 * Set IV from start of buffer or generate IV and write to start of

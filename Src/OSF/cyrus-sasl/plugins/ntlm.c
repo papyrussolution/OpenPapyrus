@@ -49,14 +49,14 @@
 #include <sasl-internal.h>
 #pragma hdrstop
 #ifdef WIN32
-# include <process.h>       /* for getpid */
+#include <process.h>       /* for getpid */
 typedef int pid_t;
 #else
-# include <unistd.h>
-# include <sys/types.h>
-# include <sys/socket.h>
-# include <sys/utsname.h>
-# include <netdb.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/utsname.h>
+#include <netdb.h>
 
 #ifndef SYS_NMLN
 struct utsname dummy;

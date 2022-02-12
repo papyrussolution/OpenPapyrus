@@ -664,7 +664,7 @@ IMPL_INVARIANT_C(PPStaffCal)
 	S_ASSERT_P(Tag == PPOBJ_STAFFCAL, pInvP);
 	S_ASSERT_P(sstrlen(Name) < sizeof(Name), pInvP);
 	S_ASSERT_P(sstrlen(Symb) < sizeof(Symb), pInvP);
-	S_ASSERT_P(LinkObjType  || !LinkObjID, pInvP);
+	S_ASSERT_P(LinkObjType || !LinkObjID, pInvP);
 	S_ASSERT_P(!LinkObjType || LinkCalID, pInvP);
 	S_ASSERT_P(!(Flags & fInherited) || LinkCalID, pInvP);
 	S_INVARIANT_EPILOG(pInvP);

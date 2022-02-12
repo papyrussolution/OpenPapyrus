@@ -93,8 +93,8 @@ int PPViewStyloQBindery::MakeList(PPViewBrowser * pBrw)
 					else
 						face_tag_id = SSecretTagPool::tagSelfyFace;
 					face_chunk.Z();
-					if(face_tag_id && pack.Pool.Get(face_tag_id, &face_chunk) > 0) {
-						temp_buf.Z().CatN(static_cast<const char *>(face_chunk.PtrC()), face_chunk.Len());
+					if(face_tag_id && pack.Pool.Get(face_tag_id, &face_chunk)) {
+						face_chunk.ToRawStr(temp_buf);
 						if(face_pack.FromJson(temp_buf) && face_pack.GetRepresentation(0, temp_buf)) {
 							assert(temp_buf.NotEmpty()); // face_pack.GetRepresentation() != 0 garantees this assertion
 							temp_buf.Transf(CTRANSF_UTF8_TO_INNER); // в базе данных лик хранится в utf-8

@@ -200,34 +200,36 @@ static int _wclosedir(_WDIR * dirp)
 static void _wrewinddir(_WDIR* dirp)
 {
 	if(dirp) {
-		/* Release existing search handle */
+		// Release existing search handle 
 		if(dirp->handle != INVALID_HANDLE_VALUE)
 			FindClose(dirp->handle);
 		dirent_first(dirp); /* Open new search handle */
 	}
 }
-
-/* Get first directory entry */
+//
+// Get first directory entry 
+//
 static WIN32_FIND_DATAW * dirent_first(_WDIR * dirp)
 {
-	if(!dirp)
-		return NULL;
-	/* Open directory and retrieve the first entry */
-	dirp->handle = FindFirstFileExW(dirp->patt, FindExInfoStandard, &dirp->data, FindExSearchNameMatch, NULL, 0);
-	if(dirp->handle == INVALID_HANDLE_VALUE)
-		goto error;
-	/* A directory entry is now waiting in memory */
-	dirp->cached = 1;
-	return &dirp->data;
-error:
-	/* Failed to open directory: no directory entry in memory */
-	dirp->cached = 0;
-	DWORD errorcode = GetLastError(); /* Set error code */
-	switch(errorcode) {
-		case ERROR_ACCESS_DENIED: dirent_set_errno(EACCES); break; /* No read access to directory */
-		case ERROR_DIRECTORY: dirent_set_errno(ENOTDIR); break; /* Directory name is invalid */
-		case ERROR_PATH_NOT_FOUND:
-		default: dirent_set_errno(ENOENT); /* Cannot find the file */
+	if(dirp) {
+		// Open directory and retrieve the first entry 
+		dirp->handle = FindFirstFileExW(dirp->patt, FindExInfoStandard, &dirp->data, FindExSearchNameMatch, NULL, 0);
+		if(dirp->handle != INVALID_HANDLE_VALUE) {
+			// A directory entry is now waiting in memory 
+			dirp->cached = 1;
+			return &dirp->data;
+		}
+		else {
+			// Failed to open directory: no directory entry in memory 
+			dirp->cached = 0;
+			DWORD errorcode = GetLastError(); // Set error code 
+			switch(errorcode) {
+				case ERROR_ACCESS_DENIED: dirent_set_errno(EACCES); break; /* No read access to directory */
+				case ERROR_DIRECTORY: dirent_set_errno(ENOTDIR); break; /* Directory name is invalid */
+				case ERROR_PATH_NOT_FOUND:
+				default: dirent_set_errno(ENOENT); /* Cannot find the file */
+			}
+		}
 	}
 	return NULL;
 }
@@ -235,16 +237,16 @@ error:
 /* Get next directory entry */
 static WIN32_FIND_DATAW * dirent_next(_WDIR * dirp)
 {
-	/* Is the next directory entry already in cache? */
+	// Is the next directory entry already in cache? 
 	if(dirp->cached) {
-		/* Yes, a valid directory entry found in memory */
+		// Yes, a valid directory entry found in memory 
 		dirp->cached = 0;
 		return &dirp->data;
 	}
-	/* No directory entry in cache */
+	// No directory entry in cache 
 	if(dirp->handle == INVALID_HANDLE_VALUE)
 		return NULL;
-	/* Read the next directory entry from stream */
+	// Read the next directory entry from stream 
 	if(FindNextFileW(dirp->handle, &dirp->data) == FALSE)
 		goto exit_close;
 	return &dirp->data; /* Success */

@@ -109,7 +109,7 @@ static int setExtraSamples(TIFFDirectory* td, va_list ap, uint32* v)
  * Confirm we have "samplesperpixel" ink names separated by \0.  Returns
  * zero if the ink names are not as expected.
  */
-static uint32 checkInkNamesString(TIFF* tif, uint32 slen, const char * s)
+static uint32 checkInkNamesString(TIFF * tif, uint32 slen, const char * s)
 {
 	TIFFDirectory* td = &tif->tif_dir;
 	uint16 i = td->td_samplesperpixel;
@@ -140,7 +140,7 @@ float FASTCALL TIFFClampDoubleToFloat(double val)
 		return (float)val;
 }
 
-static int _TIFFVSetField(TIFF* tif, uint32 tag, va_list ap)
+static int _TIFFVSetField(TIFF * tif, uint32 tag, va_list ap)
 {
 	static const char module[] = __FUNCTION__;
 	TIFFDirectory* td = &tif->tif_dir;
@@ -641,7 +641,7 @@ badvaluedouble:
  * has commenced, unless its value has no effect
  * on the format of the data that is written.
  */
-static int OkToChangeTag(TIFF* tif, uint32 tag)
+static int OkToChangeTag(TIFF * tif, uint32 tag)
 {
 	const TIFFField * fip = TIFFFindField(tif, tag, TIFF_ANY);
 	if(!fip) {                      /* unknown tag */
@@ -667,7 +667,7 @@ static int OkToChangeTag(TIFF* tif, uint32 tag)
  * when/if the directory structure is
  * updated.
  */
-int TIFFSetField(TIFF* tif, uint32 tag, ...)
+int TIFFSetField(TIFF * tif, uint32 tag, ...)
 {
 	va_list ap;
 	int status;
@@ -679,7 +679,7 @@ int TIFFSetField(TIFF* tif, uint32 tag, ...)
 /*
  * Clear the contents of the field in the internal structure.
  */
-int TIFFUnsetField(TIFF* tif, uint32 tag)
+int TIFFUnsetField(TIFF * tif, uint32 tag)
 {
 	const TIFFField * fip =  TIFFFieldWithTag(tif, tag);
 	TIFFDirectory* td = &tif->tif_dir;
@@ -713,7 +713,7 @@ int TIFFUnsetField(TIFF* tif, uint32 tag)
  * for building higher-level interfaces on
  * top of the library.
  */
-int TIFFVSetField(TIFF* tif, uint32 tag, va_list ap)
+int TIFFVSetField(TIFF * tif, uint32 tag, va_list ap)
 {
 	return OkToChangeTag(tif, tag) ? (*tif->tif_tagmethods.vsetfield)(tif, tag, ap) : 0;
 }
@@ -945,7 +945,7 @@ static int _TIFFVGetField(TIFF * tif, uint32 tag, va_list ap)
  * Return the value of a field in the
  * internal directory structure.
  */
-int TIFFGetField(TIFF* tif, uint32 tag, ...)
+int TIFFGetField(TIFF * tif, uint32 tag, ...)
 {
 	int status;
 	va_list ap;
@@ -961,7 +961,7 @@ int TIFFGetField(TIFF* tif, uint32 tag, ...)
  * for building higher-level interfaces on
  * top of the library.
  */
-int TIFFVGetField(TIFF* tif, uint32 tag, va_list ap)
+int TIFFVGetField(TIFF * tif, uint32 tag, va_list ap)
 {
 	const TIFFField* fip = TIFFFindField(tif, tag, TIFF_ANY);
 	return (fip && (isPseudoTag(tag) || TIFFFieldSet(tif, fip->field_bit)) ? (*tif->tif_tagmethods.vgetfield)(tif, tag, ap) : 0);
@@ -971,7 +971,7 @@ int TIFFVGetField(TIFF* tif, uint32 tag, va_list ap)
 /*
  * Release storage associated with a directory.
  */
-void TIFFFreeDirectory(TIFF* tif)
+void TIFFFreeDirectory(TIFF * tif)
 {
 	TIFFDirectory * td = &tif->tif_dir;
 	int i;
@@ -1025,7 +1025,7 @@ TIFFExtendProc TIFFSetTagExtender(TIFFExtendProc extender)
  * The newly created directory will not exist on the file till
  * TIFFWriteDirectory(), TIFFFlush() or TIFFClose() is called.
  */
-int TIFFCreateDirectory(TIFF* tif)
+int TIFFCreateDirectory(TIFF * tif)
 {
 	TIFFDefaultDirectory(tif);
 	tif->tif_diroff = 0;
@@ -1037,7 +1037,7 @@ int TIFFCreateDirectory(TIFF* tif)
 	return 0;
 }
 
-int TIFFCreateCustomDirectory(TIFF* tif, const TIFFFieldArray* infoarray)
+int TIFFCreateCustomDirectory(TIFF * tif, const TIFFFieldArray* infoarray)
 {
 	TIFFDefaultDirectory(tif);
 	/*
@@ -1054,7 +1054,7 @@ int TIFFCreateCustomDirectory(TIFF* tif, const TIFFFieldArray* infoarray)
 	return 0;
 }
 
-int TIFFCreateEXIFDirectory(TIFF* tif)
+int TIFFCreateEXIFDirectory(TIFF * tif)
 {
 	const TIFFFieldArray * exifFieldArray = _TIFFGetExifFields();
 	return TIFFCreateCustomDirectory(tif, exifFieldArray);
@@ -1062,7 +1062,7 @@ int TIFFCreateEXIFDirectory(TIFF* tif)
 /*
  * Setup a default directory structure.
  */
-int TIFFDefaultDirectory(TIFF* tif)
+int TIFFDefaultDirectory(TIFF * tif)
 {
 	TIFFDirectory * td = &tif->tif_dir;
 	const TIFFFieldArray * tiffFieldArray = _TIFFGetFields();
@@ -1125,7 +1125,7 @@ int TIFFDefaultDirectory(TIFF* tif)
 	return 1;
 }
 
-static int TIFFAdvanceDirectory(TIFF* tif, uint64* nextdir, uint64* off)
+static int TIFFAdvanceDirectory(TIFF * tif, uint64* nextdir, uint64* off)
 {
 	static const char module[] = __FUNCTION__;
 	if(isMapped(tif)) {
@@ -1240,7 +1240,7 @@ static int TIFFAdvanceDirectory(TIFF* tif, uint64* nextdir, uint64* off)
 /*
  * Count the number of directories in a file.
  */
-uint16 TIFFNumberOfDirectories(TIFF* tif)
+uint16 TIFFNumberOfDirectories(TIFF * tif)
 {
 	static const char module[] = __FUNCTION__;
 	uint64 nextdir;
@@ -1265,7 +1265,7 @@ uint16 TIFFNumberOfDirectories(TIFF* tif)
  * Set the n-th directory as the current directory.
  * NB: Directories are numbered starting at 0.
  */
-int TIFFSetDirectory(TIFF* tif, uint16 dirn)
+int TIFFSetDirectory(TIFF * tif, uint16 dirn)
 {
 	uint64 nextdir;
 	uint16 n;
@@ -1296,7 +1296,7 @@ int TIFFSetDirectory(TIFF* tif, uint16 dirn)
  * is used mainly to access directories linked with
  * the SubIFD tag (e.g. thumbnail images).
  */
-int TIFFSetSubDirectory(TIFF* tif, uint64 diroff)
+int TIFFSetSubDirectory(TIFF * tif, uint64 diroff)
 {
 	tif->tif_nextdiroff = diroff;
 	/*
@@ -1309,7 +1309,7 @@ int TIFFSetSubDirectory(TIFF* tif, uint64 diroff)
 /*
  * Return file offset of the current directory.
  */
-uint64 TIFFCurrentDirOffset(TIFF* tif)
+uint64 TIFFCurrentDirOffset(TIFF * tif)
 {
 	return (tif->tif_diroff);
 }
@@ -1317,7 +1317,7 @@ uint64 TIFFCurrentDirOffset(TIFF* tif)
  * Return an indication of whether or not we are
  * at the last directory in the file.
  */
-int TIFFLastDirectory(TIFF* tif)
+int TIFFLastDirectory(TIFF * tif)
 {
 	return (tif->tif_nextdiroff == 0);
 }
@@ -1325,7 +1325,7 @@ int TIFFLastDirectory(TIFF* tif)
 /*
  * Unlink the specified directory from the directory chain.
  */
-int TIFFUnlinkDirectory(TIFF* tif, uint16 dirn)
+int TIFFUnlinkDirectory(TIFF * tif, uint16 dirn)
 {
 	static const char module[] = __FUNCTION__;
 	uint64 nextdir;

@@ -1,24 +1,15 @@
+// ucnv_set.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *
- *   Copyright (C) 2003-2007, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  ucnv_set.c
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2004sep07
- *   created by: Markus W. Scherer
- *
- *   Conversion API functions using USet (ucnv_getUnicodeSet())
- *   moved here from ucnv.c for removing the dependency of other ucnv_
- *   implementation functions on the USet implementation.
- */
+// Copyright (C) 2003-2007, International Business Machines Corporation and others.  All Rights Reserved.
+// @codepage UTF-8
+// created on: 2004sep07
+// created by: Markus W. Scherer
+//
+// Conversion API functions using USet (ucnv_getUnicodeSet())
+// moved here from ucnv.c for removing the dependency of other ucnv_
+// implementation functions on the USet implementation.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/ucnv.h"

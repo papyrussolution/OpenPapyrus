@@ -65,7 +65,7 @@ class GlassTableCheck : public GlassTable {
 };
 
 #ifdef DISABLE_GPL_LIBXAPIAN
-# error GPL source we cannot relicense included in libxapian
+#error GPL source we cannot relicense included in libxapian
 #endif
 
 #endif /* XAPIAN_INCLUDED_GLASS_CHECK_H */

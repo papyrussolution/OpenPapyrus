@@ -76,10 +76,10 @@ typedef CRITICAL_SECTION hb_mutex_impl_t;
 #elif !defined(HB_NO_MT) && defined(HAVE_INTEL_ATOMIC_PRIMITIVES)
 
 #if defined(HAVE_SCHED_H) && defined(HAVE_SCHED_YIELD)
-# include <sched.h>
-# define HB_SCHED_YIELD() sched_yield ()
+#include <sched.h>
+#define HB_SCHED_YIELD() sched_yield ()
 #else
-# define HB_SCHED_YIELD() HB_STMT_START {} HB_STMT_END
+#define HB_SCHED_YIELD() HB_STMT_START {} HB_STMT_END
 #endif
 
 /* This actually is not a totally awful implementation. */

@@ -189,67 +189,50 @@ static int match_hashed_host(const char * host, const char * sourcehash)
 	char * b64hash;
 	int match;
 	uint size;
-
 	if(strncmp(sourcehash, "|1|", 3) != 0) {
 		return 0;
 	}
-
-	source = _strdup(sourcehash + 3);
+	source = sstrdup(sourcehash + 3);
 	if(source == NULL) {
 		return 0;
 	}
-
 	b64hash = strchr(source, '|');
 	if(b64hash == NULL) {
 		/* Invalid hash */
 		ZFREE(source);
-
 		return 0;
 	}
-
 	*b64hash = '\0';
 	b64hash++;
-
 	salt = base64_to_bin(source);
 	if(salt == NULL) {
 		ZFREE(source);
-
 		return 0;
 	}
-
 	hash = base64_to_bin(b64hash);
 	ZFREE(source);
 	if(hash == NULL) {
 		ssh_buffer_free(salt);
-
 		return 0;
 	}
-
 	mac = hmac_init(ssh_buffer_get(salt), ssh_buffer_get_len(salt), SSH_HMAC_SHA1);
 	if(mac == NULL) {
 		ssh_buffer_free(salt);
 		ssh_buffer_free(hash);
-
 		return 0;
 	}
 	size = sizeof(buffer);
 	hmac_update(mac, host, strlen(host));
 	hmac_final(mac, buffer, &size);
-
-	if(size == ssh_buffer_get_len(hash) &&
-	    memcmp(buffer, ssh_buffer_get(hash), size) == 0) {
+	if(size == ssh_buffer_get_len(hash) && memcmp(buffer, ssh_buffer_get(hash), size) == 0) {
 		match = 1;
 	}
 	else {
 		match = 0;
 	}
-
 	ssh_buffer_free(salt);
 	ssh_buffer_free(hash);
-
-	SSH_LOG(SSH_LOG_PACKET,
-	    "Matching a hashed host: %s match=%d", host, match);
-
+	SSH_LOG(SSH_LOG_PACKET, "Matching a hashed host: %s match=%d", host, match);
 	return match;
 }
 

@@ -406,7 +406,7 @@ static void FoldPowerProDoc(Sci_PositionU startPos, Sci_Position length, int, Wo
 
 	// find the first previous line without continuation character at the end
 	while((lineCurrent > 0 && IsContinuationLine(lineCurrent, styler))
-	    || (lineCurrent > 1 && IsContinuationLine(lineCurrent - 1, styler))) {
+	   || (lineCurrent > 1 && IsContinuationLine(lineCurrent - 1, styler))) {
 		lineCurrent--;
 		startPos = styler.LineStart(lineCurrent);
 	}
@@ -497,8 +497,8 @@ static void FoldPowerProDoc(Sci_PositionU startPos, Sci_Position length, int, Wo
 
 		// End of Line found so process the information
 		if((ch == '\r' && chNext != '\n')   // \r\n
-		    || ch == '\n'                                       // \n
-		    || i == endPos) {                                   // end of selection
+		   || ch == '\n'                                       // \n
+		   || i == endPos) {                                   // end of selection
 			// **************************
 			// Folding logic for Keywords
 			// **************************

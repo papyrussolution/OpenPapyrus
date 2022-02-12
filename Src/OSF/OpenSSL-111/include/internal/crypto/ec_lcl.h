@@ -668,7 +668,7 @@ static ossl_inline int ec_point_ladder_pre(const EC_GROUP * group,
 		return group->meth->ladder_pre(group, r, s, p, ctx);
 
 	if(!EC_POINT_copy(s, p)
-	    || !EC_POINT_dbl(group, r, s, ctx))
+	   || !EC_POINT_dbl(group, r, s, ctx))
 		return 0;
 
 	return 1;
@@ -682,7 +682,7 @@ static ossl_inline int ec_point_ladder_step(const EC_GROUP * group,
 		return group->meth->ladder_step(group, r, s, p, ctx);
 
 	if(!EC_POINT_add(group, s, r, s, ctx)
-	    || !EC_POINT_dbl(group, r, r, ctx))
+	   || !EC_POINT_dbl(group, r, r, ctx))
 		return 0;
 
 	return 1;

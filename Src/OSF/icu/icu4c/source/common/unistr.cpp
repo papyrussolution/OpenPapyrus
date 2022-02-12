@@ -704,7 +704,7 @@ int8_t UnicodeString::doCompare(int32_t start,
 	if(minLength > 0 && chars != srcChars) {
 		int32_t result;
 
-#   if U_IS_BIG_ENDIAN
+#if U_IS_BIG_ENDIAN
 		// big-endian: byte comparison works
 		result = uprv_memcmp(chars, srcChars, minLength * sizeof(UChar));
 		if(result != 0) {
@@ -718,7 +718,7 @@ int8_t UnicodeString::doCompare(int32_t start,
 				return (int8_t)(result >> 15 | 1);
 			}
 		} while(--minLength > 0);
-#   endif
+#endif
 	}
 	return lengthResult;
 }

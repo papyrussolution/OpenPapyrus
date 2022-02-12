@@ -983,7 +983,7 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 	 * Of course, this is only needed for block or char device entries.
 	 */
 	if(archive_entry_filetype(entry_main) == AE_IFBLK
-	    || archive_entry_filetype(entry_main) == AE_IFCHR) {
+	   || archive_entry_filetype(entry_main) == AE_IFCHR) {
 		/*
 		 * If rdevmajor is too large, add 'SCHILY.devmajor' to
 		 * extended attributes.
@@ -1032,7 +1032,7 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 	 */
 	if(!need_extension &&
 	    ((archive_entry_mtime(entry_main) < 0)
-	    || (archive_entry_mtime(entry_main) >= 0x7fffffff)))
+	   || (archive_entry_mtime(entry_main) >= 0x7fffffff)))
 		need_extension = 1;
 
 	/* I use a star-compatible file flag attribute. */

@@ -615,8 +615,8 @@ int TestLogin()
 
 typedef struct {
     const char * P_Name;
-    uint Max;
-    uint Min;
+    uint   Max;
+    uint   Min;
     size_t Size;
     void (* P_Set) (void * P_State, uint Seed);
     uint (* P_Get) (void * P_State);
@@ -1405,6 +1405,7 @@ int  Test_PPStyloQInterchange();
 int  Test_StyloQInvitation();
 // @construction finished int  Test_Launch_SCalendarPicker();
 int  Test_StrAssocTree();
+int  Test_Fts();
 
 extern int OnigTestSyntax_main(FILE * fOut);
 extern int OnigTestOptions_main(FILE * fOut);
@@ -1489,6 +1490,7 @@ int DoConstructionTest()
 	//DoTest_PThr4w();
 	//TestMqc();
 	//TestCRC();
+	Test_Fts();
 	Test_LibPhoneNumber();
 	Test_PPStyloQInterchange();
 	//Test_StyloQInvitation();

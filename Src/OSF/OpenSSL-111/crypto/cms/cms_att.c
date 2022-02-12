@@ -233,13 +233,13 @@ static int cms_check_attribute(int nid, int flags, int type,
 		/* Is this attribute allowed? */
 		if(((flags & type) == 0)
 		    /* check if multiple attributes of the same type are allowed */
-		    || (((flags & CMS_ATTR_F_ONLY_ONE) != 0)
+		   || (((flags & CMS_ATTR_F_ONLY_ONE) != 0)
 		 && cms_attrib_get(nid, attrs, &lastpos) != NULL)
 		    /* Check if attribute should have exactly one value in its set */
-		    || (((flags & CMS_ATTR_F_ONE_ATTR_VALUE) != 0)
+		   || (((flags & CMS_ATTR_F_ONE_ATTR_VALUE) != 0)
 		 && count != 1)
 		    /* There should be at least one value */
-		    || count == 0)
+		   || count == 0)
 			return 0;
 	}
 	else {
@@ -274,7 +274,7 @@ int CMS_si_check_attributes(const CMS_SignerInfo * si)
 
 		if(!cms_check_attribute(nid, flags, CMS_ATTR_F_SIGNED,
 		    si->signedAttrs, have_signed_attrs)
-		    || !cms_check_attribute(nid, flags, CMS_ATTR_F_UNSIGNED,
+		   || !cms_check_attribute(nid, flags, CMS_ATTR_F_UNSIGNED,
 		    si->unsignedAttrs, have_unsigned_attrs)) {
 			CMSerr(CMS_F_CMS_SI_CHECK_ATTRIBUTES, CMS_R_ATTRIBUTE_ERROR);
 			return 0;

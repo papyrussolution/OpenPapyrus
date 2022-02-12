@@ -1,23 +1,10 @@
 /** @file
  *  @brief SubMatch class for a local database.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2013,2014,2015,2016,2017,2018,2019,2020 Olly Betts
- * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
- */
+// Copyright (C) 2006,2007,2009,2010,2011,2013,2014,2015,2016,2017,2018,2019,2020 Olly Betts
+// Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
+// @licence GNU GPL
+//
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "localsubmatch.h"
@@ -40,23 +27,14 @@ using namespace std;
  */
 class LazyWeight : public Xapian::Weight {
 	LeafPostList * pl;
-
 	Xapian::Weight * real_wt;
-
 	Xapian::Weight::Internal * stats;
-
 	Xapian::termcount qlen;
-
 	Xapian::termcount wqf;
-
 	double factor;
-
 	const Xapian::Database::Internal* shard;
-
 	LazyWeight * clone() const;
-
 	void init(double factor_);
-
 public:
 	LazyWeight(LeafPostList * pl_,
 	    Xapian::Weight * real_wt_,
@@ -74,21 +52,12 @@ public:
 		shard(shard_)
 	{
 	}
-
 	std::string name() const;
-
 	std::string serialise() const;
 	LazyWeight * unserialise(const std::string & serialised) const;
-
-	double get_sumpart(Xapian::termcount wdf,
-	    Xapian::termcount doclen,
-	    Xapian::termcount uniqterms,
-	    Xapian::termcount wdfdocmax) const;
+	double get_sumpart(Xapian::termcount wdf, Xapian::termcount doclen, Xapian::termcount uniqterms, Xapian::termcount wdfdocmax) const;
 	double get_maxpart() const;
-
-	double get_sumextra(Xapian::termcount doclen,
-	    Xapian::termcount uniqterms,
-	    Xapian::termcount wdfdocmax) const;
+	double get_sumextra(Xapian::termcount doclen, Xapian::termcount uniqterms, Xapian::termcount wdfdocmax) const;
 	double get_maxextra() const;
 };
 
@@ -121,10 +90,7 @@ LazyWeight * LazyWeight::unserialise(const string &) const
 	throw Xapian::InvalidOperationError("LazyWeight::unserialise()");
 }
 
-double LazyWeight::get_sumpart(Xapian::termcount wdf,
-    Xapian::termcount doclen,
-    Xapian::termcount uniqterms,
-    Xapian::termcount wdfdocmax) const
+double LazyWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount doclen, Xapian::termcount uniqterms, Xapian::termcount wdfdocmax) const
 {
 	(void)wdf;
 	(void)doclen;
@@ -133,9 +99,7 @@ double LazyWeight::get_sumpart(Xapian::termcount wdf,
 	throw Xapian::InvalidOperationError("LazyWeight::get_sumpart()");
 }
 
-double LazyWeight::get_sumextra(Xapian::termcount doclen,
-    Xapian::termcount uniqterms,
-    Xapian::termcount wdfdocmax) const
+double LazyWeight::get_sumextra(Xapian::termcount doclen, Xapian::termcount uniqterms, Xapian::termcount wdfdocmax) const
 {
 	(void)doclen;
 	(void)uniqterms;

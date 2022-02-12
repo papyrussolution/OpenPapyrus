@@ -165,8 +165,8 @@ void archive_entry_linkify(struct archive_entry_linkresolver * res,
 		return;
 	/* Directories, devices never have hardlinks. */
 	if(archive_entry_filetype(*e) == AE_IFDIR
-	    || archive_entry_filetype(*e) == AE_IFBLK
-	    || archive_entry_filetype(*e) == AE_IFCHR)
+	   || archive_entry_filetype(*e) == AE_IFBLK
+	   || archive_entry_filetype(*e) == AE_IFCHR)
 		return;
 
 	switch(res->strategy) {

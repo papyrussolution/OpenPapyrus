@@ -22,7 +22,7 @@
 #define XAPIAN_INCLUDED_REALTIME_H
 
 #ifndef PACKAGE
-# error config.h must be included first in each C++ source file
+#error config.h must be included first in each C++ source file
 #endif
 
 #include <cerrno>
@@ -31,15 +31,15 @@
 
 #ifndef __WIN32__
 # ifdef HAVE_FTIME
-#  include <sys/timeb.h>
-# endif
+#include <sys/timeb.h>
+#endif
 # ifdef HAVE_GETTIMEOFDAY
-#  include <sys/time.h>
-# endif
-# include "safesysselect.h"
+#include <sys/time.h>
+#endif
+#include "safesysselect.h"
 #else
-# include <sys/types.h>
-# include <sys/timeb.h>
+#include <sys/types.h>
+#include <sys/timeb.h>
 extern void xapian_sleep_milliseconds(uint millisecs);
 #endif
 
@@ -62,7 +62,7 @@ inline double now() {
 	return ts.tv_sec + (ts.tv_nsec * 1e-9);
     return double(std::time(NULL));
 #elif !defined __WIN32__
-# if defined HAVE_GETTIMEOFDAY
+#if defined HAVE_GETTIMEOFDAY
     struct timeval tv;
     if (usual(gettimeofday(&tv, NULL) == 0))
 	return tv.tv_sec + (tv.tv_usec * 1e-6);
@@ -78,7 +78,7 @@ inline double now() {
     return tp.time + (tp.millitm * 1e-3);
 # else
     return double(std::time(NULL));
-# endif
+#endif
 #else
     // For __WIN32__.
     struct __timeb64 tp;
@@ -114,7 +114,7 @@ inline void to_timeval(double t, struct timeval *tv) {
 }
 #else
 // Use a macro to avoid having to pull in winsock2.h just for struct timeval.
-# define to_timeval(T, TV) to_timeval_((T), (TV)->tv_sec, (TV)->tv_usec)
+#define to_timeval(T, TV) to_timeval_((T), (TV)->tv_sec, (TV)->tv_usec)
 
 inline void to_timeval_(double t, long & tv_sec, long & tv_usec) {
     double secs;

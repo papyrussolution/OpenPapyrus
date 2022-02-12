@@ -159,21 +159,19 @@ using EnableIfFloat =
 class Duration {
 public:
 	// Value semantics.
-	constexpr Duration() : rep_hi_(0), rep_lo_(0) {
-	}                                           // zero-length duration
-
+	constexpr Duration() : rep_hi_(0), rep_lo_(0) 
+	{
+	} // zero-length duration
 	// Copyable.
 #if !defined(__clang__) && defined(_MSC_VER) && _MSC_VER < 1910
 	// Explicitly defining the constexpr copy constructor avoids an MSVC bug.
-	constexpr Duration(const Duration& d)
-		: rep_hi_(d.rep_hi_), rep_lo_(d.rep_lo_) {
+	constexpr Duration(const Duration& d) : rep_hi_(d.rep_hi_), rep_lo_(d.rep_lo_) 
+	{
 	}
-
 #else
 	constexpr Duration(const Duration& d) = default;
 #endif
 	Duration& operator=(const Duration& d) = default;
-
 	// Compound assignment operators.
 	Duration& operator+=(Duration d);
 	Duration& operator-=(Duration d);
@@ -185,43 +183,37 @@ public:
 
 	// Overloads that forward to either the int64_t or double overloads above.
 	// Integer operands must be representable as int64_t.
-	template <typename T, time_internal::EnableIfIntegral<T> = 0>
-	Duration& operator*=(T r) {
+	template <typename T, time_internal::EnableIfIntegral<T> = 0> Duration& operator*=(T r) 
+	{
 		int64_t x = r;
 		return *this *= x;
 	}
-
-	template <typename T, time_internal::EnableIfIntegral<T> = 0>
-	Duration& operator/=(T r) {
+	template <typename T, time_internal::EnableIfIntegral<T> = 0> Duration& operator/=(T r) 
+	{
 		int64_t x = r;
 		return *this /= x;
 	}
-
-	template <typename T, time_internal::EnableIfFloat<T> = 0>
-	Duration& operator*=(T r) {
+	template <typename T, time_internal::EnableIfFloat<T> = 0> Duration& operator*=(T r) 
+	{
 		double x = r;
 		return *this *= x;
 	}
-
-	template <typename T, time_internal::EnableIfFloat<T> = 0>
-	Duration& operator/=(T r) {
+	template <typename T, time_internal::EnableIfFloat<T> = 0> Duration& operator/=(T r) 
+	{
 		double x = r;
 		return *this /= x;
 	}
-
-	template <typename H>
-	friend H AbslHashValue(H h, Duration d) {
+	template <typename H> friend H AbslHashValue(H h, Duration d) 
+	{
 		return H::combine(std::move(h), d.rep_hi_, d.rep_lo_);
 	}
-
 private:
 	friend constexpr int64_t time_internal::GetRepHi(Duration d);
 	friend constexpr uint32_t time_internal::GetRepLo(Duration d);
-	friend constexpr Duration time_internal::MakeDuration(int64_t hi,
-	    uint32_t lo);
-	constexpr Duration(int64_t hi, uint32_t lo) : rep_hi_(hi), rep_lo_(lo) {
+	friend constexpr Duration time_internal::MakeDuration(int64_t hi, uint32_t lo);
+	constexpr Duration(int64_t hi, uint32_t lo) : rep_hi_(hi), rep_lo_(lo) 
+	{
 	}
-
 	int64_t rep_hi_;
 	uint32_t rep_lo_;
 };

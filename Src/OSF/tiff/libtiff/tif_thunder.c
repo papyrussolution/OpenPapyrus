@@ -65,7 +65,7 @@ static const int threebitdeltas[8] = { 0, 1, 2, 3, 0, -3, -2, -1 };
 		}				      \
 }
 
-static int ThunderSetupDecode(TIFF* tif)
+static int ThunderSetupDecode(TIFF * tif)
 {
 	static const char module[] = __FUNCTION__;
 	if(tif->tif_dir.td_bitspersample != 4) {
@@ -76,7 +76,7 @@ static int ThunderSetupDecode(TIFF* tif)
 	return 1;
 }
 
-static int ThunderDecode(TIFF* tif, uint8 * op, tmsize_t maxpixels)
+static int ThunderDecode(TIFF * tif, uint8 * op, tmsize_t maxpixels)
 {
 	static const char module[] = __FUNCTION__;
 	uchar * bp = (uchar *)tif->tif_rawcp;
@@ -143,7 +143,7 @@ static int ThunderDecode(TIFF* tif, uint8 * op, tmsize_t maxpixels)
 	return 1;
 }
 
-static int ThunderDecodeRow(TIFF* tif, uint8 * buf, tmsize_t occ, uint16 s)
+static int ThunderDecodeRow(TIFF * tif, uint8 * buf, tmsize_t occ, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	uint8 * row = buf;
@@ -161,7 +161,7 @@ static int ThunderDecodeRow(TIFF* tif, uint8 * buf, tmsize_t occ, uint16 s)
 	return 1;
 }
 
-int TIFFInitThunderScan(TIFF* tif, int scheme)
+int TIFFInitThunderScan(TIFF * tif, int scheme)
 {
 	(void)scheme;
 	tif->tif_setupdecode = ThunderSetupDecode;

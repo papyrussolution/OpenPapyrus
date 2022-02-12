@@ -31,7 +31,7 @@
 #include "tiffiop.h"
 #pragma hdrstop
 
-static int DumpFixupTags(TIFF* tif)
+static int DumpFixupTags(TIFF * tif)
 {
 	(void)tif;
 	return 1;
@@ -40,7 +40,7 @@ static int DumpFixupTags(TIFF* tif)
 /*
  * Encode a hunk of pixels.
  */
-static int DumpModeEncode(TIFF* tif, uint8 * pp, tmsize_t cc, uint16 s)
+static int DumpModeEncode(TIFF * tif, uint8 * pp, tmsize_t cc, uint16 s)
 {
 	(void)s;
 	while(cc > 0) {
@@ -71,7 +71,7 @@ static int DumpModeEncode(TIFF* tif, uint8 * pp, tmsize_t cc, uint16 s)
 /*
  * Decode a hunk of pixels.
  */
-static int DumpModeDecode(TIFF* tif, uint8 * buf, tmsize_t cc, uint16 s)
+static int DumpModeDecode(TIFF * tif, uint8 * buf, tmsize_t cc, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	(void)s;
@@ -99,7 +99,7 @@ static int DumpModeDecode(TIFF* tif, uint8 * buf, tmsize_t cc, uint16 s)
 /*
  * Seek forwards nrows in the current strip.
  */
-static int DumpModeSeek(TIFF* tif, uint32 nrows)
+static int DumpModeSeek(TIFF * tif, uint32 nrows)
 {
 	tif->tif_rawcp += nrows * tif->tif_scanlinesize;
 	tif->tif_rawcc -= nrows * tif->tif_scanlinesize;
@@ -109,7 +109,7 @@ static int DumpModeSeek(TIFF* tif, uint32 nrows)
 /*
  * Initialize dump mode.
  */
-int TIFFInitDumpMode(TIFF* tif, int scheme)
+int TIFFInitDumpMode(TIFF * tif, int scheme)
 {
 	(void)scheme;
 	tif->tif_fixuptags = DumpFixupTags;

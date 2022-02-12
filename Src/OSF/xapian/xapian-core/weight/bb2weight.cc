@@ -1,26 +1,12 @@
 /** @file
  * @brief Xapian::BB2Weight class - the BB2 weighting scheme of the DFR framework.
  */
-/* Copyright (C) 2013,2014 Aarsh Shah
- * Copyright (C) 2014,2015,2016,2017 Olly Betts
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
- */
+// Copyright (C) 2013,2014 Aarsh Shah
+// Copyright (C) 2014,2015,2016,2017 Olly Betts
+// @licence GNU GPL
+//
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "xapian/weight.h"
 #include "common/log2.h"
 #include "weightinternal.h"
 #include "serialise-double.h"
@@ -171,9 +157,7 @@ double BB2Weight::get_maxpart() const
 	return upper_bound;
 }
 
-double BB2Weight::get_sumextra(Xapian::termcount,
-    Xapian::termcount,
-    Xapian::termcount) const
+double BB2Weight::get_sumextra(Xapian::termcount, Xapian::termcount, Xapian::termcount) const
 {
 	return 0;
 }

@@ -119,7 +119,7 @@ static void _TIFFPrintField(FILE* fd, const TIFFField * fip, uint32 value_count,
 	fprintf(fd, "\n");
 }
 
-static int _TIFFPrettyPrintField(TIFF* tif, const TIFFField * fip, FILE* fd, uint32 tag, uint32 value_count, void * raw_data)
+static int _TIFFPrettyPrintField(TIFF * tif, const TIFFField * fip, FILE* fd, uint32 tag, uint32 value_count, void * raw_data)
 {
 	(void)tif;
 	/* do not try to pretty print auto-defined fields */
@@ -183,7 +183,7 @@ static int _TIFFPrettyPrintField(TIFF* tif, const TIFFField * fip, FILE* fd, uin
  * Print the contents of the current directory
  * to the specified stdio file stream.
  */
-void TIFFPrintDirectory(TIFF* tif, FILE* fd, long flags)
+void TIFFPrintDirectory(TIFF * tif, FILE* fd, long flags)
 {
 	TIFFDirectory * td = &tif->tif_dir;
 	const char * sep;

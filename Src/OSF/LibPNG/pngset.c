@@ -256,7 +256,7 @@ void PNGAPI png_set_pCAL(png_const_structrp png_ptr, png_inforp info_ptr,
 	png_debug1(1, "in %s storage function", "pCAL");
 
 	if(png_ptr == NULL || info_ptr == NULL || purpose == NULL || units == NULL
-	    || (nparams > 0 && params == NULL))
+	   || (nparams > 0 && params == NULL))
 		return;
 
 	length = strlen(purpose) + 1;

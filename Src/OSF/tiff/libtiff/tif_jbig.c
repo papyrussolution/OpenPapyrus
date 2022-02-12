@@ -37,7 +37,7 @@
 #ifdef JBIG_SUPPORT
 #include "jbig.h"
 
-static int JBIGSetupDecode(TIFF* tif)
+static int JBIGSetupDecode(TIFF * tif)
 {
 	if(TIFFNumberOfStrips(tif) != 1)
 	{
@@ -48,7 +48,7 @@ static int JBIGSetupDecode(TIFF* tif)
 	return 1;
 }
 
-static int JBIGDecode(TIFF* tif, uint8 * buffer, tmsize_t size, uint16 s)
+static int JBIGDecode(TIFF * tif, uint8 * buffer, tmsize_t size, uint16 s)
 {
 	struct jbg_dec_state decoder;
 	int decodeStatus = 0;
@@ -100,7 +100,7 @@ static int JBIGDecode(TIFF* tif, uint8 * buffer, tmsize_t size, uint16 s)
 	return 1;
 }
 
-static int JBIGSetupEncode(TIFF* tif)
+static int JBIGSetupEncode(TIFF * tif)
 {
 	if(TIFFNumberOfStrips(tif) != 1)
 	{
@@ -111,7 +111,7 @@ static int JBIGSetupEncode(TIFF* tif)
 	return 1;
 }
 
-static int JBIGCopyEncodedData(TIFF* tif, uchar * pp, size_t cc, uint16 s)
+static int JBIGCopyEncodedData(TIFF * tif, uchar * pp, size_t cc, uint16 s)
 {
 	(void) s;
 	while(cc > 0)
@@ -141,7 +141,7 @@ static int JBIGCopyEncodedData(TIFF* tif, uchar * pp, size_t cc, uint16 s)
 
 static void JBIGOutputBie(uchar * buffer, size_t len, void * userData)
 {
-	TIFF* tif = (TIFF*)userData;
+	TIFF * tif = (TIFF *)userData;
 
 	if(isFillOrder(tif, tif->tif_dir.td_fillorder))
 	{
@@ -151,7 +151,7 @@ static void JBIGOutputBie(uchar * buffer, size_t len, void * userData)
 	JBIGCopyEncodedData(tif, buffer, len, 0);
 }
 
-static int JBIGEncode(TIFF* tif, uint8 * buffer, tmsize_t size, uint16 s)
+static int JBIGEncode(TIFF * tif, uint8 * buffer, tmsize_t size, uint16 s)
 {
 	TIFFDirectory* dir = &tif->tif_dir;
 	struct jbg_enc_state encoder;
@@ -175,7 +175,7 @@ static int JBIGEncode(TIFF* tif, uint8 * buffer, tmsize_t size, uint16 s)
 	return 1;
 }
 
-int TIFFInitJBIG(TIFF* tif, int scheme)
+int TIFFInitJBIG(TIFF * tif, int scheme)
 {
 	assert(scheme == COMPRESSION_JBIG);
 

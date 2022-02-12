@@ -986,7 +986,7 @@ public:
 
 			out->lookupIndex.serialize(c->serializer, l, it);
 			return_trace(bool (it) || subset_featureParams
-			    || (tag && *tag == HB_TAG('p', 'r', 'e', 'f')));
+			   || (tag && *tag == HB_TAG('p', 'r', 'e', 'f')));
 		}
 
 		bool sanitize(hb_sanitize_context_t * c,

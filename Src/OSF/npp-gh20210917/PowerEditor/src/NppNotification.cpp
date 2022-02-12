@@ -1,19 +1,7 @@
 // This file is part of Notepad++ project
 // Copyright (C)2021 Don HO <don.h@free.fr>
-
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// at your option any later version.
+// @licence GNU GPL
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 #include <npp-internal.h>
 #pragma hdrstop
 
@@ -23,26 +11,20 @@ using namespace std;
 BOOL Notepad_plus::notify(SCNotification * notification)
 {
 	//Important, keep track of which element generated the message
-	bool isFromPrimary =
-	    (_mainEditView.getHSelf() == notification->nmhdr.hwndFrom || _mainDocTab.getHSelf() == notification->nmhdr.hwndFrom);
-	bool isFromSecondary = !isFromPrimary &&
-	    (_subEditView.getHSelf() == notification->nmhdr.hwndFrom || _subDocTab.getHSelf() == notification->nmhdr.hwndFrom);
-
+	bool isFromPrimary = (_mainEditView.getHSelf() == notification->nmhdr.hwndFrom || _mainDocTab.getHSelf() == notification->nmhdr.hwndFrom);
+	bool isFromSecondary = !isFromPrimary && (_subEditView.getHSelf() == notification->nmhdr.hwndFrom || _subDocTab.getHSelf() == notification->nmhdr.hwndFrom);
 	ScintillaEditView * notifyView = nullptr;
 	if(isFromPrimary)
 		notifyView = &_mainEditView;
 	else if(isFromSecondary)
 		notifyView = &_subEditView;
-
 	DocTabView * notifyDocTab = isFromPrimary ? &_mainDocTab : &_subDocTab;
 	TBHDR * tabNotification = (TBHDR*)notification;
-	switch(notification->nmhdr.code)
-	{
+	switch(notification->nmhdr.code) {
 		case SCN_MODIFIED:
 	    {
 		    if(!notifyView)
 			    return FALSE;
-
 		    static bool prevWasEdit = false;
 		    if(notification->modificationType & (SC_MOD_DELETETEXT | SC_MOD_INSERTTEXT)) {
 			    _pEditView->updateBeginEndSelectPosition(notification->modificationType & SC_MOD_INSERTTEXT,

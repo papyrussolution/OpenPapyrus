@@ -713,8 +713,9 @@
 		// там другие механизмы.
 	#define PPACN_STYLOQSVCSELFREG      92L // @v11.2.12 Сервис Stylo-Q отправил собственные регистрационные данные медиатору. Доп параметр - ид медиатора.
 		// Событие необходимо для правильной идентификации необходимости повторной саморегистрации после изменения собственных данных.
+	#define PPACN_SCARDOWNERSET         93L // @v11.3.1 Установлен владелец персональной карты. Доп параметр - ID предыдущего владельца.
 	// !!! При вставке нового значения изменить PPACN_LAST !!!
-	#define PPACN_LAST                  92L // Последнее значение (ИЗМЕНИТЬ ПРИ ВСТАВКЕ НОВОГО ЗНАЧЕНИЯ)
+	#define PPACN_LAST                  93L // Последнее значение (ИЗМЕНИТЬ ПРИ ВСТАВКЕ НОВОГО ЗНАЧЕНИЯ)
 
 	#define SYSMAINTENANCEFUNC_AUTOMQSCONFIG 1 // @v10.7.5 Автоматическое обновление конфигурации обмена с брокером сообщений
 	//
@@ -2758,6 +2759,8 @@
 	#define CTL_BILL_MAXCREDIT          (86 + WINDOWS_ID_BIAS)
 	#define CTL_BILL_MAXDSCNT           (87 + WINDOWS_ID_BIAS)
 	#define CTL_BILL_PAYPERIOD          (88 + WINDOWS_ID_BIAS)
+	#define CTL_BILL_IND_AUTORCPT       (89 + WINDOWS_ID_BIAS)
+	#define CTL_BILL_IND_WL             (90 + WINDOWS_ID_BIAS)
 
 #define DLG_REVAL                 110 // Переоценка
 	#define CTL_REVAL_DOC                (1 + WINDOWS_ID_BIAS)

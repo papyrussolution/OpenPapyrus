@@ -80,8 +80,7 @@ bool NearPostList::test_doc()
 			if(size_t(end - poslists) != terms.size()) {
 				// We haven't started all the position lists yet, so start the
 				// next one.
-				PositionList * posl =
-				    terms[end - poslists]->read_position_list();
+				PositionList * posl = terms[end - poslists]->read_position_list();
 				if(last < window) {
 					if(!posl->next())
 						RETURN(false);

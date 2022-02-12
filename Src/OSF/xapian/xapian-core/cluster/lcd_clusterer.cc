@@ -21,7 +21,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "xapian/cluster.h"
 
 using namespace Xapian;
 using namespace std;
@@ -29,19 +28,17 @@ using namespace std;
 typedef multimap<double, Point, std::greater<double> > PSet;
 
 struct dcompare {
-	bool operator()(const pair<PSet::iterator, double>& a,
-	    const pair<PSet::iterator, double>& b) const {
+	bool operator()(const pair<PSet::iterator, double>& a, const pair<PSet::iterator, double>& b) const 
+	{
 		return a.second < b.second;
 	}
 };
 
-LCDClusterer::LCDClusterer(uint k_)
-	: k(k_)
+LCDClusterer::LCDClusterer(uint k_) : k(k_)
 {
 	LOGCALL_CTOR(API, "LCDClusterer", k_);
 	if(k_ == 0)
-		throw InvalidArgumentError("Number of required clusters should be "
-			  "greater than zero");
+		throw InvalidArgumentError("Number of required clusters should be greater than zero");
 }
 
 string LCDClusterer::get_description() const
@@ -52,29 +49,18 @@ string LCDClusterer::get_description() const
 ClusterSet LCDClusterer::cluster(const MSet& mset)
 {
 	LOGCALL(API, ClusterSet, "LCDClusterer::cluster", mset);
-
 	doccount size = mset.size();
 	uint k_ = k;
-	if(k_ >= size)
-		k_ = size;
-
+	SETMIN(k_, size);
 	// Store each document and its rel score from given mset
 	PSet points;
-
 	// Initialise points
 	TermListGroup tlg(mset);
 	for(MSetIterator it = mset.begin(); it != mset.end(); ++it)
 		points.emplace(it.get_weight(), Point(tlg, it.get_document()));
-
-	// Container for holding the clusters
-	ClusterSet cset;
-
-	// Instantiate this for computing distance between points
-	CosineDistance distance;
-
-	// First cluster center
-	PSet::iterator cluster_center = points.begin();
-
+	ClusterSet cset; // Container for holding the clusters
+	CosineDistance distance; // Instantiate this for computing distance between points
+	PSet::iterator cluster_center = points.begin(); // First cluster center
 	// The original algorithm accepts a parameter k which is the number
 	// of documents in each cluster, which can be hard to tune and
 	// especially when using this in conjunction with the diversification
@@ -86,12 +72,10 @@ ClusterSet LCDClusterer::cluster(const MSet& mset)
 	unsigned n = k_ - size % k_;
 	unsigned x = (size / k_) + 1;
 	AssertEq(n * (x - 1) + (k_ - n) * x, size);
-
 	unsigned cnum = 1;
 	while(true) {
 		// Container for new cluster
 		Cluster new_cluster;
-
 		// Select (num_points - 1) nearest points to cluster_center from
 		// 'points' and form a new cluster
 		uint num_points = cnum <= n ? x - 1 : x;
@@ -102,15 +86,11 @@ ClusterSet LCDClusterer::cluster(const MSet& mset)
 		for(auto it = points.begin(); it != points.end(); ++it) {
 			if(it == cluster_center)
 				continue;
-
-			double dist = distance.similarity(cluster_center->second,
-				it->second);
+			double dist = distance.similarity(cluster_center->second, it->second);
 			dist_vector.push_back(make_pair(it, dist));
 		}
-
 		// Sort dist_vector in ascending order of distance
 		sort(dist_vector.begin(), dist_vector.end(), dcompare());
-
 		// Add first num_points-1 to cluster
 		for(uint i = 0; i < num_points - 1; ++i) {
 			auto piterator = dist_vector[i].first;
@@ -122,21 +102,16 @@ ClusterSet LCDClusterer::cluster(const MSet& mset)
 
 		// Add cluster_center to current cluster
 		new_cluster.add_point(cluster_center->second);
-
 		// Add cluster to cset
 		cset.add_cluster(new_cluster);
-
-		if(cnum == k_) break;
-
+		if(cnum == k_) 
+			break;
 		// Remove current cluster_center from points
 		points.erase(cluster_center);
-
 		// Select a new cluster center which is the point that is farthest away
 		// from the current cluster center
 		cluster_center = dist_vector.back().first;
-
 		++cnum;
 	}
-
 	return cset;
 }

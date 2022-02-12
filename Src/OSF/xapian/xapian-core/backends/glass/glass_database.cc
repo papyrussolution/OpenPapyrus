@@ -283,27 +283,22 @@ void GlassDatabase::get_changeset_revisions(const string & path,
 		throw Xapian::DatabaseError("Changeset too short at " + path);
 	if(memcmp(start, CHANGES_MAGIC_STRING,
 	    CONST_STRLEN(CHANGES_MAGIC_STRING)) != 0) {
-		string message = string("Changeset at ") +
-		    path + " does not contain valid magic string";
+		string message = string("Changeset at ") + path + " does not contain valid magic string";
 		throw Xapian::DatabaseError(message);
 	}
 	start += CONST_STRLEN(CHANGES_MAGIC_STRING);
 
 	uint changes_version;
 	if(!unpack_uint(&start, end, &changes_version))
-		throw Xapian::DatabaseError("Couldn't read a valid version number for "
-			  "changeset at " + path);
+		throw Xapian::DatabaseError("Couldn't read a valid version number for changeset at " + path);
 	if(changes_version != CHANGES_VERSION)
-		throw Xapian::DatabaseError("Don't support version of changeset at " +
-			  path);
+		throw Xapian::DatabaseError("Don't support version of changeset at " + path);
 
 	if(!unpack_uint(&start, end, startrev))
-		throw Xapian::DatabaseError("Couldn't read a valid start revision from "
-			  "changeset at " + path);
+		throw Xapian::DatabaseError("Couldn't read a valid start revision from changeset at " + path);
 
 	if(!unpack_uint(&start, end, endrev))
-		throw Xapian::DatabaseError("Couldn't read a valid end revision for "
-			  "changeset at " + path);
+		throw Xapian::DatabaseError("Couldn't read a valid end revision for changeset at " + path);
 }
 
 void GlassDatabase::set_revision_number(int flags, glass_revision_number_t new_revision)
@@ -336,18 +331,12 @@ void GlassDatabase::set_revision_number(int flags, glass_revision_number_t new_r
 	docdata_table.commit(new_revision, version_file.root_to_set(Glass::DOCDATA));
 
 	const string & tmpfile = version_file.write(new_revision, flags);
-	if(!postlist_table.sync() ||
-	    !position_table.sync() ||
-	    !termlist_table.sync() ||
-	    !synonym_table.sync() ||
-	    !spelling_table.sync() ||
-	    !docdata_table.sync() ||
-	    !version_file.sync(tmpfile, new_revision, flags)) {
+	if(!postlist_table.sync() || !position_table.sync() || !termlist_table.sync() || !synonym_table.sync() ||
+	    !spelling_table.sync() || !docdata_table.sync() || !version_file.sync(tmpfile, new_revision, flags)) {
 		int saved_errno = errno;
 		_unlink(tmpfile.c_str());
 		throw Xapian::DatabaseError("Commit failed", saved_errno);
 	}
-
 	changes.commit(new_revision, flags);
 }
 
@@ -998,25 +987,17 @@ string GlassDatabase::get_description() const
 
 ///////////////////////////////////////////////////////////////////////////
 
-GlassWritableDatabase::GlassWritableDatabase(const string &dir, int flags,
-    int block_size)
-	: GlassDatabase(dir, flags, block_size),
-	change_count(0),
-	flush_threshold(0),
-	modify_shortcut_document(NULL),
-	modify_shortcut_docid(0)
+GlassWritableDatabase::GlassWritableDatabase(const string &dir, int flags, int block_size) : 
+	GlassDatabase(dir, flags, block_size), change_count(0), flush_threshold(0), modify_shortcut_document(NULL), modify_shortcut_docid(0)
 {
 	LOGCALL_CTOR(DB, "GlassWritableDatabase", dir | flags | block_size);
-
 	const char * p = getenv("XAPIAN_FLUSH_THRESHOLD");
 	if(p && *p) {
 		if(!parse_unsigned(p, flush_threshold)) {
-			throw Xapian::InvalidArgumentError("XAPIAN_FLUSH_THRESHOLD must "
-				  "be a non-negative integer");
+			throw Xapian::InvalidArgumentError("XAPIAN_FLUSH_THRESHOLD must be a non-negative integer");
 		}
 	}
-	if(flush_threshold == 0)
-		flush_threshold = 10000;
+	SETIFZQ(flush_threshold, 10000);
 }
 
 GlassWritableDatabase::~GlassWritableDatabase()
@@ -1050,7 +1031,6 @@ void GlassWritableDatabase::flush_postlist_changes()
 		version_file.set_oldest_changeset(changes.get_oldest_changeset());
 		inverter.flush(postlist_table);
 		inverter.flush_pos_lists(position_table);
-
 		change_count = 0;
 	} catch(...) {
 		try {
@@ -1305,8 +1285,7 @@ void GlassWritableDatabase::replace_document(Xapian::docid did,
 					new_doclen += new_wdf;
 					version_file.check_wdf(new_wdf);
 					if(new_tname.size() > MAX_SAFE_TERM_LENGTH)
-						throw Xapian::InvalidArgumentError("Term too long (> " STRINGIZE(
-								  MAX_SAFE_TERM_LENGTH) "): " + new_tname);
+						throw Xapian::InvalidArgumentError("Term too long (> " STRINGIZE(MAX_SAFE_TERM_LENGTH) "): " + new_tname);
 					inverter.add_posting(did, new_tname, new_wdf);
 					if(pos_modified) {
 						inverter.set_positionlist(position_table, did, new_tname, term);
@@ -1663,5 +1642,5 @@ Database::Internal* GlassWritableDatabase::update_lock(int flags)
 }
 
 #ifdef DISABLE_GPL_LIBXAPIAN
-# error GPL source we cannot relicense included in libxapian
+#error GPL source we cannot relicense included in libxapian
 #endif

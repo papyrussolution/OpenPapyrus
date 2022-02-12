@@ -1,19 +1,7 @@
 // This file is part of Notepad++ project
 // Copyright (C)2006 Jens Lorenz <jens.plugin.npp@gmx.de>
-
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// at your option any later version.
+// @licence GNU GPL
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 #include <npp-internal.h>
 #pragma hdrstop
 
@@ -86,10 +74,8 @@ Gripper::~Gripper()
 		#endif
 		::ReleaseDC(0, _hdc);
 	}
-	if(_hbm)
-		::DeleteObject(_hbm);
-	if(_hbrush)
-		::DeleteObject(_hbrush);
+	::DeleteObject(_hbm);
+	::DeleteObject(_hbrush);
 }
 
 void Gripper::init(HINSTANCE hInst, HWND hParent) 

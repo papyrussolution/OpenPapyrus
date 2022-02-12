@@ -92,19 +92,16 @@ static TLS_FEATURE * v2i_TLS_FEATURE(const X509V3_EXT_METHOD * method,
 	int i;
 	size_t j;
 	long tlsextid;
-
 	if((tlsf = sk_ASN1_INTEGER_new_null()) == NULL) {
 		X509V3err(X509V3_F_V2I_TLS_FEATURE, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
-
 	for(i = 0; i < sk_CONF_VALUE_num(nval); i++) {
 		val = sk_CONF_VALUE_value(nval, i);
 		if(val->value)
 			extval = val->value;
 		else
 			extval = val->name;
-
 		for(j = 0; j < OSSL_NELEM(tls_feature_tbl); j++)
 			if(strcasecmp(extval, tls_feature_tbl[j].name) == 0)
 				break;
@@ -121,8 +118,8 @@ static TLS_FEATURE * v2i_TLS_FEATURE(const X509V3_EXT_METHOD * method,
 		}
 
 		if((ai = ASN1_INTEGER_new()) == NULL
-		    || !ASN1_INTEGER_set(ai, tlsextid)
-		    || sk_ASN1_INTEGER_push(tlsf, ai) <= 0) {
+		   || !ASN1_INTEGER_set(ai, tlsextid)
+		   || sk_ASN1_INTEGER_push(tlsf, ai) <= 0) {
 			X509V3err(X509V3_F_V2I_TLS_FEATURE, ERR_R_MALLOC_FAILURE);
 			goto err;
 		}

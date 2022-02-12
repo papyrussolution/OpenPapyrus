@@ -44,15 +44,15 @@
 # else /* !__cplusplus */
 #  define HB_BEGIN_DECLS
 #  define HB_END_DECLS
-# endif /* !__cplusplus */
+#endif /* !__cplusplus */
 #endif
 
 #if defined (_SVR4) || defined (SVR4) || defined (__OpenBSD__) || \
 	defined (_sgi) || defined (__sun) || defined (sun) || \
 	defined (__digital__) || defined (__HP_cc)
-#  include <inttypes.h>
+#include <inttypes.h>
 #elif defined (_AIX)
-#  include <sys/inttypes.h>
+#include <sys/inttypes.h>
 #elif defined (_MSC_VER) && _MSC_VER < 1600
 /* VS 2010 (_MSC_VER 1600) has stdint.h */
 typedef __int8 int8_t;
@@ -64,9 +64,9 @@ typedef unsigned __int32 uint32_t;
 typedef __int64 int64_t;
 typedef unsigned __int64 uint64_t;
 #elif defined (__KERNEL__)
-#  include <linux/types.h>
+#include <linux/types.h>
 #else
-#  include <stdint.h>
+#include <stdint.h>
 #endif
 
 #if defined(__GNUC__) && ((__GNUC__ > 3) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1))

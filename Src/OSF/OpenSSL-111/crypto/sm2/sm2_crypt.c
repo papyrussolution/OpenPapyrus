@@ -180,15 +180,15 @@ int sm2_encrypt(const EC_KEY * key,
 	}
 
 	if(!EC_POINT_mul(group, kG, k, NULL, NULL, ctx)
-	    || !EC_POINT_get_affine_coordinates(group, kG, x1, y1, ctx)
-	    || !EC_POINT_mul(group, kP, NULL, P, k, ctx)
-	    || !EC_POINT_get_affine_coordinates(group, kP, x2, y2, ctx)) {
+	   || !EC_POINT_get_affine_coordinates(group, kG, x1, y1, ctx)
+	   || !EC_POINT_mul(group, kP, NULL, P, k, ctx)
+	   || !EC_POINT_get_affine_coordinates(group, kP, x2, y2, ctx)) {
 		SM2err(SM2_F_SM2_ENCRYPT, ERR_R_EC_LIB);
 		goto done;
 	}
 
 	if(BN_bn2binpad(x2, x2y2, field_size) < 0
-	    || BN_bn2binpad(y2, x2y2 + field_size, field_size) < 0) {
+	   || BN_bn2binpad(y2, x2y2 + field_size, field_size) < 0) {
 		SM2err(SM2_F_SM2_ENCRYPT, ERR_R_INTERNAL_ERROR);
 		goto done;
 	}
@@ -210,10 +210,10 @@ int sm2_encrypt(const EC_KEY * key,
 		msg_mask[i] ^= msg[i];
 
 	if(EVP_DigestInit(hash, digest) == 0
-	    || EVP_DigestUpdate(hash, x2y2, field_size) == 0
-	    || EVP_DigestUpdate(hash, msg, msg_len) == 0
-	    || EVP_DigestUpdate(hash, x2y2 + field_size, field_size) == 0
-	    || EVP_DigestFinal(hash, C3, NULL) == 0) {
+	   || EVP_DigestUpdate(hash, x2y2, field_size) == 0
+	   || EVP_DigestUpdate(hash, msg, msg_len) == 0
+	   || EVP_DigestUpdate(hash, x2y2 + field_size, field_size) == 0
+	   || EVP_DigestFinal(hash, C3, NULL) == 0) {
 		SM2err(SM2_F_SM2_ENCRYPT, ERR_R_EVP_LIB);
 		goto done;
 	}
@@ -228,7 +228,7 @@ int sm2_encrypt(const EC_KEY * key,
 		goto done;
 	}
 	if(!ASN1_OCTET_STRING_set(ctext_struct.C3, C3, C3_size)
-	    || !ASN1_OCTET_STRING_set(ctext_struct.C2, msg_mask, msg_len)) {
+	   || !ASN1_OCTET_STRING_set(ctext_struct.C2, msg_mask, msg_len)) {
 		SM2err(SM2_F_SM2_ENCRYPT, ERR_R_INTERNAL_ERROR);
 		goto done;
 	}
@@ -326,16 +326,16 @@ int sm2_decrypt(const EC_KEY * key,
 
 	if(!EC_POINT_set_affine_coordinates(group, C1, sm2_ctext->C1x,
 	    sm2_ctext->C1y, ctx)
-	    || !EC_POINT_mul(group, C1, NULL, C1, EC_KEY_get0_private_key(key),
+	   || !EC_POINT_mul(group, C1, NULL, C1, EC_KEY_get0_private_key(key),
 	    ctx)
-	    || !EC_POINT_get_affine_coordinates(group, C1, x2, y2, ctx)) {
+	   || !EC_POINT_get_affine_coordinates(group, C1, x2, y2, ctx)) {
 		SM2err(SM2_F_SM2_DECRYPT, ERR_R_EC_LIB);
 		goto done;
 	}
 
 	if(BN_bn2binpad(x2, x2y2, field_size) < 0
-	    || BN_bn2binpad(y2, x2y2 + field_size, field_size) < 0
-	    || !ecdh_KDF_X9_63(msg_mask, msg_len, x2y2, 2 * field_size, NULL, 0,
+	   || BN_bn2binpad(y2, x2y2 + field_size, field_size) < 0
+	   || !ecdh_KDF_X9_63(msg_mask, msg_len, x2y2, 2 * field_size, NULL, 0,
 	    digest)) {
 		SM2err(SM2_F_SM2_DECRYPT, ERR_R_INTERNAL_ERROR);
 		goto done;
@@ -351,10 +351,10 @@ int sm2_decrypt(const EC_KEY * key,
 	}
 
 	if(!EVP_DigestInit(hash, digest)
-	    || !EVP_DigestUpdate(hash, x2y2, field_size)
-	    || !EVP_DigestUpdate(hash, ptext_buf, msg_len)
-	    || !EVP_DigestUpdate(hash, x2y2 + field_size, field_size)
-	    || !EVP_DigestFinal(hash, computed_C3, NULL)) {
+	   || !EVP_DigestUpdate(hash, x2y2, field_size)
+	   || !EVP_DigestUpdate(hash, ptext_buf, msg_len)
+	   || !EVP_DigestUpdate(hash, x2y2 + field_size, field_size)
+	   || !EVP_DigestFinal(hash, computed_C3, NULL)) {
 		SM2err(SM2_F_SM2_DECRYPT, ERR_R_EVP_LIB);
 		goto done;
 	}

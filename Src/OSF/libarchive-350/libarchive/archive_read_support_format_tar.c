@@ -338,12 +338,12 @@ static int archive_read_format_tar_bid(struct archive_read * a, int best_bid)
 	 */
 	if(bid > 0 && (
 		    validate_number_field(header->mode, sizeof(header->mode)) == 0
-		    || validate_number_field(header->uid, sizeof(header->uid)) == 0
-		    || validate_number_field(header->gid, sizeof(header->gid)) == 0
-		    || validate_number_field(header->mtime, sizeof(header->mtime)) == 0
-		    || validate_number_field(header->size, sizeof(header->size)) == 0
-		    || validate_number_field(header->rdevmajor, sizeof(header->rdevmajor)) == 0
-		    || validate_number_field(header->rdevminor, sizeof(header->rdevminor)) == 0)) {
+		   || validate_number_field(header->uid, sizeof(header->uid)) == 0
+		   || validate_number_field(header->gid, sizeof(header->gid)) == 0
+		   || validate_number_field(header->mtime, sizeof(header->mtime)) == 0
+		   || validate_number_field(header->size, sizeof(header->size)) == 0
+		   || validate_number_field(header->rdevmajor, sizeof(header->rdevmajor)) == 0
+		   || validate_number_field(header->rdevminor, sizeof(header->rdevminor)) == 0)) {
 		bid = 0;
 	}
 
@@ -1469,8 +1469,8 @@ static int pax_header(struct archive_read * a, struct tar * tar,
 		 * be '\n'.
 		 */
 		if(line_length > attr_length
-		    || line_length < 1
-		    || attr[line_length - 1] != '\n') {
+		   || line_length < 1
+		   || attr[line_length - 1] != '\n') {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 			    "Ignoring malformed pax extended attribute");
 			return ARCHIVE_WARN;
@@ -2630,7 +2630,7 @@ static char * base64_decode(const char * s, size_t len, size_t * out_len)
 			}
 			/* Skip illegal characters (including line breaks) */
 			if(*src > 127 || *src < 32
-			    || decode_table[*src] == 0xff) {
+			   || decode_table[*src] == 0xff) {
 				len--;
 				src++;
 				continue;

@@ -23,15 +23,15 @@
 #define XAPIAN_INCLUDED_FLINT_LOCK_H
 
 #ifndef PACKAGE
-# error config.h must be included first in each C++ source file
+#error config.h must be included first in each C++ source file
 #endif
 
 #include <string>
 
 #if defined __CYGWIN__ || defined __WIN32__
-# include "safewindows.h"
+#include "safewindows.h"
 #else
-# include <sys/types.h>
+#include <sys/types.h>
 #endif
 
 class FlintLock {

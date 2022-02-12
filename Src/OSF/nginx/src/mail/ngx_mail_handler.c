@@ -128,19 +128,15 @@ void ngx_mail_init_connection(ngx_connection_t * c)
 		if(addr_conf->ssl) {
 			c->log->action = "SSL handshaking";
 			if(sslcf->ssl.ctx == NULL) {
-				ngx_log_error(NGX_LOG_ERR, c->log, 0,
-				    "no \"ssl_certificate\" is defined "
-				    "in server listening on SSL port");
+				ngx_log_error(NGX_LOG_ERR, c->log, 0, "no \"ssl_certificate\" is defined in server listening on SSL port");
 				ngx_mail_close_connection(c);
 				return;
 			}
-
 			ngx_mail_ssl_init_connection(&sslcf->ssl, c);
 			return;
 		}
 	}
 #endif
-
 	ngx_mail_init_session(c);
 }
 
@@ -527,48 +523,35 @@ ngx_int_t ngx_mail_read_command(ngx_mail_session_t * s, ngx_connection_t * c)
 			return NGX_AGAIN;
 		}
 	}
-
 	cscf = (ngx_mail_core_srv_conf_t *)ngx_mail_get_module_srv_conf(s, ngx_mail_core_module);
-
 	rc = cscf->protocol->parse_command(s);
-
 	if(rc == NGX_AGAIN) {
 		if(s->buffer->last < s->buffer->end) {
 			return rc;
 		}
-
 		l.len = s->buffer->last - s->buffer->start;
 		l.data = s->buffer->start;
-
-		ngx_log_error(NGX_LOG_INFO, c->log, 0,
-		    "client sent too long command \"%V\"", &l);
-
+		ngx_log_error(NGX_LOG_INFO, c->log, 0, "client sent too long command \"%V\"", &l);
 		s->quit = 1;
-
 		return NGX_MAIL_PARSE_INVALID_COMMAND;
 	}
-
-	if(rc == NGX_IMAP_NEXT || rc == NGX_MAIL_PARSE_INVALID_COMMAND) {
+	if(oneof2(rc, NGX_IMAP_NEXT, NGX_MAIL_PARSE_INVALID_COMMAND)) {
 		return rc;
 	}
-
 	if(rc == NGX_ERROR) {
 		ngx_mail_close_connection(c);
 		return NGX_ERROR;
 	}
-
 	return NGX_OK;
 }
 
 void ngx_mail_auth(ngx_mail_session_t * s, ngx_connection_t * c)
 {
 	s->args.nelts = 0;
-
 	if(s->buffer->pos == s->buffer->last) {
 		s->buffer->pos = s->buffer->start;
 		s->buffer->last = s->buffer->start;
 	}
-
 	s->state = 0;
 
 	if(c->P_EvRd->timer_set) {

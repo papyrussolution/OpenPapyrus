@@ -237,23 +237,20 @@ static void local_parse_glob(ssh_session session, const char * fileglob, int * p
 
 #endif /* HAVE_GLOB HAVE_GLOB_GL_FLAGS_MEMBER */
 
-static enum ssh_config_match_e ssh_config_get_match_opcode(const char * keyword) {
-	size_t i;
-
-	for(i = 0; ssh_config_match_keyword_table[i].name != NULL; i++) {
+static enum ssh_config_match_e ssh_config_get_match_opcode(const char * keyword) 
+{
+	for(size_t i = 0; ssh_config_match_keyword_table[i].name != NULL; i++) {
 		if(strcasecmp(keyword, ssh_config_match_keyword_table[i].name) == 0) {
 			return ssh_config_match_keyword_table[i].opcode;
 		}
 	}
-
 	return MATCH_UNKNOWN;
 }
 
 static int ssh_config_match(char * value, const char * pattern, bool negate)
 {
-	int ok, result = 0;
-
-	ok = match_pattern_list(value, pattern, strlen(pattern), 0);
+	int result = 0;
+	int ok = match_pattern_list(value, pattern, strlen(pattern), 0);
 	if(ok <= 0 && negate == true) {
 		result = 1;
 	}
@@ -276,18 +273,15 @@ static int ssh_config_parse_proxy_jump(ssh_session session, const char * s, bool
 	char * hostname = NULL;
 	char * port = NULL;
 	char * next = NULL;
-	int cmp, rv = SSH_ERROR;
+	int rv = SSH_ERROR;
 	bool parse_entry = do_parsing;
-
-	/* Special value none disables the proxy */
-	cmp = strcasecmp(s, "none");
-	if(cmp == 0 && do_parsing) {
+	// Special value none disables the proxy 
+	if(sstreqi_ascii(s, "none") && do_parsing) {
 		ssh_options_set(session, SSH_OPTIONS_PROXYCOMMAND, s);
 		return SSH_OK;
 	}
-
-	/* This is comma-separated list of [user@]host[:port] entries */
-	c = _strdup(s);
+	// This is comma-separated list of [user@]host[:port] entries 
+	c = sstrdup(s);
 	if(c == NULL) {
 		ssh_set_error_oom(session);
 		return SSH_ERROR;
@@ -296,16 +290,16 @@ static int ssh_config_parse_proxy_jump(ssh_session session, const char * s, bool
 	cp = c;
 	do {
 		endp = strchr(cp, ',');
-		if(endp != NULL) {
-			/* Split out the token */
+		if(endp) {
+			// Split out the token 
 			*endp = '\0';
 		}
 		if(parse_entry) {
-			/* We actually care only about the first item */
+			// We actually care only about the first item 
 			rv = ssh_config_parse_uri(cp, &username, &hostname, &port);
-			/* The rest of the list needs to be passed on */
+			// The rest of the list needs to be passed on 
 			if(endp != NULL) {
-				next = _strdup(endp + 1);
+				next = sstrdup(endp + 1);
 				if(next == NULL) {
 					ssh_set_error_oom(session);
 					rv = SSH_ERROR;
@@ -327,10 +321,8 @@ static int ssh_config_parse_proxy_jump(ssh_session session, const char * s, bool
 			cp = NULL; /* end */
 		}
 	} while(cp != NULL);
-
 	if(hostname != NULL && do_parsing) {
 		char com[512] = {0};
-
 		rv = snprintf(com, sizeof(com), "ssh%s%s%s%s%s%s -W [%%h]:%%p %s",
 			username ? " -l " : "",
 			username ? username : "",
@@ -347,7 +339,6 @@ static int ssh_config_parse_proxy_jump(ssh_session session, const char * s, bool
 		ssh_options_set(session, SSH_OPTIONS_PROXYCOMMAND, com);
 	}
 	rv = SSH_OK;
-
 out:
 	ZFREE(username);
 	ZFREE(hostname);
@@ -357,10 +348,7 @@ out:
 	return rv;
 }
 
-static int ssh_config_parse_line(ssh_session session,
-    const char * line,
-    uint count,
-    int * parsing)
+static int ssh_config_parse_line(ssh_session session, const char * line, uint count, int * parsing)
 {
 	enum ssh_config_opcode_e opcode;
 	const char * p = NULL, * p2 = NULL;
@@ -372,18 +360,15 @@ static int ssh_config_parse_line(ssh_session session,
 	uint8 * seen = session->opts.options_seen;
 	long l;
 	int64_t ll;
-
-	/* Ignore empty lines */
-	if(line == NULL || *line == '\0') {
+	// Ignore empty lines 
+	if(isempty(line)) {
 		return 0;
 	}
-
-	x = s = _strdup(line);
+	x = s = sstrdup(line);
 	if(s == NULL) {
 		ssh_set_error_oom(session);
 		return -1;
 	}
-
 	/* Remove trailing spaces */
 	for(len = strlen(s) - 1; len > 0; len--) {
 		if(!isspace(s[len])) {
@@ -391,7 +376,6 @@ static int ssh_config_parse_line(ssh_session session,
 		}
 		s[len] = '\0';
 	}
-
 	keyword = ssh_config_get_token(&s);
 	if(keyword == NULL || *keyword == '#' ||
 	    *keyword == '\0' || *keyword == '\n') {
@@ -601,9 +585,7 @@ static int ssh_config_parse_line(ssh_session session,
 		    p = ssh_config_get_str_tok(&s, NULL);
 		    if(p && *parsing) {
 			    char * z = ssh_path_expand_escape(session, p);
-			    if(z == NULL) {
-				    z = _strdup(p);
-			    }
+				SETIFZQ(z, sstrdup(p));
 			    ssh_options_set(session, SSH_OPTIONS_HOST, z);
 			    SAlloc::F(z);
 		    }
@@ -657,7 +639,7 @@ static int ssh_config_parse_line(ssh_session session,
 		    p = ssh_config_get_str_tok(&s, NULL);
 		    if(p && *parsing) {
 			    char * a;
-			    char * b = _strdup(p);
+			    char * b = sstrdup(p);
 			    if(b == NULL) {
 				    ZFREE(x);
 				    ssh_set_error_oom(session);
@@ -753,20 +735,19 @@ static int ssh_config_parse_line(ssh_session session,
 		    p = ssh_config_get_str_tok(&s, NULL);
 		    if(p && *parsing) {
 			    int value = -1;
-
-			    if(strcasecmp(p, "quiet") == 0) {
+			    if(sstreqi_ascii(p, "quiet")) {
 				    value = SSH_LOG_NONE;
 			    }
-			    else if(strcasecmp(p, "fatal") == 0 || strcasecmp(p, "error")== 0 || strcasecmp(p, "info") == 0) {
+			    else if(sstreqi_ascii(p, "fatal") || sstreqi_ascii(p, "error") || sstreqi_ascii(p, "info")) {
 				    value = SSH_LOG_WARN;
 			    }
-			    else if(strcasecmp(p, "verbose") == 0) {
+			    else if(sstreqi_ascii(p, "verbose")) {
 				    value = SSH_LOG_INFO;
 			    }
-			    else if(strcasecmp(p, "DEBUG") == 0 || strcasecmp(p, "DEBUG1") == 0) {
+			    else if(sstreqi_ascii(p, "DEBUG") || sstreqi_ascii(p, "DEBUG1")) {
 				    value = SSH_LOG_DEBUG;
 			    }
-			    else if(strcasecmp(p, "DEBUG2") == 0 || strcasecmp(p, "DEBUG3") == 0) {
+			    else if(sstreqi_ascii(p, "DEBUG2") || sstreqi_ascii(p, "DEBUG3")) {
 				    value = SSH_LOG_TRACE;
 			    }
 			    if(value != -1) {

@@ -1,25 +1,11 @@
 /** @file
  * @brief iterate over a utf8 string.
  */
-/* Copyright (C) 2006,2007,2010,2013,2015,2019 Olly Betts
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
- */
+// Copyright (C) 2006,2007,2010,2013,2015,2019 Olly Betts
+// @licence GNU GPL
+//
 #include <xapian-internal.h>
 #pragma hdrstop
-#include <xapian/unicode.h>
 
 using namespace std;
 
@@ -68,17 +54,15 @@ bool Utf8Iterator::calculate_sequence_length() const noexcept
 	// if the text was actually in ISO-8859-1 since we need to do something
 	// with it, and this seems the most likely reason why we'd have invalid
 	// UTF-8.
-
 	uchar ch = *p;
-
 	seqlen = 1;
 	// Single byte encoding (0x00-0x7f) or invalid (0x80-0xbf) or overlong
 	// sequence (0xc0-0xc1).
 	//
 	// (0xc0 and 0xc1 would start 2 byte sequences for characters which are
 	// representable in a single byte, and we should not decode these.)
-	if(ch < 0xc2) return (ch < 0x80);
-
+	if(ch < 0xc2) 
+		return (ch < 0x80);
 	if(ch < 0xe0) {
 		if(p + 1 == end || // Not enough bytes
 		    bad_cont(p[1])) // Invalid
@@ -104,7 +88,8 @@ bool Utf8Iterator::calculate_sequence_length() const noexcept
 	return true;
 }
 
-unsigned Utf8Iterator::operator*() const noexcept {
+unsigned Utf8Iterator::operator*() const noexcept 
+{
 	if(p == NULL) return unsigned(-1);
 	if(seqlen == 0) calculate_sequence_length();
 	uchar ch = *p;
@@ -112,13 +97,13 @@ unsigned Utf8Iterator::operator*() const noexcept {
 	if(seqlen == 2) return ((ch & 0x1f) << 6) | (p[1] & 0x3f);
 	if(seqlen == 3)
 		return ((ch & 0x0f) << 12) | ((p[1] & 0x3f) << 6) | (p[2] & 0x3f);
-	return ((ch & 0x07) << 18) | ((p[1] & 0x3f) << 12) |
-	       ((p[2] & 0x3f) << 6) | (p[3] & 0x3f);
+	return ((ch & 0x07) << 18) | ((p[1] & 0x3f) << 12) | ((p[2] & 0x3f) << 6) | (p[3] & 0x3f);
 }
 
 unsigned Utf8Iterator::strict_deref() const noexcept
 {
-	if(p == NULL) return unsigned(-1);
+	if(p == NULL) 
+		return unsigned(-1);
 	if(seqlen == 0) {
 		if(!calculate_sequence_length())
 			return unsigned(*p) | 0x80000000;

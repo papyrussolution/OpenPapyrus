@@ -233,7 +233,7 @@ int PKCS5_v2_scrypt_keyivgen(EVP_CIPHER_CTX * ctx, const char * pass,
 	if(sparam->keyLength) {
 		uint64_t spkeylen;
 		if((ASN1_INTEGER_get_uint64(&spkeylen, sparam->keyLength) == 0)
-		    || (spkeylen != keylen)) {
+		   || (spkeylen != keylen)) {
 			EVPerr(EVP_F_PKCS5_V2_SCRYPT_KEYIVGEN,
 			    EVP_R_UNSUPPORTED_KEYLENGTH);
 			goto err;
@@ -241,9 +241,9 @@ int PKCS5_v2_scrypt_keyivgen(EVP_CIPHER_CTX * ctx, const char * pass,
 	}
 	/* Check all parameters fit in uint64_t and are acceptable to scrypt */
 	if(ASN1_INTEGER_get_uint64(&N, sparam->costParameter) == 0
-	    || ASN1_INTEGER_get_uint64(&r, sparam->blockSize) == 0
-	    || ASN1_INTEGER_get_uint64(&p, sparam->parallelizationParameter) == 0
-	    || EVP_PBE_scrypt(NULL, 0, NULL, 0, N, r, p, 0, NULL, 0) == 0) {
+	   || ASN1_INTEGER_get_uint64(&r, sparam->blockSize) == 0
+	   || ASN1_INTEGER_get_uint64(&p, sparam->parallelizationParameter) == 0
+	   || EVP_PBE_scrypt(NULL, 0, NULL, 0, N, r, p, 0, NULL, 0) == 0) {
 		EVPerr(EVP_F_PKCS5_V2_SCRYPT_KEYIVGEN,
 		    EVP_R_ILLEGAL_SCRYPT_PARAMETERS);
 		goto err;

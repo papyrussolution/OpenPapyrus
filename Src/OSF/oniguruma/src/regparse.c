@@ -30,7 +30,7 @@
 #define OPTON_IS_ASCII_MODE_CTYPE(ctype, options) \
 	((ctype) >= 0 && \
 	(((ctype) < ONIGENC_CTYPE_ASCII && OPTON_POSIX_ASCII(options)) || \
-	((ctype) == ONIGENC_CTYPE_WORD && OPTON_WORD_ASCII(options))  || \
+	((ctype) == ONIGENC_CTYPE_WORD && OPTON_WORD_ASCII(options)) || \
 	((ctype) == ONIGENC_CTYPE_DIGIT && OPTON_DIGIT_ASCII(options)) || \
 	((ctype) == ONIGENC_CTYPE_SPACE && OPTON_SPACE_ASCII(options))))
 

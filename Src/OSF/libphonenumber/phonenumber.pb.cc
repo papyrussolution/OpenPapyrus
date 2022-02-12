@@ -24,7 +24,7 @@ constexpr PhoneNumber::PhoneNumber(
   , italian_leading_zero_(false)
   , country_code_source_(0)
 
-  , number_of_leading_zeros_(1) {}
+  , number_of_leading_zeros_(1){}
 struct PhoneNumberDefaultTypeInternal {
 	constexpr PhoneNumberDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~PhoneNumberDefaultTypeInternal() {}
@@ -145,24 +145,21 @@ PhoneNumber::PhoneNumber(const PhoneNumber& from)
     extension_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_extension()) {
-    extension_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_extension(), 
-      GetArenaForAllocation());
+    extension_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_extension(), GetArenaForAllocation());
   }
   raw_input_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     raw_input_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_raw_input()) {
-    raw_input_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_raw_input(), 
-      GetArenaForAllocation());
+    raw_input_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_raw_input(), GetArenaForAllocation());
   }
   preferred_domestic_carrier_code_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     preferred_domestic_carrier_code_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_preferred_domestic_carrier_code()) {
-    preferred_domestic_carrier_code_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_preferred_domestic_carrier_code(), 
-      GetArenaForAllocation());
+    preferred_domestic_carrier_code_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_preferred_domestic_carrier_code(), GetArenaForAllocation());
   }
   ::memcpy(&national_number_, &from.national_number_,
     static_cast<size_t>(reinterpret_cast<char*>(&number_of_leading_zeros_) -
@@ -370,8 +367,7 @@ uint8_t* PhoneNumber::_InternalSerialize(
 
   // optional string extension = 3;
   if(cached_has_bits & 0x00000001u) {
-    target = stream->WriteStringMaybeAliased(
-        3, this->_internal_extension(), target);
+    target = stream->WriteStringMaybeAliased(3, this->_internal_extension(), target);
   }
 
   // optional bool italian_leading_zero = 4;
@@ -382,8 +378,7 @@ uint8_t* PhoneNumber::_InternalSerialize(
 
   // optional string raw_input = 5;
   if(cached_has_bits & 0x00000002u) {
-    target = stream->WriteStringMaybeAliased(
-        5, this->_internal_raw_input(), target);
+    target = stream->WriteStringMaybeAliased(5, this->_internal_raw_input(), target);
   }
 
   // optional .i18n.phonenumbers.PhoneNumber.CountryCodeSource country_code_source = 6;
@@ -394,8 +389,7 @@ uint8_t* PhoneNumber::_InternalSerialize(
 
   // optional string preferred_domestic_carrier_code = 7;
   if(cached_has_bits & 0x00000004u) {
-    target = stream->WriteStringMaybeAliased(
-        7, this->_internal_preferred_domestic_carrier_code(), target);
+    target = stream->WriteStringMaybeAliased(7, this->_internal_preferred_domestic_carrier_code(), target);
   }
 
   // optional int32 number_of_leading_zeros = 8 [default = 1];
@@ -450,23 +444,17 @@ size_t PhoneNumber::ByteSizeLong() const {
   if(cached_has_bits & 0x00000007u) {
     // optional string extension = 3;
     if(cached_has_bits & 0x00000001u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_extension());
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_extension());
     }
 
     // optional string raw_input = 5;
     if(cached_has_bits & 0x00000002u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_raw_input());
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_raw_input());
     }
 
     // optional string preferred_domestic_carrier_code = 7;
     if(cached_has_bits & 0x00000004u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_preferred_domestic_carrier_code());
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_preferred_domestic_carrier_code());
     }
 
   }

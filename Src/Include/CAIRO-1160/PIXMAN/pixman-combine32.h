@@ -27,14 +27,13 @@
  * much less dependent on runtime CPU detection and can get practical
  * benefits from conditional compilation here for a lot of users.
  */
-#if defined(USE_GCC_INLINE_ASM) && defined(__arm__) && \
-    !defined(__aarch64__) && (!defined(__thumb__) || defined(__thumb2__))
-#if defined(__ARM_ARCH_6__)   || defined(__ARM_ARCH_6J__)  || \
-    defined(__ARM_ARCH_6K__)  || defined(__ARM_ARCH_6Z__)  || \
+#if defined(USE_GCC_INLINE_ASM) && defined(__arm__) && !defined(__aarch64__) && (!defined(__thumb__) || defined(__thumb2__))
+#if defined(__ARM_ARCH_6__)  || defined(__ARM_ARCH_6J__) || \
+    defined(__ARM_ARCH_6K__) || defined(__ARM_ARCH_6Z__) || \
     defined(__ARM_ARCH_6ZK__) || defined(__ARM_ARCH_6T2__) || \
-    defined(__ARM_ARCH_6M__)  || defined(__ARM_ARCH_7__)   || \
-    defined(__ARM_ARCH_7A__)  || defined(__ARM_ARCH_7R__)  || \
-    defined(__ARM_ARCH_7M__)  || defined(__ARM_ARCH_7EM__)
+    defined(__ARM_ARCH_6M__) || defined(__ARM_ARCH_7__)  || \
+    defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_7R__) || \
+    defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7EM__)
 
 static force_inline uint32 un8x4_add_un8x4 (uint32 x, uint32 y)
 {

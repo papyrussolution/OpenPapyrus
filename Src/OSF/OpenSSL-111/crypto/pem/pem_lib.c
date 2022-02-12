@@ -317,12 +317,12 @@ int PEM_ASN1_write_bio(i2d_of_void * i2d, const char * name, BIO * bp,
 	if(enc != NULL) {
 		objstr = OBJ_nid2sn(EVP_CIPHER_nid(enc));
 		if(objstr == NULL || EVP_CIPHER_iv_length(enc) == 0
-		    || EVP_CIPHER_iv_length(enc) > (int)sizeof(iv)
+		   || EVP_CIPHER_iv_length(enc) > (int)sizeof(iv)
 		    /*
 		     * Check "Proc-Type: 4,Encrypted\nDEK-Info: objstr,hex-iv\n"
 		     * fits into buf
 		     */
-		    || (strlen(objstr) + 23 + 2 * EVP_CIPHER_iv_length(enc) + 13)
+		   || (strlen(objstr) + 23 + 2 * EVP_CIPHER_iv_length(enc) + 13)
 		    > sizeof(buf)) {
 			PEMerr(PEM_F_PEM_ASN1_WRITE_BIO, PEM_R_UNSUPPORTED_CIPHER);
 			goto err;
@@ -379,9 +379,9 @@ int PEM_ASN1_write_bio(i2d_of_void * i2d, const char * name, BIO * bp,
 
 		ret = 1;
 		if((ctx = EVP_CIPHER_CTX_new()) == NULL
-		    || !EVP_EncryptInit_ex(ctx, enc, NULL, key, iv)
-		    || !EVP_EncryptUpdate(ctx, data, &j, data, i)
-		    || !EVP_EncryptFinal_ex(ctx, &(data[j]), &i))
+		   || !EVP_EncryptInit_ex(ctx, enc, NULL, key, iv)
+		   || !EVP_EncryptUpdate(ctx, data, &j, data, i)
+		   || !EVP_EncryptFinal_ex(ctx, &(data[j]), &i))
 			ret = 0;
 		if(ret == 0)
 			goto err;
@@ -694,7 +694,7 @@ static int sanitize_line(char * linebuf, int len, uint flags)
 	else if(flags & PEM_FLAG_ONLY_B64) {
 		for(i = 0; i < len; ++i) {
 			if(!ossl_isbase64(linebuf[i]) || linebuf[i] == '\n'
-			    || linebuf[i] == '\r')
+			   || linebuf[i] == '\r')
 				break;
 		}
 		len = i;
@@ -753,8 +753,8 @@ static int get_name(BIO * bp, char ** name, uint flags)
 
 		/* Allow leading empty or non-matching lines. */
 	} while(strncmp(linebuf, beginstr, BEGINLEN) != 0
-	    || len < TAILLEN
-	    || strncmp(linebuf + len - TAILLEN, tailstr, TAILLEN) != 0);
+	   || len < TAILLEN
+	   || strncmp(linebuf + len - TAILLEN, tailstr, TAILLEN) != 0);
 	linebuf[len - TAILLEN] = '\0';
 	len = len - BEGINLEN - TAILLEN + 1;
 	*name = static_cast<char *>(pem_malloc(len, flags));
@@ -927,7 +927,7 @@ int PEM_read_bio_ex(BIO * bp, char ** name_out, char ** header,
 	len = buf_mem->length;
 	if(EVP_DecodeUpdate(ctx, (uchar *)buf_mem->data, &len,
 	    (uchar *)buf_mem->data, len) < 0
-	    || EVP_DecodeFinal(ctx, (uchar *)&(buf_mem->data[len]),
+	   || EVP_DecodeFinal(ctx, (uchar *)&(buf_mem->data[len]),
 	    &taillen) < 0) {
 		PEMerr(PEM_F_PEM_READ_BIO_EX, PEM_R_BAD_BASE64_DECODE);
 		goto end;

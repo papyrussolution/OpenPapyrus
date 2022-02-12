@@ -111,7 +111,7 @@ static int SortRGBAxis; // @global
 // 
 const char * GifErrorString(int ErrorCode)
 {
-	const char * Err;
+	const char * Err = 0;
 	switch(ErrorCode) {
 		case E_GIF_ERR_OPEN_FAILED: Err = "Failed to open given file"; break;
 		case E_GIF_ERR_WRITE_FAILED: Err = "Failed to write to given file"; break;
@@ -136,7 +136,6 @@ const char * GifErrorString(int ErrorCode)
 		case D_GIF_ERR_NOT_READABLE: Err = "Given file was not opened for read"; break;
 		case D_GIF_ERR_IMAGE_DEFECT: Err = "Image is defective, decoding aborted"; break;
 		case D_GIF_ERR_EOF_TOO_SOON: Err = "Image EOF detected before image complete"; break;
-		default: Err = NULL; break;
 	}
 	return Err;
 }
@@ -2112,17 +2111,15 @@ const uint8 GifAsciiTable8x8[][GIF_FONT_WIDTH] = {
 
 void GifDrawText8x8(GifSavedImage * Image, const int x, const int y, const char * legend, const int color)
 {
-	int i, j;
-	int base;
-	const char * cp;
-	for(i = 0; i < GIF_FONT_HEIGHT; i++) {
-		base = Image->ImageDesc.Width * (y + i) + x;
-		for(cp = legend; *cp; cp++)
-			for(j = 0; j < GIF_FONT_WIDTH; j++) {
+	for(int i = 0; i < GIF_FONT_HEIGHT; i++) {
+		int base = Image->ImageDesc.Width * (y + i) + x;
+		for(const char * cp = legend; *cp; cp++) {
+			for(int j = 0; j < GIF_FONT_WIDTH; j++) {
 				if(GifAsciiTable8x8[(short)(*cp)][i] & (1 << (GIF_FONT_WIDTH - j)))
 					Image->RasterBits[base] = color;
 				base++;
 			}
+		}
 	}
 }
 

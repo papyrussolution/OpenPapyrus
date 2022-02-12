@@ -219,7 +219,7 @@ static int dsa_sign_setup(DSA * dsa, BN_CTX * ctx_in,
 	q_bits = BN_num_bits(dsa->q);
 	q_words = bn_get_top(dsa->q);
 	if(!bn_wexpand(k, q_words + 2)
-	    || !bn_wexpand(l, q_words + 2))
+	   || !bn_wexpand(l, q_words + 2))
 		goto err;
 
 	/* Get random k */
@@ -262,7 +262,7 @@ static int dsa_sign_setup(DSA * dsa, BN_CTX * ctx_in,
 	 * The fix is to rework BN so these gymnastics aren't required.
 	 */
 	if(!BN_add(l, k, dsa->q)
-	    || !BN_add(k, l, dsa->q))
+	   || !BN_add(k, l, dsa->q))
 		goto err;
 
 	BN_consttime_swap(BN_is_bit_set(l, q_bits), k, l, q_words + 2);

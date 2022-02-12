@@ -302,7 +302,7 @@ void SCI_METHOD LexerABL::Lex(Sci_PositionU startPos, Sci_Position length, int i
 			case SCE_ABL_NUMBER:
 			    // We accept almost anything because of hex. and maybe number suffixes and scientific notations in the future
 			    if(!(setWord.Contains(sc.ch)
-				    || ((sc.ch == '+' || sc.ch == '-') && (sc.chPrev == 'e' || sc.chPrev == 'E' ||
+				   || ((sc.ch == '+' || sc.ch == '-') && (sc.chPrev == 'e' || sc.chPrev == 'E' ||
 						    sc.chPrev == 'p' || sc.chPrev == 'P')))) {
 				    sc.SetState(SCE_ABL_DEFAULT);
 			    }

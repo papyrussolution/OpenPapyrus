@@ -19,9 +19,9 @@
 TUKLIB_DECLS_BEGIN
 
 #if HAVE_DECL_PROGRAM_INVOCATION_NAME
-#	define progname program_invocation_name
+#define progname program_invocation_name
 #else
-#	define progname TUKLIB_SYMBOL(tuklib_progname)
+#define progname TUKLIB_SYMBOL(tuklib_progname)
 	extern char *progname;
 #endif
 

@@ -118,7 +118,7 @@ typedef struct code_ent {
 	uchar firstchar; /* first token of string */
 } code_t;
 
-typedef int (*decodeFunc)(TIFF*, uint8 *, tmsize_t, uint16);
+typedef int (*decodeFunc)(TIFF *, uint8 *, tmsize_t, uint16);
 
 typedef struct {
 	LZWBaseState base;
@@ -150,9 +150,9 @@ typedef struct {
 #define DecoderState(tif)       ((LZWCodecState*)LZWState(tif))
 #define EncoderState(tif)       ((LZWCodecState*)LZWState(tif))
 
-static int LZWDecode(TIFF* tif, uint8 * op0, tmsize_t occ0, uint16 s);
+static int LZWDecode(TIFF * tif, uint8 * op0, tmsize_t occ0, uint16 s);
 #ifdef LZW_COMPAT
-static int LZWDecodeCompat(TIFF* tif, uint8 * op0, tmsize_t occ0, uint16 s);
+static int LZWDecodeCompat(TIFF * tif, uint8 * op0, tmsize_t occ0, uint16 s);
 #endif
 static void cl_hash(LZWCodecState*);
 
@@ -178,13 +178,13 @@ static void cl_hash(LZWCodecState*);
 #define NextCode(tif, sp, bp, code, get) get(sp, bp, code)
 #endif
 
-static int LZWFixupTags(TIFF* tif)
+static int LZWFixupTags(TIFF * tif)
 {
 	(void)tif;
 	return 1;
 }
 
-static int LZWSetupDecode(TIFF* tif)
+static int LZWSetupDecode(TIFF * tif)
 {
 	static const char module[] = __FUNCTION__;
 	LZWCodecState* sp = DecoderState(tif);
@@ -234,7 +234,7 @@ static int LZWSetupDecode(TIFF* tif)
 /*
  * Setup state for decoding a strip.
  */
-static int LZWPreDecode(TIFF* tif, uint16 s)
+static int LZWPreDecode(TIFF * tif, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	LZWCodecState * sp = DecoderState(tif);
@@ -319,12 +319,12 @@ static int LZWPreDecode(TIFF* tif, uint16 s)
 		nextbits -= nbits;					\
 }
 
-static void codeLoop(TIFF* tif, const char * module)
+static void codeLoop(TIFF * tif, const char * module)
 {
 	TIFFErrorExt(tif->tif_clientdata, module, "Bogus encoding, loop in the code table; scanline %d", tif->tif_row);
 }
 
-static int LZWDecode(TIFF* tif, uint8 * op0, tmsize_t occ0, uint16 s)
+static int LZWDecode(TIFF * tif, uint8 * op0, tmsize_t occ0, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	LZWCodecState * sp = DecoderState(tif);
@@ -536,7 +536,7 @@ static int LZWDecode(TIFF* tif, uint8 * op0, tmsize_t occ0, uint16 s)
 		nextbits -= nbits;					\
 }
 
-static int LZWDecodeCompat(TIFF* tif, uint8 * op0, tmsize_t occ0, uint16 s)
+static int LZWDecodeCompat(TIFF * tif, uint8 * op0, tmsize_t occ0, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	LZWCodecState * sp = DecoderState(tif);
@@ -722,7 +722,7 @@ static int LZWDecodeCompat(TIFF* tif, uint8 * op0, tmsize_t occ0, uint16 s)
  * LZW Encoding.
  */
 
-static int LZWSetupEncode(TIFF* tif)
+static int LZWSetupEncode(TIFF * tif)
 {
 	static const char module[] = __FUNCTION__;
 	LZWCodecState * sp = EncoderState(tif);
@@ -737,7 +737,7 @@ static int LZWSetupEncode(TIFF* tif)
 /*
  * Reset encoding state at the start of a strip.
  */
-static int LZWPreEncode(TIFF* tif, uint16 s)
+static int LZWPreEncode(TIFF * tif, uint16 s)
 {
 	LZWCodecState * sp = EncoderState(tif);
 	(void)s;
@@ -798,7 +798,7 @@ static int LZWPreEncode(TIFF* tif, uint16 s)
  * are re-sized at this point, and a CODE_CLEAR is generated
  * for the decoder.
  */
-static int LZWEncode(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s)
+static int LZWEncode(TIFF * tif, uint8 * bp, tmsize_t cc, uint16 s)
 {
 	LZWCodecState * sp = EncoderState(tif);
 	long fcode;
@@ -964,7 +964,7 @@ hit:
  * Finish off an encoded strip by flushing the last
  * string and tacking on an End Of Information code.
  */
-static int LZWPostEncode(TIFF* tif)
+static int LZWPostEncode(TIFF * tif)
 {
 	LZWCodecState * sp = EncoderState(tif);
 	uint8 * op = tif->tif_rawcp;
@@ -1031,7 +1031,7 @@ static void cl_hash(LZWCodecState* sp)
 		hp->hash = -1;
 }
 
-static void LZWCleanup(TIFF* tif)
+static void LZWCleanup(TIFF * tif)
 {
 	(void)TIFFPredictorCleanup(tif);
 	assert(tif->tif_data != 0);
@@ -1044,7 +1044,7 @@ static void LZWCleanup(TIFF* tif)
 	_TIFFSetDefaultCompressionState(tif);
 }
 
-int TIFFInitLZW(TIFF* tif, int scheme)
+int TIFFInitLZW(TIFF * tif, int scheme)
 {
 	static const char module[] = __FUNCTION__;
 	assert(scheme == COMPRESSION_LZW);

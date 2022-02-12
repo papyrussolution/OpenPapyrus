@@ -133,12 +133,9 @@ static const char * ngx_mail_core_server(ngx_conf_t * cf, const ngx_command_t * 
 	if(!ctx) {
 		return NGX_CONF_ERROR;
 	}
-
 	mail_ctx = (ngx_mail_conf_ctx_t *)cf->ctx;
 	ctx->main_conf = mail_ctx->main_conf;
-
 	/* the server{}'s srv_conf */
-
 	ctx->srv_conf = (void **)ngx_pcalloc(cf->pool, sizeof(void *) * ngx_mail_max_module);
 	if(ctx->srv_conf == NULL) {
 		return NGX_CONF_ERROR;
@@ -175,12 +172,9 @@ static const char * ngx_mail_core_server(ngx_conf_t * cf, const ngx_command_t * 
 	rv = ngx_conf_parse(cf, NULL);
 	*cf = pcf;
 	if(rv == NGX_CONF_OK && !cscf->listen) {
-		ngx_log_error(NGX_LOG_EMERG, cf->log, 0,
-		    "no \"listen\" is defined for server in %s:%ui",
-		    cscf->file_name, cscf->line);
+		ngx_log_error(NGX_LOG_EMERG, cf->log, 0, "no \"listen\" is defined for server in %s:%ui", cscf->file_name, cscf->line);
 		return NGX_CONF_ERROR;
 	}
-
 	return rv;
 }
 

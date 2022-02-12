@@ -23,7 +23,6 @@
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "xapian/geospatial.h"
-#include "xapian/queryparser.h" // For sortable_serialise.
 
 using namespace Xapian;
 using namespace std;

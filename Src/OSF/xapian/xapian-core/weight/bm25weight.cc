@@ -1,25 +1,11 @@
 /** @file
  * @brief Xapian::BM25Weight class - the BM25 probabilistic formula
  */
-/* Copyright (C) 2009,2010,2011,2012,2014,2015 Olly Betts
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
- */
+// Copyright (C) 2009,2010,2011,2012,2014,2015 Olly Betts
+// @licence GNU GPL
+//
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "xapian/weight.h"
 #include "weightinternal.h"
 #include "serialise-double.h"
 
@@ -28,34 +14,26 @@ using namespace std;
 namespace Xapian {
 BM25Weight * BM25Weight::clone() const
 {
-	return new BM25Weight(param_k1, param_k2, param_k3, param_b,
-		   param_min_normlen);
+	return new BM25Weight(param_k1, param_k2, param_k3, param_b, param_min_normlen);
 }
 
 void BM25Weight::init(double factor)
 {
 	Xapian::doccount tf = get_termfreq();
-
 	double tw = 0;
 	if(get_rset_size() != 0) {
 		Xapian::doccount reltermfreq = get_reltermfreq();
-
 		// There can't be more relevant documents indexed by a term than there
 		// are documents indexed by that term.
 		AssertRel(reltermfreq, <=, tf);
-
 		// There can't be more relevant documents indexed by a term than there
 		// are relevant documents.
 		AssertRel(reltermfreq, <=, get_rset_size());
-
 		Xapian::doccount reldocs_not_indexed = get_rset_size() - reltermfreq;
-
 		// There can't be more relevant documents not indexed by a term than
 		// there are documents not indexed by that term.
 		AssertRel(reldocs_not_indexed, <=, get_collection_size() - tf);
-
 		Xapian::doccount Q = get_collection_size() - reldocs_not_indexed;
-
 		Xapian::doccount nonreldocs_indexed = tf - reltermfreq;
 		double numerator = (reltermfreq + 0.5) * (Q - tf + 0.5);
 		double denom = (reldocs_not_indexed + 0.5) * (nonreldocs_indexed + 0.5);
@@ -64,9 +42,7 @@ void BM25Weight::init(double factor)
 	else {
 		tw = (get_collection_size() - tf + 0.5) / (tf + 0.5);
 	}
-
 	AssertRel(tw, >, 0);
-
 	// The "official" formula can give a negative termweight in unusual cases
 	// (without an RSet, when a term indexes more than half the documents in
 	// the database).  These negative weights aren't actually helpful, and it
@@ -201,9 +177,7 @@ double BM25Weight::get_maxpart() const
  *
  * 2 * param_k2 * query_length / (1 + normlen)
  */
-double BM25Weight::get_sumextra(Xapian::termcount len,
-    Xapian::termcount,
-    Xapian::termcount) const
+double BM25Weight::get_sumextra(Xapian::termcount len, Xapian::termcount, Xapian::termcount) const
 {
 	LOGCALL(WTCALC, double, "BM25Weight::get_sumextra", len);
 	double num = (2.0 * param_k2 * get_query_length());
@@ -216,8 +190,7 @@ double BM25Weight::get_maxextra() const
 	if(param_k2 == 0.0)
 		RETURN(0.0);
 	double num = (2.0 * param_k2 * get_query_length());
-	RETURN(num / (1.0 + max(get_doclength_lower_bound() * len_factor,
-	    param_min_normlen)));
+	RETURN(num / (1.0 + max(get_doclength_lower_bound() * len_factor, param_min_normlen)));
 }
 
 static inline void parameter_error(const char* message)

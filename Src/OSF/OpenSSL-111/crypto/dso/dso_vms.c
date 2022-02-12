@@ -169,7 +169,7 @@ static int vms_load(DSO * dso)
 
 	/* Check that we won't get buffer overflows */
 	if(sp2 - sp1 > FILENAME_MAX
-	    || (sp1 - filename) + strlen(sp2) > FILENAME_MAX) {
+	   || (sp1 - filename) + strlen(sp2) > FILENAME_MAX) {
 		DSOerr(DSO_F_VMS_LOAD, DSO_R_FILENAME_TOO_BIG);
 		goto err;
 	}

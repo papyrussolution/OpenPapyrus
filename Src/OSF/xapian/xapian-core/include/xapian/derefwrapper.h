@@ -18,38 +18,33 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
-
 #ifndef XAPIAN_INCLUDED_DEREFWRAPPER_H
 #define XAPIAN_INCLUDED_DEREFWRAPPER_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error Never use <xapian/derefwraper.h> directly; include <xapian.h> instead.
+#error Never use <xapian/derefwraper.h> directly; include <xapian.h> instead.
 #endif
 
 namespace Xapian {
-
-/** @private @internal Class which returns a value when dereferenced with
- *  operator*.
- *
- *  We need this wrapper class to implement input_iterator semantics for the
- *  postfix operator++ methods of some of our iterator classes.
- */
-template<typename T>
-class DerefWrapper_ {
-    /// Don't allow assignment.
-    void operator=(const DerefWrapper_&) = delete;
-
-    /// The value.
-    T res;
-
-  public:
-    /// Default copy constructor.
-    DerefWrapper_(const DerefWrapper_&) = default;
-
-    explicit DerefWrapper_(const T &res_) : res(res_) { }
-    const T & operator*() const { return res; }
-};
-
+	/** @private @internal Class which returns a value when dereferenced with
+	 *  operator*.
+	 *
+	 *  We need this wrapper class to implement input_iterator semantics for the
+	 *  postfix operator++ methods of some of our iterator classes.
+	 */
+	template <typename T> class DerefWrapper_ {
+		/// Don't allow assignment.
+		void operator=(const DerefWrapper_&) = delete;
+		/// The value.
+		T res;
+	public:
+		/// Default copy constructor.
+		DerefWrapper_(const DerefWrapper_&) = default;
+		explicit DerefWrapper_(const T &res_) : res(res_) 
+		{
+		}
+		const T & operator*() const { return res; }
+	};
 }
 
 #endif // XAPIAN_INCLUDED_DEREFWRAPPER_H

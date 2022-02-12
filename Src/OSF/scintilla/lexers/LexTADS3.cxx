@@ -81,10 +81,10 @@ static bool FASTCALL IsEOLSkip(StyleContext &sc)
 static bool FASTCALL IsATADS3Operator(const int ch)
 {
 	return ch == '=' || ch == '{' || ch == '}' || ch == '(' || ch == ')'
-	       || ch == '[' || ch == ']' || ch == ',' || ch == ':' || ch == ';'
-	       || ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '%'
-	       || ch == '?' || ch == '!' || ch == '<' || ch == '>' || ch == '|'
-	       || ch == '@' || ch == '&' || ch == '~';
+	      || ch == '[' || ch == ']' || ch == ',' || ch == ':' || ch == ';'
+	      || ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '%'
+	      || ch == '?' || ch == '!' || ch == '<' || ch == '>' || ch == '|'
+	      || ch == '@' || ch == '&' || ch == '~';
 }
 
 static bool FASTCALL IsAWordChar(const int ch)
@@ -101,7 +101,7 @@ static bool FASTCALL IsAHexDigit(const int ch)
 {
 	int lch = tolower(ch);
 	return isdec(lch) || lch == 'a' || lch == 'b' || lch == 'c'
-	       || lch == 'd' || lch == 'e' || lch == 'f';
+	      || lch == 'd' || lch == 'e' || lch == 'f';
 }
 
 static bool FASTCALL IsAnHTMLChar(int ch)
@@ -178,8 +178,8 @@ static void ColouriseTADSHTMLString(StyleContext &sc, int &lineState)
 		}
 
 		if(sc.Match('\\', static_cast<char>(chQuote))
-		    || sc.Match('\\', static_cast<char>(chString))
-		    || sc.Match('\\', '\\')) {
+		   || sc.Match('\\', static_cast<char>(chString))
+		   || sc.Match('\\', '\\')) {
 			sc.Forward(2);
 		}
 		else {
@@ -447,7 +447,7 @@ static void ColouriseTADS3String(StyleContext &sc, int &lineState)
 			return;
 		}
 		if(sc.Match('\\', static_cast<char>(chQuote))
-		    || sc.Match('\\', '\\')) {
+		   || sc.Match('\\', '\\')) {
 			sc.Forward(2);
 		}
 		else if(sc.ch == '{') {
@@ -717,7 +717,7 @@ static bool FASTCALL IsStringTransition(int s1, int s2)
 {
 	return s1 != s2
 	 && (s1 == SCE_T3_S_STRING || s1 == SCE_T3_X_STRING
-	    || (s1 == SCE_T3_D_STRING && s2 != SCE_T3_X_DEFAULT))
+	   || (s1 == SCE_T3_D_STRING && s2 != SCE_T3_X_DEFAULT))
 	 && s2 != SCE_T3_LIB_DIRECTIVE
 	 && s2 != SCE_T3_MSG_PARAM
 	 && s2 != SCE_T3_HTML_TAG
@@ -732,9 +732,9 @@ static bool FASTCALL IsATADS3Punctuation(const int ch)
 static bool FASTCALL IsAnIdentifier(const int style)
 {
 	return style == SCE_T3_IDENTIFIER
-	       || style == SCE_T3_USER1
-	       || style == SCE_T3_USER2
-	       || style == SCE_T3_USER3;
+	      || style == SCE_T3_USER1
+	      || style == SCE_T3_USER2
+	      || style == SCE_T3_USER3;
 }
 
 static bool FASTCALL IsAnOperator(const int style)
@@ -745,9 +745,9 @@ static bool FASTCALL IsAnOperator(const int style)
 static bool FASTCALL IsSpaceEquivalent(const int ch, const int style)
 {
 	return isspace(ch)
-	       || style == SCE_T3_BLOCK_COMMENT
-	       || style == SCE_T3_LINE_COMMENT
-	       || style == SCE_T3_PREPROCESSOR;
+	      || style == SCE_T3_BLOCK_COMMENT
+	      || style == SCE_T3_LINE_COMMENT
+	      || style == SCE_T3_PREPROCESSOR;
 }
 
 static char peekAhead(Sci_PositionU startPos, Sci_PositionU endPos,

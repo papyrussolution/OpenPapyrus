@@ -48,11 +48,11 @@
 	#include <winsock2.h>
 	#include <versionhelpers.h>
 #else
-# include <sys/socket.h>
-# include <netinet/in.h>
-# include <arpa/inet.h>
-# include <netdb.h>
-# include <sys/utsname.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <sys/utsname.h>
 #endif /* WIN32 */
 #endif /* macintosh */
 #ifdef HAVE_UNISTD_H

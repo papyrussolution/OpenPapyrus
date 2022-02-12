@@ -21,7 +21,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "xapian/weight.h"
 #include "backends/leafpostlist.h"
 #include "weightinternal.h"
 

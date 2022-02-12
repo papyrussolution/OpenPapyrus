@@ -65,7 +65,7 @@ static void conclude_red(struct obstack * out, int source, rule_number ruleno,
 	   actually hidden, so cancel everything. */
 	if(first)
 		(void)obstack_finish0(out);
-	else{
+	else {
 		char const * ed = enabled ? "" : "d";
 		char const * color = enabled ? ruleno ? "3" : "1" : "5";
 		/* First, build the edge's head. The name of reduction nodes is "nRm",

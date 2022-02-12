@@ -20,7 +20,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "xapian/cluster.h"
 
 using namespace std;
 using namespace Xapian;

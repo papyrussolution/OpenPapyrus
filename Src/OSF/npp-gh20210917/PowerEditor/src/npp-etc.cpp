@@ -182,10 +182,9 @@ namespace ReadDirectoryChangesPrivate
 				wstrFilename = m_wstrDirectory + L"\\" + wstrFilename;
 			else
 				wstrFilename = m_wstrDirectory + wstrFilename;
-
 			// If it could be a short filename, expand it.
 			LPCWSTR wszFilename = ::PathFindFileNameW(wstrFilename.c_str());
-			int len = lstrlenW(wszFilename);
+			int len = sstrleni(wszFilename);
 			// The maximum length of an 8.3 filename is twelve, including the dot.
 			if(len <= 12 && wcschr(wszFilename, L'~')) {
 				// Convert to the long filename form. Unfortunately, this

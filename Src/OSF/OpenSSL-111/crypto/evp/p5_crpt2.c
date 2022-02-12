@@ -80,8 +80,8 @@ int PKCS5_PBKDF2_HMAC(const char * pass, int passlen,
 			return 0;
 		}
 		if(!HMAC_Update(hctx, salt, saltlen)
-		    || !HMAC_Update(hctx, itmp, 4)
-		    || !HMAC_Final(hctx, digtmp, NULL)) {
+		   || !HMAC_Update(hctx, itmp, 4)
+		   || !HMAC_Final(hctx, digtmp, NULL)) {
 			HMAC_CTX_free(hctx);
 			HMAC_CTX_free(hctx_tpl);
 			return 0;
@@ -94,7 +94,7 @@ int PKCS5_PBKDF2_HMAC(const char * pass, int passlen,
 				return 0;
 			}
 			if(!HMAC_Update(hctx, digtmp, mdlen)
-			    || !HMAC_Final(hctx, digtmp, NULL)) {
+			   || !HMAC_Final(hctx, digtmp, NULL)) {
 				HMAC_CTX_free(hctx);
 				HMAC_CTX_free(hctx_tpl);
 				return 0;

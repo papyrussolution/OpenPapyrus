@@ -41,7 +41,7 @@
  *
  * @param tif A TIFF pointer.
  */
-void TIFFCleanup(TIFF* tif)
+void TIFFCleanup(TIFF * tif)
 {
 	/*
 	 * Flush buffered data and directory (if dirty).
@@ -101,7 +101,7 @@ void TIFFCleanup(TIFF* tif)
  * @param tif A TIFF pointer.
  */
 
-void TIFFClose(TIFF* tif)
+void TIFFClose(TIFF * tif)
 {
 	TIFFCloseProc closeproc = tif->tif_closeproc;
 	thandle_t fd = tif->tif_clientdata;

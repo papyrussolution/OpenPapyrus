@@ -27,7 +27,7 @@
 /// Video Input C++ wrapper
 
 #ifndef _ZBAR_H_
-# error "include zbar.h in your application, **not** zbar/Video.h"
+#error "include zbar.h in your application, **not** zbar/Video.h"
 #endif
 
 #include "Image.h"

@@ -21,7 +21,7 @@ constexpr NumberFormat::NumberFormat(
   , format_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , national_prefix_formatting_rule_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , domestic_carrier_code_formatting_rule_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
-  , national_prefix_optional_when_formatting_(false) {}
+  , national_prefix_optional_when_formatting_(false){}
 struct NumberFormatDefaultTypeInternal {
 	constexpr NumberFormatDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~NumberFormatDefaultTypeInternal() {}
@@ -35,7 +35,7 @@ constexpr PhoneNumberDesc::PhoneNumberDesc(
   : possible_length_()
   , possible_length_local_only_()
   , national_number_pattern_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
-  , example_number_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string) {}
+  , example_number_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string){}
 struct PhoneNumberDescDefaultTypeInternal {
 	constexpr PhoneNumberDescDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~PhoneNumberDescDefaultTypeInternal() {}
@@ -77,7 +77,7 @@ constexpr PhoneMetadata::PhoneMetadata(
   , same_mobile_and_fixed_line_pattern_(false)
   , main_country_for_code_(false)
   , leading_zero_possible_(false)
-  , mobile_number_portable_region_(false) {}
+  , mobile_number_portable_region_(false){}
 struct PhoneMetadataDefaultTypeInternal {
 	constexpr PhoneMetadataDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~PhoneMetadataDefaultTypeInternal() {}
@@ -88,7 +88,7 @@ struct PhoneMetadataDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PhoneMetadataDefaultTypeInternal _PhoneMetadata_default_instance_;
 constexpr PhoneMetadataCollection::PhoneMetadataCollection(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : metadata_() {}
+  : metadata_(){}
 struct PhoneMetadataCollectionDefaultTypeInternal {
 	constexpr PhoneMetadataCollectionDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~PhoneMetadataCollectionDefaultTypeInternal() {}
@@ -135,32 +135,28 @@ NumberFormat::NumberFormat(const NumberFormat& from)
     pattern_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_pattern()) {
-    pattern_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_pattern(), 
-      GetArenaForAllocation());
+    pattern_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_pattern(), GetArenaForAllocation());
   }
   format_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     format_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_format()) {
-    format_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_format(), 
-      GetArenaForAllocation());
+    format_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_format(), GetArenaForAllocation());
   }
   national_prefix_formatting_rule_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     national_prefix_formatting_rule_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_national_prefix_formatting_rule()) {
-    national_prefix_formatting_rule_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_national_prefix_formatting_rule(), 
-      GetArenaForAllocation());
+    national_prefix_formatting_rule_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_national_prefix_formatting_rule(), GetArenaForAllocation());
   }
   domestic_carrier_code_formatting_rule_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     domestic_carrier_code_formatting_rule_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_domestic_carrier_code_formatting_rule()) {
-    domestic_carrier_code_formatting_rule_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_domestic_carrier_code_formatting_rule(), 
-      GetArenaForAllocation());
+    domestic_carrier_code_formatting_rule_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_domestic_carrier_code_formatting_rule(), GetArenaForAllocation());
   }
   national_prefix_optional_when_formatting_ = from.national_prefix_optional_when_formatting_;
   // @@protoc_insertion_point(copy_constructor:i18n.phonenumbers.NumberFormat)
@@ -337,32 +333,28 @@ uint8_t* NumberFormat::_InternalSerialize(
   cached_has_bits = _has_bits_[0];
   // required string pattern = 1;
   if(cached_has_bits & 0x00000001u) {
-    target = stream->WriteStringMaybeAliased(
-        1, this->_internal_pattern(), target);
+    target = stream->WriteStringMaybeAliased(1, this->_internal_pattern(), target);
   }
 
   // required string format = 2;
   if(cached_has_bits & 0x00000002u) {
-    target = stream->WriteStringMaybeAliased(
-        2, this->_internal_format(), target);
+    target = stream->WriteStringMaybeAliased(2, this->_internal_format(), target);
   }
 
   // repeated string leading_digits_pattern = 3;
-  for (int i = 0, n = this->_internal_leading_digits_pattern_size(); i < n; i++) {
+  for(int i = 0, n = this->_internal_leading_digits_pattern_size(); i < n; i++) {
     const auto& s = this->_internal_leading_digits_pattern(i);
     target = stream->WriteString(3, s, target);
   }
 
   // optional string national_prefix_formatting_rule = 4;
   if(cached_has_bits & 0x00000004u) {
-    target = stream->WriteStringMaybeAliased(
-        4, this->_internal_national_prefix_formatting_rule(), target);
+    target = stream->WriteStringMaybeAliased(4, this->_internal_national_prefix_formatting_rule(), target);
   }
 
   // optional string domestic_carrier_code_formatting_rule = 5;
   if(cached_has_bits & 0x00000008u) {
-    target = stream->WriteStringMaybeAliased(
-        5, this->_internal_domestic_carrier_code_formatting_rule(), target);
+    target = stream->WriteStringMaybeAliased(5, this->_internal_domestic_carrier_code_formatting_rule(), target);
   }
 
   // optional bool national_prefix_optional_when_formatting = 6 [default = false];
@@ -385,16 +377,12 @@ size_t NumberFormat::RequiredFieldsByteSizeFallback() const {
 
   if(_internal_has_pattern()) {
     // required string pattern = 1;
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_pattern());
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_pattern());
   }
 
   if(_internal_has_format()) {
     // required string format = 2;
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_format());
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_format());
   }
 
   return total_size;
@@ -405,14 +393,10 @@ size_t NumberFormat::ByteSizeLong() const {
 
   if(((_has_bits_[0] & 0x00000003) ^ 0x00000003) == 0) {  // All required fields are present.
     // required string pattern = 1;
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_pattern());
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_pattern());
 
     // required string format = 2;
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_format());
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_format());
 
   } else {
     total_size += RequiredFieldsByteSizeFallback();
@@ -422,27 +406,21 @@ size_t NumberFormat::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // repeated string leading_digits_pattern = 3;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(leading_digits_pattern_.size());
-  for (int i = 0, n = leading_digits_pattern_.size(); i < n; i++) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-      leading_digits_pattern_.Get(i));
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(leading_digits_pattern_.size());
+  for(int i = 0, n = leading_digits_pattern_.size(); i < n; i++) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(leading_digits_pattern_.Get(i));
   }
 
   cached_has_bits = _has_bits_[0];
   if(cached_has_bits & 0x0000001cu) {
     // optional string national_prefix_formatting_rule = 4;
     if(cached_has_bits & 0x00000004u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_national_prefix_formatting_rule());
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_national_prefix_formatting_rule());
     }
 
     // optional string domestic_carrier_code_formatting_rule = 5;
     if(cached_has_bits & 0x00000008u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_domestic_carrier_code_formatting_rule());
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_domestic_carrier_code_formatting_rule());
     }
 
     // optional bool national_prefix_optional_when_formatting = 6 [default = false];
@@ -570,16 +548,14 @@ PhoneNumberDesc::PhoneNumberDesc(const PhoneNumberDesc& from)
     national_number_pattern_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_national_number_pattern()) {
-    national_number_pattern_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_national_number_pattern(), 
-      GetArenaForAllocation());
+    national_number_pattern_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_national_number_pattern(), GetArenaForAllocation());
   }
   example_number_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     example_number_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_example_number()) {
-    example_number_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_example_number(), 
-      GetArenaForAllocation());
+    example_number_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_example_number(), GetArenaForAllocation());
   }
   // @@protoc_insertion_point(copy_constructor:i18n.phonenumbers.PhoneNumberDesc)
 }
@@ -729,26 +705,24 @@ uint8_t* PhoneNumberDesc::_InternalSerialize(
   cached_has_bits = _has_bits_[0];
   // optional string national_number_pattern = 2;
   if(cached_has_bits & 0x00000001u) {
-    target = stream->WriteStringMaybeAliased(
-        2, this->_internal_national_number_pattern(), target);
+    target = stream->WriteStringMaybeAliased(2, this->_internal_national_number_pattern(), target);
   }
 
   // optional string example_number = 6;
   if(cached_has_bits & 0x00000002u) {
-    target = stream->WriteStringMaybeAliased(
-        6, this->_internal_example_number(), target);
+    target = stream->WriteStringMaybeAliased(6, this->_internal_example_number(), target);
   }
 
   // repeated int32 possible_length = 9;
   for(int i = 0, n = this->_internal_possible_length_size(); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(9, this->_internal_possible_length(i), target);
+  	target = stream->EnsureSpace(target);
+  	target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(9, this->_internal_possible_length(i), target);
   }
 
   // repeated int32 possible_length_local_only = 10;
   for(int i = 0, n = this->_internal_possible_length_local_only_size(); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(10, this->_internal_possible_length_local_only(i), target);
+  	target = stream->EnsureSpace(target);
+  	target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(10, this->_internal_possible_length_local_only(i), target);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -769,8 +743,7 @@ size_t PhoneNumberDesc::ByteSizeLong() const {
 
   // repeated int32 possible_length = 9;
   {
-    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      Int32Size(this->possible_length_);
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(this->possible_length_);
     total_size += 1 *
                   ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_possible_length_size());
     total_size += data_size;
@@ -778,8 +751,7 @@ size_t PhoneNumberDesc::ByteSizeLong() const {
 
   // repeated int32 possible_length_local_only = 10;
   {
-    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      Int32Size(this->possible_length_local_only_);
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(this->possible_length_local_only_);
     total_size += 1 *
                   ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_possible_length_local_only_size());
     total_size += data_size;
@@ -789,16 +761,12 @@ size_t PhoneNumberDesc::ByteSizeLong() const {
   if(cached_has_bits & 0x00000003u) {
     // optional string national_number_pattern = 2;
     if(cached_has_bits & 0x00000001u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_national_number_pattern());
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_national_number_pattern());
     }
 
     // optional string example_number = 6;
     if(cached_has_bits & 0x00000002u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_example_number());
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_example_number());
     }
 
   }
@@ -1015,64 +983,56 @@ PhoneMetadata::PhoneMetadata(const PhoneMetadata& from)
     id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_id()) {
-    id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_id(), 
-      GetArenaForAllocation());
+    id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_id(), GetArenaForAllocation());
   }
   international_prefix_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     international_prefix_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_international_prefix()) {
-    international_prefix_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_international_prefix(), 
-      GetArenaForAllocation());
+    international_prefix_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_international_prefix(), GetArenaForAllocation());
   }
   national_prefix_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     national_prefix_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_national_prefix()) {
-    national_prefix_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_national_prefix(), 
-      GetArenaForAllocation());
+    national_prefix_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_national_prefix(), GetArenaForAllocation());
   }
   preferred_extn_prefix_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     preferred_extn_prefix_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_preferred_extn_prefix()) {
-    preferred_extn_prefix_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_preferred_extn_prefix(), 
-      GetArenaForAllocation());
+    preferred_extn_prefix_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_preferred_extn_prefix(), GetArenaForAllocation());
   }
   national_prefix_for_parsing_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     national_prefix_for_parsing_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_national_prefix_for_parsing()) {
-    national_prefix_for_parsing_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_national_prefix_for_parsing(), 
-      GetArenaForAllocation());
+    national_prefix_for_parsing_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_national_prefix_for_parsing(), GetArenaForAllocation());
   }
   national_prefix_transform_rule_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     national_prefix_transform_rule_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_national_prefix_transform_rule()) {
-    national_prefix_transform_rule_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_national_prefix_transform_rule(), 
-      GetArenaForAllocation());
+    national_prefix_transform_rule_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_national_prefix_transform_rule(), GetArenaForAllocation());
   }
   preferred_international_prefix_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     preferred_international_prefix_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_preferred_international_prefix()) {
-    preferred_international_prefix_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_preferred_international_prefix(), 
-      GetArenaForAllocation());
+    preferred_international_prefix_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_preferred_international_prefix(), GetArenaForAllocation());
   }
   leading_digits_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     leading_digits_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if(from._internal_has_leading_digits()) {
-    leading_digits_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_leading_digits(), 
-      GetArenaForAllocation());
+    leading_digits_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_leading_digits(), GetArenaForAllocation());
   }
   if(from._internal_has_general_desc()) {
     general_desc_ = new ::i18n::phonenumbers::PhoneNumberDesc(*from.general_desc_);
@@ -1749,8 +1709,7 @@ uint8_t* PhoneMetadata::_InternalSerialize(
 
   // required string id = 9;
   if(cached_has_bits & 0x00000001u) {
-    target = stream->WriteStringMaybeAliased(
-        9, this->_internal_id(), target);
+    target = stream->WriteStringMaybeAliased(9, this->_internal_id(), target);
   }
 
   // optional int32 country_code = 10;
@@ -1761,38 +1720,32 @@ uint8_t* PhoneMetadata::_InternalSerialize(
 
   // optional string international_prefix = 11;
   if(cached_has_bits & 0x00000002u) {
-    target = stream->WriteStringMaybeAliased(
-        11, this->_internal_international_prefix(), target);
+    target = stream->WriteStringMaybeAliased(11, this->_internal_international_prefix(), target);
   }
 
   // optional string national_prefix = 12;
   if(cached_has_bits & 0x00000004u) {
-    target = stream->WriteStringMaybeAliased(
-        12, this->_internal_national_prefix(), target);
+    target = stream->WriteStringMaybeAliased(12, this->_internal_national_prefix(), target);
   }
 
   // optional string preferred_extn_prefix = 13;
   if(cached_has_bits & 0x00000008u) {
-    target = stream->WriteStringMaybeAliased(
-        13, this->_internal_preferred_extn_prefix(), target);
+    target = stream->WriteStringMaybeAliased(13, this->_internal_preferred_extn_prefix(), target);
   }
 
   // optional string national_prefix_for_parsing = 15;
   if(cached_has_bits & 0x00000010u) {
-    target = stream->WriteStringMaybeAliased(
-        15, this->_internal_national_prefix_for_parsing(), target);
+    target = stream->WriteStringMaybeAliased(15, this->_internal_national_prefix_for_parsing(), target);
   }
 
   // optional string national_prefix_transform_rule = 16;
   if(cached_has_bits & 0x00000020u) {
-    target = stream->WriteStringMaybeAliased(
-        16, this->_internal_national_prefix_transform_rule(), target);
+    target = stream->WriteStringMaybeAliased(16, this->_internal_national_prefix_transform_rule(), target);
   }
 
   // optional string preferred_international_prefix = 17;
   if(cached_has_bits & 0x00000040u) {
-    target = stream->WriteStringMaybeAliased(
-        17, this->_internal_preferred_international_prefix(), target);
+    target = stream->WriteStringMaybeAliased(17, this->_internal_preferred_international_prefix(), target);
   }
 
   // optional bool same_mobile_and_fixed_line_pattern = 18 [default = false];
@@ -1833,8 +1786,7 @@ uint8_t* PhoneMetadata::_InternalSerialize(
 
   // optional string leading_digits = 23;
   if(cached_has_bits & 0x00000080u) {
-    target = stream->WriteStringMaybeAliased(
-        23, this->_internal_leading_digits(), target);
+    target = stream->WriteStringMaybeAliased(23, this->_internal_leading_digits(), target);
   }
 
   // optional .i18n.phonenumbers.PhoneNumberDesc no_international_dialling = 24;
@@ -1927,9 +1879,7 @@ size_t PhoneMetadata::ByteSizeLong() const {
 
   // required string id = 9;
   if(_internal_has_id()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_id());
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_id());
   }
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -1951,51 +1901,37 @@ size_t PhoneMetadata::ByteSizeLong() const {
   if(cached_has_bits & 0x000000feu) {
     // optional string international_prefix = 11;
     if(cached_has_bits & 0x00000002u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_international_prefix());
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_international_prefix());
     }
 
     // optional string national_prefix = 12;
     if(cached_has_bits & 0x00000004u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_national_prefix());
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_national_prefix());
     }
 
     // optional string preferred_extn_prefix = 13;
     if(cached_has_bits & 0x00000008u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_preferred_extn_prefix());
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_preferred_extn_prefix());
     }
 
     // optional string national_prefix_for_parsing = 15;
     if(cached_has_bits & 0x00000010u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_national_prefix_for_parsing());
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_national_prefix_for_parsing());
     }
 
     // optional string national_prefix_transform_rule = 16;
     if(cached_has_bits & 0x00000020u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_national_prefix_transform_rule());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_national_prefix_transform_rule());
     }
 
     // optional string preferred_international_prefix = 17;
     if(cached_has_bits & 0x00000040u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_preferred_international_prefix());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_preferred_international_prefix());
     }
 
     // optional string leading_digits = 23;
     if(cached_has_bits & 0x00000080u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_leading_digits());
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_leading_digits());
     }
 
   }

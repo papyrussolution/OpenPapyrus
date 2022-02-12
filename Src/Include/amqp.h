@@ -2446,8 +2446,7 @@ AMQP_PUBLIC_FUNCTION amqp_rpc_reply_t amqp_basic_get(amqp_connection_state_t sta
  * \param [in] state the connection object
  * \param [in] channel the channel identifier
  * \param [in] delivery_tag the delivery tag of the message to reject
- * \param [in] requeue indicate to the broker whether it should requeue the
- *     message or just discard it.
+ * \param [in] requeue indicate to the broker whether it should requeue the message or just discard it.
  * \return 0 on success, 0 > on failing to send the reject method to the broker.
  * This will not indicate failure if something goes wrong on the
  * broker.

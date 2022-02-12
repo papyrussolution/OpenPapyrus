@@ -345,8 +345,8 @@ static nginx_off_t ngx_http_slice_get_start(ngx_http_request_t * r)
 	h = r->headers_in.range;
 
 	if(h == NULL
-	    || h->value.len < 7
-	    || ngx_strncasecmp(h->value.data, (u_char *)"bytes=", 6) != 0) {
+	   || h->value.len < 7
+	   || ngx_strncasecmp(h->value.data, (u_char *)"bytes=", 6) != 0) {
 		return 0;
 	}
 

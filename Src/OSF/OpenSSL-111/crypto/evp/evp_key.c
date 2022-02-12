@@ -58,7 +58,7 @@ int EVP_read_pw_string_min(char * buf, int min, int len, const char * prompt,
 		return ret;
 	if(UI_add_input_string(ui, prompt, 0, buf, min,
 	    (len >= BUFSIZ) ? BUFSIZ - 1 : len) < 0
-	    || (verify
+	   || (verify
 	 && UI_add_verify_string(ui, prompt, 0, buff, min,
 	    (len >= BUFSIZ) ? BUFSIZ - 1 : len,
 	    buf) < 0))

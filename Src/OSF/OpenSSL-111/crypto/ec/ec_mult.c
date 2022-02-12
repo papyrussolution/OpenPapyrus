@@ -149,7 +149,7 @@ int ec_scalar_mul_ladder(const EC_GROUP * group, EC_POINT * r,
 	BN_CTX_start(ctx);
 
 	if(((p = EC_POINT_new(group)) == NULL)
-	    || ((s = EC_POINT_new(group)) == NULL)) {
+	   || ((s = EC_POINT_new(group)) == NULL)) {
 		ECerr(EC_F_EC_SCALAR_MUL_LADDER, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
@@ -193,7 +193,7 @@ int ec_scalar_mul_ladder(const EC_GROUP * group, EC_POINT * r,
 	cardinality_bits = BN_num_bits(cardinality);
 	group_top = bn_get_top(cardinality);
 	if((bn_wexpand(k, group_top + 2) == NULL)
-	    || (bn_wexpand(lambda, group_top + 2) == NULL)) {
+	   || (bn_wexpand(lambda, group_top + 2) == NULL)) {
 		ECerr(EC_F_EC_SCALAR_MUL_LADDER, ERR_R_BN_LIB);
 		goto err;
 	}
@@ -234,14 +234,14 @@ int ec_scalar_mul_ladder(const EC_GROUP * group, EC_POINT * r,
 
 	group_top = bn_get_top(group->field);
 	if((bn_wexpand(s->X, group_top) == NULL)
-	    || (bn_wexpand(s->Y, group_top) == NULL)
-	    || (bn_wexpand(s->Z, group_top) == NULL)
-	    || (bn_wexpand(r->X, group_top) == NULL)
-	    || (bn_wexpand(r->Y, group_top) == NULL)
-	    || (bn_wexpand(r->Z, group_top) == NULL)
-	    || (bn_wexpand(p->X, group_top) == NULL)
-	    || (bn_wexpand(p->Y, group_top) == NULL)
-	    || (bn_wexpand(p->Z, group_top) == NULL)) {
+	   || (bn_wexpand(s->Y, group_top) == NULL)
+	   || (bn_wexpand(s->Z, group_top) == NULL)
+	   || (bn_wexpand(r->X, group_top) == NULL)
+	   || (bn_wexpand(r->Y, group_top) == NULL)
+	   || (bn_wexpand(r->Z, group_top) == NULL)
+	   || (bn_wexpand(p->X, group_top) == NULL)
+	   || (bn_wexpand(p->Y, group_top) == NULL)
+	   || (bn_wexpand(p->Z, group_top) == NULL)) {
 		ECerr(EC_F_EC_SCALAR_MUL_LADDER, ERR_R_BN_LIB);
 		goto err;
 	}

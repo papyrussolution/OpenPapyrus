@@ -33,8 +33,8 @@ static BIGNUM * srp_Calc_xy(const BIGNUM * x, const BIGNUM * y, const BIGNUM * N
 	if((tmp = static_cast<uchar *>(OPENSSL_malloc(numN * 2))) == NULL)
 		goto err;
 	if(BN_bn2binpad(x, tmp, numN) < 0
-	    || BN_bn2binpad(y, tmp + numN, numN) < 0
-	    || !EVP_Digest(tmp, numN * 2, digest, NULL, EVP_sha1(), NULL))
+	   || BN_bn2binpad(y, tmp + numN, numN) < 0
+	   || !EVP_Digest(tmp, numN * 2, digest, NULL, EVP_sha1(), NULL))
 		goto err;
 	res = BN_bin2bn(digest, sizeof(digest), NULL);
 err:
@@ -102,9 +102,9 @@ BIGNUM * SRP_Calc_B(const BIGNUM * b, const BIGNUM * N, const BIGNUM * g,
 	/* B = g**b + k*v */
 
 	if(!BN_mod_exp(gb, g, b, N, bn_ctx)
-	    || (k = srp_Calc_k(N, g)) == NULL
-	    || !BN_mod_mul(kv, v, k, N, bn_ctx)
-	    || !BN_mod_add(B, gb, kv, N, bn_ctx)) {
+	   || (k = srp_Calc_k(N, g)) == NULL
+	   || !BN_mod_mul(kv, v, k, N, bn_ctx)
+	   || !BN_mod_add(B, gb, kv, N, bn_ctx)) {
 		BN_free(B);
 		B = NULL;
 	}
@@ -133,11 +133,11 @@ BIGNUM * SRP_Calc_x(const BIGNUM * s, const char * user, const char * pass)
 		goto err;
 
 	if(!EVP_DigestInit_ex(ctxt, EVP_sha1(), NULL)
-	    || !EVP_DigestUpdate(ctxt, user, strlen(user))
-	    || !EVP_DigestUpdate(ctxt, ":", 1)
-	    || !EVP_DigestUpdate(ctxt, pass, strlen(pass))
-	    || !EVP_DigestFinal_ex(ctxt, dig, NULL)
-	    || !EVP_DigestInit_ex(ctxt, EVP_sha1(), NULL))
+	   || !EVP_DigestUpdate(ctxt, user, strlen(user))
+	   || !EVP_DigestUpdate(ctxt, ":", 1)
+	   || !EVP_DigestUpdate(ctxt, pass, strlen(pass))
+	   || !EVP_DigestFinal_ex(ctxt, dig, NULL)
+	   || !EVP_DigestInit_ex(ctxt, EVP_sha1(), NULL))
 		goto err;
 	if(BN_bn2bin(s, cs) < 0)
 		goto err;
@@ -145,7 +145,7 @@ BIGNUM * SRP_Calc_x(const BIGNUM * s, const char * user, const char * pass)
 		goto err;
 
 	if(!EVP_DigestUpdate(ctxt, dig, sizeof(dig))
-	    || !EVP_DigestFinal_ex(ctxt, dig, NULL))
+	   || !EVP_DigestFinal_ex(ctxt, dig, NULL))
 		goto err;
 
 	res = BN_bin2bn(dig, sizeof(dig), NULL);
@@ -179,7 +179,7 @@ BIGNUM * SRP_Calc_client_key(const BIGNUM * N, const BIGNUM * B, const BIGNUM * 
 	BN_CTX * bn_ctx;
 
 	if(u == NULL || B == NULL || N == NULL || g == NULL || x == NULL
-	    || a == NULL || (bn_ctx = BN_CTX_new()) == NULL)
+	   || a == NULL || (bn_ctx = BN_CTX_new()) == NULL)
 		return NULL;
 
 	if((tmp = BN_new()) == NULL ||

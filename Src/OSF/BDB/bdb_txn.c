@@ -2149,7 +2149,7 @@ int __txn_child_recover(ENV*env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void *
 		 * If the parent is in state COMMIT or IGNORE, then we apply
 		 * that to the child, else we need to abort the child.
 		 */
-		if(ret == DB_NOTFOUND  || oneof2(c_stat, TXN_OK, TXN_COMMIT)) {
+		if(ret == DB_NOTFOUND || oneof2(c_stat, TXN_OK, TXN_COMMIT)) {
 			if(t_ret == DB_NOTFOUND || (p_stat != TXN_COMMIT  && p_stat != TXN_IGNORE))
 				c_stat = TXN_ABORT;
 			else

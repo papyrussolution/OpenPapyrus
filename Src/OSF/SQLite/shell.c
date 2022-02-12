@@ -76,9 +76,9 @@
 */
 #ifndef SQLITE_DISABLE_LFS
 #define _LARGE_FILE       1
-# ifndef _FILE_OFFSET_BITS
+#ifndef _FILE_OFFSET_BITS
 #   define _FILE_OFFSET_BITS 64
-# endif
+#endif
 #define _LARGEFILE_SOURCE 1
 #endif
 
@@ -91,27 +91,27 @@ typedef sqlite3_int64 i64;
 typedef sqlite3_uint64 u64;
 typedef unsigned char u8;
 #if SQLITE_USER_AUTHENTICATION
-# include "sqlite3userauth.h"
+#include "sqlite3userauth.h"
 #endif
 #include <ctype.h>
 #include <stdarg.h>
 
 #if !defined(_WIN32) && !defined(WIN32)
-# include <signal.h>
-# if !defined(__RTP__) && !defined(_WRS_KERNEL)
-#  include <pwd.h>
-# endif
+#include <signal.h>
+#if !defined(__RTP__) && !defined(_WRS_KERNEL)
+#include <pwd.h>
+#endif
 #endif
 #if(!defined(_WIN32) && !defined(WIN32)) || defined(__MINGW32__)
-# include <unistd.h>
-# include <dirent.h>
+#include <unistd.h>
+#include <dirent.h>
 #define GETPID getpid
-# if defined(__MINGW32__)
+#if defined(__MINGW32__)
 #  define DIRENT dirent
 #  ifndef S_ISLNK
 #   define S_ISLNK(mode) (0)
 #  endif
-# endif
+#endif
 #else
 #define GETPID (int)GetCurrentProcessId
 #endif
@@ -119,12 +119,12 @@ typedef unsigned char u8;
 #include <sys/stat.h>
 
 #if HAVE_READLINE
-# include <readline/readline.h>
-# include <readline/history.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 #endif
 
 #if HAVE_EDITLINE
-# include <editline/readline.h>
+#include <editline/readline.h>
 #endif
 
 #if HAVE_EDITLINE || HAVE_READLINE
@@ -137,7 +137,7 @@ typedef unsigned char u8;
 
 #elif HAVE_LINENOISE
 
-# include "linenoise.h"
+#include "linenoise.h"
 #define shell_add_history(X) linenoiseHistoryAdd(X)
 #define shell_read_history(X) linenoiseHistoryLoad(X)
 #define shell_write_history(X) linenoiseHistorySave(X)
@@ -154,11 +154,11 @@ typedef unsigned char u8;
 #endif
 
 #if defined(_WIN32) || defined(WIN32)
-# if SQLITE_OS_WINRT
+#if SQLITE_OS_WINRT
 #  define SQLITE_OMIT_POPEN 1
 # else
-#  include <io.h>
-#  include <fcntl.h>
+#include <io.h>
+#include <fcntl.h>
 #  define isatty(h) _isatty(h)
 #  ifndef access
 #   define access(f, m) _access((f), (m))
@@ -169,23 +169,23 @@ typedef unsigned char u8;
 #  ifndef strdup
 #   define strdup _strdup
 #  endif
-#  undef popen
+#undef popen
 #  define popen _popen
-#  undef pclose
+#undef pclose
 #  define pclose _pclose
-# endif
+#endif
 #else
 /* Make sure isatty() has a prototype. */
 extern int isatty(int);
 
-# if !defined(__RTP__) && !defined(_WRS_KERNEL)
+#if !defined(__RTP__) && !defined(_WRS_KERNEL)
 /* popen and pclose are not C89 functions and so are
 ** sometimes omitted from the <stdio.h> header */
 extern FILE * popen(const char*, const char*);
 extern int pclose(FILE*);
 # else
 #  define SQLITE_OMIT_POPEN 1
-# endif
+#endif
 #endif
 
 #if defined(_WIN32_WCE)
@@ -1467,16 +1467,16 @@ SQLITE_EXTENSION_INIT1
 ** at run-time.
 */
 #ifndef SHA3_BYTEORDER
-# if defined(i386)     || defined(__i386__)   || defined(_M_IX86) ||    \
-	defined(__x86_64) || defined(__x86_64__) || defined(_M_X64)  ||    \
-	defined(_M_AMD64) || defined(_M_ARM)     || defined(__x86)   ||    \
+#if defined(i386)    || defined(__i386__)  || defined(_M_IX86) ||    \
+	defined(__x86_64) || defined(__x86_64__) || defined(_M_X64) ||    \
+	defined(_M_AMD64) || defined(_M_ARM)    || defined(__x86)  ||    \
 	defined(__arm__)
 #   define SHA3_BYTEORDER    1234
-# elif defined(sparc)    || defined(__ppc__)
+# elif defined(sparc)   || defined(__ppc__)
 #   define SHA3_BYTEORDER    4321
 # else
 #   define SHA3_BYTEORDER 0
-# endif
+#endif
 #endif
 
 /*
@@ -2228,15 +2228,15 @@ SQLITE_EXTENSION_INIT1
 #include <sys/stat.h>
 #include <fcntl.h>
 #if !defined(_WIN32) && !defined(WIN32)
-#  include <unistd.h>
-#  include <dirent.h>
-#  include <utime.h>
-#  include <sys/time.h>
+#include <unistd.h>
+#include <dirent.h>
+#include <utime.h>
+#include <sys/time.h>
 #else
-#  include "windows.h"
-#  include <io.h>
-#  include <direct.h>
-/* #  include "test_windirent.h" */
+#include "windows.h"
+#include <io.h>
+#include <direct.h>
+/* #include "test_windirent.h" */
 #  define dirent DIRENT
 #  ifndef chmod
 #    define chmod _chmod
@@ -2503,9 +2503,9 @@ static int writeFile(sqlite3_context * pCtx,          /* Context to return bytes
 				** to do so using chmod(), it is not an error.  */
 				struct stat sStat;
 				if(errno!=EEXIST
-				    || 0!=fileStat(zFile, &sStat)
-				    || !S_ISDIR(sStat.st_mode)
-				    || ((sStat.st_mode&0777)!=(mode&0777) && 0!=chmod(zFile, mode&0777))
+				   || 0!=fileStat(zFile, &sStat)
+				   || !S_ISDIR(sStat.st_mode)
+				   || ((sStat.st_mode&0777)!=(mode&0777) && 0!=chmod(zFile, mode&0777))
 				    ) {
 					return 1;
 				}
@@ -4139,9 +4139,9 @@ static int apndIsAppendvfsDatabase(sqlite3_int64 sz, sqlite3_file * pFile){
 static int apndIsOrdinaryDatabaseFile(sqlite3_int64 sz, sqlite3_file * pFile){
 	char zHdr[16];
 	if(apndIsAppendvfsDatabase(sz, pFile) /* rule 2 */
-	    || (sz & 0x1ff) != 0
-	    || SQLITE_OK!=pFile->pMethods->xRead(pFile, zHdr, sizeof(zHdr), 0)
-	    || memcmp(zHdr, apvfsSqliteHdr, sizeof(zHdr))!=0
+	   || (sz & 0x1ff) != 0
+	   || SQLITE_OK!=pFile->pMethods->xRead(pFile, zHdr, sizeof(zHdr), 0)
+	   || memcmp(zHdr, apvfsSqliteHdr, sizeof(zHdr))!=0
 	    ) {
 		return 0;
 	}
@@ -6111,7 +6111,7 @@ static unsigned re_next_char_nocase(ReInput * p){
 /* Return true if c is a perl "word" character:  [A-Za-z0-9_] */
 static int re_word_char(int c){
 	return (c>='0' && c<='9') || (c>='a' && c<='z')
-	       || (c>='A' && c<='Z') || c=='_';
+	      || (c>='A' && c<='Z') || c=='_';
 }
 
 /* Return true if c is a "digit" character:  [0-9] */
@@ -6775,14 +6775,14 @@ SQLITE_EXTENSION_INIT1
 #  define UINT32_TYPE uint32_t
 # else
 #  define UINT32_TYPE unsigned int
-# endif
+#endif
 #endif
 #ifndef UINT16_TYPE
 # ifdef HAVE_UINT16_T
 #  define UINT16_TYPE uint16_t
 # else
 #  define UINT16_TYPE unsigned short int
-# endif
+#endif
 #endif
 /* typedef sqlite3_int64 i64; */
 /* typedef unsigned char u8; */
@@ -7508,8 +7508,8 @@ static void zipfileMtimeToDos(ZipfileCDS * pCds, u32 mUnixTime){
 	}
 
 	assert(mUnixTime<315507600
-	    || mUnixTime==zipfileMtime(pCds)
-	    || ((mUnixTime % 2) && mUnixTime-1==zipfileMtime(pCds))
+	   || mUnixTime==zipfileMtime(pCds)
+	   || ((mUnixTime % 2) && mUnixTime-1==zipfileMtime(pCds))
 	    /* || (mUnixTime % 2) */
 	    );
 }
@@ -12790,7 +12790,7 @@ static void output_csv(ShellState * p, const char * z, int bSep){
 		int nSep = strlen30(p->colSeparator);
 		for(i = 0; z[i]; i++) {
 			if(needCsvQuote[((unsigned char*)z)[i]]
-			    || (z[i]==p->colSeparator[0] &&
+			   || (z[i]==p->colSeparator[0] &&
 			    (nSep==1 || memcmp(z, p->colSeparator, nSep)==0))) {
 				i = 0;
 				break;
@@ -14325,9 +14325,9 @@ static void exec_prepared_stmt(ShellState * pArg,                               
 	int rc;
 
 	if(pArg->cMode==MODE_Column
-	    || pArg->cMode==MODE_Table
-	    || pArg->cMode==MODE_Box
-	    || pArg->cMode==MODE_Markdown
+	   || pArg->cMode==MODE_Table
+	   || pArg->cMode==MODE_Box
+	   || pArg->cMode==MODE_Markdown
 	    ) {
 		exec_prepared_stmt_columnar(pArg, pStmt);
 		return;
@@ -15243,10 +15243,10 @@ static int showHelp(FILE * out, const char * zPattern){
 	int n = 0;
 	char * zPat;
 	if(zPattern==0
-	    || zPattern[0]=='0'
-	    || strcmp(zPattern, "-a")==0
-	    || strcmp(zPattern, "-all")==0
-	    || strcmp(zPattern, "--all")==0
+	   || zPattern[0]=='0'
+	   || strcmp(zPattern, "-a")==0
+	   || strcmp(zPattern, "-all")==0
+	   || strcmp(zPattern, "--all")==0
 	    ) {
 		/* Show all commands, but only one line per command */
 		if(zPattern==0) zPattern = "";
@@ -16190,9 +16190,9 @@ static char * SQLITE_CDECL csv_read_one_field(ImportCtx * p){
 				}
 			}
 			if((c==cSep && pc==cQuote)
-			    || (c==rSep && pc==cQuote)
-			    || (c==rSep && pc=='\r' && ppc==cQuote)
-			    || (c==EOF && pc==cQuote)
+			   || (c==rSep && pc==cQuote)
+			   || (c==rSep && pc=='\r' && ppc==cQuote)
+			   || (c==EOF && pc==cQuote)
 			    ) {
 				do {
 					p->n--;
@@ -16957,23 +16957,23 @@ static int lintFkeyIndexes(ShellState * pState,             /* Current shell too
 	const char * zSql =
 	    "SELECT "
 	    "     'EXPLAIN QUERY PLAN SELECT 1 FROM ' || quote(s.name) || ' WHERE '"
-	    "  || group_concat(quote(s.name) || '.' || quote(f.[from]) || '=?' "
-	    "  || fkey_collate_clause("
+	    " || group_concat(quote(s.name) || '.' || quote(f.[from]) || '=?' "
+	    " || fkey_collate_clause("
 	    "       f.[table], COALESCE(f.[to], p.[name]), s.name, f.[from]),' AND ')"
 	    ", "
 	    "     'SEARCH ' || s.name || ' USING COVERING INDEX*('"
-	    "  || group_concat('*=?', ' AND ') || ')'"
+	    " || group_concat('*=?', ' AND ') || ')'"
 	    ", "
-	    "     s.name  || '(' || group_concat(f.[from],  ', ') || ')'"
+	    "     s.name || '(' || group_concat(f.[from],  ', ') || ')'"
 	    ", "
 	    "     f.[table] || '(' || group_concat(COALESCE(f.[to], p.[name])) || ')'"
 	    ", "
 	    "     'CREATE INDEX ' || quote(s.name ||'_'|| group_concat(f.[from], '_'))"
-	    "  || ' ON ' || quote(s.name) || '('"
-	    "  || group_concat(quote(f.[from]) ||"
+	    " || ' ON ' || quote(s.name) || '('"
+	    " || group_concat(quote(f.[from]) ||"
 	    "        fkey_collate_clause("
 	    "          f.[table], COALESCE(f.[to], p.[name]), s.name, f.[from]), ', ')"
-	    "  || ');'"
+	    " || ');'"
 	    ", "
 	    "     f.[table] "
 	    "FROM sqlite_schema AS s, pragma_foreign_key_list(s.name) AS f "
@@ -17823,7 +17823,7 @@ static int arDotCommand(ShellState * pState,          /* Current shell tool stat
 			int flags;
 			if(cmd.bAppend) eDbType = SHELL_OPEN_APPENDVFS;
 			if(cmd.eCmd==AR_CMD_CREATE || cmd.eCmd==AR_CMD_INSERT
-			    || cmd.eCmd==AR_CMD_UPDATE) {
+			   || cmd.eCmd==AR_CMD_UPDATE) {
 				flags = SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE;
 			}
 			else {
@@ -18662,7 +18662,7 @@ static int do_meta_command(char * zLine, ShellState * p){
 #endif
 
 	if((c=='b' && n>=3 && strncmp(azArg[0], "backup", n)==0)
-	    || (c=='s' && n>=3 && strncmp(azArg[0], "save", n)==0)
+	   || (c=='s' && n>=3 && strncmp(azArg[0], "save", n)==0)
 	    ) {
 		const char * zDestFile = 0;
 		const char * zDb = 0;
@@ -20056,7 +20056,7 @@ static int do_meta_command(char * zLine, ShellState * p){
 	}
 	else if((c=='o'
 	 && (strncmp(azArg[0], "output", n)==0||strncmp(azArg[0], "once", n)==0))
-	    || (c=='e' && n==5 && strcmp(azArg[0], "excel")==0)
+	   || (c=='e' && n==5 && strcmp(azArg[0], "excel")==0)
 	    ) {
 		char * zFile = 0;
 		int bTxtMode = 0;
@@ -20416,7 +20416,7 @@ parameter_syntax_error:
 			return 1;
 		}
 		while((rc = sqlite3_backup_step(pBackup, 100))==SQLITE_OK
-		    || rc==SQLITE_BUSY) {
+		   || rc==SQLITE_BUSY) {
 			if(rc==SQLITE_BUSY) {
 				if(nTimeout++ >= 3) break;
 				sqlite3_sleep(100);
@@ -20490,9 +20490,9 @@ parameter_syntax_error:
 		}
 		if(zName!=0) {
 			int isSchema = sqlite3_strlike(zName, "sqlite_master", '\\')==0
-			    || sqlite3_strlike(zName, "sqlite_schema", '\\')==0
-			    || sqlite3_strlike(zName, "sqlite_temp_master", '\\')==0
-			    || sqlite3_strlike(zName, "sqlite_temp_schema", '\\')==0;
+			   || sqlite3_strlike(zName, "sqlite_schema", '\\')==0
+			   || sqlite3_strlike(zName, "sqlite_temp_master", '\\')==0
+			   || sqlite3_strlike(zName, "sqlite_temp_schema", '\\')==0;
 			if(isSchema) {
 				char * new_argv[2], * new_colv[2];
 				new_argv[0] = sqlite3_mprintf(
@@ -20974,7 +20974,7 @@ session_syntax_error:
 					bSchema = 1;
 				}
 				else if(strcmp(z, "sha3-224")==0 || strcmp(z, "sha3-256")==0
-				    || strcmp(z, "sha3-384")==0 || strcmp(z, "sha3-512")==0
+				   || strcmp(z, "sha3-384")==0 || strcmp(z, "sha3-512")==0
 				    ) {
 					iSize = atoi(&z[5]);
 				}
@@ -21162,8 +21162,8 @@ session_syntax_error:
 		}
 	}
 	else if((c=='t' && n>1 && strncmp(azArg[0], "tables", n)==0)
-	    || (c=='i' && (strncmp(azArg[0], "indices", n)==0
-	    || strncmp(azArg[0], "indexes", n)==0) )
+	   || (c=='i' && (strncmp(azArg[0], "indices", n)==0
+	   || strncmp(azArg[0], "indexes", n)==0) )
 	    ) {
 		sqlite3_stmt * pStmt;
 		char ** azResult;

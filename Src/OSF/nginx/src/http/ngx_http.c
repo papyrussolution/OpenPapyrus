@@ -541,9 +541,9 @@ ngx_int_t ngx_http_add_location(ngx_conf_t * cf, ngx_queue_t ** locations, ngx_h
 	}
 	if(clcf->exact_match
 #if (NGX_PCRE)
-	    || clcf->regex
+	   || clcf->regex
 #endif
-	    || clcf->named || clcf->noname) {
+	   || clcf->named || clcf->noname) {
 		lq->exact = clcf;
 		lq->inclusive = NULL;
 	}

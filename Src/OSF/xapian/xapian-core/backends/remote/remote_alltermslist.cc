@@ -51,7 +51,7 @@ TermList* RemoteAllTermsList::next()
 		data.resize(0);
 		return NULL;
 	}
-	current_term.resize(size_t(static_cast<unsigned char>(*p++)));
+	current_term.resize(size_t(static_cast<uchar>(*p++)));
 	if(!unpack_string_append(&p, p_end, current_term) ||
 	    !unpack_uint(&p, p_end, &current_termfreq)) {
 		unpack_throw_serialisation_error(p);

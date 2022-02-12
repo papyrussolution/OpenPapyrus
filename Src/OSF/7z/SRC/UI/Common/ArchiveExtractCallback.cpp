@@ -878,7 +878,7 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(uint32 index, ISequentialOutStre
 
 				FString fullProcessedPath(us2fs(processedPath));
 				if(_pathMode != NExtract::NPathMode::kAbsPaths
-				    || !NName::IsAbsolutePath(processedPath)) {
+				   || !NName::IsAbsolutePath(processedPath)) {
 					fullProcessedPath = MakePath_from_2_Parts(_dirPathPrefix, fullProcessedPath);
 				}
 

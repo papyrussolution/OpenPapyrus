@@ -29,7 +29,7 @@ GumboAttribute * FASTCALL gumbo_get_attribute(const GumboVector * attributes, co
 	if(attributes) {
 		for(uint i = 0; i < attributes->length; ++i) {
 			GumboAttribute * attr = static_cast<GumboAttribute *>(attributes->data[i]);
-			if(!strcasecmp(attr->name, name))
+			if(sstreqi_ascii(attr->name, name))
 				return attr;
 		}
 	}
@@ -556,7 +556,7 @@ static GumboNode * get_adjusted_current_node(GumboParser * parser)
 static bool FASTCALL is_in_static_list(const char * needle, const GumboStringPiece * haystack, bool exact_match) 
 {
 	for(uint i = 0; haystack[i].length > 0; ++i) {
-		if((exact_match && sstreq(needle, haystack[i].data)) || (!exact_match && !strcasecmp(needle, haystack[i].data)))
+		if((exact_match && sstreq(needle, haystack[i].data)) || (!exact_match && sstreqi_ascii(needle, haystack[i].data)))
 			return true;
 	}
 	return false;

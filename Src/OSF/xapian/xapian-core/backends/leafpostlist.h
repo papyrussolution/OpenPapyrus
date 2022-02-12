@@ -23,11 +23,10 @@
 #define XAPIAN_INCLUDED_LEAFPOSTLIST_H
 
 #include "postlist.h"
-
-#include <string>
+//#include <string>
 
 namespace Xapian {
-    class Weight;
+class Weight;
 }
 
 /** Abstract base class for leaf postlists.
@@ -36,114 +35,116 @@ namespace Xapian {
  *  class:
  */
 class LeafPostList : public PostList {
-    /// Don't allow assignment.
-    void operator=(const LeafPostList &) = delete;
+	/// Don't allow assignment.
+	void operator=(const LeafPostList &) = delete;
 
-    /// Don't allow copying.
-    LeafPostList(const LeafPostList &) = delete;
+	/// Don't allow copying.
+	LeafPostList(const LeafPostList &) = delete;
 
-  protected:
-    const Xapian::Weight * weight;
+protected:
+	const Xapian::Weight * weight;
 
-    /// The term name for this postlist (empty for an alldocs postlist).
-    std::string term;
+	/// The term name for this postlist (empty for an alldocs postlist).
+	std::string term;
 
-    /// Only constructable as a base class for derived classes.
-    explicit LeafPostList(const std::string & term_)
-	: weight(0), term(term_) { }
+	/// Only constructable as a base class for derived classes.
+	explicit LeafPostList(const std::string & term_)
+		: weight(0), term(term_) {
+	}
 
-  public:
-    ~LeafPostList();
+public:
+	~LeafPostList();
 
-    /** Set the weighting scheme to use during matching.
-     *
-     *  If this isn't called, get_weight() and recalc_maxweight() will both
-     *  return 0.
-     *
-     *  You should not call this more than once on a particular object.
-     *
-     *  @param weight_	The weighting object to use.  Must not be NULL.
-     */
-    void set_termweight(const Xapian::Weight * weight_) {
-	// This method shouldn't be called more than once on the same object.
-	Assert(!weight);
-	weight = weight_;
-    }
+	/** Set the weighting scheme to use during matching.
+	 *
+	 *  If this isn't called, get_weight() and recalc_maxweight() will both
+	 *  return 0.
+	 *
+	 *  You should not call this more than once on a particular object.
+	 *
+	 *  @param weight_	The weighting object to use.  Must not be NULL.
+	 */
+	void set_termweight(const Xapian::Weight * weight_) {
+		// This method shouldn't be called more than once on the same object.
+		Assert(!weight);
+		weight = weight_;
+	}
 
-    double resolve_lazy_termweight(Xapian::Weight * weight_,
-				   Xapian::Weight::Internal * stats,
-				   Xapian::termcount qlen,
-				   Xapian::termcount wqf,
-				   double factor,
-				   const Xapian::Database::Internal* shard)
-    {
-	weight_->init_(*stats, qlen, term, wqf, factor, shard, this);
-	// There should be an existing LazyWeight set already.
-	Assert(weight);
-	const Xapian::Weight * const_weight_ = weight_;
-	std::swap(weight, const_weight_);
-	delete const_weight_;
-	// We get such terms from the database so they should exist.
-	Assert(get_termfreq() > 0);
-	stats->termfreqs[term].max_part += weight->get_maxpart();
-	return stats->termfreqs[term].max_part;
-    }
+	double resolve_lazy_termweight(Xapian::Weight * weight_,
+	    Xapian::Weight::Internal * stats,
+	    Xapian::termcount qlen,
+	    Xapian::termcount wqf,
+	    double factor,
+	    const Xapian::Database::Internal* shard)
+	{
+		weight_->init_(*stats, qlen, term, wqf, factor, shard, this);
+		// There should be an existing LazyWeight set already.
+		Assert(weight);
+		const Xapian::Weight * const_weight_ = weight_;
+		std::swap(weight, const_weight_);
+		delete const_weight_;
+		// We get such terms from the database so they should exist.
+		Assert(get_termfreq() > 0);
+		stats->termfreqs[term].max_part += weight->get_maxpart();
+		return stats->termfreqs[term].max_part;
+	}
 
-    /** Return the exact term frequency.
-     *
-     *  Leaf postlists have an exact termfreq, which get_termfreq_min(),
-     *  get_termfreq_max(), and get_termfreq_est() all report.
-     */
-    virtual Xapian::doccount get_termfreq() const = 0;
+	/** Return the exact term frequency.
+	 *
+	 *  Leaf postlists have an exact termfreq, which get_termfreq_min(),
+	 *  get_termfreq_max(), and get_termfreq_est() all report.
+	 */
+	virtual Xapian::doccount get_termfreq() const = 0;
 
-    Xapian::doccount get_termfreq_min() const;
-    Xapian::doccount get_termfreq_max() const;
-    Xapian::doccount get_termfreq_est() const;
+	Xapian::doccount get_termfreq_min() const;
+	Xapian::doccount get_termfreq_max() const;
+	Xapian::doccount get_termfreq_est() const;
 
-    double get_weight(Xapian::termcount doclen,
-		      Xapian::termcount unique_terms,
-		      Xapian::termcount wdfdocmax) const;
+	double get_weight(Xapian::termcount doclen,
+	    Xapian::termcount unique_terms,
+	    Xapian::termcount wdfdocmax) const;
 
-    double recalc_maxweight();
+	double recalc_maxweight();
 
-    TermFreqs get_termfreq_est_using_stats(
-	const Xapian::Weight::Internal & stats) const;
+	TermFreqs get_termfreq_est_using_stats(const Xapian::Weight::Internal & stats) const;
 
-    Xapian::termcount count_matching_subqs() const;
+	Xapian::termcount count_matching_subqs() const;
 
-    void gather_position_lists(OrPositionList* orposlist);
+	void gather_position_lists(OrPositionList* orposlist);
 
-    /** Open another postlist from the same database.
-     *
-     *  @param term_	The term to open a postlist for (must not be an empty
-     *			string).  If term_ is near to this postlist's term,
-     *			then this can be a lot more efficient (and if it isn't
-     *			very near, there's not much of a penalty).  Using this
-     *			method can make a wildcard expansion much more memory
-     *			efficient.
-     *
-     *  @param need_read_pos
-     *			Does the postlist need to support read_position_list()?
-     *			Note that open_position_list() may still be called even
-     *			if need_read_pos is false.
-     *
-     *  @return		The new postlist object, or NULL if not supported
-     *			(in which case the caller should probably open the
-     *			postlist via the database instead).
-     */
-    virtual LeafPostList * open_nearby_postlist(const std::string & term_,
-						bool need_read_pos) const;
+	/** Open another postlist from the same database.
+	 *
+	 *  @param term_	The term to open a postlist for (must not be an empty
+	 *			string).  If term_ is near to this postlist's term,
+	 *			then this can be a lot more efficient (and if it isn't
+	 *			very near, there's not much of a penalty).  Using this
+	 *			method can make a wildcard expansion much more memory
+	 *			efficient.
+	 *
+	 *  @param need_read_pos
+	 *			Does the postlist need to support read_position_list()?
+	 *			Note that open_position_list() may still be called even
+	 *			if need_read_pos is false.
+	 *
+	 *  @return		The new postlist object, or NULL if not supported
+	 *			(in which case the caller should probably open the
+	 *			postlist via the database instead).
+	 */
+	virtual LeafPostList * open_nearby_postlist(const std::string & term_,
+	    bool need_read_pos) const;
 
-    virtual Xapian::termcount get_wdf_upper_bound() const = 0;
+	virtual Xapian::termcount get_wdf_upper_bound() const = 0;
 
-    /** Set the term name.
-     *
-     *  This is useful when we optimise a term matching all documents to an
-     *  all documents postlist under OP_SYNONYM, as the term name is used by
-     *  LeafPostList::get_termfreq_est_using_stats() to locate the appropriate
-     *  TermFreqs object.
-     */
-    void set_term(const std::string & term_) { term = term_; }
+	/** Set the term name.
+	 *
+	 *  This is useful when we optimise a term matching all documents to an
+	 *  all documents postlist under OP_SYNONYM, as the term name is used by
+	 *  LeafPostList::get_termfreq_est_using_stats() to locate the appropriate
+	 *  TermFreqs object.
+	 */
+	void set_term(const std::string & term_) {
+		term = term_;
+	}
 };
 
 #endif // XAPIAN_INCLUDED_LEAFPOSTLIST_H

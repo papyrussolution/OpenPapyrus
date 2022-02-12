@@ -404,8 +404,7 @@ int main(int argc, char ** argv)
 		outData = usp.getBuffer();
 	}
 	if(status.isFailure()) {
-		fprintf(stderr,
-		    "gendict: got failure of type %s while serializing, if U_ILLEGAL_ARGUMENT_ERROR possibly due to duplicate dictionary entries\n",
+		fprintf(stderr, "gendict: got failure of type %s while serializing, if U_ILLEGAL_ARGUMENT_ERROR possibly due to duplicate dictionary entries\n",
 		    status.errorName());
 		exit(status.reset());
 	}

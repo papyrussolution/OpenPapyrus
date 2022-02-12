@@ -1,26 +1,12 @@
 /** @file
  * @brief Xapian::PL2Weight class - the PL2 weighting scheme of the DFR framework.
  */
-/* Copyright (C) 2013 Aarsh Shah
- * Copyright (C) 2013,2014,2016 Olly Betts
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
- */
+// Copyright (C) 2013 Aarsh Shah
+// Copyright (C) 2013,2014,2016 Olly Betts
+// @licence GNU GPL
+//
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "xapian/weight.h"
 #include "common/log2.h"
 #include "weightinternal.h"
 #include "serialise-double.h"
@@ -142,16 +128,12 @@ PL2Weight * PL2Weight::unserialise(const string & s) const
 	return new PL2Weight(c);
 }
 
-double PL2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
-    Xapian::termcount, Xapian::termcount) const
+double PL2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len, Xapian::termcount, Xapian::termcount) const
 {
 	if(wdf == 0) return 0.0;
-
 	double wdfn = wdf * log2(1 + cl / len);
-
 	double P = P1 + (wdfn + 0.5) * log2(wdfn) - P2 * wdfn;
 	if(rare(P <= 0)) return 0.0;
-
 	return factor * P / (wdfn + 1.0);
 }
 
@@ -160,9 +142,7 @@ double PL2Weight::get_maxpart() const
 	return upper_bound;
 }
 
-double PL2Weight::get_sumextra(Xapian::termcount,
-    Xapian::termcount,
-    Xapian::termcount) const
+double PL2Weight::get_sumextra(Xapian::termcount, Xapian::termcount, Xapian::termcount) const
 {
 	return 0;
 }

@@ -25,46 +25,38 @@
 #include "backends/multi/multi_database.h"
 #include "editdistance.h"
 #include "postingiteratorinternal.h"
-#include <xapian/unicode.h>
 
 using namespace std;
 
-[[noreturn]]
-static void docid_zero_invalid()
+[[noreturn]] static void docid_zero_invalid()
 {
 	throw Xapian::InvalidArgumentError("Document ID 0 is invalid");
 }
 
-[[noreturn]]
-static void empty_metadata_key()
+[[noreturn]] static void empty_metadata_key()
 {
 	throw Xapian::InvalidArgumentError("Empty metadata keys are invalid");
 }
 
-[[noreturn]]
-static void empty_term_invalid()
+[[noreturn]] static void empty_term_invalid()
 {
 	throw Xapian::InvalidArgumentError("Empty terms are invalid");
 }
 
 namespace Xapian {
-Database::Database(Database::Internal* internal_)
-	: internal(internal_)
+Database::Database(Database::Internal* internal_) : internal(internal_)
 {
 }
 
 Database::Database(const Database&) = default;
 
-Database&
-Database::operator=(const Database&) = default;
+Database& Database::operator=(const Database&) = default;
 
 Database::Database(Database&&) = default;
 
-Database&
-Database::operator=(Database&&) = default;
+Database& Database::operator=(Database&&) = default;
 
-Database::Database()
-	: internal(new EmptyDatabase)
+Database::Database() : internal(new EmptyDatabase)
 {
 }
 
@@ -90,19 +82,14 @@ size_t Database::size() const
 void Database::add_database_(const Database& o, bool read_only)
 {
 	if(this == &o) {
-		const char* msg = read_only ?
-		    "Database::add_database(): Can't add a Database to itself" :
-		    "WritableDatabase::add_database(): Can't add a WritableDatabase "
-		    "to itself";
+		const char* msg = read_only ? "Database::add_database(): Can't add a Database to itself" : "WritableDatabase::add_database(): Can't add a WritableDatabase to itself";
 		throw InvalidArgumentError(msg);
 	}
-
 	auto o_size = o.internal->size();
 	if(o_size == 0) {
 		// Adding an empty database is a no-op.
 		return;
 	}
-
 	auto my_size = internal->size();
 	if(my_size == 0 && o_size == 1) {
 		// Just copy.
@@ -136,11 +123,9 @@ void Database::add_database_(const Database& o, bool read_only)
 	// But performing WritableDatabase actions using such a WritableDatabase
 	// should now throw InvalidOperationError.
 	if(!internal->is_read_only() && read_only) {
-		throw InvalidArgumentError("Database::add_database(): Can't add a "
-			  "Database to a WritableDatabase");
+		throw InvalidArgumentError("Database::add_database(): Can't add a Database to a WritableDatabase");
 	}
 #endif
-
 	// Make sure internal is a MultiDatabase with enough space reserved.
 	auto new_size = my_size + o_size;
 	MultiDatabase* multi_db;

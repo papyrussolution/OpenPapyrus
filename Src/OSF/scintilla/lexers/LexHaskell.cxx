@@ -75,7 +75,7 @@ static bool FASTCALL IsHaskellAlphaNumeric(const int ch)
 static bool FASTCALL IsHaskellUpperCase(const int ch)
 {
 	if(IsASCII(ch)) {
-		return ch >= 'A' && ch <= 'Z';
+		return (ch >= 'A' && ch <= 'Z');
 	}
 	else {
 		return u_iswupper(ch) != 0;
@@ -85,12 +85,9 @@ static bool FASTCALL IsHaskellUpperCase(const int ch)
 static bool FASTCALL IsAnHaskellOperatorChar(const int ch)
 {
 	if(IsASCII(ch)) {
-		return
-			(  ch == '!' || ch == '#' || ch == '$' || ch == '%'
-		    || ch == '&' || ch == '*' || ch == '+' || ch == '-'
-		    || ch == '.' || ch == '/' || ch == ':' || ch == '<'
-		    || ch == '=' || ch == '>' || ch == '?' || ch == '@'
-		    || ch == '^' || ch == '|' || ch == '~' || ch == '\\');
+		return (ch == '!' || ch == '#' || ch == '$' || ch == '%' || ch == '&' || ch == '*' || ch == '+' || ch == '-' || 
+			ch == '.' || ch == '/' || ch == ':' || ch == '<' || ch == '=' || ch == '>' || ch == '?' || ch == '@' || 
+		   ch == '^' || ch == '|' || ch == '~' || ch == '\\');
 	}
 	else {
 		return u_IsHaskellSymbol(ch) != 0;
@@ -104,9 +101,7 @@ static bool FASTCALL IsAHaskellWordStart(const int ch)
 
 static bool FASTCALL IsAHaskellWordChar(const int ch)
 {
-	return (  IsHaskellAlphaNumeric(ch)
-	    || ch == '_'
-	    || ch == '\'');
+	return (  IsHaskellAlphaNumeric(ch) || ch == '_' || ch == '\'');
 }
 
 static bool FASTCALL IsCommentBlockStyle(int style)
@@ -117,16 +112,16 @@ static bool FASTCALL IsCommentBlockStyle(int style)
 static bool FASTCALL IsCommentStyle(int style)
 {
 	return (style >= SCE_HA_COMMENTLINE && style <= SCE_HA_COMMENTBLOCK3)
-	       || ( style == SCE_HA_LITERATE_COMMENT
-	    || style == SCE_HA_LITERATE_CODEDELIM);
+	      || ( style == SCE_HA_LITERATE_COMMENT
+	   || style == SCE_HA_LITERATE_CODEDELIM);
 }
 
 // styles which do not belong to Haskell, but to external tools
 static bool FASTCALL IsExternalStyle(int style)
 {
 	return ( style == SCE_HA_PREPROCESSOR
-	    || style == SCE_HA_LITERATE_COMMENT
-	    || style == SCE_HA_LITERATE_CODEDELIM);
+	   || style == SCE_HA_LITERATE_COMMENT
+	   || style == SCE_HA_LITERATE_CODEDELIM);
 }
 
 static inline int CommentBlockStyleFromNestLevel(const uint nestLevel)
@@ -895,9 +890,9 @@ void SCI_METHOD LexerHaskell::Lex(Sci_PositionU startPos, Sci_Position length, i
 			}
 			// Braces and punctuation
 			else if(sc.ch == ',' || sc.ch == ';'
-			    || sc.ch == '(' || sc.ch == ')'
-			    || sc.ch == '[' || sc.ch == ']'
-			    || sc.ch == '{' || sc.ch == '}') {
+			   || sc.ch == '(' || sc.ch == ')'
+			   || sc.ch == '[' || sc.ch == ']'
+			   || sc.ch == '{' || sc.ch == '}') {
 				sc.SetState(SCE_HA_OPERATOR);
 				sc.ForwardSetState(SCE_HA_DEFAULT);
 			}

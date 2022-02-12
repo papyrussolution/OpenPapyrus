@@ -6189,6 +6189,17 @@ int WriteBill_NalogRu2_Invoice2(const PPBillPacket & rBp, const char * pHeaderSy
 				g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_CONSIGNEEINFO), buyer_psn_id, consignee_loc_id, rBp.Rec.Dt, 0);
 				// } @v10.8.2
 				g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_BUYERINFO), buyer_psn_id, 0, rBp.Rec.Dt, 0);
+				// @v11.3.1 {
+				{
+					//<ДокПодтвОтгр НаимДокОтгр="Накладная" НомДокОтгр="21-00491132391" ДатаДокОтгр="08.07.2021"/>
+					SXml::WNode n(g.P_X, g.GetToken_Ansi(PPHSC_RU_CONFSHIPMDOC));
+					temp_buf = g.GetToken_Ansi(PPHSC_RU_CONFSHIPMDOCNAM_BILL);
+					n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_CONFSHIPMDOCNAME), temp_buf);
+					temp_buf = rBp.Rec.Code;
+					n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_CONFSHIPMDOCNO), g.EncText(temp_buf));
+					n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_CONFSHIPMDOCDATE), temp_buf.Z().Cat(rBp.Rec.Dt, DATF_GERMAN|DATF_CENTURY));
+				}
+				// } @v11.3.1
 			}
 			g.WriteInvoiceItems(_hi, rBp);
 			{

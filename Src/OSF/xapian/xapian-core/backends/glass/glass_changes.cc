@@ -51,44 +51,36 @@ GlassChanges * GlassChanges::start(glass_revision_number_t old_rev, glass_revisi
 	const char * p = getenv("XAPIAN_MAX_CHANGESETS");
 	if(p && *p) {
 		if(!parse_unsigned(p, max_changesets)) {
-			throw Xapian::InvalidArgumentError("XAPIAN_MAX_CHANGESETS must be "
-				  "a non-negative integer");
+			throw Xapian::InvalidArgumentError("XAPIAN_MAX_CHANGESETS must be a non-negative integer");
 		}
 	}
 	else {
 		max_changesets = 0;
 	}
-
 	if(max_changesets == 0)
 		return NULL;
-
 	string changes_tmp = changes_stem;
 	changes_tmp += "tmp";
-	changes_fd = posixy_open(changes_tmp.c_str(),
-		O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0666);
+	changes_fd = posixy_open(changes_tmp.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0666);
 	if(changes_fd < 0) {
 		string message = "Couldn't open changeset ";
 		message += changes_tmp;
 		message += " to write";
 		throw Xapian::DatabaseError(message, errno);
 	}
-
 	// Write header for changeset file.
 	string header = CHANGES_MAGIC_STRING;
 	header += char(CHANGES_VERSION);
 	pack_uint(header, old_rev);
 	pack_uint(header, rev);
-
 	if(flags & Xapian::DB_DANGEROUS) {
 		header += '\x01'; // Changes can't be applied to a live database.
 	}
 	else {
 		header += '\x00'; // Changes can be applied to a live database.
 	}
-
 	io_write(changes_fd, header.data(), header.size());
 	// FIXME: save the block stream as a single zlib stream...
-
 	// bool compressed = CHANGES_VERSION != 1; FIXME: always true for glass, but make optional?
 	return this;
 }
@@ -102,12 +94,9 @@ void GlassChanges::commit(glass_revision_number_t new_rev, int flags)
 {
 	if(changes_fd < 0)
 		return;
-
 	io_write(changes_fd, "\xff", 1);
-
 	string changes_tmp = changes_stem;
 	changes_tmp += "tmp";
-
 	if(!(flags & Xapian::DB_NO_SYNC) && !io_sync(changes_fd)) {
 		int saved_errno = errno;
 		::_close(changes_fd);
@@ -119,17 +108,14 @@ void GlassChanges::commit(glass_revision_number_t new_rev, int flags)
 	}
 	::_close(changes_fd);
 	changes_fd = -1;
-
 	string changes_file = changes_stem;
 	changes_file += str(new_rev - 1); // FIXME: ?
-
 	if(!io_tmp_rename(changes_tmp, changes_file)) {
 		string m = changes_tmp;
 		m += ": Failed to rename to ";
 		m += changes_file;
 		throw Xapian::DatabaseError(m, errno);
 	}
-
 	if(new_rev <= max_changesets) {
 		// We can't yet have max_changesets old changesets.
 		return;

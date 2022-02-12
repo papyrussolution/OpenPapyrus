@@ -221,7 +221,7 @@ static int send_client_reply_packet(MCPVIO_EXT * mpvio, const uchar * data, int 
 #ifdef HAVE_TLS
 	if(mysql->options.ssl_key || mysql->options.ssl_cert || mysql->options.ssl_ca || mysql->options.ssl_capath || mysql->options.ssl_cipher
 #ifdef CRL_IMPLEMENTED
-	    || (mysql->options.extension && (mysql->options.extension->ssl_crl || mysql->options.extension->ssl_crlpath))
+	   || (mysql->options.extension && (mysql->options.extension->ssl_crl || mysql->options.extension->ssl_crlpath))
 #endif
 	    )
 		mysql->options.use_ssl = 1;

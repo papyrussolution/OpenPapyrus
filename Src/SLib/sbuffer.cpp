@@ -1144,9 +1144,9 @@ int SBinarySet::Enum(size_t * pPos, uint32 * pId, SBinaryChunk * pResult) const
 	return ok;
 }
 
-int SBinarySet::Get(uint32 id, SBinaryChunk * pResult) const
+bool SBinarySet::Get(uint32 id, SBinaryChunk * pResult) const
 {
-	int    ok = 1;
+	int    ok = true;
 	uint32 size = 0;
 	const void * ptr = GetPtr(id, &size);
 	THROW(ptr);

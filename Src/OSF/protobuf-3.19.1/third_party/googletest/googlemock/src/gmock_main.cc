@@ -52,7 +52,7 @@ void loop() {
 // https://web.archive.org/web/20170912203238/connect.microsoft.com/VisualStudio/feedback/details/394464/wmain-link-error-in-the-static-library
 // // NOLINT
 #if GTEST_OS_WINDOWS_MOBILE
-# include <tchar.h>  // NOLINT
+#include <tchar.h>  // NOLINT
 
 GTEST_API_ int _tmain(int argc, TCHAR** argv) {
 #else

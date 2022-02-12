@@ -181,7 +181,7 @@ int RSA_set0_key(RSA * r, BIGNUM * n, BIGNUM * e, BIGNUM * d)
 	 * left NULL (in case only the public key is used).
 	 */
 	if((r->n == NULL && n == NULL)
-	    || (r->e == NULL && e == NULL))
+	   || (r->e == NULL && e == NULL))
 		return 0;
 
 	if(n != NULL) {
@@ -207,7 +207,7 @@ int RSA_set0_factors(RSA * r, BIGNUM * p, BIGNUM * q)
 	 * parameters MUST be non-NULL.
 	 */
 	if((r->p == NULL && p == NULL)
-	    || (r->q == NULL && q == NULL))
+	   || (r->q == NULL && q == NULL))
 		return 0;
 
 	if(p) {
@@ -230,8 +230,8 @@ int RSA_set0_crt_params(RSA * r, BIGNUM * dmp1, BIGNUM * dmq1, BIGNUM * iqmp)
 	 * parameters MUST be non-NULL.
 	 */
 	if((r->dmp1 == NULL && dmp1 == NULL)
-	    || (r->dmq1 == NULL && dmq1 == NULL)
-	    || (r->iqmp == NULL && iqmp == NULL))
+	   || (r->dmq1 == NULL && dmq1 == NULL)
+	   || (r->iqmp == NULL && iqmp == NULL))
 		return 0;
 
 	if(dmp1 != NULL) {

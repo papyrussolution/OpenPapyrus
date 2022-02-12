@@ -308,7 +308,7 @@ static int write_header(struct archive_write * a, struct archive_entry * entry)
 	format_octal(archive_entry_gid(entry), h + c_gid_offset, c_gid_size);
 	format_octal(archive_entry_nlink(entry), h + c_nlink_offset, c_nlink_size);
 	if(archive_entry_filetype(entry) == AE_IFBLK
-	    || archive_entry_filetype(entry) == AE_IFCHR)
+	   || archive_entry_filetype(entry) == AE_IFCHR)
 		format_octal(archive_entry_rdev(entry), h + c_rdev_offset, c_rdev_size);
 	else
 		format_octal(0, h + c_rdev_offset, c_rdev_size);

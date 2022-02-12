@@ -224,7 +224,7 @@ void ColouriseCamlDoc(Sci_PositionU startPos, Sci_Position length, int initStyle
 				    "=<>@^|&+-*/$%"                     /* Caml "infix-symbol" */
 				    "()[]{};,:.#", sc.ch)       // Caml "bracket" or ;,:.#
 			    // SML "extra" ident chars
-			    || (isSML && (sc.Match('\\') || sc.Match('`'))))
+			   || (isSML && (sc.Match('\\') || sc.Match('`'))))
 				    state2 = SCE_CAML_OPERATOR;
 			    break;
 
@@ -274,15 +274,15 @@ void ColouriseCamlDoc(Sci_PositionU startPos, Sci_Position length, int initStyle
 			    // [try to] interpret as [additional] operator char
 			    const char * o = 0;
 			    if(iscaml(sc.ch) || isspace(sc.ch)                  // ident or whitespace
-				    || (o = sstrchr(")]};,\'\"#", sc.ch), o) // "termination" chars
-				    || (!isSML && sc.Match('`'))                // Caml extra term char
-				    || (!sstrchr("!$%&*+-./:<=>?@^|~", sc.ch) // "operator" chars
+				   || (o = sstrchr(")]};,\'\"#", sc.ch), o) // "termination" chars
+				   || (!isSML && sc.Match('`'))                // Caml extra term char
+				   || (!sstrchr("!$%&*+-./:<=>?@^|~", sc.ch) // "operator" chars
 			                    // SML extra ident chars
 					 && !(isSML && (sc.Match('\\') || sc.Match('`'))))) {
 				    // check for INCLUSIVE termination
 				    if(o && sstrchr(")]};,", sc.ch)) {
 					    if((sc.Match(')') && sc.chPrev == '(')
-						    || (sc.Match(']') && sc.chPrev == '['))
+						   || (sc.Match(']') && sc.chPrev == '['))
 						    // special-case "()" and "[]" tokens as KEYWORDS
 						    sc.ChangeState(SCE_CAML_KEYWORD);
 					    chColor++;
@@ -293,31 +293,23 @@ void ColouriseCamlDoc(Sci_PositionU startPos, Sci_Position length, int initStyle
 			    }
 			    break;
 		    }
-
 			case SCE_CAML_NUMBER:
 			    // [try to] interpret as [additional] numeric literal char
 			    if((!isSML && sc.Match('_')) || IsADigit(sc.ch, chBase))
 				    break;
 			    // how about an integer suffix?
-			    if(!isSML && (sc.Match('l') || sc.Match('L') || sc.Match('n'))
-			 && (sc.chPrev == '_' || IsADigit(sc.chPrev, chBase)))
+			    if(!isSML && (sc.Match('l') || sc.Match('L') || sc.Match('n')) && (sc.chPrev == '_' || IsADigit(sc.chPrev, chBase)))
 				    break;
 			    // or a floating-point literal?
 			    if(chBase == 10) {
 				    // with a decimal point?
-				    if(sc.Match('.')
-				 && ((!isSML && sc.chPrev == '_')
-					    || IsADigit(sc.chPrev, chBase)))
+				    if(sc.Match('.') && ((!isSML && sc.chPrev == '_') || IsADigit(sc.chPrev, chBase)))
 					    break;
 				    // with an exponent? (I)
-				    if((sc.Match('e') || sc.Match('E'))
-				 && ((!isSML && (sc.chPrev == '.' || sc.chPrev == '_'))
-					    || IsADigit(sc.chPrev, chBase)))
+				    if((sc.Match('e') || sc.Match('E')) && ((!isSML && (sc.chPrev == '.' || sc.chPrev == '_')) || IsADigit(sc.chPrev, chBase)))
 					    break;
 				    // with an exponent? (II)
-				    if(((!isSML && (sc.Match('+') || sc.Match('-')))
-					    || (isSML && sc.Match('~')))
-				 && (sc.chPrev == 'e' || sc.chPrev == 'E'))
+				    if(((!isSML && (sc.Match('+') || sc.Match('-'))) || (isSML && sc.Match('~'))) && (sc.chPrev == 'e' || sc.chPrev == 'E'))
 					    break;
 			    }
 			    // it looks like we have run out of number
@@ -334,7 +326,7 @@ void ColouriseCamlDoc(Sci_PositionU startPos, Sci_Position length, int initStyle
 					    // should we be terminating - one way or another?
 				    }
 				    else if((sc.Match('\'') && sc.chPrev != '\\')
-				    || sc.atLineEnd) {
+				   || sc.atLineEnd) {
 					    state2 = SCE_CAML_DEFAULT;
 					    if(sc.Match('\''))
 						    chColor++;
@@ -356,7 +348,7 @@ void ColouriseCamlDoc(Sci_PositionU startPos, Sci_Position length, int initStyle
 				    sc.ch = ' ';  // (...\\")
 			    // should we be terminating - one way or another?
 			    else if((sc.Match('"') && sc.chPrev != '\\')
-			    || (isSML && sc.atLineEnd)) {
+			   || (isSML && sc.atLineEnd)) {
 				    state2 = SCE_CAML_DEFAULT;
 				    if(sc.Match('"'))
 					    chColor++;

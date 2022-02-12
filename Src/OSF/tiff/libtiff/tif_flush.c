@@ -29,7 +29,7 @@
 #include "tiffiop.h"
 #pragma hdrstop
 
-int TIFFFlush(TIFF* tif)
+int TIFFFlush(TIFF * tif)
 {
 	if(tif->tif_mode == O_RDONLY)
 		return 1;
@@ -89,7 +89,7 @@ int TIFFFlush(TIFF* tif)
  * been writing isn't exactly a an error.  Hopefully this doesn't cause
  * problems for other people.
  */
-int TIFFFlushData(TIFF* tif)
+int TIFFFlushData(TIFF * tif)
 {
 	if((tif->tif_flags & TIFF_BEENWRITING) == 0)
 		return 1;

@@ -255,13 +255,11 @@ static void xmlTextReaderFreeProp(xmlTextReader * reader, xmlAttr * cur)
 			SAlloc::F(cur);
 	}
 }
-/**
- * xmlTextReaderFreePropList:
- * @reader:  the (xmlTextReader *) used
- * @cur:  the first property in the list
- *
- * Free a property and all its siblings, all the children are freed too.
- */
+// 
+// Descr: Free a property and all its siblings, all the children are freed too.
+// @reader:  the (xmlTextReader *) used
+// @cur:  the first property in the list
+// 
 static void xmlTextReaderFreePropList(xmlTextReader * reader, xmlAttr * cur) 
 {
 	while(cur) {
@@ -270,13 +268,11 @@ static void xmlTextReaderFreePropList(xmlTextReader * reader, xmlAttr * cur)
 		cur = next;
 	}
 }
-/**
- * @reader:  the (xmlTextReader *) used
- * @cur:  the first node in the list
- *
- * Free a node and all its siblings, this is a recursive behaviour, all
- * the children are freed too.
- */
+// 
+// Descr: Free a node and all its siblings, this is a recursive behaviour, all the children are freed too.
+// @reader:  the (xmlTextReader *) used
+// @cur:  the first node in the list
+// 
 static void FASTCALL xmlTextReaderFreeNodeList(xmlTextReader * reader, xmlNode * cur) 
 {
 	if(cur) {
@@ -302,7 +298,7 @@ static void FASTCALL xmlTextReaderFreeNodeList(xmlTextReader * reader, xmlNode *
 					if((cur->content != (xmlChar *)&(cur->properties)) && !oneof4(cur->type, XML_ELEMENT_NODE, XML_XINCLUDE_START, XML_XINCLUDE_END, XML_ENTITY_REF_NODE)) {
 						XmlDestroyStringWithDict(dict, cur->content);
 					}
-					if(oneof3(cur->type, XML_ELEMENT_NODE, XML_XINCLUDE_START, XML_XINCLUDE_END) && cur->nsDef)
+					if(oneof3(cur->type, XML_ELEMENT_NODE, XML_XINCLUDE_START, XML_XINCLUDE_END))
 						xmlFreeNsList(cur->nsDef);
 					/*
 					 * we don't free element names here they are interned now
@@ -322,14 +318,12 @@ static void FASTCALL xmlTextReaderFreeNodeList(xmlTextReader * reader, xmlNode *
 		}
 	}
 }
-/**
- * xmlTextReaderFreeNode:
- * @reader:  the (xmlTextReader *) used
- * @cur:  the node
- *
- * Free a node, this is a recursive behaviour, all the children are freed too.
- * This doesn't unlink the child from the list, use xmlUnlinkNode() first.
- */
+// 
+// Descr: Free a node, this is a recursive behaviour, all the children are freed too.
+//   This doesn't unlink the child from the list, use xmlUnlinkNode() first.
+// @reader:  the (xmlTextReader *) used
+// @cur:  the node
+// 
 static void xmlTextReaderFreeNode(xmlTextReader * reader, xmlNode * cur)
 {
 	xmlDict * dict = (reader && reader->ctxt) ? reader->ctxt->dict : NULL;
@@ -357,7 +351,7 @@ static void xmlTextReaderFreeNode(xmlTextReader * reader, xmlNode * cur)
 	if((cur->content != (xmlChar *)&(cur->properties)) && !oneof4(cur->type, XML_ELEMENT_NODE, XML_XINCLUDE_START, XML_XINCLUDE_END, XML_ENTITY_REF_NODE)) {
 		XmlDestroyStringWithDict(dict, cur->content);
 	}
-	if(oneof3(cur->type, XML_ELEMENT_NODE, XML_XINCLUDE_START, XML_XINCLUDE_END) && cur->nsDef)
+	if(oneof3(cur->type, XML_ELEMENT_NODE, XML_XINCLUDE_START, XML_XINCLUDE_END))
 		xmlFreeNsList(cur->nsDef);
 	//
 	// we don't free names here they are interned now
@@ -372,23 +366,19 @@ static void xmlTextReaderFreeNode(xmlTextReader * reader, xmlNode * cur)
 	else
 		SAlloc::F(cur);
 }
-/**
- * xmlTextReaderFreeIDTable:
- * @table:  An id table
- *
- * Deallocate the memory used by an ID hash table.
- */
+// 
+// Descr: Deallocate the memory used by an ID hash table.
+// @table:  An id table
+// 
 static void xmlTextReaderFreeIDTable(xmlIDTable * table)
 {
 	xmlHashFree(table, (xmlHashDeallocator)xmlFreeID);
 }
-/**
- * xmlTextReaderFreeDoc:
- * @reader:  the (xmlTextReader *) used
- * @cur:  pointer to the document
- *
- * Free up all the structures used by a document, tree included.
- */
+// 
+// Descr: Free up all the structures used by a document, tree included.
+// @reader:  the (xmlTextReader *) used
+// @cur:  pointer to the document
+//
 static void xmlTextReaderFreeDoc(xmlTextReader * reader, xmlDoc * cur)
 {
 	xmlDtd * extSubset;
@@ -396,9 +386,7 @@ static void xmlTextReaderFreeDoc(xmlTextReader * reader, xmlDoc * cur)
 	if(cur) {
 		if((__xmlRegisterCallbacks) && (xmlDeregisterNodeDefaultValue))
 			xmlDeregisterNodeDefaultValue((xmlNode *)cur);
-		/*
-		 * Do this before freeing the children list to avoid ID lookups
-		 */
+		// Do this before freeing the children list to avoid ID lookups
 		xmlTextReaderFreeIDTable((xmlIDTable *)cur->ids);
 		cur->ids = NULL;
 		xmlFreeRefTable((xmlRefTable *)cur->refs);
@@ -1712,12 +1700,9 @@ int xmlTextReaderNextSibling(xmlTextReader * reader)
 	else
 		return 0;
 }
-
-/************************************************************************
-*									*
-*			Constructor and destructors			*
-*									*
-************************************************************************/
+// 
+// Constructor and destructors
+// 
 /**
  * xmlNewTextReader:
  * @input: the xmlParserInputBufferPtr used to read data
@@ -1733,7 +1718,7 @@ xmlTextReader * xmlNewTextReader(xmlParserInputBuffer * input, const char * URI)
 		return 0;
 	xmlTextReader * ret = (xmlTextReader *)SAlloc::M(sizeof(xmlTextReader));
 	if(!ret) {
-		xmlGenericError(0, "xmlNewTextReader : malloc failed\n");
+		xmlGenericError(0, __FUNCTION__ ": malloc failed\n");
 		return 0;
 	}
 	memzero(ret, sizeof(xmlTextReader));
@@ -1745,14 +1730,14 @@ xmlTextReader * xmlNewTextReader(xmlParserInputBuffer * input, const char * URI)
 	ret->buffer = xmlBufCreateSize(100);
 	if(!ret->buffer) {
 		SAlloc::F(ret);
-		xmlGenericError(0, "xmlNewTextReader : malloc failed\n");
+		xmlGenericError(0, __FUNCTION__ ": malloc failed\n");
 		return 0;
 	}
 	ret->sax = static_cast<xmlSAXHandler *>(SAlloc::M(sizeof(xmlSAXHandler)));
 	if(!ret->sax) {
 		xmlBufFree(ret->buffer);
 		SAlloc::F(ret);
-		xmlGenericError(0, "xmlNewTextReader : malloc failed\n");
+		xmlGenericError(0, __FUNCTION__ ": malloc failed\n");
 		return 0;
 	}
 	xmlSAXVersion(ret->sax, 2);
@@ -1797,7 +1782,7 @@ xmlTextReader * xmlNewTextReader(xmlParserInputBuffer * input, const char * URI)
 		ret->cur = 0;
 	}
 	if(ret->ctxt == NULL) {
-		xmlGenericError(0, "xmlNewTextReader : malloc failed\n");
+		xmlGenericError(0, __FUNCTION__ ": malloc failed\n");
 		xmlBufFree(ret->buffer);
 		SAlloc::F(ret->sax);
 		SAlloc::F(ret);
@@ -3023,7 +3008,7 @@ const xmlChar * xmlTextReaderConstValue(xmlTextReader * reader)
 			    if(reader->buffer == NULL) {
 				    reader->buffer = xmlBufCreateSize(100);
 				    if(reader->buffer == NULL) {
-					    xmlGenericError(0, "xmlTextReaderSetup : malloc failed\n");
+					    xmlGenericError(0, __FUNCTION__ ": malloc failed\n");
 					    return 0;
 				    }
 			    }
@@ -4216,12 +4201,12 @@ int xmlTextReaderSetup(xmlTextReader * reader, xmlParserInputBuffer * input, con
 	}
 	SETIFZ(reader->buffer, xmlBufCreateSize(100));
 	if(reader->buffer == NULL) {
-		xmlGenericError(0, "xmlTextReaderSetup : malloc failed\n");
+		xmlGenericError(0, __FUNCTION__ ": malloc failed\n");
 		return -1;
 	}
 	SETIFZ(reader->sax, static_cast<xmlSAXHandler *>(SAlloc::M(sizeof(xmlSAXHandler))));
 	if(reader->sax == NULL) {
-		xmlGenericError(0, "xmlTextReaderSetup : malloc failed\n");
+		xmlGenericError(0, __FUNCTION__ ": malloc failed\n");
 		return -1;
 	}
 	xmlSAXVersion(reader->sax, 2);
@@ -4288,7 +4273,7 @@ else {
 			reader->cur = 0;
 		}
 		if(!reader->ctxt) {
-			xmlGenericError(0, "xmlTextReaderSetup : malloc failed\n");
+			xmlGenericError(0, __FUNCTION__ ": malloc failed\n");
 			return -1;
 		}
 	}
@@ -4381,26 +4366,27 @@ long xmlTextReaderByteConsumed(xmlTextReader * reader)
  */
 xmlTextReader * xmlReaderWalker(xmlDoc * doc)
 {
-	xmlTextReader * ret;
-	if(!doc)
-		return 0;
-	ret = (xmlTextReader *)SAlloc::M(sizeof(xmlTextReader));
-	if(!ret) {
-		xmlGenericError(0, "xmlNewTextReader : malloc failed\n");
-		return 0;
+	xmlTextReader * ret = 0;
+	if(doc) {
+		ret = (xmlTextReader *)SAlloc::M(sizeof(xmlTextReader));
+		if(!ret) {
+			xmlGenericError(0, __FUNCTION__ ": malloc failed\n");
+		}
+		else {
+			memzero(ret, sizeof(xmlTextReader));
+			ret->entNr = 0;
+			ret->input = NULL;
+			ret->mode = XML_TEXTREADER_MODE_INITIAL;
+			ret->P_Node = NULL;
+			ret->curnode = NULL;
+			ret->base = 0;
+			ret->cur = 0;
+			ret->allocs = XML_TEXTREADER_CTXT;
+			ret->doc = doc;
+			ret->state = XML_TEXTREADER_START;
+			ret->dict = xmlDictCreate();
+		}
 	}
-	memzero(ret, sizeof(xmlTextReader));
-	ret->entNr = 0;
-	ret->input = NULL;
-	ret->mode = XML_TEXTREADER_MODE_INITIAL;
-	ret->P_Node = NULL;
-	ret->curnode = NULL;
-	ret->base = 0;
-	ret->cur = 0;
-	ret->allocs = XML_TEXTREADER_CTXT;
-	ret->doc = doc;
-	ret->state = XML_TEXTREADER_START;
-	ret->dict = xmlDictCreate();
 	return ret;
 }
 /**

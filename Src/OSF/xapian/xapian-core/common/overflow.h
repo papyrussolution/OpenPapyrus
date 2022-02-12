@@ -26,7 +26,7 @@
 #define XAPIAN_INCLUDED_OVERFLOW_H
 
 #ifndef PACKAGE
-# error config.h must be included first in each C++ source file
+#error config.h must be included first in each C++ source file
 #endif
 
 #include <type_traits>

@@ -19,7 +19,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "xapian/mset.h"
 #include "msetinternal.h"
 
 using namespace std;

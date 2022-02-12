@@ -1,22 +1,9 @@
 /** @file
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2017 Olly Betts
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
- */
+// Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2017 Olly Betts
+// @licence GNU GPL
+//
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "remoteconnection.h"
@@ -202,7 +189,7 @@ bool RemoteConnection::read_at_least(size_t min_len, double end_time)
 			if(errno != EINTR && errno != EAGAIN)
 				throw Xapian::NetworkError("select failed during read",
 					  context, errno);
-# endif
+#endif
 		}
 	}
 #endif
@@ -316,7 +303,7 @@ void RemoteConnection::send_message(char type, const string &message,
 		RealTime::to_timeval(time_diff, &tv);
 		int result = select(fdout + 1, 0, &fdset, 0, &tv);
 #  define POLLSELECT "select"
-# endif
+#endif
 
 		if(result < 0) {
 			if(errno == EINTR || errno == EAGAIN) {
@@ -467,7 +454,7 @@ void RemoteConnection::send_file(char type, int fd, double end_time)
 		RealTime::to_timeval(time_diff, &tv);
 		int result = select(fdout + 1, 0, &fdset, 0, &tv);
 #  define POLLSELECT "select"
-# endif
+#endif
 
 		if(result < 0) {
 			if(errno == EINTR || errno == EAGAIN) {
@@ -678,7 +665,7 @@ void RemoteConnection::shutdown()
 				res = select(fdin + 1, &fdset, 0, 0, NULL);
 			} while(res < 0 && (errno == EINTR || errno == EAGAIN));
 		}
-# endif
+#endif
 #endif
 	} catch(...) {
 	}

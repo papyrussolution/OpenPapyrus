@@ -92,7 +92,7 @@ DEFINE_RUN_ONCE_STATIC(do_memdbg_init)
 	memdbg_lock = CRYPTO_THREAD_lock_new();
 	long_memdbg_lock = CRYPTO_THREAD_lock_new();
 	if(memdbg_lock == NULL || long_memdbg_lock == NULL
-	    || !CRYPTO_THREAD_init_local(&appinfokey, NULL)) {
+	   || !CRYPTO_THREAD_init_local(&appinfokey, NULL)) {
 		CRYPTO_THREAD_lock_free(memdbg_lock);
 		memdbg_lock = NULL;
 		CRYPTO_THREAD_lock_free(long_memdbg_lock);
@@ -202,7 +202,7 @@ static int mem_check_on(void)
 		CRYPTO_THREAD_read_lock(memdbg_lock);
 
 		ret = (mh_mode & CRYPTO_MEM_CHECK_ENABLE)
-		    || !CRYPTO_THREAD_compare_id(disabling_threadid, cur);
+		   || !CRYPTO_THREAD_compare_id(disabling_threadid, cur);
 
 		CRYPTO_THREAD_unlock(memdbg_lock);
 	}
@@ -273,7 +273,7 @@ int CRYPTO_mem_debug_push(const char * info, const char * file, int line)
 		CRYPTO_mem_ctrl(CRYPTO_MEM_CHECK_DISABLE);
 
 		if(!RUN_ONCE(&memdbg_init, do_memdbg_init)
-		    || (ami = OPENSSL_malloc(sizeof(*ami))) == NULL)
+		   || (ami = OPENSSL_malloc(sizeof(*ami))) == NULL)
 			goto err;
 
 		ami->threadid = CRYPTO_THREAD_get_current_id();

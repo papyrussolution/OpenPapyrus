@@ -21,25 +21,19 @@
 #ifndef XAPIAN_INCLUDED_STDCLAMP_H
 #define XAPIAN_INCLUDED_STDCLAMP_H
 
-#include <algorithm>
-#include <functional>
+//#include <algorithm>
+//#include <functional>
 
 #if __cplusplus >= 201703L
-# define STD_CLAMP std::clamp
+	#define STD_CLAMP std::clamp
 #else
-template<typename T, typename CMP>
-constexpr const T&
-STD_CLAMP(const T& value, const T& lower, const T& upper, CMP cmp)
-{
-    return cmp(value, lower) ? lower : (cmp(upper, value) ? upper : value);
-}
-
-template<typename T>
-constexpr const T&
-STD_CLAMP(const T& value, const T& lower, const T& upper)
-{
-    return STD_CLAMP(value, lower, upper, std::less<T>());
-}
+	template <typename T, typename CMP> constexpr const T&STD_CLAMP(const T& value, const T& lower, const T& upper, CMP cmp)
+	{
+		return cmp(value, lower) ? lower : (cmp(upper, value) ? upper : value);
+	}
+	template <typename T> constexpr const T&STD_CLAMP(const T& value, const T& lower, const T& upper)
+	{
+		return STD_CLAMP(value, lower, upper, std::less<T>());
+	}
 #endif
-
 #endif // XAPIAN_INCLUDED_STDCLAMP_H

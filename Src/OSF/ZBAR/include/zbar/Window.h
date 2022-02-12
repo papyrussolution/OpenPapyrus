@@ -27,7 +27,7 @@
 /// Output Window C++ wrapper
 
 #ifndef _ZBAR_H_
-# error "include zbar.h in your application, **not** zbar/Window.h"
+#error "include zbar.h in your application, **not** zbar/Window.h"
 #endif
 
 #include "Image.h"

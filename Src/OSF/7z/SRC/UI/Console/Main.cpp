@@ -581,7 +581,7 @@ int __ListArchiveContent(const char * pFileName)
 				so << "offset=" << arc.SignatureOffset << ' ';
 			FOR_VECTOR(si, arc.Signatures) {
 				if(si != 0)
-					so << "  ||  ";
+					so << " ||  ";
 				const CByteBuffer &sig = arc.Signatures[si];
 				for(size_t j = 0; j < sig.Size(); j++) {
 					if(j != 0)

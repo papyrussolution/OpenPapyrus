@@ -207,7 +207,7 @@ class SCS_SHTRIHFRF : public PPSyncCashSession {
 public:
 	SCS_SHTRIHFRF(PPID n, char * name, char * port);
 	~SCS_SHTRIHFRF();
-	virtual int PrintCheck(CCheckPacket *, uint flags);
+	virtual int PrintCheck(CCheckPacket * pPack, uint flags);
 	// @v10.0.0 virtual int PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN);
 	virtual int PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
 	virtual int PrintSlipDoc(const CCheckPacket * pPack, const char * pFormatName, uint flags);
@@ -2061,12 +2061,7 @@ int SCS_SHTRIHFRF::SetupTables()
 	long   cshr_pssw;
 	SString temp_buf;//cshr_name;
 	SString cshr_str;
-	if(PPObjPerson::GetCurUserPerson(0, &temp_buf) == -1) {
-		PPObjSecur sec_obj(PPOBJ_USR, 0);
-		PPSecur sec_rec;
-		if(sec_obj.Fetch(LConfig.UserID, &sec_rec) > 0)
-			temp_buf = sec_rec.Name;
-	}
+	PPSyncCashSession::GetCurrentUserName(temp_buf);
 	PPLoadString("cashier", cshr_str);
 	cshr_str.Space().Cat(temp_buf).Transf(CTRANSF_INNER_TO_OUTER);
 	// Получаем пароль кассира

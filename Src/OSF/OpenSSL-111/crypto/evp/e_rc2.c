@@ -135,7 +135,7 @@ static int rc2_get_asn1_type_and_iv(EVP_CIPHER_CTX * c, ASN1_TYPE * type)
 			return -1;
 		if(EVP_CIPHER_CTX_ctrl(c, EVP_CTRL_SET_RC2_KEY_BITS, key_bits,
 		    NULL) <= 0
-		    || EVP_CIPHER_CTX_set_key_length(c, key_bits / 8) <= 0)
+		   || EVP_CIPHER_CTX_set_key_length(c, key_bits / 8) <= 0)
 			return -1;
 	}
 	return i;

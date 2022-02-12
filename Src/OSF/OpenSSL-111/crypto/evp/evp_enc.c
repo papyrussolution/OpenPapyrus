@@ -430,7 +430,7 @@ int EVP_DecryptUpdate(EVP_CIPHER_CTX * ctx, uchar * out, int * outl, const uchar
 	if(ctx->final_used) {
 		/* see comment about PTRDIFF_T comparison above */
 		if(((PTRDIFF_T)out == (PTRDIFF_T)in)
-		    || is_partially_overlapping(out, in, b)) {
+		   || is_partially_overlapping(out, in, b)) {
 			EVPerr(EVP_F_EVP_DECRYPTUPDATE, EVP_R_PARTIALLY_OVERLAPPING);
 			return 0;
 		}

@@ -718,7 +718,7 @@ void CArcCmdLineParser::Parse1(const UStringVector &commandStrings, CArcCmdLineO
 	options.IsInTerminal = MY_IS_TERMINAL(stdin);
 	options.IsStdOutTerminal = MY_IS_TERMINAL(stdout);
 	options.IsStdErrTerminal = MY_IS_TERMINAL(stderr);
-	options.HelpMode = parser[NKey::kHelp1].ThereIs || parser[NKey::kHelp2].ThereIs  || parser[NKey::kHelp3].ThereIs;
+	options.HelpMode = parser[NKey::kHelp1].ThereIs || parser[NKey::kHelp2].ThereIs || parser[NKey::kHelp3].ThereIs;
 	options.StdInMode = parser[NKey::kStdIn].ThereIs;
 	options.StdOutMode = parser[NKey::kStdOut].ThereIs;
 	options.EnableHeaders = !parser[NKey::kDisableHeaders].ThereIs;
@@ -979,7 +979,7 @@ void CArcCmdLineParser::Parse2(CArcCmdLineOptions &options)
 				if(options.Number_for_Percents == k_OutStream_stdout
 				    // || options.Number_for_Out      == k_OutStream_stdout
 				    // || options.Number_for_Errors   == k_OutStream_stdout
-				    || ((options.IsStdOutTerminal && options.IsStdErrTerminal) && (options.Number_for_Percents != k_OutStream_disabled
+				   || ((options.IsStdOutTerminal && options.IsStdErrTerminal) && (options.Number_for_Percents != k_OutStream_disabled
 				                    // || options.Number_for_Out      != k_OutStream_disabled
 				                    // || options.Number_for_Errors   != k_OutStream_disabled
 					    )

@@ -36,7 +36,7 @@
  * - u_charMirror(c) needs the same number of code units as c
  */
 #if defined(UTF_SIZE) && UTF_SIZE==8
-# error reimplement ubidi_writeReordered() for UTF-8, see comment above
+#error reimplement ubidi_writeReordered() for UTF-8, see comment above
 #endif
 
 #define IS_COMBINING(type) ((1UL<<(type))&(1UL<<U_NON_SPACING_MARK|1UL<<U_COMBINING_SPACING_MARK|1UL<<U_ENCLOSING_MARK))

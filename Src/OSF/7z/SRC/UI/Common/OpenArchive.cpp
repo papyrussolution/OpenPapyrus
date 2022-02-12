@@ -1493,7 +1493,7 @@ HRESULT CArc::OpenStream2(const COpenOptions &op)
 
 				if(ai.FindExtension(extension) >= 0
 	    #ifndef _SFX
-				    || isZip && sstreqi_ascii(ai.Name, "zip") || isRar && sstreqi_ascii(ai.Name, "rar")
+				   || isZip && sstreqi_ascii(ai.Name, "zip") || isRar && sstreqi_ascii(ai.Name, "rar")
 	    #endif
 				    ) {
 					// PrintNumber("orderIndices.Insert", i);

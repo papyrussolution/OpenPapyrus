@@ -116,8 +116,7 @@ class NumberFormat final :
   inline void Swap(NumberFormat* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -137,7 +136,7 @@ class NumberFormat final :
   NumberFormat* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
     return CreateMaybeMessage<NumberFormat>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)  final;
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) final;
   void CopyFrom(const NumberFormat& from);
   void MergeFrom(const NumberFormat& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -145,8 +144,7 @@ class NumberFormat final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -157,12 +155,9 @@ class NumberFormat final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "i18n.phonenumbers.NumberFormat";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "i18n.phonenumbers.NumberFormat"; }
   protected:
-  explicit NumberFormat(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit NumberFormat(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
@@ -192,7 +187,7 @@ class NumberFormat final :
   std::string* mutable_leading_digits_pattern(int index);
   void set_leading_digits_pattern(int index, const std::string& value);
   void set_leading_digits_pattern(int index, std::string&& value);
-  void set_leading_digits_pattern(int index, const char* value);
+  void set_leading_digits_pattern(int index, const char * value);
   void set_leading_digits_pattern(int index, const char* value, size_t size);
   std::string* add_leading_digits_pattern();
   void add_leading_digits_pattern(const std::string& value);
@@ -295,8 +290,7 @@ class NumberFormat final :
  private:
   class _Internal;
 
-  // helper for ByteSizeLong()
-  size_t RequiredFieldsByteSizeFallback() const;
+  size_t RequiredFieldsByteSizeFallback() const; // helper for ByteSizeLong()
 
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
@@ -355,8 +349,7 @@ class PhoneNumberDesc final :
   inline void Swap(PhoneNumberDesc* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -376,7 +369,7 @@ class PhoneNumberDesc final :
   PhoneNumberDesc* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
     return CreateMaybeMessage<PhoneNumberDesc>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)  final;
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) final;
   void CopyFrom(const PhoneNumberDesc& from);
   void MergeFrom(const PhoneNumberDesc& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -384,8 +377,7 @@ class PhoneNumberDesc final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -396,12 +388,9 @@ class PhoneNumberDesc final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "i18n.phonenumbers.PhoneNumberDesc";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "i18n.phonenumbers.PhoneNumberDesc"; }
   protected:
-  explicit PhoneNumberDesc(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit PhoneNumberDesc(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
@@ -558,8 +547,7 @@ class PhoneMetadata final :
   inline void Swap(PhoneMetadata* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -579,7 +567,7 @@ class PhoneMetadata final :
   PhoneMetadata* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
     return CreateMaybeMessage<PhoneMetadata>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)  final;
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) final;
   void CopyFrom(const PhoneMetadata& from);
   void MergeFrom(const PhoneMetadata& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -587,8 +575,7 @@ class PhoneMetadata final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -599,12 +586,9 @@ class PhoneMetadata final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "i18n.phonenumbers.PhoneMetadata";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "i18n.phonenumbers.PhoneMetadata"; }
   protected:
-  explicit PhoneMetadata(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit PhoneMetadata(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
@@ -1288,8 +1272,7 @@ class PhoneMetadataCollection final :
   inline void Swap(PhoneMetadataCollection* other) {
     if(other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if(GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
+    if(GetOwningArena() != nullptr && GetOwningArena() == other->GetOwningArena()) {
    #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if(GetOwningArena() == other->GetOwningArena()) {
   #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
@@ -1309,7 +1292,7 @@ class PhoneMetadataCollection final :
   PhoneMetadataCollection* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
     return CreateMaybeMessage<PhoneMetadataCollection>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)  final;
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) final;
   void CopyFrom(const PhoneMetadataCollection& from);
   void MergeFrom(const PhoneMetadataCollection& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
@@ -1317,8 +1300,7 @@ class PhoneMetadataCollection final :
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  uint8_t* _InternalSerialize(uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -1329,12 +1311,9 @@ class PhoneMetadataCollection final :
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "i18n.phonenumbers.PhoneMetadataCollection";
-  }
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() { return "i18n.phonenumbers.PhoneMetadataCollection"; }
   protected:
-  explicit PhoneMetadataCollection(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
+  explicit PhoneMetadataCollection(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
@@ -1402,8 +1381,8 @@ inline void NumberFormat::clear_pattern() {
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const std::string& NumberFormat::pattern() const {
-  // @@protoc_insertion_point(field_get:i18n.phonenumbers.NumberFormat.pattern)
-  return _internal_pattern();
+	// @@protoc_insertion_point(field_get:i18n.phonenumbers.NumberFormat.pattern)
+	return _internal_pattern();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -1413,45 +1392,40 @@ void NumberFormat::set_pattern(ArgT0&& arg0, ArgT... args) {
   // @@protoc_insertion_point(field_set:i18n.phonenumbers.NumberFormat.pattern)
 }
 inline std::string* NumberFormat::mutable_pattern() {
-  std::string* _s = _internal_mutable_pattern();
-  // @@protoc_insertion_point(field_mutable:i18n.phonenumbers.NumberFormat.pattern)
-  return _s;
+	std::string* _s = _internal_mutable_pattern();
+	// @@protoc_insertion_point(field_mutable:i18n.phonenumbers.NumberFormat.pattern)
+	return _s;
 }
-inline const std::string& NumberFormat::_internal_pattern() const {
-  return pattern_.Get();
-}
+inline const std::string& NumberFormat::_internal_pattern() const { return pattern_.Get(); }
 inline void NumberFormat::_internal_set_pattern(const std::string& value) {
-  _has_bits_[0] |= 0x00000001u;
-  pattern_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000001u;
+	pattern_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* NumberFormat::_internal_mutable_pattern() {
-  _has_bits_[0] |= 0x00000001u;
-  return pattern_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000001u;
+	return pattern_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* NumberFormat::release_pattern() {
   // @@protoc_insertion_point(field_release:i18n.phonenumbers.NumberFormat.pattern)
-  if (!_internal_has_pattern()) {
-    return nullptr;
-  }
+  if(!_internal_has_pattern()) { return nullptr; }
   _has_bits_[0] &= ~0x00000001u;
   auto* p = pattern_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (pattern_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(pattern_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     pattern_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void NumberFormat::set_allocated_pattern(std::string* pattern) {
-  if (pattern != nullptr) {
+  if(pattern != nullptr) {
     _has_bits_[0] |= 0x00000001u;
   } else {
     _has_bits_[0] &= ~0x00000001u;
   }
-  pattern_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), pattern,
-      GetArenaForAllocation());
+  pattern_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), pattern, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (pattern_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(pattern_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     pattern_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -1471,8 +1445,8 @@ inline void NumberFormat::clear_format() {
   _has_bits_[0] &= ~0x00000002u;
 }
 inline const std::string& NumberFormat::format() const {
-  // @@protoc_insertion_point(field_get:i18n.phonenumbers.NumberFormat.format)
-  return _internal_format();
+	// @@protoc_insertion_point(field_get:i18n.phonenumbers.NumberFormat.format)
+	return _internal_format();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -1482,45 +1456,40 @@ void NumberFormat::set_format(ArgT0&& arg0, ArgT... args) {
   // @@protoc_insertion_point(field_set:i18n.phonenumbers.NumberFormat.format)
 }
 inline std::string* NumberFormat::mutable_format() {
-  std::string* _s = _internal_mutable_format();
-  // @@protoc_insertion_point(field_mutable:i18n.phonenumbers.NumberFormat.format)
-  return _s;
+	std::string* _s = _internal_mutable_format();
+	// @@protoc_insertion_point(field_mutable:i18n.phonenumbers.NumberFormat.format)
+	return _s;
 }
-inline const std::string& NumberFormat::_internal_format() const {
-  return format_.Get();
-}
+inline const std::string& NumberFormat::_internal_format() const { return format_.Get(); }
 inline void NumberFormat::_internal_set_format(const std::string& value) {
-  _has_bits_[0] |= 0x00000002u;
-  format_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000002u;
+	format_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* NumberFormat::_internal_mutable_format() {
-  _has_bits_[0] |= 0x00000002u;
-  return format_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000002u;
+	return format_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* NumberFormat::release_format() {
   // @@protoc_insertion_point(field_release:i18n.phonenumbers.NumberFormat.format)
-  if (!_internal_has_format()) {
-    return nullptr;
-  }
+  if(!_internal_has_format()) { return nullptr; }
   _has_bits_[0] &= ~0x00000002u;
   auto* p = format_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (format_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(format_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     format_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void NumberFormat::set_allocated_format(std::string* format) {
-  if (format != nullptr) {
+  if(format != nullptr) {
     _has_bits_[0] |= 0x00000002u;
   } else {
     _has_bits_[0] &= ~0x00000002u;
   }
-  format_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), format,
-      GetArenaForAllocation());
+  format_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), format, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (format_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(format_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     format_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -1528,9 +1497,7 @@ inline void NumberFormat::set_allocated_format(std::string* format) {
 }
 
 // repeated string leading_digits_pattern = 3;
-inline int NumberFormat::_internal_leading_digits_pattern_size() const {
-  return leading_digits_pattern_.size();
-}
+inline int NumberFormat::_internal_leading_digits_pattern_size() const { return leading_digits_pattern_.size(); }
 inline int NumberFormat::leading_digits_pattern_size() const {
   return _internal_leading_digits_pattern_size();
 }
@@ -1542,9 +1509,7 @@ inline std::string* NumberFormat::add_leading_digits_pattern() {
   // @@protoc_insertion_point(field_add_mutable:i18n.phonenumbers.NumberFormat.leading_digits_pattern)
   return _s;
 }
-inline const std::string& NumberFormat::_internal_leading_digits_pattern(int index) const {
-  return leading_digits_pattern_.Get(index);
-}
+inline const std::string& NumberFormat::_internal_leading_digits_pattern(int index) const { return leading_digits_pattern_.Get(index); }
 inline const std::string& NumberFormat::leading_digits_pattern(int index) const {
   // @@protoc_insertion_point(field_get:i18n.phonenumbers.NumberFormat.leading_digits_pattern)
   return _internal_leading_digits_pattern(index);
@@ -1571,9 +1536,7 @@ inline void NumberFormat::set_leading_digits_pattern(int index, const char* valu
     reinterpret_cast<const char*>(value), size);
   // @@protoc_insertion_point(field_set_pointer:i18n.phonenumbers.NumberFormat.leading_digits_pattern)
 }
-inline std::string* NumberFormat::_internal_add_leading_digits_pattern() {
-  return leading_digits_pattern_.Add();
-}
+inline std::string* NumberFormat::_internal_add_leading_digits_pattern() { return leading_digits_pattern_.Add(); }
 inline void NumberFormat::add_leading_digits_pattern(const std::string& value) {
   leading_digits_pattern_.Add()->assign(value);
   // @@protoc_insertion_point(field_add:i18n.phonenumbers.NumberFormat.leading_digits_pattern)
@@ -1615,8 +1578,8 @@ inline void NumberFormat::clear_national_prefix_formatting_rule() {
   _has_bits_[0] &= ~0x00000004u;
 }
 inline const std::string& NumberFormat::national_prefix_formatting_rule() const {
-  // @@protoc_insertion_point(field_get:i18n.phonenumbers.NumberFormat.national_prefix_formatting_rule)
-  return _internal_national_prefix_formatting_rule();
+	// @@protoc_insertion_point(field_get:i18n.phonenumbers.NumberFormat.national_prefix_formatting_rule)
+	return _internal_national_prefix_formatting_rule();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -1626,45 +1589,40 @@ void NumberFormat::set_national_prefix_formatting_rule(ArgT0&& arg0, ArgT... arg
   // @@protoc_insertion_point(field_set:i18n.phonenumbers.NumberFormat.national_prefix_formatting_rule)
 }
 inline std::string* NumberFormat::mutable_national_prefix_formatting_rule() {
-  std::string* _s = _internal_mutable_national_prefix_formatting_rule();
-  // @@protoc_insertion_point(field_mutable:i18n.phonenumbers.NumberFormat.national_prefix_formatting_rule)
-  return _s;
+	std::string* _s = _internal_mutable_national_prefix_formatting_rule();
+	// @@protoc_insertion_point(field_mutable:i18n.phonenumbers.NumberFormat.national_prefix_formatting_rule)
+	return _s;
 }
-inline const std::string& NumberFormat::_internal_national_prefix_formatting_rule() const {
-  return national_prefix_formatting_rule_.Get();
-}
+inline const std::string& NumberFormat::_internal_national_prefix_formatting_rule() const { return national_prefix_formatting_rule_.Get(); }
 inline void NumberFormat::_internal_set_national_prefix_formatting_rule(const std::string& value) {
-  _has_bits_[0] |= 0x00000004u;
-  national_prefix_formatting_rule_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000004u;
+	national_prefix_formatting_rule_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* NumberFormat::_internal_mutable_national_prefix_formatting_rule() {
-  _has_bits_[0] |= 0x00000004u;
-  return national_prefix_formatting_rule_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000004u;
+	return national_prefix_formatting_rule_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* NumberFormat::release_national_prefix_formatting_rule() {
   // @@protoc_insertion_point(field_release:i18n.phonenumbers.NumberFormat.national_prefix_formatting_rule)
-  if (!_internal_has_national_prefix_formatting_rule()) {
-    return nullptr;
-  }
+  if(!_internal_has_national_prefix_formatting_rule()) { return nullptr; }
   _has_bits_[0] &= ~0x00000004u;
   auto* p = national_prefix_formatting_rule_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (national_prefix_formatting_rule_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(national_prefix_formatting_rule_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     national_prefix_formatting_rule_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void NumberFormat::set_allocated_national_prefix_formatting_rule(std::string* national_prefix_formatting_rule) {
-  if (national_prefix_formatting_rule != nullptr) {
+  if(national_prefix_formatting_rule != nullptr) {
     _has_bits_[0] |= 0x00000004u;
   } else {
     _has_bits_[0] &= ~0x00000004u;
   }
-  national_prefix_formatting_rule_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), national_prefix_formatting_rule,
-      GetArenaForAllocation());
+  national_prefix_formatting_rule_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), national_prefix_formatting_rule, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (national_prefix_formatting_rule_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(national_prefix_formatting_rule_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     national_prefix_formatting_rule_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -1683,20 +1641,18 @@ inline void NumberFormat::clear_national_prefix_optional_when_formatting() {
   national_prefix_optional_when_formatting_ = false;
   _has_bits_[0] &= ~0x00000010u;
 }
-inline bool NumberFormat::_internal_national_prefix_optional_when_formatting() const {
-  return national_prefix_optional_when_formatting_;
-}
+inline bool NumberFormat::_internal_national_prefix_optional_when_formatting() const { return national_prefix_optional_when_formatting_; }
 inline bool NumberFormat::national_prefix_optional_when_formatting() const {
-  // @@protoc_insertion_point(field_get:i18n.phonenumbers.NumberFormat.national_prefix_optional_when_formatting)
-  return _internal_national_prefix_optional_when_formatting();
+	// @@protoc_insertion_point(field_get:i18n.phonenumbers.NumberFormat.national_prefix_optional_when_formatting)
+	return _internal_national_prefix_optional_when_formatting();
 }
 inline void NumberFormat::_internal_set_national_prefix_optional_when_formatting(bool value) {
-  _has_bits_[0] |= 0x00000010u;
-  national_prefix_optional_when_formatting_ = value;
+	_has_bits_[0] |= 0x00000010u;
+	national_prefix_optional_when_formatting_ = value;
 }
 inline void NumberFormat::set_national_prefix_optional_when_formatting(bool value) {
-  _internal_set_national_prefix_optional_when_formatting(value);
-  // @@protoc_insertion_point(field_set:i18n.phonenumbers.NumberFormat.national_prefix_optional_when_formatting)
+	_internal_set_national_prefix_optional_when_formatting(value);
+	// @@protoc_insertion_point(field_set:i18n.phonenumbers.NumberFormat.national_prefix_optional_when_formatting)
 }
 
 // optional string domestic_carrier_code_formatting_rule = 5;
@@ -1712,8 +1668,8 @@ inline void NumberFormat::clear_domestic_carrier_code_formatting_rule() {
   _has_bits_[0] &= ~0x00000008u;
 }
 inline const std::string& NumberFormat::domestic_carrier_code_formatting_rule() const {
-  // @@protoc_insertion_point(field_get:i18n.phonenumbers.NumberFormat.domestic_carrier_code_formatting_rule)
-  return _internal_domestic_carrier_code_formatting_rule();
+	// @@protoc_insertion_point(field_get:i18n.phonenumbers.NumberFormat.domestic_carrier_code_formatting_rule)
+	return _internal_domestic_carrier_code_formatting_rule();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -1723,45 +1679,40 @@ void NumberFormat::set_domestic_carrier_code_formatting_rule(ArgT0&& arg0, ArgT.
   // @@protoc_insertion_point(field_set:i18n.phonenumbers.NumberFormat.domestic_carrier_code_formatting_rule)
 }
 inline std::string* NumberFormat::mutable_domestic_carrier_code_formatting_rule() {
-  std::string* _s = _internal_mutable_domestic_carrier_code_formatting_rule();
-  // @@protoc_insertion_point(field_mutable:i18n.phonenumbers.NumberFormat.domestic_carrier_code_formatting_rule)
-  return _s;
+	std::string* _s = _internal_mutable_domestic_carrier_code_formatting_rule();
+	// @@protoc_insertion_point(field_mutable:i18n.phonenumbers.NumberFormat.domestic_carrier_code_formatting_rule)
+	return _s;
 }
-inline const std::string& NumberFormat::_internal_domestic_carrier_code_formatting_rule() const {
-  return domestic_carrier_code_formatting_rule_.Get();
-}
+inline const std::string& NumberFormat::_internal_domestic_carrier_code_formatting_rule() const { return domestic_carrier_code_formatting_rule_.Get(); }
 inline void NumberFormat::_internal_set_domestic_carrier_code_formatting_rule(const std::string& value) {
-  _has_bits_[0] |= 0x00000008u;
-  domestic_carrier_code_formatting_rule_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000008u;
+	domestic_carrier_code_formatting_rule_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* NumberFormat::_internal_mutable_domestic_carrier_code_formatting_rule() {
-  _has_bits_[0] |= 0x00000008u;
-  return domestic_carrier_code_formatting_rule_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000008u;
+	return domestic_carrier_code_formatting_rule_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* NumberFormat::release_domestic_carrier_code_formatting_rule() {
   // @@protoc_insertion_point(field_release:i18n.phonenumbers.NumberFormat.domestic_carrier_code_formatting_rule)
-  if (!_internal_has_domestic_carrier_code_formatting_rule()) {
-    return nullptr;
-  }
+  if(!_internal_has_domestic_carrier_code_formatting_rule()) { return nullptr; }
   _has_bits_[0] &= ~0x00000008u;
   auto* p = domestic_carrier_code_formatting_rule_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (domestic_carrier_code_formatting_rule_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(domestic_carrier_code_formatting_rule_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     domestic_carrier_code_formatting_rule_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void NumberFormat::set_allocated_domestic_carrier_code_formatting_rule(std::string* domestic_carrier_code_formatting_rule) {
-  if (domestic_carrier_code_formatting_rule != nullptr) {
+  if(domestic_carrier_code_formatting_rule != nullptr) {
     _has_bits_[0] |= 0x00000008u;
   } else {
     _has_bits_[0] &= ~0x00000008u;
   }
-  domestic_carrier_code_formatting_rule_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), domestic_carrier_code_formatting_rule,
-      GetArenaForAllocation());
+  domestic_carrier_code_formatting_rule_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), domestic_carrier_code_formatting_rule, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (domestic_carrier_code_formatting_rule_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(domestic_carrier_code_formatting_rule_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     domestic_carrier_code_formatting_rule_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -1785,8 +1736,8 @@ inline void PhoneNumberDesc::clear_national_number_pattern() {
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const std::string& PhoneNumberDesc::national_number_pattern() const {
-  // @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneNumberDesc.national_number_pattern)
-  return _internal_national_number_pattern();
+	// @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneNumberDesc.national_number_pattern)
+	return _internal_national_number_pattern();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -1796,45 +1747,40 @@ void PhoneNumberDesc::set_national_number_pattern(ArgT0&& arg0, ArgT... args) {
   // @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneNumberDesc.national_number_pattern)
 }
 inline std::string* PhoneNumberDesc::mutable_national_number_pattern() {
-  std::string* _s = _internal_mutable_national_number_pattern();
-  // @@protoc_insertion_point(field_mutable:i18n.phonenumbers.PhoneNumberDesc.national_number_pattern)
-  return _s;
+	std::string* _s = _internal_mutable_national_number_pattern();
+	// @@protoc_insertion_point(field_mutable:i18n.phonenumbers.PhoneNumberDesc.national_number_pattern)
+	return _s;
 }
-inline const std::string& PhoneNumberDesc::_internal_national_number_pattern() const {
-  return national_number_pattern_.Get();
-}
+inline const std::string& PhoneNumberDesc::_internal_national_number_pattern() const { return national_number_pattern_.Get(); }
 inline void PhoneNumberDesc::_internal_set_national_number_pattern(const std::string& value) {
-  _has_bits_[0] |= 0x00000001u;
-  national_number_pattern_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000001u;
+	national_number_pattern_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* PhoneNumberDesc::_internal_mutable_national_number_pattern() {
-  _has_bits_[0] |= 0x00000001u;
-  return national_number_pattern_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000001u;
+	return national_number_pattern_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* PhoneNumberDesc::release_national_number_pattern() {
   // @@protoc_insertion_point(field_release:i18n.phonenumbers.PhoneNumberDesc.national_number_pattern)
-  if (!_internal_has_national_number_pattern()) {
-    return nullptr;
-  }
+  if(!_internal_has_national_number_pattern()) { return nullptr; }
   _has_bits_[0] &= ~0x00000001u;
   auto* p = national_number_pattern_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (national_number_pattern_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(national_number_pattern_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     national_number_pattern_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void PhoneNumberDesc::set_allocated_national_number_pattern(std::string* national_number_pattern) {
-  if (national_number_pattern != nullptr) {
+  if(national_number_pattern != nullptr) {
     _has_bits_[0] |= 0x00000001u;
   } else {
     _has_bits_[0] &= ~0x00000001u;
   }
-  national_number_pattern_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), national_number_pattern,
-      GetArenaForAllocation());
+  national_number_pattern_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), national_number_pattern, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (national_number_pattern_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(national_number_pattern_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     national_number_pattern_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -1842,18 +1788,14 @@ inline void PhoneNumberDesc::set_allocated_national_number_pattern(std::string* 
 }
 
 // repeated int32 possible_length = 9;
-inline int PhoneNumberDesc::_internal_possible_length_size() const {
-  return possible_length_.size();
-}
+inline int PhoneNumberDesc::_internal_possible_length_size() const { return possible_length_.size(); }
 inline int PhoneNumberDesc::possible_length_size() const {
   return _internal_possible_length_size();
 }
 inline void PhoneNumberDesc::clear_possible_length() {
   possible_length_.Clear();
 }
-inline int32_t PhoneNumberDesc::_internal_possible_length(int index) const {
-  return possible_length_.Get(index);
-}
+inline int32_t PhoneNumberDesc::_internal_possible_length(int index) const { return possible_length_.Get(index); }
 inline int32_t PhoneNumberDesc::possible_length(int index) const {
   // @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneNumberDesc.possible_length)
   return _internal_possible_length(index);
@@ -1862,9 +1804,7 @@ inline void PhoneNumberDesc::set_possible_length(int index, int32_t value) {
   possible_length_.Set(index, value);
   // @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneNumberDesc.possible_length)
 }
-inline void PhoneNumberDesc::_internal_add_possible_length(int32_t value) {
-  possible_length_.Add(value);
-}
+inline void PhoneNumberDesc::_internal_add_possible_length(int32_t value) { possible_length_.Add(value); }
 inline void PhoneNumberDesc::add_possible_length(int32_t value) {
   _internal_add_possible_length(value);
   // @@protoc_insertion_point(field_add:i18n.phonenumbers.PhoneNumberDesc.possible_length)
@@ -1889,18 +1829,14 @@ PhoneNumberDesc::mutable_possible_length() {
 }
 
 // repeated int32 possible_length_local_only = 10;
-inline int PhoneNumberDesc::_internal_possible_length_local_only_size() const {
-  return possible_length_local_only_.size();
-}
+inline int PhoneNumberDesc::_internal_possible_length_local_only_size() const { return possible_length_local_only_.size(); }
 inline int PhoneNumberDesc::possible_length_local_only_size() const {
   return _internal_possible_length_local_only_size();
 }
 inline void PhoneNumberDesc::clear_possible_length_local_only() {
   possible_length_local_only_.Clear();
 }
-inline int32_t PhoneNumberDesc::_internal_possible_length_local_only(int index) const {
-  return possible_length_local_only_.Get(index);
-}
+inline int32_t PhoneNumberDesc::_internal_possible_length_local_only(int index) const { return possible_length_local_only_.Get(index); }
 inline int32_t PhoneNumberDesc::possible_length_local_only(int index) const {
   // @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneNumberDesc.possible_length_local_only)
   return _internal_possible_length_local_only(index);
@@ -1909,9 +1845,7 @@ inline void PhoneNumberDesc::set_possible_length_local_only(int index, int32_t v
   possible_length_local_only_.Set(index, value);
   // @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneNumberDesc.possible_length_local_only)
 }
-inline void PhoneNumberDesc::_internal_add_possible_length_local_only(int32_t value) {
-  possible_length_local_only_.Add(value);
-}
+inline void PhoneNumberDesc::_internal_add_possible_length_local_only(int32_t value) { possible_length_local_only_.Add(value); }
 inline void PhoneNumberDesc::add_possible_length_local_only(int32_t value) {
   _internal_add_possible_length_local_only(value);
   // @@protoc_insertion_point(field_add:i18n.phonenumbers.PhoneNumberDesc.possible_length_local_only)
@@ -1948,8 +1882,8 @@ inline void PhoneNumberDesc::clear_example_number() {
   _has_bits_[0] &= ~0x00000002u;
 }
 inline const std::string& PhoneNumberDesc::example_number() const {
-  // @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneNumberDesc.example_number)
-  return _internal_example_number();
+	// @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneNumberDesc.example_number)
+	return _internal_example_number();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -1959,45 +1893,40 @@ void PhoneNumberDesc::set_example_number(ArgT0&& arg0, ArgT... args) {
   // @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneNumberDesc.example_number)
 }
 inline std::string* PhoneNumberDesc::mutable_example_number() {
-  std::string* _s = _internal_mutable_example_number();
-  // @@protoc_insertion_point(field_mutable:i18n.phonenumbers.PhoneNumberDesc.example_number)
-  return _s;
+	std::string* _s = _internal_mutable_example_number();
+	// @@protoc_insertion_point(field_mutable:i18n.phonenumbers.PhoneNumberDesc.example_number)
+	return _s;
 }
-inline const std::string& PhoneNumberDesc::_internal_example_number() const {
-  return example_number_.Get();
-}
+inline const std::string& PhoneNumberDesc::_internal_example_number() const { return example_number_.Get(); }
 inline void PhoneNumberDesc::_internal_set_example_number(const std::string& value) {
-  _has_bits_[0] |= 0x00000002u;
-  example_number_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000002u;
+	example_number_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* PhoneNumberDesc::_internal_mutable_example_number() {
-  _has_bits_[0] |= 0x00000002u;
-  return example_number_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000002u;
+	return example_number_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* PhoneNumberDesc::release_example_number() {
   // @@protoc_insertion_point(field_release:i18n.phonenumbers.PhoneNumberDesc.example_number)
-  if (!_internal_has_example_number()) {
-    return nullptr;
-  }
+  if(!_internal_has_example_number()) { return nullptr; }
   _has_bits_[0] &= ~0x00000002u;
   auto* p = example_number_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (example_number_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(example_number_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     example_number_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void PhoneNumberDesc::set_allocated_example_number(std::string* example_number) {
-  if (example_number != nullptr) {
+  if(example_number != nullptr) {
     _has_bits_[0] |= 0x00000002u;
   } else {
     _has_bits_[0] &= ~0x00000002u;
   }
-  example_number_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), example_number,
-      GetArenaForAllocation());
+  example_number_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), example_number, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (example_number_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(example_number_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     example_number_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -3551,8 +3480,8 @@ inline void PhoneMetadata::clear_id() {
   _has_bits_[0] &= ~0x00000001u;
 }
 inline const std::string& PhoneMetadata::id() const {
-  // @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneMetadata.id)
-  return _internal_id();
+	// @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneMetadata.id)
+	return _internal_id();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -3562,45 +3491,40 @@ void PhoneMetadata::set_id(ArgT0&& arg0, ArgT... args) {
   // @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneMetadata.id)
 }
 inline std::string* PhoneMetadata::mutable_id() {
-  std::string* _s = _internal_mutable_id();
-  // @@protoc_insertion_point(field_mutable:i18n.phonenumbers.PhoneMetadata.id)
-  return _s;
+	std::string* _s = _internal_mutable_id();
+	// @@protoc_insertion_point(field_mutable:i18n.phonenumbers.PhoneMetadata.id)
+	return _s;
 }
-inline const std::string& PhoneMetadata::_internal_id() const {
-  return id_.Get();
-}
+inline const std::string& PhoneMetadata::_internal_id() const { return id_.Get(); }
 inline void PhoneMetadata::_internal_set_id(const std::string& value) {
-  _has_bits_[0] |= 0x00000001u;
-  id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000001u;
+	id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* PhoneMetadata::_internal_mutable_id() {
-  _has_bits_[0] |= 0x00000001u;
-  return id_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000001u;
+	return id_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* PhoneMetadata::release_id() {
   // @@protoc_insertion_point(field_release:i18n.phonenumbers.PhoneMetadata.id)
-  if (!_internal_has_id()) {
-    return nullptr;
-  }
+  if(!_internal_has_id()) { return nullptr; }
   _has_bits_[0] &= ~0x00000001u;
   auto* p = id_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (id_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(id_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void PhoneMetadata::set_allocated_id(std::string* id) {
-  if (id != nullptr) {
+  if(id != nullptr) {
     _has_bits_[0] |= 0x00000001u;
   } else {
     _has_bits_[0] &= ~0x00000001u;
   }
-  id_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), id,
-      GetArenaForAllocation());
+  id_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), id, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (id_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(id_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -3619,20 +3543,18 @@ inline void PhoneMetadata::clear_country_code() {
   country_code_ = 0;
   _has_bits_[0] &= ~0x02000000u;
 }
-inline int32_t PhoneMetadata::_internal_country_code() const {
-  return country_code_;
-}
+inline int32_t PhoneMetadata::_internal_country_code() const { return country_code_; }
 inline int32_t PhoneMetadata::country_code() const {
-  // @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneMetadata.country_code)
-  return _internal_country_code();
+	// @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneMetadata.country_code)
+	return _internal_country_code();
 }
 inline void PhoneMetadata::_internal_set_country_code(int32_t value) {
-  _has_bits_[0] |= 0x02000000u;
-  country_code_ = value;
+	_has_bits_[0] |= 0x02000000u;
+	country_code_ = value;
 }
 inline void PhoneMetadata::set_country_code(int32_t value) {
-  _internal_set_country_code(value);
-  // @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneMetadata.country_code)
+	_internal_set_country_code(value);
+	// @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneMetadata.country_code)
 }
 
 // optional string international_prefix = 11;
@@ -3648,8 +3570,8 @@ inline void PhoneMetadata::clear_international_prefix() {
   _has_bits_[0] &= ~0x00000002u;
 }
 inline const std::string& PhoneMetadata::international_prefix() const {
-  // @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneMetadata.international_prefix)
-  return _internal_international_prefix();
+	// @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneMetadata.international_prefix)
+	return _internal_international_prefix();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -3659,45 +3581,40 @@ void PhoneMetadata::set_international_prefix(ArgT0&& arg0, ArgT... args) {
   // @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneMetadata.international_prefix)
 }
 inline std::string* PhoneMetadata::mutable_international_prefix() {
-  std::string* _s = _internal_mutable_international_prefix();
-  // @@protoc_insertion_point(field_mutable:i18n.phonenumbers.PhoneMetadata.international_prefix)
-  return _s;
+	std::string* _s = _internal_mutable_international_prefix();
+	// @@protoc_insertion_point(field_mutable:i18n.phonenumbers.PhoneMetadata.international_prefix)
+	return _s;
 }
-inline const std::string& PhoneMetadata::_internal_international_prefix() const {
-  return international_prefix_.Get();
-}
+inline const std::string& PhoneMetadata::_internal_international_prefix() const { return international_prefix_.Get(); }
 inline void PhoneMetadata::_internal_set_international_prefix(const std::string& value) {
-  _has_bits_[0] |= 0x00000002u;
-  international_prefix_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000002u;
+	international_prefix_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* PhoneMetadata::_internal_mutable_international_prefix() {
-  _has_bits_[0] |= 0x00000002u;
-  return international_prefix_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000002u;
+	return international_prefix_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* PhoneMetadata::release_international_prefix() {
   // @@protoc_insertion_point(field_release:i18n.phonenumbers.PhoneMetadata.international_prefix)
-  if (!_internal_has_international_prefix()) {
-    return nullptr;
-  }
+  if(!_internal_has_international_prefix()) { return nullptr; }
   _has_bits_[0] &= ~0x00000002u;
   auto* p = international_prefix_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (international_prefix_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(international_prefix_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     international_prefix_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void PhoneMetadata::set_allocated_international_prefix(std::string* international_prefix) {
-  if (international_prefix != nullptr) {
+  if(international_prefix != nullptr) {
     _has_bits_[0] |= 0x00000002u;
   } else {
     _has_bits_[0] &= ~0x00000002u;
   }
-  international_prefix_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), international_prefix,
-      GetArenaForAllocation());
+  international_prefix_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), international_prefix, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (international_prefix_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(international_prefix_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     international_prefix_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -3717,8 +3634,8 @@ inline void PhoneMetadata::clear_preferred_international_prefix() {
   _has_bits_[0] &= ~0x00000040u;
 }
 inline const std::string& PhoneMetadata::preferred_international_prefix() const {
-  // @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneMetadata.preferred_international_prefix)
-  return _internal_preferred_international_prefix();
+	// @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneMetadata.preferred_international_prefix)
+	return _internal_preferred_international_prefix();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -3728,45 +3645,40 @@ void PhoneMetadata::set_preferred_international_prefix(ArgT0&& arg0, ArgT... arg
   // @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneMetadata.preferred_international_prefix)
 }
 inline std::string* PhoneMetadata::mutable_preferred_international_prefix() {
-  std::string* _s = _internal_mutable_preferred_international_prefix();
-  // @@protoc_insertion_point(field_mutable:i18n.phonenumbers.PhoneMetadata.preferred_international_prefix)
-  return _s;
+	std::string* _s = _internal_mutable_preferred_international_prefix();
+	// @@protoc_insertion_point(field_mutable:i18n.phonenumbers.PhoneMetadata.preferred_international_prefix)
+	return _s;
 }
-inline const std::string& PhoneMetadata::_internal_preferred_international_prefix() const {
-  return preferred_international_prefix_.Get();
-}
+inline const std::string& PhoneMetadata::_internal_preferred_international_prefix() const { return preferred_international_prefix_.Get(); }
 inline void PhoneMetadata::_internal_set_preferred_international_prefix(const std::string& value) {
-  _has_bits_[0] |= 0x00000040u;
-  preferred_international_prefix_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000040u;
+	preferred_international_prefix_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* PhoneMetadata::_internal_mutable_preferred_international_prefix() {
-  _has_bits_[0] |= 0x00000040u;
-  return preferred_international_prefix_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000040u;
+	return preferred_international_prefix_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* PhoneMetadata::release_preferred_international_prefix() {
   // @@protoc_insertion_point(field_release:i18n.phonenumbers.PhoneMetadata.preferred_international_prefix)
-  if (!_internal_has_preferred_international_prefix()) {
-    return nullptr;
-  }
+  if(!_internal_has_preferred_international_prefix()) { return nullptr; }
   _has_bits_[0] &= ~0x00000040u;
   auto* p = preferred_international_prefix_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (preferred_international_prefix_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(preferred_international_prefix_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     preferred_international_prefix_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void PhoneMetadata::set_allocated_preferred_international_prefix(std::string* preferred_international_prefix) {
-  if (preferred_international_prefix != nullptr) {
+  if(preferred_international_prefix != nullptr) {
     _has_bits_[0] |= 0x00000040u;
   } else {
     _has_bits_[0] &= ~0x00000040u;
   }
-  preferred_international_prefix_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), preferred_international_prefix,
-      GetArenaForAllocation());
+  preferred_international_prefix_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), preferred_international_prefix, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (preferred_international_prefix_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(preferred_international_prefix_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     preferred_international_prefix_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -3786,8 +3698,8 @@ inline void PhoneMetadata::clear_national_prefix() {
   _has_bits_[0] &= ~0x00000004u;
 }
 inline const std::string& PhoneMetadata::national_prefix() const {
-  // @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneMetadata.national_prefix)
-  return _internal_national_prefix();
+	// @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneMetadata.national_prefix)
+	return _internal_national_prefix();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -3797,45 +3709,40 @@ void PhoneMetadata::set_national_prefix(ArgT0&& arg0, ArgT... args) {
   // @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneMetadata.national_prefix)
 }
 inline std::string* PhoneMetadata::mutable_national_prefix() {
-  std::string* _s = _internal_mutable_national_prefix();
-  // @@protoc_insertion_point(field_mutable:i18n.phonenumbers.PhoneMetadata.national_prefix)
-  return _s;
+	std::string* _s = _internal_mutable_national_prefix();
+	// @@protoc_insertion_point(field_mutable:i18n.phonenumbers.PhoneMetadata.national_prefix)
+	return _s;
 }
-inline const std::string& PhoneMetadata::_internal_national_prefix() const {
-  return national_prefix_.Get();
-}
+inline const std::string& PhoneMetadata::_internal_national_prefix() const { return national_prefix_.Get(); }
 inline void PhoneMetadata::_internal_set_national_prefix(const std::string& value) {
-  _has_bits_[0] |= 0x00000004u;
-  national_prefix_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000004u;
+	national_prefix_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* PhoneMetadata::_internal_mutable_national_prefix() {
-  _has_bits_[0] |= 0x00000004u;
-  return national_prefix_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000004u;
+	return national_prefix_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* PhoneMetadata::release_national_prefix() {
   // @@protoc_insertion_point(field_release:i18n.phonenumbers.PhoneMetadata.national_prefix)
-  if (!_internal_has_national_prefix()) {
-    return nullptr;
-  }
+  if(!_internal_has_national_prefix()) { return nullptr; }
   _has_bits_[0] &= ~0x00000004u;
   auto* p = national_prefix_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (national_prefix_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(national_prefix_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     national_prefix_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void PhoneMetadata::set_allocated_national_prefix(std::string* national_prefix) {
-  if (national_prefix != nullptr) {
+  if(national_prefix != nullptr) {
     _has_bits_[0] |= 0x00000004u;
   } else {
     _has_bits_[0] &= ~0x00000004u;
   }
-  national_prefix_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), national_prefix,
-      GetArenaForAllocation());
+  national_prefix_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), national_prefix, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (national_prefix_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(national_prefix_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     national_prefix_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -3855,8 +3762,8 @@ inline void PhoneMetadata::clear_preferred_extn_prefix() {
   _has_bits_[0] &= ~0x00000008u;
 }
 inline const std::string& PhoneMetadata::preferred_extn_prefix() const {
-  // @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneMetadata.preferred_extn_prefix)
-  return _internal_preferred_extn_prefix();
+	// @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneMetadata.preferred_extn_prefix)
+	return _internal_preferred_extn_prefix();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -3866,45 +3773,40 @@ void PhoneMetadata::set_preferred_extn_prefix(ArgT0&& arg0, ArgT... args) {
   // @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneMetadata.preferred_extn_prefix)
 }
 inline std::string* PhoneMetadata::mutable_preferred_extn_prefix() {
-  std::string* _s = _internal_mutable_preferred_extn_prefix();
-  // @@protoc_insertion_point(field_mutable:i18n.phonenumbers.PhoneMetadata.preferred_extn_prefix)
-  return _s;
+	std::string* _s = _internal_mutable_preferred_extn_prefix();
+	// @@protoc_insertion_point(field_mutable:i18n.phonenumbers.PhoneMetadata.preferred_extn_prefix)
+	return _s;
 }
-inline const std::string& PhoneMetadata::_internal_preferred_extn_prefix() const {
-  return preferred_extn_prefix_.Get();
-}
+inline const std::string& PhoneMetadata::_internal_preferred_extn_prefix() const { return preferred_extn_prefix_.Get(); }
 inline void PhoneMetadata::_internal_set_preferred_extn_prefix(const std::string& value) {
-  _has_bits_[0] |= 0x00000008u;
-  preferred_extn_prefix_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000008u;
+	preferred_extn_prefix_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* PhoneMetadata::_internal_mutable_preferred_extn_prefix() {
-  _has_bits_[0] |= 0x00000008u;
-  return preferred_extn_prefix_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000008u;
+	return preferred_extn_prefix_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* PhoneMetadata::release_preferred_extn_prefix() {
   // @@protoc_insertion_point(field_release:i18n.phonenumbers.PhoneMetadata.preferred_extn_prefix)
-  if (!_internal_has_preferred_extn_prefix()) {
-    return nullptr;
-  }
+  if(!_internal_has_preferred_extn_prefix()) { return nullptr; }
   _has_bits_[0] &= ~0x00000008u;
   auto* p = preferred_extn_prefix_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (preferred_extn_prefix_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(preferred_extn_prefix_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     preferred_extn_prefix_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void PhoneMetadata::set_allocated_preferred_extn_prefix(std::string* preferred_extn_prefix) {
-  if (preferred_extn_prefix != nullptr) {
+  if(preferred_extn_prefix != nullptr) {
     _has_bits_[0] |= 0x00000008u;
   } else {
     _has_bits_[0] &= ~0x00000008u;
   }
-  preferred_extn_prefix_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), preferred_extn_prefix,
-      GetArenaForAllocation());
+  preferred_extn_prefix_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), preferred_extn_prefix, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (preferred_extn_prefix_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(preferred_extn_prefix_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     preferred_extn_prefix_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -3924,8 +3826,8 @@ inline void PhoneMetadata::clear_national_prefix_for_parsing() {
   _has_bits_[0] &= ~0x00000010u;
 }
 inline const std::string& PhoneMetadata::national_prefix_for_parsing() const {
-  // @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneMetadata.national_prefix_for_parsing)
-  return _internal_national_prefix_for_parsing();
+	// @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneMetadata.national_prefix_for_parsing)
+	return _internal_national_prefix_for_parsing();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -3935,45 +3837,40 @@ void PhoneMetadata::set_national_prefix_for_parsing(ArgT0&& arg0, ArgT... args) 
   // @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneMetadata.national_prefix_for_parsing)
 }
 inline std::string* PhoneMetadata::mutable_national_prefix_for_parsing() {
-  std::string* _s = _internal_mutable_national_prefix_for_parsing();
-  // @@protoc_insertion_point(field_mutable:i18n.phonenumbers.PhoneMetadata.national_prefix_for_parsing)
-  return _s;
+	std::string* _s = _internal_mutable_national_prefix_for_parsing();
+	// @@protoc_insertion_point(field_mutable:i18n.phonenumbers.PhoneMetadata.national_prefix_for_parsing)
+	return _s;
 }
-inline const std::string& PhoneMetadata::_internal_national_prefix_for_parsing() const {
-  return national_prefix_for_parsing_.Get();
-}
+inline const std::string& PhoneMetadata::_internal_national_prefix_for_parsing() const { return national_prefix_for_parsing_.Get(); }
 inline void PhoneMetadata::_internal_set_national_prefix_for_parsing(const std::string& value) {
-  _has_bits_[0] |= 0x00000010u;
-  national_prefix_for_parsing_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000010u;
+	national_prefix_for_parsing_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* PhoneMetadata::_internal_mutable_national_prefix_for_parsing() {
-  _has_bits_[0] |= 0x00000010u;
-  return national_prefix_for_parsing_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000010u;
+	return national_prefix_for_parsing_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* PhoneMetadata::release_national_prefix_for_parsing() {
   // @@protoc_insertion_point(field_release:i18n.phonenumbers.PhoneMetadata.national_prefix_for_parsing)
-  if (!_internal_has_national_prefix_for_parsing()) {
-    return nullptr;
-  }
+  if(!_internal_has_national_prefix_for_parsing()) { return nullptr; }
   _has_bits_[0] &= ~0x00000010u;
   auto* p = national_prefix_for_parsing_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (national_prefix_for_parsing_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(national_prefix_for_parsing_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     national_prefix_for_parsing_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void PhoneMetadata::set_allocated_national_prefix_for_parsing(std::string* national_prefix_for_parsing) {
-  if (national_prefix_for_parsing != nullptr) {
+  if(national_prefix_for_parsing != nullptr) {
     _has_bits_[0] |= 0x00000010u;
   } else {
     _has_bits_[0] &= ~0x00000010u;
   }
-  national_prefix_for_parsing_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), national_prefix_for_parsing,
-      GetArenaForAllocation());
+  national_prefix_for_parsing_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), national_prefix_for_parsing, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (national_prefix_for_parsing_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(national_prefix_for_parsing_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     national_prefix_for_parsing_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -3993,8 +3890,8 @@ inline void PhoneMetadata::clear_national_prefix_transform_rule() {
   _has_bits_[0] &= ~0x00000020u;
 }
 inline const std::string& PhoneMetadata::national_prefix_transform_rule() const {
-  // @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneMetadata.national_prefix_transform_rule)
-  return _internal_national_prefix_transform_rule();
+	// @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneMetadata.national_prefix_transform_rule)
+	return _internal_national_prefix_transform_rule();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -4004,45 +3901,40 @@ void PhoneMetadata::set_national_prefix_transform_rule(ArgT0&& arg0, ArgT... arg
   // @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneMetadata.national_prefix_transform_rule)
 }
 inline std::string* PhoneMetadata::mutable_national_prefix_transform_rule() {
-  std::string* _s = _internal_mutable_national_prefix_transform_rule();
-  // @@protoc_insertion_point(field_mutable:i18n.phonenumbers.PhoneMetadata.national_prefix_transform_rule)
-  return _s;
+	std::string* _s = _internal_mutable_national_prefix_transform_rule();
+	// @@protoc_insertion_point(field_mutable:i18n.phonenumbers.PhoneMetadata.national_prefix_transform_rule)
+	return _s;
 }
-inline const std::string& PhoneMetadata::_internal_national_prefix_transform_rule() const {
-  return national_prefix_transform_rule_.Get();
-}
+inline const std::string& PhoneMetadata::_internal_national_prefix_transform_rule() const { return national_prefix_transform_rule_.Get(); }
 inline void PhoneMetadata::_internal_set_national_prefix_transform_rule(const std::string& value) {
-  _has_bits_[0] |= 0x00000020u;
-  national_prefix_transform_rule_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000020u;
+	national_prefix_transform_rule_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* PhoneMetadata::_internal_mutable_national_prefix_transform_rule() {
-  _has_bits_[0] |= 0x00000020u;
-  return national_prefix_transform_rule_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000020u;
+	return national_prefix_transform_rule_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* PhoneMetadata::release_national_prefix_transform_rule() {
   // @@protoc_insertion_point(field_release:i18n.phonenumbers.PhoneMetadata.national_prefix_transform_rule)
-  if (!_internal_has_national_prefix_transform_rule()) {
-    return nullptr;
-  }
+  if(!_internal_has_national_prefix_transform_rule()) { return nullptr; }
   _has_bits_[0] &= ~0x00000020u;
   auto* p = national_prefix_transform_rule_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (national_prefix_transform_rule_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(national_prefix_transform_rule_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     national_prefix_transform_rule_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void PhoneMetadata::set_allocated_national_prefix_transform_rule(std::string* national_prefix_transform_rule) {
-  if (national_prefix_transform_rule != nullptr) {
+  if(national_prefix_transform_rule != nullptr) {
     _has_bits_[0] |= 0x00000020u;
   } else {
     _has_bits_[0] &= ~0x00000020u;
   }
-  national_prefix_transform_rule_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), national_prefix_transform_rule,
-      GetArenaForAllocation());
+  national_prefix_transform_rule_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), national_prefix_transform_rule, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (national_prefix_transform_rule_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(national_prefix_transform_rule_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     national_prefix_transform_rule_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -4061,26 +3953,22 @@ inline void PhoneMetadata::clear_same_mobile_and_fixed_line_pattern() {
   same_mobile_and_fixed_line_pattern_ = false;
   _has_bits_[0] &= ~0x04000000u;
 }
-inline bool PhoneMetadata::_internal_same_mobile_and_fixed_line_pattern() const {
-  return same_mobile_and_fixed_line_pattern_;
-}
+inline bool PhoneMetadata::_internal_same_mobile_and_fixed_line_pattern() const { return same_mobile_and_fixed_line_pattern_; }
 inline bool PhoneMetadata::same_mobile_and_fixed_line_pattern() const {
-  // @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneMetadata.same_mobile_and_fixed_line_pattern)
-  return _internal_same_mobile_and_fixed_line_pattern();
+	// @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneMetadata.same_mobile_and_fixed_line_pattern)
+	return _internal_same_mobile_and_fixed_line_pattern();
 }
 inline void PhoneMetadata::_internal_set_same_mobile_and_fixed_line_pattern(bool value) {
-  _has_bits_[0] |= 0x04000000u;
-  same_mobile_and_fixed_line_pattern_ = value;
+	_has_bits_[0] |= 0x04000000u;
+	same_mobile_and_fixed_line_pattern_ = value;
 }
 inline void PhoneMetadata::set_same_mobile_and_fixed_line_pattern(bool value) {
-  _internal_set_same_mobile_and_fixed_line_pattern(value);
-  // @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneMetadata.same_mobile_and_fixed_line_pattern)
+	_internal_set_same_mobile_and_fixed_line_pattern(value);
+	// @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneMetadata.same_mobile_and_fixed_line_pattern)
 }
 
 // repeated .i18n.phonenumbers.NumberFormat number_format = 19;
-inline int PhoneMetadata::_internal_number_format_size() const {
-  return number_format_.size();
-}
+inline int PhoneMetadata::_internal_number_format_size() const { return number_format_.size(); }
 inline int PhoneMetadata::number_format_size() const {
   return _internal_number_format_size();
 }
@@ -4118,9 +4006,7 @@ PhoneMetadata::number_format() const {
 }
 
 // repeated .i18n.phonenumbers.NumberFormat intl_number_format = 20;
-inline int PhoneMetadata::_internal_intl_number_format_size() const {
-  return intl_number_format_.size();
-}
+inline int PhoneMetadata::_internal_intl_number_format_size() const { return intl_number_format_.size(); }
 inline int PhoneMetadata::intl_number_format_size() const {
   return _internal_intl_number_format_size();
 }
@@ -4169,20 +4055,18 @@ inline void PhoneMetadata::clear_main_country_for_code() {
   main_country_for_code_ = false;
   _has_bits_[0] &= ~0x08000000u;
 }
-inline bool PhoneMetadata::_internal_main_country_for_code() const {
-  return main_country_for_code_;
-}
+inline bool PhoneMetadata::_internal_main_country_for_code() const { return main_country_for_code_; }
 inline bool PhoneMetadata::main_country_for_code() const {
-  // @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneMetadata.main_country_for_code)
-  return _internal_main_country_for_code();
+	// @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneMetadata.main_country_for_code)
+	return _internal_main_country_for_code();
 }
 inline void PhoneMetadata::_internal_set_main_country_for_code(bool value) {
-  _has_bits_[0] |= 0x08000000u;
-  main_country_for_code_ = value;
+	_has_bits_[0] |= 0x08000000u;
+	main_country_for_code_ = value;
 }
 inline void PhoneMetadata::set_main_country_for_code(bool value) {
-  _internal_set_main_country_for_code(value);
-  // @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneMetadata.main_country_for_code)
+	_internal_set_main_country_for_code(value);
+	// @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneMetadata.main_country_for_code)
 }
 
 // optional string leading_digits = 23;
@@ -4198,8 +4082,8 @@ inline void PhoneMetadata::clear_leading_digits() {
   _has_bits_[0] &= ~0x00000080u;
 }
 inline const std::string& PhoneMetadata::leading_digits() const {
-  // @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneMetadata.leading_digits)
-  return _internal_leading_digits();
+	// @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneMetadata.leading_digits)
+	return _internal_leading_digits();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
@@ -4209,45 +4093,40 @@ void PhoneMetadata::set_leading_digits(ArgT0&& arg0, ArgT... args) {
   // @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneMetadata.leading_digits)
 }
 inline std::string* PhoneMetadata::mutable_leading_digits() {
-  std::string* _s = _internal_mutable_leading_digits();
-  // @@protoc_insertion_point(field_mutable:i18n.phonenumbers.PhoneMetadata.leading_digits)
-  return _s;
+	std::string* _s = _internal_mutable_leading_digits();
+	// @@protoc_insertion_point(field_mutable:i18n.phonenumbers.PhoneMetadata.leading_digits)
+	return _s;
 }
-inline const std::string& PhoneMetadata::_internal_leading_digits() const {
-  return leading_digits_.Get();
-}
+inline const std::string& PhoneMetadata::_internal_leading_digits() const { return leading_digits_.Get(); }
 inline void PhoneMetadata::_internal_set_leading_digits(const std::string& value) {
-  _has_bits_[0] |= 0x00000080u;
-  leading_digits_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000080u;
+	leading_digits_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
 inline std::string* PhoneMetadata::_internal_mutable_leading_digits() {
-  _has_bits_[0] |= 0x00000080u;
-  return leading_digits_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+	_has_bits_[0] |= 0x00000080u;
+	return leading_digits_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
 inline std::string* PhoneMetadata::release_leading_digits() {
   // @@protoc_insertion_point(field_release:i18n.phonenumbers.PhoneMetadata.leading_digits)
-  if (!_internal_has_leading_digits()) {
-    return nullptr;
-  }
+  if(!_internal_has_leading_digits()) { return nullptr; }
   _has_bits_[0] &= ~0x00000080u;
   auto* p = leading_digits_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (leading_digits_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(leading_digits_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     leading_digits_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
 inline void PhoneMetadata::set_allocated_leading_digits(std::string* leading_digits) {
-  if (leading_digits != nullptr) {
+  if(leading_digits != nullptr) {
     _has_bits_[0] |= 0x00000080u;
   } else {
     _has_bits_[0] &= ~0x00000080u;
   }
-  leading_digits_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), leading_digits,
-      GetArenaForAllocation());
+  leading_digits_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), leading_digits, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (leading_digits_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+  if(leading_digits_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
     leading_digits_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -4266,20 +4145,18 @@ inline void PhoneMetadata::clear_leading_zero_possible() {
   leading_zero_possible_ = false;
   _has_bits_[0] &= ~0x10000000u;
 }
-inline bool PhoneMetadata::_internal_leading_zero_possible() const {
-  return leading_zero_possible_;
-}
+inline bool PhoneMetadata::_internal_leading_zero_possible() const { return leading_zero_possible_; }
 inline bool PhoneMetadata::leading_zero_possible() const {
-  // @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneMetadata.leading_zero_possible)
-  return _internal_leading_zero_possible();
+	// @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneMetadata.leading_zero_possible)
+	return _internal_leading_zero_possible();
 }
 inline void PhoneMetadata::_internal_set_leading_zero_possible(bool value) {
-  _has_bits_[0] |= 0x10000000u;
-  leading_zero_possible_ = value;
+	_has_bits_[0] |= 0x10000000u;
+	leading_zero_possible_ = value;
 }
 inline void PhoneMetadata::set_leading_zero_possible(bool value) {
-  _internal_set_leading_zero_possible(value);
-  // @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneMetadata.leading_zero_possible)
+	_internal_set_leading_zero_possible(value);
+	// @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneMetadata.leading_zero_possible)
 }
 
 // optional bool mobile_number_portable_region = 32 [default = false];
@@ -4294,20 +4171,18 @@ inline void PhoneMetadata::clear_mobile_number_portable_region() {
   mobile_number_portable_region_ = false;
   _has_bits_[0] &= ~0x20000000u;
 }
-inline bool PhoneMetadata::_internal_mobile_number_portable_region() const {
-  return mobile_number_portable_region_;
-}
+inline bool PhoneMetadata::_internal_mobile_number_portable_region() const { return mobile_number_portable_region_; }
 inline bool PhoneMetadata::mobile_number_portable_region() const {
-  // @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneMetadata.mobile_number_portable_region)
-  return _internal_mobile_number_portable_region();
+	// @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneMetadata.mobile_number_portable_region)
+	return _internal_mobile_number_portable_region();
 }
 inline void PhoneMetadata::_internal_set_mobile_number_portable_region(bool value) {
-  _has_bits_[0] |= 0x20000000u;
-  mobile_number_portable_region_ = value;
+	_has_bits_[0] |= 0x20000000u;
+	mobile_number_portable_region_ = value;
 }
 inline void PhoneMetadata::set_mobile_number_portable_region(bool value) {
-  _internal_set_mobile_number_portable_region(value);
-  // @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneMetadata.mobile_number_portable_region)
+	_internal_set_mobile_number_portable_region(value);
+	// @@protoc_insertion_point(field_set:i18n.phonenumbers.PhoneMetadata.mobile_number_portable_region)
 }
 
 // -------------------------------------------------------------------
@@ -4315,9 +4190,7 @@ inline void PhoneMetadata::set_mobile_number_portable_region(bool value) {
 // PhoneMetadataCollection
 
 // repeated .i18n.phonenumbers.PhoneMetadata metadata = 1;
-inline int PhoneMetadataCollection::_internal_metadata_size() const {
-  return metadata_.size();
-}
+inline int PhoneMetadataCollection::_internal_metadata_size() const { return metadata_.size(); }
 inline int PhoneMetadataCollection::metadata_size() const {
   return _internal_metadata_size();
 }

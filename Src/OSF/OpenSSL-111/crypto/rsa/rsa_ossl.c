@@ -614,7 +614,7 @@ static int rsa_ossl_mod_exp(BIGNUM * r0, const BIGNUM * I, RSA * rsa, BN_CTX * c
 
 	if(rsa->version == RSA_ASN1_VERSION_MULTI
 	 && ((ex_primes = sk_RSA_PRIME_INFO_num(rsa->prime_infos)) <= 0
-	    || ex_primes > RSA_MAX_PRIME_NUM - 2))
+	   || ex_primes > RSA_MAX_PRIME_NUM - 2))
 		goto err;
 
 	if(rsa->flags & RSA_FLAG_CACHE_PRIVATE) {
@@ -630,7 +630,7 @@ static int rsa_ossl_mod_exp(BIGNUM * r0, const BIGNUM * I, RSA * rsa, BN_CTX * c
 		if(!(BN_with_flags(factor, rsa->p, BN_FLG_CONSTTIME),
 		    BN_MONT_CTX_set_locked(&rsa->_method_mod_p, rsa->lock,
 		    factor, ctx))
-		    || !(BN_with_flags(factor, rsa->q, BN_FLG_CONSTTIME),
+		   || !(BN_with_flags(factor, rsa->q, BN_FLG_CONSTTIME),
 		    BN_MONT_CTX_set_locked(&rsa->_method_mod_q, rsa->lock,
 		    factor, ctx))) {
 			BN_free(factor);

@@ -70,7 +70,7 @@ BIO * BIO_new_file(const char * filename, const char * mode)
 		ERR_add_error_data(5, "fopen('", filename, "','", mode, "')");
 		if(errno == ENOENT
 #ifdef ENXIO
-		    || errno == ENXIO
+		   || errno == ENXIO
 #endif
 		    )
 			BIOerr(BIO_F_BIO_NEW_FILE, BIO_R_NO_SUCH_FILE);

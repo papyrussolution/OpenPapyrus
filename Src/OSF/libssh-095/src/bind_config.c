@@ -86,14 +86,11 @@ static struct ssh_bind_config_match_keyword_table_s
 	{ 0, BIND_MATCH_UNKNOWN },
 };
 
-static enum ssh_bind_config_opcode_e ssh_bind_config_get_opcode(char * keyword,
-    uint32_t * parser_flags) {
-	int i;
-
-	for(i = 0; ssh_bind_config_keyword_table[i].name != NULL; i++) {
+static enum ssh_bind_config_opcode_e ssh_bind_config_get_opcode(char * keyword, uint32_t * parser_flags) 
+{
+	for(int i = 0; ssh_bind_config_keyword_table[i].name != NULL; i++) {
 		if(strcasecmp(keyword, ssh_bind_config_keyword_table[i].name) == 0) {
-			if((*parser_flags & IN_MATCH) &&
-			    !(ssh_bind_config_keyword_table[i].allowed_in_match)) {
+			if((*parser_flags & IN_MATCH) && !(ssh_bind_config_keyword_table[i].allowed_in_match)) {
 				return BIND_CFG_NOT_ALLOWED_IN_MATCH;
 			}
 			return ssh_bind_config_keyword_table[i].opcode;
@@ -149,47 +146,36 @@ static void local_parse_glob(ssh_bind bind, const char * fileglob, uint32_t * pa
 }
 #endif /* HAVE_GLOB HAVE_GLOB_GL_FLAGS_MEMBER */
 
-static enum ssh_bind_config_match_e ssh_bind_config_get_match_opcode(const char * keyword) {
-	size_t i;
-
-	for(i = 0; ssh_bind_config_match_keyword_table[i].name != NULL; i++) {
+static enum ssh_bind_config_match_e ssh_bind_config_get_match_opcode(const char * keyword) 
+{
+	for(size_t i = 0; ssh_bind_config_match_keyword_table[i].name != NULL; i++) {
 		if(strcasecmp(keyword, ssh_bind_config_match_keyword_table[i].name) == 0) {
 			return ssh_bind_config_match_keyword_table[i].opcode;
 		}
 	}
-
 	return BIND_MATCH_UNKNOWN;
 }
 
-static int ssh_bind_config_parse_line(ssh_bind bind,
-    const char * line,
-    uint count,
-    uint32_t * parser_flags,
-    uint8 * seen)
+static int ssh_bind_config_parse_line(ssh_bind bind, const char * line, uint count, uint32_t * parser_flags, uint8 * seen)
 {
 	enum ssh_bind_config_opcode_e opcode;
 	const char * p = NULL;
 	char * s = NULL, * x = NULL;
 	char * keyword = NULL;
 	size_t len;
-
 	int rc = 0;
-
 	if(bind == NULL) {
 		return -1;
 	}
-
 	if((line == NULL) || (parser_flags == NULL)) {
 		ssh_set_error_invalid(bind);
 		return -1;
 	}
-
-	x = s = _strdup(line);
+	x = s = sstrdup(line);
 	if(s == NULL) {
 		ssh_set_error_oom(bind);
 		return -1;
 	}
-
 	/* Remove trailing spaces */
 	for(len = strlen(s) - 1; len > 0; len--) {
 		if(!isspace(s[len])) {
@@ -197,20 +183,13 @@ static int ssh_bind_config_parse_line(ssh_bind bind,
 		}
 		s[len] = '\0';
 	}
-
 	keyword = ssh_config_get_token(&s);
-	if(keyword == NULL || *keyword == '#' ||
-	    *keyword == '\0' || *keyword == '\n') {
+	if(keyword == NULL || *keyword == '#' || *keyword == '\0' || *keyword == '\n') {
 		ZFREE(x);
 		return 0;
 	}
-
 	opcode = ssh_bind_config_get_opcode(keyword, parser_flags);
-	if((*parser_flags & PARSING) &&
-	    opcode != BIND_CFG_HOSTKEY &&
-	    opcode != BIND_CFG_INCLUDE &&
-	    opcode != BIND_CFG_MATCH &&
-	    opcode > BIND_CFG_UNSUPPORTED) { /* Ignore all unknown types here */
+	if((*parser_flags & PARSING) && opcode != BIND_CFG_HOSTKEY && opcode != BIND_CFG_INCLUDE && opcode != BIND_CFG_MATCH && opcode > BIND_CFG_UNSUPPORTED) { /* Ignore all unknown types here */
 		/* Skip all the options that were already applied */
 		if(seen[opcode] != 0) {
 			ZFREE(x);
@@ -306,20 +285,19 @@ static int ssh_bind_config_parse_line(ssh_bind bind,
 		    p = ssh_config_get_str_tok(&s, NULL);
 		    if(p && (*parser_flags & PARSING)) {
 			    int value = -1;
-			    if(strcasecmp(p, "quiet") == 0) {
+			    if(sstreqi_ascii(p, "quiet")) {
 				    value = SSH_LOG_NONE;
 			    }
-			    else if(strcasecmp(p, "fatal") == 0 ||
-				strcasecmp(p, "error")== 0 || strcasecmp(p, "info") == 0) {
+			    else if(sstreqi_ascii(p, "fatal") || sstreqi_ascii(p, "error") || sstreqi_ascii(p, "info")) {
 				    value = SSH_LOG_WARN;
 			    }
-			    else if(strcasecmp(p, "verbose") == 0) {
+			    else if(sstreqi_ascii(p, "verbose")) {
 				    value = SSH_LOG_INFO;
 			    }
-			    else if(strcasecmp(p, "DEBUG") == 0 || strcasecmp(p, "DEBUG1") == 0) {
+			    else if(sstreqi_ascii(p, "DEBUG") || sstreqi_ascii(p, "DEBUG1")) {
 				    value = SSH_LOG_DEBUG;
 			    }
-			    else if(strcasecmp(p, "DEBUG2") == 0 || strcasecmp(p, "DEBUG3") == 0) {
+			    else if(sstreqi_ascii(p, "DEBUG2") || sstreqi_ascii(p, "DEBUG3")) {
 				    value = SSH_LOG_TRACE;
 			    }
 			    if(value != -1) {

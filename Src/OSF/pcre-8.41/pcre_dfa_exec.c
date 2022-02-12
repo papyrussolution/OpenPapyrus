@@ -2754,7 +2754,7 @@ NEXT_ACTIVE_STATE: continue;
 			    forced_fail != workspace[1] && /* Not all forced fail & */
 			    ( /* either... */
 				    (md->moptions & PCRE_PARTIAL_HARD) != 0 /* Hard partial */
-				    || /* or... */
+				   || /* or... */
 				    ((md->moptions & PCRE_PARTIAL_SOFT) != 0 && /* Soft partial and */ match_count < 0) /* no matches */
 			    ) && /* And... */
 			    (

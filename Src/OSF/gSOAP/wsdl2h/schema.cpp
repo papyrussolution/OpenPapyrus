@@ -360,7 +360,7 @@ int xs__schema::read(const char * cwd, const char * loc)
 			}
 			slfprintf_stderr("Connected, receiving...\n");
 		}
-		else{soap->recvfd = open(loc, O_RDONLY, 0);
+		else {soap->recvfd = open(loc, O_RDONLY, 0);
 		     if(soap->recvfd < 0) {
 			     if(cwd) {
 				     char * s;
@@ -508,7 +508,7 @@ int xs__include::preprocess(xs__schema &schema)
 			schemaRef->read(schema.sourceLocation(), schemaLocation);
 			schemaRef->targetNamespace = schema.targetNamespace;
 		}
-		else{if(vflag)
+		else {if(vflag)
 			     cerr << "Schema '" << (schemaLocation ? schemaLocation : "") << "' already included into schema '" <<
 			     (schema.targetNamespace ? schema.targetNamespace : "") << "'" << endl;
 		     schemaRef = (*i).second; }
@@ -751,7 +751,7 @@ int xs__attribute::traverse(xs__schema &schema)
 		simpleType->traverse(schema);
 		simpleTypeRef = simpleType;
 	}
-	else{token = qname_token(type, schema.targetNamespace);
+	else {token = qname_token(type, schema.targetNamespace);
 	     simpleTypeRef = NULL;
 	     if(token) {
 		     for(vector<xs__simpleType>::iterator i = schema.simpleType.begin(); i != schema.simpleType.end(); ++i)
@@ -889,7 +889,7 @@ int xs__element::traverse(xs__schema &schema)
 		simpleType->traverse(schema);
 		simpleTypeRef = simpleType;
 	}
-	else{token = qname_token(type, schema.targetNamespace);
+	else {token = qname_token(type, schema.targetNamespace);
 	     simpleTypeRef = NULL;
 	     if(token) {
 		     for(vector<xs__simpleType>::iterator i = schema.simpleType.begin(); i != schema.simpleType.end(); ++i)
@@ -930,7 +930,7 @@ int xs__element::traverse(xs__schema &schema)
 		complexType->traverse(schema);
 		complexTypeRef = complexType;
 	}
-	else{token = qname_token(type, schema.targetNamespace);
+	else {token = qname_token(type, schema.targetNamespace);
 	     complexTypeRef = NULL;
 	     if(token) {
 		     for(vector<xs__complexType>::iterator i = schema.complexType.begin(); i != schema.complexType.end(); ++i)
@@ -1379,7 +1379,7 @@ int xs__restriction::traverse(xs__schema &schema)
 		choice->traverse(schema);
 	else if(sequence)
 		sequence->traverse(schema);
-	else{for(vector<xs__enumeration>::iterator en = enumeration.begin(); en != enumeration.end(); ++en)
+	else {for(vector<xs__enumeration>::iterator en = enumeration.begin(); en != enumeration.end(); ++en)
 		     (*en).traverse(schema);
 	     for(vector<xs__pattern>::iterator pn = pattern.begin(); pn != pattern.end(); ++pn)
 		     (*pn).traverse(schema); }
@@ -1834,7 +1834,7 @@ ostream &operator<<(ostream &o, const xs__schema &e)
 		soap_end(&soap);
 		soap_done(&soap);
 	}
-	else{ostream * os = e.soap->os;
+	else {ostream * os = e.soap->os;
 	     e.soap->os = &o;
 	     e.soap_serialize(e.soap);
 	     soap_begin_send(e.soap);

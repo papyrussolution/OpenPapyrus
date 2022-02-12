@@ -19,7 +19,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "xapian/enquire.h"
 #include "enquireinternal.h"
 #include "expand/esetinternal.h"
 #include "expand/expandweight.h"
@@ -27,13 +26,6 @@
 #include "msetinternal.h"
 #include "vectortermlist.h"
 #include "weight/weightinternal.h"
-#include "xapian/expanddecider.h"
-#include "xapian/intrusive_ptr.h"
-#include "xapian/keymaker.h"
-#include "xapian/matchspy.h"
-#include "xapian/query.h"
-#include "xapian/rset.h"
-#include "xapian/weight.h"
 
 using namespace std;
 
@@ -45,15 +37,12 @@ static void throw_invalid_arg(const char* msg) {
 namespace Xapian {
 Enquire::Enquire(const Enquire&) = default;
 
-Enquire&
-Enquire::operator=(const Enquire&) = default;
-
+Enquire & Enquire::operator=(const Enquire&) = default;
 Enquire::Enquire(Enquire&&) = default;
+Enquire & Enquire::operator=(Enquire&&) = default;
 
-Enquire&
-Enquire::operator=(Enquire&&) = default;
-
-Enquire::Enquire(const Database& db) : internal(new Enquire::Internal(db)) {
+Enquire::Enquire(const Database& db) : internal(new Enquire::Internal(db)) 
+{
 }
 
 Enquire::~Enquire() {

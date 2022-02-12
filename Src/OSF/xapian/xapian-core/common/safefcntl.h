@@ -77,9 +77,9 @@ inline int open(const char *filename, int flags) {
 // text and binary files, but it's cleaner to define it to 0 here for other
 // platforms so we can avoid #ifdef where we need to use it in the code.
 #ifndef __WIN32__
-# ifndef O_BINARY
+#ifndef O_BINARY
 #  define O_BINARY 0
-# endif
+#endif
 #endif
 
 #ifndef O_CLOEXEC
@@ -88,7 +88,7 @@ inline int open(const char *filename, int flags) {
 # else
 // If O_CLOEXEC isn't supported, we probably can't mark fds as close-on-exec.
 #  define O_CLOEXEC 0
-# endif
+#endif
 #endif
 
 #endif /* XAPIAN_INCLUDED_SAFEFCNTL_H */

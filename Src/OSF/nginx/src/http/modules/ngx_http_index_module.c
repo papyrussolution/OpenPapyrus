@@ -164,7 +164,7 @@ static ngx_int_t ngx_http_index_handler(ngx_http_request_t * r)
 			ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, of.err, "%s \"%s\" failed", of.failed, path.data);
 #if (NGX_HAVE_OPENAT)
 			if(of.err == NGX_EMLINK
-			    || of.err == NGX_ELOOP) {
+			   || of.err == NGX_ELOOP) {
 				return NGX_HTTP_FORBIDDEN;
 			}
 #endif

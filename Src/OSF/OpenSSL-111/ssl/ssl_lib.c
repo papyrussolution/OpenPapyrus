@@ -468,14 +468,14 @@ static int ssl_check_allowed_versions(int min_version, int max_version)
 
 	/* Figure out if we're doing DTLS versions or TLS versions */
 	if(min_version == DTLS1_BAD_VER
-	    || min_version >> 8 == DTLS1_VERSION_MAJOR)
+	   || min_version >> 8 == DTLS1_VERSION_MAJOR)
 		minisdtls = 1;
 	if(max_version == DTLS1_BAD_VER
-	    || max_version >> 8 == DTLS1_VERSION_MAJOR)
+	   || max_version >> 8 == DTLS1_VERSION_MAJOR)
 		maxisdtls = 1;
 	/* A wildcard version of 0 could be DTLS or TLS. */
 	if((minisdtls && !maxisdtls && max_version != 0)
-	    || (maxisdtls && !minisdtls && min_version != 0)) {
+	   || (maxisdtls && !minisdtls && min_version != 0)) {
 		/* Mixing DTLS and TLS versions will lead to sadness; deny it. */
 		return 0;
 	}
@@ -498,11 +498,11 @@ static int ssl_check_allowed_versions(int min_version, int max_version)
 		/* Done massaging versions; do the check. */
 		if(0
 #ifdef OPENSSL_NO_DTLS1
-		    || (DTLS_VERSION_GE(min_version, DTLS1_VERSION)
+		   || (DTLS_VERSION_GE(min_version, DTLS1_VERSION)
 		 && DTLS_VERSION_GE(DTLS1_VERSION, max_version))
 #endif
 #ifdef OPENSSL_NO_DTLS1_2
-		    || (DTLS_VERSION_GE(min_version, DTLS1_2_VERSION)
+		   || (DTLS_VERSION_GE(min_version, DTLS1_2_VERSION)
 		 && DTLS_VERSION_GE(DTLS1_2_VERSION, max_version))
 #endif
 		    )
@@ -549,19 +549,19 @@ static int ssl_check_allowed_versions(int min_version, int max_version)
 		/* Done massaging versions; do the check. */
 		if(0
 #ifdef OPENSSL_NO_SSL3
-		    || (min_version <= SSL3_VERSION && SSL3_VERSION <= max_version)
+		   || (min_version <= SSL3_VERSION && SSL3_VERSION <= max_version)
 #endif
 #ifdef OPENSSL_NO_TLS1
-		    || (min_version <= TLS1_VERSION && TLS1_VERSION <= max_version)
+		   || (min_version <= TLS1_VERSION && TLS1_VERSION <= max_version)
 #endif
 #ifdef OPENSSL_NO_TLS1_1
-		    || (min_version <= TLS1_1_VERSION && TLS1_1_VERSION <= max_version)
+		   || (min_version <= TLS1_1_VERSION && TLS1_1_VERSION <= max_version)
 #endif
 #ifdef OPENSSL_NO_TLS1_2
-		    || (min_version <= TLS1_2_VERSION && TLS1_2_VERSION <= max_version)
+		   || (min_version <= TLS1_2_VERSION && TLS1_2_VERSION <= max_version)
 #endif
 #ifdef OPENSSL_NO_TLS1_3
-		    || (min_version <= TLS1_3_VERSION && TLS1_3_VERSION <= max_version)
+		   || (min_version <= TLS1_3_VERSION && TLS1_3_VERSION <= max_version)
 #endif
 		    )
 			return 0;
@@ -1357,7 +1357,7 @@ int SSL_set_wfd(SSL * s, int fd)
 	BIO * rbio = SSL_get_rbio(s);
 
 	if(rbio == NULL || BIO_method_type(rbio) != BIO_TYPE_SOCKET
-	    || (int)BIO_get_fd(rbio, NULL) != fd) {
+	   || (int)BIO_get_fd(rbio, NULL) != fd) {
 		BIO * bio = BIO_new(BIO_s_socket());
 
 		if(bio == NULL) {
@@ -1379,7 +1379,7 @@ int SSL_set_rfd(SSL * s, int fd)
 	BIO * wbio = SSL_get_wbio(s);
 
 	if(wbio == NULL || BIO_method_type(wbio) != BIO_TYPE_SOCKET
-	    || ((int)BIO_get_fd(wbio, NULL) != fd)) {
+	   || ((int)BIO_get_fd(wbio, NULL) != fd)) {
 		BIO * bio = BIO_new(BIO_s_socket());
 
 		if(bio == NULL) {
@@ -1727,7 +1727,7 @@ int ssl_read_internal(SSL * s, void * buf, size_t num, size_t * readbytes)
 	}
 
 	if(s->early_data_state == SSL_EARLY_DATA_CONNECT_RETRY
-	    || s->early_data_state == SSL_EARLY_DATA_ACCEPT_RETRY) {
+	   || s->early_data_state == SSL_EARLY_DATA_ACCEPT_RETRY) {
 		SSLerr(SSL_F_SSL_READ_INTERNAL, ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
 		return 0;
 	}
@@ -1918,8 +1918,8 @@ int ssl_write_internal(SSL * s, const void * buf, size_t num, size_t * written)
 	}
 
 	if(s->early_data_state == SSL_EARLY_DATA_CONNECT_RETRY
-	    || s->early_data_state == SSL_EARLY_DATA_ACCEPT_RETRY
-	    || s->early_data_state == SSL_EARLY_DATA_READ_RETRY) {
+	   || s->early_data_state == SSL_EARLY_DATA_ACCEPT_RETRY
+	   || s->early_data_state == SSL_EARLY_DATA_READ_RETRY) {
 		SSLerr(SSL_F_SSL_WRITE_INTERNAL, ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
 		return 0;
 	}
@@ -2941,7 +2941,7 @@ SSL_CTX * SSL_CTX_new(const SSL_METHOD * meth)
 	    ret->tls13_ciphersuites,
 	    &ret->cipher_list, &ret->cipher_list_by_id,
 	    SSL_DEFAULT_CIPHER_LIST, ret->cert)
-	    || sk_SSL_CIPHER_num(ret->cipher_list) <= 0) {
+	   || sk_SSL_CIPHER_num(ret->cipher_list) <= 0) {
 		SSLerr(SSL_F_SSL_CTX_NEW, SSL_R_LIBRARY_HAS_NO_CIPHERS);
 		goto err2;
 	}
@@ -2981,9 +2981,9 @@ SSL_CTX * SSL_CTX_new(const SSL_METHOD * meth)
 	/* Setup RFC5077 ticket keys */
 	if((RAND_bytes(ret->ext.tick_key_name,
 	    sizeof(ret->ext.tick_key_name)) <= 0)
-	    || (RAND_priv_bytes(ret->ext.secure->tick_hmac_key,
+	   || (RAND_priv_bytes(ret->ext.secure->tick_hmac_key,
 	    sizeof(ret->ext.secure->tick_hmac_key)) <= 0)
-	    || (RAND_priv_bytes(ret->ext.secure->tick_aes_key,
+	   || (RAND_priv_bytes(ret->ext.secure->tick_aes_key,
 	    sizeof(ret->ext.secure->tick_aes_key)) <= 0))
 		ret->options |= SSL_OP_NO_TICKET;
 
@@ -3403,11 +3403,11 @@ void ssl_update_cache(SSL * s, int mode)
 		 */
 		if((i & SSL_SESS_CACHE_NO_INTERNAL_STORE) == 0
 		 && (!SSL_IS_TLS13(s)
-		    || !s->server
-		    || (s->max_early_data > 0
+		   || !s->server
+		   || (s->max_early_data > 0
 		 && (s->options & SSL_OP_NO_ANTI_REPLAY) == 0)
-		    || s->session_ctx->remove_session_cb != NULL
-		    || (s->options & SSL_OP_NO_TICKET) != 0))
+		   || s->session_ctx->remove_session_cb != NULL
+		   || (s->options & SSL_OP_NO_TICKET) != 0))
 			SSL_CTX_add_session(s->session_ctx, s->session);
 
 		/*
@@ -4425,7 +4425,7 @@ int ssl_handshake_hash(SSL * s, uchar * out, size_t outlen,
 		goto err;
 
 	if(!EVP_MD_CTX_copy_ex(ctx, hdgst)
-	    || EVP_DigestFinal_ex(ctx, out, NULL) <= 0) {
+	   || EVP_DigestFinal_ex(ctx, out, NULL) <= 0) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL_HANDSHAKE_HASH,
 		    ERR_R_INTERNAL_ERROR);
 		goto err;
@@ -5223,10 +5223,10 @@ int ssl_cache_cipherlist(SSL * s, PACKET * cipher_suites, int sslv2format)
 		    PACKET_remaining(&sslv2ciphers) > 0;
 		    raw += TLS_CIPHER_LEN) {
 			if(!PACKET_get_1(&sslv2ciphers, &leadbyte)
-			    || (leadbyte == 0
+			   || (leadbyte == 0
 			 && !PACKET_copy_bytes(&sslv2ciphers, raw,
 			    TLS_CIPHER_LEN))
-			    || (leadbyte != 0
+			   || (leadbyte != 0
 			 && !PACKET_forward(&sslv2ciphers, TLS_CIPHER_LEN))) {
 				SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_SSL_CACHE_CIPHERLIST,
 				    SSL_R_BAD_PACKET);

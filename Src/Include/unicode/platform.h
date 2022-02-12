@@ -616,13 +616,13 @@ namespace std {
  * @stable ICU 2.0
  */
 #ifdef U_CHARSET_FAMILY
-    /* Use the predefined value. */
+    // Use the predefined value
 #elif U_PLATFORM == U_PF_OS390 && (!defined(__CHARSET_LIB) || !__CHARSET_LIB)
-#define U_CHARSET_FAMILY U_EBCDIC_FAMILY
+	#define U_CHARSET_FAMILY U_EBCDIC_FAMILY
 #elif U_PLATFORM == U_PF_OS400 && !defined(__UTF32__)
-#define U_CHARSET_FAMILY U_EBCDIC_FAMILY
+	#define U_CHARSET_FAMILY U_EBCDIC_FAMILY
 #else
-#define U_CHARSET_FAMILY U_ASCII_FAMILY
+	#define U_CHARSET_FAMILY U_ASCII_FAMILY
 #endif
 
 /**

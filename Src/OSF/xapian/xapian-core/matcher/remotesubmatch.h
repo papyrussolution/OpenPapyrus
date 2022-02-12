@@ -26,68 +26,47 @@
 #include "xapian/weight.h"
 
 namespace Xapian {
-    class MatchSpy;
+class MatchSpy;
 }
 
 /// Class for performing matching on a remote database.
 class RemoteSubMatch {
-    /// Don't allow assignment.
-    RemoteSubMatch& operator=(const RemoteSubMatch &) = delete;
-
-    /// Don't allow copying.
-    RemoteSubMatch(const RemoteSubMatch &) = delete;
-
-    /// The remote database.
-    const RemoteDatabase *db;
-
-    /// Index of this subdatabase.
-    Xapian::doccount shard;
-
-  public:
-    /// Constructor.
-    RemoteSubMatch(const RemoteDatabase* db_, Xapian::doccount shard_)
-	: db(db_), shard(shard_) {}
-
-    int get_read_fd() const {
-	return db->get_read_fd();
-    }
-
-    /** Fetch and collate statistics.
-     *
-     *  Before we can calculate term weights we need to fetch statistics from
-     *  each database involved and collate them.
-     *
-     *  @param total_stats A stats object to which the statistics should be
-     *			added.
-     */
-    void prepare_match(Xapian::Weight::Internal& total_stats);
-
-    /** Start the match.
-     *
-     *  @param first          The first item in the result set to return.
-     *  @param maxitems       The maximum number of items to return.
-     *  @param check_at_least The minimum number of items to check.
-     *  @param sorter	      KeyMaker for sort keys (NULL for none).
-     *  @param total_stats    The total statistics for the collection.
-     */
-    void start_match(Xapian::doccount first,
-		     Xapian::doccount maxitems,
-		     Xapian::doccount check_at_least,
-		     const Xapian::KeyMaker* sorter,
-		     Xapian::Weight::Internal& total_stats);
-
-    typedef Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy> opt_ptr_spy;
-
-    /** Get MSet.
-     *
-     *  @param matchspies   The matchspies to use.
-     */
-    Xapian::MSet get_mset(const std::vector<opt_ptr_spy>& matchspies) {
-	return db->get_mset(matchspies);
-    }
-
-    /// Return the index of the corresponding Database shard.
-    Xapian::doccount get_shard() const { return shard; }
+	RemoteSubMatch& operator=(const RemoteSubMatch &) = delete; /// Don't allow assignment.
+	RemoteSubMatch(const RemoteSubMatch &) = delete; /// Don't allow copying.
+	const RemoteDatabase * db; /// The remote database.
+	Xapian::doccount shard; /// Index of this subdatabase.
+public:
+	RemoteSubMatch(const RemoteDatabase* db_, Xapian::doccount shard_) : db(db_), shard(shard_) 
+	{
+	}
+	int get_read_fd() const { return db->get_read_fd(); }
+	/** Fetch and collate statistics.
+	 *
+	 *  Before we can calculate term weights we need to fetch statistics from
+	 *  each database involved and collate them.
+	 *
+	 *  @param total_stats A stats object to which the statistics should be
+	 *			added.
+	 */
+	void prepare_match(Xapian::Weight::Internal& total_stats);
+	/** Start the match.
+	 *
+	 *  @param first          The first item in the result set to return.
+	 *  @param maxitems       The maximum number of items to return.
+	 *  @param check_at_least The minimum number of items to check.
+	 *  @param sorter	      KeyMaker for sort keys (NULL for none).
+	 *  @param total_stats    The total statistics for the collection.
+	 */
+	void start_match(Xapian::doccount first, Xapian::doccount maxitems, Xapian::doccount check_at_least,
+	    const Xapian::KeyMaker* sorter, Xapian::Weight::Internal& total_stats);
+	typedef Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy> opt_ptr_spy;
+	/** Get MSet.
+	 *
+	 *  @param matchspies   The matchspies to use.
+	 */
+	Xapian::MSet get_mset(const std::vector<opt_ptr_spy>& matchspies) { return db->get_mset(matchspies); }
+	/// Return the index of the corresponding Database shard.
+	Xapian::doccount get_shard() const { return shard; }
 };
 
 #endif /* XAPIAN_INCLUDED_REMOTESUBMATCH_H */

@@ -21,7 +21,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include <xapian/queryparser.h>
 #include "api/vectortermlist.h"
 #include "queryparser_internal.h"
 
@@ -141,8 +140,7 @@ void QueryParser::set_max_expansion(Xapian::termcount max_expansion,
 	}
 }
 
-void QueryParser::set_min_wildcard_prefix(unsigned min_prefix_len,
-    unsigned flags)
+void QueryParser::set_min_wildcard_prefix(unsigned min_prefix_len, unsigned flags)
 {
 	if(flags & FLAG_WILDCARD) {
 		internal->min_wildcard_prefix_len = min_prefix_len;
@@ -152,23 +150,20 @@ void QueryParser::set_min_wildcard_prefix(unsigned min_prefix_len,
 	}
 }
 
-Query QueryParser::parse_query(const string &query_string, unsigned flags,
-    const string &default_prefix)
+Query QueryParser::parse_query(const string &query_string, unsigned flags, const string &default_prefix)
 {
 	if(!(flags & FLAG_ACCUMULATE)) {
 		internal->stoplist.clear();
 		internal->unstem.clear();
 	}
 	internal->errmsg = NULL;
-
-	if(query_string.empty()) return Query();
-
+	if(query_string.empty()) 
+		return Query();
 	Query result = internal->parse_query(query_string, flags, default_prefix);
 	if(internal->errmsg && strcmp(internal->errmsg, "parse error") == 0) {
 		flags &= FLAG_CJK_NGRAM | FLAG_NO_POSITIONS;
 		result = internal->parse_query(query_string, flags, default_prefix);
 	}
-
 	if(internal->errmsg) throw Xapian::QueryParserError(internal->errmsg);
 	return result;
 }

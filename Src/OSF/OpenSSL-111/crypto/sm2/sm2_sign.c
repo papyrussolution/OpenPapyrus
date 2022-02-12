@@ -104,24 +104,24 @@ int sm2_compute_z_digest(uint8_t * out,
 	}
 
 	if(BN_bn2binpad(a, buf, p_bytes) < 0
-	    || !EVP_DigestUpdate(hash, buf, p_bytes)
-	    || BN_bn2binpad(b, buf, p_bytes) < 0
-	    || !EVP_DigestUpdate(hash, buf, p_bytes)
-	    || !EC_POINT_get_affine_coordinates(group,
+	   || !EVP_DigestUpdate(hash, buf, p_bytes)
+	   || BN_bn2binpad(b, buf, p_bytes) < 0
+	   || !EVP_DigestUpdate(hash, buf, p_bytes)
+	   || !EC_POINT_get_affine_coordinates(group,
 	    EC_GROUP_get0_generator(group),
 	    xG, yG, ctx)
-	    || BN_bn2binpad(xG, buf, p_bytes) < 0
-	    || !EVP_DigestUpdate(hash, buf, p_bytes)
-	    || BN_bn2binpad(yG, buf, p_bytes) < 0
-	    || !EVP_DigestUpdate(hash, buf, p_bytes)
-	    || !EC_POINT_get_affine_coordinates(group,
+	   || BN_bn2binpad(xG, buf, p_bytes) < 0
+	   || !EVP_DigestUpdate(hash, buf, p_bytes)
+	   || BN_bn2binpad(yG, buf, p_bytes) < 0
+	   || !EVP_DigestUpdate(hash, buf, p_bytes)
+	   || !EC_POINT_get_affine_coordinates(group,
 	    EC_KEY_get0_public_key(key),
 	    xA, yA, ctx)
-	    || BN_bn2binpad(xA, buf, p_bytes) < 0
-	    || !EVP_DigestUpdate(hash, buf, p_bytes)
-	    || BN_bn2binpad(yA, buf, p_bytes) < 0
-	    || !EVP_DigestUpdate(hash, buf, p_bytes)
-	    || !EVP_DigestFinal(hash, out, NULL)) {
+	   || BN_bn2binpad(xA, buf, p_bytes) < 0
+	   || !EVP_DigestUpdate(hash, buf, p_bytes)
+	   || BN_bn2binpad(yA, buf, p_bytes) < 0
+	   || !EVP_DigestUpdate(hash, buf, p_bytes)
+	   || !EVP_DigestFinal(hash, out, NULL)) {
 		SM2err(SM2_F_SM2_COMPUTE_Z_DIGEST, ERR_R_INTERNAL_ERROR);
 		goto done;
 	}
@@ -162,10 +162,10 @@ static BIGNUM * sm2_compute_msg_hash(const EVP_MD * digest,
 	}
 
 	if(!EVP_DigestInit(hash, digest)
-	    || !EVP_DigestUpdate(hash, z, md_size)
-	    || !EVP_DigestUpdate(hash, msg, msg_len)
+	   || !EVP_DigestUpdate(hash, z, md_size)
+	   || !EVP_DigestUpdate(hash, msg, msg_len)
 	    /* reuse z buffer to hold H(Z || M) */
-	    || !EVP_DigestFinal(hash, z, NULL)) {
+	   || !EVP_DigestFinal(hash, z, NULL)) {
 		SM2err(SM2_F_SM2_COMPUTE_MSG_HASH, ERR_R_EVP_LIB);
 		goto done;
 	}
@@ -231,9 +231,9 @@ static ECDSA_SIG * sm2_sig_gen(const EC_KEY * key, const BIGNUM * e)
 		}
 
 		if(!EC_POINT_mul(group, kG, k, NULL, NULL, ctx)
-		    || !EC_POINT_get_affine_coordinates(group, kG, x1, NULL,
+		   || !EC_POINT_get_affine_coordinates(group, kG, x1, NULL,
 		    ctx)
-		    || !BN_mod_add(r, e, x1, order, ctx)) {
+		   || !BN_mod_add(r, e, x1, order, ctx)) {
 			SM2err(SM2_F_SM2_SIG_GEN, ERR_R_INTERNAL_ERROR);
 			goto done;
 		}
@@ -251,10 +251,10 @@ static ECDSA_SIG * sm2_sig_gen(const EC_KEY * key, const BIGNUM * e)
 			continue;
 
 		if(!BN_add(s, dA, BN_value_one())
-		    || !ec_group_do_inverse_ord(group, s, s, ctx)
-		    || !BN_mod_mul(tmp, dA, r, order, ctx)
-		    || !BN_sub(tmp, k, tmp)
-		    || !BN_mod_mul(s, s, tmp, order, ctx)) {
+		   || !ec_group_do_inverse_ord(group, s, s, ctx)
+		   || !BN_mod_mul(tmp, dA, r, order, ctx)
+		   || !BN_sub(tmp, k, tmp)
+		   || !BN_mod_mul(s, s, tmp, order, ctx)) {
 			SM2err(SM2_F_SM2_SIG_GEN, ERR_R_BN_LIB);
 			goto done;
 		}
@@ -322,9 +322,9 @@ static int sm2_sig_verify(const EC_KEY * key, const ECDSA_SIG * sig,
 	ECDSA_SIG_get0(sig, &r, &s);
 
 	if(BN_cmp(r, BN_value_one()) < 0
-	    || BN_cmp(s, BN_value_one()) < 0
-	    || BN_cmp(order, r) <= 0
-	    || BN_cmp(order, s) <= 0) {
+	   || BN_cmp(s, BN_value_one()) < 0
+	   || BN_cmp(order, r) <= 0
+	   || BN_cmp(order, s) <= 0) {
 		SM2err(SM2_F_SM2_SIG_VERIFY, SM2_R_BAD_SIGNATURE);
 		goto done;
 	}
@@ -340,7 +340,7 @@ static int sm2_sig_verify(const EC_KEY * key, const ECDSA_SIG * sig,
 	}
 
 	if(!EC_POINT_mul(group, pt, s, EC_KEY_get0_public_key(key), t, ctx)
-	    || !EC_POINT_get_affine_coordinates(group, pt, x1, NULL, ctx)) {
+	   || !EC_POINT_get_affine_coordinates(group, pt, x1, NULL, ctx)) {
 		SM2err(SM2_F_SM2_SIG_VERIFY, ERR_R_EC_LIB);
 		goto done;
 	}

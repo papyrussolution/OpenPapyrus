@@ -26,15 +26,11 @@
 // python sources - see, for example,
 // https://github.com/python/cpython/commit/74c3ea0a0f6599da7dd9a502b5a66aeb9512d8c3
 #if defined _MSC_VER && _MSC_VER >= 1400 && defined __STDC_SECURE_LIB__
-# include <cstdlib> // For _set_invalid_parameter_handler(), etc.
-# include <crtdbg.h> // For _CrtSetReportMode, etc.
+#include <cstdlib> // For _set_invalid_parameter_handler(), etc.
+#include <crtdbg.h> // For _CrtSetReportMode, etc.
 
 /** A dummy invalid parameter handler which ignores the error. */
-static void dummy_handler(const wchar_t*,
-			  const wchar_t*,
-			  const wchar_t*,
-			  uint,
-			  uintptr_t)
+static void dummy_handler(const wchar_t*, const wchar_t*, const wchar_t*, uint, uintptr_t)
 {
 }
 
@@ -44,33 +40,37 @@ static void dummy_handler(const wchar_t*,
 // you just need to instantiate the MSVCIgnoreInvalidParameter class in
 // the scope where you want MSVC to ignore invalid parameters.
 class MSVCIgnoreInvalidParameter {
-    _invalid_parameter_handler old_handler;
-    int old_report_mode;
+	_invalid_parameter_handler old_handler;
+	int old_report_mode;
 
-  public:
-    MSVCIgnoreInvalidParameter() {
-	// Install a dummy handler to avoid the program dying.
-	old_handler = _set_invalid_parameter_handler(dummy_handler);
-	// Make sure that no dialog boxes appear.
-	old_report_mode = _CrtSetReportMode(_CRT_ASSERT, 0);
-    }
-
-    ~MSVCIgnoreInvalidParameter() {
-	// Restore the previous settings.
-	_set_invalid_parameter_handler(old_handler);
-	_CrtSetReportMode(_CRT_ASSERT, old_report_mode);
-    }
+public:
+	MSVCIgnoreInvalidParameter() 
+	{
+		// Install a dummy handler to avoid the program dying.
+		old_handler = _set_invalid_parameter_handler(dummy_handler);
+		// Make sure that no dialog boxes appear.
+		old_report_mode = _CrtSetReportMode(_CRT_ASSERT, 0);
+	}
+	~MSVCIgnoreInvalidParameter() 
+	{
+		// Restore the previous settings.
+		_set_invalid_parameter_handler(old_handler);
+		_CrtSetReportMode(_CRT_ASSERT, old_report_mode);
+	}
 };
+
 #else
 // Mingw seems to be free of this insanity, so for mingw, older MSVC versions,
 // and other platforms define a dummy class to allow MSVCIgnoreInvalidParameter
 // to be used unconditionally.
 struct MSVCIgnoreInvalidParameter {
-    // Provide an explicit constructor so this isn't a POD struct - this seems
-    // to prevent GCC warning about an unused variable whenever we instantiate
-    // this class.
-    MSVCIgnoreInvalidParameter() { }
+	// Provide an explicit constructor so this isn't a POD struct - this seems
+	// to prevent GCC warning about an unused variable whenever we instantiate
+	// this class.
+	MSVCIgnoreInvalidParameter() 
+	{
+	}
 };
-#endif
 
+#endif
 #endif

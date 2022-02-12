@@ -18,7 +18,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
-
 #ifndef XAPIAN_INCLUDED_MULTI_H
 #define XAPIAN_INCLUDED_MULTI_H
 
@@ -32,11 +31,11 @@
  *
  *  @return docid in the shard
  */
-inline Xapian::docid
-shard_docid(Xapian::docid did, Xapian::doccount n_shards) {
-    Assert(did != 0);
-    Assert(n_shards != 0);
-    return (did - 1) / n_shards + 1;
+inline Xapian::docid shard_docid(Xapian::docid did, Xapian::doccount n_shards) 
+{
+	Assert(did != 0);
+	Assert(n_shards != 0);
+	return (did - 1) / n_shards + 1;
 }
 
 /** Convert docid in the multi-db to shard number.
@@ -46,11 +45,11 @@ shard_docid(Xapian::docid did, Xapian::doccount n_shards) {
  *
  *  @return shard number between 0 and (n_shards - 1) inclusive
  */
-inline Xapian::doccount
-shard_number(Xapian::docid did, Xapian::doccount n_shards) {
-    Assert(did != 0);
-    Assert(n_shards != 0);
-    return Xapian::doccount((did - 1) % n_shards);
+inline Xapian::doccount shard_number(Xapian::docid did, Xapian::doccount n_shards) 
+{
+	Assert(did != 0);
+	Assert(n_shards != 0);
+	return Xapian::doccount((did - 1) % n_shards);
 }
 
 /** Convert shard number and shard docid to docid in multi-db.
@@ -61,13 +60,11 @@ shard_number(Xapian::docid did, Xapian::doccount n_shards) {
  *
  *  @return docid in the multi-db.
  */
-inline Xapian::docid
-unshard(Xapian::docid shard_did,
-	Xapian::doccount shard,
-	Xapian::doccount n_shards) {
-    Assert(shard_did != 0);
-    AssertRel(shard,<,n_shards);
-    return (shard_did - 1) * n_shards + shard + 1;
+inline Xapian::docid unshard(Xapian::docid shard_did, Xapian::doccount shard, Xapian::doccount n_shards) 
+{
+	Assert(shard_did != 0);
+	AssertRel(shard, <, n_shards);
+	return (shard_did - 1) * n_shards + shard + 1;
 }
 
 #endif // XAPIAN_INCLUDED_MULTI_H

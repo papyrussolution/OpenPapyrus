@@ -19,7 +19,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "xapian/query.h"
 #include "queryinternal.h"
 #include "vectortermlist.h"
 
@@ -46,7 +45,6 @@ Query::Query(Xapian::PostingSource * source)
 Query::Query(double factor, const Xapian::Query & subquery)
 {
 	LOGCALL_CTOR(API, "Query", factor | subquery);
-
 	if(!subquery.empty())
 		internal = new Xapian::Internal::QueryScaleWeight(factor, subquery);
 }
@@ -108,27 +106,17 @@ Query::Query(op op_, Xapian::valueno slot,
 	}
 }
 
-Query::Query(op op_,
-    const std::string & pattern,
-    Xapian::termcount max_expansion,
-    int flags,
-    op combiner)
+Query::Query(op op_, const std::string & pattern, Xapian::termcount max_expansion, int flags, op combiner)
 {
 	LOGCALL_CTOR(API, "Query", op_ | pattern | max_expansion | flags | combiner);
 	if(rare(combiner != OP_SYNONYM && combiner != OP_MAX && combiner != OP_OR))
-		throw Xapian::InvalidArgumentError("combiner must be OP_SYNONYM or "
-			  "OP_MAX or OP_OR");
+		throw Xapian::InvalidArgumentError("combiner must be OP_SYNONYM or OP_MAX or OP_OR");
 	if(op_ == OP_EDIT_DISTANCE) {
-		internal = new Xapian::Internal::QueryEditDistance(pattern,
-			max_expansion,
-			flags,
-			combiner);
+		internal = new Xapian::Internal::QueryEditDistance(pattern, max_expansion, flags, combiner);
 		return;
 	}
 	if(rare(op_ != OP_WILDCARD))
-		throw Xapian::InvalidArgumentError("op must be OP_EDIT_DISTANCE or "
-			  "OP_WILDCARD");
-
+		throw Xapian::InvalidArgumentError("op must be OP_EDIT_DISTANCE or OP_WILDCARD");
 	auto just_flags = flags & ~Query::WILDCARD_LIMIT_MASK_;
 	if(pattern.empty()) {
 		if(just_flags == 0) {
@@ -140,7 +128,6 @@ Query::Query(op op_,
 		}
 		return;
 	}
-
 	// Check if pattern consists of one or more '*' and at most one '?' (in any
 	// order) - if so treat it as just MatchAll.
 	bool match_all = false;
@@ -162,44 +149,26 @@ Query::Query(op op_,
 		internal = new Xapian::Internal::QueryTerm();
 		return;
 	}
-
-	internal = new Xapian::Internal::QueryWildcard(pattern,
-		max_expansion,
-		flags,
-		combiner);
+	internal = new Xapian::Internal::QueryWildcard(pattern, max_expansion, flags, combiner);
 }
 
-Query::Query(op op_,
-    const std::string& pattern,
-    Xapian::termcount max_expansion,
-    int flags,
-    op combiner,
-    unsigned edit_distance,
-    size_t min_prefix_len)
+Query::Query(op op_, const std::string& pattern, Xapian::termcount max_expansion, int flags, op combiner, unsigned edit_distance, size_t min_prefix_len)
 {
 	LOGCALL_CTOR(API, "Query", op_ | pattern | max_expansion | flags | combiner | edit_distance | min_prefix_len);
 	if(rare(combiner != OP_SYNONYM && combiner != OP_MAX && combiner != OP_OR))
-		throw Xapian::InvalidArgumentError("combiner must be OP_SYNONYM or "
-			  "OP_MAX or OP_OR");
+		throw Xapian::InvalidArgumentError("combiner must be OP_SYNONYM or OP_MAX or OP_OR");
 	if(rare(op_ != OP_EDIT_DISTANCE))
 		throw Xapian::InvalidArgumentError("op must be OP_EDIT_DISTANCE");
-	internal = new Xapian::Internal::QueryEditDistance(pattern,
-		max_expansion,
-		flags,
-		combiner,
-		edit_distance,
-		min_prefix_len);
+	internal = new Xapian::Internal::QueryEditDistance(pattern, max_expansion, flags, combiner, edit_distance, min_prefix_len);
 }
 
 const TermIterator Query::get_terms_begin() const
 {
 	if(!internal.get())
 		return TermIterator();
-
 	vector<pair<Xapian::termpos, string> > terms;
 	internal->gather_terms(static_cast<void*>(&terms));
 	sort(terms.begin(), terms.end());
-
 	vector<string> v;
 	const string * old_term = NULL;
 	Xapian::termpos old_pos = 0;
@@ -301,48 +270,20 @@ string Query::get_description() const
 
 void Query::init(op op_, size_t n_subqueries, Xapian::termcount parameter)
 {
-	if(parameter > 0 &&
-	    op_ != OP_NEAR && op_ != OP_PHRASE && op_ != OP_ELITE_SET)
-		throw InvalidArgumentError("parameter only valid with OP_NEAR, "
-			  "OP_PHRASE or OP_ELITE_SET");
-
+	if(parameter > 0 && op_ != OP_NEAR && op_ != OP_PHRASE && op_ != OP_ELITE_SET)
+		throw InvalidArgumentError("parameter only valid with OP_NEAR, OP_PHRASE or OP_ELITE_SET");
 	switch(op_) {
-		case OP_AND:
-		    internal = new Xapian::Internal::QueryAnd(n_subqueries);
-		    break;
-		case OP_OR:
-		    internal = new Xapian::Internal::QueryOr(n_subqueries);
-		    break;
-		case OP_AND_NOT:
-		    internal = new Xapian::Internal::QueryAndNot(n_subqueries);
-		    break;
-		case OP_XOR:
-		    internal = new Xapian::Internal::QueryXor(n_subqueries);
-		    break;
-		case OP_AND_MAYBE:
-		    internal = new Xapian::Internal::QueryAndMaybe(n_subqueries);
-		    break;
-		case OP_FILTER:
-		    internal = new Xapian::Internal::QueryFilter(n_subqueries);
-		    break;
-		case OP_NEAR:
-		    internal = new Xapian::Internal::QueryNear(n_subqueries,
-			    parameter);
-		    break;
-		case OP_PHRASE:
-		    internal = new Xapian::Internal::QueryPhrase(n_subqueries,
-			    parameter);
-		    break;
-		case OP_ELITE_SET:
-		    internal = new Xapian::Internal::QueryEliteSet(n_subqueries,
-			    parameter);
-		    break;
-		case OP_SYNONYM:
-		    internal = new Xapian::Internal::QuerySynonym(n_subqueries);
-		    break;
-		case OP_MAX:
-		    internal = new Xapian::Internal::QueryMax(n_subqueries);
-		    break;
+		case OP_AND: internal = new Xapian::Internal::QueryAnd(n_subqueries); break;
+		case OP_OR: internal = new Xapian::Internal::QueryOr(n_subqueries); break;
+		case OP_AND_NOT: internal = new Xapian::Internal::QueryAndNot(n_subqueries); break;
+		case OP_XOR: internal = new Xapian::Internal::QueryXor(n_subqueries); break;
+		case OP_AND_MAYBE: internal = new Xapian::Internal::QueryAndMaybe(n_subqueries); break;
+		case OP_FILTER: internal = new Xapian::Internal::QueryFilter(n_subqueries); break;
+		case OP_NEAR: internal = new Xapian::Internal::QueryNear(n_subqueries, parameter); break;
+		case OP_PHRASE: internal = new Xapian::Internal::QueryPhrase(n_subqueries, parameter); break;
+		case OP_ELITE_SET: internal = new Xapian::Internal::QueryEliteSet(n_subqueries, parameter); break;
+		case OP_SYNONYM: internal = new Xapian::Internal::QuerySynonym(n_subqueries); break;
+		case OP_MAX: internal = new Xapian::Internal::QueryMax(n_subqueries); break;
 		default:
 		    if(op_ == OP_INVALID && n_subqueries == 0) {
 			    internal = new Xapian::Internal::QueryInvalid();
@@ -385,8 +326,7 @@ void Query::add_subquery(bool positional, const Xapian::Query & subquery)
 
 void Query::done()
 {
-	Xapian::Internal::QueryBranch * branch_query =
-	    static_cast<Xapian::Internal::QueryBranch*>(internal.get());
+	Xapian::Internal::QueryBranch * branch_query = static_cast<Xapian::Internal::QueryBranch*>(internal.get());
 	if(branch_query)
 		internal = branch_query->done();
 }

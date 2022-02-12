@@ -1773,7 +1773,7 @@ static char * generate_cookie()
 		s[i*2+1] = hex[rnd[i] >> 4];
 	}
 	s[32] = '\0';
-	return _strdup(s);
+	return sstrdup(s);
 }
 
 /**

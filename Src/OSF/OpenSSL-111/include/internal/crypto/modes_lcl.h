@@ -28,7 +28,7 @@ typedef uchar u8;
 #define STRICT_ALIGNMENT 1
 #ifndef PEDANTIC
 	#if defined(__i386) || defined(__i386__) || defined(__x86_64) || defined(__x86_64__) ||  defined(_M_IX86) || \
-		defined(_M_AMD64) || defined(_M_X64) || defined(__aarch64__) || defined(__s390__)  || defined(__s390x__)
+		defined(_M_AMD64) || defined(_M_X64) || defined(__aarch64__) || defined(__s390__) || defined(__s390x__)
 		#undef STRICT_ALIGNMENT
 	#endif
 #endif

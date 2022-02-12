@@ -27,9 +27,9 @@
 #include "api/replication.h"
 
 #ifdef __WIN32__
-# define SOCKET_INITIALIZER_MIXIN : private WinsockInitializer
+#define SOCKET_INITIALIZER_MIXIN : private WinsockInitializer
 #else
-# define SOCKET_INITIALIZER_MIXIN
+#define SOCKET_INITIALIZER_MIXIN
 #endif
 
 /// TCP/IP replication client class.

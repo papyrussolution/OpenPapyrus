@@ -380,7 +380,6 @@ TermList* MultiDatabase::open_spelling_wordlist() const
 {
 	vector<TermList*> termlists;
 	termlists.reserve(shards.size());
-
 	try {
 		for(auto&& shard : shards) {
 			TermList* termlist = shard->open_spelling_wordlist();
@@ -388,7 +387,6 @@ TermList* MultiDatabase::open_spelling_wordlist() const
 				continue;
 			termlists.push_back(termlist);
 		}
-
 		return make_termlist_merger<FreqAdderOrTermList>(termlists);
 	} catch(...) {
 		for(auto&& termlist : termlists)
@@ -413,7 +411,6 @@ TermList* MultiDatabase::open_synonym_termlist(const string& term) const
 {
 	vector<TermList*> termlists;
 	termlists.reserve(shards.size());
-
 	try {
 		for(auto&& shard : shards) {
 			TermList* termlist = shard->open_synonym_termlist(term);
@@ -421,7 +418,6 @@ TermList* MultiDatabase::open_synonym_termlist(const string& term) const
 				continue;
 			termlists.push_back(termlist);
 		}
-
 		return make_termlist_merger(termlists);
 	} catch(...) {
 		for(auto&& termlist : termlists)
@@ -434,7 +430,6 @@ TermList* MultiDatabase::open_synonym_keylist(const string& prefix) const
 {
 	vector<TermList*> termlists;
 	termlists.reserve(shards.size());
-
 	try {
 		for(auto&& shard : shards) {
 			TermList* termlist = shard->open_synonym_keylist(prefix);
@@ -442,7 +437,6 @@ TermList* MultiDatabase::open_synonym_keylist(const string& prefix) const
 				continue;
 			termlists.push_back(termlist);
 		}
-
 		return make_termlist_merger(termlists);
 	} catch(...) {
 		for(auto&& termlist : termlists)
@@ -451,15 +445,8 @@ TermList* MultiDatabase::open_synonym_keylist(const string& prefix) const
 	}
 }
 
-string MultiDatabase::get_metadata(const string& key) const
-{
-	return shards[0]->get_metadata(key);
-}
-
-TermList* MultiDatabase::open_metadata_keylist(const string& prefix) const
-{
-	return shards[0]->open_metadata_keylist(prefix);
-}
+string MultiDatabase::get_metadata(const string& key) const { return shards[0]->get_metadata(key); }
+TermList* MultiDatabase::open_metadata_keylist(const string& prefix) const { return shards[0]->open_metadata_keylist(prefix); }
 
 string MultiDatabase::get_uuid() const
 {
@@ -487,19 +474,14 @@ bool MultiDatabase::locked() const
 	return false;
 }
 
-void MultiDatabase::write_changesets_to_fd(int,
-    const std::string&,
-    bool,
-    Xapian::ReplicationInfo*)
+void MultiDatabase::write_changesets_to_fd(int, const std::string&, bool, Xapian::ReplicationInfo*)
 {
-	throw Xapian::InvalidOperationError("write_changesets_to_fd() with "
-		  "more than one subdatabase");
+	throw Xapian::InvalidOperationError("write_changesets_to_fd() with more than one subdatabase");
 }
 
 Xapian::rev MultiDatabase::get_revision() const
 {
-	throw Xapian::InvalidOperationError("Database::get_revision() with "
-		  "more than one subdatabase");
+	throw Xapian::InvalidOperationError("Database::get_revision() with more than one subdatabase");
 }
 
 void MultiDatabase::invalidate_doc_object(Xapian::Document::Internal*) const
@@ -549,11 +531,8 @@ Xapian::docid MultiDatabase::add_document(const Xapian::Document& doc)
 	// which seems a sensible invariant to preserve with multiple shards.
 	Xapian::docid did = get_lastdocid() + 1;
 	if(rare(did == 0)) {
-		throw Xapian::DatabaseError("Run out of docids - you'll have to use "
-			  "copydatabase to eliminate any gaps "
-			  "before you can add more documents");
+		throw Xapian::DatabaseError("Run out of docids - you'll have to use copydatabase to eliminate any gaps before you can add more documents");
 	}
-
 	auto n_shards = shards.size();
 	auto shard = shards[shard_number(did, n_shards)];
 	shard->replace_document(shard_docid(did, n_shards), doc);
@@ -591,33 +570,26 @@ Xapian::docid MultiDatabase::replace_document(const string& term, const Xapian::
 		// Which database will the next never used docid be in?
 		Xapian::docid did = get_lastdocid() + 1;
 		if(rare(did == 0)) {
-			throw Xapian::DatabaseError("Run out of docids - you'll have to "
-				  "use copydatabase to eliminate any "
-				  "gaps before you can add more "
-				  "documents");
+			throw Xapian::DatabaseError("Run out of docids - you'll have to use copydatabase to eliminate any gaps before you can add more documents");
 		}
 		auto shard = shards[shard_number(did, n_shards)];
 		return shard->add_document(doc);
 	}
-
 	Xapian::docid result = pl->get_docid();
 	auto replacing_shard = shards[shard_number(result, n_shards)];
 	replacing_shard->replace_document(shard_docid(result, n_shards), doc);
-
 	// Delete any other occurrences of the unique term.
 	while(pl->next(), !pl->at_end()) {
 		Xapian::docid did = pl->get_docid();
 		auto shard = shards[shard_number(did, n_shards)];
 		shard->delete_document(shard_docid(did, n_shards));
 	}
-
 	return result;
 }
 
 void MultiDatabase::request_document(Xapian::docid did) const
 {
 	Assert(did != 0);
-
 	auto n_shards = shards.size();
 	auto shard = shards[shard_number(did, n_shards)];
 	auto shard_did = shard_docid(did, n_shards);
@@ -641,14 +613,12 @@ Xapian::termcount MultiDatabase::remove_spelling(const string& word,
 	return freqdec;
 }
 
-void MultiDatabase::add_synonym(const string& term,
-    const string& synonym) const
+void MultiDatabase::add_synonym(const string& term, const string& synonym) const
 {
 	shards[0]->add_synonym(term, synonym);
 }
 
-void MultiDatabase::remove_synonym(const string& term,
-    const string& synonym) const
+void MultiDatabase::remove_synonym(const string& term, const string& synonym) const
 {
 	for(auto&& shard : shards) {
 		shard->remove_synonym(term, synonym);
@@ -667,14 +637,9 @@ void MultiDatabase::set_metadata(const string& key, const string& value)
 	shards[0]->set_metadata(key, value);
 }
 
-string MultiDatabase::reconstruct_text(Xapian::docid did,
-    size_t length,
-    const string& prefix,
-    Xapian::termpos start_pos,
-    Xapian::termpos end_pos) const
+string MultiDatabase::reconstruct_text(Xapian::docid did, size_t length, const string& prefix, Xapian::termpos start_pos, Xapian::termpos end_pos) const
 {
 	Assert(did != 0);
-
 	auto n_shards = shards.size();
 	auto shard = shards[shard_number(did, n_shards)];
 	auto shard_did = shard_docid(did, n_shards);

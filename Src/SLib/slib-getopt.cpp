@@ -3,19 +3,8 @@
 // "Keep this file name-space clean" means, talk to drepper@gnu.org before changing it!
 // Copyright (C) 1987-1996, 1998-2004, 2006, 2008-2011 Free Software Foundation, Inc.
 // This file is part of the GNU C Library.
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
-// 
+// @licence GNU GPL
+//
 #include <slib-internal.h>
 #pragma hdrstop
 #include <getopt.h>
@@ -65,7 +54,9 @@ extern int _getopt_internal(int ___argc, char ** ___argv, const char * __shortop
    `--' can cause `getopt' to return -1 with `optind' != ARGC.  */
 
 enum __ord {
-	REQUIRE_ORDER, PERMUTE, RETURN_IN_ORDER
+	REQUIRE_ORDER, 
+	PERMUTE, 
+	RETURN_IN_ORDER
 };
 //
 // Data type for reentrant functions
@@ -841,10 +832,9 @@ int _getopt_internal_r(int argc, char ** argv, const char * optstring,
 
 int _getopt_internal(int argc, char ** argv, const char * optstring, const struct option * longopts, int * longind, int long_only, int posixly_correct)
 {
-	int result;
 	getopt_data.optind = optind;
 	getopt_data.opterr = opterr;
-	result = _getopt_internal_r(argc, argv, optstring, longopts, longind, long_only, &getopt_data, posixly_correct);
+	int result = _getopt_internal_r(argc, argv, optstring, longopts, longind, long_only, &getopt_data, posixly_correct);
 	optind = getopt_data.optind;
 	optarg = getopt_data.optarg;
 	optopt = getopt_data.optopt;

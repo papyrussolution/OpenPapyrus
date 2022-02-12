@@ -140,8 +140,8 @@ static CTFontRef create_ct_font(CGFontRef cg_font, CGFloat font_size)
 	if(CFStringHasPrefix(cg_postscript_name, CFSTR(".SFNSText")) ||
 	    CFStringHasPrefix(cg_postscript_name, CFSTR(".SFNSDisplay"))) {
 #if !(defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE) && MAC_OS_X_VERSION_MIN_REQUIRED < 1080
-# define kCTFontUIFontSystem kCTFontSystemFontType
-# define kCTFontUIFontEmphasizedSystem kCTFontEmphasizedSystemFontType
+#define kCTFontUIFontSystem kCTFontSystemFontType
+#define kCTFontUIFontEmphasizedSystem kCTFontEmphasizedSystemFontType
 #endif
 		CTFontUIFontType font_type = kCTFontUIFontSystem;
 		if(CFStringHasSuffix(cg_postscript_name, CFSTR("-Bold")))

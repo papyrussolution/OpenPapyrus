@@ -539,7 +539,8 @@ namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace {
 // Returns the maximum duration that SleepOnce() can sleep for.
-constexpr absl::Duration MaxSleep() {
+constexpr absl::Duration MaxSleep() 
+{
 #ifdef _WIN32
 	// Windows Sleep() takes unsigned long argument in milliseconds.
 	return absl::Milliseconds(std::numeric_limits<unsigned long>::max()); // NOLINT(runtime/int)
@@ -550,9 +551,10 @@ constexpr absl::Duration MaxSleep() {
 
 // Sleeps for the given duration.
 // REQUIRES: to_sleep <= MaxSleep().
-void SleepOnce(absl::Duration to_sleep) {
+void SleepOnce(absl::Duration to_sleep) 
+{
 #ifdef _WIN32
-	Sleep(to_sleep / absl::Milliseconds(1));
+	Sleep(static_cast<DWORD>(to_sleep / absl::Milliseconds(1)));
 #else
 	struct timespec sleep_time = absl::ToTimespec(to_sleep);
 	while(nanosleep(&sleep_time, &sleep_time) != 0 && errno == EINTR) {

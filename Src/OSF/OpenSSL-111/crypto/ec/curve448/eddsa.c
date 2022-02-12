@@ -53,9 +53,9 @@ static c448_error_t hash_init_with_dom(EVP_MD_CTX * hashctx, uint8_t prehashed,
 	dom[1] = (uint8_t)context_len;
 
 	if(!EVP_DigestInit_ex(hashctx, EVP_shake256(), NULL)
-	    || !EVP_DigestUpdate(hashctx, dom_s, strlen(dom_s))
-	    || !EVP_DigestUpdate(hashctx, dom, sizeof(dom))
-	    || !EVP_DigestUpdate(hashctx, context, context_len))
+	   || !EVP_DigestUpdate(hashctx, dom_s, strlen(dom_s))
+	   || !EVP_DigestUpdate(hashctx, dom, sizeof(dom))
+	   || !EVP_DigestUpdate(hashctx, context, context_len))
 		return C448_FAILURE;
 
 	return C448_SUCCESS;
@@ -146,10 +146,10 @@ c448_error_t c448_ed448_sign(uint8_t signature[EDDSA_448_SIGNATURE_BYTES],
 
 		/* Hash to create the nonce */
 		if(!hash_init_with_dom(hashctx, prehashed, 0, context, context_len)
-		    || !EVP_DigestUpdate(hashctx,
+		   || !EVP_DigestUpdate(hashctx,
 		    expanded + EDDSA_448_PRIVATE_BYTES,
 		    EDDSA_448_PRIVATE_BYTES)
-		    || !EVP_DigestUpdate(hashctx, message, message_len)) {
+		   || !EVP_DigestUpdate(hashctx, message, message_len)) {
 			OPENSSL_cleanse(expanded, sizeof(expanded));
 			goto err;
 		}
@@ -187,10 +187,10 @@ c448_error_t c448_ed448_sign(uint8_t signature[EDDSA_448_SIGNATURE_BYTES],
 
 		/* Compute the challenge */
 		if(!hash_init_with_dom(hashctx, prehashed, 0, context, context_len)
-		    || !EVP_DigestUpdate(hashctx, nonce_point, sizeof(nonce_point))
-		    || !EVP_DigestUpdate(hashctx, pubkey, EDDSA_448_PUBLIC_BYTES)
-		    || !EVP_DigestUpdate(hashctx, message, message_len)
-		    || !EVP_DigestFinalXOF(hashctx, challenge, sizeof(challenge)))
+		   || !EVP_DigestUpdate(hashctx, nonce_point, sizeof(nonce_point))
+		   || !EVP_DigestUpdate(hashctx, pubkey, EDDSA_448_PUBLIC_BYTES)
+		   || !EVP_DigestUpdate(hashctx, message, message_len)
+		   || !EVP_DigestFinalXOF(hashctx, challenge, sizeof(challenge)))
 			goto err;
 
 		curve448_scalar_decode_long(challenge_scalar, challenge,
@@ -278,12 +278,12 @@ c448_error_t c448_ed448_verify(const uint8_t signature[EDDSA_448_SIGNATURE_BYTES
 		uint8_t challenge[2 * EDDSA_448_PRIVATE_BYTES];
 
 		if(hashctx == NULL
-		    || !hash_init_with_dom(hashctx, prehashed, 0, context,
+		   || !hash_init_with_dom(hashctx, prehashed, 0, context,
 		    context_len)
-		    || !EVP_DigestUpdate(hashctx, signature, EDDSA_448_PUBLIC_BYTES)
-		    || !EVP_DigestUpdate(hashctx, pubkey, EDDSA_448_PUBLIC_BYTES)
-		    || !EVP_DigestUpdate(hashctx, message, message_len)
-		    || !EVP_DigestFinalXOF(hashctx, challenge, sizeof(challenge))) {
+		   || !EVP_DigestUpdate(hashctx, signature, EDDSA_448_PUBLIC_BYTES)
+		   || !EVP_DigestUpdate(hashctx, pubkey, EDDSA_448_PUBLIC_BYTES)
+		   || !EVP_DigestUpdate(hashctx, message, message_len)
+		   || !EVP_DigestFinalXOF(hashctx, challenge, sizeof(challenge))) {
 			EVP_MD_CTX_free(hashctx);
 			return C448_FAILURE;
 		}

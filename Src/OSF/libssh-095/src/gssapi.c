@@ -307,7 +307,7 @@ int ssh_gssapi_handle_userauth(ssh_session session, const char * user, uint32_t 
 	}
 	memcpy(session->gssapi->mech.elements, oid.elements, oid.length);
 	gss_release_oid_set(&min_stat, &selected);
-	session->gssapi->user = _strdup(user);
+	session->gssapi->user = sstrdup(user);
 	session->gssapi->service = service_name;
 	session->gssapi->state = SSH_GSSAPI_STATE_RCV_TOKEN;
 	return ssh_gssapi_send_response(session, oids[i]);
@@ -487,7 +487,7 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_gssapi_mic)
 		goto error;
 	}
 	if(session->gssapi == NULL
-	    || session->gssapi->state != SSH_GSSAPI_STATE_RCV_MIC) {
+	   || session->gssapi->state != SSH_GSSAPI_STATE_RCV_MIC) {
 		ssh_set_error(session, SSH_FATAL, "Received SSH_MSG_USERAUTH_GSSAPI_MIC in invalid state");
 		goto error;
 	}
@@ -735,30 +735,24 @@ int ssh_gssapi_auth_mic(ssh_session session){
 		    min_stat);
 		return SSH_AUTH_DENIED;
 	}
-
 	/* copy username */
-	session->gssapi->user = _strdup(session->opts.username);
+	session->gssapi->user = sstrdup(session->opts.username);
 	if(session->gssapi->user == NULL) {
 		ssh_set_error_oom(session);
 		return SSH_AUTH_ERROR;
 	}
-
-	SSH_LOG(SSH_LOG_PROTOCOL, "Authenticating with gssapi to host %s with user %s",
-	    session->opts.host, session->gssapi->user);
+	SSH_LOG(SSH_LOG_PROTOCOL, "Authenticating with gssapi to host %s with user %s", session->opts.host, session->gssapi->user);
 	rc = ssh_gssapi_match(session, &selected);
 	if(rc == SSH_ERROR) {
 		return SSH_AUTH_DENIED;
 	}
-
 	n_oids = selected->count;
 	SSH_LOG(SSH_LOG_PROTOCOL, "Sending %zu oids", n_oids);
-
 	oids = SAlloc::C(n_oids, sizeof(ssh_string));
 	if(oids == NULL) {
 		ssh_set_error_oom(session);
 		return SSH_AUTH_ERROR;
 	}
-
 	for(i = 0; i<n_oids; ++i) {
 		oids[i] = ssh_string_new(selected->elements[i].length + 2);
 		if(oids[i] == NULL) {

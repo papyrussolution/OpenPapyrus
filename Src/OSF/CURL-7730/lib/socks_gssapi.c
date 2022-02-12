@@ -408,7 +408,7 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(int sockindex,
 	}
 
 	code = Curl_write_plain(conn, sock, (char *)socksreq, 4, &written);
-	if(code  || (4 != written)) {
+	if(code || (4 != written)) {
 		failf(data, "Failed to send GSS-API encryption request.");
 		gss_release_buffer(&gss_status, &gss_w_token);
 		gss_delete_sec_context(&gss_status, &gss_context, NULL);

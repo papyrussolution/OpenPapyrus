@@ -1,19 +1,7 @@
 // This file is part of Notepad++ project
 // Copyright (C)2021 Don HO <don.h@free.fr>
-
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// at your option any later version.
+// @licence GNU GPL
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 #include <npp-internal.h>
 #pragma hdrstop
 
@@ -27,31 +15,20 @@ const int extNameMax = 18;
 
 const TCHAR defExtArray[nbSupportedLang][nbExtMax][extNameMax] =
 {
-	{TEXT("Notepad"),
-	 TEXT(".txt"), TEXT(".log")},
-	{TEXT("ms ini/inf"),
-	 TEXT(".ini"), TEXT(".inf")},
-	{TEXT("c, c++, objc"),
-	 TEXT(".h"), TEXT(".hh"), TEXT(".hpp"), TEXT(".hxx"), TEXT(".c"), TEXT(".cpp"), TEXT(".cxx"), TEXT(".cc"),
-	 TEXT(".m"), TEXT(".mm"),
-	 TEXT(".vcxproj"), TEXT(".vcproj"), TEXT(".props"), TEXT(".vsprops"), TEXT(".manifest")},
-	{TEXT("java, c#, pascal"),
-	 TEXT(".java"), TEXT(".cs"), TEXT(".pas"), TEXT(".pp"), TEXT(".inc")},
-	{TEXT("web script"),
-	 TEXT(".html"), TEXT(".htm"), TEXT(".shtml"), TEXT(".shtm"), TEXT(".hta"),
-	 TEXT(".asp"), TEXT(".aspx"),
-	 TEXT(".css"), TEXT(".js"), TEXT(".json"), TEXT(".jsm"), TEXT(".jsp"),
+	{TEXT("Notepad"), TEXT(".txt"), TEXT(".log")},
+	{TEXT("ms ini/inf"), TEXT(".ini"), TEXT(".inf")},
+	{TEXT("c, c++, objc"), TEXT(".h"), TEXT(".hh"), TEXT(".hpp"), TEXT(".hxx"), TEXT(".c"), TEXT(".cpp"), TEXT(".cxx"), TEXT(".cc"),
+	 TEXT(".m"), TEXT(".mm"), TEXT(".vcxproj"), TEXT(".vcproj"), TEXT(".props"), TEXT(".vsprops"), TEXT(".manifest")},
+	{TEXT("java, c#, pascal"), TEXT(".java"), TEXT(".cs"), TEXT(".pas"), TEXT(".pp"), TEXT(".inc")},
+	{TEXT("web script"), TEXT(".html"), TEXT(".htm"), TEXT(".shtml"), TEXT(".shtm"), TEXT(".hta"),
+	 TEXT(".asp"), TEXT(".aspx"), TEXT(".css"), TEXT(".js"), TEXT(".json"), TEXT(".jsm"), TEXT(".jsp"),
 	 TEXT(".php"), TEXT(".php3"), TEXT(".php4"), TEXT(".php5"), TEXT(".phps"), TEXT(".phpt"), TEXT(".phtml"),
 	 TEXT(".xml"), TEXT(".xhtml"), TEXT(".xht"), TEXT(".xul"), TEXT(".kml"), TEXT(".xaml"), TEXT(".xsml")},
-	{TEXT("public script"),
-	 TEXT(".sh"), TEXT(".bsh"), TEXT(".bash"), TEXT(".bat"), TEXT(".cmd"), TEXT(".nsi"),
+	{TEXT("public script"), TEXT(".sh"), TEXT(".bsh"), TEXT(".bash"), TEXT(".bat"), TEXT(".cmd"), TEXT(".nsi"),
 	 TEXT(".nsh"), TEXT(".lua"), TEXT(".pl"), TEXT(".pm"), TEXT(".py")},
-	{TEXT("property script"),
-	 TEXT(".rc"), TEXT(".as"), TEXT(".mx"), TEXT(".vb"), TEXT(".vbs")},
-	{TEXT("fortran, TeX, SQL"),
-	 TEXT(".f"), TEXT(".for"), TEXT(".f90"), TEXT(".f95"), TEXT(".f2k"), TEXT(".tex"), TEXT(".sql")},
-	{TEXT("misc"),
-	 TEXT(".nfo"), TEXT(".mak")},
+	{TEXT("property script"), TEXT(".rc"), TEXT(".as"), TEXT(".mx"), TEXT(".vb"), TEXT(".vbs")},
+	{TEXT("fortran, TeX, SQL"), TEXT(".f"), TEXT(".for"), TEXT(".f90"), TEXT(".f95"), TEXT(".f2k"), TEXT(".tex"), TEXT(".sql")},
+	{TEXT("misc"), TEXT(".nfo"), TEXT(".mak")},
 	{TEXT("customize")}
 };
 
@@ -453,11 +430,9 @@ void RegExtDlg::writeNppPath()
 		{
 			TCHAR nppPath[MAX_PATH];
 			::GetModuleFileName(_hInst, nppPath, MAX_PATH);
-
 			TCHAR nppPathParam[MAX_PATH] = TEXT("\"");
 			wcscat_s(nppPathParam, nppPath);
 			wcscat_s(nppPathParam, TEXT("\",0"));
-
 			::RegSetValueEx(hKey, nullptr, 0, REG_SZ, (LPBYTE)nppPathParam, (lstrlen(nppPathParam)+1)*sizeof(TCHAR));
 		}
 		RegCloseKey(hKey);

@@ -31,7 +31,7 @@
 #include "tiffiop.h"
 #pragma hdrstop
 
-static int TIFFNoEncode(TIFF* tif, const char * method)
+static int TIFFNoEncode(TIFF * tif, const char * method)
 {
 	const TIFFCodec* c = TIFFFindCODEC(tif->tif_dir.td_compression);
 	if(c) {
@@ -43,25 +43,25 @@ static int TIFFNoEncode(TIFF* tif, const char * method)
 	return -1;
 }
 
-int _TIFFNoRowEncode(TIFF* tif, uint8 * pp, tmsize_t cc, uint16 s)
+int _TIFFNoRowEncode(TIFF * tif, uint8 * pp, tmsize_t cc, uint16 s)
 {
 	(void)pp; (void)cc; (void)s;
 	return (TIFFNoEncode(tif, "scanline"));
 }
 
-int _TIFFNoStripEncode(TIFF* tif, uint8 * pp, tmsize_t cc, uint16 s)
+int _TIFFNoStripEncode(TIFF * tif, uint8 * pp, tmsize_t cc, uint16 s)
 {
 	(void)pp; (void)cc; (void)s;
 	return (TIFFNoEncode(tif, "strip"));
 }
 
-int _TIFFNoTileEncode(TIFF* tif, uint8 * pp, tmsize_t cc, uint16 s)
+int _TIFFNoTileEncode(TIFF * tif, uint8 * pp, tmsize_t cc, uint16 s)
 {
 	(void)pp; (void)cc; (void)s;
 	return (TIFFNoEncode(tif, "tile"));
 }
 
-static int TIFFNoDecode(TIFF* tif, const char * method)
+static int TIFFNoDecode(TIFF * tif, const char * method)
 {
 	const TIFFCodec* c = TIFFFindCODEC(tif->tif_dir.td_compression);
 	if(c)
@@ -71,55 +71,55 @@ static int TIFFNoDecode(TIFF* tif, const char * method)
 	return 0;
 }
 
-static int _TIFFNoFixupTags(TIFF* tif)
+static int _TIFFNoFixupTags(TIFF * tif)
 {
 	(void)tif;
 	return 1;
 }
 
-int _TIFFNoRowDecode(TIFF* tif, uint8 * pp, tmsize_t cc, uint16 s)
+int _TIFFNoRowDecode(TIFF * tif, uint8 * pp, tmsize_t cc, uint16 s)
 {
 	(void)pp; (void)cc; (void)s;
 	return (TIFFNoDecode(tif, "scanline"));
 }
 
-int _TIFFNoStripDecode(TIFF* tif, uint8 * pp, tmsize_t cc, uint16 s)
+int _TIFFNoStripDecode(TIFF * tif, uint8 * pp, tmsize_t cc, uint16 s)
 {
 	(void)pp; (void)cc; (void)s;
 	return (TIFFNoDecode(tif, "strip"));
 }
 
-int _TIFFNoTileDecode(TIFF* tif, uint8 * pp, tmsize_t cc, uint16 s)
+int _TIFFNoTileDecode(TIFF * tif, uint8 * pp, tmsize_t cc, uint16 s)
 {
 	(void)pp; (void)cc; (void)s;
 	return (TIFFNoDecode(tif, "tile"));
 }
 
-int _TIFFNoSeek(TIFF* tif, uint32 off)
+int _TIFFNoSeek(TIFF * tif, uint32 off)
 {
 	(void)off;
 	TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "Compression algorithm does not support random access");
 	return 0;
 }
 
-int _TIFFNoPreCode(TIFF* tif, uint16 s)
+int _TIFFNoPreCode(TIFF * tif, uint16 s)
 {
 	(void)tif; (void)s;
 	return 1;
 }
 
-static int _TIFFtrue(TIFF* tif) 
+static int _TIFFtrue(TIFF * tif) 
 {
 	(void)tif; 
 	return 1;
 }
 
-static void _TIFFvoid(TIFF* tif) 
+static void _TIFFvoid(TIFF * tif) 
 {
 	(void)tif;
 }
 
-void _TIFFSetDefaultCompressionState(TIFF* tif)
+void _TIFFSetDefaultCompressionState(TIFF * tif)
 {
 	tif->tif_fixuptags = _TIFFNoFixupTags;
 	tif->tif_decodestatus = TRUE;
@@ -143,7 +143,7 @@ void _TIFFSetDefaultCompressionState(TIFF* tif)
 	tif->tif_flags &= ~(TIFF_NOBITREV|TIFF_NOREADRAW);
 }
 
-int TIFFSetCompressionScheme(TIFF* tif, int scheme)
+int TIFFSetCompressionScheme(TIFF * tif, int scheme)
 {
 	const TIFFCodec * c = TIFFFindCODEC((uint16)scheme);
 

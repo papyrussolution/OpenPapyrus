@@ -20,12 +20,8 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "xapian/registry.h"
-#include "xapian/geospatial.h"
-#include "xapian/intrusive_ptr.h"
-#include "xapian/matchspy.h"
-#include "xapian/postingsource.h"
-#include "xapian/weight.h"
+#include <xapian/geospatial.h>
+#include <xapian/postingsource.h>
 
 using namespace std;
 
@@ -33,71 +29,52 @@ using Xapian::Internal::opt_intrusive_ptr;
 
 class Xapian::Registry::Internal : public Xapian::Internal::intrusive_base {
 	friend class Xapian::Registry;
-
 	/// Registered weighting schemes.
 	std::map<std::string, Xapian::Weight *> wtschemes;
-
 	/// Registered weighting schemes by their short names. E.g. "bm25".
 	std::map<std::string, Xapian::Weight *> wtschemes_short;
-
 	/// Registered external posting sources.
 	std::map<std::string, Xapian::PostingSource *> postingsources;
-
 	/// Registered match spies.
 	std::map<std::string, Xapian::MatchSpy *> matchspies;
-
 	/// Registered lat-long metrics.
 	std::map<std::string, Xapian::LatLongMetric *> lat_long_metrics;
-
 	/// Registered KeyMaker subclasses.
 	std::map<std::string, opt_intrusive_ptr<Xapian::KeyMaker> > key_makers;
-
 	/// Add the standard subclasses provided in the API.
 	void add_defaults();
-
 	/// Clear all registered weighting schemes.
 	void clear_weighting_schemes();
-
 	/// Clear all registered posting sources.
 	void clear_posting_sources();
-
 	/// Clear all registered match spies.
 	void clear_match_spies();
-
 	/// Clear all registered lat-long metrics.
 	void clear_lat_long_metrics();
-
 public:
 	Internal();
 	~Internal();
 };
 
 /// Register an optionally ref-counted object.
-template <class T>
-static inline void register_object(map<string, opt_intrusive_ptr<T> >& registry, T* obj_)
+template <class T> static inline void register_object(map<string, opt_intrusive_ptr<T> >& registry, T* obj_)
 {
 	opt_intrusive_ptr<T> obj(obj_);
-
 	string name = obj->name();
 	if(rare(name.empty())) {
-		throw Xapian::InvalidOperationError("Unable to register object - "
-			  "name() method returned empty "
-			  "string");
+		throw Xapian::InvalidOperationError("Unable to register object - name() method returned empty string");
 	}
-
 	auto r = registry.insert(make_pair(name, static_cast<T*>(NULL)));
 	r.first->second = std::move(obj);
 }
 
 /// Register an object that requires cloning.
-template <class T>
-static inline void register_object(map<string, T*> & registry, const T & obj)
+template <class T> static inline void register_object(map<string, T*> & registry, const T & obj)
 {
 	string name = obj.name();
 	if(rare(name.empty())) {
 		throw Xapian::InvalidOperationError("Unable to register object - name() method returned empty string");
 	}
-
 	pair<typename map<string, T *>::iterator, bool> r;
 	r = registry.insert(make_pair(name, static_cast<T*>(NULL)));
 	if(!r.second) {
@@ -113,37 +90,29 @@ static inline void register_object(map<string, T*> & registry, const T & obj)
 		swap(p, r.first->second);
 		delete p;
 	}
-
 	T * clone = obj.clone();
 	if(rare(!clone)) {
 		throw Xapian::InvalidOperationError("Unable to register object - clone() method returned NULL");
 	}
-
 	r.first->second = clone;
 }
 
-template <class T>
-static inline void register_object(map<string, T*> & registry1, map<string, T*> & registry2,
-    const T & obj)
+template <class T> static inline void register_object(map<string, T*> & registry1, map<string, T*> & registry2, const T & obj)
 {
 	string name = obj.name();
 	if(rare(name.empty())) {
 		throw Xapian::InvalidOperationError("Unable to register object - name() method returned empty string");
 	}
-
 	pair<typename map<string, T *>::iterator, bool> r1;
 	r1 = registry1.insert(make_pair(name, static_cast<T*>(NULL)));
-
 	pair<typename map<string, T *>::iterator, bool> r2;
 	string short_name = obj.short_name();
 	if(!short_name.empty()) {
 		r2 = registry2.insert(make_pair(short_name, static_cast<T*>(NULL)));
 		if(r1.second != r2.second || (!r1.second && r2.first->second != r1.first->second)) {
-			throw Xapian::InvalidOperationError(
-				      "Unable to register object - weighting scheme with the same name but a different short name already registered");
+			throw Xapian::InvalidOperationError("Unable to register object - weighting scheme with the same name but a different short name already registered");
 		}
 	}
-
 	if(!r1.second) {
 		// Existing element with this key, so replace the pointer with NULL
 		// and delete the existing pointer.
@@ -157,22 +126,18 @@ static inline void register_object(map<string, T*> & registry1, map<string, T*> 
 		swap(p, r1.first->second);
 		delete p;
 	}
-
 	T * clone = obj.clone();
 	if(rare(!clone)) {
 		throw Xapian::InvalidOperationError("Unable to register object - clone() method returned NULL");
 	}
-
 	r1.first->second = clone;
-
 	if(!short_name.empty()) {
 		r2.first->second = clone;
 	}
 }
 
 /// Look up an optionally ref-counted object.
-template <class T>
-static inline const T* lookup_object(map<string, opt_intrusive_ptr<T> > registry, const string& name)
+template <class T> static inline const T* lookup_object(map<string, opt_intrusive_ptr<T> > registry, const string& name)
 {
 	auto i = registry.find(name);
 	if(i == registry.end()) {
@@ -182,8 +147,7 @@ static inline const T* lookup_object(map<string, opt_intrusive_ptr<T> > registry
 }
 
 /// Look up an object that requires cloning.
-template <class T>
-static inline const T * lookup_object(map<string, T*> registry, const string & name)
+template <class T> static inline const T * lookup_object(map<string, T*> registry, const string & name)
 {
 	typename map<string, T*>::const_iterator i = registry.find(name);
 	if(i == registry.end()) {
@@ -206,8 +170,7 @@ Registry::Internal::~Internal()
 	clear_lat_long_metrics();
 }
 
-void
-Registry::Internal::add_defaults()
+void Registry::Internal::add_defaults()
 {
 	Xapian::Weight * weighting_scheme;
 	weighting_scheme = new Xapian::BB2Weight;
@@ -268,26 +231,18 @@ Registry::Internal::add_defaults()
 	postingsources[source->name()] = source;
 	source = new Xapian::FixedWeightPostingSource(0.0);
 	postingsources[source->name()] = source;
-	source = new Xapian::LatLongDistancePostingSource(0,
-		Xapian::LatLongCoords(),
-		Xapian::GreatCircleMetric());
+	source = new Xapian::LatLongDistancePostingSource(0, Xapian::LatLongCoords(), Xapian::GreatCircleMetric());
 	postingsources[source->name()] = source;
-
-	Xapian::MatchSpy * spy;
-	spy = new Xapian::ValueCountMatchSpy();
+	Xapian::MatchSpy * spy = new Xapian::ValueCountMatchSpy();
 	matchspies[spy->name()] = spy;
-
 	Xapian::LatLongMetric * metric;
 	metric = new Xapian::GreatCircleMetric();
 	lat_long_metrics[metric->name()] = metric;
-
-	Xapian::KeyMaker* keymaker;
-	keymaker = new Xapian::MultiValueKeyMaker();
+	Xapian::KeyMaker* keymaker = new Xapian::MultiValueKeyMaker();
 	key_makers[keymaker->name()] = keymaker->release();
 }
 
-void
-Registry::Internal::clear_weighting_schemes()
+void Registry::Internal::clear_weighting_schemes()
 {
 	map<string, Xapian::Weight*>::const_iterator i;
 	for(i = wtschemes.begin(); i != wtschemes.end(); ++i) {
@@ -295,8 +250,7 @@ Registry::Internal::clear_weighting_schemes()
 	}
 }
 
-void
-Registry::Internal::clear_posting_sources()
+void Registry::Internal::clear_posting_sources()
 {
 	map<string, Xapian::PostingSource *>::const_iterator i;
 	for(i = postingsources.begin(); i != postingsources.end(); ++i) {
@@ -304,8 +258,7 @@ Registry::Internal::clear_posting_sources()
 	}
 }
 
-void
-Registry::Internal::clear_match_spies()
+void Registry::Internal::clear_match_spies()
 {
 	map<string, Xapian::MatchSpy *>::const_iterator i;
 	for(i = matchspies.begin(); i != matchspies.end(); ++i) {
@@ -313,8 +266,7 @@ Registry::Internal::clear_match_spies()
 	}
 }
 
-void
-Registry::Internal::clear_lat_long_metrics()
+void Registry::Internal::clear_lat_long_metrics()
 {
 	map<string, Xapian::LatLongMetric *>::const_iterator i;
 	for(i = lat_long_metrics.begin(); i != lat_long_metrics.end(); ++i) {
@@ -322,14 +274,12 @@ Registry::Internal::clear_lat_long_metrics()
 	}
 }
 
-Registry::Registry(const Registry & other)
-	: internal(other.internal)
+Registry::Registry(const Registry & other) : internal(other.internal)
 {
 	LOGCALL_CTOR(API, "Registry", other);
 }
 
-Registry &
-Registry::operator=(const Registry &other)
+Registry & Registry::operator=(const Registry &other)
 {
 	LOGCALL(API, Xapian::Registry &, "Xapian::Registry::operator=", other);
 	internal = other.internal;
@@ -337,12 +287,9 @@ Registry::operator=(const Registry &other)
 }
 
 Registry::Registry(Registry &&) = default;
+Registry & Registry::operator=(Registry &&) = default;
 
-Registry &
-Registry::operator=(Registry &&) = default;
-
-Registry::Registry()
-	: internal(new Registry::Internal())
+Registry::Registry() : internal(new Registry::Internal())
 {
 	LOGCALL_CTOR(API, "Registry", NO_ARGS);
 }

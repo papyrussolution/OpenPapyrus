@@ -112,7 +112,7 @@ static void ColouriseForthDoc(Sci_PositionU startPos, Sci_Position length, int i
 			}
 			else if(sc.ch == '(' &&
 			    (sc.atLineStart || IsASpaceChar(sc.chPrev)) &&
-			    (sc.atLineEnd   || IsASpaceChar(sc.chNext))) {
+			    (sc.atLineEnd  || IsASpaceChar(sc.chNext))) {
 				sc.SetState(SCE_FORTH_COMMENT_ML);
 			}
 			else if(     (sc.ch == '$' && (IsASCII(sc.chNext) && isxdigit(sc.chNext)))) {
@@ -145,7 +145,7 @@ static void ColouriseForthDoc(Sci_PositionU startPos, Sci_Position length, int i
 			}
 			else if(sc.ch == ';' &&
 			    (sc.atLineStart || IsASpaceChar(sc.chPrev)) &&
-			    (sc.atLineEnd   || IsASpaceChar(sc.chNext))     ) {
+			    (sc.atLineEnd  || IsASpaceChar(sc.chNext))     ) {
 				// mark the ';' that ends a word
 				sc.SetState(SCE_FORTH_DEFWORD);
 				sc.ForwardSetState(SCE_FORTH_DEFAULT);

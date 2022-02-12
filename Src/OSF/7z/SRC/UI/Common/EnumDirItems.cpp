@@ -532,7 +532,7 @@ static HRESULT EnumerateDirItems(const NWildcard::CCensorNode &curNode, int phyP
 				// we don't want to call fi.Find() for root folder or virtual folder
 				if(phyPrefix.IsEmpty() && nextNode.Name.IsEmpty()
 	    #if defined(_WIN32) && !defined(UNDER_CE)
-				    || IsVirtualFsFolder(phyPrefix, nextNode.Name)
+				   || IsVirtualFsFolder(phyPrefix, nextNode.Name)
 	    #endif
 				    ) {
 					fi.SetAsDir();

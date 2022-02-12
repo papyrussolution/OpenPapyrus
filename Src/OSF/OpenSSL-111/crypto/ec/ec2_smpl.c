@@ -709,7 +709,7 @@ int ec_GF2m_simple_ladder_pre(const EC_GROUP * group,
 	/* if field_encode defined convert between representations */
 	if((group->meth->field_encode != NULL
 	 && !group->meth->field_encode(group, s->Z, s->Z, ctx))
-	    || !group->meth->field_mul(group, s->X, p->X, s->Z, ctx))
+	   || !group->meth->field_mul(group, s->X, p->X, s->Z, ctx))
 		return 0;
 
 	/* r blinding: make sure lambda (r->Y here for storage) is not zero */
@@ -723,11 +723,11 @@ int ec_GF2m_simple_ladder_pre(const EC_GROUP * group,
 
 	if((group->meth->field_encode != NULL
 	 && !group->meth->field_encode(group, r->Y, r->Y, ctx))
-	    || !group->meth->field_sqr(group, r->Z, p->X, ctx)
-	    || !group->meth->field_sqr(group, r->X, r->Z, ctx)
-	    || !BN_GF2m_add(r->X, r->X, group->b)
-	    || !group->meth->field_mul(group, r->Z, r->Z, r->Y, ctx)
-	    || !group->meth->field_mul(group, r->X, r->X, r->Y, ctx))
+	   || !group->meth->field_sqr(group, r->Z, p->X, ctx)
+	   || !group->meth->field_sqr(group, r->X, r->Z, ctx)
+	   || !BN_GF2m_add(r->X, r->X, group->b)
+	   || !group->meth->field_mul(group, r->Z, r->Z, r->Y, ctx)
+	   || !group->meth->field_mul(group, r->X, r->X, r->Y, ctx))
 		return 0;
 
 	s->Z_is_one = 0;
@@ -747,19 +747,19 @@ int ec_GF2m_simple_ladder_step(const EC_GROUP * group,
     EC_POINT * p, BN_CTX * ctx)
 {
 	if(!group->meth->field_mul(group, r->Y, r->Z, s->X, ctx)
-	    || !group->meth->field_mul(group, s->X, r->X, s->Z, ctx)
-	    || !group->meth->field_sqr(group, s->Y, r->Z, ctx)
-	    || !group->meth->field_sqr(group, r->Z, r->X, ctx)
-	    || !BN_GF2m_add(s->Z, r->Y, s->X)
-	    || !group->meth->field_sqr(group, s->Z, s->Z, ctx)
-	    || !group->meth->field_mul(group, s->X, r->Y, s->X, ctx)
-	    || !group->meth->field_mul(group, r->Y, s->Z, p->X, ctx)
-	    || !BN_GF2m_add(s->X, s->X, r->Y)
-	    || !group->meth->field_sqr(group, r->Y, r->Z, ctx)
-	    || !group->meth->field_mul(group, r->Z, r->Z, s->Y, ctx)
-	    || !group->meth->field_sqr(group, s->Y, s->Y, ctx)
-	    || !group->meth->field_mul(group, s->Y, s->Y, group->b, ctx)
-	    || !BN_GF2m_add(r->X, r->Y, s->Y))
+	   || !group->meth->field_mul(group, s->X, r->X, s->Z, ctx)
+	   || !group->meth->field_sqr(group, s->Y, r->Z, ctx)
+	   || !group->meth->field_sqr(group, r->Z, r->X, ctx)
+	   || !BN_GF2m_add(s->Z, r->Y, s->X)
+	   || !group->meth->field_sqr(group, s->Z, s->Z, ctx)
+	   || !group->meth->field_mul(group, s->X, r->Y, s->X, ctx)
+	   || !group->meth->field_mul(group, r->Y, s->Z, p->X, ctx)
+	   || !BN_GF2m_add(s->X, s->X, r->Y)
+	   || !group->meth->field_sqr(group, r->Y, r->Z, ctx)
+	   || !group->meth->field_mul(group, r->Z, r->Z, s->Y, ctx)
+	   || !group->meth->field_sqr(group, s->Y, s->Y, ctx)
+	   || !group->meth->field_mul(group, s->Y, s->Y, group->b, ctx)
+	   || !BN_GF2m_add(r->X, r->Y, s->Y))
 		return 0;
 
 	return 1;
@@ -784,7 +784,7 @@ int ec_GF2m_simple_ladder_post(const EC_GROUP * group,
 
 	if(BN_is_zero(s->Z)) {
 		if(!EC_POINT_copy(r, p)
-		    || !EC_POINT_invert(group, r, ctx)) {
+		   || !EC_POINT_invert(group, r, ctx)) {
 			ECerr(EC_F_EC_GF2M_SIMPLE_LADDER_POST, ERR_R_EC_LIB);
 			return 0;
 		}
@@ -801,24 +801,24 @@ int ec_GF2m_simple_ladder_post(const EC_GROUP * group,
 	}
 
 	if(!group->meth->field_mul(group, t0, r->Z, s->Z, ctx)
-	    || !group->meth->field_mul(group, t1, p->X, r->Z, ctx)
-	    || !BN_GF2m_add(t1, r->X, t1)
-	    || !group->meth->field_mul(group, t2, p->X, s->Z, ctx)
-	    || !group->meth->field_mul(group, r->Z, r->X, t2, ctx)
-	    || !BN_GF2m_add(t2, t2, s->X)
-	    || !group->meth->field_mul(group, t1, t1, t2, ctx)
-	    || !group->meth->field_sqr(group, t2, p->X, ctx)
-	    || !BN_GF2m_add(t2, p->Y, t2)
-	    || !group->meth->field_mul(group, t2, t2, t0, ctx)
-	    || !BN_GF2m_add(t1, t2, t1)
-	    || !group->meth->field_mul(group, t2, p->X, t0, ctx)
-	    || !group->meth->field_inv(group, t2, t2, ctx)
-	    || !group->meth->field_mul(group, t1, t1, t2, ctx)
-	    || !group->meth->field_mul(group, r->X, r->Z, t2, ctx)
-	    || !BN_GF2m_add(t2, p->X, r->X)
-	    || !group->meth->field_mul(group, t2, t2, t1, ctx)
-	    || !BN_GF2m_add(r->Y, p->Y, t2)
-	    || !BN_one(r->Z))
+	   || !group->meth->field_mul(group, t1, p->X, r->Z, ctx)
+	   || !BN_GF2m_add(t1, r->X, t1)
+	   || !group->meth->field_mul(group, t2, p->X, s->Z, ctx)
+	   || !group->meth->field_mul(group, r->Z, r->X, t2, ctx)
+	   || !BN_GF2m_add(t2, t2, s->X)
+	   || !group->meth->field_mul(group, t1, t1, t2, ctx)
+	   || !group->meth->field_sqr(group, t2, p->X, ctx)
+	   || !BN_GF2m_add(t2, p->Y, t2)
+	   || !group->meth->field_mul(group, t2, t2, t0, ctx)
+	   || !BN_GF2m_add(t1, t2, t1)
+	   || !group->meth->field_mul(group, t2, p->X, t0, ctx)
+	   || !group->meth->field_inv(group, t2, t2, ctx)
+	   || !group->meth->field_mul(group, t1, t1, t2, ctx)
+	   || !group->meth->field_mul(group, r->X, r->Z, t2, ctx)
+	   || !BN_GF2m_add(t2, p->X, r->X)
+	   || !group->meth->field_mul(group, t2, t2, t1, ctx)
+	   || !BN_GF2m_add(r->Y, p->Y, t2)
+	   || !BN_one(r->Z))
 		goto err;
 
 	r->Z_is_one = 1;
@@ -880,8 +880,8 @@ int ec_GF2m_simple_points_mul(const EC_GROUP * group, EC_POINT * r,
 	}
 
 	if(!ec_scalar_mul_ladder(group, t, scalar, NULL, ctx)
-	    || !ec_scalar_mul_ladder(group, r, scalars[0], points[0], ctx)
-	    || !EC_POINT_add(group, r, t, r, ctx))
+	   || !ec_scalar_mul_ladder(group, r, scalars[0], points[0], ctx)
+	   || !EC_POINT_add(group, r, t, r, ctx))
 		goto err;
 
 	ret = 1;

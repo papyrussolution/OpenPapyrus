@@ -560,7 +560,7 @@ int __archive_write_format_header_ustar(struct archive_write * a, char h[512],
 	}
 
 	if(archive_entry_filetype(entry) == AE_IFBLK
-	    || archive_entry_filetype(entry) == AE_IFCHR) {
+	   || archive_entry_filetype(entry) == AE_IFCHR) {
 		if(format_number(archive_entry_rdevmajor(entry),
 		    h + USTAR_rdevmajor_offset, USTAR_rdevmajor_size,
 		    USTAR_rdevmajor_max_size, strict)) {

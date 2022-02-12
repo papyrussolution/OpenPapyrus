@@ -25,7 +25,7 @@ int RSA_check_key_ex(const RSA * key, BN_GENCB * cb)
 	RSA_PRIME_INFO * pinfo;
 
 	if(key->p == NULL || key->q == NULL || key->n == NULL
-	    || key->e == NULL || key->d == NULL) {
+	   || key->e == NULL || key->d == NULL) {
 		RSAerr(RSA_F_RSA_CHECK_KEY_EX, RSA_R_VALUE_MISSING);
 		return 0;
 	}
@@ -34,7 +34,7 @@ int RSA_check_key_ex(const RSA * key, BN_GENCB * cb)
 	if(key->version == RSA_ASN1_VERSION_MULTI) {
 		ex_primes = sk_RSA_PRIME_INFO_num(key->prime_infos);
 		if(ex_primes <= 0
-		    || (ex_primes + 2) > rsa_multip_cap(BN_num_bits(key->n))) {
+		   || (ex_primes + 2) > rsa_multip_cap(BN_num_bits(key->n))) {
 			RSAerr(RSA_F_RSA_CHECK_KEY_EX, RSA_R_INVALID_MULTI_PRIME_KEY);
 			return 0;
 		}
@@ -47,7 +47,7 @@ int RSA_check_key_ex(const RSA * key, BN_GENCB * cb)
 	m = BN_new();
 	ctx = BN_CTX_new();
 	if(i == NULL || j == NULL || k == NULL || l == NULL
-	    || m == NULL || ctx == NULL) {
+	   || m == NULL || ctx == NULL) {
 		ret = -1;
 		RSAerr(RSA_F_RSA_CHECK_KEY_EX, ERR_R_MALLOC_FAILURE);
 		goto err;

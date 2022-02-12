@@ -709,7 +709,7 @@ struct SUiLayoutParam { // @persistent
 	uint16 AlignItems;     // {alignStretch} SUiLayoutParam::alignXXX
 	uint16 AlignSelf;      // {alignAuto}    SUiLayoutParam::alignXXX
 	uint16 GravityX;       // Gravity of this entry by X-axis. 0 || SIDE_LEFT || SIDE_RIGHT || SIDE_CENTER
-	uint16 GravityY;       // Gravity of this entry by Y-axis. 0 || SIDE_TOP  || SIDE_BOTTOM || SIDE_CENTER 
+	uint16 GravityY;       // Gravity of this entry by Y-axis. 0 || SIDE_TOP || SIDE_BOTTOM || SIDE_CENTER 
 	int32  Order;          // Порядковый номер элемента в линейном ряду потомков одного родителя //
 	FRect  Nominal;        // Номинальные границы элемента. Заданы или нет определяется флагами fNominalDefL, fNominalDefT, fNominalDefR, fNominalDefB
 	SPoint2F Size;         // Номинальный размер элемента. Если SzX != szFixed, то Size.X игнорируется, аналогично, если SzY != szFixed, то Size.Y игнорируется

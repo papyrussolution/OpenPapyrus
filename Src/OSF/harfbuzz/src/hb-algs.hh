@@ -392,13 +392,13 @@ template <typename T> static inline HB_CONST_FUNC uint hb_bit_storage(T v)
 		_BitScanReverse(&where, v);
 		return 1 + where;
 	}
-# if defined(_WIN64)
+#if defined(_WIN64)
 	if(sizeof(T) <= 8) {
 		unsigned long where;
 		_BitScanReverse64(&where, v);
 		return 1 + where;
 	}
-# endif
+#endif
 #endif
 
 	if(sizeof(T) <= 4) {
@@ -455,13 +455,13 @@ template <typename T> static inline HB_CONST_FUNC uint hb_ctz(T v)
 		_BitScanForward(&where, v);
 		return where;
 	}
-# if defined(_WIN64)
+#if defined(_WIN64)
 	if(sizeof(T) <= 8) {
 		unsigned long where;
 		_BitScanForward64(&where, v);
 		return where;
 	}
-# endif
+#endif
 #endif
 
 	if(sizeof(T) <= 4) {

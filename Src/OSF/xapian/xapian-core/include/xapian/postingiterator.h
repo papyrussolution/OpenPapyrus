@@ -23,12 +23,11 @@
 #define XAPIAN_INCLUDED_POSTINGITERATOR_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error Never use <xapian/postingiterator.h> directly; include <xapian.h> instead.
+#error Never use <xapian/postingiterator.h> directly; include <xapian.h> instead.
 #endif
 
 #include <iterator>
 #include <string>
-
 #include <xapian/attributes.h>
 #include <xapian/derefwrapper.h>
 #include <xapian/positioniterator.h>
@@ -36,149 +35,139 @@
 #include <xapian/visibility.h>
 
 namespace Xapian {
-
 /// Class for iterating over a list of terms.
 class XAPIAN_VISIBILITY_DEFAULT PostingIterator {
-  public:
-    /// Class representing the PostingIterator internals.
-    class Internal;
-    /// @private @internal Reference counted internals.
-    Internal * internal;
+public:
+	/// Class representing the PostingIterator internals.
+	class Internal;
+	/// @private @internal Reference counted internals.
+	Internal * internal;
 
-    /// @private @internal Wrap an existing Internal.
-    XAPIAN_VISIBILITY_INTERNAL
-    explicit PostingIterator(Internal *internal_);
+	/// @private @internal Wrap an existing Internal.
+	XAPIAN_VISIBILITY_INTERNAL
+	explicit PostingIterator(Internal * internal_);
 
-    /// Copy constructor.
-    PostingIterator(const PostingIterator & o);
+	/// Copy constructor.
+	PostingIterator(const PostingIterator & o);
 
-    /// Assignment.
-    PostingIterator & operator=(const PostingIterator & o);
+	/// Assignment.
+	PostingIterator & operator=(const PostingIterator & o);
 
-    /// Move constructor.
-    PostingIterator(PostingIterator && o)
-	: internal(o.internal) {
-	o.internal = nullptr;
-    }
-
-    /// Move assignment operator.
-    PostingIterator & operator=(PostingIterator && o) {
-	if (this != &o) {
-	    if (internal) decref();
-	    internal = o.internal;
-	    o.internal = nullptr;
+	/// Move constructor.
+	PostingIterator(PostingIterator && o)
+		: internal(o.internal) {
+		o.internal = nullptr;
 	}
-	return *this;
-    }
 
-    /** Default constructor.
-     *
-     *  Creates an uninitialised iterator, which can't be used before being
-     *  assigned to, but is sometimes syntactically convenient.
-     */
-    PostingIterator() noexcept
-	: internal(0) { }
+	/// Move assignment operator.
+	PostingIterator & operator=(PostingIterator && o) {
+		if(this != &o) {
+			if(internal) decref();
+			internal = o.internal;
+			o.internal = nullptr;
+		}
+		return *this;
+	}
 
-    /// Destructor.
-    ~PostingIterator() {
-	if (internal) decref();
-    }
-
-    /// Return the document id at the current position.
-    Xapian::docid operator*() const;
-
-    /// Return the wdf for the document at the current position.
-    Xapian::termcount get_wdf() const;
-
-    /// Return the length of the document at the current position.
-    Xapian::termcount get_doclength() const;
-
-    /// Return the number of unique terms in the current document.
-    Xapian::termcount get_unique_terms() const;
-
-    /// Return the max_wdf in the current document.
-    Xapian::termcount get_wdfdocmax() const;
-
+	/** Default constructor.
+	 *
+	 *  Creates an uninitialised iterator, which can't be used before being
+	 *  assigned to, but is sometimes syntactically convenient.
+	 */
+	PostingIterator() noexcept : internal(0) 
+	{
+	}
+	~PostingIterator() 
+	{
+		if(internal) decref();
+	}
+	/// Return the document id at the current position.
+	Xapian::docid operator*() const;
+	/// Return the wdf for the document at the current position.
+	Xapian::termcount get_wdf() const;
+	/// Return the length of the document at the current position.
+	Xapian::termcount get_doclength() const;
+	/// Return the number of unique terms in the current document.
+	Xapian::termcount get_unique_terms() const;
+	/// Return the max_wdf in the current document.
+	Xapian::termcount get_wdfdocmax() const;
 #if 0 // FIXME: TermIterator supports this, so PostingIterator really ought to.
-    /// Return the length of the position list for the current position.
-    Xapian::termcount positionlist_count() const;
+	/// Return the length of the position list for the current position.
+	Xapian::termcount positionlist_count() const;
 #endif
 
-    /// Return a PositionIterator for the current document.
-    PositionIterator positionlist_begin() const;
+	/// Return a PositionIterator for the current document.
+	PositionIterator positionlist_begin() const;
 
-    /// Return an end PositionIterator for the current document.
-    PositionIterator positionlist_end() const noexcept {
-	return PositionIterator();
-    }
+	/// Return an end PositionIterator for the current document.
+	PositionIterator positionlist_end() const noexcept {
+		return PositionIterator();
+	}
 
-    /// Advance the iterator to the next position.
-    PostingIterator & operator++();
+	/// Advance the iterator to the next position.
+	PostingIterator & operator++();
 
-    /// Advance the iterator to the next position (postfix version).
-    DerefWrapper_<Xapian::docid> operator++(int) {
-	Xapian::docid did(**this);
-	operator++();
-	return DerefWrapper_<Xapian::docid>(did);
-    }
+	/// Advance the iterator to the next position (postfix version).
+	DerefWrapper_<Xapian::docid> operator++(int) {
+		Xapian::docid did(**this);
+		operator++();
+		return DerefWrapper_<Xapian::docid>(did);
+	}
 
-    /** Advance the iterator to document @a did.
-     *
-     *  @param did	The document id to advance to.  If this document id
-     *			isn't in the stream being iterated, then the iterator
-     *			is moved to the next document id after it which is.
-     */
-    void skip_to(Xapian::docid did);
+	/** Advance the iterator to document @a did.
+	 *
+	 *  @param did	The document id to advance to.  If this document id
+	 *			isn't in the stream being iterated, then the iterator
+	 *			is moved to the next document id after it which is.
+	 */
+	void skip_to(Xapian::docid did);
 
-    /// Return a string describing this object.
-    std::string get_description() const;
+	/// Return a string describing this object.
+	std::string get_description() const;
 
-    /** @private @internal PostingIterator is what the C++ STL calls an
-     *  input_iterator.
-     *
-     *  The following typedefs allow std::iterator_traits<> to work so that
-     *  this iterator can be used with the STL.
-     *
-     *  These are deliberately hidden from the Doxygen-generated docs, as the
-     *  machinery here isn't interesting to API users.  They just need to know
-     *  that Xapian iterator classes are compatible with the STL.
-     */
-    // @{
-    /// @private
-    typedef std::input_iterator_tag iterator_category;
-    /// @private
-    typedef Xapian::docid value_type;
-    /// @private
-    typedef Xapian::doccount_diff difference_type;
-    /// @private
-    typedef Xapian::docid * pointer;
-    /// @private
-    typedef Xapian::docid & reference;
-    // @}
+	/** @private @internal PostingIterator is what the C++ STL calls an
+	 *  input_iterator.
+	 *
+	 *  The following typedefs allow std::iterator_traits<> to work so that
+	 *  this iterator can be used with the STL.
+	 *
+	 *  These are deliberately hidden from the Doxygen-generated docs, as the
+	 *  machinery here isn't interesting to API users.  They just need to know
+	 *  that Xapian iterator classes are compatible with the STL.
+	 */
+	// @{
+	/// @private
+	typedef std::input_iterator_tag iterator_category;
+	/// @private
+	typedef Xapian::docid value_type;
+	/// @private
+	typedef Xapian::doccount_diff difference_type;
+	/// @private
+	typedef Xapian::docid * pointer;
+	/// @private
+	typedef Xapian::docid & reference;
+	// @}
 
-  private:
-    void decref();
+private:
+	void decref();
 
-    XAPIAN_VISIBILITY_INTERNAL
-    void post_advance(Internal * res);
+	XAPIAN_VISIBILITY_INTERNAL
+	void post_advance(Internal * res);
 };
 
 /// Equality test for PostingIterator objects.
-inline bool
-operator==(const PostingIterator& a, const PostingIterator& b) noexcept
+inline bool operator==(const PostingIterator& a, const PostingIterator& b) noexcept
 {
-    // Use a pointer comparison - this ensures both that (a == a) and correct
-    // handling of end iterators (which we ensure have NULL internals).
-    return a.internal == b.internal;
+	// Use a pointer comparison - this ensures both that (a == a) and correct
+	// handling of end iterators (which we ensure have NULL internals).
+	return a.internal == b.internal;
 }
 
 /// Inequality test for PostingIterator objects.
-inline bool
-operator!=(const PostingIterator& a, const PostingIterator& b) noexcept
+inline bool operator!=(const PostingIterator& a, const PostingIterator& b) noexcept
 {
-    return !(a == b);
+	return !(a == b);
 }
-
 }
 
 #endif // XAPIAN_INCLUDED_POSTINGITERATOR_H

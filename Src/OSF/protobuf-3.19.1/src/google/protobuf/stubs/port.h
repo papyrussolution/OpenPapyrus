@@ -233,7 +233,7 @@ inline void GOOGLE_UNALIGNED_STORE64(void *p, uint64 v) {
     || (defined(__ANDROID__) && defined(__clang__) \
         && (__clang_major__ == 3 && __clang_minor__ == 8) \
         && (__clang_patchlevel__ < 275480))
-# define GOOGLE_PROTOBUF_USE_PORTABLE_LOG2
+#define GOOGLE_PROTOBUF_USE_PORTABLE_LOG2
 #endif
 
 // The following guarantees declaration of the byte swap functions.

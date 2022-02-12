@@ -317,7 +317,6 @@ static cairo_status_t _cairo_win32_display_surface_finish(void * abstract_surfac
 		cairo_surface_finish(surface->image);
 		cairo_surface_destroy(surface->image);
 	}
-
 	/* If we created the Bitmap and DC, destroy them */
 	if(surface->bitmap) {
 		SelectObject(surface->win32.dc, surface->saved_dc_bitmap);
@@ -325,8 +324,7 @@ static cairo_status_t _cairo_win32_display_surface_finish(void * abstract_surfac
 		DeleteDC(surface->win32.dc);
 	}
 	_cairo_win32_display_surface_discard_fallback(surface);
-	if(surface->initial_clip_rgn)
-		DeleteObject(surface->initial_clip_rgn);
+	::DeleteObject(surface->initial_clip_rgn);
 	return CAIRO_STATUS_SUCCESS;
 }
 

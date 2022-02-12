@@ -864,7 +864,7 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 
 	if((a->deferred & TODO_TIMES)
 	    && (archive_entry_mtime_is_set(entry)
-	    || archive_entry_atime_is_set(entry))) {
+	   || archive_entry_atime_is_set(entry))) {
 		fe = current_fixup(a, archive_entry_pathname_w(entry));
 		fe->mode = a->mode;
 		fe->fixup |= TODO_TIMES;

@@ -375,7 +375,7 @@ public:
 		//cuifLayoutAlignItems,     // @v10.9.12 uint16 SUiLayoutParam::alignXXX
 		//cuifLayoutAlignSelf,      // @v10.9.12 uint16 SUiLayoutParam::alignXXX
 		//cuifLayoutGravityX,       // @v10.9.12 uint16 Gravity of this entry by X-axis. 0 || SIDE_LEFT || SIDE_RIGHT || SIDE_CENTER
-		//cuifLayoutGravityY,       // @v10.9.12 uint16 Gravity of this entry by Y-axis. 0 || SIDE_TOP  || SIDE_BOTTOM || SIDE_CENTER 
+		//cuifLayoutGravityY,       // @v10.9.12 uint16 Gravity of this entry by Y-axis. 0 || SIDE_TOP || SIDE_BOTTOM || SIDE_CENTER 
 		//cuifLayoutOrder,          // @v10.9.12 int32  Порядковый номер элемента в линейном ряду потомков одного родителя //
 		//cuifLayoutNominalBB,      // @v10.9.12 FRect  Номинальные границы элемента. Заданы или нет определяется флагами fNominalDefL, fNominalDefT, fNominalDefR, fNominalDefB
 		//cuifLayoutPadding,        // @v10.9.12 FRect Внешние поля элемента

@@ -236,55 +236,61 @@ sftp_client_message sftp_get_client_message(sftp_session sftp)
 }
 
 /* Send an sftp client message. Can be used in cas of proxying */
-int sftp_send_client_message(sftp_session sftp, sftp_client_message msg){
+int sftp_send_client_message(sftp_session sftp, sftp_client_message msg)
+{
 	return sftp_packet_write(sftp, msg->type, msg->complete_message);
 }
 
-uint8 sftp_client_message_get_type(sftp_client_message msg){
+uint8 sftp_client_message_get_type(sftp_client_message msg)
+{
 	return msg->type;
 }
 
-const char * sftp_client_message_get_filename(sftp_client_message msg){
+const char * sftp_client_message_get_filename(sftp_client_message msg)
+{
 	return msg->filename;
 }
 
-void sftp_client_message_set_filename(sftp_client_message msg, const char * newname){
+void sftp_client_message_set_filename(sftp_client_message msg, const char * newname)
+{
 	SAlloc::F(msg->filename);
-	msg->filename = _strdup(newname);
+	msg->filename = sstrdup(newname);
 }
 
-const char * sftp_client_message_get_data(sftp_client_message msg){
+const char * sftp_client_message_get_data(sftp_client_message msg)
+{
 	if(msg->str_data == NULL)
 		msg->str_data = ssh_string_to_char(msg->data);
 	return msg->str_data;
 }
 
-uint32_t sftp_client_message_get_flags(sftp_client_message msg){
+uint32_t sftp_client_message_get_flags(sftp_client_message msg)
+{
 	return msg->flags;
 }
 
-const char * sftp_client_message_get_submessage(sftp_client_message msg){
+const char * sftp_client_message_get_submessage(sftp_client_message msg)
+{
 	return msg->submessage;
 }
 
-void sftp_client_message_free(sftp_client_message msg) {
-	if(msg == NULL) {
-		return;
+void sftp_client_message_free(sftp_client_message msg) 
+{
+	if(msg) {
+		ZFREE(msg->filename);
+		ZFREE(msg->submessage);
+		SSH_STRING_FREE(msg->data);
+		SSH_STRING_FREE(msg->handle);
+		sftp_attributes_free(msg->attr);
+		SSH_BUFFER_FREE(msg->complete_message);
+		ZFREE(msg->str_data);
+		ZERO_STRUCTP(msg);
+		ZFREE(msg);
 	}
-
-	ZFREE(msg->filename);
-	ZFREE(msg->submessage);
-	SSH_STRING_FREE(msg->data);
-	SSH_STRING_FREE(msg->handle);
-	sftp_attributes_free(msg->attr);
-	SSH_BUFFER_FREE(msg->complete_message);
-	ZFREE(msg->str_data);
-	ZERO_STRUCTP(msg);
-	ZFREE(msg);
 }
 
-int sftp_reply_name(sftp_client_message msg, const char * name,
-    sftp_attributes attr) {
+int sftp_reply_name(sftp_client_message msg, const char * name, sftp_attributes attr) 
+{
 	ssh_buffer out;
 	ssh_string file;
 
@@ -507,34 +513,28 @@ ssh_string sftp_handle_alloc(sftp_session sftp, void * info)
 
 	memcpy(ssh_string_data(ret), &val, sizeof(uint32_t));
 	sftp->handles[i] = info;
-
 	return ret;
 }
 
-void * sftp_handle(sftp_session sftp, ssh_string handle){
+void * sftp_handle(sftp_session sftp, ssh_string handle)
+{
 	uint32_t val;
-
 	if(sftp->handles == NULL) {
 		return NULL;
 	}
-
 	if(ssh_string_len(handle) != sizeof(uint32_t)) {
 		return NULL;
 	}
-
 	memcpy(&val, ssh_string_data(handle), sizeof(uint32_t));
-
 	if(val > SFTP_HANDLES) {
 		return NULL;
 	}
-
 	return sftp->handles[val];
 }
 
-void sftp_handle_remove(sftp_session sftp, void * handle) {
-	int i;
-
-	for(i = 0; i < SFTP_HANDLES; i++) {
+void sftp_handle_remove(sftp_session sftp, void * handle) 
+{
+	for(int i = 0; i < SFTP_HANDLES; i++) {
 		if(sftp->handles[i] == handle) {
 			sftp->handles[i] = NULL;
 			break;

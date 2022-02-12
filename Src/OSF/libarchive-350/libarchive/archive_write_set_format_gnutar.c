@@ -645,7 +645,7 @@ static int archive_format_gnutar_header(struct archive_write * a, char h[512],
 	    h + GNUTAR_mtime_offset, GNUTAR_mtime_size);
 
 	if(archive_entry_filetype(entry) == AE_IFBLK
-	    || archive_entry_filetype(entry) == AE_IFCHR) {
+	   || archive_entry_filetype(entry) == AE_IFCHR) {
 		if(format_octal(archive_entry_rdevmajor(entry),
 		    h + GNUTAR_rdevmajor_offset,
 		    GNUTAR_rdevmajor_size)) {

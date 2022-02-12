@@ -1157,7 +1157,7 @@ int UriFixAmbiguity(UriUri * uri)
 	if(/* Case 1: absolute path, empty first segment */
 	       (uri->IsAbsolutePath && uri->pathHead && uri->pathHead->text.Len() == 0)
 	        /* Case 2: relative path, empty first and second segment */
-	        || (!uri->IsAbsolutePath && uri->pathHead && uri->pathHead->next && uri->pathHead->text.Len() == 0) &&
+	       || (!uri->IsAbsolutePath && uri->pathHead && uri->pathHead->next && uri->pathHead->text.Len() == 0) &&
 	           (uri->pathHead->next->text.Len() == 0)) {
 		/* NOOP */
 	}

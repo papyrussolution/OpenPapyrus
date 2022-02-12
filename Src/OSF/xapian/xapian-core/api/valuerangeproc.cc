@@ -19,7 +19,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include <xapian/queryparser.h>
 
 using namespace std;
 
@@ -74,11 +73,8 @@ static bool vet_dm(int d, int m)
 // NB Assumes the length has been checked to be 10 already.
 static bool is_yyyy_mm_dd(const string &s)
 {
-	return (s.find_first_not_of("0123456789") == 4 &&
-	       s.find_first_not_of("0123456789", 5) == 7 &&
-	       s.find_first_not_of("0123456789", 8) == string::npos &&
-	       s[4] == s[7] &&
-	       (s[4] == '-' || s[4] == '.' || s[4] == '/'));
+	return (s.find_first_not_of("0123456789") == 4 && s.find_first_not_of("0123456789", 5) == 7 &&
+	       s.find_first_not_of("0123456789", 8) == string::npos && s[4] == s[7] && (s[4] == '-' || s[4] == '.' || s[4] == '/'));
 }
 
 // Write exactly w chars to buffer p representing integer v.
@@ -106,13 +102,12 @@ Xapian::Query RangeProcessor::check_range(const string& b, const string& e)
 {
 	if(str.empty())
 		return operator()(b, e);
-
-	size_t off_b = 0, len_b = string::npos;
-	size_t off_e = 0, len_e = string::npos;
-
+	size_t off_b = 0;
+	size_t len_b = string::npos;
+	size_t off_e = 0;
+	size_t len_e = string::npos;
 	bool prefix = !(flags & Xapian::RP_SUFFIX);
 	bool repeated = (flags & Xapian::RP_REPEATED);
-
 	if(prefix) {
 		// If there's a prefix, require it on the start of the range.
 		if(!startswith(b, str)) {
@@ -137,35 +132,26 @@ Xapian::Query RangeProcessor::check_range(const string& b, const string& e)
 			len_b = b.size() - str.size();
 		}
 	}
-
 	return operator()(string(b, off_b, len_b), string(e, off_e, len_e));
-
 not_our_range:
 	return Xapian::Query(Xapian::Query::OP_INVALID);
 }
 
-Xapian::Query
-RangeProcessor::operator()(const string &b, const string &e)
+Xapian::Query RangeProcessor::operator()(const string &b, const string &e)
 {
 	if(e.empty())
 		return Xapian::Query(Xapian::Query::OP_VALUE_GE, slot, b);
 	return Xapian::Query(Xapian::Query::OP_VALUE_RANGE, slot, b, e);
 }
 
-Xapian::Query
-DateRangeProcessor::operator()(const string &b, const string &e)
+Xapian::Query DateRangeProcessor::operator()(const string &b, const string &e)
 {
-	if((b.size() == 8 || b.size() == 0) &&
-	    (e.size() == 8 || e.size() == 0) &&
-	    b.find_first_not_of("0123456789") == string::npos &&
-	    e.find_first_not_of("0123456789") == string::npos) {
+	if((b.size() == 8 || b.size() == 0) && (e.size() == 8 || e.size() == 0) && b.find_first_not_of("0123456789") == string::npos && e.find_first_not_of("0123456789") == string::npos) {
 		// YYYYMMDD
 		return RangeProcessor::operator()(b, e);
 	}
-	if((b.size() == 10 || b.size() == 0) &&
-	    (e.size() == 10 || e.size() == 0)) {
-		if((b.empty() || is_yyyy_mm_dd(b)) &&
-		    (e.empty() || is_yyyy_mm_dd(e))) {
+	if((b.size() == 10 || b.size() == 0) && (e.size() == 10 || e.size() == 0)) {
+		if((b.empty() || is_yyyy_mm_dd(b)) && (e.empty() || is_yyyy_mm_dd(e))) {
 			string begin = b, end = e;
 			// YYYY-MM-DD
 			if(!begin.empty()) {
@@ -179,7 +165,6 @@ DateRangeProcessor::operator()(const string &b, const string &e)
 			return RangeProcessor::operator()(begin, end);
 		}
 	}
-
 	bool prefer_mdy = (flags & Xapian::RP_DATE_PREFER_MDY);
 	int b_d, b_m, b_y;
 	int e_d, e_m, e_y;
@@ -371,10 +356,8 @@ Xapian::Query UnitRangeProcessor::operator()(const string& b, const string& e)
 			goto not_our_range;
 		}
 	}
-
 	return RangeProcessor::operator()(b.empty() ? b : Xapian::sortable_serialise(num_b),
 		   e.empty() ? e : Xapian::sortable_serialise(num_e));
-
 not_our_range:
 	return Xapian::Query(Xapian::Query::OP_INVALID);
 }

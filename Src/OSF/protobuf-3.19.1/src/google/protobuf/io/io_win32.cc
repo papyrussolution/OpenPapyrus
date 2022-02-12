@@ -432,7 +432,7 @@ bool wcs_to_mbs(const WCHAR* s, string* out, bool outUtf8) {
 		outUtf8 ? CP_UTF8 : CP_ACP, 0, s, -1, nullptr, 0, nullptr,
 		outUtf8 ? nullptr : &usedDefaultChar);
 	if((size == 0 && GetLastError() != ERROR_INSUFFICIENT_BUFFER)
-	    || usedDefaultChar) {
+	   || usedDefaultChar) {
 		return false;
 	}
 	std::unique_ptr<CHAR[]> astr(new CHAR[size]);

@@ -22,7 +22,7 @@
 #define XAPIAN_INCLUDED_CLOSEFROM_H
 
 #ifndef PACKAGE
-# error config.h must be included first in each C++ source file
+#error config.h must be included first in each C++ source file
 #endif
 
 // We don't currently need closefrom() on __WIN32__.
@@ -31,7 +31,7 @@
 #ifdef HAVE_CLOSEFROM
 // NB: not <cstdlib> as Sun's C++ compiler omits non-standard functions there,
 // and closefrom() isn't standardised.
-# include <stdlib.h>
+#include <stdlib.h>
 #else
 
 namespace Xapian {

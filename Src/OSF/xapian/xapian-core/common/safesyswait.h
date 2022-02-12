@@ -23,17 +23,17 @@
 #define XAPIAN_INCLUDED_SAFESYSWAIT_H
 
 #ifndef __WIN32__
-# include <sys/wait.h>
+#include <sys/wait.h>
 #else
 // We don't try to replace waitpid(), etc - they're only useful for us when
 // we can fork().  But it's handy to be able to use WIFEXITED() and
 // WEXITSTATUS().
-# ifndef WIFEXITED
+#ifndef WIFEXITED
 #  define WIFEXITED(STATUS) (STATUS != -1)
-# endif
-# ifndef WEXITSTATUS
+#endif
+#ifndef WEXITSTATUS
 #  define WEXITSTATUS(STATUS) (STATUS)
-# endif
+#endif
 #endif
 
 #endif /* XAPIAN_INCLUDED_SAFESYSWAIT_H */

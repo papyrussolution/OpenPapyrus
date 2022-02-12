@@ -31,7 +31,7 @@
 #include "tiffiop.h"
 #pragma hdrstop
 
-uint32 FASTCALL _TIFFMultiply32(TIFF* tif, uint32 first, uint32 second, const char * where)
+uint32 FASTCALL _TIFFMultiply32(TIFF * tif, uint32 first, uint32 second, const char * where)
 {
 	uint32 bytes = first * second;
 	if(second && bytes / second != first) {
@@ -41,7 +41,7 @@ uint32 FASTCALL _TIFFMultiply32(TIFF* tif, uint32 first, uint32 second, const ch
 	return bytes;
 }
 
-uint64 FASTCALL _TIFFMultiply64(TIFF* tif, uint64 first, uint64 second, const char * where)
+uint64 FASTCALL _TIFFMultiply64(TIFF * tif, uint64 first, uint64 second, const char * where)
 {
 	uint64 bytes = first * second;
 	if(second && bytes / second != first) {
@@ -51,7 +51,7 @@ uint64 FASTCALL _TIFFMultiply64(TIFF* tif, uint64 first, uint64 second, const ch
 	return bytes;
 }
 
-void * _TIFFCheckRealloc(TIFF* tif, void * buffer, tmsize_t nmemb, tmsize_t elem_size, const char * what)
+void * _TIFFCheckRealloc(TIFF * tif, void * buffer, tmsize_t nmemb, tmsize_t elem_size, const char * what)
 {
 	void * cp = NULL;
 	tmsize_t bytes = nmemb * elem_size;
@@ -66,7 +66,7 @@ void * _TIFFCheckRealloc(TIFF* tif, void * buffer, tmsize_t nmemb, tmsize_t elem
 	return cp;
 }
 
-void * FASTCALL _TIFFCheckMalloc(TIFF* tif, tmsize_t nmemb, tmsize_t elem_size, const char * what)
+void * FASTCALL _TIFFCheckMalloc(TIFF * tif, tmsize_t nmemb, tmsize_t elem_size, const char * what)
 {
 	return _TIFFCheckRealloc(tif, NULL, nmemb, elem_size, what);
 }
@@ -136,7 +136,7 @@ static int TIFFDefaultRefBlackWhite(TIFFDirectory* td)
  *	explicit values so that defaults exist only one
  *	place in the library -- in TIFFDefaultDirectory.
  */
-int TIFFVGetFieldDefaulted(TIFF* tif, uint32 tag, va_list ap)
+int TIFFVGetFieldDefaulted(TIFF * tif, uint32 tag, va_list ap)
 {
 	TIFFDirectory * td = &tif->tif_dir;
 	if(TIFFVGetField(tif, tag, ap))
@@ -243,7 +243,7 @@ int TIFFVGetFieldDefaulted(TIFF* tif, uint32 tag, va_list ap)
  * Like TIFFGetField, but return any default
  * value if the tag is not present in the directory.
  */
-int TIFFGetFieldDefaulted(TIFF* tif, uint32 tag, ...)
+int TIFFGetFieldDefaulted(TIFF * tif, uint32 tag, ...)
 {
 	int ok;
 	va_list ap;
@@ -292,7 +292,7 @@ double _TIFFUInt64ToDouble(uint64 ui64)
 	}
 }
 
-int _TIFFSeekOK(TIFF* tif, toff_t off)
+int _TIFFSeekOK(TIFF * tif, toff_t off)
 {
 	/* Huge offsets, especially -1 / UINT64_MAX, can cause issues */
 	/* See http://bugzilla.maptools.org/show_bug.cgi?id=2726 */

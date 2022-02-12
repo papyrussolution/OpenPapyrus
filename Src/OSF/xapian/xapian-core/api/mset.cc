@@ -20,7 +20,6 @@
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "msetinternal.h"
-#include "xapian/mset.h"
 #include "net/serialise.h"
 #include "matcher/msetcmp.h"
 #include "roundestimate.h"
@@ -31,22 +30,20 @@ using namespace std;
 
 namespace Xapian {
 MSet::MSet(const MSet&) = default;
-
-MSet&
-MSet::operator=(const MSet&) = default;
-
+MSet & MSet::operator=(const MSet&) = default;
 MSet::MSet(MSet&&) = default;
+MSet & MSet::operator=(MSet&&) = default;
 
-MSet&
-MSet::operator=(MSet&&) = default;
-
-MSet::MSet() : internal(new MSet::Internal) {
+MSet::MSet() : internal(new MSet::Internal) 
+{
 }
 
-MSet::MSet(Internal* internal_) : internal(internal_) {
+MSet::MSet(Internal* internal_) : internal(internal_) 
+{
 }
 
-MSet::~MSet() {
+MSet::~MSet() 
+{
 }
 
 void MSet::fetch_(Xapian::doccount first, Xapian::doccount last) const
@@ -61,8 +58,7 @@ void MSet::set_item_weight(Xapian::doccount i, double weight)
 
 void MSet::sort_by_relevance()
 {
-	std::sort(internal->items.begin(), internal->items.end(),
-	    get_msetcmp_function(Enquire::Internal::REL, true, false));
+	std::sort(internal->items.begin(), internal->items.end(), get_msetcmp_function(Enquire::Internal::REL, true, false));
 }
 
 int MSet::convert_to_percent(double weight) const
@@ -77,13 +73,11 @@ Xapian::doccount MSet::get_termfreq(const std::string& term) const
 	if(usual(internal->stats && internal->stats->get_stats(term, termfreq))) {
 		return termfreq;
 	}
-
 	if(rare(internal->enquire.get() == NULL)) {
 		// Consistent with get_termfreq() on an empty database which always
 		// returns 0.
 		return 0;
 	}
-
 	// Fall back to asking the database via enquire.
 	return internal->enquire->get_termfreq(term);
 }
@@ -137,20 +131,9 @@ Xapian::doccount MSet::get_uncollapsed_matches_estimated() const
 		   internal->uncollapsed_estimated);
 }
 
-Xapian::doccount MSet::get_uncollapsed_matches_upper_bound() const
-{
-	return internal->uncollapsed_upper_bound;
-}
-
-double MSet::get_max_attained() const
-{
-	return internal->max_attained;
-}
-
-double MSet::get_max_possible() const
-{
-	return internal->max_possible;
-}
+Xapian::doccount MSet::get_uncollapsed_matches_upper_bound() const { return internal->uncollapsed_upper_bound; }
+double MSet::get_max_attained() const { return internal->max_attained; }
+double MSet::get_max_possible() const { return internal->max_possible; }
 
 Xapian::doccount MSet::size() const
 {
@@ -158,17 +141,11 @@ Xapian::doccount MSet::size() const
 	return internal->items.size();
 }
 
-std::string MSet::snippet(const std::string& text,
-    size_t length,
-    const Xapian::Stem& stemmer,
-    unsigned flags,
-    const std::string& hi_start,
-    const std::string& hi_end,
-    const std::string& omit) const
+std::string MSet::snippet(const std::string& text, size_t length, const Xapian::Stem& stemmer, unsigned flags,
+    const std::string& hi_start, const std::string& hi_end, const std::string& omit) const
 {
 	// The actual implementation is in queryparser/termgenerator_internal.cc.
-	return internal->snippet(text, length, stemmer, flags,
-		   hi_start, hi_end, omit);
+	return internal->snippet(text, length, stemmer, flags, hi_start, hi_end, omit);
 }
 
 std::string MSet::get_description() const
@@ -176,8 +153,7 @@ std::string MSet::get_description() const
 	return internal->get_description();
 }
 
-Document
-MSet::Internal::get_document(Xapian::doccount index) const
+Document MSet::Internal::get_document(Xapian::doccount index) const
 {
 	if(index >= items.size()) {
 		string msg = "Requested index ";
@@ -190,8 +166,7 @@ MSet::Internal::get_document(Xapian::doccount index) const
 	return enquire->get_document(items[index].get_docid());
 }
 
-void
-MSet::Internal::fetch(Xapian::doccount first_, Xapian::doccount last) const
+void MSet::Internal::fetch(Xapian::doccount first_, Xapian::doccount last) const
 {
 	if(items.empty() || enquire.get() == NULL) {
 		return;
@@ -207,16 +182,12 @@ MSet::Internal::fetch(Xapian::doccount first_, Xapian::doccount last) const
 	}
 }
 
-void
-MSet::Internal::set_item_weight(Xapian::doccount i, double weight)
+void MSet::Internal::set_item_weight(Xapian::doccount i, double weight)
 {
 	// max_attained is updated assuming that set_item_weight is called on every
 	// MSet item from 0 up. While assigning new weights max_attained is updated
 	// as the maximum of the new weights set till Xapian::doccount i.
-	if(i == 0)
-		max_attained = weight;
-	else
-		max_attained = max(max_attained, weight);
+	max_attained = (i == 0) ? weight : max(max_attained, weight);
 	// Ideally the max_possible should be the maximum possible weight that
 	// can be assigned by the reranking algorithm, but since it is not always
 	// possible to calculate the max possible weight for a reranking algorithm
@@ -225,8 +196,7 @@ MSet::Internal::set_item_weight(Xapian::doccount i, double weight)
 	items[i].set_weight(weight);
 }
 
-int
-MSet::Internal::convert_to_percent(double weight) const
+int MSet::Internal::convert_to_percent(double weight) const
 {
 	int percent;
 	if(percent_scale_factor == 0.0) {
@@ -261,17 +231,14 @@ MSet::Internal::convert_to_percent(double weight) const
 	return percent;
 }
 
-void
-MSet::Internal::unshard_docids(Xapian::doccount shard,
-    Xapian::doccount n_shards)
+void MSet::Internal::unshard_docids(Xapian::doccount shard, Xapian::doccount n_shards)
 {
 	for(auto& result : items) {
 		result.unshard_docid(shard, n_shards);
 	}
 }
 
-void
-MSet::Internal::merge_stats(const Internal* o, bool collapsing)
+void MSet::Internal::merge_stats(const Internal* o, bool collapsing)
 {
 	if(snippet_bg_relevance.empty()) {
 		snippet_bg_relevance = o->snippet_bg_relevance;
@@ -298,16 +265,12 @@ MSet::Internal::merge_stats(const Internal* o, bool collapsing)
 	}
 }
 
-string
-MSet::Internal::serialise() const
+string MSet::Internal::serialise() const
 {
 	string result;
-
 	result += serialise_double(max_possible);
 	result += serialise_double(max_attained);
-
 	result += serialise_double(percent_scale_factor);
-
 	pack_uint(result, first);
 	// Send back the raw matches_* values.  MSet::get_matches_estimated()
 	// rounds the estimate lazily, but when we merge MSet objects we really
@@ -321,7 +284,6 @@ MSet::Internal::serialise() const
 	pack_uint(result, uncollapsed_lower_bound);
 	pack_uint(result, uncollapsed_estimated);
 	pack_uint(result, uncollapsed_upper_bound);
-
 	pack_uint(result, items.size());
 	for(auto&& item : items) {
 		result += serialise_double(item.get_weight());
@@ -330,32 +292,22 @@ MSet::Internal::serialise() const
 		pack_string(result, item.get_collapse_key());
 		pack_uint(result, item.get_collapse_count());
 	}
-
 	if(stats)
 		result += serialise_stats(*stats);
-
 	return result;
 }
 
-void
-MSet::Internal::unserialise(const char * p, const char * p_end)
+void MSet::Internal::unserialise(const char * p, const char * p_end)
 {
 	items.clear();
-
 	max_possible = unserialise_double(&p, p_end);
 	max_attained = unserialise_double(&p, p_end);
-
 	percent_scale_factor = unserialise_double(&p, p_end);
-
 	size_t msize;
-	if(!unpack_uint(&p, p_end, &first) ||
-	    !unpack_uint(&p, p_end, &matches_lower_bound) ||
-	    !unpack_uint(&p, p_end, &matches_estimated) ||
-	    !unpack_uint(&p, p_end, &matches_upper_bound) ||
-	    !unpack_uint(&p, p_end, &uncollapsed_lower_bound) ||
-	    !unpack_uint(&p, p_end, &uncollapsed_estimated) ||
-	    !unpack_uint(&p, p_end, &uncollapsed_upper_bound) ||
-	    !unpack_uint(&p, p_end, &msize)) {
+	if(!unpack_uint(&p, p_end, &first) || !unpack_uint(&p, p_end, &matches_lower_bound) ||
+	    !unpack_uint(&p, p_end, &matches_estimated) || !unpack_uint(&p, p_end, &matches_upper_bound) ||
+	    !unpack_uint(&p, p_end, &uncollapsed_lower_bound) || !unpack_uint(&p, p_end, &uncollapsed_estimated) ||
+	    !unpack_uint(&p, p_end, &uncollapsed_upper_bound) || !unpack_uint(&p, p_end, &msize)) {
 		unpack_throw_serialisation_error(p);
 	}
 	while(msize-- > 0) {
@@ -369,18 +321,15 @@ MSet::Internal::unserialise(const char * p, const char * p_end)
 		    !unpack_uint(&p, p_end, &collapse_cnt)) {
 			unpack_throw_serialisation_error(p);
 		}
-		items.emplace_back(wt, did, std::move(key), collapse_cnt,
-		    std::move(sort_key));
+		items.emplace_back(wt, did, std::move(key), collapse_cnt, std::move(sort_key));
 	}
-
 	if(p != p_end) {
 		stats.reset(new Xapian::Weight::Internal());
 		unserialise_stats(p, p_end, *stats);
 	}
 }
 
-string
-MSet::Internal::get_description() const
+string MSet::Internal::get_description() const
 {
 	string desc = "MSet(matches_lower_bound=";
 	desc += str(matches_lower_bound);

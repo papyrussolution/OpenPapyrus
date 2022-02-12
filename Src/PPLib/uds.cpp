@@ -1,5 +1,5 @@
 ﻿// UDS.CPP
-// Copyright (c) A.Sobolev 2020, 2021
+// Copyright (c) A.Sobolev 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -413,10 +413,10 @@ int UdsGameInterface::GetSettings(Settings & rResult)
 							}
 							else if(p_cur->Text.IsEqiAscii("loyaltyProgramSettings")) {
 								if(p_cur->P_Child && p_cur->P_Child->Type == SJson::tOBJECT) {
-									for(SJson * p_lps_item = p_cur->P_Child->P_Child; p_lps_item; p_lps_item = p_lps_item->P_Next) {
+									for(const SJson * p_lps_item = p_cur->P_Child->P_Child; p_lps_item; p_lps_item = p_lps_item->P_Next) {
 										if(p_lps_item->Text.IsEqiAscii("membershipTiers")) {
 											if(p_lps_item->P_Child && p_lps_item->P_Child->Type == SJson::tARRAY) {
-												for(SJson * p_mt_item = p_lps_item->P_Child->P_Child; p_mt_item; p_mt_item = p_mt_item->P_Next) {
+												for(const SJson * p_mt_item = p_lps_item->P_Child->P_Child; p_mt_item; p_mt_item = p_mt_item->P_Next) {
 													MembershipTier * p_new_mt = rResult.MtList.CreateNewItem();
 													if(p_new_mt) {
 														ReadMembershipTier(p_mt_item, *p_new_mt);
@@ -650,7 +650,7 @@ int UdsGameInterface::GetCustomerList(TSCollection <Customer> & rResult) // GET 
 				log_buf.Z().Cat("rep").CatDiv(':', 2).Cat(json_buf);
 				f_out_log.WriteLine(log_buf.CR().CR());
 				if(json_parse_document(&p_js_doc, json_buf) == JSON_OK) {
-					SJson * p_cur = p_js_doc;
+					const SJson * p_cur = p_js_doc;
 					if(ReadError(p_cur, LastErr) > 0) {
 						ok = 0;
 					}
@@ -659,7 +659,7 @@ int UdsGameInterface::GetCustomerList(TSCollection <Customer> & rResult) // GET 
 							if(p_cur->Text.IsEqiAscii("rows")) {
 								ok = 1;
 								if(p_cur->P_Child && p_cur->P_Child->Type == SJson::tARRAY) {
-									for(SJson * p_item = p_cur->P_Child->P_Child; p_item; p_item = p_item->P_Next) {
+									for(const SJson * p_item = p_cur->P_Child->P_Child; p_item; p_item = p_item->P_Next) {
 										Customer * p_new_cust = rResult.CreateNewItem();
 										if(p_new_cust) {
 											ReadCustomer(p_item, *p_new_cust);
@@ -848,7 +848,7 @@ int UdsGameInterface::CreateTransaction(const Transaction & rT, Transaction & rR
 				log_buf.Z().Cat("rep").CatDiv(':', 2).Cat(json_buf);
 				f_out_log.WriteLine(log_buf.CR().CR());
 				if(json_parse_document(&p_js_doc, json_buf) == JSON_OK) {
-					SJson * p_cur = p_js_doc;
+					const SJson * p_cur = p_js_doc;
 					if(ReadError(p_cur, LastErr) > 0) {
 						ok = 0;
 					}
@@ -857,7 +857,7 @@ int UdsGameInterface::CreateTransaction(const Transaction & rT, Transaction & rR
 							if(p_cur->Text.IsEqiAscii("oneOf")) {
 								ok = 1;
 								if(p_cur->P_Child && p_cur->P_Child->Type == SJson::tARRAY) {
-									for(SJson * p_item = p_cur->P_Child->P_Child; p_item; p_item = p_item->P_Next) {
+									for(const SJson * p_item = p_cur->P_Child->P_Child; p_item; p_item = p_item->P_Next) {
 										if(p_item->Text.IsEqiAscii("id")) {
 											rReplyT.ID = SJson::IsNumber(p_item->P_Child) ? p_item->P_Child->Text.ToInt64() : 0;
 										}

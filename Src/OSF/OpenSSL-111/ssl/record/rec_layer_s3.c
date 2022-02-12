@@ -730,7 +730,7 @@ int do_ssl3_write(SSL * s, int type, const uchar * buf,
 		SSL3_BUFFER_set_offset(wb, align);
 		if(!WPACKET_init_static_len(&pkt[0], SSL3_BUFFER_get_buf(wb),
 		    SSL3_BUFFER_get_len(wb), 0)
-		    || !WPACKET_allocate_bytes(&pkt[0], align, NULL)) {
+		   || !WPACKET_allocate_bytes(&pkt[0], align, NULL)) {
 			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_DO_SSL3_WRITE,
 			    ERR_R_INTERNAL_ERROR);
 			goto err;
@@ -742,7 +742,7 @@ int do_ssl3_write(SSL * s, int type, const uchar * buf,
 		if(!WPACKET_init_static_len(&pkt[0],
 		    SSL3_BUFFER_get_buf(wb),
 		    SSL3_BUFFER_get_len(wb), 0)
-		    || !WPACKET_allocate_bytes(&pkt[0], SSL3_BUFFER_get_offset(wb)
+		   || !WPACKET_allocate_bytes(&pkt[0], SSL3_BUFFER_get_offset(wb)
 		    + prefix_len, NULL)) {
 			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_DO_SSL3_WRITE,
 			    ERR_R_INTERNAL_ERROR);
@@ -762,7 +762,7 @@ int do_ssl3_write(SSL * s, int type, const uchar * buf,
 			SSL3_BUFFER_set_offset(wb, align);
 			if(!WPACKET_init_static_len(thispkt, SSL3_BUFFER_get_buf(wb),
 			    SSL3_BUFFER_get_len(wb), 0)
-			    || !WPACKET_allocate_bytes(thispkt, align, NULL)) {
+			   || !WPACKET_allocate_bytes(thispkt, align, NULL)) {
 				SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_DO_SSL3_WRITE,
 				    ERR_R_INTERNAL_ERROR);
 				goto err;
@@ -824,11 +824,11 @@ int do_ssl3_write(SSL * s, int type, const uchar * buf,
 			maxcomplen += SSL3_RT_MAX_COMPRESSED_OVERHEAD;
 		/* write the header */
 		if(!WPACKET_put_bytes_u8(thispkt, rectype)
-		    || !WPACKET_put_bytes_u16(thispkt, version)
-		    || !WPACKET_start_sub_packet_u16(thispkt)
-		    || (eivlen > 0
+		   || !WPACKET_put_bytes_u16(thispkt, version)
+		   || !WPACKET_start_sub_packet_u16(thispkt)
+		   || (eivlen > 0
 		 && !WPACKET_allocate_bytes(thispkt, eivlen, NULL))
-		    || (maxcomplen > 0
+		   || (maxcomplen > 0
 		 && !WPACKET_reserve_bytes(thispkt, maxcomplen,
 		    &compressdata))) {
 			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_DO_SSL3_WRITE,
@@ -850,7 +850,7 @@ int do_ssl3_write(SSL * s, int type, const uchar * buf,
 		/* first we compress */
 		if(s->compress != NULL) {
 			if(!ssl3_do_compress(s, thiswr)
-			    || !WPACKET_allocate_bytes(thispkt, thiswr->length, NULL)) {
+			   || !WPACKET_allocate_bytes(thispkt, thiswr->length, NULL)) {
 				SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_DO_SSL3_WRITE,
 				    SSL_R_COMPRESSION_FAILURE);
 				goto err;
@@ -868,7 +868,7 @@ int do_ssl3_write(SSL * s, int type, const uchar * buf,
 		if(SSL_TREAT_AS_TLS13(s)
 		 && s->enc_write_ctx != NULL
 		 && (s->statem.enc_write_state != ENC_WRITE_STATE_WRITE_PLAIN_ALERTS
-		    || type != SSL3_RT_ALERT)) {
+		   || type != SSL3_RT_ALERT)) {
 			size_t rlen, max_send_fragment;
 
 			if(!WPACKET_put_bytes_u8(thispkt, type)) {
@@ -926,7 +926,7 @@ int do_ssl3_write(SSL * s, int type, const uchar * buf,
 			uchar * mac;
 
 			if(!WPACKET_allocate_bytes(thispkt, mac_size, &mac)
-			    || !s->method->ssl3_enc->mac(s, thiswr, mac, 1)) {
+			   || !s->method->ssl3_enc->mac(s, thiswr, mac, 1)) {
 				SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_DO_SSL3_WRITE,
 				    ERR_R_INTERNAL_ERROR);
 				goto err;
@@ -944,7 +944,7 @@ int do_ssl3_write(SSL * s, int type, const uchar * buf,
 		     * We also need next the amount of bytes written to this
 		     * sub-packet
 		     */
-		    || !WPACKET_get_length(thispkt, &len)) {
+		   || !WPACKET_get_length(thispkt, &len)) {
 			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_DO_SSL3_WRITE,
 			    ERR_R_INTERNAL_ERROR);
 			goto err;
@@ -990,8 +990,8 @@ int do_ssl3_write(SSL * s, int type, const uchar * buf,
 		/* Allocate bytes for the encryption overhead */
 		if(!WPACKET_get_length(thispkt, &origlen)
 		    /* Encryption should never shrink the data! */
-		    || origlen > thiswr->length
-		    || (thiswr->length > origlen
+		   || origlen > thiswr->length
+		   || (thiswr->length > origlen
 		 && !WPACKET_allocate_bytes(thispkt,
 		    thiswr->length - origlen, NULL))) {
 			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_DO_SSL3_WRITE,
@@ -1002,7 +1002,7 @@ int do_ssl3_write(SSL * s, int type, const uchar * buf,
 			uchar * mac;
 
 			if(!WPACKET_allocate_bytes(thispkt, mac_size, &mac)
-			    || !s->method->ssl3_enc->mac(s, thiswr, mac, 1)) {
+			   || !s->method->ssl3_enc->mac(s, thiswr, mac, 1)) {
 				SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_DO_SSL3_WRITE,
 				    ERR_R_INTERNAL_ERROR);
 				goto err;
@@ -1081,9 +1081,9 @@ int ssl3_write_pending(SSL * s, int type, const uchar * buf, size_t len,
 	size_t tmpwrit = 0;
 
 	if((s->rlayer.wpend_tot > len)
-	    || (!(s->mode & SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER)
+	   || (!(s->mode & SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER)
 	 && (s->rlayer.wpend_buf != buf))
-	    || (s->rlayer.wpend_type != type)) {
+	   || (s->rlayer.wpend_type != type)) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL3_WRITE_PENDING,
 		    SSL_R_BAD_WRITE_RETRY);
 		return -1;
@@ -1310,7 +1310,7 @@ start:
 	}
 
 	if(type == SSL3_RECORD_get_type(rr)
-	    || (SSL3_RECORD_get_type(rr) == SSL3_RT_CHANGE_CIPHER_SPEC
+	   || (SSL3_RECORD_get_type(rr) == SSL3_RT_CHANGE_CIPHER_SPEC
 	 && type == SSL3_RT_HANDSHAKE && recvd_type != NULL
 	 && !is_tls13)) {
 		/*
@@ -1375,7 +1375,7 @@ start:
 				}
 			}
 			if(SSL3_RECORD_get_length(rr) == 0
-			    || (peek && n == SSL3_RECORD_get_length(rr))) {
+			   || (peek && n == SSL3_RECORD_get_length(rr))) {
 				curr_rec++;
 				rr++;
 			}
@@ -1441,9 +1441,9 @@ start:
 		PACKET alert;
 
 		if(!PACKET_buf_init(&alert, alert_bytes, SSL3_RECORD_get_length(rr))
-		    || !PACKET_get_1(&alert, &alert_level)
-		    || !PACKET_get_1(&alert, &alert_descr)
-		    || PACKET_remaining(&alert) != 0) {
+		   || !PACKET_get_1(&alert, &alert_level)
+		   || !PACKET_get_1(&alert, &alert_descr)
+		   || PACKET_remaining(&alert) != 0) {
 			SSLfatal(s, SSL_AD_UNEXPECTED_MESSAGE, SSL_F_SSL3_READ_BYTES,
 			    SSL_R_INVALID_ALERT);
 			return -1;
@@ -1464,7 +1464,7 @@ start:
 		}
 
 		if(alert_level == SSL3_AL_WARNING
-		    || (is_tls13 && alert_descr == SSL_AD_USER_CANCELLED)) {
+		   || (is_tls13 && alert_descr == SSL_AD_USER_CANCELLED)) {
 			s->s3->warn_alert = alert_descr;
 			SSL3_RECORD_set_read(rr);
 

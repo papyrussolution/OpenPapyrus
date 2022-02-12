@@ -41,7 +41,7 @@ string serialise_double(double v)
     return string(reinterpret_cast<const char *>(&temp), sizeof(double));
 # else
     return string(reinterpret_cast<const char *>(&v), sizeof(double));
-# endif
+#endif
 }
 
 double unserialise_double(const char ** p, const char * end)
@@ -60,7 +60,7 @@ double unserialise_double(const char ** p, const char * end)
     memcpy(&result, &temp, sizeof(double));
 # else
     memcpy(&result, *p, sizeof(double));
-# endif
+#endif
     *p += 8;
     return result;
 }
@@ -109,18 +109,18 @@ string serialise_double(double v)
 
     result |= uint64_t(exp) << 52;
 
-# if FLT_RADIX == 2
+#if FLT_RADIX == 2
     double scaled_v = scalbn(v, 52);
 # else
     double scaled_v = ldexp(v, 52);
-# endif
+#endif
 
     uint64_t scaled_v_int = static_cast<uint64_t>(scaled_v);
     result |= scaled_v_int;
 
 # ifdef WORDS_BIGENDIAN
     result = do_bswap(result);
-# endif
+#endif
 
     return string(reinterpret_cast<const char *>(&result), sizeof(uint64_t));
 }
@@ -149,13 +149,13 @@ double unserialise_double(const char ** p, const char * end) {
 
     if (exp + 1023 == 0 && mantissa_bp == 0) return 0.0;
 
-# if FLT_RADIX == 2
+#if FLT_RADIX == 2
     double result = scalbn(mantissa_bp, -52);
     result = scalbn(result + 1.0, exp);
 # else
     double result = ldexp(mantissa_bp, -52);
     result = ldexp(result + 1.0, exp);
-# endif
+#endif
 
     if (negative) result = -result;
     return result;

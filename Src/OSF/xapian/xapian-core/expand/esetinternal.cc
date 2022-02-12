@@ -21,8 +21,6 @@
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "esetinternal.h"
-#include "xapian/enquire.h"
-#include "xapian/expanddecider.h"
 #include "backends/databaseinternal.h"
 #include "backends/multi.h"
 #include "api/rsetinternal.h"

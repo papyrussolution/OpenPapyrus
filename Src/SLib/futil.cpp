@@ -754,6 +754,19 @@ SLTEST_R(Directory)
 	uint   files_count = 0;
 	int64  files_size = 0;
 	SStrCollection file_list;
+	// @v11.3.1 {
+	{
+		const char * p_path_to_normalize = "D:\\Papyrus\\Src\\BuildVC2017\\..\\..\\ppy\\bin\\..\\..\\src\\pptest\\out\\lmdb-test";
+		SPathStruc::NormalizePath(p_path_to_normalize, SPathStruc::npfCompensateDotDot, temp_buf);
+		SLTEST_CHECK_EQ(temp_buf, "d:\\papyrus\\src\\pptest\\out\\lmdb-test");
+		SPathStruc::NormalizePath(p_path_to_normalize, SPathStruc::npfCompensateDotDot|SPathStruc::npfKeepCase, temp_buf);
+		SLTEST_CHECK_EQ(temp_buf, "D:\\Papyrus\\src\\pptest\\out\\lmdb-test");
+		SPathStruc::NormalizePath(p_path_to_normalize, SPathStruc::npfSlash, temp_buf);
+		SLTEST_CHECK_EQ(temp_buf, "d:/papyrus/src/buildvc2017/../../ppy/bin/../../src/pptest/out/lmdb-test");
+		SPathStruc::NormalizePath(p_path_to_normalize, SPathStruc::npfCompensateDotDot|SPathStruc::npfUpper, temp_buf);
+		SLTEST_CHECK_EQ(temp_buf, "D:\\PAPYRUS\\SRC\\PPTEST\\OUT\\LMDB-TEST");
+	}
+	// } @v11.3.1 
 	{
 		uint   arg_no = 0;
 		for(uint ap = 0, arg_no = 0; EnumArg(&ap, temp_buf); arg_no++) {

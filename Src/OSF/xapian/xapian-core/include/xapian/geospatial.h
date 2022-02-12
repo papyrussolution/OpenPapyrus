@@ -25,13 +25,12 @@
 #define XAPIAN_INCLUDED_GEOSPATIAL_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error Never use <xapian/geospatial.h> directly; include <xapian.h> instead.
+	#error Never use <xapian/geospatial.h> directly; include <xapian.h> instead.
 #endif
 
 #include <iterator>
 #include <vector>
 #include <string>
-
 #include <xapian/attributes.h>
 #include <xapian/derefwrapper.h>
 #include <xapian/keymaker.h>
@@ -281,14 +280,10 @@ inline bool operator!=(const LatLongCoordsIterator &a, const LatLongCoordsIterat
  */
 class XAPIAN_VISIBILITY_DEFAULT LatLongMetric {
 public:
-	/// Destructor.
 	virtual ~LatLongMetric();
-
 	/** Return the distance between two coordinates, in metres.
 	 */
-	virtual double pointwise_distance(const LatLongCoord & a,
-	    const LatLongCoord & b) const = 0;
-
+	virtual double pointwise_distance(const LatLongCoord & a, const LatLongCoord & b) const = 0;
 	/** Return the distance between two coordinate lists, in metres.
 	 *
 	 *  The distance between the coordinate lists is defined to be the minimum
@@ -300,7 +295,6 @@ public:
 	 *  @param b The second coordinate list.
 	 */
 	double operator()(const LatLongCoords & a, const LatLongCoords & b) const;
-
 	/** Return the distance between two coordinate lists, in metres.
 	 *
 	 *  One of the coordinate lists is supplied in serialised form.
@@ -492,18 +486,10 @@ public:
  *  constructor parameter.
  */
 class XAPIAN_VISIBILITY_DEFAULT LatLongDistanceKeyMaker : public KeyMaker {
-	/// The value slot to read.
-	Xapian::valueno slot;
-
-	/// The centre point (or points) for distance calculation.
-	LatLongCoords centre;
-
-	/// The metric to use when calculating distances.
-	const LatLongMetric * metric;
-
-	/// The default key to return, for documents with no value stored.
-	std::string defkey;
-
+	Xapian::valueno slot; /// The value slot to read.
+	LatLongCoords centre; /// The centre point (or points) for distance calculation.
+	const LatLongMetric * metric; /// The metric to use when calculating distances.
+	std::string defkey; /// The default key to return, for documents with no value stored.
 public:
 	/** Construct a LatLongDistanceKeyMaker.
 	 *
@@ -513,14 +499,8 @@ public:
 	 *  @param metric_		LatLongMetric to use.
 	 *  @param defdistance	Distance to use for docs with no value set.
 	 */
-	LatLongDistanceKeyMaker(Xapian::valueno slot_,
-	    const LatLongCoords & centre_,
-	    const LatLongMetric & metric_,
-	    double defdistance)
-		: slot(slot_),
-		centre(centre_),
-		metric(metric_.clone()),
-		defkey(sortable_serialise(defdistance))
+	LatLongDistanceKeyMaker(Xapian::valueno slot_, const LatLongCoords & centre_, const LatLongMetric & metric_, double defdistance) : 
+		slot(slot_), centre(centre_), metric(metric_.clone()), defkey(sortable_serialise(defdistance))
 	{
 	}
 
@@ -534,13 +514,8 @@ public:
 	 *  Documents where no value is set are assumed to be a large distance
 	 *  away.
 	 */
-	LatLongDistanceKeyMaker(Xapian::valueno slot_,
-	    const LatLongCoords & centre_,
-	    const LatLongMetric & metric_)
-		: slot(slot_),
-		centre(centre_),
-		metric(metric_.clone()),
-		defkey(9, '\xff')
+	LatLongDistanceKeyMaker(Xapian::valueno slot_, const LatLongCoords & centre_, const LatLongMetric & metric_) : slot(slot_),
+		centre(centre_), metric(metric_.clone()), defkey(9, '\xff')
 	{
 	}
 
@@ -555,15 +530,9 @@ public:
 	 *  Documents where no value is set are assumed to be a large distance
 	 *  away.
 	 */
-	LatLongDistanceKeyMaker(Xapian::valueno slot_,
-	    const LatLongCoords & centre_)
-		: slot(slot_),
-		centre(centre_),
-		metric(new Xapian::GreatCircleMetric()),
-		defkey(9, '\xff')
+	LatLongDistanceKeyMaker(Xapian::valueno slot_, const LatLongCoords & centre_) : slot(slot_), centre(centre_), metric(new Xapian::GreatCircleMetric()), defkey(9, '\xff')
 	{
 	}
-
 	/** Construct a LatLongDistanceKeyMaker.
 	 *
 	 *  @param slot_		Value slot to use.
@@ -571,18 +540,11 @@ public:
 	 *  @param metric_		LatLongMetric to use.
 	 *  @param defdistance	Distance to use for docs with no value set.
 	 */
-	LatLongDistanceKeyMaker(Xapian::valueno slot_,
-	    const LatLongCoord & centre_,
-	    const LatLongMetric & metric_,
-	    double defdistance)
-		: slot(slot_),
-		centre(),
-		metric(metric_.clone()),
-		defkey(sortable_serialise(defdistance))
+	LatLongDistanceKeyMaker(Xapian::valueno slot_, const LatLongCoord & centre_, const LatLongMetric & metric_, double defdistance) : slot(slot_),
+		centre(), metric(metric_.clone()), defkey(sortable_serialise(defdistance))
 	{
 		centre.append(centre_);
 	}
-
 	/** Construct a LatLongDistanceKeyMaker.
 	 *
 	 *  @param slot_		Value slot to use.

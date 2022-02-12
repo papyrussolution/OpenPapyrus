@@ -18,10 +18,8 @@
 #include "absl/random/internal/platform.h"
 #include "absl/random/internal/randen_traits.h"
 
-#if ABSL_HAVE_ATTRIBUTE(always_inline) || \
-	(defined(__GNUC__) && !defined(__clang__))
-#define ABSL_RANDOM_INTERNAL_ATTRIBUTE_ALWAYS_INLINE \
-	__attribute__((always_inline))
+#if ABSL_HAVE_ATTRIBUTE(always_inline) || (defined(__GNUC__) && !defined(__clang__))
+#define ABSL_RANDOM_INTERNAL_ATTRIBUTE_ALWAYS_INLINE __attribute__((always_inline))
 #elif defined(_MSC_VER)
 // We can achieve something similar to attribute((always_inline)) with MSVC by
 // using the __forceinline keyword, however this is not perfect. MSVC is
@@ -387,10 +385,8 @@ inline ABSL_RANDOM_INTERNAL_ATTRIBUTE_ALWAYS_INLINE void Permute(absl::uint128* 
 inline ABSL_RANDOM_INTERNAL_ATTRIBUTE_ALWAYS_INLINE void SwapEndian(absl::uint128* state) {
 #ifdef ABSL_IS_BIG_ENDIAN
 	for(uint32_t block = 0; block < RandenTraits::kFeistelBlocks; ++block) {
-		uint64_t new_lo = absl::little_endian::ToHost64(
-			static_cast<uint64_t>(state[block] >> 64));
-		uint64_t new_hi = absl::little_endian::ToHost64(
-			static_cast<uint64_t>((state[block] << 64) >> 64));
+		uint64_t new_lo = absl::little_endian::ToHost64(static_cast<uint64_t>(state[block] >> 64));
+		uint64_t new_hi = absl::little_endian::ToHost64(static_cast<uint64_t>((state[block] << 64) >> 64));
 		state[block] = (static_cast<absl::uint128>(new_hi) << 64) | new_lo;
 	}
 #else
@@ -413,40 +409,27 @@ const void* RandenSlow::GetKeys() {
 #endif
 }
 
-void RandenSlow::Absorb(const void* seed_void, void* state_void) {
-	auto* state =
-	    reinterpret_cast<uint64_t * ABSL_RANDOM_INTERNAL_RESTRICT>(state_void);
-	const auto* seed =
-	    reinterpret_cast<const uint64_t * ABSL_RANDOM_INTERNAL_RESTRICT>(
-		seed_void);
-
-	constexpr size_t kCapacityBlocks =
-	    RandenTraits::kCapacityBytes / sizeof(uint64_t);
-	static_assert(
-		kCapacityBlocks * sizeof(uint64_t) == RandenTraits::kCapacityBytes,
-		"Not i*V");
-
+void RandenSlow::Absorb(const void* seed_void, void* state_void) 
+{
+	auto* state = reinterpret_cast<uint64_t * ABSL_RANDOM_INTERNAL_RESTRICT>(state_void);
+	const auto* seed = reinterpret_cast<const uint64_t * ABSL_RANDOM_INTERNAL_RESTRICT>(seed_void);
+	constexpr size_t kCapacityBlocks = RandenTraits::kCapacityBytes / sizeof(uint64_t);
+	static_assert(kCapacityBlocks * sizeof(uint64_t) == RandenTraits::kCapacityBytes, "Not i*V");
 	for(size_t i = kCapacityBlocks;
 	    i < RandenTraits::kStateBytes / sizeof(uint64_t); ++i) {
 		state[i] ^= seed[i - kCapacityBlocks];
 	}
 }
 
-void RandenSlow::Generate(const void* keys_void, void* state_void) {
-	static_assert(RandenTraits::kCapacityBytes == sizeof(absl::uint128),
-	    "Capacity mismatch");
-
+void RandenSlow::Generate(const void* keys_void, void* state_void) 
+{
+	static_assert(RandenTraits::kCapacityBytes == sizeof(absl::uint128), "Capacity mismatch");
 	auto* state = reinterpret_cast<absl::uint128*>(state_void);
 	const auto* keys = reinterpret_cast<const absl::uint128*>(keys_void);
-
 	const absl::uint128 prev_inner = state[0];
-
 	SwapEndian(state);
-
 	Permute(state, keys);
-
 	SwapEndian(state);
-
 	// Ensure backtracking resistance.
 	*state ^= prev_inner;
 }

@@ -289,9 +289,9 @@ static void ColouriseCoffeeScriptDoc(Sci_PositionU startPos, Sci_Position length
 			}
 			else if(sc.ch == '/'
 			 && (setOKBeforeRE.Contains(chPrevNonWhite)
-				    || followsKeyword(sc, styler))
+				   || followsKeyword(sc, styler))
 			 && (!setCouldBePostOp.Contains(chPrevNonWhite)
-				    || !FollowsPostfixOperator(sc, styler))) {
+				   || !FollowsPostfixOperator(sc, styler))) {
 				sc.SetState(SCE_COFFEESCRIPT_REGEX);    // JavaScript's RegEx
 			}
 			else if(sc.ch == '\"') {

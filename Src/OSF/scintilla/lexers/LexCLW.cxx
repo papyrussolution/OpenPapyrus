@@ -383,10 +383,7 @@ static void ColouriseClarionDoc(Sci_PositionU uiStartPos,
 			// or character is not a hexidecimal character (A-F)
 			// or character is not a . (point)
 			// or character is not a numberic base character (B,O,H)
-			if(!(isdec(scDoc.ch)
-				    || IsAHexCharacter(scDoc.ch, bCaseSensitive)
-				    || scDoc.ch == '.'
-				    || IsANumericBaseCharacter(scDoc.ch, bCaseSensitive))) {
+			if(!(isdec(scDoc.ch) || IsAHexCharacter(scDoc.ch, bCaseSensitive) || scDoc.ch == '.' || IsANumericBaseCharacter(scDoc.ch, bCaseSensitive))) {
 				// If the number was a real
 				if(SetNumericConstantState(scDoc)) {
 					// Colour the matched string to the real constant state

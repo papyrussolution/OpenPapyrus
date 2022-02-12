@@ -24,9 +24,7 @@
 
 using namespace std;
 
-PostList* AndMaybePostList::decay_to_and(Xapian::docid did,
-    double w_min,
-    bool* valid_ptr)
+PostList* AndMaybePostList::decay_to_and(Xapian::docid did, double w_min, bool* valid_ptr)
 {
 	pl = new MultiAndPostList(pl, r, pl_max, r_max, pltree, db_size);
 	r = NULL;
@@ -50,9 +48,7 @@ Xapian::docid AndMaybePostList::get_docid() const
 	return pl_did;
 }
 
-double AndMaybePostList::get_weight(Xapian::termcount doclen,
-    Xapian::termcount unique_terms,
-    Xapian::termcount wdfdocmax) const
+double AndMaybePostList::get_weight(Xapian::termcount doclen, Xapian::termcount unique_terms, Xapian::termcount wdfdocmax) const
 {
 	auto res = pl->get_weight(doclen, unique_terms, wdfdocmax);
 	if(maybe_matches())
@@ -71,7 +67,6 @@ PostList* AndMaybePostList::next(double w_min)
 {
 	if(w_min > pl_max)
 		return decay_to_and(max(pl_did, r_did) + 1, w_min);
-
 	PostList* result = pl->next(w_min - r_max);
 	if(result) {
 		delete pl;
@@ -110,7 +105,6 @@ PostList* AndMaybePostList::skip_to(Xapian::docid did, double w_min)
 	// skip_to(pl_did) happens after decay from OR
 	if(did < pl_did)
 		return NULL;
-
 	if(w_min > pl_max) {
 		// We dealt with did <= pl_did just above.
 		return decay_to_and(max(did, r_did), w_min);

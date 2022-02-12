@@ -21,7 +21,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "xapian/weight.h"
 #include "weightinternal.h"
 #include "serialise-double.h"
 
@@ -242,9 +241,7 @@ double LMWeight::get_maxpart() const
  * where, |Q| is total query length.
  *	  |D| is total document length.
  */
-double LMWeight::get_sumextra(Xapian::termcount len,
-    Xapian::termcount,
-    Xapian::termcount) const
+double LMWeight::get_sumextra(Xapian::termcount len, Xapian::termcount, Xapian::termcount) const
 {
 	if(select_smoothing == DIRICHLET_PLUS_SMOOTHING) {
 		double extra_weight = param_smoothing1 / (len + param_smoothing1);

@@ -243,10 +243,10 @@ int NAME_CONSTRAINTS_check(X509 * x, NAME_CONSTRAINTS * nc)
 	 */
 	if(!add_lengths(&name_count, X509_NAME_entry_count(nm),
 	    sk_GENERAL_NAME_num(x->altname))
-	    || !add_lengths(&constraint_count,
+	   || !add_lengths(&constraint_count,
 	    sk_GENERAL_SUBTREE_num(nc->permittedSubtrees),
 	    sk_GENERAL_SUBTREE_num(nc->excludedSubtrees))
-	    || (name_count > 0 && constraint_count > NAME_CHECK_MAX / name_count))
+	   || (name_count > 0 && constraint_count > NAME_CHECK_MAX / name_count))
 		return X509_V_ERR_UNSPECIFIED;
 
 	if(X509_NAME_entry_count(nm) > 0) {
@@ -620,7 +620,7 @@ static int nc_uri(ASN1_IA5STRING * uri, ASN1_IA5STRING * base)
 	}
 
 	if((base->length != (int)hostlen)
-	    || ia5ncasecmp(hostptr, baseptr, hostlen))
+	   || ia5ncasecmp(hostptr, baseptr, hostlen))
 		return X509_V_ERR_PERMITTED_VIOLATION;
 
 	return X509_V_OK;

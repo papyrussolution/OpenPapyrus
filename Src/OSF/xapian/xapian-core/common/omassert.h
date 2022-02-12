@@ -29,11 +29,10 @@
 #ifndef XAPIAN_ASSERTIONS
 // The configure script should always define XAPIAN_ASSERTIONS if it defines
 // XAPIAN_ASSERTIONS_PARANOID.
-# ifdef XAPIAN_ASSERTIONS_PARANOID
-#  error XAPIAN_ASSERTIONS_PARANOID defined without XAPIAN_ASSERTIONS
-# endif
+	#ifdef XAPIAN_ASSERTIONS_PARANOID
+		#error XAPIAN_ASSERTIONS_PARANOID defined without XAPIAN_ASSERTIONS
+	#endif
 #else
-
 #include <xapian/error.h>
 #include "str.h"
 
@@ -45,10 +44,10 @@
 // - these can be disabled separately from other assertions to allow a build
 // with assertions which still has good performance.
 #ifdef XAPIAN_ASSERTIONS_PARANOID
-# define AssertParanoid(COND) Assert(COND)
-# define AssertRelParanoid(A,REL,B) AssertRel(A,REL,B)
-# define AssertEqParanoid(A,B) AssertEq(A,B)
-# define AssertEqDoubleParanoid(A,B) AssertEqDouble(A,B)
+	#define AssertParanoid(COND) Assert(COND)
+	#define AssertRelParanoid(A,REL,B) AssertRel(A,REL,B)
+	#define AssertEqParanoid(A,B) AssertEq(A,B)
+	#define AssertEqDoubleParanoid(A,B) AssertEqDouble(A,B)
 #endif
 
 /** Assert that condition COND is non-zero.
@@ -57,9 +56,9 @@
  */
 #define Assert(COND) \
     do {\
-	if (rare(!(COND)))\
-	    throw Xapian::AssertionError(XAPIAN_ASSERT_LOCATION(COND));\
-    } while (0)
+		if(rare(!(COND)))\
+			throw Xapian::AssertionError(XAPIAN_ASSERT_LOCATION(COND));\
+		} while (0)
 
 /** Assert that A REL B is non-zero.
  *
@@ -70,14 +69,14 @@
  */
 #define AssertRel(A,REL,B) \
     do {\
-	if (rare(!((A) REL (B)))) {\
-	    std::string xapian_assertion_msg(XAPIAN_ASSERT_LOCATION(A REL B));\
-	    xapian_assertion_msg += " : values were ";\
-	    xapian_assertion_msg += str(A);\
-	    xapian_assertion_msg += " and ";\
-	    xapian_assertion_msg += str(B);\
-	    throw Xapian::AssertionError(xapian_assertion_msg);\
-	}\
+		if(rare(!((A) REL (B)))) {\
+			std::string xapian_assertion_msg(XAPIAN_ASSERT_LOCATION(A REL B));\
+			xapian_assertion_msg += " : values were ";\
+			xapian_assertion_msg += str(A);\
+			xapian_assertion_msg += " and ";\
+			xapian_assertion_msg += str(B);\
+			throw Xapian::AssertionError(xapian_assertion_msg);\
+		}\
     } while (0)
 
 /** Assert that A == B.
@@ -91,16 +90,16 @@
 
 /** Helper function to check if two values are within DBL_EPSILON. */
 namespace Xapian {
-namespace Internal {
-bool within_DBL_EPSILON(double a, double b);
-}
+	namespace Internal {
+		bool within_DBL_EPSILON(double a, double b);
+	}
 }
 
 /// Assert two values differ by DBL_EPSILON or more.
 #define AssertEqDouble(A,B) \
     do {\
 	using Xapian::Internal::within_DBL_EPSILON;\
-	if (rare(!within_DBL_EPSILON(A, B))) {\
+	if(rare(!within_DBL_EPSILON(A, B))) {\
 	    std::string xapian_assertion_msg(XAPIAN_ASSERT_LOCATION(within_DBL_EPSILON(A, B)));\
 	    xapian_assertion_msg += " : values were ";\
 	    xapian_assertion_msg += str(A);\
@@ -116,19 +115,16 @@ bool within_DBL_EPSILON(double a, double b);
 // we get a compiler error in this case for assertions missing a trailing
 // semicolon.  This avoids one source of compile errors in debug builds
 // which don't manifest in non-debug builds.
-
 #ifndef Assert
-# define Assert(COND) (void)0
-# define AssertRel(A,REL,B) (void)0
-# define AssertEq(A,B) (void)0
-# define AssertEqDouble(A,B) (void)0
+	#define Assert(COND) (void)0
+	#define AssertRel(A,REL,B) (void)0
+	#define AssertEq(A,B) (void)0
+	#define AssertEqDouble(A,B) (void)0
 #endif
-
 #ifndef AssertParanoid
-# define AssertParanoid(COND) (void)0
-# define AssertRelParanoid(A,REL,B) (void)0
-# define AssertEqParanoid(A,B) (void)0
-# define AssertEqDoubleParanoid(A,B) (void)0
+	#define AssertParanoid(COND) (void)0
+	#define AssertRelParanoid(A,REL,B) (void)0
+	#define AssertEqParanoid(A,B) (void)0
+	#define AssertEqDoubleParanoid(A,B) (void)0
 #endif
-
 #endif // XAPIAN_INCLUDED_OMASSERT_H

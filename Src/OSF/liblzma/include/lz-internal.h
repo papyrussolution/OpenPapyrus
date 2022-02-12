@@ -221,7 +221,7 @@ extern void   lzma_mf_bt4_skip(lzma_mf * dict, uint32 amount);
 	// systems that it does on little endian systems. lz_encoder.c
 	// takes care of including the actual table.
 	extern const uint32 lzma_lz_hash_table[256];
-#	define hash_table lzma_lz_hash_table
+#define hash_table lzma_lz_hash_table
 #else
 	//#include "check-internal.h"
 	#define hash_table lzma_crc32_table[0]

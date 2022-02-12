@@ -30,7 +30,9 @@
 #endif
 
 typedef enum {
-	usage, dump, render
+	usage, 
+	dump, 
+	render
 } jbig2dec_mode;
 
 typedef enum {
@@ -206,7 +208,6 @@ static int set_output_format(jbig2dec_params_t * params, const char * format)
 #endif
 	/* default to pbm */
 	params->output_format = jbig2dec_format_pbm;
-
 	return 0;
 }
 
@@ -263,7 +264,7 @@ static int parse_options(int argc, char * argv[], jbig2dec_params_t * params)
 			    params->hash = 1;
 			    break;
 			case 'o':
-			    params->output_filename = _strdup(optarg);
+			    params->output_filename = sstrdup(optarg);
 			    break;
 			case 't':
 			    set_output_format(params, optarg);
@@ -384,7 +385,7 @@ static void error_callback(void * error_callback_data, const char * message, Jbi
 		SAlloc::F(state->last_message);
 		state->last_message = NULL;
 		if(message) {
-			state->last_message = _strdup(message);
+			state->last_message = sstrdup(message);
 			if(state->last_message == NULL) {
 				ret = slfprintf_stderr("jbig2dec WARNING could not duplicate message\n");
 				if(ret < 0)

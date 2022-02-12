@@ -25,13 +25,13 @@
 #endif
 #ifdef U_ELF
 #   include <elf.h>
-#   if defined(ELFCLASS64)
-#       define U_ELF64
-#   endif
+#if defined(ELFCLASS64)
+#define U_ELF64
+#endif
 /* Old elf.h headers may not have EM_X86_64, or have EM_X8664 instead. */
-#   ifndef EM_X86_64
-#       define EM_X86_64 62
-#   endif
+#ifndef EM_X86_64
+#define EM_X86_64 62
+#endif
 #define ICU_ENTRY_OFFSET 0
 #endif
 
@@ -115,7 +115,7 @@ static const struct AssemblyType {
 	 ".globl %s\n"
 	 "\t.section .note.GNU-stack,\"\",%%progbits\n"
 	 "#ifdef __CET__\n"
-	 "# include <cet.h>\n"
+	 "#include <cet.h>\n"
 	 "#endif\n"
 	 "\t.section .rodata\n"
 	 "\t.balign 16\n"
@@ -743,18 +743,18 @@ static void getArchitecture(uint16_t * pCPU, uint16_t * pBits, bool * pIsBigEndi
 		// required to match). Unfortunately, the variable name decoration/mangling
 		// is slightly different on x86, which means we can't use the UNKNOWN type
 		// for all architectures though.
-#   if defined(_M_IX86)
+#if defined(_M_IX86)
 		*pCPU = IMAGE_FILE_MACHINE_I386;
 #   else
 		*pCPU = IMAGE_FILE_MACHINE_UNKNOWN;
-#   endif
-#   if defined(_M_IA64) || defined(_M_AMD64) || defined (_M_ARM64)
+#endif
+#if defined(_M_IA64) || defined(_M_AMD64) || defined (_M_ARM64)
 		*pBits = 64; // Doesn't seem to be used for anything interesting though?
 #   elif defined(_M_IX86) || defined(_M_ARM)
 		*pBits = 32;
 #   else
 #      error "Unknown platform for CAN_GENERATE_OBJECTS."
-#   endif
+#endif
 #else
 #   error "Unknown platform for CAN_GENERATE_OBJECTS."
 #endif

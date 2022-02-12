@@ -298,11 +298,11 @@ static int ec_guess_cofactor(EC_GROUP * group) {
 
 	/* compute h = \lfloor (q + 1)/n \rceil = \lfloor (q + 1 + n/2)/n \rfloor */
 	if(!BN_rshift1(group->cofactor, group->order) /* n/2 */
-	    || !BN_add(group->cofactor, group->cofactor, q) /* q + n/2 */
+	   || !BN_add(group->cofactor, group->cofactor, q) /* q + n/2 */
 	    /* q + 1 + n/2 */
-	    || !BN_add(group->cofactor, group->cofactor, BN_value_one())
+	   || !BN_add(group->cofactor, group->cofactor, BN_value_one())
 	    /* (q + 1 + n/2)/n */
-	    || !BN_div(group->cofactor, NULL, group->cofactor, group->order, ctx))
+	   || !BN_div(group->cofactor, NULL, group->cofactor, group->order, ctx))
 		goto err;
 	ret = 1;
 err:
@@ -328,7 +328,7 @@ int EC_GROUP_set_generator(EC_GROUP * group, const EC_POINT * generator, const B
 	 *   longer than field cardinality
 	 */
 	if(order == NULL || BN_is_zero(order) || BN_is_negative(order)
-	    || BN_num_bits(order) > BN_num_bits(group->field) + 1) {
+	   || BN_num_bits(order) > BN_num_bits(group->field) + 1) {
 		ECerr(EC_F_EC_GROUP_SET_GENERATOR, EC_R_INVALID_GROUP_ORDER);
 		return 0;
 	}
@@ -667,7 +667,7 @@ int EC_POINT_copy(EC_POINT * dest, const EC_POINT * src)
 		return 0;
 	}
 	if(dest->meth != src->meth
-	    || (dest->curve_name != src->curve_name
+	   || (dest->curve_name != src->curve_name
 	 && dest->curve_name != 0
 	 && src->curve_name != 0)) {
 		ECerr(EC_F_EC_POINT_COPY, EC_R_INCOMPATIBLE_OBJECTS);
@@ -840,7 +840,7 @@ int EC_POINT_add(const EC_GROUP * group, EC_POINT * r, const EC_POINT * a,
 		return 0;
 	}
 	if(!ec_point_is_compat(r, group) || !ec_point_is_compat(a, group)
-	    || !ec_point_is_compat(b, group)) {
+	   || !ec_point_is_compat(b, group)) {
 		ECerr(EC_F_EC_POINT_ADD, EC_R_INCOMPATIBLE_OBJECTS);
 		return 0;
 	}

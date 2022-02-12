@@ -24,9 +24,9 @@
 #include "backends/remote/remote-database.h"
 
 #ifdef __WIN32__
-# define SOCKET_INITIALIZER_MIXIN private WinsockInitializer,
+#define SOCKET_INITIALIZER_MIXIN private WinsockInitializer,
 #else
-# define SOCKET_INITIALIZER_MIXIN
+#define SOCKET_INITIALIZER_MIXIN
 #endif
 
 /** TCP/IP socket based RemoteDatabase implementation.

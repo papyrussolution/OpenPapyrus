@@ -213,21 +213,16 @@ char * ssh_get_user_home_dir()
 	struct passwd pwd;
 	struct passwd * pwdbuf = NULL;
 	char buf[NSS_BUFLEN_PASSWD] = {0};
-	int rc;
-
-	rc = getpwuid_r(getuid(), &pwd, buf, NSS_BUFLEN_PASSWD, &pwdbuf);
+	int rc = getpwuid_r(getuid(), &pwd, buf, NSS_BUFLEN_PASSWD, &pwdbuf);
 	if(rc != 0 || pwdbuf == NULL) {
 		szPath = getenv("HOME");
 		if(szPath == NULL) {
 			return NULL;
 		}
 		snprintf(buf, sizeof(buf), "%s", szPath);
-
-		return _strdup(buf);
+		return sstrdup(buf);
 	}
-
-	szPath = _strdup(pwd.pw_dir);
-
+	szPath = sstrdup(pwd.pw_dir);
 	return szPath;
 }
 
@@ -271,7 +266,7 @@ char * ssh_get_local_username()
 	if(rc != 0 || pwdbuf == NULL) {
 		return NULL;
 	}
-	name = _strdup(pwd.pw_name);
+	name = sstrdup(pwd.pw_name);
 	if(name == NULL) {
 		return NULL;
 	}
@@ -307,17 +302,14 @@ int ssh_is_ipaddr(const char * str)
 
 char * ssh_lowercase(const char * str) 
 {
-	char * p_new;
-	char * p;
-	if(str == NULL) {
-		return NULL;
-	}
-	p_new = _strdup(str);
-	if(p_new == NULL) {
-		return NULL;
-	}
-	for(p = p_new; *p; p++) {
-		*p = tolower(*p);
+	char * p_new = 0;
+	if(str) {
+		p_new = sstrdup(str);
+		if(p_new) {
+			for(char * p = p_new; *p; p++) {
+				*p = tolower(*p);
+			}
+		}
 	}
 	return p_new;
 }
@@ -788,8 +780,8 @@ char * ssh_dirname(const char * path)
 {
 	char * p_new = NULL;
 	size_t len;
-	if(path == NULL || *path == '\0') {
-		return _strdup(".");
+	if(isempty(path)) {
+		return sstrdup(".");
 	}
 	len = strlen(path);
 	/* Remove trailing slashes */
@@ -797,16 +789,16 @@ char * ssh_dirname(const char * path)
 		--len;
 	/* We have only slashes */
 	if(len == 0) {
-		return _strdup("/");
+		return sstrdup("/");
 	}
 	/* goto next slash */
 	while(len > 0 && path[len - 1] != '/') 
 		--len;
 	if(len == 0) {
-		return _strdup(".");
+		return sstrdup(".");
 	}
 	else if(len == 1) {
-		return _strdup("/");
+		return sstrdup("/");
 	}
 	/* Remove slashes again */
 	while(len > 0 && path[len - 1] == '/') 
@@ -839,7 +831,7 @@ char * ssh_basename(const char * path)
 	const char * s;
 	size_t len;
 	if(path == NULL || *path == '\0') {
-		return _strdup(".");
+		return sstrdup(".");
 	}
 	len = strlen(path);
 	/* Remove trailing slashes */
@@ -847,7 +839,7 @@ char * ssh_basename(const char * path)
 		--len;
 	/* We have only slashes */
 	if(len == 0) {
-		return _strdup("/");
+		return sstrdup("/");
 	}
 	while(len > 0 && path[len - 1] != '/') 
 		--len;
@@ -858,7 +850,7 @@ char * ssh_basename(const char * path)
 			--len;
 	}
 	else {
-		return _strdup(path);
+		return sstrdup(path);
 	}
 	p_new = (char *)SAlloc::M(len + 1);
 	if(p_new == NULL) {
@@ -951,10 +943,8 @@ int ssh_mkdirs(const char * pathname, mode_t mode)
 #endif
 		}
 	}
-
 	return rc;
 }
-
 /**
  * @brief Expand a directory starting with a tilde '~'
  *
@@ -962,27 +952,25 @@ int ssh_mkdirs(const char * pathname, mode_t mode)
  *
  * @return              The expanded directory, NULL on error.
  */
-char * ssh_path_expand_tilde(const char * d) {
+char * ssh_path_expand_tilde(const char * d) 
+{
 	char * h = NULL, * r;
 	const char * p;
 	size_t ld;
 	size_t lh = 0;
-
 	if(d[0] != '~') {
-		return _strdup(d);
+		return sstrdup(d);
 	}
 	d++;
-
 	/* handle ~user/path */
 	p = strchr(d, '/');
 	if(p != NULL && p > d) {
 #ifdef _WIN32
-		return _strdup(d);
+		return sstrdup(d);
 #else
 		struct passwd * pw;
 		size_t s = p - d;
 		char u[128];
-
 		if(s >= sizeof(u)) {
 			return NULL;
 		}
@@ -993,7 +981,7 @@ char * ssh_path_expand_tilde(const char * d) {
 			return NULL;
 		}
 		ld = strlen(p);
-		h = _strdup(pw->pw_dir);
+		h = sstrdup(pw->pw_dir);
 #endif
 	}
 	else {
@@ -1068,55 +1056,46 @@ escape:
 		if(*p == '\0') {
 			break;
 		}
-
 		switch(*p) {
 			case '%':
 			    goto escape;
 			case 'd':
-			    x = _strdup(session->opts.sshdir);
+			    x = sstrdup(session->opts.sshdir);
 			    break;
 			case 'u':
 			    x = ssh_get_local_username();
 			    break;
 			case 'l':
 			    if(gethostname(host, sizeof(host) == 0)) {
-				    x = _strdup(host);
+				    x = sstrdup(host);
 			    }
 			    break;
 			case 'h':
-			    x = _strdup(session->opts.host);
+			    x = sstrdup(session->opts.host);
 			    break;
 			case 'r':
-			    x = _strdup(session->opts.username);
+			    x = sstrdup(session->opts.username);
 			    break;
 			case 'p':
 			    if(session->opts.port < 65536) {
 				    char tmp[6];
-
-				    snprintf(tmp,
-					sizeof(tmp),
-					"%u",
-					session->opts.port > 0 ? session->opts.port : 22);
-				    x = _strdup(tmp);
+				    snprintf(tmp, sizeof(tmp), "%u", session->opts.port > 0 ? session->opts.port : 22);
+				    x = sstrdup(tmp);
 			    }
 			    break;
 			default:
-			    ssh_set_error(session, SSH_FATAL,
-				"Wrong escape sequence detected");
+			    ssh_set_error(session, SSH_FATAL, "Wrong escape sequence detected");
 			    SAlloc::F(r);
 			    return NULL;
 		}
-
 		if(x == NULL) {
 			ssh_set_error_oom(session);
 			SAlloc::F(r);
 			return NULL;
 		}
-
 		i += strlen(x);
 		if(i >= MAX_BUF_SIZE) {
-			ssh_set_error(session, SSH_FATAL,
-			    "String too long");
+			ssh_set_error(session, SSH_FATAL, "String too long");
 			SAlloc::F(x);
 			SAlloc::F(r);
 			return NULL;
@@ -1126,9 +1105,8 @@ escape:
 		buf[i] = '\0';
 		ZFREE(x);
 	}
-
 	SAlloc::F(r);
-	return _strdup(buf);
+	return sstrdup(buf);
 #undef MAX_BUF_SIZE
 }
 

@@ -638,9 +638,9 @@ static void gcm_gmult_1bit(u64 Xi[2], const u64 H[2])
 
 #if     TABLE_BITS==4 && (defined(GHASH_ASM) || defined(OPENSSL_CPUID_OBJ))
 #if    !defined(I386_ONLY) && \
-	(defined(__i386)        || defined(__i386__)    || \
-	defined(__x86_64)      || defined(__x86_64__)  || \
-	defined(_M_IX86)       || defined(_M_AMD64)    || defined(_M_X64))
+	(defined(__i386)       || defined(__i386__)   || \
+	defined(__x86_64)     || defined(__x86_64__) || \
+	defined(_M_IX86)      || defined(_M_AMD64)   || defined(_M_X64))
 #define GHASH_ASM_X86_OR_64
 #define GCM_FUNCREF_4BIT
 extern uint OPENSSL_ia32cap_P[];

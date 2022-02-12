@@ -940,9 +940,9 @@ void GnuPlot::CpImplode(curve_points * pCp)
 				pCp->points[j].type = INRANGE;
 				if(!all_inrange) {
 					if(((x < AxS.__X().min) && !(AxS.__X().autoscale & AUTOSCALE_MIN))
-					    || ((x > AxS.__X().max) && !(AxS.__X().autoscale & AUTOSCALE_MAX))
-					    || ((y < AxS.__Y().min) && !(AxS.__Y().autoscale & AUTOSCALE_MIN))
-					    || ((y > AxS.__Y().max) && !(AxS.__Y().autoscale & AUTOSCALE_MAX)))
+					   || ((x > AxS.__X().max) && !(AxS.__X().autoscale & AUTOSCALE_MAX))
+					   || ((y < AxS.__Y().min) && !(AxS.__Y().autoscale & AUTOSCALE_MIN))
+					   || ((y > AxS.__Y().max) && !(AxS.__Y().autoscale & AUTOSCALE_MAX)))
 						pCp->points[j].type = OUTRANGE;
 				}
 				j++; // next valid entry 

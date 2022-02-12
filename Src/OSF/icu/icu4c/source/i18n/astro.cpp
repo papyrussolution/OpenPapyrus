@@ -17,7 +17,7 @@
 #endif
 
 #ifdef U_DEBUG_ASTRO
-# include "uresimp.h" // for debugging
+#include "uresimp.h" // for debugging
 
 static void debug_astro_loc(const char * f, int32_t l)
 {

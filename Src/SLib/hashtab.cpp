@@ -2053,7 +2053,7 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
  * gcc -m64 -dM -E - < /dev/null                  (on gcc)
  * cc -## a.c (where a.c is a simple test file)   (Sun Studio)
  */
-#if(defined(__i386__) || defined(__x86_64__)  || defined(_M_IX86))
+#if(defined(__i386__) || defined(__x86_64__) || defined(_M_IX86))
 #define MUR_GETBLOCK(p, i) p[i]
 #else /* non intel */
 #define MUR_PLUS0_ALIGNED(p) (((ulong)p & 0x3) == 0)

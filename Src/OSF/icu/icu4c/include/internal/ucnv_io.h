@@ -74,7 +74,7 @@ typedef struct UConverterAlias {
 #elif U_CHARSET_FAMILY==U_EBCDIC_FAMILY
 #define ucnv_io_stripForCompare ucnv_io_stripEBCDICForCompare
 #else
-#   error U_CHARSET_FAMILY is not valid
+#error U_CHARSET_FAMILY is not valid
 #endif
 
 U_CAPI char * U_CALLCONV

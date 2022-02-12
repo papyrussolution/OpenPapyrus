@@ -382,7 +382,7 @@ static int aria_gcm_tls_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 
 	/* Encrypt/decrypt must be performed in place */
 	if(out != in
-	    || len < (EVP_GCM_TLS_EXPLICIT_IV_LEN + EVP_GCM_TLS_TAG_LEN))
+	   || len < (EVP_GCM_TLS_EXPLICIT_IV_LEN + EVP_GCM_TLS_TAG_LEN))
 		return -1;
 	/*
 	 * Set IV from start of buffer or generate IV and write to start of

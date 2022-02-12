@@ -237,7 +237,7 @@ static CURLcode mesalink_connect_step1(struct connectdata * conn, int sockindex)
 		 * specified in RFC 5280 Section 7.2 */
 		if(strncmp(hostname, "127.0.0.1", 9) == 0
 #ifdef ENABLE_IPV6
-		    || strncmp(hostname, "[::1]", 5) == 0
+		   || strncmp(hostname, "[::1]", 5) == 0
 #endif
 		    ) {
 			SSL_set_tlsext_host_name(BACKEND->handle, "localhost");

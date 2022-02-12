@@ -1033,25 +1033,19 @@ Xapian::docid GlassPostListTable::get_chunk(const string &tname,
 	LOGCALL(DB, Xapian::docid, "GlassPostListTable::get_chunk", tname | did | adding | from | to);
 	// Get chunk containing entry
 	string key = make_key(tname, did);
-
 	// Find the right chunk
 	unique_ptr<GlassCursor> cursor(cursor_get());
-
 	(void)cursor->find_entry(key);
 	Assert(!cursor->after_end());
-
 	const char * keypos = cursor->current_key.data();
 	const char * keyend = keypos + cursor->current_key.size();
-
 	if(!check_tname_in_key(&keypos, keyend, tname)) {
 		// Postlist for this termname doesn't exist.
 		//
 		// NB "adding" will only be true if we are adding, but it may sometimes
 		// be false in some cases where we are actually adding.
 		if(!adding)
-			throw Xapian::DatabaseCorruptError(
-				      "Attempted to delete or modify an entry in a non-existent posting list for " + tname);
-
+			throw Xapian::DatabaseCorruptError("Attempted to delete or modify an entry in a non-existent posting list for " + tname);
 		*from = NULL;
 		*to = new PostlistChunkWriter(string(), true, tname, true);
 		RETURN(Xapian::docid(-1));
@@ -1350,5 +1344,5 @@ Xapian::termcount GlassPostList::get_wdf_upper_bound() const
 }
 
 #ifdef DISABLE_GPL_LIBXAPIAN
-# error GPL source we cannot relicense included in libxapian
+#error GPL source we cannot relicense included in libxapian
 #endif

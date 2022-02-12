@@ -60,11 +60,11 @@
 /* Get appropriate definitions of 64-bit integer */
 #if !defined(__LA_INT64_T_DEFINED)
 /* Older code relied on the __LA_INT64_T macro; after 4.0 we'll switch to the typedef exclusively. */
-# if ARCHIVE_VERSION_NUMBER < 4000000
+#if ARCHIVE_VERSION_NUMBER < 4000000
 #define __LA_INT64_T la_int64_t
-# endif
+#endif
 #define __LA_INT64_T_DEFINED
-# if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__WATCOMC__)
+#if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__WATCOMC__)
 typedef __int64 la_int64_t;
 # else
 # include <unistd.h>  /* ssize_t */
@@ -73,7 +73,7 @@ typedef long long la_int64_t;
 #  else
 typedef int64 la_int64_t;
 #  endif
-# endif
+#endif
 #endif
 // The la_ssize_t should match the type used in 'struct stat' 
 #if !defined(__LA_SSIZE_T_DEFINED)
@@ -119,10 +119,10 @@ typedef int64 la_int64_t;
 #  else
 #   define __LA_DECL    __declspec(dllimport)
 #  endif
-# endif
+#endif
 #else
 /* Static libraries or non-Windows needs no special declaration. */
-# define __LA_DECL
+#define __LA_DECL
 #endif
 
 #if defined(__GNUC__) && __GNUC__ >= 3 && !defined(__MINGW32__)
@@ -133,9 +133,9 @@ typedef int64 la_int64_t;
 #endif
 
 #if defined(__GNUC__) && __GNUC__ >= 3 && __GNUC_MINOR__ >= 1
-# define __LA_DEPRECATED __attribute__((deprecated))
+#define __LA_DEPRECATED __attribute__((deprecated))
 #else
-# define __LA_DEPRECATED
+#define __LA_DEPRECATED
 #endif
 
 #ifdef __cplusplus

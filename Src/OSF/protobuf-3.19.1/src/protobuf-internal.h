@@ -2,6 +2,7 @@
 //
 #ifndef PROTOBUF_INTERNAL_H
 #define PROTOBUF_INTERNAL_H
+#define WINDOWS_IGNORE_PACKING_MISMATCH // @v11.3.1
 //#include <slib.h>
 #include <stdio.h>
 #include <stdlib.h>

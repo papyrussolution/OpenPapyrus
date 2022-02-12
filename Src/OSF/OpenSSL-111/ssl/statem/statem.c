@@ -326,7 +326,7 @@ static int state_machine(SSL * s, int server)
 
 	/* Initialise state machine */
 	if(st->state == MSG_FLOW_UNINITED
-	    || st->state == MSG_FLOW_FINISHED) {
+	   || st->state == MSG_FLOW_FINISHED) {
 		if(st->state == MSG_FLOW_UNINITED) {
 			st->hand_state = TLS_ST_BEFORE;
 			st->request_state = TLS_ST_BEFORE;
@@ -407,7 +407,7 @@ static int state_machine(SSL * s, int server)
 		}
 
 		if((SSL_in_before(s))
-		    || s->renegotiate) {
+		   || s->renegotiate) {
 			if(!tls_setup_handshake(s)) {
 				/* SSLfatal() already called */
 				goto end;
@@ -698,7 +698,7 @@ static int statem_do_write(SSL * s)
 	OSSL_STATEM * st = &s->statem;
 
 	if(st->hand_state == TLS_ST_CW_CHANGE
-	    || st->hand_state == TLS_ST_SW_CHANGE) {
+	   || st->hand_state == TLS_ST_SW_CHANGE) {
 		if(SSL_IS_DTLS(s))
 			return dtls1_do_write(s, SSL3_RT_CHANGE_CIPHER_SPEC);
 		else
@@ -932,7 +932,7 @@ int ossl_statem_app_data_allowed(SSL * s)
 		 * ServerHello yet then we allow app data
 		 */
 		if(st->hand_state == TLS_ST_BEFORE
-		    || st->hand_state == TLS_ST_SR_CLNT_HELLO)
+		   || st->hand_state == TLS_ST_SR_CLNT_HELLO)
 			return 1;
 	}
 	else {
@@ -969,5 +969,5 @@ int ossl_statem_export_early_allowed(SSL * s)
 	 * as we have sent early_data.
 	 */
 	return s->ext.early_data == SSL_EARLY_DATA_ACCEPTED
-	       || (!s->server && s->ext.early_data != SSL_EARLY_DATA_NOT_SENT);
+	      || (!s->server && s->ext.early_data != SSL_EARLY_DATA_NOT_SENT);
 }

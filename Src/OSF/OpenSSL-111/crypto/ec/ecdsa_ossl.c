@@ -80,8 +80,8 @@ static int ecdsa_sign_setup(EC_KEY * eckey, BN_CTX * ctx_in,
 	/* Preallocate space */
 	order_bits = BN_num_bits(order);
 	if(!BN_set_bit(k, order_bits)
-	    || !BN_set_bit(r, order_bits)
-	    || !BN_set_bit(X, order_bits))
+	   || !BN_set_bit(r, order_bits)
+	   || !BN_set_bit(X, order_bits))
 		goto err;
 
 	do {
@@ -195,7 +195,7 @@ ECDSA_SIG * ossl_ecdsa_sign_sig(const uchar * dgst, int dgst_len,
 	s = ret->s;
 
 	if((ctx = BN_CTX_new()) == NULL
-	    || (m = BN_new()) == NULL) {
+	   || (m = BN_new()) == NULL) {
 		ECerr(EC_F_OSSL_ECDSA_SIGN_SIG, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
@@ -240,7 +240,7 @@ ECDSA_SIG * ossl_ecdsa_sign_sig(const uchar * dgst, int dgst_len,
 		 * below, returns user-visible value with removed zero padding.
 		 */
 		if(!bn_to_mont_fixed_top(s, ret->r, group->mont_data, ctx)
-		    || !bn_mul_mont_fixed_top(s, s, priv_key, group->mont_data, ctx)) {
+		   || !bn_mul_mont_fixed_top(s, s, priv_key, group->mont_data, ctx)) {
 			ECerr(EC_F_OSSL_ECDSA_SIGN_SIG, ERR_R_BN_LIB);
 			goto err;
 		}
@@ -253,7 +253,7 @@ ECDSA_SIG * ossl_ecdsa_sign_sig(const uchar * dgst, int dgst_len,
 		 * such case we count on Montgomery reduction to tie it up.
 		 */
 		if(!bn_to_mont_fixed_top(s, s, group->mont_data, ctx)
-		    || !BN_mod_mul_montgomery(s, s, ckinv, group->mont_data, ctx)) {
+		   || !BN_mod_mul_montgomery(s, s, ckinv, group->mont_data, ctx)) {
 			ECerr(EC_F_OSSL_ECDSA_SIGN_SIG, ERR_R_BN_LIB);
 			goto err;
 		}

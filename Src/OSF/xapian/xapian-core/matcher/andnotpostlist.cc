@@ -61,34 +61,25 @@ TermFreqs AndNotPostList::get_termfreq_est_using_stats(const Xapian::Weight::Int
 	// (for the right side this is inverted by subtracting from db_size),
 	// divided by db_size.
 	TermFreqs freqs(pl->get_termfreq_est_using_stats(stats));
-
 	double freqest = double(freqs.termfreq);
 	double relfreqest = double(freqs.reltermfreq);
 	double collfreqest = double(freqs.collfreq);
-
 	freqs = r->get_termfreq_est_using_stats(stats);
-
 	// Our caller should have ensured this.
 	Assert(stats.collection_size);
-
 	freqs.termfreq = stats.collection_size - freqs.termfreq;
 	freqest = (freqest * freqs.termfreq) / stats.collection_size;
-
 	if(stats.total_length != 0) {
 		freqs.collfreq = stats.total_length - freqs.collfreq;
 		collfreqest = (collfreqest * freqs.collfreq) / stats.total_length;
 	}
-
 	// If the rset is empty, relfreqest should be 0 already, so leave
 	// it alone.
 	if(stats.rset_size != 0) {
 		freqs.reltermfreq = stats.rset_size - freqs.reltermfreq;
 		relfreqest = (relfreqest * freqs.reltermfreq) / stats.rset_size;
 	}
-
-	return TermFreqs(static_cast<Xapian::doccount>(freqest + 0.5),
-		   static_cast<Xapian::doccount>(relfreqest + 0.5),
-		   static_cast<Xapian::termcount>(collfreqest + 0.5));
+	return TermFreqs(static_cast<Xapian::doccount>(freqest + 0.5), static_cast<Xapian::doccount>(relfreqest + 0.5), static_cast<Xapian::termcount>(collfreqest + 0.5));
 }
 
 PostList* AndNotPostList::next(double w_min)

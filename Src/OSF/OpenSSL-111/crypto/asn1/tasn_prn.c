@@ -147,7 +147,7 @@ static int asn1_item_print_ctx(BIO * out, ASN1_VALUE ** fld, int indent, const A
 		asn1_cb = 0;
 
 	if(((it->itype != ASN1_ITYPE_PRIMITIVE)
-	    || (it->utype != V_ASN1_BOOLEAN)) && *fld == NULL) {
+	   || (it->utype != V_ASN1_BOOLEAN)) && *fld == NULL) {
 		if(pctx->flags & ASN1_PCTX_FLAGS_SHOW_ABSENT) {
 			if(!nohdr && !asn1_print_fsname(out, indent, fname, sname, pctx))
 				return 0;

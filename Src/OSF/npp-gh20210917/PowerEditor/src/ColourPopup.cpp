@@ -108,106 +108,95 @@ INT_PTR CALLBACK ColourPopup::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 				return 0;
 		    switch(pdis->itemAction) {
 			    case ODA_DRAWENTIRE:
-				switch(pdis->CtlID) {
-					case IDC_COLOUR_LIST:
-					    rc = pdis->rcItem;
-					    cr = (COLORREF)pdis->itemData;
-					    InflateRect(&rc, -3, -3);
-					    hbrush = CreateSolidBrush((COLORREF)cr);
-					    FillRect(hdc, &rc, hbrush);
-					    DeleteObject(hbrush);
-					    hbrush =
-						CreateSolidBrush(NppDarkMode::isEnabled() ? NppDarkMode::getEdgeColor() : RGB(0, 0, 0));
-					    FrameRect(hdc, &rc, hbrush);
-					    DeleteObject(hbrush);
-					    break;
-				}
-			    // *** FALL THROUGH ***
+					switch(pdis->CtlID) {
+						case IDC_COLOUR_LIST:
+							rc = pdis->rcItem;
+							cr = (COLORREF)pdis->itemData;
+							InflateRect(&rc, -3, -3);
+							hbrush = CreateSolidBrush((COLORREF)cr);
+							FillRect(hdc, &rc, hbrush);
+							DeleteObject(hbrush);
+							hbrush =
+							CreateSolidBrush(NppDarkMode::isEnabled() ? NppDarkMode::getEdgeColor() : RGB(0, 0, 0));
+							FrameRect(hdc, &rc, hbrush);
+							DeleteObject(hbrush);
+							break;
+					}
+					// *** FALL THROUGH ***
 			    case ODA_SELECT:
-				rc = pdis->rcItem;
-				if(pdis->itemState & ODS_SELECTED) {
-					rc.bottom--;
-					rc.right--;
-					// Draw the lighted side.
-					HPEN hpen = CreatePen(PS_SOLID,
-						1,
-						NppDarkMode::isEnabled() ? NppDarkMode::getEdgeColor() : GetSysColor(COLOR_BTNSHADOW));
-					HPEN holdPen = (HPEN)SelectObject(hdc, hpen);
-					MoveToEx(hdc, rc.left, rc.bottom, NULL);
-					LineTo(hdc, rc.left, rc.top);
-					LineTo(hdc, rc.right, rc.top);
-					SelectObject(hdc, holdPen);
-					DeleteObject(hpen);
-					// Draw the darkened side.
-					hpen =
-					    CreatePen(PS_SOLID,
-						1,
-						NppDarkMode::isEnabled() ? NppDarkMode::getEdgeColor() : GetSysColor(COLOR_BTNHIGHLIGHT));
-					holdPen = (HPEN)SelectObject(hdc, hpen);
-					LineTo(hdc, rc.right, rc.bottom);
-					LineTo(hdc, rc.left, rc.bottom);
-					SelectObject(hdc, holdPen);
-					DeleteObject(hpen);
-				}
-				else {
-					hbrush = CreateSolidBrush(
-						NppDarkMode::isEnabled() ? NppDarkMode::getDarkerBackgroundColor() : GetSysColor(
-							COLOR_3DFACE));
-					FrameRect(hdc, &rc, hbrush);
-					DeleteObject(hbrush);
-				}
-				break;
+					rc = pdis->rcItem;
+					if(pdis->itemState & ODS_SELECTED) {
+						rc.bottom--;
+						rc.right--;
+						// Draw the lighted side.
+						HPEN hpen = CreatePen(PS_SOLID, 1, NppDarkMode::isEnabled() ? NppDarkMode::getEdgeColor() : GetSysColor(COLOR_BTNSHADOW));
+						HPEN holdPen = (HPEN)SelectObject(hdc, hpen);
+						MoveToEx(hdc, rc.left, rc.bottom, NULL);
+						LineTo(hdc, rc.left, rc.top);
+						LineTo(hdc, rc.right, rc.top);
+						SelectObject(hdc, holdPen);
+						DeleteObject(hpen);
+						// Draw the darkened side.
+						hpen = CreatePen(PS_SOLID, 1, NppDarkMode::isEnabled() ? NppDarkMode::getEdgeColor() : GetSysColor(COLOR_BTNHIGHLIGHT));
+						holdPen = (HPEN)SelectObject(hdc, hpen);
+						LineTo(hdc, rc.right, rc.bottom);
+						LineTo(hdc, rc.left, rc.bottom);
+						SelectObject(hdc, holdPen);
+						DeleteObject(hpen);
+					}
+					else {
+						hbrush = CreateSolidBrush(NppDarkMode::isEnabled() ? NppDarkMode::getDarkerBackgroundColor() : GetSysColor(COLOR_3DFACE));
+						FrameRect(hdc, &rc, hbrush);
+						DeleteObject(hbrush);
+					}
+					break;
 			    case ODA_FOCUS:
-				rc = pdis->rcItem;
-				InflateRect(&rc, -2, -2);
-				DrawFocusRect(hdc, &rc);
-				break;
+					rc = pdis->rcItem;
+					InflateRect(&rc, -2, -2);
+					DrawFocusRect(hdc, &rc);
+					break;
 			    default:
-				break;
+					break;
 		    }
 		    return TRUE;
 	    }
 		case WM_COMMAND:
 		    switch(LOWORD(wParam)) {
 			    case IDOK:
-			{
-				//isColourChooserLaunched = true;
-				CHOOSECOLOR cc;                         // common dialog box structure
-				static COLORREF acrCustClr[16] = {
-					RGB(0xFF, 0xFF, 0xFF), RGB(0xFF, 0xFF, 0xFF), RGB(0xFF, 0xFF, 0xFF), RGB(0xFF, 0xFF, 0xFF), \
-					RGB(0xFF, 0xFF, 0xFF), RGB(0xFF, 0xFF, 0xFF), RGB(0xFF, 0xFF, 0xFF), RGB(0xFF, 0xFF, 0xFF), \
-					RGB(0xFF, 0xFF, 0xFF), RGB(0xFF, 0xFF, 0xFF), RGB(0xFF, 0xFF, 0xFF), RGB(0xFF, 0xFF, 0xFF), \
-					RGB(0xFF, 0xFF, 0xFF), RGB(0xFF, 0xFF, 0xFF), RGB(0xFF, 0xFF, 0xFF), RGB(0xFF, 0xFF, 0xFF), \
-				};         // array of custom colors
-				// Initialize CHOOSECOLOR
-				memzero(&cc, sizeof(cc));
-				cc.lStructSize = sizeof(cc);
-				cc.hwndOwner = _hParent;
-				cc.lpCustColors = (LPDWORD)acrCustClr;
-				cc.rgbResult = _colour;
-				cc.Flags = CC_FULLOPEN | CC_RGBINIT;
-				display(false);
-				if(ChooseColor(&cc)==TRUE) {
-					::SendMessage(_hParent, WM_PICKUP_COLOR, cc.rgbResult, 0);
-				}
-				else {
-					::SendMessage(_hParent, WM_PICKUP_CANCEL, 0, 0);
-				}
-				return TRUE;
-			}
-
+					{
+						//isColourChooserLaunched = true;
+						CHOOSECOLOR cc;                         // common dialog box structure
+						static COLORREF acrCustClr[16] = {
+							RGB(0xFF, 0xFF, 0xFF), RGB(0xFF, 0xFF, 0xFF), RGB(0xFF, 0xFF, 0xFF), RGB(0xFF, 0xFF, 0xFF), \
+							RGB(0xFF, 0xFF, 0xFF), RGB(0xFF, 0xFF, 0xFF), RGB(0xFF, 0xFF, 0xFF), RGB(0xFF, 0xFF, 0xFF), \
+							RGB(0xFF, 0xFF, 0xFF), RGB(0xFF, 0xFF, 0xFF), RGB(0xFF, 0xFF, 0xFF), RGB(0xFF, 0xFF, 0xFF), \
+							RGB(0xFF, 0xFF, 0xFF), RGB(0xFF, 0xFF, 0xFF), RGB(0xFF, 0xFF, 0xFF), RGB(0xFF, 0xFF, 0xFF), \
+						};         // array of custom colors
+						// Initialize CHOOSECOLOR
+						memzero(&cc, sizeof(cc));
+						cc.lStructSize = sizeof(cc);
+						cc.hwndOwner = _hParent;
+						cc.lpCustColors = (LPDWORD)acrCustClr;
+						cc.rgbResult = _colour;
+						cc.Flags = CC_FULLOPEN | CC_RGBINIT;
+						display(false);
+						if(ChooseColor(&cc)==TRUE) {
+							::SendMessage(_hParent, WM_PICKUP_COLOR, cc.rgbResult, 0);
+						}
+						else {
+							::SendMessage(_hParent, WM_PICKUP_CANCEL, 0, 0);
+						}
+						return TRUE;
+					}
 			    case IDC_COLOUR_LIST:
-			{
-				if(HIWORD(wParam) == LBN_SELCHANGE) {
-					auto i = ::SendMessage(reinterpret_cast<HWND>(lParam), LB_GETCURSEL, 0L, 0L);
-					_colour = static_cast<COLORREF>(::SendMessage(reinterpret_cast<HWND>(lParam), LB_GETITEMDATA, i, 0L));
-					::SendMessage(_hParent, WM_PICKUP_COLOR, _colour, 0);
-					return TRUE;
-				}
-			}
-
+					if(HIWORD(wParam) == LBN_SELCHANGE) {
+						auto i = ::SendMessage(reinterpret_cast<HWND>(lParam), LB_GETCURSEL, 0L, 0L);
+						_colour = static_cast<COLORREF>(::SendMessage(reinterpret_cast<HWND>(lParam), LB_GETITEMDATA, i, 0L));
+						::SendMessage(_hParent, WM_PICKUP_COLOR, _colour, 0);
+						return TRUE;
+					}
 			    default:
-				return FALSE;
+					return FALSE;
 		    }
 		case WM_ACTIVATE:
 		    if(LOWORD(wParam) == WA_INACTIVE)

@@ -323,7 +323,7 @@ int RAND_DRBG_instantiate(RAND_DRBG * drbg,
 		entropylen = drbg->get_entropy(drbg, &entropy, min_entropy,
 			min_entropylen, max_entropylen, 0);
 	if(entropylen < min_entropylen
-	    || entropylen > max_entropylen) {
+	   || entropylen > max_entropylen) {
 		RANDerr(RAND_F_RAND_DRBG_INSTANTIATE, RAND_R_ERROR_RETRIEVING_ENTROPY);
 		goto end;
 	}
@@ -428,7 +428,7 @@ int RAND_DRBG_reseed(RAND_DRBG * drbg,
 			drbg->max_entropylen,
 			prediction_resistance);
 	if(entropylen < drbg->min_entropylen
-	    || entropylen > drbg->max_entropylen) {
+	   || entropylen > drbg->max_entropylen) {
 		RANDerr(RAND_F_RAND_DRBG_RESEED, RAND_R_ERROR_RETRIEVING_ENTROPY);
 		goto end;
 	}
@@ -606,7 +606,7 @@ int RAND_DRBG_generate(RAND_DRBG * drbg, uchar * out, size_t outlen,
 	if(drbg->reseed_time_interval > 0) {
 		time_t now = time(NULL);
 		if(now < drbg->reseed_time
-		    || now - drbg->reseed_time >= drbg->reseed_time_interval)
+		   || now - drbg->reseed_time >= drbg->reseed_time_interval)
 			reseed_required = 1;
 	}
 	if(drbg->parent != NULL) {
@@ -695,7 +695,7 @@ int RAND_DRBG_set_callbacks(RAND_DRBG * drbg,
     RAND_DRBG_cleanup_nonce_fn cleanup_nonce)
 {
 	if(drbg->state != DRBG_UNINITIALISED
-	    || drbg->parent != NULL)
+	   || drbg->parent != NULL)
 		return 0;
 	drbg->get_entropy = get_entropy;
 	drbg->cleanup_entropy = cleanup_entropy;
@@ -755,11 +755,11 @@ int RAND_DRBG_set_reseed_defaults(uint _master_reseed_interval,
     )
 {
 	if(_master_reseed_interval > MAX_RESEED_INTERVAL
-	    || _slave_reseed_interval > MAX_RESEED_INTERVAL)
+	   || _slave_reseed_interval > MAX_RESEED_INTERVAL)
 		return 0;
 
 	if(_master_reseed_time_interval > MAX_RESEED_TIME_INTERVAL
-	    || _slave_reseed_time_interval > MAX_RESEED_TIME_INTERVAL)
+	   || _slave_reseed_time_interval > MAX_RESEED_TIME_INTERVAL)
 		return 0;
 
 	master_reseed_interval = _master_reseed_interval;

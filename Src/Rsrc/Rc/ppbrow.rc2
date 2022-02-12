@@ -7907,6 +7907,7 @@ record QuotVal {
     QuotKindSymb zstring(20)         "@{quotkindsymb}";
 	GoodsID      long  format(10)    "@{goodsid}";
 	GoodsCode    zstring(32)         "@{goodscode}";
+	GoodsName    zstring(128)        "@{goodsname}"; // @v11.3.1
 	LocID        long  format(10)    "@{warehouseid}";
 	LocCode      zstring(20)         "@{warehousesymb}";
 	CurrencyID   long  format(10)    "@{currencyid}";
@@ -9130,6 +9131,8 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_GENERIC_DOCUMENT
 	PPDV_GENERIC_SERVER
 	PPDV_GENERIC_COMMAND
+	PPDV_NUT01
+	PPDV_CHECKMARK01
 }
 //
 // Следующие изображения используются без замещения цвета

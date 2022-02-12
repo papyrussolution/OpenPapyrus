@@ -1,5 +1,5 @@
 // CHZN.CPP
-// Copyright (c) A.Sobolev 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Реализация интерфейса к сервисам честный знак
 //
@@ -898,7 +898,7 @@ int  ChZnInterface::ParseDocumentList(const char * pJsonInput, TSCollection <Doc
 					ok = 1;
 					p_child = p_child->P_Child;
 					if(p_child && p_child->Type == SJson::tARRAY) {
-						for(SJson * p_cur = p_child->P_Child; p_cur; p_cur = p_next) {
+						for(const SJson * p_cur = p_child->P_Child; p_cur; p_cur = p_next) {
 							if(p_cur->Type == SJson::tOBJECT) {
 								p_next = p_cur->P_Next;
 								Document * p_new_entry = rList.CreateNewItem();
@@ -2543,8 +2543,8 @@ int ChZnInterface::ReadJsonReplyForSingleItem(const char * pReply, const char * 
 	SJson * p_json_doc = 0;
 	if(json_parse_document(&p_json_doc, pReply) == JSON_OK) {
 		SString temp_buf;
-		SJson * p_next = 0;
-		for(SJson * p_cur = p_json_doc; rResult.IsEmpty() && p_cur; p_cur = p_next) {
+		const SJson * p_next = 0;
+		for(const SJson * p_cur = p_json_doc; rResult.IsEmpty() && p_cur; p_cur = p_next) {
 			p_next = p_cur->P_Next;
 			switch(p_cur->Type) {
 				case SJson::tOBJECT: p_next = p_cur->P_Child; break;
@@ -2855,8 +2855,8 @@ int ChZnInterface::Connect(InitBlock & rIb)
 								SJson * p_json_doc = 0;
 								if(json_parse_document(&p_json_doc, temp_buf) == JSON_OK) {
 									SString temp_buf;
-									SJson * p_next = 0;
-									for(SJson * p_cur = p_json_doc; p_cur; p_cur = p_next) {
+									const SJson * p_next = 0;
+									for(const SJson * p_cur = p_json_doc; p_cur; p_cur = p_next) {
 										p_next = p_cur->P_Next;
 										switch(p_cur->Type) {
 											case SJson::tOBJECT: p_next = p_cur->P_Child; break;

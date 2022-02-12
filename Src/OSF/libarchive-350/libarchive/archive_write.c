@@ -529,7 +529,7 @@ static int _archive_write_close(struct archive * _a)
 	    ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL,
 	    "archive_write_close");
 	if(a->archive.state == ARCHIVE_STATE_NEW
-	    || a->archive.state == ARCHIVE_STATE_CLOSED)
+	   || a->archive.state == ARCHIVE_STATE_CLOSED)
 		return ARCHIVE_OK; /* Okay to close() when not open. */
 
 	archive_clear_error(&a->archive);

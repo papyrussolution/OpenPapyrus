@@ -108,8 +108,8 @@ int RSA_verify_PKCS1_PSS_mgf1(RSA * rsa, const uchar * mHash, const EVP_MD * Has
 		goto err;
 	}
 	if(!EVP_DigestInit_ex(ctx, Hash, NULL)
-	    || !EVP_DigestUpdate(ctx, zeroes, sizeof(zeroes))
-	    || !EVP_DigestUpdate(ctx, mHash, hLen))
+	   || !EVP_DigestUpdate(ctx, zeroes, sizeof(zeroes))
+	   || !EVP_DigestUpdate(ctx, mHash, hLen))
 		goto err;
 	if(maskedDBLen - i) {
 		if(!EVP_DigestUpdate(ctx, DB + i, maskedDBLen - i))

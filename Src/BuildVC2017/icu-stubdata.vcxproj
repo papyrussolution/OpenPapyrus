@@ -412,6 +412,8 @@
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ConformanceMode>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">false</CompileAsManaged>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">1Byte</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">1Byte</StructMemberAlignment>
     </ClCompile>
     <Lib>
       <TargetMachine Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">MachineX86</TargetMachine>
@@ -437,6 +439,8 @@
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ConformanceMode>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">false</CompileAsManaged>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">1Byte</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">1Byte</StructMemberAlignment>
     </ClCompile>
     <Lib>
       <TargetMachine Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">MachineX86</TargetMachine>
@@ -496,6 +500,8 @@
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ConformanceMode>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">false</CompileAsManaged>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">1Byte</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">1Byte</StructMemberAlignment>
     </ClCompile>
     <Lib>
       <TargetMachine Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">MachineX86</TargetMachine>
@@ -524,6 +530,8 @@
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ConformanceMode>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">false</CompileAsManaged>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">1Byte</StructMemberAlignment>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">1Byte</StructMemberAlignment>
     </ClCompile>
     <Lib>
       <TargetMachine Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">MachineX86</TargetMachine>

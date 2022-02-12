@@ -63,7 +63,7 @@ static void **NextStackFrame(void **old_sp) {
 void StacktraceArmDummyFunction() __attribute__((noinline));
 void StacktraceArmDummyFunction() { __asm__ volatile(""); }
 #else
-# error StacktraceArmDummyFunction() needs to be ported to this platform.
+#error StacktraceArmDummyFunction() needs to be ported to this platform.
 #endif
 
 template <bool IS_STACK_FRAMES, bool IS_WITH_CONTEXT>
@@ -72,7 +72,7 @@ static int UnwindImpl(void** result, int* sizes, int max_depth, int skip_count,
 #ifdef __GNUC__
   void **sp = reinterpret_cast<void**>(__builtin_frame_address(0));
 #else
-# error reading stack point not yet supported on this platform.
+#error reading stack point not yet supported on this platform.
 #endif
 
   // On ARM, the return address is stored in the link register (r14).

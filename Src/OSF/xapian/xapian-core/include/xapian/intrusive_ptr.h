@@ -34,11 +34,9 @@
 //
 //  See http://www.boost.org/libs/smart_ptr/intrusive_ptr.html for documentation.
 //
-
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error Never use <xapian/intrusive_ptr.h> directly; include <xapian.h> instead.
+	#error Never use <xapian/intrusive_ptr.h> directly; include <xapian.h> instead.
 #endif
-
 #include <xapian/attributes.h>
 #include <xapian/visibility.h>
 
@@ -48,23 +46,20 @@ namespace Internal {
 class intrusive_base {
 	/// Prevent copying.
 	intrusive_base(const intrusive_base&);
-
 	/// Prevent assignment.
 	void operator=(const intrusive_base&);
-
 public:
 	/** Construct with no references.
 	 *
 	 *  The references get added if/when this object is put into an
 	 *  intrusive_ptr.
 	 */
-	intrusive_base() : _refs(0) {
+	intrusive_base() : _refs(0) 
+	{
 	}
-
 	/* There's no need for a virtual destructor here as we never delete a
 	 * subclass of intrusive_base by calling delete on intrusive_base*.
 	 */
-
 	/** Reference count.
 	 *
 	 *  This needs to be mutable so we can add/remove references through const
@@ -142,35 +137,12 @@ private:
 	T * px;
 };
 
-template <class T, class U> inline bool operator==(intrusive_ptr<T> const & a, intrusive_ptr<U> const & b)
-{
-	return a.get() == b.get();
-}
-
-template <class T, class U> inline bool operator!=(intrusive_ptr<T> const & a, intrusive_ptr<U> const & b)
-{
-	return a.get() != b.get();
-}
-
-template <class T, class U> inline bool operator==(intrusive_ptr<T> const & a, U * b)
-{
-	return a.get() == b;
-}
-
-template <class T, class U> inline bool operator!=(intrusive_ptr<T> const & a, U * b)
-{
-	return a.get() != b;
-}
-
-template <class T, class U> inline bool operator==(T * a, intrusive_ptr<U> const & b)
-{
-	return a == b.get();
-}
-
-template <class T, class U> inline bool operator!=(T * a, intrusive_ptr<U> const & b)
-{
-	return a != b.get();
-}
+template <class T, class U> inline bool operator==(intrusive_ptr<T> const & a, intrusive_ptr<U> const & b) { return a.get() == b.get(); }
+template <class T, class U> inline bool operator!=(intrusive_ptr<T> const & a, intrusive_ptr<U> const & b) { return a.get() != b.get(); }
+template <class T, class U> inline bool operator==(intrusive_ptr<T> const & a, U * b) { return a.get() == b; }
+template <class T, class U> inline bool operator!=(intrusive_ptr<T> const & a, U * b) { return a.get() != b; }
+template <class T, class U> inline bool operator==(T * a, intrusive_ptr<U> const & b) { return a == b.get(); }
+template <class T, class U> inline bool operator!=(T * a, intrusive_ptr<U> const & b) { return a != b.get(); }
 
 /** A normally non-NULL smart pointer using intrusive reference counting.
  *
@@ -187,8 +159,7 @@ public:
 	{
 		++px->_refs;
 	}
-	template <class U> intrusive_ptr_nonnull(intrusive_ptr_nonnull<U> const & rhs)
-		: px(rhs.get() )
+	template <class U> intrusive_ptr_nonnull(intrusive_ptr_nonnull<U> const & rhs) : px(rhs.get() )
 	{
 		++px->_refs;
 	}
@@ -238,78 +209,49 @@ public:
 		px = rhs.px;
 		rhs.px = tmp;
 	}
-
 private:
-
 	T * px;
 };
 
-template <class T, class U> inline bool operator==(intrusive_ptr_nonnull<T> const & a, intrusive_ptr_nonnull<U> const & b)
-{
-	return a.get() == b.get();
-}
-
-template <class T, class U> inline bool operator!=(intrusive_ptr_nonnull<T> const & a, intrusive_ptr_nonnull<U> const & b)
-{
-	return a.get() != b.get();
-}
-
-template <class T, class U> inline bool operator==(intrusive_ptr_nonnull<T> const & a, U * b)
-{
-	return a.get() == b;
-}
-
-template <class T, class U> inline bool operator!=(intrusive_ptr_nonnull<T> const & a, U * b)
-{
-	return a.get() != b;
-}
-
-template <class T, class U> inline bool operator==(T * a, intrusive_ptr_nonnull<U> const & b)
-{
-	return a == b.get();
-}
-
-template <class T, class U> inline bool operator!=(T * a, intrusive_ptr_nonnull<U> const & b)
-{
-	return a != b.get();
-}
+template <class T, class U> inline bool operator==(intrusive_ptr_nonnull<T> const & a, intrusive_ptr_nonnull<U> const & b) { return a.get() == b.get(); }
+template <class T, class U> inline bool operator!=(intrusive_ptr_nonnull<T> const & a, intrusive_ptr_nonnull<U> const & b) { return a.get() != b.get(); }
+template <class T, class U> inline bool operator==(intrusive_ptr_nonnull<T> const & a, U * b) { return a.get() == b; }
+template <class T, class U> inline bool operator!=(intrusive_ptr_nonnull<T> const & a, U * b) { return a.get() != b; }
+template <class T, class U> inline bool operator==(T * a, intrusive_ptr_nonnull<U> const & b) { return a == b.get(); }
+template <class T, class U> inline bool operator!=(T * a, intrusive_ptr_nonnull<U> const & b) { return a != b.get(); }
 
 /// Base class for objects managed by opt_intrusive_ptr.
 class XAPIAN_VISIBILITY_DEFAULT opt_intrusive_base {
 public:
-	opt_intrusive_base(const opt_intrusive_base&) : _refs(0) {
+	opt_intrusive_base(const opt_intrusive_base&) : _refs(0) 
+	{
 	}
-
-	opt_intrusive_base& operator=(const opt_intrusive_base&) {
-		// Don't touch _refs.
-		return *this;
-	}
-
+	opt_intrusive_base& operator=(const opt_intrusive_base&) { return *this; /* Don't touch _refs */ }
 	/** Construct object which is initially not reference counted.
 	 *
 	 *  The reference counting starts if release() is called.
 	 */
-	opt_intrusive_base() : _refs(0) {
+	opt_intrusive_base() : _refs(0) 
+	{
 	}
-
 	/* Subclasses of opt_intrusive_base may be deleted by calling delete on a
 	 * pointer to opt_intrusive_base.
 	 */
-	virtual ~opt_intrusive_base() {
+	virtual ~opt_intrusive_base() 
+	{
 	}
-
-	void ref() const {
+	void ref() const 
+	{
 		if(_refs == 0)
 			_refs = 2;
 		else
 			++_refs;
 	}
-
-	void unref() const {
+	void unref() const 
+	{
 		if(--_refs == 1)
 			delete this;
 	}
-
 	/** Reference count.
 	 *
 	 *  This needs to be mutable so we can add/remove references through const
@@ -368,7 +310,6 @@ public:
 		rhs.px = 0;
 		rhs.counting = 0;
 	}
-
 	opt_intrusive_ptr & operator=(opt_intrusive_ptr && rhs)
 	{
 		this_type(static_cast< opt_intrusive_ptr && >( rhs ) ).swap(*this);
@@ -407,41 +348,18 @@ public:
 		counting = rhs.counting;
 		rhs.counting = tmp2;
 	}
-
 private:
 	T * px;
-	bool counting;
+	bool   counting;
+	uint8  Reserve[3]; // @alignment
 };
 
-template <class T, class U> inline bool operator==(opt_intrusive_ptr<T> const & a, opt_intrusive_ptr<U> const & b)
-{
-	return a.get() == b.get();
-}
-
-template <class T, class U> inline bool operator!=(opt_intrusive_ptr<T> const & a, opt_intrusive_ptr<U> const & b)
-{
-	return a.get() != b.get();
-}
-
-template <class T, class U> inline bool operator==(opt_intrusive_ptr<T> const & a, U * b)
-{
-	return a.get() == b;
-}
-
-template <class T, class U> inline bool operator!=(opt_intrusive_ptr<T> const & a, U * b)
-{
-	return a.get() != b;
-}
-
-template <class T, class U> inline bool operator==(T * a, opt_intrusive_ptr<U> const & b)
-{
-	return a == b.get();
-}
-
-template <class T, class U> inline bool operator!=(T * a, opt_intrusive_ptr<U> const & b)
-{
-	return a != b.get();
-}
+template <class T, class U> inline bool operator==(opt_intrusive_ptr<T> const & a, opt_intrusive_ptr<U> const & b) { return a.get() == b.get(); }
+template <class T, class U> inline bool operator!=(opt_intrusive_ptr<T> const & a, opt_intrusive_ptr<U> const & b) { return a.get() != b.get(); }
+template <class T, class U> inline bool operator==(opt_intrusive_ptr<T> const & a, U * b) { return a.get() == b; }
+template <class T, class U> inline bool operator!=(opt_intrusive_ptr<T> const & a, U * b) { return a.get() != b; }
+template <class T, class U> inline bool operator==(T * a, opt_intrusive_ptr<U> const & b) { return a == b.get(); }
+template <class T, class U> inline bool operator!=(T * a, opt_intrusive_ptr<U> const & b) { return a != b.get(); }
 }
 }
 

@@ -286,7 +286,7 @@ int pthread_attr_getname_np(pthread_attr_t * attr, char * name, int len)
 		if(len < 0) {
 			return EINVAL;
 		}
-		newname = _strdup(tmpbuf);
+		newname = sstrdup(tmpbuf);
 		oldname = (*attr)->thrname;
 		(*attr)->thrname = newname;
 		SAlloc::F(oldname);
@@ -295,7 +295,7 @@ int pthread_attr_getname_np(pthread_attr_t * attr, char * name, int len)
 #else
 	int pthread_attr_setname_np(pthread_attr_t * attr, const char * name)
 	{
-		char * newname = _strdup(name);
+		char * newname = sstrdup(name);
 		char * oldname = (*attr)->thrname;
 		(*attr)->thrname = newname;
 		SAlloc::F(oldname);

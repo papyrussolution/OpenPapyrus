@@ -56,15 +56,13 @@ OSSL_STORE_CTX * OSSL_STORE_open(const char * uri, const UI_METHOD * ui_method,
 	OPENSSL_strlcpy(scheme_copy, uri, sizeof(scheme_copy));
 	if((p = strchr(scheme_copy, ':')) != NULL) {
 		*p++ = '\0';
-		if(strcasecmp(scheme_copy, "file") != 0) {
+		if(!sstreqi_ascii(scheme_copy, "file")) {
 			if(strncmp(p, "//", 2) == 0)
 				schemes_n--; /* Invalidate the file scheme */
 			schemes[schemes_n++] = scheme_copy;
 		}
 	}
-
 	ERR_set_mark();
-
 	/* Try each scheme until we find one that could open the URI */
 	for(i = 0; loader_ctx == NULL && i < schemes_n; i++) {
 		if((loader = ossl_store_get0_loader_int(schemes[i])) != NULL)
@@ -620,7 +618,7 @@ OSSL_STORE_CTX * ossl_store_attach_pem_bio(BIO * bp, const UI_METHOD * ui_method
 	OSSL_STORE_LOADER_CTX * loader_ctx = NULL;
 
 	if((loader = ossl_store_get0_loader_int("file")) == NULL
-	    || ((loader_ctx = ossl_store_file_attach_pem_bio_int(bp)) == NULL))
+	   || ((loader_ctx = ossl_store_file_attach_pem_bio_int(bp)) == NULL))
 		goto done;
 	if((ctx = static_cast<OSSL_STORE_CTX *>(OPENSSL_zalloc(sizeof(*ctx)))) == NULL) {
 		OSSL_STOREerr(OSSL_STORE_F_OSSL_STORE_ATTACH_PEM_BIO,

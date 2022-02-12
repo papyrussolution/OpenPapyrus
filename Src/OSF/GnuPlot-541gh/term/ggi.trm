@@ -1281,12 +1281,12 @@ TERM_PUBLIC int GGI_make_palette(t_sm_palette * palette)
 {
 	/* reallocate only, if it has changed */
 	if(palette && (GGI_save_pal.colorFormulae < 0
-	    || palette->colorFormulae != GGI_save_pal.colorFormulae
-	    || palette->colorMode != GGI_save_pal.colorMode
-	    || palette->formulaR != GGI_save_pal.formulaR
-	    || palette->formulaG != GGI_save_pal.formulaG
-	    || palette->formulaB != GGI_save_pal.formulaB
-	    || palette->positive != GGI_save_pal.positive)) {
+	   || palette->colorFormulae != GGI_save_pal.colorFormulae
+	   || palette->colorMode != GGI_save_pal.colorMode
+	   || palette->formulaR != GGI_save_pal.formulaR
+	   || palette->formulaG != GGI_save_pal.formulaG
+	   || palette->formulaB != GGI_save_pal.formulaB
+	   || palette->positive != GGI_save_pal.positive)) {
 		int i;
 		ggi_color color;
 		for(i = 0; i < ggi_pm3d_colors; i++) {

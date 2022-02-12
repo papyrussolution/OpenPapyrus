@@ -500,7 +500,7 @@ static char * ngx_http_rewrite_if_condition(ngx_conf_t * cf, ngx_http_rewrite_lo
 			return NGX_CONF_OK;
 		}
 		if((len == 1 && p[0] == '~') || (len == 2 && p[0] == '~' && p[1] == '*') || (len == 2 && p[0] == '!' && p[1] == '~')
-		    || (len == 3 && p[0] == '!' && p[1] == '~' && p[2] == '*')) {
+		   || (len == 3 && p[0] == '!' && p[1] == '~' && p[2] == '*')) {
 			regex = (ngx_http_script_regex_code_t *)ngx_http_script_start_code(cf->pool, &lcf->codes, sizeof(ngx_http_script_regex_code_t));
 			if(regex == NULL) {
 				return NGX_CONF_ERROR;

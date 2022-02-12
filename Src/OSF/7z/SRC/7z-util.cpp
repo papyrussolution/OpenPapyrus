@@ -957,7 +957,7 @@ static void ReplaceIncorrectChars(UString &s)
 			if(
 	  #ifdef _WIN32
 			    c == ':' || c == '*' || c == '?' || c < 0x20 || c == '<' || c == '>' || c == '|' || c == '"'
-			    || c == '/'
+			   || c == '/'
 			    // || c == 0x202E // RLO
 			    ||
 	  #endif

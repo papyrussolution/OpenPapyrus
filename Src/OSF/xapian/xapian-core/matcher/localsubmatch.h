@@ -32,9 +32,9 @@
 class PostListTree;
 
 namespace Xapian {
-namespace Internal {
-class PostList;
-}
+	namespace Internal {
+		class PostList;
+	}
 }
 
 using Xapian::Internal::PostList;
@@ -42,41 +42,22 @@ using Xapian::Internal::PostList;
 class LocalSubMatch {
 	/// Don't allow assignment.
 	LocalSubMatch& operator=(const LocalSubMatch &) = delete;
-
 	/// Don't allow copying.
 	LocalSubMatch(const LocalSubMatch &) = delete;
-
-	/// The statistics for the collection.
-	Xapian::Weight::Internal* total_stats;
-
-	/// The original query before any rearrangement.
-	Xapian::Query query;
-
-	/// The query length (used by some weighting schemes).
-	Xapian::termcount qlen;
-
-	/// The (sub-)Database we're searching.
-	const Xapian::Database::Internal* db;
-
-	/// Weight object (used as a factory by calling create on it).
-	const Xapian::Weight& wt_factory;
-
-	/// 0-based index for the subdatabase.
-	Xapian::doccount shard_index;
-
+	
+	Xapian::Weight::Internal* total_stats; /// The statistics for the collection.
+	Xapian::Query query; /// The original query before any rearrangement.
+	Xapian::termcount qlen; /// The query length (used by some weighting schemes).
+	const Xapian::Database::Internal* db; /// The (sub-)Database we're searching.
+	const Xapian::Weight& wt_factory; /// Weight object (used as a factory by calling create on it).
+	Xapian::doccount shard_index; /// 0-based index for the subdatabase.
 public:
 	/// Constructor.
-	LocalSubMatch(const Xapian::Database::Internal* db_,
-	    const Xapian::Query& query_,
-	    Xapian::termcount qlen_,
-	    const Xapian::Weight& wt_factory_,
-	    Xapian::doccount shard_index_)
-		: total_stats(NULL), query(query_), qlen(qlen_), db(db_),
-		wt_factory(wt_factory_),
-		shard_index(shard_index_)
+	LocalSubMatch(const Xapian::Database::Internal* db_, const Xapian::Query& query_, Xapian::termcount qlen_,
+	    const Xapian::Weight& wt_factory_, Xapian::doccount shard_index_) : total_stats(NULL), query(query_), qlen(qlen_), db(db_),
+		wt_factory(wt_factory_), shard_index(shard_index_)
 	{
 	}
-
 	/** Fetch and collate statistics.
 	 *
 	 *  Before we can calculate term weights we need to fetch statistics from
@@ -85,12 +66,10 @@ public:
 	 *  @param rset	The RSet for this shard.
 	 *  @param stats	Weight::Internal object to add the statistics to.
 	 */
-	void prepare_match(const Xapian::RSet& rset,
-	    Xapian::Weight::Internal& stats)
+	void prepare_match(const Xapian::RSet& rset, Xapian::Weight::Internal& stats)
 	{
 		stats.accumulate_stats(*db, rset);
 	}
-
 	/** Set the collated statistics.
 	 *
 	 *  These will be used when generating the PostList tree.
@@ -99,30 +78,14 @@ public:
 	{
 		total_stats = &total_stats_;
 	}
-
 	/// Get PostList.
-	PostList * get_postlist(PostListTree* matcher,
-	    Xapian::termcount* total_subqs_ptr);
-
+	PostList * get_postlist(PostListTree* matcher, Xapian::termcount* total_subqs_ptr);
 	/** Convert a postlist into a synonym postlist.
 	 */
-	PostList * make_synonym_postlist(PostListTree* pltree,
-	    PostList* or_pl,
-	    Xapian::Internal::QueryOptimiser* qopt,
-	    double factor,
-	    bool wdf_disjoint);
-
-	PostList * open_post_list(const std::string& term,
-	    Xapian::termcount wqf,
-	    double factor,
-	    bool need_positions,
-	    bool compound_weight,
-	    Xapian::Internal::QueryOptimiser* qopt,
-	    bool lazy_weight);
-
-	bool weight_needs_wdf() const {
-		return wt_factory.get_sumpart_needs_wdf_();
-	}
+	PostList * make_synonym_postlist(PostListTree* pltree, PostList* or_pl, Xapian::Internal::QueryOptimiser* qopt, double factor, bool wdf_disjoint);
+	PostList * open_post_list(const std::string& term, Xapian::termcount wqf, double factor,
+	    bool need_positions, bool compound_weight, Xapian::Internal::QueryOptimiser* qopt, bool lazy_weight);
+	bool weight_needs_wdf() const { return wt_factory.get_sumpart_needs_wdf_(); }
 };
 
 #endif /* XAPIAN_INCLUDED_LOCALSUBMATCH_H */

@@ -127,7 +127,7 @@ static ngx_int_t ngx_stream_upstream_get_least_conn_peer(ngx_peer_connection_t *
 		 */
 
 		if(best == NULL
-		    || peer->conns * best->weight < best->conns * peer->weight) {
+		   || peer->conns * best->weight < best->conns * peer->weight) {
 			best = peer;
 			many = 0;
 			p = i;

@@ -224,7 +224,7 @@ static struct file_st * win32_splitter(DSO * dso, const char * filename,
 	position = IN_DEVICE;
 
 	if((filename[0] == '\\' && filename[1] == '\\')
-	    || (filename[0] == '/' && filename[1] == '/')) {
+	   || (filename[0] == '/' && filename[1] == '/')) {
 		position = IN_NODE;
 		filename += 2;
 		start = filename;

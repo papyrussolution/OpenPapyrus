@@ -26,13 +26,13 @@
 #define XAPIAN_INCLUDED_SMALLVECTOR_H
 
 #ifndef PACKAGE
-# error config.h must be included first in each C++ source file
+#error config.h must be included first in each C++ source file
 #endif
 
-#include <algorithm>
-#include <cstddef> // For std::size_t
-#include <cstring> // For std::memcpy
-#include <type_traits>
+//#include <algorithm>
+//#include <cstddef> // For std::size_t
+//#include <cstring> // For std::memcpy
+//#include <type_traits>
 
 namespace Xapian {
 /** Suitable for "simple" type T.
@@ -45,26 +45,19 @@ namespace Xapian {
  *  a Vec with external data only makes a copy of that data if you attempt
  *  to modify it.  Current COW is only supported for integral types T.
  */
-template <typename T,
-    bool COW = false,
-    typename = typename std::enable_if<
-	    (COW ?
-	    std::is_integral<T>::value :
+template <typename T, bool COW = false, typename = typename std::enable_if<(COW ? std::is_integral<T>::value :
 #ifdef HAVE_STD_IS_TRIVIALLY_COPYABLE
-	    std::is_trivially_copyable<T>::value
+		std::is_trivially_copyable<T>::value
 #else
 	    // std::is_trivially_copyable<T> is C++11, but for example GCC
 	    // didn't support it until version 6.  Assume "true" if it's not
 	    // available - we'll have to rely on newer compiler versions to
 	    // catch attempts to use unsuitable types here.
-	    true
+		true
 #endif
-	    )>::type>
-class Vec {
+	    )>::type> class Vec {
 	std::size_t c;
-
 	static constexpr std::size_t INTERNAL_CAPACITY = 2 * sizeof(T*) / sizeof(T);
-
 	union {
 		T v[INTERNAL_CAPACITY];
 		struct {
@@ -72,7 +65,6 @@ class Vec {
 			T* e;
 		} p;
 	} u;
-
 	struct Vec_to_copy {
 		const Vec& ref;
 		explicit Vec_to_copy(const Vec& o) : ref(o) {
@@ -81,21 +73,17 @@ class Vec {
 
 public:
 	typedef std::size_t size_type;
-
 	typedef const T* const_iterator;
-
 	typedef T* iterator;
-
-	Vec() : c(0) {
+	Vec() : c(0) 
+	{
 	}
-
 	// Prevent inadvertent copying.
 	Vec(const Vec&) = delete;
-
-	Vec(const Vec_to_copy& o) {
+	Vec(const Vec_to_copy& o) 
+	{
 		do_copy_from(o.ref);
 	}
-
 	// Prevent inadvertent copying.
 	void operator=(const Vec&) = delete;
 

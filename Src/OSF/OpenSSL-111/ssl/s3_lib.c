@@ -3273,7 +3273,7 @@ int ssl3_set_handshake_header(SSL * s, WPACKET * pkt, int htype)
 
 	/* Set the content type and 3 bytes for the message len */
 	if(!WPACKET_put_bytes_u8(pkt, htype)
-	    || !WPACKET_start_sub_packet_u24(pkt))
+	   || !WPACKET_start_sub_packet_u24(pkt))
 		return 0;
 
 	return 1;
@@ -4484,7 +4484,7 @@ int ssl_fill_hello_random(SSL * s, int server, uchar * result, size_t len,
 
 	if(ret > 0) {
 		if(!ossl_assert(sizeof(tls11downgrade) < len)
-		    || !ossl_assert(sizeof(tls12downgrade) < len))
+		   || !ossl_assert(sizeof(tls12downgrade) < len))
 			return 0;
 		if(dgrd == DOWNGRADE_TO_1_2)
 			memcpy(result + len - sizeof(tls12downgrade), tls12downgrade,

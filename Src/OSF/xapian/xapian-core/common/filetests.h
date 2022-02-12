@@ -26,8 +26,8 @@
 #define XAPIAN_INCLUDED_FILETESTS_H
 
 #include "safesysstat.h"
-#include <cerrno>
-#include <string>
+//#include <cerrno>
+//#include <string>
 
 /** Test if a file exists.
  *
@@ -36,9 +36,10 @@
  *  @return true if @a path is a regular file, or a symbolic link which
  *	    resolves to a regular file.
  */
-inline bool file_exists(const char * path) {
-    struct stat st;
-    return stat(path, &st) == 0 && S_ISREG(st.st_mode);
+inline bool file_exists(const char * path) 
+{
+	struct stat st;
+	return stat(path, &st) == 0 && S_ISREG(st.st_mode);
 }
 
 /** Test if a file exists.
@@ -48,9 +49,7 @@ inline bool file_exists(const char * path) {
  *  @return true if @a path is a regular file, or a symbolic link which
  *	    resolves to a regular file.
  */
-inline bool file_exists(const std::string & path) {
-    return file_exists(path.c_str());
-}
+inline bool file_exists(const std::string & path) { return file_exists(path.c_str()); }
 
 /** Returns the size of a file.
  *
@@ -68,16 +67,17 @@ inline bool file_exists(const std::string & path) {
  *
  *  @return The size of the file, or 0 if it doesn't exist or isn't a file.
  */
-inline off_t file_size(const char * path) {
-    struct stat st;
-    if (stat(path, &st) == 0) {
-	if (S_ISREG(st.st_mode)) {
-	    errno = 0;
-	    return st.st_size;
+inline off_t file_size(const char * path) 
+{
+	struct stat st;
+	if(stat(path, &st) == 0) {
+		if(S_ISREG(st.st_mode)) {
+			errno = 0;
+			return st.st_size;
+		}
+		errno = EINVAL;
 	}
-	errno = EINVAL;
-    }
-    return 0;
+	return 0;
 }
 
 /** Returns the size of a file.
@@ -95,9 +95,7 @@ inline off_t file_size(const char * path) {
  *	    stat(), or EINVAL (if the path isn't a regular file or a symlink
  *	    resolving to a regular file).
  */
-inline off_t file_size(const std::string & path) {
-    return file_size(path.c_str());
-}
+inline off_t file_size(const std::string & path) { return file_size(path.c_str()); }
 
 /** Returns the size of a file.
  *
@@ -114,16 +112,17 @@ inline off_t file_size(const std::string & path) {
  *	    stat(), or EINVAL (if the path isn't a regular file or a symlink
  *	    resolving to a regular file).
  */
-inline off_t file_size(int fd) {
-    struct stat st;
-    if (fstat(fd, &st) == 0) {
-	if (S_ISREG(st.st_mode)) {
-	    errno = 0;
-	    return st.st_size;
+inline off_t file_size(int fd) 
+{
+	struct stat st;
+	if(fstat(fd, &st) == 0) {
+		if(S_ISREG(st.st_mode)) {
+			errno = 0;
+			return st.st_size;
+		}
+		errno = EINVAL;
 	}
-	errno = EINVAL;
-    }
-    return 0;
+	return 0;
 }
 
 /** Test if a directory exists.
@@ -133,9 +132,10 @@ inline off_t file_size(int fd) {
  *  @return true if @a path is a directory, or a symbolic link which resolves
  *	    to a directory.
  */
-inline bool dir_exists(const char * path) {
-    struct stat st;
-    return stat(path, &st) == 0 && S_ISDIR(st.st_mode);
+inline bool dir_exists(const char * path) 
+{
+	struct stat st;
+	return stat(path, &st) == 0 && S_ISDIR(st.st_mode);
 }
 
 /** Test if a directory exists.
@@ -145,8 +145,18 @@ inline bool dir_exists(const char * path) {
  *  @return true if @a path is a directory, or a symbolic link which resolves
  *	    to a directory.
  */
-inline bool dir_exists(const std::string & path) {
-    return dir_exists(path.c_str());
+inline bool dir_exists(const std::string & path) { return dir_exists(path.c_str()); }
+
+/** Test if a path exists.
+ *
+ *  @param path	The path to test
+ *
+ *  @return true if @a path exists (and is not a dangling symlink).
+ */
+inline bool path_exists(const char * path) 
+{
+	struct stat st;
+	return stat(path, &st) == 0;
 }
 
 /** Test if a path exists.
@@ -155,19 +165,6 @@ inline bool dir_exists(const std::string & path) {
  *
  *  @return true if @a path exists (and is not a dangling symlink).
  */
-inline bool path_exists(const char * path) {
-    struct stat st;
-    return stat(path, &st) == 0;
-}
-
-/** Test if a path exists.
- *
- *  @param path	The path to test
- *
- *  @return true if @a path exists (and is not a dangling symlink).
- */
-inline bool path_exists(const std::string & path) {
-    return path_exists(path.c_str());
-}
+inline bool path_exists(const std::string & path) { return path_exists(path.c_str()); }
 
 #endif // XAPIAN_INCLUDED_FILETESTS_H

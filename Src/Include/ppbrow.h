@@ -3291,18 +3291,19 @@ struct Sdr_SBIIBillRow {
 	#define PPFLD_QUOTVAL_QUOTKINDSYMB                             2
 	#define PPFLD_QUOTVAL_GOODSID                                  3
 	#define PPFLD_QUOTVAL_GOODSCODE                                4
-	#define PPFLD_QUOTVAL_LOCID                                    5
-	#define PPFLD_QUOTVAL_LOCCODE                                  6
-	#define PPFLD_QUOTVAL_CURRENCYID                               7
-	#define PPFLD_QUOTVAL_CURRENCYSYMB                             8
-	#define PPFLD_QUOTVAL_CURRENCYCODE                             9
-	#define PPFLD_QUOTVAL_ARID                                    10
-	#define PPFLD_QUOTVAL_ARCODE                                  11
-	#define PPFLD_QUOTVAL_DATELOW                                 12
-	#define PPFLD_QUOTVAL_DATEUPP                                 13
-	#define PPFLD_QUOTVAL_VALUE                                   14
-	#define PPFLD_QUOTVAL_VALUEFLAGS                              15
-	#define PPFLD_QUOTVAL_VALUETEXT                               16
+	#define PPFLD_QUOTVAL_GOODSNAME                                5
+	#define PPFLD_QUOTVAL_LOCID                                    6
+	#define PPFLD_QUOTVAL_LOCCODE                                  7
+	#define PPFLD_QUOTVAL_CURRENCYID                               8
+	#define PPFLD_QUOTVAL_CURRENCYSYMB                             9
+	#define PPFLD_QUOTVAL_CURRENCYCODE                            10
+	#define PPFLD_QUOTVAL_ARID                                    11
+	#define PPFLD_QUOTVAL_ARCODE                                  12
+	#define PPFLD_QUOTVAL_DATELOW                                 13
+	#define PPFLD_QUOTVAL_DATEUPP                                 14
+	#define PPFLD_QUOTVAL_VALUE                                   15
+	#define PPFLD_QUOTVAL_VALUEFLAGS                              16
+	#define PPFLD_QUOTVAL_VALUETEXT                               17
 
 struct Sdr_QuotVal {
 	Sdr_QuotVal() { THISZERO(); }
@@ -3310,6 +3311,7 @@ struct Sdr_QuotVal {
 	char   QuotKindSymb[20];
 	int32  GoodsID;
 	char   GoodsCode[32];
+	char   GoodsName[128];
 	int32  LocID;
 	char   LocCode[20];
 	int32  CurrencyID;
@@ -4984,9 +4986,11 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_GENERIC_DOCUMENT                32974
 #define PPDV_GENERIC_SERVER                  32975
 #define PPDV_GENERIC_COMMAND                 32976
-#define PPDV_LOGOPAPYRUS                     32977
-#define PPDV_LOGOUDS                         32978
-#define PPDV_LOGOVK                          32979
-#define PPDV_LOGOVETIS                       32980
-#define PPDV_LOGOCHZN                        32981
+#define PPDV_NUT01                           32977
+#define PPDV_CHECKMARK01                     32978
+#define PPDV_LOGOPAPYRUS                     32979
+#define PPDV_LOGOUDS                         32980
+#define PPDV_LOGOVK                          32981
+#define PPDV_LOGOVETIS                       32982
+#define PPDV_LOGOCHZN                        32983
 

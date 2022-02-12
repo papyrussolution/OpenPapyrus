@@ -21,10 +21,6 @@
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "remoteserver.h"
-#include "xapian/enquire.h"
-#include "xapian/matchspy.h"
-#include "xapian/query.h"
-#include "xapian/rset.h"
 #include "xapian/valueiterator.h"
 #include "api/msetinternal.h"
 #include "api/termlist.h"
@@ -543,33 +539,27 @@ void RemoteServer::msg_query(const string &message_in)
 	if(weight_threshold < 0) {
 		throw Xapian::NetworkError("bad message (weight_threshold)");
 	}
-
 	// Unserialise the Weight object.
 	string wtname;
 	if(!unpack_string(&p, p_end, wtname)) {
 		throw Xapian::NetworkError("Bad MSG_QUERY");
 	}
-
 	const Xapian::Weight * wttype = reg.get_weighting_scheme(wtname);
 	if(wttype == NULL) {
 		// Note: user weighting schemes should be registered by adding them to
 		// a Registry, and setting the context using
 		// RemoteServer::set_registry().
-		throw Xapian::InvalidArgumentError("Weighting scheme " +
-			  wtname + " not registered");
+		throw Xapian::InvalidArgumentError("Weighting scheme " + wtname + " not registered");
 	}
-
 	if(!unpack_string(&p, p_end, serialisation)) {
 		throw Xapian::NetworkError("Bad MSG_QUERY");
 	}
 	unique_ptr<Xapian::Weight> wt(wttype->unserialise(serialisation));
-
 	// Unserialise the RSet object.
 	if(!unpack_string(&p, p_end, serialisation)) {
 		throw Xapian::NetworkError("Bad MSG_QUERY");
 	}
 	Xapian::RSet rset = unserialise_rset(serialisation);
-
 	// Unserialise any MatchSpy objects.
 	vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy> > matchspies;
 	while(p != p_end) {
@@ -579,61 +569,43 @@ void RemoteServer::msg_query(const string &message_in)
 		}
 		const Xapian::MatchSpy * spyclass = reg.get_match_spy(spytype);
 		if(spyclass == NULL) {
-			throw Xapian::InvalidArgumentError("Match spy " + spytype +
-				  " not registered");
+			throw Xapian::InvalidArgumentError("Match spy " + spytype + " not registered");
 		}
 
 		if(!unpack_string(&p, p_end, serialisation)) {
 			throw Xapian::NetworkError("Bad MSG_QUERY");
 		}
-		matchspies.push_back(spyclass->unserialise(serialisation,
-		    reg)->release());
+		matchspies.push_back(spyclass->unserialise(serialisation, reg)->release());
 	}
-
 	Xapian::Weight::Internal local_stats;
-	Matcher matcher(*db,
-	    query, qlen, &rset, local_stats, *wt,
-	    false,
-	    collapse_key, collapse_max,
-	    percent_threshold, weight_threshold,
-	    order, sort_key, sort_by, sort_value_forward, time_limit,
-	    matchspies);
-
+	Matcher matcher(*db, query, qlen, &rset, local_stats, *wt, false, collapse_key, collapse_max,
+	    percent_threshold, weight_threshold, order, sort_key, sort_by, sort_value_forward, time_limit, matchspies);
 	send_message(REPLY_STATS, serialise_stats(local_stats));
-
 	string message;
 	get_message(active_timeout, message, MSG_GETMSET);
 	p = message.c_str();
 	p_end = p + message.size();
-
 	Xapian::termcount first;
 	Xapian::termcount maxitems;
 	Xapian::termcount check_at_least;
 	string sorter_type;
-	if(!unpack_uint(&p, p_end, &first) ||
-	    !unpack_uint(&p, p_end, &maxitems) ||
-	    !unpack_uint(&p, p_end, &check_at_least) ||
-	    !unpack_string(&p, p_end, sorter_type)) {
+	if(!unpack_uint(&p, p_end, &first) || !unpack_uint(&p, p_end, &maxitems) || !unpack_uint(&p, p_end, &check_at_least) || !unpack_string(&p, p_end, sorter_type)) {
 		throw Xapian::NetworkError("Bad MSG_GETMSET");
 	}
 	unique_ptr<Xapian::KeyMaker> sorter;
 	if(!sorter_type.empty()) {
 		const Xapian::KeyMaker* sorterclass = reg.get_key_maker(sorter_type);
 		if(sorterclass == NULL) {
-			throw Xapian::InvalidArgumentError("KeyMaker " + sorter_type +
-				  " not registered");
+			throw Xapian::InvalidArgumentError("KeyMaker " + sorter_type + " not registered");
 		}
-
 		string serialised_sorter;
 		if(!unpack_string(&p, p_end, serialised_sorter)) {
 			throw Xapian::NetworkError("Bad MSG_GETMSET");
 		}
 		sorter.reset(sorterclass->unserialise(serialised_sorter, reg));
 	}
-
 	unique_ptr<Xapian::Weight::Internal> total_stats(new Xapian::Weight::Internal);
 	unserialise_stats(p, p_end, *total_stats);
-
 	Xapian::MSet mset = matcher.get_mset(first, maxitems, check_at_least,
 		*total_stats, *wt, 0, sorter.get(),
 		collapse_key, collapse_max,

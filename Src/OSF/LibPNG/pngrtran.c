@@ -1372,7 +1372,7 @@ void /* PRIVATE */ png_init_read_transformations(png_structrp png_ptr)
 		    (png_gamma_significant(png_ptr->colorspace.gamma) != 0 ||
 			    png_gamma_significant(png_ptr->screen_gamma) != 0
 #ifdef PNG_READ_BACKGROUND_SUPPORTED
-			    || (png_ptr->background_gamma_type == PNG_BACKGROUND_GAMMA_UNIQUE &&
+			   || (png_ptr->background_gamma_type == PNG_BACKGROUND_GAMMA_UNIQUE &&
 				    png_gamma_significant(png_ptr->background_gamma) != 0)
 #endif
 		    )) || ((png_ptr->transformations & PNG_ENCODE_ALPHA) != 0 &&

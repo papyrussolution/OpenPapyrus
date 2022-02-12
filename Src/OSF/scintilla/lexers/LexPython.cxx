@@ -391,7 +391,7 @@ void LexerPython::ProcessLineEnd(StyleContext &sc, int * fstringStateStack, bool
 	}
 
 	if((sc.state == SCE_P_DEFAULT)
-	    || IsPyTripleQuoteStringState(sc.state)) {
+	   || IsPyTripleQuoteStringState(sc.state)) {
 		// Perform colourisation of white space and triple quoted strings at end of each line to allow
 		// tab marking to work inside white space and triple quoted strings
 		sc.SetState(sc.state);

@@ -144,9 +144,7 @@ void Database::compact_(const string * output_ptr, int fd, uint flags, int block
 		// Check destdir isn't the same as any source directory, unless it
 		// is a stub database or we're compacting to an fd.
 		if(!compact_to_stub && !destdir.empty() && srcdir == destdir) {
-			throw InvalidArgumentError("destination may not be the same as "
-				  "any source database, unless it is a "
-				  "stub database");
+			throw InvalidArgumentError("destination may not be the same as any source database, unless it is a stub database");
 		}
 		switch(type) {
 			case BACKEND_GLASS:
@@ -162,8 +160,7 @@ void Database::compact_(const string * output_ptr, int fd, uint flags, int block
 			    backend = type;
 			    break;
 			default:
-			    throw DatabaseError("Only glass and honey databases can be "
-				      "compacted");
+			    throw DatabaseError("Only glass and honey databases can be compacted");
 		}
 
 		Xapian::docid first = 0, last = 0;

@@ -371,5 +371,5 @@ void GlassTableCheck::report_cursor(int N, const Glass::Cursor * C_) const
 }
 
 #ifdef DISABLE_GPL_LIBXAPIAN
-# error GPL source we cannot relicense included in libxapian
+#error GPL source we cannot relicense included in libxapian
 #endif

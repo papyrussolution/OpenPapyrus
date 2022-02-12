@@ -1,18 +1,11 @@
+// uts46.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *   Copyright (C) 2010-2015, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *******************************************************************************
- *   file name:  uts46.cpp
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2010mar09
- *   created by: Markus W. Scherer
- */
+// Copyright (C) 2010-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// @codepage UTF-8
+// created on: 2010mar09
+// created by: Markus W. Scherer
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -40,7 +33,8 @@ const uint32_t severeErrors =
     UIDNA_ERROR_LABEL_HAS_DOT|
     UIDNA_ERROR_INVALID_ACE_LABEL;
 
-static inline bool isASCIIString(const UnicodeString & dest) {
+static inline bool isASCIIString(const UnicodeString & dest) 
+{
 	const UChar * s = dest.getBuffer();
 	const UChar * limit = s+dest.length();
 	while(s < limit) {
@@ -143,39 +137,27 @@ private:
 	    bool isLabel, bool toASCII,
 	    UnicodeString & dest,
 	    IDNAInfo &info, UErrorCode & errorCode) const;
-
 	// returns the new dest.length()
-	int32_t mapDevChars(UnicodeString & dest, int32_t labelStart, int32_t mappingStart,
-	    UErrorCode & errorCode) const;
-
+	int32_t mapDevChars(UnicodeString & dest, int32_t labelStart, int32_t mappingStart, UErrorCode & errorCode) const;
 	// returns the new label length
-	int32_t processLabel(UnicodeString & dest,
-	    int32_t labelStart, int32_t labelLength,
-	    bool toASCII,
-	    IDNAInfo &info, UErrorCode & errorCode) const;
-	int32_t markBadACELabel(UnicodeString & dest,
-	    int32_t labelStart, int32_t labelLength,
-	    bool toASCII, IDNAInfo &info, UErrorCode & errorCode) const;
-
+	int32_t processLabel(UnicodeString & dest, int32_t labelStart, int32_t labelLength, bool toASCII, IDNAInfo &info, UErrorCode & errorCode) const;
+	int32_t markBadACELabel(UnicodeString & dest, int32_t labelStart, int32_t labelLength, bool toASCII, IDNAInfo &info, UErrorCode & errorCode) const;
 	void checkLabelBiDi(const UChar * label, int32_t labelLength, IDNAInfo &info) const;
-
 	bool isLabelOkContextJ(const UChar * label, int32_t labelLength) const;
-
 	void checkLabelContextO(const UChar * label, int32_t labelLength, IDNAInfo &info) const;
-
 	const Normalizer2 &uts46Norm2; // uts46.nrm
 	uint32_t options;
 };
 
-IDNA * IDNA::createUTS46Instance(uint32_t options, UErrorCode & errorCode) {
+IDNA * IDNA::createUTS46Instance(uint32_t options, UErrorCode & errorCode) 
+{
 	if(U_SUCCESS(errorCode)) {
 		IDNA * idna = new UTS46(options, errorCode);
 		if(idna==NULL) {
 			errorCode = U_MEMORY_ALLOCATION_ERROR;
 		}
 		else if(U_FAILURE(errorCode)) {
-			delete idna;
-			idna = NULL;
+			ZDELETE(idna);
 		}
 		return idna;
 	}
@@ -186,58 +168,55 @@ IDNA * IDNA::createUTS46Instance(uint32_t options, UErrorCode & errorCode) {
 
 // UTS46 implementation ---------------------------------------------------- ***
 
-UTS46::UTS46(uint32_t opt, UErrorCode & errorCode)
-	: uts46Norm2(*Normalizer2::getInstance(NULL, "uts46", UNORM2_COMPOSE, errorCode)),
-	options(opt) {
+UTS46::UTS46(uint32_t opt, UErrorCode & errorCode) : uts46Norm2(*Normalizer2::getInstance(NULL, "uts46", UNORM2_COMPOSE, errorCode)), options(opt) 
+{
 }
 
-UTS46::~UTS46() {
+UTS46::~UTS46() 
+{
 }
 
-UnicodeString & UTS46::labelToASCII(const UnicodeString & label, UnicodeString & dest,
-    IDNAInfo &info, UErrorCode & errorCode) const {
+UnicodeString & UTS46::labelToASCII(const UnicodeString & label, UnicodeString & dest, IDNAInfo &info, UErrorCode & errorCode) const 
+{
 	return process(label, TRUE, TRUE, dest, info, errorCode);
 }
 
-UnicodeString & UTS46::labelToUnicode(const UnicodeString & label, UnicodeString & dest,
-    IDNAInfo &info, UErrorCode & errorCode) const {
+UnicodeString & UTS46::labelToUnicode(const UnicodeString & label, UnicodeString & dest, IDNAInfo &info, UErrorCode & errorCode) const 
+{
 	return process(label, TRUE, FALSE, dest, info, errorCode);
 }
 
-UnicodeString & UTS46::nameToASCII(const UnicodeString & name, UnicodeString & dest,
-    IDNAInfo &info, UErrorCode & errorCode) const {
+UnicodeString & UTS46::nameToASCII(const UnicodeString & name, UnicodeString & dest, IDNAInfo &info, UErrorCode & errorCode) const 
+{
 	process(name, FALSE, TRUE, dest, info, errorCode);
-	if(dest.length()>=254 && (info.errors&UIDNA_ERROR_DOMAIN_NAME_TOO_LONG)==0 &&
-	    isASCIIString(dest) &&
-	    (dest.length()>254 || dest[253]!=0x2e)
-	    ) {
+	if(dest.length()>=254 && (info.errors&UIDNA_ERROR_DOMAIN_NAME_TOO_LONG)==0 && isASCIIString(dest) && (dest.length()>254 || dest[253]!=0x2e)) {
 		info.errors |= UIDNA_ERROR_DOMAIN_NAME_TOO_LONG;
 	}
 	return dest;
 }
 
-UnicodeString & UTS46::nameToUnicode(const UnicodeString & name, UnicodeString & dest,
-    IDNAInfo &info, UErrorCode & errorCode) const {
+UnicodeString & UTS46::nameToUnicode(const UnicodeString & name, UnicodeString & dest, IDNAInfo &info, UErrorCode & errorCode) const 
+{
 	return process(name, FALSE, FALSE, dest, info, errorCode);
 }
 
-void UTS46::labelToASCII_UTF8(StringPiece label, ByteSink &dest,
-    IDNAInfo &info, UErrorCode & errorCode) const {
+void UTS46::labelToASCII_UTF8(StringPiece label, ByteSink &dest, IDNAInfo &info, UErrorCode & errorCode) const 
+{
 	processUTF8(label, TRUE, TRUE, dest, info, errorCode);
 }
 
-void UTS46::labelToUnicodeUTF8(StringPiece label, ByteSink &dest,
-    IDNAInfo &info, UErrorCode & errorCode) const {
+void UTS46::labelToUnicodeUTF8(StringPiece label, ByteSink &dest, IDNAInfo &info, UErrorCode & errorCode) const 
+{
 	processUTF8(label, TRUE, FALSE, dest, info, errorCode);
 }
 
-void UTS46::nameToASCII_UTF8(StringPiece name, ByteSink &dest,
-    IDNAInfo &info, UErrorCode & errorCode) const {
+void UTS46::nameToASCII_UTF8(StringPiece name, ByteSink &dest, IDNAInfo &info, UErrorCode & errorCode) const 
+{
 	processUTF8(name, FALSE, TRUE, dest, info, errorCode);
 }
 
-void UTS46::nameToUnicodeUTF8(StringPiece name, ByteSink &dest,
-    IDNAInfo &info, UErrorCode & errorCode) const {
+void UTS46::nameToUnicodeUTF8(StringPiece name, ByteSink &dest, IDNAInfo &info, UErrorCode & errorCode) const 
+{
 	processUTF8(name, FALSE, FALSE, dest, info, errorCode);
 }
 
@@ -823,9 +802,7 @@ int32_t UTS46::processLabel(UnicodeString & dest,
 		if((options&UIDNA_CHECK_BIDI)!=0 && (!info.isBiDi || info.isOkBiDi)) {
 			checkLabelBiDi(label, labelLength, info);
 		}
-		if((options&UIDNA_CHECK_CONTEXTJ)!=0 && (oredChars&0x200c)==0x200c &&
-		    !isLabelOkContextJ(label, labelLength)
-		    ) {
+		if((options&UIDNA_CHECK_CONTEXTJ)!=0 && (oredChars&0x200c)==0x200c && !isLabelOkContextJ(label, labelLength)) {
 			info.labelErrors |= UIDNA_ERROR_CONTEXTJ;
 		}
 		if((options&UIDNA_CHECK_CONTEXTO)!=0 && oredChars>=0xb7) {

@@ -293,8 +293,8 @@ int StyloQConfig::FromJsonObject(const SJson * pJsObj)
 	int    ok = 0;
 	Z();
 	if(pJsObj && pJsObj->Type == SJson::tOBJECT) {
-		SJson * p_next = 0;
-		for(SJson * p_cur = pJsObj->P_Child; p_cur; p_cur = p_next) {
+		const SJson * p_next = 0;
+		for(const SJson * p_cur = pJsObj->P_Child; p_cur; p_cur = p_next) {
 			p_next = p_cur->P_Next;
 			if(p_cur->P_Child && p_cur->P_Child->Text.NotEmpty()) {
 				int tag_id = SIntToSymbTab_GetId(StyloQConfigTagNameList, SIZEOFARRAY(StyloQConfigTagNameList), p_cur->Text);
@@ -420,8 +420,8 @@ int StyloQFace::FromJsonObject(const SJson * pJsObj)
 		SString tag_symb;
 		SString lang_symb;
 		SString temp_buf;
-		SJson * p_next = 0;
-		for(SJson * p_cur = pJsObj->P_Child; p_cur; p_cur = p_next) {
+		const SJson * p_next = 0;
+		for(const SJson * p_cur = pJsObj->P_Child; p_cur; p_cur = p_next) {
 			p_next = p_cur->P_Next;
 			if(p_cur->P_Child && p_cur->P_Child->Text.NotEmpty()) {
 				p_cur->Text.Divide('.', tag_symb, lang_symb);
@@ -1262,7 +1262,7 @@ int StyloQCore::PutDocument(PPID * pID, int direction, int docType, const SBinar
 	THROW_SL(json_parse_document(&p_js, temp_buf) == JSON_OK);
 	{
 		SString raw_doc_type;
-		for(SJson * p_cur = p_js; p_cur; p_cur = p_cur->P_Next) {
+		for(const SJson * p_cur = p_js; p_cur; p_cur = p_cur->P_Next) {
 			if(p_cur->Type == SJson::tOBJECT) {								
 				for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
 					if(p_obj->Text.IsEqiAscii("doctype")) {
@@ -1955,7 +1955,7 @@ int StyloQCore::SvcDbSymbMap::Read(const char * pFilePath, int loadTimeUsage)
 					if(p_ldb->P_Sqc) {
 						StyloQCore::StoragePacket sp;
 						if(p_ldb->P_Sqc->GetOwnPeerEntry(&sp) > 0) {
-							if(sp.Pool.Get(SSecretTagPool::tagSvcIdent, &bc) > 0) {
+							if(sp.Pool.Get(SSecretTagPool::tagSvcIdent, &bc)) {
 								assert(bc.Len() > 0);
 								StyloQCore::SvcDbSymbMapEntry * p_entry = map.CreateNewItem();
 								THROW_SL(p_entry);
@@ -2665,7 +2665,7 @@ int PPStyloQInterchange::ServiceSelfregisterInMediator(const StyloQCore::Storage
 		}
 	}
 	if(!done) {
-		THROW_PP(pOwnPack->Pool.Get(SSecretTagPool::tagSvcIdent, &temp_bch) > 0, PPERR_SQ_UNDEFSVCID);
+		THROW_PP(pOwnPack->Pool.Get(SSecretTagPool::tagSvcIdent, &temp_bch), PPERR_SQ_UNDEFSVCID);
 		assert(temp_bch.Len() > 0);
 		temp_bch.Mime64(own_ident_hex);
 		THROW_PP(pOwnPack->Pool.Get(SSecretTagPool::tagConfig, &temp_bch), PPERR_SQ_UNDEFOWNCFG);
@@ -2918,7 +2918,7 @@ int PPStyloQInterchange::Registration_ClientRequest(RoundTripBlock & rB)
 		tp.P.Put(SSecretTagPool::tagClientIdent, cli_ident);
 		{
 			SBinaryChunk my_face;
-			if(rB.StP.Pool.Get(SSecretTagPool::tagFace, &my_face) > 0) {
+			if(rB.StP.Pool.Get(SSecretTagPool::tagFace, &my_face)) {
 				tp.P.Put(SSecretTagPool::tagFace, my_face);
 			}
 		}
@@ -4679,7 +4679,7 @@ int PPStyloQInterchange::DoInterchange(InterchangeParam & rParam, SSecretTagPool
 		THROW(Command_ClientRequest(rtb, rParam.CommandJson, rReply));
 		//int  reply_is_ok = 0;
 		/*if(json_parse_document(&p_reply, cmd_reply_buf.cptr()) == JSON_OK) {
-			for(SJson * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
+			for(const SJson * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
 				if(p_cur->Type == SJson::tOBJECT) {								
 					for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
 						if(p_obj->Text.IsEqiAscii("reply")) { // @debug
@@ -5369,7 +5369,7 @@ int PPStyloQInterchange::AcceptStyloQClientAsPerson(const StyloQCore::StoragePac
 			SString temp_buf;
 			StyloQFace cli_face;
 			SBinaryChunk face_bytes;
-			if(rCliPack.Pool.Get(SSecretTagPool::tagFace, &face_bytes) > 0) {
+			if(rCliPack.Pool.Get(SSecretTagPool::tagFace, &face_bytes)) {
 				if(face_bytes.Len()) {
 					face_bytes.ToRawStr(temp_buf);
 					if(cli_face.FromJson(temp_buf))
@@ -5665,7 +5665,7 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 							}
 							else {
 								SBinaryChunk foreign_svc_ident;
-								for(SJson * p_cur = p_js_cmd; !local_err && p_cur; p_cur = p_cur->P_Next) {
+								for(const SJson * p_cur = p_js_cmd; !local_err && p_cur; p_cur = p_cur->P_Next) {
 									if(p_cur->Type == SJson::tOBJECT) {								
 										for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
 											if(p_obj->Text.IsEqiAscii("config")) {
@@ -5751,7 +5751,7 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 							else {
 								SBinaryChunk foreign_svc_ident;
 								StyloQCore::StoragePacket foreign_svc_pack;
-								for(SJson * p_cur = p_js_cmd; p_cur; p_cur = p_cur->P_Next) {
+								for(const SJson * p_cur = p_js_cmd; p_cur; p_cur = p_cur->P_Next) {
 									if(p_cur->Type == SJson::tOBJECT) {								
 										for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
 											if(p_obj->Text.IsEqiAscii("foreignsvcident")) {
@@ -5891,7 +5891,7 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 			}
 			else if(command.IsEqiAscii("echo")) {
 				p_js_reply = new SJson(SJson::tOBJECT);
-				for(SJson * p_cur = p_js_cmd; p_cur; p_cur = p_cur->P_Next) {
+				for(const SJson * p_cur = p_js_cmd; p_cur; p_cur = p_cur->P_Next) {
 					if(p_cur->Type == SJson::tOBJECT) {								
 						for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
 							if(p_obj->P_Child->IsString())
@@ -6071,6 +6071,19 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 	return ok;
 }
 
+/*static*/void PPStyloQInterchange::SetupMqbReplyProps(/*const StyloQProtocol & rReqPack*/const RoundTripBlock & rB, PPMqbClient::MessageProperties & rProps)
+{
+	//SBinaryChunk bc;
+	//if(rReqPack.P.Get(SSecretTagPool::tagRoundTripIdent, &bc) && bc.Len() == sizeof(S_GUID)) {
+	if(!!rB.Uuid) {
+		//S_GUID round_trip_uuid;
+		//assert(bc.Len() == sizeof(round_trip_uuid)); // @paranoic
+		//memcpy(&round_trip_uuid, bc.PtrC(), bc.Len());
+		rProps.CorrelationId.Z().Cat(rB.Uuid, S_GUID::fmtIDL|S_GUID::fmtLower);
+		rProps.Expiration.Z().Cat(120000);
+	}
+}
+
 class StyloQServerSession : public PPThread {
 	PPStyloQInterchange * P_Ic;
 	DbLoginBlock LB;
@@ -6138,7 +6151,8 @@ public:
 			THROW(p_mqbc = PPMqbClient::CreateInstance(StartUp_Param.MqbInitParam));
 			//
 			const long cmto = PPMqbClient::SetupMessageTtl(__DefMqbConsumeTimeout, &props);
-			THROW(p_mqbc->Publish(rpe.ExchangeName, rpe.RoutingKey, &props, reply_tp.constptr(), reply_tp.GetAvailableSize()));
+			PPStyloQInterchange::SetupMqbReplyProps(B, props); // @v11.3.1 
+			THROW(p_mqbc->Publish(rpe.ExchangeName, rpe.RoutingKey, &props, reply_tp.constptr(), reply_tp.GetAvailableSize())); // @reply
 			THROW(p_srp_vrf); // Отложенная обработка ошибки верификации
 			//do_process_loop = true;
 			{
@@ -6174,7 +6188,8 @@ public:
 				reply_tp.FinishWriting(0);
 				{
 					const long cmto = PPMqbClient::SetupMessageTtl(__DefMqbConsumeTimeout, &props);
-					THROW(p_mqbc->Publish(rpe.ExchangeName, rpe.RoutingKey, &props, reply_tp.constptr(), reply_tp.GetAvailableSize()));
+					PPStyloQInterchange::SetupMqbReplyProps(B, props); // @v11.3.1 
+					THROW(p_mqbc->Publish(rpe.ExchangeName, rpe.RoutingKey, &props, reply_tp.constptr(), reply_tp.GetAvailableSize())); // @reply
 					// Последнее сообщение от клиента: если он скажет OK - считаем верификацию завершенной
 					THROW(p_mqbc->ConsumeMessage(env, cmto) > 0);
 					p_mqbc->Ack(env.DeliveryTag, 0);
@@ -6232,7 +6247,8 @@ public:
 						if(svc_session_expiry_period)
 							reply_tp.P.Put(SSecretTagPool::tagSessionExpirPeriodSec, &svc_session_expiry_period, sizeof(svc_session_expiry_period));
 						THROW(reply_tp.FinishWriting(0));
-						THROW(p_mqbc->Publish(rpe.ExchangeName, rpe.RoutingKey, &props, reply_tp.constptr(), reply_tp.GetAvailableSize()));
+						PPStyloQInterchange::SetupMqbReplyProps(B, props); // @v11.3.1 
+						THROW(p_mqbc->Publish(rpe.ExchangeName, rpe.RoutingKey, &props, reply_tp.constptr(), reply_tp.GetAvailableSize())); // @reply
 					}
 					// } @v11.2.2 
 				}
@@ -6278,7 +6294,8 @@ public:
 			THROW(rpe.SetupStyloQRpc(my_public, other_public, StartUp_Param.MqbInitParam.ConsumeParamList.CreateNewItem()));
 			THROW(reply_tp.FinishWriting(0));
 			THROW(p_mqbc = PPMqbClient::CreateInstance(StartUp_Param.MqbInitParam));
-			THROW(p_mqbc->Publish(rpe.ExchangeName, rpe.RoutingKey, &props, reply_tp.constptr(), reply_tp.GetAvailableSize()));
+			PPStyloQInterchange::SetupMqbReplyProps(B, props); // @v11.3.1 
+			THROW(p_mqbc->Publish(rpe.ExchangeName, rpe.RoutingKey, &props, reply_tp.constptr(), reply_tp.GetAvailableSize())); // @reply
 			if(P_Ic->SetRoundTripBlockReplyValues(B, p_mqbc, rpe)) {
 				p_mqbc = 0;
 			}
@@ -6323,7 +6340,8 @@ public:
 		reply_tp.StartWriting(PPSCMD_SQ_SESSION, StyloQProtocol::psubtypeReplyOk);
 		THROW(reply_tp.FinishWriting(0));
 		THROW(p_mqbc = PPMqbClient::CreateInstance(StartUp_Param.MqbInitParam));
-		THROW(p_mqbc->Publish(rpe.ExchangeName, rpe.RoutingKey, &props, reply_tp.constptr(), reply_tp.GetAvailableSize()));
+		PPStyloQInterchange::SetupMqbReplyProps(B, props); // @v11.3.1 
+		THROW(p_mqbc->Publish(rpe.ExchangeName, rpe.RoutingKey, &props, reply_tp.constptr(), reply_tp.GetAvailableSize())); // @reply
 		if(P_Ic->SetRoundTripBlockReplyValues(B, p_mqbc, rpe)) {
 			p_mqbc = 0;
 		}
@@ -6336,9 +6354,24 @@ public:
 		//PPMqbClient * p_mqbc = 0;
 		bool do_process_loop = false;
 		SString temp_buf;
+		SString log_buf;
 		StyloQProtocol tp;
 		StyloQProtocol reply_tp;
 		PPMqbClient::MessageProperties props;
+		// @v11.3.1 {
+		{
+			SBinaryChunk bc_rti;
+			if(TPack.P.Get(SSecretTagPool::tagRoundTripIdent, &bc_rti)) { 
+				if(bc_rti.Len() == sizeof(S_GUID)) {
+					memcpy(&B.Uuid, bc_rti.PtrC(), bc_rti.Len());
+					{ // @debug
+						log_buf.Z().Cat("mqb-sess-uuid-set").Space().Cat(GetThreadID()).Space().Cat(B.Uuid, S_GUID::fmtIDL|S_GUID::fmtLower);
+						PPLogMessage(PPFILNAM_DEBUG_LOG, log_buf, LOGMSGF_TIME);
+					}
+				}
+			}
+		}
+		// } @v11.3.1 
 		//PPMqbClient::RoutingParamEntry rpe;
 		//
 		// Первая фаза обмена осуществляется в нешифрованном режиме. Это - этап взаимной идентификации и ключей шифрования у нас еще нет
@@ -6389,17 +6422,36 @@ public:
 				SBinaryChunk sess_secret;
 				PPMqbClient::Envelope env;
 				if(B.Sess.Get(SSecretTagPool::tagSessionSecret, &sess_secret)) {
-					const long live_silence_period = 5 * 60 * 1000;
+					const long live_silence_period = 2 * 60 * 1000;
 					clock_t clk_start = clock();
+					SString reply_status_text;
 					while(do_process_loop) {
 						assert(B.P_Mqbc && B.P_MqbRpe);
+						bool is_there_my_message = false;
 						if(B.P_Mqbc->ConsumeMessage(env, 200) > 0) {
+							if(!B.Uuid || S_GUID(env.Msg.Props.CorrelationId) == B.Uuid) {
+								{ // @debug
+									log_buf.Z().Cat("mqb-sess-got-own-msg").Space().Cat(GetThreadID()).Space().Cat(env.Msg.Props.CorrelationId);
+									PPLogMessage(PPFILNAM_DEBUG_LOG, log_buf, LOGMSGF_TIME);
+								}
+								is_there_my_message = true;
+							}
+							else {
+								{ // @debug
+									log_buf.Z().Cat("mqb-sess-got-another's-msg").Space().Cat(GetThreadID()).Space().Cat(env.Msg.Props.CorrelationId);
+									PPLogMessage(PPFILNAM_DEBUG_LOG, log_buf, LOGMSGF_TIME);
+								}
+								B.P_Mqbc->Reject(env.DeliveryTag, PPMqbClient::mqofRequeue);
+								is_there_my_message = false;
+							}
+						}
+						if(is_there_my_message) {
 							clk_start = clock();
 							B.P_Mqbc->Ack(env.DeliveryTag, 0);
 							if(tp.Read(env.Msg, &sess_secret)) {
 								if(tp.GetH().Type == PPSCMD_SQ_SRPREGISTER) {
 									int32 reply_status = 0;
-									SString reply_status_text;
+									reply_status_text.Z();
 									reply_tp.Z();
 									if(P_Ic->Registration_ServiceReply(B, tp)) {
 										SBinaryChunk bc;
@@ -6437,7 +6489,8 @@ public:
 									}
 									reply_tp.FinishWriting(&sess_secret);
 									props.Z();
-									int pr = B.P_Mqbc->Publish(B.P_MqbRpe->ExchangeName, B.P_MqbRpe->RoutingKey, &props, reply_tp.constptr(), reply_tp.GetAvailableSize());
+									PPStyloQInterchange::SetupMqbReplyProps(B, props); // @v11.3.1 
+									int pr = B.P_Mqbc->Publish(B.P_MqbRpe->ExchangeName, B.P_MqbRpe->RoutingKey, &props, reply_tp.constptr(), reply_tp.GetAvailableSize()); // @reply
 								}
 								else if(tp.GetH().Type == PPSCMD_SQ_COMMAND) {
 									static const uint IntermediateReplyBlock_Signature = 0x19D93F2;
@@ -6455,8 +6508,8 @@ public:
 											IntermediateReplyBlock * p_this = static_cast<IntermediateReplyBlock *>(pExtra);
 											if(p_this && p_this->Signature == IntermediateReplyBlock_Signature) {
 												PPMqbClient::MessageProperties props;
-												p_this->R_B.P_Mqbc->Publish(p_this->R_B.P_MqbRpe->ExchangeName, 
-													p_this->R_B.P_MqbRpe->RoutingKey, &props, rReplyPack.constptr(), rReplyPack.GetAvailableSize());
+												PPStyloQInterchange::SetupMqbReplyProps(p_this->R_B, props); // @v11.3.1 
+												p_this->R_B.P_Mqbc->Publish(p_this->R_B.P_MqbRpe->ExchangeName, p_this->R_B.P_MqbRpe->RoutingKey, &props, rReplyPack.constptr(), rReplyPack.GetAvailableSize()); // @reply
 											}
 											else
 												ok = 0;
@@ -6466,7 +6519,8 @@ public:
 									IntermediateReplyBlock irb(B);
 									if(P_Ic->ProcessCmd(tp, CliIdent, &sess_secret, reply_tp, IntermediateReplyBlock::Proc, &irb)) {
 										PPMqbClient::MessageProperties props;
-										int pr = B.P_Mqbc->Publish(B.P_MqbRpe->ExchangeName, B.P_MqbRpe->RoutingKey, &props, reply_tp.constptr(), reply_tp.GetAvailableSize());
+										PPStyloQInterchange::SetupMqbReplyProps(B, props); // @v11.3.1 
+										int pr = B.P_Mqbc->Publish(B.P_MqbRpe->ExchangeName, B.P_MqbRpe->RoutingKey, &props, reply_tp.constptr(), reply_tp.GetAvailableSize()); // @reply
 										// @debug {
 										if(pr) {
 											props.Z();
@@ -6481,6 +6535,12 @@ public:
 							if(silence_period >= live_silence_period) {
 								(temp_buf = "Service Stylo-Q roundtrip is finished after").Space().Cat(silence_period).Cat("ms of silence");
 								PPLogMessage(PPFILNAM_INFO_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_COMP);
+								// @v11.3.1 {
+								if(B.P_Mqbc) {
+									B.P_Mqbc->Disconnect();
+									ZDELETE(B.P_Mqbc);
+								}
+								// } @v11.3.1 
 								break;
 							}
 							SDelay(200);
@@ -6668,12 +6728,39 @@ public:
 										while(p_mqb_cli->ConsumeMessage(mqb_envelop, 200) > 0) {
 											p_mqb_cli->Ack(mqb_envelop.DeliveryTag, 0);
 											if(tpack.Read(mqb_envelop.Msg, 0)) {
+												bool local_error = false;
 												SString a("debug"); // @debug
 												SBinaryChunk msg_svc_ident; // Идент сервиса, переданный с прикладным сообщение
 												SBinaryChunk evn_svc_ident; // Идент сервиса, полученный из mqb_envelop.RoutingKey 
 												if(mqb_envelop.RoutingKey.NotEmpty()) {
 													evn_svc_ident.FromMime64(mqb_envelop.RoutingKey);
 												}
+												// @v11.3.1 {
+												if(mqb_envelop.Msg.Props.CorrelationId.NotEmpty()) {
+													S_GUID round_trip_uuid;
+													SBinaryChunk bc_round_trip_ident;
+													round_trip_uuid.FromStr(mqb_envelop.Msg.Props.CorrelationId);
+													if(tpack.P.Get(SSecretTagPool::tagRoundTripIdent, &bc_round_trip_ident)) {
+														assert(bc_round_trip_ident.Len() > 0);
+														bool round_trip_ident_match = true;
+														if(bc_round_trip_ident.Len() > 0) {
+															if(bc_round_trip_ident.Len() == sizeof(S_GUID)) {
+																S_GUID round_trip_uuid2;
+																memcpy(&round_trip_uuid2, bc_round_trip_ident.PtrC(), bc_round_trip_ident.Len());
+																if(round_trip_uuid2 != round_trip_uuid)
+																	round_trip_ident_match = false;
+															}
+															else
+																round_trip_ident_match = false;
+														}
+														if(!round_trip_ident_match)
+															local_error = true;
+													}
+													else {
+														tpack.P.Put(SSecretTagPool::tagRoundTripIdent, &round_trip_uuid, sizeof(round_trip_uuid));
+													}
+												}
+												// } @v11.3.1 
 												tpack.P.Get(SSecretTagPool::tagSvcIdent, &msg_svc_ident);
 												const RunBlock::Entry * p_target_entry = 0;
 												for(uint j = 0; !p_target_entry && j < run_blk.EntryList.getCount(); j++) {
@@ -6746,7 +6833,7 @@ void RunStyloQMqbServer()
 				if(p_ldb) {
 					StyloQCore::StoragePacket sp;
 					if(p_ldb->P_Sqc->GetOwnPeerEntry(&sp) > 0) {
-						if(sp.Pool.Get(SSecretTagPool::tagSvcIdent, &bc) > 0) {
+						if(sp.Pool.Get(SSecretTagPool::tagSvcIdent, &bc)) {
 							bool svc_id_reckoned = false;
 							{
 								for(uint rslidx = 0; !svc_id_reckoned && rslidx < reckoned_svc_id_list.getCount(); rslidx++) {
@@ -7385,7 +7472,7 @@ int Test_PPStyloQInterchange()
 			}
 			if(p_js_adv_cfg && StyloQCore::ReadIgnitionServerList(isl) > 0) {
 				SSecretTagPool svc_reply;
-				if(sp.Pool.Get(SSecretTagPool::tagSvcIdent, &temp_bch) > 0) {
+				if(sp.Pool.Get(SSecretTagPool::tagSvcIdent, &temp_bch)) {
 					assert(temp_bch.Len() > 0);
 					SString own_ident_hex;
 					temp_bch.Mime64(own_ident_hex);
@@ -7556,7 +7643,7 @@ int Test_PPStyloQInterchange()
 						bch.ToRawStr(temp_buf);
 					}
 					if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
-						for(SJson * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
+						for(const SJson * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
 							if(p_cur->Type == SJson::tOBJECT) {								
 								for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
 									if(p_obj->Text.IsEqiAscii("reply")) {

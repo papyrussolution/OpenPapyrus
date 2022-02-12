@@ -30,31 +30,19 @@ class RootInfo;
 
 struct fragment {
 	char data[4];
-
 	// Default constructor.
-	fragment() {
+	fragment() 
+	{
 	}
-
 	// Allow implicit conversion.
-	explicit fragment(char data_[4]) {
+	explicit fragment(char data_[4]) 
+	{
 		memcpy(data, data_, 4);
 	}
-
-	char & operator[](unsigned i) {
-		return data[i];
-	}
-
-	const char & operator[](unsigned i) const {
-		return data[i];
-	}
-
-	operator std::string() const {
-		return std::string(data, data[0] == 'M' ? 4 : 3);
-	}
-
-	bool operator<(const fragment &b) const {
-		return memcmp(data, b.data, 4) < 0;
-	}
+	char & operator[](unsigned i) { return data[i]; }
+	const char & operator[](unsigned i) const { return data[i]; }
+	operator std::string() const { return std::string(data, data[0] == 'M' ? 4 : 3); }
+	bool operator<(const fragment &b) const { return memcmp(data, b.data, 4) < 0; }
 };
 }
 
@@ -63,9 +51,7 @@ using Glass::RootInfo;
 class GlassSpellingTable : public GlassLazyTable {
 	void toggle_word(const std::string & word);
 	void toggle_fragment(Glass::fragment frag, const std::string & word);
-
 	std::map<std::string, Xapian::termcount> wordfreq_changes;
-
 	/** Changes to make to the termlists.
 	 *
 	 *  This list is essentially xor-ed with the list on disk, so an entry
@@ -136,7 +122,6 @@ public:
 		// Discard batched-up changes.
 		wordfreq_changes.clear();
 		termlist_deltas.clear();
-
 		GlassTable::cancel(root_info, rev);
 	}
 
@@ -145,43 +130,26 @@ public:
 
 /** The list of words containing a particular trigram. */
 class GlassSpellingTermList : public TermList {
-	/// The encoded data.
-	std::string data;
-
-	/// Position in the data.
-	unsigned p;
-
-	/// The current term.
-	std::string current_term;
-
+	std::string data; /// The encoded data.
+	unsigned p; /// Position in the data.
+	std::string current_term; /// The current term.
 	/// Copying is not allowed.
 	GlassSpellingTermList(const GlassSpellingTermList &);
-
 	/// Assignment is not allowed.
 	void operator=(const GlassSpellingTermList &);
-
 public:
 	/// Constructor.
-	explicit GlassSpellingTermList(const std::string & data_)
-		: data(data_), p(0) {
+	explicit GlassSpellingTermList(const std::string & data_) : data(data_), p(0) 
+	{
 	}
-
 	Xapian::termcount get_approx_size() const;
-
 	std::string get_termname() const;
-
 	Xapian::termcount get_wdf() const;
-
 	Xapian::doccount get_termfreq() const;
-
 	TermList * next();
-
 	TermList * skip_to(const std::string & term);
-
 	bool at_end() const;
-
 	Xapian::termcount positionlist_count() const;
-
 	PositionList* positionlist_begin() const;
 };
 

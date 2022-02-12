@@ -270,7 +270,7 @@ int PEM_X509_INFO_write_bio(BIO * bp, X509_INFO * xi, EVP_CIPHER * enc,
 		     * Check "Proc-Type: 4,Encrypted\nDEK-Info: objstr,hex-iv\n"
 		     * fits into buf
 		     */
-		    || (strlen(objstr) + 23 + 2 * EVP_CIPHER_iv_length(enc) + 13)
+		   || (strlen(objstr) + 23 + 2 * EVP_CIPHER_iv_length(enc) + 13)
 		    > sizeof(buf)) {
 			PEMerr(PEM_F_PEM_X509_INFO_WRITE_BIO, PEM_R_UNSUPPORTED_CIPHER);
 			goto err;

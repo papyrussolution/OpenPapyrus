@@ -23,19 +23,19 @@
 
 #ifndef __WIN32__
 // Some older BSDs require sys/types.h to be included first.
-# include <sys/types.h>
-# include <sys/socket.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 #else
-# include "safewinsock2.h"
+#include "safewinsock2.h"
 #endif
 
 #ifdef __WIN32__
-# include <type_traits>
-# include "xapian/error.h"
-# if defined SOCK_CLOEXEC
+#include <type_traits>
+#include "xapian/error.h"
+#if defined SOCK_CLOEXEC
 static_assert(!SOCK_CLOEXEC, "__WIN32__ doesn't support SOCK_CLOEXEC");
-# endif
-# define SOCK_CLOEXEC 0
+#endif
+#define SOCK_CLOEXEC 0
 
 static_assert(std::is_unsigned<SOCKET>::value, "SOCKET is unsigned");
 
@@ -60,17 +60,17 @@ inline int socket_(int domain, int type, int protocol) {
 }
 
 # ifdef socket
-#  undef socket
-# endif
-# define socket(D,T,P) socket_(D,T,P)
+#undef socket
+#endif
+#define socket(D,T,P) socket_(D,T,P)
 
 #elif !defined SOCK_CLOEXEC
-# define SOCK_CLOEXEC 0
+#define SOCK_CLOEXEC 0
 #else
 // On Linux at least, sometimes SOCK_CLOEXEC is defined but the kernel doesn't
 // handle it in socket() or socketpair():
 
-# include <cerrno>
+#include <cerrno>
 
 inline int socket_(int domain, int type, int protocol) {
     // Usually type is passed a constant, so we'll collapse to one branch or
@@ -105,13 +105,13 @@ inline int socketpair_(int domain, int type, int protocol, int *sv) {
 }
 
 # ifdef socket
-#  undef socket
-# endif
-# define socket(D,T,P) socket_(D,T,P)
+#undef socket
+#endif
+#define socket(D,T,P) socket_(D,T,P)
 # ifdef socketpair
-#  undef socketpair
-# endif
-# define socketpair(D,T,P,S) socketpair_(D,T,P,S)
+#undef socketpair
+#endif
+#define socketpair(D,T,P,S) socketpair_(D,T,P,S)
 #endif
 
 #endif // XAPIAN_INCLUDED_SAFESYSSOCKET_H

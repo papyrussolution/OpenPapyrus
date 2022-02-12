@@ -678,13 +678,8 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 							rResult.Cat(psn_rec.Name);
 					}
 					else if(oneof3(Src, srcCCheck, srcGoodsBill, srcCSession)) {
-						PPID   psn_id = 0;
-						if(PPObjPerson::GetCurUserPerson(&psn_id, &temp_buf) > 0)
+						if(PPSyncCashSession::GetCurrentUserName(temp_buf))
 							rResult.Cat(temp_buf);
-						else {
-							GetCurUserName(temp_buf);
-							rResult.Cat(temp_buf);
-						}
 					}
 					break;
 				case symbDirector:

@@ -339,13 +339,13 @@ void GnuPlot::SetArrow()
 	Pgm.Shift();
 	// get tag 
 	if(Pgm.AlmostEqualsCur("back$head") || Pgm.EqualsCur("front")
-	    || Pgm.EqualsCur("from") || Pgm.EqualsCur("at")
-	    || Pgm.EqualsCur("to") || Pgm.EqualsCur("rto")
-	    || Pgm.EqualsCur("size")
-	    || Pgm.EqualsCur("filled") || Pgm.EqualsCur("empty")
-	    || Pgm.EqualsCur("as") || Pgm.EqualsCur("arrowstyle")
-	    || Pgm.AlmostEqualsCur("head$s") || Pgm.EqualsCur("nohead")
-	    || Pgm.AlmostEqualsCur("nobo$rder")) {
+	   || Pgm.EqualsCur("from") || Pgm.EqualsCur("at")
+	   || Pgm.EqualsCur("to") || Pgm.EqualsCur("rto")
+	   || Pgm.EqualsCur("size")
+	   || Pgm.EqualsCur("filled") || Pgm.EqualsCur("empty")
+	   || Pgm.EqualsCur("as") || Pgm.EqualsCur("arrowstyle")
+	   || Pgm.AlmostEqualsCur("head$s") || Pgm.EqualsCur("nohead")
+	   || Pgm.AlmostEqualsCur("nobo$rder")) {
 		tag = AssignArrowTag();
 	}
 	else
@@ -1554,19 +1554,19 @@ void GnuPlot::SetGrid(GpTermEntry * pTerm)
 	Pgm.Shift();
 	while(!Pgm.EndOfCommand()) {
 		explicit_change = GridMatch(FIRST_X_AXIS, "nox$tics")
-		    || GridMatch(FIRST_Y_AXIS, "noy$tics")
-		    || GridMatch(FIRST_Z_AXIS, "noz$tics")
-		    || GridMatch(SECOND_X_AXIS, "nox2$tics")
-		    || GridMatch(SECOND_Y_AXIS, "noy2$tics")
-		    || GridMatch(FIRST_X_AXIS, "nomx$tics")
-		    || GridMatch(FIRST_Y_AXIS, "nomy$tics")
-		    || GridMatch(FIRST_Z_AXIS, "nomz$tics")
-		    || GridMatch(SECOND_X_AXIS, "nomx2$tics")
-		    || GridMatch(SECOND_Y_AXIS, "nomy2$tics")
-		    || GridMatch(COLOR_AXIS, "nocb$tics")
-		    || GridMatch(COLOR_AXIS, "nomcb$tics")
-		    || GridMatch(POLAR_AXIS, "nor$tics")
-		    || GridMatch(POLAR_AXIS, "nomr$tics");
+		   || GridMatch(FIRST_Y_AXIS, "noy$tics")
+		   || GridMatch(FIRST_Z_AXIS, "noz$tics")
+		   || GridMatch(SECOND_X_AXIS, "nox2$tics")
+		   || GridMatch(SECOND_Y_AXIS, "noy2$tics")
+		   || GridMatch(FIRST_X_AXIS, "nomx$tics")
+		   || GridMatch(FIRST_Y_AXIS, "nomy$tics")
+		   || GridMatch(FIRST_Z_AXIS, "nomz$tics")
+		   || GridMatch(SECOND_X_AXIS, "nomx2$tics")
+		   || GridMatch(SECOND_Y_AXIS, "nomy2$tics")
+		   || GridMatch(COLOR_AXIS, "nocb$tics")
+		   || GridMatch(COLOR_AXIS, "nomcb$tics")
+		   || GridMatch(POLAR_AXIS, "nor$tics")
+		   || GridMatch(POLAR_AXIS, "nomr$tics");
 		if(explicit_change) {
 			continue;
 		}

@@ -756,7 +756,7 @@ static void iter_set_info(lzma_index_iter * iter)
 		iter->internal[ITER_METHOD].s = ITER_METHOD_LEFTMOST;
 	}
 	else if(i->streams.rightmost != &stream->node
-	    || stream->groups.rightmost != &group->node) {
+	   || stream->groups.rightmost != &group->node) {
 		// The group is not not the last group in the index.
 		iter->internal[ITER_METHOD].s = ITER_METHOD_NORMAL;
 	}
@@ -1043,8 +1043,8 @@ lzma_ret lzma_index_hash_append(lzma_index_hash *index_hash, lzma_vli unpadded_s
 	return_if_error(hash_append(&index_hash->blocks, unpadded_size, uncompressed_size));
 	// Validate the properties of *info are still in allowed limits.
 	if(index_hash->blocks.blocks_size > LZMA_VLI_MAX || index_hash->blocks.uncompressed_size > LZMA_VLI_MAX
-	    || index_size(index_hash->blocks.count, index_hash->blocks.index_list_size) > LZMA_BACKWARD_SIZE_MAX
-	    || index_stream_size(index_hash->blocks.blocks_size, index_hash->blocks.count, index_hash->blocks.index_list_size) > LZMA_VLI_MAX)
+	   || index_size(index_hash->blocks.count, index_hash->blocks.index_list_size) > LZMA_BACKWARD_SIZE_MAX
+	   || index_stream_size(index_hash->blocks.blocks_size, index_hash->blocks.count, index_hash->blocks.index_list_size) > LZMA_VLI_MAX)
 		return LZMA_DATA_ERROR;
 	return LZMA_OK;
 }

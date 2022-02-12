@@ -783,13 +783,7 @@ public:
 	 * @return A negative, zero, or positive integer indicating the comparison result.
 	 * @stable ICU 2.0
 	 */
-	inline int8_t caseCompareBetween(int32_t start,
-	    int32_t limit,
-	    const UnicodeString & srcText,
-	    int32_t srcStart,
-	    int32_t srcLimit,
-	    uint32_t options) const;
-
+	inline int8_t caseCompareBetween(int32_t start, int32_t limit, const UnicodeString & srcText, int32_t srcStart, int32_t srcLimit, uint32_t options) const;
 	/**
 	 * Determine if this starts with the characters in `text`
 	 * @param text The text to match.
@@ -1392,9 +1386,7 @@ public:
 	 * @return length()
 	 * @stable ICU 2.0
 	 */
-	int32_t extract(Char16Ptr dest, int32_t destCapacity,
-	    UErrorCode & errorCode) const;
-
+	int32_t extract(Char16Ptr dest, int32_t destCapacity, UErrorCode & errorCode) const;
 	/**
 	 * Copy the characters in the range
 	 * [`start`, `start + length`) into the  UnicodeString
@@ -1425,10 +1417,7 @@ public:
 	 * @param target UnicodeString into which to copy characters.
 	 * @stable ICU 2.0
 	 */
-	virtual void extractBetween(int32_t start,
-	    int32_t limit,
-	    UnicodeString & target) const override;
-
+	virtual void extractBetween(int32_t start, int32_t limit, UnicodeString & target) const override;
 	/**
 	 * Copy the characters in the range
 	 * [`start`, `start + startLength`) into an array of characters.
@@ -1450,14 +1439,8 @@ public:
 	 * @return the output string length, not including the terminating NUL
 	 * @stable ICU 3.2
 	 */
-	int32_t extract(int32_t start,
-	    int32_t startLength,
-	    char * target,
-	    int32_t targetCapacity,
-	    enum EInvariant inv) const;
-
+	int32_t extract(int32_t start, int32_t startLength, char * target, int32_t targetCapacity, enum EInvariant inv) const;
 #if U_CHARSET_IS_UTF8 || !UCONFIG_NO_CONVERSION
-
 	/**
 	 * Copy the characters in the range
 	 * [`start`, `start + length`) into an array of characters
@@ -1477,13 +1460,8 @@ public:
 	 * @return the output string length, not including the terminating NUL
 	 * @stable ICU 2.0
 	 */
-	int32_t extract(int32_t start,
-	    int32_t startLength,
-	    char * target,
-	    uint32_t targetLength) const;
-
+	int32_t extract(int32_t start, int32_t startLength, char * target, uint32_t targetLength) const;
 #endif
-
 #if !UCONFIG_NO_CONVERSION
 
 	/**
@@ -1511,11 +1489,7 @@ public:
 	 * @return the output string length, not including the terminating NUL
 	 * @stable ICU 2.0
 	 */
-	inline int32_t extract(int32_t start,
-	    int32_t startLength,
-	    char * target,
-	    const char * codepage = 0) const;
-
+	inline int32_t extract(int32_t start, int32_t startLength, char * target, const char * codepage = 0) const;
 	/**
 	 * Copy the characters in the range
 	 * [`start`, `start + length`) into an array of characters
@@ -1545,12 +1519,7 @@ public:
 	 * @return the output string length, not including the terminating NUL
 	 * @stable ICU 2.0
 	 */
-	int32_t extract(int32_t start,
-	    int32_t startLength,
-	    char * target,
-	    uint32_t targetLength,
-	    const char * codepage) const;
-
+	int32_t extract(int32_t start, int32_t startLength, char * target, uint32_t targetLength, const char * codepage) const;
 	/**
 	 * Convert the UnicodeString into a codepage string using an existing UConverter.
 	 * The output string is NUL-terminated if possible.
@@ -1585,7 +1554,6 @@ public:
 	 * @stable ICU 4.4
 	 */
 	UnicodeString tempSubString(int32_t start = 0, int32_t length = INT32_MAX) const;
-
 	/**
 	 * Create a temporary substring for the specified range.
 	 * Same as tempSubString(start, length) except that the substring range
@@ -1657,7 +1625,6 @@ public:
 	 * @stable ICU 2.0
 	 */
 	inline int32_t length() const;
-
 	/**
 	 * Count Unicode code points in the length char16_t code units of the string.
 	 * A code point may occupy either one or two char16_t code units.
@@ -1704,7 +1671,6 @@ public:
 	 * @stable ICU 2.0
 	 */
 	inline bool isEmpty() const;
-
 	/**
 	 * Return the capacity of the internal buffer of the UnicodeString object.
 	 * This is useful together with the getBuffer functions.
@@ -1848,9 +1814,7 @@ public:
 	 * @return a reference to this
 	 * @stable ICU 2.2
 	 */
-	inline UnicodeString & setTo(const UnicodeString & srcText,
-	    int32_t srcStart);
-
+	inline UnicodeString & setTo(const UnicodeString & srcText, int32_t srcStart);
 	/**
 	 * Set the text in the UnicodeString object to the characters
 	 * in `srcText` in the range
@@ -1864,10 +1828,7 @@ public:
 	 * @return a reference to this
 	 * @stable ICU 2.0
 	 */
-	inline UnicodeString & setTo(const UnicodeString & srcText,
-	    int32_t srcStart,
-	    int32_t srcLength);
-
+	inline UnicodeString & setTo(const UnicodeString & srcText, int32_t srcStart, int32_t srcLength);
 	/**
 	 * Set the text in the UnicodeString object to the characters in
 	 * `srcText`.
@@ -1877,7 +1838,6 @@ public:
 	 * @stable ICU 2.0
 	 */
 	inline UnicodeString & setTo(const UnicodeString & srcText);
-
 	/**
 	 * Set the characters in the UnicodeString object to the characters
 	 * in `srcChars`. `srcChars` is not modified.
@@ -1886,9 +1846,7 @@ public:
 	 * @return a reference to this
 	 * @stable ICU 2.0
 	 */
-	inline UnicodeString & setTo(const char16_t * srcChars,
-	    int32_t srcLength);
-
+	inline UnicodeString & setTo(const char16_t * srcChars, int32_t srcLength);
 	/**
 	 * Set the characters in the UnicodeString object to the code unit
 	 * `srcChar`.
@@ -1898,7 +1856,6 @@ public:
 	 * @stable ICU 2.0
 	 */
 	inline UnicodeString & setTo(char16_t srcChar);
-
 	/**
 	 * Set the characters in the UnicodeString object to the code point
 	 * `srcChar`.
@@ -1933,7 +1890,6 @@ public:
 	 * @stable ICU 2.0
 	 */
 	UnicodeString & setTo(bool isTerminated, ConstChar16Ptr text, int32_t textLength);
-
 	/**
 	 * Aliasing setTo() function, analogous to the writable-aliasing char16_t* constructor.
 	 * The text will be used for the UnicodeString object, but
@@ -1953,10 +1909,7 @@ public:
 	 * @return a reference to this
 	 * @stable ICU 2.0
 	 */
-	UnicodeString & setTo(char16_t * buffer,
-	    int32_t buffLength,
-	    int32_t buffCapacity);
-
+	UnicodeString & setTo(char16_t * buffer, int32_t buffLength, int32_t buffCapacity);
 	/**
 	 * Make this UnicodeString object invalid.
 	 * The string will test true with isBogus().
@@ -2005,9 +1958,7 @@ public:
 	 * @return A reference to this
 	 * @stable ICU 2.0
 	 */
-	UnicodeString & setCharAt(int32_t offset,
-	    char16_t ch);
-
+	UnicodeString & setCharAt(int32_t offset, char16_t ch);
 	/* Append operations */
 
 	/**
@@ -2018,7 +1969,6 @@ public:
 	 * @stable ICU 2.0
 	 */
 	inline UnicodeString & operator+=(char16_t ch);
-
 	/**
 	 * Append operator. Append the code point `ch` to the UnicodeString
 	 * object.
@@ -2036,7 +1986,6 @@ public:
 	 * @stable ICU 2.0
 	 */
 	inline UnicodeString & operator+=(const UnicodeString & srcText);
-
 	/**
 	 * Append the characters
 	 * in `srcText` in the range
@@ -2125,9 +2074,7 @@ public:
 	 * @return a reference to this
 	 * @stable ICU 2.0
 	 */
-	inline UnicodeString & insert(int32_t start,
-	    const UnicodeString & srcText);
-
+	inline UnicodeString & insert(int32_t start, const UnicodeString & srcText);
 	/**
 	 * Insert the characters in `srcChars` in the range
 	 * [`srcStart`, `srcStart + srcLength`) into the UnicodeString
@@ -2161,9 +2108,7 @@ public:
 	 * @return a reference to this
 	 * @stable ICU 2.0
 	 */
-	inline UnicodeString & insert(int32_t start,
-	    char16_t srcChar);
-
+	inline UnicodeString & insert(int32_t start, char16_t srcChar);
 	/**
 	 * Insert the code point `srcChar` into the UnicodeString object at
 	 * offset `start`.
@@ -2172,9 +2117,7 @@ public:
 	 * @return a reference to this
 	 * @stable ICU 2.0
 	 */
-	inline UnicodeString & insert(int32_t start,
-	    UChar32 srcChar);
-
+	inline UnicodeString & insert(int32_t start, UChar32 srcChar);
 	/* Replace operations */
 
 	/**
@@ -2194,12 +2137,7 @@ public:
 	 * @return a reference to this
 	 * @stable ICU 2.0
 	 */
-	inline UnicodeString & replace(int32_t start,
-	    int32_t length,
-	    const UnicodeString & srcText,
-	    int32_t srcStart,
-	    int32_t srcLength);
-
+	inline UnicodeString & replace(int32_t start, int32_t length, const UnicodeString & srcText, int32_t srcStart, int32_t srcLength);
 	/**
 	 * Replace the characters in the range
 	 * [`start`, `start + length`)
@@ -2212,10 +2150,7 @@ public:
 	 * @return a reference to this
 	 * @stable ICU 2.0
 	 */
-	inline UnicodeString & replace(int32_t start,
-	    int32_t length,
-	    const UnicodeString & srcText);
-
+	inline UnicodeString & replace(int32_t start, int32_t length, const UnicodeString & srcText);
 	/**
 	 * Replace the characters in the range
 	 * [`start`, `start + length`) with the characters in
@@ -2233,12 +2168,7 @@ public:
 	 * @return a reference to this
 	 * @stable ICU 2.0
 	 */
-	inline UnicodeString & replace(int32_t start,
-	    int32_t length,
-	    const char16_t * srcChars,
-	    int32_t srcStart,
-	    int32_t srcLength);
-
+	inline UnicodeString & replace(int32_t start, int32_t length, const char16_t * srcChars, int32_t srcStart, int32_t srcLength);
 	/**
 	 * Replace the characters in the range
 	 * [`start`, `start + length`) with the characters in
@@ -2251,11 +2181,7 @@ public:
 	 * @return a reference to this
 	 * @stable ICU 2.0
 	 */
-	inline UnicodeString & replace(int32_t start,
-	    int32_t length,
-	    ConstChar16Ptr srcChars,
-	    int32_t srcLength);
-
+	inline UnicodeString & replace(int32_t start, int32_t length, ConstChar16Ptr srcChars, int32_t srcLength);
 	/**
 	 * Replace the characters in the range
 	 * [`start`, `start + length`) with the code unit
@@ -2267,10 +2193,7 @@ public:
 	 * @return a reference to this
 	 * @stable ICU 2.0
 	 */
-	inline UnicodeString & replace(int32_t start,
-	    int32_t length,
-	    char16_t srcChar);
-
+	inline UnicodeString & replace(int32_t start, int32_t length, char16_t srcChar);
 	/**
 	 * Replace the characters in the range
 	 * [`start`, `start + length`) with the code point
@@ -2283,7 +2206,6 @@ public:
 	 * @stable ICU 2.0
 	 */
 	UnicodeString & replace(int32_t start, int32_t length, UChar32 srcChar);
-
 	/**
 	 * Replace the characters in the range [`start`, `limit`)
 	 * with the characters in `srcText`. `srcText` is not modified.
@@ -2293,10 +2215,7 @@ public:
 	 * @return a reference to this
 	 * @stable ICU 2.0
 	 */
-	inline UnicodeString & replaceBetween(int32_t start,
-	    int32_t limit,
-	    const UnicodeString & srcText);
-
+	inline UnicodeString & replaceBetween(int32_t start, int32_t limit, const UnicodeString & srcText);
 	/**
 	 * Replace the characters in the range [`start`, `limit`)
 	 * with the characters in `srcText` in the range
@@ -2311,12 +2230,7 @@ public:
 	 * @return a reference to this
 	 * @stable ICU 2.0
 	 */
-	inline UnicodeString & replaceBetween(int32_t start,
-	    int32_t limit,
-	    const UnicodeString & srcText,
-	    int32_t srcStart,
-	    int32_t srcLimit);
-
+	inline UnicodeString & replaceBetween(int32_t start, int32_t limit, const UnicodeString & srcText, int32_t srcStart, int32_t srcLimit);
 	/**
 	 * Replace a substring of this object with the given text.
 	 * @param start the beginning index, inclusive; `0 <= start <= limit`.
@@ -2324,17 +2238,13 @@ public:
 	 * @param text the text to replace characters `start` to `limit - 1`
 	 * @stable ICU 2.0
 	 */
-	virtual void handleReplaceBetween(int32_t start,
-	    int32_t limit,
-	    const UnicodeString & text) override;
-
+	virtual void handleReplaceBetween(int32_t start, int32_t limit, const UnicodeString & text) override;
 	/**
 	 * Replaceable API
 	 * @return true if it has MetaData
 	 * @stable ICU 2.4
 	 */
 	virtual bool hasMetaData() const override;
-
 	/**
 	 * Copy a substring of this object, retaining attribute (out-of-band)
 	 * information.  This method is used to duplicate or reorder substrings.
@@ -2360,9 +2270,7 @@ public:
 	 * @return a reference to this
 	 * @stable ICU 2.0
 	 */
-	inline UnicodeString & findAndReplace(const UnicodeString & oldText,
-	    const UnicodeString & newText);
-
+	inline UnicodeString & findAndReplace(const UnicodeString & oldText, const UnicodeString & newText);
 	/**
 	 * Replace all occurrences of characters in oldText with characters
 	 * in newText
@@ -2374,11 +2282,7 @@ public:
 	 * @return a reference to this
 	 * @stable ICU 2.0
 	 */
-	inline UnicodeString & findAndReplace(int32_t start,
-	    int32_t length,
-	    const UnicodeString & oldText,
-	    const UnicodeString & newText);
-
+	inline UnicodeString & findAndReplace(int32_t start, int32_t length, const UnicodeString & oldText, const UnicodeString & newText);
 	/**
 	 * Replace all occurrences of characters in oldText in the range
 	 * [`oldStart`, `oldStart + oldLength`) with the characters
@@ -2396,15 +2300,8 @@ public:
 	 * @return a reference to this
 	 * @stable ICU 2.0
 	 */
-	UnicodeString & findAndReplace(int32_t start,
-	    int32_t length,
-	    const UnicodeString & oldText,
-	    int32_t oldStart,
-	    int32_t oldLength,
-	    const UnicodeString & newText,
-	    int32_t newStart,
-	    int32_t newLength);
-
+	UnicodeString & findAndReplace(int32_t start, int32_t length, const UnicodeString & oldText, int32_t oldStart,
+	    int32_t oldLength, const UnicodeString & newText, int32_t newStart, int32_t newLength);
 	/* Remove operations */
 
 	/**
@@ -2459,9 +2356,7 @@ public:
 	 * @return true if the text was padded, false otherwise.
 	 * @stable ICU 2.0
 	 */
-	bool padLeading(int32_t targetLength,
-	    char16_t padChar = 0x0020);
-
+	bool padLeading(int32_t targetLength, char16_t padChar = 0x0020);
 	/**
 	 * Pad the end of this UnicodeString with the character `padChar`.
 	 * If the length of this UnicodeString is less than targetLength,
@@ -2473,9 +2368,7 @@ public:
 	 * @return true if the text was padded, false otherwise.
 	 * @stable ICU 2.0
 	 */
-	bool padTrailing(int32_t targetLength,
-	    char16_t padChar = 0x0020);
-
+	bool padTrailing(int32_t targetLength, char16_t padChar = 0x0020);
 	/**
 	 * Truncate this UnicodeString to the `targetLength`.
 	 * @param targetLength the desired length of this UnicodeString.
@@ -2483,7 +2376,6 @@ public:
 	 * @stable ICU 2.0
 	 */
 	inline bool truncate(int32_t targetLength);
-
 	/**
 	 * Trims leading and trailing whitespace from this UnicodeString.
 	 * @return a reference to this
@@ -4297,12 +4189,7 @@ inline UnicodeString UnicodeString::tempSubStringBetween(int32_t start, int32_t 
 
 inline char16_t UnicodeString::doCharAt(int32_t offset) const
 {
-	if((uint32_t)offset < (uint32_t)length()) {
-		return getArrayStart()[offset];
-	}
-	else {
-		return kInvalidUChar;
-	}
+	return ((uint32_t)offset < (uint32_t)length()) ? getArrayStart()[offset] : kInvalidUChar;
 }
 
 inline char16_t UnicodeString::charAt(int32_t offset) const
@@ -4323,17 +4210,16 @@ inline bool UnicodeString::isEmpty() const {
 //========================================
 // Write implementation methods
 //========================================
-inline void UnicodeString::setZeroLength() {
-	fUnion.fFields.fLengthAndFlags &= kAllStorageFlags;
-}
+inline void UnicodeString::setZeroLength() { fUnion.fFields.fLengthAndFlags &= kAllStorageFlags; }
 
-inline void UnicodeString::setShortLength(int32_t len) {
+inline void UnicodeString::setShortLength(int32_t len) 
+{
 	// requires 0 <= len <= kMaxShortLength
-	fUnion.fFields.fLengthAndFlags =
-	    (int16_t)((fUnion.fFields.fLengthAndFlags & kAllStorageFlags) | (len << kLengthShift));
+	fUnion.fFields.fLengthAndFlags = (int16_t)((fUnion.fFields.fLengthAndFlags & kAllStorageFlags) | (len << kLengthShift));
 }
 
-inline void UnicodeString::setLength(int32_t len) {
+inline void UnicodeString::setLength(int32_t len) 
+{
 	if(len <= kMaxShortLength) {
 		setShortLength(len);
 	}
@@ -4343,11 +4229,10 @@ inline void UnicodeString::setLength(int32_t len) {
 	}
 }
 
-inline void UnicodeString::setToEmpty() {
-	fUnion.fFields.fLengthAndFlags = kShortString;
-}
+inline void UnicodeString::setToEmpty() { fUnion.fFields.fLengthAndFlags = kShortString; }
 
-inline void UnicodeString::setArray(char16_t * array, int32_t len, int32_t capacity) {
+inline void UnicodeString::setArray(char16_t * array, int32_t len, int32_t capacity) 
+{
 	setLength(len);
 	fUnion.fFields.fArray = array;
 	fUnion.fFields.fCapacity = capacity;
@@ -4363,16 +4248,13 @@ inline UnicodeString & UnicodeString::operator = (UChar32 ch)
 	return replace(0, length(), ch);
 }
 
-inline UnicodeString & UnicodeString::setTo(const UnicodeString & srcText,
-    int32_t srcStart,
-    int32_t srcLength)
+inline UnicodeString & UnicodeString::setTo(const UnicodeString & srcText, int32_t srcStart, int32_t srcLength)
 {
 	unBogus();
 	return doReplace(0, length(), srcText, srcStart, srcLength);
 }
 
-inline UnicodeString & UnicodeString::setTo(const UnicodeString & srcText,
-    int32_t srcStart)
+inline UnicodeString & UnicodeString::setTo(const UnicodeString & srcText, int32_t srcStart)
 {
 	unBogus();
 	srcText.pinIndex(srcStart);
@@ -4384,8 +4266,7 @@ inline UnicodeString & UnicodeString::setTo(const UnicodeString & srcText)
 	return copyFrom(srcText);
 }
 
-inline UnicodeString & UnicodeString::setTo(const char16_t * srcChars,
-    int32_t srcLength)
+inline UnicodeString & UnicodeString::setTo(const char16_t * srcChars, int32_t srcLength)
 {
 	unBogus();
 	return doReplace(0, length(), srcChars, 0, srcLength);
@@ -4461,22 +4342,19 @@ inline UnicodeString & UnicodeString::insert(int32_t start, UChar32 srcChar)
 inline UnicodeString & UnicodeString::remove()
 {
 	// remove() of a bogus string makes the string empty and non-bogus
-	if(isBogus()) {
+	if(isBogus())
 		setToEmpty();
-	}
-	else {
+	else
 		setZeroLength();
-	}
 	return *this;
 }
 
 inline UnicodeString & UnicodeString::remove(int32_t start, int32_t _length)
 {
-	if(start <= 0 && _length == INT32_MAX) {
-		// remove(guaranteed everything) of a bogus string makes the string empty and non-bogus
-		return remove();
-	}
-	return doReplace(start, _length, NULL, 0, 0);
+	if(start <= 0 && _length == INT32_MAX)
+		return remove(); // remove(guaranteed everything) of a bogus string makes the string empty and non-bogus
+	else
+		return doReplace(start, _length, NULL, 0, 0);
 }
 
 inline UnicodeString & UnicodeString::removeBetween(int32_t start, int32_t limit)
@@ -4501,9 +4379,8 @@ inline bool UnicodeString::truncate(int32_t targetLength)
 		setLength(targetLength);
 		return true;
 	}
-	else {
+	else
 		return false;
-	}
 }
 
 inline UnicodeString & UnicodeString::reverse() { return doReverse(0, length()); }

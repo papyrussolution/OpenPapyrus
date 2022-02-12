@@ -27,7 +27,6 @@
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "cjk-tokenizer.h"
-#include "xapian/unicode.h"
 
 using namespace std;
 

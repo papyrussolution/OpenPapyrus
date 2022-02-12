@@ -26,7 +26,7 @@
 #define XAPIAN_INCLUDED_WORDACCESS_H
 
 #ifndef PACKAGE
-# error config.h must be included first in each C++ source file
+#error config.h must be included first in each C++ source file
 #endif
 
 #include <cstdint>
@@ -37,21 +37,21 @@
 #include "omassert.h"
 
 #if HAVE_DECL__BYTESWAP_USHORT || HAVE_DECL__BYTESWAP_ULONG
-# include <stdlib.h>
+#include <stdlib.h>
 #endif
 
 inline uint16_t do_bswap(uint16_t value) {
-# if HAVE_DECL___BUILTIN_BSWAP16
+#if HAVE_DECL___BUILTIN_BSWAP16
     return __builtin_bswap16(value);
 # elif HAVE_DECL__BYTESWAP_USHORT
     return _byteswap_ushort(value);
 # else
     return (value << 8) | (value >> 8);
-# endif
+#endif
 }
 
 inline uint32_t do_bswap(uint32_t value) {
-# if HAVE_DECL___BUILTIN_BSWAP32
+#if HAVE_DECL___BUILTIN_BSWAP32
     return __builtin_bswap32(value);
 # elif HAVE_DECL__BYTESWAP_ULONG
     return _byteswap_ulong(value);
@@ -60,11 +60,11 @@ inline uint32_t do_bswap(uint32_t value) {
 	   ((value & 0xff00) << 8) |
 	   ((value >> 8) & 0xff00) |
 	   (value >> 24);
-# endif
+#endif
 }
 
 inline uint64_t do_bswap(uint64_t value) {
-# if HAVE_DECL___BUILTIN_BSWAP64
+#if HAVE_DECL___BUILTIN_BSWAP64
     return __builtin_bswap64(value);
 # elif HAVE_DECL__BYTESWAP_UINT64
     return _byteswap_uint64(value);
@@ -77,7 +77,7 @@ inline uint64_t do_bswap(uint64_t value) {
 	   ((value >> 24) & 0xff0000) |
 	   ((value >> 40) & 0xff00) |
 	   (value >> 56);
-# endif
+#endif
 }
 
 template<typename UINT>

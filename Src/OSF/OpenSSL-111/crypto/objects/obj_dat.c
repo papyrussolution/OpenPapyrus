@@ -671,7 +671,7 @@ int OBJ_create(const char * oid, const char * sn, const char * ln)
 	int ok = 0;
 	/* Check to see if short or long name already present */
 	if((sn != NULL && OBJ_sn2nid(sn) != NID_undef)
-	    || (ln != NULL && OBJ_ln2nid(ln) != NID_undef)) {
+	   || (ln != NULL && OBJ_ln2nid(ln) != NID_undef)) {
 		OBJerr(OBJ_F_OBJ_CREATE, OBJ_R_OID_EXISTS);
 		return 0;
 	}

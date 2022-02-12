@@ -19,7 +19,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include <xapian/expanddecider.h>
 
 using namespace std;
 

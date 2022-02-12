@@ -592,9 +592,9 @@ __owur static int ecp_nistz256_windowed_mul(const EC_GROUP * group, P256_POINT *
 	void * table_storage = NULL;
 
 	if((num * 16 + 6) > OPENSSL_MALLOC_MAX_NELEMS(P256_POINT)
-	    || (table_storage = OPENSSL_malloc((num * 16 + 5) * sizeof(P256_POINT) + 64)) == NULL
-	    || (p_str = static_cast<uchar (*)[33]>(OPENSSL_malloc(num * 33 * sizeof(uchar)))) == NULL
-	    || (scalars = static_cast<const BIGNUM **>(OPENSSL_malloc(num * sizeof(BIGNUM *)))) == NULL) {
+	   || (table_storage = OPENSSL_malloc((num * 16 + 5) * sizeof(P256_POINT) + 64)) == NULL
+	   || (p_str = static_cast<uchar (*)[33]>(OPENSSL_malloc(num * 33 * sizeof(uchar)))) == NULL
+	   || (scalars = static_cast<const BIGNUM **>(OPENSSL_malloc(num * sizeof(BIGNUM *)))) == NULL) {
 		ECerr(EC_F_ECP_NISTZ256_WINDOWED_MUL, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
@@ -638,8 +638,8 @@ __owur static int ecp_nistz256_windowed_mul(const EC_GROUP * group, P256_POINT *
 			p_str[i][j] = 0;
 
 		if(!ecp_nistz256_bignum_to_field_elem(temp[0].X, point[i]->X)
-		    || !ecp_nistz256_bignum_to_field_elem(temp[0].Y, point[i]->Y)
-		    || !ecp_nistz256_bignum_to_field_elem(temp[0].Z, point[i]->Z)) {
+		   || !ecp_nistz256_bignum_to_field_elem(temp[0].Y, point[i]->Y)
+		   || !ecp_nistz256_bignum_to_field_elem(temp[0].Z, point[i]->Z)) {
 			ECerr(EC_F_ECP_NISTZ256_WINDOWED_MUL,
 			    EC_R_COORDINATES_OUT_OF_RANGE);
 			goto err;
@@ -1483,7 +1483,7 @@ static int ecp_nistz256_inv_mod_ord(const EC_GROUP * group, BIGNUM * r,
 		BIGNUM * tmp;
 
 		if((tmp = BN_CTX_get(ctx)) == NULL
-		    || !BN_nnmod(tmp, x, group->order, ctx)) {
+		   || !BN_nnmod(tmp, x, group->order, ctx)) {
 			ECerr(EC_F_ECP_NISTZ256_INV_MOD_ORD, ERR_R_BN_LIB);
 			goto err;
 		}

@@ -77,7 +77,7 @@ static bool gtls_inited = FALSE;
 #error "too old GnuTLS version"
 #endif
 
-# include <gnutls/ocsp.h>
+#include <gnutls/ocsp.h>
 
 struct ssl_backend_data {
 	gnutls_session_t session;
@@ -179,9 +179,9 @@ static gnutls_datum_t load_file(const char * file)
 	if(!f)
 		return loaded_file;
 	if(fseek(f, 0, SEEK_END) != 0
-	    || (filelen = ftell(f)) < 0
-	    || fseek(f, 0, SEEK_SET) != 0
-	    || !(ptr = SAlloc::M((size_t)filelen)))
+	   || (filelen = ftell(f)) < 0
+	   || fseek(f, 0, SEEK_SET) != 0
+	   || !(ptr = SAlloc::M((size_t)filelen)))
 		goto out;
 	if(fread(ptr, 1, (size_t)filelen, f) < (size_t)filelen) {
 		SAlloc::F(ptr);
@@ -227,7 +227,7 @@ static CURLcode handshake(struct connectdata * conn,
 
 		/* if ssl is expecting something, check if it's available. */
 		if(connssl->connecting_state == ssl_connect_2_reading
-		    || connssl->connecting_state == ssl_connect_2_writing) {
+		   || connssl->connecting_state == ssl_connect_2_writing) {
 			int what;
 			curl_socket_t writefd = ssl_connect_2_writing ==
 			    connssl->connecting_state ? sockfd : CURL_SOCKET_BAD;

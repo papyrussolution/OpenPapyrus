@@ -1,11 +1,8 @@
-/*
- * parserInternals.c : Internal routines (and obsolete ones) needed for the
- *          XML and HTML parsers.
- *
- * See Copyright for the status of this software.
- *
- * daniel@veillard.com
- */
+// PARSERINTERNALS.C
+// Internal routines (and obsolete ones) needed for the XML and HTML parsers.
+// See Copyright for the status of this software.
+// daniel@veillard.com
+// 
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
@@ -26,7 +23,7 @@
  */
 void xmlCheckVersion(int version) 
 {
-	int myversion = (int)LIBXML_VERSION;
+	const int myversion = (int)LIBXML_VERSION;
 	xmlInitParser();
 	if((myversion / 10000) != (version / 10000)) {
 		xmlGenericError(0, "Fatal: program compiled against libxml %d using libxml %d\n", (version / 10000), (myversion / 10000));
@@ -207,19 +204,16 @@ int FASTCALL xmlParserInputGrow(xmlParserInput * in, int len)
 #ifdef DEBUG_INPUT
 	xmlGenericError(0, "Grow\n");
 #endif
-	if(!in->buf) return -1;
-	if(!in->base) return -1;
-	if(!in->cur) return -1;
-	if(!in->buf->buffer) return -1;
+	if(!in->buf || !in->base || !in->cur || !in->buf->buffer)
+		return -1;
 	CHECK_BUFFER(in);
 	indx = in->cur - in->base;
 	if(xmlBufUse(in->buf->buffer) > (uint)indx + INPUT_CHUNK) {
 		CHECK_BUFFER(in);
 		return 0;
 	}
-	if(in->buf->readcallback != NULL) {
+	if(in->buf->readcallback)
 		ret = xmlParserInputBufferGrow(in->buf, len);
-	}
 	else
 		return 0;
 	/*
@@ -703,13 +697,16 @@ int FASTCALL xmlCopyCharMultiByte(xmlChar * out, int val)
 		xmlChar * savedout = out;
 		int bits;
 		if(val <   0x800) {
-			*out++ = (val >>  6) | 0xC0;  bits =  0;
+			*out++ = (val >>  6) | 0xC0;  
+			bits =  0;
 		}
 		else if(val < 0x10000) {
-			*out++ = (val >> 12) | 0xE0;  bits =  6;
+			*out++ = (val >> 12) | 0xE0;  
+			bits =  6;
 		}
 		else if(val < 0x110000) {
-			*out++ = (val >> 18) | 0xF0;  bits =  12;
+			*out++ = (val >> 18) | 0xF0;  
+			bits =  12;
 		}
 		else {
 			xmlErrEncodingInt(NULL, XML_ERR_INVALID_CHAR, "Internal error, xmlCopyCharMultiByte 0x%X out of bound\n", val);
@@ -1226,21 +1223,14 @@ xmlParserInput * xmlNewInputFromFile(xmlParserCtxt * ctxt, const char * filename
 	}
 	return inputStream;
 }
-
-/************************************************************************
-*									*
-*		Commodity functions to handle parser contexts		*
-*									*
-************************************************************************/
-
-/**
- * xmlInitParserCtxt:
- * @ctxt:  an XML parser context
- *
- * Initialize a parser context
- *
- * Returns 0 in case of success and -1 in case of error
- */
+// 
+// Commodity functions to handle parser contexts
+// 
+// 
+// Initialize a parser context
+// @ctxt:  an XML parser context
+// Returns 0 in case of success and -1 in case of error
+// 
 int xmlInitParserCtxt(xmlParserCtxt * ctxt)
 {
 	if(!ctxt) {
@@ -1414,7 +1404,7 @@ void FASTCALL xmlFreeParserCtxt(xmlParserCtxt * ctxt)
 {
 	xmlParserInput * input;
 	if(ctxt) {
-		while((input = inputPop(ctxt)) != NULL) { /* Non consuming */
+		while((input = inputPop(ctxt)) != NULL) { // Non consuming
 			xmlFreeInputStream(input);
 		}
 		SAlloc::F(ctxt->spaceTab);
@@ -1469,13 +1459,10 @@ void FASTCALL xmlFreeParserCtxt(xmlParserCtxt * ctxt)
 		SAlloc::F(ctxt);
 	}
 }
-/**
- * xmlNewParserCtxt:
- *
- * Allocate and initialize a new parser context.
- *
- * Returns the xmlParserCtxtPtr or NULL
- */
+// 
+// Descr: Allocate and initialize a new parser context.
+// Returns: the xmlParserCtxtPtr or NULL
+// 
 xmlParserCtxt * xmlNewParserCtxt()
 {
 	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(SAlloc::M(sizeof(xmlParserCtxt)));
@@ -1490,19 +1477,13 @@ xmlParserCtxt * xmlNewParserCtxt()
 	}
 	return ctxt;
 }
-
-/************************************************************************
-*									*
-*		Handling of node informations				*
-*									*
-************************************************************************/
-
-/**
- * xmlClearParserCtxt:
- * @ctxt:  an XML parser context
- *
- * Clear (release owned resources) and reinitialize a parser context
- */
+// 
+// Handling of node informations
+// 
+// 
+// Descr: Clear (release owned resources) and reinitialize a parser context
+// @ctxt:  an XML parser context
+// 
 void xmlClearParserCtxt(xmlParserCtxt * ctxt)
 {
 	if(ctxt) {
@@ -1519,17 +1500,15 @@ void xmlClearParserCtxt(xmlParserCtxt * ctxt)
  *
  * Returns an xmlParserNodeInfo block pointer or NULL
  */
-const xmlParserNodeInfo * xmlParserFindNodeInfo(const xmlParserCtxt * ctx, const xmlNode * P_Node)
+const xmlParserNodeInfo * xmlParserFindNodeInfo(const xmlParserCtxt * ctx, const xmlNode * pNode)
 {
-	ulong pos;
-	if(!ctx || !P_Node)
-		return 0;
-	// Find position where node should be at 
-	pos = xmlParserFindNodeInfoIndex(&ctx->node_seq, P_Node);
-	if(pos < ctx->node_seq.length && ctx->node_seq.buffer[pos].P_Node == P_Node)
-		return &ctx->node_seq.buffer[pos];
+	if(ctx && pNode) {
+		// Find position where node should be at 
+		ulong pos = xmlParserFindNodeInfoIndex(&ctx->node_seq, pNode);
+		return (pos < ctx->node_seq.length && ctx->node_seq.buffer[pos].P_Node == pNode) ? &ctx->node_seq.buffer[pos] : 0;
+	}
 	else
-		return NULL;
+		return 0;
 }
 /**
  * xmlInitNodeInfoSeq:
@@ -1647,7 +1626,7 @@ void xmlParserAddNodeInfo(xmlParserCtxt * ctxt, const xmlParserNodeInfoPtr info)
  */
 int xmlPedanticParserDefault(int val)
 {
-	int old = xmlPedanticParserDefaultValue;
+	const int old = xmlPedanticParserDefaultValue;
 	xmlPedanticParserDefaultValue = val;
 	return old;
 }
@@ -1662,7 +1641,7 @@ int xmlPedanticParserDefault(int val)
  */
 int xmlLineNumbersDefault(int val)
 {
-	int old = xmlLineNumbersDefaultValue;
+	const int old = xmlLineNumbersDefaultValue;
 	xmlLineNumbersDefaultValue = val;
 	return old;
 }
@@ -1681,7 +1660,7 @@ int xmlLineNumbersDefault(int val)
  */
 int xmlSubstituteEntitiesDefault(int val)
 {
-	int old = xmlSubstituteEntitiesDefaultValue;
+	const int old = xmlSubstituteEntitiesDefaultValue;
 	xmlSubstituteEntitiesDefaultValue = val;
 	return old;
 }
@@ -1710,7 +1689,7 @@ int xmlSubstituteEntitiesDefault(int val)
  */
 int xmlKeepBlanksDefault(int val)
 {
-	int old = xmlKeepBlanksDefaultValue;
+	const int old = xmlKeepBlanksDefaultValue;
 	xmlKeepBlanksDefaultValue = val;
 	if(!val)
 		xmlIndentTreeOutput = 1;

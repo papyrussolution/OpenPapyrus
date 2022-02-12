@@ -320,7 +320,7 @@ uprv_compareInvEbcdic(const UDataSwapper *ds,
 #elif U_CHARSET_FAMILY==U_EBCDIC_FAMILY
 #define uprv_compareInvWithUChar uprv_compareInvEbcdic
 #else
-#   error Unknown charset family!
+#error Unknown charset family!
 #endif
 
 // utrie_swap.cpp -----------------------------------------------------------***

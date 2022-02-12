@@ -196,7 +196,7 @@ static int userauth_password(LIBSSH2_SESSION * session,
 	}
 password_response:
 	if((session->userauth_pswd_state == libssh2_NB_state_sent) || (session->userauth_pswd_state == libssh2_NB_state_sent1)
-	    || (session->userauth_pswd_state == libssh2_NB_state_sent2)) {
+	   || (session->userauth_pswd_state == libssh2_NB_state_sent2)) {
 		if(session->userauth_pswd_state == libssh2_NB_state_sent) {
 			rc = _libssh2_packet_requirev(session, reply_codes, &session->userauth_pswd_data,
 			    &session->userauth_pswd_data_len, 0, NULL, 0, &session->userauth_pswd_packet_requirev_state);

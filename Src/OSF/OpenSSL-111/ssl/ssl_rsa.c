@@ -730,8 +730,8 @@ static int serverinfo_find_extension(const uchar * serverinfo,
 			return 0; /* Extension not found */
 
 		if(!PACKET_get_net_4(&pkt, &context)
-		    || !PACKET_get_net_2(&pkt, &type)
-		    || !PACKET_get_length_prefixed_2(&pkt, &data))
+		   || !PACKET_get_net_2(&pkt, &type)
+		   || !PACKET_get_length_prefixed_2(&pkt, &data))
 			return -1;
 
 		if(type == extension_type) {
@@ -830,8 +830,8 @@ static int serverinfo_process_buffer(uint version,
 		PACKET data;
 
 		if((version == SSL_SERVERINFOV2 && !PACKET_get_net_4(&pkt, &context))
-		    || !PACKET_get_net_2(&pkt, &ext_type)
-		    || !PACKET_get_length_prefixed_2(&pkt, &data))
+		   || !PACKET_get_net_2(&pkt, &ext_type)
+		   || !PACKET_get_length_prefixed_2(&pkt, &data))
 			return 0;
 
 		if(ctx == NULL)
@@ -986,7 +986,7 @@ int SSL_CTX_use_serverinfo_file(SSL_CTX * ctx, const char * file)
 		if(version == SSL_SERVERINFOV1) {
 			/* 4 byte header: 2 bytes type, 2 bytes len */
 			if(extension_length < 4
-			    || (extension[2] << 8) + extension[3]
+			   || (extension[2] << 8) + extension[3]
 			    != extension_length - 4) {
 				SSLerr(SSL_F_SSL_CTX_USE_SERVERINFO_FILE, SSL_R_BAD_DATA);
 				goto end;
@@ -1000,7 +1000,7 @@ int SSL_CTX_use_serverinfo_file(SSL_CTX * ctx, const char * file)
 		else {
 			/* 8 byte header: 4 bytes context, 2 bytes type, 2 bytes len */
 			if(extension_length < 8
-			    || (extension[6] << 8) + extension[7]
+			   || (extension[6] << 8) + extension[7]
 			    != extension_length - 8) {
 				SSLerr(SSL_F_SSL_CTX_USE_SERVERINFO_FILE, SSL_R_BAD_DATA);
 				goto end;
@@ -1113,8 +1113,8 @@ static int ssl_set_cert_and_key(SSL * ssl, SSL_CTX * ctx, X509 * x509, EVP_PKEY 
 	}
 
 	if(!override && (c->pkeys[i].x509 != NULL
-	    || c->pkeys[i].privatekey != NULL
-	    || c->pkeys[i].chain != NULL)) {
+	   || c->pkeys[i].privatekey != NULL
+	   || c->pkeys[i].chain != NULL)) {
 		/* No override, and something already there */
 		SSLerr(SSL_F_SSL_SET_CERT_AND_KEY, SSL_R_NOT_REPLACING_CERTIFICATE);
 		goto out;

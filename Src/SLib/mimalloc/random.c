@@ -152,7 +152,7 @@ uintptr_t _mi_random_next(mi_random_ctx_t* ctx)
   #elif MI_INTPTR_SIZE == 8
 	return (((uintptr_t)chacha_next32(ctx) << 32) | chacha_next32(ctx));
   #else
-  # error "define mi_random_next for this platform"
+  #error "define mi_random_next for this platform"
   #endif
 }
 

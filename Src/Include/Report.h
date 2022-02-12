@@ -156,7 +156,6 @@ struct ReportDescrEntry {
 	static int FASTCALL GetIniToken(const char * pBuf, SString * pFileName);
 
 	ReportDescrEntry();
-	int    ParseIniString(const char * pLine, const ReportDescrEntry * pBaseEntry);
 	int    SetReportFileName(const char * pFileName);
 
 	enum {

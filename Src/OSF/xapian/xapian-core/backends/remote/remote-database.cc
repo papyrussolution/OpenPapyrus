@@ -34,7 +34,6 @@
 #include "remote_termlist.h"
 #include "serialise-double.h"
 #include "weight/weightinternal.h"
-#include "xapian/matchspy.h"
 
 using namespace std;
 using Xapian::Internal::intrusive_ptr;
@@ -311,8 +310,8 @@ bool RemoteDatabase::update_stats(message_type msg_code, const string & body) co
 
 	// The protocol major versions must match.  The protocol minor version of
 	// the server must be >= that of the client.
-	int protocol_major = static_cast<unsigned char>(*p++);
-	int protocol_minor = static_cast<unsigned char>(*p++);
+	int protocol_major = static_cast<uchar>(*p++);
+	int protocol_minor = static_cast<uchar>(*p++);
 	if(protocol_major != XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION ||
 	    protocol_minor < XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION) {
 		string errmsg("Server supports protocol version");
@@ -579,7 +578,7 @@ void RemoteDatabase::send_message(message_type type, const string &message) cons
 			pending_reply = false;
 		}
 	}
-	link.send_message(static_cast<unsigned char>(type), message, end_time);
+	link.send_message(static_cast<uchar>(type), message, end_time);
 	pending_reply = true;
 }
 

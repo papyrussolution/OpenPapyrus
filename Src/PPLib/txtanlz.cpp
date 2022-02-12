@@ -1,5 +1,5 @@
 // TXTANLZ.CPP
-// Copyright (c) A.Sobolev 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -3653,9 +3653,9 @@ int PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSecret)
 	}
 	{
 		if(result_str.C(0) == '{') {
-			SJson * p_next = 0;
+			const SJson * p_next = 0;
 			THROW(json_parse_document(&p_json_doc, result_str.cptr()) == JSON_OK);
-			for(SJson * p_cur = p_json_doc; p_cur; p_cur = p_next) {
+			for(const SJson * p_cur = p_json_doc; p_cur; p_cur = p_next) {
 				p_next = p_cur->P_Next;
 				switch(p_cur->Type) {
 					case SJson::tARRAY:
@@ -3674,9 +3674,9 @@ int PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSecret)
 							// @v11.1.10 {
 							else if(sstreqi_ascii(p_cur->Text, "error")) {
 								if(p_cur->P_Child) {
-									SJson * p_err = p_cur->P_Child;
+									const SJson * p_err = p_cur->P_Child;
 									if(p_err->Type == SJson::tOBJECT) {
-										for(SJson * p_en = p_err->P_Child; p_en; p_en = p_en->P_Next) {
+										for(const SJson * p_en = p_err->P_Child; p_en; p_en = p_en->P_Next) {
 											temp_buf = p_en->P_Child->Text;
 											if(p_en->Text.IsEqiAscii("code"))
 												LastStatusCode = temp_buf.Unescape().ToLong();

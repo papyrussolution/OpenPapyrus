@@ -673,7 +673,6 @@ int ssh_set_client_kex(ssh_session session)
 			}
 			continue;
 		}
-
 		wanted = session->opts.wanted_methods[i];
 		if(wanted == NULL) {
 			if(ssh_fips_mode()) {
@@ -683,18 +682,16 @@ int ssh_set_client_kex(ssh_session session)
 				wanted = default_methods[i];
 			}
 		}
-		client->methods[i] = _strdup(wanted);
+		client->methods[i] = sstrdup(wanted);
 		if(client->methods[i] == NULL) {
 			ssh_set_error_oom(session);
 			return SSH_ERROR;
 		}
 	}
-
 	/* For rekeying, skip the extension negotiation */
 	if(session->flags & SSH_SESSION_FLAG_AUTHENTICATED) {
 		return SSH_OK;
 	}
-
 	/* Here we append  ext-info-c  to the list of kex algorithms */
 	kex = client->methods[SSH_KEX];
 	len = strlen(kex);
@@ -737,7 +734,7 @@ int ssh_kex_select_methods(ssh_session session)
 		}
 		else if((i >= SSH_LANG_C_S) && (session->next_crypto->kex_methods[i] == NULL)) {
 			// we can safely do that for languages 
-			session->next_crypto->kex_methods[i] = _strdup("");
+			session->next_crypto->kex_methods[i] = sstrdup("");
 		}
 	}
 	if(sstreq(session->next_crypto->kex_methods[SSH_KEX], "diffie-hellman-group1-sha1")) {

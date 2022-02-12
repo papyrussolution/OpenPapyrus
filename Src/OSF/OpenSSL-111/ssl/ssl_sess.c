@@ -500,7 +500,7 @@ int ssl_get_prev_session(SSL * s, CLIENTHELLO_MSG * hello)
 		if(!tls_parse_extension(s, TLSEXT_IDX_psk_kex_modes,
 		    SSL_EXT_CLIENT_HELLO, hello->pre_proc_exts,
 		    NULL, 0)
-		    || !tls_parse_extension(s, TLSEXT_IDX_psk, SSL_EXT_CLIENT_HELLO,
+		   || !tls_parse_extension(s, TLSEXT_IDX_psk, SSL_EXT_CLIENT_HELLO,
 		    hello->pre_proc_exts, NULL, 0))
 			return -1;
 
@@ -541,7 +541,7 @@ int ssl_get_prev_session(SSL * s, CLIENTHELLO_MSG * hello)
 		goto err;
 
 	if(ret->sid_ctx_length != s->sid_ctx_length
-	    || memcmp(ret->sid_ctx, s->sid_ctx, ret->sid_ctx_length)) {
+	   || memcmp(ret->sid_ctx, s->sid_ctx, ret->sid_ctx_length)) {
 		/*
 		 * We have the session requested by the client, but we don't want to
 		 * use it in this context.

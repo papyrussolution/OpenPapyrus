@@ -1451,7 +1451,7 @@ int ec_GFp_nistp224_points_mul(const EC_GROUP * group, EC_POINT * r,
 			tmp_felems =
 			    OPENSSL_malloc(sizeof(felem) * (num_points * 17 + 1));
 		if((secrets == NULL) || (pre_comp == NULL)
-		    || (mixed && (tmp_felems == NULL))) {
+		   || (mixed && (tmp_felems == NULL))) {
 			ECerr(EC_F_EC_GFP_NISTP224_POINTS_MUL, ERR_R_MALLOC_FAILURE);
 			goto err;
 		}
