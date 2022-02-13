@@ -2857,6 +2857,7 @@ public:
 	virtual int Describe(SSqlStmt & rS, SdRecord &);
 	virtual int Fetch(SSqlStmt & rS, uint count, uint * pActualCount);
 private:
+	int    FASTCALL ProcessError(int status);
 	long   Flags;
 	void * H;
 	Generator_SQL SqlGen;

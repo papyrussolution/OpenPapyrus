@@ -1,35 +1,9 @@
-/*
-        wsdl.cpp
-
-        WSDL 1.1 binding schema implementation
-
-   --------------------------------------------------------------------------------
-   gSOAP XML Web services tools
-   Copyright (C) 2001-2011, Robert van Engelen, Genivia Inc. All Rights Reserved.
-   This software is released under one of the following two licenses:
-   GPL or Genivia's license for commercial use.
-   --------------------------------------------------------------------------------
-   GPL license.
-
-   This program is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free Software
-   Foundation; either version 2 of the License, or (at your option) any later
-   version.
-
-   This program is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-   PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License along with
-   this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-   Place, Suite 330, Boston, MA 02111-1307 USA
-
-   Author contact information:
-   engelen@genivia.com / engelen@acm.org
-   --------------------------------------------------------------------------------
-   A commercial use license is available from Genivia, Inc., contact@genivia.com
-   --------------------------------------------------------------------------------
- */
+// wsdl.cpp
+// WSDL 1.1 binding schema implementation
+// gSOAP XML Web services tools
+// Copyright (C) 2001-2011, Robert van Engelen, Genivia Inc. All Rights Reserved.
+// @licence GNU GPL
+// 
 #include <slib.h>
 #include "wsdlH.h"
 #pragma hdrstop
@@ -41,8 +15,7 @@ const char * qname_token(const char * QName, const char * URI)
 {
 	if(QName && QName[0] == '"' && QName[1] == '"' && QName[2] == ':')
 		return QName + 3;
-	if(QName && URI && *QName == '"') { // QNames are stored in the format "URI":name, unless the URI is in the
-	                                    // nsmap
+	if(QName && URI && *QName == '"') { // QNames are stored in the format "URI":name, unless the URI is in the nsmap
 		size_t n = strlen(URI);
 		if(!strncmp(QName + 1, URI, n) && QName[n + 1] == '"')
 			return QName + n + 3;
@@ -67,16 +40,12 @@ int is_builtin_qname(const char * QName)
 	}
 	return 0;
 }
-
-////////////////////////////////////////////////////////////////////////////////
 //
 //	wsdl
 //
-////////////////////////////////////////////////////////////////////////////////
-
 extern "C" {
-int warn_ignore(struct soap*, const char*);
-int show_ignore(struct soap*, const char*);
+	int warn_ignore(struct soap*, const char*);
+	int show_ignore(struct soap*, const char*);
 }
 
 wsdl__definitions::wsdl__definitions()
@@ -295,27 +264,21 @@ int wsdl__definitions::preprocess()
 	// merge nested imported WSDLs into single import list
 again:
 	for(vector<wsdl__import>::iterator im2 = import.begin(); im2 != import.end(); ++im2) {
-		if((*im2).definitionsPtr())                                                                                       {
-			for(vector<wsdl__import>::iterator i = (*im2).definitionsPtr()->import.begin();
-			    i != (*im2).definitionsPtr()->import.end();
-			    ++i)
-			{
-				if((*i).definitionsPtr())
-				{
+		if((*im2).definitionsPtr()) {
+			for(vector<wsdl__import>::iterator i = (*im2).definitionsPtr()->import.begin(); i != (*im2).definitionsPtr()->import.end(); ++i) {
+				if((*i).definitionsPtr()) {
 					bool found = false;
 					if(vflag)
 						cerr << "Import WSDL '" << ((*i).location ? (*i).location : "") << endl;
 					for(vector<wsdl__import>::iterator j = import.begin(); j != import.end(); ++j) {
-						if((*i).definitionsPtr() == (*j).definitionsPtr()
-						    || ((*i).location && (*j).location && !strcmp((*i).location, (*j).location))) {
+						if((*i).definitionsPtr() == (*j).definitionsPtr() || ((*i).location && (*j).location && !strcmp((*i).location, (*j).location))) {
 							found = true;
 							break;
 						}
 					}
 					if(!found) {
 						if(vflag)
-							cerr << "Adding imported WSDL '" << ((*i).location ? (*i).location : "") <<
-							"' to '" << (location ? location : "") << "' ('" << (name ? name : "") <<
+							cerr << "Adding imported WSDL '" << ((*i).location ? (*i).location : "") << "' to '" << (location ? location : "") << "' ('" << (name ? name : "") <<
 							"') namespace '" << (targetNamespace ? targetNamespace : "") << "'" << endl;
 						import.push_back(*i);
 						goto again;
@@ -326,30 +289,22 @@ again:
 	}
 	// merge <types>
 	for(vector<wsdl__import>::iterator im3 = import.begin(); im3 != import.end(); ++im3) {
-		if((*im3).definitionsPtr() &&
-		    (*im3).definitionsPtr()->types)                                                                                       {
-			if(!types)
-			{
+		if((*im3).definitionsPtr() && (*im3).definitionsPtr()->types) {
+			if(!types) {
 				types = soap_new_wsdl__types(soap, -1);
 				types->soap_default(soap);
 			}
 			// merge <types>, check for duplicates, add namespaces for sloppy imports
-			for(vector<xs__schema*>::const_iterator i = (*im3).definitionsPtr()->types->xs__schema_.begin();
-			    i != (*im3).definitionsPtr()->types->xs__schema_.end();
-			    ++i) {
+			for(vector<xs__schema*>::const_iterator i = (*im3).definitionsPtr()->types->xs__schema_.begin(); i != (*im3).definitionsPtr()->types->xs__schema_.end(); ++i) {
 				bool found = false;
 				vector<xs__schema*>::const_iterator j;
 				if(!(*i)->targetNamespace) {
 					(*i)->targetNamespace = targetNamespace;
 					if(!Wflag)
-						cerr << "Warning: schema without namespace, assigning namespace '" <<
-						(targetNamespace ? targetNamespace : "") << "'" << endl;
+						cerr << "Warning: schema without namespace, assigning namespace '" << (targetNamespace ? targetNamespace : "") << "'" << endl;
 				}
 				for(j = types->xs__schema_.begin(); j != types->xs__schema_.end(); ++j) {
-					if((*j)->targetNamespace &&
-					    !strcmp((*i)->targetNamespace,
-						    (*j)->targetNamespace))
-					{
+					if((*j)->targetNamespace && !strcmp((*i)->targetNamespace, (*j)->targetNamespace)) {
 						found = true;
 						break;
 					}
@@ -510,12 +465,8 @@ int wsdl__port::traverse(wsdl__definitions& definitions)
 	const char * token = qname_token(binding, definitions.targetNamespace);
 	bindingRef = NULL;
 	if(token) {
-		for(vector<wsdl__binding>::iterator binding = definitions.binding.begin(); binding != definitions.binding.end();
-		    ++binding)            {
-			if((*binding).name &&
-			    !strcmp((*binding).name,
-				    token))
-			{
+		for(vector<wsdl__binding>::iterator binding = definitions.binding.begin(); binding != definitions.binding.end(); ++binding) {
+			if((*binding).name && !strcmp((*binding).name, token)) {
 				bindingRef = &(*binding);
 				if(vflag)
 					cerr << "  Found port '" << (name ? name : "") << "' binding '" << (token ? token : "") << "'" <<
@@ -531,17 +482,11 @@ int wsdl__port::traverse(wsdl__definitions& definitions)
 			if(importdefinitions) {
 				token = qname_token(binding, importdefinitions->targetNamespace);
 				if(token) {
-					for(vector<wsdl__binding>::iterator binding = importdefinitions->binding.begin();
-					    binding != importdefinitions->binding.end();
-					    ++binding)            {
-						if((*binding).name &&
-						    !strcmp((*binding).name,
-							    token))
-						{
+					for(vector<wsdl__binding>::iterator binding = importdefinitions->binding.begin(); binding != importdefinitions->binding.end(); ++binding) {
+						if((*binding).name && !strcmp((*binding).name, token)) {
 							bindingRef = &(*binding);
 							if(vflag)
-								cerr << "  Found port '" << (name ? name : "") << "' binding '" <<
-								(token ? token : "") << "'" << endl;
+								cerr << "  Found port '" << (name ? name : "") << "' binding '" << (token ? token : "") << "'" << endl;
 							break;
 						}
 					}
@@ -586,39 +531,26 @@ int wsdl__binding::traverse(wsdl__definitions& definitions)
 	const char * token = qname_token(type, definitions.targetNamespace);
 	portTypeRef = NULL;
 	if(token) {
-		for(vector<wsdl__portType>::iterator portType = definitions.portType.begin();
-		    portType != definitions.portType.end();
-		    ++portType)            {
-			if((*portType).name &&
-			    !strcmp((*portType).name,
-				    token))
-			{
+		for(vector<wsdl__portType>::iterator portType = definitions.portType.begin(); portType != definitions.portType.end(); ++portType) {
+			if((*portType).name && !strcmp((*portType).name, token)) {
 				portTypeRef = &(*portType);
 				if(vflag)
-					cerr << "  Found binding '" << (name ? name : "") << "' portType '" << (token ? token : "") <<
-					"'" << endl;
+					cerr << "  Found binding '" << (name ? name : "") << "' portType '" << (token ? token : "") << "'" << endl;
 				break;
 			}
 		}
 	}
 	if(!portTypeRef) {
-		for(vector<wsdl__import>::iterator import = definitions.import.begin(); import != definitions.import.end();
-		    ++import)                   {
+		for(vector<wsdl__import>::iterator import = definitions.import.begin(); import != definitions.import.end(); ++import) {
 			wsdl__definitions * importdefinitions = (*import).definitionsPtr();
 			if(importdefinitions) {
 				token = qname_token(type, importdefinitions->targetNamespace);
 				if(token) {
-					for(vector<wsdl__portType>::iterator portType = importdefinitions->portType.begin();
-					    portType != importdefinitions->portType.end();
-					    ++portType)            {
-						if((*portType).name &&
-						    !strcmp((*portType).name,
-							    token))
-						{
+					for(vector<wsdl__portType>::iterator portType = importdefinitions->portType.begin(); portType != importdefinitions->portType.end(); ++portType) {
+						if((*portType).name && !strcmp((*portType).name, token)) {
 							portTypeRef = &(*portType);
 							if(vflag)
-								cerr << "  Found binding '" << (name ? name : "") << "' portType '" <<
-								(token ? token : "") << "'" << endl;
+								cerr << "  Found binding '" << (name ? name : "") << "' portType '" << (token ? token : "") << "'" << endl;
 							break;
 						}
 					}
@@ -670,19 +602,10 @@ int wsdl__binding_operation::traverse(wsdl__definitions& definitions, wsdl__port
 		(*i).traverse(definitions);
 	operationRef = NULL;
 	if(name && portTypeRef) {
-		for(vector<wsdl__operation>::iterator i = portTypeRef->operation.begin(); i != portTypeRef->operation.end();
-		    ++i)                          {
-			if((*i).name &&
-			    !strcmp((*i).name,
-				    name))
-			{
-				if((!input || !input->name || !(*i).input || !(*i).input->name ||
-					    !strcmp((*i).input->name,
-						    input->name)) &&
-				    (!output || !output->name || !(*i).output || !(*i).output->name ||
-					    !strcmp((*i).output->name,
-						    output->name)))
-				{
+		for(vector<wsdl__operation>::iterator i = portTypeRef->operation.begin(); i != portTypeRef->operation.end(); ++i) {
+			if((*i).name && !strcmp((*i).name, name)) {
+				if((!input || !input->name || !(*i).input || !(*i).input->name || !strcmp((*i).input->name, input->name)) &&
+				    (!output || !output->name || !(*i).output || !(*i).output->name || !strcmp((*i).output->name, output->name))) {
 					operationRef = &(*i);
 					if(vflag)
 						cerr << "   Found operation '" << name << "'" << endl;
@@ -691,12 +614,8 @@ int wsdl__binding_operation::traverse(wsdl__definitions& definitions, wsdl__port
 			}
 		}
 		if(!operationRef) {
-			for(vector<wsdl__operation>::iterator j = portTypeRef->operation.begin(); j != portTypeRef->operation.end();
-			    ++j)                    {
-				if((*j).name &&
-				    !strcmp((*j).name,
-					    name))
-				{
+			for(vector<wsdl__operation>::iterator j = portTypeRef->operation.begin(); j != portTypeRef->operation.end(); ++j) {
+				if((*j).name && !strcmp((*j).name, name)) {
 					if(input && input->name && (*j).input && (*j).input->name && strcmp((*j).input->name, input->name))
 						cerr << "Warning: no matching portType operation input name '" << ((*j).input->name) <<
 						"' in wsdl definitions '" << (definitions.name ? definitions.name : "") <<
@@ -724,13 +643,8 @@ int wsdl__binding_operation::traverse(wsdl__definitions& definitions, wsdl__port
 	}
 	else {for(vector<wsdl__ext_fault>::iterator i = fault.begin(); i != fault.end(); ++i)     {
 		     if((*i).name)                                                                                      {
-			     for(vector<wsdl__fault>::iterator j = operationRef->fault.begin(); j != operationRef->fault.end();
-				    ++j)
-			     {
-				     if((*j).name &&
-					    !strcmp((*j).name,
-						    (*i).name))
-				     {
+			     for(vector<wsdl__fault>::iterator j = operationRef->fault.begin(); j != operationRef->fault.end(); ++j) {
+				     if((*j).name && !strcmp((*j).name, (*i).name)) {
 					     (*i).messagePtr((*j).messagePtr());
 					     if(vflag)
 						     cerr << "   Found fault '" << (*j).name << "' message" << endl;
@@ -738,13 +652,9 @@ int wsdl__binding_operation::traverse(wsdl__definitions& definitions, wsdl__port
 				     }
 			     }
 		     }
-		     else if((*i).soap__fault_ && (*i).soap__fault_->name) { // try the soap:fault name, this is not
-			                                                     // elegant, but neither is WSDL 1.1
+		     else if((*i).soap__fault_ && (*i).soap__fault_->name) { // try the soap:fault name, this is not elegant, but neither is WSDL 1.1
 			     for(vector<wsdl__fault>::iterator j = operationRef->fault.begin(); j != operationRef->fault.end(); ++j) {
-				     if((*j).name &&
-					    !strcmp((*j).name,
-						    (*i).soap__fault_->name))
-				     {
+				     if((*j).name && !strcmp((*j).name, (*i).soap__fault_->name)) {
 					     (*i).messagePtr((*j).messagePtr());
 					     if(vflag)
 						     cerr << "   Found fault '" << ((*j).name ? (*j).name : "") << "' message" << endl;
@@ -885,12 +795,8 @@ int wsdl__input::traverse(wsdl__definitions& definitions)
 	const char * token = qname_token(message, definitions.targetNamespace);
 	messageRef = NULL;
 	if(token) {
-		for(vector<wsdl__message>::iterator message = definitions.message.begin(); message != definitions.message.end();
-		    ++message)            {
-			if((*message).name &&
-			    !strcmp((*message).name,
-				    token))
-			{
+		for(vector<wsdl__message>::iterator message = definitions.message.begin(); message != definitions.message.end(); ++message) {
+			if((*message).name && !strcmp((*message).name, token)) {
 				messageRef = &(*message);
 				if(vflag)
 					cerr << "    Found input '" << (name ? name : "") << "' message '" << (token ? token : "") <<
@@ -900,23 +806,16 @@ int wsdl__input::traverse(wsdl__definitions& definitions)
 		}
 	}
 	if(!messageRef) {
-		for(vector<wsdl__import>::iterator import = definitions.import.begin(); import != definitions.import.end();
-		    ++import)                  {
+		for(vector<wsdl__import>::iterator import = definitions.import.begin(); import != definitions.import.end(); ++import) {
 			wsdl__definitions * importdefinitions = (*import).definitionsPtr();
 			if(importdefinitions) {
 				token = qname_token(message, importdefinitions->targetNamespace);
 				if(token) {
-					for(vector<wsdl__message>::iterator message = importdefinitions->message.begin();
-					    message != importdefinitions->message.end();
-					    ++message)            {
-						if((*message).name &&
-						    !strcmp((*message).name,
-							    token))
-						{
+					for(vector<wsdl__message>::iterator message = importdefinitions->message.begin(); message != importdefinitions->message.end(); ++message) {
+						if((*message).name && !strcmp((*message).name, token)) {
 							messageRef = &(*message);
 							if(vflag)
-								cerr << "    Found input '" << (name ? name : "") << "' message '" <<
-								(token ? token : "") << "'" << endl;
+								cerr << "    Found input '" << (name ? name : "") << "' message '" << (token ? token : "") << "'" << endl;
 							break;
 						}
 					}
@@ -956,39 +855,27 @@ wsdl__output::wsdl__output()
 int wsdl__output::traverse(wsdl__definitions& definitions)
 {
 	if(vflag)
-		cerr << "   Analyzing portType operation output in wsdl namespace '" <<
-		(definitions.targetNamespace ? definitions.targetNamespace : "") << "'" << endl;
+		cerr << "   Analyzing portType operation output in wsdl namespace '" << (definitions.targetNamespace ? definitions.targetNamespace : "") << "'" << endl;
 	const char * token = qname_token(message, definitions.targetNamespace);
 	messageRef = NULL;
 	if(token) {
-		for(vector<wsdl__message>::iterator message = definitions.message.begin(); message != definitions.message.end();
-		    ++message)            {
-			if((*message).name &&
-			    !strcmp((*message).name,
-				    token))
-			{
+		for(vector<wsdl__message>::iterator message = definitions.message.begin(); message != definitions.message.end(); ++message) {
+			if((*message).name && !strcmp((*message).name, token)) {
 				messageRef = &(*message);
 				if(vflag)
-					cerr << "    Found output '" << (name ? name : "") << "' message '" << (token ? token : "") <<
-					"'" << endl;
+					cerr << "    Found output '" << (name ? name : "") << "' message '" << (token ? token : "") << "'" << endl;
 				break;
 			}
 		}
 	}
 	if(!messageRef) {
-		for(vector<wsdl__import>::iterator import = definitions.import.begin(); import != definitions.import.end();
-		    ++import)                  {
+		for(vector<wsdl__import>::iterator import = definitions.import.begin(); import != definitions.import.end(); ++import) {
 			wsdl__definitions * importdefinitions = (*import).definitionsPtr();
 			if(importdefinitions) {
 				token = qname_token(message, importdefinitions->targetNamespace);
 				if(token) {
-					for(vector<wsdl__message>::iterator message = importdefinitions->message.begin();
-					    message != importdefinitions->message.end();
-					    ++message)            {
-						if((*message).name &&
-						    !strcmp((*message).name,
-							    token))
-						{
+					for(vector<wsdl__message>::iterator message = importdefinitions->message.begin(); message != importdefinitions->message.end(); ++message) {
+						if((*message).name && !strcmp((*message).name, token)) {
 							messageRef = &(*message);
 							if(vflag)
 								cerr << "    Found output '" << (name ? name : "") << "' message '" <<
@@ -1037,34 +924,23 @@ int wsdl__fault::traverse(wsdl__definitions& definitions)
 	const char * token = qname_token(message, definitions.targetNamespace);
 	messageRef = NULL;
 	if(token) {
-		for(vector<wsdl__message>::iterator message = definitions.message.begin(); message != definitions.message.end();
-		    ++message)            {
-			if((*message).name &&
-			    !strcmp((*message).name,
-				    token))
-			{
+		for(vector<wsdl__message>::iterator message = definitions.message.begin(); message != definitions.message.end(); ++message) {
+			if((*message).name && !strcmp((*message).name, token)) {
 				messageRef = &(*message);
 				if(vflag)
-					cerr << "    Found operation fault '" << (name ? name : "") << "' message '" <<
-					(token ? token : "") << "'" << endl;
+					cerr << "    Found operation fault '" << (name ? name : "") << "' message '" << (token ? token : "") << "'" << endl;
 				break;
 			}
 		}
 	}
 	if(!messageRef) {
-		for(vector<wsdl__import>::iterator import = definitions.import.begin(); import != definitions.import.end();
-		    ++import)                  {
+		for(vector<wsdl__import>::iterator import = definitions.import.begin(); import != definitions.import.end(); ++import) {
 			wsdl__definitions * importdefinitions = (*import).definitionsPtr();
 			if(importdefinitions) {
 				token = qname_token(message, importdefinitions->targetNamespace);
 				if(token) {
-					for(vector<wsdl__message>::iterator message = importdefinitions->message.begin();
-					    message != importdefinitions->message.end();
-					    ++message)            {
-						if((*message).name &&
-						    !strcmp((*message).name,
-							    token))
-						{
+					for(vector<wsdl__message>::iterator message = importdefinitions->message.begin(); message != importdefinitions->message.end(); ++message) {
+						if((*message).name && !strcmp((*message).name, token)) {
 							messageRef = &(*message);
 							if(vflag)
 								cerr << "    Found operation fault '" << (name ? name : "") <<
@@ -1135,34 +1011,22 @@ int wsdl__part::traverse(wsdl__definitions& definitions)
 		    ++schema)                        {
 			const char * token = qname_token(element, (*schema)->targetNamespace);
 			if(token) {
-				for(vector<xs__element>::iterator element = (*schema)->element.begin();
-				    element != (*schema)->element.end();
-				    ++element)            {
-					if((*element).name &&
-					    !strcmp((*element).name,
-						    token))
-					{
+				for(vector<xs__element>::iterator element = (*schema)->element.begin(); element != (*schema)->element.end(); ++element) {
+					if((*element).name && !strcmp((*element).name, token)) {
 						elementRef = &(*element);
 						if(vflag)
-							cerr << "   Found message part '" << (name ? name : "") << "' element '" <<
-							(token ? token : "") << "'" << endl;
+							cerr << "   Found message part '" << (name ? name : "") << "' element '" << (token ? token : "") << "'" << endl;
 						break;
 					}
 				}
 			}
 			token = qname_token(type, (*schema)->targetNamespace);
 			if(token) {
-				for(vector<xs__simpleType>::iterator simpleType = (*schema)->simpleType.begin();
-				    simpleType != (*schema)->simpleType.end();
-				    ++simpleType)            {
-					if((*simpleType).name &&
-					    !strcmp((*simpleType).name,
-						    token))
-					{
+				for(vector<xs__simpleType>::iterator simpleType = (*schema)->simpleType.begin(); simpleType != (*schema)->simpleType.end(); ++simpleType) {
+					if((*simpleType).name && !strcmp((*simpleType).name, token)) {
 						simpleTypeRef = &(*simpleType);
 						if(vflag)
-							cerr << "   Found message part '" << (name ? name : "") << "' simpleType '" <<
-							(token ? token : "") << "'" << endl;
+							cerr << "   Found message part '" << (name ? name : "") << "' simpleType '" << (token ? token : "") << "'" << endl;
 						break;
 					}
 				}
@@ -1172,10 +1036,7 @@ int wsdl__part::traverse(wsdl__definitions& definitions)
 				for(vector<xs__complexType>::iterator complexType = (*schema)->complexType.begin();
 				    complexType != (*schema)->complexType.end();
 				    ++complexType)            {
-					if((*complexType).name &&
-					    !strcmp((*complexType).name,
-						    token))
-					{
+					if((*complexType).name && !strcmp((*complexType).name, token)) {
 						complexTypeRef = &(*complexType);
 						if(vflag)
 							cerr << "   Found message part '" << (name ? name : "") << "' complexType '" <<
@@ -1260,19 +1121,10 @@ again:
 	// link imported schemas, need to repeat when <types> is extended with new imported schema (from inside another
 	// schema, etc.)
 	for(vector<xs__schema*>::iterator schema1 = xs__schema_.begin(); schema1 != xs__schema_.end(); ++schema1) {
-		for(vector<xs__import>::iterator import = (*schema1)->import.begin(); import != (*schema1)->import.end();
-		    ++import)                                                                                                            {
-			if((*import).namespace_ &&
-			    !(*import).schemaPtr())
-			{
-				for(vector<xs__schema*>::const_iterator schema2 = xs__schema_.begin();
-				    schema2 != xs__schema_.end();
-				    ++schema2)
-				{
-					if(schema2 != schema1 && (*schema2)->targetNamespace &&
-					    !strcmp((*import).namespace_,
-						    (*schema2)->targetNamespace))
-					{
+		for(vector<xs__import>::iterator import = (*schema1)->import.begin(); import != (*schema1)->import.end(); ++import) {
+			if((*import).namespace_ && !(*import).schemaPtr()) {
+				for(vector<xs__schema*>::const_iterator schema2 = xs__schema_.begin(); schema2 != xs__schema_.end(); ++schema2) {
+					if(schema2 != schema1 && (*schema2)->targetNamespace && !strcmp((*import).namespace_, (*schema2)->targetNamespace)) {
 						(*import).schemaPtr(*schema2);
 						break;
 					}
@@ -1282,8 +1134,7 @@ again:
 	}
 	// if a schema is imported but not in <types> then get it
 	for(vector<xs__schema*>::iterator schema2 = xs__schema_.begin(); schema2 != xs__schema_.end(); ++schema2) {
-		for(vector<xs__import>::iterator import = (*schema2)->import.begin(); import != (*schema2)->import.end();
-		    ++import)                                                                                                            {
+		for(vector<xs__import>::iterator import = (*schema2)->import.begin(); import != (*schema2)->import.end(); ++import) {
 			bool found = false;
 			if((*import).schemaPtr())
 				found = true;
@@ -1293,9 +1144,8 @@ again:
 			if(!found && (*import).namespace_) {
 				if((*import).schemaPtr())
 					found = true;
-				else {for(vector<xs__schema*>::const_iterator schema3 = xs__schema_.begin();
-					    schema3 != xs__schema_.end();
-					    ++schema3)     {
+				else {
+					for(vector<xs__schema*>::const_iterator schema3 = xs__schema_.begin(); schema3 != xs__schema_.end(); ++schema3) {
 					     if(schema3 != schema2 && (*schema3)->targetNamespace &&
 						    !strcmp((*import).namespace_,
 							    (*schema3)->targetNamespace))
@@ -1309,10 +1159,8 @@ again:
 				     }
 				}
 				if(!found) {
-					for(SetOfString::const_iterator i = exturis.begin(); i != exturis.end(); ++i)             {
-						if(!soap_tag_cmp((*import).namespace_,
-							    *i))
-						{
+					for(SetOfString::const_iterator i = exturis.begin(); i != exturis.end(); ++i) {
+						if(!soap_tag_cmp((*import).namespace_, *i)) {
 							found = true;
 							break;
 						}
@@ -1376,30 +1224,10 @@ int wsdl__types::traverse(wsdl__definitions& definitions)
 	if(vflag)
 		cerr << " Analyzing types in wsdl namespace '" << (definitions.targetNamespace ? definitions.targetNamespace : "") <<
 		"'" << endl;
-	for(vector<xs__schema*>::iterator schema3 = xs__schema_.begin(); schema3 != xs__schema_.end(); ++schema3) { //
-		                                                                                                    // artificially
-		                                                                                                    // extend
-		                                                                                                    // the
-		                                                                                                    // <import>
-		                                                                                                    // of
-		                                                                                                    // each
-		                                                                                                    // schema
-		                                                                                                    // to
-		                                                                                                    // include
-		                                                                                                    // others
-		                                                                                                    // so
-		                                                                                                    // when
-		                                                                                                    // we
-		                                                                                                    // traverse
-		                                                                                                    // schemas
-		                                                                                                    // we
-		                                                                                                    // can
-		                                                                                                    // resolve
-		                                                                                                    // references
+	// artificially extend the <import> of each schema to include others so when we traverse schemas we can resolve references
+	for(vector<xs__schema*>::iterator schema3 = xs__schema_.begin(); schema3 != xs__schema_.end(); ++schema3) { 
 		for(vector<xs__schema*>::iterator importschema = xs__schema_.begin(); importschema != xs__schema_.end(); ++importschema) {
-			if(schema3 != importschema &&
-			    (*importschema)->targetNamespace)
-			{
+			if(schema3 != importschema && (*importschema)->targetNamespace) {
 				xs__import * import = soap_new_xs__import(definitions.soap, -1);
 				import->namespace_ = (*importschema)->targetNamespace;
 				import->schemaPtr(*importschema);
@@ -1408,27 +1236,19 @@ int wsdl__types::traverse(wsdl__definitions& definitions)
 		}
 		// check and report
 		for(vector<xs__import>::iterator import = (*schema3)->import.begin(); import != (*schema3)->import.end(); ++import) {
-			if((*import).namespace_)
-			{
+			if((*import).namespace_) {
 				bool found = false;
-				for(vector<xs__schema*>::const_iterator importschema = xs__schema_.begin();
-				    importschema != xs__schema_.end();
-				    ++importschema) {
-					if((*importschema)->targetNamespace &&
-					    !strcmp((*import).namespace_,
-						    (*importschema)->targetNamespace))
-					{
+				for(vector<xs__schema*>::const_iterator importschema = xs__schema_.begin(); importschema != xs__schema_.end(); ++importschema) {
+					if((*importschema)->targetNamespace && !strcmp((*import).namespace_, (*importschema)->targetNamespace)) {
 						found = true;
 						break;
 					}
 				}
 				if(!found && vflag)
-					cerr << "Schema import namespace '" << (*import).namespace_ << "' refers to an unknown Schema" <<
-					endl;
+					cerr << "Schema import namespace '" << (*import).namespace_ << "' refers to an unknown Schema" << endl;
 			}
 			else if(!Wflag)
-				cerr << "Warning: schema import '" << ((*import).schemaLocation ? (*import).schemaLocation : "") <<
-				"' has no namespace" << endl;
+				cerr << "Warning: schema import '" << ((*import).schemaLocation ? (*import).schemaLocation : "") << "' has no namespace" << endl;
 		}
 	}
 	// traverse the schemas
@@ -1537,13 +1357,9 @@ wsdl__import::wsdl__import()
 {
 	definitionsRef = NULL;
 }
-
-////////////////////////////////////////////////////////////////////////////////
 //
 //	streams
 //
-////////////////////////////////////////////////////////////////////////////////
-
 ostream &operator<<(ostream &o, const wsdl__definitions &e)
 {
 	if(!e.soap) {
@@ -1558,7 +1374,8 @@ ostream &operator<<(ostream &o, const wsdl__definitions &e)
 		soap_end(&soap);
 		soap_done(&soap);
 	}
-	else {ostream * os = e.soap->os;
+	else {
+		ostream * os = e.soap->os;
 	     e.soap->os = &o;
 	     e.soap_serialize(e.soap);
 	     soap_begin_send(e.soap);
@@ -1583,13 +1400,9 @@ istream &operator>>(istream &i, wsdl__definitions &e)
 	e.soap->is = is;
 	return i;
 }
-
-////////////////////////////////////////////////////////////////////////////////
 //
 //	Miscellaneous
 //
-////////////////////////////////////////////////////////////////////////////////
-
 extern "C" {
 int warn_ignore(struct soap * soap, const char * tag)
 { // We don't warn if the omitted element was an annotation or a documentation in an unexpected place

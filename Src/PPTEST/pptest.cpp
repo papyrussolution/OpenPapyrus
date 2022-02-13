@@ -1490,7 +1490,9 @@ int DoConstructionTest()
 	//DoTest_PThr4w();
 	//TestMqc();
 	//TestCRC();
+#if(_MSC_VER >= 1900)
 	Test_Fts();
+#endif
 	Test_LibPhoneNumber();
 	Test_PPStyloQInterchange();
 	//Test_StyloQInvitation();

@@ -466,7 +466,9 @@ static void InitTest()
 	{
 		//void * ptr = SAlloc::M(0);
 		//assert(ptr == 0);
+#if(_MSC_VER >= 1900)
 		_aligned_free(0); // Рассчитываем, что никаких последствий не будет
+#endif
 		SAlloc::F(0); // Рассчитываем, что никаких последствий не будет
 	}
 	// @v11.2.3 {

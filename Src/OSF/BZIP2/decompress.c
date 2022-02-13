@@ -1,22 +1,12 @@
 // decompress.c
+// This file is part of bzip2/libbzip2, a program and library for lossless, block-sorting data compression.
+// bzip2/libbzip2 version 1.0.6 of 6 September 2010
+// Copyright (C) 1996-2010 Julian Seward <jseward@bzip.org>
 // Decompression machinery
 //
-/* ------------------------------------------------------------------
-   This file is part of bzip2/libbzip2, a program and library for
-   lossless, block-sorting data compression.
-
-   bzip2/libbzip2 version 1.0.6 of 6 September 2010
-   Copyright (C) 1996-2010 Julian Seward <jseward@bzip.org>
-
-   Please read the WARNING, DISCLAIMER and PATENTS sections in the README file.
-
-   This program is released under the terms of the license contained in the file LICENSE.
-   ------------------------------------------------------------------ */
-
 #include "bzlib_private.h"
 #pragma hdrstop
 
-/*---------------------------------------------------*/
 static void makeMaps_d(DState* s)
 {
 	s->nInUse = 0;
@@ -27,7 +17,6 @@ static void makeMaps_d(DState* s)
 		}
 }
 
-/*---------------------------------------------------*/
 #define RETURN(rrr) { retVal = rrr; goto save_state_and_return; };
 
 #define GET_BITS(lll, vvv, nnn)			    \
@@ -91,7 +80,6 @@ int32 BZ2_decompress(DState * s)
 	int32 retVal;
 	int32 minLen, maxLen;
 	bz_stream* strm = s->strm;
-
 	/* stuff that needs to be saved/restored */
 	int32 i;
 	int32 j;
@@ -117,35 +105,33 @@ int32 BZ2_decompress(DState * s)
 	int32* gLimit;
 	int32* gBase;
 	int32* gPerm;
-
 	if(s->state == BZ_X_MAGIC_1) {
 		/*initialise the save area*/
 		s->save_i   = 0;
 		s->save_j   = 0;
 		s->save_t   = 0;
-		s->save_alphaSize   = 0;
-		s->save_nGroups     = 0;
-		s->save_nSelectors  = 0;
-		s->save_EOB = 0;
-		s->save_groupNo     = 0;
-		s->save_groupPos    = 0;
-		s->save_nextSym     = 0;
-		s->save_nblockMAX   = 0;
-		s->save_nblock      = 0;
-		s->save_es  = 0;
-		s->save_N   = 0;
-		s->save_curr        = 0;
-		s->save_zt  = 0;
-		s->save_zn  = 0;
-		s->save_zvec        = 0;
-		s->save_zj  = 0;
-		s->save_gSel        = 0;
-		s->save_gMinlen     = 0;
-		s->save_gLimit      = NULL;
-		s->save_gBase       = NULL;
-		s->save_gPerm       = NULL;
+		s->save_alphaSize  = 0;
+		s->save_nGroups    = 0;
+		s->save_nSelectors = 0;
+		s->save_EOB        = 0;
+		s->save_groupNo    = 0;
+		s->save_groupPos   = 0;
+		s->save_nextSym    = 0;
+		s->save_nblockMAX  = 0;
+		s->save_nblock     = 0;
+		s->save_es         = 0;
+		s->save_N          = 0;
+		s->save_curr       = 0;
+		s->save_zt         = 0;
+		s->save_zn         = 0;
+		s->save_zvec       = 0;
+		s->save_zj         = 0;
+		s->save_gSel       = 0;
+		s->save_gMinlen    = 0;
+		s->save_gLimit     = NULL;
+		s->save_gBase      = NULL;
+		s->save_gPerm      = NULL;
 	}
-
 	/*restore from the save area*/
 	i   = s->save_i;
 	j   = s->save_j;
@@ -193,7 +179,7 @@ int32 BZ2_decompress(DState * s)
 				RETURN(BZ_MEM_ERROR);
 		}
 		else {
-			s->tt = (uint32 *)SAlloc::M(s->blockSize100k * 100000 * sizeof(int32));
+			s->tt = static_cast<uint32 *>(SAlloc::M(s->blockSize100k * 100000 * sizeof(int32)));
 			if(s->tt == NULL) 
 				RETURN(BZ_MEM_ERROR);
 		}
@@ -229,9 +215,7 @@ int32 BZ2_decompress(DState * s)
 		s->storedBlockCRC = (s->storedBlockCRC << 8) | ((uint32)uc);
 		GET_UCHAR(BZ_X_BCRC_4, uc);
 		s->storedBlockCRC = (s->storedBlockCRC << 8) | ((uint32)uc);
-
 		GET_BITS(BZ_X_RANDBIT, s->blockRandomised, 1);
-
 		s->origPtr = 0;
 		GET_UCHAR(BZ_X_ORIGPTR_1, uc);
 		s->origPtr = (s->origPtr << 8) | ((int32)uc);
@@ -239,12 +223,10 @@ int32 BZ2_decompress(DState * s)
 		s->origPtr = (s->origPtr << 8) | ((int32)uc);
 		GET_UCHAR(BZ_X_ORIGPTR_3, uc);
 		s->origPtr = (s->origPtr << 8) | ((int32)uc);
-
 		if(s->origPtr < 0)
 			RETURN(BZ_DATA_ERROR);
 		if(s->origPtr > 10 + 100000*s->blockSize100k)
 			RETURN(BZ_DATA_ERROR);
-
 		/*--- Receive the mapping table ---*/
 		for(i = 0; i < 16; i++) {
 			GET_BIT(BZ_X_MAPPING_1, uc);
@@ -367,8 +349,12 @@ int32 BZ2_decompress(DState * s)
 					   the initial RLE), viz, 900k, so bounding N at 2
 					   million should guard against overflow without
 					   rejecting any legitimate inputs. */
-					if(N >= 2*1024*1024) RETURN(BZ_DATA_ERROR);
-					if(nextSym == BZ_RUNA) es = es + (0+1) * N; else if(nextSym == BZ_RUNB) es = es + (1+1) * N;
+					if(N >= 2*1024*1024) 
+						RETURN(BZ_DATA_ERROR);
+					if(nextSym == BZ_RUNA) 
+						es = es + (0+1) * N; 
+					else if(nextSym == BZ_RUNB) 
+						es = es + (1+1) * N;
 					N = N * 2;
 					GET_MTF_VAL(BZ_X_MTF_3, BZ_X_MTF_4, nextSym);
 				} while(nextSym == BZ_RUNA || nextSym == BZ_RUNB);
@@ -392,7 +378,6 @@ int32 BZ2_decompress(DState * s)
 						es--;
 					}
 				;
-
 				continue;
 			}
 			else {
@@ -451,7 +436,6 @@ int32 BZ2_decompress(DState * s)
 					}
 				}
 				/*-- end uc = MTF ( nextSym-1 ) --*/
-
 				s->unzftab[s->seqToUnseq[uc]]++;
 				if(s->smallDecompress)
 					s->ll16[nblock] = (uint16)(s->seqToUnseq[uc]); 
@@ -467,7 +451,6 @@ int32 BZ2_decompress(DState * s)
 		 */
 		if(s->origPtr < 0 || s->origPtr >= nblock)
 			RETURN(BZ_DATA_ERROR);
-
 		/*-- Set up cftab to facilitate generation of T^(-1) --*/
 		/* Check: unzftab entries in range. */
 		for(i = 0; i <= 255; i++) {
@@ -537,7 +520,6 @@ int32 BZ2_decompress(DState * s)
 				s->tt[s->cftab[uc]] |= (i << 8);
 				s->cftab[uc]++;
 			}
-
 			s->tPos = s->tt[s->origPtr] >> 8;
 			s->nblock_used = 0;
 			if(s->blockRandomised) {
@@ -549,11 +531,8 @@ int32 BZ2_decompress(DState * s)
 				BZ_GET_FAST(s->k0); s->nblock_used++;
 			}
 		}
-
 		RETURN(BZ_OK);
-
 endhdr_2:
-
 		GET_UCHAR(BZ_X_ENDHDR_2, uc);
 		if(uc != 0x72) 
 			RETURN(BZ_DATA_ERROR);
@@ -578,17 +557,12 @@ endhdr_2:
 		s->storedCombinedCRC = (s->storedCombinedCRC << 8) | ((uint32)uc);
 		GET_UCHAR(BZ_X_CCRC_4, uc);
 		s->storedCombinedCRC = (s->storedCombinedCRC << 8) | ((uint32)uc);
-
 		s->state = BZ_X_IDLE;
 		RETURN(BZ_STREAM_END);
-
 		default: AssertH(false, 4001);
 	}
-
 	AssertH(false, 4002);
-
 save_state_and_return:
-
 	s->save_i   = i;
 	s->save_j   = j;
 	s->save_t   = t;
@@ -613,6 +587,5 @@ save_state_and_return:
 	s->save_gLimit      = gLimit;
 	s->save_gBase       = gBase;
 	s->save_gPerm       = gPerm;
-
 	return retVal;
 }

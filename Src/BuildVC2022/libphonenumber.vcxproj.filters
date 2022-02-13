@@ -110,21 +110,6 @@
     <ClInclude Include="..\OSF\libphonenumber\lock.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\OSF\libphonenumber\lock_boost.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\libphonenumber\lock_posix.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\libphonenumber\lock_stdmutex.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\libphonenumber\lock_unsafe.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\libphonenumber\lock_win32.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\OSF\libphonenumber\logging.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -138,21 +123,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\libphonenumber\singleton.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\libphonenumber\singleton_boost.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\libphonenumber\singleton_posix.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\libphonenumber\singleton_stdmutex.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\libphonenumber\singleton_unsafe.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\libphonenumber\singleton_win32.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\libphonenumber\string_piece.h">

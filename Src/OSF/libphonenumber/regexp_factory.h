@@ -24,9 +24,9 @@
 // ICURegExpFactory otherwise.
 
 #ifdef I18N_PHONENUMBERS_USE_RE2
-#include "regexp_adapter_re2.h"
+	#include "regexp_adapter_re2.h"
 #else
-#include "regexp_adapter_icu.h"
+	#include "regexp_adapter_icu.h"
 #endif  // I18N_PHONENUMBERS_USE_RE2
 
 namespace i18n {

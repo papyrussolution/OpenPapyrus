@@ -99,8 +99,7 @@ struct grammar_rule {
 #define PREFIX_OPERATOR(name)               (grammar_rule(parse_unary, NULL, PREC_LOWEST, name, false))
 #define OPERATOR(prec, name)                (grammar_rule(parse_unary, parse_infix, prec, name, false))
 
-// Global singleton grammar rule table
-static grammar_rule rules[TOK_END];
+static grammar_rule rules[TOK_END]; // Global singleton grammar rule table
 
 // MARK: - Internal macros -
 #define MAX_RECURSION_DEPTH                     1000

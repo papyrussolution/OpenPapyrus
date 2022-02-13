@@ -43,59 +43,48 @@
 #include "phonenumber.pb.h"
 
 namespace i18n {
-namespace phonenumbers {
-using std::string;
+	namespace phonenumbers {
+		using std::string;
 
-class PhoneNumberMatch {
-public:
-	// Creates a new match.
-	// - start is the index into the target text.
-	// - match is the matched string of the target text.
-	// - number is the matched phone number.
-	PhoneNumberMatch(int start,
-	    const string& raw_string,
-	    const PhoneNumber& number);
+		class PhoneNumberMatch {
+		public:
+			// Creates a new match.
+			// - start is the index into the target text.
+			// - match is the matched string of the target text.
+			// - number is the matched phone number.
+			PhoneNumberMatch(int start,
+				const string& raw_string,
+				const PhoneNumber& number);
 
-	// Default constructor.
-	PhoneNumberMatch();
-
-	~PhoneNumberMatch() {
-	}
-
-	// Returns the phone number matched by the receiver.
-	const PhoneNumber& number() const;
-
-	// Returns the start index of the matched phone number within the searched
-	// text.
-	int start() const;
-
-	// Returns the exclusive end index of the matched phone number within the
-	// searched text.
-	int end() const;
-
-	// Returns the length of the text matched in the searched text.
-	int length() const;
-
-	// Returns the raw string matched as a phone number in the searched text.
-	const string& raw_string() const;
-
-	// Returns a string containing debug information.
-	string ToString() const;
-	void set_start(int start);
-	void set_raw_string(const string& raw_string);
-	void set_number(const PhoneNumber& number);
-	bool Equals(const PhoneNumberMatch& number) const;
-	void CopyFrom(const PhoneNumberMatch& number);
-private:
-	// The start index into the text.
-	int start_;
-	// The raw substring matched.
-	string raw_string_;
-	// The matched phone number.
-	PhoneNumber number_;
-	DISALLOW_COPY_AND_ASSIGN(PhoneNumberMatch);
-};
-}  // namespace phonenumbers
+			// Default constructor.
+			PhoneNumberMatch();
+			~PhoneNumberMatch() 
+			{
+			}
+			// Returns the phone number matched by the receiver.
+			const PhoneNumber& number() const;
+			// Returns the start index of the matched phone number within the searched text.
+			int start() const;
+			// Returns the exclusive end index of the matched phone number within the searched text.
+			int end() const;
+			// Returns the length of the text matched in the searched text.
+			int length() const;
+			// Returns the raw string matched as a phone number in the searched text.
+			const string& raw_string() const;
+			// Returns a string containing debug information.
+			string ToString() const;
+			void set_start(int start);
+			void set_raw_string(const string& raw_string);
+			void set_number(const PhoneNumber& number);
+			bool Equals(const PhoneNumberMatch& number) const;
+			void CopyFrom(const PhoneNumberMatch& number);
+		private:
+			int start_; // The start index into the text.
+			string raw_string_; // The raw substring matched.
+			PhoneNumber number_; // The matched phone number.
+			DISALLOW_COPY_AND_ASSIGN(PhoneNumberMatch);
+		};
+	}  // namespace phonenumbers
 }  // namespace i18n
 
 #endif  // I18N_PHONENUMBERS_PHONENUMBERMATCH_H_

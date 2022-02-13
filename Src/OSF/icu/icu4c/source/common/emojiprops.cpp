@@ -18,51 +18,45 @@ namespace {
 EmojiProps * singleton = nullptr;
 icu::UInitOnce emojiInitOnce = U_INITONCE_INITIALIZER;
 
-bool U_CALLCONV emojiprops_cleanup() {
-	delete singleton;
-	singleton = nullptr;
+bool U_CALLCONV emojiprops_cleanup() 
+{
+	ZDELETE(singleton);
 	emojiInitOnce.reset();
 	return true;
 }
 
 void U_CALLCONV initSingleton(UErrorCode & errorCode) 
 {
-	if(U_FAILURE(errorCode)) {
-		return;
+	if(U_SUCCESS(errorCode)) {
+		singleton = new EmojiProps(errorCode);
+		if(singleton == nullptr) {
+			errorCode = U_MEMORY_ALLOCATION_ERROR;
+		}
+		else if(U_FAILURE(errorCode)) {
+			ZDELETE(singleton);
+		}
+		ucln_common_registerCleanup(UCLN_COMMON_EMOJIPROPS, emojiprops_cleanup);
 	}
-	singleton = new EmojiProps(errorCode);
-	if(singleton == nullptr) {
-		errorCode = U_MEMORY_ALLOCATION_ERROR;
-	}
-	else if(U_FAILURE(errorCode)) {
-		delete singleton;
-		singleton = nullptr;
-	}
-	ucln_common_registerCleanup(UCLN_COMMON_EMOJIPROPS, emojiprops_cleanup);
 }
 
 // TODO: turn this into a shared helper function
 // Requires the major version to match, and then requires at least the minor version.
-bool udata_isAcceptableMajorMinor(const UDataInfo &info, const UChar * dataFormat, uint8 major, uint8 minor) {
-	return
-		info.size >= 20 &&
-		info.isBigEndian == U_IS_BIG_ENDIAN &&
-		info.charsetFamily == U_CHARSET_FAMILY &&
-		info.dataFormat[0] == dataFormat[0] &&
-		info.dataFormat[1] == dataFormat[1] &&
-		info.dataFormat[2] == dataFormat[2] &&
-		info.dataFormat[3] == dataFormat[3] &&
-		info.formatVersion[0] == major &&
-		info.formatVersion[1] >= minor;
+bool udata_isAcceptableMajorMinor(const UDataInfo &info, const UChar * dataFormat, uint8 major, uint8 minor) 
+{
+	return info.size >= 20 && info.isBigEndian == U_IS_BIG_ENDIAN && info.charsetFamily == U_CHARSET_FAMILY &&
+		info.dataFormat[0] == dataFormat[0] && info.dataFormat[1] == dataFormat[1] && info.dataFormat[2] == dataFormat[2] &&
+		info.dataFormat[3] == dataFormat[3] && info.formatVersion[0] == major && info.formatVersion[1] >= minor;
 }
 }  // namespace
 
-EmojiProps::~EmojiProps() {
+EmojiProps::~EmojiProps() 
+{
 	udata_close(memory);
 	ucptrie_close(cpTrie);
 }
 
-const EmojiProps * EmojiProps::getSingleton(UErrorCode & errorCode) {
+const EmojiProps * EmojiProps::getSingleton(UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return nullptr;
 	}
@@ -70,12 +64,13 @@ const EmojiProps * EmojiProps::getSingleton(UErrorCode & errorCode) {
 	return singleton;
 }
 
-bool U_CALLCONV EmojiProps::isAcceptable(void * /*context*/, const char * /*type*/, const char * /*name*/,
-    const UDataInfo * pInfo) {
+bool U_CALLCONV EmojiProps::isAcceptable(void * /*context*/, const char * /*type*/, const char * /*name*/, const UDataInfo * pInfo) 
+{
 	return udata_isAcceptableMajorMinor(*pInfo, u"Emoj", 1, 0);
 }
 
-void EmojiProps::load(UErrorCode & errorCode) {
+void EmojiProps::load(UErrorCode & errorCode) 
+{
 	memory = udata_openChoice(nullptr, "icu", "uemoji", isAcceptable, this, &errorCode);
 	if(U_FAILURE(errorCode)) {
 		return;
@@ -87,16 +82,13 @@ void EmojiProps::load(UErrorCode & errorCode) {
 		errorCode = U_INVALID_FORMAT_ERROR; // Not enough indexes.
 		return;
 	}
-
 	int32_t i = IX_CPTRIE_OFFSET;
 	int32_t offset = inIndexes[i++];
 	int32_t nextOffset = inIndexes[i];
-	cpTrie = ucptrie_openFromBinary(UCPTRIE_TYPE_FAST, UCPTRIE_VALUE_BITS_8,
-		inBytes + offset, nextOffset - offset, nullptr, &errorCode);
+	cpTrie = ucptrie_openFromBinary(UCPTRIE_TYPE_FAST, UCPTRIE_VALUE_BITS_8, inBytes + offset, nextOffset - offset, nullptr, &errorCode);
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
-
 	for(i = IX_BASIC_EMOJI_TRIE_OFFSET; i <= IX_RGI_EMOJI_ZWJ_SEQUENCE_TRIE_OFFSET; ++i) {
 		offset = inIndexes[i];
 		nextOffset = inIndexes[i + 1];
@@ -106,24 +98,26 @@ void EmojiProps::load(UErrorCode & errorCode) {
 	}
 }
 
-void EmojiProps::addPropertyStarts(const USetAdder * sa, UErrorCode & /*errorCode*/) const {
+void EmojiProps::addPropertyStarts(const USetAdder * sa, UErrorCode & /*errorCode*/) const 
+{
 	// Add the start code point of each same-value range of the trie.
 	UChar32 start = 0, end;
 	uint32_t value;
-	while((end = ucptrie_getRange(cpTrie, start, UCPMAP_RANGE_NORMAL, 0,
-	    nullptr, nullptr, &value)) >= 0) {
+	while((end = ucptrie_getRange(cpTrie, start, UCPMAP_RANGE_NORMAL, 0, nullptr, nullptr, &value)) >= 0) {
 		sa->add(sa->set, start);
 		start = end + 1;
 	}
 }
 
-bool EmojiProps::hasBinaryProperty(UChar32 c, UProperty which) {
+bool EmojiProps::hasBinaryProperty(UChar32 c, UProperty which) 
+{
 	UErrorCode errorCode = U_ZERO_ERROR;
 	const EmojiProps * ep = getSingleton(errorCode);
 	return U_SUCCESS(errorCode) && ep->hasBinaryPropertyImpl(c, which);
 }
 
-bool EmojiProps::hasBinaryPropertyImpl(UChar32 c, UProperty which) const {
+bool EmojiProps::hasBinaryPropertyImpl(UChar32 c, UProperty which) const 
+{
 	if(which < UCHAR_EMOJI || UCHAR_RGI_EMOJI < which) {
 		return false;
 	}
@@ -159,7 +153,8 @@ bool EmojiProps::hasBinaryProperty(const UChar * s, int32_t length, UProperty wh
 	return U_SUCCESS(errorCode) && ep->hasBinaryPropertyImpl(s, length, which);
 }
 
-bool EmojiProps::hasBinaryPropertyImpl(const UChar * s, int32_t length, UProperty which) const {
+bool EmojiProps::hasBinaryPropertyImpl(const UChar * s, int32_t length, UProperty which) const 
+{
 	if(s == nullptr && length != 0) {
 		return false;
 	}

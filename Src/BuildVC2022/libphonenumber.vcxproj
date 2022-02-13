@@ -607,11 +607,6 @@
     <ClInclude Include="..\OSF\libphonenumber\geocoding_data.h" />
     <ClInclude Include="..\OSF\libphonenumber\libphonenumber-internal.h" />
     <ClInclude Include="..\OSF\libphonenumber\lock.h" />
-    <ClInclude Include="..\OSF\libphonenumber\lock_boost.h" />
-    <ClInclude Include="..\OSF\libphonenumber\lock_posix.h" />
-    <ClInclude Include="..\OSF\libphonenumber\lock_stdmutex.h" />
-    <ClInclude Include="..\OSF\libphonenumber\lock_unsafe.h" />
-    <ClInclude Include="..\OSF\libphonenumber\lock_win32.h" />
     <ClInclude Include="..\OSF\libphonenumber\logger.h" />
     <ClInclude Include="..\OSF\libphonenumber\logging.h" />
     <ClInclude Include="..\OSF\libphonenumber\mapping_file_provider.h" />
@@ -634,11 +629,6 @@
     <ClInclude Include="..\OSF\libphonenumber\shortnumberinfo.h" />
     <ClInclude Include="..\OSF\libphonenumber\short_metadata.h" />
     <ClInclude Include="..\OSF\libphonenumber\singleton.h" />
-    <ClInclude Include="..\OSF\libphonenumber\singleton_boost.h" />
-    <ClInclude Include="..\OSF\libphonenumber\singleton_posix.h" />
-    <ClInclude Include="..\OSF\libphonenumber\singleton_stdmutex.h" />
-    <ClInclude Include="..\OSF\libphonenumber\singleton_unsafe.h" />
-    <ClInclude Include="..\OSF\libphonenumber\singleton_win32.h" />
     <ClInclude Include="..\OSF\libphonenumber\stl_util.h" />
     <ClInclude Include="..\OSF\libphonenumber\stringpiece.h" />
     <ClInclude Include="..\OSF\libphonenumber\stringutil.h" />

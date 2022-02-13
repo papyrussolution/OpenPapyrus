@@ -1,56 +1,23 @@
-/*
-        schema.cpp
-
-        XSD binding schema implementation
-
-   --------------------------------------------------------------------------------
-   gSOAP XML Web services tools
-   Copyright (C) 2001-2011, Robert van Engelen, Genivia Inc. All Rights Reserved.
-   This software is released under one of the following two licenses:
-   GPL or Genivia's license for commercial use.
-   --------------------------------------------------------------------------------
-   GPL license.
-
-   This program is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free Software
-   Foundation; either version 2 of the License, or (at your option) any later
-   version.
-
-   This program is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-   PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License along with
-   this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-   Place, Suite 330, Boston, MA 02111-1307 USA
-
-   Author contact information:
-   engelen@genivia.com / engelen@acm.org
-   --------------------------------------------------------------------------------
-   A commercial use license is available from Genivia, Inc., contact@genivia.com
-   --------------------------------------------------------------------------------
-
- */
-#include <slib.h> // @v9.6.8
-#include "wsdlH.h"              // cannot include "schemaH.h"
+// schema.cpp
+// XSD binding schema implementation
+// gSOAP XML Web services tools
+// Copyright (C) 2001-2011, Robert van Engelen, Genivia Inc. All Rights Reserved.
+// @licence GNU GPL
+// 
+#include <slib.h>
+#include "wsdlH.h" // cannot include "schemaH.h"
 #pragma hdrstop
 #include "includes.h"
 
 extern struct Namespace namespaces[];
-
 extern "C" {
-extern int warn_ignore(struct soap*, const char*);
+	extern int warn_ignore(struct soap*, const char*);
 }
-
 extern const char * qname_token(const char*, const char*);
 extern int is_builtin_qname(const char*);
-
-////////////////////////////////////////////////////////////////////////////////
 //
 //	schema
 //
-////////////////////////////////////////////////////////////////////////////////
-
 xs__schema::xs__schema()
 {
 	soap = soap_new1(SOAP_XML_TREE | SOAP_C_UTFSTRING);

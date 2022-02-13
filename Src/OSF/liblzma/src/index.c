@@ -345,7 +345,7 @@ void lzma_index_end(lzma_index *i, const lzma_allocator *allocator)
 {
 	// NOTE: If you modify this function, check also the bottom
 	// of lzma_index_cat().
-	if(i != NULL) {
+	if(i) {
 		index_tree_end(&i->streams, allocator, &index_stream_end);
 		lzma_free(i, allocator);
 	}
@@ -444,18 +444,20 @@ uint32_t lzma_index_checks(const lzma_index *i)
 
 extern uint32_t lzma_index_padding_size(const lzma_index * i)
 {
-	return (LZMA_VLI_C(4) - index_size_unpadded(i->record_count, i->index_list_size)) & 3;
+	return static_cast<uint32_t>((LZMA_VLI_C(4) - index_size_unpadded(i->record_count, i->index_list_size)) & 3);
 }
 
 lzma_ret lzma_index_stream_flags(lzma_index *i, const lzma_stream_flags *stream_flags)
 {
 	if(i == NULL || stream_flags == NULL)
 		return LZMA_PROG_ERROR;
-	// Validate the Stream Flags.
-	return_if_error(lzma_stream_flags_compare(stream_flags, stream_flags));
-	index_stream * s = (index_stream*)(i->streams.rightmost);
-	s->stream_flags = *stream_flags;
-	return LZMA_OK;
+	else {
+		// Validate the Stream Flags.
+		return_if_error(lzma_stream_flags_compare(stream_flags, stream_flags));
+		index_stream * s = (index_stream*)(i->streams.rightmost);
+		s->stream_flags = *stream_flags;
+		return LZMA_OK;
+	}
 }
 
 lzma_ret lzma_index_stream_padding(lzma_index *i, lzma_vli stream_padding)

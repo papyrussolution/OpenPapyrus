@@ -42,7 +42,6 @@ private:
 	friend class ShortNumberInfo;
 	friend class ShortNumberInfoTest;
 	friend class Singleton<PhoneNumberUtil>;
-
 public:
 	~PhoneNumberUtil();
 	static const char kRegionCodeForNonGeoEntity[];

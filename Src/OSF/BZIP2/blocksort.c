@@ -226,14 +226,12 @@ static void fallbackSort(uint32* fmap, uint32* eclass, uint32* bhtab, int32 nblo
 	while(1) {
 		if(verb >= 4)
 			VPrintf1("        depth %6d has ", H);
-
 		j = 0;
 		for(i = 0; i < nblock; i++) {
 			if(ISSET_BH(i)) j = i;
 			k = fmap[i] - H; if(k < 0) k += nblock;
 			eclass[k] = j;
 		}
-
 		nNotDone = 0;
 		r = -1;
 		while(1) {

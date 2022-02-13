@@ -26,7 +26,7 @@
 #error phonenumbermatcher depends on ICU (i.e. I18N_PHONENUMBERS_USE_ICU_REGEXP must be set)
 #endif  // I18N_PHONENUMBERS_USE_ICU_REGEXP
 
-#include "memory/singleton.h"
+#include "singleton.h"
 #include "callback.h"
 #include "encoding_utils.h"
 #include "regexp_adapter_icu.h"
