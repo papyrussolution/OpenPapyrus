@@ -83,9 +83,8 @@ int main(int argc, char ** argv)
 	}
 	if(opts.literal) {
 		if(opts.casing == CASE_INSENSITIVE) {
-			/* Search routine needs the query to be lowercase */
-			char * c = opts.query;
-			for(; *c != '\0'; ++c) {
+			// Search routine needs the query to be lowercase 
+			for(char * c = opts.query; *c != '\0'; ++c) {
 				*c = (char)tolower(*c);
 			}
 		}

@@ -1,5 +1,5 @@
 // DB.H
-// Copyright (C) Sobolev A. 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (C) Sobolev A. 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #ifndef __DB_H
@@ -1437,6 +1437,7 @@ class SSqlStmt {
 public:
 	friend class SOraDbProvider;
 	friend class SMySqlDbProvider;
+	friend class SSqliteDbProvider; // @v11.3.1
 	//
 	//   @todo
 	//   Конструктор сделать приватным так как создавать экземпляры
@@ -2194,7 +2195,7 @@ public:
 	// ARG(pBind  IN): @#{vptr} указатель на структуру SSqlStmt::Bind
 	//
 	virtual int ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind);
-	virtual int Exec(SSqlStmt & rS, uint count, int mode);
+	virtual int ExecStmt(SSqlStmt & rS, uint count, int mode);
 	virtual int Describe(SSqlStmt & rS, SdRecord &);
 	virtual int Fetch(SSqlStmt & rS, uint count, uint * pActualCount);
 	bool   IsValid() const;
@@ -2642,7 +2643,7 @@ public:
 	// ARG(pBind  IN): @#{vptr} указатель на структуру SSqlStmt::Bind
 	//
 	virtual int ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind);
-	virtual int Exec(SSqlStmt & rS, uint count, int mode);
+	virtual int ExecStmt(SSqlStmt & rS, uint count, int mode);
 	virtual int Describe(SSqlStmt & rS, SdRecord &);
 	virtual int Fetch(SSqlStmt & rS, uint count, uint * pActualCount);
 	int    GetAutolongVal(const DBTable & rTbl, uint fldN, long * pVal); // v
@@ -2789,7 +2790,7 @@ public:
 	virtual int DestroyStmt(SSqlStmt * pS);
 	virtual int Binding(SSqlStmt & rS, int dir);
 	virtual int ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind);
-	virtual int Exec(SSqlStmt & rS, uint count, int mode);
+	virtual int ExecStmt(SSqlStmt & rS, uint count, int mode);
 	virtual int Describe(SSqlStmt & rS, SdRecord &);
 	virtual int Fetch(SSqlStmt & rS, uint count, uint * pActualCount);
 private:
@@ -2853,7 +2854,7 @@ public:
 	virtual int DestroyStmt(SSqlStmt * pS);
 	virtual int Binding(SSqlStmt & rS, int dir);
 	virtual int ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind);
-	virtual int Exec(SSqlStmt & rS, uint count, int mode);
+	virtual int ExecStmt(SSqlStmt & rS, uint count, int mode);
 	virtual int Describe(SSqlStmt & rS, SdRecord &);
 	virtual int Fetch(SSqlStmt & rS, uint count, uint * pActualCount);
 private:

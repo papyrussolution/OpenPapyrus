@@ -214,7 +214,8 @@ int PPObjTech::CreateAutoTech(PPID prcID, PPID goodsID, PPID * pTechID, int use_
 		PPID   tech_id = 0;
 		do {
 			if(SearchAuto(prc_id, goodsID, &auto_tech_id) > 0) {
-				PPTechPacket pack, new_pack;
+				PPTechPacket pack;
+				PPTechPacket new_pack;
 				PPTransaction tra(use_ta);
 				THROW(tra);
 				THROW(GetPacket(auto_tech_id, &pack) > 0);
@@ -224,6 +225,8 @@ int PPObjTech::CreateAutoTech(PPID prcID, PPID goodsID, PPID * pTechID, int use_
 				new_pack.Rec.GoodsID = goodsID;
 				new_pack.Rec.Sign = pack.Rec.Sign;
 				new_pack.Rec.InitQtty = pack.Rec.InitQtty;
+				SETFLAGBYSAMPLE(new_pack.Rec.Flags, pack.Rec.Flags, TECF_CALCTIMEBYROWS); // @v11.3.1
+				SETFLAGBYSAMPLE(new_pack.Rec.Flags, pack.Rec.Flags, TECF_AUTOMAIN); // @v11.3.1
 				PPGetExtStrData(TECEXSTR_CAPACITY, pack.ExtString, temp_buf);
 				if(temp_buf.NotEmptyS()) {
 					double capacity = 0.0;
@@ -1692,7 +1695,7 @@ void * PPViewTech::GetEditExtraParam()
 		v |= TECEXDF_TOOLING;
 	else if(Filt.Kind == 2)
 		v |= TECEXDF_AUTO;
-	return (void *)v;
+	return reinterpret_cast<void *>(v);
 }
 
 DBQuery * PPViewTech::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)

@@ -726,10 +726,16 @@ int SBIILocOp::FromBuf(const void * pBuf)
 int SBIIBillRowWithCellsRec::FromDbfTbl(DbfTable * pTbl)
 {
 	if(pTbl) {
-		int fldn_billid = 0, fldn_goods = 0, fldn_serial = 0, fldn_qtty = 0, fldn_cost = 0,
-			fldn_rbybill = 0, fldn_name = 0, fldn_loc = 0, fldn_expended = 0;
+		int fldn_billid = 0;
+		int fldn_goods = 0;
+		int fldn_serial = 0;
+		int fldn_qtty = 0;
+		int fldn_cost = 0;
+		int fldn_rbybill = 0;
+		int fldn_name = 0;
+		int fldn_loc = 0;
+		int fldn_expended = 0;
 		SString serial, name;
-
 		pTbl->getFieldNumber("BILLID",   &fldn_billid);
 		pTbl->getFieldNumber("GOODSID",  &fldn_goods);
 		pTbl->getFieldNumber("SERIAL",   &fldn_serial);
@@ -856,9 +862,9 @@ StyloBhtIIOnHostCfg & FASTCALL StyloBhtIIOnHostCfg::operator = (const StyloBhtII
 	return *this;
 }
 
-int StyloBhtIIOnHostCfg::IsValid()
+bool StyloBhtIIOnHostCfg::IsValid() const
 {
-	int    ok = 1;
+	bool   ok = true;
 	THROW_PP(DeviceName.Len(), PPERR_NAMENEEDED);
 	if(Flags & StyloBhtIIConfig::fUseWiFi) {
 		THROW_PP(UserName.Len(), PPERR_INVUSERORPASSW);
@@ -869,11 +875,8 @@ int StyloBhtIIOnHostCfg::IsValid()
 	for(uint i = 0; i < P_OpList->getCount(); i++) {
 		const SBIIOpInfo & r_op_info = P_OpList->at(i);
 		if(r_op_info.ToHostOpID == 0) {
-			if(r_op_info.OpID > 0) {
-				// @v9.4.9 PPObject::SetLastErrObj(PPOBJ_OPRKIND, r_op_info.OpID);
-				// @v9.4.9 PPSetError(PPERR_INVTOHOSTOP);
-				PPSetObjError(PPERR_INVTOHOSTOP, PPOBJ_OPRKIND, r_op_info.OpID); // @v9.4.9
-			}
+			if(r_op_info.OpID > 0)
+				PPSetObjError(PPERR_INVTOHOSTOP, PPOBJ_OPRKIND, r_op_info.OpID);
 			else if(r_op_info.OpID == -StyloBhtIIConfig::oprkExpend)
 				PPSetError(PPERR_INVEXPENDOPTOHOSTOP);
 			else if(r_op_info.OpID == -StyloBhtIIConfig::oprkReceipt)
@@ -2351,7 +2354,8 @@ int BhtProtocol::SendDataFile(const char * pFileName, const BhtRecord * pStruc)
 {
 	int    ok = 1;
 	char   line_buf[256];
-	uint   numrecs = 0, recno = 0;
+	uint   numrecs = 0;
+	uint   recno = 0;
 	FILE * stream = 0;
 	BhtRecord * p_rec = 0;
 	THROW_PP_S(stream = fopen(pFileName, "r"), PPERR_CANTOPENFILE, pFileName);
@@ -2819,9 +2823,11 @@ void PPObjBHT::InitGoodsBhtRec(BhtRecord * pBhtRec) const
 
 void PPObjBHT::InitSupplBhtRec(BhtRecord * pBhtRec) const
 {
-	pBhtRec->Reset();
-	pBhtRec->AddFld(8);  // Suppl ID (ar_rec.ID [not ar_rec.Article])
-	pBhtRec->AddFld(30); // Name
+	if(pBhtRec) {
+		pBhtRec->Reset();
+		pBhtRec->AddFld(8);  // Suppl ID (ar_rec.ID [not ar_rec.Article])
+		pBhtRec->AddFld(30); // Name
+	}
 }
 
 static int PutBhtRecToFile(const BhtRecord * pBhtRec, FILE * stream)
@@ -3724,8 +3730,8 @@ int PPObjBHT::PrepareGoodsData(PPID bhtID, const char * pPath, const char * pPat
 			p_dbf_tbl->close();
 			SCopyFile(out_path, pPath, 0, FILE_SHARE_READ, 0);
 		}
-		ufp.SetFactor(0, prf_measure); // @v9.4.11
-		ufp.Commit(); // @v9.4.11
+		ufp.SetFactor(0, prf_measure);
+		ufp.Commit();
 	}
 	CATCHZOK
 	delete p_bei;
@@ -3739,7 +3745,8 @@ int PPObjBHT::PrepareGoodsData(PPID bhtID, const char * pPath, const char * pPat
 
 int PPObjBHT::TransmitSuppl(BhtProtocol * pBP, int updateData)
 {
-	int    ok = 1, r;
+	int    ok = 1;
+	int    r;
 	BhtRecord * p_bht_rec = 0;
 	SString path;
 	PPWaitStart();
@@ -5811,8 +5818,9 @@ int PPBhtTerminalPacket::ConvertToConfig(int expKind, StyloBhtIIConfig * pCfg) c
 		}
 		PPObjBHT * P_BhtObj;
 	};
-	int    ok = -1, what = -1; // 0 - All, 1 - Goods, 2 - Suppl, 3 - Tech session
-	int    force_update = 0;
+	int    ok = -1;
+	int    what = -1; // 0 - All, 1 - Goods, 2 - Suppl, 3 - Tech session
+	bool   force_update = false;
 	PPID   bht_id = 0;
 	ushort v = 0;
 	PPObjBHT bht_obj;
@@ -5825,7 +5833,7 @@ int PPBhtTerminalPacket::ConvertToConfig(int expKind, StyloBhtIIConfig * pCfg) c
 			dlg->getCtrlData(CTL_BHTSEND_WHAT, &v);
 			what = v;
 			dlg->getCtrlData(CTL_BHTSEND_FLAGS, &v);
-			force_update = BIN(v);
+			force_update = LOGIC(v);
 		}
 	}
 	ZDELETE(dlg);

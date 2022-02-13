@@ -1,5 +1,5 @@
 // DBPRVDR.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -719,7 +719,7 @@ int DbProvider::CreateStmt(SSqlStmt * pS, const char * pText, long flags) { retu
 int DbProvider::DestroyStmt(SSqlStmt * pS) { return 0; }
 int DbProvider::Binding(SSqlStmt & rS, int dir) { return 0; }
 int DbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind) { return 0; }
-int DbProvider::Exec(SSqlStmt & rS, uint count, int mode) { return 0; }
+int DbProvider::ExecStmt(SSqlStmt & rS, uint count, int mode) { return 0; }
 int DbProvider::Describe(SSqlStmt & rS, SdRecord &) { return 0; }
 int DbProvider::Fetch(SSqlStmt & rS, uint count, uint * pActualCount) { return 0; }
 //

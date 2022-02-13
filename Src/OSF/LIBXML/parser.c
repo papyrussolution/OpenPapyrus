@@ -13219,9 +13219,9 @@ xmlDoc * xmlCtxtReadDoc(xmlParserCtxt * ctxt, const xmlChar * cur, const char * 
 		xmlInitParser();
 		xmlCtxtReset(ctxt);
 		{
-			xmlParserInput * stream = xmlNewStringInputStream(ctxt, cur);
-			if(stream) {
-				inputPush(ctxt, stream);
+			xmlParserInput * p_stream = xmlNewStringInputStream(ctxt, cur);
+			if(p_stream) {
+				inputPush(ctxt, p_stream);
 				return xmlDoRead(ctxt, URL, encoding, options, 1);
 			}
 			else

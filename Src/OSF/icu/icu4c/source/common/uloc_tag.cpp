@@ -1433,25 +1433,22 @@ static void _appendKeywordsToLanguageTag(const char * localeID, icu::ByteSink& s
 			bool startLDMLExtension = FALSE;
 			for(ext = firstExt; ext; ext = ext->next) {
 				if(!startLDMLExtension && uprv_strlen(ext->key) > 1) {
-					/* first LDML u singlton extension */
+					// first LDML u singelton extension 
 					sink.Append("-u", 2);
 					startLDMLExtension = TRUE;
 				}
-
-				/* write out the sorted BCP47 attributes, extensions and private use */
+				// write out the sorted BCP47 attributes, extensions and private use 
 				if(uprv_strcmp(ext->key, LOCALE_ATTRIBUTE_KEY) == 0) {
-					/* write the value for the attributes */
+					// write the value for the attributes 
 					for(attr = firstAttr; attr; attr = attr->next) {
 						sink.Append("-", 1);
-						sink.Append(
-							attr->attribute, static_cast<int32_t>(uprv_strlen(attr->attribute)));
+						sink.Append(attr->attribute, static_cast<int32_t>(uprv_strlen(attr->attribute)));
 					}
 				}
 				else {
 					sink.Append("-", 1);
 					sink.Append(ext->key, static_cast<int32_t>(uprv_strlen(ext->key)));
-					if(uprv_strcmp(ext->value, "true") != 0 &&
-					    uprv_strcmp(ext->value, "yes") != 0) {
+					if(uprv_strcmp(ext->value, "true") != 0 && uprv_strcmp(ext->value, "yes") != 0) {
 						sink.Append("-", 1);
 						sink.Append(ext->value, static_cast<int32_t>(uprv_strlen(ext->value)));
 					}

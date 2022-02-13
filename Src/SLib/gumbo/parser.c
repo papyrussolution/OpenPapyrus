@@ -1681,10 +1681,11 @@ const char * gumbo_normalize_svg_tagname(const GumboStringPiece* tag)
 	}
 	return NULL;
 }
-
+//
 // http://www.whatwg.org/specs/web-apps/current-work/multipage/tree-construction.html#adjust-foreign-attributes
 // This destructively modifies any matching attributes on the token and sets the
 // namespace appropriately.
+//
 static void adjust_foreign_attributes(GumboParser * parser, GumboToken* token) 
 {
 	assert(token->type == GUMBO_TOKEN_START_TAG);

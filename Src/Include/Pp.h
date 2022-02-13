@@ -32235,7 +32235,7 @@ struct StyloBhtIIOnHostCfg {
 	bool   IsEmpty() const;
 	PPID   GetOpID(PPID opID) const;
 	bool   IsCostAsPrice(PPID opID) const;
-	int    IsValid();
+	bool   IsValid() const;
 
 	SString DeviceName;
 	SString WeightPrefix;

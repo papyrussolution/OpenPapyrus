@@ -282,12 +282,11 @@ private:
 		}
 		~AtolFptr10()
 		{
-			if(DestroyHandleProc && Handler) {
+			if(DestroyHandleProc && Handler)
 				DestroyHandleProc(&Handler);
-			}
 		}
-		int    IsValid() const { return BIN(State & stInitialized); }
-
+		bool   IsValid() const { return LOGIC(State & stInitialized); }
+		//
 		void * Handler;
 		int (* cdecl CreateHandleProc)(void **);
 		int (* cdecl DestroyHandleProc)(void **);
@@ -1406,7 +1405,95 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(CCheckPacket * pPack, uint flags) // @v11.3
 			//
 			p_result->Insert("operator", p_inner);
 		}
+		if(P_SlipFmt) {
+			int r;
+			SString line_buf;
+			SlipDocCommonParam sdc_param;
+			const SString format_name("CCheck");
+			SlipLineParam sl_param;
+			THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
+			if(r > 0) {
+				SJson * p_inner = new SJson(SJson::tARRAY);
+				for(P_SlipFmt->InitIteration(pPack); P_SlipFmt->NextIteration(line_buf, &sl_param) > 0;) {
+					if(sl_param.Flags & SlipLineParam::fRegFiscal) {
+						SJson * p_js_item = new SJson(SJson::tOBJECT);
+						p_js_item->InsertString("type", "position");
+						{
+							(temp_buf = sl_param.Text).Strip().SetIfEmpty("WARE").Transf(CTRANSF_INNER_TO_UTF8);
+							p_js_item->InsertString("name", temp_buf);
+						}
+						p_js_item->InsertDouble("price", 0.0, MKSFMTD(0, 2, 0));
+						p_js_item->InsertDouble("quantity", 0.0, MKSFMTD(0, 1, 0));
+						p_js_item->InsertDouble("amount", 0.0, MKSFMTD(0, 2, 0));
+						p_js_item->InsertDouble("infoDiscountAmount", 0.0, MKSFMTD(0, 1, 0));
+						p_js_item->InsertInt("department", 1);
+						p_js_item->InsertString("measurementUnit", "");
+						p_js_item->InsertString("paymentMethod", ""); // "advance" etc
+						p_js_item->InsertString("paymentObject", ""); // "commodity" etc
+						p_js_item->InsertString("nomenclatureCode", ""); // chzn mark
+						{
+							SJson * p_js_tax = new SJson(SJson::tOBJECT);
+							p_js_tax->InsertString("type", ""); // "vat18" etc
+							p_js_item->Insert("tax", p_js_tax);
+						}
+						{
+							SJson * p_js_agentinfo = new SJson(SJson::tOBJECT);
+							p_js_item->Insert("agentInfo", p_js_agentinfo);
+						}
+						{
+							SJson * p_js_supplinfo = new SJson(SJson::tOBJECT);
+							p_js_item->Insert("supplierInfo", p_js_supplinfo);
+						}
+						/*
+							"type": "position",
+							"name": "Бананы",
+							"price": 73.15,
+							"quantity": 1.0,
+							"amount": 73.15,
+							"infoDiscountAmount": 0.0,
+							"department": 1,
+							"measurementUnit": "кг",
+							"paymentMethod": "advance",
+							"paymentObject": "commodity",
+							"nomenclatureCode": "MTIzNDEyMzQ1Njc4MTIzNDU2Nzg5MDEyMzQ1Njc4OTA=",
+							"tax": {
+								"type": "vat18"
+							},
+							"agentInfo": {
+								"agents": ["payingAgent", "bankPayingAgent"],
+								"payingAgent": {
+									"operation": "Оплата",
+									"phones": ["+79161112233"]
+								},
+								"receivePaymentsOperator": {
+									"phones": ["+79163331122"]
+								},
+								"moneyTransferOperator": {
+									"phones": ["+79162223311"],
+									"name": "Оператор перевода",
+									"address": "Улица Оператора Перевода, д.1",
+									"vatin": "321456987121"
+								}
+							},
+							"supplierInfo": {
+								"phones": ["+79175555555"],
+								"name": "Поставщик",
+								"vatin": "956839506500"
+							}
+						*/
+						//
+						p_inner->InsertChild(p_js_item);
+					}
+				}
+				p_result->Insert("items", p_inner);
+			}
+		}
+		else {
+		}
 	}
+	CATCH
+		ZDELETE(p_result);
+	ENDCATCH
 	return p_result;
 }
 

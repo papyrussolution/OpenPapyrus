@@ -1,5 +1,5 @@
 // DBSQL.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -192,7 +192,7 @@ SSqlStmt::~SSqlStmt()
 int SSqlStmt::SetText(const char * pText)
 {
 	int    ok = 1;
-	if(pText && P_Db) {
+	if(!isempty(pText) && P_Db) {
 		if(!P_Db->CreateStmt(this, pText, 0)) {
 			Flags |= fError;
 			ok = 0;
@@ -309,7 +309,7 @@ size_t FASTCALL SSqlStmt::GetBindOuterSize(const Bind * pBind) const
 
 int SSqlStmt::Exec(uint count, int mode)
 {
-	return IsValid() ? P_Db->Exec(*this, count, mode) : 0;
+	return IsValid() ? P_Db->ExecStmt(*this, count, mode) : 0;
 }
 
 int SSqlStmt::Describe()
@@ -855,7 +855,7 @@ int SOraDbProvider::Binding(SSqlStmt & rS, int dir)
 	return ok;
 }
 
-int SOraDbProvider::Exec(SSqlStmt & rS, uint count, int mode)
+int SOraDbProvider::ExecStmt(SSqlStmt & rS, uint count, int mode)
 {
 	int    ok = ProcessError(OCIStmtExecute(Srvc, StmtHandle(rS), Err, count, 0, 0, 0, NZOR(mode, OCI_DEFAULT)));
 #ifndef NDEBUG // {

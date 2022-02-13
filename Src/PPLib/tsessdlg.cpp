@@ -89,7 +89,7 @@ void PrcTechCtrlGroup::onPrcSelection(TDialog * pDlg, int onIdleStatus)
 
 void PrcTechCtrlGroup::selTechByGoods(TDialog * pDlg)
 {
-	PPID   prc_id = pDlg->getCtrlLong(CtlselPrc);
+	const PPID prc_id = pDlg->getCtrlLong(CtlselPrc);
 	if(prc_id) {
 		long   egsd_flags = ExtGoodsSelDialog::GetDefaultFlags(); // @v10.7.7
 		ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(0, 0, egsd_flags);
@@ -237,7 +237,7 @@ class TSessionDialog : public TDialog {
 		ctlgroupPrcTech = 2
 	};
 public:
-	explicit TSessionDialog(uint dlgID) : TDialog(dlgID), SessUpdated(0), InnerGetDTS(0), InpUpdLock(0), P_BObj(BillObj)
+	explicit TSessionDialog(uint dlgID) : TDialog(dlgID), SessUpdated(false), InnerGetDTS(false), InpUpdLock(0), P_BObj(BillObj)
 	{
 		SetupCalDate(CTLCAL_TSESS_STDT, CTL_TSESS_STDT);
 		SetupCalDate(CTLCAL_TSESS_FNDT, CTL_TSESS_FNDT);
@@ -253,7 +253,7 @@ public:
 	}
 	int    setDTS(const TSessionPacket *);
 	int    getDTS(TSessionPacket *);
-	int    GetUpdatedStatus(PPID * pID) const
+	bool   GetUpdatedStatus(PPID * pID) const
 	{
 		ASSIGN_PTR(pID, Data.Rec.ID);
 		return SessUpdated;
@@ -285,8 +285,9 @@ private:
 
 	TSessionPacket Data;
 	int    OrgStatus;
-	int    SessUpdated; // Получает значение !0, если сессия была сохранена в процессе редактирования (переход в режим чека, либо переход в строки).
-	int    InnerGetDTS;
+	bool   SessUpdated; // Получает значение !0, если сессия была сохранена в процессе редактирования (переход в режим чека, либо переход в строки).
+	bool   InnerGetDTS;
+	uint8  Reserve[2];  // @alignment
 	long   InpUpdLock;
 	//
 	// Блок параметров перенстройки процессора.
@@ -407,8 +408,7 @@ long TSessionDialog::getToolingTiming()
 {
 	getCtrlData(CTL_TSESS_STDT, &Data.Rec.StDt);
 	getCtrlData(CTL_TSESS_STTM, &Data.Rec.StTm);
-	if(TB.ToolingTime < 0 || TB.Start.d != Data.Rec.StDt || TB.Start.t != Data.Rec.StTm ||
-		TB.PrcID != Data.Rec.PrcID || TB.TechID != Data.Rec.TechID) {
+	if(TB.ToolingTime < 0 || TB.Start.d != Data.Rec.StDt || TB.Start.t != Data.Rec.StTm || TB.PrcID != Data.Rec.PrcID || TB.TechID != Data.Rec.TechID) {
 		TB.Start.d = Data.Rec.StDt;
 		TB.Start.t = Data.Rec.StTm;
 		TB.PrcID  = Data.Rec.PrcID;
@@ -416,8 +416,7 @@ long TSessionDialog::getToolingTiming()
 		TB.ToolingTime = 0;
 		TSessionTbl::Rec prev_sess_rec;
 		TechTbl::Rec tec_rec, prev_tec_rec;
-		if(TSesObj.GetPrevSession(Data.Rec, &prev_sess_rec) > 0 &&
-			TSesObj.GetTech(Data.Rec.TechID, &tec_rec) > 0 &&
+		if(TSesObj.GetPrevSession(Data.Rec, &prev_sess_rec) > 0 && TSesObj.GetTech(Data.Rec.TechID, &tec_rec) > 0 &&
 			TSesObj.GetTech(prev_sess_rec.TechID, &prev_tec_rec, 1) > 0) {
 			//if(tec_rec.GoodsID != prev_tec_rec.GoodsID) {
 				TSVector <TechTbl::Rec> t_list; // @v9.8.4 TSArray-->TSVect
@@ -480,7 +479,7 @@ void TSessionDialog::selectFreeEntry()
 				const PrcBusy & entry = *static_cast<const PrcBusy *>(FreeList.at(i));
 				ss.clear();
 				ss.add(entry.ToStr(sub.Z()));
-				long   dur = entry.GetDuration();
+				const long dur = entry.GetDuration();
 				sub.Z();
 				if(dur >= 0) {
 					LTIME tm_dur;
@@ -622,7 +621,7 @@ void TSessionDialog::Detail()
 	if(getDTS(&temp_pack)) {
 		PPID   temp_id = temp_pack.Rec.ID;
 		if(TSesObj.PutPacket(&temp_id, &temp_pack, 1)) {
-			SessUpdated = 1;
+			SessUpdated = true;
 			Data.Rec.ID = temp_id;
 			TSessLineFilt filt(temp_id);
 			ViewTSessLine(&filt);
@@ -1062,11 +1061,11 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 			}
 			else {
 				TSessionPacket temp_pack;
-				InnerGetDTS = 1;
+				InnerGetDTS = true;
 				if(getDTS(&temp_pack)) {
 					PPID   temp_id = temp_pack.Rec.ID;
 					if(TSesObj.PutPacket(&temp_id, &temp_pack, 1)) {
-						SessUpdated = 1;
+						SessUpdated = true;
 						Data.Rec.ID = temp_id;
 						TSesObj.CallCheckPaneBySess(temp_id, 0);
 						if(TSesObj.Search(temp_id, &temp_pack.Rec) > 0 && temp_pack.Rec.CCheckID_) {
@@ -1077,7 +1076,7 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 					else
 						PPError();
 				}
-				InnerGetDTS = 0;
+				InnerGetDTS = false;
 			}
 		}
 		else if(event.isCmd(cmChkInP)) {
@@ -1091,7 +1090,7 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 					}
 				}
 				EditCheckInPersonList(&cip_cfg, &Data.CiList);
-				InnerGetDTS = 0;
+				InnerGetDTS = false;
 			}
 		}
 		else if(event.isCmd(cmAddPaym)) {
@@ -1832,7 +1831,7 @@ IMPL_HANDLE_EVENT(TSessLineDialog)
 		}
 		else if(event.isCbSelected(CTLSEL_TSESSLN_GOODS)) {
 			const  PPID goods_id = getCtrlLong(CTLSEL_TSESSLN_GOODS);
-			int    r = TSesObj.SetupLineGoods(&Data, goods_id, 0, 0);
+			const  int  r = TSesObj.SetupLineGoods(&Data, goods_id, 0, 0);
 			if(r == 0) {
 				setCtrlLong(CTLSEL_TSESSLN_GOODS, Data.GoodsID);
 				PPError();

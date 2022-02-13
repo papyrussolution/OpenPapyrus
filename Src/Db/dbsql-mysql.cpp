@@ -1,5 +1,5 @@
 // DBSQL-MYSQL.CPP
-// Copyright (c) A.Sobolev 2020, 2021
+// Copyright (c) A.Sobolev 2020, 2021, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -103,7 +103,7 @@ int FASTCALL SMySqlDbProvider::ProcessError(int status)
 	return ok;
 }
 
-/*virtual*/int SMySqlDbProvider::Exec(SSqlStmt & rS, uint count, int mode)
+/*virtual*/int SMySqlDbProvider::ExecStmt(SSqlStmt & rS, uint count, int mode)
 {
 	int    ok = ProcessError(mysql_stmt_execute(static_cast<MYSQL_STMT *>(rS.H)));
 #ifndef NDEBUG // {

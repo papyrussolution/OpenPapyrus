@@ -9,7 +9,13 @@
 #include <db.h>
 #include <..\OSF\SQLite\sqlite3.h>
 
-SSqliteDbProvider::SSqliteDbProvider() : DbProvider(DbDictionary::CreateInstance(0, 0), DbProvider::cSQL|DbProvider::cDbDependTa), SqlGen(sqlstMySQL, 0), H(0), Flags(0)
+#ifndef NDEBUG
+	#define DEBUG_LOG(msg) SLS.LogMessage("dbsqlite.log", msg, 0)
+#else
+	#define DEBUG_LOG(msg)
+#endif
+
+SSqliteDbProvider::SSqliteDbProvider() : DbProvider(DbDictionary::CreateInstance(0, 0), DbProvider::cSQL|DbProvider::cDbDependTa), SqlGen(sqlstSQLite, 0), H(0), Flags(0)
 {
 }
 
@@ -45,9 +51,48 @@ int FASTCALL SSqliteDbProvider::ProcessError(int status)
 	return ok;
 }
 
-/*virtual*/int SSqliteDbProvider::Exec(SSqlStmt & rS, uint count, int mode)
+/*virtual*/int SSqliteDbProvider::CreateStmt(SSqlStmt * pS, const char * pText, long flags)
 {
-	return 0;
+	int    ok = 1;
+	uint   prep_flags = 0; // SQLITE_PREPARE_XXX
+	const  char * p_ztail = 0;
+	sqlite3_stmt * p_stmt = 0;
+	THROW(!isempty(pText));
+	THROW(ProcessError(sqlite3_prepare_v3(static_cast<sqlite3 *>(H), pText, sstrleni(pText), prep_flags, &p_stmt, &p_ztail)));
+	pS->H = p_stmt;
+	/*
+	OH h = OhAlloc(OCI_HTYPE_STMT);
+	pS->H = h;
+	THROW(ProcessError(OCIStmtPrepare(h, Err, reinterpret_cast<const OraText *>(pText), sstrlen(pText), OCI_NTV_SYNTAX, OCI_DEFAULT)));
+	*/
+	CATCHZOK
+	return ok;
+}
+
+/*virtual*/int SSqliteDbProvider::DestroyStmt(SSqlStmt * pS)
+{
+	int   ok = 1;
+	if(pS && pS->H) {
+		int r = sqlite3_finalize(static_cast<sqlite3_stmt *>(pS->H));
+		pS->H = 0;
+		ok = ProcessError(r);
+	}
+	else
+		ok = -1;
+	return ok;
+}
+
+/*virtual*/int SSqliteDbProvider::ExecStmt(SSqlStmt & rS, uint count, int mode)
+{
+	int    ok = ProcessError(sqlite3_step(static_cast<sqlite3_stmt *>(rS.H)));
+#ifndef NDEBUG // {
+	if(!ok) {
+		SString log_buf;
+		//log_buf.Cat("EXEC").CatDiv(':', 2).Cat(LastErrMsg);
+		DEBUG_LOG(log_buf);
+	}
+#endif // } !NDEBUG
+	return ok;
 }
 
 /*virtual*/int SSqliteDbProvider::Logout()

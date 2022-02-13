@@ -518,18 +518,18 @@ void SetupConversions(enum CaseConversion conversion)
 {
 	// First initialize for the symmetric ranges
 	for(size_t i = 0; i < SIZEOFARRAY(symmetricCaseConversionRanges); ) {
-		int lower = symmetricCaseConversionRanges[i++];
-		int upper = symmetricCaseConversionRanges[i++];
-		int length = symmetricCaseConversionRanges[i++];
-		int pitch = symmetricCaseConversionRanges[i++];
+		const int lower = symmetricCaseConversionRanges[i++];
+		const int upper = symmetricCaseConversionRanges[i++];
+		const int length = symmetricCaseConversionRanges[i++];
+		const int pitch = symmetricCaseConversionRanges[i++];
 		for(int j = 0; j<length*pitch; j += pitch) {
 			AddSymmetric(conversion, lower+j, upper+j);
 		}
 	}
 	// Add the symmetric singletons
 	for(size_t i = 0; i < SIZEOFARRAY(symmetricCaseConversions); ) {
-		int lower = symmetricCaseConversions[i++];
-		int upper = symmetricCaseConversions[i++];
+		const int lower = symmetricCaseConversions[i++];
+		const int upper = symmetricCaseConversions[i++];
 		AddSymmetric(conversion, lower, upper);
 	}
 	// Add the complex cases

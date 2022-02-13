@@ -685,7 +685,7 @@ int PPObjProcessor::GetRecWithInheritance(PPID prcID, ProcessorTbl::Rec * pRec, 
 				THROW((useCache ? Fetch(parent_id, &parent_rec) : Search(parent_id, &parent_rec)) > 0);
 				// Проверка на циклические ссылки {
 				THROW_PP_S(id_list.lsearch(parent_rec.ParentID) == 0, PPERR_CYCLELINKPRC, parent_rec.Name);
-				id_list.add(parent_rec.ParentID); // @v8.1.6 addUnique-->add
+				id_list.add(parent_rec.ParentID);
 				// }
 				SETIFZ(rec.LocID, parent_rec.LocID);
 				SETIFZ(rec.TimeUnitID, parent_rec.TimeUnitID);

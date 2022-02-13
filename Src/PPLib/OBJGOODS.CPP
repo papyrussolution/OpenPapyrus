@@ -1021,8 +1021,8 @@ int PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 	int    no_changes = 0; // Устанавливается в 1, если пакет не изменился по сравнению с образом в БД.
 	long   pack_cmp_result_flags = 0;
 	const  PPID mtx_qk_id = GetConfig().MtxQkID;
-	const  int is_new = (*pID == 0);
-	const  int is_removing = BIN(*pID != 0 && pPack == 0);
+	const  bool is_new = (*pID == 0);
+	const  bool is_removing = (*pID != 0 && pPack == 0);
 	PPID   remove_struc_id = 0;
 	PPID   hid = 0;
 	Goods2Tbl::Rec rec, org_rec, grp_rec;

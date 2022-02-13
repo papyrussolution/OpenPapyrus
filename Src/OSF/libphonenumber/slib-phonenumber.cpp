@@ -16,7 +16,7 @@ SLibPhoneNumber::~SLibPhoneNumber()
 {
 	delete static_cast<PhoneNumber *>(H);
 	H = 0;
-	// P - singlton. Разрушать его нельзя!
+	// P - singleton. Разрушать его нельзя!
 	//delete static_cast<PhoneNumberUtil *>(P);
 	//P = 0;
 }

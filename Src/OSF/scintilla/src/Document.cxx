@@ -1,10 +1,9 @@
-// Scintilla source code edit control
-/** @file Document.cxx
-** Text document that handles notifications, DBCS, styling, words and end of line.
-**/
+// Document.cxx
 // Copyright 1998-2011 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
-
+// Scintilla source code edit control
+// Text document that handles notifications, DBCS, styling, words and end of line.
+//
 #include <Platform.h>
 #include <Scintilla.h>
 #include <scintilla-internal.h>
@@ -80,10 +79,7 @@ UndoGroup::~UndoGroup()
 		pdoc->EndUndoAction();
 }
 
-bool UndoGroup::Needed() const
-{
-	return groupNeeded;
-}
+bool UndoGroup::Needed() const { return groupNeeded; }
 
 DocModification::DocModification(int modificationType_, int position_ /*= 0*/, int length_ /*= 0*/, int linesAdded_ /*= 0*/, const char * text_ /*= 0*/, int line_ /*= 0*/) :
 	modificationType(modificationType_), position(position_), length(length_), linesAdded(linesAdded_), text(text_),
@@ -169,9 +165,8 @@ bool Document::SetDBCSCodePage(int dbcsCodePage_)
 		cb.SetLineEndTypes(lineEndBitSet & LineEndTypesSupported());
 		return true;
 	}
-	else {
+	else
 		return false;
-	}
 }
 
 bool Document::SetLineEndTypesAllowed(int lineEndBitSet_)
@@ -206,10 +201,7 @@ void Document::RemoveLine(int line)
 }
 
 // Increase reference count and return its previous value.
-int Document::AddRef()
-{
-	return refCount++;
-}
+int Document::AddRef() { return refCount++; }
 
 // Decrease reference count and return its previous value.
 // Delete the document if reference count reaches zero.
@@ -352,20 +344,9 @@ void Document::DeleteAllMarks(int markerNum)
 	}
 }
 
-int Document::LineFromHandle(int markerHandle)
-{
-	return static_cast<LineMarkers *>(perLineData[ldMarkers])->LineFromHandle(markerHandle);
-}
-
-Sci_Position SCI_METHOD Document::LineStart(Sci_Position line) const
-{
-	return cb.LineStart(line);
-}
-
-bool Document::IsLineStartPosition(int position) const
-{
-	return LineStart(LineFromPosition(position)) == position;
-}
+int  Document::LineFromHandle(int markerHandle) { return static_cast<LineMarkers *>(perLineData[ldMarkers])->LineFromHandle(markerHandle); }
+Sci_Position SCI_METHOD Document::LineStart(Sci_Position line) const { return cb.LineStart(line); }
+bool Document::IsLineStartPosition(int position) const { return LineStart(LineFromPosition(position)) == position; }
 
 Sci_Position SCI_METHOD Document::LineEnd(Sci_Position line) const
 {
@@ -404,25 +385,10 @@ void SCI_METHOD Document::SetErrorStatus(int status)
 	}
 }
 
-Sci_Position SCI_METHOD Document::LineFromPosition(Sci_Position pos) const
-{
-	return cb.LineFromPosition(pos);
-}
-
-int Document::LineEndPosition(int position) const
-{
-	return LineEnd(LineFromPosition(position));
-}
-
-bool FASTCALL Document::IsLineEndPosition(int position) const
-{
-	return LineEnd(LineFromPosition(position)) == position;
-}
-
-bool FASTCALL Document::IsPositionInLineEnd(int position) const
-{
-	return (position >= LineEnd(LineFromPosition(position)));
-}
+Sci_Position SCI_METHOD Document::LineFromPosition(Sci_Position pos) const { return cb.LineFromPosition(pos); }
+int  Document::LineEndPosition(int position) const { return LineEnd(LineFromPosition(position)); }
+bool FASTCALL Document::IsLineEndPosition(int position) const { return LineEnd(LineFromPosition(position)) == position; }
+bool FASTCALL Document::IsPositionInLineEnd(int position) const { return (position >= LineEnd(LineFromPosition(position))); }
 
 int Document::VCHomePosition(int position) const
 {
@@ -447,20 +413,9 @@ int SCI_METHOD Document::SetLevel(Sci_Position line, int level)
 	return prev;
 }
 
-int SCI_METHOD Document::GetLevel(Sci_Position line) const
-{
-	return static_cast<LineLevels *>(perLineData[ldLevels])->GetLevel(line);
-}
-
-void Document::ClearLevels()
-{
-	static_cast<LineLevels *>(perLineData[ldLevels])->ClearLevels();
-}
-
-static bool FASTCALL IsSubordinate(int levelStart, int levelTry)
-{
-	return (levelTry & SC_FOLDLEVELWHITEFLAG) ? true : (LevelNumber(levelStart) < LevelNumber(levelTry));
-}
+int  SCI_METHOD Document::GetLevel(Sci_Position line) const { return static_cast<LineLevels *>(perLineData[ldLevels])->GetLevel(line); }
+void Document::ClearLevels() { static_cast<LineLevels *>(perLineData[ldLevels])->ClearLevels(); }
+static bool FASTCALL IsSubordinate(int levelStart, int levelTry) { return (levelTry & SC_FOLDLEVELWHITEFLAG) ? true : (LevelNumber(levelStart) < LevelNumber(levelTry)); }
 
 int Document::GetLastChild(int lineParent, int level, int lastLine)
 {
@@ -702,15 +657,13 @@ int Document::NextPosition(int pos, int moveDir) const
 		return 0;
 	if(pos + increment >= Length())
 		return Length();
-
 	if(dbcsCodePage) {
 		if(SC_CP_UTF8 == dbcsCodePage) {
 			if(increment == 1) {
 				// Simple forward movement case so can avoid some checks
 				const uchar leadByte = static_cast<uchar>(cb.CharAt(pos));
 				if(UTF8IsAscii(leadByte)) {
-					// Single byte character or invalid
-					pos++;
+					pos++; // Single byte character or invalid
 				}
 				else {
 					const int widthCharBytes = UTF8BytesOfLead[leadByte];
@@ -776,7 +729,6 @@ int Document::NextPosition(int pos, int moveDir) const
 	else {
 		pos += increment;
 	}
-
 	return pos;
 }
 
@@ -913,8 +865,7 @@ int SCI_METHOD Document::GetCharacterAndWidth(Sci_Position position, Sci_Positio
 		const uchar leadByte = static_cast<uchar>(cb.CharAt(position));
 		if(SC_CP_UTF8 == dbcsCodePage) {
 			if(UTF8IsAscii(leadByte)) {
-				// Single byte character or invalid
-				character =  leadByte;
+				character =  leadByte; // Single byte character or invalid
 			}
 			else {
 				const int widthCharBytes = UTF8BytesOfLead[leadByte];
@@ -923,8 +874,7 @@ int SCI_METHOD Document::GetCharacterAndWidth(Sci_Position position, Sci_Positio
 					charBytes[b] = static_cast<uchar>(cb.CharAt(position+b));
 				int utf8status = UTF8Classify(charBytes, widthCharBytes);
 				if(utf8status & UTF8MaskInvalid) {
-					// Report as singleton surrogate values which are invalid Unicode
-					character =  0xDC80 + leadByte;
+					character =  0xDC80 + leadByte; // Report as singleton surrogate values which are invalid Unicode
 				}
 				else {
 					bytesInCharacter = utf8status & UTF8MaskWidth;
@@ -945,9 +895,7 @@ int SCI_METHOD Document::GetCharacterAndWidth(Sci_Position position, Sci_Positio
 	else {
 		character = cb.CharAt(position);
 	}
-	if(pWidth) {
-		*pWidth = bytesInCharacter;
-	}
+	ASSIGN_PTR(pWidth, bytesInCharacter);
 	return character;
 }
 
@@ -961,17 +909,12 @@ bool SCI_METHOD Document::IsDBCSLeadByte(char ch) const
 	// Byte ranges found in Wikipedia articles with relevant search strings in each case
 	uchar uch = static_cast<uchar>(ch);
 	switch(dbcsCodePage) {
-		case 932: // Shift_jis
-		    return ((uch >= 0x81) && (uch <= 0x9F)) || ((uch >= 0xE0) && (uch <= 0xFC));
+		case 932: return ((uch >= 0x81) && (uch <= 0x9F)) || ((uch >= 0xE0) && (uch <= 0xFC)); // Shift_jis
 		// Lead bytes F0 to FC may be a Microsoft addition.
-		case 936: // GBK
-		    return (uch >= 0x81) && (uch <= 0xFE);
-		case 949: // Korean Wansung KS C-5601-1987
-		    return (uch >= 0x81) && (uch <= 0xFE);
-		case 950: // Big5
-		    return (uch >= 0x81) && (uch <= 0xFE);
-		case 1361: // Korean Johab KS C-5601-1992
-		    return ((uch >= 0x84) && (uch <= 0xD3)) || ((uch >= 0xD8) && (uch <= 0xDE)) || ((uch >= 0xE0) && (uch <= 0xF9));
+		case 936: return (uch >= 0x81) && (uch <= 0xFE); // GBK
+		case 949: return (uch >= 0x81) && (uch <= 0xFE); // Korean Wansung KS C-5601-1987
+		case 950: return (uch >= 0x81) && (uch <= 0xFE); // Big5
+		case 1361: return ((uch >= 0x84) && (uch <= 0xD3)) || ((uch >= 0xD8) && (uch <= 0xDE)) || ((uch >= 0xE0) && (uch <= 0xF9));  // Korean Johab KS C-5601-1992
 	}
 	return false;
 }
@@ -1007,7 +950,6 @@ int Document::SafeSegment(const char * text, int length, int lengthSegment) cons
 			}
 		}
 		lastEncodingAllowedBreak = j;
-
 		if(dbcsCodePage == SC_CP_UTF8) {
 			j += UTF8BytesOfLead[ch];
 		}
@@ -1018,13 +960,12 @@ int Document::SafeSegment(const char * text, int length, int lengthSegment) cons
 			j++;
 		}
 	}
-	if(lastSpaceBreak >= 0) {
+	if(lastSpaceBreak >= 0)
 		return lastSpaceBreak;
-	}
-	else if(lastPunctuationBreak >= 0) {
+	else if(lastPunctuationBreak >= 0)
 		return lastPunctuationBreak;
-	}
-	return lastEncodingAllowedBreak;
+	else
+		return lastEncodingAllowedBreak;
 }
 
 EncodingFamily Document::CodePageFamily() const
@@ -1439,11 +1380,8 @@ int Document::CountCharacters(int startPos, int endPos) const
 	startPos = MovePositionOutsideChar(startPos, 1, false);
 	endPos = MovePositionOutsideChar(endPos, -1, false);
 	int count = 0;
-	int i = startPos;
-	while(i < endPos) {
+	for(int i = startPos; i < endPos; i = NextPosition(i, 1))
 		count++;
-		i = NextPosition(i, 1);
-	}
 	return count;
 }
 
@@ -1452,8 +1390,7 @@ int Document::CountUTF16(int startPos, int endPos) const
 	startPos = MovePositionOutsideChar(startPos, 1, false);
 	endPos = MovePositionOutsideChar(endPos, -1, false);
 	int count = 0;
-	int i = startPos;
-	while(i < endPos) {
+	for(int i = startPos; i < endPos;) {
 		count++;
 		const int next = NextPosition(i, 1);
 		if((next - i) > 3)
@@ -1495,15 +1432,13 @@ void Document::Indent(bool forwards, int lineBottom, int lineTop)
 {
 	// Dedent - suck white space off the front of the line to dedent by equivalent of a tab
 	for(int line = lineBottom; line >= lineTop; line--) {
-		int indentOfLine = GetLineIndentation(line);
+		const int indentOfLine = GetLineIndentation(line);
 		if(forwards) {
-			if(LineStart(line) < LineEnd(line)) {
+			if(LineStart(line) < LineEnd(line))
 				SetLineIndentation(line, indentOfLine + IndentSize());
-			}
 		}
-		else {
+		else
 			SetLineIndentation(line, indentOfLine - IndentSize());
-		}
 	}
 }
 
@@ -1581,7 +1516,7 @@ void Document::ConvertLineEnds(int eolModeSet)
 bool FASTCALL Document::IsWhiteLine(int line) const
 {
 	int currentChar = LineStart(line);
-	int endLine = LineEnd(line);
+	const int endLine = LineEnd(line);
 	while(currentChar < endLine) {
 		if(!IsASpaceOrTab(cb.CharAt(currentChar))) {
 			return false;
@@ -1672,10 +1607,8 @@ CharClassify::cc Document::WordCharacterClass(uint ch) const
 				case ccSo: return CharClassify::ccPunctuation;
 			}
 		}
-		else {
-			// Asian DBCS
-			return CharClassify::ccWord;
-		}
+		else
+			return CharClassify::ccWord; // Asian DBCS
 	}
 	return charClass.GetClass(static_cast<uchar>(ch));
 }
@@ -1712,7 +1645,6 @@ int Document::ExtendWordSelect(int pos, int delta, bool onlyWordCharacters) cons
 	}
 	return MovePositionOutsideChar(pos, delta, true);
 }
-
 /**
  * Find the start of the next word in either a forward (delta >= 0) or backwards direction
  * (delta < 0).
@@ -1851,20 +1783,9 @@ bool Document::IsWordEndAt(int pos) const
  * Check that the given range is has transitions between character classes at both
  * ends and where the characters on the inside are word or punctuation characters.
  */
-bool Document::IsWordAt(int start, int end) const
-{
-	return (start < end) && IsWordStartAt(start) && IsWordEndAt(end);
-}
-
-bool Document::MatchesWordOptions(bool word, bool wordStart, int pos, int length) const
-{
-	return (!word && !wordStart) || (word && IsWordAt(pos, pos + length)) || (wordStart && IsWordStartAt(pos));
-}
-
-bool Document::HasCaseFolder() const
-{
-	return pcf != 0;
-}
+bool Document::IsWordAt(int start, int end) const { return (start < end) && IsWordStartAt(start) && IsWordEndAt(end); }
+bool Document::MatchesWordOptions(bool word, bool wordStart, int pos, int length) const { return (!word && !wordStart) || (word && IsWordAt(pos, pos + length)) || (wordStart && IsWordStartAt(pos)); }
+bool Document::HasCaseFolder() const { return pcf != 0; }
 
 void Document::SetCaseFolder(CaseFolder * pcf_)
 {
