@@ -340,7 +340,7 @@ int PPViewAsset::InitIterQuery(PPID grpID)
 	}
 	else
 		sp_mode = spFirst;
-	P_IterQuery->initIteration(0, &k, sp_mode);
+	P_IterQuery->initIteration(false, &k, sp_mode);
 	return 1;
 }
 
@@ -457,7 +457,7 @@ void PPViewAsset::ViewTotal()
 		MEMSZERO(k0);
 		BExtQuery q(P_TempTbl, 0, 16);
 		q.selectAll();
-		for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
 			total.Count++;
 			const TempAssetTbl::Rec & r_sr = P_TempTbl->data;
 			total.Cost    += r_sr.Cost;

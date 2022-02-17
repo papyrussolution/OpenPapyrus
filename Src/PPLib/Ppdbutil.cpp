@@ -3409,7 +3409,7 @@ int PrcssrTestDb::GetTaHistograms(SHistogram * pHgVal1, SHistogram * pHgVal2)
 	q.selectAll();
 	TestTa01Tbl::Key0 k0;
 	MEMSZERO(k0);
-	for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
 		CALLPTRMEMB(pHgVal1, Put(P_Ta->data.RVal1));
 		CALLPTRMEMB(pHgVal2, Put(P_Ta->data.RVal2));
 		nr_test++;

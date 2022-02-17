@@ -1,6 +1,5 @@
 // Copyright (C) 2009 The Libphonenumber Authors
-// Licensed under the Apache License, Version 2.0 (the "License");
-//
+// @license Apache License 2.0
 // Utility for international phone numbers.
 //
 #ifndef I18N_PHONENUMBERS_PHONENUMBERUTIL_H_
@@ -657,17 +656,10 @@ protected:
 	PhoneNumberUtil::PhoneNumberType GetNumberTypeHelper(const string& national_number, const PhoneMetadata& metadata) const;
 private:
 	scoped_ptr<Logger> logger_;
-
 	typedef std::pair<int, std::list<string>*> IntRegionsPair;
-
-	// The minimum and maximum length of the national significant number.
-	static const size_t kMinLengthForNsn = 2;
-	// The ITU says the maximum length should be 15, but we have found longer
-	// numbers in Germany.
-	static const size_t kMaxLengthForNsn = 17;
-	// The maximum length of the country calling code.
-	static const size_t kMaxLengthCountryCode = 3;
-
+	static const size_t kMinLengthForNsn = 2; // The minimum and maximum length of the national significant number.
+	static const size_t kMaxLengthForNsn = 17; // The ITU says the maximum length should be 15, but we have found longer numbers in Germany.
+	static const size_t kMaxLengthCountryCode = 3; // The maximum length of the country calling code.
 	static const char kPlusChars[];
 	// Regular expression of acceptable punctuation found in phone numbers. This
 	// excludes punctuation found as a leading character only. This consists of
@@ -676,7 +668,6 @@ private:
 	// is found as a placeholder for carrier information in some phone numbers.
 	// Full-width variants are also present.
 	static const char kValidPunctuation[];
-
 	// Regular expression of characters typically used to start a second phone
 	// number for the purposes of parsing. This allows us to strip off parts of
 	// the number that are actually the start of another number, such as for:
@@ -686,82 +677,55 @@ private:
 	// string preceding this is captured.
 	// This corresponds to SECOND_NUMBER_START in the java version.
 	static const char kCaptureUpToSecondNumberStart[];
-
-	// An API for validation checking.
-	scoped_ptr<MatcherApi> matcher_api_;
-
-	// Helper class holding useful regular expressions and character mappings.
-	scoped_ptr<PhoneNumberRegExpsAndMappings> reg_exps_;
-
+	scoped_ptr<MatcherApi> matcher_api_; // An API for validation checking.
+	scoped_ptr<PhoneNumberRegExpsAndMappings> reg_exps_; // Helper class holding useful regular expressions and character mappings.
 	// A mapping from a country calling code to a RegionCode object which denotes
 	// the region represented by that country calling code. Note regions under
 	// NANPA share the country calling code 1 and Russia and Kazakhstan share the
 	// country calling code 7. Under this map, 1 is mapped to region code "US" and
 	// 7 is mapped to region code "RU". This is implemented as a sorted vector to
 	// achieve better performance.
-	scoped_ptr<std::vector<IntRegionsPair> >
-	country_calling_code_to_region_code_map_;
-
+	scoped_ptr<std::vector<IntRegionsPair> > country_calling_code_to_region_code_map_;
 	// The set of regions that share country calling code 1.
 	scoped_ptr<std::set<string> > nanpa_regions_;
 	static const int kNanpaCountryCode = 1;
-
 	// A mapping from a region code to a PhoneMetadata for that region.
 	scoped_ptr<std::map<string, PhoneMetadata> > region_to_metadata_map_;
-
 	// A mapping from a country calling code for a non-geographical entity to the
 	// PhoneMetadata for that country calling code. Examples of the country
 	// calling codes include 800 (International Toll Free Service) and 808
 	// (International Shared Cost Service).
-	scoped_ptr<std::map<int, PhoneMetadata> >
-	country_code_to_non_geographical_metadata_map_;
-
+	scoped_ptr<std::map<int, PhoneMetadata> > country_code_to_non_geographical_metadata_map_;
 	PhoneNumberUtil();
-
 	// Returns a regular expression for the possible extensions that may be found
 	// in a number, for use when matching.
 	const string& GetExtnPatternsForMatching() const;
-
 	// Checks if a number matches the plus chars pattern.
 	bool StartsWithPlusCharsPattern(const string& number) const;
-
 	void SetItalianLeadingZerosForPhoneNumber(const string& national_number, PhoneNumber* phone_number) const;
-
 	// Checks whether a string contains only valid digits.
 	bool ContainsOnlyValidDigits(const string& s) const;
-
 	// Checks if a format is eligible to be used by the AsYouTypeFormatter. This
 	// method is here rather than in asyoutypeformatter.h since it depends on the
 	// valid punctuation declared by the phone number util.
 	bool IsFormatEligibleForAsYouTypeFormatter(const string& format) const;
-
 	// Helper function to check if the national prefix formatting rule has the
 	// first group only, i.e., does not start with the national prefix.
 	bool FormattingRuleHasFirstGroupOnly(const string& national_prefix_formatting_rule) const;
-
 	// Trims unwanted end characters from a phone number string.
 	void TrimUnwantedEndChars(string* number) const;
-
 	// Helper function to check region code is not unknown or null.
 	bool IsValidRegionCode(const string& region_code) const;
-
 	// Helper function to check the country calling code is valid.
 	bool HasValidCountryCallingCode(int country_calling_code) const;
-
 	const i18n::phonenumbers::PhoneMetadata* GetMetadataForRegion(const string& region_code) const;
-
 	const i18n::phonenumbers::PhoneMetadata* GetMetadataForNonGeographicalRegion(int country_calling_code) const;
-
-	const i18n::phonenumbers::PhoneMetadata* GetMetadataForRegionOrCallingCode(int country_calling_code,
-	    const string& region_code) const;
-
+	const i18n::phonenumbers::PhoneMetadata* GetMetadataForRegionOrCallingCode(int country_calling_code, const string& region_code) const;
 	// As per GetCountryCodeForRegion, but assumes the validity of the region_code
 	// has already been checked.
 	int GetCountryCodeForValidRegion(const string& region_code) const;
-
 	const NumberFormat* ChooseFormattingPatternForNumber(const RepeatedPtrField<NumberFormat>& available_formats,
 	    const string& national_number) const;
-
 	void FormatNsnUsingPatternWithCarrier(const string& national_number,
 	    const NumberFormat& formatting_pattern,
 	    PhoneNumberUtil::PhoneNumberFormat number_format,
@@ -787,63 +751,26 @@ private:
 	    const PhoneMetadata& metadata,
 	    PhoneNumberFormat number_format,
 	    string* formatted_number) const;
-
-	void FormatNsnWithCarrier(const string& number,
-	    const PhoneMetadata& metadata,
-	    PhoneNumberFormat number_format,
-	    const string& carrier_code,
-	    string* formatted_number) const;
-
-	void MaybeAppendFormattedExtension(const PhoneNumber& number,
-	    const PhoneMetadata& metadata,
-	    PhoneNumberFormat number_format,
-	    string* extension) const;
-
-	void GetRegionCodeForNumberFromRegionList(const PhoneNumber& number,
-	    const std::list<string>& region_codes,
-	    string* region_code) const;
-
+	void FormatNsnWithCarrier(const string& number, const PhoneMetadata& metadata, PhoneNumberFormat number_format, 
+		const string& carrier_code, string* formatted_number) const;
+	void MaybeAppendFormattedExtension(const PhoneNumber& number, const PhoneMetadata& metadata, PhoneNumberFormat number_format, string* extension) const;
+	void GetRegionCodeForNumberFromRegionList(const PhoneNumber& number, const std::list<string>& region_codes, string* region_code) const;
 	// Strips the IDD from the start of the number if present. Helper function
 	// used by MaybeStripInternationalPrefixAndNormalize.
 	bool ParsePrefixAsIdd(const RegExp& idd_pattern, string* number) const;
-
 	void Normalize(string* number) const;
-
-	PhoneNumber::CountryCodeSource MaybeStripInternationalPrefixAndNormalize(const string& possible_idd_prefix,
-	    string* number) const;
-
-	bool MaybeStripNationalPrefixAndCarrierCode(const PhoneMetadata& metadata,
-	    string* number,
-	    string* carrier_code) const;
-
-	void ExtractPossibleNumber(const string& number,
-	    string* extracted_number) const;
-
+	PhoneNumber::CountryCodeSource MaybeStripInternationalPrefixAndNormalize(const string& possible_idd_prefix, string* number) const;
+	bool MaybeStripNationalPrefixAndCarrierCode(const PhoneMetadata& metadata, string* number, string* carrier_code) const;
+	void ExtractPossibleNumber(const string& number, string* extracted_number) const;
 	bool IsViablePhoneNumber(const string& number) const;
-
 	bool MaybeStripExtension(string* number, string* extension) const;
-
 	int ExtractCountryCode(string* national_number) const;
-	ErrorType MaybeExtractCountryCode(const PhoneMetadata* default_region_metadata,
-	    bool keepRawInput,
-	    string* national_number,
-	    PhoneNumber* phone_number) const;
+	ErrorType MaybeExtractCountryCode(const PhoneMetadata* default_region_metadata, bool keepRawInput, string* national_number, PhoneNumber* phone_number) const;
+	bool CheckRegionForParsing(const string& number_to_parse, const string& default_region) const;
+	ErrorType ParseHelper(const string& number_to_parse, const string& default_region, bool keep_raw_input, bool check_region, PhoneNumber* phone_number) const;
 
-	bool CheckRegionForParsing(const string& number_to_parse,
-	    const string& default_region) const;
-
-	ErrorType ParseHelper(const string& number_to_parse,
-	    const string& default_region,
-	    bool keep_raw_input,
-	    bool check_region,
-	    PhoneNumber* phone_number) const;
-
-	void BuildNationalNumberForParsing(const string& number_to_parse,
-	    string* national_number) const;
-
-	bool IsShorterThanPossibleNormalNumber(const PhoneMetadata* country_metadata,
-	    const string& number) const;
-
+	void BuildNationalNumberForParsing(const string& number_to_parse, string* national_number) const;
+	bool IsShorterThanPossibleNormalNumber(const PhoneMetadata* country_metadata, const string& number) const;
 	DISALLOW_COPY_AND_ASSIGN(PhoneNumberUtil);
 };
 }  // namespace phonenumbers

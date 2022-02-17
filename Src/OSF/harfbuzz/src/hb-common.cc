@@ -169,10 +169,8 @@ hb_direction_t hb_direction_from_string(const char * str, int len)
  **/
 const char * hb_direction_to_string(hb_direction_t direction)
 {
-	if(LIKELY((uint)(direction - HB_DIRECTION_LTR)
-	    < ARRAY_LENGTH(direction_strings)))
+	if(LIKELY((uint)(direction - HB_DIRECTION_LTR) < ARRAY_LENGTH(direction_strings)))
 		return direction_strings[direction - HB_DIRECTION_LTR];
-
 	return "invalid";
 }
 
@@ -193,17 +191,14 @@ static const char canon_map[256] = {
 	'p', 'q', 'r', 's', 't', 'u', 'v', 'w',  'x', 'y', 'z',  0,   0,   0,   0,   0
 };
 
-static bool lang_equal(hb_language_t v1,
-    const void * v2)
+static bool lang_equal(hb_language_t v1, const void * v2)
 {
 	const uchar * p1 = (const uchar *)v1;
 	const uchar * p2 = (const uchar *)v2;
-
 	while(*p1 && *p1 == canon_map[*p2]) {
 		p1++;
 		p2++;
 	}
-
 	return *p1 == canon_map[*p2];
 }
 

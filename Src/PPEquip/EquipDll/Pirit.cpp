@@ -220,8 +220,10 @@ public:
 	//
 	// Перед началом работы с ККМ надо задать время и дату. Если время и дата на ККМ
 	// отличаются от переданных, то возвращается сообщение об ошибке.
+	// ARG(force IN): если true, то  функция начала работы будет вызвана независимо от состояния флагов.
+	//  Это сделано в @v11.3.2 с целью попытаться сбить фатальное состояние, которое изредка возникает после вызова команды 79/1 (запрос данных о марке chzn)
 	//
-	int    StartWork();
+	int    StartWork(bool force = false);
 	// Получаем текущие флаги ККМ
 	int    GetCurFlags(int numFlags, int & rFlags);
 	int    RunCheck(int opertype);
@@ -655,7 +657,6 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 		cmd = pCmd;
 		temp_buf = pInputData;
 	}
-	//StringSet pairs(';', temp_buf);
 	PPDrvInputParamBlock pb(temp_buf);
 	if(LastError == PIRIT_NOTENOUGHMEM) {
 		strnzcpy(pOutputData, LastStr, outSize);
@@ -664,19 +665,10 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 	else { // if(LastError != NOTENOUGHMEM)
 		if(cmd.IsEqiAscii("CONNECT")){
 			SetLastItems(0, 0);
-			// @v10.8.10 {
 			if(pb.Get("PORT", param_val) > 0)
 				Cfg.Port = param_val.ToLong();
 			if(pb.Get("BAUDRATE", param_val) > 0)
 				Cfg.BaudRate = param_val.ToLong();
-			// } @v10.8.10
-			/* @v10.8.10 for(uint i = 0; pairs.get(&i, s_pair) > 0;){
-				s_pair.Divide('=', s_param, param_val);
-				if(s_param.IsEqiAscii("PORT"))
-					Cfg.Port = param_val.ToLong();
-				else if(s_param.IsEqiAscii("BAUDRATE"))
-					Cfg.BaudRate = param_val.ToLong();
-			}*/
 			int    flag = 0;
 			THROWERR(SetConnection(), PIRIT_NOTCONNECTED);
 			THROW(GetCurFlags(2, flag));
@@ -699,7 +691,6 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 		else if(cmd.IsEqiAscii("SETCONFIG")) {
 			SetLastItems(0, 0);
 			THROW(StartWork());
-			// @v10.8.10 {
 			if(pb.Get("LOGNUM", param_val) > 0)
 				Cfg.LogNum = param_val.ToLong();
 			if(pb.Get("FLAGS", param_val) > 0)
@@ -708,18 +699,6 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				CshrName = param_val;
 			if(pb.Get("PRINTLOGO", param_val) > 0)
 				Cfg.Logo.Print = param_val.ToLong();
-			// } @v10.8.10
-			/* @v10.8.10 for(uint i = 0; pairs.get(&i, s_pair) > 0;){
-				s_pair.Divide('=', s_param, param_val);
-				if(s_param.IsEqiAscii("LOGNUM"))
-					Cfg.LogNum = param_val.ToLong();
-				else if(s_param.IsEqiAscii("FLAGS"))
-					Cfg.Flags = param_val.ToLong();
-				else if(s_param.IsEqiAscii("CSHRNAME"))
-					CshrName = param_val;
-				else if(s_param.IsEqiAscii("PRINTLOGO"))
-					Cfg.Logo.Print = param_val.ToLong();
-			}*/
 			THROW(SetCfg());
 		}
 		else if(cmd.IsEqiAscii("SETLOGOTYPE")) {
@@ -1956,14 +1935,25 @@ int PiritEquip::SetCfg()
 	return ok;
 }
 
-int PiritEquip::StartWork()
+int PiritEquip::StartWork(bool force)
 {
-	int    ok = 1, flag = 0;
-	THROW(GetCurFlags(2, flag)); // Проверяем флаг "не была вызвана функция начало работы"
+	int    ok = 1;
+	int    flag = 0;
+	if(force) { // @v11.3.2
+		flag = 0x1;
+	}
+	else {
+		THROW(GetCurFlags(2, flag)); // Проверяем флаг "не была вызвана функция начало работы"
+	}
 	if(flag & 0x1) {
-		SString datetime, in_data, out_data, r_error;
+		SString temp_buf;
+		SString date;
+		SString time;
+		SString datetime;
+		SString in_data;
+		SString out_data;
+		SString r_error;
 		SYSTEMTIME sys_dt_tm;
-		SString date, time;
 		THROW(ExecCmd("13", in_data, out_data, r_error)); // Смотрим текщую дату/время на ККМ
 		out_data.Divide(FS, date, time);
 		CashDateTime.Z().Cat("Текущая дата на ККМ").CatDiv(':', 2).Cat(date).Space().Cat("Текущее время на ККМ").CatDiv(':', 2).Cat(time);
@@ -1975,14 +1965,16 @@ int PiritEquip::StartWork()
 		CreateStr(datetime, in_data);
 		THROW(ExecCmd("10", in_data, out_data, r_error));
 		THROW(GetCurFlags(2, flag));
-		if(!(flag & 0x4) && (r_error.CmpNC("0B") == 0)) {  // Проверяем что смена закрыта и код ошибки "дата и время отличаются от текущих даты и времени ККМ более чем на 8 минут"
-			in_data.Z();
-			GetLocalTime(&sys_dt_tm);
-			GetDateTime(sys_dt_tm, datetime, 0);
-			CreateStr(datetime, in_data);
-			GetDateTime(sys_dt_tm, datetime, 1);
-			CreateStr(datetime, in_data);
-			THROW(ExecCmd("14", in_data, out_data, r_error)); // Устанавливаем системные дату и время в ККМ
+		if(!force) { // @v11.3.2
+			if(!(flag & 0x4) && (r_error.CmpNC("0B") == 0)) {  // Проверяем что смена закрыта и код ошибки "дата и время отличаются от текущих даты и времени ККМ более чем на 8 минут"
+				in_data.Z();
+				GetLocalTime(&sys_dt_tm);
+				GetDateTime(sys_dt_tm, datetime, 0);
+				CreateStr(datetime, in_data);
+				GetDateTime(sys_dt_tm, datetime, 1);
+				CreateStr(datetime, in_data);
+				THROW(ExecCmd("14", in_data, out_data, r_error)); // Устанавливаем системные дату и время в ККМ
+			}
 		}
 	}
 	CATCHZOK
@@ -1993,7 +1985,8 @@ int PiritEquip::GetCurFlags(int numFlags, int & rFlags)
 {
 	const  uint max_tries = 3; // @v10.1.00 10-->3
 	int    ok = 1;
-	SString out_data, r_error;
+	SString out_data;
+	SString r_error;
 	uint count = 0;
 	rFlags = 0;
 	int    flags_fatal_state = 0;
@@ -2019,9 +2012,8 @@ int PiritEquip::GetCurFlags(int numFlags, int & rFlags)
 				flags_fatal_state = out_data.ToLong();
 				if(fl_pack.get(&sp, out_data)) {
 					flags_current_state = out_data.ToLong();
-					if(fl_pack.get(&sp, out_data)) {
+					if(fl_pack.get(&sp, out_data))
 						flags_doc_status = out_data.ToLong();
-					}
 				}
 			}
 			if(LogFileName.NotEmpty()) {
@@ -2155,15 +2147,26 @@ int PiritEquip::PreprocessChZnMark(const char * pMarkCode, double qtty, uint uom
 							pResult->ProcessingResult = out_data.ToLong();
 							if(fl_pack.get(&sp, out_data)) {
 								pResult->ProcessingCode = out_data.ToLong();
-								if(fl_pack.get(&sp, out_data)) {
+								if(fl_pack.get(&sp, out_data))
 									pResult->Status = out_data.ToLong();
-								}
 							}
 						}
 					}
 				}
 			}
 		}
+		// @v11.3.2 {
+		{
+			int fatal_flags = 0;
+			if(GetCurFlags(1, fatal_flags) && fatal_flags != 0) {
+				if(LogFileName.NotEmpty()) {
+					(out_data = "Try to reset fatal state flags after 79/1").Space().CatHex((long)fatal_flags);
+					SLS.LogMessage(LogFileName, out_data, 8192);
+				}
+				THROW(StartWork(/*force*/true));
+			}
+		}
+		// } @v11.3.2 
 	}
 	CATCHZOK
 	return ok;

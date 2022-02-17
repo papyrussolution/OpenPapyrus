@@ -16,24 +16,11 @@
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
 //
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 #ifndef GOOGLE_PROTOBUF_MAP_FIELD_H__
 #define GOOGLE_PROTOBUF_MAP_FIELD_H__
 
 #include <atomic>
 #include <functional>
-
 #include <google/protobuf/arena.h>
 #include <google/protobuf/descriptor.h>
 #include <google/protobuf/generated_message_reflection.h>
@@ -46,11 +33,9 @@
 #include <google/protobuf/port.h>
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/unknown_field_set.h>
-
 #include <google/protobuf/port_def.inc>
-
 #ifdef SWIG
-#error "You cannot SWIG proto headers"
+	#error "You cannot SWIG proto headers"
 #endif
 
 namespace google {
@@ -88,12 +73,9 @@ public:
 			val_.string_value_.Destruct();
 		}
 	}
-
 	FieldDescriptor::CppType type() const {
 		if(type_ == FieldDescriptor::CppType()) {
-			GOOGLE_LOG(FATAL) << "Protocol Buffer map usage error:\n"
-					  << "MapKey::type MapKey is not initialized. "
-					  << "Call set methods to initialize MapKey.";
+			GOOGLE_LOG(FATAL) << "Protocol Buffer map usage error:\n" << "MapKey::type MapKey is not initialized. " << "Call set methods to initialize MapKey.";
 		}
 		return type_;
 	}

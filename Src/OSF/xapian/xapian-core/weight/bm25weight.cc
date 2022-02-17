@@ -2,7 +2,7 @@
  * @brief Xapian::BM25Weight class - the BM25 probabilistic formula
  */
 // Copyright (C) 2009,2010,2011,2012,2014,2015 Olly Betts
-// @licence GNU GPL
+// @license GNU GPL
 //
 #include <xapian-internal.h>
 #pragma hdrstop

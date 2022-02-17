@@ -2035,7 +2035,7 @@ int PPObjGoodsStruc::GetChildIDList(PPID strucID, PPIDArray * pList)
 	ReferenceTbl::Key0 k0;
 	k0.ObjType = Obj;
 	k0.ObjID = 0;
-	for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 		CALLPTRMEMB(pList, add(P_Ref->data.ObjID));
 		ok = 1;
 	}

@@ -341,7 +341,7 @@ int PrcssrAbsentBill::ScanAccturn(SArray * pList)
 	PPWaitStart();
 	k2_ = k2;
 	counter.Init(q.countIterations(0, &k2_, spGe));
-	for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 		AccTurnTbl::Rec rec;
 		p_at->copyBufTo(&rec);
 		if(P_BObj->Search(rec.Bill) <= 0) {
@@ -377,7 +377,7 @@ int PrcssrAbsentBill::ScanTransfer(SArray * pList)
 	PPWaitStart();
 	k1_ = k1;
 	counter.Init(q.countIterations(0, &k1_, spGe));
-	for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 		TransferTbl::Rec rec;
 		ReceiptTbl::Rec lot_rec;
 		trfr->copyBufTo(&rec);
@@ -744,7 +744,7 @@ int PPObjBill::SearchPaymWOLinkBill()
 		MEMSZERO(bk2);
 		bk2_ = bk2;
 		cntr.Init(bq.countIterations(0, &bk2_, spGe));
-		for(bq.initIteration(0, &bk2, spGe); bq.nextIteration() > 0; cntr.Increment()) {
+		for(bq.initIteration(false, &bk2, spGe); bq.nextIteration() > 0; cntr.Increment()) {
 			BillTbl::Rec b_rec;
 			P_Tbl->copyBufTo(&b_rec);
 			if(b_rec.LinkBillID == 0 || P_Tbl->Search(b_rec.LinkBillID) <= 0) {
@@ -801,7 +801,7 @@ int PPObjBill::RecoverUnitedFreightPorts()
 		THROW(tra);
 		k0_ = k0;
 		cntr.Init(q.countIterations(0, &k0_, spGe));
-		for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 			int do_update = 0;
 			PPFreight fr = *reinterpret_cast<const PPFreight *>(&p_prop->data);
 			if(fr.PortOfLoading && w_obj.Search(fr.PortOfLoading, &w_rec) < 0) {

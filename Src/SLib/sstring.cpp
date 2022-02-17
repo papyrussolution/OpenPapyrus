@@ -7690,19 +7690,48 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 	else if(sstreqi_ascii(pBenchmark, "sstrlen"))      bm = 10;
 	else SetInfo("invalid benchmark");
 	if(bm == 0) {
-		SFile out(MakeOutputFilePath("SString_NumberToLat.txt"), SFile::mWrite);
-		for(uint i = 0; i < 1000; i++) {
-			str.Z().NumberToLat(i);
-			out.WriteLine(out_buf.Printf("%u\t\t%s\n", i, str.cptr()));
+		{
+			//
+			// Тестирование функций сравнения строк
+			//
+			// strcmp с нулевыми указателями не работает! SLTEST_CHECK_Z(strcmp("", 0));
+			SLTEST_CHECK_NZ(sstreq("", static_cast<const char *>(0)));
+			SLTEST_CHECK_NZ(sstreq(static_cast<const char *>(0), ""));
+			SLTEST_CHECK_Z(sstreq(static_cast<const char *>(0), "ab"));
+			SLTEST_CHECK_Z(sstreq("b", static_cast<const char *>(0)));
+			SLTEST_CHECK_NZ(sstreq("ab", "ab"));
+			SLTEST_CHECK_NZ(sstreq("", ""));
+			SLTEST_CHECK_Z(sstreq("ab", "abc"));
+			SLTEST_CHECK_NZ(sstreq("король и королева", SString("король").Space().Cat("и").CatChar(' ').Cat("королева")));
+			SLTEST_CHECK_Z(sstreq("король и королева", "король и королёва"));
+			SLTEST_CHECK_NZ(sstreq(L"король и королева", L"король и королева"));
+			SLTEST_CHECK_NZ(sstreq(L"robot", SStringU(L"robot")));
+			//
+			SLTEST_CHECK_Z(stricmp866(0, ""));
+			SLTEST_CHECK_Z(stricmp866("", 0));
+			SLTEST_CHECK_Z(stricmp1251(0, ""));
+			SLTEST_CHECK_Z(stricmp1251("", 0));
+			// Attention! Следующие тесты действительны до тех пор, пока выполняется соответствие INNER-кодировка == cp866, OUTER-кодировка == cp1251
+			SLTEST_CHECK_Z(stricmp866(SString("Король и Королева").Transf(CTRANSF_UTF8_TO_INNER), SString("король и королева").Transf(CTRANSF_UTF8_TO_INNER)));
+			SLTEST_CHECK_Z(stricmp866(SString("Король и КоролЁва").Transf(CTRANSF_UTF8_TO_INNER), SString("король и королёва").Transf(CTRANSF_UTF8_TO_INNER)));
+			SLTEST_CHECK_Z(stricmp1251(SString("Король и Королева").Transf(CTRANSF_UTF8_TO_OUTER), SString("король и королева").Transf(CTRANSF_UTF8_TO_OUTER)));
+			SLTEST_CHECK_Z(stricmp1251(SString("Король и Королёва").Transf(CTRANSF_UTF8_TO_OUTER), SString("король и королЁва").Transf(CTRANSF_UTF8_TO_OUTER)));
 		}
 		{
-			SLTEST_CHECK_NZ(sstreqi_ascii("u", "u"));
-			SLTEST_CHECK_NZ(sstreqi_ascii("u", "U"));
-			SLTEST_CHECK_NZ(sstreqi_ascii("U", "u"));
-			SLTEST_CHECK_Z(sstreqi_ascii("U", "u1"));
-			SLTEST_CHECK_NZ(sstreqi_ascii("string", "sTrInG"));
-			SLTEST_CHECK_NZ(sstreqi_ascii("string", "string"));
-			SLTEST_CHECK_Z(sstreqi_ascii("string", "string "));
+			SFile out(MakeOutputFilePath("SString_NumberToLat.txt"), SFile::mWrite);
+			for(uint i = 0; i < 1000; i++) {
+				str.Z().NumberToLat(i);
+				out.WriteLine(out_buf.Printf("%u\t\t%s\n", i, str.cptr()));
+			}
+			{
+				SLTEST_CHECK_NZ(sstreqi_ascii("u", "u"));
+				SLTEST_CHECK_NZ(sstreqi_ascii("u", "U"));
+				SLTEST_CHECK_NZ(sstreqi_ascii("U", "u"));
+				SLTEST_CHECK_Z(sstreqi_ascii("U", "u1"));
+				SLTEST_CHECK_NZ(sstreqi_ascii("string", "sTrInG"));
+				SLTEST_CHECK_NZ(sstreqi_ascii("string", "string"));
+				SLTEST_CHECK_Z(sstreqi_ascii("string", "string "));
+			}
 		}
 		//
 		// Тестирование функций HasPrefix() и CmpPrefix()

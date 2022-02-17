@@ -860,14 +860,14 @@ util::Status JsonStreamParser::ParseEmptyNull() {
 	return util::Status();
 }
 
-bool JsonStreamParser::IsEmptyNullAllowed(TokenType type) {
+bool JsonStreamParser::IsEmptyNullAllowed(TokenType type) 
+{
 	if(stack_.empty()) return false;
-	return (stack_.top() == ARRAY_MID && type == VALUE_SEPARATOR) ||
-	       stack_.top() == OBJ_MID;
+	return (stack_.top() == ARRAY_MID && type == VALUE_SEPARATOR) || stack_.top() == OBJ_MID;
 }
 
-util::Status JsonStreamParser::ReportFailure(StringPiece message,
-    ParseErrorType parse_code) {
+util::Status JsonStreamParser::ReportFailure(StringPiece message, ParseErrorType parse_code) 
+{
 	(void)parse_code; // Parameter is used in Google-internal code.
 	static const int kContextLength = 20;
 	const char* p_start = p_.data();
@@ -878,33 +878,32 @@ util::Status JsonStreamParser::ReportFailure(StringPiece message,
 	StringPiece segment(begin, end - begin);
 	std::string location(p_start - begin, ' ');
 	location.push_back('^');
-	auto status = util::InvalidArgumentError(
-		StrCat(message, "\n", segment, "\n", location));
+	auto status = util::InvalidArgumentError(StrCat(message, "\n", segment, "\n", location));
 	return status;
 }
 
-util::Status JsonStreamParser::ReportUnknown(StringPiece message,
-    ParseErrorType parse_code) {
+util::Status JsonStreamParser::ReportUnknown(StringPiece message, ParseErrorType parse_code) 
+{
 	// If we aren't finishing the parse, cancel parsing and try later.
 	if(!finishing_) {
 		return util::CancelledError("");
 	}
 	if(p_.empty()) {
-		return ReportFailure(StrCat("Unexpected end of string. ", message),
-			   parse_code);
+		return ReportFailure(StrCat("Unexpected end of string. ", message), parse_code);
 	}
 	return ReportFailure(message, parse_code);
 }
 
-util::Status JsonStreamParser::IncrementRecursionDepth(StringPiece key) const {
+util::Status JsonStreamParser::IncrementRecursionDepth(StringPiece key) const 
+{
 	if(++recursion_depth_ > max_recursion_depth_) {
-		return util::InvalidArgumentError(StrCat(
-				   "Message too deep. Max recursion depth reached for key '", key, "'"));
+		return util::InvalidArgumentError(StrCat("Message too deep. Max recursion depth reached for key '", key, "'"));
 	}
 	return util::Status();
 }
 
-void JsonStreamParser::SkipWhitespace() {
+void JsonStreamParser::SkipWhitespace() 
+{
 	while(!p_.empty() && ascii_isspace(*p_.data())) {
 		Advance();
 	}
@@ -913,26 +912,24 @@ void JsonStreamParser::SkipWhitespace() {
 	}
 }
 
-void JsonStreamParser::Advance() {
+void JsonStreamParser::Advance() 
+{
 	// Advance by moving one UTF8 character while making sure we don't go beyond
 	// the length of StringPiece.
-	p_.remove_prefix(std::min<int>(
-		    p_.length(), UTF8FirstLetterNumBytes(p_.data(), p_.length())));
+	p_.remove_prefix(std::min<int>(p_.length(), UTF8FirstLetterNumBytes(p_.data(), p_.length())));
 }
 
-util::Status JsonStreamParser::ParseKey() {
+util::Status JsonStreamParser::ParseKey() 
+{
 	StringPiece original = p_;
-
 	if(allow_permissive_key_naming_) {
 		if(!ConsumeKeyPermissive(&p_, &key_)) {
-			return ReportFailure("Invalid key or variable name.",
-				   ParseErrorType::INVALID_KEY_OR_VARIABLE_NAME);
+			return ReportFailure("Invalid key or variable name.", ParseErrorType::INVALID_KEY_OR_VARIABLE_NAME);
 		}
 	}
 	else {
 		if(!ConsumeKey(&p_, &key_)) {
-			return ReportFailure("Invalid key or variable name.",
-				   ParseErrorType::INVALID_KEY_OR_VARIABLE_NAME);
+			return ReportFailure("Invalid key or variable name.", ParseErrorType::INVALID_KEY_OR_VARIABLE_NAME);
 		}
 	}
 
@@ -947,9 +944,9 @@ util::Status JsonStreamParser::ParseKey() {
 	return util::Status();
 }
 
-JsonStreamParser::TokenType JsonStreamParser::GetNextTokenType() {
+JsonStreamParser::TokenType JsonStreamParser::GetNextTokenType() 
+{
 	SkipWhitespace();
-
 	int size = p_.size();
 	if(size == 0) {
 		// If we ran out of data, report unknown and we'll place the previous parse
@@ -964,16 +961,13 @@ JsonStreamParser::TokenType JsonStreamParser::GetNextTokenType() {
 	if(*data == '-' || ('0' <= *data && *data <= '9')) {
 		return BEGIN_NUMBER;
 	}
-	if(size >= kKeywordTrue.length() &&
-	    HasPrefixString(data_view, kKeywordTrue)) {
+	if(size >= kKeywordTrue.length() && HasPrefixString(data_view, kKeywordTrue)) {
 		return BEGIN_TRUE;
 	}
-	if(size >= kKeywordFalse.length() &&
-	    HasPrefixString(data_view, kKeywordFalse)) {
+	if(size >= kKeywordFalse.length() && HasPrefixString(data_view, kKeywordFalse)) {
 		return BEGIN_FALSE;
 	}
-	if(size >= kKeywordNull.length() &&
-	    HasPrefixString(data_view, kKeywordNull)) {
+	if(size >= kKeywordNull.length() && HasPrefixString(data_view, kKeywordNull)) {
 		return BEGIN_NULL;
 	}
 	if(*data == '{') return BEGIN_OBJECT;
@@ -985,7 +979,6 @@ JsonStreamParser::TokenType JsonStreamParser::GetNextTokenType() {
 	if(MatchKey(p_)) {
 		return BEGIN_KEY;
 	}
-
 	// We don't know that we necessarily have an invalid token here, just that we
 	// can't parse what we have so far. So we don't report an error and just
 	// return UNKNOWN so we can try again later when we have more data, or if we

@@ -2,7 +2,7 @@
  *  @brief Append a string to an object description, escaping invalid UTF-8
  */
 // Copyright (C) 2013 Olly Betts
-// @licence GNU GPL
+// @license GNU GPL
 //
 #include <xapian-internal.h>
 #pragma hdrstop

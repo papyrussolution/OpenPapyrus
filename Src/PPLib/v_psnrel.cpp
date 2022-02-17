@@ -160,7 +160,7 @@ int PPViewPersonRel::Init_(const PPBaseFilt * pBaseFilt)
 			k.AsscType = PPASS_PERSONREL;
 			THROW(p_q = new BExtQuery(&r_assc, 1));
 			p_q->selectAll().where(r_assc.AsscType == PPASS_PERSONREL);
-			for(p_q->initIteration(0, &k, spGe); p_q->nextIteration() > 0;) {
+			for(p_q->initIteration(false, &k, spGe); p_q->nextIteration() > 0;) {
 				const PersonCore::RelationRecord * p_rec = reinterpret_cast<const PersonCore::RelationRecord *>(&r_assc.data);
 				if(!Filt.RelTypeID || p_rec->RelTypeID == Filt.RelTypeID) {
 					PrmrList.Add(p_rec->PrmrObjID);
@@ -300,7 +300,7 @@ int PPViewPersonRel::CreateOrderTable(long ord, TempOrderTbl ** ppTbl)
 	THROW_MEM(p_bei = new BExtInsert(p_o));
 	q.select(p_t->ID, p_t->PrmrPersonID, p_t->ScndPersonID, p_t->RelName, 0L);
 	MEMSZERO(k);
-	for(q.initIteration(0, &k, spFirst); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k, spFirst); q.nextIteration() > 0;) {
 		MakeTempOrdEntry(ord, &p_t->data, &ord_rec);
 		THROW_DB(p_bei->insert(&ord_rec));
 		PPWaitPercent(cntr.Increment());
@@ -325,7 +325,7 @@ int PPViewPersonRel::InitIteration()
 	P_IterQuery->selectAll();
 	k_ = k;
 	Counter.Init(P_IterQuery->countIterations(0, &k_, spGe));
-	P_IterQuery->initIteration(0, &k, spGe);
+	P_IterQuery->initIteration(false, &k, spGe);
 	return ok;
 }
 

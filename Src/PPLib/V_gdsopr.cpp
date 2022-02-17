@@ -1290,7 +1290,7 @@ int PPViewGoodsOpAnalyze::InitIteration(IterOrder ord)
 		THROW_MEM(P_IterQuery = new BExtQuery(P_TempOrd, 1, 64));
 		P_IterQuery->selectAll();
 		MEMSZERO(k);
-		P_IterQuery->initIteration(0, &k, spFirst);
+		P_IterQuery->initIteration(false, &k, spFirst);
 	}
 	else {
 		if(Filt.OpGrpID == GoodsOpAnalyzeFilt::ogInOutAnalyze) {
@@ -1432,7 +1432,7 @@ int PPViewGoodsOpAnalyze::CalcTotal(GoodsOpAnalyzeTotal * pTotal)
 		p_t->SumCost, p_t->SumPrice, p_t->Income, p_t->RestCostSum, p_t->RestPriceSum,
 		p_t->OldCost, p_t->OldPrice, 0L);
 	MEMSZERO(k);
-	for(q.initIteration(0, &k, spFirst); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k, spFirst); q.nextIteration() > 0;) {
 		if(Filt.IsValidABCGroup(p_t->data.InOutTag)) {
 			PPID amt_type_cost  = PPAMT_BUYING;
 			PPID amt_type_price = PPAMT_SELLING;
@@ -2289,7 +2289,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 					MEMSZERO(k2);
 					k2.OpID = *p_op_id;
 					k2.Dt = Filt.Period.low;
-					for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+					for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 						THROW(PPCheckUserBreak());
 						p_bt->copyBufTo(&bill_rec);
 						if(!is_paym && use_ext_list && !ext_bill_list.bsearch(bill_rec.ID))
@@ -3143,7 +3143,7 @@ int PPViewGoodsOpAnalyze::CreateOrderTable(IterOrder ord, TempOrderTbl ** ppTbl)
 			q.select(p_t->ID__, p_t->GoodsID, p_t->Quantity, p_t->SumCost, p_t->SumPrice, p_t->Income, p_t->InOutTag, p_t->Rest, 0L);
 			TempGoodsOprTbl::Key0 k; // @v8.1.1 @fix TempGoodsOprTbl::Key1-->TempGoodsOprTbl::Key0
 			MEMSZERO(k);
-			for(q.initIteration(0, &k, spFirst); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k, spFirst); q.nextIteration() > 0;) {
 				const double abc_idx = (double)((p_t->data.InOutTag < 0) ? -p_t->data.InOutTag : 0);
 				const double large_val = 1e12;
 				const char * p_fmt = "%04.0lf%030.8lf";
@@ -3349,7 +3349,7 @@ int PPViewGoodsOpAnalyze::ViewGraph()
 		BExtQuery q(P_TempTbl, 0, 16);
 		q.selectAll();
 		MEMSZERO(k);
-		for(q.initIteration(0, &k, spFirst); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k, spFirst); q.nextIteration() > 0;) {
 			if(Filt.IsValidABCGroup(p_t->data.InOutTag)) {
 				goa_total.Qtty   += p_t->data.Quantity;
 				goa_total.Cost   += p_t->data.SumCost;

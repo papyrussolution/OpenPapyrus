@@ -2,7 +2,7 @@
 // @brief File and path manipulation routines.
 // Copyright (C) 2008 Lemur Consulting Ltd
 // Copyright (C) 2008,2009,2010,2012 Olly Betts
-// @licence GNU GPL
+// @license GNU GPL
 //
 #include <xapian-internal.h>
 #pragma hdrstop

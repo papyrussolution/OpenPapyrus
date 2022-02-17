@@ -1599,7 +1599,7 @@ int PPObjStaffCal::GetPacket(PPID id, PPStaffCalPacket * pPack)
 		MEMSZERO(k);
 		k.CalID = row_id;
 		q.selectAll().where(P_ScT->CalID == row_id);
-		for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;)
+		for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;)
 			pPack->Items.insert(&P_ScT->data);
 		ok = 1;
 	}
@@ -2162,7 +2162,7 @@ int PPObjStaffCal::CalcPeriodByPersonEvent(const ScObjAssoc & rAssc, const PPIDA
 		k2.ObjID = ev_id;
 		BExtQuery q(P_ScT, 2);
 		q.selectAll().where(P_ScT->ObjID == ev_id);
-		for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 			if(P_ScT->data.Flags & STCALEF_BYPEVENT /* @v8.4.11 && !(P_ScT->data.Flags & STCALEF_SKIP) */) {
 				CALDATE cd;
 				cd.v = P_ScT->data.DtVal;

@@ -3,7 +3,7 @@
  */
 // Copyright 2007,2009 Lemur Consulting Ltd
 // Copyright 2009,2011,2014,2016,2017,2018 Olly Betts
-// @licence GNU GPL
+// @license GNU GPL
 //
 #include <xapian-internal.h>
 #pragma hdrstop

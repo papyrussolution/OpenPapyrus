@@ -66,7 +66,7 @@ int TempAssoc::GetList(PPID prmrID, PPIDArray * pList)
 		q.select(P_Tbl->ScndID, 0L).where(P_Tbl->PrmrID == prmrID);
 		k0.PrmrID = prmrID;
 		k0.ScndID = -MAXLONG;
-		for(q.initIteration(0, &k0, spGe); ok && q.nextIteration() > 0;)
+		for(q.initIteration(false, &k0, spGe); ok && q.nextIteration() > 0;)
 			if(!pList->add(P_Tbl->data.ScndID))
 				ok = 0;
 	}
@@ -447,7 +447,7 @@ int PPViewAccturn::InitIteration()
 		k0.Bill = Filt.BillID;
 		THROW_MEM(P_IterQuery = new BExtQuery(P_ATC, 0));
 		P_IterQuery->selectAll().where(P_ATC->Bill == Filt.BillID && P_ATC->Reverse == 0L);
-		P_IterQuery->initIteration(0, &k0, spGe);
+		P_IterQuery->initIteration(false, &k0, spGe);
 	}
 	else if(Filt.GrpAco) {
 		if(P_TmpAGTbl) {
@@ -455,7 +455,7 @@ int PPViewAccturn::InitIteration()
 			THROW_MEM(P_IterQuery = new BExtQuery(P_TmpAGTbl, 1, 16 /* very large record */));
 			P_IterQuery->selectAll();
 			MEMSZERO(agk);
-			P_IterQuery->initIteration(0, &agk, spFirst);
+			P_IterQuery->initIteration(false, &agk, spFirst);
 		}
 		else
 			ok = -1;
@@ -476,7 +476,7 @@ int PPViewAccturn::InitIteration()
 		P_IterQuery->where(*dbq);
 		k2.Dt    = Filt.Period.low;
 		k2.OprNo = 0;
-		P_IterQuery->initIteration(0, &k2, spGt);
+		P_IterQuery->initIteration(false, &k2, spGt);
 	}
 	CATCH
 		ok = 0;

@@ -2009,7 +2009,7 @@ int PPEgaisProcessor::GetUtmList(PPID locID, TSVector <UtmEntry> & rList)
 			k0.KindID = PPPRK_MAIN;
 			BExtQuery q(t, 0, 128);
 			q.select(t->PersonID, 0).where(t->KindID == PPPRK_MAIN);
-			for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 				const PPID psn_id = t->data.PersonID;
 				if(PsnObj.Search(psn_id, &psn_rec) > 0)
 					main_psn_list.add(psn_id);
@@ -8797,7 +8797,7 @@ int PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam)
 					EgaisRefATbl::Key1 k1;
 					MEMSZERO(k1);
 					q.selectAll();
-					for(q.initIteration(0, &k1, spFirst); q.nextIteration() > 0;) {
+					for(q.initIteration(false, &k1, spFirst); q.nextIteration() > 0;) {
 						EgaisRefATbl::Rec item;
 						P_RefC->RaC.copyBufTo(&item);
 						if(item.RefACode[0]) {
@@ -8843,7 +8843,7 @@ int PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam)
 				MEMSZERO(k1);
 				q.selectAll();
 				EgaisPersonCore::Item item;
-				for(q.initIteration(0, &k1, spFirst); q.nextIteration() > 0;) {
+				for(q.initIteration(false, &k1, spFirst); q.nextIteration() > 0;) {
 					if(P_RefC->PsC.RecToItem(P_RefC->PsC.data, item)) {
 						if(sstrlen(item.INN) >= 8)
 							inn_for_contragents.add(item.INN);
@@ -9621,7 +9621,7 @@ int EgaisPersonCore::Export(long fmt, const char * pFileName)
 		MEMSZERO(k1);
 		q.selectAll();
 		Item item;
-		for(q.initIteration(0, &k1, spFirst); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k1, spFirst); q.nextIteration() > 0;) {
 			if(RecToItem(data, item)) {
 				if(rec_no == 0) {
 					line_buf.Z().Cat("ID").Tab().Cat("RarIdent").Tab().
@@ -9993,7 +9993,7 @@ int EgaisProductCore::Export(long fmt, const char * pFileName)
 		MEMSZERO(k1);
 		q.selectAll();
 		Item item;
-		for(q.initIteration(0, &k1, spFirst); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k1, spFirst); q.nextIteration() > 0;) {
 			if(RecToItem(data, item)) {
 				if(rec_no == 0) {
 					line_buf.Z().Cat("ID").Tab().Cat("AlcoCode").Tab().
@@ -10309,7 +10309,7 @@ int EgaisRefACore::Export(long fmt, const char * pFileName)
 		EgaisRefATbl::Key1 k1;
 		MEMSZERO(k1);
 		q.selectAll();
-		for(q.initIteration(0, &k1, spFirst); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k1, spFirst); q.nextIteration() > 0;) {
 			EgaisRefATbl::Rec item;
 			copyBufTo(&item);
 			if(rec_no == 0) {

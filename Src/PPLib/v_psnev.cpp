@@ -306,7 +306,7 @@ int PPViewPersonEvent::InitIteration()
 	k_ = k;
 	P_IterQuery->where(*dbq);
 	Counter.Init(P_IterQuery->countIterations(0, &k_, spGe));
-	P_IterQuery->initIteration(0, &k, spGe);
+	P_IterQuery->initIteration(false, &k, spGe);
 	return ok;
 }
 

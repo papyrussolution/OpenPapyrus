@@ -2,7 +2,7 @@
  * @brief Xapian::BoolWeight class - boolean weighting
  */
 // Copyright (C) 2009,2011,2016 Olly Betts
-// @licence GNU GPL
+// @license GNU GPL
 //
 #include <xapian-internal.h>
 #pragma hdrstop

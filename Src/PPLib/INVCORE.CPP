@@ -39,7 +39,7 @@ int InventoryCore::InitEnum(PPID billID, long * pHandle)
 	InventoryTbl::Key0 k0;
 	k0.BillID = billID;
 	k0.OprNo = 0;
-	q->initIteration(0, &k0, spGe);
+	q->initIteration(false, &k0, spGe);
 	return EnumList.RegisterIterHandler(q, pHandle);
 }
 
@@ -228,7 +228,7 @@ int InventoryCore::CalcTotal(const InventoryFilt * pFilt, InventoryTotal * pTota
 			q.where(*dbq);
 			k.BillID = bill_id;
 			k.OprNo = 0;
-			for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 				if(CheckFlags(pFilt, &data) && gobj.BelongToGroup(data.GoodsID, pFilt->GoodsGrpID, 0)) {
 					CALLPTRMEMB(pGoodsList, add(labs(data.GoodsID)));
 					if(pTotal) {

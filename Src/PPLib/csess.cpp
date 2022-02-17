@@ -379,7 +379,7 @@ int CSessionCore::GetTempAsyncSessList(PPID nodeID, const DateRange * pPeriod, P
 	k1.CashNodeID = nodeID;
 	k1.Dt = pPeriod ? pPeriod->low : ZERODATE;
 	q.select(ID, Dt, Temporary, 0L).where(CashNodeID == nodeID);
-	for(q.initIteration(0, &k1); q.nextIteration();) {
+	for(q.initIteration(false, &k1); q.nextIteration();) {
 		if(data.Temporary > 0 && (!pPeriod || pPeriod->CheckDate(data.Dt))) {
 			CALLPTRMEMB(pSessList, addUnique(data.ID));
 			ok = 1;

@@ -211,7 +211,7 @@ int PPViewPriceAnlz::Init_(const PPBaseFilt * pBaseFilt)
 					MEMSZERO(k2);
 					k2.GoodsID = goods_rec.ID;
 					k2.Dt = Filt.Period.low;
-					for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+					for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 						int    found = 0;
 						double base_cost = 0.0;
 						_E   * p_e = 0, _e;
@@ -425,7 +425,7 @@ int PPViewPriceAnlz::InitIteration()
 	P_IterQuery->selectAll();
 	k_ = k;
 	Counter.Init(P_IterQuery->countIterations(0, &k_, spGe));
-	P_IterQuery->initIteration(0, &k, spGe);
+	P_IterQuery->initIteration(false, &k, spGe);
 	return 1;
 }
 

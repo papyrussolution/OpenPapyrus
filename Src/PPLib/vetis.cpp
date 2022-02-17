@@ -1944,7 +1944,7 @@ int VetisEntityCore::CollectUnresolvedEntityList(TSVector <UnresolvedEntity> & r
 	MEMSZERO(k0);
 	BExtQuery q(&ET, 0);
 	q.selectAll();
-	for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
 		VetisEntityTbl::Rec rec;
 		ET.copyBufTo(&rec);
 		if(oneof5(rec.Kind, kProductItem, kProduct, kSubProduct, kEnterprise, kBusinessEntity)) {
@@ -11373,7 +11373,7 @@ int PPViewVetisDocument::InitIteration()
 	P_IterQuery->where(*dbq);
 	k_ = k;
 	Counter.Init(P_IterQuery->countIterations(0, &k_, spGe));
-	P_IterQuery->initIteration(0, &k, spGe);
+	P_IterQuery->initIteration(false, &k, spGe);
 	CATCHZOK
 	return ok;
 }

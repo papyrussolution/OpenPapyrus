@@ -1179,7 +1179,7 @@ int PrcssrPrediction::StoreStatByGoodsList(const PPIDArray & rGoodsList, LDATE c
 			q.select(T.GoodsID, T.Dt, T.Quantity, T.Amount, 0L).where(*dbq);
 			PPID   prev_goods_id = 0;
 			uint   prev_goods_pos = 0;
-			for(q.initIteration(0, &(k = k_init), spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &(k = k_init), spGe); q.nextIteration() > 0;) {
 				PredictSalesStat * p_stat_entry = 0;
 				if(prev_goods_id && T.data.GoodsID == prev_goods_id)
 					p_stat_entry = &(p_stat_list[prev_goods_pos]);
@@ -1397,7 +1397,7 @@ int PrcssrPrediction::RecalcStat(LDATE commonLastDate, PredictSalesCore::StatSto
 			PPID   loc_id = 0;
 			PPID   prev_goods_id = 0;
 			uint   prev_goods_pos = 0;
-			for(q.initIteration(0, &(k = k_init), spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &(k = k_init), spGe); q.nextIteration() > 0;) {
 				const int16 loc_idx = T.data.Loc;
 				const PPID  goods_id = T.data.GoodsID;
 				LDATE  item_dt;

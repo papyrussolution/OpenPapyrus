@@ -86,7 +86,7 @@ static bool IsDocCommentStart(StyleContext &sc)
 	if(sc.LengthCurrent() == 10 && !isasciialnum(sc.ch)) {
 		char s[11];
 		sc.GetCurrentLowered(s, sizeof(s));
-		return strcmp(s, "#ifdef doc") == 0;
+		return sstreq(s, "#ifdef doc");
 	}
 	return false;
 }
@@ -454,10 +454,10 @@ static void UpdatePreprocessorFoldLevel(int &levelCurrent, Sci_PositionU startPo
 {
 	char s[7]; // Size of the longest possible keyword + null.
 	GetForwardWordLowered(startPos, styler, s, sizeof(s));
-	if(strcmp(s, "ifdef") == 0 || strcmp(s, "ifndef") == 0) {
+	if(sstreq(s, "ifdef") || sstreq(s, "ifndef")) {
 		levelCurrent++;
 	}
-	else if(strcmp(s, "endif") == 0) {
+	else if(sstreq(s, "endif")) {
 		levelCurrent--;
 		if(levelCurrent < SC_FOLDLEVELBASE) {
 			levelCurrent = SC_FOLDLEVELBASE;
@@ -469,10 +469,10 @@ static void UpdateKeywordFoldLevel(int &levelCurrent, Sci_PositionU lastStart, S
 {
 	char s[9];
 	GetRangeLowered(lastStart, currentPos, styler, s, sizeof(s));
-	if(strcmp(s, "if") == 0 || strcmp(s, "for") == 0 || strcmp(s, "switch") == 0 || strcmp(s, "function") == 0 || strcmp(s, "while") == 0 || strcmp(s, "repeat") == 0) {
+	if(sstreq(s, "if") || sstreq(s, "for") || sstreq(s, "switch") || sstreq(s, "function") || sstreq(s, "while") || sstreq(s, "repeat")) {
 		levelCurrent++;
 	}
-	else if(strcmp(s, "end") == 0 || strcmp(s, "until") == 0) {
+	else if(sstreq(s, "end") || sstreq(s, "until")) {
 		levelCurrent--;
 		if(levelCurrent < SC_FOLDLEVELBASE) {
 			levelCurrent = SC_FOLDLEVELBASE;

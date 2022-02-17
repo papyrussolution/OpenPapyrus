@@ -2,7 +2,7 @@
  * @brief iterate over a utf8 string.
  */
 // Copyright (C) 2006,2007,2010,2013,2015,2019 Olly Betts
-// @licence GNU GPL
+// @license GNU GPL
 //
 #include <xapian-internal.h>
 #pragma hdrstop

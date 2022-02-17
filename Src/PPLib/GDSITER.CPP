@@ -268,7 +268,7 @@ int GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID grpID
 							MEMSZERO(k);
 							k.k1.Kind = PPGDSK_GOODS;
 							k.k1.ParentID = int_grp_id;
-							for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+							for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 								const PPID id = p_t->data.ID;
 								if(!(Filt.Flags & GoodsFilt::fOutOfMatrix) || !P_MtxList || !P_MtxList->bsearch(id)) {
 									if(GObj.CheckForFilt(&Filt, 0, GOCFIF_GROUP|GOCFIF_BCLEN|GOCFIF_ARCODE|GOCFIF_SYSJ|GOCFIF_TAG)) {
@@ -489,7 +489,7 @@ int GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 			else {
 				q.select(t->ID, 0L).where(t->Kind == PPGDSK_GOODS && t->StrucID > 0L);
 			}
-			for(q.initIteration(0, &k5, spGe); q.nextIteration() > 0;)
+			for(q.initIteration(false, &k5, spGe); q.nextIteration() > 0;)
 				THROW_SL(temp_list.add(t->data.ID));
 			THROW(IntersectByTempList(P_List, &temp_list, &do_intersect));
 		}
@@ -507,7 +507,7 @@ int GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 					if(t->search(3, &k3, spEq)) {
 						BExtQuery q(t, 3);
 						q.select(t->ID, 0L).where(t->Kind == PPGDSK_GOODS && t->BrandID == brand_id);
-						for(q.initIteration(0, &k3, spEq); q.nextIteration() > 0;)
+						for(q.initIteration(false, &k3, spEq); q.nextIteration() > 0;)
 							THROW_SL(temp_list.add(t->data.ID));
 					}
 				}
@@ -853,7 +853,7 @@ int GoodsIterator::CreateIterQuery()
 		k.k2.Kind = PPGDSK_GOODS;
 	else if(IterIdx == 4)
 		k.k4.Kind = PPGDSK_GOODS;
-	P_IterQuery->initIteration(0, &k, spGe);
+	P_IterQuery->initIteration(false, &k, spGe);
 	PPInitIterCounter(Counter, GObj.P_Tbl);
 	CATCHZOK
 	return ok;

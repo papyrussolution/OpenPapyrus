@@ -149,7 +149,7 @@ int LocTransfCore::GetTransByBill(PPID billID, int16 rByBill, TSVector <LocTrans
 	MEMSZERO(k3);
 	k3.BillID  = billID;
 	k3.RByBill = rByBill;
-	for(q.initIteration(0, &k3, spEq); q.nextIteration() > 0;)
+	for(q.initIteration(false, &k3, spEq); q.nextIteration() > 0;)
 		pList->insert(&data);
 	return 1;
 }
@@ -533,7 +533,7 @@ int LocTransfCore::GetNonEmptyCellList(const PPIDArray * pDomain, PPIDArray * pL
 	MEMSZERO(k5);
 	k5.Op = 0;
 	q.select(this->LocID, this->RestByGoods, 0L).where(this->Op == 0L && this->RestByGoods > 0.0);
-	for(q.initIteration(0, &k5, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k5, spGe); q.nextIteration() > 0;) {
 		if(!pDomain || pDomain->lsearch(data.LocID)) {
 			THROW_SL(result_cell_list.addUnique(data.LocID));
 		}
@@ -566,7 +566,7 @@ int LocTransfCore::GetCellListForGoods(PPID goodsID, const PPIDArray * pDomain, 
 	MEMSZERO(k2);
 	k2.GoodsID = goodsID;
 	q.select(this->LocID, this->RestByGoods, 0L).where(this->GoodsID == goodsID && this->Op == 0L && this->RestByGoods > 0.0);
-	for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 		if(!pDomain || pDomain->lsearch(data.LocID)) {
 			CALLPTRMEMB(pList, Add(data.LocID, data.RestByGoods));
 			ok = 1;
@@ -585,7 +585,7 @@ int LocTransfCore::GetLocCellList(PPID goodsID, PPID parentLocID, RAssocArray * 
 		MEMSZERO(k2);
 		k2.GoodsID = goodsID;
 		q.select(this->LocID, this->RestByGoods, 0L).where(this->GoodsID == goodsID && this->Op == 0L && this->RestByGoods > 0.0);
-		for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 			PPID parent_loc_id = 0;
 			if(!parentLocID || LocObj.GetParentWarehouse(data.LocID, &parent_loc_id) > 0 && parentLocID == parent_loc_id) {
 				CALLPTRMEMB(pList, Add(data.LocID, data.RestByGoods));
@@ -606,7 +606,7 @@ int LocTransfCore::GetGoodsList(PPID locCellID, RAssocArray * pList)
 		MEMSZERO(k5);
 		k5.LocID = locCellID;
 		q.select(LocID, GoodsID, RestByGoods, 0L).where(LocID == locCellID && Op == 0L);
-		for(q.initIteration(0, &k5, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k5, spGe); q.nextIteration() > 0;) {
 			CALLPTRMEMB(pList, Add(data.GoodsID, data.RestByGoods));
 			ok = 1;
 		}

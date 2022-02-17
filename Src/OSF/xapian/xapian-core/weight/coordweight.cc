@@ -2,7 +2,7 @@
  * @brief Xapian::CoordWeight class - coordinate matching
  */
 // Copyright (C) 2004,2009,2011,2016 Olly Betts
-// @licence GNU GPL
+// @license GNU GPL
 //
 #include <xapian-internal.h>
 #pragma hdrstop

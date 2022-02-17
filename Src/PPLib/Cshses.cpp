@@ -587,7 +587,7 @@ int PPAsyncCashSession::CalcSessionTotal(PPID sessID, CSessTotal * pTotal)
 	BExtQuery * p_q = new BExtQuery(&CC, 3);
 	p_q->selectAll().where(CC.SessID == sessID);
 	pTotal->SessID = sessID;
-	for(p_q->initIteration(0, &k, spGe); p_q->nextIteration() > 0;) {
+	for(p_q->initIteration(false, &k, spGe); p_q->nextIteration() > 0;) {
 		const CCheckTbl::Rec & r_rec = CC.data;
 		if(!(r_rec.Flags & CCHKF_ZCHECK)) {
 			pTotal->CheckCount++;
@@ -598,7 +598,7 @@ int PPAsyncCashSession::CalcSessionTotal(PPID sessID, CSessTotal * pTotal)
 	BExtQuery::ZDelete(&p_q);
 	p_q = new BExtQuery(&GL, 0);
 	p_q->selectAll().where(GL.SessID == sessID);
-	for(p_q->initIteration(0, &k, spGe); p_q->nextIteration() > 0;) {
+	for(p_q->initIteration(false, &k, spGe); p_q->nextIteration() > 0;) {
 		pTotal->AggrAmount += GL.data.Sum;
 		if(GL.data.Qtty != 0.0)
 			pTotal->AggrRest += (GL.data.Rest * GL.data.Sum) / GL.data.Qtty;
@@ -645,7 +645,7 @@ int PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArray * pH
 		q.selectAll(); // @v10.7.3
 		PPID   last_temp_chk_id = 0;
 		uint   last_chk_pos = 0;
-		for(q.initIteration(0, &k2, spFirst); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k2, spFirst); q.nextIteration() > 0;) {
 			uint   p = 0;
 			const  TempCCheckLineTbl::Rec & r_rec = t->data;
 			PPID   temp_chk_id = r_rec.CheckID;
@@ -780,7 +780,7 @@ int PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray & rSessLis
 			SVector ccl_assoc(sizeof(CclAssocItem));
 			BExtQuery ccq(P_TmpCcTbl, 0, 64);
 			ccq.selectAll();
-			for(ccq.initIteration(1, &kid, spLast); ccq.nextIteration() > 0;) {
+			for(ccq.initIteration(true, &kid, spLast); ccq.nextIteration() > 0;) {
 				long   cc_flags_after_turn = 0;
 				PPID   tmp_chk_id = 0;
 				PPID   check_id = 0;
@@ -902,7 +902,7 @@ int PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray & rSessLis
 				k.Dt = p_entry->Dtm.d;
 				k.Tm = p_entry->Dtm.t;
 				k.CashID = MAXLONG;
-				for(q.initIteration(1, &k, spLt); q.nextIteration() > 0;) {
+				for(q.initIteration(true, &k, spLt); q.nextIteration() > 0;) {
 					if(CC.data.Flags & CCHKF_ZCHECK && CC.data.SessID != p_entry->SessID)
 						break;
 					if(CC.data.SessID == 0) {
@@ -1608,7 +1608,7 @@ int AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDlsID, D
 				k1.Tm = MAXTIME;
 				BExtQuery q(&SJ, 1);
 				q.selectAll().where(SJ.ObjType == PPOBJ_CASHNODE && SJ.ObjID == CashNodeID && SJ.UserID == LConfig.UserID);
-				for(q.initIteration(1, &k1, spLt); q.nextIteration() > 0;) {
+				for(q.initIteration(true, &k1, spLt); q.nextIteration() > 0;) {
 					if(cmp(moment, SJ.data.Dt, SJ.data.Tm) > 0) {
 						moment.Set(SJ.data.Dt, SJ.data.Tm);
 						break;
@@ -1641,7 +1641,7 @@ int AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDlsID, D
 					sjk0.Tm = moment.t;
 					BExtQuery q(&SJ, 0);
 					q.selectAll().where(SJ.Dt >= moment.d && SJ.ObjType == PPOBJ_GOODS);
-					for(q.initIteration(0, &sjk0, spGe); q.nextIteration() > 0;) {
+					for(q.initIteration(false, &sjk0, spGe); q.nextIteration() > 0;) {
 						if(cmp(moment, SJ.data.Dt, SJ.data.Tm) < 0) {
 							const long a = SJ.data.Action;
 							if(oneof5(a, PPACN_OBJADD, PPACN_OBJUPD, PPACN_OBJUNIFY, PPACN_GOODSQUOTUPD, PPACN_QUOTUPD2)) {
@@ -2241,7 +2241,7 @@ int AsyncCashSCardsIterator::Init(const PPSCardSerPacket * pScsPack)
 	THROW_MEM(P_IterQuery = new BExtQuery(SCObj.P_Tbl, 2));
 	P_IterQuery->selectAll().where(SCObj.P_Tbl->SeriesID == ScsPack.Rec.ID);
 	Counter.Init(P_IterQuery->countIterations(0, &k2_, spGe));
-	P_IterQuery->initIteration(0, &k2, spGe);
+	P_IterQuery->initIteration(false, &k2, spGe);
 	CATCHZOK
 	return ok;
 }
@@ -2346,7 +2346,7 @@ int AsyncCashiersIterator::Init(PPID cashNodeID)
 		k0.KindID = psn_kind_id;
 		THROW_MEM(P_IterQuery = new BExtQuery(&PsnObj.P_Tbl->Kind, 0));
 		P_IterQuery->select(PsnObj.P_Tbl->Kind.PersonID, 0L).where(PsnObj.P_Tbl->Kind.KindID == psn_kind_id);
-		P_IterQuery->initIteration(0, &k0, spGe);
+		P_IterQuery->initIteration(false, &k0, spGe);
 		ok = 1;
 	}
 	CATCHZOK

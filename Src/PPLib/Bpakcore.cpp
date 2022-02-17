@@ -1832,7 +1832,7 @@ int PPLotExtCodeContainer::Serialize(int dir, SBuffer & rBuf, SSerializeContext 
 		k2.BillID = billID;
 		BExtQuery q(pTbl, 2);
 		q.selectAll().where(pTbl->BillID == billID);
-		for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 			//Add(pTbl->data.RByBill, pTbl->data.)
 			LotExtCodeTbl::Rec rec;
 			pTbl->copyBufTo(&rec);

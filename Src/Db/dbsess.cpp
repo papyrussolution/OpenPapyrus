@@ -1,5 +1,6 @@
 // DBSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2013, 2015, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2013, 2015, 2017, 2018, 2019, 2020, 2021, 2022
+// @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -185,7 +186,7 @@ int DbThreadLocalArea::RollbackWork()
 	return ok;
 }
 //
-// Регистрация типа SRowId
+// Р РµРіРёСЃС‚СЂР°С†РёСЏ С‚РёРїР° SRowId
 //
 class SRowId : public DataType {
 public:
@@ -262,7 +263,7 @@ int SLobType::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSe
 DbSession::DbSession() : LastThread(), Id__(1), TlsIdx(-1L), _Oe(0)
 {
 	memzero(__dbdata__, sizeof(__dbdata__)); // @v10.3.0
-	SetConfig(0); // Устанавливаем конфигурацию по умолчанию
+	SetConfig(0); // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РєРѕРЅС„РёРіСѓСЂР°С†РёСЋ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
 	InitProtectData();
 	TlsIdx = TlsAlloc();
 	InitThread();
@@ -363,7 +364,7 @@ void DbSession::ReleaseThread()
 	}
 }
 //
-// См. примечание к определению функций DB.H
+// РЎРј. РїСЂРёРјРµС‡Р°РЅРёРµ Рє РѕРїСЂРµРґРµР»РµРЅРёСЋ С„СѓРЅРєС†РёР№ DB.H
 //
 DbThreadLocalArea & DbSession::GetTLA()
 {

@@ -602,7 +602,7 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 			int found = 0;
 			while((ent = readdir(dir)) != NULL) {
 				// Check each file 
-				if(strcmp(ent->d_name, ".") == 0) { // Directory itself
+				if(sstreq(ent->d_name, ".")) { // Directory itself
 	#ifdef _DIRENT_HAVE_D_TYPE
 					rCase.SLTEST_CHECK_EQ(ent->d_type, (long)DT_DIR);
 	#endif
@@ -617,7 +617,7 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 	#endif
 					found += 1;
 				}
-				else if(strcmp(ent->d_name, "..") == 0) { // Parent directory
+				else if(sstreq(ent->d_name, "..")) { // Parent directory
 	#ifdef _DIRENT_HAVE_D_TYPE
 					rCase.SLTEST_CHECK_EQ(ent->d_type, (long)DT_DIR);
 	#endif
@@ -632,7 +632,7 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 	#endif
 					found += 2;
 				}
-				else if(strcmp(ent->d_name, "file") == 0) { /* Regular file */
+				else if(sstreq(ent->d_name, "file")) { // Regular file 
 	#ifdef _DIRENT_HAVE_D_TYPE
 					rCase.SLTEST_CHECK_EQ(ent->d_type, (long)DT_REG);
 	#endif
@@ -647,8 +647,7 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 	#endif
 					found += 4;
 				}
-				else if(strcmp(ent->d_name, "dir") == 0) {
-					/* Just a directory */
+				else if(sstreq(ent->d_name, "dir")) { // Just a directory
 	#ifdef _DIRENT_HAVE_D_TYPE
 					rCase.SLTEST_CHECK_EQ(ent->d_type, (long)DT_DIR);
 	#endif
@@ -698,17 +697,17 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 		rCase.SLTEST_CHECK_NZ(dir);
 		/* Read entries */
 		while((ent = readdir(dir)) != NULL) {
-			/* Check each file */
-			if(strcmp(ent->d_name, ".") == 0) {
+			// Check each file 
+			if(sstreq(ent->d_name, ".")) {
 				found += 1; // Directory itself
 			}
-			else if(strcmp(ent->d_name, "..") == 0) {
+			else if(sstreq(ent->d_name, "..")) {
 				found += 2; // Parent directory
 			}
-			else if(strcmp(ent->d_name, "file") == 0) {
+			else if(sstreq(ent->d_name, "file")) {
 				found += 4; /* Regular file */
 			}
-			else if(strcmp(ent->d_name, "dir") == 0) {
+			else if(sstreq(ent->d_name, "dir")) {
 				found += 8; /* Just a directory */
 			}
 			else { // Other file
@@ -722,16 +721,16 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 		/* Read entries */
 		while((ent = readdir(dir)) != NULL) {
 			/* Check each file */
-			if(strcmp(ent->d_name, ".") == 0) {
+			if(sstreq(ent->d_name, ".")) {
 				found += 1; // Directory itself
 			}
-			else if(strcmp(ent->d_name, "..") == 0) {
+			else if(sstreq(ent->d_name, "..")) {
 				found += 2; // Parent directory
 			}
-			else if(strcmp(ent->d_name, "file") == 0) {
+			else if(sstreq(ent->d_name, "file")) {
 				found += 4; /* Regular file */
 			}
-			else if(strcmp(ent->d_name, "dir") == 0) {
+			else if(sstreq(ent->d_name, "dir")) {
 				found += 8; /* Just a directory */
 			}
 			else { // Other file
@@ -752,16 +751,16 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 		/* Read entries */
 		while((ent = readdir(dir)) != NULL) {
 			/* Check each file */
-			if(strcmp(ent->d_name, ".") == 0) {
+			if(sstreq(ent->d_name, ".")) {
 				found += 1; // Directory itself
 			}
-			else if(strcmp(ent->d_name, "..") == 0) {
+			else if(sstreq(ent->d_name, "..")) {
 				found += 2; // Parent directory
 			}
-			else if(strcmp(ent->d_name, "file") == 0) {
+			else if(sstreq(ent->d_name, "file")) {
 				found += 4; /* Regular file */
 			}
-			else if(strcmp(ent->d_name, "dir") == 0) {
+			else if(sstreq(ent->d_name, "dir")) {
 				found += 8; /* Just a directory */
 			}
 			else { // Other file
@@ -778,16 +777,16 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 		/* Read entries */
 		while((ent = readdir(dir)) != NULL) {
 			/* Check each file */
-			if(strcmp(ent->d_name, ".") == 0) {
+			if(sstreq(ent->d_name, ".")) {
 				found += 1; // Directory itself
 			}
-			else if(strcmp(ent->d_name, "..") == 0) {
+			else if(sstreq(ent->d_name, "..")) {
 				found += 2; // Parent directory
 			}
-			else if(strcmp(ent->d_name, "file") == 0) {
+			else if(sstreq(ent->d_name, "file")) {
 				found += 4; /* Regular file */
 			}
-			else if(strcmp(ent->d_name, "dir") == 0) {
+			else if(sstreq(ent->d_name, "dir")) {
 				found += 8; /* Just a directory */
 			}
 			else { // Other file
@@ -814,13 +813,13 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 			/* Read entries */
 			while((ent = readdir(dir)) != NULL) {
 				/* Check each file */
-				if(strcmp(ent->d_name, ".") == 0) {
+				if(sstreq(ent->d_name, ".")) {
 					found += 1; // Directory itself
 				}
-				else if(strcmp(ent->d_name, "..") == 0) {
+				else if(sstreq(ent->d_name, "..")) {
 					found += 2; // Parent directory
 				}
-				else if(strcmp(ent->d_name, "file.txt") == 0) {
+				else if(sstreqi_ascii(ent->d_name, "file.txt")) {
 					/* Regular 8+3 filename */
 	#ifdef _DIRENT_HAVE_D_TYPE
 					rCase.SLTEST_CHECK_EQ(ent->d_type, (long)DT_REG);
@@ -836,7 +835,7 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 	#endif
 					found += 4;
 				}
-				else if(strcmp(ent->d_name, "Testfile-1.2.3.dat") == 0) {
+				else if(sstreqi_ascii(ent->d_name, "Testfile-1.2.3.dat")) {
 					/* Long file name with multiple dots */
 	#ifdef _DIRENT_HAVE_D_TYPE
 					rCase.SLTEST_CHECK_EQ(ent->d_type, (long)DT_REG);
@@ -885,7 +884,7 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 			for(i = 0; i < 4; i++) {
 				entry = &ent[i];
 				/* Check each file */
-				if(strcmp(entry->d_name, ".") == 0) { // Directory itself
+				if(sstreq(entry->d_name, ".")) { // Directory itself
 	#ifdef _DIRENT_HAVE_D_TYPE
 					rCase.SLTEST_CHECK_EQ(entry->d_type, (long)DT_DIR);
 	#endif
@@ -900,7 +899,7 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 	#endif
 					found += 1;
 				}
-				else if(strcmp(entry->d_name, "..") == 0) { // Parent directory
+				else if(sstreq(entry->d_name, "..")) { // Parent directory
 	#ifdef _DIRENT_HAVE_D_TYPE
 					rCase.SLTEST_CHECK_EQ(entry->d_type, (long)DT_DIR);
 	#endif
@@ -915,7 +914,7 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 	#endif
 					found += 2;
 				}
-				else if(strcmp(entry->d_name, "file") == 0) { /* Regular file */
+				else if(sstreq(entry->d_name, "file")) { /* Regular file */
 	#ifdef _DIRENT_HAVE_D_TYPE
 					rCase.SLTEST_CHECK_EQ(entry->d_type, (long)DT_REG);
 	#endif
@@ -930,7 +929,7 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 	#endif
 					found += 4;
 				}
-				else if(strcmp(entry->d_name, "dir") == 0) { /* Just a directory */
+				else if(sstreq(entry->d_name, "dir")) { /* Just a directory */
 	#ifdef _DIRENT_HAVE_D_TYPE
 					rCase.SLTEST_CHECK_EQ(entry->d_type, (long)DT_DIR);
 	#endif
@@ -1072,7 +1071,7 @@ static int T_ScanDir(STestCase & rCase, const char * pBaseDir)
 		(dir_buf = pBaseDir).SetLastDSlash().Cat("3");
 		n = scandir(dir_buf, &files, only_readme, alphasort); /* Read directory entries */
 		rCase.SLTEST_CHECK_EQ(n, 1L);
-		rCase.SLTEST_CHECK_Z(strcmp(files[0]->d_name, "README.txt")); /* Make sure that the filter works */
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[0]->d_name, "README.txt")); // Make sure that the filter works
 		// Release file names 
 		for(i = 0; i < n; i++) {
 			SAlloc::F(files[i]);
@@ -1085,44 +1084,44 @@ static int T_ScanDir(STestCase & rCase, const char * pBaseDir)
 		(dir_buf = pBaseDir).SetLastDSlash().Cat("3");
 		n = scandir(dir_buf, &files, NULL, alphasort);
 		rCase.SLTEST_CHECK_EQ(n, 13L);
-		/* Make sure that we got all the names in the proper order */
-		rCase.SLTEST_CHECK_Z(strcmp(files[0]->d_name, "."));
-		rCase.SLTEST_CHECK_Z(strcmp(files[1]->d_name, ".."));
-		rCase.SLTEST_CHECK_Z(strcmp(files[2]->d_name, "3zero.dat"));
-		rCase.SLTEST_CHECK_Z(strcmp(files[3]->d_name, "666.dat"));
-		rCase.SLTEST_CHECK_Z(strcmp(files[4]->d_name, "Qwerty-my-aunt.dat"));
-		rCase.SLTEST_CHECK_Z(strcmp(files[5]->d_name, "README.txt"));
-		rCase.SLTEST_CHECK_Z(strcmp(files[6]->d_name, "aaa.dat"));
-		rCase.SLTEST_CHECK_Z(strcmp(files[7]->d_name, "dirent.dat"));
-		rCase.SLTEST_CHECK_Z(strcmp(files[8]->d_name, "empty.dat"));
-		rCase.SLTEST_CHECK_Z(strcmp(files[9]->d_name, "sane-1.12.0.dat"));
-		rCase.SLTEST_CHECK_Z(strcmp(files[10]->d_name, "sane-1.2.30.dat"));
-		rCase.SLTEST_CHECK_Z(strcmp(files[11]->d_name, "sane-1.2.4.dat"));
-		rCase.SLTEST_CHECK_Z(strcmp(files[12]->d_name, "zebra.dat"));
-		/* Release file names */
+		// Make sure that we got all the names in the proper order 
+		rCase.SLTEST_CHECK_NZ(sstreq(files[0]->d_name, "."));
+		rCase.SLTEST_CHECK_NZ(sstreq(files[1]->d_name, ".."));
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[2]->d_name, "3zero.dat"));
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[3]->d_name, "666.dat"));
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[4]->d_name, "Qwerty-my-aunt.dat"));
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[5]->d_name, "README.txt"));
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[6]->d_name, "aaa.dat"));
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[7]->d_name, "dirent.dat"));
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[8]->d_name, "empty.dat"));
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[9]->d_name, "sane-1.12.0.dat"));
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[10]->d_name, "sane-1.2.30.dat"));
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[11]->d_name, "sane-1.2.4.dat"));
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[12]->d_name, "zebra.dat"));
+		// Release file names 
 		for(i = 0; i < n; i++) {
 			SAlloc::F(files[i]);
 		}
 		SAlloc::F(files);
 	}
-	/* Custom filter AND sort function */
+	// Custom filter AND sort function 
 	{
 		(dir_buf = pBaseDir).SetLastDSlash().Cat("3");
 		n = scandir(dir_buf, &files, no_directories, reverse_alpha); /* Read directory entries in alphabetic order */
 		rCase.SLTEST_CHECK_EQ(n, 11L);
-		/* Make sure that we got file names in the reverse order */
-		rCase.SLTEST_CHECK_Z(strcmp(files[0]->d_name, "zebra.dat"));
-		rCase.SLTEST_CHECK_Z(strcmp(files[1]->d_name, "sane-1.2.4.dat"));
-		rCase.SLTEST_CHECK_Z(strcmp(files[2]->d_name, "sane-1.2.30.dat"));
-		rCase.SLTEST_CHECK_Z(strcmp(files[3]->d_name, "sane-1.12.0.dat"));
-		rCase.SLTEST_CHECK_Z(strcmp(files[4]->d_name, "empty.dat"));
-		rCase.SLTEST_CHECK_Z(strcmp(files[5]->d_name, "dirent.dat"));
-		rCase.SLTEST_CHECK_Z(strcmp(files[6]->d_name, "aaa.dat"));
-		rCase.SLTEST_CHECK_Z(strcmp(files[7]->d_name, "README.txt"));
-		rCase.SLTEST_CHECK_Z(strcmp(files[8]->d_name, "Qwerty-my-aunt.dat"));
-		rCase.SLTEST_CHECK_Z(strcmp(files[9]->d_name, "666.dat"));
-		rCase.SLTEST_CHECK_Z(strcmp(files[10]->d_name, "3zero.dat"));
-		/* Release file names */
+		// Make sure that we got file names in the reverse order
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[0]->d_name, "zebra.dat"));
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[1]->d_name, "sane-1.2.4.dat"));
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[2]->d_name, "sane-1.2.30.dat"));
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[3]->d_name, "sane-1.12.0.dat"));
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[4]->d_name, "empty.dat"));
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[5]->d_name, "dirent.dat"));
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[6]->d_name, "aaa.dat"));
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[7]->d_name, "README.txt"));
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[8]->d_name, "Qwerty-my-aunt.dat"));
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[9]->d_name, "666.dat"));
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[10]->d_name, "3zero.dat"));
+		// Release file names 
 		for(i = 0; i < n; i++) {
 			SAlloc::F(files[i]);
 		}
@@ -1156,18 +1155,18 @@ static int T_ScanDir(STestCase & rCase, const char * pBaseDir)
 		 * Make sure that we got all the file names in the proper order:
 		 * 1.2.4 < 1.2.30 < 1.12.0
 		 */
-		rCase.SLTEST_CHECK_Z(strcmp(files[0]->d_name, "3zero.dat"));
-		rCase.SLTEST_CHECK_Z(strcmp(files[1]->d_name, "666.dat"));
-		rCase.SLTEST_CHECK_Z(strcmp(files[2]->d_name, "Qwerty-my-aunt.dat"));
-		rCase.SLTEST_CHECK_Z(strcmp(files[3]->d_name, "README.txt"));
-		rCase.SLTEST_CHECK_Z(strcmp(files[4]->d_name, "aaa.dat"));
-		rCase.SLTEST_CHECK_Z(strcmp(files[5]->d_name, "dirent.dat"));
-		rCase.SLTEST_CHECK_Z(strcmp(files[6]->d_name, "empty.dat"));
-		rCase.SLTEST_CHECK_Z(strcmp(files[7]->d_name, "sane-1.2.4.dat"));
-		rCase.SLTEST_CHECK_Z(strcmp(files[8]->d_name, "sane-1.2.30.dat"));
-		rCase.SLTEST_CHECK_Z(strcmp(files[9]->d_name, "sane-1.12.0.dat"));
-		rCase.SLTEST_CHECK_Z(strcmp(files[10]->d_name, "zebra.dat"));
-		/* Release file names */
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[0]->d_name, "3zero.dat"));
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[1]->d_name, "666.dat"));
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[2]->d_name, "Qwerty-my-aunt.dat"));
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[3]->d_name, "README.txt"));
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[4]->d_name, "aaa.dat"));
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[5]->d_name, "dirent.dat"));
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[6]->d_name, "empty.dat"));
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[7]->d_name, "sane-1.2.4.dat"));
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[8]->d_name, "sane-1.2.30.dat"));
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[9]->d_name, "sane-1.12.0.dat"));
+		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[10]->d_name, "zebra.dat"));
+		// Release file names 
 		for(i = 0; i < n; i++) {
 			SAlloc::F(files[i]);
 		}
@@ -1233,10 +1232,10 @@ static int T_ScanDir(STestCase & rCase, const char * pBaseDir)
 			match[2] = '0' + ((j / 10) % 10);
 			match[3] = '0' + (j % 10);
 			match[4] = '\0';
-			/* Make sure that file name matches that on the disk */
-			rCase.SLTEST_CHECK_Z(strcmp(files[j]->d_name, match));
+			// Make sure that file name matches that on the disk
+			rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[j]->d_name, match));
 		}
-		/* Release file names */
+		// Release file names
 		for(int j = 0; j < n; j++) {
 			SAlloc::F(files[j]);
 		}
@@ -1250,12 +1249,10 @@ static int T_ScanDir(STestCase & rCase, const char * pBaseDir)
 static int only_readme(const struct dirent * entry)
 {
 	int pass;
-	if(strcmp(entry->d_name, "README.txt") == 0) {
+	if(sstreqi_ascii(entry->d_name, "README.txt"))
 		pass = 1;
-	}
-	else {
+	else
 		pass = 0;
-	}
 	return pass;
 }
 //

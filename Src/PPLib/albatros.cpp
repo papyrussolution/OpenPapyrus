@@ -1358,7 +1358,7 @@ int UhttGoodsValueMgr::Get(UhttGoodsValueFilt * pFilt, UhttGoodsValueArray * pLi
 				}
 				dbq = ppcheckfiltid(dbq, P_Tbl->CurID, pFilt->CurID);
 				q.selectAll().where(*dbq);
-				for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
+				for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 					if(pFilt->BuyerID && P_Tbl->data.BuyerID && P_Tbl->data.BuyerID != pFilt->BuyerID)
 						continue;
 					else if(goods_list.getCount() && !goods_list.bsearch(P_Tbl->data.GoodsID))
@@ -1393,7 +1393,7 @@ int UhttGoodsValueMgr::Get(UhttGoodsValueFilt * pFilt, UhttGoodsValueArray * pLi
 				}
 				dbq = ppcheckfiltid(dbq, P_Tbl->CurID, pFilt->CurID);
 				q.selectAll().where(*dbq);
-				for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
+				for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 					if(pFilt->BuyerID && P_Tbl->data.BuyerID && P_Tbl->data.BuyerID != pFilt->BuyerID)
 						continue;
 					else if(seller_loc_list.getCount() && !seller_loc_list.bsearch(P_Tbl->data.SellerLocID))

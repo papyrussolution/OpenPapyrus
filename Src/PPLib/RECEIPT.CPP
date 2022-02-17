@@ -1,5 +1,5 @@
 // RECEIPT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022
 // @codepage UTF-8
 // @Kernel
 //
@@ -325,7 +325,7 @@ int ReceiptCore::GetReserve(PPID goodsID, PPID locID, double * pValue)
 	DBQ * dbq = &(this->Closed == 0L && this->GoodsID == goods_id);
 	dbq = ppcheckfiltid(dbq, this->LocID, locID);
 	q.select(this->Flags, this->Rest, 0L).where(*dbq);
-	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;)
+	for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;)
 		if(data.Flags & LOTF_ORDRESERVE && !(data.Flags & LOTF_CLOSEDORDER))
 			rest += data.Rest;
 	rest = R6(rest);
@@ -394,7 +394,7 @@ int ReceiptCore::Helper_GetLastLot(PPID goodsID, PPID locID, LDATE dt, ReceiptTb
 				//
 				BExtQuery q(this, 2, 1);
 				q.selectAll().where(this->GoodsID == goodsID && this->Dt <= dt && this->LocID == locID);
-				if(q.initIteration(1, 0, -1) && q.nextIteration() > 0) {
+				if(q.initIteration(true, 0, -1) && q.nextIteration() > 0) {
 					copyBufTo(pRec);
 					ok = 1;
 				}
@@ -609,7 +609,7 @@ int ReceiptCore::GetListOfOpenedLots(const PPIDArray & rGoodsList, PPID locID, L
 			if(locID)
                 dbq = &(*dbq && this->LocID == locID);
 			q.selectAll().where(*dbq);
-			for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 				if(rGoodsList.bsearch(data.GoodsID)) {
 					if(pList)
 						THROW_SL(pList->insert(&data));
@@ -648,7 +648,7 @@ int ReceiptCore::GetListOfOpenedLots(int dir, PPID goodsID, PPID locID, LDATE be
 			if(beforeDt)
 				dbq = &(*dbq && this->Dt <= beforeDt);
 			q.selectAll().where(*dbq);
-			for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 				ufp_factor_i++;
 				if((goodsID >= 0) || !(data.Flags & LOTF_CLOSEDORDER)) {
 					CALLPTRMEMB(pList, insert(&data));
@@ -736,7 +736,7 @@ int ReceiptCore::GetLastQCert(PPID goodsID, LDATE beforeDate, PPID * pQCertID, P
 	k.GoodsID = goodsID;
 	k.Dt = checkdate(beforeDate) ? beforeDate : MAXDATE;
 	k.OprNo = MAXLONG;
-	for(q.initIteration(1, &k, spLe); q.nextIteration() > 0;) {
+	for(q.initIteration(true, &k, spLe); q.nextIteration() > 0;) {
 		if(data.QCertID) {
 			ASSIGN_PTR(pQCertID, data.QCertID);
 			ASSIGN_PTR(pLotID, data.ID);
@@ -754,7 +754,7 @@ int ReceiptCore::IsThereOpenedLotForQCert(PPID qcertID)
 	k.QCertID = qcertID;
 	BExtQuery q(this, 6, 1);
 	q.select(this->ID, 0L).where(this->QCertID == qcertID && this->Rest > 0.0);
-	q.initIteration(0, &k, spGe);
+	q.initIteration(false, &k, spGe);
 	if(q.nextIteration() > 0)
 		ok = 1;
 	return ok;
@@ -777,7 +777,7 @@ int ReceiptCore::GetSupplList(PPID goodsID, const PPIDArray * pLocList, LDATE la
 	dbq = &(this->GoodsID == goodsID && this->Dt <= upp_date);
 	dbq = ppcheckfiltidlist(dbq, this->LocID, pLocList);
 	q.select(this->SupplID, this->Dt, 0L).where(*dbq);
-	for(q.initIteration(1, &k, spLe); q.nextIteration() > 0;) {
+	for(q.initIteration(true, &k, spLe); q.nextIteration() > 0;) {
 		SETIFZ(first_date, data.Dt);
 		CALLPTRMEMB(pSupplList, addUnique(data.SupplID));
 		if(++count > min_lots && diffdate(first_date, data.Dt) > max_days)
@@ -886,7 +886,7 @@ int LotExtCodeCore::GetContainer(PPID billID, PPLotExtCodeContainer & rC)
 	k2.BillID = billID;
 	BExtQuery q(this, 2);
 	q.selectAll().where(this->BillID == billID);
-	for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 		copyBufTo(&rec);
 		code_buf = rec.Code;
 		if(rec.BillID == billID && code_buf.NotEmptyS()) {

@@ -2,7 +2,7 @@
  * @brief PostList class implementing unweighted Query::OP_OR
  */
 // Copyright 2017,2018 Olly Betts
-// @licence GNU GPL
+// @license GNU GPL
 //
 #ifndef XAPIAN_INCLUDED_BOOLORPOSTLIST_H
 #define XAPIAN_INCLUDED_BOOLORPOSTLIST_H

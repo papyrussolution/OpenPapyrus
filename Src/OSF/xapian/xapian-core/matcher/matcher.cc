@@ -2,7 +2,7 @@
  * @brief Matcher class
  */
 // Copyright (C) 2006,2008,2009,2010,2011,2017,2018,2019,2020 Olly Betts
-// @licence GNU GPL
+// @license GNU GPL
 //
 #include <xapian-internal.h>
 #pragma hdrstop

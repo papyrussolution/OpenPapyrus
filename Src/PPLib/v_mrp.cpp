@@ -158,7 +158,7 @@ int PPViewMrpTab::InitIteration()
 	P_IterQuery->selectAll().where(*dbq);
 	k_ = k;
 	Counter.Init(P_IterQuery->countIterations(0, &k_, spGe));
-	P_IterQuery->initIteration(0, &k, spGe);
+	P_IterQuery->initIteration(false, &k, spGe);
 	CATCH
 		ok = 0;
 		BExtQuery::ZDelete(&P_IterQuery);
@@ -455,7 +455,7 @@ int PPViewMrpLine::InitIteration()
 	P_IterQuery->where(*dbq);
 	k_ = k;
 	Counter.Init(P_IterQuery->countIterations(0, &k_, spGe));
-	P_IterQuery->initIteration(0, &k, spGe);
+	P_IterQuery->initIteration(false, &k, spGe);
 	return 1;
 }
 

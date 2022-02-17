@@ -50,13 +50,15 @@ namespace google {
 namespace protobuf {
 namespace util {
 namespace internal {
-ZeroCopyStreamByteSink::~ZeroCopyStreamByteSink() {
+ZeroCopyStreamByteSink::~ZeroCopyStreamByteSink() 
+{
 	if(buffer_size_ > 0) {
 		stream_->BackUp(buffer_size_);
 	}
 }
 
-void ZeroCopyStreamByteSink::Append(const char* bytes, size_t len) {
+void ZeroCopyStreamByteSink::Append(const char* bytes, size_t len) 
+{
 	while(true) {
 		if(len <= buffer_size_) {
 			memcpy(buffer_, bytes, len);
@@ -78,30 +80,22 @@ void ZeroCopyStreamByteSink::Append(const char* bytes, size_t len) {
 }
 }  // namespace internal
 
-util::Status BinaryToJsonStream(TypeResolver* resolver,
-    const std::string& type_url,
-    io::ZeroCopyInputStream* binary_input,
-    io::ZeroCopyOutputStream* json_output,
-    const JsonPrintOptions& options) {
+util::Status BinaryToJsonStream(TypeResolver* resolver, const std::string& type_url, io::ZeroCopyInputStream* binary_input, 
+	io::ZeroCopyOutputStream* json_output, const JsonPrintOptions& options) 
+{
 	io::CodedInputStream in_stream(binary_input);
 	google::protobuf::Type type;
 	RETURN_IF_ERROR(resolver->ResolveMessageType(type_url, &type));
 	converter::ProtoStreamObjectSource::RenderOptions render_options;
 	render_options.use_ints_for_enums = options.always_print_enums_as_ints;
-	render_options.preserve_proto_field_names =
-	    options.preserve_proto_field_names;
-	converter::ProtoStreamObjectSource proto_source(&in_stream, resolver, type,
-	    render_options);
+	render_options.preserve_proto_field_names = options.preserve_proto_field_names;
+	converter::ProtoStreamObjectSource proto_source(&in_stream, resolver, type, render_options);
 	io::CodedOutputStream out_stream(json_output);
-	converter::JsonObjectWriter json_writer(options.add_whitespace ? " " : "",
-	    &out_stream);
+	converter::JsonObjectWriter json_writer(options.add_whitespace ? " " : "", &out_stream);
 	if(options.always_print_primitive_fields) {
-		converter::DefaultValueObjectWriter default_value_writer(resolver, type,
-		    &json_writer);
-		default_value_writer.set_preserve_proto_field_names(
-			options.preserve_proto_field_names);
-		default_value_writer.set_print_enums_as_ints(
-			options.always_print_enums_as_ints);
+		converter::DefaultValueObjectWriter default_value_writer(resolver, type, &json_writer);
+		default_value_writer.set_preserve_proto_field_names(options.preserve_proto_field_names);
+		default_value_writer.set_print_enums_as_ints(options.always_print_enums_as_ints);
 		return proto_source.WriteTo(&default_value_writer);
 	}
 	else {
@@ -109,59 +103,43 @@ util::Status BinaryToJsonStream(TypeResolver* resolver,
 	}
 }
 
-util::Status BinaryToJsonString(TypeResolver* resolver,
-    const std::string& type_url,
-    const std::string& binary_input,
-    std::string* json_output,
-    const JsonPrintOptions& options) {
+util::Status BinaryToJsonString(TypeResolver* resolver, const std::string& type_url, const std::string& binary_input, std::string* json_output, const JsonPrintOptions& options) 
+{
 	io::ArrayInputStream input_stream(binary_input.data(), binary_input.size());
 	io::StringOutputStream output_stream(json_output);
-	return BinaryToJsonStream(resolver, type_url, &input_stream, &output_stream,
-		   options);
+	return BinaryToJsonStream(resolver, type_url, &input_stream, &output_stream, options);
 }
 
 namespace {
 class StatusErrorListener : public converter::ErrorListener {
 public:
-	StatusErrorListener() {
+	StatusErrorListener() 
+	{
 	}
-
-	~StatusErrorListener() override {
+	~StatusErrorListener() override 
+	{
 	}
-
-	util::Status GetStatus() {
-		return status_;
-	}
-
-	void InvalidName(const converter::LocationTrackerInterface& loc,
-	    StringPiece unknown_name,
-	    StringPiece message) override {
+	util::Status GetStatus() { return status_; }
+	void InvalidName(const converter::LocationTrackerInterface& loc, StringPiece unknown_name, StringPiece message) override 
+	{
 		std::string loc_string = GetLocString(loc);
 		if(!loc_string.empty()) {
 			loc_string.append(" ");
 		}
-		status_ = util::InvalidArgumentError(
-			StrCat(loc_string, unknown_name, ": ", message));
+		status_ = util::InvalidArgumentError(StrCat(loc_string, unknown_name, ": ", message));
 	}
-
-	void InvalidValue(const converter::LocationTrackerInterface& loc,
-	    StringPiece type_name,
-	    StringPiece value) override {
-		status_ = util::InvalidArgumentError(
-			StrCat(GetLocString(loc), ": invalid value ", std::string(value),
-			" for type ", std::string(type_name)));
+	void InvalidValue(const converter::LocationTrackerInterface& loc, StringPiece type_name, StringPiece value) override 
+	{
+		status_ = util::InvalidArgumentError(StrCat(GetLocString(loc), ": invalid value ", std::string(value), " for type ", std::string(type_name)));
 	}
-
-	void MissingField(const converter::LocationTrackerInterface& loc,
-	    StringPiece missing_name) override {
-		status_ = util::InvalidArgumentError(StrCat(
-				GetLocString(loc), ": missing field ", std::string(missing_name)));
+	void MissingField(const converter::LocationTrackerInterface& loc, StringPiece missing_name) override 
+	{
+		status_ = util::InvalidArgumentError(StrCat(GetLocString(loc), ": missing field ", std::string(missing_name)));
 	}
-
 private:
 	util::Status status_;
-
-	std::string GetLocString(const converter::LocationTrackerInterface& loc) {
+	std::string GetLocString(const converter::LocationTrackerInterface& loc) 
+	{
 		std::string loc_string = loc.ToString();
 		StripWhitespace(&loc_string);
 		if(!loc_string.empty()) {
@@ -169,7 +147,6 @@ private:
 		}
 		return loc_string;
 	}
-
 	GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(StatusErrorListener);
 };
 }  // namespace

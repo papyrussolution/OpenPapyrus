@@ -1700,6 +1700,25 @@ public:
 private:
 	void * P;
 };
+
+template <typename T> class TSHandle {
+public:
+	TSHandle() : P(0)
+	{
+	}
+	explicit TSHandle(T * ptr) : P(ptr)
+	{
+	}
+	TSHandle & operator = (T * ptr)
+	{
+		P = ptr;
+		return *this;
+	}
+	int operator !() const { return (P == 0); }
+	operator T * () const { return P; }
+private:
+	T * P;
+};
 //
 //
 //
@@ -2435,6 +2454,7 @@ private:
 #define TESTFLAG(v1,v2,f)           (((v1)&(f))==((v2)&(f)))
 #define TESTMULTFLAG(v,f)           (((v)&(f))==(f))
 #define INVERSEFLAG(v,f) {if((v)&(f)) {(v)&=~(f);} else {(v)|=(f);}}
+// Descr: Если в поле v установлены оба флага f1 и f2 либо не установлен ни один из них, то возвращает 0, в противном случае - значение одного из установленных флагов.
 #define CHKXORFLAGS(v,f1,f2)        ((((v)&(f1)) ^ ((v)&(f2))) ? (((v)&(f1))?(f1):(f2)) : 0)
 #define SETUPFLAGS(value, andFlags, notFlags) { (value) |= (andFlags); (value) &= ~(notFlags); }
 #define BIN(x)                      ((x)?1:0)
@@ -4786,6 +4806,7 @@ wchar_t * FASTCALL sstrdup(const wchar_t * pStr);
 //
 // Descr: определяет эквивалентность строк pS1 и pS2.
 //   Если pS1 == pS2, то результат !0
+// Note: Если один из указателей нелевой, а другая строка имеет нулевую длину (например, pS1 == 0 and pS2 != 0 && pS2[0] == 0) то такие строки считаются равными!
 // Returns:
 //   true - строки эквивалентны
 //   false - строки не эквивалентны
@@ -7883,7 +7904,8 @@ struct LAssoc : public LAssocBase {
 	LAssoc();
 	LAssoc(int32 key, int32 val);
 	LAssoc(const LAssoc & rS);
-	int    FASTCALL operator == (const LAssoc &) const;
+	bool   FASTCALL operator == (const LAssoc &) const;
+	bool   FASTCALL operator != (const LAssoc &) const; // @v11.3.2
 	void   Set(int32 key, int32 val);
 };
 

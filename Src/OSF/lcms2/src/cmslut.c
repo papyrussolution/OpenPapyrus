@@ -1,4 +1,3 @@
-//---------------------------------------------------------------------------------
 //
 //  Little Color Management System
 //  Copyright (c) 1998-2020 Marti Maria Saguer
@@ -12,16 +11,6 @@
 //
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//---------------------------------------------------------------------------------
 //
 #include "lcms2_internal.h"
 #pragma hdrstop
@@ -193,27 +182,20 @@ cmsStage * CMSEXPORT cmsStageAllocToneCurves(cmsContext ContextID, cmsUInt32Numb
 {
 	cmsUInt32Number i;
 	_cmsStageToneCurvesData* NewElem;
-	cmsStage * NewMPE;
-
-	NewMPE = _cmsStageAllocPlaceholder(ContextID, cmsSigCurveSetElemType, nChannels, nChannels,
-		EvaluateCurves, CurveSetDup, CurveSetElemTypeFree, NULL);
+	cmsStage * NewMPE = _cmsStageAllocPlaceholder(ContextID, cmsSigCurveSetElemType, nChannels, nChannels, EvaluateCurves, CurveSetDup, CurveSetElemTypeFree, NULL);
 	if(NewMPE == NULL) return NULL;
-
 	NewElem = (_cmsStageToneCurvesData*)_cmsMallocZero(ContextID, sizeof(_cmsStageToneCurvesData));
 	if(NewElem == NULL) {
 		cmsStageFree(NewMPE);
 		return NULL;
 	}
-
 	NewMPE->Data  = (void *)NewElem;
-
 	NewElem->nCurves   = nChannels;
 	NewElem->TheCurves = (cmsToneCurve **)_cmsCalloc(ContextID, nChannels, sizeof(cmsToneCurve *));
 	if(NewElem->TheCurves == NULL) {
 		cmsStageFree(NewMPE);
 		return NULL;
 	}
-
 	for(i = 0; i < nChannels; i++) {
 		if(Curves == NULL) {
 			NewElem->TheCurves[i] = cmsBuildGamma(ContextID, 1.0);
@@ -221,13 +203,11 @@ cmsStage * CMSEXPORT cmsStageAllocToneCurves(cmsContext ContextID, cmsUInt32Numb
 		else {
 			NewElem->TheCurves[i] = cmsDupToneCurve(Curves[i]);
 		}
-
 		if(NewElem->TheCurves[i] == NULL) {
 			cmsStageFree(NewMPE);
 			return NULL;
 		}
 	}
-
 	return NewMPE;
 }
 
@@ -235,7 +215,6 @@ cmsStage * CMSEXPORT cmsStageAllocToneCurves(cmsContext ContextID, cmsUInt32Numb
 cmsStage * CMSEXPORT _cmsStageAllocIdentityCurves(cmsContext ContextID, cmsUInt32Number nChannels)
 {
 	cmsStage * mpe = cmsStageAllocToneCurves(ContextID, nChannels, NULL);
-
 	if(mpe == NULL) return NULL;
 	mpe->Implements = cmsSigIdentityElemType;
 	return mpe;
@@ -299,7 +278,6 @@ static void MatrixElemTypeFree(cmsStage * mpe)
 
 	if(Data->Offset)
 		_cmsFree(mpe->ContextID, Data->Offset);
-
 	_cmsFree(mpe->ContextID, mpe->Data);
 }
 
@@ -309,50 +287,40 @@ cmsStage * CMSEXPORT cmsStageAllocMatrix(cmsContext ContextID, cmsUInt32Number R
 	cmsUInt32Number i, n;
 	_cmsStageMatrixData* NewElem;
 	cmsStage * NewMPE;
-
 	n = Rows * Cols;
-
 	// Check for overflow
 	if(n == 0) return NULL;
 	if(n >= UINT_MAX / Cols) return NULL;
 	if(n >= UINT_MAX / Rows) return NULL;
 	if(n < Rows || n < Cols) return NULL;
-
-	NewMPE = _cmsStageAllocPlaceholder(ContextID, cmsSigMatrixElemType, Cols, Rows,
-		EvaluateMatrix, MatrixElemDup, MatrixElemTypeFree, NULL);
-	if(NewMPE == NULL) return NULL;
-
+	NewMPE = _cmsStageAllocPlaceholder(ContextID, cmsSigMatrixElemType, Cols, Rows, EvaluateMatrix, MatrixElemDup, MatrixElemTypeFree, NULL);
+	if(NewMPE == NULL) 
+		return NULL;
 	NewElem = (_cmsStageMatrixData*)_cmsMallocZero(ContextID, sizeof(_cmsStageMatrixData));
 	if(NewElem == NULL) goto Error;
 	NewMPE->Data = (void *)NewElem;
-
 	NewElem->Double = (double *)_cmsCalloc(ContextID, n, sizeof(double));
-	if(NewElem->Double == NULL) goto Error;
-
+	if(NewElem->Double == NULL) 
+		goto Error;
 	for(i = 0; i < n; i++) {
 		NewElem->Double[i] = Matrix[i];
 	}
-
 	if(Offset != NULL) {
 		NewElem->Offset = (double *)_cmsCalloc(ContextID, Rows, sizeof(double));
-		if(NewElem->Offset == NULL) goto Error;
-
+		if(NewElem->Offset == NULL) 
+			goto Error;
 		for(i = 0; i < Rows; i++) {
 			NewElem->Offset[i] = Offset[i];
 		}
 	}
-
 	return NewMPE;
-
 Error:
 	cmsStageFree(NewMPE);
 	return NULL;
 }
-
-// *************************************************************************************************
+//
 // Type cmsSigCLutElemType
-// *************************************************************************************************
-
+//
 // Evaluate in true floating point
 static void EvaluateCLUTfloat(const float In[], float Out[], const cmsStage * mpe)
 {
@@ -448,78 +416,57 @@ static void CLutElemTypeFree(cmsStage * mpe)
 
 // Allocates a 16-bit multidimensional CLUT. This is evaluated at 16-bit precision. Table may have different
 // granularity on each dimension.
-cmsStage * CMSEXPORT cmsStageAllocCLut16bitGranular(cmsContext ContextID,
-    const cmsUInt32Number clutPoints[],
-    cmsUInt32Number inputChan,
-    cmsUInt32Number outputChan,
-    const uint16* Table)
+cmsStage * CMSEXPORT cmsStageAllocCLut16bitGranular(cmsContext ContextID, const cmsUInt32Number clutPoints[], cmsUInt32Number inputChan,
+    cmsUInt32Number outputChan, const uint16* Table)
 {
 	cmsUInt32Number i, n;
 	_cmsStageCLutData* NewElem;
 	cmsStage * NewMPE;
-
 	_cmsAssert(clutPoints != NULL);
-
 	if(inputChan > MAX_INPUT_DIMENSIONS) {
 		cmsSignalError(ContextID, cmsERROR_RANGE, "Too many input channels (%d channels, max=%d)", inputChan, MAX_INPUT_DIMENSIONS);
 		return NULL;
 	}
-
-	NewMPE = _cmsStageAllocPlaceholder(ContextID, cmsSigCLutElemType, inputChan, outputChan,
-		EvaluateCLUTfloatIn16, CLUTElemDup, CLutElemTypeFree, NULL);
-
-	if(NewMPE == NULL) return NULL;
-
+	NewMPE = _cmsStageAllocPlaceholder(ContextID, cmsSigCLutElemType, inputChan, outputChan, EvaluateCLUTfloatIn16, CLUTElemDup, CLutElemTypeFree, NULL);
+	if(NewMPE == NULL) 
+		return NULL;
 	NewElem = (_cmsStageCLutData*)_cmsMallocZero(ContextID, sizeof(_cmsStageCLutData));
 	if(NewElem == NULL) {
 		cmsStageFree(NewMPE);
 		return NULL;
 	}
-
 	NewMPE->Data  = (void *)NewElem;
-
 	NewElem->nEntries = n = outputChan * CubeSize(clutPoints, inputChan);
 	NewElem->HasFloatValues = FALSE;
-
 	if(n == 0) {
 		cmsStageFree(NewMPE);
 		return NULL;
 	}
-
 	NewElem->Tab.T  = (uint16*)_cmsCalloc(ContextID, n, sizeof(uint16));
 	if(NewElem->Tab.T == NULL) {
 		cmsStageFree(NewMPE);
 		return NULL;
 	}
-
 	if(Table != NULL) {
 		for(i = 0; i < n; i++) {
 			NewElem->Tab.T[i] = Table[i];
 		}
 	}
-
 	NewElem->Params = _cmsComputeInterpParamsEx(ContextID, clutPoints, inputChan, outputChan, NewElem->Tab.T, CMS_LERP_FLAGS_16BITS);
 	if(NewElem->Params == NULL) {
 		cmsStageFree(NewMPE);
 		return NULL;
 	}
-
 	return NewMPE;
 }
 
-cmsStage * CMSEXPORT cmsStageAllocCLut16bit(cmsContext ContextID,
-    cmsUInt32Number nGridPoints,
-    cmsUInt32Number inputChan,
-    cmsUInt32Number outputChan,
-    const uint16* Table)
+cmsStage * CMSEXPORT cmsStageAllocCLut16bit(cmsContext ContextID, cmsUInt32Number nGridPoints, cmsUInt32Number inputChan, cmsUInt32Number outputChan, const uint16* Table)
 {
 	cmsUInt32Number Dimensions[MAX_INPUT_DIMENSIONS];
 	int i;
-
 	// Our resulting LUT would be same gridpoints on all dimensions
 	for(i = 0; i < MAX_INPUT_DIMENSIONS; i++)
 		Dimensions[i] = nGridPoints;
-
 	return cmsStageAllocCLut16bitGranular(ContextID, Dimensions, inputChan, outputChan, Table);
 }
 
@@ -1047,10 +994,11 @@ cmsStage * _cmsStageAllocLabPrelin(cmsContext ContextID)
 // Free a single MPE
 void CMSEXPORT cmsStageFree(cmsStage * mpe)
 {
-	if(mpe->FreePtr)
-		mpe->FreePtr(mpe);
-
-	_cmsFree(mpe->ContextID, mpe);
+	if(mpe) {
+		if(mpe->FreePtr)
+			mpe->FreePtr(mpe);
+		_cmsFree(mpe->ContextID, mpe);
+	}
 }
 
 cmsUInt32Number CMSEXPORT cmsStageInputChannels(const cmsStage * mpe)
@@ -1237,22 +1185,16 @@ cmsPipeline * CMSEXPORT cmsPipelineDup(const cmsPipeline * lut)
 	cmsPipeline * NewLUT;
 	cmsStage * NewMPE, * Anterior = NULL, * mpe;
 	boolint First = TRUE;
-
-	if(lut == NULL) return NULL;
-
+	if(lut == NULL) 
+		return NULL;
 	NewLUT = cmsPipelineAlloc(lut->ContextID, lut->InputChannels, lut->OutputChannels);
 	if(NewLUT == NULL) return NULL;
-
-	for(mpe = lut->Elements;
-	    mpe != NULL;
-	    mpe = mpe->Next) {
+	for(mpe = lut->Elements; mpe != NULL; mpe = mpe->Next) {
 		NewMPE = cmsStageDup(mpe);
-
 		if(NewMPE == NULL) {
 			cmsPipelineFree(NewLUT);
 			return NULL;
 		}
-
 		if(First) {
 			NewLUT->Elements = NewMPE;
 			First = FALSE;
@@ -1261,50 +1203,38 @@ cmsPipeline * CMSEXPORT cmsPipelineDup(const cmsPipeline * lut)
 			if(Anterior != NULL)
 				Anterior->Next = NewMPE;
 		}
-
 		Anterior = NewMPE;
 	}
-
 	NewLUT->Eval16Fn    = lut->Eval16Fn;
 	NewLUT->EvalFloatFn = lut->EvalFloatFn;
 	NewLUT->DupDataFn   = lut->DupDataFn;
 	NewLUT->FreeDataFn  = lut->FreeDataFn;
-
 	if(NewLUT->DupDataFn != NULL)
 		NewLUT->Data = NewLUT->DupDataFn(lut->ContextID, lut->Data);
-
 	NewLUT->SaveAs8Bits    = lut->SaveAs8Bits;
-
 	if(!BlessLUT(NewLUT)) {
 		_cmsFree(lut->ContextID, NewLUT);
 		return NULL;
 	}
-
 	return NewLUT;
 }
 
 int CMSEXPORT cmsPipelineInsertStage(cmsPipeline * lut, cmsStageLoc loc, cmsStage * mpe)
 {
 	cmsStage * Anterior = NULL, * pt;
-
 	if(lut == NULL || mpe == NULL)
 		return FALSE;
-
 	switch(loc) {
 		case cmsAT_BEGIN:
 		    mpe->Next = lut->Elements;
 		    lut->Elements = mpe;
 		    break;
-
 		case cmsAT_END:
-
 		    if(lut->Elements == NULL)
 			    lut->Elements = mpe;
 		    else {
-			    for(pt = lut->Elements;
-				pt != NULL;
-				pt = pt->Next) Anterior = pt;
-
+			    for(pt = lut->Elements; pt != NULL; pt = pt->Next) 
+					Anterior = pt;
 			    Anterior->Next = mpe;
 			    mpe->Next = NULL;
 		    }
@@ -1312,7 +1242,6 @@ int CMSEXPORT cmsPipelineInsertStage(cmsPipeline * lut, cmsStageLoc loc, cmsStag
 		default:;
 		    return FALSE;
 	}
-
 	return BlessLUT(lut);
 }
 
@@ -1321,36 +1250,28 @@ void CMSEXPORT cmsPipelineUnlinkStage(cmsPipeline * lut, cmsStageLoc loc, cmsSta
 {
 	cmsStage * Anterior, * pt, * Last;
 	cmsStage * Unlinked = NULL;
-
 	// If empty LUT, there is nothing to remove
 	if(lut->Elements == NULL) {
-		if(mpe) *mpe = NULL;
+		ASSIGN_PTR(mpe, NULL);
 		return;
 	}
-
 	// On depending on the strategy...
 	switch(loc) {
 		case cmsAT_BEGIN:
 	    {
 		    cmsStage * elem = lut->Elements;
-
 		    lut->Elements = elem->Next;
 		    elem->Next = NULL;
 		    Unlinked = elem;
 	    }
 	    break;
-
 		case cmsAT_END:
 		    Anterior = Last = NULL;
-		    for(pt = lut->Elements;
-			pt != NULL;
-			pt = pt->Next) {
+		    for(pt = lut->Elements; pt != NULL; pt = pt->Next) {
 			    Anterior = Last;
 			    Last = pt;
 		    }
-
 		    Unlinked = Last; // Next already points to NULL
-
 		    // Truncate the chain
 		    if(Anterior)
 			    Anterior->Next = NULL;
@@ -1359,12 +1280,10 @@ void CMSEXPORT cmsPipelineUnlinkStage(cmsPipeline * lut, cmsStageLoc loc, cmsSta
 		    break;
 		default:;
 	}
-
 	if(mpe)
 		*mpe = Unlinked;
 	else
 		cmsStageFree(Unlinked);
-
 	// May fail, but we ignore it
 	BlessLUT(lut);
 }

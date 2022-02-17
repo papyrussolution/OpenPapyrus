@@ -750,7 +750,7 @@ int PPViewQuot::CreateOrderTable(IterOrder ord, TempOrderTbl ** ppTbl)
 			MEMSZERO(k);
 			k_ = k;
 			_cntr.Init(q.countIterations(0, &k_, spFirst));
-			for(q.initIteration(0, &k, spFirst); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k, spFirst); q.nextIteration() > 0;) {
 				TempOrderTbl::Rec ord_rec;
 				MakeOrderEntry(ord, p_t->data, ord_rec);
 				THROW_DB(bei.insert(&ord_rec));
@@ -783,7 +783,7 @@ int PPViewQuot::InitIteration()
 		t->QuotP14, t->QuotP15, t->QuotP16, 0L);
 	MEMSZERO(k1);
 	PPInitIterCounter(Counter, t);
-	P_IterQuery->initIteration(0, &k1, spFirst);
+	P_IterQuery->initIteration(false, &k1, spFirst);
 	CATCHZOK
 	return ok;
 }
@@ -1060,7 +1060,7 @@ int PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotItemArr
 						MEMSZERO(k3);
 						k3.Actual = 1;
 						k3.GoodsID = pFilt->GoodsID;
-						for(q.initIteration(0, &k3, spGe); q.nextIteration() > 0;) {
+						for(q.initIteration(false, &k3, spGe); q.nextIteration() > 0;) {
 							if(rel_list.bsearch(P_Qc2->data.RelID)) {
 								P_Qc2->RecToQuot(&P_Qc2->data, quot);
 								uint   kpos = 0;
@@ -1079,7 +1079,7 @@ int PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotItemArr
 						q.selectAll().where(P_Qc2->GoodsID == pFilt->GoodsID);
 						MEMSZERO(k0);
 						k0.GoodsID = pFilt->GoodsID;
-						for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
+						for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 							if(rel_list.bsearch(P_Qc2->data.RelID)) {
 								P_Qc2->RecToQuot(&P_Qc2->data, quot);
 								uint   kpos = 0;
@@ -1112,7 +1112,7 @@ int PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotItemArr
 								k2.Actual = 1;
 								k2.RelID = rel_id;
 								prev_goods_id = 0;
-								for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+								for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 									const PPID goods_id = P_Qc2->data.GoodsID;
 									if(pFilt->GoodsID || !use_goods_list || goods_list.bsearch(goods_id)) {
 										if(CheckGoodsKindDiffRestriction(goods_id)) {
@@ -1147,7 +1147,7 @@ int PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotItemArr
 								MEMSZERO(k1);
 								k1.RelID = rel_id;
 								prev_goods_id = 0;
-								for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+								for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 									const PPID goods_id = P_Qc2->data.GoodsID;
 									if(pFilt->Period.CheckDate(P_Qc2->data.Dt)) {
 										if(pFilt->GoodsID || !use_goods_list || goods_list.bsearch(goods_id)) {
@@ -1220,7 +1220,7 @@ int PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotItemArr
 				if(_t.search(2, &k2_, spLast))
 					last_goods_id = _t.data.GoodsID;
 			}
-			for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 				const PPID goods_id = _t.data.GoodsID;
 				if(single_goods_id || !use_goods_list || goods_list.bsearch(goods_id)) {
 					if(CheckGoodsKindDiffRestriction(goods_id)) {
@@ -1635,7 +1635,7 @@ int PPViewQuot::CheckDelFromMtx(PPID goodsID)
 		MEMSZERO(k2);
 		k2.OpID = draft_op_id;
 		k2.Dt   = ZERODATE;
-		for(q_b.initIteration(0, &k2, spGt); ok > 0 && q_b.nextIteration() > 0;) {
+		for(q_b.initIteration(false, &k2, spGt); ok > 0 && q_b.nextIteration() > 0;) {
 			if(!(tbl->data.Flags & BILLF_CLOSEDORDER)) {
 				PPID bill_id = tbl->data.ID;
 				TransferTbl::Key0 k0;
@@ -1643,7 +1643,7 @@ int PPViewQuot::CheckDelFromMtx(PPID goodsID)
 				q.select(p_cp_trfr->GoodsID, 0).where(p_cp_trfr->BillID == bill_id);
 				MEMSZERO(k0);
 				k0.BillID = bill_id;
-				for(q.initIteration(0, &k0, spGt); ok > 0 && q.nextIteration() > 0;) {
+				for(q.initIteration(false, &k0, spGt); ok > 0 && q.nextIteration() > 0;) {
 					if(goodsID == p_cp_trfr->data.GoodsID) {
 						bill_code.CopyFrom(tbl->data.Code);
 						bill_dt.Cat(tbl->data.Dt);

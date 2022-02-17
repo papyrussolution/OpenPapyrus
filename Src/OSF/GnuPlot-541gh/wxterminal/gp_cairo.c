@@ -776,7 +776,7 @@ void gp_cairo_draw_text(plot_struct * plot, int x1, int y1, const char* string, 
 	baseline_offset = pango_layout_get_baseline(layout) / PANGO_SCALE;
 	vert_just = 0.5 * (float)(plot->fontsize * plot->oversampling_scale);
 	vert_just = baseline_offset - vert_just;
-	arg = plot->text_angle * SMathConst::Pi/180;
+	arg = plot->text_angle * SMathConst::PiDiv180;
 	x = (double)x1 - vert_just * sin(arg);
 	y = (double)y1 - vert_just * cos(arg);
 	delta = ((double)logical_rect.width/2) / PANGO_SCALE;
@@ -869,7 +869,7 @@ void gp_cairo_draw_point(plot_struct * plot, int x1, int y1, int style)
 	cairo_set_source_rgba(plot->cr, plot->color.r, plot->color.g, plot->color.b, 1.0 - plot->color.alpha);
 	// Dot	FIXME: because this is drawn as a filled circle, it's quite slow 
 	if(style < 0) {
-		cairo_arc(plot->cr, x, y, 0.5*plot->oversampling_scale, 0, 2 * SMathConst::Pi);
+		cairo_arc(plot->cr, x, y, 0.5*plot->oversampling_scale, 0, SMathConst::Pi2);
 		cairo_fill(plot->cr);
 	}
 	style = style % 15;
@@ -916,11 +916,11 @@ void gp_cairo_draw_point(plot_struct * plot, int x1, int y1, int style)
 		    cairo_stroke(plot->cr);
 		    break;
 		case 5: /* circle */
-		    cairo_arc(plot->cr, x, y, size, 0, 2 * SMathConst::Pi);
+		    cairo_arc(plot->cr, x, y, size, 0, SMathConst::Pi2);
 		    cairo_stroke(plot->cr);
 		    break;
 		case 6: /* filled circle */
-		    cairo_arc(plot->cr, x, y, size, 0, 2 * SMathConst::Pi);
+		    cairo_arc(plot->cr, x, y, size, 0, SMathConst::Pi2);
 		    cairo_fill_preserve(plot->cr);
 		    cairo_stroke(plot->cr);
 		    break;
@@ -1429,7 +1429,7 @@ void gp_cairo_enhanced_finish(plot_struct * plot, int x, int y)
 	vert_just = 0.5 * (float)(plot->fontsize * plot->oversampling_scale);
 	vert_just = baseline_offset - vert_just;
 
-	arg = plot->text_angle * SMathConst::Pi/180;
+	arg = plot->text_angle * SMathConst::PiDiv180;
 	enh_x = x - vert_just * sin(arg);
 	enh_y = y - vert_just * cos(arg);
 

@@ -2,7 +2,7 @@
  * @brief Collapse documents with the same collapse key during the match.
  */
 // Copyright (C) 2009,2011,2017 Olly Betts
-// @licence GNU GPL
+// @license GNU GPL
 //
 #include <xapian-internal.h>
 #pragma hdrstop

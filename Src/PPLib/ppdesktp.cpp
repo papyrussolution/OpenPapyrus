@@ -432,7 +432,7 @@ int PPBizScoreWindow::LoadData()
 	k0.ObjID   = MAXLONG;
 	BizScoreList.Z();
 	q.select(Tbl.ScoreID, Tbl.Val, Tbl.Dt, Tbl.Tm, Tbl.ActualDate, Tbl.Str, 0L).where(Tbl.UserID == cur_user_id/* && Tbl.ActualDate >= _curdate*/);
-	for(q.initIteration(1, &k0, spLe); q.nextIteration() > 0;) {
+	for(q.initIteration(true, &k0, spLe); q.nextIteration() > 0;) {
 		_scount++; // @debug
 		BizScoreTbl::Rec rec;
 		Tbl.copyBufTo(&rec);

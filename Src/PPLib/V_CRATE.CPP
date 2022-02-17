@@ -100,7 +100,7 @@ int PPViewCurRate::InitIteration()
 	P_IterQuery->where(*dbq);
 	k_ = k;
 	Counter.Init(P_IterQuery->countIterations(0, &k_, spGe));
-	P_IterQuery->initIteration(0, &k, spGe);
+	P_IterQuery->initIteration(false, &k, spGe);
 	return 1;
 }
 

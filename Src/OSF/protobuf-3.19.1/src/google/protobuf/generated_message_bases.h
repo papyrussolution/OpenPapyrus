@@ -16,18 +16,6 @@
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
 //
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 // This file contains helpers for generated code.
 //
 //  Nothing in this file should be directly referenced by users of protobufs.
@@ -40,44 +28,52 @@
 #include <google/protobuf/arena.h>
 #include <google/protobuf/generated_message_util.h>
 #include <google/protobuf/message.h>
-
-// Must come last:
-#include <google/protobuf/port_def.inc>
+#include <google/protobuf/port_def.inc> // Must come last:
 
 namespace google {
 namespace protobuf {
 namespace internal {
-
 // To save code size, protos without any fields are derived from ZeroFieldsBase
 // rather than Message.
 class PROTOBUF_EXPORT ZeroFieldsBase : public Message {
- public:
-  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
-  bool IsInitialized() const final { return true; }
-  size_t ByteSizeLong() const final;
-  int GetCachedSize() const final { return _cached_size_.Get(); }
-  const char* _InternalParse(const char* ptr,
-                             internal::ParseContext* ctx) final;
-  ::uint8_t* _InternalSerialize(::uint8_t* target,
-                                io::EpsCopyOutputStream* stream) const final;
+public:
+	PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+	bool IsInitialized() const final {
+		return true;
+	}
 
- protected:
-  constexpr ZeroFieldsBase() {}
-  explicit ZeroFieldsBase(Arena* arena, bool is_message_owned)
-      : Message(arena, is_message_owned) {}
-  ZeroFieldsBase(const ZeroFieldsBase&) = delete;
-  ZeroFieldsBase& operator=(const ZeroFieldsBase&) = delete;
-  ~ZeroFieldsBase() override;
+	size_t ByteSizeLong() const final;
+	int GetCachedSize() const final {
+		return _cached_size_.Get();
+	}
 
-  void SetCachedSize(int size) const final { _cached_size_.Set(size); }
+	const char* _InternalParse(const char* ptr,
+	    internal::ParseContext* ctx) final;
+	::uint8_t* _InternalSerialize(::uint8_t* target,
+	    io::EpsCopyOutputStream* stream) const final;
 
-  static void MergeImpl(Message* to, const Message& from);
-  static void CopyImpl(Message* to, const Message& from);
-  void InternalSwap(ZeroFieldsBase* other);
+protected:
+	constexpr ZeroFieldsBase() {
+	}
 
-  mutable internal::CachedSize _cached_size_;
+	explicit ZeroFieldsBase(Arena* arena, bool is_message_owned)
+		: Message(arena, is_message_owned) {
+	}
+
+	ZeroFieldsBase(const ZeroFieldsBase&) = delete;
+	ZeroFieldsBase& operator=(const ZeroFieldsBase&) = delete;
+	~ZeroFieldsBase() override;
+
+	void SetCachedSize(int size) const final {
+		_cached_size_.Set(size);
+	}
+
+	static void MergeImpl(Message* to, const Message& from);
+	static void CopyImpl(Message* to, const Message& from);
+	void InternalSwap(ZeroFieldsBase* other);
+
+	mutable internal::CachedSize _cached_size_;
 };
-
 }  // namespace internal
 }  // namespace protobuf
 }  // namespace google

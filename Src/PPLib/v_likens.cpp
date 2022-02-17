@@ -99,7 +99,7 @@ int PPViewObjLikeness::InitIteration()
 		MEMSZERO(k0);
 		k0.ObjType = Filt.ObjTypeID;
 		Counter.Init(P_IterQuery->countIterations(0, &(k0_ = k0), spGe));
-		P_IterQuery->initIteration(0, &k0, spFirst);
+		P_IterQuery->initIteration(false, &k0, spFirst);
 	}
 	CATCHZOK
 	return ok;

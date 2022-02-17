@@ -583,7 +583,7 @@ void FASTCALL DBTable::setBuffer(SBaseBuffer & rBuf)
 	bufLen = (RECORDSIZE)rBuf.Size;
 }
 
-const SBaseBuffer FASTCALL DBTable::getBuffer() const
+const SBaseBuffer DBTable::getBuffer() const
 {
 	SBaseBuffer ret_buf;
 	ret_buf.P_Buf = (char *)P_DBuf; // @trick

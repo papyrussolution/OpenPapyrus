@@ -1323,7 +1323,7 @@ int ACS_SETSTART::ConvertWareList(const char * pImpPath)
 							k2.CheckID = chk_id;
 							BExtQuery cclq(P_TmpCclTbl, 2);
 							cclq.selectAll().where(P_TmpCclTbl->CheckID == chk_id);
-							for(cclq.initIteration(0, &k2, spGe); cclq.nextIteration() > 0;)
+							for(cclq.initIteration(false, &k2, spGe); cclq.nextIteration() > 0;)
 								if(P_TmpCclTbl->data.GoodsID == goods_id && P_TmpCclTbl->data.Quantity == qtty) {
 									THROW_DB(P_TmpCclTbl->deleteRec());
 									break;

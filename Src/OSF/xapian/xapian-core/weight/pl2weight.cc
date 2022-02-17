@@ -3,7 +3,7 @@
  */
 // Copyright (C) 2013 Aarsh Shah
 // Copyright (C) 2013,2014,2016 Olly Betts
-// @licence GNU GPL
+// @license GNU GPL
 //
 #include <xapian-internal.h>
 #pragma hdrstop
@@ -59,7 +59,7 @@ void PL2Weight::init(double factor_)
 
 	double base_change(1.0 / log(2.0));
 	double mean = double(get_collection_freq()) / get_collection_size();
-	P1 = mean * base_change + 0.5 * log2(2.0 * SMathConst::Pi);
+	P1 = mean * base_change + 0.5 * log2(SMathConst::Pi2);
 	P2 = log2(mean) + base_change;
 
 	double wdfn_lower = log2(1 + cl / get_doclength_upper_bound());

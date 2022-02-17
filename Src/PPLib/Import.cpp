@@ -2739,7 +2739,7 @@ int PrcssrImportKLADR::Import()
 			MEMSZERO(k1);
 			k1_ = k1;
 			cntr.Init(q.countIterations(0, &k1_, spFirst));
-			for(q.initIteration(0, &k1, spFirst); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k1, spFirst); q.nextIteration() > 0;) {
 				const TempKLADRTbl::Rec kladr = P_TempTbl->data;
 				int do_process = 0;
 				code_buf = kladr.Code;

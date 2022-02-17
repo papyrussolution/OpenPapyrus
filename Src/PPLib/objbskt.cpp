@@ -1129,7 +1129,7 @@ int PPViewGoodsBasket::InitIteration()
 	if(P_OrdTbl) {
 		THROW_MEM(P_IterQuery = new BExtQuery(P_OrdTbl, 1, 64));
 		P_IterQuery->selectAll();
-		P_IterQuery->initIteration(0, &k, spGe);
+		P_IterQuery->initIteration(false, &k, spGe);
 		ok = 1;
 	}
 	CATCHZOK

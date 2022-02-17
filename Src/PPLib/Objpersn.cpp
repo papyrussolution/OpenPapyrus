@@ -1258,7 +1258,7 @@ ListBoxDef * PPObjPerson::_Selector2(ListBoxDef * pDef, long flags, void * extra
 				k0.KindID = kind_id;
 				BExtQuery q(t, 0, 128);
 				q.select(t->PersonID, t->Name, 0).where(t->KindID == lbx_extra.KindID);
-				for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
+				for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 					const PPID psn_id = t->data.PersonID;
 					if(code_reg_type_id) {
 						RegisterTbl::Rec reg_rec;
@@ -1296,7 +1296,7 @@ ListBoxDef * PPObjPerson::_Selector2(ListBoxDef * pDef, long flags, void * extra
 			BExtQuery q(p_tbl, 1, 128);
 			q.select(p_tbl->ID, p_tbl->Name, 0);
 			THROW_MEM(p_array = new StrAssocArray);
-			for(q.initIteration(0, &k1, spFirst); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k1, spFirst); q.nextIteration() > 0;) {
 				THROW_SL(p_array->AddFast(p_tbl->data.ID, p_tbl->data.Name));
 			}
 		}
@@ -1569,7 +1569,7 @@ int PPObjPerson::GetListByKind(PPID psnKindID, PPIDArray * pList, StrAssocArray 
 						PersonTbl::Key0 k0;
 						MEMSZERO(k0);
 						k0.ID = id_min;
-						for(qp.initIteration(0, &k0, spGe); qp.nextIteration() > 0;) {
+						for(qp.initIteration(false, &k0, spGe); qp.nextIteration() > 0;) {
 							const PPID id = P_Tbl->data.ID;
 							if(temp_list.bsearch(id)) {
 								if(pList) {
@@ -1603,7 +1603,7 @@ int PPObjPerson::GetListBySubstring(const char * pSubstr, PPID kindID, StrAssocA
 		list_by_kind.sortAndUndup();
 	}
 	MEMSZERO(k1);
-	for(pq.initIteration(0, &k1, spFirst); pq.nextIteration() > 0;) {
+	for(pq.initIteration(false, &k1, spFirst); pq.nextIteration() > 0;) {
 		const PPID id = t->data.ID;
 		if((!kindID || list_by_kind.bsearch(id)) && ExtStrSrch(t->data.Name, pattern, 0)) {
 			pList->AddFast(id, t->data.Name);
@@ -1625,7 +1625,7 @@ int PPObjPerson::GetListByPattern(const SrchAnalogPattern * pPattern, PPIDArray 
 	BExtQuery pq(t, 0, 64);
 	pq.select(t->ID, t->Name, 0L);
 	MEMSZERO(k1);
-	for(pq.initIteration(0, &k1, spFirst); pq.nextIteration() > 0;) {
+	for(pq.initIteration(false, &k1, spFirst); pq.nextIteration() > 0;) {
 		if(pPattern->Flags & PPObjPerson::sapfMatchWholeWord) {
 			tbl_name.Z().Space().Cat(t->data.Name).Space();
 		}
@@ -2404,7 +2404,7 @@ int PPObjPerson::ReplyLocationReplace(PPID dest, PPID src)
 	BExtQuery q(P_Tbl, 0);
 	q.select(P_Tbl->ID, P_Tbl->MainLoc, P_Tbl->RLoc, 0);
 	MEMSZERO(k0);
-	for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
 		PPID   psn_id = P_Tbl->data.ID;
 		if(P_Tbl->data.MainLoc == dest) {
 			//
@@ -6306,11 +6306,11 @@ int PPObjPerson::SearchEmail(const char * pEmail, long flags, PPIDArray * pPsnLi
 			LocationTbl * t = LocObj.P_Tbl;
 			LocationTbl::Key2 k2;
 			LocationTbl::Rec loc_rec;
-            BExtQuery lq(t, 0);
+            BExtQuery lq(t, 2);
             lq.select(t->ID, t->Tail, 0L).where(t->Type == LOCTYP_ADDRESS);
             MEMSZERO(k2);
             k2.Type = LOCTYP_ADDRESS;
-            for(lq.initIteration(2, &k2, spGe); lq.nextIteration() > 0;) {
+            for(lq.initIteration(false, &k2, spGe); lq.nextIteration() > 0;) {
 				if(LocationCore::GetExField(&t->data, LOCEXSTR_EMAIL, temp_buf) > 0) {
 					if(temp_buf.NotEmptyS()) {
 						temp_buf.ToLower();

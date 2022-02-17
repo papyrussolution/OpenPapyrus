@@ -2087,7 +2087,7 @@ int PPViewLot::InitIteration(IterOrder order)
 			ok = -1;
 		else
 			Counter.Init(P_IterQuery->countIterations(0, &k_, spGe));
-		P_IterQuery->initIteration(0, &k, spGe);
+		P_IterQuery->initIteration(false, &k, spGe);
 	}
 	CATCH
 		if(P_IterQuery == 0)
@@ -3432,7 +3432,7 @@ int PPViewLotExtCode::InitIteration()
 	P_IterQuery->selectAll().where(Tbl.LotID == Filt.LotID);
 	k0_ = k0;
 	Counter.Init(P_IterQuery->countIterations(0, &k0_, spGe));
-	P_IterQuery->initIteration(0, &k0, spGe);
+	P_IterQuery->initIteration(false, &k0, spGe);
 	CATCHZOK
 	return ok;
 }

@@ -2,7 +2,7 @@
  *  @brief TCP/IP socket based RemoteDatabase implementation
  */
 // Copyright (C) 2008,2010 Olly Betts
-// @licence GNU GPL
+// @license GNU GPL
 //
 #include <xapian-internal.h>
 #pragma hdrstop

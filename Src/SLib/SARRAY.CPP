@@ -1285,7 +1285,7 @@ int FASTCALL SCollection::Helper_CreateNewItem(void * pNewItem)
 //
 //
 //
-LAssoc::LAssoc() 
+LAssoc::LAssoc()
 {
 	Key = 0;
 	Val = 0;
@@ -1309,10 +1309,8 @@ void LAssoc::Set(int32 key, int32 val)
 	Val = val;
 }
 
-int FASTCALL LAssoc::operator == (const LAssoc & s) const
-{
-	return BIN(Key == s.Key && Val == s.Val);
-}
+bool FASTCALL LAssoc::operator == (const LAssoc & s) const { return (Key == s.Key && Val == s.Val); }
+bool FASTCALL LAssoc::operator != (const LAssoc & s) const { return (Key != s.Key || Val != s.Val); }
 
 LAssocArray::LAssocArray() : /*TSArray*/TSVector <LAssoc>()
 {

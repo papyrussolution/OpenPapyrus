@@ -1717,7 +1717,7 @@ int CCheckCore::SearchForwardZCheck(PPID cashID, LDATE dt, LTIME tm, CCheckTbl::
 	k.Dt = dt;
 	k.Tm = tm;
 	k.CashID = cashID;
-	for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;)
+	for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;)
 		if(data.Flags & CCHKF_ZCHECK && cmp(dtm, data.Dt, data.Tm) < 0)
 			return Search(data.ID, pRec);
 	return -1;
@@ -1760,7 +1760,7 @@ int CCheckCore::GetListByExtFilt(const CCheckFilt & rFilt, ObjIdListFilt & rList
 			}
 			q.select(p_ext->CheckID, p_ext->CreationUserID, p_ext->CreationDtm, 0L).where(*dbq); // @v10.6.8 p_ext->CreationUserID
 			const int is_start_ord_period = BIN(rFilt.Flags & CCheckFilt::fStartOrderPeriod && !rFilt.Period.IsZero());
-			for(q.initIteration(0, &k, (idx == 2) ? spGe : spFirst); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k, (idx == 2) ? spGe : spFirst); q.nextIteration() > 0;) {
 				if(is_start_ord_period && !rFilt.Period.CheckDate(p_ext->data.CreationDtm.d))
 					continue;
 				// @v10.7.3 rList.Add(p_ext->data.CheckID);
@@ -2088,7 +2088,7 @@ int CCheckCore::LoadChecksByList(const ObjIdListFilt * pSessList, const PPIDArra
 			dbq = ppcheckfiltid(dbq, SessID, sess_id);
 			dbq = ppcheckfiltidlist(dbq, CashID, pCashIDList);
 			q.select(ID, Dt, Tm, 0L).where(*dbq);
-			for(q.initIteration(0, &k3, spGe); q.nextIteration();) {
+			for(q.initIteration(false, &k3, spGe); q.nextIteration();) {
 				if(cmp(last_dtm, data.Dt, data.Tm) < 0)
 					last_dtm.Set(data.Dt, data.Tm);
 				pCheckList->Add(data.ID);
@@ -2124,7 +2124,7 @@ int CCheckCore::LoadLinesByList(PPID goodsID, const ObjIdListFilt * pCheckList, 
 		*/
 		dbq = ppcheckfiltid(dbq, Lines.GoodsID, goodsID);
 		q.where(*dbq);
-		for(q.initIteration(0, &k0, spGt); q.nextIteration();) {
+		for(q.initIteration(false, &k0, spGt); q.nextIteration();) {
 			const PPID check_id = Lines.data.CheckID;
 			if(check_id == prev_ok_id || check_list.bsearch(check_id)) {
 				prev_ok_id = check_id;
@@ -2205,7 +2205,7 @@ int CCheckCore::LoadLines(PPID checkID, PPID goodsID, CCheckPacket * pPack)
 	CCheckLineTbl::Key0 k0;
 	k0.CheckID = checkID;
 	k0.RByCheck = -MAXSHORT;
-	for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;)
+	for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;)
 		pPack->InsertItem_(&Lines.data);
 	if(P_LnExt && goodsID == 0) {
 		BExtQuery ql(P_LnExt, 0);
@@ -2213,7 +2213,7 @@ int CCheckCore::LoadLines(PPID checkID, PPID goodsID, CCheckPacket * pPack)
 		CCheckLineExtTbl::Key0 lk0;
 		lk0.CheckID = checkID;
 		lk0.RByCheck = -MAXSHORT;
-		for(ql.initIteration(0, &lk0, spGe); ql.nextIteration() > 0;) {
+		for(ql.initIteration(false, &lk0, spGe); ql.nextIteration() > 0;) {
 			CCheckLineExtTbl::Rec lx_rec;
 			P_LnExt->copyBufTo(&lx_rec);
 			uint pos = 0;
@@ -3015,7 +3015,7 @@ int CCheckCore::GetListBySess(PPID sessID, long flags, PPIDArray & rList)
 	BExtQuery q(this, 3);
 	q.selectAll();
 	q.where(this->SessID == sessID);
-	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 		if(!(data.Flags & CCHKF_SKIP) && (!(flags & gglfSkipUnprintedChecks) || (data.Flags & CCHKF_PRINTED))) {
 			rList.add(data.ID);
 		}
@@ -3042,7 +3042,7 @@ int CCheckCore::GetSessTotal(PPID sessID, long flags, CSessTotal * pTotal, BVATA
 	}
 	q.where(this->SessID == sessID);
 	pTotal->SessID = sessID;
-	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 		if(!(data.Flags & CCHKF_SKIP) && (!(flags & gglfSkipUnprintedChecks) || (data.Flags & CCHKF_PRINTED))) {
 			if(flags & gglfUseFullCcPackets) {
 				// @v10.8.7 (LoadPacket) pack.Z();
@@ -3257,7 +3257,7 @@ int CCheckCore::IsCheckWFlags(PPID sessID, long chkFlags)
 	k.SessID = sessID;
 	BExtQuery * p_q = new BExtQuery(this, 3);
 	p_q->selectAll().where(SessID == sessID);
-	for(p_q->initIteration(0, &k, spGe); p_q->nextIteration() > 0;)
+	for(p_q->initIteration(false, &k, spGe); p_q->nextIteration() > 0;)
 		if(data.Flags & chkFlags) {
 			is_found = 1;
 			break;
@@ -3572,7 +3572,7 @@ int CCheckCore::GroupingToGoodsLines(PPID sessID, CSessTotal * pTotal, CCheckGoo
 			k.SessID = sessID;
 			BExtQuery q(this, 3);
 			q.select(this->ID, this->Dt, this->Flags, this->Amount, this->Discount, 0L).where(this->SessID == sessID);
-			for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 				copyBufTo(&rec);
 				if(!(rec.Flags & CCHKF_SKIP) && (!(flags & gglfSkipUnprintedChecks) || (rec.Flags & CCHKF_PRINTED))) {
 					if(rec.Flags & CCHKF_NOTUSED) {
@@ -3599,7 +3599,7 @@ int CCheckCore::GroupingToGoodsLines(PPID sessID, CSessTotal * pTotal, CCheckGoo
 			SString temp_buf;
 			SStringU temp_buf_u;
 			StrAssocArray cc_ln_text_ext;
-			for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 				uint pos = 0;
 				const PPID cc_id = Lines.data.CheckID;
 				if(chk_list.bsearch(&cc_id, &pos, CMPF_LONG)) {
@@ -3648,7 +3648,7 @@ int CCheckCore::GetListByCard(PPID cardID, const LDATETIME * pMoment, PPIDArray 
 		k.Dt = pMoment->d;
 		k.Tm = pMoment->t;
 	}
-	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;)
+	for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;)
 		if(!pMoment || cmp(*pMoment, data.Dt, data.Tm) < 0)
 			pList->add(data.ID);
 	return pList->getCount() ? 1 : -1;
@@ -3668,7 +3668,7 @@ int CCheckCore::CreateSCardsTurnoverList(const DateRange * pPeriod, RAssocArray 
 		k.Dt = pPeriod->low;
 		k_ = k;
 		cntr.Init(q.countIterations(0, &k_, spGe));
-		for(q.initIteration(0, &k, spGe); ok && q.nextIteration() > 0; PPWaitPercent(cntr.Increment()))
+		for(q.initIteration(false, &k, spGe); ok && q.nextIteration() > 0; PPWaitPercent(cntr.Increment()))
 			if(!pList->Add(data.SCardID, MONEYTOLDBL(data.Amount), 1, 0))
 				ok = PPSetErrorSLib();
 		PROFILE_END
@@ -3684,7 +3684,7 @@ int CCheckCore::CreateSCardsTurnoverList(const DateRange * pPeriod, RAssocArray 
 		k.Dt = pPeriod->low;
 		k_ = k;
 		cntr.Init(q.countIterations(0, &k_, spGe));
-		for(q.initIteration(0, &k, spGe); ok && q.nextIteration() > 0; PPWaitPercent(cntr.Increment()))
+		for(q.initIteration(false, &k, spGe); ok && q.nextIteration() > 0; PPWaitPercent(cntr.Increment()))
 			if(!pList->Add(data.SCardID, MONEYTOLDBL(data.Amount), 1, 0))
 				ok = PPSetErrorSLib();
 		PROFILE_END
@@ -3733,7 +3733,7 @@ int CCheckCore::RecalcSCardsTurnover(int use_ta)
 			q.select(this->ID, this->Amount, this->SCardID, this->Flags, 0L).where(this->SCardID > 0L);
 			MEMSZERO(k);
 			k.SCardID = 1;
-			for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 				uint   pos = 0;
 				THROW(PPCheckUserBreak());
 				if(!(data.Flags & (CCHKF_JUNK|CCHKF_SKIP)))
@@ -3768,7 +3768,7 @@ int CCheckCore::GetTrnovrBySCard(PPID cardID, int alg /*PPObjSCard::gtalgXXX*/, 
 	if(search(4, &k_, spGe) && data.SCardID == cardID) {
 		BExtQuery q(this, 4, 256);
 		q.select(this->ID, this->Amount, this->Flags, 0L).where(this->SCardID == cardID && daterange(this->Dt, pPeriod));
-		for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 			if(!(data.Flags & (CCHKF_JUNK|CCHKF_SKIP))) {
 				if(restrGoodsGrpID) {
 					cc_list.add(data.ID);
@@ -3819,7 +3819,7 @@ int CCheckCore::GetTrnovrBySCard(PPID cardID, int alg /*PPObjSCard::gtalgXXX*/, 
 		q.selectAll().where(PaymT.SCardID == cardID);
 		MEMSZERO(pk1);
 		pk1.SCardID = cardID;
-		for(q.initIteration(0, &pk1, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &pk1, spGe); q.nextIteration() > 0;) {
 			const long p = PaymT.data.Amount;
 			const double amt = intmnytodbl(p);
 			if(restrGoodsGrpID) {
@@ -3883,7 +3883,7 @@ int CCheckCore::UpdateSCardOpsBySess(PPID sessID, int use_ta)
 			THROW(tra);
 			MEMSZERO(k3);
 			k3.SessID = sessID;
-			for(q.initIteration(0, &k3, spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k3, spGe); q.nextIteration() > 0;) {
 				if(!(data.Flags & (CCHKF_JUNK|CCHKF_SKIP))) {
 					if(data.SCardID && Cards.Search(data.SCardID, &sc_rec) > 0 && credit_card_series.lsearch(sc_rec.SeriesID)) {
 						SCardOpTbl::Rec scop_rec;
@@ -3923,7 +3923,7 @@ int CCheckCore::RemoveZeroLinkLines(int use_ta)
 		THROW(tra);
 		PPInitIterCounter(cntr, &Lines);
 		MEMSZERO(k0);
-		for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0; PPWaitPercent(cntr.Increment())) {
+		for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0; PPWaitPercent(cntr.Increment())) {
 			{
 				const uint _idlc = id_list.getCount();
 				if(_idlc > max_id_count) {
@@ -4077,7 +4077,7 @@ int CGoodsLine::CalcSessTotal(PPID sessID, CSessTotal * pTotal)
 	MEMSZERO(k);
 	k.SessID = sessID;
 	q.selectAll().where(this->SessID == sessID);
-	for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 		double aggr_amount = data.Sum;
 		double rest = data.Rest;
 		pTotal->AggrCount++;
@@ -4211,7 +4211,7 @@ int CGoodsLine::GetDfctGoodsList(int sign, PPID sessID, const DateRange * pPerio
 	k.GoodsID = 0;
 	k_ = k;
 	cntr.Init(q.countIterations(0, &k_, spGe));
-	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0; PPWaitPercent(cntr.Increment()))
+	for(q.initIteration(false, &k, spGe); q.nextIteration() > 0; PPWaitPercent(cntr.Increment()))
 		if(R6(data.Qtty) != 0 && R6(data.Rest) != 0) {
 			uint pos = 0;
 			CSessDfctGoodsItem item;
@@ -4241,7 +4241,7 @@ int CGoodsLine::GetDfctList(int sign, PPID sessID, PPID goodsID, const DateRange
 	k.Dt      = pPeriod ? pPeriod->low : ZERODATE;
 	k.Sign    = sign;
 	k.GoodsID = goodsID;
-	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 		if(R6(data.Qtty) != 0 && R6(data.Rest) != 0) {
 			CSessDfctItem item;
 			item.SessID  = data.SessID;
@@ -4271,7 +4271,7 @@ int CGoodsLine::GetDfctSubstList(PPID sessID, LAssocArray * pList)
 	q.selectAll().where(*dbq);
 	MEMSZERO(k);
 	k.SessID  = sessID;
-	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 		if(data.AltGoodsID) {
 			THROW_SL(pList->Add(((data.Sign < 0) ? -data.GoodsID : data.GoodsID), data.AltGoodsID, 0));
 		}
@@ -5084,7 +5084,7 @@ int CSessGrouping::ConvertToBills(PPID sessID, PPID locID, const char * pMsg, ui
 				q.selectAll().where(GL.SessID == sessID);
 				MEMSZERO(k);
 				k.SessID = sessID;
-				for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;)
+				for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;)
 					THROW(list.Add(&GL.data));
 				//
 				// Список сортируем по наименованию товара, дабы в документах строки были отсортированы также

@@ -16,18 +16,6 @@
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
 //
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 // Author: kenton@google.com (Kenton Varda)
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
@@ -40,17 +28,14 @@
 
 #include <google/protobuf/stubs/common.h>
 #include <google/protobuf/message.h>
-
 #ifdef SWIG
-#error "You cannot SWIG proto headers"
+	#error "You cannot SWIG proto headers"
 #endif
-
 #include <google/protobuf/port_def.inc>
 
 namespace google {
 namespace protobuf {
 namespace internal {
-
 // Basic operations that can be performed using reflection.
 // These can be used as a cheap way to implement the corresponding
 // methods of the Message interface, though they are likely to be
@@ -61,27 +46,21 @@ namespace internal {
 //
 // This class is really a namespace that contains only static methods.
 class PROTOBUF_EXPORT ReflectionOps {
- public:
-  static void Copy(const Message& from, Message* to);
-  static void Merge(const Message& from, Message* to);
-  static void Clear(Message* message);
-  static bool IsInitialized(const Message& message);
-  static bool IsInitialized(const Message& message, bool check_fields,
-                            bool check_descendants);
-  static void DiscardUnknownFields(Message* message);
-
-  // Finds all unset required fields in the message and adds their full
-  // paths (e.g. "foo.bar[5].baz") to *names.  "prefix" will be attached to
-  // the front of each name.
-  static void FindInitializationErrors(const Message& message,
-                                       const std::string& prefix,
-                                       std::vector<std::string>* errors);
-
- private:
-  // All methods are static.  No need to construct.
-  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(ReflectionOps);
+public:
+	static void Copy(const Message& from, Message* to);
+	static void Merge(const Message& from, Message* to);
+	static void Clear(Message* message);
+	static bool IsInitialized(const Message& message);
+	static bool IsInitialized(const Message& message, bool check_fields, bool check_descendants);
+	static void DiscardUnknownFields(Message* message);
+	// Finds all unset required fields in the message and adds their full
+	// paths (e.g. "foo.bar[5].baz") to *names.  "prefix" will be attached to
+	// the front of each name.
+	static void FindInitializationErrors(const Message& message, const std::string& prefix, std::vector<std::string>* errors);
+private:
+	// All methods are static.  No need to construct.
+	GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(ReflectionOps);
 };
-
 }  // namespace internal
 }  // namespace protobuf
 }  // namespace google

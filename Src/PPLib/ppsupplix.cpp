@@ -170,11 +170,6 @@ int PPSupplExchange_Baltika::Init(/*const SupplExpFilt * pFilt*/)
 	SString temp_buf;
 	DlvrAddrExtFldID = 0;
 	Files.freeAll();
-	/* @v9.2.1
-	if(!RVALUEPTR(Filt, pFilt))
-		Filt.Init();
-	THROW_PP(Filt.SupplID, PPERR_INVSUPPL);
-	*/
 	{
 		PPIniFile ini_file;
 		if(ini_file.IsValid()) {
@@ -183,7 +178,6 @@ int PPSupplExchange_Baltika::Init(/*const SupplExpFilt * pFilt*/)
 				DlvrAddrExtFldID = temp_buf.ToLong();
 		}
 	}
-	// @v9.2.1 CATCHZOK
 	return ok;
 }
 
@@ -193,7 +187,7 @@ int PPSupplExchange_Baltika::GetSerial(PPID lotID, PPID goodsID, SString & rSeri
 	int    ok = -1;
     rSerial.Z();
 	ObjTagItem tag;
-    if(PPRef->Ot.GetTag(PPOBJ_LOT, lotID, PPTAG_LOT_MANUFTIME, &tag) > 0) { // @v9.7.11
+    if(PPRef->Ot.GetTag(PPOBJ_LOT, lotID, PPTAG_LOT_MANUFTIME, &tag) > 0) {
 		SString temp_buf;
 		int32  arcode_pack;
 		GObj.P_Tbl->GetArCode(P.SupplID, goodsID, temp_buf, &arcode_pack);
@@ -203,10 +197,6 @@ int PPSupplExchange_Baltika::GetSerial(PPID lotID, PPID goodsID, SString & rSeri
 		rSerial.Cat(create_dtm.d, DATF_DMY|DATF_NODIV).Cat(temp_buf);
 		ok = 1;
     }
-	/*@v9.7.11 else {
-		P_BObj->GetSerialNumberByLot(lotID, rSerial, 1);
-		ok = 2;
-	}*/
 	return ok;
 }
 
@@ -332,7 +322,7 @@ public:
 	int    AppendRecP(void * pHeadRec, size_t headRecSize, void * pLineRec, size_t lineRecSize, int headRecForNewFile /*=0*/)
 	{
 		int    ok = -1;
-		if(pHeadRec && headRecSize || pLineRec && lineRecSize) {
+		if((pHeadRec && headRecSize) || (pLineRec && lineRecSize)) {
 			const int hr_ex = BIN(pHeadRec && headRecSize);
 			const int lr_ex = BIN(pLineRec && lineRecSize);
 			if(!headRecForNewFile && hr_ex) {
@@ -354,7 +344,6 @@ public:
 			{
 				int64  file_size = 0;
 				F.CalcSize(&file_size);
-				//if(Filt.MaxFileSizeKB && (((size_t)file_size) / 1024) > Filt.MaxFileSizeKB) {
 				if(MaxTransmitSize > 0 && (static_cast<size_t>(file_size) / 1024) > MaxTransmitSize) {
 					SString file_name;
 					SPathStruc sp;
@@ -479,8 +468,7 @@ private:
 			SString buf;
 			SString field_name, field_type;
 			SdbField fld;
-			// @v9.1.4 buf.Printf("<d name=\"%s\">", pSchemeName);
-			buf.Z().CatChar('<').Cat("d").Space().CatEqQ("name", pSchemeName).CatChar('>'); // @v9.1.4
+			buf.Z().CatChar('<').Cat("d").Space().CatEqQ("name", pSchemeName).CatChar('>');
 			F.WriteLine(buf);
 			for(uint i = 0; i < pRec->GetCount(); i++) {
 				int    base_type = 0;
@@ -496,8 +484,7 @@ private:
 					case BTS_STRING: field_type = "String"; break;
 					default: field_type.Z(); break;
 				}
-				// @v9.1.4 buf.Printf("<f name=\"%s\" type=\"%s\"/>", (const char *)field_name, (const char *)field_type);
-				buf.Z().CatChar('<').Cat("f").Space().CatEqQ("name", field_name).Space().CatEqQ("type", field_type).Cat("/>"); // @v9.1.4
+				buf.Z().CatChar('<').Cat("f").Space().CatEqQ("name", field_name).Space().CatEqQ("type", field_type).Cat("/>");
 				F.WriteLine(buf);
 			}
 			ok = 1;
@@ -565,25 +552,6 @@ private:
 	SdRecord PromoLineRec; // @v10.4.0
 	SFile  F;
 };
-
-/* @v10.3.1 (inlined) void PPSupplExchange_Baltika::DelFiles(const char * pFileName)
-{
-	SString wc_path, wild_card;
-	SString full_path;
-	SDirec sd;
-	SDirEntry sde;
-	SPathStruc sp;
-	PPGetFilePath(PPPATH_OUT, pFileName, wc_path);
-	MEMSZERO(sde);
-	sp.Split(wc_path);
-	sp.Nam.CatChar('*');
-	sp.Merge(wild_card);
-	sp.Merge(0, SPathStruc::fNam|SPathStruc::fExt, wc_path);
-	for(sd.Init(wild_card); sd.Next(&sde) > 0;) {
-		(full_path = wc_path).SetLastSlash().Cat(sde.FileName);
-		SFile::Remove(full_path.cptr());
-	}
-}*/
 
 int PPSupplExchange_Baltika::Export(PPLogger & rLogger)
 {
@@ -6871,33 +6839,6 @@ PrcssrSupplInterchange::ExecuteBlock::ExecuteBlock(const ExecuteBlock & rS) :
 	P_BObj(BillObj), Ep(rS.Ep), P(rS.P), SeqID(Ep.Fb.SequenceID), BaseState(rS.BaseState), GoodsList(rS.GoodsList), ArName(rS.ArName)
 {
 }
-
-#if 0 // @v9.6.2 {
-int PrcssrSupplInterchange::ExecuteBlock::Debug_TestUtfText(const SString & rText, const char * pAddendum, PPLogger & rLogger)
-{
-	int    ok = 1;
-	SString msg_buf, fmt_buf;
-	if(!rText.IsLegalUtf8()) {
-		PPLoadText(PPTXT_TXTHASILLUTF8, fmt_buf);
-		msg_buf.Printf(fmt_buf, rText.cptr());
-		if(pAddendum)
-			msg_buf.CatDiv(':', 2).Cat(pAddendum);
-        //rLogger.Log(msg_buf);
-        PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
-		ok = 0;
-	}
-	else if(rText.HasChr('?')) {
-		PPLoadText(PPTXT_TXTHASSUSPCHR, fmt_buf);
-		msg_buf.Printf(fmt_buf, rText.cptr());
-		if(pAddendum)
-			msg_buf.CatDiv(':', 2).Cat(pAddendum);
-        //rLogger.Log(msg_buf);
-        PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
-		ok = 0;
-	}
-	return ok;
-}
-#endif // } 0 @v9.6.2
 
 int PrcssrSupplInterchange::ExecuteBlock::InitGoodsList(long flags)
 {

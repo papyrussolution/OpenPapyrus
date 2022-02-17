@@ -857,7 +857,7 @@ int CrosstabProcessor::Finish()
 		MEMSZERO(k);
 		k_ = k;
 		counter.Init(q.countIterations(0, &k_, spGt));
-		for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 			union {
 				LDATE  dt;
 				PPID   id;
@@ -1485,7 +1485,7 @@ int PPViewPrjTask::InitIteration()
 			P_IterQuery->select(P_TempOrd->ID, P_TempOrd->Name, 0L);
 			k_ = k;
 			Counter.Init(P_IterQuery->countIterations(0, &k_, spGe));
-			P_IterQuery->initIteration(0, &k, spGe);
+			P_IterQuery->initIteration(false, &k, spGe);
 		}
 		else {
 			DBQ  * dbq = 0;
@@ -1549,7 +1549,7 @@ int PPViewPrjTask::InitIteration()
 				t->DlvrAddrID, t->Flags, t->OpenCount, 0L).where(*dbq);
 			k_ = k;
 			Counter.Init(P_IterQuery->countIterations(0, &k_, spGe));
-			P_IterQuery->initIteration(0, &k, spGe);
+			P_IterQuery->initIteration(false, &k, spGe);
 		}
 	}
 	else {
@@ -1569,7 +1569,7 @@ int PPViewPrjTask::InitIteration()
 		P_IterQuery->selectAll();
 		k_ = k;
 		Counter.Init(P_IterQuery->countIterations(0, &k_, spGe));
-		P_IterQuery->initIteration(0, &k, spGe);
+		P_IterQuery->initIteration(false, &k, spGe);
 	}
 	return ok;
 }

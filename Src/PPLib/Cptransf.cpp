@@ -119,7 +119,7 @@ int CpTransfCore::LoadItems(PPID billID, PPBillPacket * pPack, const PPIDArray *
 		q.select(this->BillID, this->RByBill, this->LocID, this->GoodsID, this->OrdLotID,
 			this->CurID, this->UnitPerPack, this->Qtty, this->Cost, this->Price, this->Discount,
 			this->CurPrice, this->Expiry, this->QCertID, this->InTaxGrpID, this->Flags, this->Tail, 0L).where(*dbq);
-		for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 			if(!pGoodsList || pGoodsList->bsearch(data.GoodsID)) {
 				PPTransferItem ti;
 				ti.Date     = pPack->Rec.Dt;

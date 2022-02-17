@@ -150,7 +150,7 @@ int BillCore::CheckAmtTypeRef(PPID amtTypeID, PPID * pBillID)
 	BExtQuery q(t, 0, 1);
 	q.select(t->AmtTypeID, t->BillID, 0).where(t->AmtTypeID == amtTypeID);
 	MEMSZERO(k);
-	q.initIteration(0, &k, spFirst);
+	q.initIteration(false, &k, spFirst);
 	if(q.nextIteration() > 0) {
 		ASSIGN_PTR(pBillID, t->data.BillID);
 		return 1;
@@ -189,7 +189,7 @@ int BillCore::GetAmountList(PPID billID, AmtList * pList)
 	if(use_ext_query) {
 		BExtQuery q(&AmtT, 0);
 		q.selectAll().where(AmtT.BillID == billID);
-		for(q.initIteration(0, &k, spGt); ok && q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k, spGt); ok && q.nextIteration() > 0;) {
 			AmtEntry entry(AmtT.data.AmtTypeID, AmtT.data.CurID, AmtT.data.Amount);
 			if(!pList->insert(&entry))
 				ok = PPSetErrorSLib();
@@ -258,7 +258,7 @@ int BillCore::PayPlanEnumerator(const DateRange * pPeriod, PayPlanEnumProc proc,
 	BExtQuery q(&Pays, 0, 64);
 	q.selectAll().where(daterange(Pays.PayDate, pPeriod));
 	MEMSZERO(k0);
-	for(q.initIteration(0, &k0, spFirst); ok > 0 && q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k0, spFirst); ok > 0 && q.nextIteration() > 0;) {
 		PayPlanTbl::Rec rec;
 		Pays.copyBufTo(&rec);
 		int r = proc(&rec, extraPtr);
@@ -398,7 +398,7 @@ int BillCore::GetListByFreightFilt(const FreightFilt & rFilt, UintHashTable & rL
 			p_prop->Text, p_prop->Val1, p_prop->Val2, 0L).where(*dbq);
 		MEMSZERO(k0);
 		k0.ObjType = PPOBJ_BILL;
-		for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 			const PPFreight & r_fr = *reinterpret_cast<const PPFreight *>(&p_prop->data);
 			if(r_fr.CheckForFilt(rFilt)) {
 				rList.Add(static_cast<uint32>(r_fr.ID));
@@ -419,7 +419,7 @@ int BillCore::GetDlvrAddrList(LAssocArray * pList)
 	MEMSZERO(k0);
 	k0.ObjType = PPOBJ_BILL;
 	CALLPTRMEMB(pList, clear());
-	for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 		const PPFreight * p_freight = reinterpret_cast<const PPFreight *>(&p_prop->data);
 		if(p_freight->DlvrAddrID) {
 			if(pList) {
@@ -1079,7 +1079,7 @@ int BillCore::InitEnumByOp(PPID opID, const DateRange * pPeriod, int flags, long
 	MEMSZERO(k2);
 	k2.OpID = opID;
 	k2.Dt = pPeriod ? pPeriod->low : ZERODATE;
-	q->initIteration(0, &k2, spGe);
+	q->initIteration(false, &k2, spGe);
 	return EnumList.RegisterIterHandler(q, pHandle);
 }
 
@@ -1131,7 +1131,7 @@ int BillCore::CreateSCardsTurnoverList(const DateRange * pPeriod, RAssocArray * 
 	k.Dt = pPeriod->low;
 	k_ = k;
 	cntr.Init(q.countIterations(0, &k_, spGe));
-	for(q.initIteration(0, &k, spGe); ok && q.nextIteration() > 0; PPWaitPercent(cntr.Increment())) {
+	for(q.initIteration(false, &k, spGe); ok && q.nextIteration() > 0; PPWaitPercent(cntr.Increment())) {
 		PPID op_type_id = GetOpType(data.OpID, &op_rec);
 		if(op_type_id == PPOPT_GOODSEXPEND) {
 			if(!pList->Add(data.SCardID, BR2(data.Amount), 1, 0))
@@ -1195,7 +1195,7 @@ int BillCore::SearchAnalog(const BillTbl::Rec * pSample, long flags, PPID * pID,
 	}
 	BExtQuery q(this, idx, 256);
 	q.select(this->ID, this->Dt, this->Code, this->EdiOp, 0L).where(*dbq);
-	for(q.initIteration(0, &k, spGe); ok < 0 && q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k, spGe); ok < 0 && q.nextIteration() > 0;) {
 		if(!(flags & safCheckEdiOp) || data.EdiOp == pSample->EdiOp) {
 			// @v11.1.12 GetCode(data.Code);
 			if(*strip(data.Code) && stricmp866(data.Code, scode) == 0) {
@@ -1375,7 +1375,7 @@ int BillCore::IsThereBill(PPID locID, const PPIDArray * pOpList, LDATE dt)
 	MEMSZERO(k5);
 	k5.LocID = locID;
 	k5.Dt    = dt;
-	q.initIteration(0, &k5, spGe);
+	q.initIteration(false, &k5, spGe);
 	return (q.nextIteration() > 0) ? 1 : -1;
 }
 
@@ -1588,7 +1588,7 @@ int BillCore::GetBillListByExt(PPID agentID, PPID payerID, PPIDArray & rList)
 		k.ObjType = PPOBJ_BILL;
 		k.ObjID   = 0;
 		k.Prop    = 0;
-		for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 			const BillCore::Extra_Strg * p_ext = reinterpret_cast<const BillCore::Extra_Strg *>(&p_tbl->data);
 			if((!payerID || p_ext->PayerID == payerID) && (!agentID || p_ext->AgentID == agentID)) {
 				rList.add(p_tbl->data.ObjID);
@@ -1612,7 +1612,7 @@ int BillCore::GetAdvanceBillList(PPID objID, PPID exclBillID, const DateRange * 
 	MEMSZERO(k3);
 	k3.Object = objID;
 	k3.Dt = pPeriod ? pPeriod->low : ZERODATE;
-	for(q.initIteration(0, &k3, spGt); q.nextIteration() > 0;)
+	for(q.initIteration(false, &k3, spGt); q.nextIteration() > 0;)
 		if(data.ID != exclBillID && data.Flags & BILLF_ADVANCEREP)
 			if(p_ref->GetProperty(PPOBJ_BILL, data.ID, BILLPRP_ADVANCEREP, &advrep, sizeof(advrep)) > 0) {
 				rest = advrep.OutRest;
@@ -1631,7 +1631,7 @@ int BillCore::GetLocListByOp(PPID opID, PPIDArray & rList)
 	k2.OpID = opID;
 	BExtQuery q(this, 2);
 	q.select(this->LocID, 0).where(this->OpID == opID);
-	for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 		const PPID loc_id = data.LocID;
 		if(loc_id != 0) {
 			if(rList.getCount() > 1024)

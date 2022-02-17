@@ -98,12 +98,10 @@ void PEM_dek_info(char * buf, const char * type, int len, char * str)
 }
 
 #ifndef OPENSSL_NO_STDIO
-void * PEM_ASN1_read(d2i_of_void * d2i, const char * name, FILE * fp, void ** x,
-    pem_password_cb * cb, void * u)
+void * PEM_ASN1_read(d2i_of_void * d2i, const char * name, FILE * fp, void ** x, pem_password_cb * cb, void * u)
 {
 	BIO * b;
 	void * ret;
-
 	if((b = BIO_new(BIO_s_file())) == NULL) {
 		PEMerr(PEM_F_PEM_ASN1_READ, ERR_R_BUF_LIB);
 		return 0;
@@ -113,7 +111,6 @@ void * PEM_ASN1_read(d2i_of_void * d2i, const char * name, FILE * fp, void ** x,
 	BIO_free(b);
 	return ret;
 }
-
 #endif
 
 static int check_pem(const char * nm, const char * name)
@@ -121,9 +118,7 @@ static int check_pem(const char * nm, const char * name)
 	/* Normal matching nm and name */
 	if(strcmp(nm, name) == 0)
 		return 1;
-
 	/* Make PEM_STRING_EVP_PKEY match any private key */
-
 	if(strcmp(name, PEM_STRING_EVP_PKEY) == 0) {
 		int slen;
 		const EVP_PKEY_ASN1_METHOD * ameth;
@@ -143,11 +138,9 @@ static int check_pem(const char * nm, const char * name)
 		}
 		return 0;
 	}
-
 	if(strcmp(name, PEM_STRING_PARAMETERS) == 0) {
-		int slen;
 		const EVP_PKEY_ASN1_METHOD * ameth;
-		slen = pem_check_suffix(nm, "PARAMETERS");
+		int slen = pem_check_suffix(nm, "PARAMETERS");
 		if(slen > 0) {
 			ENGINE * e;
 			ameth = EVP_PKEY_asn1_find_str(&e, nm, slen);
@@ -165,49 +158,31 @@ static int check_pem(const char * nm, const char * name)
 		}
 		return 0;
 	}
-	/* If reading DH parameters handle X9.42 DH format too */
-	if(strcmp(nm, PEM_STRING_DHXPARAMS) == 0
-	 && strcmp(name, PEM_STRING_DHPARAMS) == 0)
+	// If reading DH parameters handle X9.42 DH format too 
+	if(strcmp(nm, PEM_STRING_DHXPARAMS) == 0 && strcmp(name, PEM_STRING_DHPARAMS) == 0)
 		return 1;
-
-	/* Permit older strings */
-
-	if(strcmp(nm, PEM_STRING_X509_OLD) == 0
-	 && strcmp(name, PEM_STRING_X509) == 0)
+	// Permit older strings 
+	if(strcmp(nm, PEM_STRING_X509_OLD) == 0 && strcmp(name, PEM_STRING_X509) == 0)
 		return 1;
-
-	if(strcmp(nm, PEM_STRING_X509_REQ_OLD) == 0
-	 && strcmp(name, PEM_STRING_X509_REQ) == 0)
+	if(strcmp(nm, PEM_STRING_X509_REQ_OLD) == 0 && strcmp(name, PEM_STRING_X509_REQ) == 0)
 		return 1;
-
-	/* Allow normal certs to be read as trusted certs */
-	if(strcmp(nm, PEM_STRING_X509) == 0
-	 && strcmp(name, PEM_STRING_X509_TRUSTED) == 0)
+	// Allow normal certs to be read as trusted certs 
+	if(strcmp(nm, PEM_STRING_X509) == 0 && strcmp(name, PEM_STRING_X509_TRUSTED) == 0)
 		return 1;
-
-	if(strcmp(nm, PEM_STRING_X509_OLD) == 0
-	 && strcmp(name, PEM_STRING_X509_TRUSTED) == 0)
+	if(strcmp(nm, PEM_STRING_X509_OLD) == 0 && strcmp(name, PEM_STRING_X509_TRUSTED) == 0)
 		return 1;
-
-	/* Some CAs use PKCS#7 with CERTIFICATE headers */
-	if(strcmp(nm, PEM_STRING_X509) == 0
-	 && strcmp(name, PEM_STRING_PKCS7) == 0)
+	// Some CAs use PKCS#7 with CERTIFICATE headers 
+	if(strcmp(nm, PEM_STRING_X509) == 0 && strcmp(name, PEM_STRING_PKCS7) == 0)
 		return 1;
-
-	if(strcmp(nm, PEM_STRING_PKCS7_SIGNED) == 0
-	 && strcmp(name, PEM_STRING_PKCS7) == 0)
+	if(strcmp(nm, PEM_STRING_PKCS7_SIGNED) == 0 && strcmp(name, PEM_STRING_PKCS7) == 0)
 		return 1;
-
 #ifndef OPENSSL_NO_CMS
-	if(strcmp(nm, PEM_STRING_X509) == 0
-	 && strcmp(name, PEM_STRING_CMS) == 0)
+	if(strcmp(nm, PEM_STRING_X509) == 0 && strcmp(name, PEM_STRING_CMS) == 0)
 		return 1;
-	/* Allow CMS to be read from PKCS#7 headers */
-	if(strcmp(nm, PEM_STRING_PKCS7) == 0
-	 && strcmp(name, PEM_STRING_CMS) == 0)
+	// Allow CMS to be read from PKCS#7 headers 
+	if(strcmp(nm, PEM_STRING_PKCS7) == 0 && strcmp(name, PEM_STRING_CMS) == 0)
 		return 1;
 #endif
-
 	return 0;
 }
 
@@ -221,21 +196,16 @@ static void pem_free(void * p, uint flags, size_t num)
 
 static void * pem_malloc(int num, uint flags)
 {
-	return (flags & PEM_FLAG_SECURE) ? OPENSSL_secure_malloc(num)
-	       : OPENSSL_malloc(num);
+	return (flags & PEM_FLAG_SECURE) ? OPENSSL_secure_malloc(num) : OPENSSL_malloc(num);
 }
 
-static int pem_bytes_read_bio_flags(uchar ** pdata, long * plen,
-    char ** pnm, const char * name, BIO * bp,
-    pem_password_cb * cb, void * u,
-    uint flags)
+static int pem_bytes_read_bio_flags(uchar ** pdata, long * plen, char ** pnm, const char * name, BIO * bp, pem_password_cb * cb, void * u, uint flags)
 {
 	EVP_CIPHER_INFO cipher;
 	char * nm = NULL, * header = NULL;
 	uchar * data = NULL;
 	long len = 0;
 	int ret = 0;
-
 	do {
 		pem_free(nm, flags, 0);
 		pem_free(header, flags, 0);
@@ -250,15 +220,11 @@ static int pem_bytes_read_bio_flags(uchar ** pdata, long * plen,
 		goto err;
 	if(!PEM_do_header(&cipher, data, &len, cb, u))
 		goto err;
-
 	*pdata = data;
 	*plen = len;
-
 	if(pnm != NULL)
 		*pnm = nm;
-
 	ret = 1;
-
 err:
 	if(!ret || pnm == NULL)
 		pem_free(nm, flags, 0);
@@ -268,28 +234,21 @@ err:
 	return ret;
 }
 
-int PEM_bytes_read_bio(uchar ** pdata, long * plen, char ** pnm,
-    const char * name, BIO * bp, pem_password_cb * cb,
-    void * u) {
-	return pem_bytes_read_bio_flags(pdata, plen, pnm, name, bp, cb, u,
-		   PEM_FLAG_EAY_COMPATIBLE);
+int PEM_bytes_read_bio(uchar ** pdata, long * plen, char ** pnm, const char * name, BIO * bp, pem_password_cb * cb, void * u) 
+{
+	return pem_bytes_read_bio_flags(pdata, plen, pnm, name, bp, cb, u, PEM_FLAG_EAY_COMPATIBLE);
 }
 
-int PEM_bytes_read_bio_secmem(uchar ** pdata, long * plen, char ** pnm,
-    const char * name, BIO * bp, pem_password_cb * cb,
-    void * u) {
-	return pem_bytes_read_bio_flags(pdata, plen, pnm, name, bp, cb, u,
-		   PEM_FLAG_SECURE | PEM_FLAG_EAY_COMPATIBLE);
+int PEM_bytes_read_bio_secmem(uchar ** pdata, long * plen, char ** pnm, const char * name, BIO * bp, pem_password_cb * cb, void * u) 
+{
+	return pem_bytes_read_bio_flags(pdata, plen, pnm, name, bp, cb, u, PEM_FLAG_SECURE | PEM_FLAG_EAY_COMPATIBLE);
 }
 
 #ifndef OPENSSL_NO_STDIO
-int PEM_ASN1_write(i2d_of_void * i2d, const char * name, FILE * fp,
-    void * x, const EVP_CIPHER * enc, uchar * kstr,
-    int klen, pem_password_cb * callback, void * u)
+int PEM_ASN1_write(i2d_of_void * i2d, const char * name, FILE * fp, void * x, const EVP_CIPHER * enc, uchar * kstr, int klen, pem_password_cb * callback, void * u)
 {
 	BIO * b;
 	int ret;
-
 	if((b = BIO_new(BIO_s_file())) == NULL) {
 		PEMerr(PEM_F_PEM_ASN1_WRITE, ERR_R_BUF_LIB);
 		return 0;

@@ -573,7 +573,8 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData)
 			setCtrlString(CTL_STQCMD_UUID, temp_buf.Z().Cat(Data.Uuid));
 			setCtrlLong(CTL_STQCMD_REXPRTM, Data.ResultExpiryTimeSec); // @v11.2.5
 			{
-				const long base_cmd_id_list[] = {StyloQCommandList::sqbcPersonEvent, StyloQCommandList::sqbcReport, StyloQCommandList::sqbcRsrvOrderPrereq};
+				const long base_cmd_id_list[] = {StyloQCommandList::sqbcPersonEvent, StyloQCommandList::sqbcReport, StyloQCommandList::sqbcRsrvOrderPrereq,
+					StyloQCommandList::sqbcRsrvAttendancePrereq};
 				StrAssocArray basecmd_list;
 				for(uint i = 0; i < SIZEOFARRAY(base_cmd_id_list); i++) {
 					basecmd_list.Add(base_cmd_id_list[i], StyloQCommandList::GetBaseCommandName(base_cmd_id_list[i], temp_buf));
@@ -622,7 +623,8 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData)
 				switch(Data.BaseCmdId) {
 					case StyloQCommandList::sqbcPersonEvent: ChangePersonEventTemplate(); break;
 					case StyloQCommandList::sqbcReport: ChangeBaseFilter(); break;
-					case StyloQCommandList::sqbcRsrvOrderPrereq: break; // @v11.2.6 @todo
+					case StyloQCommandList::sqbcRsrvOrderPrereq: break; // @v11.2.6
+					case StyloQCommandList::sqbcRsrvAttendancePrereq: break; // @v11.3.2
 					default: return;
 				}
 			}
@@ -850,6 +852,16 @@ int PPViewStyloQCommand::DeleteItem(uint idx)
 				break;
 			case PPVCMD_REFRESH:
 				ok = 1;
+				break;
+			case PPVCMD_TEST: // @v11.3.2
+				ok = -1;
+				{
+					StyloQCommandList::Item * p_item = cur_idx ? List.Get(cur_idx-1) : 0;
+					if(p_item) {
+						PPStyloQInterchange ic;
+						ic.Debug_Command(p_item);
+					}
+				}
 				break;
 		}
 	}

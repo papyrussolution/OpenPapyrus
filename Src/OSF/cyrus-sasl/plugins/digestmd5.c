@@ -304,13 +304,12 @@ static void CvtHex(HASH Bin, HASHHEX Hex)
  */
 void DigestCalcResponse(const sasl_utils_t * utils,
     HASHHEX HA1,                /* HEX(H(A1)) */
-    unsigned char * pszNonce,                   /* nonce from server */
-    unsigned int pszNonceCount,                 /* 8 hex digits */
-    unsigned char * pszCNonce,                  /* client nonce */
-    unsigned char * pszQop,                     /* qop-value: "", "auth",
-                                                 * "auth-int" */
-    unsigned char * pszDigestUri,               /* requested URL */
-    unsigned char * pszMethod,
+    uchar * pszNonce,                   /* nonce from server */
+    uint pszNonceCount,                 /* 8 hex digits */
+    uchar * pszCNonce,                  /* client nonce */
+    uchar * pszQop,                     /* qop-value: "", "auth", "auth-int" */
+    uchar * pszDigestUri,               /* requested URL */
+    uchar * pszMethod,
     HASHHEX HEntity,                    /* H(entity body) if qop="auth-int" */
     HASHHEX Response                    /* request-digest or response-digest */
     )
@@ -319,7 +318,7 @@ void DigestCalcResponse(const sasl_utils_t * utils,
 	HASH HA2;
 	HASH RespHash;
 	HASHHEX HA2Hex;
-	unsigned char ncvalue[10];
+	uchar ncvalue[10];
 	/* calculate H(A2) */
 	utils->MD5Init(&Md5Ctx);
 	if(pszMethod != NULL) {
@@ -4009,17 +4008,13 @@ SKIP_SPACES_IN_CIPHER:
 		}
 		else {
 			/* we didn't find any ciphers we like */
-			params->utils->seterror(params->utils->conn, 0,
-			    "No good privacy layers");
+			params->utils->seterror(params->utils->conn, 0, "No good privacy layers");
 		}
 	}
-
 	if(ctext->cipher == NULL) {
 		/* we failed to find an encryption layer we liked;
 		   can we use integrity or nothing? */
-
-		if((limit >= 1) && (musthave <= 1)
-		 && (protection & DIGEST_INTEGRITY)) {
+		if((limit >= 1) && (musthave <= 1) && (protection & DIGEST_INTEGRITY)) {
 			/* integrity */
 			ctext->protection = DIGEST_INTEGRITY;
 		}

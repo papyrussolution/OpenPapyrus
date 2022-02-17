@@ -199,7 +199,7 @@ int PPViewLogsMonitor::InitIteration()
 		P_IterQuery->selectAll();
 		ks = k;
 		Counter.Init(P_IterQuery->countIterations(0, &ks, spGe));
-		P_IterQuery->initIteration(0, &k, spGe);
+		P_IterQuery->initIteration(false, &k, spGe);
 	}
 	else
 		ok = 0;

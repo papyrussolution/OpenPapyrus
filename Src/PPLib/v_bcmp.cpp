@@ -1,5 +1,5 @@
 // V_BCMP.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2019, 2020
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2019, 2020, 2022
 //
 #include <pp.h>
 #pragma hdrstop
@@ -296,7 +296,7 @@ int PPViewGoodsBillCmp::InitIteration()
 	// @v10.6.8 @ctr memzero(k,  sizeof(k));
 	// @v10.6.8 @ctr memzero(k_, sizeof(k_));
 	Counter.Init(P_IterQuery->countIterations(0, k__, spFirst));
-	P_IterQuery->initIteration(0, k_, spFirst);
+	P_IterQuery->initIteration(false, k_, spFirst);
 	CATCHZOK
 	return ok;
 }

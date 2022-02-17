@@ -1,5 +1,5 @@
 // PPACTION.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2022
 // @codepage UTF-8
 // @Kernel
 //
@@ -109,7 +109,7 @@ int SysJournal::GetEvent(PPID action, long extraVal, int mode, LDATETIME * pMome
 	dbq = ppcheckfiltid(dbq, this->Action, action);
 	dbq = ppcheckfiltid(dbq, this->Extra, extraVal); // @v10.7.5
 	q.selectAll().where(*dbq);
-	q.initIteration(((mode > 0) ? 0 : 1), &k, sp);
+	q.initIteration((mode <= 0), &k, sp);
 	if(q.nextIteration() > 0) {
 		CALLPTRMEMB(pMoment, Set(data.Dt, data.Tm));
 		copyBufTo(b);
@@ -136,7 +136,7 @@ int SysJournal::GetLastUserEvent(PPID action, PPID userID, PPID sessID, const Da
 	dbq = ppcheckfiltid(dbq, this->UserID, userID);
 	dbq = ppcheckfiltid(dbq, this->Extra, sessID);
 	q.selectAll().where(*dbq);
-	q.initIteration(1, &k, spLt);
+	q.initIteration(true, &k, spLt);
 	if(q.nextIteration() > 0) {
 		CALLPTRMEMB(pMoment, Set(data.Dt, data.Tm));
 		copyBufTo(pRec);
@@ -182,7 +182,7 @@ int SysJournal::GetObjEventList(PPID objType, PPID objID, const PPIDArray * pAct
 	DBQ * dbq = &(this->ObjType == objType && this->ObjID == objID);
 	dbq = ppcheckfiltidlist(dbq, this->Action, pActList);
 	q.selectAll().where(*dbq);
-	for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 		if(pResultList) {
 			THROW_SL(pResultList->insert(&data));
 			ok = 1;
@@ -284,7 +284,7 @@ int SysJournal::GetLastObjEvent(PPID objType, PPID objID, const PPIDArray * pAct
 	if(single_acn) {
 		BExtQuery q(this, 1);
 		q.selectAll().where(this->ObjType == objType && this->ObjID == objID && this->Action == single_acn);
-		q.initIteration(1, &k, spLt);
+		q.initIteration(true, &k, spLt);
 		if(q.nextIteration() > 0) {
 			assert(data.ObjType == objType && data.ObjID == objID && data.Action == single_acn); // @paranoic
 			if(data.ObjType == objType && data.ObjID == objID && data.Action == single_acn) // @paranoic
@@ -321,7 +321,7 @@ int SysJournal::GetUpdatedConfigListSince(PPID cfgType, const LDATETIME & rSince
 	dbq = ppcheckfiltid(dbq, this->ObjType, cfgType);
 	q.select(this->Dt, this->Tm, this->ObjID, this->Action, 0L);
 	q.where(*dbq);
-	for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 		if(cmp(rSince, data.Dt, data.Tm) < 0 && data.Action == PPACN_CONFIGUPDATED) {
 			THROW(rCfgIdList.add(data.ObjType));
 			ok = 1;
@@ -344,7 +344,7 @@ int SysJournal::GetObjListByEventSince(PPID objType, const PPIDArray * pActList,
 	dbq = ppcheckfiltid(dbq, this->ObjType, objType);
 	q.select(this->Dt, this->Tm, this->ObjID, this->Action, 0L);
 	q.where(*dbq);
-	for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 		if(cmp(rSince, data.Dt, data.Tm) < 0 && (!pActList || pActList->lsearch(data.Action))) {
 			THROW(rObjList.add(data.ObjID));
 			ok = 1;
@@ -369,7 +369,7 @@ int SysJournal::GetObjListByEventPeriod(PPID objType, PPID userID, const PPIDArr
 	dbq = &(this->ObjType == objType && daterange(this->Dt, pPeriod));
 	dbq = ppcheckfiltid(dbq, this->UserID, userID);
 	q.select(this->Dt, this->Tm, this->ObjID, this->Action, this->UserID, 0L).where(*dbq);
-	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 		if(single_acn) {
 			if(data.Action == single_acn) {
 				THROW_SL(rObjList.add(data.ObjID));
@@ -398,7 +398,7 @@ int SysJournal::GetObjRemovingEventListByPeriod(PPID objType, PPID userID, const
 	dbq = &(this->ObjType == objType && this->Action ==  single_acn && daterange(this->Dt, pPeriod));
 	dbq = ppcheckfiltid(dbq, this->UserID, userID);
 	q.selectAll().where(*dbq);
-	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 		if(data.Action == single_acn) {
 			THROW_SL(rList.insert(&data));
 			ok = 1;
@@ -424,7 +424,7 @@ int SysJournal::CheckObjForFilt(PPID objType, PPID objID, const SysJournalFilt *
 			k1.ObjType = objType;
 			k1.ObjID = objID;
 			k1.Dt = pFilt->Period.low;
-			for(q.initIteration(0, &k1, spGe); ok < 0 && q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k1, spGe); ok < 0 && q.nextIteration() > 0;) {
 				ok = 1;
 			}
 		}

@@ -97,27 +97,26 @@ static int parsekeyword(uchar ** pattern, uchar * charset)
 		}
 	}
 #undef KEYLEN
-
 	*pattern = p; /* move caller's pattern pointer */
-	if(strcmp(keyword, "digit") == 0)
+	if(sstreq(keyword, "digit"))
 		charset[CURLFNM_DIGIT] = 1;
-	else if(strcmp(keyword, "alnum") == 0)
+	else if(sstreq(keyword, "alnum"))
 		charset[CURLFNM_ALNUM] = 1;
-	else if(strcmp(keyword, "alpha") == 0)
+	else if(sstreq(keyword, "alpha"))
 		charset[CURLFNM_ALPHA] = 1;
-	else if(strcmp(keyword, "xdigit") == 0)
+	else if(sstreq(keyword, "xdigit"))
 		charset[CURLFNM_XDIGIT] = 1;
-	else if(strcmp(keyword, "print") == 0)
+	else if(sstreq(keyword, "print"))
 		charset[CURLFNM_PRINT] = 1;
-	else if(strcmp(keyword, "graph") == 0)
+	else if(sstreq(keyword, "graph"))
 		charset[CURLFNM_GRAPH] = 1;
-	else if(strcmp(keyword, "space") == 0)
+	else if(sstreq(keyword, "space"))
 		charset[CURLFNM_SPACE] = 1;
-	else if(strcmp(keyword, "blank") == 0)
+	else if(sstreq(keyword, "blank"))
 		charset[CURLFNM_BLANK] = 1;
-	else if(strcmp(keyword, "upper") == 0)
+	else if(sstreq(keyword, "upper"))
 		charset[CURLFNM_UPPER] = 1;
-	else if(strcmp(keyword, "lower") == 0)
+	else if(sstreq(keyword, "lower"))
 		charset[CURLFNM_LOWER] = 1;
 	else
 		return SETCHARSET_FAIL;
@@ -141,12 +140,10 @@ static void setcharorrange(uchar ** pp, uchar * charset)
 {
 	uchar * p = (*pp)++;
 	uchar c = *p++;
-
 	charset[c] = 1;
 	if(ISALNUM(c) && *p++ == '-') {
 		char_class cc = charclass(c);
 		uchar endrange = *p++;
-
 		if(endrange == '\\')
 			endrange = *p++;
 		if(endrange >= c && charclass(endrange) == cc) {
@@ -181,7 +178,6 @@ static int setcharset(uchar ** p, uchar * charset)
 			    }
 			    else if(c == '[') {
 				    uchar * pp = *p + 1;
-
 				    if(*pp++ == ':' && parsekeyword(&pp, charset))
 					    *p = pp;
 				    else {
@@ -249,16 +245,13 @@ fail:
 	return SETCHARSET_FAIL;
 }
 
-static int loop(const uchar * pattern, const uchar * string,
-    int maxstars)
+static int loop(const uchar * pattern, const uchar * string, int maxstars)
 {
 	uchar * p = (uchar *)pattern;
 	uchar * s = (uchar *)string;
 	uchar charset[CURLFNM_CHSET_SIZE] = { 0 };
-
 	for(;;) {
 		uchar * pp;
-
 		switch(*p) {
 			case '*':
 			    if(!maxstars)
@@ -323,10 +316,8 @@ static int loop(const uchar * pattern, const uchar * string,
 					    found = ISBLANK(*s);
 				    else if(charset[CURLFNM_GRAPH])
 					    found = ISGRAPH(*s);
-
 				    if(charset[CURLFNM_NEGATE])
 					    found = !found;
-
 				    if(!found)
 					    return CURL_FNMATCH_NOMATCH;
 				    p = pp + 1;
@@ -335,7 +326,6 @@ static int loop(const uchar * pattern, const uchar * string,
 			    }
 			    /* Syntax error in set; mismatch! */
 			    return CURL_FNMATCH_NOMATCH;
-
 			default:
 			    if(*p++ != *s++)
 				    return CURL_FNMATCH_NOMATCH;
@@ -349,8 +339,7 @@ static int loop(const uchar * pattern, const uchar * string,
  */
 int Curl_fnmatch(void * ptr, const char * pattern, const char * string)
 {
-	(void)ptr; /* the argument is specified by the curl_fnmatch_callback
-	              prototype, but not used by Curl_fnmatch() */
+	(void)ptr; /* the argument is specified by the curl_fnmatch_callback prototype, but not used by Curl_fnmatch() */
 	if(!pattern || !string) {
 		return CURL_FNMATCH_FAIL;
 	}
@@ -365,8 +354,7 @@ int Curl_fnmatch(void * ptr, const char * pattern, const char * string)
 int Curl_fnmatch(void * ptr, const char * pattern, const char * string)
 {
 	int rc;
-	(void)ptr; /* the argument is specified by the curl_fnmatch_callback
-	              prototype, but not used by Curl_fnmatch() */
+	(void)ptr; /* the argument is specified by the curl_fnmatch_callback prototype, but not used by Curl_fnmatch() */
 	if(!pattern || !string) {
 		return CURL_FNMATCH_FAIL;
 	}
@@ -383,5 +371,4 @@ int Curl_fnmatch(void * ptr, const char * pattern, const char * string)
 }
 
 #endif
-
 #endif /* if FTP is disabled */

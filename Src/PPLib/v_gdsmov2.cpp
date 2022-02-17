@@ -238,7 +238,7 @@ int PPViewGoodsMov2::InitIteration(IterOrder ord)
 	P_IterQuery->selectAll();
 	k1_ = k1;
 	Counter.Init(P_IterQuery->countIterations(0, &k1_, spFirst));
-	P_IterQuery->initIteration(0, &k1, spFirst);
+	P_IterQuery->initIteration(false, &k1, spFirst);
 	CATCHZOK
 	return ok;
 }

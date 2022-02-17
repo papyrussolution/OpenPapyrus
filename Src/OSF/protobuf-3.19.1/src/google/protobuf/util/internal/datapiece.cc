@@ -195,93 +195,76 @@ util::StatusOr<float> DataPiece::ToFloat() const {
 	return GenericConvert<float>();
 }
 
-util::StatusOr<bool> DataPiece::ToBool() const {
+util::StatusOr<bool> DataPiece::ToBool() const 
+{
 	switch(type_) {
-		case TYPE_BOOL:
-		    return bool_;
-		case TYPE_STRING:
-		    return StringToNumber<bool>(safe_strtob);
-		default:
-		    return util::InvalidArgumentError(
-			    ValueAsStringOrDefault("Wrong type. Cannot convert to Bool."));
+		case TYPE_BOOL: return bool_;
+		case TYPE_STRING: return StringToNumber<bool>(safe_strtob);
+		default: return util::InvalidArgumentError(ValueAsStringOrDefault("Wrong type. Cannot convert to Bool."));
 	}
 }
 
-util::StatusOr<std::string> DataPiece::ToString() const {
+util::StatusOr<std::string> DataPiece::ToString() const 
+{
 	switch(type_) {
-		case TYPE_STRING:
-		    return std::string(str_);
-		case TYPE_BYTES: {
-		    std::string base64;
-		    Base64Escape(str_, &base64);
-		    return base64;
-	    }
-		default:
-		    return util::InvalidArgumentError(
-			    ValueAsStringOrDefault("Cannot convert to string."));
+		case TYPE_STRING: return std::string(str_);
+		case TYPE_BYTES: 
+			{
+				std::string base64;
+				Base64Escape(str_, &base64);
+				return base64;
+			}
+		default: return util::InvalidArgumentError(ValueAsStringOrDefault("Cannot convert to string."));
 	}
 }
 
-std::string DataPiece::ValueAsStringOrDefault(StringPiece default_string) const {
+std::string DataPiece::ValueAsStringOrDefault(StringPiece default_string) const 
+{
 	switch(type_) {
-		case TYPE_INT32:
-		    return StrCat(i32_);
-		case TYPE_INT64:
-		    return StrCat(i64_);
-		case TYPE_UINT32:
-		    return StrCat(u32_);
-		case TYPE_UINT64:
-		    return StrCat(u64_);
-		case TYPE_DOUBLE:
-		    return DoubleAsString(double_);
-		case TYPE_FLOAT:
-		    return FloatAsString(float_);
-		case TYPE_BOOL:
-		    return SimpleBtoa(bool_);
-		case TYPE_STRING:
-		    return StrCat("\"", str_.ToString(), "\"");
-		case TYPE_BYTES: {
-		    std::string base64;
-		    WebSafeBase64Escape(str_, &base64);
-		    return StrCat("\"", base64, "\"");
-	    }
-		case TYPE_NULL:
-		    return "null";
-		default:
-		    return std::string(default_string);
+		case TYPE_INT32: return StrCat(i32_);
+		case TYPE_INT64: return StrCat(i64_);
+		case TYPE_UINT32: return StrCat(u32_);
+		case TYPE_UINT64: return StrCat(u64_);
+		case TYPE_DOUBLE: return DoubleAsString(double_);
+		case TYPE_FLOAT: return FloatAsString(float_);
+		case TYPE_BOOL: return SimpleBtoa(bool_);
+		case TYPE_STRING: return StrCat("\"", str_.ToString(), "\"");
+		case TYPE_BYTES: 
+			{
+				std::string base64;
+				WebSafeBase64Escape(str_, &base64);
+				return StrCat("\"", base64, "\"");
+			}
+		case TYPE_NULL: return "null";
+		default: return std::string(default_string);
 	}
 }
 
-util::StatusOr<std::string> DataPiece::ToBytes() const {
+util::StatusOr<std::string> DataPiece::ToBytes() const 
+{
 	if(type_ == TYPE_BYTES) return str_.ToString();
 	if(type_ == TYPE_STRING) {
 		std::string decoded;
 		if(!DecodeBase64(str_, &decoded)) {
-			return util::InvalidArgumentError(
-				ValueAsStringOrDefault("Invalid data in input."));
+			return util::InvalidArgumentError(ValueAsStringOrDefault("Invalid data in input."));
 		}
 		return decoded;
 	}
 	else {
-		return util::InvalidArgumentError(ValueAsStringOrDefault(
-				   "Wrong type. Only String or Bytes can be converted to Bytes."));
+		return util::InvalidArgumentError(ValueAsStringOrDefault("Wrong type. Only String or Bytes can be converted to Bytes."));
 	}
 }
 
-util::StatusOr<int> DataPiece::ToEnum(const google::protobuf::Enum* enum_type,
-    bool use_lower_camel_for_enums,
-    bool case_insensitive_enum_parsing,
-    bool ignore_unknown_enum_values,
-    bool* is_unknown_enum_value) const {
-	if(type_ == TYPE_NULL) return google::protobuf::NULL_VALUE;
-
+util::StatusOr<int> DataPiece::ToEnum(const google::protobuf::Enum* enum_type, bool use_lower_camel_for_enums, bool case_insensitive_enum_parsing,
+    bool ignore_unknown_enum_values, bool* is_unknown_enum_value) const 
+{
+	if(type_ == TYPE_NULL) 
+		return google::protobuf::NULL_VALUE;
 	if(type_ == TYPE_STRING) {
 		// First try the given value as a name.
 		std::string enum_name = std::string(str_);
-		const google::protobuf::EnumValue* value =
-		    FindEnumValueByNameOrNull(enum_type, enum_name);
+		const google::protobuf::EnumValue* value = FindEnumValueByNameOrNull(enum_type, enum_name);
 		if(value != nullptr) return value->number();
-
 		// Check if int version of enum is sent as string.
 		util::StatusOr<int32_t> int_value = ToInt32();
 		if(int_value.ok()) {
@@ -290,19 +273,16 @@ util::StatusOr<int> DataPiece::ToEnum(const google::protobuf::Enum* enum_type,
 				return enum_value->number();
 			}
 		}
-
 		// Next try a normalized name.
-		bool should_normalize_enum =
-		    case_insensitive_enum_parsing || use_lower_camel_for_enums;
+		bool should_normalize_enum = case_insensitive_enum_parsing || use_lower_camel_for_enums;
 		if(should_normalize_enum) {
-			for(std::string::iterator it = enum_name.begin(); it != enum_name.end();
-			    ++it) {
+			for(std::string::iterator it = enum_name.begin(); it != enum_name.end(); ++it) {
 				*it = *it == '-' ? '_' : ascii_toupper(*it);
 			}
 			value = FindEnumValueByNameOrNull(enum_type, enum_name);
-			if(value != nullptr) return value->number();
+			if(value != nullptr) 
+				return value->number();
 		}
-
 		// If use_lower_camel_for_enums is true try with enum name without
 		// underscore. This will also accept camel case names as the enum_name has
 		// been normalized before.
@@ -324,45 +304,35 @@ util::StatusOr<int> DataPiece::ToEnum(const google::protobuf::Enum* enum_type,
 		// enum because we preserve unknown enum values as well.
 		return ToInt32();
 	}
-	return util::InvalidArgumentError(
-		ValueAsStringOrDefault("Cannot find enum with given value."));
+	return util::InvalidArgumentError(ValueAsStringOrDefault("Cannot find enum with given value."));
 }
 
-template <typename To>
-util::StatusOr<To> DataPiece::GenericConvert() const {
+template <typename To> util::StatusOr<To> DataPiece::GenericConvert() const 
+{
 	switch(type_) {
-		case TYPE_INT32:
-		    return NumberConvertAndCheck<To, int32_t>(i32_);
-		case TYPE_INT64:
-		    return NumberConvertAndCheck<To, int64_t>(i64_);
-		case TYPE_UINT32:
-		    return NumberConvertAndCheck<To, uint32_t>(u32_);
-		case TYPE_UINT64:
-		    return NumberConvertAndCheck<To, uint64_t>(u64_);
-		case TYPE_DOUBLE:
-		    return NumberConvertAndCheck<To, double>(double_);
-		case TYPE_FLOAT:
-		    return NumberConvertAndCheck<To, float>(float_);
+		case TYPE_INT32: return NumberConvertAndCheck<To, int32_t>(i32_);
+		case TYPE_INT64: return NumberConvertAndCheck<To, int64_t>(i64_);
+		case TYPE_UINT32: return NumberConvertAndCheck<To, uint32_t>(u32_);
+		case TYPE_UINT64: return NumberConvertAndCheck<To, uint64_t>(u64_);
+		case TYPE_DOUBLE: return NumberConvertAndCheck<To, double>(double_);
+		case TYPE_FLOAT: return NumberConvertAndCheck<To, float>(float_);
 		default: // TYPE_ENUM, TYPE_STRING, TYPE_CORD, TYPE_BOOL
-		    return util::InvalidArgumentError(ValueAsStringOrDefault(
-				       "Wrong type. Bool, Enum, String and Cord not supported in "
-				       "GenericConvert."));
+		    return util::InvalidArgumentError(ValueAsStringOrDefault("Wrong type. Bool, Enum, String and Cord not supported in GenericConvert."));
 	}
 }
 
-template <typename To>
-util::StatusOr<To> DataPiece::StringToNumber(bool (*func)(StringPiece,
-    To*)) const {
+template <typename To> util::StatusOr<To> DataPiece::StringToNumber(bool (*func)(StringPiece, To*)) const 
+{
 	if(str_.size() > 0 && (str_[0] == ' ' || str_[str_.size() - 1] == ' ')) {
 		return util::InvalidArgumentError(StrCat("\"", str_, "\""));
 	}
 	To result;
 	if(func(str_, &result)) return result;
-	return util::InvalidArgumentError(
-		StrCat("\"", std::string(str_), "\""));
+	return util::InvalidArgumentError(StrCat("\"", std::string(str_), "\""));
 }
 
-bool DataPiece::DecodeBase64(StringPiece src, std::string* dest) const {
+bool DataPiece::DecodeBase64(StringPiece src, std::string* dest) const 
+{
 	// Try web-safe decode first, if it fails, try the non-web-safe decode.
 	if(WebSafeBase64Unescape(src, dest)) {
 		if(use_strict_base64_decoding_) {
@@ -372,9 +342,7 @@ bool DataPiece::DecodeBase64(StringPiece src, std::string* dest) const {
 			// WebSafeBase64Escape does no padding by default.
 			WebSafeBase64Escape(*dest, &encoded);
 			// Remove trailing padding '=' characters before comparison.
-			StringPiece src_no_padding = StringPiece(src).substr(
-				0, HasSuffixString(src, "=") ? src.find_last_not_of('=') + 1
-				: src.length());
+			StringPiece src_no_padding = StringPiece(src).substr(0, HasSuffixString(src, "=") ? src.find_last_not_of('=') + 1 : src.length());
 			return encoded == src_no_padding;
 		}
 		return true;
@@ -383,20 +351,17 @@ bool DataPiece::DecodeBase64(StringPiece src, std::string* dest) const {
 	if(Base64Unescape(src, dest)) {
 		if(use_strict_base64_decoding_) {
 			std::string encoded;
-			Base64Escape(reinterpret_cast<const unsigned char*>(dest->data()),
-			    dest->length(), &encoded, false);
-			StringPiece src_no_padding = StringPiece(src).substr(
-				0, HasSuffixString(src, "=") ? src.find_last_not_of('=') + 1
-				: src.length());
+			Base64Escape(reinterpret_cast<const unsigned char*>(dest->data()), dest->length(), &encoded, false);
+			StringPiece src_no_padding = StringPiece(src).substr(0, HasSuffixString(src, "=") ? src.find_last_not_of('=') + 1 : src.length());
 			return encoded == src_no_padding;
 		}
 		return true;
 	}
-
 	return false;
 }
 
-void DataPiece::InternalCopy(const DataPiece& other) {
+void DataPiece::InternalCopy(const DataPiece& other) 
+{
 	type_ = other.type_;
 	use_strict_base64_decoding_ = other.use_strict_base64_decoding_;
 	switch(type_) {

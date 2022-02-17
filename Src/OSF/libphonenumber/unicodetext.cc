@@ -1,19 +1,7 @@
 // Copyright (C) 2006 Google Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
+// @license Apache License 2.0
 // Author: Jim Meehan
-
+//
 #include <libphonenumber-internal.h>
 #pragma hdrstop
 #include "utf.h"
@@ -27,7 +15,8 @@ using std::max;
 using std::hex;
 using std::dec;
 
-static int CodepointDistance(const char* start, const char* end) {
+static int CodepointDistance(const char* start, const char* end) 
+{
 	int n = 0;
 	// Increment n on every non-trail-byte.
 	for(const char* p = start; p < end; ++p) {
@@ -498,13 +487,12 @@ UnicodeText::const_iterator UnicodeText::MakeIterator(const char* p) const {
 	return const_iterator(p);
 }
 
-string UnicodeText::const_iterator::DebugString() const {
+string UnicodeText::const_iterator::DebugString() const 
+{
 	stringstream ss;
-
 	ss << "{iter " << hex << it_ << "}";
 	string result;
 	ss >> result;
-
 	return result;
 }
 }  // namespace phonenumbers

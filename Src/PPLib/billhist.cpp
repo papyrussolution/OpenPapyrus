@@ -119,7 +119,7 @@ int HistBillCore::GetPacket(PPID id, PPHistBillPacket * pPack)
 		k.OprNo = 0;
 		BExtQuery q(&ItemsTbl, 0, 48);
 		q.selectAll().where(ItemsTbl.HistBillID == pPack->Head.ID);
-		for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;)
+		for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;)
 			THROW(pPack->InsertRow(&ItemsTbl.data));
 		ok = 1;
 	}

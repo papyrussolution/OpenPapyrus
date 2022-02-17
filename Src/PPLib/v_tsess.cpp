@@ -425,7 +425,7 @@ int PPViewTSession::Init_(const PPBaseFilt * pBaseFilt)
 
 					BExtQuery q(p_t, idx);
 					q.selectAll().where(*dbq);
-					for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+					for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 						//if(TSesObj.Search(p_t->data.ID, &rec) > 0 && TSesObj.CheckForFilt(&Filt, p_t->data.ID, &rec)) {
 						p_t->copyBufTo(&rec);
 						if(TSesObj.CheckForFilt(&Filt, rec.ID, &rec)) {
@@ -457,7 +457,7 @@ int PPViewTSession::InitIteration(int order)
 			MEMSZERO(k1);
 			Counter.Init(P_IterQuery->countIterations(0, &k1, spFirst));
 			MEMSZERO(k1);
-			P_IterQuery->initIteration(0, &k1, spFirst);
+			P_IterQuery->initIteration(false, &k1, spFirst);
 		}
 		else {
 			union {
@@ -508,7 +508,7 @@ int PPViewTSession::InitIteration(int order)
 			P_IterQuery->selectAll().where(*dbq);
 			k_ = k;
 			Counter.Init(P_IterQuery->countIterations(0, &k_, spGe));
-			P_IterQuery->initIteration(0, &k, spGe);
+			P_IterQuery->initIteration(false, &k, spGe);
 		}
 	}
 	CATCH
@@ -1447,7 +1447,7 @@ int PPViewTSessLine::CreateIterQuery()
 			P_IterQuery = new BExtQuery(P_TempTbl, idx, 16);
 			P_IterQuery->selectAll();
 			PPInitIterCounter(Counter, P_TempTbl);
-			P_IterQuery->initIteration(0, &k, spFirst);
+			P_IterQuery->initIteration(false, &k, spFirst);
 		}
 		else {
 			//
@@ -1491,7 +1491,7 @@ int PPViewTSessLine::CreateIterQuery()
 			P_IterQuery->selectAll().where(*dbq);
 			k_ = k;
 			Counter.Init(P_IterQuery->countIterations(0, &k_, spGe));
-			P_IterQuery->initIteration(0, &k, spGe);
+			P_IterQuery->initIteration(false, &k, spGe);
 		}
 	}
 	return ok;

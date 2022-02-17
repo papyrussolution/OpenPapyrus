@@ -163,7 +163,7 @@ int AdjGdsGrpng::MakeBillIDList(const GCTFilt * pF, const PPIDArray * pOpList, i
 		k.OpID   = *p_op_id;
 		k.Dt     = pF->Period.low;
 		k.BillNo = 0;
-		for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 			if(ObjRts.CheckLocID(p_t->data.LocID, 0)) {
 				if(byReckon) {
 					if(p_t->IsMemberOfPool(p_t->data.ID, PPASS_PAYMBILLPOOL, &(id = 0)) <= 0)
@@ -422,7 +422,7 @@ int GCT_Iterator::TrfrQuery(PPID lotID, TransferTbl::Rec * pOuterRec)
 			p_tfr->Rest, p_tfr->Cost, p_tfr->Price, p_tfr->Discount, 0L).where(*dbq);
 		delete trfr_q;
 		trfr_q = q;
-		for(trfr_q->initIteration(0, &k, spGt); trfr_q->nextIteration() > 0;)
+		for(trfr_q->initIteration(false, &k, spGt); trfr_q->nextIteration() > 0;)
 			if(AcceptTrfrRec(&p_tfr->data, pOuterRec) > 0)
 				return 1;
 		return -1;
@@ -462,7 +462,7 @@ int GCT_Iterator::First(TransferTbl::Rec * pRec)
 		rk.oprno = 0;
 		dbq = ppcheckfiltidlist(dbq, rt->LocID, &Filt.LocList.Get());
 		rcpt_q->select(rt->ID, 0L).where(*dbq);
-		rcpt_q->initIteration(0, &rk, spGt);
+		rcpt_q->initIteration(false, &rk, spGt);
 	}
 	if(!rcpt_q || rcpt_q->nextIteration() > 0)
 		do {
@@ -937,7 +937,7 @@ int GoodsGrpngArray::_ProcessBillGrpng(GCTFilt * pFilt)
 	k_ = k;
 	counter.Init(q.countIterations(0, &k_, spGt));
 	PPLoadTextS(PPTXT_CALCOPGRPNG, wait_msg).CatDiv(':', 1).Cat(pFilt->Period, 1);
-	for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 		BillTbl::Rec bill_rec;
 		p_bill->copyBufTo(&bill_rec);
 		PPID op_id = bill_rec.OpID;

@@ -975,20 +975,19 @@ const std::string ProtoStreamObjectSource::ReadFieldValueAsString(const google::
 
 // Field is a map if it is a repeated message and it has an option "map_type".
 // TODO(skarvaje): Consider pre-computing the IsMap() into Field directly.
-bool ProtoStreamObjectSource::IsMap(const google::protobuf::Field& field) const {
-	const google::protobuf::Type* field_type =
-	    typeinfo_->GetTypeByTypeUrl(field.type_url());
-	return field.kind() == google::protobuf::Field::TYPE_MESSAGE &&
-	       util::converter::IsMap(field, *field_type);
+bool ProtoStreamObjectSource::IsMap(const google::protobuf::Field& field) const 
+{
+	const google::protobuf::Type* field_type = typeinfo_->GetTypeByTypeUrl(field.type_url());
+	return field.kind() == google::protobuf::Field::TYPE_MESSAGE && util::converter::IsMap(field, *field_type);
 }
 
-std::pair<int64_t, int32_t> ProtoStreamObjectSource::ReadSecondsAndNanos(const google::protobuf::Type& type) const {
+std::pair<int64_t, int32_t> ProtoStreamObjectSource::ReadSecondsAndNanos(const google::protobuf::Type& type) const 
+{
 	uint64_t seconds = 0;
 	uint32_t nanos = 0;
 	uint32_t tag = 0;
 	int64_t signed_seconds = 0;
 	int32_t signed_nanos = 0;
-
 	for(tag = stream_->ReadTag(); tag != 0; tag = stream_->ReadTag()) {
 		const google::protobuf::Field* field = FindAndVerifyField(type, tag);
 		if(field == nullptr) {
@@ -1011,11 +1010,10 @@ std::pair<int64_t, int32_t> ProtoStreamObjectSource::ReadSecondsAndNanos(const g
 	return std::pair<int64_t, int32_t>(signed_seconds, signed_nanos);
 }
 
-util::Status ProtoStreamObjectSource::IncrementRecursionDepth(StringPiece type_name, StringPiece field_name) const {
+util::Status ProtoStreamObjectSource::IncrementRecursionDepth(StringPiece type_name, StringPiece field_name) const 
+{
 	if(++recursion_depth_ > max_recursion_depth_) {
-		return util::InvalidArgumentError(
-			StrCat("Message too deep. Max recursion depth reached for type '",
-			type_name, "', field '", field_name, "'"));
+		return util::InvalidArgumentError(StrCat("Message too deep. Max recursion depth reached for type '", type_name, "', field '", field_name, "'"));
 	}
 	return util::Status();
 }

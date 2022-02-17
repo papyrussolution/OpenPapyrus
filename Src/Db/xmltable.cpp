@@ -1,5 +1,6 @@
 // XMLTABLE.CPP
 // Copyright (c) A.Starodub 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2020, 2021, 2022
+// @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -383,7 +384,7 @@ int XmlDbFile::Pop()
 	if(UseSubChild) { // @vmiller
 		SString tag;
 		//
-		// Закроем тег вложенной записи
+		// Р—Р°РєСЂРѕРµРј С‚РµРі РІР»РѕР¶РµРЅРЅРѕР№ Р·Р°РїРёСЃРё
 		//
 		if(!ReadOnly) {
 			if(St.GetParam().RootTag.NotEmpty()) {
@@ -396,10 +397,10 @@ int XmlDbFile::Pop()
 			}
 		}
 		// @vmiller {
-		// Восстановим номер позиции состояния из стека
+		// Р’РѕСЃСЃС‚Р°РЅРѕРІРёРј РЅРѕРјРµСЂ РїРѕР·РёС†РёРё СЃРѕСЃС‚РѕСЏРЅРёСЏ РёР· СЃС‚РµРєР°
 		int pos = 0;
 		StateStack.pop(pos);
-		// Теперь возьмем состояние из коллекции по позиции pos
+		// РўРµРїРµСЂСЊ РІРѕР·СЊРјРµРј СЃРѕСЃС‚РѕСЏРЅРёРµ РёР· РєРѕР»Р»РµРєС†РёРё РїРѕ РїРѕР·РёС†РёРё pos
 		St.Copy(*StateColl.at(pos));
 		// } @vmiller
 
@@ -410,7 +411,7 @@ int XmlDbFile::Pop()
 		//UseSubChild = 0; // @vmiller comment
 		UseSubChild --; // @vmiller
 		//
-		// Закроем тег головной записи
+		// Р—Р°РєСЂРѕРµРј С‚РµРі РіРѕР»РѕРІРЅРѕР№ Р·Р°РїРёСЃРё
 		//
 		if(St.GetParam().Flags & XmlDbFile::Param::fHaveSubRec) {
 			if(!ReadOnly) {
@@ -436,9 +437,9 @@ int XmlDbFile::Push(const Param * pParam)
 		// @vmiller {
 		State * p_st = new State();
 		p_st->Copy(St);
-		// Запомним состояние в коллекцию
+		// Р—Р°РїРѕРјРЅРёРј СЃРѕСЃС‚РѕСЏРЅРёРµ РІ РєРѕР»Р»РµРєС†РёСЋ
         StateColl.insert(p_st);
-		// Занесем в стек
+		// Р—Р°РЅРµСЃРµРј РІ СЃС‚РµРє
 		int pos = StateColl.getCount() - 1;
 		StateStack.push(pos);
 		// } @vmiller
@@ -488,11 +489,11 @@ int XmlDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 			field_buf.Z();
 			fld_set.clear();
 			if(fld.Name.NotEmpty()) {
-				uint   fld_count = 0; // Счетчик тегов в имени поля, разделенных слышом (\) - т.е.
-					// уровень вложенности поля.
+				uint   fld_count = 0; // РЎС‡РµС‚С‡РёРє С‚РµРіРѕРІ РІ РёРјРµРЅРё РїРѕР»СЏ, СЂР°Р·РґРµР»РµРЅРЅС‹С… СЃР»С‹С€РѕРј (\) - С‚.Рµ.
+					// СѓСЂРѕРІРµРЅСЊ РІР»РѕР¶РµРЅРЅРѕСЃС‚Рё РїРѕР»СЏ.
 				//
-				// Предварительная обработка имени поля для идентификации вложенности тегов
-				// Например: "TAG-LEVEL-1/TAG-LEVEL-2/TAG-LEVEL-3"
+				// РџСЂРµРґРІР°СЂРёС‚РµР»СЊРЅР°СЏ РѕР±СЂР°Р±РѕС‚РєР° РёРјРµРЅРё РїРѕР»СЏ РґР»СЏ РёРґРµРЅС‚РёС„РёРєР°С†РёРё РІР»РѕР¶РµРЅРЅРѕСЃС‚Рё С‚РµРіРѕРІ
+				// РќР°РїСЂРёРјРµСЂ: "TAG-LEVEL-1/TAG-LEVEL-2/TAG-LEVEL-3"
 				//
 				if(fld.Name.HasChr('/') || fld.Name.HasChr('\\')) {
 					const char * p = 0;

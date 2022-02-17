@@ -3,7 +3,7 @@
  */
 // Copyright (C) 2013, 2014 Aarsh Shah
 // Copyright (C) 2016,2017,2019 Olly Betts
-// @licence GNU GPL
+// @license GNU GPL
 //
 #include <xapian-internal.h>
 #pragma hdrstop
@@ -116,7 +116,7 @@ void DLHWeight::init(double factor)
 	/* Take the minimum of the two upper bounds. */
 	max_product = min(max_product, max_product_2);
 #endif
-	double C = 0.5 * log2(2.0 * SMathConst::Pi * max_product) / (wdf_lower + 0.5);
+	double C = 0.5 * log2(SMathConst::Pi2 * max_product) / (wdf_lower + 0.5);
 	upper_bound = A + B + C;
 	if(rare(upper_bound < 0.0))
 		upper_bound = 0.0;
@@ -151,9 +151,9 @@ double DLHWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len, Xapi
 	if(wdf == 0 || wdf == len) return 0.0;
 	double wdf_to_len = double(wdf) / len;
 	double one_minus_wdf_to_len = 1.0 - wdf_to_len;
-	double wt = wdf * log2(wdf_to_len * log_constant) + (len - wdf) * log2(one_minus_wdf_to_len) + 0.5 * log2(2.0 * SMathConst::Pi * wdf * one_minus_wdf_to_len);
-	if(rare(wt <= 0.0)) return 0.0;
-
+	double wt = wdf * log2(wdf_to_len * log_constant) + (len - wdf) * log2(one_minus_wdf_to_len) + 0.5 * log2(SMathConst::Pi2 * wdf * one_minus_wdf_to_len);
+	if(rare(wt <= 0.0)) 
+		return 0.0;
 	return wqf_product_factor * wt / (wdf + 0.5);
 }
 

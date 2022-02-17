@@ -7858,7 +7858,7 @@ int PPEdiProcessor::ProviderImplementation::SearchLinkedBill(const char * pCode,
 	SString temp_buf;
 	BExtQuery q(p_bt, idx, 256);
 	q.select(p_bt->ID, p_bt->Dt, p_bt->Code, p_bt->EdiOp, 0L).where(*dbq);
-	for(q.initIteration(0, &k, spGe); ok < 0 && q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k, spGe); ok < 0 && q.nextIteration() > 0;) {
 		temp_buf = p_bt->data.Code;
 		// @v11.1.12 BillCore::GetCode(temp_buf);
 		if(temp_buf.NotEmptyS() && stricmp866(temp_buf, scode) == 0) {

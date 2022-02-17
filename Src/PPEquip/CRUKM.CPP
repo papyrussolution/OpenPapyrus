@@ -522,7 +522,7 @@ int ACS_CRUKM::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange 
 			BExtQuery q(P_DsCrdTbl, 0);
 			q.select(P_DsCrdTbl->ShopIndex, 0L);
 			MEMSZERO(dc_k0);
-			for(q.initIteration(0, &dc_k0, spFirst); q.nextIteration() > 0;)
+			for(q.initIteration(false, &dc_k0, spFirst); q.nextIteration() > 0;)
 				THROW(ShopList.addUnique(P_DsCrdTbl->data.ShopIndex));
 		}
 	}
@@ -534,7 +534,7 @@ int ACS_CRUKM::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange 
 			BExtQuery q(P_CrCrdTbl, 0);
 			q.select(P_CrCrdTbl->ShopIndex, 0L);
 			MEMSZERO(cc_k0);
-			for(q.initIteration(0, &cc_k0, spFirst); q.nextIteration() > 0;)
+			for(q.initIteration(false, &cc_k0, spFirst); q.nextIteration() > 0;)
 				THROW(ShopList.addUnique(P_CrCrdTbl->data.ShopIndex));
 		}
 	}
@@ -646,7 +646,7 @@ int ACS_CRUKM::CreateAbsentSession(PPID cashNo, PPID sessNo, Cr_ZReportTbl * pZR
 				where(pSalesTbl->Cash_Code == cashNo && pSalesTbl->NSmena == sessNo);
 			k8.Cash_Code = cashNo;
 			k8.NSmena = sessNo;
-			for(q.initIteration(0, &k8, spEq); q.nextIteration() > 0;)
+			for(q.initIteration(false, &k8, spEq); q.nextIteration() > 0;)
 				if(cmp(last, pSalesTbl->data.DateOperation, pSalesTbl->data.Times) < 0)
 					last.Set(pSalesTbl->data.DateOperation, pSalesTbl->data.Times);
 			pZReportTbl->clearDataBuf();

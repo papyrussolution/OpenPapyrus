@@ -1286,7 +1286,7 @@ SArray * PPObjTag::CreateList(long current, long parent)
 		STRNSCPY(item.text, reinterpret_cast<const char *>(&lminus));
 		THROW_SL(p_ary->insert(&item));
 	}
-	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 		const PPObjectTag * p_rec = reinterpret_cast<const PPObjectTag *>(&P_Ref->data);
 		if(!grpOnly || p_rec->TagDataType == 0) {
 			item.id = p_rec->ID;

@@ -1,4 +1,3 @@
-//---------------------------------------------------------------------------------
 //
 //  Little Color Management System
 //  Copyright (c) 1998-2020 Marti Maria Saguer
@@ -12,16 +11,6 @@
 //
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//---------------------------------------------------------------------------------
 //
 #include "lcms2_internal.h"
 #pragma hdrstop
@@ -664,15 +653,8 @@ int bchswSampler(const uint16 In[], uint16 Out[], void * Cargo)
 
 // Creates an abstract profile operating in Lab space for Brightness,
 // contrast, Saturation and white point displacement
-
-cmsHPROFILE CMSEXPORT cmsCreateBCHSWabstractProfileTHR(cmsContext ContextID,
-    cmsUInt32Number nLUTPoints,
-    double Bright,
-    double Contrast,
-    double Hue,
-    double Saturation,
-    cmsUInt32Number TempSrc,
-    cmsUInt32Number TempDest)
+cmsHPROFILE CMSEXPORT cmsCreateBCHSWabstractProfileTHR(cmsContext ContextID, cmsUInt32Number nLUTPoints, double Bright,
+    double Contrast, double Hue, double Saturation, cmsUInt32Number TempSrc, cmsUInt32Number TempDest)
 {
 	cmsHPROFILE hICC;
 	cmsPipeline * Pipeline;
@@ -681,7 +663,6 @@ cmsHPROFILE CMSEXPORT cmsCreateBCHSWabstractProfileTHR(cmsContext ContextID,
 	cmsStage * CLUT;
 	cmsUInt32Number Dimensions[MAX_INPUT_DIMENSIONS];
 	cmsUInt32Number i;
-
 	bchsw.Brightness = Bright;
 	bchsw.Contrast   = Contrast;
 	bchsw.Hue        = Hue;
@@ -696,25 +677,21 @@ cmsHPROFILE CMSEXPORT cmsCreateBCHSWabstractProfileTHR(cmsContext ContextID,
 		cmsWhitePointFromTemp(&WhitePnt, TempDest);
 		cmsxyY2XYZ(&bchsw.WPdest, &WhitePnt);
 	}
-
 	hICC = cmsCreateProfilePlaceholder(ContextID);
 	if(!hICC)                       // can't allocate
 		return NULL;
-
 	cmsSetDeviceClass(hICC,      cmsSigAbstractClass);
 	cmsSetColorSpace(hICC,       cmsSigLabData);
 	cmsSetPCS(hICC,              cmsSigLabData);
-
 	cmsSetHeaderRenderingIntent(hICC,  INTENT_PERCEPTUAL);
-
 	// Creates a Pipeline with 3D grid only
 	Pipeline = cmsPipelineAlloc(ContextID, 3, 3);
 	if(Pipeline == NULL) {
 		cmsCloseProfile(hICC);
 		return NULL;
 	}
-
-	for(i = 0; i < MAX_INPUT_DIMENSIONS; i++) Dimensions[i] = nLUTPoints;
+	for(i = 0; i < MAX_INPUT_DIMENSIONS; i++) 
+		Dimensions[i] = nLUTPoints;
 	CLUT = cmsStageAllocCLut16bitGranular(ContextID, Dimensions, 3, 3, NULL);
 	if(CLUT == NULL) goto Error;
 

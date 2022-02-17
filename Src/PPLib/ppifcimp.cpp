@@ -6060,7 +6060,7 @@ static BExtQuery & FASTCALL MakeLotSelectFldList(BExtQuery & rQ, const ReceiptTb
 }
 
 struct LotQueryBlock {
-	LotQueryBlock() : Idx(-1), SpMode(-1), Reverse(0), P_Q(0)
+	LotQueryBlock() : Idx(-1), SpMode(-1), Reverse(false), P_Q(0)
 	{
 		// @v10.6.8 @ctr memzero(Key, sizeof(Key));
 	}
@@ -6070,7 +6070,8 @@ struct LotQueryBlock {
 	}
 	int   Idx;
 	int   SpMode;
-	int   Reverse;
+	bool  Reverse;
+	uint8 Reserve[3]; // @alignment
 	BExtQuery * P_Q;
 	// @v10.6.8 uint8 Key[ALIGNSIZE(MAXKEYLEN, 2)];
 	BtrDbKey Key_; // @v10.6.8
@@ -6102,7 +6103,7 @@ static int MakeLotQuery(ReceiptCore & rRcpt, LotQueryBlock & rBlk, int lcr, ulon
 	}
 	else {
 		if(!lcr /*&& Filt.CalcMethod == GoodsRestParam::pcmLastLot*/)
-			rBlk.Reverse = 1;
+			rBlk.Reverse = true;
 		if(!dt || lcr) {
 			const int null_rest = BIN(!lcr/*&& Filt.Flags & GoodsRestFilt::fNullRest*/);
 			if(single_loc_id) {

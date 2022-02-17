@@ -4,7 +4,7 @@
 // Copyright 1999,2000,2001 BrightStation PLC
 // Copyright 2002 Ananova Ltd
 // Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2014,2019 Olly Betts
-// @licence GNU GPL
+// @license GNU GPL
 //
 #include <xapian-internal.h>
 #pragma hdrstop

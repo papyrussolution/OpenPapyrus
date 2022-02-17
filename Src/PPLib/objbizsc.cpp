@@ -1410,7 +1410,7 @@ int PPViewBizScoreVal::InitIteration()
 	}
 	k0_ = k0;
 	Counter.Init(P_IterQuery->countIterations(0, &k0_, spGe));
-	P_IterQuery->initIteration(0, &k0, spGe);
+	P_IterQuery->initIteration(false, &k0, spGe);
 	CATCHZOK
 	return ok;
 }
@@ -2407,7 +2407,7 @@ int PPALDD_UhttStatistic::InitData(PPFilt & rFilt, long rsrv)
 			DBQ * dbq = &(gc.Kind == PPGDSK_BRAND);
 			k.k2.Kind = PPGDSK_BRAND;
 			q.select(gc.ID, 0L).where(*dbq);
-			for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;)
+			for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;)
 				brands_n++;
 		}
 		MEMSZERO(H);

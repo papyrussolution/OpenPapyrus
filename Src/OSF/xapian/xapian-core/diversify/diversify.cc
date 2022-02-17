@@ -2,7 +2,7 @@
  *  @brief Diversification API
  */
 // Copyright (C) 2018 Uppinder Chugh
-// @licence GNU GPL
+// @license GNU GPL
 //
 #include <xapian-internal.h>
 #pragma hdrstop

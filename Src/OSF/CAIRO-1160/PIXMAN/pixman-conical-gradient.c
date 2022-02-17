@@ -33,10 +33,10 @@ static force_inline double coordinates_to_parameter(double x, double y, double a
 {
 	double t = atan2(y, x) + angle;
 	while(t < 0)
-		t += 2 * M_PI;
-	while(t >= 2 * M_PI)
-		t -= 2 * M_PI;
-	return 1 - t * (1 / (2 * M_PI)); // Scale t to [0, 1] and make rotation CCW
+		t += SMathConst::Pi2;
+	while(t >= SMathConst::Pi2)
+		t -= SMathConst::Pi2;
+	return 1 - t * (1 / SMathConst::Pi2); // Scale t to [0, 1] and make rotation CCW
 }
 
 static uint32 * conical_get_scanline_narrow(pixman_iter_t * iter, const uint32 * mask)
@@ -152,17 +152,17 @@ void _pixman_conical_gradient_iter_init(pixman_image_t * image, pixman_iter_t * 
 PIXMAN_EXPORT pixman_image_t * pixman_image_create_conical_gradient(const pixman_point_fixed_t *  center, pixman_fixed_t angle, const pixman_gradient_stop_t * stops, int n_stops)
 {
 	pixman_image_t * image = _pixman_image_allocate();
-	conical_gradient_t * conical;
-	if(!image)
-		return NULL;
-	conical = &image->conical;
-	if(!_pixman_init_gradient(&conical->common, stops, n_stops)) {
-		SAlloc::F(image);
-		return NULL;
+	if(image) {
+		conical_gradient_t * conical = &image->conical;
+		if(!_pixman_init_gradient(&conical->common, stops, n_stops)) {
+			ZFREE(image);
+		}
+		else {
+			angle = MOD(angle, pixman_int_to_fixed(360));
+			image->type = CONICAL;
+			conical->center = *center;
+			conical->angle = (pixman_fixed_to_double(angle) / 180.0) * SMathConst::Pi;
+		}
 	}
-	angle = MOD(angle, pixman_int_to_fixed(360));
-	image->type = CONICAL;
-	conical->center = *center;
-	conical->angle = (pixman_fixed_to_double(angle) / 180.0) * M_PI;
 	return image;
 }

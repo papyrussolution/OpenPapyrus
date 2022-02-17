@@ -102,7 +102,7 @@ int SpecSeriesCore::GetListBySerial(PPID kind, const char * pSerial, StrAssocArr
 	STRNSCPY(k1.Serial, pSerial);
 	BExtQuery q(this, 1);
 	q.select(this->ID, this->Serial, this->Tail, 0).where(this->Serial == pSerial);
-	for(q.initIteration(0, &k1, spEq); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k1, spEq); q.nextIteration() > 0;) {
 		SpecSeriesCore::GetExField(&data, SPCSNEXSTR_GOODSNAME, temp_buf);
 		CALLPTRMEMB(pList, Add(data.ID, temp_buf));
 		ok = 1;

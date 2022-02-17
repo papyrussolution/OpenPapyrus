@@ -198,7 +198,7 @@ int BudgetItemCore::GetItemsByBudget(PPID budgetID, PPID accID, long kind, Budge
 	dbq = ppcheckfiltid(dbq, BudgetID, budgetID);
 	dbq = ppcheckfiltid(dbq, Acc, accID);
 	q.where(*dbq);
-	for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;)
+	for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;)
 		if(kind == -1 || data.Kind == kind)
 			pItems->insert(&data);
 	CATCHZOK
@@ -1345,7 +1345,7 @@ void PPViewBudget::GetTabTitle(long tabID, SString & rBuf)
 
 			MEMSZERO(k0);
 			q.selectAll();
-			for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 				if(CheckForFilt(&ObjBudg.ItemsTbl.data) > 0) {
 					TempBudgItemTbl::Rec temp_rec;
 					// @v10.6.4 MEMSZERO(temp_rec);

@@ -2,7 +2,7 @@
  * @brief Xapian::DiceCoeffWeight class
  */
 // Copyright (C) 2018 Guruprasad Hegde
-// @licence GNU GPL
+// @license GNU GPL
 //
 #include <xapian-internal.h>
 #pragma hdrstop

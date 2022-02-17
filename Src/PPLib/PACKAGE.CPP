@@ -297,7 +297,7 @@ int PackageCore::GetPckgLinkList(PPID id, PPIDArray * pList)
 	q.selectAll().where(PL.PckgID == id);
 	k.PckgID = id;
 	k.LotID = 0;
-	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;)
+	for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;)
 		if(!pList->add(PL.data.LotID))
 			return 0;
 	return 1;

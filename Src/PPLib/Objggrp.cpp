@@ -62,7 +62,7 @@ int PPObjGoodsGroup::CalcTotal(GoodsGroupTotal * pTotal)
 	MEMSZERO(k1);
 	k1.Kind = PPGDSK_GROUP;
 	q.select(P_Tbl->ID, P_Tbl->Flags, P_Tbl->ParentID, 0L).where(P_Tbl->Kind == PPGDSK_GROUP);
-	for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 		if(P_Tbl->data.ParentID)
 			id_list.add(P_Tbl->data.ID);
 		total.MaxLevel = 1;
@@ -164,7 +164,7 @@ int PPObjGoodsGroup::Transmit()
 		k.ParentID = 0;
 		dbq = & (P_Tbl->Kind == PPGDSK_GROUP);
 		q.select(P_Tbl->ID, P_Tbl->Name, P_Tbl->Flags, 0L).where(*dbq);
-		for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 			const long _gf = P_Tbl->data.Flags;
 			if((!(_gf & GF_ALTGROUP) || (transmit_alt_grp && !(_gf & GF_DYNAMIC))) && !(_gf & GF_FOLDER))
 				id_list.add(P_Tbl->data.ID);
@@ -319,7 +319,7 @@ int PPObjGoodsGroup::Recover(const GoodsGroupRecoverParam * pParam, PPLogger * p
 			k.Kind = PPGDSK_GROUP;
 			k.ParentID = 0;
 			q.select(ggrp_tbl.ID, ggrp_tbl.Name, 0L).where(ggrp_tbl.Kind == PPGDSK_GROUP);
-			for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 				const PPID  grp_id = ggrp_tbl.data.ID;
 				grp_name = ggrp_tbl.data.Name;
 				if(IsTempAlt(grp_id) > 0) {
@@ -380,7 +380,7 @@ int PPObjGoodsGroup::Recover(const GoodsGroupRecoverParam * pParam, PPLogger * p
 			k.Kind = PPGDSK_GROUP;
 			k.ParentID = 0;
 			q.select(P_Tbl->ID, P_Tbl->Name, P_Tbl->Flags, P_Tbl->ParentID, 0L).where(P_Tbl->Kind == PPGDSK_GROUP);
-			for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 				Goods2Tbl::Rec grp_rec, rec;
 				P_Tbl->copyBufTo(&grp_rec);
 				THROW(P_Tbl->CorrectCycleLink(grp_rec.ID, pLogger, 0));
@@ -469,7 +469,7 @@ int PPObjGoodsGroup::Recover(const GoodsGroupRecoverParam * pParam, PPLogger * p
 			k.Kind = PPGDSK_GOODS;
 			k.ParentID = 0;
 			q.select(P_Tbl->ID, P_Tbl->Name, P_Tbl->ParentID, P_Tbl->Flags, 0L).where(P_Tbl->Kind == PPGDSK_GOODS);
-			for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 				P_Tbl->copyBufTo(&goods_rec);
 				if(Search(goods_rec.ParentID, &grp_rec) < 0) {
 					pLogger->LogMsgCode(mfError, PPERR_HANGGOODSPARENTLNK, goods_rec.Name);
@@ -613,7 +613,7 @@ StrAssocArray * PPObjGoodsGroup::MakeStrAssocList(void * extraPtr)
 	k.Kind = PPGDSK_GROUP;
 	dbq = & (P_Tbl->Kind == PPGDSK_GROUP);
 	q.select(P_Tbl->ID, P_Tbl->ParentID, P_Tbl->Name, P_Tbl->Flags, P_Tbl->GoodsTypeID, 0L).where(*dbq);
-	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 		const int is_alt  = BIN(P_Tbl->data.Flags & GF_ALTGROUP);
 		const int is_fold = BIN(P_Tbl->data.Flags & GF_FOLDER);
 #ifdef _DEBUG
@@ -2020,7 +2020,7 @@ int PPObjBrand::GetListByFilt(const BrandFilt * pFilt, PPIDArray * pList)
 	q.select(P_Tbl->ID, P_Tbl->Name, P_Tbl->GoodsTypeID, P_Tbl->ManufID, P_Tbl->Flags, 0L).where(*dbq);
 	MEMSZERO(k2);
 	k2.Kind = Kind;
-	for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 		PPBrand rec;
 		if(Helper_GetRec(P_Tbl->data, &rec) && rec.CheckForFilt(pFilt)) {
 			THROW_SL(result_list.add(rec.ID));
@@ -2986,7 +2986,7 @@ int PPViewBrand::MakeList()
 	q.select(p_tbl->ID, p_tbl->Name, p_tbl->GoodsTypeID, p_tbl->ManufID, p_tbl->Flags, 0L).where(*dbq);
 	MEMSZERO(k2);
 	k2.Kind = PPGDSK_BRAND;
-	for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 		PPBrand rec;
 		if(Obj.Helper_GetRec(p_tbl->data, &rec) && rec.CheckForFilt(&Filt)) {
 			BrwItem new_item(&rec);

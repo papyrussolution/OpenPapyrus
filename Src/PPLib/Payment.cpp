@@ -1020,7 +1020,7 @@ int PPObjBill::GatherPayableBills(ReckonOpArItem * pItem, PPID curID, PPID locID
 	if(curID >= 0)
 		dbq = & (*dbq && P_Tbl->CurID == curID);
 	q.where(*dbq);
-	for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 		if(!check_payout_flag || !(P_Tbl->data.Flags & BILLF_PAYOUT)) {
 			const PPID   bill_id = P_Tbl->data.ID;
 			double payment = 0.0;
@@ -1628,7 +1628,7 @@ int PPObjBill::GetPayableBillList_(const PPIDArray * pOpList, PPID arID, PPID cu
 		LongArray ndup_list;
 		pList->GetIdList(ndup_list);
 		ndup_list.sort();
-		for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 			if(!ndup_list.bsearch(P_Tbl->data.ID) && (single_op || !pOpList || pOpList->lsearch(P_Tbl->data.OpID)))
 				THROW(tmp_list.AddBill(&P_Tbl->data));
 		}
@@ -1774,7 +1774,7 @@ int PPObjBill::CalcClientDebt(PPID clientID, const DateRange * pPeriod, int diff
 				if(use_omt_paymamt) {
 					q.select(p_t->ID, p_t->Dt, p_t->Flags, p_t->Amount, p_t->OpID, p_t->PaymAmount, 0L).
 						where(p_t->Object == clientID && daterange(p_t->Dt,  &period) /* (такое ограничение не работает) && tbl->PaymAmount < tbl->Amount*/);
-					for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
+					for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 						if(op_list.bsearch(p_t->data.OpID)) {
 							BillTbl::Rec rec;
 							p_t->copyBufTo(&rec);
@@ -1818,7 +1818,7 @@ int PPObjBill::CalcClientDebt(PPID clientID, const DateRange * pPeriod, int diff
 							double Amount;
 						};
 						SVector bi_list(sizeof(_BI)); // @v9.8.12 SArray-->SVector
-						for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
+						for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 							if(op_list.bsearch(p_t->data.OpID)) {
 								_BI bi_item;
 								MEMSZERO(bi_item);
@@ -1860,7 +1860,7 @@ int PPObjBill::CalcClientDebt(PPID clientID, const DateRange * pPeriod, int diff
 						}
 					}
 					else {
-						for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
+						for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 							if(op_list.bsearch(p_t->data.OpID)) {
 								BillTbl::Rec rec;
 								p_t->copyBufTo(&rec);

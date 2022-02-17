@@ -18,18 +18,6 @@
 //       contributors may be used to endorse or promote products derived
 //       from this software without specific prior written permission.
 //
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 // ICU PATCH: ifdef around UCONFIG_NO_FORMATTING
 #include "unicode/utypes.h"
 #if !UCONFIG_NO_FORMATTING
@@ -46,21 +34,10 @@ U_NAMESPACE_BEGIN
 
 namespace double_conversion {
 // We assume that doubles and uint64_t have the same endianness.
-static uint64_t double_to_uint64(double d) {
-	return BitCast<uint64_t>(d);
-}
-
-static double uint64_to_double(uint64_t d64) {
-	return BitCast<double>(d64);
-}
-
-static uint32_t float_to_uint32(float f) {
-	return BitCast<uint32_t>(f);
-}
-
-static float uint32_to_float(uint32_t d32) {
-	return BitCast<float>(d32);
-}
+static uint64_t double_to_uint64(double d) { return BitCast<uint64_t>(d); }
+static double uint64_to_double(uint64_t d64) { return BitCast<double>(d64); }
+static uint32_t float_to_uint32(float f) { return BitCast<uint32_t>(f); }
+static float uint32_to_float(uint32_t d32) { return BitCast<float>(d32); }
 
 // Helper functions for doubles.
 class Double {
@@ -437,19 +414,9 @@ public:
 		bool physical_significand_is_zero = ((AsUint32() & kSignificandMask) == 0);
 		return physical_significand_is_zero && (Exponent() != kDenormalExponent);
 	}
-
-	float value() const {
-		return uint32_to_float(d32_);
-	}
-
-	static float Infinity() {
-		return Single(kInfinity).value();
-	}
-
-	static float NaN() {
-		return Single(kNaN).value();
-	}
-
+	float value() const { return uint32_to_float(d32_); }
+	static float Infinity() { return Single(kInfinity).value(); }
+	static float NaN() { return Single(kNaN).value(); }
 private:
 	static const int kExponentBias = 0x7F + kPhysicalSignificandSize;
 	static const int kDenormalExponent = -kExponentBias + 1;

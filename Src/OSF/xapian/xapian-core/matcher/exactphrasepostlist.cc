@@ -2,7 +2,7 @@
  * @brief Return docs containing terms forming a particular exact phrase.
  */
 // Copyright (C) 2006,2007,2009,2010,2011,2014,2015,2017 Olly Betts
-// @licence GNU GPL
+// @license GNU GPL
 //
 #include <xapian-internal.h>
 #pragma hdrstop

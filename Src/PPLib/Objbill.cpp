@@ -509,7 +509,7 @@ int PPObjBill::GetShipmByOrder(PPID orderID, const DateRange * pRange, PPIDArray
 	k3.Dt   = pRange ? pRange->low : ZERODATE;
 	k3.BillNo = 0;
 	pList->clear();
-	for(q.initIteration(0, &k3, spGt); ok && q.nextIteration() > 0;)
+	for(q.initIteration(false, &k3, spGt); ok && q.nextIteration() > 0;)
 		if(!pList->addUnique(p_tbl->data.LinkBillID))
 			ok = 0;
 	return ok;
@@ -3754,7 +3754,7 @@ int PPObjBill::GetDeficitList(const DateRange * pPeriod, const PPIDArray * pLocL
 				q.select(P_CpTrfr->GoodsID, P_CpTrfr->Qtty, 0).where(P_CpTrfr->BillID == bill_id);
 				MEMSZERO(k0);
 				k0.BillID = bill_id;
-				for(q.initIteration(0, &k0, spGt); q.nextIteration() > 0;)
+				for(q.initIteration(false, &k0, spGt); q.nextIteration() > 0;)
 					THROW_SL(ary.Add(P_CpTrfr->data.GoodsID, fabs(P_CpTrfr->data.Qtty), 1));
 			}
 		}
@@ -3790,7 +3790,7 @@ int PPObjBill::GetDraftRcptList(const DateRange * pPeriod, const PPIDArray * pLo
 		MEMSZERO(k2);
 		k2.OpID = draft_op_id;
 		k2.Dt   = pPeriod ? pPeriod->low : ZERODATE;
-		for(q_b.initIteration(0, &k2, spGt); q_b.nextIteration() > 0;) {
+		for(q_b.initIteration(false, &k2, spGt); q_b.nextIteration() > 0;) {
 			if(!(P_Tbl->data.Flags & BILLF_CLOSEDORDER) && (!pPeriod || pPeriod->CheckDate(P_Tbl->data.Dt)) &&
 				(!pLocList || pLocList->lsearch(P_Tbl->data.LocID) > 0)) {
 				const PPID bill_id = P_Tbl->data.ID;
@@ -3799,7 +3799,7 @@ int PPObjBill::GetDraftRcptList(const DateRange * pPeriod, const PPIDArray * pLo
 				q.select(P_CpTrfr->GoodsID, P_CpTrfr->Qtty, 0).where(P_CpTrfr->BillID == bill_id);
 				MEMSZERO(k0);
 				k0.BillID = bill_id;
-				for(q.initIteration(0, &k0, spGt); q.nextIteration() > 0;) {
+				for(q.initIteration(false, &k0, spGt); q.nextIteration() > 0;) {
 					if(pList) {
 						DraftRcptItem item;
 						item.GoodsID = P_CpTrfr->data.GoodsID;
@@ -3847,7 +3847,7 @@ int PPObjBill::CalcDraftTransitRest(PPID restOpID, PPID orderOpID, PPID goodsID,
 	k1.LocID = locID;
 	BExtQuery q(P_CpTrfr, 1);
 	q.selectAll().where(P_CpTrfr->GoodsID == labs(goodsID) && P_CpTrfr->LocID == locID);
-	for(q.initIteration(0, &k1, spEq); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k1, spEq); q.nextIteration() > 0;) {
 		CpTransfTbl::Rec cpt_rec;
 		BillTbl::Rec bill_rec;
 		P_CpTrfr->copyBufTo(&cpt_rec);
@@ -4024,7 +4024,7 @@ int PPObjBill::SearchQuoteReqSeq(const DateRange * pPeriod, TSArray <QuoteReqLin
 		BExtQuery q(p_cpt, 0);
 		q.select(p_cpt->BillID, p_cpt->RByBill, p_cpt->Flags, p_cpt->Cost, p_cpt->Qtty, p_cpt->Tail, 0L).
 			where(p_cpt->BillID >= bill_id_beg && p_cpt->BillID <= bill_id_end);
-		for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 			p_cpt->copyBufTo(&cpt_rec);
 			if(bill_id_list.bsearch(cpt_rec.BillID)) {
 				CpTrfrExt cpext;
@@ -4416,7 +4416,7 @@ int PPObjBill::CalcGoodsSaldo(PPID goodsID, PPID arID, PPID dlvrLocID, const Dat
 		endOprNo = 0;
 	t_dbq = &(trfr->GoodsID == goodsID && daterange(trfr->Dt, pPeriod));
 	tq.select(trfr->Dt, trfr->OprNo, trfr->BillID, trfr->Quantity, trfr->Price, trfr->Discount, 0L).where(*t_dbq);
-	for(tq.initIteration(0, &tk3, spGe); tq.nextIteration() > 0;) {
+	for(tq.initIteration(false, &tk3, spGe); tq.nextIteration() > 0;) {
 		BillTbl::Rec bill_rec;
 		if(!endOprNo || trfr->data.Dt < pPeriod->upp || (trfr->data.Dt == pPeriod->upp && trfr->data.OprNo < endOprNo)) {
 			if(Fetch(trfr->data.BillID, &bill_rec) > 0 && bill_rec.Object == arID) {
@@ -8392,7 +8392,7 @@ int PPObjBill::DoesContainGoods(PPID id, const PPIDArray & rGoodsList)
 				dbq = &(*dbq && P_CpTrfr->GoodsID >= rGoodsList.get(0) && P_CpTrfr->GoodsID <= rGoodsList.getLast());
 			}
 			q.select(P_CpTrfr->BillID, P_CpTrfr->GoodsID, 0L).where(*dbq);
-			for(q.initIteration(0, &k, spGt); ok < 0 && q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k, spGt); ok < 0 && q.nextIteration() > 0;) {
 				if(rGoodsList.bsearch(P_CpTrfr->data.GoodsID)) {
 					ok = 1;
 				}
@@ -8432,7 +8432,7 @@ int PPObjBill::DoesContainGoods(PPID id, const PPIDArray & rGoodsList)
 				}
 			}
 			q.select(trfr->GoodsID, 0L).where(*dbq);
-			for(q.initIteration(0, &k0, spGt); ok < 0 && q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k0, spGt); ok < 0 && q.nextIteration() > 0;) {
 				const PPID _goods_id = abs(trfr->data.GoodsID);
 				if(rGoodsList.bsearch(_goods_id))
 					ok = 1;

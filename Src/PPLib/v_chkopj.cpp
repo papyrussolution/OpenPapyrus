@@ -229,7 +229,7 @@ int PPViewCheckOpJrnl::InitIteration()
 	}
 	ks = k0;
 	Counter.Init(P_IterQuery->countIterations(0, &ks, spGe));
-	P_IterQuery->initIteration(0, &k0, spGe);
+	P_IterQuery->initIteration(false, &k0, spGe);
 	return ok;
 }
 

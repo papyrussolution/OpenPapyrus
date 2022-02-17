@@ -3171,7 +3171,7 @@ int PPObjStyloPalm::CreateBrandList(ExportBlock & rBlk)
 			MEMSZERO(k2);
 			k2.Kind = PPGDSK_BRAND;
 			q.select(p_gtbl->ID, 0L).where(p_gtbl->Kind == PPGDSK_BRAND);
-			for(q.initIteration(0, &k2); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k2); q.nextIteration() > 0;) {
 				PPBrand brand_rec;
 				if(rBlk.P_BrObj->Fetch(p_gtbl->data.ID, &brand_rec) > 0) {
 					ExportBlock::BrandEntry entry;

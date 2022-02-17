@@ -42,21 +42,19 @@ static inline bool is_user_metadata_key(const string & key)
 
 struct VStats : public ValueStats {
 	Xapian::doccount freq_real;
-
-	VStats() : ValueStats(), freq_real(0) {
+	VStats() : ValueStats(), freq_real(0) 
+	{
 	}
 };
 
-size_t check_glass_table(const char * tablename, const string &db_dir, int fd,
-    off_t offset_,
-    const GlassVersion & version_file, int opts,
-    vector<Xapian::termcount> & doclens, ostream * out)
+size_t check_glass_table(const char * tablename, const string &db_dir, int fd, off_t offset_,
+    const GlassVersion & version_file, int opts, vector<Xapian::termcount> & doclens, ostream * out)
 {
 	Xapian::docid db_last_docid = version_file.get_last_docid();
 	if(out)
 		*out << tablename << ":\n";
 	if(fd < 0) {
-		if(strcmp(tablename, "postlist") != 0) {
+		if(!sstreq(tablename, "postlist")) {
 			// Other filenames are created lazily, so may not exist.
 			string filename(db_dir);
 			filename += '/';
@@ -64,7 +62,7 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd,
 			filename += "." GLASS_TABLE_EXTENSION;
 			if(!file_exists(filename)) {
 				if(out) {
-					if(strcmp(tablename, "termlist") == 0) {
+					if(sstreq(tablename, "termlist")) {
 						*out << "Not present.\n";
 					}
 					else {
@@ -76,21 +74,14 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd,
 			}
 		}
 	}
-
 	// Check the btree structure.
-	unique_ptr<GlassTable> table(
-		GlassTableCheck::check(tablename, db_dir, fd, offset_,
-		version_file, opts, out));
-
+	unique_ptr<GlassTable> table(GlassTableCheck::check(tablename, db_dir, fd, offset_, version_file, opts, out));
 	// Now check the glass structures inside the btree.
 	unique_ptr<GlassCursor> cursor(table->cursor_get());
-
 	size_t errors = 0;
-
 	cursor->rewind();
 	cursor->next(); // Skip the empty entry.
-
-	if(strcmp(tablename, "postlist") == 0) {
+	if(sstreq(tablename, "postlist")) {
 		// Now check the structure of each postlist in the table.
 		map<Xapian::valueno, VStats> valuestats;
 		string current_term;
@@ -98,10 +89,8 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd,
 		Xapian::termcount termfreq = 0, collfreq = 0;
 		Xapian::termcount tf = 0, cf = 0;
 		Xapian::doccount num_doclens = 0;
-
 		for(; !cursor->after_end(); cursor->next()) {
 			string & key = cursor->current_key;
-
 			if(is_user_metadata_key(key)) {
 				// User metadata can be anything, so we can't do any particular
 				// checks on it other than to check that the tag isn't empty.
@@ -584,14 +573,12 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd,
 		for(i = valuestats.begin(); i != valuestats.end(); ++i) {
 			if(i->second.freq != i->second.freq_real) {
 				if(out)
-					*out << "Value stats frequency for slot " << i->first
-					     << " is " << i->second.freq << " but recounting "
-						"gives " << i->second.freq_real << endl;
+					*out << "Value stats frequency for slot " << i->first << " is " << i->second.freq << " but recounting gives " << i->second.freq_real << endl;
 				++errors;
 			}
 		}
 	}
-	else if(strcmp(tablename, "docdata") == 0) {
+	else if(sstreq(tablename, "docdata")) {
 		// glass doesn't store a docdata entry if the document data is empty,
 		// so we can only check there aren't more docdata entries than
 		// documents.
@@ -639,23 +626,20 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd,
 			if(cursor->current_tag.empty()) {
 				// We shouldn't store empty document data.
 				if(out)
-					*out << "Empty document data explicitly stored for "
-						"document id " << did << endl;
+					*out << "Empty document data explicitly stored for document id " << did << endl;
 				++errors;
 			}
 		}
 	}
-	else if(strcmp(tablename, "termlist") == 0) {
+	else if(sstreq(tablename, "termlist")) {
 		// Now check the contents of the termlist table.
 		Xapian::doccount num_termlists = 0;
 		Xapian::doccount num_slotsused_entries = 0;
 		for(; !cursor->after_end(); cursor->next()) {
 			string & key = cursor->current_key;
-
 			// Get docid from key.
 			const char * pos = key.data();
 			const char * end = pos + key.size();
-
 			Xapian::docid did;
 			if(!unpack_uint_preserving_sort(&pos, end, &did)) {
 				if(out)
@@ -867,15 +851,13 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd,
 			++errors;
 		}
 	}
-	else if(strcmp(tablename, "position") == 0) {
+	else if(sstreq(tablename, "position")) {
 		// Now check the contents of the position table.
 		for(; !cursor->after_end(); cursor->next()) {
 			string & key = cursor->current_key;
-
 			// Get docid from key.
 			const char * pos = key.data();
 			const char * end = pos + key.size();
-
 			string term;
 			if(!unpack_string_preserving_sort(&pos, end, term)) {
 				if(out)

@@ -3,7 +3,7 @@
 // "Keep this file name-space clean" means, talk to drepper@gnu.org before changing it!
 // Copyright (C) 1987-1996, 1998-2004, 2006, 2008-2011 Free Software Foundation, Inc.
 // This file is part of the GNU C Library.
-// @licence GNU GPL
+// @license GNU GPL
 //
 #include <slib-internal.h>
 #pragma hdrstop

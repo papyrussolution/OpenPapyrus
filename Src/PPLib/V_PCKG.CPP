@@ -28,7 +28,7 @@ static int CreatePckgViewList(PackageCore * pPckgCore, ReceiptCore * pRcptCore, 
 		gq.select(p_r->ID, 0).where(*dbq);
 		MEMSZERO(rk2);
 		rk2.GoodsID = pFilt->GoodsID;
-		for(gq.initIteration(0, &rk2, spGe); gq.nextIteration();) {
+		for(gq.initIteration(false, &rk2, spGe); gq.nextIteration();) {
 			PPID pckg_id = 0;
 			PackageTbl::Rec pckg_rec;
 			if(p_p->GetLotLink(p_r->data.ID, &pckg_id, &pckg_rec) > 0) {
@@ -52,7 +52,7 @@ static int CreatePckgViewList(PackageCore * pPckgCore, ReceiptCore * pRcptCore, 
 			dbq = &(*dbq && p_p->LocID == pFilt->LocID);
 		q.select(p_p->ID, p_p->Code, 0L).where(*dbq);
 		MEMSZERO(pk);
-		for(q.initIteration(0, &pk, spGe); q.nextIteration();) {
+		for(q.initIteration(false, &pk, spGe); q.nextIteration();) {
 			MEMSZERO(entry);
 			entry.ID = p_p->data.ID;
 			STRNSCPY(entry.Code, p_p->data.Code);

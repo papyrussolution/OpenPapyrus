@@ -23,7 +23,7 @@ int Transfer::CorrectIntrUnite()
 	{
 		PPTransaction tra(1);
 		THROW(tra);
-		for(q.initIteration(0, &k4, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k4, spGe); q.nextIteration() > 0;) {
 			const PPID prev_lot_id = Rcpt.data.PrevLotID;
 			if(prev_lot_id) {
 				const PPID lot_id = Rcpt.data.ID;
@@ -164,7 +164,7 @@ int Transfer::CorrectReverse()
 		k1.Dt = param.Period.low;
 		BExtQuery q(this, 1, 256);
 		q.selectAll().where(daterange(this->Dt, &param.Period) && this->Reverse == (long)1);
-		for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 			TransferTbl::Rec rec, correct_rec;
 			PPWaitDate(data.Dt);
 			copyBufTo(&rec);
@@ -623,7 +623,7 @@ int Transfer::CorrectLotTaxGrp()
 	THROW(PPStartTransaction(&ta, 1));
 	THROW(p_bobj->atobj->P_Tbl->LockingFRR(1, &frrl_tag, 0));
 	MEMSZERO(k);
-	for(q.initIteration(0, &k, spFirst); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k, spFirst); q.nextIteration() > 0;) {
 		PPID   parent_id  = Rcpt.data.ID;
 		PPID   tax_grp_id = Rcpt.data.InTaxGrpID;
 		PPID * p_lot_id;
@@ -1199,7 +1199,7 @@ int Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flags, PPL
 				q.selectAll().where(LotID == lotID);
 				MEMSZERO(k);
 				k.LotID = lotID;
-				for(q.initIteration(0, &k, spGt); q.nextIteration() > 0; op_count++) {
+				for(q.initIteration(false, &k, spGt); q.nextIteration() > 0; op_count++) {
 					DBRowId p;
 					q.getRecPosition(&p);
 					last_dt = data.Dt;
@@ -1291,7 +1291,7 @@ int Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flags, PPL
 					k.Dt    = ZERODATE;
 					k.OprNo = 0;
 					op_count = 0;
-					for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
+					for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 						if(!(data.Flags & PPTFR_REVAL)) {
 							if(op_count) {
 								if(data.Flags & PPTFR_ORDER) {
@@ -1805,7 +1805,7 @@ int Transfer::RecalcLcr()
 			{
 				PPTransaction tra(1);
 				THROW(tra);
-				for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+				for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 					THROW(Helper_RecalcLotCRest2(Rcpt.data.ID, &bei, 0));
 					PPWaitPercent(cntr.Increment());
 					if((static_cast<uint>(cntr) % 10000) == 0) {
@@ -1838,7 +1838,7 @@ int Transfer::RecalcLcr()
 			{
 				PPTransaction tra(1);
 				THROW(tra);
-				for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+				for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 					THROW(Helper_RecalcLotCRest(Rcpt.data.ID, &bei, 0));
 					PPWaitPercent(cntr.Increment());
 					if((static_cast<uint>(cntr) % 10000) == 0) {
@@ -2118,7 +2118,7 @@ int PrcssrAbsentGoods::Run()
 			MEMSZERO(k0);
 			counter.Init(q.countIterations(0, &k0, spFirst));
 			MEMSZERO(k0);
-			for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
 				THROW(ProcessGoods(labs(p_rcpt->data.GoodsID), p_rcpt->data.ID, 0, logger));
 				PPWaitPercent(counter.Increment());
 			}
@@ -2131,7 +2131,7 @@ int PrcssrAbsentGoods::Run()
 			cpq.select(t->BillID, t->RByBill, t->GoodsID, 0L);
 			MEMSZERO(cpk0);
 			counter.Init(cpq.countIterations(0, &(cpk0_ = cpk0), spFirst));
-			for(cpq.initIteration(0, &cpk0, spFirst); cpq.nextIteration() > 0;) {
+			for(cpq.initIteration(false, &cpk0, spFirst); cpq.nextIteration() > 0;) {
 				THROW(ProcessGoods(labs(t->data.GoodsID), 0, t->data.BillID, logger));
 				PPWaitPercent(counter.Increment());
 			}
@@ -2255,7 +2255,7 @@ int RecoverTransfer()
 	PPWaitStart();
 	q.selectAll();
 	MEMSZERO(k1);
-	for(q.initIteration(0, &k1, spFirst); q.nextIteration() > 0; cntr.Increment()) {
+	for(q.initIteration(false, &k1, spFirst); q.nextIteration() > 0; cntr.Increment()) {
 		temp_lot_list.addUnique(r_data.LotID);
 		{
 			int    fpok = 1;
@@ -2464,7 +2464,7 @@ int PrcssrAbsenceAccounts::Run()
 	PPGetWord(PPWORD_RECOVERED, 0, rcvrd_word);
 	dbq = ppcheckfiltid(dbq, ARel.CurID, P.CurID);
 	q.selectAll().where(*dbq);
-	for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 		int    recovered = 0;
 		SString log_buf, acc_name_buf;
 		AcctRelTbl::Rec acr_rec;
@@ -2634,7 +2634,7 @@ int PrcssrAbsenceTrfr::Run()
 	MEMSZERO(rk1);
 	rk1.Dt = startdate;
 	THROW(PPStartTransaction(&ta, 1));
-	for(q.initIteration(0, &rk1, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &rk1, spGe); q.nextIteration() > 0;) {
 		PPWaitDate(rcpt.data.Dt);
 		TransferTbl::Key2 tk2;
 		tk2.LotID = rcpt.data.ID;
@@ -2778,7 +2778,7 @@ int PrcssrReceiptPacking::Run()
 		q.select(r_lot_t.ID, 0);
 		k0.ID = 1;
 		long   prev_id = 0;
-		for(q.initIteration(0, &k0, spGe); free_id_count < max_free_count && q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k0, spGe); free_id_count < max_free_count && q.nextIteration() > 0;) {
 			long   id = r_lot_t.data.ID;
 			if(id > (prev_id+1)) {
 				for(long i = prev_id+1; i < id; i++) {
@@ -2798,7 +2798,7 @@ int PrcssrReceiptPacking::Run()
 		MEMSZERO(k0);
 		BExtQuery q(p_cptrfr_t, 0);
 		q.select(p_cptrfr_t->BillID, p_cptrfr_t->RByBill, p_cptrfr_t->OrdLotID, 0).where(p_cptrfr_t->OrdLotID > 0L);
-		for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
 			CpTransfLotKey item;
 			item.LotID = p_cptrfr_t->data.OrdLotID;
 			item.BillID = p_cptrfr_t->data.BillID;
@@ -2816,7 +2816,7 @@ int PrcssrReceiptPacking::Run()
 		MEMSZERO(k0);
 		BExtQuery q(&tses_t.Lines, 0);
 		q.select(tses_t.Lines.TSessID, tses_t.Lines.OprNo, tses_t.Lines.LotID, 0).where(tses_t.Lines.LotID > 0L);
-		for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
 			TSessLineLotKey item;
 			item.LotID = tses_t.Lines.data.LotID;
 			item.SessID = tses_t.Lines.data.TSessID;

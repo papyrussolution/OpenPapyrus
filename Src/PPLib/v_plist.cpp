@@ -876,7 +876,7 @@ int PPViewPriceList::UpdateTempTbl(PriceLineIdent * pIdent)
 			if(Filt.Flags & PLISTF_PRESENTONLY)
 				dbq = &(*dbq && (Tbl.Lines.IsPresent > 0L));
 			q.selectAll().where(*dbq);
-			for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 				Tbl.Lines.copyBufTo(&rec);
 				int   is_found   = 0;
 				uint  grp_count  = Filt.GrpIDList.IsExists() ? Filt.GrpIDList.GetCount() : 1;
@@ -992,7 +992,7 @@ int PPViewPriceList::InitIterQuery(PPID grpID)
 		k_ = k;
 		Counter.Init(P_IterQuery->countIterations(0, &k_, sp_mode));
 	}
-	P_IterQuery->initIteration(0, &k, sp_mode);
+	P_IterQuery->initIteration(false, &k, sp_mode);
 	return 1;
 }
 

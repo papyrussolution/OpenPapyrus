@@ -257,7 +257,7 @@ int AccTurnCore::GetBalRest(LDATE dt, PPID accID, double * pDbt, double * pCrd, 
 			q.selectAll().where(AccRel.AccID == accID && AccRel.Closed == 0L);
 			k.AccID = accID;
 			k.ArticleID = 0;
-			for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 				double rest = 0.0;
 				GetAcctRest(dt, AccRel.data.ID, &rest, 0);
 				if(rest > 0)
@@ -1381,7 +1381,7 @@ int AccTurnCore::Helper_Repair(long flags, int reverse, int (*MsgProc)(int msgCo
 	getNumRecs(&numrecs);
 	BExtQuery q(this, 2);
 	q.selectAll().where(this->Reverse == static_cast<long>(reverse));
-	for(q.initIteration(0, &k2, spFirst); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k2, spFirst); q.nextIteration() > 0;) {
 		int    msg_code = 0;
 		AccTurnTbl::Key0 k0;
 		AccTurnTbl::Rec rec, mirror;
@@ -1507,7 +1507,7 @@ int AccTurnCore::RecalcRest(PPID accRelID, LDATE startDate,
 		BExtQuery q(this, 1, 64);
 		q.select(this->Dt, this->OprNo, this->Amount, this->Rest, this->Reverse, 0L).
 		where(this->Acc == accRelID && this->Dt >= startDate);
-		for(q.initIteration(0, &k, spGt); !correct && q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k, spGt); !correct && q.nextIteration() > 0;) {
 			amt = MONEYTOLDBL(data.Amount);
 			r   = MONEYTOLDBL(data.Rest);
 			if(data.Reverse == 0)
@@ -1718,7 +1718,7 @@ int AccTurnCore::RecalcBalance(PPID accID, LDATE startDate, int use_ta)
 			THROW(GetBalRest(startDate, accID, &dbt, &crd, BALRESTF_INCOMING));
 		prev = ZERODATE;
 		q.select(this->Dt, this->Reverse, this->Amount, 0L).where(this->Bal == accID && this->Dt >= startDate);
-		for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 			if(data.Dt != prev) {
 				if(prev)
 					THROW(_CheckBalance(accID, prev, dbt, crd, 0, 1, logger, 0));
@@ -1778,7 +1778,7 @@ int AccTurnCore::_RecalcBalance(PPID balID, const RecoverBalanceParam * pParam, 
 		BExtQuery q(this, 3, 64);
 		q.select(this->Dt, this->Reverse, this->Amount, 0L).
 			where(this->Bal == balID && daterange(this->Dt, &pParam->Period));
-		for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 			if(data.Dt != prev) {
 				if(prev) {
 					THROW(err = _CheckBalance(balID, prev, dbt, crd, sbal, correct_flag, rLogger, 1));

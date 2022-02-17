@@ -161,7 +161,7 @@ double _cairo_stroke_style_dash_period(const cairo_stroke_style_t * style)
  * c = 1*w
  * but in this case it would not be an approximation, since f is already linear in d.
  */
-#define ROUND_MINSQ_APPROXIMATION (9*M_PI/32)
+#define ROUND_MINSQ_APPROXIMATION (9*SMathConst::Pi/32)
 
 /*
  * Computes the length of the "on" part of a dashed stroke style,

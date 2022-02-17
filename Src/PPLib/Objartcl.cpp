@@ -1384,7 +1384,7 @@ StrAssocArray * PPObjArticle::MakeStrAssocList(void * extraPtr /*accSheetID-->(A
 	q.where(*dbq);
 	MEMSZERO(k2);
 	k2.AccSheetID = acs_id;
-	for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 		const PPID ar_id = p_tbl->data.ID;
 		p_tbl->copyBufTo(&ar_rec);
 		int   do_skip = 0;

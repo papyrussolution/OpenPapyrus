@@ -265,8 +265,7 @@ static int mac_method_hmac_md5_96_hash(LIBSSH2_SESSION * session,
     uint32 addtl_len, void ** abstract)
 {
 	uchar temp[MD5_DIGEST_LENGTH];
-	mac_method_hmac_md5_hash(session, temp, seqno, packet, packet_len,
-	    addtl, addtl_len, abstract);
+	mac_method_hmac_md5_hash(session, temp, seqno, packet, packet_len, addtl, addtl_len, abstract);
 	memcpy(buf, (char *)temp, 96 / 8);
 	return 0;
 }

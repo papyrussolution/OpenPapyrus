@@ -1,7 +1,7 @@
 // LOCK.H
 // Copyright (C) 2011 The Libphonenumber Authors
 // Author: Philippe Liard
-// @licence Apache License 2.0
+// @license Apache License 2.0
 //
 // @sobolev: Have united lock_boost.h lock_posix.h lock_stdmutex.h lock_unsafe.h lock_win32.h in one file
 //

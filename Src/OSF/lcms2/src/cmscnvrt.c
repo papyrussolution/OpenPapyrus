@@ -1,4 +1,3 @@
-//---------------------------------------------------------------------------------
 //
 //  Little Color Management System
 //  Copyright (c) 1998-2020 Marti Maria Saguer
@@ -12,16 +11,6 @@
 //
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//---------------------------------------------------------------------------------
 //
 #include "lcms2_internal.h"
 #pragma hdrstop
@@ -79,36 +68,25 @@ static void DupPluginIntentsList(struct _cmsContext_struct* ctx, const struct _c
 	cmsIntentsList*  entry;
 	cmsIntentsList*  Anterior = NULL;
 	_cmsIntentsPluginChunkType* head = (_cmsIntentsPluginChunkType*)src->chunks[IntentPlugin];
-
 	// Walk the list copying all nodes
-	for(entry = head->Intents;
-	    entry != NULL;
-	    entry = entry->Next) {
+	for(entry = head->Intents; entry != NULL; entry = entry->Next) {
 		cmsIntentsList * newEntry = (cmsIntentsList*)_cmsSubAllocDup(ctx->MemPool, entry, sizeof(cmsIntentsList));
-
 		if(newEntry == NULL)
 			return;
-
 		// We want to keep the linked list order, so this is a little bit tricky
 		newEntry->Next = NULL;
 		if(Anterior)
 			Anterior->Next = newEntry;
-
 		Anterior = newEntry;
-
-		if(newHead.Intents == NULL)
-			newHead.Intents = newEntry;
+		SETIFZQ(newHead.Intents, newEntry);
 	}
-
 	ctx->chunks[IntentPlugin] = _cmsSubAllocDup(ctx->MemPool, &newHead, sizeof(_cmsIntentsPluginChunkType));
 }
 
-void  _cmsAllocIntentsPluginChunk(struct _cmsContext_struct* ctx,
-    const struct _cmsContext_struct* src)
+void  _cmsAllocIntentsPluginChunk(struct _cmsContext_struct* ctx, const struct _cmsContext_struct* src)
 {
 	if(src != NULL) {
-		// Copy all linked list
-		DupPluginIntentsList(ctx, src);
+		DupPluginIntentsList(ctx, src); // Copy all linked list
 	}
 	else {
 		static _cmsIntentsPluginChunkType IntentsPluginChunkType = { NULL };

@@ -243,7 +243,7 @@ int DeviceLoadingStat::GetExportedItems(PPID statID, PPID objType, TSVector <Dls
 		k1.ObjType = static_cast<int16>(objType);
 		BExtQuery q(&DlsoT, 1);
 		q.selectAll().where(DlsoT.DlsID == statID && DlsoT.ObjType == objType);
-		for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 			//temp_obj_list.add(DlsoT.data.ObjID);
 			THROW_SL(rList.insert(&DlsoT.data));
 		}
@@ -281,7 +281,7 @@ int DeviceLoadingStat::GetExportedObjectsSince(PPID objType, PPID sinceDlsID, PP
 		k1.ObjType = static_cast<int16>(objType);
 		BExtQuery q(&DlsoT, 1);
 		q.select(DlsoT.ObjID, 0).where(DlsoT.DlsID == _id && DlsoT.ObjType == objType);
-		for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 			temp_obj_list.add(DlsoT.data.ObjID);
 		}
     }
@@ -328,7 +328,7 @@ int DeviceLoadingStat::GetUpdatedObjects(PPID objType, const LDATETIME & since, 
 	else if(objType == PPOBJ_SCARD)
 		acn_list.add(PPACN_SCARDDISUPD);
 	acn_list.sort();
-	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 		if(cmp(since, p_sj->data.Dt, p_sj->data.Tm) < 0 && acn_list.bsearch(p_sj->data.Action))
 			if(pObjList)
 				THROW(pObjList->add(p_sj->data.ObjID));
@@ -535,7 +535,7 @@ int PPViewDvcLoadingStat::InitIteration()
 	MEMSZERO(k1);
 	k1_ = k1;
 	Counter.Init(P_IterQuery->countIterations(0, &k1_, spFirst));
-	P_IterQuery->initIteration(0, &k1, spFirst);
+	P_IterQuery->initIteration(false, &k1, spFirst);
 	CATCHZOK
 	return ok;
 }
@@ -789,7 +789,7 @@ int PPViewDLSDetail::InitIteration()
 		P_IterQuery->selectAll().where(p_t->DlsID == Filt.DlsID && p_t->ObjType == Filt.ObjType);
 		k_ = k;
 		Counter.Init(P_IterQuery->countIterations(0, &k_, spGe));
-		P_IterQuery->initIteration(0, &k_, spGe);
+		P_IterQuery->initIteration(false, &k_, spGe);
 	}
 	else
 		ok = -1;

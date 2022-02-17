@@ -20,7 +20,6 @@ SEnum::Imp * ProcessorCore::Enum(long prcKind, PPID parentID)
 
 int ProcessorCore::InitEnum(long prcKind, PPID parentID, long * pHandle)
 {
-	BExtQuery * q = new BExtQuery(this, 0);
 	DBQ  * dbq = 0;
 	int    idx = 0;
 	int    sp = spFirst;
@@ -49,9 +48,12 @@ int ProcessorCore::InitEnum(long prcKind, PPID parentID, long * pHandle)
 		idx = 0;
 		sp = spFirst;
 	}
-	q->selectAll().where(*dbq);
-	q->initIteration(idx, &k, sp);
-	return EnumList.RegisterIterHandler(q, pHandle);	
+	{
+		BExtQuery * q = new BExtQuery(this, idx);
+		q->selectAll().where(*dbq);
+		q->initIteration(false, &k, sp);
+		return EnumList.RegisterIterHandler(q, pHandle);	
+	}
 }
 
 int ProcessorCore::NextEnum(long enumHandle, ProcessorTbl::Rec * pRec)
@@ -527,7 +529,7 @@ int PPObjProcessor::SearchByCode(const char * pCode, PPID * pID, ProcessorTbl::R
 		q.selectAll().where(P_Tbl->Code == pCode);
 		ProcessorTbl::Key0 k0;
 		MEMSZERO(k0);
-		for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;)
+		for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;)
 			if(stricmp(P_Tbl->data.Code, pCode) == 0) {
 				ASSIGN_PTR(pID, P_Tbl->data.ID);
 				ASSIGN_PTR(pRec, P_Tbl->data);
@@ -546,7 +548,7 @@ int PPObjProcessor::SearchByLinkObj(PPID objType, PPID objID, PPID * pID, Proces
 	k1.Kind = PPPRCK_PROCESSOR;
 	BExtQuery q(p_t, 0, 1);
 	q.selectAll().where(p_t->Kind == static_cast<long>(PPPRCK_PROCESSOR) && p_t->LinkObjType == objType && p_t->LinkObjID == objID);
-	for(q.initIteration(0, &k1, spGe); ok < 0 && q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k1, spGe); ok < 0 && q.nextIteration() > 0;) {
 		ASSIGN_PTR(pID, p_t->data.ID);
 		ASSIGN_PTR(pRec, p_t->data);
 		ok = 1;
@@ -565,7 +567,7 @@ int PPObjProcessor::GetChildIDList(PPID prcID, int recur, PPIDArray * pList)
 		k1.ParentID = prcID;
 		BExtQuery q(p_t, 1);
 		q.select(p_t->ID, 0L).where(p_t->Kind == static_cast<long>(PPPRCK_GROUP) && p_t->ParentID == prcID);
-		for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 			ok = 1;
 			if(pList)
 				THROW_SL(pList->addUnique(p_t->data.ID));
@@ -578,7 +580,7 @@ int PPObjProcessor::GetChildIDList(PPID prcID, int recur, PPIDArray * pList)
 		k1.ParentID = prcID;
 		BExtQuery q(p_t, 1);
 		q.select(p_t->ID, 0L).where(p_t->Kind == static_cast<long>(PPPRCK_PROCESSOR) && p_t->ParentID == prcID);
-		for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 			ok = 1;
 			if(pList)
 				THROW_SL(pList->addUnique(p_t->data.ID));
@@ -1785,7 +1787,7 @@ StrAssocArray * PPObjProcessor::MakeStrAssocList(void * extraPtr /*parentID*/)
 	k.k1.Kind = kind;
 	if(parent_id)
 		k.k1.ParentID = parent_id;
-	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 		ProcessorTbl::Rec rec;
 		p_t->copyBufTo(&rec);
 		if(!(rec.Flags & PRCF_PASSIVE)) {
@@ -1978,7 +1980,7 @@ int PPViewProcessor::InitIteration()
 		k.k1.ParentID = Filt.ParentID;
 	k_ = k;
 	Counter.Init(P_IterQuery->countIterations(0, &k_, spGe));
-	P_IterQuery->initIteration(0, &k, spGe);
+	P_IterQuery->initIteration(false, &k, spGe);
 	return ok;
 }
 

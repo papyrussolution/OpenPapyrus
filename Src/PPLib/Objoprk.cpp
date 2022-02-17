@@ -3045,7 +3045,7 @@ int OpCache::FetchReckonOpList()
 			where(p_ref->Prop.ObjType == PPOBJ_OPRKIND && p_ref->Prop.Prop == static_cast<long>(OPKPRP_PAYMOPLIST));
 		MEMSZERO(k);
 		k.ObjType = PPOBJ_OPRKIND;
-		for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;)
+		for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;)
 			THROW(temp_list.addUnique(p_ref->Prop.data.ObjID));
 		if(temp_list.getCount()) {
 			if(P_ReckonOpList == 0)

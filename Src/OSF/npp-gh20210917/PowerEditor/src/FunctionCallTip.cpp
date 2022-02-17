@@ -1,6 +1,6 @@
 // This file is part of Notepad++ project
 // Copyright (C)2008 Harry Bruin <harrybharry@users.sourceforge.net>
-// @licence GNU GPL
+// @license GNU GPL
 //
 #include <npp-internal.h>
 #pragma hdrstop

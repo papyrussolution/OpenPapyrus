@@ -329,7 +329,7 @@ int PPObjBill::AutoCharge()
 	k.ObjType = PPOBJ_BILL;
 	k.ObjID   = 0;
 	k.Prop    = 0;
-	for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 		PPRentCondition rc;
 		memcpy(&rc, p_ref->Prop.data.Text, sizeof(PPRentCondition));
 		PPID   id = p_ref->Prop.data.ObjID;

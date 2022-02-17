@@ -88,7 +88,7 @@ int ObjAssoc::SearchFreeNum(PPID asscTyp, PPID prmr, long * pNum, ObjAssocTbl::R
 		k.InnerNum  = 1;
 		long   prev_num = 0, num = 0;
 		q.select(this->InnerNum, 0L).where(this->AsscType == asscTyp && this->PrmrObjID == prmr);
-		for(q.initIteration(0, &k, spGe); !num && q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k, spGe); !num && q.nextIteration() > 0;) {
 			if(data.InnerNum > prev_num+1)
 				num = prev_num+1;
 			prev_num = data.InnerNum;
@@ -119,7 +119,7 @@ int ObjAssoc::GetByPrmr_Helper(PPID asscTyp, PPID prmrID, PPIDArray * pList, lon
 		p_q->select(this->ScndObjID, 0L);
 	}
 	p_q->where(this->AsscType == asscTyp && this->PrmrObjID == prmrID);
-	for(p_q->initIteration(0, &k, spGe); p_q->nextIteration() > 0;) {
+	for(p_q->initIteration(false, &k, spGe); p_q->nextIteration() > 0;) {
 		count++;
 		if(pList)
 			THROW(pList->add(data.ScndObjID));
@@ -187,7 +187,7 @@ SEnum::Imp * ObjAssoc::Enum(PPID asscType, PPID keyID, int byScnd)
 		k.k1.ScndObjID = -MAXLONG;
 		q->where(this->AsscType == asscType && this->PrmrObjID == keyID);
 	}
-	q->initIteration(0, &k, spGe);
+	q->initIteration(false, &k, spGe);
 	return EnumList.RegisterIterHandler(q, &h) ? (new PPTblEnum <ObjAssoc> (this, h)) : 0;
 }
 
@@ -258,7 +258,7 @@ int ObjAssoc::GetList(PPID asscTyp, LAssocArray * pList)
 	k.ScndObjID = 0;
 	BExtQuery q(this, 1, 128);
 	q.select(this->PrmrObjID, this->ScndObjID, 0L).where(this->AsscType == asscTyp);
-	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 		ok = 1;
 		if(pList) {
 			THROW_SL(pList->Add(data.PrmrObjID, data.ScndObjID, 0, 0));

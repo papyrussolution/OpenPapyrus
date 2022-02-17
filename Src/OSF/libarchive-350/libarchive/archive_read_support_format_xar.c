@@ -2476,28 +2476,21 @@ static void xml_data(void * userData, const char * s, int len)
 		    archive_strncpy(&(xar->file->symlink), s, len);
 		    break;
 		case FILE_TYPE:
-		    if(is_string("file", s, len) == 0 ||
-			is_string("hardlink", s, len) == 0)
+		    if(is_string("file", s, len) == 0 || is_string("hardlink", s, len) == 0)
 			    xar->file->mode =
 				(xar->file->mode & ~AE_IFMT) | AE_IFREG;
 		    if(is_string("directory", s, len) == 0)
-			    xar->file->mode =
-				(xar->file->mode & ~AE_IFMT) | AE_IFDIR;
+			    xar->file->mode = (xar->file->mode & ~AE_IFMT) | AE_IFDIR;
 		    if(is_string("symlink", s, len) == 0)
-			    xar->file->mode =
-				(xar->file->mode & ~AE_IFMT) | AE_IFLNK;
+			    xar->file->mode = (xar->file->mode & ~AE_IFMT) | AE_IFLNK;
 		    if(is_string("character special", s, len) == 0)
-			    xar->file->mode =
-				(xar->file->mode & ~AE_IFMT) | AE_IFCHR;
+			    xar->file->mode = (xar->file->mode & ~AE_IFMT) | AE_IFCHR;
 		    if(is_string("block special", s, len) == 0)
-			    xar->file->mode =
-				(xar->file->mode & ~AE_IFMT) | AE_IFBLK;
+			    xar->file->mode = (xar->file->mode & ~AE_IFMT) | AE_IFBLK;
 		    if(is_string("socket", s, len) == 0)
-			    xar->file->mode =
-				(xar->file->mode & ~AE_IFMT) | AE_IFSOCK;
+			    xar->file->mode = (xar->file->mode & ~AE_IFMT) | AE_IFSOCK;
 		    if(is_string("fifo", s, len) == 0)
-			    xar->file->mode =
-				(xar->file->mode & ~AE_IFMT) | AE_IFIFO;
+			    xar->file->mode = (xar->file->mode & ~AE_IFMT) | AE_IFIFO;
 		    xar->file->has |= HAS_TYPE;
 		    break;
 		case FILE_INODE:
@@ -2664,43 +2657,43 @@ static void xml_data(void * userData, const char * s, int len)
 static int xml_parse_file_flags(struct xar * xar, const char * name)
 {
 	const char * flag = NULL;
-	if(strcmp(name, "UserNoDump") == 0) {
+	if(sstreq(name, "UserNoDump")) {
 		xar->xmlsts = FILE_FLAGS_USER_NODUMP;
 		flag = "nodump";
 	}
-	else if(strcmp(name, "UserImmutable") == 0) {
+	else if(sstreq(name, "UserImmutable")) {
 		xar->xmlsts = FILE_FLAGS_USER_IMMUTABLE;
 		flag = "uimmutable";
 	}
-	else if(strcmp(name, "UserAppend") == 0) {
+	else if(sstreq(name, "UserAppend")) {
 		xar->xmlsts = FILE_FLAGS_USER_APPEND;
 		flag = "uappend";
 	}
-	else if(strcmp(name, "UserOpaque") == 0) {
+	else if(sstreq(name, "UserOpaque")) {
 		xar->xmlsts = FILE_FLAGS_USER_OPAQUE;
 		flag = "opaque";
 	}
-	else if(strcmp(name, "UserNoUnlink") == 0) {
+	else if(sstreq(name, "UserNoUnlink")) {
 		xar->xmlsts = FILE_FLAGS_USER_NOUNLINK;
 		flag = "nouunlink";
 	}
-	else if(strcmp(name, "SystemArchived") == 0) {
+	else if(sstreq(name, "SystemArchived")) {
 		xar->xmlsts = FILE_FLAGS_SYS_ARCHIVED;
 		flag = "archived";
 	}
-	else if(strcmp(name, "SystemImmutable") == 0) {
+	else if(sstreq(name, "SystemImmutable")) {
 		xar->xmlsts = FILE_FLAGS_SYS_IMMUTABLE;
 		flag = "simmutable";
 	}
-	else if(strcmp(name, "SystemAppend") == 0) {
+	else if(sstreq(name, "SystemAppend")) {
 		xar->xmlsts = FILE_FLAGS_SYS_APPEND;
 		flag = "sappend";
 	}
-	else if(strcmp(name, "SystemNoUnlink") == 0) {
+	else if(sstreq(name, "SystemNoUnlink")) {
 		xar->xmlsts = FILE_FLAGS_SYS_NOUNLINK;
 		flag = "nosunlink";
 	}
-	else if(strcmp(name, "SystemSnapshot") == 0) {
+	else if(sstreq(name, "SystemSnapshot")) {
 		xar->xmlsts = FILE_FLAGS_SYS_SNAPSHOT;
 		flag = "snapshot";
 	}
@@ -2718,83 +2711,83 @@ static int xml_parse_file_flags(struct xar * xar, const char * name)
 static int xml_parse_file_ext2(struct xar * xar, const char * name)
 {
 	const char * flag = NULL;
-	if(strcmp(name, "SecureDeletion") == 0) {
+	if(sstreq(name, "SecureDeletion")) {
 		xar->xmlsts = FILE_EXT2_SecureDeletion;
 		flag = "securedeletion";
 	}
-	else if(strcmp(name, "Undelete") == 0) {
+	else if(sstreq(name, "Undelete")) {
 		xar->xmlsts = FILE_EXT2_Undelete;
 		flag = "nouunlink";
 	}
-	else if(strcmp(name, "Compress") == 0) {
+	else if(sstreq(name, "Compress")) {
 		xar->xmlsts = FILE_EXT2_Compress;
 		flag = "compress";
 	}
-	else if(strcmp(name, "Synchronous") == 0) {
+	else if(sstreq(name, "Synchronous")) {
 		xar->xmlsts = FILE_EXT2_Synchronous;
 		flag = "sync";
 	}
-	else if(strcmp(name, "Immutable") == 0) {
+	else if(sstreq(name, "Immutable")) {
 		xar->xmlsts = FILE_EXT2_Immutable;
 		flag = "simmutable";
 	}
-	else if(strcmp(name, "AppendOnly") == 0) {
+	else if(sstreq(name, "AppendOnly")) {
 		xar->xmlsts = FILE_EXT2_AppendOnly;
 		flag = "sappend";
 	}
-	else if(strcmp(name, "NoDump") == 0) {
+	else if(sstreq(name, "NoDump")) {
 		xar->xmlsts = FILE_EXT2_NoDump;
 		flag = "nodump";
 	}
-	else if(strcmp(name, "NoAtime") == 0) {
+	else if(sstreq(name, "NoAtime")) {
 		xar->xmlsts = FILE_EXT2_NoAtime;
 		flag = "noatime";
 	}
-	else if(strcmp(name, "CompDirty") == 0) {
+	else if(sstreq(name, "CompDirty")) {
 		xar->xmlsts = FILE_EXT2_CompDirty;
 		flag = "compdirty";
 	}
-	else if(strcmp(name, "CompBlock") == 0) {
+	else if(sstreq(name, "CompBlock")) {
 		xar->xmlsts = FILE_EXT2_CompBlock;
 		flag = "comprblk";
 	}
-	else if(strcmp(name, "NoCompBlock") == 0) {
+	else if(sstreq(name, "NoCompBlock")) {
 		xar->xmlsts = FILE_EXT2_NoCompBlock;
 		flag = "nocomprblk";
 	}
-	else if(strcmp(name, "CompError") == 0) {
+	else if(sstreq(name, "CompError")) {
 		xar->xmlsts = FILE_EXT2_CompError;
 		flag = "comperr";
 	}
-	else if(strcmp(name, "BTree") == 0) {
+	else if(sstreq(name, "BTree")) {
 		xar->xmlsts = FILE_EXT2_BTree;
 		flag = "btree";
 	}
-	else if(strcmp(name, "HashIndexed") == 0) {
+	else if(sstreq(name, "HashIndexed")) {
 		xar->xmlsts = FILE_EXT2_HashIndexed;
 		flag = "hashidx";
 	}
-	else if(strcmp(name, "iMagic") == 0) {
+	else if(sstreq(name, "iMagic")) {
 		xar->xmlsts = FILE_EXT2_iMagic;
 		flag = "imagic";
 	}
-	else if(strcmp(name, "Journaled") == 0) {
+	else if(sstreq(name, "Journaled")) {
 		xar->xmlsts = FILE_EXT2_Journaled;
 		flag = "journal";
 	}
-	else if(strcmp(name, "NoTail") == 0) {
+	else if(sstreq(name, "NoTail")) {
 		xar->xmlsts = FILE_EXT2_NoTail;
 		flag = "notail";
 	}
-	else if(strcmp(name, "DirSync") == 0) {
+	else if(sstreq(name, "DirSync")) {
 		xar->xmlsts = FILE_EXT2_DirSync;
 		flag = "dirsync";
 	}
-	else if(strcmp(name, "TopDir") == 0) {
+	else if(sstreq(name, "TopDir")) {
 		xar->xmlsts = FILE_EXT2_TopDir;
 		flag = "topdir";
 	}
-	else if(strcmp(name, "Reserved") == 0) {
+	else if(sstreq(name, "Reserved")) {
 		xar->xmlsts = FILE_EXT2_Reserved;
 		flag = "reserved";
 	}

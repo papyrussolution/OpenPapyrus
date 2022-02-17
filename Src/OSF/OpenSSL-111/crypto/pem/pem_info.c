@@ -72,8 +72,7 @@ STACK_OF(X509_INFO) *PEM_X509_INFO_read_bio(BIO *bp, STACK_OF(X509_INFO) *sk,
 			goto err;
 		}
 start:
-		if((strcmp(name, PEM_STRING_X509) == 0) ||
-		    (strcmp(name, PEM_STRING_X509_OLD) == 0)) {
+		if((strcmp(name, PEM_STRING_X509) == 0) || (strcmp(name, PEM_STRING_X509_OLD) == 0)) {
 			d2i = (D2I_OF(void))d2i_X509;
 			if(xi->x509 != NULL) {
 				if(!sk_X509_INFO_push(ret, xi))

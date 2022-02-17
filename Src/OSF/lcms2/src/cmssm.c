@@ -1,4 +1,3 @@
-//---------------------------------------------------------------------------------
 //
 //  Little Color Management System
 //  Copyright (c) 1998-2020 Marti Maria Saguer
@@ -12,16 +11,6 @@
 //
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//---------------------------------------------------------------------------------
 //
 #include "lcms2_internal.h"
 #pragma hdrstop
@@ -83,8 +72,9 @@ static double _cmsAtan2(double y, double x)
 {
 	double a;
 	// Deal with undefined case
-	if(x == 0.0 && y == 0.0) return 0;
-	a = (atan2(y, x) * 180.0) / M_PI;
+	if(x == 0.0 && y == 0.0) 
+		return 0;
+	a = (atan2(y, x) * 180.0) / SMathConst::Pi;
 	while(a < 0) {
 		a += 360;
 	}
@@ -109,10 +99,10 @@ static void ToSpherical(cmsSpherical* sp, const cmsVEC3* v)
 // Convert to cartesian from spherical
 static void ToCartesian(cmsVEC3* v, const cmsSpherical* sp)
 {
-	double sin_alpha = sin((M_PI * sp->alpha) / 180.0);
-	double cos_alpha = cos((M_PI * sp->alpha) / 180.0);
-	double sin_theta = sin((M_PI * sp->theta) / 180.0);
-	double cos_theta = cos((M_PI * sp->theta) / 180.0);
+	double sin_alpha = sin(SMathConst::PiDiv180 * sp->alpha);
+	double cos_alpha = cos(SMathConst::PiDiv180 * sp->alpha);
+	double sin_theta = sin(SMathConst::PiDiv180 * sp->theta);
+	double cos_theta = cos(SMathConst::PiDiv180 * sp->theta);
 	double a = sp->r * sin_theta * sin_alpha;
 	double b = sp->r * sin_theta * cos_alpha;
 	double L = sp->r * cos_theta;
@@ -540,11 +530,9 @@ boolint cmsGBDdumpVRML(cmsHANDLE hGBD, const char * fname)
 				fprintf(fp, ",\n");
 		}
 	fprintf(fp, "\t\t\t\t}\n");
-
 	// fill in the face colors
 	fprintf(fp, "\t\t\t\tcolor Color {\n");
 	fprintf(fp, "\t\t\t\t\tcolor [\n");
-
 	for(i = 0; i < SECTORS; i++)
 		for(j = 0; j < SECTORS; j++) {
 			cmsVEC3 v;

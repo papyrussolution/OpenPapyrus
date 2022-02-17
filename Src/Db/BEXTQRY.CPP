@@ -1,5 +1,5 @@
 // BEXTQRY.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2004, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2004, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Интерфейс к расширенным операциям поиска Btrieve
 //
@@ -188,7 +188,7 @@ int BExtQuery::CreateSqlExpr(Generator_SQL * pSg, int reverse, const char * pIni
 	return ok;
 }
 
-int BExtQuery::initIteration(int reverse, const void * pInitKey, int initSpMode)
+int BExtQuery::initIteration(bool reverse, const void * pInitKey, int initSpMode)
 {
 	int    ok = 1;
 	State &= (stSqlProvider | 0); // Обнуляем все признаки кроме stSqlProvider

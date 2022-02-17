@@ -4988,9 +4988,12 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_GENERIC_COMMAND                 32976
 #define PPDV_NUT01                           32977
 #define PPDV_CHECKMARK01                     32978
-#define PPDV_LOGOPAPYRUS                     32979
-#define PPDV_LOGOUDS                         32980
-#define PPDV_LOGOVK                          32981
-#define PPDV_LOGOVETIS                       32982
-#define PPDV_LOGOCHZN                        32983
+#define PPDV_FACEANONYMOUS01                 32979
+#define PPDV_FACEARBITRARY01                 32980
+#define PPDV_FACEVERIFIABLE01                32981
+#define PPDV_LOGOPAPYRUS                     32982
+#define PPDV_LOGOUDS                         32983
+#define PPDV_LOGOVK                          32984
+#define PPDV_LOGOVETIS                       32985
+#define PPDV_LOGOCHZN                        32986
 

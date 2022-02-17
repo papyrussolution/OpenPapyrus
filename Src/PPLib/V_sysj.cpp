@@ -465,7 +465,7 @@ int PPViewSysJournal::InitIteration()
 	}
 	ks = k;
 	Counter.Init(P_IterQuery->countIterations(0, &ks, spGe));
-	P_IterQuery->initIteration(0, &k, spGe);
+	P_IterQuery->initIteration(false, &k, spGe);
 	return ok;
 }
 
@@ -1055,7 +1055,7 @@ int PPViewSysJournal::RefreshTempTable(LDATETIME since)
 		PPTransaction tra(ppDbDependTransaction, 1);
 		THROW(tra);
 		q.selectAll().where(P_Tbl->Dt >= since.d);
-		for(q.initIteration(0, &k0, spGt); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k0, spGt); q.nextIteration() > 0;) {
 			if(cmp(since, P_Tbl->data.Dt, P_Tbl->data.Tm) < 0) {
 				SysJournalTbl::Rec rec;
 				P_Tbl->copyBufTo(&rec);
@@ -1450,7 +1450,7 @@ int PPViewGtaJournal::InitIteration()
 	}
 	ks = k;
 	Counter.Init(P_IterQuery->countIterations(0, &ks, spGe));
-	P_IterQuery->initIteration(0, &k, spGe);
+	P_IterQuery->initIteration(false, &k, spGe);
 	return ok;
 }
 

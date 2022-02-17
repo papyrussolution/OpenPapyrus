@@ -87,10 +87,9 @@ CMSAPI boolint CMSEXPORT _cmsMAT3solve(cmsVEC3* x, cmsMAT3* a, cmsVEC3* b);
 CMSAPI void CMSEXPORT _cmsMAT3eval(cmsVEC3* r, const cmsMAT3* a, const cmsVEC3* v);
 
 // MD5 low level  -------------------------------------------------------------------------------------
-
-CMSAPI cmsHANDLE CMSEXPORT cmsMD5alloc(cmsContext ContextID);
-CMSAPI void CMSEXPORT cmsMD5add(cmsHANDLE Handle, const uint8 * buf, cmsUInt32Number len);
-CMSAPI void CMSEXPORT cmsMD5finish(cmsProfileID* ProfileID, cmsHANDLE Handle);
+// @sobolev CMSAPI cmsHANDLE CMSEXPORT cmsMD5alloc(cmsContext ContextID);
+// @sobolev CMSAPI void CMSEXPORT cmsMD5add(cmsHANDLE Handle, const uint8 * buf, cmsUInt32Number len);
+// @sobolev CMSAPI void CMSEXPORT cmsMD5finish(cmsProfileID* ProfileID, cmsHANDLE Handle);
 
 // Error logging  -------------------------------------------------------------------------------------
 

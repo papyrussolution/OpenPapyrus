@@ -365,7 +365,7 @@ Transfer::GetLotPricesCache::GetLotPricesCache(LDATE dt, const PPIDArray * pLocL
 				MEMSZERO(k0);
 				k0.BillID = bill_id;
 				q.select(t->LotID, t->Flags, 0L).where(t->BillID == bill_id && t->LotID > 0L);
-				for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;)
+				for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;)
 					if(t->data.Flags & PPTFR_REVAL)
 						RLotList.add(t->data.LotID);
 			}
@@ -390,7 +390,7 @@ int Transfer::GetLotPrices(ReceiptTbl::Rec * pLotRec, LDATE date, long oprno)
 	k.LotID = pLotRec->ID;
 	k.Dt    = date;
 	k.OprNo = oprno;
-	for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 		if(data.Flags & PPTFR_REVAL) {
 			pLotRec->Cost  = TR5(data.Cost);
 			pLotRec->Price = TR5(data.Price);
@@ -869,7 +869,7 @@ int ReceiptCore::Helper_GetList(PPID goodsID, PPID locID, PPID supplID, LDATE be
 	if(nzRestOnly)
 		dbq = &(*dbq && this->Rest > 0.0);
 	q.selectAll().where(*dbq);
-	for(q.initIteration(0, &k3, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k3, spGe); q.nextIteration() > 0;) {
 		THROW_MEM(pRecList->insert(&data));
 	}
 	CATCHZOK
@@ -903,7 +903,7 @@ int Transfer::GetCurRest(GoodsRestParam & rP)
 		dbq = &(Rcpt.SupplID == rP.SupplID && Rcpt.Closed == 0L);
 		q.selectAll().where(*dbq);
 		loc_list.sort();
-		for(q.initIteration(0, &k5, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k5, spGe); q.nextIteration() > 0;) {
 			const ReceiptTbl::Rec & r_lot_rec = Rcpt.data;
 			if((r_lot_rec.GoodsID >= 0) || !(r_lot_rec.Flags & LOTF_CLOSEDORDER)) {
 				if(loc_list.lsearch(r_lot_rec.LocID)) {
@@ -996,7 +996,7 @@ int Transfer::GetRest(GoodsRestParam & rP)
 			q.select(Rcpt.ID, Rcpt.BillID, Rcpt.LocID, Rcpt.SupplID, Rcpt.PrevLotID, Rcpt.Dt, Rcpt.OprNo,
 				Rcpt.UnitPerPack, Rcpt.Cost, Rcpt.Price, Rcpt.Flags, Rcpt.InTaxGrpID, 0L).where(*dbq);
 			const long _oprno = (rP.OprNo > 0) ? (rP.OprNo-1) : MAXLONG; // (-1) потому, что GetRest берет остаток по условию spLe
-			for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 				ReceiptTbl::Rec lot_rec;
 				Rcpt.copyBufTo(&lot_rec);
 				LDATE  org_lot_date = ZERODATE;
@@ -1269,7 +1269,7 @@ int Transfer::GetLocGoodsList(PPID locID, UintHashTable & rList)
 		k1.LocID = locID;
 		BExtQuery q(&CRest, 1, 512);
 		q.select(CRest.GoodsID, 0L).where(CRest.LocID == locID && CRest.GoodsID > 0L);
-		for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 			THROW_SL(rList.Add((ulong)CRest.data.GoodsID));
 		}
 	}
@@ -1279,7 +1279,7 @@ int Transfer::GetLocGoodsList(PPID locID, UintHashTable & rList)
 		BExtQuery q(&CRest, 0, 1024);
 		q.select(CRest.GoodsID, 0L).where(CRest.GoodsID > 0L);
 		PPID   prev_goods_id = 0;
-		for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 			const PPID goods_id = CRest.data.GoodsID;
 			if(goods_id != prev_goods_id) {
 				THROW_SL(rList.Add((ulong)goods_id));
@@ -1683,7 +1683,7 @@ int Transfer::LcrBlock::FinishLot()
 			k0.LotID = LotID;
 			k0.D = 0;
 			q.select(P_Tbl->D, P_Tbl->LDRest, 0L).where(P_Tbl->LotID == LotID);
-			for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 				LDATE dt = WorkDate::ExpandDate(P_Tbl->data.D);
 				uint pos = 0;
 				if(!List.lsearch(&dt, &pos, CMPF_LONG) || List.at(pos).Status == statusRmvRec)
@@ -1969,7 +1969,7 @@ int Transfer::LcrBlock2::FinishLot()
 			k0.LotID = LotID;
 			k0.D = 0;
 			q.select(p_tbl->D, p_tbl->LDRestF, 0L).where(p_tbl->LotID == LotID);
-			for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 				LDATE dt = WorkDate::ExpandDate(p_tbl->data.D);
 				uint pos = 0;
 				if(!List.lsearch(&dt, &pos, CMPF_LONG) || List.at(pos).Status == statusRmvRec)
@@ -2114,7 +2114,7 @@ int Transfer::Helper_RecalcLotCRest(PPID lotID, BExtInsert * pBei, int forceRebu
 				k.OprNo = 0;
 				LcrBlock lcr(LcrBlockBase::opTest, P_LcrT, pBei);
 				THROW(lcr.InitLot(lotID));
-				for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
+				for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 					THROW(lcr.Process(data));
 				}
 				THROW(lcr.FinishLot());
@@ -2131,7 +2131,7 @@ int Transfer::Helper_RecalcLotCRest(PPID lotID, BExtInsert * pBei, int forceRebu
 			k.OprNo = 0;
 			LcrBlock lcr(LcrBlockBase::opRecalc, P_LcrT, pBei);
 			THROW(lcr.InitLot(lotID));
-			for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 				THROW(lcr.Process(data));
 			}
 			THROW(lcr.FinishLot());
@@ -2160,7 +2160,7 @@ int Transfer::Helper_RecalcLotCRest2(PPID lotID, BExtInsert * pBei, int forceReb
 				k.OprNo = 0;
 				LcrBlock2 lcr(LcrBlockBase::opTest, P_Lcr2T, pBei);
 				THROW(lcr.InitLot(lotID));
-				for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
+				for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 					THROW(lcr.Process(data));
 				}
 				THROW(lcr.FinishLot());
@@ -2177,7 +2177,7 @@ int Transfer::Helper_RecalcLotCRest2(PPID lotID, BExtInsert * pBei, int forceReb
 			k.OprNo = 0;
 			LcrBlock2 lcr(LcrBlockBase::opRecalc, P_Lcr2T, pBei);
 			THROW(lcr.InitLot(lotID));
-			for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 				THROW(lcr.Process(data));
 			}
 			THROW(lcr.FinishLot());
@@ -2204,7 +2204,7 @@ int Transfer::GetLcrList(LDATE dt, UintHashTable * pLotList, RAssocArray * pRest
 			else
 				q.select(P_Lcr2T->LotID, 0L);
 			q.where(P_Lcr2T->D == (long)dti);
-			for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 				if(pLotList) {
 					THROW_SL(pLotList->Add((ulong)P_Lcr2T->data.LotID));
 				}
@@ -2225,7 +2225,7 @@ int Transfer::GetLcrList(LDATE dt, UintHashTable * pLotList, RAssocArray * pRest
 			else
 				q.select(P_LcrT->LotID, 0L);
 			q.where(P_LcrT->D == (long)dti);
-			for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 				if(pLotList) {
 					THROW_SL(pLotList->Add((ulong)P_LcrT->data.LotID));
 				}
@@ -2846,7 +2846,7 @@ int Transfer::SubtractBillQtty(PPID billID, PPID lotID, double * pRest)
 		q.select(this->Quantity, 0L).where(this->BillID == billID && this->Reverse == 0L && this->LotID == lotID);
 		k.BillID  = billID;
 		k.Reverse = k.RByBill = 0;
-		for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;)
+		for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;)
 			*pRest -= data.Quantity;
 	}
 	return 1;

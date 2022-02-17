@@ -495,7 +495,7 @@ int PPViewSCard::CreateTempTable()
 			q->selectAll().where(*dbq);
 			k_ = k;
 			cntr.Init(q->countIterations(0, &k_, spGe));
-			for(q->initIteration(0, &k, spGe); q->nextIteration();) {
+			for(q->initIteration(false, &k, spGe); q->nextIteration();) {
 				TempSCardTbl::Rec rec;
 				p_c->copyBufTo(&rec_);
 				if(PreprocessTempRec(&rec_, &rec, (use_ct_list ? &ct_list : 0))) {
@@ -816,7 +816,7 @@ int PPViewSCard::InitIteration()
 		MEMSZERO(k);
 		THROW_MEM(P_IterQuery = new BExtQuery(P_TempOrd, 1));
 		P_IterQuery->selectAll();
-		P_IterQuery->initIteration(0, &k, spFirst);
+		P_IterQuery->initIteration(false, &k, spFirst);
 		PPInitIterCounter(Counter, P_TempOrd);
 	}
 	else {
@@ -861,7 +861,7 @@ int PPViewSCard::InitIteration()
 			//k2.SeriesID = Filt.SeriesID;
 			Counter.Init(P_IterQuery->countIterations(0, &k_, spGe));
 		}
-		P_IterQuery->initIteration(0, &k, spGe);
+		P_IterQuery->initIteration(false, &k, spGe);
 	}
 	CATCHZOK
 	return ok;

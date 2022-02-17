@@ -155,7 +155,7 @@ template <class T> class intrusive_ptr_nonnull {
 private:
 	typedef intrusive_ptr_nonnull this_type;
 public:
-	intrusive_ptr_nonnull(T * p) XAPIAN_NONNULL() : px(p)
+	intrusive_ptr_nonnull(T * p) XAPIAN_NONNULL(p) : px(p)
 	{
 		++px->_refs;
 	}
@@ -195,7 +195,7 @@ public:
 		this_type(rhs).swap(*this);
 		return *this;
 	}
-	intrusive_ptr_nonnull & operator=(T * rhs) XAPIAN_NONNULL()
+	intrusive_ptr_nonnull & operator=(T * rhs) XAPIAN_NONNULL(rhs)
 	{
 		this_type(rhs).swap(*this);
 		return *this;

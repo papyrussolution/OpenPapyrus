@@ -1859,13 +1859,13 @@ static bool float_exec(gravity_vm * vm, GravityValue * args, uint16 nargs, uint3
 static bool float_degrees(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
 	// Convert the float from radians to degrees
-	return vm->ReturnValue(GravityValue::from_float(args[0].f*180.0/SMathConst::Pi), rindex);
+	return vm->ReturnValue(GravityValue::from_float(args[0].f * 180.0/SMathConst::Pi), rindex);
 }
 
 static bool float_radians(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
 	// Convert the float from degrees to radians
-	return vm->ReturnValue(GravityValue::from_float(args[0].f*SMathConst::Pi/180.0), rindex);
+	return vm->ReturnValue(GravityValue::from_float(args[0].f * SMathConst::PiDiv180), rindex);
 }
 
 static bool float_isclose(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
@@ -2069,7 +2069,7 @@ static bool int_degrees(gravity_vm * vm, GravityValue * args, uint16 nargs, uint
 static bool int_radians(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
 	// Convert the int from degrees to radians
-	return vm->ReturnValue(GravityValue::from_float(args[0].n * SMathConst::Pi / 180.0), rindex);
+	return vm->ReturnValue(GravityValue::from_float(args[0].n * SMathConst::PiDiv180), rindex);
 }
 
 static bool int_min(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 

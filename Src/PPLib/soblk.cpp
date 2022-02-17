@@ -2377,7 +2377,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 							k.GoodsID = P_DtGrF->GoodsID;
 							BExtQuery q(p_bobj->P_CpTrfr, 1);
 							q.selectAll().where(p_bobj->P_CpTrfr->GoodsID == P_DtGrF->GoodsID);
-							for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+							for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 								CpTransfTbl::Rec cpt_rec;
 								p_bobj->P_CpTrfr->copyBufTo(&cpt_rec);
 								loc_id_ary.addUnique(cpt_rec.LocID);
@@ -2723,7 +2723,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					q.select(p_tbl->ID, p_tbl->Name, p_tbl->ManufID, p_tbl->Flags, 0L).where(*dbq);
 					MEMSZERO(k_);
 					k_.k2.Kind = PPGDSK_BRAND;
-					for(q.initIteration(0, &k_, spGe); q.nextIteration() > 0;) {
+					for(q.initIteration(false, &k_, spGe); q.nextIteration() > 0;) {
 						int _t = IncAndTestCounterForPage(&_c);
 						if(_t > 0) {
 							if(P_BrF && P_BrF->Name.NotEmpty()) {

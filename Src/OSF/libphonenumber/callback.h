@@ -1,6 +1,6 @@
 // Copyright (C) 2012 The Libphonenumber Authors
 // Author: Philippe Liard.
-// @licence Apache License 2.0
+// @license Apache License 2.0
 //
 // Light implementation emulating base/callback.h. This is an internal header,
 // users should not depend on it.

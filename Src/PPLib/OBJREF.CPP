@@ -1,5 +1,5 @@
 // OBJREF.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1032,18 +1032,20 @@ void UnitCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPUnit * p_data_rec = static_cast<PPUnit *>(pDataRec);
 	const UnitData * p_cache_rec = static_cast<const UnitData *>(pEntry);
-	memzero(p_data_rec, sizeof(*p_data_rec));
-	p_data_rec->Tag        = PPOBJ_UNIT;
-	p_data_rec->ID = p_cache_rec->ID;
-	p_data_rec->BaseUnitID = p_cache_rec->BaseUnitID;
-	p_data_rec->BaseRatio  = p_cache_rec->BaseRatio;
-	p_data_rec->Rounding_  = p_cache_rec->Rounding_;
-	p_data_rec->Flags      = p_cache_rec->Flags;
-	p_data_rec->Fragmentation = p_cache_rec->Fragmentation; // @v11.2.5
-	MultTextBlock b(this, pEntry);
-	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));
-	b.Get(p_data_rec->Abbr, sizeof(p_data_rec->Abbr));
-	b.Get(p_data_rec->Code, sizeof(p_data_rec->Code));
+	if(p_data_rec) { // @v11.3.2
+		memzero(p_data_rec, sizeof(*p_data_rec));
+		p_data_rec->Tag        = PPOBJ_UNIT;
+		p_data_rec->ID = p_cache_rec->ID;
+		p_data_rec->BaseUnitID = p_cache_rec->BaseUnitID;
+		p_data_rec->BaseRatio  = p_cache_rec->BaseRatio;
+		p_data_rec->Rounding_  = p_cache_rec->Rounding_;
+		p_data_rec->Flags      = p_cache_rec->Flags;
+		p_data_rec->Fragmentation = p_cache_rec->Fragmentation; // @v11.2.5
+		MultTextBlock b(this, pEntry);
+		b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));
+		b.Get(p_data_rec->Abbr, sizeof(p_data_rec->Abbr));
+		b.Get(p_data_rec->Code, sizeof(p_data_rec->Code));
+	}
 }
 // }
 

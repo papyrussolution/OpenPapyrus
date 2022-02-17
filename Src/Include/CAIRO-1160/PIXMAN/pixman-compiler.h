@@ -54,9 +54,9 @@
 #ifndef SIZE_MAX
 	#define SIZE_MAX               ((size_t)-1)
 #endif
-#ifndef M_PI
-	#define M_PI                    3.14159265358979323846
-#endif
+//#ifndef M_PI
+	//#define M_PI                    3.14159265358979323846
+//#endif
 #ifdef _MSC_VER
 /* 'inline' is available only in C++ in MSVC */
 #define inline __inline

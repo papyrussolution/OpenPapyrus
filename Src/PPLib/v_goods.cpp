@@ -1808,7 +1808,7 @@ int PPViewGoods::InitIteration(int aOrder)
 		THROW_MEM(P_IterQuery = new BExtQuery(P_TempTbl, 1));
 		P_IterQuery->select(P_TempTbl->ID, 0);
 		MEMSZERO(k1);
-		P_IterQuery->initIteration(0, &k1, spFirst);
+		P_IterQuery->initIteration(false, &k1, spFirst);
 	}
 	else {
 		int    iter_order;
@@ -2872,9 +2872,10 @@ struct GoodsRecoverParam {
 	{
 	}
 	enum {
-		fCorrect  = 0x0001, // Исправлять ошибки
-		fCheckAlcoAttribs = 0x0002, // Проверять алкогольные атрибуты
-		fBarcode  = 0x0004  // @v10.8.5 Проверять валидность штрихкодов. Если fCorrect, то добавлять или исправлять контрольную цифру 
+		fCorrect              = 0x0001, // Исправлять ошибки
+		fCheckAlcoAttribs     = 0x0002, // Проверять алкогольные атрибуты
+		fBarcode              = 0x0004, // @v10.8.5 Проверять валидность штрихкодов. Если fCorrect, то добавлять или исправлять контрольную цифру 
+		fCreateTechIfPossible = 0x0008  // @v11.3.2 Если для товара может быть создана технология (по существующей автотехнологии и по параметрам группы, то создавать)
 	};
 	SString LogFileName;  // Имя файла журнала, в который заносится информация об ошибках
 	long   Flags;
@@ -2890,6 +2891,7 @@ static int EditGoodsRecoverParam(GoodsRecoverParam * pData)
 		dlg->AddClusterAssoc(CTL_RCVRGOODS_FLAGS, 0, GoodsRecoverParam::fCorrect);
 		dlg->AddClusterAssoc(CTL_RCVRGOODS_FLAGS, 1, GoodsRecoverParam::fCheckAlcoAttribs);
 		dlg->AddClusterAssoc(CTL_RCVRGOODS_FLAGS, 2, GoodsRecoverParam::fBarcode);
+		dlg->AddClusterAssoc(CTL_RCVRGOODS_FLAGS, 3, GoodsRecoverParam::fCreateTechIfPossible); // @v11.3.2
 		dlg->SetClusterData(CTL_RCVRGOODS_FLAGS, pData->Flags);
 		if(ExecView(dlg) == cmOK) {
 			dlg->getCtrlString(CTL_RCVRGOODS_LOG, pData->LogFileName);
@@ -2911,6 +2913,8 @@ int PPViewGoods::Repair(PPID /*id*/)
 	PPObjGoodsClass gc_obj;
 	PPGdsClsPacket  gc_pack;
 	PPObjGoodsStruc gs_obj;
+	PPObjTech tec_obj; // @v11.3.2
+	PPObjProcessor prc_obj; // @v11.3.2
 	GoodsViewItem item;
 	GoodsRecoverParam param;
 	SString temp_buf;
@@ -2959,13 +2963,39 @@ int PPViewGoods::Repair(PPID /*id*/)
 		}
 		// } @v10.7.9 
 		PPID   prev_id = 0;
+		PPUnit unit_rec;
+		PPID   cfg_def_unit_id = GObj.GetConfig().DefUnitID;
+		if(cfg_def_unit_id > 0 && GObj.FetchUnit(cfg_def_unit_id, &unit_rec) > 0) {
+			;
+		}
+		else 
+			cfg_def_unit_id = 0;
 		for(InitIteration(); NextIteration(&item) > 0;) {
 			if(item.ID != prev_id) {
 				PPGoodsPacket pack;
+				Goods2Tbl::Rec parent_rec;
 				int    err = 0;
 				int    to_turn_packet = 0;
 				if(GObj.GetPacket(item.ID, &pack, 0) > 0) {
 					const int is_cls = BIN(pack.Rec.GdsClsID && gc_obj.GetPacket(pack.Rec.GdsClsID, &gc_pack) > 0);
+					// @v11.3.2 {
+					if(pack.Rec.ParentID && GObj.Search(pack.Rec.ParentID, &parent_rec) > 0) {
+						;
+					}
+					else
+						parent_rec.ID = 0; // Нулевой идентификатор будет служить индикатором того, что запись не инициализирована
+					if(!pack.Rec.UnitID || GObj.FetchUnit(pack.Rec.UnitID, 0) <= 0) { 
+						if(parent_rec.ID && parent_rec.UnitID && GObj.FetchUnit(parent_rec.UnitID, &unit_rec) > 0) {
+							pack.Rec.UnitID = unit_rec.ID;
+							err = 1;
+						}
+						else if(cfg_def_unit_id) {
+							pack.Rec.UnitID = cfg_def_unit_id;
+							err = 1;
+						}
+						logger.LogString(PPTXT_LOG_GOODSHASNTUOM, pack.Rec.Name);
+					}
+					// } @v11.3.2 
 					if(!RecoverGoodsExtPropRef(pack.Rec.ID, &pack.ExtRec.KindID, is_cls, gc_pack.PropKind, &logger))
 						err = 1;
 					if(!RecoverGoodsExtPropRef(pack.Rec.ID, &pack.ExtRec.GradeID, is_cls, gc_pack.PropGrade, &logger))
@@ -3076,9 +3106,22 @@ int PPViewGoods::Repair(PPID /*id*/)
 								logger.LogString(PPTXT_LOG_ALCGOODSHASNTVOL, pack.Rec.Name); // Для алкогольного товара '%s' не определен объем
 						}
 					}
-					if(err || to_turn_packet) {
-						if(param.Flags & GoodsRecoverParam::fCorrect)
-							THROW(GObj.PutPacket(&item.ID, &pack, 1));
+					{
+						// @v11.3.2 {
+						PPID   def_prc_id = 0;
+						if(param.Flags & GoodsRecoverParam::fCreateTechIfPossible && parent_rec.ID && parent_rec.DefPrcID)
+							def_prc_id = parent_rec.DefPrcID;
+						// } @v11.3.2 
+						if(err || to_turn_packet) {
+							if(param.Flags & GoodsRecoverParam::fCorrect || def_prc_id) { // @v11.3.2 (|| def_prc_id)
+								THROW(GObj.PutPacket(&item.ID, &pack, 1));
+							}
+						}
+						// @v11.3.2 {
+						else if(def_prc_id) {
+							THROW(tec_obj.CreateAutoTech(def_prc_id, item.ID, 0, 1));
+						}
+						// } @v11.3.2 
 					}
 				}
 			}

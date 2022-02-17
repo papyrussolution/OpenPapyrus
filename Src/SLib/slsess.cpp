@@ -732,7 +732,7 @@ struct GlobalObjectEntry {
 	void * Ptr;
 };
 
-SlSession::GlobalObjectArray::GlobalObjectArray() : SVector(sizeof(GlobalObjectEntry)) // @v9.8.5 SArray-->SVector
+SlSession::GlobalObjectArray::GlobalObjectArray() : SVector(sizeof(GlobalObjectEntry))
 {
 	//
 	// Дабы не использовать нулевой индекс вставляем фиктивный первый элемент.

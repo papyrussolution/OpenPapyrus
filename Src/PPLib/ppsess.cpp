@@ -260,7 +260,7 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 									DBQ * dbq = 0;
 									dbq = ppcheckfiltid(dbq, t->EmployerID, employer);
 									q.select(t->EmployerID, t->Flags, t->Status, 0L).where(*dbq);
-									for(q.initIteration(0, &k4, spGe); q.nextIteration() > 0;) {
+									for(q.initIteration(false, &k4, spGe); q.nextIteration() > 0;) {
 										const PrjTaskTbl::Rec & r_rec = t->data;
 										if(!(r_rec.Flags & TODOF_OPENEDBYEMPL) && !oneof2(r_rec.Status, TODOSTTS_REJECTED, TODOSTTS_COMPLETED)) {
 											//PPGetWord(PPWORD_NEWTASK, 1, temp_buf);
@@ -299,7 +299,7 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 									dbq = &(*dbq && daterange(t->StartDt, &period));
 									BExtQuery q(t, 4);
 									q.select(t->EmployerID, t->StartDt, t->Status, 0L).where(*dbq);
-									for(q.initIteration(0, &k4, spGe); q.nextIteration() > 0;) {
+									for(q.initIteration(false, &k4, spGe); q.nextIteration() > 0;) {
 										const PrjTaskTbl::Rec & r_rec = t->data;
 										if(!oneof2(r_rec.Status, TODOSTTS_REJECTED, TODOSTTS_COMPLETED)) {
 											//PPGetWord(PPWORD_INCOMPLETETASK, 1, temp_buf);
@@ -791,7 +791,7 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 							dbq = &(*dbq && p_sj->Dt >= rPrevRunTime.d);
 							dbq = ppcheckfiltid(dbq, p_sj->ObjType, PPOBJ_TSESSION);
 							q.selectAll().where(*dbq);
-							for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+							for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 								if(cmp(rPrevRunTime, p_sj->data.Dt, p_sj->data.Tm) < 0) {
 									PPAdviseEvent ev;
 									ev = p_sj->data;
@@ -3228,7 +3228,7 @@ private:
 									else if(P_Sj->search(&k0_, spGt)) {
 										p_q = new BExtQuery(P_Sj, 0);
 										p_q->selectAll().where(P_Sj->Dt >= sj_since.d);
-										p_q->initIteration(0, &k0, spGt);
+										p_q->initIteration(false, &k0, spGt);
 									}
 									if(p_q) {
 										while(p_q->nextIteration() > 0) {
@@ -4380,7 +4380,7 @@ int PPSession::DirtyDbCache(long dbPathID, PPAdviseEventQueue::Client * pCli)
 						k.Tm = last_cache_update.t;
 						BExtQuery q(p_sj, 0);
 						q.selectAll().where(p_sj->Dt >= last_cache_update.d);
-						for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+						for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 							if(cmp(last_cache_update, p_sj->data.Dt, p_sj->data.Tm) < 0 && p_ev_list->bsearch(p_sj->data.Action)) {
 								SjEntry entry;
 								entry.Action  = p_sj->data.Action;

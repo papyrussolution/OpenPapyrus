@@ -1424,7 +1424,7 @@ int ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 							BExtQuery cclq(P_TmpCclTbl, 2);
 							cclq.selectAll().where(P_TmpCclTbl->CheckID == chk_id);
 							qtty = -qtty;
-							for(cclq.initIteration(0, &k2, spGe); cclq.nextIteration() > 0;) {
+							for(cclq.initIteration(false, &k2, spGe); cclq.nextIteration() > 0;) {
 								const TempCCheckLineTbl::Rec & r_tccl_rec = P_TmpCclTbl->data;
 								if(r_tccl_rec.GoodsID == goods_id && feqeps(fabs(r_tccl_rec.Quantity), fabs(qtty), 1E-7)) {
 									double storno_amount = (intmnytodbl(r_tccl_rec.Price) - r_tccl_rec.Dscnt) * r_tccl_rec.Quantity;

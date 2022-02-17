@@ -550,10 +550,7 @@ static inline uint DIV_CEIL(const uint a, uint b)
 }
 
 #undef  ARRAY_LENGTH
-template <typename Type, uint n>
-static inline uint ARRAY_LENGTH(const Type (&)[n]) {
-	return n;
-}
+template <typename Type, uint n> static inline uint ARRAY_LENGTH(const Type (&)[n]) { return n; }
 
 /* A const version, but does not detect erratically being called on pointers. */
 #define ARRAY_LENGTH_CONST(__array) ((signed int)(sizeof(__array) / sizeof(__array[0])))

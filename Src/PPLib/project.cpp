@@ -237,7 +237,7 @@ StrAssocArray * PPObjProject::MakeStrAssocList(void * extraPtr /*parentPrjID*/)
 	{
 		BExtQuery q(P_Tbl, 2);
 		q.select(P_Tbl->ID, P_Tbl->Code, P_Tbl->Name, 0L).where(P_Tbl->ParentID == parent_prj_id);
-		for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;)
+		for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;)
 			THROW_SL(p_list->Add(P_Tbl->data.ID, MakeCodeString(&P_Tbl->data, name_buf)));
 		THROW_DB(BTROKORNFOUND);
 	}
@@ -663,7 +663,7 @@ int PPViewProject::InitIteration()
 	k3.BeginDt = Filt.StartPeriod.low;
 	k3_ = k3;
 	Counter.Init(P_IterQuery->countIterations(0, &k3_, spGe));
-	P_IterQuery->initIteration(0, &k3, spGe);
+	P_IterQuery->initIteration(false, &k3, spGe);
 	CATCHZOK
 	return ok;
 }
@@ -920,7 +920,7 @@ SEnum::Imp * PrjTaskCore::EnumByClient(PPID cliPersonID, const DateRange * pPeri
 	MEMSZERO(k5);
 	k5.ClientID = cliPersonID;
 	k5.Dt = pPeriod ? pPeriod->low : ZERODATE;
-	q->initIteration(0, &k5, spGe);
+	q->initIteration(false, &k5, spGe);
 	return EnumList.RegisterIterHandler(q, &h) ? new PPTblEnum <PrjTaskCore>(this, h) : 0;
 }
 
@@ -934,7 +934,7 @@ SEnum::Imp * PrjTaskCore::EnumByEmployer(PPID emplPersonID, const DateRange * pP
 	MEMSZERO(k4);
 	k4.EmployerID = emplPersonID;
 	k4.Dt = pPeriod ? pPeriod->low : ZERODATE;
-	q->initIteration(0, &k4, spGe);
+	q->initIteration(false, &k4, spGe);
 	return EnumList.RegisterIterHandler(q, &h) ? new PPTblEnum <PrjTaskCore>(this, h) : 0;
 }
 
@@ -956,7 +956,7 @@ int PrjTaskCore::SearchByTemplate(PPID templID, LDATE startDt, PrjTaskTbl::Rec *
 	k3.TemplateID = templID;
 	BExtQuery q(this, 3);
 	q.select(this->ID, 0L).where(this->TemplateID == templID && this->StartDt == startDt);
-	for(q.initIteration(0, &k3, spGe); q.nextIteration() > 0;)
+	for(q.initIteration(false, &k3, spGe); q.nextIteration() > 0;)
 		if(Search(data.ID, pRec) > 0)
 			return 1;
 	return -1;
@@ -1021,7 +1021,7 @@ int PrjTaskCore::SearchAnyRef(PPID objType, PPID objID, PPID * pID)
 	if(objType == PPOBJ_PERSON) {
 		BExtQuery q(this, 0, 1);
 		q.select(this->ID, 0).where(this->CreatorID == objID || this->EmployerID == objID || this->ClientID == objID);
-		q.initIteration(0, &k_, spFirst);
+		q.initIteration(false, &k_, spFirst);
 		if(q.nextIteration() > 0) {
 			ASSIGN_PTR(pID, data.ID);
 			ok = 1;
@@ -1030,7 +1030,7 @@ int PrjTaskCore::SearchAnyRef(PPID objType, PPID objID, PPID * pID)
 	else if(objType == PPOBJ_ARTICLE) {
 		BExtQuery q(this, 0, 1);
 		q.select(this->ID, 0).where(this->BillArID == objID);
-		q.initIteration(0, &k_, spFirst);
+		q.initIteration(false, &k_, spFirst);
 		if(q.nextIteration() > 0) {
 			ASSIGN_PTR(pID, data.ID);
 			ok = 1;
@@ -1039,7 +1039,7 @@ int PrjTaskCore::SearchAnyRef(PPID objType, PPID objID, PPID * pID)
 	else if(objType == PPOBJ_LOCATION) {
 		BExtQuery q(this, 0, 1);
 		q.select(this->ID, 0).where(this->DlvrAddrID == objID);
-		q.initIteration(0, &k_, spFirst);
+		q.initIteration(false, &k_, spFirst);
 		if(q.nextIteration() > 0) {
 			ASSIGN_PTR(pID, data.ID);
 			ok = 1;
@@ -1087,7 +1087,7 @@ int PrjTaskCore::ReplaceRefs(PPID objType, PPID replacedID, PPID newID, int use_
 		else if(objType == PPOBJ_LOCATION)
 			dbq = &(this->DlvrAddrID == replacedID);
 		q.select(this->ID, 0).where(*dbq);
-		for(q.initIteration(0, &k_, spFirst); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k_, spFirst); q.nextIteration() > 0;) {
 			id_list.add(data.ID);
 		}
 		if(id_list.getCount()) {
@@ -1151,7 +1151,7 @@ int PrjTaskCore::GetSingleByCode(long kind, const char * pCode, PPID * pID)
 			dbq = & (*dbq && (Kind == kind));
 		q.where(*dbq);
 		MEMSZERO(k0);
-		for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;)
+		for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;)
 			if(strcmp(data.Code, pCode) == 0) {
 				if(++count > 1) {
 					id = 0;
@@ -1904,7 +1904,7 @@ StrAssocArray * PPObjPrjTask::MakeStrAssocList(void * extraPtr)
 		dbq = & (*dbq && (P_Tbl->Kind == reinterpret_cast<long>(extraPtr)));
 	q.where(*dbq);
 	MEMSZERO(k0);
-	for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 		if(P_Tbl->data.Code[0])
 			temp_buf = P_Tbl->data.Code;
 		else
@@ -2035,7 +2035,7 @@ int PPObjPrjTask::Maintain()
 			MEMSZERO(k0);
 			k0_ = k0;
 			cntr.Init(q.countIterations(0, &k0_, spFirst));
-			for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
 				PrjTaskTbl::Rec rec;
 				P_Tbl->copyBufTo(&rec);
 				int    new_status = 0;
@@ -2061,7 +2061,7 @@ int PPObjPrjTask::Maintain()
 			MEMSZERO(k0);
 			k0_ = k0;
 			cntr.Init(q.countIterations(0, &k0_, spFirst));
-			for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
 				PrjTaskTbl::Rec rec;
 				P_Tbl->copyBufTo(&rec);
 				if(rec.Status != TODOSTTS_REJECTED) {
@@ -2971,7 +2971,7 @@ int PPObjPrjTask::GetLinkTasks(PPID taskID, PPIDArray * pAry)
 		MEMSZERO(k6);
 		k6.LinkTaskID = taskID;
 		pAry->freeAll();
-		for(q.initIteration(0, &k6, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k6, spGe); q.nextIteration() > 0;) {
 			THROW(pAry->add(P_Tbl->data.ID));
 		}
 		ok = 1;
@@ -3209,7 +3209,7 @@ int RestoreLostPrjTPersonDlg::ViewTasks(uint cm, const LostPrjTPersonItem * pIte
 		}
 		p_q = new BExtQuery(p_t, idx);
 		p_q->select(p_t->ID, /*p_t->Descr,*/ 0).where(*dbq);
-		for(p_q->initIteration(0, &k_); p_q->nextIteration() > 0;) {
+		for(p_q->initIteration(false, &k_); p_q->nextIteration() > 0;) {
 			const PPID id = p_t->data.ID;
 			todo_obj.GetItemDescr(id, temp_buf);
 			list.Add(id, temp_buf);
@@ -3243,7 +3243,7 @@ int PPObjPrjTask::ResolveAbsencePersonHelper_(PPID newID, PPID prevID, int todoP
 		else if(todoPerson == TODOPSN_CLIENT)
 			dbq = & (*dbq && P_Tbl->ClientID == prevID);
 		p_q->select(P_Tbl->ID, 0L).where(*dbq);
-		for(p_q->initIteration(0, &k0); p_q->nextIteration() > 0;)
+		for(p_q->initIteration(false, &k0); p_q->nextIteration() > 0;)
 			todo_list.add(P_Tbl->data.ID);
 		for(uint i = 0; i < todo_list.getCount(); i++) {
 			PPPrjTaskPacket prjt_pack;
@@ -3278,7 +3278,7 @@ int PPObjPrjTask::ResolveAbsencePersonHelper_(PPID newID, PPID prevID, int todoP
 	THROW_MEM(p_q = new BExtQuery(obj_prjt.P_Tbl, 0));
 	p_q->select(obj_prjt.P_Tbl->ID, obj_prjt.P_Tbl->CreatorID, obj_prjt.P_Tbl->EmployerID, obj_prjt.P_Tbl->ClientID, 0L);
 	PPWaitStart();
-	for(p_q->initIteration(0, &k0); p_q->nextIteration() > 0;) {
+	for(p_q->initIteration(false, &k0); p_q->nextIteration() > 0;) {
 		int creator_notf  = BIN(obj_prjt.P_Tbl->data.CreatorID && obj_psn.Search(obj_prjt.P_Tbl->data.CreatorID)   <= 0);
 		int employer_notf = BIN(obj_prjt.P_Tbl->data.EmployerID && obj_psn.Search(obj_prjt.P_Tbl->data.EmployerID) <= 0);
 		int client_notf   = BIN(obj_prjt.P_Tbl->data.ClientID && obj_psn.Search(obj_prjt.P_Tbl->data.ClientID)     <= 0);

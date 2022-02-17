@@ -967,9 +967,9 @@ void CCShapeDrawNode::drawEllipse(const cocos2d::CCPoint &leftTop, const cocos2d
     float centerY = leftTop.y < rightBottom.y ? (leftTop.y + y_radius) : (rightBottom.y + y_radius);
 
     int segs = 500;  //е€†ж®µи¶Ље¤љ, з”»зљ„и¶Љз»†
-    float a = M_PI;
+    float a = SMathConst::Pi_f;
     float dotRadius = thick;
-    const float coef = 2.0f * (float)M_PI / segs;
+    const float coef = 2.0f * SMathConst::Pi_f / segs;
     float radius, distance, angle, pointX, pointY;
     for(int i = 0; i <= segs; ++i)
     {

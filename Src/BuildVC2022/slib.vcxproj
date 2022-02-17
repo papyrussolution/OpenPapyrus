@@ -1248,6 +1248,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="..\Db\dbkv-lmdb.cpp" />
     <ClCompile Include="..\Db\dboci.cpp" />
     <ClCompile Include="..\Db\dbprvdr.cpp" />
     <ClCompile Include="..\Db\Dbq.cpp">
@@ -3980,6 +3981,7 @@
     <ClInclude Include="..\Include\comdisp.h" />
     <ClInclude Include="..\Include\Db.h" />
     <ClInclude Include="..\Include\Dbf.h" />
+    <ClInclude Include="..\Include\dbkv-lmdb.h" />
     <ClInclude Include="..\Include\Dbqbrdef.h" />
     <ClInclude Include="..\Include\Dbquery.h" />
     <ClInclude Include="..\Include\dirent.h" />

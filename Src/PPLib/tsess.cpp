@@ -117,7 +117,7 @@ int TSessionCore::SearchAnyRef(PPID objType, PPID objID, PPID * pID)
 		BExtQuery q(this, 0, 1);
 		q.select(this->ID, 0L).where(this->ArID == objID || this->Ar2ID == objID);
 		MEMSZERO(k0);
-		for(q.initIteration(0, &k0, spFirst); ok < 0 && q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k0, spFirst); ok < 0 && q.nextIteration() > 0;) {
 			ASSIGN_PTR(pID, data.ID);
 			ok = 1;
 		}
@@ -153,7 +153,7 @@ int TSessionCore::ReplaceArticle(PPID dest, PPID src)
 	BExtQuery q(this, 0, 128);
 	q.select(this->ID, this->ArID, this->Ar2ID, 0L).where(this->ArID == dest || this->Ar2ID == dest);
 	MEMSZERO(k0);
-	for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;)
+	for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;)
 		if(data.ArID == dest || data.Ar2ID == dest)
 			ses_list.addUnique(data.ID);
 	for(i = 0; i < ses_list.getCount(); i++)
@@ -234,7 +234,7 @@ int TSessionCore::Helper_GetChildIDList(PPID superSessID, long flags, PPIDArray 
 	BExtQuery q(this, 6);
 	q.select(this->ID, this->Flags, 0L).where(this->ParentID == superSessID);
 	k6.ParentID = superSessID;
-	for(q.initIteration(0, &k6, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k6, spGe); q.nextIteration() > 0;) {
 		if(!(flags & gclfSubSess) || data.Flags & TSESF_SUBSESS) {
 			THROW_SL(list.addUnique(data.ID));
 			ok = 1;
@@ -321,7 +321,7 @@ int TSessionCore::InitLineEnum(PPID sessID, long * pHandle)
 	TSessLineTbl::Key0 k0;
 	MEMSZERO(k0);
 	k0.TSessID = sessID;
-	q->initIteration(0, &k0, spGe);
+	q->initIteration(false, &k0, spGe);
 	ok = Lines.EnumList.RegisterIterHandler(q, pHandle);
 	return ok;
 }
@@ -337,7 +337,7 @@ int TSessionCore::InitLineEnumBySerial(const char * pSerial, int sign, long * pH
 	MEMSZERO(k3);
 	STRNSCPY(k3.Serial, temp_serial);
 	k3.Sign = sign;
-	q->initIteration(0, &k3, spEq);
+	q->initIteration(false, &k3, spEq);
 	ok = Lines.EnumList.RegisterIterHandler(q, pHandle);
 	return ok;
 }
@@ -448,7 +448,7 @@ int TSessionCore::LoadBusyArray(PPID prcID, PPID exclTSesID, int kind, const STi
 			dbq = &(*dbq && this->StDt <= pPeriod->Finish.d);
 	}
 	q.select(this->ID, this->StDt, this->StTm, this->FinDt, this->FinTm, this->Status, this->Flags, 0).where(*dbq);
-	for(q.initIteration(0, &k4, spGe); q.nextIteration() > 0;)
+	for(q.initIteration(false, &k4, spGe); q.nextIteration() > 0;)
 		if(data.Status != TSESST_CANCELED && data.ID != exclTSesID) {
 			if(kind == TSESK_IDLE && !(data.Flags & TSESF_IDLE))
 				continue;
@@ -475,7 +475,7 @@ int TSessionCore::GetProcessed(PPID prcID, int kind, TSessionTbl::Rec * pRec)
 	k4.PrcID = prcID;
 	BExtQuery q(this, 4);
 	q.selectAll().where(this->PrcID == prcID && this->Status == (long)TSESST_INPROCESS);
-	for(q.initIteration(0, &k4, spGe); ok < 0 && q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k4, spGe); ok < 0 && q.nextIteration() > 0;) {
 		if((kind == TSESK_IDLE && data.Flags & TSESF_IDLE) ||
 			(kind == TSESK_PLAN && data.Flags & TSESF_PLAN) ||
 			(kind == TSESK_SESSION && !(data.Flags & (TSESF_IDLE | TSESF_PLAN)))) {
@@ -621,7 +621,7 @@ int TSessionCore::UpdateSuperSessCompleteness(PPID sessID, int use_ta)
 				BExtQuery q(this, 6);
 				q.select(this->ID, this->Incomplete, 0L).where(this->ParentID == sessID);
 				k6.ParentID = sessID;
-				for(q.initIteration(0, &k6, spGe); q.nextIteration() > 0;) {
+				for(q.initIteration(false, &k6, spGe); q.nextIteration() > 0;) {
 					if(this->data.Incomplete > max_compl)
 						max_compl = data.Incomplete;
 				}

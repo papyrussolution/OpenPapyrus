@@ -120,7 +120,7 @@ int PPViewPerson::Init_(const PPBaseFilt * pFilt)
 					BExtQuery q(pt, 0);
 					q.select(pt->ID, pt->MainLoc, pt->RLoc, 0);
 					MEMSZERO(k0);
-					for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;) {
+					for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
 						id_list.AddNZ(pt->data.MainLoc);
 						id_list.AddNZ(pt->data.RLoc);
 						dlvr_loc_list.clear();
@@ -224,7 +224,7 @@ int PPViewPerson::Init_(const PPBaseFilt * pFilt)
 					kq.select(kt->PersonID, 0L).where(kt->KindID == Filt.Kind);
 					k0_ = k0;
 					cntr.Init(kq.countIterations(0, &k0_, spGe));
-					for(kq.initIteration(0, &k0, spGe); kq.nextIteration() > 0; cntr.Increment()) {
+					for(kq.initIteration(false, &k0, spGe); kq.nextIteration() > 0; cntr.Increment()) {
 						local_list.add(kt->data.PersonID);
 						PPWaitPercent(cntr);
 					}
@@ -291,7 +291,7 @@ int PPViewPerson::Init_(const PPBaseFilt * pFilt)
 						k_ = k;
 						cntr.Init(pq.countIterations(0, &k_, spGe));
 						local_list.clear();
-						for(pq.initIteration(0, &k, spGe); pq.nextIteration() > 0; cntr.Increment()) {
+						for(pq.initIteration(false, &k, spGe); pq.nextIteration() > 0; cntr.Increment()) {
 							if(srch_buf.IsEmpty() || ExtStrSrch(pt->data.Name, srch_buf, 0))
 								local_list.add(pt->data.ID);
 							PPWaitPercent(cntr);
@@ -1438,7 +1438,7 @@ int PPViewPerson::InitPersonIteration()
 		THROW_MEM(P_IterQuery = new BExtQuery(kt, 0));
 		P_IterQuery->select(kt->PersonID, 0L).where(kt->KindID == Filt.Kind);
 		Counter.Init(P_IterQuery->countIterations(0, &(k0_ = k0), spGe));
-		P_IterQuery->initIteration(0, &k0, spGe);
+		P_IterQuery->initIteration(false, &k0, spGe);
 	}
 	else {
 		DBQ * dbq = 0;
@@ -1449,7 +1449,7 @@ int PPViewPerson::InitPersonIteration()
 		dbq = ppcheckfiltid(dbq, pt->Status, Filt.Status);
 		P_IterQuery->where(*dbq);
 		Counter.Init(P_IterQuery->countIterations(0, &(pk_ = pk), spGt));
-		P_IterQuery->initIteration(0, &pk, spGt);
+		P_IterQuery->initIteration(false, &pk, spGt);
 	}
 	CATCHZOK
 	return ok;

@@ -2,7 +2,7 @@
  * @brief PostList which applies a MatchDecider
  */
 // Copyright 2017 Olly Betts
-// @licence GNU GPL
+// @license GNU GPL
 //
 #include <xapian-internal.h>
 #pragma hdrstop

@@ -582,7 +582,7 @@ int PPViewStaffPost::InitIteration(int order)
 		MEMSZERO(ord_k1);
 		Counter.Init(q->countIterations(0, &ord_k1, spFirst));
 		MEMSZERO(ord_k1);
-		q->initIteration(0, &ord_k1, spFirst);
+		q->initIteration(false, &ord_k1, spFirst);
 	}
 	else {
 		union  {
@@ -614,7 +614,7 @@ int PPViewStaffPost::InitIteration(int order)
 		q->where(*dbq);
 		k_ = k;
 		Counter.Init(q->countIterations(0, &k_, spGe));
-		q->initIteration(0, &k, spGe);
+		q->initIteration(false, &k, spGe);
 	}
 	P_IterQuery = q;
 	CATCH
@@ -960,7 +960,7 @@ StrAssocArray * FastEditSumByDivDlg::MakeDivList()
 			BExtQuery post_iter(ObjStaffL.P_PostTbl, 0, 64);
 			post_iter.select(ObjStaffL.P_PostTbl->ID, ObjStaffL.P_PostTbl->StaffID, ObjStaffL.P_PostTbl->PersonID, 0L);
 			post_iter.where(*post_dbq);
-			for(post_iter.initIteration(0, &post_k0); post_iter.nextIteration() > 0;) {
+			for(post_iter.initIteration(false, &post_k0); post_iter.nextIteration() > 0;) {
 				PPID post_id  = ObjStaffL.P_PostTbl->data.ID + STAFFPOST_OFFS;
 				PPID staff_id = ObjStaffL.P_PostTbl->data.StaffID + STAFF_OFFS;
 				PPID psn_id = ObjStaffL.P_PostTbl->data.PersonID;
@@ -1277,7 +1277,7 @@ int FastEditDivBySumDlg::PutDivListByAmt(PPID objType, PPID propID, PPID amtID, 
 	k0.Prop    = propID;
 	dbq = &(*dbq && r_prop.ObjType == objType && r_prop.Prop == propID);
 	bext.select(r_prop.ObjType, r_prop.ObjID, r_prop.Prop, 0L).where(*dbq);
-	for(bext.initIteration(0, &k0); bext.nextIteration() > 0;)
+	for(bext.initIteration(false, &k0); bext.nextIteration() > 0;)
 		if(p_ref->GetPropArray(r_prop.data.ObjType, r_prop.data.ObjID, r_prop.data.Prop, &amt_list) > 0 && amt_list.getCount() && amt_list.Search(amtID, 0) > 0)
 			THROW(PutDivEntryToList(r_prop.data.ObjType, r_prop.data.ObjID, pList));
 	CATCHZOK

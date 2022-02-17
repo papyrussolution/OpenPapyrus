@@ -1,5 +1,5 @@
 // V_ACANLZ.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -744,7 +744,7 @@ int PPViewAccAnlz::EnumerateByIdentifiedAcc(long aco, PPID accID, AccAnlzViewEnu
 	dbq = & (*dbq && daterange(P_ATC->Dt, &Filt.Period));
 	THROW_MEM(q = new BExtQuery(P_ATC, idx, 64));
 	q->selectAll().where(*dbq);
-	for(q->initIteration(0, &k, spGe); q->nextIteration() > 0;) {
+	for(q->initIteration(false, &k, spGe); q->nextIteration() > 0;) {
 		int    ibf = 0; // Признак того, что найден документ, соответствующий текущей записи
 		BillEntry bill_entry;
 		AccTurnTbl::Rec rec;
@@ -1220,7 +1220,7 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 				q.selectAll().where(P_ATC->AccRel.AccID == Filt.AccID && P_ATC->AccRel.Closed == 0L);
 				k.AccID = Filt.AccID;
 				k.ArticleID = 0;
-				for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+				for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 					P_ATC->AccRel.copyBufTo(&acr_rec);
 					THROW_SL(acr_list.insert(&acr_rec));
 				}
@@ -1537,7 +1537,7 @@ int PPViewAccAnlz::InitIteration()
 			}
 			THROW_MEM(P_IterQuery = new BExtQuery(t, idx));
 			P_IterQuery->selectAll().where(*dbq);
-			P_IterQuery->initIteration(0, p_key, spGe);
+			P_IterQuery->initIteration(false, p_key, spGe);
 		}
 		else {
 			// @v10.6.8 char   k[MAXKEYLEN];
@@ -1550,7 +1550,7 @@ int PPViewAccAnlz::InitIteration()
 			}
 			P_IterQuery->selectAll();
 			// @v10.6.8 memzero(k, sizeof(k));
-			P_IterQuery->initIteration(0, k_, spFirst);
+			P_IterQuery->initIteration(false, k_, spFirst);
 		}
 	}
 	CATCHZOK

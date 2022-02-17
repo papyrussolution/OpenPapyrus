@@ -93,7 +93,7 @@ int PersonEventCore::InitEnum(PPID prmrPersonID, const DateRange * pPeriod, long
 	MEMSZERO(k3);
 	k3.PersonID = prmrPersonID;
 	k3.OprNo = 0;
-	q->initIteration(0, &k3, spGe);
+	q->initIteration(false, &k3, spGe);
 	return EnumList.RegisterIterHandler(q, pHandle);
 }
 
@@ -135,7 +135,7 @@ int PersonEventCore::CalcCountForPeriod(PPID opID, PPID personID, const STimeChu
 	}
 	BExtQuery q(this, idx);
 	q.select(this->Dt, this->Tm, 0).where(*dbq);
-	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 		LDATETIME moment;
 		moment.Set(data.Dt, data.Tm);
 		if(rTc.Has(moment)) {
@@ -367,7 +367,7 @@ int PPObjPersonEvent::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 				BExtQuery q(P_Tbl, 0);
 				q.select(P_Tbl->ID, P_Tbl->SecondID, 0).where(P_Tbl->SecondID == _id);
 				k0.ID = 0;
-				for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;) {
+				for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
 					if(P_Tbl->data.SecondID == _id) { // @paranoic
 						id_to_upd_list.add(P_Tbl->data.ID);
 					}
@@ -399,7 +399,7 @@ int PPObjPersonEvent::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			BExtQuery q(P_Tbl, 0);
 			q.select(P_Tbl->ID, P_Tbl->LocationID, 0).where(P_Tbl->LocationID == _id);
 			k0.ID = 0;
-			for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
 				if(P_Tbl->data.LocationID == _id) { // @paranoic
 					id_to_upd_list.add(P_Tbl->data.ID);
 				}
@@ -1184,7 +1184,7 @@ int PPObjPersonEvent::GetFrwdList(PPID psnID, int isPrmr, LDATE dt, long oprno, 
 		k.k1.OprNo = oprno;
 	}
 	q.where(*dbq);
-	for(q.initIteration(0, &k, spGt); q.nextIteration();) {
+	for(q.initIteration(false, &k, spGt); q.nextIteration();) {
 		FrwdPsnEventItem item;
 		MEMSZERO(item);
 		item.Dt    = P_Tbl->data.Dt;

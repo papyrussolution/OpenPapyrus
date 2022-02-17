@@ -1,4 +1,3 @@
-//---------------------------------------------------------------------------------
 //
 //  Little Color Management System
 //  Copyright (c) 1998-2020 Marti Maria Saguer
@@ -12,16 +11,6 @@
 //
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//---------------------------------------------------------------------------------
 //
 #include "lcms2_internal.h"
 #pragma hdrstop
@@ -1294,48 +1283,48 @@ boolint CMSEXPORT cmsSaveProfileToMem(cmsHPROFILE hProfile, void * MemPtr, cmsUI
 		*BytesNeeded =  cmsSaveProfileToIOhandler(hProfile, NULL);
 		return (*BytesNeeded == 0) ? FALSE : TRUE;
 	}
-
 	// That is a real write operation
 	io =  cmsOpenIOhandlerFromMem(ContextID, MemPtr, *BytesNeeded, "w");
-	if(io == NULL) return FALSE;
-
+	if(io == NULL) 
+		return FALSE;
 	rc = (cmsSaveProfileToIOhandler(hProfile, io) != 0);
 	rc &= cmsCloseIOhandler(io);
-
 	return rc;
 }
 
 // Closes a profile freeing any involved resources
 boolint CMSEXPORT cmsCloseProfile(cmsHPROFILE hProfile)
 {
-	_cmsICCPROFILE* Icc = (_cmsICCPROFILE*)hProfile;
+	_cmsICCPROFILE * Icc = (_cmsICCPROFILE*)hProfile;
 	boolint rc = TRUE;
-	cmsUInt32Number i;
-	if(!Icc) 
-		return FALSE;
-	// Was open in write mode?
-	if(Icc->IsWrite) {
-		Icc->IsWrite = FALSE; // Assure no further writing
-		rc &= cmsSaveProfileToFile(hProfile, Icc->IOhandler->PhysicalFile);
-	}
-	for(i = 0; i < Icc->TagCount; i++) {
-		if(Icc->TagPtrs[i]) {
-			cmsTagTypeHandler* TypeHandler = Icc->TagTypeHandlers[i];
-			if(TypeHandler != NULL) {
-				cmsTagTypeHandler LocalTypeHandler = *TypeHandler;
-				LocalTypeHandler.ContextID = Icc->ContextID; // As an additional parameters
-				LocalTypeHandler.ICCVersion = Icc->Version;
-				LocalTypeHandler.FreePtr(&LocalTypeHandler, Icc->TagPtrs[i]);
-			}
-			else
-				_cmsFree(Icc->ContextID, Icc->TagPtrs[i]);
+	if(Icc) {
+		cmsUInt32Number i;
+		// Was open in write mode?
+		if(Icc->IsWrite) {
+			Icc->IsWrite = FALSE; // Assure no further writing
+			rc &= cmsSaveProfileToFile(hProfile, Icc->IOhandler->PhysicalFile);
 		}
+		for(i = 0; i < Icc->TagCount; i++) {
+			if(Icc->TagPtrs[i]) {
+				cmsTagTypeHandler* TypeHandler = Icc->TagTypeHandlers[i];
+				if(TypeHandler) {
+					cmsTagTypeHandler LocalTypeHandler = *TypeHandler;
+					LocalTypeHandler.ContextID = Icc->ContextID; // As an additional parameters
+					LocalTypeHandler.ICCVersion = Icc->Version;
+					LocalTypeHandler.FreePtr(&LocalTypeHandler, Icc->TagPtrs[i]);
+				}
+				else
+					_cmsFree(Icc->ContextID, Icc->TagPtrs[i]);
+			}
+		}
+		if(Icc->IOhandler) {
+			rc &= cmsCloseIOhandler(Icc->IOhandler);
+		}
+		_cmsDestroyMutex(Icc->ContextID, Icc->UsrMutex);
+		_cmsFree(Icc->ContextID, Icc); // Free placeholder memory
 	}
-	if(Icc->IOhandler != NULL) {
-		rc &= cmsCloseIOhandler(Icc->IOhandler);
-	}
-	_cmsDestroyMutex(Icc->ContextID, Icc->UsrMutex);
-	_cmsFree(Icc->ContextID, Icc); // Free placeholder memory
+	else
+		rc = FALSE;
 	return rc;
 }
 

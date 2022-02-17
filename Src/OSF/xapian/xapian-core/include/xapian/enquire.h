@@ -183,7 +183,7 @@ public:
 	 *
 	 * @param reverse   If true, reverses the sort order.
 	 */
-	void set_sort_by_key(KeyMaker* sorter, bool reverse) XAPIAN_NONNULL();
+	void set_sort_by_key(KeyMaker* sorter, bool reverse) XAPIAN_NONNULL(sorter);
 	/** Set the sorting to be by value, then by relevance for documents
 	 *  with the same value.
 	 *
@@ -207,7 +207,7 @@ public:
 	 *
 	 * @param reverse   If true, reverses the sort order.
 	 */
-	void set_sort_by_key_then_relevance(KeyMaker* sorter, bool reverse) XAPIAN_NONNULL();
+	void set_sort_by_key_then_relevance(KeyMaker* sorter, bool reverse) XAPIAN_NONNULL(sorter);
 
 	/** Set the sorting to be by relevance then value.
 	 *
@@ -257,7 +257,7 @@ public:
 	 *			version a minimum requirement if this detail
 	 *			matters to your application.
 	 */
-	void set_sort_by_relevance_then_key(KeyMaker* sorter, bool reverse) XAPIAN_NONNULL();
+	void set_sort_by_relevance_then_key(KeyMaker* sorter, bool reverse) XAPIAN_NONNULL(sorter);
 	/** Control collapsing of results.
 	 *
 	 *	The MSet returned by @a get_mset() will have only the "best" (at most)
@@ -322,8 +322,7 @@ public:
 	 *                   MatchSpy object by calling spy->release() before
 	 *                   passing it in.
 	 */
-	void add_matchspy(MatchSpy* spy) XAPIAN_NONNULL();
-
+	void add_matchspy(MatchSpy * spy) XAPIAN_NONNULL(spy);
 	/** Remove all the matchspies. */
 	void clear_matchspies();
 

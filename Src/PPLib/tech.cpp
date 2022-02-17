@@ -163,7 +163,7 @@ int PPObjTech::SearchAuto(PPID prcID, PPID goodsID, PPID * pTechID)
 	k2.PrcID = prcID;
 	BExtQuery q(P_Tbl, 2);
 	q.selectAll().where(P_Tbl->PrcID == prcID && P_Tbl->Kind == 2L);
-	for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 		if(goodsID == P_Tbl->data.GoodsID || goods_obj.BelongToGroup(goodsID, P_Tbl->data.GoodsID, 0) > 0) {
 			tech_id = P_Tbl->data.ID;
 			ok = 1;
@@ -189,7 +189,7 @@ int PPObjTech::SearchAutoForGoodsCreation(PPID prcID, PPID * pGoodsGrpID)
 			k2.PrcID = prc_id;
 			BExtQuery q(P_Tbl, 2);
 			q.selectAll().where(P_Tbl->PrcID == prc_id && P_Tbl->Kind == 2L);
-			for(q.initIteration(0, &k2, spGe); ok < 0 && q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k2, spGe); ok < 0 && q.nextIteration() > 0;) {
 				goods_id = P_Tbl->data.GoodsID;
 				ok = 1;
 			}
@@ -1245,7 +1245,7 @@ int PPObjTech::AddItemsToList(StrAssocArray * pList, PPIDArray * pIdList, PPIDAr
 	RVALUEPTR(id_list, pIdList);
 	BExtQuery q(P_Tbl, idx);
 	q.select(P_Tbl->ID, P_Tbl->ParentID, P_Tbl->OrderN, P_Tbl->GoodsID, P_Tbl->Code, 0).where(*dbq);
-	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 		if(!(prc_id && goodsID) || P_Tbl->data.GoodsID == labs(goodsID)) {
 			if(id_list.lsearch(P_Tbl->data.ID)) {
 				// Зацикливание рекурсии. Следует оборвать рекурсию.
@@ -1668,7 +1668,7 @@ int PPViewTech::InitIteration()
 	P_IterQuery->select(p_t->ID, 0L).where(*dbq);
 	k_ = k;
 	Counter.Init(P_IterQuery->countIterations(0, &k_, spGe));
-	P_IterQuery->initIteration(0, &k, spGe);
+	P_IterQuery->initIteration(false, &k, spGe);
 	return ok;
 }
 
@@ -2083,7 +2083,7 @@ int ToolingSelector::LoadList(PPID prcID)
 		where(p_t->PrcID == prcID && p_t->Kind == 1L);
 	MEMSZERO(k2);
 	k2.PrcID = prcID;
-	for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 		Entry entry;
 		MEMSZERO(entry);
 		entry.ID        = p_t->data.ID;

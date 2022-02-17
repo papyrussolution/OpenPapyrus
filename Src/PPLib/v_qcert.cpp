@@ -87,7 +87,7 @@ int PPViewQCert::Init_(const PPBaseFilt * pBaseFilt)
 				MEMSZERO(k);
 				cntr.Init(q.countIterations(0, &k, spGe));
 				MEMSZERO(k);
-				for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+				for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 					int    found = 0;
 					QualityCertTbl::Rec rec;
 					t->copyBufTo(&rec);

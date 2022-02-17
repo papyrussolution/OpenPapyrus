@@ -420,7 +420,7 @@ int Reference::InitEnum(PPID objType, int flags, long * pHandle)
 	ReferenceTbl::Key0 k0;
 	k0.ObjType = objType;
 	k0.ObjID   = 0;
-	q->initIteration(0, &k0, spGe);
+	q->initIteration(false, &k0, spGe);
 	return EnumList.RegisterIterHandler(q, pHandle);
 }
 
@@ -449,7 +449,7 @@ int Reference::InitEnumByIdxVal(PPID objType, int valN, long val, long * pHandle
 		}
 		BExtQuery * q = new BExtQuery(this, idx);
 		q->selectAll().where(*dbq);
-		q->initIteration(0, &k, spGe);
+		q->initIteration(false, &k, spGe);
 		ok = EnumList.RegisterIterHandler(q, pHandle);
 	}
 	else
@@ -2730,7 +2730,7 @@ int UnxTextRefCore::InitEnum(PPID objType, int prop, long * pHandle)
 	UnxTextRefTbl::Key0 k0;
 	MEMSZERO(k0);
 	k0.ObjType = static_cast<int16>(objType);
-	q->initIteration(0, &k0, spGe);
+	q->initIteration(false, &k0, spGe);
 	return EnumList.RegisterIterHandler(q, pHandle);
 }
 

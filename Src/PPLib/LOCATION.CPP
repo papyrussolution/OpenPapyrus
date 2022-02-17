@@ -183,7 +183,7 @@ int LocationCore::GetListByCode(PPID locTyp, const char * pCode, PPIDArray * pId
 		MEMSZERO(k5);
 		STRNSCPY(k5.Code, pCode);
 		k5.Counter = -MAXLONG;
-		for(q.initIteration(0, &k5, spGt); q.nextIteration() > 0;)
+		for(q.initIteration(false, &k5, spGt); q.nextIteration() > 0;)
 			if(data.Type == locTyp && stricmp(data.Code, pCode) == 0) {
 				CALLPTRMEMB(pIdList, addUnique(data.ID));
 				ok = 1;
@@ -204,7 +204,7 @@ int LocationCore::SearchCode(PPID locTyp, const char * pCode, PPID * pID, Locati
 		MEMSZERO(k5);
 		STRNSCPY(k5.Code, pCode);
 		k5.Counter = -MAXLONG;
-		for(q.initIteration(0, &k5, spGt); ok < 0 && q.nextIteration() > 0;)
+		for(q.initIteration(false, &k5, spGt); ok < 0 && q.nextIteration() > 0;)
 			if(data.Type == locTyp && stricmp(data.Code, pCode) == 0) {
 				PPSetObjError(PPERR_DUPSYMB, PPOBJ_LOCATION, data.ID);
 				ASSIGN_PTR(pID, data.ID);
@@ -241,7 +241,7 @@ int LocationCore::Helper_GetCodeByTempl(const char * pPrfx, const char * pSfx, i
 	BExtQuery q(this, 5, 128);
 	q.select(this->Code, 0).where(this->Code >= k_low.Code && this->Code <= k_upp.Code);
 	k5 = k_low;
-	for(q.initIteration(0, &k5, spGe); !ok && q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k5, spGe); !ok && q.nextIteration() > 0;) {
 		char   temp_buf[128];
 		STRNSCPY(temp_buf, data.Code);
 		if(sstrlen(temp_buf) == (code_len+BIN(addChkDig))) {
@@ -362,7 +362,7 @@ int LocationCore::InitEnum(PPID locTyp, PPID parentID, int flags, long * pHandle
 	BExtQuery * q = new BExtQuery(this, idx);
 	q->selectAll();
 	q->where(*dbq);
-	q->initIteration(0, &k, spGe);
+	q->initIteration(false, &k, spGe);
 	return EnumList.RegisterIterHandler(q, pHandle);
 }
 
@@ -629,7 +629,7 @@ int LocationCore::DumpEaList(const char * pFileName)
 			SString phone_buf;
 			q.select(P_Eac->ID, P_Eac->LinkObjType, P_Eac->LinkObjID, P_Eac->Addr, 0L);
 			MEMSZERO(k1);
-			for(q.initIteration(0, &k1, spFirst); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k1, spFirst); q.nextIteration() > 0;) {
 				PPObjID oid(P_Eac->data.LinkObjType, P_Eac->data.LinkObjID);
 				reinterpret_cast<const PPEAddr *>(P_Eac->data.Addr)->GetPhone(phone_buf);
 				;
@@ -654,7 +654,7 @@ int LocationCore::GetFullEaList(StrAssocArray & rList)
 		SString phone_buf;
 		q.select(P_Eac->ID, P_Eac->LinkObjType, P_Eac->LinkObjID, P_Eac->Addr, 0L);
 		MEMSZERO(k1);
-		for(q.initIteration(0, &k1, spFirst); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k1, spFirst); q.nextIteration() > 0;) {
 			reinterpret_cast<const PPEAddr *>(P_Eac->data.Addr)->GetPhone(phone_buf);
 			if(phone_buf.NotEmpty())
 				THROW_SL(rList.AddFast(P_Eac->data.ID, phone_buf));
@@ -1148,7 +1148,7 @@ int EAddrCore::SearchMaxLikePhone(const char * pPhonePattern, long options, Long
 	rResult.clear();
 	q.select(ID, LinkObjType, LinkObjID, Addr, 0L);
 	MEMSZERO(k1);
-	for(q.initIteration(0, &k1, spFirst); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k1, spFirst); q.nextIteration() > 0;) {
 		phone_buf = 0;
 		reinterpret_cast<const PPEAddr *>(data.Addr)->GetPhone(phone_buf);
 		//if(phone_buf.CmpPrefix(pPhonePattern, 1) == 0) {

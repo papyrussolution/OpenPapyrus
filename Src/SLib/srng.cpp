@@ -476,20 +476,20 @@ double SRng::GetGaussian(double sigma)
 {
 	double x, y, r2;
 	do {
-		/* choose x,y in uniform square (-1,-1) to (+1,+1) */
+		// choose x,y in uniform square (-1,-1) to (+1,+1) 
 		x = -1 + 2 * GetUniformPos();
 		y = -1 + 2 * GetUniformPos();
-		/* see if it is in the unit circle */
+		// see if it is in the unit circle 
 		r2 = x * x + y * y;
 	} while(r2 > 1.0 || r2 == 0);
-	/* Box-Muller transform */
+	// Box-Muller transform 
 	return sigma * y * sqrt(-2.0 * log(r2) / r2);
 }
 
 double SRng::GetGaussianPdf(double x, double sigma) const
 {
 	double u = x / fabs(sigma);
-	double p = (1 / (sqrt(2 * SMathConst::Pi) * fabs(sigma))) * exp(-u * u / 2);
+	double p = (1 / (sqrt(SMathConst::Pi2) * fabs(sigma))) * exp(-u * u / 2);
 	return p;
 }
 //

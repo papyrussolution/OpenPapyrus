@@ -823,7 +823,7 @@ int PPViewEvent::MakeList(PPViewBrowser * pBrw)
 		dbq = ppcheckfiltid(dbq, T.ObjType, Filt.ObjType);
 		dbq = & (*dbq && daterange(T.Dt, &Filt.Period));
 		q.select(T.ID, T.Dt, T.Tm, T.EventType, T.Status, T.UserID, T.GlobalUserID, T.EvSubscrID, T.ObjType, T.ObjID, T.Flags, 0).where(*dbq);
-		for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 			if(CheckForFilt(&Filt, &T.data)) {
 				if(T.Get(T.data.ID, &pack)) {
 					BrwItem new_item;
@@ -1170,7 +1170,7 @@ int PPObjEventSubscription::Detect(PPID id, TSCollection <PPEventCore::Packet> &
 					BExtQuery q(p_sj, 0, 128);
 					DBQ * dbq = &(p_sj->Dt >= last_det_dtm.d && p_sj->ObjType == pack.Rec.ObjType);
 					q.select(p_sj->Dt, p_sj->Tm, p_sj->ObjType, p_sj->ObjID, p_sj->Action, 0L).where(*dbq);
-					for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
+					for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 						SysJournalTbl::Rec sj_rec;
 						p_sj->copyBufTo(&sj_rec);
 						if(cmp(last_det_dtm, sj_rec.Dt, sj_rec.Tm) < 0 && acn_list.lsearch(sj_rec.Action)) {

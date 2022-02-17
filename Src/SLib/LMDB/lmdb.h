@@ -225,22 +225,13 @@ typedef uint64_t mdb_size_t;
 #define MDB_VERSION_MINOR       9 /** Library minor version */
 #define MDB_VERSION_PATCH       70 /** Library patch version */
 #define MDB_VERINT(a, b, c)       (((a) << 24) | ((b) << 16) | (c)) /** Combine args a,b,c into a single integer for easy version comparisons */
-
-/** The full library version as a single integer */
-#define MDB_VERSION_FULL MDB_VERINT(MDB_VERSION_MAJOR, MDB_VERSION_MINOR, MDB_VERSION_PATCH)
-
-/** The release date of this library version */
-#define MDB_VERSION_DATE        "December 19, 2015"
-
-/** A stringifier for the version info */
-#define MDB_VERSTR(a, b, c, d)     "LMDB " #a "." #b "." #c ": (" d ")"
-
-/** A helper for the stringifier macro */
-#define MDB_VERFOO(a, b, c, d)     MDB_VERSTR(a, b, c, d)
+#define MDB_VERSION_FULL MDB_VERINT(MDB_VERSION_MAJOR, MDB_VERSION_MINOR, MDB_VERSION_PATCH) /** The full library version as a single integer */
+#define MDB_VERSION_DATE        "December 19, 2015" /** The release date of this library version */
+#define MDB_VERSTR(a, b, c, d)     "LMDB " #a "." #b "." #c ": (" d ")" /** A stringifier for the version info */
+#define MDB_VERFOO(a, b, c, d)     MDB_VERSTR(a, b, c, d) /** A helper for the stringifier macro */
 
 /** The full library version as a C string */
-#define MDB_VERSION_STRING      \
-	MDB_VERFOO(MDB_VERSION_MAJOR, MDB_VERSION_MINOR, MDB_VERSION_PATCH, MDB_VERSION_DATE)
+#define MDB_VERSION_STRING MDB_VERFOO(MDB_VERSION_MAJOR, MDB_VERSION_MINOR, MDB_VERSION_PATCH, MDB_VERSION_DATE)
 /**	@} */
 
 /** @brief Opaque structure for a database environment.
@@ -257,11 +248,8 @@ typedef struct MDB_env MDB_env;
  */
 typedef struct MDB_txn MDB_txn;
 
-/** @brief A handle for an individual database in the DB environment. */
-typedef unsigned int MDB_dbi;
-
-/** @brief Opaque structure for navigating through a database */
-typedef struct MDB_cursor MDB_cursor;
+typedef unsigned int MDB_dbi; /** @brief A handle for an individual database in the DB environment. */
+typedef struct MDB_cursor MDB_cursor; /** @brief Opaque structure for navigating through a database */
 
 /** @brief Generic structure used for passing keys and data in and out
  * of the database.
@@ -301,30 +289,18 @@ typedef void (MDB_rel_func)(MDB_val * item, void * oldptr, void * newptr, void *
 /** @defgroup	mdb_env	Environment Flags
  *	@{
  */
-/** mmap at a fixed address (experimental) */
-#define MDB_FIXEDMAP    0x01
-/** no environment directory */
-#define MDB_NOSUBDIR    0x4000
-/** don't fsync after commit */
-#define MDB_NOSYNC              0x10000
-/** read only */
-#define MDB_RDONLY              0x20000
-/** don't fsync metapage after commit */
-#define MDB_NOMETASYNC          0x40000
-/** use writable mmap */
-#define MDB_WRITEMAP            0x80000
-/** use asynchronous msync when #MDB_WRITEMAP is used */
-#define MDB_MAPASYNC            0x100000
-/** tie reader locktable slots to #MDB_txn objects instead of to threads */
-#define MDB_NOTLS               0x200000
-/** don't do any locking, caller must manage their own locks */
-#define MDB_NOLOCK              0x400000
-/** don't do readahead (no effect on Windows) */
-#define MDB_NORDAHEAD   0x800000
-/** don't initialize malloc'd memory before writing to datafile */
-#define MDB_NOMEMINIT   0x1000000
-/** use the previous snapshot rather than the latest one */
-#define MDB_PREVSNAPSHOT        0x2000000
+#define MDB_FIXEDMAP     0x0000001 /** mmap at a fixed address (experimental) */
+#define MDB_NOSUBDIR     0x0004000 /** no environment directory */
+#define MDB_NOSYNC       0x0010000 /** don't fsync after commit */
+#define MDB_RDONLY       0x0020000 /** read only */
+#define MDB_NOMETASYNC   0x0040000 /** don't fsync metapage after commit */
+#define MDB_WRITEMAP     0x0080000 /** use writable mmap */
+#define MDB_MAPASYNC     0x0100000 /** use asynchronous msync when #MDB_WRITEMAP is used */
+#define MDB_NOTLS        0x0200000 /** tie reader locktable slots to #MDB_txn objects instead of to threads */
+#define MDB_NOLOCK       0x0400000 /** don't do any locking, caller must manage their own locks */
+#define MDB_NORDAHEAD    0x0800000 /** don't do readahead (no effect on Windows) */
+#define MDB_NOMEMINIT    0x1000000 /** don't initialize malloc'd memory before writing to datafile */
+#define MDB_PREVSNAPSHOT 0x2000000 /** use the previous snapshot rather than the latest one */
 /** @} */
 
 /**	@defgroup	mdb_dbi_open	Database Flags
@@ -403,38 +379,22 @@ typedef enum MDB_cursor_op {
  *	BerkeleyDB uses -30800 to -30999, we'll go under them
  *	@{
  */
-/**	Successful result */
-#define MDB_SUCCESS      0
-/** key/data pair already exists */
-#define MDB_KEYEXIST    (-30799)
-/** key/data pair not found (EOF) */
-#define MDB_NOTFOUND    (-30798)
-/** Requested page not found - this usually indicates corruption */
-#define MDB_PAGE_NOTFOUND       (-30797)
-/** Located page was wrong type */
-#define MDB_CORRUPTED   (-30796)
-/** Update of meta page failed or environment had fatal error */
-#define MDB_PANIC               (-30795)
-/** Environment version mismatch */
-#define MDB_VERSION_MISMATCH    (-30794)
-/** File is not a valid LMDB file */
-#define MDB_INVALID     (-30793)
-/** Environment mapsize reached */
-#define MDB_MAP_FULL    (-30792)
-/** Environment maxdbs reached */
-#define MDB_DBS_FULL    (-30791)
-/** Environment maxreaders reached */
-#define MDB_READERS_FULL        (-30790)
-/** Too many TLS keys in use - Windows only */
-#define MDB_TLS_FULL    (-30789)
-/** Txn has too many dirty pages */
-#define MDB_TXN_FULL    (-30788)
-/** Cursor stack too deep - internal error */
-#define MDB_CURSOR_FULL (-30787)
-/** Page has not enough space - internal error */
-#define MDB_PAGE_FULL   (-30786)
-/** Database contents grew beyond environment mapsize */
-#define MDB_MAP_RESIZED (-30785)
+#define MDB_SUCCESS      0 /**	Successful result */
+#define MDB_KEYEXIST    (-30799) /** key/data pair already exists */
+#define MDB_NOTFOUND    (-30798) /** key/data pair not found (EOF) */
+#define MDB_PAGE_NOTFOUND       (-30797) /** Requested page not found - this usually indicates corruption */
+#define MDB_CORRUPTED   (-30796) /** Located page was wrong type */
+#define MDB_PANIC               (-30795) /** Update of meta page failed or environment had fatal error */
+#define MDB_VERSION_MISMATCH    (-30794) /** Environment version mismatch */
+#define MDB_INVALID     (-30793) /** File is not a valid LMDB file */
+#define MDB_MAP_FULL    (-30792) /** Environment mapsize reached */
+#define MDB_DBS_FULL    (-30791) /** Environment maxdbs reached */
+#define MDB_READERS_FULL        (-30790) /** Environment maxreaders reached */
+#define MDB_TLS_FULL    (-30789) /** Too many TLS keys in use - Windows only */
+#define MDB_TXN_FULL    (-30788) /** Txn has too many dirty pages */
+#define MDB_CURSOR_FULL (-30787) /** Cursor stack too deep - internal error */
+#define MDB_PAGE_FULL   (-30786) /** Page has not enough space - internal error */
+#define MDB_MAP_RESIZED (-30785) /** Database contents grew beyond environment mapsize */
 /** Operation and DB incompatible, or DB type changed. This can mean:
  *	<ul>
  *	<li>The operation expects an #MDB_DUPSORT / #MDB_DUPFIXED database.
@@ -969,8 +929,7 @@ int  mdb_env_set_assert(MDB_env * env, MDB_assert_func * func);
  * @return A non-zero error value on failure and 0 on success. Some possible
  * errors are:
  * <ul>
- *	<li>#MDB_PANIC - a fatal error occurred earlier and the environment
- *		must be shut down.
+ *	<li>#MDB_PANIC - a fatal error occurred earlier and the environment must be shut down.
  *	<li>#MDB_MAP_RESIZED - another process wrote data beyond this MDB_env's
  *		mapsize and this environment's map must be resized as well.
  *		See #mdb_env_set_mapsize().

@@ -1,4 +1,3 @@
-//---------------------------------------------------------------------------------
 //
 //  Little Color Management System
 //  Copyright (c) 1998-2020 Marti Maria Saguer
@@ -12,16 +11,6 @@
 //
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//---------------------------------------------------------------------------------
 //
 #include "lcms2_internal.h"
 #pragma hdrstop
@@ -263,21 +252,16 @@ static uint16 ab2Fix4(double ab)
 void CMSEXPORT cmsFloat2LabEncoded(uint16 wLab[3], const cmsCIELab* fLab)
 {
 	cmsCIELab Lab;
-
 	Lab.L = Clamp_L_doubleV4(fLab->L);
 	Lab.a = Clamp_ab_doubleV4(fLab->a);
 	Lab.b = Clamp_ab_doubleV4(fLab->b);
-
 	wLab[0] = L2Fix4(Lab.L);
 	wLab[1] = ab2Fix4(Lab.a);
 	wLab[2] = ab2Fix4(Lab.b);
 }
 
 // Auxiliary: convert to Radians
-static double RADIANS(double deg)
-{
-	return (deg * M_PI) / 180.;
-}
+static double RADIANS(double deg) { return (deg * SMathConst::PiDiv180); }
 
 // Auxiliary: atan2 but operating in degrees and returning 0 if a==b==0
 static double atan2deg(double a, double b)
@@ -287,11 +271,11 @@ static double atan2deg(double a, double b)
 		h   = 0;
 	else
 		h = atan2(a, b);
-	h *= (180. / M_PI);
-	while(h > 360.)
-		h -= 360.;
+	h *= (180.0 / SMathConst::Pi);
+	while(h > 360.0)
+		h -= 360.0;
 	while(h < 0)
-		h += 360.;
+		h += 360.0;
 	return h;
 }
 
@@ -312,7 +296,7 @@ void CMSEXPORT cmsLab2LCh(cmsCIELCh* LCh, const cmsCIELab* Lab)
 // To cylindrical coordinates. No check is performed, then negative values are allowed
 void CMSEXPORT cmsLCh2Lab(cmsCIELab* Lab, const cmsCIELCh* LCh)
 {
-	double h = (LCh->h * M_PI) / 180.0;
+	double h = (LCh->h * SMathConst::PiDiv180);
 	Lab->L = LCh->L;
 	Lab->a = LCh->C * cos(h);
 	Lab->b = LCh->C * sin(h);
@@ -442,23 +426,14 @@ double CMSEXPORT cmsBFDdeltaE(const cmsCIELab* Lab1, const cmsCIELab* Lab2)
 
 	dc   = 0.035 * AveC / (1 + 0.00365 * AveC)+0.521;
 	g    = sqrt(Sqr(Sqr(AveC))/(Sqr(Sqr(AveC))+14000));
-	t    = 0.627+(0.055*cos((Aveh-254)/(180/M_PI))-
-	    0.040*cos((2*Aveh-136)/(180/M_PI))+
-	    0.070*cos((3*Aveh-31)/(180/M_PI))+
-	    0.049*cos((4*Aveh+114)/(180/M_PI))-
-	    0.015*cos((5*Aveh-103)/(180/M_PI)));
+	t    = 0.627+(0.055*cos((Aveh-254)/(180/SMathConst::Pi))- 0.040*cos((2*Aveh-136)/(180/SMathConst::Pi)) + 0.070*cos((3*Aveh-31)/(180/SMathConst::Pi)) +
+	    0.049*cos((4*Aveh+114)/(180/SMathConst::Pi)) - 0.015*cos((5*Aveh-103)/(180/SMathConst::Pi)));
 	dh    = dc*(g*t+1-g);
-	rh    = -0.260*cos((Aveh-308)/(180/M_PI))-
-	    0.379*cos((2*Aveh-160)/(180/M_PI))-
-	    0.636*cos((3*Aveh+254)/(180/M_PI))+
-	    0.226*cos((4*Aveh+140)/(180/M_PI))-
-	    0.194*cos((5*Aveh+280)/(180/M_PI));
-
+	rh    = -0.260*cos((Aveh-308)/(180/SMathConst::Pi)) - 0.379*cos((2*Aveh-160)/(180/SMathConst::Pi)) - 0.636*cos((3*Aveh+254)/(180/SMathConst::Pi)) +
+	    0.226*cos((4*Aveh+140)/(180/SMathConst::Pi)) - 0.194*cos((5*Aveh+280)/(180/SMathConst::Pi));
 	rc = sqrt((AveC*AveC*AveC*AveC*AveC*AveC)/((AveC*AveC*AveC*AveC*AveC*AveC)+70000000));
 	rt = rh*rc;
-
 	bfd = sqrt(Sqr(deltaL)+Sqr(deltaC/dc)+Sqr(deltah/dh)+(rt*(deltaC/dc)*(deltah/dh)));
-
 	return bfd;
 }
 
@@ -467,9 +442,8 @@ double CMSEXPORT cmsCMCdeltaE(const cmsCIELab* Lab1, const cmsCIELab* Lab2, doub
 {
 	double dE, dL, dC, dh, sl, sc, sh, t, f, cmc;
 	cmsCIELCh LCh1, LCh2;
-
-	if(Lab1->L == 0 && Lab2->L == 0) return 0;
-
+	if(Lab1->L == 0 && Lab2->L == 0) 
+		return 0;
 	cmsLab2LCh(&LCh1, Lab1);
 	cmsLab2LCh(&LCh2, Lab2);
 	dL = Lab2->L-Lab1->L;
@@ -480,9 +454,9 @@ double CMSEXPORT cmsCMCdeltaE(const cmsCIELab* Lab1, const cmsCIELab* Lab2, doub
 	else
 		dh = 0;
 	if((LCh1.h > 164) && (LCh1.h < 345))
-		t = 0.56 + fabs(0.2 * cos(((LCh1.h + 168)/(180/M_PI))));
+		t = 0.56 + fabs(0.2 * cos(((LCh1.h + 168)/(180/SMathConst::Pi))));
 	else
-		t = 0.36 + fabs(0.4 * cos(((LCh1.h + 35 )/(180/M_PI))));
+		t = 0.36 + fabs(0.4 * cos(((LCh1.h + 35 )/(180/SMathConst::Pi))));
 	sc  = 0.0638   * LCh1.C / (1 + 0.0131  * LCh1.C) + 0.638;
 	sl  = 0.040975 * Lab1->L /(1 + 0.01765 * Lab1->L);
 	if(Lab1->L<16)

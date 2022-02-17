@@ -168,7 +168,7 @@ int PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 					k1.Prop = ARTPRP_CLIAGT2;
 					PPTransaction tra(ppDbDependTransaction, 1);
 					THROW(tra);
-					for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+					for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 						_id_list.addnz(r_pt.data.ObjID);
 					}
 					if(_id_list.getCount()) {
@@ -208,7 +208,7 @@ int PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 					{
 						PPTransaction tra(ppDbDependTransaction, 1);
 						THROW(tra);
-						for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
+						for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 							TempArAgtTbl::Rec rec;
 							// @v10.7.9 @ctr MEMSZERO(rec);
 							PPClientAgreement cli_agt;
@@ -246,7 +246,7 @@ int PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 						q.select(r_pt.ObjID, 0).where(r_pt.ObjType == PPOBJ_ARTICLE && r_pt.Prop == ARTPRP_SUPPLAGT);
 						MEMSZERO(k0);
 						k0.ObjType = PPOBJ_ARTICLE;
-						for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
+						for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 							ar_agt_list.add(r_pt.data.ObjID);
 						}
 					}
@@ -255,7 +255,7 @@ int PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 						q.select(r_pt.ObjID, 0).where(r_pt.ObjType == PPOBJ_ARTICLE && r_pt.Prop == ARTPRP_SUPPLAGT2);
 						MEMSZERO(k0);
 						k0.ObjType = PPOBJ_ARTICLE;
-						for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
+						for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 							ar_agt_list.add(r_pt.data.ObjID);
 						}
 					}
@@ -367,7 +367,7 @@ int PPViewArticle::InitIteration()
 		k.k2.AccSheetID = acs_rec.ID;
 	temp_k = k;
 	Counter.Init(P_IterQuery->countIterations(0, &temp_k, spGe));
-	P_IterQuery->initIteration(0, &k, spGe);
+	P_IterQuery->initIteration(false, &k, spGe);
 	CATCHZOK
 	return ok;
 }

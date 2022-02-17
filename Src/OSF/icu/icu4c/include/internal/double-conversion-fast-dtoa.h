@@ -18,18 +18,6 @@
 //       contributors may be used to endorse or promote products derived
 //       from this software without specific prior written permission.
 //
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 // ICU PATCH: ifdef around UCONFIG_NO_FORMATTING
 #include "unicode/utypes.h"
 #if !UCONFIG_NO_FORMATTING
@@ -45,17 +33,16 @@
 U_NAMESPACE_BEGIN
 
 namespace double_conversion {
-
 enum FastDtoaMode {
-  // Computes the shortest representation of the given input. The returned
-  // result will be the most accurate number of this length. Longer
-  // representations might be more accurate.
-  FAST_DTOA_SHORTEST,
-  // Same as FAST_DTOA_SHORTEST but for single-precision floats.
-  FAST_DTOA_SHORTEST_SINGLE,
-  // Computes a representation where the precision (number of digits) is
-  // given as input. The precision is independent of the decimal point.
-  FAST_DTOA_PRECISION
+	// Computes the shortest representation of the given input. The returned
+	// result will be the most accurate number of this length. Longer
+	// representations might be more accurate.
+	FAST_DTOA_SHORTEST,
+	// Same as FAST_DTOA_SHORTEST but for single-precision floats.
+	FAST_DTOA_SHORTEST_SINGLE,
+	// Computes a representation where the precision (number of digits) is
+	// given as input. The precision is independent of the decimal point.
+	FAST_DTOA_PRECISION
 };
 
 // FastDtoa will produce at most kFastDtoaMaximalLength digits. This does not
@@ -90,13 +77,7 @@ static const int kFastDtoaMaximalSingleLength = 9;
 //     If there are two values that are equally close, then FastDtoa returns
 //     false.
 // For both modes the buffer must be large enough to hold the result.
-bool FastDtoa(double d,
-              FastDtoaMode mode,
-              int requested_digits,
-              Vector<char> buffer,
-              int* length,
-              int* decimal_point);
-
+bool FastDtoa(double d, FastDtoaMode mode, int requested_digits, Vector<char> buffer, int* length, int* decimal_point);
 }  // namespace double_conversion
 
 // ICU PATCH: Close ICU namespace

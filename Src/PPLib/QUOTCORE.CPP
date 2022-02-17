@@ -1145,7 +1145,7 @@ int QuotationCore::GetCurrList(PPID goodsID, PPID quotKindID, PPID locID, PPQuot
 		dbq = ppcheckfiltid(dbq, this->Location, locID);
 		dbq = ppcheckfiltid(dbq, this->Kind, quotKindID);
 		q.select(ID, GoodsID, Location, Kind, CurID, Flags, ArID, Quot, MinQtty, 0L).where(*dbq);
-		for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;)
+		for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;)
 			rQuotList.insert(&(quot = data));
 	}
 	PROFILE_END
@@ -1162,7 +1162,7 @@ int QuotationCore::ReplaceArticleRefs(PPID replacedID, PPID newID, int use_ta)
 	QuotationTbl::Key0 k0;
 	BExtQuery q(this, 0, 128);
 	q.select(this->ID, 0L).where(this->ArID == replacedID);
-	for(q.initIteration(0, memzero(&k0, sizeof(k0)), spFirst); q.nextIteration() > 0;)
+	for(q.initIteration(false, memzero(&k0, sizeof(k0)), spFirst); q.nextIteration() > 0;)
 		THROW(list.add(data.ID));
 	if(list.getCount()) {
 		PPTransaction tra(use_ta);
@@ -1187,7 +1187,7 @@ int QuotationCore::GetMatrixListByLoc(PPID mtxQkID, PPID locID, PPIDArray & rLis
 	q.select(this->GoodsID, this->Quot, 0).
 		where(this->Kind == mtxQkID && this->Actual > 0L && this->Location == locID);
 	MEMSZERO(k0);
-	for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
 		int    r = 1;
 		if(data.Quot > 0.0)
 			r = rList.add(data.GoodsID);
@@ -2333,7 +2333,7 @@ int Quotation2Core::GetCurrList(PPID goodsID, PPID quotKindID, PPID locID, PPQuo
 		if(search(3, &k3, spGe) && data.Actual == 1 && data.GoodsID == goodsID) {
 			BExtQuery q(this, 3, 256);
 			q.selectAll().where(this->Actual == 1L && this->GoodsID == goodsID);
-			for(q.initIteration(0, &k3_, spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k3_, spGe); q.nextIteration() > 0;) {
 				RecToQuot(&data, quot);
 				if((!quotKindID || quot.Kind == quotKindID) && (!locID || quot.LocID == locID)) {
 					THROW_SL(rQuotList.insert(&quot));
@@ -2407,7 +2407,7 @@ int Quotation2Core::GetMatrixListByLoc(PPID mtxQkID, PPID locID, PPIDArray & rLi
 			MEMSZERO(k2);
 			k2.Actual = 1;
 			k2.RelID = rel_id;
-			for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 				int    r = 1;
 				if(data.Quot > 0.0)
 					r = rList.add(data.GoodsID);
@@ -2439,7 +2439,7 @@ int Quotation2Core::Get(PPID goodsID, PPID relID, LDATETIME * pAfter, PPQuotArra
 		dbq = &(*dbq && this->Dt >= pAfter->d);
 	}
 	q.selectAll().where(*dbq);
-	for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 		if(!pAfter || cmp(*pAfter, data.Dt, data.Tm) > 0) {
 			if(pList) {
 				PPQuot q;
@@ -2464,7 +2464,7 @@ int Quotation2Core::GetAfterDT(const LDATETIME & rAfter, PPQuotArray * pList)  /
 	dbq = &(*dbq && this->Dt >= rAfter.d);
 	BExtQuery q(this, 4);
 	q.selectAll().where(*dbq);
-	for(q.initIteration(0, &k4, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k4, spGe); q.nextIteration() > 0;) {
 		if(pList) {
 			PPQuot quot;
 			RecToQuot(&data, quot);
@@ -2595,7 +2595,7 @@ int Quotation2Core::GetRelListByFilt(const QuotFilt * pFilt, PPIDArray & rList)
 		if(pFilt && pFilt->SellerLocWorldID) {
 			THROW_MEM(p_slwcb = new SellerLocWorldCritBlock(pFilt->SellerLocWorldID));
 		}
-		for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 			const PPID loc_id = RelT.data.LocID;
 			if(kind_list.bsearch(RelT.data.QuotKindID) && loc_list.CheckID(loc_id) && (!p_slwcb || p_slwcb->Check(loc_id))) {
 				if(eff_date) {
@@ -3025,7 +3025,7 @@ int Quotation2Core::GetGoodsList(PPID relID, int actualOnly, PPIDArray & rList)
 		k2.RelID = relID;
 		BExtQuery q(this, 2);
 		q.select(this->GoodsID, 0).where(this->Actual == 1L && this->RelID == relID);
-		for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 			tab.Add((ulong)data.GoodsID);
 			rList.add(data.GoodsID);
 		}
@@ -3036,7 +3036,7 @@ int Quotation2Core::GetGoodsList(PPID relID, int actualOnly, PPIDArray & rList)
 		k1.RelID = relID;
 		BExtQuery q(this, 1);
 		q.select(this->GoodsID, 0).where(this->RelID == relID);
-		for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 			tab.Add((ulong)data.GoodsID);
 			rList.add(data.GoodsID);
 		}
@@ -3067,7 +3067,7 @@ int Quotation2Core::RemoveAllForRel(PPID relID, const char * pPctMsg, int use_ta
 			k1.RelID = relID;
 			BExtQuery q(this, 1);
 			q.selectAll().where(this->RelID == relID);
-			for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 				lc++;
 			}
 			{
@@ -3102,7 +3102,7 @@ int Quotation2Core::RemoveAllForQuotKind(PPID quotKindID, int use_ta)
 			rk1.QuotKindID = quotKindID;
 			BExtQuery qr(&RelT, 1);
 			qr.selectAll().where(RelT.QuotKindID == quotKindID);
-			for(qr.initIteration(0, &rk1, spGe); qr.nextIteration() > 0;) {
+			for(qr.initIteration(false, &rk1, spGe); qr.nextIteration() > 0;) {
 				assert(RelT.data.QuotKindID == quotKindID);
 				rel_list.add(RelT.data.ID);
 			}
@@ -3131,7 +3131,7 @@ int Quotation2Core::GetAddressLocList(PPIDArray & rList)
 	BExtQuery q(&RelT, 2, 1024);
 	q.select(RelT.LocID, RelT.QuotKindID, 0);
 	PPID   prev_loc_id = 0;
-	for(q.initIteration(0, &k2, spFirst); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k2, spFirst); q.nextIteration() > 0;) {
 		const PPID loc_id = RelT.data.LocID;
 		if(loc_id != prev_loc_id) {
 			if(loc_obj.Fetch(loc_id, &loc_rec) > 0 && loc_rec.Type == LOCTYP_ADDRESS) {
@@ -3413,7 +3413,7 @@ int Quotation2Core::DumpCurrent(SBuffer & rBuf, long flags, int64 * pItemsCount)
 			MEMSZERO(k2);
 			k2.Actual = 1;
 			k2.RelID = rel_id;
-			for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 				RecToQuotRel(&data, quot);
 				// @v10.5.8 {
 				if(flags & dumpfIgnoreTimestamp) {

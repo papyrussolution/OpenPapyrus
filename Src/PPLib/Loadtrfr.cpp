@@ -217,7 +217,7 @@ int Transfer::LoadItems(PPBillPacket & rPack, const PPIDArray * pGoodsList)
 			}
 			q.select(RByBill, GoodsID, LotID, Rest, Flags, CorrLoc, Quantity, WtQtty, Cost,
 				Price, Discount, QuotPrice, OprNo, CurID, CurPrice, 0L).where(*dbq);
-			for(q.initIteration(0, &k0, spGt); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k0, spGt); q.nextIteration() > 0;) {
 				if(!pGoodsList || pGoodsList->bsearch(data.GoodsID)) {
 					//
 					// Защита от недопустимых значений с плавающей точкой
@@ -329,7 +329,7 @@ int Transfer::GetOrderFulfillmentStatus(PPID billID, int * pStatus)
 			k0.BillID  = billID;
 			k0.Reverse = 0;
 			k0.RByBill = 0;
-			for(q.initIteration(0, &k0, spGt); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k0, spGt); q.nextIteration() > 0;) {
 				if(data.GoodsID < 0 && data.Flags & PPTFR_ORDER && data.LotID) {
 					ord_lot_list.add(data.LotID);
 				}
@@ -399,7 +399,7 @@ int Transfer::CalcBillTotal(PPID billID, BillTotal * pTotal, PPIDArray * pList)
 	k0.BillID  = billID;
 	k0.Reverse = 0;
 	k0.RByBill = 0;
-	for(q.initIteration(0, &k0, spGt); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k0, spGt); q.nextIteration() > 0;) {
 		if(pTotal)
 			pTotal->LineCount++;
 		if(pList)
@@ -460,7 +460,7 @@ int Transfer::GetGoodsIdList(const GoodsByTransferFilt & rFilt, PPIDArray & rLis
 			dbq = & (*dbq && Rcpt.PrevLotID == 0L);
 		dbq = & (*dbq && Rcpt.GoodsID > 0L);
 		q.where(*dbq);
-		for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 			if(!inc_nzero_rest || Rcpt.data.Dt >= rFilt.LotPeriod.low || !Rcpt.data.Closed) {
 				if(rFilt.LocList.CheckID(Rcpt.data.LocID)) {
 					THROW(rList.add(Rcpt.data.GoodsID));

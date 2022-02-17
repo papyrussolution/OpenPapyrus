@@ -521,7 +521,7 @@ int EditWorldDialog::CheckDuplicateName(PPID * pSelID)
 			MEMSZERO(k3);
 			k3.Kind = Data.Rec.Kind;
 			STRNSCPY(k3.Name, name);
-			for(q.initIteration(0, &k3); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k3); q.nextIteration() > 0;) {
 				p_tbl->copyBufTo(&w_rec);
 				if(name_len == sstrlen(w_rec.Name) && stricmp866(name, w_rec.Name) == 0) {
 					PPID   item_id = w_rec.ID;
@@ -823,7 +823,7 @@ int PPObjWorld::SearchCountry(const char * pName, const char * pCode, const char
 			MEMSZERO(k3);
 			k3.Kind = WORLDOBJ_COUNTRY;
 			q.selectAll().where(P_Tbl->Kind == (long)WORLDOBJ_COUNTRY);
-			for(q.initIteration(0, &k3, spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k3, spGe); q.nextIteration() > 0;) {
 				if(stricmp(P_Tbl->data.Abbr, pAlpha2) == 0) {
 					ASSIGN_PTR(pRec, P_Tbl->data);
 					ok = 3;
@@ -1090,7 +1090,7 @@ int PPObjWorld::GetChildList(PPID id, PPIDArray * pChildList, PPIDArray * pStack
 		q.select(P_Tbl->ID, 0).where(P_Tbl->ParentID == id);
 		MEMSZERO(k1);
 		k1.ParentID = id;
-		for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 			pChildList->add(P_Tbl->data.ID);
 			ok = 1;
 		}
@@ -1101,7 +1101,7 @@ int PPObjWorld::GetChildList(PPID id, PPIDArray * pChildList, PPIDArray * pStack
 		q.select(P_Tbl->ID, 0).where(P_Tbl->CountryID == id);
 		MEMSZERO(k2);
 		k2.CountryID = id;
-		for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 			pChildList->add(P_Tbl->data.ID);
 			ok = 1;
 		}
@@ -1246,7 +1246,7 @@ StrAssocArray * PPObjWorld::MakeStrAssocList(void * extraPtr)
 	/*
 	{
 		const int use_hierarchy = BIN(sf.ParentID == 0 && sf.CountryID == 0);
-		for(q.initIteration(0, &k1, spGt); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k1, spGt); q.nextIteration() > 0;) {
 			THROW(AddItemToSelectorList(P_Tbl->data.ID, p_list, use_hierarchy, 0));
 		}
 	}
@@ -1257,7 +1257,7 @@ StrAssocArray * PPObjWorld::MakeStrAssocList(void * extraPtr)
 		AislBlock blk;
 		blk.P_List = p_list;
 		blk.UseHierarchy = BIN(sf.ParentID == 0 && sf.CountryID == 0);
-		for(q.initIteration(0, &k1, spGt); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k1, spGt); q.nextIteration() > 0;) {
 			blk.Stack.clear();
 			P_Tbl->copyBufTo(&rec);
 			THROW(AddItemToSelectorList(rec, blk));
@@ -1432,7 +1432,7 @@ int PPObjWorld::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			MEMSZERO(k);
 			BExtQuery q(P_Tbl, 0);
 			q.selectAll().where(P_Tbl->Status == _id);
-			q.initIteration(0, &k, spFirst);
+			q.initIteration(false, &k, spFirst);
 			if(q.nextIteration() > 0) {
 				return RetRefsExistsErr(Obj, P_Tbl->data.ID);
 			}
@@ -1563,7 +1563,7 @@ int PPObjWorld::Recover(PPLogger * pLogger)
 		BExtQuery q(P_Tbl, 0);
 		MEMSZERO(k0);
 		q.select(P_Tbl->ID, P_Tbl->Name, P_Tbl->Flags, P_Tbl->ParentID, P_Tbl->CountryID, 0L);
-		for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
 			id_list.add(P_Tbl->data.ID);
 		}
 		if(id_list.getCount()) {
@@ -1782,7 +1782,7 @@ int FiasObjCore::Helper_GetChildList(PPID parentID, int level, PPIDArray & rList
 	DBQ * dbq = &(AdrT.ParentUuRef == parentID);
 	BExtQuery q(&AdrT, 2);
 	q.selectAll().where(*dbq);
-	for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 		const PPID _id = AdrT.data.IdUuRef;
 		if(level) {
 			const int _lvl = AdrT.data.LevelStatus;
@@ -1820,7 +1820,7 @@ int FiasObjCore::GetHouseListByZIP(const char * pZip, PPIDArray & rList)
 		k4.PostalCode = zip_val;
 		BExtQuery q(&HseT, 4);
 		q.selectAll().where(HseT.PostalCode == zip_val);
-		for(q.initIteration(0, &k4, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k4, spGe); q.nextIteration() > 0;) {
 			THROW_SL(rList.add(HseT.data.IdUuRef));
 			ok = 1;
 		}
@@ -1879,7 +1879,7 @@ int GetAddrListByZIP(const char * pZip, PPIDArray & rList)
 				THROW_MEM(p_q = new BExtQuery(&cntry_tbl, 0));
 				p_q->selectAll();
 				MEMSZERO(_k0);
-				for(p_q->initIteration(0, &_k0, spGe); p_q->nextIteration() > 0; id++) {
+				for(p_q->initIteration(false, &_k0, spGe); p_q->nextIteration() > 0; id++) {
 					CountryTbl::Rec cntry_rec = cntry_tbl.data;
 					MEMSZERO(wrec);
 					wrec.ID = id;
@@ -1898,7 +1898,7 @@ int GetAddrListByZIP(const char * pZip, PPIDArray & rList)
 				MEMSZERO(reg_k0);
 				THROW_MEM(p_q = new BExtQuery(&reg_tbl, 0));
 				p_q->selectAll();
-				for(p_q->initIteration(0, &reg_k0, spGe); p_q->nextIteration() > 0; id++) {
+				for(p_q->initIteration(false, &reg_k0, spGe); p_q->nextIteration() > 0; id++) {
 					RegionTbl::Rec reg_rec = reg_tbl.data;
 					MEMSZERO(wrec);
 					wrec.ID   = id;
@@ -1919,7 +1919,7 @@ int GetAddrListByZIP(const char * pZip, PPIDArray & rList)
 				MEMSZERO(city_k0);
 				THROW_MEM(p_q = new BExtQuery(&city_tbl, 0));
 				p_q->selectAll();
-				for(p_q->initIteration(0, &city_k0, spGe); p_q->nextIteration() > 0; id++) {
+				for(p_q->initIteration(false, &city_k0, spGe); p_q->nextIteration() > 0; id++) {
 					CityTbl::Rec city_rec = city_tbl.data;
 					MEMSZERO(wrec);
 					wrec.ID   = city_rec.ID;

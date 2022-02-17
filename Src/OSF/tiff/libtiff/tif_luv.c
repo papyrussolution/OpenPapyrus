@@ -668,9 +668,9 @@ static int LogLuvEncodeTile(TIFF * tif, uint8 * bp, tmsize_t cc, uint16 s)
 #ifndef M_LN2
 	#define M_LN2           0.69314718055994530942
 #endif
-#ifndef M_PI
-	#define M_PI            3.14159265358979323846
-#endif
+//#ifndef M_PI
+	//#define M_PI            3.14159265358979323846
+//#endif
 #undef log2 /* Conflict with C'99 function */
 #define log2(x)         ((1./M_LN2)*log(x))
 #undef exp2  /* Conflict with C'99 function */
@@ -763,7 +763,7 @@ LOGLUV_FUNC_QUALIF int LogL10fromY(double Y, int em)   /* get 10-bit LogL from Y
 }
 
 #define NANGLES         100
-#define uv2ang(u, v)    ((NANGLES*.499999999/M_PI) * atan2((v)-V_NEU, (u)-U_NEU) + .5*NANGLES)
+#define uv2ang(u, v)    ((NANGLES * 0.499999999/SMathConst::Pi) * atan2((v)-V_NEU, (u)-U_NEU) + 0.5*NANGLES)
 
 static int oog_encode(double u, double v)          /* encode out-of-gamut chroma */
 {

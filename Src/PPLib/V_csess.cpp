@@ -457,7 +457,7 @@ int PPViewCSess::InitIteration(long ord)
 		}
 		k_ = k;
 		Counter.Init(P_IterQuery->countIterations(0, &k_, spGt));
-		P_IterQuery->initIteration(0, &k, spGt);
+		P_IterQuery->initIteration(false, &k, spGt);
 	}
 	CATCHZOK
 	return ok;
@@ -782,7 +782,7 @@ int PPViewCSess::InitCSessIteration()
 	P_CSessIterQuery->where(*dbq);
 	ck = k;
 	Counter.Init(P_CSessIterQuery->countIterations(0, &ck, spGt));
-	P_CSessIterQuery->initIteration(0, &k, spGt);
+	P_CSessIterQuery->initIteration(false, &k, spGt);
 	CATCHZOK
 	return ok;
 }
@@ -2460,7 +2460,7 @@ int PPViewCSessExc::MakeTempTable(PPID sessID)
 	k.Dt       = Filt.Period.low;
 	k.GoodsID  = Filt.GoodsID;
 	counter.Init(q->countIterations(0, &(k_ = k), spGe));
-	for(q->initIteration(0, &k, spGe); q->nextIteration() > 0;) {
+	for(q->initIteration(false, &k, spGe); q->nextIteration() > 0;) {
 		PPWaitPercent(counter.Increment());
 		if(Filt.CashNodeID) {
 			CSessionTbl::Rec csess_rec;

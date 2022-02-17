@@ -3401,7 +3401,7 @@ int PPBillImpExpBaseProcessBlock::SearchEdiOrder(const SearchBlock & rBlk, BillT
 			q.select(t->ID, t->Code, t->Object, t->LocID, 0).where(daterange(t->Dt, &period));
 			MEMSZERO(k1);
 			k1.Dt = period.low;
-			for(q.initIteration(0, &k1, spGe); ok < 0 && q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k1, spGe); ok < 0 && q.nextIteration() > 0;) {
 				t->copyBufTo(&bill_rec);
 				if(order_bill_code.IsEqNC(bill_rec.Code)) {
 					PPFreight freight;

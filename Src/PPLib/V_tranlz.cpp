@@ -1744,7 +1744,7 @@ int PPViewTrfrAnlz::CreateOrderTable(IterOrder ord)
 		THROW(p_ord_tbl = CreateTempOrderFile());
 		THROW_MEM(p_bei = new BExtInsert(p_ord_tbl));
 		PPInitIterCounter(cntr, p_t);
-		for(q.initIteration(0, gk_, spFirst); q.nextIteration() > 0; PPWaitPercent(cntr.Increment(), msg_buf)) {
+		for(q.initIteration(false, gk_, spFirst); q.nextIteration() > 0; PPWaitPercent(cntr.Increment(), msg_buf)) {
 			p_ord_tbl->clearDataBuf();
 			p_ord_tbl->data.ID = P_TrGrpngTbl->data.ID__;
 			if(ord == PPViewTrfrAnlz::OrdByGoods)
@@ -1789,7 +1789,7 @@ int PPViewTrfrAnlz::CreateOrderTable(IterOrder ord)
 			THROW(p_ord_tbl = CreateTempOrderFile());
 			THROW_MEM(p_bei = new BExtInsert(p_ord_tbl));
 			PPInitIterCounter(cntr, p_tat);
-			for(q.initIteration(0, &k, spGe); q.nextIteration() > 0; PPWaitPercent(cntr.Increment(), msg_buf)) {
+			for(q.initIteration(false, &k, spGe); q.nextIteration() > 0; PPWaitPercent(cntr.Increment(), msg_buf)) {
 				PPID   id = 0;
 				if(ord == PPViewTrfrAnlz::OrdByGoods)
 					id = p_tat->data.GoodsID;
@@ -1862,7 +1862,7 @@ int PPViewTrfrAnlz::InitIteration(IterOrder ord)
 		P_IterOrderQuery = new BExtQuery(P_OrderTbl, 1);
 		P_IterOrderQuery->select(P_OrderTbl->ID, 0L);
 		// @v10.6.8 @ctr memzero(k, sizeof(k));
-		P_IterOrderQuery->initIteration(0, k_, spFirst);
+		P_IterOrderQuery->initIteration(false, k_, spFirst);
 		if(P_IterOrderQuery->nextIteration() > 0) {
 			CurOuterID  = P_OrderTbl->data.ID;
 			PrevOuterID = CurOuterID - 1;

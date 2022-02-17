@@ -1,7 +1,7 @@
 // SINGLETON.H
 // Copyright (C) 2011 The Libphonenumber Authors
 // Author: Philippe Liard
-// @licence Apache License 2.0
+// @license Apache License 2.0
 //
 // @sobolev: Have united singleton_boost.h singleton_posix.h singleton_stdmutex.h singleton_unsafe.h singleton_win32.h in one file
 //

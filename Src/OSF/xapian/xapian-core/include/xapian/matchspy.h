@@ -223,7 +223,7 @@ public:
 	{
 	}
 	/** Return the total number of documents tallied. */
-	size_t get_total() const noexcept { return internal.get() ? internal->total : 0; }
+	size_t get_total() const noexcept { return internal.get() ? static_cast<size_t>(internal->total) : 0; }
 
 	/** Get an iterator over the values seen in the slot.
 	 *

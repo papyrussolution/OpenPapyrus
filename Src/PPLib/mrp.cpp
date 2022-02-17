@@ -51,7 +51,7 @@ int MrpTabCore::GetSubList(PPID tabID, PPIDArray * pList)
 	k3.LocID = -MAXLONG;
 	BExtQuery q(this, 3, 64);
 	q.select(this->ID, 0L).where(this->ParentID == tabID);
-	for(q.initIteration(0, &k3, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k3, spGe); q.nextIteration() > 0;) {
 		CALLPTRMEMB(pList, addUnique(data.ID));
 		ok = 1;
 	}
@@ -283,7 +283,7 @@ int MrpTabCore::GetSrcList(PPID tabID, PPID destID, RAssocArray * pList)
 	k1.SrcID = -MAXLONG;
 	BExtQuery q(&Lines, 1, 128);
 	q.select(Lines.SrcID, 0L).where(Lines.TabID == tabID && Lines.DestID == destID);
-	for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 		CALLPTRMEMB(pList, Add(Lines.data.SrcID, Lines.data.SrcReqQtty, 1, 0));
 	}
 	return pList->getCount() ? 1 : -1;
@@ -299,7 +299,7 @@ int MrpTabCore::GetDestList(PPID tabID, PPID srcID, int minusSrcReq, MrpReqArray
 	BExtQuery q(&Lines, 1, 128);
 	q.select(Lines.DestID, Lines.DestReqQtty, Lines.SrcReqQtty, Lines.Price, Lines.Flags, 0L).
 		where(Lines.TabID == tabID && Lines.SrcID == srcID);
-	for(q.initIteration(0, &k1, spGe); ok && q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k1, spGe); ok && q.nextIteration() > 0;) {
 		ok = 1;
 		if(pList) {
 			double val = minusSrcReq ? (Lines.data.DestReqQtty - Lines.data.SrcReqQtty) : Lines.data.DestReqQtty;
@@ -331,7 +331,7 @@ int MrpTabCore::GetDependencyList(PPID tabID, PPID destGoodsID, PUGL * pList)
 	BExtQuery q(&Lines, 1, 128);
 	q.select(Lines.SrcID, 0L).
 		where(Lines.TabID == tabID && Lines.DestID == destGoodsID && Lines.SrcID > 0.0);
-	for(q.initIteration(0, &k1, spGt); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k1, spGt); q.nextIteration() > 0;) {
 		PUGI   pugi;
 		pugi.GoodsID = Lines.data.SrcID;
 		if(IsTerminalGoods(tabID, pugi.GoodsID) > 0)
@@ -404,7 +404,7 @@ int MrpTabCore::GetDeficitList_(PPID tabID, PPID srcID, int terminal, int replac
 			k2.TabID = tabID;
 			k2.SrcID = srcID; // @v9.1.8 MRPSRCV_TOTAL-->srcID
 			PPIDArray dest_list;
-			for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 				Lines.copyBufTo(&rec);
 				dest_list.add(rec.DestID);
 			}
@@ -423,7 +423,7 @@ int MrpTabCore::GetDeficitList_(PPID tabID, PPID srcID, int terminal, int replac
 			MEMSZERO(k2);
 			k2.TabID = tabID;
 			k2.SrcID = srcID; // @v9.1.8 MRPSRCV_TOTAL-->srcID
-			for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 				Lines.copyBufTo(&rec);
 				int    gdr = 0;
 				THROW(gdr = Helper_GetDeficit(rec, terminal, replacePassiveGoods, pList));
@@ -450,7 +450,7 @@ int MrpTabCore::GetSubst(PPID tabID, GoodsReplacementArray * pGra)
 			where(Lines.TabID == tabID && Lines.SrcID == (long)MRPSRCV_TOTAL);
 		MEMSZERO(k2);
 		k2.TabID = tabID;
-		for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 			MrpLineTbl::Rec rec;
 			Lines.copyBufTo(&rec);
 			if(rec.Flags & MRPLF_TERMINAL && rec.Flags & MRPLF_REPLACED) {
@@ -461,7 +461,7 @@ int MrpTabCore::GetSubst(PPID tabID, GoodsReplacementArray * pGra)
 				MEMSZERO(k1);
 				k1.TabID = tabID;
 				k1.DestID = dest_id;
-				for(q2.initIteration(0, &k1, spGe); q2.nextIteration() > 0;) {
+				for(q2.initIteration(false, &k1, spGe); q2.nextIteration() > 0;) {
 					const PPID src_id = Lines.data.SrcID;
 					double ratio = 0.0;
 					if(src_id > 0 && Lines.data.Flags & MRPLF_SUBST && goods_obj.IsGoodsCompatibleByUnit(src_id, dest_id, &ratio) > 0) {
@@ -620,7 +620,7 @@ int MrpTabCore::Aggregate(PPID destTabID, PPID srcTabID, int use_ta)
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		for(q.initIteration(0, &k1, spGt); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k1, spGt); q.nextIteration() > 0;) {
 			MrpLineTbl::Rec src_rec;
 			Lines.copyBufTo(&src_rec);
 			THROW(AddLine(destTabID, src_rec.DestID, src_rec.SrcID, src_rec.DestReqQtty,

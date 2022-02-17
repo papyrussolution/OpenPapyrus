@@ -1,5 +1,6 @@
 // DBEOP.CPP
-// Copyright (c) Sobolev A. 1995-2001, 2005, 2007, 2008, 2009, 2010, 2014, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) Sobolev A. 1995-2001, 2005, 2007, 2008, 2009, 2010, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -178,7 +179,7 @@ DBE & __stdcall enumtoa(DBItem & i, int n, char ** str_array)
 	DBConst ic;
 	DBConst sc;
 	ic.init(static_cast<long>(n));
-	sc.init(reinterpret_cast<long>(str_array)); // @todo Использовать преобразование к DBConst::ptrval
+	sc.init(reinterpret_cast<long>(str_array)); // @todo РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ Рє DBConst::ptrval
 	DBE & e = newDBE();
 	e.push(i);
 	e.push(ic);
@@ -193,7 +194,7 @@ DBE & __stdcall flagtoa(DBItem & i, long mask, char ** str_array)
 	DBConst ic;
 	DBConst sc;
 	ic.init(mask);
-	sc.init(reinterpret_cast<long>(str_array)); // @todo Использовать преобразование к DBConst::ptrval
+	sc.init(reinterpret_cast<long>(str_array)); // @todo РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ Рє DBConst::ptrval
 	DBE & e = newDBE();
 	e.push(i);
 	e.push(ic);
@@ -406,7 +407,7 @@ DBQ & __stdcall intrange(DBItem & i, const IntRange & rR)
 
 #undef INLINE
 //
-// Определения функций
+// РћРїСЂРµРґРµР»РµРЅРёСЏ С„СѓРЅРєС†РёР№
 //
 #define RES(p)         result->init(p)
 #define RRES           result->rval

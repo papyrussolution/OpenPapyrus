@@ -155,7 +155,7 @@ SIMPLE1(ti_exp_start, ti_exp, exp(in1[i]))
 SIMPLE1(ti_ln_start, ti_ln, log(in1[i]))
 SIMPLE1(ti_log10_start, ti_log10, log10(in1[i]))
 SIMPLE1(ti_todeg_start, ti_todeg, (in1[i] * (180.0 / SMathConst::Pi)))
-SIMPLE1(ti_torad_start, ti_torad, (in1[i] * (SMathConst::Pi / 180.0)))
+SIMPLE1(ti_torad_start, ti_torad, (in1[i] * SMathConst::PiDiv180))
 
 SIMPLE2(ti_add_start, ti_add, in1[i] + in2[i])
 SIMPLE2(ti_sub_start, ti_sub, in1[i] - in2[i])

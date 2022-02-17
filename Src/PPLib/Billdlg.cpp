@@ -2848,7 +2848,7 @@ int PPObjBill::CalcReturnPart(PPID arID, const DateRange & rPeriod, double * pSh
 			k3.Object = arID;
 			k3.Dt   = rPeriod.low;
 			k3.BillNo = 0;
-			for(q.initIteration(0, &k3, spGt); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k3, spGt); q.nextIteration() > 0;) {
 				if(shpm_op_list.bsearch(p_tbl->data.OpID)) {
 					shipment += p_tbl->data.Amount;
 				}

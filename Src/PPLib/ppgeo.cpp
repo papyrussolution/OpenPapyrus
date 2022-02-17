@@ -1518,7 +1518,7 @@ int PPViewGeoTracking::InitIteration()
 	P_IterQuery->where(*dbq);
 	k0_ = k0;
 	Counter.Init(P_IterQuery->countIterations(0, &k0_, spGe));
-	P_IterQuery->initIteration(0, &k0, spGe);
+	P_IterQuery->initIteration(false, &k0, spGe);
 	CATCHZOK
 	return ok;
 }

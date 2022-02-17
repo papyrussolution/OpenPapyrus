@@ -474,7 +474,7 @@ int ArticleCore::GetListBySheet(PPID accSheetID, PPIDArray * pList, long * pCoun
 		k.Article = 0;
 		BExtQuery q(this, 1, 128);
 		q.select(this->ID, 0L).where(this->AccSheetID == accSheetID);
-		for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 			count++;
 			CALLPTRMEMB(pList, add(data.ID));
 		}
@@ -733,7 +733,7 @@ SEnum::Imp * AcctRel::Enum(int keyN, PPID keyID)
 		k.k2.ArticleID = keyID;
 		q->where(this->ArticleID == keyID);
 	}
-	q->initIteration(0, &k, spGe);
+	q->initIteration(false, &k, spGe);
 	THROW(EnumList.RegisterIterHandler(q, &h));
 	THROW_MEM(p_enum = new PPTblEnum <AcctRel>(this, h));
 	CATCH

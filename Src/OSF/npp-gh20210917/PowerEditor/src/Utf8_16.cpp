@@ -415,7 +415,8 @@ bool Utf8_Iter::get(utf16* c)
 #ifdef _DEBUG
 	assert(m_out1st != m_outLst);
 #endif
-	if(m_out1st == m_outLst) return false;
+	if(m_out1st == m_outLst) 
+		return false;
 	*c = m_out [m_out1st];
 	m_out1st = (m_out1st + 1) % _countof(m_out);
 	return true;
@@ -485,7 +486,6 @@ void Utf8_Iter::pushout(utf16 c)
 	m_outLst = (m_outLst + 1) % _countof(m_out);
 }
 
-//==================================================
 Utf16_Iter::Utf16_Iter()
 {
 	reset();

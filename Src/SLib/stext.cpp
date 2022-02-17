@@ -1,5 +1,5 @@
 // STEXT.CPP
-// Copyright (c) A.Sobolev 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 //
 // Преобразование символов и строк, и другие текстовые функции
 //
@@ -1522,7 +1522,7 @@ int FASTCALL ToUpper866(int alpha)
 			ch -= 0x20;
 		else if(ch >= 0xe0U && ch < 0xf0U)
 			ch -= 0x50;
-		else if(ch == 0xf0U) // 0xf1
+		else if(ch == 0xf1U) // 0xf1 // @v11.3.2 @fix 0xf0U-->0xf1U
 			ch -= 0x01;
 	}
 	else if(isalpha(ch) && islower(ch))
@@ -1540,30 +1540,48 @@ char * FASTCALL stristr866(const char * s1, const char * s2)
 
 int FASTCALL stricmp866(const char * s1, const char * s2)
 {
-	int    c1, c2;
-	do {
-		c1 = ToUpper866(*s1++);
-		c2 = ToUpper866(*s2++);
-		if(c1 > c2)
-			return 1;
-		else if(c1 < c2)
-			return -1;
-	} while(c1 && c2);
-	return 0;
+	// @v11.3.2 @fix Добавлена специальная обработка пустых строк: (s1 == 0 && s2 != 0 && s2[0] == 0)=>(s1==s2); 
+	const size_t len1 = sstrlen(s1);
+	const size_t len2 = sstrlen(s2);
+	if(len1 != 0 && len2 != 0) { 
+		int    c1, c2;
+		do {
+			c1 = ToUpper866(*s1++);
+			c2 = ToUpper866(*s2++);
+			if(c1 > c2)
+				return 1;
+			else if(c1 < c2)
+				return -1;
+		} while(c1 && c2);
+		return 0;
+	}
+	else if(len1 == 0 && len2 == 0)
+		return 0;
+	else
+		return CMPSIGN(len1, len2);
 }
 
 int FASTCALL stricmp1251(const char * s1, const char * s2)
 {
-	int    c1, c2;
-	do {
-		c1 = ToUpper1251(*s1++);
-		c2 = ToUpper1251(*s2++);
-		if(c1 > c2)
-			return 1;
-		else if(c1 < c2)
-			return -1;
-	} while(c1 && c2);
-	return 0;
+	// @v11.3.2 @fix Добавлена специальная обработка пустых строк: (s1 == 0 && s2 != 0 && s2[0] == 0)=>(s1==s2); 
+	const size_t len1 = sstrlen(s1);
+	const size_t len2 = sstrlen(s2);
+	if(len1 != 0 && len2 != 0) { 
+		int    c1, c2;
+		do {
+			c1 = ToUpper1251(*s1++);
+			c2 = ToUpper1251(*s2++);
+			if(c1 > c2)
+				return 1;
+			else if(c1 < c2)
+				return -1;
+		} while(c1 && c2);
+		return 0;
+	}
+	else if(len1 == 0 && len2 == 0)
+		return 0;
+	else
+		return CMPSIGN(len1, len2);
 }
 
 int FASTCALL strnicmp866(const char * s1, const char * s2, size_t maxlen)
@@ -1799,33 +1817,48 @@ wchar_t * FASTCALL sstrdup(const wchar_t * pStr)
 
 bool FASTCALL sstreq(const wchar_t * pS1, const wchar_t * pS2)
 {
-	if(pS1 != pS2)
-		if(pS1)
-            return (pS2 && pS1[0] == pS2[0]) ? BIN(pS1[0] == 0 || wcscmp(pS1, pS2) == 0) : false;
+	if(pS1 != pS2) {
+		if(pS1) {
+			if(!pS2)
+				return pS1[0] ? false : true;
+			else
+				return (pS1[0] == pS2[0]) ? (pS1[0] == 0 || wcscmp(pS1, pS2) == 0) : false;
+		}
 		else
-			return false;
+			return pS2[0] ? false : true;
+	}
 	else
 		return true;
 }
 
 bool FASTCALL sstreq(const char * pS1, const char * pS2)
 {
-	if(pS1 != pS2)
-		if(pS1)
-            return (pS2 && pS1[0] == pS2[0]) ? BIN(pS1[0] == 0 || strcmp(pS1, pS2) == 0) : false;
+	if(pS1 != pS2) {
+		if(pS1) {
+			if(!pS2)
+				return pS1[0] ? false : true;
+			else
+				return (pS1[0] == pS2[0]) ? (pS1[0] == 0 || strcmp(pS1, pS2) == 0) : false;
+		}
 		else
-			return false;
+			return pS2[0] ? false : true;
+	}
 	else
 		return true;
 }
 
 bool FASTCALL sstreq(const uchar * pS1, const uchar * pS2)
 {
-	if(pS1 != pS2)
-		if(pS1)
-            return (pS2 && pS1[0] == pS2[0]) ? BIN(pS1[0] == 0 || strcmp(reinterpret_cast<const char *>(pS1), reinterpret_cast<const char *>(pS2)) == 0) : false;
+	if(pS1 != pS2) {
+		if(pS1) {
+			if(!pS2)
+				return pS1[0] ? false : true;
+			else
+				return (pS1[0] == pS2[0]) ? (pS1[0] == 0 || strcmp(reinterpret_cast<const char *>(pS1), reinterpret_cast<const char *>(pS2)) == 0) : false;
+		}
 		else
-			return false;
+			return pS2[0] ? false : true;
+	}
 	else
 		return true;
 }
@@ -1833,10 +1866,14 @@ bool FASTCALL sstreq(const uchar * pS1, const uchar * pS2)
 bool FASTCALL sstreq(const uchar * pS1, const char * pS2)
 {
 	if(pS1 != reinterpret_cast<const uchar *>(pS2))
-		if(pS1)
-            return (pS2 && pS1[0] == pS2[0]) ? BIN(pS1[0] == 0 || strcmp(reinterpret_cast<const char *>(pS1), pS2) == 0) : false;
+		if(pS1) {
+			if(!pS2)
+				return pS1[0] ? false : true;
+			else
+				return (pS1[0] == pS2[0]) ? (pS1[0] == 0 || strcmp(reinterpret_cast<const char *>(pS1), pS2) == 0) : false;
+		}
 		else
-			return false;
+			return pS2[0] ? false : true;
 	else
 		return true;
 }

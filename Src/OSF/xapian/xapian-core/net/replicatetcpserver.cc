@@ -2,7 +2,7 @@
  * @brief TCP/IP replication server class.
  */
 // Copyright (C) 2008,2010,2011 Olly Betts
-// @licence GNU GPL
+// @license GNU GPL
 //
 #include <xapian-internal.h>
 #pragma hdrstop

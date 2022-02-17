@@ -892,7 +892,7 @@ int RegisterCore::SearchByFilt(const RegisterFilt * pFilt, PPIDArray * pResList,
 		}
 		dbq = & (*dbq && daterange(this->Dt, &pFilt->RegPeriod) && daterange(this->Expiry, &pFilt->ExpiryPeriod));
 		q.selectAll().where(*dbq);
-		for(q.initIteration(0, &k, sp); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k, sp); q.nextIteration() > 0;) {
 			if(CheckRecForFilt(data, pFilt)) {
 				CALLPTRMEMB(pResList, add(data.ID));
 				// @v10.0.1 if(data.ObjType == PPOBJ_PERSON) {

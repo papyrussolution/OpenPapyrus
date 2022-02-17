@@ -1,4 +1,3 @@
-//---------------------------------------------------------------------------------
 //
 //  Little Color Management System
 //  Copyright (c) 1998-2020 Marti Maria Saguer
@@ -12,16 +11,6 @@
 //
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//---------------------------------------------------------------------------------
 //
 #include "lcms2_internal.h"
 #pragma hdrstop
@@ -74,38 +63,26 @@ static void DupPluginCurvesList(struct _cmsContext_struct* ctx, const struct _cm
 	_cmsCurvesPluginChunkType* head = (_cmsCurvesPluginChunkType*)src->chunks[CurvesPlugin];
 	_cmsAssert(head != NULL);
 	// Walk the list copying all nodes
-	for(entry = head->ParametricCurves;
-	    entry != NULL;
-	    entry = entry->Next) {
-		_cmsParametricCurvesCollection * newEntry =
-		    (_cmsParametricCurvesCollection*)_cmsSubAllocDup(ctx->MemPool, entry, sizeof(_cmsParametricCurvesCollection));
-
+	for(entry = head->ParametricCurves; entry != NULL; entry = entry->Next) {
+		_cmsParametricCurvesCollection * newEntry = (_cmsParametricCurvesCollection*)_cmsSubAllocDup(ctx->MemPool, entry, sizeof(_cmsParametricCurvesCollection));
 		if(newEntry == NULL)
 			return;
-
 		// We want to keep the linked list order, so this is a little bit tricky
 		newEntry->Next = NULL;
 		if(Anterior)
 			Anterior->Next = newEntry;
-
 		Anterior = newEntry;
-
-		if(newHead.ParametricCurves == NULL)
-			newHead.ParametricCurves = newEntry;
+		SETIFZQ(newHead.ParametricCurves, newEntry);
 	}
-
 	ctx->chunks[CurvesPlugin] = _cmsSubAllocDup(ctx->MemPool, &newHead, sizeof(_cmsCurvesPluginChunkType));
 }
 
 // The allocator have to follow the chain
-void _cmsAllocCurvesPluginChunk(struct _cmsContext_struct* ctx,
-    const struct _cmsContext_struct* src)
+void _cmsAllocCurvesPluginChunk(struct _cmsContext_struct* ctx, const struct _cmsContext_struct* src)
 {
 	_cmsAssert(ctx != NULL);
-
-	if(src != NULL) {
-		// Copy all linked list
-		DupPluginCurvesList(ctx, src);
+	if(src) {
+		DupPluginCurvesList(ctx, src); // Copy all linked list
 	}
 	else {
 		static _cmsCurvesPluginChunkType CurvesPluginChunk = { NULL };

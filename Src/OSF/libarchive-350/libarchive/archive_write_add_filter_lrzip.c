@@ -80,7 +80,7 @@ static int archive_write_lrzip_options(struct archive_write_filter * f, const ch
 			data->compression = write_lrzip::gzip;
 		else if(strcmp(value, "lzo") == 0)
 			data->compression = write_lrzip::lzo;
-		else if(strcmp(value, "none") == 0)
+		else if(sstreq(value, "none"))
 			data->compression = write_lrzip::none;
 		else if(strcmp(value, "zpaq") == 0)
 			data->compression = write_lrzip::zpaq;

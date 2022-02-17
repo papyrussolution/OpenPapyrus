@@ -1353,7 +1353,7 @@ int ObjTagCore::GetObjectList(PPID objType, PPID tagID, UintHashTable & rList)
 	k1.TagID = tagID;
 	BExtQuery q(this, 1);
 	q.select(this->ObjType, this->ObjID, this->TagID, 0).where(this->TagID == tagID && this->ObjType == objType);
-	for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 		rList.Add(data.ObjID);
 		ok = 1;
 	}
@@ -1443,7 +1443,7 @@ int ObjTagCore::GetObjTextList(PPID objType, PPID tagID, StrAssocArray & rList)
 	if(search(3, &k3, spGe) && data.TagID == tagID) {
 		BExtQuery q(this, 3);
 		q.select(this->ObjID, this->StrVal, 0).where(this->TagID == tagID);
-		for(q.initIteration(0, &k3, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k3, spGe); q.nextIteration() > 0;) {
 			temp_buf = data.StrVal;
 			if(temp_buf.NotEmptyS()) {
 				rList.AddFast(data.ObjID, temp_buf);

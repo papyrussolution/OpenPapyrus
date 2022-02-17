@@ -1,5 +1,5 @@
 // V_BIZSC.CPP
-// Copyright (c) A.Starodub 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Starodub 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -265,7 +265,7 @@ int PPBizScTemplPacket::CalcValues(long colId, long rowId, BizScoreCore * pBizSc
 					k0.ScoreID    = score_id;
 					k0.ObjID      = MAXLONG;
 					q.select(pBizScTbl->ScoreID, pBizScTbl->Val, pBizScTbl->Dt, pBizScTbl->Tm, pBizScTbl->ActualDate, pBizScTbl->Str, 0L).where(pBizScTbl->UserID == LConfig.UserID && pBizScTbl->ScoreID == score_id);
-					for(q.initIteration(0, &k0, spLe); q.nextIteration() > 0;) {
+					for(q.initIteration(false, &k0, spLe); q.nextIteration() > 0;) {
 						if(period.CheckDate(pBizScTbl->data.ActualDate) > 0) {
 							BizScoreTbl::Rec rec;
 							pBizScTbl->copyBufTo(&rec);
@@ -1021,13 +1021,13 @@ int PPViewBizScTempl::Init_(const PPBaseFilt * pFilt)
 
 int PPViewBizScTempl::InitIteration()
 {
-	int ok = 0;
-	DBQ * dbq = 0;
+	int    ok = 0;
+	DBQ  * dbq = 0;
 	BExtQuery::ZDelete(&P_IterQuery);
 	P_IterQuery = new BExtQuery(P_TempTbl, 0);
 	if(P_IterQuery) {
 		P_IterQuery->selectAll().where(*dbq);
-		P_IterQuery->initIteration(0, 0, 0);
+		P_IterQuery->initIteration(false, 0, 0);
 		ok = 1;
 	}
 	return ok;

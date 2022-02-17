@@ -1657,7 +1657,7 @@ int PPTextAnalyzer::ProcessGoodsNN()
 		BExtQuery q(p_tbl, 0, 24);
 		q.select(p_tbl->ID, p_tbl->Name, p_tbl->ParentID, p_tbl->BrandID, 0L).where(p_tbl->Kind == PPGDSK_GOODS);
 		Goods2Tbl::Key0 k0;
-		for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
 			p_tbl->copyBufTo(&goods_rec);
 			int   unclssf = 0;
 			if(goods_obj.Fetch(goods_rec.ParentID, &parent_rec) > 0 && parent_rec.Flags & GF_UNCLASSF) {
@@ -1742,7 +1742,7 @@ int PPTextAnalyzer::ProcessGoodsNN()
 			BarcodeArray codes;
 			BarcodeTbl::Rec bc_rec;
 			RAssocArray temp_result_list;
-			for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
 				p_tbl->copyBufTo(&goods_rec);
 				int   unclssf = 0;
 				if(goods_obj.Fetch(goods_rec.ParentID, &parent_rec) > 0 && parent_rec.Flags & GF_UNCLASSF) {
@@ -1880,7 +1880,7 @@ int PPTextAnalyzer::ProcessGoods()
 	BExtQuery q(p_tbl, 0, 24);
 	q.select(p_tbl->ID, p_tbl->Name, 0L).where(p_tbl->Kind == PPGDSK_GOODS);
 	Goods2Tbl::Key0 k0;
-	for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
 		(text = p_tbl->data.Name).ToLower().Transf(CTRANSF_INNER_TO_OUTER);
 		if(text.NotEmptyS()) {
 			(ident = "#OBJ").Dot().Cat(PPOBJ_GOODS).Dot().Cat(p_tbl->data.ID);
@@ -1901,7 +1901,7 @@ int PPTextAnalyzer::ProcessPerson()
 	BExtQuery q(p_tbl, 0, 24);
 	q.select(p_tbl->ID, p_tbl->Name, 0L);
 	PersonTbl::Key0 k0;
-	for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
 		(text = p_tbl->data.Name).ToLower().Transf(CTRANSF_INNER_TO_OUTER);
 		if(text.NotEmptyS()) {
 			(ident = "#OBJ").Dot().Cat(PPOBJ_PERSON).Dot().Cat(p_tbl->data.ID);

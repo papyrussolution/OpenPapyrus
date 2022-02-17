@@ -250,7 +250,7 @@ int PPViewPaymPlan::Init_(const PPBaseFilt * pFilt)
 			TempPaymPlanTbl::Key0 tk0;
 			qt.select(P_TempTbl->ObjID, P_TempTbl->Amount, P_TempTbl->Debt, 0L);
 			MEMSZERO(tk0);
-			for(qt.initIteration(0, &tk0, spFirst); qt.nextIteration() > 0;) {
+			for(qt.initIteration(false, &tk0, spFirst); qt.nextIteration() > 0;) {
 				Total.Count++;
 				Total.Amount += P_TempTbl->data.Amount;
 				Total.Paym   += P_TempTbl->data.Paym;
@@ -324,7 +324,7 @@ int PPViewPaymPlan::InitIteration()
 		P_IterQuery = new BExtQuery(P_TempTbl, 1);
 		P_IterQuery->selectAll();
 		MEMSZERO(k1);
-		P_IterQuery->initIteration(0, &k1, spFirst);
+		P_IterQuery->initIteration(false, &k1, spFirst);
 		Counter.Init(Total.Count);
 		InnerCounter.Init(0UL);
 		BillList.freeAll();

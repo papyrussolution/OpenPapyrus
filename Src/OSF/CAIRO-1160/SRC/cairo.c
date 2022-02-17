@@ -1660,9 +1660,9 @@ void cairo_arc(cairo_t * cr, double xc, double yc, double radius, double angle1,
 		return;
 	if(angle2 < angle1) {
 		// increase angle2 by multiples of full circle until it satisfies angle2 >= angle1 
-		angle2 = fmod(angle2 - angle1, 2 * M_PI);
+		angle2 = fmod(angle2 - angle1, SMathConst::Pi2);
 		if(angle2 < 0)
-			angle2 += 2 * M_PI;
+			angle2 += SMathConst::Pi2;
 		angle2 += angle1;
 	}
 	cairo_status_t status = cr->backend->arc(cr, xc, yc, radius, angle1, angle2, TRUE);
@@ -1695,9 +1695,9 @@ void cairo_arc_negative(cairo_t * cr, double xc, double yc, double radius, doubl
 		return;
 	if(angle2 > angle1) {
 		// decrease angle2 by multiples of full circle until it satisfies angle2 <= angle1 
-		angle2 = fmod(angle2 - angle1, 2 * M_PI);
+		angle2 = fmod(angle2 - angle1, SMathConst::Pi2);
 		if(angle2 > 0)
-			angle2 -= 2 * M_PI;
+			angle2 -= SMathConst::Pi2;
 		angle2 += angle1;
 	}
 	cairo_status_t status = cr->backend->arc(cr, xc, yc, radius, angle1, angle2, FALSE);

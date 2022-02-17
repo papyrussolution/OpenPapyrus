@@ -184,7 +184,7 @@ int PickLot(PickLotParam & rParam, TIDlgInitData * pResult)
 		}
 		q.selectAll().where(*dbq);
 		MEMSZERO(k);
-		for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 			if(R2(rcpt.data.Price) == R2(rParam.Price)) {
 				THROW_SL(lot_list.insert(&rcpt.data));
 			}

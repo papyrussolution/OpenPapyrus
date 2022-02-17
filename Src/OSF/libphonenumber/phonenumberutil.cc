@@ -1,17 +1,6 @@
 // Copyright (C) 2009 The Libphonenumber Authors
+// @license Apache License 2.0
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #include <libphonenumber-internal.h>
 #pragma hdrstop
 #include "asyoutypeformatter.h"
@@ -445,38 +434,22 @@ private:
 		diallable_char_mappings_.insert(std::make_pair('#', '#'));
 		// Here we insert all punctuation symbols that we wish to respect when
 		// formatting alpha numbers, as they show the intended number groupings.
-		all_plus_number_grouping_symbols_.insert(
-			std::make_pair(ToUnicodeCodepoint("-"), '-'));
-		all_plus_number_grouping_symbols_.insert(
-			std::make_pair(ToUnicodeCodepoint("\xEF\xBC\x8D" /* "－" */), '-'));
-		all_plus_number_grouping_symbols_.insert(
-			std::make_pair(ToUnicodeCodepoint("\xE2\x80\x90" /* "‐" */), '-'));
-		all_plus_number_grouping_symbols_.insert(
-			std::make_pair(ToUnicodeCodepoint("\xE2\x80\x91" /* "‑" */), '-'));
-		all_plus_number_grouping_symbols_.insert(
-			std::make_pair(ToUnicodeCodepoint("\xE2\x80\x92" /* "‒" */), '-'));
-		all_plus_number_grouping_symbols_.insert(
-			std::make_pair(ToUnicodeCodepoint("\xE2\x80\x93" /* "–" */), '-'));
-		all_plus_number_grouping_symbols_.insert(
-			std::make_pair(ToUnicodeCodepoint("\xE2\x80\x94" /* "—" */), '-'));
-		all_plus_number_grouping_symbols_.insert(
-			std::make_pair(ToUnicodeCodepoint("\xE2\x80\x95" /* "―" */), '-'));
-		all_plus_number_grouping_symbols_.insert(
-			std::make_pair(ToUnicodeCodepoint("\xE2\x88\x92" /* "−" */), '-'));
-		all_plus_number_grouping_symbols_.insert(
-			std::make_pair(ToUnicodeCodepoint("/"), '/'));
-		all_plus_number_grouping_symbols_.insert(
-			std::make_pair(ToUnicodeCodepoint("\xEF\xBC\x8F" /* "／" */), '/'));
-		all_plus_number_grouping_symbols_.insert(
-			std::make_pair(ToUnicodeCodepoint(" "), ' '));
-		all_plus_number_grouping_symbols_.insert(
-			std::make_pair(ToUnicodeCodepoint("\xE3\x80\x80" /* "　" */), ' '));
-		all_plus_number_grouping_symbols_.insert(
-			std::make_pair(ToUnicodeCodepoint("\xE2\x81\xA0"), ' '));
-		all_plus_number_grouping_symbols_.insert(
-			std::make_pair(ToUnicodeCodepoint("."), '.'));
-		all_plus_number_grouping_symbols_.insert(
-			std::make_pair(ToUnicodeCodepoint("\xEF\xBC\x8E" /* "．" */), '.'));
+		all_plus_number_grouping_symbols_.insert(std::make_pair(ToUnicodeCodepoint("-"), '-'));
+		all_plus_number_grouping_symbols_.insert(std::make_pair(ToUnicodeCodepoint("\xEF\xBC\x8D" /* "－" */), '-'));
+		all_plus_number_grouping_symbols_.insert(std::make_pair(ToUnicodeCodepoint("\xE2\x80\x90" /* "‐" */), '-'));
+		all_plus_number_grouping_symbols_.insert(std::make_pair(ToUnicodeCodepoint("\xE2\x80\x91" /* "‑" */), '-'));
+		all_plus_number_grouping_symbols_.insert(std::make_pair(ToUnicodeCodepoint("\xE2\x80\x92" /* "‒" */), '-'));
+		all_plus_number_grouping_symbols_.insert(std::make_pair(ToUnicodeCodepoint("\xE2\x80\x93" /* "–" */), '-'));
+		all_plus_number_grouping_symbols_.insert(std::make_pair(ToUnicodeCodepoint("\xE2\x80\x94" /* "—" */), '-'));
+		all_plus_number_grouping_symbols_.insert(std::make_pair(ToUnicodeCodepoint("\xE2\x80\x95" /* "―" */), '-'));
+		all_plus_number_grouping_symbols_.insert(std::make_pair(ToUnicodeCodepoint("\xE2\x88\x92" /* "−" */), '-'));
+		all_plus_number_grouping_symbols_.insert(std::make_pair(ToUnicodeCodepoint("/"), '/'));
+		all_plus_number_grouping_symbols_.insert(std::make_pair(ToUnicodeCodepoint("\xEF\xBC\x8F" /* "／" */), '/'));
+		all_plus_number_grouping_symbols_.insert(std::make_pair(ToUnicodeCodepoint(" "), ' '));
+		all_plus_number_grouping_symbols_.insert(std::make_pair(ToUnicodeCodepoint("\xE3\x80\x80" /* "　" */), ' '));
+		all_plus_number_grouping_symbols_.insert(std::make_pair(ToUnicodeCodepoint("\xE2\x81\xA0"), ' '));
+		all_plus_number_grouping_symbols_.insert(std::make_pair(ToUnicodeCodepoint("."), '.'));
+		all_plus_number_grouping_symbols_.insert(std::make_pair(ToUnicodeCodepoint("\xEF\xBC\x8E" /* "．" */), '.'));
 		// Only the upper-case letters are added here - the lower-case versions are
 		// added programmatically.
 		alpha_mappings_.insert(std::make_pair(ToUnicodeCodepoint("A"), '2'));
@@ -507,9 +480,7 @@ private:
 		alpha_mappings_.insert(std::make_pair(ToUnicodeCodepoint("Z"), '9'));
 		std::map<char32, char> lower_case_mappings;
 		std::map<char32, char> alpha_letters;
-		for(std::map<char32, char>::const_iterator it = alpha_mappings_.begin();
-		    it != alpha_mappings_.end();
-		    ++it) {
+		for(std::map<char32, char>::const_iterator it = alpha_mappings_.begin(); it != alpha_mappings_.end(); ++it) {
 			// Convert all the upper-case ASCII letters to lower-case.
 			if(it->first < 128) {
 				char letter_as_upper = static_cast<char>(it->first);
@@ -526,12 +497,9 @@ private:
 		// because we convert to upper case on the fly. Doing this here would
 		// involve pulling in all of ICU, which we don't want to do if we don't have
 		// to.
-		alpha_mappings_.insert(lower_case_mappings.begin(),
-		    lower_case_mappings.end());
-		alpha_phone_mappings_.insert(alpha_mappings_.begin(),
-		    alpha_mappings_.end());
-		all_plus_number_grouping_symbols_.insert(alpha_letters.begin(),
-		    alpha_letters.end());
+		alpha_mappings_.insert(lower_case_mappings.begin(), lower_case_mappings.end());
+		alpha_phone_mappings_.insert(alpha_mappings_.begin(), alpha_mappings_.end());
+		all_plus_number_grouping_symbols_.insert(alpha_letters.begin(), alpha_letters.end());
 		// Add the ASCII digits so that they don't get deleted by NormalizeHelper().
 		for(char c = '0'; c <= '9'; ++c) {
 			diallable_char_mappings_.insert(std::make_pair(c, c));

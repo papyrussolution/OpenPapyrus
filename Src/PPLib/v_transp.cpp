@@ -320,7 +320,7 @@ int PPViewTransport::InitIteration(int aOrder)
 		THROW_MEM(P_IterQuery = new BExtQuery(P_TempTbl, 1));
 		P_IterQuery->select(P_TempTbl->ID, 0);
 		MEMSZERO(k1);
-		P_IterQuery->initIteration(0, &k1, spFirst);
+		P_IterQuery->initIteration(false, &k1, spFirst);
 	}
 	CATCHZOK
 	return ok;

@@ -1,7 +1,6 @@
-//---------------------------------------------------------------------------------
-//
-//  Little Color Management System
-//  Copyright (c) 1998-2020 Marti Maria Saguer
+// cmsmd5.c
+// Little Color Management System
+// Copyright (c) 1998-2020 Marti Maria Saguer
 //
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the "Software"),
@@ -13,17 +12,10 @@
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//---------------------------------------------------------------------------------
 #include "lcms2_internal.h"
 #pragma hdrstop
+
+#if 0 // @sobolev {
 
 #ifdef CMS_USE_BIG_ENDIAN
 
@@ -169,15 +161,12 @@ void CMSEXPORT cmsMD5add(cmsHANDLE Handle, const uint8 * buf, cmsUInt32Number le
 			memmove(p, buf, len);
 			return;
 		}
-
 		memmove(p, buf, t);
 		byteReverse(ctx->in, 16);
-
 		cmsMD5_Transform(ctx->buf, (cmsUInt32Number *)ctx->in);
 		buf += t;
 		len -= t;
 	}
-
 	while(len >= 64) {
 		memmove(ctx->in, buf, 64);
 		byteReverse(ctx->in, 16);
@@ -185,7 +174,6 @@ void CMSEXPORT cmsMD5add(cmsHANDLE Handle, const uint8 * buf, cmsUInt32Number le
 		buf += 64;
 		len -= 64;
 	}
-
 	memmove(ctx->in, buf, len);
 }
 
@@ -270,3 +258,4 @@ Error:
 	memmove(Icc, &Keep, sizeof(_cmsICCPROFILE));
 	return FALSE;
 }
+#endif // } 0 @sobolev

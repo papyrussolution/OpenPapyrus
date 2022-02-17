@@ -173,8 +173,9 @@ inline int64_t DecodeTwosComp(uint64_t v) {
 // rep->hi a double value that is too large for an int64_t (and therefore is
 // undefined), we must consider computations that equal kint64max/min as a
 // double as overflow cases.
-inline bool SafeAddRepHi(double a_hi, double b_hi, Duration* d) {
-	double c = a_hi + b_hi;
+inline bool SafeAddRepHi(double a_hi, double b_hi, Duration* d) 
+{
+	const double c = a_hi + b_hi;
 	if(c >= static_cast<double>(kint64max)) {
 		*d = InfiniteDuration();
 		return false;
@@ -189,16 +190,14 @@ inline bool SafeAddRepHi(double a_hi, double b_hi, Duration* d) {
 
 // A functor that's similar to std::multiplies<T>, except this returns the max
 // T value instead of overflowing. This is only defined for uint128.
-template <typename Ignored>
-struct SafeMultiply {
-	uint128 operator()(uint128 a, uint128 b) const {
+template <typename Ignored> struct SafeMultiply {
+	uint128 operator()(uint128 a, uint128 b) const 
+	{
 		// b hi is always zero because it originated as an int64_t.
 		assert(Uint128High64(b) == 0);
 		// Fastpath to avoid the expensive overflow check with division.
 		if(Uint128High64(a) == 0) {
-			return (((Uint128Low64(a) | Uint128Low64(b)) >> 32) == 0)
-			       ? static_cast<uint128>(Uint128Low64(a) * Uint128Low64(b))
-			       : a * b;
+			return (((Uint128Low64(a) | Uint128Low64(b)) >> 32) == 0) ? static_cast<uint128>(Uint128Low64(a) * Uint128Low64(b)) : a * b;
 		}
 		return b == 0 ? b : (a > kuint128max / b) ? kuint128max : a * b;
 	}
@@ -206,8 +205,8 @@ struct SafeMultiply {
 
 // Scales (i.e., multiplies or divides, depending on the Operation template)
 // the Duration d by the int64_t r.
-template <template <typename> class Operation>
-inline Duration ScaleFixed(Duration d, int64_t r) {
+template <template <typename> class Operation> inline Duration ScaleFixed(Duration d, int64_t r) 
+{
 	const uint128 a = MakeU128Ticks(d);
 	const uint128 b = MakeU128(r);
 	const uint128 q = Operation<uint128>()(a, b);

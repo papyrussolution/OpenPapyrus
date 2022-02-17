@@ -2,7 +2,7 @@
 // gSOAP runtime engine
 // gSOAP XML Web services tools
 // Copyright (C) 2000-2011, Robert van Engelen, Genivia Inc., All Rights Reserved.
-// @licence GNU GPL
+// @license GNU GPL
 // 
 #pragma hdrstop
 #include <slib.h>

@@ -552,7 +552,7 @@ int ObjSyncQueueCore::SearchRefToOrgFile(const char * pFileName, ObjSyncQueueCor
 	MEMSZERO(k0);
 	BExtQuery q(this, 0);
 	q.select(this->ID, this->ObjName, 0L).where(this->ObjType == 0L && this->ObjID == 0L);
-	for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
 		if((temp_buf = data.ObjName).Divide(';', left, right) > 0) {
 			if(nam.CmpNC(right) == 0) {
 				if(pInfo)
@@ -632,7 +632,7 @@ int ObjSyncQueueCore::GetUnprocessedList(PPIDArray * pList)
 	BExtQuery q(this, 3);
 	q.select(this->ID, this->ObjType, this->ObjID, this->Flags, 0).where(this->ObjType > 0L && this->ObjID > 0L);
 	MEMSZERO(k3);
-	for(q.initIteration(0, &k3, spFirst); q.nextIteration() > 0;)
+	for(q.initIteration(false, &k3, spFirst); q.nextIteration() > 0;)
 		if(!(data.Flags & PPObjPack::fProcessed) && data.Priority != PPObjectTransmit::DependedPriority) {
 			ok = 1;
 			if(pList)

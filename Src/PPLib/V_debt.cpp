@@ -354,7 +354,7 @@ int PPViewDebtTrnovr::GetPayableBillList_(const PPIDArray * pOpList, PPID arID, 
 			LongArray ndup_list;
 			pList->GetIdList(ndup_list);
 			ndup_list.sort();
-			for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 				PPID   bill_id = t->data.ID;
 				PPID   dlvr_addr_id = 0;
 				THROW(PPCheckUserBreak());
@@ -1247,7 +1247,7 @@ int PPViewDebtTrnovr::NextProcessIteration(PPID reckonOpID, ProcessBlock & rBlk)
 			k2.OpID = reckonOpID;
 			k2.Dt = Filt.Period.low;
 			k2.BillNo = 0;
-			rBlk.P_Q->initIteration(0, &k2, spGe);
+			rBlk.P_Q->initIteration(false, &k2, spGe);
 			ok = 1;
 		}
 	}
@@ -1303,7 +1303,7 @@ int PPViewDebtTrnovr::NextProcessIteration(PPID reckonOpID, ProcessBlock & rBlk)
 				k2.OpID = op_id;
 				k2.Dt = Filt.Period.low;
 				k2.BillNo = 0;
-				rBlk.P_Q->initIteration(0, &k2, spGe);
+				rBlk.P_Q->initIteration(false, &k2, spGe);
 				ok = 1;
 			}
 		}
@@ -1322,7 +1322,7 @@ int PPViewDebtTrnovr::NextProcessIteration(PPID reckonOpID, ProcessBlock & rBlk)
 				k3.Object = ar_id;
 				k3.Dt = Filt.Period.low;
 				k3.BillNo = 0;
-				rBlk.P_Q->initIteration(0, &k3, spGe);
+				rBlk.P_Q->initIteration(false, &k3, spGe);
 				ok = 1;
 			}
 		}
@@ -3125,7 +3125,7 @@ int DebtStatCore::GetList(PPID accSheetID, PPDebtorStatArray & rList)
 		k0.Dt = last_date;
 		k0.AccSheetID = accSheetID;
 		k0_ = k0;
-		for(q->initIteration(0, &k0, spGe); q->nextIteration() > 0;) {
+		for(q->initIteration(false, &k0, spGe); q->nextIteration() > 0;) {
 			DebtStatTbl::Rec rec;
 			copyBufTo(&rec);
 			PPDebtorStat * p_item = new PPDebtorStat(rec.ArID);
@@ -4237,7 +4237,7 @@ int PPViewDebtorStat::InitIteration(long ord)
 		MEMSZERO(ord_k1);
 		Counter.Init(q->countIterations(0, &ord_k1, spFirst));
 		MEMSZERO(ord_k1);
-		q->initIteration(0, &ord_k1, spFirst);
+		q->initIteration(false, &ord_k1, spFirst);
 	}
 	else {
 		DebtStatTbl::Key0 k0, k0_;
@@ -4252,7 +4252,7 @@ int PPViewDebtorStat::InitIteration(long ord)
 		k0.AccSheetID = Filt.AccSheetID;
 		k0_ = k0;
 		Counter.Init(q->countIterations(0, &k0_, spGe));
-		q->initIteration(0, &k0, spGe);
+		q->initIteration(false, &k0, spGe);
 	}
 	P_IterQuery = q;
 	CATCH

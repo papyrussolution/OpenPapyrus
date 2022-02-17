@@ -1331,7 +1331,7 @@ int PPViewBill::EnumerateDebtCard(BillViewEnumProc proc, void * pExtraPtr)
 	if(Filt.CurID >= 0)
 		dbq = & (*dbq && t->CurID == Filt.CurID);
 	q.where(*dbq);
-	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;)
+	for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;)
 		if(!(Filt.Flags & BillFilt::fLabelOnly) || t->data.Flags & BILLF_WHITELABEL) {
 			PPID   op_id = t->data.OpID;
 			bill_id = t->data.ID;
@@ -1516,7 +1516,7 @@ int PPViewBill::Enumerator(BillViewEnumProc proc, void * pExtraPtr)
 		THROW_MEM(q = new BExtQuery(t, idx));
 		q->select(t->ID, t->Code, t->Dt, t->DueDate, t->BillNo, t->Object, t->OpID, /*t->StatusID,*/
 			t->CurID, t->Flags, t->Flags2, t->Amount, t->LinkBillID, t->LocID, t->UserID, 0L).where(*dbq);
-		for(q->initIteration(0, &k, spGt); ok > 0 && q->nextIteration() > 0;) {
+		for(q->initIteration(false, &k, spGt); ok > 0 && q->nextIteration() > 0;) {
 			if(CheckFlagsForFilt(&t->data)) {
 				const BillTbl::Rec bill_rec = t->data;
 				PPBillExt bext;
@@ -1775,7 +1775,7 @@ int PPViewBill::InitIteration(IterOrder ord)
 	}
 	P_IterQuery->selectAll();
 	// @v10.6.8 @ctr memzero(key, sizeof(key));
-	P_IterQuery->initIteration(0, key_, spFirst);
+	P_IterQuery->initIteration(false, key_, spFirst);
 	CATCH
 		BExtQuery::ZDelete(&P_IterQuery);
 		ok = 0;
@@ -3547,7 +3547,7 @@ int PPViewBill::AttachBillToDraft(PPID billID, const BrowserWindow * pBrw)
 				}
 				q.where(*dbq);
 				BillTbl::Rec draft_bill_rec;
-				for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+				for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 					t->copyBufTo(&draft_bill_rec);
 					if(op_list.lsearch(draft_bill_rec.OpID) && (egais_rcpt_op_id == draft_bill_rec.OpID || draft_bill_rec.Object == bill_rec.Object)) {
 						int   suited = 0;

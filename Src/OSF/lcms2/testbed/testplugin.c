@@ -1,4 +1,3 @@
-//---------------------------------------------------------------------------------
 //
 //  Little Color Management System
 //  Copyright (c) 1998-2020 Marti Maria Saguer
@@ -13,36 +12,22 @@
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//---------------------------------------------------------------------------------
-//
 #include "lcms2_internal.h"
 #pragma hdrstop
 #include "testcms2.h"
-
-// --------------------------------------------------------------------------------------------------
+//
 // Auxiliary, duplicate a context and mark the block as non-debug because in this case the allocator
 // and deallocator have different context owners
-// --------------------------------------------------------------------------------------------------
-
+//
 static cmsContext DupContext(cmsContext src, void * Data)
 {
 	cmsContext cpy = cmsDupContext(src, Data);
 	DebugMemDontCheckThis(cpy);
 	return cpy;
 }
-
-// --------------------------------------------------------------------------------------------------
+//
 // Simple context functions
-// --------------------------------------------------------------------------------------------------
-
+//
 // Allocation order
 cmsInt32Number CheckAllocContext(void)
 {
@@ -388,41 +373,32 @@ Error:
 	cmsPipelineFree(p);
 	return 0;
 }
-
-// --------------------------------------------------------------------------------------------------
+//
 // Parametric curve plugin check: sin(x)/cos(x) function will be used to test the functionality.
-// --------------------------------------------------------------------------------------------------
-
+//
 #define TYPE_SIN  1000
 #define TYPE_COS  1010
 #define TYPE_TAN  1020
 #define TYPE_709  709
 
-static double my_fns(cmsInt32Number Type,
-    const double Params[],
-    double R)
+static double my_fns(cmsInt32Number Type, const double Params[], double R)
 {
 	double Val;
 	switch(Type) {
 		case TYPE_SIN:
-		    Val = Params[0]* sin(R * M_PI);
+		    Val = Params[0]* sin(R * SMathConst::Pi);
 		    break;
-
 		case -TYPE_SIN:
-		    Val = asin(R) / (M_PI * Params[0]);
+		    Val = asin(R) / (SMathConst::Pi * Params[0]);
 		    break;
-
 		case TYPE_COS:
-		    Val = Params[0]* cos(R * M_PI);
+		    Val = Params[0]* cos(R * SMathConst::Pi);
 		    break;
-
 		case -TYPE_COS:
-		    Val = acos(R) / (M_PI * Params[0]);
+		    Val = acos(R) / (SMathConst::Pi * Params[0]);
 		    break;
-
 		default: return -1.0;
 	}
-
 	return Val;
 }
 
@@ -431,10 +407,10 @@ static double my_fns2(cmsInt32Number Type, const double Params[], double R)
 	double Val;
 	switch(Type) {
 		case TYPE_TAN:
-		    Val = Params[0]* tan(R * M_PI);
+		    Val = Params[0]* tan(R * SMathConst::Pi);
 		    break;
 		case -TYPE_TAN:
-		    Val = atan(R) / (M_PI * Params[0]);
+		    Val = atan(R) / (SMathConst::Pi * Params[0]);
 		    break;
 		default: return -1.0;
 	}
@@ -518,27 +494,21 @@ cmsInt32Number CheckParametricCurvePlugin(void)
 	tangent = cmsBuildParametricToneCurve(cpy, TYPE_TAN, &scale);
 	reverse_sinus = cmsReverseToneCurve(sinus);
 	reverse_cosinus = cmsReverseToneCurve(cosinus);
-
-	if(!IsGoodVal("0.10", cmsEvalToneCurveFloat(sinus, 0.10f), sin(0.10 * M_PI), 0.001)) goto Error;
-	if(!IsGoodVal("0.60", cmsEvalToneCurveFloat(sinus, 0.60f), sin(0.60* M_PI), 0.001)) goto Error;
-	if(!IsGoodVal("0.90", cmsEvalToneCurveFloat(sinus, 0.90f), sin(0.90* M_PI), 0.001)) goto Error;
-
-	if(!IsGoodVal("0.10", cmsEvalToneCurveFloat(cosinus, 0.10f), cos(0.10* M_PI), 0.001)) goto Error;
-	if(!IsGoodVal("0.60", cmsEvalToneCurveFloat(cosinus, 0.60f), cos(0.60* M_PI), 0.001)) goto Error;
-	if(!IsGoodVal("0.90", cmsEvalToneCurveFloat(cosinus, 0.90f), cos(0.90* M_PI), 0.001)) goto Error;
-
-	if(!IsGoodVal("0.10", cmsEvalToneCurveFloat(tangent, 0.10f), tan(0.10* M_PI), 0.001)) goto Error;
-	if(!IsGoodVal("0.60", cmsEvalToneCurveFloat(tangent, 0.60f), tan(0.60* M_PI), 0.001)) goto Error;
-	if(!IsGoodVal("0.90", cmsEvalToneCurveFloat(tangent, 0.90f), tan(0.90* M_PI), 0.001)) goto Error;
-
-	if(!IsGoodVal("0.10", cmsEvalToneCurveFloat(reverse_sinus, 0.10f), asin(0.10)/M_PI, 0.001)) goto Error;
-	if(!IsGoodVal("0.60", cmsEvalToneCurveFloat(reverse_sinus, 0.60f), asin(0.60)/M_PI, 0.001)) goto Error;
-	if(!IsGoodVal("0.90", cmsEvalToneCurveFloat(reverse_sinus, 0.90f), asin(0.90)/M_PI, 0.001)) goto Error;
-
-	if(!IsGoodVal("0.10", cmsEvalToneCurveFloat(reverse_cosinus, 0.10f), acos(0.10)/M_PI, 0.001)) goto Error;
-	if(!IsGoodVal("0.60", cmsEvalToneCurveFloat(reverse_cosinus, 0.60f), acos(0.60)/M_PI, 0.001)) goto Error;
-	if(!IsGoodVal("0.90", cmsEvalToneCurveFloat(reverse_cosinus, 0.90f), acos(0.90)/M_PI, 0.001)) goto Error;
-
+	if(!IsGoodVal("0.10", cmsEvalToneCurveFloat(sinus, 0.10f), sin(0.10 * SMathConst::Pi), 0.001)) goto Error;
+	if(!IsGoodVal("0.60", cmsEvalToneCurveFloat(sinus, 0.60f), sin(0.60* SMathConst::Pi), 0.001)) goto Error;
+	if(!IsGoodVal("0.90", cmsEvalToneCurveFloat(sinus, 0.90f), sin(0.90* SMathConst::Pi), 0.001)) goto Error;
+	if(!IsGoodVal("0.10", cmsEvalToneCurveFloat(cosinus, 0.10f), cos(0.10* SMathConst::Pi), 0.001)) goto Error;
+	if(!IsGoodVal("0.60", cmsEvalToneCurveFloat(cosinus, 0.60f), cos(0.60* SMathConst::Pi), 0.001)) goto Error;
+	if(!IsGoodVal("0.90", cmsEvalToneCurveFloat(cosinus, 0.90f), cos(0.90* SMathConst::Pi), 0.001)) goto Error;
+	if(!IsGoodVal("0.10", cmsEvalToneCurveFloat(tangent, 0.10f), tan(0.10* SMathConst::Pi), 0.001)) goto Error;
+	if(!IsGoodVal("0.60", cmsEvalToneCurveFloat(tangent, 0.60f), tan(0.60* SMathConst::Pi), 0.001)) goto Error;
+	if(!IsGoodVal("0.90", cmsEvalToneCurveFloat(tangent, 0.90f), tan(0.90* SMathConst::Pi), 0.001)) goto Error;
+	if(!IsGoodVal("0.10", cmsEvalToneCurveFloat(reverse_sinus, 0.10f), asin(0.10)/SMathConst::Pi, 0.001)) goto Error;
+	if(!IsGoodVal("0.60", cmsEvalToneCurveFloat(reverse_sinus, 0.60f), asin(0.60)/SMathConst::Pi, 0.001)) goto Error;
+	if(!IsGoodVal("0.90", cmsEvalToneCurveFloat(reverse_sinus, 0.90f), asin(0.90)/SMathConst::Pi, 0.001)) goto Error;
+	if(!IsGoodVal("0.10", cmsEvalToneCurveFloat(reverse_cosinus, 0.10f), acos(0.10)/SMathConst::Pi, 0.001)) goto Error;
+	if(!IsGoodVal("0.60", cmsEvalToneCurveFloat(reverse_cosinus, 0.60f), acos(0.60)/SMathConst::Pi, 0.001)) goto Error;
+	if(!IsGoodVal("0.90", cmsEvalToneCurveFloat(reverse_cosinus, 0.90f), acos(0.90)/SMathConst::Pi, 0.001)) goto Error;
 	cmsFreeToneCurve(sinus);
 	cmsFreeToneCurve(cosinus);
 	cmsFreeToneCurve(tangent);
@@ -781,9 +751,10 @@ static cmsStage * StageAllocNegate(cmsContext ContextID)
 static void * Type_negate_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, cmsUInt32Number* nItems, cmsUInt32Number /*SizeOfTag*/)
 {
 	uint16 Chans;
-	if(!_cmsReadUInt16Number(io, &Chans)) return NULL;
-	if(Chans != 3) return NULL;
-
+	if(!_cmsReadUInt16Number(io, &Chans)) 
+		return NULL;
+	if(Chans != 3) 
+		return NULL;
 	*nItems = 1;
 	return StageAllocNegate(self->ContextID);
 }
@@ -801,7 +772,6 @@ static cmsPluginMultiProcessElement MPEPluginSample = {
 
 cmsInt32Number CheckMPEPlugin(void)
 {
-	cmsContext ctx = NULL;
 	cmsContext cpy = NULL;
 	cmsContext cpy2 = NULL;
 	cmsHPROFILE h = NULL;
@@ -811,32 +781,22 @@ cmsInt32Number CheckMPEPlugin(void)
 	cmsUInt32Number clen = 0;
 	float In[3], Out[3];
 	cmsPipeline * pipe;
-
-	ctx = WatchDogContext(NULL);
+	cmsContext ctx = WatchDogContext(NULL);
 	cmsPluginTHR(ctx, &MPEPluginSample);
-
 	cpy =  DupContext(ctx, NULL);
 	cpy2 = DupContext(cpy, NULL);
-
 	cmsDeleteContext(ctx);
 	cmsDeleteContext(cpy);
-
 	h = cmsCreateProfilePlaceholder(cpy2);
 	if(h == NULL) {
 		Fail("Create placeholder failed");
 		goto Error;
 	}
-
 	pipe = cmsPipelineAlloc(cpy2, 3, 3);
 	cmsPipelineInsertStage(pipe, cmsAT_BEGIN, StageAllocNegate(cpy2));
-
 	In[0] = 0.3f; In[1] = 0.2f; In[2] = 0.9f;
 	cmsPipelineEvalFloat(In, Out, pipe);
-
-	rc = (IsGoodVal("0", Out[0], 1.0-In[0], 0.001) &&
-	    IsGoodVal("1", Out[1], 1.0-In[1], 0.001) &&
-	    IsGoodVal("2", Out[2], 1.0-In[2], 0.001));
-
+	rc = (IsGoodVal("0", Out[0], 1.0-In[0], 0.001) && IsGoodVal("1", Out[1], 1.0-In[1], 0.001) && IsGoodVal("2", Out[2], 1.0-In[2], 0.001));
 	if(!rc) {
 		Fail("Pipeline failed");
 		goto Error;
@@ -857,15 +817,12 @@ cmsInt32Number CheckMPEPlugin(void)
 		Fail("malloc failed ?!?");
 		goto Error;
 	}
-
 	rc = cmsSaveProfileToMem(h, data, &clen);
 	if(!rc) {
 		Fail("Save to mem failed");
 		goto Error;
 	}
-
 	cmsCloseProfile(h);
-
 	cmsSetLogErrorHandler(NULL);
 	h = cmsOpenProfileFromMem(data, clen);
 	if(h == NULL) {
@@ -886,8 +843,7 @@ cmsInt32Number CheckMPEPlugin(void)
 		goto Error;
 	}
 	// Get rid of data
-	SAlloc::F(data);
-	data = NULL;
+	ZFREE(data);
 	pipe = (cmsPipeline *)cmsReadTag(h, cmsSigDToB3Tag);
 	if(pipe == NULL) {
 		Fail("Read tag/conext switching failed (2)");
@@ -896,26 +852,21 @@ cmsInt32Number CheckMPEPlugin(void)
 	// Evaluate for negation
 	In[0] = 0.3f; In[1] = 0.2f; In[2] = 0.9f;
 	cmsPipelineEvalFloat(In, Out, pipe);
-	rc =
-	    (IsGoodVal("0", Out[0], 1.0-In[0],
-	    0.001) && IsGoodVal("1", Out[1], 1.0-In[1], 0.001) && IsGoodVal("2", Out[2], 1.0-In[2], 0.001));
+	rc = (IsGoodVal("0", Out[0], 1.0-In[0], 0.001) && IsGoodVal("1", Out[1], 1.0-In[1], 0.001) && IsGoodVal("2", Out[2], 1.0-In[2], 0.001));
 	cmsCloseProfile(h);
 	cmsDeleteContext(cpy2);
 	return rc;
 Error:
-	if(h) cmsCloseProfile(h);
-	if(ctx != NULL) cmsDeleteContext(ctx);
-	if(cpy != NULL) cmsDeleteContext(cpy);
-	if(cpy2 != NULL) cmsDeleteContext(cpy2);
-	if(data)
-		SAlloc::F(data);
+	cmsCloseProfile(h);
+	cmsDeleteContext(ctx);
+	cmsDeleteContext(cpy);
+	cmsDeleteContext(cpy2);
+	SAlloc::F(data);
 	return 0;
 }
-
-// --------------------------------------------------------------------------------------------------
+//
 // Optimization plugin check:
-// --------------------------------------------------------------------------------------------------
-
+//
 static void FastEvaluateCurves(const uint16 In[], uint16 Out[], const void * /*pData*/)
 {
 	Out[0] = In[0];

@@ -1,6 +1,6 @@
 // TCPSERVER.H
 // Copyright (C) 2007,2008 Olly Betts
-// @licence GNU GPL
+// @license GNU GPL
 // @brief Generic TCP/IP socket based server base class.
 //
 #ifndef XAPIAN_INCLUDED_TCPSERVER_H

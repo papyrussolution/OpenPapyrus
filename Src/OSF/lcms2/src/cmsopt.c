@@ -1,4 +1,3 @@
-//---------------------------------------------------------------------------------
 //
 //  Little Color Management System
 //  Copyright (c) 1998-2020 Marti Maria Saguer
@@ -12,16 +11,6 @@
 //
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//---------------------------------------------------------------------------------
 //
 #include "lcms2_internal.h"
 #pragma hdrstop
@@ -1224,21 +1213,16 @@ static boolint OptimizeByJoiningCurves(cmsPipeline ** Lut, cmsUInt32Number Inten
 	cmsPipelineFree(Src);
 	*Lut = Dest;
 	return TRUE;
-
 Error:
-
-	if(ObtainedCurves != NULL) cmsStageFree(ObtainedCurves);
-	if(GammaTables != NULL) {
+	cmsStageFree(ObtainedCurves);
+	if(GammaTables) {
 		for(i = 0; i < Src->InputChannels; i++) {
-			if(GammaTables[i] != NULL) cmsFreeToneCurve(GammaTables[i]);
+			cmsFreeToneCurve(GammaTables[i]);
 		}
-
 		_cmsFree(Src->ContextID, GammaTables);
 	}
-
-	if(Dest != NULL) cmsPipelineFree(Dest);
+	cmsPipelineFree(Dest);
 	return FALSE;
-
 	CXX_UNUSED(Intent);
 	CXX_UNUSED(InputFormat);
 	CXX_UNUSED(OutputFormat);
@@ -1297,13 +1281,9 @@ static void MatShaperEval16(const uint16 In[], uint16 Out[], const void * D)
 // This table converts from 8 bits to 1.14 after applying the curve
 static void FillFirstShaper(cmsS1Fixed14Number* Table, cmsToneCurve * Curve)
 {
-	int i;
-	float R, y;
-
-	for(i = 0; i < 256; i++) {
-		R   = (float)(i / 255.0);
-		y   = cmsEvalToneCurveFloat(Curve, R);
-
+	for(int i = 0; i < 256; i++) {
+		float R = (float)(i / 255.0);
+		float y = cmsEvalToneCurveFloat(Curve, R);
 		if(y < 131072.0)
 			Table[i] = DOUBLE_TO_1FIXED14(y);
 		else
@@ -1314,19 +1294,17 @@ static void FillFirstShaper(cmsS1Fixed14Number* Table, cmsToneCurve * Curve)
 // This table converts form 1.14 (being 0x4000 the last entry) to 8 bits after applying the curve
 static void FillSecondShaper(uint16* Table, cmsToneCurve * Curve, boolint Is8BitsOutput)
 {
-	int i;
-	float R, Val;
-
-	for(i = 0; i < 16385; i++) {
-		R   = (float)(i / 16384.0);
+	//float R, Val;
+	for(int i = 0; i < 16385; i++) {
+		const float R   = (float)(i / 16384.0);
+		/*
 		Val = cmsEvalToneCurveFloat(Curve, R); // Val comes 0..1.0
-
 		if(Val < 0)
 			Val = 0;
-
 		if(Val > 1.0)
 			Val = 1.0;
-
+		*/
+		const float Val = sclamp(cmsEvalToneCurveFloat(Curve, R), 0.0f, 1.0f);
 		if(Is8BitsOutput) {
 			// If 8 bits output, we can optimize further by computing the / 257 part.
 			// first we compute the resulting byte and then we store the byte times
@@ -1334,10 +1312,10 @@ static void FillSecondShaper(uint16* Table, cmsToneCurve * Curve, boolint Is8Bit
 			// since the low byte is always equal to msb, we can do a & 0xff and this works!
 			uint16 w = _cmsQuickSaturateWord(Val * 65535.0);
 			uint8 b = FROM_16_TO_8(w);
-
 			Table[i] = FROM_8_TO_16(b);
 		}
-		else Table[i]  = _cmsQuickSaturateWord(Val * 65535.0);
+		else 
+			Table[i]  = _cmsQuickSaturateWord(Val * 65535.0);
 	}
 }
 

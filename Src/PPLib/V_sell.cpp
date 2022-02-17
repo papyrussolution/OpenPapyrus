@@ -133,7 +133,7 @@ int PPViewPredictSales::InitIteration(int aOrder)
 		MEMSZERO(tk0);
 		tk0_ = tk0;
 		Counter.Init(P_IterQuery->countIterations(0, &tk0_, spFirst));
-		P_IterQuery->initIteration(0, &tk0, spFirst);
+		P_IterQuery->initIteration(false, &tk0, spFirst);
 	}
 	CATCHZOK
 	return ok;

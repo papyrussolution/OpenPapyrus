@@ -812,7 +812,7 @@ int PPObjTSession::SearchByLinkBillID(PPID linkBillID, TSessionTbl::Rec * pRec)
 		BExtQuery q(P_Tbl, 0);
 		q.select(P_Tbl->ID, 0).where(P_Tbl->LinkBillID == linkBillID);
 		k0.ID = 0;
-		for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;)
+		for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;)
 			id_list.add(P_Tbl->data.ID);
 		if(id_list.getCount())
 			ok = Search(id_list.getLast(), pRec);
@@ -1962,7 +1962,7 @@ int PPObjTSession::InductSuperSess(TSessionTbl::Rec * pRec)
 				BExtQuery q(P_Tbl, 6);
 				q.select(P_Tbl->ID, P_Tbl->FinDt, P_Tbl->FinTm, P_Tbl->TechID, 0L).where(P_Tbl->ParentID == pRec->ParentID);
 				k6.ParentID = pRec->ParentID;
-				for(q.initIteration(0, &k6, spGe); q.nextIteration() > 0;) {
+				for(q.initIteration(false, &k6, spGe); q.nextIteration() > 0;) {
 					if(cmp(last_sess_finish, P_Tbl->data.FinDt, P_Tbl->data.FinTm) < 0) {
 						last_sess_finish.Set(P_Tbl->data.FinDt, P_Tbl->data.FinTm);
 						last_sess_id = P_Tbl->data.ID;
@@ -2213,7 +2213,7 @@ int PPObjTSession::MakeSessionsByRepeating(const PPIDArray * pSrcSessList, const
 				k4.PrcID = prc_id;
 				BExtQuery q(P_Tbl, 4);
 				q.selectAll().where(P_Tbl->PrcID == prc_id); // && P_Tbl->Status == (long)TSESST_INPROCESS);
-				for(q.initIteration(0, &k4, spGe); ok < 0 && q.nextIteration() > 0;) {
+				for(q.initIteration(false, &k4, spGe); ok < 0 && q.nextIteration() > 0;) {
 					P_Tbl->copyBufTo(&sess_rec);
 					if(sess_rec.Status != TSESST_CANCELED) {
 						DateRepeating dr = *reinterpret_cast<const DateRepeating *>(&sess_rec.Repeating);
@@ -2666,7 +2666,7 @@ StrAssocArray * PPObjTSession::MakeStrAssocList(void * extraPtr)
 			BExtQuery q(P_Tbl, 4);
 			q.select(P_Tbl->ID, P_Tbl->PrcID, P_Tbl->Num, P_Tbl->StDt, P_Tbl->StTm, P_Tbl->Flags, 0L).
 				where(P_Tbl->PrcID == prc_list.at(i));
-			for(q.initIteration(0, &k4, spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k4, spGe); q.nextIteration() > 0;) {
 				TSessionTbl::Rec rec;
 				P_Tbl->copyBufTo(&rec);
 				if(sel_par.Kind != 1 || rec.Flags & TSESF_SUPERSESS) {
@@ -2681,7 +2681,7 @@ StrAssocArray * PPObjTSession::MakeStrAssocList(void * extraPtr)
 		MEMSZERO(k2);
 		BExtQuery q(P_Tbl, 2);
 		q.select(P_Tbl->ID, P_Tbl->PrcID, P_Tbl->Num, P_Tbl->StDt, P_Tbl->StTm, P_Tbl->Flags, 0L);
-		for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 			TSessionTbl::Rec rec;
 			P_Tbl->copyBufTo(&rec);
 			if(sel_par.Kind != 1 || rec.Flags & TSESF_SUPERSESS) {
@@ -3353,7 +3353,7 @@ int PPObjTSession::SnapshotRest(PPID sessID, PPLogger & rLogger, int use_ta)
 				q.select(p_lt->GoodsID, p_lt->OprNo, 0L).where(p_lt->TSessID == sessID);
 				MEMSZERO(k0);
 				k0.TSessID = sessID;
-				for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;)
+				for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;)
 					if(p_lt->data.Flags & TSESLF_OUTREST)
 						goods_list.Add(p_lt->data.GoodsID, p_lt->data.OprNo, 0);
 			}
@@ -4732,7 +4732,7 @@ int PPObjTSession::GetSerialListByGoodsID(PPID goodsID, PPID locID, SVector * pL
 			where(p_ln->GoodsID == labs(goodsID) && p_ln->Sign > 0L);
 		MEMSZERO(k2);
 		k2.GoodsID = labs(goodsID);
-		for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;)
+		for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;)
 			if(*strip(p_ln->data.Serial) != 0) {
 				TSessionTbl::Rec ses_rec;
 				if(!(p_ln->data.Flags & TSESLF_RECOMPL) && Search(p_ln->data.TSessID, &ses_rec) > 0) {

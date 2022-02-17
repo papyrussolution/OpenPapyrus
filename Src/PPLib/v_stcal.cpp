@@ -421,7 +421,7 @@ int PPViewStaffCal::InitIteration(int ord)
 		P_IterQuery->selectAll();
 		k_ = k;
 		Counter.Init(P_IterQuery->countIterations(0, &k_, spFirst));
-		P_IterQuery->initIteration(0, &k, spFirst);
+		P_IterQuery->initIteration(false, &k, spFirst);
 		ok = 1;
 	}
 	return ok;

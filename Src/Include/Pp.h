@@ -46244,7 +46244,7 @@ class StyloQFace {
 public:
 	enum { // @persistent
 		tagUnkn    =  0, //
-		tagVerifiable      =  1, // verifiable : bool ("true" || "false")
+		tagVerifiable_Depricated =  1, // verifiable : bool ("true" || "false")
 		tagCommonName      =  2, // cn : string with optional language shifted on 16 bits left
 		tagName            =  3, // name : string with optional language shifted on 16 bits left
 		tagSurName         =  4, // surname : string with optional language shifted on 16 bits left
@@ -46275,12 +46275,20 @@ public:
 		tagExpiryPeriodSec = 24, // @v11.2.3 Период истечения срока действия в секундах
 		tagExpiryEpochSec  = 25, // @v11.2.3 Время истечения срока действия (секунды с 1/1/1970)
 		tagEMail           = 26, // @v11.3.0 
+		tagVerifiability   = 27, // @v11.3.2 arbitrary || anonymous || verifiable
 	};
+	/*enum {
+		// @#(fVerifiable^fAnonym)
+		fVerifiable = 0x0001,
+		fAnonym     = 0x0002  // @v11.3.2 
+	};*/
 	enum {
-		fVerifiable = 0x0001
+		vArbitrary  = 0,
+		vAnonymous  = 1,
+		vVerifiable = 2
 	};
 	int32  Id;
-	int32  Flags;
+	//int32  Flags;
 
 	static bool IsTagLangDependent(int tag)
 	{
@@ -46296,15 +46304,17 @@ public:
 	//
 	int   GetRepresentation(int lang, SString & rBuf) const;
 	int   Set(int tag, int lang, const char * pText);
+	int   SetVerifiability(int v);
 	int   SetDob(LDATE dt);
-	int   SetVerifiable(bool v);
+	//int   SetVerifiable(bool v);
 	int   SetImage(const SImageBuffer * pImg);
 	int   Get(int tag, int lang, SString & rResult) const;
 	int   GetExactly(int tag, int lang, SString & rResult) const;
 	LDATE GetDob() const;
 	int   SetGeoLoc(const SGeoPosLL & rPos);
 	int   GetGeoLoc(SGeoPosLL & rPos) const;
-	bool  IsVerifiable() const;
+	//bool  IsVerifiable() const;
+	int   GetVerifiability() const;
 	int   GetImage(SImageBuffer * pImg) const;
 	int   FromJson(const char * pJsonText);
 	int   FromJsonObject(const SJson * pJsObj);
@@ -46474,22 +46484,23 @@ public:
 	// для ускорения начального этапа разработки и они несколько выпадают из общего концептуального замысла.
 	//
 	enum { // @persistent
-		sqbcEmpty       =  0,
-		sqbcRegister    =  1,
-		sqbcLogin       =  2,
-		sqbcPersonEvent =  3,
-		sqbcReport      =  4,
-		sqbcSearch      =  5, // Поисковый запрос
-		sqbcObjTransmit = 21, // @special Передача данных между разделами papyrus. Кроме этой, мы резервируем
+		sqbcEmpty                =  0,
+		sqbcRegister             =  1,
+		sqbcLogin                =  2,
+		sqbcPersonEvent          =  3,
+		sqbcReport               =  4,
+		sqbcSearch               =  5, // Поисковый запрос
+		sqbcObjTransmit          = 21, // @special Передача данных между разделами papyrus. Кроме этой, мы резервируем
 			// еще 9 (до 30 включительно) номеров для этой технологии, поскольку там достаточно разнообразных вариантов.
 		// last obj transmit command = 30
-		sqbcPosProtocolHost  = 31, // @special Данные в формате papyrus-pos-protocol со стороны хоста
-		sqbcPosProtocolFront = 32, // @special Данные в формате papyrus-pos-protocol со стороны кассового узла
+		sqbcPosProtocolHost      = 31, // @special Данные в формате papyrus-pos-protocol со стороны хоста
+		sqbcPosProtocolFront     = 32, // @special Данные в формате papyrus-pos-protocol со стороны кассового узла
 			// Резервируем еще 8 (до 40 включительно) номеров для этого протокола.
 		// last pos protocol command = 40
-		sqbcRsrvOrderPrereq  = 101, // Модуль данных, передаваемых сервисом клиенту чтобы тот мог сформировать 
+		sqbcRsrvOrderPrereq      = 101, // Модуль данных, передаваемых сервисом клиенту чтобы тот мог сформировать 
 			// заказ. Дополнительные параметры определяют особенности модуля: заказ от конечного клиента, 
 			// агентский заказ, заказ на месте и т.д.
+		sqbcRsrvAttendancePrereq = 102 // Модуль данных, передаваемых сервисом клиенту для формирования записи на обслуживаение.
 	};
 	//
 	// Descr: Идентификаторы типов документов обмена
@@ -46814,13 +46825,17 @@ public:
 	SlSRP::Verifier * CreateSrpPacket_Svc_Auth(const SBinaryChunk & rMyPub, const SBinaryChunk & rCliIdent, const SBinaryChunk & rSrpS,
 		const SBinaryChunk & rSrpV, const SBinaryChunk & rA, StyloQProtocol & rP);
 	static void  SetupMqbReplyProps(const RoundTripBlock & rB, PPMqbClient::MessageProperties & rProps);
+	//
+	void   Debug_Command(const StyloQCommandList::Item * pCmd); // @debug
 private:
 	int    ExtractSessionFromPacket(const StyloQCore::StoragePacket & rPack, SSecretTagPool & rSessCtx);
 	int    ProcessCommand_PersonEvent(StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos);
 	int    ProcessCommand_Report(StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack,
 		const SGeoPosLL & rGeoPos, SString & rResult, SString & rDocDeclaration);
-	int    ProcessCommand_RsrvOrderPrereq(StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, 
+	int    ProcessCommand_RsrvOrderPrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, 
 		const SGeoPosLL & rGeoPos, SString & rResult, SString & rDocDeclaration);
+	int    ProcessCommand_RsrvAttendancePrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos,
+		SString & rResult, SString & rDocDeclaration);
 	//
 	// Descr: Обрабатывает команду создания документа по инициативе клиента.
 	// Returns:

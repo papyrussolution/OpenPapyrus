@@ -5,7 +5,7 @@
 // Copyright (C) 2009 Lemur Consulting Ltd
 // Copyright (C) 2013,2014 Aarsh Shah
 // Copyright (C) 2016,2017 Vivek Pal
-// @licence GNU GPL
+// @license GNU GPL
 //
 #ifndef XAPIAN_INCLUDED_WEIGHT_H
 #define XAPIAN_INCLUDED_WEIGHT_H

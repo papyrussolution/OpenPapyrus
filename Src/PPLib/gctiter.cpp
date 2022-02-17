@@ -583,7 +583,7 @@ int GCTIterator::InitQuery(int cpMode)
 			k.dt    = ZERODATE;
 			k.oprno = 0;
 			ok = -1;
-			for(rcpt_q->initIteration(0, &k, spGt); rcpt_q->nextIteration() > 0;) {
+			for(rcpt_q->initIteration(false, &k, spGt); rcpt_q->nextIteration() > 0;) {
 				ok = 1;
 				if(!(State & stUseGoodsList) || soft_restr || GoodsArray.bsearch(rt->data.GoodsID)) {
 					ByWhat_ = bwLot;
@@ -617,7 +617,7 @@ int GCTIterator::InitQuery(int cpMode)
 						q.select(p_bt->ID, p_bt->Code, p_bt->Dt, p_bt->DueDate, p_bt->OpID, p_bt->Object,
 							p_bt->Flags, p_bt->LocID, 0L).where(p_bt->OpID == op_id && daterange(p_bt->Dt, &Period) &&
 							daterange(p_bt->DueDate, &Filt.DueDatePeriod)); // @v10.0.04 DueDate
-						for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+						for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 							if(CheckBillForFilt(p_bt->data)) {
 								BillList.add(p_bt->data.ID);
 							}
@@ -635,7 +635,7 @@ int GCTIterator::InitQuery(int cpMode)
 					BExtQuery q(p_bt, 3, 256);
 					q.select(p_bt->ID, p_bt->Code, p_bt->Dt, p_bt->DueDate, p_bt->OpID, p_bt->Object, p_bt->Flags, p_bt->LocID, 0L).
 						where(p_bt->Object == ar_id && daterange(p_bt->Dt, &Period) && daterange(p_bt->DueDate, &Filt.DueDatePeriod)); // @v10.0.04 DueDate
-					for(q.initIteration(0, &k3, spGe); q.nextIteration() > 0;) {
+					for(q.initIteration(false, &k3, spGe); q.nextIteration() > 0;) {
 						if(CheckBillForFilt(p_bt->data)) {
 							BillList.add(p_bt->data.ID);
 						}
@@ -1025,7 +1025,7 @@ int GCTIterator::TrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec,
 	}
 	delete trfr_q;
 	trfr_q  = q;
-	trfr_q->initIteration(0, &k, spGt);
+	trfr_q->initIteration(false, &k, spGt);
 	ok = NextTrfr(pTrfrRec, pBillRec, pExt);
 	CATCHZOK
 	return ok;
@@ -1124,7 +1124,7 @@ int GCTIterator::CpTrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRe
 			p_cpt->Qtty, p_cpt->Rest, p_cpt->Cost, p_cpt->Price, p_cpt->Discount, 0L).where(*dbq);
 		delete cptrfr_q;
 		cptrfr_q  = q;
-		cptrfr_q->initIteration(0, &cpk, spGt);
+		cptrfr_q->initIteration(false, &cpk, spGt);
 		ok = NextCpTrfr(pTrfrRec, pBillRec, pExt);
 	}
 	CATCHZOK

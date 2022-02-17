@@ -254,38 +254,31 @@ void GlassTableCheck::block_check(Glass::Cursor * C_, int j, int opts,
 	}
 }
 
-GlassTableCheck * GlassTableCheck::check(const char * tablename, const string & path, int fd,
-    off_t offset_,
-    const GlassVersion & version_file, int opts,
-    ostream * out)
+GlassTableCheck * GlassTableCheck::check(const char * tablename, const string & path, int fd, off_t offset_,
+    const GlassVersion & version_file, int opts, ostream * out)
 {
 	string filename(path);
 	filename += '/';
 	filename += tablename;
 	filename += '.';
-
-	unique_ptr<GlassTableCheck> B(
-		fd < 0 ?
-		new GlassTableCheck(tablename, filename, false, out) :
-		new GlassTableCheck(tablename, fd, offset_, false, out));
-
+	unique_ptr<GlassTableCheck> B(fd < 0 ? new GlassTableCheck(tablename, filename, false, out) : new GlassTableCheck(tablename, fd, offset_, false, out));
 	Glass::table_type tab_type;
-	if(strcmp(tablename, "postlist") == 0) {
+	if(sstreq(tablename, "postlist")) {
 		tab_type = Glass::POSTLIST;
 	}
-	else if(strcmp(tablename, "docdata") == 0) {
+	else if(sstreq(tablename, "docdata")) {
 		tab_type = Glass::DOCDATA;
 	}
-	else if(strcmp(tablename, "termlist") == 0) {
+	else if(sstreq(tablename, "termlist")) {
 		tab_type = Glass::TERMLIST;
 	}
-	else if(strcmp(tablename, "position") == 0) {
+	else if(sstreq(tablename, "position")) {
 		tab_type = Glass::POSITION;
 	}
-	else if(strcmp(tablename, "spelling") == 0) {
+	else if(sstreq(tablename, "spelling")) {
 		tab_type = Glass::SPELLING;
 	}
-	else if(strcmp(tablename, "synonym") == 0) {
+	else if(sstreq(tablename, "synonym")) {
 		tab_type = Glass::SYNONYM;
 	}
 	else {
@@ -293,10 +286,8 @@ GlassTableCheck * GlassTableCheck::check(const char * tablename, const string & 
 		e += tablename;
 		throw Xapian::DatabaseError(e);
 	}
-
 	B->open(0, version_file.get_root(tab_type), version_file.get_revision());
 	Glass::Cursor * C = B->C;
-
 	if(opts & Xapian::DBCHECK_SHOW_STATS) {
 		*out << "blocksize=" << B->block_size / 1024 << "K"
 			" items=" << B->item_count
@@ -364,10 +355,7 @@ void GlassTableCheck::report_cursor(int N, const Glass::Cursor * C_) const
 {
 	*out << N << ")\n";
 	for(int i = 0; i <= level; ++i)
-		*out << "p=" << C_[i].get_p() << ", "
-			"c=" << C_[i].c << ", "
-			"n=[" << C_[i].get_n() << "], "
-			"rewrite=" << C_[i].rewrite << endl;
+		*out << "p=" << C_[i].get_p() << ", c=" << C_[i].c << ", n=[" << C_[i].get_n() << "], rewrite=" << C_[i].rewrite << endl;
 }
 
 #ifdef DISABLE_GPL_LIBXAPIAN

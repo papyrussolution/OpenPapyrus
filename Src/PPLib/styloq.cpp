@@ -363,7 +363,7 @@ int StyloQConfig::ToJson(SString & rResult) const
 //
 //
 //
-StyloQFace::StyloQFace() : Id(0), Flags(0)
+StyloQFace::StyloQFace() : Id(0)/*, Flags(0)*/
 {
 }
 
@@ -373,20 +373,20 @@ StyloQFace::~StyloQFace()
 
 bool FASTCALL StyloQFace::IsEq(const StyloQFace & rS) const
 {
-	return (Id == rS.Id && Flags == rS.Flags && L.IsEq(rS.L));
+	return (Id == rS.Id && /*Flags == rS.Flags &&*/L.IsEq(rS.L));
 }
 
 StyloQFace & StyloQFace::Z()
 {
 	Id = 0;
-	Flags = 0;
+	//Flags = 0;
 	L.Z();
 	return *this;
 }
 
 static const SIntToSymbTabEntry StyloQFaceTagNameList[] = {
 	{ StyloQFace::tagModifTime,       "modtime" },
-	{ StyloQFace::tagVerifiable,      "verifialbe" },
+	{ StyloQFace::tagVerifiable_Depricated, "verifialbe" },
 	{ StyloQFace::tagCommonName,      "cn" },
 	{ StyloQFace::tagName,            "name" },
 	{ StyloQFace::tagSurName,         "surname" },
@@ -410,6 +410,8 @@ static const SIntToSymbTabEntry StyloQFaceTagNameList[] = {
 	{ StyloQFace::tagRuSnils,         "rusnils" },
 	{ StyloQFace::tagExpiryPeriodSec, "expiryperiodsec" },
 	{ StyloQFace::tagExpiryEpochSec,  "expiryepochsec" },
+	{ StyloQFace::tagEMail,           "email" }, // @v11.3.2
+	{ StyloQFace::tagVerifiability,   "verifiability" }, // @v11.3.2
 };
 
 int StyloQFace::FromJsonObject(const SJson * pJsObj)
@@ -430,7 +432,7 @@ int StyloQFace::FromJsonObject(const SJson * pJsObj)
 					int lang_id = 0;
 					if(IsTagLangDependent(tag_id) && lang_symb.NotEmptyS()) {
 						lang_id = RecognizeLinguaSymb(lang_symb, 1);
-						SETIFZ(lang_id, -1);
+						SETIFZQ(lang_id, -1);
 					}
 					if(tag_id > 0 && lang_id >= 0) {
 						if(Set(tag_id, lang_id, p_cur->P_Child->Text) > 0)
@@ -545,7 +547,7 @@ int StyloQFace::Set(int tag, int lang, const char * pText)
 	return ok;
 }
 
-int   StyloQFace::SetDob(LDATE dt)
+int StyloQFace::SetDob(LDATE dt)
 {
 	int    ok = 1;
 	if(!dt) 
@@ -560,11 +562,41 @@ int   StyloQFace::SetDob(LDATE dt)
 	return ok;
 }
 
-int   StyloQFace::SetVerifiable(bool v)
+int StyloQFace::SetVerifiability(int v)
+{
+	int    ok = 1;
+	const char * p_tag_val = 0;
+	switch(v) {
+		case vArbitrary:
+			//Flags &= ~(fVerifiable|fAnonym);
+			p_tag_val = "arbitrary";
+			break;
+		case vVerifiable:
+			//Flags |= fVerifiable;
+			//Flags &= ~fAnonym;
+			p_tag_val = "verifiable";
+			break;
+		case vAnonymous:
+			//Flags |= fAnonym;
+			//Flags &= ~fVerifiable;
+			p_tag_val = "anonymous";
+			break;
+		default:
+			assert(0);
+			ok = 0;
+			break;
+	}
+	if(p_tag_val) {
+		assert(ok);
+		ok = Set(tagVerifiability, 0, p_tag_val);
+	}
+	return ok;
+}
+/*int   StyloQFace::SetVerifiable(bool v)
 {
 	SString & r_temp_buf = SLS.AcquireRvlStr();
 	return Set(tagVerifiable, 0, v ? "true" : "false");
-}
+}*/
 
 int StyloQFace::GetExactly(int tag, int lang, SString & rResult) const
 {
@@ -600,7 +632,7 @@ int StyloQFace::Get(int tag, int lang, SString & rResult) const
 			if(L.Search(eff_tag, &pos)) {
 				rResult = L.at_WithoutParent(pos).Txt;
 				ok = (eff_tag >> 16);
-				SETIFZ(ok, slangMeta);
+				SETIFZQ(ok, slangMeta);
 			}
 		}
 		if(!ok) {
@@ -613,12 +645,12 @@ int StyloQFace::Get(int tag, int lang, SString & rResult) const
 				const long eff_tag = eff_tag_order.get(j);
 				if((eff_tag & 0xffff) == tag) {
 					uint pos = 0;
-					int sr = L.Search(eff_tag, &pos);
+					const int sr = L.Search(eff_tag, &pos);
 					assert(sr); // не может быть, что мы не нашли элемент - что-то мы сделали не так и надо проверять код!
 					if(sr) {
 						rResult = L.at_WithoutParent(pos).Txt;
 						ok = (eff_tag >> 16);
-						SETIFZ(ok, slangMeta);					
+						SETIFZQ(ok, slangMeta);					
 					}
 					break;
 				}
@@ -676,7 +708,30 @@ int StyloQFace::GetGeoLoc(SGeoPosLL & rPos) const
 	return ok;
 }
 
-bool  StyloQFace::IsVerifiable() const
+int StyloQFace::GetVerifiability() const
+{
+	int    result = 0;
+	SString & r_temp_buf = SLS.AcquireRvlStr();
+	if(Get(tagVerifiability, 0, r_temp_buf)) {
+		if(r_temp_buf.IsEqiAscii("arbitrary"))
+			result = vArbitrary;
+		else if(r_temp_buf.IsEqiAscii("verifiable"))
+			result = vVerifiable;
+		else if(r_temp_buf.IsEqiAscii("anonymous"))
+			result = vAnonymous;
+	}
+	return result;
+	/*
+	const int32 v = CHKXORFLAGS(flags, fVerifiable, fAnonym);
+	switch(v) {
+		case 0: return vArbitrary;
+		case fVerifiable: return vVerifiable;
+		case fAnonym: return vAnonymous;
+		default: assert(0); return 0;
+	}*/
+}
+
+/*bool  StyloQFace::IsVerifiable() const
 {
 	bool result = false;
 	SString & r_temp_buf = SLS.AcquireRvlStr();
@@ -685,7 +740,7 @@ bool  StyloQFace::IsVerifiable() const
 			result = true;
 	}
 	return result;
-}
+}*/
 
 int StyloQFace::SetImage(const SImageBuffer * pImg)
 {
@@ -745,6 +800,7 @@ int StyloQFace::GetRepresentation(int lang, SString & rBuf) const
 		case sqbcPersonEvent: p_sign = "styloqbasecmd_personevent"; break;
 		case sqbcReport: p_sign = "styloqbasecmd_report"; break;
 		case sqbcRsrvOrderPrereq: p_sign = "styloqbasecmd_rsrvorderprereq"; break; // @v11.2.6
+		case sqbcRsrvAttendancePrereq: p_sign = "styloqbasecmd_rsrvattendanceprereq"; break; // @v11.3.2
 	}
 	if(p_sign)
 		PPLoadString(p_sign, rBuf);
@@ -766,9 +822,8 @@ StyloQCommandList::~StyloQCommandList()
 StyloQCommandList::Item * StyloQCommandList::CreateNewItem(uint * pIdx)
 {
 	Item * p_new_item = L.CreateNewItem(pIdx);
-	if(p_new_item) {
+	if(p_new_item)
 		p_new_item->Uuid.Generate();
-	}
 	return p_new_item;
 }
 
@@ -1347,7 +1402,7 @@ int StyloQCore::GetMediatorIdList(LongArray & rIdList)
 	k1.Kind = kForeignService;
 	BExtQuery q(this, 1);
 	q.select(this->ID, this->Flags, this->BI, 0).where(this->Kind == static_cast<long>(kForeignService));
-	for(q.initIteration(0, &k1, spFirst); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k1, spFirst); q.nextIteration() > 0;) {
 		if(data.Flags & styloqfMediator) {
 			rIdList.add(data.ID);
 			ok = 1;
@@ -2068,6 +2123,14 @@ static int EditStyloQFace(StyloQFace & rData)
 		{
 			SString temp_buf;
 			long lang = getCtrlLong(CTLSEL_STQFACE_LANG);
+			// @v11.3.2 {
+			{
+				AddClusterAssocDef(CTL_STQFACE_VRF, 0, StyloQFace::vArbitrary);
+				AddClusterAssoc(CTL_STQFACE_VRF, 1, StyloQFace::vAnonymous);
+				AddClusterAssoc(CTL_STQFACE_VRF, 2, StyloQFace::vVerifiable);
+				SetClusterData(CTL_STQFACE_VRF, Data.GetVerifiability());
+			}
+			// } @v11.3.2
 			Data.Get(StyloQFace::tagCommonName, lang, temp_buf);
 			setCtrlString(CTL_STQFACE_CN, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 			Data.Get(StyloQFace::tagName, lang, temp_buf);
@@ -2109,6 +2172,7 @@ static int EditStyloQFace(StyloQFace & rData)
 			int    ok = 1;
 			SString temp_buf;
 			long lang = getCtrlLong(CTLSEL_STQFACE_LANG);
+			Data.SetVerifiability(GetClusterData(CTL_STQFACE_VRF)); // @v11.3.2
 			getCtrlString(CTL_STQFACE_CN, temp_buf.Z());
 			Data.Set(StyloQFace::tagCommonName, lang, temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 			getCtrlString(CTL_STQFACE_NAME, temp_buf.Z());
@@ -5186,7 +5250,195 @@ static int MakeRsrvPriceListResponse_ExportGoods(const PPStyloPalmPacket * pPack
 	return ok;
 }
 
-int PPStyloQInterchange::ProcessCommand_RsrvOrderPrereq(StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos, 
+int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos,
+	SString & rResult, SString & rDocDeclaration)
+{
+	int    ok = 1;
+	{
+		/*
+			quotkind_list
+			warehouse_list
+			goodsgroup_list
+				goodsgroup
+			goods_list
+				ware
+			processor_list
+				processor
+		*/
+		SString temp_buf;
+		PPObjTSession tses_obj;
+		PPObjUnit unit_obj;
+		{
+			SJson js(SJson::tOBJECT);
+			{
+				PPIDArray goods_id_list; // @reusable
+				PPIDArray prc_id_list;
+				LAssocArray goods_to_prc_list;
+				//ProcessorCore * p_pc = tses_obj.PrcObj.P_Tbl;
+				{
+					ProcessorTbl::Rec prc_rec;
+					for(SEnum en = tses_obj.PrcObj.P_Tbl->Enum(PPPRCK_PROCESSOR, 0); en.Next(&prc_rec) > 0;) {
+						prc_id_list.add(prc_rec.ID);
+					}
+				}
+				if(prc_id_list.getCount()) {
+					prc_id_list.sortAndUndup();
+					SJson * p_js_prc_list = new SJson(SJson::tARRAY);
+					for(uint prcidx = 0; prcidx < prc_id_list.getCount(); prcidx++) {
+						const PPID prc_id = prc_id_list.get(prcidx);
+						PPProcessorPacket prc_pack;
+						if(tses_obj.PrcObj.GetPacket(prc_id, &prc_pack) > 0) {
+							goods_id_list.Z();
+							tses_obj.TecObj.GetGoodsListByPrc(prc_id, &goods_id_list);
+							if(goods_id_list.getCount()) {
+								goods_id_list.sortAndUndup();
+
+								SJson * p_js_prc = new SJson(SJson::tOBJECT);
+								p_js_prc->InsertInt("id", prc_pack.Rec.ID);
+								p_js_prc->InsertString("nm", (temp_buf = prc_pack.Rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+								// @todo Внести подробную информацию о связанном объекте
+								{
+									SJson * p_js_prcgoodslist = new SJson(SJson::tARRAY);
+									for(uint gidx = 0; gidx < goods_id_list.getCount(); gidx++) {
+										const PPID goods_id = goods_id_list.get(gidx);
+										SJson * p_js_goods_item = new SJson(SJson::tOBJECT);
+										p_js_goods_item->InsertInt("id", goods_id);
+										p_js_prcgoodslist->InsertChild(p_js_goods_item);
+										goods_to_prc_list.Add(goods_id, prc_id);
+									}
+									p_js_prc->Insert("goods_list", p_js_prcgoodslist);
+								}
+								p_js_prc_list->InsertChild(p_js_prc);
+							}
+						}
+					}
+					js.Insert("processor_list", p_js_prc_list);
+					{
+						PPIDArray goodsgrp_id_list;
+						PPIDArray uom_id_list;
+						Goods2Tbl::Rec goodsgroup_rec;
+						PPUnit u_rec;
+						goods_to_prc_list.SortByKeyVal();
+						goods_to_prc_list.GetKeyList(goods_id_list);
+						{
+							Goods2Tbl::Rec goods_rec;
+							for(uint gidx = 0; gidx < goods_id_list.getCount(); gidx++) {
+								const PPID goods_id = goods_id_list.get(gidx);
+								if(tses_obj.GObj.Search(goods_id, &goods_rec) > 0) {
+									if(goods_rec.ParentID > 0 && tses_obj.GObj.Fetch(goods_rec.ParentID, &goodsgroup_rec) > 0 && goodsgroup_rec.Kind == PPGDSK_GROUP) {
+										goodsgrp_id_list.add(goods_rec.ParentID);
+									}
+									if(goods_rec.UnitID > 0 && unit_obj.Fetch(goods_rec.UnitID, &u_rec) > 0) {
+										uom_id_list.add(goods_rec.UnitID);
+									}
+								}
+							}
+							goodsgrp_id_list.sortAndUndup();
+							uom_id_list.sortAndUndup();
+						}
+						if(goodsgrp_id_list.getCount()) {
+							SJson * p_js_goodsgrplist = new SJson(SJson::tARRAY);
+							for(uint ggidx = 0; ggidx < goodsgrp_id_list.getCount(); ggidx++) {
+								int r = tses_obj.GObj.Fetch(goodsgrp_id_list.get(ggidx), &goodsgroup_rec);
+								assert(r > 0);
+								SJson * p_js_goodsgrp = new SJson(SJson::tOBJECT);
+								p_js_goodsgrp->InsertInt("id", goodsgroup_rec.ID);
+								p_js_goodsgrp->InsertString("nm", (temp_buf = goodsgroup_rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+								p_js_goodsgrplist->InsertChild(p_js_goodsgrp);
+							}
+							js.Insert("goodsgroup_list", p_js_goodsgrplist);
+						}
+						if(uom_id_list.getCount()) {
+							SJson * p_js_uomlist = new SJson(SJson::tARRAY);
+							for(uint uidx = 0; uidx < uom_id_list.getCount(); uidx++) {
+								int r = unit_obj.Fetch(uom_id_list.get(uidx), &u_rec);
+								assert(r > 0);
+								SJson * p_js_uom = new SJson(SJson::tOBJECT);
+								p_js_uom->InsertInt("id", u_rec.ID);
+								if(u_rec.Fragmentation > 0) {
+									p_js_uom->InsertInt("fragmentation", u_rec.Fragmentation);
+								}
+								else if(u_rec.Rounding_ > 0.0) {
+									p_js_uom->InsertDouble("rounding", u_rec.Rounding_, MKSFMTD(0, 6, NMBF_NOTRAILZ));
+								}
+								else if(u_rec.Flags & PPUnit2::IntVal) {
+									p_js_uom->InsertBool("int", true);
+								}
+								p_js_uom->InsertString("nm", (temp_buf = u_rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+								p_js_uomlist->InsertChild(p_js_uom);
+							}
+							js.Insert("uom_list", p_js_uomlist);
+						}
+						{
+							SJson * p_js_goodslist = new SJson(SJson::tARRAY);
+							PPGoodsPacket goods_pack;
+							for(uint gidx = 0; gidx < goods_id_list.getCount(); gidx++) {
+								const PPID goods_id = goods_id_list.get(gidx);
+								if(tses_obj.GObj.GetPacket(goods_id, &goods_pack, 0) > 0) {
+									SJson * p_js_ware = new SJson(SJson::tOBJECT);
+									p_js_ware->InsertInt("id", goods_pack.Rec.ID);
+									p_js_ware->InsertString("nm", (temp_buf = goods_pack.Rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+									if(goodsgrp_id_list.bsearch(goods_pack.Rec.ParentID))
+										p_js_ware->InsertInt("parid", goods_pack.Rec.ParentID);
+									if(goods_pack.Rec.UnitID && uom_id_list.bsearch(goods_pack.Rec.UnitID))
+										p_js_ware->InsertInt("uomid", goods_pack.Rec.UnitID);
+									if(goods_pack.Codes.getCount()) {
+										SJson * p_js_bcarray = 0;
+										for(uint bcidx = 0; bcidx < goods_pack.Codes.getCount(); bcidx++) {
+											const BarcodeTbl::Rec & r_bc_rec = goods_pack.Codes.at(bcidx);
+											int   diag = 0;
+											int   std = 0;
+											if(PPObjGoods::DiagBarcode(r_bc_rec.Code, &diag, &std, &temp_buf) > 0) {
+												SJson * p_bc_item = new SJson(SJson::tOBJECT);
+												p_bc_item->InsertString("cod", temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Escape());
+												if(r_bc_rec.Qtty > 0.0) {
+													p_bc_item->InsertDouble("qty", r_bc_rec.Qtty, MKSFMTD(0, 3, NMBF_NOTRAILZ));
+												}
+												SETIFZ(p_js_bcarray, new SJson(SJson::tARRAY));
+												p_js_bcarray->InsertChild(p_bc_item);
+											}
+										}
+										if(p_js_bcarray)
+											p_js_ware->Insert("code_list", p_js_bcarray);
+									}
+									{
+									
+									}
+									p_js_goodslist->InsertChild(p_js_ware);
+								}
+							}
+							js.Insert("goods_list", p_js_goodslist);
+						}
+					}
+				}
+
+			}
+			THROW(js.ToStr(rResult));
+			// @debug {
+			{
+				SString out_file_name;
+				PPGetFilePath(PPPATH_OUT, "stq-rsrvattendanceprereq.json", out_file_name);
+				SFile f_out(out_file_name, SFile::mWrite);
+				f_out.WriteLine(rResult);
+			}
+			// } @debug
+			{
+				SJson js_decl(SJson::tOBJECT);
+				js_decl.InsertString("type", "attendanceprereq");
+				js_decl.InsertString("format", "json");
+				js_decl.InsertString("time", temp_buf.Z().CatCurDateTime(DATF_ISO8601|DATF_CENTURY, 0));
+				if(rCmdItem.ResultExpiryTimeSec > 0)
+					js_decl.InsertInt("resultexpirytimesec", rCmdItem.ResultExpiryTimeSec);
+				js_decl.InsertString("displaymethod", "attendanceprereq");
+				THROW_SL(js_decl.ToStr(rDocDeclaration));
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPStyloQInterchange::ProcessCommand_RsrvOrderPrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos, 
 	SString & rResult, SString & rDocDeclaration)
 {
 	int    ok = 1;
@@ -5219,7 +5471,7 @@ int PPStyloQInterchange::ProcessCommand_RsrvOrderPrereq(StyloQCommandList::Item 
 			// @debug {
 			{
 				SString out_file_name;
-				PPGetFilePath(PPPATH_OUT, "test-stq-json.json", out_file_name);
+				PPGetFilePath(PPPATH_OUT, "stq-rsrvorderprereq.json", out_file_name);
 				SFile f_out(out_file_name, SFile::mWrite);
 				f_out.WriteLine(rResult);
 			}
@@ -5327,6 +5579,23 @@ int PPStyloQInterchange::ProcessCommand_Report(StyloQCommandList::Item & rCmdIte
 	delete p_filt;
 	delete p_view;
 	return ok;
+}
+
+void PPStyloQInterchange::Debug_Command(const StyloQCommandList::Item * pCmd) // @debug
+{
+	if(pCmd) {
+		if(pCmd->BaseCmdId == StyloQCommandList::sqbcRsrvOrderPrereq) {
+		}
+		else if(pCmd->BaseCmdId == StyloQCommandList::sqbcRsrvAttendancePrereq) {
+			SString result;
+			SString decl;
+			StyloQCore::StoragePacket fake_cli_pack;
+			SGeoPosLL fake_geo_pos;
+			ProcessCommand_RsrvAttendancePrereq(*pCmd, fake_cli_pack, fake_geo_pos, result, decl);
+		}
+		else if(pCmd->BaseCmdId == StyloQCommandList::sqbcReport) {
+		}
+	}
 }
 
 int PPStyloQInterchange::FetchPersonFromClientPacket(const StyloQCore::StoragePacket & rCliPack, PPID * pPersonID)
@@ -6000,6 +6269,34 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 									}
 								}
 								break;
+							case StyloQCommandList::sqbcRsrvAttendancePrereq: // v11.3.2
+								{
+									if(intermediateReplyProc) { 
+										StyloQProtocol irp;
+										irp.StartWriting(PPSCMD_SQ_COMMAND, StyloQProtocol::psubtypeIntermediateReply);
+										{
+											SJson ir_js(SJson::tOBJECT);
+											ir_js.InsertInt("waitms", 5*60*1000);
+											ir_js.InsertInt("pollintervalms", 1000);
+											ir_js.ToStr(cmd_buf);
+											cmd_bch.Put(cmd_buf.cptr(), cmd_buf.Len());
+											irp.P.Put(SSecretTagPool::tagRawData, cmd_bch, 0);
+										}
+										irp.FinishWriting(pSessSecret);
+										intermediateReplyProc(irp, pIntermediateReplyExtra);
+									}
+									if(ProcessCommand_RsrvAttendancePrereq(StyloQCommandList::Item(*p_targeted_item), cli_pack, geopos, reply_text_buf, temp_buf.Z())) {
+										reply_doc.Put(reply_text_buf, reply_text_buf.Len());
+										if(temp_buf.Len())
+											reply_doc_declaration.Put(temp_buf, temp_buf.Len());
+										cmd_reply_ok = true;
+									}
+									else {
+										PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO);
+										PPSetError(PPERR_SQ_CMDFAULT_REPORT);
+									}
+								}
+								break;
 							default:
 								PPSetError(PPERR_SQ_UNSUPPORTEDCMD);
 								break;
@@ -6428,7 +6725,7 @@ public:
 					while(do_process_loop) {
 						assert(B.P_Mqbc && B.P_MqbRpe);
 						bool is_there_my_message = false;
-						if(B.P_Mqbc->ConsumeMessage(env, 200) > 0) {
+						if(B.P_Mqbc->ConsumeMessage(env, 1000) > 0) { // @v11.3.2 timeout 200-->1000
 							if(!B.Uuid || S_GUID(env.Msg.Props.CorrelationId) == B.Uuid) {
 								{ // @debug
 									log_buf.Z().Cat("mqb-sess-got-own-msg").Space().Cat(GetThreadID()).Space().Cat(env.Msg.Props.CorrelationId);

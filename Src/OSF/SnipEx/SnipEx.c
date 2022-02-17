@@ -883,7 +883,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 				    MyOutputDebugStringW(L"[%s] Line %d: Text entry mode started.\n", __FUNCTIONW__, __LINE__);
 			    else
 				    MyOutputDebugStringW(L"[%s] Line %d: Drawing started.\n", __FUNCTIONW__, __LINE__);
-			    if(SnExG.gScratchBitmap != NULL)
+			    if(SnExG.gScratchBitmap)
 				    MyOutputDebugStringW(L"[%s] Line %d: gScratchBitmap was not null, but it was expected to be!\n", __FUNCTIONW__, __LINE__);
 			    SnExG.gScratchBitmap = (HBITMAP)CopyImage(SnExG.GetCurrentSnipState(), IMAGE_BITMAP, 0, 0, 0);
 			    SnExG.gCurrentSnipState++;
@@ -1692,20 +1692,18 @@ void DrawButton(_In_ DRAWITEMSTRUCT* DrawItemStruct, _In_ BUTTON Button)
 		TextOutW(DrawItemStruct->hDC, TextX + StringSizeInPixels.cx + 4, TextY, CountdownBuffer, (int)wcslen(CountdownBuffer));
 	}
 	if(Button.Enabled == TRUE) {
-		if(Button.EnabledIcon != NULL) {
+		if(Button.EnabledIcon) {
 			HDC IconDC = CreateCompatibleDC(DrawItemStruct->hDC);
 			SelectObject(IconDC, Button.EnabledIcon);
 			TransparentBlt(DrawItemStruct->hDC, 19, TextY - 32, 32, 32, IconDC, 0, 0, 32, 32, RGB(255, 255, 255));
 			DeleteDC(IconDC);
 		}
 	}
-	else {
-		if(Button.DisabledIcon != NULL) {
-			HDC IconDC = CreateCompatibleDC(DrawItemStruct->hDC);
-			SelectObject(IconDC, Button.DisabledIcon);
-			TransparentBlt(DrawItemStruct->hDC, 19, TextY - 32, 32, 32, IconDC, 0, 0, 32, 32, RGB(255, 255, 255));
-			DeleteDC(IconDC);
-		}
+	else if(Button.DisabledIcon) {
+		HDC IconDC = CreateCompatibleDC(DrawItemStruct->hDC);
+		SelectObject(IconDC, Button.DisabledIcon);
+		TransparentBlt(DrawItemStruct->hDC, 19, TextY - 32, 32, 32, IconDC, 0, 0, 32, 32, RGB(255, 255, 255));
+		DeleteDC(IconDC);
 	}
 }
 
@@ -1856,14 +1854,14 @@ BOOL NewButton_Click(void)
 	ShowWindow(SnExG.gMainWindowHandle, SW_MINIMIZE);
 	SnExG.gAppState = APPSTATE_DURINGCAPTURE;
 	RtlZeroMemory(&SnExG.gCaptureSelectionRectangle, sizeof(RECT));
-	if(SnExG.gCleanScreenShot != NULL) {
+	if(SnExG.gCleanScreenShot) {
 		if(DeleteObject(SnExG.gCleanScreenShot) == 0) {
 			MyOutputDebugStringW(L"[%s] Line %d: Failed to DeleteObject(gCleanScreenShot!)!\n", __FUNCTIONW__, __LINE__);
 			CRASH(0);
 		}
 		SnExG.gCleanScreenShot = NULL;
 	}
-	if(SnExG.gScratchBitmap != NULL) {
+	if(SnExG.gScratchBitmap) {
 		if(DeleteObject(SnExG.gScratchBitmap) == 0) {
 			MyOutputDebugStringW(L"[%s] Line %d: Failed to DeleteObject(gScratchBitmap!)!\n", __FUNCTIONW__, __LINE__);
 			CRASH(0);
@@ -1871,7 +1869,7 @@ BOOL NewButton_Click(void)
 		SnExG.gScratchBitmap = NULL;
 	}
 	for(INT8 SnipState = 0; SnipState < _countof(SnExG.gSnipStates) - 1; SnipState++) {
-		if(SnExG.gSnipStates[SnipState] != NULL) {
+		if(SnExG.gSnipStates[SnipState]) {
 			if(DeleteObject(SnExG.gSnipStates[SnipState]) == 0) {
 				MyOutputDebugStringW(L"[%s] Line %d: Failed to DeleteObject(gSnipStates[%d]!)!\n", __FUNCTIONW__, __LINE__, SnipState);
 				CRASH(0);
@@ -2227,7 +2225,7 @@ BOOL SavePngToFile(_In_ wchar_t * FilePath)
 	}
 	Result = TRUE;
 Cleanup:
-	if(GdipBitmap != NULL)
+	if(GdipBitmap)
 		GdipDisposeImage(GdipBitmap);
 	if(GdiplusToken != 0)
 		GdiplusShutdown(GdiplusToken);
@@ -2330,6 +2328,52 @@ BOOL AdjustForCustomScaling(void)
 	if(DPIx == 96) {
 		return TRUE;
 	}
+	// @v11.3.2 {
+	{
+		struct DpiToWinSizeAdj {
+			uint16 DpiUp;
+			uint16 WhAdj;
+			uint16 WwAdj;
+		};
+		static const DpiToWinSizeAdj dpi_to_win_size_adj[] = {
+			{ 106,  2, 2 },
+			{ 110,  5, 3 },
+			{ 115,  6, 3 },
+			{ 120,  8, 3 },
+			{ 125, 10, 3 },
+			{ 130, 10, 3 },
+			{ 134, 15, 5 },
+			{ 139, 15, 5 },
+			{ 144, 17, 7 },
+			{ 149, 18, 7 },
+			{ 154, 19, 7 },
+			{ 158, 22, 9 },
+			{ 163, 23, 9 },
+			{ 168, 25, 9 },
+			{ 173, 26, 9 },
+			{ 178, 27, 9 },
+			{ 182, 30, 10 },
+			{ 187, 31, 10 },
+			{ 192, 32, 10 },
+		};
+		bool _f = false;
+		for(uint ti = 0; !_f && ti < SIZEOFARRAY(dpi_to_win_size_adj); ti++) {
+			const DpiToWinSizeAdj & r_t = dpi_to_win_size_adj[ti];
+			if(DPIx <= r_t.DpiUp && (!ti || DPIx > dpi_to_win_size_adj[ti-1].DpiUp)) {
+				SnExG.gStartingMainWindowHeight += r_t.WhAdj;
+				SnExG.gStartingMainWindowWidth  += r_t.WwAdj;
+				_f = true;
+			}
+		}
+		if(!_f) {
+			MessageBoxW(0, L"Unable to deal with your custom scaling level. I can only handle up to 200% scaling. Contact me at ryanries09@gmail.com if you want me to add support for your scaling level.",
+				L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+			MyOutputDebugStringW(L"[%s] Line %d: ERROR! Unsupported DPI!\n", __FUNCTIONW__, __LINE__);
+		}
+		return _f;
+	}
+	// } @v11.3.2 
+	/* @v11.3.2 
 	if(DPIx > 96 && DPIx <= 106) {
 		SnExG.gStartingMainWindowHeight += 2;
 		SnExG.gStartingMainWindowWidth  += 2;
@@ -2413,6 +2457,7 @@ BOOL AdjustForCustomScaling(void)
 		return FALSE;
 	}
 	return TRUE;
+	*/
 }
 
 LSTATUS DeleteSnipExRegValue(_In_ const wchar_t * ValueName)

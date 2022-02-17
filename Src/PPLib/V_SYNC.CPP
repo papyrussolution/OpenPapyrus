@@ -207,7 +207,7 @@ int PPViewObjSync::Init_(const PPBaseFilt * pFilt)
 				k1.ObjType = (int16)Filt.ObjType;
 				k1_ = k1;
 				cntr.Init(q.countIterations(0, &k1_, spGe));
-				for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+				for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 					int  is_suitable = 1;
 					ObjSyncTbl::Rec  sync_rec;
 					P_Tbl->copyBufTo(&sync_rec);
@@ -250,7 +250,7 @@ int PPViewObjSync::InitIteration()
 	if(Filt.DbDivID)
 		dbq = & (*dbq && p_sync_tbl->DBID == Filt.DbDivID);
 	P_IterQuery->where(*dbq);
-	P_IterQuery->initIteration(0, &k, spGe);
+	P_IterQuery->initIteration(false, &k, spGe);
 	CATCHZOK
 	return ok;
 }
@@ -565,7 +565,7 @@ int PPViewObjSyncCmp::InitIteration()
 		P_IterQuery = new BExtQuery(P_TmpTbl, idx, 16);
 		if(P_IterQuery) {
 			P_IterQuery->selectAll().where(*dbq);
-			P_IterQuery->initIteration(0, &k, spGe);
+			P_IterQuery->initIteration(false, &k, spGe);
 			return 1;
 		}
 		else

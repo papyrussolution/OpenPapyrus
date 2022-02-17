@@ -144,7 +144,7 @@ public:
 	explicit Database(int fd, int flags = 0);
 	/// @private @internal Wrap an existing Internal.
 	XAPIAN_VISIBILITY_INTERNAL
-	explicit Database(Internal* internal) XAPIAN_NONNULL();
+	explicit Database(Internal* internal) XAPIAN_NONNULL(internal);
 	virtual ~Database();
 	/** Copy constructor.
 	 *

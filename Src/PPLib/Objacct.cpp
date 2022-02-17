@@ -475,7 +475,7 @@ StrAssocArray * PPObjAccount::MakeStrAssocList(void * extraPtr /*acySelType*/)
 		q.selectAll().where(P_Ref->ObjType == Obj);
 		k2.ObjType = Obj;
 		k2.Val1 = -MAXLONG;
-		for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 			P_Ref->copyBufTo(&rec);
 			int    _suite = 0;
 			if(!rec.CurID && (PPMaster || ObjRts.CheckAccID(rec.ID, PPR_READ))) {

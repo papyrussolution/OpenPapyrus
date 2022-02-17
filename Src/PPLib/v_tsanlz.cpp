@@ -955,7 +955,7 @@ int PPViewTSessAnlz::InitIteration()
 		P_IterQuery->selectAll();
 		k3_ = k3;
 		Counter.Init(P_IterQuery->countIterations(0, &k3_, spFirst));
-		P_IterQuery->initIteration(0, &k3, spFirst);
+		P_IterQuery->initIteration(false, &k3, spFirst);
 	}
 	CATCHZOK
 	return ok;

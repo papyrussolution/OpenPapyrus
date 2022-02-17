@@ -100,10 +100,10 @@ GreatCircleMetric::GreatCircleMetric(double radius_) : radius(radius_)
 
 double GreatCircleMetric::pointwise_distance(const LatLongCoord& a, const LatLongCoord& b) const
 {
-	double lata = a.latitude * (SMathConst::Pi / 180.0);
-	double latb = b.latitude * (SMathConst::Pi / 180.0);
+	double lata = a.latitude * SMathConst::PiDiv180;
+	double latb = b.latitude * SMathConst::PiDiv180;
 	double latdiff = lata - latb;
-	double longdiff = (a.longitude - b.longitude) * (SMathConst::Pi / 180.0);
+	double longdiff = (a.longitude - b.longitude) * SMathConst::PiDiv180;
 	double sin_half_lat = sin(latdiff / 2);
 	double sin_half_long = sin(longdiff / 2);
 	double h = sin_half_lat * sin_half_lat + sin_half_long * sin_half_long * cos(lata) * cos(latb);

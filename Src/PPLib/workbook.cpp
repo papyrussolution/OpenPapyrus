@@ -64,7 +64,7 @@ int WorkbookCore::InitEnum(int flags, long * pHandle)
 		q->selectAll();
 	WorkbookTbl::Key0 k0;
 	k0.ID = 0;
-	q->initIteration(0, &k0, spGe);
+	q->initIteration(false, &k0, spGe);
 	return EnumList.RegisterIterHandler(q, pHandle);
 }
 
@@ -105,7 +105,7 @@ int WorkbookCore::InitEnumByParam(int fldId, PPID param, int flags, long * pHand
 		else
 			q->selectAll();
 		q->where(*dbq);
-		q->initIteration(0, &k, spGe);
+		q->initIteration(false, &k, spGe);
 		ok = EnumList.RegisterIterHandler(q, pHandle);
 	}
 	return ok;
@@ -400,7 +400,7 @@ int PPObjWorkbook::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 				MEMSZERO(k0);
 				BExtQuery q(p_t, 0);
 				q.select(p_t->ID, p_t->LinkID, 0).where(p_t->LinkID == _id);
-				q.initIteration(0, &k0, spFirst);
+				q.initIteration(false, &k0, spFirst);
 				if(q.nextIteration() > 0) {
 					ok = RetRefsExistsErr(PPOBJ_WORKBOOK, p_t->data.ID);
 				}
@@ -410,7 +410,7 @@ int PPObjWorkbook::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 				MEMSZERO(k0);
 				BExtQuery q(p_t, 0);
 				q.select(p_t->ID, p_t->CssID, 0).where(p_t->CssID == _id);
-				q.initIteration(0, &k0, spFirst);
+				q.initIteration(false, &k0, spFirst);
 				if(q.nextIteration() > 0) {
 					ok = RetRefsExistsErr(PPOBJ_WORKBOOK, p_t->data.ID);
 				}
@@ -510,7 +510,7 @@ int PPObjWorkbook::SelectKeywordReverse(SString & rKeyword)
 		k1.TagID = tag_id;
 		BExtQuery q(&r_t, 1);
 		q.select(r_t.ObjType, r_t.ObjID, r_t.TagID, r_t.StrVal, 0).where(r_t.TagID == tag_id);
-		for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 			ss.setBuf(r_t.data.StrVal, sstrlen(r_t.data.StrVal)+1);
 			for(uint sp = 0; ss.get(&sp, temp_buf);) {
 				if(!hash.Search(temp_buf.Strip().ToLower(), 0, 0)) {

@@ -398,7 +398,7 @@ int PPViewSStat::CreateOrderTable(long ord, TempOrderTbl ** ppTbl, int use_ta)
 		MEMSZERO(k);
 		PPTransaction tra(ppDbDependTransaction, use_ta);
 		THROW(tra);
-		for(q.initIteration(0, &k, spFirst); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k, spFirst); q.nextIteration() > 0;) {
 			const double large_val = 1e12;
 			const char * p_fmt = "%030.8lf";
 			if(p_t->data.GoodsID != prev_goods_id) {
@@ -553,7 +553,7 @@ int PPViewSStat::InitIteration()
 		THROW_MEM(P_IterQuery = new BExtQuery(P_TempOrd, 1, 64));
 		P_IterQuery->selectAll();
 		MEMSZERO(k);
-		P_IterQuery->initIteration(0, &k, spFirst);
+		P_IterQuery->initIteration(false, &k, spFirst);
 		PPInitIterCounter(Counter, P_TempOrd);
 	}
 	else if(P_TempTbl) {
@@ -562,7 +562,7 @@ int PPViewSStat::InitIteration()
 		THROW_MEM(P_IterQuery = new BExtQuery(P_TempTbl, 1, 64));
 		P_IterQuery->selectAll();
 		MEMSZERO(k1);
-		P_IterQuery->initIteration(0, &k1, spFirst);
+		P_IterQuery->initIteration(false, &k1, spFirst);
 		PPInitIterCounter(Counter, P_TempTbl);
 	}
 	else

@@ -1,4 +1,3 @@
-//---------------------------------------------------------------------------------
 //
 //  Little Color Management System
 //  Copyright (c) 1998-2020 Marti Maria Saguer
@@ -12,16 +11,6 @@
 //
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//---------------------------------------------------------------------------------
 //
 #include "lcms2_internal.h"
 #pragma hdrstop
@@ -480,46 +469,34 @@ boolint CMSEXPORT cmsPlugin(void * Plug_in)
 boolint CMSEXPORT cmsPluginTHR(cmsContext id, void * Plug_in)
 {
 	cmsPluginBase* Plugin;
-
-	for(Plugin = (cmsPluginBase*)Plug_in;
-	    Plugin != NULL;
-	    Plugin = Plugin->Next) {
+	for(Plugin = (cmsPluginBase*)Plug_in; Plugin != NULL; Plugin = Plugin->Next) {
 		if(Plugin->Magic != cmsPluginMagicNumber) {
 			cmsSignalError(id, cmsERROR_UNKNOWN_EXTENSION, "Unrecognized plugin");
 			return FALSE;
 		}
-
 		if(Plugin->ExpectedVersion > LCMS_VERSION) {
-			cmsSignalError(id, cmsERROR_UNKNOWN_EXTENSION, "plugin needs Little CMS %d, current version is %d",
-			    Plugin->ExpectedVersion, LCMS_VERSION);
+			cmsSignalError(id, cmsERROR_UNKNOWN_EXTENSION, "plugin needs Little CMS %d, current version is %d", Plugin->ExpectedVersion, LCMS_VERSION);
 			return FALSE;
 		}
-
 		switch(Plugin->Type) {
 			case cmsPluginMemHandlerSig:
 			    if(!_cmsRegisterMemHandlerPlugin(id, Plugin)) return FALSE;
 			    break;
-
 			case cmsPluginInterpolationSig:
 			    if(!_cmsRegisterInterpPlugin(id, Plugin)) return FALSE;
 			    break;
-
 			case cmsPluginTagTypeSig:
 			    if(!_cmsRegisterTagTypePlugin(id, Plugin)) return FALSE;
 			    break;
-
 			case cmsPluginTagSig:
 			    if(!_cmsRegisterTagPlugin(id, Plugin)) return FALSE;
 			    break;
-
 			case cmsPluginFormattersSig:
 			    if(!_cmsRegisterFormattersPlugin(id, Plugin)) return FALSE;
 			    break;
-
 			case cmsPluginRenderingIntentSig:
 			    if(!_cmsRegisterRenderingIntentPlugin(id, Plugin)) return FALSE;
 			    break;
-
 			case cmsPluginParametricCurveSig:
 			    if(!_cmsRegisterParametricCurvesPlugin(id, Plugin)) return FALSE;
 			    break;
@@ -527,25 +504,20 @@ boolint CMSEXPORT cmsPluginTHR(cmsContext id, void * Plug_in)
 			case cmsPluginMultiProcessElementSig:
 			    if(!_cmsRegisterMultiProcessElementPlugin(id, Plugin)) return FALSE;
 			    break;
-
 			case cmsPluginOptimizationSig:
 			    if(!_cmsRegisterOptimizationPlugin(id, Plugin)) return FALSE;
 			    break;
-
 			case cmsPluginTransformSig:
 			    if(!_cmsRegisterTransformPlugin(id, Plugin)) return FALSE;
 			    break;
-
 			case cmsPluginMutexSig:
 			    if(!_cmsRegisterMutexPlugin(id, Plugin)) return FALSE;
 			    break;
-
 			default:
 			    cmsSignalError(id, cmsERROR_UNKNOWN_EXTENSION, "Unrecognized plugin type '%X'", Plugin->Type);
 			    return FALSE;
 		}
 	}
-
 	// Keep a reference to the plug-in
 	return TRUE;
 }
@@ -811,7 +783,7 @@ cmsContext CMSEXPORT cmsDupContext(cmsContext ContextID, void * NewUserData)
 // The ContextID can no longer be used in any THR operation.
 void CMSEXPORT cmsDeleteContext(cmsContext ContextID)
 {
-	if(ContextID != NULL) {
+	if(ContextID) {
 		struct _cmsContext_struct* ctx = (struct _cmsContext_struct*)ContextID;
 		struct _cmsContext_struct fakeContext;
 		struct _cmsContext_struct* prev;
@@ -831,9 +803,7 @@ void CMSEXPORT cmsDeleteContext(cmsContext ContextID)
 		}
 		else {
 			// Search for previous
-			for(prev = _cmsContextPoolHead;
-			    prev != NULL;
-			    prev = prev->Next) {
+			for(prev = _cmsContextPoolHead; prev != NULL; prev = prev->Next) {
 				if(prev->Next == ctx) {
 					prev->Next = ctx->Next;
 					break;

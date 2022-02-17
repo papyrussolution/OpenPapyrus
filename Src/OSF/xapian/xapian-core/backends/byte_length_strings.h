@@ -2,7 +2,7 @@
  * @brief Handle decoding lists of strings with byte lengths
  */
 // Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
-// @licence GNU GPL
+// @license GNU GPL
 //
 #ifndef XAPIAN_INCLUDED_BYTE_LENGTH_STRINGS_H
 #define XAPIAN_INCLUDED_BYTE_LENGTH_STRINGS_H

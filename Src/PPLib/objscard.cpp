@@ -1947,7 +1947,7 @@ int PPObjSCard::Helper_GetListBySubstring(const char * pSubstr, PPID seriesID, v
 						sp = spGe;
 					}
 				}
-				for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+				for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 					if(flags & clsfFromBeg) {
 						r = BIN(strncmp(P_Tbl->data.Code, pSubstr, substr_len) == 0);
 					}
@@ -2024,7 +2024,7 @@ int PPObjSCard::CheckUniq()
 	BExtQuery q(P_Tbl, 1);
 	MEMSZERO(k);
 	q.select(P_Tbl->Code, 0L);
-	for(q.initIteration(0, &k, spGe); ok && q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k, spGe); ok && q.nextIteration() > 0;) {
 		if(prev_code.Len() && prev_code.CmpNC(P_Tbl->data.Code) == 0)
 			ok = 0;
 		prev_code.CopyFrom(P_Tbl->data.Code);
@@ -2047,7 +2047,7 @@ int PPObjSCard::CheckExpiredBillDebt(PPID scardID)
 			PayPlanArray payplan;
 			BExtQuery q(t, 6);
 			q.select(t->ID, t->Amount, t->Flags, t->CurID, 0L).where(t->SCardID == scardID);
-			for(q.initIteration(0, &k6, spGe); ok && q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k6, spGe); ok && q.nextIteration() > 0;) {
 				if(t->data.Flags & BILLF_NEEDPAYMENT) {
 					const  PPID bill_id = t->data.ID;
 					const  double amount = t->data.Amount;
@@ -2364,7 +2364,7 @@ int PPObjSCard::UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLogger *
 			k2.SeriesID = pack.Rec.ID;
 			BExtQuery q(P_Tbl, 2);
 			q.selectAll().where(P_Tbl->SeriesID == pack.Rec.ID);
-			for(q.initIteration(0, &k2, spGt); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k2, spGt); q.nextIteration() > 0;) {
 				SCardTbl::Rec rec;
 				P_Tbl->copyBufTo(&rec);
 				THROW_SL(scr_list.insert(&rec));
@@ -4177,7 +4177,7 @@ StrAssocArray * PPObjSCard::MakeStrAssocList(void * extraPtr /*cardSerID*/)
 	dbq = ppcheckfiltid(dbq, P_Tbl->SeriesID, ser_id);
 	dbq = ppcheckfiltid(dbq, P_Tbl->PersonID, owner_id);
 	q.select(P_Tbl->ID, P_Tbl->Code, 0L).where(*dbq);
-	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;)
+	for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;)
 		THROW_SL(p_list->AddFast(P_Tbl->data.ID, P_Tbl->data.Code));
 	CATCH
 		ZDELETE(p_list);
@@ -4511,7 +4511,7 @@ const StrAssocArray * SCardCache::GetFullList()
 						q.select(p_tbl->ID, p_tbl->SeriesID, p_tbl->Code, 0L);
 						FullCardList.Z();
 						SCardTbl::Key0 k0;
-						for(q.initIteration(0, &k0, spFirst); !err && q.nextIteration() > 0;) {
+						for(q.initIteration(false, &k0, spFirst); !err && q.nextIteration() > 0;) {
 							_mc++;
 							if(!FullCardList.AddFast(p_tbl->data.ID, p_tbl->data.Code)) {
 								PPSetErrorSLib();

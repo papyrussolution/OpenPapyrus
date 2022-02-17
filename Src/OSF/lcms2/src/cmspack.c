@@ -1,4 +1,3 @@
-//---------------------------------------------------------------------------------
 //
 //  Little Color Management System
 //  Copyright (c) 1998-2020 Marti Maria Saguer
@@ -12,16 +11,6 @@
 //
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//---------------------------------------------------------------------------------
 //
 #include "lcms2_internal.h"
 #pragma hdrstop
@@ -2450,8 +2439,8 @@ static cmsFormatter _cmsGetStockInputFormatter(cmsUInt32Number dwInput, cmsUInt3
 	cmsFormatter fr;
 	switch(dwFlags) {
 		case CMS_PACK_FLAGS_16BITS: {
-		    for(i = 0; i < sizeof(InputFormatters16) / sizeof(cmsFormatters16); i++) {
-			    const cmsFormatters16* f = InputFormatters16 + i;
+		    for(i = 0; i < SIZEOFARRAY(InputFormatters16); i++) {
+			    const cmsFormatters16 * f = InputFormatters16 + i;
 			    if((dwInput & ~f->Mask) == f->Type) {
 				    fr.Fmt16 = f->Frm;
 				    return fr;
@@ -2460,8 +2449,8 @@ static cmsFormatter _cmsGetStockInputFormatter(cmsUInt32Number dwInput, cmsUInt3
 	    }
 	    break;
 		case CMS_PACK_FLAGS_FLOAT: {
-		    for(i = 0; i < sizeof(InputFormattersFloat) / sizeof(cmsFormattersFloat); i++) {
-			    const cmsFormattersFloat* f = InputFormattersFloat + i;
+		    for(i = 0; i < SIZEOFARRAY(InputFormattersFloat); i++) {
+			    const cmsFormattersFloat * f = InputFormattersFloat + i;
 			    if((dwInput & ~f->Mask) == f->Type) {
 				    fr.FmtFloat = f->Frm;
 				    return fr;
@@ -2469,10 +2458,8 @@ static cmsFormatter _cmsGetStockInputFormatter(cmsUInt32Number dwInput, cmsUInt3
 		    }
 	    }
 	    break;
-
 		default:;
 	}
-
 	fr.Fmt16 = NULL;
 	return fr;
 }
@@ -2590,9 +2577,8 @@ static cmsFormatter _cmsGetStockOutputFormatter(cmsUInt32Number dwInput, cmsUInt
 	dwInput &= ~OPTIMIZED_SH(1);
 	switch(dwFlags) {
 		case CMS_PACK_FLAGS_16BITS: {
-		    for(i = 0; i < sizeof(OutputFormatters16) / sizeof(cmsFormatters16); i++) {
+		    for(i = 0; i < SIZEOFARRAY(OutputFormatters16); i++) {
 			    const cmsFormatters16* f = OutputFormatters16 + i;
-
 			    if((dwInput & ~f->Mask) == f->Type) {
 				    fr.Fmt16 = f->Frm;
 				    return fr;
@@ -2601,7 +2587,7 @@ static cmsFormatter _cmsGetStockOutputFormatter(cmsUInt32Number dwInput, cmsUInt
 	    }
 	    break;
 		case CMS_PACK_FLAGS_FLOAT: {
-		    for(i = 0; i < sizeof(OutputFormattersFloat) / sizeof(cmsFormattersFloat); i++) {
+		    for(i = 0; i < SIZEOFARRAY(OutputFormattersFloat); i++) {
 			    const cmsFormattersFloat* f = OutputFormattersFloat + i;
 			    if((dwInput & ~f->Mask) == f->Type) {
 				    fr.FmtFloat = f->Frm;

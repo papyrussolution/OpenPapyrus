@@ -590,7 +590,7 @@ static double notch_kernel(double x, double r)
 
 static double sinc(double x)
 {
-	return x ? sin(M_PI * x) / (M_PI * x) : 1.0;
+	return x ? sin(SMathConst::Pi * x) / (SMathConst::Pi * x) : 1.0;
 }
 
 static double lanczos(double x, double n)

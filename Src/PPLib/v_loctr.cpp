@@ -658,7 +658,7 @@ int PPViewLocTransf::InitIteration()
 	}
 	k_ = k;
 	Counter.Init(P_IterQuery->countIterations(0, &k_, sp));
-	P_IterQuery->initIteration(0, &k, sp);
+	P_IterQuery->initIteration(false, &k, sp);
 	return ok;
 }
 

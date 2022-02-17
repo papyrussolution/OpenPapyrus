@@ -1018,14 +1018,16 @@ int PPObjGoods::UpdateName(PPID id, const char * pNewName, int use_ta)
 int PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 {
 	int    ok = 1;
-	int    no_changes = 0; // Устанавливается в 1, если пакет не изменился по сравнению с образом в БД.
 	long   pack_cmp_result_flags = 0;
 	const  PPID mtx_qk_id = GetConfig().MtxQkID;
 	const  bool is_new = (*pID == 0);
 	const  bool is_removing = (*pID != 0 && pPack == 0);
+	bool   no_changes = false; // Устанавливается в true, если пакет не изменился по сравнению с образом в БД.
 	PPID   remove_struc_id = 0;
 	PPID   hid = 0;
-	Goods2Tbl::Rec rec, org_rec, grp_rec;
+	Goods2Tbl::Rec rec;
+	Goods2Tbl::Rec org_rec;
+	Goods2Tbl::Rec grp_rec;
 	SBuffer hist_buf;
 	PPGoodsPacket old_pack;
 	PPGoodsStrucHeader gs_rec;
@@ -1090,7 +1092,7 @@ int PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 					} while(i);
 				}
 				if(IsPacketEq(*pPack, old_pack, 0, &pack_cmp_result_flags))
-					no_changes = 1;
+					no_changes = true;
 				old_pack.ExtRec.UniqCntr = preserve_org_ext_uniq_cntr;
 				pPack->ExtRec.UniqCntr = preserve_new_ext_uniq_cntr;
 			}
@@ -2421,7 +2423,7 @@ int PPObjGoods::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 					PPID   k = 0;
 					BExtQuery q(P_Tbl, 0, 256);
 					q.select(P_Tbl->ID, 0L).where(P_Tbl->ManufID == _id);
-					for(q.initIteration(0, &k, spFirst); q.nextIteration() > 0;) {
+					for(q.initIteration(false, &k, spFirst); q.nextIteration() > 0;) {
 						THROW_SL(id_list.add(P_Tbl->data.ID));
 					}
 					for(uint i = 0; i < id_list.getCount(); i++) {
@@ -2439,7 +2441,7 @@ int PPObjGoods::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 					PPID   k = 0;
 					BExtQuery q(P_Tbl, 0, 256);
 					q.select(P_Tbl->ID, 0L).where(P_Tbl->TaxGrpID == _id);
-					for(q.initIteration(0, &k, spFirst); q.nextIteration() > 0;) {
+					for(q.initIteration(false, &k, spFirst); q.nextIteration() > 0;) {
 						THROW_SL(id_list.add(P_Tbl->data.ID));
 					}
 					for(uint i = 0; i < id_list.getCount(); i++) {
@@ -2460,7 +2462,7 @@ int PPObjGoods::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 					PPID   k = 0;
 					BExtQuery q(P_Tbl, 0, 256);
 					q.select(P_Tbl->ID, 0L).where(P_Tbl->UnitID == _id || P_Tbl->PhUnitID == _id);
-					for(q.initIteration(0, &k, spFirst); q.nextIteration() > 0;) {
+					for(q.initIteration(false, &k, spFirst); q.nextIteration() > 0;) {
 						THROW(id_list.add(P_Tbl->data.ID));
 					}
 					for(uint i = 0; i < id_list.getCount(); i++) {
@@ -2484,7 +2486,7 @@ int PPObjGoods::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 					k3.BrandID = _id;
 					BExtQuery q(P_Tbl, 3, 256);
 					q.select(P_Tbl->ID, 0L).where(P_Tbl->Kind == PPGDSK_GOODS && P_Tbl->BrandID == _id);
-					for(q.initIteration(0, &k3, spEq); q.nextIteration() > 0;) {
+					for(q.initIteration(false, &k3, spEq); q.nextIteration() > 0;) {
 						THROW(id_list.add(P_Tbl->data.ID));
 					}
 					for(uint i = 0; i < id_list.getCount(); i++) {
@@ -2919,7 +2921,7 @@ int PPObjGoods::GetOpenedList(PPID locID, const PPIDArray * pOverlapList, UintHa
 		dbq = &(*dbq && p_cr->Rest > 0.0);
 		BExtQuery q(p_cr, idx, 256);
 		q.select(p_cr->GoodsID, 0).where(*dbq);
-		for(q.initIteration(0, &key, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &key, spGe); q.nextIteration() > 0;) {
 			const PPID goods_id = p_cr->data.GoodsID;
 			if(!pOverlapList || pOverlapList->lsearch(goods_id, 0)) {
 				THROW_SL(rHash.Add(goods_id));
@@ -2980,7 +2982,7 @@ ListBoxDef * PPObjGoods::_Selector2(ListBoxDef * pDef, long parent, long options
 		k_.k2.Kind = Kind;
 		SETIFZ(p_array, new StrAssocArray);
 		THROW_MEM(p_array);
-		for(q.initIteration(0, &k_, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k_, spGe); q.nextIteration() > 0;) {
 			if(!(Kind == PPGDSK_TRANSPORT && p_tbl->data.Flags & GF_PASSIV)) { // @v10.2.4
 				THROW_SL(p_array->AddFast(p_tbl->data.ID, p_tbl->data.Name));
 			}
@@ -3357,7 +3359,7 @@ StrAssocArray * PPObjGoods::CreateListByPrice(PPID locID, double price)
 	}
 	p_q->select(rcpt->GoodsID, rcpt->Price, 0L).where(*dbq);
 	MEMSZERO(k);
-	for(p_q->initIteration(0, &k, spGt); p_q->nextIteration() > 0;) {
+	for(p_q->initIteration(false, &k, spGt); p_q->nextIteration() > 0;) {
 		if(R2(rcpt->data.Price) == R2(price))
 			id_list.add(rcpt->data.GoodsID);
 	}
@@ -3370,7 +3372,7 @@ StrAssocArray * PPObjGoods::CreateListByPrice(PPID locID, double price)
 			rcpt->GoodsID > 0L && rcpt->LocID == locID && rcpt->Price == price);
 		MEMSZERO(k1);
 		k1.Dt = dt;
-		for(p_q->initIteration(0, &k1, spGe); p_q->nextIteration() > 0;)
+		for(p_q->initIteration(false, &k1, spGe); p_q->nextIteration() > 0;)
 			id_list.add(rcpt->data.GoodsID);
 	}
 	id_list.sortAndUndup();
@@ -4749,7 +4751,7 @@ int UhttIndexBrands(const SString & rOutPath)
 		q.select(p_tbl->ID, 0L).where(*dbq);
 		MEMSZERO(k_);
 		k_.k2.Kind = PPGDSK_BRAND;
-		for(q.initIteration(0, &k_, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k_, spGe); q.nextIteration() > 0;) {
 			const PPID brand_id = goods_obj.P_Tbl->data.ID;
 			if(brand_obj.Fetch(brand_id, &brand_rec) > 0) {
 				assert(brand_id == brand_rec.ID);

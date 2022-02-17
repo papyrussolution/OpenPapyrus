@@ -1232,7 +1232,7 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 			q.select(r_ct.ID, 0L).where(r_ct.SeriesID == scs_id);
 			MEMSZERO(k2);
 			k2.SeriesID = scs_id;
-			for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 				temp_list.add(r_ct.data.ID);
 			}
 			temp_list.sortAndUndup();
@@ -1588,7 +1588,7 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 			dbq = ppcheckfiltid(dbq, p_cct->UserID, Filt.CashierID);
 			dbq = &(*dbq && intrange(p_cct->Code, Filt.CodeR));
 			q.select(p_cct->ID, p_cct->Flags, 0L).where(*dbq);
-			for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 				if(p_cct->data.Flags & CCHKF_SUSPENDED)
 					temp_list.add(p_cct->data.ID);
 			}
@@ -1621,7 +1621,7 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 							q.where(*dbq);
 							MEMSZERO(k);
 							k.SessID = sess_id;
-							for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+							for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 								THROW(ProcessCheckRec(&p_cct->data, &bei));
 							}
 						}
@@ -1652,7 +1652,7 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 								}
 								else {
 									k.Dt = Filt.Period.low;
-									for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+									for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 										cc_id_list.add(p_cct->data.ID);
 									}
 								}
@@ -1664,7 +1664,7 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 								pk1.SCardID = card_id;
 								BExtQuery q(p_ccp, 1);
 								q.select(p_ccp->CheckID, 0L).where(p_ccp->SCardID == card_id);
-								for(q.initIteration(0, &pk1, spGe); q.nextIteration() > 0;)
+								for(q.initIteration(false, &pk1, spGe); q.nextIteration() > 0;)
 									cc_id_list.add(p_ccp->data.CheckID);
 							}
 						}
@@ -1699,7 +1699,7 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 						k1.CashID = Filt.CashNumber;
 						k1_ = k1;
 						cntr.Init(q.countIterations(0, &k1_, spGe));
-						for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+						for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 							THROW(ProcessCheckRec(&p_cct->data, &bei));
 							PPWaitPercent(cntr.Increment());
 						}
@@ -1787,7 +1787,7 @@ int PPViewCCheck::InitIteration(int order)
 		THROW_MEM(p_q = new BExtQuery(P_TmpGdsCorrTbl, idx));
 		p_q->selectAll();
 		MEMSZERO(k);
-		p_q->initIteration(0, &k, spFirst);
+		p_q->initIteration(false, &k, spFirst);
 		P_IterQuery = p_q;
 	}
 	else if(P_TmpGrpTbl) {
@@ -1813,7 +1813,7 @@ int PPViewCCheck::InitIteration(int order)
 		THROW_MEM(p_q = new BExtQuery(P_TmpGrpTbl, idx));
 		p_q->selectAll();
 		MEMSZERO(k);
-		p_q->initIteration(0, &k, spFirst);
+		p_q->initIteration(false, &k, spFirst);
 		P_IterQuery = p_q;
 	}
 	else {
@@ -1854,7 +1854,7 @@ int PPViewCCheck::InitIteration(int order)
 			if(!(Filt.Flags & CCheckFilt::fDontCount))
 				Counter.Init(p_q->countIterations(0, &(k_ = k), sp));
 		}
-		p_q->initIteration(0, &k, sp);
+		p_q->initIteration(false, &k, sp);
 		P_IterQuery = p_q;
 	}
 	CATCH

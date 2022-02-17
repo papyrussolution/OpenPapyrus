@@ -806,7 +806,7 @@ int GoodsCore::GetListByBarcodeLen(const PPIDArray * pLens, PPIDArray & rList)
 		q.selectAll();
 		BarcodeTbl::Key0 k0;
 		MEMSZERO(k0);
-		for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
 			// С символа '@' начинаются коды товарных групп
 			// @v5.9.9 VADIM - с символа '$' начинаются артикулы товаров (ИД импортированных товаров)
 			if(BCTbl.data.Code[0] != '@' && BCTbl.data.Code[0] != '$' && lens.bsearch(sstrlen(BCTbl.data.Code)))
@@ -825,7 +825,7 @@ int GoodsCore::GetListByBarcodeLen(const PPIDArray * pLens, PPIDArray & rList)
 		Goods2Tbl::Key2 k2;
 		MEMSZERO(k2);
 		k2.Kind = PPGDSK_GOODS;
-		for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 			if(!temp_list.bsearch(data.ID)) {
 				THROW(rList.add(data.ID));
 			}
@@ -1126,7 +1126,7 @@ int GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pList, lon
 			PPTextSrchPattern tsp;
 			tsp.Init(pattern);
 			SString text_buf;
-			for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 				if(!(skip_passive && data.Flags & GF_PASSIV)) {
 					(text_buf = data.Name).ToLower();
 					//int r = ExtStrSrch(text_buf, pSubstr, 0);
@@ -1151,7 +1151,7 @@ int GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pList, lon
 		k.ObjID   = 0;
 		k.Prop    = GDSPRP_EXTSTRDATA;
 		q.select(P_Ref->Prop.ObjID, 0L).where(P_Ref->Prop.ObjType == PPOBJ_GOODS && P_Ref->Prop.Prop == GDSPRP_EXTSTRDATA);
-		for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 			PPID   goods_id = P_Ref->Prop.data.ObjID;
 			Goods2Tbl::Rec goods_rec;
 			if(Fetch(goods_id, &goods_rec) > 0 && !(skip_passive && data.Flags & GF_PASSIV)) {
@@ -1196,7 +1196,7 @@ int GoodsCore::GetListByBrandList(const PPIDArray & rBrandList, PPIDArray & rGoo
 	}
 	BExtQuery q(this, idx, 48);
 	q.select(this->ID, this->BrandID, 0L).where(*dbq);
-	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 		if(single_brand_id && data.BrandID == single_brand_id) {
 			THROW_SL(rGoodsList.add(data.ID));
 		}
@@ -1408,7 +1408,7 @@ int GoodsCore::GetExtPropRefList(PPID clsID, int gcProp, PPID propVal, LAssocArr
 		else if(gcProp == PPGdsCls::eAdd2)
 			dbq = &(*dbq && GeT.AddObj2ID == propVal);
 	q.where(*dbq);
-	for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 		if(gcProp == PPGdsCls::eKind) {
 			if(GeT.data.KindID && (!propVal || GeT.data.KindID == propVal)) {
 				ok = 1;
@@ -1501,7 +1501,7 @@ int GoodsCore::SearchGListByStruc(PPID strucID, PPIDArray * pList)
 	BExtQuery q(this, 5);
 	q.select(this->ID, 0L).where(this->StrucID == strucID);
 	k5.StrucID = strucID;
-	for(q.initIteration(0, &k5, spEq/*&k0, spGt*/); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k5, spEq/*&k0, spGt*/); q.nextIteration() > 0;) {
 		CALLPTRMEMB(pList, addUnique(data.ID));
 		ok = 1;
 	}
@@ -1625,7 +1625,7 @@ int GoodsCore::Helper_ReadArCodes(PPID goodsID, PPID arID, ArGoodsCodeArray * pC
 		else
 			q.selectAll();
 		q.where(ACodT.ArID == arID);
-		for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 			THROW_SL(!pCodeList || pCodeList->insert(&ACodT.data));
 			THROW_SL(!pIdList || pIdList->add(ACodT.data.GoodsID));
 			ok = 1;
@@ -1715,7 +1715,7 @@ int GoodsCore::SearchBarcodeSubstr(const char * substr, BarcodeArray * codes)
 	BExtQuery q(&BCTbl, 0, 64);
 	q.selectAll();
 	MEMSZERO(k);
-	for(q.initIteration(0, &k, spFirst); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k, spFirst); q.nextIteration() > 0;) {
 		if(strstr(BCTbl.data.Code, substr)) {
 			THROW_SL(codes->insert(&BCTbl.data));
 			ok = 1;
@@ -1740,7 +1740,7 @@ int GoodsCore::SearchBarcodeSubstrExt(const char * pText, BarcodeArray * pCodes)
 		text_buf.CopyTo(k0.Code, sizeof(k0.Code));
 		BExtQuery q(&BCTbl, 0, 64);
 		q.selectAll();
-		for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 			if(text_buf.CmpL(BCTbl.data.Code, 0) == 0) {
 				THROW_SL(pCodes->insert(&BCTbl.data));
 				ok = 1;
@@ -1778,7 +1778,7 @@ int GoodsCore::SearchArCodeSubstr(PPID arID, const char * substr, BarcodeArray *
 		idx = 1;
 		sp = spFirst;
 	}
-	for(q.initIteration(0, &k, sp); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k, sp); q.nextIteration() > 0;) {
 		if(strstr(ACodT.data.Code, substr)) {
 			BarcodeTbl::Rec bc_rec;
 			// @v10.6.6 @ctr MEMSZERO(bc_rec);
@@ -1921,7 +1921,7 @@ int GoodsCore::Helper_GetBarcodeByTempl(const void * pBlk, SString & rBarcode)
 		BExtQuery q(&BCTbl, 0, 128);
 		q.select(BCTbl.Code, 0).where(BCTbl.Code >= k_low.Code && BCTbl.Code <= k_upp.Code);
 		k0 = k_low;
-		for(q.initIteration(0, &k0, spGe); !ok && q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k0, spGe); !ok && q.nextIteration() > 0;) {
 			char   temp_buf[32];
 			STRNSCPY(temp_buf, BCTbl.data.Code);
 			if(sstrlen(temp_buf) == (code_len+BIN(p_btblk->AddCheckDig))) {
@@ -2117,7 +2117,7 @@ int GoodsCore::RemoveBarcodeLeadingZeros(int use_ta)
 	BExtQuery q(&BCTbl, 0);
 	q.select(BCTbl.Code, 0L);
 	MEMSZERO(k0);
-	for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
 		char   code[32], old_code[32];
 		STRNSCPY(code, BCTbl.data.Code);
 		STRNSCPY(old_code, BCTbl.data.Code);
@@ -2919,7 +2919,7 @@ const StrAssocArray * GoodsCache::GetFullList()
 					q.select(p_tbl->ID, p_tbl->ParentID, p_tbl->Name, 0L).where(p_tbl->Kind == PPGDSK_GOODS);
 					FullGoodsList.Z();
 					Goods2Tbl::Key0 k0;
-					for(q.initIteration(0, &k0, spFirst); !err && q.nextIteration() > 0;) {
+					for(q.initIteration(false, &k0, spFirst); !err && q.nextIteration() > 0;) {
 						_mc++;
 						(temp_buf = p_tbl->data.Name).ToLower();
 						if(!FullGoodsList.AddFast(p_tbl->data.ID, temp_buf)) {
@@ -3322,7 +3322,7 @@ int GoodsCore::Helper_GetGroupTerminalList(PPID parentID, PPIDArray & rList, PPI
 			k.ParentID = parentID;
 			BExtQuery q(this, 1);
 			q.select(this->ID, this->Flags, 0L).where(this->Kind == PPGDSK_GROUP && this->ParentID == parentID);
-			for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 				local_list.add(this->data.ID);
 			}
 		}
@@ -3453,7 +3453,7 @@ int GoodsCore::GetListByExtFilt(const ClsdGoodsFilt * pFilt, PPIDArray * pList)
 		q.select(GeT.GoodsID, 0L).where(*dbq);
 		MEMSZERO(k);
 		k.GoodsClsID = pFilt->GdsClsID;
-		for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 			int    add_and_exit = 0;
 			if(pFilt->Flags & ClsdGoodsFilt::fFirstGenGoods) {
 				Goods2Tbl::Rec rec;
@@ -3829,7 +3829,7 @@ int GoodsCore::LoadNameList(const PPIDArray * pIdList, long flags, StrAssocArray
 			k0.ID = min_id;
 			BExtQuery q(this, 0);
 			q.select(this->ID, this->Kind, this->Name, 0L).where(this->ID >= min_id && this->ID <= max_id);
-			for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;)
+			for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;)
 				if(temp_src_list.bsearch(data.ID)) {
 					temp_buf.Z();
 					if(data.Kind == PPGDSK_GROUP)

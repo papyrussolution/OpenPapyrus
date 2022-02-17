@@ -201,28 +201,27 @@ void GlassTable::write_block(uint4 n, const uint8_t * p, bool appending) const
 
 	uchar v;
 	// FIXME: track table_type in this class?
-	if(strcmp(tablename, "position") == 0) {
+	if(sstreq(tablename, "position")) {
 		v = int(Glass::POSITION);
 	}
-	else if(strcmp(tablename, "postlist") == 0) {
+	else if(sstreq(tablename, "postlist")) {
 		v = int(Glass::POSTLIST);
 	}
-	else if(strcmp(tablename, "docdata") == 0) {
+	else if(sstreq(tablename, "docdata")) {
 		v = int(Glass::DOCDATA);
 	}
-	else if(strcmp(tablename, "spelling") == 0) {
+	else if(sstreq(tablename, "spelling")) {
 		v = int(Glass::SPELLING);
 	}
-	else if(strcmp(tablename, "synonym") == 0) {
+	else if(sstreq(tablename, "synonym")) {
 		v = int(Glass::SYNONYM);
 	}
-	else if(strcmp(tablename, "termlist") == 0) {
+	else if(sstreq(tablename, "termlist")) {
 		v = int(Glass::TERMLIST);
 	}
 	else {
 		return; // FIXME
 	}
-
 	if(block_size == 2048) {
 		v |= 0 << 3;
 	}

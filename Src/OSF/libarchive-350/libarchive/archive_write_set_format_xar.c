@@ -351,14 +351,11 @@ int archive_write_set_format_xar(struct archive * _a)
 
 static int xar_options(struct archive_write * a, const char * key, const char * value)
 {
-	struct xar * xar;
-
-	xar = (struct xar *)a->format_data;
-
+	struct xar * xar = (struct xar *)a->format_data;
 	if(strcmp(key, "checksum") == 0) {
 		if(value == NULL)
 			xar->opt_sumalg = CKSUM_NONE;
-		else if(strcmp(value, "none") == 0)
+		else if(sstreq(value, "none"))
 			xar->opt_sumalg = CKSUM_NONE;
 		else if(strcmp(value, "sha1") == 0)
 			xar->opt_sumalg = CKSUM_SHA1;
@@ -372,10 +369,9 @@ static int xar_options(struct archive_write * a, const char * key, const char * 
 	}
 	if(strcmp(key, "compression") == 0) {
 		const char * name = NULL;
-
 		if(value == NULL)
 			xar->opt_compression = NONE;
-		else if(strcmp(value, "none") == 0)
+		else if(sstreq(value, "none"))
 			xar->opt_compression = NONE;
 		else if(strcmp(value, "gzip") == 0)
 			xar->opt_compression = GZIP;
@@ -420,7 +416,7 @@ static int xar_options(struct archive_write * a, const char * key, const char * 
 	if(strcmp(key, "toc-checksum") == 0) {
 		if(value == NULL)
 			xar->opt_toc_sumalg = CKSUM_NONE;
-		else if(strcmp(value, "none") == 0)
+		else if(sstreq(value, "none"))
 			xar->opt_toc_sumalg = CKSUM_NONE;
 		else if(strcmp(value, "sha1") == 0)
 			xar->opt_toc_sumalg = CKSUM_SHA1;

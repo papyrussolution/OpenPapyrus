@@ -991,7 +991,6 @@ void SGeo::Geodesic::C4coeff_(/*SGeo::Geodesic * g*/)
 void SGeo::Geodesic::Init(double _a, double _f)
 {
 	const double _tol2 = sqrt(SMathConst::Epsilon);
-
 	A = _a;
 	F = _f;
 	F1 = 1 - F;

@@ -478,7 +478,7 @@ int PredictSalesCore::ReadHolidays()
 	MEMSZERO(k0);
 	k0.RType = PSRECTYPE_HOLIDAY;
 	k0.Loc = -MAXSHORT;
-	for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 		HldTabEntry entry;
 		entry.LocIdx = data.Loc;
 		entry.Day = data.Dt;
@@ -555,7 +555,7 @@ int PredictSalesCore::ReadLocTab()
 	k0.RType = PSRECTYPE_LOCTAB;
 	BExtQuery q(this, 0, 128);
 	q.select(this->Loc, this->GoodsID, 0L).where(this->RType == (long)PSRECTYPE_LOCTAB);
-	for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 		LocTabEntry entry;
 		entry.LocID  = data.GoodsID;
 		entry.LocIdx = data.Loc;
@@ -1031,7 +1031,7 @@ int PredictSalesCore::GetLastUpdate(PPID goodsID, const ObjIdListFilt & rLocList
 		k1.Loc = 0;
 		BExtQuery q(&StT, 1);
 		q.select(StT.Loc, StT.LastDate, 0L).where(StT.GoodsID == goodsID);
-		for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 			StT.copyBufTo(&rec);
 			PPID   loc_id = 0;
 			ExpandLoc(rec.Loc, &loc_id);
@@ -1071,7 +1071,7 @@ int PredictSalesCore::SearchStat(PPID goodsID, const ObjIdListFilt & rLocList, G
 		k1.Loc = 0;
 		BExtQuery q(&StT, 1);
 		q.selectAll().where(StT.GoodsID == goodsID);
-		for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 			StT.copyBufTo(&temp_rec);
 			PPID   loc_id = 0;
 			ExpandLoc(temp_rec.Loc, &loc_id);
@@ -1151,7 +1151,7 @@ int PredictSalesCore::ClearByPeriod(DateRange period, PPID gGrpID, int use_ta)
 			ShrinkDate(period.low, &low_dt);
 			ShrinkDate(period.upp, &upp_dt);
 			q.selectAll().where(Dt >= (long)low_dt && Dt <= (long)upp_dt);
-			for(q.initIteration(0, &k, spFirst); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k, spFirst); q.nextIteration() > 0;) {
 				if(data.Dt >= low_dt && data.Dt <= upp_dt) { // Перестраховка
 					if(!gGrpID || goods_obj.P_Tbl->BelongToGroup(data.GoodsID, gGrpID)) {
 						DBRowId pos;

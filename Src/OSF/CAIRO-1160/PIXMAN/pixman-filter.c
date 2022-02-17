@@ -56,8 +56,7 @@ static double gaussian_kernel(double x)
 {
 #define SQRT2 (1.4142135623730950488016887242096980785696718753769480)
 #define SIGMA (SQRT2 / 2.0)
-
-	return exp(-x * x / (2 * SIGMA * SIGMA)) / (SIGMA * sqrt(2.0 * M_PI));
+	return exp(-x * x / (2 * SIGMA * SIGMA)) / (SIGMA * sqrt(SMathConst::Pi2));
 }
 
 static double sinc(double x)
@@ -65,7 +64,7 @@ static double sinc(double x)
 	if(x == 0.0)
 		return 1.0;
 	else
-		return sin(M_PI * x) / (M_PI * x);
+		return sin(SMathConst::Pi * x) / (SMathConst::Pi * x);
 }
 
 static double lanczos(double x, int n)

@@ -68,7 +68,7 @@ cairo_status_t _cairo_pen_init(cairo_pen_t * pen, double radius, double toleranc
 	 */
 	for(i = 0; i < pen->num_vertices; i++) {
 		cairo_pen_vertex_t * v = &pen->vertices[i];
-		double theta = 2 * M_PI * i / (double)pen->num_vertices, dx, dy;
+		double theta = 2 * SMathConst::Pi * i / (double)pen->num_vertices, dx, dy;
 		if(reflect)
 			theta = -theta;
 		dx = radius * cos(theta);
@@ -240,11 +240,11 @@ int _cairo_pen_vertices_needed(double tolerance, double radius, const cairo_matr
 		num_vertices = 4;
 	}
 	else {
-		num_vertices = static_cast<int>(ceil(2*M_PI / acos(1 - tolerance / major_axis)));
-		/* number of vertices must be even */
+		num_vertices = static_cast<int>(ceil(SMathConst::Pi2 / acos(1 - tolerance / major_axis)));
+		// number of vertices must be even 
 		if(num_vertices % 2)
 			num_vertices++;
-		/* And we must always have at least 4 vertices. */
+		// And we must always have at least 4 vertices. 
 		if(num_vertices < 4)
 			num_vertices = 4;
 	}

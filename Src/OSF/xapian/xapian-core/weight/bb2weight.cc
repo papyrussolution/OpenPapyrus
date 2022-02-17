@@ -3,7 +3,7 @@
  */
 // Copyright (C) 2013,2014 Aarsh Shah
 // Copyright (C) 2014,2015,2016,2017 Olly Betts
-// @licence GNU GPL
+// @license GNU GPL
 //
 #include <xapian-internal.h>
 #pragma hdrstop

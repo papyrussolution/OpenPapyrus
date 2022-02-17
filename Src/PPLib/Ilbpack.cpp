@@ -1943,7 +1943,7 @@ int BillTransmDeficit::CompleteGoodsRest()
 		int    prev_rec_inited = 0;
 		BExtQuery q(Tbl, 0);
 		q.selectAll();
-		for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 			Tbl->copyBufTo(&rec);
 			if(prev_rec_inited && (prev_rec.Location != rec.Location || prev_rec.GoodsID != rec.GoodsID)) {
 				THROW(_CompleteGoodsRest(prev_rec.Location, prev_rec.GoodsID, &rec_list, start_pos, suppl_qtty));
@@ -1975,7 +1975,7 @@ int BillTransmDeficit::GetGoodsDeficitList(PPIDArray * pList)
 		BExtQuery q(Tbl, 0);
 		q.selectAll().where(Tbl->SupplID == 0L && Tbl->HasDeficit > 0L);
 		MEMSZERO(k);
-		for(q.initIteration(0, &k, spFirst); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k, spFirst); q.nextIteration() > 0;) {
 			if(Tbl->data.Req > Tbl->data.Rest) {
 				pList->addUnique(Tbl->data.GoodsID);
 				ok = 1;
@@ -1993,7 +1993,7 @@ int BillTransmDeficit::PrintTotalDeficit(ObjTransmContext * pCtx)
 	MEMSZERO(k);
 	SString fmt_buf, msg_buf, goods_name;
 	long   c = 0; // counter
-	for(q.initIteration(0, &k, spFirst); q.nextIteration() > 0; c++) {
+	for(q.initIteration(false, &k, spFirst); q.nextIteration() > 0; c++) {
 		if(!c) {
 			pCtx->OutReceivingMsg(PPLoadTextS(PPTXT_BTP_TOTAL, fmt_buf));
 			PPLoadText(PPTXT_BDR_LINE, fmt_buf); // загруженное значение fmt_buf далее будет использоваться в итерациях

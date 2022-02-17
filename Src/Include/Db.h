@@ -1663,7 +1663,7 @@ public:
 	void * FASTCALL getDataBuf() { return static_cast<void *>(P_DBuf); } // @v10.3.5 (char *)-->(void *)
 	const  void * FASTCALL getDataBufConst() const{ return static_cast<const void *>(P_DBuf); } // @v10.3.5 (char *)-->(void *)
 	void   FASTCALL setBuffer(SBaseBuffer &);
-	const  SBaseBuffer FASTCALL getBuffer() const;
+	const  SBaseBuffer getBuffer() const;
 	int    allocOwnBuffer(int size = -1);
 	int    InitLob();
 	uint   GetLobCount() const;
@@ -3937,7 +3937,7 @@ public:
 	// то fetchFirst полагается на ту позицию, которая установлена перед ее вызовом.
 	//
 	int    fetchFirst(void * initKey = 0, int initSpMode = spFirst);
-	int    initIteration(int reverse, const void * pInitKey = 0, int initSpMode = spFirst);
+	int    initIteration(bool reverse, const void * pInitKey = 0, int initSpMode = spFirst);
 	int    nextIteration();
 	long   countIterations(int reverse, const void * pInitKey = 0, int initSpMode = spFirst);
 	int    FASTCALL getRecPosition(DBRowId * pPos);
@@ -4031,7 +4031,7 @@ int FASTCALL deleteFrom(DBTable * pTbl, int useTA, DBQ & query);
 int FASTCALL updateFor(DBTable * pTbl, int useTA, DBQ & query, DBUpdateSet & rSet);
 int updateForCb(DBTable * pTbl, int useTA, DBQ & query, DBUpdateSet & rSet, UpdateDbTable_CbProc cbProc, void * extraPtr);
 //
-// Descr: Класс для работы с базами данных BerkeyDB
+// Descr: Класс для работы с базами данных BerkleyDB
 //
 struct __db; typedef struct __db DB;
 struct __db_dbt; typedef struct __db_dbt DBT;

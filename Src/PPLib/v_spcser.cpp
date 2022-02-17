@@ -105,7 +105,7 @@ int PPViewSpecSeries::InitIteration()
 	k1.InfoKind = Filt.InfoKind;
 	k_ = k1;
 	Counter.Init(P_IterQuery->countIterations(0, &k_, spGe));
-	P_IterQuery->initIteration(0, &k1, spGe);
+	P_IterQuery->initIteration(false, &k1, spGe);
 	CATCHZOK
 	return ok;
 }

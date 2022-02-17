@@ -134,7 +134,7 @@ int SalaryCore::Calc(PPID postID, PPID salChargeID, int avg, const DateRange & r
 	BExtQuery q(this, 1);
 	q.select(this->ID, this->Beg, this->End, this->Amount, 0L).
 		where(this->PostID == postID && this->SalChargeID == salChargeID && daterange(this->Beg, &rPeriod));
-	for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 		if(!rPeriod.upp || data.End <= rPeriod.upp) {
 			amount += data.Amount;
 			count++;
@@ -182,7 +182,7 @@ int SalaryCore::GetObjectList(PPID objType, const DateRange & rPeriod, const Uin
 	q.select(this->ID, this->PostID, this->SalChargeID, this->GenBillID, 0L).where(*dbq);
 	MEMSZERO(k2);
 	k2.Beg = rPeriod.low;
-	for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 		if(!pIdList || pIdList->Has(data.ID)) {
 			if(objType == PPOBJ_PERSONPOST)
 				pList->addUnique(data.PostID);
@@ -232,7 +232,7 @@ int SalaryCore::GetListByObject(PPID objType, PPID objID, const DateRange & rPer
 	if(idx != -1) {
 		BExtQuery q(this, idx);
 		q.select(this->ID, this->PostID, this->SalChargeID, this->GenBillID, 0L).where(*dbq);
-		for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 			if(!pIdList || pIdList->Has(data.ID)) {
 				pList->add(data.ID);
 				ok = 1;
@@ -607,7 +607,7 @@ int PPViewSalary::InitIteration(int order)
 		Counter.Init(q->countIterations(0, k, spFirst));
 		MEMSZERO(k2);
 		MEMSZERO(k3);
-		q->initIteration(0, &k, spFirst);
+		q->initIteration(false, &k, spFirst);
 	}
 	else {
 		union  {
@@ -637,7 +637,7 @@ int PPViewSalary::InitIteration(int order)
 		q->where(*dbq);
 		k_ = k;
 		Counter.Init(q->countIterations(0, &k_, spGe));
-		q->initIteration(0, &k, spGe);
+		q->initIteration(false, &k, spGe);
 	}
 	P_IterQuery = q;
 	CATCH

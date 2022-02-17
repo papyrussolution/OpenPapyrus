@@ -602,7 +602,7 @@ int PPObjLocation::InitCityCache()
 	q.select(P_Tbl->ID, P_Tbl->CityID, 0L).where(P_Tbl->CityID > 0L);
 	LocationTbl::Key0 k0;
 	MEMSZERO(k0);
-	for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;)
+	for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;)
 		THROW_SL(CityCache.Add(P_Tbl->data.ID, P_Tbl->data.CityID, 0));
 	CityCache.Sort();
 	IsCityCacheInited = 1;
@@ -1264,7 +1264,7 @@ int PPObjLocation::SearchName(PPID locTyp, PPID parentID, const char * pName, PP
 		k2.Type = static_cast<int16>(locTyp);
 		BExtQuery q(P_Tbl, 2);
 		q.select(P_Tbl->ID, P_Tbl->ParentID, P_Tbl->Name, 0L).where(P_Tbl->Type == locTyp);
-		for(q.initIteration(0, &k2, spGe); ok < 0 && q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k2, spGe); ok < 0 && q.nextIteration() > 0;) {
 			if(name_buf.CmpNC(P_Tbl->data.Name) == 0) {
 				if(IsMemberOfGroup(P_Tbl->data.ID, parentID) > 0) {
 					id = P_Tbl->data.ID;
@@ -6277,7 +6277,7 @@ int PPFiasReference::IdentifyHouse(PPID terminalObjID, const char * pHouseCode, 
     k1.ParentUuRef = terminalObjID;
     BExtQuery q(&r_t, 1);
     q.selectAll().where(r_t.ParentUuRef == terminalObjID);
-    for(q.initIteration(0, &k1, spEq); q.nextIteration() > 0;) {
+    for(q.initIteration(false, &k1, spEq); q.nextIteration() > 0;) {
         hse_list.insert(&r_t.data);
     }
     for(uint i = 0; ok < 0 && i < hse_list.getCount(); i++) {
@@ -6305,7 +6305,7 @@ int PPFiasReference::GetRandomHouse(long extValue, PPID terminalObjID, PPID * pH
     k1.ParentUuRef = terminalObjID;
     BExtQuery q(&r_t, 1);
     q.selectAll().where(r_t.ParentUuRef == terminalObjID);
-    for(q.initIteration(0, &k1, spEq); q.nextIteration() > 0;) {
+    for(q.initIteration(false, &k1, spEq); q.nextIteration() > 0;) {
         hse_list.insert(&r_t.data);
     }
     const uint _hc = hse_list.getCount();
@@ -6399,7 +6399,7 @@ int PPFiasReference::SearchObjByTextRefList(const TSVector <TextRefIdent> & rTRe
 		if(use_bextq) {
 			BExtQuery q(&r_t, 3);
 			q.select(r_t.NameTRef, r_t.IdUuRef, 0).where(r_t.NameTRef == r_i.O.Id);
-			for(q.initIteration(0, &k3, spGe); q.nextIteration() > 0;) {
+			for(q.initIteration(false, &k3, spGe); q.nextIteration() > 0;) {
 				FiasAddrObjTbl::Rec rec;
 				r_t.copyBufTo(&rec);
 				rList.add(rec.IdUuRef);

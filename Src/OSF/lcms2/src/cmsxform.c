@@ -12,14 +12,6 @@
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
 #include "lcms2_internal.h"
 #pragma hdrstop
 //
@@ -601,29 +593,23 @@ void CMSEXPORT _cmsGetTransformFormattersFloat(struct _cmstransform_struct * CMM
 
 // Allocate transform struct and set it to defaults. Ask the optimization plug-in about if those formats are proper
 // for separated transforms. If this is the case,
-static
-_cmsTRANSFORM* AllocEmptyTransform(cmsContext ContextID, cmsPipeline * lut,
+static _cmsTRANSFORM* AllocEmptyTransform(cmsContext ContextID, cmsPipeline * lut,
     cmsUInt32Number Intent, cmsUInt32Number* InputFormat, cmsUInt32Number* OutputFormat, cmsUInt32Number* dwFlags)
 {
 	_cmsTransformPluginChunkType* ctx = (_cmsTransformPluginChunkType*)_cmsContextGetClientChunk(ContextID, TransformPlugin);
 	_cmsTransformCollection* Plugin;
-
 	// Allocate needed memory
 	_cmsTRANSFORM* p = (_cmsTRANSFORM*)_cmsMallocZero(ContextID, sizeof(_cmsTRANSFORM));
 	if(!p) {
 		cmsPipelineFree(lut);
 		return NULL;
 	}
-
 	// Store the proposed pipeline
 	p->Lut = lut;
-
 	// Let's see if any plug-in want to do the transform by itself
 	if(p->Lut != NULL) {
 		if(!(*dwFlags & cmsFLAGS_NOOPTIMIZE)) {
-			for(Plugin = ctx->TransformCollection;
-			    Plugin != NULL;
-			    Plugin = Plugin->Next) {
+			for(Plugin = ctx->TransformCollection; Plugin != NULL; Plugin = Plugin->Next) {
 				if(Plugin->Factory(&p->xform, &p->UserData, &p->FreeUserData, &p->Lut, InputFormat, OutputFormat,
 				    dwFlags)) {
 					// Last plugin in the declaration order takes control. We just keep

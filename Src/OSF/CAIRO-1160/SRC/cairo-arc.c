@@ -66,23 +66,22 @@ static double _arc_max_angle_for_tolerance_normalized(double tolerance)
 {
 	double angle, error;
 	int i;
-
-	/* Use table lookup to reduce search time in most cases. */
-	struct {
+	// Use table lookup to reduce search time in most cases
+	static const struct {
 		double angle;
 		double error;
 	} table[] = {
-		{ M_PI / 1.0,   0.0185185185185185036127 },
-		{ M_PI / 2.0,   0.000272567143730179811158 },
-		{ M_PI / 3.0,   2.38647043651461047433e-05 },
-		{ M_PI / 4.0,   4.2455377443222443279e-06 },
-		{ M_PI / 5.0,   1.11281001494389081528e-06 },
-		{ M_PI / 6.0,   3.72662000942734705475e-07 },
-		{ M_PI / 7.0,   1.47783685574284411325e-07 },
-		{ M_PI / 8.0,   6.63240432022601149057e-08 },
-		{ M_PI / 9.0,   3.2715520137536980553e-08 },
-		{ M_PI / 10.0,  1.73863223499021216974e-08 },
-		{ M_PI / 11.0,  9.81410988043554039085e-09 },
+		{ SMathConst::Pi / 1.0,   0.0185185185185185036127 },
+		{ SMathConst::Pi / 2.0,   0.000272567143730179811158 },
+		{ SMathConst::Pi / 3.0,   2.38647043651461047433e-05 },
+		{ SMathConst::Pi / 4.0,   4.2455377443222443279e-06 },
+		{ SMathConst::Pi / 5.0,   1.11281001494389081528e-06 },
+		{ SMathConst::Pi / 6.0,   3.72662000942734705475e-07 },
+		{ SMathConst::Pi / 7.0,   1.47783685574284411325e-07 },
+		{ SMathConst::Pi / 8.0,   6.63240432022601149057e-08 },
+		{ SMathConst::Pi / 9.0,   3.2715520137536980553e-08 },
+		{ SMathConst::Pi / 10.0,  1.73863223499021216974e-08 },
+		{ SMathConst::Pi / 11.0,  9.81410988043554039085e-09 },
 	};
 	int table_size = ARRAY_LENGTH(table);
 	for(i = 0; i < table_size; i++)
@@ -90,7 +89,7 @@ static double _arc_max_angle_for_tolerance_normalized(double tolerance)
 			return table[i].angle;
 	++i;
 	do {
-		angle = M_PI / i++;
+		angle = SMathConst::Pi / i++;
 		error = _arc_error_normalized(angle);
 	} while(error > tolerance);
 	return angle;
@@ -162,13 +161,13 @@ static void FASTCALL _cairo_arc_in_direction(cairo_t * cr, double xc, double yc,
 	if(cairo_status(cr))
 		return;
 	assert(angle_max >= angle_min);
-	if(angle_max - angle_min > 2 * M_PI * MAX_FULL_CIRCLES) {
-		angle_max = fmod(angle_max - angle_min, 2 * M_PI);
-		angle_min = fmod(angle_min, 2 * M_PI);
-		angle_max += angle_min + 2 * M_PI * MAX_FULL_CIRCLES;
+	if((angle_max - angle_min) > (SMathConst::Pi2 * MAX_FULL_CIRCLES)) {
+		angle_max = fmod(angle_max - angle_min, SMathConst::Pi2);
+		angle_min = fmod(angle_min, SMathConst::Pi2);
+		angle_max += angle_min + SMathConst::Pi2 * MAX_FULL_CIRCLES;
 	}
-	/* Recurse if drawing arc larger than pi */
-	if(angle_max - angle_min > M_PI) {
+	// Recurse if drawing arc larger than pi 
+	if((angle_max - angle_min) > SMathConst::Pi) {
 		double angle_mid = angle_min + (angle_max - angle_min) / 2.0;
 		if(dir == CAIRO_DIRECTION_FORWARD) {
 			_cairo_arc_in_direction(cr, xc, yc, radius, angle_min, angle_mid, dir);

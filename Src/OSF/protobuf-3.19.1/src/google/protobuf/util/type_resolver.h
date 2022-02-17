@@ -16,57 +16,40 @@
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
 //
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 // Defines a TypeResolver for the Any message.
 
 #ifndef GOOGLE_PROTOBUF_UTIL_TYPE_RESOLVER_H__
 #define GOOGLE_PROTOBUF_UTIL_TYPE_RESOLVER_H__
 
 #include <string>
-
 #include <google/protobuf/stubs/common.h>
 #include <google/protobuf/type.pb.h>
 #include <google/protobuf/stubs/status.h>
 #include <google/protobuf/stubs/status.h>
-
 #include <google/protobuf/port_def.inc>
 
 namespace google {
 namespace protobuf {
 class DescriptorPool;
 namespace util {
-
 // Abstract interface for a type resolver.
 //
 // Implementations of this interface must be thread-safe.
 class PROTOBUF_EXPORT TypeResolver {
- public:
-  TypeResolver() {}
-  virtual ~TypeResolver() {}
-
-  // Resolves a type url for a message type.
-  virtual util::Status ResolveMessageType(
-      const std::string& type_url, google::protobuf::Type* message_type) = 0;
-
-  // Resolves a type url for an enum type.
-  virtual util::Status ResolveEnumType(const std::string& type_url,
-                                       google::protobuf::Enum* enum_type) = 0;
-
- private:
-  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(TypeResolver);
+public:
+	TypeResolver() 
+	{
+	}
+	virtual ~TypeResolver() 
+	{
+	}
+	// Resolves a type url for a message type.
+	virtual util::Status ResolveMessageType(const std::string& type_url, google::protobuf::Type* message_type) = 0;
+	// Resolves a type url for an enum type.
+	virtual util::Status ResolveEnumType(const std::string& type_url, google::protobuf::Enum* enum_type) = 0;
+private:
+	GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(TypeResolver);
 };
-
 }  // namespace util
 }  // namespace protobuf
 }  // namespace google

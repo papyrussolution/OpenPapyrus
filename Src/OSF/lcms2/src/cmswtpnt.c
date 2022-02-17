@@ -1,4 +1,3 @@
-//---------------------------------------------------------------------------------
 //
 //  Little Color Management System
 //  Copyright (c) 1998-2020 Marti Maria Saguer
@@ -13,16 +12,6 @@
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//---------------------------------------------------------------------------------
-//
 #include "lcms2_internal.h"
 #pragma hdrstop
 
@@ -30,16 +19,13 @@
 const cmsCIEXYZ* CMSEXPORT cmsD50_XYZ(void)
 {
     static cmsCIEXYZ D50XYZ = {cmsD50X, cmsD50Y, cmsD50Z};
-
     return &D50XYZ;
 }
 
 const cmsCIExyY* CMSEXPORT cmsD50_xyY(void)
 {
     static cmsCIExyY D50xyY;
-
     cmsXYZ2xyY(&D50xyY, cmsD50_XYZ());
-
     return &D50xyY;
 }
 

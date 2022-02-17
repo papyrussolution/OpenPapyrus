@@ -251,6 +251,7 @@
     </ClCompile>
     <ClCompile Include="..\SLib\szlib.c" />
     <ClCompile Include="..\Db\dbsql-sqlite.cpp" />
+    <ClCompile Include="..\Db\dbkv-lmdb.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">
@@ -368,6 +369,9 @@
       <Filter>MiMalloc</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\zlib.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\dbkv-lmdb.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

@@ -758,7 +758,7 @@ int PPViewInventory::InitIteration()
 		k.OprNo = 0;
 		k_ = k;
 		Counter.Init(P_IterQuery->countIterations(0, &k_, spGt));
-		P_IterQuery->initIteration(0, &k, spGt);
+		P_IterQuery->initIteration(false, &k, spGt);
 	}
 	CATCH
 		BExtQuery::ZDelete(&P_IterQuery);

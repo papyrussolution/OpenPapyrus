@@ -1,19 +1,7 @@
 // Copyright (C) 2011 The Libphonenumber Authors
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
+// @license Apache License 2.0
 // Author: Philippe Liard
-
+//
 #include <libphonenumber-internal.h>
 #pragma hdrstop
 
@@ -24,45 +12,33 @@ using std::stringstream;
 
 string operator+(const string& s, int n) {  // NOLINT(runtime/string)
 	stringstream stream;
-
 	stream << s << n;
 	string result;
 	stream >> result;
-
 	return result;
 }
 
-template <typename T>
-string GenericSimpleItoa(const T& n) {
+template <typename T> string GenericSimpleItoa(const T& n) 
+{
 	stringstream stream;
-
 	stream << n;
 	string result;
 	stream >> result;
-
 	return result;
 }
 
-string SimpleItoa(int n) {
-	return GenericSimpleItoa(n);
+string SimpleItoa(int n) { return GenericSimpleItoa(n); }
+string SimpleItoa(uint64 n) { return GenericSimpleItoa(n); }
+string SimpleItoa(int64 n) { return GenericSimpleItoa(n); }
+
+bool HasPrefixString(const string& s, const string& prefix) 
+{
+	return s.size() >= prefix.size() && equal(s.begin(), s.begin() + prefix.size(), prefix.begin());
 }
 
-string SimpleItoa(uint64 n) {
-	return GenericSimpleItoa(n);
-}
-
-string SimpleItoa(int64 n) {
-	return GenericSimpleItoa(n);
-}
-
-bool HasPrefixString(const string& s, const string& prefix) {
-	return s.size() >= prefix.size() &&
-	       equal(s.begin(), s.begin() + prefix.size(), prefix.begin());
-}
-
-size_t FindNth(const string& s, char c, int n) {
+size_t FindNth(const string& s, char c, int n) 
+{
 	size_t pos = string::npos;
-
 	for(int i = 0; i < n; ++i) {
 		pos = s.find_first_of(c, pos + 1);
 		if(pos == string::npos) {
@@ -72,8 +48,8 @@ size_t FindNth(const string& s, char c, int n) {
 	return pos;
 }
 
-void SplitStringUsing(const string& s, const string& delimiter,
-    vector<string>* result) {
+void SplitStringUsing(const string& s, const string& delimiter, vector<string>* result) 
+{
 	assert(result);
 	size_t start_pos = 0;
 	size_t find_pos = string::npos;
@@ -117,26 +93,19 @@ bool HasSuffixString(const string& s, const string& suffix) {
 	return s.compare(s.length() - suffix.length(), suffix.length(), suffix) == 0;
 }
 
-template <typename T>
-void GenericAtoi(const string& s, T* out) {
+template <typename T> void GenericAtoi(const string& s, T* out) 
+{
 	stringstream stream;
 	stream << s;
 	stream >> *out;
 }
 
-void safe_strto32(const string& s, int32 * n) {
-	GenericAtoi(s, n);
-}
+void safe_strto32(const string& s, int32 * n) { GenericAtoi(s, n); }
+void safe_strtou64(const string& s, uint64 * n) { GenericAtoi(s, n); }
+void safe_strto64(const string& s, int64* n) { GenericAtoi(s, n); }
 
-void safe_strtou64(const string& s, uint64 * n) {
-	GenericAtoi(s, n);
-}
-
-void safe_strto64(const string& s, int64* n) {
-	GenericAtoi(s, n);
-}
-
-void strrmm(string* s, const string& chars) {
+void strrmm(string* s, const string& chars) 
+{
 	for(string::iterator it = s->begin(); it != s->end();) {
 		const char current_char = *it;
 		if(chars.find(current_char) != string::npos) {
@@ -148,9 +117,8 @@ void strrmm(string* s, const string& chars) {
 	}
 }
 
-int GlobalReplaceSubstring(const string& substring,
-    const string& replacement,
-    string* s) {
+int GlobalReplaceSubstring(const string& substring, const string& replacement, string* s) 
+{
 	assert(s != NULL);
 	if(s->empty() || substring.empty())
 		return 0;
@@ -175,35 +143,28 @@ int GlobalReplaceSubstring(const string& substring,
 
 // StringHolder class
 
-StringHolder::StringHolder(const string& s)
-	: string_(&s),
-	cstring_(NULL),
-	len_(s.size())
+StringHolder::StringHolder(const string& s) : string_(&s), cstring_(NULL), len_(s.size())
 {
 }
 
-StringHolder::StringHolder(const char* s)
-	: string_(NULL),
-	cstring_(s),
-	len_(std::strlen(s))
+StringHolder::StringHolder(const char* s) : string_(NULL), cstring_(s), len_(std::strlen(s))
 {
 }
 
-StringHolder::StringHolder(uint64 n)
-	: converted_string_(SimpleItoa(n)),
-	string_(&converted_string_),
-	cstring_(NULL),
-	len_(converted_string_.length())
+StringHolder::StringHolder(uint64 n) : converted_string_(SimpleItoa(n)), string_(&converted_string_),
+	cstring_(NULL), len_(converted_string_.length())
 {
 }
 
-StringHolder::~StringHolder() {
+StringHolder::~StringHolder() 
+{
 }
 
 // StrCat
 
 // Implements s += sh; (s: string, sh: StringHolder)
-string& operator+=(string& lhs, const StringHolder& rhs) {
+string& operator+=(string& lhs, const StringHolder& rhs) 
+{
 	const string* const s = rhs.GetString();
 	if(s) {
 		lhs += *s;
@@ -216,53 +177,45 @@ string& operator+=(string& lhs, const StringHolder& rhs) {
 	return lhs;
 }
 
-string StrCat(const StringHolder& s1, const StringHolder& s2) {
+string StrCat(const StringHolder& s1, const StringHolder& s2) 
+{
 	string result;
 	result.reserve(s1.Length() + s2.Length() + 1);
-
 	result += s1;
 	result += s2;
-
 	return result;
 }
 
-string StrCat(const StringHolder& s1, const StringHolder& s2,
-    const StringHolder& s3) {
+string StrCat(const StringHolder& s1, const StringHolder& s2, const StringHolder& s3) 
+{
 	string result;
 	result.reserve(s1.Length() + s2.Length() + s3.Length() + 1);
-
 	result += s1;
 	result += s2;
 	result += s3;
-
 	return result;
 }
 
-string StrCat(const StringHolder& s1, const StringHolder& s2,
-    const StringHolder& s3, const StringHolder& s4) {
+string StrCat(const StringHolder& s1, const StringHolder& s2, const StringHolder& s3, const StringHolder& s4) 
+{
 	string result;
 	result.reserve(s1.Length() + s2.Length() + s3.Length() + s4.Length() + 1);
-
 	result += s1;
 	result += s2;
 	result += s3;
 	result += s4;
-
 	return result;
 }
 
-string StrCat(const StringHolder& s1, const StringHolder& s2,
-    const StringHolder& s3, const StringHolder& s4,
-    const StringHolder& s5) {
+string StrCat(const StringHolder& s1, const StringHolder& s2, const StringHolder& s3, const StringHolder& s4, const StringHolder& s5) 
+{
 	string result;
-	result.reserve(s1.Length() + s2.Length() + s3.Length() + s4.Length() +
-	    s5.Length() + 1);
+	result.reserve(s1.Length() + s2.Length() + s3.Length() + s4.Length() + s5.Length() + 1);
 	result += s1;
 	result += s2;
 	result += s3;
 	result += s4;
 	result += s5;
-
 	return result;
 }
 

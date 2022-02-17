@@ -1178,7 +1178,7 @@ int PersonCore::GetListByKind(PPID kindID, PPIDArray * pList)
 	q.select(t->PersonID, 0L);
 	q.where(t->KindID == kindID);
 	k0.KindID = kindID;
-	for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 		ok = 1;
 		if(pList) {
 			THROW_SL(pList->add(t->data.PersonID));
@@ -1262,7 +1262,7 @@ int PersonCore::GetVATFreePersonList(PPIDArray * list)
 	BExtQuery q(this, 0, 128);
 	q.select(this->ID, this->Flags, 0L).where(this->Flags > 0L); // @v8.1.2 where(this->Flags > 0)
 	list->freeAll();
-	for(q.initIteration(0, &id, spGe); ok && q.nextIteration() > 0;) {
+	for(q.initIteration(false, &id, spGe); ok && q.nextIteration() > 0;) {
 		_c++;
 		if(data.Flags & PSNF_NOVATAX)
 			if(!list->add(data.ID))

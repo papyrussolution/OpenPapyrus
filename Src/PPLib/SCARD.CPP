@@ -849,7 +849,7 @@ int SCardCore::GetFreezingOpList(PPID cardID, TSVector <OpBlock> & rList) // @v9
 	if(ScOp.search(0, &k0, spGe) && ScOp.data.SCardID == cardID) {
         BExtQuery q(&ScOp, 0);
 		q.selectAll().where(ScOp.SCardID == cardID && ScOp.Flags > 0L);
-		for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 			if(ScOp.data.Flags & SCARDOPF_FREEZING) {
 				OpBlock blk;
 				blk.Init(&ScOp.data);
@@ -1303,7 +1303,7 @@ int SCardCore::GetPrefixRanges(PPID seriesID, uint maxLen, TSCollection <PrefixR
 	BExtQuery q(this, 2);
 	dbq = ppcheckfiltid(dbq, this->SeriesID, seriesID);
 	q.select(this->ID, this->Code, 0L).where(*dbq);
-	for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+	for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 		const PPID sc_id = data.ID;
 		temp_buf = data.Code;
         const uint len = temp_buf.Len();

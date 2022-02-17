@@ -2704,7 +2704,7 @@ int PPViewGoodsRest::CreateOrderTable(IterOrder ord, TempOrderTbl ** ppTbl)
 		THROW_MEM(p_bei = new BExtInsert(p_o));
 		q.select(p_t->ID__, p_t->GoodsID, p_t->GoodsGrp, /*p_t->BarCode*/p_t->BarcodeSP, p_t->Price, 0L);
 		MEMSZERO(k);
-		for(q.initIteration(0, &k, spFirst); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k, spFirst); q.nextIteration() > 0;) {
 			TempOrderTbl::Rec ord_rec;
 			// @v10.7.9 @ctr MEMSZERO(ord_rec);
 			ord_rec.ID = p_t->data.ID__;
@@ -2819,7 +2819,7 @@ int PPViewGoodsRest::InitIteration(IterOrder ord)
 		THROW_MEM(P_IterQuery = new BExtQuery(P_TempOrd, 1, 64));
 		P_IterQuery->selectAll();
 		MEMSZERO(k);
-		P_IterQuery->initIteration(0, &k, spFirst);
+		P_IterQuery->initIteration(false, &k, spFirst);
 		IterIdx = 4;
 	}
 	else {
@@ -3039,7 +3039,7 @@ int PPViewGoodsRest::CalcTotal(GoodsRestTotal * pTotal)
 		q.select(p_tbl->GoodsID, p_tbl->Quantity, p_tbl->PhQtty, p_tbl->Cost,
 			p_tbl->Price, p_tbl->SumCVat, p_tbl->SumPVat, p_tbl->Ord, p_tbl->Deficit, p_tbl->DraftRcpt, 0L);
 		k3.GoodsID = 0;
-		for(q.initIteration(0, &k3, spFirst); q.nextIteration() > 0;) {
+		for(q.initIteration(false, &k3, spFirst); q.nextIteration() > 0;) {
 			const TempGoodsRestTbl::Rec & r_rec = p_tbl->data;
 			double phuperu = 0.0;
 			Goods2Tbl::Rec goods_rec;

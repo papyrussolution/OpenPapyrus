@@ -3,7 +3,7 @@
  */
 // Copyright (C) 2013, 2014 Aarsh Shah
 // Copyright (C) 2016,2017 Olly Betts
-// @licence GNU GPL
+// @license GNU GPL
 //
 #include <xapian-internal.h>
 #pragma hdrstop
@@ -79,7 +79,7 @@ void DPHWeight::init(double factor)
 	}
 
 	double max_wdf_product_normalization = wdf_root / (wdf_root + 1) * pow((1 - wdf_root / len_upper), 2.0);
-	double max_weight = max_wdf_product_normalization * (log2(log_constant) + (0.5 * log2(2 * SMathConst::Pi * max_product)));
+	double max_weight = max_wdf_product_normalization * (log2(log_constant) + (0.5 * log2(SMathConst::Pi2 * max_product)));
 	upper_bound = wqf_product_factor * max_weight;
 	if(rare(upper_bound < 0.0)) upper_bound = 0.0;
 }
@@ -112,7 +112,7 @@ double DPHWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
 	if(wdf == 0 || wdf == len) return 0.0;
 	double wdf_to_len = double(wdf) / len;
 	double normalization = pow((1 - wdf_to_len), 2) / (wdf + 1);
-	double wt = normalization * (wdf * log2(wdf_to_len * log_constant) + (0.5 * log2(2 * SMathConst::Pi * wdf * (1 - wdf_to_len))));
+	double wt = normalization * (wdf * log2(wdf_to_len * log_constant) + (0.5 * log2(SMathConst::Pi2 * wdf * (1 - wdf_to_len))));
 	if(rare(wt <= 0.0)) return 0.0;
 	return wqf_product_factor * wt;
 }

@@ -281,7 +281,7 @@ PPDbTableXmlExporter_Transfer::PPDbTableXmlExporter_Transfer(const PPDbTableXmlE
 		P_Q->selectAll().where(daterange(P_T->Dt, &P.Period));
 		k1_ = k1;
 		Cntr.Init(P_Q->countIterations(0, &k1_, spGe));
-		THROW(P_Q->initIteration(0, &k1, spGe));
+		THROW(P_Q->initIteration(false, &k1, spGe));
 	}
 	CATCH
 		P_T = 0;
@@ -319,7 +319,7 @@ PPDbTableXmlExporter_Bill::PPDbTableXmlExporter_Bill(const PPDbTableXmlExportPar
 		P_Q->selectAll().where(daterange(P_T->Dt, &P.Period));
 		k1_ = k1;
 		Cntr.Init(P_Q->countIterations(0, &k1_, spGe));
-		THROW(P_Q->initIteration(0, &k1, spGe));
+		THROW(P_Q->initIteration(false, &k1, spGe));
 	}
 	CATCH
 		P_T = 0;

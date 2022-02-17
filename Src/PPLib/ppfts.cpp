@@ -6,6 +6,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
+#include <dbkv-lmdb.h>
 
 //int  Test_Fts() { return 1; }
 #if 1 // {
@@ -29,6 +30,64 @@ int  Test_Fts()
 	SStringU input_text_u;
 	SString input_text_utf8;
 	UErrorCode icu_status = U_ZERO_ERROR;
+	{
+		//
+		// Пробуем работать с базой данных LMDB
+		//
+		SString lmdb_path;
+		PPGetPath(PPPATH_WORKSPACE, lmdb_path);
+		lmdb_path.SetLastSlash().Cat("lmdb");
+		createDir(lmdb_path);
+		LmdbDatabase * p_db = LmdbDatabase::GetInstance(lmdb_path, 0, 0);
+		if(p_db) {
+			LmdbDatabase * p_db2 = LmdbDatabase::GetInstance(lmdb_path, 0, 0);
+			assert(p_db2 == p_db);
+			{
+				uint put_err = 0;
+				uint get_err = 0;
+				uint get_cmp_err = 0;
+				UuidArray uuidlist;
+				{
+					LmdbDatabase::Transaction txn(*p_db, false);
+					LmdbDatabase::Table tbl(txn, "fts-supplement");
+					if(tbl.IsValid()) {
+						for(uint i = 0; i < 1000000; i++) {
+							S_GUID uuid(SCtrGenerate_);
+							temp_buf.Z().Cat(uuid);
+							uuidlist.insert(&uuid);
+							if(!tbl.Put(&uuid, sizeof(uuid), temp_buf.cptr(), temp_buf.Len(), 0))
+								put_err++;
+						}
+						txn.Commit();
+					}
+				}
+				{
+					SString result_val_text;
+					LmdbDatabase::Transaction txn(*p_db, true);
+					LmdbDatabase::Table tbl(txn, "fts-supplement");
+					if(tbl.IsValid()) {
+						uuidlist.shuffle();
+						for(uint i = 0; i < uuidlist.getCount(); i++) {
+							S_GUID uuid = uuidlist.at(i);
+							temp_buf.Z().Cat(uuid);
+							SBaseBuffer val_buf;
+							int r = tbl.Get(&uuid, sizeof(uuid), val_buf);
+							if(r > 0) {
+								assert(val_buf.P_Buf != 0);
+								result_val_text.Z().CatN(val_buf.P_Buf, val_buf.Size);
+								if(temp_buf != result_val_text) {
+									get_cmp_err++;
+								}
+							}
+							else {
+								get_err++;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 	{
 		PPGetPath(PPPATH_BIN, temp_buf);
 		u_setDataDirectory(temp_buf);
@@ -57,7 +116,7 @@ int  Test_Fts()
 						; // file too big
 					} 
 					else {
-						size_t needed_size = file_size + 512; // 512 - insuring
+						size_t needed_size = static_cast<size_t>(file_size + 512); // 512 - insuring
 						size_t actual_size;
 						Xapian::Document doc;
 						db.begin_transaction(true);

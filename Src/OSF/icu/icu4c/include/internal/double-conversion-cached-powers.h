@@ -18,18 +18,6 @@
 //       contributors may be used to endorse or promote products derived
 //       from this software without specific prior written permission.
 //
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 // ICU PATCH: ifdef around UCONFIG_NO_FORMATTING
 #include "unicode/utypes.h"
 #if !UCONFIG_NO_FORMATTING
@@ -45,34 +33,25 @@
 U_NAMESPACE_BEGIN
 
 namespace double_conversion {
-
 namespace PowersOfTenCache {
+// Not all powers of ten are cached. The decimal exponent of two neighboring
+// cached numbers will differ by kDecimalExponentDistance.
+static const int kDecimalExponentDistance = 8;
 
-  // Not all powers of ten are cached. The decimal exponent of two neighboring
-  // cached numbers will differ by kDecimalExponentDistance.
-  static const int kDecimalExponentDistance = 8;
+static const int kMinDecimalExponent = -348;
+static const int kMaxDecimalExponent = 340;
 
-  static const int kMinDecimalExponent = -348;
-  static const int kMaxDecimalExponent = 340;
+// Returns a cached power-of-ten with a binary exponent in the range
+// [min_exponent; max_exponent] (boundaries included).
+void GetCachedPowerForBinaryExponentRange(int min_exponent, int max_exponent, DiyFp* power, int* decimal_exponent);
 
-  // Returns a cached power-of-ten with a binary exponent in the range
-  // [min_exponent; max_exponent] (boundaries included).
-  void GetCachedPowerForBinaryExponentRange(int min_exponent,
-                                            int max_exponent,
-                                            DiyFp* power,
-                                            int* decimal_exponent);
-
-  // Returns a cached power of ten x ~= 10^k such that
-  //   k <= decimal_exponent < k + kCachedPowersDecimalDistance.
-  // The given decimal_exponent must satisfy
-  //   kMinDecimalExponent <= requested_exponent, and
-  //   requested_exponent < kMaxDecimalExponent + kDecimalExponentDistance.
-  void GetCachedPowerForDecimalExponent(int requested_exponent,
-                                        DiyFp* power,
-                                        int* found_exponent);
-
+// Returns a cached power of ten x ~= 10^k such that
+//   k <= decimal_exponent < k + kCachedPowersDecimalDistance.
+// The given decimal_exponent must satisfy
+//   kMinDecimalExponent <= requested_exponent, and
+//   requested_exponent < kMaxDecimalExponent + kDecimalExponentDistance.
+void GetCachedPowerForDecimalExponent(int requested_exponent, DiyFp* power, int* found_exponent);
 }  // namespace PowersOfTenCache
-
 }  // namespace double_conversion
 
 // ICU PATCH: Close ICU namespace
