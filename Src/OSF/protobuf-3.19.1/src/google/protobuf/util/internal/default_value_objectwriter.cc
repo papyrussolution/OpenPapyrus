@@ -185,7 +185,7 @@ void DefaultValueObjectWriter::RegisterFieldScrubCallBack(
 }
 
 DefaultValueObjectWriter::Node* DefaultValueObjectWriter::CreateNewNode(
-    const std::string& name, const google::protobuf::Type* type, NodeKind kind,
+    const std::string & name, const google::protobuf::Type* type, NodeKind kind,
     const DataPiece& data, bool is_placeholder,
     const std::vector<std::string>& path, bool suppress_empty_list,
     bool preserve_proto_field_names, bool use_ints_for_enums,
@@ -196,7 +196,7 @@ DefaultValueObjectWriter::Node* DefaultValueObjectWriter::CreateNewNode(
 }
 
 DefaultValueObjectWriter::Node::Node(
-    const std::string& name, const google::protobuf::Type* type, NodeKind kind,
+    const std::string & name, const google::protobuf::Type* type, NodeKind kind,
     const DataPiece& data, bool is_placeholder,
     const std::vector<std::string>& path, bool suppress_empty_list,
     bool preserve_proto_field_names, bool use_ints_for_enums,
@@ -420,7 +420,7 @@ DataPiece DefaultValueObjectWriter::FindEnumDefault(
     if (!use_ints_for_enums) {
       return DataPiece(field.default_value(), true);
     } else {
-      const std::string& enum_default_value_name = field.default_value();
+      const std::string & enum_default_value_name = field.default_value();
       for (int enum_index = 0; enum_index < enum_type->enumvalue_size();
            ++enum_index) {
         auto& enum_value = enum_type->enumvalue(enum_index);
@@ -598,7 +598,7 @@ void DefaultValueObjectWriter::RenderDataPiece(StringPiece name,
       name == "@type") {
     util::StatusOr<std::string> data_string = data.ToString();
     if (data_string.ok()) {
-      const std::string& string_value = data_string.value();
+      const std::string & string_value = data_string.value();
       // If the type of current_ is "Any" and its "@type" field is being set
       // here, sets the type of current_ to be the type specified by the
       // "@type".

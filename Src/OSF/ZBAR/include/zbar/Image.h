@@ -95,7 +95,7 @@ private:
 	*/
 	/// constructor.
 	/// create a new Image with the specified parameters
-	Image (uint width = 0, uint height = 0, const std::string& format = "",
+	Image (uint width = 0, uint height = 0, const std::string & format = "",
 	    const void * data = NULL, ulong length = 0) : _img(zbar_image_create())
 	{
 		zbar_image_set_userdata(_img, this);
@@ -141,7 +141,7 @@ private:
 
 	/// specify the fourcc image format code for image sample data.
 	/// see zbar_image_set_format()
-	void set_format(const std::string& format)
+	void set_format(const std::string & format)
 	{
 		ulong fourcc = zbar_fourcc_parse(format.c_str());
 		zbar_image_set_format(_img, fourcc);

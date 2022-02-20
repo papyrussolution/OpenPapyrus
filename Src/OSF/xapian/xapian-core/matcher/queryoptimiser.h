@@ -69,11 +69,11 @@ public:
 	}
 	Xapian::termcount get_total_subqs() const { return total_subqs; }
 	void set_total_subqs(Xapian::termcount n) { total_subqs = n; }
-	PostList * open_post_list(const std::string& term, Xapian::termcount wqf, double factor) 
+	PostList * open_post_list(const std::string & term, Xapian::termcount wqf, double factor) 
 	{
 		return localsubmatch.open_post_list(term, wqf, factor, need_positions, compound_weight, this, false);
 	}
-	PostList * open_lazy_post_list(const std::string& term, Xapian::termcount wqf, double factor) 
+	PostList * open_lazy_post_list(const std::string & term, Xapian::termcount wqf, double factor) 
 	{
 		return localsubmatch.open_post_list(term, wqf, factor, need_positions, compound_weight, this, true);
 	}

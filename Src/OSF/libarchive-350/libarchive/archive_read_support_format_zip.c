@@ -12,17 +12,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE AUTHOR(S) BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "archive_platform.h"
 #pragma hdrstop
@@ -137,8 +126,8 @@ struct zip {
 	int64 entry_compressed_bytes_read;
 	int64 entry_uncompressed_bytes_read;
 	/* Running CRC32 of the decompressed data */
-	unsigned long entry_crc32;
-	unsigned long (* crc32func)(unsigned long, const void *, size_t);
+	ulong entry_crc32;
+	ulong (* crc32func)(ulong, const void *, size_t);
 	char ignore_crc32;
 	/* Flags to mark progress of decompression. */
 	char decompress_init;
@@ -239,13 +228,9 @@ static Byte ppmd_read(void * p)
 	/* Return the next compressed byte. */
 	return data[0];
 }
-
-/* ------------------------------------------------------------------------ */
-
 /*
    Traditional PKWARE Decryption functions.
  */
-
 static void trad_enc_update_keys(struct trad_enc_ctx * ctx, uint8 c)
 {
 	uint8 t;
@@ -259,29 +244,23 @@ static void trad_enc_update_keys(struct trad_enc_ctx * ctx, uint8 c)
 
 static uint8 trad_enc_decrypt_byte(struct trad_enc_ctx * ctx)
 {
-	unsigned temp = ctx->keys[2] | 2;
+	uint temp = ctx->keys[2] | 2;
 	return (uint8)((temp * (temp ^ 1)) >> 8) & 0xff;
 }
 
-static void trad_enc_decrypt_update(struct trad_enc_ctx * ctx, const uint8 * in,
-    size_t in_len, uint8 * out, size_t out_len)
+static void trad_enc_decrypt_update(struct trad_enc_ctx * ctx, const uint8 * in, size_t in_len, uint8 * out, size_t out_len)
 {
-	unsigned i, max;
-
-	max = (uint)((in_len < out_len) ? in_len : out_len);
-
-	for(i = 0; i < max; i++) {
+	const uint max = (uint)((in_len < out_len) ? in_len : out_len);
+	for(uint i = 0; i < max; i++) {
 		uint8 t = in[i] ^ trad_enc_decrypt_byte(ctx);
 		out[i] = t;
 		trad_enc_update_keys(ctx, t);
 	}
 }
 
-static int trad_enc_init(struct trad_enc_ctx * ctx, const char * pw, size_t pw_len,
-    const uint8 * key, size_t key_len, uint8 * crcchk)
+static int trad_enc_init(struct trad_enc_ctx * ctx, const char * pw, size_t pw_len, const uint8 * key, size_t key_len, uint8 * crcchk)
 {
 	uint8 header[12];
-
 	if(key_len < 12) {
 		*crcchk = 0xff;
 		return -1;
@@ -341,13 +320,13 @@ static void crypt_derive_key_sha1(const void * p, int size, uchar * key, int key
  * from entry bodies, and common API.
  */
 
-static unsigned long real_crc32(unsigned long crc, const void * buff, size_t len)
+static ulong real_crc32(ulong crc, const void * buff, size_t len)
 {
 	return crc32(crc, static_cast<const Bytef *>(buff), (uint)len);
 }
 
 /* Used by "ignorecrc32" option to speed up tests. */
-static unsigned long fake_crc32(unsigned long crc, const void * buff, size_t len)
+static ulong fake_crc32(ulong crc, const void * buff, size_t len)
 {
 	(void)crc; /* UNUSED */
 	(void)buff; /* UNUSED */
@@ -504,14 +483,10 @@ static int process_extra(struct archive_read * a, struct archive_entry * entry,
 		    {
 			    /* Strong encryption field. */
 			    if(archive_le16dec(p + offset) == 2) {
-				    unsigned algId =
-					archive_le16dec(p + offset + 2);
-				    unsigned bitLen =
-					archive_le16dec(p + offset + 4);
-				    int flags =
-					archive_le16dec(p + offset + 6);
-				    slfprintf_stderr("algId=0x%04x, bitLen=%u, "
-					"flgas=%d\n", algId, bitLen, flags);
+				    unsigned algId = archive_le16dec(p + offset + 2);
+				    unsigned bitLen = archive_le16dec(p + offset + 4);
+				    int flags = archive_le16dec(p + offset + 6);
+				    slfprintf_stderr("algId=0x%04x, bitLen=%u, flgas=%d\n", algId, bitLen, flags);
 			    }
 			    break;
 		    }
@@ -609,10 +584,8 @@ static int process_extra(struct archive_read * a, struct archive_entry * entry,
 			    bitmap_last = bitmap = 0xff & p[offset];
 			    offset += 1;
 			    datasize -= 1;
-
 			    /* We only support first 7 bits of bitmap; skip rest. */
-			    while((bitmap_last & 0x80) != 0
-				&& datasize >= 1) {
+			    while((bitmap_last & 0x80) != 0 && datasize >= 1) {
 				    bitmap_last = p[offset];
 				    offset += 1;
 				    datasize -= 1;
@@ -622,8 +595,7 @@ static int process_extra(struct archive_read * a, struct archive_entry * entry,
 				    /* 2 byte "version made by" */
 				    if(datasize < 2)
 					    break;
-				    zip_entry->system
-					    = archive_le16dec(p + offset) >> 8;
+				    zip_entry->system = archive_le16dec(p + offset) >> 8;
 				    offset += 2;
 				    datasize -= 2;
 			    }
@@ -707,8 +679,8 @@ static int process_extra(struct archive_read * a, struct archive_entry * entry,
 			    if(!zip->ignore_crc32) {
 				    const char * cp = archive_entry_pathname(entry);
 				    if(cp) {
-					    unsigned long file_crc = zip->crc32func(0, cp, strlen(cp));
-					    unsigned long utf_crc = archive_le32dec(p + offset - 4);
+					    ulong file_crc = zip->crc32func(0, cp, strlen(cp));
+					    ulong utf_crc = archive_le32dec(p + offset - 4);
 					    if(file_crc != utf_crc) {
 #ifdef DEBUG
 						    slfprintf_stderr("CRC filename mismatch; CDE is %lx, but UTF8 is outdated with %lx\n", file_crc, utf_crc);

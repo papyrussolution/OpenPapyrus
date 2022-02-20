@@ -1386,7 +1386,7 @@ void PPViewVatBook::ViewTotal()
 			dlg->setCtrlData(CTL_SLEDGTOTAL_EXPV, &Total.Export);
 		}
 		else {
-			dlg->setCtrlOption(CTL_VATBOOKTOTAL_FRAME, ofFramed, 1);
+			// @v11.3.2 @obsolete dlg->setCtrlOption(CTL_VATBOOKTOTAL_FRAME, ofFramed, 1);
 			dlg->setCtrlData(CTL_VATBOOKTOTAL_COUNT, &Total.Count);
 			dlg->setCtrlData(CTL_VATBOOKTOTAL_AMT,  &Total.Amount);
 			dlg->setCtrlData(CTL_VATBOOKTOTAL_VAT0, &Total.Vat0Amount);
@@ -2985,12 +2985,14 @@ int PPViewVatBook::Export()
 	SString left;
 	SString out_file_name;
 	SString id_file;
+	SString ledger_title; // @v11.3.2
+	SString ledger_line_title; // @v11.3.2
 	DocNalogRu_Generator g;
 	//xmlTextWriter * p_writer = 0;
 	const LDATE _cdate = getcurdate_();
 	const long  _uniq_suffix = 1;
-	const char * p_ledger_title = 0;
-	const char * p_ledger_line_title = 0;
+	// @v11.3.2 const char * p_ledger_title = 0;
+	// @v11.3.2 const char * p_ledger_line_title = 0;
 	PPID   main_org_id = GetMainOrgID();
 	{
 		SString sender_ident, rcvr_ident;
@@ -3047,19 +3049,23 @@ int PPViewVatBook::Export()
 			sender_ident.Z().CatCharN('0', 12);
 		}
 		if(Filt.Kind == PPVTB_BUY) {
-			p_ledger_title = "КнигаПокуп";
-			p_ledger_line_title = "КнПокСтр";
+			// @v11.3.2 p_ledger_title = "КнигаПокуп";
+			// @v11.3.2 p_ledger_line_title = "КнПокСтр";
+			ledger_title = g.GetToken_Ansi(PPHSC_RU_PURCHASELEDGER); // @v11.3.2
+			ledger_line_title = g.GetToken_Ansi(PPHSC_RU_PURCHASELEDGERLN); // @v11.3.2
 			id_file.Cat("NO_NDS").DotCat("8").CatChar('_').Cat(rcvr_ident).CatChar('_').Cat(sender_ident).
 				CatChar('_').Cat(_cdate, DATF_YMD|DATF_CENTURY|DATF_NODIV).CatChar('_').Cat(_uniq_suffix);
 		}
 		else if(Filt.Kind == PPVTB_SELL) {
-			p_ledger_title = "КнигаПрод";
-			p_ledger_line_title = "КнПродСтр";
+			// @v11.3.2 p_ledger_title = "КнигаПрод";
+			// @v11.3.2 p_ledger_line_title = "КнПродСтр";
+			ledger_title = g.GetToken_Ansi(PPHSC_RU_SALESLEDGER); // @v11.3.2
+			ledger_line_title = g.GetToken_Ansi(PPHSC_RU_SALESLEDGERLN); // @v11.3.2
 			id_file.Cat("NO_NDS").DotCat("9").CatChar('_').Cat(rcvr_ident).CatChar('_').Cat(sender_ident).
 				CatChar('_').Cat(_cdate, DATF_YMD|DATF_CENTURY|DATF_NODIV).CatChar('_').Cat(_uniq_suffix);
 		}
 	}
-	if(p_ledger_title) {
+	if(ledger_title.NotEmpty()) {
 		char   xml_entity_spec[256];
 		const  char * p_xml_entity_spec = 0;
 		{
@@ -3099,9 +3105,10 @@ int PPViewVatBook::Export()
 					else if(Filt.Kind == PPVTB_SELL) {
 						n_doc.PutAttrib(g.GetToken_Ansi(PPHSC_RU_INDEX), "0000090");
 					}
-					n_doc.PutAttrib("НомКорр", "0");
+					// @v11.3.2 n_doc.PutAttrib("НомКорр", "0");
+					n_doc.PutAttrib(g.GetToken_Ansi(PPHSC_RU_CORRECTIONNO_), "0"); // @v11.3.2
 					{
-						SXml::WNode n_book(g.P_X, p_ledger_title);
+						SXml::WNode n_book(g.P_X, ledger_title);
 						double sum_vat0 = 0.0;
 						double sum_vatn[3] = { 0.0, 0.0, 0.0 };
 						double sum_svatn[3] = { 0.0, 0.0, 0.0 };
@@ -3153,7 +3160,7 @@ int PPViewVatBook::Export()
 							n_book.PutAttrib("СтПродОсвВсКПр", temp_buf.Z().Cat(sum_vat0, SFMT_MONEY)); // Сумма продаж, освобожденных от НДС
 						}
 						for(InitIteration(); NextIteration(&item) > 0;) {
-							SXml::WNode n_item(g.P_X, p_ledger_line_title);
+							SXml::WNode n_item(g.P_X, ledger_line_title);
 							line_no++;
 
 							const double _vat0 = MONEYTOLDBL(item.VAT0);

@@ -26,15 +26,13 @@
 #define XAPIAN_INCLUDED_WORDACCESS_H
 
 #ifndef PACKAGE
-#error config.h must be included first in each C++ source file
+	#error config.h must be included first in each C++ source file
 #endif
-
-#include <cstdint>
-#include <type_traits>
-#include <cstring>
-
+//#include <cstdint>
+//#include <type_traits>
+//#include <cstring>
 #include "alignment_cast.h"
-#include "omassert.h"
+//#include "omassert.h"
 
 #if HAVE_DECL__BYTESWAP_USHORT || HAVE_DECL__BYTESWAP_ULONG
 #include <stdlib.h>
@@ -42,151 +40,109 @@
 
 inline uint16_t do_bswap(uint16_t value) {
 #if HAVE_DECL___BUILTIN_BSWAP16
-    return __builtin_bswap16(value);
+	return __builtin_bswap16(value);
 # elif HAVE_DECL__BYTESWAP_USHORT
-    return _byteswap_ushort(value);
+	return _byteswap_ushort(value);
 # else
-    return (value << 8) | (value >> 8);
+	return (value << 8) | (value >> 8);
 #endif
 }
 
-inline uint32_t do_bswap(uint32_t value) {
+inline uint32_t do_bswap(uint32_t value) 
+{
 #if HAVE_DECL___BUILTIN_BSWAP32
-    return __builtin_bswap32(value);
+	return __builtin_bswap32(value);
 # elif HAVE_DECL__BYTESWAP_ULONG
-    return _byteswap_ulong(value);
+	return _byteswap_ulong(value);
 # else
-    return (value << 24) |
-	   ((value & 0xff00) << 8) |
-	   ((value >> 8) & 0xff00) |
-	   (value >> 24);
+	return (value << 24) | ((value & 0xff00) << 8) | ((value >> 8) & 0xff00) | (value >> 24);
 #endif
 }
 
-inline uint64_t do_bswap(uint64_t value) {
+inline uint64_t do_bswap(uint64_t value) 
+{
 #if HAVE_DECL___BUILTIN_BSWAP64
-    return __builtin_bswap64(value);
+	return __builtin_bswap64(value);
 # elif HAVE_DECL__BYTESWAP_UINT64
-    return _byteswap_uint64(value);
+	return _byteswap_uint64(value);
 # else
-    return (value << 56) |
-	   ((value & 0xff00) << 40) |
-	   ((value & 0xff0000) << 24) |
-	   ((value & 0xff000000) << 8) |
-	   ((value >> 8) & 0xff000000) |
-	   ((value >> 24) & 0xff0000) |
-	   ((value >> 40) & 0xff00) |
-	   (value >> 56);
+	return (value << 56) | ((value & 0xff00) << 40) | ((value & 0xff0000) << 24) |
+	       ((value & 0xff000000) << 8) | ((value >> 8) & 0xff000000) | ((value >> 24) & 0xff0000) |
+	       ((value >> 40) & 0xff00) | (value >> 56);
 #endif
 }
 
-template<typename UINT>
-inline UINT
-do_aligned_read(const uchar * ptr)
+template <typename UINT> inline UINT do_aligned_read(const uchar * ptr)
 {
-    UINT value = *alignment_cast<const UINT*>(ptr);
+	UINT value = *alignment_cast<const UINT*>(ptr);
 #ifndef WORDS_BIGENDIAN
-    value = do_bswap(value);
+	value = do_bswap(value);
 #endif
-    return value;
+	return value;
 }
 
-template<typename T, typename UINT>
-inline void
-do_aligned_write(uchar * ptr, T value)
+template <typename T, typename UINT> inline void do_aligned_write(uchar * ptr, T value)
 {
-    if (std::is_signed<T>::value) {
-	AssertRel(value, >=, 0);
-    }
-    if (sizeof(T) > sizeof(UINT)) {
-	AssertEq(value, T(UINT(value)));
-    }
-    UINT v = UINT(value);
+	if(std::is_signed<T>::value) {
+		AssertRel(value, >=, 0);
+	}
+	if(sizeof(T) > sizeof(UINT)) {
+		AssertEq(value, T(UINT(value)));
+	}
+	UINT v = UINT(value);
 #ifndef WORDS_BIGENDIAN
-    v = do_bswap(v);
+	v = do_bswap(v);
 #endif
-    *alignment_cast<UINT*>(ptr) = v;
+	*alignment_cast<UINT*>(ptr) = v;
 }
 
-template<typename UINT>
-inline UINT
-do_unaligned_read(const uchar * ptr)
+template <typename UINT> inline UINT do_unaligned_read(const uchar * ptr)
 {
-    UINT value;
-    memcpy(&value, ptr, sizeof(UINT));
+	UINT value;
+	memcpy(&value, ptr, sizeof(UINT));
 #ifndef WORDS_BIGENDIAN
-    value = do_bswap(value);
+	value = do_bswap(value);
 #endif
-    return value;
+	return value;
 }
 
-template<typename T, typename UINT>
-inline void
-do_unaligned_write(uchar * ptr, T value)
+template <typename T, typename UINT> inline void do_unaligned_write(uchar * ptr, T value)
 {
-    if (std::is_signed<T>::value) {
-	AssertRel(value, >=, 0);
-    }
-    if (sizeof(T) > sizeof(UINT)) {
-	AssertEq(value, T(UINT(value)));
-    }
-    UINT v = UINT(value);
+	if(std::is_signed<T>::value) {
+		AssertRel(value, >=, 0);
+	}
+	if(sizeof(T) > sizeof(UINT)) {
+		AssertEq(value, T(UINT(value)));
+	}
+	UINT v = UINT(value);
 #ifndef WORDS_BIGENDIAN
-    v = do_bswap(v);
+	v = do_bswap(v);
 #endif
-    memcpy(ptr, &v, sizeof(UINT));
+	memcpy(ptr, &v, sizeof(UINT));
 }
 
-inline uint32_t
-aligned_read4(const uchar *ptr)
+inline uint32_t aligned_read4(const uchar * ptr) { return do_aligned_read<uint32_t>(ptr); }
+inline uint32_t unaligned_read4(const uchar * ptr) { return do_unaligned_read<uint32_t>(ptr); }
+inline uint16_t aligned_read2(const uchar * ptr) { return do_aligned_read<uint16_t>(ptr); }
+inline uint16_t unaligned_read2(const uchar * ptr) { return do_unaligned_read<uint16_t>(ptr); }
+template <typename T> inline void aligned_write4(uchar * ptr, T value)
 {
-    return do_aligned_read<uint32_t>(ptr);
+	do_aligned_write<T, uint32_t>(ptr, value);
 }
 
-inline uint32_t
-unaligned_read4(const uchar *ptr)
+template <typename T> inline void unaligned_write4(uchar * ptr, T value)
 {
-    return do_unaligned_read<uint32_t>(ptr);
+	do_unaligned_write<T, uint32_t>(ptr, value);
 }
 
-inline uint16_t
-aligned_read2(const uchar *ptr)
+template <typename T> inline void aligned_write2(uchar * ptr, T value)
 {
-    return do_aligned_read<uint16_t>(ptr);
+	do_aligned_write<T, uint16_t>(ptr, value);
 }
 
-inline uint16_t
-unaligned_read2(const uchar *ptr)
+template <typename T> inline void unaligned_write2(uchar * ptr, T value)
 {
-    return do_unaligned_read<uint16_t>(ptr);
-}
-
-template<typename T>
-inline void
-aligned_write4(uchar *ptr, T value)
-{
-    do_aligned_write<T, uint32_t>(ptr, value);
-}
-
-template<typename T>
-inline void
-unaligned_write4(uchar *ptr, T value)
-{
-    do_unaligned_write<T, uint32_t>(ptr, value);
-}
-
-template<typename T>
-inline void
-aligned_write2(uchar *ptr, T value)
-{
-    do_aligned_write<T, uint16_t>(ptr, value);
-}
-
-template<typename T>
-inline void
-unaligned_write2(uchar *ptr, T value)
-{
-    do_unaligned_write<T, uint16_t>(ptr, value);
+	do_unaligned_write<T, uint16_t>(ptr, value);
 }
 
 #endif // XAPIAN_INCLUDED_WORDACCESS_H

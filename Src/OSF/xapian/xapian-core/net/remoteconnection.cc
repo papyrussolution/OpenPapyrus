@@ -38,7 +38,7 @@ static void throw_network_error_insane_message_length()
 }
 
 [[noreturn]]
-static void throw_timeout(const char* msg, const string& context)
+static void throw_timeout(const char* msg, const string & context)
 {
 	throw Xapian::NetworkTimeoutError(msg, context);
 }
@@ -149,7 +149,7 @@ bool RemoteConnection::read_at_least(size_t min_len, double end_time)
 			}
 
 			// Wait until there is data, an error, or the timeout is reached.
-# ifdef HAVE_POLL
+#ifdef HAVE_POLL
 			struct pollfd fds;
 			fds.fd = fdin;
 			fds.events = POLLIN;
@@ -282,7 +282,7 @@ void RemoteConnection::send_message(char type, const string &message,
 		}
 
 		// Wait until there is space or the timeout is reached.
-# ifdef HAVE_POLL
+#ifdef HAVE_POLL
 		struct pollfd fds;
 		fds.fd = fdout;
 		fds.events = POLLOUT;
@@ -433,7 +433,7 @@ void RemoteConnection::send_file(char type, int fd, double end_time)
 		}
 
 		// Wait until there is space or the timeout is reached.
-# ifdef HAVE_POLL
+#ifdef HAVE_POLL
 		struct pollfd fds;
 		fds.fd = fdout;
 		fds.events = POLLOUT;
@@ -556,7 +556,7 @@ int RemoteConnection::get_message_chunked(double end_time)
 	}
 	chunked_data_left = off_t(len);
 	// Check that the value of len fits in an off_t without loss.
-	if(rare(uint_least64_t(chunked_data_left) != len)) {
+	if(UNLIKELY(uint_least64_t(chunked_data_left) != len)) {
 		throw_network_error_insane_message_length();
 	}
 	size_t header_len = (p - buffer.data());
@@ -647,7 +647,7 @@ void RemoteConnection::shutdown()
 #else
 		// Wait for the connection to be closed - when this happens
 		// poll()/select() will report that a read won't block.
-# ifdef HAVE_POLL
+#ifdef HAVE_POLL
 		struct pollfd fds;
 		fds.fd = fdin;
 		fds.events = POLLIN;

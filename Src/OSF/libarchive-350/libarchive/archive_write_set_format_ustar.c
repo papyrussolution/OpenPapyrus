@@ -11,17 +11,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE AUTHOR(S) BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "archive_platform.h"
 #pragma hdrstop
@@ -502,21 +491,16 @@ int __archive_write_format_header_ustar(struct archive_write * a, char h[512],
 	r = archive_entry_gname_l(entry, &p, &copy_length, sconv);
 	if(r != 0) {
 		if(errno == ENOMEM) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate memory for Gname");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Gname");
 			return ARCHIVE_FATAL;
 		}
-		archive_set_error(&a->archive,
-		    ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Can't translate gname '%s' to %s",
-		    p, archive_string_conversion_charset_name(sconv));
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Can't translate gname '%s' to %s", p, archive_string_conversion_charset_name(sconv));
 		ret = ARCHIVE_WARN;
 	}
 	if(copy_length > 0) {
 		if(strlen(p) > USTAR_gname_size) {
 			if(tartype != 'x') {
-				archive_set_error(&a->archive,
-				    ARCHIVE_ERRNO_MISC, "Group name too long");
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Group name too long");
 				ret = ARCHIVE_FAILED;
 			}
 			copy_length = USTAR_gname_size;
@@ -613,14 +597,10 @@ int __archive_write_format_header_ustar(struct archive_write * a, char h[512],
  */
 static int format_number(int64 v, char * p, int s, int maxsize, int strict)
 {
-	int64 limit;
-
-	limit = ((int64)1 << (s*3));
-
+	int64 limit = ((int64)1 << (s*3));
 	/* "Strict" only permits octal values with proper termination. */
 	if(strict)
 		return (format_octal(v, p, s));
-
 	/*
 	 * In non-strict mode, we allow the number to overwrite one or
 	 * more bytes of the field termination.  Even old tar
@@ -659,30 +639,23 @@ static int format_256(int64 v, char * p, int s)
  */
 static int format_octal(int64 v, char * p, int s)
 {
-	int len;
-
-	len = s;
-
+	int len = s;
 	/* Octal values can't be negative, so use 0. */
 	if(v < 0) {
 		while(len-- > 0)
 			*p++ = '0';
 		return -1;
 	}
-
 	p += s; /* Start at the end and work backwards. */
 	while(s-- > 0) {
 		*--p = (char)('0' + (v & 7));
 		v >>= 3;
 	}
-
 	if(v == 0)
 		return 0;
-
 	/* If it overflowed, fill field with max value. */
 	while(len-- > 0)
 		*p++ = '7';
-
 	return -1;
 }
 
@@ -693,9 +666,7 @@ static int archive_write_ustar_close(struct archive_write * a)
 
 static int archive_write_ustar_free(struct archive_write * a)
 {
-	struct ustar * ustar;
-
-	ustar = (struct ustar *)a->format_data;
+	struct ustar * ustar = (struct ustar *)a->format_data;
 	SAlloc::F(ustar);
 	a->format_data = NULL;
 	return ARCHIVE_OK;
@@ -703,22 +674,17 @@ static int archive_write_ustar_free(struct archive_write * a)
 
 static int archive_write_ustar_finish_entry(struct archive_write * a)
 {
-	struct ustar * ustar;
 	int ret;
-
-	ustar = (struct ustar *)a->format_data;
-	ret = __archive_write_nulls(a,
-		(size_t)(ustar->entry_bytes_remaining + ustar->entry_padding));
+	struct ustar * ustar = (struct ustar *)a->format_data;
+	ret = __archive_write_nulls(a, (size_t)(ustar->entry_bytes_remaining + ustar->entry_padding));
 	ustar->entry_bytes_remaining = ustar->entry_padding = 0;
 	return ret;
 }
 
 static ssize_t archive_write_ustar_data(struct archive_write * a, const void * buff, size_t s)
 {
-	struct ustar * ustar;
 	int ret;
-
-	ustar = (struct ustar *)a->format_data;
+	struct ustar * ustar = (struct ustar *)a->format_data;
 	if(s > ustar->entry_bytes_remaining)
 		s = (size_t)ustar->entry_bytes_remaining;
 	ret = __archive_write_output(a, buff, s);

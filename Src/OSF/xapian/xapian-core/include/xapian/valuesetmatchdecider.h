@@ -71,7 +71,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueSetMatchDecider : public MatchDecider {
      *
      *  @param value The value to add to the test set.
      */
-    void add_value(const std::string& value)
+    void add_value(const std::string & value)
     {
 	testset.insert(value);
     }
@@ -80,7 +80,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueSetMatchDecider : public MatchDecider {
      *
      *  @param value The value to remove from the test set.
      */
-    void remove_value(const std::string& value)
+    void remove_value(const std::string & value)
     {
 	testset.erase(value);
     }

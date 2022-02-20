@@ -63,7 +63,7 @@ class TypeInfoForTypeResolver : public TypeInfo {
     }
     // Stores the string value so it can be referenced using StringPiece in the
     // cached_types_ map.
-    const std::string& string_type_url =
+    const std::string & string_type_url =
         *string_storage_.insert(std::string(type_url)).first;
     std::unique_ptr<google::protobuf::Type> type(new google::protobuf::Type());
     util::Status status =
@@ -89,7 +89,7 @@ class TypeInfoForTypeResolver : public TypeInfo {
     }
     // Stores the string value so it can be referenced using StringPiece in the
     // cached_enums_ map.
-    const std::string& string_type_url =
+    const std::string & string_type_url =
         *string_storage_.insert(std::string(type_url)).first;
     std::unique_ptr<google::protobuf::Enum> enum_type(
         new google::protobuf::Enum());

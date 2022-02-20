@@ -30,50 +30,48 @@
 #include <xapian/visibility.h>
 
 namespace Xapian {
-
 class Document;
 
 /// Abstract base class for match deciders.
 class XAPIAN_VISIBILITY_DEFAULT MatchDecider {
-  private:
-    /// Don't allow assignment.
-    void operator=(const MatchDecider &) = delete;
+private:
+	/// Don't allow assignment.
+	void operator=(const MatchDecider &) = delete;
+	/// Don't allow copying.
+	MatchDecider(const MatchDecider &) = delete;
+public:
+	/// Default constructor, needed by subclass constructors.
+	MatchDecider() noexcept 
+	{
+	}
+	/** Virtual destructor, because we have virtual methods. */
+	virtual ~MatchDecider() 
+	{
+	}
+	/** Decide whether to accept a document.
+	 *
+	 *  This is called by the matcher for documents before adding them to the
+	 *  candidate result set.  Note that documents accepted here may still not
+	 *  appear in the final MSet (better documents may be found, for example).
+	 *
+	 *  @param doc The document to consider.
+	 *
+	 *  @return true if the document should be considered further.
+	 */
+	virtual bool operator()(const Xapian::Document &doc) const = 0;
 
-    /// Don't allow copying.
-    MatchDecider(const MatchDecider &) = delete;
+	/** @private @internal Count of documents accepted by this object.
+	 *
+	 *  Used to return stats to the matcher.
+	 */
+	mutable Xapian::doccount docs_allowed_;
 
-  public:
-    /// Default constructor, needed by subclass constructors.
-    MatchDecider() noexcept {}
-
-    /** Virtual destructor, because we have virtual methods. */
-    virtual ~MatchDecider() { }
-
-    /** Decide whether to accept a document.
-     *
-     *  This is called by the matcher for documents before adding them to the
-     *  candidate result set.  Note that documents accepted here may still not
-     *  appear in the final MSet (better documents may be found, for example).
-     *
-     *  @param doc The document to consider.
-     *
-     *  @return true if the document should be considered further.
-     */
-    virtual bool operator()(const Xapian::Document &doc) const = 0;
-
-    /** @private @internal Count of documents accepted by this object.
-     *
-     *  Used to return stats to the matcher.
-     */
-    mutable Xapian::doccount docs_allowed_;
-
-    /** @private @internal Count of documents rejected by this object.
-     *
-     *  Used to return stats to the matcher.
-     */
-    mutable Xapian::doccount docs_denied_;
+	/** @private @internal Count of documents rejected by this object.
+	 *
+	 *  Used to return stats to the matcher.
+	 */
+	mutable Xapian::doccount docs_denied_;
 };
-
 }
 
 #endif // XAPIAN_INCLUDED_MATCHDECIDER_H

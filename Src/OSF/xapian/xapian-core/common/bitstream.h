@@ -39,13 +39,13 @@ public:
 	{
 	}
 	/// Construct with the contents of seed already in the stream.
-	explicit BitWriter(const std::string& seed) : buf(seed), n_bits(0), acc(0) 
+	explicit BitWriter(const std::string & seed) : buf(seed), n_bits(0), acc(0) 
 	{
 	}
 	/// Encode value, known to be less than outof.
 	void encode(Xapian::termpos value, Xapian::termpos outof);
 	/// Finish encoding and return the encoded data as a std::string.
-	std::string& freeze() 
+	std::string & freeze() 
 	{
 		if(n_bits) {
 			buf += char(acc);

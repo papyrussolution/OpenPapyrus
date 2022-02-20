@@ -22,14 +22,12 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-
 #ifndef XAPIAN_INCLUDED_GEOENCODE_H
 #define XAPIAN_INCLUDED_GEOENCODE_H
 
-#include <string>
+//#include <string>
 
 namespace GeoEncode {
-
 /** Encode a coordinate and append it to a string.
  *
  * @param lat The latitude coordinate in degrees (ranging from -90 to +90)
@@ -43,8 +41,7 @@ namespace GeoEncode {
  * of error is out-of-range latitudes.  If there was no error, the string will
  * have been extended by 6 bytes.
  */
-extern bool
-encode(double lat, double lon, std::string & result);
+extern bool encode(double lat, double lon, std::string & result);
 
 /** Decode a coordinate from a buffer.
  *
@@ -60,8 +57,7 @@ encode(double lat, double lon, std::string & result);
  * first 6 bytes) will be ignored, and it is possible for invalid inputs to
  * result in out-of-range longitudes.
  */
-extern void
-decode(const char * value, size_t len, double & lat_ref, double & lon_ref);
+extern void decode(const char * value, size_t len, double & lat_ref, double & lon_ref);
 
 /** Decode a coordinate from a string.
  *
@@ -76,10 +72,9 @@ decode(const char * value, size_t len, double & lat_ref, double & lon_ref);
  * first 6 bytes) will be ignored, and it is possible for invalid inputs to
  * result in out-of-range longitudes.
  */
-static inline void
-decode(const std::string & value, double & lat_ref, double & lon_ref)
+static inline void decode(const std::string & value, double & lat_ref, double & lon_ref)
 {
-    return GeoEncode::decode(value.data(), value.size(), lat_ref, lon_ref);
+	return GeoEncode::decode(value.data(), value.size(), lat_ref, lon_ref);
 }
 
 /** A class for decoding coordinates within a bounding box.
@@ -89,71 +84,44 @@ decode(const std::string & value, double & lat_ref, double & lon_ref)
  *  unnecessary work.
  */
 class DecoderWithBoundingBox {
-    /** Longitude at western edge of bounding box.
-     */
-    double lon1;
+	double lon1; /** Longitude at western edge of bounding box. */
+	double lon2; /** Longitude at eastern edge of bounding box. */
+	double min_lat; /** Minimum latitude in bounding box. */
+	double max_lat; /** Maximum latitude in bounding box. */
+	uchar start1; /** First byte of encoded form of coordinates with lon1. */
+	uchar start2; /** First byte of encoded form of coordinates with lon2. */
+	bool include_poles; /** True if either of the poles are included in the range. */
+	bool discontinuous_longitude_range; /** Flag; true if the longitude range is discontinuous (ie, goes over the boundary at which longitudes wrap from 360 to 0). */
+public:
+	/** Create a decoder with a bounding box.
+	 *
+	 *  The decoder will decode any encoded coordinates which lie inside the
+	 *  bounding box, and return false for any which lie outside the bounding
+	 *  box.
+	 *
+	 *  @param lat1 The latitude of the southern edge of the bounding box.
+	 *  @param lon1 The longitude of the western edge of the bounding box.
+	 *  @param lat2 The latitude of the northern edge of the bounding box.
+	 *  @param lon2 The longitude of the eastern edge of the bounding box.
+	 */
+	DecoderWithBoundingBox(double lat1, double lon1, double lat2, double lon2);
 
-    /** Longitude at eastern edge of bounding box.
-     */
-    double lon2;
-
-    /** Minimum latitude in bounding box.
-     */
-    double min_lat;
-
-    /** Maximum latitude in bounding box.
-     */
-    double max_lat;
-
-    /** First byte of encoded form of coordinates with lon1.
-     */
-    uchar start1;
-
-    /** First byte of encoded form of coordinates with lon2.
-     */
-    uchar start2;
-
-    /** True if either of the poles are included in the range.
-     */
-    bool include_poles;
-
-    /** Flag; true if the longitude range is discontinuous (ie, goes over the
-     *  boundary at which longitudes wrap from 360 to 0).
-     */
-    bool discontinuous_longitude_range;
-
-  public:
-    /** Create a decoder with a bounding box.
-     *
-     *  The decoder will decode any encoded coordinates which lie inside the
-     *  bounding box, and return false for any which lie outside the bounding
-     *  box.
-     *
-     *  @param lat1 The latitude of the southern edge of the bounding box.
-     *  @param lon1 The longitude of the western edge of the bounding box.
-     *  @param lat2 The latitude of the northern edge of the bounding box.
-     *  @param lon2 The longitude of the eastern edge of the bounding box.
-     */
-    DecoderWithBoundingBox(double lat1, double lon1, double lat2, double lon2);
-
-    /** Decode a coordinate.
-     *
-     *  @param value The coordinate to decode.
-     *  @param lat_ref A reference to a value to return the latitude in.
-     *  @param lon_ref A reference to a value to return the longitude in.
-     *
-     *  @returns true if the coordinate was in the bounding box (in which case,
-     *           @a result will have been updated to contain the coordinate),
-     *           or false if the coordinate is outside the bounding box.
-     *
-     *  Note; if this returns false, the values of @a lat_ref and @a lon_ref
-     *  may not have been updated, or may have been updated to incorrect
-     *  values, due to aborting decoding of the coordinate part-way through.
-     */
-    bool decode(const std::string & value,
-		double & lat_ref, double & lon_ref) const;
+	/** Decode a coordinate.
+	 *
+	 *  @param value The coordinate to decode.
+	 *  @param lat_ref A reference to a value to return the latitude in.
+	 *  @param lon_ref A reference to a value to return the longitude in.
+	 *
+	 *  @returns true if the coordinate was in the bounding box (in which case,
+	 *           @a result will have been updated to contain the coordinate),
+	 *           or false if the coordinate is outside the bounding box.
+	 *
+	 *  Note; if this returns false, the values of @a lat_ref and @a lon_ref
+	 *  may not have been updated, or may have been updated to incorrect
+	 *  values, due to aborting decoding of the coordinate part-way through.
+	 */
+	bool decode(const std::string & value, double & lat_ref, double & lon_ref) const;
 };
-
 }
 
 #endif /* XAPIAN_INCLUDED_GEOENCODE_H */

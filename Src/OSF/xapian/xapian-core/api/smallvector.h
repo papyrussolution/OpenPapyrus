@@ -258,7 +258,7 @@ protected:
 
 	void do_reserve(size_type n) {
 		// Logic error or size_t wrapping.
-		if(rare(COW ? n < c : n <= c))
+		if(UNLIKELY(COW ? n < c : n <= c))
 			throw std::bad_alloc();
 		T* blk = new T[n + COW];
 		if(COW)

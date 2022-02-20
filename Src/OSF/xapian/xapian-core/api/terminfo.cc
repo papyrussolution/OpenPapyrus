@@ -34,7 +34,7 @@ void TermInfo::merge() const
 
 bool TermInfo::add_position(Xapian::termcount wdf_inc, Xapian::termpos termpos)
 {
-	if(rare(is_deleted())) {
+	if(UNLIKELY(is_deleted())) {
 		wdf = wdf_inc;
 		split = 0;
 		positions.push_back(termpos);
@@ -79,7 +79,7 @@ bool TermInfo::add_position(Xapian::termcount wdf_inc, Xapian::termpos termpos)
 	if(i == positions.cend() || *i != termpos) {
 		auto new_split = positions.size();
 		if(sizeof(split) < sizeof(Xapian::termpos)) {
-			if(rare(new_split > numeric_limits<decltype(split)>::max())) {
+			if(UNLIKELY(new_split > numeric_limits<decltype(split)>::max())) {
 				// The split point would be beyond the size of the type used to
 				// hold it, which is really unlikely if that type is 32-bit.
 				// Just insert the old way in this case.
@@ -103,7 +103,7 @@ bool TermInfo::remove_position(Xapian::termpos termpos)
 {
 	Assert(!is_deleted());
 
-	if(rare(positions.empty()))
+	if(UNLIKELY(positions.empty()))
 		return false;
 
 	// Special case removing the final position, which we can handle in O(1).

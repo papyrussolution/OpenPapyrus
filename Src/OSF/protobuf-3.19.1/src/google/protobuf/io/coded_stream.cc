@@ -916,7 +916,7 @@ uint8_t* EpsCopyOutputStream::WriteRawLittleEndian64(const void* data, int size,
 #endif
 
 uint8_t* EpsCopyOutputStream::WriteStringMaybeAliasedOutline(uint32_t num,
-    const std::string& s,
+    const std::string & s,
     uint8_t* ptr) {
 	ptr = EnsureSpace(ptr);
 	uint32_t size = s.size();
@@ -924,7 +924,7 @@ uint8_t* EpsCopyOutputStream::WriteStringMaybeAliasedOutline(uint32_t num,
 	return WriteRawMaybeAliased(s.data(), size, ptr);
 }
 
-uint8_t* EpsCopyOutputStream::WriteStringOutline(uint32_t num, const std::string& s,
+uint8_t* EpsCopyOutputStream::WriteStringOutline(uint32_t num, const std::string & s,
     uint8_t* ptr) {
 	ptr = EnsureSpace(ptr);
 	uint32_t size = s.size();
@@ -952,7 +952,7 @@ CodedOutputStream::~CodedOutputStream()
 	Trim();
 }
 
-uint8_t* CodedOutputStream::WriteStringWithSizeToArray(const std::string& str, uint8_t* target) 
+uint8_t* CodedOutputStream::WriteStringWithSizeToArray(const std::string & str, uint8_t* target) 
 {
 	GOOGLE_DCHECK_LE(str.size(), std::numeric_limits<uint32_t>::max());
 	target = WriteVarint32ToArray(str.size(), target);

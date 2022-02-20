@@ -1027,9 +1027,9 @@ public:
 	{
 		SetupCalPeriod(CTLCAL_ATRNTMPL_PERIOD, CTL_ATRNTMPL_PERIOD);
 		AcctCtrlGroup * p_acc_grp = 0;
-		setCtrlOption(CTL_ATRNTMPL_DTEXT,  ofFramed, 1);
-		setCtrlOption(CTL_ATRNTMPL_CTEXT,  ofFramed, 1);
-		setCtrlOption(CTL_ATRNTMPL_SFRAME, ofFramed, 1);
+		// @v11.3.2 @obsolete setCtrlOption(CTL_ATRNTMPL_DTEXT,  ofFramed, 1);
+		// @v11.3.2 @obsolete setCtrlOption(CTL_ATRNTMPL_CTEXT,  ofFramed, 1);
+		// @v11.3.2 @obsolete setCtrlOption(CTL_ATRNTMPL_SFRAME, ofFramed, 1);
 		p_acc_grp = new AcctCtrlGroup(CTL_ATRNTMPL_DACC, CTL_ATRNTMPL_DART, CTLSEL_ATRNTMPL_DACCNAME, CTLSEL_ATRNTMPL_DARTNAME);
 		addGroup(ctlgroupDbt, p_acc_grp);
 		p_acc_grp = new AcctCtrlGroup(CTL_ATRNTMPL_CACC, CTL_ATRNTMPL_CART, CTLSEL_ATRNTMPL_CACCNAME, CTLSEL_ATRNTMPL_CARTNAME);

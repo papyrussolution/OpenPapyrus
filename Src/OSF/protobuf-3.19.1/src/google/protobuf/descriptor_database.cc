@@ -43,7 +43,7 @@ namespace google {
 namespace protobuf {
 namespace {
 void RecordMessageNames(const DescriptorProto& desc_proto,
-    const std::string& prefix,
+    const std::string & prefix,
     std::set<std::string>* output) {
 	GOOGLE_CHECK(desc_proto.has_name());
 	std::string full_name = prefix.empty()
@@ -189,7 +189,7 @@ bool IsSubSymbol(StringPiece sub_symbol, StringPiece super_symbol) {
 }  // namespace
 
 template <typename Value>
-bool SimpleDescriptorDatabase::DescriptorIndex<Value>::AddSymbol(const std::string& name, Value value) {
+bool SimpleDescriptorDatabase::DescriptorIndex<Value>::AddSymbol(const std::string & name, Value value) {
 	// We need to make sure not to violate our map invariant.
 
 	// If the symbol name is invalid it could break our lookup algorithm (which
@@ -245,7 +245,7 @@ bool SimpleDescriptorDatabase::DescriptorIndex<Value>::AddSymbol(const std::stri
 }
 
 template <typename Value>
-bool SimpleDescriptorDatabase::DescriptorIndex<Value>::AddNestedExtensions(const std::string& filename, const DescriptorProto& message_type,
+bool SimpleDescriptorDatabase::DescriptorIndex<Value>::AddNestedExtensions(const std::string & filename, const DescriptorProto& message_type,
     Value value) {
 	for(int i = 0; i < message_type.nested_type_size(); i++) {
 		if(!AddNestedExtensions(filename, message_type.nested_type(i), value))
@@ -258,7 +258,7 @@ bool SimpleDescriptorDatabase::DescriptorIndex<Value>::AddNestedExtensions(const
 }
 
 template <typename Value>
-bool SimpleDescriptorDatabase::DescriptorIndex<Value>::AddExtension(const std::string& filename, const FieldDescriptorProto& field,
+bool SimpleDescriptorDatabase::DescriptorIndex<Value>::AddExtension(const std::string & filename, const FieldDescriptorProto& field,
     Value value) {
 	if(!field.extendee().empty() && field.extendee()[0] == '.') {
 		// The extension is fully-qualified.  We can use it as a lookup key in
@@ -283,12 +283,12 @@ bool SimpleDescriptorDatabase::DescriptorIndex<Value>::AddExtension(const std::s
 }
 
 template <typename Value>
-Value SimpleDescriptorDatabase::DescriptorIndex<Value>::FindFile(const std::string& filename) {
+Value SimpleDescriptorDatabase::DescriptorIndex<Value>::FindFile(const std::string & filename) {
 	return FindWithDefault(by_name_, filename, Value());
 }
 
 template <typename Value>
-Value SimpleDescriptorDatabase::DescriptorIndex<Value>::FindSymbol(const std::string& name) {
+Value SimpleDescriptorDatabase::DescriptorIndex<Value>::FindSymbol(const std::string & name) {
 	auto iter = FindLastLessOrEqual(&by_symbol_, name);
 
 	return (iter != by_symbol_.end() && IsSubSymbol(iter->first, name))
@@ -297,13 +297,13 @@ Value SimpleDescriptorDatabase::DescriptorIndex<Value>::FindSymbol(const std::st
 }
 
 template <typename Value>
-Value SimpleDescriptorDatabase::DescriptorIndex<Value>::FindExtension(const std::string& containing_type, int field_number) {
+Value SimpleDescriptorDatabase::DescriptorIndex<Value>::FindExtension(const std::string & containing_type, int field_number) {
 	return FindWithDefault(
 		by_extension_, std::make_pair(containing_type, field_number), Value());
 }
 
 template <typename Value>
-bool SimpleDescriptorDatabase::DescriptorIndex<Value>::FindAllExtensionNumbers(const std::string& containing_type,
+bool SimpleDescriptorDatabase::DescriptorIndex<Value>::FindAllExtensionNumbers(const std::string & containing_type,
     std::vector<int>* output) {
 	typename std::map<std::pair<std::string, int>, Value>::const_iterator it =
 	    by_extension_.lower_bound(std::make_pair(containing_type, 0));
@@ -341,21 +341,21 @@ bool SimpleDescriptorDatabase::AddAndOwn(const FileDescriptorProto* file) {
 	return index_.AddFile(*file, file);
 }
 
-bool SimpleDescriptorDatabase::FindFileByName(const std::string& filename,
+bool SimpleDescriptorDatabase::FindFileByName(const std::string & filename,
     FileDescriptorProto* output) {
 	return MaybeCopy(index_.FindFile(filename), output);
 }
 
-bool SimpleDescriptorDatabase::FindFileContainingSymbol(const std::string& symbol_name, FileDescriptorProto* output) {
+bool SimpleDescriptorDatabase::FindFileContainingSymbol(const std::string & symbol_name, FileDescriptorProto* output) {
 	return MaybeCopy(index_.FindSymbol(symbol_name), output);
 }
 
-bool SimpleDescriptorDatabase::FindFileContainingExtension(const std::string& containing_type, int field_number,
+bool SimpleDescriptorDatabase::FindFileContainingExtension(const std::string & containing_type, int field_number,
     FileDescriptorProto* output) {
 	return MaybeCopy(index_.FindExtension(containing_type, field_number), output);
 }
 
-bool SimpleDescriptorDatabase::FindAllExtensionNumbers(const std::string& extendee_type, std::vector<int>* output) {
+bool SimpleDescriptorDatabase::FindAllExtensionNumbers(const std::string & extendee_type, std::vector<int>* output) {
 	return index_.FindAllExtensionNumbers(extendee_type, output);
 }
 
@@ -579,16 +579,16 @@ bool EncodedDescriptorDatabase::AddCopy(const void* encoded_file_descriptor,
 	return Add(copy, size);
 }
 
-bool EncodedDescriptorDatabase::FindFileByName(const std::string& filename,
+bool EncodedDescriptorDatabase::FindFileByName(const std::string & filename,
     FileDescriptorProto* output) {
 	return MaybeParse(index_->FindFile(filename), output);
 }
 
-bool EncodedDescriptorDatabase::FindFileContainingSymbol(const std::string& symbol_name, FileDescriptorProto* output) {
+bool EncodedDescriptorDatabase::FindFileContainingSymbol(const std::string & symbol_name, FileDescriptorProto* output) {
 	return MaybeParse(index_->FindSymbol(symbol_name), output);
 }
 
-bool EncodedDescriptorDatabase::FindNameOfFileContainingSymbol(const std::string& symbol_name, std::string* output) {
+bool EncodedDescriptorDatabase::FindNameOfFileContainingSymbol(const std::string & symbol_name, std::string* output) {
 	auto encoded_file = index_->FindSymbol(symbol_name);
 	if(encoded_file.first == nullptr) return false;
 
@@ -616,13 +616,13 @@ bool EncodedDescriptorDatabase::FindNameOfFileContainingSymbol(const std::string
 	}
 }
 
-bool EncodedDescriptorDatabase::FindFileContainingExtension(const std::string& containing_type, int field_number,
+bool EncodedDescriptorDatabase::FindFileContainingExtension(const std::string & containing_type, int field_number,
     FileDescriptorProto* output) {
 	return MaybeParse(index_->FindExtension(containing_type, field_number),
 		   output);
 }
 
-bool EncodedDescriptorDatabase::FindAllExtensionNumbers(const std::string& extendee_type, std::vector<int>* output) {
+bool EncodedDescriptorDatabase::FindAllExtensionNumbers(const std::string & extendee_type, std::vector<int>* output) {
 	return index_->FindAllExtensionNumbers(extendee_type, output);
 }
 
@@ -893,7 +893,7 @@ DescriptorPoolDatabase::DescriptorPoolDatabase(const DescriptorPool& pool)
 DescriptorPoolDatabase::~DescriptorPoolDatabase() {
 }
 
-bool DescriptorPoolDatabase::FindFileByName(const std::string& filename,
+bool DescriptorPoolDatabase::FindFileByName(const std::string & filename,
     FileDescriptorProto* output) {
 	const FileDescriptor* file = pool_.FindFileByName(filename);
 	if(file == nullptr) return false;
@@ -902,7 +902,7 @@ bool DescriptorPoolDatabase::FindFileByName(const std::string& filename,
 	return true;
 }
 
-bool DescriptorPoolDatabase::FindFileContainingSymbol(const std::string& symbol_name, FileDescriptorProto* output) {
+bool DescriptorPoolDatabase::FindFileContainingSymbol(const std::string & symbol_name, FileDescriptorProto* output) {
 	const FileDescriptor* file = pool_.FindFileContainingSymbol(symbol_name);
 	if(file == nullptr) return false;
 	output->Clear();
@@ -910,7 +910,7 @@ bool DescriptorPoolDatabase::FindFileContainingSymbol(const std::string& symbol_
 	return true;
 }
 
-bool DescriptorPoolDatabase::FindFileContainingExtension(const std::string& containing_type, int field_number,
+bool DescriptorPoolDatabase::FindFileContainingExtension(const std::string & containing_type, int field_number,
     FileDescriptorProto* output) {
 	const Descriptor* extendee = pool_.FindMessageTypeByName(containing_type);
 	if(extendee == nullptr) return false;
@@ -924,7 +924,7 @@ bool DescriptorPoolDatabase::FindFileContainingExtension(const std::string& cont
 	return true;
 }
 
-bool DescriptorPoolDatabase::FindAllExtensionNumbers(const std::string& extendee_type, std::vector<int>* output) {
+bool DescriptorPoolDatabase::FindAllExtensionNumbers(const std::string & extendee_type, std::vector<int>* output) {
 	const Descriptor* extendee = pool_.FindMessageTypeByName(extendee_type);
 	if(extendee == nullptr) return false;
 
@@ -952,7 +952,7 @@ MergedDescriptorDatabase::MergedDescriptorDatabase(const std::vector<DescriptorD
 MergedDescriptorDatabase::~MergedDescriptorDatabase() {
 }
 
-bool MergedDescriptorDatabase::FindFileByName(const std::string& filename,
+bool MergedDescriptorDatabase::FindFileByName(const std::string & filename,
     FileDescriptorProto* output) {
 	for(DescriptorDatabase* source : sources_) {
 		if(source->FindFileByName(filename, output)) {
@@ -962,7 +962,7 @@ bool MergedDescriptorDatabase::FindFileByName(const std::string& filename,
 	return false;
 }
 
-bool MergedDescriptorDatabase::FindFileContainingSymbol(const std::string& symbol_name, FileDescriptorProto* output) {
+bool MergedDescriptorDatabase::FindFileContainingSymbol(const std::string & symbol_name, FileDescriptorProto* output) {
 	for(size_t i = 0; i < sources_.size(); i++) {
 		if(sources_[i]->FindFileContainingSymbol(symbol_name, output)) {
 			// The symbol was found in source i.  However, if one of the previous
@@ -982,7 +982,7 @@ bool MergedDescriptorDatabase::FindFileContainingSymbol(const std::string& symbo
 	return false;
 }
 
-bool MergedDescriptorDatabase::FindFileContainingExtension(const std::string& containing_type, int field_number,
+bool MergedDescriptorDatabase::FindFileContainingExtension(const std::string & containing_type, int field_number,
     FileDescriptorProto* output) {
 	for(size_t i = 0; i < sources_.size(); i++) {
 		if(sources_[i]->FindFileContainingExtension(containing_type, field_number,
@@ -1004,7 +1004,7 @@ bool MergedDescriptorDatabase::FindFileContainingExtension(const std::string& co
 	return false;
 }
 
-bool MergedDescriptorDatabase::FindAllExtensionNumbers(const std::string& extendee_type, std::vector<int>* output) {
+bool MergedDescriptorDatabase::FindAllExtensionNumbers(const std::string & extendee_type, std::vector<int>* output) {
 	std::set<int> merged_results;
 	std::vector<int> results;
 	bool success = false;

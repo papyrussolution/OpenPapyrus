@@ -60,7 +60,7 @@ class RemoteTermList : public TermList {
 		   Xapian::doccount db_size_,
 		   const RemoteDatabase* db_,
 		   Xapian::docid did_,
-		   std::string&& data_)
+		   std::string && data_)
 	: num_entries(num_entries_),
 	  doclen(doclen_),
 	  db_size(db_size_),
@@ -90,7 +90,7 @@ class RemoteTermList : public TermList {
      *  If the specified term isn't in the list, position ourselves on the
      *  first term after @a term (or at_end() if no terms after @a term exist).
      */
-    TermList* skip_to(const std::string& term);
+    TermList* skip_to(const std::string & term);
 
     /// Return true if the current position is past the last term in this list.
     bool at_end() const;

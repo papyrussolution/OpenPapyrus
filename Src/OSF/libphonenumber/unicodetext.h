@@ -396,9 +396,9 @@ namespace i18n {
 			return t;
 		}
 
-		inline UnicodeText UTF8ToUnicodeText(const string& utf_string, bool do_copy) { return UTF8ToUnicodeText(utf_string.data(), static_cast<int>(utf_string.size()), do_copy); }
+		inline UnicodeText UTF8ToUnicodeText(const string & utf_string, bool do_copy) { return UTF8ToUnicodeText(utf_string.data(), static_cast<int>(utf_string.size()), do_copy); }
 		inline UnicodeText UTF8ToUnicodeText(const char* utf8_buf, int len) { return UTF8ToUnicodeText(utf8_buf, len, true); }
-		inline UnicodeText UTF8ToUnicodeText(const string& utf8_string) { return UTF8ToUnicodeText(utf8_string, true); }
+		inline UnicodeText UTF8ToUnicodeText(const string & utf8_string) { return UTF8ToUnicodeText(utf8_string, true); }
 		// Return a string containing the UTF-8 encoded version of all the
 		// Unicode characters in t.
 		inline string UnicodeTextToUTF8(const UnicodeText& t) { return string(t.utf8_data(), t.utf8_length()); }

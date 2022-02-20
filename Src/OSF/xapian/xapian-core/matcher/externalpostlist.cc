@@ -8,8 +8,6 @@
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "externalpostlist.h"
-#include <xapian/postingsource.h>
-#include "debuglog.h"
 
 using namespace std;
 
@@ -22,14 +20,11 @@ ExternalPostList::ExternalPostList(const Xapian::Database& db, Xapian::PostingSo
 		source = newsource->release();
 	}
 	else if(shard_index == 0) {
-		// Allow use of a non-clone-able PostingSource with a non-sharded
-		// Database.
+		// Allow use of a non-clone-able PostingSource with a non-sharded Database.
 		source = source_;
 	}
 	else {
-		throw Xapian::InvalidOperationError("PostingSource subclass must "
-			  "implement clone() to support use "
-			  "with a sharded database");
+		throw Xapian::InvalidOperationError("PostingSource subclass must implement clone() to support use with a sharded database");
 	}
 	source->set_max_weight_cached_flag_ptr_(max_weight_cached_flag_ptr);
 	source->reset(db, shard_index);
@@ -60,9 +55,7 @@ Xapian::docid ExternalPostList::get_docid() const
 	RETURN(current);
 }
 
-double ExternalPostList::get_weight(Xapian::termcount,
-    Xapian::termcount,
-    Xapian::termcount) const
+double ExternalPostList::get_weight(Xapian::termcount, Xapian::termcount, Xapian::termcount) const
 {
 	LOGCALL(MATCH, double, "ExternalPostList::get_weight", NO_ARGS);
 	Assert(source.get());
@@ -84,7 +77,8 @@ PositionList * ExternalPostList::read_position_list()
 	return NULL;
 }
 
-PostList * ExternalPostList::update_after_advance() {
+PostList * ExternalPostList::update_after_advance() 
+{
 	LOGCALL(MATCH, PostList *, "ExternalPostList::update_after_advance", NO_ARGS);
 	Assert(source.get());
 	if(source->at_end()) {
@@ -147,7 +141,8 @@ Xapian::termcount ExternalPostList::count_matching_subqs() const
 string ExternalPostList::get_description() const
 {
 	string desc = "ExternalPostList(";
-	if(source.get()) desc += source->get_description();
+	if(source.get()) 
+		desc += source->get_description();
 	desc += ")";
 	return desc;
 }

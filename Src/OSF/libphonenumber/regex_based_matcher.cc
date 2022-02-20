@@ -15,9 +15,9 @@ namespace i18n {
 		RegexBasedMatcher::~RegexBasedMatcher() 
 		{
 		}
-		bool RegexBasedMatcher::MatchNationalNumber(const string& number, const PhoneNumberDesc& number_desc, bool allow_prefix_match) const 
+		bool RegexBasedMatcher::MatchNationalNumber(const string & number, const PhoneNumberDesc& number_desc, bool allow_prefix_match) const 
 		{
-			const string& national_number_pattern = number_desc.national_number_pattern();
+			const string & national_number_pattern = number_desc.national_number_pattern();
 			// We don't want to consider it a prefix match when matching non-empty input
 			// against an empty pattern.
 			if(national_number_pattern.empty()) {
@@ -26,7 +26,7 @@ namespace i18n {
 			return Match(number, national_number_pattern, allow_prefix_match);
 		}
 
-		bool RegexBasedMatcher::Match(const string& number, const string& number_pattern, bool allow_prefix_match) const 
+		bool RegexBasedMatcher::Match(const string & number, const string & number_pattern, bool allow_prefix_match) const 
 		{
 			const RegExp& regexp(regexp_cache_->GetRegExp(number_pattern));
 			if(regexp.FullMatch(number)) {

@@ -549,7 +549,7 @@ public:
 	//   a newly-constructed string, though, it's just as fast and more
 	//   readable to use code like:
 	//     std::string str = reflection->GetString(message, field);
-	const std::string& GetStringReference(const Message& message, const FieldDescriptor* field, std::string* scratch) const;
+	const std::string & GetStringReference(const Message& message, const FieldDescriptor* field, std::string* scratch) const;
 
 	// Singular field mutators -----------------------------------------
 	// These mutate the value of a non-repeated field.
@@ -648,7 +648,7 @@ public:
 	    int index) const;
 
 	// See GetStringReference(), above.
-	const std::string& GetRepeatedStringReference(const Message& message,
+	const std::string & GetRepeatedStringReference(const Message& message,
 	    const FieldDescriptor* field,
 	    int index,
 	    std::string* scratch) const;
@@ -827,7 +827,7 @@ public:
 
 	// Try to find an extension of this message type by fully-qualified field
 	// name.  Returns nullptr if no extension is known for this name or number.
-	const FieldDescriptor* FindKnownExtensionByName(const std::string& name) const;
+	const FieldDescriptor* FindKnownExtensionByName(const std::string & name) const;
 
 	// Try to find an extension of this message type by field number.
 	// Returns nullptr if no extension is known for this name or number.

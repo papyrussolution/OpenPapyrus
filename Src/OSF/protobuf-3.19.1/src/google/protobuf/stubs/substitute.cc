@@ -48,7 +48,7 @@ static int CountSubstituteArgs(const SubstituteArg* const* args_array) {
 	return count;
 }
 
-std::string Substitute(const std::string& format, const SubstituteArg& arg0,
+std::string Substitute(const std::string & format, const SubstituteArg& arg0,
     const SubstituteArg& arg1, const SubstituteArg& arg2,
     const SubstituteArg& arg3, const SubstituteArg& arg4,
     const SubstituteArg& arg5, const SubstituteArg& arg6,

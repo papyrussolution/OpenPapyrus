@@ -40,7 +40,7 @@ string Limit(int lower, int upper)
 
 bool IsInvalidPunctuationSymbol(char32 character) { return character == '%' || u_charType(character) == U_CURRENCY_SYMBOL; }
 
-bool ContainsOnlyValidXChars(const PhoneNumber& number, const string& candidate, const PhoneNumberUtil& util) 
+bool ContainsOnlyValidXChars(const PhoneNumber& number, const string & candidate, const PhoneNumberUtil& util) 
 {
 	// The characters 'x' and 'X' can be (1) a carrier code, in which case they
 	// always precede the national significant number or (2) an extension sign,
@@ -80,7 +80,7 @@ bool ContainsOnlyValidXChars(const PhoneNumber& number, const string& candidate,
 
 bool AllNumberGroupsRemainGrouped(const PhoneNumberUtil& util,
     const PhoneNumber& number,
-    const string& normalized_candidate,
+    const string & normalized_candidate,
     const std::vector<string>& formatted_number_groups) {
 	size_t from_index = 0;
 	if(number.country_code_source() != PhoneNumber::FROM_DEFAULT_COUNTRY) {
@@ -347,7 +347,7 @@ private:
 	DISALLOW_COPY_AND_ASSIGN(AlternateFormats);
 };
 
-PhoneNumberMatcher::PhoneNumberMatcher(const PhoneNumberUtil& util, const string& text, const string& region_code,
+PhoneNumberMatcher::PhoneNumberMatcher(const PhoneNumberUtil& util, const string & text, const string & region_code,
     PhoneNumberMatcher::Leniency leniency, int max_tries) : reg_exps_(PhoneNumberMatcherRegExps::GetInstance()),
 	alternate_formats_(AlternateFormats::GetInstance()), phone_util_(util), text_(text),
 	preferred_region_(region_code), leniency_(leniency), max_tries_(max_tries), state_(NOT_READY),
@@ -355,7 +355,7 @@ PhoneNumberMatcher::PhoneNumberMatcher(const PhoneNumberUtil& util, const string
 {
 }
 
-PhoneNumberMatcher::PhoneNumberMatcher(const string& text, const string& region_code) : reg_exps_(PhoneNumberMatcherRegExps::GetInstance()),
+PhoneNumberMatcher::PhoneNumberMatcher(const string & text, const string & region_code) : reg_exps_(PhoneNumberMatcherRegExps::GetInstance()),
 	alternate_formats_(NULL), // Not used.
 	phone_util_(*PhoneNumberUtil::GetInstance()), text_(text), preferred_region_(region_code), leniency_(VALID),
 	max_tries_(numeric_limits<int>::max()), state_(NOT_READY), last_match_(NULL), search_index_(0) 
@@ -377,7 +377,7 @@ bool PhoneNumberMatcher::IsLatinLetter(char32 letter)
 	       UBLOCK_LATIN_EXTENDED_B, UBLOCK_COMBINING_DIACRITICAL_MARKS);
 }
 
-bool PhoneNumberMatcher::ParseAndVerify(const string& candidate, int offset, PhoneNumberMatch* match) 
+bool PhoneNumberMatcher::ParseAndVerify(const string & candidate, int offset, PhoneNumberMatch* match) 
 {
 	DCHECK(match);
 	// Check the candidate doesn't contain any formatting which would indicate
@@ -439,7 +439,7 @@ bool PhoneNumberMatcher::ParseAndVerify(const string& candidate, int offset, Pho
 
 // Helper method to replace the verification method for each enum in the Java
 // version.
-bool PhoneNumberMatcher::VerifyAccordingToLeniency(Leniency leniency, const PhoneNumber& number, const string& candidate) const 
+bool PhoneNumberMatcher::VerifyAccordingToLeniency(Leniency leniency, const PhoneNumber& number, const string & candidate) const 
 {
 	switch(leniency) {
 		case PhoneNumberMatcher::POSSIBLE:
@@ -456,7 +456,7 @@ bool PhoneNumberMatcher::VerifyAccordingToLeniency(Leniency leniency, const Phon
 			    return false;
 		    }
 		    ResultCallback4<bool, const PhoneNumberUtil&, const PhoneNumber&,
-			const string&, const std::vector<string>&>* callback =
+			const string &, const std::vector<string>&>* callback =
 			NewPermanentCallback(&AllNumberGroupsRemainGrouped);
 		    bool is_valid = CheckNumberGroupingIsValid(number, candidate, callback);
 		    delete(callback);
@@ -471,7 +471,7 @@ bool PhoneNumberMatcher::VerifyAccordingToLeniency(Leniency leniency, const Phon
 			    return false;
 		    }
 		    ResultCallback4<bool, const PhoneNumberUtil&, const PhoneNumber&,
-			const string&, const std::vector<string>&>* callback = NewPermanentCallback(this, &PhoneNumberMatcher::AllNumberGroupsAreExactlyPresent);
+			const string &, const std::vector<string>&>* callback = NewPermanentCallback(this, &PhoneNumberMatcher::AllNumberGroupsAreExactlyPresent);
 		    bool is_valid = CheckNumberGroupingIsValid(number, candidate, callback);
 		    delete(callback);
 		    return is_valid;
@@ -482,7 +482,7 @@ bool PhoneNumberMatcher::VerifyAccordingToLeniency(Leniency leniency, const Phon
 	}
 }
 
-bool PhoneNumberMatcher::ExtractInnerMatch(const string& candidate, int offset, PhoneNumberMatch* match) 
+bool PhoneNumberMatcher::ExtractInnerMatch(const string & candidate, int offset, PhoneNumberMatch* match) 
 {
 	DCHECK(match);
 	for(std::vector<const RegExp*>::const_iterator regex =
@@ -518,7 +518,7 @@ bool PhoneNumberMatcher::ExtractInnerMatch(const string& candidate, int offset, 
 	return false;
 }
 
-bool PhoneNumberMatcher::ExtractMatch(const string& candidate, int offset, PhoneNumberMatch* match) 
+bool PhoneNumberMatcher::ExtractMatch(const string & candidate, int offset, PhoneNumberMatch* match) 
 {
 	DCHECK(match);
 	// Skip a match that is more likely to be a date.
@@ -591,8 +591,8 @@ bool PhoneNumberMatcher::Find(int index, PhoneNumberMatch* match)
 	return false;
 }
 
-bool PhoneNumberMatcher::CheckNumberGroupingIsValid(const PhoneNumber& phone_number, const string& candidate,
-    ResultCallback4<bool, const PhoneNumberUtil&, const PhoneNumber&, const string&, const std::vector<string>&>* checker) const 
+bool PhoneNumberMatcher::CheckNumberGroupingIsValid(const PhoneNumber& phone_number, const string & candidate,
+    ResultCallback4<bool, const PhoneNumberUtil&, const PhoneNumber&, const string &, const std::vector<string>&>* checker) const 
 {
 	DCHECK(checker);
 	string normalized_candidate = NormalizeUTF8::NormalizeDecimalDigits(candidate);
@@ -694,7 +694,7 @@ bool PhoneNumberMatcher::IsNationalPrefixPresentIfRequired(const PhoneNumber& nu
 }
 
 bool PhoneNumberMatcher::AllNumberGroupsAreExactlyPresent(const PhoneNumberUtil& util, const PhoneNumber& phone_number,
-    const string& normalized_candidate, const std::vector<string>& formatted_number_groups) const 
+    const string & normalized_candidate, const std::vector<string>& formatted_number_groups) const 
 {
 	const scoped_ptr<RegExpInput> candidate_number(reg_exps_->regexp_factory_->CreateInput(normalized_candidate));
 	std::vector<string> candidate_groups;
@@ -734,7 +734,7 @@ bool PhoneNumberMatcher::AllNumberGroupsAreExactlyPresent(const PhoneNumberUtil&
 }
 
 // static
-bool PhoneNumberMatcher::ContainsMoreThanOneSlashInNationalNumber(const PhoneNumber& number, const string& candidate, const PhoneNumberUtil& util) 
+bool PhoneNumberMatcher::ContainsMoreThanOneSlashInNationalNumber(const PhoneNumber& number, const string & candidate, const PhoneNumberUtil& util) 
 {
 	size_t first_slash_in_body = candidate.find('/');
 	if(first_slash_in_body == string::npos) {

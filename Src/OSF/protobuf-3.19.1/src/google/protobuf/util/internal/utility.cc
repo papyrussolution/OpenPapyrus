@@ -80,7 +80,7 @@ std::string GetStringOptionOrDefault(const RepeatedPtrField<google::protobuf::Op
 }
 
 template <typename T>
-void ParseFromAny(const std::string& data, T* result) {
+void ParseFromAny(const std::string & data, T* result) {
 	result->ParseFromString(data);
 }
 
@@ -341,7 +341,7 @@ void InitWellKnownTypes() {
 	google::protobuf::internal::OnShutdown(&DeleteWellKnownTypes);
 }
 
-bool IsWellKnownType(const std::string& type_name) {
+bool IsWellKnownType(const std::string & type_name) {
 	PROTOBUF_NAMESPACE_ID::internal::call_once(well_known_types_init_,
 	    InitWellKnownTypes);
 	return ContainsKey(*well_known_types_, type_name);

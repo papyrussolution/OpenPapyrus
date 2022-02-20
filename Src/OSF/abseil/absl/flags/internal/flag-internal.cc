@@ -400,7 +400,7 @@ std::atomic<int64_t>& FlagImpl::OneWordValue() const {
 // argument. If parsing successful, this function replaces the dst with newly
 // parsed value. In case if any error is encountered in either step, the error
 // message is stored in 'err'
-std::unique_ptr<void, DynValueDeleter> FlagImpl::TryParse(absl::string_view value, std::string& err) const {
+std::unique_ptr<void, DynValueDeleter> FlagImpl::TryParse(absl::string_view value, std::string & err) const {
 	std::unique_ptr<void, DynValueDeleter> tentative_value = MakeInitValue();
 
 	std::string parse_err;
@@ -493,7 +493,7 @@ void FlagImpl::Write(const void* src) {
 //  * Update the current flag value if it was never set before
 // The mode is selected based on 'set_mode' parameter.
 bool FlagImpl::ParseFrom(absl::string_view value, FlagSettingMode set_mode,
-    ValueSource source, std::string& err) {
+    ValueSource source, std::string & err) {
 	absl::MutexLock l(DataGuard());
 
 	switch(set_mode) {

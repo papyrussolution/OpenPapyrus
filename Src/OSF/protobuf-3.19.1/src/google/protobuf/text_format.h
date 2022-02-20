@@ -92,7 +92,7 @@ public:
 		virtual size_t GetCurrentIndentationSize() const { return 0; }
 		// Print text to the output stream.
 		virtual void Print(const char* text, size_t size) = 0;
-		void PrintString(const std::string& str) { Print(str.data(), str.size()); }
+		void PrintString(const std::string & str) { Print(str.data(), str.size()); }
 		template <size_t n> void PrintLiteral(const char (&text)[n]) 
 		{
 			Print(text, n - 1); // n includes the terminating zero character.
@@ -114,9 +114,9 @@ public:
 		virtual void PrintUInt64(uint64_t val, BaseTextGenerator* generator) const;
 		virtual void PrintFloat(float val, BaseTextGenerator* generator) const;
 		virtual void PrintDouble(double val, BaseTextGenerator* generator) const;
-		virtual void PrintString(const std::string& val, BaseTextGenerator* generator) const;
-		virtual void PrintBytes(const std::string& val, BaseTextGenerator* generator) const;
-		virtual void PrintEnum(int32_t val, const std::string& name, BaseTextGenerator* generator) const;
+		virtual void PrintString(const std::string & val, BaseTextGenerator* generator) const;
+		virtual void PrintBytes(const std::string & val, BaseTextGenerator* generator) const;
+		virtual void PrintEnum(int32_t val, const std::string & name, BaseTextGenerator* generator) const;
 		virtual void PrintFieldName(const Message& message, int field_index, int field_count, const Reflection* reflection, const FieldDescriptor* field, BaseTextGenerator* generator) const;
 		virtual void PrintFieldName(const Message& message, const Reflection* reflection, const FieldDescriptor* field, BaseTextGenerator* generator) const;
 		virtual void PrintMessageStart(const Message& message, int field_index, int field_count, bool single_line_mode, BaseTextGenerator* generator) const;
@@ -143,9 +143,9 @@ public:
 		virtual std::string PrintUInt64(uint64_t val) const;
 		virtual std::string PrintFloat(float val) const;
 		virtual std::string PrintDouble(double val) const;
-		virtual std::string PrintString(const std::string& val) const;
-		virtual std::string PrintBytes(const std::string& val) const;
-		virtual std::string PrintEnum(int32_t val, const std::string& name) const;
+		virtual std::string PrintString(const std::string & val) const;
+		virtual std::string PrintBytes(const std::string & val) const;
+		virtual std::string PrintEnum(int32_t val, const std::string & name) const;
 		virtual std::string PrintFieldName(const Message& message, const Reflection* reflection, const FieldDescriptor* field) const;
 		virtual std::string PrintMessageStart(const Message& message, int field_index, int field_count, bool single_line_mode) const;
 		virtual std::string PrintMessageEnd(const Message& message, int field_index, int field_count, bool single_line_mode) const;
@@ -175,7 +175,7 @@ public:
 		// Try to find an extension of *message by fully-qualified field
 		// name.  Returns nullptr if no extension is known for this name or number.
 		// The base implementation uses the extensions already known by the message.
-		virtual const FieldDescriptor* FindExtension(Message* message, const std::string& name) const;
+		virtual const FieldDescriptor* FindExtension(Message* message, const std::string & name) const;
 		// Similar to FindExtension, but uses a Descriptor and the extension number
 		// instead of using a Message and the name when doing the look up.
 		virtual const FieldDescriptor* FindExtensionByNumber(const Descriptor* descriptor, int number) const;
@@ -184,7 +184,7 @@ public:
 		// The base implementation only accepts prefixes of type.googleprod.com/ or
 		// type.googleapis.com/, and searches the DescriptorPool of the parent
 		// message.
-		virtual const Descriptor* FindAnyType(const Message& message, const std::string& prefix, const std::string& name) const;
+		virtual const Descriptor* FindAnyType(const Message& message, const std::string & prefix, const std::string & name) const;
 		// Find the message factory for the given extension field. This can be used
 		// to generalize the Parser to add extension fields to a message in the same
 		// way as the "input" message for the Parser.
@@ -428,7 +428,7 @@ private:
 	// Parse the given text as a single field value and store it into the
 	// given field of the given message. If the field is a repeated field,
 	// the new value will be added to the end
-	static bool ParseFieldValueFromString(const std::string& input,
+	static bool ParseFieldValueFromString(const std::string & input,
 	    const FieldDescriptor* field,
 	    Message* message);
 
@@ -559,7 +559,7 @@ public:
 		}
 
 		// Like TextFormat::ParseFieldValueFromString
-		bool ParseFieldValueFromString(const std::string& input,
+		bool ParseFieldValueFromString(const std::string & input,
 		    const FieldDescriptor* field,
 		    Message* output);
 

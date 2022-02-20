@@ -83,7 +83,7 @@ public:
 	/** Convert a postlist into a synonym postlist.
 	 */
 	PostList * make_synonym_postlist(PostListTree* pltree, PostList* or_pl, Xapian::Internal::QueryOptimiser* qopt, double factor, bool wdf_disjoint);
-	PostList * open_post_list(const std::string& term, Xapian::termcount wqf, double factor,
+	PostList * open_post_list(const std::string & term, Xapian::termcount wqf, double factor,
 	    bool need_positions, bool compound_weight, Xapian::Internal::QueryOptimiser* qopt, bool lazy_weight);
 	bool weight_needs_wdf() const { return wt_factory.get_sumpart_needs_wdf_(); }
 };

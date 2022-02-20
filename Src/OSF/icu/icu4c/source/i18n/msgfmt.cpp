@@ -25,11 +25,9 @@
 #include "uelement.h"
 #include "ustrfmt.h"
 #include "number_decimalquantity.h"
-
-// *****************************************************************************
+//
 // class MessageFormat
-// *****************************************************************************
-
+//
 #define SINGLE_QUOTE      ((UChar)0x0027)
 #define COMMA             ((UChar)0x002C)
 #define LEFT_CURLY_BRACE  ((UChar)0x007B)
@@ -38,24 +36,12 @@
 //---------------------------------------
 // static data
 
-static const UChar ID_NUMBER[] = {
-	0x6E, 0x75, 0x6D, 0x62, 0x65, 0x72, 0 /* "number" */
-};
-static const UChar ID_DATE[] = {
-	0x64, 0x61, 0x74, 0x65, 0          /* "date" */
-};
-static const UChar ID_TIME[] = {
-	0x74, 0x69, 0x6D, 0x65, 0          /* "time" */
-};
-static const UChar ID_SPELLOUT[]  = {
-	0x73, 0x70, 0x65, 0x6c, 0x6c, 0x6f, 0x75, 0x74, 0 /* "spellout" */
-};
-static const UChar ID_ORDINAL[] = {
-	0x6f, 0x72, 0x64, 0x69, 0x6e, 0x61, 0x6c, 0 /* "ordinal" */
-};
-static const UChar ID_DURATION[]  = {
-	0x64, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0 /* "duration" */
-};
+static const UChar ID_NUMBER[] = { 0x6E, 0x75, 0x6D, 0x62, 0x65, 0x72, 0 /* "number" */ };
+static const UChar ID_DATE[] = { 0x64, 0x61, 0x74, 0x65, 0 /* "date" */ };
+static const UChar ID_TIME[] = { 0x74, 0x69, 0x6D, 0x65, 0 /* "time" */ };
+static const UChar ID_SPELLOUT[]  = { 0x73, 0x70, 0x65, 0x6c, 0x6c, 0x6f, 0x75, 0x74, 0 /* "spellout" */ };
+static const UChar ID_ORDINAL[] = { 0x6f, 0x72, 0x64, 0x69, 0x6e, 0x61, 0x6c, 0 /* "ordinal" */ };
+static const UChar ID_DURATION[]  = { 0x64, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0 /* "duration" */ };
 
 // MessageFormat Type List  Number, Date, Time or Choice
 static const UChar * const TYPE_IDS[] = {
@@ -68,18 +54,10 @@ static const UChar * const TYPE_IDS[] = {
 	NULL,
 };
 
-static const UChar ID_EMPTY[] = {
-	0 /* empty string, used for default so that null can mark end of list */
-};
-static const UChar ID_CURRENCY[]  = {
-	0x63, 0x75, 0x72, 0x72, 0x65, 0x6E, 0x63, 0x79, 0 /* "currency" */
-};
-static const UChar ID_PERCENT[] = {
-	0x70, 0x65, 0x72, 0x63, 0x65, 0x6E, 0x74, 0    /* "percent" */
-};
-static const UChar ID_INTEGER[] = {
-	0x69, 0x6E, 0x74, 0x65, 0x67, 0x65, 0x72, 0    /* "integer" */
-};
+static const UChar ID_EMPTY[] = { 0 /* empty string, used for default so that null can mark end of list */ };
+static const UChar ID_CURRENCY[]  = { 0x63, 0x75, 0x72, 0x72, 0x65, 0x6E, 0x63, 0x79, 0 /* "currency" */ };
+static const UChar ID_PERCENT[] = { 0x70, 0x65, 0x72, 0x63, 0x65, 0x6E, 0x74, 0    /* "percent" */ };
+static const UChar ID_INTEGER[] = { 0x69, 0x6E, 0x74, 0x65, 0x67, 0x65, 0x72, 0    /* "integer" */ };
 
 // NumberFormat modifier list, default, currency, percent or integer
 static const UChar * const NUMBER_STYLE_IDS[] = {
@@ -90,18 +68,10 @@ static const UChar * const NUMBER_STYLE_IDS[] = {
 	NULL,
 };
 
-static const UChar ID_SHORT[] = {
-	0x73, 0x68, 0x6F, 0x72, 0x74, 0    /* "short" */
-};
-static const UChar ID_MEDIUM[] = {
-	0x6D, 0x65, 0x64, 0x69, 0x75, 0x6D, 0 /* "medium" */
-};
-static const UChar ID_LONG[] = {
-	0x6C, 0x6F, 0x6E, 0x67, 0          /* "long" */
-};
-static const UChar ID_FULL[] = {
-	0x66, 0x75, 0x6C, 0x6C, 0          /* "full" */
-};
+static const UChar ID_SHORT[] = { 0x73, 0x68, 0x6F, 0x72, 0x74, 0    /* "short" */ };
+static const UChar ID_MEDIUM[] = { 0x6D, 0x65, 0x64, 0x69, 0x75, 0x6D, 0 /* "medium" */ };
+static const UChar ID_LONG[] = { 0x6C, 0x6F, 0x6E, 0x67, 0          /* "long" */ };
+static const UChar ID_FULL[] = { 0x66, 0x75, 0x6C, 0x6C, 0          /* "full" */ };
 
 // DateFormat modifier list, default, short, medium, long or full
 static const UChar * const DATE_STYLE_IDS[] = {
@@ -123,20 +93,14 @@ static const icu::DateFormat::EStyle DATE_STYLES[] = {
 
 static const int32_t DEFAULT_INITIAL_CAPACITY = 10;
 
-static const UChar NULL_STRING[] = {
-	0x6E, 0x75, 0x6C, 0x6C, 0 // "null"
-};
-
-static const UChar OTHER_STRING[] = {
-	0x6F, 0x74, 0x68, 0x65, 0x72, 0 // "other"
-};
+static const UChar NULL_STRING[] = { 0x6E, 0x75, 0x6C, 0x6C, 0 /*"null"*/ };
+static const UChar OTHER_STRING[] = { 0x6F, 0x74, 0x68, 0x65, 0x72, 0 /* "other" */ };
 
 U_CDECL_BEGIN
-static bool U_CALLCONV equalFormatsForHash(const UHashTok key1,
-    const UHashTok key2) {
-	return icu::MessageFormat::equalFormats(key1.pointer, key2.pointer);
-}
-
+	static bool U_CALLCONV equalFormatsForHash(const UHashTok key1, const UHashTok key2) 
+	{
+		return icu::MessageFormat::equalFormats(key1.pointer, key2.pointer);
+	}
 U_CDECL_END
 
 U_NAMESPACE_BEGIN
@@ -150,7 +114,8 @@ UOBJECT_DEFINE_RTTI_IMPLEMENTATION(FormatNameEnumeration)
  * Convert an integer value to a string and append the result to
  * the given UnicodeString.
  */
-static UnicodeString & itos(int32_t i, UnicodeString & appendTo) {
+static UnicodeString & itos(int32_t i, UnicodeString & appendTo) 
+{
 	UChar temp[16];
 	uprv_itou(temp, 16, i, 10, 0); // 10 == radix
 	appendTo.append(temp, -1);
@@ -161,33 +126,33 @@ static UnicodeString & itos(int32_t i, UnicodeString & appendTo) {
 // of the string and its length.
 class AppendableWrapper : public UMemory {
 public:
-	AppendableWrapper(Appendable& appendable) : app(appendable), len(0) {
+	AppendableWrapper(Appendable& appendable) : app(appendable), len(0) 
+	{
 	}
-
-	void append(const UnicodeString & s) {
+	void append(const UnicodeString & s) 
+	{
 		app.appendString(s.getBuffer(), s.length());
 		len += s.length();
 	}
-
-	void append(const UChar * s, const int32_t sLength) {
+	void append(const UChar * s, const int32_t sLength) 
+	{
 		app.appendString(s, sLength);
 		len += sLength;
 	}
-
-	void append(const UnicodeString & s, int32_t start, int32_t length) {
+	void append(const UnicodeString & s, int32_t start, int32_t length) 
+	{
 		append(s.tempSubString(start, length));
 	}
-
-	void formatAndAppend(const Format* formatter, const Formattable& arg, UErrorCode & ec) {
+	void formatAndAppend(const Format* formatter, const Formattable& arg, UErrorCode & ec) 
+	{
 		UnicodeString s;
 		formatter->format(arg, s, ec);
 		if(U_SUCCESS(ec)) {
 			append(s);
 		}
 	}
-
-	void formatAndAppend(const Format* formatter, const Formattable& arg,
-	    const UnicodeString & argString, UErrorCode & ec) {
+	void formatAndAppend(const Format* formatter, const Formattable& arg, const UnicodeString & argString, UErrorCode & ec) 
+	{
 		if(!argString.isEmpty()) {
 			if(U_SUCCESS(ec)) {
 				append(argString);
@@ -197,56 +162,29 @@ public:
 			formatAndAppend(formatter, arg, ec);
 		}
 	}
-
-	int32_t length() {
-		return len;
-	}
-
+	int32_t length() const { return len; }
 private:
-	Appendable& app;
+	Appendable & app;
 	int32_t len;
 };
 //
 // Creates a MessageFormat instance based on the pattern.
 //
-MessageFormat::MessageFormat(const UnicodeString & pattern,
-    UErrorCode & success)
-	: fLocale(Locale::getDefault()), // Uses the default locale
-	msgPattern(success),
-	formatAliases(NULL),
-	formatAliasesCapacity(0),
-	argTypes(NULL),
-	argTypeCount(0),
-	argTypeCapacity(0),
-	hasArgTypeConflicts(FALSE),
-	defaultNumberFormat(NULL),
-	defaultDateFormat(NULL),
-	cachedFormatters(NULL),
-	customFormatArgStarts(NULL),
-	pluralProvider(*this, UPLURAL_TYPE_CARDINAL),
+MessageFormat::MessageFormat(const UnicodeString & pattern, UErrorCode & success) : fLocale(Locale::getDefault()), // Uses the default locale
+	msgPattern(success), formatAliases(NULL), formatAliasesCapacity(0), argTypes(NULL),
+	argTypeCount(0), argTypeCapacity(0), hasArgTypeConflicts(FALSE), defaultNumberFormat(NULL), defaultDateFormat(NULL),
+	cachedFormatters(NULL), customFormatArgStarts(NULL), pluralProvider(*this, UPLURAL_TYPE_CARDINAL),
 	ordinalProvider(*this, UPLURAL_TYPE_ORDINAL)
 {
 	setLocaleIDs(fLocale.getName(), fLocale.getName());
 	applyPattern(pattern, success);
 }
 
-MessageFormat::MessageFormat(const UnicodeString & pattern,
-    const Locale & newLocale,
-    UErrorCode & success)
-	: fLocale(newLocale),
-	msgPattern(success),
-	formatAliases(NULL),
-	formatAliasesCapacity(0),
-	argTypes(NULL),
-	argTypeCount(0),
-	argTypeCapacity(0),
-	hasArgTypeConflicts(FALSE),
-	defaultNumberFormat(NULL),
-	defaultDateFormat(NULL),
-	cachedFormatters(NULL),
-	customFormatArgStarts(NULL),
-	pluralProvider(*this, UPLURAL_TYPE_CARDINAL),
-	ordinalProvider(*this, UPLURAL_TYPE_ORDINAL)
+MessageFormat::MessageFormat(const UnicodeString & pattern, const Locale & newLocale, UErrorCode & success) : 
+	fLocale(newLocale), msgPattern(success), formatAliases(NULL), formatAliasesCapacity(0), argTypes(NULL),
+	argTypeCount(0), argTypeCapacity(0), hasArgTypeConflicts(FALSE), defaultNumberFormat(NULL),
+	defaultDateFormat(NULL), cachedFormatters(NULL), customFormatArgStarts(NULL),
+	pluralProvider(*this, UPLURAL_TYPE_CARDINAL), ordinalProvider(*this, UPLURAL_TYPE_ORDINAL)
 {
 	setLocaleIDs(fLocale.getName(), fLocale.getName());
 	applyPattern(pattern, success);
@@ -305,7 +243,6 @@ MessageFormat::~MessageFormat()
 {
 	uhash_close(cachedFormatters);
 	uhash_close(customFormatArgStarts);
-
 	uprv_free(argTypes);
 	uprv_free(formatAliases);
 	delete defaultNumberFormat;
@@ -335,8 +272,7 @@ bool MessageFormat::allocateArgTypes(int32_t capacity, UErrorCode & status) {
 	else if(capacity < 2*argTypeCapacity) {
 		capacity = 2*argTypeCapacity;
 	}
-	Formattable::Type* a = (Formattable::Type*)
-	    uprv_realloc(argTypes, sizeof(*argTypes) * capacity);
+	Formattable::Type* a = (Formattable::Type*)uprv_realloc(argTypes, sizeof(*argTypes) * capacity);
 	if(a == NULL) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 		return FALSE;
@@ -353,7 +289,6 @@ const MessageFormat&MessageFormat::operator = (const MessageFormat& that)
 	if(this != &that) {
 		// Calls the super class for assignment first.
 		Format::operator = (that);
-
 		setLocale(that.fLocale);
 		msgPattern = that.msgPattern;
 		hasArgTypeConflicts = that.hasArgTypeConflicts;
@@ -369,17 +304,13 @@ const MessageFormat&MessageFormat::operator = (const MessageFormat& that)
 
 bool MessageFormat::operator == (const Format& rhs) const
 {
-	if(this == &rhs) return true;
-
+	if(this == &rhs) 
+		return true;
 	MessageFormat& that = (MessageFormat&)rhs;
-
 	// Check class ID before checking MessageFormat members
-	if(!Format::operator == (rhs) ||
-	    msgPattern != that.msgPattern ||
-	    fLocale != that.fLocale) {
+	if(!Format::operator == (rhs) || msgPattern != that.msgPattern || fLocale != that.fLocale) {
 		return false;
 	}
-
 	// Compare hashtables.
 	if((customFormatArgStarts == NULL) != (that.customFormatArgStarts == NULL)) {
 		return false;
@@ -387,7 +318,6 @@ bool MessageFormat::operator == (const Format& rhs) const
 	if(customFormatArgStarts == NULL) {
 		return true;
 	}
-
 	UErrorCode ec = U_ZERO_ERROR;
 	const int32_t count = uhash_count(customFormatArgStarts);
 	const int32_t rhs_count = uhash_count(that.customFormatArgStarts);
@@ -422,10 +352,8 @@ MessageFormat* MessageFormat::clone() const
 void MessageFormat::setLocale(const Locale & theLocale)
 {
 	if(fLocale != theLocale) {
-		delete defaultNumberFormat;
-		defaultNumberFormat = NULL;
-		delete defaultDateFormat;
-		defaultDateFormat = NULL;
+		ZDELETE(defaultNumberFormat);
+		ZDELETE(defaultDateFormat);
 		fLocale = theLocale;
 		setLocaleIDs(fLocale.getName(), fLocale.getName());
 		pluralProvider.reset();
@@ -449,22 +377,19 @@ void MessageFormat::applyPattern(const UnicodeString & newPattern, UErrorCode & 
 // Applies the new pattern and returns an error if the pattern
 // is not correct.
 //
-void MessageFormat::applyPattern(const UnicodeString & pattern,
-    UParseError& parseError,
-    UErrorCode & ec)
+void MessageFormat::applyPattern(const UnicodeString & pattern, UParseError& parseError, UErrorCode & ec)
 {
-	if(U_FAILURE(ec)) {
-		return;
-	}
-	msgPattern.parse(pattern, &parseError, ec);
-	cacheExplicitFormats(ec);
-
-	if(U_FAILURE(ec)) {
-		resetPattern();
+	if(U_SUCCESS(ec)) {
+		msgPattern.parse(pattern, &parseError, ec);
+		cacheExplicitFormats(ec);
+		if(U_FAILURE(ec)) {
+			resetPattern();
+		}
 	}
 }
 
-void MessageFormat::resetPattern() {
+void MessageFormat::resetPattern() 
+{
 	msgPattern.clear();
 	uhash_close(cachedFormatters);
 	cachedFormatters = NULL;
@@ -474,10 +399,8 @@ void MessageFormat::resetPattern() {
 	hasArgTypeConflicts = FALSE;
 }
 
-void MessageFormat::applyPattern(const UnicodeString & pattern,
-    UMessagePatternApostropheMode aposMode,
-    UParseError* parseError,
-    UErrorCode & status) {
+void MessageFormat::applyPattern(const UnicodeString & pattern, UMessagePatternApostropheMode aposMode, UParseError* parseError, UErrorCode & status) 
+{
 	if(aposMode != msgPattern.getApostropheMode()) {
 		msgPattern.clearPatternAndSetApostropheMode(aposMode);
 	}
@@ -486,17 +409,17 @@ void MessageFormat::applyPattern(const UnicodeString & pattern,
 //
 // Converts this MessageFormat instance to a pattern.
 //
-UnicodeString &MessageFormat::toPattern(UnicodeString & appendTo) const {
-	if((customFormatArgStarts != NULL && 0 != uhash_count(customFormatArgStarts)) ||
-	    0 == msgPattern.countParts()
-	    ) {
+UnicodeString &MessageFormat::toPattern(UnicodeString & appendTo) const 
+{
+	if((customFormatArgStarts != NULL && 0 != uhash_count(customFormatArgStarts)) || 0 == msgPattern.countParts()) {
 		appendTo.setToBogus();
 		return appendTo;
 	}
 	return appendTo.append(msgPattern.getPatternString());
 }
 
-int32_t MessageFormat::nextTopLevelArgStart(int32_t partIndex) const {
+int32_t MessageFormat::nextTopLevelArgStart(int32_t partIndex) const 
+{
 	if(partIndex != 0) {
 		partIndex = msgPattern.getLimitPartIndex(partIndex);
 	}
@@ -515,84 +438,73 @@ void MessageFormat::setArgStartFormat(int32_t argStart, Format* formatter, UErro
 {
 	if(U_FAILURE(status)) {
 		delete formatter;
-		return;
 	}
-	if(cachedFormatters == NULL) {
-		cachedFormatters = uhash_open(uhash_hashLong, uhash_compareLong,
-			equalFormatsForHash, &status);
-		if(U_FAILURE(status)) {
-			delete formatter;
-			return;
+	else {
+		if(cachedFormatters == NULL) {
+			cachedFormatters = uhash_open(uhash_hashLong, uhash_compareLong, equalFormatsForHash, &status);
+			if(U_FAILURE(status)) {
+				delete formatter;
+				return;
+			}
+			uhash_setValueDeleter(cachedFormatters, uprv_deleteUObject);
 		}
-		uhash_setValueDeleter(cachedFormatters, uprv_deleteUObject);
+		SETIFZQ(formatter, new DummyFormat());
+		uhash_iput(cachedFormatters, argStart, formatter, &status);
 	}
-	if(formatter == NULL) {
-		formatter = new DummyFormat();
-	}
-	uhash_iput(cachedFormatters, argStart, formatter, &status);
 }
 
-bool MessageFormat::argNameMatches(int32_t partIndex, const UnicodeString & argName, int32_t argNumber) {
+bool MessageFormat::argNameMatches(int32_t partIndex, const UnicodeString & argName, int32_t argNumber) 
+{
 	const MessagePattern::Part& part = msgPattern.getPart(partIndex);
-	return part.getType() == UMSGPAT_PART_TYPE_ARG_NAME ?
-	       msgPattern.partSubstringMatches(part, argName) :
-	       part.getValue() == argNumber; // ARG_NUMBER
+	return part.getType() == UMSGPAT_PART_TYPE_ARG_NAME ? msgPattern.partSubstringMatches(part, argName) : part.getValue() == argNumber; // ARG_NUMBER
 }
 
 // Sets a custom formatter for a MessagePattern ARG_START part index.
 // "Custom" formatters are provided by the user via setFormat() or similar APIs.
-void MessageFormat::setCustomArgStartFormat(int32_t argStart,
-    Format* formatter,
-    UErrorCode & status) {
+void MessageFormat::setCustomArgStartFormat(int32_t argStart, Format* formatter, UErrorCode & status) 
+{
 	setArgStartFormat(argStart, formatter, status);
 	if(customFormatArgStarts == NULL) {
-		customFormatArgStarts = uhash_open(uhash_hashLong, uhash_compareLong,
-			NULL, &status);
+		customFormatArgStarts = uhash_open(uhash_hashLong, uhash_compareLong, NULL, &status);
 	}
 	uhash_iputi(customFormatArgStarts, argStart, 1, &status);
 }
 
-Format* MessageFormat::getCachedFormatter(int32_t argumentNumber) const {
+Format* MessageFormat::getCachedFormatter(int32_t argumentNumber) const 
+{
 	if(cachedFormatters == NULL) {
 		return NULL;
 	}
 	void * ptr = uhash_iget(cachedFormatters, argumentNumber);
-	if(ptr != NULL && dynamic_cast<DummyFormat*>((Format*)ptr) == NULL) {
+	if(ptr && dynamic_cast<DummyFormat*>((Format*)ptr) == NULL)
 		return (Format*)ptr;
-	}
-	else {
-		// Not cached, or a DummyFormat representing setFormat(NULL).
-		return NULL;
-	}
+	else
+		return NULL; // Not cached, or a DummyFormat representing setFormat(NULL).
 }
 //
 // Adopts the new formats array and updates the array count.
 // This MessageFormat instance owns the new formats.
 //
-void MessageFormat::adoptFormats(Format** newFormats,
-    int32_t count) {
-	if(newFormats == NULL || count < 0) {
-		return;
-	}
-	// Throw away any cached formatters.
-	if(cachedFormatters != NULL) {
-		uhash_removeAll(cachedFormatters);
-	}
-	if(customFormatArgStarts != NULL) {
-		uhash_removeAll(customFormatArgStarts);
-	}
-
-	int32_t formatNumber = 0;
-	UErrorCode status = U_ZERO_ERROR;
-	for(int32_t partIndex = 0;
-	    formatNumber < count && U_SUCCESS(status) &&
-	    (partIndex = nextTopLevelArgStart(partIndex)) >= 0;) {
-		setCustomArgStartFormat(partIndex, newFormats[formatNumber], status);
-		++formatNumber;
-	}
-	// Delete those that didn't get used (if any).
-	for(; formatNumber < count; ++formatNumber) {
-		delete newFormats[formatNumber];
+void MessageFormat::adoptFormats(Format ** newFormats, int32_t count) 
+{
+	if(newFormats && count >= 0) {
+		// Throw away any cached formatters.
+		if(cachedFormatters) {
+			uhash_removeAll(cachedFormatters);
+		}
+		if(customFormatArgStarts) {
+			uhash_removeAll(customFormatArgStarts);
+		}
+		int32_t formatNumber = 0;
+		UErrorCode status = U_ZERO_ERROR;
+		for(int32_t partIndex = 0; formatNumber < count && U_SUCCESS(status) && (partIndex = nextTopLevelArgStart(partIndex)) >= 0;) {
+			setCustomArgStartFormat(partIndex, newFormats[formatNumber], status);
+			++formatNumber;
+		}
+		// Delete those that didn't get used (if any).
+		for(; formatNumber < count; ++formatNumber) {
+			delete newFormats[formatNumber];
+		}
 	}
 }
 //
@@ -601,40 +513,38 @@ void MessageFormat::adoptFormats(Format** newFormats,
 //
 void MessageFormat::setFormats(const Format** newFormats, int32_t count) 
 {
-	if(newFormats == NULL || count < 0) {
-		return;
-	}
-	// Throw away any cached formatters.
-	if(cachedFormatters != NULL) {
-		uhash_removeAll(cachedFormatters);
-	}
-	if(customFormatArgStarts != NULL) {
-		uhash_removeAll(customFormatArgStarts);
-	}
-
-	UErrorCode status = U_ZERO_ERROR;
-	int32_t formatNumber = 0;
-	for(int32_t partIndex = 0;
-	    formatNumber < count && U_SUCCESS(status) && (partIndex = nextTopLevelArgStart(partIndex)) >= 0;) {
-		Format* newFormat = NULL;
-		if(newFormats[formatNumber] != NULL) {
-			newFormat = newFormats[formatNumber]->clone();
-			if(newFormat == NULL) {
-				status = U_MEMORY_ALLOCATION_ERROR;
-			}
+	if(newFormats && count >= 0) {
+		// Throw away any cached formatters.
+		if(cachedFormatters != NULL) {
+			uhash_removeAll(cachedFormatters);
 		}
-		setCustomArgStartFormat(partIndex, newFormat, status);
-		++formatNumber;
-	}
-	if(U_FAILURE(status)) {
-		resetPattern();
+		if(customFormatArgStarts != NULL) {
+			uhash_removeAll(customFormatArgStarts);
+		}
+		UErrorCode status = U_ZERO_ERROR;
+		int32_t formatNumber = 0;
+		for(int32_t partIndex = 0;
+			formatNumber < count && U_SUCCESS(status) && (partIndex = nextTopLevelArgStart(partIndex)) >= 0;) {
+			Format* newFormat = NULL;
+			if(newFormats[formatNumber] != NULL) {
+				newFormat = newFormats[formatNumber]->clone();
+				if(newFormat == NULL)
+					status = U_MEMORY_ALLOCATION_ERROR;
+			}
+			setCustomArgStartFormat(partIndex, newFormat, status);
+			++formatNumber;
+		}
+		if(U_FAILURE(status)) {
+			resetPattern();
+		}
 	}
 }
 //
 // Adopt a single format by format number.
 // Do nothing if the format number is not less than the array count.
 //
-void MessageFormat::adoptFormat(int32_t n, Format * newFormat) {
+void MessageFormat::adoptFormat(int32_t n, Format * newFormat) 
+{
 	LocalPointer<Format> p(newFormat);
 	if(n >= 0) {
 		int32_t formatNumber = 0;
@@ -652,9 +562,8 @@ void MessageFormat::adoptFormat(int32_t n, Format * newFormat) {
 // Adopt a single format by format name.
 // Do nothing if there is no match of formatName.
 //
-void MessageFormat::adoptFormat(const UnicodeString & formatName,
-    Format* formatToAdopt,
-    UErrorCode & status) {
+void MessageFormat::adoptFormat(const UnicodeString & formatName, Format* formatToAdopt, UErrorCode & status) 
+{
 	LocalPointer<Format> p(formatToAdopt);
 	if(U_FAILURE(status)) {
 		return;
@@ -1296,7 +1205,6 @@ void MessageFormat::copyObjects(const MessageFormat& that, UErrorCode & ec) {
 			}
 			uhash_setValueDeleter(cachedFormatters, uprv_deleteUObject);
 		}
-
 		const int32_t count = uhash_count(that.cachedFormatters);
 		int32_t pos, idx;
 		for(idx = 0, pos = UHASH_FIRST; idx < count && U_SUCCESS(ec); ++idx) {
@@ -1782,13 +1690,13 @@ NumberFormat* MessageFormat::createIntegerFormat(const Locale & locale, UErrorCo
  *
  * Semantically const but may modify *this.
  */
-const NumberFormat* MessageFormat::getDefaultNumberFormat(UErrorCode & ec) const {
-	if(defaultNumberFormat == NULL) {
+const NumberFormat* MessageFormat::getDefaultNumberFormat(UErrorCode & ec) const 
+{
+	if(!defaultNumberFormat) {
 		MessageFormat* t = (MessageFormat*)this;
 		t->defaultNumberFormat = NumberFormat::createInstance(fLocale, ec);
 		if(U_FAILURE(ec)) {
-			delete t->defaultNumberFormat;
-			t->defaultNumberFormat = NULL;
+			ZDELETE(t->defaultNumberFormat);
 		}
 		else if(t->defaultNumberFormat == NULL) {
 			ec = U_MEMORY_ALLOCATION_ERROR;
@@ -1827,17 +1735,18 @@ bool MessageFormat::equalFormats(const void * left, const void * right) {
 	return *(const Format*)left==*(const Format*)right;
 }
 
-bool MessageFormat::DummyFormat::operator == (const Format&) const {
+bool MessageFormat::DummyFormat::operator == (const Format&) const 
+{
 	return true;
 }
 
-MessageFormat::DummyFormat* MessageFormat::DummyFormat::clone() const {
+MessageFormat::DummyFormat* MessageFormat::DummyFormat::clone() const 
+{
 	return new DummyFormat();
 }
 
-UnicodeString & MessageFormat::DummyFormat::format(const Formattable&,
-    UnicodeString & appendTo,
-    UErrorCode & status) const {
+UnicodeString & MessageFormat::DummyFormat::format(const Formattable&, UnicodeString & appendTo, UErrorCode & status) const 
+{
 	if(U_SUCCESS(status)) {
 		status = U_UNSUPPORTED_ERROR;
 	}

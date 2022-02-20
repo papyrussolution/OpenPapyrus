@@ -188,7 +188,7 @@ public:
 	 *			   the start (e.g. date:1/1/1980..31/12/1989), and a
 	 *			   suffix only on the end (e.g. 2..12kg).
 	 */
-	explicit RangeProcessor(Xapian::valueno slot_, const std::string& str_ = std::string(), unsigned flags_ = 0) : slot(slot_), str(str_), flags(flags_) 
+	explicit RangeProcessor(Xapian::valueno slot_, const std::string & str_ = std::string(), unsigned flags_ = 0) : slot(slot_), str(str_), flags(flags_) 
 	{
 	}
 	virtual ~RangeProcessor();
@@ -197,7 +197,7 @@ public:
 	 *  If they match, remove the prefix/suffix and then call operator()()
 	 *  to try to handle the range.
 	 */
-	Xapian::Query check_range(const std::string& b, const std::string& e);
+	Xapian::Query check_range(const std::string & b, const std::string & e);
 
 	/** Check for a valid range of this type.
 	 *
@@ -327,7 +327,7 @@ public:
 	 *  @param end	The end of the range as specified in the query string
 	 *			by the user.
 	 */
-	Xapian::Query operator()(const std::string& begin, const std::string& end);
+	Xapian::Query operator()(const std::string & begin, const std::string & end);
 };
 
 /** Handle a number range.
@@ -395,7 +395,7 @@ public:
 	 *  @param end	The end of the range as specified in the query string
 	 *			by the user.
 	 */
-	Xapian::Query operator()(const std::string& begin, const std::string& end);
+	Xapian::Query operator()(const std::string & begin, const std::string & end);
 };
 
 /** Handle a byte unit range.
@@ -436,7 +436,7 @@ public:
 	 *  @param end	The end of the range as specified in the query string
 	 *			by the user.
 	 */
-	Xapian::Query operator()(const std::string& begin, const std::string& end);
+	Xapian::Query operator()(const std::string & begin, const std::string & end);
 };
 
 /** Base class for field processors.
@@ -908,11 +908,11 @@ public:
 	 *  @param field   The user visible field name
 	 *  @param prefix  The term prefix to map this to
 	 */
-	void add_prefix(const std::string& field, const std::string& prefix);
+	void add_prefix(const std::string & field, const std::string & prefix);
 
 	/** Register a FieldProcessor.
 	 */
-	void add_prefix(const std::string& field, Xapian::FieldProcessor * proc);
+	void add_prefix(const std::string & field, Xapian::FieldProcessor * proc);
 
 	/** Add a boolean term prefix allowing the user to restrict a
 	 *  search with a boolean filter specified in the free text query.
@@ -1028,7 +1028,7 @@ public:
 	TermIterator unstem_begin(const std::string &term) const;
 
 	/// End iterator over unstemmed forms of the given stemmed query term.
-	TermIterator unstem_end(const std::string&) const noexcept {
+	TermIterator unstem_end(const std::string &) const noexcept {
 		return TermIterator();
 	}
 
@@ -1099,7 +1099,7 @@ inline std::string sortable_serialise(double value) {
  *  @param serialised	The serialised string to decode.
  */
 XAPIAN_VISIBILITY_DEFAULT
-double sortable_unserialise(const std::string& serialised) noexcept;
+double sortable_unserialise(const std::string & serialised) noexcept;
 }
 
 #endif // XAPIAN_INCLUDED_QUERYPARSER_H

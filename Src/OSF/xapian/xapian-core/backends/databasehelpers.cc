@@ -76,7 +76,7 @@ int test_if_single_file_db(int fd)
 }
 
 int test_if_single_file_db(const struct stat& sb,
-    const string& path,
+    const string & path,
     int* fd_ptr)
 {
 	Assert(fd_ptr);

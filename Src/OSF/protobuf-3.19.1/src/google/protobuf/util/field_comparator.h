@@ -206,7 +206,7 @@ private:
 	}
 
 	bool CompareString(const FieldDescriptor& /* unused */,
-	    const std::string& value_1, const std::string& value_2) {
+	    const std::string & value_1, const std::string & value_2) {
 		return value_1 == value_2;
 	}
 

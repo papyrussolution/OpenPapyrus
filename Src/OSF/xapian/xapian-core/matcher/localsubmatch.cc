@@ -10,7 +10,6 @@
 #include "localsubmatch.h"
 #include "backends/databaseinternal.h"
 #include "backends/leafpostlist.h"
-#include "debuglog.h"
 #include "extraweightpostlist.h"
 #include "queryoptimiser.h"
 #include "synonympostlist.h"
@@ -158,7 +157,7 @@ PostList * LocalSubMatch::make_synonym_postlist(PostListTree* pltree,
     bool wdf_disjoint)
 {
 	LOGCALL(MATCH, PostList *, "LocalSubMatch::make_synonym_postlist", pltree | or_pl | factor | wdf_disjoint);
-	if(rare(or_pl->get_termfreq_max() == 0)) {
+	if(UNLIKELY(or_pl->get_termfreq_max() == 0)) {
 		// We know or_pl doesn't match anything.
 		//
 		// The hint may be a subpostlist of or_pl.  It seems hard to check
@@ -178,7 +177,7 @@ PostList * LocalSubMatch::make_synonym_postlist(PostListTree* pltree,
 	// FIXME: it would be nicer to handle an empty database higher up, though
 	// we need to catch the case where all the non-empty subdatabases have
 	// failed, so we can't just push this right up to the start of get_mset().
-	if(usual(total_stats->collection_size != 0)) {
+	if(LIKELY(total_stats->collection_size != 0)) {
 		freqs = or_pl->get_termfreq_est_using_stats(*total_stats);
 	}
 	wt->init_(*total_stats, qlen, factor,
@@ -188,7 +187,7 @@ PostList * LocalSubMatch::make_synonym_postlist(PostListTree* pltree,
 	RETURN(res.release());
 }
 
-PostList * LocalSubMatch::open_post_list(const string& term,
+PostList * LocalSubMatch::open_post_list(const string & term,
     Xapian::termcount wqf,
     double factor,
     bool need_positions,

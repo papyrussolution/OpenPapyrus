@@ -11,17 +11,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE AUTHOR(S) BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "archive_platform.h"
 #pragma hdrstop
@@ -32,20 +21,17 @@ __FBSDID("$FreeBSD$");
  */
 void archive_entry_sparse_clear(struct archive_entry * entry)
 {
-	struct ae_sparse * sp;
 	while(entry->sparse_head != NULL) {
-		sp = entry->sparse_head->next;
+		struct ae_sparse * sp = entry->sparse_head->next;
 		SAlloc::F(entry->sparse_head);
 		entry->sparse_head = sp;
 	}
 	entry->sparse_tail = NULL;
 }
 
-void archive_entry_sparse_add_entry(struct archive_entry * entry,
-    la_int64_t offset, la_int64_t length)
+void archive_entry_sparse_add_entry(struct archive_entry * entry, la_int64_t offset, la_int64_t length)
 {
 	struct ae_sparse * sp;
-
 	if(offset < 0 || length < 0)
 		/* Invalid value */
 		return;

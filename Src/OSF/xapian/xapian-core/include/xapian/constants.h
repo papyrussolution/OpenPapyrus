@@ -45,8 +45,7 @@ const int DB_CREATE              = 0x02;
 const int DB_OPEN                = 0x03;
 
 #ifdef XAPIAN_LIB_BUILD
-/** @internal Bit mask for action codes. */
-const int DB_ACTION_MASK_        = 0x03;
+	const int DB_ACTION_MASK_        = 0x03; /** @internal Bit mask for action codes. */
 #endif
 
 /** Don't attempt to ensure changes have hit disk.

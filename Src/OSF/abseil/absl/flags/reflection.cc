@@ -224,7 +224,7 @@ private:
 		return true;
 	}
 	std::unique_ptr<flags_internal::FlagStateInterface> SaveState() override { return nullptr; }
-	bool ParseFrom(absl::string_view, flags_internal::FlagSettingMode, flags_internal::ValueSource, std::string&) override 
+	bool ParseFrom(absl::string_view, flags_internal::FlagSettingMode, flags_internal::ValueSource, std::string &) override 
 	{
 		OnAccess();
 		return false;

@@ -85,7 +85,7 @@ bool Printer::GetSubstitutionRange(const char* varname,
 }
 
 void Printer::Annotate(const char* begin_varname, const char* end_varname,
-                       const std::string& file_path,
+                       const std::string & file_path,
                        const std::vector<int>& path) {
   if (annotation_collector_ == NULL) {
     // Can't generate signatures with this Printer.
@@ -189,7 +189,7 @@ void Printer::Outdent() {
   indent_.resize(indent_.size() - 2);
 }
 
-void Printer::PrintRaw(const std::string& data) {
+void Printer::PrintRaw(const std::string & data) {
   WriteRaw(data.data(), data.size());
 }
 

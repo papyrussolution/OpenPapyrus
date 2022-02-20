@@ -11,21 +11,8 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE AUTHOR(S) BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
  * $FreeBSD$
  */
-
 /*
  * A set of compatibility glue for building libarchive on Windows platforms.
  *
@@ -50,9 +37,7 @@
 #ifdef HAVE_SYS_UTIME_H
 	#include <sys/utime.h>
 #endif
-#include <sys/stat.h>
 #include <locale.h>
-#include <process.h>
 #include <share.h>
 
 #define EPOC_TIME ARCHIVE_LITERAL_ULL(116444736000000000)
@@ -150,25 +135,18 @@ wchar_t * __la_win_permissive_name_w(const wchar_t * wname)
 	len = GetFullPathNameW(wname, l, wnp, NULL);
 	wn = wnp;
 
-	if(wnp[0] == L'\\' && wnp[1] == L'\\' &&
-	    wnp[2] == L'?' && wnp[3] == L'\\')
+	if(wnp[0] == L'\\' && wnp[1] == L'\\' && wnp[2] == L'?' && wnp[3] == L'\\')
 		/* We have already a permissive name. */
 		return (wn);
-
-	if(wnp[0] == L'\\' && wnp[1] == L'\\' &&
-	    wnp[2] == L'.' && wnp[3] == L'\\') {
+	if(wnp[0] == L'\\' && wnp[1] == L'\\' && wnp[2] == L'.' && wnp[3] == L'\\') {
 		/* This is a device name */
-		if(((wnp[4] >= L'a' && wnp[4] <= L'z') ||
-		    (wnp[4] >= L'A' && wnp[4] <= L'Z')) &&
-		    wnp[5] == L':' && wnp[6] == L'\\')
+		if(((wnp[4] >= L'a' && wnp[4] <= L'z') || (wnp[4] >= L'A' && wnp[4] <= L'Z')) && wnp[5] == L':' && wnp[6] == L'\\')
 			wnp[2] = L'?'; /* Not device name. */
 		return (wn);
 	}
-
 	unc = 0;
 	if(wnp[0] == L'\\' && wnp[1] == L'\\' && wnp[2] != L'\\') {
 		wchar_t * p = &wnp[2];
-
 		/* Skip server-name letters. */
 		while(*p != L'\\' && *p != L'\0')
 			++p;
@@ -818,7 +796,7 @@ static const struct {
 	{       ERROR_NOT_ENOUGH_QUOTA, ENOMEM  }
 };
 
-void __la_dosmaperr(unsigned long e)
+void __la_dosmaperr(ulong e)
 {
 	int i;
 	if(e == 0) {

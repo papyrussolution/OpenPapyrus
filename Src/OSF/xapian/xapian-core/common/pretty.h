@@ -152,7 +152,7 @@ template<class S>
 inline PrettyOStream<S> &
 operator<<(PrettyOStream<S> &ps, std::string &)
 {
-    ps.os << "std::string&";
+    ps.os << "std::string &";
     return ps;
 }
 

@@ -46,7 +46,7 @@ namespace i18n {
 			// digits and Arabic-indic digits are allowed, and will be shown as they are.
 			// Returns the partially formatted phone number (which is a reference to the
 			// given string parameter for convenience).
-			const string& InputDigit(char32 next_char, string* result);
+			const string & InputDigit(char32 next_char, string* result);
 
 			// Same as InputDigit, but remembers the position where next_char is inserted,
 			// so that it could be retrieved later by using GetRememberedPosition(). The
@@ -54,7 +54,7 @@ namespace i18n {
 			// characters are later inserted/removed in front of next_char.
 			// Returns the partially formatted phone number (which is a reference to the
 			// given string parameter for convenience).
-			const string& InputDigitAndRememberPosition(char32 next_char, string* result);
+			const string & InputDigitAndRememberPosition(char32 next_char, string* result);
 			// Returns the current position in the partially formatted phone number of the
 			// character which was previously passed in as the parameter of
 			// InputDigitAndRememberPosition().
@@ -64,25 +64,25 @@ namespace i18n {
 		private:
 			// Constructs an as-you-type formatter. Should be obtained from
 			// PhoneNumberUtil::GetAsYouTypeFormatter().
-			explicit AsYouTypeFormatter(const string& region_code);
+			explicit AsYouTypeFormatter(const string & region_code);
 			// Returns the metadata corresponding to the given region code or empty
 			// metadata if it is unsupported.
-			const PhoneMetadata* GetMetadataForRegion(const string& region_code) const;
+			const PhoneMetadata* GetMetadataForRegion(const string & region_code) const;
 			// Returns true if a new template is created as opposed to reusing the
 			// existing template.
 			bool MaybeCreateNewTemplate();
-			void GetAvailableFormats(const string& leading_digits);
-			void NarrowDownPossibleFormats(const string& leading_digits);
+			void GetAvailableFormats(const string & leading_digits);
+			void NarrowDownPossibleFormats(const string & leading_digits);
 			// Calculates whether we should be adding a space after the national prefix
 			// for this formatting rule or not.
 			void SetShouldAddSpaceAfterNationalPrefix(const NumberFormat& format);
 			bool CreateFormattingTemplate(const NumberFormat& format);
 			// Gets a formatting template which could be used to efficiently format a
 			// partial number where digits are added one by one.
-			void GetFormattingTemplate(const string& number_pattern, const string& number_format, UnicodeString* formatting_template);
+			void GetFormattingTemplate(const string & number_pattern, const string & number_format, UnicodeString* formatting_template);
 			void InputDigitWithOptionToRememberPosition(char32 next_char, bool remember_position, string* phone_number);
 			void AttemptToChoosePatternWithPrefixExtracted(string* formatted_number);
-			const string& GetExtractedNationalPrefix() const;
+			const string & GetExtractedNationalPrefix() const;
 			// Some national prefixes are a substring of others. If extracting the
 			// shorter NDD doesn't result in a number we can format, we try to see if we
 			// can extract a longer version here.
@@ -95,7 +95,7 @@ namespace i18n {
 			// national prefix) that was collected. A space will be inserted between them
 			// if the current formatting template indicates this to be suitable.
 			// The result will be stored in phone_number.
-			void AppendNationalNumber(const string& national_number, string* phone_number) const;
+			void AppendNationalNumber(const string & national_number, string* phone_number) const;
 			// Attempts to set the formatting template and assigns the passed-in string
 			// parameter to the formatted version of the digits entered so far.
 			void AttemptToChooseFormattingPattern(string* formatted_number);

@@ -1310,7 +1310,7 @@ void ProtoStreamObjectWriter::DeleteRendererMap() {
 	renderers_ = nullptr;
 }
 
-ProtoStreamObjectWriter::TypeRenderer* ProtoStreamObjectWriter::FindTypeRenderer(const std::string& type_url) {
+ProtoStreamObjectWriter::TypeRenderer* ProtoStreamObjectWriter::FindTypeRenderer(const std::string & type_url) {
 	PROTOBUF_NAMESPACE_ID::internal::call_once(writer_renderers_init_,
 	    InitRendererMap);
 	return FindOrNull(*renderers_, type_url);

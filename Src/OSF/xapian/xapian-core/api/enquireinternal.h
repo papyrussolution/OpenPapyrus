@@ -68,7 +68,7 @@ public:
 	MSet get_mset(doccount first, doccount maxitems, doccount checkatleast, const RSet* rset, const MatchDecider* mdecider) const;
 	TermIterator get_matching_terms_begin(docid did) const;
 	ESet get_eset(termcount maxitems, const RSet& rset, int flags, const ExpandDecider* edecider_, double min_weight) const;
-	doccount get_termfreq(const std::string& term) const { return db.get_termfreq(term); }
+	doccount get_termfreq(const std::string & term) const { return db.get_termfreq(term); }
 	Document get_document(docid did) const 
 	{
 		// This is called by MSetIterator, so we know the document exists.

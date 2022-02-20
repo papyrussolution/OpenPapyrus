@@ -50,7 +50,7 @@ namespace i18n {
 			absl::MutexLock l(&mu_);
 			gtl::STLDeleteContainerPairSecondPointers(available_maps_.begin(), available_maps_.end());
 		}
-		const AreaCodeMap* PhoneNumberOfflineGeocoder::GetPhonePrefixDescriptions(int prefix, const string& language, const string& script, const string& region) const 
+		const AreaCodeMap* PhoneNumberOfflineGeocoder::GetPhonePrefixDescriptions(int prefix, const string & language, const string & script, const string & region) const 
 		{
 			string filename;
 			provider_->GetFileName(prefix, language, script, region, &filename);
@@ -66,7 +66,7 @@ namespace i18n {
 			}
 			return it->second;
 		}
-		PhoneNumberOfflineGeocoder::AreaCodeMaps::const_iterator PhoneNumberOfflineGeocoder::LoadAreaCodeMapFromFile(const string& filename) const 
+		PhoneNumberOfflineGeocoder::AreaCodeMaps::const_iterator PhoneNumberOfflineGeocoder::LoadAreaCodeMapFromFile(const string & filename) const 
 		{
 			const char** const prefix_language_code_pairs_end = prefix_language_code_pairs_ + prefix_language_code_pairs_size_;
 			const char** const prefix_language_code_pair = std::lower_bound(prefix_language_code_pairs_,
@@ -104,7 +104,7 @@ namespace i18n {
 			return *description != '\0' ? description : GetCountryNameForNumber(number, language);
 		}
 		string PhoneNumberOfflineGeocoder::GetDescriptionForValidNumber(const PhoneNumber& number, const Locale& language,
-			const string& user_region) const 
+			const string & user_region) const 
 		{
 			// If the user region matches the number's region, then we just show the
 			// lower-level description, if one exists - if no description exists, we will
@@ -130,7 +130,7 @@ namespace i18n {
 			return GetDescriptionForValidNumber(number, locale);
 		}
 		string PhoneNumberOfflineGeocoder::GetDescriptionForNumber(const PhoneNumber& number, const Locale& language,
-			const string& user_region) const 
+			const string & user_region) const 
 		{
 			PhoneNumberUtil::PhoneNumberType number_type = phone_util_->GetNumberType(number);
 			if(number_type == PhoneNumberUtil::UNKNOWN) {
@@ -142,8 +142,8 @@ namespace i18n {
 			}
 			return GetDescriptionForValidNumber(number, language, user_region);
 		}
-		const char* PhoneNumberOfflineGeocoder::GetAreaDescription(const PhoneNumber& number, const string& lang, const string& script,
-			const string& region) const 
+		const char* PhoneNumberOfflineGeocoder::GetAreaDescription(const PhoneNumber& number, const string & lang, const string & script,
+			const string & region) const 
 		{
 			const int country_calling_code = number.country_code();
 			// NANPA area is not split in C++ code.
@@ -169,7 +169,7 @@ namespace i18n {
 		// - Chinese
 		// - Japanese
 		// - Korean
-		bool PhoneNumberOfflineGeocoder::MayFallBackToEnglish(const string& lang) const 
+		bool PhoneNumberOfflineGeocoder::MayFallBackToEnglish(const string & lang) const 
 		{
 			return lang.compare("zh") && lang.compare("ja") && lang.compare("ko");
 		}

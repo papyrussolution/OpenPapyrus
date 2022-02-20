@@ -12,17 +12,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE AUTHOR(S) BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "archive_platform.h"
 #pragma hdrstop
@@ -167,11 +156,11 @@ struct fixup_entry {
 	int64 birthtime;
 	int64 mtime;
 	int64 ctime;
-	unsigned long atime_nanos;
-	unsigned long birthtime_nanos;
-	unsigned long mtime_nanos;
-	unsigned long ctime_nanos;
-	unsigned long fflags_set;
+	ulong atime_nanos;
+	ulong birthtime_nanos;
+	ulong mtime_nanos;
+	ulong ctime_nanos;
+	ulong fflags_set;
 	size_t mac_metadata_size;
 	void                    * mac_metadata;
 	int fixup; /* bitmask of what needs fixing */
@@ -372,7 +361,7 @@ static int set_mac_metadata(struct archive_write_disk *, const char *,
 static int set_xattrs(struct archive_write_disk *);
 static int clear_nochange_fflags(struct archive_write_disk *);
 static int set_fflags(struct archive_write_disk *);
-static int set_fflags_platform(struct archive_write_disk *, int fd, const char * name, mode_t mode, unsigned long fflags_set, unsigned long fflags_clear);
+static int set_fflags_platform(struct archive_write_disk *, int fd, const char * name, mode_t mode, ulong fflags_set, ulong fflags_clear);
 static int set_ownership(struct archive_write_disk *);
 static int set_mode(struct archive_write_disk *, int mode);
 static int set_time(int, int, const char *, time_t, long, time_t, long);
@@ -677,7 +666,7 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 	}
 #if defined(__APPLE__) && defined(UF_COMPRESSED) && defined(HAVE_ZLIB_H)
 	if((a->flags & ARCHIVE_EXTRACT_NO_HFS_COMPRESSION) == 0) {
-		unsigned long set, clear;
+		ulong set, clear;
 		archive_entry_fflags(a->entry, &set, &clear);
 		if((set & ~clear) & UF_COMPRESSED) {
 			a->todo |= TODO_HFS_COMPRESSION;
@@ -3562,7 +3551,7 @@ static int set_mode(struct archive_write_disk * a, int mode)
 static int set_fflags(struct archive_write_disk * a)
 {
 	struct fixup_entry * le;
-	unsigned long set, clear;
+	ulong set, clear;
 	int r;
 	mode_t mode = archive_entry_mode(a->entry);
 	/*
@@ -3665,7 +3654,7 @@ static int clear_nochange_fflags(struct archive_write_disk * a)
 /*
  * BSD reads flags using stat() and sets them with one of {f,l,}chflags()
  */
-static int set_fflags_platform(struct archive_write_disk * a, int fd, const char * name, mode_t mode, unsigned long set, unsigned long clear)
+static int set_fflags_platform(struct archive_write_disk * a, int fd, const char * name, mode_t mode, ulong set, ulong clear)
 {
 	int r;
 	const int sf_mask = 0
@@ -3734,7 +3723,7 @@ static int set_fflags_platform(struct archive_write_disk * a, int fd, const char
 /*
  * Linux uses ioctl() to read and write file flags.
  */
-static int set_fflags_platform(struct archive_write_disk * a, int fd, const char * name, mode_t mode, unsigned long set, unsigned long clear)
+static int set_fflags_platform(struct archive_write_disk * a, int fd, const char * name, mode_t mode, ulong set, ulong clear)
 {
 	int ret;
 	int myfd = fd;
@@ -3834,7 +3823,7 @@ cleanup:
  * Of course, some systems have neither BSD chflags() nor Linux' flags
  * support through ioctl().
  */
-static int set_fflags_platform(struct archive_write_disk * a, int fd, const char * name, mode_t mode, unsigned long set, unsigned long clear)
+static int set_fflags_platform(struct archive_write_disk * a, int fd, const char * name, mode_t mode, ulong set, ulong clear)
 {
 	CXX_UNUSED(a);
 	CXX_UNUSED(fd);
@@ -3849,8 +3838,7 @@ static int set_fflags_platform(struct archive_write_disk * a, int fd, const char
 
 #ifndef HAVE_COPYFILE_H
 /* Default is to simply drop Mac extended metadata. */
-static int set_mac_metadata(struct archive_write_disk * a, const char * pathname,
-    const void * metadata, size_t metadata_size)
+static int set_mac_metadata(struct archive_write_disk * a, const char * pathname, const void * metadata, size_t metadata_size)
 {
 	CXX_UNUSED(a);
 	CXX_UNUSED(pathname);

@@ -246,7 +246,7 @@ TermList * InMemoryTermList::next()
 
 TermList * InMemoryTermList::skip_to(const string & term)
 {
-	if(rare(db->is_closed()))
+	if(UNLIKELY(db->is_closed()))
 		InMemoryDatabase::throw_database_closed();
 
 	while(pos != end && pos->tname < term) {
@@ -392,12 +392,12 @@ void InMemoryDatabase::close()
 	closed = true;
 }
 
-PostList* InMemoryDatabase::open_post_list(const string& term) const
+PostList* InMemoryDatabase::open_post_list(const string & term) const
 {
 	return InMemoryDatabase::open_leaf_post_list(term, false);
 }
 
-LeafPostList* InMemoryDatabase::open_leaf_post_list(const string& term, bool need_read_pos) const
+LeafPostList* InMemoryDatabase::open_leaf_post_list(const string & term, bool need_read_pos) const
 {
 	(void)need_read_pos;
 	if(closed) InMemoryDatabase::throw_database_closed();
@@ -624,7 +624,7 @@ PositionList * InMemoryDatabase::open_position_list(Xapian::docid did,
     const string & tname) const
 {
 	if(closed) InMemoryDatabase::throw_database_closed();
-	if(usual(doc_exists(did))) {
+	if(LIKELY(doc_exists(did))) {
 		const InMemoryDoc &doc = termlists[did - 1];
 
 		InMemoryTermEntry temp;

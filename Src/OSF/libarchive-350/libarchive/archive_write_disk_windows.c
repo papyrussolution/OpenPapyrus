@@ -12,17 +12,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE AUTHOR(S) BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "archive_platform.h"
 #pragma hdrstop
@@ -74,11 +63,11 @@ struct fixup_entry {
 	int64 birthtime;
 	int64 mtime;
 	int64 ctime;
-	unsigned long atime_nanos;
-	unsigned long birthtime_nanos;
-	unsigned long mtime_nanos;
-	unsigned long ctime_nanos;
-	unsigned long fflags_set;
+	ulong atime_nanos;
+	ulong birthtime_nanos;
+	ulong mtime_nanos;
+	ulong ctime_nanos;
+	ulong fflags_set;
 	int fixup; /* bitmask of what needs fixing */
 	wchar_t                 * name;
 };
@@ -203,7 +192,7 @@ static int set_acls(struct archive_write_disk *, HANDLE h, const wchar_t *, stru
 static int set_xattrs(struct archive_write_disk *);
 static int clear_nochange_fflags(struct archive_write_disk *);
 static int set_fflags(struct archive_write_disk *);
-static int set_fflags_platform(const wchar_t *, unsigned long, unsigned long);
+static int set_fflags_platform(const wchar_t *, ulong, ulong);
 static int set_ownership(struct archive_write_disk *);
 static int set_mode(struct archive_write_disk *, int mode);
 static int set_times(struct archive_write_disk *, HANDLE, int, const wchar_t *, time_t, long, time_t, long, time_t, long, time_t, long);
@@ -903,13 +892,11 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 	}
 
 	if(a->deferred & TODO_FFLAGS) {
-		unsigned long set, clear;
-
+		ulong set, clear;
 		fe = current_fixup(a, archive_entry_pathname_w(entry));
 		archive_entry_fflags(entry, &set, &clear);
 		fe->fflags_set = set;
 	}
-
 	/*
 	 * On Windows, A creating sparse file requires a special mark.
 	 */
@@ -2580,20 +2567,17 @@ static int set_mode(struct archive_write_disk * a, int mode)
 		/* If this platform lacks fchmod(), then
 		 * we'll just use chmod(). */
 		if(la_chmod(a->name, mode) != 0) {
-			archive_set_error(&a->archive, errno,
-			    "Can't set permissions to 0%o", (int)mode);
+			archive_set_error(&a->archive, errno, "Can't set permissions to 0%o", (int)mode);
 			r = ARCHIVE_WARN;
 		}
 	}
 	return r;
 }
 
-static int set_fflags_platform(const wchar_t * name, unsigned long fflags_set,
-    unsigned long fflags_clear)
+static int set_fflags_platform(const wchar_t * name, ulong fflags_set, ulong fflags_clear)
 {
 	DWORD oldflags, newflags;
 	wchar_t * fullname;
-
 	const DWORD settable_flags =
 	    FILE_ATTRIBUTE_ARCHIVE |
 	    FILE_ATTRIBUTE_HIDDEN |
@@ -2627,8 +2611,7 @@ static int clear_nochange_fflags(struct archive_write_disk * a)
 
 static int set_fflags(struct archive_write_disk * a)
 {
-	unsigned long set, clear;
-
+	ulong set, clear;
 	if(a->todo & TODO_FFLAGS) {
 		archive_entry_fflags(a->entry, &set, &clear);
 		if(set == 0  && clear == 0)

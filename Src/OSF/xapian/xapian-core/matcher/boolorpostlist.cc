@@ -86,7 +86,7 @@ PostList* BoolOrPostList::next(double)
 
 PostList* BoolOrPostList::skip_to(Xapian::docid did_min, double)
 {
-	if(rare(did_min <= did)) return NULL;
+	if(UNLIKELY(did_min <= did)) return NULL;
 	did = Xapian::docid(-1);
 	size_t j = 0;
 	for(size_t i = 0; i < n_kids; ++i) {
@@ -152,7 +152,7 @@ Xapian::doccount BoolOrPostList::get_termfreq_max() const
 
 Xapian::doccount BoolOrPostList::get_termfreq_est() const
 {
-	if(rare(db_size == 0))
+	if(UNLIKELY(db_size == 0))
 		return 0;
 	Assert(n_kids != 0);
 	// We calculate the estimate assuming independence.  The simplest
@@ -186,7 +186,7 @@ TermFreqs BoolOrPostList::get_termfreq_est_using_stats(const Xapian::Weight::Int
 	double Pr_est = freqs.reltermfreq * rtf_scale;
 	// If total_length is 0, cf must always be 0 so cf_scale is irrelevant.
 	double cf_scale = 0.0;
-	if(usual(stats.total_length != 0)) {
+	if(LIKELY(stats.total_length != 0)) {
 		cf_scale = 1.0 / stats.total_length;
 	}
 	double Pc_est = freqs.collfreq * cf_scale;

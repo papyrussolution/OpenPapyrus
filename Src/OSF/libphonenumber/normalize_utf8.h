@@ -7,7 +7,7 @@ namespace i18n {
 			// Put a UTF-8 string in ASCII digits: All decimal digits (Nd) replaced by
 			// their ASCII counterparts; all other characters are copied from input to
 			// output.
-			static string NormalizeDecimalDigits(const string& number) 
+			static string NormalizeDecimalDigits(const string & number) 
 			{
 				string normalized;
 				UnicodeText number_as_unicode;

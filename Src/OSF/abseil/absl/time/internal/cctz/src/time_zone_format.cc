@@ -184,7 +184,7 @@ char* FormatOffset(char* ep, int offset, const char* mode) {
 }
 
 // Formats a std::tm using strftime(3).
-void FormatTM(std::string* out, const std::string& fmt, const std::tm& tm) {
+void FormatTM(std::string* out, const std::string & fmt, const std::tm& tm) {
 	// strftime(3) returns the number of characters placed in the output
 	// array (which may be 0 characters).  It also returns 0 to indicate
 	// an error, like the array wasn't large enough.  To accommodate this,
@@ -305,7 +305,7 @@ const std::int_fast64_t kExp10[kDigits10_64 + 1] = {
 // not support the tm_gmtoff and tm_zone extensions to std::tm.
 //
 // Requires that zero() <= fs < seconds(1).
-std::string format(const std::string& format, const time_point<seconds>& tp,
+std::string format(const std::string & format, const time_point<seconds>& tp,
     const detail::femtoseconds& fs, const time_zone& tz) {
 	std::string result;
 	result.reserve(format.size()); // A reasonable guess for the result size.
@@ -672,7 +672,7 @@ bool FromWeek(int week_num, weekday week_start, year_t* year, std::tm* tm) {
 //
 // We also handle the %z specifier to accommodate platforms that do not
 // support the tm_gmtoff extension to std::tm.  %Z is parsed but ignored.
-bool parse(const std::string& format, const std::string& input,
+bool parse(const std::string & format, const std::string & input,
     const time_zone& tz, time_point<seconds>* sec,
     detail::femtoseconds* fs, std::string* err) {
 	// The unparsed input.

@@ -334,7 +334,7 @@ public:
 	SelQCertDialog() : TDialog(DLG_SELQCERT), IsSelByGoods(0), GoodsID(0)
 	{
 		P_List = static_cast<SmartListBox *>(getCtrlView(CTL_SELQCERT_LIST));
-		setCtrlOption(CTL_SELQCERT_LIST, ofFramed, 1);
+		// @v11.3.2 @obsolete setCtrlOption(CTL_SELQCERT_LIST, ofFramed, 1);
 		updateList(0);
 	}
 	int    setSelectedItem(PPID);
@@ -608,4 +608,3 @@ int PPALDD_QualityCert::InitData(PPFilt & rFilt, long rsrv)
 	}
 	return ok;
 }
-

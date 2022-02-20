@@ -21,7 +21,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "xapian/geospatial.h"
 #include "serialise-double.h"
 
 using namespace Xapian;
@@ -107,7 +106,7 @@ double GreatCircleMetric::pointwise_distance(const LatLongCoord& a, const LatLon
 	double sin_half_lat = sin(latdiff / 2);
 	double sin_half_long = sin(longdiff / 2);
 	double h = sin_half_lat * sin_half_lat + sin_half_long * sin_half_long * cos(lata) * cos(latb);
-	if(rare(h > 1.0)) {
+	if(UNLIKELY(h > 1.0)) {
 		// Clamp to 1.0, asin(1.0) = M_PI / 2.0.
 		return radius * SMathConst::Pi;
 	}
@@ -129,7 +128,7 @@ string GreatCircleMetric::serialise() const
 	return serialise_double(radius);
 }
 
-LatLongMetric * GreatCircleMetric::unserialise(const string& s) const
+LatLongMetric * GreatCircleMetric::unserialise(const string & s) const
 {
 	const char * p = s.data();
 	const char * end = p + s.size();

@@ -1,5 +1,5 @@
 // BITMBROW.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 // Модуль, отвечающий за броузер строк товарных документов.
@@ -2866,10 +2866,16 @@ public:
 						StringSet local_ss;
 						PPLotExtCodeContainer::Item2 local_item;
 						if(P_Pack->XcL.Search(temp_buf, &local_row_idx, &local_inner_idx) && P_Pack->XcL.GetByIdx(local_inner_idx, local_item)) {
-							if(local_item.Flags & PPLotExtCodeContainer::fBox && P_Pack->XcL.GetByBoxID(local_item.BoxId, local_ss) > 0) {
-								for(uint lssp = 0; local_ss.get(&lssp, temp_buf);)
-									set.AddNum(0, temp_buf, 1);
-								done = true;
+							if(local_item.Flags & PPLotExtCodeContainer::fBox) {
+								// @v11.3.2 @fix (извлекались марки из всех строк по заданному индексу коробки, что есть тяжелая ошибка!)
+								PPLotExtCodeContainer::MarkSet ms;
+								P_Pack->XcL.Get(local_row_idx, 0, ms);
+								ms.GetByBoxID(local_item.BoxId, local_ss);
+								if(local_ss.getCount()) {
+									for(uint lssp = 0; local_ss.get(&lssp, temp_buf);)
+										set.AddNum(0, temp_buf, 1);
+									done = true;
+								}
 							}
 						}
 					}
@@ -3319,27 +3325,56 @@ private:
 				PPErrorByDialog(dlg, sel);
 			}
 			else {
-				GtinStruc gts;
-				const int iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
-				const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk);
-				if(pczcr)
-					gts.GetToken(GtinStruc::fldOriginalText, &mark_buf);
-				if(!iemr && !pczcr) {
-					if(P_LotXcT) {
-						//if(P_LotXcT->FindMarkToTransfer(temp_buf, goods_id, lot_id, rSet) > 0)
-							ok = 1;
-						//else
-							//PPErrorByDialog(dlg, sel);
-					}
-					else {
-						PPSetError(PPERR_TEXTISNTEGAISMARK, temp_buf);
-						PPErrorByDialog(dlg, sel);
+				// @v11.3.2 {
+				bool   done = false;
+				int    box_prefix = 0;
+				if(temp_buf.HasPrefixIAscii("box:")) {
+					box_prefix = 1;
+					temp_buf.ShiftLeft(4).Strip();
+				}
+				if(/*validation > 0 &&*/P_Pack) {
+					int  local_row_idx = 0;
+					uint local_inner_idx = 0;
+					StringSet local_ss;
+					PPLotExtCodeContainer::Item2 local_item;
+					if(P_Pack->XcL.Search(temp_buf, &local_row_idx, &local_inner_idx) && P_Pack->XcL.GetByIdx(local_inner_idx, local_item)) {
+						if(local_item.Flags & PPLotExtCodeContainer::fBox) {
+							PPLotExtCodeContainer::MarkSet ms;
+							P_Pack->XcL.Get(local_row_idx, 0, ms);
+							ms.GetByBoxID(local_item.BoxId, local_ss);
+							if(local_ss.getCount()) {
+								for(uint lssp = 0; local_ss.get(&lssp, temp_buf);)
+									rSet.AddNum(0, temp_buf, 1);
+								done = true;
+								ok = 2;
+							}
+						}
 					}
 				}
-				else {
-					rSet.AddNum(0, mark_buf, 1);
-					STRNSCPY(rRec.Code, mark_buf);
-					ok = 1;
+				// } @v11.3.2 
+				if(!done) {
+					GtinStruc gts;
+					const int iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
+					const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk);
+					if(pczcr)
+						gts.GetToken(GtinStruc::fldOriginalText, &mark_buf);
+					if(!iemr && !pczcr) {
+						if(P_LotXcT) {
+							//if(P_LotXcT->FindMarkToTransfer(temp_buf, goods_id, lot_id, rSet) > 0)
+								ok = 1;
+							//else
+								//PPErrorByDialog(dlg, sel);
+						}
+						else {
+							PPSetError(PPERR_TEXTISNTEGAISMARK, temp_buf);
+							PPErrorByDialog(dlg, sel);
+						}
+					}
+					else {
+						rSet.AddNum(0, mark_buf, 1);
+						STRNSCPY(rRec.Code, mark_buf);
+						ok = 1;
+					}
 				}
 			}
 		}

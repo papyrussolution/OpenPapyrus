@@ -27,7 +27,7 @@ RegExpCache::~RegExpCache()
 	}
 }
 
-const RegExp& RegExpCache::GetRegExp(const string& pattern) 
+const RegExp& RegExpCache::GetRegExp(const string & pattern) 
 {
 	AutoLock l(lock_);
 	CacheImpl::const_iterator it = cache_impl_->find(pattern);

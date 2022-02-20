@@ -285,10 +285,10 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     InMemoryDatabase& operator=(const InMemoryDatabase &);
     InMemoryDatabase(const InMemoryDatabase &);
 
-    void make_term(const std::string& tname);
+    void make_term(const std::string & tname);
 
     bool doc_exists(Xapian::docid did) const;
-    Xapian::docid make_doc(const std::string& docdata);
+    Xapian::docid make_doc(const std::string & docdata);
 
     /* The common parts of add_doc and replace_doc */
     void finish_add_doc(Xapian::docid did, const Xapian::Document& document);
@@ -296,7 +296,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 		    const std::map<Xapian::valueno, std::string>& values_);
 
     void make_posting(InMemoryDoc* doc,
-		      const std::string& tname,
+		      const std::string & tname,
 		      Xapian::docid did,
 		      Xapian::termpos position,
 		      Xapian::termcount wdf,
@@ -342,7 +342,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     Xapian::termcount get_unique_terms(Xapian::docid did) const;
     Xapian::termcount get_wdfdocmax(Xapian::docid did) const;
 
-    void get_freqs(const std::string& term,
+    void get_freqs(const std::string & term,
 		   Xapian::doccount* termfreq_ptr,
 		   Xapian::termcount* collfreq_ptr) const;
     Xapian::doccount get_value_freq(Xapian::valueno slot) const;
@@ -350,12 +350,12 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     std::string get_value_upper_bound(Xapian::valueno slot) const;
     Xapian::termcount get_doclength_lower_bound() const;
     Xapian::termcount get_doclength_upper_bound() const;
-    Xapian::termcount get_wdf_upper_bound(const std::string& term) const;
-    bool term_exists(const std::string& tname) const;
+    Xapian::termcount get_wdf_upper_bound(const std::string & term) const;
+    bool term_exists(const std::string & tname) const;
     bool has_positions() const;
 
-    PostList* open_post_list(const std::string& tname) const;
-    LeafPostList* open_leaf_post_list(const std::string& term,
+    PostList* open_post_list(const std::string & tname) const;
+    LeafPostList* open_leaf_post_list(const std::string & term,
 				      bool need_read_pos) const;
     TermList * open_term_list(Xapian::docid did) const;
     TermList * open_term_list_direct(Xapian::docid did) const;
@@ -367,10 +367,10 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     void set_metadata(const std::string & key, const std::string & value);
 
     Xapian::termcount positionlist_count(Xapian::docid did,
-					 const std::string& tname) const;
+					 const std::string & tname) const;
     PositionList* open_position_list(Xapian::docid did,
-				     const std::string& tname) const;
-    TermList* open_allterms(const std::string& prefix) const;
+				     const std::string & tname) const;
+    TermList* open_allterms(const std::string & prefix) const;
 
     [[noreturn]]
     static void throw_database_closed();

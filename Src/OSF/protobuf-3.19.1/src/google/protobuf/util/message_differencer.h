@@ -675,7 +675,7 @@ protected:
 		virtual void PrintUnknownFieldValue(const UnknownField* unknown_field);
 
 		// Just print a string
-		void Print(const std::string& str);
+		void Print(const std::string & str);
 
 private:
 		// helper function for PrintPath that contains logic for printing maps

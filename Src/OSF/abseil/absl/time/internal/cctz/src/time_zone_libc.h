@@ -28,7 +28,7 @@ namespace cctz {
 // TODO: Add support for fixed offsets from UTC.
 class TimeZoneLibC : public TimeZoneIf {
 public:
-	explicit TimeZoneLibC(const std::string& name);
+	explicit TimeZoneLibC(const std::string & name);
 
 	// TimeZoneIf implementations.
 	time_zone::absolute_lookup BreakTime(const time_point<seconds>& tp) const override;

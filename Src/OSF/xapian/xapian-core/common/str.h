@@ -24,50 +24,27 @@
 #include <string>
 
 namespace Xapian {
-namespace Internal {
-/// Convert int to std::string.
-std::string str(int value);
+	namespace Internal {
+		std::string str(int value); /// Convert int to std::string.
+		std::string str(uint value); /// Convert uint to std::string.
+		std::string str(long value); /// Convert long to std::string.
+		std::string str(ulong value); /// Convert ulong to std::string.
+		std::string str(long long value); /// Convert long long to std::string.
+		std::string str(uint64 value); /// Convert ulong long to std::string.
+		std::string str(double value); /// Convert double to std::string.
+		std::string str(const void * value); /// Convert const void * to std::string.
 
-/// Convert uint to std::string.
-std::string str(uint value);
-
-/// Convert long to std::string.
-std::string str(long value);
-
-/// Convert ulong to std::string.
-std::string str(ulong value);
-
-/// Convert long long to std::string.
-std::string str(long long value);
-
-/// Convert ulong long to std::string.
-std::string str(uint64 value);
-
-/// Convert double to std::string.
-std::string str(double value);
-
-/// Convert const void * to std::string.
-std::string str(const void * value);
-
-/** Convert std::string to std::string.
- *
- *  This is useful as it allows macros and templates to apply str() to a
- *  type and have it work if that type is std::string.
- */
-inline std::string str(const std::string & value) {
-	return value;
-}
-
-/// Convert const char * to std::string.
-inline std::string str(const char * value) {
-	return value;
-}
-
-/// Convert bool to std::string.
-inline std::string str(bool value) {
-	return std::string(1, '0' | static_cast<char>(value));
-}
-}
+		/** Convert std::string to std::string.
+		 *
+		 *  This is useful as it allows macros and templates to apply str() to a
+		 *  type and have it work if that type is std::string.
+		 */
+		inline std::string str(const std::string & value) { return value; }
+		/// Convert const char * to std::string.
+		inline std::string str(const char * value) { return value; }
+		/// Convert bool to std::string.
+		inline std::string str(bool value) { return std::string(1, '0' | static_cast<char>(value)); }
+	}
 }
 
 using Xapian::Internal::str;

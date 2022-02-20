@@ -10,7 +10,7 @@ namespace phonenumbers {
 using std::equal;
 using std::stringstream;
 
-string operator+(const string& s, int n) {  // NOLINT(runtime/string)
+string operator+(const string & s, int n) {  // NOLINT(runtime/string)
 	stringstream stream;
 	stream << s << n;
 	string result;
@@ -31,12 +31,12 @@ string SimpleItoa(int n) { return GenericSimpleItoa(n); }
 string SimpleItoa(uint64 n) { return GenericSimpleItoa(n); }
 string SimpleItoa(int64 n) { return GenericSimpleItoa(n); }
 
-bool HasPrefixString(const string& s, const string& prefix) 
+bool HasPrefixString(const string & s, const string & prefix) 
 {
 	return s.size() >= prefix.size() && equal(s.begin(), s.begin() + prefix.size(), prefix.begin());
 }
 
-size_t FindNth(const string& s, char c, int n) 
+size_t FindNth(const string & s, char c, int n) 
 {
 	size_t pos = string::npos;
 	for(int i = 0; i < n; ++i) {
@@ -48,7 +48,7 @@ size_t FindNth(const string& s, char c, int n)
 	return pos;
 }
 
-void SplitStringUsing(const string& s, const string& delimiter, vector<string>* result) 
+void SplitStringUsing(const string & s, const string & delimiter, vector<string>* result) 
 {
 	assert(result);
 	size_t start_pos = 0;
@@ -78,7 +78,7 @@ void StripString(string* s, const char* remove, char replacewith) {
 	}
 }
 
-bool TryStripPrefixString(const string& in, const string& prefix, string* out) {
+bool TryStripPrefixString(const string & in, const string & prefix, string* out) {
 	assert(out);
 	const bool has_prefix = in.compare(0, prefix.length(), prefix) == 0;
 	out->assign(has_prefix ? in.substr(prefix.length()) : in);
@@ -86,25 +86,25 @@ bool TryStripPrefixString(const string& in, const string& prefix, string* out) {
 	return has_prefix;
 }
 
-bool HasSuffixString(const string& s, const string& suffix) {
+bool HasSuffixString(const string & s, const string & suffix) {
 	if(s.length() < suffix.length()) {
 		return false;
 	}
 	return s.compare(s.length() - suffix.length(), suffix.length(), suffix) == 0;
 }
 
-template <typename T> void GenericAtoi(const string& s, T* out) 
+template <typename T> void GenericAtoi(const string & s, T* out) 
 {
 	stringstream stream;
 	stream << s;
 	stream >> *out;
 }
 
-void safe_strto32(const string& s, int32 * n) { GenericAtoi(s, n); }
-void safe_strtou64(const string& s, uint64 * n) { GenericAtoi(s, n); }
-void safe_strto64(const string& s, int64* n) { GenericAtoi(s, n); }
+void safe_strto32(const string & s, int32 * n) { GenericAtoi(s, n); }
+void safe_strtou64(const string & s, uint64 * n) { GenericAtoi(s, n); }
+void safe_strto64(const string & s, int64* n) { GenericAtoi(s, n); }
 
-void strrmm(string* s, const string& chars) 
+void strrmm(string* s, const string & chars) 
 {
 	for(string::iterator it = s->begin(); it != s->end();) {
 		const char current_char = *it;
@@ -117,7 +117,7 @@ void strrmm(string* s, const string& chars)
 	}
 }
 
-int GlobalReplaceSubstring(const string& substring, const string& replacement, string* s) 
+int GlobalReplaceSubstring(const string & substring, const string & replacement, string* s) 
 {
 	assert(s != NULL);
 	if(s->empty() || substring.empty())
@@ -143,7 +143,7 @@ int GlobalReplaceSubstring(const string& substring, const string& replacement, s
 
 // StringHolder class
 
-StringHolder::StringHolder(const string& s) : string_(&s), cstring_(NULL), len_(s.size())
+StringHolder::StringHolder(const string & s) : string_(&s), cstring_(NULL), len_(s.size())
 {
 }
 
@@ -163,7 +163,7 @@ StringHolder::~StringHolder()
 // StrCat
 
 // Implements s += sh; (s: string, sh: StringHolder)
-string& operator+=(string& lhs, const StringHolder& rhs) 
+string & operator+=(string & lhs, const StringHolder& rhs) 
 {
 	const string* const s = rhs.GetString();
 	if(s) {

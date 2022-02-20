@@ -70,7 +70,7 @@ struct DegreesMinutesSeconds {
 bool GeoEncode::encode(double lat, double lon, string & result)
 {
 	// Check range of latitude.
-	if(rare(lat < -90.0 || lat > 90.0)) {
+	if(UNLIKELY(lat < -90.0 || lat > 90.0)) {
 		return false;
 	}
 

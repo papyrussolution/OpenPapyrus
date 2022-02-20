@@ -580,7 +580,7 @@ bool AbslParseFlag(absl::string_view text, Duration* dst, std::string* error);
 std::string AbslUnparseFlag(Duration d);
 
 ABSL_DEPRECATED("Use AbslParseFlag() instead.")
-bool ParseFlag(const std::string& text, Duration* dst, std::string* error);
+bool ParseFlag(const std::string & text, Duration* dst, std::string* error);
 ABSL_DEPRECATED("Use AbslUnparseFlag() instead.")
 std::string UnparseFlag(Duration d);
 
@@ -897,7 +897,7 @@ bool AbslParseFlag(absl::string_view text, Time* t, std::string* error);
 std::string AbslUnparseFlag(Time t);
 
 ABSL_DEPRECATED("Use AbslParseFlag() instead.")
-bool ParseFlag(const std::string& text, Time* t, std::string* error);
+bool ParseFlag(const std::string & text, Time* t, std::string* error);
 ABSL_DEPRECATED("Use AbslUnparseFlag() instead.")
 std::string UnparseFlag(Time t);
 

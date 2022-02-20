@@ -21,7 +21,7 @@ ObjViewDialog::ObjViewDialog(uint dlgRez, PPObject * aObj, void * extraPtr) : TD
 	if(ViewSize.x && ViewSize.y && P_List) {
 		SString obj_title;
 		setTitle(GetObjectTitle(P_Obj->Obj, obj_title));
-		P_List->ViewOptions |= ofFramed;
+		// @v11.3.2 @obsolete P_List->ViewOptions |= ofFramed;
 		P_List->setDef(P_Obj->Selector(0, 0, ExtraPtr));
 		P_List->Draw_();
 		enableCommand(cmaInsert, Rt & PPR_INS);

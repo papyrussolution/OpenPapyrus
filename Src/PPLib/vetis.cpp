@@ -3329,6 +3329,7 @@ public:
 
 	static int FASTCALL SetupParam(Param & rP);
 	static int GoodsDateToString(const SUniTime & rUt, SString & rBuf);
+	static int LockProcess(int prcId, bool unlock);
 	explicit PPVetisInterface(PPLogger * pLogger);
 	~PPVetisInterface();
 	int    Init(const Param & rP);
@@ -6962,6 +6963,23 @@ void PPVetisInterface::PutListOptionsParam(xmlTextWriter * pWriter, uint offs, u
 	return ok;
 }
 
+/*static*/int PPVetisInterface::LockProcess(int funcId, bool unlock)
+{
+	int    ok = 1;
+	if(!unlock) {
+		PPID   mutex_id = 0;
+		PPSyncItem sync_item;
+		int    r = DS.GetSync().CreateMutex_(LConfig.SessionID, PPOBJ_VETISIC, funcId, &mutex_id, &sync_item);
+		if(r < 0)
+			ok = PPSetError(PPERR_VETISICFUNCLOCKED, sync_item.Name);
+		else if(r == 0)
+			ok = 0;
+	}
+	else
+		ok = DS.GetSync().ReleaseMutex(PPOBJ_VETISIC, funcId);
+	return ok;
+}
+
 int PPVetisInterface::PutGoodsDate(xmlTextWriter * pWriter, const char * pScopeXmlTag, const char * pDtNs, const SUniTime & rUt)
 {
 	int    ok = -1;
@@ -8921,10 +8939,10 @@ int PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, long fla
 		VetisDocumentTbl::Rec src_rec; // Запись оригинального сертификата
 		VetisDocumentTbl::Key1 k1;
 		const int org_vcert_needed = BIN(!(flags & (pbrfDiscrepancy|pbrfManufInc)) || rBp.OpTypeID == PPOPT_GOODSEXPEND);
-		int   skip = 0;
+		bool   skip = false;
 		const double __volume = CalcVolumeByGoodsQtty(r_ti.GoodsID, r_ti.Quantity_);
 		if(__volume <= 0.0)
-			skip = 1;
+			skip = true;
 		else if(org_vcert_needed) {
 			if(p_ref->Ot.GetTagStr(PPOBJ_LOT, r_ti.LotID, PPTAG_LOT_VETIS_UUID, temp_buf) > 0 && lot_uuid.FromStr(temp_buf)) {
 				if(PeC.GetEntityByUuid(lot_uuid, entity_doc) > 0 && PeC.SearchDocument(entity_doc.ID, &src_rec) > 0) {
@@ -8941,7 +8959,7 @@ int PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, long fla
 				}
 			}
 			else
-				skip = 1;
+				skip = true;
 		}
 		else {
 			// @v10.6.4 MEMSZERO(src_rec);
@@ -9490,6 +9508,7 @@ int PPVetisInterface::Helper_PutOutgoingBillList(PPIDArray & rBillList, const lo
 int PPVetisInterface::SetupOutgoingEntries(PPID locID, const DateRange & rPeriod)
 {
 	int    ok = -1;
+	bool   is_locked = false;
 	PPIDArray bill_id_list;
 	PPIDArray temp_bill_list; // Список идентификаторов документов продажи
 	PPIDArray op_list;
@@ -9504,23 +9523,31 @@ int PPVetisInterface::SetupOutgoingEntries(PPID locID, const DateRange & rPeriod
 		{ pbrfManuf,       { alcr_cfg.E.ManufOpID, 0, 0, 0, 0, 0 } },
 		{ 0,               { alcr_cfg.ExpndOpID, alcr_cfg.IntrExpndOpID, 0, 0, 0, 0 } }
 	};
-	for(uint cbidx = 0; cbidx < SIZEOFARRAY(control_block_list); cbidx++) {
-		PPIDArray base_op_list;
-		for(uint opidx = 0; opidx < SIZEOFARRAY(control_block_list[cbidx].SrcOpList); opidx++) {
-			const PPID op_id = control_block_list[cbidx].SrcOpList[opidx];
-			base_op_list.addnz(op_id);
-		}
-		if(PPObjOprKind::ExpandOpList(base_op_list, op_list) > 0) {
-			const long put_bill_row_flags = control_block_list[cbidx].Flags;
-			if(MakeOutgoingBillList(locID, rPeriod, op_list, put_bill_row_flags, temp_bill_list) > 0) {
-				const int local_ok = Helper_PutOutgoingBillList(temp_bill_list, put_bill_row_flags);
-				THROW(local_ok);
-				if(local_ok > 0)
-					ok = 1;
+	{
+		THROW(PPVetisInterface::LockProcess(/*PPVETISICFUNC_SETUPOUTGOINGENTRIES*/PPVETISICFUNC_PROCESSOUTCOMING, false)); // @v11.3.2
+		is_locked = true;
+		for(uint cbidx = 0; cbidx < SIZEOFARRAY(control_block_list); cbidx++) {
+			PPIDArray base_op_list;
+			for(uint opidx = 0; opidx < SIZEOFARRAY(control_block_list[cbidx].SrcOpList); opidx++) {
+				const PPID op_id = control_block_list[cbidx].SrcOpList[opidx];
+				base_op_list.addnz(op_id);
+			}
+			if(PPObjOprKind::ExpandOpList(base_op_list, op_list) > 0) {
+				const long put_bill_row_flags = control_block_list[cbidx].Flags;
+				if(MakeOutgoingBillList(locID, rPeriod, op_list, put_bill_row_flags, temp_bill_list) > 0) {
+					const int local_ok = Helper_PutOutgoingBillList(temp_bill_list, put_bill_row_flags);
+					THROW(local_ok);
+					if(local_ok > 0)
+						ok = 1;
+				}
 			}
 		}
 	}
 	CATCHZOK
+	// @v11.3.2 {
+	if(is_locked)
+		PPVetisInterface::LockProcess(/*PPVETISICFUNC_SETUPOUTGOINGENTRIES*/PPVETISICFUNC_PROCESSOUTCOMING, true);
+	// } @v11.3.2
 	return ok;
 }
 
@@ -11559,9 +11586,12 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 	PPVetisInterface::OutcomingList work_list; // @v10.5.9
 	VetisApplicationBlock pi_reply;
 	BillTbl::Rec link_bill_rec;
+	bool is_locked = false;
 	THROW(PPVetisInterface::SetupParam(param));
 	THROW(ifc.Init(param));
 	PPWaitStart();
+	THROW(PPVetisInterface::LockProcess(PPVETISICFUNC_PROCESSOUTCOMING, false)); // @v11.3.2
+	is_locked = true;
 	for(InitIteration(); NextIteration(&vi) > 0;) {
 		if(vi.VetisDocStatus == vetisdocstOUTGOING_PREPARING) {
 			if(vi.Flags & VetisVetDocument::fManufExpense) {
@@ -11786,6 +11816,10 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 		logger.Log(msg_buf);
 	}
 	CATCHZOKPPERR
+	// @v11.3.2 {
+	if(is_locked)
+		PPVetisInterface::LockProcess(PPVETISICFUNC_PROCESSOUTCOMING, true); 
+	// } @v11.3.2 
 	logger.Save(PPFILNAM_VETISINFO_LOG, 0);
 	PPWaitStop();
 	return ok;

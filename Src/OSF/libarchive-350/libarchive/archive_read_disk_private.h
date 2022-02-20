@@ -11,26 +11,13 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE AUTHOR(S) BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
  * $FreeBSD: head/lib/libarchive/archive_read_disk_private.h 201105 2009-12-28 03:20:54Z kientzle $
  */
-
 #ifndef ARCHIVE_READ_DISK_PRIVATE_H_INCLUDED
 #define ARCHIVE_READ_DISK_PRIVATE_H_INCLUDED
 
 #ifndef __LIBARCHIVE_BUILD
-#error This header is only to be used internally to libarchive.
+	#error This header is only to be used internally to libarchive.
 #endif
 
 #include "archive_platform_acl.h"
@@ -40,10 +27,8 @@ struct archive_entry;
 
 struct archive_read_disk {
 	struct archive	archive;
-
 	/* Reused by archive_read_next_header() */
 	struct archive_entry *entry;
-
 	/*
 	 * Symlink mode is one of 'L'ogical, 'P'hysical, or 'H'ybrid,
 	 * following an old BSD convention.  'L' follows all symlinks,

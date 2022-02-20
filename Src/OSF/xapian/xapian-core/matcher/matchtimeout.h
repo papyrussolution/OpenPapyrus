@@ -85,12 +85,12 @@ class TimeOut {
 	    sev.sigev_notify_attributes = NULL;
 	    sev.sigev_value.sival_ptr =
 		static_cast<void*>(const_cast<bool*>(&expired));
-	    if (usual(timer_create(TIMEOUT_CLOCK, &sev, &timerid) == 0)) {
+	    if (LIKELY(timer_create(TIMEOUT_CLOCK, &sev, &timerid) == 0)) {
 		struct itimerspec interval;
 		interval.it_interval.tv_sec = 0;
 		interval.it_interval.tv_nsec = 0;
 		RealTime::to_timespec(limit, &interval.it_value);
-		if (usual(timer_settime(timerid, 0, &interval, NULL) == 0)) {
+		if (LIKELY(timer_settime(timerid, 0, &interval, NULL) == 0)) {
 		    // Timeout successfully set.
 		    return;
 		}

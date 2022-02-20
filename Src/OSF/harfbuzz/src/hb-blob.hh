@@ -10,27 +10,13 @@
  * above copyright notice and the following two paragraphs appear in
  * all copies of this software.
  *
- * IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE TO ANY PARTY FOR
- * DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES
- * ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN
- * IF THE COPYRIGHT HOLDER HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
- *
- * THE COPYRIGHT HOLDER SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING,
- * BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
- * FITNESS FOR A PARTICULAR PURPOSE.  THE SOFTWARE PROVIDED HEREUNDER IS
- * ON AN "AS IS" BASIS, AND THE COPYRIGHT HOLDER HAS NO OBLIGATION TO
- * PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
- *
  * Red Hat Author(s): Behdad Esfahbod
  * Google Author(s): Behdad Esfahbod
  */
-
 #ifndef HB_BLOB_HH
 #define HB_BLOB_HH
 
 #include "hb.hh"
-
 /*
  * hb_blob_t
  */
@@ -88,22 +74,14 @@ struct hb_blob_ptr_t {
 	const T & operator * () const { return *get(); }
 	template <typename C> operator const C * () const { return get(); }
 	operator const char * () const { return (const char*)get(); }
-	const T * get() const {
-		return b->as<T> ();
+	const T * get() const { return b->as<T> (); }
+	hb_blob_t * get_blob() const { return b.get_raw(); }
+	uint get_length() const { return b.get()->length; }
+	void destroy() 
+	{
+		hb_blob_destroy(b.get()); 
+		b = nullptr;
 	}
-
-	hb_blob_t * get_blob() const {
-		return b.get_raw();
-	}
-
-	uint get_length() const {
-		return b.get()->length;
-	}
-
-	void destroy() {
-		hb_blob_destroy(b.get()); b = nullptr;
-	}
-
 	hb_nonnull_ptr_t<hb_blob_t> b;
 };
 

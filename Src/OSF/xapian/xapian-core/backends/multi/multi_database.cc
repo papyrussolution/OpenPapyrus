@@ -52,7 +52,7 @@ void MultiDatabase::close()
 	}
 }
 
-PostList* MultiDatabase::open_post_list(const string& term) const
+PostList* MultiDatabase::open_post_list(const string & term) const
 {
 	PostList** postlists = new PostList*[shards.size()];
 	size_t count = 0;
@@ -70,7 +70,7 @@ PostList* MultiDatabase::open_post_list(const string& term) const
 	}
 }
 
-LeafPostList* MultiDatabase::open_leaf_post_list(const string&, bool) const
+LeafPostList* MultiDatabase::open_leaf_post_list(const string &, bool) const
 {
 	// This should never get called.
 	Assert(false);
@@ -93,7 +93,7 @@ TermList* MultiDatabase::open_term_list_direct(Xapian::docid did) const
 	return res;
 }
 
-TermList* MultiDatabase::open_allterms(const string& prefix) const
+TermList* MultiDatabase::open_allterms(const string & prefix) const
 {
 	size_t count = 0;
 	TermList** termlists = new TermList*[shards.size()];
@@ -121,7 +121,7 @@ bool MultiDatabase::has_positions() const
 	return false;
 }
 
-PositionList* MultiDatabase::open_position_list(Xapian::docid did, const string& term) const
+PositionList* MultiDatabase::open_position_list(Xapian::docid did, const string & term) const
 {
 	auto n_shards = shards.size();
 	auto shard = shards[shard_number(did, n_shards)];
@@ -169,7 +169,7 @@ Xapian::totallength MultiDatabase::get_total_length() const
 	return result;
 }
 
-void MultiDatabase::get_freqs(const string& term,
+void MultiDatabase::get_freqs(const string & term,
     Xapian::doccount* tf_ptr,
     Xapian::termcount* cf_ptr) const
 {
@@ -269,7 +269,7 @@ Xapian::termcount MultiDatabase::get_doclength_upper_bound() const
 	return result;
 }
 
-Xapian::termcount MultiDatabase::get_wdf_upper_bound(const string& term) const
+Xapian::termcount MultiDatabase::get_wdf_upper_bound(const string & term) const
 {
 	Assert(!term.empty());
 
@@ -339,7 +339,7 @@ Xapian::Document::Internal* MultiDatabase::open_document(Xapian::docid did, bool
 	return shard->open_document(shard_did, lazy);
 }
 
-bool MultiDatabase::term_exists(const string& term) const
+bool MultiDatabase::term_exists(const string & term) const
 {
 	for(auto&& shard : shards) {
 		if(shard->term_exists(term))
@@ -355,7 +355,7 @@ void MultiDatabase::keep_alive()
 	}
 }
 
-TermList* MultiDatabase::open_spelling_termlist(const string& word) const
+TermList* MultiDatabase::open_spelling_termlist(const string & word) const
 {
 	vector<TermList*> termlists;
 	termlists.reserve(shards.size());
@@ -395,7 +395,7 @@ TermList* MultiDatabase::open_spelling_wordlist() const
 	}
 }
 
-Xapian::doccount MultiDatabase::get_spelling_frequency(const string& word) const
+Xapian::doccount MultiDatabase::get_spelling_frequency(const string & word) const
 {
 	Xapian::doccount result = 0;
 	for(auto&& shard : shards) {
@@ -407,7 +407,7 @@ Xapian::doccount MultiDatabase::get_spelling_frequency(const string& word) const
 	return result;
 }
 
-TermList* MultiDatabase::open_synonym_termlist(const string& term) const
+TermList* MultiDatabase::open_synonym_termlist(const string & term) const
 {
 	vector<TermList*> termlists;
 	termlists.reserve(shards.size());
@@ -426,7 +426,7 @@ TermList* MultiDatabase::open_synonym_termlist(const string& term) const
 	}
 }
 
-TermList* MultiDatabase::open_synonym_keylist(const string& prefix) const
+TermList* MultiDatabase::open_synonym_keylist(const string & prefix) const
 {
 	vector<TermList*> termlists;
 	termlists.reserve(shards.size());
@@ -445,14 +445,14 @@ TermList* MultiDatabase::open_synonym_keylist(const string& prefix) const
 	}
 }
 
-string MultiDatabase::get_metadata(const string& key) const { return shards[0]->get_metadata(key); }
-TermList* MultiDatabase::open_metadata_keylist(const string& prefix) const { return shards[0]->open_metadata_keylist(prefix); }
+string MultiDatabase::get_metadata(const string & key) const { return shards[0]->get_metadata(key); }
+TermList* MultiDatabase::open_metadata_keylist(const string & prefix) const { return shards[0]->open_metadata_keylist(prefix); }
 
 string MultiDatabase::get_uuid() const
 {
 	string uuid;
 	for(auto&& shard : shards) {
-		const string& sub_uuid = shard->get_uuid();
+		const string & sub_uuid = shard->get_uuid();
 		// If any of the sub-databases have no uuid, we can't make a uuid for
 		// the combined database.
 		if(sub_uuid.empty())
@@ -474,7 +474,7 @@ bool MultiDatabase::locked() const
 	return false;
 }
 
-void MultiDatabase::write_changesets_to_fd(int, const std::string&, bool, Xapian::ReplicationInfo*)
+void MultiDatabase::write_changesets_to_fd(int, const std::string &, bool, Xapian::ReplicationInfo*)
 {
 	throw Xapian::InvalidOperationError("write_changesets_to_fd() with more than one subdatabase");
 }
@@ -530,7 +530,7 @@ Xapian::docid MultiDatabase::add_document(const Xapian::Document& doc)
 	// With a single shard, add_document() uses docid (get_lastdocid() + 1)
 	// which seems a sensible invariant to preserve with multiple shards.
 	Xapian::docid did = get_lastdocid() + 1;
-	if(rare(did == 0)) {
+	if(UNLIKELY(did == 0)) {
 		throw Xapian::DatabaseError("Run out of docids - you'll have to use copydatabase to eliminate any gaps before you can add more documents");
 	}
 	auto n_shards = shards.size();
@@ -546,7 +546,7 @@ void MultiDatabase::delete_document(Xapian::docid did)
 	shard->delete_document(shard_docid(did, n_shards));
 }
 
-void MultiDatabase::delete_document(const string& term)
+void MultiDatabase::delete_document(const string & term)
 {
 	for(auto&& shard : shards) {
 		shard->delete_document(term);
@@ -560,7 +560,7 @@ void MultiDatabase::replace_document(Xapian::docid did, const Xapian::Document& 
 	shard->replace_document(shard_docid(did, n_shards), doc);
 }
 
-Xapian::docid MultiDatabase::replace_document(const string& term, const Xapian::Document& doc)
+Xapian::docid MultiDatabase::replace_document(const string & term, const Xapian::Document& doc)
 {
 	auto n_shards = shards.size();
 	unique_ptr<PostList> pl(open_post_list(term));
@@ -569,7 +569,7 @@ Xapian::docid MultiDatabase::replace_document(const string& term, const Xapian::
 	if(pl->at_end()) {
 		// Which database will the next never used docid be in?
 		Xapian::docid did = get_lastdocid() + 1;
-		if(rare(did == 0)) {
+		if(UNLIKELY(did == 0)) {
 			throw Xapian::DatabaseError("Run out of docids - you'll have to use copydatabase to eliminate any gaps before you can add more documents");
 		}
 		auto shard = shards[shard_number(did, n_shards)];
@@ -596,13 +596,13 @@ void MultiDatabase::request_document(Xapian::docid did) const
 	shard->request_document(shard_did);
 }
 
-void MultiDatabase::add_spelling(const string& word,
+void MultiDatabase::add_spelling(const string & word,
     Xapian::termcount freqinc) const
 {
 	shards[0]->add_spelling(word, freqinc);
 }
 
-Xapian::termcount MultiDatabase::remove_spelling(const string& word,
+Xapian::termcount MultiDatabase::remove_spelling(const string & word,
     Xapian::termcount freqdec) const
 {
 	for(auto&& shard : shards) {
@@ -613,31 +613,31 @@ Xapian::termcount MultiDatabase::remove_spelling(const string& word,
 	return freqdec;
 }
 
-void MultiDatabase::add_synonym(const string& term, const string& synonym) const
+void MultiDatabase::add_synonym(const string & term, const string & synonym) const
 {
 	shards[0]->add_synonym(term, synonym);
 }
 
-void MultiDatabase::remove_synonym(const string& term, const string& synonym) const
+void MultiDatabase::remove_synonym(const string & term, const string & synonym) const
 {
 	for(auto&& shard : shards) {
 		shard->remove_synonym(term, synonym);
 	}
 }
 
-void MultiDatabase::clear_synonyms(const string& term) const
+void MultiDatabase::clear_synonyms(const string & term) const
 {
 	for(auto&& shard : shards) {
 		shard->clear_synonyms(term);
 	}
 }
 
-void MultiDatabase::set_metadata(const string& key, const string& value)
+void MultiDatabase::set_metadata(const string & key, const string & value)
 {
 	shards[0]->set_metadata(key, value);
 }
 
-string MultiDatabase::reconstruct_text(Xapian::docid did, size_t length, const string& prefix, Xapian::termpos start_pos, Xapian::termpos end_pos) const
+string MultiDatabase::reconstruct_text(Xapian::docid did, size_t length, const string & prefix, Xapian::termpos start_pos, Xapian::termpos end_pos) const
 {
 	Assert(did != 0);
 	auto n_shards = shards.size();

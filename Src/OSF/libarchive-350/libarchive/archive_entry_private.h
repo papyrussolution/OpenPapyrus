@@ -10,21 +10,8 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE AUTHOR(S) BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
  * $FreeBSD: head/lib/libarchive/archive_entry_private.h 201096 2009-12-28 02:41:27Z kientzle $
  */
-
 #ifndef ARCHIVE_ENTRY_PRIVATE_H_INCLUDED
 #define ARCHIVE_ENTRY_PRIVATE_H_INCLUDED
 
@@ -152,8 +139,8 @@ struct archive_entry {
 	 * Use aes here so that we get transparent mbs<->wcs conversions.
 	 */
 	struct archive_mstring ae_fflags_text;	/* Text fflags per fflagstostr(3) */
-	unsigned long ae_fflags_set;		/* Bitmap fflags */
-	unsigned long ae_fflags_clear;
+	ulong ae_fflags_set;		/* Bitmap fflags */
+	ulong ae_fflags_clear;
 	struct archive_mstring ae_gname;		/* Name of owning group */
 	struct archive_mstring ae_hardlink;	/* Name of target for hardlink */
 	struct archive_mstring ae_pathname;	/* Name of entry */
@@ -167,34 +154,21 @@ struct archive_entry {
 #define AE_ENCRYPTION_DATA 1
 #define AE_ENCRYPTION_METADATA 2
 	char encryption;
-	
 	void *mac_metadata;
 	size_t mac_metadata_size;
-
-	/* Digest support. */
-	struct ae_digest digest;
-
-	/* ACL support. */
-	struct archive_acl    acl;
-
+	struct ae_digest digest; /* Digest support. */
+	struct archive_acl    acl; /* ACL support. */
 	/* extattr support. */
 	struct ae_xattr *xattr_head;
 	struct ae_xattr *xattr_p;
-
 	/* sparse support. */
 	struct ae_sparse *sparse_head;
 	struct ae_sparse *sparse_tail;
 	struct ae_sparse *sparse_p;
-
-	/* Miscellaneous. */
-	char		 strmode[12];
-
-	/* Symlink type support */
-	int ae_symlink_type;
+	char		 strmode[12]; /* Miscellaneous. */
+	int ae_symlink_type; /* Symlink type support */
 };
 
-int
-archive_entry_set_digest(struct archive_entry *entry, int type,
-    const uchar *digest);
+int archive_entry_set_digest(struct archive_entry *entry, int type, const uchar *digest);
 
 #endif /* ARCHIVE_ENTRY_PRIVATE_H_INCLUDED */

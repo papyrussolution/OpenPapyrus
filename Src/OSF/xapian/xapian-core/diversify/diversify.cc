@@ -6,8 +6,6 @@
 //
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "xapian/diversify.h"
-#include "debuglog.h"
 #include "diversify/diversifyinternal.h"
 
 using namespace Xapian;

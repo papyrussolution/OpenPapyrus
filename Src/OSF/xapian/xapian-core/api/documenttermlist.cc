@@ -79,7 +79,7 @@ TermList* DocumentTermList::next()
 	return NULL;
 }
 
-TermList* DocumentTermList::skip_to(const string& term)
+TermList* DocumentTermList::skip_to(const string & term)
 {
 	it = doc->terms->lower_bound(term);
 	while(it != doc->terms->end() && it->second.is_deleted()) {

@@ -54,7 +54,7 @@ namespace i18n {
 		public:
 			explicit RegExpCache(const AbstractRegExpFactory& regexp_factory, size_t min_items);
 			~RegExpCache();
-			const RegExp& GetRegExp(const string& pattern);
+			const RegExp& GetRegExp(const string & pattern);
 		private:
 			const AbstractRegExpFactory& regexp_factory_;
 			Lock lock_; // protects cache_impl_

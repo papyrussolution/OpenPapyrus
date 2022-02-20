@@ -34,7 +34,7 @@ namespace cctz {
 class TimeZoneIf {
  public:
   // A factory function for TimeZoneIf implementations.
-  static std::unique_ptr<TimeZoneIf> Load(const std::string& name);
+  static std::unique_ptr<TimeZoneIf> Load(const std::string & name);
 
   virtual ~TimeZoneIf();
 

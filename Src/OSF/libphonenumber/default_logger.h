@@ -78,7 +78,7 @@ namespace i18n {
 			{
 			}
 			virtual void WriteLevel();
-			virtual void WriteMessage(const string& msg);
+			virtual void WriteMessage(const string & msg);
 		};
 	}
 }

@@ -61,7 +61,7 @@ GlassVersion::GlassVersion(int fd_)
 	oldest_changeset(0)
 {
 	offset = lseek(fd, 0, SEEK_CUR);
-	if(rare(offset < 0)) {
+	if(UNLIKELY(offset < 0)) {
 		string msg = "lseek failed on file descriptor ";
 		msg += str(fd);
 		throw Xapian::DatabaseOpeningError(msg, errno);
@@ -82,7 +82,7 @@ void GlassVersion::read()
 	FD close_fd(-1);
 	int fd_in;
 	if(single_file()) {
-		if(rare(lseek(fd, offset, SEEK_SET) < 0)) {
+		if(UNLIKELY(lseek(fd, offset, SEEK_SET) < 0)) {
 			string msg = "Failed to rewind file descriptor ";
 			msg += str(fd);
 			throw Xapian::DatabaseOpeningError(msg, errno);
@@ -93,7 +93,7 @@ void GlassVersion::read()
 		string filename = db_dir;
 		filename += "/iamglass";
 		fd_in = posixy_open(filename.c_str(), O_RDONLY|O_BINARY);
-		if(rare(fd_in < 0)) {
+		if(UNLIKELY(fd_in < 0)) {
 			string msg = filename;
 			msg += ": Failed to open glass revision file for reading";
 			if(errno == ENOENT || errno == ENOTDIR) {
@@ -289,7 +289,7 @@ const string GlassVersion::write(glass_revision_number_t new_rev, int flags)
 			0666);
 #endif
 
-		if(rare(fd < 0))
+		if(UNLIKELY(fd < 0))
 			throw Xapian::DatabaseOpeningError("Couldn't write new rev file: " + tmpfile,
 				  errno);
 

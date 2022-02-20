@@ -30,7 +30,7 @@ using namespace std;
 void GlassSpellingTable::merge_changes()
 {
 	for(auto i : termlist_deltas) {
-		const string& key = i.first;
+		const string & key = i.first;
 		const set<string>& changes = i.second;
 		auto d = changes.begin();
 		if(d == changes.end()) continue;
@@ -393,11 +393,11 @@ TermList * GlassSpellingTermList::next()
 		return NULL;
 	}
 	if(!current_term.empty()) {
-		current_term.resize(uint8_t(data[p++]) ^ MAGIC_XOR_VALUE);
+		current_term.resize(uint8(data[p++]) ^ MAGIC_XOR_VALUE);
 	}
 	size_t add;
 	if(p == data.size() ||
-	    (add = uint8_t(data[p]) ^ MAGIC_XOR_VALUE) >= data.size() - p)
+	    (add = uint8(data[p]) ^ MAGIC_XOR_VALUE) >= data.size() - p)
 		throw Xapian::DatabaseCorruptError("Bad spelling termlist");
 	current_term.append(data.data() + p + 1, add);
 	p += add + 1;

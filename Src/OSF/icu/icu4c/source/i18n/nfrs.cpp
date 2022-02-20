@@ -46,7 +46,6 @@ static int64_t util_lcm(int64_t x, int64_t y)
 {
 	x.abs();
 	y.abs();
-
 	if(x == 0 || y == 0) {
 		return 0;
 	}

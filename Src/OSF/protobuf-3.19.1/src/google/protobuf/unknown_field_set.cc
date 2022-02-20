@@ -267,7 +267,7 @@ void UnknownField::DeepCopy(const UnknownField& other) {
 
 uint8_t* UnknownField::InternalSerializeLengthDelimitedNoTag(uint8_t* target, io::EpsCopyOutputStream* stream) const {
 	GOOGLE_DCHECK_EQ(TYPE_LENGTH_DELIMITED, type());
-	const std::string& data = *data_.length_delimited_.string_value;
+	const std::string & data = *data_.length_delimited_.string_value;
 	target = io::CodedOutputStream::WriteVarint32ToArray(data.size(), target);
 	target = stream->WriteRaw(data.data(), data.size(), target);
 	return target;

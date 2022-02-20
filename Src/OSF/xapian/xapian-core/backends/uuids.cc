@@ -37,7 +37,7 @@
 #elif defined USE_WIN32_UUID_API
 #include "safewindows.h"
 #include <rpc.h>
-# ifdef __WIN32__
+#ifdef __WIN32__
 #include "safewinsock2.h" // For htonl() and htons().
 # else
 // Cygwin:
@@ -55,7 +55,7 @@ void Uuid::generate()
 #ifdef USE_PROC_FOR_UUID
 	char buf[STRING_SIZE];
 	int fd = open("/proc/sys/kernel/random/uuid", O_RDONLY);
-	if(rare(fd == -1)) {
+	if(UNLIKELY(fd == -1)) {
 		throw Xapian::DatabaseCreateError("Opening UUID generator failed", errno);
 	}
 	bool failed = (read(fd, buf, STRING_SIZE) != STRING_SIZE);
@@ -82,7 +82,7 @@ void Uuid::generate()
 	memcpy(uuid_data, &uu, BINARY_SIZE);
 #elif defined USE_WIN32_UUID_API
 	UUID uuid;
-	if(rare(UuidCreate(&uuid) != RPC_S_OK)) {
+	if(UNLIKELY(UuidCreate(&uuid) != RPC_S_OK)) {
 		// Throw a DatabaseCreateError, since we can't make a UUID.  The
 		// windows API documentation is a bit unclear about the situations in
 		// which this can happen.

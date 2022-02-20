@@ -225,7 +225,8 @@ int TBaseBrowserWindow::Insert()
 	buf.SetIfEmpty(ClsName).Transf(CTRANSF_INNER_TO_OUTER);
 	if(IsIconic(APPL->H_MainWnd))
 		ShowWindow(APPL->H_MainWnd, SW_MAXIMIZE);
-	if(GetActiveWindow() != APPL->H_MainWnd) {
+	const HWND hw_active = GetActiveWindow();
+	if(hw_active != APPL->H_MainWnd) {
 		setState(sfModal, true);
 		{
 			TEvent event;

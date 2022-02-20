@@ -2131,7 +2131,7 @@ static IMPL_DBE_PROC(dbqf_trfrnalz_extfactor_iiiii)
 					else if(ext_factor == TrfrAnlzFilt::extfLocRegister) {
 						PPObjLocation loc_obj;
 						RegisterTbl::Rec reg_rec;
-						if(loc_obj.GetRegister(loc_id, ext_factor_addendum, ZERODATE, 1, &reg_rec) > 0) {
+						if(loc_obj.GetRegister(loc_id, ext_factor_addendum, ZERODATE, true, &reg_rec) > 0) {
 							SString & r_temp_buf = SLS.AcquireRvlStr();
 							if(reg_rec.Serial[0])
 								r_temp_buf.Cat(reg_rec.Serial);
@@ -3428,7 +3428,7 @@ public:
 		RVALUEPTR(Data, pData);
 		disableCtrls(BIN(Data.Flags & TrfrAnlzFilt::fDiffByDlvrAddr), CTLSEL_TAGRPNG_CNTRAGENT, CTL_TAGRPNG_SUBSTRADDR, 0);
 		ushort v = 0;
-		setCtrlOption(CTL_TAGRPNG_FRAME, ofFramed, 1);
+		// @v11.3.2 @obsolete setCtrlOption(CTL_TAGRPNG_FRAME, ofFramed, 1);
 		AddClusterAssoc(CTL_TAGRPNG_DIFFDLVRADDR, 0, TrfrAnlzFilt::fDiffByDlvrAddr);
 		SetClusterData(CTL_TAGRPNG_DIFFDLVRADDR, Data.Flags);
 		SetupStringCombo(this, CTLSEL_TAGRPNG_GGRPNG, PPTXT_GOODSGRPNGLIST, (long)Data.Grp);

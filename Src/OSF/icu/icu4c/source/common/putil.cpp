@@ -1340,7 +1340,7 @@ static void U_CALLCONV dataDirectoryInitFn()
 #if defined(ICU_DATA_DIR_PREFIX_ENV_VAR)
 		const char * prefix = getenv(ICU_DATA_DIR_PREFIX_ENV_VAR);
 #endif
-# ifdef ICU_DATA_DIR
+#ifdef ICU_DATA_DIR
 		path = ICU_DATA_DIR;
 # else
 		path = U_ICU_DATA_DEFAULT_DIR;

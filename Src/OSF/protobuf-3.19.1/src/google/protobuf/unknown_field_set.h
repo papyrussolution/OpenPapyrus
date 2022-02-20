@@ -127,7 +127,7 @@ public:
 	void AddVarint(int number, uint64_t value);
 	void AddFixed32(int number, uint32_t value);
 	void AddFixed64(int number, uint64_t value);
-	void AddLengthDelimited(int number, const std::string& value);
+	void AddLengthDelimited(int number, const std::string & value);
 	std::string* AddLengthDelimited(int number);
 	UnknownFieldSet* AddGroup(int number);
 
@@ -150,7 +150,7 @@ public:
 	bool ParseFromCodedStream(io::CodedInputStream* input);
 	bool ParseFromZeroCopyStream(io::ZeroCopyInputStream* input);
 	bool ParseFromArray(const void* data, int size);
-	inline bool ParseFromString(const std::string& data) {
+	inline bool ParseFromString(const std::string & data) {
 		return ParseFromArray(data.data(), static_cast<int>(data.size()));
 	}
 
@@ -236,13 +236,13 @@ public:
 	inline uint64_t varint() const;
 	inline uint32_t fixed32() const;
 	inline uint64_t fixed64() const;
-	inline const std::string& length_delimited() const;
+	inline const std::string & length_delimited() const;
 	inline const UnknownFieldSet& group() const;
 
 	inline void set_varint(uint64_t value);
 	inline void set_fixed32(uint32_t value);
 	inline void set_fixed64(uint64_t value);
-	inline void set_length_delimited(const std::string& value);
+	inline void set_length_delimited(const std::string & value);
 	inline std::string* mutable_length_delimited();
 	inline UnknownFieldSet* mutable_group();
 
@@ -324,7 +324,7 @@ inline UnknownField* UnknownFieldSet::mutable_field(int index) {
 }
 
 inline void UnknownFieldSet::AddLengthDelimited(int number,
-    const std::string& value) {
+    const std::string & value) {
 	AddLengthDelimited(number)->assign(value);
 }
 
@@ -351,7 +351,7 @@ inline uint64_t UnknownField::fixed64() const {
 	return data_.fixed64_;
 }
 
-inline const std::string& UnknownField::length_delimited() const {
+inline const std::string & UnknownField::length_delimited() const {
 	assert(type() == TYPE_LENGTH_DELIMITED);
 	return *data_.length_delimited_.string_value;
 }
@@ -376,7 +376,7 @@ inline void UnknownField::set_fixed64(uint64_t value) {
 	data_.fixed64_ = value;
 }
 
-inline void UnknownField::set_length_delimited(const std::string& value) {
+inline void UnknownField::set_length_delimited(const std::string & value) {
 	assert(type() == TYPE_LENGTH_DELIMITED);
 	data_.length_delimited_.string_value->assign(value);
 }

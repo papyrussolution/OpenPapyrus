@@ -935,7 +935,7 @@ int PPObjCashNode::GetTaxSystem(PPID id, LDATE dt, PPID * pTaxSysID)
 				}
 			}
 			// } @v10.6.12 
-			if(ok < 0 && cn_rec.LocID && psn_obj.LocObj.GetRegister(cn_rec.LocID, PPREGT_TAXSYSTEM, actual_date, 0, &reg_rec) > 0 && reg_rec.ExtID > 0) {
+			if(ok < 0 && cn_rec.LocID && psn_obj.LocObj.GetRegister(cn_rec.LocID, PPREGT_TAXSYSTEM, actual_date, false, &reg_rec) > 0 && reg_rec.ExtID > 0) {
 				tax_sys_id = reg_rec.ExtID;
 				ok = 1;
 			}

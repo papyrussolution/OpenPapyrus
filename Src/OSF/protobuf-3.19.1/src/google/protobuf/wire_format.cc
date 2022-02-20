@@ -1408,7 +1408,7 @@ uint8_t* WireFormat::InternalSerializeField(const FieldDescriptor* field,
 			case FieldDescriptor::TYPE_STRING: {
 			    bool strict_utf8_check = StrictUtf8Check(field);
 			    std::string scratch;
-			    const std::string& value =
+			    const std::string & value =
 				field->is_repeated()
 				? message_reflection->GetRepeatedStringReference(message, field,
 				    j, &scratch)
@@ -1429,7 +1429,7 @@ uint8_t* WireFormat::InternalSerializeField(const FieldDescriptor* field,
 
 			case FieldDescriptor::TYPE_BYTES: {
 			    std::string scratch;
-			    const std::string& value =
+			    const std::string & value =
 				field->is_repeated()
 				? message_reflection->GetRepeatedStringReference(message, field,
 				    j, &scratch)
@@ -1734,7 +1734,7 @@ size_t WireFormat::FieldDataOnlyByteSize(const FieldDescriptor* field,
 		case FieldDescriptor::TYPE_BYTES: {
 		    for(size_t j = 0; j < count; j++) {
 			    std::string scratch;
-			    const std::string& value =
+			    const std::string & value =
 				field->is_repeated()
 				? message_reflection->GetRepeatedStringReference(message, field,
 				    j, &scratch)

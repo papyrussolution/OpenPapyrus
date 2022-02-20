@@ -122,7 +122,7 @@ public:
 	 *  @param merger The tree of TermList objects.
 	 *  @param term The current term name.
 	 */
-	void collect_stats(TermList* merger, const std::string& term);
+	void collect_stats(TermList* merger, const std::string & term);
 	/// Calculate the weight.
 	virtual double get_weight() const = 0;
 protected:

@@ -122,7 +122,7 @@ struct PosixTimeZone {
 // filling in any missing values (DST offset, or start/end transition times)
 // with the standard-defined defaults. Returns false if the specification
 // could not be parsed (although some fields of *res may have been altered).
-bool ParsePosixSpec(const std::string& spec, PosixTimeZone* res);
+bool ParsePosixSpec(const std::string & spec, PosixTimeZone* res);
 
 }  // namespace cctz
 }  // namespace time_internal

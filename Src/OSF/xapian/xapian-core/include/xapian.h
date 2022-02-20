@@ -21,7 +21,7 @@
 #define XAPIAN_INCLUDED_XAPIAN_H
 
 #ifdef slots
-# ifdef Q_OBJECT
+#ifdef Q_OBJECT
 // Qt headers '#define slots' by default, which clashes with us using it as a
 // class member name.  Including <xapian.h> first is a simple workaround, or
 // you can use 'no_keywords' to stop Qt polluting the global macro namespace,
@@ -30,7 +30,7 @@
 // https://doc.qt.io/qt-5/signalsandslots.html#using-qt-with-3rd-party-signals-and-slots
 #  error Include <xapian.h> before Qt headers, or put 'CONFIG += no_keywords' in your .pro file and use Q_SLOTS instead of slots, etc
 # endif
-# ifdef WT_API
+#ifdef WT_API
 // Argh, copycat polluters!
 #  error Include <xapian.h> before Wt headers, or define WT_NO_SLOT_MACROS to stop Wt from defining the macros 'slots' and 'SLOT()'
 # endif
@@ -56,10 +56,13 @@
 #include <xapian/termiterator.h>
 #include <xapian/valueiterator.h>
 #include <xapian/termgenerator.h> // Indexing
+#include <xapian/visibility.h> // ELF visibility annotations for GCC.
+#include <xapian/constinfo.h> // Mechanism for accessing a struct of constant information
 // Searching
-#include <xapian/enquire.h>
+#include <xapian/stem.h> // Stemming
 #include <xapian/eset.h>
 #include <xapian/mset.h>
+#include <xapian/enquire.h>
 #include <xapian/expanddecider.h>
 #include <xapian/keymaker.h>
 #include <xapian/matchdecider.h>
@@ -71,14 +74,11 @@
 #include <xapian/valuesetmatchdecider.h>
 #include <xapian/weight.h>
 #include <xapian/cluster.h> // Clustering
-#include <xapian/stem.h> // Stemming
 #include <xapian/diversify.h> // Diversification
 #include <xapian/registry.h> // Subclass registry
 #include <xapian/unicode.h> // Unicode support
 #include <xapian/geospatial.h> // Geospatial
 #include <xapian/compactor.h> // Database compaction and merging
-#include <xapian/visibility.h> // ELF visibility annotations for GCC.
-#include <xapian/constinfo.h> // Mechanism for accessing a struct of constant information
 
 /// The Xapian namespace contains public interfaces for the Xapian library.
 namespace Xapian {

@@ -18,8 +18,8 @@ namespace i18n {
 			virtual ~RE2RegExpFactory() 
 			{
 			}
-			virtual RegExpInput* CreateInput(const string& utf8_input) const;
-			virtual RegExp* CreateRegExp(const string& utf8_regexp) const;
+			virtual RegExpInput* CreateInput(const string & utf8_input) const;
+			virtual RegExp* CreateRegExp(const string & utf8_regexp) const;
 		};
 	}
 }

@@ -1,14 +1,9 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- * Copyright (C) 2009-2012, International Business Machines Corporation and
- * others. All Rights Reserved.
- ******************************************************************************
- *   Date        Name        Description
- *   12/14/09    doug        Creation.
- ******************************************************************************
- */
+// Copyright (C) 2009-2012, International Business Machines Corporation and others. All Rights Reserved.
+// Date        Name        Description
+// 12/14/09    doug        Creation.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -18,8 +13,7 @@ U_NAMESPACE_BEGIN
 
 FieldPositionIterator::~FieldPositionIterator() 
 {
-	delete data;
-	data = NULL;
+	ZDELETE(data);
 	pos = -1;
 }
 
@@ -27,8 +21,8 @@ FieldPositionIterator::FieldPositionIterator() : data(NULL), pos(-1)
 {
 }
 
-FieldPositionIterator::FieldPositionIterator(const FieldPositionIterator &rhs)
-	: UObject(rhs), data(NULL), pos(rhs.pos) {
+FieldPositionIterator::FieldPositionIterator(const FieldPositionIterator &rhs) : UObject(rhs), data(NULL), pos(rhs.pos) 
+{
 	if(rhs.data) {
 		UErrorCode status = U_ZERO_ERROR;
 		data = new UVector32(status);
@@ -61,8 +55,7 @@ void FieldPositionIterator::setData(UVector32 * adopt, UErrorCode & status)
 	if(U_SUCCESS(status)) {
 		if(adopt) {
 			if(adopt->size() == 0) {
-				delete adopt;
-				adopt = NULL;
+				ZDELETE(adopt);
 			}
 			else if((adopt->size() % 4) != 0) {
 				status = U_ILLEGAL_ARGUMENT_ERROR;
@@ -85,7 +78,7 @@ void FieldPositionIterator::setData(UVector32 * adopt, UErrorCode & status)
 	}
 	delete data;
 	data = adopt;
-	pos = adopt == NULL ? -1 : 0;
+	pos = (adopt == NULL) ? -1 : 0;
 }
 
 bool FieldPositionIterator::next(FieldPosition& fp) 

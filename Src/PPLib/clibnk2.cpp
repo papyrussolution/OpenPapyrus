@@ -1,5 +1,5 @@
 // CLIBNK2.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Модуль формирования данных для передачи в системы клиент-банк
 //
@@ -885,7 +885,7 @@ int Helper_ClientBank2::PutRecord(const PPBillPacket * pPack, PPID debtBillID, P
 				RegisterTbl::Rec reg_rec;
 				if(loc_obj.Search(pPack->Rec.LocID, &loc_rec) > 0) {
 					STRNSCPY(data_buf.LocSymb, _EncodeStr(loc_rec.Code, temp_buf));
-					if(loc_obj.GetRegister(pPack->Rec.LocID, PPREGT_KPP, pPack->Rec.Dt, 0, &reg_rec) > 0 && reg_rec.Num[0])
+					if(loc_obj.GetRegister(pPack->Rec.LocID, PPREGT_KPP, pPack->Rec.Dt, false, &reg_rec) > 0 && reg_rec.Num[0])
 						STRNSCPY(data_buf.WhKPP, reg_rec.Num);
 				}
 			}

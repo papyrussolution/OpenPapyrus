@@ -45,7 +45,7 @@ string KeyMaker::serialise() const
 	    "searches - serialise() method not implemented");
 }
 
-KeyMaker* KeyMaker::unserialise(const string&, const Registry&) const
+KeyMaker* KeyMaker::unserialise(const string &, const Registry&) const
 {
 	throw_unimplemented("KeyMaker subclass not suitable for use with remote"
 	    "searches - unserialise() method not implemented");
@@ -58,7 +58,7 @@ MultiValueKeyMaker::operator()(const Xapian::Document & doc) const
 
 	auto i = slots.begin();
 	// Don't crash if slots is empty.
-	if(rare(i == slots.end())) return result;
+	if(UNLIKELY(i == slots.end())) return result;
 
 	size_t last_not_empty_forwards = 0;
 	while(true) {
@@ -146,7 +146,7 @@ string MultiValueKeyMaker::serialise() const
 	return result;
 }
 
-KeyMaker* MultiValueKeyMaker::unserialise(const string& serialised,
+KeyMaker* MultiValueKeyMaker::unserialise(const string & serialised,
     const Registry&) const
 {
 	const char* p = serialised.data();

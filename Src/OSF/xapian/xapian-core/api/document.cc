@@ -59,12 +59,12 @@ string Document::get_data() const
 	return internal->get_data();
 }
 
-void Document::set_data(const string& data)
+void Document::set_data(const string & data)
 {
 	internal->set_data(data);
 }
 
-void Document::add_term(const string& term, Xapian::termcount wdf_inc)
+void Document::add_term(const string & term, Xapian::termcount wdf_inc)
 {
 	if(term.empty()) {
 		throw_invalid_arg_empty_term();
@@ -72,7 +72,7 @@ void Document::add_term(const string& term, Xapian::termcount wdf_inc)
 	internal->add_term(term, wdf_inc);
 }
 
-void Document::remove_term(const string& term)
+void Document::remove_term(const string & term)
 {
 	if(term.empty()) {
 		throw_invalid_arg_empty_term();
@@ -86,7 +86,7 @@ void Document::remove_term(const string& term)
 	}
 }
 
-void Document::add_posting(const string& term,
+void Document::add_posting(const string & term,
     Xapian::termpos term_pos,
     Xapian::termcount wdf_inc)
 {
@@ -96,7 +96,7 @@ void Document::add_posting(const string& term,
 	internal->add_posting(term, term_pos, wdf_inc);
 }
 
-void Document::remove_posting(const string& term,
+void Document::remove_posting(const string & term,
     Xapian::termpos term_pos,
     Xapian::termcount wdf_dec)
 {
@@ -118,7 +118,7 @@ void Document::remove_posting(const string& term,
 	}
 }
 
-Xapian::termpos Document::remove_postings(const string& term,
+Xapian::termpos Document::remove_postings(const string & term,
     Xapian::termpos term_pos_first,
     Xapian::termpos term_pos_last,
     Xapian::termcount wdf_dec)
@@ -126,7 +126,7 @@ Xapian::termpos Document::remove_postings(const string& term,
 	if(term.empty()) {
 		throw_invalid_arg_empty_term();
 	}
-	if(rare(term_pos_first > term_pos_last)) {
+	if(UNLIKELY(term_pos_first > term_pos_last)) {
 		return 0;
 	}
 	Xapian::termpos n_removed;
@@ -160,7 +160,7 @@ string Document::get_value(Xapian::valueno slot) const
 	return internal->get_value(slot);
 }
 
-void Document::add_value(Xapian::valueno slot, const string& value)
+void Document::add_value(Xapian::valueno slot, const string & value)
 {
 	internal->add_value(slot, value);
 }
@@ -182,7 +182,7 @@ string Document::serialise() const
 	return serialise_document(*this);
 }
 
-Document Document::unserialise(const string& serialised)
+Document Document::unserialise(const string & serialised)
 {
 	return unserialise_document(serialised);
 }

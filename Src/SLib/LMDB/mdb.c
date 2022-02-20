@@ -452,34 +452,32 @@ typedef pthread_mutex_t * mdb_mutexref_t;
 	#define MUTEXNAME_PREFIX                "/MDB"
 #endif
 /** @} */
-
 #ifdef MDB_ROBUST_SUPPORTED
-/** Lock mutex, handle any error, set rc = result.
- *	Return 0 on success, nonzero (not rc) on error.
- */
-#define LOCK_MUTEX(rc, env, mutex) (((rc) = LOCK_MUTEX0(mutex)) && ((rc) = mdb_mutex_failed(env, mutex, rc)))
-static int mdb_mutex_failed(MDB_env * env, mdb_mutexref_t mutex, int rc);
+	/** Lock mutex, handle any error, set rc = result.
+	 *	Return 0 on success, nonzero (not rc) on error.
+	 */
+	#define LOCK_MUTEX(rc, env, mutex) (((rc) = LOCK_MUTEX0(mutex)) && ((rc) = mdb_mutex_failed(env, mutex, rc)))
+	static int mdb_mutex_failed(MDB_env * env, mdb_mutexref_t mutex, int rc);
 #else
-#define LOCK_MUTEX(rc, env, mutex) ((rc) = LOCK_MUTEX0(mutex))
-#define mdb_mutex_failed(env, mutex, rc) (rc)
+	#define LOCK_MUTEX(rc, env, mutex) ((rc) = LOCK_MUTEX0(mutex))
+	#define mdb_mutex_failed(env, mutex, rc) (rc)
 #endif
-
 #ifndef _WIN32
-/**	A flag for opening a file and requesting synchronous data writes.
- *	This is only used when writing a meta page. It's not strictly needed;
- *	we could just do a normal write and then immediately perform a flush.
- *	But if this flag is available it saves us an extra system call.
- *
- *	@note If O_DSYNC is undefined but exists in /usr/include,
- * preferably set some compiler flag to get the definition.
- */
-#ifndef MDB_DSYNC
-	#ifdef O_DSYNC
-		#define MDB_DSYNC      O_DSYNC
-	#else
-		#define MDB_DSYNC      O_SYNC
+	/**	A flag for opening a file and requesting synchronous data writes.
+	 *	This is only used when writing a meta page. It's not strictly needed;
+	 *	we could just do a normal write and then immediately perform a flush.
+	 *	But if this flag is available it saves us an extra system call.
+	 *
+	 *	@note If O_DSYNC is undefined but exists in /usr/include,
+	 * preferably set some compiler flag to get the definition.
+	 */
+	#ifndef MDB_DSYNC
+		#ifdef O_DSYNC
+			#define MDB_DSYNC      O_DSYNC
+		#else
+			#define MDB_DSYNC      O_SYNC
+		#endif
 	#endif
-#endif
 #endif
 
 /** Function for flushing the data of a file. Define this to fsync
@@ -2103,7 +2101,6 @@ static int mdb_page_spill(MDB_cursor * m0, MDB_val * key, MDB_val * data)
 	need = i;
 	if(txn->mt_dirty_room > i)
 		return MDB_SUCCESS;
-
 	if(!txn->mt_spill_pgs) {
 		txn->mt_spill_pgs = mdb_midl_alloc(MDB_IDL_UM_MAX);
 		if(!txn->mt_spill_pgs)
@@ -2112,7 +2109,7 @@ static int mdb_page_spill(MDB_cursor * m0, MDB_val * key, MDB_val * data)
 	else {
 		// purge deleted slots 
 		MDB_IDL sl = txn->mt_spill_pgs;
-		uint num = sl[0];
+		const uint num = sl[0];
 		j = 0;
 		for(i = 1; i<=num; i++) {
 			if(!(sl[i] & 1))
@@ -2120,31 +2117,24 @@ static int mdb_page_spill(MDB_cursor * m0, MDB_val * key, MDB_val * data)
 		}
 		sl[0] = j;
 	}
-
-	/* Preserve pages which may soon be dirtied again */
+	// Preserve pages which may soon be dirtied again 
 	if((rc = mdb_pages_xkeep(m0, P_DIRTY, 1)) != MDB_SUCCESS)
 		goto done;
-
-	/* Less aggressive spill - we originally spilled the entire dirty list,
-	 * with a few exceptions for cursor pages and DB root pages. But this
-	 * turns out to be a lot of wasted effort because in a large txn many
-	 * of those pages will need to be used again. So now we spill only 1/8th
-	 * of the dirty pages. Testing revealed this to be a good tradeoff,
-	 * better than 1/2, 1/4, or 1/10.
-	 */
-	if(need < MDB_IDL_UM_MAX / 8)
-		need = MDB_IDL_UM_MAX / 8;
-
-	/* Save the page IDs of all the pages we're flushing */
-	/* flush from the tail forward, this saves a lot of shifting later on. */
+	// Less aggressive spill - we originally spilled the entire dirty list,
+	// with a few exceptions for cursor pages and DB root pages. But this
+	// turns out to be a lot of wasted effort because in a large txn many
+	// of those pages will need to be used again. So now we spill only 1/8th
+	// of the dirty pages. Testing revealed this to be a good tradeoff,
+	// better than 1/2, 1/4, or 1/10.
+	SETMAX(need, MDB_IDL_UM_MAX / 8);
+	// Save the page IDs of all the pages we're flushing
+	// flush from the tail forward, this saves a lot of shifting later on.
 	for(i = dl[0].mid; i && need; i--) {
 		MDB_ID pn = dl[i].mid << 1;
 		dp = (MDB_page *)dl[i].mptr;
 		if(dp->mp_flags & (P_LOOSE|P_KEEP))
 			continue;
-		/* Can't spill twice, make sure it's not already in a parent's
-		 * spill list.
-		 */
+		// Can't spill twice, make sure it's not already in a parent's spill list.
 		if(txn->mt_parent) {
 			MDB_txn * tx2;
 			for(tx2 = txn->mt_parent; tx2; tx2 = tx2->mt_parent) {
@@ -2164,14 +2154,11 @@ static int mdb_page_spill(MDB_cursor * m0, MDB_val * key, MDB_val * data)
 		need--;
 	}
 	mdb_midl_sort(txn->mt_spill_pgs);
-
 	/* Flush the spilled part of dirty list */
 	if((rc = mdb_page_flush(txn, i)) != MDB_SUCCESS)
 		goto done;
-
 	/* Reset any dirty pages we kept that page_flush didn't see */
 	rc = mdb_pages_xkeep(m0, P_DIRTY|P_KEEP, i);
-
 done:
 	txn->mt_flags |= rc ? MDB_TXN_ERROR : MDB_TXN_SPILLS;
 	return rc;
@@ -2180,14 +2167,14 @@ done:
 /** Find oldest txnid still referenced. Expects txn->mt_txnid > 0. */
 static txnid_t mdb_find_oldest(MDB_txn * txn)
 {
-	txnid_t mr, oldest = txn->mt_txnid - 1;
+	txnid_t mr;
+	txnid_t oldest = txn->mt_txnid - 1;
 	if(txn->mt_env->me_txns) {
 		MDB_reader * r = txn->mt_env->me_txns->mti_readers;
 		for(int i = txn->mt_env->me_txns->mti_numreaders; --i >= 0;) {
 			if(r[i].mr_pid) {
 				mr = r[i].mr_txnid;
-				if(oldest > mr)
-					oldest = mr;
+				SETMIN(oldest, mr);
 			}
 		}
 	}
@@ -2199,11 +2186,9 @@ static void mdb_page_dirty(MDB_txn * txn, MDB_page * mp)
 {
 	MDB_ID2 mid;
 	int rc, (*insert)(MDB_ID2L, MDB_ID2 *);
-#ifdef _WIN32   /* With Windows we always write dirty pages with WriteFile,
-	         * so we always want them ordered */
+#ifdef _WIN32 // With Windows we always write dirty pages with WriteFile, so we always want them ordered 
 	insert = mdb_mid2l_insert;
-#else                   /* but otherwise with writemaps, we just use msync, we
-	                 * don't need the ordering and just append */
+#else // but otherwise with writemaps, we just use msync, we don't need the ordering and just append 
 	if(txn->mt_flags & MDB_TXN_WRITEMAP)
 		insert = mdb_mid2l_append;
 	else
@@ -2243,10 +2228,8 @@ static int mdb_page_alloc(MDB_cursor * mc, int num, MDB_page ** mp)
 	 * catch-up with itself by growing while trying to save it.
 	 */
 	enum { Paranoid = 1, Max_retries = 500 };
-
 #else
 	enum { Paranoid = 0, Max_retries = INT_MAX /*infinite*/ };
-
 #endif
 	int rc, retry = num * 60;
 	MDB_txn * txn = mc->mc_txn;
@@ -2258,8 +2241,7 @@ static int mdb_page_alloc(MDB_cursor * mc, int num, MDB_page ** mp)
 	MDB_cursor_op op;
 	MDB_cursor m2;
 	int found_old = 0;
-
-	/* If there are any loose pages, just use them */
+	// If there are any loose pages, just use them 
 	if(num == 1 && txn->mt_loose_pgs) {
 		np = txn->mt_loose_pgs;
 		txn->mt_loose_pgs = NEXT_LOOSE_PAGE(np);
@@ -2268,23 +2250,18 @@ static int mdb_page_alloc(MDB_cursor * mc, int num, MDB_page ** mp)
 		*mp = np;
 		return MDB_SUCCESS;
 	}
-
 	*mp = NULL;
-
-	/* If our dirty list is already full, we can't do anything */
+	// If our dirty list is already full, we can't do anything 
 	if(txn->mt_dirty_room == 0) {
 		rc = MDB_TXN_FULL;
 		goto fail;
 	}
-
 	for(op = MDB_FIRST;; op = MDB_NEXT) {
 		MDB_val key, data;
 		MDB_node * leaf;
 		pgno_t * idl;
-
-		/* Seek a big enough contiguous page range. Prefer
-		 * pages at the tail, just truncating the list.
-		 */
+		// Seek a big enough contiguous page range. Prefer
+		// pages at the tail, just truncating the list.
 		if(mop_len > n2) {
 			i = mop_len;
 			do {
@@ -2407,7 +2384,7 @@ search_done:
 	}
 	if(i) {
 		mop[0] = mop_len -= num;
-		/* Move any stragglers down */
+		// Move any stragglers down 
 		for(j = i-num; j < mop_len;)
 			mop[++j] = mop[++i];
 	}
@@ -2484,18 +2461,14 @@ static int mdb_page_unspill(MDB_txn * txn, MDB_page * mp, MDB_page ** ret)
 					mdb_page_copy(np, mp, env->me_psize);
 			}
 			if(tx2 == txn) {
-				/* If in current txn, this page is no longer spilled.
-				 * If it happens to be the last page, truncate the spill list.
-				 * Otherwise mark it as deleted by setting the LSB.
-				 */
+				// If in current txn, this page is no longer spilled.
+				// If it happens to be the last page, truncate the spill list.
+				// Otherwise mark it as deleted by setting the LSB.
 				if(x == txn->mt_spill_pgs[0])
 					txn->mt_spill_pgs[0]--;
 				else
 					txn->mt_spill_pgs[x] |= 1;
-			}       /* otherwise, if belonging to a parent txn, the
-			         * page remains spilled until child commits
-			         */
-
+			} // otherwise, if belonging to a parent txn, the page remains spilled until child commits
 			mdb_page_dirty(txn, np);
 			np->mp_flags |= P_DIRTY;
 			*ret = np;
@@ -2580,15 +2553,18 @@ done:
 	if(mc->mc_flags & C_SUB) {
 		for(; m2; m2 = m2->mc_next) {
 			m3 = &m2->mc_xcursor->mx_cursor;
-			if(m3->mc_snum < mc->mc_snum) continue;
+			if(m3->mc_snum < mc->mc_snum) 
+				continue;
 			if(m3->mc_pg[mc->mc_top] == mp)
 				m3->mc_pg[mc->mc_top] = np;
 		}
 	}
 	else {
 		for(; m2; m2 = m2->mc_next) {
-			if(m2->mc_snum < mc->mc_snum) continue;
-			if(m2 == mc) continue;
+			if(m2->mc_snum < mc->mc_snum) 
+				continue;
+			if(m2 == mc) 
+				continue;
 			if(m2->mc_pg[mc->mc_top] == mp) {
 				m2->mc_pg[mc->mc_top] = np;
 				if(IS_LEAF(np))
@@ -2598,7 +2574,6 @@ done:
 	}
 	MDB_PAGE_UNREF(mc->mc_txn, mp);
 	return 0;
-
 fail:
 	txn->mt_flags |= MDB_TXN_ERROR;
 	return rc;
@@ -2693,7 +2668,7 @@ static void mdb_cursors_close(MDB_txn * txn, uint merge)
 			next = mc->mc_next;
 			if((bk = mc->mc_backup) != NULL) {
 				if(merge) {
-					/* Commit changes to parent txn */
+					// Commit changes to parent txn 
 					mc->mc_next = bk->mc_next;
 					mc->mc_backup = bk->mc_backup;
 					mc->mc_txn = bk->mc_txn;
@@ -2703,7 +2678,7 @@ static void mdb_cursors_close(MDB_txn * txn, uint merge)
 						mx->mx_cursor.mc_txn = bk->mc_txn;
 				}
 				else {
-					/* Abort nested txn */
+					// Abort nested txn 
 					*mc = *bk;
 					if((mx = mc->mc_xcursor) != NULL)
 						*mx = *(MDB_xcursor*)(bk+1);
@@ -2718,15 +2693,15 @@ static void mdb_cursors_close(MDB_txn * txn, uint merge)
 }
 
 #if !(MDB_PIDLOCK)              /* Currently the same as defined(_WIN32) */
-enum Pidlock_op {
-	Pidset, Pidcheck
-};
-
+	enum Pidlock_op {
+		Pidset, 
+		Pidcheck
+	};
 #else
-enum Pidlock_op {
-	Pidset = F_SETLK, Pidcheck = F_GETLK
-};
-
+	enum Pidlock_op {
+		Pidset = F_SETLK, 
+		Pidcheck = F_GETLK
+	};
 #endif
 
 /** Set or check a pid lock. Set returns 0 on success.
@@ -2832,16 +2807,15 @@ static int mdb_txn_renew0(MDB_txn * txn)
 				env->me_close_readers = nr;
 				r->mr_pid = pid;
 				UNLOCK_MUTEX(rmutex);
-
 				new_notls = (env->me_flags & MDB_NOTLS);
 				if(!new_notls && (rc = pthread_setspecific(env->me_txkey, r))) {
 					r->mr_pid = 0;
 					return rc;
 				}
 			}
-			do /* LY: Retry on a race, ITS#7970. */
+			do { /* LY: Retry on a race, ITS#7970. */
 				r->mr_txnid = ti->mti_txnid;
-			while(r->mr_txnid != ti->mti_txnid);
+			} while(r->mr_txnid != ti->mti_txnid);
 			txn->mt_txnid = r->mr_txnid;
 			txn->mt_u.reader = r;
 			meta = env->me_metas[txn->mt_txnid & 1];
@@ -2923,18 +2897,20 @@ int mdb_txn_begin(MDB_env * env, MDB_txn * parent, uint flags, MDB_txn ** ret)
 {
 	MDB_txn * txn;
 	MDB_ntxn * ntxn;
-	int rc, size, tsize;
+	int rc;
+	int size;
+	int tsize;
 	flags &= MDB_TXN_BEGIN_FLAGS;
 	flags |= env->me_flags & MDB_WRITEMAP;
 	if(env->me_flags & MDB_RDONLY & ~flags)  /* write txn in RDONLY env */
 		return EACCES;
 	if(parent) {
-		/* Nested transactions: Max 1 child, write txns only, no writemap */
+		// Nested transactions: Max 1 child, write txns only, no writemap 
 		flags |= parent->mt_flags;
 		if(flags & (MDB_RDONLY|MDB_WRITEMAP|MDB_TXN_BLOCKED)) {
 			return (parent->mt_flags & MDB_TXN_RDONLY) ? EINVAL : MDB_BAD_TXN;
 		}
-		/* Child txns save MDB_pgstate and use own copy of cursors */
+		// Child txns save MDB_pgstate and use own copy of cursors 
 		size = env->me_maxdbs * (sizeof(MDB_db)+sizeof(MDB_cursor *)+1);
 		size += tsize = sizeof(MDB_ntxn);
 	}
@@ -2943,9 +2919,8 @@ int mdb_txn_begin(MDB_env * env, MDB_txn * parent, uint flags, MDB_txn ** ret)
 		size += tsize = sizeof(MDB_txn);
 	}
 	else {
-		/* Reuse preallocated write txn. However, do not touch it until
-		 * mdb_txn_renew0() succeeds, since it currently may be active.
-		 */
+		// Reuse preallocated write txn. However, do not touch it until
+		// mdb_txn_renew0() succeeds, since it currently may be active.
 		txn = env->me_txn0;
 		goto renew;
 	}
@@ -2969,7 +2944,6 @@ int mdb_txn_begin(MDB_env * env, MDB_txn * parent, uint flags, MDB_txn ** ret)
 	txn->mt_dbflags = (uchar *)txn + size - env->me_maxdbs;
 	txn->mt_flags = flags;
 	txn->mt_env = env;
-
 	if(parent) {
 		uint i;
 		txn->mt_cursors = (MDB_cursor**)(txn->mt_dbs + env->me_maxdbs);
@@ -3106,12 +3080,12 @@ static void mdb_txn_end(MDB_txn * txn, uint mode)
 		if(!txn->mt_parent) {
 			mdb_midl_shrink(&txn->mt_free_pgs);
 			env->me_free_pgs = txn->mt_free_pgs;
-			/* me_pgstate: */
+			// me_pgstate: 
 			env->me_pghead = NULL;
 			env->me_pglast = 0;
 			env->me_txn = NULL;
 			mode = 0; /* txn == env->me_txn0, do not free() it */
-			/* The writer mutex was locked in mdb_txn_begin. */
+			// The writer mutex was locked in mdb_txn_begin. 
 			if(env->me_txns)
 				UNLOCK_MUTEX(env->me_wmutex);
 		}
@@ -3132,8 +3106,7 @@ static void mdb_txn_end(MDB_txn * txn, uint mode)
 		pthread_mutex_lock(&env->me_rpmutex);
 		for(i = 1; i <= n; i++) {
 			if(tl[i].mid & (MDB_RPAGE_CHUNK-1)) {
-				/* tmp overflow pages that we didn't share in env */
-				munmap(tl[i].mptr, tl[i].mcnt * env->me_psize);
+				munmap(tl[i].mptr, tl[i].mcnt * env->me_psize); // tmp overflow pages that we didn't share in env 
 			}
 			else {
 				x = mdb_mid3l_search(el, tl[i].mid);
@@ -3141,8 +3114,7 @@ static void mdb_txn_end(MDB_txn * txn, uint mode)
 					el[x].mref--;
 				}
 				else {
-					/* another tmp overflow page */
-					munmap(tl[i].mptr, tl[i].mcnt * env->me_psize);
+					munmap(tl[i].mptr, tl[i].mcnt * env->me_psize); // another tmp overflow page 
 				}
 			}
 		}
@@ -3159,10 +3131,8 @@ static void mdb_txn_end(MDB_txn * txn, uint mode)
 void mdb_txn_reset(MDB_txn * txn)
 {
 	if(txn) {
-		// This call is only valid for read-only txns 
-		if(!(txn->mt_flags & MDB_TXN_RDONLY))
-			return;
-		mdb_txn_end(txn, MDB_END_RESET);
+		if(txn->mt_flags & MDB_TXN_RDONLY) // This call is only valid for read-only txns 
+			mdb_txn_end(txn, MDB_END_RESET);
 	}
 }
 
@@ -4456,7 +4426,7 @@ static int ESECT mdb_fopen(const MDB_env * env, MDB_name * fname, enum mdb_fopen
 			/* This may require buffer alignment.  There is no portable
 			 * way to ask how much, so we require OS pagesize alignment.
 			 */
-# ifdef F_NOCACHE       /* __APPLE__ */
+#ifdef F_NOCACHE       /* __APPLE__ */
 			(void)fcntl(fd, F_NOCACHE, 1);
 # elif defined O_DIRECT
 			/* open(...O_DIRECT...) would break on filesystems without

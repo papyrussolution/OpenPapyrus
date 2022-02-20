@@ -47,7 +47,7 @@ Xapian::doccount RSet::size() const
 
 void RSet::add_document(Xapian::docid did)
 {
-	if(rare(did == 0))
+	if(UNLIKELY(did == 0))
 		throw Xapian::InvalidArgumentError("Docid 0 not valid in an RSet");
 	if(!internal.get())
 		internal = new RSet::Internal;
@@ -56,7 +56,7 @@ void RSet::add_document(Xapian::docid did)
 
 void RSet::remove_document(Xapian::docid did)
 {
-	if(rare(did == 0))
+	if(UNLIKELY(did == 0))
 		throw Xapian::InvalidArgumentError("Docid 0 not valid in an RSet");
 	if(internal.get())
 		internal->docs.erase(did);

@@ -466,7 +466,7 @@ class QueryWildcard : public Query::Internal {
 
     std::string prefix, suffix;
 
-    bool test_wildcard_(const std::string& candidate, size_t o, size_t p,
+    bool test_wildcard_(const std::string & candidate, size_t o, size_t p,
 			size_t i) const;
 
   public:
@@ -476,10 +476,10 @@ class QueryWildcard : public Query::Internal {
 		  Query::op combiner_);
 
     /// Perform wildcard test on candidate known to match prefix.
-    bool test_prefix_known(const std::string& candidate) const;
+    bool test_prefix_known(const std::string & candidate) const;
 
     /// Perform full wildcard test on candidate.
-    bool test(const std::string& candidate) const {
+    bool test(const std::string & candidate) const {
 	return startswith(candidate, prefix) && test_prefix_known(candidate);
     }
 
@@ -542,7 +542,7 @@ class QueryEditDistance : public Query::Internal {
     size_t fixed_prefix_len;
 
   public:
-    QueryEditDistance(const std::string& pattern_,
+    QueryEditDistance(const std::string & pattern_,
 		      Xapian::termcount max_expansion_,
 		      int flags_,
 		      Query::op combiner_,
@@ -560,7 +560,7 @@ class QueryEditDistance : public Query::Internal {
      *
      *  @return edit_distance + 1, or 0 for a non-match.
      */
-    int test(const std::string& candidate) const;
+    int test(const std::string & candidate) const;
 
     Xapian::Query::op get_type() const noexcept XAPIAN_PURE_FUNCTION;
 

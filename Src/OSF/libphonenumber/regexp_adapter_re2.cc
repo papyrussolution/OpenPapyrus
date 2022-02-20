@@ -19,7 +19,7 @@
 	// Implementation of RegExpInput abstract class.
 	class RE2RegExpInput : public RegExpInput {
 	public:
-		explicit RE2RegExpInput(const string& utf8_input)
+		explicit RE2RegExpInput(const string & utf8_input)
 			: string_(utf8_input),
 			utf8_input_(string_) {
 		}
@@ -60,7 +60,7 @@
 
 	// Replaces unescaped dollar-signs with backslashes. Backslashes are deleted
 	// when they escape dollar-signs.
-	string TransformRegularExpressionToRE2Syntax(const string& regex) {
+	string TransformRegularExpressionToRE2Syntax(const string & regex) {
 		string re2_regex(regex);
 		if(absl::StrReplaceAll({{"$", "\\"}}, &re2_regex) == 0) {
 			return regex;
@@ -77,7 +77,7 @@
 	// Implementation of RegExp abstract class.
 	class RE2RegExp : public RegExp {
 	public:
-		explicit RE2RegExp(const string& utf8_regexp)
+		explicit RE2RegExp(const string & utf8_regexp)
 			: utf8_regexp_(utf8_regexp) {
 		}
 
@@ -107,7 +107,7 @@
 			}
 		}
 
-		virtual bool Match(const string& input_string,
+		virtual bool Match(const string & input_string,
 			bool full_match,
 			string* matched_string) const {
 			if(full_match) {
@@ -122,7 +122,7 @@
 
 		virtual bool Replace(string* string_to_process,
 			bool global,
-			const string& replacement_string) const {
+			const string & replacement_string) const {
 			DCHECK(string_to_process);
 			const string re2_replacement_string =
 				TransformRegularExpressionToRE2Syntax(replacement_string);
@@ -140,11 +140,11 @@
 		RE2 utf8_regexp_;
 	};
 
-	RegExpInput* RE2RegExpFactory::CreateInput(const string& utf8_input) const {
+	RegExpInput* RE2RegExpFactory::CreateInput(const string & utf8_input) const {
 		return new RE2RegExpInput(utf8_input);
 	}
 
-	RegExp* RE2RegExpFactory::CreateRegExp(const string& utf8_regexp) const {
+	RegExp* RE2RegExpFactory::CreateRegExp(const string & utf8_regexp) const {
 		return new RE2RegExp(utf8_regexp);
 	}
 	}  // namespace phonenumbers

@@ -30,7 +30,7 @@
 using namespace std;
 
 namespace Xapian {
-static TfIdfWeight::wdf_norm decode_wdf_norm(const string& normalizations)
+static TfIdfWeight::wdf_norm decode_wdf_norm(const string & normalizations)
 {
 	if(normalizations.length() != 3)
 		throw Xapian::InvalidArgumentError("Normalization string is invalid");
@@ -47,7 +47,7 @@ static TfIdfWeight::wdf_norm decode_wdf_norm(const string& normalizations)
 	throw Xapian::InvalidArgumentError("Normalization string is invalid");
 }
 
-static TfIdfWeight::idf_norm decode_idf_norm(const string& normalizations)
+static TfIdfWeight::idf_norm decode_idf_norm(const string & normalizations)
 {
 	if(normalizations.length() != 3)
 		throw Xapian::InvalidArgumentError("Normalization string is invalid");
@@ -62,7 +62,7 @@ static TfIdfWeight::idf_norm decode_idf_norm(const string& normalizations)
 	throw Xapian::InvalidArgumentError("Normalization string is invalid");
 }
 
-static TfIdfWeight::wt_norm decode_wt_norm(const string& normalizations)
+static TfIdfWeight::wt_norm decode_wt_norm(const string & normalizations)
 {
 	if(normalizations.length() != 3)
 		throw Xapian::InvalidArgumentError("Normalization string is invalid");
@@ -73,7 +73,7 @@ static TfIdfWeight::wt_norm decode_wt_norm(const string& normalizations)
 	throw Xapian::InvalidArgumentError("Normalization string is invalid");
 }
 
-TfIdfWeight::TfIdfWeight(const std::string& normals,
+TfIdfWeight::TfIdfWeight(const std::string & normals,
     double slope, double delta)
 	: TfIdfWeight::TfIdfWeight(decode_wdf_norm(normals),
 	    decode_idf_norm(normals),
@@ -166,7 +166,7 @@ TfIdfWeight * TfIdfWeight::unserialise(const string & s) const
 	const char * end = ptr + s.size();
 	double slope = unserialise_double(&ptr, end);
 	double delta = unserialise_double(&ptr, end);
-	if(rare(end - ptr != 3))
+	if(UNLIKELY(end - ptr != 3))
 		throw Xapian::SerialisationError
 			      ("Incorrect data in TfIdfWeight::unserialise()");
 	wdf_norm wdf_normalization = static_cast<wdf_norm>(*(ptr)++);
@@ -250,7 +250,7 @@ double TfIdfWeight::get_wdfn(Xapian::termcount wdf, Xapian::termcount doclen, Xa
 		    return 0.9 + 0.1 * (double(wdf) / (double(doclen) / uniqterms));
 	    }
 		case wdf_norm::MAX:
-		    if(rare(wdfdocmax == 0)) return 0;
+		    if(UNLIKELY(wdfdocmax == 0)) return 0;
 		    return double(wdf) / wdfdocmax;
 		case wdf_norm::AUG: {
 		    if(wdf == 0) return 0;

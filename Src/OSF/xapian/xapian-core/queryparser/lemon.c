@@ -535,9 +535,8 @@ static struct action * Action_new()
 ** positive if the first action is less than, equal to, or greater than
 ** the first
 */
-static int actioncmp(const char * char_ap1,
-    const char * char_ap2
-    ){
+static int actioncmp(const char * char_ap1, const char * char_ap2)
+{
 	const struct action * ap1 = (const struct action *)char_ap1;
 	const struct action * ap2 = (const struct action *)char_ap2;
 	int rc;
@@ -562,11 +561,8 @@ static struct action * Action_sort(struct action * ap
 	return ap;
 }
 
-void Action_add(struct action ** app,
-    enum e_action type,
-    struct symbol * sp,
-    char * arg
-    ){
+void Action_add(struct action ** app, enum e_action type, struct symbol * sp, char * arg)
+{
 	struct action * newaction;
 	newaction = Action_new();
 	newaction->next = *app;
@@ -706,10 +702,10 @@ void acttab_action(acttab * p, int lookahead, int action)
 ** a smaller table.  For non-terminal symbols, which are never syntax errors,
 ** makeItSafe can be false.
 */
-int acttab_insert(acttab * p, int makeItSafe){
+int acttab_insert(acttab * p, int makeItSafe)
+{
 	int i, j, k, n, end;
 	assert(p->nLookahead>0);
-
 	/* Make sure we have enough space to hold the expanded action table
 	** in the worst case.  The worst case occurs if the transaction set
 	** must be appended to the current action table

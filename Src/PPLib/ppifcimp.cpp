@@ -4408,7 +4408,7 @@ int32 DL6ICLS_PPObjLocation::GetRegisterD(int32 locID, int32 regType, LDATE actu
 	RegisterTbl::Rec rec;
 	// @v10.6.4 MEMSZERO(rec);
 	PPObjPerson * p_obj = static_cast<PPObjPerson *>(ExtraPtr);
-	ok = p_obj->LocObj.GetRegister(locID, regType, actualDate, inheritFromPerson, &rec);
+	ok = p_obj->LocObj.GetRegister(locID, regType, actualDate, LOGIC(inheritFromPerson), &rec);
 	FillRegisterRec(&rec, static_cast<SPpyO_Register *>(pRec), 0);
 	return ok;
 }

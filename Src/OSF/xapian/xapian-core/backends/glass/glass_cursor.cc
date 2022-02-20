@@ -23,8 +23,6 @@
 #pragma hdrstop
 #include "glass_cursor.h"
 #include "glass_table.h"
-#include "debuglog.h"
-#include "omassert.h"
 
 using namespace Glass;
 
@@ -209,7 +207,7 @@ bool GlassCursor::find_exact(const string &key)
 	LOGCALL(DB, bool, "GlassCursor::find_exact", key);
 	is_after_end = false;
 	is_positioned = false;
-	if(rare(key.size() > GLASS_BTREE_MAX_KEY_LEN)) {
+	if(UNLIKELY(key.size() > GLASS_BTREE_MAX_KEY_LEN)) {
 		// There can't be a match
 		RETURN(false);
 	}

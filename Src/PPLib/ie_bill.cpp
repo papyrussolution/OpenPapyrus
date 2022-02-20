@@ -5098,9 +5098,33 @@ int PPBillExporter::GetReg(PPID arID, PPID regTypeID, SString & rRegNum)
 	rRegNum.Z();
 	int    ok = -1;
 	RegisterTbl::Rec reg_rec;
-	if(arID && regTypeID && PsnObj.GetRegister(ObjectToPerson(arID), regTypeID, &reg_rec) > 0) {
-		rRegNum = reg_rec.Num;
-		ok = 1;
+	if(arID && regTypeID) {
+		// @v11.3.2 {
+		PPID   acc_sheet_id = 0;
+		PPID   lnk_obj_id = 0;
+		if(GetArticleSheetID(arID, &acc_sheet_id, &lnk_obj_id) > 0) {
+			PPObjAccSheet acc_sheet_obj;
+			PPAccSheet acs_rec;
+			if(acc_sheet_obj.Fetch(acc_sheet_id, &acs_rec) > 0) {
+				if(acs_rec.Assoc == PPOBJ_PERSON) {
+					if(PsnObj.GetRegister(lnk_obj_id, regTypeID, &reg_rec) > 0) {
+						rRegNum = reg_rec.Num;
+						ok = 1;
+					}
+				}
+				else if(acs_rec.Assoc == PPOBJ_LOCATION) {
+					if(LocObj.GetRegister(lnk_obj_id, regTypeID, ZERODATE, 1/*inheritFromOwner*/, &reg_rec) > 0) {
+						rRegNum = reg_rec.Num;
+						ok = 1;
+					}
+				}
+			}
+		}
+		// } @v11.3.2 
+		/* @v11.3.2 if(PsnObj.GetRegister(ObjectToPerson(arID), regTypeID, &reg_rec) > 0) {
+			rRegNum = reg_rec.Num;
+			ok = 1;
+		}*/
 	}
 	return ok;
 }

@@ -47,7 +47,7 @@ bool PrivateHandleAccessor::ParseFrom(CommandLineFlag& flag,
     absl::string_view value,
     flags_internal::FlagSettingMode set_mode,
     flags_internal::ValueSource source,
-    std::string& error) {
+    std::string & error) {
 	return flag.ParseFrom(value, set_mode, source, error);
 }
 }  // namespace flags_internal

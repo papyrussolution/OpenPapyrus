@@ -75,7 +75,7 @@ TermList * GlassAllTermsList::next()
 	// term.
 	termfreq = 0;
 
-	if(rare(!cursor)) {
+	if(UNLIKELY(!cursor)) {
 		cursor = database->postlist_table.cursor_get();
 		Assert(cursor); // The postlist table isn't optional.
 
@@ -131,7 +131,7 @@ TermList * GlassAllTermsList::skip_to(const string &term)
 	// term.
 	termfreq = 0;
 
-	if(rare(!cursor)) {
+	if(UNLIKELY(!cursor)) {
 		cursor = database->postlist_table.cursor_get();
 		Assert(cursor); // The postlist table isn't optional.
 	}

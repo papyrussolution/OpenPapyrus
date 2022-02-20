@@ -11,17 +11,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE AUTHOR(S) BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "archive_platform.h"
 #pragma hdrstop
@@ -30,8 +19,7 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_cpio.c 201170 2
 #include "archive_entry_locale.h"
 #include "archive_write_set_format_private.h"
 
-static ssize_t  archive_write_cpio_data(struct archive_write *,
-    const void * buff, size_t s);
+static ssize_t  archive_write_cpio_data(struct archive_write *, const void * buff, size_t s);
 static int archive_write_cpio_close(struct archive_write *);
 static int archive_write_cpio_free(struct archive_write *);
 static int archive_write_cpio_finish_entry(struct archive_write *);
@@ -77,7 +65,6 @@ struct cpio {
 #define c_namesize_size 6
 #define c_filesize_offset 65
 #define c_filesize_size 11
-
 /*
  * Set output format to 'cpio' format.
  */
@@ -85,14 +72,10 @@ int archive_write_set_format_cpio(struct archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct cpio * cpio;
-
-	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_write_set_format_cpio");
-
+	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_set_format_cpio");
 	/* If someone else was already registered, unregister them. */
 	if(a->format_free != NULL)
 		(a->format_free)(a);
-
 	cpio = (struct cpio *)SAlloc::C(1, sizeof(*cpio));
 	if(cpio == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate cpio data");
@@ -132,7 +115,6 @@ static int archive_write_cpio_options(struct archive_write * a, const char * key
 		}
 		return ret;
 	}
-
 	/* Note: The "warn" return is just to inform the options
 	 * supervisor that we didn't handle it.  It will generate
 	 * a suitable error if no one used this option. */
@@ -158,7 +140,6 @@ static int synthesize_ino_value(struct cpio * cpio, struct archive_entry * entry
 	int64 ino = archive_entry_ino64(entry);
 	int ino_new;
 	size_t i;
-
 	/*
 	 * If no index number was given, don't assign one.  In
 	 * particular, this handles the end-of-archive marker
@@ -167,12 +148,10 @@ static int synthesize_ino_value(struct cpio * cpio, struct archive_entry * entry
 	 */
 	if(ino == 0)
 		return 0;
-
 	/* Don't store a mapping if we don't need to. */
 	if(archive_entry_nlink(entry) < 2) {
 		return (int)(++cpio->ino_next);
 	}
-
 	/* Look up old ino; if we have it, this is a hardlink
 	 * and we reuse the same value. */
 	for(i = 0; i < cpio->ino_list_next; ++i) {
@@ -240,7 +219,6 @@ static int archive_write_cpio_header(struct archive_write * a, struct archive_en
 
 static int write_header(struct archive_write * a, struct archive_entry * entry)
 {
-	struct cpio * cpio;
 	const char * p, * path;
 	int pathlength, ret, ret_final;
 	int64 ino;
@@ -248,8 +226,7 @@ static int write_header(struct archive_write * a, struct archive_entry * entry)
 	struct archive_string_conv * sconv;
 	struct archive_entry * entry_main;
 	size_t len;
-
-	cpio = (struct cpio *)a->format_data;
+	struct cpio * cpio = (struct cpio *)a->format_data;
 	ret_final = ARCHIVE_OK;
 	sconv = get_sconv(a);
 
@@ -323,26 +300,20 @@ static int write_header(struct archive_write * a, struct archive_entry * entry)
 	ret = archive_entry_symlink_l(entry, &p, &len, sconv);
 	if(ret != 0) {
 		if(errno == ENOMEM) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate memory for Linkname");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Linkname");
 			ret_final = ARCHIVE_FATAL;
 			goto exit_write_header;
 		}
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Can't translate linkname '%s' to %s",
-		    archive_entry_symlink(entry),
-		    archive_string_conversion_charset_name(sconv));
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Can't translate linkname '%s' to %s",
+		    archive_entry_symlink(entry), archive_string_conversion_charset_name(sconv));
 		ret_final = ARCHIVE_WARN;
 	}
 	if(len > 0 && p != NULL && *p != '\0')
-		ret = format_octal(strlen(p), h + c_filesize_offset,
-			c_filesize_size);
+		ret = format_octal(strlen(p), h + c_filesize_offset, c_filesize_size);
 	else
-		ret = format_octal(archive_entry_size(entry),
-			h + c_filesize_offset, c_filesize_size);
+		ret = format_octal(archive_entry_size(entry), h + c_filesize_offset, c_filesize_size);
 	if(ret) {
-		archive_set_error(&a->archive, ERANGE,
-		    "File is too large for cpio format.");
+		archive_set_error(&a->archive, ERANGE, "File is too large for cpio format.");
 		ret_final = ARCHIVE_FAILED;
 		goto exit_write_header;
 	}
@@ -358,9 +329,7 @@ static int write_header(struct archive_write * a, struct archive_entry * entry)
 		ret_final = ARCHIVE_FATAL;
 		goto exit_write_header;
 	}
-
 	cpio->entry_bytes_remaining = archive_entry_size(entry);
-
 	/* Write the symlink now. */
 	if(p != NULL && *p != '\0') {
 		ret = __archive_write_output(a, p, strlen(p));
@@ -376,13 +345,10 @@ exit_write_header:
 
 static ssize_t archive_write_cpio_data(struct archive_write * a, const void * buff, size_t s)
 {
-	struct cpio * cpio;
 	int ret;
-
-	cpio = (struct cpio *)a->format_data;
+	struct cpio * cpio = (struct cpio *)a->format_data;
 	if(s > cpio->entry_bytes_remaining)
 		s = (size_t)cpio->entry_bytes_remaining;
-
 	ret = __archive_write_output(a, buff, s);
 	cpio->entry_bytes_remaining -= s;
 	if(ret >= 0)
@@ -390,16 +356,13 @@ static ssize_t archive_write_cpio_data(struct archive_write * a, const void * bu
 	else
 		return ret;
 }
-
 /*
  * Format a number into the specified field.
  */
 static int format_octal(int64 v, void * p, int digits)
 {
-	int64 max;
 	int ret;
-
-	max = (((int64)1) << (digits * 3)) - 1;
+	int64 max = (((int64)1) << (digits * 3)) - 1;
 	if(v >= 0 && v <= max) {
 		format_octal_recursive(v, (char *)p, digits);
 		ret = 0;
@@ -423,9 +386,7 @@ static int64 format_octal_recursive(int64 v, char * p, int s)
 static int archive_write_cpio_close(struct archive_write * a)
 {
 	int er;
-	struct archive_entry * trailer;
-
-	trailer = archive_entry_new2(NULL);
+	struct archive_entry * trailer = archive_entry_new2(NULL);
 	/* nlink = 1 here for GNU cpio compat. */
 	archive_entry_set_nlink(trailer, 1);
 	archive_entry_set_size(trailer, 0);
@@ -437,9 +398,7 @@ static int archive_write_cpio_close(struct archive_write * a)
 
 static int archive_write_cpio_free(struct archive_write * a)
 {
-	struct cpio * cpio;
-
-	cpio = (struct cpio *)a->format_data;
+	struct cpio * cpio = (struct cpio *)a->format_data;
 	SAlloc::F(cpio->ino_list);
 	SAlloc::F(cpio);
 	a->format_data = NULL;
@@ -448,9 +407,6 @@ static int archive_write_cpio_free(struct archive_write * a)
 
 static int archive_write_cpio_finish_entry(struct archive_write * a)
 {
-	struct cpio * cpio;
-
-	cpio = (struct cpio *)a->format_data;
-	return (__archive_write_nulls(a,
-	       (size_t)cpio->entry_bytes_remaining));
+	struct cpio * cpio = (struct cpio *)a->format_data;
+	return (__archive_write_nulls(a, (size_t)cpio->entry_bytes_remaining));
 }

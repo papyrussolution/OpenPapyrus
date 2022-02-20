@@ -120,7 +120,7 @@ std::string FormatTime(int64 seconds, int32 nanos) {
 	return ::google::protobuf::internal::FormatTime(seconds, nanos);
 }
 
-bool ParseTime(const std::string& value, int64* seconds, int32* nanos) {
+bool ParseTime(const std::string & value, int64* seconds, int32* nanos) {
 	return ::google::protobuf::internal::ParseTime(value, seconds, nanos);
 }
 
@@ -159,7 +159,7 @@ std::string TimeUtil::ToString(const Timestamp& timestamp) {
 	return FormatTime(timestamp.seconds(), timestamp.nanos());
 }
 
-bool TimeUtil::FromString(const std::string& value, Timestamp* timestamp) {
+bool TimeUtil::FromString(const std::string & value, Timestamp* timestamp) {
 	int64_t seconds;
 	int32_t nanos;
 	if(!ParseTime(value, &seconds, &nanos)) {
@@ -205,7 +205,7 @@ static int64_t Pow(int64_t x, int y) {
 	return result;
 }
 
-bool TimeUtil::FromString(const std::string& value, Duration* duration) {
+bool TimeUtil::FromString(const std::string & value, Duration* duration) {
 	if(value.length() <= 1 || value[value.length() - 1] != 's') {
 		return false;
 	}

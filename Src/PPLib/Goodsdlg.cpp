@@ -1,5 +1,5 @@
 // GOODSDLG.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Диалог редактирования товара
 //
@@ -2627,8 +2627,8 @@ public:
 	{
 		if(specialForm == sfEgais)
 			PrcssrAlcReport::ReadConfig(&AlcrCfg);
-		setCtrlOption(CTL_REPLGOODS_PANE1, ofFramed, 1);
-		setCtrlOption(CTL_REPLGOODS_PANE2, ofFramed, 1);
+		// @v11.3.2 @obsolete setCtrlOption(CTL_REPLGOODS_PANE1, ofFramed, 1);
+		// @v11.3.2 @obsolete setCtrlOption(CTL_REPLGOODS_PANE2, ofFramed, 1);
 		addGroup(ctlgroupGoods1, new GoodsCtrlGroup(CTLSEL_REPLGOODS_GRP1, CTLSEL_REPLGOODS_GOODS1));
 		addGroup(ctlgroupGoods2, new GoodsCtrlGroup(CTLSEL_REPLGOODS_GRP2, CTLSEL_REPLGOODS_GOODS2));
 	}

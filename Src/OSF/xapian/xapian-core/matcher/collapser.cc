@@ -217,7 +217,7 @@ void Collapser::finalise(double min_weight, int percent_threshold)
 	// information stored in table.
 	Xapian::doccount todo = entry_count;
 	for(Result& result : results) {
-		const string& key = result.get_collapse_key();
+		const string & key = result.get_collapse_key();
 		if(key.empty())
 			continue;
 

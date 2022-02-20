@@ -11,17 +11,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE AUTHOR(S) BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "archive_platform.h"
 #pragma hdrstop
@@ -37,38 +26,27 @@ __FBSDID("$FreeBSD$");
 #define wmemcmp(a, b, i)  memcmp((a), (b), (i) * sizeof(wchar_t))
 #endif
 
-static int acl_special(struct archive_acl * acl,
-    int type, int permset, int tag);
-static struct archive_acl_entry * acl_new_entry(struct archive_acl * acl,
-    int type, int permset, int tag, int id);
-static int archive_acl_add_entry_len_l(struct archive_acl * acl,
-    int type, int permset, int tag, int id, const char * name,
+static int acl_special(struct archive_acl * acl, int type, int permset, int tag);
+static struct archive_acl_entry * acl_new_entry(struct archive_acl * acl, int type, int permset, int tag, int id);
+static int archive_acl_add_entry_len_l(struct archive_acl * acl, int type, int permset, int tag, int id, const char * name,
     size_t len, struct archive_string_conv * sc);
 static int archive_acl_text_want_type(struct archive_acl * acl, int flags);
 static ssize_t  archive_acl_text_len(struct archive_acl * acl, int want_type,
-    int flags, int wide, struct archive * a,
-    struct archive_string_conv * sc);
+    int flags, int wide, struct archive * a, struct archive_string_conv * sc);
 static int isint_w(const wchar_t * start, const wchar_t * end, int * result);
 static int ismode_w(const wchar_t * start, const wchar_t * end, int * result);
-static int is_nfs4_flags_w(const wchar_t * start, const wchar_t * end,
-    int * result);
-static int is_nfs4_perms_w(const wchar_t * start, const wchar_t * end,
-    int * result);
-static void     next_field_w(const wchar_t ** wp, const wchar_t ** start,
-    const wchar_t ** end, wchar_t * sep);
+static int is_nfs4_flags_w(const wchar_t * start, const wchar_t * end, int * result);
+static int is_nfs4_perms_w(const wchar_t * start, const wchar_t * end, int * result);
+static void     next_field_w(const wchar_t ** wp, const wchar_t ** start, const wchar_t ** end, wchar_t * sep);
 static void     append_entry_w(wchar_t ** wp, const wchar_t * prefix, int type,
     int tag, int flags, const wchar_t * wname, int perm, int id);
 static void     append_id_w(wchar_t ** wp, int id);
 static int isint(const char * start, const char * end, int * result);
 static int ismode(const char * start, const char * end, int * result);
-static int is_nfs4_flags(const char * start, const char * end,
-    int * result);
-static int is_nfs4_perms(const char * start, const char * end,
-    int * result);
-static void     next_field(const char ** p, const char ** start,
-    const char ** end, char * sep);
-static void     append_entry(char ** p, const char * prefix, int type,
-    int tag, int flags, const char * name, int perm, int id);
+static int is_nfs4_flags(const char * start, const char * end, int * result);
+static int is_nfs4_perms(const char * start, const char * end, int * result);
+static void     next_field(const char ** p, const char ** start, const char ** end, char * sep);
+static void     append_entry(char ** p, const char * prefix, int type, int tag, int flags, const char * name, int perm, int id);
 static void     append_id(char ** p, int id);
 
 static const struct {

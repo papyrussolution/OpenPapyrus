@@ -21,7 +21,7 @@ BM25PlusWeight * BM25PlusWeight::clone() const
 void BM25PlusWeight::init(double factor)
 {
 	Xapian::doccount tf = get_termfreq();
-	if(rare(tf == 0)) {
+	if(UNLIKELY(tf == 0)) {
 		termweight = 0;
 	}
 	else {
@@ -82,7 +82,7 @@ BM25PlusWeight * BM25PlusWeight::unserialise(const string & s) const
 	double b = unserialise_double(&ptr, end);
 	double min_normlen = unserialise_double(&ptr, end);
 	double delta = unserialise_double(&ptr, end);
-	if(rare(ptr != end))
+	if(UNLIKELY(ptr != end))
 		throw Xapian::SerialisationError("Extra data in BM25PlusWeight::unserialise()");
 	return new BM25PlusWeight(k1, k2, k3, b, min_normlen, delta);
 }

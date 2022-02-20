@@ -27,8 +27,8 @@ string UnicodeStringToUtf8String(const UnicodeString& source)
 }
 
 // Converts UTF8-formatted std::string 'source' to a UnicodeString.
-UnicodeString Utf8StringToUnicodeString(const string& source) {
-	// Note that we don't use icu::StringPiece(const string&).
+UnicodeString Utf8StringToUnicodeString(const string & source) {
+	// Note that we don't use icu::StringPiece(const string &).
 	return UnicodeString::fromUTF8(icu::StringPiece(source.c_str(), static_cast<int>(source.size())));
 }
 }  // namespace
@@ -39,7 +39,7 @@ UnicodeString Utf8StringToUnicodeString(const string& source) {
 // ICU implementation of the RegExpInput abstract class.
 class IcuRegExpInput : public RegExpInput {
 public:
-	explicit IcuRegExpInput(const string& utf8_input)
+	explicit IcuRegExpInput(const string & utf8_input)
 		: utf8_input_(Utf8StringToUnicodeString(utf8_input)),
 		position_(0) {
 	}
@@ -77,7 +77,7 @@ private:
 // ICU implementation of the RegExp abstract class.
 class IcuRegExp : public RegExp {
 public:
-	explicit IcuRegExp(const string& utf8_regexp) 
+	explicit IcuRegExp(const string & utf8_regexp) 
 	{
 		UParseError parse_error;
 		UErrorCode status = U_ZERO_ERROR;
@@ -133,7 +133,7 @@ public:
 		return !U_FAILURE(status);
 	}
 
-	bool Match(const string& input_string,
+	bool Match(const string & input_string,
 	    bool full_match,
 	    string* matched_string) const {
 		if(!utf8_regexp_.get()) {
@@ -157,7 +157,7 @@ public:
 
 	bool Replace(string* string_to_process,
 	    bool global,
-	    const string& replacement_string) const {
+	    const string & replacement_string) const {
 		DCHECK(string_to_process);
 		if(!utf8_regexp_.get()) {
 			return false;
@@ -204,12 +204,12 @@ private:
 	DISALLOW_COPY_AND_ASSIGN(IcuRegExp);
 };
 
-RegExpInput* ICURegExpFactory::CreateInput(const string& utf8_input) const 
+RegExpInput* ICURegExpFactory::CreateInput(const string & utf8_input) const 
 {
 	return new IcuRegExpInput(utf8_input);
 }
 
-RegExp* ICURegExpFactory::CreateRegExp(const string& utf8_regexp) const 
+RegExp* ICURegExpFactory::CreateRegExp(const string & utf8_regexp) const 
 {
 	return new IcuRegExp(utf8_regexp);
 }

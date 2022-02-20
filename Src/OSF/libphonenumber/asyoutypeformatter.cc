@@ -36,8 +36,8 @@ const char kSeparatorBeforeNationalNumber = ' ';
 const char kNationalPrefixSeparatorsPattern[] = "[- ]";
 
 // Matches all the groups contained in 'input' against 'pattern'.
-void MatchAllGroups(const string& pattern,
-    const string& input,
+void MatchAllGroups(const string & pattern,
+    const string & input,
     const AbstractRegExpFactory& regexp_factory,
     RegExpCache* cache,
     string* group) {
@@ -64,7 +64,7 @@ PhoneMetadata CreateEmptyMetadata() {
 }
 }  // namespace
 
-AsYouTypeFormatter::AsYouTypeFormatter(const string& region_code)
+AsYouTypeFormatter::AsYouTypeFormatter(const string & region_code)
 	: regexp_factory_(new RegExpFactory()),
 	regexp_cache_(*regexp_factory_.get(), 64),
 	current_output_(),
@@ -94,7 +94,7 @@ AsYouTypeFormatter::AsYouTypeFormatter(const string& region_code)
 // The metadata needed by this class is the same for all regions sharing the
 // same country calling code. Therefore, we return the metadata for "main"
 // region for this country calling code.
-const PhoneMetadata* AsYouTypeFormatter::GetMetadataForRegion(const string& region_code) const {
+const PhoneMetadata* AsYouTypeFormatter::GetMetadataForRegion(const string & region_code) const {
 	int country_calling_code = phone_util_.GetCountryCodeForRegion(region_code);
 	string main_country;
 	phone_util_.GetRegionCodeForCountryCode(country_calling_code, &main_country);
@@ -116,7 +116,7 @@ bool AsYouTypeFormatter::MaybeCreateNewTemplate() {
 	    it != possible_formats_.end(); ++it) {
 		DCHECK(*it);
 		const NumberFormat& number_format = **it;
-		const string& pattern = number_format.pattern();
+		const string & pattern = number_format.pattern();
 		if(current_formatting_pattern_ == pattern) {
 			return false;
 		}
@@ -133,7 +133,7 @@ bool AsYouTypeFormatter::MaybeCreateNewTemplate() {
 	return false;
 }
 
-void AsYouTypeFormatter::GetAvailableFormats(const string& leading_digits) {
+void AsYouTypeFormatter::GetAvailableFormats(const string & leading_digits) {
 	// First decide whether we should use international or national number rules.
 	bool is_international_number =
 	    is_complete_number_ && extracted_national_prefix_.empty();
@@ -174,7 +174,7 @@ void AsYouTypeFormatter::GetAvailableFormats(const string& leading_digits) {
 	NarrowDownPossibleFormats(leading_digits);
 }
 
-void AsYouTypeFormatter::NarrowDownPossibleFormats(const string& leading_digits) {
+void AsYouTypeFormatter::NarrowDownPossibleFormats(const string & leading_digits) {
 	const int index_of_leading_digits_pattern =
 	    static_cast<int>(leading_digits.length() - kMinLeadingDigitsLength);
 
@@ -225,7 +225,7 @@ bool AsYouTypeFormatter::CreateFormattingTemplate(const NumberFormat& format) {
 	return false;
 }
 
-void AsYouTypeFormatter::GetFormattingTemplate(const string& number_pattern, const string& number_format, UnicodeString* formatting_template) 
+void AsYouTypeFormatter::GetFormattingTemplate(const string & number_pattern, const string & number_format, UnicodeString* formatting_template) 
 {
 	DCHECK(formatting_template);
 	// Creates a phone number consisting only of the digit 9 that matches the
@@ -271,7 +271,7 @@ void AsYouTypeFormatter::Clear() {
 	}
 }
 
-const string& AsYouTypeFormatter::InputDigit(char32 next_char, string* result) {
+const string & AsYouTypeFormatter::InputDigit(char32 next_char, string* result) {
 	DCHECK(result);
 
 	InputDigitWithOptionToRememberPosition(next_char, false, &current_output_);
@@ -279,7 +279,7 @@ const string& AsYouTypeFormatter::InputDigit(char32 next_char, string* result) {
 	return *result;
 }
 
-const string& AsYouTypeFormatter::InputDigitAndRememberPosition(char32 next_char,
+const string & AsYouTypeFormatter::InputDigitAndRememberPosition(char32 next_char,
     string* result) {
 	DCHECK(result);
 
@@ -414,7 +414,7 @@ void AsYouTypeFormatter::AttemptToChoosePatternWithPrefixExtracted(string* forma
 	AttemptToChooseFormattingPattern(formatted_number);
 }
 
-const string& AsYouTypeFormatter::GetExtractedNationalPrefix() const {
+const string & AsYouTypeFormatter::GetExtractedNationalPrefix() const {
 	return extracted_national_prefix_;
 }
 
@@ -442,7 +442,7 @@ void AsYouTypeFormatter::AttemptToFormatAccruedDigits(string* formatted_result) 
 	    it != possible_formats_.end(); ++it) {
 		DCHECK(*it);
 		const NumberFormat& number_format = **it;
-		const string& pattern = number_format.pattern();
+		const string & pattern = number_format.pattern();
 
 		if(regexp_cache_.GetRegExp(pattern).FullMatch(national_number_)) {
 			SetShouldAddSpaceAfterNationalPrefix(number_format);
@@ -494,7 +494,7 @@ int AsYouTypeFormatter::GetRememberedPosition() const {
 	return ConvertUnicodeStringPosition(current_output, current_output_index);
 }
 
-void AsYouTypeFormatter::AppendNationalNumber(const string& national_number,
+void AsYouTypeFormatter::AppendNationalNumber(const string & national_number,
     string* phone_number) const {
 	int prefix_before_national_number_length =
 	    static_cast<int>(prefix_before_national_number_.size());

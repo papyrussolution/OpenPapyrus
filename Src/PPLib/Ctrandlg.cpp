@@ -1,5 +1,5 @@
 // CTRANDLG.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2003, 2005, 2006, 2007, 2008, 2016, 2017, 2019, 2020
+// Copyright (c) A.Sobolev 2000, 2001, 2003, 2005, 2006, 2007, 2008, 2016, 2017, 2019, 2020, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -14,8 +14,8 @@ public:
 	CurTransBillDialog() : TDialog(DLG_C_TRANS), P_Pack(0), HasAmtIDList(0)
 	{
 		MEMSZERO(Data);
-		setCtrlOption(CTL_BILL_FRAME1, ofFramed, 1);
-		setCtrlOption(CTL_BILL_FRAME2, ofFramed, 1);
+		// @v11.3.2 @obsolete setCtrlOption(CTL_BILL_FRAME1, ofFramed, 1);
+		// @v11.3.2 @obsolete setCtrlOption(CTL_BILL_FRAME2, ofFramed, 1);
 		CurAmtCtrlGroup * p_ca_grp = new CurAmtCtrlGroup(CTL_BILL_AMOUNT, CTLSEL_BILL_CUR,
 			CTL_BILL_CRATE, CTL_BILL_BASEAMT, CTL_BILL_DATE, cmSelInRate, 0);
 		addGroup(ctlgroupInCurAmt, p_ca_grp);

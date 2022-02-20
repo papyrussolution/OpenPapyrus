@@ -11,20 +11,8 @@
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
  *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE AUTHOR(S) BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
  * $FreeBSD: src/lib/libarchive/archive.h.in,v 1.50 2008/05/26 17:00:22 kientzle Exp $
  */
-
 #ifndef ARCHIVE_H_INCLUDED
 #define ARCHIVE_H_INCLUDED
 
@@ -51,10 +39,10 @@
  * platform macros.
  */
 #if defined(__BORLANDC__) && __BORLANDC__ >= 0x560
-# include <stdint.h>
+#include <stdint.h>
 #elif !defined(__WATCOMC__) && !defined(_MSC_VER) && !defined(__INTERIX) && !defined(__BORLANDC__) && !defined(_SCO_DS) && \
 	!defined(__osf__) && !defined(__CLANG_INTTYPES_H)
-# include <inttypes.h>
+#include <inttypes.h>
 #endif
 
 /* Get appropriate definitions of 64-bit integer */
@@ -67,7 +55,7 @@
 #if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__WATCOMC__)
 typedef __int64 la_int64_t;
 # else
-# include <unistd.h>  /* ssize_t */
+#include <unistd.h>  /* ssize_t */
 #  if defined(_SCO_DS) || defined(__osf__)
 typedef long long la_int64_t;
 #  else
@@ -107,7 +95,7 @@ typedef int64 la_int64_t;
  * libarchive source should ever define __LIBARCHIVE_BUILD.
  */
 #if ((defined __WIN32__) || (defined _WIN32) || defined(__CYGWIN__)) && (!defined LIBARCHIVE_STATIC)
-# ifdef __LIBARCHIVE_BUILD
+#ifdef __LIBARCHIVE_BUILD
 #  ifdef __GNUC__
 #   define __LA_DECL    __attribute__((dllexport)) extern
 #  else

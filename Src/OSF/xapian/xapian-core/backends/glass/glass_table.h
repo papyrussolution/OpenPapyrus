@@ -24,27 +24,22 @@
 #ifndef XAPIAN_INCLUDED_GLASS_TABLE_H
 #define XAPIAN_INCLUDED_GLASS_TABLE_H
 
-#include <xapian/constants.h>
-#include <xapian/error.h>
-
+//#include <xapian/constants.h>
+//#include <xapian/error.h>
 #include "glass_freelist.h"
 #include "glass_cursor.h"
 #include "glass_defs.h"
-
 #include "io_utils.h"
-#include "omassert.h"
-#include "str.h"
-#include "stringutils.h"
+//#include "omassert.h"
+//#include "str.h"
+//#include "stringutils.h"
 #include "wordaccess.h"
-
 #include "common/compression_stream.h"
-
-#include <algorithm>
-#include <string>
+//#include <algorithm>
+//#include <string>
 
 namespace Glass {
-/** Even for items of at maximum size, it must be possible to get this number of
- *  items in a block */
+/** Even for items of at maximum size, it must be possible to get this number of items in a block */
 const size_t BLOCK_CAPACITY = 4;
 
 /** The largest possible value of a key_len.
@@ -105,45 +100,45 @@ const int X2 = 2;
    last_component(p, c) returns true if this is a final component.
  */
 
-inline uint4 REVISION(const uint8_t * b) {
+inline uint4 REVISION(const uint8 * b) {
 	return aligned_read4(b);
 }
 
-inline int GET_LEVEL(const uint8_t * b) {
+inline int GET_LEVEL(const uint8 * b) {
 	return b[4];
 }
 
-inline int MAX_FREE(const uint8_t * b) {
+inline int MAX_FREE(const uint8 * b) {
 	return unaligned_read2(b + 5);
 }
 
-inline int TOTAL_FREE(const uint8_t * b) {
+inline int TOTAL_FREE(const uint8 * b) {
 	return unaligned_read2(b + 7);
 }
 
-inline int DIR_END(const uint8_t * b) {
+inline int DIR_END(const uint8 * b) {
 	return unaligned_read2(b + 9);
 }
 
 const int DIR_START = 11;
 
-inline void SET_REVISION(uint8_t * b, uint4 rev) {
+inline void SET_REVISION(uint8 * b, uint4 rev) {
 	aligned_write4(b, rev);
 }
 
-inline void SET_LEVEL(uint8_t * b, int x) {
+inline void SET_LEVEL(uint8 * b, int x) {
 	AssertRel(x, <, 256); b[4] = x;
 }
 
-inline void SET_MAX_FREE(uint8_t * b, int x) {
+inline void SET_MAX_FREE(uint8 * b, int x) {
 	unaligned_write2(b + 5, x);
 }
 
-inline void SET_TOTAL_FREE(uint8_t * b, int x) {
+inline void SET_TOTAL_FREE(uint8 * b, int x) {
 	unaligned_write2(b + 7, x);
 }
 
-inline void SET_DIR_END(uint8_t * b, int x) {
+inline void SET_DIR_END(uint8 * b, int x) {
 	unaligned_write2(b + 9, x);
 }
 
@@ -165,16 +160,16 @@ const int LEVEL_FREELIST = 254;
 class RootInfo;
 
 class Key {
-	const uint8_t * p;
+	const uint8 * p;
 public:
-	explicit Key(const uint8_t * p_) : p(p_) {
+	explicit Key(const uint8 * p_) : p(p_) {
 	}
 
-	const uint8_t * get_address() const {
+	const uint8 * get_address() const {
 		return p;
 	}
 
-	const uint8_t * data() const {
+	const uint8 * data() const {
 		return p + K1;
 	}
 
@@ -201,7 +196,7 @@ protected:
 		return p[I2];
 	}
 
-	static int getD(const uint8_t * q, int c) {
+	static int getD(const uint8 * q, int c) {
 		AssertRel(c, >=, DIR_START);
 		AssertRel(c, <, 65535);
 		Assert((c & 1) == 1);
@@ -212,7 +207,7 @@ protected:
 		return unaligned_read2(p);
 	}
 
-	static int getX(const uint8_t * q, int c) {
+	static int getX(const uint8 * q, int c) {
 		return unaligned_read2(q + c);
 	}
 
@@ -264,7 +259,7 @@ public:
 		tag->append(chunk, l);
 	}
 
-	bool decompress_chunk(CompressionStream& comp_stream, string& tag) const {
+	bool decompress_chunk(CompressionStream& comp_stream, string & tag) const {
 		// Offset to the start of the tag data.
 		int cd = get_key_len() + I2 + K1;
 		if(!first_component()) cd += X2;
@@ -275,19 +270,19 @@ public:
 	}
 };
 
-class LeafItem : public LeafItem_base<const uint8_t *> {
+class LeafItem : public LeafItem_base<const uint8 *> {
 public:
 	/* LeafItem from block address and offset to item pointer */
-	LeafItem(const uint8_t * p_, int c)
-		: LeafItem_base<const uint8_t *>(p_, c) {
+	LeafItem(const uint8 * p_, int c)
+		: LeafItem_base<const uint8 *>(p_, c) {
 	}
 
-	explicit LeafItem(const uint8_t * p_)
-		: LeafItem_base<const uint8_t *>(p_) {
+	explicit LeafItem(const uint8 * p_)
+		: LeafItem_base<const uint8 *>(p_) {
 	}
 };
 
-class LeafItem_wr : public LeafItem_base<uint8_t *> {
+class LeafItem_wr : public LeafItem_base<uint8 *> {
 	void set_key_len(int x) {
 		AssertRel(x, >=, 0);
 		AssertRel(x, <=, GLASS_BTREE_MAX_KEY_LEN);
@@ -298,16 +293,16 @@ class LeafItem_wr : public LeafItem_base<uint8_t *> {
 		unaligned_write2(p, x);
 	}
 
-	static void setX(uint8_t * q, int c, int x) {
+	static void setX(uint8 * q, int c, int x) {
 		unaligned_write2(q + c, x);
 	}
 
 public:
 	/* LeafItem_wr from block address and offset to item pointer */
-	LeafItem_wr(uint8_t * p_, int c) : LeafItem_base<uint8_t *>(p_, c) {
+	LeafItem_wr(uint8 * p_, int c) : LeafItem_base<uint8 *>(p_, c) {
 	}
 
-	explicit LeafItem_wr(uint8_t * p_) : LeafItem_base<uint8_t *>(p_) {
+	explicit LeafItem_wr(uint8 * p_) : LeafItem_base<uint8 *>(p_) {
 	}
 
 	void set_component_of(int i) {
@@ -321,7 +316,7 @@ public:
 		int I = new_size - 3;
 		// We should never be able to pass too large a size here, but don't
 		// corrupt the database if this somehow happens.
-		if(rare(I &~ITEM_SIZE_MASK)) throw Xapian::DatabaseError("item too large!");
+		if(UNLIKELY(I &~ITEM_SIZE_MASK)) throw Xapian::DatabaseError("item too large!");
 		setI(I);
 	}
 
@@ -364,7 +359,7 @@ public:
 	}
 
 	operator const LeafItem() const { return LeafItem(p); }
-	static void setD(uint8_t * q, int c, int x) {
+	static void setD(uint8 * q, int c, int x) {
 		AssertRel(c, >=, DIR_START);
 		AssertRel(c, <, 65535);
 		Assert((c & 1) == 1);
@@ -395,14 +390,14 @@ protected:
 		return p[BYTES_PER_BLOCK_NUMBER];
 	}
 
-	static int getD(const uint8_t * q, int c) {
+	static int getD(const uint8 * q, int c) {
 		AssertRel(c, >=, DIR_START);
 		AssertRel(c, <, 65535);
 		Assert((c & 1) == 1);
 		return unaligned_read2(q + c);
 	}
 
-	static int getX(const uint8_t * q, int c) {
+	static int getX(const uint8 * q, int c) {
 		return unaligned_read2(q + c);
 	}
 
@@ -439,33 +434,33 @@ public:
 	}
 };
 
-class BItem : public BItem_base<const uint8_t *> {
+class BItem : public BItem_base<const uint8 *> {
 public:
 	/* BItem from block address and offset to item pointer */
-	BItem(const uint8_t * p_, int c) : BItem_base<const uint8_t *>(p_, c) {
+	BItem(const uint8 * p_, int c) : BItem_base<const uint8 *>(p_, c) {
 	}
 
-	explicit BItem(const uint8_t * p_) : BItem_base<const uint8_t *>(p_) {
+	explicit BItem(const uint8 * p_) : BItem_base<const uint8 *>(p_) {
 	}
 };
 
-class BItem_wr : public BItem_base<uint8_t *> {
+class BItem_wr : public BItem_base<uint8 *> {
 	void set_key_len(int x) {
 		AssertRel(x, >=, 0);
 		AssertRel(x, <, GLASS_BTREE_MAX_KEY_LEN);
 		p[BYTES_PER_BLOCK_NUMBER] = x;
 	}
 
-	static void setX(uint8_t * q, int c, int x) {
+	static void setX(uint8 * q, int c, int x) {
 		unaligned_write2(q + c, x);
 	}
 
 public:
 	/* BItem_wr from block address and offset to item pointer */
-	BItem_wr(uint8_t * p_, int c) : BItem_base<uint8_t *>(p_, c) {
+	BItem_wr(uint8 * p_, int c) : BItem_base<uint8 *>(p_, c) {
 	}
 
-	explicit BItem_wr(uint8_t * p_) : BItem_base<uint8_t *>(p_) {
+	explicit BItem_wr(uint8 * p_) : BItem_base<uint8 *>(p_) {
 	}
 
 	void set_component_of(int i) {
@@ -511,7 +506,7 @@ public:
 	}
 
 	operator const BItem() const { return BItem(p); }
-	static void setD(uint8_t * q, int c, int x) {
+	static void setD(uint8 * q, int c, int x) {
 		AssertRel(c, >=, DIR_START);
 		AssertRel(c, <, 65535);
 		Assert((c & 1) == 1);
@@ -552,25 +547,16 @@ class GlassChanges;
 class GlassTable {
 	friend class GlassCursor; /* Should probably fix this. */
 	friend class GlassFreeList;
-
 private:
 	/// Copying not allowed
 	GlassTable(const GlassTable &);
-
 	/// Assignment not allowed
 	GlassTable & operator=(const GlassTable &);
-
-	void basic_open(const RootInfo * root_info,
-	    glass_revision_number_t rev);
-
+	void basic_open(const RootInfo * root_info, glass_revision_number_t rev);
 	/** Perform the opening operation to read. */
-	void do_open_to_read(const RootInfo * root_info,
-	    glass_revision_number_t rev);
-
+	void do_open_to_read(const RootInfo * root_info, glass_revision_number_t rev);
 	/** Perform the opening operation to write. */
-	void do_open_to_write(const RootInfo * root_info,
-	    glass_revision_number_t rev = 0);
-
+	void do_open_to_write(const RootInfo * root_info, glass_revision_number_t rev = 0);
 public:
 	/** Create a new Btree object.
 	 *
@@ -586,12 +572,8 @@ public:
 	 *  @param lazy		If true, don't create the table until it's
 	 *			needed.
 	 */
-	GlassTable(const char * tablename_, const std::string & path_,
-	    bool readonly_, bool lazy = false);
-
-	GlassTable(const char * tablename_, int fd, off_t offset_,
-	    bool readonly_, bool lazy = false);
-
+	GlassTable(const char * tablename_, const std::string & path_, bool readonly_, bool lazy = false);
+	GlassTable(const char * tablename_, int fd, off_t offset_, bool readonly_, bool lazy = false);
 	/** Close the Btree.
 	 *
 	 *  Any outstanding changes (ie, changes made without commit() having
@@ -713,9 +695,7 @@ public:
 	 *  @return	true if current_tag holds compressed data (always
 	 *		false if keep_compressed was false).
 	 */
-	bool read_tag(Glass::Cursor* C_,
-	    std::string* tag,
-	    bool keep_compressed) const;
+	bool read_tag(Glass::Cursor* C_, std::string* tag, bool keep_compressed) const;
 
 	/** Add a key/tag pair to the table, replacing any existing pair with
 	 *  the same key.
@@ -733,9 +713,7 @@ public:
 	 *		for example because it is being opaquely copied
 	 *		(default: false).
 	 */
-	void add(const std::string& key,
-	    std::string tag,
-	    bool already_compressed = false);
+	void add(const std::string & key, std::string tag, bool already_compressed = false);
 
 	/** Delete an entry from the table.
 	 *
@@ -753,15 +731,8 @@ public:
 	 *  @return true if an entry was removed; false if it did not exist.
 	 */
 	bool del(const std::string &key);
-
-	int get_flags() const {
-		return flags;
-	}
-
-	void set_flags(int new_flags) {
-		flags = new_flags;
-	}
-
+	int get_flags() const { return flags; }
+	void set_flags(int new_flags) { flags = new_flags; }
 	/** Create a new empty btree structure on disk and open it at the
 	 *  initial revision.
 	 *
@@ -786,9 +757,7 @@ public:
 	 *	is unsuitable.
 	 */
 	void create_and_open(int flags_, const RootInfo & root_info);
-
 	void set_full_compaction(bool parity);
-
 	/** Get the revision number at which this table
 	 *  is currently open.
 	 *
@@ -797,10 +766,7 @@ public:
 	 *
 	 *  @return the current revision number.
 	 */
-	glass_revision_number_t get_open_revision_number() const {
-		return revision_number;
-	}
-
+	glass_revision_number_t get_open_revision_number() const { return revision_number; }
 	/** Return a count of the number of entries in the table.
 	 *
 	 *  The count does not include the ever-present item with null key.
@@ -810,46 +776,34 @@ public:
 	 *
 	 *  @return The number of entries in the table.
 	 */
-	glass_tablesize_t get_entry_count() const {
-		return item_count;
-	}
-
+	glass_tablesize_t get_entry_count() const { return item_count; }
 	/// Return true if there are no entries in the table.
-	bool empty() const {
-		return (item_count == 0);
-	}
-
+	bool empty() const { return (item_count == 0); }
 	/** Get a cursor for reading from the table.
 	 *
 	 *  The cursor is owned by the caller - it is the caller's
 	 *  responsibility to ensure that it is deleted.
 	 */
 	GlassCursor * cursor_get() const;
-
 	/** Determine whether the object contains uncommitted modifications.
 	 *
 	 *  @return true if there have been modifications since the last
 	 *          the last call to commit().
 	 */
-	bool is_modified() const {
-		return Btree_modified;
-	}
-
+	bool is_modified() const { return Btree_modified; }
 	/** Set the maximum item size given the block capacity.
 	 *
 	 *  At least this many items of maximum size must fit into a block.
 	 *  The default is BLOCK_CAPACITY (which is currently 4).
 	 */
-	void set_max_item_size(size_t block_capacity) {
-		if(block_capacity > Glass::BLOCK_CAPACITY)
-			block_capacity = Glass::BLOCK_CAPACITY;
+	void set_max_item_size(size_t block_capacity) 
+	{
+		SETMIN(block_capacity, Glass::BLOCK_CAPACITY);
 		using Glass::DIR_START;
 		using Glass::D2;
-		max_item_size =
-		    (block_size - DIR_START - block_capacity * D2) / block_capacity;
+		max_item_size = (block_size - DIR_START - block_capacity * D2) / block_capacity;
 		// Make sure we don't exceed the limit imposed by the format.
-		if(max_item_size > Glass::MAX_ITEM_SIZE)
-			max_item_size = Glass::MAX_ITEM_SIZE;
+		SETMIN(max_item_size, Glass::MAX_ITEM_SIZE);
 	}
 
 	/** Set the GlassChanges object to write changed blocks to.
@@ -857,35 +811,24 @@ public:
 	 *  The GlassChanges object is not owned by the table, so the table
 	 *  must not delete it.
 	 */
-	void set_changes(GlassChanges * changes) {
-		changes_obj = changes;
-	}
-
+	void set_changes(GlassChanges * changes) { changes_obj = changes; }
 	/// Throw an exception indicating that the database is closed.
-	[[noreturn]]
-	static void throw_database_closed();
-
-	string get_path() const {
-		return name + GLASS_TABLE_EXTENSION;
-	}
-
+	[[noreturn]] static void throw_database_closed();
+	string get_path() const { return name + GLASS_TABLE_EXTENSION; }
 protected:
 	bool find(Glass::Cursor *) const;
 	int delete_kt();
-	void read_block(uint4 n, uint8_t * p) const;
-	void write_block(uint4 n, const uint8_t * p,
-	    bool appending = false) const;
-	[[noreturn]]
-	void set_overwritten() const;
+	void read_block(uint4 n, uint8 * p) const;
+	void write_block(uint4 n, const uint8 * p, bool appending = false) const;
+	[[noreturn]] void set_overwritten() const;
 	void block_to_cursor(Glass::Cursor * C_, int j, uint4 n) const;
 	void alter();
-	void compact(uint8_t * p);
-	void enter_key_above_leaf(Glass::LeafItem previtem,
-	    Glass::LeafItem newitem);
+	void compact(uint8 * p);
+	void enter_key_above_leaf(Glass::LeafItem previtem, Glass::LeafItem newitem);
 	void enter_key_above_branch(int j, Glass::BItem newitem);
-	int mid_point(uint8_t * p) const;
-	void add_item_to_leaf(uint8_t * p, Glass::LeafItem kt, int c);
-	void add_item_to_branch(uint8_t * p, Glass::BItem kt, int c);
+	int mid_point(uint8 * p) const;
+	void add_item_to_leaf(uint8 * p, Glass::LeafItem kt, int c);
+	void add_item_to_branch(uint8 * p, Glass::BItem kt, int c);
 	void add_leaf_item(Glass::LeafItem kt);
 	void add_branch_item(Glass::BItem kt, int j);
 	void delete_leaf_item(bool repeatedly);
@@ -895,21 +838,12 @@ protected:
 	void split_root(uint4 split_n);
 	void form_key(const std::string & key) const;
 
-	/// The name of the table (used when writing changesets).
-	const char * tablename;
-
-	/** revision number of the opened B-tree. */
-	glass_revision_number_t revision_number;
-
+	const char * tablename; /// The name of the table (used when writing changesets).
+	glass_revision_number_t revision_number; /** revision number of the opened B-tree. */
 	/** keeps a count of the number of items in the B-tree. */
 	glass_tablesize_t item_count;
-
-	/** block size of the B tree in bytes */
-	unsigned int block_size;
-
-	/** Flags like DB_NO_SYNC and DB_DANGEROUS. */
-	int flags;
-
+	uint block_size; /** block size of the B tree in bytes */
+	int flags; /** Flags like DB_NO_SYNC and DB_DANGEROUS. */
 	/** true if the root block is faked (not written to disk).
 	 * false otherwise.  This is true when the btree hasn't been
 	 * modified yet.
@@ -920,7 +854,6 @@ protected:
 	 * sequential order.
 	 */
 	bool sequential;
-
 	/** File descriptor of the table.
 	 *
 	 *  If close() has been called, this will be -2.
@@ -929,22 +862,11 @@ protected:
 	 *  -1 (for a multi-file database) or -3-fd (for a single-file database).
 	 */
 	int handle;
-
-	/// number of levels, counting from 0
-	int level;
-
-	/// the root block of the B-tree
-	uint4 root;
-
-	/// buffer of size block_size for making up key-tag items
-	mutable Glass::LeafItem_wr kt;
-
-	/// buffer of size block_size for reforming blocks
-	uint8_t * buffer;
-
-	/// List of free blocks.
-	GlassFreeList free_list;
-
+	int level; /// number of levels, counting from 0
+	uint4 root; /// the root block of the B-tree
+	mutable Glass::LeafItem_wr kt; /// buffer of size block_size for making up key-tag items
+	uint8 * buffer; /// buffer of size block_size for reforming blocks
+	GlassFreeList free_list; /// List of free blocks.
 	/** The path name of the B tree.
 	 *
 	 *  For a single-file database, this will be empty.
@@ -955,54 +877,32 @@ protected:
 	 * sequential addition, starting at SEQ_START_POINT (neg) and
 	 * going up to zero. */
 	int seq_count;
-
-	/** the last block to be changed by an addition */
-	uint4 changed_n;
-
-	/** directory offset corresponding to last block to be changed
-	 *  by an addition */
-	int changed_c;
-
-	/// maximum size of an item (key-tag pair)
-	size_t max_item_size;
-
-	/// Set to true the first time the B-tree is modified.
-	mutable bool Btree_modified;
-
-	/// set to true when full compaction is to be achieved
-	bool full_compaction;
-
-	/// Set to true when the database is opened to write.
-	bool writable;
-
-	/// Flag for tracking when cursors need to rebuild.
-	mutable bool cursor_created_since_last_modification;
-
-	/// Version count for tracking when cursors need to rebuild.
-	unsigned long cursor_version;
-
+	uint4 changed_n; /** the last block to be changed by an addition */
+	int changed_c; /** directory offset corresponding to last block to be changed by an addition */
+	size_t max_item_size; /// maximum size of an item (key-tag pair)
+	mutable bool Btree_modified; /// Set to true the first time the B-tree is modified.
+	bool full_compaction; /// set to true when full compaction is to be achieved
+	bool writable; /// Set to true when the database is opened to write.
+	mutable bool cursor_created_since_last_modification; /// Flag for tracking when cursors need to rebuild.
+	ulong cursor_version; /// Version count for tracking when cursors need to rebuild.
 	/** The GlassChanges object to write block changes to.
 	 *
 	 *  If NULL, no changes will be written.
 	 */
 	GlassChanges * changes_obj;
-
-	bool single_file() const {
-		return name.empty();
-	}
-
+	bool single_file() const { return name.empty(); }
 	/* B-tree navigation functions */
-	bool prev(Glass::Cursor * C_, int j) const {
+	bool prev(Glass::Cursor * C_, int j) const 
+	{
 		if(sequential && !single_file())
 			return prev_for_sequential(C_, j);
 		return prev_default(C_, j);
 	}
-
-	bool next(Glass::Cursor * C_, int j) const {
+	bool next(Glass::Cursor * C_, int j) const 
+	{
 		if(sequential) return next_for_sequential(C_, j);
 		return next_default(C_, j);
 	}
-
 	/* Default implementations. */
 	bool prev_default(Glass::Cursor * C_, int j) const;
 	bool next_default(Glass::Cursor * C_, int j) const;
@@ -1011,16 +911,16 @@ protected:
 	bool prev_for_sequential(Glass::Cursor * C_, int dummy) const;
 	bool next_for_sequential(Glass::Cursor * C_, int dummy) const;
 
-	static int find_in_leaf(const uint8_t * p,
+	static int find_in_leaf(const uint8 * p,
 	    Glass::LeafItem item, int c, bool& exact);
-	static int find_in_branch(const uint8_t * p,
+	static int find_in_branch(const uint8 * p,
 	    Glass::LeafItem item, int c);
-	static int find_in_branch(const uint8_t * p, Glass::BItem item, int c);
+	static int find_in_branch(const uint8 * p, Glass::BItem item, int c);
 
 	/** block_given_by(p, c) finds the item at block address p, directory
 	 *  offset c, and returns its tag value as an integer.
 	 */
-	static uint4 block_given_by(const uint8_t * p, int c);
+	static uint4 block_given_by(const uint8 * p, int c);
 
 	mutable Glass::Cursor C[Glass::BTREE_CURSOR_LEVELS];
 
@@ -1029,7 +929,7 @@ protected:
 	 *  This buffer holds the split off part of the block.  It's only used
 	 *  when updating (in GlassTable::add_item().
 	 */
-	uint8_t * split_p;
+	uint8 * split_p;
 
 	/** Minimum size tag to try compressing (0 for no compression). */
 	uint4 compress_min;
@@ -1046,7 +946,7 @@ protected:
 	off_t offset;
 
 	/* Debugging methods */
-//    void report_block_full(int m, int n, const uint8_t * p);
+//    void report_block_full(int m, int n, const uint8 * p);
 };
 
 namespace Glass {
@@ -1071,8 +971,8 @@ int compare(ITEM1 a, ITEM2 b)
 {
 	Key key1 = a.key();
 	Key key2 = b.key();
-	const uint8_t* p1 = key1.data();
-	const uint8_t* p2 = key2.data();
+	const uint8* p1 = key1.data();
+	const uint8* p2 = key2.data();
 	int key1_len = key1.length();
 	int key2_len = key2.length();
 	int k_smaller = (key2_len < key1_len ? key2_len : key1_len);
@@ -1099,8 +999,8 @@ inline int compare(BItem a, BItem b)
 {
 	Key key1 = a.key();
 	Key key2 = b.key();
-	const uint8_t* p1 = key1.data();
-	const uint8_t* p2 = key2.data();
+	const uint8* p1 = key1.data();
+	const uint8* p2 = key2.data();
 	int key1_len = key1.length();
 	int key2_len = key2.length();
 	if(key1_len == key2_len) {

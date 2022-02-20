@@ -228,7 +228,7 @@ class time_zone {
 // Loads the named time zone. May perform I/O on the initial load.
 // If the name is invalid, or some other kind of error occurs, returns
 // false and "*tz" is set to the UTC time zone.
-bool load_time_zone(const std::string& name, time_zone* tz);
+bool load_time_zone(const std::string & name, time_zone* tz);
 
 // Returns a time_zone representing UTC. Cannot fail.
 time_zone utc_time_zone();
@@ -265,9 +265,9 @@ inline time_point<seconds> convert(const civil_second& cs,
 
 namespace detail {
 using femtoseconds = std::chrono::duration<std::int_fast64_t, std::femto>;
-std::string format(const std::string&, const time_point<seconds>&,
+std::string format(const std::string &, const time_point<seconds>&,
                    const femtoseconds&, const time_zone&);
-bool parse(const std::string&, const std::string&, const time_zone&,
+bool parse(const std::string &, const std::string &, const time_zone&,
            time_point<seconds>*, femtoseconds*, std::string* err = nullptr);
 template <typename Rep, std::intmax_t Denom>
 bool join_seconds(
@@ -315,7 +315,7 @@ bool join_seconds(const time_point<seconds>& sec, const femtoseconds&,
 //   std::string f = cctz::format("%H:%M:%S", tp, lax);  // "03:04:05"
 //   f = cctz::format("%H:%M:%E3S", tp, lax);            // "03:04:05.000"
 template <typename D>
-inline std::string format(const std::string& fmt, const time_point<D>& tp,
+inline std::string format(const std::string & fmt, const time_point<D>& tp,
                           const time_zone& tz) {
   const auto p = detail::split_seconds(tp);
   const auto n = std::chrono::duration_cast<detail::femtoseconds>(p.second);
@@ -369,7 +369,7 @@ inline std::string format(const std::string& fmt, const time_point<D>& tp,
 //     ...
 //   }
 template <typename D>
-inline bool parse(const std::string& fmt, const std::string& input,
+inline bool parse(const std::string & fmt, const std::string & input,
                   const time_zone& tz, time_point<D>* tpp) {
   time_point<seconds> sec;
   detail::femtoseconds fs;

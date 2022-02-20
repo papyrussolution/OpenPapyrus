@@ -95,7 +95,7 @@ bool ParseNamedEnum(const EnumDescriptor* descriptor, ConstStringParam name,
 	return true;
 }
 
-const std::string& NameOfEnum(const EnumDescriptor* descriptor, int value) {
+const std::string & NameOfEnum(const EnumDescriptor* descriptor, int value) {
 	const EnumValueDescriptor* d = descriptor->FindValueByNumber(value);
 	return (d == nullptr ? GetEmptyString() : d->name());
 }
@@ -812,11 +812,11 @@ void Reflection::SwapOneofField(Message* lhs, Message* rhs,
 		LOCAL_VAR_ACCESSOR(int, enum, Enum);
 		LOCAL_VAR_ACCESSOR(Message*, message, Message);
 		LOCAL_VAR_ACCESSOR(ArenaStringPtr, arena_string_ptr, ArenaStringPtr);
-		const std::string& GetString() const {
+		const std::string & GetString() const {
 			return string_val;
 		}
 
-		void SetString(const std::string& v) {
+		void SetString(const std::string & v) {
 			string_val = v;
 		}
 
@@ -869,7 +869,7 @@ void Reflection::SwapOneofField(Message* lhs, Message* rhs,
 			return reflection->GetString(*message, field);
 		}
 
-		void SetString(const std::string& v) {
+		void SetString(const std::string & v) {
 			reflection->SetString(message, field, v);
 		}
 
@@ -1654,7 +1654,7 @@ std::string Reflection::GetString(const Message& message,
 	}
 }
 
-const std::string& Reflection::GetStringReference(const Message& message,
+const std::string & Reflection::GetStringReference(const Message& message,
     const FieldDescriptor* field,
     std::string* scratch) const {
 	(void)scratch; // Parameter is used by Google-internal code.
@@ -1744,7 +1744,7 @@ std::string Reflection::GetRepeatedString(const Message& message,
 	}
 }
 
-const std::string& Reflection::GetRepeatedStringReference(const Message& message, const FieldDescriptor* field, int index,
+const std::string & Reflection::GetRepeatedStringReference(const Message& message, const FieldDescriptor* field, int index,
     std::string* scratch) const {
 	(void)scratch; // Parameter is used by Google-internal code.
 	USAGE_CHECK_ALL(GetRepeatedStringReference, REPEATED, STRING);
@@ -2434,7 +2434,7 @@ int Reflection::MapSize(const Message& message,
 
 // -----------------------------------------------------------------------------
 
-const FieldDescriptor* Reflection::FindKnownExtensionByName(const std::string& name) const {
+const FieldDescriptor* Reflection::FindKnownExtensionByName(const std::string & name) const {
 	if(!schema_.HasExtensionSet()) return nullptr;
 	return descriptor_pool_->FindExtensionByPrintableName(descriptor_, name);
 }

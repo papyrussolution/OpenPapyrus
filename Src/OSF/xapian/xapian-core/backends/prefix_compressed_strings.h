@@ -53,7 +53,7 @@ public:
 	 *
 	 *  @param s  the encoded data.
 	 */
-	explicit PrefixCompressedStringItor(const std::string& s) : p(reinterpret_cast<const uchar *>(s.data())), left(s.size()) 
+	explicit PrefixCompressedStringItor(const std::string & s) : p(reinterpret_cast<const uchar *>(s.data())), left(s.size()) 
 	{
 		if(left) {
 			operator++();
@@ -68,7 +68,7 @@ public:
 	 *  @param s    the encoded data.
 	 *  @param key  the key
 	 */
-	PrefixCompressedStringItor(const std::string& s, const std::string& key) : p(reinterpret_cast<const uchar *>(s.data())), left(s.size()) 
+	PrefixCompressedStringItor(const std::string & s, const std::string & key) : p(reinterpret_cast<const uchar *>(s.data())), left(s.size()) 
 	{
 		Assert(!key.empty());
 		uchar first_ch = key[0];
@@ -107,11 +107,11 @@ public:
 		}
 		else {
 			size_t keep = 0;
-			if(rare(tail < 0)) {
+			if(UNLIKELY(tail < 0)) {
 				tail += 2;
 				keep = current.size() - tail;
 			}
-			else if(usual(!current.empty())) {
+			else if(LIKELY(!current.empty())) {
 				keep = *p++ ^ MAGIC_XOR_VALUE;
 				--left;
 			}
@@ -136,7 +136,7 @@ public:
 	 *
 	 *  @param out_  where to write data to.
 	 */
-	explicit PrefixCompressedStringWriter(std::string& out_) : out(out_) 
+	explicit PrefixCompressedStringWriter(std::string & out_) : out(out_) 
 	{
 	}
 	/** Construct for honey.
@@ -144,7 +144,7 @@ public:
 	 *  @param out_  where to write data to.
 	 *  @param key   the key.
 	 */
-	PrefixCompressedStringWriter(std::string& out_, const std::string& key) : out(out_) 
+	PrefixCompressedStringWriter(std::string & out_, const std::string & key) : out(out_) 
 	{
 		Assert(!key.empty());
 		uchar first_ch = key[0];
@@ -167,7 +167,7 @@ public:
 	{
 		// If this isn't the first entry, see how much of the previous one
 		// we can reuse.
-		if(rare(tail < 0)) {
+		if(UNLIKELY(tail < 0)) {
 			// First entry for BOOKEND or HEAD (tail is -1 or -2).
 			AssertRel(tail, >=, -2);
 			AssertEq(current[0], word[0]);
@@ -181,7 +181,7 @@ public:
 			out.append(word, -tail, word.size() - 2);
 			tail += 2;
 		}
-		else if(usual(!current.empty())) {
+		else if(LIKELY(!current.empty())) {
 			// Incremental change.
 			if(tail)
 				AssertEq(current[current.size() - 1], word[word.size() - 1]);

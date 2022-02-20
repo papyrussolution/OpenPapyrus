@@ -178,7 +178,7 @@ class Processor {
 
     /// force specific input and output formats for debug/testing.
     /// see zbar_processor_force_format()
-    void force_format (std::string& input_format, std::string& output_format)
+    void force_format (std::string & input_format, std::string & output_format)
     {
         ulong ifourcc = zbar_fourcc_parse(input_format.c_str());
         ulong ofourcc = zbar_fourcc_parse(output_format.c_str());

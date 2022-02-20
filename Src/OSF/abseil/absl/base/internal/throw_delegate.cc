@@ -21,7 +21,7 @@ template <typename T>
 #endif
 }  // namespace
 
-void ThrowStdLogicError(const std::string& what_arg) {
+void ThrowStdLogicError(const std::string & what_arg) {
 #ifdef ABSL_HAVE_EXCEPTIONS
 	Throw(std::logic_error(what_arg));
 #else
@@ -39,7 +39,7 @@ void ThrowStdLogicError(const char* what_arg) {
 #endif
 }
 
-void ThrowStdInvalidArgument(const std::string& what_arg) {
+void ThrowStdInvalidArgument(const std::string & what_arg) {
 #ifdef ABSL_HAVE_EXCEPTIONS
 	Throw(std::invalid_argument(what_arg));
 #else
@@ -57,7 +57,7 @@ void ThrowStdInvalidArgument(const char* what_arg) {
 #endif
 }
 
-void ThrowStdDomainError(const std::string& what_arg) {
+void ThrowStdDomainError(const std::string & what_arg) {
 #ifdef ABSL_HAVE_EXCEPTIONS
 	Throw(std::domain_error(what_arg));
 #else
@@ -75,7 +75,7 @@ void ThrowStdDomainError(const char* what_arg) {
 #endif
 }
 
-void ThrowStdLengthError(const std::string& what_arg) {
+void ThrowStdLengthError(const std::string & what_arg) {
 #ifdef ABSL_HAVE_EXCEPTIONS
 	Throw(std::length_error(what_arg));
 #else
@@ -93,7 +93,7 @@ void ThrowStdLengthError(const char* what_arg) {
 #endif
 }
 
-void ThrowStdOutOfRange(const std::string& what_arg) {
+void ThrowStdOutOfRange(const std::string & what_arg) {
 #ifdef ABSL_HAVE_EXCEPTIONS
 	Throw(std::out_of_range(what_arg));
 #else
@@ -111,7 +111,7 @@ void ThrowStdOutOfRange(const char* what_arg) {
 #endif
 }
 
-void ThrowStdRuntimeError(const std::string& what_arg) {
+void ThrowStdRuntimeError(const std::string & what_arg) {
 #ifdef ABSL_HAVE_EXCEPTIONS
 	Throw(std::runtime_error(what_arg));
 #else
@@ -129,7 +129,7 @@ void ThrowStdRuntimeError(const char* what_arg) {
 #endif
 }
 
-void ThrowStdRangeError(const std::string& what_arg) {
+void ThrowStdRangeError(const std::string & what_arg) {
 #ifdef ABSL_HAVE_EXCEPTIONS
 	Throw(std::range_error(what_arg));
 #else
@@ -147,7 +147,7 @@ void ThrowStdRangeError(const char* what_arg) {
 #endif
 }
 
-void ThrowStdOverflowError(const std::string& what_arg) {
+void ThrowStdOverflowError(const std::string & what_arg) {
 #ifdef ABSL_HAVE_EXCEPTIONS
 	Throw(std::overflow_error(what_arg));
 #else
@@ -165,7 +165,7 @@ void ThrowStdOverflowError(const char* what_arg) {
 #endif
 }
 
-void ThrowStdUnderflowError(const std::string& what_arg) {
+void ThrowStdUnderflowError(const std::string & what_arg) {
 #ifdef ABSL_HAVE_EXCEPTIONS
 	Throw(std::underflow_error(what_arg));
 #else

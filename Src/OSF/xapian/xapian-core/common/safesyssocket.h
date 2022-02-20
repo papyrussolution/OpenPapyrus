@@ -53,13 +53,13 @@ inline int socket_(int domain, int type, int protocol) {
     // But we should check and throw an exception rather than quietly mangling
     // the value.
     SOCKET sock = socket(domain, type, protocol);
-    if (rare(sock > SOCKET(0x7fffffff) && sock != INVALID_SOCKET)) {
+    if (UNLIKELY(sock > SOCKET(0x7fffffff) && sock != INVALID_SOCKET)) {
 	throw Xapian::NetworkError("socket() returned value > INT_MAX");
     }
     return int(sock);
 }
 
-# ifdef socket
+#ifdef socket
 #undef socket
 #endif
 #define socket(D,T,P) socket_(D,T,P)
@@ -104,11 +104,11 @@ inline int socketpair_(int domain, int type, int protocol, int *sv) {
     }
 }
 
-# ifdef socket
+#ifdef socket
 #undef socket
 #endif
 #define socket(D,T,P) socket_(D,T,P)
-# ifdef socketpair
+#ifdef socketpair
 #undef socketpair
 #endif
 #define socketpair(D,T,P,S) socketpair_(D,T,P,S)

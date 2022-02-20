@@ -78,7 +78,7 @@ TermList* RemoteTermList::next()
 	return NULL;
 }
 
-TermList* RemoteTermList::skip_to(const std::string& term)
+TermList* RemoteTermList::skip_to(const std::string & term)
 {
 	if(!p) {
 		RemoteTermList::next();

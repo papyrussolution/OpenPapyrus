@@ -27,7 +27,7 @@
 
 using namespace std;
 
-void errno_to_string(int e, string& s)
+void errno_to_string(int e, string & s)
 {
 	// Use a thread-safe way to convert an errno value to a string if possible.
 #ifdef HAVE_STRERRORDESC_NP
@@ -84,7 +84,7 @@ void errno_to_string(int e, string& s)
 	// characters, noting that glibc uses this size for strerror().  The
 	// actual longest on Linux in English is EILSEQ which needs 50 bytes.
 	char buf[1024];
-# ifdef STRERROR_R_CHAR_P
+#ifdef STRERROR_R_CHAR_P
 	// Returns char* pointing to string describing error.
 	s += strerror_r(e, buf, sizeof(buf));
 # else

@@ -158,13 +158,13 @@ CJKWordIterator::CJKWordIterator(const char* ptr, size_t len)
 	UErrorCode err = U_ZERO_ERROR;
 	UText utext = UTEXT_INITIALIZER;
 	brk = icu::BreakIterator::createWordInstance(0 /*unknown locale*/, err);
-	if(usual(U_SUCCESS(err))) {
+	if(LIKELY(U_SUCCESS(err))) {
 		utext_openUTF8(&utext, ptr, len, &err);
-		if(usual(U_SUCCESS(err)))
+		if(LIKELY(U_SUCCESS(err)))
 			brk->setText(&utext, err);
 		utext_close(&utext);
 	}
-	if(rare(U_FAILURE(err)))
+	if(UNLIKELY(U_FAILURE(err)))
 		throw Xapian::InternalError(string("ICU error: ") + u_errorName(err));
 	int32_t first = brk->first();
 	p = brk->next();
@@ -176,7 +176,7 @@ CJKWordIterator &CJKWordIterator::operator++()
 {
 	int32_t first = p;
 	p = brk->next();
-	if(usual(p != done)) {
+	if(LIKELY(p != done)) {
 		current_token.assign(utf8_ptr + first, p - first);
 	}
 	return *this;

@@ -104,9 +104,9 @@ public:
 	/// Get the document data.
 	std::string get_data() const;
 	/// Set the document data.
-	void set_data(const std::string& data);
+	void set_data(const std::string & data);
 	/// Add a term to this document.
-	void add_term(const std::string& term, Xapian::termcount wdf_inc = 1);
+	void add_term(const std::string & term, Xapian::termcount wdf_inc = 1);
 	/** Add a boolean filter term to the document.
 	 *
 	 *  This method adds @a term to the document with wdf of 0 -
@@ -125,14 +125,14 @@ public:
 	 *  @since This method was added in Xapian 1.0.18.
 	 *
 	 */
-	void add_boolean_term(const std::string& term) 
+	void add_boolean_term(const std::string & term) 
 	{
 		add_term(term, 0);
 	}
 	/// Remove a term from this document.
-	void remove_term(const std::string& term);
+	void remove_term(const std::string & term);
 	/// Add a posting for a term.
-	void add_posting(const std::string& term, Xapian::termpos term_pos, Xapian::termcount wdf_inc = 1);
+	void add_posting(const std::string & term, Xapian::termpos term_pos, Xapian::termcount wdf_inc = 1);
 
 	/** Remove posting for a term.
 	 *
@@ -149,7 +149,7 @@ public:
 	 *  Since 1.5.0, if the final position is removed and the wdf becomes zero
 	 *  then the term will be removed from the document.
 	 */
-	void remove_posting(const std::string& term, Xapian::termpos term_pos, Xapian::termcount wdf_dec = 1);
+	void remove_posting(const std::string & term, Xapian::termpos term_pos, Xapian::termcount wdf_dec = 1);
 
 	/** Remove a range of postings for a term.
 	 *
@@ -172,7 +172,7 @@ public:
 	 *
 	 *  @since Added in Xapian 1.4.8.
 	 */
-	Xapian::termpos remove_postings(const std::string& term, Xapian::termpos term_pos_first, Xapian::termpos term_pos_last, Xapian::termcount wdf_dec = 1);
+	Xapian::termpos remove_postings(const std::string & term, Xapian::termpos term_pos_first, Xapian::termpos term_pos_last, Xapian::termcount wdf_dec = 1);
 	/// Clear all terms from the document.
 	void clear_terms();
 	/// Return the number of distinct terms in this document.
@@ -196,7 +196,7 @@ public:
 	 *  @param slot	The slot to set
 	 *  @param value	The new value
 	 */
-	void add_value(Xapian::valueno slot, const std::string& value);
+	void add_value(Xapian::valueno slot, const std::string & value);
 
 	/** Remove any value from the specified slot.
 	 *
@@ -230,7 +230,7 @@ public:
 	 */
 	std::string serialise() const;
 	/** Unserialise a document from a string produced by serialise(). */
-	static Document unserialise(const std::string& serialised);
+	static Document unserialise(const std::string & serialised);
 	/// Return a string describing this object.
 	std::string get_description() const;
 };

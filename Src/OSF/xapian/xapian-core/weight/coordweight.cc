@@ -36,9 +36,9 @@ string CoordWeight::serialise() const
 	return string();
 }
 
-CoordWeight * CoordWeight::unserialise(const string& s) const
+CoordWeight * CoordWeight::unserialise(const string & s) const
 {
-	if(rare(!s.empty()))
+	if(UNLIKELY(!s.empty()))
 		throw Xapian::SerialisationError("Extra data in CoordWeight::unserialise()");
 	return new CoordWeight;
 }

@@ -1090,15 +1090,15 @@ class StringValue final :
   };
   // string value = 1;
   void clear_value();
-  const std::string& value() const;
-  template <typename ArgT0 = const std::string&, typename... ArgT>
+  const std::string & value() const;
+  template <typename ArgT0 = const std::string &, typename... ArgT>
   void set_value(ArgT0&& arg0, ArgT... args);
   std::string* mutable_value();
   PROTOBUF_NODISCARD std::string* release_value();
   void set_allocated_value(std::string* value);
   private:
-  const std::string& _internal_value() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_value(const std::string& value);
+  const std::string & _internal_value() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_value(const std::string & value);
   std::string* _internal_mutable_value();
   public:
 
@@ -1222,15 +1222,15 @@ class BytesValue final :
   };
   // bytes value = 1;
   void clear_value();
-  const std::string& value() const;
-  template <typename ArgT0 = const std::string&, typename... ArgT>
+  const std::string & value() const;
+  template <typename ArgT0 = const std::string &, typename... ArgT>
   void set_value(ArgT0&& arg0, ArgT... args);
   std::string* mutable_value();
   PROTOBUF_NODISCARD std::string* release_value();
   void set_allocated_value(std::string* value);
   private:
-  const std::string& _internal_value() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_value(const std::string& value);
+  const std::string & _internal_value() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_value(const std::string & value);
   std::string* _internal_mutable_value();
   public:
 
@@ -1414,7 +1414,7 @@ inline void BoolValue::set_value(bool value) {
 inline void StringValue::clear_value() {
   value_.ClearToEmpty();
 }
-inline const std::string& StringValue::value() const {
+inline const std::string & StringValue::value() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.StringValue.value)
 	return _internal_value();
 }
@@ -1430,8 +1430,8 @@ inline std::string* StringValue::mutable_value() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.StringValue.value)
 	return _s;
 }
-inline const std::string& StringValue::_internal_value() const { return value_.Get(); }
-inline void StringValue::_internal_set_value(const std::string& value) {
+inline const std::string & StringValue::_internal_value() const { return value_.Get(); }
+inline void StringValue::_internal_set_value(const std::string & value) {
 	
 	value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -1466,7 +1466,7 @@ inline void StringValue::set_allocated_value(std::string* value) {
 inline void BytesValue::clear_value() {
   value_.ClearToEmpty();
 }
-inline const std::string& BytesValue::value() const {
+inline const std::string & BytesValue::value() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.BytesValue.value)
 	return _internal_value();
 }
@@ -1482,8 +1482,8 @@ inline std::string* BytesValue::mutable_value() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.BytesValue.value)
 	return _s;
 }
-inline const std::string& BytesValue::_internal_value() const { return value_.Get(); }
-inline void BytesValue::_internal_set_value(const std::string& value) {
+inline const std::string & BytesValue::_internal_value() const { return value_.Get(); }
+inline void BytesValue::_internal_set_value(const std::string & value) {
 	
 	value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }

@@ -38,20 +38,16 @@
  *  compatible.
  */
 const uint SORTABLE_UINT_LOG2_MAX_BYTES = 2;
-
 /// Calculated value used below.
 const uint SORTABLE_UINT_MAX_BYTES = 1 << SORTABLE_UINT_LOG2_MAX_BYTES;
-
 /// Calculated value used below.
-const uint SORTABLE_UINT_1ST_BYTE_MASK =
-    (0xffu >> SORTABLE_UINT_LOG2_MAX_BYTES);
+const uint SORTABLE_UINT_1ST_BYTE_MASK = (0xffu >> SORTABLE_UINT_LOG2_MAX_BYTES);
 
 /** Throw appropriate SerialisationError.
  *
  *  @param p If NULL, out of data; otherwise type overflow.
  */
-[[noreturn]]
-void unpack_throw_serialisation_error(const char* p);
+[[noreturn]] void unpack_throw_serialisation_error(const char* p);
 
 /** Append an encoded bool to a string.
  *
@@ -75,7 +71,7 @@ inline bool unpack_bool(const char ** p, const char * end, bool * result)
 	const char * & ptr = *p;
 	Assert(ptr);
 	char ch;
-	if(rare(ptr == end || ((ch = *ptr++ - '0') &~1))) {
+	if(UNLIKELY(ptr == end || ((ch = *ptr++ - '0') &~1))) {
 		ptr = NULL;
 		return false;
 	}
@@ -91,11 +87,9 @@ inline bool unpack_bool(const char ** p, const char * end, bool * result)
  *  @param s		The string to append to.
  *  @param value	The unsigned integer to encode.
  */
-template <class U>
-inline void pack_uint_last(std::string & s, U value)
+template <class U> inline void pack_uint_last(std::string & s, U value)
 {
 	static_assert(std::is_unsigned<U>::value, "Unsigned type required");
-
 	while(value) {
 		s += char(value & 0xff);
 		value >>= 8;
@@ -119,7 +113,7 @@ inline bool unpack_uint_last(const char ** p, const char * end, U * result)
 	*p = end;
 
 	// Check for overflow.
-	if(rare(end - ptr > int(sizeof(U)))) {
+	if(UNLIKELY(end - ptr > int(sizeof(U)))) {
 		return false;
 	}
 
@@ -131,31 +125,18 @@ inline bool unpack_uint_last(const char ** p, const char * end, U * result)
 	return true;
 }
 
-#if HAVE_DECL___BUILTIN_CLZ && \
-	HAVE_DECL___BUILTIN_CLZL && \
-	HAVE_DECL___BUILTIN_CLZLL
-template <typename T>
-inline int do_clz(T value) {
-	extern int no_clz_builtin_for_this_type(T);
-	return no_clz_builtin_for_this_type(value);
-}
+#if HAVE_DECL___BUILTIN_CLZ && HAVE_DECL___BUILTIN_CLZL && HAVE_DECL___BUILTIN_CLZLL
+	template <typename T> inline int do_clz(T value) 
+	{
+		extern int no_clz_builtin_for_this_type(T);
+		return no_clz_builtin_for_this_type(value);
+	}
 
-template <>
-inline int do_clz(unsigned value) {
-	return __builtin_clz(value);
-}
+	template <> inline int do_clz(unsigned value) { return __builtin_clz(value); }
+	template <> inline int do_clz(ulong value) { return __builtin_clzl(value); }
+	template <> inline int do_clz(ulong long value) { return __builtin_clzll(value); }
 
-template <>
-inline int do_clz(ulong value) {
-	return __builtin_clzl(value);
-}
-
-template <>
-inline int do_clz(ulong long value) {
-	return __builtin_clzll(value);
-}
-
-#define HAVE_DO_CLZ
+	#define HAVE_DO_CLZ
 #endif
 
 /** Append an encoded unsigned integer to a string, preserving the sort order.
@@ -227,7 +208,7 @@ inline bool unpack_uint_preserving_sort(const char ** p, const char * end, U * r
 	const char * ptr = *p;
 	Assert(ptr);
 
-	if(rare(ptr == end)) {
+	if(UNLIKELY(ptr == end)) {
 		return false;
 	}
 
@@ -249,17 +230,17 @@ inline bool unpack_uint_preserving_sort(const char ** p, const char * end, U * r
 	size_t len = 2;
 	for(uchar m = 0x40; len_byte &m; m >>= 1) ++len;
 #endif
-	if(rare(size_t(end - ptr) < len)) {
+	if(UNLIKELY(size_t(end - ptr) < len)) {
 		return false;
 	}
 	unsigned mask = 0xff << (9 - len);
 	len_byte &= ~mask;
 
 	// Check for overflow.
-	if(rare(len > int(sizeof(U)))) return false;
+	if(UNLIKELY(len > int(sizeof(U)))) return false;
 	if(sizeof(U) != 8) {
 		// Need to check the top byte too.
-		if(rare(len == int(sizeof(U)) && len_byte != 0)) return false;
+		if(UNLIKELY(len == int(sizeof(U)) && len_byte != 0)) return false;
 	}
 
 	end = ptr + len;
@@ -319,7 +300,7 @@ inline bool unpack_uint(const char ** p, const char * end, U * result)
 
 	// Check the length of the encoded integer first.
 	do {
-		if(rare(ptr == end)) {
+		if(UNLIKELY(ptr == end)) {
 			// Out of data.
 			*p = NULL;
 			return false;
@@ -347,7 +328,7 @@ inline bool unpack_uint(const char ** p, const char * end, U * result)
 	}
 
 	size_t minbits = maxbits - 6;
-	if(rare(minbits > sizeof(U) * 8)) {
+	if(UNLIKELY(minbits > sizeof(U) * 8)) {
 		// Overflow.
 		return false;
 	}
@@ -359,7 +340,7 @@ inline bool unpack_uint(const char ** p, const char * end, U * result)
 
 	U tmp = *result;
 	*result <<= 7;
-	if(rare(*result < tmp)) {
+	if(UNLIKELY(*result < tmp)) {
 		// Overflow.
 		return false;
 	}
@@ -382,14 +363,14 @@ inline bool unpack_uint_backwards(const char ** p, const char * start, U * resul
 	Assert(ptr);
 
 	// Check it's not empty and that the final byte is valid.
-	if(rare(ptr == start || static_cast<uchar>(ptr[-1]) >= 128)) {
+	if(UNLIKELY(ptr == start || static_cast<uchar>(ptr[-1]) >= 128)) {
 		// Out of data.
 		*p = NULL;
 		return false;
 	}
 
 	do {
-		if(rare(--ptr == start))
+		if(UNLIKELY(--ptr == start))
 			break;
 	} while(static_cast<uchar>(ptr[-1]) >= 128);
 
@@ -416,7 +397,7 @@ inline void pack_string(std::string & s, const std::string & value)
  *
  *  @param s		The string to append to.
  */
-inline void pack_string_empty(std::string& s)
+inline void pack_string_empty(std::string & s)
 {
 	s += '\0';
 }
@@ -443,12 +424,12 @@ inline void pack_string(std::string & s, const char * ptr)
 inline bool unpack_string(const char ** p, const char * end, std::string & result)
 {
 	size_t len;
-	if(rare(!unpack_uint(p, end, &len))) {
+	if(UNLIKELY(!unpack_uint(p, end, &len))) {
 		return false;
 	}
 
 	const char * & ptr = *p;
-	if(rare(len > size_t(end - ptr))) {
+	if(UNLIKELY(len > size_t(end - ptr))) {
 		ptr = NULL;
 		return false;
 	}
@@ -464,19 +445,17 @@ inline bool unpack_string(const char ** p, const char * end, std::string & resul
  *  @param end	    Pointer to the end of the string.
  *  @param result   Where to store the result.
  */
-inline bool unpack_string_append(const char** p, const char* end, std::string& result)
+inline bool unpack_string_append(const char** p, const char* end, std::string & result)
 {
 	size_t len;
-	if(rare(!unpack_uint(p, end, &len))) {
+	if(UNLIKELY(!unpack_uint(p, end, &len))) {
 		return false;
 	}
-
 	const char * & ptr = *p;
-	if(rare(len > size_t(end - ptr))) {
+	if(UNLIKELY(len > size_t(end - ptr))) {
 		ptr = NULL;
 		return false;
 	}
-
 	result.append(ptr, len);
 	ptr += len;
 	return true;
@@ -530,8 +509,8 @@ inline bool unpack_string_preserving_sort(const char ** p, const char * end,
 
 	while(ptr != end) {
 		char ch = *ptr++;
-		if(rare(ch == '\0')) {
-			if(usual(ptr == end || *ptr != '\xff')) {
+		if(UNLIKELY(ch == '\0')) {
+			if(LIKELY(ptr == end || *ptr != '\xff')) {
 				break;
 			}
 			++ptr;
@@ -568,7 +547,7 @@ inline std::string pack_glass_postlist_key(const std::string &term, Xapian::doci
 	return key;
 }
 
-inline std::string pack_honey_postlist_key(const std::string& term)
+inline std::string pack_honey_postlist_key(const std::string & term)
 {
 	Assert(!term.empty());
 	std::string key;
@@ -576,7 +555,7 @@ inline std::string pack_honey_postlist_key(const std::string& term)
 	return key;
 }
 
-inline std::string pack_honey_postlist_key(const std::string& term, Xapian::docid did)
+inline std::string pack_honey_postlist_key(const std::string & term, Xapian::docid did)
 {
 	Assert(!term.empty());
 	std::string key;

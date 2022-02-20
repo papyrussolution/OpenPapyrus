@@ -38,15 +38,15 @@ public:
 	// script is a four-letter titlecase (the first letter is uppercase and the
 	// rest of the letters are lowercase) ISO script code as defined in ISO 15924.
 	// region is a two-letter uppercase ISO country code as defined by ISO 3166-1.
-	const string& GetFileName(int country_calling_code, const string& language,
-	    const string& script, const string& region, string*
+	const string & GetFileName(int country_calling_code, const string & language,
+	    const string & script, const string & region, string*
 	    filename) const;
 
 private:
 	void FindBestMatchingLanguageCode(const CountryLanguages* languages,
-	    const string& language,
-	    const string& script,
-	    const string& region,
+	    const string & language,
+	    const string & script,
+	    const string & region,
 	    string* best_match) const;
 
 	const int* const country_calling_codes_;

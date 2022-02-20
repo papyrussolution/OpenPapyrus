@@ -97,26 +97,26 @@ public:
 	// full_match - if true, match would be successful only if it matches the
 	// complete string.
 	// matched_string - the string extracted from the match. Can be NULL.
-	virtual bool Match(const string& input_string,
+	virtual bool Match(const string & input_string,
 	    bool full_match,
 	    string* matched_string) const = 0;
 
 	// Helper methods calling the Match method with the right arguments.
-	inline bool PartialMatch(const string& input_string,
+	inline bool PartialMatch(const string & input_string,
 	    string* matched_string) const {
 		return Match(input_string, false, matched_string);
 	}
 
-	inline bool PartialMatch(const string& input_string) const {
+	inline bool PartialMatch(const string & input_string) const {
 		return Match(input_string, false, NULL);
 	}
 
-	inline bool FullMatch(const string& input_string,
+	inline bool FullMatch(const string & input_string,
 	    string* matched_string) const {
 		return Match(input_string, true, matched_string);
 	}
 
-	inline bool FullMatch(const string& input_string) const {
+	inline bool FullMatch(const string & input_string) const {
 		return Match(input_string, true, NULL);
 	}
 
@@ -128,16 +128,16 @@ public:
 	// otherwise.
 	virtual bool Replace(string* string_to_process,
 	    bool global,
-	    const string& replacement_string) const = 0;
+	    const string & replacement_string) const = 0;
 
 	// Helper methods calling the Replace method with the right arguments.
 	inline bool Replace(string* string_to_process,
-	    const string& replacement_string) const {
+	    const string & replacement_string) const {
 		return Replace(string_to_process, false, replacement_string);
 	}
 
 	inline bool GlobalReplace(string* string_to_process,
-	    const string& replacement_string) const {
+	    const string & replacement_string) const {
 		return Replace(string_to_process, true, replacement_string);
 	}
 };
@@ -151,11 +151,11 @@ public:
 
 	// Creates a new instance of RegExpInput. The deletion of the returned
 	// instance is under the responsibility of the caller.
-	virtual RegExpInput* CreateInput(const string& utf8_input) const = 0;
+	virtual RegExpInput* CreateInput(const string & utf8_input) const = 0;
 
 	// Creates a new instance of RegExp. The deletion of the returned instance is
 	// under the responsibility of the caller.
-	virtual RegExp* CreateRegExp(const string& utf8_regexp) const = 0;
+	virtual RegExp* CreateRegExp(const string & utf8_regexp) const = 0;
 };
 }  // namespace phonenumbers
 }  // namespace i18n

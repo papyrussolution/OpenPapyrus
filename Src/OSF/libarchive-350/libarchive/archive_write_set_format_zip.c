@@ -12,19 +12,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE AUTHOR(S) BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 /*
  * Development supported by Google Summer of Code 2008.
  */
@@ -126,7 +114,7 @@ struct zip {
 
 	uchar * file_header;
 	size_t file_header_extra_offset;
-	unsigned long (* crc32func)(unsigned long crc, const void * buff, size_t len);
+	ulong (* crc32func)(ulong crc, const void * buff, size_t len);
 
 	struct cd_segment * central_directory;
 	struct cd_segment * central_directory_last;
@@ -209,12 +197,12 @@ static uchar * cd_alloc(struct zip * zip, size_t length)
 	return (p);
 }
 
-static unsigned long real_crc32(unsigned long crc, const void * buff, size_t len)
+static ulong real_crc32(ulong crc, const void * buff, size_t len)
 {
 	return crc32(crc, static_cast<const Bytef *>(buff), (uint)len);
 }
 
-static unsigned long fake_crc32(unsigned long crc, const void * buff, size_t len)
+static ulong fake_crc32(ulong crc, const void * buff, size_t len)
 {
 	(void)crc; /* UNUSED */
 	(void)buff; /* UNUSED */

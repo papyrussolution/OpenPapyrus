@@ -49,7 +49,7 @@ std::string FieldMaskUtil::ToString(const FieldMask& mask) {
 void FieldMaskUtil::FromString(StringPiece str, FieldMask* out) {
 	out->Clear();
 	std::vector<std::string> paths = Split(str, ",");
-	for(const std::string& path : paths) {
+	for(const std::string & path : paths) {
 		if(path.empty()) continue;
 		out->add_paths(path);
 	}
@@ -110,7 +110,7 @@ bool FieldMaskUtil::CamelCaseToSnakeCase(StringPiece input,
 bool FieldMaskUtil::ToJsonString(const FieldMask& mask, std::string* out) {
 	out->clear();
 	for(int i = 0; i < mask.paths_size(); ++i) {
-		const std::string& path = mask.paths(i);
+		const std::string & path = mask.paths(i);
 		std::string camelcase_path;
 		if(!SnakeCaseToCamelCase(path, &camelcase_path)) {
 			return false;
@@ -126,7 +126,7 @@ bool FieldMaskUtil::ToJsonString(const FieldMask& mask, std::string* out) {
 bool FieldMaskUtil::FromJsonString(StringPiece str, FieldMask* out) {
 	out->Clear();
 	std::vector<std::string> paths = Split(str, ",");
-	for(const std::string& path : paths) {
+	for(const std::string & path : paths) {
 		if(path.empty()) continue;
 		std::string snakecase_path;
 		if(!CamelCaseToSnakeCase(path, &snakecase_path)) {
@@ -143,7 +143,7 @@ bool FieldMaskUtil::GetFieldDescriptors(const Descriptor* descriptor, StringPiec
 		field_descriptors->clear();
 	}
 	std::vector<std::string> parts = Split(path, ".");
-	for(const std::string& field_name : parts) {
+	for(const std::string & field_name : parts) {
 		if(descriptor == nullptr) {
 			return false;
 		}
@@ -198,18 +198,18 @@ public:
 	// be added to the tree. If the path matches an existing non-leaf node in the
 	// tree, that non-leaf node will be turned into a leaf node with all its
 	// children removed because the path matches all the node's children.
-	void AddPath(const std::string& path);
+	void AddPath(const std::string & path);
 
 	// Remove a path from the tree.
 	// If the path is a sub-path of an existing field path in the tree, it means
 	// we need remove the existing field path and add all sub-paths except
 	// specified path. If the path matches an existing node in the tree, this node
 	// will be moved.
-	void RemovePath(const std::string& path, const Descriptor* descriptor);
+	void RemovePath(const std::string & path, const Descriptor* descriptor);
 
 	// Calculate the intersection part of a field path with this tree and add
 	// the intersection field path into out.
-	void IntersectPath(const std::string& path, FieldMaskTree* out);
+	void IntersectPath(const std::string & path, FieldMaskTree* out);
 
 	// Merge all fields specified by this tree from one message to another.
 	void MergeMessage(const Message& source,
@@ -269,11 +269,11 @@ private:
 
 	// Merge a sub-tree to mask. This method adds the field paths represented
 	// by all leaf nodes descended from "node" to mask.
-	void MergeToFieldMask(const std::string& prefix, const Node* node,
+	void MergeToFieldMask(const std::string & prefix, const Node* node,
 	    FieldMask* out);
 
 	// Merge all leaf nodes of a sub-tree to another tree.
-	void MergeLeafNodesToTree(const std::string& prefix, const Node* node,
+	void MergeLeafNodesToTree(const std::string & prefix, const Node* node,
 	    FieldMaskTree* out);
 
 	// Merge all fields specified by a sub-tree from one message to another.
@@ -312,7 +312,7 @@ void FieldMaskTree::MergeToFieldMask(FieldMask* mask) {
 	MergeToFieldMask("", &root_, mask);
 }
 
-void FieldMaskTree::MergeToFieldMask(const std::string& prefix,
+void FieldMaskTree::MergeToFieldMask(const std::string & prefix,
     const Node* node, FieldMask* out) {
 	if(node->children.empty()) {
 		if(prefix.empty()) {
@@ -330,14 +330,14 @@ void FieldMaskTree::MergeToFieldMask(const std::string& prefix,
 	}
 }
 
-void FieldMaskTree::AddPath(const std::string& path) {
+void FieldMaskTree::AddPath(const std::string & path) {
 	std::vector<std::string> parts = Split(path, ".");
 	if(parts.empty()) {
 		return;
 	}
 	bool new_branch = false;
 	Node* node = &root_;
-	for(const std::string& node_name : parts) {
+	for(const std::string & node_name : parts) {
 		if(!new_branch && node != &root_ && node->children.empty()) {
 			// Path matches an existing leaf node. This means the path is already
 			// covered by this tree (for example, adding "foo.bar.baz" to a tree
@@ -356,7 +356,7 @@ void FieldMaskTree::AddPath(const std::string& path) {
 	}
 }
 
-void FieldMaskTree::RemovePath(const std::string& path,
+void FieldMaskTree::RemovePath(const std::string & path,
     const Descriptor* descriptor) {
 	if(root_.children.empty()) {
 		// Nothing to be removed from an empty tree. We shortcut it here so an empty
@@ -416,13 +416,13 @@ void FieldMaskTree::RemovePath(const std::string& path,
 	}
 }
 
-void FieldMaskTree::IntersectPath(const std::string& path, FieldMaskTree* out) {
+void FieldMaskTree::IntersectPath(const std::string & path, FieldMaskTree* out) {
 	std::vector<std::string> parts = Split(path, ".");
 	if(parts.empty()) {
 		return;
 	}
 	const Node* node = &root_;
-	for(const std::string& node_name : parts) {
+	for(const std::string & node_name : parts) {
 		if(node->children.empty()) {
 			if(node != &root_) {
 				out->AddPath(path);
@@ -441,7 +441,7 @@ void FieldMaskTree::IntersectPath(const std::string& path, FieldMaskTree* out) {
 	MergeLeafNodesToTree(path, node, out);
 }
 
-void FieldMaskTree::MergeLeafNodesToTree(const std::string& prefix,
+void FieldMaskTree::MergeLeafNodesToTree(const std::string & prefix,
     const Node* node, FieldMaskTree* out) {
 	if(node->children.empty()) {
 		out->AddPath(prefix);
@@ -463,7 +463,7 @@ void FieldMaskTree::MergeMessage(const Node* node, const Message& source,
 	const Descriptor* descriptor = source.GetDescriptor();
 	for(std::map<std::string, Node*>::const_iterator it = node->children.begin();
 	    it != node->children.end(); ++it) {
-		const std::string& field_name = it->first;
+		const std::string & field_name = it->first;
 		const Node* child = it->second;
 		const FieldDescriptor* field = descriptor->FindFieldByName(field_name);
 		if(field == NULL) {
@@ -562,7 +562,7 @@ void FieldMaskTree::AddRequiredFieldPath(Node* node,
 	for(int index = 0; index < field_count; ++index) {
 		const FieldDescriptor* field = descriptor->field(index);
 		if(field->is_required()) {
-			const std::string& node_name = field->name();
+			const std::string & node_name = field->name();
 			Node*& child = node->children[node_name];
 			if(child == nullptr) {
 				// Add required field path to the tree
@@ -677,7 +677,7 @@ void FieldMaskUtil::Subtract(const Descriptor* descriptor,
 bool FieldMaskUtil::IsPathInFieldMask(StringPiece path,
     const FieldMask& mask) {
 	for(int i = 0; i < mask.paths_size(); ++i) {
-		const std::string& mask_path = mask.paths(i);
+		const std::string & mask_path = mask.paths(i);
 		if(path == mask_path) {
 			return true;
 		}

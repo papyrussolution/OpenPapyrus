@@ -513,7 +513,7 @@ void GenericTypeHandler<MessageLite>::Merge(const MessageLite& from,
 }
 
 template <>
-void GenericTypeHandler<std::string>::Merge(const std::string& from,
+void GenericTypeHandler<std::string>::Merge(const std::string & from,
     std::string* to) {
 	*to = from;
 }
@@ -526,7 +526,7 @@ void InternalMetadata::DoClear<std::string>() {
 }
 
 template <>
-void InternalMetadata::DoMergeFrom<std::string>(const std::string& other) {
+void InternalMetadata::DoMergeFrom<std::string>(const std::string & other) {
 	mutable_unknown_fields<std::string>()->append(other);
 }
 

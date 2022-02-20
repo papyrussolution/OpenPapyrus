@@ -27,16 +27,15 @@
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
 	#error Never use <xapian/geospatial.h> directly; include <xapian.h> instead.
 #endif
-
-#include <iterator>
-#include <vector>
-#include <string>
-#include <xapian/attributes.h>
-#include <xapian/derefwrapper.h>
-#include <xapian/keymaker.h>
-#include <xapian/postingsource.h>
-#include <xapian/queryparser.h> // For sortable_serialise
-#include <xapian/visibility.h>
+//#include <iterator>
+//#include <vector>
+//#include <string>
+//#include <xapian/attributes.h>
+//#include <xapian/derefwrapper.h>
+//#include <xapian/keymaker.h>
+//#include <xapian/postingsource.h>
+//#include <xapian/queryparser.h> // For sortable_serialise
+//#include <xapian/visibility.h>
 
 namespace Xapian {
 class Registry;
@@ -239,11 +238,10 @@ public:
 	{
 		coords.push_back(coord);
 	}
-
 	/// Construct an empty container.
-	LatLongCoords() : coords() {
+	LatLongCoords() : coords() 
+	{
 	}
-
 	/// Construct a container holding one coordinate.
 	LatLongCoords(const LatLongCoord & coord) : coords()
 	{

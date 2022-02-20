@@ -21,15 +21,12 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "xapian/geospatial.h"
 #include "geoencode.h"
 
 using namespace Xapian;
 using namespace std;
 
-LatLongCoord::LatLongCoord(double latitude_, double longitude_)
-	: latitude(latitude_),
-	longitude(longitude_)
+LatLongCoord::LatLongCoord(double latitude_, double longitude_) : latitude(latitude_), longitude(longitude_)
 {
 	if(latitude < -90.0 || latitude > 90.0)
 		throw InvalidArgumentError("Latitude out-of-range");
@@ -43,8 +40,7 @@ void LatLongCoord::unserialise(const string & serialised)
 	const char * end = ptr + serialised.size();
 	unserialise(&ptr, end);
 	if(ptr != end)
-		throw SerialisationError(
-			      "Junk found at end of serialised LatLongCoord");
+		throw SerialisationError("Junk found at end of serialised LatLongCoord");
 }
 
 void LatLongCoord::unserialise(const char ** ptr, const char * end)
@@ -91,8 +87,7 @@ void LatLongCoords::unserialise(const string & serialised)
 		coords.back().unserialise(&ptr, end_ptr);
 	}
 	if(ptr != end_ptr) {
-		throw SerialisationError("Junk found at end of serialised "
-			  "LatLongCoords");
+		throw SerialisationError("Junk found at end of serialised LatLongCoords");
 	}
 }
 

@@ -37,7 +37,7 @@
 #include <string>
 
 #ifdef USE_ICU
-# ifdef __GNUC__
+#ifdef __GNUC__
 // Turn off some warnings for libicu headers.
 #  pragma GCC diagnostic push
 #  pragma GCC diagnostic ignored "-Wold-style-cast"
@@ -47,7 +47,7 @@
 #include <unicode/brkiter.h>
 #include <unicode/unistr.h>
 
-# ifdef __GNUC__
+#ifdef __GNUC__
 // Restore the original warning state.
 #  pragma GCC diagnostic pop
 #endif
@@ -87,7 +87,7 @@ class CJKNgramIterator {
     void init();
 
   public:
-    explicit CJKNgramIterator(const std::string& s) : it(s) {
+    explicit CJKNgramIterator(const std::string & s) : it(s) {
 	init();
     }
 
@@ -97,7 +97,7 @@ class CJKNgramIterator {
 
     CJKNgramIterator() { }
 
-    const std::string& operator*() const {
+    const std::string & operator*() const {
 	return current_token;
     }
 
@@ -146,7 +146,7 @@ class CJKWordIterator {
 
     ~CJKWordIterator() { delete brk; }
 
-    const std::string& operator*() const {
+    const std::string & operator*() const {
 	return current_token;
     }
 

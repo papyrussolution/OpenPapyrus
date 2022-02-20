@@ -42,7 +42,7 @@
 namespace google {
 namespace protobuf {
 namespace internal {
-const std::string& LazyString::Init() const {
+const std::string & LazyString::Init() const {
 	static WrappedMutex mu{GOOGLE_PROTOBUF_LINKER_INITIALIZED};
 	mu.Lock();
 	const std::string* res = inited_.load(std::memory_order_acquire);
@@ -76,7 +76,7 @@ void ArenaStringPtr::Set(const std::string* default_value,
 	}
 }
 
-void ArenaStringPtr::Set(const std::string* default_value, std::string&& value,
+void ArenaStringPtr::Set(const std::string* default_value, std::string && value,
     ::google::protobuf::Arena* arena) {
 	if(IsDefault(default_value)) {
 		if(arena == nullptr) {
@@ -102,7 +102,7 @@ void ArenaStringPtr::Set(EmptyDefault, ConstStringParam value,
 	Set(&GetEmptyStringAlreadyInited(), value, arena);
 }
 
-void ArenaStringPtr::Set(EmptyDefault, std::string&& value,
+void ArenaStringPtr::Set(EmptyDefault, std::string && value,
     ::google::protobuf::Arena* arena) {
 	Set(&GetEmptyStringAlreadyInited(), std::move(value), arena);
 }
@@ -112,7 +112,7 @@ void ArenaStringPtr::Set(NonEmptyDefault, ConstStringParam value,
 	Set(nullptr, value, arena);
 }
 
-void ArenaStringPtr::Set(NonEmptyDefault, std::string&& value,
+void ArenaStringPtr::Set(NonEmptyDefault, std::string && value,
     ::google::protobuf::Arena* arena) {
 	Set(nullptr, std::move(value), arena);
 }

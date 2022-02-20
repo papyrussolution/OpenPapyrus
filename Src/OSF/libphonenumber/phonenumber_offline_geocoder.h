@@ -77,7 +77,7 @@ namespace i18n {
 			// user_region is the region code for a given user. This region will be
 			// omitted from the description if the phone number comes from this region. It
 			// should be a two-letter uppercase CLDR region code.
-			string GetDescriptionForValidNumber(const PhoneNumber& number, const Locale& language, const string& user_region) const;
+			string GetDescriptionForValidNumber(const PhoneNumber& number, const Locale& language, const string & user_region) const;
 
 			// As per GetDescriptionForValidNumber(PhoneNumber, Locale) but explicitly
 			// checks the validity of the number passed in.
@@ -85,13 +85,13 @@ namespace i18n {
 
 			// As per GetDescriptionForValidNumber(PhoneNumber, Locale, String) but
 			// explicitly checks the validity of the number passed in.
-			string GetDescriptionForNumber(const PhoneNumber& number, const Locale& language, const string& user_region) const;
+			string GetDescriptionForNumber(const PhoneNumber& number, const Locale& language, const string & user_region) const;
 		private:
 			void Init(const int* country_calling_codes, int country_calling_codes_size, country_languages_getter get_country_languages,
 				const char** prefix_language_code_pairs, int prefix_language_code_pairs_size, prefix_descriptions_getter get_prefix_descriptions);
-			AreaCodeMaps::const_iterator LoadAreaCodeMapFromFile(const string& filename) const ABSL_EXCLUSIVE_LOCKS_REQUIRED(mu_);
-			const AreaCodeMap* GetPhonePrefixDescriptions(int prefix, const string& language, const string& script,
-				const string& region) const ABSL_EXCLUSIVE_LOCKS_REQUIRED(mu_);
+			AreaCodeMaps::const_iterator LoadAreaCodeMapFromFile(const string & filename) const ABSL_EXCLUSIVE_LOCKS_REQUIRED(mu_);
+			const AreaCodeMap* GetPhonePrefixDescriptions(int prefix, const string & language, const string & script,
+				const string & region) const ABSL_EXCLUSIVE_LOCKS_REQUIRED(mu_);
 			// Returns the customary display name in the given language for the given
 			// region.
 			string GetRegionDisplayName(const string* region_code, const Locale& language) const;
@@ -109,8 +109,8 @@ namespace i18n {
 			// rest of the letters are lowercase) ISO script code as defined in ISO 15924.
 			// region should be a two-letter uppercase ISO country code as defined by ISO
 			// 3166-1.
-			const char* GetAreaDescription(const PhoneNumber& number, const string& lang, const string& script, const string& region) const ABSL_LOCKS_EXCLUDED(mu_);
-			bool MayFallBackToEnglish(const string& lang) const;
+			const char* GetAreaDescription(const PhoneNumber& number, const string & lang, const string & script, const string & region) const ABSL_LOCKS_EXCLUDED(mu_);
+			bool MayFallBackToEnglish(const string & lang) const;
 		private:
 			const PhoneNumberUtil* phone_util_;
 			// The MappingFileProvider knows for which combination of country calling code

@@ -524,7 +524,7 @@ public:
 	 *			that is required to match exactly.  Default: 0
 	 */
 	Query(op op_,
-	    const std::string& pattern,
+	    const std::string & pattern,
 	    Xapian::termcount max_expansion,
 	    int flags,
 	    op combiner,
@@ -566,7 +566,7 @@ public:
 	Query(op op_, XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend,
 	    Xapian::termcount parameter = 0);
 
-# ifdef SWIGJAVA
+#ifdef SWIGJAVA
 	Query(op op_, XapianSWIGStrItor qbegin, XapianSWIGStrItor qend,
 	    Xapian::termcount parameter = 0);
 #endif

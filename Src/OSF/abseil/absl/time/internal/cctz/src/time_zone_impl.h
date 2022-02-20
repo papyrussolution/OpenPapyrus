@@ -37,14 +37,14 @@ class time_zone::Impl {
 
   // Load a named time zone. Returns false if the name is invalid, or if
   // some other kind of error occurs. Note that loading "UTC" never fails.
-  static bool LoadTimeZone(const std::string& name, time_zone* tz);
+  static bool LoadTimeZone(const std::string & name, time_zone* tz);
 
   // Clears the map of cached time zones.  Primarily for use in benchmarks
   // that gauge the performance of loading/parsing the time-zone data.
   static void ClearTimeZoneMapTestOnly();
 
   // The primary key is the time-zone ID (e.g., "America/New_York").
-  const std::string& Name() const {
+  const std::string & Name() const {
     // TODO: It would nice if the zoneinfo data included the zone name.
     return name_;
   }
@@ -78,7 +78,7 @@ class time_zone::Impl {
   std::string Description() const { return zone_->Description(); }
 
  private:
-  explicit Impl(const std::string& name);
+  explicit Impl(const std::string & name);
   static const Impl* UTCImpl();
 
   const std::string name_;

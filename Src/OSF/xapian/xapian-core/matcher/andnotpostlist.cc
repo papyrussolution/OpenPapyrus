@@ -43,7 +43,7 @@ Xapian::doccount AndNotPostList::get_termfreq_max() const
 
 Xapian::doccount AndNotPostList::get_termfreq_est() const
 {
-	if(rare(db_size == 0))
+	if(UNLIKELY(db_size == 0))
 		return 0;
 	// We calculate the estimate assuming independence.  With this assumption,
 	// the estimate is the product of the estimates for the sub-postlists

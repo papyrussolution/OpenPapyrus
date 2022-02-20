@@ -20,8 +20,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "xapian/compactor.h"
-#include "xapian/types.h"
 #include "backends/flint_lock.h"
 #include "glass_database.h"
 #include "glass_defs.h"
@@ -191,7 +189,7 @@ static void merge_postlists(Xapian::Compactor * compactor,
 		vector<string> tags;
 		while(!pq.empty()) {
 			PostlistCursor * cur = pq.top();
-			const string& key = cur->key;
+			const string & key = cur->key;
 			if(!is_user_metadata_key(key)) break;
 
 			if(key != last_key) {
@@ -250,7 +248,7 @@ static void merge_postlists(Xapian::Compactor * compactor,
 
 		while(!pq.empty()) {
 			PostlistCursor * cur = pq.top();
-			const string& key = cur->key;
+			const string & key = cur->key;
 			if(!is_valuestats_key(key)) break;
 			if(key != last_key) {
 				// For the first valuestats key, last_key will be the previous
@@ -563,7 +561,7 @@ static void merge_synonyms(GlassTable * out,
 			pqtag.pop();
 			if(**it != lastword) {
 				lastword = **it;
-				tag += uint8_t(lastword.size() ^ MAGIC_XOR_VALUE);
+				tag += uint8(lastword.size() ^ MAGIC_XOR_VALUE);
 				tag += lastword;
 			}
 			++*it;

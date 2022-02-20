@@ -22,7 +22,6 @@
 #include "glass_valuelist.h"
 #include "glass_cursor.h"
 #include "glass_database.h"
-#include "str.h"
 
 using namespace Glass;
 using namespace std;

@@ -60,13 +60,13 @@ public:
 	// column numbers.  The numbers are zero-based, so you may want to add
 	// 1 to each before printing them.
 	virtual void AddError(int line, ColumnNumber column,
-	    const std::string& message) = 0;
+	    const std::string & message) = 0;
 
 	// Indicates that there was a warning in the input at the given line and
 	// column numbers.  The numbers are zero-based, so you may want to add
 	// 1 to each before printing them.
 	virtual void AddWarning(int /* line */, ColumnNumber /* column */,
-	    const std::string& /* message */) {
+	    const std::string & /* message */) {
 	}
 
 private:
@@ -197,22 +197,22 @@ public:
 	// Parses a TYPE_FLOAT token.  This never fails, so long as the text actually
 	// comes from a TYPE_FLOAT token parsed by Tokenizer.  If it doesn't, the
 	// result is undefined (possibly an assert failure).
-	static double ParseFloat(const std::string& text);
+	static double ParseFloat(const std::string & text);
 
 	// Parses a TYPE_STRING token.  This never fails, so long as the text actually
 	// comes from a TYPE_STRING token parsed by Tokenizer.  If it doesn't, the
 	// result is undefined (possibly an assert failure).
-	static void ParseString(const std::string& text, std::string* output);
+	static void ParseString(const std::string & text, std::string* output);
 
 	// Identical to ParseString, but appends to output.
-	static void ParseStringAppend(const std::string& text, std::string* output);
+	static void ParseStringAppend(const std::string & text, std::string* output);
 
 	// Parses a TYPE_INTEGER token.  Returns false if the result would be
 	// greater than max_value.  Otherwise, returns true and sets *output to the
 	// result.  If the text is not from a Token of type TYPE_INTEGER originally
 	// parsed by a Tokenizer, the result is undefined (possibly an assert
 	// failure).
-	static bool ParseInteger(const std::string& text, uint64_t max_value,
+	static bool ParseInteger(const std::string & text, uint64_t max_value,
 	    uint64_t* output);
 
 	// Options ---------------------------------------------------------
@@ -262,7 +262,7 @@ public:
 	void set_report_newlines(bool report);
 
 	// External helper: validate an identifier.
-	static bool IsIdentifier(const std::string& text);
+	static bool IsIdentifier(const std::string & text);
 
 	// -----------------------------------------------------------------
 private:
@@ -325,7 +325,7 @@ private:
 	inline void EndToken();
 
 	// Convenience method to add an error at the current line and column.
-	void AddError(const std::string& message) {
+	void AddError(const std::string & message) {
 		error_collector_->AddError(line_, column_, message);
 	}
 
@@ -421,7 +421,7 @@ inline const Tokenizer::Token& Tokenizer::previous() {
 	return previous_;
 }
 
-inline void Tokenizer::ParseString(const std::string& text,
+inline void Tokenizer::ParseString(const std::string & text,
     std::string* output) {
 	output->clear();
 	ParseStringAppend(text, output);

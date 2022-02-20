@@ -87,7 +87,7 @@ void TradWeight::init(double factor)
 	// what the code currently enabled does, but perhaps it would be better to
 	// do something else. (FIXME)
 #if 0
-	if(rare(tw <= 1.0)) {
+	if(UNLIKELY(tw <= 1.0)) {
 		termweight = 0;
 	}
 	else {
@@ -134,7 +134,7 @@ TradWeight * TradWeight::unserialise(const string & s) const
 	const char * ptr = s.data();
 	const char * end = ptr + s.size();
 	double k = unserialise_double(&ptr, end);
-	if(rare(ptr != end))
+	if(UNLIKELY(ptr != end))
 		throw Xapian::SerialisationError("Extra data in TradWeight::unserialise()");
 	return new TradWeight(k);
 }

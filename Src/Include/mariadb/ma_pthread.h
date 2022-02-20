@@ -20,15 +20,13 @@
 
 #ifndef _my_pthread_h
 #define _my_pthread_h
-
-#if defined(_WIN32)
-#include <windows.h>
-typedef CRITICAL_SECTION pthread_mutex_t;
-#define pthread_mutex_init(A,B)  InitializeCriticalSection(A)
-#define pthread_mutex_lock(A)	 (EnterCriticalSection(A),0)
-#define pthread_mutex_unlock(A)  LeaveCriticalSection(A)
-#define pthread_mutex_destroy(A) DeleteCriticalSection(A)
-#define pthread_self() GetCurrentThreadId()
-#endif /* defined(_WIN32) */
-
+    #if defined(_WIN32)
+        #include <windows.h>
+        typedef CRITICAL_SECTION pthread_mutex_t;
+        #define pthread_mutex_init(A,B)  InitializeCriticalSection(A)
+        #define pthread_mutex_lock(A)	 (EnterCriticalSection(A),0)
+        #define pthread_mutex_unlock(A)  LeaveCriticalSection(A)
+        #define pthread_mutex_destroy(A) DeleteCriticalSection(A)
+        #define pthread_self() GetCurrentThreadId()
+    #endif /* defined(_WIN32) */
 #endif /* _my_ptread_h */

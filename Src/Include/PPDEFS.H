@@ -1140,8 +1140,7 @@
 	// Exra record of PPOBJ_DFCREATERULE
 	#define DFCRRULPRP_CASHNN    1L
 #define PPOBJ_BILLSYMB      1041L  // !PPObject Символы формул сумм документов (используется только для организации кэша)
-#define PPOBJ_DBXCHG        1042L  // !PPObject Обмен данными между разделами
-	// (только для блокировки приема разными пользователями)
+#define PPOBJ_DBXCHG        1042L  // !PPObject Обмен данными между разделами (только для блокировки приема разными пользователями)
 #define PPOBJ_WORLD         1043L  // Географические объекты
 #define PPOBJ_GOODSINFO     1044L  //
 #define PPOBJ_PERSONPOST    1045L  //  Должностные назначения //
@@ -1196,6 +1195,9 @@
 	#define PPEVENTTYPE_SYSJOURNAL     4L // Событие в системном журнале по фильтру
 	#define PPEVENTTYPE_LOTEXPIRATION  5L // Истечение срока годности лота
 #define PPOBJ_STYLOQBINDERY 1077L  // @v11.1.7 Подшивка объектов Stylo-Q
+#define PPOBJ_VETISIC       1078L  // @v11.3.2 !PPObject Используется для блокировки функций обмена с сервисами ВЕТИС
+	#define PPVETISICFUNC_SETUPOUTGOINGENTRIES 1
+	#define PPVETISICFUNC_PROCESSOUTCOMING     2
 #define PPOBJ_DBCONVERT     1100L  // Специальный объект, используемый для формирования записей
 	// с информацией о конвертации базы данных. Запись, идентифицирующая конвертацию имеет идентификатор
 	// вида 0xMJMNRR  где MJ - мажор, MN - минор, RR - релиз

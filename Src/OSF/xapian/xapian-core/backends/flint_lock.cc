@@ -46,7 +46,7 @@
 using namespace std;
 
 #ifndef F_OFD_SETLK
-# ifdef __linux__
+#ifdef __linux__
 // Apparently defining _GNU_SOURCE should get us F_OFD_SETLK, etc, but that
 // doesn't actually seem to work, so hard-code the known values.
 #  define F_OFD_GETLK   36
@@ -55,11 +55,9 @@ using namespace std;
 #endif
 #endif
 
-[[noreturn]]
-static void throw_cannot_test_lock()
+[[noreturn]] static void throw_cannot_test_lock()
 {
-	throw Xapian::FeatureUnavailableError("Can't test lock without trying to "
-		  "take it");
+	throw Xapian::FeatureUnavailableError("Can't test lock without trying to take it");
 }
 
 bool FlintLock::test() const
@@ -111,7 +109,8 @@ bool FlintLock::test() const
 #endif
 }
 
-FlintLock::reason FlintLock::lock(bool exclusive, bool wait, string & explanation) {
+FlintLock::reason FlintLock::lock(bool exclusive, bool wait, string & explanation) 
+{
 	// Currently we only support exclusive locks.
 	(void)exclusive;
 	Assert(exclusive);
@@ -255,7 +254,7 @@ no_ofd_support:
 	// be stdin and stdout, and we can't use dup() on lockfd after locking it,
 	// as the lock won't be transferred, so we handle this corner case here by
 	// using F_DUPFD or by calling dup() once or twice so that lockfd >= 2.
-	if(rare(lockfd < 2)) {
+	if(UNLIKELY(lockfd < 2)) {
 		// Note this temporarily requires one or two spare fds to work, but
 		// then we need two spare for socketpair() to succeed below anyway.
 #ifdef F_DUPFD
@@ -272,7 +271,7 @@ no_ofd_support:
 		// Otherwise we have to call dup() until we get one, though at least
 		// that's only at most twice.
 		int lockfd_dup = dup(lockfd);
-		if(rare(lockfd_dup < 2)) {
+		if(UNLIKELY(lockfd_dup < 2)) {
 			int eno = 0;
 			if(lockfd_dup < 0) {
 				eno = errno;
@@ -488,9 +487,7 @@ void FlintLock::release() {
 #endif
 }
 
-void FlintLock::throw_databaselockerror(FlintLock::reason why,
-    const string & db_dir,
-    const string & explanation) const
+void FlintLock::throw_databaselockerror(FlintLock::reason why, const string & db_dir, const string & explanation) const
 {
 	string msg("Unable to get write lock on ");
 	msg += db_dir;

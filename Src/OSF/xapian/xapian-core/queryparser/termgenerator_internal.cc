@@ -118,7 +118,7 @@ static bool parse_cjk(Utf8Iterator & itor, unsigned cjk_flags, bool with_positio
 		for(CJKWordIterator tk(cjk_start, cjk_left);
 		    tk != CJKWordIterator();
 		    ++tk) {
-			const string& cjk_token = *tk;
+			const string & cjk_token = *tk;
 			cjk_left -= cjk_token.length();
 			if(!action(cjk_token, with_positions, itor.left() + cjk_left))
 				return false;
@@ -131,7 +131,7 @@ static bool parse_cjk(Utf8Iterator & itor, unsigned cjk_flags, bool with_positio
 
 	CJKNgramIterator tk(itor);
 	while(tk != CJKNgramIterator()) {
-		const string& cjk_token = *tk;
+		const string & cjk_token = *tk;
 		// FLAG_CJK_NGRAM only sets positions for tokens of length 1.
 		bool with_pos = with_positions && tk.unigram();
 		if(!action(cjk_token, with_pos, tk.get_utf8iterator().left()))
@@ -310,8 +310,8 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 			}
 
 			// Add stemmed form without positional information.
-			const string& stem = stemmer(term);
-			if(rare(stem.empty())) return true;
+			const string & stem = stemmer(term);
+			if(UNLIKELY(stem.empty())) return true;
 			string stemmed_term;
 			if(strategy != TermGenerator::STEM_ALL) {
 				stemmed_term += "Z";
@@ -423,7 +423,7 @@ inline bool SnipPipe::pump(double* r, size_t t, size_t h, unsigned flags)
 		pipe.pop_front();
 		// E.g. can happen if the current term is longer than the requested
 		// length!
-		if(rare(pipe.empty())) break;
+		if(UNLIKELY(pipe.empty())) break;
 	}
 
 	// Using > here doesn't work well, as we don't extend a snippet over terms
@@ -462,7 +462,7 @@ inline void SnipPipe::done()
 	else {
 		// We should never empty the pipe (as that case should be handled
 		// above).
-		while(rare(!pipe.empty()) &&
+		while(UNLIKELY(!pipe.empty()) &&
 		    pipe.back().term_end > best_end) {
 			pipe.pop_back();
 		}
@@ -526,7 +526,7 @@ static inline bool snippet_check_trailing_nonwordchar(uint ch) {
 	return false;
 }
 
-static inline void append_escaping_xml(const char* p, const char* end, string& output)
+static inline void append_escaping_xml(const char* p, const char* end, string & output)
 {
 	while(p != end) {
 		char ch = *p++;

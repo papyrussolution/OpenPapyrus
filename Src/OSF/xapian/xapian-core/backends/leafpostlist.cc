@@ -22,8 +22,6 @@
 #pragma hdrstop
 #include "leafpostlist.h"
 #include "matcher/orpositionlist.h"
-#include "omassert.h"
-#include "debuglog.h"
 
 using namespace std;
 

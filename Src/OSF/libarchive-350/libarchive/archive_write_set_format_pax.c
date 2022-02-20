@@ -12,17 +12,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE AUTHOR(S) BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "archive_platform.h"
 #pragma hdrstop
@@ -55,27 +44,26 @@ struct pax {
 #define WRITE_LIBARCHIVE_XATTR   (1 << 1)
 };
 
-static void              add_pax_attr(struct archive_string *, const char * key, const char * value);
-static void              add_pax_attr_binary(struct archive_string *, const char * key, const char * value, size_t value_len);
-static void              add_pax_attr_int(struct archive_string *, const char * key, int64 value);
-static void              add_pax_attr_time(struct archive_string *, const char * key, int64 sec, unsigned long nanos);
-static int          add_pax_acl(struct archive_write *, struct archive_entry *, struct pax *, int);
-static ssize_t           archive_write_pax_data(struct archive_write *, const void *, size_t);
-static int          archive_write_pax_close(struct archive_write *);
-static int          archive_write_pax_free(struct archive_write *);
-static int          archive_write_pax_finish_entry(struct archive_write *);
-static int          archive_write_pax_header(struct archive_write *, struct archive_entry *);
-static int          archive_write_pax_options(struct archive_write *, const char *, const char *);
-static char             * base64_encode(const char * src, size_t len);
-static char             * build_gnu_sparse_name(char * dest, const char * src);
-static char             * build_pax_attribute_name(char * dest, const char * src);
-static char             * build_ustar_entry_name(char * dest, const char * src, size_t src_length, const char * insert);
-static char             * format_int(char * dest, int64);
-static int          has_non_ASCII(const char *);
-static void              sparse_list_clear(struct pax *);
-static int          sparse_list_add(struct pax *, int64, int64);
-static char             * url_encode(const char * in);
-
+static void add_pax_attr(struct archive_string *, const char * key, const char * value);
+static void add_pax_attr_binary(struct archive_string *, const char * key, const char * value, size_t value_len);
+static void add_pax_attr_int(struct archive_string *, const char * key, int64 value);
+static void add_pax_attr_time(struct archive_string *, const char * key, int64 sec, ulong nanos);
+static int  add_pax_acl(struct archive_write *, struct archive_entry *, struct pax *, int);
+static ssize_t archive_write_pax_data(struct archive_write *, const void *, size_t);
+static int  archive_write_pax_close(struct archive_write *);
+static int  archive_write_pax_free(struct archive_write *);
+static int  archive_write_pax_finish_entry(struct archive_write *);
+static int  archive_write_pax_header(struct archive_write *, struct archive_entry *);
+static int  archive_write_pax_options(struct archive_write *, const char *, const char *);
+static char * base64_encode(const char * src, size_t len);
+static char * build_gnu_sparse_name(char * dest, const char * src);
+static char * build_pax_attribute_name(char * dest, const char * src);
+static char * build_ustar_entry_name(char * dest, const char * src, size_t src_length, const char * insert);
+static char * format_int(char * dest, int64);
+static int  has_non_ASCII(const char *);
+static void sparse_list_clear(struct pax *);
+static int  sparse_list_add(struct pax *, int64, int64);
+static char * url_encode(const char * in);
 /*
  * Set output format to 'restricted pax' format.
  *
@@ -198,7 +186,7 @@ static int archive_write_pax_options(struct archive_write * a, const char * key,
  * unlikely to encounter many real files created before Jan 1, 1970,
  * much less ones with timestamps recorded to sub-second resolution.
  */
-static void add_pax_attr_time(struct archive_string * as, const char * key, int64 sec, unsigned long nanos)
+static void add_pax_attr_time(struct archive_string * as, const char * key, int64 sec, ulong nanos)
 {
 	int digit, i;
 	char * t;
@@ -207,10 +195,8 @@ static void add_pax_attr_time(struct archive_string * as, const char * key, int6
 	 * digits, so this will always be big enough.
 	 */
 	char tmp[1 + 3*sizeof(sec) + 1 + 3*sizeof(nanos)];
-
 	tmp[sizeof(tmp) - 1] = 0;
 	t = tmp + sizeof(tmp) - 1;
-
 	/* Skip trailing zeros in the fractional part. */
 	for(digit = 0, i = 10; i > 0 && digit == 0; i--) {
 		digit = nanos % 10;

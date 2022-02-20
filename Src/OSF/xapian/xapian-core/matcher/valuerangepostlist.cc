@@ -33,8 +33,8 @@ ValueRangePostList::~ValueRangePostList()
 
 Xapian::doccount ValueRangePostList::get_termfreq_min() const
 {
-	const string& lo = db->get_value_lower_bound(slot);
-	const string& hi = db->get_value_upper_bound(slot);
+	const string & lo = db->get_value_lower_bound(slot);
+	const string & hi = db->get_value_upper_bound(slot);
 	if(begin <= lo && (end.empty() || hi <= end)) {
 		// All set values lie within the range (this case is optimised at a
 		// higher level when the value frequency is the doc count, but not
@@ -63,8 +63,8 @@ Xapian::doccount ValueRangePostList::get_termfreq_est() const
 {
 	// Assume the values are evenly spread out between the min and max.
 	// FIXME: Perhaps we should store some sort of binned distribution?
-	const string& lo = db->get_value_lower_bound(slot);
-	const string& hi = db->get_value_upper_bound(slot);
+	const string & lo = db->get_value_lower_bound(slot);
+	const string & hi = db->get_value_upper_bound(slot);
 	AssertRel(lo, <=, hi);
 
 	size_t common_prefix_len = size_t(-1);
@@ -88,7 +88,7 @@ Xapian::doccount ValueRangePostList::get_termfreq_est() const
 	double l = string_frac(lo, common_prefix_len);
 	double h = string_frac(hi, common_prefix_len);
 	double denom = h - l;
-	if(rare(denom == 0.0)) {
+	if(UNLIKELY(denom == 0.0)) {
 		// Weird corner case - hi != lo (because that's handled inside the loop
 		// above) but they give the same string_frac value.  Because we only
 		// calculate the fraction starting from the first difference, this

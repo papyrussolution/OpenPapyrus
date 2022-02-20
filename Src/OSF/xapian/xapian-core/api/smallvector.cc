@@ -28,7 +28,7 @@
 void Xapian::SmallVector_::do_reserve(std::size_t n)
 {
 	// Logic error or size_t wrapping.
-	if(rare(n <= c))
+	if(UNLIKELY(n <= c))
 		throw std::bad_alloc();
 	void ** blk = new void* [n];
 	if(is_external()) {

@@ -226,7 +226,7 @@ public:
 	// you need to return machine-readable information about failures, you
 	// should incorporate it into your response protocol buffer and should
 	// NOT call SetFailed().
-	virtual void SetFailed(const std::string& reason) = 0;
+	virtual void SetFailed(const std::string & reason) = 0;
 
 	// If true, indicates that the client canceled the RPC, so the server may
 	// as well give up on replying to it.  The server should still call the

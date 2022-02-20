@@ -84,7 +84,7 @@ void MultiValueList::next()
 			}
 		}
 		count = j;
-		if(rare(count == 0))
+		if(UNLIKELY(count == 0))
 			return;
 
 		Heap::make(valuelists, valuelists + count,
@@ -129,7 +129,7 @@ void MultiValueList::skip_to(Xapian::docid did)
 		}
 	}
 	count = j;
-	if(rare(count == 0))
+	if(UNLIKELY(count == 0))
 		return;
 
 	Heap::make(valuelists, valuelists + count, CompareSubValueListsByDocId());

@@ -223,7 +223,7 @@ void GlassChanges::check(const string & changes_file)
 		//
 		// Although the revision number is aligned within the block, the block
 		// data may not be aligned to a word boundary here.
-		uint4 block_rev = unaligned_read4(reinterpret_cast<const uint8_t*>(p));
+		uint4 block_rev = unaligned_read4(reinterpret_cast<const uint8*>(p));
 		(void)block_rev; // FIXME: Sanity check value.
 		unsigned level = static_cast<uchar>(p[4]);
 		(void)level; // FIXME: Sanity check value.

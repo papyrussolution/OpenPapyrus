@@ -11,7 +11,7 @@
 
 namespace i18n {
 	namespace phonenumbers {
-		PhoneNumberMatch::PhoneNumberMatch(int start, const string& raw_string, const PhoneNumber& number) : start_(start), raw_string_(raw_string), number_(number) 
+		PhoneNumberMatch::PhoneNumberMatch(int start, const string & raw_string, const PhoneNumber& number) : start_(start), raw_string_(raw_string), number_(number) 
 		{
 		}
 
@@ -23,9 +23,9 @@ namespace i18n {
 		int PhoneNumberMatch::start() const { return start_; }
 		int PhoneNumberMatch::end() const { return static_cast<int>(start_ + raw_string_.length()); }
 		int PhoneNumberMatch::length() const { return static_cast<int>(raw_string_.length()); }
-		const string& PhoneNumberMatch::raw_string() const { return raw_string_; }
+		const string & PhoneNumberMatch::raw_string() const { return raw_string_; }
 		void PhoneNumberMatch::set_start(int start) { start_ = start; }
-		void PhoneNumberMatch::set_raw_string(const string& raw_string) { raw_string_ = raw_string; }
+		void PhoneNumberMatch::set_raw_string(const string & raw_string) { raw_string_ = raw_string; }
 		void PhoneNumberMatch::set_number(const PhoneNumber& number) { number_.CopyFrom(number); }
 		string PhoneNumberMatch::ToString() const { return StrCat("PhoneNumberMatch [", start(), ",", end(), ") ", raw_string_.c_str()); }
 		bool PhoneNumberMatch::Equals(const PhoneNumberMatch& match) const 

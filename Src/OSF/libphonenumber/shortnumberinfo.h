@@ -48,7 +48,7 @@ namespace i18n {
 			// region, given the number in the form of a string, and the region where the
 			// number is dialed from.  This provides a more lenient check than
 			// IsValidShortNumberForRegion.
-			bool IsPossibleShortNumberForRegion(const PhoneNumber& short_number, const string& region_dialing_from) const;
+			bool IsPossibleShortNumberForRegion(const PhoneNumber& short_number, const string & region_dialing_from) const;
 
 			// Check whether a short number is a possible number. If a country calling
 			// code is shared by multiple regions, this returns true if it's possible in
@@ -59,7 +59,7 @@ namespace i18n {
 			// Tests whether a short number matches a valid pattern in a region. Note
 			// that this doesn't verify the number is actually in use, which is
 			// impossible to tell by just looking at the number itself.
-			bool IsValidShortNumberForRegion(const PhoneNumber& short_number, const string& region_dialing_from) const;
+			bool IsValidShortNumberForRegion(const PhoneNumber& short_number, const string & region_dialing_from) const;
 
 			// Tests whether a short number matches a valid pattern. If a country calling
 			// code is shared by multiple regions, this returns true if it's valid in any
@@ -85,7 +85,7 @@ namespace i18n {
 			//   // Do something with the cost information here.
 			// }
 			ShortNumberCost GetExpectedCostForRegion(const PhoneNumber& short_number,
-				const string& region_dialing_from) const;
+				const string & region_dialing_from) const;
 
 			// Gets the expected cost category of a short number (however, nothing is
 			// implied about its validity). If the country calling code is unique to a
@@ -106,10 +106,10 @@ namespace i18n {
 			ShortNumberCost GetExpectedCost(const PhoneNumber& number) const;
 
 			// Gets a valid short number for the specified region.
-			string GetExampleShortNumber(const string& region_code) const;
+			string GetExampleShortNumber(const string & region_code) const;
 
 			// Gets a valid short number for the specified cost category.
-			string GetExampleShortNumberForCost(const string& region_code, ShortNumberCost cost) const;
+			string GetExampleShortNumberForCost(const string & region_code, ShortNumberCost cost) const;
 
 			// Returns true if the number might be used to connect to an emergency service
 			// in the given region.
@@ -117,16 +117,16 @@ namespace i18n {
 			// This method takes into account cases where the number might contain
 			// formatting, or might have additional digits appended (when it is okay to do
 			// that in the region specified).
-			bool ConnectsToEmergencyNumber(const string& number,
-				const string& region_code) const;
+			bool ConnectsToEmergencyNumber(const string & number,
+				const string & region_code) const;
 
 			// Returns true if the number exactly matches an emergency service number in
 			// the given region.
 			//
 			// This method takes into account cases where the number might contain
 			// formatting, but doesn't allow additional digits to be appended.
-			bool IsEmergencyNumber(const string& number,
-				const string& region_code) const;
+			bool IsEmergencyNumber(const string & number,
+				const string & region_code) const;
 
 			// Given a valid short number, determines whether it is carrier-specific
 			// (however, nothing is implied about its validity). Carrier-specific numbers
@@ -143,7 +143,7 @@ namespace i18n {
 			// that the number is valid, then its validity must first be checked using
 			// IsValidShortNumber or IsValidShortNumberForRegion. Returns false if the
 			// number doesn't match the region provided.
-			bool IsCarrierSpecificForRegion(const PhoneNumber& number, const string& region_dialing_from) const;
+			bool IsCarrierSpecificForRegion(const PhoneNumber& number, const string & region_dialing_from) const;
 
 			// Given a valid short number, determines whether it is an SMS service
 			// (however, nothing is implied about its validity). An SMS service is where
@@ -153,7 +153,7 @@ namespace i18n {
 			// its validity must first be checked using IsValidShortNumber or
 			// IsValidShortNumberForRegion. Returns false if the number doesn't match the
 			// region provided.
-			bool IsSmsServiceForRegion(const PhoneNumber& number, const string& region_dialing_from) const;
+			bool IsSmsServiceForRegion(const PhoneNumber& number, const string & region_dialing_from) const;
 		private:
 			const PhoneNumberUtil& phone_util_;
 			const scoped_ptr<const MatcherApi> matcher_api_;
@@ -167,10 +167,10 @@ namespace i18n {
 			scoped_ptr<set<string> >
 			regions_where_emergency_numbers_must_be_exact_;
 
-			const i18n::phonenumbers::PhoneMetadata* GetMetadataForRegion(const string& region_code) const;
+			const i18n::phonenumbers::PhoneMetadata* GetMetadataForRegion(const string & region_code) const;
 
 			bool RegionDialingFromMatchesNumber(const PhoneNumber& number,
-				const string& region_dialing_from) const;
+				const string & region_dialing_from) const;
 
 			// Helper method to get the region code for a given phone number, from a list
 			// of possible region codes. If the list contains more than one region, the
@@ -179,8 +179,8 @@ namespace i18n {
 				const list<string>& region_codes,
 				string* region_code) const;
 
-			bool MatchesEmergencyNumberHelper(const string& number,
-				const string& region_code,
+			bool MatchesEmergencyNumberHelper(const string & number,
+				const string & region_code,
 				bool allow_prefix_match) const;
 
 			DISALLOW_COPY_AND_ASSIGN(ShortNumberInfo);

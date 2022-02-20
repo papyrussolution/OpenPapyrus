@@ -67,7 +67,7 @@ template <typename EnumType> bool ParseNamedEnum(const EnumDescriptor* descripto
 // Just a wrapper around printing the name of a value. The main point of this
 // function is not to be inlined, so that you can do this without including
 // descriptor.h.
-PROTOBUF_EXPORT const std::string& NameOfEnum(const EnumDescriptor* descriptor, int value);
+PROTOBUF_EXPORT const std::string & NameOfEnum(const EnumDescriptor* descriptor, int value);
 }  // namespace internal
 }  // namespace protobuf
 }  // namespace google

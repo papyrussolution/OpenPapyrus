@@ -21,7 +21,6 @@
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "multiandpostlist.h"
-#include "debuglog.h"
 
 using namespace std;
 
@@ -86,7 +85,7 @@ Xapian::doccount MultiAndPostList::get_termfreq_max() const
 Xapian::doccount MultiAndPostList::get_termfreq_est() const
 {
 	LOGCALL(MATCH, Xapian::doccount, "MultiAndPostList::get_termfreq_est", NO_ARGS);
-	if(rare(db_size == 0))
+	if(UNLIKELY(db_size == 0))
 		RETURN(0);
 	// We calculate the estimate assuming independence.  With this assumption,
 	// the estimate is the product of the estimates for the sub-postlists
@@ -119,7 +118,7 @@ TermFreqs MultiAndPostList::get_termfreq_est_using_stats(const Xapian::Weight::I
 		// If the collection is empty, freqest should be 0 already, so leave
 		// it alone.
 		freqest = (freqest * freqs.termfreq) / stats.collection_size;
-		if(usual(stats.total_length != 0)) {
+		if(LIKELY(stats.total_length != 0)) {
 			collfreqest = (collfreqest * freqs.collfreq) / stats.total_length;
 		}
 

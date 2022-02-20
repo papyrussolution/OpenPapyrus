@@ -22,16 +22,12 @@
 #pragma hdrstop
 #include "glass_alldocspostlist.h"
 #include "glass_database.h"
-#include "debuglog.h"
-#include "str.h"
 
 using namespace std;
 using Xapian::Internal::intrusive_ptr;
 
-GlassAllDocsPostList::GlassAllDocsPostList(intrusive_ptr<const GlassDatabase> db_,
-    Xapian::doccount doccount_)
-	: GlassPostList(db_, string(), true),
-	doccount(doccount_)
+GlassAllDocsPostList::GlassAllDocsPostList(intrusive_ptr<const GlassDatabase> db_, Xapian::doccount doccount_) : 
+	GlassPostList(db_, string(), true), doccount(doccount_)
 {
 	LOGCALL_CTOR(DB, "GlassAllDocsPostList", db_.get() | doccount_);
 }

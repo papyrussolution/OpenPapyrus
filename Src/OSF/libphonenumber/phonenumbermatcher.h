@@ -58,14 +58,14 @@ namespace i18n {
 
 			// Constructs a phone number matcher.
 			PhoneNumberMatcher(const PhoneNumberUtil& util,
-				const string& text,
-				const string& region_code,
+				const string & text,
+				const string & region_code,
 				Leniency leniency,
 				int max_tries);
 
 			// Wrapper to construct a phone number matcher, with no limitation on the
 			// number of retries and VALID Leniency.
-			PhoneNumberMatcher(const string& text, const string& region_code);
+			PhoneNumberMatcher(const string & text, const string & region_code);
 			~PhoneNumberMatcher();
 			// Returns true if the text sequence has another match.
 			bool HasNext();
@@ -92,24 +92,24 @@ namespace i18n {
 
 			// Attempts to extract a match from candidate. Returns true if the match was
 			// found, otherwise returns false.
-			bool ExtractMatch(const string& candidate, int offset,
+			bool ExtractMatch(const string & candidate, int offset,
 				PhoneNumberMatch* match);
 
 			// Attempts to extract a match from a candidate string if the whole candidate
 			// does not qualify as a match. Returns true if a match is found, otherwise
 			// returns false.
-			bool ExtractInnerMatch(const string& candidate, int offset,
+			bool ExtractInnerMatch(const string & candidate, int offset,
 				PhoneNumberMatch* match);
 
 			// Parses a phone number from the candidate using PhoneNumberUtil::Parse() and
 			// verifies it matches the requested leniency. If parsing and verification
 			// succeed, returns true, otherwise this method returns false;
-			bool ParseAndVerify(const string& candidate, int offset,
+			bool ParseAndVerify(const string & candidate, int offset,
 				PhoneNumberMatch* match);
 			bool CheckNumberGroupingIsValid(const PhoneNumber& phone_number,
-				const string& candidate,
+				const string & candidate,
 				ResultCallback4<bool, const PhoneNumberUtil&, const PhoneNumber&,
-				const string&, const vector<string>&>* checker) const;
+				const string &, const vector<string>&>* checker) const;
 			// Helper method to get the national-number part of a number, formatted
 			// without any national prefix, and return it as a set of digit blocks that
 			// would be formatted together following standard formatting rules.
@@ -118,10 +118,10 @@ namespace i18n {
 			// without any national prefix, and return it as a set of digit blocks that
 			// should be formatted together according to the formatting pattern passed in.
 			void GetNationalNumberGroupsForPattern(const PhoneNumber& number, const NumberFormat* formatting_pattern, vector<string>* digit_blocks) const;
-			bool AllNumberGroupsAreExactlyPresent(const PhoneNumberUtil& util, const PhoneNumber& phone_number, const string& normalized_candidate, const vector<string>& formatted_number_groups) const;
-			bool VerifyAccordingToLeniency(Leniency leniency, const PhoneNumber& number, const string& candidate) const;
+			bool AllNumberGroupsAreExactlyPresent(const PhoneNumberUtil& util, const PhoneNumber& phone_number, const string & normalized_candidate, const vector<string>& formatted_number_groups) const;
+			bool VerifyAccordingToLeniency(Leniency leniency, const PhoneNumber& number, const string & candidate) const;
 			// In interface for testing purposes.
-			static bool ContainsMoreThanOneSlashInNationalNumber(const PhoneNumber& number, const string& candidate, const PhoneNumberUtil& util);
+			static bool ContainsMoreThanOneSlashInNationalNumber(const PhoneNumber& number, const string & candidate, const PhoneNumberUtil& util);
 			// Helper method to determine if a character is a Latin-script letter or not.
 			// For our purposes, combining marks should also return true since we assume
 			// they have been added to a preceding Latin character.

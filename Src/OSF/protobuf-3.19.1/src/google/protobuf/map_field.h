@@ -135,7 +135,7 @@ public:
 		return val_.bool_value_;
 	}
 
-	const std::string& GetStringValue() const {
+	const std::string & GetStringValue() const {
 		TYPE_CHECK(FieldDescriptor::CPPTYPE_STRING, "MapKey::GetStringValue");
 		return val_.string_value_.get();
 	}
@@ -747,7 +747,7 @@ public:
 		return *reinterpret_cast<int*>(data_);
 	}
 
-	const std::string& GetStringValue() const {
+	const std::string & GetStringValue() const {
 		TYPE_CHECK(FieldDescriptor::CPPTYPE_STRING,
 		    "MapValueConstRef::GetStringValue");
 		return *reinterpret_cast<std::string*>(data_);
@@ -851,7 +851,7 @@ public:
 		*reinterpret_cast<int*>(data_) = value;
 	}
 
-	void SetStringValue(const std::string& value) {
+	void SetStringValue(const std::string & value) {
 		TYPE_CHECK(FieldDescriptor::CPPTYPE_STRING, "MapValueRef::SetStringValue");
 		*reinterpret_cast<std::string*>(data_) = value;
 	}

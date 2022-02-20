@@ -265,7 +265,7 @@ static CordRep* NewSubstring(CordRep* child, size_t offset, size_t length) {
 // and not wasteful, we move the string into an external cord rep, preserving
 // the already allocated string contents.
 // Requires the provided string length to be larger than `kMaxInline`.
-static CordRep* CordRepFromString(std::string&& src) {
+static CordRep* CordRepFromString(std::string && src) {
 	assert(src.length() > cord_internal::kMaxInline);
 	if(
 		// String is short: copy data to avoid external block overhead.
@@ -518,7 +518,7 @@ Cord::Cord(T&& src) : contents_(InlineData::kDefaultInit) {
 	}
 }
 
-template Cord::Cord(std::string&& src);
+template Cord::Cord(std::string && src);
 
 // The destruction code is separate so that the compiler can determine
 // that it does not need to call the destructor on a moved-from Cord.
@@ -537,7 +537,7 @@ void Cord::Clear() {
 	}
 }
 
-Cord& Cord::AssignLargeString(std::string&& src) {
+Cord& Cord::AssignLargeString(std::string && src) {
 	auto constexpr method = CordzUpdateTracker::kAssignString;
 	assert(src.size() > kMaxBytesToCopy);
 	CordRep* rep = CordRepFromString(std::move(src));
@@ -732,7 +732,7 @@ void Cord::Append(T&& src) {
 	}
 }
 
-template void Cord::Append(std::string&& src);
+template void Cord::Append(std::string && src);
 
 void Cord::Prepend(const Cord& src) {
 	CordRep* src_tree = src.contents_.tree();
@@ -777,7 +777,7 @@ inline void Cord::Prepend(T&& src) {
 	}
 }
 
-template void Cord::Prepend(std::string&& src);
+template void Cord::Prepend(std::string && src);
 
 static CordRep* RemovePrefixFrom(CordRep* node, size_t n) {
 	if(n >= node->length) return nullptr;

@@ -1011,7 +1011,7 @@ public:
 	explicit GoodsListDialog(int disableAutoFill) : TDialog(DLG_GDSLST)
 	{
 		P_List = static_cast<SmartListBox *>(getCtrlView(CTL_GDSLST_LIST));
-		setCtrlOption(CTL_GDSLST_LIST, ofFramed, 1);
+		// @v11.3.2 @obsolete setCtrlOption(CTL_GDSLST_LIST, ofFramed, 1);
 		showCtrl(CTL_GDSLST_AFBUTTON, !disableAutoFill);
 		SetupPPObjCombo(this, CTLSEL_GDSLST_GGRP, PPOBJ_GOODSGROUP, 0, OLW_LOADDEFONOPEN, 0);
 		updateList();

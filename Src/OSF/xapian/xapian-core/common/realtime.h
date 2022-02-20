@@ -30,10 +30,10 @@
 #include <ctime>
 
 #ifndef __WIN32__
-# ifdef HAVE_FTIME
+#ifdef HAVE_FTIME
 #include <sys/timeb.h>
 #endif
-# ifdef HAVE_GETTIMEOFDAY
+#ifdef HAVE_GETTIMEOFDAY
 #include <sys/time.h>
 #endif
 #include "safesysselect.h"
@@ -58,13 +58,13 @@ inline double now() {
     // Modern mingw provides clock_gettime().  For older mingw and MSVC we fall
     // back to _ftime64().
     struct timespec ts;
-    if (usual(clock_gettime(CLOCK_REALTIME, &ts) == 0))
+    if (LIKELY(clock_gettime(CLOCK_REALTIME, &ts) == 0))
 	return ts.tv_sec + (ts.tv_nsec * 1e-9);
     return double(std::time(NULL));
 #elif !defined __WIN32__
 #if defined HAVE_GETTIMEOFDAY
     struct timeval tv;
-    if (usual(gettimeofday(&tv, NULL) == 0))
+    if (LIKELY(gettimeofday(&tv, NULL) == 0))
 	return tv.tv_sec + (tv.tv_usec * 1e-6);
     return double(std::time(NULL));
 # elif defined HAVE_FTIME
@@ -72,7 +72,7 @@ inline double now() {
 #  ifdef FTIME_RETURNS_VOID
     ftime(&tp);
 #  else
-    if (rare(ftime(&tp) != 0))
+    if (UNLIKELY(ftime(&tp) != 0))
 	return double(std::time(NULL));
 #  endif
     return tp.time + (tp.millitm * 1e-3);
@@ -147,7 +147,7 @@ inline void sleep(double t) {
     double delta = t - RealTime::now();
     if (delta <= 0.0)
 	return;
-    while (rare(delta > 4294967.0)) {
+    while (UNLIKELY(delta > 4294967.0)) {
 	xapian_sleep_milliseconds(4294967000u);
 	delta -= 4294967.0;
     }

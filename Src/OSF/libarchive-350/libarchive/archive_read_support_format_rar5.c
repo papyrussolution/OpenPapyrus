@@ -10,17 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE AUTHOR(S) BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "archive_platform.h"
 #pragma hdrstop
@@ -886,28 +875,23 @@ static int read_var(struct archive_read* a, uint64* pvalue,
 	return 1;
 }
 
-static int read_var_sized(struct archive_read* a, size_t* pvalue,
-    size_t* pvalue_len)
+static int read_var_sized(struct archive_read* a, size_t* pvalue, size_t* pvalue_len)
 {
 	uint64 v;
 	uint64 v_size = 0;
-
-	const int ret = pvalue_len ? read_var(a, &v, &v_size)
-	    : read_var(a, &v, NULL);
-
+	const int ret = pvalue_len ? read_var(a, &v, &v_size) : read_var(a, &v, NULL);
 	if(ret == 1 && pvalue) {
 		*pvalue = (size_t)v;
 	}
-
 	if(pvalue_len) {
 		/* Possible data truncation should be safe. */
 		*pvalue_len = (size_t)v_size;
 	}
-
 	return ret;
 }
 
-static int read_bits_32(struct rar5* rar, const uint8 * p, uint32* value) {
+static int read_bits_32(struct rar5* rar, const uint8 * p, uint32* value) 
+{
 	uint32 bits = ((uint32)p[rar->bits.in_addr]) << 24;
 	bits |= p[rar->bits.in_addr + 1] << 16;
 	bits |= p[rar->bits.in_addr + 2] << 8;

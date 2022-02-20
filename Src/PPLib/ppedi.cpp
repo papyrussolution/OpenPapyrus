@@ -2569,7 +2569,7 @@ int PPEdiProcessor::ProviderImplementation::GetLocGLN(PPID locID, SString & rGLN
 	rGLN.Z();
 	if(locID) {
 		RegisterTbl::Rec reg_rec;
-		if(PsnObj.LocObj.GetRegister(locID, PPREGT_GLN, ZERODATE, 1, &reg_rec) > 0) {
+		if(PsnObj.LocObj.GetRegister(locID, PPREGT_GLN, ZERODATE, true, &reg_rec) > 0) {
 			rGLN = reg_rec.Num;
 		}
 	}

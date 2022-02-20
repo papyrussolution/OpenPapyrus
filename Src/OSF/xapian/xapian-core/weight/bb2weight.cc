@@ -64,16 +64,16 @@ void BB2Weight::init(double factor)
 
 	// Clamp wdfn to at most (F - 1) to avoid ill-defined log calculations in
 	// stirling_value().
-	if(rare(wdfn_lower >= F - 1))
+	if(UNLIKELY(wdfn_lower >= F - 1))
 		wdfn_upper = F - 1;
-	if(rare(wdfn_upper >= F - 1))
+	if(UNLIKELY(wdfn_upper >= F - 1))
 		wdfn_upper = F - 1;
 
 	B_constant = get_wqf() * factor * (F + 1.0) / get_termfreq();
 
 	// Clamp N to at least 2 to avoid ill-defined log calculations in
 	// stirling_value().
-	double N = rare(get_collection_size() <= 2) ? 2.0 : double(get_collection_size());
+	double N = UNLIKELY(get_collection_size() <= 2) ? 2.0 : double(get_collection_size());
 
 	wt = -1.0 / log(2.0) - log2(N - 1.0);
 	stirling_constant_1 = log2(N + F - 1.0);
@@ -92,7 +92,7 @@ void BB2Weight::init(double factor)
 
 	double B_max = B_constant / (wdfn_lower + 1.0);
 	upper_bound = B_max * (wt + stirling_max);
-	if(rare(upper_bound < 0.0))
+	if(UNLIKELY(upper_bound < 0.0))
 		upper_bound = 0.0;
 }
 
@@ -116,7 +116,7 @@ BB2Weight * BB2Weight::unserialise(const string & s) const
 	const char * ptr = s.data();
 	const char * end = ptr + s.size();
 	double c = unserialise_double(&ptr, end);
-	if(rare(ptr != end))
+	if(UNLIKELY(ptr != end))
 		throw Xapian::SerialisationError("Extra data in BB2Weight::unserialise()");
 	return new BB2Weight(c);
 }
@@ -132,13 +132,13 @@ double BB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
 
 	// Clamp wdfn to at most (F - 1) to avoid ill-defined log calculations in
 	// stirling_value().
-	if(rare(wdfn >= F - 1))
+	if(UNLIKELY(wdfn >= F - 1))
 		wdfn = F - 1;
 
 	// Clamp N to at least 2 to avoid ill-defined log calculations in
 	// stirling_value().
 	Xapian::doccount N = get_collection_size();
-	Xapian::doccount N_less_2 = rare(N <= 2) ? 0 : N - 2;
+	Xapian::doccount N_less_2 = UNLIKELY(N <= 2) ? 0 : N - 2;
 
 	double y2 = F - wdfn;
 	double y1 = N_less_2 + y2;
@@ -147,7 +147,7 @@ double BB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
 
 	double B = B_constant / (wdfn + 1.0);
 	double final_weight = B * (wt + stirling);
-	if(rare(final_weight < 0.0))
+	if(UNLIKELY(final_weight < 0.0))
 		final_weight = 0.0;
 	return final_weight;
 }

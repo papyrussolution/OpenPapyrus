@@ -68,7 +68,6 @@ void CRandomGenerator::Init()
 		DWORD tickCount = ::GetTickCount();
 		HASH_UPD(tickCount);
     #endif
-
 		for(uint j = 0; j < 100; j++) {
 			Sha256_Final(&hash, _buff);
 			Sha256_Init(&hash);
@@ -89,12 +88,10 @@ static NWindows::NSynchronization::CCriticalSection g_CriticalSection;
 void CRandomGenerator::Generate(Byte * data, uint size)
 {
 	MT_LOCK
-
 	if(_needInit)
 		Init();
 	while(size != 0) {
 		CSha256 hash;
-
 		Sha256_Init(&hash);
 		Sha256_Update(&hash, _buff, SHA256_DIGEST_SIZE);
 		Sha256_Final(&hash, _buff);

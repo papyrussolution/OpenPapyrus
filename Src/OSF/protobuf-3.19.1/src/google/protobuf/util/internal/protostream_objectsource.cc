@@ -676,7 +676,7 @@ void ProtoStreamObjectSource::DeleteRendererMap() {
 }
 
 // static
-ProtoStreamObjectSource::TypeRenderer* ProtoStreamObjectSource::FindTypeRenderer(const std::string& type_url) {
+ProtoStreamObjectSource::TypeRenderer* ProtoStreamObjectSource::FindTypeRenderer(const std::string & type_url) {
 	PROTOBUF_NAMESPACE_ID::internal::call_once(source_renderers_init_,
 	    InitRendererMap);
 	return FindOrNull(*renderers_, type_url);

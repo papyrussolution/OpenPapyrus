@@ -23,17 +23,10 @@
 
 #include "internaltypes.h"
 
-/// Glass table extension.
-#define GLASS_TABLE_EXTENSION "glass"
-
-/// Default B-tree block size.
-#define GLASS_DEFAULT_BLOCKSIZE 8192
-
-/// Minimum B-tree block size.
-#define GLASS_MIN_BLOCKSIZE 2048
-
-/// Maximum B-tree block size.
-#define GLASS_MAX_BLOCKSIZE 65536
+#define GLASS_TABLE_EXTENSION "glass" /// Glass table extension.
+#define GLASS_DEFAULT_BLOCKSIZE 8192 /// Default B-tree block size.
+#define GLASS_MIN_BLOCKSIZE 2048 /// Minimum B-tree block size.
+#define GLASS_MAX_BLOCKSIZE 65536 /// Maximum B-tree block size.
 
 /** The largest docid value supported by glass.
  *
@@ -54,13 +47,8 @@ namespace Glass {
     };
 }
 
-/// A block number in a glass Btree file.
-typedef uint4 glass_block_t;
-
-/// The revision number of a glass database.
-typedef uint4 glass_revision_number_t;
-
-/// How many entries there are in a table.
-typedef unsigned long long glass_tablesize_t;
+typedef uint4 glass_block_t; /// A block number in a glass Btree file.
+typedef uint4 glass_revision_number_t; /// The revision number of a glass database.
+typedef unsigned long long glass_tablesize_t; /// How many entries there are in a table.
 
 #endif // XAPIAN_INCLUDED_GLASS_DEFS_H

@@ -83,7 +83,7 @@ inline int open(const char *filename, int flags) {
 #endif
 
 #ifndef O_CLOEXEC
-# ifdef O_NOINHERIT
+#ifdef O_NOINHERIT
 #  define O_CLOEXEC O_NOINHERIT
 # else
 // If O_CLOEXEC isn't supported, we probably can't mark fds as close-on-exec.

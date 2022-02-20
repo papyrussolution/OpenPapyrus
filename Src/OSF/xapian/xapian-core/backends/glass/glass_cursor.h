@@ -24,14 +24,14 @@
 #define XAPIAN_INCLUDED_GLASS_CURSOR_H
 
 #include "glass_defs.h"
-
 #include "alignment_cast.h"
-#include "omassert.h"
+//#include "omassert.h"
+//#include <algorithm>
+//#include <cstring>
+//#include <string>
 
-#include <algorithm>
-#include <cstring>
-#include <string>
 using std::string;
+class GlassTable;
 
 #define BLK_UNUSED uint4(-1)
 
@@ -40,20 +40,17 @@ class Cursor {
 	// Prevent copying
 	Cursor(const Cursor &);
 	Cursor & operator=(const Cursor &);
-
-	/// Pointer to reference counted data.
-	char * data;
-
+	char * data; /// Pointer to reference counted data.
 public:
-	/// Constructor.
-	Cursor() : data(0), c(-1), rewrite(false) {
+	Cursor() : data(0), c(-1), rewrite(false) 
+	{
 	}
-
-	~Cursor() {
+	~Cursor() 
+	{
 		destroy();
 	}
-
-	uint8_t * init(unsigned block_size) {
+	uint8 * init(unsigned block_size) 
+	{
 		if(data && refs() > 1) {
 			--refs();
 			data = NULL;
@@ -64,25 +61,25 @@ public:
 		set_n(BLK_UNUSED);
 		rewrite = false;
 		c = -1;
-		return reinterpret_cast<uint8_t*>(data + 8);
+		return reinterpret_cast<uint8*>(data + 8);
 	}
-
-	const uint8_t * clone(const Cursor & o) {
+	const uint8 * clone(const Cursor & o) 
+	{
 		if(data != o.data) {
 			destroy();
 			data = o.data;
 			++refs();
 		}
-		return reinterpret_cast<uint8_t*>(data + 8);
+		return reinterpret_cast<uint8*>(data + 8);
 	}
-
-	void swap(Cursor & o) {
+	void swap(Cursor & o) 
+	{
 		std::swap(data, o.data);
 		std::swap(c, o.c);
 		std::swap(rewrite, o.rewrite);
 	}
-
-	void destroy() {
+	void destroy() 
+	{
 		if(data) {
 			if(--refs() == 0)
 				delete [] data;
@@ -90,38 +87,40 @@ public:
 			rewrite = false;
 		}
 	}
-
-	uint4 & refs() const {
+	uint4 & refs() const 
+	{
 		Assert(data);
 		return *alignment_cast<uint4*>(data);
 	}
-
 	/** Get the block number.
 	 *
 	 *  Returns BLK_UNUSED if no block is currently loaded.
 	 */
-	uint4 get_n() const {
+	uint4 get_n() const 
+	{
 		Assert(data);
 		return *alignment_cast<uint4*>(data + 4);
 	}
-
-	void set_n(uint4 n) {
+	void set_n(uint4 n) 
+	{
 		Assert(data);
 		// Assert(refs() == 1);
 		*alignment_cast<uint4*>(data + 4) = n;
 	}
-
 	/** Get pointer to block.
 	 *
 	 * Returns NULL if no block is currently loaded.
 	 */
-	const uint8_t * get_p() const {
-		if(rare(!data)) return NULL;
-		return reinterpret_cast<uint8_t*>(data + 8);
+	const uint8 * get_p() const 
+	{
+		if(UNLIKELY(!data)) 
+			return NULL;
+		return reinterpret_cast<uint8*>(data + 8);
 	}
-
-	uint8_t * get_modifiable_p(unsigned block_size) {
-		if(rare(!data)) return NULL;
+	uint8 * get_modifiable_p(unsigned block_size) 
+	{
+		if(UNLIKELY(!data)) 
+			return NULL;
 		if(refs() > 1) {
 			char * new_data = new char[block_size + 8];
 			memcpy(new_data, data, block_size + 8);
@@ -129,16 +128,13 @@ public:
 			data = new_data;
 			refs() = 1;
 		}
-		return reinterpret_cast<uint8_t*>(data + 8);
+		return reinterpret_cast<uint8*>(data + 8);
 	}
-	/// offset in the block's directory
-	int c;
-	/// true if the block is not the same as on disk, and so needs rewriting
-	bool rewrite;
+
+	int c; /// offset in the block's directory
+	bool rewrite; /// true if the block is not the same as on disk, and so needs rewriting
 };
 }
-
-class GlassTable;
 
 /** A cursor pointing to a position in a Btree table, for reading several
  *  entries in order, or finding approximate matches.
@@ -146,16 +142,13 @@ class GlassTable;
 class GlassCursor {
 	/// Copying not allowed
 	GlassCursor(const GlassCursor &);
-
 	/// Assignment not allowed
 	GlassCursor & operator=(const GlassCursor &);
-
 	/** Rebuild the cursor.
 	 *
 	 *  Called when the table has changed.
 	 */
 	void rebuild();
-
 protected:
 	/** Whether the cursor is positioned at a valid entry.
 	 *
@@ -163,28 +156,16 @@ protected:
 	 *  off either end of the list of items
 	 */
 	bool is_positioned;
-
-	/** Whether the cursor is off the end of the table.
-	 */
-	bool is_after_end;
-
+	bool is_after_end; /** Whether the cursor is off the end of the table. */
 private:
 	/** Status of the current_tag member. */
 	enum { UNREAD, UNREAD_ON_LAST_CHUNK, UNCOMPRESSED, COMPRESSED } tag_status;
-
 protected:
-	/// The Btree table
-	const GlassTable * B;
-
+	const GlassTable * B; /// The Btree table
 private:
-	/// Pointer to an array of Cursors
-	Glass::Cursor * C;
-
+	Glass::Cursor * C; /// Pointer to an array of Cursors
 	unsigned long version;
-
-	/** The value of level in the Btree structure. */
-	int level;
-
+	int level; /** The value of level in the Btree structure. */
 	/** Get the key.
 	 *
 	 *  The key of the item at the cursor is copied into key.
@@ -204,7 +185,6 @@ private:
 	 *    }
 	 */
 	void get_key(string * key) const;
-
 public:
 	/** Create a cursor attached to a Btree.
 	 *
@@ -225,30 +205,19 @@ public:
 	 *  Creates a new cursor, primed with the blocks in the first cursor.
 	 *  The new cursor is initially *unpositioned*.
 	 */
-	GlassCursor * clone() const {
-		return new GlassCursor(B, C);
-	}
-
+	GlassCursor * clone() const { return new GlassCursor(B, C); }
 	/** Destroy the GlassCursor */
 	~GlassCursor();
-
-	/** Current key pointed to by cursor.
-	 */
-	string current_key;
-
-	/** Current tag pointed to by cursor.  You must call read_tag to
-	 *  make this value available.
-	 */
-	string current_tag;
-
+	string current_key; /** Current key pointed to by cursor. */
+	string current_tag; /** Current tag pointed to by cursor.  You must call read_tag to make this value available. */
 	/** Position cursor on the dummy empty key.
 	 *
 	 *  Calling next() after this moves the cursor to the first entry.
 	 */
-	void rewind() {
+	void rewind() 
+	{
 		(void)find_entry_ge(string());
 	}
-
 	/** Read the tag from the table and store it in current_tag.
 	 *
 	 *  Some cursor users don't need the tag, so for efficiency we
@@ -262,7 +231,6 @@ public:
 	 *		false if keep_compressed was false).
 	 */
 	bool read_tag(bool keep_compressed = false);
-
 	/** Advance to the next key.
 	 *
 	 *  If cursor is unpositioned, the result is simply false.
@@ -359,9 +327,9 @@ public:
 	 *  attached to is destroyed.  It's safe to destroy the MutableGlassCursor
 	 *  after the Btree though, you just may not use the MutableGlassCursor.
 	 */
-	explicit MutableGlassCursor(GlassTable * B_) : GlassCursor(B_) {
+	explicit MutableGlassCursor(GlassTable * B_) : GlassCursor(B_) 
+	{
 	}
-
 	/** Delete the current key/tag pair, leaving the cursor on the next
 	 *  entry.
 	 *

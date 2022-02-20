@@ -23,17 +23,16 @@
 #define XAPIAN_INCLUDED_DIVERSIFY_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-#error Never use <xapian/diversify.h> directly; include <xapian.h> instead.
+	#error Never use <xapian/diversify.h> directly; include <xapian.h> instead.
 #endif
-
-#include <xapian/attributes.h>
-#include <xapian/cluster.h>
-#include <xapian/mset.h>
-#include <xapian/types.h>
-#include <xapian/visibility.h>
-#include <map>
-#include <unordered_map>
-#include <vector>
+//#include <xapian/attributes.h>
+//#include <xapian/cluster.h>
+//#include <xapian/mset.h>
+//#include <xapian/types.h>
+//#include <xapian/visibility.h>
+//#include <map>
+//#include <unordered_map>
+//#include <vector>
 
 namespace Xapian {
 /** Class for diversifying an MSet using GLS-MPT as given

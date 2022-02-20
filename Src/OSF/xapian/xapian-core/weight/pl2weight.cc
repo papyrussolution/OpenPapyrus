@@ -100,7 +100,7 @@ void PL2Weight::init(double factor_)
 	double P_max2b = (P1 - P2 * wdfn_optb) / (wdfn_optb + 1.0);
 	upper_bound = factor * (P_max2a + P_max2b);
 
-	if(rare(upper_bound <= 0)) upper_bound = 0;
+	if(UNLIKELY(upper_bound <= 0)) upper_bound = 0;
 }
 
 string PL2Weight::name() const
@@ -123,7 +123,7 @@ PL2Weight * PL2Weight::unserialise(const string & s) const
 	const char * ptr = s.data();
 	const char * end = ptr + s.size();
 	double c = unserialise_double(&ptr, end);
-	if(rare(ptr != end))
+	if(UNLIKELY(ptr != end))
 		throw Xapian::SerialisationError("Extra data in PL2Weight::unserialise()");
 	return new PL2Weight(c);
 }
@@ -133,7 +133,7 @@ double PL2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len, Xapi
 	if(wdf == 0) return 0.0;
 	double wdfn = wdf * log2(1 + cl / len);
 	double P = P1 + (wdfn + 0.5) * log2(wdfn) - P2 * wdfn;
-	if(rare(P <= 0)) return 0.0;
+	if(UNLIKELY(P <= 0)) return 0.0;
 	return factor * P / (wdfn + 1.0);
 }
 

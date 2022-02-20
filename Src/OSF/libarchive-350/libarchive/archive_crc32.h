@@ -10,18 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE AUTHOR(S) BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
  * $FreeBSD: head/lib/libarchive/archive_crc32.h 201102 2009-12-28 03:11:36Z kientzle $
  */
 
@@ -29,7 +17,7 @@
 #define ARCHIVE_CRC32_H
 
 #ifndef __LIBARCHIVE_BUILD
-#error This header is only to be used internally to libarchive.
+	#error This header is only to be used internally to libarchive.
 #endif
 
 /*
@@ -40,14 +28,12 @@
  * but still pretty fast: This runs about 300MB/s on my 3GHz P4
  * compared to about 800MB/s for the zlib implementation.
  */
-static unsigned long
-crc32(unsigned long crc, const void *_p, size_t len)
+static ulong crc32(ulong crc, const void *_p, size_t len)
 {
-	unsigned long crc2, b, i;
-	const uchar *p = _p;
+	ulong crc2, b, i;
+	const uchar * p = _p;
 	static volatile int crc_tbl_inited = 0;
-	static unsigned long crc_tbl[256];
-
+	static ulong crc_tbl[256];
 	if (!crc_tbl_inited) {
 		for (b = 0; b < 256; ++b) {
 			crc2 = b;
@@ -61,10 +47,8 @@ crc32(unsigned long crc, const void *_p, size_t len)
 		}
 		crc_tbl_inited = 1;
 	}
-
 	crc = crc ^ 0xffffffffUL;
-	/* A use of this loop is about 20% - 30% faster than
-	 * no use version in any optimization option of gcc.  */
+	// A use of this loop is about 20% - 30% faster than no use version in any optimization option of gcc.
 	for (;len >= 8; len -= 8) {
 		crc = crc_tbl[(crc ^ *p++) & 0xff] ^ (crc >> 8);
 		crc = crc_tbl[(crc ^ *p++) & 0xff] ^ (crc >> 8);

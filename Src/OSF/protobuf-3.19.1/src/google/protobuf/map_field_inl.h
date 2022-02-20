@@ -93,7 +93,7 @@ inline void SetMapKey<bool>(MapKey* map_key, const bool& value) {
 }
 
 template <>
-inline void SetMapKey<std::string>(MapKey* map_key, const std::string& value) {
+inline void SetMapKey<std::string>(MapKey* map_key, const std::string & value) {
 	map_key->SetStringValue(value);
 }
 

@@ -54,11 +54,7 @@
  *
  *  If this assertion fails, Xapian::AssertionError() will be thrown.
  */
-#define Assert(COND) \
-    do {\
-		if(rare(!(COND)))\
-			throw Xapian::AssertionError(XAPIAN_ASSERT_LOCATION(COND));\
-		} while (0)
+#define Assert(COND) do { if(UNLIKELY(!(COND))) throw Xapian::AssertionError(XAPIAN_ASSERT_LOCATION(COND)); } while (0)
 
 /** Assert that A REL B is non-zero.
  *
@@ -69,7 +65,7 @@
  */
 #define AssertRel(A,REL,B) \
     do {\
-		if(rare(!((A) REL (B)))) {\
+		if(UNLIKELY(!((A) REL (B)))) {\
 			std::string xapian_assertion_msg(XAPIAN_ASSERT_LOCATION(A REL B));\
 			xapian_assertion_msg += " : values were ";\
 			xapian_assertion_msg += str(A);\
@@ -99,7 +95,7 @@ namespace Xapian {
 #define AssertEqDouble(A,B) \
     do {\
 	using Xapian::Internal::within_DBL_EPSILON;\
-	if(rare(!within_DBL_EPSILON(A, B))) {\
+	if(UNLIKELY(!within_DBL_EPSILON(A, B))) {\
 	    std::string xapian_assertion_msg(XAPIAN_ASSERT_LOCATION(within_DBL_EPSILON(A, B)));\
 	    xapian_assertion_msg += " : values were ";\
 	    xapian_assertion_msg += str(A);\

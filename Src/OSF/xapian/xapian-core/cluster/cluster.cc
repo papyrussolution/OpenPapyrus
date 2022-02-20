@@ -55,7 +55,7 @@ void TermListGroup::add_document(const Document& document, const Stopper* stoppe
 	LOGCALL_VOID(API, "TermListGroup::add_document", document | stopper);
 	TermIterator titer(document.termlist_begin());
 	for(; titer != document.termlist_end(); ++titer) {
-		const string& term = *titer;
+		const string & term = *titer;
 		// Remove stopwords by using the Xapian::Stopper object
 		if(stopper && (*stopper)(term))
 			continue;
@@ -77,7 +77,7 @@ doccount TermListGroup::get_doccount() const
 	return num_of_documents;
 }
 
-doccount TermListGroup::get_termfreq(const string& tname) const
+doccount TermListGroup::get_termfreq(const string & tname) const
 {
 	LOGCALL(API, doccount, "TermListGroup::get_termfreq", tname);
 	unordered_map<string, doccount>::const_iterator it = termfreq.find(tname);
@@ -168,7 +168,7 @@ public:
 	termcount positionlist_count() const { throw UnimplementedError("PointTermIterator doesn't support positionlist_count()"); }
 	bool at_end() const;
 	PositionList* positionlist_begin() const { throw UnimplementedError("PointTermIterator doesn't support positionlist_begin()"); }
-	Internal* skip_to(const string&) { throw UnimplementedError("PointTermIterator doesn't support skip_to()"); }
+	Internal* skip_to(const string &) { throw UnimplementedError("PointTermIterator doesn't support skip_to()"); }
 };
 
 TermIterator::Internal* PointTermIterator::next()
@@ -194,13 +194,13 @@ TermIterator PointType::termlist_begin() const
 	return TermIterator(new PointTermIterator(weights));
 }
 
-bool PointType::contains(const string& term) const
+bool PointType::contains(const string & term) const
 {
 	LOGCALL(API, bool, "PointType::contains", term);
 	return weights.find(term) != weights.end();
 }
 
-double PointType::get_weight(const string& term) const
+double PointType::get_weight(const string & term) const
 {
 	LOGCALL(API, double, "PointType::get_weight", term);
 	unordered_map<string, double>::const_iterator it = weights.find(term);
@@ -212,7 +212,7 @@ double PointType::get_magnitude() const {
 	return magnitude;
 }
 
-void PointType::add_weight(const string& term, double weight)
+void PointType::add_weight(const string & term, double weight)
 {
 	LOGCALL_VOID(API, "PointType::add_weight", term | weight);
 	unordered_map<string, double>::iterator it;
@@ -223,7 +223,7 @@ void PointType::add_weight(const string& term, double weight)
 		weights[term] = weight;
 }
 
-void PointType::set_weight(const string& term, double weight)
+void PointType::set_weight(const string & term, double weight)
 {
 	LOGCALL_VOID(API, "PointType::set_weight", term | weight);
 	weights[term] = weight;
@@ -521,7 +521,7 @@ string StemStopper::get_description() const
 	return desc;
 }
 
-void StemStopper::add(const string& term)
+void StemStopper::add(const string & term)
 {
 	LOGCALL_VOID(API, "StemStopper::add", term);
 	switch(stem_action) {

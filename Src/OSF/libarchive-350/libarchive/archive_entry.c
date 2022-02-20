@@ -11,17 +11,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE AUTHOR(S) BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "archive_platform.h"
 #pragma hdrstop
@@ -89,9 +78,9 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry.c 201096 2009-12-28 02:41:
 		if(ns < 0) { --t; ns += 1000000000; } \
 	} while(0)
 
-static char *    ae_fflagstostr(unsigned long bitset, unsigned long bitclear);
-static const wchar_t    * ae_wcstofflags(const wchar_t * stringp, unsigned long * setp, unsigned long * clrp);
-static const char       * ae_strtofflags(const char * stringp, unsigned long * setp, unsigned long * clrp);
+static char *    ae_fflagstostr(ulong bitset, ulong bitclear);
+static const wchar_t    * ae_wcstofflags(const wchar_t * stringp, ulong * setp, ulong * clrp);
+static const char       * ae_strtofflags(const char * stringp, ulong * setp, ulong * clrp);
 
 #ifndef HAVE_WCSCPY
 static wchar_t * wcscpy(wchar_t * s1, const wchar_t * s2)
@@ -117,14 +106,11 @@ static size_t wcslen(const wchar_t * s)
 /* Good enough for simple equality testing, but not for sorting. */
 #define wmemcmp(a, b, i)  memcmp((a), (b), (i) * sizeof(wchar_t))
 #endif
-
-/****************************************************************************
-*
-* Public Interface
-*
-****************************************************************************/
-
-struct archive_entry * archive_entry_clear(struct archive_entry * entry)                        {
+// 
+// Public Interface
+// 
+struct archive_entry * archive_entry_clear(struct archive_entry * entry)                        
+{
 	if(entry == NULL)
 		return NULL;
 	archive_mstring_clean(&entry->ae_fflags_text);
@@ -174,13 +160,10 @@ struct archive_entry * archive_entry_clone(struct archive_entry * entry)
 
 	/* Copy symlink type */
 	entry2->ae_symlink_type = entry->ae_symlink_type;
-
 	/* Copy encryption status */
 	entry2->encryption = entry->encryption;
-
 	/* Copy digests */
-#define copy_digest(_e2, _e, _t) \
-	memcpy(_e2->digest._t, _e->digest._t, sizeof(_e2->digest._t))
+#define copy_digest(_e2, _e, _t) memcpy(_e2->digest._t, _e->digest._t, sizeof(_e2->digest._t))
 
 	copy_digest(entry2, entry, md5);
 	copy_digest(entry2, entry, rmd160);
@@ -201,8 +184,7 @@ struct archive_entry * archive_entry_clone(struct archive_entry * entry)
 	/* Copy xattr data over. */
 	xp = entry->xattr_head;
 	while(xp != NULL) {
-		archive_entry_xattr_add_entry(entry2,
-		    xp->name, xp->value, xp->size);
+		archive_entry_xattr_add_entry(entry2, xp->name, xp->value, xp->size);
 		xp = xp->next;
 	}
 
@@ -322,8 +304,7 @@ __LA_MODE_T archive_entry_filetype(struct archive_entry * entry)
 	return (AE_IFMT & entry->acl.mode);
 }
 
-void archive_entry_fflags(struct archive_entry * entry,
-    unsigned long * set, unsigned long * clear)
+void archive_entry_fflags(struct archive_entry * entry, ulong * set, ulong * clear)
 {
 	*set = entry->ae_fflags_set;
 	*clear = entry->ae_fflags_clear;
@@ -1539,8 +1520,8 @@ int _archive_entry_acl_text_l(struct archive_entry * entry, int flags,
 static const struct flag {
 	const char      * name;
 	const wchar_t   * wname;
-	unsigned long set;
-	unsigned long clear;
+	ulong set;
+	ulong clear;
 } fileflags[] = {
 	/* Preferred (shorter) names per flag first, all prefixed by "no" */
 #ifdef SF_APPEND
@@ -1707,15 +1688,13 @@ static const struct flag {
  *	Convert file flags to a comma-separated string.  If no flags
  *	are set, return the empty string.
  */
-static char * ae_fflagstostr(unsigned long bitset, unsigned long bitclear)
+static char * ae_fflagstostr(ulong bitset, ulong bitclear)
 {
 	char * string, * dp;
 	const char * sp;
-	unsigned long bits;
 	const struct flag * flag;
 	size_t length;
-
-	bits = bitset | bitclear;
+	ulong bits = bitset | bitclear;
 	length = 0;
 	for(flag = fileflags; flag->name != NULL; flag++)
 		if(bits & (flag->set | flag->clear)) {
@@ -1762,12 +1741,12 @@ static char * ae_fflagstostr(unsigned long bitset, unsigned long bitclear)
  *	This version is also const-correct and does not modify the
  *	provided string.
  */
-static const char * ae_strtofflags(const char * s, unsigned long * setp, unsigned long * clrp)
+static const char * ae_strtofflags(const char * s, ulong * setp, ulong * clrp)
 {
 	const char * start, * end;
 	const struct flag * flag;
-	unsigned long set = 0;
-	unsigned long clear = 0;
+	ulong set = 0;
+	ulong clear = 0;
 	const char * failed = 0;
 	start = s;
 	/* Find start of first token. */
@@ -1821,13 +1800,12 @@ static const char * ae_strtofflags(const char * s, unsigned long * setp, unsigne
  *	This version is also const-correct and does not modify the
  *	provided string.
  */
-static const wchar_t * ae_wcstofflags(const wchar_t * s, unsigned long * setp, unsigned long * clrp)
+static const wchar_t * ae_wcstofflags(const wchar_t * s, ulong * setp, ulong * clrp)
 {
 	const wchar_t * start, * end;
 	const struct flag * flag;
-	unsigned long set, clear;
+	ulong set, clear;
 	const wchar_t * failed;
-
 	set = clear = 0;
 	start = s;
 	failed = NULL;
@@ -1843,15 +1821,13 @@ static const wchar_t * ae_wcstofflags(const wchar_t * s, unsigned long * setp, u
 		length = end - start;
 		for(flag = fileflags; flag->wname != NULL; flag++) {
 			size_t flag_length = wcslen(flag->wname);
-			if(length == flag_length
-			    && wmemcmp(start, flag->wname, length) == 0) {
+			if(length == flag_length && wmemcmp(start, flag->wname, length) == 0) {
 				/* Matched "noXXXX", so reverse the sense. */
 				clear |= flag->set;
 				set |= flag->clear;
 				break;
 			}
-			else if(length == flag_length - 2
-			    && wmemcmp(start, flag->wname + 2, length) == 0) {
+			else if(length == flag_length - 2 && wmemcmp(start, flag->wname + 2, length) == 0) {
 				/* Matched "XXXX", so don't reverse. */
 				set |= flag->set;
 				clear |= flag->clear;
@@ -1861,18 +1837,13 @@ static const wchar_t * ae_wcstofflags(const wchar_t * s, unsigned long * setp, u
 		/* Ignore unknown flag names. */
 		if(flag->wname == NULL && failed == NULL)
 			failed = start;
-
 		/* Find start of next token. */
 		start = end;
 		while(*start == L'\t' || *start == L' ' || *start == L',')
 			start++;
 	}
-
-	if(setp)
-		*setp = set;
-	if(clrp)
-		*clrp = clear;
-
+	ASSIGN_PTR(setp, set);
+	ASSIGN_PTR(clrp, clear);
 	/* Return location of first failure. */
 	return (failed);
 }
@@ -1882,7 +1853,7 @@ static const wchar_t * ae_wcstofflags(const wchar_t * s, unsigned long * setp, u
 int main(int argc, char ** argv)
 {
 	struct archive_entry * entry = archive_entry_new();
-	unsigned long set, clear;
+	ulong set, clear;
 	const wchar_t * remainder;
 	remainder = archive_entry_copy_fflags_text_w(entry, L"nosappnd dump archive,,,,,,,");
 	archive_entry_fflags(entry, &set, &clear);

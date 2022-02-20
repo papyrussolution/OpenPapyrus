@@ -36,7 +36,7 @@ public:
 	}
 	void generate();
 	void parse(const char* in);
-	void parse(const std::string& in) 
+	void parse(const std::string & in) 
 	{
 		return parse(in.data());
 	}

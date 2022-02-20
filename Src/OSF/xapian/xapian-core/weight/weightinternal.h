@@ -198,7 +198,7 @@ public:
 	void get_max_termweight(double & min_tw, double & max_tw) {
 		auto i = termfreqs.begin();
 		while(i != termfreqs.end() && i->second.max_part == 0.0) ++i;
-		if(rare(i == termfreqs.end())) {
+		if(UNLIKELY(i == termfreqs.end())) {
 			min_tw = max_tw = 0.0;
 			return;
 		}
@@ -227,7 +227,7 @@ public:
 #ifdef XAPIAN_ASSERTIONS
 		finalised = true;
 #endif
-		if(rare(collection_size == 0)) return 0;
+		if(UNLIKELY(collection_size == 0)) return 0;
 		return Xapian::doclength(total_length) / collection_size;
 	}
 
@@ -244,7 +244,7 @@ public:
 		return true;
 	}
 
-	static bool param_name(const char** p, std::string& name) {
+	static bool param_name(const char** p, std::string & name) {
 		const char* q = *p;
 		while(*q != ' ') {
 			if(*q == '\0') break;

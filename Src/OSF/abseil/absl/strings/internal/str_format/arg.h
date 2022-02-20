@@ -104,7 +104,7 @@ using StringConvertResult =
 ArgConvertResult<FormatConversionCharSetInternal::p> FormatConvertImpl(VoidPtr v, FormatConversionSpecImpl conv, FormatSinkImpl* sink);
 
 // Strings.
-StringConvertResult FormatConvertImpl(const std::string& v,
+StringConvertResult FormatConvertImpl(const std::string & v,
     FormatConversionSpecImpl conv,
     FormatSinkImpl* sink);
 StringConvertResult FormatConvertImpl(string_view v,

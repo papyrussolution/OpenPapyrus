@@ -55,7 +55,7 @@ void LMWeight::init(double factor_)
 	 * of single term whole document is scored zero, hence apply collection
 	 * frequency smoothing.
 	 */
-	if(rare(total_length == 0)) {
+	if(UNLIKELY(total_length == 0)) {
 		AssertEq(collection_freq, 0);
 		weight_collection = 0;
 	}
@@ -137,7 +137,7 @@ LMWeight * LMWeight::unserialise(const string & s) const
 	type_smoothing select_smoothing_ = static_cast<type_smoothing>(*(ptr)++);
 	double param_smoothing1_ = unserialise_double(&ptr, end);
 	double param_smoothing2_ = unserialise_double(&ptr, end);
-	if(rare(ptr != end))
+	if(UNLIKELY(ptr != end))
 		throw Xapian::SerialisationError("Extra data in LMWeight::unserialise()");
 	return new LMWeight(param_log_, select_smoothing_, param_smoothing1_, param_smoothing2_);
 }

@@ -106,7 +106,7 @@ void DebugLogger::initialise_categories_mask()
 	LOGLINE(ALWAYS, PACKAGE_STRING ": debug log started");
 }
 
-void DebugLogger::log_line(debuglog_categories category, const string& msg)
+void DebugLogger::log_line(debuglog_categories category, const string & msg)
 {
 	if(fd < 0) return;
 

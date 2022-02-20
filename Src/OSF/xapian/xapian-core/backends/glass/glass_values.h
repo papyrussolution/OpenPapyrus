@@ -24,55 +24,25 @@
 
 #include "pack.h"
 #include "backends/valuestats.h"
-#include "xapian/error.h"
-#include "xapian/types.h"
+//#include "xapian/error.h"
+//#include "xapian/types.h"
 //#include <map>
 //#include <memory>
 //#include <string>
 
 class GlassCursor;
-
-namespace Glass {
-/** Generate a key for a value stream chunk. */
-inline std::string make_valuechunk_key(Xapian::valueno slot, Xapian::docid did)
-{
-	std::string key("\0\xd8", 2);
-	pack_uint(key, slot);
-	pack_uint_preserving_sort(key, did);
-	return key;
-}
-
-inline Xapian::docid docid_from_key(Xapian::valueno required_slot, const std::string & key)
-{
-	const char * p = key.data();
-	const char * end = p + key.length();
-	// Fail if not a value chunk key.
-	if(end - p < 2 || *p++ != '\0' || *p++ != '\xd8') return 0;
-	Xapian::valueno slot;
-	if(!unpack_uint(&p, end, &slot))
-		throw Xapian::DatabaseCorruptError("bad value key");
-	// Fail if for a different slot.
-	if(slot != required_slot) return 0;
-	Xapian::docid did;
-	if(!unpack_uint_preserving_sort(&p, end, &did))
-		throw Xapian::DatabaseCorruptError("bad value key");
-	return did;
-}
-}
+class GlassPostListTable;
+class GlassTermListTable;
+struct ValueStats;
 
 namespace Xapian {
 	class Document;
 }
 
-class GlassPostListTable;
-class GlassTermListTable;
-struct ValueStats;
-
 class GlassValueManager {
 	/** The value number for the most recently used value statistics.
 	 *
-	 *  Set to Xapian::BAD_VALUENO if no value statistics are currently
-	 *  cached.
+	 *  Set to Xapian::BAD_VALUENO if no value statistics are currently cached.
 	 */
 	mutable Xapian::valueno mru_slot;
 	/** The most recently used value statistics. */
@@ -140,27 +110,53 @@ public:
 };
 
 namespace Glass {
-class ValueChunkReader {
-	const char * p;
-	const char * end;
-	Xapian::docid did;
-	std::string value;
-public:
-	/// Create a ValueChunkReader which is already at_end().
-	ValueChunkReader() : p(NULL) 
+	/** Generate a key for a value stream chunk. */
+	inline std::string make_valuechunk_key(Xapian::valueno slot, Xapian::docid did)
 	{
+		std::string key("\0\xd8", 2);
+		pack_uint(key, slot);
+		pack_uint_preserving_sort(key, did);
+		return key;
 	}
-	ValueChunkReader(const char * p_, size_t len, Xapian::docid did_) 
+
+	inline Xapian::docid docid_from_key(Xapian::valueno required_slot, const std::string & key)
 	{
-		assign(p_, len, did_);
+		const char * p = key.data();
+		const char * end = p + key.length();
+		// Fail if not a value chunk key.
+		if(end - p < 2 || *p++ != '\0' || *p++ != '\xd8') return 0;
+		Xapian::valueno slot;
+		if(!unpack_uint(&p, end, &slot))
+			throw Xapian::DatabaseCorruptError("bad value key");
+		// Fail if for a different slot.
+		if(slot != required_slot) return 0;
+		Xapian::docid did;
+		if(!unpack_uint_preserving_sort(&p, end, &did))
+			throw Xapian::DatabaseCorruptError("bad value key");
+		return did;
 	}
-	void assign(const char * p_, size_t len, Xapian::docid did_);
-	bool at_end() const { return p == NULL; }
-	Xapian::docid get_docid() const { return did; }
-	const std::string & get_value() const { return value; }
-	void next();
-	void skip_to(Xapian::docid target);
-};
+
+	class ValueChunkReader {
+		const char * p;
+		const char * end;
+		Xapian::docid did;
+		std::string value;
+	public:
+		/// Create a ValueChunkReader which is already at_end().
+		ValueChunkReader() : p(NULL) 
+		{
+		}
+		ValueChunkReader(const char * p_, size_t len, Xapian::docid did_) 
+		{
+			assign(p_, len, did_);
+		}
+		void assign(const char * p_, size_t len, Xapian::docid did_);
+		bool at_end() const { return p == NULL; }
+		Xapian::docid get_docid() const { return did; }
+		const std::string & get_value() const { return value; }
+		void next();
+		void skip_to(Xapian::docid target);
+	};
 }
 
 #endif // XAPIAN_INCLUDED_GLASS_VALUES_H

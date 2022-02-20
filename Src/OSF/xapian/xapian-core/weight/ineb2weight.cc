@@ -102,7 +102,7 @@ IneB2Weight * IneB2Weight::unserialise(const string & s) const
 	const char * ptr = s.data();
 	const char * end = ptr + s.size();
 	double c = unserialise_double(&ptr, end);
-	if(rare(ptr != end))
+	if(UNLIKELY(ptr != end))
 		throw Xapian::SerialisationError("Extra data in IneB2Weight::unserialise()");
 	return new IneB2Weight(c);
 }

@@ -83,7 +83,7 @@ public:
 
 	// Returns the identifier used in the "syntax = " declaration, if one was
 	// seen during the last call to Parse(), or the empty string otherwise.
-	const std::string& GetSyntaxIdentifier() {
+	const std::string & GetSyntaxIdentifier() {
 		return syntax_identifier_;
 	}
 
@@ -191,15 +191,15 @@ private:
 	// Error logging helpers
 
 	// Invokes error_collector_->AddError(), if error_collector_ is not NULL.
-	void AddError(int line, int column, const std::string& error);
+	void AddError(int line, int column, const std::string & error);
 
 	// Invokes error_collector_->AddError() with the line and column number
 	// of the current token.
-	void AddError(const std::string& error);
+	void AddError(const std::string & error);
 
 	// Invokes error_collector_->AddWarning() with the line and column number
 	// of the current token.
-	void AddWarning(const std::string& warning);
+	void AddWarning(const std::string & warning);
 
 	// Records a location in the SourceCodeInfo.location table (see
 	// descriptor.proto).  We use RAII to ensure that the start and end locations
@@ -252,7 +252,7 @@ public:
 		void RecordLegacyLocation(const Message* descriptor,
 		    DescriptorPool::ErrorCollector::ErrorLocation location);
 		void RecordLegacyImportLocation(const Message* descriptor,
-		    const std::string& name);
+		    const std::string & name);
 
 		// Returns the number of path components in the recorder's current location.
 		int CurrentPathSize() const;
@@ -556,11 +556,11 @@ public:
 	// location" in the ErrorCollector interface).  Returns true if found, false
 	// otherwise.
 	bool Find(const Message* descriptor, DescriptorPool::ErrorCollector::ErrorLocation location, int* line, int* column) const;
-	bool FindImport(const Message* descriptor, const std::string& name, int* line, int* column) const;
+	bool FindImport(const Message* descriptor, const std::string & name, int* line, int* column) const;
 
 	// Adds a location to the table.
 	void Add(const Message* descriptor, DescriptorPool::ErrorCollector::ErrorLocation location, int line, int column);
-	void AddImport(const Message* descriptor, const std::string& name, int line, int column);
+	void AddImport(const Message* descriptor, const std::string & name, int line, int column);
 
 	// Clears the contents of the table.
 	void Clear();

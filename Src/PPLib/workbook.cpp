@@ -1652,6 +1652,7 @@ int PPObjWorkbook::RemoveAll()
 									if(_f.At(0, file_name) > 0) {
 										SFileFormat ff;
 										ff.Identify(file_name, &file_ext);
+										::SetActiveWindow(APPL->H_MainWnd); // @v11.3.2 Без этого вызова окно редактора открывалось как модальное
 										if(oneof6(ff, SFileFormat::Jpeg, SFileFormat::Png, SFileFormat::Tiff, SFileFormat::Gif, SFileFormat::Bmp, SFileFormat::Ico)) {
 											PPTooltipMessage(rec.Name, file_name, 0/*pBrw->hWnd*/, 5000, 0, SMessageWindow::fTextAlignLeft|
 												SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow|

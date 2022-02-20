@@ -222,7 +222,7 @@ public:
 		i = doclen_changes.find(did);
 		if(i == doclen_changes.end())
 			return false;
-		if(rare(i->second == DELETED_POSTING))
+		if(UNLIKELY(i->second == DELETED_POSTING))
 			throw Xapian::DocNotFoundError("Document not found: " + str(did));
 		doclen = i->second;
 		return true;

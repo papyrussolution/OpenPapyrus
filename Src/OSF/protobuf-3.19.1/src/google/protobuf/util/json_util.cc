@@ -80,7 +80,7 @@ void ZeroCopyStreamByteSink::Append(const char* bytes, size_t len)
 }
 }  // namespace internal
 
-util::Status BinaryToJsonStream(TypeResolver* resolver, const std::string& type_url, io::ZeroCopyInputStream* binary_input, 
+util::Status BinaryToJsonStream(TypeResolver* resolver, const std::string & type_url, io::ZeroCopyInputStream* binary_input, 
 	io::ZeroCopyOutputStream* json_output, const JsonPrintOptions& options) 
 {
 	io::CodedInputStream in_stream(binary_input);
@@ -103,7 +103,7 @@ util::Status BinaryToJsonStream(TypeResolver* resolver, const std::string& type_
 	}
 }
 
-util::Status BinaryToJsonString(TypeResolver* resolver, const std::string& type_url, const std::string& binary_input, std::string* json_output, const JsonPrintOptions& options) 
+util::Status BinaryToJsonString(TypeResolver* resolver, const std::string & type_url, const std::string & binary_input, std::string* json_output, const JsonPrintOptions& options) 
 {
 	io::ArrayInputStream input_stream(binary_input.data(), binary_input.size());
 	io::StringOutputStream output_stream(json_output);
@@ -152,7 +152,7 @@ private:
 }  // namespace
 
 util::Status JsonToBinaryStream(TypeResolver* resolver,
-    const std::string& type_url,
+    const std::string & type_url,
     io::ZeroCopyInputStream* json_input,
     io::ZeroCopyOutputStream* binary_output,
     const JsonParseOptions& options) {
@@ -183,7 +183,7 @@ util::Status JsonToBinaryStream(TypeResolver* resolver,
 }
 
 util::Status JsonToBinaryString(TypeResolver* resolver,
-    const std::string& type_url,
+    const std::string & type_url,
     StringPiece json_input,
     std::string* binary_output,
     const JsonParseOptions& options) {

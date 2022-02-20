@@ -1874,6 +1874,8 @@ int CrystalReportExport(const char * pReportPath, const char * pDir, const char 
 {
 	int    ok = 1;
 	bool   silent = false;
+	bool   do_export = true;
+	const char * p__dest_fn = 0;
 	SString path;
 	SString temp_buf;
 	PEExportOptions eo;
@@ -1888,26 +1890,33 @@ int CrystalReportExport(const char * pReportPath, const char * pDir, const char 
 	eo.destinationOptions = 0;
 	eo.formatOptions      = 0;
 	THROW(LoadExportOptions(pReportName, &eo, &silent, path));
-	if(silent || PEGetExportOptions(h_job, &eo)) {
-		// Похоже, в зависимости от версии Crystal Reports, наименование файла может либо "плоско" включено в eo.destinationOptions,
-		// либо - в виде "хвоста". 
-		// Оставляем пока вариант "в виде хвоста", но возможно придется как-то гибко адаптироваться.
-		//const char * p_dest_fn1 = reinterpret_cast<const char *>(PTR8C(eo.destinationOptions)+2); // @v10.7.6
-		const char * p_dest_fn = *(const char **)(PTR8C(eo.destinationOptions)+2); // @v11.3.1
+	// @v11.3.2 {
+	if(silent) {
+		const char * p_dest_fn_2 = *(const char **)(PTR8C(eo.destinationOptions)+2);
+		p__dest_fn = p_dest_fn_2;
+	}
+	else if(PEGetExportOptions(h_job, &eo)) {
+		const char * p_dest_fn_1 = reinterpret_cast<const char *>(PTR8C(eo.destinationOptions)+2);
+		p__dest_fn = p_dest_fn_1;
+	}
+	else
+		do_export = false;
+	// } @v11.3.2 
+	if(do_export) {
 		PEExportTo(h_job, &eo);
 		THROW(SetupReportLocations(h_job, pDir, 0));
 		if(options & SPRN_SKIPGRPS)
 			SetupGroupSkipping(h_job);
 		THROW_PP(PEStartPrintJob(h_job, TRUE), PPERR_CRYSTAL_REPORT);
-		if(/* @v10.7.6 silent &&*/pEMailAddr) {
-			if(fileExists(/*path*/p_dest_fn)) { // @v10.7.6 path-->p_dest_fn
+		if(!isempty(pEMailAddr)) {
+			if(fileExists(p__dest_fn)) {
 				//
 				// Отправка на определенный почтовый адрес
 				//
 				PPAlbatrossConfig alb_cfg;
 				if(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0) {
 					if(alb_cfg.Hdr.MailAccID) {
-						if(SendMailWithAttach(pReportName, /*path*/p_dest_fn, pReportName, pEMailAddr, alb_cfg.Hdr.MailAccID)) {
+						if(SendMailWithAttach(pReportName, /*path*/p__dest_fn, pReportName, pEMailAddr, alb_cfg.Hdr.MailAccID)) {
 							// Отправка отчета на электронную почту: success 
 							PPLoadString("reportsendmail", temp_buf);
 							temp_buf.CatDiv(':', 2).Cat("success").Space().Cat(pReportName).Space().Cat(pEMailAddr);
@@ -1936,7 +1945,7 @@ int CrystalReportExport(const char * pReportPath, const char * pDir, const char 
 			}
 			else {
 				// PPERR_REPORT_SENDMAIL_NOFILE Отправка отчета на электронную почту: результирующий файл '%s' не найден
-				PPSetError(PPERR_REPORT_SENDMAIL_NOFILE, p_dest_fn);
+				PPSetError(PPERR_REPORT_SENDMAIL_NOFILE, p__dest_fn);
 				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
 			}
 		}

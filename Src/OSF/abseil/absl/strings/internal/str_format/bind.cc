@@ -200,7 +200,7 @@ std::ostream& Streamable::Print(std::ostream& os) const {
 	return os;
 }
 
-std::string& AppendPack(std::string* out, const UntypedFormatSpecImpl format,
+std::string & AppendPack(std::string* out, const UntypedFormatSpecImpl format,
     absl::Span<const FormatArgImpl> args) {
 	size_t orig = out->size();
 	if(ABSL_PREDICT_FALSE(!FormatUntyped(out, format, args))) {

@@ -10,17 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE AUTHOR(S) BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "archive_platform.h"
 #pragma hdrstop
@@ -119,18 +108,12 @@ static void add_trivial_nfs4_acl(struct archive_entry * entry)
 	mode_t mode;
 	int i;
 	const int rperm = ARCHIVE_ENTRY_ACL_READ_DATA;
-	const int wperm = ARCHIVE_ENTRY_ACL_WRITE_DATA |
-	    ARCHIVE_ENTRY_ACL_APPEND_DATA;
+	const int wperm = ARCHIVE_ENTRY_ACL_WRITE_DATA | ARCHIVE_ENTRY_ACL_APPEND_DATA;
 	const int eperm = ARCHIVE_ENTRY_ACL_EXECUTE;
-	const int pubset = ARCHIVE_ENTRY_ACL_READ_ATTRIBUTES |
-	    ARCHIVE_ENTRY_ACL_READ_NAMED_ATTRS |
-	    ARCHIVE_ENTRY_ACL_READ_ACL |
-	    ARCHIVE_ENTRY_ACL_SYNCHRONIZE;
+	const int pubset = ARCHIVE_ENTRY_ACL_READ_ATTRIBUTES | ARCHIVE_ENTRY_ACL_READ_NAMED_ATTRS |
+	    ARCHIVE_ENTRY_ACL_READ_ACL | ARCHIVE_ENTRY_ACL_SYNCHRONIZE;
 	const int ownset = pubset | ARCHIVE_ENTRY_ACL_WRITE_ATTRIBUTES |
-	    ARCHIVE_ENTRY_ACL_WRITE_NAMED_ATTRS |
-	    ARCHIVE_ENTRY_ACL_WRITE_ACL |
-	    ARCHIVE_ENTRY_ACL_WRITE_OWNER;
-
+	    ARCHIVE_ENTRY_ACL_WRITE_NAMED_ATTRS | ARCHIVE_ENTRY_ACL_WRITE_ACL | ARCHIVE_ENTRY_ACL_WRITE_OWNER;
 	struct {
 		const int type;
 		const int tag;
@@ -202,8 +185,7 @@ static void add_trivial_nfs4_acl(struct archive_entry * entry)
 	return;
 }
 
-static int translate_acl(struct archive_read_disk * a,
-    struct archive_entry * entry, acl_t acl)
+static int translate_acl(struct archive_read_disk * a, struct archive_entry * entry, acl_t acl)
 {
 	acl_tag_t acl_tag;
 	acl_flagset_t acl_flagset;
@@ -465,15 +447,11 @@ exit_free:
 	return ret;
 }
 
-int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
-    struct archive_entry * entry, int * fd)
+int archive_read_disk_entry_setup_acls(struct archive_read_disk * a, struct archive_entry * entry, int * fd)
 {
-	const char      * accpath;
 	acl_t acl;
 	int r;
-
-	accpath = NULL;
-
+	const char * accpath = NULL;
 	if(*fd < 0) {
 		accpath = archive_read_disk_entry_setup_path(a, entry, fd);
 		if(accpath == NULL)
@@ -500,26 +478,20 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
 		 * the archive entry. Otherwise extraction on non-Mac platforms
 		 * would lead to an invalid file mode.
 		 */
-		if((archive_entry_acl_types(entry) &
-		    ARCHIVE_ENTRY_ACL_TYPE_NFS4) != 0)
+		if((archive_entry_acl_types(entry) & ARCHIVE_ENTRY_ACL_TYPE_NFS4) != 0)
 			add_trivial_nfs4_acl(entry);
-
 		return r;
 	}
 	return ARCHIVE_OK;
 }
 
-int archive_write_disk_set_acls(struct archive * a, int fd, const char * name,
-    struct archive_acl * abstract_acl, __LA_MODE_T mode)
+int archive_write_disk_set_acls(struct archive * a, int fd, const char * name, struct archive_acl * abstract_acl, __LA_MODE_T mode)
 {
 	int ret = ARCHIVE_OK;
-
 	CXX_UNUSED(mode);
-
 	if((archive_acl_types(abstract_acl) &
 	    ARCHIVE_ENTRY_ACL_TYPE_NFS4) != 0) {
-		ret = set_acl(a, fd, name, abstract_acl,
-			ARCHIVE_ENTRY_ACL_TYPE_NFS4, "nfs4");
+		ret = set_acl(a, fd, name, abstract_acl, ARCHIVE_ENTRY_ACL_TYPE_NFS4, "nfs4");
 	}
 	return ret;
 }

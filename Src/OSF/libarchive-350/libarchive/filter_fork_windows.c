@@ -10,17 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE AUTHOR(S) BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "archive_platform.h"
 #pragma hdrstop
@@ -74,8 +63,7 @@ int __archive_create_child(const char * cmd, int * child_stdin, int * child_stdo
 		if(archive_string_ensure(&fullpath, fl) == NULL)
 			goto fail;
 		fl_old = fl;
-		fl = SearchPathA(NULL, acmd->path, ext, fl, fullpath.s,
-			&arg0);
+		fl = SearchPathA(NULL, acmd->path, ext, fl, fullpath.s, &arg0);
 	} while(fl != 0 && fl > fl_old);
 	if(fl == 0)
 		goto fail;
@@ -93,9 +81,7 @@ int __archive_create_child(const char * cmd, int * child_stdin, int * child_stdo
 	for(i = 0; acmd->argv[i] != NULL; i++) {
 		if(i == 0) {
 			const char * p, * sp;
-
-			if((p = strchr(acmd->argv[i], '/')) != NULL ||
-			    (p = strchr(acmd->argv[i], '\\')) != NULL)
+			if((p = strchr(acmd->argv[i], '/')) != NULL || (p = strchr(acmd->argv[i], '\\')) != NULL)
 				p++;
 			else
 				p = acmd->argv[i];
@@ -112,7 +98,6 @@ int __archive_create_child(const char * cmd, int * child_stdin, int * child_stdo
 	}
 	if(i <= 1) {
 		const char * sp;
-
 		if((sp = strchr(arg0, ' ')) != NULL)
 			archive_strappend_char(&cmdline, '"');
 		archive_strcat(&cmdline, arg0);
@@ -160,7 +145,6 @@ int __archive_create_child(const char * cmd, int * child_stdin, int * child_stdo
 	archive_string_free(&fullpath);
 	__archive_cmdline_free(acmd);
 	return ARCHIVE_OK;
-
 fail:
 	if(childStdout[0] != INVALID_HANDLE_VALUE)
 		CloseHandle(childStdout[0]);

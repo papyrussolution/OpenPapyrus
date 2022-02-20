@@ -166,10 +166,10 @@ class PostListTree {
 
 	while (true) {
 	    PostList* result = pl->next(w_min);
-	    if (rare(result)) {
+	    if (UNLIKELY(result)) {
 		delete pl;
 		shard_pls[current_shard] = pl = result;
-		if (usual(!pl->at_end())) {
+		if (LIKELY(!pl->at_end())) {
 		    if (w_min > 0.0) {
 			use_cached_max_weight = false;
 			if (recalc_maxweight() < w_min) {
@@ -180,7 +180,7 @@ class PostListTree {
 		    return true;
 		}
 	    } else {
-		if (usual(!pl->at_end())) {
+		if (LIKELY(!pl->at_end())) {
 		    return true;
 		}
 	    }

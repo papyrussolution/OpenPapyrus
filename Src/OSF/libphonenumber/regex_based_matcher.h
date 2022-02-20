@@ -32,9 +32,9 @@ namespace i18n {
 		public:
 			RegexBasedMatcher();
 			~RegexBasedMatcher();
-			bool MatchNationalNumber(const string& number, const PhoneNumberDesc& number_desc, bool allow_prefix_match) const;
+			bool MatchNationalNumber(const string & number, const PhoneNumberDesc& number_desc, bool allow_prefix_match) const;
 		private:
-			bool Match(const string& number, const string& number_pattern, bool allow_prefix_match) const;
+			bool Match(const string & number, const string & number_pattern, bool allow_prefix_match) const;
 			const scoped_ptr<const AbstractRegExpFactory> regexp_factory_;
 			const scoped_ptr<RegExpCache> regexp_cache_;
 			DISALLOW_COPY_AND_ASSIGN(RegexBasedMatcher);

@@ -52,7 +52,7 @@ public:
 		bool operator!=(const const_iterator& o) { return !(*this == o); }
 	};
 
-	Resolver(const std::string& host, int port, int flags = 0) {
+	Resolver(const std::string & host, int port, int flags = 0) {
 		// RFC 3493 has an extra sentence in its definition of
 		// AI_ADDRCONFIG which POSIX doesn't:
 		//

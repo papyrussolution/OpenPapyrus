@@ -173,7 +173,7 @@ static inline uchar numfromstr(const std::string & str, std::string::size_type p
 	return (pos < str.size()) ? static_cast<uchar>(str[pos]) : '\0';
 }
 
-double Xapian::sortable_unserialise(const std::string& value) noexcept
+double Xapian::sortable_unserialise(const std::string & value) noexcept
 {
 	// Zero.
 	if(value.size() == 1 && value[0] == '\x80') return 0.0;

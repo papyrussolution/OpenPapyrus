@@ -105,7 +105,7 @@ public:
 	 *			KeyMaker subclasses with sub-KeyMaker objects to be
 	 *			implemented.
 	 */
-	virtual KeyMaker* unserialise(const std::string& serialised,
+	virtual KeyMaker* unserialise(const std::string & serialised,
 	    const Registry& context) const;
 
 	/** Start reference counting this object.
@@ -197,7 +197,7 @@ public:
 
 	std::string serialise() const;
 
-	KeyMaker* unserialise(const std::string& serialised,
+	KeyMaker* unserialise(const std::string & serialised,
 	    const Registry& context) const;
 };
 }

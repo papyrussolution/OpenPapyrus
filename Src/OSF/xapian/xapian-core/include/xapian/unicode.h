@@ -79,7 +79,7 @@ public:
 	 *  @param s The string to read.  Must not be modified while the iteration
 	 *		 is in progress.
 	 */
-	void assign(const std::string& s) {
+	void assign(const std::string & s) {
 		assign(s.data(), s.size());
 	}
 
@@ -116,7 +116,7 @@ public:
 	 *  @param s The string to read.  Must not be modified while the iteration
 	 *		 is in progress.
 	 */
-	Utf8Iterator(const std::string& s) {
+	Utf8Iterator(const std::string & s) {
 		assign(s.data(), s.size());
 	}
 
@@ -329,7 +329,7 @@ inline unsigned to_utf8(unsigned ch, char* buf) {
 /** Append the UTF-8 representation of a single Unicode character to a
  *  std::string.
  */
-inline void append_utf8(std::string& s, unsigned ch) {
+inline void append_utf8(std::string & s, unsigned ch) {
 	char buf[4];
 	s.append(buf, to_utf8(ch, buf));
 }
@@ -389,7 +389,7 @@ inline unsigned toupper(unsigned ch) {
 }
 
 /// Convert a UTF-8 std::string to lowercase.
-inline std::string tolower(const std::string& term)
+inline std::string tolower(const std::string & term)
 {
 	std::string result;
 	result.reserve(term.size());
@@ -400,7 +400,7 @@ inline std::string tolower(const std::string& term)
 }
 
 /// Convert a UTF-8 std::string to uppercase.
-inline std::string toupper(const std::string& term)
+inline std::string toupper(const std::string & term)
 {
 	std::string result;
 	result.reserve(term.size());

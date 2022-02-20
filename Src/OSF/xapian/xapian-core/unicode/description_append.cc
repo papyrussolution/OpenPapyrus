@@ -10,7 +10,7 @@
 
 using namespace std;
 
-void description_append(std::string& desc, const std::string& s)
+void description_append(std::string & desc, const std::string & s)
 {
 	desc.reserve(desc.size() + s.size());
 	for(Xapian::Utf8Iterator i(s); i != Xapian::Utf8Iterator(); ++i) {

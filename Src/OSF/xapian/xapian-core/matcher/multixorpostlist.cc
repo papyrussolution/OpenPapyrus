@@ -112,7 +112,7 @@ Xapian::doccount MultiXorPostList::get_termfreq_max() const
 Xapian::doccount MultiXorPostList::get_termfreq_est() const
 {
 	LOGCALL(MATCH, Xapian::doccount, "MultiXorPostList::get_termfreq_est", NO_ARGS);
-	if(rare(db_size == 0))
+	if(UNLIKELY(db_size == 0))
 		RETURN(0);
 	// We calculate the estimate assuming independence.  The simplest
 	// way to calculate this seems to be a series of (n_kids - 1) pairwise
@@ -145,7 +145,7 @@ TermFreqs MultiXorPostList::get_termfreq_est_using_stats(const Xapian::Weight::I
 	double Pr_est = freqs.reltermfreq * rtf_scale;
 	// If total_length is 0, cf must always be 0 so cf_scale is irrelevant.
 	double cf_scale = 0.0;
-	if(usual(stats.total_length != 0)) {
+	if(LIKELY(stats.total_length != 0)) {
 		cf_scale = 1.0 / stats.total_length;
 	}
 	double Pc_est = freqs.collfreq * cf_scale;

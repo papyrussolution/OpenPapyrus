@@ -53,15 +53,15 @@ struct FieldInfo {
     /// Field processor.  Currently only one is supported.
     Xapian::Internal::opt_intrusive_ptr<Xapian::FieldProcessor> proc;
 
-    FieldInfo(filter_type type_, const std::string& prefix,
-	      const std::string& grouping_ = std::string())
+    FieldInfo(filter_type type_, const std::string & prefix,
+	      const std::string & grouping_ = std::string())
 	: type(type_), grouping(grouping_)
     {
 	prefixes.push_back(prefix);
     }
 
     FieldInfo(filter_type type_, Xapian::FieldProcessor* proc_,
-	      const std::string& grouping_ = std::string())
+	      const std::string & grouping_ = std::string())
 	: type(type_), grouping(grouping_), proc(proc_)
     {
     }
@@ -118,15 +118,15 @@ class QueryParser::Internal : public Xapian::Internal::intrusive_base {
 
     unsigned min_partial_prefix_len = 2;
 
-    void add_prefix(const std::string& field, const std::string& prefix);
+    void add_prefix(const std::string & field, const std::string & prefix);
 
-    void add_prefix(const std::string& field, Xapian::FieldProcessor* proc);
+    void add_prefix(const std::string & field, Xapian::FieldProcessor* proc);
 
-    void add_boolean_prefix(const std::string& field,
-			    const std::string& prefix,
+    void add_boolean_prefix(const std::string & field,
+			    const std::string & prefix,
 			    const std::string* grouping);
 
-    void add_boolean_prefix(const std::string& field,
+    void add_boolean_prefix(const std::string & field,
 			    Xapian::FieldProcessor* proc,
 			    const std::string* grouping);
 
@@ -141,9 +141,9 @@ class QueryParser::Internal : public Xapian::Internal::intrusive_base {
     Internal() : stem_action(STEM_SOME), stopper(NULL),
 	default_op(Query::OP_OR), errmsg(NULL) { }
 
-    Query parse_query(const std::string& query_string,
+    Query parse_query(const std::string & query_string,
 		      uint flags,
-		      const std::string& default_prefix);
+		      const std::string & default_prefix);
 };
 
 }

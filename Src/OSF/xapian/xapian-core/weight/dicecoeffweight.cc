@@ -53,7 +53,7 @@ string DiceCoeffWeight::serialise() const
 
 DiceCoeffWeight * DiceCoeffWeight::unserialise(const string & s) const
 {
-	if(rare(!s.empty())) {
+	if(UNLIKELY(!s.empty())) {
 		throw Xapian::SerialisationError("Extra data in DiceCoeffWeight::unserialise()");
 	}
 	return new DiceCoeffWeight;

@@ -563,21 +563,28 @@ bool FASTCALL PPFreight::IsEq(const PPFreight & s) const
 
 int PPFreight::SetupDlvrAddr(PPID dlvrAddrID)
 {
-	int    ok = 1;
+	int    ok = -1;
 	if(dlvrAddrID) {
 		PPObjLocation loc_obj;
 		LocationTbl::Rec loc_rec;
 		THROW(loc_obj.Fetch(dlvrAddrID, &loc_rec) > 0);
 		THROW(loc_rec.Type == LOCTYP_ADDRESS);
-		DlvrAddrID = dlvrAddrID;
+		if(DlvrAddrID != dlvrAddrID) {
+			DlvrAddrID = dlvrAddrID;
+			ok = 1;
+		}
 		if(!PortOfDischarge) {
 			const PPID trunk_point_id = loc_obj.GetTrunkPointByDlvrAddr(dlvrAddrID);
-			if(trunk_point_id)
+			if(trunk_point_id) {
 				PortOfDischarge = trunk_point_id;
+				ok = 2;
+			}
 		}
 	}
-	else
+	else if(!DlvrAddrID) {
 		DlvrAddrID = 0;
+		ok = 1;
+	}
 	CATCHZOK
 	return ok;
 }

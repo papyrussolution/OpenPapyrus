@@ -109,7 +109,7 @@ std::string StringPrintf(const char* format, ...) {
   return result;
 }
 
-const std::string& SStringPrintf(std::string* dst, const char* format, ...) {
+const std::string & SStringPrintf(std::string* dst, const char* format, ...) {
   va_list ap;
   va_start(ap, format);
   dst->clear();

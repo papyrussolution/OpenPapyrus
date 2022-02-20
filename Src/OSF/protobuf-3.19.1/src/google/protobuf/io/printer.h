@@ -45,7 +45,7 @@ public:
 	// Records that the bytes in file_path beginning with begin_offset and ending
 	// before end_offset are associated with the SourceCodeInfo-style path.
 	virtual void AddAnnotation(size_t begin_offset, size_t end_offset,
-	    const std::string& file_path,
+	    const std::string & file_path,
 	    const std::vector<int>& path) = 0;
 
 	// TODO(gerbens) I don't see why we need virtuals here. Just a vector of
@@ -71,7 +71,7 @@ public:
 
 	// Override for AnnotationCollector::AddAnnotation.
 	void AddAnnotation(size_t begin_offset, size_t end_offset,
-	    const std::string& file_path,
+	    const std::string & file_path,
 	    const std::vector<int>& path) override {
 		typename AnnotationProto::Annotation* annotation =
 		    annotation_proto_->add_annotation();
@@ -209,7 +209,7 @@ public:
 
 	// Link a substitution variable emitted by the last call to Print to the file
 	// with path file_name.
-	void Annotate(const char* varname, const std::string& file_name) {
+	void Annotate(const char* varname, const std::string & file_name) {
 		Annotate(varname, varname, file_name);
 	}
 
@@ -218,7 +218,7 @@ public:
 	// at begin_varname's value and ends after the last character of the value
 	// substituted for end_varname.
 	void Annotate(const char* begin_varname, const char* end_varname,
-	    const std::string& file_name) {
+	    const std::string & file_name) {
 		if(annotation_collector_ == NULL) {
 			// Annotations aren't turned on for this Printer.
 			return;
@@ -253,7 +253,7 @@ public:
 
 	// Write a string to the output buffer.
 	// This method does not look for newlines to add indentation.
-	void PrintRaw(const std::string& data);
+	void PrintRaw(const std::string & data);
 
 	// Write a zero-delimited string to output buffer.
 	// This method does not look for newlines to add indentation.
@@ -287,7 +287,7 @@ private:
 	// substituted for end_varname. Note that begin_varname and end_varname
 	// may refer to the same variable.
 	void Annotate(const char* begin_varname, const char* end_varname,
-	    const std::string& file_path, const std::vector<int>& path);
+	    const std::string & file_path, const std::vector<int>& path);
 
 	// Base case
 	void PrintInternal(std::map<std::string, std::string>* vars,
@@ -297,7 +297,7 @@ private:
 
 	template <typename ... Args>
 	void PrintInternal(std::map<std::string, std::string>* vars, const char* text,
-	    const char* key, const std::string& value,
+	    const char* key, const std::string & value,
 	    const Args& ... args) {
 		(*vars)[key] = value;
 		PrintInternal(vars, text, args ...);

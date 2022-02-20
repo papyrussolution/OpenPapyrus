@@ -20,8 +20,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include <xapian/geospatial.h>
-#include <xapian/postingsource.h>
 
 using namespace std;
 
@@ -61,7 +59,7 @@ template <class T> static inline void register_object(map<string, opt_intrusive_
 {
 	opt_intrusive_ptr<T> obj(obj_);
 	string name = obj->name();
-	if(rare(name.empty())) {
+	if(UNLIKELY(name.empty())) {
 		throw Xapian::InvalidOperationError("Unable to register object - name() method returned empty string");
 	}
 	auto r = registry.insert(make_pair(name, static_cast<T*>(NULL)));
@@ -72,7 +70,7 @@ template <class T> static inline void register_object(map<string, opt_intrusive_
 template <class T> static inline void register_object(map<string, T*> & registry, const T & obj)
 {
 	string name = obj.name();
-	if(rare(name.empty())) {
+	if(UNLIKELY(name.empty())) {
 		throw Xapian::InvalidOperationError("Unable to register object - name() method returned empty string");
 	}
 	pair<typename map<string, T *>::iterator, bool> r;
@@ -91,7 +89,7 @@ template <class T> static inline void register_object(map<string, T*> & registry
 		delete p;
 	}
 	T * clone = obj.clone();
-	if(rare(!clone)) {
+	if(UNLIKELY(!clone)) {
 		throw Xapian::InvalidOperationError("Unable to register object - clone() method returned NULL");
 	}
 	r.first->second = clone;
@@ -100,7 +98,7 @@ template <class T> static inline void register_object(map<string, T*> & registry
 template <class T> static inline void register_object(map<string, T*> & registry1, map<string, T*> & registry2, const T & obj)
 {
 	string name = obj.name();
-	if(rare(name.empty())) {
+	if(UNLIKELY(name.empty())) {
 		throw Xapian::InvalidOperationError("Unable to register object - name() method returned empty string");
 	}
 	pair<typename map<string, T *>::iterator, bool> r1;
@@ -127,7 +125,7 @@ template <class T> static inline void register_object(map<string, T*> & registry
 		delete p;
 	}
 	T * clone = obj.clone();
-	if(rare(!clone)) {
+	if(UNLIKELY(!clone)) {
 		throw Xapian::InvalidOperationError("Unable to register object - clone() method returned NULL");
 	}
 	r1.first->second = clone;
@@ -137,7 +135,7 @@ template <class T> static inline void register_object(map<string, T*> & registry
 }
 
 /// Look up an optionally ref-counted object.
-template <class T> static inline const T* lookup_object(map<string, opt_intrusive_ptr<T> > registry, const string& name)
+template <class T> static inline const T* lookup_object(map<string, opt_intrusive_ptr<T> > registry, const string & name)
 {
 	auto i = registry.find(name);
 	if(i == registry.end()) {
@@ -364,7 +362,7 @@ void Registry::register_key_maker(Xapian::KeyMaker* keymaker)
 	register_object(internal->key_makers, keymaker);
 }
 
-const Xapian::KeyMaker* Registry::get_key_maker(const std::string& name) const
+const Xapian::KeyMaker* Registry::get_key_maker(const std::string & name) const
 {
 	LOGCALL(API, const Xapian::KeyMaker*, "Xapian::Registry::get_key_maker", name);
 	RETURN(lookup_object(internal->key_makers, name));

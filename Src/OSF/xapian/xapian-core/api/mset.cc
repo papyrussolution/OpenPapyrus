@@ -66,14 +66,14 @@ int MSet::convert_to_percent(double weight) const
 	return internal->convert_to_percent(weight);
 }
 
-Xapian::doccount MSet::get_termfreq(const std::string& term) const
+Xapian::doccount MSet::get_termfreq(const std::string & term) const
 {
 	// Check the cached data for query terms first.
 	Xapian::doccount termfreq;
-	if(usual(internal->stats && internal->stats->get_stats(term, termfreq))) {
+	if(LIKELY(internal->stats && internal->stats->get_stats(term, termfreq))) {
 		return termfreq;
 	}
-	if(rare(internal->enquire.get() == NULL)) {
+	if(UNLIKELY(internal->enquire.get() == NULL)) {
 		// Consistent with get_termfreq() on an empty database which always
 		// returns 0.
 		return 0;
@@ -82,12 +82,12 @@ Xapian::doccount MSet::get_termfreq(const std::string& term) const
 	return internal->enquire->get_termfreq(term);
 }
 
-double MSet::get_termweight(const std::string& term) const
+double MSet::get_termweight(const std::string & term) const
 {
 	// A term not in the query has no termweight, so 0.0 makes sense as the
 	// answer in such cases.
 	double weight = 0.0;
-	if(usual(internal->stats)) {
+	if(LIKELY(internal->stats)) {
 		(void)internal->stats->get_termweight(term, weight);
 	}
 	return weight;
@@ -141,8 +141,8 @@ Xapian::doccount MSet::size() const
 	return internal->items.size();
 }
 
-std::string MSet::snippet(const std::string& text, size_t length, const Xapian::Stem& stemmer, unsigned flags,
-    const std::string& hi_start, const std::string& hi_end, const std::string& omit) const
+std::string MSet::snippet(const std::string & text, size_t length, const Xapian::Stem& stemmer, unsigned flags,
+    const std::string & hi_start, const std::string & hi_end, const std::string & omit) const
 {
 	// The actual implementation is in queryparser/termgenerator_internal.cc.
 	return internal->snippet(text, length, stemmer, flags, hi_start, hi_end, omit);

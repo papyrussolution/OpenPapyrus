@@ -56,12 +56,12 @@
 namespace google {
 namespace protobuf {
 namespace {
-inline bool IsHexNumber(const std::string& str) {
+inline bool IsHexNumber(const std::string & str) {
 	return (str.length() >= 2 && str[0] == '0' &&
 	       (str[1] == 'x' || str[1] == 'X'));
 }
 
-inline bool IsOctNumber(const std::string& str) {
+inline bool IsOctNumber(const std::string & str) {
 	return (str.length() >= 2 && str[0] == '0' &&
 	       (str[1] >= '0' && str[1] < '8'));
 }
@@ -183,7 +183,7 @@ namespace {
 // These functions implement the behavior of the "default" TextFormat::Finder,
 // they are defined as standalone to be called when finder_ is nullptr.
 const FieldDescriptor* DefaultFinderFindExtension(Message* message,
-    const std::string& name) {
+    const std::string & name) {
 	const Descriptor* descriptor = message->GetDescriptor();
 	return descriptor->file()->pool()->FindExtensionByPrintableName(descriptor,
 		   name);
@@ -194,8 +194,8 @@ const FieldDescriptor* DefaultFinderFindExtensionByNumber(const Descriptor* desc
 }
 
 const Descriptor* DefaultFinderFindAnyType(const Message& message,
-    const std::string& prefix,
-    const std::string& name) {
+    const std::string & prefix,
+    const std::string & name) {
 	if(prefix != internal::kTypeGoogleApisComPrefix &&
 	    prefix != internal::kTypeGoogleProdComPrefix) {
 		return nullptr;
@@ -310,7 +310,7 @@ public:
 		return suc && LookingAtType(io::Tokenizer::TYPE_END);
 	}
 
-	void ReportError(int line, int col, const std::string& message) {
+	void ReportError(int line, int col, const std::string & message) {
 		had_errors_ = true;
 		if(error_collector_ == nullptr) {
 			if(line >= 0) {
@@ -327,7 +327,7 @@ public:
 			error_collector_->AddError(line, col, message);
 		}
 	}
-	void ReportWarning(int line, int col, const std::string& message) 
+	void ReportWarning(int line, int col, const std::string & message) 
 	{
 		if(error_collector_ == nullptr) {
 			if(line >= 0) {
@@ -353,13 +353,13 @@ private:
 	GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(ParserImpl);
 	// Reports an error with the given message with information indicating
 	// the position (as derived from the current token).
-	void ReportError(const std::string& message) 
+	void ReportError(const std::string & message) 
 	{
 		ReportError(tokenizer_.current().line, tokenizer_.current().column, message);
 	}
 	// Reports a warning with the given message with information indicating
 	// the position (as derived from the current token).
-	void ReportWarning(const std::string& message) 
+	void ReportWarning(const std::string & message) 
 	{
 		ReportWarning(tokenizer_.current().line, tokenizer_.current().column, message);
 	}
@@ -951,7 +951,7 @@ label_skip_parsing:
 	}
 
 	// Returns true if the current token's text is equal to that specified.
-	bool LookingAt(const std::string& text) {
+	bool LookingAt(const std::string & text) {
 		return tokenizer_.current().text == text;
 	}
 
@@ -1091,7 +1091,7 @@ label_skip_parsing:
 			return false;
 		}
 
-		const std::string& text = tokenizer_.current().text;
+		const std::string & text = tokenizer_.current().text;
 		if(IsHexNumber(text) || IsOctNumber(text)) {
 			ReportError("Expect a decimal number, got: " + text);
 			return false;
@@ -1214,8 +1214,8 @@ label_skip_parsing:
 	// Consumes a token and confirms that it matches that specified in the
 	// value parameter. Returns false if the token found does not match that
 	// which was specified.
-	bool Consume(const std::string& value) {
-		const std::string& current_value = tokenizer_.current().text;
+	bool Consume(const std::string & value) {
+		const std::string & current_value = tokenizer_.current().text;
 
 		if(current_value != value) {
 			ReportError("Expected \"" + value + "\", found \"" + current_value +
@@ -1230,7 +1230,7 @@ label_skip_parsing:
 
 	// Similar to `Consume`, but the following token may be tokenized as
 	// TYPE_WHITESPACE.
-	bool ConsumeBeforeWhitespace(const std::string& value) {
+	bool ConsumeBeforeWhitespace(const std::string & value) {
 		// Report whitespace after this token, but only once.
 		tokenizer_.set_report_whitespace(true);
 		bool result = Consume(value);
@@ -1240,7 +1240,7 @@ label_skip_parsing:
 
 	// Attempts to consume the supplied value. Returns false if a the
 	// token found does not match the value specified.
-	bool TryConsume(const std::string& value) {
+	bool TryConsume(const std::string & value) {
 		if(tokenizer_.current().text == value) {
 			tokenizer_.Next();
 			return true;
@@ -1252,7 +1252,7 @@ label_skip_parsing:
 
 	// Similar to `TryConsume`, but the following token may be tokenized as
 	// TYPE_WHITESPACE.
-	bool TryConsumeBeforeWhitespace(const std::string& value) {
+	bool TryConsumeBeforeWhitespace(const std::string & value) {
 		// Report whitespace after this token, but only once.
 		tokenizer_.set_report_whitespace(true);
 		bool result = TryConsume(value);
@@ -1260,7 +1260,7 @@ label_skip_parsing:
 		return result;
 	}
 
-	bool TryConsumeWhitespace(const std::string& message_type,
+	bool TryConsumeWhitespace(const std::string & message_type,
 	    const char* field_type) {
 		if(LookingAtType(io::Tokenizer::TYPE_WHITESPACE)) {
 			tokenizer_.Next();
@@ -1281,11 +1281,11 @@ public:
 		~ParserErrorCollector() override {
 		}
 
-		void AddError(int line, int column, const std::string& message) override {
+		void AddError(int line, int column, const std::string & message) override {
 			parser_->ReportError(line, column, message);
 		}
 
-		void AddWarning(int line, int column, const std::string& message) override {
+		void AddWarning(int line, int column, const std::string & message) override {
 			parser_->ReportWarning(line, column, message);
 		}
 
@@ -1526,14 +1526,14 @@ public:
 class TextFormat::Printer::FastFieldValuePrinterUtf8Escaping
 	: public TextFormat::Printer::DebugStringFieldValuePrinter {
 public:
-	void PrintString(const std::string& val,
+	void PrintString(const std::string & val,
 	    TextFormat::BaseTextGenerator* generator) const override {
 		generator->PrintLiteral("\"");
 		generator->PrintString(strings::Utf8SafeCEscape(val));
 		generator->PrintLiteral("\"");
 	}
 
-	void PrintBytes(const std::string& val,
+	void PrintBytes(const std::string & val,
 	    TextFormat::BaseTextGenerator* generator) const override {
 		return FastFieldValuePrinter::PrintString(val, generator);
 	}
@@ -1544,7 +1544,7 @@ public:
 TextFormat::Finder::~Finder() {
 }
 
-const FieldDescriptor* TextFormat::Finder::FindExtension(Message* message, const std::string& name) const {
+const FieldDescriptor* TextFormat::Finder::FindExtension(Message* message, const std::string & name) const {
 	return DefaultFinderFindExtension(message, name);
 }
 
@@ -1552,8 +1552,8 @@ const FieldDescriptor* TextFormat::Finder::FindExtensionByNumber(const Descripto
 	return DefaultFinderFindExtensionByNumber(descriptor, number);
 }
 
-const Descriptor* TextFormat::Finder::FindAnyType(const Message& message, const std::string& prefix,
-    const std::string& name) const {
+const Descriptor* TextFormat::Finder::FindAnyType(const Message& message, const std::string & prefix,
+    const std::string & name) const {
 	return DefaultFinderFindAnyType(message, prefix, name);
 }
 
@@ -1653,7 +1653,7 @@ bool TextFormat::Parser::MergeUsingImpl(io::ZeroCopyInputStream* /* input */,
 	return true;
 }
 
-bool TextFormat::Parser::ParseFieldValueFromString(const std::string& input,
+bool TextFormat::Parser::ParseFieldValueFromString(const std::string & input,
     const FieldDescriptor* field,
     Message* output) {
 	io::ArrayInputStream input_stream(input.data(), input.size());
@@ -1709,7 +1709,7 @@ public:
 	}
 
 #else  // !LANG_CXX11
-	const std::string& Get() {
+	const std::string & Get() {
 		return output_;
 	}
 
@@ -1769,15 +1769,15 @@ std::string TextFormat::FieldValuePrinter::PrintDouble(double val) const {
 	FORWARD_IMPL(PrintDouble, val);
 }
 
-std::string TextFormat::FieldValuePrinter::PrintString(const std::string& val) const {
+std::string TextFormat::FieldValuePrinter::PrintString(const std::string & val) const {
 	FORWARD_IMPL(PrintString, val);
 }
 
-std::string TextFormat::FieldValuePrinter::PrintBytes(const std::string& val) const {
+std::string TextFormat::FieldValuePrinter::PrintBytes(const std::string & val) const {
 	return PrintString(val);
 }
 
-std::string TextFormat::FieldValuePrinter::PrintEnum(int32_t val, const std::string& name) const {
+std::string TextFormat::FieldValuePrinter::PrintEnum(int32_t val, const std::string & name) const {
 	FORWARD_IMPL(PrintEnum, val, name);
 }
 
@@ -1839,18 +1839,18 @@ void TextFormat::FastFieldValuePrinter::PrintDouble(double val, BaseTextGenerato
 	generator->PrintString(!std::isnan(val) ? SimpleDtoa(val) : "nan");
 }
 
-void TextFormat::FastFieldValuePrinter::PrintEnum(int32_t /*val*/, const std::string& name,
+void TextFormat::FastFieldValuePrinter::PrintEnum(int32_t /*val*/, const std::string & name,
     BaseTextGenerator* generator) const {
 	generator->PrintString(name);
 }
 
-void TextFormat::FastFieldValuePrinter::PrintString(const std::string& val, BaseTextGenerator* generator) const {
+void TextFormat::FastFieldValuePrinter::PrintString(const std::string & val, BaseTextGenerator* generator) const {
 	generator->PrintLiteral("\"");
 	generator->PrintString(CEscape(val));
 	generator->PrintLiteral("\"");
 }
 
-void TextFormat::FastFieldValuePrinter::PrintBytes(const std::string& val, BaseTextGenerator* generator) const {
+void TextFormat::FastFieldValuePrinter::PrintBytes(const std::string & val, BaseTextGenerator* generator) const {
 	PrintString(val, generator);
 }
 
@@ -1948,17 +1948,17 @@ public:
 		generator->PrintString(delegate_->PrintDouble(val));
 	}
 
-	void PrintString(const std::string& val,
+	void PrintString(const std::string & val,
 	    TextFormat::BaseTextGenerator* generator) const override {
 		generator->PrintString(delegate_->PrintString(val));
 	}
 
-	void PrintBytes(const std::string& val,
+	void PrintBytes(const std::string & val,
 	    TextFormat::BaseTextGenerator* generator) const override {
 		generator->PrintString(delegate_->PrintBytes(val));
 	}
 
-	void PrintEnum(int32_t val, const std::string& name,
+	void PrintEnum(int32_t val, const std::string & name,
 	    TextFormat::BaseTextGenerator* generator) const override {
 		generator->PrintString(delegate_->PrintEnum(val, name));
 	}
@@ -2149,7 +2149,7 @@ bool TextFormat::Printer::PrintAny(const Message& message,
 	const Reflection* reflection = message.GetReflection();
 
 	// Extract the full type name from the type_url field.
-	const std::string& type_url = reflection->GetString(message, type_url_field);
+	const std::string & type_url = reflection->GetString(message, type_url_field);
 	std::string url_prefix;
 	std::string full_type_name;
 	if(!internal::ParseAnyTypeUrl(type_url, &url_prefix, &full_type_name)) {
@@ -2529,7 +2529,7 @@ void TextFormat::Printer::PrintFieldValue(const Message& message,
 
 		case FieldDescriptor::CPPTYPE_STRING: {
 		    std::string scratch;
-		    const std::string& value =
+		    const std::string & value =
 			field->is_repeated()
 			? reflection->GetRepeatedStringReference(message, field, index,
 			    &scratch)
@@ -2607,7 +2607,7 @@ void TextFormat::Printer::PrintFieldValue(const Message& message,
 	return Printer().PrintFieldValueToString(message, field, index, output);
 }
 
-/* static */ bool TextFormat::ParseFieldValueFromString(const std::string& input, const FieldDescriptor* field, Message* message) {
+/* static */ bool TextFormat::ParseFieldValueFromString(const std::string & input, const FieldDescriptor* field, Message* message) {
 	return Parser().ParseFieldValueFromString(input, field, message);
 }
 
@@ -2657,7 +2657,7 @@ void TextFormat::Printer::PrintUnknownFields(const UnknownFieldSet& unknown_fiel
 		    }
 			case UnknownField::TYPE_LENGTH_DELIMITED: {
 			    generator->PrintString(field_number);
-			    const std::string& value = field.length_delimited();
+			    const std::string & value = field.length_delimited();
 			    // We create a CodedInputStream so that we can adhere to our recursion
 			    // budget when we attempt to parse the data. UnknownFieldSet parsing is
 			    // recursive because of groups.

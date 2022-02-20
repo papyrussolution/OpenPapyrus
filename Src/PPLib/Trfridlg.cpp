@@ -1,5 +1,5 @@
 // TRFRIDLG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -439,7 +439,7 @@ TrfrItemDialog::TrfrItemDialog(uint dlgID, PPID opID) : TDialog(dlgID), OpID(opI
 
 	MEMSZERO(Sd);
 	PPLoadText(PPTXT_TIDLG_STRINGS, Strings);
-	setCtrlOption(CTL_LOT_STREST, ofFramed, 1);
+	// @v11.3.2 @obsolete setCtrlOption(CTL_LOT_STREST, ofFramed, 1);
 	addGroup(GRP_QCERT, new QCertCtrlGroup(CTL_LOT_QCERT));
 	SetupCalDate(CTLCAL_LOT_EXPIRY, CTL_LOT_EXPIRY);
 	PPSetupCtrlMenu(this, CTL_LOT_GOODSGRP, CTLMNU_LOT_GOODSGRP, CTRLMENU_TI_GOODS);

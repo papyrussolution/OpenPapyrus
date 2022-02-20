@@ -21,8 +21,8 @@ int EditPaymPlan(const PPBillPacket * pPack, PayPlanArray * pData);
 AccTurnDialog::AccTurnDialog(uint rezID, PPObjBill * pBObj) : TDialog(rezID), P_BObj(pBObj), P_Pack(0)
 {
 	// @v10.6.5 @ctr MEMSZERO(Data);
-	setCtrlOption(CTL_ATURN_DTEXT, ofFramed, 1);
-	setCtrlOption(CTL_ATURN_CTEXT, ofFramed, 1);
+	// @v11.3.2 @obsolete setCtrlOption(CTL_ATURN_DTEXT, ofFramed, 1);
+	// @v11.3.2 @obsolete setCtrlOption(CTL_ATURN_CTEXT, ofFramed, 1);
 	AcctCtrlGroup * p_ac_grp = new AcctCtrlGroup(CTL_ATURN_DACC, CTL_ATURN_DART, CTLSEL_ATURN_DACCNAME, CTLSEL_ATURN_DARTNAME);
 	addGroup(GRP_DBT, p_ac_grp);
 	p_ac_grp = new AcctCtrlGroup(CTL_ATURN_CACC, CTL_ATURN_CART, CTLSEL_ATURN_CACCNAME, CTLSEL_ATURN_CARTNAME);
@@ -3372,8 +3372,14 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 			// @v11.2.9 {
 			else if(event.isCbSelected(CTLSEL_FREIGHT_DLVRLOC)) { 
 				Data.PortOfDischarge = getCtrlLong(CTLSEL_FREIGHT_ARRIVLOC);
-				if(!Data.SetupDlvrAddr(getCtrlLong(CTLSEL_FREIGHT_DLVRLOC)))
+				const int sdar = Data.SetupDlvrAddr(getCtrlLong(CTLSEL_FREIGHT_DLVRLOC));
+				if(!sdar)
 					PPError();
+				// @v11.3.2 {	
+				else if(sdar == 2) {
+					setCtrlLong(CTLSEL_FREIGHT_ARRIVLOC, Data.PortOfDischarge);
+				}
+				// } @v11.3.2
 			}
 			// } @v11.2.9 
 			else if(event.isClusterClk(CTL_FREIGHT_TRTYP)) {
@@ -3871,7 +3877,7 @@ int PPObjBill::EditBillExtData(PPID billID)
 LotQCertDialog::LotQCertDialog(PPObjBill * pBObj) : TDialog(DLG_LOTQCERT), P_BObj(pBObj)
 {
 	MEMSZERO(Data);
-	setCtrlOption(CTL_LOTQCERT_FRAME, ofFramed, 1);
+	// @v11.3.2 @obsolete setCtrlOption(CTL_LOTQCERT_FRAME, ofFramed, 1);
 	QCertCtrlGroup * p_qc_grp = new QCertCtrlGroup(CTL_LOTQCERT_QCERT);
 	addGroup(GRP_QCERT, p_qc_grp);
 	SetupCalDate(CTLCAL_LOTQCERT_EXPIRY, CTL_LOTQCERT_EXPIRY);

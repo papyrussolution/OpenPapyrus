@@ -28,9 +28,9 @@ namespace cctz_extension {
 namespace {
 // A default for cctz_extension::zone_info_source_factory, which simply
 // defers to the fallback factory.
-std::unique_ptr<absl::time_internal::cctz::ZoneInfoSource> DefaultFactory(const std::string& name,
+std::unique_ptr<absl::time_internal::cctz::ZoneInfoSource> DefaultFactory(const std::string & name,
     const std::function<std::unique_ptr<absl::time_internal::cctz::ZoneInfoSource>(
-		    const std::string& name)>& fallback_factory) {
+		    const std::string & name)>& fallback_factory) {
 	return fallback_factory(name);
 }
 }  // namespace

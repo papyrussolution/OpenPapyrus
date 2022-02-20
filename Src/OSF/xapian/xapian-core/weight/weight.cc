@@ -116,18 +116,12 @@ void Weight::init_(const Internal & stats, Xapian::termcount query_length,
 	init(factor);
 }
 
-Weight::~Weight() {
+Weight::~Weight() 
+{
 }
 
-string Weight::name() const
-{
-	return string();
-}
-
-string Weight::short_name() const
-{
-	return string();
-}
+string Weight::name() const { return string(); }
+string Weight::short_name() const { return string(); }
 
 string Weight::serialise() const
 {

@@ -25,7 +25,7 @@
 // have debug logging enabled, as the support functions aren't visible, so
 // we define XAPIAN_REALLY_NO_DEBUG_LOG there.
 #ifdef XAPIAN_REALLY_NO_DEBUG_LOG
-# ifdef XAPIAN_DEBUG_LOG
+#ifdef XAPIAN_DEBUG_LOG
 #undef XAPIAN_DEBUG_LOG
 #endif
 #endif
@@ -117,7 +117,7 @@ public:
 	}
 
 	/// Log message @a msg of category @a category.
-	void log_line(debuglog_categories category, const std::string& msg);
+	void log_line(debuglog_categories category, const std::string & msg);
 
 	void indent() {
 		++indent_level;
@@ -196,7 +196,7 @@ public:
 	/// Constructor called when logging for a "normal" method or function.
 	DebugLogFunc(const void* this_ptr_, debuglog_categories category_,
 	    const char* return_type, const char* func_name,
-	    const std::string& params)
+	    const std::string & params)
 		: this_ptr(this_ptr_), category(category_),
 		uncaught_exceptions(get_uncaught_exceptions())
 	{
@@ -213,7 +213,7 @@ public:
 	}
 
 	/// Log the returned value.
-	void log_return_value(const std::string& return_value) {
+	void log_return_value(const std::string & return_value) {
 		xapian_debuglogger_.outdent();
 		LOGLINE_(category, '[' << this_ptr << "] " << func << " returned: " <<
 			return_value);
@@ -281,7 +281,7 @@ public:
 	/// Constructor called when logging for a "normal" method or function.
 	DebugLogFuncVoid(const void* this_ptr_, debuglog_categories category_,
 	    const char* func_name,
-	    const std::string& params)
+	    const std::string & params)
 		: this_ptr(this_ptr_), category(category_),
 		uncaught_exceptions(get_uncaught_exceptions())
 	{
@@ -298,7 +298,7 @@ public:
 
 	/// Constructor called when logging for a class constructor.
 	DebugLogFuncVoid(const void* this_ptr_, debuglog_categories category_,
-	    const std::string& params,
+	    const std::string & params,
 	    const char* class_name)
 		: this_ptr(this_ptr_), category(category_),
 		uncaught_exceptions(get_uncaught_exceptions())

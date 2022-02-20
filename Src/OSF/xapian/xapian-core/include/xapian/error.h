@@ -99,14 +99,14 @@ public:
 	/// The type of this error (e.g. "DocNotFoundError".)
 	const char* get_type() const noexcept { return type + 1; }
 	/// Message giving details of the error, intended for human consumption.
-	const std::string& get_msg() const noexcept { return msg; }
+	const std::string & get_msg() const noexcept { return msg; }
 	/** Optional context information.
 	 *
 	 *  This context is intended for machine use (for example to know which
 	 *  remote server an error came from), but it is typically a
 	 *  plain-text string, and so also fit for human consumption.
 	 */
-	const std::string& get_context() const noexcept { return context; }
+	const std::string & get_context() const noexcept { return context; }
 	/** Returns any system error string associated with this exception.
 	 *
 	 *  The system error string may come from errno, h_errno (on UNIX), or

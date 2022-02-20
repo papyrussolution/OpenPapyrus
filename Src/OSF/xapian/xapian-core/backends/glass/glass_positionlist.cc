@@ -42,7 +42,7 @@ void GlassPositionListTable::pack(string & s,
 	}
 }
 
-Xapian::termcount GlassPositionListTable::positionlist_count(const string& data) const
+Xapian::termcount GlassPositionListTable::positionlist_count(const string & data) const
 {
 	LOGCALL(DB, Xapian::termcount, "GlassPositionListTable::positionlist_count", data);
 
@@ -81,7 +81,7 @@ Xapian::termcount GlassPositionListTable::positionlist_count(Xapian::docid did,
 
 ///////////////////////////////////////////////////////////////////////////
 
-void GlassBasePositionList::set_data(const string& data)
+void GlassBasePositionList::set_data(const string & data)
 {
 	LOGCALL_VOID(DB, "GlassBasePositionList::set_data", data);
 
@@ -140,7 +140,7 @@ Xapian::termpos GlassBasePositionList::get_position() const
 bool GlassBasePositionList::next()
 {
 	LOGCALL(DB, bool, "GlassBasePositionList::next", NO_ARGS);
-	if(rare(!have_started)) {
+	if(UNLIKELY(!have_started)) {
 		have_started = true;
 		return current_pos <= last;
 	}
@@ -171,7 +171,7 @@ bool GlassBasePositionList::skip_to(Xapian::termpos termpos)
 	return true;
 }
 
-GlassPositionList::GlassPositionList(string&& data)
+GlassPositionList::GlassPositionList(string && data)
 {
 	LOGCALL_CTOR(DB, "GlassPositionList", data);
 
@@ -182,7 +182,7 @@ GlassPositionList::GlassPositionList(string&& data)
 
 GlassPositionList::GlassPositionList(const GlassTable* table,
     Xapian::docid did,
-    const string& term)
+    const string & term)
 {
 	LOGCALL_CTOR(DB, "GlassPositionList", table | did | term);
 
@@ -194,7 +194,7 @@ GlassPositionList::GlassPositionList(const GlassTable* table,
 	set_data(pos_data);
 }
 
-void GlassRePositionList::assign_data(string&& data)
+void GlassRePositionList::assign_data(string && data)
 {
 	LOGCALL_VOID(DB, "GlassRePositionList::assign_data", data);
 
@@ -207,7 +207,7 @@ void GlassRePositionList::assign_data(string&& data)
 }
 
 void GlassRePositionList::read_data(Xapian::docid did,
-    const string& term)
+    const string & term)
 {
 	LOGCALL_VOID(DB, "GlassRePositionList::read_data", did | term);
 

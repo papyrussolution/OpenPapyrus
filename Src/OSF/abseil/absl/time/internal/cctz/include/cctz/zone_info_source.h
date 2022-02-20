@@ -56,9 +56,9 @@ namespace cctz_extension {
 // when the data for the named zone cannot be found.
 using ZoneInfoSourceFactory =
     std::unique_ptr<absl::time_internal::cctz::ZoneInfoSource> (*)(
-        const std::string&,
+        const std::string &,
         const std::function<std::unique_ptr<
-            absl::time_internal::cctz::ZoneInfoSource>(const std::string&)>&);
+            absl::time_internal::cctz::ZoneInfoSource>(const std::string &)>&);
 
 // The user can control the mapping of zone names to zoneinfo data by
 // providing a definition for cctz_extension::zone_info_source_factory.
@@ -69,9 +69,9 @@ using ZoneInfoSourceFactory =
 //   namespace cctz_extension {
 //   namespace {
 //   std::unique_ptr<cctz::ZoneInfoSource> CustomFactory(
-//       const std::string& name,
+//       const std::string & name,
 //       const std::function<std::unique_ptr<cctz::ZoneInfoSource>(
-//           const std::string& name)>& fallback_factory) {
+//           const std::string & name)>& fallback_factory) {
 //     if (auto zip = my_factory(name)) return zip;
 //     if (auto zip = fallback_factory(name)) return zip;
 //     if (auto zip = my_other_factory(name)) return zip;

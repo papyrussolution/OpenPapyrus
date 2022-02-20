@@ -26,7 +26,7 @@
 #endif
 
 #ifndef __WIN32__
-# ifdef HAVE_SYS_SELECT_H
+#ifdef HAVE_SYS_SELECT_H
 // According to POSIX 1003.1-2001.
 #include <sys/select.h>
 # else
@@ -50,7 +50,7 @@
 inline void xapian_FD_SET_(int fd, fd_set *set) {
     FD_SET(unsigned(fd), set);
 }
-# ifdef FD_SET
+#ifdef FD_SET
 #undef FD_SET
 #endif
 #define FD_SET(FD,SET) xapian_FD_SET_(FD,SET)

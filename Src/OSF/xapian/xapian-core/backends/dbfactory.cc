@@ -24,11 +24,9 @@
 #include "xapian/dbfactory.h"
 #include "backends.h"
 #include "databasehelpers.h"
-#include "debuglog.h"
 #include "filetests.h"
 #include "fileutils.h"
 #include "posixy_wrapper.h"
-#include "str.h"
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 	#include "glass/glass_database.h"
 #endif
@@ -47,27 +45,27 @@
 using namespace std;
 
 namespace Xapian {
-static void open_stub(Database& db, const string& file)
+static void open_stub(Database& db, const string & file)
 {
 	read_stub_file(file,
-	    [&db](const string& path) {
+	    [&db](const string & path) {
 			db.add_database(Database(path));
 		},
-	    [&db](const string& path) {
+	    [&db](const string & path) {
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 			db.add_database(Database(new GlassDatabase(path)));
 #else
 			(void)path;
 #endif
 		},
-	    [&db](const string& path) {
+	    [&db](const string & path) {
 #ifdef XAPIAN_HAS_HONEY_BACKEND
 			db.add_database(Database(new HoneyDatabase(path)));
 #else
 			(void)path;
 #endif
 		},
-	    [&db](const string& prog, const string& args) {
+	    [&db](const string & prog, const string & args) {
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 			db.add_database(Remote::open(prog, args));
 #else
@@ -75,7 +73,7 @@ static void open_stub(Database& db, const string& file)
 			(void)args;
 #endif
 		},
-	    [&db](const string& host, uint port) {
+	    [&db](const string & host, uint port) {
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 			db.add_database(Remote::open(host, port));
 #else
@@ -98,21 +96,21 @@ static void open_stub(Database& db, const string& file)
 	// with the line number just past the end of the file, which was a bit odd.
 }
 
-static void open_stub(WritableDatabase& db, const string& file, int flags)
+static void open_stub(WritableDatabase& db, const string & file, int flags)
 {
 	read_stub_file(file,
-	    [&db, flags](const string& path) {
+	    [&db, flags](const string & path) {
 			db.add_database(WritableDatabase(path, flags));
 		},
-	    [&db, &flags](const string& path) {
+	    [&db, &flags](const string & path) {
 			flags |= DB_BACKEND_GLASS;
 			db.add_database(WritableDatabase(path, flags));
 		},
-	    [](const string&) {
+	    [](const string &) {
 			auto msg = "Honey databases don't support writing";
 			throw Xapian::DatabaseOpeningError(msg);
 		},
-	    [&db, flags](const string& prog, const string& args) {
+	    [&db, flags](const string & prog, const string & args) {
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 			db.add_database(Remote::open_writable(prog, args,
 			0, flags));
@@ -121,7 +119,7 @@ static void open_stub(WritableDatabase& db, const string& file, int flags)
 			(void)args;
 #endif
 		},
-	    [&db, flags](const string& host, uint port) {
+	    [&db, flags](const string & host, uint port) {
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 			db.add_database(Remote::open_writable(host, port,
 			0, 10000, flags));
@@ -140,7 +138,7 @@ static void open_stub(WritableDatabase& db, const string& file, int flags)
 	}
 }
 
-Database::Database(const string& path, int flags)
+Database::Database(const string & path, int flags)
 	: Database()
 {
 	LOGCALL_CTOR(API, "Database", path|flags);
@@ -208,7 +206,7 @@ Database::Database(const string& path, int flags)
 		return;
 	}
 
-	if(rare(!S_ISDIR(statbuf.st_mode))) {
+	if(UNLIKELY(!S_ISDIR(statbuf.st_mode))) {
 		throw DatabaseOpeningError("Not a regular file or directory: '" + path + "'");
 	}
 
@@ -229,7 +227,7 @@ Database::Database(const string& path, int flags)
 	// Check for "stub directories".
 	string stub_file = path;
 	stub_file += "/XAPIANDB";
-	if(usual(file_exists(stub_file))) {
+	if(LIKELY(file_exists(stub_file))) {
 		open_stub(*this, stub_file);
 		return;
 	}
@@ -263,7 +261,7 @@ Database::Database(const string& path, int flags)
  */
 static Database::Internal* database_factory(int fd, int flags)
 {
-	if(rare(fd < 0))
+	if(UNLIKELY(fd < 0))
 		throw InvalidArgumentError("fd < 0", EBADF);
 
 #if defined XAPIAN_HAS_GLASS_BACKEND || defined XAPIAN_HAS_HONEY_BACKEND
@@ -304,8 +302,7 @@ Database::Database(int fd, int flags)
 #define HAVE_DISK_BACKEND
 #endif
 
-WritableDatabase::WritableDatabase(const std::string &path, int flags, int block_size)
-	: Database()
+WritableDatabase::WritableDatabase(const std::string &path, int flags, int block_size) : Database()
 {
 	LOGCALL_CTOR(API, "WritableDatabase", path|flags|block_size);
 	// Avoid warning if all disk-based backends are disabled.
@@ -322,17 +319,14 @@ WritableDatabase::WritableDatabase(const std::string &path, int flags, int block
 		}
 		else {
 			// File or directory already exists.
-
 			if(S_ISREG(statbuf.st_mode)) {
 				// The path is a file, so assume it is a stub database file.
 				open_stub(*this, path, flags);
 				return;
 			}
-
-			if(rare(!S_ISDIR(statbuf.st_mode))) {
+			if(UNLIKELY(!S_ISDIR(statbuf.st_mode))) {
 				throw DatabaseOpeningError("Not a regular file or directory: '" + path + "'");
 			}
-
 			if(file_exists(path + "/iamglass")) {
 				// Existing glass DB.
 #ifdef XAPIAN_HAS_GLASS_BACKEND
@@ -343,8 +337,7 @@ WritableDatabase::WritableDatabase(const std::string &path, int flags, int block
 			}
 			else if(file_exists(path + "/iamhoney")) {
 				// Existing honey DB.
-				throw InvalidOperationError("Honey backend doesn't support "
-					  "updating existing databases");
+				throw InvalidOperationError("Honey backend doesn't support updating existing databases");
 			}
 			else if(file_exists(path + "/iamchert")) {
 				// Existing chert DB.
@@ -358,7 +351,7 @@ WritableDatabase::WritableDatabase(const std::string &path, int flags, int block
 				// Check for "stub directories".
 				string stub_file = path;
 				stub_file += "/XAPIANDB";
-				if(usual(file_exists(stub_file))) {
+				if(LIKELY(file_exists(stub_file))) {
 					open_stub(*this, stub_file, flags);
 					return;
 				}

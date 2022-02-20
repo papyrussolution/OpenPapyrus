@@ -43,7 +43,7 @@
 // so check if XAPIAN_DEPRECATED is defined so xapian-bindings can override
 // it.
 #ifndef XAPIAN_DEPRECATED
-# ifdef __GNUC__
+#ifdef __GNUC__
 // __attribute__((__deprecated__)) is supported by GCC 3.1 and later, and
 // we require a newer version, so there's no need to check the GCC version
 // in use.

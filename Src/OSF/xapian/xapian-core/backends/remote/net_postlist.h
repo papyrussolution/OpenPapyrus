@@ -48,9 +48,9 @@ class NetworkPostList : public LeafPostList {
 public:
 	/// Constructor.
 	NetworkPostList(Xapian::Internal::intrusive_ptr<const RemoteDatabase> db_,
-	    const std::string& term_,
+	    const std::string & term_,
 	    Xapian::doccount termfreq_,
-	    std::string&& postings_)
+	    std::string && postings_)
 		: LeafPostList(term_),
 		db(db_), postings(std::move(postings_)), termfreq(termfreq_) {
 	}

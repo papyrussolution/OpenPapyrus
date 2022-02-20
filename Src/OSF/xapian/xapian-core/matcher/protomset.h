@@ -363,7 +363,7 @@ public:
 		// removing because we found a higher ranking one seems sensible, but
 		// I've not actually profiled this.
 		auto it = std::find(min_heap.begin(), min_heap.end(), old_item);
-		if(rare(it == min_heap.end())) {
+		if(UNLIKELY(it == min_heap.end())) {
 			// min_heap should contain all indices of results.
 			Assert(false);
 			return;

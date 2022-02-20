@@ -1,15 +1,9 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (c) 2001-2011, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- *   Date        Name        Description
- *   11/19/2001  aliu        Creation.
- **********************************************************************
- */
-
+// Copyright (c) 2001-2011, International Business Machines Corporation and others.  All Rights Reserved.
+// Date        Name        Description
+// 11/19/2001  aliu        Creation.
+// 
 #ifndef ICU_UTIL_H
 #define ICU_UTIL_H
 
@@ -261,4 +255,3 @@ private:
 U_NAMESPACE_END
 
 #endif
-//eof

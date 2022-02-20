@@ -66,28 +66,28 @@ class MultiDatabase : public Xapian::Database::Internal {
 
     void close();
 
-    PostList* open_post_list(const std::string& term) const;
+    PostList* open_post_list(const std::string & term) const;
 
-    LeafPostList* open_leaf_post_list(const std::string& term,
+    LeafPostList* open_leaf_post_list(const std::string & term,
 				      bool need_read_pos) const;
 
     TermList* open_term_list(Xapian::docid did) const;
 
     TermList* open_term_list_direct(Xapian::docid did) const;
 
-    TermList* open_allterms(const std::string& prefix) const;
+    TermList* open_allterms(const std::string & prefix) const;
 
     bool has_positions() const;
 
     PositionList* open_position_list(Xapian::docid did,
-				     const std::string& term) const;
+				     const std::string & term) const;
     Xapian::doccount get_doccount() const;
 
     Xapian::docid get_lastdocid() const;
 
     Xapian::totallength get_total_length() const;
 
-    void get_freqs(const std::string& term,
+    void get_freqs(const std::string & term,
 		   Xapian::doccount* tf_ptr,
 		   Xapian::termcount* cf_ptr) const;
 
@@ -101,7 +101,7 @@ class MultiDatabase : public Xapian::Database::Internal {
 
     Xapian::termcount get_doclength_upper_bound() const;
 
-    Xapian::termcount get_wdf_upper_bound(const std::string& term) const;
+    Xapian::termcount get_wdf_upper_bound(const std::string & term) const;
 
     ValueList* open_value_list(Xapian::valueno slot) const;
 
@@ -114,30 +114,30 @@ class MultiDatabase : public Xapian::Database::Internal {
     Xapian::Document::Internal* open_document(Xapian::docid did,
 					      bool lazy) const;
 
-    bool term_exists(const std::string& term) const;
+    bool term_exists(const std::string & term) const;
 
     void keep_alive();
 
-    TermList* open_spelling_termlist(const std::string& word) const;
+    TermList* open_spelling_termlist(const std::string & word) const;
 
     TermList* open_spelling_wordlist() const;
 
-    Xapian::doccount get_spelling_frequency(const std::string& word) const;
+    Xapian::doccount get_spelling_frequency(const std::string & word) const;
 
-    TermList* open_synonym_termlist(const std::string& term) const;
+    TermList* open_synonym_termlist(const std::string & term) const;
 
-    TermList* open_synonym_keylist(const std::string& prefix) const;
+    TermList* open_synonym_keylist(const std::string & prefix) const;
 
-    std::string get_metadata(const std::string& key) const;
+    std::string get_metadata(const std::string & key) const;
 
-    TermList* open_metadata_keylist(const std::string& prefix) const;
+    TermList* open_metadata_keylist(const std::string & prefix) const;
 
     std::string get_uuid() const;
 
     bool locked() const;
 
     void write_changesets_to_fd(int fd,
-				const std::string& start_revision,
+				const std::string & start_revision,
 				bool need_whole_db,
 				Xapian::ReplicationInfo* info);
 
@@ -159,32 +159,32 @@ class MultiDatabase : public Xapian::Database::Internal {
 
     void delete_document(Xapian::docid did);
 
-    void delete_document(const std::string& term);
+    void delete_document(const std::string & term);
 
     void replace_document(Xapian::docid did, const Xapian::Document& doc);
 
-    Xapian::docid replace_document(const std::string& term,
+    Xapian::docid replace_document(const std::string & term,
 				   const Xapian::Document& doc);
 
     void request_document(Xapian::docid did) const;
 
-    void add_spelling(const std::string& word, Xapian::termcount freqinc) const;
+    void add_spelling(const std::string & word, Xapian::termcount freqinc) const;
 
-    Xapian::termcount remove_spelling(const std::string& word,
+    Xapian::termcount remove_spelling(const std::string & word,
 				      Xapian::termcount freqdec) const;
 
-    void add_synonym(const std::string& term, const std::string& synonym) const;
+    void add_synonym(const std::string & term, const std::string & synonym) const;
 
-    void remove_synonym(const std::string& term,
-			const std::string& synonym) const;
+    void remove_synonym(const std::string & term,
+			const std::string & synonym) const;
 
-    void clear_synonyms(const std::string& term) const;
+    void clear_synonyms(const std::string & term) const;
 
-    void set_metadata(const std::string& key, const std::string& value);
+    void set_metadata(const std::string & key, const std::string & value);
 
     std::string reconstruct_text(Xapian::docid did,
 				 size_t length,
-				 const std::string& prefix,
+				 const std::string & prefix,
 				 Xapian::termpos start_pos,
 				 Xapian::termpos end_pos) const;
 

@@ -118,7 +118,7 @@ void DLHWeight::init(double factor)
 #endif
 	double C = 0.5 * log2(SMathConst::Pi2 * max_product) / (wdf_lower + 0.5);
 	upper_bound = A + B + C;
-	if(rare(upper_bound < 0.0))
+	if(UNLIKELY(upper_bound < 0.0))
 		upper_bound = 0.0;
 	else
 		upper_bound *= wqf_product_factor;
@@ -139,9 +139,9 @@ string DLHWeight::serialise() const
 	return string();
 }
 
-DLHWeight * DLHWeight::unserialise(const string& s) const
+DLHWeight * DLHWeight::unserialise(const string & s) const
 {
-	if(rare(!s.empty()))
+	if(UNLIKELY(!s.empty()))
 		throw Xapian::SerialisationError("Extra data in DLHWeight::unserialise()");
 	return new DLHWeight();
 }
@@ -152,7 +152,7 @@ double DLHWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len, Xapi
 	double wdf_to_len = double(wdf) / len;
 	double one_minus_wdf_to_len = 1.0 - wdf_to_len;
 	double wt = wdf * log2(wdf_to_len * log_constant) + (len - wdf) * log2(one_minus_wdf_to_len) + 0.5 * log2(SMathConst::Pi2 * wdf * one_minus_wdf_to_len);
-	if(rare(wt <= 0.0)) 
+	if(UNLIKELY(wt <= 0.0)) 
 		return 0.0;
 	return wqf_product_factor * wt / (wdf + 0.5);
 }

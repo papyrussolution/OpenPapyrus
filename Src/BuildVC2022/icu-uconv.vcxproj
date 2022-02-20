@@ -2,7 +2,7 @@
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Label="Globals">
     <ProjectGuid>{DBA4088D-F6F9-4F8F-8820-082A4765C16C}</ProjectGuid>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -164,12 +164,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir>\papyrus\__TEMP__\VC2017\icu\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
-    <IntDir>\papyrus\__TEMP__\VC2017\icu\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>\papyrus\__TEMP__\VC2022\icu\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>\papyrus\__TEMP__\VC2022\icu\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <MakeCFG>$(Platform)\$(Configuration)</MakeCFG>
     <!-- The ICU projects use "Win32" to mean "x86", so we need to special case it. -->
-    <OutDir Condition="'$(Platform)'=='Win32'">\papyrus\__TEMP__\VC2017\icu\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
-    <IntDir Condition="'$(Platform)'=='Win32'">\papyrus\__TEMP__\VC2017\icu\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir Condition="'$(Platform)'=='Win32'">\papyrus\__TEMP__\VC2022\icu\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir Condition="'$(Platform)'=='Win32'">\papyrus\__TEMP__\VC2022\icu\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <MakeCFG Condition="'$(Platform)'=='Win32'">x86\$(Configuration)</MakeCFG>
     <!-- Disable Incremental Linking for Release builds as it prevents Link-time Code Generation -->
     <LinkIncremental Condition="'$(Configuration)'=='Debug'">true</LinkIncremental>

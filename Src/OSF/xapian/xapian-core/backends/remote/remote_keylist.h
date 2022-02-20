@@ -39,7 +39,7 @@ class RemoteKeyList : public AllTermsList {
 
   public:
     /// Construct.
-    RemoteKeyList(const std::string& prefix, std::string&& data_)
+    RemoteKeyList(const std::string & prefix, std::string && data_)
 	: current_term(prefix),
 	  data(data_) {}
 
@@ -60,7 +60,7 @@ class RemoteKeyList : public AllTermsList {
      *  If the specified term isn't in the list, position ourselves on the
      *  first term after @a term (or at_end() if no terms after @a term exist).
      */
-    TermList* skip_to(const std::string& term);
+    TermList* skip_to(const std::string & term);
 
     /// Return true if the current position is past the last term in this list.
     bool at_end() const;

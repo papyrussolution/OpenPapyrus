@@ -293,7 +293,7 @@ std::string FormatTime(int64 seconds, int32 nanos)
 	return result + "Z";
 }
 
-bool ParseTime(const std::string& value, int64* seconds, int32* nanos) {
+bool ParseTime(const std::string & value, int64* seconds, int32* nanos) {
 	DateTime time;
 	const char* data = value.c_str();
 	// We only accept:

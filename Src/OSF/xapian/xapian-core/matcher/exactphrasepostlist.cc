@@ -7,7 +7,6 @@
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "exactphrasepostlist.h"
-#include "debuglog.h"
 #include "backends/positionlist.h"
 
 using namespace std;

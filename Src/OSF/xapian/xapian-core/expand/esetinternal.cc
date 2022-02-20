@@ -127,7 +127,7 @@ ESet::Internal::expand(Xapian::termcount max_esize,
 		// We have the desired number of items, so it's one-in one-out from
 		// now on.
 		Assert(items.size() == max_esize);
-		if(rare(!is_heap)) {
+		if(UNLIKELY(!is_heap)) {
 			Heap::make(items.begin(), items.end(),
 			    std::less<Xapian::Internal::ExpandTerm>());
 			min_wt = items.front().wt;

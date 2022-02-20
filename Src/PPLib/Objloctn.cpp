@@ -1110,7 +1110,7 @@ PPID PPObjLocation::GetTrunkPointByDlvrAddr(PPID dlvrAddrID)
 			if(tag_item.GetInt(&_tag_dest_point_id) && _tag_dest_point_id) {
 				PPObjWorld w_obj;
 				WorldTbl::Rec w_rec;
-				if(w_obj.Search(_tag_dest_point_id, &w_rec) > 0 && oneof2(w_rec.Kind, WORLDOBJ_CITY, WORLDOBJ_CITYAREA))
+				if(w_obj.Search(_tag_dest_point_id, &w_rec) > 0 && oneof3(w_rec.Kind, WORLDOBJ_CITY, WORLDOBJ_CITYAREA, WORLDOBJ_STREET))
 					trunk_point_id = _tag_dest_point_id;		
 			}
 		}
@@ -2437,13 +2437,13 @@ int PPObjLocation::InitCode(LocationTbl::Rec * pRec)
 	return ok;
 }
 
-int PPObjLocation::GetRegister(PPID locID, PPID regType, LDATE actualDate, int inheritFromOwner, RegisterTbl::Rec * pRec)
+int PPObjLocation::GetRegister(PPID locID, PPID regType, LDATE actualDate, bool inheritFromOwner, RegisterTbl::Rec * pRec)
 {
 	int    ok = -1;
 	RegisterArray reg_list;
 	THROW_MEM(SETIFZ(P_RegObj, new PPObjRegister()));
 	if(P_RegObj->P_Tbl->GetByLocation(locID, &reg_list) > 0) {
-		if(reg_list.GetRegister(regType, actualDate, 0, pRec) > 0) { // @v9.9.12 @fix !0 --> >0
+		if(reg_list.GetRegister(regType, actualDate, 0, pRec) > 0) {
 			ok = 1;
 		}
 	}
@@ -3844,7 +3844,7 @@ void PPALDD_Location::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack
 		_RET_INT = 0;
 		PPID   reg_type_id = 0;
 		if(PPObjRegisterType::GetByCode(_ARG_STR(1), &reg_type_id) > 0) {
-			const int inherit = _ARG_INT(2);
+			const bool inherit = LOGIC(_ARG_INT(2));
 			PPObjLocation * p_obj = static_cast<PPObjLocation *>(Extra[0].Ptr);
 			RegisterTbl::Rec reg_rec;
 			if(p_obj && p_obj->GetRegister(H.ID, reg_type_id, ZERODATE, inherit, &reg_rec) > 0)
@@ -3855,7 +3855,7 @@ void PPALDD_Location::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack
 		_RET_INT = 0;
 		PPID   reg_type_id = 0;
 		if(PPObjRegisterType::GetByCode(_ARG_STR(1), &reg_type_id) > 0) {
-			const int inherit = _ARG_INT(3);
+			const bool inherit = LOGIC(_ARG_INT(3));
 			PPObjLocation * p_obj = static_cast<PPObjLocation *>(Extra[0].Ptr);
 			RegisterTbl::Rec reg_rec;
 			if(p_obj && p_obj->GetRegister(H.ID, reg_type_id, _ARG_DATE(2), inherit, &reg_rec) > 0)

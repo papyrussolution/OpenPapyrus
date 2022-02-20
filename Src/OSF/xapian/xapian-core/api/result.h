@@ -45,9 +45,9 @@ public:
 	}
 	/// Constructor used by MSet::Internal::unserialise().
 	Result(double weight_, Xapian::docid did_,
-	    std::string&& collapse_key_,
+	    std::string && collapse_key_,
 	    Xapian::doccount collapse_count_,
-	    std::string&& sort_key_)
+	    std::string && sort_key_)
 		: weight(weight_), did(did_),
 		collapse_count(collapse_count_),
 		collapse_key(std::move(collapse_key_)),
@@ -63,10 +63,10 @@ public:
 	Xapian::doccount get_collapse_count() const {
 		return collapse_count;
 	}
-	const std::string& get_collapse_key() const {
+	const std::string & get_collapse_key() const {
 		return collapse_key;
 	}
-	const std::string& get_sort_key() const {
+	const std::string & get_sort_key() const {
 		return sort_key;
 	}
 	void set_weight(double weight_) {
@@ -75,10 +75,10 @@ public:
 	void set_collapse_count(Xapian::doccount c) {
 		collapse_count = c;
 	}
-	void set_collapse_key(const std::string& k) {
+	void set_collapse_key(const std::string & k) {
 		collapse_key = k;
 	}
-	void set_sort_key(const std::string& k) {
+	void set_sort_key(const std::string & k) {
 		sort_key = k;
 	}
 	void unshard_docid(Xapian::doccount shard, Xapian::doccount n_shards) {

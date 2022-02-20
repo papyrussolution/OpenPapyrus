@@ -25,17 +25,16 @@
 #define XAPIAN_INCLUDED_CLUSTER_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-#error Never use <xapian/cluster.h> directly; include <xapian.h> instead.
+	#error Never use <xapian/cluster.h> directly; include <xapian.h> instead.
 #endif
-
-#include <xapian/attributes.h>
-#include <xapian/mset.h>
-#include <xapian/queryparser.h>
-#include <xapian/types.h>
-#include <xapian/visibility.h>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
+//#include <xapian/attributes.h>
+//#include <xapian/mset.h>
+//#include <xapian/queryparser.h>
+//#include <xapian/types.h>
+//#include <xapian/visibility.h>
+//#include <unordered_map>
+//#include <unordered_set>
+//#include <vector>
 
 namespace Xapian {
 /// Stopper subclass which checks for both stemmed and unstemmed stopwords
@@ -173,7 +172,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermListGroup : public FreqSource {
 	/** Map of the terms and its corresponding term frequencies.
 	 *  The term frequency of a term stands for the number of documents it indexes
 	 */
-	std::unordered_map<std::string, doccount> termfreq;
+	std::unordered_map <std::string, doccount> termfreq;
 
 	/// Number of documents added to the termlist
 	doccount num_of_documents;
@@ -199,7 +198,6 @@ public:
 	 *  @param tname	The term for which to return the term frequency
 	 */
 	doccount get_termfreq(const std::string &tname) const;
-
 	doccount get_doccount() const;
 };
 
@@ -211,7 +209,7 @@ protected:
 	/** Implement a map to store the terms within a document
 	 *  and their pre-computed TF-IDF weights
 	 */
-	std::unordered_map<std::string, double> weights;
+	std::unordered_map <std::string, double> weights;
 
 	/// Store the squared magnitude of the PointType
 	double magnitude;
@@ -227,17 +225,13 @@ protected:
 
 public:
 	/// Default constructor
-	PointType() : magnitude(0.0) {
+	PointType() : magnitude(0.0) 
+	{
 	}
-
 	/// Return a TermIterator to the beginning of the termlist
 	TermIterator termlist_begin() const;
-
 	/// Return a TermIterator to the end of the termlist
-	TermIterator termlist_end() const noexcept {
-		return TermIterator(NULL);
-	}
-
+	TermIterator termlist_end() const noexcept { return TermIterator(NULL); }
 	/** Validate whether a certain term exists in the termlist
 	 *  or not by performing a lookup operation in the existing values
 	 *

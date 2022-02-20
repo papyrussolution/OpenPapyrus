@@ -20,8 +20,6 @@
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "contiguousalldocspostlist.h"
-#include "omassert.h"
-#include "str.h"
 
 using namespace std;
 

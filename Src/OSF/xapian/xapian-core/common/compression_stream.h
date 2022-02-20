@@ -22,8 +22,8 @@
 #ifndef XAPIAN_INCLUDED_COMPRESSION_STREAM_H
 #define XAPIAN_INCLUDED_COMPRESSION_STREAM_H
 
-#include "internaltypes.h"
-#include <string>
+//#include "internaltypes.h"
+//#include <string>
 #include <zlib.h>
 
 class CompressionStream {
@@ -51,7 +51,7 @@ public:
 		lazy_alloc_inflate_zstream();
 	}
 	/** Returns true if this was the final chunk. */
-	bool decompress_chunk(const char* p, int len, std::string& buf);
+	bool decompress_chunk(const char* p, int len, std::string & buf);
 };
 
 #endif // XAPIAN_INCLUDED_COMPRESSION_STREAM_H

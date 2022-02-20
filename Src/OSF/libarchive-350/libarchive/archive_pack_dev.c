@@ -89,10 +89,9 @@ static const char tooManyFields[] = "too many fields for format";
 #endif
 
 /* exported */
-dev_t pack_native(int n, unsigned long numbers[], const char ** error)
+dev_t pack_native(int n, ulong numbers[], const char ** error)
 {
 	dev_t dev = 0;
-
 	if(n == 2) {
 		dev = apd_makedev(numbers[0], numbers[1]);
 		if((ulong)major(dev) != numbers[0])
@@ -105,7 +104,7 @@ dev_t pack_native(int n, unsigned long numbers[], const char ** error)
 	return (dev);
 }
 
-static dev_t pack_netbsd(int n, unsigned long numbers[], const char ** error)
+static dev_t pack_netbsd(int n, ulong numbers[], const char ** error)
 {
 	dev_t dev = 0;
 
@@ -126,7 +125,7 @@ static dev_t pack_netbsd(int n, unsigned long numbers[], const char ** error)
 #define makedev_freebsd(x, y)    ((dev_t)((((x) << 8) & 0x0000ff00) | \
 	(((y) << 0) & 0xffff00ff)))
 
-static dev_t pack_freebsd(int n, unsigned long numbers[], const char ** error)
+static dev_t pack_freebsd(int n, ulong numbers[], const char ** error)
 {
 	dev_t dev = 0;
 
@@ -147,7 +146,7 @@ static dev_t pack_freebsd(int n, unsigned long numbers[], const char ** error)
 #define makedev_8_8(x, y)        ((dev_t)((((x) << 8) & 0x0000ff00) | \
 	(((y) << 0) & 0x000000ff)))
 
-static dev_t pack_8_8(int n, unsigned long numbers[], const char ** error)
+static dev_t pack_8_8(int n, ulong numbers[], const char ** error)
 {
 	dev_t dev = 0;
 
@@ -168,7 +167,7 @@ static dev_t pack_8_8(int n, unsigned long numbers[], const char ** error)
 #define makedev_12_20(x, y)      ((dev_t)((((x) << 20) & 0xfff00000) | \
 	(((y) <<  0) & 0x000fffff)))
 
-static dev_t pack_12_20(int n, unsigned long numbers[], const char ** error)
+static dev_t pack_12_20(int n, ulong numbers[], const char ** error)
 {
 	dev_t dev = 0;
 
@@ -189,7 +188,7 @@ static dev_t pack_12_20(int n, unsigned long numbers[], const char ** error)
 #define makedev_14_18(x, y)      ((dev_t)((((x) << 18) & 0xfffc0000) | \
 	(((y) <<  0) & 0x0003ffff)))
 
-static dev_t pack_14_18(int n, unsigned long numbers[], const char ** error)
+static dev_t pack_14_18(int n, ulong numbers[], const char ** error)
 {
 	dev_t dev = 0;
 
@@ -210,10 +209,9 @@ static dev_t pack_14_18(int n, unsigned long numbers[], const char ** error)
 #define makedev_8_24(x, y)       ((dev_t)((((x) << 24) & 0xff000000) | \
 	(((y) <<  0) & 0x00ffffff)))
 
-static dev_t pack_8_24(int n, unsigned long numbers[], const char ** error)
+static dev_t pack_8_24(int n, ulong numbers[], const char ** error)
 {
 	dev_t dev = 0;
-
 	if(n == 2) {
 		dev = makedev_8_24(numbers[0], numbers[1]);
 		if((ulong)major_8_24(dev) != numbers[0])
@@ -229,11 +227,9 @@ static dev_t pack_8_24(int n, unsigned long numbers[], const char ** error)
 #define major_12_12_8(x)        ((int32_t)(((x) & 0xfff00000) >> 20))
 #define unit_12_12_8(x)         ((int32_t)(((x) & 0x000fff00) >>  8))
 #define subunit_12_12_8(x)      ((int32_t)(((x) & 0x000000ff) >>  0))
-#define makedev_12_12_8(x, y, z)  ((dev_t)((((x) << 20) & 0xfff00000) | \
-	(((y) <<  8) & 0x000fff00) | \
-	(((z) <<  0) & 0x000000ff)))
+#define makedev_12_12_8(x, y, z)  ((dev_t)((((x) << 20) & 0xfff00000) | (((y) <<  8) & 0x000fff00) | (((z) <<  0) & 0x000000ff)))
 
-static dev_t pack_bsdos(int n, unsigned long numbers[], const char ** error)
+static dev_t pack_bsdos(int n, ulong numbers[], const char ** error)
 {
 	dev_t dev = 0;
 	if(n == 2) {

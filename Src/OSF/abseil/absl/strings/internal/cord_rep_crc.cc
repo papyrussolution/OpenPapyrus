@@ -29,7 +29,8 @@ CordRepCrc* CordRepCrc::New(CordRep* child, uint32_t crc) {
 	return new_cordrep;
 }
 
-void CordRepCrc::Destroy(CordRepCrc* node) {
+void CordRepCrc::Destroy(CordRepCrc* node) 
+{
 	CordRep::Unref(node->child);
 	delete node;
 }

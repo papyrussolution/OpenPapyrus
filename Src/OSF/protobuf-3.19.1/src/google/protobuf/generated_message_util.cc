@@ -79,7 +79,7 @@ void InitProtobufDefaultsSlow() {
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY static std::true_type init_empty_string =
     (InitProtobufDefaultsSlow(), std::true_type{});
 
-size_t StringSpaceUsedExcludingSelfLong(const std::string& str) {
+size_t StringSpaceUsedExcludingSelfLong(const std::string & str) {
 	const void* start = &str;
 	const void* end = &str + 1;
 	if(start <= str.data() && str.data() < end) {

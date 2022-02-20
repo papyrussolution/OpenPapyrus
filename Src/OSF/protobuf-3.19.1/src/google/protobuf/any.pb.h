@@ -184,29 +184,29 @@ class Any final :
   };
   // string type_url = 1;
   void clear_type_url();
-  const std::string& type_url() const;
-  template <typename ArgT0 = const std::string&, typename... ArgT>
+  const std::string & type_url() const;
+  template <typename ArgT0 = const std::string &, typename... ArgT>
   void set_type_url(ArgT0&& arg0, ArgT... args);
   std::string* mutable_type_url();
   PROTOBUF_NODISCARD std::string* release_type_url();
   void set_allocated_type_url(std::string* type_url);
   private:
-  const std::string& _internal_type_url() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_type_url(const std::string& value);
+  const std::string & _internal_type_url() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_type_url(const std::string & value);
   std::string* _internal_mutable_type_url();
   public:
 
   // bytes value = 2;
   void clear_value();
-  const std::string& value() const;
-  template <typename ArgT0 = const std::string&, typename... ArgT>
+  const std::string & value() const;
+  template <typename ArgT0 = const std::string &, typename... ArgT>
   void set_value(ArgT0&& arg0, ArgT... args);
   std::string* mutable_value();
   PROTOBUF_NODISCARD std::string* release_value();
   void set_allocated_value(std::string* value);
   private:
-  const std::string& _internal_value() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_value(const std::string& value);
+  const std::string & _internal_value() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_value(const std::string & value);
   std::string* _internal_mutable_value();
   public:
 
@@ -238,7 +238,7 @@ class Any final :
 inline void Any::clear_type_url() {
   type_url_.ClearToEmpty();
 }
-inline const std::string& Any::type_url() const {
+inline const std::string & Any::type_url() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.Any.type_url)
 	return _internal_type_url();
 }
@@ -254,8 +254,8 @@ inline std::string* Any::mutable_type_url() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.Any.type_url)
 	return _s;
 }
-inline const std::string& Any::_internal_type_url() const { return type_url_.Get(); }
-inline void Any::_internal_set_type_url(const std::string& value) {
+inline const std::string & Any::_internal_type_url() const { return type_url_.Get(); }
+inline void Any::_internal_set_type_url(const std::string & value) {
 	
 	type_url_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -286,7 +286,7 @@ inline void Any::set_allocated_type_url(std::string* type_url) {
 inline void Any::clear_value() {
   value_.ClearToEmpty();
 }
-inline const std::string& Any::value() const {
+inline const std::string & Any::value() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.Any.value)
 	return _internal_value();
 }
@@ -302,8 +302,8 @@ inline std::string* Any::mutable_value() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.Any.value)
 	return _s;
 }
-inline const std::string& Any::_internal_value() const { return value_.Get(); }
-inline void Any::_internal_set_value(const std::string& value) {
+inline const std::string & Any::_internal_value() const { return value_.Get(); }
+inline void Any::_internal_set_value(const std::string & value) {
 	
 	value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }

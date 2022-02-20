@@ -30,7 +30,7 @@ ShortNumberInfo::ShortNumberInfo() : phone_util_(*PhoneNumberUtil::GetInstance()
 		return;
 	}
 	for(RepeatedPtrField<PhoneMetadata>::const_iterator it = metadata_collection.metadata().begin(); it != metadata_collection.metadata().end(); ++it) {
-		const string& region_code = it->id();
+		const string & region_code = it->id();
 		region_to_short_metadata_map_->insert(std::make_pair(region_code, *it));
 	}
 	regions_where_emergency_numbers_must_be_exact_->insert("BR");
@@ -43,7 +43,7 @@ ShortNumberInfo::~ShortNumberInfo() {
 
 // Returns a pointer to the phone metadata for the appropriate region or NULL
 // if the region code is invalid or unknown.
-const PhoneMetadata* ShortNumberInfo::GetMetadataForRegion(const string& region_code) const {
+const PhoneMetadata* ShortNumberInfo::GetMetadataForRegion(const string & region_code) const {
 	map<string, PhoneMetadata>::const_iterator it =
 	    region_to_short_metadata_map_->find(region_code);
 	if(it != region_to_short_metadata_map_->end()) {
@@ -56,7 +56,7 @@ namespace {
 // TODO: Once we have benchmarked ShortNumberInfo, consider if it is
 // worth keeping this performance optimization.
 bool MatchesPossibleNumberAndNationalNumber(const MatcherApi& matcher_api,
-    const string& number,
+    const string & number,
     const PhoneNumberDesc& desc) {
 	const RepeatedField<int>& lengths = desc.possible_length();
 	if(desc.possible_length_size() > 0 &&
@@ -71,7 +71,7 @@ bool MatchesPossibleNumberAndNationalNumber(const MatcherApi& matcher_api,
 // Helper method to check that the country calling code of the number matches
 // the region it's being dialed from.
 bool ShortNumberInfo::RegionDialingFromMatchesNumber(const PhoneNumber& number,
-    const string& region_dialing_from) const {
+    const string & region_dialing_from) const {
 	list<string> region_codes;
 	phone_util_.GetRegionCodesForCountryCallingCode(number.country_code(),
 	    &region_codes);
@@ -81,7 +81,7 @@ bool ShortNumberInfo::RegionDialingFromMatchesNumber(const PhoneNumber& number,
 }
 
 bool ShortNumberInfo::IsPossibleShortNumberForRegion(const PhoneNumber& number,
-    const string& region_dialing_from) const {
+    const string & region_dialing_from) const {
 	if(!RegionDialingFromMatchesNumber(number, region_dialing_from)) {
 		return false;
 	}
@@ -120,7 +120,7 @@ bool ShortNumberInfo::IsPossibleShortNumber(const PhoneNumber& number) const {
 	return false;
 }
 
-bool ShortNumberInfo::IsValidShortNumberForRegion(const PhoneNumber& number, const string& region_dialing_from) const {
+bool ShortNumberInfo::IsValidShortNumberForRegion(const PhoneNumber& number, const string & region_dialing_from) const {
 	if(!RegionDialingFromMatchesNumber(number, region_dialing_from)) {
 		return false;
 	}
@@ -154,7 +154,7 @@ bool ShortNumberInfo::IsValidShortNumber(const PhoneNumber& number) const {
 }
 
 ShortNumberInfo::ShortNumberCost ShortNumberInfo::GetExpectedCostForRegion(const PhoneNumber& number,
-    const string& region_dialing_from) const {
+    const string & region_dialing_from) const {
 	if(!RegionDialingFromMatchesNumber(number, region_dialing_from)) {
 		return ShortNumberInfo::UNKNOWN_COST;
 	}
@@ -260,7 +260,7 @@ void ShortNumberInfo::GetRegionCodeForShortNumberFromRegionList(const PhoneNumbe
 	region_code->assign(RegionCode::GetUnknown());
 }
 
-string ShortNumberInfo::GetExampleShortNumber(const string& region_code) const 
+string ShortNumberInfo::GetExampleShortNumber(const string & region_code) const 
 {
 	const PhoneMetadata* phone_metadata = GetMetadataForRegion(region_code);
 	if(!phone_metadata) {
@@ -273,7 +273,7 @@ string ShortNumberInfo::GetExampleShortNumber(const string& region_code) const
 	return "";
 }
 
-string ShortNumberInfo::GetExampleShortNumberForCost(const string& region_code, ShortNumberInfo::ShortNumberCost cost) const 
+string ShortNumberInfo::GetExampleShortNumberForCost(const string & region_code, ShortNumberInfo::ShortNumberCost cost) const 
 {
 	const PhoneMetadata* phone_metadata = GetMetadataForRegion(region_code);
 	if(!phone_metadata) {
@@ -301,20 +301,20 @@ string ShortNumberInfo::GetExampleShortNumberForCost(const string& region_code, 
 	return "";
 }
 
-bool ShortNumberInfo::ConnectsToEmergencyNumber(const string& number,
-    const string& region_code) const {
+bool ShortNumberInfo::ConnectsToEmergencyNumber(const string & number,
+    const string & region_code) const {
 	return MatchesEmergencyNumberHelper(number, region_code,
 		   true /* allows prefix match */);
 }
 
-bool ShortNumberInfo::IsEmergencyNumber(const string& number,
-    const string& region_code) const {
+bool ShortNumberInfo::IsEmergencyNumber(const string & number,
+    const string & region_code) const {
 	return MatchesEmergencyNumberHelper(number, region_code,
 		   false /* doesn't allow prefix match */);
 }
 
-bool ShortNumberInfo::MatchesEmergencyNumberHelper(const string& number,
-    const string& region_code, bool allow_prefix_match) const {
+bool ShortNumberInfo::MatchesEmergencyNumberHelper(const string & number,
+    const string & region_code, bool allow_prefix_match) const {
 	string extracted_number;
 	phone_util_.ExtractPossibleNumber(number, &extracted_number);
 	if(phone_util_.StartsWithPlusCharsPattern(extracted_number)) {
@@ -352,7 +352,7 @@ bool ShortNumberInfo::IsCarrierSpecific(const PhoneNumber& number) const {
 }
 
 bool ShortNumberInfo::IsCarrierSpecificForRegion(const PhoneNumber& number,
-    const string& region_dialing_from) const {
+    const string & region_dialing_from) const {
 	if(!RegionDialingFromMatchesNumber(number, region_dialing_from)) {
 		return false;
 	}
@@ -366,7 +366,7 @@ bool ShortNumberInfo::IsCarrierSpecificForRegion(const PhoneNumber& number,
 }
 
 bool ShortNumberInfo::IsSmsServiceForRegion(const PhoneNumber& number,
-    const string& region_dialing_from) const {
+    const string & region_dialing_from) const {
 	if(!RegionDialingFromMatchesNumber(number, region_dialing_from)) {
 		return false;
 	}

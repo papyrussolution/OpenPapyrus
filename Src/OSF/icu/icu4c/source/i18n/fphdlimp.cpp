@@ -1,11 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- * Copyright (C) 2009-2015, International Business Machines Corporation and
- * others. All Rights Reserved.
- *******************************************************************************
- */
+// Copyright (C) 2009-2015, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -18,23 +14,27 @@ U_NAMESPACE_BEGIN
 // utility FieldPositionHandler
 // base class, null implementation
 
-FieldPositionHandler::~FieldPositionHandler() {
+FieldPositionHandler::~FieldPositionHandler() 
+{
 }
 
-void FieldPositionHandler::setShift(int32_t delta) {
+void FieldPositionHandler::setShift(int32_t delta) 
+{
 	fShift = delta;
 }
 
 // utility subclass FieldPositionOnlyHandler
 
-FieldPositionOnlyHandler::FieldPositionOnlyHandler(FieldPosition& _pos)
-	: pos(_pos) {
+FieldPositionOnlyHandler::FieldPositionOnlyHandler(FieldPosition& _pos) : pos(_pos) 
+{
 }
 
-FieldPositionOnlyHandler::~FieldPositionOnlyHandler() {
+FieldPositionOnlyHandler::~FieldPositionOnlyHandler() 
+{
 }
 
-void FieldPositionOnlyHandler::addAttribute(int32_t id, int32_t start, int32_t limit) {
+void FieldPositionOnlyHandler::addAttribute(int32_t id, int32_t start, int32_t limit) 
+{
 	if(pos.getField() == id && (!acceptFirstOnly || !seenFirst)) {
 		seenFirst = TRUE;
 		pos.setBeginIndex(start + fShift);
@@ -42,37 +42,41 @@ void FieldPositionOnlyHandler::addAttribute(int32_t id, int32_t start, int32_t l
 	}
 }
 
-void FieldPositionOnlyHandler::shiftLast(int32_t delta) {
+void FieldPositionOnlyHandler::shiftLast(int32_t delta) 
+{
 	if(delta != 0 && pos.getField() != FieldPosition::DONT_CARE && pos.getBeginIndex() != -1) {
 		pos.setBeginIndex(delta + pos.getBeginIndex());
 		pos.setEndIndex(delta + pos.getEndIndex());
 	}
 }
 
-bool FieldPositionOnlyHandler::isRecording() const {
+bool FieldPositionOnlyHandler::isRecording() const 
+{
 	return pos.getField() != FieldPosition::DONT_CARE;
 }
 
-void FieldPositionOnlyHandler::setAcceptFirstOnly(bool acceptFirstOnly) {
+void FieldPositionOnlyHandler::setAcceptFirstOnly(bool acceptFirstOnly) 
+{
 	this->acceptFirstOnly = acceptFirstOnly;
 }
 
 // utility subclass FieldPositionIteratorHandler
 
-FieldPositionIteratorHandler::FieldPositionIteratorHandler(FieldPositionIterator* posIter,
-    UErrorCode & _status)
-	: iter(posIter), vec(NULL), status(_status), fCategory(UFIELD_CATEGORY_UNDEFINED) {
+FieldPositionIteratorHandler::FieldPositionIteratorHandler(FieldPositionIterator* posIter, UErrorCode & _status) : 
+	iter(posIter), vec(NULL), status(_status), fCategory(UFIELD_CATEGORY_UNDEFINED) 
+{
 	if(iter && U_SUCCESS(status)) {
 		vec = new UVector32(status);
 	}
 }
 
-FieldPositionIteratorHandler::FieldPositionIteratorHandler(UVector32* vec,
-    UErrorCode & status)
-	: iter(nullptr), vec(vec), status(status), fCategory(UFIELD_CATEGORY_UNDEFINED) {
+FieldPositionIteratorHandler::FieldPositionIteratorHandler(UVector32* vec, UErrorCode & status) : 
+	iter(nullptr), vec(vec), status(status), fCategory(UFIELD_CATEGORY_UNDEFINED) 
+{
 }
 
-FieldPositionIteratorHandler::~FieldPositionIteratorHandler() {
+FieldPositionIteratorHandler::~FieldPositionIteratorHandler() 
+{
 	// setData adopts the vec regardless of status, so it's safe to null it
 	if(iter) {
 		iter->setData(vec, status);
@@ -81,7 +85,8 @@ FieldPositionIteratorHandler::~FieldPositionIteratorHandler() {
 	vec = NULL;
 }
 
-void FieldPositionIteratorHandler::addAttribute(int32_t id, int32_t start, int32_t limit) {
+void FieldPositionIteratorHandler::addAttribute(int32_t id, int32_t start, int32_t limit) 
+{
 	if(vec && U_SUCCESS(status) && start < limit) {
 		int32_t size = vec->size();
 		vec->addElement(fCategory, status);
@@ -94,7 +99,8 @@ void FieldPositionIteratorHandler::addAttribute(int32_t id, int32_t start, int32
 	}
 }
 
-void FieldPositionIteratorHandler::shiftLast(int32_t delta) {
+void FieldPositionIteratorHandler::shiftLast(int32_t delta) 
+{
 	if(U_SUCCESS(status) && delta != 0) {
 		int32_t i = vec->size();
 		if(i > 0) {
@@ -106,9 +112,7 @@ void FieldPositionIteratorHandler::shiftLast(int32_t delta) {
 	}
 }
 
-bool FieldPositionIteratorHandler::isRecording() const {
-	return U_SUCCESS(status);
-}
+bool FieldPositionIteratorHandler::isRecording() const { return U_SUCCESS(status); }
 
 U_NAMESPACE_END
 

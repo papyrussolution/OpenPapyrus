@@ -53,7 +53,7 @@ namespace i18n {
 			// - match is the matched string of the target text.
 			// - number is the matched phone number.
 			PhoneNumberMatch(int start,
-				const string& raw_string,
+				const string & raw_string,
 				const PhoneNumber& number);
 
 			// Default constructor.
@@ -70,11 +70,11 @@ namespace i18n {
 			// Returns the length of the text matched in the searched text.
 			int length() const;
 			// Returns the raw string matched as a phone number in the searched text.
-			const string& raw_string() const;
+			const string & raw_string() const;
 			// Returns a string containing debug information.
 			string ToString() const;
 			void set_start(int start);
-			void set_raw_string(const string& raw_string);
+			void set_raw_string(const string & raw_string);
 			void set_number(const PhoneNumber& number);
 			bool Equals(const PhoneNumberMatch& number) const;
 			void CopyFrom(const PhoneNumberMatch& number);

@@ -91,7 +91,7 @@ class TermInfo {
      *  @return true if the term was flagged as deleted before the operation.
      */
     bool increase_wdf(Xapian::termcount delta) {
-	if (rare(is_deleted())) {
+	if (UNLIKELY(is_deleted())) {
 	    split = 0;
 	    wdf = delta;
 	    return true;

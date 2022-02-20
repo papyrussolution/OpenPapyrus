@@ -25,7 +25,7 @@
 #include <string>
 
 /// Append filename argument arg to command cmd with suitable escaping.
-static bool append_filename_argument(std::string& cmd, const std::string& arg, bool leading_space = true) 
+static bool append_filename_argument(std::string & cmd, const std::string & arg, bool leading_space = true) 
 {
 #ifdef __WIN32__
 	cmd.reserve(cmd.size() + arg.size() + 5);

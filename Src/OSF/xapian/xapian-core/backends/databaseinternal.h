@@ -139,7 +139,7 @@ public:
 	 *  @param collfreq_ptr	Point to return number of occurrences of @a
 	 *				term in the database (or NULL not to return)
 	 */
-	virtual void get_freqs(const std::string& term, doccount* termfreq_ptr, termcount* collfreq_ptr) const = 0;
+	virtual void get_freqs(const std::string & term, doccount* termfreq_ptr, termcount* collfreq_ptr) const = 0;
 	/** Return the frequency of a given value slot.
 	 *
 	 *  This is the number of documents which have a (non-empty) value
@@ -166,16 +166,16 @@ public:
 	/// Get an upper bound on the length of a document in this DB.
 	virtual termcount get_doclength_upper_bound() const = 0;
 	/// Get an upper bound on the wdf of term @a term.
-	virtual termcount get_wdf_upper_bound(const std::string& term) const = 0;
+	virtual termcount get_wdf_upper_bound(const std::string & term) const = 0;
 	/// Get a lower bound on the unique terms size of a document in this DB.
 	virtual termcount get_unique_terms_lower_bound() const;
 	/// Get an upper bound on the unique terms size of a document in this DB.
 	virtual termcount get_unique_terms_upper_bound() const;
-	virtual bool term_exists(const std::string& term) const = 0;
+	virtual bool term_exists(const std::string & term) const = 0;
 	/** Check whether this database contains any positional information. */
 	virtual bool has_positions() const = 0;
 	/** Return a PostList suitable for use in a PostingIterator. */
-	virtual PostList* open_post_list(const std::string& term) const = 0;
+	virtual PostList* open_post_list(const std::string & term) const = 0;
 	/** Create a LeafPostList for use during a match.
 	 *
 	 *  @param term		The term to open a postlist for, or the empty
@@ -186,7 +186,7 @@ public:
 	 *				open_position_list() may still be called even
 	 *				if need_read_pos is false.
 	 */
-	virtual LeafPostList* open_leaf_post_list(const std::string& term, bool need_read_pos) const = 0;
+	virtual LeafPostList* open_leaf_post_list(const std::string & term, bool need_read_pos) const = 0;
 	/** Open a value stream.
 	 *
 	 *  This returns the value in a particular slot for each document.
@@ -204,8 +204,8 @@ public:
 	 *  MultiTermList, but we don't want that for query expansion.
 	 */
 	virtual TermList* open_term_list_direct(docid did) const = 0;
-	virtual TermList* open_allterms(const std::string& prefix) const = 0;
-	virtual PositionList* open_position_list(docid did, const std::string& term) const = 0;
+	virtual TermList* open_allterms(const std::string & prefix) const = 0;
+	virtual PositionList* open_position_list(docid did, const std::string & term) const = 0;
 	/** Open a handle on a document.
 	 *
 	 *  The returned handle provides access to document data and document
@@ -227,7 +227,7 @@ public:
 	 *
 	 *  If there are no trigrams, returns NULL.
 	 */
-	virtual TermList* open_spelling_termlist(const std::string& word) const;
+	virtual TermList* open_spelling_termlist(const std::string & word) const;
 	/** Return a termlist which returns the words which are spelling
 	 *  correction targets.
 	 *
@@ -235,7 +235,7 @@ public:
 	 */
 	virtual TermList* open_spelling_wordlist() const;
 	/** Return the number of times @a word was added as a spelling. */
-	virtual doccount get_spelling_frequency(const std::string& word) const;
+	virtual doccount get_spelling_frequency(const std::string & word) const;
 	/** Add a word to the spelling dictionary.
 	 *
 	 *  If the word is already present, its frequency is increased.
@@ -243,7 +243,7 @@ public:
 	 *  @param word	The word to add.
 	 *  @param freqinc	How much to increase its frequency by.
 	 */
-	virtual void add_spelling(const std::string& word, termcount freqinc) const;
+	virtual void add_spelling(const std::string & word, termcount freqinc) const;
 	/** Remove a word from the spelling dictionary.
 	 *
 	 *  The word's frequency is decreased, and if would become zero or less
@@ -254,40 +254,40 @@ public:
 	 *
 	 *  @return Any freqdec not "used up".
 	 */
-	virtual termcount remove_spelling(const std::string& word, termcount freqdec) const;
+	virtual termcount remove_spelling(const std::string & word, termcount freqdec) const;
 	/** Open a termlist returning synonyms for a term.
 	 *
 	 *  If @a term has no synonyms, returns NULL.
 	 */
-	virtual TermList* open_synonym_termlist(const std::string& term) const;
+	virtual TermList* open_synonym_termlist(const std::string & term) const;
 	/** Open a termlist returning each term which has synonyms.
 	 *
 	 *  @param prefix   If non-empty, only terms with this prefix are
 	 *		    returned.
 	 */
-	virtual TermList* open_synonym_keylist(const std::string& prefix) const;
+	virtual TermList* open_synonym_keylist(const std::string & prefix) const;
 	/** Add a synonym for a term.
 	 *
 	 *  If @a synonym is already a synonym for @a term, then no action is
 	 *  taken.
 	 */
-	virtual void add_synonym(const std::string& term, const std::string& synonym) const;
+	virtual void add_synonym(const std::string & term, const std::string & synonym) const;
 	/** Remove a synonym for a term.
 	 *
 	 *  If @a synonym isn't a synonym for @a term, then no action is taken.
 	 */
-	virtual void remove_synonym(const std::string& term, const std::string& synonym) const;
+	virtual void remove_synonym(const std::string & term, const std::string & synonym) const;
 	/** Clear all synonyms for a term.
 	 *
 	 *  If @a term has no synonyms, no action is taken.
 	 */
-	virtual void clear_synonyms(const std::string& term) const;
+	virtual void clear_synonyms(const std::string & term) const;
 
 	/** Get the metadata associated with a given key.
 	 *
 	 *  See Database::get_metadata() for more information.
 	 */
-	virtual std::string get_metadata(const std::string& key) const;
+	virtual std::string get_metadata(const std::string & key) const;
 
 	/** Open a termlist returning each metadata key.
 	 *
@@ -296,13 +296,13 @@ public:
 	 *
 	 *  @param prefix   If non-empty, only keys with this prefix are returned.
 	 */
-	virtual TermList* open_metadata_keylist(const std::string& prefix) const;
+	virtual TermList* open_metadata_keylist(const std::string & prefix) const;
 
 	/** Set the metadata associated with a given key.
 	 *
 	 *  See WritableDatabase::set_metadata() for more information.
 	 */
-	virtual void set_metadata(const std::string& key, const std::string& value);
+	virtual void set_metadata(const std::string & key, const std::string & value);
 	/** Reopen the database to the latest available revision.
 	 *
 	 *  Database backends which don't support simultaneous update and
@@ -326,10 +326,10 @@ public:
 	virtual docid add_document(const Document& document);
 	virtual void delete_document(docid did);
 	/** Delete any documents indexed by a term from the database. */
-	virtual void delete_document(const std::string& unique_term);
+	virtual void delete_document(const std::string & unique_term);
 	virtual void replace_document(docid did, const Document& document);
 	/** Replace any documents matching a term. */
-	virtual docid replace_document(const std::string& unique_term, const Document& document);
+	virtual docid replace_document(const std::string & unique_term, const Document& document);
 	/** Request a document.
 	 *
 	 *  This tells the database that we're going to want a particular
@@ -351,7 +351,7 @@ public:
 	 *  This call may reopen the database, leaving it pointing to a more
 	 *  recent version of the database.
 	 */
-	virtual void write_changesets_to_fd(int fd, const std::string& start_revision, bool need_whole_db, ReplicationInfo* info);
+	virtual void write_changesets_to_fd(int fd, const std::string & start_revision, bool need_whole_db, ReplicationInfo* info);
 	/// Get revision number of database (if meaningful).
 	virtual Xapian::rev get_revision() const;
 	/** Get a UUID for the database.
@@ -414,7 +414,7 @@ public:
 	 *		 database).
 	 */
 	virtual Internal* update_lock(int flags);
-	virtual std::string reconstruct_text(Xapian::docid did, size_t length, const std::string& prefix, Xapian::termpos start_pos, Xapian::termpos end_pos) const;
+	virtual std::string reconstruct_text(Xapian::docid did, size_t length, const std::string & prefix, Xapian::termpos start_pos, Xapian::termpos end_pos) const;
 	/// Return a string describing this object.
 	virtual std::string get_description() const = 0;
 };

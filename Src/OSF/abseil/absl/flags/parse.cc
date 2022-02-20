@@ -137,7 +137,7 @@ public:
 	}
 
 	// Returns success status: true if parsing successful, false otherwise.
-	bool ReadFromFlagfile(const std::string& flag_file_name);
+	bool ReadFromFlagfile(const std::string & flag_file_name);
 
 	int Size() const {
 		return args_.size() - next_arg_;
@@ -160,7 +160,7 @@ private:
 	int next_arg_;
 };
 
-bool ArgsList::ReadFromFlagfile(const std::string& flag_file_name) {
+bool ArgsList::ReadFromFlagfile(const std::string & flag_file_name) {
 	std::ifstream flag_file(flag_file_name);
 
 	if(!flag_file) {
@@ -214,7 +214,7 @@ bool ArgsList::ReadFromFlagfile(const std::string& flag_file_name) {
 // Reads the environment variable with name `name` and stores results in
 // `value`. If variable is not present in environment returns false, otherwise
 // returns true.
-bool GetEnvVar(const char* var_name, std::string& var_value) {
+bool GetEnvVar(const char* var_name, std::string & var_value) {
 #ifdef _WIN32
 	char buf[1024];
 	auto get_res = GetEnvironmentVariableA(var_name, buf, sizeof(buf));

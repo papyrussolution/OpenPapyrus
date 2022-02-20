@@ -83,7 +83,7 @@ namespace i18n {
 			// copying the underlying C string. If one of the provided parameters is out
 			// of range, the function returns an empty unicode string.
 			UnicodeString tempSubString(int start, int length = std::numeric_limits<int>::max()) const;
-			inline void toUTF8String(string& out) const { out = UnicodeTextToUTF8(text_); }
+			inline void toUTF8String(string & out) const { out = UnicodeTextToUTF8(text_); }
 			char32 operator[](int index) const;
 
 		private:

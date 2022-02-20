@@ -103,7 +103,7 @@ IfB2Weight * IfB2Weight::unserialise(const string & s) const
 	const char * ptr = s.data();
 	const char * end = ptr + s.size();
 	double c = unserialise_double(&ptr, end);
-	if(rare(ptr != end))
+	if(UNLIKELY(ptr != end))
 		throw Xapian::SerialisationError("Extra data in IfB2Weight::unserialise()");
 	return new IfB2Weight(c);
 }

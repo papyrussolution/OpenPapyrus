@@ -786,28 +786,28 @@
     <ResourceCompile Include="..\OSF\mupdf\platform\x11\win_res.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BuildVC2017\harfbuzz.vcxproj">
+    <ProjectReference Include="harfbuzz.vcxproj">
       <Project>{be9c6ddf-e9c7-3ecb-9ff3-1fd8a3eb2410}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\BuildVC2017\jbig2dec.vcxproj">
+    <ProjectReference Include="jbig2dec.vcxproj">
       <Project>{d2064942-1272-448a-86e8-d3d18359cc55}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\BuildVC2017\lcms2.vcxproj">
+    <ProjectReference Include="lcms2.vcxproj">
       <Project>{71dede59-3f1e-486b-a899-4283000f76b5}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\BuildVC2017\libcurl-7730.vcxproj">
+    <ProjectReference Include="libcurl-7730.vcxproj">
       <Project>{fd47df9e-fd33-443d-9048-d802d3364469}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\BuildVC2017\openjp2.vcxproj">
+    <ProjectReference Include="openjp2.vcxproj">
       <Project>{c756e07c-5895-39df-8310-7126f3c6fd84}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\BuildVC2017\openssl-111-crypto.vcxproj">
+    <ProjectReference Include="openssl-111-crypto.vcxproj">
       <Project>{26070ad0-2d76-41a2-ab8b-864ea198cc6f}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\BuildVC2017\openssl-111.vcxproj">
+    <ProjectReference Include="openssl-111.vcxproj">
       <Project>{0796c89c-07e1-4bda-bdae-f023aeb5366c}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\BuildVC2017\slib.vcxproj">
+    <ProjectReference Include="slib.vcxproj">
       <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
     </ProjectReference>
     <ProjectReference Include="libmupdf.vcxproj">

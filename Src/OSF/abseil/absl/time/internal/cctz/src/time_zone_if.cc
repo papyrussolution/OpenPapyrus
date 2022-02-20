@@ -11,7 +11,7 @@ namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace time_internal {
 namespace cctz {
-std::unique_ptr<TimeZoneIf> TimeZoneIf::Load(const std::string& name) {
+std::unique_ptr<TimeZoneIf> TimeZoneIf::Load(const std::string & name) {
 	// Support "libc:localtime" and "libc:*" to access the legacy
 	// localtime and UTC support respectively from the C library.
 	if(name.compare(0, 5, "libc:") == 0) {

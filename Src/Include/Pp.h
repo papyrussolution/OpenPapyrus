@@ -9615,8 +9615,9 @@ public:
 #define AGTF_DDLIST715           0x0100L // Установленный флаг означает, что в БД запись сохранена с форматом списка DebtLimitList v7.1.5
 #define AGTF_USESDONPURCHOP      0x0200L // Применять ограничение контрактных цен на операции закупки
 #define AGTF_DONTUSEMINSHIPMQTTY 0x0400L // Не следует применять минимальное отгружаемое количество (GoodsStockExt;:MinShippmQtty)
-#define AGTF_DEFAGENTLOCTODBDIV  0x0800L // @v11.0.10 Агент по умолчанию в соглашениях с поставщиками локален по отношению к разлелу базы данных.
+#define AGTF_DEFAGENTLOCTODBDIV  0x0800L // @v11.0.10 Агент по умолчанию в соглашениях с поставщиками локален по отношению к разделу базы данных.
 	// То есть, при акцепте в разделе базы данных соглашения из другого раздела, поле агент-по-умолчанию не меняется.
+#define AGTF_PREPAYEDSALESONLY   0x1000L // @v11.3.2 @construction Отгрузка клиенту допускается только по предоплате
 
 // @todo @dbd_exchange Увеличить длину номера соглашения // @v10.2.9 @done
 struct PPClientAgreement { // @persistent
@@ -25700,7 +25701,7 @@ public:
 	// @attention: really private
 	//
 	int    ResolveWhCell(PPID locID, PPIDArray & rDestList, PPIDArray * pRecurTrace, int useCache);
-	int    GetRegister(PPID locID, PPID regType, LDATE actualDate, int iheritFromOwner, RegisterTbl::Rec * pRec);
+	int    GetRegister(PPID locID, PPID regType, LDATE actualDate, bool iheritFromOwner, RegisterTbl::Rec * pRec);
 	//int    ResolveWarehouseByCode(const char * pCode, PPID accSheetID, PPID * pArID);
 	int    ResolveGLN(PPID locTyp, const char * pGLN, PPIDArray & rList);
 	int    GetListByRegNumber(PPID regTypeID, PPID locTyp, const char * pSerial, const char * pNumber, PPIDArray & rList);

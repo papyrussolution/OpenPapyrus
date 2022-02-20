@@ -23,7 +23,7 @@ using std::string;
 using std::vector;
 
 // Supports string("hello") + 10.
-string operator+(const string& s, int n);  // NOLINT(runtime/string)
+string operator+(const string & s, int n);  // NOLINT(runtime/string)
 
 // Converts integer to string.
 string SimpleItoa(uint64 n);
@@ -31,15 +31,15 @@ string SimpleItoa(int64 n);
 string SimpleItoa(int n);
 
 // Returns whether the provided string starts with the supplied prefix.
-bool HasPrefixString(const string& s, const string& prefix);
+bool HasPrefixString(const string & s, const string & prefix);
 
 // Returns the index of the nth occurence of c in s or string::npos if less than
 // n occurrences are present.
-size_t FindNth(const string& s, char c, int n);
+size_t FindNth(const string & s, char c, int n);
 
 // Splits a string using a character delimiter. Appends the components to the
 // provided vector. Note that empty tokens are ignored.
-void SplitStringUsing(const string& s, const string& delimiter,
+void SplitStringUsing(const string & s, const string & delimiter,
     vector<string>* result);
 
 // Replaces any occurrence of the character 'remove' (or the characters
@@ -48,26 +48,26 @@ void StripString(string* s, const char* remove, char replacewith);
 
 // Returns true if 'in' starts with 'prefix' and writes 'in' minus 'prefix' into
 // 'out'.
-bool TryStripPrefixString(const string& in, const string& prefix, string* out);
+bool TryStripPrefixString(const string & in, const string & prefix, string* out);
 
 // Returns true if 's' ends with 'suffix'.
-bool HasSuffixString(const string& s, const string& suffix);
+bool HasSuffixString(const string & s, const string & suffix);
 
 // Converts string to int32.
-void safe_strto32(const string& s, int32 * n);
+void safe_strto32(const string & s, int32 * n);
 
 // Converts string to uint64.
-void safe_strtou64(const string& s, uint64 * n);
+void safe_strtou64(const string & s, uint64 * n);
 
 // Converts string to int64.
-void safe_strto64(const string& s, int64* n);
+void safe_strto64(const string & s, int64* n);
 
 // Remove all occurrences of a given set of characters from a string.
-void strrmm(string* s, const string& chars);
+void strrmm(string* s, const string & chars);
 
 // Replaces all instances of 'substring' in 's' with 'replacement'. Returns the
 // number of instances replaced. Replacements are not subject to re-matching.
-int GlobalReplaceSubstring(const string& substring, const string& replacement,
+int GlobalReplaceSubstring(const string & substring, const string & replacement,
     string* s);
 
 // Holds a reference to a std::string or C string. It can also be constructed
@@ -75,7 +75,7 @@ int GlobalReplaceSubstring(const string& substring, const string& replacement,
 class StringHolder {
 public:
 	// Don't make the constructors explicit to make the StrCat usage convenient.
-	StringHolder(const string& s); // NOLINT(runtime/explicit)
+	StringHolder(const string & s); // NOLINT(runtime/explicit)
 	StringHolder(const char* s); // NOLINT(runtime/explicit)
 	StringHolder(uint64 n);   // NOLINT(runtime/explicit)
 	~StringHolder();
@@ -99,7 +99,7 @@ private:
 	const size_t len_;
 };
 
-string& operator+=(string& lhs, const StringHolder& rhs);
+string & operator+=(string & lhs, const StringHolder& rhs);
 
 // Efficient string concatenation.
 

@@ -38,7 +38,7 @@ const unsigned KEY_PREFIX_WORD = 0x04;
 
 inline std::string make_spelling_wordlist_key(const std::string& word)
 {
-	if(rare(static_cast<unsigned char>(word[0]) <= KEY_PREFIX_WORD))
+	if(UNLIKELY(static_cast<unsigned char>(word[0]) <= KEY_PREFIX_WORD))
 		return char(KEY_PREFIX_WORD) + word;
 	return word;
 }
@@ -47,34 +47,23 @@ struct fragment {
 	char data[4];
 
 	/// Default constructor.
-	fragment() {
+	fragment() 
+	{
 	}
-
 	/// Zero-initialising constructor.
-	explicit fragment(int) {
-		memset(data, 0, 4);
+	explicit fragment(int) 
+	{
+		memzero(data, 4);
 	}
-
 	/// Allow implicit conversion.
-	explicit fragment(char data_[4]) {
+	explicit fragment(char data_[4]) 
+	{
 		memcpy(data, data_, 4);
 	}
-
-	char& operator[](unsigned i) {
-		return data[i];
-	}
-
-	const char& operator[](unsigned i) const {
-		return data[i];
-	}
-
-	operator std::string() const {
-		return std::string(data, data[0] == KEY_PREFIX_MIDDLE ? 4 : 3);
-	}
-
-	bool operator<(const fragment& b) const {
-		return memcmp(data, b.data, 4) < 0;
-	}
+	char& operator[](unsigned i) { return data[i]; }
+	const char& operator[](unsigned i) const { return data[i]; }
+	operator std::string() const { return std::string(data, data[0] == KEY_PREFIX_MIDDLE ? 4 : 3); }
+	bool operator<(const fragment& b) const { return memcmp(data, b.data, 4) < 0; }
 };
 }
 
@@ -106,29 +95,22 @@ public:
 	 *  @param dbdir		The directory the honey database is stored in.
 	 *  @param readonly		true if we're opening read-only, else false.
 	 */
-	HoneySpellingTable(const std::string& dbdir, bool readonly)
-		: HoneyLazyTable("spelling", dbdir + "/spelling.", readonly) {
+	HoneySpellingTable(const std::string& dbdir, bool readonly) : HoneyLazyTable("spelling", dbdir + "/spelling.", readonly) 
+	{
 	}
-
-	HoneySpellingTable(int fd, off_t offset_, bool readonly)
-		: HoneyLazyTable("spelling", fd, offset_, readonly) {
+	HoneySpellingTable(int fd, off_t offset_, bool readonly) : HoneyLazyTable("spelling", fd, offset_, readonly) 
+	{
 	}
-
 	/** Merge in batched-up changes. */
 	void merge_changes();
-
 	void add_word(const std::string& word, Xapian::termcount freqinc);
-	Xapian::termcount remove_word(const std::string& word,
-	    Xapian::termcount freqdec);
-
+	Xapian::termcount remove_word(const std::string& word, Xapian::termcount freqdec);
 	TermList* open_termlist(const std::string& word);
-
 	Xapian::doccount get_word_frequency(const std::string& word) const;
-
-	void set_wordfreq_upper_bound(Xapian::termcount ub) {
+	void set_wordfreq_upper_bound(Xapian::termcount ub) 
+	{
 		wordfreq_upper_bound = ub;
 	}
-
 	/** Override methods of HoneyTable.
 	 *
 	 *  NB: these aren't virtual, but we always call them on the subclass in

@@ -72,13 +72,13 @@ struct WinsockInitializer {
 inline int socket_errno() {
 	int wsa_err = WSAGetLastError();
 	switch(wsa_err) {
-# ifdef EADDRINUSE
+#ifdef EADDRINUSE
 		case WSAEADDRINUSE: return EADDRINUSE;
 #endif
-# ifdef ETIMEDOUT
+#ifdef ETIMEDOUT
 		case WSAETIMEDOUT: return ETIMEDOUT;
 #endif
-# ifdef EINPROGRESS
+#ifdef EINPROGRESS
 		case WSAEINPROGRESS: return EINPROGRESS;
 #endif
 		default: return wsa_err;
@@ -360,7 +360,7 @@ public:
 class OwnedRemoteConnection : public RemoteConnection {
 public:
 	/// Constructor.
-	OwnedRemoteConnection(int fdin_, int fdout_, const std::string& context_ = std::string()) : RemoteConnection(fdin_, fdout_, context_) 
+	OwnedRemoteConnection(int fdin_, int fdout_, const std::string & context_ = std::string()) : RemoteConnection(fdin_, fdout_, context_) 
 	{
 	}
 	~OwnedRemoteConnection() 

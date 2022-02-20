@@ -32,7 +32,7 @@ namespace i18n {
 			// Returns whether the given national number (a string containing only decimal
 			// digits) matches the national number pattern defined in the given
 			// PhoneNumberDesc message.
-			virtual bool MatchNationalNumber(const string& number, const PhoneNumberDesc& number_desc, bool allow_prefix_match) const = 0;
+			virtual bool MatchNationalNumber(const string & number, const PhoneNumberDesc& number_desc, bool allow_prefix_match) const = 0;
 		};
 	}
 }

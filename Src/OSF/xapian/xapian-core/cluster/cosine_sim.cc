@@ -40,7 +40,7 @@ double CosineDistance::similarity(const PointType& a, const PointType& b) const
 		return 0.0;
 
 	for(TermIterator it = a.termlist_begin(); it != a.termlist_end(); ++it) {
-		const string& term = *it;
+		const string & term = *it;
 		double a_weight = a.get_weight(term);
 		if(a_weight == 0)
 			continue;

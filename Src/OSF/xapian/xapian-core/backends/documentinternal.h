@@ -140,7 +140,7 @@ protected:
 	/// Constructor used by RemoteDocument subclass.
 	Internal(const Xapian::Database::Internal* database_,
 	    Xapian::docid did_,
-	    std::string&& data_,
+	    std::string && data_,
 	    std::map<Xapian::valueno, std::string>&& values_)
 		: data(new std::string(std::move(data_))),
 		values(new std::map<Xapian::valueno, std::string>(std::move(values_))),
@@ -228,12 +228,12 @@ public:
 		return data ? *data : fetch_data();
 	}
 	/// Set the document data.
-	void set_data(const std::string& data_) 
+	void set_data(const std::string & data_) 
 	{
 		data.reset(new std::string(data_));
 	}
 	/// Add a term to this document.
-	void add_term(const std::string& term, Xapian::termcount wdf_inc) 
+	void add_term(const std::string & term, Xapian::termcount wdf_inc) 
 	{
 		ensure_terms_fetched();
 		auto i = terms->find(term);
@@ -247,7 +247,7 @@ public:
 		}
 	}
 	/// Remove a term from this document.
-	bool remove_term(const std::string& term) 
+	bool remove_term(const std::string & term) 
 	{
 		ensure_terms_fetched();
 		auto i = terms->find(term);
@@ -265,7 +265,7 @@ public:
 	}
 
 	/// Add a posting for a term.
-	void add_posting(const std::string& term, Xapian::termpos term_pos, Xapian::termcount wdf_inc) 
+	void add_posting(const std::string & term, Xapian::termpos term_pos, Xapian::termcount wdf_inc) 
 	{
 		ensure_terms_fetched();
 		positions_modified_ = true;
@@ -282,7 +282,7 @@ public:
 	enum remove_posting_result { OK, NO_TERM, NO_POS };
 
 	/// Remove a posting for a term.
-	remove_posting_result remove_posting(const std::string& term, Xapian::termpos term_pos, Xapian::termcount wdf_dec) 
+	remove_posting_result remove_posting(const std::string & term, Xapian::termpos term_pos, Xapian::termcount wdf_dec) 
 	{
 		ensure_terms_fetched();
 		auto i = terms->find(term);
@@ -302,7 +302,7 @@ public:
 	 *
 	 *  Can only return OK or NO_TERM.
 	 */
-	remove_posting_result remove_postings(const std::string& term, Xapian::termpos term_pos_first, Xapian::termpos term_pos_last, Xapian::termcount wdf_dec, Xapian::termpos& n_removed) 
+	remove_posting_result remove_postings(const std::string & term, Xapian::termpos term_pos_first, Xapian::termpos term_pos_last, Xapian::termcount wdf_dec, Xapian::termpos& n_removed) 
 	{
 		ensure_terms_fetched();
 		auto i = terms->find(term);
@@ -375,7 +375,7 @@ public:
 		return fetch_value(slot);
 	}
 	/// Add a value to a slot in this document.
-	void add_value(Xapian::valueno slot, const std::string& value) 
+	void add_value(Xapian::valueno slot, const std::string & value) 
 	{
 		ensure_values_fetched();
 		if(!value.empty()) {

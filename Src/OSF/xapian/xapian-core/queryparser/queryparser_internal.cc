@@ -191,7 +191,7 @@ class Term {
 /// Parser State shared between the lexer and the parser.
 class State {
     QueryParser::Internal * qpi;
-  public:
+public:
     Query query;
     const char* error = NULL;
     unsigned flags;
@@ -320,7 +320,6 @@ Query Term::get_query_with_synonyms() const
 	    if(prefix_needs_colon(prefix, name[0])) term += ':';
 	}
 	term += name;
-
 	Xapian::Database db = state->get_database();
 	Xapian::TermIterator syn = db.synonyms_begin(term);
 	Xapian::TermIterator end = db.synonyms_end(term);
@@ -335,9 +334,7 @@ Query Term::get_query_with_synonyms() const
 	    syn = db.synonyms_begin(term);
 	    end = db.synonyms_end(term);
 	}
-	q = Query(q.OP_SYNONYM,
-		  SynonymIterator(syn, pos, &q),
-		  SynonymIterator(end));
+	q = Query(q.OP_SYNONYM, SynonymIterator(syn, pos, &q), SynonymIterator(end));
     }
     return q;
 }
@@ -354,49 +351,47 @@ Query Term::get_query_with_auto_synonyms() const
 
 static void add_to_query(Query *& q, Query::op op, Query * term)
 {
-    Assert(term);
-    if(q) {
-	if(op == Query::OP_OR) {
-	    *q |= *term;
-	} else if(op == Query::OP_AND) {
-	    *q &= *term;
-	} else {
-	    *q = Query(op, *q, *term);
-	}
-	delete term;
-    } else {
-	q = term;
-    }
+	Assert(term);
+	if(q) {
+		if(op == Query::OP_OR)
+			*q |= *term;
+		else if(op == Query::OP_AND)
+			*q &= *term;
+		else
+			*q = Query(op, *q, *term);
+		delete term;
+	} 
+	else
+		q = term;
 }
 
 static void add_to_query(Query *& q, Query::op op, const Query & term)
 {
-    if(q) {
-	if(op == Query::OP_OR) {
-	    *q |= term;
-	} else if(op == Query::OP_AND) {
-	    *q &= term;
-	} else {
-	    *q = Query(op, *q, term);
-	}
-    } else {
-	q = new Query(term);
-    }
+	if(q) {
+		if(op == Query::OP_OR)
+			*q |= term;
+		else if(op == Query::OP_AND)
+			*q &= term;
+		else
+			*q = Query(op, *q, term);
+	} 
+	else
+		q = new Query(term);
 }
 
 Query Term::get_query() const
 {
-    const auto& prefixes = field_info->prefixes;
-    if(prefixes.empty()) {
-	Assert(field_info->proc.get());
-	return (*field_info->proc)(name);
-    }
-    auto piter = prefixes.begin();
-    Query q(make_term(*piter), 1, pos);
-    while(++piter != prefixes.end()) {
-	q |= Query(make_term(*piter), 1, pos);
-    }
-    return q;
+	const auto& prefixes = field_info->prefixes;
+	if(prefixes.empty()) {
+		Assert(field_info->proc.get());
+		return (*field_info->proc)(name);
+	}
+	auto piter = prefixes.begin();
+	Query q(make_term(*piter), 1, pos);
+	while(++piter != prefixes.end()) {
+		q |= Query(make_term(*piter), 1, pos);
+	}
+	return q;
 }
 
 Query * Term::as_fuzzy_query(State* state_) const
@@ -444,7 +439,7 @@ Query * Term::as_partial_query(State * state_) const
     vector<Query> subqs_partial; // A synonym of all the partial terms.
     vector<Query> subqs_full; // A synonym of all the full terms.
 
-    for(const string& prefix : field_info->prefixes) {
+    for(const string & prefix : field_info->prefixes) {
 	string root = prefix;
 	root += name;
 	// Combine with OP_OR, and apply OP_SYNONYM afterwards.
@@ -466,8 +461,8 @@ Query * Term::as_cjk_query() const
     if(state->flags & QueryParser::FLAG_CJK_WORDS) {
 	vector<Query> prefix_cjk;
 	for(CJKWordIterator tk(name); tk != CJKWordIterator(); ++tk) {
-	    const string& token = *tk;
-	    for(const string& prefix : prefixes) {
+	    const string & token = *tk;
+	    for(const string & prefix : prefixes) {
 		prefix_cjk.push_back(Query(prefix + token, 1, pos));
 	    }
 	}
@@ -482,7 +477,7 @@ Query * Term::as_cjk_query() const
     vector<Query> prefix_subqs;
     vector<Query> cjk_subqs;
 
-    for(const string& prefix : prefixes) {
+    for(const string & prefix : prefixes) {
 	for(CJKNgramIterator tk(name); tk != CJKNgramIterator(); ++tk) {
 	    cjk_subqs.push_back(Query(prefix + *tk, 1, pos));
 	}
@@ -518,11 +513,7 @@ inline bool is_stem_preventer(unsigned ch)
 
 inline bool should_stem(const string & term)
 {
-    const unsigned int SHOULD_STEM_MASK =
-	(1 << Unicode::LOWERCASE_LETTER) |
-	(1 << Unicode::TITLECASE_LETTER) |
-	(1 << Unicode::MODIFIER_LETTER) |
-	(1 << Unicode::OTHER_LETTER);
+    const unsigned int SHOULD_STEM_MASK = (1 << Unicode::LOWERCASE_LETTER) | (1 << Unicode::TITLECASE_LETTER) | (1 << Unicode::MODIFIER_LETTER) | (1 << Unicode::OTHER_LETTER);
     Utf8Iterator u(term);
     return ((SHOULD_STEM_MASK >> Unicode::get_category(*u)) & 1);
 }
@@ -621,55 +612,58 @@ void QueryParser::Internal::add_prefix(const string &field, FieldProcessor *proc
 
 void QueryParser::Internal::add_boolean_prefix(const string &field, const string &prefix, const string* grouping)
 {
-    // Don't allow the empty prefix to be set as boolean as it doesn't
-    // really make sense.
-    if(field.empty())
-	throw Xapian::UnimplementedError("Can't set the empty prefix to be a boolean filter");
-    if(!grouping) grouping = &field;
-    filter_type type = grouping->empty() ? BOOLEAN_ : BOOLEAN_EXCLUSIVE;
-    map<string, FieldInfo>::iterator p = field_map.find(field);
-    if(p == field_map.end()) {
-	field_map.insert(make_pair(field, FieldInfo(type, prefix, *grouping)));
-    } else {
-	// Check that this is the same type of filter as the existing one(s).
-	if(p->second.type != type) {
-	    throw Xapian::InvalidOperationError("Can't use add_prefix() and add_boolean_prefix() on the same field name, or add_boolean_prefix() with different values of the 'exclusive' parameter"); // FIXME
+	// Don't allow the empty prefix to be set as boolean as it doesn't
+	// really make sense.
+	if(field.empty())
+		throw Xapian::UnimplementedError("Can't set the empty prefix to be a boolean filter");
+	if(!grouping) 
+		grouping = &field;
+	filter_type type = grouping->empty() ? BOOLEAN_ : BOOLEAN_EXCLUSIVE;
+	map <string, FieldInfo>::iterator p = field_map.find(field);
+	if(p == field_map.end()) {
+		field_map.insert(make_pair(field, FieldInfo(type, prefix, *grouping)));
+	} 
+	else {
+		// Check that this is the same type of filter as the existing one(s).
+		if(p->second.type != type) {
+			throw Xapian::InvalidOperationError("Can't use add_prefix() and add_boolean_prefix() on the same field name, or add_boolean_prefix() with different values of the 'exclusive' parameter"); // FIXME
+		}
+		if(p->second.proc.get())
+			throw Xapian::FeatureUnavailableError("Mixing FieldProcessor objects and string prefixes currently not supported");
+		// Only add if it's not already there as duplicate entries just result
+		// in redundant query terms.  This is a linear scan so makes calling
+		// add_prefix() n times for the same field value with different prefix
+		// values O(n²), but you wouldn't realistically want to map one field
+		// to more than a handful of prefixes.
+		auto & prefixes = p->second.prefixes;
+		if(find(prefixes.begin(), prefixes.end(), prefix) == prefixes.end()) {
+			prefixes.push_back(prefix); // FIXME grouping
+		}
 	}
-	if(p->second.proc.get())
-	    throw Xapian::FeatureUnavailableError("Mixing FieldProcessor objects and string prefixes currently not supported");
-	// Only add if it's not already there as duplicate entries just result
-	// in redundant query terms.  This is a linear scan so makes calling
-	// add_prefix() n times for the same field value with different prefix
-	// values O(n²), but you wouldn't realistically want to map one field
-	// to more than a handful of prefixes.
-	auto& prefixes = p->second.prefixes;
-	if(find(prefixes.begin(), prefixes.end(), prefix) == prefixes.end()) {
-	    prefixes.push_back(prefix); // FIXME grouping
-	}
-   }
 }
 
 void QueryParser::Internal::add_boolean_prefix(const string &field, FieldProcessor *proc, const string* grouping)
 {
-    // Don't allow the empty prefix to be set as boolean as it doesn't
-    // really make sense.
-    if(field.empty())
-	throw Xapian::UnimplementedError("Can't set the empty prefix to be a boolean filter");
-    if(!grouping) 
+	// Don't allow the empty prefix to be set as boolean as it doesn't
+	// really make sense.
+	if(field.empty())
+		throw Xapian::UnimplementedError("Can't set the empty prefix to be a boolean filter");
+	if(!grouping) 
 		grouping = &field;
-    filter_type type = grouping->empty() ? BOOLEAN_ : BOOLEAN_EXCLUSIVE;
-    map<string, FieldInfo>::iterator p = field_map.find(field);
-    if(p == field_map.end()) {
-	field_map.insert(make_pair(field, FieldInfo(type, proc, *grouping)));
-    } else {
-	// Check that this is the same type of filter as the existing one(s).
-	if(p->second.type != type) {
-	    throw Xapian::InvalidOperationError("Can't use add_prefix() and add_boolean_prefix() on the same field name, or add_boolean_prefix() with different values of the 'exclusive' parameter"); // FIXME
+	filter_type type = grouping->empty() ? BOOLEAN_ : BOOLEAN_EXCLUSIVE;
+	map<string, FieldInfo>::iterator p = field_map.find(field);
+	if(p == field_map.end()) {
+		field_map.insert(make_pair(field, FieldInfo(type, proc, *grouping)));
+	} 
+	else {
+		// Check that this is the same type of filter as the existing one(s).
+		if(p->second.type != type) {
+			throw Xapian::InvalidOperationError("Can't use add_prefix() and add_boolean_prefix() on the same field name, or add_boolean_prefix() with different values of the 'exclusive' parameter"); // FIXME
+		}
+		if(!p->second.prefixes.empty())
+			throw Xapian::FeatureUnavailableError("Mixing FieldProcessor objects and string prefixes currently not supported");
+		throw Xapian::FeatureUnavailableError("Multiple FieldProcessor objects for the same prefix currently not supported");
 	}
-	if(!p->second.prefixes.empty())
-	    throw Xapian::FeatureUnavailableError("Mixing FieldProcessor objects and string prefixes currently not supported");
-	throw Xapian::FeatureUnavailableError("Multiple FieldProcessor objects for the same prefix currently not supported");
-   }
 }
 
 inline bool is_extended_wildcard(unsigned ch, unsigned flags)
@@ -708,151 +702,154 @@ string QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &e
 	}
     }
     was_acronym = !term.empty();
-
     if(cjk_enable && term.empty() && CJK::codepoint_is_cjk(*it)) {
-	const char* cjk = it.raw();
-	char_count = CJK::get_cjk(it);
-	term.assign(cjk, it.raw() - cjk);
-	is_cjk_term = true;
+		const char* cjk = it.raw();
+		char_count = CJK::get_cjk(it);
+		term.assign(cjk, it.raw() - cjk);
+		is_cjk_term = true;
     }
-
     if(term.empty()) {
-	unsigned prevch = *it;
-	if(first_wildcard == term.npos &&
-	    is_extended_wildcard(prevch, flags)) {
-	    // Leading wildcard.
-	    first_wildcard = 0;
-	}
-	Unicode::append_utf8(term, prevch);
-	char_count = 1;
-	while(++it != end) {
-	    if(cjk_enable && CJK::codepoint_is_cjk(*it)) break;
-	    unsigned ch = *it;
-	    if(is_extended_wildcard(ch, flags)) {
-		if(first_wildcard == term.npos) {
-		    first_wildcard = char_count;
+		unsigned prevch = *it;
+		if(first_wildcard == term.npos && is_extended_wildcard(prevch, flags)) {
+			first_wildcard = 0; // Leading wildcard
 		}
-	    } else if(!is_wordchar(ch)) {
-		// Treat a single embedded '&' or "'" or similar as a word
-		// character (e.g. AT&T, Fred's).  Also, normalise
-		// apostrophes to ASCII apostrophe.
-		Utf8Iterator p = it;
-		++p;
-		if(p == end) break;
-		unsigned nextch = *p;
-		if(is_extended_wildcard(nextch, flags)) {
-		    // A wildcard follows, which could expand to a digit or a non-digit.
-		    unsigned ch_orig = ch;
-		    ch = check_infix(ch);
-		    if(!ch && is_digit(prevch))
-			ch = check_infix_digit(ch_orig);
-		    if(!ch)
-			break;
-		} else {
-		    if(!is_wordchar(nextch)) break;
+		Unicode::append_utf8(term, prevch);
+		char_count = 1;
+		while(++it != end) {
+			if(cjk_enable && CJK::codepoint_is_cjk(*it)) 
+				break;
+			unsigned ch = *it;
+			if(is_extended_wildcard(ch, flags)) {
+				if(first_wildcard == term.npos) {
+					first_wildcard = char_count;
+				}
+			} 
+			else if(!is_wordchar(ch)) {
+			// Treat a single embedded '&' or "'" or similar as a word
+			// character (e.g. AT&T, Fred's).  Also, normalise
+			// apostrophes to ASCII apostrophe.
+			Utf8Iterator p = it;
+			++p;
+			if(p == end) break;
+			unsigned nextch = *p;
+			if(is_extended_wildcard(nextch, flags)) {
+				// A wildcard follows, which could expand to a digit or a non-digit.
+				unsigned ch_orig = ch;
+				ch = check_infix(ch);
+				if(!ch && is_digit(prevch))
+				ch = check_infix_digit(ch_orig);
+				if(!ch)
+				break;
+			} 
+			else {
+				if(!is_wordchar(nextch)) 
+					break;
+			}
+			if(is_digit(prevch) && is_digit(nextch)) {
+				ch = check_infix_digit(ch);
+			} 
+			else {
+				ch = check_infix(ch);
+			}
+			if(!ch) 
+				break;
+			if(ch == UNICODE_IGNORE)
+				continue;
+			}
+			Unicode::append_utf8(term, ch);
+			++char_count;
+			prevch = ch;
 		}
-		if(is_digit(prevch) && is_digit(nextch)) {
-		    ch = check_infix_digit(ch);
-		} else {
-		    ch = check_infix(ch);
+		if(it != end && is_suffix(*it)) {
+			string suff_term = term;
+			Utf8Iterator p = it;
+			// Keep trailing + (e.g. C++, Na+) or # (e.g. C#).
+			do {
+				// Assumes is_suffix() only matches ASCII.
+				if(suff_term.size() - term.size() == 3) {
+					suff_term.resize(0);
+					break;
+				}
+				suff_term += *p;
+			} while(is_suffix(*++p));
+			if(!suff_term.empty() && (p == end || !is_wordchar(*p))) {
+				// If the suffixed term doesn't exist, check that the
+				// non-suffixed term does.  This also takes care of
+				// the case when QueryParser::set_database() hasn't
+				// been called.
+				bool use_suff_term = false;
+				string lc = Unicode::tolower(suff_term);
+				if(db.term_exists(lc)) {
+					use_suff_term = true;
+				} 
+				else {
+					lc = Unicode::tolower(term);
+					if(!db.term_exists(lc)) use_suff_term = true;
+				}
+				if(use_suff_term) {
+					// Assumes is_suffix() only matches ASCII.
+					char_count += (suff_term.size() - term.size());
+					term = suff_term;
+					it = p;
+				}
+			}
 		}
-		if(!ch) break;
-		if(ch == UNICODE_IGNORE)
-		    continue;
-	    }
-	    Unicode::append_utf8(term, ch);
-	    ++char_count;
-	    prevch = ch;
-	}
-	if(it != end && is_suffix(*it)) {
-	    string suff_term = term;
-	    Utf8Iterator p = it;
-	    // Keep trailing + (e.g. C++, Na+) or # (e.g. C#).
-	    do {
-		// Assumes is_suffix() only matches ASCII.
-		if(suff_term.size() - term.size() == 3) {
-		    suff_term.resize(0);
-		    break;
+		if(first_wildcard == term.npos && (flags & QueryParser::FLAG_WILDCARD)) {
+			// Check for right-truncation.
+			if(it != end && *it == '*') {
+				++it;
+				first_wildcard = char_count;
+			}
 		}
-		suff_term += *p;
-	    } while(is_suffix(*++p));
-	    if(!suff_term.empty() && (p == end || !is_wordchar(*p))) {
-		// If the suffixed term doesn't exist, check that the
-		// non-suffixed term does.  This also takes care of
-		// the case when QueryParser::set_database() hasn't
-		// been called.
-		bool use_suff_term = false;
-		string lc = Unicode::tolower(suff_term);
-		if(db.term_exists(lc)) {
-		    use_suff_term = true;
-		} else {
-		    lc = Unicode::tolower(term);
-		    if(!db.term_exists(lc)) use_suff_term = true;
+		if(it != end && (flags & QueryParser::FLAG_FUZZY) && /*Not a wildcard*/ first_wildcard == string::npos && *it == '~') {
+			Utf8Iterator p = it;
+			++p;
+			unsigned ch = *p;
+			if(p == end || is_whitespace(ch) || ch == ')') {
+				it = p;
+				edit_distance = DEFAULT_EDIT_DISTANCE;
+			} 
+			else if(U_isdigit(ch)) {
+				unsigned distance = ch - '0';
+				while(++p != end && U_isdigit(*p)) {
+					distance = distance * 10 + (*p - '0');
+				}
+				if(p != end && *p == '.') {
+					if(distance == 0) 
+						goto fractional;
+					// Ignore the fractional part on e.g. foo~12.5
+					while(++p != end && U_isdigit(*p)) { 
+						;
+					}
+				}
+				if(p == end || is_whitespace(ch) || ch == ')') {
+					it = p;
+					edit_distance = distance;
+				}
+			} 
+			else if(ch == '.') {
+	fractional:
+				double fraction = 0.0;
+				double digit = 0.1;
+				while(++p != end && U_isdigit(*p)) {
+					fraction += digit * (*p - '0');
+					digit *= 0.1;
+				}
+				if(p == end || is_whitespace(ch) || ch == ')') {
+					it = p;
+					unsigned codepoints = 0;
+					for(Utf8Iterator u8(term); u8 != Utf8Iterator(); ++u8) {
+						++codepoints;
+					}
+					edit_distance = unsigned(codepoints * fraction);
+				}
+			}
 		}
-		if(use_suff_term) {
-		    // Assumes is_suffix() only matches ASCII.
-		    char_count += (suff_term.size() - term.size());
-		    term = suff_term;
-		    it = p;
-		}
-	    }
-	}
-	if(first_wildcard == term.npos &&
-	    (flags & QueryParser::FLAG_WILDCARD)) {
-	    // Check for right-truncation.
-	    if(it != end && *it == '*') {
-		++it;
-		first_wildcard = char_count;
-	    }
-	}
-	if(it != end &&
-	    (flags & QueryParser::FLAG_FUZZY) &&
-	    // Not a wildcard.
-	    first_wildcard == string::npos &&
-	    *it == '~') {
-	    Utf8Iterator p = it;
-	    ++p;
-	    unsigned ch = *p;
-	    if(p == end || is_whitespace(ch) || ch == ')') {
-		it = p;
-		edit_distance = DEFAULT_EDIT_DISTANCE;
-	    } else if(U_isdigit(ch)) {
-		unsigned distance = ch - '0';
-		while(++p != end && U_isdigit(*p)) {
-		    distance = distance * 10 + (*p - '0');
-		}
-		if(p != end && *p == '.') {
-		    if(distance == 0) goto fractional;
-		    // Ignore the fractional part on e.g. foo~12.5
-		    while(++p != end && U_isdigit(*p)) { }
-		}
-		if(p == end || is_whitespace(ch) || ch == ')') {
-		    it = p;
-		    edit_distance = distance;
-		}
-	    } else if(ch == '.') {
-fractional:
-		double fraction = 0.0;
-		double digit = 0.1;
-		while(++p != end && U_isdigit(*p)) {
-		    fraction += digit * (*p - '0');
-		    digit *= 0.1;
-		}
-		if(p == end || is_whitespace(ch) || ch == ')') {
-		    it = p;
-		    unsigned codepoints = 0;
-		    for(Utf8Iterator u8(term); u8 != Utf8Iterator(); ++u8) {
-			++codepoints;
-		    }
-		    edit_distance = unsigned(codepoints * fraction);
-		}
-	    }
-	}
     }
     return term;
 }
 
-#line 1465 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 1445 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 
 
 struct ProbQuery {
@@ -871,8 +868,8 @@ struct ProbQuery {
 		delete love;
 		delete hate;
     }
-    void add_filter(const string& grouping, const Query & q) { filter[grouping] = q; }
-    void append_filter(const string& grouping, const Query & qnew) 
+    void add_filter(const string & grouping, const Query & q) { filter[grouping] = q; }
+    void append_filter(const string & grouping, const Query & qnew) 
 	{
 	auto it = filter.find(grouping);
 	if(it == filter.end()) {
@@ -890,8 +887,8 @@ struct ProbQuery {
 	    }
 	}
     }
-    void add_filter_range(const string& grouping, const Query & range) { filter[grouping] = range; }
-    void append_filter_range(const string& grouping, const Query & range) 
+    void add_filter_range(const string & grouping, const Query & range) { filter[grouping] = range; }
+    void append_filter_range(const string & grouping, const Query & range) 
 	{
 		Query & q = filter[grouping];
 		q |= range;
@@ -917,11 +914,11 @@ class TermGroup {
      *  stopword status of the terms is ignored.
      */
     bool empty_ok;
-    TermGroup(Term* t1, Term* t2) : empty_ok(false) {
-	add_term(t1);
-	add_term(t2);
+    TermGroup(Term* t1, Term* t2) : empty_ok(false) 
+	{
+		add_term(t1);
+		add_term(t2);
     }
-
   public:
     /// Factory function - ensures heap allocation.
     static TermGroup* create(Term* t1, Term* t2) { return new TermGroup(t1, t2); }
@@ -939,8 +936,7 @@ class TermGroup {
     Query * as_group(State *state) const;
 };
 
-Query *
-TermGroup::as_group(State *state) const
+Query * TermGroup::as_group(State *state) const
 {
     const Xapian::Stopper * stopper = state->get_stopper();
     size_t stoplist_size = state->stoplist_size();
@@ -977,7 +973,7 @@ reprocess:
 			synkey.skip_to(key);
 			if(synkey == synend)
 			    break;
-			const string& found = *synkey;
+			const string & found = *synkey;
 			if(!startswith(found, key))
 			    break;
 			if(found.size() == key.size()) {
@@ -1045,8 +1041,7 @@ reprocess:
 	}
     }
 
-    if(!empty_ok && stopper && subqs.empty() &&
-	stoplist_size < state->stoplist_size()) {
+    if(!empty_ok && stopper && subqs.empty() && stoplist_size < state->stoplist_size()) {
 	// This group is all stopwords, so roll-back, disable stopper
 	// temporarily, and reprocess this group.
 	state->stoplist_resize(stoplist_size);
@@ -1056,12 +1051,12 @@ reprocess:
 
     Query * q = NULL;
     if(!subqs.empty()) {
-	if(default_op_is_positional) {
-	    q = new Query(default_op, subqs.begin(), subqs.end(),
-			     subqs.size() + 9);
-	} else {
-	    q = new Query(default_op, subqs.begin(), subqs.end());
-	}
+		if(default_op_is_positional) {
+			q = new Query(default_op, subqs.begin(), subqs.end(), subqs.size() + 9);
+		} 
+		else {
+			q = new Query(default_op, subqs.begin(), subqs.end());
+		}
     }
     delete this;
     return q;
@@ -1073,8 +1068,7 @@ class Terms {
 
     /** Window size.
      *
-     *  size_t(-1) means don't use positional info (so an OP_AND query gets
-     *  created).
+     *  size_t(-1) means don't use positional info (so an OP_AND query gets created).
      */
     size_t window;
 
@@ -1094,9 +1088,7 @@ class Terms {
      */
     const vector<string>* prefixes;
 
-    Query opwindow_subq(Query::op op,
-			const vector<Query>& v,
-			Xapian::termcount w) const {
+    Query opwindow_subq(Query::op op, const vector<Query>& v, Xapian::termcount w) const {
 	if(op == Query::OP_AND) {
 	    return Query(op, v.begin(), v.end());
 	}
@@ -1111,20 +1103,21 @@ class Terms {
 	Xapian::termcount w = w_delta + terms.size();
 	if(uniform_prefixes) {
 	    if(prefixes) {
-		for(auto&& prefix : *prefixes) {
-		    vector<Query> subqs;
-		    subqs.reserve(n_terms);
-		    for(Term* t : terms) {
-			subqs.push_back(Query(t->make_term(prefix), 1, t->pos));
-		    }
-		    add_to_query(q, Query::OP_OR, opwindow_subq(op, subqs, w));
-		}
+			for(auto&& prefix : *prefixes) {
+				vector<Query> subqs;
+				subqs.reserve(n_terms);
+				for(Term* t : terms) {
+					subqs.push_back(Query(t->make_term(prefix), 1, t->pos));
+				}
+				add_to_query(q, Query::OP_OR, opwindow_subq(op, subqs, w));
+			}
 	    }
-	} else {
+	} 
+	else {
 	    vector<Query> subqs;
 	    subqs.reserve(n_terms);
 	    for(Term* t : terms) {
-		subqs.push_back(t->get_query());
+			subqs.push_back(t->get_query());
 	    }
 	    q = new Query(opwindow_subq(op, subqs, w));
 	}
@@ -1133,29 +1126,28 @@ class Terms {
 	return q;
     }
 
-    explicit Terms(bool no_pos)
-	: window(no_pos ? size_t(-1) : 0),
-	  uniform_prefixes(true),
-	  prefixes(NULL) { }
-
+    explicit Terms(bool no_pos) : window(no_pos ? size_t(-1) : 0), uniform_prefixes(true), prefixes(NULL) 
+	{
+	}
   public:
     /// Factory function - ensures heap allocation.
-    static Terms* create(State* state) {
-	return new Terms(state->flags & QueryParser::FLAG_NO_POSITIONS);
+    static Terms* create(State* state) 
+	{
+		return new Terms(state->flags & QueryParser::FLAG_NO_POSITIONS);
     }
-
-    ~Terms() {
-	for(auto&& t : terms) {
-	    delete t;
-	}
+    ~Terms() 
+	{
+		for(auto&& t : terms) {
+			delete t;
+		}
     }
-
     /// Add an unstemmed Term object to this Terms object.
     void add_positional_term(Term * term) {
 	const auto& term_prefixes = term->field_info->prefixes;
 	if(terms.empty()) {
 	    prefixes = &term_prefixes;
-	} else if(uniform_prefixes && prefixes != &term_prefixes) {
+	} 
+	else if(uniform_prefixes && prefixes != &term_prefixes) {
 	    if(*prefixes != term_prefixes)  {
 		prefixes = NULL;
 		uniform_prefixes = false;
@@ -1195,13 +1187,12 @@ class Terms {
     }
 };
 
-void
-Term::as_positional_cjk_term(Terms * terms) const
+void Term::as_positional_cjk_term(Terms * terms) const
 {
 #ifdef USE_ICU
     if(state->flags & QueryParser::FLAG_CJK_WORDS) {
 	for(CJKWordIterator tk(name); tk != CJKWordIterator(); ++tk) {
-	    const string& t = *tk;
+	    const string & t = *tk;
 	    Term * c = new Term(state, t, field_info, unstemmed, stem, pos);
 	    terms->add_positional_term(c);
 	}
@@ -1233,7 +1224,7 @@ Term::as_positional_cjk_term(Terms * terms) const
 	}\
     } while(0)
 
-#line 1237 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 1228 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
 /**************** End of %include directives **********************************/
 /* These constants specify the various numeric values for terminal symbols
 ** in a format understandable to "makeheaders".  This section is blank unless
@@ -1809,9 +1800,9 @@ static void yy_destructor(
     case 23: /* CJKTERM */
     case 24: /* EMPTY_GROUP_OK */
 {
-#line 1848 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 1822 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
  delete (yypminor->yy0); 
-#line 1815 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 1806 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
 }
       break;
     case 27: /* expr */
@@ -1821,17 +1812,17 @@ static void yy_destructor(
     case 33: /* stop_term */
     case 34: /* compound_term */
 {
-#line 1925 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 1899 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
  delete (yypminor->yy45); 
-#line 1827 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 1818 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
 }
       break;
     case 30: /* prob */
     case 32: /* stop_prob */
 {
-#line 2039 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2013 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
  delete (yypminor->yy64); 
-#line 1835 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 1826 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
 }
       break;
     case 35: /* phrase */
@@ -1839,16 +1830,16 @@ static void yy_destructor(
     case 38: /* near_expr */
     case 39: /* adj_expr */
 {
-#line 2233 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2207 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
  delete (yypminor->yy14); 
-#line 1845 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 1836 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
 }
       break;
     case 37: /* group */
 {
-#line 2274 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2248 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
  delete (yypminor->yy60); 
-#line 1852 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 1843 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
 }
       break;
 /********* End destructor definitions *****************************************/
@@ -2250,7 +2241,7 @@ static void yy_reduce(
 /********** Begin reduce actions **********************************************/
         YYMINORTYPE yylhsminor;
       case 0: /* query ::= expr */
-#line 1907 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 1881 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     // Save the parsed query in the State structure so we can return it.
     if(yymsp[0].minor.yy45) {
@@ -2260,28 +2251,28 @@ static void yy_reduce(
 	state->query = Query();
     }
 }
-#line 2264 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2255 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 1: /* query ::= */
-#line 1917 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 1891 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     // Handle a query string with no terms in.
     state->query = Query();
 }
-#line 2272 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2263 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 2: /* expr ::= bool_arg AND bool_arg */
-#line 1929 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 1903 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     VET_BOOL_ARGS(yymsp[-2].minor.yy45, yymsp[0].minor.yy45, "AND");
     *yymsp[-2].minor.yy45 &= *yymsp[0].minor.yy45;
     delete yymsp[0].minor.yy45;
 }
-#line 2281 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2272 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yy_destructor(yypParser,4,&yymsp[-1].minor);
         break;
       case 3: /* expr ::= bool_arg NOT bool_arg */
-#line 1935 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 1909 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     if(!yymsp[-2].minor.yy45 && (state->flags & QueryParser::FLAG_PURE_NOT)) {
 	// 'NOT foo' -> '(0 * <alldocuments>) NOT foo'
@@ -2296,63 +2287,63 @@ static void yy_reduce(
     *yymsp[-2].minor.yy45 &= ~*yymsp[0].minor.yy45;
     delete yymsp[0].minor.yy45;
 }
-#line 2300 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2291 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yy_destructor(yypParser,5,&yymsp[-1].minor);
         break;
       case 4: /* expr ::= bool_arg AND NOT bool_arg */
-#line 1950 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 1924 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     VET_BOOL_ARGS(yymsp[-3].minor.yy45, yymsp[0].minor.yy45, "AND NOT");
     *yymsp[-3].minor.yy45 &= ~*yymsp[0].minor.yy45;
     delete yymsp[0].minor.yy45;
 }
-#line 2310 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2301 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yy_destructor(yypParser,4,&yymsp[-2].minor);
   yy_destructor(yypParser,5,&yymsp[-1].minor);
         break;
       case 5: /* expr ::= bool_arg AND HATE_AFTER_AND bool_arg */
-#line 1956 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 1930 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     VET_BOOL_ARGS(yymsp[-3].minor.yy45, yymsp[0].minor.yy45, "AND");
     *yymsp[-3].minor.yy45 &= ~*yymsp[0].minor.yy45;
     delete yymsp[0].minor.yy45;
 }
-#line 2321 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2312 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yy_destructor(yypParser,4,&yymsp[-2].minor);
   yy_destructor(yypParser,10,&yymsp[-1].minor);
         break;
       case 6: /* expr ::= bool_arg OR bool_arg */
-#line 1962 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 1936 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     VET_BOOL_ARGS(yymsp[-2].minor.yy45, yymsp[0].minor.yy45, "OR");
     *yymsp[-2].minor.yy45 |= *yymsp[0].minor.yy45;
     delete yymsp[0].minor.yy45;
 }
-#line 2332 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2323 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yy_destructor(yypParser,2,&yymsp[-1].minor);
         break;
       case 7: /* expr ::= bool_arg XOR bool_arg */
-#line 1968 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 1942 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     VET_BOOL_ARGS(yymsp[-2].minor.yy45, yymsp[0].minor.yy45, "XOR");
     *yymsp[-2].minor.yy45 ^= *yymsp[0].minor.yy45;
     delete yymsp[0].minor.yy45;
 }
-#line 2342 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2333 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yy_destructor(yypParser,3,&yymsp[-1].minor);
         break;
       case 8: /* bool_arg ::= */
-#line 1981 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 1955 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     // Set the argument to NULL, which enables the bool_arg-using rules in
     // expr above to report uses of AND, OR, etc which don't have two
     // arguments.
     yymsp[1].minor.yy45 = NULL;
 }
-#line 2353 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2344 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 9: /* prob_expr ::= prob */
-#line 1993 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 1967 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yylhsminor.yy45 = yymsp[0].minor.yy64->query;
     yymsp[0].minor.yy64->query = NULL;
@@ -2390,30 +2381,30 @@ static void yy_reduce(
     }
     delete yymsp[0].minor.yy64;
 }
-#line 2394 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2385 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yymsp[0].minor.yy45 = yylhsminor.yy45;
         break;
       case 10: /* prob ::= RANGE */
-#line 2041 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2015 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     string grouping = yymsp[0].minor.yy0->name;
     const Query & range = yymsp[0].minor.yy0->as_range_query();
     yymsp[0].minor.yy64 = new ProbQuery; /*P-overwrites-R*/
     yymsp[0].minor.yy64->add_filter_range(grouping, range);
 }
-#line 2405 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2396 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 11: /* prob ::= stop_prob RANGE */
-#line 2048 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2022 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     string grouping = yymsp[0].minor.yy0->name;
     const Query & range = yymsp[0].minor.yy0->as_range_query();
     yymsp[-1].minor.yy64->append_filter_range(grouping, range);
 }
-#line 2414 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2405 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 12: /* prob ::= stop_term stop_term */
-#line 2054 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2028 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yymsp[-1].minor.yy64 = new ProbQuery(yymsp[-1].minor.yy45); /*P-overwrites-T*/
     if(yymsp[0].minor.yy45) {
@@ -2430,19 +2421,19 @@ static void yy_reduce(
 	}
     }
 }
-#line 2434 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2425 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 13: /* prob ::= prob stop_term */
-#line 2071 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2045 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     // If yymsp[0].minor.yy45 is a stopword, there's nothing to do here.
     if(yymsp[0].minor.yy45) add_to_query(yymsp[-1].minor.yy64->query, state->default_op(), yymsp[0].minor.yy45);
 }
-#line 2442 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2433 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 14: /* prob ::= LOVE term */
 {  yy_destructor(yypParser,8,&yymsp[-1].minor);
-#line 2076 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2050 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yymsp[-1].minor.yy64 = new ProbQuery;
     if(state->default_op() == Query::OP_AND) {
@@ -2451,11 +2442,11 @@ static void yy_reduce(
 	yymsp[-1].minor.yy64->love = yymsp[0].minor.yy45;
     }
 }
-#line 2455 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2446 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
 }
         break;
       case 15: /* prob ::= stop_prob LOVE term */
-#line 2085 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2059 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     if(state->default_op() == Query::OP_AND) {
 	/* The default op is AND, so we just put loved terms into the query
@@ -2466,79 +2457,79 @@ static void yy_reduce(
 	add_to_query(yymsp[-2].minor.yy64->love, Query::OP_AND, yymsp[0].minor.yy45);
     }
 }
-#line 2470 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2461 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yy_destructor(yypParser,8,&yymsp[-1].minor);
         break;
       case 16: /* prob ::= HATE term */
 {  yy_destructor(yypParser,9,&yymsp[-1].minor);
-#line 2096 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2070 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yymsp[-1].minor.yy64 = new ProbQuery;
     yymsp[-1].minor.yy64->hate = yymsp[0].minor.yy45;
 }
-#line 2480 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2471 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
 }
         break;
       case 17: /* prob ::= stop_prob HATE term */
-#line 2101 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2075 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     add_to_query(yymsp[-2].minor.yy64->hate, Query::OP_OR, yymsp[0].minor.yy45);
 }
-#line 2488 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2479 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yy_destructor(yypParser,9,&yymsp[-1].minor);
         break;
       case 18: /* prob ::= HATE BOOLEAN_FILTER */
 {  yy_destructor(yypParser,9,&yymsp[-1].minor);
-#line 2105 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2079 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yymsp[-1].minor.yy64 = new ProbQuery;
     yymsp[-1].minor.yy64->hate = new Query(yymsp[0].minor.yy0->get_query());
     delete yymsp[0].minor.yy0;
 }
-#line 2499 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2490 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
 }
         break;
       case 19: /* prob ::= stop_prob HATE BOOLEAN_FILTER */
-#line 2111 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2085 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     add_to_query(yymsp[-2].minor.yy64->hate, Query::OP_OR, yymsp[0].minor.yy0->get_query());
     delete yymsp[0].minor.yy0;
 }
-#line 2508 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2499 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yy_destructor(yypParser,9,&yymsp[-1].minor);
         break;
       case 20: /* prob ::= BOOLEAN_FILTER */
-#line 2116 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2090 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yylhsminor.yy64 = new ProbQuery;
     yylhsminor.yy64->add_filter(yymsp[0].minor.yy0->get_grouping(), yymsp[0].minor.yy0->get_query());
     delete yymsp[0].minor.yy0;
 }
-#line 2518 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2509 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yymsp[0].minor.yy64 = yylhsminor.yy64;
         break;
       case 21: /* prob ::= stop_prob BOOLEAN_FILTER */
-#line 2122 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2096 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yymsp[-1].minor.yy64->append_filter(yymsp[0].minor.yy0->get_grouping(), yymsp[0].minor.yy0->get_query());
     delete yymsp[0].minor.yy0;
 }
-#line 2527 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2518 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 22: /* prob ::= LOVE BOOLEAN_FILTER */
 {  yy_destructor(yypParser,8,&yymsp[-1].minor);
-#line 2127 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2101 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     // LOVE BOOLEAN_FILTER(yymsp[0].minor.yy0) is just the same as BOOLEAN_FILTER
     yymsp[-1].minor.yy64 = new ProbQuery;
     yymsp[-1].minor.yy64->filter[yymsp[0].minor.yy0->get_grouping()] = yymsp[0].minor.yy0->get_query();
     delete yymsp[0].minor.yy0;
 }
-#line 2538 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2529 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
 }
         break;
       case 23: /* prob ::= stop_prob LOVE BOOLEAN_FILTER */
-#line 2134 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2108 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     // LOVE BOOLEAN_FILTER(yymsp[0].minor.yy0) is just the same as BOOLEAN_FILTER
     // We OR filters with the same prefix...
@@ -2546,18 +2537,18 @@ static void yy_reduce(
     q |= yymsp[0].minor.yy0->get_query();
     delete yymsp[0].minor.yy0;
 }
-#line 2550 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2541 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yy_destructor(yypParser,8,&yymsp[-1].minor);
         break;
       case 24: /* stop_prob ::= stop_term */
-#line 2149 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2123 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yymsp[0].minor.yy64 = new ProbQuery(yymsp[0].minor.yy45); /*P-overwrites-T*/
 }
-#line 2558 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2549 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 25: /* stop_term ::= TERM */
-#line 2162 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2136 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     if(state->is_stopword(yymsp[0].minor.yy0)) {
 	yylhsminor.yy45 = NULL;
@@ -2567,154 +2558,178 @@ static void yy_reduce(
     }
     delete yymsp[0].minor.yy0;
 }
-#line 2571 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2562 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yymsp[0].minor.yy45 = yylhsminor.yy45;
         break;
       case 26: /* term ::= TERM */
-#line 2179 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2153 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yylhsminor.yy45 = new Query(yymsp[0].minor.yy0->get_query_with_auto_synonyms());
     delete yymsp[0].minor.yy0;
 }
-#line 2580 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2571 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yymsp[0].minor.yy45 = yylhsminor.yy45;
         break;
       case 27: /* compound_term ::= EDIT_TERM */
-#line 2194 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2168 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 { yymsp[0].minor.yy45 = yymsp[0].minor.yy0->as_fuzzy_query(state); /*T-overwrites-U*/ }
-#line 2586 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2577 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 28: /* compound_term ::= WILD_TERM */
-#line 2197 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2171 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 { yymsp[0].minor.yy45 = yymsp[0].minor.yy0->as_wildcarded_query(state); /*T-overwrites-U*/ }
-#line 2591 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2582 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 29: /* compound_term ::= PARTIAL_TERM */
-#line 2200 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2174 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 { yymsp[0].minor.yy45 = yymsp[0].minor.yy0->as_partial_query(state); /*T-overwrites-U*/ }
-#line 2596 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2587 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 30: /* compound_term ::= QUOTE phrase QUOTE */
 {  yy_destructor(yypParser,20,&yymsp[-2].minor);
-#line 2203 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2177 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 { yymsp[-2].minor.yy45 = yymsp[-1].minor.yy14->as_phrase_query(); }
-#line 2602 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2593 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yy_destructor(yypParser,20,&yymsp[0].minor);
 }
         break;
       case 31: /* compound_term ::= phrased_term */
-#line 2206 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2180 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 { yymsp[0].minor.yy45 = yymsp[0].minor.yy14->as_phrase_query(); /*T-overwrites-P*/ }
-#line 2609 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2600 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 32: /* compound_term ::= group */
-#line 2209 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2183 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 { yymsp[0].minor.yy45 = yymsp[0].minor.yy60->as_group(state); /*T-overwrites-P*/ }
-#line 2614 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2605 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 33: /* compound_term ::= near_expr */
-#line 2212 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2186 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 { yymsp[0].minor.yy45 = yymsp[0].minor.yy14->as_near_query(); /*T-overwrites-P*/ }
-#line 2619 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2610 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 34: /* compound_term ::= adj_expr */
-#line 2215 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2189 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 { yymsp[0].minor.yy45 = yymsp[0].minor.yy14->as_adj_query(); /*T-overwrites-P*/ }
-#line 2624 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2615 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 35: /* compound_term ::= BRA expr KET */
 {  yy_destructor(yypParser,21,&yymsp[-2].minor);
-#line 2218 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2192 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 { yymsp[-2].minor.yy45 = yymsp[-1].minor.yy45; }
-#line 2630 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2621 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yy_destructor(yypParser,22,&yymsp[0].minor);
 }
         break;
       case 36: /* compound_term ::= SYNONYM TERM */
 {  yy_destructor(yypParser,11,&yymsp[-1].minor);
-#line 2220 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2194 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yymsp[-1].minor.yy45 = new Query(yymsp[0].minor.yy0->get_query_with_synonyms());
     delete yymsp[0].minor.yy0;
 }
-#line 2641 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2632 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
 }
         break;
       case 37: /* compound_term ::= CJKTERM */
-#line 2225 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2199 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     { yymsp[0].minor.yy45 = yymsp[0].minor.yy0->as_cjk_query(); /*T-overwrites-U*/ }
 }
-#line 2649 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2640 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 38: /* phrase ::= TERM */
-#line 2235 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2209 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yylhsminor.yy14 = Terms::create(state);
     yylhsminor.yy14->add_positional_term(yymsp[0].minor.yy0);
 }
-#line 2657 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2648 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yymsp[0].minor.yy14 = yylhsminor.yy14;
         break;
       case 39: /* phrase ::= CJKTERM */
-#line 2240 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2214 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yylhsminor.yy14 = Terms::create(state);
     yymsp[0].minor.yy0->as_positional_cjk_term(yylhsminor.yy14);
 }
-#line 2666 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2657 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yymsp[0].minor.yy14 = yylhsminor.yy14;
         break;
       case 40: /* phrase ::= phrase TERM */
       case 43: /* phrased_term ::= phrased_term PHR_TERM */ yytestcase(yyruleno==43);
-#line 2245 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2219 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yymsp[-1].minor.yy14->add_positional_term(yymsp[0].minor.yy0);
 }
-#line 2675 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2666 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 41: /* phrase ::= phrase CJKTERM */
-#line 2249 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2223 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yymsp[0].minor.yy0->as_positional_cjk_term(yymsp[-1].minor.yy14);
 }
-#line 2682 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2673 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 42: /* phrased_term ::= TERM PHR_TERM */
-#line 2260 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2234 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yylhsminor.yy14 = Terms::create(state);
     yylhsminor.yy14->add_positional_term(yymsp[-1].minor.yy0);
     yylhsminor.yy14->add_positional_term(yymsp[0].minor.yy0);
 }
-#line 2691 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2682 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yymsp[-1].minor.yy14 = yylhsminor.yy14;
         break;
       case 44: /* group ::= TERM GROUP_TERM */
-#line 2276 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2250 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yymsp[-1].minor.yy60 = TermGroup::create(yymsp[-1].minor.yy0, yymsp[0].minor.yy0); /*P-overwrites-T*/
 }
-#line 2699 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2690 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 45: /* group ::= group GROUP_TERM */
-#line 2280 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2254 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yymsp[-1].minor.yy60->add_term(yymsp[0].minor.yy0);
 }
-#line 2706 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2697 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 46: /* group ::= group EMPTY_GROUP_OK */
-#line 2284 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2258 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yymsp[-1].minor.yy60->set_empty_ok();
 }
-#line 2713 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2704 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yy_destructor(yypParser,24,&yymsp[0].minor);
         break;
       case 47: /* near_expr ::= TERM NEAR TERM */
-      case 49: /* adj_expr ::= TERM ADJ TERM */ yytestcase(yyruleno==49);
-#line 2294 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2268 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+{
+    yylhsminor.yy14 = Terms::create(state);
+    yylhsminor.yy14->add_positional_term(yymsp[-2].minor.yy0);
+    yylhsminor.yy14->add_positional_term(yymsp[0].minor.yy0);
+    if(yymsp[-1].minor.yy0) {
+		yylhsminor.yy14->adjust_window(yymsp[-1].minor.yy0->get_termpos());
+		delete yymsp[-1].minor.yy0;
+    }
+}
+#line 2718 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+  yymsp[-2].minor.yy14 = yylhsminor.yy14;
+        break;
+      case 48: /* near_expr ::= near_expr NEAR TERM */
+#line 2278 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+{
+    yymsp[-2].minor.yy14->add_positional_term(yymsp[0].minor.yy0);
+    if(yymsp[-1].minor.yy0) {
+		yymsp[-2].minor.yy14->adjust_window(yymsp[-1].minor.yy0->get_termpos());
+		delete yymsp[-1].minor.yy0;
+    }
+}
+#line 2730 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+        break;
+      case 49: /* adj_expr ::= TERM ADJ TERM */
+#line 2292 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yylhsminor.yy14 = Terms::create(state);
     yylhsminor.yy14->add_positional_term(yymsp[-2].minor.yy0);
@@ -2724,12 +2739,11 @@ static void yy_reduce(
 	delete yymsp[-1].minor.yy0;
     }
 }
-#line 2728 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2743 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yymsp[-2].minor.yy14 = yylhsminor.yy14;
         break;
-      case 48: /* near_expr ::= near_expr NEAR TERM */
-      case 50: /* adj_expr ::= adj_expr ADJ TERM */ yytestcase(yyruleno==50);
-#line 2304 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+      case 50: /* adj_expr ::= adj_expr ADJ TERM */
+#line 2302 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yymsp[-2].minor.yy14->add_positional_term(yymsp[0].minor.yy0);
     if(yymsp[-1].minor.yy0) {
@@ -2737,7 +2751,7 @@ static void yy_reduce(
 	delete yymsp[-1].minor.yy0;
     }
 }
-#line 2741 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2755 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       default:
       /* (51) expr ::= prob_expr (OPTIMIZED OUT) */ Assert(yyruleno!=51);
@@ -2783,11 +2797,11 @@ static void yy_parse_failed(
   /* Here code is inserted which will be executed whenever the
   ** parser fails */
 /************ Begin %parse_failure code ***************************************/
-#line 1852 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 1826 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 
     // If we've not already set an error message, set a default one.
     if(!state->error) state->error = "parse error";
-#line 2791 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2805 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
 /************ End %parse_failure code *****************************************/
   ParseARG_STORE; /* Suppress warning about unused %extra_argument variable */
 }
@@ -2806,10 +2820,10 @@ static void yy_syntax_error(
   (void)yyminor;
 #define TOKEN yyminor
 /************ Begin %syntax_error code ****************************************/
-#line 1857 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 1831 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 
     yy_parse_failed(yypParser);
-#line 2813 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2827 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
 /************ End %syntax_error code ******************************************/
   ParseARG_STORE; /* Suppress warning about unused %extra_argument variable */
 }
@@ -3008,7 +3022,7 @@ void Parse(
 }
 
 // Select C++ syntax highlighting in vim editor: vim: syntax=cpp
-#line 829 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 826 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 
 
 Query QueryParser::Internal::parse_query(const string &qs, unsigned flags, const string &default_prefix)
@@ -3018,8 +3032,7 @@ Query QueryParser::Internal::parse_query(const string &qs, unsigned flags, const
     // the unhelpful situation where a failure to enable ICU in the build could
     // be missed because non-CJK queries still work fine.
     if(flags & FLAG_CJK_WORDS) {
-	throw Xapian::FeatureUnavailableError("FLAG_CJK_WORDS requires "
-					      "building Xapian to use ICU");
+		throw Xapian::FeatureUnavailableError("FLAG_CJK_WORDS requires building Xapian to use ICU");
     }
 #endif
     bool cjk_enable = (flags & (FLAG_CJK_NGRAM|FLAG_CJK_WORDS)) || CJK::is_cjk_enabled();
@@ -3033,615 +3046,599 @@ Query QueryParser::Internal::parse_query(const string &qs, unsigned flags, const
     int correction_offset = 0;
     corrected_query.resize(0);
     // Stack of prefixes, used for phrases and subexpressions.
-    list<const FieldInfo *> prefix_stack;
+    list <const FieldInfo *> prefix_stack;
     // If default_prefix is specified, use it.  Otherwise, use any list
     // that has been set for the empty prefix.
     const FieldInfo def_pfx(NON_BOOLEAN, default_prefix);
     {
-	const FieldInfo * default_field_info = &def_pfx;
-	if(default_prefix.empty()) {
-	    auto f = field_map.find(string());
-	    if(f != field_map.end()) default_field_info = &(f->second);
-	}
-
-	// We always have the current prefix on the top of the stack.
-	prefix_stack.push_back(default_field_info);
+		const FieldInfo * default_field_info = &def_pfx;
+		if(default_prefix.empty()) {
+			auto f = field_map.find(string());
+			if(f != field_map.end()) default_field_info = &(f->second);
+		}
+		// We always have the current prefix on the top of the stack.
+		prefix_stack.push_back(default_field_info);
     }
-
     yyParser parser;
-
     unsigned newprev = ' ';
 main_lex_loop:
     enum {
-	DEFAULT, IN_QUOTES, IN_PREFIXED_QUOTES, IN_PHRASED_TERM, IN_GROUP,
-	IN_GROUP2, EXPLICIT_SYNONYM
+		DEFAULT, 
+		IN_QUOTES, 
+		IN_PREFIXED_QUOTES, 
+		IN_PHRASED_TERM, 
+		IN_GROUP,
+		IN_GROUP2, 
+		EXPLICIT_SYNONYM
     } mode = DEFAULT;
     while(it != end && !state.error) {
-	bool last_was_operator = false;
-	bool last_was_operator_needing_term = false;
-	if(mode == EXPLICIT_SYNONYM) mode = DEFAULT;
-	if(false) {
-just_had_operator:
-	    if(it == end) break;
-	    mode = DEFAULT;
-	    last_was_operator_needing_term = false;
-	    last_was_operator = true;
-	}
-	if(false) {
-just_had_operator_needing_term:
-	    last_was_operator_needing_term = true;
-	    last_was_operator = true;
-	}
-	if(mode == IN_PHRASED_TERM) mode = DEFAULT;
-	if(is_whitespace(*it)) {
-	    newprev = ' ';
-	    ++it;
-	    it = find_if(it, end, is_not_whitespace);
-	    if(it == end) break;
-	}
-
-	if(ranges &&
-	    (mode == DEFAULT || mode == IN_GROUP || mode == IN_GROUP2)) {
-	    // Scan forward to see if this could be the "start of range"
-	    // token.  Sadly this has O(n²) tendencies, though at least
-	    // "n" is the number of words in a query which is likely to
-	    // remain fairly small.  FIXME: can we tokenise more elegantly?
-	    Utf8Iterator it_initial = it;
-	    Utf8Iterator p = it;
-	    unsigned ch = 0;
-	    while(p != end) {
-		if(ch == '.' && *p == '.') {
-		    string a;
-		    while(it != p) {
-			Unicode::append_utf8(a, *it++);
-		    }
-		    // Trim off the trailing ".".
-		    a.resize(a.size() - 1);
-		    ++p;
-		    // Either end of the range can be empty (for an open-ended
-		    // range) but both can't be empty.
-		    if(!a.empty() || (p != end && *p > ' ' && *p != ')')) {
-			string b;
-			// Allow any character except whitespace and ')' in the
-			// upper bound.
-			while(p != end && *p > ' ' && *p != ')') {
-			    Unicode::append_utf8(b, *p++);
-			}
-			Term * range = state.range(a, b);
-			if(!range) {
-			    state.error = "Unknown range operation";
-			    if(a.find(':', 1) == string::npos) {
-				goto done;
-			    }
-			    // Might be a boolean filter with ".." in.  Leave
-			    // state.error in case it isn't.
-			    it = it_initial;
-			    break;
-			}
-			Parse(&parser, RANGE, range, &state);
-		    }
-		    it = p;
-		    goto main_lex_loop;
-		}
-		ch = *p;
-		// Allow any character except whitespace and '(' in the lower
-		// bound.
-		if(ch <= ' ' || ch == '(') break;
-		++p;
-	    }
-	}
-
-	if(!is_wordchar(*it)) {
-	    unsigned prev = newprev;
-	    Utf8Iterator p = it;
-	    unsigned ch = *it++;
-	    newprev = ch;
-	    // Drop out of IN_GROUP mode.
-	    if(mode == IN_GROUP || mode == IN_GROUP2)
-		mode = DEFAULT;
-	    switch (ch) {
-	      case '"':
-	      case 0x201c: // Left curly double quote.
-	      case 0x201d: // Right curly double quote.
-		// Quoted phrase.
-		if(mode == DEFAULT) {
-		    // Skip whitespace.
-		    it = find_if(it, end, is_not_whitespace);
-		    if(it == end) {
-			// Ignore an unmatched " at the end of the query to
-			// avoid generating an empty pair of QUOTEs which will
-			// cause a parse error.
-			goto done;
-		    }
-		    if(is_double_quote(*it)) {
-			// Ignore empty "" (but only if we're not already
-			// IN_QUOTES as we don't merge two adjacent quoted
-			// phrases!)
-			newprev = *it++;
-			break;
-		    }
-		}
-		if(flags & QueryParser::FLAG_PHRASE) {
-		    if(ch == '"' && it != end && *it == '"') {
-			++it;
-			// Handle "" inside a quoted phrase as an escaped " for
-			// consistency with quoted boolean terms.
-			break;
-		    }
-		    Parse(&parser, QUOTE, NULL, &state);
-		    if(mode == DEFAULT) {
-			mode = IN_QUOTES;
-		    } else {
-			// Remove the prefix we pushed for this phrase.
-			if(mode == IN_PREFIXED_QUOTES)
-			    prefix_stack.pop_back();
+		bool last_was_operator = false;
+		bool last_was_operator_needing_term = false;
+		if(mode == EXPLICIT_SYNONYM)
 			mode = DEFAULT;
-		    }
+		if(false) {
+	just_had_operator:
+			if(it == end) 
+				break;
+			mode = DEFAULT;
+			last_was_operator_needing_term = false;
+			last_was_operator = true;
 		}
-		break;
-
-	      case '+': case '-': // Loved or hated term/phrase/subexpression.
-		// Ignore + or - at the end of the query string.
-		if(it == end) goto done;
-		if(prev > ' ' && prev != '(') {
-		    // Or if not after whitespace or an open bracket.
-		    break;
+		if(false) {
+	just_had_operator_needing_term:
+			last_was_operator_needing_term = true;
+			last_was_operator = true;
 		}
-		if(is_whitespace(*it) || *it == '+' || *it == '-') {
-		    // Ignore + or - followed by a space, or further + or -.
-		    // Postfix + (such as in C++ and H+) is handled as part of
-		    // the term lexing code in parse_term().
-		    newprev = *it++;
-		    break;
+		if(mode == IN_PHRASED_TERM) 
+			mode = DEFAULT;
+		if(is_whitespace(*it)) {
+			newprev = ' ';
+			++it;
+			it = find_if(it, end, is_not_whitespace);
+			if(it == end) 
+				break;
 		}
-		if(mode == DEFAULT && (flags & FLAG_LOVEHATE)) {
-		    int token;
-		    if(ch == '+') {
-			token = LOVE;
-		    } else if(last_was_operator) {
-			token = HATE_AFTER_AND;
-		    } else {
-			token = HATE;
-		    }
-		    Parse(&parser, token, NULL, &state);
-		    goto just_had_operator_needing_term;
-		}
-		// Need to prevent the term after a LOVE or HATE starting a
-		// term group...
-		break;
-
-	      case '(': // Bracketed subexpression.
-		// Skip whitespace.
-		it = find_if(it, end, is_not_whitespace);
-		// Ignore ( at the end of the query string.
-		if(it == end) goto done;
-		if(prev > ' ' && strchr("()+-", prev) == NULL) {
-		    // Or if not after whitespace or a bracket or '+' or '-'.
-		    break;
-		}
-		if(*it == ')') {
-		    // Ignore empty ().
-		    newprev = *it++;
-		    break;
-		}
-		if(mode == DEFAULT && (flags & FLAG_BOOLEAN)) {
-		    prefix_stack.push_back(prefix_stack.back());
-		    Parse(&parser, BRA, NULL, &state);
-		}
-		break;
-
-	      case ')': // End of bracketed subexpression.
-		if(mode == DEFAULT && (flags & FLAG_BOOLEAN)) {
-		    // Remove the prefix we pushed for the corresponding BRA.
-		    // If brackets are unmatched, it's a syntax error, but
-		    // that's no excuse to SEGV!
-		    if(prefix_stack.size() > 1) prefix_stack.pop_back();
-		    Parse(&parser, KET, NULL, &state);
-		}
-		break;
-
-	      case '~': // Synonym expansion.
-		// Ignore at the end of the query string.
-		if(it == end) goto done;
-		if(mode == DEFAULT && (flags & FLAG_SYNONYM)) {
-		    if(prev > ' ' && strchr("+-(", prev) == NULL) {
-			// Or if not after whitespace, +, -, or an open bracket.
-			break;
-		    }
-		    if(!is_wordchar(*it)) {
-			// Ignore if not followed by a word character.
-			break;
-		    }
-		    Parse(&parser, SYNONYM, NULL, &state);
-		    mode = EXPLICIT_SYNONYM;
-		    goto just_had_operator_needing_term;
-		}
-		break;
-	      case '*':
-		if(flags & FLAG_WILDCARD_MULTI) {
-		    it = p;
-		    goto leading_wildcard;
-		}
-		break;
-	      case '?':
-		if(flags & FLAG_WILDCARD_SINGLE) {
-		    it = p;
-		    goto leading_wildcard;
-		}
-		break;
-	    }
-	    // Skip any other characters.
-	    continue;
-	}
-
-	Assert(is_wordchar(*it));
-
-leading_wildcard:
-	size_t term_start_index = it.raw() - qs.data();
-
-	newprev = 'A'; // Any letter will do...
-
-	// A term, a prefix, or a boolean operator.
-	const FieldInfo * field_info = NULL;
-	if((mode == DEFAULT || mode == IN_GROUP || mode == IN_GROUP2 || mode == EXPLICIT_SYNONYM) &&
-	    !field_map.empty()) {
-	    // Check for a fieldname prefix (e.g. title:historical).
-	    Utf8Iterator p = find_if(it, end, is_not_wordchar);
-	    if(p != end && *p == ':' && ++p != end && *p > ' ' && *p != ')') {
-		string field;
-		p = it;
-		while(*p != ':')
-		    Unicode::append_utf8(field, *p++);
-		map<string, FieldInfo>::const_iterator f;
-		f = field_map.find(field);
-		if(f != field_map.end()) {
-		    // Special handling for prefixed fields, depending on the
-		    // type of the prefix.
-		    unsigned ch = *++p;
-		    field_info = &(f->second);
-
-		    if(field_info->type != NON_BOOLEAN) {
-			// Drop out of IN_GROUP if we're in it.
-			if(mode == IN_GROUP || mode == IN_GROUP2)
-			    mode = DEFAULT;
-			it = p;
-			string name;
-			if(it != end && is_double_quote(*it)) {
-			    // Quoted boolean term (can contain any character).
-			    bool fancy = (*it != '"');
-			    ++it;
-			    while(it != end) {
-				if(*it == '"') {
-				    // Interpret "" as an escaped ".
-				    if(++it == end || *it != '"')
-					break;
-				} else if(fancy && is_double_quote(*it)) {
-				    // If the opening quote was ASCII, then the
-				    // closing one must be too - otherwise
-				    // the user can't protect non-ASCII double
-				    // quote characters by quoting or escaping.
-				    ++it;
-				    break;
+		if(ranges && oneof3(mode, DEFAULT, IN_GROUP, IN_GROUP2)) {
+			// Scan forward to see if this could be the "start of range"
+			// token.  Sadly this has O(n²) tendencies, though at least
+			// "n" is the number of words in a query which is likely to
+			// remain fairly small.  FIXME: can we tokenise more elegantly?
+			Utf8Iterator it_initial = it;
+			Utf8Iterator p = it;
+			unsigned ch = 0;
+			while(p != end) {
+				if(ch == '.' && *p == '.') {
+					string a;
+					while(it != p) {
+						Unicode::append_utf8(a, *it++);
+					}
+					// Trim off the trailing ".".
+					a.resize(a.size() - 1);
+					++p;
+					// Either end of the range can be empty (for an open-ended
+					// range) but both can't be empty.
+					if(!a.empty() || (p != end && *p > ' ' && *p != ')')) {
+						string b;
+						// Allow any character except whitespace and ')' in the
+						// upper bound.
+						while(p != end && *p > ' ' && *p != ')') {
+							Unicode::append_utf8(b, *p++);
+						}
+						Term * range = state.range(a, b);
+						if(!range) {
+							state.error = "Unknown range operation";
+							if(a.find(':', 1) == string::npos) {
+								goto done;
+							}
+							// Might be a boolean filter with ".." in.  Leave
+							// state.error in case it isn't.
+							it = it_initial;
+							break;
+						}
+						Parse(&parser, RANGE, range, &state);
+					}
+					it = p;
+					goto main_lex_loop;
 				}
-				Unicode::append_utf8(name, *it++);
-			    }
-			} else {
-			    // Can't boolean filter prefix a subexpression, so
-			    // just use anything following the prefix until the
-			    // next space or ')' as part of the boolean filter
-			    // term.
-			    while(it != end && *it > ' ' && *it != ')')
-				Unicode::append_utf8(name, *it++);
+				ch = *p;
+				// Allow any character except whitespace and '(' in the lower
+				// bound.
+				if(ch <= ' ' || ch == '(') 
+					break;
+				++p;
 			}
-			// Build the unstemmed form in field.
-			field += ':';
-			field += name;
-			// Clear any pending range error.
-			state.error = NULL;
-			Term * token = new Term(&state, name, field_info, field);
-			Parse(&parser, BOOLEAN_FILTER, token, &state);
-			continue;
-		    }
-
-		    if((flags & FLAG_PHRASE) && is_double_quote(ch)) {
-			// Prefixed phrase, e.g.: subject:"space flight"
-			mode = IN_PREFIXED_QUOTES;
-			Parse(&parser, QUOTE, NULL, &state);
-			it = p;
-			newprev = ch;
-			++it;
-			prefix_stack.push_back(field_info);
-			continue;
-		    }
-
-		    if(ch == '(' && (flags & FLAG_BOOLEAN)) {
-			// Prefixed subexpression, e.g.: title:(fast NEAR food)
-			mode = DEFAULT;
-			Parse(&parser, BRA, NULL, &state);
-			it = p;
-			newprev = ch;
-			++it;
-			prefix_stack.push_back(field_info);
-			continue;
-		    }
-
-		    if(ch != ':') {
-			// Allow 'path:/usr/local' but not 'foo::bar::baz'.
-			while(is_phrase_generator(ch)) {
-			    if(++p == end)
-				goto not_prefix;
-			    ch = *p;
-			}
-		    }
-
-		    if(is_wordchar(ch)) {
-			// Prefixed term.
-			it = p;
-		    } else {
-not_prefix:
-			// It looks like a prefix but isn't, so parse it as
-			// text instead.
-			field_info = NULL;
-		    }
 		}
-	    }
-	}
-
-phrased_term:
-	bool was_acronym;
-	bool is_cjk_term = false;
-	size_t first_wildcard = string::npos;
-	size_t term_char_count;
-	unsigned edit_distance = NO_EDIT_DISTANCE;
-	string term = parse_term(it, end, cjk_enable, flags,
-				 is_cjk_term, was_acronym, first_wildcard,
-				 term_char_count, edit_distance);
-
-	if(first_wildcard == string::npos && edit_distance == NO_EDIT_DISTANCE && (mode == DEFAULT || mode == IN_GROUP || mode == IN_GROUP2) &&
-	    (flags & FLAG_BOOLEAN) && 
-		// Don't want to interpret A.N.D. as an AND operator.
-	    !was_acronym && !field_info && term.size() >= 2 && term.size() <= 4 && U_isalpha(term[0])) {
-	    // Boolean operators.
-	    string op = term;
-	    if(flags & FLAG_BOOLEAN_ANY_CASE) {
-		for(string::iterator i = op.begin(); i != op.end(); ++i) {
-		    *i = C_toupper(*i);
-		}
-	    }
-	    if(op.size() == 3) {
-		if(op == "AND") {
-		    Parse(&parser, AND, NULL, &state);
-		    goto just_had_operator;
-		}
-		if(op == "NOT") {
-		    Parse(&parser, NOT, NULL, &state);
-		    goto just_had_operator;
-		}
-		if(op == "XOR") {
-		    Parse(&parser, XOR, NULL, &state);
-		    goto just_had_operator;
-		}
-		if(op == "ADJ") {
-		    if(it != end && *it == '/') {
-			size_t width = 0;
+		if(!is_wordchar(*it)) {
+			unsigned prev = newprev;
 			Utf8Iterator p = it;
-			while(++p != end && U_isdigit(*p)) {
-			    width = (width * 10) + (*p - '0');
+			unsigned ch = *it++;
+			newprev = ch;
+			// Drop out of IN_GROUP mode.
+			if(oneof2(mode, IN_GROUP, IN_GROUP2))
+				mode = DEFAULT;
+			switch(ch) {
+				case '"':
+				case 0x201c: // Left curly double quote.
+				case 0x201d: // Right curly double quote.
+					// Quoted phrase.
+					if(mode == DEFAULT) {
+						// Skip whitespace.
+						it = find_if(it, end, is_not_whitespace);
+						if(it == end) {
+							// Ignore an unmatched " at the end of the query to
+							// avoid generating an empty pair of QUOTEs which will
+							// cause a parse error.
+							goto done;
+						}
+						if(is_double_quote(*it)) {
+							// Ignore empty "" (but only if we're not already
+							// IN_QUOTES as we don't merge two adjacent quoted
+							// phrases!)
+							newprev = *it++;
+							break;
+						}
+					}
+					if(flags & QueryParser::FLAG_PHRASE) {
+						if(ch == '"' && it != end && *it == '"') {
+							++it;
+							// Handle "" inside a quoted phrase as an escaped " for
+							// consistency with quoted boolean terms.
+							break;
+						}
+						Parse(&parser, QUOTE, NULL, &state);
+						if(mode == DEFAULT) {
+							mode = IN_QUOTES;
+						} 
+						else {
+							// Remove the prefix we pushed for this phrase.
+							if(mode == IN_PREFIXED_QUOTES)
+								prefix_stack.pop_back();
+							mode = DEFAULT;
+						}
+					}
+					break;
+				case '+': 
+				case '-': // Loved or hated term/phrase/subexpression.
+					// Ignore + or - at the end of the query string.
+					if(it == end) 
+						goto done;
+					if(prev > ' ' && prev != '(') {
+						// Or if not after whitespace or an open bracket.
+						break;
+					}
+					if(is_whitespace(*it) || *it == '+' || *it == '-') {
+						// Ignore + or - followed by a space, or further + or -.
+						// Postfix + (such as in C++ and H+) is handled as part of
+						// the term lexing code in parse_term().
+						newprev = *it++;
+						break;
+					}
+					if(mode == DEFAULT && (flags & FLAG_LOVEHATE)) {
+						int token;
+						if(ch == '+') {
+							token = LOVE;
+						} 
+						else if(last_was_operator) {
+							token = HATE_AFTER_AND;
+						} 
+						else {
+							token = HATE;
+						}
+						Parse(&parser, token, NULL, &state);
+						goto just_had_operator_needing_term;
+					}
+					// Need to prevent the term after a LOVE or HATE starting a
+					// term group...
+					break;
+				case '(': // Bracketed subexpression.
+					// Skip whitespace.
+					it = find_if(it, end, is_not_whitespace);
+					// Ignore ( at the end of the query string.
+					if(it == end) 
+						goto done;
+					if(prev > ' ' && strchr("()+-", prev) == NULL) {
+						// Or if not after whitespace or a bracket or '+' or '-'.
+						break;
+					}
+					if(*it == ')') {
+						// Ignore empty ().
+						newprev = *it++;
+						break;
+					}
+					if(mode == DEFAULT && (flags & FLAG_BOOLEAN)) {
+						prefix_stack.push_back(prefix_stack.back());
+						Parse(&parser, BRA, NULL, &state);
+					}
+					break;
+				case ')': // End of bracketed subexpression.
+					if(mode == DEFAULT && (flags & FLAG_BOOLEAN)) {
+						// Remove the prefix we pushed for the corresponding BRA.
+						// If brackets are unmatched, it's a syntax error, but
+						// that's no excuse to SEGV!
+						if(prefix_stack.size() > 1) 
+							prefix_stack.pop_back();
+						Parse(&parser, KET, NULL, &state);
+					}
+					break;
+				case '~': // Synonym expansion.
+					// Ignore at the end of the query string.
+					if(it == end) 
+						goto done;
+					if(mode == DEFAULT && (flags & FLAG_SYNONYM)) {
+						if(prev > ' ' && strchr("+-(", prev) == NULL) {
+							// Or if not after whitespace, +, -, or an open bracket.
+							break;
+						}
+						if(!is_wordchar(*it)) {
+							// Ignore if not followed by a word character.
+							break;
+						}
+						Parse(&parser, SYNONYM, NULL, &state);
+						mode = EXPLICIT_SYNONYM;
+						goto just_had_operator_needing_term;
+					}
+					break;
+				case '*':
+					if(flags & FLAG_WILDCARD_MULTI) {
+						it = p;
+						goto leading_wildcard;
+					}
+					break;
+				case '?':
+					if(flags & FLAG_WILDCARD_SINGLE) {
+						it = p;
+						goto leading_wildcard;
+					}
+					break;
 			}
-			if(width && (p == end || is_whitespace(*p))) {
-			    it = p;
-			    Parse(&parser, ADJ, new Term(width), &state);
-			    goto just_had_operator;
-			}
-		    } else {
-			Parse(&parser, ADJ, NULL, &state);
-			goto just_had_operator;
-		    }
-		}
-	    } else if(op.size() == 2) {
-		if(op == "OR") {
-		    Parse(&parser, OR, NULL, &state);
-		    goto just_had_operator;
-		}
-	    } 
-		else if(op.size() == 4) {
-		if(op == "NEAR") {
-		    if(it != end && *it == '/') {
-			size_t width = 0;
-			Utf8Iterator p = it;
-			while(++p != end && U_isdigit(*p)) {
-			    width = (width * 10) + (*p - '0');
-			}
-			if(width && (p == end || is_whitespace(*p))) {
-			    it = p;
-			    Parse(&parser, NEAR, new Term(width), &state);
-			    goto just_had_operator;
-			}
-		    } else {
-			Parse(&parser, NEAR, NULL, &state);
-			goto just_had_operator;
-		    }
-		}
-	    }
-	}
-	// If no prefix is set, use the default one.
-	if(!field_info) field_info = prefix_stack.back();
-	Assert(field_info->type == NON_BOOLEAN);
-	{
-	    string unstemmed_term(term);
-	    term = Unicode::tolower(term);
-	    // Reuse stem_strategy - STEM_SOME here means "stem terms except
-	    // when used with positional operators".
-	    stem_strategy stem_term = stem_action;
-	    if(stem_term != STEM_NONE) {
-		if(stemmer.is_none()) {
-		    stem_term = STEM_NONE;
-		} else if(first_wildcard != string::npos ||
-			   edit_distance != NO_EDIT_DISTANCE) {
-		    stem_term = STEM_NONE;
-		} else if(stem_term == STEM_SOME ||
-			   stem_term == STEM_SOME_FULL_POS) {
-		    if(!should_stem(unstemmed_term) ||
-			(it != end && is_stem_preventer(*it))) {
-			// Don't stem this particular term.
-			stem_term = STEM_NONE;
-		    }
-		}
-	    }
-
-	    if(first_wildcard != string::npos) {
-		if(first_wildcard < state.get_min_wildcard_prefix_len()) {
-		    errmsg = "Too few characters before wildcard";
-		    return state.query;
-		}
-	    }
-
-	    Term * term_obj = new Term(&state, term, field_info,
-				       unstemmed_term, stem_term, term_pos++,
-				       edit_distance);
-
-	    if(first_wildcard != string::npos ||
-		edit_distance != NO_EDIT_DISTANCE) {
-		if(mode == IN_GROUP || mode == IN_GROUP2) {
-		    // Drop out of IN_GROUP and flag that the group
-		    // can be empty if all members are stopwords.
-		    if(mode == IN_GROUP2)
-			Parse(&parser, EMPTY_GROUP_OK, NULL, &state);
-		    mode = DEFAULT;
-		}
-		Parse(&parser,
-		      first_wildcard != string::npos ? WILD_TERM : EDIT_TERM,
-		      term_obj,
-		      &state);
-		continue;
-	    }
-
-	    if(is_cjk_term) {
-		Parse(&parser, CJKTERM, term_obj, &state);
-		if(it == end) break;
-		continue;
-	    }
-
-	    if(mode == DEFAULT || mode == IN_GROUP || mode == IN_GROUP2) {
-		if(it == end && (flags & FLAG_PARTIAL)) {
-		    auto min_len = state.get_min_partial_prefix_len();
-		    if(term_char_count >= min_len) {
-			if(mode == IN_GROUP || mode == IN_GROUP2) {
-			    // Drop out of IN_GROUP and flag that the group
-			    // can be empty if all members are stopwords.
-			    if(mode == IN_GROUP2)
-				Parse(&parser, EMPTY_GROUP_OK, NULL, &state);
-			    mode = DEFAULT;
-			}
-			// Final term of a partial match query, with no
-			// following characters - treat as a wildcard.
-			Parse(&parser, PARTIAL_TERM, term_obj, &state);
+			// Skip any other characters.
 			continue;
-		    }
 		}
-	    }
-
-	    // Check spelling, if we're a normal term, and any of the prefixes
-	    // are empty.
-	    if((flags & FLAG_SPELLING_CORRECTION) && !was_acronym) {
-		const auto& prefixes = field_info->prefixes;
-		for(const string& prefix : prefixes) {
-		    if(!prefix.empty())
-			continue;
-		    const string & suggest = db.get_spelling_suggestion(term);
-		    if(!suggest.empty()) {
-			if(corrected_query.empty()) corrected_query = qs;
-			size_t term_end_index = it.raw() - qs.data();
-			size_t n = term_end_index - term_start_index;
-			size_t pos = term_start_index + correction_offset;
-			corrected_query.replace(pos, n, suggest);
-			correction_offset += suggest.size();
-			correction_offset -= n;
-		    }
-		    break;
+		Assert(is_wordchar(*it));
+	leading_wildcard:
+		size_t term_start_index = it.raw() - qs.data();
+		newprev = 'A'; // Any letter will do...
+		// A term, a prefix, or a boolean operator.
+		const FieldInfo * field_info = NULL;
+		if((mode == DEFAULT || mode == IN_GROUP || mode == IN_GROUP2 || mode == EXPLICIT_SYNONYM) && !field_map.empty()) {
+			// Check for a fieldname prefix (e.g. title:historical).
+			Utf8Iterator p = find_if(it, end, is_not_wordchar);
+			if(p != end && *p == ':' && ++p != end && *p > ' ' && *p != ')') {
+				string field;
+				p = it;
+				while(*p != ':')
+					Unicode::append_utf8(field, *p++);
+				map <string, FieldInfo>::const_iterator f;
+				f = field_map.find(field);
+				if(f != field_map.end()) {
+					// Special handling for prefixed fields, depending on the
+					// type of the prefix.
+					unsigned ch = *++p;
+					field_info = &(f->second);
+					if(field_info->type != NON_BOOLEAN) {
+						// Drop out of IN_GROUP if we're in it.
+						if(oneof2(mode, IN_GROUP, IN_GROUP2))
+							mode = DEFAULT;
+						it = p;
+						string name;
+						if(it != end && is_double_quote(*it)) {
+							// Quoted boolean term (can contain any character).
+							bool fancy = (*it != '"');
+							++it;
+							while(it != end) {
+								if(*it == '"') {
+									// Interpret "" as an escaped ".
+									if(++it == end || *it != '"')
+										break;
+								} 
+								else if(fancy && is_double_quote(*it)) {
+									// If the opening quote was ASCII, then the
+									// closing one must be too - otherwise
+									// the user can't protect non-ASCII double
+									// quote characters by quoting or escaping.
+									++it;
+									break;
+								}
+								Unicode::append_utf8(name, *it++);
+							}
+						} 
+						else {
+							// Can't boolean filter prefix a subexpression, so
+							// just use anything following the prefix until the
+							// next space or ')' as part of the boolean filter
+							// term.
+							while(it != end && *it > ' ' && *it != ')')
+								Unicode::append_utf8(name, *it++);
+						}
+						// Build the unstemmed form in field.
+						field += ':';
+						field += name;
+						// Clear any pending range error.
+						state.error = NULL;
+						Term * token = new Term(&state, name, field_info, field);
+						Parse(&parser, BOOLEAN_FILTER, token, &state);
+						continue;
+					}
+					if((flags & FLAG_PHRASE) && is_double_quote(ch)) {
+						// Prefixed phrase, e.g.: subject:"space flight"
+						mode = IN_PREFIXED_QUOTES;
+						Parse(&parser, QUOTE, NULL, &state);
+						it = p;
+						newprev = ch;
+						++it;
+						prefix_stack.push_back(field_info);
+						continue;
+					}
+					if(ch == '(' && (flags & FLAG_BOOLEAN)) {
+						// Prefixed subexpression, e.g.: title:(fast NEAR food)
+						mode = DEFAULT;
+						Parse(&parser, BRA, NULL, &state);
+						it = p;
+						newprev = ch;
+						++it;
+						prefix_stack.push_back(field_info);
+						continue;
+					}
+					if(ch != ':') {
+						// Allow 'path:/usr/local' but not 'foo::bar::baz'.
+						while(is_phrase_generator(ch)) {
+							if(++p == end)
+							goto not_prefix;
+							ch = *p;
+						}
+					}
+					if(is_wordchar(ch)) {
+						it = p; // Prefixed term.
+					} 
+					else {
+		not_prefix:
+						// It looks like a prefix but isn't, so parse it as text instead.
+						field_info = NULL;
+					}
+				}
+			}
 		}
-	    }
-
-	    if(mode == IN_PHRASED_TERM) {
-		Parse(&parser, PHR_TERM, term_obj, &state);
-	    } else {
-		// See if the next token will be PHR_TERM - if so, this one
-		// needs to be TERM not GROUP_TERM.
-		if((mode == IN_GROUP || mode == IN_GROUP2) &&
-		    is_phrase_generator(*it)) {
-		    // FIXME: can we clean this up?
-		    Utf8Iterator p = it;
-		    do {
-			++p;
-		    } while(p != end && is_phrase_generator(*p));
-		    // Don't generate a phrase unless the phrase generators are
-		    // immediately followed by another term.
-		    if(p != end && is_wordchar(*p)) {
+	phrased_term:
+		bool was_acronym;
+		bool is_cjk_term = false;
+		size_t first_wildcard = string::npos;
+		size_t term_char_count;
+		unsigned edit_distance = NO_EDIT_DISTANCE;
+		string term = parse_term(it, end, cjk_enable, flags, is_cjk_term, was_acronym, first_wildcard, term_char_count, edit_distance);
+		if(first_wildcard == string::npos && edit_distance == NO_EDIT_DISTANCE && oneof3(mode, DEFAULT, IN_GROUP, IN_GROUP2) &&
+			(flags & FLAG_BOOLEAN) && 
+			// Don't want to interpret A.N.D. as an AND operator.
+			!was_acronym && !field_info && term.size() >= 2 && term.size() <= 4 && U_isalpha(term[0])) {
+			// Boolean operators.
+			string op = term;
+			if(flags & FLAG_BOOLEAN_ANY_CASE) {
+				for(string::iterator i = op.begin(); i != op.end(); ++i) {
+					*i = C_toupper(*i);
+				}
+			}
+			if(op.size() == 3) {
+				if(op == "AND") {
+					Parse(&parser, AND, NULL, &state);
+					goto just_had_operator;
+				}
+				if(op == "NOT") {
+					Parse(&parser, NOT, NULL, &state);
+					goto just_had_operator;
+				}
+				if(op == "XOR") {
+					Parse(&parser, XOR, NULL, &state);
+					goto just_had_operator;
+				}
+				if(op == "ADJ") {
+					if(it != end && *it == '/') {
+						size_t width = 0;
+						Utf8Iterator p = it;
+						while(++p != end && U_isdigit(*p)) {
+							width = (width * 10) + (*p - '0');
+						}
+						if(width && (p == end || is_whitespace(*p))) {
+							it = p;
+							Parse(&parser, ADJ, new Term(width), &state);
+							goto just_had_operator;
+						}
+					}
+					else {
+						Parse(&parser, ADJ, NULL, &state);
+						goto just_had_operator;
+					}
+				}
+			} 
+			else if(op.size() == 2) {
+				if(op == "OR") {
+					Parse(&parser, OR, NULL, &state);
+					goto just_had_operator;
+				}
+			} 
+			else if(op.size() == 4) {
+				if(op == "NEAR") {
+					if(it != end && *it == '/') {
+						size_t width = 0;
+						Utf8Iterator p = it;
+						while(++p != end && U_isdigit(*p)) {
+							width = (width * 10) + (*p - '0');
+						}
+						if(width && (p == end || is_whitespace(*p))) {
+							it = p;
+							Parse(&parser, NEAR, new Term(width), &state);
+							goto just_had_operator;
+						}
+					} 
+					else {
+						Parse(&parser, NEAR, NULL, &state);
+						goto just_had_operator;
+					}
+				}
+			}
+		}
+		// If no prefix is set, use the default one.
+		if(!field_info) 
+			field_info = prefix_stack.back();
+		Assert(field_info->type == NON_BOOLEAN);
+		{
+			string unstemmed_term(term);
+			term = Unicode::tolower(term);
+			// Reuse stem_strategy - STEM_SOME here means "stem terms except
+			// when used with positional operators".
+			stem_strategy stem_term = stem_action;
+			if(stem_term != STEM_NONE) {
+			if(stemmer.is_none()) {
+				stem_term = STEM_NONE;
+			} 
+			else if(first_wildcard != string::npos || edit_distance != NO_EDIT_DISTANCE) {
+				stem_term = STEM_NONE;
+			} 
+			else if(stem_term == STEM_SOME || stem_term == STEM_SOME_FULL_POS) {
+				if(!should_stem(unstemmed_term) || (it != end && is_stem_preventer(*it))) {
+					stem_term = STEM_NONE; // Don't stem this particular term.
+				}
+			}
+			}
+			if(first_wildcard != string::npos) {
+				if(first_wildcard < state.get_min_wildcard_prefix_len()) {
+					errmsg = "Too few characters before wildcard";
+					return state.query;
+				}
+			}
+			Term * term_obj = new Term(&state, term, field_info, unstemmed_term, stem_term, term_pos++, edit_distance);
+			if(first_wildcard != string::npos || edit_distance != NO_EDIT_DISTANCE) {
+				if(oneof2(mode, IN_GROUP, IN_GROUP2)) {
+					// Drop out of IN_GROUP and flag that the group
+					// can be empty if all members are stopwords.
+					if(mode == IN_GROUP2)
+						Parse(&parser, EMPTY_GROUP_OK, NULL, &state);
+					mode = DEFAULT;
+				}
+				Parse(&parser, first_wildcard != string::npos ? WILD_TERM : EDIT_TERM, term_obj, &state);
+				continue;
+			}
+			if(is_cjk_term) {
+				Parse(&parser, CJKTERM, term_obj, &state);
+				if(it == end) 
+					break;
+				continue;
+			}
+			if(oneof3(mode, DEFAULT, IN_GROUP, IN_GROUP2)) {
+				if(it == end && (flags & FLAG_PARTIAL)) {
+					auto min_len = state.get_min_partial_prefix_len();
+					if(term_char_count >= min_len) {
+						if(oneof2(mode, IN_GROUP, IN_GROUP2)) {
+							// Drop out of IN_GROUP and flag that the group
+							// can be empty if all members are stopwords.
+							if(mode == IN_GROUP2)
+							Parse(&parser, EMPTY_GROUP_OK, NULL, &state);
+							mode = DEFAULT;
+						}
+						// Final term of a partial match query, with no
+						// following characters - treat as a wildcard.
+						Parse(&parser, PARTIAL_TERM, term_obj, &state);
+						continue;
+					}
+				}
+			}
+			// Check spelling, if we're a normal term, and any of the prefixes are empty.
+			if((flags & FLAG_SPELLING_CORRECTION) && !was_acronym) {
+				const auto& prefixes = field_info->prefixes;
+				for(const string & prefix : prefixes) {
+					if(!prefix.empty())
+						continue;
+					const string & suggest = db.get_spelling_suggestion(term);
+					if(!suggest.empty()) {
+						if(corrected_query.empty()) 
+							corrected_query = qs;
+						size_t term_end_index = it.raw() - qs.data();
+						size_t n = term_end_index - term_start_index;
+						size_t pos = term_start_index + correction_offset;
+						corrected_query.replace(pos, n, suggest);
+						correction_offset += suggest.size();
+						correction_offset -= n;
+					}
+					break;
+				}
+			}
+			if(mode == IN_PHRASED_TERM) {
+				Parse(&parser, PHR_TERM, term_obj, &state);
+			} 
+			else {
+				// See if the next token will be PHR_TERM - if so, this one
+				// needs to be TERM not GROUP_TERM.
+				if(oneof2(mode, IN_GROUP, IN_GROUP2) && is_phrase_generator(*it)) {
+					// FIXME: can we clean this up?
+					Utf8Iterator p = it;
+					do {
+						++p;
+					} while(p != end && is_phrase_generator(*p));
+					// Don't generate a phrase unless the phrase generators are
+					// immediately followed by another term.
+					if(p != end && is_wordchar(*p)) {
+						mode = DEFAULT;
+					}
+				}
+				int token = TERM;
+				if(oneof2(mode, IN_GROUP, IN_GROUP2)) {
+					mode = IN_GROUP2;
+					token = GROUP_TERM;
+				}
+				Parse(&parser, token, term_obj, &state);
+				if(token == TERM && mode != DEFAULT)
+					continue;
+			}
+		}
+		if(it == end) 
+			break;
+		if(is_phrase_generator(*it)) {
+			// Skip multiple phrase generators.
+			do {
+				++it;
+			} while(it != end && is_phrase_generator(*it));
+			// Don't generate a phrase unless the phrase generators are
+			// immediately followed by another term.
+			if(it != end && is_wordchar(*it)) {
+				mode = IN_PHRASED_TERM;
+				term_start_index = it.raw() - qs.data();
+				goto phrased_term;
+			}
+		} 
+		else if(oneof3(mode, DEFAULT, IN_GROUP, IN_GROUP2)) {
+			int old_mode = mode;
 			mode = DEFAULT;
-		    }
+			if(!last_was_operator_needing_term && is_whitespace(*it)) {
+				newprev = ' ';
+				// Skip multiple whitespace.
+				do {
+					++it;
+				} while(it != end && is_whitespace(*it));
+				// Don't generate a group unless the terms are only separated
+				// by whitespace.
+				if(it != end && is_wordchar(*it)) {
+					if(oneof2(old_mode, IN_GROUP, IN_GROUP2)) {
+						mode = IN_GROUP2;
+					} 
+					else {
+						mode = IN_GROUP;
+					}
+				}
+			}
 		}
-
-		int token = TERM;
-		if(mode == IN_GROUP || mode == IN_GROUP2) {
-		    mode = IN_GROUP2;
-		    token = GROUP_TERM;
-		}
-		Parse(&parser, token, term_obj, &state);
-		if(token == TERM && mode != DEFAULT)
-		    continue;
-	    }
-	}
-
-	if(it == end) break;
-
-	if(is_phrase_generator(*it)) {
-	    // Skip multiple phrase generators.
-	    do {
-		++it;
-	    } while(it != end && is_phrase_generator(*it));
-	    // Don't generate a phrase unless the phrase generators are
-	    // immediately followed by another term.
-	    if(it != end && is_wordchar(*it)) {
-		mode = IN_PHRASED_TERM;
-		term_start_index = it.raw() - qs.data();
-		goto phrased_term;
-	    }
-	} else if(mode == DEFAULT || mode == IN_GROUP || mode == IN_GROUP2) {
-	    int old_mode = mode;
-	    mode = DEFAULT;
-	    if(!last_was_operator_needing_term && is_whitespace(*it)) {
-		newprev = ' ';
-		// Skip multiple whitespace.
-		do {
-		    ++it;
-		} while(it != end && is_whitespace(*it));
-		// Don't generate a group unless the terms are only separated
-		// by whitespace.
-		if(it != end && is_wordchar(*it)) {
-		    if(old_mode == IN_GROUP || old_mode == IN_GROUP2) {
-			mode = IN_GROUP2;
-		    } else {
-			mode = IN_GROUP;
-		    }
-		}
-	    }
-	}
     }
 done:
     if(!state.error) {
-	// Implicitly close any unclosed quotes.
-	if(mode == IN_QUOTES || mode == IN_PREFIXED_QUOTES)
-	    Parse(&parser, QUOTE, NULL, &state);
-
-	// Implicitly close all unclosed brackets.
-	while(prefix_stack.size() > 1) {
-	    Parse(&parser, KET, NULL, &state);
-	    prefix_stack.pop_back();
-	}
-	Parse(&parser, 0, NULL, &state);
+		// Implicitly close any unclosed quotes.
+		if(oneof2(mode, IN_QUOTES, IN_PREFIXED_QUOTES))
+			Parse(&parser, QUOTE, NULL, &state);
+		// Implicitly close all unclosed brackets.
+		while(prefix_stack.size() > 1) {
+			Parse(&parser, KET, NULL, &state);
+			prefix_stack.pop_back();
+		}
+		Parse(&parser, 0, NULL, &state);
     }
     errmsg = state.error;
     return state.query;
 }
 
-#line 3648 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 3645 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"

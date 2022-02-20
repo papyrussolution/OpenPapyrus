@@ -8,7 +8,6 @@
 #pragma hdrstop
 #include "extraweightpostlist.h"
 #include "postlisttree.h"
-#include "str.h"
 
 using namespace std;
 

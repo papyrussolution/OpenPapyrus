@@ -21,7 +21,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include <xapian/compactor.h>
 #include "safesysstat.h"
 #include "safeunistd.h"
 #include "safefcntl.h"
@@ -332,38 +331,26 @@ void Database::compact_(const string * output_ptr, int fd, uint flags, int block
 #else
 			    (void)fd;
 			    (void)last_docid;
-			    throw Xapian::FeatureUnavailableError("Glass backend disabled "
-				      "at build time");
+			    throw Xapian::FeatureUnavailableError("Glass backend disabled at build time");
 #endif
 			case Xapian::DB_BACKEND_HONEY:
 			    // Honey isn't block based.
 			    (void)block_size;
 #ifdef XAPIAN_HAS_HONEY_BACKEND
 			    if(output_ptr) {
-				    HoneyDatabase::compact(compactor, destdir.c_str(), 0,
-					Xapian::DB_BACKEND_GLASS,
-					internals, offset,
-					compaction, flags,
-					last_docid);
+				    HoneyDatabase::compact(compactor, destdir.c_str(), 0, Xapian::DB_BACKEND_GLASS, internals, offset, compaction, flags, last_docid);
 			    }
 			    else {
-				    HoneyDatabase::compact(compactor, NULL, fd,
-					Xapian::DB_BACKEND_GLASS,
-					internals, offset,
-					compaction, flags,
-					last_docid);
+				    HoneyDatabase::compact(compactor, NULL, fd, Xapian::DB_BACKEND_GLASS, internals, offset, compaction, flags, last_docid);
 			    }
 			    break;
 #else
 			    (void)fd;
 			    (void)last_docid;
-			    throw Xapian::FeatureUnavailableError("Honey backend disabled "
-				      "at build time");
+			    throw Xapian::FeatureUnavailableError("Honey backend disabled at build time");
 #endif
 			default:
-			    throw Xapian::UnimplementedError("Glass can only be "
-				      "compacted to itself or "
-				      "honey");
+			    throw Xapian::UnimplementedError("Glass can only be compacted to itself or honey");
 		}
 	}
 	else if(backend == BACKEND_HONEY) {
@@ -391,12 +378,10 @@ void Database::compact_(const string * output_ptr, int fd, uint flags, int block
 #else
 			    (void)fd;
 			    (void)last_docid;
-			    throw Xapian::FeatureUnavailableError("Honey backend disabled "
-				      "at build time");
+			    throw Xapian::FeatureUnavailableError("Honey backend disabled at build time");
 #endif
 			default:
-			    throw Xapian::UnimplementedError("Honey can only be "
-				      "compacted to itself");
+			    throw Xapian::UnimplementedError("Honey can only be compacted to itself");
 		}
 	}
 

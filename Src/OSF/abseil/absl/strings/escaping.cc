@@ -914,14 +914,14 @@ std::string HexStringToBytes(absl::string_view from) {
 	std::string result;
 	const auto num = from.size() / 2;
 	strings_internal::STLStringResizeUninitialized(&result, num);
-	absl::HexStringToBytesInternal<std::string&>(from.data(), result, num);
+	absl::HexStringToBytesInternal<std::string &>(from.data(), result, num);
 	return result;
 }
 
 std::string BytesToHexString(absl::string_view from) {
 	std::string result;
 	strings_internal::STLStringResizeUninitialized(&result, 2 * from.size());
-	absl::BytesToHexStringInternal<std::string&>(
+	absl::BytesToHexStringInternal<std::string &>(
 		reinterpret_cast<const unsigned char*>(from.data()), result, from.size());
 	return result;
 }

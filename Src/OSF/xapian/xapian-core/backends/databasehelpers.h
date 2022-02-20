@@ -26,7 +26,6 @@
 #include <cerrno>
 #include <fstream>
 #include <string>
-
 #include "fileutils.h"
 #include "parseint.h"
 #include "safesysstat.h"
@@ -60,27 +59,15 @@ int test_if_single_file_db(int fd);
  *           * BACKEND_GLASS : glass single file
  *           * BACKEND_HONEY : honey single file
  */
-int test_if_single_file_db(const struct stat& sb,
-    const std::string& path,
-    int* fd_ptr);
+int test_if_single_file_db(const struct stat& sb, const std::string & path, int* fd_ptr);
 
 /** Open, read and process a stub database file.
  *
  *  Implemented as a template with separate actions for each database type.
  */
-template <typename A1,
-    typename A2,
-    typename A3,
-    typename A4,
-    typename A5,
-    typename A6>
-void read_stub_file(const std::string& file,
-    A1 action_auto,
-    A2 action_glass,
-    A3 action_honey,
-    A4 action_remote_prog,
-    A5 action_remote_tcp,
-    A6 action_inmemory)
+template <typename A1, typename A2, typename A3, typename A4, typename A5, typename A6>
+void read_stub_file(const std::string & file, A1 action_auto, A2 action_glass, A3 action_honey, A4 action_remote_prog,
+    A5 action_remote_tcp, A6 action_inmemory)
 {
 	// A stub database is a text file with one or more lines of this format:
 	// <dbtype> <serialised db object>

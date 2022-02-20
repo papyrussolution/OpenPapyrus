@@ -21,7 +21,6 @@
 #pragma hdrstop
 #include "inmemory_document.h"
 #include "inmemory_database.h"
-#include "debuglog.h"
 
 using namespace std;
 
@@ -30,7 +29,7 @@ string InMemoryDocument::fetch_value(Xapian::valueno slot) const
 	LOGCALL(DB, string, "InMemoryDocument::fetch_value", slot);
 	const InMemoryDatabase * db;
 	db = static_cast<const InMemoryDatabase*>(database.get());
-	if(rare(did > db->valuelists.size()))
+	if(UNLIKELY(did > db->valuelists.size()))
 		RETURN(string());
 	map<Xapian::valueno, string> values_ = db->valuelists[did - 1];
 	map<Xapian::valueno, string>::const_iterator i;
@@ -46,7 +45,7 @@ void InMemoryDocument::fetch_all_values(map<Xapian::valueno, string> &values_) c
 	const InMemoryDatabase * db;
 	db = static_cast<const InMemoryDatabase*>(database.get());
 	if(db->closed) InMemoryDatabase::throw_database_closed();
-	if(rare(did > db->valuelists.size())) {
+	if(UNLIKELY(did > db->valuelists.size())) {
 		values_.clear();
 		return;
 	}
@@ -59,7 +58,7 @@ string InMemoryDocument::fetch_data() const
 	const InMemoryDatabase * db;
 	db = static_cast<const InMemoryDatabase*>(database.get());
 	if(db->closed) InMemoryDatabase::throw_database_closed();
-	if(rare(did > db->valuelists.size()))
+	if(UNLIKELY(did > db->valuelists.size()))
 		RETURN(string());
 	RETURN(db->doclists[did - 1]);
 }

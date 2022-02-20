@@ -10,17 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE AUTHOR(S) BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "archive_platform.h"
 #pragma hdrstop
@@ -97,7 +86,7 @@ struct _7z_digests {
 struct _7z_folder {
 	uint64 numCoders;
 	struct _7z_coder {
-		unsigned long codec;
+		ulong codec;
 		uint64 numInStreams;
 		uint64 numOutStreams;
 		uint64 propertiesSize;
@@ -192,7 +181,7 @@ struct _7zip {
 	int header_is_being_read;
 	int header_is_encoded;
 	uint64 header_bytes_remaining;
-	unsigned long header_crc32;
+	ulong header_crc32;
 	/* Header offset to check that reading points of the file contents
 	 * will not exceed the header. */
 	uint64 header_offset;
@@ -209,7 +198,7 @@ struct _7zip {
 	/* entry_bytes_remaining is the number of bytes we expect. */
 	int64 entry_offset;
 	uint64 entry_bytes_remaining;
-	unsigned long entry_crc32; /* Running CRC32 of the decompressed data */
+	ulong entry_crc32; /* Running CRC32 of the decompressed data */
 	char end_of_entry; /* Flags to mark progress of decompression. */
 	/* Uncompressed buffer control.  */
 #define UBUFF_SIZE      (64 * 1024)
@@ -312,7 +301,7 @@ static int archive_read_format_7zip_read_data(struct archive_read *, const void 
 static int archive_read_format_7zip_read_data_skip(struct archive_read *);
 static int archive_read_format_7zip_read_header(struct archive_read *, struct archive_entry *);
 static int check_7zip_header_in_sfx(const char *);
-static unsigned long decode_codec_id(const uchar *, size_t);
+static ulong decode_codec_id(const uchar *, size_t);
 static int decode_encoded_header_info(struct archive_read *, struct _7z_stream_info *);
 static int decompress(struct archive_read *, struct _7zip *, void *, size_t *, const void *, size_t *);
 static ssize_t  extract_pack_stream(struct archive_read *, size_t);
@@ -841,12 +830,10 @@ static void set_error(struct archive_read * a, int ret)
 
 #endif
 
-static unsigned long decode_codec_id(const uchar * codecId, size_t id_size)
+static ulong decode_codec_id(const uchar * codecId, size_t id_size)
 {
-	uint i;
-	unsigned long id = 0;
-
-	for(i = 0; i < id_size; i++) {
+	ulong id = 0;
+	for(uint i = 0; i < id_size; i++) {
 		id <<= 8;
 		id += codecId[i];
 	}

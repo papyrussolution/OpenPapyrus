@@ -77,7 +77,7 @@ public:
 	// Example of accepted format:
 	//   "1972-01-01T10:00:20.021-05:00"
 	static std::string ToString(const Timestamp& timestamp);
-	static bool FromString(const std::string& value, Timestamp* timestamp);
+	static bool FromString(const std::string & value, Timestamp* timestamp);
 
 	// Converts Duration to/from string format. The string format will contains
 	// 3, 6, or 9 fractional digits depending on the precision required to
@@ -86,7 +86,7 @@ public:
 	// The range that can be represented by Duration is from -315,576,000,000
 	// to +315,576,000,000 inclusive (in seconds).
 	static std::string ToString(const Duration& duration);
-	static bool FromString(const std::string& value, Duration* timestamp);
+	static bool FromString(const std::string & value, Duration* timestamp);
 
 #ifdef GetCurrentTime
 #undef GetCurrentTime  // Visual Studio has macro GetCurrentTime

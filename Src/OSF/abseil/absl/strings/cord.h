@@ -167,7 +167,7 @@ public:
 	explicit Cord(absl::string_view src);
 	Cord& operator=(absl::string_view src);
 
-	// Creates a Cord from a `std::string&&` rvalue. These constructors are
+	// Creates a Cord from a `std::string &&` rvalue. These constructors are
 	// templated to avoid ambiguities for types that are convertible to both
 	// `absl::string_view` and `std::string`, such as `const char*`.
 	template <typename T, EnableIfString<T> = 0> explicit Cord(T&& src);
@@ -966,7 +966,7 @@ private:
 
 	// Assigns the value in 'src' to this instance, 'stealing' its contents.
 	// Requires src.length() > kMaxBytesToCopy.
-	Cord& AssignLargeString(std::string&& src);
+	Cord& AssignLargeString(std::string && src);
 
 	// Helper for AbslHashValue().
 	template <typename H>
@@ -1268,7 +1268,7 @@ inline Cord& Cord::operator=(Cord&& x) noexcept {
 	return *this;
 }
 
-extern template Cord::Cord(std::string&& src);
+extern template Cord::Cord(std::string && src);
 
 inline size_t Cord::size() const {
 	// Length is 1st field in str.rep_
@@ -1326,8 +1326,8 @@ inline void Cord::Prepend(absl::string_view src) {
 	PrependArray(src, CordzUpdateTracker::kPrependString);
 }
 
-extern template void Cord::Append(std::string&& src);
-extern template void Cord::Prepend(std::string&& src);
+extern template void Cord::Append(std::string && src);
+extern template void Cord::Prepend(std::string && src);
 
 inline int Cord::Compare(const Cord& rhs) const {
 	if(!contents_.is_tree() && !rhs.contents_.is_tree()) {

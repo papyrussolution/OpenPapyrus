@@ -1,5 +1,5 @@
 // UNIPRICE.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Унификация цен реализации товара
 //
@@ -151,7 +151,7 @@ int PrcssrUnifyPrice::EditParam(PrcssrUnifyPriceFilt * pParam)
 			ushort v;
 			GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, 0, 0, GoodsCtrlGroup::enableSelUpLevel);
 			setGroupData(ctlgroupGoodsFilt, &gf_rec);
-			setCtrlOption(CTL_UNIPRICE_FRAME, ofFramed, 1);
+			// @v11.3.2 @obsolete setCtrlOption(CTL_UNIPRICE_FRAME, ofFramed, 1);
 			SetupPPObjCombo(this, CTLSEL_UNIPRICE_OPRKIND, PPOBJ_OPRKIND,    Data.OpKindID,   0, reinterpret_cast<void *>(PPOPT_GOODSREVAL));
 			SetupPPObjCombo(this, CTLSEL_UNIPRICE_LOC,     PPOBJ_LOCATION,   Data.LocID,      0);
 			SetupPPObjCombo(this, CTLSEL_UNIPRICE_QUOTK,   PPOBJ_QUOTKIND,   Data.QuotKindID, 0);

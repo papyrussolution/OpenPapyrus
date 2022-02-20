@@ -906,7 +906,7 @@ bool Tokenizer::NextWithComments(std::string* prev_trailing_comments,
 // are given is text that the tokenizer actually parsed as a token
 // of the given type.
 
-bool Tokenizer::ParseInteger(const std::string& text, uint64_t max_value,
+bool Tokenizer::ParseInteger(const std::string & text, uint64_t max_value,
                              uint64_t* output) {
   // Sadly, we can't just use strtoul() since it is only 32-bit and strtoull()
   // is non-standard.  I hate the C standard library.  :(
@@ -946,7 +946,7 @@ bool Tokenizer::ParseInteger(const std::string& text, uint64_t max_value,
   return true;
 }
 
-double Tokenizer::ParseFloat(const std::string& text) {
+double Tokenizer::ParseFloat(const std::string & text) {
   const char* start = text.c_str();
   char* end;
   double result = NoLocaleStrtod(start, &end);
@@ -1082,7 +1082,7 @@ static const char* FetchUnicodePoint(const char* ptr, uint32_t* code_point) {
 
 // The text string must begin and end with single or double quote
 // characters.
-void Tokenizer::ParseStringAppend(const std::string& text,
+void Tokenizer::ParseStringAppend(const std::string & text,
                                   std::string* output) {
   // Reminder: text[0] is always a quote character.  (If text is
   // empty, it's invalid, so we'll just return).
@@ -1162,14 +1162,14 @@ void Tokenizer::ParseStringAppend(const std::string& text,
 }
 
 template <typename CharacterClass>
-static bool AllInClass(const std::string& s) {
+static bool AllInClass(const std::string & s) {
   for (const char character : s) {
     if (!CharacterClass::InClass(character)) return false;
   }
   return true;
 }
 
-bool Tokenizer::IsIdentifier(const std::string& text) {
+bool Tokenizer::IsIdentifier(const std::string & text) {
   // Mirrors IDENTIFIER definition in Tokenizer::Next() above.
   if (text.size() == 0) return false;
   if (!Letter::InClass(text.at(0))) return false;

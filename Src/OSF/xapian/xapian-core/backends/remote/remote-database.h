@@ -123,31 +123,31 @@ class RemoteDatabase : public Xapian::Database::Internal {
      *	@param writable	Is this a WritableDatabase?
      *	@param flags	Xapian::DB_RETRY_LOCK or 0.
      */
-    RemoteDatabase(int fd, double timeout_, const std::string& context_,
+    RemoteDatabase(int fd, double timeout_, const std::string & context_,
 		   bool writable, int flags);
 
     /// Receive a message from the server.
-    reply_type get_message(std::string& message,
+    reply_type get_message(std::string & message,
 			   reply_type required_type,
 			   reply_type required_type2) const;
 
-    void get_message(std::string& message,
+    void get_message(std::string & message,
 		     reply_type required_type) const {
 	(void)get_message(message, required_type, required_type);
     }
 
-    bool get_message_or_done(std::string& message,
+    bool get_message_or_done(std::string & message,
 			     reply_type required_type) const {
 	return get_message(message, required_type, REPLY_DONE) != REPLY_DONE;
     }
 
     /// Send a message to the server.
-    void send_message(message_type type, const std::string& data) const;
+    void send_message(message_type type, const std::string & data) const;
 
     /// Close the socket
     void do_close();
 
-    bool get_posting(Xapian::docid& did, double& w, std::string& value);
+    bool get_posting(Xapian::docid& did, double& w, std::string & value);
 
     /// The timeout value used in network communications, in seconds.
     double timeout;
@@ -158,7 +158,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
      *  Extra method for RemoteDatabase.
      */
     Xapian::termcount positionlist_count(Xapian::docid did,
-					 const std::string& term) const;
+					 const std::string & term) const;
 
     /// Send a keep-alive message.
     void keep_alive();
@@ -230,7 +230,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
     TermList * open_term_list_direct(Xapian::docid did) const;
 
     /// Iterate all terms.
-    TermList * open_allterms(const std::string& prefix) const;
+    TermList * open_allterms(const std::string & prefix) const;
 
     bool has_positions() const;
 
@@ -238,14 +238,14 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     void close();
 
-    PostList* open_post_list(const std::string& term) const;
+    PostList* open_post_list(const std::string & term) const;
 
-    LeafPostList* open_leaf_post_list(const std::string& term, bool) const;
+    LeafPostList* open_leaf_post_list(const std::string & term, bool) const;
 
-    Xapian::doccount read_post_list(const std::string& term, NetworkPostList & pl) const;
+    Xapian::doccount read_post_list(const std::string & term, NetworkPostList & pl) const;
 
     PositionList * open_position_list(Xapian::docid did,
-				      const std::string& tname) const;
+				      const std::string & tname) const;
 
     /// Get a remote document.
     Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy) const;
@@ -263,9 +263,9 @@ class RemoteDatabase : public Xapian::Database::Internal {
     Xapian::termcount get_wdfdocmax(Xapian::docid did) const;
 
     /// Check if term exists.
-    bool term_exists(const std::string& tname) const;
+    bool term_exists(const std::string & tname) const;
 
-    void get_freqs(const std::string& term,
+    void get_freqs(const std::string & term,
 		   Xapian::doccount * termfreq_ptr,
 		   Xapian::termcount * collfreq_ptr) const;
 
@@ -277,7 +277,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     Xapian::termcount get_doclength_lower_bound() const;
     Xapian::termcount get_doclength_upper_bound() const;
-    Xapian::termcount get_wdf_upper_bound(const std::string& term) const;
+    Xapian::termcount get_wdf_upper_bound(const std::string & term) const;
 
     void commit();
 
@@ -294,24 +294,24 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     std::string get_uuid() const;
 
-    std::string get_metadata(const std::string& key) const;
+    std::string get_metadata(const std::string & key) const;
 
-    void set_metadata(const std::string& key, const std::string& value);
+    void set_metadata(const std::string & key, const std::string & value);
 
-    void add_spelling(const std::string& word, Xapian::termcount freqinc) const;
+    void add_spelling(const std::string & word, Xapian::termcount freqinc) const;
 
-    TermList* open_synonym_termlist(const std::string& term) const;
+    TermList* open_synonym_termlist(const std::string & term) const;
 
-    TermList* open_synonym_keylist(const std::string& prefix) const;
+    TermList* open_synonym_keylist(const std::string & prefix) const;
 
-    void add_synonym(const std::string& word, const std::string& synonym) const;
+    void add_synonym(const std::string & word, const std::string & synonym) const;
 
-    void remove_synonym(const std::string& word,
-			const std::string& synonym) const;
+    void remove_synonym(const std::string & word,
+			const std::string & synonym) const;
 
-    void clear_synonyms(const std::string& word) const;
+    void clear_synonyms(const std::string & word) const;
 
-    Xapian::termcount remove_spelling(const std::string& word,
+    Xapian::termcount remove_spelling(const std::string & word,
 				      Xapian::termcount freqdec) const;
 
     int get_backend_info(std::string* path) const {
@@ -323,7 +323,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     std::string reconstruct_text(Xapian::docid did,
 				 size_t length,
-				 const std::string& prefix,
+				 const std::string & prefix,
 				 Xapian::termpos start_pos,
 				 Xapian::termpos end_pos) const;
 

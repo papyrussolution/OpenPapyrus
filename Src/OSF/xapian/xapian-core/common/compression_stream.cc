@@ -75,7 +75,7 @@ const char* CompressionStream::compress(const char* buf, size_t* p_size) {
 	return out;
 }
 
-bool CompressionStream::decompress_chunk(const char* p, int len, string& buf)
+bool CompressionStream::decompress_chunk(const char* p, int len, string & buf)
 {
 	Bytef blk[8192];
 	inflate_zstream->next_in = reinterpret_cast<const Bytef*>(p);
@@ -103,8 +103,8 @@ bool CompressionStream::decompress_chunk(const char* p, int len, string& buf)
 }
 
 void CompressionStream::lazy_alloc_deflate_zstream() {
-	if(usual(deflate_zstream)) {
-		if(usual(deflateReset(deflate_zstream) == Z_OK)) return;
+	if(LIKELY(deflate_zstream)) {
+		if(LIKELY(deflateReset(deflate_zstream) == Z_OK)) return;
 		// Try to recover by deleting the stream and starting from scratch.
 		delete deflate_zstream;
 	}
@@ -119,7 +119,7 @@ void CompressionStream::lazy_alloc_deflate_zstream() {
 	// memLevel 9 is the highest (8 is default)
 	int err = deflateInit2(deflate_zstream, Z_DEFAULT_COMPRESSION, Z_DEFLATED,
 		-15, 9, compress_strategy);
-	if(rare(err != Z_OK)) {
+	if(UNLIKELY(err != Z_OK)) {
 		if(err == Z_MEM_ERROR) {
 			delete deflate_zstream;
 			deflate_zstream = 0;
@@ -140,8 +140,8 @@ void CompressionStream::lazy_alloc_deflate_zstream() {
 }
 
 void CompressionStream::lazy_alloc_inflate_zstream() {
-	if(usual(inflate_zstream)) {
-		if(usual(inflateReset(inflate_zstream) == Z_OK)) return;
+	if(LIKELY(inflate_zstream)) {
+		if(LIKELY(inflateReset(inflate_zstream) == Z_OK)) return;
 		// Try to recover by deleting the stream and starting from scratch.
 		delete inflate_zstream;
 	}
@@ -155,7 +155,7 @@ void CompressionStream::lazy_alloc_inflate_zstream() {
 	inflate_zstream->avail_in = 0;
 
 	int err = inflateInit2(inflate_zstream, -15);
-	if(rare(err != Z_OK)) {
+	if(UNLIKELY(err != Z_OK)) {
 		if(err == Z_MEM_ERROR) {
 			delete inflate_zstream;
 			inflate_zstream = 0;

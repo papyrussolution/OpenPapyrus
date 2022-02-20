@@ -91,7 +91,7 @@ public:
 	 *
 	 *  @param target_	Target string to calculate edit distances to.
 	 */
-	explicit EditDistanceCalculator(const std::string& target_) : target_bytes(target_.size()) 
+	explicit EditDistanceCalculator(const std::string & target_) : target_bytes(target_.size()) 
 	{
 		using Xapian::Utf8Iterator;
 		for(Utf8Iterator it(target_); it != Utf8Iterator(); ++it) {
@@ -119,7 +119,7 @@ public:
 	 *
 	 *  @return The edit distance between candidate and the target.
 	 */
-	int operator()(const std::string& candidate, int max_distance) const {
+	int operator()(const std::string & candidate, int max_distance) const {
 		// We have the UTF-32 target in target.
 		size_t target_utf32_len = target.size();
 

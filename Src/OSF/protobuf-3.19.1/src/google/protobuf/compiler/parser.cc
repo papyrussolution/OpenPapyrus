@@ -74,7 +74,7 @@ const TypeNameMap kTypeNames = MakeTypeNameTable();
 
 // Camel-case the field name and append "Entry" for generated map entry name.
 // e.g. map<KeyType, ValueType> foo_map => FooMapEntry
-std::string MapEntryName(const std::string& field_name) {
+std::string MapEntryName(const std::string & field_name) {
 	std::string result;
 	static const char kSuffix[] = "Entry";
 	result.reserve(field_name.size() + sizeof(kSuffix));
@@ -113,7 +113,7 @@ bool IsNumber(char c) {
 	return c >= '0' && c <= '9';
 }
 
-bool IsUpperCamelCase(const std::string& name) {
+bool IsUpperCamelCase(const std::string & name) {
 	if(name.empty()) {
 		return true;
 	}
@@ -130,7 +130,7 @@ bool IsUpperCamelCase(const std::string& name) {
 	return true;
 }
 
-bool IsUpperUnderscore(const std::string& name) {
+bool IsUpperUnderscore(const std::string & name) {
 	for(const char c : name) {
 		if(!IsUppercase(c) && c != '_' && !IsNumber(c)) {
 			return false;
@@ -139,7 +139,7 @@ bool IsUpperUnderscore(const std::string& name) {
 	return true;
 }
 
-bool IsLowerUnderscore(const std::string& name) {
+bool IsLowerUnderscore(const std::string & name) {
 	for(const char c : name) {
 		if(!IsLowercase(c) && c != '_' && !IsNumber(c)) {
 			return false;
@@ -148,7 +148,7 @@ bool IsLowerUnderscore(const std::string& name) {
 	return true;
 }
 
-bool IsNumberFollowUnderscore(const std::string& name) {
+bool IsNumberFollowUnderscore(const std::string & name) {
 	for(int i = 1; i < name.length(); i++) {
 		const char c = name[i];
 		if(IsNumber(c) && name[i - 1] == '_') {
@@ -387,18 +387,18 @@ bool Parser::ConsumeEndOfDeclaration(const char* text,
 
 // -------------------------------------------------------------------
 
-void Parser::AddError(int line, int column, const std::string& error) {
+void Parser::AddError(int line, int column, const std::string & error) {
 	if(error_collector_ != NULL) {
 		error_collector_->AddError(line, column, error);
 	}
 	had_errors_ = true;
 }
 
-void Parser::AddError(const std::string& error) {
+void Parser::AddError(const std::string & error) {
 	AddError(input_->current().line, input_->current().column, error);
 }
 
-void Parser::AddWarning(const std::string& warning) {
+void Parser::AddWarning(const std::string & warning) {
 	if(error_collector_ != nullptr) {
 		error_collector_->AddWarning(input_->current().line,
 		    input_->current().column, warning);
@@ -486,7 +486,7 @@ void Parser::LocationRecorder::RecordLegacyLocation(const Message* descriptor,
 	}
 }
 
-void Parser::LocationRecorder::RecordLegacyImportLocation(const Message* descriptor, const std::string& name) {
+void Parser::LocationRecorder::RecordLegacyImportLocation(const Message* descriptor, const std::string & name) {
 	if(parser_->source_location_table_ != nullptr) {
 		parser_->source_location_table_->AddImport(
 			descriptor, name, location_->span(0), location_->span(1));
@@ -2461,7 +2461,7 @@ bool SourceLocationTable::Find(const Message* descriptor, DescriptorPool::ErrorC
 	}
 }
 
-bool SourceLocationTable::FindImport(const Message* descriptor, const std::string& name, int* line, int* column) const 
+bool SourceLocationTable::FindImport(const Message* descriptor, const std::string & name, int* line, int* column) const 
 {
 	const std::pair<int, int>* result = FindOrNull(import_location_map_, std::make_pair(descriptor, name));
 	if(result == nullptr) {
@@ -2481,7 +2481,7 @@ void SourceLocationTable::Add(const Message* descriptor, DescriptorPool::ErrorCo
 	location_map_[std::make_pair(descriptor, location)] = std::make_pair(line, column);
 }
 
-void SourceLocationTable::AddImport(const Message* descriptor, const std::string& name, int line, int column) 
+void SourceLocationTable::AddImport(const Message* descriptor, const std::string & name, int line, int column) 
 {
 	import_location_map_[std::make_pair(descriptor, name)] = std::make_pair(line, column);
 }

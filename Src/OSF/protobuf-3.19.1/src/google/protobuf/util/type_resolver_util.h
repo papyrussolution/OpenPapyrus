@@ -34,7 +34,7 @@ class TypeResolver;
 // Creates a TypeResolver that serves type information in the given descriptor
 // pool. Caller takes ownership of the returned TypeResolver.
 PROTOBUF_EXPORT TypeResolver* NewTypeResolverForDescriptorPool(
-    const std::string& url_prefix, const DescriptorPool* pool);
+    const std::string & url_prefix, const DescriptorPool* pool);
 
 }  // namespace util
 }  // namespace protobuf

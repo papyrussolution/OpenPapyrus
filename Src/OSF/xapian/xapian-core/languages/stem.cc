@@ -28,7 +28,7 @@
 using namespace std;
 
 namespace Xapian {
-Stem::Stem(const std::string& language, bool fallback)
+Stem::Stem(const std::string & language, bool fallback)
 {
 	int l = keyword2(tab, language.data(), language.size());
 	if(l >= 0) {

@@ -15171,6 +15171,7 @@ private:
 	public:
 		GlobalObjectArray();
 		~GlobalObjectArray();
+		void Destroy();
 		uint CreateObject(SClassWrapper & rCls);
 		int  DestroyObject(uint idx);
 		void * FASTCALL GetObject(uint idx);

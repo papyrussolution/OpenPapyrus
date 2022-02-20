@@ -1816,16 +1816,16 @@
     <ClInclude Include="..\OSF\mupdf\source\fitz\z-imp.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BuildVC2017\freetype.vcxproj">
+    <ProjectReference Include="freetype.vcxproj">
       <Project>{d7c20ac1-2566-446f-b49a-598fe7a67094}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\BuildVC2017\libjpeg.vcxproj">
+    <ProjectReference Include="libjpeg.vcxproj">
       <Project>{270b7cae-41a6-43ae-a53d-d06dd9ee84e9}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\BuildVC2017\libpng.vcxproj">
+    <ProjectReference Include="libpng.vcxproj">
       <Project>{04aa636d-9d3e-4e79-9c2e-b8d0470719da}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\BuildVC2017\openjp2.vcxproj">
+    <ProjectReference Include="openjp2.vcxproj">
       <Project>{c756e07c-5895-39df-8310-7126f3c6fd84}</Project>
     </ProjectReference>
     <ProjectReference Include="libluratech.vcxproj">

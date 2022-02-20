@@ -21,7 +21,7 @@ const NormalizedLocale kNormalizedLocales[] = {
 	{"zh_MO", "zh_Hant"},
 };
 
-const char* GetNormalizedLocale(const string& full_locale) {
+const char* GetNormalizedLocale(const string & full_locale) {
 	const int size = sizeof(kNormalizedLocales) / sizeof(*kNormalizedLocales);
 	for(int i = 0; i != size; ++i) {
 		if(full_locale.compare(kNormalizedLocales[i].locale) == 0) {
@@ -31,15 +31,15 @@ const char* GetNormalizedLocale(const string& full_locale) {
 	return NULL;
 }
 
-void AppendLocalePart(const string& part, string* full_locale) {
+void AppendLocalePart(const string & part, string* full_locale) {
 	if(!part.empty()) {
 		full_locale->append("_");
 		full_locale->append(part);
 	}
 }
 
-void ConstructFullLocale(const string& language, const string& script, const
-    string& region, string* full_locale) {
+void ConstructFullLocale(const string & language, const string & script, const
+    string & region, string* full_locale) {
 	full_locale->assign(language);
 	AppendLocalePart(script, full_locale);
 	AppendLocalePart(region, full_locale);
@@ -51,7 +51,7 @@ bool IsLowerThan(const char* s1, const char* s2) {
 }
 
 // Returns true if languages contains language.
-bool HasLanguage(const CountryLanguages* languages, const string& language) {
+bool HasLanguage(const CountryLanguages* languages, const string & language) {
 	const char** const start = languages->available_languages;
 	const char** const end = start + languages->available_languages_size;
 	const char** const it =
@@ -67,10 +67,10 @@ MappingFileProvider::MappingFileProvider(const int* country_calling_codes, int c
 	get_country_languages_(get_country_languages) {
 }
 
-const string& MappingFileProvider::GetFileName(int country_calling_code,
-    const string& language,
-    const string& script,
-    const string& region,
+const string & MappingFileProvider::GetFileName(int country_calling_code,
+    const string & language,
+    const string & script,
+    const string & region,
     string* filename) const {
 	filename->clear();
 	if(language.empty()) {
@@ -100,8 +100,8 @@ const string& MappingFileProvider::GetFileName(int country_calling_code,
 	return *filename;
 }
 
-void MappingFileProvider::FindBestMatchingLanguageCode(const CountryLanguages* languages, const string& language,
-    const string& script, const string& region, string* best_match) const {
+void MappingFileProvider::FindBestMatchingLanguageCode(const CountryLanguages* languages, const string & language,
+    const string & script, const string & region, string* best_match) const {
 	string full_locale;
 	ConstructFullLocale(language, script, region, &full_locale);
 	const char* const normalized_locale = GetNormalizedLocale(full_locale);

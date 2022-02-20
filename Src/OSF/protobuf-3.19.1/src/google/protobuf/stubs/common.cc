@@ -112,7 +112,7 @@ std::string VersionString(int version) {
 namespace internal {
 #if defined(__ANDROID__)
 inline void DefaultLogHandler(LogLevel level, const char* filename, int line,
-    const std::string& message) {
+    const std::string & message) {
 	if(level < GOOGLE_PROTOBUF_MIN_LOG_LEVEL) {
 		return;
 	}
@@ -140,7 +140,7 @@ inline void DefaultLogHandler(LogLevel level, const char* filename, int line,
 }
 
 #else
-void DefaultLogHandler(LogLevel level, const char* filename, int line, const std::string& message) 
+void DefaultLogHandler(LogLevel level, const char* filename, int line, const std::string & message) 
 {
 	if(level < GOOGLE_PROTOBUF_MIN_LOG_LEVEL) {
 		return;
@@ -154,14 +154,14 @@ void DefaultLogHandler(LogLevel level, const char* filename, int line, const std
 #endif
 
 void NullLogHandler(LogLevel /* level */, const char* /* filename */,
-    int /* line */, const std::string& /* message */) {
+    int /* line */, const std::string & /* message */) {
 	// Nothing.
 }
 
 static LogHandler* log_handler_ = &DefaultLogHandler;
 static std::atomic<int> log_silencer_count_ = ATOMIC_VAR_INIT(0);
 
-LogMessage& LogMessage::operator<<(const std::string& value) {
+LogMessage& LogMessage::operator<<(const std::string & value) {
 	message_ += value;
 	return *this;
 }

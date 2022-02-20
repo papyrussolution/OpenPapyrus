@@ -1395,7 +1395,7 @@ bool MessageDifferencer::UnpackAnyField::UnpackAny(const Message& any, std::uniq
 	if(!internal::GetAnyFieldDescriptors(any, &type_url_field, &value_field)) {
 		return false;
 	}
-	const std::string& type_url = reflection->GetString(any, type_url_field);
+	const std::string & type_url = reflection->GetString(any, type_url_field);
 	std::string full_type_name;
 	if(!internal::ParseAnyTypeUrl(type_url, &full_type_name)) {
 		return false;
@@ -2075,7 +2075,7 @@ void MessageDifferencer::StreamReporter::PrintUnknownFieldValue(const UnknownFie
 	printer_->PrintRaw(output);
 }
 
-void MessageDifferencer::StreamReporter::Print(const std::string& str) {
+void MessageDifferencer::StreamReporter::Print(const std::string & str) {
 	printer_->Print(str.c_str());
 }
 

@@ -53,7 +53,7 @@ public:
 	PositionList* positionlist_begin() const;
 	Xapian::termcount positionlist_count() const;
 	TermList * next();
-	TermList * skip_to(const std::string& term);
+	TermList * skip_to(const std::string & term);
 	bool at_end() const;
 };
 

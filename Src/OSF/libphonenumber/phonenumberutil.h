@@ -157,7 +157,7 @@ public:
 	// MOBILE would be present) and UNKNOWN.
 	//
 	// No types will be returned for invalid or unknown region codes.
-	void GetSupportedTypesForRegion(const string& region_code, std::set<PhoneNumberType>* types) const;
+	void GetSupportedTypesForRegion(const string & region_code, std::set<PhoneNumberType>* types) const;
 
 	// Returns the types for a country-code belonging to a non-geographical entity
 	// which the library has metadata for. Will not include FIXED_LINE_OR_MOBILE
@@ -184,7 +184,7 @@ public:
 	// checks - to work out if this number is actually valid for a region, it
 	// should be parsed and methods such as IsPossibleNumberWithReason or
 	// IsValidNumber should be used.
-	bool IsAlphaNumber(const string& number) const;
+	bool IsAlphaNumber(const string & number) const;
 
 	// Converts all alpha characters in a number to their respective digits on
 	// a keypad, but retains existing formatting.
@@ -301,7 +301,7 @@ public:
 	// regardless of whether the phone number already has a preferred domestic
 	// carrier code stored. If carrier_code contains an empty string, return the
 	// number in national format without any carrier code.
-	void FormatNationalNumberWithCarrierCode(const PhoneNumber& number, const string& carrier_code, string* formatted_number) const;
+	void FormatNationalNumberWithCarrierCode(const PhoneNumber& number, const string & carrier_code, string* formatted_number) const;
 
 	// Formats a phone number in national format for dialing using the carrier as
 	// specified in the preferred_domestic_carrier_code field of the PhoneNumber
@@ -313,13 +313,13 @@ public:
 	// Use FormatNationalNumberWithCarrierCode instead if the carrier code passed
 	// in should take precedence over the number's preferred_domestic_carrier_code
 	// when formatting.
-	void FormatNationalNumberWithPreferredCarrierCode(const PhoneNumber& number, const string& fallback_carrier_code, string* formatted_number) const;
+	void FormatNationalNumberWithPreferredCarrierCode(const PhoneNumber& number, const string & fallback_carrier_code, string* formatted_number) const;
 
 	// Returns a number formatted in such a way that it can be dialed from a
 	// mobile phone in a specific region. If the number cannot be reached from
 	// the region (e.g. some countries block toll-free numbers from being called
 	// outside of the country), the method returns an empty string.
-	void FormatNumberForMobileDialing(const PhoneNumber& number, const string& region_calling_from, bool with_formatting, string* formatted_number) const;
+	void FormatNumberForMobileDialing(const PhoneNumber& number, const string & region_calling_from, bool with_formatting, string* formatted_number) const;
 
 	// Formats a phone number for out-of-country dialing purposes.
 	//
@@ -328,7 +328,7 @@ public:
 	// code). In those cases, no international prefix is used. For regions which
 	// have multiple international prefixes, the number in its INTERNATIONAL
 	// format will be returned instead.
-	void FormatOutOfCountryCallingNumber(const PhoneNumber& number, const string& calling_from, string* formatted_number) const;
+	void FormatOutOfCountryCallingNumber(const PhoneNumber& number, const string & calling_from, string* formatted_number) const;
 
 	// Formats a phone number using the original phone number format that the
 	// number is parsed from. The original format is embedded in the
@@ -339,7 +339,7 @@ public:
 	//
 	// Note this method guarantees no digit will be inserted, removed or modified
 	// as a result of formatting.
-	void FormatInOriginalFormat(const PhoneNumber& number, const string& region_calling_from, string* formatted_number) const;
+	void FormatInOriginalFormat(const PhoneNumber& number, const string & region_calling_from, string* formatted_number) const;
 
 	// Formats a phone number for out-of-country dialing purposes.
 	//
@@ -358,7 +358,7 @@ public:
 	// and if the function needs to strip preceding digits/words in the raw input
 	// before these digits. Normally people group the first three digits together
 	// so this is not a huge problem - and will be fixed if it proves to be so.
-	void FormatOutOfCountryKeepingAlphaChars(const PhoneNumber& number, const string& calling_from, string* formatted_number) const;
+	void FormatOutOfCountryKeepingAlphaChars(const PhoneNumber& number, const string & calling_from, string* formatted_number) const;
 
 	// Attempts to extract a valid number from a phone number that is too long to
 	// be valid, and resets the PhoneNumber object passed in to that valid
@@ -393,7 +393,7 @@ public:
 	// example, this method will mark numbers from British Crown dependencies
 	// such as the Isle of Man as invalid for the region "GB" (United Kingdom),
 	// since it has its own region code, "IM", which may be undesirable.
-	bool IsValidNumberForRegion(const PhoneNumber& number, const string& region_code) const;
+	bool IsValidNumberForRegion(const PhoneNumber& number, const string & region_code) const;
 
 	// Returns the region where a phone number is from. This could be used for
 	// geocoding at the region level. Only guarantees correct results for valid,
@@ -402,7 +402,7 @@ public:
 
 	// Returns the country calling code for a specific region. For example,
 	// this would be 1 for the United States, and 64 for New Zealand.
-	int GetCountryCodeForRegion(const string& region_code) const;
+	int GetCountryCodeForRegion(const string & region_code) const;
 
 	// Returns the region code that matches the specific country code. Note that
 	// it is possible that several regions share the same country calling code
@@ -422,14 +422,14 @@ public:
 
 	// Checks if this is a region under the North American Numbering Plan
 	// Administration (NANPA).
-	bool IsNANPACountry(const string& region_code) const;
+	bool IsNANPACountry(const string & region_code) const;
 
 	// Returns the national dialling prefix for a specific region. For example,
 	// this would be 1 for the United States, and 0 for New Zealand. Set
 	// strip_non_digits to true to strip symbols like "~" (which indicates a wait
 	// for a dialling tone) from the prefix returned. If no national prefix is
 	// present, we return an empty string.
-	void GetNddPrefixForRegion(const string& region_code, bool strip_non_digits, string* national_prefix) const;
+	void GetNddPrefixForRegion(const string & region_code, bool strip_non_digits, string* national_prefix) const;
 
 	// Checks whether a phone number is a possible number. It provides a more
 	// lenient check than IsValidNumber() in the following sense:
@@ -512,7 +512,7 @@ public:
 	// 650 253 0000, it could only be dialed from within the US, and when written
 	// as 253 0000, it could only be dialed from within a smaller area in the US
 	// (Mountain View, CA, to be more specific).
-	bool IsPossibleNumberForString(const string& number, const string& region_dialing_from) const;
+	bool IsPossibleNumberForString(const string & number, const string & region_dialing_from) const;
 
 	// Returns true if the number can be dialled from outside the region, or
 	// unknown. If the number can only be dialled from within the region, returns
@@ -535,7 +535,7 @@ public:
 	// the region was unknown, or the region 001 is passed in. For 001
 	// (representing non-geographical numbers), call
 	// GetExampleNumberForNonGeoEntity instead.
-	bool GetExampleNumber(const string& region_code, PhoneNumber* number) const;
+	bool GetExampleNumber(const string & region_code, PhoneNumber* number) const;
 
 	// Gets an invalid number for the specified region. This is useful for
 	// unit-testing purposes, where you want to test that will happen with an
@@ -546,13 +546,13 @@ public:
 	//
 	// Returns false when an unsupported region or the region 001 (Earth) is
 	// passed in.
-	bool GetInvalidExampleNumber(const string& region_code, PhoneNumber* number) const;
+	bool GetInvalidExampleNumber(const string & region_code, PhoneNumber* number) const;
 
 	// Gets a valid number of the specified type for the specified region.
 	// Returns false if the region was unknown or 001, or if no example number of
 	// that type could be found. For 001 (representing non-geographical numbers),
 	// call GetExampleNumberForNonGeoEntity instead.
-	bool GetExampleNumberForType(const string& region_code, PhoneNumberType type, PhoneNumber* number) const;
+	bool GetExampleNumberForType(const string & region_code, PhoneNumberType type, PhoneNumber* number) const;
 
 	// Gets a valid number for the specified type (it may belong to any country).
 	// Returns false when the metadata does not contain such information.  This
@@ -603,12 +603,12 @@ public:
 	// number (e.g.too few or too many digits) or if no default region was
 	// supplied and the number is not in international format (does not start with
 	// +).
-	ErrorType Parse(const string& number_to_parse, const string& default_region, PhoneNumber* number) const;
+	ErrorType Parse(const string & number_to_parse, const string & default_region, PhoneNumber* number) const;
 	// Parses a string and returns it in proto buffer format. This method differs
 	// from Parse() in that it always populates the raw_input field of the
 	// protocol buffer with number_to_parse as well as the country_code_source
 	// field.
-	ErrorType ParseAndKeepRawInput(const string& number_to_parse, const string& default_region, PhoneNumber* number) const;
+	ErrorType ParseAndKeepRawInput(const string & number_to_parse, const string & default_region, PhoneNumber* number) const;
 
 	// Takes two phone numbers and compares them for equality.
 	//
@@ -630,14 +630,14 @@ public:
 	// PhoneNumber secondNumber). No default region is known.
 	// Returns INVALID_NUMBER if either number cannot be parsed into a phone
 	// number.
-	MatchType IsNumberMatchWithTwoStrings(const string& first_number, const string& second_number) const;
+	MatchType IsNumberMatchWithTwoStrings(const string & first_number, const string & second_number) const;
 
 	// Takes two phone numbers and compares them for equality. This is a
 	// convenience wrapper for IsNumberMatch(PhoneNumber firstNumber,
 	// PhoneNumber secondNumber). No default region is known.
 	// Returns INVALID_NUMBER if second_number cannot be parsed into a phone
 	// number.
-	MatchType IsNumberMatchWithOneString(const PhoneNumber& first_number, const string& second_number) const;
+	MatchType IsNumberMatchWithOneString(const PhoneNumber& first_number, const string & second_number) const;
 	// Overrides the default logging system. This takes ownership of the provided
 	// logger.
 	void SetLogger(Logger* logger);
@@ -647,13 +647,13 @@ public:
 	// numbers in the specific region "as you type".
 	// The deletion of the returned instance is under the responsibility of the
 	// caller.
-	AsYouTypeFormatter* GetAsYouTypeFormatter(const string& region_code) const;
+	AsYouTypeFormatter* GetAsYouTypeFormatter(const string & region_code) const;
 
 	friend bool ConvertFromTelephoneNumberProto(const TelephoneNumber& proto_to_convert, PhoneNumber* new_proto);
 	friend bool ConvertToTelephoneNumberProto(const PhoneNumber& proto_to_convert, TelephoneNumber* resulting_proto);
 protected:
-	bool IsNumberMatchingDesc(const string& national_number, const PhoneNumberDesc& number_desc) const;
-	PhoneNumberUtil::PhoneNumberType GetNumberTypeHelper(const string& national_number, const PhoneMetadata& metadata) const;
+	bool IsNumberMatchingDesc(const string & national_number, const PhoneNumberDesc& number_desc) const;
+	PhoneNumberUtil::PhoneNumberType GetNumberTypeHelper(const string & national_number, const PhoneMetadata& metadata) const;
 private:
 	scoped_ptr<Logger> logger_;
 	typedef std::pair<int, std::list<string>*> IntRegionsPair;
@@ -699,78 +699,78 @@ private:
 	PhoneNumberUtil();
 	// Returns a regular expression for the possible extensions that may be found
 	// in a number, for use when matching.
-	const string& GetExtnPatternsForMatching() const;
+	const string & GetExtnPatternsForMatching() const;
 	// Checks if a number matches the plus chars pattern.
-	bool StartsWithPlusCharsPattern(const string& number) const;
-	void SetItalianLeadingZerosForPhoneNumber(const string& national_number, PhoneNumber* phone_number) const;
+	bool StartsWithPlusCharsPattern(const string & number) const;
+	void SetItalianLeadingZerosForPhoneNumber(const string & national_number, PhoneNumber* phone_number) const;
 	// Checks whether a string contains only valid digits.
-	bool ContainsOnlyValidDigits(const string& s) const;
+	bool ContainsOnlyValidDigits(const string & s) const;
 	// Checks if a format is eligible to be used by the AsYouTypeFormatter. This
 	// method is here rather than in asyoutypeformatter.h since it depends on the
 	// valid punctuation declared by the phone number util.
-	bool IsFormatEligibleForAsYouTypeFormatter(const string& format) const;
+	bool IsFormatEligibleForAsYouTypeFormatter(const string & format) const;
 	// Helper function to check if the national prefix formatting rule has the
 	// first group only, i.e., does not start with the national prefix.
-	bool FormattingRuleHasFirstGroupOnly(const string& national_prefix_formatting_rule) const;
+	bool FormattingRuleHasFirstGroupOnly(const string & national_prefix_formatting_rule) const;
 	// Trims unwanted end characters from a phone number string.
 	void TrimUnwantedEndChars(string* number) const;
 	// Helper function to check region code is not unknown or null.
-	bool IsValidRegionCode(const string& region_code) const;
+	bool IsValidRegionCode(const string & region_code) const;
 	// Helper function to check the country calling code is valid.
 	bool HasValidCountryCallingCode(int country_calling_code) const;
-	const i18n::phonenumbers::PhoneMetadata* GetMetadataForRegion(const string& region_code) const;
+	const i18n::phonenumbers::PhoneMetadata* GetMetadataForRegion(const string & region_code) const;
 	const i18n::phonenumbers::PhoneMetadata* GetMetadataForNonGeographicalRegion(int country_calling_code) const;
-	const i18n::phonenumbers::PhoneMetadata* GetMetadataForRegionOrCallingCode(int country_calling_code, const string& region_code) const;
+	const i18n::phonenumbers::PhoneMetadata* GetMetadataForRegionOrCallingCode(int country_calling_code, const string & region_code) const;
 	// As per GetCountryCodeForRegion, but assumes the validity of the region_code
 	// has already been checked.
-	int GetCountryCodeForValidRegion(const string& region_code) const;
+	int GetCountryCodeForValidRegion(const string & region_code) const;
 	const NumberFormat* ChooseFormattingPatternForNumber(const RepeatedPtrField<NumberFormat>& available_formats,
-	    const string& national_number) const;
-	void FormatNsnUsingPatternWithCarrier(const string& national_number,
+	    const string & national_number) const;
+	void FormatNsnUsingPatternWithCarrier(const string & national_number,
 	    const NumberFormat& formatting_pattern,
 	    PhoneNumberUtil::PhoneNumberFormat number_format,
-	    const string& carrier_code,
+	    const string & carrier_code,
 	    string* formatted_number) const;
 
-	void FormatNsnUsingPattern(const string& national_number,
+	void FormatNsnUsingPattern(const string & national_number,
 	    const NumberFormat& formatting_pattern,
 	    PhoneNumberUtil::PhoneNumberFormat number_format,
 	    string* formatted_number) const;
 
 	// Check if raw_input, which is assumed to be in the national format, has a
 	// national prefix. The national prefix is assumed to be in digits-only form.
-	bool RawInputContainsNationalPrefix(const string& raw_input,
-	    const string& national_prefix,
-	    const string& region_code) const;
+	bool RawInputContainsNationalPrefix(const string & raw_input,
+	    const string & national_prefix,
+	    const string & region_code) const;
 
 	bool HasFormattingPatternForNumber(const PhoneNumber& number) const;
 
 	// Simple wrapper of FormatNsnWithCarrier for the common case of
 	// no carrier code.
-	void FormatNsn(const string& number,
+	void FormatNsn(const string & number,
 	    const PhoneMetadata& metadata,
 	    PhoneNumberFormat number_format,
 	    string* formatted_number) const;
-	void FormatNsnWithCarrier(const string& number, const PhoneMetadata& metadata, PhoneNumberFormat number_format, 
-		const string& carrier_code, string* formatted_number) const;
+	void FormatNsnWithCarrier(const string & number, const PhoneMetadata& metadata, PhoneNumberFormat number_format, 
+		const string & carrier_code, string* formatted_number) const;
 	void MaybeAppendFormattedExtension(const PhoneNumber& number, const PhoneMetadata& metadata, PhoneNumberFormat number_format, string* extension) const;
 	void GetRegionCodeForNumberFromRegionList(const PhoneNumber& number, const std::list<string>& region_codes, string* region_code) const;
 	// Strips the IDD from the start of the number if present. Helper function
 	// used by MaybeStripInternationalPrefixAndNormalize.
 	bool ParsePrefixAsIdd(const RegExp& idd_pattern, string* number) const;
 	void Normalize(string* number) const;
-	PhoneNumber::CountryCodeSource MaybeStripInternationalPrefixAndNormalize(const string& possible_idd_prefix, string* number) const;
+	PhoneNumber::CountryCodeSource MaybeStripInternationalPrefixAndNormalize(const string & possible_idd_prefix, string* number) const;
 	bool MaybeStripNationalPrefixAndCarrierCode(const PhoneMetadata& metadata, string* number, string* carrier_code) const;
-	void ExtractPossibleNumber(const string& number, string* extracted_number) const;
-	bool IsViablePhoneNumber(const string& number) const;
+	void ExtractPossibleNumber(const string & number, string* extracted_number) const;
+	bool IsViablePhoneNumber(const string & number) const;
 	bool MaybeStripExtension(string* number, string* extension) const;
 	int ExtractCountryCode(string* national_number) const;
 	ErrorType MaybeExtractCountryCode(const PhoneMetadata* default_region_metadata, bool keepRawInput, string* national_number, PhoneNumber* phone_number) const;
-	bool CheckRegionForParsing(const string& number_to_parse, const string& default_region) const;
-	ErrorType ParseHelper(const string& number_to_parse, const string& default_region, bool keep_raw_input, bool check_region, PhoneNumber* phone_number) const;
+	bool CheckRegionForParsing(const string & number_to_parse, const string & default_region) const;
+	ErrorType ParseHelper(const string & number_to_parse, const string & default_region, bool keep_raw_input, bool check_region, PhoneNumber* phone_number) const;
 
-	void BuildNationalNumberForParsing(const string& number_to_parse, string* national_number) const;
-	bool IsShorterThanPossibleNormalNumber(const PhoneMetadata* country_metadata, const string& number) const;
+	void BuildNationalNumberForParsing(const string & number_to_parse, string* national_number) const;
+	bool IsShorterThanPossibleNormalNumber(const PhoneMetadata* country_metadata, const string & number) const;
 	DISALLOW_COPY_AND_ASSIGN(PhoneNumberUtil);
 };
 }  // namespace phonenumbers

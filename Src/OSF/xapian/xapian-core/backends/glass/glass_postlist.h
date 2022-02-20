@@ -61,7 +61,7 @@ public:
 	 *  @param readonly_      - whether to open the table for read only
 	 *                          access.
 	 */
-	GlassPostListTable(const std::string& path_, bool readonly_) : GlassTable("postlist", path_ + "/postlist.", readonly_),
+	GlassPostListTable(const std::string & path_, bool readonly_) : GlassTable("postlist", path_ + "/postlist.", readonly_),
 		doclen_pl()
 	{
 	}
@@ -76,29 +76,29 @@ public:
 	}
 
 	/// Merge changes for a term.
-	void merge_changes(const std::string& term,
+	void merge_changes(const std::string & term,
 	    const Inverter::PostingChanges& changes);
 
 	/// Merge document length changes.
 	void merge_doclen_changes(const std::map<Xapian::docid,
 	    Xapian::termcount>& doclens);
 
-	Xapian::docid get_chunk(const std::string& tname,
+	Xapian::docid get_chunk(const std::string & tname,
 	    Xapian::docid did, bool adding,
 	    Glass::PostlistChunkReader** from,
 	    Glass::PostlistChunkWriter** to);
 
 	/// Compose a key from a termname and docid.
-	static std::string make_key(const std::string& term, Xapian::docid did) {
+	static std::string make_key(const std::string & term, Xapian::docid did) {
 		return pack_glass_postlist_key(term, did);
 	}
 
 	/// Compose a key from a termname.
-	static std::string make_key(const std::string& term) {
+	static std::string make_key(const std::string & term) {
 		return pack_glass_postlist_key(term);
 	}
 
-	bool term_exists(const std::string& term) const {
+	bool term_exists(const std::string & term) const {
 		return key_exists(make_key(term));
 	}
 
@@ -113,7 +113,7 @@ public:
 	 *			of @a term in the database (or NULL not to
 	 *			return)
 	 */
-	void get_freqs(const std::string& term,
+	void get_freqs(const std::string & term,
 	    Xapian::doccount * termfreq_ptr,
 	    Xapian::termcount * collfreq_ptr,
 	    Xapian::termcount * wdfub_ptr = NULL) const;
@@ -230,7 +230,7 @@ class GlassPostList : public LeafPostList {
 	bool move_forward_in_chunk_to_at_least(Xapian::docid desired_did);
 
 	GlassPostList(Xapian::Internal::intrusive_ptr<const GlassDatabase> this_db_,
-	    const std::string& term,
+	    const std::string & term,
 	    GlassCursor * cursor_);
 
 	void init();
@@ -238,10 +238,10 @@ class GlassPostList : public LeafPostList {
 public:
 	/// Default constructor.
 	GlassPostList(Xapian::Internal::intrusive_ptr<const GlassDatabase> this_db_,
-	    const std::string& term,
+	    const std::string & term,
 	    bool keep_reference);
 	~GlassPostList();
-	LeafPostList* open_nearby_postlist(const std::string& term_, bool need_read_pos) const;
+	LeafPostList* open_nearby_postlist(const std::string & term_, bool need_read_pos) const;
 	/** Used for looking up doclens.
 	 *
 	 *  @return true if docid @a desired_did has a document length.

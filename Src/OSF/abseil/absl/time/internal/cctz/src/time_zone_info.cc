@@ -268,7 +268,7 @@ bool TimeZoneInfo::EquivTransitions(std::uint_fast8_t tt1_index,
 
 // Find/make a transition type with these attributes.
 bool TimeZoneInfo::GetTransitionType(std::int_fast32_t utc_offset, bool is_dst,
-    const std::string& abbr,
+    const std::string & abbr,
     std::uint_least8_t* index) {
 	std::size_t type_index = 0;
 	std::size_t abbr_index = abbreviations_.size();
@@ -571,7 +571,7 @@ inline FilePtr FOpen(const char* path, const char* mode) {
 // A stdio(3)-backed implementation of ZoneInfoSource.
 class FileZoneInfoSource : public ZoneInfoSource {
 public:
-	static std::unique_ptr<ZoneInfoSource> Open(const std::string& name);
+	static std::unique_ptr<ZoneInfoSource> Open(const std::string & name);
 
 	std::size_t Read(void* ptr, std::size_t size) override {
 		size = std::min(size, len_);
@@ -602,7 +602,7 @@ private:
 	std::size_t len_;
 };
 
-std::unique_ptr<ZoneInfoSource> FileZoneInfoSource::Open(const std::string& name) {
+std::unique_ptr<ZoneInfoSource> FileZoneInfoSource::Open(const std::string & name) {
 	// Use of the "file:" prefix is intended for testing purposes only.
 	const std::size_t pos = (name.compare(0, 5, "file:") == 0) ? 5 : 0;
 
@@ -633,7 +633,7 @@ std::unique_ptr<ZoneInfoSource> FileZoneInfoSource::Open(const std::string& name
 
 class AndroidZoneInfoSource : public FileZoneInfoSource {
 public:
-	static std::unique_ptr<ZoneInfoSource> Open(const std::string& name);
+	static std::unique_ptr<ZoneInfoSource> Open(const std::string & name);
 	std::string Version() const override {
 		return version_;
 	}
@@ -647,7 +647,7 @@ private:
 	std::string version_;
 };
 
-std::unique_ptr<ZoneInfoSource> AndroidZoneInfoSource::Open(const std::string& name) {
+std::unique_ptr<ZoneInfoSource> AndroidZoneInfoSource::Open(const std::string & name) {
 	// Use of the "file:" prefix is intended for testing purposes only.
 	const std::size_t pos = (name.compare(0, 5, "file:") == 0) ? 5 : 0;
 
@@ -700,7 +700,7 @@ std::unique_ptr<ZoneInfoSource> AndroidZoneInfoSource::Open(const std::string& n
 // https://fuchsia.dev/fuchsia-src/development/components/data#using_config_data_in_your_component
 class FuchsiaZoneInfoSource : public FileZoneInfoSource {
 public:
-	static std::unique_ptr<ZoneInfoSource> Open(const std::string& name);
+	static std::unique_ptr<ZoneInfoSource> Open(const std::string & name);
 	std::string Version() const override {
 		return version_;
 	}
@@ -713,7 +713,7 @@ private:
 	std::string version_;
 };
 
-std::unique_ptr<ZoneInfoSource> FuchsiaZoneInfoSource::Open(const std::string& name) {
+std::unique_ptr<ZoneInfoSource> FuchsiaZoneInfoSource::Open(const std::string & name) {
 	// Use of the "file:" prefix is intended for testing purposes only.
 	const std::size_t pos = (name.compare(0, 5, "file:") == 0) ? 5 : 0;
 
@@ -756,7 +756,7 @@ std::unique_ptr<ZoneInfoSource> FuchsiaZoneInfoSource::Open(const std::string& n
 }
 }  // namespace
 
-bool TimeZoneInfo::Load(const std::string& name) {
+bool TimeZoneInfo::Load(const std::string & name) {
 	// We can ensure that the loading of UTC or any other fixed-offset
 	// zone never fails because the simple, fixed-offset state can be
 	// internally generated. Note that this depends on our choice to not
@@ -768,7 +768,7 @@ bool TimeZoneInfo::Load(const std::string& name) {
 
 	// Find and use a ZoneInfoSource to load the named zone.
 	auto zip = cctz_extension::zone_info_source_factory(
-		name, [](const std::string& n) -> std::unique_ptr<ZoneInfoSource> {
+		name, [](const std::string & n) -> std::unique_ptr<ZoneInfoSource> {
 					if(auto z = FileZoneInfoSource::Open(n)) return z;
 					if(auto z = AndroidZoneInfoSource::Open(n)) return z;
 					if(auto z = FuchsiaZoneInfoSource::Open(n)) return z;

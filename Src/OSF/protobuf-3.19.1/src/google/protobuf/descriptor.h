@@ -234,14 +234,14 @@ public:
 	typedef DescriptorProto Proto;
 
 	// The name of the message type, not including its scope.
-	const std::string& name() const;
+	const std::string & name() const;
 
 	// The fully-qualified name of the message type, scope delimited by
 	// periods.  For example, message type "Foo" which is declared in package
 	// "bar" has full name "bar.Foo".  If a type "Baz" is nested within
 	// Foo, Baz's full_name is "bar.Foo.Baz".  To get only the part that
 	// comes after the last '.', use name().
-	const std::string& full_name() const;
+	const std::string & full_name() const;
 
 	// Index of this descriptor within the file or containing type's message
 	// type array.
@@ -471,7 +471,7 @@ public:
 	int reserved_name_count() const;
 
 	// Gets a reserved name by index, where 0 <= index < reserved_name_count().
-	const std::string& reserved_name(int index) const;
+	const std::string & reserved_name(int index) const;
 
 	// Returns true if the field name is reserved.
 	bool IsReservedName(ConstStringParam name) const;
@@ -666,9 +666,9 @@ public:
 	// Users may not declare fields that use reserved numbers.
 	static const int kLastReservedNumber = 19999;
 
-	const std::string& name() const; // Name of this field within the message.
-	const std::string& full_name() const; // Fully-qualified name of the field.
-	const std::string& json_name() const; // JSON name of this field.
+	const std::string & name() const; // Name of this field within the message.
+	const std::string & full_name() const; // Fully-qualified name of the field.
+	const std::string & json_name() const; // JSON name of this field.
 	const FileDescriptor* file() const; // File in which this field was defined.
 	bool is_extension() const;     // Is this an extension field?
 	int number() const;            // Declared tag number.
@@ -679,7 +679,7 @@ public:
 	// field names should be lowercased anyway according to the protobuf style
 	// guide, so this only makes a difference when dealing with old .proto files
 	// which do not follow the guide.)
-	const std::string& lowercase_name() const;
+	const std::string & lowercase_name() const;
 
 	// Same as name() except converted to camel-case.  In this conversion, any
 	// time an underscore appears in the name, it is removed and the next
@@ -690,7 +690,7 @@ public:
 	//   fooBar -> fooBar
 	// This (and especially the FindFieldByCamelcaseName() method) can be useful
 	// when parsing formats which prefer to use camel-case naming style.
-	const std::string& camelcase_name() const;
+	const std::string & camelcase_name() const;
 
 	Type type() const;            // Declared type of this field.
 	const char* type_name() const; // Name of the declared type.
@@ -776,7 +776,7 @@ public:
 	const EnumValueDescriptor* default_value_enum() const;
 	// Get the field default value if cpp_type() == CPPTYPE_STRING.  If no
 	// explicit default was defined, the default is the empty string.
-	const std::string& default_value_string() const;
+	const std::string & default_value_string() const;
 
 	// The Descriptor for the message of which this is a field.  For extensions,
 	// this is the extended type.  Never nullptr.
@@ -848,7 +848,7 @@ public:
 	// its printable name) can be accomplished with
 	//     message->file()->pool()->FindExtensionByPrintableName(message, name)
 	// where the extension extends "message".
-	const std::string& PrintableNameForExtension() const;
+	const std::string & PrintableNameForExtension() const;
 
 	// Source Location ---------------------------------------------------
 
@@ -977,8 +977,8 @@ class PROTOBUF_EXPORT OneofDescriptor : private internal::SymbolBase {
 public:
 	typedef OneofDescriptorProto Proto;
 
-	const std::string& name() const; // Name of this oneof.
-	const std::string& full_name() const; // Fully-qualified name of the oneof.
+	const std::string & name() const; // Name of this oneof.
+	const std::string & full_name() const; // Fully-qualified name of the oneof.
 
 	// Index of this oneof within the message's oneof array.
 	int index() const;
@@ -1061,10 +1061,10 @@ public:
 	typedef EnumDescriptorProto Proto;
 
 	// The name of this enum type in the containing scope.
-	const std::string& name() const;
+	const std::string & name() const;
 
 	// The fully-qualified name of the enum type, scope delimited by periods.
-	const std::string& full_name() const;
+	const std::string & full_name() const;
 
 	// Index of this enum within the file or containing message's enum array.
 	int index() const;
@@ -1134,7 +1134,7 @@ public:
 	int reserved_name_count() const;
 
 	// Gets a reserved name by index, where 0 <= index < reserved_name_count().
-	const std::string& reserved_name(int index) const;
+	const std::string & reserved_name(int index) const;
 
 	// Returns true if the field name is reserved.
 	bool IsReservedName(ConstStringParam name) const;
@@ -1232,7 +1232,7 @@ class PROTOBUF_EXPORT EnumValueDescriptor : private internal::SymbolBaseN<0>,
 public:
 	typedef EnumValueDescriptorProto Proto;
 
-	const std::string& name() const; // Name of this enum constant.
+	const std::string & name() const; // Name of this enum constant.
 	int index() const;          // Index within the enums's Descriptor.
 	int number() const;         // Numeric value of this enum constant.
 
@@ -1241,7 +1241,7 @@ public:
 	// "google.protobuf.FieldDescriptorProto.TYPE_INT32", NOT
 	// "google.protobuf.FieldDescriptorProto.Type.TYPE_INT32".  This is to conform
 	// with C++ scoping rules for enums.
-	const std::string& full_name() const;
+	const std::string & full_name() const;
 
 	// The .proto file in which this value was defined.  Never nullptr.
 	const FileDescriptor* file() const;
@@ -1314,9 +1314,9 @@ public:
 	typedef ServiceDescriptorProto Proto;
 
 	// The name of the service, not including its containing scope.
-	const std::string& name() const;
+	const std::string & name() const;
 	// The fully-qualified name of the service, scope delimited by periods.
-	const std::string& full_name() const;
+	const std::string & full_name() const;
 	// Index of this service within the file's services array.
 	int index() const;
 
@@ -1398,9 +1398,9 @@ public:
 	typedef MethodDescriptorProto Proto;
 
 	// Name of this method, not including containing scope.
-	const std::string& name() const;
+	const std::string & name() const;
 	// The fully-qualified name of the method, scope delimited by periods.
-	const std::string& full_name() const;
+	const std::string & full_name() const;
 	// Index within the service's Descriptor.
 	int index() const;
 
@@ -1487,10 +1487,10 @@ public:
 
 	// The filename, relative to the source tree.
 	// e.g. "foo/bar/baz.proto"
-	const std::string& name() const;
+	const std::string & name() const;
 
 	// The package, e.g. "google.protobuf.compiler".
-	const std::string& package() const;
+	const std::string & package() const;
 
 	// The DescriptorPool in which this FileDescriptor and all its contents were
 	// allocated.  Never nullptr.
@@ -1825,22 +1825,22 @@ public:
 
 		// Reports an error in the FileDescriptorProto. Use this function if the
 		// problem occurred should interrupt building the FileDescriptorProto.
-		virtual void AddError(const std::string& filename, // File name in which the error occurred.
-		    const std::string& element_name, // Full name of the erroneous element.
+		virtual void AddError(const std::string & filename, // File name in which the error occurred.
+		    const std::string & element_name, // Full name of the erroneous element.
 		    const Message* descriptor, // Descriptor of the erroneous element.
 		    ErrorLocation location, // One of the location constants, above.
-		    const std::string& message // Human-readable error message.
+		    const std::string & message // Human-readable error message.
 		    ) = 0;
 
 		// Reports a warning in the FileDescriptorProto. Use this function if the
 		// problem occurred should NOT interrupt building the FileDescriptorProto.
-		virtual void AddWarning(const std::string& /*filename*/, // File name in which the error
+		virtual void AddWarning(const std::string & /*filename*/, // File name in which the error
 		                                                         // occurred.
-		    const std::string& /*element_name*/, // Full name of the erroneous
+		    const std::string & /*element_name*/, // Full name of the erroneous
 		                                         // element.
 		    const Message* /*descriptor*/, // Descriptor of the erroneous element.
 		    ErrorLocation /*location*/, // One of the location constants, above.
-		    const std::string& /*message*/ // Human-readable error message.
+		    const std::string & /*message*/ // Human-readable error message.
 		    ) {
 		}
 
@@ -2066,12 +2066,12 @@ private:
 
 // Strings fields are stored as pointers but returned as const references.
 #define PROTOBUF_DEFINE_STRING_ACCESSOR(CLASS, FIELD) \
-	inline const std::string& CLASS::FIELD() const { return *FIELD ## _; }
+	inline const std::string & CLASS::FIELD() const { return *FIELD ## _; }
 
 // Name and full name are stored in a single array to save space.
 #define PROTOBUF_DEFINE_NAME_ACCESSOR(CLASS)                              \
-	inline const std::string& CLASS::name() const { return all_names_[0]; } \
-	inline const std::string& CLASS::full_name() const { return all_names_[1]; }
+	inline const std::string & CLASS::name() const { return all_names_[0]; } \
+	inline const std::string & CLASS::full_name() const { return all_names_[1]; }
 
 // Arrays take an index parameter, obviously.
 #define PROTOBUF_DEFINE_ARRAY_ACCESSOR(CLASS, FIELD, TYPE) \
@@ -2212,7 +2212,7 @@ inline bool Descriptor::IsReservedName(ConstStringParam name) const {
 
 // Can't use PROTOBUF_DEFINE_ARRAY_ACCESSOR because reserved_names_ is actually
 // an array of pointers rather than the usual array of objects.
-inline const std::string& Descriptor::reserved_name(int index) const {
+inline const std::string & Descriptor::reserved_name(int index) const {
 	return *reserved_names_[index];
 }
 
@@ -2231,19 +2231,19 @@ inline bool EnumDescriptor::IsReservedName(ConstStringParam name) const {
 
 // Can't use PROTOBUF_DEFINE_ARRAY_ACCESSOR because reserved_names_ is actually
 // an array of pointers rather than the usual array of objects.
-inline const std::string& EnumDescriptor::reserved_name(int index) const {
+inline const std::string & EnumDescriptor::reserved_name(int index) const {
 	return *reserved_names_[index];
 }
 
-inline const std::string& FieldDescriptor::lowercase_name() const {
+inline const std::string & FieldDescriptor::lowercase_name() const {
 	return all_names_[lowercase_name_index_];
 }
 
-inline const std::string& FieldDescriptor::camelcase_name() const {
+inline const std::string & FieldDescriptor::camelcase_name() const {
 	return all_names_[camelcase_name_index_];
 }
 
-inline const std::string& FieldDescriptor::json_name() const {
+inline const std::string & FieldDescriptor::json_name() const {
 	return all_names_[json_name_index_];
 }
 

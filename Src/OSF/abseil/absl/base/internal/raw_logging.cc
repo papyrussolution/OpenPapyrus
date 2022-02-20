@@ -170,7 +170,7 @@ void RawLogVA(absl::LogSeverity severity, const char* file, int line,
 // TODO(gfalcon): When string_view no longer depends on base, change this
 // interface to take its message as a string_view instead.
 void DefaultInternalLog(absl::LogSeverity severity, const char* file, int line,
-    const std::string& message) {
+    const std::string & message) {
 	RawLog(severity, file, line, "%.*s", static_cast<int>(message.size()),
 	    message.data());
 }

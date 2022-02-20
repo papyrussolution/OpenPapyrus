@@ -161,17 +161,17 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir>\papyrus\__TEMP__\VC2017\icu\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
-    <IntDir>\papyrus\__TEMP__\VC2017\icu\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>\papyrus\__TEMP__\VC2022\icu\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>\papyrus\__TEMP__\VC2022\icu\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <MakeCFG>$(Platform)\$(Configuration)</MakeCFG>
     <DebugBuild Condition="'$(Configuration)'=='Debug'">true</DebugBuild>
     <!-- The ICU projects use "Win32" to mean "x86", so we need to special case it. -->
-    <OutDir Condition="'$(Platform)'=='Win32'">\papyrus\__TEMP__\VC2017\icu\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <OutDir Condition="'$(Platform)'=='Win32'">\papyrus\__TEMP__\VC2022\icu\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
     <MakeCFG Condition="'$(Platform)'=='Win32'">x86\$(Configuration)</MakeCFG>
     <!-- NMake -->
-    <NMakeBuildCommandLine>NMAKE /f ..\osf\icu\icu4c\source\data\makedata.mak ICUMAKE="D:/Papyrus/Src/BuildVC2017" CFG=$(MakeCFG) DEBUG=$(DebugBuild)</NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine>NMAKE /f ..\osf\icu\icu4c\source\data\makedata.mak ICUMAKE="D:/Papyrus/Src/BuildVC2017" CFG=$(MakeCFG) clean all</NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine>NMAKE /f ..\osf\icu\icu4c\source\data\makedata.mak ICUMAKE="D:/Papyrus/Src/BuildVC2017" CFG=$(MakeCFG) clean</NMakeCleanCommandLine>
+    <NMakeBuildCommandLine>NMAKE /f ..\osf\icu\icu4c\source\data\makedata.mak ICUMAKE="D:/Papyrus/Src/BuildVC2022" CFG=$(MakeCFG) DEBUG=$(DebugBuild)</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>NMAKE /f ..\osf\icu\icu4c\source\data\makedata.mak ICUMAKE="D:/Papyrus/Src/BuildVC2022" CFG=$(MakeCFG) clean all</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>NMAKE /f ..\osf\icu\icu4c\source\data\makedata.mak ICUMAKE="D:/Papyrus/Src/BuildVC2022" CFG=$(MakeCFG) clean</NMakeCleanCommandLine>
     <NMakeOutput />
     <NMakePreprocessorDefinitions>$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <NMakeIncludeSearchPath>$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>

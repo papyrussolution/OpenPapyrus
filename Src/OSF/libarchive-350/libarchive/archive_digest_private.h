@@ -11,19 +11,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE AUTHOR(S) BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 #ifndef ARCHIVE_DIGEST_PRIVATE_H_INCLUDED
 #define ARCHIVE_DIGEST_PRIVATE_H_INCLUDED
 
@@ -298,12 +286,9 @@ typedef uchar archive_sha512_ctx;
 	defined(ARCHIVE_CRYPTO_MD5_WIN)
 #define ARCHIVE_HAS_MD5
 #endif
-#define archive_md5_init(ctx) \
-	__archive_digest.md5init(ctx)
-#define archive_md5_final(ctx, md) \
-	__archive_digest.md5final(ctx, md)
-#define archive_md5_update(ctx, buf, n) \
-	__archive_digest.md5update(ctx, buf, n)
+#define archive_md5_init(ctx) __archive_digest.md5init(ctx)
+#define archive_md5_final(ctx, md) __archive_digest.md5final(ctx, md)
+#define archive_md5_update(ctx, buf, n) __archive_digest.md5update(ctx, buf, n)
 
 #if defined(ARCHIVE_CRYPTO_RMD160_LIBC) || \
 	defined(ARCHIVE_CRYPTO_RMD160_MBEDTLS) || \
@@ -311,12 +296,9 @@ typedef uchar archive_sha512_ctx;
 	defined(ARCHIVE_CRYPTO_RMD160_OPENSSL)
 #define ARCHIVE_HAS_RMD160
 #endif
-#define archive_rmd160_init(ctx) \
-	__archive_digest.rmd160init(ctx)
-#define archive_rmd160_final(ctx, md) \
-	__archive_digest.rmd160final(ctx, md)
-#define archive_rmd160_update(ctx, buf, n) \
-	__archive_digest.rmd160update(ctx, buf, n)
+#define archive_rmd160_init(ctx) __archive_digest.rmd160init(ctx)
+#define archive_rmd160_final(ctx, md) __archive_digest.rmd160final(ctx, md)
+#define archive_rmd160_update(ctx, buf, n) __archive_digest.rmd160update(ctx, buf, n)
 
 #if defined(ARCHIVE_CRYPTO_SHA1_LIBC) || \
 	defined(ARCHIVE_CRYPTO_SHA1_LIBMD) || \
@@ -327,12 +309,9 @@ typedef uchar archive_sha512_ctx;
 	defined(ARCHIVE_CRYPTO_SHA1_WIN)
 #define ARCHIVE_HAS_SHA1
 #endif
-#define archive_sha1_init(ctx) \
-	__archive_digest.sha1init(ctx)
-#define archive_sha1_final(ctx, md) \
-	__archive_digest.sha1final(ctx, md)
-#define archive_sha1_update(ctx, buf, n) \
-	__archive_digest.sha1update(ctx, buf, n)
+#define archive_sha1_init(ctx) __archive_digest.sha1init(ctx)
+#define archive_sha1_final(ctx, md) __archive_digest.sha1final(ctx, md)
+#define archive_sha1_update(ctx, buf, n) __archive_digest.sha1update(ctx, buf, n)
 
 #if defined(ARCHIVE_CRYPTO_SHA256_LIBC) || \
 	defined(ARCHIVE_CRYPTO_SHA256_LIBC2) || \
@@ -345,12 +324,9 @@ typedef uchar archive_sha512_ctx;
 	defined(ARCHIVE_CRYPTO_SHA256_WIN)
 #define ARCHIVE_HAS_SHA256
 #endif
-#define archive_sha256_init(ctx) \
-	__archive_digest.sha256init(ctx)
-#define archive_sha256_final(ctx, md) \
-	__archive_digest.sha256final(ctx, md)
-#define archive_sha256_update(ctx, buf, n) \
-	__archive_digest.sha256update(ctx, buf, n)
+#define archive_sha256_init(ctx) __archive_digest.sha256init(ctx)
+#define archive_sha256_final(ctx, md) __archive_digest.sha256final(ctx, md)
+#define archive_sha256_update(ctx, buf, n) __archive_digest.sha256update(ctx, buf, n)
 
 #if defined(ARCHIVE_CRYPTO_SHA384_LIBC) || \
 	defined(ARCHIVE_CRYPTO_SHA384_LIBC2) || \
@@ -362,12 +338,9 @@ typedef uchar archive_sha512_ctx;
 	defined(ARCHIVE_CRYPTO_SHA384_WIN)
 #define ARCHIVE_HAS_SHA384
 #endif
-#define archive_sha384_init(ctx) \
-	__archive_digest.sha384init(ctx)
-#define archive_sha384_final(ctx, md) \
-	__archive_digest.sha384final(ctx, md)
-#define archive_sha384_update(ctx, buf, n) \
-	__archive_digest.sha384update(ctx, buf, n)
+#define archive_sha384_init(ctx) __archive_digest.sha384init(ctx)
+#define archive_sha384_final(ctx, md) __archive_digest.sha384final(ctx, md)
+#define archive_sha384_update(ctx, buf, n) __archive_digest.sha384update(ctx, buf, n)
 
 #if defined(ARCHIVE_CRYPTO_SHA512_LIBC) || \
 	defined(ARCHIVE_CRYPTO_SHA512_LIBC2) || \
@@ -380,12 +353,9 @@ typedef uchar archive_sha512_ctx;
 	defined(ARCHIVE_CRYPTO_SHA512_WIN)
 #define ARCHIVE_HAS_SHA512
 #endif
-#define archive_sha512_init(ctx) \
-	__archive_digest.sha512init(ctx)
-#define archive_sha512_final(ctx, md) \
-	__archive_digest.sha512final(ctx, md)
-#define archive_sha512_update(ctx, buf, n) \
-	__archive_digest.sha512update(ctx, buf, n)
+#define archive_sha512_init(ctx) __archive_digest.sha512init(ctx)
+#define archive_sha512_final(ctx, md) __archive_digest.sha512final(ctx, md)
+#define archive_sha512_update(ctx, buf, n) __archive_digest.sha512update(ctx, buf, n)
 
 /* Minimal interface to digest functionality for internal use in libarchive */
 struct archive_digest {

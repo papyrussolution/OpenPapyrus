@@ -304,7 +304,7 @@ done_skip_to:
 		if(t->at_end())
 			break;
 
-		const string& term = t->get_termname();
+		const string & term = t->get_termname();
 		if(!startswith(term, pfx))
 			break;
 		if(skip_ucase && term[0] >= 'A') {
@@ -1046,7 +1046,7 @@ string QueryPostingSource::get_description() const
 QueryScaleWeight::QueryScaleWeight(double factor, const Query & subquery_)
 	: scale_factor(factor), subquery(subquery_)
 {
-	if(rare(scale_factor < 0.0))
+	if(UNLIKELY(scale_factor < 0.0))
 		throw Xapian::InvalidArgumentError("OP_SCALE_WEIGHT requires factor >= 0");
 }
 
@@ -1412,7 +1412,7 @@ default_case:
 	}
 }
 
-bool QueryWildcard::test_wildcard_(const string& candidate, size_t o, size_t p,
+bool QueryWildcard::test_wildcard_(const string & candidate, size_t o, size_t p,
     size_t i) const
 {
 	// FIXME: Optimisation potential here.  We could compile the pattern to a
@@ -1449,7 +1449,7 @@ bool QueryWildcard::test_wildcard_(const string& candidate, size_t o, size_t p,
 			else {
 				seqlen = 4;
 			}
-			if(rare(p - o < seqlen)) return false;
+			if(UNLIKELY(p - o < seqlen)) return false;
 			o += seqlen;
 			continue;
 		}
@@ -1460,7 +1460,7 @@ bool QueryWildcard::test_wildcard_(const string& candidate, size_t o, size_t p,
 	return (o == p);
 }
 
-bool QueryWildcard::test_prefix_known(const string& candidate) const
+bool QueryWildcard::test_prefix_known(const string & candidate) const
 {
 	if(candidate.size() < min_len) return false;
 	if(candidate.size() > max_len) return false;
@@ -1572,7 +1572,7 @@ string QueryWildcard::get_description() const
 	return desc;
 }
 
-int QueryEditDistance::test(const string& candidate) const
+int QueryEditDistance::test(const string & candidate) const
 {
 	int threshold = get_threshold();
 	int edist = edcalc(candidate, threshold);

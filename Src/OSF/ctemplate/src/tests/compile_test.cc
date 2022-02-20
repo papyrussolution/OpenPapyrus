@@ -57,20 +57,19 @@
 // here with 'foo'.
 namespace template_ns = ctemplate;
 
-int main() {
-  template_ns::Template::StringToTemplateCache("key", "example");
-  template_ns::Template* tpl = template_ns::Template::GetTemplate(
-      "key", template_ns::DO_NOT_STRIP);
-  template_ns::TemplateDictionary dict("my dict");
-  std::string nothing_will_come_of_nothing;
-  tpl->Expand(&nothing_will_come_of_nothing, &dict);
+int main() 
+{
+	template_ns::Template::StringToTemplateCache("key", "example");
+	template_ns::Template* tpl = template_ns::Template::GetTemplate("key", template_ns::DO_NOT_STRIP);
+	template_ns::TemplateDictionary dict("my dict");
+	std::string nothing_will_come_of_nothing;
+	tpl->Expand(&nothing_will_come_of_nothing, &dict);
 
-  // Try using a bit more functionality.
-  template_ns::PerExpandData data;
-  nothing_will_come_of_nothing.clear();
-  template_ns::ExpandWithData("key", template_ns::DO_NOT_STRIP, &dict, &data,
-                              &nothing_will_come_of_nothing);
+	// Try using a bit more functionality.
+	template_ns::PerExpandData data;
+	nothing_will_come_of_nothing.clear();
+	template_ns::ExpandWithData("key", template_ns::DO_NOT_STRIP, &dict, &data, &nothing_will_come_of_nothing);
 
-  printf("PASS.\n");
-  return 0;
+	printf("PASS.\n");
+	return 0;
 }

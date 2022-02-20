@@ -63,10 +63,10 @@ using google::protobuf::UInt64Value;
 
 class DescriptorPoolTypeResolver : public TypeResolver {
 public:
-	DescriptorPoolTypeResolver(const std::string& url_prefix, const DescriptorPool* pool) : url_prefix_(url_prefix), pool_(pool) 
+	DescriptorPoolTypeResolver(const std::string & url_prefix, const DescriptorPool* pool) : url_prefix_(url_prefix), pool_(pool) 
 	{
 	}
-	util::Status ResolveMessageType(const std::string& type_url, Type* type) override 
+	util::Status ResolveMessageType(const std::string & type_url, Type* type) override 
 	{
 		std::string type_name;
 		util::Status status = ParseTypeUrl(type_url, &type_name);
@@ -81,7 +81,7 @@ public:
 		ConvertDescriptor(descriptor, type);
 		return util::Status();
 	}
-	util::Status ResolveEnumType(const std::string& type_url, Enum* enum_type) override 
+	util::Status ResolveEnumType(const std::string & type_url, Enum* enum_type) override 
 	{
 		std::string type_name;
 		util::Status status = ParseTypeUrl(type_url, &type_name);
@@ -183,7 +183,7 @@ private:
 			    value->PackFrom(WrapValue<BoolValue>(field->is_repeated() ? reflection->GetRepeatedBool(options, field, index) : reflection->GetBool(options, field)));
 			    return;
 			case FieldDescriptor::CPPTYPE_STRING: {
-			    const std::string& val = field->is_repeated() ? reflection->GetRepeatedString(options, field, index) : reflection->GetString(options, field);
+			    const std::string & val = field->is_repeated() ? reflection->GetRepeatedString(options, field, index) : reflection->GetString(options, field);
 			    if(field->type() == FieldDescriptor::TYPE_STRING) {
 				    value->PackFrom(WrapValue<StringValue>(val));
 			    }
@@ -270,7 +270,7 @@ private:
 		return url_prefix_ + "/" + descriptor->full_name();
 	}
 
-	util::Status ParseTypeUrl(const std::string& type_url,
+	util::Status ParseTypeUrl(const std::string & type_url,
 	    std::string* type_name) {
 		if(type_url.substr(0, url_prefix_.size() + 1) != url_prefix_ + "/") {
 			return util::InvalidArgumentError(
@@ -327,7 +327,7 @@ private:
 };
 }  // namespace
 
-TypeResolver* NewTypeResolverForDescriptorPool(const std::string& url_prefix,
+TypeResolver* NewTypeResolverForDescriptorPool(const std::string & url_prefix,
     const DescriptorPool* pool) {
 	return new DescriptorPoolTypeResolver(url_prefix, pool);
 }

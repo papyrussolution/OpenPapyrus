@@ -11,17 +11,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE AUTHOR(S) BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "archive_platform.h"
 #pragma hdrstop
@@ -191,15 +180,15 @@ struct data_block_offsets {
 
 struct rar {
 	/* Entries from main RAR header */
-	unsigned main_flags;
-	unsigned long file_crc;
+	uint   main_flags;
+	ulong  file_crc;
 	char reserved1[2];
 	char reserved2[4];
 	char encryptver;
 
 	/* File header entries */
-	char compression_method;
-	unsigned file_flags;
+	char   compression_method;
+	uint   file_flags;
 	int64 packed_size;
 	int64 unp_size;
 	time_t mtime;
@@ -233,7 +222,7 @@ struct rar {
 	uint dictionary_size;
 	char start_new_block;
 	char entry_eof;
-	unsigned long crc_calculated;
+	ulong crc_calculated;
 	int found_first_header;
 	char has_endarc_header;
 	struct data_block_offsets * dbo;
@@ -738,15 +727,12 @@ static int archive_read_format_rar_read_header(struct archive_read * a, struct a
 	size_t skip;
 	char head_type;
 	int ret;
-	unsigned flags;
-	unsigned long crc32_expected;
-
+	uint   flags;
+	ulong  crc32_expected;
 	a->archive.archive_format = ARCHIVE_FORMAT_RAR;
 	if(a->archive.archive_format_name == NULL)
 		a->archive.archive_format_name = "RAR";
-
 	rar = (struct rar *)(a->format->data);
-
 	/*
 	 * It should be sufficient to call archive_read_next_header() for
 	 * a reader to determine if an entry is encrypted or not. If the
@@ -772,7 +758,7 @@ static int archive_read_format_rar_read_header(struct archive_read * a, struct a
 	}
 	rar->found_first_header = 1;
 	while(1) {
-		unsigned long crc32_val;
+		ulong crc32_val;
 		if((h = __archive_read_ahead(a, 7, NULL)) == NULL)
 			return ARCHIVE_FATAL;
 		p = static_cast<const char *>(h);
@@ -1130,8 +1116,7 @@ static int archive_read_format_rar_cleanup(struct archive_read * a)
 	return ARCHIVE_OK;
 }
 
-static int read_header(struct archive_read * a, struct archive_entry * entry,
-    char head_type)
+static int read_header(struct archive_read * a, struct archive_entry * entry, char head_type)
 {
 	const void * h;
 	const char * p, * endp;
@@ -1146,18 +1131,14 @@ static int read_header(struct archive_read * a, struct archive_entry * entry,
 	char unp_size[8];
 	int ttime;
 	struct archive_string_conv * sconv, * fn_sconv;
-	unsigned long crc32_val;
+	ulong crc32_val;
 	int ret = (ARCHIVE_OK), ret2;
-
 	rar = (struct rar *)(a->format->data);
-
 	/* Setup a string conversion object for non-rar-unicode filenames. */
 	sconv = rar->opt_sconv;
 	if(sconv == NULL) {
 		if(!rar->init_default_conversion) {
-			rar->sconv_default =
-			    archive_string_default_conversion_for_read(
-				&(a->archive));
+			rar->sconv_default = archive_string_default_conversion_for_read(&(a->archive));
 			rar->init_default_conversion = 1;
 		}
 		sconv = rar->sconv_default;

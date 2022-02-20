@@ -10,17 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE AUTHOR(S) BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "archive_platform.h"
 #pragma hdrstop
@@ -40,14 +29,10 @@ int archive_write_set_format_raw(struct archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct raw * raw;
-
-	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_write_set_format_raw");
-
+	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_set_format_raw");
 	/* If someone else was already registered, unregister them. */
 	if(a->format_free != NULL)
 		(a->format_free)(a);
-
 	raw = (struct raw *)SAlloc::C(1, sizeof(*raw));
 	if(raw == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate raw data");
@@ -72,28 +57,21 @@ int archive_write_set_format_raw(struct archive * _a)
 static int archive_write_raw_header(struct archive_write * a, struct archive_entry * entry)
 {
 	struct raw * raw = (struct raw *)a->format_data;
-
 	if(archive_entry_filetype(entry) != AE_IFREG) {
-		archive_set_error(&a->archive, ERANGE,
-		    "Raw format only supports filetype AE_IFREG");
+		archive_set_error(&a->archive, ERANGE, "Raw format only supports filetype AE_IFREG");
 		return ARCHIVE_FATAL;
 	}
-
 	if(raw->entries_written > 0) {
-		archive_set_error(&a->archive, ERANGE,
-		    "Raw format only supports one entry per archive");
+		archive_set_error(&a->archive, ERANGE, "Raw format only supports one entry per archive");
 		return ARCHIVE_FATAL;
 	}
 	raw->entries_written++;
-
 	return ARCHIVE_OK;
 }
 
 static ssize_t archive_write_raw_data(struct archive_write * a, const void * buff, size_t s)
 {
-	int ret;
-
-	ret = __archive_write_output(a, buff, s);
+	int ret = __archive_write_output(a, buff, s);
 	if(ret >= 0)
 		return (s);
 	else
@@ -102,9 +80,7 @@ static ssize_t archive_write_raw_data(struct archive_write * a, const void * buf
 
 static int archive_write_raw_free(struct archive_write * a)
 {
-	struct raw * raw;
-
-	raw = (struct raw *)a->format_data;
+	struct raw * raw = (struct raw *)a->format_data;
 	SAlloc::F(raw);
 	a->format_data = NULL;
 	return ARCHIVE_OK;

@@ -21,7 +21,6 @@
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "maxpostlist.h"
-#include "debuglog.h"
 
 using namespace std;
 
@@ -58,7 +57,7 @@ Xapian::doccount MaxPostList::get_termfreq_max() const
 
 Xapian::doccount MaxPostList::get_termfreq_est() const
 {
-	if(rare(db_size == 0))
+	if(UNLIKELY(db_size == 0))
 		return 0;
 
 	// We calculate the estimate assuming independence.  The simplest
@@ -91,7 +90,7 @@ TermFreqs MaxPostList::get_termfreq_est_using_stats(const Xapian::Weight::Intern
 	double Pr_est = freqs.reltermfreq * rtf_scale;
 	// If total_length is 0, cf must always be 0 so cf_scale is irrelevant.
 	double cf_scale = 0.0;
-	if(usual(stats.total_length != 0)) {
+	if(LIKELY(stats.total_length != 0)) {
 		cf_scale = 1.0 / stats.total_length;
 	}
 	double Pc_est = freqs.collfreq * cf_scale;

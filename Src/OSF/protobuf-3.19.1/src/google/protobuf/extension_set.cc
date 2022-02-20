@@ -550,8 +550,8 @@ void ExtensionSet::AddEnum(int number, FieldType type, bool packed, int value,
 // -------------------------------------------------------------------
 // Strings
 
-const std::string& ExtensionSet::GetString(
-    int number, const std::string& default_value) const {
+const std::string & ExtensionSet::GetString(
+    int number, const std::string & default_value) const {
   const Extension* extension = FindOrNull(number);
   if (extension == nullptr || extension->is_cleared) {
     // Not present.  Return the default value.
@@ -577,7 +577,7 @@ std::string* ExtensionSet::MutableString(int number, FieldType type,
   return extension->string_value;
 }
 
-const std::string& ExtensionSet::GetRepeatedString(int number,
+const std::string & ExtensionSet::GetRepeatedString(int number,
                                                    int index) const {
   const Extension* extension = FindOrNull(number);
   GOOGLE_CHECK(extension != nullptr) << "Index out-of-bounds (field is empty).";

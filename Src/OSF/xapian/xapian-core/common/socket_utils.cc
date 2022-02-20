@@ -65,16 +65,16 @@ void set_socket_timeouts(int fd, double timeout)
 # else
 		// Just to be different, it's a DWORD counting in milliseconds.
 		DWORD t;
-		if(usual(timeout < numeric_limits<DWORD>::max() / 1000))
+		if(LIKELY(timeout < numeric_limits<DWORD>::max() / 1000))
 			t = timeout * 1000;
 		else
 			t = numeric_limits<DWORD>::max();
 #endif
-# ifdef SO_SNDTIMEO
+#ifdef SO_SNDTIMEO
 		(void)setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO,
 		    reinterpret_cast<char*>(&t), sizeof(t));
 #endif
-# ifdef SO_RCVTIMEO
+#ifdef SO_RCVTIMEO
 		(void)setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO,
 		    reinterpret_cast<char*>(&t), sizeof(t));
 #endif

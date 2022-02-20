@@ -51,14 +51,14 @@ const unsigned C_BASE = 8;
 /// Invalid freelist block value, so we can detect overreading bugs, etc.
 const uint4 UNUSED = static_cast<uint4>(-1);
 
-void GlassFreeList::read_block(const GlassTable * B, uint4 n, uint8_t * ptr)
+void GlassFreeList::read_block(const GlassTable * B, uint4 n, uint8 * ptr)
 {
 	B->read_block(n, ptr);
-	if(rare(GET_LEVEL(ptr) != LEVEL_FREELIST))
+	if(UNLIKELY(GET_LEVEL(ptr) != LEVEL_FREELIST))
 		throw Xapian::DatabaseCorruptError("Freelist corrupt");
 }
 
-void GlassFreeList::write_block(const GlassTable * B, uint4 n, uint8_t * ptr,
+void GlassFreeList::write_block(const GlassTable * B, uint4 n, uint8 * ptr,
     uint4 rev)
 {
 	SET_REVISION(ptr, rev);
@@ -79,7 +79,7 @@ uint4 GlassFreeList::get_block(const GlassTable * B, uint4 block_size,
 			throw Xapian::DatabaseCorruptError("Freelist pointer invalid");
 		}
 		// Actually read the current freelist block.
-		p = new uint8_t[block_size];
+		p = new uint8[block_size];
 		read_block(B, fl.n, p);
 	}
 
@@ -133,7 +133,7 @@ uint4 GlassFreeList::walk(const GlassTable * B, uint4 block_size, bool inclusive
 		if(fl.n == UNUSED) {
 			throw Xapian::DatabaseCorruptError("Freelist pointer invalid");
 		}
-		p = new uint8_t[block_size];
+		p = new uint8[block_size];
 		read_block(B, fl.n, p);
 		if(inclusive) {
 			Assert(fl.n == fl_end.n || aligned_read4(p + FREELIST_END - 4) != UNUSED);
@@ -178,7 +178,7 @@ void GlassFreeList::mark_block_unused(const GlassTable * B, uint4 block_size, ui
 	uint4 blk_to_free = BLK_UNUSED;
 
 	if(!pw) {
-		pw = new uint8_t[block_size];
+		pw = new uint8[block_size];
 		if(flw.c != 0) {
 			read_block(B, flw.n, pw);
 			flw_appending = true;
@@ -266,7 +266,7 @@ uint4 GlassFreeListChecker::count_set_bits(uint4 * p_first_bad_blk) const
 	uint4 c = 0;
 	for(uint4 i = 0; i < bitmap_size; ++i) {
 		elt_type elt = bitmap[i];
-		if(usual(elt == 0))
+		if(LIKELY(elt == 0))
 			continue;
 		if(c == 0 && p_first_bad_blk) {
 			uint4 first_bad_blk = i * BITS_PER_ELT;

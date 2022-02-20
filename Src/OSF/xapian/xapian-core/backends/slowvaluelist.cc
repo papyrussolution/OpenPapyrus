@@ -21,7 +21,6 @@
 #pragma hdrstop
 #include "slowvaluelist.h"
 #include "documentinternal.h"
-#include "str.h"
 #include "unicode/description_append.h"
 
 using namespace std;

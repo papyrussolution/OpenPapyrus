@@ -22,7 +22,6 @@
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "databasereplicator.h"
-#include "debuglog.h"
 #include "filetests.h"
 #if defined XAPIAN_HAS_GLASS_BACKEND && defined XAPIAN_HAS_REMOTE_BACKEND
 #include "glass/glass_databasereplicator.h"
@@ -41,7 +40,7 @@ DatabaseReplicator * DatabaseReplicator::open(const string & path)
 
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 	if(file_exists(path + "/iamglass")) {
-# ifdef XAPIAN_HAS_REMOTE_BACKEND
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
 		return new GlassDatabaseReplicator(path);
 # else
 		throw FeatureUnavailableError("Replication disabled");

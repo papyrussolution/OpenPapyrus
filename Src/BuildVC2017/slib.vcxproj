@@ -3808,6 +3808,7 @@
     <ClInclude Include="..\Include\comdisp.h" />
     <ClInclude Include="..\Include\Db.h" />
     <ClInclude Include="..\Include\Dbf.h" />
+    <ClInclude Include="..\Include\dbkv-lmdb.h" />
     <ClInclude Include="..\Include\Dbqbrdef.h" />
     <ClInclude Include="..\Include\Dbquery.h" />
     <ClInclude Include="..\Include\dirent.h" />

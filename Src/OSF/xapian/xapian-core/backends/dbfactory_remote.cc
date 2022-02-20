@@ -20,7 +20,6 @@
 #include <xapian-internal.h>
 #pragma hdrstop
 #include <xapian/dbfactory.h>
-#include "debuglog.h"
 #include "net/progclient.h"
 #include "net/remotetcpclient.h"
 

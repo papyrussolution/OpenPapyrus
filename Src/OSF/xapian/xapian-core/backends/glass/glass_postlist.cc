@@ -831,7 +831,7 @@ PositionList * GlassPostList::read_position_list()
 {
 	LOGCALL(DB, PositionList *, "GlassPostList::read_position_list", NO_ARGS);
 	Assert(this_db.get());
-	if(rare(positionlist == NULL)) {
+	if(UNLIKELY(positionlist == NULL)) {
 		// Lazily create positionlist to avoid the size cost for the common
 		// case where we don't want positional data.
 		positionlist = new GlassRePositionList(&this_db->position_table);

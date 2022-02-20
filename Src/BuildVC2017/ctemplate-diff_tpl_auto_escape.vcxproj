@@ -90,10 +90,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\osf\ctemplate\src\diff_tpl_auto_escape.cc">
-      <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MultiThreadedDebugDLL</RuntimeLibrary>
-      <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MultiThreadedDLL</RuntimeLibrary>
-    </ClCompile>
+    <ClCompile Include="..\osf\ctemplate\src\diff_tpl_auto_escape.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\osf\ctemplate\src\base\arena.h" />

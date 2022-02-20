@@ -124,7 +124,7 @@ public:
 	 *  @exception Xapian::DatabaseVersionError if the specified database has
 	 *		   a format too old or too new to be supported.
 	 */
-	explicit Database(const std::string& path, int flags = 0);
+	explicit Database(const std::string & path, int flags = 0);
 
 	/** Open a single-file Database.
 	 *
@@ -230,9 +230,9 @@ public:
 	 *			acts as a special pseudo-term which indexes all the
 	 *			documents in the database with a wdf of 1.
 	 */
-	PostingIterator postlist_begin(const std::string& term) const;
+	PostingIterator postlist_begin(const std::string & term) const;
 	/** End iterator corresponding to postlist_begin(). */
-	PostingIterator postlist_end(const std::string&) const noexcept { return PostingIterator(); }
+	PostingIterator postlist_end(const std::string &) const noexcept { return PostingIterator(); }
 	/** Start iterating the terms in a document.
 	 *
 	 *  @param did	The document id to iterate terms from
@@ -255,19 +255,19 @@ public:
 	 *			then a valid iterator is still returned, but it will be
 	 *			equal to positionlist_end().
 	 */
-	PositionIterator positionlist_begin(Xapian::docid did, const std::string& term) const;
+	PositionIterator positionlist_begin(Xapian::docid did, const std::string & term) const;
 
 	/** End iterator corresponding to positionlist_begin(). */
-	PositionIterator positionlist_end(Xapian::docid, const std::string&) const noexcept { return PositionIterator(); }
+	PositionIterator positionlist_end(Xapian::docid, const std::string &) const noexcept { return PositionIterator(); }
 	/** Start iterating all terms in the database with a given prefix.
 	 *
 	 *  @param prefix	The prefix to restrict the returned terms to (default:
 	 *			iterate all terms)
 	 */
-	TermIterator allterms_begin(const std::string& prefix = std::string()) const;
+	TermIterator allterms_begin(const std::string & prefix = std::string()) const;
 
 	/** End iterator corresponding to allterms_begin(prefix). */
-	TermIterator allterms_end(const std::string& = std::string()) const noexcept { return TermIterator(); }
+	TermIterator allterms_end(const std::string & = std::string()) const noexcept { return TermIterator(); }
 	/// Get the number of documents in the database.
 	Xapian::doccount get_doccount() const;
 	/// Get the highest document id which has been used in the database.
@@ -289,7 +289,7 @@ public:
 	 *			If the term isn't present in the database, 0 is
 	 *			returned.
 	 */
-	Xapian::doccount get_termfreq(const std::string& term) const;
+	Xapian::doccount get_termfreq(const std::string & term) const;
 
 	/** Test is a particular term is present in any document.
 	 *
@@ -301,7 +301,7 @@ public:
 	 *	db.term_exists(t) gives the same answer as db.get_termfreq(t) != 0, but
 	 *	is typically more efficient.
 	 */
-	bool term_exists(const std::string& term) const;
+	bool term_exists(const std::string & term) const;
 
 	/** Get the total number of occurrences of a specified term.
 	 *
@@ -315,7 +315,7 @@ public:
 	 *			get_doccount().  If the term isn't present in the
 	 *			database, 0 is returned.
 	 */
-	Xapian::termcount get_collection_freq(const std::string& term) const;
+	Xapian::termcount get_collection_freq(const std::string & term) const;
 
 	/** Return the frequency of a given value slot.
 	 *
@@ -352,7 +352,7 @@ public:
 	/// Get an upper bound on the length of a document in this DB.
 	Xapian::termcount get_doclength_upper_bound() const;
 	/// Get an upper bound on the wdf of term @a term.
-	Xapian::termcount get_wdf_upper_bound(const std::string& term) const;
+	Xapian::termcount get_wdf_upper_bound(const std::string & term) const;
 	/// Get a lower bound on the unique terms size of a document in this DB.
 	Xapian::termcount get_unique_terms_lower_bound() const;
 	/// Get an upper bound on the unique terms size of a document in this DB.
@@ -416,7 +416,7 @@ public:
 	 *					transposition of two adjacent
 	 *					characters (default is 2).
 	 */
-	std::string get_spelling_suggestion(const std::string& word, unsigned max_edit_distance = 2) const;
+	std::string get_spelling_suggestion(const std::string & word, unsigned max_edit_distance = 2) const;
 
 	/** An iterator which returns all the spelling correction targets.
 	 *
@@ -432,19 +432,19 @@ public:
 	 *
 	 *  @param term	The term to return synonyms for.
 	 */
-	Xapian::TermIterator synonyms_begin(const std::string& term) const;
+	Xapian::TermIterator synonyms_begin(const std::string & term) const;
 
 	/// End iterator corresponding to synonyms_begin(term).
-	Xapian::TermIterator synonyms_end(const std::string&) const noexcept { return Xapian::TermIterator(); }
+	Xapian::TermIterator synonyms_end(const std::string &) const noexcept { return Xapian::TermIterator(); }
 
 	/** An iterator which returns all terms which have synonyms.
 	 *
 	 *  @param prefix	If non-empty, only terms with this prefix are returned.
 	 */
-	Xapian::TermIterator synonym_keys_begin(const std::string& prefix = std::string()) const;
+	Xapian::TermIterator synonym_keys_begin(const std::string & prefix = std::string()) const;
 
 	/// End iterator corresponding to synonym_keys_begin(prefix).
-	Xapian::TermIterator synonym_keys_end(const std::string& = std::string()) const noexcept {
+	Xapian::TermIterator synonym_keys_end(const std::string & = std::string()) const noexcept {
 		return Xapian::TermIterator();
 	}
 
@@ -471,7 +471,7 @@ public:
 	 *  @exception Xapian::InvalidArgumentError will be thrown if the key
 	 *		   supplied is empty.
 	 */
-	std::string get_metadata(const std::string& key) const;
+	std::string get_metadata(const std::string & key) const;
 
 	/** An iterator which returns all user-specified metadata keys.
 	 *
@@ -489,10 +489,10 @@ public:
 	 *		   iterating its keys (currently this happens for the InMemory
 	 *		   backend).
 	 */
-	Xapian::TermIterator metadata_keys_begin(const std::string&prefix = std::string()) const;
+	Xapian::TermIterator metadata_keys_begin(const std::string &prefix = std::string()) const;
 
 	/// End iterator corresponding to metadata_keys_begin().
-	Xapian::TermIterator metadata_keys_end(const std::string& = std::string()) const noexcept { return Xapian::TermIterator(); }
+	Xapian::TermIterator metadata_keys_end(const std::string & = std::string()) const noexcept { return Xapian::TermIterator(); }
 
 	/** Get a UUID for the database.
 	 *
@@ -574,7 +574,7 @@ public:
 	 *  @param opts	Options to use for check
 	 *  @param out	std::ostream to write output to (NULL for no output)
 	 */
-	static size_t check(const std::string& path, int opts = 0, std::ostream* out = NULL) 
+	static size_t check(const std::string & path, int opts = 0, std::ostream* out = NULL) 
 	{
 		return check_(&path, 0, opts, out);
 	}
@@ -639,7 +639,7 @@ public:
 	 *  @since 1.3.4 This method was added to replace various methods of the
 	 *		     Compactor class.
 	 */
-	void compact(const std::string& output, unsigned flags = 0, int block_size = 0) { compact_(&output, 0, flags, block_size, NULL); }
+	void compact(const std::string & output, unsigned flags = 0, int block_size = 0) { compact_(&output, 0, flags, block_size, NULL); }
 
 	/** Produce a compact version of this database.
 	 *
@@ -739,7 +739,7 @@ public:
 	 *  @since 1.3.4 This method was added to replace various methods of the
 	 *		     Compactor class.
 	 */
-	void compact(const std::string& output, unsigned flags, int block_size, Xapian::Compactor& compactor) { compact_(&output, 0, flags, block_size, &compactor); }
+	void compact(const std::string & output, unsigned flags, int block_size, Xapian::Compactor& compactor) { compact_(&output, 0, flags, block_size, &compactor); }
 
 	/** Produce a compact version of this database.
 	 *
@@ -813,7 +813,7 @@ public:
 	 *  @param start_pos  First position to reconstruct (default: 0)
 	 *  @param end_pos    Last position to reconstruct (default: 0 meaning all)
 	 */
-	std::string reconstruct_text(Xapian::docid did, size_t length = 0, const std::string& prefix = std::string(),
+	std::string reconstruct_text(Xapian::docid did, size_t length = 0, const std::string & prefix = std::string(),
 	    Xapian::termpos start_pos = 0, Xapian::termpos end_pos = 0) const;
 };
 
@@ -925,7 +925,7 @@ public:
 	 *  @exception Xapian::DatabaseVersionError if the specified database has
 	 *		   a format too old or too new to be supported.
 	 */
-	explicit WritableDatabase(const std::string& path, int flags = 0, int block_size = 0);
+	explicit WritableDatabase(const std::string & path, int flags = 0, int block_size = 0);
 	/** @private @internal Create a WritableDatabase given its internals. */
 	XAPIAN_VISIBILITY_INTERNAL explicit WritableDatabase(Database::Internal* internal_) : Database(internal_) 
 	{
@@ -1123,7 +1123,7 @@ public:
 	 *		     Previously automatic commits could happen during the
 	 *		     batch.
 	 */
-	void delete_document(const std::string& unique_term);
+	void delete_document(const std::string & unique_term);
 
 	/** Replace a document in the database.
 	 *
@@ -1175,7 +1175,7 @@ public:
 	 *		     Previously automatic commits could happen during the
 	 *		     batch.
 	 */
-	Xapian::docid replace_document(const std::string& unique_term, const Xapian::Document& document);
+	Xapian::docid replace_document(const std::string & unique_term, const Xapian::Document& document);
 
 	/** Add a word to the spelling dictionary.
 	 *
@@ -1184,7 +1184,7 @@ public:
 	 *  @param word	The word to add.
 	 *  @param freqinc	How much to increase its frequency by (default 1).
 	 */
-	void add_spelling(const std::string& word, Xapian::termcount freqinc = 1) const;
+	void add_spelling(const std::string & word, Xapian::termcount freqinc = 1) const;
 
 	/** Remove a word from the spelling dictionary.
 	 *
@@ -1198,7 +1198,7 @@ public:
 	 *		freqdec then the difference is returned, else 0 is returned).
 	 *		Prior to 1.5.0 this method had void return type.
 	 */
-	termcount remove_spelling(const std::string& word, termcount freqdec = 1) const;
+	termcount remove_spelling(const std::string & word, termcount freqdec = 1) const;
 
 	/** Add a synonym for a term.
 	 *
@@ -1206,7 +1206,7 @@ public:
 	 *  @param synonym	The synonym to add.  If this is already a synonym for
 	 *			@a term, then no action is taken.
 	 */
-	void add_synonym(const std::string& term, const std::string& synonym) const;
+	void add_synonym(const std::string & term, const std::string & synonym) const;
 
 	/** Remove a synonym for a term.
 	 *
@@ -1214,14 +1214,14 @@ public:
 	 *  @param synonym	The synonym to remove.  If this isn't currently a
 	 *			synonym for @a term, then no action is taken.
 	 */
-	void remove_synonym(const std::string& term, const std::string& synonym) const;
+	void remove_synonym(const std::string & term, const std::string & synonym) const;
 
 	/** Remove all synonyms for a term.
 	 *
 	 *  @param term	The term to remove all synonyms for.  If the term has
 	 *			no synonyms, no action is taken.
 	 */
-	void clear_synonyms(const std::string& term) const;
+	void clear_synonyms(const std::string & term) const;
 
 	/** Set the user-specified metadata associated with a given key.
 	 *
@@ -1265,7 +1265,7 @@ public:
 	 *  @exception Xapian::UnimplementedError will be thrown if the database
 	 *		   backend in use doesn't support user-specified metadata.
 	 */
-	void set_metadata(const std::string& key, const std::string& metadata);
+	void set_metadata(const std::string & key, const std::string & metadata);
 
 	/// Return a string describing this object.
 	std::string get_description() const;

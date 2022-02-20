@@ -49,11 +49,8 @@ Database::Database(Database::Internal* internal_) : internal(internal_)
 }
 
 Database::Database(const Database&) = default;
-
 Database& Database::operator=(const Database&) = default;
-
 Database::Database(Database&&) = default;
-
 Database& Database::operator=(Database&&) = default;
 
 Database::Database() : internal(new EmptyDatabase)
@@ -154,7 +151,7 @@ void Database::add_database_(const Database& o, bool read_only)
 	}
 }
 
-PostingIterator Database::postlist_begin(const string& term) const
+PostingIterator Database::postlist_begin(const string & term) const
 {
 	PostList* pl = internal->open_post_list(term);
 	if(!pl) return PostingIterator();
@@ -169,7 +166,7 @@ TermIterator Database::termlist_begin(Xapian::docid did) const
 	return TermIterator(internal->open_term_list(did));
 }
 
-TermIterator Database::allterms_begin(const string& prefix) const
+TermIterator Database::allterms_begin(const string & prefix) const
 {
 	return TermIterator(internal->open_allterms(prefix));
 }
@@ -179,7 +176,7 @@ bool Database::has_positions() const
 	return internal->has_positions();
 }
 
-PositionIterator Database::positionlist_begin(Xapian::docid did, const string& term) const
+PositionIterator Database::positionlist_begin(Xapian::docid did, const string & term) const
 {
 	if(did == 0)
 		docid_zero_invalid();
@@ -203,7 +200,7 @@ Xapian::docid Database::get_lastdocid() const
 double Database::get_average_length() const
 {
 	Xapian::doccount doc_count = internal->get_doccount();
-	if(rare(doc_count == 0))
+	if(UNLIKELY(doc_count == 0))
 		return 0.0;
 
 	Xapian::totallength total_length = internal->get_total_length();
@@ -215,7 +212,7 @@ Xapian::totallength Database::get_total_length() const
 	return internal->get_total_length();
 }
 
-Xapian::doccount Database::get_termfreq(const string& term) const
+Xapian::doccount Database::get_termfreq(const string & term) const
 {
 	if(term.empty())
 		return get_doccount();
@@ -225,7 +222,7 @@ Xapian::doccount Database::get_termfreq(const string& term) const
 	return result;
 }
 
-Xapian::termcount Database::get_collection_freq(const string& term) const
+Xapian::termcount Database::get_collection_freq(const string & term) const
 {
 	if(term.empty())
 		return get_doccount();
@@ -260,7 +257,7 @@ Xapian::termcount Database::get_doclength_upper_bound() const
 	return internal->get_doclength_upper_bound();
 }
 
-Xapian::termcount Database::get_wdf_upper_bound(const string& term) const
+Xapian::termcount Database::get_wdf_upper_bound(const string & term) const
 {
 	if(term.empty())
 		return 0;
@@ -309,14 +306,14 @@ Xapian::termcount Database::get_wdfdocmax(Xapian::docid did) const
 
 Document Database::get_document(Xapian::docid did, unsigned flags) const
 {
-	if(rare(did == 0))
+	if(UNLIKELY(did == 0))
 		docid_zero_invalid();
 
 	bool assume_valid = flags & Xapian::DOC_ASSUME_VALID;
 	return Document(internal->open_document(did, assume_valid));
 }
 
-bool Database::term_exists(const string& term) const
+bool Database::term_exists(const string & term) const
 {
 	// NB Internal::term_exists() handles term.empty().
 	return internal->term_exists(term);
@@ -339,18 +336,14 @@ string Database::get_description() const
 // so far.
 #define TRIGRAM_SCORE_THRESHOLD 2
 
-string Database::get_spelling_suggestion(const string& word,
-    unsigned max_edit_distance) const
+string Database::get_spelling_suggestion(const string & word, unsigned max_edit_distance) const
 {
 	if(word.size() <= 1 || max_edit_distance == 0)
 		return string();
-
 	max_edit_distance = min(max_edit_distance, unsigned(word.size() - 1));
-
 	unique_ptr<TermList> merger(internal->open_spelling_termlist(word));
 	if(!merger.get())
 		return string();
-
 	EditDistanceCalculator edcalc(word);
 	Xapian::termcount best = 1;
 	string result;
@@ -369,14 +362,12 @@ string Database::get_spelling_suggestion(const string& word,
 		LOGVALUE(SPELLING, term);
 		LOGVALUE(SPELLING, score);
 		if(score + TRIGRAM_SCORE_THRESHOLD >= best) {
-			if(score > best) best = score;
-
+			if(score > best) 
+				best = score;
 			int edist = edcalc(term, edist_best);
 			LOGVALUE(SPELLING, edist);
-
 			if(edist <= edist_best) {
 				Xapian::doccount freq = internal->get_spelling_frequency(term);
-
 				LOGVALUE(SPELLING, freq);
 				LOGVALUE(SPELLING, freq_best);
 				// Even if we have an exact match, there may be a much more
@@ -386,10 +377,8 @@ string Database::get_spelling_suggestion(const string& word,
 					freq_exact = freq;
 					continue;
 				}
-
 				if(edist < edist_best || freq > freq_best) {
-					LOGLINE(SPELLING, "Best so far: \"" << term <<
-						"\" edist " << edist << " freq " << freq);
+					LOGLINE(SPELLING, "Best so far: \"" << term << "\" edist " << edist << " freq " << freq);
 					result = term;
 					edist_best = edist;
 					freq_best = freq;
@@ -407,57 +396,39 @@ TermIterator Database::spellings_begin() const
 	return TermIterator(internal->open_spelling_wordlist());
 }
 
-TermIterator Database::synonyms_begin(const string& term) const
+TermIterator Database::synonyms_begin(const string & term) const
 {
 	return TermIterator(internal->open_synonym_termlist(term));
 }
 
-TermIterator Database::synonym_keys_begin(const string& prefix) const
+TermIterator Database::synonym_keys_begin(const string & prefix) const
 {
 	return TermIterator(internal->open_synonym_keylist(prefix));
 }
 
-string Database::get_metadata(const string& key) const
+string Database::get_metadata(const string & key) const
 {
-	if(rare(key.empty()))
+	if(UNLIKELY(key.empty()))
 		empty_metadata_key();
-
 	return internal->get_metadata(key);
 }
 
-Xapian::TermIterator Database::metadata_keys_begin(const string& prefix) const
+Xapian::TermIterator Database::metadata_keys_begin(const string & prefix) const
 {
 	return TermIterator(internal->open_metadata_keylist(prefix));
 }
 
-string Database::get_uuid() const
-{
-	return internal->get_uuid();
-}
-
-bool Database::locked() const
-{
-	return internal->locked();
-}
-
-Xapian::WritableDatabase Database::lock(int flags) {
-	return Xapian::WritableDatabase(internal->update_lock(flags));
-}
-
-Xapian::Database Database::unlock() {
-	return Xapian::Database(internal->update_lock(Xapian::DB_READONLY_));
-}
+string Database::get_uuid() const { return internal->get_uuid(); }
+bool Database::locked() const { return internal->locked(); }
+Xapian::WritableDatabase Database::lock(int flags) { return Xapian::WritableDatabase(internal->update_lock(flags)); }
+Xapian::Database Database::unlock() { return Xapian::Database(internal->update_lock(Xapian::DB_READONLY_)); }
 
 Xapian::rev Database::get_revision() const
 {
 	return internal->get_revision();
 }
 
-string Database::reconstruct_text(Xapian::docid did,
-    size_t length,
-    const std::string& prefix,
-    Xapian::termpos start_pos,
-    Xapian::termpos end_pos) const
+string Database::reconstruct_text(Xapian::docid did, size_t length, const std::string & prefix, Xapian::termpos start_pos, Xapian::termpos end_pos) const
 {
 	return internal->reconstruct_text(did, length, prefix, start_pos, end_pos);
 }
@@ -487,64 +458,56 @@ void WritableDatabase::delete_document(Xapian::docid did)
 	internal->delete_document(did);
 }
 
-void WritableDatabase::delete_document(const string& term)
+void WritableDatabase::delete_document(const string & term)
 {
 	if(term.empty())
 		empty_term_invalid();
-
 	internal->delete_document(term);
 }
 
 void WritableDatabase::replace_document(Xapian::docid did, const Document& doc)
 {
-	if(rare(did == 0))
+	if(UNLIKELY(did == 0))
 		docid_zero_invalid();
-
 	internal->replace_document(did, doc);
 }
 
-Xapian::docid WritableDatabase::replace_document(const string& term, const Document& doc)
+Xapian::docid WritableDatabase::replace_document(const string & term, const Document& doc)
 {
 	if(term.empty())
 		empty_term_invalid();
-
 	return internal->replace_document(term, doc);
 }
 
-void WritableDatabase::add_spelling(const string& word,
-    Xapian::termcount freqinc) const
+void WritableDatabase::add_spelling(const string & word, Xapian::termcount freqinc) const
 {
 	internal->add_spelling(word, freqinc);
 }
 
-Xapian::termcount WritableDatabase::remove_spelling(const string& word,
-    Xapian::termcount freqdec) const
+Xapian::termcount WritableDatabase::remove_spelling(const string & word, Xapian::termcount freqdec) const
 {
 	return internal->remove_spelling(word, freqdec);
 }
 
-void WritableDatabase::add_synonym(const string& term,
-    const string& synonym) const
+void WritableDatabase::add_synonym(const string & term, const string & synonym) const
 {
 	internal->add_synonym(term, synonym);
 }
 
-void WritableDatabase::remove_synonym(const string& term,
-    const string& synonym) const
+void WritableDatabase::remove_synonym(const string & term, const string & synonym) const
 {
 	internal->remove_synonym(term, synonym);
 }
 
-void WritableDatabase::clear_synonyms(const string& term) const
+void WritableDatabase::clear_synonyms(const string & term) const
 {
 	internal->clear_synonyms(term);
 }
 
-void WritableDatabase::set_metadata(const string& key, const string& value)
+void WritableDatabase::set_metadata(const string & key, const string & value)
 {
-	if(rare(key.empty()))
+	if(UNLIKELY(key.empty()))
 		empty_metadata_key();
-
 	internal->set_metadata(key, value);
 }
 

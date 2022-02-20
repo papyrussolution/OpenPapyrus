@@ -90,17 +90,17 @@ void ValueChunkReader::skip_to(Xapian::docid target)
 	while(p != end) {
 		// Get the next docid
 		Xapian::docid delta;
-		if(rare(!unpack_uint(&p, end, &delta)))
+		if(UNLIKELY(!unpack_uint(&p, end, &delta)))
 			throw Xapian::DatabaseCorruptError("Failed to unpack streamed value docid");
 		did += delta + 1;
 
 		// Get the length of the string
-		if(rare(!unpack_uint(&p, end, &value_len))) {
+		if(UNLIKELY(!unpack_uint(&p, end, &value_len))) {
 			throw Xapian::DatabaseCorruptError("Failed to unpack streamed value length");
 		}
 
 		// Check that it's not too long
-		if(rare(value_len > size_t(end - p))) {
+		if(UNLIKELY(value_len > size_t(end - p))) {
 			throw Xapian::DatabaseCorruptError("Failed to unpack streamed value");
 		}
 
@@ -309,7 +309,7 @@ void GlassValueManager::merge_changes()
 	if(termlist_table->is_open()) {
 		for(auto i : slots) {
 			string key = make_slot_key(i.first);
-			const string& enc = i.second;
+			const string & enc = i.second;
 			if(!enc.empty()) {
 				termlist_table->add(key, enc);
 			}

@@ -7,7 +7,7 @@
 
 namespace i18n {
 	namespace phonenumbers {
-		void StdoutLogger::WriteMessage(const string& msg) 
+		void StdoutLogger::WriteMessage(const string & msg) 
 		{
 			std::cout << " " << msg;
 		}

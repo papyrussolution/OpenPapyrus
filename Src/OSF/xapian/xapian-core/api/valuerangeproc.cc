@@ -98,7 +98,7 @@ static void format_yyyymmdd(char * p, int y, int m, int d)
 	format_int_fixed_width(p + 6, d, 2);
 }
 
-Xapian::Query RangeProcessor::check_range(const string& b, const string& e)
+Xapian::Query RangeProcessor::check_range(const string & b, const string & e)
 {
 	if(str.empty())
 		return operator()(b, e);
@@ -280,7 +280,7 @@ static double check_byte_unit(const string &s) {
 	return -1;
 }
 
-Xapian::Query UnitRangeProcessor::operator()(const string& b, const string& e)
+Xapian::Query UnitRangeProcessor::operator()(const string & b, const string & e)
 {
 	// Parse the numbers to floating point.
 	double num_b, num_e;

@@ -240,7 +240,7 @@ static size_t check_db_dir(const string & path, int opts, std::ostream * out)
  *  @param out		std::ostream to write messages to (or NULL for no messages)
  *  @param backend	Backend type (a BACKEND_XXX constant)
  */
-static size_t check_db_table(const string& filename, int opts, std::ostream* out, int backend)
+static size_t check_db_table(const string & filename, int opts, std::ostream* out, int backend)
 {
 	size_t p = filename.find_last_of(DIR_SEPS);
 	// If we found a directory separator, advance p to the next character.  If
@@ -380,26 +380,26 @@ static size_t check_db_fd(int fd, int opts, std::ostream* out, int backend)
 }
 
 namespace Xapian {
-static size_t check_stub(const string& stub_path, int opts, std::ostream* out)
+static size_t check_stub(const string & stub_path, int opts, std::ostream* out)
 {
 	size_t errors = 0;
 	read_stub_file(stub_path,
-	    [&errors, opts, out](const string& path) {
+	    [&errors, opts, out](const string & path) {
 			errors += Database::check(path, opts, out);
 		},
-	    [&errors, opts, out](const string& path) {
+	    [&errors, opts, out](const string & path) {
 			// FIXME: Doesn't check the database type is glass.
 			errors += Database::check(path, opts, out);
 		},
-	    [&errors, opts, out](const string& path) {
+	    [&errors, opts, out](const string & path) {
 			// FIXME: Doesn't check the database type is honey.
 			errors += Database::check(path, opts, out);
 		},
-	    [](const string&, const string&) {
+	    [](const string &, const string &) {
 			auto msg = "Remote database checking not implemented";
 			throw Xapian::UnimplementedError(msg);
 		},
-	    [](const string&, unsigned) {
+	    [](const string &, unsigned) {
 			auto msg = "Remote database checking not implemented";
 			throw Xapian::UnimplementedError(msg);
 		},

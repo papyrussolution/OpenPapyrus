@@ -48,7 +48,7 @@ class InMemoryAllTermsList : public AllTermsList
     /// Constructor.
     InMemoryAllTermsList(const std::map<std::string, InMemoryTerm>* tmap_,
 			 Xapian::Internal::intrusive_ptr<const InMemoryDatabase> database_,
-			 const std::string& prefix_)
+			 const std::string & prefix_)
 	: tmap(tmap_), it(tmap->begin()), database(database_),
 	  prefix(prefix_)
     {
@@ -62,7 +62,7 @@ class InMemoryAllTermsList : public AllTermsList
     // Get num of docs indexed by term
     Xapian::doccount get_termfreq() const;
 
-    TermList* skip_to(const std::string& tname);
+    TermList* skip_to(const std::string & tname);
 
     /** next() causes the AllTermsList to move to the next term in the list.
      */

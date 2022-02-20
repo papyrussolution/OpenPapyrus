@@ -6771,14 +6771,14 @@ SQLITE_EXTENSION_INIT1
 #ifndef SQLITE_AMALGAMATION
 
 #ifndef UINT32_TYPE
-# ifdef HAVE_UINT32_T
+#ifdef HAVE_UINT32_T
 #  define UINT32_TYPE uint32_t
 # else
 #  define UINT32_TYPE unsigned int
 #endif
 #endif
 #ifndef UINT16_TYPE
-# ifdef HAVE_UINT16_T
+#ifdef HAVE_UINT16_T
 #  define UINT16_TYPE uint16_t
 # else
 #  define UINT16_TYPE unsigned short int

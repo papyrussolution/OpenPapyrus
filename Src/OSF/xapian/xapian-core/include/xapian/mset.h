@@ -26,8 +26,6 @@
 #error Never use <xapian/mset.h> directly; include <xapian.h> instead.
 #endif
 
-//#include <iterator>
-//#include <string>
 #include <xapian/attributes.h>
 #include <xapian/document.h>
 #include <xapian/error.h>
@@ -435,15 +433,12 @@ public:
 /// Iterator over a Xapian::MSet.
 class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
 	friend class MSet;
-
-	MSetIterator(const Xapian::MSet & mset_, Xapian::doccount off_from_end_)
-		: mset(mset_), off_from_end(off_from_end_) {
+	MSetIterator(const Xapian::MSet & mset_, Xapian::doccount off_from_end_) : mset(mset_), off_from_end(off_from_end_) 
+	{
 	}
-
 public:
 	/** @private @internal The MSet we are iterating over. */
 	Xapian::MSet mset;
-
 	/** @private @internal The current position of the iterator.
 	 *
 	 *  We store the offset from the end of @a mset, since that means
@@ -459,24 +454,24 @@ public:
 	Xapian::docid operator*() const;
 
 	/// Advance the iterator to the next position.
-	MSetIterator & operator++() {
+	MSetIterator & operator++() 
+	{
 		--off_from_end;
 		return *this;
 	}
-
 	/// Advance the iterator to the next position (postfix version).
-	MSetIterator operator++(int) {
+	MSetIterator operator++(int) 
+	{
 		MSetIterator retval = *this;
 		--off_from_end;
 		return retval;
 	}
-
 	/// Move the iterator to the previous position.
-	MSetIterator & operator--() {
+	MSetIterator & operator--() 
+	{
 		++off_from_end;
 		return *this;
 	}
-
 	/// Move the iterator to the previous position (postfix version).
 	MSetIterator operator--(int) 
 	{
@@ -484,7 +479,6 @@ public:
 		++off_from_end;
 		return retval;
 	}
-
 	/** @private @internal MSetIterator is what the C++ STL calls an
 	 *  random_access_iterator.
 	 *
@@ -509,18 +503,17 @@ public:
 	// @}
 
 	/// Move the iterator forwards by n positions.
-	MSetIterator & operator+=(difference_type n) {
+	MSetIterator & operator+=(difference_type n) 
+	{
 		off_from_end -= n;
 		return *this;
 	}
-
 	/// Move the iterator back by n positions.
 	MSetIterator & operator-=(difference_type n) 
 	{
 		off_from_end += n;
 		return *this;
 	}
-
 	/** Return the iterator incremented by @a n positions.
 	 *
 	 *  If @a n is negative, decrements by (-n) positions.
@@ -544,10 +537,8 @@ public:
 
 	/** Get the Document object for the current position. */
 	Xapian::Document get_document() const;
-
 	/** Get the weight for the current position. */
 	double get_weight() const;
-
 	/** Return the collapse key for the current position.
 	 *
 	 *  If collapsing isn't in use, an empty string will be returned.

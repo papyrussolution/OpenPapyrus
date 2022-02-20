@@ -171,7 +171,7 @@ using AbortHook = void (*)(const char* file, int line, const char* buf_start,
 // interface to take its message as a string_view instead.
 using InternalLogFunction = void (*)(absl::LogSeverity severity,
                                      const char* file, int line,
-                                     const std::string& message);
+                                     const std::string & message);
 
 ABSL_INTERNAL_ATOMIC_HOOK_ATTRIBUTES ABSL_DLL extern base_internal::AtomicHook<
     InternalLogFunction>

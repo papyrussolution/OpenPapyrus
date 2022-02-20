@@ -95,7 +95,7 @@ const time_zone::Impl& time_zone::effective_impl() const {
 	return *impl_;
 }
 
-bool load_time_zone(const std::string& name, time_zone* tz) {
+bool load_time_zone(const std::string & name, time_zone* tz) {
 	return time_zone::Impl::LoadTimeZone(name, tz);
 }
 

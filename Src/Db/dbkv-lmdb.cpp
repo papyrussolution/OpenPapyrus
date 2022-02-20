@@ -69,9 +69,12 @@ LmdbDatabase::Transaction::~Transaction()
 int LmdbDatabase::Transaction::Commit()
 {
 	int    ok = 1;
-	THROW(H);
-	THROW(R_Db.ProcessError(mdb_txn_commit(H)));
-	State = stCommited;
+	if(State & stCreated) {
+		THROW(H);
+		THROW(R_Db.ProcessError(mdb_txn_commit(H)));
+		State = stCommited;
+		H = 0;
+	}
 	CATCHZOK
 	return ok;
 }
@@ -79,10 +82,12 @@ int LmdbDatabase::Transaction::Commit()
 int LmdbDatabase::Transaction::Abort()
 {
 	int    ok = 1;
-	THROW(H);
-	mdb_txn_abort(H);
-	State = stUndef;
-	H = 0;
+	if(State & stCreated) {
+		THROW(H);
+		mdb_txn_abort(H);
+		State = stAborted;
+		H = 0;
+	}
 	CATCHZOK
 	return ok;
 }

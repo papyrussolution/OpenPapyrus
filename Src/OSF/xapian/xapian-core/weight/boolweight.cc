@@ -36,9 +36,9 @@ string BoolWeight::serialise() const
 	return string();
 }
 
-BoolWeight * BoolWeight::unserialise(const string& s) const
+BoolWeight * BoolWeight::unserialise(const string & s) const
 {
-	if(rare(!s.empty()))
+	if(UNLIKELY(!s.empty()))
 		throw Xapian::SerialisationError("Extra data in BoolWeight::unserialise()");
 	return new BoolWeight;
 }

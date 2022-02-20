@@ -169,15 +169,15 @@ class SourceContext final :
   };
   // string file_name = 1;
   void clear_file_name();
-  const std::string& file_name() const;
-  template <typename ArgT0 = const std::string&, typename... ArgT>
+  const std::string & file_name() const;
+  template <typename ArgT0 = const std::string &, typename... ArgT>
   void set_file_name(ArgT0&& arg0, ArgT... args);
   std::string* mutable_file_name();
   PROTOBUF_NODISCARD std::string* release_file_name();
   void set_allocated_file_name(std::string* file_name);
   private:
-  const std::string& _internal_file_name() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_file_name(const std::string& value);
+  const std::string & _internal_file_name() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_file_name(const std::string & value);
   std::string* _internal_mutable_file_name();
   public:
 
@@ -207,7 +207,7 @@ class SourceContext final :
 inline void SourceContext::clear_file_name() {
   file_name_.ClearToEmpty();
 }
-inline const std::string& SourceContext::file_name() const {
+inline const std::string & SourceContext::file_name() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.SourceContext.file_name)
 	return _internal_file_name();
 }
@@ -223,8 +223,8 @@ inline std::string* SourceContext::mutable_file_name() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.SourceContext.file_name)
 	return _s;
 }
-inline const std::string& SourceContext::_internal_file_name() const { return file_name_.Get(); }
-inline void SourceContext::_internal_set_file_name(const std::string& value) {
+inline const std::string & SourceContext::_internal_file_name() const { return file_name_.Get(); }
+inline void SourceContext::_internal_set_file_name(const std::string & value) {
 	
 	file_name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }

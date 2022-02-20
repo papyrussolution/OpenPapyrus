@@ -6711,8 +6711,8 @@ int STokenizer::Run(uint * pIdxFirst, uint * pIdxCount)
 				start_tok_pos = current_pos;
 			}
 			else if(P.Flags & fDivAlNum && prev_chr) {
-				int is_dig = 0;
-				int is_prev_dig = 0;
+				bool is_dig = false;
+				bool is_prev_dig = false;
 				if(P.Cp == cpUTF8) {
 					is_dig = isdecw((wchar_t)chr);
 					is_prev_dig = isdecw((wchar_t)prev_chr);

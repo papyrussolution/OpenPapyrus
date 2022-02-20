@@ -77,7 +77,7 @@ void InlinedStringField::SetAllocated(const std::string* default_value,
 }
 
 void InlinedStringField::Set(const std::string* default_value,
-    std::string&& value, Arena* arena, bool donated,
+    std::string && value, Arena* arena, bool donated,
     uint32_t* donating_states, uint32_t mask) {
 	SetNoArena(default_value, std::move(value));
 }

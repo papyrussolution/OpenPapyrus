@@ -59,7 +59,7 @@ void BM25Weight::init(double factor)
 	// what the code currently enabled does, but perhaps it would be better to
 	// do something else. (FIXME)
 #if 0
-	if(rare(tw <= 1.0)) {
+	if(UNLIKELY(tw <= 1.0)) {
 		termweight = 0;
 	}
 	else {
@@ -125,7 +125,7 @@ BM25Weight * BM25Weight::unserialise(const string & s) const
 	double k3 = unserialise_double(&ptr, end);
 	double b = unserialise_double(&ptr, end);
 	double min_normlen = unserialise_double(&ptr, end);
-	if(rare(ptr != end))
+	if(UNLIKELY(ptr != end))
 		throw Xapian::SerialisationError("Extra data in BM25Weight::unserialise()");
 	return new BM25Weight(k1, k2, k3, b, min_normlen);
 }

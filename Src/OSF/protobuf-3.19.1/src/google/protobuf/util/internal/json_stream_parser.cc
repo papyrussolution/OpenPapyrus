@@ -68,7 +68,7 @@ inline bool IsKeySeparator(char c) {
 }
 
 inline void ReplaceInvalidCodePoints(StringPiece str,
-    const std::string& replacement,
+    const std::string & replacement,
     std::string* dst) {
 	while(!str.empty()) {
 		int n_valid_bytes = internal::UTF8SpnStructurallyValid(str);
@@ -568,7 +568,7 @@ util::Status JsonStreamParser::ParseNumber() {
 	return result;
 }
 
-util::Status JsonStreamParser::ParseDoubleHelper(const std::string& number,
+util::Status JsonStreamParser::ParseDoubleHelper(const std::string & number,
     NumberResult* result) {
 	if(!safe_strtod(number, &result->double_val)) {
 		return ReportFailure("Unable to parse number.",

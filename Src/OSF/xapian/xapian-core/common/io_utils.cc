@@ -71,7 +71,7 @@ int io_open_block_wr(const char * fname, bool anew)
 #ifdef F_DUPFD
 	{
 		fd = fcntl(badfd, F_DUPFD, MIN_WRITE_FD);
-# ifdef FD_CLOEXEC
+#ifdef FD_CLOEXEC
 		if(fd >= 0)
 			(void)fcntl(fd, F_SETFD, FD_CLOEXEC);
 #endif
@@ -96,7 +96,7 @@ int io_open_block_wr(const char * fname, bool anew)
 			errno = save_errno;
 		}
 		else {
-# ifdef FD_CLOEXEC
+#ifdef FD_CLOEXEC
 			(void)fcntl(fd, F_SETFD, FD_CLOEXEC);
 #endif
 		}
@@ -147,7 +147,7 @@ size_t io_pread(int fd, char * p, size_t n, off_t o, size_t min)
 	while(true) {
 		ssize_t c = pread(fd, p, n, o);
 		// We should get a full read most of the time, so streamline that case.
-		if(usual(c == ssize_t(n)))
+		if(LIKELY(c == ssize_t(n)))
 			return total + n;
 		// -1 is error, 0 is EOF
 		if(c <= 0) {
@@ -169,12 +169,12 @@ size_t io_pread(int fd, char * p, size_t n, off_t o, size_t min)
 		o += c;
 	}
 #else
-	if(rare(lseek(fd, o, SEEK_SET) < 0))
+	if(UNLIKELY(lseek(fd, o, SEEK_SET) < 0))
 		throw Xapian::DatabaseError("Error seeking database", errno);
 	while(true) {
 		ssize_t c = _read(fd, p, n);
 		// We should get a full read most of the time, so streamline that case.
-		if(usual(c == ssize_t(n)))
+		if(LIKELY(c == ssize_t(n)))
 			return total + n;
 		if(c <= 0) {
 			if(c == 0) {
@@ -203,7 +203,7 @@ void io_pwrite(int fd, const char * p, size_t n, off_t o)
 		ssize_t c = pwrite(fd, p, n, o);
 		// We should get a full write most of the time, so streamline that
 		// case.
-		if(usual(c == ssize_t(n)))
+		if(LIKELY(c == ssize_t(n)))
 			return;
 		if(c < 0) {
 			if(errno == EINTR) continue;
@@ -214,7 +214,7 @@ void io_pwrite(int fd, const char * p, size_t n, off_t o)
 		o += c;
 	}
 #else
-	if(rare(lseek(fd, o, SEEK_SET) < 0))
+	if(UNLIKELY(lseek(fd, o, SEEK_SET) < 0))
 		throw Xapian::DatabaseError("Error seeking database", errno);
 	io_write(fd, p, n);
 #endif
@@ -249,7 +249,7 @@ void io_read_block(int fd, char * p, size_t n, off_t b, off_t o)
 	while(true) {
 		ssize_t c = pread(fd, p, n, o);
 		// We should get a full read most of the time, so streamline that case.
-		if(usual(c == ssize_t(n)))
+		if(LIKELY(c == ssize_t(n)))
 			return;
 		// -1 is error, 0 is EOF
 		if(c <= 0) {
@@ -265,12 +265,12 @@ void io_read_block(int fd, char * p, size_t n, off_t b, off_t o)
 		o += c;
 	}
 #else
-	if(rare(lseek(fd, o, SEEK_SET) < 0))
+	if(UNLIKELY(lseek(fd, o, SEEK_SET) < 0))
 		throw_block_error("Error seeking to block ", b, errno);
 	while(true) {
 		ssize_t c = _read(fd, p, n);
 		// We should get a full read most of the time, so streamline that case.
-		if(usual(c == ssize_t(n)))
+		if(LIKELY(c == ssize_t(n)))
 			return;
 		if(c <= 0) {
 			if(c == 0)
@@ -296,7 +296,7 @@ void io_write_block(int fd, const char * p, size_t n, off_t b, off_t o)
 	while(true) {
 		ssize_t c = pwrite(fd, p, n, o);
 		// We should get a full write most of the time, so streamline that case.
-		if(usual(c == ssize_t(n)))
+		if(LIKELY(c == ssize_t(n)))
 			return;
 		if(c < 0) {
 			// We get EINTR if the syscall was interrupted by a signal.
@@ -309,12 +309,12 @@ void io_write_block(int fd, const char * p, size_t n, off_t b, off_t o)
 		o += c;
 	}
 #else
-	if(rare(lseek(fd, o, SEEK_SET) < 0))
+	if(UNLIKELY(lseek(fd, o, SEEK_SET) < 0))
 		throw_block_error("Error seeking to block ", b, errno);
 	while(true) {
 		ssize_t c = _write(fd, p, n);
 		// We should get a full write most of the time, so streamline that case.
-		if(usual(c == ssize_t(n)))
+		if(LIKELY(c == ssize_t(n)))
 			return;
 		if(c < 0) {
 			// We get EINTR if the syscall was interrupted by a signal.

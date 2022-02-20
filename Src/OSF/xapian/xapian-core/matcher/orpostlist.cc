@@ -360,7 +360,7 @@ Xapian::doccount OrPostList::get_termfreq_max() const
 template <typename T>
 static void estimate_or_assuming_indep(double a, double b, double n, T& res)
 {
-	if(rare(n == 0.0)) {
+	if(UNLIKELY(n == 0.0)) {
 		res = 0;
 	}
 	else {

@@ -22,7 +22,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "xapian/geospatial.h"
 
 using namespace Xapian;
 using namespace std;

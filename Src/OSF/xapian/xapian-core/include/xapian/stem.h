@@ -33,15 +33,12 @@
 
 namespace Xapian {
 /// Class representing a stemming algorithm implementation.
-class XAPIAN_VISIBILITY_DEFAULT StemImplementation
-	: public Xapian::Internal::intrusive_base
+class XAPIAN_VISIBILITY_DEFAULT StemImplementation : public Xapian::Internal::intrusive_base
 {
 	/// Don't allow assignment.
 	void operator=(const StemImplementation &) = delete;
-
 	/// Don't allow copying.
 	StemImplementation(const StemImplementation &) = delete;
-
 public:
 	/// Default constructor.
 	StemImplementation() 
@@ -130,7 +127,7 @@ public:
 	 *  @exception	Xapian::InvalidArgumentError is thrown if
 	 *			@a language isn't recognised and @a fallback is false.
 	 */
-	Stem(const std::string& language, bool fallback = false);
+	Stem(const std::string & language, bool fallback = false);
 
 	/** Construct a Xapian::Stem object with a user-provided stemming algorithm.
 	 *

@@ -100,7 +100,7 @@ InL2Weight * InL2Weight::unserialise(const string & s) const
 	const char * ptr = s.data();
 	const char * end = ptr + s.size();
 	double c = unserialise_double(&ptr, end);
-	if(rare(ptr != end))
+	if(UNLIKELY(ptr != end))
 		throw Xapian::SerialisationError("Extra data in InL2Weight::unserialise()");
 	return new InL2Weight(c);
 }

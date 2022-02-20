@@ -61,12 +61,12 @@ class ConvertibleToStringView {
   ConvertibleToStringView(char* s) : value_(s) {}  // NOLINT(runtime/explicit)
   ConvertibleToStringView(absl::string_view s)     // NOLINT(runtime/explicit)
       : value_(s) {}
-  ConvertibleToStringView(const std::string& s)  // NOLINT(runtime/explicit)
+  ConvertibleToStringView(const std::string & s)  // NOLINT(runtime/explicit)
       : value_(s) {}
 
   // Disable conversion from rvalue strings.
-  ConvertibleToStringView(std::string&& s) = delete;
-  ConvertibleToStringView(const std::string&& s) = delete;
+  ConvertibleToStringView(std::string && s) = delete;
+  ConvertibleToStringView(const std::string && s) = delete;
 
   absl::string_view value() const { return value_; }
 

@@ -65,7 +65,7 @@ using google::protobuf::io::win32::open;
 // Returns true if the text looks like a Windows-style absolute path, starting
 // with a drive letter.  Example:  "C:\foo".  TODO(kenton):  Share this with
 // copy in command_line_interface.cc?
-static bool IsWindowsAbsolutePath(const std::string& text) {
+static bool IsWindowsAbsolutePath(const std::string & text) {
 #if defined(_WIN32) || defined(__CYGWIN__)
 	return text.size() >= 3 && text[1] == ':' && isalpha(text[0]) &&
 	       (text[2] == '/' || text[2] == '\\') && text.find_last_of(':') == 1;
@@ -84,7 +84,7 @@ MultiFileErrorCollector::~MultiFileErrorCollector() {
 class SourceTreeDescriptorDatabase::SingleFileErrorCollector
 	: public io::ErrorCollector {
 public:
-	SingleFileErrorCollector(const std::string& filename,
+	SingleFileErrorCollector(const std::string & filename,
 	    MultiFileErrorCollector* multi_file_error_collector)
 		: filename_(filename),
 		multi_file_error_collector_(multi_file_error_collector),
@@ -99,7 +99,7 @@ public:
 	}
 
 	// implements ErrorCollector ---------------------------------------
-	void AddError(int line, int column, const std::string& message) override {
+	void AddError(int line, int column, const std::string & message) override {
 		if(multi_file_error_collector_ != NULL) {
 			multi_file_error_collector_->AddError(filename_, line, column, message);
 		}
@@ -133,7 +133,7 @@ SourceTreeDescriptorDatabase::SourceTreeDescriptorDatabase(SourceTree* source_tr
 SourceTreeDescriptorDatabase::~SourceTreeDescriptorDatabase() {
 }
 
-bool SourceTreeDescriptorDatabase::FindFileByName(const std::string& filename,
+bool SourceTreeDescriptorDatabase::FindFileByName(const std::string & filename,
     FileDescriptorProto* output) {
 	std::unique_ptr<io::ZeroCopyInputStream> input(source_tree_->Open(filename));
 	if(input == NULL) {
@@ -165,11 +165,11 @@ bool SourceTreeDescriptorDatabase::FindFileByName(const std::string& filename,
 	return parser.Parse(&tokenizer, output) && !file_error_collector.had_errors();
 }
 
-bool SourceTreeDescriptorDatabase::FindFileContainingSymbol(const std::string& symbol_name, FileDescriptorProto* output) {
+bool SourceTreeDescriptorDatabase::FindFileContainingSymbol(const std::string & symbol_name, FileDescriptorProto* output) {
 	return false;
 }
 
-bool SourceTreeDescriptorDatabase::FindFileContainingExtension(const std::string& containing_type, int field_number,
+bool SourceTreeDescriptorDatabase::FindFileContainingExtension(const std::string & containing_type, int field_number,
     FileDescriptorProto* output) {
 	return false;
 }
@@ -185,9 +185,9 @@ SourceTreeDescriptorDatabase::ValidationErrorCollector::
 ~ValidationErrorCollector() {
 }
 
-void SourceTreeDescriptorDatabase::ValidationErrorCollector::AddError(const std::string& filename, const std::string& element_name,
+void SourceTreeDescriptorDatabase::ValidationErrorCollector::AddError(const std::string & filename, const std::string & element_name,
     const Message* descriptor, ErrorLocation location,
-    const std::string& message) {
+    const std::string & message) {
 	if(owner_->error_collector_ == NULL) return;
 
 	int line, column;
@@ -201,9 +201,9 @@ void SourceTreeDescriptorDatabase::ValidationErrorCollector::AddError(const std:
 	owner_->error_collector_->AddError(filename, line, column, message);
 }
 
-void SourceTreeDescriptorDatabase::ValidationErrorCollector::AddWarning(const std::string& filename, const std::string& element_name,
+void SourceTreeDescriptorDatabase::ValidationErrorCollector::AddWarning(const std::string & filename, const std::string & element_name,
     const Message* descriptor, ErrorLocation location,
-    const std::string& message) {
+    const std::string & message) {
 	if(owner_->error_collector_ == NULL) return;
 
 	int line, column;
@@ -230,11 +230,11 @@ Importer::Importer(SourceTree* source_tree,
 Importer::~Importer() {
 }
 
-const FileDescriptor* Importer::Import(const std::string& filename) {
+const FileDescriptor* Importer::Import(const std::string & filename) {
 	return pool_.FindFileByName(filename);
 }
 
-void Importer::AddUnusedImportTrackFile(const std::string& file_name,
+void Importer::AddUnusedImportTrackFile(const std::string & file_name,
     bool is_error) {
 	pool_.AddUnusedImportTrackFile(file_name, is_error);
 }
@@ -258,7 +258,7 @@ DiskSourceTree::DiskSourceTree() {
 DiskSourceTree::~DiskSourceTree() {
 }
 
-static inline char LastChar(const std::string& str) {
+static inline char LastChar(const std::string & str) {
 	return str[str.size() - 1];
 }
 
@@ -298,7 +298,7 @@ static std::string CanonicalizePath(std::string path) {
 	std::vector<std::string> canonical_parts;
 	std::vector<std::string> parts = Split(
 		path, "/", true); // Note:  Removes empty parts.
-	for(const std::string& part : parts) {
+	for(const std::string & part : parts) {
 		if(part == ".") {
 			// Ignore.
 		}
@@ -319,7 +319,7 @@ static std::string CanonicalizePath(std::string path) {
 	return result;
 }
 
-static inline bool ContainsParentReference(const std::string& path) {
+static inline bool ContainsParentReference(const std::string & path) {
 	return path == ".." || HasPrefixString(path, "../") ||
 	       HasSuffixString(path, "/..") || path.find("/../") != std::string::npos;
 }
@@ -341,9 +341,9 @@ static inline bool ContainsParentReference(const std::string& path) {
 //   assert(!ApplyMapping("foo/bar", "baz", "qux", &result));
 //   assert(!ApplyMapping("foo/bar", "baz", "qux", &result));
 //   assert(!ApplyMapping("foobar", "foo", "baz", &result));
-static bool ApplyMapping(const std::string& filename,
-    const std::string& old_prefix,
-    const std::string& new_prefix, std::string* result) {
+static bool ApplyMapping(const std::string & filename,
+    const std::string & old_prefix,
+    const std::string & new_prefix, std::string* result) {
 	if(old_prefix.empty()) {
 		// old_prefix matches any relative path.
 		if(ContainsParentReference(filename)) {
@@ -398,12 +398,12 @@ static bool ApplyMapping(const std::string& filename,
 	return false;
 }
 
-void DiskSourceTree::MapPath(const std::string& virtual_path,
-    const std::string& disk_path) {
+void DiskSourceTree::MapPath(const std::string & virtual_path,
+    const std::string & disk_path) {
 	mappings_.push_back(Mapping(virtual_path, CanonicalizePath(disk_path)));
 }
 
-DiskSourceTree::DiskFileToVirtualFileResult DiskSourceTree::DiskFileToVirtualFile(const std::string& disk_file,
+DiskSourceTree::DiskFileToVirtualFileResult DiskSourceTree::DiskFileToVirtualFile(const std::string & disk_file,
     std::string* virtual_file,
     std::string* shadowing_disk_file) {
 	int mapping_index = -1;
@@ -447,14 +447,14 @@ DiskSourceTree::DiskFileToVirtualFileResult DiskSourceTree::DiskFileToVirtualFil
 	return SUCCESS;
 }
 
-bool DiskSourceTree::VirtualFileToDiskFile(const std::string& virtual_file,
+bool DiskSourceTree::VirtualFileToDiskFile(const std::string & virtual_file,
     std::string* disk_file) {
 	std::unique_ptr<io::ZeroCopyInputStream> stream(
 		OpenVirtualFile(virtual_file, disk_file));
 	return stream != NULL;
 }
 
-io::ZeroCopyInputStream* DiskSourceTree::Open(const std::string& filename) {
+io::ZeroCopyInputStream* DiskSourceTree::Open(const std::string & filename) {
 	return OpenVirtualFile(filename, NULL);
 }
 
@@ -462,7 +462,7 @@ std::string DiskSourceTree::GetLastErrorMessage() {
 	return last_error_message_;
 }
 
-io::ZeroCopyInputStream* DiskSourceTree::OpenVirtualFile(const std::string& virtual_file, std::string* disk_file) {
+io::ZeroCopyInputStream* DiskSourceTree::OpenVirtualFile(const std::string & virtual_file, std::string* disk_file) {
 	if(virtual_file != CanonicalizePath(virtual_file) ||
 	    ContainsParentReference(virtual_file)) {
 		// We do not allow importing of paths containing things like ".." or
@@ -496,7 +496,7 @@ io::ZeroCopyInputStream* DiskSourceTree::OpenVirtualFile(const std::string& virt
 	return NULL;
 }
 
-io::ZeroCopyInputStream* DiskSourceTree::OpenDiskFile(const std::string& filename) {
+io::ZeroCopyInputStream* DiskSourceTree::OpenDiskFile(const std::string & filename) {
 	struct stat sb;
 	int ret = 0;
 	do {

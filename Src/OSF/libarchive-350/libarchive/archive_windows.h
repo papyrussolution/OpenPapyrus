@@ -12,21 +12,8 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE AUTHOR(S) BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
  * $FreeBSD$
  */
-
 /*
  * TODO: A lot of stuff in here isn't actually used by libarchive and
  * can be trimmed out.  Note that this file is used by libarchive and
@@ -53,17 +40,17 @@
 #define MINGW_HAS_SECURE_API 1
 #endif
 
-#include <errno.h>
+//#include <errno.h>
 #define	set_errno(val)	((errno)=val)
 #include <io.h>
-#include <stdlib.h>   //brings in NULL
-#if defined(HAVE_STDINT_H)
-#include <stdint.h>
-#endif
-#include <stdio.h>
+//#include <stdlib.h>   //brings in NULL
+//#if defined(HAVE_STDINT_H)
+//#include <stdint.h>
+//#endif
+//#include <stdio.h>
 #include <fcntl.h>
-#include <sys/stat.h>
-#include <process.h>
+//#include <sys/stat.h>
+//#include <process.h>
 #include <direct.h>
 #if defined(__MINGW32__) && defined(HAVE_UNISTD_H)
 /* Prevent build error from a type mismatch of ftruncate().
@@ -71,7 +58,7 @@
 #include <unistd.h>
 #endif
 #define NOCRYPT
-#include <windows.h>
+//#include <windows.h>
 //#define	EFTYPE 7
 
 #if defined(__BORLANDC__)
@@ -284,7 +271,7 @@ extern ssize_t	 __la_write(int fd, const void *buf, size_t nbytes);
 
 extern wchar_t *__la_win_permissive_name(const char *name);
 extern wchar_t *__la_win_permissive_name_w(const wchar_t *wname);
-extern void __la_dosmaperr(unsigned long e);
+extern void __la_dosmaperr(ulong e);
 #define la_dosmaperr(e) __la_dosmaperr(e)
 extern struct archive_entry *__la_win_entry_in_posix_pathseparator(struct archive_entry *);
 

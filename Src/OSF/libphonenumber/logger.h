@@ -42,7 +42,7 @@ public:
 	}
 
 	// Writes the provided message to the underlying output stream.
-	virtual void WriteMessage(const string& msg) = 0;
+	virtual void WriteMessage(const string & msg) = 0;
 
 	// Note that if set_verbosity_level has been used to set the level to a value
 	// that is not represented by an enum, the result here will be a log
@@ -85,7 +85,7 @@ public:
 	virtual ~NullLogger() {
 	}
 
-	virtual void WriteMessage(const string& /* msg */) {
+	virtual void WriteMessage(const string & /* msg */) {
 	}
 };
 }  // namespace phonenumbers

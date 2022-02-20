@@ -160,6 +160,7 @@ SlSession::~SlSession()
 	if(ExtraProcBlk.F_CallHelp && HelpCookie) {
 		ExtraProcBlk.F_CallHelp(0, HH_UNINITIALIZE, HelpCookie);
 	}
+	GlobObjList.Destroy(); // @v11.3.2 instead of automatic destruction
 	ReleaseThread();
 	TlsFree(TlsIdx);
 	delete P_StopEvnt;
@@ -744,14 +745,20 @@ SlSession::GlobalObjectArray::GlobalObjectArray() : SVector(sizeof(GlobalObjectE
 	insert(&zero_entry);
 }
 
-SlSession::GlobalObjectArray::~GlobalObjectArray()
+void SlSession::GlobalObjectArray::Destroy()
 {
 	Cs.Enter();
 	for(uint i = 1; i < count; i++) {
 		GlobalObjectEntry * p_entry = static_cast<GlobalObjectEntry *>(at(i));
 		CALLPTRMEMB(p_entry, Destroy());
 	}
+	freeAll();
 	Cs.Leave();
+}
+
+SlSession::GlobalObjectArray::~GlobalObjectArray()
+{
+	Destroy();
 }
 
 uint SlSession::GlobalObjectArray::CreateObject(SClassWrapper & rCls)

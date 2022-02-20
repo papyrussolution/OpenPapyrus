@@ -180,12 +180,12 @@ public:
 	 *  @param to           The new item (index into results).
 	 */
 	void result_has_moved(Xapian::doccount from, Xapian::doccount to) {
-		const std::string& collapse_key = results[to].get_collapse_key();
+		const std::string & collapse_key = results[to].get_collapse_key();
 		if(collapse_key.empty()) {
 			return;
 		}
 		auto it = table.find(collapse_key);
-		if(rare(it == table.end())) {
+		if(UNLIKELY(it == table.end())) {
 			// The entry ought to be present.
 			Assert(false);
 			return;
@@ -241,7 +241,7 @@ public:
 	 *
 	 *  @return true if accepted; false if rejected.
 	 */
-	bool add(const std::string& key) 
+	bool add(const std::string & key) 
 	{
 		++docs_considered;
 		if(key.empty()) {
@@ -276,7 +276,7 @@ public:
 		// information stored in table.
 		Xapian::doccount todo = entry_count;
 		for(Result& result : results) {
-			const std::string& key = result.get_collapse_key();
+			const std::string & key = result.get_collapse_key();
 			if(key.empty())
 				continue;
 			// Adjust collapse_count.

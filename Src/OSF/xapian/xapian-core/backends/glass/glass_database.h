@@ -40,10 +40,8 @@
 #include "../flint_lock.h"
 #include "glass_defs.h"
 #include "backends/valuestats.h"
-
 #include "xapian/compactor.h"
 #include "xapian/constants.h"
-
 #include <map>
 
 class GlassTermList;
@@ -227,7 +225,7 @@ class GlassDatabase : public Xapian::Database::Internal {
      *                    correct value, when the database is being
      *                    created.
      */
-    explicit GlassDatabase(const string& db_dir_,
+    explicit GlassDatabase(const string & db_dir_,
 			   int flags = Xapian::DB_READONLY_,
 			   unsigned int block_size = 0u);
 
@@ -262,7 +260,7 @@ class GlassDatabase : public Xapian::Database::Internal {
     bool has_positions() const;
 
     PostList * open_post_list(const string & tname) const;
-    LeafPostList* open_leaf_post_list(const string& term,
+    LeafPostList* open_leaf_post_list(const string & term,
 				      bool need_read_pos) const;
     ValueList * open_value_list(Xapian::valueno slot) const;
     Xapian::Document::Internal* open_document(Xapian::docid did,
@@ -270,11 +268,11 @@ class GlassDatabase : public Xapian::Database::Internal {
 
     virtual void read_position_list(GlassRePositionList* pos_list,
 				    Xapian::docid did,
-				    const string& term) const;
+				    const string & term) const;
     virtual Xapian::termcount positionlist_count(Xapian::docid did,
-						 const string& term) const;
+						 const string & term) const;
     PositionList* open_position_list(Xapian::docid did,
-				     const string& term) const;
+				     const string & term) const;
     TermList * open_term_list(Xapian::docid did) const;
     TermList * open_term_list_direct(Xapian::docid did) const;
     TermList * open_allterms(const string & prefix) const;
@@ -435,17 +433,17 @@ class GlassWritableDatabase : public GlassDatabase {
     bool has_positions() const;
 
     PostList * open_post_list(const string & tname) const;
-    LeafPostList* open_leaf_post_list(const string& term,
+    LeafPostList* open_leaf_post_list(const string & term,
 				      bool need_read_pos) const;
     ValueList * open_value_list(Xapian::valueno slot) const;
 
     void read_position_list(GlassRePositionList* pos_list,
 			    Xapian::docid did,
-			    const string& term) const;
+			    const string & term) const;
     Xapian::termcount positionlist_count(Xapian::docid did,
-					 const string& term) const;
+					 const string & term) const;
     PositionList* open_position_list(Xapian::docid did,
-				     const string& term) const;
+				     const string & term) const;
     TermList * open_allterms(const string & prefix) const;
 
     void add_spelling(const string & word, Xapian::termcount freqinc) const;

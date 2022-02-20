@@ -166,7 +166,7 @@ public:
 	 *			KeyMaker could not be found.  The returned
 	 *			object must <b>not</b> be deleted by the caller.
 	 */
-	const Xapian::KeyMaker* get_key_maker(const std::string& name) const;
+	const Xapian::KeyMaker* get_key_maker(const std::string & name) const;
 };
 }
 
