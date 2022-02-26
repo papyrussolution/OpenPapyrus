@@ -33,22 +33,17 @@
 
 using namespace std;
 
-template <class Char>
-struct edist_seq {
-	edist_seq(const Char* ptr_, int len_) : ptr(ptr_), len(len_) {
+template <class Char> struct edist_seq {
+	edist_seq(const Char* ptr_, int len_) : ptr(ptr_), len(len_) 
+	{
 	}
-
 	const Char* ptr;
 	int len;
 };
 
-template <class Char>
-class edist_state {
-	/// Don't allow assignment.
-	edist_state& operator=(const edist_state&) = delete;
-
-	/// Don't allow copying.
-	edist_state(const edist_state&) = delete;
+template <class Char> class edist_state {
+	edist_state& operator=(const edist_state&) = delete; /// Don't allow assignment.
+	edist_state(const edist_state&) = delete; /// Don't allow copying.
 
 	edist_seq<Char> seq1;
 	edist_seq<Char> seq2;
@@ -64,15 +59,10 @@ class edist_state {
 	/* Maximum possible edit distance (this is referred to as ZERO_K in
 	 * the algorithm description by Berghel and Roach). */
 	int maxdist;
-
-	int calc_index(int k, int p) const {
-		return k + maxdist + fkp_rows * (p + 1);
-	}
-
+	int calc_index(int k, int p) const { return k + maxdist + fkp_rows * (p + 1); }
 public:
-	edist_state(const Char* ptr1, int len1, const Char* ptr2, int len2,
-	    int* fkp_)
-		: seq1(ptr1, len1), seq2(ptr2, len2), fkp(fkp_), maxdist(len2) {
+	edist_state(const Char* ptr1, int len1, const Char* ptr2, int len2, int* fkp_) : seq1(ptr1, len1), seq2(ptr2, len2), fkp(fkp_), maxdist(len2) 
+	{
 		Assert(len2 >= len1);
 		// fkp is stored as a rectangular array, column by column.  Each entry
 		// represents a value of p, from -1 to maxdist or a special value
@@ -89,62 +79,49 @@ public:
 			set_f_kp(-k, k - 1, k - 1);
 		}
 	}
-
-	int get_f_kp(int k, int p) const {
+	int get_f_kp(int k, int p) const 
+	{
 		return fkp[calc_index(k, p)];
 	}
-
-	void set_f_kp(int k, int p, int val) {
+	void set_f_kp(int k, int p, int val) 
+	{
 		fkp[calc_index(k, p)] = val;
 	}
-
-	bool is_transposed(int pos1, int pos2) const {
+	bool is_transposed(int pos1, int pos2) const 
+	{
 		if(pos1 <= 0 || pos2 <= 0 || pos1 >= seq1.len || pos2 >= seq2.len)
 			return false;
-		return (seq1.ptr[pos1 - 1] == seq2.ptr[pos2] &&
-		       seq1.ptr[pos1] == seq2.ptr[pos2 - 1]);
+		return (seq1.ptr[pos1 - 1] == seq2.ptr[pos2] && seq1.ptr[pos1] == seq2.ptr[pos2 - 1]);
 	}
-
 	void edist_calc_f_kp(int k, int p);
 };
 
-template <class Char>
-void edist_state<Char>::edist_calc_f_kp(int k, int p)
+template <class Char> void edist_state<Char>::edist_calc_f_kp(int k, int p)
 {
 	int maxlen = get_f_kp(k, p - 1) + 1; /* dist if do substitute */
-	int maxlen2 = get_f_kp(k - 1, p - 1); /* dist if do insert */
-	int maxlen3 = get_f_kp(k + 1, p - 1) + 1; /* dist if delete */
-
+	const int maxlen2 = get_f_kp(k - 1, p - 1); /* dist if do insert */
+	const int maxlen3 = get_f_kp(k + 1, p - 1) + 1; /* dist if delete */
 	if(is_transposed(maxlen, maxlen + k)) {
-		// Transposition.
-		++maxlen;
+		++maxlen; // Transposition.
 	}
-
 	if(maxlen >= maxlen2) {
 		if(maxlen >= maxlen3) {
 			// Transposition or Substitution.
 		}
 		else {
-			// Deletion.
-			maxlen = maxlen3;
+			maxlen = maxlen3; // Deletion.
 		}
 	}
 	else {
 		if(maxlen2 >= maxlen3) {
-			// Insertion.
-			maxlen = maxlen2;
+			maxlen = maxlen2; // Insertion.
 		}
 		else {
-			// Deletion.
-			maxlen = maxlen3;
+			maxlen = maxlen3; // Deletion.
 		}
 	}
-
-	/* Check for exact matches, and increase the length until we don't have
-	 * one. */
-	while(maxlen < seq1.len &&
-	    maxlen + k < seq2.len &&
-	    seq1.ptr[maxlen] == seq2.ptr[maxlen + k]) {
+	// Check for exact matches, and increase the length until we don't have one. 
+	while(maxlen < seq1.len && maxlen + k < seq2.len && seq1.ptr[maxlen] == seq2.ptr[maxlen + k]) {
 		++maxlen;
 	}
 	set_f_kp(k, p, maxlen);
@@ -187,8 +164,7 @@ static int seqcmp_editdist(const Char* ptr1, int len1, const Char* ptr2, int len
 	return p;
 }
 
-int EditDistanceCalculator::calc(const unsigned* ptr, int len,
-    int max_distance) const
+int EditDistanceCalculator::calc(const uint * ptr, int len, int max_distance) const
 {
 	// Calculate a cheap lower bound on the edit distance by considering
 	// frequency histograms.
@@ -218,7 +194,5 @@ int EditDistanceCalculator::calc(const unsigned* ptr, int len,
 		int max_rows = maxdist * 2 + 1;
 		array = new int[max_rows * max_cols];
 	}
-
-	return seqcmp_editdist<uint>(ptr, len, &target[0], target.size(),
-		   array, max_distance);
+	return seqcmp_editdist<uint>(ptr, len, &target[0], target.size(), array, max_distance);
 }

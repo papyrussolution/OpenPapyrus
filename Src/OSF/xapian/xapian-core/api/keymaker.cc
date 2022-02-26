@@ -9,11 +9,6 @@
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
@@ -27,39 +22,33 @@ namespace Xapian {
 KeyMaker::~KeyMaker() {
 }
 
-[[noreturn]]
-static void throw_unimplemented(const char* message)
+[[noreturn]] static void throw_unimplemented(const char* message)
 {
 	throw Xapian::UnimplementedError(message);
 }
 
 string KeyMaker::name() const
 {
-	throw_unimplemented("KeyMaker subclass not suitable for use with remote "
-	    "searches - name() method not implemented");
+	throw_unimplemented("KeyMaker subclass not suitable for use with remote searches - name() method not implemented");
 }
 
 string KeyMaker::serialise() const
 {
-	throw_unimplemented("KeyMaker subclass not suitable for use with remote"
-	    "searches - serialise() method not implemented");
+	throw_unimplemented("KeyMaker subclass not suitable for use with remote searches - serialise() method not implemented");
 }
 
 KeyMaker* KeyMaker::unserialise(const string &, const Registry&) const
 {
-	throw_unimplemented("KeyMaker subclass not suitable for use with remote"
-	    "searches - unserialise() method not implemented");
+	throw_unimplemented("KeyMaker subclass not suitable for use with remote searches - unserialise() method not implemented");
 }
 
-string
-MultiValueKeyMaker::operator()(const Xapian::Document & doc) const
+string MultiValueKeyMaker::operator()(const Xapian::Document & doc) const
 {
 	string result;
-
 	auto i = slots.begin();
 	// Don't crash if slots is empty.
-	if(UNLIKELY(i == slots.end())) return result;
-
+	if(UNLIKELY(i == slots.end())) 
+		return result;
 	size_t last_not_empty_forwards = 0;
 	while(true) {
 		// All values (except for the last if it's sorted forwards) need to

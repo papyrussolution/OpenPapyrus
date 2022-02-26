@@ -1944,24 +1944,24 @@ int SImageBuffer::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 	return ok;
 }
 
-int FASTCALL SImageBuffer::Copy(const SImageBuffer & rS)
+bool FASTCALL SImageBuffer::Copy(const SImageBuffer & rS)
 {
 	S = rS.S;
 	F = rS.F;
 	return SBaseBuffer::Copy(rS);
 }
 
-int FASTCALL SImageBuffer::IsEq(const SImageBuffer & rS) const
+bool FASTCALL SImageBuffer::IsEq(const SImageBuffer & rS) const
 {
 	if(F.S != rS.F.S)
-		return 0;
+		return false;
 	else if(S != rS.S)
-		return 0;
+		return false;
 	else if(Size != rS.Size)
-		return 0;
+		return false;
 	else if(Size && memcmp(P_Buf, rS.P_Buf, Size) != 0)
-		return 0;
-	return 1;
+		return false;
+	return true;
 }
 
 SImageBuffer::PixF SImageBuffer::GetFormat() const { return F; }

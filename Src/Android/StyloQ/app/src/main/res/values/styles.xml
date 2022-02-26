@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="FakeView">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_weight">1</item>
+    </style>
+    <style name="ToolbarButton">
+        <item name="android:layout_width">@dimen/toolbariconsqside</item>
+        <item name="android:layout_height">@dimen/toolbariconsqside</item>
+        <item name="android:onClick">OnButtonClk</item>
+        <item name="android:background">@drawable/selector_button</item>
+        <item name="android:layout_marginLeft">8dp</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:layout_marginRight">2dp</item>
+        <item name="android:layout_marginBottom">2dp</item>
+    </style>
+    <!-- parent="Widget.MaterialComponents.Button.OutlinedButton" -->
+    <style name="PushButton">
+        <item name="android:onClick">OnButtonClk</item>
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:background">@drawable/selector_button</item>
+        <item name="android:strokeColor">@color/Divider</item>
+        <item name="android:textColor">@color/PrimaryText</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:paddingLeft">4dp</item>
+        <item name="android:paddingRight">4dp</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:gravity">center_vertical|center_horizontal</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:minWidth">80dp</item>
+        <item name="android:layout_marginLeft">4dp</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:layout_marginRight">4dp</item>
+        <item name="android:layout_marginBottom">4dp</item>
+    </style>
+    <!-- parent="@style/Widget.AppCompat.Spinner.Underlined" -->
+    <style name="ComboBox">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minWidth">160dp</item>
+        <item name="android:dropDownWidth">match_parent</item>
+        <item name="android:paddingLeft">0dp</item>
+        <item name="android:paddingRight">0dp</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:textAlignment">textStart</item>
+        <item name="android:background">@drawable/shape_combobox</item>
+        <item name="android:popupBackground">@drawable/shape_button</item>
+        <item name="android:spinnerMode">dropdown</item>
+    </style>
+    <style name="InputLine" parent="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <!--
+        <item name="android:paddingTop">2dp</item>
+        <item name="android:paddingBottom">2dp</item>
+        -->
+        <item name="android:layout_margin">2dp</item>
+        <item name="boxStrokeColor">@color/PrimaryDark</item>
+    </style>
+    <style name="TabTextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/PrimaryText</item>
+        <item name="textAllCaps">false</item>
+        <item name="android:textAlignment">viewStart</item>
+    </style>
+    <style name="TabLayout" parent="Widget.Design.TabLayout">
+        <!--<item name="tabMaxWidth">40dp</item>-->
+        <item name="android:layout_height">wrap_content</item>
+        <item name="tabIndicatorColor">?attr/colorAccent</item>
+        <item name="tabIndicatorHeight">4dp</item>
+        <!--<item name="tabBackground">?attr/selectableItemBackground</item>-->
+        <item name="tabBackground">@drawable/shape_tab</item>
+        <item name="tabTextAppearance">@style/TabTextAppearance</item>
+        <item name="tabSelectedTextColor">@color/SecondaryText</item>
+    </style>
+    <style name="ListItemRegular">
+        <item name="android:background">@drawable/shape_listitem</item>
+        <item name="android:colorBackground">@color/ListItemRegular</item>
+        <item name="android:layout_marginTop">1dp</item>
+        <item name="android:layout_marginBottom">1dp</item>
+    </style>
+</resources>

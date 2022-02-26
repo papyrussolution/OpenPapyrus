@@ -8,21 +8,14 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
-
 #ifndef XAPIAN_INCLUDED_SERIALISE_ERROR_H
 #define XAPIAN_INCLUDED_SERIALISE_ERROR_H
 
-#include <string>
-
+//#include <string>
 // Forward class declarations:
 
 namespace Xapian {
@@ -49,9 +42,6 @@ std::string serialise_error(const Xapian::Error &e);
  *				context will be noted in the Error's @a msg
  *				field.
  */
-[[noreturn]]
-void unserialise_error(const std::string &error_string,
-		       const std::string &prefix,
-		       const std::string &new_context);
+[[noreturn]] void unserialise_error(const std::string &error_string, const std::string &prefix, const std::string &new_context);
 
 #endif

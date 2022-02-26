@@ -37,7 +37,6 @@ extern int access(const char * path, int mode);
 #else
 	#include <unistd.h>
 #endif
-
 #define PRIVATE static
 #ifdef TEST
 	#define MAXRHS 5       /* Set low to exercise exception code */
@@ -47,14 +46,12 @@ extern int access(const char * path, int mode);
 
 static int showPrecedenceConflict = 0;
 static char * msort(char*, char**, int (*)(const char*, const char*));
-
 /*
 ** Compilers are getting increasingly pedantic about type conversions
 ** as C evolves ever closer to Ada....  To work around the latest problems
 ** we have to define the following variant of strlen().
 */
-#define lemonStrlen(X)   ((int)strlen(X))
-
+// @sobolev #define lemonStrlen(X)   ((int)strlen(X))
 /*
 ** Compilers are starting to complain about the use of sprintf() and strcpy(),
 ** saying they are unsafe.  So we define our own versions of those routines too.
@@ -107,9 +104,12 @@ static int lemon_vsprintf(char * str, const char * zFormat, va_list ap)
 			lemon_addtext(str, &nUsed, &zFormat[j], i-j, 0);
 			c = zFormat[++i];
 			if(ISDIGIT(c) || (c=='-' && ISDIGIT(zFormat[i+1]))) {
-				if(c=='-') i++;
-				while(ISDIGIT(zFormat[i]) ) iWidth = iWidth*10 + zFormat[i++] - '0';
-				if(c=='-') iWidth = -iWidth;
+				if(c=='-') 
+					i++;
+				while(ISDIGIT(zFormat[i])) 
+					iWidth = iWidth*10 + zFormat[i++] - '0';
+				if(c=='-') 
+					iWidth = -iWidth;
 				c = zFormat[i];
 			}
 			if(c=='d') {
@@ -163,17 +163,13 @@ static int lemon_sprintf(char * str, const char * format, ...)
 	return rc;
 }
 
-static void lemon_strcpy(char * dest, const char * src)
-{
-	while( (*(dest++) = *(src++))!=0) {
-	}
-}
+//static void lemon_strcpy(char * dest, const char * src) { while( (*(dest++) = *(src++))!=0) {} }
 
 static void lemon_strcat(char * dest, const char * src)
 {
 	while(*dest) 
 		dest++;
-	lemon_strcpy(dest, src);
+	sstrcpy(dest, src);
 }
 
 /* a few forward declarations... */
@@ -835,14 +831,12 @@ int acttab_action_size(acttab * p){
 */
 void FindRulePrecedences(struct lemon * xp)
 {
-	struct rule * rp;
-	for(rp = xp->rule; rp; rp = rp->next) {
+	for(struct rule * rp = xp->rule; rp; rp = rp->next) {
 		if(rp->precsym==0) {
-			int i, j;
-			for(i = 0; i<rp->nrhs && rp->precsym==0; i++) {
+			for(int i = 0; i<rp->nrhs && rp->precsym==0; i++) {
 				struct symbol * sp = rp->rhs[i];
 				if(sp->type==MULTITERMINAL) {
-					for(j = 0; j<sp->nsubsym; j++) {
+					for(int j = 0; j<sp->nsubsym; j++) {
 						if(sp->subsym[j]->prec>=0) {
 							rp->precsym = sp->subsym[j];
 							break;
@@ -855,7 +849,6 @@ void FindRulePrecedences(struct lemon * xp)
 			}
 		}
 	}
-	return;
 }
 
 /* Find all nonterminals which will generate the empty string.
@@ -879,7 +872,8 @@ void FindFirstSets(struct lemon * lemp)
 	do {
 		progress = 0;
 		for(rp = lemp->rule; rp; rp = rp->next) {
-			if(rp->lhs->lambda) continue;
+			if(rp->lhs->lambda) 
+				continue;
 			for(i = 0; i<rp->nrhs; i++) {
 				struct symbol * sp = rp->rhs[i];
 				assert(sp->type==NONTERMINAL || sp->lambda==LEMON_FALSE);
@@ -1555,12 +1549,12 @@ static void handle_D_option(char * z)
 		exit(1);
 	}
 	paz = &azDefine[nDefine-1];
-	*paz = (char*)SAlloc::M(lemonStrlen(z)+1);
+	*paz = (char*)SAlloc::M(sstrlen(z)+1);
 	if(*paz==0) {
 		slfprintf_stderr("out of memory\n");
 		exit(1);
 	}
-	lemon_strcpy(*paz, z);
+	sstrcpy(*paz, z);
 	for(z = *paz; *z && *z!='='; z++) {
 	}
 	*z = 0;
@@ -1597,11 +1591,11 @@ static void handle_h_option(char * z)
 static char * user_templatename = NULL;
 static void handle_T_option(char * z)
 {
-	user_templatename = (char*)SAlloc::M(lemonStrlen(z)+1);
+	user_templatename = (char*)SAlloc::M(sstrlen(z)+1);
 	if(user_templatename==0) {
 		memory_error();
 	}
-	lemon_strcpy(user_templatename, z);
+	sstrcpy(user_templatename, z);
 }
 
 /* Merge together to lists of rules ordered by rule.iRule */
@@ -1660,11 +1654,10 @@ static const char * minimum_size_type(int lwr, int upr, int * pnByte);
 
 /* Print a single line of the "Parser Stats" output
  */
-static void stats_line(const char * zLabel, int iValue){
-	int nLabel = lemonStrlen(zLabel);
-	printf("  %s%.*s %5d\n", zLabel,
-	    35-nLabel, "................................",
-	    iValue);
+static void stats_line(const char * zLabel, int iValue)
+{
+	int nLabel = sstrleni(zLabel);
+	printf("  %s%.*s %5d\n", zLabel, 35-nLabel, "................................", iValue);
 }
 
 /* The main program.  Parse the command line and do it... */
@@ -1735,7 +1728,6 @@ int main(int argc, char ** argv)
 		slfprintf_stderr("Empty grammar.\n");
 		exit(1);
 	}
-
 	/* Count and index the symbols of the grammar */
 	Symbol_new("{default}");
 	lem.nsymbol = Symbol_count();
@@ -1748,11 +1740,11 @@ int main(int argc, char ** argv)
 	while(lem.symbols[i-1]->type==MULTITERMINAL) {
 		i--;
 	}
-	assert(strcmp(lem.symbols[i-1]->name, "{default}")==0);
+	assert(sstreq(lem.symbols[i-1]->name, "{default}"));
 	lem.nsymbol = i - 1;
-	for(i = 1; ISUPPER(lem.symbols[i]->name[0]); i++);
+	for(i = 1; ISUPPER(lem.symbols[i]->name[0]); i++)
+		;
 	lem.nterminal = i;
-
 	/* Assign sequential rule numbers.  Start with 0.  Put rules that have no
 	** reduce action C-code associated with them last, so that the switch()
 	** statement that selects reduction actions will have a smaller jump table.
@@ -1968,11 +1960,12 @@ static FILE * errstream;
 static void errline(int n, int k, FILE * err)
 {
 	int spcnt, i;
-	if(argv[0]) fprintf(err, "%s", argv[0]);
-	spcnt = lemonStrlen(argv[0]) + 1;
+	if(argv[0]) 
+		fprintf(err, "%s", argv[0]);
+	spcnt = sstrleni(argv[0]) + 1;
 	for(i = 1; i<n && argv[i]; i++) {
 		fprintf(err, " %s", argv[i]);
-		spcnt += lemonStrlen(argv[i])+1;
+		spcnt += sstrleni(argv[i])+1;
 	}
 	spcnt += k;
 	for(; argv[i]; i++) fprintf(err, " %s", argv[i]);
@@ -1996,7 +1989,7 @@ static int argindex(int n)
 				if(n==0) return i;
 				n--;
 			}
-			if(strcmp(argv[i], "--")==0) 
+			if(sstreq(argv[i], "--")) 
 				dashdash = 1;
 		}
 	}
@@ -2004,7 +1997,6 @@ static int argindex(int n)
 }
 
 static char emsg[] = "Command line syntax error: ";
-
 /*
 ** Process a flag command line argument.
 */
@@ -2014,7 +2006,8 @@ static int handleflags(int i, FILE * err)
 	int errcnt = 0;
 	int j;
 	for(j = 0; op[j].label; j++) {
-		if(strncmp(&argv[i][1], op[j].label, lemonStrlen(op[j].label))==0) break;
+		if(strncmp(&argv[i][1], op[j].label, sstrlen(op[j].label))==0) 
+			break;
 	}
 	v = argv[i][0]=='-' ? 1 : 0;
 	if(op[j].label==0) {
@@ -2061,7 +2054,8 @@ static int handleswitch(int i, FILE * err)
 	assert(cp!=0);
 	*cp = 0;
 	for(j = 0; op[j].label; j++) {
-		if(strcmp(argv[i], op[j].label)==0) break;
+		if(sstreq(argv[i], op[j].label)) 
+			break;
 	}
 	*cp = '=';
 	if(op[j].label==0) {
@@ -2169,7 +2163,7 @@ int OptNArgs()
 		for(int i = 1; argv[i]; i++) {
 			if(dashdash || !ISOPT(argv[i]) ) 
 				cnt++;
-			if(strcmp(argv[i], "--")==0) 
+			if(sstreq(argv[i], "--")) 
 				dashdash = 1;
 		}
 	}
@@ -2194,7 +2188,7 @@ void OptPrint()
 	int len;
 	int max = 0;
 	for(i = 0; op[i].label; i++) {
-		len = lemonStrlen(op[i].label) + 1;
+		len = sstrleni(op[i].label) + 1;
 		switch(op[i].type) {
 			case OPT_FLAG:
 			case OPT_FFLAG:
@@ -2212,7 +2206,8 @@ void OptPrint()
 			    len += 8; /* length of "<string>" */
 			    break;
 		}
-		if(len>max) max = len;
+		if(len > max) 
+			max = len;
 	}
 	for(i = 0; op[i].label; i++) {
 		switch(op[i].type) {
@@ -2222,18 +2217,15 @@ void OptPrint()
 			    break;
 			case OPT_INT:
 			case OPT_FINT:
-			    fprintf(errstream, "  -%s<integer>%*s  %s\n", op[i].label,
-				(int)(max-lemonStrlen(op[i].label)-9), "", op[i].message);
+			    fprintf(errstream, "  -%s<integer>%*s  %s\n", op[i].label, (int)(max-sstrleni(op[i].label)-9), "", op[i].message);
 			    break;
 			case OPT_DBL:
 			case OPT_FDBL:
-			    fprintf(errstream, "  -%s<real>%*s  %s\n", op[i].label,
-				(int)(max-lemonStrlen(op[i].label)-6), "", op[i].message);
+			    fprintf(errstream, "  -%s<real>%*s  %s\n", op[i].label, (int)(max-sstrleni(op[i].label)-6), "", op[i].message);
 			    break;
 			case OPT_STR:
 			case OPT_FSTR:
-			    fprintf(errstream, "  -%s<string>%*s  %s\n", op[i].label,
-				(int)(max-lemonStrlen(op[i].label)-8), "", op[i].message);
+			    fprintf(errstream, "  -%s<string>%*s  %s\n", op[i].label, (int)(max-sstrleni(op[i].label)-8), "", op[i].message);
 			    break;
 		}
 	}
@@ -2693,15 +2685,16 @@ static void parseonetoken(struct pstate * psp)
 			    int addLineMacro;
 			    char zLine[50];
 			    zNew = x;
-			    if(zNew[0]=='"' || zNew[0]=='{') zNew++;
-			    nNew = lemonStrlen(zNew);
+			    if(zNew[0]=='"' || zNew[0]=='{') 
+					zNew++;
+			    nNew = sstrleni(zNew);
 			    if(*psp->declargslot) {
 				    zOld = *psp->declargslot;
 			    }
 			    else {
 				    zOld = "";
 			    }
-			    nOld = lemonStrlen(zOld);
+			    nOld = sstrleni(zOld);
 			    n = nOld + nNew + 20;
 			    addLineMacro = !psp->gp->nolinenosflag && psp->insertLineMacro &&
 				(psp->decllinenoslot==0 || psp->decllinenoslot[0]!=0);
@@ -2710,8 +2703,8 @@ static void parseonetoken(struct pstate * psp)
 					    if(*z=='\\') nBack++;
 				    }
 				    lemon_sprintf(zLine, "#line %d ", psp->tokenlineno);
-				    nLine = lemonStrlen(zLine);
-				    n += nLine + lemonStrlen(psp->filename) + nBack;
+				    nLine = sstrleni(zLine);
+				    n += nLine + sstrleni(psp->filename) + nBack;
 			    }
 			    *psp->declargslot = (char*)SAlloc::R(*psp->declargslot, n);
 			    MemoryCheck(*psp->declargslot);
@@ -2877,8 +2870,7 @@ static void preprocess_input(char * z){
 			}
 			for(j = i; z[j] && z[j]!='\n'; j++) z[j] = ' ';
 		}
-		else if( (strncmp(&z[i], "%ifdef", 6)==0 && ISSPACE(z[i+6]))
-		    || (strncmp(&z[i], "%ifndef", 7)==0 && ISSPACE(z[i+7]))) {
+		else if( (strncmp(&z[i], "%ifdef", 6)==0 && ISSPACE(z[i+6])) || (strncmp(&z[i], "%ifndef", 7)==0 && ISSPACE(z[i+7]))) {
 			if(exclude) {
 				exclude++;
 			}
@@ -2889,7 +2881,7 @@ static void preprocess_input(char * z){
 				}
 				exclude = 1;
 				for(k = 0; k<nDefine; k++) {
-					if(strncmp(azDefine[k], &z[j], n)==0 && lemonStrlen(azDefine[k])==n) {
+					if(strncmp(azDefine[k], &z[j], n)==0 && sstrleni(azDefine[k])==n) {
 						exclude = 0;
 						break;
 					}
@@ -3142,14 +3134,14 @@ void Plink_delete(struct plink * plp)
 PRIVATE char * file_makename(struct lemon * lemp, const char * suffix)
 {
 	char * cp;
-	char * name = (char*)SAlloc::M(lemonStrlen(lemp->filename) + lemonStrlen(suffix) + 5);
+	char * name = (char*)SAlloc::M(sstrlen(lemp->filename) + sstrlen(suffix) + 5);
 	if(name==0) {
 		slfprintf_stderr("Can't allocate space for a filename.\n");
 		exit(1);
 	}
-	lemon_strcpy(name, lemp->filename);
+	sstrcpy(name, lemp->filename);
 	cp = strrchr(name, '.');
-	if(cp) *cp = 0;
+	ASSIGN_PTR(cp, 0);
 	lemon_strcat(name, suffix);
 	return name;
 }
@@ -3204,7 +3196,7 @@ void Reprint(struct lemon * lemp)
 	maxlen = 10;
 	for(i = 0; i<lemp->nsymbol; i++) {
 		sp = lemp->symbols[i];
-		len = lemonStrlen(sp->name);
+		len = sstrleni(sp->name);
 		if(len>maxlen) maxlen = len;
 	}
 	ncolumns = 76/(maxlen+5);
@@ -3455,21 +3447,22 @@ PRIVATE char * pathsearch(char * argv0, char * name, int modemask)
 	if(cp) {
 		c = *cp;
 		*cp = 0;
-		path = (char*)SAlloc::M(lemonStrlen(argv0) + lemonStrlen(name) + 2);
+		path = (char*)SAlloc::M(sstrlen(argv0) + sstrlen(name) + 2);
 		if(path) lemon_sprintf(path, "%s/%s", argv0, name);
 		*cp = c;
 	}
 	else {
 		pathlist = getenv("PATH");
 		if(pathlist==0) pathlist = ".:/bin:/usr/bin";
-		pathbuf = (char*)SAlloc::M(lemonStrlen(pathlist) + 1);
-		path = (char*)SAlloc::M(lemonStrlen(pathlist)+lemonStrlen(name)+2);
+		pathbuf = (char*)SAlloc::M(sstrlen(pathlist) + 1);
+		path = (char*)SAlloc::M(sstrlen(pathlist)+sstrlen(name)+2);
 		if( (pathbuf != 0) && (path!=0)) {
 			pathbufptr = pathbuf;
-			lemon_strcpy(pathbuf, pathlist);
+			sstrcpy(pathbuf, pathlist);
 			while(*pathbuf) {
 				cp = strchr(pathbuf, ':');
-				if(cp==0) cp = &pathbuf[lemonStrlen(pathbuf)];
+				if(cp==0) 
+					cp = &pathbuf[sstrlen(pathbuf)];
 				c = *cp;
 				*cp = 0;
 				lemon_sprintf(path, "%s/%s", pathbuf, name);
@@ -3717,14 +3710,16 @@ int has_destructor(struct symbol * sp, struct lemon * lemp)
 **
 ** If n==-1, then the previous character is overwritten.
 */
-PRIVATE char * append_str(const char * zText, int n, int p1, int p2){
+PRIVATE char * append_str(const char * zText, int n, int p1, int p2)
+{
 	static char * z = 0;
 	static int alloced = 0;
 	static int used = 0;
 	int c;
 	char zInt[40];
 	if(zText==0) {
-		if(used==0 && z!=0) z[0] = 0;
+		if(used==0 && z!=0) 
+			z[0] = 0;
 		used = 0;
 		return z;
 	}
@@ -3733,7 +3728,7 @@ PRIVATE char * append_str(const char * zText, int n, int p1, int p2){
 			used += n;
 			assert(used>=0);
 		}
-		n = lemonStrlen(zText);
+		n = sstrleni(zText);
 	}
 	if( (int)(n+sizeof(zInt)*2+used) >= alloced) {
 		alloced = n + sizeof(zInt)*2 + used + 200;
@@ -3748,8 +3743,8 @@ PRIVATE char * append_str(const char * zText, int n, int p1, int p2){
 		if(c=='%' && n>0 && zText[0]=='d') {
 			lemon_sprintf(zInt, "%d", p1);
 			p1 = p2;
-			lemon_strcpy(&z[used], zInt);
-			used += lemonStrlen(&z[used]);
+			sstrcpy(&z[used], zInt);
+			used += sstrleni(&z[used]);
 			zText++;
 			n--;
 		}
@@ -3813,7 +3808,7 @@ PRIVATE int translate_code(struct lemon * lemp, struct rule * rp)
 		/* There is no LHS value symbol. */
 		lhsdirect = 1;
 	}
-	else if(strcmp(rp->lhsalias, rp->rhsalias[0])==0) {
+	else if(sstreq(rp->lhsalias, rp->rhsalias[0])) {
 		/* The LHS symbol and the left-most RHS symbol are the same, so
 		** direct writing is allowed */
 		lhsdirect = 1;
@@ -3845,14 +3840,12 @@ PRIVATE int translate_code(struct lemon * lemp, struct rule * rp)
 		rc = 1;
 		sprintf(zLhs, "yylhsminor.yy%d", rp->lhs->dtnum);
 	}
-
 	append_str(0, 0, 0, 0);
-
 	/* This const cast is wrong but harmless, if we're careful. */
 	for(cp = (char*)rp->code; *cp; cp++) {
 		if(cp==zSkip) {
 			append_str(zOvwrt, 0, 0, 0);
-			cp += lemonStrlen(zOvwrt)-1;
+			cp += sstrlen(zOvwrt)-1;
 			dontUseRhs0 = 1;
 			continue;
 		}
@@ -3861,14 +3854,14 @@ PRIVATE int translate_code(struct lemon * lemp, struct rule * rp)
 			for(xp = &cp[1]; ISALNUM(*xp) || *xp=='_'; xp++);
 			saved = *xp;
 			*xp = 0;
-			if(rp->lhsalias && strcmp(cp, rp->lhsalias)==0) {
+			if(rp->lhsalias && sstreq(cp, rp->lhsalias)) {
 				append_str(zLhs, 0, 0, 0);
 				cp = xp;
 				lhsused = 1;
 			}
 			else {
 				for(i = 0; i<rp->nrhs; i++) {
-					if(rp->rhsalias[i] && strcmp(cp, rp->rhsalias[i])==0) {
+					if(rp->rhsalias[i] && sstreq(cp, rp->rhsalias[i])) {
 						if(i==0 && dontUseRhs0) {
 							ErrorMsg(lemp->filename, rp->ruleline, "Label %s used after '%s'.", rp->rhsalias[0], zOvwrt);
 							lemp->errorcnt++;
@@ -3918,12 +3911,12 @@ PRIVATE int translate_code(struct lemon * lemp, struct rule * rp)
 		if(rp->rhsalias[i]) {
 			if(i>0) {
 				int j;
-				if(rp->lhsalias && strcmp(rp->lhsalias, rp->rhsalias[i])==0) {
+				if(rp->lhsalias && sstreq(rp->lhsalias, rp->rhsalias[i])) {
 					ErrorMsg(lemp->filename, rp->ruleline, "%s(%s) has the same label as the LHS but is not the left-most symbol on the RHS.", rp->rhs[i]->name, rp->rhsalias);
 					lemp->errorcnt++;
 				}
 				for(j = 0; j<i; j++) {
-					if(rp->rhsalias[j] && strcmp(rp->rhsalias[j], rp->rhsalias[i])==0) {
+					if(rp->rhsalias[j] && sstreq(rp->rhsalias[j], rp->rhsalias[i])) {
 						ErrorMsg(lemp->filename, rp->ruleline, "Label %s used for multiple symbols on the RHS of a rule.", rp->rhsalias[i]);
 						lemp->errorcnt++;
 						break;
@@ -4041,21 +4034,22 @@ void print_stack_union(FILE * out,                  /* The output stream */
 	for(i = 0; i<arraysize; i++) types[i] = 0;
 	maxdtlength = 0;
 	if(lemp->vartype) {
-		maxdtlength = lemonStrlen(lemp->vartype);
+		maxdtlength = sstrleni(lemp->vartype);
 	}
 	for(i = 0; i<lemp->nsymbol; i++) {
 		int len;
 		struct symbol * sp = lemp->symbols[i];
-		if(sp->datatype==0) continue;
-		len = lemonStrlen(sp->datatype);
-		if(len>maxdtlength) maxdtlength = len;
+		if(sp->datatype==0) 
+			continue;
+		len = sstrleni(sp->datatype);
+		if(len>maxdtlength) 
+			maxdtlength = len;
 	}
 	stddt = (char*)SAlloc::M(maxdtlength*2 + 1);
 	if(stddt==0) {
 		slfprintf_stderr("Out of memory.\n");
 		exit(1);
 	}
-
 	/* Build a hash table of datatypes. The ".dtnum" field of each symbol
 	** is filled in with the hash index plus 1.  A ".dtnum" value of 0 is
 	** used for terminal symbols.  If there is no %default_type defined then
@@ -4080,7 +4074,7 @@ void print_stack_union(FILE * out,                  /* The output stream */
 		while(*cp) stddt[j++] = *cp++;
 		while(j>0 && ISSPACE(stddt[j-1]) ) j--;
 		stddt[j] = 0;
-		if(lemp->tokentype && strcmp(stddt, lemp->tokentype)==0) {
+		if(lemp->tokentype && sstreq(stddt, lemp->tokentype)) {
 			sp->dtnum = 0;
 			continue;
 		}
@@ -4090,7 +4084,7 @@ void print_stack_union(FILE * out,                  /* The output stream */
 		}
 		hash = (hash & 0x7fffffff)%arraysize;
 		while(types[hash]) {
-			if(strcmp(types[hash], stddt)==0) {
+			if(sstreq(types[hash], stddt)) {
 				sp->dtnum = hash + 1;
 				break;
 			}
@@ -4099,29 +4093,31 @@ void print_stack_union(FILE * out,                  /* The output stream */
 		}
 		if(types[hash]==0) {
 			sp->dtnum = hash + 1;
-			types[hash] = (char*)SAlloc::M(lemonStrlen(stddt)+1);
+			types[hash] = (char*)SAlloc::M(sstrlen(stddt)+1);
 			if(types[hash]==0) {
 				slfprintf_stderr("Out of memory.\n");
 				exit(1);
 			}
-			lemon_strcpy(types[hash], stddt);
+			sstrcpy(types[hash], stddt);
 		}
 	}
-
 	/* Print out the definition of YYTOKENTYPE and YYMINORTYPE */
 	name = lemp->name ? lemp->name : "Parse";
 	lineno = *plineno;
 	if(mhflag) {
 		fprintf(out, "#if INTERFACE\n"); lineno++;
 	}
-	fprintf(out, "#define %sTOKENTYPE %s\n", name,
-	    lemp->tokentype ? lemp->tokentype : "void*");  lineno++;
+	fprintf(out, "#define %sTOKENTYPE %s\n", name, lemp->tokentype ? lemp->tokentype : "void*");  lineno++;
 	if(mhflag) {
-		fprintf(out, "#endif\n"); lineno++;
+		fprintf(out, "#endif\n"); 
+		lineno++;
 	}
-	fprintf(out, "typedef union {\n"); lineno++;
-	fprintf(out, "  int yyinit;\n"); lineno++;
-	fprintf(out, "  %sTOKENTYPE yy0;\n", name); lineno++;
+	fprintf(out, "typedef union {\n"); 
+	lineno++;
+	fprintf(out, "  int yyinit;\n"); 
+	lineno++;
+	fprintf(out, "  %sTOKENTYPE yy0;\n", name); 
+	lineno++;
 	for(i = 0; i<arraysize; i++) {
 		if(types[i]==0) 
 			continue;
@@ -4310,9 +4306,11 @@ void ReportTable(struct lemon * lemp,
 	}
 	name = lemp->name ? lemp->name : "Parse";
 	if(lemp->arg && lemp->arg[0]) {
-		i = lemonStrlen(lemp->arg);
-		while(i>=1 && ISSPACE(lemp->arg[i-1]) ) i--;
-		while(i>=1 && (ISALNUM(lemp->arg[i-1]) || lemp->arg[i-1]=='_') ) i--;
+		i = sstrleni(lemp->arg);
+		while(i>=1 && ISSPACE(lemp->arg[i-1])) 
+			i--;
+		while(i>=1 && (ISALNUM(lemp->arg[i-1]) || lemp->arg[i-1]=='_')) 
+			i--;
 		fprintf(out, "#define %sARG_SDECL %s;\n", name, lemp->arg);  lineno++;
 		fprintf(out, "#define %sARG_PDECL ,%s\n", name, lemp->arg);  lineno++;
 		fprintf(out, "#define %sARG_FETCH %s = yypParser->%s\n", name, lemp->arg, &lemp->arg[i]);  lineno++;
@@ -4648,17 +4646,14 @@ void ReportTable(struct lemon * lemp,
 		/* Combine duplicate destructors into a single case */
 		for(j = i+1; j<lemp->nsymbol; j++) {
 			struct symbol * sp2 = lemp->symbols[j];
-			if(sp2 && sp2->type!=TERMINAL && sp2->destructor
-			    && sp2->dtnum==sp->dtnum
-			    && strcmp(sp->destructor, sp2->destructor)==0) {
-				fprintf(out, "    case %d: /* %s */\n",
-				    sp2->index, sp2->name); lineno++;
+			if(sp2 && sp2->type!=TERMINAL && sp2->destructor && sp2->dtnum==sp->dtnum && sstreq(sp->destructor, sp2->destructor)) {
+				fprintf(out, "    case %d: /* %s */\n", sp2->index, sp2->name); lineno++;
 				sp2->destLineno = -1; /* Avoid emitting this destructor again */
 			}
 		}
-
 		emit_destructor_code(out, lemp->symbols[i], lemp, &lineno);
-		fprintf(out, "      break;\n"); lineno++;
+		fprintf(out, "      break;\n"); 
+		lineno++;
 	}
 	tplt_xfer(lemp->name, in, out, &lineno);
 
@@ -4778,8 +4773,7 @@ void ReportHeader(struct lemon * lemp)
 		nextChar = fgetc(in);
 		fclose(in);
 		if(i==lemp->nterminal && nextChar==EOF) {
-			/* No change in the file.  Don't rewrite it. */
-			return;
+			return; // No change in the file.  Don't rewrite it.
 		}
 	}
 	if(output_header_filename!=0) {
@@ -4826,50 +4820,57 @@ void CompressTables(struct lemon * lemp)
 			if(ap->type==SHIFT && ap->sp==lemp->wildcard) {
 				usesWildcard = 1;
 			}
-			if(ap->type!=REDUCE) continue;
+			if(ap->type!=REDUCE) 
+				continue;
 			rp = ap->x.rp;
-			if(rp->lhsStart) continue;
-			if(rp==rbest) continue;
+			if(rp->lhsStart) 
+				continue;
+			if(rp==rbest) 
+				continue;
 			n = 1;
 			for(ap2 = ap->next; ap2; ap2 = ap2->next) {
-				if(ap2->type!=REDUCE) continue;
+				if(ap2->type!=REDUCE) 
+					continue;
 				rp2 = ap2->x.rp;
-				if(rp2==rbest) continue;
-				if(rp2==rp) n++;
+				if(rp2==rbest) 
+					continue;
+				if(rp2==rp) 
+					n++;
 			}
 			if(n>nbest) {
 				nbest = n;
 				rbest = rp;
 			}
 		}
-
 		/* Do not make a default if the number of rules to default
 		** is not at least 1 or if the wildcard token is a possible
 		** lookahead.
 		*/
-		if(nbest<1 || usesWildcard) continue;
-
+		if(nbest<1 || usesWildcard) 
+			continue;
 		/* Combine matching REDUCE actions into a single default */
 		for(ap = stp->ap; ap; ap = ap->next) {
-			if(ap->type==REDUCE && ap->x.rp==rbest) break;
+			if(ap->type==REDUCE && ap->x.rp==rbest) 
+				break;
 		}
 		assert(ap);
 		ap->sp = Symbol_new("{default}");
 		for(ap = ap->next; ap; ap = ap->next) {
-			if(ap->type==REDUCE && ap->x.rp==rbest) ap->type = NOT_USED;
+			if(ap->type==REDUCE && ap->x.rp==rbest) 
+				ap->type = NOT_USED;
 		}
 		stp->ap = Action_sort(stp->ap);
-
 		for(ap = stp->ap; ap; ap = ap->next) {
-			if(ap->type==SHIFT) break;
-			if(ap->type==REDUCE && ap->x.rp!=rbest) break;
+			if(ap->type==SHIFT) 
+				break;
+			if(ap->type==REDUCE && ap->x.rp!=rbest) 
+				break;
 		}
 		if(ap==0) {
 			stp->autoReduce = 1;
 			stp->pDfltReduce = rbest;
 		}
 	}
-
 	/* Make a second pass over all states and actions.  Convert
 	** every action that is a SHIFT to an autoReduce state into
 	** a SHIFTREDUCE action.
@@ -4878,7 +4879,8 @@ void CompressTables(struct lemon * lemp)
 		stp = lemp->sorted[i];
 		for(ap = stp->ap; ap; ap = ap->next) {
 			struct state * pNextState;
-			if(ap->type!=SHIFT) continue;
+			if(ap->type!=SHIFT) 
+				continue;
 			pNextState = ap->x.stp;
 			if(pNextState->autoReduce && pNextState->pDfltReduce!=0) {
 				ap->type = SHIFTREDUCE;
@@ -4886,7 +4888,6 @@ void CompressTables(struct lemon * lemp)
 			}
 		}
 	}
-
 	/* If a SHIFTREDUCE action specifies a rule that has a single RHS term
 	** (meaning that the SHIFTREDUCE will land back in the state where it
 	** started) and if there is no C-code associated with the reduce action,
@@ -4897,15 +4898,19 @@ void CompressTables(struct lemon * lemp)
 		stp = lemp->sorted[i];
 		for(ap = stp->ap; ap; ap = nextap) {
 			nextap = ap->next;
-			if(ap->type!=SHIFTREDUCE) continue;
+			if(ap->type!=SHIFTREDUCE) 
+				continue;
 			rp = ap->x.rp;
-			if(rp->noCode==0) continue;
-			if(rp->nrhs!=1) continue;
+			if(rp->noCode==0) 
+				continue;
+			if(rp->nrhs!=1) 
+				continue;
 #if 1
 			/* Only apply this optimization to non-terminals.  It would be OK to
 			** apply it to terminal symbols too, but that makes the parser tables
 			** larger. */
-			if(ap->sp->index<lemp->nterminal) continue;
+			if(ap->sp->index<lemp->nterminal) 
+				continue;
 #endif
 			/* If we reach this point, it means the optimization can be applied */
 			nextap = ap;
@@ -4971,8 +4976,7 @@ void ResortStates(struct lemon * lemp)
 			}
 		}
 	}
-	qsort(&lemp->sorted[1], lemp->nstate-1, sizeof(lemp->sorted[0]),
-	    stateResortCompare);
+	qsort(&lemp->sorted[1], lemp->nstate-1, sizeof(lemp->sorted[0]), stateResortCompare);
 	for(i = 0; i<lemp->nstate; i++) {
 		lemp->sorted[i]->statenum = i;
 	}
@@ -5028,7 +5032,8 @@ int SetUnion(char * s1, char * s2)
 {
 	int progress = 0;
 	for(int i = 0; i<size; i++) {
-		if(s2[i]==0) continue;
+		if(s2[i]==0) 
+			continue;
 		if(s1[i]==0) {
 			progress = 1;
 			s1[i] = 1;
@@ -5052,7 +5057,8 @@ int SetUnion(char * s1, char * s2)
 PRIVATE unsigned strhash(const char * x)
 {
 	uint h = 0;
-	while(*x) h = h*13 + *(x++);
+	while(*x) 
+		h = h*13 + *(x++);
 	return h;
 }
 
@@ -5062,17 +5068,17 @@ PRIVATE unsigned strhash(const char * x)
 */
 const char * Strsafe(const char * y)
 {
-	const char * z;
-	char * cpy;
-	if(y==0) 
-		return 0;
-	z = Strsafe_find(y);
-	if(z==0 && (cpy = (char*)SAlloc::M(lemonStrlen(y)+1))!=0) {
-		lemon_strcpy(cpy, y);
-		z = cpy;
-		Strsafe_insert(z);
+	const char * z = 0;
+	if(y) {
+		char * cpy;
+		z = Strsafe_find(y);
+		if(z==0 && (cpy = (char*)SAlloc::M(sstrlen(y)+1))!=0) {
+			sstrcpy(cpy, y);
+			z = cpy;
+			Strsafe_insert(z);
+		}
+		MemoryCheck(z);
 	}
-	MemoryCheck(z);
 	return z;
 }
 
@@ -5080,9 +5086,7 @@ const char * Strsafe(const char * y)
 ** associative array of type "x1".
 */
 struct s_x1 {
-	int size;         /* The number of available slots. */
-	                  /*   Must be a power of 2 greater than or */
-	                  /*   equal to 1 */
+	int size; // The number of available slots.  Must be a power of 2 greater than or equal to 1 */
 	int count;        /* Number of currently slots filled */
 	struct s_x1node * tbl; /* The data stored here */
 	struct s_x1node ** ht; /* Hash table for lookups */
@@ -5136,9 +5140,8 @@ int Strsafe_insert(const char * data)
 	h = ph & (x1a->size-1);
 	np = x1a->ht[h];
 	while(np) {
-		if(strcmp(np->data, data)==0) {
-			/* An existing entry with the same key is found. */
-			/* Fail because overwrite is not allows. */
+		if(sstreq(np->data, data)) {
+			// An existing entry with the same key is found. Fail because overwrite is not allows. 
 			return 0;
 		}
 		np = np->next;
@@ -5184,12 +5187,13 @@ const char * Strsafe_find(const char * key)
 {
 	uint h;
 	x1node * np;
-
-	if(x1a==0) return 0;
+	if(x1a==0) 
+		return 0;
 	h = strhash(key) & (x1a->size-1);
 	np = x1a->ht[h];
 	while(np) {
-		if(strcmp(np->data, key)==0) break;
+		if(sstreq(np->data, key)) 
+			break;
 		np = np->next;
 	}
 	return np ? np->data : 0;
@@ -5200,8 +5204,7 @@ const char * Strsafe_find(const char * key)
 */
 struct symbol * Symbol_new(const char * x)
 {
-	struct symbol * sp;
-	sp = Symbol_find(x);
+	struct symbol * sp = Symbol_find(x);
 	if(sp==0) {
 		sp = (struct symbol *)SAlloc::C(1, sizeof(struct symbol) );
 		MemoryCheck(sp);
@@ -5250,9 +5253,7 @@ int Symbolcmpp(const void * _a, const void * _b)
 ** associative array of type "x2".
 */
 struct s_x2 {
-	int size;         /* The number of available slots. */
-	                  /*   Must be a power of 2 greater than or */
-	                  /*   equal to 1 */
+	int size; // The number of available slots. Must be a power of 2 greater than or equal to 1 */
 	int count;        /* Number of currently slots filled */
 	struct s_x2node * tbl; /* The data stored here */
 	struct s_x2node ** ht; /* Hash table for lookups */
@@ -5274,24 +5275,24 @@ static struct s_x2 * x2a;
 /* Allocate a new associative array */
 void Symbol_init()
 {
-	if(x2a) 
-		return;
-	x2a = (struct s_x2*)SAlloc::M(sizeof(struct s_x2) );
-	if(x2a) {
-		x2a->size = 128;
-		x2a->count = 0;
-		x2a->tbl = (x2node*)SAlloc::C(128, sizeof(x2node) + sizeof(x2node*));
-		if(x2a->tbl==0) {
-			memory_error();
+	if(!x2a) {
+		x2a = (struct s_x2*)SAlloc::M(sizeof(struct s_x2) );
+		if(x2a) {
+			x2a->size = 128;
+			x2a->count = 0;
+			x2a->tbl = (x2node*)SAlloc::C(128, sizeof(x2node) + sizeof(x2node*));
+			if(x2a->tbl==0) {
+				memory_error();
+			}
+			else {
+				x2a->ht = (x2node**)&(x2a->tbl[128]);
+				for(int i = 0; i < 128; i++) 
+					x2a->ht[i] = 0;
+			}
 		}
 		else {
-			int i;
-			x2a->ht = (x2node**)&(x2a->tbl[128]);
-			for(i = 0; i<128; i++) x2a->ht[i] = 0;
+			memory_error();
 		}
-	}
-	else {
-		memory_error();
 	}
 }
 
@@ -5308,9 +5309,8 @@ int Symbol_insert(struct symbol * data, const char * key)
 	h = ph & (x2a->size-1);
 	np = x2a->ht[h];
 	while(np) {
-		if(strcmp(np->key, key)==0) {
-			/* An existing entry with the same key is found. */
-			/* Fail because overwrite is not allows. */
+		if(sstreq(np->key, key)) {
+			// An existing entry with the same key is found. Fail because overwrite is not allows.
 			return 0;
 		}
 		np = np->next;
@@ -5345,7 +5345,8 @@ int Symbol_insert(struct symbol * data, const char * key)
 	np = &(x2a->tbl[x2a->count++]);
 	np->key = key;
 	np->data = data;
-	if(x2a->ht[h]) x2a->ht[h]->from = &(np->next);
+	if(x2a->ht[h]) 
+		x2a->ht[h]->from = &(np->next);
 	np->next = x2a->ht[h];
 	x2a->ht[h] = np;
 	np->from = &(x2a->ht[h]);
@@ -5354,28 +5355,26 @@ int Symbol_insert(struct symbol * data, const char * key)
 
 /* Return a pointer to data assigned to the given key.  Return NULL
 ** if no such key. */
-struct symbol * Symbol_find(const char * key){
+struct symbol * Symbol_find(const char * key)
+{
 	uint h;
 	x2node * np;
-	if(x2a==0) return 0;
+	if(x2a==0) 
+		return 0;
 	h = strhash(key) & (x2a->size-1);
 	np = x2a->ht[h];
 	while(np) {
-		if(strcmp(np->key, key)==0) break;
+		if(sstreq(np->key, key)) 
+			break;
 		np = np->next;
 	}
 	return np ? np->data : 0;
 }
 
 /* Return the n-th data.  Return NULL if n is out of range. */
-struct symbol * Symbol_Nth(int n){
-	struct symbol * data;
-	if(x2a && n>0 && n<=x2a->count) {
-		data = x2a->tbl[n-1].data;
-	}
-	else {
-		data = 0;
-	}
+struct symbol * Symbol_Nth(int n)
+{
+	struct symbol * data = (x2a && n > 0 && n <= x2a->count) ? x2a->tbl[n-1].data : 0;
 	return data;
 }
 
@@ -5392,11 +5391,13 @@ struct symbol ** Symbol_arrayof()
 {
 	struct symbol ** array;
 	int i, arrSize;
-	if(x2a==0) return 0;
+	if(x2a==0) 
+		return 0;
 	arrSize = x2a->count;
 	array = (struct symbol **)SAlloc::C(arrSize, sizeof(struct symbol *));
 	if(array) {
-		for(i = 0; i<arrSize; i++) array[i] = x2a->tbl[i].data;
+		for(i = 0; i<arrSize; i++) 
+			array[i] = x2a->tbl[i].data;
 	}
 	else {
 		memory_error();
@@ -5409,9 +5410,9 @@ int Configcmp(const char * _a, const char * _b)
 {
 	const struct config * a = (struct config *)_a;
 	const struct config * b = (struct config *)_b;
-	int x;
-	x = a->rp->index - b->rp->index;
-	if(x==0) x = a->dot - b->dot;
+	int x = a->rp->index - b->rp->index;
+	if(x==0) 
+		x = a->dot - b->dot;
 	return x;
 }
 
@@ -5444,8 +5445,7 @@ PRIVATE unsigned statehash(struct config * a)
 /* Allocate a new state structure */
 struct state * State_new()
 {
-	struct state * newstate;
-	newstate = (struct state *)SAlloc::C(1, sizeof(struct state) );
+	struct state * newstate = (struct state *)SAlloc::C(1, sizeof(struct state) );
 	MemoryCheck(newstate);
 	return newstate;
 }
@@ -5454,9 +5454,7 @@ struct state * State_new()
 ** associative array of type "x3".
 */
 struct s_x3 {
-	int size;         /* The number of available slots. */
-	                  /*   Must be a power of 2 greater than or */
-	                  /*   equal to 1 */
+	int size; // The number of available slots. Must be a power of 2 greater than or equal to 1 
 	int count;        /* Number of currently slots filled */
 	struct s_x3node * tbl; /* The data stored here */
 	struct s_x3node ** ht; /* Hash table for lookups */
@@ -5478,23 +5476,24 @@ static struct s_x3 * x3a;
 /* Allocate a new associative array */
 void State_init()
 {
-	if(x3a) return;
-	x3a = (struct s_x3*)SAlloc::M(sizeof(struct s_x3) );
-	if(x3a) {
-		x3a->size = 128;
-		x3a->count = 0;
-		x3a->tbl = (x3node*)SAlloc::C(128, sizeof(x3node) + sizeof(x3node*));
-		if(x3a->tbl==0) {
-			memory_error();
+	if(!x3a) {
+		x3a = (struct s_x3*)SAlloc::M(sizeof(struct s_x3) );
+		if(x3a) {
+			x3a->size = 128;
+			x3a->count = 0;
+			x3a->tbl = (x3node*)SAlloc::C(128, sizeof(x3node) + sizeof(x3node*));
+			if(x3a->tbl==0) {
+				memory_error();
+			}
+			else {
+				x3a->ht = (x3node**)&(x3a->tbl[128]);
+				for(int i = 0; i < 128; i++) 
+					x3a->ht[i] = 0;
+			}
 		}
 		else {
-			int i;
-			x3a->ht = (x3node**)&(x3a->tbl[128]);
-			for(i = 0; i<128; i++) x3a->ht[i] = 0;
+			memory_error();
 		}
-	}
-	else {
-		memory_error();
 	}
 }
 
@@ -5505,8 +5504,8 @@ int State_insert(struct state * data, struct config * key)
 	x3node * np;
 	uint h;
 	uint ph;
-
-	if(x3a==0) return 0;
+	if(x3a==0) 
+		return 0;
 	ph = statehash(key);
 	h = ph & (x3a->size-1);
 	np = x3a->ht[h];
@@ -5527,7 +5526,8 @@ int State_insert(struct state * data, struct config * key)
 		array.tbl = (x3node*)SAlloc::C(arrSize, sizeof(x3node) + sizeof(x3node*));
 		MemoryCheck(array.tbl);
 		array.ht = (x3node**)&(array.tbl[arrSize]);
-		for(i = 0; i<arrSize; i++) array.ht[i] = 0;
+		for(i = 0; i<arrSize; i++) 
+			array.ht[i] = 0;
 		for(i = 0; i<x3a->count; i++) {
 			x3node * oldnp, * newnp;
 			oldnp = &(x3a->tbl[i]);
@@ -5548,7 +5548,8 @@ int State_insert(struct state * data, struct config * key)
 	np = &(x3a->tbl[x3a->count++]);
 	np->key = key;
 	np->data = data;
-	if(x3a->ht[h]) x3a->ht[h]->from = &(np->next);
+	if(x3a->ht[h]) 
+		x3a->ht[h]->from = &(np->next);
 	np->next = x3a->ht[h];
 	x3a->ht[h] = np;
 	np->from = &(x3a->ht[h]);
@@ -5557,15 +5558,17 @@ int State_insert(struct state * data, struct config * key)
 
 /* Return a pointer to data assigned to the given key.  Return NULL
 ** if no such key. */
-struct state * State_find(struct config * key){
+struct state * State_find(struct config * key)
+{
 	uint h;
 	x3node * np;
-
-	if(x3a==0) return 0;
+	if(x3a==0) 
+		return 0;
 	h = statehash(key) & (x3a->size-1);
 	np = x3a->ht[h];
 	while(np) {
-		if(statecmp(np->key, key)==0) break;
+		if(statecmp(np->key, key)==0) 
+			break;
 		np = np->next;
 	}
 	return np ? np->data : 0;
@@ -5575,16 +5578,16 @@ struct state * State_find(struct config * key){
 ** The array is obtained from malloc.  Return NULL if the array is empty. */
 struct state ** State_arrayof()
 {
-	struct state ** array;
-	int i, arrSize;
-	if(x3a==0) return 0;
-	arrSize = x3a->count;
-	array = (struct state **)SAlloc::C(arrSize, sizeof(struct state *));
-	if(array) {
-		for(i = 0; i<arrSize; i++) array[i] = x3a->tbl[i].data;
-	}
-	else {
-		memory_error();
+	struct state ** array = 0;
+	if(x3a) {
+		int arrSize = x3a->count;
+		array = (struct state **)SAlloc::C(arrSize, sizeof(struct state *));
+		if(array) {
+			for(int i = 0; i < arrSize; i++) 
+				array[i] = x3a->tbl[i].data;
+		}
+		else
+			memory_error();
 	}
 	return array;
 }
@@ -5650,8 +5653,8 @@ int Configtable_insert(struct config * data)
 	x4node * np;
 	uint h;
 	uint ph;
-
-	if(x4a==0) return 0;
+	if(x4a==0) 
+		return 0;
 	ph = confighash(data);
 	h = ph & (x4a->size-1);
 	np = x4a->ht[h];
@@ -5672,13 +5675,15 @@ int Configtable_insert(struct config * data)
 		array.tbl = (x4node*)SAlloc::C(arrSize, sizeof(x4node) + sizeof(x4node*));
 		MemoryCheck(array.tbl);
 		array.ht = (x4node**)&(array.tbl[arrSize]);
-		for(i = 0; i<arrSize; i++) array.ht[i] = 0;
+		for(i = 0; i<arrSize; i++) 
+			array.ht[i] = 0;
 		for(i = 0; i<x4a->count; i++) {
 			x4node * oldnp, * newnp;
 			oldnp = &(x4a->tbl[i]);
 			h = confighash(oldnp->data) & (arrSize-1);
 			newnp = &(array.tbl[i]);
-			if(array.ht[h]) array.ht[h]->from = &(newnp->next);
+			if(array.ht[h]) 
+				array.ht[h]->from = &(newnp->next);
 			newnp->next = array.ht[h];
 			newnp->data = oldnp->data;
 			newnp->from = &(array.ht[h]);

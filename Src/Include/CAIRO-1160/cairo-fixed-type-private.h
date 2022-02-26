@@ -19,21 +19,12 @@
  *
  * The contents of this file are subject to the Mozilla Public License
  * Version 1.1 (the "License"); you may not use this file except in
- * compliance with the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
+ * compliance with the License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
  *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is Mozilla Foundation
- *
- * Contributor(s):
- *	Vladimir Vukicevic <vladimir@pobox.com>
+ * Contributor(s): Vladimir Vukicevic <vladimir@pobox.com>
  */
-
 #ifndef CAIRO_FIXED_TYPE_PRIVATE_H
 #define CAIRO_FIXED_TYPE_PRIVATE_H
 

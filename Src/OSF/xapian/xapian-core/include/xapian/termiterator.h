@@ -15,19 +15,17 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
-
 #ifndef XAPIAN_INCLUDED_TERMITERATOR_H
 #define XAPIAN_INCLUDED_TERMITERATOR_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-#error Never use <xapian/termiterator.h> directly; include <xapian.h> instead.
+	#error Never use <xapian/termiterator.h> directly; include <xapian.h> instead.
 #endif
 
-#include <iterator>
-#include <string>
+//#include <iterator>
+//#include <string>
 #include <xapian/attributes.h>
 #include <xapian/derefwrapper.h>
 #include <xapian/positioniterator.h>

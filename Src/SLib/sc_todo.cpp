@@ -1,5 +1,5 @@
 // SC_TODO.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2010, 2011, 2016, 2019, 2020
+// Copyright (c) A.Sobolev 2005, 2006, 2010, 2011, 2016, 2019, 2020, 2022
 // Part of StyloConduit project
 // Экспорт/Импорт задач
 //
@@ -224,6 +224,8 @@ int SCDBObjToDo::Import(PROGRESSFN pFn, CSyncProperties * pProps)
 int SCDBObjToDo::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 {
 	int    ok = 1;
+	SString msg_buf;
+	SString temp_buf;
 	PalmRec * p_out_buf = 0;
 	if(!(P_Ctx->PalmCfg.Flags & CFGF_EXPIMPTODO)) {
 		SyncTable::LogMessage(P_Ctx->LogFile, "SPII OK: EXPORT TODO base declined by palm");
@@ -234,7 +236,8 @@ int SCDBObjToDo::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 		ok = -1;
 	}
 	else if(P_ExpTbl && P_ExpTbl->getNumRecs() && P_ExpTbl->top()) {
-		long   recno = 0, numrecs = P_ExpTbl->getNumRecs();
+		long   recno = 0;
+		const  long   numrecs = P_ExpTbl->getNumRecs();
 		int    fldn_id = 0;
 		int    fldn_prior = 0;
 		int    fldn_compl = 0;
@@ -249,6 +252,7 @@ int SCDBObjToDo::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 		P_ExpTbl->getFieldNumber("MEMO",      &fldn_memo);
 		const int do_compress = P_Ctx->PalmCfg.CompressData();
 		const char * p_tbl_name = do_compress ? "ToDoDB_A" : "ToDoDB";
+		PPLoadString("exportprjtasks", msg_buf); // @v11.3.3
 		if(do_compress)
 			IdAsscList.freeAll();
 		else if(P_Ctx->PalmCfg.PalmCompressedData())
@@ -260,7 +264,7 @@ int SCDBObjToDo::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 			long   id = 0;
 			long   temp_long = 0;
 			DWORD  rec_id = 0;
-			char   temp_buf[512];
+			//char   temp_buf[512];
 			HostRec host_rec;
 			DbfRecord rec(P_ExpTbl);
 			P_ExpTbl->getRec(&rec);
@@ -272,9 +276,9 @@ int SCDBObjToDo::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 				host_rec.Completed = (int16)temp_long;
 			rec.get(fldn_duedate, host_rec.DueDate);
 			rec.get(fldn_descr, temp_buf);
-			STRNSCPY(host_rec.Descr, strip(temp_buf));
+			STRNSCPY(host_rec.Descr, temp_buf.Strip());
 			rec.get(fldn_memo, temp_buf);
-			STRNSCPY(host_rec.Note, strip(temp_buf));
+			STRNSCPY(host_rec.Note, temp_buf.Strip());
 
 			p_out_buf = AllocPalmRec(&host_rec, &buf_len); // @checkerr
 			if(do_compress) {
@@ -291,7 +295,7 @@ int SCDBObjToDo::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 					// @todo Изменить запись по rec_id
 				}
 			}
-			WaitPercent(pFn, ++recno, numrecs, "Экспорт задач");
+			WaitPercent(pFn, ++recno, numrecs, msg_buf); // @v11.3.3 "Экспорт задач"-->msg_buf
 			ZFREE(p_out_buf);
 		} while(P_ExpTbl->next());
 		stbl.Close();
@@ -299,8 +303,8 @@ int SCDBObjToDo::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 		if(P_Ctx->PalmCfg.CompressData())
 			P_Ctx->TransmitComprFile = 1;
 		{
-			char log_msg[128];
-			sprintf(log_msg, "SPII OK: %ld TODO records exported", numrecs);
+			//char log_msg[128];
+			msg_buf.Printf("SPII OK: %ld TODO records exported", numrecs);
 			SyncTable::LogMessage(P_Ctx->LogFile, log_msg);
 		}
 	}

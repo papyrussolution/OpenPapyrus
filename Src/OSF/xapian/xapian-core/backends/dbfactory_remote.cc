@@ -19,32 +19,32 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include <xapian/dbfactory.h>
+//#include <xapian/dbfactory.h>
 #include "net/progclient.h"
 #include "net/remotetcpclient.h"
 
 using namespace std;
 
 namespace Xapian {
-Database Remote::open(const string &host, uint port, unsigned timeout_, unsigned connect_timeout)
+Database Remote::open(const string &host, uint port, uint timeout_, uint connect_timeout)
 {
 	LOGCALL_STATIC(API, Database, "Remote::open", host | port | timeout_ | connect_timeout);
 	RETURN(Database(new RemoteTcpClient(host, port, timeout_ * 1e-3, connect_timeout * 1e-3, false, 0)));
 }
 
-WritableDatabase Remote::open_writable(const string &host, uint port, unsigned timeout_, unsigned connect_timeout, int flags)
+WritableDatabase Remote::open_writable(const string &host, uint port, uint timeout_, uint connect_timeout, int flags)
 {
 	LOGCALL_STATIC(API, WritableDatabase, "Remote::open_writable", host | port | timeout_ | connect_timeout | flags);
 	RETURN(WritableDatabase(new RemoteTcpClient(host, port, timeout_ * 1e-3, connect_timeout * 1e-3, true, flags)));
 }
 
-Database Remote::open(const string &program, const string &args, unsigned timeout_)
+Database Remote::open(const string &program, const string &args, uint timeout_)
 {
 	LOGCALL_STATIC(API, Database, "Remote::open", program | args | timeout_);
 	RETURN(Database(new ProgClient(program, args, timeout_ * 1e-3, false, 0)));
 }
 
-WritableDatabase Remote::open_writable(const string &program, const string &args, unsigned timeout_, int flags)
+WritableDatabase Remote::open_writable(const string &program, const string &args, uint timeout_, int flags)
 {
 	LOGCALL_STATIC(API, WritableDatabase, "Remote::open_writable", program | args | timeout_ | flags);
 	RETURN(WritableDatabase(new ProgClient(program, args, timeout_ * 1e-3, true, flags)));

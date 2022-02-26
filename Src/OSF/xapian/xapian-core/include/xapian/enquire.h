@@ -16,18 +16,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
-
 #ifndef XAPIAN_INCLUDED_ENQUIRE_H
 #define XAPIAN_INCLUDED_ENQUIRE_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
 	#error Never use <xapian/enquire.h> directly; include <xapian.h> instead.
 #endif
-
-#include <string>
+//#include <string>
 #include <xapian/attributes.h>
 #include <xapian/eset.h>
 #include <xapian/intrusive_ptr.h>

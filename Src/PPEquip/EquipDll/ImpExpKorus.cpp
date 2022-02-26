@@ -570,12 +570,12 @@ int ImportExportCls::ParseRlnResponse(const char * pResp)
 			xmlNode * p_node = xmlTextReaderCurrentNode(p_xml_ptr);
 			if(p_node && p_node->children) {
 				const char * p_nn = PTRCHRC_(p_node->name);
-				if(strcmp(p_nn, ELEMENT_NAME_RELATION) == 0) {
+				if(sstreq(p_nn, ELEMENT_NAME_RELATION)) {
 					p_rln_cfg = new StRlnConfig;
 					p_rln_cfg->Clear();
 				}
 				else if(p_rln_cfg) {
-					if(strcmp(p_nn, "partner-iln") == 0) {
+					if(sstreq(p_nn, "partner-iln")) {
 						p_rln_cfg->SuppGLN.Set(p_node->children->content);
 					}
 					else if(sstreq(p_nn, "direction")) { // ¬ход€щий или исход€щий документ
@@ -2137,7 +2137,7 @@ int ImportCls::ListMessageBox(uint messageType)
 			}
 			if(proxy.ListMBEx(&param, &resp) == SOAP_OK) {
 				if(satoi(resp.ListMBExResult->Res) == 0) {
-					if(strcmp(resp.ListMBExResult->Cnt, EMPTY_LISTMB_RESP) != 0) {
+					if(!sstreq(resp.ListMBExResult->Cnt, EMPTY_LISTMB_RESP)) {
 						SString xml_input(resp.ListMBExResult->Cnt);
 						SString str, cname;
 						p_input = xmlParserInputBufferCreateMem(xml_input, xml_input.Len(), XML_CHAR_ENCODING_NONE);

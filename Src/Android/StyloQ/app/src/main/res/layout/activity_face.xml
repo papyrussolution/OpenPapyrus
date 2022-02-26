@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".FaceActivity">
+    <LinearLayout
+        android:id="@+id/LAYOUT_ACTIVITYROOT"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:orientation="vertical"
+            android:paddingLeft="16dp"
+            android:paddingTop="16dp"
+            android:paddingRight="16dp"
+            android:paddingBottom="16dp">
+            <EditText
+                android:id="@+id/CTL_STQFACE_ST_TITLE"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="24dp"
+                android:ems="10"
+                android:text="Face" />
+            <!--style="@style/Widget.MaterialComponents.TabLayout.PrimarySurface"-->
+            <com.google.android.material.tabs.TabLayout
+                style="@style/TabLayout"
+                app:tabTextAppearance="@style/TabTextAppearance"
+                android:id="@+id/TABLAYOUT_STQFACE"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:tabMode="scrollable">
+            </com.google.android.material.tabs.TabLayout>
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/VIEWPAGER_STQFACE"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+            <ImageButton style="@style/PushButton" android:id="@+id/STDCTL_DELETEBUTTON"
+                android:gravity="left"
+                app:srcCompat="@drawable/ic_deletefile02"
+                android:text="@{but_delete}" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:gravity="right">
+                <Button style="@style/PushButton" android:id="@+id/STDCTL_OKBUTTON"
+                    app:srcCompat="@drawable/ic_ok01"
+                    android:text="@{but_ok}" />
+                <Button style="@style/PushButton" android:id="@+id/STDCTL_CANCELBUTTON"
+                    app:srcCompat="@drawable/ic_cancel01"
+                    android:text="@{but_cancel}" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

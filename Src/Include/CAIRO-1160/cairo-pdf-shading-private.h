@@ -22,18 +22,10 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is Adrian Johnson.
- *
- * Contributor(s):
- *	Adrian Johnson <ajohnson@redneon.com>
+ * Contributor(s): Adrian Johnson <ajohnson@redneon.com>
  */
-
 #ifndef CAIRO_PDF_SHADING_H
 #define CAIRO_PDF_SHADING_H
 
@@ -41,18 +33,16 @@
 //#include "cairo-types-private.h"
 //#include "cairo-pattern-private.h"
 
-
 typedef struct _cairo_pdf_shading {
-    int shading_type;
-    int bits_per_coordinate;
-    int bits_per_component;
-    int bits_per_flag;
-    double *decode_array;
-    int decode_array_length;
-    uchar *data;
-    ulong data_length;
+	int shading_type;
+	int bits_per_coordinate;
+	int bits_per_component;
+	int bits_per_flag;
+	double * decode_array;
+	int decode_array_length;
+	uchar * data;
+	ulong data_length;
 } cairo_pdf_shading_t;
-
 
 /**
  * _cairo_pdf_shading_init_color:
@@ -65,10 +55,8 @@ typedef struct _cairo_pdf_shading {
  * Return value: %CAIRO_STATUS_SUCCESS if successful, possible errors
  * include %CAIRO_STATUS_NO_MEMORY.
  **/
-cairo_private cairo_status_t
-_cairo_pdf_shading_init_color (cairo_pdf_shading_t        *shading,
-			       const cairo_mesh_pattern_t *pattern);
-
+cairo_private cairo_status_t _cairo_pdf_shading_init_color(cairo_pdf_shading_t        * shading,
+    const cairo_mesh_pattern_t * pattern);
 
 /**
  * _cairo_pdf_shading_init_alpha:
@@ -81,10 +69,7 @@ _cairo_pdf_shading_init_color (cairo_pdf_shading_t        *shading,
  * Return value: %CAIRO_STATUS_SUCCESS if successful, possible errors
  * include %CAIRO_STATUS_NO_MEMORY.
  **/
-cairo_private cairo_status_t
-_cairo_pdf_shading_init_alpha (cairo_pdf_shading_t        *shading,
-			       const cairo_mesh_pattern_t *pattern);
-
+cairo_private cairo_status_t _cairo_pdf_shading_init_alpha(cairo_pdf_shading_t * shading, const cairo_mesh_pattern_t * pattern);
 /**
  * _cairo_pdf_shading_fini:
  * @shading: a #cairo_pdf_shading_t
@@ -93,8 +78,6 @@ _cairo_pdf_shading_init_alpha (cairo_pdf_shading_t        *shading,
  * @shading should not be used again without a subsequent call to
  * _cairo_pdf_shading_init() again first.
  **/
-cairo_private void
-_cairo_pdf_shading_fini (cairo_pdf_shading_t *shading);
-
+cairo_private void _cairo_pdf_shading_fini(cairo_pdf_shading_t * shading);
 
 #endif /* CAIRO_PDF_SHADING_H */

@@ -10,11 +10,6 @@
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
@@ -33,14 +28,12 @@ using namespace std;
 // Static functions
 
 /// Report an error when reading the posting list.
-[[noreturn]]
-static void report_read_error(const char * position)
+[[noreturn]] static void report_read_error(const char * position)
 {
 	if(position == 0) {
 		// data ran out
 		LOGLINE(DB, "GlassPostList data ran out");
-		throw Xapian::DatabaseCorruptError("Data ran out unexpectedly when "
-			  "reading posting list");
+		throw Xapian::DatabaseCorruptError("Data ran out unexpectedly when reading posting list");
 	}
 	// overflow
 	LOGLINE(DB, "GlassPostList value too large");
@@ -71,30 +64,20 @@ static inline bool check_tname_in_key_lite(const char ** keypos, const char * ke
 
 static inline bool check_tname_in_key(const char ** keypos, const char * keyend, const string &tname)
 {
-	if(*keypos == keyend) return false;
-
+	if(*keypos == keyend) 
+		return false;
 	return check_tname_in_key_lite(keypos, keyend, tname);
 }
 
 /// Read the start of the first chunk in the posting list.
-static Xapian::docid read_start_of_first_chunk(const char ** posptr,
-    const char * end,
-    Xapian::doccount * number_of_entries_ptr,
-    Xapian::termcount * collection_freq_ptr)
+static Xapian::docid read_start_of_first_chunk(const char ** posptr, const char * end, Xapian::doccount * number_of_entries_ptr, Xapian::termcount * collection_freq_ptr)
 {
-	LOGCALL_STATIC(DB,
-	    Xapian::docid,
-	    "read_start_of_first_chunk",
-	    (const void*)posptr | (const void*)end | (void*)number_of_entries_ptr | (void*)collection_freq_ptr);
-
-	GlassPostList::read_number_of_entries(posptr, end,
-	    number_of_entries_ptr,
-	    collection_freq_ptr);
+	LOGCALL_STATIC(DB, Xapian::docid, "read_start_of_first_chunk", (const void*)posptr | (const void*)end | (void*)number_of_entries_ptr | (void*)collection_freq_ptr);
+	GlassPostList::read_number_of_entries(posptr, end, number_of_entries_ptr, collection_freq_ptr);
 	if(number_of_entries_ptr)
 		LOGVALUE(DB, *number_of_entries_ptr);
 	if(collection_freq_ptr)
 		LOGVALUE(DB, *collection_freq_ptr);
-
 	Xapian::docid did;
 	// Read the docid of the first entry in the posting list.
 	if(!unpack_uint(posptr, end, &did))

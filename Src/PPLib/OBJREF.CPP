@@ -2163,7 +2163,7 @@ int PPObjGlobalUserAcc::PutPacket(PPID * pID, PPGlobalUserAccPacket * pPack, int
 				if(pPack->IsEq(org_pack))
 					ok = -1;
 				else {
-					if(strcmp(pPack->Rec.Name, org_pack.Rec.Name) != 0)
+					if(!sstreq(pPack->Rec.Name, org_pack.Rec.Name))
 						THROW(SendObjMessage(DBMSG_OBJNAMEUPDATE, PPOBJ_ARTICLE, Obj, _id, pPack->Rec.Name, 0));
 					THROW(P_Ref->UpdateItem(Obj, _id, &pPack->Rec, 0/*logAction*/, 0)); // @v10.6.6 @fix logAction 1-->0
 					THROW(P_Ref->Ot.PutList(Obj, _id, &pPack->TagL, 0));
@@ -2965,9 +2965,9 @@ int FASTCALL PPUhttStorePacket::IsEq(const PPUhttStorePacket & rS) const
 	NRECFLD(Flags);
 	NRECFLD(PersonID);
 	NRECFLD(UpRestShowThreshold);
-	if(strcmp(Rec.Name, rS.Rec.Name) != 0)
+	if(!sstreq(Rec.Name, rS.Rec.Name))
 		return 0;
-	if(strcmp(Rec.Symb, rS.Rec.Symb) != 0)
+	if(!sstreq(Rec.Symb, rS.Rec.Symb))
 		return 0;
 	if(!TagL.IsEq(rS.TagL))
 		return 0;

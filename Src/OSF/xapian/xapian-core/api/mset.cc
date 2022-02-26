@@ -141,17 +141,14 @@ Xapian::doccount MSet::size() const
 	return internal->items.size();
 }
 
-std::string MSet::snippet(const std::string & text, size_t length, const Xapian::Stem& stemmer, unsigned flags,
+std::string MSet::snippet(const std::string & text, size_t length, const Xapian::Stem& stemmer, uint flags,
     const std::string & hi_start, const std::string & hi_end, const std::string & omit) const
 {
 	// The actual implementation is in queryparser/termgenerator_internal.cc.
 	return internal->snippet(text, length, stemmer, flags, hi_start, hi_end, omit);
 }
 
-std::string MSet::get_description() const
-{
-	return internal->get_description();
-}
+std::string MSet::get_description() const { return internal->get_description(); }
 
 Document MSet::Internal::get_document(Xapian::doccount index) const
 {

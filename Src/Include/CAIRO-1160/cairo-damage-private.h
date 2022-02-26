@@ -18,26 +18,16 @@
  *
  * The contents of this file are subject to the Mozilla Public License
  * Version 1.1 (the "License"); you may not use this file except in
- * compliance with the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
+ * compliance with the License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
  *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is Chris Wilson
- *
- * Contributor(s):
- *	Chris Wilson <chris@chris-wilson.co.uk>
+ * Contributor(s): Chris Wilson <chris@chris-wilson.co.uk>
  */
-
 #ifndef CAIRO_DAMAGE_PRIVATE_H
 #define CAIRO_DAMAGE_PRIVATE_H
 
 //#include "cairo-types-private.h"
-
 #include <pixman.h>
 
 CAIRO_BEGIN_DECLS

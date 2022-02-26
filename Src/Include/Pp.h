@@ -4689,6 +4689,7 @@ private:
 #define GCF_IGNOREFOLDERMATRIX           0x00800000L  // Игнорировать значения товарной матрицы, установленные для товарных групп верхнего уровня
 #define GCF_XCHG_RCVSTRUCFROMDDONLY      0x01000000L  // @v10.2.1 Принимать изменения товарных стуктур только из диспетчерского раздела
 #define GCF_BANSTRUCCDONDECOMPL          0x02000000L  // @v10.4.6 Запрет на общий множитель для декомплектующих структур
+#define GCF_XCHG_DONTRCVQUOTS            0x04000000L  // @v11.3.3 Не принимать котировки из другого раздела
 
 struct PPGoodsConfig { // @persistent @store(PropertyTbl)
 	PPGoodsConfig();
@@ -46050,6 +46051,11 @@ public:
 	int    EditTimeGridItem(PPID * pID, PPID rowID, const LDATETIME & rDtm);
 	SString & GetItemDescr(PPID id, SString & rBuf); // @>>PPObjPrjTask::GetItemDescr
 	SString & GetItemMemo(PPID id, SString & rBuf); // @>>PPObjPrjTask::GetItemMemo
+	//
+	// ARG(id   IN): ignored
+	// ARG(kind IN): 0 - передать данные синхронизации; 2 - экспорт в формате vCalendar
+	//
+	int    Transmit(PPID id, int kind);
 private:
 	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual int  HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
@@ -46067,7 +46073,6 @@ private:
 	int    CreateByTemplate();
 	int    PutRecToTempTable(PPID tabID, int taskNotFinished, long tabType, PrjTaskTbl::Rec *);
 	int    SearchTempRec(PPID tabID, long tabType, void * pAddInfo, TempPrjTaskTbl::Rec * pRec);
-	int    Transmit(PPID, int kind);
 	int    NextOuterIteration();
 	int    NextInnerIteration(PrjTaskViewItem *);
 	int    AddItemToTimeGrid(const PrjTaskViewItem *, int rmv);

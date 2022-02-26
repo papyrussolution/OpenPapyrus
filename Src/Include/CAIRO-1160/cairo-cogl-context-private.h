@@ -21,14 +21,8 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.og/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
- * Contributor(s):
- * Robert Bragg <robert@linux.intel.com>
+ * Contributor(s): Robert Bragg <robert@linux.intel.com>
  */
-
 #ifndef CAIRO_COGL_CONTEXT_PRIVATE_H
 #define CAIRO_COGL_CONTEXT_PRIVATE_H
 
@@ -36,17 +30,14 @@
 #include "cairo-cogl-private.h"
 
 typedef struct _cairo_cogl_context {
-    cairo_default_context_t base;
-
-    cairo_cogl_device_t *dev;
-    int path_ctm_age;
-    cairo_path_fixed_t user_path;
-
-    boolint path_is_rectangle;
-    double x, y, width, height;
+	cairo_default_context_t base;
+	cairo_cogl_device_t * dev;
+	int path_ctm_age;
+	cairo_path_fixed_t user_path;
+	boolint path_is_rectangle;
+	double x, y, width, height;
 } cairo_cogl_context_t;
 
-cairo_t *
-_cairo_cogl_context_create (void *target);
+cairo_t * _cairo_cogl_context_create(void * target);
 
 #endif /* CAIRO_COGL_CONTEXT_PRIVATE_H */

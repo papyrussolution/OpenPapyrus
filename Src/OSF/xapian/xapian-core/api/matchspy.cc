@@ -10,11 +10,6 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
@@ -27,39 +22,44 @@ using namespace std;
 using namespace Xapian;
 using Xapian::Internal::intrusive_ptr;
 
-MatchSpy::~MatchSpy() {
+MatchSpy::~MatchSpy() 
+{
 }
 
-MatchSpy * MatchSpy::clone() const {
+MatchSpy * MatchSpy::clone() const 
+{
 	throw UnimplementedError("MatchSpy not suitable for use with remote searches - clone() method unimplemented");
 }
 
-string MatchSpy::name() const {
+string MatchSpy::name() const 
+{
 	throw UnimplementedError("MatchSpy not suitable for use with remote searches - name() method unimplemented");
 }
 
-string MatchSpy::serialise() const {
+string MatchSpy::serialise() const 
+{
 	throw UnimplementedError("MatchSpy not suitable for use with remote searches - serialise() method unimplemented");
 }
 
-MatchSpy * MatchSpy::unserialise(const string &, const Registry &) const {
+MatchSpy * MatchSpy::unserialise(const string &, const Registry &) const 
+{
 	throw UnimplementedError("MatchSpy not suitable for use with remote searches - unserialise() method unimplemented");
 }
 
-string MatchSpy::serialise_results() const {
+string MatchSpy::serialise_results() const 
+{
 	throw UnimplementedError("MatchSpy not suitable for use with remote searches - serialise_results() method unimplemented");
 }
 
-void MatchSpy::merge_results(const string &) {
+void MatchSpy::merge_results(const string &) 
+{
 	throw UnimplementedError("MatchSpy not suitable for use with remote searches - merge_results() method unimplemented");
 }
 
-string MatchSpy::get_description() const {
-	return "Xapian::MatchSpy()";
-}
+string MatchSpy::get_description() const { return "Xapian::MatchSpy()"; }
 
-[[noreturn]]
-static void unsupported_method() {
+[[noreturn]] static void unsupported_method() 
+{
 	throw Xapian::InvalidOperationError("Method not supported for this type of termlist");
 }
 

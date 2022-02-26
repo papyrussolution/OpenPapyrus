@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/DLG_PRIVCFG"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="4dp"
+    android:paddingLeft="4dp"
+    android:paddingRight="4dp">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="16dp"
+        >
+        <TextView
+            android:id="@+id/CTLLBL_PRIVCFG_PREFLANG"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="@{styloqprivconfig_preflang}"
+            />
+        <Spinner style="@style/ComboBox" android:id="@+id/CTLSEL_PRIVCFG_PREFLANG"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="16dp"
+        >
+        <TextView
+            android:id="@+id/CTLLBL_PRIVCFG_DEFFACE"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="@{styloqprivconfig_defface}"
+            />
+        <Spinner style="@style/ComboBox" android:id="@+id/CTLSEL_PRIVCFG_DEFFACE"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="16dp"
+        android:gravity="right">
+        <Button style="@style/PushButton" android:id="@+id/STDCTL_OKBUTTON"
+            android:text="@{but_ok}" />
+        <Button style="@style/PushButton" android:id="@+id/STDCTL_CANCELBUTTON"
+            android:text="@{but_cancel}" />
+    </LinearLayout>
+</LinearLayout>

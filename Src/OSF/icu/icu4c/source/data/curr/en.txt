@@ -801,7 +801,7 @@ en{
         }
         PHP{
             "₱",
-            "Philippine Piso",
+            "Philippine Peso",
         }
         PKR{
             "PKR",
@@ -1046,6 +1046,10 @@ en{
         VEB{
             "VEB",
             "Venezuelan Bolívar (1871–2008)",
+        }
+        VED{
+            "VED",
+            "Bolívar Soberano",
         }
         VEF{
             "VEF",
@@ -2014,8 +2018,8 @@ en{
             other{"Papua New Guinean kina"}
         }
         PHP{
-            one{"Philippine piso"}
-            other{"Philippine pisos"}
+            one{"Philippine peso"}
+            other{"Philippine pesos"}
         }
         PKR{
             one{"Pakistani rupee"}
@@ -2260,6 +2264,10 @@ en{
         VEB{
             one{"Venezuelan bolívar (1871–2008)"}
             other{"Venezuelan bolívars (1871–2008)"}
+        }
+        VED{
+            one{"Bolívar Soberano"}
+            other{"Bolívar Soberanos"}
         }
         VEF{
             one{"Venezuelan bolívar (2008–2018)"}

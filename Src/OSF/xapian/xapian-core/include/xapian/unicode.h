@@ -34,12 +34,12 @@ namespace Xapian {
  *  string.
  */
 class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
-	const unsigned char* p;
-	const unsigned char* end;
-	mutable unsigned seqlen;
+	const uchar * p;
+	const uchar * end;
+	mutable uint seqlen;
 	bool calculate_sequence_length() const noexcept;
-	unsigned get_char() const;
-	Utf8Iterator(const unsigned char* p_, const unsigned char* end_, unsigned seqlen_) : p(p_), end(end_), seqlen(seqlen_) 
+	uint get_char() const;
+	Utf8Iterator(const uchar * p_, const uchar * end_, uint seqlen_) : p(p_), end(end_), seqlen(seqlen_) 
 	{
 	}
 public:
@@ -58,9 +58,10 @@ public:
 	 *
 	 *  @param len The length of the string to read.
 	 */
-	void assign(const char* p_, size_t len) {
+	void assign(const char* p_, size_t len) 
+	{
 		if(len) {
-			p = reinterpret_cast<const unsigned char*>(p_);
+			p = reinterpret_cast<const uchar*>(p_);
 			end = p + len;
 			seqlen = 0;
 		}
@@ -137,8 +138,7 @@ public:
 	 *
 	 *  Returns unsigned(-1) if the iterator has reached the end of its buffer.
 	 */
-	unsigned operator*() const noexcept XAPIAN_PURE_FUNCTION;
-
+	uint operator*() const noexcept XAPIAN_PURE_FUNCTION;
 	/** @private @internal Get the current Unicode character
 	 *  value pointed to by the iterator.
 	 *
@@ -149,17 +149,18 @@ public:
 	 *
 	 *  Returns unsigned(-1) if the iterator has reached the end of its buffer.
 	 */
-	unsigned strict_deref() const noexcept XAPIAN_PURE_FUNCTION;
+	uint strict_deref() const noexcept XAPIAN_PURE_FUNCTION;
 
 	/** Move forward to the next Unicode character.
 	 *
 	 *  @return An iterator pointing to the position before the move.
 	 */
-	Utf8Iterator operator++(int) {
+	Utf8Iterator operator++(int) 
+	{
 		// If we've not calculated seqlen yet, do so.
 		if(seqlen == 0) calculate_sequence_length();
-		const unsigned char* old_p = p;
-		unsigned old_seqlen = seqlen;
+		const uchar * old_p = p;
+		uint old_seqlen = seqlen;
 		p += seqlen;
 		if(p == end) p = NULL;
 		seqlen = 0;
@@ -183,26 +184,21 @@ public:
 	 *  @param other	The Utf8Iterator to compare this one with.
 	 *  @return true iff the iterators point to the same position.
 	 */
-	bool operator==(const Utf8Iterator& other) const noexcept {
-		return p == other.p;
-	}
-
+	bool operator==(const Utf8Iterator& other) const noexcept { return p == other.p; }
 	/** Test two Utf8Iterators for inequality.
 	 *
 	 *  @param other	The Utf8Iterator to compare this one with.
 	 *  @return true iff the iterators do not point to the same position.
 	 */
-	bool operator!=(const Utf8Iterator& other) const noexcept {
-		return p != other.p;
-	}
+	bool operator!=(const Utf8Iterator& other) const noexcept { return p != other.p; }
 
 	/// We implement the semantics of an STL input_iterator.
 	//@{
 	typedef std::input_iterator_tag iterator_category;
-	typedef unsigned value_type;
+	typedef uint value_type;
 	typedef size_t difference_type;
-	typedef const unsigned* pointer;
-	typedef const unsigned& reference;
+	typedef const uint * pointer;
+	typedef const uint & reference;
 	//@}
 };
 
@@ -253,8 +249,7 @@ namespace Internal {
  *  Characters outside of the Unicode range (i.e. ch >= 0x110000) are
  *  treated as UNASSIGNED with no case variants.
  */
-XAPIAN_VISIBILITY_DEFAULT
-int get_character_info(unsigned ch) noexcept XAPIAN_CONST_FUNCTION;
+XAPIAN_VISIBILITY_DEFAULT int get_character_info(uint ch) noexcept XAPIAN_CONST_FUNCTION;
 
 /** @private @internal Bit-masks for case conversion.
  *
@@ -307,8 +302,7 @@ inline int get_delta(int info) {
  *
  *  @return	The length of the resultant UTF-8 character in bytes.
  */
-XAPIAN_VISIBILITY_DEFAULT
-unsigned nonascii_to_utf8(unsigned ch, char* buf);
+XAPIAN_VISIBILITY_DEFAULT uint nonascii_to_utf8(uint ch, char * buf);
 
 /** Convert a single Unicode character to UTF-8.
  *
@@ -318,9 +312,10 @@ unsigned nonascii_to_utf8(unsigned ch, char* buf);
  *
  *  @return	The length of the resultant UTF-8 character in bytes.
  */
-inline unsigned to_utf8(unsigned ch, char* buf) {
+inline uint to_utf8(uint ch, char* buf) 
+{
 	if(ch < 128) {
-		*buf = static_cast<unsigned char>(ch);
+		*buf = static_cast<uchar>(ch);
 		return 1;
 	}
 	return Xapian::Unicode::nonascii_to_utf8(ch, buf);
@@ -329,19 +324,19 @@ inline unsigned to_utf8(unsigned ch, char* buf) {
 /** Append the UTF-8 representation of a single Unicode character to a
  *  std::string.
  */
-inline void append_utf8(std::string & s, unsigned ch) {
+inline void append_utf8(std::string & s, uint ch) 
+{
 	char buf[4];
 	s.append(buf, to_utf8(ch, buf));
 }
 
 /// Return the category which a given Unicode character falls into.
-inline category get_category(unsigned ch) {
-	return Internal::get_category(Internal::get_character_info(ch));
-}
+inline category get_category(uint ch) { return Internal::get_category(Internal::get_character_info(ch)); }
 
 /// Test if a given Unicode character is "word character".
-inline bool is_wordchar(unsigned ch) {
-	const unsigned int WORDCHAR_MASK =
+inline bool is_wordchar(uint ch) 
+{
+	const uint WORDCHAR_MASK =
 	    (1 << Xapian::Unicode::UPPERCASE_LETTER) |
 	    (1 << Xapian::Unicode::LOWERCASE_LETTER) |
 	    (1 << Xapian::Unicode::TITLECASE_LETTER) |
@@ -358,8 +353,9 @@ inline bool is_wordchar(unsigned ch) {
 }
 
 /// Test if a given Unicode character is a whitespace character.
-inline bool is_whitespace(unsigned ch) {
-	const unsigned int WHITESPACE_MASK =
+inline bool is_whitespace(uint ch) 
+{
+	const uint WHITESPACE_MASK =
 	    (1 << Xapian::Unicode::CONTROL) | // For TAB, CR, LF, FF.
 	    (1 << Xapian::Unicode::SPACE_SEPARATOR) |
 	    (1 << Xapian::Unicode::LINE_SEPARATOR) |
@@ -368,12 +364,11 @@ inline bool is_whitespace(unsigned ch) {
 }
 
 /// Test if a given Unicode character is a currency symbol.
-inline bool is_currency(unsigned ch) {
-	return (get_category(ch) == Xapian::Unicode::CURRENCY_SYMBOL);
-}
+inline bool is_currency(uint ch) { return (get_category(ch) == Xapian::Unicode::CURRENCY_SYMBOL); }
 
 /// Convert a Unicode character to lowercase.
-inline unsigned tolower(unsigned ch) {
+inline uint tolower(uint ch) 
+{
 	int info = Xapian::Unicode::Internal::get_character_info(ch);
 	if(!(info & Internal::INFO_TOLOWER_MASK))
 		return ch;
@@ -381,7 +376,8 @@ inline unsigned tolower(unsigned ch) {
 }
 
 /// Convert a Unicode character to uppercase.
-inline unsigned toupper(unsigned ch) {
+inline uint toupper(uint ch) 
+{
 	int info = Xapian::Unicode::Internal::get_character_info(ch);
 	if(!(info & Internal::INFO_TOUPPER_MASK))
 		return ch;

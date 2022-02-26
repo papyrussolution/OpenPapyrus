@@ -1,6 +1,5 @@
 /* -*- Mode: c; tab-width: 8; c-basic-offset: 4; indent-tabs-mode: t; -*- */
 /* cairo - a vector graphics library with display and print output
- *
  * Copyright © 2004 Red Hat, Inc
  * Copyright © 2006 Red Hat, Inc
  * Copyright © 2007, 2008 Adrian Johnson
@@ -24,16 +23,9 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is University of Southern California.
- *
- * Contributor(s): Kristian Høgsberg <krh@redhat.com> Carl Worth <cworth@cworth.org> Adrian Johnson
- *<ajohnson@redneon.com>
+ * Contributor(s): Kristian Høgsberg <krh@redhat.com> Carl Worth <cworth@cworth.org> Adrian Johnson <ajohnson@redneon.com>
  */
 #ifndef CAIRO_PDF_SURFACE_PRIVATE_H
 #define CAIRO_PDF_SURFACE_PRIVATE_H

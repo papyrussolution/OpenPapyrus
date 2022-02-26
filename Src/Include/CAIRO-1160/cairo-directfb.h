@@ -18,21 +18,12 @@
  *
  * The contents of this file are subject to the Mozilla Public License
  * Version 1.1 (the "License"); you may not use this file except in
- * compliance with the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
+ * compliance with the License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
  *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is University of Southern California.
- *
- * Contributor(s):
- *	Carl D. Worth <cworth@isi.edu>
+ * Contributor(s): Carl D. Worth <cworth@isi.edu>
  */
-
 /*
  * Environment variables affecting the backend:
  *
@@ -42,7 +33,6 @@
  *  %CAIRO_DIRECTFB_ARGB_FONT (boolean)
  * if found, enables using ARGB fonts instead of A8
  */
-
 #ifndef CAIRO_DIRECTFB_H
 #define CAIRO_DIRECTFB_H
 

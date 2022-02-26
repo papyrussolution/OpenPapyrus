@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="4dp"
+        >
+        <!-- <androidx.appcompat.widget.Toolbar -->
+        <Toolbar
+            android:id="@+id/toolbarMainActivity"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
+            android:minHeight="?attr/actionBarSize">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_styloq_logo">
+            </ImageView>
+            <View style="@style/FakeView"/>
+            <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonSearch"
+                android:layout_gravity="center_vertical|right"
+                app:srcCompat="@drawable/ic_search"/>
+            <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonConfig"
+                android:layout_gravity="center_vertical|right"
+                app:srcCompat="@drawable/ic_gear01"/>
+            <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonScan"
+                android:layout_gravity="center_vertical|right"
+                app:srcCompat="@drawable/ic_qrcode01scan"/>
+            <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonFaces"
+                android:layout_gravity="center_vertical|right"
+                app:srcCompat="@drawable/ic_faceprofile01"/>
+            <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonTest"
+                android:layout_gravity="center_vertical|right"
+                app:srcCompat="@drawable/ic_test01"/>
+    </Toolbar>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/serviceListView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="4dp"
+        app:layoutManager="LinearLayoutManager" />
+</LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

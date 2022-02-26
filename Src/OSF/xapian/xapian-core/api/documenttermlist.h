@@ -27,15 +27,10 @@
 
 /// Iteration over terms in a document.
 class DocumentTermList final : public TermList {
-	/// Don't allow assignment.
-	void operator=(const DocumentTermList&) = delete;
-
-	/// Don't allow copying.
-	DocumentTermList(const DocumentTermList&) = delete;
-
+	void operator=(const DocumentTermList&) = delete; /// Don't allow assignment.
+	DocumentTermList(const DocumentTermList&) = delete; /// Don't allow copying.
 	/// Document internals we're iterating over.
 	Xapian::Internal::intrusive_ptr<const Xapian::Document::Internal> doc;
-
 	/** Iterator over the map inside @a doc.
 	 *
 	 *  If we haven't started yet, this will be set to: doc->terms.end()

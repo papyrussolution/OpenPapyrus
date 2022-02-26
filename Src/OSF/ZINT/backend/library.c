@@ -998,7 +998,7 @@ int ZBarcode_Encode_File(struct ZintSymbol * symbol, char * filename)
 	ulong fileLen;
 	uint nRead = 0, n = 0;
 	int ret;
-	if(!strcmp(filename, "-")) {
+	if(sstreq(filename, "-")) {
 		file = stdin;
 		fileLen = 7100;
 	}
@@ -1023,7 +1023,7 @@ int ZBarcode_Encode_File(struct ZintSymbol * symbol, char * filename)
 	buffer = (uchar *)SAlloc::M(fileLen * sizeof(uchar));
 	if(!buffer) {
 		sstrcpy(symbol->errtxt, "Internal memory error (B31)");
-		if(strcmp(filename, "-"))
+		if(!sstreq(filename, "-"))
 			fclose(file);
 		return ZINT_ERROR_MEMORY;
 	}

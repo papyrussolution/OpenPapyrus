@@ -9,6 +9,7 @@
 #pragma hdrstop
 
 #include <unordered_map>
+#include <unordered_set>
 #include <dbkv-lmdb.h>
 
 //int  Test_Fts() { return 1; }
@@ -33,10 +34,16 @@ public:
 	};
 	struct Entity {
 		Entity();
+		Entity(const Entity & rS);
+		Entity & FASTCALL operator = (const Entity & rS);
+		bool   FASTCALL operator == (const Entity & rS) const { return IsEq(rS); }
 		Entity & Z();
+
 		bool   FASTCALL IsEq(const Entity & rS) const;
 		bool   IsValid() const;
-		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+		//int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+		int    MakeSurrogateScopeIdent(SBinaryChunk & rSsi) const;
+		int    SetSurrogateScopeIdent(const SBinaryChunk & rSsi);
 
 		uint32 Scope;
 		uint32 ObjType;
@@ -51,7 +58,7 @@ public:
 		uint64 Rank;
 		double Weight;
 	};
-	PPFtsDatabase(bool forUpdate);
+	explicit PPFtsDatabase(bool forUpdate);
 	~PPFtsDatabase();
 	//
 	// Примерный сценарий индексации:
@@ -77,6 +84,9 @@ public:
 	uint64 PutEntity(SHandle transation, Entity & rEnt, StringSet & rSsUtf8);
 	int    Search(const char * pQueryUtf8, TSCollection <SearchResultEntry> & rResult);
 private:
+	int    GetEntityKey(Entity & rEnt, uint64 * pSurrogateScopeIdent, SBuffer & rEntityBuf, uint64 * pKey);
+	int    StoreEntityKey(uint64 surrogateScopeIdent, const SBuffer & rEntityBuf, uint64 key);
+	int    SearchEntityKey(uint64 key, Entity & rEnt, uint64 * pSurrogateScopeIdent);
 	//
 	// Descr: Класс, управляющий комбинированной транзакцией изменения индекса.
 	//
@@ -87,9 +97,12 @@ private:
 		bool   IsValid() const;
 		bool   Commit();
 		bool   Abort();
+		LmdbDatabase::Table * GetDomainT();
+		LmdbDatabase::Table * GetDomainRevT();
 		LmdbDatabase::Table * GetKeyT();
 		LmdbDatabase::Table * GetKeyRevT();
 	private:
+		void   DestroyTables();
 		enum {
 			stError    = 0x0001,
 			stFinished = 0x0002
@@ -97,6 +110,16 @@ private:
 		uint   State;
 		PPFtsDatabase & R_Master;
 		LmdbDatabase::Transaction * P_STxn;
+		//
+		// Так как мы предполагаем индексировать большое число мелких объектов (товары, персоналии, документы и т.д.)
+		// то длина комбинированного идентификатора каждого такого объекта оказывается слишком большой.
+		// Для того, чтобы сократить издержки идентификации, мы будем хранить такие идентификаторы в двух (с учетом реверсной индексации - в четырех)
+		// таблицах: 
+		// 1. Идентификаторы доменов {Entity::Scope; Enity::ScopeIdent}-->SurrogateDomainIdent
+		// 2. Идентификаторы сущностей внутри доменов {SurrogateDomainIdent; ObjType; ObjId}
+		//
+		LmdbDatabase::Table * P_SDomainT;  // Таблица доменных частей индексации: Domain->SurrogateIdent
+		LmdbDatabase::Table * P_SDomainRevT; // Таблица обратных ключей доменных частей индексации: SurrogateIdent->Domain
 		LmdbDatabase::Table * P_SKeyT;    // Таблица ключей индексации: Entity->XapianID
 		LmdbDatabase::Table * P_SKeyRevT; // Таблица обратных ключей индексации: XapianID->Entity
 	};
@@ -152,21 +175,18 @@ int PPFtsDatabase::Search(const char * pQueryUtf8, TSCollection <SearchResultEnt
 					//Xapian::docid did = *i;
 					found_doc_text = i.get_document().get_data();
 					//cout << i.get_rank() + 1 << ": " << i.get_weight() << " docid=" << *i << " [" << i.get_document().get_data() << "]\n\n";			
+					uint64 surrogate_scope_id = 0;
 					SearchResultEntry * p_re = rResult.CreateNewItem();
 					p_re->DocId = *i;
 					p_re->Rank = i.get_rank();
 					p_re->Weight = i.get_weight();
-					{
-						SBaseBuffer val_buf;
-						if(p_key_rev_tbl->Get(&p_re->DocId, sizeof(p_re->DocId), val_buf) > 0) {
-							sbuf_entity.Z().Write(val_buf.P_Buf, val_buf.Size);
-							if(p_re->Entity::Serialize(-1, sbuf_entity, &sctx)) {
-								;
-							}
-							else {
-								; // @todo Черт его знает что делать с ошибкой сериализации в частном случае!
-							}
-						}
+
+					int sekr = SearchEntityKey(p_re->DocId, *static_cast<Entity *>(p_re), &surrogate_scope_id);
+					if(sekr > 0) {
+						;
+					}
+					else if(sekr < 0) {
+						; // @todo Черт его знает что делать с ошибкой сериализации в частном случае!
 					}
 					ok = 1;
 				}
@@ -182,6 +202,19 @@ PPFtsDatabase::Entity::Entity() : Scope(scopeUndef), ObjType(0), ObjId(0)
 {
 }
 
+PPFtsDatabase::Entity::Entity(const Entity & rS) : Scope(rS.Scope), ObjType(rS.ObjType), ObjId(rS.ObjId), ScopeIdent(rS.ScopeIdent)
+{
+}
+
+PPFtsDatabase::Entity & FASTCALL PPFtsDatabase::Entity::operator = (const Entity & rS)
+{
+	Scope = rS.Scope;
+	ObjType = rS.ObjType;
+	ObjId = rS.ObjId;
+	ScopeIdent = rS.ScopeIdent;
+	return *this;
+}
+
 PPFtsDatabase::Entity & PPFtsDatabase::Entity::Z()
 {
 	Scope = 0;
@@ -194,10 +227,10 @@ PPFtsDatabase::Entity & PPFtsDatabase::Entity::Z()
 bool PPFtsDatabase::Entity::IsValid() const
 {
 	bool   ok = true;
-	THROW(oneof2(Scope, scopePPDb, scopeStyloQSvc));
-	THROW(ScopeIdent.NotEmpty());
-	THROW(ScopeIdent.Len() <= 256);
-	THROW(ScopeIdent.IsLegalUtf8());
+	THROW_PP(oneof2(Scope, scopePPDb, scopeStyloQSvc), PPERR_FTS_INVSCOPEIDENT);
+	THROW_PP(ScopeIdent.NotEmpty(), PPERR_FTS_INVSCOPEIDENT);
+	THROW_PP(ScopeIdent.Len() <= 256, PPERR_FTS_INVSCOPEIDENT);
+	THROW_PP(ScopeIdent.IsLegalUtf8(), PPERR_FTS_INVSCOPEIDENT);
 	CATCHZOK
 	return ok;
 }
@@ -207,7 +240,7 @@ bool FASTCALL PPFtsDatabase::Entity::IsEq(const Entity & rS) const
 	return (Scope == rS.Scope && ObjType == rS.ObjType && ObjId == rS.ObjId && ScopeIdent == rS.ScopeIdent);
 }
 
-int PPFtsDatabase::Entity::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+/*int PPFtsDatabase::Entity::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	uint32 _prefix = 0;
@@ -218,9 +251,30 @@ int PPFtsDatabase::Entity::Serialize(int dir, SBuffer & rBuf, SSerializeContext 
 	THROW_SL(pSCtx->Serialize(dir, ObjId, rBuf));
 	CATCHZOK
 	return ok;
+}*/
+
+int PPFtsDatabase::Entity::MakeSurrogateScopeIdent(SBinaryChunk & rSsi) const
+{
+	int    ok = 1;
+	rSsi.Z();
+	THROW_SL(rSsi.Cat(&Scope, sizeof(Scope)));
+	THROW_SL(rSsi.Cat(ScopeIdent.cptr(), ScopeIdent.Len()));
+	CATCHZOK
+	return ok;
 }
 
-PPFtsDatabase::Transaction::Transaction(PPFtsDatabase & rMaster) : State(0), R_Master(rMaster)
+int PPFtsDatabase::Entity::SetSurrogateScopeIdent(const SBinaryChunk & rSsi)
+{
+	int    ok = 1;
+	THROW_PP(rSsi.Len() >= sizeof(Scope), PPERR_FTS_INVSURROGATESCOPEIDENT);
+	memcpy(&Scope, rSsi.PtrC(), sizeof(Scope));
+	ScopeIdent.Z().CatN(PTRCHRC(rSsi.PtrC()), rSsi.Len()-sizeof(Scope));
+	CATCHZOK
+	return ok;
+}
+
+PPFtsDatabase::Transaction::Transaction(PPFtsDatabase & rMaster) : State(0), R_Master(rMaster),
+	P_SKeyT(0), P_SKeyRevT(0), P_SDomainT(0), P_SDomainRevT(0), P_STxn(0)
 {
 	if(R_Master.P_XDb && R_Master.P_SupplementalDb) {
 		P_STxn = new LmdbDatabase::Transaction(*rMaster.P_SupplementalDb, (R_Master.State & stWriting) ? false : true);
@@ -230,7 +284,9 @@ PPFtsDatabase::Transaction::Transaction(PPFtsDatabase & rMaster) : State(0), R_M
 		else {
 			P_SKeyT = new LmdbDatabase::Table(*P_STxn, "fts-supplemental-key");
 			P_SKeyRevT = new LmdbDatabase::Table(*P_STxn, "fts-supplemental-rev");
-			if(!P_SKeyT->IsValid() || !P_SKeyRevT->IsValid()) {
+			P_SDomainT = new LmdbDatabase::Table(*P_STxn, "fts-supplemental-domain-key");
+			P_SDomainRevT = new LmdbDatabase::Table(*P_STxn, "fts-supplemental-domain-rev");
+			if(!P_SKeyT->IsValid() || !P_SKeyRevT->IsValid() || !P_SDomainT->IsValid() || !P_SDomainRevT->IsValid()) {
 				State |= stError;
 			}
 		}
@@ -244,8 +300,7 @@ PPFtsDatabase::Transaction::Transaction(PPFtsDatabase & rMaster) : State(0), R_M
 			}
 		}
 		if(State & stError) {
-			ZDELETE(P_SKeyT);
-			ZDELETE(P_SKeyRevT);
+			DestroyTables();
 			ZDELETE(P_STxn);
 		}
 	}
@@ -256,9 +311,16 @@ PPFtsDatabase::Transaction::Transaction(PPFtsDatabase & rMaster) : State(0), R_M
 PPFtsDatabase::Transaction::~Transaction()
 {
 	Abort();
+	DestroyTables();
+	ZDELETE(P_STxn);
+}
+
+void PPFtsDatabase::Transaction::DestroyTables()
+{
 	ZDELETE(P_SKeyT);
 	ZDELETE(P_SKeyRevT);
-	ZDELETE(P_STxn);
+	ZDELETE(P_SDomainT);
+	ZDELETE(P_SDomainRevT);
 }
 		
 bool PPFtsDatabase::Transaction::IsValid() const
@@ -271,21 +333,23 @@ bool PPFtsDatabase::Transaction::Commit()
 	bool   ok = true;
 	if(!(State & (stError|stFinished))) {
 		try {
-			static_cast<Xapian::WritableDatabase *>(R_Master.P_XDb)->commit_transaction();
-			//
+			if(R_Master.State & stWriting) {
+				static_cast<Xapian::WritableDatabase *>(R_Master.P_XDb)->commit_transaction();
+			}
 			if(!P_STxn->Commit()) {
 				ok = false;
 				State |= stError;
+				PPSetError(PPERR_FTS_COMMITTRANSACTIONFAULT);
 			}
 		} catch(...) {
 			ok = false;
 			State |= stError;
+			PPSetError(PPERR_FTS_COMMITTRANSACTIONFAULT);
 		}
 	}
 	else
 		ok = false;
-	ZDELETE(P_SKeyT);
-	ZDELETE(P_SKeyRevT);
+	DestroyTables();
 	ZDELETE(P_STxn);
 	State |= stFinished;
 	return ok;
@@ -296,35 +360,32 @@ bool PPFtsDatabase::Transaction::Abort()
 	bool   ok = true;
 	if(!(State & (stError|stFinished))) {
 		try {
-			static_cast<Xapian::WritableDatabase *>(R_Master.P_XDb)->cancel_transaction();
-			//
+			if(R_Master.State & stWriting) {
+				static_cast<Xapian::WritableDatabase *>(R_Master.P_XDb)->cancel_transaction();
+			}
 			if(!P_STxn->Abort()) {
 				ok = false;
 				State |= stError;
+				PPSetError(PPERR_FTS_ABORTTRANSACTIONFAULT);
 			}
 		} catch(...) {
 			ok = false;
 			State |= stError;
+			PPSetError(PPERR_FTS_ABORTTRANSACTIONFAULT);
 		}
 	}
 	else
 		ok = false;
-	ZDELETE(P_SKeyT);
-	ZDELETE(P_SKeyRevT);
+	DestroyTables();
 	ZDELETE(P_STxn);
 	State |= stFinished;
 	return ok;
 }
 
-LmdbDatabase::Table * PPFtsDatabase::Transaction::GetKeyT()
-{
-	return (State & (stError|stFinished)) ? 0 : P_SKeyT;
-}
-
-LmdbDatabase::Table * PPFtsDatabase::Transaction::GetKeyRevT()
-{
-	return (State & (stError|stFinished)) ? 0 : P_SKeyRevT;
-}
+LmdbDatabase::Table * PPFtsDatabase::Transaction::GetDomainT() { return (State & (stError|stFinished)) ? 0 : P_SDomainT; }
+LmdbDatabase::Table * PPFtsDatabase::Transaction::GetDomainRevT() { return (State & (stError|stFinished)) ? 0 : P_SDomainRevT; }
+LmdbDatabase::Table * PPFtsDatabase::Transaction::GetKeyT() { return (State & (stError|stFinished)) ? 0 : P_SKeyT; }
+LmdbDatabase::Table * PPFtsDatabase::Transaction::GetKeyRevT() { return (State & (stError|stFinished)) ? 0 : P_SKeyRevT; }
 
 int PPFtsDatabase::GetDatabasePath(int dbd, SString & rBuf) const
 {
@@ -384,7 +445,10 @@ SHandle PPFtsDatabase::BeginTransaction()
 	}
 	else {
 		P_CurrentTra = new Transaction(*this);
-		//if(P_CurrentTra)
+		if(P_CurrentTra && !P_CurrentTra->IsValid()) {
+			PPSetError(PPERR_FTS_BEGINTRANSACTIONFAULT);
+			ZDELETE(P_CurrentTra);
+		}
 		return SHandle(P_CurrentTra);
 	}
 }
@@ -409,59 +473,195 @@ int PPFtsDatabase::AbortTransaction(SHandle tra)
 	return ok;
 }
 
+int PPFtsDatabase::SearchEntityKey(uint64 key, Entity & rEnt, uint64 * pSurrogateScopeIdent)
+{
+	int    ok = 1;
+	uint64 ssi_db_id = 0;
+	THROW(P_CurrentTra);
+	{
+		SSerializeContext sctx;
+		SBaseBuffer val_buf;
+		LmdbDatabase::Table * p_domain_t = P_CurrentTra->GetDomainT();
+		LmdbDatabase::Table * p_domain_rev_t = P_CurrentTra->GetDomainRevT();
+		LmdbDatabase::Table * p_key_t = P_CurrentTra->GetKeyT();
+		LmdbDatabase::Table * p_key_rev_t = P_CurrentTra->GetKeyRevT();
+		THROW(p_domain_t);
+		THROW(p_domain_rev_t);
+		THROW(p_key_t);
+		THROW(p_key_rev_t);
+		if(p_key_rev_t->Get(&key, sizeof(key), val_buf) > 0) {
+			SBuffer entity_buf;
+			entity_buf.Z().Write(val_buf.P_Buf, val_buf.Size);
+			{
+				uint32 _prefix = 0;
+				THROW_SL(sctx.Serialize(-1, _prefix, entity_buf));
+				THROW(_prefix == 0);
+				THROW_SL(sctx.Serialize(-1, ssi_db_id, entity_buf));
+				THROW_SL(sctx.Serialize(-1, rEnt.ObjType, entity_buf));
+				THROW_SL(sctx.Serialize(-1, rEnt.ObjId, entity_buf));
+			}
+			THROW(ssi_db_id > 0);
+			{
+				SBinaryChunk ssi_buf;
+				int r = p_domain_rev_t->Get(&ssi_db_id, sizeof(ssi_db_id), ssi_buf);
+				THROW(r > 0); // Если доменный идентификатор не найден, то это - сбойная ситуация.
+				THROW(rEnt.SetSurrogateScopeIdent(ssi_buf));
+			}
+		}
+		else
+			ok = -1;
+	}
+	CATCHZOK
+	ASSIGN_PTR(pSurrogateScopeIdent, ssi_db_id);
+	return ok;
+}
+
+int PPFtsDatabase::GetEntityKey(Entity & rEnt, uint64 * pSurrogateScopeIdent, SBuffer & rEntityBuf, uint64 * pKey)
+{
+	rEntityBuf.Z();
+	int    ok = 1;
+	const  Entity org_ent(rEnt); // @proof-of-immutability
+	uint64 ssi_db_id = 0;
+	uint64 key = 0;
+	SSerializeContext sctx;
+	THROW_PP(P_CurrentTra && P_CurrentTra->IsValid(), PPERR_FTS_INVALIDTRANSACTION);
+	{
+		LmdbDatabase::Table * p_domain_t = P_CurrentTra->GetDomainT();
+		LmdbDatabase::Table * p_domain_rev_t = P_CurrentTra->GetDomainRevT();
+		LmdbDatabase::Table * p_key_t = P_CurrentTra->GetKeyT();
+		LmdbDatabase::Table * p_key_rev_t = P_CurrentTra->GetKeyRevT();
+		SBinaryChunk ssi; // surrogate scope ident
+		THROW(p_domain_t);
+		THROW(p_domain_rev_t);
+		THROW(p_key_t);
+		THROW(p_key_rev_t);
+		THROW(rEnt.MakeSurrogateScopeIdent(ssi));
+		{
+			SBaseBuffer _id_buf;
+			int gr = p_domain_t->Get(ssi.PtrC(), ssi.Len(), _id_buf);
+			THROW(gr);
+			if(gr > 0) {
+				assert(_id_buf.P_Buf);
+				assert(_id_buf.Size > 0);
+				THROW(_id_buf.P_Buf && _id_buf.Size == sizeof(uint64));
+				ssi_db_id = *reinterpret_cast<const uint64 *>(_id_buf.P_Buf);
+			}
+			else {
+				SBaseBuffer _try_id_buf;
+				LmdbDatabase::Stat tstat;
+				THROW(p_domain_t->GetStat(tstat));
+				ssi_db_id = tstat.EntryCount;
+				int gr2 = 0;
+				do {
+					ssi_db_id++;
+					gr2 = p_domain_rev_t->Get(&ssi_db_id, sizeof(ssi_db_id), _try_id_buf);
+					THROW(gr2);
+				} while(gr2 > 0);
+				THROW(p_domain_t->Put(ssi.PtrC(), ssi.Len(), &ssi_db_id, sizeof(ssi_db_id), 0));
+				THROW(p_domain_rev_t->Put(&ssi_db_id, sizeof(ssi_db_id), ssi.PtrC(), ssi.Len(), 0));
+			}
+			THROW(ssi_db_id);
+		}
+		//THROW_SL(rEnt.Serialize(+1, entity_buf, &sctx));
+		{
+			uint32 _prefix = 0;
+			THROW_SL(sctx.Serialize(+1, _prefix, rEntityBuf));
+			THROW_SL(sctx.Serialize(+1, ssi_db_id, rEntityBuf));
+			THROW_SL(sctx.Serialize(+1, rEnt.ObjType, rEntityBuf));
+			THROW_SL(sctx.Serialize(+1, rEnt.ObjId, rEntityBuf));
+		}
+		{
+			SBaseBuffer _id_buf;
+			int gr = p_key_t->Get(rEntityBuf.constptr(), rEntityBuf.GetAvailableSize(), _id_buf);
+			if(gr > 0) {
+				assert(_id_buf.P_Buf);
+				assert(_id_buf.Size > 0);
+				THROW(_id_buf.P_Buf && _id_buf.Size == sizeof(uint64));
+				key = *reinterpret_cast<const uint64 *>(_id_buf.P_Buf);
+			}
+			else
+				ok = -1;
+		}
+	}
+	CATCHZOK
+	assert(rEnt == org_ent); // @proof-of-immutability
+	assert(ok == 0 || ssi_db_id > 0);
+	assert(ok <= 0 || key > 0);
+	assert(ok > 0  || key == 0);
+	ASSIGN_PTR(pSurrogateScopeIdent, ssi_db_id);
+	ASSIGN_PTR(pKey, key);
+	return ok;
+}
+
+int PPFtsDatabase::StoreEntityKey(uint64 surrogateScopeIdent, const SBuffer & rEntityBuf, uint64 key)
+{
+	int    ok = 1;
+	assert(surrogateScopeIdent > 0);
+	assert(key > 0);
+	assert(rEntityBuf.GetAvailableSize() > 0);
+	THROW(surrogateScopeIdent > 0);
+	THROW(key > 0);
+	THROW(rEntityBuf.GetAvailableSize() > 0);
+	THROW(P_CurrentTra);
+	{
+		LmdbDatabase::Table * p_key_t = P_CurrentTra->GetKeyT();
+		LmdbDatabase::Table * p_key_rev_t = P_CurrentTra->GetKeyRevT();
+		THROW(p_key_t);
+		THROW(p_key_rev_t);
+		THROW(p_key_t->Put(rEntityBuf.constptr(), rEntityBuf.GetAvailableSize(), &key, sizeof(key), 0));
+		THROW(p_key_rev_t->Put(&key, sizeof(key), rEntityBuf.constptr(), rEntityBuf.GetAvailableSize(), 0));
+	}
+	CATCHZOK
+	return ok;
+}
+
 uint64 PPFtsDatabase::PutEntity(SHandle tra, Entity & rEnt, StringSet & rSsUtf8)
 {
 	uint64  result = 0;
 	SString temp_buf;
-	THROW(State & stWriting);
-	THROW(!(State & stError));
+	THROW_PP(State & stWriting, PPERR_FTS_DBINRDONLYMODE);
+	THROW_PP(!(State & stError), PPERR_FTS_DBINERRORSTATE);
 	THROW(P_XDb);
-	if(P_CurrentTra && P_CurrentTra == tra && P_CurrentTra->IsValid()) {
+	THROW_PP(P_CurrentTra && P_CurrentTra == tra && P_CurrentTra->IsValid(), PPERR_FTS_INVALIDTRANSACTION);
+	{
 		SSerializeContext sctx;
 		Xapian::Document doc;
 		std::string temp_stds;
 		SBuffer entity_buf;
 		uint64   doc_id = 0;
+		LmdbDatabase::Table * p_domain_t = P_CurrentTra->GetDomainT();
+		LmdbDatabase::Table * p_domain_rev_t = P_CurrentTra->GetDomainRevT();
 		LmdbDatabase::Table * p_key_t = P_CurrentTra->GetKeyT();
 		LmdbDatabase::Table * p_key_rev_t = P_CurrentTra->GetKeyRevT();
-		THROW(p_key_t);
-		THROW(p_key_rev_t);
-		THROW_SL(rEnt.Serialize(+1, entity_buf, &sctx));
-		{		
-			SBaseBuffer _id_buf;
-			int gr = p_key_t->Get(entity_buf.constptr(), entity_buf.GetAvailableSize(), _id_buf);
-			if(gr > 0) {
-				assert(_id_buf.P_Buf);
-				assert(_id_buf.Size > 0);
-				if(_id_buf.P_Buf && _id_buf.Size == sizeof(uint64)) {
-					doc_id = *reinterpret_cast<const uint64 *>(_id_buf.P_Buf);
-				}
+		SBinaryChunk ssi; // surrogate scope ident
+		uint64   ssi_db_id = 0;
+		const int gekr = GetEntityKey(rEnt, &ssi_db_id, entity_buf, &doc_id);
+		THROW(gekr);
+		try {
+			for(uint sp = 0; rSsUtf8.get(&sp, temp_buf);) {
+				THROW_SL(temp_buf.IsLegalUtf8());
+				temp_stds.clear();
+				temp_stds.append(temp_buf, temp_buf.Len());
+				doc.add_term(temp_stds);
+				//
+				//doc.add_posting();
 			}
-			try {
-				for(uint sp = 0; rSsUtf8.get(&sp, temp_buf);) {
-					THROW(temp_buf.IsLegalUtf8());
-					temp_stds.clear();
-					temp_stds.append(temp_buf, temp_buf.Len());
-					doc.add_term(temp_stds);
+			{
+				Xapian::WritableDatabase * p_db = static_cast<Xapian::WritableDatabase *>(P_XDb);
+				if(doc_id > 0) {
+					p_db->replace_document(doc_id, doc);
+					result = doc_id;
 				}
-				{
-					Xapian::WritableDatabase * p_db = static_cast<Xapian::WritableDatabase *>(P_XDb);
-					if(doc_id > 0) {
-						p_db->replace_document(doc_id, doc);
+				else {
+					doc_id = p_db->add_document(doc);
+					if(doc_id) {
+						THROW(StoreEntityKey(ssi_db_id, entity_buf, doc_id));
 						result = doc_id;
 					}
-					else {
-						doc_id = p_db->add_document(doc);
-						if(doc_id) {
-							THROW(p_key_t->Put(entity_buf.constptr(), entity_buf.GetAvailableSize(), &doc_id, sizeof(doc_id), 0));
-							THROW(p_key_rev_t->Put(&doc_id, sizeof(doc_id), entity_buf.constptr(), entity_buf.GetAvailableSize(), 0));
-							result = doc_id;
-						}
-					}
 				}
-			} catch(...) {
-				result = 0;
 			}
+		} catch(...) {
+			result = PPSetError(PPERR_FTS_PUTDOCFAULT);
 		}
 	}
 	CATCH
@@ -475,7 +675,7 @@ static int Test_Fts2()
 	int    ok = 1;
 	uint   search_err_count = 0;
 	uint   last_word_id = 0;
-	SymbHashTable word_list(4096, 0);
+	//SymbHashTable word_list(SKILOBYTE(1024), 0);
 	LAssocArray word_to_doc_assoc;
 	DbProvider * p_dict = CurDict;
 	THROW(p_dict);
@@ -496,10 +696,13 @@ static int Test_Fts2()
 		PPTextAnalyzer::Item text_analyzer_item;
 		STokenizer::Param tparam;
 		tparam.Cp = cpUTF8;
-		tparam.Flags |= STokenizer::fDivAlNum;
+		//tparam.Flags |= STokenizer::fDivAlNum;
+		tparam.Delim = " \t\n\r(){}[]<>,.:;-\\/&$#@!?*^\"+=%\xA0";
+		tparam.Flags |= (STokenizer::fDivAlNum|STokenizer::fEachDelim);
 		text_analyzer2.SetParam(&tparam);
 		PPWait(1);
 		if(v_goods.Init_(&f_goods)) {
+			uint   total_count = 0;
 			GoodsViewItem vitem;
 			BarcodeArray bc_list;
 			StringSet doc_tokens;
@@ -513,9 +716,10 @@ static int Test_Fts2()
 			entity.ObjType = PPOBJ_GOODS;
 			tra = db.BeginTransaction();
 			THROW(tra);
-			for(v_goods.InitIteration(); v_goods.NextIteration(&vitem) > 0;) {
+			for(v_goods.InitIteration(PPViewGoods::OrdByDefault); v_goods.NextIteration(&vitem) > 0;) {
 				entity.ObjId = vitem.ID;
 				current_word_id_list.Z();
+				text_analyzer2.Reset(STokenizer::coClearSymbTab);
 				{
 					text_resource_ident.Z().CatChar('#').CatLongZ(vitem.ID, 8);
 					(text_buf = vitem.Name).Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower();
@@ -536,6 +740,7 @@ static int Test_Fts2()
 								if(text_analyzer_item.Token == STokenizer::tokWord) {
 									doc_tokens.add(text_analyzer_item.Text);
 									//
+									/*
 									uint   word_id = 0;
 									if(word_list.Search(text_analyzer_item.Text, &word_id, 0)) {
 										current_word_id_list.add(static_cast<long>(word_id));
@@ -544,7 +749,7 @@ static int Test_Fts2()
 										word_id = ++last_word_id;
 										word_list.Add(text_analyzer_item.Text, word_id);
 										current_word_id_list.add(static_cast<long>(word_id));
-									}
+									}*/
 								}
 							}
 						}
@@ -555,6 +760,7 @@ static int Test_Fts2()
 								text_buf.Transf(CTRANSF_INNER_TO_UTF8);
 								doc_tokens.add(text_buf);
 								//
+								/*
 								uint   word_id = 0;
 								if(word_list.Search(text_buf, &word_id, 0)) {
 									current_word_id_list.add(static_cast<long>(word_id));
@@ -563,17 +769,23 @@ static int Test_Fts2()
 									word_id = ++last_word_id;
 									word_list.Add(text_buf, word_id);
 									current_word_id_list.add(static_cast<long>(word_id));
-								}
+								}*/
 							}
 						}
 						{
 							uint64 result_doc_id = db.PutEntity(tra, entity, doc_tokens);
 							THROW(result_doc_id);
 							//
-							{
+							/*{
 								for(uint cwidx = 0; cwidx < current_word_id_list.getCount(); cwidx++) {
 									word_to_doc_assoc.Add(current_word_id_list.get(cwidx), static_cast<long>(result_doc_id));
 								}
+							}*/
+							total_count++;
+							if(total_count > 0 && (total_count % 1000) == 0) {
+								THROW(db.CommitTransaction(tra));
+								tra = db.BeginTransaction();
+								THROW(tra);
 							}
 							// 
 							//if(v_goods.P_Tbl->GetBarcode)
@@ -584,16 +796,19 @@ static int Test_Fts2()
 				}
 			}
 			THROW(db.CommitTransaction(tra));
-			PPWait(0);
 		}
 	}
-	{
+#if 0 // {
+	if(0) {
 		//
 		// Теперь проверяем поиск
 		//
 		PPFtsDatabase db(false);
 		word_to_doc_assoc.SortByKeyVal();
 		SymbHashTable::Iter iter;
+		SymbHashTable::Stat hts;
+		word_list.CalcStat(hts);
+		uint   iter_no = 0;
 		if(word_list.InitIteration(&iter)) {
 			uint word_id = 0;
 			SString word_buf;
@@ -617,10 +832,17 @@ static int Test_Fts2()
 				}
 				if(!expected_doc_presents)
 					search_err_count++;
+				//
+				iter_no++;
+				PPWaitPercent(iter_no, hts.NumEntries);
 			}
 		}
 	}
-	CATCHZOK
+#endif // } 0
+	CATCH
+		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO);
+		ok = 0;
+	ENDCATCH
 	PPWait(0);
 	return ok;
 }
@@ -728,7 +950,7 @@ int  Test_Fts()
 							size_t actual_size;
 							Xapian::Document doc;
 							db.begin_transaction(true);
-							THROW(raw_input_buf.AllocIncr(needed_size));
+							THROW_SL(raw_input_buf.AllocIncr(needed_size));
 							if(f_in.Read(raw_input_buf, static_cast<size_t>(file_size), &actual_size)) {
 								BreakIterator * p_bi = BreakIterator::createWordInstance(icu_locale, icu_status);
 								if(U_SUCCESS(icu_status)) {

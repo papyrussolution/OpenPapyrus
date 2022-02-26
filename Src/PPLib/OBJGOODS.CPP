@@ -3893,14 +3893,16 @@ int PPObjGoods::RemoveDupArCodes(PPGoodsPacket * pPack, ObjTransmContext * pCtx)
 int PPObjGoods::AcceptQuot(PPID goodID, PPGoodsPacket * pPack, bool updByTime, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
-	if(goodID) {
-		PPQuotArray zero_list;
-		PPQuotArray * p_quot_list = NZOR(pPack->P_Quots, &zero_list);
-		p_quot_list->GoodsID = goodID;
-		p_quot_list->SetManagedLocList(pCtx->P_SrcDbDivPack ? &pCtx->P_SrcDbDivPack->LocList : 0);
-		if(!PutQuotList(goodID, p_quot_list, updByTime, 1)) {
-			pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTGOODSQUOTS, pPack->Rec.ID, pPack->Rec.Name);
-			ok = -1;
+	if(!(GetConfig().Flags & GCF_XCHG_DONTRCVQUOTS)) { // @v11.3.3
+		if(goodID) {
+			PPQuotArray zero_list;
+			PPQuotArray * p_quot_list = NZOR(pPack->P_Quots, &zero_list);
+			p_quot_list->GoodsID = goodID;
+			p_quot_list->SetManagedLocList(pCtx->P_SrcDbDivPack ? &pCtx->P_SrcDbDivPack->LocList : 0);
+			if(!PutQuotList(goodID, p_quot_list, updByTime, 1)) {
+				pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTGOODSQUOTS, pPack->Rec.ID, pPack->Rec.Name);
+				ok = -1;
+			}
 		}
 	}
 	return ok;

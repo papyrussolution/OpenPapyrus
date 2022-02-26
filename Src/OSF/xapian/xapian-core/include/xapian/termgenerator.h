@@ -8,16 +8,10 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
-
 #ifndef XAPIAN_INCLUDED_TERMGENERATOR_H
 #define XAPIAN_INCLUDED_TERMGENERATOR_H
 
@@ -47,16 +41,11 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
 public:
 	/// @private @internal Class representing the TermGenerator internals.
 	class Internal;
-	/// @private @internal Reference counted internals.
-	Xapian::Internal::intrusive_ptr_nonnull<Internal> internal;
-	/// Copy constructor.
+	Xapian::Internal::intrusive_ptr_nonnull<Internal> internal; /// @private @internal Reference counted internals.
 	TermGenerator(const TermGenerator & o);
-	/// Assignment.
 	TermGenerator & operator=(const TermGenerator & o);
-	/// Move constructor.
-	TermGenerator(TermGenerator && o);
-	/// Move assignment operator.
-	TermGenerator & operator=(TermGenerator && o);
+	TermGenerator(TermGenerator && o); /// Move constructor.
+	TermGenerator & operator=(TermGenerator && o); /// Move assignment operator.
 	TermGenerator();
 	~TermGenerator();
 	/// Set the Xapian::Stem object to be used for generating stemmed terms.
@@ -195,9 +184,7 @@ public:
 	 * @param wdf_inc	The wdf increment (default 1).
 	 * @param prefix	The term prefix to use (default is no prefix).
 	 */
-	void index_text(const Xapian::Utf8Iterator & itor,
-	    Xapian::termcount wdf_inc = 1,
-	    const std::string & prefix = std::string());
+	void index_text(const Xapian::Utf8Iterator & itor, Xapian::termcount wdf_inc = 1, const std::string & prefix = std::string());
 
 	/** Index some text in a std::string.
 	 *
@@ -205,12 +192,10 @@ public:
 	 * @param wdf_inc	The wdf increment (default 1).
 	 * @param prefix	The term prefix to use (default is no prefix).
 	 */
-	void index_text(const std::string & text,
-	    Xapian::termcount wdf_inc = 1,
-	    const std::string & prefix = std::string()) {
+	void index_text(const std::string & text, Xapian::termcount wdf_inc = 1, const std::string & prefix = std::string()) 
+	{
 		index_text(Utf8Iterator(text), wdf_inc, prefix);
 	}
-
 	/** Index some text without positional information.
 	 *
 	 * Just like index_text, but no positional information is generated.  This
@@ -221,10 +206,7 @@ public:
 	 * @param wdf_inc	The wdf increment (default 1).
 	 * @param prefix	The term prefix to use (default is no prefix).
 	 */
-	void index_text_without_positions(const Xapian::Utf8Iterator & itor,
-	    Xapian::termcount wdf_inc = 1,
-	    const std::string & prefix = std::string());
-
+	void index_text_without_positions(const Xapian::Utf8Iterator & itor, Xapian::termcount wdf_inc = 1, const std::string & prefix = std::string());
 	/** Index some text in a std::string without positional information.
 	 *
 	 * Just like index_text, but no positional information is generated.  This
@@ -235,12 +217,10 @@ public:
 	 * @param wdf_inc	The wdf increment (default 1).
 	 * @param prefix	The term prefix to use (default is no prefix).
 	 */
-	void index_text_without_positions(const std::string & text,
-	    Xapian::termcount wdf_inc = 1,
-	    const std::string & prefix = std::string()) {
+	void index_text_without_positions(const std::string & text, Xapian::termcount wdf_inc = 1, const std::string & prefix = std::string()) 
+	{
 		index_text_without_positions(Utf8Iterator(text), wdf_inc, prefix);
 	}
-
 	/** Increase the term position used by index_text.
 	 *
 	 *  This can be used between indexing text from different fields or other
@@ -250,16 +230,13 @@ public:
 	 *  @param delta	Amount to increase the term position by (default: 100).
 	 */
 	void increase_termpos(Xapian::termpos delta = 100);
-
 	/// Get the current term position.
 	Xapian::termpos get_termpos() const;
-
 	/** Set the current term position.
 	 *
 	 *  @param termpos	The new term position to set.
 	 */
 	void set_termpos(Xapian::termpos termpos);
-
 	/// Return a string describing this object.
 	std::string get_description() const;
 };

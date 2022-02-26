@@ -1,5 +1,5 @@
 // REGISTER.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2019, 2020
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2019, 2020, 2022
 // @codepage UTF-8
 // @Kernel
 //
@@ -65,8 +65,8 @@ int FASTCALL operator != (const RegisterTbl::Rec & r1, const RegisterTbl::Rec & 
 	if(r1.Expiry != r2.Expiry) return 1;
 	if(r1.Flags != r2.Flags) return 1;
 	if(r1.ExtID != r2.ExtID) return 1; // @v10.6.0
-	if(strcmp(r1.Serial, r2.Serial) != 0) return 1;
-	if(strcmp(r1.Num, r2.Num) != 0) return 1;
+	if(!sstreq(r1.Serial, r2.Serial)) return 1;
+	if(!sstreq(r1.Num, r2.Num)) return 1;
 	return 0;
 }
 
@@ -74,8 +74,7 @@ int FASTCALL operator != (const RegisterTbl::Rec & r1, const RegisterTbl::Rec & 
 {
 	#define ISEQ(f) (rRec1.f == rRec2.f)
 	if(ISEQ(ObjType) && ISEQ(ObjID) && ISEQ(PsnEventID) && ISEQ(RegTypeID) && ISEQ(Dt) && ISEQ(RegOrgID) &&
-		ISEQ(Expiry) && ISEQ(Flags) && ISEQ(ExtID) && strcmp(rRec1.Serial, rRec2.Serial) == 0 &&
-		strcmp(rRec1.Num, rRec2.Num) == 0) // @v10.6.0 ISEQ(ExtID)
+		ISEQ(Expiry) && ISEQ(Flags) && ISEQ(ExtID) && sstreq(rRec1.Serial, rRec2.Serial) && sstreq(rRec1.Num, rRec2.Num)) // @v10.6.0 ISEQ(ExtID)
 		return 1;
 	else
 		return 0;
@@ -477,8 +476,7 @@ int RegisterCore::GetUniqCntr(RegisterTbl::Rec * pRec, int forceDup)
 		memcpy(k3.Serial, pRec->Serial, sizeof(k3.Serial));
 		memcpy(k3.Num, pRec->Num, sizeof(k3.Num));
 		k3.UniqCntr = MAXLONG;
-		if(search(3, &k3, spLe) && k3.RegTypeID == pRec->RegTypeID &&
-			strcmp(k3.Serial, pRec->Serial) == 0 && strcmp(k3.Num, pRec->Num) == 0)
+		if(search(3, &k3, spLe) && k3.RegTypeID == pRec->RegTypeID && sstreq(k3.Serial, pRec->Serial) && sstreq(k3.Num, pRec->Num))
 			pRec->UniqCntr = k3.UniqCntr+1;
 	}
 	return 1;

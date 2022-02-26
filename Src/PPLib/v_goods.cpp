@@ -2568,7 +2568,7 @@ int PPViewGoods::RemoveAll()
 								const uint bc_pos = valid_bc_pos_list.get(j);
 								const BarcodeTbl::Rec & r_bc_item = org_pack.Codes.at(bc_pos);
 								BarcodeTbl::Rec & r_org_bc_item = org_pack.Codes.at(bc_pos);
-								assert(strcmp(r_bc_item.Code, r_org_bc_item.Code) == 0);
+								assert(sstreq(r_bc_item.Code, r_org_bc_item.Code));
 								org_pack.Codes.atFree(bc_pos);
 							}
 							{
@@ -2580,7 +2580,7 @@ int PPViewGoods::RemoveAll()
 								const uint bc_pos = valid_bc_pos_list.get(j);
 								const BarcodeTbl::Rec & r_bc_item = bc_list.at(bc_pos);
 								BarcodeTbl::Rec & r_org_bc_item = bc_list.at(bc_pos);
-								assert(strcmp(r_bc_item.Code, r_org_bc_item.Code) == 0);
+								assert(sstreq(r_bc_item.Code, r_org_bc_item.Code));
 								new_pack = org_pack;
 								new_pack.Rec.ID = 0;
 								new_pack.ArCodes.freeAll();

@@ -1,15 +1,11 @@
-/** @file
- * @brief Empty database internals
- */
-/* Copyright (C) 2017 Olly Betts
- *
+// empty_database.cc
+// @brief Empty database internals
+// Copyright (C) 2017 Olly Betts
+/*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -22,8 +18,7 @@
 
 using namespace std;
 
-[[noreturn]]
-static void no_subdatabases()
+[[noreturn]] static void no_subdatabases()
 {
 	throw Xapian::InvalidOperationError("No subdatabases");
 }
@@ -212,13 +207,9 @@ TermList* EmptyDatabase::open_metadata_keylist(const string &) const
 	return NULL;
 }
 
-void EmptyDatabase::write_changesets_to_fd(int,
-    const std::string &,
-    bool,
-    Xapian::ReplicationInfo*)
+void EmptyDatabase::write_changesets_to_fd(int, const std::string &, bool, Xapian::ReplicationInfo*)
 {
-	throw Xapian::InvalidOperationError("write_changesets_to_fd() with "
-		  "no subdatabases");
+	throw Xapian::InvalidOperationError("write_changesets_to_fd() with no subdatabases");
 }
 
 Xapian::rev EmptyDatabase::get_revision() const

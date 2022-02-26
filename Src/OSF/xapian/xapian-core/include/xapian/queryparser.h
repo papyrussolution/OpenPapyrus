@@ -16,10 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
-
 #ifndef XAPIAN_INCLUDED_QUERYPARSER_H
 #define XAPIAN_INCLUDED_QUERYPARSER_H
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
@@ -30,8 +28,8 @@
 #include <xapian/query.h>
 #include <xapian/termiterator.h>
 #include <xapian/visibility.h>
-#include <string>
-#include <unordered_set>
+//#include <string>
+//#include <unordered_set>
 
 namespace Xapian {
 class Database;
@@ -43,12 +41,9 @@ class Stem;
  *  Xapian::SimpleStopper.
  */
 class XAPIAN_VISIBILITY_DEFAULT Stopper : public Xapian::Internal::opt_intrusive_base {
-	/// Don't allow assignment.
-	void operator=(const Stopper &) = delete;
-	/// Don't allow copying.
-	Stopper(const Stopper &) = delete;
+	void operator=(const Stopper &) = delete; /// Don't allow assignment.
+	Stopper(const Stopper &) = delete; /// Don't allow copying.
 public:
-	/// Default constructor.
 	Stopper() 
 	{
 	}
@@ -113,19 +108,18 @@ public:
 	 *  iterator pair, so instead this constructor is wrapped to allow
 	 *  passing a filename.
 	 */
-	template <class Iterator>
-	SimpleStopper(Iterator begin, Iterator end) : stop_words(begin, end) {
+	template <class Iterator> SimpleStopper(Iterator begin, Iterator end) : stop_words(begin, end) 
+	{
 	}
-
 	/// Add a single stop word.
-	void add(const std::string & word) {
+	void add(const std::string & word) 
+	{
 		stop_words.insert(word);
 	}
-
-	virtual bool operator()(const std::string & term) const {
+	virtual bool operator()(const std::string & term) const 
+	{
 		return stop_words.find(term) != stop_words.end();
 	}
-
 	virtual std::string get_description() const;
 };
 
@@ -136,24 +130,18 @@ enum {
 };
 
 /// Base class for range processors.
-class XAPIAN_VISIBILITY_DEFAULT RangeProcessor
-	: public Xapian::Internal::opt_intrusive_base {
+class XAPIAN_VISIBILITY_DEFAULT RangeProcessor : public Xapian::Internal::opt_intrusive_base {
 	/// Don't allow assignment.
 	void operator=(const RangeProcessor &);
-
 	/// Don't allow copying.
 	RangeProcessor(const RangeProcessor &);
-
 protected:
 	/** The value slot to process.
 	 *
 	 *  If this range processor isn't value-based, it can ignore this member.
 	 */
 	Xapian::valueno slot;
-
-	/** The prefix (or suffix with RP_SUFFIX) string to look for. */
-	std::string str;
-
+	std::string str; /** The prefix (or suffix with RP_SUFFIX) string to look for. */
 	/** Flags.
 	 *
 	 *  Bitwise-or (| in C++) of zero or more of the following:
@@ -165,13 +153,12 @@ protected:
 	 *    the start (e.g. date:1/1/1980..31/12/1989), and a
 	 *    suffix only on the end (e.g. 2..12kg).
 	 */
-	unsigned flags;
-
+	uint   flags;
 public:
 	/** Default constructor. */
-	RangeProcessor() : slot(Xapian::BAD_VALUENO), flags(0) {
+	RangeProcessor() : slot(Xapian::BAD_VALUENO), flags(0) 
+	{
 	}
-
 	/** Constructor.
 	 *
 	 *  @param slot_	Which value slot to generate ranges over.
@@ -223,11 +210,11 @@ public:
 	 *  Xapian method.  Xapian will arrange to delete the object once it is no
 	 *  longer required.
 	 */
-	RangeProcessor * release() {
+	RangeProcessor * release() 
+	{
 		opt_intrusive_base::release();
 		return this;
 	}
-
 	/** Start reference counting this object.
 	 *
 	 *  You can hand ownership of a dynamically allocated RangeProcessor
@@ -235,7 +222,8 @@ public:
 	 *  Xapian method.  Xapian will arrange to delete the object once it is no
 	 *  longer required.
 	 */
-	const RangeProcessor * release() const {
+	const RangeProcessor * release() const 
+	{
 		opt_intrusive_base::release();
 		return this;
 	}
@@ -247,7 +235,6 @@ public:
  */
 class XAPIAN_VISIBILITY_DEFAULT DateRangeProcessor : public RangeProcessor {
 	int epoch_year;
-
 public:
 	/** Constructor.
 	 *
@@ -262,13 +249,10 @@ public:
 	 *			    years (default: 1970, so 1/1/69 is 2069 while
 	 *			    1/1/70 is 1970).
 	 */
-	explicit DateRangeProcessor(Xapian::valueno slot_,
-	    unsigned flags_ = 0,
-	    int epoch_year_ = 1970)
-		: RangeProcessor(slot_, std::string(), flags_),
-		epoch_year(epoch_year_) {
+	explicit DateRangeProcessor(Xapian::valueno slot_, uint flags_ = 0, int epoch_year_ = 1970) : 
+		RangeProcessor(slot_, std::string(), flags_), epoch_year(epoch_year_) 
+	{
 	}
-
 	/** Constructor.
 	 *
 	 *  @param slot_	The value slot number to query.
@@ -310,12 +294,10 @@ public:
 	 *  and the range processor has been added to the queryparser, the
 	 *  queryparser will accept "created:1/1/2000..31/12/2001".
 	 */
-	DateRangeProcessor(Xapian::valueno slot_, const std::string &str_,
-	    unsigned flags_ = 0, int epoch_year_ = 1970)
-		: RangeProcessor(slot_, str_, flags_),
-		epoch_year(epoch_year_) {
+	DateRangeProcessor(Xapian::valueno slot_, const std::string &str_, uint flags_ = 0, int epoch_year_ = 1970) : 
+		RangeProcessor(slot_, str_, flags_), epoch_year(epoch_year_) 
+	{
 	}
-
 	/** Check for a valid date range.
 	 *
 	 *  If any specified prefix is present, and the range looks like a
@@ -377,12 +359,9 @@ public:
 	 *  accept "10..50kg" or "10kg..50kg", but not "10..50" or "10kg..50" as
 	 *  valid ranges.
 	 */
-	NumberRangeProcessor(Xapian::valueno slot_,
-	    const std::string &str_ = std::string(),
-	    unsigned flags_ = 0)
-		: RangeProcessor(slot_, str_, flags_) {
+	NumberRangeProcessor(Xapian::valueno slot_, const std::string &str_ = std::string(), uint flags_ = 0) : RangeProcessor(slot_, str_, flags_) 
+	{
 	}
-
 	/** Check for a valid numeric range.
 	 *
 	 *  If BEGIN..END is a valid numeric range with the specified prefix/suffix

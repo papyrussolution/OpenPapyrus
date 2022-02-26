@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="White">#FFFFFF</color>
+    <color name="Black">#000000</color>
+    <color name="Primary">#03A9F4</color>
+    <color name="PrimaryDark">#0288D1</color>
+    <color name="PrimaryLight">#B2DFDB</color>
+    <color name="TextIcons">#FFFFFF</color>
+    <color name="Accent">#FF5722</color>
+    <color name="PrimaryText">#212121</color>
+    <color name="SecondaryText">#757575</color>
+    <color name="Divider">#BDBDBD</color>
+    <color name="Logo">#FFFFFF</color>
+    <color name="ListItemBorder">#DDDDDD</color>
+    <color name="GridInterleavedOdd">#EEEEEE</color>
+    <color name="GridInterleavedEven">#DDDDDD</color>
+    <color name="ListItemRegular">#FFFFFF</color>
+    <color name="FoundListItem">#FDFFB6</color>
+    <color name="FocusedListItem">@color/PrimaryLight</color>
+</resources>

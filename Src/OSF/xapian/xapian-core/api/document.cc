@@ -8,11 +8,6 @@
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
@@ -24,8 +19,7 @@
 
 using namespace std;
 
-[[noreturn]]
-static void throw_invalid_arg_empty_term()
+[[noreturn]] static void throw_invalid_arg_empty_term()
 {
 	throw Xapian::InvalidArgumentError("Empty termnames are invalid");
 }
@@ -34,9 +28,7 @@ namespace Xapian {
 Document::Document(Document::Internal* internal_) : internal(internal_)
 {
 }
-
 Document::Document(const Document&) = default;
-
 Document& Document::operator=(const Document&) = default;
 Document::Document(Document&&) = default;
 Document& Document::operator=(Document&&) = default;
@@ -49,20 +41,9 @@ Document::~Document()
 {
 }
 
-Xapian::docid Document::get_docid() const
-{
-	return internal->get_docid();
-}
-
-string Document::get_data() const
-{
-	return internal->get_data();
-}
-
-void Document::set_data(const string & data)
-{
-	internal->set_data(data);
-}
+Xapian::docid Document::get_docid() const { return internal->get_docid(); }
+string Document::get_data() const { return internal->get_data(); }
+void Document::set_data(const string & data) { internal->set_data(data); }
 
 void Document::add_term(const string & term, Xapian::termcount wdf_inc)
 {
@@ -86,9 +67,7 @@ void Document::remove_term(const string & term)
 	}
 }
 
-void Document::add_posting(const string & term,
-    Xapian::termpos term_pos,
-    Xapian::termcount wdf_inc)
+void Document::add_posting(const string & term, Xapian::termpos term_pos, Xapian::termcount wdf_inc)
 {
 	if(term.empty()) {
 		throw_invalid_arg_empty_term();
@@ -96,9 +75,7 @@ void Document::add_posting(const string & term,
 	internal->add_posting(term, term_pos, wdf_inc);
 }
 
-void Document::remove_posting(const string & term,
-    Xapian::termpos term_pos,
-    Xapian::termcount wdf_dec)
+void Document::remove_posting(const string & term, Xapian::termpos term_pos, Xapian::termcount wdf_dec)
 {
 	if(term.empty()) {
 		throw_invalid_arg_empty_term();
@@ -118,10 +95,7 @@ void Document::remove_posting(const string & term,
 	}
 }
 
-Xapian::termpos Document::remove_postings(const string & term,
-    Xapian::termpos term_pos_first,
-    Xapian::termpos term_pos_last,
-    Xapian::termcount wdf_dec)
+Xapian::termpos Document::remove_postings(const string & term, Xapian::termpos term_pos_first, Xapian::termpos term_pos_last, Xapian::termcount wdf_dec)
 {
 	if(term.empty()) {
 		throw_invalid_arg_empty_term();
@@ -141,54 +115,15 @@ Xapian::termpos Document::remove_postings(const string & term,
 	return n_removed;
 }
 
-void Document::clear_terms()
-{
-	internal->clear_terms();
-}
-
-Xapian::termcount Document::termlist_count() const {
-	return internal->termlist_count();
-}
-
-TermIterator Document::termlist_begin() const
-{
-	return TermIterator(internal->open_term_list());
-}
-
-string Document::get_value(Xapian::valueno slot) const
-{
-	return internal->get_value(slot);
-}
-
-void Document::add_value(Xapian::valueno slot, const string & value)
-{
-	internal->add_value(slot, value);
-}
-
-void Document::clear_values()
-{
-	internal->clear_values();
-}
-
+void Document::clear_terms() { internal->clear_terms(); }
+Xapian::termcount Document::termlist_count() const { return internal->termlist_count(); }
+TermIterator Document::termlist_begin() const { return TermIterator(internal->open_term_list()); }
+string Document::get_value(Xapian::valueno slot) const { return internal->get_value(slot); }
+void Document::add_value(Xapian::valueno slot, const string & value) { internal->add_value(slot, value); }
+void Document::clear_values() { internal->clear_values(); }
 /*Xapian::termcount*/ Xapian::valueno Document::values_count() const { return internal->values_count(); }
-
-ValueIterator Document::values_begin() const
-{
-	return internal->values_begin();
-}
-
-string Document::serialise() const
-{
-	return serialise_document(*this);
-}
-
-Document Document::unserialise(const string & serialised)
-{
-	return unserialise_document(serialised);
-}
-
-string Document::get_description() const
-{
-	return internal->get_description();
-}
+ValueIterator Document::values_begin() const { return internal->values_begin(); }
+string Document::serialise() const { return serialise_document(*this); }
+Document Document::unserialise(const string & serialised) { return unserialise_document(serialised); }
+string Document::get_description() const { return internal->get_description(); }
 }

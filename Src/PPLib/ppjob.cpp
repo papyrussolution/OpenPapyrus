@@ -4229,3 +4229,42 @@ public:
 };
 
 IMPLEMENT_JOB_HDL_FACTORY(TIMESERIESSA);
+//
+//
+// ExportPrjTasks
+class JOB_HDL_CLS(EXPORTPRJTASKS) : public PPJobHandler {
+public:
+	JOB_HDL_CLS(EXPORTPRJTASKS)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	{
+	}
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
+	{
+		int    ok = -1;
+		if(pParam) {
+			PPViewPrjTask view;
+			PrjTaskFilt filt;
+			if(filt.Read(*pParam, 0)) {
+				;
+			}
+			if(view.EditBaseFilt(&filt) > 0) {
+				if(filt.Write(*pParam, 0)) {
+					ok = 1;
+				}
+			}
+		}
+		return ok;
+	}
+	virtual int Run(SBuffer * pParam, void * extraPtr)
+	{
+		int    ok = -1;
+		PPViewPrjTask view;
+		PrjTaskFilt filt;
+		THROW(pParam && filt.Read(*pParam, 0));
+		THROW(view.Init_(&filt));
+		THROW(view.Transmit(0, 2));
+		CATCHZOKPPERR
+		return ok;
+	}
+};
+
+IMPLEMENT_JOB_HDL_FACTORY(EXPORTPRJTASKS);

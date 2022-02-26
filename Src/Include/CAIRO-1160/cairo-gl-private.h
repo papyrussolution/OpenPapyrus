@@ -21,26 +21,14 @@
  *
  * The contents of this file are subject to the Mozilla Public License
  * Version 1.1 (the "License"); you may not use this file except in
- * compliance with the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
+ * compliance with the License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
  *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is Red Hat, Inc.
- *
- * Contributor(s):
- *	Benjamin Otte <otte@gnome.org>
- *	Carl Worth <cworth@cworth.org>
- *	Chris Wilson <chris@chris-wilson.co.uk>
- *	Eric Anholt <eric@anholt.net>
- *	T. Zachary Laine <whatwasthataddress@gmail.com>
- *	Alexandros Frantzis <alexandros.frantzis@linaro.org>
+ * Contributor(s): Benjamin Otte <otte@gnome.org> Carl Worth <cworth@cworth.org>
+ *	Chris Wilson <chris@chris-wilson.co.uk> Eric Anholt <eric@anholt.net>
+ *	T. Zachary Laine <whatwasthataddress@gmail.com> Alexandros Frantzis <alexandros.frantzis@linaro.org>
  */
-
 #ifndef CAIRO_GL_PRIVATE_H
 #define CAIRO_GL_PRIVATE_H
 
@@ -154,13 +142,10 @@ typedef struct cairo_gl_source {
 struct _cairo_gl_surface {
 	cairo_surface_t base;
 	cairo_gl_operand_t operand;
-
 	int width, height;
-
 	GLuint tex; /* GL texture object containing our data. */
 	GLuint fb; /* GL framebuffer object wrapping our data. */
 	GLuint depth_stencil; /* GL renderbuffer object for holding stencil buffer clip. */
-
 #if CAIRO_HAS_GL_SURFACE || CAIRO_HAS_GLESV3_SURFACE
 	GLuint msaa_rb; /* The ARB MSAA path uses a renderbuffer. */
 	GLuint msaa_fb;

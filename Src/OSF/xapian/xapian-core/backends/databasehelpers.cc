@@ -16,8 +16,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 #include <xapian-internal.h>
 #pragma hdrstop
@@ -26,7 +25,6 @@
 #include "glass/glass_defs.h"
 #include "honey/honey_defs.h"
 #include "io_utils.h"
-#include "omassert.h"
 #include "posixy_wrapper.h"
 #include "safesysstat.h"
 #include "safeunistd.h"

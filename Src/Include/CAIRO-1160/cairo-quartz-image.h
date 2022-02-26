@@ -1,5 +1,4 @@
 /* cairo - a vector graphics library with display and print output
- *
  * Copyright © 2008 Mozilla Corporation
  *
  * This library is free software; you can redistribute it and/or
@@ -21,18 +20,10 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is Mozilla Foundation.
- *
- * Contributor(s):
- * Vladimir Vukicevic <vladimir@mozilla.com>
+ * Contributor(s): Vladimir Vukicevic <vladimir@mozilla.com>
  */
-
 #ifndef CAIRO_QUARTZ_IMAGE_H
 #define CAIRO_QUARTZ_IMAGE_H
 
@@ -42,10 +33,8 @@
 	#include <Carbon/Carbon.h>
 
 	CAIRO_BEGIN_DECLS
-	cairo_public cairo_surface_t *
-	cairo_quartz_image_surface_create (cairo_surface_t *image_surface);
-	cairo_public cairo_surface_t *
-	cairo_quartz_image_surface_get_image (cairo_surface_t *surface);
+	cairo_public cairo_surface_t * cairo_quartz_image_surface_create (cairo_surface_t *image_surface);
+	cairo_public cairo_surface_t * cairo_quartz_image_surface_get_image (cairo_surface_t *surface);
 	CAIRO_END_DECLS
 #else  /* CAIRO_HAS_QUARTZ_IMAGE_SURFACE */
 	#error Cairo was not compiled with support for the quartz-image backend

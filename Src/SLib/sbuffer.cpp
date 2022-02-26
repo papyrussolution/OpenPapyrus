@@ -557,24 +557,24 @@ SBaseBuffer & SBaseBuffer::Destroy()
 	return *this;
 }
 
-int FASTCALL SBaseBuffer::IsEq(const SBaseBuffer & rS) const
+bool FASTCALL SBaseBuffer::IsEq(const SBaseBuffer & rS) const
 {
 	if(Size != rS.Size)
-		return 0;
+		return false;
 	else if(Size && memcmp(P_Buf, rS.P_Buf, Size) != 0)
-		return 0;
+		return false;
 	else
-		return 1;
+		return true;
 }
 
-int FASTCALL SBaseBuffer::Copy(const SBaseBuffer & rS)
+bool FASTCALL SBaseBuffer::Copy(const SBaseBuffer & rS)
 {
 	if(Alloc(rS.Size)) {
 		memcpy(P_Buf, rS.P_Buf, rS.Size);
-		return 1;
+		return true;
 	}
 	else
-		return 0;
+		return false;
 }
 
 int FASTCALL SBaseBuffer::Alloc(size_t sz)
@@ -811,9 +811,9 @@ int SBinaryChunk::Set(uint8 byte, size_t len)
 	return ok;	
 }
 
-int SBinaryChunk::Put(const void * pData, size_t len)
+bool SBinaryChunk::Put(const void * pData, size_t len)
 {
-	int    ok = 1;
+	bool   ok = true;
 	assert(pData || len == 0);
 	CheckInvariants();
 	if(len == 0 || !pData)
@@ -823,7 +823,7 @@ int SBinaryChunk::Put(const void * pData, size_t len)
 		L = len;
 	}
 	else
-		ok = 0;
+		ok = false;
 	return ok;
 }
 

@@ -399,7 +399,7 @@ static size_t check_stub(const string & stub_path, int opts, std::ostream* out)
 			auto msg = "Remote database checking not implemented";
 			throw Xapian::UnimplementedError(msg);
 		},
-	    [](const string &, unsigned) {
+	    [](const string &, uint) {
 			auto msg = "Remote database checking not implemented";
 			throw Xapian::UnimplementedError(msg);
 		},

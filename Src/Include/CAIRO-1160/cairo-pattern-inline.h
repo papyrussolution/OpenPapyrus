@@ -21,18 +21,10 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is Red Hat, Inc.
- *
- * Contributor(s):
- *	Carl D. Worth <cworth@redhat.com>
+ * Contributor(s): Carl D. Worth <cworth@redhat.com>
  */
-
 #ifndef CAIRO_PATTERN_INLINE_H
 #define CAIRO_PATTERN_INLINE_H
 
@@ -45,7 +37,6 @@ CAIRO_BEGIN_DECLS
 		observer->notify = func;
 		cairo_list_add(&observer->link, &pattern->observers);
 	}
-
 	static inline cairo_surface_t * _cairo_pattern_get_source(const cairo_surface_pattern_t * pattern, cairo_rectangle_int_t * extents)
 	{
 		return _cairo_surface_get_source(pattern->surface, extents);

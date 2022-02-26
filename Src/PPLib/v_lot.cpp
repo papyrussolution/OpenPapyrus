@@ -3606,7 +3606,7 @@ int PPViewLotExtCode::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 						rec = org_rec;
 						DBRowId _dbpos;
 						THROW_DB(Tbl.getPosition(&_dbpos));
-						if(EditLotExtCode(rec, 0) && strcmp(rec.Code, org_rec.Code) != 0) {
+						if(EditLotExtCode(rec, 0) && !sstreq(rec.Code, org_rec.Code)) {
 							PPTransaction tra(1);
 							THROW(tra);
 							THROW_DB(Tbl.getDirectForUpdate(0, 0, _dbpos));

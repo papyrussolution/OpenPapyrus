@@ -18,21 +18,12 @@
  *
  * The contents of this file are subject to the Mozilla Public License
  * Version 1.1 (the "License"); you may not use this file except in
- * compliance with the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
+ * compliance with the License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
  *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is University of Southern California.
- *
- * Contributor(s):
- *	Chris Wilson <chris@chris-wilson.co.u>
+ * Contributor(s): Chris Wilson <chris@chris-wilson.co.u>
  */
-
 #ifndef CAIRO_COMPOSITE_RECTANGLES_PRIVATE_H
 #define CAIRO_COMPOSITE_RECTANGLES_PRIVATE_H
 
@@ -62,7 +53,7 @@ struct _cairo_composite_rectangles {
 	uint32 is_bounded;
 	cairo_rectangle_int_t source_sample_area;
 	cairo_rectangle_int_t mask_sample_area;
-	cairo_pattern_union_t source_pattern;
+    cairo_pattern_union_t source_pattern;
 	cairo_pattern_union_t mask_pattern;
 	const cairo_pattern_t * original_source_pattern;
 	const cairo_pattern_t * original_mask_pattern;
@@ -92,35 +83,14 @@ cairo_private cairo_int_status_t _cairo_composite_rectangles_init_for_stroke(cai
     const cairo_clip_t * clip);
 
 cairo_private cairo_int_status_t _cairo_composite_rectangles_init_for_fill(cairo_composite_rectangles_t * extents,
-    cairo_surface_t * surface,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    const cairo_path_fixed_t * path,
-    const cairo_clip_t * clip);
-
+    cairo_surface_t * surface, cairo_operator_t op, const cairo_pattern_t * source, const cairo_path_fixed_t * path, const cairo_clip_t * clip);
 cairo_private cairo_int_status_t _cairo_composite_rectangles_init_for_boxes(cairo_composite_rectangles_t * extents,
-    cairo_surface_t * surface,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    const cairo_boxes_t * boxes,
-    const cairo_clip_t * clip);
-
+    cairo_surface_t * surface, cairo_operator_t op, const cairo_pattern_t * source, const cairo_boxes_t * boxes, const cairo_clip_t * clip);
 cairo_private cairo_int_status_t _cairo_composite_rectangles_init_for_polygon(cairo_composite_rectangles_t * extents,
-    cairo_surface_t * surface,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    const cairo_polygon_t * polygon,
-    const cairo_clip_t * clip);
-
+    cairo_surface_t * surface, cairo_operator_t op, const cairo_pattern_t * source, const cairo_polygon_t * polygon, const cairo_clip_t * clip);
 cairo_private cairo_int_status_t _cairo_composite_rectangles_init_for_glyphs(cairo_composite_rectangles_t * extents,
-    cairo_surface_t * surface,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    cairo_scaled_font_t  * scaled_font,
-    cairo_glyph_t * glyphs,
-    int num_glyphs,
-    const cairo_clip_t * clip,
-    boolint * overlap);
+    cairo_surface_t * surface, cairo_operator_t op, const cairo_pattern_t * source, cairo_scaled_font_t  * scaled_font, cairo_glyph_t * glyphs,
+    int num_glyphs, const cairo_clip_t * clip, boolint * overlap);
 cairo_private cairo_int_status_t _cairo_composite_rectangles_intersect_source_extents(cairo_composite_rectangles_t * extents, const cairo_box_t * box);
 cairo_private cairo_int_status_t FASTCALL _cairo_composite_rectangles_intersect_mask_extents(cairo_composite_rectangles_t * extents, const cairo_box_t * box);
 cairo_private boolint FASTCALL _cairo_composite_rectangles_can_reduce_clip(cairo_composite_rectangles_t * composite, const cairo_clip_t * clip);

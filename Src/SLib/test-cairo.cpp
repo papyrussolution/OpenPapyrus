@@ -358,54 +358,38 @@ static cairo_surface_t * _cairo_test_flatten_reference_image(cairo_test_context_
 	cairo_t * cr;
 	if(!flatten)
 		return ctx->ref_image;
-
 	if(ctx->ref_image_flattened != NULL)
 		return ctx->ref_image_flattened;
-
-	surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
-	    cairo_image_surface_get_width(ctx->ref_image),
-	    cairo_image_surface_get_height(ctx->ref_image));
+	surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, cairo_image_surface_get_width(ctx->ref_image), cairo_image_surface_get_height(ctx->ref_image));
 	cr = cairo_create(surface);
 	cairo_surface_destroy(surface);
-
 	cairo_set_source_rgb(cr, 1, 1, 1);
 	cairo_paint(cr);
-
 	cairo_set_source_surface(cr, ctx->ref_image, 0, 0);
 	cairo_paint(cr);
-
 	surface = cairo_surface_reference(cairo_get_target(cr));
 	cairo_destroy(cr);
-
 	if(cairo_surface_status(surface) == CAIRO_STATUS_SUCCESS)
 		ctx->ref_image_flattened = surface;
 	return surface;
 }
 
-cairo_surface_t * cairo_test_get_reference_image(cairo_test_context_t * ctx,
-    const char * filename,
-    boolint flatten)
+cairo_surface_t * cairo_test_get_reference_image(cairo_test_context_t * ctx, const char * filename, boolint flatten)
 {
 	cairo_surface_t * surface;
-
 	if(ctx->ref_name != NULL) {
 		if(strcmp(ctx->ref_name, filename) == 0)
 			return _cairo_test_flatten_reference_image(ctx, flatten);
-
 		cairo_surface_destroy(ctx->ref_image);
 		ctx->ref_image = NULL;
-
 		cairo_surface_destroy(ctx->ref_image_flattened);
 		ctx->ref_image_flattened = NULL;
-
 		free(ctx->ref_name);
 		ctx->ref_name = NULL;
 	}
-
 	surface = cairo_image_surface_create_from_png(filename);
 	if(cairo_surface_status(surface))
 		return surface;
-
 	ctx->ref_name = xstrdup(filename);
 	ctx->ref_image = surface;
 	return _cairo_test_flatten_reference_image(ctx, flatten);

@@ -388,76 +388,6 @@ public:
 	// @v10.7.11 void   SortByText();
 };
 
-#if 0 // @v10.7.11 {
-int StrAssocArray::Test_Cmp(const TaggedStringArray_obsolete & rTsa, int * pNEqPos) const
-{
-	int    ok = 1;
-	int    neq_pos = -1;
-	uint   c = getCount(), i = 0;
-	THROW(rTsa.getCount() == c);
-	for(i = 0; i < c; i++) {
-		const TaggedString_obsolete & r_ts = rTsa.at(i);
-		Item sa = Get(i);
-		neq_pos = static_cast<int>(i);
-		THROW(sa.Id == r_ts.Id);
-		if(sa.Txt) {
-			THROW(strcmp(sa.Txt, r_ts.Txt) == 0);
-		}
-		else {
-			THROW(r_ts.Txt[0] == 0);
-		}
-	}
-	CATCHZOK
-	ASSIGN_PTR(pNEqPos, neq_pos);
-	return ok;
-}
-
-int TaggedStringArray_obsolete::Search(long id, uint * pPos, int binary) const
-{
-	uint   pos = 0;
-	int    ok = binary ? bsearch(&id, &pos, CMPF_LONG) : lsearch(&id, &pos, CMPF_LONG);
-	ASSIGN_PTR(pPos, pos);
-	return ok;
-}
-
-int TaggedStringArray_obsolete::SearchByText(const char * pTxt, uint * pPos) const
-{
-	if(pTxt) {
-		TaggedString_obsolete * p_item;
-		for(uint i = 0; enumItems(&i, (void **)&p_item);)
-			if(stricmp866(p_item->Txt, pTxt) == 0) {
-				ASSIGN_PTR(pPos, i-1);
-				return 1;
-			}
-	}
-	return 0;
-}
-
-int TaggedStringArray_obsolete::Get(long id, SString & rBuf, int binary) const
-{
-	uint   pos = 0;
-	int    ok = Search(id, &pos, binary);
-	if(ok > 0)
-		rBuf = at(pos).Txt;
-	else
-		rBuf.Z();
-	return ok;
-}
-
-int TaggedStringArray_obsolete::Get(long id, char * pBuf, size_t bufLen, int binary) const
-{
-	SString temp_buf;
-	int    r = Get(id, temp_buf, binary);
-	temp_buf.CopyTo(pBuf, bufLen);
-	return r;
-}
-
-IMPL_CMPFUNC(TaggedStringByName, i1, i2) { return stricmp866(static_cast<const char *>(i1)+sizeof(long), static_cast<const char *>(i2)+sizeof(long)); }
-
-void TaggedStringArray_obsolete::SortByText() { SArray::sort(PTR_CMPFUNC(TaggedStringByName)); }
-void TaggedStringArray_obsolete::SortByID() { SArray::sort(CMPF_LONG); }
-#endif // } 0 @v10.7.11
-
 // @v10.7.10 const char * PersonAddImageFolder = "PersonAddImageFolder";
 
 struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
@@ -2237,7 +2167,7 @@ int PPObjPerson::AddRegisterToPacket(PPPersonPacket & rPack, PPID regTypeID, con
 			RegisterTbl::Rec test_rec;
 			uint   pos = 0;
 			while(rPack.Regs.GetRegister(reg_rec.RegTypeID, &pos, &test_rec) > 0) {
-				if(strcmp(test_rec.Num, reg_rec.Num) == 0)
+				if(sstreq(test_rec.Num, reg_rec.Num))
 					reg_exists = 1;
 				else
 					rPack.Regs.atFree(--pos);
@@ -3424,7 +3354,7 @@ int PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 						if(!(pPack->UpdFlags & PPPersonPacket::ufDontChgStaffAmt))
 							THROW(PutStaffAmtList(id, &pPack->Amounts));
 						THROW(P_Tbl->Put(&id, pPack, 0));
-						if(strcmp(pPack->Rec.Name, org_rec.Name) != 0)
+						if(!sstreq(pPack->Rec.Name, org_rec.Name))
 							THROW(SendObjMessage(DBMSG_OBJNAMEUPDATE, PPOBJ_ARTICLE, PPOBJ_PERSON, id, pPack->Rec.Name, 0));
 						action = PPACN_OBJUPD;
 						dirty_id = id;
@@ -5536,7 +5466,7 @@ int MainOrg2Dialog::getDTS()
 					if(ba.BankID == bnk_id) {
 						bnk_pos = i;
 						find_acc = 1;
-						if(strcmp(ba.Acct, buf) == 0)
+						if(sstreq(ba.Acct, buf))
 							ba_done = 1; // @exit
 					}
 				}
@@ -5545,7 +5475,7 @@ int MainOrg2Dialog::getDTS()
 		if(bnk_id) {
 			if(PrefPos > -1)
 				P_Pack->Regs.at(PrefPos).Flags &= ~PREGF_BACC_PREFERRED/*BACCTF_PREFERRED*/;
-			if(find_acc && strcmp(P_Pack->Regs.at(bnk_pos).Num, buf) == 0)
+			if(find_acc && sstreq(P_Pack->Regs.at(bnk_pos).Num, buf))
 				P_Pack->Regs.at(bnk_pos).Flags |= PREGF_BACC_PREFERRED/*BACCTF_PREFERRED*/;
 			else {
 				PPBankAccount bnk_rec;
@@ -5573,7 +5503,7 @@ int MainOrg2Dialog::getDTS()
 				if(P_Pack->BAA.at(i-1).BankID == bnk_id) {
 					bnk_pos = i-1;
 					find_acc = 1;
-					if(!strcmp(P_Pack->BAA.at(i-1).Acct, buf))
+					if(sstreq(P_Pack->BAA.at(i-1).Acct, buf))
 						break;
 				}
 			}
@@ -5581,7 +5511,7 @@ int MainOrg2Dialog::getDTS()
 		if(bnk_id) {
 			if(PrefPos > -1)
 				P_Pack->BAA.at(PrefPos).Flags &= ~BACCTF_PREFERRED;
-			if(find_acc && !strcmp(P_Pack->BAA.at(bnk_pos).Acct, buf))
+			if(find_acc && sstreq(P_Pack->BAA.at(bnk_pos).Acct, buf))
 				P_Pack->BAA.at(bnk_pos).Flags |= BACCTF_PREFERRED;
 			else {
 				BankAccountTbl::Rec bnk_rec;

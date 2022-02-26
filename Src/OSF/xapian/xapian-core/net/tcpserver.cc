@@ -220,8 +220,7 @@ XapianTcpServer::~XapianTcpServer()
 // A fork() based implementation.
 
 extern "C" {
-[[noreturn]]
-static void on_SIGTERM(int /*sig*/)
+[[noreturn]] static void on_SIGTERM(int /*sig*/)
 {
 	signal(SIGTERM, SIG_DFL);
 	/* terminate all processes in my process group */

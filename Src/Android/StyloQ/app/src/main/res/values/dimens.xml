@@ -1,0 +1,7 @@
+<resources>
+    <dimen name="app_bar_height">180dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="text_margin">16dp</dimen>
+    <dimen name="text_20sp">20sp</dimen>
+    <dimen name="toolbariconsqside">30dp</dimen>
+</resources>

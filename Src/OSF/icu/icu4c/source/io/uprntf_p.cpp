@@ -950,27 +950,18 @@ static const u_printf_info g_u_printf_infos[UPRINTF_NUM_FMT_HANDLERS] = {
 #define DIGIT_EIGHT 0x0038
 #define DIGIT_NINE 0x0039
 
-#define ISDIGIT(s)    (s) == DIGIT_ZERO || \
-	(s) == DIGIT_ONE || \
-	(s) == DIGIT_TWO || \
-	(s) == DIGIT_THREE || \
-	(s) == DIGIT_FOUR || \
-	(s) == DIGIT_FIVE || \
-	(s) == DIGIT_SIX || \
-	(s) == DIGIT_SEVEN || \
-	(s) == DIGIT_EIGHT || \
-	(s) == DIGIT_NINE
+#define ISDIGIT(s)    (s) == DIGIT_ZERO || (s) == DIGIT_ONE || (s) == DIGIT_TWO || (s) == DIGIT_THREE || (s) == DIGIT_FOUR || \
+	(s) == DIGIT_FIVE || (s) == DIGIT_SIX || (s) == DIGIT_SEVEN || (s) == DIGIT_EIGHT || (s) == DIGIT_NINE
 
 /* u_printf modifiers */
 #define MOD_H 0x0068
 #define MOD_LOWERL 0x006C
 #define MOD_L 0x004C
 
-#define ISMOD(s)    (s) == MOD_H || \
-	(s) == MOD_LOWERL || \
-	(s) == MOD_L
+#define ISMOD(s)    (s) == MOD_H || (s) == MOD_LOWERL || (s) == MOD_L
 /* Returns an array of the parsed argument type given in the format string. */
-static ufmt_args* parseArguments(const UChar * alias, va_list ap, UErrorCode * status) {
+static ufmt_args* parseArguments(const UChar * alias, va_list ap, UErrorCode * status) 
+{
 	ufmt_args * arglist = NULL;
 	ufmt_type_info * typelist = NULL;
 	bool * islonglong = NULL;
@@ -1054,13 +1045,10 @@ static ufmt_args* parseArguments(const UChar * alias, va_list ap, UErrorCode * s
 		if(*alias == 0x0000) {
 			break;
 		}
-
 		alias++;
-
 		/* handle positional parameters */
 		if(ISDIGIT(*alias)) {
 			pos = (int)(*alias++ - DIGIT_ZERO);
-
 			while(ISDIGIT(*alias)) {
 				pos *= 10;
 				pos += (int)(*alias++ - DIGIT_ZERO);
@@ -1068,10 +1056,8 @@ static ufmt_args* parseArguments(const UChar * alias, va_list ap, UErrorCode * s
 		}
 		/* offset position by 1 */
 		pos--;
-
 		/* skip over everything except for the type */
-		while(ISMOD(*alias) || ISFLAG(*alias) || ISDIGIT(*alias) ||
-		    *alias == SPEC_ASTERISK || *alias == SPEC_PERIOD || *alias == SPEC_DOLLARSIGN) {
+		while(ISMOD(*alias) || ISFLAG(*alias) || ISDIGIT(*alias) || *alias == SPEC_ASTERISK || *alias == SPEC_PERIOD || *alias == SPEC_DOLLARSIGN) {
 			islonglong[pos] = FALSE;
 			if(ISMOD(*alias)) {
 				alias++;
@@ -1239,7 +1225,6 @@ U_CFUNC int32_t u_printf_parse(const u_printf_stream_handler * streamHandler,
 				case FLAG_POUND:
 				    info->fAlt = TRUE;
 				    break;
-
 				/* pad with leading zeroes */
 				case FLAG_ZERO:
 				    info->fZero = TRUE;
@@ -1248,43 +1233,33 @@ U_CFUNC int32_t u_printf_parse(const u_printf_stream_handler * streamHandler,
 
 				/* pad character specified */
 				case FLAG_PAREN:
-
 				    /* TODO test that all four are numbers */
 				    /* first four characters are hex values for pad char */
 				    info->fPadChar = (UChar)ufmt_digitvalue(*alias++);
 				    info->fPadChar = (UChar)((info->fPadChar * 16) + ufmt_digitvalue(*alias++));
 				    info->fPadChar = (UChar)((info->fPadChar * 16) + ufmt_digitvalue(*alias++));
 				    info->fPadChar = (UChar)((info->fPadChar * 16) + ufmt_digitvalue(*alias++));
-
 				    /* final character is ignored */
 				    alias++;
-
 				    break;
 			}
 		}
-
 		/* Get the width */
-
 		/* width is specified out of line */
 		if(*alias == SPEC_ASTERISK) {
 			info->fWidth = -2;
-
 			/* Skip the '*' */
 			alias++;
-
 			/* Save the current position */
 			backup = alias;
-
 			/* handle positional parameters */
 			if(ISDIGIT(*alias)) {
 				spec.fWidthPos = (int)(*alias++ - DIGIT_ZERO);
-
 				while(ISDIGIT(*alias)) {
 					spec.fWidthPos *= 10;
 					spec.fWidthPos += (int)(*alias++ - DIGIT_ZERO);
 				}
 			}
-
 			/* if there is no '$', don't read anything */
 			if(*alias != SPEC_DOLLARSIGN) {
 				spec.fWidthPos = -1;
@@ -1297,38 +1272,29 @@ U_CFUNC int32_t u_printf_parse(const u_printf_stream_handler * streamHandler,
 		/* read the width, if present */
 		else if(ISDIGIT(*alias)) {
 			info->fWidth = (int)(*alias++ - DIGIT_ZERO);
-
 			while(ISDIGIT(*alias)) {
 				info->fWidth *= 10;
 				info->fWidth += (int)(*alias++ - DIGIT_ZERO);
 			}
 		}
-
 		/* Get the precision */
-
 		if(*alias == SPEC_PERIOD) {
 			/* eat up the '.' */
 			alias++;
-
 			/* precision is specified out of line */
 			if(*alias == SPEC_ASTERISK) {
 				info->fPrecision = -2;
-
 				/* Skip the '*' */
 				alias++;
-
 				/* save the current position */
 				backup = alias;
-
 				/* handle positional parameters */
 				if(ISDIGIT(*alias)) {
 					spec.fPrecisionPos = (int)(*alias++ - DIGIT_ZERO);
-
 					while(ISDIGIT(*alias)) {
 						spec.fPrecisionPos *= 10;
 						spec.fPrecisionPos += (int)(*alias++ - DIGIT_ZERO);
 					}
-
 					/* if there is no '$', don't read anything */
 					if(*alias != SPEC_DOLLARSIGN) {
 						spec.fPrecisionPos = -1;
@@ -1343,14 +1309,12 @@ U_CFUNC int32_t u_printf_parse(const u_printf_stream_handler * streamHandler,
 			/* read the precision */
 			else if(ISDIGIT(*alias)) {
 				info->fPrecision = (int)(*alias++ - DIGIT_ZERO);
-
 				while(ISDIGIT(*alias)) {
 					info->fPrecision *= 10;
 					info->fPrecision += (int)(*alias++ - DIGIT_ZERO);
 				}
 			}
 		}
-
 		/* Get any modifiers */
 		if(ISMOD(*alias)) {
 			switch(*alias++) {
@@ -1408,7 +1372,6 @@ U_CFUNC int32_t u_printf_parse(const u_printf_stream_handler * streamHandler,
 		if(handlerNum < UPRINTF_NUM_FMT_HANDLERS) {
 			/* query the info function for argument information */
 			argType = g_u_printf_infos[ handlerNum ].info;
-
 			/* goto the correct argument on arg_list if position is specified */
 			if(spec.fArgPos > 0) {
 				/* offset position by 1 */
@@ -1456,12 +1419,7 @@ U_CFUNC int32_t u_printf_parse(const u_printf_stream_handler * streamHandler,
 					case ufmt_char:
 					case ufmt_uchar:
 					case ufmt_int:
-					    if(info->fIsLongLong) {
-						    args.int64Value = va_arg(ap, int64_t);
-					    }
-					    else {
-						    args.int64Value = va_arg(ap, int32_t);
-					    }
+					    args.int64Value = info->fIsLongLong ? va_arg(ap, int64_t) : va_arg(ap, int32_t);
 					    break;
 					case ufmt_float:
 					    args.floatValue = (float)va_arg(ap, double);

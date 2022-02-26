@@ -13,7 +13,6 @@
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "glass_database.h"
-#include "xapian/valueiterator.h"
 #include "backends/contiguousalldocspostlist.h"
 #include "glass_alldocspostlist.h"
 #include "glass_alltermslist.h"
@@ -754,7 +753,6 @@ LeafPostList* GlassDatabase::open_leaf_post_list(const string & term, bool need_
 	LOGCALL(DB, LeafPostList *, "GlassDatabase::open_leaf_post_list", term | need_read_pos);
 	(void)need_read_pos;
 	intrusive_ptr<const GlassDatabase> ptrtothis(this);
-
 	if(term.empty()) {
 		Assert(!need_read_pos);
 		Xapian::doccount doccount = get_doccount();
@@ -763,7 +761,6 @@ LeafPostList* GlassDatabase::open_leaf_post_list(const string & term, bool need_
 		}
 		RETURN(new GlassAllDocsPostList(ptrtothis, doccount));
 	}
-
 	RETURN(new GlassPostList(ptrtothis, term, true));
 }
 

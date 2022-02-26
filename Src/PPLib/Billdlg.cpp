@@ -3018,12 +3018,12 @@ int BillDialog::getDTS(int onCancel)
 	}
 	THROW(P_BObj->ValidatePacket(P_Pack, 0));
 	CATCHZOK
-	if(strcmp(strip(P_Pack->Rec.Code), strip(Pattern.Code)) == 0)
+	if(sstreq(strip(P_Pack->Rec.Code), strip(Pattern.Code)))
 		memcpy(Pattern.Code, P_Pack->Rec.Code, sizeof(Pattern.Code));
 	if(P_Pack->GetAmount() == BR2(Pattern.Amount))
 		Pattern.Amount = BR2(P_Pack->Rec.Amount);
 	/* @v11.1.12
-	if(strcmp(strip(P_Pack->Rec.Memo), strip(Pattern.Memo)) == 0)
+	if(sstreq(strip(P_Pack->Rec.Memo), strip(Pattern.Memo)))
 		memcpy(Pattern.Memo, P_Pack->Rec.Memo, sizeof(Pattern.Memo));
 	*/
 	// @v11.1.12 {
@@ -3976,11 +3976,11 @@ int PPObjBill::EditLotExtData(PPID lotID)
 					THROW_DB(trfr->Rcpt.Update(lotID, &lot_rec, 1));
 					ok = 1;
 				}
-				if(strcmp(org_clb, lqcd.CLB) != 0 && !is_inherited_clb) {
+				if(!sstreq(org_clb, lqcd.CLB) && !is_inherited_clb) {
 					THROW(SetClbNumberByLot(lotID, lqcd.CLB, 1));
 					ok = 1;
 				}
-				if(strcmp(org_serial, lqcd.Serial) != 0) {
+				if(!sstreq(org_serial, lqcd.Serial)) {
 					THROW(SetSerialNumberByLot(lotID, lqcd.Serial, 1));
 					ok = 1;
 				}

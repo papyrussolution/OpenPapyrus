@@ -9,25 +9,18 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
-
 #ifndef XAPIAN_INCLUDED_EDITDISTANCE_H
 #define XAPIAN_INCLUDED_EDITDISTANCE_H
 
-#include <cstdlib>
-#include <climits>
-#include <vector>
-
-#include "omassert.h"
-#include "xapian/unicode.h"
+//#include <cstdlib>
+//#include <climits>
+//#include <vector>
+//#include "omassert.h"
+#include <xapian/unicode.h>
 
 /** Calculate edit distances to a target string.
  *
@@ -41,15 +34,11 @@
  *     in the string.
  */
 class EditDistanceCalculator {
-	/// Don't allow assignment.
-	EditDistanceCalculator& operator=(const EditDistanceCalculator&) = delete;
-	/// Don't allow copying.
-	EditDistanceCalculator(const EditDistanceCalculator&) = delete;
-	/// Target in UTF-32.
-	std::vector<uint> target;
+	EditDistanceCalculator& operator=(const EditDistanceCalculator&) = delete; /// Don't allow assignment.
+	EditDistanceCalculator(const EditDistanceCalculator&) = delete; /// Don't allow copying.
+	std::vector<uint> target; /// Target in UTF-32.
 	size_t target_bytes;
-	/// Current candidate in UTF-32.
-	mutable std::vector<uint> utf32;
+	mutable std::vector<uint> utf32; /// Current candidate in UTF-32.
 	mutable int* array = nullptr;
 	/** The type to use for the occurrence bitmaps.
 	 *
@@ -78,14 +67,13 @@ class EditDistanceCalculator {
 	 */
 	freqs_bitmap target_freqs = 0;
 
-	static constexpr unsigned FREQS_MASK = sizeof(freqs_bitmap) * 8 - 1;
+	static constexpr uint FREQS_MASK = sizeof(freqs_bitmap) * 8 - 1;
 
 	/** Calculate edit distance.
 	 *
 	 *  Internal helper - the cheap case is inlined from the header.
 	 */
-	int calc(const unsigned* ptr, int len, int max_distance) const;
-
+	int calc(const uint * ptr, int len, int max_distance) const;
 public:
 	/** Constructor.
 	 *
@@ -119,10 +107,10 @@ public:
 	 *
 	 *  @return The edit distance between candidate and the target.
 	 */
-	int operator()(const std::string & candidate, int max_distance) const {
+	int operator()(const std::string & candidate, int max_distance) const 
+	{
 		// We have the UTF-32 target in target.
 		size_t target_utf32_len = target.size();
-
 		// We can quickly rule out some candidates just by comparing
 		// lengths since each edit can change the number of UTF-32 characters
 		// by at most 1.  But first we check the encoded UTF-8 length of the
@@ -133,32 +121,25 @@ public:
 		// so the number of UTF-32 characters in candidate must be <= the number
 		// of bytes of UTF-8.
 		if(target_utf32_len > candidate.size() + max_distance) {
-			// Candidate too short.
-			return INT_MAX;
+			return INT_MAX; // Candidate too short.
 		}
-
 		// Each edit can change the number of UTF-8 bytes by up to 4 (addition
 		// or deletion of any character which needs 4 bytes in UTF-8), which
 		// gives us an alternative lower bound (which is sometimes tighter and
 		// sometimes not) and the tightest upper bound.
 		if(target_bytes > candidate.size() + 4 * max_distance) {
-			// Candidate too short.
-			return INT_MAX;
+			return INT_MAX; // Candidate too short.
 		}
 		if(target_bytes + 4 * max_distance < candidate.size()) {
-			// Candidate too long.
-			return INT_MAX;
+			return INT_MAX; // Candidate too long.
 		}
-
 		// Now convert to UTF-32.
 		utf32.assign(Xapian::Utf8Iterator(candidate), Xapian::Utf8Iterator());
-
 		// Check a cheap length-based lower bound based on UTF-32 lengths.
 		int lb = std::abs(int(utf32.size()) - int(target_utf32_len));
 		if(lb > max_distance) {
 			return lb;
 		}
-
 		// Actually calculate the edit distance.
 		return calc(&utf32[0], utf32.size(), max_distance);
 	}

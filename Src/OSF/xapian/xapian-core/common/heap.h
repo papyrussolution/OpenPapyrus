@@ -124,9 +124,7 @@ void sift_up_(_RandomAccessIterator first, _RandomAccessIterator last, _Compare 
 	}
 }
 
-template <class _RandomAccessIterator, class _Compare>
-inline
-void push(_RandomAccessIterator first, _RandomAccessIterator last, _Compare comp)
+template <class _RandomAccessIterator, class _Compare> inline void push(_RandomAccessIterator first, _RandomAccessIterator last, _Compare comp)
 {
 	sift_up_(first, last, comp, last - first);
 }
@@ -186,8 +184,7 @@ void sift_down_(_RandomAccessIterator first, _Compare comp,
 }
 
 template <class _Compare, class _RandomAccessIterator>
-inline
-void pop_heap_(_RandomAccessIterator first, _RandomAccessIterator last, _Compare comp,
+inline void pop_heap_(_RandomAccessIterator first, _RandomAccessIterator last, _Compare comp,
     typename std::iterator_traits<_RandomAccessIterator>::difference_type len)
 {
 	if(len > 1) {
@@ -198,15 +195,13 @@ void pop_heap_(_RandomAccessIterator first, _RandomAccessIterator last, _Compare
 }
 
 template <class _RandomAccessIterator, class _Compare>
-inline
-void pop(_RandomAccessIterator first, _RandomAccessIterator last, _Compare comp)
+inline void pop(_RandomAccessIterator first, _RandomAccessIterator last, _Compare comp)
 {
 	pop_heap_(first, last, comp, last - first);
 }
 
 template <class _Compare, class _RandomAccessIterator>
-inline
-void replace_heap_(_RandomAccessIterator first, _Compare comp,
+inline void replace_heap_(_RandomAccessIterator first, _Compare comp,
     typename std::iterator_traits<_RandomAccessIterator>::difference_type len)
 {
 	sift_down_(first, comp, len, first);
@@ -230,8 +225,7 @@ inline void siftdown_heap_(_RandomAccessIterator first,
 // Replace an element with a "worse" one (in _Compare terms) and call siftdown_heap()
 // to restore the invariant.
 template <class _RandomAccessIterator, class _Compare>
-inline
-void siftdown(_RandomAccessIterator first, _RandomAccessIterator last,
+inline void siftdown(_RandomAccessIterator first, _RandomAccessIterator last,
     _RandomAccessIterator elt, _Compare comp)
 {
 	siftdown_heap_(first, elt, comp, last - first);

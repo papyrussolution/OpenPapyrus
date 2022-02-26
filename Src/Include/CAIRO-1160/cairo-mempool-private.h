@@ -22,25 +22,16 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is Red Hat, Inc.
- *
- * Contributors(s):
- *	Chris Wilson <chris@chris-wilson.co.uk>
+ * Contributors(s): Chris Wilson <chris@chris-wilson.co.uk>
  */
-
 #ifndef CAIRO_MEMPOOL_PRIVATE_H
 #define CAIRO_MEMPOOL_PRIVATE_H
 
 //#include "cairo-compiler-private.h"
 //#include "cairo-error-private.h"
-
-#include <stddef.h> /* for size_t */
+//#include <stddef.h> /* for size_t */
 
 CAIRO_BEGIN_DECLS
 
@@ -55,26 +46,17 @@ struct _cairo_mempool {
 
 	cairo_list_t free[32];
 	uchar * map;
-
 	uint num_blocks;
 	int min_bits; /* Minimum block size is 1 << min_bits */
 	int num_sizes;
 	int max_free_bits;
-
 	size_t free_bytes;
 	size_t max_bytes;
 };
 
-cairo_private cairo_status_t _cairo_mempool_init(cairo_mempool_t * pool,
-    void * base,
-    size_t bytes,
-    int min_bits,
-    int num_sizes);
-
+cairo_private cairo_status_t _cairo_mempool_init(cairo_mempool_t * pool, void * base, size_t bytes, int min_bits, int num_sizes);
 cairo_private void * _cairo_mempool_alloc(cairo_mempool_t * pi, size_t bytes);
-
 cairo_private void _cairo_mempool_free(cairo_mempool_t * pi, void * storage);
-
 cairo_private void _cairo_mempool_fini(cairo_mempool_t * pool);
 
 CAIRO_END_DECLS

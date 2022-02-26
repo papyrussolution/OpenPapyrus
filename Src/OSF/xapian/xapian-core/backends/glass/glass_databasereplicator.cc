@@ -9,11 +9,6 @@
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
@@ -34,8 +29,7 @@
 #include "net/remoteconnection.h"
 #include "replicationprotocol.h"
 
-[[noreturn]]
-static void throw_connection_closed_unexpectedly()
+[[noreturn]] static void throw_connection_closed_unexpectedly()
 {
 	throw Xapian::NetworkError("Connection closed unexpectedly");
 }
@@ -51,8 +45,7 @@ static const char * dbnames =
     "/spelling." GLASS_TABLE_EXTENSION "\0"
     "/synonym." GLASS_TABLE_EXTENSION;
 
-GlassDatabaseReplicator::GlassDatabaseReplicator(const string & db_dir_)
-	: db_dir(db_dir_)
+GlassDatabaseReplicator::GlassDatabaseReplicator(const string & db_dir_) : db_dir(db_dir_)
 {
 	std::fill_n(fds, sizeof(fds) / sizeof(fds[0]), -1);
 }
@@ -85,32 +78,25 @@ bool GlassDatabaseReplicator::check_revision_at_least(const string & rev,
     const string & target) const
 {
 	LOGCALL(DB, bool, "GlassDatabaseReplicator::check_revision_at_least", rev | target);
-
 	glass_revision_number_t rev_val;
 	glass_revision_number_t target_val;
-
 	const char * ptr = rev.data();
 	const char * end = ptr + rev.size();
 	if(!unpack_uint(&ptr, end, &rev_val)) {
 		throw NetworkError("Invalid revision string supplied to check_revision_at_least");
 	}
-
 	ptr = target.data();
 	end = ptr + target.size();
 	if(!unpack_uint(&ptr, end, &target_val)) {
 		throw NetworkError("Invalid revision string supplied to check_revision_at_least");
 	}
-
 	RETURN(rev_val >= target_val);
 }
 
-void GlassDatabaseReplicator::process_changeset_chunk_version(string & buf,
-    RemoteConnection & conn,
-    double end_time) const
+void GlassDatabaseReplicator::process_changeset_chunk_version(string & buf, RemoteConnection & conn, double end_time) const
 {
 	const char * ptr = buf.data();
 	const char * end = ptr + buf.size();
-
 	glass_revision_number_t rev;
 	if(!unpack_uint(&ptr, end, &rev))
 		throw NetworkError("Invalid revision in changeset");

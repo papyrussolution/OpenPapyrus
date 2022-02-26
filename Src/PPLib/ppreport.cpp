@@ -1213,7 +1213,7 @@ int SReport::createBodyDataFile(SString & rFileName, SCollection * fldIDs)
 			const char * p_fld_name = P_Text+f->name;
 			if(f->type != 0) {
 				for(int di = 0; !used && di < flds_count; di++)
-					if(strcmp(flds[di].Name, p_fld_name) == 0)
+					if(sstreq(flds[di].Name, p_fld_name))
 						used = 1;
 				if(!used) {
 					flds = static_cast<DBFCreateFld *>(SAlloc::R(flds, sizeof(DBFCreateFld)*(1+flds_count)));
@@ -1261,7 +1261,7 @@ int SReport::createBodyDataFile(SString & rFileName, SCollection * fldIDs)
 			f = & fields[g->fields[gj]-1];
 			const char * p_fld_name = P_Text+f->name;
 			for(int di = 0; di < flds_count; di++)
-				if(strcmp(p_fld_name, flds[di].Name) == 0) {
+				if(sstreq(p_fld_name, flds[di].Name)) {
 					used = 1;
 					break;
 				}
@@ -1301,7 +1301,7 @@ int SReport::createVarDataFile(SString & rFileName, SCollection * fldIDs)
 			const char * p_fld_name = P_Text+f->name;
 			if(f->type != 0) {
 				for(int di = 0; !used && di < flds_count; di++)
-					if(strcmp(flds[di].Name, p_fld_name) == 0)
+					if(sstreq(flds[di].Name, p_fld_name))
 						used = 1;
 				if(!used) {
 					int    fl = 0;

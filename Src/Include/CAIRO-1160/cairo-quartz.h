@@ -1,5 +1,4 @@
 /* cairo - a vector graphics library with display and print output
- *
  * Copyright © 2006, 2007 Mozilla Corporation
  *
  * This library is free software; you can redistribute it and/or
@@ -21,62 +20,29 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is Mozilla Foundation.
- *
- * Contributor(s):
- * Vladimir Vukicevic <vladimir@mozilla.com>
+ * Contributor(s): Vladimir Vukicevic <vladimir@mozilla.com>
  */
-
 #ifndef CAIRO_QUARTZ_H
 #define CAIRO_QUARTZ_H
+	#include "cairo.h"
 
-#include "cairo.h"
-
-#if CAIRO_HAS_QUARTZ_SURFACE
-
-#include <ApplicationServices/ApplicationServices.h>
-
-CAIRO_BEGIN_DECLS
-
-cairo_public cairo_surface_t *
-cairo_quartz_surface_create (cairo_format_t format,
-                             uint width,
-                             uint height);
-
-cairo_public cairo_surface_t *
-cairo_quartz_surface_create_for_cg_context (CGContextRef cgContext,
-                                            uint width,
-                                            uint height);
-
-cairo_public CGContextRef
-cairo_quartz_surface_get_cg_context (cairo_surface_t *surface);
-
-#if CAIRO_HAS_QUARTZ_FONT
-
-/*
- * Quartz font support
- */
-
-cairo_public cairo_font_face_t *
-cairo_quartz_font_face_create_for_cgfont (CGFontRef font);
-
-cairo_public cairo_font_face_t *
-cairo_quartz_font_face_create_for_atsu_font_id (ATSUFontID font_id);
-
-#endif /* CAIRO_HAS_QUARTZ_FONT */
-
-CAIRO_END_DECLS
-
-#else
-
-#error Cairo was not compiled with support for the quartz backend
-
-#endif /* CAIRO_HAS_QUARTZ_SURFACE */
-
+	#if CAIRO_HAS_QUARTZ_SURFACE
+		#include <ApplicationServices/ApplicationServices.h>
+		CAIRO_BEGIN_DECLS
+			cairo_public cairo_surface_t * cairo_quartz_surface_create(cairo_format_t format, uint width, uint height);
+			cairo_public cairo_surface_t * cairo_quartz_surface_create_for_cg_context(CGContextRef cgContext, uint width, uint height);
+			cairo_public CGContextRef cairo_quartz_surface_get_cg_context(cairo_surface_t * surface);
+			#if CAIRO_HAS_QUARTZ_FONT
+				/*
+				 * Quartz font support
+				 */
+				cairo_public cairo_font_face_t * cairo_quartz_font_face_create_for_cgfont(CGFontRef font);
+				cairo_public cairo_font_face_t * cairo_quartz_font_face_create_for_atsu_font_id(ATSUFontID font_id);
+			#endif /* CAIRO_HAS_QUARTZ_FONT */
+		CAIRO_END_DECLS
+	#else
+		#error Cairo was not compiled with support for the quartz backend
+	#endif /* CAIRO_HAS_QUARTZ_SURFACE */
 #endif /* CAIRO_QUARTZ_H */

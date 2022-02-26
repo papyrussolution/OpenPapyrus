@@ -1490,6 +1490,34 @@ int DoConstructionTest()
 	//DoTest_PThr4w();
 	//TestMqc();
 	//TestCRC();
+	{
+		SString _cmd;
+		SString _svcident;
+		SString _svcident2;
+		SBinaryChunk bc;
+		SBinaryChunk bc2;
+		const char * p_json_text = "{\"cmd\":\"GetForeignConfig\",\"foreignsvcident\":\"4RA8CYgG0PzF\\/bVebwsJ80qBa5g=\"}";
+		SJson * p_json = SJson::Parse(p_json_text);
+		assert(p_json);
+		assert(SJson::IsObject(p_json));
+		if(p_json->P_Child) {
+			for(const SJson * p_cur = p_json->P_Child; p_cur; p_cur = p_cur->P_Next) {
+				if(p_cur->Text.IsEqiAscii("cmd")) {
+					if(p_cur->P_Child)
+						_cmd = p_cur->P_Child->Text;
+				}
+				else if(p_cur->Text.IsEqiAscii("foreignsvcident")) {
+					if(p_cur->P_Child) {
+						_svcident = p_cur->P_Child->Text;
+						(_svcident2 = _svcident).Unescape();
+						bc.FromMime64(_svcident);
+						bc2.FromMime64(_svcident2);
+					}
+				}
+			}
+		}
+		ZDELETE(p_json);
+	}
 #if(_MSC_VER >= 1900)
 	Test_Fts();
 #endif

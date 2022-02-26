@@ -14,7 +14,14 @@ public:
 	static LmdbDatabase * GetInstance(const char * pPath, uint flags, int mode);
 
 	class Table;
-
+	struct Stat {
+		uint   PageSize;          // Size of a database page. This is currently the same for all databases
+		uint   BtreeDepth;        // Depth (height) of the B-tree 
+		uint64 BranchPageCount;   // Number of internal (non-leaf) pages 
+		uint64 LeafPageCount;     // Number of leaf pages 
+		uint64 OverflowPageCount; // Number of overflow pages 
+		uint64 EntryCount;        // Number of data items
+	};
 	class Transaction {
 	public:
 		friend class LmdbDatabase;
@@ -45,9 +52,25 @@ public:
 		bool   IsValid() const { return !!H; }
 		uint   GetHandle() const { return H; }
 		Transaction & GetTxn() { return R_Txn; }
+		int    GetStat(LmdbDatabase::Stat & rS);
 		int    Put(const void * pKey, size_t keyLen, const void * pVal, size_t valLen, uint flags);
 		int    Del(const void * pKey, size_t keyLen, const void * pVal, size_t valLen);
+		//
+		// Returns:
+		//   >0 - ключ pKey найден и данные, соответствующие ему, занесены в rValBuf
+		//   <0 - ключ pKey не найден. Буфер rValBuf в результате пустой
+		//    0 - ошибка. Буфер rValBuf в результате пустой
+		//
 		int    Get(const void * pKey, size_t keyLen, SBaseBuffer & rValBuf);
+		//
+		// Descr: То же, что и Get(const void * pKey, size_t keyLen, SBaseBuffer & rValBuf), но
+		//   результирующие данные заносятся в SBinaryChunk.
+		// Returns:
+		//   >0 - ключ pKey найден и данные, соответствующие ему, занесены в rValBuf
+		//   <0 - ключ pKey не найден. Буфер rValBuf в результате пустой
+		//    0 - ошибка. Буфер rValBuf в результате пустой
+		//
+		int    Get(const void * pKey, size_t keyLen, SBinaryChunk & rValBuf);
 		// MDB_NOOVERWRITE|MDB_NODUPDATA|MDB_RESERVE|MDB_APPEND|MDB_APPENDDUP
 		//int mdb_put(MDB_txn * txn, MDB_dbi dbi, MDB_val * key, MDB_val * data, uint flags)
 	private:
@@ -62,14 +85,6 @@ public:
 	private:
 		Table & R_T;
 		TSHandle <MDB_cursor> H;
-	};
-	struct Stat {
-		uint   PageSize;           // Size of a database page. This is currently the same for all databases
-		uint   BtreeDepth;        // Depth (height) of the B-tree 
-		uint64 BranchPageCount;   // Number of internal (non-leaf) pages 
-		uint64 LeafPageCount;     // Number of leaf pages 
-		uint64 OverflowPageCount; // Number of overflow pages 
-		uint64 EntryCount;        // Number of data items
 	};
 	bool   SetOptions(uint64 mapSize, uint maxDbEntities, uint maxReaders);
 	TSHandle <MDB_env> GetHandle() const { return H; }

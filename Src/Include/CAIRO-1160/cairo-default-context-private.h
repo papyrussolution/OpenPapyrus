@@ -18,26 +18,18 @@
  *
  * The contents of this file are subject to the Mozilla Public License
  * Version 1.1 (the "License"); you may not use this file except in
- * compliance with the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
+ * compliance with the License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
  *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is Red Hat, Inc.
- *
- * Contributor(s):
- *	Carl D. Worth <cworth@redhat.com>
+ * Contributor(s): Carl D. Worth <cworth@redhat.com>
  */
 #ifndef CAIRO_DEFAULT_CONTEXT_PRIVATE_H
 #define CAIRO_DEFAULT_CONTEXT_PRIVATE_H
 
 //#include "cairo-private.h"
 //#include "cairo-gstate-private.h"
-////#include "cairo-path-fixed-private.h"
+//#include "cairo-path-fixed-private.h"
 
 CAIRO_BEGIN_DECLS
 	typedef struct _cairo_default_context cairo_default_context_t;

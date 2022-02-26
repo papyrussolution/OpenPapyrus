@@ -1,6 +1,5 @@
 /* -*- Mode: c; tab-width: 8; c-basic-offset: 4; indent-tabs-mode: t; -*- */
 /* cairo - a vector graphics library with display and print output
- *
  * Copyright © 2002 University of Southern California
  * Copyright © 2005 Red Hat, Inc.
  *
@@ -23,21 +22,14 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is University of Southern California.
- *
  * Contributor(s): Carl D. Worth <cworth@cworth.org>
  */
 #ifndef CAIRO_TYPES_PRIVATE_H
 #define CAIRO_TYPES_PRIVATE_H
 
 CAIRO_BEGIN_DECLS
-
 /**
  * SECTION:cairo-types
  * @Title: Types
@@ -45,7 +37,6 @@ CAIRO_BEGIN_DECLS
  *
  * This section lists generic data types used in the cairo API.
  **/
-
 typedef struct _cairo_array cairo_array_t;
 typedef struct _cairo_backend cairo_backend_t;
 typedef struct _cairo_boxes_t cairo_boxes_t;

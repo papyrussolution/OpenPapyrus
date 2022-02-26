@@ -20,14 +20,8 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is Keith Packard
- *
  * Contributor(s): Keith Packard <keithp@keithp.com>
  */
 #ifndef CAIRO_ANALYSIS_SURFACE_H

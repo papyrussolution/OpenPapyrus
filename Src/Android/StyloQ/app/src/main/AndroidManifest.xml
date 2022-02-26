@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="ru.petroglif.styloq">
+
+    <uses-sdk
+        android:minSdkVersion="26"
+        android:targetSdkVersion="23"
+        tools:overrideLibrary="com.google.zxing.client.android" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:name=".StyloQApp"
+        android:allowBackup="true"
+        android:hardwareAccelerated="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.StyloQ"
+        android:usesCleartextTraffic="true">
+        <activity
+            android:name=".CmdRAttendancePrereqActivity"
+            android:exported="true" />
+        <activity
+            android:name=".CmdROrderPrereqActivity"
+            android:exported="true" />
+        <activity
+            android:name=".FaceActivity"
+            android:exported="true" />
+        <activity
+            android:name=".CmdRGridActivity"
+            android:exported="true" />
+        <activity
+            android:name=".CommandListActivity"
+            android:exported="true" />
+        <activity
+            android:name=".CmdRSimpleActivity"
+            android:exported="true" />
+        <activity
+            android:name=".ServiceActivity"
+            android:exported="true" />
+        <activity
+            android:name=".FaceListActivity"
+            android:exported="true"
+            android:label="@string/title_activity_face_list" />
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".StyloQZxCaptureActivity"
+            android:screenOrientation="sensorPortrait"
+            android:stateNotNeeded="true"
+            android:theme="@style/zxing_CaptureTheme"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+    </application>
+
+</manifest>

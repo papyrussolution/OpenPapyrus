@@ -1,0 +1,47 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.StyloQ" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/Primary</item>
+        <item name="colorPrimaryVariant">@color/PrimaryDark</item>
+        <item name="colorOnPrimary">@color/PrimaryText</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/PrimaryLight</item>
+        <item name="colorSecondaryVariant">@color/PrimaryDark</item>
+        <item name="colorOnSecondary">@color/SecondaryText</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+        <!-- Customize your theme here. -->
+        <item name="android:fontFamily">"sans-serif"</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/PrimaryText</item>
+        <item name="isLightTheme">false</item>
+        <item name="materialButtonStyle">@style/PushButton</item>
+        <item name="spinnerStyle">@style/ComboBox</item>
+    </style>
+    <!--
+    <style name="DialogFragmentStyle" parent="@android:style/Theme.Dialog">
+        <item name="android:windowSoftInputMode">stateHidden|adjustResize</item>
+    </style>
+    <style name="Theme.StyloQ.NoActionBar" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="TextLabel" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="android:textColorHint">@color/palette4_01_4</item>
+        <item name="android:textSize">@dimen/text_20sp</item>
+        <item name="colorControlNormal">@color/palette4_01_2</item>
+        <item name="colorControlActivated">@color/palette4_01_1</item>
+    </style>
+    <style name="Theme.StyloQ.AppBarOverlay" parent="Theme.StyloQ" />
+    <style name="Theme.StyloQ.PopupOverlay" parent="Theme.MaterialComponents.DayNight.DarkActionBar" />
+    <style name="NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="AppBarOverlay" parent="Theme.MaterialComponents.DayNight.DarkActionBar" />
+    <style name="PopupOverlay" parent="Theme.MaterialComponents.DayNight.DarkActionBar" />
+    -->
+</resources>

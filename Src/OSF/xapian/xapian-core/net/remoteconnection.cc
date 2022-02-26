@@ -25,31 +25,27 @@ using namespace std;
 
 #define CHUNKSIZE 4096
 
-[[noreturn]]
-static void throw_database_closed()
+[[noreturn]] static void throw_database_closed()
 {
 	throw Xapian::DatabaseClosedError("Database has been closed");
 }
 
-[[noreturn]]
-static void throw_network_error_insane_message_length()
+[[noreturn]] static void throw_network_error_insane_message_length()
 {
 	throw Xapian::NetworkError("Insane message length specified!");
 }
 
-[[noreturn]]
-static void throw_timeout(const char* msg, const string & context)
+[[noreturn]] static void throw_timeout(const char* msg, const string & context)
 {
 	throw Xapian::NetworkTimeoutError(msg, context);
 }
 
 #ifdef __WIN32__
-static inline void update_overlapped_offset(WSAOVERLAPPED & overlapped, DWORD n)
-{
-	if(add_overflows(overlapped.Offset, n, overlapped.Offset))
-		++overlapped.OffsetHigh;
-}
-
+	static inline void update_overlapped_offset(WSAOVERLAPPED & overlapped, DWORD n)
+	{
+		if(add_overflows(overlapped.Offset, n, overlapped.Offset))
+			++overlapped.OffsetHigh;
+	}
 #endif
 
 RemoteConnection::RemoteConnection(int fdin_, int fdout_, const string & context_) : fdin(fdin_), fdout(fdout_), context(context_)
@@ -64,20 +60,17 @@ RemoteConnection::RemoteConnection(int fdin_, int fdout_, const string & context
 }
 
 #ifdef __WIN32__
-RemoteConnection::~RemoteConnection()
-{
-	if(overlapped.hEvent)
-		CloseHandle(overlapped.hEvent);
-}
-
+	RemoteConnection::~RemoteConnection()
+	{
+		if(overlapped.hEvent)
+			CloseHandle(overlapped.hEvent);
+	}
 #endif
 
 bool RemoteConnection::read_at_least(size_t min_len, double end_time)
 {
 	LOGCALL(REMOTE, bool, "RemoteConnection::read_at_least", min_len | end_time);
-
 	if(buffer.length() >= min_len) RETURN(true);
-
 #ifdef __WIN32__
 	HANDLE hin = fd_to_handle(fdin);
 	do {

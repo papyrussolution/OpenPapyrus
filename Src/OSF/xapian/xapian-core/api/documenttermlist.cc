@@ -46,8 +46,7 @@ Xapian::termcount DocumentTermList::get_wdf() const
 
 Xapian::doccount DocumentTermList::get_termfreq() const
 {
-	throw Xapian::InvalidOperationError(
-		      "get_termfreq() not valid for a TermIterator from a Document which is not associated with a database");
+	throw Xapian::InvalidOperationError("get_termfreq() not valid for a TermIterator from a Document which is not associated with a database");
 }
 
 const Xapian::VecCOW<Xapian::termpos>* DocumentTermList::get_vec_termpos() const

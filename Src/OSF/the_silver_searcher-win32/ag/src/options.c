@@ -337,7 +337,7 @@ void init_options(void)
 	memzero(&opts, sizeof(opts));
 	opts.casing = CASE_DEFAULT;
 	opts.color = TRUE;
-	if(term && !strcmp(term, "dumb")) {
+	if(term && sstreq(term, "dumb")) {
 		opts.color = FALSE;
 	}
 	opts.color_win_ansi = FALSE;
@@ -704,70 +704,69 @@ void parse_options(int argc, char ** argv, char ** base_paths[], char ** paths[]
 			    opts.path_sep = '\0';
 			    break;
 			case 0: /* Long option */
-			    if(strcmp(longopts[opt_index].name, "ackmate-dir-filter") == 0) {
+			    if(sstreq(longopts[opt_index].name, "ackmate-dir-filter")) {
 				    compile_study(&opts.ackmate_dir_filter, &opts.ackmate_dir_filter_extra, optarg, 0, 0);
 				    break;
 			    }
-			    else if(strcmp(longopts[opt_index].name, "depth") == 0) {
+			    else if(sstreq(longopts[opt_index].name, "depth")) {
 				    opts.max_search_depth = satoi(optarg);
 				    break;
 			    }
-			    else if(strcmp(longopts[opt_index].name, "filename") == 0) {
+			    else if(sstreq(longopts[opt_index].name, "filename")) {
 				    opts.print_path = PATH_PRINT_DEFAULT;
 				    opts.print_line_numbers = TRUE;
 				    break;
 			    }
-			    else if(strcmp(longopts[opt_index].name, "ignore-dir") == 0) {
+			    else if(sstreq(longopts[opt_index].name, "ignore-dir")) {
 				    add_ignore_pattern(root_ignores, optarg);
 				    break;
 			    }
-			    else if(strcmp(longopts[opt_index].name, "ignore") == 0) {
+			    else if(sstreq(longopts[opt_index].name, "ignore")) {
 				    add_ignore_pattern(root_ignores, optarg);
 				    break;
 			    }
-			    else if(strcmp(longopts[opt_index].name, "no-filename") == 0 ||
-				strcmp(longopts[opt_index].name, "nofilename") == 0) {
+			    else if(sstreq(longopts[opt_index].name, "no-filename") || sstreq(longopts[opt_index].name, "nofilename")) {
 				    opts.print_path = PATH_PRINT_NOTHING;
 				    opts.print_line_numbers = FALSE;
 				    break;
 			    }
-			    else if(strcmp(longopts[opt_index].name, "no-pager") == 0 || strcmp(longopts[opt_index].name, "nopager") == 0) {
+			    else if(sstreq(longopts[opt_index].name, "no-pager") || sstreq(longopts[opt_index].name, "nopager")) {
 				    out_fd = stdout;
 				    opts.pager = NULL;
 				    break;
 			    }
-			    else if(strcmp(longopts[opt_index].name, "pager") == 0) {
+			    else if(sstreq(longopts[opt_index].name, "pager")) {
 				    opts.pager = optarg;
 				    break;
 			    }
-			    else if(strcmp(longopts[opt_index].name, "print-all-files") == 0) {
+			    else if(sstreq(longopts[opt_index].name, "print-all-files")) {
 				    opts.print_all_paths = TRUE;
 				    break;
 			    }
-			    else if(strcmp(longopts[opt_index].name, "workers") == 0) {
+			    else if(sstreq(longopts[opt_index].name, "workers")) {
 				    opts.workers = satoi(optarg);
 				    break;
 			    }
-			    else if(strcmp(longopts[opt_index].name, "color-line-number") == 0) {
+			    else if(sstreq(longopts[opt_index].name, "color-line-number")) {
 				    SAlloc::F(opts.color_line_number);
 				    ag_asprintf(&opts.color_line_number, "\033[%sm", optarg);
 				    break;
 			    }
-			    else if(strcmp(longopts[opt_index].name, "color-match") == 0) {
+			    else if(sstreq(longopts[opt_index].name, "color-match")) {
 				    SAlloc::F(opts.color_match);
 				    ag_asprintf(&opts.color_match, "\033[%sm", optarg);
 				    break;
 			    }
-			    else if(strcmp(longopts[opt_index].name, "color-path") == 0) {
+			    else if(sstreq(longopts[opt_index].name, "color-path")) {
 				    SAlloc::F(opts.color_path);
 				    ag_asprintf(&opts.color_path, "\033[%sm", optarg);
 				    break;
 			    }
-			    else if(strcmp(longopts[opt_index].name, "silent") == 0) {
+			    else if(sstreq(longopts[opt_index].name, "silent")) {
 				    set_log_level(LOG_LEVEL_NONE);
 				    break;
 			    }
-			    else if(strcmp(longopts[opt_index].name, "stats-only") == 0) {
+			    else if(sstreq(longopts[opt_index].name, "stats-only")) {
 				    opts.print_filename_only = 1;
 				    opts.print_path = PATH_PRINT_NOTHING;
 				    opts.stats = 1;
@@ -778,7 +777,7 @@ void parse_options(int argc, char ** argv, char ** base_paths[], char ** paths[]
 				    break;
 			    }
 			    for(i = 0; i < lang_count; i++) {
-				    if(strcmp(longopts[opt_index].name, langs[i].name) == 0) {
+				    if(sstreq(longopts[opt_index].name, langs[i].name)) {
 					    has_filetype = 1;
 					    ext_index[lang_num++] = i;
 					    break;

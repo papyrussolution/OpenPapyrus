@@ -1,6 +1,5 @@
-/* cairo - a vector graphics library with display and print output
- *
- * Copyright © 2011 Intel Corporation.
+// cairo - a vector graphics library with display and print output
+/* Copyright © 2011 Intel Corporation.
  *
  * This library is free software; you can redistribute it and/or
  * modify it either under the terms of the GNU Lesser General Public
@@ -21,34 +20,22 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.og/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
- * Contributor(s):
- * Robert Bragg <robert@linux.intel.com>
+ * Contributor(s): Robert Bragg <robert@linux.intel.com>
  */
-
 #ifndef CAIRO_COGL_UTILS_PRIVATE_H
 #define CAIRO_COGL_UTILS_PRIVATE_H
 
 //#include "cairo-path-fixed-private.h"
 #include <cogl/cogl2-experimental.h>
 
-CoglPath *
-_cairo_cogl_util_path_from_cairo (const cairo_path_fixed_t *path,
-				  cairo_fill_rule_t fill_rule,
-				  float tolerance);
-
-int
-_cairo_cogl_util_next_p2 (int a);
+CoglPath * _cairo_cogl_util_path_from_cairo(const cairo_path_fixed_t * path, cairo_fill_rule_t fill_rule, float tolerance);
+int _cairo_cogl_util_next_p2(int a);
 
 #define CAIRO_FIXED_ONE_FLOAT ((float)(1 << CAIRO_FIXED_FRAC_BITS))
 
-static inline float
-_cairo_cogl_util_fixed_to_float (cairo_fixed_t f)
+static inline float _cairo_cogl_util_fixed_to_float(cairo_fixed_t f)
 {
-    return ((float) f) / CAIRO_FIXED_ONE_FLOAT;
+	return ((float)f) / CAIRO_FIXED_ONE_FLOAT;
 }
 
 #endif /* CAIRO_COGL_UTILS_PRIVATE_H */

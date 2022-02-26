@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/DLG_ORDRTI"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="4dp"
+    >
+    <TextView
+        android:id="@+id/CTL_ORDRTI_GOODSNAME"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:textColor="@color/PrimaryText"
+        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="16dp"
+        android:gravity="right">
+        <TextView
+            android:id="@+id/CTLLBL_ORDRTI_PRICE"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_marginRight="16dp"
+            android:text="@{price}"
+            />
+        <TextView
+            android:id="@+id/CTL_ORDRTI_PRICE"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:textColor="@color/PrimaryText"
+            />
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/InputLine"
+            android:id="@+id/CTL_ORDRTI_QTTY"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:hint="@{qtty}">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="16dp"
+        android:gravity="right">
+        <View style="@style/FakeView"/>
+        <TextView
+            android:id="@+id/CTLLBL_ORDRTI_AMOUNT"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_marginRight="16dp"
+            android:text="@{amount}"
+            />
+        <TextView
+            android:id="@+id/CTL_ORDRTI_AMOUNT"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:textColor="@color/PrimaryText"
+            />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="16dp"
+        android:gravity="right">
+        <ImageButton style="@style/PushButton" android:id="@+id/STDCTL_DELETEBUTTON"
+            android:gravity="left"
+            app:srcCompat="@drawable/ic_deletefile02"
+            android:text="@{but_delete}" />
+        <Button style="@style/PushButton" android:id="@+id/STDCTL_OKBUTTON"
+            android:text="@{but_ok}" />
+        <Button style="@style/PushButton" android:id="@+id/STDCTL_CANCELBUTTON"
+            android:text="@{but_cancel}" />
+    </LinearLayout>
+</LinearLayout>

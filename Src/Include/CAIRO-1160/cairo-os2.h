@@ -22,20 +22,11 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
+ * The Initial Developer of the Original Code is Doodle <doodle@scenergy.dfmk.hu>
  *
- * The Initial Developer of the Original Code is
- * Doodle <doodle@scenergy.dfmk.hu>
- *
- * Contributor(s):
- * Peter Weilbacher <mozilla@Weilbacher.org>
- * Rich Walsh <dragtext@e-vertise.com>
+ * Contributor(s): Peter Weilbacher <mozilla@Weilbacher.org> Rich Walsh <dragtext@e-vertise.com>
  */
-
 #ifndef _CAIRO_OS2_H_
 #define _CAIRO_OS2_H_
 

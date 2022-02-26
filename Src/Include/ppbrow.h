@@ -1551,6 +1551,7 @@
 #define PPJOB_VETISINTERCHANGE                        41
 #define PPJOB_SENDNOTIFIESBYRECENTSCOPS               42
 #define PPJOB_TIMESERIESSA                            43
+#define PPJOB_EXPORTPRJTASKS                          44
 //
 // PPVIEW definitions
 //

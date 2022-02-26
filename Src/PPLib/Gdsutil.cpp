@@ -1026,6 +1026,7 @@ int GoodsCfgDialog::setDTS(const PPGoodsConfig * pData, const SString & rGoodsEx
 	AddClusterAssoc(CTL_GDSCFG_XCHG_FLAGS, 3, GCF_XCHG_SENDALTGROUP);
 	AddClusterAssoc(CTL_GDSCFG_XCHG_FLAGS, 4, GCF_XCHG_SENDATTACHMENT);
 	AddClusterAssoc(CTL_GDSCFG_XCHG_FLAGS, 5, GCF_XCHG_RCVSTRUCFROMDDONLY); // @v10.2.1
+	AddClusterAssoc(CTL_GDSCFG_XCHG_FLAGS, 6, GCF_XCHG_DONTRCVQUOTS); // @v11.3.3
 	SetClusterData(CTL_GDSCFG_XCHG_FLAGS, Data.Flags);
 
 	setCtrlData(CTL_GDSCFG_CODLEN, Data.BarCodeLen);

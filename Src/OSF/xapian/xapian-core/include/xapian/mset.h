@@ -15,15 +15,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
-
 #ifndef XAPIAN_INCLUDED_MSET_H
 #define XAPIAN_INCLUDED_MSET_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-#error Never use <xapian/mset.h> directly; include <xapian.h> instead.
+	#error Never use <xapian/mset.h> directly; include <xapian.h> instead.
 #endif
 
 #include <xapian/attributes.h>
@@ -40,10 +38,8 @@ class MSetIterator;
 /// Class representing a list of search results.
 class XAPIAN_VISIBILITY_DEFAULT MSet {
 	friend class MSetIterator;
-
 	// Helper function for fetch() methods.
 	void fetch_(Xapian::doccount first, Xapian::doccount last) const;
-
 	/** Update the weight corresponding to the document indexed at
 	 *  position i with wt.
 	 *
@@ -109,9 +105,7 @@ public:
 		auto distance = last - first;
 		// Take care to compare signed and unsigned types both safely and
 		// without triggering compiler warnings.
-		if(distance < 0 ||
-		    (sizeof(distance) <= sizeof(Xapian::doccount) ?
-		    Xapian::doccount(distance) != size() :
+		if(distance < 0 || (sizeof(distance) <= sizeof(Xapian::doccount) ? Xapian::doccount(distance) != size() :
 		    distance != static_cast<decltype(distance)>(size()))) {
 			throw Xapian::InvalidArgumentError("Number of weights assigned doesn't match the number of items");
 		}
@@ -309,7 +303,7 @@ public:
 	std::string snippet(const std::string & text,
 	    size_t length = 500,
 	    const Xapian::Stem & stemmer = Xapian::Stem(),
-	    unsigned flags = SNIPPET_BACKGROUND_MODEL|SNIPPET_EXHAUSTIVE,
+	    uint   flags = SNIPPET_BACKGROUND_MODEL|SNIPPET_EXHAUSTIVE,
 	    const std::string & hi_start = "<b>",
 	    const std::string & hi_end = "</b>",
 	    const std::string & omit = "...") const;

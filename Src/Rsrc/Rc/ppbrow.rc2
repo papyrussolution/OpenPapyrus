@@ -7045,6 +7045,7 @@ job QueryEGAIS           { "@{job_queryegais}" } // @v9.3.2
 job VetisInterchange     { "@{job_vetisinterchange}" } // @v10.1.2
 job SendNotifiesByRecentScOps { "@{job_sendnotifiesbyrecentscops}" } // @v10.2.3
 job TimeSeriesSA         { "@{cmd_tsstrategyanalyze}" } // @v10.8.8
+job ExportPrjTasks       { "@{job_exportprjtasks}" }  // @v11.3.3
 //
 // -------------- Описания объектов данных PPObject
 //

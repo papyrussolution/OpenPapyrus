@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/DLG_STQSERVICE"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="4dp"
+    >
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/InputLine"
+        android:id="@+id/CTL_STQSERVICE_CN"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@{appellation}">
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+    </com.google.android.material.textfield.TextInputLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="16dp"
+        >
+        <TextView
+            android:id="@+id/CTLLBL_STQSERVICE_PREFFACE"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="@{styloqsvc_assignedface}"
+            />
+        <Spinner style="@style/ComboBox" android:id="@+id/CTLSEL_STQSERVICE_PREFFACE"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="right">
+        <!--
+        <ImageButton style="@style/PushButton" android:id="@+id/STDCTL_DELETEBUTTON"
+            android:gravity="left"
+            app:srcCompat="@drawable/ic_deletefile02"
+            android:text="@{but_delete}" />
+        -->
+        <Button style="@style/PushButton" android:id="@+id/STDCTL_CLOSEBUTTON"
+            android:text="@{but_close}" />
+    </LinearLayout>
+</LinearLayout>

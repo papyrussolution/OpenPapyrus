@@ -21,18 +21,10 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is Red Hat, Inc.
- *
- * Contributor(s):
- *	Carl D. Worth <cworth@redhat.com>
+ * Contributor(s): Carl D. Worth <cworth@redhat.com>
  */
-
 #ifndef CAIRO_PATH_FIXED_PRIVATE_H
 #define CAIRO_PATH_FIXED_PRIVATE_H
 
@@ -49,21 +41,13 @@ enum cairo_path_op {
 typedef char cairo_path_op_t;
 
 /* make _cairo_path_fixed fit into ~512 bytes -- about 50 items */
-#define CAIRO_PATH_BUF_SIZE ((512 - sizeof(cairo_path_buf_t)) \
-	/ (2 * sizeof(cairo_point_t) + sizeof(cairo_path_op_t)))
-
+#define CAIRO_PATH_BUF_SIZE ((512 - sizeof(cairo_path_buf_t)) / (2 * sizeof(cairo_point_t) + sizeof(cairo_path_op_t)))
 #define cairo_path_head(path__) (&(path__)->buf.base)
 #define cairo_path_tail(path__) cairo_path_buf_prev(cairo_path_head(path__))
-
-#define cairo_path_buf_next(pos__) \
-	cairo_list_entry((pos__)->link.next, cairo_path_buf_t, link)
-#define cairo_path_buf_prev(pos__) \
-	cairo_list_entry((pos__)->link.prev, cairo_path_buf_t, link)
-
-#define cairo_path_foreach_buf_start(pos__, path__) \
-	pos__ = cairo_path_head(path__); do
-#define cairo_path_foreach_buf_end(pos__, path__) \
-	while((pos__ = cairo_path_buf_next(pos__)) !=  cairo_path_head(path__))
+#define cairo_path_buf_next(pos__) cairo_list_entry((pos__)->link.next, cairo_path_buf_t, link)
+#define cairo_path_buf_prev(pos__) cairo_list_entry((pos__)->link.prev, cairo_path_buf_t, link)
+#define cairo_path_foreach_buf_start(pos__, path__) pos__ = cairo_path_head(path__); do
+#define cairo_path_foreach_buf_end(pos__, path__) while((pos__ = cairo_path_buf_next(pos__)) !=  cairo_path_head(path__))
 
 typedef struct _cairo_path_buf {
 	cairo_list_t link;

@@ -22,26 +22,18 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is University of Southern California.
- *
  * Contributor(s): Chris Wilson <chris@chris-wilson.co.uk>
  */
 #ifndef CAIRO_PIXMAN_PRIVATE_H
 #define CAIRO_PIXMAN_PRIVATE_H
+	#include "cairo-pixman-private.h" /* keep make check happy */
+	#include <pixman.h>
 
-#include "cairo-pixman-private.h" /* keep make check happy */
-#include <pixman.h>
-
-#if PIXMAN_VERSION < PIXMAN_VERSION_ENCODE(0,22,0)
-	#define pixman_image_composite32 pixman_image_composite
-	#define pixman_image_get_component_alpha(i) 0
-	#define pixman_image_set_component_alpha(i, x) do { } while(0)
-#endif
-
+	#if PIXMAN_VERSION < PIXMAN_VERSION_ENCODE(0,22,0)
+		#define pixman_image_composite32 pixman_image_composite
+		#define pixman_image_get_component_alpha(i) 0
+		#define pixman_image_set_component_alpha(i, x) do { } while(0)
+	#endif
 #endif

@@ -3760,7 +3760,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 				// } @v10.1.10
 				if(onetimepass_user_id)
 					pw_is_wrong = 0;
-				else if(pw[0] && (r_lc.Flags & CFGFLG_SEC_CASESENSPASSW) ? strcmp(pw, pPassword) : stricmp866(pw, pPassword)) {
+				else if(pw[0] && (r_lc.Flags & CFGFLG_SEC_CASESENSPASSW) ? !sstreq(pw, pPassword) : stricmp866(pw, pPassword)) {
 					if(logmode == logmSystem) {
 						// для совместимости со старыми версиями (раньше использовался другой механизм шифрования)
 						decrypt(memcpy(pw, usr_rec.Password, sizeof(pw)), sizeof(pw));

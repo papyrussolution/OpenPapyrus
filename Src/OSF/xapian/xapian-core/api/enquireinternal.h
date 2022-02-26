@@ -30,10 +30,9 @@
 #include "xapian/matchspy.h"
 #include "xapian/mset.h" // Only needed to forward declare MSet::Internal.
 #include "xapian/query.h"
-
-#include <memory>
-#include <string>
-#include <vector>
+//#include <memory>
+//#include <string>
+//#include <vector>
 
 namespace Xapian {
 class ESet;

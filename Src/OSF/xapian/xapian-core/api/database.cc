@@ -9,11 +9,6 @@
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
@@ -137,7 +132,6 @@ void Database::add_database_(const Database& o, bool read_only)
 		multi_db = static_cast<MultiDatabase*>(internal.get());
 		multi_db->reserve(new_size);
 	}
-
 	if(o_size == 1) {
 		multi_db->push_back(o.internal.get());
 	}
@@ -154,15 +148,13 @@ void Database::add_database_(const Database& o, bool read_only)
 PostingIterator Database::postlist_begin(const string & term) const
 {
 	PostList* pl = internal->open_post_list(term);
-	if(!pl) return PostingIterator();
-	return PostingIterator(new PostingIterator::Internal(pl, *this));
+	return pl ? PostingIterator(new PostingIterator::Internal(pl, *this)) : PostingIterator();
 }
 
 TermIterator Database::termlist_begin(Xapian::docid did) const
 {
 	if(did == 0)
 		docid_zero_invalid();
-
 	return TermIterator(internal->open_term_list(did));
 }
 
@@ -180,10 +172,8 @@ PositionIterator Database::positionlist_begin(Xapian::docid did, const string & 
 {
 	if(did == 0)
 		docid_zero_invalid();
-
 	if(term.empty())
 		empty_term_invalid();
-
 	return PositionIterator(internal->open_position_list(did, term));
 }
 
@@ -202,7 +192,6 @@ double Database::get_average_length() const
 	Xapian::doccount doc_count = internal->get_doccount();
 	if(UNLIKELY(doc_count == 0))
 		return 0.0;
-
 	Xapian::totallength total_length = internal->get_total_length();
 	return total_length / double(doc_count);
 }
@@ -216,7 +205,6 @@ Xapian::doccount Database::get_termfreq(const string & term) const
 {
 	if(term.empty())
 		return get_doccount();
-
 	Xapian::doccount result;
 	internal->get_freqs(term, &result, NULL);
 	return result;
@@ -226,65 +214,25 @@ Xapian::termcount Database::get_collection_freq(const string & term) const
 {
 	if(term.empty())
 		return get_doccount();
-
 	Xapian::termcount result;
 	internal->get_freqs(term, NULL, &result);
 	return result;
 }
 
-Xapian::doccount Database::get_value_freq(Xapian::valueno slot) const
-{
-	return internal->get_value_freq(slot);
-}
-
-string Database::get_value_lower_bound(Xapian::valueno slot) const
-{
-	return internal->get_value_lower_bound(slot);
-}
-
-string Database::get_value_upper_bound(Xapian::valueno slot) const
-{
-	return internal->get_value_upper_bound(slot);
-}
-
-Xapian::termcount Database::get_doclength_lower_bound() const
-{
-	return internal->get_doclength_lower_bound();
-}
-
-Xapian::termcount Database::get_doclength_upper_bound() const
-{
-	return internal->get_doclength_upper_bound();
-}
-
-Xapian::termcount Database::get_wdf_upper_bound(const string & term) const
-{
-	if(term.empty())
-		return 0;
-
-	return internal->get_wdf_upper_bound(term);
-}
-
-Xapian::termcount Database::get_unique_terms_lower_bound() const
-{
-	return internal->get_unique_terms_lower_bound();
-}
-
-Xapian::termcount Database::get_unique_terms_upper_bound() const
-{
-	return internal->get_unique_terms_upper_bound();
-}
-
-ValueIterator Database::valuestream_begin(Xapian::valueno slot) const
-{
-	return ValueIterator(internal->open_value_list(slot));
-}
+Xapian::doccount Database::get_value_freq(Xapian::valueno slot) const { return internal->get_value_freq(slot); }
+string Database::get_value_lower_bound(Xapian::valueno slot) const { return internal->get_value_lower_bound(slot); }
+string Database::get_value_upper_bound(Xapian::valueno slot) const { return internal->get_value_upper_bound(slot); }
+Xapian::termcount Database::get_doclength_lower_bound() const { return internal->get_doclength_lower_bound(); }
+Xapian::termcount Database::get_doclength_upper_bound() const { return internal->get_doclength_upper_bound(); }
+Xapian::termcount Database::get_wdf_upper_bound(const string & term) const { return term.empty() ? 0 : internal->get_wdf_upper_bound(term); }
+Xapian::termcount Database::get_unique_terms_lower_bound() const { return internal->get_unique_terms_lower_bound(); }
+Xapian::termcount Database::get_unique_terms_upper_bound() const { return internal->get_unique_terms_upper_bound(); }
+ValueIterator Database::valuestream_begin(Xapian::valueno slot) const { return ValueIterator(internal->open_value_list(slot)); }
 
 Xapian::termcount Database::get_doclength(Xapian::docid did) const
 {
 	if(did == 0)
 		docid_zero_invalid();
-
 	return internal->get_doclength(did);
 }
 
@@ -292,7 +240,6 @@ Xapian::termcount Database::get_unique_terms(Xapian::docid did) const
 {
 	if(did == 0)
 		docid_zero_invalid();
-
 	return internal->get_unique_terms(did);
 }
 
@@ -300,15 +247,13 @@ Xapian::termcount Database::get_wdfdocmax(Xapian::docid did) const
 {
 	if(did == 0)
 		docid_zero_invalid();
-
 	return internal->get_wdfdocmax(did);
 }
 
-Document Database::get_document(Xapian::docid did, unsigned flags) const
+Document Database::get_document(Xapian::docid did, uint flags) const
 {
 	if(UNLIKELY(did == 0))
 		docid_zero_invalid();
-
 	bool assume_valid = flags & Xapian::DOC_ASSUME_VALID;
 	return Document(internal->open_document(did, assume_valid));
 }
@@ -332,15 +277,13 @@ string Database::get_description() const
 	return desc;
 }
 
-// Word must have a trigram score at least this close to the best score seen
-// so far.
-#define TRIGRAM_SCORE_THRESHOLD 2
+#define TRIGRAM_SCORE_THRESHOLD 2 // Word must have a trigram score at least this close to the best score seen so far.
 
-string Database::get_spelling_suggestion(const string & word, unsigned max_edit_distance) const
+string Database::get_spelling_suggestion(const string & word, uint max_edit_distance) const
 {
 	if(word.size() <= 1 || max_edit_distance == 0)
 		return string();
-	max_edit_distance = min(max_edit_distance, unsigned(word.size() - 1));
+	max_edit_distance = min(max_edit_distance, uint(word.size() - 1));
 	unique_ptr<TermList> merger(internal->open_spelling_termlist(word));
 	if(!merger.get())
 		return string();
@@ -352,18 +295,16 @@ string Database::get_spelling_suggestion(const string & word, unsigned max_edit_
 	Xapian::doccount freq_exact = 0;
 	while(true) {
 		TermList* ret = merger->next();
-		if(ret) merger.reset(ret);
-
-		if(merger->at_end()) break;
-
+		if(ret) 
+			merger.reset(ret);
+		if(merger->at_end()) 
+			break;
 		string term = merger->get_termname();
 		Xapian::termcount score = merger->get_wdf();
-
 		LOGVALUE(SPELLING, term);
 		LOGVALUE(SPELLING, score);
 		if(score + TRIGRAM_SCORE_THRESHOLD >= best) {
-			if(score > best) 
-				best = score;
+			SETMAX(best, score);
 			int edist = edcalc(term, edist_best);
 			LOGVALUE(SPELLING, edist);
 			if(edist <= edist_best) {
@@ -386,9 +327,7 @@ string Database::get_spelling_suggestion(const string & word, unsigned max_edit_
 			}
 		}
 	}
-	if(freq_best < freq_exact)
-		return string();
-	return result;
+	return (freq_best < freq_exact) ? string() : result;
 }
 
 TermIterator Database::spellings_begin() const

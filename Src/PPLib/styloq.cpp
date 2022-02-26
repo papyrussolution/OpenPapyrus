@@ -298,7 +298,7 @@ int StyloQConfig::FromJsonObject(const SJson * pJsObj)
 			p_next = p_cur->P_Next;
 			if(p_cur->P_Child && p_cur->P_Child->Text.NotEmpty()) {
 				int tag_id = SIntToSymbTab_GetId(StyloQConfigTagNameList, SIZEOFARRAY(StyloQConfigTagNameList), p_cur->Text);
-				if(tag_id && Set(tag_id, p_cur->P_Child->Text) > 0)
+				if(tag_id && Set(tag_id, SJson::Unescape(p_cur->P_Child->Text)) > 0)
 					ok = 1;
 			}
 		}			
@@ -435,7 +435,7 @@ int StyloQFace::FromJsonObject(const SJson * pJsObj)
 						SETIFZQ(lang_id, -1);
 					}
 					if(tag_id > 0 && lang_id >= 0) {
-						if(Set(tag_id, lang_id, p_cur->P_Child->Text) > 0)
+						if(Set(tag_id, lang_id, SJson::Unescape(p_cur->P_Child->Text)) > 0)
 							ok = 1;
 					}
 				}
@@ -1321,7 +1321,7 @@ int StyloQCore::PutDocument(PPID * pID, int direction, int docType, const SBinar
 			if(p_cur->Type == SJson::tOBJECT) {								
 				for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
 					if(p_obj->Text.IsEqiAscii("doctype")) {
-						raw_doc_type = p_obj->P_Child->Text;
+						raw_doc_type = SJson::Unescape(p_obj->P_Child->Text);
 					}
 					else if(p_obj->Text.IsEqiAscii("time")) {
 						doc_time = static_cast<time_t>(p_obj->P_Child->Text.ToInt64());
@@ -2329,19 +2329,19 @@ int PPStyloQInterchange::Document::FromJsonObject(const SJson * pJsObj)
 				Uuid.FromStr(p_cur->P_Child->Text);
 			}
 			else if(p_cur->Text.IsEqiAscii("code")) {
-				Code = p_cur->P_Child->Text;
+				Code = SJson::Unescape(p_cur->P_Child->Text);
 			}
 			else if(p_cur->Text.IsEqiAscii("svcident")) {
-				SvcIdent.FromMime64(p_cur->P_Child->Text);
+				SvcIdent.FromMime64(SJson::Unescape(p_cur->P_Child->Text));
 			}
 			else if(p_cur->Text.IsEqiAscii("crtm")) {
-				CreationTime.Set(p_cur->P_Child->Text, DATF_ISO8601|DATF_CENTURY, 0);
+				CreationTime.Set(SJson::Unescape(p_cur->P_Child->Text), DATF_ISO8601|DATF_CENTURY, 0);
 			}
 			else if(p_cur->Text.IsEqiAscii("tm")) {
-				Time.Set(p_cur->P_Child->Text, DATF_ISO8601|DATF_CENTURY, 0);
+				Time.Set(SJson::Unescape(p_cur->P_Child->Text), DATF_ISO8601|DATF_CENTURY, 0);
 			}
 			else if(p_cur->Text.IsEqiAscii("duetm")) {
-				DueTime.Set(p_cur->P_Child->Text, DATF_ISO8601|DATF_CENTURY, 0);
+				DueTime.Set(SJson::Unescape(p_cur->P_Child->Text), DATF_ISO8601|DATF_CENTURY, 0);
 			}
 			else if(p_cur->Text.IsEqiAscii("opid")) {
 				OpID = p_cur->P_Child->Text.ToLong();
@@ -2353,7 +2353,7 @@ int PPStyloQInterchange::Document::FromJsonObject(const SJson * pJsObj)
 				DlvrLocID = p_cur->P_Child->Text.ToLong();
 			}
 			else if(p_cur->Text.IsEqiAscii("memo")) {
-				Memo = p_cur->P_Child->Text;
+				Memo = SJson::Unescape(p_cur->P_Child->Text);
 			}
 			else if(p_cur->Text.IsEqiAscii("ti_list")) {
 				if(SJson::IsArray(p_cur->P_Child)) {
@@ -5283,6 +5283,7 @@ int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommand
 				}
 				if(prc_id_list.getCount()) {
 					prc_id_list.sortAndUndup();
+					PrcBusyArray busy_list;
 					SJson * p_js_prc_list = new SJson(SJson::tARRAY);
 					for(uint prcidx = 0; prcidx < prc_id_list.getCount(); prcidx++) {
 						const PPID prc_id = prc_id_list.get(prcidx);
@@ -5307,6 +5308,28 @@ int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommand
 										goods_to_prc_list.Add(goods_id, prc_id);
 									}
 									p_js_prc->Insert("goods_list", p_js_prcgoodslist);
+								}
+								{
+									SJson * p_js_busylist = new SJson(SJson::tARRAY);
+									uint   busylist_count = 0;
+									busy_list.clear();
+									STimeChunk observe_time_chunk(getcurdatetime_(), LDATETIME().SetFar());
+									tses_obj.P_Tbl->LoadBusyArray(prc_id, 0, TSESK_SESSION, &observe_time_chunk, &busy_list);
+									for(uint blidx = 0; blidx < busy_list.getCount(); blidx++) {
+										const STimeChunk * p_busy_item = static_cast<const STimeChunk *>(busy_list.at(blidx));
+										if(checkdate(p_busy_item->Start.d) && checkdate(p_busy_item->Finish.d)) {
+											SJson * p_js_busy_entry = new SJson(SJson::tOBJECT);
+											p_js_busy_entry->InsertString("low", temp_buf.Z().Cat(p_busy_item->Start, DATF_ISO8601|DATF_CENTURY, 0));
+											p_js_busy_entry->InsertString("upp", temp_buf.Z().Cat(p_busy_item->Finish, DATF_ISO8601|DATF_CENTURY, 0));
+											p_js_busylist->InsertChild(p_js_busy_entry);
+											busylist_count++;
+										}
+									}
+									if(busylist_count) {
+										p_js_prc->Insert("busy_list", p_js_busylist);
+									}
+									else
+										ZDELETE(p_js_busylist);
 								}
 								p_js_prc_list->InsertChild(p_js_prc);
 							}
@@ -5874,7 +5897,7 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 				if(p_cur->Type == SJson::tOBJECT) {								
 					for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
 						if(p_obj->Text.IsEqiAscii("cmd")) {
-							command = p_obj->P_Child->Text;
+							command = SJson::Unescape(p_obj->P_Child->Text);
 							//p_js_reply->InsertString("reply", command);
 						}
 						else if(p_obj->Text.IsEqiAscii("document")) {
@@ -5946,7 +5969,7 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 													local_err = 1;
 											}
 											else if(p_obj->Text.IsEqiAscii("svcident")) {
-												if(p_obj->P_Child && foreign_svc_ident.FromMime64(p_obj->P_Child->Text))
+												if(p_obj->P_Child && foreign_svc_ident.FromMime64(SJson::Unescape(p_obj->P_Child->Text)))
 													;
 												else {
 													PPSetError(PPERR_SLIB);
@@ -6024,7 +6047,8 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 									if(p_cur->Type == SJson::tOBJECT) {								
 										for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
 											if(p_obj->Text.IsEqiAscii("foreignsvcident")) {
-												foreign_svc_ident.FromMime64(p_obj->P_Child->Text);
+												// @v11.3.3 Unescape
+												foreign_svc_ident.FromMime64(SJson::Unescape(p_obj->P_Child->Text));
 											}
 										}
 									}
@@ -6870,6 +6894,39 @@ private:
 	}
 };
 #if 1 // {
+
+static int SetupCorrelationIdent(const PPMqbClient::Envelope & rMqbEnv, StyloQProtocol & rTPack)
+{
+	int    ok = 1;
+	if(rMqbEnv.Msg.Props.CorrelationId.NotEmpty()) {
+		S_GUID round_trip_uuid;
+		SBinaryChunk bc_round_trip_ident;
+		round_trip_uuid.FromStr(rMqbEnv.Msg.Props.CorrelationId);
+		if(rTPack.P.Get(SSecretTagPool::tagRoundTripIdent, &bc_round_trip_ident)) {
+			assert(bc_round_trip_ident.Len() > 0);
+			bool round_trip_ident_match = true;
+			if(bc_round_trip_ident.Len() > 0) {
+				if(bc_round_trip_ident.Len() == sizeof(S_GUID)) {
+					S_GUID round_trip_uuid2;
+					memcpy(&round_trip_uuid2, bc_round_trip_ident.PtrC(), bc_round_trip_ident.Len());
+					if(round_trip_uuid2 != round_trip_uuid)
+						round_trip_ident_match = false;
+				}
+				else
+					round_trip_ident_match = false;
+			}
+			if(!round_trip_ident_match)
+				ok = 0;
+		}
+		else
+			rTPack.P.Put(SSecretTagPool::tagRoundTripIdent, &round_trip_uuid, sizeof(round_trip_uuid));
+	}
+	else
+		ok = -1;
+	return ok;
+}
+
+
 //
 // Descr: Вариант централизованного сервера, обслуживающего MQB-запросы. В этом варианте сервер может обслуживать запросы
 //   к нескольким сервисам (базам данных), в отличии от локального Mqb-сервера, который может обслуживать локальные запросы
@@ -6920,11 +6977,8 @@ public:
 				uint   conn_idx = 0;
 				for(uint j = 0; !conn_idx && j < run_blk.ConnList.getCount(); j++) {
 					const PPMqbClient * p_conn = run_blk.ConnList.at(j);
-					if(p_conn) {
-						if(p_conn->IsHostEqual(p_le->P.MqbInitParam.Host, p_le->P.MqbInitParam.Port)) {
-							conn_idx = j+1;							
-						}
-					}
+					if(p_conn && p_conn->IsHostEqual(p_le->P.MqbInitParam.Host, p_le->P.MqbInitParam.Port))
+						conn_idx = j+1;							
 				}
 				if(conn_idx) {
 					RunBlock::Entry * p_new_entry = new RunBlock::Entry(p_le, conn_idx);
@@ -7033,30 +7087,8 @@ public:
 													evn_svc_ident.FromMime64(mqb_envelop.RoutingKey);
 												}
 												// @v11.3.1 {
-												if(mqb_envelop.Msg.Props.CorrelationId.NotEmpty()) {
-													S_GUID round_trip_uuid;
-													SBinaryChunk bc_round_trip_ident;
-													round_trip_uuid.FromStr(mqb_envelop.Msg.Props.CorrelationId);
-													if(tpack.P.Get(SSecretTagPool::tagRoundTripIdent, &bc_round_trip_ident)) {
-														assert(bc_round_trip_ident.Len() > 0);
-														bool round_trip_ident_match = true;
-														if(bc_round_trip_ident.Len() > 0) {
-															if(bc_round_trip_ident.Len() == sizeof(S_GUID)) {
-																S_GUID round_trip_uuid2;
-																memcpy(&round_trip_uuid2, bc_round_trip_ident.PtrC(), bc_round_trip_ident.Len());
-																if(round_trip_uuid2 != round_trip_uuid)
-																	round_trip_ident_match = false;
-															}
-															else
-																round_trip_ident_match = false;
-														}
-														if(!round_trip_ident_match)
-															local_error = true;
-													}
-													else {
-														tpack.P.Put(SSecretTagPool::tagRoundTripIdent, &round_trip_uuid, sizeof(round_trip_uuid));
-													}
-												}
+												if(!SetupCorrelationIdent(mqb_envelop, tpack))
+													local_error = true;
 												// } @v11.3.1 
 												tpack.P.Get(SSecretTagPool::tagSvcIdent, &msg_svc_ident);
 												const RunBlock::Entry * p_target_entry = 0;
@@ -7281,6 +7313,11 @@ int PPStyloQInterchange::RunStyloQLocalMqbServer(RunServerParam & rP, const DbLo
 									while(p_mqb_cli->ConsumeMessage(mqb_envelop, 200) > 0) {
 										p_mqb_cli->Ack(mqb_envelop.DeliveryTag, 0);
 										if(tpack.Read(mqb_envelop.Msg, 0)) {
+											// @v11.3.3 {
+											if(!SetupCorrelationIdent(mqb_envelop, tpack)) {
+												;//local_error = true;
+											}
+											// } @v11.3.3
 											StyloQServerSession * p_new_sess = new StyloQServerSession(LB, P, tpack);
 											CALLPTRMEMB(p_new_sess, Start(0));
 										}
@@ -7956,7 +7993,7 @@ int Test_PPStyloQInterchange()
 											reply_is_ok++;
 									}
 									else if(p_obj->Text.IsEqiAscii("result")) {
-										svc_result = p_obj->P_Child->Text;
+										svc_result = SJson::Unescape(p_obj->P_Child->Text);
 									}
 								}
 							}

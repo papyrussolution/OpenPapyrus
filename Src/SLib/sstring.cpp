@@ -4280,6 +4280,11 @@ bool SString::IsLegalUtf8() const
 				ok = false;
 		}
 	}
+	// @v11.3.3 {
+	if(!ok) {
+		SLS.SetError(SLERR_STRINGISNTUTF8);
+	}
+	// } @v11.3.3 
 	return ok;
 }
 //
@@ -6296,8 +6301,17 @@ int STokenizer::SetParam(const Param * pParam)
 {
 	RVALUEPTR(P, pParam);
 	if(P.Cp == cpUTF8) {
+		wchar_t exclusive_char[256];
+		uint    exclusive_char_count = 0;
 		SString temp_buf = P.Delim;
+		uint  cpos = 0;
+		if(temp_buf.SearchChar('\x0A', &cpos)) {
+			exclusive_char[exclusive_char_count++] = L'\xA0'; // no-break space
+			temp_buf.Excise(cpos, 1);
+		}
 		DelimU.CopyFromUtf8(temp_buf);
+		for(uint i = 0; i < exclusive_char_count; i++)
+			DelimU.CatChar(exclusive_char[i]);
 	}
 	return 1;
 }

@@ -23,14 +23,8 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is University of Southern California.
- *
  * Contributor(s): Carl D. Worth <cworth@cworth.org> Mathias Hasselmann <mathias.hasselmann@gmx.de> Behdad Esfahbod <behdad@behdad.org>
  */
 #ifndef CAIRO_MUTEX_PRIVATE_H
@@ -39,18 +33,17 @@
 CAIRO_BEGIN_DECLS
 
 #if _CAIRO_MUTEX_IMPL_USE_STATIC_INITIALIZER
-cairo_private void _cairo_mutex_initialize ();
+	cairo_private void _cairo_mutex_initialize ();
 #endif
 #if _CAIRO_MUTEX_IMPL_USE_STATIC_FINALIZER
-cairo_private void _cairo_mutex_finalize ();
+	cairo_private void _cairo_mutex_finalize ();
 #endif
-/* only if using static initializer and/or finalizer define the boolean */
+// only if using static initializer and/or finalizer define the boolean 
 #if _CAIRO_MUTEX_IMPL_USE_STATIC_INITIALIZER || _CAIRO_MUTEX_IMPL_USE_STATIC_FINALIZER
-  cairo_private extern boolint _cairo_mutex_initialized;
+	cairo_private extern boolint _cairo_mutex_initialized;
 #endif
 
-/* Finally, extern the static mutexes and undef */
-
+// Finally, extern the static mutexes and undef 
 #define CAIRO_MUTEX_DECLARE(mutex) cairo_private extern cairo_mutex_t mutex;
 #include "cairo-mutex-list-private.h"
 #undef CAIRO_MUTEX_DECLARE

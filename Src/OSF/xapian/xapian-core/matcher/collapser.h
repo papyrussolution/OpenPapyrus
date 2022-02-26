@@ -23,10 +23,10 @@
 
 #include "backends/documentinternal.h"
 #include "msetcmp.h"
-#include "omassert.h"
+//#include "omassert.h"
 #include "api/result.h"
-#include <unordered_map>
-#include <vector>
+//#include <unordered_map>
+//#include <vector>
 
 /// Enumeration reporting how a result will be handled by the Collapser.
 typedef enum {

@@ -22,46 +22,33 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
- *
- * The Initial Developer of the Original Code is
- * Doodle <doodle@scenergy.dfmk.hu>
- *
- * Contributor(s):
- * Peter Weilbacher <mozilla@Weilbacher.org>
+ * The Initial Developer of the Original Code is Doodle <doodle@scenergy.dfmk.hu>
+ * Contributor(s): Peter Weilbacher <mozilla@Weilbacher.org>
  */
-
 #ifndef CAIRO_OS2_PRIVATE_H
 #define CAIRO_OS2_PRIVATE_H
 
 #include "cairo-os2.h"
 #include "cairoint.h"
 
-typedef struct _cairo_os2_surface
-{
-    cairo_surface_t        base;
-
-    /* Mutex semaphore to protect private fields from concurrent access */
-    HMTX                   hmtx_use_private_fields;
-    /* Private fields: */
-    HPS                    hps_client_window;
-    HWND                   hwnd_client_window;
-    BITMAPINFO2            bitmap_info;
-    uchar         *pixels;
-    cairo_image_surface_t *image_surface;
-    int                    pixel_array_lend_count;
-    HEV                    hev_pixel_array_came_back;
-
-    RECTL                  rcl_dirty_area;
-    boolint dirty_area_present;
-
-    /* General flags: */
-    boolint blit_as_changes;
-    boolint use_24bpp;
+typedef struct _cairo_os2_surface {
+	cairo_surface_t base;
+	/* Mutex semaphore to protect private fields from concurrent access */
+	HMTX hmtx_use_private_fields;
+	/* Private fields: */
+	HPS hps_client_window;
+	HWND hwnd_client_window;
+	BITMAPINFO2 bitmap_info;
+	uchar * pixels;
+	cairo_image_surface_t * image_surface;
+	int pixel_array_lend_count;
+	HEV hev_pixel_array_came_back;
+	RECTL rcl_dirty_area;
+	boolint dirty_area_present;
+	/* General flags: */
+	boolint blit_as_changes;
+	boolint use_24bpp;
 } cairo_os2_surface_t;
 
 #endif /* CAIRO_OS2_PRIVATE_H */

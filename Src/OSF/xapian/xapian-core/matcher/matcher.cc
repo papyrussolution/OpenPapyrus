@@ -39,14 +39,12 @@ static constexpr auto VAL = Xapian::Enquire::Internal::VAL;
 static constexpr auto VAL_REL = Xapian::Enquire::Internal::VAL_REL;
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-[[noreturn]]
-static void unimplemented(const char* msg)
+[[noreturn]] static void unimplemented(const char* msg)
 {
 	throw Xapian::UnimplementedError(msg);
 }
 
-template <typename Action>
-inline void Matcher::for_all_remotes(Action action)
+template <typename Action> inline void Matcher::for_all_remotes(Action action)
 {
 #ifdef HAVE_POLL
 	size_t n_remotes = remotes.size();

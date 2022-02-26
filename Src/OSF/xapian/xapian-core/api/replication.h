@@ -16,25 +16,19 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
-
 #ifndef XAPIAN_INCLUDED_REPLICATION_H
 #define XAPIAN_INCLUDED_REPLICATION_H
 
-#include "xapian/visibility.h"
-#include <string>
+#include <xapian/visibility.h>
+//#include <string>
 
 namespace Xapian {
 /** Information about the steps involved in performing a replication. */
 struct ReplicationInfo {
-	/// Number of changesets applied.
-	int changeset_count;
-
-	/// Number of times a full database copy was performed.
-	int fullcopy_count;
-
+	int changeset_count; /// Number of changesets applied.
+	int fullcopy_count; /// Number of times a full database copy was performed.
 	/** True if and only if the replication corresponds to a change in the
 	 *  live version of the database.  Note that this may be false even if
 	 *  changeset_count and fullcopy_count are non-zero, since the changes
@@ -42,14 +36,11 @@ struct ReplicationInfo {
 	 */
 	bool changed;
 
-	ReplicationInfo()
-		: changeset_count(0),
-		fullcopy_count(0),
-		changed(false)
+	ReplicationInfo() : changeset_count(0), fullcopy_count(0), changed(false)
 	{
 	}
-
-	void clear() {
+	void clear() 
+	{
 		changeset_count = 0;
 		fullcopy_count = 0;
 		changed = false;
@@ -58,18 +49,16 @@ struct ReplicationInfo {
 
 /** Access to a master database for replication. */
 class XAPIAN_VISIBILITY_DEFAULT DatabaseMaster {
-	/// The path to the master database.
-	std::string path;
-
+	std::string path; /// The path to the master database.
 public:
 	/** Create a new DatabaseMaster for the database at the specified path.
 	 *
 	 *  The database isn't actually opened until a set of changesets is
 	 *  requested.
 	 */
-	explicit DatabaseMaster(const std::string & path_) : path(path_) {
+	explicit DatabaseMaster(const std::string & path_) : path(path_) 
+	{
 	}
-
 	/** Write a set of changesets for upgrading the database to a file.
 	 *
 	 *  The changesets will be such that, if they are applied in order to a
@@ -98,10 +87,7 @@ public:
 	 *                  to reflect the changes written to the file
 	 *                  descriptor.
 	 */
-	void write_changesets_to_fd(int fd,
-	    const std::string & start_revision,
-	    ReplicationInfo * info) const;
-
+	void write_changesets_to_fd(int fd, const std::string & start_revision, ReplicationInfo * info) const;
 	/// Return a string describing this object.
 	std::string get_description() const;
 };
@@ -112,14 +98,10 @@ public:
  *  to change between releases without warning.
  */
 class XAPIAN_VISIBILITY_DEFAULT DatabaseReplica {
-	/// Class holding details of the replica.
-	class Internal;
-	/// Internals.
-	Internal * internal;
-	/// No copying.
-	DatabaseReplica(const DatabaseReplica & other);
-	/// No assignment.
-	void operator=(const DatabaseReplica & other);
+	class Internal; /// Class holding details of the replica.
+	Internal * internal; /// Internals.
+	DatabaseReplica(const DatabaseReplica & other); /// No copying.
+	void operator=(const DatabaseReplica & other); /// No assignment.
 public:
 	~DatabaseReplica();
 	/** Open a DatabaseReplica for the database at the specified path.

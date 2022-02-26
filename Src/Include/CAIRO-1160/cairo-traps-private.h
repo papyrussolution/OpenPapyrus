@@ -1,5 +1,4 @@
 /* cairo - a vector graphics library with display and print output
- *
  * Copyright © 2002 University of Southern California
  * Copyright © 2005 Red Hat, Inc.
  *
@@ -22,14 +21,8 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is University of Southern California.
- *
  * Contributor(s): Carl D. Worth <cworth@cworth.org>
  */
 #ifndef CAIRO_TRAPS_PRIVATE_H

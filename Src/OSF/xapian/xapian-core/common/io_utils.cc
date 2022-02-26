@@ -9,11 +9,6 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
@@ -220,8 +215,7 @@ void io_pwrite(int fd, const char * p, size_t n, off_t o)
 #endif
 }
 
-[[noreturn]]
-static void throw_block_error(const char * s, off_t b, int e = 0)
+[[noreturn]] static void throw_block_error(const char * s, off_t b, int e = 0)
 {
 	std::string m = s;
 	m += str(b);

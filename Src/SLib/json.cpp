@@ -6,14 +6,11 @@
 // GNU Library General Public License as published by the Free Software Foundation; either version 2 of the
 // License, or (at your option) any later version.
 //
-// This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-//
 // You should have received a copy of the GNU Library General Public License along with this program; if not, write to the
 // Free Software Foundation, Inc.,
 // 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
-// Adopted to SLIB by A.Sobolev 200-2021
+// Adopted to SLIB by A.Sobolev 2010-2021, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -138,6 +135,17 @@ static rstring_code FASTCALL rcs_catc(RcString * pre, const char c)
 		ZDELETE(p_result);
 	}
 	return p_result;
+}
+
+/*static*/const SString & FASTCALL SJson::Unescape(const SString & rRawText)
+{
+	if(!rRawText.IsEmpty() && rRawText.HasChr('\\')) {
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		(r_temp_buf = rRawText).Unescape();
+		return r_temp_buf;
+	}
+	else
+		return rRawText;
 }
 
 SJson::SJson(int aType) : Type(aType), P_Next(0), P_Previous(0), P_Parent(0), P_Child(0), P_ChildEnd(0), State(0)
@@ -1286,93 +1294,37 @@ static int FASTCALL Lexer(const char * pBuffer, const char ** p, uint * state, S
 				++*p;
 				break;
 			case 3: // inside a JSON string: escape unicode
-				// @v10.9.8 {
 				if(ishex(**p)) {
 					rText.CatChar(**p);
 					*state = 4; // inside a JSON string: escape unicode
 				}
-				// } @v10.9.8 
-				/* @v10.9.8 if((**p >= 'a') && (**p <= 'f')) {
-					rText.CatChar(**p);
-					*state = 4; // inside a JSON string: escape unicode
-				}
-				else if((**p >= 'A') && (**p <= 'F')) {
-					rText.CatChar(**p);
-					*state = 4;	// inside a JSON string: escape unicode
-				}
-				else if((**p >= '0') && (**p <= '9')) {
-					rText.CatChar(**p);
-					*state = 4;	// inside a JSON string: escape unicode
-				}*/
 				else
 					return LEX_INVALID_CHARACTER;
 				++*p;
 				break;
 			case 4:	// inside a JSON string: escape unicode
-				// @v10.9.8 {
 				if(ishex(**p)) {
 					rText.CatChar(**p);
 					*state = 5; // inside a JSON string: escape unicode
 				}
-				// } @v10.9.8 
-				/* @v10.9.8 if((**p >= 'a') && (**p <= 'f')) {
-					rText.CatChar(**p);
-					*state = 5;	// inside a JSON string: escape unicode
-				}
-				else if((**p >= 'A') && (**p <= 'F')) {
-					rText.CatChar(**p);
-					*state = 5;	// inside a JSON string: escape unicode
-				}
-				else if((**p >= '0') && (**p <= '9')) {
-					rText.CatChar(**p);
-					*state = 5;	// inside a JSON string: escape unicode
-				}*/
 				else
 					return LEX_INVALID_CHARACTER;
 				++*p;
 				break;
 			case 5:	// inside a JSON string: escape unicode
-				// @v10.9.8 {
 				if(ishex(**p)) {
 					rText.CatChar(**p);
 					*state = 6; // inside a JSON string: escape unicode
 				}
-				// } @v10.9.8 
-				/* @v10.9.8 if((**p >= 'a') && (**p <= 'f')) {
-					rText.CatChar(**p);
-					*state = 6;	// inside a JSON string: escape unicode
-				}
-				else if((**p >= 'A') && (**p <= 'F')) {
-					rText.CatChar(**p);
-					*state = 6;	// inside a JSON string: escape unicode
-				}
-				else if((**p >= '0') && (**p <= '9')) {
-					rText.CatChar(**p);
-					*state = 6;	// inside a JSON string: escape unicode
-				}*/
 				else
 					return LEX_INVALID_CHARACTER;
 				++*p;
 				break;
 			case 6:	// inside a JSON string: escape unicode
-				// @v10.9.8 {
 				if(ishex(**p)) {
 					rText.CatChar(**p);
 					*state = 1; // inside a JSON string: escape unicode
 				}
-				// } @v10.9.8 
-				/* @v10.9.8 if((**p >= 'a') && (**p <= 'f')) {
-					rText.CatChar(**p);
-					*state = 1;	// inside a JSON string: escape unicode 
-				}
-				else if((**p >= 'A') && (**p <= 'F')) {
-					rText.CatChar(**p);
-					*state = 1;	// inside a JSON string: escape unicode 
-				}
-				else if((**p >= '0') && (**p <= '9')) {
-					rText.CatChar(**p);
-					*state = 1;	// inside a JSON string: escape unicode
-				}*/
 				else
 					return LEX_INVALID_CHARACTER;
 				++*p;

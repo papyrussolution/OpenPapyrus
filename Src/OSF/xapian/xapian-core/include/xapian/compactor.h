@@ -16,10 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
-
 #ifndef XAPIAN_INCLUDED_COMPACTOR_H
 #define XAPIAN_INCLUDED_COMPACTOR_H
 
@@ -28,7 +26,7 @@
 #endif
 #include <xapian/constants.h>
 #include <xapian/visibility.h>
-#include <string>
+//#include <string>
 
 namespace Xapian {
 class Database;

@@ -270,10 +270,10 @@ public:
 	 *
 	 *  @param error_string_	Optional string describing error.  May be NULL.
 	 */
-	InvalidOperationError(const std::string &msg_, const std::string &context_, const char * error_string_)
-		: LogicError(msg_, context_, "\002InvalidOperationError", error_string_) {
+	InvalidOperationError(const std::string &msg_, const std::string &context_, const char * error_string_) : 
+		LogicError(msg_, context_, "\002InvalidOperationError", error_string_) 
+	{
 	}
-
 	/** General purpose constructor.
 	 *
 	 *  @param msg_		Message giving details of the error, intended
@@ -281,8 +281,9 @@ public:
 	 *  @param context_	Optional context information for this error.
 	 *  @param errno_		Optional errno value associated with this error.
 	 */
-	explicit InvalidOperationError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0)
-		: LogicError(msg_, context_, "\002InvalidOperationError", errno_) {
+	explicit InvalidOperationError(const std::string &msg_, const std::string &context_ = std::string(), int errno_ = 0) : 
+		LogicError(msg_, context_, "\002InvalidOperationError", errno_) 
+	{
 	}
 
 	/** Construct from message and errno value.
@@ -291,23 +292,23 @@ public:
 	 *				for human consumption.
 	 *  @param errno_		Optional errno value associated with this error.
 	 */
-	InvalidOperationError(const std::string &msg_, int errno_)
-		: LogicError(msg_, std::string(), "\002InvalidOperationError", errno_) {
+	InvalidOperationError(const std::string &msg_, int errno_) : LogicError(msg_, std::string(), "\002InvalidOperationError", errno_) 
+	{
 	}
-
 protected:
 	/** @private @internal
 	 *  @brief Constructor for use by constructors of derived classes.
 	 */
-	InvalidOperationError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_)
-		: LogicError(msg_, context_, type_, error_string_) {
+	InvalidOperationError(const std::string &msg_, const std::string &context_, const char * type_, const char * error_string_) : 
+		LogicError(msg_, context_, type_, error_string_) 
+	{
 	}
-
 	/** @private @internal
 	 *  @brief Constructor for use by constructors of derived classes.
 	 */
-	InvalidOperationError(const std::string &msg_, const std::string &context_, const char * type_, int errno_)
-		: LogicError(msg_, context_, type_, errno_) {
+	InvalidOperationError(const std::string &msg_, const std::string &context_, const char * type_, int errno_) : 
+		LogicError(msg_, context_, type_, errno_) 
+	{
 	}
 };
 

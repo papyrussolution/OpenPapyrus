@@ -9,11 +9,6 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
@@ -33,8 +28,7 @@
 using namespace std;
 
 namespace Xapian {
-string
-Internal::ExpandTerm::get_description() const
+string Internal::ExpandTerm::get_description() const
 {
 	string desc("ExpandTerm(");
 	desc += str(wt);
@@ -50,12 +44,9 @@ Internal::ExpandTerm::get_description() const
 static TermList * build_termlist_tree(const Xapian::Database &db, const RSet & rset)
 {
 	Assert(!rset.empty());
-
 	const set<Xapian::docid> & docids = rset.internal->docs;
-
 	vector<TermList*> termlists;
 	termlists.reserve(docids.size());
-
 	try {
 		for(Xapian::docid did : docids) {
 			termlists.push_back(db.internal->open_term_list_direct(did));
@@ -71,13 +62,8 @@ static TermList * build_termlist_tree(const Xapian::Database &db, const RSet & r
 	}
 }
 
-void
-ESet::Internal::expand(Xapian::termcount max_esize,
-    const Xapian::Database & db,
-    const RSet &rset,
-    const Xapian::ExpandDecider * edecider,
-    Xapian::Internal::ExpandWeight & eweight,
-    double min_wt)
+void ESet::Internal::expand(Xapian::termcount max_esize, const Xapian::Database & db,
+    const RSet &rset, const Xapian::ExpandDecider * edecider, Xapian::Internal::ExpandWeight & eweight, double min_wt)
 {
 	LOGCALL_VOID(EXPAND, "ESet::Internal::expand", max_esize | db | rset | edecider | eweight);
 	// These two cases are handled by our caller.
@@ -87,10 +73,8 @@ ESet::Internal::expand(Xapian::termcount max_esize,
 	// check we're empty.
 	Assert(ebound == 0);
 	Assert(items.empty());
-
 	unique_ptr<TermList> tree(build_termlist_tree(db, rset));
 	Assert(tree.get());
-
 	bool is_heap = false;
 	while(true) {
 		// See if the root needs replacing.
@@ -151,8 +135,7 @@ ESet::Internal::expand(Xapian::termcount max_esize,
 	}
 }
 
-string
-ESet::Internal::get_description() const
+string ESet::Internal::get_description() const
 {
 	string desc("ESet::Internal(ebound=");
 	desc += str(ebound);
@@ -163,24 +146,20 @@ ESet::Internal::get_description() const
 		desc += i->get_description();
 	}
 	desc += ')';
-
 	return desc;
 }
 
-ESet::ESet() : internal(new ESet::Internal) {
+ESet::ESet() : internal(new ESet::Internal) 
+{
 }
 
 ESet::ESet(const ESet &) = default;
-
-ESet&
-ESet::operator=(const ESet &) = default;
-
+ESet & ESet::operator=(const ESet &) = default;
 ESet::ESet(ESet &&) = default;
+ESet & ESet::operator=(ESet &&) = default;
 
-ESet&
-ESet::operator=(ESet &&) = default;
-
-ESet::~ESet() {
+ESet::~ESet() 
+{
 }
 
 Xapian::doccount ESet::size() const

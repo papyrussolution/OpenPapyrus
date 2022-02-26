@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+tools:context=".CmdRGridActivity">
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:orientation="vertical"
+tools:context=".CmdRAttendancePrereqActivity">
+<LinearLayout
+    android:id="@+id/LAYOUT_ACTIVITYROOT"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="10"
+        android:orientation="vertical"
+        android:padding="4dp"
+        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@color/Primary"
+            android:layout_marginBottom="4dp"
+            android:padding="4dp"
+            >
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                >
+                <TextView
+                    android:id="@+id/CTL_ACTIVITYHEAD_SVCNAME"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ems="16"
+                    android:textStyle="bold"
+                    android:textColor="@color/TextIcons"/>
+                <TextView
+                    android:id="@+id/CTL_ACTIVITYHEAD_TITLE"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ems="12"
+                    android:textColor="@color/TextIcons"/>
+            </LinearLayout>
+            <View style="@style/FakeView"/>
+            <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonSearch"
+                android:layout_gravity="center_vertical|right"
+                app:srcCompat="@drawable/ic_search"/>
+        </LinearLayout>
+        <com.google.android.material.tabs.TabLayout
+            style="@style/TabLayout"
+            app:tabTextAppearance="@style/TabTextAppearance"
+            android:id="@+id/TABLAYOUT_ATTENDANCEPREREQ"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:tabPadding="2dp"
+            app:tabMode="scrollable"
+            >
+        </com.google.android.material.tabs.TabLayout>
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/VIEWPAGER_ATTENDANCEPREREQ"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
+    </LinearLayout>
+</LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

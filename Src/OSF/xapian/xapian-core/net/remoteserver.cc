@@ -9,11 +9,6 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
@@ -21,7 +16,6 @@
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "remoteserver.h"
-#include "xapian/valueiterator.h"
 #include "api/msetinternal.h"
 #include "api/termlist.h"
 #include "matcher/matcher.h"
@@ -33,8 +27,7 @@
 
 using namespace std;
 
-[[noreturn]]
-static void throw_read_only()
+[[noreturn]] static void throw_read_only()
 {
 	throw Xapian::InvalidOperationError("Server is read-only");
 }
@@ -42,13 +35,8 @@ static void throw_read_only()
 /// Class to throw when we receive the connection closing message.
 struct ConnectionClosed { };
 
-RemoteServer::RemoteServer(const vector<string>& dbpaths,
-    int fdin_, int fdout_,
-    double active_timeout_, double idle_timeout_,
-    bool writable_)
-	: RemoteConnection(fdin_, fdout_, string()),
-	db(NULL), wdb(NULL), writable(writable_),
-	active_timeout(active_timeout_), idle_timeout(idle_timeout_)
+RemoteServer::RemoteServer(const vector<string>& dbpaths, int fdin_, int fdout_, double active_timeout_, double idle_timeout_, bool writable_) : 
+	RemoteConnection(fdin_, fdout_, string()), db(NULL), wdb(NULL), writable(writable_), active_timeout(active_timeout_), idle_timeout(idle_timeout_)
 {
 	// Catch errors opening the database and propagate them to the client.
 	try {
@@ -97,12 +85,10 @@ RemoteServer::~RemoteServer()
 	// wdb is either NULL or equal to db, so we shouldn't delete it too!
 }
 
-message_type RemoteServer::get_message(double timeout, string & result,
-    message_type required_type)
+message_type RemoteServer::get_message(double timeout, string & result, message_type required_type)
 {
 	double end_time = RealTime::end_time(timeout);
 	int type = RemoteConnection::get_message(result, end_time);
-
 	// Handle "shutdown connection" message here.  Treat EOF here for a read-only
 	// database the same way since a read-only client just closes the
 	// connection when done.

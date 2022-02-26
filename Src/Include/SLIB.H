@@ -2720,6 +2720,7 @@ private:
 #define SLERR_DUPSYMBWITHUNEQID                457 // Дублирование символа '%s' элемента с отличным идентификатором
 #define SLERR_INVIMAGESIZE                     458 // Недопустимый размер изображения ([1..30000], [1..30000])
 #define SLERR_WTM_DUPLAYOUTSYMB                459 // @v10.4.9 Дублирование символа layout
+#define SLERR_STRINGISNTUTF8                   460 // @v11.3.3 Строка - не в кодировке utf-8
 
 #define SLERR_FANN_CANT_OPEN_CONFIG_R          500 // Unable to open configuration file for reading
 #define SLERR_FANN_CANT_OPEN_CONFIG_W          501 // Unable to open configuration file for writing
@@ -5867,7 +5868,7 @@ struct SBaseBuffer {
 	// no destructor  (used in unions)
 	SBaseBuffer & Init();
 	SBaseBuffer & Destroy();
-	int    FASTCALL IsEq(const SBaseBuffer & rS) const;
+	bool   FASTCALL IsEq(const SBaseBuffer & rS) const;
 	//
 	// Descr: Копирует содержимое буфера rS в буфер this.
 	// Note: И rS и this должны быть "правильными" объектами. То есть, для них
@@ -5875,7 +5876,7 @@ struct SBaseBuffer {
 	//   Если указатели P_Buf или размеры Size этих экземпляров инвалидны, то
 	//   последствия непредсказуемы.
 	//
-	int    FASTCALL Copy(const SBaseBuffer & rS);
+	bool   FASTCALL Copy(const SBaseBuffer & rS);
 	void   Zero();
 	void   Set(void * pBuf, size_t size);
 	int    FASTCALL Alloc(size_t sz);
@@ -6004,10 +6005,10 @@ public:
 	// Descr: Формирует отрезок длиной len и копирует в него данные из указателя pData.
 	//   Если pData == 0 и len == 0 то буфер становится пустым (память не освобождается, то есть вызов Put(0, 0) эквивалентен Z()).
 	// Returns:
-	//   >0 - функция выполнена успешно
-	//    0 - ошибка
+	//   true - функция выполнена успешно
+	//   false - ошибка
 	//
-	int    Put(const void * pData, size_t len);
+	bool   Put(const void * pData, size_t len);
 	//
 	// Descr: В хвост текущего отрезка дописывает данные из указателя pData длиной len.
 	//   При успешном завершении длина данных в отрезке становится равной предшествующей длине плюс len.
@@ -11556,6 +11557,13 @@ struct SJson {
 	static bool FASTCALL IsNull(const SJson * pN) { return (pN && pN->Type == SJson::tNULL); }
 	static bool FASTCALL IsTrue(const SJson * pN) { return (pN && pN->Type == SJson::tTRUE); }
 	static bool FASTCALL IsFalse(const SJson * pN) { return (pN && pN->Type == SJson::tFALSE); }
+	//
+	// Descr: Возвращает строку, в которой экранированные с помощью символа '\' знаки заменены
+	//   на свои оригинальные значения.
+	// Note: В случае, если фактически замена была осущетсвлена, то возвращается ссылка на
+	//   револьверную строку (SLS.AcquireRvlStr()) по этому, результат должен быть использован как можно скорее.
+	//
+	static const SString & FASTCALL Unescape(const SString & rRawText);
 	explicit SJson(int aType);
 	~SJson();
 	bool   IsValid() const;
@@ -15401,8 +15409,8 @@ public:
 	void   Destroy();
 	int    Init(uint w, uint h); // pixformat: PixF::s32ARGB
 	int    Init(uint w, uint h, PixF f);
-	int    FASTCALL IsEq(const SImageBuffer & rS) const;
-	int    FASTCALL Copy(const SImageBuffer & rS);
+	bool   FASTCALL IsEq(const SImageBuffer & rS) const;
+	bool   FASTCALL Copy(const SImageBuffer & rS);
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    AddLines(const void * pSrc, PixF s, uint count, const Palette * pPalette);
 	PixF   GetFormat() const;

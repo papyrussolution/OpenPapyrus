@@ -1,6 +1,5 @@
 /* -*- Mode: c; c-basic-offset: 4; indent-tabs-mode: t; tab-width: 8; -*- */
 /* cairo - a vector graphics library with display and print output
- *
  * Copyright © 2002 University of Southern California
  * Copyright © 2005 Red Hat Inc.
  *
@@ -23,14 +22,8 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is University of Southern California.
- *
  * Contributor(s): Carl D. Worth <cworth@cworth.org> Graydon Hoare <graydon@redhat.com> Owen Taylor <otaylor@redhat.com>
  */
 #include "cairoint.h"
@@ -73,10 +66,11 @@ cairo_status_t FASTCALL _cairo_font_face_set_error(cairo_font_face_t * font_face
 {
 	if(status == CAIRO_STATUS_SUCCESS)
 		return status;
-	/* Don't overwrite an existing error. This preserves the first
-	 * error, which is the most significant. */
-	_cairo_status_set_error(&font_face->status, status);
-	return _cairo_error(status);
+	else {
+		// Don't overwrite an existing error. This preserves the first error, which is the most significant. 
+		_cairo_status_set_error(&font_face->status, status);
+		return _cairo_error(status);
+	}
 }
 
 void FASTCALL _cairo_font_face_init(cairo_font_face_t * font_face, const cairo_font_face_backend_t * backend)

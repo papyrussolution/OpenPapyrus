@@ -133,6 +133,37 @@ int LmdbDatabase::Table::Get(const void * pKey, size_t keyLen, SBaseBuffer & rVa
 	return ok;
 }
 
+int LmdbDatabase::Table::Get(const void * pKey, size_t keyLen, SBinaryChunk & rValBuf)
+{
+	rValBuf.Z();
+	SBaseBuffer b;
+	int    ok = Get(pKey, keyLen, b);
+	if(ok > 0) {
+		assert(b.P_Buf);
+		assert(b.Size > 0);
+		ok = rValBuf.Put(b.P_Buf, b.Size);
+	}
+	return ok;
+}
+
+int LmdbDatabase::Table::GetStat(LmdbDatabase::Stat & rS)
+{
+	int    ok = 1;
+	MDB_stat stat;
+	THROW(R_Txn.IsValid());
+	THROW(R_Txn.GetDb().ProcessError(mdb_stat(R_Txn.GetHandle(), H, &stat)));
+	{
+		rS.PageSize = stat.ms_psize;
+		rS.BtreeDepth = stat.ms_depth;
+		rS.BranchPageCount = stat.ms_branch_pages;
+		rS.LeafPageCount = stat.ms_leaf_pages;
+		rS.OverflowPageCount = stat.ms_overflow_pages;
+		rS.EntryCount = stat.ms_entries;
+	}
+	CATCHZOK
+	return ok;
+}
+
 int LmdbDatabase::Table::Put(const void * pKey, size_t keyLen, const void * pVal, size_t valLen, uint flags)
 {
 	// MDB_NOOVERWRITE|MDB_NODUPDATA|MDB_RESERVE|MDB_APPEND|MDB_APPENDDUP

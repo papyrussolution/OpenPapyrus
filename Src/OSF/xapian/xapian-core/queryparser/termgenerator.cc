@@ -29,10 +29,12 @@ TermGenerator & TermGenerator::operator=(const TermGenerator &) = default;
 TermGenerator::TermGenerator(TermGenerator &&) = default;
 TermGenerator & TermGenerator::operator=(TermGenerator &&) = default;
 
-TermGenerator::TermGenerator() : internal(new TermGenerator::Internal) {
+TermGenerator::TermGenerator() : internal(new TermGenerator::Internal) 
+{
 }
 
-TermGenerator::~TermGenerator() {
+TermGenerator::~TermGenerator() 
+{
 }
 
 void TermGenerator::set_stemmer(const Xapian::Stem & stemmer)
@@ -83,16 +85,12 @@ void TermGenerator::set_max_word_length(unsigned max_word_length)
 	internal->max_word_length = max_word_length;
 }
 
-void TermGenerator::index_text(const Xapian::Utf8Iterator & itor,
-    Xapian::termcount weight,
-    const string & prefix)
+void TermGenerator::index_text(const Xapian::Utf8Iterator & itor, Xapian::termcount weight, const string & prefix)
 {
 	internal->index_text(itor, weight, prefix, true);
 }
 
-void TermGenerator::index_text_without_positions(const Xapian::Utf8Iterator & itor,
-    Xapian::termcount weight,
-    const string & prefix)
+void TermGenerator::index_text_without_positions(const Xapian::Utf8Iterator & itor, Xapian::termcount weight, const string & prefix)
 {
 	internal->index_text(itor, weight, prefix, false);
 }
