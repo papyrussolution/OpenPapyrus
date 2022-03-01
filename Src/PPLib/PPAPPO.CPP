@@ -1523,103 +1523,6 @@ int PPApp::SetDatetimeByServer(PPIniFile * pIniFile, int force)
 	return ok;
 }
 
-#if 0 // @v10.1.5 {
-int PPBackupSystemFiles()
-{
-	int    ok = -1;
-	SString bin_dir;
-	SString backup_dir;
-	SString fname;
-	SString lock_path;
-	PPGetPath(PPPATH_BIN, bin_dir);
-	(backup_dir = bin_dir).SetLastSlash().Cat("backup").SetLastSlash();
-	PPGetFileName(PPFILNAM_BULOCK, fname);
-	(lock_path = backup_dir).SetLastSlash().Cat(fname);
-	createDir(backup_dir);
-	if(!fileExists(lock_path)) {
-		LDATE last_copy_dt, cur_dt;
-		SString buf, last_copy_path;
-		SFile f(lock_path, SFile::mWrite);
-
-		f.Close();
-		PPGetFileName(PPFILNAM_LASTBACKUP, fname);
-		(last_copy_path = backup_dir).SetLastSlash().Cat(fname);
-		f.Open(last_copy_path, SFile::mRead);
-		f.ReadLine(buf);
-		f.Close();
-		strtodate(buf, DATF_DMY, &last_copy_dt);
-		getcurdate(&cur_dt);
-		if(last_copy_dt < cur_dt) {
-			long start = 1;
-			SString path;
-			SString dest_dir;
-			SString dest_path;
-			dest_dir = MakeTempFileName(backup_dir, 0, 0, &start, dest_dir);
-			if(start > 6) {
-				StrAssocArray temp_dir_list;
-				SDirEntry de;
-				SDirec sdir((path = backup_dir).CatChar('*').Dot().CatChar('*'), 1);
-				for(long i = 1; sdir.Next(&de) > 0; i++)
-					if(de.FileName[0] != '.' && de.FileName[1] != 0)
-						temp_dir_list.Add(i, 0, de.FileName);
-				if(temp_dir_list.getCount() > 0) {
-					(path = backup_dir).SetLastSlash().Cat(temp_dir_list.Get(0).Txt);
-					RemoveDir(path);
-					temp_dir_list.AtFree(0);
-				}
-				for(uint j = 0; j < temp_dir_list.getCount(); j++) {
-					(buf = backup_dir).SetLastSlash().Cat(temp_dir_list.Get(j).Txt);
-					SFile::Rename(buf, path);
-					path = buf;
-				}
-				dest_dir = MakeTempFileName(backup_dir, 0, 0, &(start = 5), dest_dir);
-			}
-
-			dest_dir.TrimRightChr('.');
-			createDir(dest_dir);
-
-			fname = "PP.INI";
-			(path = bin_dir).SetLastSlash().Cat(fname);
-			(dest_path = dest_dir).SetLastSlash().Cat(fname);
-			SCopyFile(path, dest_path, 0, FILE_SHARE_READ, 0);
-			{
-				static const uint _bin_file_id_list[] = {
-					PPFILNAM_PPCMD_BIN,
-					PPFILNAM_PPDESK_BIN,
-					PPFILNAM_JOBPOOL,
-					PPFILNAM_REPORT_INI,
-					PPFILNAM_IMPEXP_INI,
-					PPFILNAM_BARLABEL_LBL, // @v10.1.5
-					PPFILNAM_REGDATA,      // @v10.1.5
-					PPFILNAM_STDSLIP_FMT   // @v10.1.5
-				};
-				for(uint i = 0; i < SIZEOFARRAY(_bin_file_id_list); i++) {
-					PPGetFileName(_bin_file_id_list[i], fname);
-					(path = bin_dir).SetLastSlash().Cat(fname);
-					if(fileExists(path)) {
-						(dest_path = dest_dir).SetLastSlash().Cat(fname);
-						SCopyFile(path, dest_path, 0, FILE_SHARE_READ, 0);
-					}
-				}
-			}
-			PPGetFileName(PPFILNAM_LOCAL_DL6, fname);
-			PPGetPath(PPPATH_DD, path);
-			path.SetLastSlash().Cat(fname);
-			(dest_path = dest_dir).SetLastSlash().Cat(fname);
-			SCopyFile(path, dest_path, 0, FILE_SHARE_READ, 0);
-			{
-				f.Open(last_copy_path, SFile::mWrite);
-				buf.Z().Cat(cur_dt, DATF_DMY);
-				f.WriteLine(buf);
-				ok = 1;
-			}
-		}
-		SFile::Remove(lock_path);
-	}
-	return ok;
-}
-#endif // } 0 @v10.1.5
-
 int PPBackupSystemFiles_Arc()
 {
 	int    ok = -1;
@@ -1655,10 +1558,10 @@ int PPBackupSystemFiles_Arc()
 					long start = 1;
 					SString path;
 					SString dest_dir;
-					SString dest_path;
+					// @v11.3.3 SString dest_path;
 					fname = "PP.INI";
 					(path = bin_dir).SetLastSlash().Cat(fname);
-					(dest_path = dest_dir).SetLastSlash().Cat(fname);
+					// @v11.3.3 (dest_path = dest_dir).SetLastSlash().Cat(fname);
 					arc.AddEntry(path, fname, 0);
 					{
 						static const uint _bin_file_id_list[] = {
@@ -1675,7 +1578,7 @@ int PPBackupSystemFiles_Arc()
 							PPGetFileName(_bin_file_id_list[i], fname);
 							(path = bin_dir).SetLastSlash().Cat(fname);
 							if(fileExists(path)) {
-								(dest_path = dest_dir).SetLastSlash().Cat(fname);
+								// @v11.3.3 (dest_path = dest_dir).SetLastSlash().Cat(fname);
 								arc.AddEntry(path, fname, 0);
 							}
 						}
@@ -1683,12 +1586,32 @@ int PPBackupSystemFiles_Arc()
 					PPGetFileName(PPFILNAM_LOCAL_DL6, fname);
 					PPGetPath(PPPATH_DD, path);
 					path.SetLastSlash().Cat(fname);
-					(dest_path = dest_dir).SetLastSlash().Cat(fname);
+					// @v11.3.3 (dest_path = dest_dir).SetLastSlash().Cat(fname);
 					arc.AddEntry(path, fname, 0);
-	//@erik v10.6.13 {
-					PPGetPath(PPPATH_WORKSPACE, path);
-					arc.AddEntries(path, SArchive::aefRecursive);
-	// } @erik
+					//@erik v10.6.13 {
+					{
+						// Since @v11.3.3 копируются только конкретные подкаталоги и файлы из workspace
+						// @v11.3.3 PPGetPath(PPPATH_WORKSPACE, path);
+						// subdirs: desks desktop menu namedfilt nginx srvjobpool styloqcommands 
+						// files: styloq-la styloq-sidsmap 
+						static const char * pp_workspace_subdir[] = { "desks", "desktop", "menu", "namedfilt", "nginx", "srvjobpool", "styloqcommands" };
+						static const char * pp_workspace_files[] = { "styloq-la", "styloq-sidsmap" };
+						for(uint wssdidx = 0; wssdidx < SIZEOFARRAY(pp_workspace_subdir); wssdidx++) {
+							PPGetPath(PPPATH_WORKSPACE, path);
+							path.SetLastSlash().Cat(pp_workspace_subdir[wssdidx]);
+							if(IsDirectory(path)) {
+								arc.AddEntries(path, SArchive::aefRecursive);
+							}
+						}
+						for(uint wssfidx = 0; wssfidx < SIZEOFARRAY(pp_workspace_files); wssfidx++) {
+							PPGetPath(PPPATH_WORKSPACE, path);
+							path.SetLastSlash().Cat(pp_workspace_files[wssfidx]);
+							if(fileExists(path)) {
+								arc.AddEntry(path, pp_workspace_files[wssfidx], 0);
+							}
+						}
+					}
+					// } @erik
 					// @v10.7.5 {
 					{
 						//

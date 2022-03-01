@@ -705,13 +705,25 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 							//pczcr = 0;
 							//chzn_pp_result.Z();
 							// } @debug
-							if(pczcr > 0 && chzn_pp_result.Status == 1) {
-								chzn_pp_result.LineIdx = pos;
-								int accept_op = 1; // 1 - accept, 2 - reject
-								pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, uom_fragm, chzn_pp_result);
-								PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
-								if(pczcr > 0)
-									pPack->SetLineChZnPreprocessResult(pos, &chzn_pp_result);
+							if(pczcr > 0) {
+								if(chzn_pp_result.Status == 1) {
+									chzn_pp_result.LineIdx = pos;
+									int accept_op = 1; // 1 - accept, 2 - reject
+									pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, uom_fragm, chzn_pp_result);
+									PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
+									if(pczcr > 0)
+										pPack->SetLineChZnPreprocessResult(pos, &chzn_pp_result);
+								}
+								// @v11.3.3 {
+								else {
+									chzn_pp_result.LineIdx = pos;
+									int accept_op = 2; // 1 - accept, 2 - reject
+									pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, uom_fragm, chzn_pp_result);
+									PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
+									if(pczcr > 0)
+										pPack->SetLineChZnPreprocessResult(pos, &chzn_pp_result);
+								}
+								// } @v11.3.3 
 							}
 						}
 					}

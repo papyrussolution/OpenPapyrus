@@ -3083,6 +3083,7 @@ extern "C" typedef PPBaseFilt * (*FN_PPFILT_FACTORY)();
 
 #define PPFILT_FACTORY(filtSymb)  BFF_##filtSymb
 #define IMPLEMENT_PPFILT_FACTORY(filtSymb) extern "C" __declspec(dllexport) PPBaseFilt * BFF_##filtSymb() { return new filtSymb##Filt(); }
+#define IMPLEMENT_PPFILT_FACTORY_CLS(filtSymb) extern "C" __declspec(dllexport) PPBaseFilt * BFF_##filtSymb() { return new filtSymb(); }
 //
 // @ModuleDecl(PPConfig)
 //
@@ -46479,6 +46480,21 @@ private:
 	static ReadWriteLock _SvcDbMapRwl; // Блокировка для защиты _SvcDbMap
 	static SvcDbSymbMap _SvcDbMap;
 };
+//
+// Descr: Параметры подготовки данных для заказа услуг в рамках проекта Stylo-Q
+//
+class StyloQAttendancePrereqParam : public PPBaseFilt {
+public:
+	StyloQAttendancePrereqParam();
+	StyloQAttendancePrereqParam(const StyloQAttendancePrereqParam & rS);
+	StyloQAttendancePrereqParam & FASTCALL operator = (const StyloQAttendancePrereqParam & rS);
+
+	uint8  ReserveStart[64]; // @reserve
+	ObjIdListFilt PrcList;   // @anchor 
+	SString PrcTitle;        // Стока, используемая для именования процессоров (мастера, врачи и т.д.)
+private:
+	int    InitInstance();
+};
 
 class StyloQCommandList { // @construction
 public:
@@ -46526,6 +46542,7 @@ public:
 	};
 	struct Item {
 		Item();
+		int    GetAttendanceParam(StyloQAttendancePrereqParam & rP) const;
 		enum {
 			fResultPersistent = 0x0001
 		};
@@ -46831,6 +46848,7 @@ public:
 	SlSRP::Verifier * CreateSrpPacket_Svc_Auth(const SBinaryChunk & rMyPub, const SBinaryChunk & rCliIdent, const SBinaryChunk & rSrpS,
 		const SBinaryChunk & rSrpV, const SBinaryChunk & rA, StyloQProtocol & rP);
 	static void  SetupMqbReplyProps(const RoundTripBlock & rB, PPMqbClient::MessageProperties & rProps);
+	static int   Edit_RsrvAttendancePrereqParam(StyloQAttendancePrereqParam & rParam);
 	//
 	void   Debug_Command(const StyloQCommandList::Item * pCmd); // @debug
 private:

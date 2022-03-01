@@ -104,63 +104,63 @@ xmlOutputBuffer * xmlAllocOutputBufferInternal(xmlCharEncodingHandler * encoder)
 // Tree memory error handler
 // 
 static const char * IOerr[] = {
-	"Unknown IO error",     /* UNKNOWN */
-	"Permission denied",    /* EACCES */
-	"Resource temporarily unavailable", /* EAGAIN */
-	"Bad file descriptor",  /* EBADF */
-	"Bad message",          /* EBADMSG */
-	"Resource busy",        /* EBUSY */
-	"Operation canceled",   /* ECANCELED */
-	"No child processes",   /* ECHILD */
-	"Resource deadlock avoided", /* EDEADLK */
-	"Domain error",         /* EDOM */
-	"File exists",          /* EEXIST */
-	"Bad address",          /* EFAULT */
-	"File too large",       /* EFBIG */
-	"Operation in progress", /* EINPROGRESS */
-	"Interrupted function call", /* EINTR */
-	"Invalid argument",     /* EINVAL */
-	"Input/output error",   /* EIO */
-	"Is a directory",       /* EISDIR */
-	"Too many open files",  /* EMFILE */
-	"Too many links",       /* EMLINK */
-	"Inappropriate message buffer length", /* EMSGSIZE */
-	"Filename too long",    /* ENAMETOOLONG */
-	"Too many open files in system", /* ENFILE */
-	"No such device",       /* ENODEV */
-	"No such file or directory", /* ENOENT */
-	"Exec format error",    /* ENOEXEC */
-	"No locks available",   /* ENOLCK */
-	"Not enough space",     /* ENOMEM */
-	"No space left on device", /* ENOSPC */
-	"Function not implemented", /* ENOSYS */
-	"Not a directory",      /* ENOTDIR */
-	"Directory not empty",  /* ENOTEMPTY */
-	"Not supported",        /* ENOTSUP */
-	"Inappropriate I/O control operation", /* ENOTTY */
-	"No such device or address", /* ENXIO */
-	"Operation not permitted", /* EPERM */
-	"Broken pipe",          /* EPIPE */
-	"Result too large",     /* ERANGE */
-	"Read-only file system", /* EROFS */
-	"Invalid seek",         /* ESPIPE */
-	"No such process",      /* ESRCH */
-	"Operation timed out",  /* ETIMEDOUT */
-	"Improper link",        /* EXDEV */
-	"Attempt to load network entity %s", /* XML_IO_NETWORK_ATTEMPT */
-	"encoder error",        /* XML_IO_ENCODER */
+	"Unknown IO error",     // UNKNOWN
+	"Permission denied",    // EACCES
+	"Resource temporarily unavailable", // EAGAIN
+	"Bad file descriptor",  // EBADF 
+	"Bad message",          // EBADMSG 
+	"Resource busy",        // EBUSY 
+	"Operation canceled",   // ECANCELED
+	"No child processes",   // ECHILD
+	"Resource deadlock avoided", // EDEADLK
+	"Domain error",         // EDOM
+	"File exists",          // EEXIST
+	"Bad address",          // EFAULT
+	"File too large",       // EFBIG
+	"Operation in progress", // EINPROGRESS
+	"Interrupted function call", // EINTR
+	"Invalid argument",     // EINVAL
+	"Input/output error",   // EIO
+	"Is a directory",       // EISDIR
+	"Too many open files",  // EMFILE
+	"Too many links",       // EMLINK
+	"Inappropriate message buffer length", // EMSGSIZE
+	"Filename too long",    // ENAMETOOLONG
+	"Too many open files in system", // ENFILE
+	"No such device",       // ENODEV
+	"No such file or directory", // ENOENT
+	"Exec format error",    // ENOEXEC
+	"No locks available",   // ENOLCK
+	"Not enough space",     // ENOMEM
+	"No space left on device", // ENOSPC
+	"Function not implemented", // ENOSYS
+	"Not a directory",      // ENOTDIR
+	"Directory not empty",  // ENOTEMPTY
+	"Not supported",        // ENOTSUP
+	"Inappropriate I/O control operation", // ENOTTY
+	"No such device or address", // ENXIO
+	"Operation not permitted", // EPERM
+	"Broken pipe",          // EPIPE
+	"Result too large",     // ERANGE
+	"Read-only file system", // EROFS
+	"Invalid seek",         // ESPIPE
+	"No such process",      // ESRCH
+	"Operation timed out",  // ETIMEDOUT
+	"Improper link",        // EXDEV
+	"Attempt to load network entity %s", // XML_IO_NETWORK_ATTEMPT 
+	"encoder error",        // XML_IO_ENCODER 
 	"flush error",
 	"write error",
 	"no input",
 	"buffer full",
 	"loading error",
-	"not a socket",         /* ENOTSOCK */
-	"already connected",    /* EISCONN */
-	"connection refused",   /* ECONNREFUSED */
-	"unreachable network",  /* ENETUNREACH */
-	"adddress in use",      /* EADDRINUSE */
-	"already in use",       /* EALREADY */
-	"unknown address familly", /* EAFNOSUPPORT */
+	"not a socket",         // ENOTSOCK
+	"already connected",    // EISCONN
+	"connection refused",   // ECONNREFUSED 
+	"unreachable network",  // ENETUNREACH 
+	"adddress in use",      // EADDRINUSE 
+	"already in use",       // EALREADY 
+	"unknown address familly", // EAFNOSUPPORT
 };
 
 #if defined(_WIN32) || defined (__DJGPP__) && !defined (__CYGWIN__)
@@ -372,7 +372,7 @@ void __xmlIOErr(int domain, int code, const char * extra)
 	idx = 0;
 	if(code >= XML_IO_UNKNOWN)
 		idx = code - XML_IO_UNKNOWN;
-	if(idx >= (sizeof(IOerr) / sizeof(IOerr[0])))
+	if(idx >= SIZEOFARRAY(IOerr))
 		idx = 0;
 	__xmlSimpleError(domain, code, NULL, IOerr[idx], extra);
 }

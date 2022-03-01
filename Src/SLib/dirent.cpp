@@ -224,10 +224,10 @@ static WIN32_FIND_DATAW * dirent_first(_WDIR * dirp)
 			dirp->cached = 0;
 			DWORD errorcode = GetLastError(); // Set error code 
 			switch(errorcode) {
-				case ERROR_ACCESS_DENIED: dirent_set_errno(EACCES); break; /* No read access to directory */
-				case ERROR_DIRECTORY: dirent_set_errno(ENOTDIR); break; /* Directory name is invalid */
+				case ERROR_ACCESS_DENIED: dirent_set_errno(EACCES); break; // No read access to directory 
+				case ERROR_DIRECTORY: dirent_set_errno(ENOTDIR); break; // Directory name is invalid 
 				case ERROR_PATH_NOT_FOUND:
-				default: dirent_set_errno(ENOENT); /* Cannot find the file */
+				default: dirent_set_errno(ENOENT); // Cannot find the file 
 			}
 		}
 	}

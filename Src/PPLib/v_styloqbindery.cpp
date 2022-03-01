@@ -624,7 +624,9 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData)
 					case StyloQCommandList::sqbcPersonEvent: ChangePersonEventTemplate(); break;
 					case StyloQCommandList::sqbcReport: ChangeBaseFilter(); break;
 					case StyloQCommandList::sqbcRsrvOrderPrereq: break; // @v11.2.6
-					case StyloQCommandList::sqbcRsrvAttendancePrereq: break; // @v11.3.2
+					case StyloQCommandList::sqbcRsrvAttendancePrereq: // @v11.3.2
+						EditAttendanceFilter();
+						break; 
 					default: return;
 				}
 			}
@@ -684,6 +686,44 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData)
 					;
 				}
 			}
+		}
+		void EditAttendanceFilter()
+		{
+			size_t sav_offs = 0;
+			StyloQAttendancePrereqParam * p_filt = 0;
+			uint   pos = 0;
+			{
+				const StyloQAttendancePrereqParam pattern_filt;
+				//SString view_symb(CmdSymbList.at_WithoutParent(pos).Txt);
+				sav_offs = Data.Param.GetRdOffs();
+				{
+					if(Data.Param.GetAvailableSize()) {
+						PPBaseFilt * p_base_filt = 0;
+						THROW(PPView::ReadFiltPtr(Data.Param, &p_base_filt));
+						if(p_base_filt) {
+							if(p_base_filt->GetSignature() == pattern_filt.GetSignature()) {
+								p_filt = static_cast<StyloQAttendancePrereqParam *>(p_base_filt);
+							}
+							else {
+								assert(p_filt == 0);
+								// Путаница в фильтрах - убиваем считанный фильтр чтобы создать новый.
+								ZDELETE(p_base_filt);
+							}
+						}
+					}
+					SETIFZ(p_filt, new StyloQAttendancePrereqParam);
+					if(PPStyloQInterchange::Edit_RsrvAttendancePrereqParam(*p_filt) > 0) {
+						Data.Param.Z();
+						THROW(PPView::WriteFiltPtr(Data.Param, p_filt));
+					}
+					else
+						Data.Param.SetRdOffs(sav_offs);
+				}
+			}
+			CATCH
+				Data.Param.SetRdOffs(sav_offs);
+			ENDCATCH
+			ZDELETE(p_filt);
 		}
 		void ChangeBaseFilter()
 		{
@@ -763,6 +803,11 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData)
 						//enable_cmd_param = true; 
 					}
 					break; 
+				case StyloQCommandList::sqbcRsrvAttendancePrereq: // @v11.3.3
+					{
+						enable_cmd_param = true;
+					}
+					break;
 			}
 			enableCommand(cmCmdParam, enable_cmd_param);
 			enableCommand(cmOutFields, enable_viewcmd); // @v11.2.6

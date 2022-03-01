@@ -1075,6 +1075,27 @@ int StyloQCommandList::Load(const char * pDbSymb, const char * pFileName)
 	return p_result;
 }
 
+int StyloQCommandList::Item::GetAttendanceParam(StyloQAttendancePrereqParam & rP) const
+{
+	rP.Init(0, 0);
+	int    ok = 1;
+	PPBaseFilt * p_base_filt = 0;
+	SBuffer _param = Param; // Функция должна быть const и дабы не менять состояние Param при чтении просто сделаем его дубликат.
+	const StyloQAttendancePrereqParam pattern_filt;
+	if(_param.GetAvailableSize()) {
+		THROW(PPView::ReadFiltPtr(_param, &p_base_filt));
+		if(p_base_filt) {
+			THROW(p_base_filt->GetSignature() == pattern_filt.GetSignature());
+			rP = *static_cast<StyloQAttendancePrereqParam *>(p_base_filt);
+		}
+	}
+	else
+		ok = -1;
+	CATCHZOK
+	delete p_base_filt;
+	return ok;
+}
+
 StyloQCommandList * StyloQCommandList::CreateSubListByContext(PPObjID oid) const
 {
 	StyloQCommandList * p_result = 0;
@@ -5249,6 +5270,103 @@ static int MakeRsrvPriceListResponse_ExportGoods(const PPStyloPalmPacket * pPack
 	CATCHZOK
 	return ok;
 }
+//
+//
+//
+IMPLEMENT_PPFILT_FACTORY_CLS(StyloQAttendancePrereqParam);
+
+StyloQAttendancePrereqParam::StyloQAttendancePrereqParam() : PPBaseFilt(PPFILT_STYLOQATTENDANCEPREREQPARAM, 0, 0)
+{
+	InitInstance();
+}
+
+StyloQAttendancePrereqParam::StyloQAttendancePrereqParam(const StyloQAttendancePrereqParam & rS) : PPBaseFilt(PPFILT_STYLOQATTENDANCEPREREQPARAM, 0, 0)
+{
+	InitInstance();
+	Copy(&rS, 1);
+}
+
+StyloQAttendancePrereqParam & FASTCALL StyloQAttendancePrereqParam::operator = (const StyloQAttendancePrereqParam & rS)
+{
+	Copy(&rS, 1);
+	return *this;
+}
+
+int StyloQAttendancePrereqParam::InitInstance()
+{
+	SetFlatChunk(offsetof(StyloQAttendancePrereqParam, ReserveStart), offsetof(StyloQAttendancePrereqParam, PrcList)-offsetof(AlcoDeclRuFilt, ReserveStart));
+	SetBranchObjIdListFilt(offsetof(StyloQAttendancePrereqParam, PrcList));
+	SetBranchSString(offsetof(StyloQAttendancePrereqParam, PrcTitle));
+	return Init(1, 0);
+}
+
+/*static*/int PPStyloQInterchange::Edit_RsrvAttendancePrereqParam(StyloQAttendancePrereqParam & rParam)
+{
+	class RsrvAttendancePrereqParamDialog : public TDialog {
+		DECL_DIALOG_DATA(StyloQAttendancePrereqParam);
+	public:
+		RsrvAttendancePrereqParamDialog() : TDialog(DLG_STQATTCPARAM)
+		{
+			P_Box = static_cast<SmartListBox *>(getCtrlView(CTL_STQATTCPARAM_PRCLIST));
+			SetupStrListBox(P_Box);
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			int    ok = 1;
+			RVALUEPTR(Data, pData);
+			setCtrlString(CTL_STQATTCPARAM_PRCTTL, Data.PrcTitle);
+			SetupList();
+			return ok;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			getCtrlString(CTL_STQATTCPARAM_PRCTTL, Data.PrcTitle);
+			ASSIGN_PTR(pData, Data);
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isCmd(cmSelectProcessors)) {
+				PPIDArray prc_list;
+				Data.PrcList.Get(prc_list);
+				ListToListData data(PPOBJ_PROCESSOR, 0, &prc_list);
+				data.Flags |= ListToListData::fIsTreeList;
+				data.TitleStrID = PPTXT_SELPRCLIST;
+				if(ListToListDialog(&data) > 0) {
+					if(prc_list.getCount())
+						Data.PrcList.Set(&prc_list);
+					else
+						Data.PrcList.Set(0);
+					SetupList();
+				}				
+				clearEvent(event);
+			}
+		}
+		void SetupList()
+		{
+			if(P_Box) { 
+				const long sav_pos = P_Box->def ? P_Box->def->_curItem() : 0;
+				SString temp_buf;
+				ProcessorTbl::Rec prc_rec;
+				P_Box->freeAll();
+				for(uint i = 0; i < Data.PrcList.GetCount(); i++) {
+					const PPID prc_id = Data.PrcList.Get(i);
+					if(PrcObj.Fetch(prc_id, &prc_rec) > 0) {
+						P_Box->addItem(prc_id, prc_rec.Name);
+					}
+				}
+				P_Box->Draw_();
+				P_Box->focusItem(sav_pos);
+			}
+		}
+		SmartListBox * P_Box;
+		PPObjProcessor PrcObj;
+	};
+	DIALOG_PROC_BODY(RsrvAttendancePrereqParamDialog, &rParam);
+}
 
 int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos,
 	SString & rResult, SString & rDocDeclaration)
@@ -5256,6 +5374,8 @@ int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommand
 	int    ok = 1;
 	{
 		/*
+			param
+
 			quotkind_list
 			warehouse_list
 			goodsgroup_list
@@ -5268,8 +5388,18 @@ int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommand
 		SString temp_buf;
 		PPObjTSession tses_obj;
 		PPObjUnit unit_obj;
+		StyloQAttendancePrereqParam param;
 		{
 			SJson js(SJson::tOBJECT);
+			{
+				if(rCmdItem.GetAttendanceParam(param) > 0) {
+					if(param.PrcTitle.NotEmpty()) {
+						SJson * p_js_param = new SJson(SJson::tOBJECT);
+						p_js_param->InsertString("prctitle", (temp_buf = param.PrcTitle).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+						js.Insert("param", p_js_param);
+					}
+				}
+			}
 			{
 				PPIDArray goods_id_list; // @reusable
 				PPIDArray prc_id_list;

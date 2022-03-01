@@ -2741,6 +2741,8 @@ int PiritEquip::ReturnCheckParam(const SString & rInput, char * pOutput, size_t 
 				char   current_op_counter[64]; // Текущий операционный счетчик
 				int    cc_number = 0; // Номер чека
 				int    doc_number = 0; // Номер документа
+				SString potential_cc_number1; // @v11.3.3
+				SString potential_cc_number2; // @v11.3.3
 				double cc_amount = 0.0; // Сумма чека
 				double cc_discount = 0.0; // Сумма скидки по чеку
 				double cc_markup = 0.0; // Сумма неценки по чеку
@@ -2750,14 +2752,27 @@ int PiritEquip::ReturnCheckParam(const SString & rInput, char * pOutput, size_t 
 					switch(count) {
 						case 0: cc_type = str.ToLong(); break;
 						case 1: STRNSCPY(current_op_counter, str); break;
-						case 2: cc_number = str.ToLong(); break;
+						case 2: 
+							potential_cc_number1 = str; // @v11.3.3
+							cc_number = str.ToLong(); 
+							break;
 						case 3: doc_number = str.ToLong(); break;
-						case 4: cc_amount = str.ToReal(); break;
+						case 4: 
+							potential_cc_number2 = str; // @v11.3.3
+							cc_amount = str.ToReal(); 
+							break;
 						case 5: cc_discount = str.ToReal(); break;
 						case 6: cc_markup = str.ToReal(); break;
 						case 7: STRNSCPY(_kpk, str); break;
 					}
 				}
+				// @v11.3.3 {
+				// Какая-то несуразица: в протоколе описано одно, в реальности в некоторых случаях - другое
+				if(potential_cc_number1.IsDigit() && !potential_cc_number2.IsDigit())
+					cc_number = potential_cc_number1.ToLong();
+				else if(!potential_cc_number1.IsDigit() && potential_cc_number2.IsDigit())
+					cc_number = potential_cc_number2.ToLong();
+				// } @v11.3.3 
 				if(cc_number == 18 || cc_number < 0) // @v10.1.9 Костыль: Некоторые аппараты всегад возвращают 18-й номер чека. Трактуем это как 0.
 					cc_number = 0;
 				s_output.CatEq("CHECKNUM", (long)cc_number).Semicol();

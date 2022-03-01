@@ -636,6 +636,11 @@ bool FASTCALL SlSession::SetError(int errCode, const char * pAddedMsg)
 	return false;
 }
 
+bool FASTCALL SlSession::SetErrorErrno(const char * pAddedMsg)
+{
+	return SetError(errno+SLERR_ERRNO_OFFSET, pAddedMsg);
+}
+
 bool FASTCALL SlSession::SetError(int errCode)
 {
 	const int sock_err = (errCode == SLERR_SOCK_WINSOCK) ? WSAGetLastError() : 0;

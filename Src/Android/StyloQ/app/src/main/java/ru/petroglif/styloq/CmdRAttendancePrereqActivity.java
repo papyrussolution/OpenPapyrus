@@ -35,6 +35,9 @@ import java.util.ArrayList;
 
 public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 	private CommonPrereqModule CPM;
+	private static class Param {
+		String PrcTitle;
+	}
 	private enum Tab {
 		tabUndef,
 		tabGoodsGroups,
@@ -56,6 +59,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 		/*View*/SLib.SlFragmentStatic TabView;
 	}
 	private ArrayList<TabEntry> TabList;
+	private Param P;
 	private static class AttendanceBlock {
 		AttendanceBlock()
 		{
@@ -81,6 +85,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 	{
 		CPM = new CommonPrereqModule();
 		AttdcBlk = new AttendanceBlock();
+		P = new Param();
 	}
 	private boolean SetCurrentAttendancePrc(CommonPrereqModule.ProcessorEntry entry)
 	{
@@ -123,8 +128,9 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 			}
 			if(CPM.ProcessorListData != null) {
 				final Tab _tab = Tab.tabProcessors;
+				String title = (SLib.GetLen(P.PrcTitle) > 0) ? P.PrcTitle : SLib.ExpandString(app_ctx, "@{processor_pl}");
 				SLib.SlFragmentStatic f = SLib.SlFragmentStatic.newInstance(_tab.ordinal(), R.layout.layout_attendanceprereq_processors, tab_layout_rcid);
-				TabList.add(new TabEntry(_tab, SLib.ExpandString(app_ctx, "@{processor_pl}"), f));
+				TabList.add(new TabEntry(_tab, title, f));
 			}
 			{
 				final Tab _tab = Tab.tabAttendance;
@@ -350,6 +356,12 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 						svc_reply_doc_json = intent.getStringExtra("SvcReplyDocJson");
 					if(SLib.GetLen(svc_reply_doc_json) > 0) {
 						JSONObject js_head = new JSONObject(svc_reply_doc_json);
+						{
+							JSONObject js_param = js_head.optJSONObject("param");
+							if(js_param != null) {
+								P.PrcTitle = js_param.optString("prctitle", "");
+							}
+						}
 						CPM.MakeGoodsGroupListFromCommonJson(js_head);
 						CPM.MakeProcessorListFromCommonJson(js_head);
 						CPM.MakeGoodsListFromCommonJson(js_head);

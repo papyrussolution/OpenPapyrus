@@ -525,6 +525,7 @@ int DummyProc_dirent(); // @prototype @forcelink
 // Для сборки _MSC_VER менее чем 2015 мы не будем поддерживать LMDB. Здесь включена пустышка для пропуска соответствующего теста
 #if _MSC_VER >= 1900
 	int DummyProc_LMDB();   // @prototype @forcelink
+	int DummyProc_SFileStorage(); // @prototype @forcelink
 #else
 	#if SLTEST_RUNNING
 		SLTEST_R(LMDB) { return 1; }
@@ -540,6 +541,7 @@ int TestNoLogin()
 	DummyProc_dirent(); // @v10.9.12 @forcelink
 #if _MSC_VER >= 1900
 	DummyProc_LMDB(); // @v11.2.0 @forcelink
+	DummyProc_SFileStorage(); // @v11.3.3 @forcelink
 #endif
 	s.Run("\\papyrus\\src\\pptest\\testdef.ini");
 	//Test_Alg_SS_Z("c:\\papyrus\\src\\pptest\\words.");

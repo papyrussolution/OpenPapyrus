@@ -75,7 +75,7 @@ static const int PhoneNumber_CountryCodeSource_entries_by_number[] = {
   0, // 20 -> FROM_DEFAULT_COUNTRY
 };
 
-const std::string & PhoneNumber_CountryCodeSource_Name(
+const std::string& PhoneNumber_CountryCodeSource_Name(
     PhoneNumber_CountryCodeSource value) {
   static const bool dummy =
       ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(

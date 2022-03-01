@@ -4135,6 +4135,7 @@ PPTXT_SELQUOTKIND                 "Выбор списка видов котир
 PPTXT_SELSCARDSERLIST             "Выбор списка серий персональных карт"
 PPTXT_SELTIMSERLIST               "Выбор списка временных серий"
 PPTXT_SELPERSONBYSCARD            "Выбор персоналии по персональной карте"
+PPTXT_SELPRCLIST                  "Выбор списка процессоров"
 PPTXT_PALM_BLOCKEDFILECOPY        "Копирование файла %s заблокировано в настройках кпк"
 PPTXT_USAGETM                     "Время использования: %s..%s"
 PPTXT_BINDLADINGTOORD_OK          "Привязка отгрузка-заказ (%s)"
@@ -8434,6 +8435,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @filter_prcssrsartre                      "@{prcssrsartre}"
 @filter_quotereqanalyze                   "@{view_quotereqanalyze}"
 @filter_edittextfileparam                 "Параметры редактирования текстового файла"
+@filter_styloqattendanceprereqparam       "Параметры подготовки данных резервирования услуг Stylo-Q"
+@filter_styloqattendanceprereqparam_prctitle "Заговок для процессоров"
 //
 // Команды и popup-меню
 //

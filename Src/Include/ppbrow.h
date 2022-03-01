@@ -1900,6 +1900,7 @@
 #define PPVIEW_STYLOQCOMMAND                         1270
 	#define PPFILT_STYLOQCOMMAND                         1271
 	#define PPVIEWITEM_STYLOQCOMMAND                         1272
+#define PPFILT_STYLOQATTENDANCEPREREQPARAM           1281
 //
 // RECORD definitions
 //

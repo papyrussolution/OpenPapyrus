@@ -1126,7 +1126,6 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\OSF\libarchive-350\libarchive\xxhash.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\osf\libarchive-350\libarchive\archive.h" />

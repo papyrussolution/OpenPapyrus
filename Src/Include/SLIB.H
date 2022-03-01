@@ -2847,6 +2847,9 @@ private:
 #define SLERR_PHONENMB_TOO_SHORT_NSN           763
 #define SLERR_PHONENMB_TOO_LONG_NSN            764 // TOO_LONG in the java version.
 
+#define SLERR_ERRNO_OFFSET                    2000 // Смещение с которого начинаются коды ошибок, соответствующие posix-мнемоникам (errno)
+#define SLERR_ERRNO_LAST                      2999 // Максимальное значение для posix errno (если я правильно понял, то errno не имеет официального максимуму потому использую свой собственный).
+
 // LastError
 //
 // @ModuleDecl(SType) {
@@ -15055,6 +15058,11 @@ public:
 	//
 	bool   FASTCALL SetError(int errCode, const char * pAddedMsg);
 	//
+	// Descr: Функция должна вызываться в случае, если ошибка описывается переменной errno.
+	//   Фактически будет вызвана SetError(SLERR_ERRNO_OFFSET+errno, pAddedMsg)
+	//
+	bool   FASTCALL SetErrorErrno(const char * pAddedMsg);
+	//
 	// Returns: false
 	//
 	bool   FASTCALL SetError(int errCode);
@@ -16712,6 +16720,7 @@ public:
 	int    _check_le(ulong a, ulong b, const char * pA, const char * pB);
 	int    _check_le(double a, double b, const char * pA, const char * pB);
 	int    _check_lt(long a, long b, const char * pA, const char * pB);
+	int    _check_lt(ulong a, ulong b, const char * pA, const char * pB);
 	int    _check_lt(double a, double b, const char * pA, const char * pB);
 	int    _check_lt(float a, float b, const char * pA, const char * pB);
 	int    _check_range(long a, long low, long upp, const char * pA, const char * pLow, const char * pUpp);

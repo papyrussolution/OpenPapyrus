@@ -130,7 +130,6 @@
     <ClCompile Include="..\OSF\libarchive-350\libarchive\archive_disk_acl_linux.c" />
     <ClCompile Include="..\OSF\libarchive-350\libarchive\archive_disk_acl_sunos.c" />
     <ClCompile Include="..\OSF\libarchive-350\libarchive\archive_read_support_filter_by_code.c" />
-    <ClCompile Include="..\OSF\libarchive-350\libarchive\xxhash.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\osf\libarchive-350\libarchive\archive_acl_private.h">

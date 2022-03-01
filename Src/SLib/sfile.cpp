@@ -1250,6 +1250,7 @@ int SFile::OpenNullOutput()
 int SFile::Open(const char * pName, long mode)
 {
 	int    ok = 1;
+	bool   err_inited = false; // @v11.3.3
 	SString mode_buf;
 	// @v10.6.0 const  long   m = (mode & ~(mBinary | mDenyRead | mDenyWrite | mNoStd | mNullWrite));
 	int    oflag = 0;
@@ -1306,6 +1307,8 @@ int SFile::Open(const char * pName, long mode)
 			if(F)
 				T = tStdFile;
 			else {
+				SLS.SetErrorErrno(pName); // @v11.3.3
+				err_inited = true;
 				close(IH);
 				IH = -1;
 			}
@@ -1319,7 +1322,7 @@ int SFile::Open(const char * pName, long mode)
 		ok = 1;
 	}
 	else {
-		ok = SLS.SetError(SLERR_OPENFAULT, pName);
+		ok = err_inited ? 0 : SLS.SetError(SLERR_OPENFAULT, pName);
 		Init();
 	}
 	return ok;

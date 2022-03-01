@@ -1,5 +1,5 @@
 // SLTEST.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Test Suits
 //
@@ -370,6 +370,17 @@ int STestCase::_check_le(double a, double b, const char * pA, const char * pB)
 }
 
 int STestCase::_check_lt(long a, long b, const char * pA, const char * pB)
+{
+	if(a >= b) {
+		SString buf;
+		SetInfo(catval(b, pB, catval(a, pA, buf).Cat(">=")), 0);
+		return 0;
+	}
+	else
+		return 1;
+}
+
+int STestCase::_check_lt(ulong a, ulong b, const char * pA, const char * pB)
 {
 	if(a >= b) {
 		SString buf;

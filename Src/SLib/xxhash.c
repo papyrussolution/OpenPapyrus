@@ -346,12 +346,12 @@ XXH_FORCE_INLINE uint32 XXH32_endian_align(const void * input, size_t len, uint3
 	const BYTE * bEnd = p + len;
 	uint32 h32;
 #if defined(XXH_ACCEPT_NULL_INPUT_POINTER) && (XXH_ACCEPT_NULL_INPUT_POINTER>=1)
-	if(p==NULL) {
+	if(p == NULL) {
 		len = 0;
 		bEnd = p = (const BYTE *)(size_t)16;
 	}
 #endif
-	if(len>=16) {
+	if(len >= 16) {
 		const BYTE * const limit = bEnd - 15;
 		uint32 v1 = seed + PRIME32_1 + PRIME32_2;
 		uint32 v2 = seed + PRIME32_2;
@@ -372,7 +372,7 @@ XXH_FORCE_INLINE uint32 XXH32_endian_align(const void * input, size_t len, uint3
 	return XXH32_finalize(h32, p, len&15, align);
 }
 
-XXH_PUBLIC_API XXH32_hash_t XXH32(const void * input, size_t len, unsigned int seed)
+XXH_PUBLIC_API XXH32_hash_t XXH32(const void * input, size_t len, uint seed)
 {
 #if 0
 	/* Simple version, good for code maintenance, but unfortunately slow for small inputs */
@@ -393,7 +393,7 @@ XXH_PUBLIC_API XXH32_hash_t XXH32(const void * input, size_t len, unsigned int s
 //
 // Hash streaming
 //
-XXH_PUBLIC_API XXH32_state_t* XXH32_createState(void)
+XXH_PUBLIC_API XXH32_state_t* XXH32_createState()
 {
 	return static_cast<XXH32_state_t *>(SAlloc::M(sizeof(XXH32_state_t)));
 }
@@ -409,7 +409,7 @@ XXH_PUBLIC_API void XXH32_copyState(XXH32_state_t* dstState, const XXH32_state_t
 	memcpy(dstState, srcState, sizeof(*dstState));
 }
 
-XXH_PUBLIC_API XXH_errorcode XXH32_reset(XXH32_state_t* statePtr, unsigned int seed)
+XXH_PUBLIC_API XXH_errorcode XXH32_reset(XXH32_state_t* statePtr, uint seed)
 {
 	XXH32_state_t state; /* using a local state to memcpy() in order to avoid strict-aliasing warnings */
 	memzero(&state, sizeof(state));

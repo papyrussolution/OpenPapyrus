@@ -11267,6 +11267,10 @@
 	#define CTL_SYSJTOTAL_COUNT              (1  + WINDOWS_ID_BIAS)
 #define DLG_GSTRUCTREE            1410 // @v11.2.11 Отображение дерева компонентов структуры
 	#define CTL_GSTRUCTREE_LIST              (1  + WINDOWS_ID_BIAS)
+#define DLG_STQATTCPARAM          1411 // @v11.3.3
+	#define cmSelectProcessors               101
+	#define CTL_STQATTCPARAM_PRCLIST         (1  + WINDOWS_ID_BIAS)
+	#define CTL_STQATTCPARAM_PRCTTL          (2  + WINDOWS_ID_BIAS)
 
 // Win32 Dialog Identifiers
 //

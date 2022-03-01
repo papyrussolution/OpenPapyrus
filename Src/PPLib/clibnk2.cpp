@@ -927,20 +927,21 @@ int Helper_ClientBank2::PutRecord(const PPBillPacket * pPack, PPID debtBillID, P
 int EditClientBankFormatDescription(const char * pIniSection)
 {
 	class CliBnkImpExpDialog : public ImpExpParamDialog {
+		DECL_DIALOG_DATA(PPCliBnkImpExpParam);
 	public:
 		CliBnkImpExpDialog() : ImpExpParamDialog(DLG_IMPEXPCLIBNK)
 		{
 		}
-		int    setDTS(const PPCliBnkImpExpParam * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			ImpExpParamDialog::setDTS(&Data);
 			setCtrlString(CTL_IMPEXPCLIBNK_BNKCODE, Data.BnkCode);
 			setCtrlString(CTL_IMPEXPCLIBNK_PMCODES, Data.PaymMethodTransl);
 			setCtrlUInt16(CTL_IMPEXPCLIBNK_FLAGS, BIN(Data.DefPayerByAmtSign));
 			return 1;
 		}
-		int    getDTS(PPCliBnkImpExpParam * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
@@ -952,8 +953,6 @@ int EditClientBankFormatDescription(const char * pIniSection)
 			CATCHZOKPPERRBYDLG
 			return ok;
 		}
-	private:
-		PPCliBnkImpExpParam Data;
 	};
 	int    ok = -1;
 	int    undecorated = 0; // Ддя обратной совместимости со старыми настройками

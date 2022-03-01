@@ -7185,6 +7185,7 @@ view   AlcoDeclRu              { "@{view_alcodeclru}" } // @v11.0.4
 view   GoodsTrnovr             { "@{view_goodstrnovr}" } // @v11.0.6 @todo Этот отчет так до сих пор и не переведен на PPView
 view   StyloQBindery           { "@{view_styloqbindery}" } // @v11.1.6
 view   StyloQCommand           { "@{view_styloqcommands}" } // @v11.1.9
+filter StyloQAttendancePrereqParam { "@{filter_styloqattendanceprereqparam}" } // @v11.3.3
 //
 // lastviewfilter ATTENTION: put new VIEWS and FILTERS before this line!
 //
