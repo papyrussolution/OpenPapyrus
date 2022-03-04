@@ -2241,6 +2241,9 @@
     <ProjectReference Include="libprotobuf.vcxproj">
       <Project>{f794984c-5ecc-3922-ba3f-6d27cd4bdec7}</Project>
     </ProjectReference>
+    <ProjectReference Include="libwebp-slib.vcxproj">
+      <Project>{05255f31-2054-4df4-ad6d-5bc5da8ccccf}</Project>
+    </ProjectReference>
     <ProjectReference Include="libxml.vcxproj">
       <Project>{82523a80-856a-4957-bcea-1a5738139141}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>

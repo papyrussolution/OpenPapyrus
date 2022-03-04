@@ -4,52 +4,6 @@
 #include <slib-internal.h>
 #pragma hdrstop
 
-class SFileStorage {
-public:
-	explicit SFileStorage(const char * pBasePath);
-	~SFileStorage();
-	bool   IsValid() const { return !(State & stError); }
-	bool   operator !() const { return !IsValid(); }
-	bool   Init(const char * pBasePath);
-	SHandle Write_Start(const char * pName);
-	bool   Write(SHandle handle, const void * pBuf, size_t size);
-	bool   Write_End(SHandle handle, uint64 * pWrittenSize);
-	int    PutFile(const char * pName, const void * pBuf, size_t size);
-	int    PutFile(const char * pName, const char * pSourceFilePath);
-	SHandle GetFile(const char * pName, int64 * pFileSize);
-	bool   Read(SHandle handle, void * pBuf, size_t bufSize, size_t * pActualSize);
-	//
-	// Descr: Закрывает файл, открытый либо функцией Write_Start() либо GetFile()
-	//
-	bool   CloseFile(SHandle handle);
-private:
-	bool   ValidateName(const char * pName) const;
-	int    MakeFileEntry(const char * pName, SString & rEntryName);
-
-	enum {
-		stError  = 0x0001,
-		stInited = 0x0002
-	};
-
-	const  uint BucketCount;
-	const  uint HashSeed;
-	uint   State;
-	SString BasePath;
-	struct InnerWritingBlock {
-		InnerWritingBlock();
-		SFile  F;
-		uint64 TotalWrSize;
-	};
-	struct InnerReadingBlock {
-		InnerReadingBlock();
-		SFile  F;
-		int64  FileSize;
-		uint64 TotalRdSize;
-	};
-	TSCollection <InnerWritingBlock> WrBlkList;
-	TSCollection <InnerReadingBlock> RdBlkList;
-};
-
 SFileStorage::InnerWritingBlock::InnerWritingBlock() : TotalWrSize(0)
 {
 }
@@ -93,7 +47,7 @@ bool SFileStorage::ValidateName(const char * pName) const
 	THROW(len >= 1 && len <= 255);
 	for(size_t i = 0; i < len; i++) {
 		const char c = pName[i];
-		THROW(isdec(c) || (c >= 'a' && c <= 'z') || oneof5(c, '_', '+', '-', ',', '.'));
+		THROW((c >= 'a' && c <= 'z') || oneof6(c, '_', '+', '-', ',', '.', '=') || isdec(c));
 	}
 	CATCHZOK
 	return ok;

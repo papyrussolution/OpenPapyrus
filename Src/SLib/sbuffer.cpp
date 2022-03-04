@@ -827,6 +827,20 @@ bool SBinaryChunk::Put(const void * pData, size_t len)
 	return ok;
 }
 
+int SBinaryChunk::Cat(uint8 byte)
+{
+	int    ok = 1;
+	CheckInvariants();
+	size_t new_len = L + 1;
+	if(new_len <= Size || Alloc(new_len)) {
+		PTR8(P_Buf)[L] = byte;
+		L = new_len;
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
 int SBinaryChunk::Cat(const void * pData, size_t len)
 {
 	int    ok = 1;

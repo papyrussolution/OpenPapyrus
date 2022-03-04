@@ -1241,6 +1241,9 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
     <ProjectReference Include="libpng.vcxproj">
       <Project>{04aa636d-9d3e-4e79-9c2e-b8d0470719da}</Project>
     </ProjectReference>
+    <ProjectReference Include="libwebp-slib.vcxproj">
+      <Project>{05255f31-2054-4df4-ad6d-5bc5da8ccccf}</Project>
+    </ProjectReference>
     <ProjectReference Include="libxml.vcxproj">
       <Project>{82523a80-856a-4957-bcea-1a5738139141}</Project>
     </ProjectReference>

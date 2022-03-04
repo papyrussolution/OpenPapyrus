@@ -1325,7 +1325,7 @@ static int parse_device(dev_t * pdev, struct archive * a, char * val)
 			return ARCHIVE_WARN;
 		}
 		result = (*pack)(argc, numbers, &error);
-		if(error != NULL) {
+		if(error) {
 			archive_set_error(a, ARCHIVE_ERRNO_FILE_FORMAT, "%s", error);
 			return ARCHIVE_WARN;
 		}

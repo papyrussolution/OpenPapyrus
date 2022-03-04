@@ -2571,6 +2571,7 @@ private:
 #define SLERR_MTX_INCOMPATDIM_MMADD     74 // Incompatible dim in matrix+matrix op
 #define SLERR_MTX_INVERSE               75 // Ошибка обращения матрицы.
 
+#define SLERR_FILETOOBIG                95 // @v11.3.4 Файл '%s' слишком большой
 #define SLERR_INVPARAM                  96 // Недопустимый параметр функции (%s)
 #define SLERR_FILESHARINGVIOLATION      97 // Ошибка совместного доступа к файлу
 #define SLERR_FLOCKFAULT                98 // Ошибка блокировки файла //
@@ -2667,7 +2668,7 @@ private:
 #define SLERR_MATH_UNDERFLOW                   303 // Ошибка переполнения нижней границы точности ieee-числа
 #define SLERR_MATH_MAXITER                     304 // Ошибка превышения максимального числа итераций
 #define SLERR_MATH_TSVECBYSYMBNFOUND           305 // Вектор временной серии с символом '%s' не найден
-#define SLERR_BASE64DECODEFAULT                306 // Ошибка декодирования base64 
+#define SLERR_BASE64DECODEFAULT                306 // Ошибка декодирования base64
 //
 //
 //
@@ -3465,7 +3466,7 @@ struct DateRange { // @persistent @size=8
 	// Returns:
 	//   >0 - период успешно установлен
 	//   0  - ошибка. Ошибка может быть связана с недопустимыми значениями параметров predefPrdId или rel.
-	//     В случае ошибки период this остается неизменным.   
+	//     В случае ошибки период this остается неизменным.
 	//
 	int    SetPredefined(int predefPrdId, LDATE rel);
 	//
@@ -5012,9 +5013,9 @@ inline const wchar_t * FASTCALL SUcSwitchA(const wchar_t * pStr) { return pStr; 
 #define PRD_SEMIAN        180
 #define PRD_ANNUAL        360
 //
-// Descr: Предопределенные периоды 
+// Descr: Предопределенные периоды
 //
-#define PREDEFPRD_NONE         0 // 
+#define PREDEFPRD_NONE         0 //
 #define PREDEFPRD_TODAY        1 // Сегодня
 #define PREDEFPRD_YESTERDAY    2 // Вчера
 #define PREDEFPRD_LAST7DAYS    3 // Последние семь дней
@@ -5743,10 +5744,10 @@ int    memdword(void * p, size_t size, uint32 k, size_t * pOffs);
 void * FASTCALL memzero(void * p, size_t s);
 int    FASTCALL ismemzero(const void * p, size_t s);
 //
-// Descr: Обнуляет память по указателю &p размером sizeof(p). 
+// Descr: Обнуляет память по указателю &p размером sizeof(p).
 // Attention! Не применять для классов с виртуальными функциями и динамически распределенных объектов.
 //
-#define MEMSZERO(p)  memzero(&(p), sizeof(p)) 
+#define MEMSZERO(p)  memzero(&(p), sizeof(p))
 #define THISZERO()   memzero(this, sizeof(*this))
 //
 // Descr: Заполняет буфер pBuf длиной bufSize случайными данными.
@@ -6021,6 +6022,7 @@ public:
 	//
 	int    Cat(const void * pData, size_t len);
 	int    Cat(const SBinaryChunk & rS);
+	int    Cat(uint8 byte);
 	//
 	// Descr: Формирует отрезок длиной len и заполняет его содержимое байтом byte.
 	//   При успешном завершении GetLen() == len.
@@ -6239,7 +6241,7 @@ public:
 	//
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	//
-	// Descr: Дескриптор стратегии сжатия больших отрезков при внесении в пул. 
+	// Descr: Дескриптор стратегии сжатия больших отрезков при внесении в пул.
 	//   На начальном этапе применяется только алгоритм сжатия zlib.
 	//   Если размер отрезка, добавляемого в пул равен или превышает MinChunkSizeToCompress,
 	//   то отрезок сжимается и впереди добавляется сигнатура Ssc_CompressionSignature
@@ -6934,6 +6936,20 @@ public:
 	int    Encode(const void * pIn, size_t inLen, char * pOut, size_t outBufLen, size_t * pOutDataLen) const;
 	int    Decode(const char * pIn, size_t inLen, char * pOut, size_t * pOutDataLen) const;
 };
+//
+// Descr: Кодирует бинарную последовательность pData длиной dataLen в строку rBuf
+//   в соответствии с base32-кодировкой.
+//   Результирующий буфер rBuf будет содержать только символы a..z 2..7
+//   В прологе функции rBuf очищается.
+//
+int    Base32_Encode(const uint8 * pData, size_t dataLen, SString & rBuf);
+//
+// Descr: Декодирует строку pCoded, содержащую данные в кодировке base32.
+//   Декодирование заканчивается когда встречается недопустимый для этого типа кодировки.
+//   Таким образом, строка с правильной кодировкой обязательно должна заканчиваться нулем.
+//   Результат сбрасывается в буфер rResult. В прологе функции rResult очищается.
+//
+size_t Base32_Decode(const uchar * pCoded, SBinaryChunk & rResult);
 //
 // Punycode
 //
@@ -8456,10 +8472,10 @@ protected:
 // Descr: Древовидная коллекция ассоциаций {int32; string}.
 //   Во-многом повторяет StrAssocArray но быстрее за счет хранения элементов в виде дерева, а не в виде
 //   линейного массива.
-//   Соответственно, есть и ограничения: 
+//   Соответственно, есть и ограничения:
 //     -- ключевой элемент строго не нулевой
 //     -- дубликаты по ключу не допускаются
-// Note: Судя по всему, этот класс будет использоваться только для отображения ирерархических структур в списках и т.д. 
+// Note: Судя по всему, этот класс будет использоваться только для отображения ирерархических структур в списках и т.д.
 //   По-этому он включает ряд полей для "заточки" под этот вариант использования.
 //
 class StrAssocTree : private SStrGroup {
@@ -8476,7 +8492,7 @@ private:
 			bool   Implement_Get_Unsafe(SHandle h, int32 currentParentId, long * pId, long * pParentId, uint * pStrP) const;
 			//
 			// Descr: Реализует вставку в конец вектора нового элемента с идентификатором key и позицией строки strP.
-			// Returns: 
+			// Returns:
 			//   !0 - Указатель на новый элемент в векторе.
 			//    0 - Ошибка
 			// Attention! Возвращаемое значение является нестабильным указателем - после вставки новых элементов он
@@ -8543,7 +8559,7 @@ public:
 	// Descr: Формирует полный список ключевых идентификаторов, хранящихся в дереве.
 	//  Порядок обхода элементов дерева - в глубину: перебираются элементы корневого уровня и для каждого элемента,
 	//  имеющего потомков, перебираются эти потомки.
-	//  Параметр rList в начале функции обнуляется. После выполнения функции список НЕ сортируется и 
+	//  Параметр rList в начале функции обнуляется. После выполнения функции список НЕ сортируется и
 	//  из него НЕ удаляются дубликаты (нет вызова rList.sortAndUndup()).
 	//
 	int    GetList(LongArray & rList) const;
@@ -8553,7 +8569,7 @@ public:
 	int    Add(long id, long parentId, const char * pStr, int replaceDup);
 	//
 	// Descr: Функция вставляет в новый элемент {id; pStr} в дерево this.
-	//   Если hParent != 0, то новый элемент включается как лист hParent в противном 
+	//   Если hParent != 0, то новый элемент включается как лист hParent в противном
 	//   случае элемент включается в корневой уровень дерева.
 	// Note: Функция хотя и быстрая, но опасная. В режиме отладочной сборки hParent проверяется на валидность,
 	//   в Release-варианте сборке - нет. Существование элемента с идентфикатором id ни в дереве, ни на уровне hParent
@@ -10082,6 +10098,56 @@ private:
 	TSVector <SFile::LckChunk> LckList;
 };
 //
+// Descr: Незамысловатый класс, управляющий хранением большого числа файлов с жестко определенными наименованиями.
+//   Файлы храняться в подкаталогах базовой директории BasePath. Директория разбивается на BucketCount подкаталогов,
+//   место нахождение файла в конкретном подкаталоге определяется хэш-функцией от наименования файла.
+//
+class SFileStorage {
+public:
+	explicit SFileStorage(const char * pBasePath);
+	~SFileStorage();
+	bool   IsValid() const { return !(State & stError); }
+	bool   operator !() const { return !IsValid(); }
+	bool   Init(const char * pBasePath);
+	SHandle Write_Start(const char * pName);
+	bool   Write(SHandle handle, const void * pBuf, size_t size);
+	bool   Write_End(SHandle handle, uint64 * pWrittenSize);
+	int    PutFile(const char * pName, const void * pBuf, size_t size);
+	int    PutFile(const char * pName, const char * pSourceFilePath);
+	SHandle GetFile(const char * pName, int64 * pFileSize);
+	bool   Read(SHandle handle, void * pBuf, size_t bufSize, size_t * pActualSize);
+	//
+	// Descr: Закрывает файл, открытый либо функцией Write_Start() либо GetFile()
+	//
+	bool   CloseFile(SHandle handle);
+private:
+	bool   ValidateName(const char * pName) const;
+	int    MakeFileEntry(const char * pName, SString & rEntryName);
+
+	enum {
+		stError  = 0x0001,
+		stInited = 0x0002
+	};
+
+	const  uint BucketCount;
+	const  uint HashSeed;
+	uint   State;
+	SString BasePath;
+	struct InnerWritingBlock {
+		InnerWritingBlock();
+		SFile  F;
+		uint64 TotalWrSize;
+	};
+	struct InnerReadingBlock {
+		InnerReadingBlock();
+		SFile  F;
+		int64  FileSize;
+		uint64 TotalRdSize;
+	};
+	TSCollection <InnerWritingBlock> WrBlkList;
+	TSCollection <InnerReadingBlock> RdBlkList;
+};
+//
 //
 //
 class SCompressor {
@@ -10373,8 +10439,9 @@ public:
 		VCProjFilers     = 122, // @v10.9.9 Visual Studio Project Filters
 		VCProjUser       = 123, // @v10.9.9 Visual Studio Project User
 		CodeBlocks_Cbp   = 124, // @v10.9.9 Code::Blocks Project File
-		M4       = 125, // @v10.9.9 m4 Macroprocessor
-		Tsv      = 126, // @v10.9.9 tab-separated-values
+		M4               = 125, // @v10.9.9 m4 Macroprocessor
+		Tsv              = 126, // @v10.9.9 tab-separated-values
+		Webp             = 127, // @v11.3.4 webp graphics format
 
 		FirstUser        = 10000
 	};
@@ -11495,7 +11562,7 @@ protected:
 	//
 	// Descr: Виртуальная функция PostImplement вызывается после Implement с целью реализации дополнительных
 	//   проверок, которые отсутствуют в базовой реализации Implement.
-	// ARG(rIb IN/OUT): инициализированный методом Implement блок, содержащий значительное число важных параметров 
+	// ARG(rIb IN/OUT): инициализированный методом Implement блок, содержащий значительное число важных параметров
 	//   исследуемого токена.
 	//
 	virtual int PostImplement(ImplementBlock & rIb, const uchar * pToken, int len, SNaturalTokenArray & rResultList, SNaturalTokenStat * pStat);
@@ -12643,9 +12710,9 @@ double FASTCALL ffrac(double v); // @>>modf
 // ARG(value IN): Значение, которое следует разбить. Если value < 0, то функция приводит его к абсолютному значению
 //   и лишь после этого обрабатывает. Таким образом, вызовы fsplitintofractions(x, ...) и fsplitintofractions(-x, ...) эквивалентны по результату.
 // ARG(fragmentation IN): Целочисленный параметр фрагментации. Если fragmentation == 0 или fragmentation > 100000, то функция возвращает ошибку.
-//   Этот параметр представляет знаменатель дроби, которой должно быть представлено число value. То есть, при допустимых 
+//   Этот параметр представляет знаменатель дроби, которой должно быть представлено число value. То есть, при допустимых
 //   входных параметрах в результате выполнения функция должен соблюдаться инвариант *pDenominator == fragmentation
-// ARG(tolerance IN): Параметр чувствительности разбивки к ошибке округления. Если при попытке разбивки ffrac(value) * fragmentation будет 
+// ARG(tolerance IN): Параметр чувствительности разбивки к ошибке округления. Если при попытке разбивки ffrac(value) * fragmentation будет
 //   отличаться от целого числа на величину большую чем tolerance, то функция вернет ошибку.
 // ARG(pIntPart OUT): По указателю присваивается целая часть от fabs(value)
 // ARG(pNumerator OUT): По указателю присваивается числитель дроби результата
@@ -15452,10 +15519,12 @@ private:
 	int    LoadBmp(SFile & rF);
 	int    LoadGif(SFile & rF);
 	int    LoadTiff(SFile & rF, int fileFmt);
+	int    LoadWebp(SFile & rF);
 	int    Helper_Load(SFile & rF, SFileFormat ff);
 	int    Helper_LoadBmp(SBuffer & rBuf, const char * pAddedErrorInfo);
 	int    StorePng(const StoreParam & rP, SFile & rF);
 	int    StoreJpeg(const StoreParam & rP, SFile & rF);
+	int    StoreWebp(const StoreParam & rP, SFile & rF);
 	int    Flip();
 	int    PremultiplyAlpha();
 	uint8 * FASTCALL GetScanline(uint lineNo) const;

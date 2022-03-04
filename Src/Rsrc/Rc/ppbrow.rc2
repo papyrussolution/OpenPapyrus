@@ -6619,6 +6619,7 @@ browser STYLOQBINDERY north(100), 1, 0, "@{view_styloqbindery}", OWNER|GRID, 0
 		FACE             : kbCtrlP,    PPDV_FACEPROFILE01,  "Face\tCtrl-P"
 		CONFIG           : kbF8,       PPDV_GEAR01,         "@{config}\tF8"
 		INVITATION       : kbCtrlI,    PPDV_INVITATIONQR01, "@{dostyloqinvite}\tCtrl-I"
+		TEST             : kbCtrlT,    PPDV_TEST01,         "@{test}\tCtrl-T"
 		separator
 		SYSJ             : kbCtrlJ,    PPDV_SYSJOURNAL,     "@{dobrowsesjbybill}\tCtrl-J"
 	}

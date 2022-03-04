@@ -500,11 +500,8 @@ public:
 	}
 	operator Type() const
 	{
-#if ((defined(__GNUC__) && __GNUC__ >= 5) || defined(__clang__)) && \
-		defined(__BYTE_ORDER) && \
-		(__BYTE_ORDER == __LITTLE_ENDIAN || __BYTE_ORDER == __BIG_ENDIAN)
-		/* Spoon-feed the compiler a big-endian integer with alignment 1.
-		 * https://github.com/harfbuzz/harfbuzz/pull/1398 */
+#if ((defined(__GNUC__) && __GNUC__ >= 5) || defined(__clang__)) && defined(__BYTE_ORDER) && (__BYTE_ORDER == __LITTLE_ENDIAN || __BYTE_ORDER == __BIG_ENDIAN)
+		// Spoon-feed the compiler a big-endian integer with alignment 1. https://github.com/harfbuzz/harfbuzz/pull/1398 
 		struct __attribute__((packed)) packed_uint16_t { uint16_t v; };
 #if __BYTE_ORDER == __LITTLE_ENDIAN
 		return __builtin_bswap16(((packed_uint16_t*)this)->v);
@@ -533,6 +530,7 @@ public:
 	}
 private: uint8_t v[3];
 };
+
 template <typename Type> struct BEInt<Type, 4> {
 public:
 	BEInt<Type, 4>& operator = (Type V)
@@ -547,8 +545,8 @@ public:
 	{
 		return (v[0] << 24) + (v[1] << 16) + (v[2] << 8) + (v[3]);
 	}
-
-private: uint8_t v[4];
+private: 
+	uint8_t v[4];
 };
 /*
  * For lack of a better place, put Zawgyi script hack here.

@@ -1,0 +1,396 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{05255F31-2054-4DF4-AD6D-5BC5DA8CCCCF}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>Win32</Platform>
+    <ProjectName>libwebp-slib</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">webpdsp</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">webpdsp</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.lib</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">webpdsp</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">webpdsp</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.lib</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.lib</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;..\osf\libwebp;..\osf\libwebp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;UNICODE;_UNICODE;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <StringPooling>true</StringPooling>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeaderFile />
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;UNICODE;_UNICODE;HAVE_CONFIG_H;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\osf\libwebp\__build__;..\osf\libwebp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>..\osf\libwebp\__build__;..\osf\libwebp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;..\osf\libwebp;..\osf\libwebp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;UNICODE;_UNICODE;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <StringPooling>true</StringPooling>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeaderFile />
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;UNICODE;_UNICODE;HAVE_CONFIG_H;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\osf\libwebp\__build__;..\osf\libwebp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>..\osf\libwebp\__build__;..\osf\libwebp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;..\osf\libwebp;..\osf\libwebp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;UNICODE;_UNICODE;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <StringPooling>true</StringPooling>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeaderFile />
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;UNICODE;_UNICODE;HAVE_CONFIG_H;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\osf\libwebp\__build__;..\osf\libwebp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>..\osf\libwebp\__build__;..\osf\libwebp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;..\osf\libwebp;..\osf\libwebp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;UNICODE;_UNICODE;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <StringPooling>true</StringPooling>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeaderFile />
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;UNICODE;_UNICODE;HAVE_CONFIG_H;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\osf\libwebp\__build__;..\osf\libwebp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>..\osf\libwebp\__build__;..\osf\libwebp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\osf\libwebp\examples\example_util.c" />
+    <ClCompile Include="..\osf\libwebp\imageio\imageio_util.c" />
+    <ClCompile Include="..\osf\libwebp\imageio\image_dec.c" />
+    <ClCompile Include="..\osf\libwebp\imageio\image_enc.c" />
+    <ClCompile Include="..\osf\libwebp\imageio\jpegdec.c" />
+    <ClCompile Include="..\osf\libwebp\imageio\metadata.c" />
+    <ClCompile Include="..\osf\libwebp\imageio\pngdec.c" />
+    <ClCompile Include="..\osf\libwebp\imageio\pnmdec.c" />
+    <ClCompile Include="..\osf\libwebp\imageio\tiffdec.c" />
+    <ClCompile Include="..\osf\libwebp\imageio\webpdec.c" />
+    <ClCompile Include="..\osf\libwebp\imageio\wicdec.c" />
+    <ClCompile Include="..\osf\libwebp\src\dec\alpha_dec.c" />
+    <ClCompile Include="..\osf\libwebp\src\dec\buffer_dec.c" />
+    <ClCompile Include="..\osf\libwebp\src\dec\frame_dec.c" />
+    <ClCompile Include="..\osf\libwebp\src\dec\idec_dec.c" />
+    <ClCompile Include="..\osf\libwebp\src\dec\io_dec.c" />
+    <ClCompile Include="..\osf\libwebp\src\dec\quant_dec.c" />
+    <ClCompile Include="..\osf\libwebp\src\dec\tree_dec.c" />
+    <ClCompile Include="..\osf\libwebp\src\dec\vp8l_dec.c" />
+    <ClCompile Include="..\osf\libwebp\src\dec\vp8_dec.c" />
+    <ClCompile Include="..\osf\libwebp\src\dec\webp_dec.c" />
+    <ClCompile Include="..\osf\libwebp\src\demux\anim_decode.c" />
+    <ClCompile Include="..\osf\libwebp\src\demux\demux.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\alpha_processing.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\cpu.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\dec.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\dec_clip_tables.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\alpha_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\analysis_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\backward_references_cost_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\backward_references_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\config_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\cost_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\filter_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\frame_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\histogram_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\iterator_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\near_lossless_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\picture_csp_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\picture_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\picture_psnr_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\picture_rescale_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\picture_tools_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\predictor_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\quant_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\syntax_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\token_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\tree_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\vp8l_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\webp_enc.c" />
+    <ClCompile Include="..\OSF\libwebp\src\libwebp-pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\osf\libwebp\src\mux\anim_encode.c" />
+    <ClCompile Include="..\osf\libwebp\src\mux\muxedit.c" />
+    <ClCompile Include="..\osf\libwebp\src\mux\muxinternal.c" />
+    <ClCompile Include="..\osf\libwebp\src\mux\muxread.c" />
+    <ClCompile Include="..\osf\libwebp\src\utils\bit_reader_utils.c" />
+    <ClCompile Include="..\osf\libwebp\src\utils\bit_writer_utils.c" />
+    <ClCompile Include="..\osf\libwebp\src\utils\color_cache_utils.c" />
+    <ClCompile Include="..\osf\libwebp\src\utils\filters_utils.c" />
+    <ClCompile Include="..\osf\libwebp\src\utils\huffman_encode_utils.c" />
+    <ClCompile Include="..\osf\libwebp\src\utils\huffman_utils.c" />
+    <ClCompile Include="..\osf\libwebp\src\utils\quant_levels_dec_utils.c" />
+    <ClCompile Include="..\osf\libwebp\src\utils\quant_levels_utils.c" />
+    <ClCompile Include="..\osf\libwebp\src\utils\random_utils.c" />
+    <ClCompile Include="..\osf\libwebp\src\utils\rescaler_utils.c" />
+    <ClCompile Include="..\osf\libwebp\src\utils\thread_utils.c" />
+    <ClCompile Include="..\osf\libwebp\src\utils\utils.c" />
+    <ClInclude Include="..\osf\libwebp\examples\example_util.h" />
+    <ClInclude Include="..\osf\libwebp\examples\stopwatch.h" />
+    <ClInclude Include="..\osf\libwebp\imageio\imageio_util.h" />
+    <ClInclude Include="..\osf\libwebp\imageio\image_dec.h" />
+    <ClInclude Include="..\osf\libwebp\imageio\image_enc.h" />
+    <ClInclude Include="..\osf\libwebp\imageio\jpegdec.h" />
+    <ClInclude Include="..\osf\libwebp\imageio\metadata.h" />
+    <ClInclude Include="..\osf\libwebp\imageio\pngdec.h" />
+    <ClInclude Include="..\osf\libwebp\imageio\pnmdec.h" />
+    <ClInclude Include="..\osf\libwebp\imageio\tiffdec.h" />
+    <ClInclude Include="..\osf\libwebp\imageio\webpdec.h" />
+    <ClInclude Include="..\osf\libwebp\imageio\wicdec.h" />
+    <ClInclude Include="..\osf\libwebp\src\dec\alphai_dec.h" />
+    <ClInclude Include="..\osf\libwebp\src\dec\common_dec.h" />
+    <ClInclude Include="..\osf\libwebp\src\dec\vp8i_dec.h" />
+    <ClInclude Include="..\osf\libwebp\src\dec\vp8li_dec.h" />
+    <ClInclude Include="..\osf\libwebp\src\dec\vp8_dec.h" />
+    <ClInclude Include="..\osf\libwebp\src\dec\webpi_dec.h" />
+    <ClInclude Include="..\OSF\libwebp\src\dsp\common_sse41.h" />
+    <ClInclude Include="..\osf\libwebp\src\dsp\dsp.h" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\filters.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\lossless.c" />
+    <ClInclude Include="..\osf\libwebp\src\dsp\lossless.h" />
+    <ClInclude Include="..\osf\libwebp\src\dsp\lossless_common.h" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\rescaler.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\upsampling.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\yuv.c" />
+    <ClInclude Include="..\osf\libwebp\src\dsp\yuv.h" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\alpha_processing_sse41.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\dec_sse41.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\lossless_sse41.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\upsampling_sse41.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\yuv_sse41.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\alpha_processing_sse2.c" />
+    <ClInclude Include="..\osf\libwebp\src\dsp\common_sse2.h" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\dec_sse2.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\filters_sse2.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\lossless_sse2.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\rescaler_sse2.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\upsampling_sse2.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\yuv_sse2.c" />
+    <ClInclude Include="..\osf\libwebp\src\dsp\neon.h" />
+    <ClInclude Include="..\osf\libwebp\src\dsp\msa_macro.h" />
+    <ClInclude Include="..\osf\libwebp\src\dsp\mips_macro.h" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\cost.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\lossless_enc.c" />
+    <ClInclude Include="..\osf\libwebp\src\dsp\quant.h" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\ssim.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\cost_sse2.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\enc_sse2.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\lossless_enc_sse2.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\ssim_sse2.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\enc_sse41.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\lossless_enc_sse41.c" />
+    <ClInclude Include="..\osf\libwebp\src\enc\backward_references_enc.h" />
+    <ClInclude Include="..\osf\libwebp\src\enc\cost_enc.h" />
+    <ClInclude Include="..\osf\libwebp\src\enc\histogram_enc.h" />
+    <ClInclude Include="..\osf\libwebp\src\enc\vp8i_enc.h" />
+    <ClInclude Include="..\osf\libwebp\src\enc\vp8li_enc.h" />
+    <ClInclude Include="..\OSF\libwebp\src\libwebp-config.h" />
+    <ClInclude Include="..\OSF\libwebp\src\libwebp-internal.h" />
+    <ClInclude Include="..\osf\libwebp\src\mux\animi.h" />
+    <ClInclude Include="..\osf\libwebp\src\mux\muxi.h" />
+    <ClInclude Include="..\osf\libwebp\src\utils\bit_reader_inl_utils.h" />
+    <ClInclude Include="..\osf\libwebp\src\utils\bit_reader_utils.h" />
+    <ClInclude Include="..\osf\libwebp\src\utils\bit_writer_utils.h" />
+    <ClInclude Include="..\osf\libwebp\src\utils\color_cache_utils.h" />
+    <ClInclude Include="..\osf\libwebp\src\utils\endian_inl_utils.h" />
+    <ClInclude Include="..\osf\libwebp\src\utils\filters_utils.h" />
+    <ClInclude Include="..\osf\libwebp\src\utils\huffman_encode_utils.h" />
+    <ClInclude Include="..\osf\libwebp\src\utils\huffman_utils.h" />
+    <ClInclude Include="..\osf\libwebp\src\utils\quant_levels_dec_utils.h" />
+    <ClInclude Include="..\osf\libwebp\src\utils\quant_levels_utils.h" />
+    <ClInclude Include="..\osf\libwebp\src\utils\random_utils.h" />
+    <ClInclude Include="..\osf\libwebp\src\utils\rescaler_utils.h" />
+    <ClInclude Include="..\osf\libwebp\src\utils\thread_utils.h" />
+    <ClInclude Include="..\osf\libwebp\src\utils\utils.h" />
+    <ClInclude Include="..\OSF\libwebp\src\webp\decode.h" />
+    <ClInclude Include="..\OSF\libwebp\src\webp\demux.h" />
+    <ClInclude Include="..\OSF\libwebp\src\webp\encode.h" />
+    <ClInclude Include="..\OSF\libwebp\src\webp\format_constants.h" />
+    <ClInclude Include="..\OSF\libwebp\src\webp\mux.h" />
+    <ClInclude Include="..\OSF\libwebp\src\webp\mux_types.h" />
+    <ClInclude Include="..\OSF\libwebp\src\webp\types.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

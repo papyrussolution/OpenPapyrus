@@ -376,6 +376,14 @@ int PPViewStyloQBindery::Invitation()
 			case PPVCMD_INVITATION:
 				Invitation();
 				break;
+			case PPVCMD_TEST: // @v11.3.3
+				ok = -1;
+				if(id) {
+					PPStyloQInterchange ic;
+					if(ic.TestClientInteractive(id) > 0)
+						ok = 1;
+				}				
+				break;
 			case PPVCMD_SYSJ: // @v11.2.12
 				if(id) {
 					ViewSysJournal(PPOBJ_STYLOQBINDERY, id, 0);

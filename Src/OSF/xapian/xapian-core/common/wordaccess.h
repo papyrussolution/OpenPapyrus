@@ -21,7 +21,6 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-
 #ifndef XAPIAN_INCLUDED_WORDACCESS_H
 #define XAPIAN_INCLUDED_WORDACCESS_H
 
@@ -38,7 +37,8 @@
 #include <stdlib.h>
 #endif
 
-inline uint16_t do_bswap(uint16_t value) {
+inline uint16_t do_bswap(uint16_t value) 
+{
 #if HAVE_DECL___BUILTIN_BSWAP16
 	return __builtin_bswap16(value);
 # elif HAVE_DECL__BYTESWAP_USHORT

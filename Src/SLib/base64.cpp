@@ -227,3 +227,250 @@ int MIME64::Decode(const char * pIn, size_t inLen, char * pOut, size_t * pOutDat
 	CATCHZOK
 	return ok;
 }
+//
+//
+//
+/**
+ * Let this be a sequence of plain data before encoding:
+ *
+ *  01234567 01234567 01234567 01234567 01234567
+ * +--------+--------+--------+--------+--------+
+ * |< 0 >< 1| >< 2 ><|.3 >< 4.|>< 5 ><.|6 >< 7 >|
+ * +--------+--------+--------+--------+--------+
+ *
+ * There are 5 octets of 8 bits each in each sequence.
+ * There are 8 blocks of 5 bits each in each sequence.
+ *
+ * You probably want to refer to that graph when reading the algorithms in this
+ * file. We use "octet" instead of "byte" intentionnaly as we really work with
+ * 8 bits quantities. This implementation will probably not work properly on
+ * systems that don't have exactly 8 bits per (unsigned) char.
+ **/
+/**
+ * Given a block id between 0 and 7 inclusive, this will return the index of
+ * the octet in which this block starts. For example, given 3 it will return 1
+ * because block 3 starts in octet 1:
+ *
+ * +--------+--------+
+ * | ......<|.3 >....|
+ * +--------+--------+
+ *  octet 1 | octet 2
+ */
+static int Base32_get_octet(int block)
+{
+	assert(block >= 0 && block < 8);
+	return (block*5) / 8;
+}
+// 
+// Given a block id between 0 and 7 inclusive, this will return how many bits
+// we can drop at the end of the octet in which this block starts.
+// For example, given block 0 it will return 3 because there are 3 bits
+// we don't care about at the end:
+// 
+//  +--------+-
+//  |< 0 >...|
+//  +--------+-
+// 
+// Given block 1, it will return -2 because there
+// are actually two bits missing to have a complete block:
+// 
+//  +--------+-
+//  |.....< 1|..
+//  +--------+-
+// 
+static FORCEINLINE int Base32_get_offset(int block)
+{
+	assert(block >= 0 && block < 8);
+	return (8 - 5 - (5*block) % 8);
+}
+// 
+// Like "b >> offset" but it will do the right thing with negative offset.
+// We need this as bitwise shifting by a negative offset is undefined behavior.
+// 
+static FORCEINLINE uchar Base32_shift_right(uchar byte, int8 offset) { return (offset > 0) ? (byte >> offset) : (byte << -offset); }
+static FORCEINLINE uchar Base32_shift_left(uchar byte, int8 offset) { return Base32_shift_right(byte, -offset); }
+// 
+// Encode a sequence. A sequence is no longer than 5 octets by definition.
+// Thus passing a length greater than 5 to this function is an error. Encoding
+// sequences shorter than 5 octets is supported and padding will be added to the
+// output as per the specification.
+// 
+static void Base32_encode_sequence(const uchar * plain, int len, SString & rBuf)
+{
+	static const uchar base32[] = "abcdefghijklmnopqrstuvwxyz234567";
+	static const uchar Base32_PADDING_CHAR = '=';
+	assert(CHAR_BIT == 8);  // not sure this would work otherwise
+	assert(len >= 0 && len <= 5);
+	for(int block = 0; block < 8; block++) {
+		int octet = Base32_get_octet(block);  // figure out which octet this block starts in
+		int junk  = Base32_get_offset(block);  // how many bits do we drop from this octet?
+		if(octet >= len) {  // we hit the end of the buffer
+			rBuf.CatCharN(Base32_PADDING_CHAR, len);
+			return;
+		}
+		else {
+			uchar c = Base32_shift_right(plain[octet], junk);  // first part
+			if(junk < 0 /*is there a second part?*/ && octet < (len-1)) { // is there still something to read?
+				c |= Base32_shift_right(plain[octet+1], 8 + junk);
+			}
+			rBuf.CatChar(base32[c & 0x1F]);  // 0001 1111
+		}
+	}
+}
+
+int Base32_Encode(const uint8 * pData, size_t dataLen, SString & rBuf)
+{
+	rBuf.Z();
+	int    ok = 1;
+	if(pData && dataLen) {
+		// All the hard work is done in encode_sequence(),
+		// here we just need to feed it the data sequence by sequence.
+		for(size_t i = 0, j = 0; i < dataLen; i += 5, j += 8) {
+			Base32_encode_sequence(&pData[i], smin(dataLen-i, 5U), /*&coded[j]*/rBuf);
+		}
+	}
+	return ok;
+}
+
+static int Base32_decode_sequence(const uchar * pCoded, uchar * plain)
+{
+	assert(CHAR_BIT == 8);
+	assert(pCoded && plain);
+	plain[0] = 0;
+	for(int block = 0; block < 8; block++) {
+		int offset = Base32_get_offset(block);
+		int octet  = Base32_get_octet(block);
+		int c = -1;
+		{
+			const uchar chr = pCoded[block];
+			if(chr >= 'a' && chr <= 'z')
+				c = (chr - 'a');
+			else if(chr >= '2' && chr <= '7')
+				c = (chr - '2' + 26);
+			assert(c == -1 || ((c & 0x1F) == c));
+		}
+		if(c < 0) // invalid char, stop here
+			return octet;
+		plain[octet] |= Base32_shift_left(c, offset);
+		if(offset < 0) {   // does this block overflows to next octet?
+			assert(octet < 4);
+			plain[octet+1] = Base32_shift_left(c, 8 + offset);
+		}
+	}
+	return 5;
+}
+
+size_t Base32_Decode(const uchar * coded, SBinaryChunk & rResult)
+{
+	rResult.Z();
+	size_t written = 0;
+	for(size_t i = 0, j = 0;; i += 8, j += 5) {
+		uint8 step_buf[32];
+		int n = Base32_decode_sequence(&coded[i], /*&plain[j]*/step_buf);
+		written += n;
+		if(n > 0) {
+			rResult.Cat(step_buf, n);
+		}
+		if(n < 5)
+			return written;
+	}
+}
+
+size_t base32_encoded_size(size_t count)
+{
+	size_t size = (count << 3); // multiply by 8 
+	if(size % 5 == 0)
+		return (size/5);
+	else
+		return (1+size/5);
+}
+
+size_t base32_decoded_size(size_t count)
+{
+    size_t size = count * 5;
+    return (size >> 3) + (size % 8) ? 1 : 0;
+}
+//
+//
+//
+#if SLTEST_RUNNING // {
+
+SLTEST_R(Base32)
+{
+	int    ok = 1;
+	SString temp_buf;
+	SBinaryChunk bc1;
+	SBinaryChunk bc2;
+	uint   iteridx = 0;
+	Base32_Encode(0, 13, temp_buf);
+	THROW(SLTEST_CHECK_NZ(temp_buf.IsEmpty()));
+	/*for(size_t i = 0; i < SIZEOFARRAY(p_test_pair); i++) {
+		const TestPair & r_pair = p_test_pair[i];
+		THROW(SLTEST_CHECK_NZ(ZBase32_Encode(reinterpret_cast<const uint8 *>(r_pair.P_Src), sstrlen(r_pair.P_Src), temp_buf)));
+		THROW(SLTEST_CHECK_EQ(temp_buf, r_pair.P_Dest));
+		//
+		THROW(SLTEST_CHECK_NZ(ZBase32_Decode(temp_buf, bc1)));
+		THROW(SLTEST_CHECK_NZ(bc1.IsEq(reinterpret_cast<const uint8 *>(r_pair.P_Src), sstrlen(r_pair.P_Src))));
+	}*/
+	{
+		bc1.Z();
+		Base32_Encode(static_cast<const uint8 *>(bc1.PtrC()), bc1.Len(), temp_buf);
+		Base32_Decode(temp_buf.ucptr(), bc2);
+	}
+	{
+		{
+			iteridx = 32;
+			bc1.Z().Cat(&iteridx, 4);
+			Base32_Encode(static_cast<const uint8 *>(bc1.PtrC()), bc1.Len(), temp_buf);
+			Base32_Decode(temp_buf.ucptr(), bc2);
+			THROW(SLTEST_CHECK_NZ(bc1.IsEq(bc2)));
+		}
+		for(iteridx = 0; iteridx < 1000000; iteridx++) {
+			bc1.Z().Cat(&iteridx, 4);
+			Base32_Encode(static_cast<const uint8 *>(bc1.PtrC()), bc1.Len(), temp_buf);
+			Base32_Decode(temp_buf.ucptr(), bc2);
+			THROW(SLTEST_CHECK_NZ(bc1.IsEq(bc2)));
+		}
+	}
+	{
+		for(iteridx = 0; iteridx < 1000; iteridx++) {
+			bc1.Randomize(SLS.GetTLA().Rg.GetUniformInt(SKILOBYTE(64)));
+			Base32_Encode(static_cast<const uint8 *>(bc1.PtrC()), bc1.Len(), temp_buf);
+			Base32_Decode(temp_buf.ucptr(), bc2);
+			THROW(SLTEST_CHECK_NZ(bc1.IsEq(bc2)));
+		}
+	}
+	CATCHZOK
+	return ok ? CurrentStatus : 0;
+}
+
+#endif // } SLTEST_RUNNING
+
+/*
+class ZBase32EncoderTest {        
+    [TestCase("BA", "ejyo")]
+    [TestCase("a", "cr")]
+    [TestCase("", "")]
+    public void EncodingTest(string sourceData, string encodedData)
+    {
+        var bytes = Encoding.ASCII.GetBytes(sourceData);
+        var result = ZBase32Encoder.Encode(bytes);
+        Assert.AreEqual(encodedData, result);
+    }
+
+    [TestCase("Hello, World!")]
+    [TestCase("&^%%&*BJKjbjkb&^%%$^&b")]
+    [TestCase("  My NaMe Is DeNiS ")]
+    [TestCase("--=__--=)(\\//$4")]
+    [TestCase("  ")]
+    [TestCase("")]
+    public void EncodeDecodeTest(string sourceData)
+    {
+        var bytes = Encoding.ASCII.GetBytes(sourceData);
+        var encodedData = ZBase32Encoder.Encode(bytes);
+        var decodedData = ZBase32Encoder.Decode(encodedData);
+
+        Assert.That(Encoding.ASCII.GetBytes(sourceData), Is.EquivalentTo(decodedData));
+    }
+}
+*/

@@ -2078,7 +2078,7 @@ int FileFormatRegBase::Helper_Register(int id, int mimeType, const char * pMimeS
 			is_text_sign = 1; // Текстовая сигнатура
 		}
 		else {
-			THROW(new_sign.IsEmpty() || (new_sign.Len() & 0x01) == 0);
+			// @v11.3.4 THROW(new_sign.IsEmpty() || (new_sign.Len() & 0x01) == 0);
 			new_sign.ToLower();
 			for(i = 0; i < new_sign.Len(); i++) {
 				const int c = new_sign.C(i);
@@ -2624,6 +2624,7 @@ int SFileFormat::IdentifyMime(const char * pMime)
 	Register(PapyruDbDivXchg, mtApplication, "x-papyrus", "pps", "50504F53");
 	Register(CodeBlocks_Cbp,  mtApplication, "xml",   "cbp", "T<?xml"); // @v10.9.9 Code::Blocks Project File
 	Register(M4,              mtText,        "plain", "m4", 0); // @v10.9.9 m4 macroporcessor
+	Register(Webp,            mtImage,       "webp", "webp", "52494646 8:57454250"); // @v11.3.4 webp graphics
 	return ok;
 }
 //

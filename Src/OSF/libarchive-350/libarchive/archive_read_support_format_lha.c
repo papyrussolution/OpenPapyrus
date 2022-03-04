@@ -1669,14 +1669,12 @@ static uint16 lha_crc16(uint16 crc, const void * pp, size_t len)
 #undef CRC16W
 #undef bswap16
 	}
-
 	p = (const uchar *)buff;
 	for(; len; len--) {
 		crc = (crc >> 8) ^ crc16tbl[0][(crc ^ *p++) & 0xff];
 	}
 	return crc;
 }
-
 /*
  * Initialize LZHUF decoder.
  *
@@ -2711,12 +2709,11 @@ static int lzh_decode_huffman_tree(struct lzh_dec::huffman * hf, unsigned rbits,
 
 static inline int lzh_decode_huffman(struct lzh_dec::huffman * hf, unsigned rbits)
 {
-	int c;
 	/*
 	 * At first search an index table for a bit pattern.
 	 * If it fails, search a huffman tree for.
 	 */
-	c = hf->tbl[rbits >> hf->shift_bits];
+	int c = hf->tbl[rbits >> hf->shift_bits];
 	if(c < hf->len_avail || hf->len_avail == 0)
 		return (c);
 	/* This bit pattern needs to be found out at a huffman tree. */

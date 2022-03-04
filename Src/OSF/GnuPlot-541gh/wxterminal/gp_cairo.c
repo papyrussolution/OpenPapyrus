@@ -645,9 +645,9 @@ static char * gp_cairo_convert(plot_struct * plot, const char* string)
 		charset = gp_cairo_get_encoding(plot);
 		string_utf8 = g_convert(string, -1, "UTF-8", charset, &bytes_read, NULL, &error);
 	}
-	/* handle error case */
-	if(error != NULL) {
-		/* fatal error in conversion */
+	// handle error case 
+	if(error) {
+		// fatal error in conversion 
 		if(error->code != G_CONVERT_ERROR_ILLEGAL_SEQUENCE) {
 			fprintf(stderr, "Unable to convert \"%s\": %s\n", string, error->message);
 			g_error_free(error);
@@ -660,7 +660,7 @@ static char * gp_cairo_convert(plot_struct * plot, const char* string)
 		g_error_free(error);
 		error = NULL;
 		string_utf8 = g_convert(string, -1, "UTF-8", "ISO-8859-1", NULL, NULL, &error);
-		if(error != NULL) {
+		if(error) {
 			fprintf(stderr, "Unable to convert \"%s\": the sequence is invalid in the current charset (%s), %d bytes read out of %d\n",
 			    string, charset, (int)bytes_read, (int)strlen(string));
 			string_utf8 = g_convert(string, bytes_read, "UTF-8", charset, NULL, NULL, NULL);
@@ -1898,13 +1898,12 @@ char* gp_cairo_convert_symbol_to_unicode(plot_struct * plot, const char* string)
 	int i;
 	int imax;
 	GError * error = NULL;
-
 	/* first step, get a valid utf8 string, without taking care of Symbol.
 	 * The input string is likely to be encoded in iso_8859_1, with characters
 	 * going from 1 to 255. Try this first. If it's not the case, fall back to
 	 * routine based on the encoding variable. */
 	string_utf8 = g_convert(string, -1, "UTF-8", "ISO-8859-1", NULL, NULL, &error);
-	if(error != NULL) {
+	if(error) {
 		fprintf(stderr, "Symbol font : fallback to iso_8859_1 did not work\n");
 		g_error_free(error);
 		string_utf8 = gp_cairo_convert(plot, string);

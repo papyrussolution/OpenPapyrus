@@ -11271,6 +11271,12 @@
 	#define cmSelectProcessors               101
 	#define CTL_STQATTCPARAM_PRCLIST         (1  + WINDOWS_ID_BIAS)
 	#define CTL_STQATTCPARAM_PRCTTL          (2  + WINDOWS_ID_BIAS)
+#define DLG_STQCLITEST            1412 // @v11.3.3
+	#define CTL_STQCLITEST_SVC               (1  + WINDOWS_ID_BIAS)
+	#define CTL_STQCLITEST_FUNC              (2  + WINDOWS_ID_BIAS)
+	#define CTLSEL_STQCLITEST_FUNC           (3  + WINDOWS_ID_BIAS)
+	#define CTL_STQCLITEST_INFO              (5  + WINDOWS_ID_BIAS)
+	#define CTL_STQCLITEST_RESULT            (4  + WINDOWS_ID_BIAS)
 
 // Win32 Dialog Identifiers
 //

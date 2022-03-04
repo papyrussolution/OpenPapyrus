@@ -252,7 +252,7 @@ int SCDBObjToDo::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 		P_ExpTbl->getFieldNumber("MEMO",      &fldn_memo);
 		const int do_compress = P_Ctx->PalmCfg.CompressData();
 		const char * p_tbl_name = do_compress ? "ToDoDB_A" : "ToDoDB";
-		PPLoadString("exportprjtasks", msg_buf); // @v11.3.3
+		//PPLoadString("exportprjtasks", msg_buf); // @v11.3.3
 		if(do_compress)
 			IdAsscList.freeAll();
 		else if(P_Ctx->PalmCfg.PalmCompressedData())
@@ -304,8 +304,8 @@ int SCDBObjToDo::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 			P_Ctx->TransmitComprFile = 1;
 		{
 			//char log_msg[128];
-			msg_buf.Printf("SPII OK: %ld TODO records exported", numrecs);
-			SyncTable::LogMessage(P_Ctx->LogFile, log_msg);
+			//msg_buf.Printf("SPII OK: %ld TODO records exported", numrecs);
+			//SyncTable::LogMessage(P_Ctx->LogFile, log_msg);
 		}
 	}
 	else

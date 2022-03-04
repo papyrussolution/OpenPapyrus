@@ -46833,6 +46833,7 @@ public:
 	int    ExecuteInvitationDialog(InterchangeParam & rData);
 	int    Dump();
 	int    TestDatabase();
+	int    TestClientInteractive(PPID svcID);
 
 	typedef int (*ProcessCmdCallbackProc)(StyloQProtocol & rPack, void * pExtra);
 	//
@@ -46870,6 +46871,8 @@ private:
 	int    FetchPersonFromClientPacket(const StyloQCore::StoragePacket & rCliPack, PPID * pPersonID);
 	int    AcceptStyloQClientAsPerson(const StyloQCore::StoragePacket & rCliPack, PPID personKind, PPID * pPersonID, int use_ta);
 	int    QueryConfigIfNeeded(RoundTripBlock & rB);
+	int    QuerySvcConfig(const SBinaryChunk & rSvcIdent, StyloQConfig &);
+	int    Helper_DoInterchange(InterchangeParam & rParam, SSecretTagPool & rReply);
 	//
 	// Descr: Возвращает дополнение для идентфикации локального (относящегося к машине или сеансу) сервера.
 	// ARG(flag IN): Уточняет о какой локальности идет речь. Если flag == smqbpfLocalMachine то дополнение

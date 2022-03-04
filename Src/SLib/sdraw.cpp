@@ -1981,6 +1981,9 @@ int SImageBuffer::Store(const StoreParam & rP, SFile & rF)
 	else if(rP.Fmt == SFileFormat::Jpeg) {
 		THROW(StoreJpeg(rP, rF));
 	}
+	else if(rP.Fmt == SFileFormat::Webp) { // @v11.3.4
+		THROW(StoreWebp(rP, rF));
+	}
 	else {
 		CALLEXCEPT_S(SLERR_UNSUPPIMGFILEFORMAT);
 	}
@@ -2009,6 +2012,9 @@ int SImageBuffer::Helper_Load(SFile & rF, SFileFormat ff)
 		case SFileFormat::Ico:
 		case SFileFormat::Cur:
 			THROW(LoadIco(rF, 0));
+			break;
+		case SFileFormat::Webp: // @v11.3.4
+			THROW(LoadWebp(rF));
 			break;
 		case SFileFormat::Tiff:
 			//THROW(LoadTiff(rF, ff));
@@ -2055,6 +2061,7 @@ int SImageBuffer::Load(int fm, SBuffer & rInBuf)
 		case SFileFormat::Ico:
 		case SFileFormat::Cur:
 		case SFileFormat::Gif:
+		case SFileFormat::Webp: // @v11.3.4
 			break;
 		default:
 			ok = SLS.SetError(SLERR_UNSUPPIMGFILEFORMAT);
@@ -2618,7 +2625,7 @@ int SImageBuffer::LoadJpeg(SFile & rF, int fileFmt)
 	if(fileFmt == SFileFormat::Jpeg) {
 		struct jpeg_decompress_struct di;
 		di.err = jpeg_std_error(&jpeg_err.pub);
-		jpeg_err.pub.error_exit = JpegErr::ExitFunc; // @v9.6.3
+		jpeg_err.pub.error_exit = JpegErr::ExitFunc;
 		err_code = setjmp(jpeg_err.setjmp_buf);
 		if(err_code) {
 			SLS.SetAddedMsgString(rF.GetName());
@@ -3069,8 +3076,68 @@ int SImageBuffer::LoadGif(SFile & rF)
 //
 //
 //
-/*
-#include <..\OSF\tiff\libtiff\tiffio.h>
+#if(_MSC_VER >= 1900)
+	#include <../osf/libwebp/src/webp/decode.h>
+	#include <../osf/libwebp/src/webp/encode.h>
+#endif
+
+int SImageBuffer::LoadWebp(SFile & rF)
+{
+#if(_MSC_VER >= 1900)
+	int    ok = 1;
+	int    width = 0;
+	int    height = 0;
+	uint8 * p_result = 0;
+	int64  fsize = 0;
+	THROW(rF.CalcSize(&fsize));
+	THROW_S(fsize <= SMEGABYTE(64), SLERR_FILETOOBIG);
+	{
+		STempBuffer fbuf(static_cast<size_t>(fsize) + 512);
+		size_t actual_size = 0;
+		const SImageBuffer::PixF fmt(PixF::s32ARGB);
+		THROW(fbuf.IsValid());
+		THROW(rF.Read(fbuf, static_cast<size_t>(fsize), &actual_size));
+		p_result = /*WebPDecodeARGB*//*WebPDecodeRGBA*/WebPDecodeBGRA(fbuf.ucptr(), actual_size, &width, &height);
+		THROW(p_result);
+		THROW(Init(width, height, fmt));
+		assert(SBaseBuffer::Size >= static_cast<size_t>((width * height) * (fmt.GetBpp()/8)));
+		memcpy(P_Buf, p_result, (width * height) * (fmt.GetBpp()/8));
+	}
+	CATCHZOK
+	SAlloc::F(p_result);
+#else
+	int    ok = 0;
+#endif
+	return ok;
+}
+
+int SImageBuffer::StoreWebp(const StoreParam & rP, SFile & rF)
+{
+#if(_MSC_VER >= 1900)
+	int    ok = 1;
+	uint8 * p_result_buf = 0;
+	size_t result_buf_size = 0;
+	THROW_S((S.x >= 1 && S.x <= 30000) && (S.y >= 1 && S.y <= 30000), SLERR_INVIMAGESIZE); // no image
+	{
+		//WebPEncodeBGRA(const uint8* bgra, int width, int height, int stride, float quality_factor, uint8** output);
+		uint stride = F.GetStride(S.x);
+		const float quality = (rP.Quality == 0) ? 100.0f : sclamp(static_cast<float>(rP.Quality), 0.0f, 100.0f);
+		THROW(stride > 0 && stride < static_cast<uint>(S.x * 6));
+		result_buf_size = WebPEncodeBGRA(reinterpret_cast<const uint8 *>(P_Buf), S.x, S.y, stride, quality, &p_result_buf);
+		THROW(result_buf_size);
+		THROW(rF.Write(p_result_buf, result_buf_size));
+	}
+	CATCHZOK
+	SAlloc::F(p_result_buf);
+#else
+	int    ok = 0;
+#endif
+	return ok;
+}
+//
+//
+//
+/*#include <..\OSF\tiff\libtiff\tiffio.h>
 
 int SImageBuffer::LoadTiff(SFile & rF, int fileFmt)
 {
@@ -3083,18 +3150,17 @@ int SImageBuffer::LoadTiff(SFile & rF, int fileFmt)
 		TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &w);
 		TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &h);
 		npixels = w * h;
-		raster = (uint32 *) _TIFFmalloc(npixels * sizeof (uint32));
+		raster = (uint32 *)SAlloc::M(npixels * sizeof (uint32));
 		if(raster != NULL) {
 			if(TIFFReadRGBAImage(tif, w, h, raster, 0)) {
 				...process raster data...
 			}
-			_TIFFfree(raster);
+			SAlloc::F(raster);
 		}
 		TIFFClose(tif);
 	}
 	return ok;
-}
-*/
+}*/
 //
 //
 //
@@ -3761,8 +3827,19 @@ IcoCurFound:
 SLTEST_R(SDraw)
 {
 	int    ok = 1;
+	SString temp_buf;
 	SImageBuffer img_buf;
-	THROW(SLTEST_CHECK_NZ(img_buf.Load(MakeInputFilePath("test24.png"))));
+	SString input_file_name(MakeInputFilePath("test24.png"));
+	THROW(SLTEST_CHECK_NZ(img_buf.Load(input_file_name)));
+	{
+		SPathStruc ps(input_file_name);
+		ps.Ext = "webp";
+		ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
+		SImageBuffer::StoreParam sp(SFileFormat::Webp);
+		SFile out_file(MakeOutputFilePath(temp_buf), SFile::mWrite|SFile::mBinary);
+		THROW(out_file.IsValid());
+		THROW(SLTEST_CHECK_NZ(img_buf.Store(sp, out_file)));
+	}
 	{
 		SBuffer buf;
 		SFile out_file(buf, SFile::mWrite);

@@ -1,0 +1,280 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\osf\libwebp\src\dsp\alpha_processing.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\cpu.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\dec.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\dec_clip_tables.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\filters.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\lossless.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\rescaler.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\upsampling.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\yuv.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\alpha_processing_sse41.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\dec_sse41.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\lossless_sse41.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\upsampling_sse41.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\yuv_sse41.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\alpha_processing_sse2.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\dec_sse2.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\filters_sse2.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\lossless_sse2.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\rescaler_sse2.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\upsampling_sse2.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\yuv_sse2.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\cost.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\lossless_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\ssim.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\cost_sse2.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\enc_sse2.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\lossless_enc_sse2.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\ssim_sse2.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\enc_sse41.c" />
+    <ClCompile Include="..\osf\libwebp\src\dsp\lossless_enc_sse41.c" />
+    <ClCompile Include="..\osf\libwebp\src\dec\alpha_dec.c" />
+    <ClCompile Include="..\osf\libwebp\src\dec\buffer_dec.c" />
+    <ClCompile Include="..\osf\libwebp\src\dec\frame_dec.c" />
+    <ClCompile Include="..\osf\libwebp\src\dec\idec_dec.c" />
+    <ClCompile Include="..\osf\libwebp\src\dec\io_dec.c" />
+    <ClCompile Include="..\osf\libwebp\src\dec\quant_dec.c" />
+    <ClCompile Include="..\osf\libwebp\src\dec\tree_dec.c" />
+    <ClCompile Include="..\osf\libwebp\src\dec\vp8_dec.c" />
+    <ClCompile Include="..\osf\libwebp\src\dec\vp8l_dec.c" />
+    <ClCompile Include="..\osf\libwebp\src\dec\webp_dec.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\alpha_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\analysis_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\backward_references_cost_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\backward_references_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\config_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\cost_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\filter_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\frame_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\histogram_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\iterator_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\near_lossless_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\picture_csp_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\picture_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\picture_psnr_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\picture_rescale_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\picture_tools_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\predictor_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\quant_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\syntax_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\token_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\tree_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\vp8l_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\enc\webp_enc.c" />
+    <ClCompile Include="..\osf\libwebp\src\utils\bit_reader_utils.c" />
+    <ClCompile Include="..\osf\libwebp\src\utils\bit_writer_utils.c" />
+    <ClCompile Include="..\osf\libwebp\src\utils\color_cache_utils.c" />
+    <ClCompile Include="..\osf\libwebp\src\utils\filters_utils.c" />
+    <ClCompile Include="..\osf\libwebp\src\utils\huffman_encode_utils.c" />
+    <ClCompile Include="..\osf\libwebp\src\utils\huffman_utils.c" />
+    <ClCompile Include="..\osf\libwebp\src\utils\quant_levels_dec_utils.c" />
+    <ClCompile Include="..\osf\libwebp\src\utils\quant_levels_utils.c" />
+    <ClCompile Include="..\osf\libwebp\src\utils\random_utils.c" />
+    <ClCompile Include="..\osf\libwebp\src\utils\rescaler_utils.c" />
+    <ClCompile Include="..\osf\libwebp\src\utils\thread_utils.c" />
+    <ClCompile Include="..\osf\libwebp\src\utils\utils.c" />
+    <ClCompile Include="..\osf\libwebp\src\demux\anim_decode.c" />
+    <ClCompile Include="..\osf\libwebp\src\demux\demux.c" />
+    <ClCompile Include="..\osf\libwebp\src\mux\anim_encode.c" />
+    <ClCompile Include="..\osf\libwebp\src\mux\muxedit.c" />
+    <ClCompile Include="..\osf\libwebp\src\mux\muxinternal.c" />
+    <ClCompile Include="..\osf\libwebp\src\mux\muxread.c" />
+    <ClCompile Include="..\osf\libwebp\imageio\image_dec.c" />
+    <ClCompile Include="..\osf\libwebp\imageio\jpegdec.c" />
+    <ClCompile Include="..\osf\libwebp\imageio\metadata.c" />
+    <ClCompile Include="..\osf\libwebp\imageio\pngdec.c" />
+    <ClCompile Include="..\osf\libwebp\imageio\pnmdec.c" />
+    <ClCompile Include="..\osf\libwebp\imageio\tiffdec.c" />
+    <ClCompile Include="..\osf\libwebp\imageio\webpdec.c" />
+    <ClCompile Include="..\osf\libwebp\imageio\wicdec.c" />
+    <ClCompile Include="..\osf\libwebp\imageio\imageio_util.c" />
+    <ClCompile Include="..\osf\libwebp\imageio\image_enc.c" />
+    <ClCompile Include="..\osf\libwebp\examples\example_util.c" />
+    <ClCompile Include="..\OSF\libwebp\src\libwebp-pch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\osf\libwebp\src\dsp\common_sse2.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\dsp\dsp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\dsp\lossless.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\dsp\lossless_common.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\dsp\mips_macro.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\dsp\msa_macro.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\dsp\neon.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\dsp\quant.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\dsp\yuv.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\dec\alphai_dec.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\dec\common_dec.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\dec\vp8_dec.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\dec\vp8i_dec.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\dec\vp8li_dec.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\dec\webpi_dec.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\enc\backward_references_enc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\enc\cost_enc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\enc\histogram_enc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\enc\vp8i_enc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\enc\vp8li_enc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\utils\bit_reader_inl_utils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\utils\bit_reader_utils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\utils\bit_writer_utils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\utils\color_cache_utils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\utils\endian_inl_utils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\utils\filters_utils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\utils\huffman_encode_utils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\utils\huffman_utils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\utils\quant_levels_dec_utils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\utils\quant_levels_utils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\utils\random_utils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\utils\rescaler_utils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\utils\thread_utils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\utils\utils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\mux\animi.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\src\mux\muxi.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\imageio\image_dec.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\imageio\jpegdec.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\imageio\metadata.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\imageio\pngdec.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\imageio\pnmdec.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\imageio\tiffdec.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\imageio\webpdec.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\imageio\wicdec.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\imageio\imageio_util.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\imageio\image_enc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\examples\example_util.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\libwebp\examples\stopwatch.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libwebp\src\dsp\common_sse41.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libwebp\src\webp\decode.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libwebp\src\webp\demux.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libwebp\src\webp\encode.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libwebp\src\webp\format_constants.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libwebp\src\libwebp-config.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libwebp\src\libwebp-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libwebp\src\webp\mux.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libwebp\src\webp\mux_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libwebp\src\webp\types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{f506e661-0af8-404d-bc87-20e5f184f167}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
