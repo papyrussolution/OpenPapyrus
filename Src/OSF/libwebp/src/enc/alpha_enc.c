@@ -17,7 +17,7 @@
 //#include "src/dsp/dsp.h"
 //#include "src/utils/filters_utils.h"
 #include "src/utils/quant_levels_utils.h"
-#include "src/utils/utils.h"
+//#include "src/utils/utils.h"
 #include "src/webp/format_constants.h"
 
 // -----------------------------------------------------------------------------

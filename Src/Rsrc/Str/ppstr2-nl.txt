@@ -1,5 +1,5 @@
 // PPSTR2.TXT
-// Copyright (c) A.Sobolev 1996-2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1996-2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // Codepage=UTF-8
 //
 // Синтаксис:
@@ -4971,7 +4971,7 @@ PPTXT_ACCANLZTITLE " @{account}: %-15s%s @{saldoin} : %s %s @{turnover_pl} : %s 
 PPTXT_LOTERROR1 "@{document} %s, Pagina %d, Product %s (%.2lf eenheden). Juist?"
 	//#org На упаковке
 PPTXT_ONPACK "Op de verpakking"
-	//#org Сумма включает скидку 
+	//#org Сумма включает скидку
 PPTXT_INCLDIS "Het bedrag is inclusief korting "
 	//#org по операции
 PPTXT_BYOPR "door bewerking"
@@ -4981,7 +4981,7 @@ PPTXT_BYINCOMINGOPR "over winstgevende activiteiten"
 PPTXT_BYPROFITABLEOPR "op winstgevende transacties minus terugbetalingen"
 	//#org по оплаченным доходным операциям
 PPTXT_BYPAYEDOPR "op betaalde winstgevende transacties"
-	//#org ПО МЕЖСКЛАДСКОЙ ОПЕРАЦИИ 
+	//#org ПО МЕЖСКЛАДСКОЙ ОПЕРАЦИИ
 PPTXT_BYINTROPR "OVER DE OPERATIE TUSSEN MAGAZIJNEN "
 	//#org @{person_status}: %s
 PPTXT_JURSTAT "@{person_status}: %s"
@@ -5013,15 +5013,15 @@ PPTXT_ATLISTTOTAL "@{accountingturncount}: %s @{amount} : %s"
 PPTXT_INCLEXCISE "Bedrag is inclusief btw;en omzetbelasting"
 	//#org @{typboolean};@{typstring};@{typnumeric};@{typenumeration};Целое число;Ссылка на объект;@{date};GUID;@{typimage};@{typtimestamp}
 PPTXT_OTTYP "@{typboolean};@{typstring};@{typnumeric};@{typenumeration};Geheel getal;Object referentie;@{date};GUID;@{typimage};@{typtimestamp}"
-	//#org *** Файл передачи: %s *** Раздел: %s *** 
+	//#org *** Файл передачи: %s *** Раздел: %s ***
 PPTXT_STARTRCVPACKET "Transfer Bestand: %s *** Partitie: %s *** "
-	//#org @{document} %s: Переданная сумма=%.2lf;Принятая сумма=%.2lf 
+	//#org @{document} %s: Переданная сумма=%.2lf;Принятая сумма=%.2lf
 PPTXT_BTP_HEADER "@{document} %s: Bedrag overgemaakt=%.2lf;Geaccepteerd bedrag=%.2lf "
-	//#org Товар [id=@int] @goods дефицит=@real цп=@real цр=@real поставщик=@article 
+	//#org Товар [id=@int] @goods дефицит=@real цп=@real цр=@real поставщик=@article
 PPTXT_BTP_LINE "Product [id=@int] @goods schaarste=cpu @real=@real cr=@real vendor=@article "
-	//#org Документ не проведен 
+	//#org Документ не проведен
 PPTXT_BTP_NOTTURNED "Document niet uitgevoerd "
-	//#org Итог проблемных товаров по файлу: 
+	//#org Итог проблемных товаров по файлу:
 PPTXT_BTP_TOTAL "Overzicht van probleemproducten per bestand: "
 	//#org Waiting on database locking ...
 PPTXT_WAITONDBLOCK "Wachten op database locking ..."
@@ -5033,7 +5033,7 @@ PPTXT_BTP_NOLINKBILL "Document [%s] is niet voltooid omdat er geen document aan 
 PPTXT_GRPACO "PER REKENING;PER SUBACCOUNT;PER SUBCONTO"
 	//#org Сохранение баланса;Восстановление баланса;Усечение товарных строк;Усечение документов
 PPTXT_CUTTINGPROCESS "Behoud het evenwicht;Balans herstel;Verkorting van productlijnen;Inkorting van documenten"
-	//#org @{novat};Комплект;  @{booking_pl}: 
+	//#org @{novat};Комплект;  @{booking_pl}:
 PPTXT_TIDLG_STRINGS "@{novat};Set; @{booking_pl}: "
 	//#org Закрытие незавершенных сессий
 PPTXT_ACSCLS_CLOSEINCMPL "Onvolledige sessies afsluiten"
@@ -5236,7 +5236,7 @@ PPTXT_SLIPFMT_WIDTHOVER "het bestand stdslip.fmt in de '%s' formaat beschrijving
 PPTXT_ERR_SYSJLOGGING "Foutvermelding in SysJournal (%s)"
 	//#org Прием строк инвентаризации
 PPTXT_IMP_INVENTORYLINES "Voorraadreeksen accepteren"
-	//#org @{mainorg}: %s @{license}: %s @{user}: %s @{path_database}: %s @{path_report}: %s @{datastructure}: %s 
+	//#org @{mainorg}: %s @{license}: %s @{user}: %s @{path_database}: %s @{path_report}: %s @{datastructure}: %s
 PPTXT_RPTSUPPMAIL_HEADER "@{mainorg}: %s @{license}: %s @{user}: %s @{path_database}: %s @{path_report}: %s @{datastructure}: %s "
 	//#org Дата и время:
 PPTXT_RPTSUPPMAIL_TIMESTAMP "Datum en tijd:"
@@ -5987,7 +5987,7 @@ PPTXT_PRCPAN_HINT12 "De rest van de invoermodus. Overschakelen naar normale modu
 PPTXT_PRCPAN_HINT13 "Houdbaarheid product = DDMMYY"
 	//#org Выход из состояния ввода срока годности = Escape
 PPTXT_PRCPAN_HINT14 "Verlaat de houdbaarheidsstatus = Escape"
-	//#org Продолжительность простоя: 
+	//#org Продолжительность простоя:
 PPTXT_PRCPAN_IDLECONT "Downtime: "
 	//#org Выбор иконки для команды
 PPTXT_SELCMDICON "Een pictogram voor het team selecteren"
@@ -6325,7 +6325,8 @@ PPTXT_UNITELIKEWORLDS "Combineer vergelijkbare geografische kenmerken"
 	//#org Объединение похожих единиц измерения
 PPTXT_UNITELIKEUNITS "Combineer vergelijkbare meeteenheden"
 	//#org Неизвестный;JobServer;NetServer;Задача;Сессия;Диспетчер;Сборщик событий;Диспетчер журналов;DLL сессия;Сервер NGINX;Командная сессия;Рабочая сессия NGINX
-PPTXT_PPTHREADKINDTITLES "Onbekend;Jobserver;Netserver;Taak;Sessie;Dispatcher;Evenementenverzamelaar;Logboekbeheer;DLL-sessie;NGINX-server;Team sessie;NGINX Werksessie"
+PPTXT_PPTHREADKINDTITLES "Onbekend;Jobserver;Netserver;Taak;Sessie;Dispatcher;Evenementenverzamelaar;Logboekbeheer;DLL-sessie;\
+	Standalone POS Exchange-ondersteuningsstroom;NGINX-server;Team sessie;NGINX Werksessie;MQB-server StyloQ;MQB-sessie StyloQ"
 	//#org Выберите директорию
 PPTXT_BROWSEDIR "Selecteer directory"
 	//#org Поток был остановлен командой сервера (ThreadKind=@zstr; ThreadText=@zstr; ComputerName=@zstr; UserName=@zstr)
@@ -16966,7 +16967,7 @@ PPTXT_SQ_GOODBYE "Dag!"
 @goods_struc "Productstructuur"
 	//#org Расширенная структура товара
 @goods_extendedstruc "Uitgebreide productstructuur"
-	//#org В товарной группе @{forreference}: 
+	//#org В товарной группе @{forreference}:
 @goods_parenttaxgrp "In productgroep @{forreference}: "
 	//#org Тип товара
 @goods_type "Producttype"

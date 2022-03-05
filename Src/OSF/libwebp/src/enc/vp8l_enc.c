@@ -23,7 +23,7 @@
 #include "src/dsp/lossless_common.h"
 #include "src/utils/bit_writer_utils.h"
 #include "src/utils/huffman_encode_utils.h"
-#include "src/utils/utils.h"
+//#include "src/utils/utils.h"
 #include "src/webp/format_constants.h"
 
 // Maximum number of histogram images (sub-blocks).

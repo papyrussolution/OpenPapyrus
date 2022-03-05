@@ -16,11 +16,10 @@
 //#include <stdlib.h>
 #include "src/dec/vp8i_dec.h"
 //#include "src/dec/webpi_dec.h"
-#include "src/utils/utils.h"
-
-//------------------------------------------------------------------------------
+//#include "src/utils/utils.h"
+//
 // WebPDecBuffer
-
+//
 // Number of bytes per pixel for the different color-spaces.
 static const uint8 kModeBpp[MODE_LAST] = {
 	3, 4, 3, 4, 4, 2, 2,

@@ -25,9 +25,8 @@
 //------------------------------------------------------------------------------
 // Predictor Transform
 
-static FORCEINLINE uint32_t ClampedAddSubtractFull_SSE2(uint32_t c0,
-    uint32_t c1,
-    uint32_t c2) {
+static FORCEINLINE uint32_t ClampedAddSubtractFull_SSE2(uint32_t c0, uint32_t c1, uint32_t c2) 
+{
 	const __m128i zero = _mm_setzero_si128();
 	const __m128i C0 = _mm_unpacklo_epi8(_mm_cvtsi32_si128(c0), zero);
 	const __m128i C1 = _mm_unpacklo_epi8(_mm_cvtsi32_si128(c1), zero);
@@ -39,9 +38,8 @@ static FORCEINLINE uint32_t ClampedAddSubtractFull_SSE2(uint32_t c0,
 	return output;
 }
 
-static FORCEINLINE uint32_t ClampedAddSubtractHalf_SSE2(uint32_t c0,
-    uint32_t c1,
-    uint32_t c2) {
+static FORCEINLINE uint32_t ClampedAddSubtractHalf_SSE2(uint32_t c0, uint32_t c1, uint32_t c2) 
+{
 	const __m128i zero = _mm_setzero_si128();
 	const __m128i C0 = _mm_unpacklo_epi8(_mm_cvtsi32_si128(c0), zero);
 	const __m128i C1 = _mm_unpacklo_epi8(_mm_cvtsi32_si128(c1), zero);
@@ -58,7 +56,8 @@ static FORCEINLINE uint32_t ClampedAddSubtractHalf_SSE2(uint32_t c0,
 	return output;
 }
 
-static FORCEINLINE uint32_t Select_SSE2(uint32_t a, uint32_t b, uint32_t c) {
+static FORCEINLINE uint32_t Select_SSE2(uint32_t a, uint32_t b, uint32_t c) 
+{
 	int pa_minus_pb;
 	const __m128i zero = _mm_setzero_si128();
 	const __m128i A0 = _mm_cvtsi32_si128(a);
@@ -81,9 +80,8 @@ static FORCEINLINE uint32_t Select_SSE2(uint32_t a, uint32_t b, uint32_t c) {
 	return (pa_minus_pb <= 0) ? a : b;
 }
 
-static FORCEINLINE void Average2_m128i(const __m128i* const a0,
-    const __m128i* const a1,
-    __m128i* const avg) {
+static FORCEINLINE void Average2_m128i(const __m128i* const a0, const __m128i* const a1, __m128i* const avg) 
+{
 	// (a + b) >> 1 = ((a + b + 1) >> 1) - ((a ^ b) & 1)
 	const __m128i ones = _mm_set1_epi8(1);
 	const __m128i avg1 = _mm_avg_epu8(*a0, *a1);
@@ -91,9 +89,8 @@ static FORCEINLINE void Average2_m128i(const __m128i* const a0,
 	*avg = _mm_sub_epi8(avg1, one);
 }
 
-static FORCEINLINE void Average2_uint32_SSE2(const uint32_t a0,
-    const uint32_t a1,
-    __m128i* const avg) {
+static FORCEINLINE void Average2_uint32_SSE2(const uint32_t a0, const uint32_t a1, __m128i* const avg) 
+{
 	// (a + b) >> 1 = ((a + b + 1) >> 1) - ((a ^ b) & 1)
 	const __m128i ones = _mm_set1_epi8(1);
 	const __m128i A0 = _mm_cvtsi32_si128(a0);
@@ -103,7 +100,8 @@ static FORCEINLINE void Average2_uint32_SSE2(const uint32_t a0,
 	*avg = _mm_sub_epi8(avg1, one);
 }
 
-static FORCEINLINE __m128i Average2_uint32_16_SSE2(uint32_t a0, uint32_t a1) {
+static FORCEINLINE __m128i Average2_uint32_16_SSE2(uint32_t a0, uint32_t a1) 
+{
 	const __m128i zero = _mm_setzero_si128();
 	const __m128i A0 = _mm_unpacklo_epi8(_mm_cvtsi32_si128(a0), zero);
 	const __m128i A1 = _mm_unpacklo_epi8(_mm_cvtsi32_si128(a1), zero);
@@ -111,14 +109,15 @@ static FORCEINLINE __m128i Average2_uint32_16_SSE2(uint32_t a0, uint32_t a1) {
 	return _mm_srli_epi16(sum, 1);
 }
 
-static FORCEINLINE uint32_t Average2_SSE2(uint32_t a0, uint32_t a1) {
+static FORCEINLINE uint32_t Average2_SSE2(uint32_t a0, uint32_t a1) 
+{
 	__m128i output;
 	Average2_uint32_SSE2(a0, a1, &output);
 	return _mm_cvtsi128_si32(output);
 }
 
-static FORCEINLINE uint32_t Average3_SSE2(uint32_t a0, uint32_t a1,
-    uint32_t a2) {
+static FORCEINLINE uint32_t Average3_SSE2(uint32_t a0, uint32_t a1, uint32_t a2) 
+{
 	const __m128i zero = _mm_setzero_si128();
 	const __m128i avg1 = Average2_uint32_16_SSE2(a0, a2);
 	const __m128i A1 = _mm_unpacklo_epi8(_mm_cvtsi32_si128(a1), zero);
@@ -129,8 +128,8 @@ static FORCEINLINE uint32_t Average3_SSE2(uint32_t a0, uint32_t a1,
 	return output;
 }
 
-static FORCEINLINE uint32_t Average4_SSE2(uint32_t a0, uint32_t a1,
-    uint32_t a2, uint32_t a3) {
+static FORCEINLINE uint32_t Average4_SSE2(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3) 
+{
 	const __m128i avg1 = Average2_uint32_16_SSE2(a0, a1);
 	const __m128i avg2 = Average2_uint32_16_SSE2(a2, a3);
 	const __m128i sum = _mm_add_epi16(avg2, avg1);
@@ -140,58 +139,58 @@ static FORCEINLINE uint32_t Average4_SSE2(uint32_t a0, uint32_t a1,
 	return output;
 }
 
-static uint32_t Predictor5_SSE2(const uint32_t* const left,
-    const uint32_t* const top) {
+static uint32_t Predictor5_SSE2(const uint32_t* const left, const uint32_t* const top) 
+{
 	const uint32_t pred = Average3_SSE2(*left, top[0], top[1]);
 	return pred;
 }
 
-static uint32_t Predictor6_SSE2(const uint32_t* const left,
-    const uint32_t* const top) {
+static uint32_t Predictor6_SSE2(const uint32_t* const left, const uint32_t* const top) 
+{
 	const uint32_t pred = Average2_SSE2(*left, top[-1]);
 	return pred;
 }
 
-static uint32_t Predictor7_SSE2(const uint32_t* const left,
-    const uint32_t* const top) {
+static uint32_t Predictor7_SSE2(const uint32_t* const left, const uint32_t* const top) 
+{
 	const uint32_t pred = Average2_SSE2(*left, top[0]);
 	return pred;
 }
 
-static uint32_t Predictor8_SSE2(const uint32_t* const left,
-    const uint32_t* const top) {
+static uint32_t Predictor8_SSE2(const uint32_t* const left, const uint32_t* const top) 
+{
 	const uint32_t pred = Average2_SSE2(top[-1], top[0]);
 	(void)left;
 	return pred;
 }
 
-static uint32_t Predictor9_SSE2(const uint32_t* const left,
-    const uint32_t* const top) {
+static uint32_t Predictor9_SSE2(const uint32_t* const left, const uint32_t* const top) 
+{
 	const uint32_t pred = Average2_SSE2(top[0], top[1]);
 	(void)left;
 	return pred;
 }
 
-static uint32_t Predictor10_SSE2(const uint32_t* const left,
-    const uint32_t* const top) {
+static uint32_t Predictor10_SSE2(const uint32_t* const left, const uint32_t* const top) 
+{
 	const uint32_t pred = Average4_SSE2(*left, top[-1], top[0], top[1]);
 	return pred;
 }
 
-static uint32_t Predictor11_SSE2(const uint32_t* const left,
-    const uint32_t* const top) {
+static uint32_t Predictor11_SSE2(const uint32_t* const left, const uint32_t* const top) 
+{
 	const uint32_t pred = Select_SSE2(top[0], *left, top[-1]);
 	return pred;
 }
 
-static uint32_t Predictor12_SSE2(const uint32_t* const left,
-    const uint32_t* const top) {
+static uint32_t Predictor12_SSE2(const uint32_t* const left, const uint32_t* const top) 
+{
 	const uint32_t pred = ClampedAddSubtractFull_SSE2(*left, top[0], top[-1]);
 	return pred;
 }
 
-static uint32_t Predictor13_SSE2(const uint32_t* const left,
-    const uint32_t* const top) {
+static uint32_t Predictor13_SSE2(const uint32_t* const left, const uint32_t* const top) 
+{
 	const uint32_t pred = ClampedAddSubtractHalf_SSE2(*left, top[0], top[-1]);
 	return pred;
 }
@@ -199,8 +198,8 @@ static uint32_t Predictor13_SSE2(const uint32_t* const left,
 // Batch versions of those functions.
 
 // Predictor0: ARGB_BLACK.
-static void PredictorAdd0_SSE2(const uint32_t* in, const uint32_t* upper,
-    int num_pixels, uint32_t* out) {
+static void PredictorAdd0_SSE2(const uint32_t* in, const uint32_t* upper, int num_pixels, uint32_t* out) 
+{
 	int i;
 	const __m128i black = _mm_set1_epi32(ARGB_BLACK);
 	for(i = 0; i + 4 <= num_pixels; i += 4) {
@@ -215,8 +214,8 @@ static void PredictorAdd0_SSE2(const uint32_t* in, const uint32_t* upper,
 }
 
 // Predictor1: left.
-static void PredictorAdd1_SSE2(const uint32_t* in, const uint32_t* upper,
-    int num_pixels, uint32_t* out) {
+static void PredictorAdd1_SSE2(const uint32_t* in, const uint32_t* upper, int num_pixels, uint32_t* out) 
+{
 	int i;
 	__m128i prev = _mm_set1_epi32(out[-1]);
 	for(i = 0; i + 4 <= num_pixels; i += 4) {
@@ -358,8 +357,8 @@ static void PredictorAdd10_SSE2(const uint32_t* in, const uint32_t* upper,
 		pa = _mm_srli_si128(pa, 4);                               \
 } while(0)
 
-static void PredictorAdd11_SSE2(const uint32_t* in, const uint32_t* upper,
-    int num_pixels, uint32_t* out) {
+static void PredictorAdd11_SSE2(const uint32_t* in, const uint32_t* upper, int num_pixels, uint32_t* out) 
+{
 	int i;
 	__m128i pa;
 	__m128i L = _mm_cvtsi32_si128(out[-1]);
@@ -410,8 +409,8 @@ static void PredictorAdd11_SSE2(const uint32_t* in, const uint32_t* upper,
 		src = _mm_srli_si128(src, 4);                             \
 } while(0)
 
-static void PredictorAdd12_SSE2(const uint32_t* in, const uint32_t* upper,
-    int num_pixels, uint32_t* out) {
+static void PredictorAdd12_SSE2(const uint32_t* in, const uint32_t* upper, int num_pixels, uint32_t* out) 
+{
 	int i;
 	const __m128i zero = _mm_setzero_si128();
 	const __m128i L8 = _mm_cvtsi32_si128(out[-1]);
@@ -450,8 +449,8 @@ GENERATE_PREDICTOR_ADD(Predictor13_SSE2, PredictorAdd13_SSE2)
 //------------------------------------------------------------------------------
 // Subtract-Green Transform
 
-static void AddGreenToBlueAndRed_SSE2(const uint32_t* const src, int num_pixels,
-    uint32_t* dst) {
+static void AddGreenToBlueAndRed_SSE2(const uint32_t* const src, int num_pixels, uint32_t* dst) 
+{
 	int i;
 	for(i = 0; i + 4 <= num_pixels; i += 4) {
 		const __m128i in = _mm_loadu_si128((const __m128i*)&src[i]); // argb
@@ -507,11 +506,10 @@ static void TransformColorInverse_SSE2(const VP8LMultipliers* const m,
 //------------------------------------------------------------------------------
 // Color-space conversion functions
 
-static void ConvertBGRAToRGB_SSE2(const uint32_t* src, int num_pixels,
-    uint8* dst) {
+static void ConvertBGRAToRGB_SSE2(const uint32_t* src, int num_pixels, uint8* dst) 
+{
 	const __m128i* in = (const __m128i*)src;
-	__m128i* out = (__m128i*)dst;
-
+	__m128i * out = (__m128i*)dst;
 	while(num_pixels >= 32) {
 		// Load the BGRA buffers.
 		__m128i in0 = _mm_loadu_si128(in + 0);
@@ -543,8 +541,8 @@ static void ConvertBGRAToRGB_SSE2(const uint32_t* src, int num_pixels,
 	}
 }
 
-static void ConvertBGRAToRGBA_SSE2(const uint32_t* src,
-    int num_pixels, uint8* dst) {
+static void ConvertBGRAToRGBA_SSE2(const uint32_t* src, int num_pixels, uint8* dst) 
+{
 	const __m128i red_blue_mask = _mm_set1_epi32(0x00ff00ffu);
 	const __m128i* in = (const __m128i*)src;
 	__m128i* out = (__m128i*)dst;
@@ -686,7 +684,8 @@ static void ConvertBGRAToBGR_SSE2(const uint32_t* src,
 
 extern void VP8LDspInitSSE2(void);
 
-WEBP_TSAN_IGNORE_FUNCTION void VP8LDspInitSSE2(void) {
+WEBP_TSAN_IGNORE_FUNCTION void VP8LDspInitSSE2(void) 
+{
 	VP8LPredictors[5] = Predictor5_SSE2;
 	VP8LPredictors[6] = Predictor6_SSE2;
 	VP8LPredictors[7] = Predictor7_SSE2;

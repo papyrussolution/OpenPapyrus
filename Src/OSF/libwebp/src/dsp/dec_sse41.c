@@ -19,7 +19,7 @@
 
 #include <smmintrin.h>
 #include "src/dec/vp8i_dec.h"
-#include "src/utils/utils.h"
+//#include "src/utils/utils.h"
 
 static void HE16_SSE41(uint8* dst) {     // horizontal
 	int j;

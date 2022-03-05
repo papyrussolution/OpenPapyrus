@@ -15,7 +15,7 @@
 #pragma hdrstop
 //#include <assert.h>
 #include "src/mux/muxi.h"
-#include "src/utils/utils.h"
+//#include "src/utils/utils.h"
 
 //------------------------------------------------------------------------------
 // Helper method(s).
@@ -23,8 +23,7 @@
 // Handy MACRO.
 #define SWITCH_ID_LIST(INDEX, LIST)                                           \
 	if(idx == (INDEX)) {                                                       \
-		const WebPChunk* const chunk = ChunkSearchList((LIST), nth,               \
-			kChunks[(INDEX)].tag);     \
+		const WebPChunk* const chunk = ChunkSearchList((LIST), nth, kChunks[(INDEX)].tag); \
 		if(chunk) {                                                              \
 			*data = chunk->data_;                                                   \
 			return WEBP_MUX_OK;                                                     \

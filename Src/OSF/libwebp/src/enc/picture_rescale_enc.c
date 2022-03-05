@@ -21,14 +21,14 @@
 //#include <stdlib.h>
 #include "src/enc/vp8i_enc.h"
 //#include "src/utils/rescaler_utils.h"
-#include "src/utils/utils.h"
+//#include "src/utils/utils.h"
 
 #define HALVE(x) (((x) + 1) >> 1)
 
 // Grab the 'specs' (writer, *opaque, width, height...) from 'src' and copy them
 // into 'dst'. Mark 'dst' as not owning any memory.
-static void PictureGrabSpecs(const WebPPicture* const src,
-    WebPPicture* const dst) {
+static void PictureGrabSpecs(const WebPPicture* const src, WebPPicture* const dst) 
+{
 	assert(src != NULL && dst != NULL);
 	*dst = *src;
 	WebPPictureResetBuffers(dst);

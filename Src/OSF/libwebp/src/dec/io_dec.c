@@ -19,7 +19,7 @@
 //#include "src/dec/webpi_dec.h"
 //#include "src/dsp/dsp.h"
 #include "src/dsp/yuv.h"
-#include "src/utils/utils.h"
+//#include "src/utils/utils.h"
 
 //------------------------------------------------------------------------------
 // Main YUV<->RGB conversion functions

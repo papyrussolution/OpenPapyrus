@@ -19,7 +19,7 @@
 //#include "src/dsp/dsp.h"
 #include "src/utils/bit_writer_utils.h"
 #include "src/utils/thread_utils.h"
-#include "src/utils/utils.h"
+//#include "src/utils/utils.h"
 #include "src/webp/encode.h"
 
 //#ifdef __cplusplus

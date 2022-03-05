@@ -18,7 +18,7 @@
 //#include <math.h>
 #include "src/enc/vp8i_enc.h"
 #include "src/utils/random_utils.h"
-#include "src/utils/utils.h"
+//#include "src/utils/utils.h"
 //#include "src/dsp/dsp.h"
 #include "src/dsp/lossless.h"
 #include "src/dsp/yuv.h"

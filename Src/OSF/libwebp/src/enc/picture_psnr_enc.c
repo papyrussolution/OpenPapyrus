@@ -19,11 +19,9 @@
 //#include <stdlib.h>
 //#include "src/dsp/dsp.h"
 #include "src/enc/vp8i_enc.h"
-#include "src/utils/utils.h"
+//#include "src/utils/utils.h"
 
-typedef double (* AccumulateFunc)(const uint8* src, int src_stride,
-    const uint8* ref, int ref_stride,
-    int w, int h);
+typedef double (* AccumulateFunc)(const uint8* src, int src_stride, const uint8* ref, int ref_stride, int w, int h);
 
 //------------------------------------------------------------------------------
 // local-min distortion

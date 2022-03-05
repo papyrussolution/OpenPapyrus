@@ -243,28 +243,29 @@ static int WritePPMPAM(FILE* fout, const WebPDecBuffer* const buffer, int alpha)
 	return 1;
 }
 
-int WebPWritePPM(FILE* fout, const WebPDecBuffer* const buffer) {
+int WebPWritePPM(FILE* fout, const WebPDecBuffer* const buffer) 
+{
 	return WritePPMPAM(fout, buffer, 0);
 }
 
-int WebPWritePAM(FILE* fout, const WebPDecBuffer* const buffer) {
+int WebPWritePAM(FILE* fout, const WebPDecBuffer* const buffer) 
+{
 	return WritePPMPAM(fout, buffer, 1);
 }
-
-//------------------------------------------------------------------------------
+//
 // Raw PGM
-
+//
 // Save 16b mode (RGBA4444, RGB565, ...) for debugging purpose.
-int WebPWrite16bAsPGM(FILE* fout, const WebPDecBuffer* const buffer) {
+int WebPWrite16bAsPGM(FILE* fout, const WebPDecBuffer* const buffer) 
+{
 	const uint32_t width = buffer->width;
 	const uint32_t height = buffer->height;
 	const uint8* rgba = buffer->u.RGBA.rgba;
 	const int stride = buffer->u.RGBA.stride;
 	const uint32_t bytes_per_px = 2;
 	uint32_t y;
-
-	if(fout == NULL || buffer == NULL || rgba == NULL) return 0;
-
+	if(fout == NULL || buffer == NULL || rgba == NULL) 
+		return 0;
 	fprintf(fout, "P5\n%u %u\n255\n", width * bytes_per_px, height);
 	for(y = 0; y < height; ++y) {
 		if(fwrite(rgba, width, bytes_per_px, fout) != bytes_per_px) {
@@ -274,22 +275,26 @@ int WebPWrite16bAsPGM(FILE* fout, const WebPDecBuffer* const buffer) {
 	}
 	return 1;
 }
-
-//------------------------------------------------------------------------------
+//
 // BMP
-
-static void PutLE16(uint8* const dst, uint32_t value) {
+//
+#if 0 // @sobolev These function are defined in util/util.h {
+static void PutLE16(uint8* const dst, uint32_t value) 
+{
 	dst[0] = (value >> 0) & 0xff;
 	dst[1] = (value >> 8) & 0xff;
 }
 
-static void PutLE32(uint8* const dst, uint32_t value) {
+static void PutLE32(uint8* const dst, uint32_t value) 
+{
 	PutLE16(dst + 0, (value >>  0) & 0xffff);
 	PutLE16(dst + 2, (value >> 16) & 0xffff);
 }
+#endif // } 0
 
 #define BMP_HEADER_SIZE 54
-int WebPWriteBMP(FILE* fout, const WebPDecBuffer* const buffer) {
+int WebPWriteBMP(FILE* fout, const WebPDecBuffer* const buffer) 
+{
 	const int has_alpha = WebPIsAlphaMode(buffer->colorspace);
 	const uint32_t width = buffer->width;
 	const uint32_t height = buffer->height;
@@ -301,9 +306,8 @@ int WebPWriteBMP(FILE* fout, const WebPDecBuffer* const buffer) {
 	const uint32_t bmp_stride = (line_size + 3) & ~3; // pad to 4
 	const uint32_t total_size = bmp_stride * height + BMP_HEADER_SIZE;
 	uint8 bmp_header[BMP_HEADER_SIZE] = { 0 };
-
-	if(fout == NULL || buffer == NULL || rgba == NULL) return 0;
-
+	if(fout == NULL || buffer == NULL || rgba == NULL) 
+		return 0;
 	// bitmap file header
 	PutLE16(bmp_header + 0, 0x4d42);          // signature 'BM'
 	PutLE32(bmp_header + 2, total_size);      // size including header
@@ -347,28 +351,26 @@ int WebPWriteBMP(FILE* fout, const WebPDecBuffer* const buffer) {
 }
 
 #undef BMP_HEADER_SIZE
-
-//------------------------------------------------------------------------------
+//
 // TIFF
-
+//
 #define NUM_IFD_ENTRIES 15
 #define EXTRA_DATA_SIZE 16
 // 10b for signature/header + n * 12b entries + 4b for IFD terminator:
 #define EXTRA_DATA_OFFSET (10 + 12 * NUM_IFD_ENTRIES + 4)
 #define TIFF_HEADER_SIZE (EXTRA_DATA_OFFSET + EXTRA_DATA_SIZE)
 
-int WebPWriteTIFF(FILE* fout, const WebPDecBuffer* const buffer) {
+int WebPWriteTIFF(FILE* fout, const WebPDecBuffer* const buffer) 
+{
 	const int has_alpha = WebPIsAlphaMode(buffer->colorspace);
 	const uint32_t width = buffer->width;
 	const uint32_t height = buffer->height;
 	const uint8* rgba = buffer->u.RGBA.rgba;
 	const int stride = buffer->u.RGBA.stride;
 	const uint8 bytes_per_px = has_alpha ? 4 : 3;
-	const uint8 assoc_alpha =
-	    WebPIsPremultipliedMode(buffer->colorspace) ? 1 : 2;
+	const uint8 assoc_alpha = WebPIsPremultipliedMode(buffer->colorspace) ? 1 : 2;
 	// For non-alpha case, we omit tag 0x152 (ExtraSamples).
-	const uint8 num_ifd_entries = has_alpha ? NUM_IFD_ENTRIES
-	    : NUM_IFD_ENTRIES - 1;
+	const uint8 num_ifd_entries = has_alpha ? NUM_IFD_ENTRIES : NUM_IFD_ENTRIES - 1;
 	uint8 tiff_header[TIFF_HEADER_SIZE] = {
 		0x49, 0x49, 0x2a, 0x00, // little endian signature
 		8, 0, 0, 0,   // offset to the unique IFD that follows
@@ -434,7 +436,8 @@ int WebPWriteTIFF(FILE* fout, const WebPDecBuffer* const buffer) {
 //------------------------------------------------------------------------------
 // Raw Alpha
 
-int WebPWriteAlphaPlane(FILE* fout, const WebPDecBuffer* const buffer) {
+int WebPWriteAlphaPlane(FILE* fout, const WebPDecBuffer* const buffer) 
+{
 	if(fout == NULL || buffer == NULL) {
 		return 0;
 	}

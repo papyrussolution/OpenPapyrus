@@ -16,13 +16,9 @@
 //#include <assert.h>
 //#include "src/dsp/dsp.h"
 #include "src/dec/vp8i_dec.h"
-#include "src/utils/utils.h"
+//#include "src/utils/utils.h"
 
-//------------------------------------------------------------------------------
-
-static FORCEINLINE uint8 clip_8b(int v) {
-	return (!(v & ~0xff)) ? v : (v < 0) ? 0 : 255;
-}
+static FORCEINLINE uint8 clip_8b(int v) { return (!(v & ~0xff)) ? v : (v < 0) ? 0 : 255; }
 
 //------------------------------------------------------------------------------
 // Transforms (Paragraph 14.4)

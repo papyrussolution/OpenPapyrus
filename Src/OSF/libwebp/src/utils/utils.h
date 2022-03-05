@@ -31,14 +31,14 @@
 // This is the maximum memory amount that libwebp will ever try to allocate.
 #ifndef WEBP_MAX_ALLOCABLE_MEMORY
 #if SIZE_MAX > (1ULL << 34)
-#define WEBP_MAX_ALLOCABLE_MEMORY (1ULL << 34)
+	#define WEBP_MAX_ALLOCABLE_MEMORY (1ULL << 34)
 #else
-// For 32-bit targets keep this below INT_MAX to avoid valgrind warnings.
-#define WEBP_MAX_ALLOCABLE_MEMORY ((1ULL << 31) - (1 << 16))
+	// For 32-bit targets keep this below INT_MAX to avoid valgrind warnings.
+	#define WEBP_MAX_ALLOCABLE_MEMORY ((1ULL << 31) - (1 << 16))
 #endif
 #endif  // WEBP_MAX_ALLOCABLE_MEMORY
 
-static FORCEINLINE int CheckSizeOverflow(uint64_t size) { return size == (size_t)size; }
+/*static*/FORCEINLINE int CheckSizeOverflow(uint64_t size) { return size == (size_t)size; }
 
 // size-checking safe malloc/calloc: verify that the requested size is not too
 // large, or return NULL. You don't need to call these for constructs like
@@ -46,10 +46,10 @@ static FORCEINLINE int CheckSizeOverflow(uint64_t size) { return size == (size_t
 // somewhere (like: malloc(num_pixels * sizeof(*something))). That's why this
 // safe malloc() borrows the signature from calloc(), pointing at the dangerous
 // underlying multiply involved.
-WEBP_EXTERN void* WebPSafeMalloc(uint64_t nmemb, size_t size);
+WEBP_EXTERN void * WebPSafeMalloc(uint64_t nmemb, size_t size);
 // Note that WebPSafeCalloc() expects the second argument type to be 'size_t'
 // in order to favor the "calloc(num_foo, sizeof(foo))" pattern.
-WEBP_EXTERN void* WebPSafeCalloc(uint64_t nmemb, size_t size);
+WEBP_EXTERN void * WebPSafeCalloc(uint64_t nmemb, size_t size);
 
 // Companion deallocation function to the above allocations.
 WEBP_EXTERN void WebPSafeFree(void* const ptr);
@@ -62,14 +62,15 @@ WEBP_EXTERN void WebPSafeFree(void* const ptr);
 
 //#include <string.h>
 // memcpy() is the safe way of moving potentially unaligned 32b memory.
-static FORCEINLINE uint32_t WebPMemToUint32(const uint8* const ptr) 
+/*static*/FORCEINLINE uint32_t WebPMemToUint32(const uint8* const ptr) 
 {
 	uint32_t A;
 	memcpy(&A, ptr, sizeof(A));
 	return A;
 }
 
-static FORCEINLINE void WebPUint32ToMem(uint8* const ptr, uint32_t val) {
+/*static*/FORCEINLINE void WebPUint32ToMem(uint8* const ptr, uint32_t val) 
+{
 	memcpy(ptr, &val, sizeof(val));
 }
 
@@ -77,26 +78,26 @@ static FORCEINLINE void WebPUint32ToMem(uint8* const ptr, uint32_t val) {
 // Reading/writing data.
 
 // Read 16, 24 or 32 bits stored in little-endian order.
-static FORCEINLINE int GetLE16(const uint8* const data) { return (int)(data[0] << 0) | (data[1] << 8); }
-static FORCEINLINE int GetLE24(const uint8* const data) { return GetLE16(data) | (data[2] << 16); }
-static FORCEINLINE uint32_t GetLE32(const uint8* const data) { return GetLE16(data) | ((uint32_t)GetLE16(data + 2) << 16); }
+/*static*/FORCEINLINE int GetLE16(const uint8* const data) { return (int)(data[0] << 0) | (data[1] << 8); }
+/*static*/FORCEINLINE int GetLE24(const uint8* const data) { return GetLE16(data) | (data[2] << 16); }
+/*static*/FORCEINLINE uint32_t GetLE32(const uint8* const data) { return GetLE16(data) | ((uint32_t)GetLE16(data + 2) << 16); }
 
 // Store 16, 24 or 32 bits in little-endian order.
-static FORCEINLINE void PutLE16(uint8* const data, int val) 
+/*static*/FORCEINLINE void PutLE16(uint8* const data, int val) 
 {
 	assert(val < (1 << 16));
 	data[0] = (val >> 0) & 0xff;
 	data[1] = (val >> 8) & 0xff;
 }
 
-static FORCEINLINE void PutLE24(uint8* const data, int val) 
+/*static*/FORCEINLINE void PutLE24(uint8* const data, int val) 
 {
 	assert(val < (1 << 24));
 	PutLE16(data, val & 0xffff);
 	data[2] = (val >> 16) & 0xff;
 }
 
-static FORCEINLINE void PutLE32(uint8* const data, uint32_t val) 
+/*static*/FORCEINLINE void PutLE32(uint8* const data, uint32_t val) 
 {
 	PutLE16(data, (int)(val & 0xffff));
 	PutLE16(data + 2, (int)(val >> 16));
@@ -105,23 +106,25 @@ static FORCEINLINE void PutLE32(uint8* const data, uint32_t val)
 // use GNU builtins where available.
 #if defined(__GNUC__) && ((__GNUC__ == 3 && __GNUC_MINOR__ >= 4) || __GNUC__ >= 4)
 // Returns (int)floor(log2(n)). n must be > 0.
-static FORCEINLINE int BitsLog2Floor(uint32_t n) { return 31 ^ __builtin_clz(n); }
+/*static*/FORCEINLINE int BitsLog2Floor(uint32_t n) { return 31 ^ __builtin_clz(n); }
 // counts the number of trailing zero
-static FORCEINLINE int BitsCtz(uint32_t n) { return __builtin_ctz(n); }
+/*static*/FORCEINLINE int BitsCtz(uint32_t n) { return __builtin_ctz(n); }
 
 #elif defined(_MSC_VER) && _MSC_VER > 1310 && (defined(_M_X64) || defined(_M_IX86))
 #include <intrin.h>
 #pragma intrinsic(_BitScanReverse)
 #pragma intrinsic(_BitScanForward)
 
-static FORCEINLINE int BitsLog2Floor(uint32_t n) {
-	unsigned long first_set_bit; // NOLINT (runtime/int)
+/*static*/FORCEINLINE int BitsLog2Floor(uint32_t n) 
+{
+	ulong first_set_bit; // NOLINT (runtime/int)
 	_BitScanReverse(&first_set_bit, n);
 	return first_set_bit;
 }
 
-static FORCEINLINE int BitsCtz(uint32_t n) {
-	unsigned long first_set_bit; // NOLINT (runtime/int)
+/*static*/FORCEINLINE int BitsCtz(uint32_t n) 
+{
+	ulong first_set_bit; // NOLINT (runtime/int)
 	_BitScanForward(&first_set_bit, n);
 	return first_set_bit;
 }
@@ -132,7 +135,8 @@ static FORCEINLINE int BitsCtz(uint32_t n) {
 // based on table or not. Can be used as fallback if clz() is not available.
 #define WEBP_NEED_LOG_TABLE_8BIT
 extern const uint8 WebPLogTable8bit[256];
-static FORCEINLINE int WebPLog2FloorC(uint32_t n) 
+
+/*static*/FORCEINLINE int WebPLog2FloorC(uint32_t n) 
 {
 	int log_value = 0;
 	while(n >= 256) {
@@ -142,9 +146,9 @@ static FORCEINLINE int WebPLog2FloorC(uint32_t n)
 	return log_value + WebPLogTable8bit[n];
 }
 
-static FORCEINLINE int BitsLog2Floor(uint32_t n) { return WebPLog2FloorC(n); }
+/*static*/FORCEINLINE int BitsLog2Floor(uint32_t n) { return WebPLog2FloorC(n); }
 
-static FORCEINLINE int BitsCtz(uint32_t n) 
+/*static*/FORCEINLINE int BitsCtz(uint32_t n) 
 {
 	for(int i = 0; i < 32; ++i, n >>= 1) {
 		if(n & 1) 

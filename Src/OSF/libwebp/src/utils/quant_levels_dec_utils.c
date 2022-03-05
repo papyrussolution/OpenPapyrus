@@ -17,7 +17,7 @@
 #include <libwebp-internal.h>
 #pragma hdrstop
 #include "src/utils/quant_levels_dec_utils.h"
-#include "src/utils/utils.h"
+//#include "src/utils/utils.h"
 
 // #define USE_DITHERING   // uncomment to enable ordered dithering (not vital)
 

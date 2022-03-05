@@ -17,12 +17,12 @@
 //#include <stdlib.h>
 //#include <string.h>
 #include "src/utils/color_cache_utils.h"
-#include "src/utils/utils.h"
-
-//------------------------------------------------------------------------------
+//#include "src/utils/utils.h"
+//
 // VP8LColorCache.
-
-int VP8LColorCacheInit(VP8LColorCache* const color_cache, int hash_bits) {
+//
+int VP8LColorCacheInit(VP8LColorCache* const color_cache, int hash_bits) 
+{
 	const int hash_size = 1 << hash_bits;
 	assert(color_cache != NULL);
 	assert(hash_bits > 0);

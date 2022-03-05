@@ -20,10 +20,9 @@
 #include "src/enc/backward_references_enc.h"
 #include "src/enc/histogram_enc.h"
 #include "src/utils/color_cache_utils.h"
-#include "src/utils/utils.h"
+//#include "src/utils/utils.h"
 
 #define MIN_BLOCK_SIZE 256  // minimum block size for backward references
-
 #define MAX_ENTROPY    (1e30f)
 
 // 1M window (4M bytes) minus 120 special codes for short distances.

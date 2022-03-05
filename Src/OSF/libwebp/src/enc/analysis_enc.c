@@ -18,14 +18,12 @@
 //#include <assert.h>
 #include "src/enc/vp8i_enc.h"
 #include "src/enc/cost_enc.h"
-#include "src/utils/utils.h"
+//#include "src/utils/utils.h"
 
 #define MAX_ITERS_K_MEANS  6
-
-//------------------------------------------------------------------------------
-// Smooth the segment map by replacing isolated block by the majority of its
-// neighbours.
-
+//
+// Smooth the segment map by replacing isolated block by the majority of its neighbours.
+//
 static void SmoothSegmentMap(VP8Encoder* const enc) 
 {
 	int n, x, y;

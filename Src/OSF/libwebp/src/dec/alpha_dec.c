@@ -19,7 +19,7 @@
 #include "src/dec/vp8li_dec.h"
 //#include "src/dsp/dsp.h"
 #include "src/utils/quant_levels_dec_utils.h"
-#include "src/utils/utils.h"
+//#include "src/utils/utils.h"
 #include "src/webp/format_constants.h"
 
 //------------------------------------------------------------------------------

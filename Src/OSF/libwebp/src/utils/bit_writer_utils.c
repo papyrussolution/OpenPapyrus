@@ -19,11 +19,10 @@
 //#include <stdlib.h>
 #include "src/utils/bit_writer_utils.h"
 #include "src/utils/endian_inl_utils.h"
-#include "src/utils/utils.h"
-
-//------------------------------------------------------------------------------
+//#include "src/utils/utils.h"
+//
 // VP8BitWriter
-
+//
 static int BitWriterResize(VP8BitWriter* const bw, size_t extra_size) {
 	uint8* new_buf;
 	size_t new_size;

@@ -14,11 +14,10 @@
 #pragma hdrstop
 //#include <stdlib.h>
 #include "src/dec/vp8i_dec.h"
-#include "src/utils/utils.h"
-
-//------------------------------------------------------------------------------
+//#include "src/utils/utils.h"
+//
 // Main reconstruction function.
-
+//
 static const uint16_t kScan[16] = {
 	0 +  0 * BPS,  4 +  0 * BPS, 8 +  0 * BPS, 12 +  0 * BPS,
 	0 +  4 * BPS,  4 +  4 * BPS, 8 +  4 * BPS, 12 +  4 * BPS,

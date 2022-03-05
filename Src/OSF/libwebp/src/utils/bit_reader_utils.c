@@ -17,11 +17,10 @@
 	//#include "src/webp/config.h"
 //#endif
 #include "src/utils/bit_reader_inl_utils.h"
-#include "src/utils/utils.h"
-
-//------------------------------------------------------------------------------
+//#include "src/utils/utils.h"
+//
 // VP8BitReader
-
+//
 void VP8BitReaderSetBuffer(VP8BitReader* const br, const uint8* const start, size_t size) 
 {
 	br->buf_     = start;

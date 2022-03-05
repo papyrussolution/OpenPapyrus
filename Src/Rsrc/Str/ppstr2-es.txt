@@ -1,5 +1,5 @@
 // PPSTR2.TXT
-// Copyright (c) A.Sobolev 1996-2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1996-2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // Codepage=UTF-8
 //
 // Синтаксис:
@@ -4971,7 +4971,7 @@ PPTXT_ACCANLZTITLE " @{account}: %-15s%s @{saldoin} : %s %s @{turnover_pl} : %s 
 PPTXT_LOTERROR1 "@{document} %s, Página %d, Producto %s (%.2lf unidades). ¿Correcto?"
 	//#org На упаковке
 PPTXT_ONPACK "En el embalaje"
-	//#org Сумма включает скидку 
+	//#org Сумма включает скидку
 PPTXT_INCLDIS "El importe incluye un descuento "
 	//#org по операции
 PPTXT_BYOPR "por operación"
@@ -4981,7 +4981,7 @@ PPTXT_BYINCOMINGOPR "sobre operaciones rentables"
 PPTXT_BYPROFITABLEOPR "en operaciones rentables menos reembolsos"
 	//#org по оплаченным доходным операциям
 PPTXT_BYPAYEDOPR "sobre las operaciones rentables pagadas"
-	//#org ПО МЕЖСКЛАДСКОЙ ОПЕРАЦИИ 
+	//#org ПО МЕЖСКЛАДСКОЙ ОПЕРАЦИИ
 PPTXT_BYINTROPR "SOBRE LA OPERACIÓN ENTRE ALMACENES "
 	//#org @{person_status}: %s
 PPTXT_JURSTAT "@{person_status}: %s"
@@ -5013,15 +5013,15 @@ PPTXT_ATLISTTOTAL "@{accountingturncount}: %s @{amount} : %s"
 PPTXT_INCLEXCISE "El importe incluye el impuesto sobre las ventas;e impuesto sobre las ventas"
 	//#org @{typboolean};@{typstring};@{typnumeric};@{typenumeration};Целое число;Ссылка на объект;@{date};GUID;@{typimage};@{typtimestamp}
 PPTXT_OTTYP "@{typboolean};@{typstring};@{typnumeric};@{typenumeration};Entero;Referencia de objeto;@{date};GUID;@{typimage};@{typtimestamp}"
-	//#org *** Файл передачи: %s *** Раздел: %s *** 
+	//#org *** Файл передачи: %s *** Раздел: %s ***
 PPTXT_STARTRCVPACKET "Archivo de transferencia: %s *** Partición: %s *** "
-	//#org @{document} %s: Переданная сумма=%.2lf;Принятая сумма=%.2lf 
+	//#org @{document} %s: Переданная сумма=%.2lf;Принятая сумма=%.2lf
 PPTXT_BTP_HEADER "@{document} %s: Importe transferido=%.2lf;Importe aceptado=%.2lf "
-	//#org Товар [id=@int] @goods дефицит=@real цп=@real цр=@real поставщик=@article 
+	//#org Товар [id=@int] @goods дефицит=@real цп=@real цр=@real поставщик=@article
 PPTXT_BTP_LINE "Producto [id=@int] @goods escasez=cpu @real=@real cr=@real vendor=@article "
-	//#org Документ не проведен 
+	//#org Документ не проведен
 PPTXT_BTP_NOTTURNED "Documento no realizado "
-	//#org Итог проблемных товаров по файлу: 
+	//#org Итог проблемных товаров по файлу:
 PPTXT_BTP_TOTAL "Resumen de los productos problemáticos por archivo: "
 	//#org Waiting on database locking ...
 PPTXT_WAITONDBLOCK "Esperando en el bloqueo de la base de datos ..."
@@ -5033,7 +5033,7 @@ PPTXT_BTP_NOLINKBILL "El documento [%s] no se completa porque no hay ningún doc
 PPTXT_GRPACO "POR CUENTA;POR SUBCUENTA;POR SUBCONTO"
 	//#org Сохранение баланса;Восстановление баланса;Усечение товарных строк;Усечение документов
 PPTXT_CUTTINGPROCESS "Mantener el equilibrio;Recuperación de saldo;Truncamiento de líneas de productos;Truncamiento de documentos"
-	//#org @{novat};Комплект;  @{booking_pl}: 
+	//#org @{novat};Комплект;  @{booking_pl}:
 PPTXT_TIDLG_STRINGS "@{novat};Poner; @{booking_pl}: "
 	//#org Закрытие незавершенных сессий
 PPTXT_ACSCLS_CLOSEINCMPL "Cierre de sesiones incompletas"
@@ -5236,7 +5236,7 @@ PPTXT_SLIPFMT_WIDTHOVER "El archivo Stdslip.fmt en la descripción del formato '
 PPTXT_ERR_SYSJLOGGING "Entrada de error en SysJournal (%s)"
 	//#org Прием строк инвентаризации
 PPTXT_IMP_INVENTORYLINES "Aceptar cadenas de inventario"
-	//#org @{mainorg}: %s @{license}: %s @{user}: %s @{path_database}: %s @{path_report}: %s @{datastructure}: %s 
+	//#org @{mainorg}: %s @{license}: %s @{user}: %s @{path_database}: %s @{path_report}: %s @{datastructure}: %s
 PPTXT_RPTSUPPMAIL_HEADER "@{mainorg}: %s @{license}: %s @{user}: %s @{path_database}: %s @{path_report}: %s @{datastructure}: %s "
 	//#org Дата и время:
 PPTXT_RPTSUPPMAIL_TIMESTAMP "Fecha y hora:"
@@ -5987,7 +5987,7 @@ PPTXT_PRCPAN_HINT12 "El modo de entrada restante. Cambiar al modo normal = Escap
 PPTXT_PRCPAN_HINT13 "Vida útil del producto = DDMMYY"
 	//#org Выход из состояния ввода срока годности = Escape
 PPTXT_PRCPAN_HINT14 "Salir del estado de entrada de vida útil = Escape"
-	//#org Продолжительность простоя: 
+	//#org Продолжительность простоя:
 PPTXT_PRCPAN_IDLECONT "Tiempo de inactividad: "
 	//#org Выбор иконки для команды
 PPTXT_SELCMDICON "Selección de un icono para el equipo"
@@ -6325,7 +6325,8 @@ PPTXT_UNITELIKEWORLDS "Combinar características geográficas similares"
 	//#org Объединение похожих единиц измерения
 PPTXT_UNITELIKEUNITS "Combinar unidades de medida similares"
 	//#org Неизвестный;JobServer;NetServer;Задача;Сессия;Диспетчер;Сборщик событий;Диспетчер журналов;DLL сессия;Сервер NGINX;Командная сессия;Рабочая сессия NGINX
-PPTXT_PPTHREADKINDTITLES "Desconocido;JobServer;NetServer;Tarea;Sesión;Expedidor;Recopilador de eventos;Administrador de registros;Sesión DLL;Servidor NGINX;Sesión de equipo;Sesión de trabajo de NGINX"
+PPTXT_PPTHREADKINDTITLES "Desconocido;JobServer;NetServer;Tarea;Sesión;Expedidor;Recopilador de eventos;Administrador de registros;Sesión DLL;\
+	Flujo de soporte de intercambio de POS independiente;Servidor NGINX;Sesión de equipo;Sesión de trabajo de NGINX;MQB-servidor StyloQ;MQB-Sesión StyloQ"
 	//#org Выберите директорию
 PPTXT_BROWSEDIR "Seleccione Directorio"
 	//#org Поток был остановлен командой сервера (ThreadKind=@zstr; ThreadText=@zstr; ComputerName=@zstr; UserName=@zstr)
@@ -16966,7 +16967,7 @@ PPTXT_SQ_GOODBYE "¡Adiós!"
 @goods_struc "Estructura del producto"
 	//#org Расширенная структура товара
 @goods_extendedstruc "Estructura de producto ampliada"
-	//#org В товарной группе @{forreference}: 
+	//#org В товарной группе @{forreference}:
 @goods_parenttaxgrp "En el grupo de productos @{forreference}: "
 	//#org Тип товара
 @goods_type "Tipo de producto"

@@ -17,7 +17,7 @@
 //#include <assert.h>
 //#include <stdlib.h>
 //#include <string.h>
-#include "src/utils/utils.h"
+//#include "src/utils/utils.h"
 //#include "src/webp/decode.h"     // WebPGetFeatures
 #include "src/webp/demux.h"
 #include "src/webp/format_constants.h"

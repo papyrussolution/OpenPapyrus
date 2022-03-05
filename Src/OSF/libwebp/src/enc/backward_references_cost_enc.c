@@ -20,14 +20,13 @@
 #include "src/enc/histogram_enc.h"
 #include "src/dsp/lossless_common.h"
 #include "src/utils/color_cache_utils.h"
-#include "src/utils/utils.h"
+//#include "src/utils/utils.h"
 
 #define VALUES_IN_BYTE 256
 
 extern void VP8LClearBackwardRefs(VP8LBackwardRefs* const refs);
 extern int VP8LDistanceToPlaneCode(int xsize, int dist);
-extern void VP8LBackwardRefsCursorAdd(VP8LBackwardRefs* const refs,
-    const PixOrCopy v);
+extern void VP8LBackwardRefsCursorAdd(VP8LBackwardRefs* const refs, const PixOrCopy v);
 
 typedef struct {
 	double alpha_[VALUES_IN_BYTE];

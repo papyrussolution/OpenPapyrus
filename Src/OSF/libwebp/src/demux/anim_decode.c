@@ -16,7 +16,7 @@
 //#endif
 //#include <assert.h>
 //#include <string.h>
-#include "src/utils/utils.h"
+//#include "src/utils/utils.h"
 //#include "src/webp/decode.h"
 #include "src/webp/demux.h"
 

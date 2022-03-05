@@ -15,6 +15,7 @@
 #include "src/dec/webpi_dec.h"
 #include "src/utils/filters_utils.h"
 #include "src/dec/alphai_dec.h"
+#include "src/utils/utils.h"
 
 #endif // !__LIBWEBP_INTERNAL_H
 
