@@ -51,6 +51,7 @@ public class StyloQDatabase extends Database {
 		public static final int doctypOrderPrereq = 2; // Предопределенный формат данных, подготовленных для формирования заказа на клиентской стороне
 		public static final int doctypReport      = 3; // @v11.2.10 Отчеты в формате DL600 export
 		public static final int doctypGeneric     = 4; // @v11.2.11 Общий тип для документов, чьи характеристики определяются видом операции (что-то вроде Bill в Papyrus'е)
+		public static final int doctypIndexingContent = 5;  // @v11.3.4 Документ, содержащий данные для индексации медиатором
 		//
 		SecTable.Rec Rec;
 		SecretTagPool Pool;

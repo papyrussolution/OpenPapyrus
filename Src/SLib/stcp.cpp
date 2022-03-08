@@ -1,5 +1,5 @@
 // STCP.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -815,7 +815,7 @@ int SMailMessage::EnumAttach(uint * pPos, SString & rFileName, SString & rFullPa
 	if(pos < AttachPosL.getCount()) {
 		//rFullPath = AttList.at(pos);
 		GetS(AttachPosL.at(pos), rFullPath);
-		SPathStruc ps(rFullPath);
+		const SPathStruc ps(rFullPath);
 		ps.Merge(SPathStruc::fNam|SPathStruc::fExt, rFileName);
 		pos++;
 		ASSIGN_PTR(pPos, pos);
@@ -1318,7 +1318,7 @@ int SMailMessage::SaveAttachmentTo(uint attIdx, const char * pDestPath, SString 
 			}
 		}
 		{
-			SPathStruc ps(pDestPath);
+			const SPathStruc ps(pDestPath);
 			if(ps.Nam.NotEmpty()) {
 				result_file_name = pDestPath;
 			}
@@ -3000,7 +3000,7 @@ int ScURL::SetupDefaultSslOptions(const char * pCertFilePath, int sslVer /* SSys
 	}
 	else {
 		SString temp_buf;
-		SPathStruc ps(pCertFilePath);
+		const SPathStruc ps(pCertFilePath);
 		ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
 		temp_buf.RmvLastSlash();
 		SPathStruc::NormalizePath(temp_buf, SPathStruc::npfSlash, ca_path);

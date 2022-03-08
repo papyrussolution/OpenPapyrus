@@ -4855,7 +4855,7 @@ void FASTCALL SPathStruc::Split(const char * pPath)
 /*static*/int SPathStruc::ReplacePath(SString & rPath, const char * pNewPath, int force)
 {
 	int    ok = -1;
-	SPathStruc ps(rPath);
+	const  SPathStruc ps(rPath);
 	if(force || (ps.Drv.IsEmpty() && ps.Dir.IsEmpty())) {
 		if(isempty(pNewPath)) {
 			ps.Merge(SPathStruc::fNam|SPathStruc::fExt, rPath);

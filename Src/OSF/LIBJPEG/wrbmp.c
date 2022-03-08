@@ -137,8 +137,7 @@ static void write_bmp_header(j_decompress_ptr cinfo, bmp_dest_ptr dest)
 	    array[offset+3] = (char)(((value) >> 24) & 0xFF))
 	INT32 headersize, bfSize;
 	int bits_per_pixel, cmap_entries;
-
-	/* Compute colormap size and total file size */
+	// Compute colormap size and total file size 
 	if(cinfo->out_color_space == JCS_RGB) {
 		if(cinfo->quantize_colors) {
 			/* Colormapped RGB */

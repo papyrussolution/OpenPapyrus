@@ -1915,7 +1915,7 @@ int PPCommandMngr::Load__2(PPCommandGroup * pCmdGrp, const char * pDbSymb, const
 							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_DBINFO);
 							// @v11.3.1 {
 							{
-								SPathStruc ps(src_file_name);
+								const SPathStruc ps(src_file_name);
 								SString malformed_files_storage_path;
 								(malformed_files_storage_path = XmlDirPath).SetLastSlash().Cat("malformed");
 								if(::createDir(malformed_files_storage_path)) {
@@ -2581,13 +2581,10 @@ int CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 					// @v10.6.4 MEMSZERO(reg_rec);
 					THROW(psn_obj.GetPacket(prmr_psn_id, &psn_pack, 0));
 					info.Cat(psn_pack.Rec.Name);
-					// @v9.1.5 PPGetWord(PPWORD_ISVALIDBEFORE, 0, buf);
-					PPLoadString("validuntil", buf); // @v9.1.5
+					PPLoadString("validuntil", buf);
 					if(psn_data.Sc.ID) {
-						// @v9.0.2 PPGetWord(PPWORD_CARD, 0, symb);
-						PPLoadString("card", symb); // @v9.0.2
+						PPLoadString("card", symb);
 						prompt.Z().Cat(symb).CatDiv(':', 2).Cat(psn_data.Sc.Code);
-						// @v9.1.3 {
 						{
 							const int scst = PPObjSCard::GetSeriesType(psn_data.Sc.SeriesID);
 							if(oneof2(scst, scstCredit, scstBonus)) {
@@ -2597,7 +2594,6 @@ int CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 								prompt.Space().Cat(symb).CatDiv(':', 2).Cat(sc_rest, MKSFMTD(0, 2, 0));
 							}
 						}
-						// } @v9.1.3
 						if(psn_data.Sc.Expiry) {
 							//
 							// Текст сообщения о сроке годности карты

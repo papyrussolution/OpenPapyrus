@@ -1,10 +1,10 @@
 // SCLIPBOARD.CPP
-// Copyright (c) A.Sobolev 2019, 2020
+// Copyright (c) A.Sobolev 2019, 2020, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
 
-/*static*/int FASTCALL SClipboard::OpenClipboardRetry(void * hWnd)
+/*static*/int SClipboard::OpenClipboardRetry(void * hWnd)
 {
 	int    ok = 0;
 	for(uint attempt = 0; !ok && attempt < 8; attempt++) {
@@ -16,7 +16,7 @@
 	return ok;
 }
 
-/*static*/int FASTCALL SClipboard::Helper_OpenClipboardForCopy(int & rHasBeenOpened)
+/*static*/int SClipboard::Helper_OpenClipboardForCopy(int & rHasBeenOpened)
 {
 	int    ok = 1;
 	rHasBeenOpened = 0;
@@ -27,14 +27,14 @@
 	return ok;
 }
 
-/*static*/int FASTCALL SClipboard::Helper_CloseClipboard(int hasBeenOpened)
+/*static*/int SClipboard::Helper_CloseClipboard(int hasBeenOpened)
 {
 	if(hasBeenOpened)
 		::CloseClipboard();
 	return 1;
 }
 
-/*static*/int FASTCALL SClipboard::Copy_Text(const char * pText, size_t len)
+/*static*/int SClipboard::Copy_Text(const char * pText, size_t len)
 {
 	int    ok = 1;
 	int    cb_has_been_openen = 0;
@@ -54,7 +54,7 @@
 	return ok;
 }
 
-/*static*/int FASTCALL SClipboard::Copy_TextUnicode(const wchar_t * pText, size_t len)
+/*static*/int SClipboard::Copy_TextUnicode(const wchar_t * pText, size_t len)
 {
 	int    ok = 1;
 	int    cb_has_been_openen = 0;
@@ -74,7 +74,7 @@
 	return ok;
 }
 
-/*static*/int FASTCALL SClipboard::Copy_SYLK(const SString & rText)
+/*static*/int SClipboard::Copy_SYLK(const SString & rText)
 {
 	int    ok = 1;
 	int    cb_has_been_openen = 0;
@@ -95,7 +95,7 @@
 	return ok;
 }
 
-/*static*/int FASTCALL SClipboard::Past_Text(SStringU & rBuf)
+/*static*/int SClipboard::Past_Text(SStringU & rBuf)
 {
 	rBuf.Z();
 	int    ok = -1;
@@ -161,5 +161,45 @@
 	CATCHZOK
 	if(cb_has_been_openen)
 		::CloseClipboard();
+	return ok;
+}
+
+/*static*/int SClipboard::Copy_Image(SImageBuffer & rImg)
+{
+	int    ok = 1;
+	int    cb_has_been_openen = 0;
+	const  size_t nbs = rImg.GetNominalBufSize();
+	HBITMAP h_bmp = 0;
+	HANDLE h_result = 0;
+	if(nbs) {
+		THROW(Helper_OpenClipboardForCopy(cb_has_been_openen));
+		{
+			h_bmp = static_cast<HBITMAP>(rImg.TransformToBitmap());
+			h_result = ::SetClipboardData(CF_BITMAP, /*h_glb*/h_bmp);
+		}
+	}
+	CATCHZOK
+	Helper_CloseClipboard(cb_has_been_openen);
+	::DeleteObject(h_bmp);
+	return ok;
+}
+
+/*static*/int SClipboard::Paste_Image(SImageBuffer & rImg)
+{
+	int    ok = 1;
+	int    cb_has_been_openen = 0;
+	HBITMAP h_bmp = 0;
+	SString symb;
+	THROW_S(OpenClipboardRetry(0), SLERR_WINDOWS);
+	cb_has_been_openen = 1;
+	if(IsClipboardFormatAvailable(CF_DIB)) {
+		h_bmp = static_cast<HBITMAP>(::GetClipboardData(CF_BITMAP));
+		THROW(h_bmp);
+		THROW(rImg.LoadBmp(0, h_bmp, 0, 0));
+	}
+	CATCHZOK
+	if(cb_has_been_openen)
+		::CloseClipboard();
+	::DeleteObject(h_bmp);
 	return ok;
 }

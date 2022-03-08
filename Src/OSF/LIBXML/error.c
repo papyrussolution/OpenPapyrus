@@ -1,11 +1,7 @@
-/*
- * error.c: module displaying/handling XML parser errors
- *
- * See Copyright for the status of this software.
- *
- * Daniel Veillard <daniel@veillard.com>
- */
-
+// error.c: module displaying/handling XML parser errors
+// See Copyright for the status of this software.
+// Daniel Veillard <daniel@veillard.com>
+// 
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop

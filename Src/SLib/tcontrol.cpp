@@ -1,5 +1,5 @@
 // TCONTROL.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -1842,7 +1842,14 @@ TImageView::~TImageView()
 
 void TImageView::SetOuterFigure(SDrawFigure * pFig) // @v11.1.5
 {
+	HWND hw = getHandle(); // @v11.3.4
 	DELETEANDASSIGN(P_Fig, pFig);
+	// @v11.3.4 {
+	if(hw) {
+		::InvalidateRect(hw, 0, /*erase=*/TRUE);
+		::UpdateWindow(hw);
+	}
+	// } @v11.3.4 
 }
 
 int TImageView::TransmitData(int dir, void * pData)

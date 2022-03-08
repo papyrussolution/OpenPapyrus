@@ -2531,8 +2531,16 @@ int ExtOpenFileDialog(SString & rPath, StringSet * pPatterns, SString * pDefWait
 //
 //
 //
-ImageBrowseCtrlGroup::Rec::Rec(const SString * pBuf) : Flags(0), Path(pBuf ? pBuf->cptr() : 0)
+ImageBrowseCtrlGroup::Rec::Rec(const SString * pPath) : Flags(0), Path(pPath ? pPath->cptr() : 0)
 {
+}
+
+ImageBrowseCtrlGroup::Rec::Rec(SImageBuffer * pImgBuf) : Flags(0)
+{
+	if(pImgBuf) {
+		ImgBuf = *pImgBuf;
+		Flags |= fImageBuffer;
+	}
 }
 
 ImageBrowseCtrlGroup::ImageBrowseCtrlGroup(uint ctlImage, uint cmChgImage, uint cmDeleteImage, int allowChangeImage /*=1*/, long flags /*=0*/) :
@@ -2557,9 +2565,24 @@ ImageBrowseCtrlGroup::ImageBrowseCtrlGroup(uint ctlImage, uint cmChgImage, uint 
 
 int ImageBrowseCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
-	if(!RVALUEPTR(Data, static_cast<Rec *>(pData)))
+	if(!RVALUEPTR(Data, static_cast<Rec *>(pData))) {
 		Data.Path.Z();
-	pDlg->setCtrlString(CtlImage, Data.Path);
+		Data.ImgBuf.Destroy();
+	}
+	{
+		TView * p_v = pDlg->getCtrlView(CtlImage);
+		if(p_v && p_v->GetSubSign() == TV_SUBSIGN_IMAGEVIEW) {
+			if(Data.Flags & ImageBrowseCtrlGroup::Rec::fImageBuffer) {
+				TImageView * p_iv = static_cast<TImageView *>(p_v);
+				SDrawImage * p_fig = new SDrawImage(Data.ImgBuf);
+				if(p_fig)
+					p_iv->SetOuterFigure(p_fig); // p_fig переходит в собственность p_iv
+			}
+			else {
+				pDlg->setCtrlString(CtlImage, Data.Path);
+			}
+		}
+	}
 	if(CmChgImage)
 		pDlg->enableCommand(CmChgImage, AllowChangeImage);
 	if(CmDelImage)
@@ -2580,6 +2603,14 @@ void ImageBrowseCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 	if(event.isCmd(cmImageDblClk)) {
 		if(!(Flags & fDisableDetail)) {
 			if(Data.Path.NotEmpty() && fileExists(Data.Path)) {
+				// @debug {
+				/*{
+					SImageBuffer imgbuf;
+					if(imgbuf.Load(Data.Path)) {
+						SClipboard::Copy_Image(imgbuf);
+					}
+				}*/
+				// } @debug
 				ViewImageInfo(Data.Path, 0, 0);
 			}
 		}
@@ -2600,28 +2631,70 @@ void ImageBrowseCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 		else
 			r = PPOpenFile(path, Patterns, 0, 0);
 		if(r > 0) {
-			Data.Flags |= Rec::fUpdated;
-			pDlg->setCtrlString(CtlImage, Data.Path = path);
+			TView * p_v = pDlg->getCtrlView(CtlImage);
+			if(p_v && p_v->GetSubSign() == TV_SUBSIGN_IMAGEVIEW) {
+				if(Data.Flags & ImageBrowseCtrlGroup::Rec::fImageBuffer) {
+					SImageBuffer imgbuf;
+					if(imgbuf.Load(path)) {
+						TImageView * p_iv = static_cast<TImageView *>(p_v);
+						Data.ImgBuf = imgbuf;
+						imgbuf.Destroy();
+						SDrawImage * p_fig = new SDrawImage(Data.ImgBuf);
+						if(p_fig) {
+							p_iv->SetOuterFigure(p_fig); // p_fig переходит в собственность p_iv
+							Data.Flags |= Rec::fUpdated;
+						}
+					}
+				}
+				else {
+					pDlg->setCtrlString(CtlImage, Data.Path = path);
+					Data.Flags |= Rec::fUpdated;
+				}
+			}
+			
 		}
 		pDlg->clearEvent(event);
 	}
 	else if(event.isCmd(CmDelImage)) {
-		pDlg->setCtrlString(CtlImage, Data.Path.Z());
-		Data.Flags |= Rec::fUpdated;
+		TView * p_v = pDlg->getCtrlView(CtlImage);
+		if(p_v && p_v->GetSubSign() == TV_SUBSIGN_IMAGEVIEW) {
+			if(Data.Flags & ImageBrowseCtrlGroup::Rec::fImageBuffer) {
+				TImageView * p_iv = static_cast<TImageView *>(p_v);
+				p_iv->SetOuterFigure(0);
+				Data.ImgBuf.Destroy();
+			}
+			else {
+				pDlg->setCtrlString(CtlImage, Data.Path.Z());
+			}
+			Data.Flags |= Rec::fUpdated;
+		}
 		pDlg->clearEvent(event);
 	}
 	else if(event.isCmd(cmPasteImage)) {
-		long   start = 0;
-		SString temp_dir, temp_path;
-		PPGetPath(PPPATH_TEMP, temp_dir);
-		temp_dir.SetLastSlash().Cat("IMG");
-		if(!IsDirectory(temp_dir))
-			createDir(temp_dir);
-		MakeTempFileName(temp_dir, "pst", "jpg", &start, temp_path);
-		if(SClipboard::CopyPaste(GetDlgItem(pDlg->H(), CtlImage), 0, temp_path) > 0) {
-			Data.Flags |= Rec::fUpdated;
-			pDlg->setCtrlString(CtlImage, Data.Path = temp_path);
-			pDlg->clearEvent(event);
+		TView * p_v = pDlg->getCtrlView(CtlImage);
+		if(p_v && p_v->GetSubSign() == TV_SUBSIGN_IMAGEVIEW) {
+			if(Data.Flags & ImageBrowseCtrlGroup::Rec::fImageBuffer) {
+				if(SClipboard::Paste_Image(Data.ImgBuf)) {
+					TImageView * p_iv = static_cast<TImageView *>(p_v);
+					SDrawImage * p_fig = new SDrawImage(Data.ImgBuf);
+					if(p_fig)
+						p_iv->SetOuterFigure(p_fig); // p_fig переходит в собственность p_iv
+				}
+			}
+			else {
+				long   start = 0;
+				SString temp_dir, temp_path;
+				PPGetPath(PPPATH_TEMP, temp_dir);
+				temp_dir.SetLastSlash().Cat("IMG");
+				if(!IsDirectory(temp_dir))
+					createDir(temp_dir);
+				MakeTempFileName(temp_dir, "pst", "jpg", &start, temp_path);
+				if(SClipboard::CopyPaste(GetDlgItem(pDlg->H(), CtlImage), 0, temp_path) > 0) {
+					Data.Flags |= Rec::fUpdated;
+					pDlg->setCtrlString(CtlImage, Data.Path = temp_path);
+					pDlg->clearEvent(event);
+				}
+			}
 		}
 	}
 	else if(event.isKeyDown(kbF7)) {
@@ -5484,7 +5557,7 @@ int ViewImageInfo(const char * pImagePath, const char * pInfo, const char * pWar
 {
 	class ImageInfoDialog : public TDialog {
 	public:
-		explicit ImageInfoDialog(int simple) : TDialog(simple ? DLG_IMAGEINFO2 : DLG_IMAGEINFO), IsSimple(simple)
+		explicit ImageInfoDialog(bool simple) : TDialog(simple ? DLG_IMAGEINFO2 : DLG_IMAGEINFO), IsSimple(simple)
 		{
 			if(IsSimple) {
 				SetCtrlResizeParam(CTL_IMAGEINFO_IMAGE, 0, 0, 0, 0, crfResizeable);
@@ -5493,10 +5566,10 @@ int ViewImageInfo(const char * pImagePath, const char * pInfo, const char * pWar
 				ResizeDlgToFullScreen();
 			}
 		}
-		int    IsSimple;
+		const bool IsSimple;
 	};
 	int    ok = -1;
-	const  int simple_resizeble = BIN(!pInfo && !pWarn);
+	const  bool simple_resizeble = (!pInfo && !pWarn);
 	ImageInfoDialog * p_dlg = new ImageInfoDialog(simple_resizeble);
 	THROW(CheckDialogPtr(&p_dlg));
 	p_dlg->setCtrlData(CTL_IMAGEINFO_IMAGE, (void *)pImagePath);

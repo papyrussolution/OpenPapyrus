@@ -753,8 +753,7 @@ static DWORD dwordFromBGRA(byte b, byte g, byte r, byte a)
 	return converter.val;
 }
 
-void SurfaceGDI::AlphaRectangle(PRectangle rc, int cornerSize, ColourDesired fill, int alphaFill,
-    ColourDesired outline, int alphaOutline, int /* flags*/)
+void SurfaceGDI::AlphaRectangle(PRectangle rc, int cornerSize, ColourDesired fill, int alphaFill, ColourDesired outline, int alphaOutline, int /* flags*/)
 {
 	const RECT rcw = RectFromPRectangle(rc);
 	if(AlphaBlendFn && rc.Width() > 0) {
@@ -769,15 +768,11 @@ void SurfaceGDI::AlphaRectangle(PRectangle rc, int cornerSize, ColourDesired fil
 		if(hbmMem) {
 			HBITMAP hbmOld = SelectBitmap(hMemDC, hbmMem);
 			DWORD valEmpty = dwordFromBGRA(0, 0, 0, 0);
-			DWORD valFill = dwordFromBGRA(
-			    static_cast<byte>(GetBValue(fill.AsLong()) * alphaFill / 255),
-			    static_cast<byte>(GetGValue(fill.AsLong()) * alphaFill / 255),
-			    static_cast<byte>(GetRValue(fill.AsLong()) * alphaFill / 255),
+			DWORD valFill = dwordFromBGRA(static_cast<byte>(GetBValue(fill.AsLong()) * alphaFill / 255),
+			    static_cast<byte>(GetGValue(fill.AsLong()) * alphaFill / 255), static_cast<byte>(GetRValue(fill.AsLong()) * alphaFill / 255),
 			    static_cast<byte>(alphaFill));
-			DWORD valOutline = dwordFromBGRA(
-			    static_cast<byte>(GetBValue(outline.AsLong()) * alphaOutline / 255),
-			    static_cast<byte>(GetGValue(outline.AsLong()) * alphaOutline / 255),
-			    static_cast<byte>(GetRValue(outline.AsLong()) * alphaOutline / 255),
+			DWORD valOutline = dwordFromBGRA(static_cast<byte>(GetBValue(outline.AsLong()) * alphaOutline / 255),
+			    static_cast<byte>(GetGValue(outline.AsLong()) * alphaOutline / 255), static_cast<byte>(GetRValue(outline.AsLong()) * alphaOutline / 255),
 			    static_cast<byte>(alphaOutline));
 			DWORD * pixels = static_cast<DWORD *>(image);
 			for(int y = 0; y<height; y++) {

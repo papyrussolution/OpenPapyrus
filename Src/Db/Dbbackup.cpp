@@ -1,5 +1,5 @@
 // DBBACKUP.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -745,7 +745,7 @@ int DBBackup::CopyByRedirect(const char * pDBPath, BackupLogFunc fnLog, void * e
 				src_path.CopyFrom(pDBPath).SetLastSlash().Cat(tbl_name);
 				for(tpe.Init(src_path); tpe.Next(spart) > 0;) {
 					if(fileExists(spart)) {
-						SPathStruc sp(spart);
+						const SPathStruc sp(spart);
 						SPathStruc::ReplaceExt(dest_path, sp.Ext, 1);
 						if(SCopyFile(spart, dest_path, DBBackup::CopyProgressProc, FILE_SHARE_READ, this) <= 0)
 							LogMessage(fnLog, BACKUPLOG_ERR_COPY, src_path, extraPtr);

@@ -1506,6 +1506,8 @@ int SImageBuffer::PixF::SetUniform(const void * pUniformBuf, void * pDest, uint 
 				{
 					switch(S) {
 						case s32ARGB:
+							memcpy(pDest, p_ufb, width * sizeof(uint32));
+							ok = 1;
 							break;
 						case s32PARGB:
 							break;
@@ -1932,7 +1934,7 @@ int SImageBuffer::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 			StoreParam sp(SFileFormat::Png);
 			THROW(file.Open(temp_buf, SFile::mWrite));
 			THROW(StorePng(sp, file));
-			THROW(rBuf.Write(*(SBuffer *)file));
+			THROW(rBuf.Write(*static_cast<SBuffer *>(file)));
 		}
 		else if(dir < 0) {
 			THROW(rBuf.Read(temp_buf));
@@ -1971,7 +1973,12 @@ SPoint2S SImageBuffer::GetDim() const { return S; }
 SPoint2F SImageBuffer::GetDimF() const { return (SPoint2F)S; }
 const  uint8 * SImageBuffer::GetData() const { return reinterpret_cast<const uint8 *>(P_Buf); }
 
-int SImageBuffer::Store(const StoreParam & rP, SFile & rF)
+size_t SImageBuffer::GetNominalBufSize() const
+{
+	return (GetHeight() * GetFormat().GetStride(GetWidth()));
+}
+
+int SImageBuffer::Store(const StoreParam & rP, SFile & rF) const
 {
 	int    ok = 1;
 	THROW(rF.IsValid());
@@ -1984,8 +1991,27 @@ int SImageBuffer::Store(const StoreParam & rP, SFile & rF)
 	else if(rP.Fmt == SFileFormat::Webp) { // @v11.3.4
 		THROW(StoreWebp(rP, rF));
 	}
+	else if(rP.Fmt == SFileFormat::Bmp) { // @v11.3.4
+		THROW(StoreBmp(rP, rF));
+	}
 	else {
 		CALLEXCEPT_S(SLERR_UNSUPPIMGFILEFORMAT);
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SImageBuffer::StoreMime_Base64(const StoreParam & rP, SString & rBuf) const
+{
+	rBuf.Z();
+	int    ok = 1;
+	SFile  f_out(SBuffer(), SFile::mWrite|SFile::mBinary);
+	THROW(f_out.IsValid());
+	THROW(Store(rP, f_out));
+	{
+		SBuffer * p_buffer = f_out;
+		THROW(p_buffer && p_buffer->GetAvailableSize());
+		rBuf.EncodeMime64(p_buffer->GetBufC(), p_buffer->GetAvailableSize());
 	}
 	CATCHZOK
 	return ok;
@@ -2051,9 +2077,9 @@ int SImageBuffer::Load(int fm, SBuffer & rInBuf)
 	return ok;
 }
 
-/*static*/int SImageBuffer::IsSupportedFormat(int fm)
+/*static*/bool FASTCALL SImageBuffer::IsSupportedFormat(int fm)
 {
-	int    ok = 1;
+	bool   ok = true;
 	switch(fm) {
 		case SFileFormat::Jpeg:
 		case SFileFormat::Bmp:
@@ -2339,10 +2365,20 @@ int SImageBuffer::Helper_LoadBmp(SBuffer & rBuf, const char * pAddedErrorInfo)
 	THROW(rBuf.Read(PTR8(&ih)+sizeof(ih.biSize), sizeof(ih)-sizeof(ih.biSize)));
 	THROW_S(ih.biCompression == 0, SLERR_BMPCOMPRNSUPPORTED);
 	switch(ih.biBitCount) {
-		case  0: break;
-		case  1: map_entry_size = 4; ff.S = PixF::s1Idx; break;
-		case  4: map_entry_size = 4; ff.S = PixF::s4Idx; break;
-		case  8: map_entry_size = 4; ff.S = PixF::s8Idx; break;
+		case  0: 
+			break;
+		case  1: 
+			map_entry_size = 4; 
+			ff.S = PixF::s1Idx; 
+			break;
+		case  4: 
+			map_entry_size = 4; 
+			ff.S = PixF::s4Idx; 
+			break;
+		case  8: 
+			map_entry_size = 4; 
+			ff.S = PixF::s8Idx; 
+			break;
 		case 16: ff.S = PixF::s16RGB555; break;
 		case 24: ff.S = PixF::s24RGB; break;
 		case 32: ff.S = PixF::s32RGB; break;
@@ -2413,8 +2449,8 @@ int SImageBuffer::LoadBmp(HDC hDc, HBITMAP hBmp, uint subImgSqIdx, uint subImgSq
 		{
 			BmpFileHeader fh;
 			fh.Init();
-			uint   width = (uint)labs(bi.bmiHeader.biWidth);
-			uint   height = (uint)labs(bi.bmiHeader.biHeight);
+			const uint width  = (uint)labs(bi.bmiHeader.biWidth);
+			const uint height = (uint)labs(bi.bmiHeader.biHeight);
 			STempBuffer temp_buf(width * height * sizeof(uint32)); // Буфер для изображения (с запасом)
 			bi.bmiHeader.biCompression = 0;
 			::GetDIBits(hDc, hBmp, 0, height, temp_buf, &bi, DIB_RGB_COLORS);
@@ -2450,6 +2486,133 @@ int SImageBuffer::LoadBmp(HDC hDc, HBITMAP hBmp, uint subImgSqIdx, uint subImgSq
 	CATCHZOK
 	return ok;
 }
+//
+//
+//
+static ulong BmpSize(long width, long height)
+{
+	long pad = ((width % 4) * -3UL) & 3; // Overflow-safe 
+	if(width < 1 || height < 1) {
+		return 0; // Illegal size 
+	} 
+	else if(width > ((0x7fffffffL - sizeof(BmpFileHeader) - sizeof(BmpInfoHeader)) / height - pad) / 3) {
+		return 0; // Overflow 
+	} 
+	else {
+		return height * (width * 3 + pad) + sizeof(BmpFileHeader) + sizeof(BmpInfoHeader);
+	}
+}
+
+void * SImageBuffer::TransformToBitmap() const
+{
+	HBITMAP h_result = 0;
+	BITMAP  bmp;
+	const int _w = (int)S.x;
+	const int _h = (int)S.y;
+	THROW_S((_w >= 1 && _w <= 30000) && (_h >= 1 && _h <= 30000), SLERR_INVIMAGESIZE); // no image
+	{
+		const SImageBuffer::PixF pf(SImageBuffer::PixF::s32ARGB);
+		const uint   stride = pf.GetStride(_w);//ALIGNSIZE(_w * 3, 1);
+		STempBuffer uniform_buf(_w * 4);
+		STempBuffer bmp_image(stride * _h);
+		THROW(uniform_buf.IsValid());
+		memzero(&bmp, sizeof(bmp));
+		bmp.bmType = 0;
+		bmp.bmWidth = _w;
+		bmp.bmHeight = _h;
+		bmp.bmWidthBytes = stride;
+		bmp.bmPlanes = 1;
+		bmp.bmBitsPixel = pf.GetBpp();
+		bmp.bmBits = bmp_image;
+		//uint8 * p = 0;
+		for(uint y = 0; y < _h; y++) {
+			THROW(F.GetUniform(GetScanline(y), uniform_buf, S.x, 0)); // ***
+			THROW(pf.SetUniform(uniform_buf, PTR8(bmp.bmBits) + (y * stride), _w, 0));
+			/*for(uint x = 0; x < _w; x++) {
+				const COLORREF pix = SImageBuffer::PixF::UniformToRGB(PTR32C(uniform_buf.ucptr())[x]);
+				{
+					p = PTR8(bmp.bmBits) + (y * stride) + (x * 3);
+					p[0]  = static_cast<uchar>(GetRValue(pix));
+					p[1]  = static_cast<uchar>(GetGValue(pix));
+					p[2]  = static_cast<uchar>(GetBValue(pix));
+				}
+			}*/
+		}
+		h_result = ::CreateBitmapIndirect(&bmp);
+	}
+	CATCH
+		h_result = 0;
+	ENDCATCH
+	return h_result;
+}
+
+int SImageBuffer::StoreBmp(const StoreParam & rP, SFile & rF) const
+{
+	// 24-битный bmp без компрессии
+	int    ok = 1;
+	//BmpFileHeader fh; // ***
+	//BmpInfoHeader ih;
+	const uint _w = S.x;
+	const uint _h = S.y;
+	const uint pad = (_w * -3UL) & 3;
+	THROW_S((_w >= 1 && _w <= 30000) && (_h >= 1 && _h <= 30000), SLERR_INVIMAGESIZE); // no image
+	{
+		const uint _bmp_size = BmpSize(_w, _h);
+		assert(_bmp_size > 0);
+		STempBuffer bmp_image(_bmp_size);
+		STempBuffer uniform_buf(_w * 4);
+		THROW(bmp_image.IsValid());
+		THROW(uniform_buf.IsValid());
+		BmpFileHeader * p_fh = reinterpret_cast<BmpFileHeader *>(static_cast<char *>(bmp_image));
+		BmpInfoHeader * p_ih = reinterpret_cast<BmpInfoHeader *>(static_cast<char *>(bmp_image)+sizeof(BmpFileHeader));
+		p_fh->Init();
+		p_fh->bfSize = _h * (_w * 3 + pad) + 14 + 40;
+		p_fh->bfOffBits = 0x36;
+		p_ih->biSize = sizeof(BmpInfoHeader);
+		p_ih->biWidth = _w;
+		p_ih->biHeight = -static_cast<int>(_h);
+		p_ih->biPlanes = 1;
+		p_ih->biBitCount = 24;
+		p_ih->biCompression = 0;
+		p_ih->biSizeImage = 0;
+		p_ih->biXPelsPerMeter = 0;
+		p_ih->biYPelsPerMeter = 0;
+		p_ih->biClrUsed = 0;
+		p_ih->biClrImportant = 0;
+		uint8 * p_bmp_pix_start = reinterpret_cast<uint8 *>(static_cast<char *>(bmp_image)+sizeof(BmpFileHeader)+sizeof(BmpInfoHeader));
+		for(uint y = 0; y < _h; y++) {
+			size_t uboffs = 0;
+			THROW(F.GetUniform(GetScanline(y), uniform_buf, S.x, 0)); // ***
+			for(uint x = 0; x < _w; x++) {
+				const COLORREF pix = SImageBuffer::PixF::UniformToRGB(*PTR32C(uniform_buf.ucptr() + uboffs));
+				//::SetPixel(hAndMaskDC, x, y, RGB(0x00, 0x00, 0x00));
+				//::SetPixel(hXorMaskDC, x, y, xor_mask);
+				//static void bmp_set(void *buf, long x, long y, ulong color)
+				{
+					//uchar * p;
+					//uchar * hdr = (uchar *)buf;
+					//ulong width = (ulong)hdr[18] << 0 | (ulong)hdr[19] << 8 | (ulong)hdr[20] << 16 | (ulong)hdr[21] << 24;
+					long pad = (_w * -3UL) & 3;
+				#ifdef BMP_COMPAT
+					//ulong height = (ulong)hdr[22] <<  0 | (ulong)hdr[23] <<  8 | (ulong)hdr[24] << 16 | (ulong)hdr[25] << 24;
+					y = _h - y - 1;
+				#endif
+					uint8 * p = p_bmp_pix_start + y * (_w * 3 + pad) + x * 3;
+					p[0]  = static_cast<uchar>(GetRValue(pix));
+					p[1]  = static_cast<uchar>(GetGValue(pix));
+					p[2]  = static_cast<uchar>(GetBValue(pix));
+				}
+				uboffs += 4;
+			}
+		}
+		THROW(rF.Write(bmp_image, _bmp_size));
+	}
+	CATCHZOK
+	return ok;
+}
+//
+//
+//
 
 #if 0 // {
 
@@ -2693,7 +2856,7 @@ int SImageBuffer::LoadJpeg(SFile & rF, int fileFmt)
 	return ok;
 }
 
-int SImageBuffer::StoreJpeg(const StoreParam & rP, SFile & rF)
+int SImageBuffer::StoreJpeg(const StoreParam & rP, SFile & rF) const
 {
 	struct JpegErr {
 		static void ExitFunc(j_common_ptr pCInfo)
@@ -2913,7 +3076,7 @@ int SImageBuffer::LoadPng(SFile & rF)
 	return ok;
 }
 
-int SImageBuffer::StorePng(const StoreParam & rP, SFile & rF)
+int SImageBuffer::StorePng(const StoreParam & rP, SFile & rF) const
 {
 	int    ok = 1;
 	int    err_code = 0;
@@ -3111,7 +3274,7 @@ int SImageBuffer::LoadWebp(SFile & rF)
 	return ok;
 }
 
-int SImageBuffer::StoreWebp(const StoreParam & rP, SFile & rF)
+int SImageBuffer::StoreWebp(const StoreParam & rP, SFile & rF) const
 {
 #if(_MSC_VER >= 1900)
 	int    ok = 1;

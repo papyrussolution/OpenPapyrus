@@ -15,36 +15,23 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS `AS IS'
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
  */
-
 #include "opj_includes.h"
 
 #ifndef OPJ_SPARSE_ARRAY_H
 #define OPJ_SPARSE_ARRAY_H
 /**
-@file sparse_array.h
-@brief Sparse array management
+   @file sparse_array.h
+   @brief Sparse array management
 
-The functions in this file manage sparse arrays. Sparse arrays are arrays with
-potential big dimensions, but with very few samples actually set. Such sparse
-arrays require allocating a low amount of memory, by just allocating memory
-for blocks of the array that are set. The minimum memory allocation unit is a
-a block. There is a trade-off to pick up an appropriate dimension for blocks.
-If it is too big, and pixels set are far from each other, too much memory will
-be used. If blocks are too small, the book-keeping costs of blocks will raise.
-*/
+   The functions in this file manage sparse arrays. Sparse arrays are arrays with
+   potential big dimensions, but with very few samples actually set. Such sparse
+   arrays require allocating a low amount of memory, by just allocating memory
+   for blocks of the array that are set. The minimum memory allocation unit is a
+   a block. There is a trade-off to pick up an appropriate dimension for blocks.
+   If it is too big, and pixels set are far from each other, too much memory will
+   be used. If blocks are too small, the book-keeping costs of blocks will raise.
+ */
 
 /** @defgroup SPARSE_ARRAY SPARSE ARRAYS - Sparse arrays */
 /*@{*/
@@ -60,9 +47,9 @@ typedef struct opj_sparse_array_int32 opj_sparse_array_int32_t;
  * @return a new sparse array instance, or NULL in case of failure.
  */
 opj_sparse_array_int32_t* opj_sparse_array_int32_create(OPJ_UINT32 width,
-        OPJ_UINT32 height,
-        OPJ_UINT32 block_width,
-        OPJ_UINT32 block_height);
+    OPJ_UINT32 height,
+    OPJ_UINT32 block_width,
+    OPJ_UINT32 block_height);
 
 /** Frees a sparse array.
  * @param sa sparse array instance.
@@ -78,10 +65,10 @@ void opj_sparse_array_int32_free(opj_sparse_array_int32_t* sa);
  * @return TRUE or FALSE.
  */
 boolint opj_sparse_array_is_region_valid(const opj_sparse_array_int32_t* sa,
-        OPJ_UINT32 x0,
-        OPJ_UINT32 y0,
-        OPJ_UINT32 x1,
-        OPJ_UINT32 y1);
+    OPJ_UINT32 x0,
+    OPJ_UINT32 y0,
+    OPJ_UINT32 x1,
+    OPJ_UINT32 y1);
 
 /** Read the content of a rectangular region of the sparse array into a
  * user buffer.
@@ -93,22 +80,24 @@ boolint opj_sparse_array_is_region_valid(const opj_sparse_array_int32_t* sa,
  * @param y0 top x coordinate of the region to read in the sparse array.
  * @param x1 right x coordinate (not included) of the region to read in the sparse array. Must be greater than x0.
  * @param y1 bottom y coordinate (not included) of the region to read in the sparse array. Must be greater than y0.
- * @param dest user buffer to fill. Must be at least sizeof(int32) * ( (y1 - y0 - 1) * dest_line_stride + (x1 - x0 - 1) * dest_col_stride + 1) bytes large.
- * @param dest_col_stride spacing (in elements, not in bytes) in x dimension between consecutive elements of the user buffer.
- * @param dest_line_stride spacing (in elements, not in bytes) in y dimension between consecutive elements of the user buffer.
+ * @param dest user buffer to fill. Must be at least sizeof(int32) * ( (y1 - y0 - 1) * dest_line_stride + (x1 - x0 - 1)
+ ** dest_col_stride + 1) bytes large.
+ * @param dest_col_stride spacing (in elements, not in bytes) in x dimension between consecutive elements of the user
+ *buffer.
+ * @param dest_line_stride spacing (in elements, not in bytes) in y dimension between consecutive elements of the user
+ *buffer.
  * @param forgiving if set to TRUE and the region is invalid, TRUE will still be returned.
  * @return TRUE in case of success.
  */
 boolint opj_sparse_array_int32_read(const opj_sparse_array_int32_t* sa,
-                                     OPJ_UINT32 x0,
-                                     OPJ_UINT32 y0,
-                                     OPJ_UINT32 x1,
-                                     OPJ_UINT32 y1,
-                                     OPJ_INT32* dest,
-                                     OPJ_UINT32 dest_col_stride,
-                                     OPJ_UINT32 dest_line_stride,
-                                     boolint forgiving);
-
+    OPJ_UINT32 x0,
+    OPJ_UINT32 y0,
+    OPJ_UINT32 x1,
+    OPJ_UINT32 y1,
+    OPJ_INT32* dest,
+    OPJ_UINT32 dest_col_stride,
+    OPJ_UINT32 dest_line_stride,
+    boolint forgiving);
 
 /** Write the content of a rectangular region into the sparse array from a
  * user buffer.
@@ -120,22 +109,17 @@ boolint opj_sparse_array_int32_read(const opj_sparse_array_int32_t* sa,
  * @param y0 top x coordinate of the region to write into the sparse array.
  * @param x1 right x coordinate (not included) of the region to write into the sparse array. Must be greater than x0.
  * @param y1 bottom y coordinate (not included) of the region to write into the sparse array. Must be greater than y0.
- * @param src user buffer to fill. Must be at least sizeof(int32) * ( (y1 - y0 - 1) * src_line_stride + (x1 - x0 - 1) * src_col_stride + 1) bytes large.
- * @param src_col_stride spacing (in elements, not in bytes) in x dimension between consecutive elements of the user buffer.
- * @param src_line_stride spacing (in elements, not in bytes) in y dimension between consecutive elements of the user buffer.
+ * @param src user buffer to fill. Must be at least sizeof(int32) * ( (y1 - y0 - 1) * src_line_stride + (x1 - x0 - 1) *
+ *src_col_stride + 1) bytes large.
+ * @param src_col_stride spacing (in elements, not in bytes) in x dimension between consecutive elements of the user
+ *buffer.
+ * @param src_line_stride spacing (in elements, not in bytes) in y dimension between consecutive elements of the user
+ *buffer.
  * @param forgiving if set to TRUE and the region is invalid, TRUE will still be returned.
  * @return TRUE in case of success.
  */
-boolint opj_sparse_array_int32_write(opj_sparse_array_int32_t* sa,
-                                      OPJ_UINT32 x0,
-                                      OPJ_UINT32 y0,
-                                      OPJ_UINT32 x1,
-                                      OPJ_UINT32 y1,
-                                      const OPJ_INT32* src,
-                                      OPJ_UINT32 src_col_stride,
-                                      OPJ_UINT32 src_line_stride,
-                                      boolint forgiving);
-
+boolint opj_sparse_array_int32_write(opj_sparse_array_int32_t* sa, OPJ_UINT32 x0, OPJ_UINT32 y0, OPJ_UINT32 x1, OPJ_UINT32 y1, const OPJ_INT32* src,
+    OPJ_UINT32 src_col_stride, OPJ_UINT32 src_line_stride, boolint forgiving);
 /*@}*/
 
 #endif /* OPJ_SPARSE_ARRAY_H */

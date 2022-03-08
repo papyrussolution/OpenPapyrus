@@ -15,31 +15,18 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS `AS IS'
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
  */
-
 #ifndef THREAD_H
 #define THREAD_H
 
 #include "openjpeg.h"
 /**
-@file thread.h
-@brief Thread API
+   @file thread.h
+   @brief Thread API
 
-The functions in thread.c have for goal to manage mutex, conditions, thread
-creation and thread pools that accept jobs.
-*/
+   The functions in thread.c have for goal to manage mutex, conditions, thread
+   creation and thread pools that accept jobs.
+ */
 
 /** @defgroup THREAD THREAD - Mutex, conditions, threads and thread pools */
 /*@{*/
@@ -142,7 +129,7 @@ typedef struct opj_thread_t opj_thread_t;
 /** User function to execute in a thread
  * @param user_data user data provided with opj_thread_create()
  */
-typedef void (*opj_thread_fn)(void * user_data);
+typedef void (* opj_thread_fn)(void * user_data);
 
 /** Creates a new thread.
  * @param thread_fn Function to run in the new thread.
@@ -173,7 +160,7 @@ typedef struct opj_tls_t opj_tls_t;
 void * opj_tls_get(opj_tls_t* tls, int key);
 
 /** Type of the function used to free a TLS value */
-typedef void (*opj_tls_free_func)(void * value);
+typedef void (* opj_tls_free_func)(void * value);
 
 /** Set a thread local value corresponding to the provided key.
  * @param tls thread local storage handle
@@ -183,7 +170,7 @@ typedef void (*opj_tls_free_func)(void * value);
  * @return TRUE if successful.
  */
 boolint opj_tls_set(opj_tls_t* tls, int key, void * value,
-                     opj_tls_free_func free_func);
+    opj_tls_free_func free_func);
 
 /*@}*/
 
@@ -209,8 +196,7 @@ opj_thread_pool_t* opj_thread_pool_create(int num_threads);
  * @param user_data user data provided with opj_thread_create()
  * @param tls handle to thread local storage
  */
-typedef void (*opj_job_fn)(void * user_data, opj_tls_t* tls);
-
+typedef void (* opj_job_fn)(void * user_data, opj_tls_t* tls);
 
 /** Submit a new job to be run by one of the thread in the thread pool.
  * The job ( thread_fn, user_data ) will be added in the queue of jobs managed
@@ -221,8 +207,7 @@ typedef void (*opj_job_fn)(void * user_data, opj_tls_t* tls);
  * @param user_data User data provided to thread_fn.
  * @return TRUE if the job was successfully submitted.
  */
-boolint opj_thread_pool_submit_job(opj_thread_pool_t* tp, opj_job_fn job_fn,
-                                    void * user_data);
+boolint opj_thread_pool_submit_job(opj_thread_pool_t* tp, opj_job_fn job_fn, void * user_data);
 
 /** Wait that no more than max_remaining_jobs jobs are remaining in the queue of
  * the thread pool. The aim of this function is to avoid submitting too many
@@ -233,8 +218,7 @@ boolint opj_thread_pool_submit_job(opj_thread_pool_t* tp, opj_job_fn job_fn,
  * @param tp the thread pool handle
  * @param max_remaining_jobs maximum number of jobs allowed to be queued without waiting.
  */
-void opj_thread_pool_wait_completion(opj_thread_pool_t* tp,
-                                     int max_remaining_jobs);
+void opj_thread_pool_wait_completion(opj_thread_pool_t* tp, int max_remaining_jobs);
 
 /** Return the number of threads associated with the thread pool.
  *
@@ -249,7 +233,5 @@ int opj_thread_pool_get_thread_count(opj_thread_pool_t* tp);
 void opj_thread_pool_destroy(opj_thread_pool_t* tp);
 
 /*@}*/
-
 /*@}*/
-
 #endif /* THREAD_H */

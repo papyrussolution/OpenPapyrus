@@ -1962,6 +1962,8 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 								case STDCTL_REGISTERSBUTTON: dv_id = PPDV_REGISTERS01; break;
 								case STDCTL_VIEWOPTBUTTON:   dv_id = PPDV_VIEWOPTIONS02; break;
 								case STDCTL_PERSONBUTTON:    dv_id = PPDV_PERSON01; break;
+								case STDCTL_IMGADDBUTTON:    dv_id = PPDV_FOLDER02; break; // @v11.3.4
+								case STDCTL_IMGDELBUTTON:    dv_id = PPDV_CANCEL02; break; // @v11.3.4
 								case STDCTL_IMGPSTBUTTON:    dv_id = PPDV_CLIPBOARDPASTE01; break;
 								case STDCTL_SJBUTTON:        dv_id = PPDV_SYSJOURNAL; break; // @v10.5.3
 								case STDCTL_TRANSMITBUTTON:  dv_id = PPDV_SYNC01; break; // @v10.5.3

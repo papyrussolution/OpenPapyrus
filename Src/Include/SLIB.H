@@ -546,6 +546,7 @@ class  SoapPacketArray;
 class  DBTable;
 struct SJson;
 struct SDataMoveProgressInfo;
+class  SImageBuffer;
 struct _finddatai64_t;
 struct _cairo;
 struct cairo_pattern_t;
@@ -10298,7 +10299,7 @@ public:
 		cteQuotedPrintable
 	};
 	//
-	// Descr: MIME types (e.g. in application/pdf application is type, pdf - subtype)
+	// Descr: MIME types (e.g. in application/pdf application is a type, pdf is a subtype)
 	//
 	enum {
 		mtUndef = 0,
@@ -10456,9 +10457,10 @@ public:
 	static int GetContentTransferEncName(int cte, SString & rBuf);
 
 	SFileFormat();
-	SFileFormat(int f);
+	SFileFormat(int f); // no explicit
 	operator int () const;
 	int    operator !() const;
+	int    GetMimeType() const;
 	//
 	// Descr: Идентифицирует формат файла pFileName по расширению и сигнатуре.
 	// ARG(pFileName IN): @#vptr  Имя файла, формат которого необходимо иденитифицировать
@@ -14019,11 +14021,13 @@ private:
 //
 class SClipboard {
 public:
-	static int FASTCALL OpenClipboardRetry(void * hWnd);
-	static int FASTCALL Copy_Text(const char * pText, size_t len);
-	static int FASTCALL Copy_TextUnicode(const wchar_t * pText, size_t len);
-	static int FASTCALL Copy_SYLK(const SString & rText);
-	static int FASTCALL Past_Text(SStringU & rBuf);
+	static int OpenClipboardRetry(void * hWnd);
+	static int Copy_Text(const char * pText, size_t len);
+	static int Copy_TextUnicode(const wchar_t * pText, size_t len);
+	static int Copy_SYLK(const SString & rText);
+	static int Past_Text(SStringU & rBuf);
+	static int Copy_Image(SImageBuffer & rImg);
+	static int Paste_Image(SImageBuffer & rImg);
 	static int CopyPaste(HWND hWnd, int copy, const char * pPath); // @todo to_remake
 private:
 	static int FASTCALL Helper_OpenClipboardForCopy(int & rHasBeenOpened);
@@ -15473,7 +15477,7 @@ public:
 		uint  Quality; // [1..100]
 	};
 
-	static int IsSupportedFormat(int fm);
+	static bool FASTCALL IsSupportedFormat(int fm);
 
 	SImageBuffer();
 	SImageBuffer(const SImageBuffer & rS);
@@ -15491,6 +15495,10 @@ public:
 	PixF   GetFormat() const;
 	uint   GetWidth() const;
 	uint   GetHeight() const;
+	//
+	// Descr: Возвращает расчетный размер буфера, определяемый как произведение GetHeight() * GetFormat().GetStride(GetWidth())
+	//
+	size_t GetNominalBufSize() const;
 	SPoint2S GetDim() const;
 	SPoint2F GetDimF() const;
 	const  uint8 * GetData() const;
@@ -15508,10 +15516,18 @@ public:
 	//
 	int    LoadBmp(HDC hDc, HBITMAP hBmp, uint subImgSqIdx = 0, uint subImgSqSide = 0);
 	int    LoadMime_Base64(const char * pFormatStr, const SString & rS);
-	int    Store(const StoreParam &, SFile & rF);
+	int    Store(const StoreParam &, SFile & rF) const;
+	int    StoreMime_Base64(const StoreParam &, SString & rBuf) const;
 	int    TransformToBounds(SPoint2S size, const SViewPort * pVp);
 	int    TransformToGrayscale();
+	//
+	// Descr: Формирует Windows ICON изображение из буфера this.
+	// Returns:
+	//   0 - error
+	//   !0 - абстрактный указатель, который в действительности является HICON
+	//
 	void * TransformToIcon() const;
+	void * TransformToBitmap() const;
 private:
 	int    LoadJpeg(SFile & rF, int fileFmt);
 	int    LoadPng(SFile & rF);
@@ -15522,9 +15538,10 @@ private:
 	int    LoadWebp(SFile & rF);
 	int    Helper_Load(SFile & rF, SFileFormat ff);
 	int    Helper_LoadBmp(SBuffer & rBuf, const char * pAddedErrorInfo);
-	int    StorePng(const StoreParam & rP, SFile & rF);
-	int    StoreJpeg(const StoreParam & rP, SFile & rF);
-	int    StoreWebp(const StoreParam & rP, SFile & rF);
+	int    StorePng(const StoreParam & rP, SFile & rF) const;
+	int    StoreJpeg(const StoreParam & rP, SFile & rF) const;
+	int    StoreWebp(const StoreParam & rP, SFile & rF) const;
+	int    StoreBmp(const StoreParam & rP, SFile & rF) const;
 	int    Flip();
 	int    PremultiplyAlpha();
 	uint8 * FASTCALL GetScanline(uint lineNo) const;

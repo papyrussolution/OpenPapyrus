@@ -1,5 +1,5 @@
 // DBDICT.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -479,7 +479,7 @@ int BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 			}
 			if(ok) {
 				for(tpe.Init(dest); tpe.Next(spart, &first) > 0;) {
-					SPathStruc sp(spart);
+					const SPathStruc sp(spart);
 					SPathStruc::ReplaceExt(temp_buf = path, sp.Ext, 1);
 					SFile::Rename(spart, temp_buf);
 				}
@@ -565,7 +565,7 @@ int TablePartsEnum::ReplaceExt(int first, const SString & rIn, SString & rOut)
 {
 	SString ext;
 	SPathStruc sp(rIn);
-	int    to_save = BIN(sp.Ext.C(0) != '_');
+	const bool to_save = (sp.Ext.C(0) != '_');
 	ext = sp.Ext;
 	sp.Ext.Z();
 	if(first)

@@ -48,8 +48,8 @@ const DoubleToStringConverter& DoubleToStringConverter::EcmaScriptConverter() {
 	return converter;
 }
 
-bool DoubleToStringConverter::HandleSpecialValues(double value,
-    StringBuilder* result_builder) const {
+bool DoubleToStringConverter::HandleSpecialValues(double value, StringBuilder* result_builder) const 
+{
 	Double double_inspect(value);
 	if(double_inspect.IsInfinite()) {
 		if(infinity_symbol_ == NULL) return false;
@@ -67,10 +67,9 @@ bool DoubleToStringConverter::HandleSpecialValues(double value,
 	return false;
 }
 
-void DoubleToStringConverter::CreateExponentialRepresentation(const char * decimal_digits,
-    int length,
-    int exponent,
-    StringBuilder* result_builder) const {
+void DoubleToStringConverter::CreateExponentialRepresentation(const char * decimal_digits, int length,
+    int exponent, StringBuilder* result_builder) const 
+{
 	DOUBLE_CONVERSION_ASSERT(length != 0);
 	result_builder->AddCharacter(decimal_digits[0]);
 	if(length != 1) {
@@ -111,11 +110,9 @@ void DoubleToStringConverter::CreateExponentialRepresentation(const char * decim
 	    kMaxExponentLength - first_char_pos);
 }
 
-void DoubleToStringConverter::CreateDecimalRepresentation(const char * decimal_digits,
-    int length,
-    int decimal_point,
-    int digits_after_point,
-    StringBuilder* result_builder) const {
+void DoubleToStringConverter::CreateDecimalRepresentation(const char * decimal_digits, int length,
+    int decimal_point, int digits_after_point, StringBuilder* result_builder) const 
+{
 	// Create a representation that is padded with zeros if needed.
 	if(decimal_point <= 0) {
 		// "0.00000decimal_rep" or "0.000decimal_rep00".

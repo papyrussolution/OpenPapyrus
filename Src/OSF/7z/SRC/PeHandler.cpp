@@ -1683,15 +1683,12 @@ namespace NArchive {
 							return S_FALSE;
 						if(!_items.IsEmpty() && _oneLang && !item.IsNameEqual(_items.Back()))
 							_oneLang = false;
-
 						item.HeaderSize = 0;
-
 						size_t offset = item.Offset - sect.Va;
 						if(offset > maxOffset)
 							maxOffset = offset;
 						if(offset + item.Size > maxOffset)
 							maxOffset = offset + item.Size;
-
 						if(CheckItem(sect, item, offset)) {
 							const Byte * data = _buf + offset;
 							if(item.IsBmp())

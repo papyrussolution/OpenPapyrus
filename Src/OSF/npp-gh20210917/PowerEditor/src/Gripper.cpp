@@ -457,14 +457,10 @@ void Gripper::drawRectangle(const POINT* pPt)
 		_hdc = ::GetDCEx(hWnd, NULL, DCX_WINDOW|DCX_CACHE);
 		#endif
 	}
-
 	// Create a brush with the appropriate bitmap pattern to draw our drag rectangle
-	if(!_hbm)
-		_hbm = ::CreateBitmap(8, 8, 1, 1, DotPattern);
-	if(!_hbrush)
-		_hbrush = ::CreatePatternBrush(_hbm);
-
-	if(pPt != NULL) {
+	SETIFZQ(_hbm, ::CreateBitmap(8, 8, 1, 1, DotPattern));
+	SETIFZQ(_hbrush, ::CreatePatternBrush(_hbm));
+	if(pPt) {
 		// Determine whether to draw a solid drag rectangle or checkered
 		// ???(jg) solid or checked ??? - must have been an old comment, I didn't
 		// find here this difference, but at least it's a question of drag-rects size
@@ -487,7 +483,6 @@ void Gripper::drawRectangle(const POINT* pPt)
 			//
 			if(rcOld.left==rcNew.left && rcOld.right==rcNew.right && rcOld.top== rcNew.top && rcOld.bottom==rcNew.bottom)
 				return;
-
 			rc.left   = min(rcOld.left, rcNew.left);
 			rc.top    = min(rcOld.top,  rcNew.top);
 			rc.right  = max(rcOld.left + rcOld.right,  rcNew.left + rcNew.right);
@@ -495,10 +490,11 @@ void Gripper::drawRectangle(const POINT* pPt)
 			rc.right -= rc.left;
 			rc.bottom -= rc.top;
 		}
-		else rc = rcNew;        // only new rect will be drawn
+		else 
+			rc = rcNew; // only new rect will be drawn
 	}
-	else rc = rcOld;        // only old rect will be drawn - to erase it
-
+	else 
+		rc = rcOld; // only old rect will be drawn - to erase it
 	// now rc contains the rectangle wich encloses all needed, new and/or previous rectangle
 	// because in the following we drive within a memory device context wich is limited to rc,
 	// we have to localize rcNew and rcOld within rc...

@@ -15,18 +15,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS `AS IS'
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
  */
 #include "opj_includes.h"
 #pragma hdrstop
@@ -210,9 +198,7 @@ unsigned int __stdcall opj_thread_callback_adapter(void * info)
 {
 	opj_thread_t* thread = (opj_thread_t*)info;
 	HANDLE hEvent = NULL;
-
 	thread->thread_fn(thread->user_data);
-
 	/* Free the handle possible allocated by a cond */
 	while(TRUE) {
 		/* Make sure TLSKey is not being created just at that moment... */
@@ -239,9 +225,7 @@ unsigned int __stdcall opj_thread_callback_adapter(void * info)
 opj_thread_t* opj_thread_create(opj_thread_fn thread_fn, void * user_data)
 {
 	opj_thread_t* thread;
-
 	assert(thread_fn);
-
 	thread = (opj_thread_t*)SAlloc::M(sizeof(opj_thread_t));
 	if(!thread) {
 		return NULL;

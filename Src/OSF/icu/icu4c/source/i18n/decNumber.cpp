@@ -243,38 +243,25 @@ static const uInt multies[] = {131073, 26215, 5243, 1049, 210};
 #endif
 
 /* Local routines */
-static decNumber * decAddOp(decNumber *, const decNumber *, const decNumber *,
-    decContext *, uByte, uInt *);
+static decNumber * decAddOp(decNumber *, const decNumber *, const decNumber *, decContext *, uByte, uInt *);
 static Flag        decBiStr(const char *, const char *, const char *);
 static uInt        decCheckMath(const decNumber *, decContext *, uInt *);
 static void decApplyRound(decNumber *, decContext *, Int, uInt *);
 static Int decCompare(const decNumber * lhs, const decNumber * rhs, Flag);
-static decNumber * decCompareOp(decNumber *, const decNumber *,
-    const decNumber *, decContext *,
-    Flag, uInt *);
-static void   decCopyFit(decNumber *, const decNumber *, decContext *,
-    Int *, uInt *);
+static decNumber * decCompareOp(decNumber *, const decNumber *, const decNumber *, decContext *, Flag, uInt *);
+static void   decCopyFit(decNumber *, const decNumber *, decContext *, Int *, uInt *);
 static decNumber * decDecap(decNumber *, Int);
-static decNumber * decDivideOp(decNumber *, const decNumber *,
-    const decNumber *, decContext *, Flag, uInt *);
-static decNumber * decExpOp(decNumber *, const decNumber *,
-    decContext *, uInt *);
+static decNumber * decDivideOp(decNumber *, const decNumber *, const decNumber *, decContext *, Flag, uInt *);
+static decNumber * decExpOp(decNumber *, const decNumber *, decContext *, uInt *);
 static void   decFinalize(decNumber *, decContext *, Int *, uInt *);
 static Int decGetDigits(Unit *, Int);
 static Int         decGetInt(const decNumber *);
-static decNumber * decLnOp(decNumber *, const decNumber *,
-    decContext *, uInt *);
-static decNumber * decMultiplyOp(decNumber *, const decNumber *,
-    const decNumber *, decContext *,
-    uInt *);
-static decNumber * decNaNs(decNumber *, const decNumber *,
-    const decNumber *, decContext *, uInt *);
-static decNumber * decQuantizeOp(decNumber *, const decNumber *,
-    const decNumber *, decContext *, Flag,
-    uInt *);
+static decNumber * decLnOp(decNumber *, const decNumber *, decContext *, uInt *);
+static decNumber * decMultiplyOp(decNumber *, const decNumber *, const decNumber *, decContext *, uInt *);
+static decNumber * decNaNs(decNumber *, const decNumber *, const decNumber *, decContext *, uInt *);
+static decNumber * decQuantizeOp(decNumber *, const decNumber *, const decNumber *, decContext *, Flag, uInt *);
 static void   decReverse(Unit *, Unit *);
-static void decSetCoeff(decNumber *, decContext *, const Unit *,
-    Int, Int *, uInt *);
+static void decSetCoeff(decNumber *, decContext *, const Unit *, Int, Int *, uInt *);
 static void   decSetMaxValue(decNumber *, decContext *);
 static void   decSetOverflow(decNumber *, decContext *, uInt *);
 static void   decSetSubnormal(decNumber *, decContext *, Int *, uInt *);
@@ -283,16 +270,15 @@ static Int decShiftToMost(Unit *, Int, Int);
 static void decStatus(decNumber *, uInt, decContext *);
 static void decToString(const decNumber *, char[], Flag);
 static decNumber * decTrim(decNumber *, decContext *, Flag, Flag, Int *);
-static Int decUnitAddSub(const Unit *, Int, const Unit *, Int, Int,
-    Unit *, Int);
+static Int decUnitAddSub(const Unit *, Int, const Unit *, Int, Int, Unit *, Int);
 static Int decUnitCompare(const Unit *, Int, const Unit *, Int, Int);
 
 #if !DECSUBSET
-/* decFinish == decFinalize when no subset arithmetic needed */
-#define decFinish(a, b, c, d) decFinalize(a, b, c, d)
+	/* decFinish == decFinalize when no subset arithmetic needed */
+	#define decFinish(a, b, c, d) decFinalize(a, b, c, d)
 #else
-static void   decFinish(decNumber *, decContext *, Int *, uInt *);
-static decNumber * decRoundOperand(const decNumber *, decContext *, uInt *);
+	static void   decFinish(decNumber *, decContext *, Int *, uInt *);
+	static decNumber * decRoundOperand(const decNumber *, decContext *, uInt *);
 #endif
 
 /* Local macros */
@@ -359,7 +345,8 @@ static void decDumpAr(char, const Unit *, Int);
 /* */
 /* No error is possible. */
 /* ------------------------------------------------------------------ */
-U_CAPI decNumber * U_EXPORT2 uprv_decNumberFromInt32(decNumber * dn, Int in) {
+U_CAPI decNumber * U_EXPORT2 uprv_decNumberFromInt32(decNumber * dn, Int in) 
+{
 	uInt unsig;
 	if(in>=0) unsig = in;
 	else {                          /* negative (possibly BADINT)  */
@@ -372,7 +359,8 @@ U_CAPI decNumber * U_EXPORT2 uprv_decNumberFromInt32(decNumber * dn, Int in) {
 	return dn;
 }   /* decNumberFromInt32  */
 
-U_CAPI decNumber * U_EXPORT2 uprv_decNumberFromUInt32(decNumber * dn, uInt uin) {
+U_CAPI decNumber * U_EXPORT2 uprv_decNumberFromUInt32(decNumber * dn, uInt uin) 
+{
 	Unit * up; /* work pointer  */
 	uprv_decNumberZero(dn); /* clean  */
 	if(uin==0) return dn; /* [or decGetDigits bad call]  */
@@ -6842,12 +6830,13 @@ static Int decShiftToMost(Unit * uar, Int digits, Int shift) {
 /* Removed digits are discarded (lost).  Units not required to hold   */
 /* the final result are unchanged.         */
 /* ------------------------------------------------------------------ */
-static Int decShiftToLeast(Unit * uar, Int units, Int shift) {
+static Int decShiftToLeast(Unit * uar, Int units, Int shift) 
+{
 	Unit  * target, * up; /* work  */
 	Int cut, count; /* work  */
 	Int quot, rem; /* for division  */
-
-	if(shift==0) return units; /* [fastpath] nothing to do  */
+	if(shift==0) 
+		return units; /* [fastpath] nothing to do  */
 	if(shift==units*DECDPUN) { /* [fastpath] little to do  */
 		*uar = 0; /* all digits cleared gives zero  */
 		return 1; /* leaves just the one  */
@@ -6990,8 +6979,9 @@ static void decCopyFit(decNumber * dest, const decNumber * src,
 /* can be adjusted in the range [-1, +1] and achieve correct rounding  */
 /*             0  1  2  3  4  5  6  7  8  9  */
 static const uByte resmap[10] = {0, 3, 3, 3, 3, 5, 7, 7, 7, 7};
-static void decSetCoeff(decNumber * dn, decContext * set, const Unit * lsu,
-    Int len, Int * residue, uInt * status) {
+
+static void decSetCoeff(decNumber * dn, decContext * set, const Unit * lsu, Int len, Int * residue, uInt * status) 
+{
 	Int discard; /* number of digits to discard  */
 	uInt cut; /* cut point in Unit  */
 	const Unit * up; /* work  */
@@ -7508,13 +7498,15 @@ static void decSetOverflow(decNumber * dn, decContext * set, uInt * status) {
 /* */
 /* This sets the number to the maximum positive value.       */
 /* ------------------------------------------------------------------ */
-static void decSetMaxValue(decNumber * dn, decContext * set) {
+static void decSetMaxValue(decNumber * dn, decContext * set) 
+{
 	Unit * up; /* work  */
 	Int count = set->digits; /* nines to add  */
 	dn->digits = count;
 	/* fill in all nines to set maximum value  */
 	for(up = dn->lsu;; up++) {
-		if(count>DECDPUN) *up = DECDPUNMAX; /* unit full o'nines  */
+		if(count>DECDPUN) 
+			*up = DECDPUNMAX; /* unit full o'nines  */
 		else {                  /* this is the msu  */
 			*up = (Unit)(powers[count]-1);
 			break;
@@ -7542,11 +7534,10 @@ static void decSetMaxValue(decNumber * dn, decContext * set) {
 /* Otherwise ensure exponent is not out of range, and round as        */
 /* necessary.  Underflow is set if the result is Inexact.    */
 /* ------------------------------------------------------------------ */
-static void decSetSubnormal(decNumber * dn, decContext * set, Int * residue,
-    uInt * status) {
+static void decSetSubnormal(decNumber * dn, decContext * set, Int * residue, uInt * status) 
+{
 	decContext workset; /* work  */
 	Int etiny, adjust; /* ..  */
-
   #if DECSUBSET
 	/* simple set to zero and 'hard underflow' for subset  */
 	if(!set->extended) {
@@ -7556,11 +7547,9 @@ static void decSetSubnormal(decNumber * dn, decContext * set, Int * residue,
 		return;
 	}
   #endif
-
 	/* Full arithmetic -- allow subnormals, rounded to minimum exponent  */
 	/* (Etiny) if needed  */
 	etiny = set->emin-(set->digits-1); /* smallest allowed exponent  */
-
 	if ISZERO(dn) {                 /* value is zero  */
 		/* residue can never be non-zero here  */
     #if DECCHECK
@@ -7575,7 +7564,6 @@ static void decSetSubnormal(decNumber * dn, decContext * set, Int * residue,
 		}
 		return;
 	}
-
 	*status |= DEC_Subnormal; /* have a non-zero subnormal  */
 	adjust = etiny-dn->exponent; /* calculate digits to remove  */
 	if(adjust<=0) {                 /* not out of range; unrounded  */
@@ -7628,16 +7616,13 @@ static void decSetSubnormal(decNumber * dn, decContext * set, Int * residue,
 /* non-zero.  Invalid_operation is set in the status if a  */
 /* restriction is violated.     */
 /* ------------------------------------------------------------------ */
-static uInt decCheckMath(const decNumber * rhs, decContext * set,
-    uInt * status) {
+static uInt decCheckMath(const decNumber * rhs, decContext * set, uInt * status) 
+{
 	uInt save = *status; /* record  */
-	if(set->digits>DEC_MAX_MATH
-	 || set->emax>DEC_MAX_MATH
-	 || -set->emin>DEC_MAX_MATH) *status |= DEC_Invalid_context;
-	else if((rhs->digits>DEC_MAX_MATH
-	 || rhs->exponent+rhs->digits>DEC_MAX_MATH+1
-	 || rhs->exponent+rhs->digits<2*(1-DEC_MAX_MATH))
-	 && !ISZERO(rhs)) *status |= DEC_Invalid_operation;
+	if(set->digits>DEC_MAX_MATH || set->emax>DEC_MAX_MATH || -set->emin>DEC_MAX_MATH) 
+		*status |= DEC_Invalid_context;
+	else if((rhs->digits>DEC_MAX_MATH || rhs->exponent+rhs->digits>DEC_MAX_MATH+1 || rhs->exponent+rhs->digits<2*(1-DEC_MAX_MATH)) && !ISZERO(rhs)) 
+		*status |= DEC_Invalid_operation;
 	return (*status!=save);
 }   /* decCheckMath  */
 
@@ -7656,7 +7641,8 @@ static uInt decCheckMath(const decNumber * rhs, decContext * set,
 /* The sign can be determined from dn by the caller when BIGEVEN or   */
 /* BIGODD is returned.   */
 /* ------------------------------------------------------------------ */
-static Int decGetInt(const decNumber * dn) {
+static Int decGetInt(const decNumber * dn) 
+{
 	Int theInt; /* result accumulator  */
 	const Unit * up; /* work  */
 	Int got; /* digits (real or not) processed  */
@@ -7857,7 +7843,8 @@ static decNumber * decNaNs(decNumber * res, const decNumber * lhs,
 /* this may raise a signal, so control may never return from this     */
 /* routine (hence resources must be recovered before it is called).   */
 /* ------------------------------------------------------------------ */
-static void decStatus(decNumber * dn, uInt status, decContext * set) {
+static void decStatus(decNumber * dn, uInt status, decContext * set) 
+{
 	if(status & DEC_NaNs) {         /* error status -> NaN  */
 		/* if cause was an sNaN, clear and propagate [NaN is already set up]  */
 		if(status & DEC_sNaN) status &= ~DEC_sNaN;
@@ -7883,7 +7870,8 @@ static void decStatus(decNumber * dn, uInt status, decContext * set) {
 /* only zero Units.      */
 /* ------------------------------------------------------------------ */
 /* This may be called twice during some operations.  */
-static Int decGetDigits(Unit * uar, Int len) {
+static Int decGetDigits(Unit * uar, Int len) 
+{
 	Unit * up = uar+(len-1); /* -> msu  */
 	Int digits = (len-1)*DECDPUN+1; /* possible digits excluding msu  */
   #if DECDPUN>4

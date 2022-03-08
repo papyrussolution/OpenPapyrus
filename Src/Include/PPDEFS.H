@@ -714,8 +714,10 @@
 	#define PPACN_STYLOQSVCSELFREG      92L // @v11.2.12 Сервис Stylo-Q отправил собственные регистрационные данные медиатору. Доп параметр - ид медиатора.
 		// Событие необходимо для правильной идентификации необходимости повторной саморегистрации после изменения собственных данных.
 	#define PPACN_SCARDOWNERSET         93L // @v11.3.1 Установлен владелец персональной карты. Доп параметр - ID предыдущего владельца.
+	#define PPACN_STYLOQSVCIDXQUERY     94L // @v11.3.4 Сервис Stylo-Q отправил медиатору данные для индексации. Доп параметр - ид медиатора.
+		// Событие необходимо для правильной идентификации необходимости повторной посылки данных.
 	// !!! При вставке нового значения изменить PPACN_LAST !!!
-	#define PPACN_LAST                  93L // Последнее значение (ИЗМЕНИТЬ ПРИ ВСТАВКЕ НОВОГО ЗНАЧЕНИЯ)
+	#define PPACN_LAST                  94L // Последнее значение (ИЗМЕНИТЬ ПРИ ВСТАВКЕ НОВОГО ЗНАЧЕНИЯ)
 
 	#define SYSMAINTENANCEFUNC_AUTOMQSCONFIG 1 // @v10.7.5 Автоматическое обновление конфигурации обмена с брокером сообщений
 	//
@@ -1914,6 +1916,7 @@
 #define cmPeriodResetRight       1188 // @v11.2.4 Кнопка сброса правой границы периода в календарях
 #define cmPeriodReset            1189 // @v11.2.4 Кнопка сброса периода в календарях
 #define cmTree                   1190 // @v11.2.11 Кнопка для просмотра древовидной структуры объекта (пока для товарных структур)
+#define cmSelectProcessors       1191 // @v11.3.4  Кнопка выбора списка процессоров
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -11247,6 +11250,7 @@
 	#define CTL_STQFACE_RUSNILS              (18  + WINDOWS_ID_BIAS)
 	#define CTL_STQFACE_GEOLOC               (19  + WINDOWS_ID_BIAS)
 	#define CTL_STQFACE_EXPIRYP              (20  + WINDOWS_ID_BIAS)
+	#define CTL_STQFACE_IMAGE                (21  + WINDOWS_ID_BIAS)
 #define DLG_STQFACELIST           1406
 	#define CTL_STQFACELIST_LIST             (1  + WINDOWS_ID_BIAS)
 	#define CTL_STQFACELIST_INFO             (2  + WINDOWS_ID_BIAS)
@@ -11268,7 +11272,6 @@
 #define DLG_GSTRUCTREE            1410 // @v11.2.11 Отображение дерева компонентов структуры
 	#define CTL_GSTRUCTREE_LIST              (1  + WINDOWS_ID_BIAS)
 #define DLG_STQATTCPARAM          1411 // @v11.3.3
-	#define cmSelectProcessors               101
 	#define CTL_STQATTCPARAM_PRCLIST         (1  + WINDOWS_ID_BIAS)
 	#define CTL_STQATTCPARAM_PRCTTL          (2  + WINDOWS_ID_BIAS)
 #define DLG_STQCLITEST            1412 // @v11.3.3
@@ -11277,6 +11280,14 @@
 	#define CTLSEL_STQCLITEST_FUNC           (3  + WINDOWS_ID_BIAS)
 	#define CTL_STQCLITEST_INFO              (5  + WINDOWS_ID_BIAS)
 	#define CTL_STQCLITEST_RESULT            (4  + WINDOWS_ID_BIAS)
+#define DLG_STQIDXCPARAM          1413 // @v11.3.4
+	#define cmPrcList                        101
+	#define CTL_STQIDXCPARAM_GGRP            (1  + WINDOWS_ID_BIAS)
+	#define CTLSEL_STQIDXCPARAM_GGRP         (2  + WINDOWS_ID_BIAS)
+	#define CTL_STQIDXCPARAM_PRCL            (3  + WINDOWS_ID_BIAS)
+	#define CTL_STQIDXCPARAM_FLAGS           (5  + WINDOWS_ID_BIAS)
+	#define CTL_STQIDXCPARAM_PSNK            (6  + WINDOWS_ID_BIAS)
+	#define CTLSEL_STQIDXCPARAM_PSNK         (7  + WINDOWS_ID_BIAS)
 
 // Win32 Dialog Identifiers
 //

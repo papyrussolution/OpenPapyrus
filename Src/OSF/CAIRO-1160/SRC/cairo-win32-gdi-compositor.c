@@ -123,7 +123,8 @@ static boolint alpha_box(cairo_box_t * box, void * closure)
 
 struct upload_box {
 	cairo_rectangle_int_t limit;
-	int tx, ty;
+	int tx;
+	int ty;
 	HDC dst;
 	BITMAPINFO bi;
 	void * data;

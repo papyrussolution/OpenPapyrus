@@ -1,5 +1,5 @@
 // OBJSCARD.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Модуль, управляющий объектом PPObjSCard - персональные карты
 //
@@ -384,29 +384,29 @@ int PPSCardSerRule::ValidateItem(int ruleType, const TrnovrRngDis & rItem, long 
 	return ok;
 }
 
-int FASTCALL PPSCardSerRule::IsEq(const PPSCardSerRule & rS) const
+bool FASTCALL PPSCardSerRule::IsEq(const PPSCardSerRule & rS) const
 {
-	int    eq = 1;
+	bool   eq = true;
 	if(Ver != rS.Ver)
-		eq = 0;
+		eq = false;
 	else if(TrnovrPeriod != rS.TrnovrPeriod)
-		eq = 0;
+		eq = false;
 	else if(Fb.Flags != rS.Fb.Flags)
-		eq = 0;
+		eq = false;
 	else if(getCount() != rS.getCount())
-		eq = 0;
+		eq = false;
 	else if(getCount()) {
 		for(uint i = 0; eq && i < getCount(); i++) {
 			const TrnovrRngDis & r_i1 = at(i);
 			const TrnovrRngDis & r_i2 = rS.at(i);
 			if(r_i1.R != r_i2.R)
-				eq = 0;
+				eq = false;
 			else if(r_i1.Value != r_i2.Value)
-				eq = 0;
+				eq = false;
 			else if(r_i1.SeriesID != r_i2.SeriesID)
-				eq = 0;
+				eq = false;
 			else if(r_i1.Flags != r_i2.Flags)
-				eq = 0;
+				eq = false;
 		}
 	}
 	return eq;

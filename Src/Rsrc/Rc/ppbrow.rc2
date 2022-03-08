@@ -7187,6 +7187,7 @@ view   GoodsTrnovr             { "@{view_goodstrnovr}" } // @v11.0.6 @todo Этот 
 view   StyloQBindery           { "@{view_styloqbindery}" } // @v11.1.6
 view   StyloQCommand           { "@{view_styloqcommands}" } // @v11.1.9
 filter StyloQAttendancePrereqParam { "@{filter_styloqattendanceprereqparam}" } // @v11.3.3
+filter StyloQIndexingParam     { "@{filter_styloqindexingparam}" } // @v11.3.4
 //
 // lastviewfilter ATTENTION: put new VIEWS and FILTERS before this line!
 //

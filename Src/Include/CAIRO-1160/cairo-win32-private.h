@@ -101,9 +101,7 @@ typedef struct _cairo_win32_surface {
 
 typedef struct _cairo_win32_display_surface {
 	cairo_win32_surface_t win32;
-	/* We create off-screen surfaces as DIBs or DDBs, based on what we created
-	 * originally */
-	HBITMAP bitmap;
+	HBITMAP bitmap; // We create off-screen surfaces as DIBs or DDBs, based on what we created originally 
 	boolint is_dib;
 	/* Used to save the initial 1x1 monochrome bitmap for the DC to
 	 * select back into the DC before deleting the DC and our

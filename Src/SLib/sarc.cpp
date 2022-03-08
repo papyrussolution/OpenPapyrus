@@ -1,5 +1,5 @@
 // SARC.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -398,7 +398,7 @@ int FASTCALL SArchive::GetEntryName(int64 idx, SString & rBuf)
 			if(idx == 0) {
 				const SArc_Bz2_Block * p_blk = static_cast<const SArc_Bz2_Block *>(H);
 				if(p_blk->Handle && p_blk->FileName.NotEmpty()) {
-					SPathStruc ps(p_blk->FileName);
+					const SPathStruc ps(p_blk->FileName);
 					rBuf = ps.Nam;
 				}
 				else
@@ -481,7 +481,7 @@ int SArchive::AddEntry(const char * pSrcFileName, const char * pName, int flags)
 			}
 			else {
 				if(isempty(pName)) {
-					SPathStruc ps(temp_buf);
+					const SPathStruc ps(temp_buf);
 					ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
 				}
 				else {
@@ -503,7 +503,7 @@ int SArchive::AddEntry(const char * pSrcFileName, const char * pName, int flags)
         THROW(fileExists(temp_buf));
 		THROW(!(flags & (aefDirectory|aefRecursive)));
 		if(isempty(pName)) {
-			SPathStruc ps(temp_buf);
+			const SPathStruc ps(temp_buf);
 			ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
 		}
 		else {
@@ -578,7 +578,7 @@ int SArchive::AddEntries(const char * pMask, int flags)
 	SString root;
 	SString sub;
 	SString mask;
-	SPathStruc ps(pMask);
+	const SPathStruc ps(pMask);
     ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, root);
     ps.Merge(SPathStruc::fNam|SPathStruc::fExt, mask);
 	return Helper_AddEntries(root, sub, mask, flags);

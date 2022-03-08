@@ -1910,6 +1910,7 @@ public:
 	//
 	int    Identify(const char * pFileName, int * pFmtId, SString * pExt) const;
 	int    IdentifyMime(const char * pMime, int * pFmtId) const;
+	int    GetMimeType(int id) const;
 	int    GetMime(int id, SString & rMime) const;
 	int    GetExt(int id, SString & rExt) const;
 private:
@@ -1935,6 +1936,18 @@ FileFormatRegBase::FileFormatRegBase() : SVector(sizeof(Entry)), MaxSignSize(0)
 
 FileFormatRegBase::~FileFormatRegBase()
 {
+}
+
+int FileFormatRegBase::GetMimeType(int id) const
+{
+	int    mime_type = 0;
+	for(uint pos = 0; !mime_type && SVector::lsearch(&id, &pos, CMPF_LONG); pos++) {
+		const Entry * p_entry = static_cast<const Entry *>(at(pos));
+		assert(p_entry->FmtId == id);
+		if(p_entry->MimeType)
+			mime_type = p_entry->MimeType;
+	}
+	return mime_type;
 }
 
 int FileFormatRegBase::GetMime(int id, SString & rMime) const
@@ -2161,7 +2174,7 @@ int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * 
 	LongArray candid_by_ext;
 	LongArray candid_by_sign;
 	{
-		SPathStruc ps(pFileName);
+		const SPathStruc ps(pFileName);
 		int    entry_mime_type;
 		SString ext = ps.Ext;
 		SString entry_ext;
@@ -2442,6 +2455,17 @@ SFileFormat::SFileFormat(int f) : Id(f)
 SFileFormat::operator int () const { return Id; }
 int SFileFormat::operator !() const { return (Id == 0); }
 
+int SFileFormat::GetMimeType() const
+{
+	int    mime_type = 0;
+	if(Id && GloBaseIdx) {
+		const FileFormatRegBase * p_reg = static_cast<const FileFormatRegBase *>(SLS.GetGlobalObject(GloBaseIdx));
+		if(p_reg)
+			mime_type = p_reg->GetMimeType(Id);
+	}
+	return mime_type;
+}
+
 int SFileFormat::Identify(const char * pFileName, SString * pExt)
 {
 	int    ok = 0;
@@ -2489,7 +2513,7 @@ int SFileFormat::IdentifyMime(const char * pMime)
 	Register(Ini,    mtText,  "plain", "ini", static_cast<const char *>(0));  // INI
 	Register(Csv,    mtText,  "csv",   "csv", 0); // @v10.8.0
 	Register(Tsv,    mtText,  "tsv",   "tsv", 0); // @v10.9.9 tab-separated-values
-	Register(Latex,            mtApplication, "x-latex", "tex", static_cast<const char *>(0));  // LATEX
+	Register(Latex,  mtApplication, "x-latex", "tex", static_cast<const char *>(0));  // LATEX
 	Register(Latex,            "latex", static_cast<const char *>(0));         // LATEX
 	Register(TxtBomUTF8,       "txt;csv", "EFBBBF");
 	Register(TxtBomUTF16BE,    "txt;csv", "FEFF");

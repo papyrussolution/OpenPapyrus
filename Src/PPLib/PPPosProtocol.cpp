@@ -5285,6 +5285,7 @@ int PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 				THROW(Helper_GetPosNodeInfo_ForInputProcessing(&cn_rec, pos_node_isymb_list, pos_node_uuid_list));
 				if(cn_rec.Flags & CASHF_ASYNC && CnObj.GetAsync(rPib.PosNodeID, &acn_pack) > 0) {
 					if(acn_pack.ImpFiles.NotEmptyS()) {
+						acn_pack.ImpFiles.Transf(CTRANSF_INNER_TO_OUTER); // @v11.3.4
 						StringSet ss_row_paths(';', acn_pack.ImpFiles);
 						for(uint ssrp_pos = 0; ss_row_paths.get(&ssrp_pos, temp_buf);) {
 							PreprocessInputSource(rPib.PosNodeID, temp_buf, ss_paths, remote_url_assoc);

@@ -1,5 +1,5 @@
 // SDIREC.CPP
-// Copyright (c) A.Sobolev 1999-2001, 2002, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1999-2001, 2002, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -272,7 +272,7 @@ int SFileEntryPool::Add(const char * pPath, const char * pRemoteUrl)
 	SDirEntry de;
 	if(SDirec::GetSingle(pPath, &de) > 0) {
 		SString temp_buf;
-		SPathStruc ps(pPath);
+		const SPathStruc ps(pPath);
 		ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
 		ok = Implement_Add(temp_buf, de, pRemoteUrl);
 	}
@@ -293,7 +293,7 @@ int SFileEntryPool::Scan(const char * pPath, const char * pWildcard, long flags)
 		}
 		else {
 			SString temp_buf;
-			SPathStruc ps(pPath);
+			const SPathStruc ps(pPath);
 			ps.Merge(~(SPathStruc::fNam|SPathStruc::fExt), temp_buf);
 			SetInitPath(temp_buf.SetLastSlash());
 		}

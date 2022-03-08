@@ -582,7 +582,7 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData)
 			setCtrlLong(CTL_STQCMD_REXPRTM, Data.ResultExpiryTimeSec); // @v11.2.5
 			{
 				const long base_cmd_id_list[] = {StyloQCommandList::sqbcPersonEvent, StyloQCommandList::sqbcReport, StyloQCommandList::sqbcRsrvOrderPrereq,
-					StyloQCommandList::sqbcRsrvAttendancePrereq};
+					StyloQCommandList::sqbcRsrvAttendancePrereq, StyloQCommandList::sqbcRsrvPushIndexContent};
 				StrAssocArray basecmd_list;
 				for(uint i = 0; i < SIZEOFARRAY(base_cmd_id_list); i++) {
 					basecmd_list.Add(base_cmd_id_list[i], StyloQCommandList::GetBaseCommandName(base_cmd_id_list[i], temp_buf));
@@ -635,6 +635,9 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData)
 					case StyloQCommandList::sqbcRsrvAttendancePrereq: // @v11.3.2
 						EditAttendanceFilter();
 						break; 
+					case StyloQCommandList::sqbcRsrvPushIndexContent: // @v11.3.4
+						EditIndexingFilter();
+						break;
 					default: return;
 				}
 			}
@@ -695,6 +698,43 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData)
 				}
 			}
 		}
+		void EditIndexingFilter()
+		{
+			size_t sav_offs = 0;
+			StyloQIndexingParam * p_filt = 0;
+			uint   pos = 0;
+			{
+				const StyloQIndexingParam pattern_filt;
+				sav_offs = Data.Param.GetRdOffs();
+				{
+					if(Data.Param.GetAvailableSize()) {
+						PPBaseFilt * p_base_filt = 0;
+						THROW(PPView::ReadFiltPtr(Data.Param, &p_base_filt));
+						if(p_base_filt) {
+							if(p_base_filt->GetSignature() == pattern_filt.GetSignature()) {
+								p_filt = static_cast<StyloQIndexingParam *>(p_base_filt);
+							}
+							else {
+								assert(p_filt == 0);
+								// Путаница в фильтрах - убиваем считанный фильтр чтобы создать новый.
+								ZDELETE(p_base_filt);
+							}
+						}
+					}
+					SETIFZ(p_filt, new StyloQIndexingParam);
+					if(PPStyloQInterchange::Edit_IndexingParam(*p_filt) > 0) {
+						Data.Param.Z();
+						THROW(PPView::WriteFiltPtr(Data.Param, p_filt));
+					}
+					else
+						Data.Param.SetRdOffs(sav_offs);
+				}
+			}
+			CATCH
+				Data.Param.SetRdOffs(sav_offs);
+			ENDCATCH
+			ZDELETE(p_filt);
+		}
 		void EditAttendanceFilter()
 		{
 			size_t sav_offs = 0;
@@ -702,7 +742,6 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData)
 			uint   pos = 0;
 			{
 				const StyloQAttendancePrereqParam pattern_filt;
-				//SString view_symb(CmdSymbList.at_WithoutParent(pos).Txt);
 				sav_offs = Data.Param.GetRdOffs();
 				{
 					if(Data.Param.GetAvailableSize()) {
@@ -815,6 +854,9 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData)
 					{
 						enable_cmd_param = true;
 					}
+					break;
+				case StyloQCommandList::sqbcRsrvPushIndexContent: // @v11.3.4
+					enable_cmd_param = true;
 					break;
 			}
 			enableCommand(cmCmdParam, enable_cmd_param);

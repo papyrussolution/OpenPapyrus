@@ -5,7 +5,7 @@
 #include <npp-internal.h>
 #pragma hdrstop
 
-void IconList::init(HINSTANCE hInst, int iconSize) 
+void IconList::init(HINSTANCE hInst, int iconSize)
 {
 	InitCommonControls();
 	_hInst = hInst;
@@ -16,17 +16,17 @@ void IconList::init(HINSTANCE hInst, int iconSize)
 		throw std::runtime_error("IconList::create : ImageList_Create() function returns null");
 };
 
-void IconList::create(int iconSize, HINSTANCE hInst, int *iconIDArray, int iconIDArraySize)
+void IconList::create(int iconSize, HINSTANCE hInst, int * iconIDArray, int iconIDArraySize)
 {
 	init(hInst, iconSize);
 	_pIconIDArray = iconIDArray;
 	_iconIDArraySize = iconIDArraySize;
 
-	for (int i = 0 ; i < iconIDArraySize ; ++i)
+	for(int i = 0; i < iconIDArraySize; ++i)
 		addIcon(iconIDArray[i]);
 };
 
-void IconList::addIcon(int iconID) const 
+void IconList::addIcon(int iconID) const
 {
 	HICON hIcon = ::LoadIcon(_hInst, MAKEINTRESOURCE(iconID));
 	if(!hIcon)
@@ -36,20 +36,24 @@ void IconList::addIcon(int iconID) const
 	::DestroyIcon(hIcon);
 };
 
-
 void IconList::addIcon(HICON hIcon) const
 {
 	if(hIcon)
 		ImageList_AddIcon(_hImglst, hIcon);
 };
 
-bool IconList::changeIcon(int index, const TCHAR *iconLocation) const
+bool IconList::changeIcon(int index, const TCHAR * iconLocation) const
 {
-	HBITMAP hBmp = (HBITMAP)::LoadImage(_hInst, iconLocation, IMAGE_ICON, _iconSize, _iconSize, LR_LOADFROMFILE | LR_LOADMAP3DCOLORS | LR_LOADTRANSPARENT);
+	HBITMAP hBmp = (HBITMAP)::LoadImage(_hInst,
+		iconLocation,
+		IMAGE_ICON,
+		_iconSize,
+		_iconSize,
+		LR_LOADFROMFILE | LR_LOADMAP3DCOLORS | LR_LOADTRANSPARENT);
 	if(!hBmp)
 		return false;
 	int i = ImageList_ReplaceIcon(_hImglst, index, (HICON)hBmp);
-	ImageList_AddMasked(_hImglst, (HBITMAP)hBmp, RGB(255,0,255));
+	ImageList_AddMasked(_hImglst, (HBITMAP)hBmp, RGB(255, 0, 255));
 	::DeleteObject(hBmp);
 	return (i == index);
 }
@@ -58,15 +62,15 @@ bool IconList::changeIcon(int index, const TCHAR *iconLocation) const
 void IconList::addIcons(int size) const
 {
 	ImageList_SetIconSize(_hImglst, size, size);
-	for (int i = 0 ; i < _iconIDArraySize ; ++i)
+	for(int i = 0; i < _iconIDArraySize; ++i)
 		addIcon(_pIconIDArray[i]);
 }
 
-void ToolBarIcons::init(ToolBarButtonUnit *buttonUnitArray, int arraySize, std::vector<DynamicCmdIcoBmp> moreCmds)
+void ToolBarIcons::init(ToolBarButtonUnit * buttonUnitArray, int arraySize, std::vector<DynamicCmdIcoBmp> moreCmds)
 {
-	for (int i = 0 ; i < arraySize ; ++i)
+	for(int i = 0; i < arraySize; ++i)
 		_tbiis.push_back(buttonUnitArray[i]);
-	
+
 	_moreCmds = moreCmds;
 }
 
@@ -84,10 +88,8 @@ void ToolBarIcons::reInit(int size)
 	ImageList_SetIconSize(getDefaultLstSetDM2(), size, size);
 	ImageList_SetIconSize(getDisableLstSetDM2(), size, size);
 
-	for (size_t i = 0, len = _tbiis.size(); i < len; ++i)
-	{
-		if(_tbiis[i]._defaultIcon != -1)
-		{
+	for(size_t i = 0, len = _tbiis.size(); i < len; ++i) {
+		if(_tbiis[i]._defaultIcon != -1) {
 			_iconListVector[HLIST_DEFAULT].addIcon(_tbiis[i]._defaultIcon);
 			_iconListVector[HLIST_DISABLE].addIcon(_tbiis[i]._grayIcon);
 			_iconListVector[HLIST_DEFAULT2].addIcon(_tbiis[i]._defaultIcon2);
@@ -99,39 +101,27 @@ void ToolBarIcons::reInit(int size)
 			_iconListVector[HLIST_DISABLE_DM2].addIcon(_tbiis[i]._grayDarkModeIcon2);
 		}
 	}
-
 	// Add dynamic icons (from plugins)
-	for (auto i : _moreCmds)
-	{
+	for(auto i : _moreCmds) {
 		_iconListVector[HLIST_DEFAULT].addIcon(i._hIcon);
 		_iconListVector[HLIST_DISABLE].addIcon(i._hIcon);
 		_iconListVector[HLIST_DEFAULT2].addIcon(i._hIcon);
 		_iconListVector[HLIST_DISABLE2].addIcon(i._hIcon);
-
 		HICON hIcon = nullptr;
-
-		if(i._hIcon_DM)
-		{
+		if(i._hIcon_DM) {
 			hIcon = i._hIcon_DM;
 		}
-		else
-		{
+		else{
 			ICONINFO iconinfoSrc;
 			GetIconInfo(i._hIcon, &iconinfoSrc);
-
 			HDC dcScreen = ::GetDC(NULL);
-
 			BITMAP bmp;
 			int nbByteBmp = ::GetObject(iconinfoSrc.hbmColor, sizeof(BITMAP), &bmp);
-
-			if(!nbByteBmp)
-			{
+			if(!nbByteBmp) {
 				hIcon = i._hIcon;
 			}
-			else
-			{
+			else{
 				BITMAPINFOHEADER bi = { 0 };
-
 				bi.biSize = sizeof(BITMAPINFOHEADER);
 				bi.biWidth = bmp.bmWidth;
 				bi.biHeight = bmp.bmHeight;
@@ -143,47 +133,31 @@ void ToolBarIcons::reInit(int size)
 				bi.biYPelsPerMeter = 0;
 				bi.biClrUsed = 0;
 				bi.biClrImportant = 0;
-
 				DWORD dwLineSize = ((bmp.bmWidth * bi.biBitCount + 31) / 32) * 4;
 				DWORD dwBmpSize = dwLineSize * bmp.bmHeight;
-
 				std::unique_ptr<BYTE[]> dibits(new BYTE[dwBmpSize]);
-
 				GetDIBits(dcScreen, iconinfoSrc.hbmColor, 0, bi.biHeight, dibits.get(), (BITMAPINFO*)&bi, DIB_RGB_COLORS);
-
-				for (int scanLine = 0; scanLine < bi.biHeight; ++scanLine)
-				{
+				for(int scanLine = 0; scanLine < bi.biHeight; ++scanLine) {
 					BYTE* rawLine = dibits.get() + (dwLineSize * scanLine);
 					RGBQUAD* pLine = (RGBQUAD*)rawLine;
-
-					for (int pixel = 0; pixel < bi.biWidth; ++pixel)
-					{
+					for(int pixel = 0; pixel < bi.biWidth; ++pixel) {
 						RGBQUAD rgba = pLine[pixel];
-
 						COLORREF c = RGB(rgba.rgbRed, rgba.rgbGreen, rgba.rgbBlue);
 						COLORREF invert = NppDarkMode::invertLightness(c);
-
 						rgba.rgbRed = GetRValue(invert);
 						rgba.rgbBlue = GetBValue(invert);
 						rgba.rgbGreen = GetGValue(invert);
-
 						pLine[pixel] = rgba;
 					}
 				}
-
 				HBITMAP hBmpNew = ::CreateCompatibleBitmap(dcScreen, bmp.bmWidth, bmp.bmHeight);
-
 				SetDIBits(dcScreen, hBmpNew, 0, bi.biHeight, dibits.get(), (BITMAPINFO*)&bi, DIB_RGB_COLORS);
-
 				::ReleaseDC(NULL, dcScreen);
-
 				ICONINFO iconinfoDest = { 0 };
 				iconinfoDest.fIcon = TRUE;
 				iconinfoDest.hbmColor = hBmpNew;
 				iconinfoDest.hbmMask = iconinfoSrc.hbmMask;
-
 				hIcon = ::CreateIconIndirect(&iconinfoDest);
-
 				::DeleteObject(hBmpNew);
 				::DeleteObject(iconinfoSrc.hbmColor);
 				::DeleteObject(iconinfoSrc.hbmMask);
@@ -196,19 +170,17 @@ void ToolBarIcons::reInit(int size)
 	}
 }
 
-
 void ToolBarIcons::create(HINSTANCE hInst, int iconSize)
 {
 	_iconListVector.push_back(IconList());
 	_iconListVector.push_back(IconList());
 	_iconListVector.push_back(IconList());
 	_iconListVector.push_back(IconList());
-	
+
 	_iconListVector.push_back(IconList());
 	_iconListVector.push_back(IconList());
 	_iconListVector.push_back(IconList());
 	_iconListVector.push_back(IconList());
-	
 
 	_iconListVector[HLIST_DEFAULT].init(hInst, iconSize);
 	_iconListVector[HLIST_DISABLE].init(hInst, iconSize);
@@ -230,7 +202,3 @@ void ToolBarIcons::destroy()
 	_iconListVector[HLIST_DISABLE].destroy();
 	_iconListVector[HLIST_DISABLE2].destroy();
 }
-
-
-
-

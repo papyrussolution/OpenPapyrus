@@ -3537,7 +3537,8 @@ int PPObjGoods::Helper_Edit(PPID * pID, PPGoodsPacket * pPack, GoodsPacketKind g
 		}
 		if(dlg_id) {
 			int    valid_data = 0;
-			THROW(CheckDialogPtr(&(dlg = new GoodsDialog(dlg_id))));
+			dlg = new GoodsDialog(dlg_id);
+			THROW(CheckDialogPtr(&dlg));
 			THROW(dlg->setDTS(pPack));
 			while(!valid_data && (r = ExecView(dlg)) == cmOK) {
 				MemLeakTracer mlt;

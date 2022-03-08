@@ -1393,7 +1393,8 @@ int GoodsDialog::setDTS(const PPGoodsPacket * pPack)
 
 int GoodsDialog::getDTS(PPGoodsPacket * pPack)
 {
-	int    ok = 1, sel = 0;
+	int    ok = 1;
+	int    sel = 0;
 	PPID   parent_id = 0;
 	ushort v = 0;
 	getCtrlData(sel = CTL_GOODS_NAME, Data.Rec.Name);

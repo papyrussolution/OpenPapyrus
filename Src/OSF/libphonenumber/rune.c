@@ -168,7 +168,6 @@ int chartorune(Rune * rune, const char * str)
 {
 	int c, c1, c2, c3;
 	long l;
-
 	/*
 	 * one character sequence
 	 *	00000-0007F => T1
@@ -178,7 +177,6 @@ int chartorune(Rune * rune, const char * str)
 		*rune = (Rune)c;
 		return 1;
 	}
-
 	/*
 	 * two character sequence
 	 *	0080-07FF => T2 Tx

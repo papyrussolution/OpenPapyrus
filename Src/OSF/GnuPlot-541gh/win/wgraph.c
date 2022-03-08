@@ -1577,7 +1577,7 @@ static void draw_image(GW * lpgw, HDC hdc, char * image, POINT corners[4], uint 
 			membmp = CreateDIBSection(memdc, &bmi, DIB_RGB_COLORS, (void**)&pvBits, NULL, 0x0);
 			oldbmp = (HBITMAP)SelectObject(memdc, membmp);
 			memcpy(pvBits, image, width * height * 4);
-			/* convert to grayscale? */
+			// convert to grayscale?
 			if(!lpgw->color) {
 				for(uint y = 0; y < height; y++) {
 					for(uint x = 0; x < width; x++) {
@@ -2360,23 +2360,23 @@ static void drawgraph(GW * lpgw, HDC hdc, LPRECT rect)
 				    break;
 			    }
 				case W_filled_polygon_draw: {
-				    /* end of point series --> draw polygon now */
+				    // end of point series --> draw polygon now 
 				    if(!transparent) {
-					    /* fill area without border */
+					    // fill area without border 
 					    SelectObject(hdc, lpgw->hnull);
 					    Polygon(hdc, ppt, polyi);
 					    SelectObject(hdc, lpgw->hapen); /* restore previous pen */
 				    }
 				    else {
-					    /* BM: To support transparent fill on Windows we draw the
-					       polygon into a memory bitmap using a memory device context.
-
-					       We then associate an alpha value to the bitmap and use
-					       AlphaBlend() to copy the bitmap back.
-
-					       Note: we could probably simplify and speed up the case of
-					       pattern fill by using TransparentBlt() instead.
-					     */
+					    // BM: To support transparent fill on Windows we draw the
+					    // polygon into a memory bitmap using a memory device context.
+					    // 
+					    // We then associate an alpha value to the bitmap and use
+					    // AlphaBlend() to copy the bitmap back.
+					    // 
+					    // Note: we could probably simplify and speed up the case of
+					    // pattern fill by using TransparentBlt() instead.
+					    // 
 					    HDC memdc;
 					    HBITMAP membmp, oldbmp;
 					    long minx;
@@ -2743,8 +2743,6 @@ static void SaveAsEMF(GW * lpgw)
 	}
 }
 
-/* ================================== */
-
 HBITMAP GraphGetBitmap(GW * lpgw)
 {
 	RECT rect;
@@ -2752,13 +2750,13 @@ HBITMAP GraphGetBitmap(GW * lpgw)
 	HBITMAP bitmap;
 	HDC hdc = GetDC(lpgw->hGraph);
 	GetPlotRect(lpgw, &rect);
-	/* make a bitmap and copy it there */
+	// make a bitmap and copy it there 
 	mem = CreateCompatibleDC(hdc);
 	bitmap = CreateCompatibleBitmap(hdc, rect.right - rect.left, rect.bottom - rect.top);
 	if(bitmap) {
-		/* there is enough memory and the bitmap is available */
+		// there is enough memory and the bitmap is available 
 		HBITMAP oldbmp = (HBITMAP)SelectObject(mem, bitmap);
-		/* copy from screen */
+		// copy from screen 
 		BitBlt(mem, 0, 0, rect.right - rect.left, rect.bottom - rect.top, hdc, rect.left, rect.top, SRCCOPY);
 		SelectObject(mem, oldbmp);
 	}
@@ -2783,7 +2781,7 @@ static void CopyClip(GW * lpgw)
 		ShowWindow(hwnd, SW_SHOWNORMAL);
 	BringWindowToTop(hwnd);
 	UpdateWindow(hwnd);
-	/* get a bitmap copy of the window */
+	// get a bitmap copy of the window 
 	bitmap = GraphGetBitmap(lpgw);
 	if(!bitmap) {
 		MessageBeep(MB_ICONHAND);
@@ -2827,9 +2825,7 @@ static void CopyClip(GW * lpgw)
 #endif
 	}
 	ReleaseDC(hwnd, hdc);
-
-	/* Now we have the Metafile and Bitmap prepared, post their contents to
-	 * the Clipboard */
+	// Now we have the Metafile and Bitmap prepared, post their contents to the Clipboard 
 	OpenClipboard(lpgw->hWndGraph);
 	EmptyClipboard();
 	// Note that handles are owned by the system after calls to SetClipboardData()

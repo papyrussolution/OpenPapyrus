@@ -35516,7 +35516,7 @@ public:
 	PPSCardSerRule();
 	PPSCardSerRule & FASTCALL operator = (const PPSCardSerRule & s);
 	void   Init();
-	int    FASTCALL IsEq(const PPSCardSerRule & rS) const;
+	bool   FASTCALL IsEq(const PPSCardSerRule & rS) const;
 	int    ValidateItem(int ruleType, const TrnovrRngDis & rItem, long pos) const;
 	int    IsList() const;
 	int    CheckTrnovrRng(const RealRange & rR, long pos) const;
@@ -46313,16 +46313,14 @@ public:
 	int   Set(int tag, int lang, const char * pText);
 	int   SetVerifiability(int v);
 	int   SetDob(LDATE dt);
-	//int   SetVerifiable(bool v);
-	int   SetImage(const SImageBuffer * pImg);
+	int   SetImage(int imgFormat/*SFileFormat::XXX*/, const SImageBuffer * pImg);
 	int   Get(int tag, int lang, SString & rResult) const;
 	int   GetExactly(int tag, int lang, SString & rResult) const;
 	LDATE GetDob() const;
 	int   SetGeoLoc(const SGeoPosLL & rPos);
 	int   GetGeoLoc(SGeoPosLL & rPos) const;
-	//bool  IsVerifiable() const;
 	int   GetVerifiability() const;
-	int   GetImage(SImageBuffer * pImg) const;
+	int   GetImage(SImageBuffer * pImg, int * pImgFormat) const;
 	int   FromJson(const char * pJsonText);
 	int   FromJsonObject(const SJson * pJsObj);
 	//
@@ -46420,14 +46418,22 @@ public:
 	// Descr: Типы документов, хранящихся в реестре Stylo-Q
 	//
 	enum { // @persistent
-		doctypUndef       = 0,
-		doctypCommandList = 1,
-		doctypOrderPrereq = 2, // Предопределенный формат данных, подготовленных для формирования заказа на клиентской стороне
-		doctypReport      = 3, // @v11.2.10 Отчеты в формате DL600 export
-		doctypGeneric     = 4  // @v11.2.11 Общий тип для документов, чьи характеристики определяются видом операции (что-то вроде Bill в Papyrus'е)
+		doctypUndef           = 0,
+		doctypCommandList     = 1,
+		doctypOrderPrereq     = 2, // Предопределенный формат данных, подготовленных для формирования заказа на клиентской стороне
+		doctypReport          = 3, // @v11.2.10 Отчеты в формате DL600 export
+		doctypGeneric         = 4, // @v11.2.11 Общий тип для документов, чьи характеристики определяются видом операции (что-то вроде Bill в Papyrus'е)
+		doctypIndexingContent = 5  // @v11.3.4 Документ, содержащий данные для индексации медиатором
+	};
+	//
+	// Descr: Флаги записей реестра Stylo-Q
+	//
+	enum {
+		fUnprocessedDoc       = 0x0001 // Необработанный документ. Изначально введен для идентификации документов поискового контента (doctypIndexingContent), 
+			// которые не были проиндексированы. В дальнейшем возможны дополнительные применения.
 	};
 	struct StoragePacket {
-		int FASTCALL IsEq(const StoragePacket & rS) const;
+		bool   FASTCALL IsEq(const StoragePacket & rS) const;
 		StyloQSecTbl::Rec Rec;
 		SSecretTagPool Pool;
 	};
@@ -46449,7 +46455,7 @@ public:
 	int    PutPeerEntry(PPID * pID, StoragePacket * pPack, int use_ta);
 	int    GetPeerEntry(PPID id, StoragePacket * pPack);
 	int    SearchSession(const SBinaryChunk & rOtherPublic, StoragePacket * pPack);
-	int    PutDocument(PPID * pID, int direction, int docType, const SBinaryChunk & rIdent, SSecretTagPool & rPool, int use_ta);
+	int    PutDocument(PPID * pID, const SBinaryChunk & rContractorIdent, int direction, int docType, const SBinaryChunk & rIdent, SSecretTagPool & rPool, int use_ta);
 	int    GetDocIdListByType(int direction, int docType, const SBinaryChunk & rIdent, LongArray & rIdList);
 	int    GetMediatorIdList(LongArray & rIdList);
 	//
@@ -46476,6 +46482,7 @@ public:
 	int    SearchGlobalIdentEntry(int kind, const SBinaryChunk & rIdent, StoragePacket * pPack);
 	int    ReadCurrentPacket(StoragePacket * pPack);
 	int    MakeTextHashForCounterparty(const StoragePacket & rOtherPack, uint len, SString & rBuf);
+	int    MakeDocumentStorageIdent(const SBinaryChunk & rOtherIdent, const S_GUID & rCmdUuid, SBinaryChunk & rDocIdent) const;
 private:
 	static ReadWriteLock _SvcDbMapRwl; // Блокировка для защиты _SvcDbMap
 	static SvcDbSymbMap _SvcDbMap;
@@ -46491,7 +46498,22 @@ public:
 
 	uint8  ReserveStart[64]; // @reserve
 	ObjIdListFilt PrcList;   // @anchor 
-	SString PrcTitle;        // Стока, используемая для именования процессоров (мастера, врачи и т.д.)
+	SString PrcTitle;        // Строка, используемая для именования процессоров (мастера, врачи и т.д.)
+private:
+	int    InitInstance();
+};
+
+class StyloQIndexingParam : public PPBaseFilt {
+public:
+	StyloQIndexingParam();
+	StyloQIndexingParam(const StyloQIndexingParam & rS);
+	StyloQIndexingParam & FASTCALL operator = (const StyloQIndexingParam & rS);
+
+	uint8  ReserveStart[64]; // @reserve
+	long   Flags;
+	PPID   GoodsGroupID;
+	PPID   PersonKindID;
+	ObjIdListFilt PrcList;   // @anchor 
 private:
 	int    InitInstance();
 };
@@ -46522,7 +46544,8 @@ public:
 		sqbcRsrvOrderPrereq      = 101, // Модуль данных, передаваемых сервисом клиенту чтобы тот мог сформировать 
 			// заказ. Дополнительные параметры определяют особенности модуля: заказ от конечного клиента, 
 			// агентский заказ, заказ на месте и т.д.
-		sqbcRsrvAttendancePrereq = 102 // Модуль данных, передаваемых сервисом клиенту для формирования записи на обслуживаение.
+		sqbcRsrvAttendancePrereq = 102, // Модуль данных, передаваемых сервисом клиенту для формирования записи на обслуживаение.
+		sqbcRsrvPushIndexContent = 103  // @v11.3.4 Параметры передачи сервисам-медиаторам данных для поисковой индексации
 	};
 	//
 	// Descr: Идентификаторы типов документов обмена
@@ -46848,8 +46871,10 @@ public:
 	SlSRP::Verifier * InitSrpVerifier(const SBinaryChunk & rCliIdent, const SBinaryChunk & rSrpS, const SBinaryChunk & rSrpV, const SBinaryChunk & rA, SBinaryChunk & rResultB) const;
 	SlSRP::Verifier * CreateSrpPacket_Svc_Auth(const SBinaryChunk & rMyPub, const SBinaryChunk & rCliIdent, const SBinaryChunk & rSrpS,
 		const SBinaryChunk & rSrpV, const SBinaryChunk & rA, StyloQProtocol & rP);
+	int    MakeIndexingRequestCommand(const StyloQCore::StoragePacket * pOwnPack, long expirationSec, SString & rResult);
 	static void  SetupMqbReplyProps(const RoundTripBlock & rB, PPMqbClient::MessageProperties & rProps);
 	static int   Edit_RsrvAttendancePrereqParam(StyloQAttendancePrereqParam & rParam);
+	static int   Edit_IndexingParam(StyloQIndexingParam & rParam);
 	//
 	void   Debug_Command(const StyloQCommandList::Item * pCmd); // @debug
 private:
@@ -46864,10 +46889,16 @@ private:
 	//
 	// Descr: Обрабатывает команду создания документа по инициативе клиента.
 	// Returns:
-	//   >0 - идентификатор созданного или уже существующего документа
+	//   >0 - идентификатор созданного или уже существующего документа (PPOBJ_BILL)
 	//    0 - ошибка
 	//
 	PPID   ProcessCommand_PostDocument(const StyloQCore::StoragePacket & rCliPack, const SJson * pDeclaration, const SJson * pDocument);
+	//
+	// Returns:
+	//   >0 - идентификатор созданного документа (PPOBJ_STYLOQBINDERY)
+	//    0 - ошибка
+	//
+	PPID   ProcessCommand_IndexingContent(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument, SString & rResult);
 	int    FetchPersonFromClientPacket(const StyloQCore::StoragePacket & rCliPack, PPID * pPersonID);
 	int    AcceptStyloQClientAsPerson(const StyloQCore::StoragePacket & rCliPack, PPID personKind, PPID * pPersonID, int use_ta);
 	int    QueryConfigIfNeeded(RoundTripBlock & rB);
@@ -53042,12 +53073,15 @@ public:
 	};
 	struct Rec {
 		enum {
-			fUpdated = 0x0001 // Изображение было изменено
+			fUpdated     = 0x0001, // Изображение было изменено
+			fImageBuffer = 0x0002  // @v11.3.4 Если флаг установлен, то запись оперирует буфером изображения ImgBuf, а не файлом Path
 		};
 		explicit Rec(const SString * pBuf = 0);
+		explicit Rec(SImageBuffer * pImgBuf);
 
 		int    Flags;
 		SString Path;
+		SImageBuffer ImgBuf;
 	};
 	// Формат строки расширений: Имя:*.ext;*.ext2;*.ext3,Имя:*.ext4;*.ext5;*.ext6, ...
 	ImageBrowseCtrlGroup(uint ctlImage, uint cmChgImage, uint cmDeleteImage, int allowChangeImage = 1, long flags = 0);
