@@ -6302,6 +6302,7 @@ PPID PPStyloQInterchange::ProcessCommand_IndexingContent(const StyloQCore::Stora
 {
 	rResult.Z();
 	PPID   doc_id = 0;
+	SString js_doc_text;
 	SBinaryChunk doc_ident;
 	SBinaryChunk cli_ident;
 	SSecretTagPool doc_pool;
@@ -6309,12 +6310,12 @@ PPID PPStyloQInterchange::ProcessCommand_IndexingContent(const StyloQCore::Stora
 	THROW(rCliPack.Pool.Get(SSecretTagPool::tagClientIdent, &cli_ident)); // @todo @err
 	THROW(P_T->MakeDocumentStorageIdent(cli_ident, ZEROGUID, doc_ident));
 	{
-		SString js_doc_text;
 		SBinarySet::DeflateStrategy ds(256);
 		THROW_SL(pDocument->ToStr(js_doc_text));
 		THROW_SL(doc_pool.Put(SSecretTagPool::tagRawData, js_doc_text, js_doc_text.Len(), &ds));
 	}
 	THROW(P_T->PutDocument(&doc_id, cli_ident, -1/*input*/, StyloQCore::doctypIndexingContent, doc_ident, doc_pool, 1/*use_ta*/));
+	rResult.CatEq("stored-document-id", doc_id).CatDiv(';', 2).CatEq("raw-json-size", js_doc_text.Len()+1).CatDiv(';', 2).CatEq("result-pool-size", doc_pool.GetDataLen());
 	CATCH
 		doc_id = 0;
 	ENDCATCH
@@ -6526,11 +6527,31 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 			}
 			else if(command.IsEqiAscii("pushindexingcontent")) { // @v11.3.4
 				// Команда передачи сервису-медиатору данных для поисковой индексации
-				StyloQCore::StoragePacket cli_pack;
-				if(SearchGlobalIdentEntry(StyloQCore::kClient, rCliIdent, &cli_pack) > 0) {
-					if(ProcessCommand_IndexingContent(cli_pack, p_js_cmd, reply_text_buf) > 0) {
-						cmd_reply_ok = true;
+				if(GetOwnPeerEntry(&own_pack) > 0) {
+					StyloQConfig own_cfg;
+					if(!own_pack.Pool.Get(SSecretTagPool::tagConfig, &reply_config)) {
+						PPSetError(PPERR_SQ_CMDFAULT_IMNOTMEDIATOR, command);
 					}
+					else {
+						reply_config.ToRawStr(temp_buf);
+						if(own_cfg.FromJson(temp_buf)) {
+							uint   own_cfg_role = own_cfg.GetRole();
+							uint64 own_features = own_cfg.GetFeatures();
+							if(!(own_features & StyloQConfig::featrfMediator)) {
+								PPSetError(PPERR_SQ_CMDFAULT_IMNOTMEDIATOR, command);
+							}
+							else {
+								StyloQCore::StoragePacket cli_pack;
+								assert(reply_config.Len());
+								if(SearchGlobalIdentEntry(StyloQCore::kClient, rCliIdent, &cli_pack) > 0) {
+									if(ProcessCommand_IndexingContent(cli_pack, p_js_cmd, reply_text_buf) > 0) {
+										cmd_reply_ok = true;
+									}
+								}
+							}
+						}
+					}
+					reply_config.Z(); // В этом блоке reply_config использовалась как временная переменная, потому в конце блока очищаем ее дабы не передавать клиенту
 				}
 			}
 			else if(command.IsEqiAscii("search")) { // @v11.3.4
@@ -6549,7 +6570,6 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 						assert(reply_config.Len());
 						reply_config.ToRawStr(temp_buf);
 						if(own_cfg.FromJson(temp_buf)) {
-							//uint64 own_cfg_features = own_cfg.GetFeatures();
 							uint   own_cfg_role = own_cfg.GetRole();
 							uint64 own_features = own_cfg.GetFeatures();
 							int    local_err = 0;
@@ -8678,14 +8698,13 @@ int PPStyloQInterchange::TestClientInteractive(PPID svcID)
 					StyloQCore::StoragePacket own_pack;
 					if(P_Ic->GetOwnPeerEntry(&own_pack) > 0) {
 						if(P_Ic->MakeIndexingRequestCommand(&own_pack, 3600*24, dip.CommandJson)) {
-							if(P_Ic->DoInterchange(dip, svc_reply)) {
-								SBinaryChunk raw_data;
-								if(svc_reply.Get(SSecretTagPool::tagRawData, &raw_data)) {
-									raw_data.ToRawStr(json_buf);
-									SJson * p_js = SJson::Parse(json_buf);
-									if(p_js) {
-										setCtrlString(CTL_STQCLITEST_RESULT, json_buf);
-									}
+							int ir = P_Ic->DoInterchange(dip, svc_reply);
+							SBinaryChunk raw_data;
+							if(svc_reply.Get(SSecretTagPool::tagRawData, &raw_data)) {
+								raw_data.ToRawStr(json_buf);
+								SJson * p_js = SJson::Parse(json_buf);
+								if(p_js) {
+									setCtrlString(CTL_STQCLITEST_RESULT, json_buf);
 								}
 							}
 						}

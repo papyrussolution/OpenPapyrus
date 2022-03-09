@@ -410,6 +410,16 @@ int FASTCALL ReadWriteLock::Helper_ReadLock(long timeout)
 	if(ok > 0) {
 		assert(ActiveCount > 0);
 	}
+	// @v11.3.4 {
+	else {
+		assert(write_pending);
+		SCriticalSection cs(Cs);
+		Dr--;
+		assert(Dr >= 0);
+		assert(Dw >= 0);
+		assert(ActiveCount >= -1);
+	}
+	// } @v11.3.4 
 	return ok;
 }
 
@@ -444,6 +454,16 @@ int FASTCALL ReadWriteLock::Helper_WriteLock(long timeout)
 	if(ok > 0) {
 		assert(ActiveCount == -1);
 	}
+	// @v11.3.4 {
+	else {
+		assert(busy);
+		SCriticalSection cs(Cs);
+		Dw--;
+		assert(Dr >= 0);
+		assert(Dw >= 0);
+		assert(ActiveCount >= -1);
+	}
+	// } @v11.3.4 
 	return ok;
 }
 

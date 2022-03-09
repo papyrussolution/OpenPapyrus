@@ -58,7 +58,19 @@ public:
 		uint64 Rank;
 		double Weight;
 	};
-	explicit PPFtsDatabase(bool forUpdate);
+	class Ptr {
+	public:
+		explicit Ptr(bool writer);
+		~Ptr();
+		bool operator !() { return (P == 0); }
+		operator PPFtsDatabase *() { return P; }
+		PPFtsDatabase * operator ->() { return P; }
+	private:
+		PPFtsDatabase * P;
+		bool   Writer;
+		uint8  Reserve[3]; // @alignment
+	};
+
 	~PPFtsDatabase();
 	//
 	// Примерный сценарий индексации:
@@ -84,6 +96,9 @@ public:
 	uint64 PutEntity(SHandle transation, Entity & rEnt, StringSet & rSsUtf8);
 	int    Search(const char * pQueryUtf8, TSCollection <SearchResultEntry> & rResult);
 private:
+	static ReadWriteLock RwL; // Блокировка, управляющая синхронизацией читателей/писателей
+
+	explicit PPFtsDatabase(bool forUpdate);
 	int    GetEntityKey(Entity & rEnt, uint64 * pSurrogateScopeIdent, SBuffer & rEntityBuf, uint64 * pKey);
 	int    StoreEntityKey(uint64 surrogateScopeIdent, const SBuffer & rEntityBuf, uint64 key);
 	int    SearchEntityKey(uint64 key, Entity & rEnt, uint64 * pSurrogateScopeIdent);
@@ -137,6 +152,32 @@ private:
 	LmdbDatabase * P_SupplementalDb; // @not owned
 	Transaction * P_CurrentTra;
 };
+
+/*static*/ReadWriteLock PPFtsDatabase::RwL;
+
+static const long FtsDatabaseLockTimeout = 500;
+
+PPFtsDatabase::Ptr::Ptr(bool writer) : P(0), Writer(writer)
+{
+	if(Writer) {
+		if(PPFtsDatabase::RwL.WriteLockT_(FtsDatabaseLockTimeout) > 0) {
+			P = new PPFtsDatabase(true);
+		}
+	}
+	else {
+		if(PPFtsDatabase::RwL.ReadLockT_(FtsDatabaseLockTimeout) > 0) {
+			P = new PPFtsDatabase(false);
+		}
+	}
+}
+
+PPFtsDatabase::Ptr::~Ptr()
+{
+	if(P) {
+		ZDELETE(P);
+		PPFtsDatabase::RwL.Unlock_();
+	}
+}
 
 int PPFtsDatabase::Search(const char * pQueryUtf8, TSCollection <SearchResultEntry> & rResult)
 {
@@ -673,172 +714,196 @@ uint64 PPFtsDatabase::PutEntity(SHandle tra, Entity & rEnt, StringSet & rSsUtf8)
 static int Test_Fts2()
 {
 	int    ok = 1;
+	const  bool do_read_test = true;
 	uint   search_err_count = 0;
 	uint   last_word_id = 0;
-	//SymbHashTable word_list(SKILOBYTE(1024), 0);
+	SymbHashTable word_list(SKILOBYTE(1024), 0);
 	LAssocArray word_to_doc_assoc;
 	DbProvider * p_dict = CurDict;
 	THROW(p_dict);
 	{
-		PPFtsDatabase db(true);
-		SHandle tra;
-		PPObjGoods goods_obj;
-		PPViewGoods v_goods;
-		GoodsFilt f_goods;
-		S_GUID db_uuid;
-		SString db_symb;
-		SString text_buf;
-		SString text_resource_ident;
-		p_dict->GetDbUUID(&db_uuid);
-		p_dict->GetDbSymb(db_symb);
-
-		PPTextAnalyzer text_analyzer2;
-		PPTextAnalyzer::Item text_analyzer_item;
-		STokenizer::Param tparam;
-		tparam.Cp = cpUTF8;
-		//tparam.Flags |= STokenizer::fDivAlNum;
-		tparam.Delim = " \t\n\r(){}[]<>,.:;-\\/&$#@!?*^\"+=%\xA0";
-		tparam.Flags |= (STokenizer::fDivAlNum|STokenizer::fEachDelim);
-		text_analyzer2.SetParam(&tparam);
-		PPWait(1);
-		if(v_goods.Init_(&f_goods)) {
-			uint   total_count = 0;
-			GoodsViewItem vitem;
-			BarcodeArray bc_list;
-			StringSet doc_tokens;
-			PPFtsDatabase::Entity entity;
-			LongArray current_word_id_list;
-			entity.Scope = PPFtsDatabase::scopePPDb;
-			if(!!db_uuid)
-				entity.ScopeIdent.Z().Cat(db_uuid);
-			else
-				entity.ScopeIdent = db_symb;
-			entity.ObjType = PPOBJ_GOODS;
-			tra = db.BeginTransaction();
-			THROW(tra);
-			for(v_goods.InitIteration(PPViewGoods::OrdByDefault); v_goods.NextIteration(&vitem) > 0;) {
-				entity.ObjId = vitem.ID;
-				current_word_id_list.Z();
-				text_analyzer2.Reset(STokenizer::coClearSymbTab);
-				{
-					text_resource_ident.Z().CatChar('#').CatLongZ(vitem.ID, 8);
-					(text_buf = vitem.Name).Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower();
-					if(text_buf.C(0) == '\"' && text_buf.Last() == '\"') {
-						text_buf.TrimRightChr('\"');
-						text_buf.ShiftLeftChr('\"');
-						text_buf.ReplaceStr("\"\"", "\"", 0);
-					}
-					{
-						uint   idx_first = 0;
-						uint   idx_count = 0;
-						PROFILE(THROW_SL(text_analyzer2.Write(text_resource_ident, 0, text_buf, text_buf.Len()+1)));
-						PROFILE(THROW_SL(text_analyzer2.Run(&idx_first, &idx_count)));
-						//
-						doc_tokens.Z();
-						for(uint j = 0; j < idx_count; j++) {
-							if(text_analyzer2.Get(idx_first+j, text_analyzer_item)) {
-								if(text_analyzer_item.Token == STokenizer::tokWord) {
-									doc_tokens.add(text_analyzer_item.Text);
-									//
-									/*
-									uint   word_id = 0;
-									if(word_list.Search(text_analyzer_item.Text, &word_id, 0)) {
-										current_word_id_list.add(static_cast<long>(word_id));
-									}
-									else {
-										word_id = ++last_word_id;
-										word_list.Add(text_analyzer_item.Text, word_id);
-										current_word_id_list.add(static_cast<long>(word_id));
-									}*/
-								}
-							}
-						}
-						{
-							goods_obj.P_Tbl->ReadBarcodes(vitem.ID, bc_list);
-							for(uint bcidx = 0; bcidx < bc_list.getCount(); bcidx++) {
-								text_buf = bc_list.at(bcidx).Code;
-								text_buf.Transf(CTRANSF_INNER_TO_UTF8);
-								doc_tokens.add(text_buf);
-								//
-								/*
-								uint   word_id = 0;
-								if(word_list.Search(text_buf, &word_id, 0)) {
-									current_word_id_list.add(static_cast<long>(word_id));
-								}
-								else {
-									word_id = ++last_word_id;
-									word_list.Add(text_buf, word_id);
-									current_word_id_list.add(static_cast<long>(word_id));
-								}*/
-							}
-						}
-						{
-							uint64 result_doc_id = db.PutEntity(tra, entity, doc_tokens);
-							THROW(result_doc_id);
-							//
-							/*{
-								for(uint cwidx = 0; cwidx < current_word_id_list.getCount(); cwidx++) {
-									word_to_doc_assoc.Add(current_word_id_list.get(cwidx), static_cast<long>(result_doc_id));
-								}
-							}*/
-							total_count++;
-							if(total_count > 0 && (total_count % 1000) == 0) {
-								THROW(db.CommitTransaction(tra));
-								tra = db.BeginTransaction();
-								THROW(tra);
-							}
-							// 
-							//if(v_goods.P_Tbl->GetBarcode)
-							//f_out_name.WriteLine(msg_buf.CR());
-						}
-						PPWaitPercent(v_goods.GetCounter());
-					}
-				}
-			}
-			THROW(db.CommitTransaction(tra));
+		{
+			PPFtsDatabase::Ptr db1(true/*forUpdate*/);
+			assert(!!db1);
+			PPFtsDatabase::Ptr db2(true/*forUpdate*/);
+			assert(!db2);
+			PPFtsDatabase::Ptr db3(false/*forUpdate*/);
+			assert(!db3);
+		}
+		{
+			PPFtsDatabase::Ptr db4(false/*forUpdate*/);
+			assert(!!db4);
+			PPFtsDatabase::Ptr db5(false/*forUpdate*/);
+			assert(!!db5);
+			PPFtsDatabase::Ptr db6(false/*forUpdate*/);
+			assert(!!db6);
+			PPFtsDatabase::Ptr db7(true/*forUpdate*/);
+			assert(!db7);
 		}
 	}
-#if 0 // {
-	if(0) {
+	{
+		PPFtsDatabase::Ptr db(true/*forUpdate*/);
+		if(!!db) {
+			SHandle tra;
+			PPObjGoods goods_obj;
+			PPViewGoods v_goods;
+			GoodsFilt f_goods;
+			S_GUID db_uuid;
+			SString db_symb;
+			SString text_buf;
+			SString text_resource_ident;
+			p_dict->GetDbUUID(&db_uuid);
+			p_dict->GetDbSymb(db_symb);
+
+			PPTextAnalyzer text_analyzer2;
+			PPTextAnalyzer::Item text_analyzer_item;
+			STokenizer::Param tparam;
+			tparam.Cp = cpUTF8;
+			//tparam.Flags |= STokenizer::fDivAlNum;
+			tparam.Delim = " \t\n\r(){}[]<>,.:;-\\/&$#@!?*^\"+=%\xA0";
+			tparam.Flags |= (STokenizer::fDivAlNum|STokenizer::fEachDelim);
+			text_analyzer2.SetParam(&tparam);
+			PPWait(1);
+			if(v_goods.Init_(&f_goods)) {
+				uint   total_count = 0;
+				GoodsViewItem vitem;
+				BarcodeArray bc_list;
+				StringSet doc_tokens;
+				PPFtsDatabase::Entity entity;
+				LongArray current_word_id_list;
+				entity.Scope = PPFtsDatabase::scopePPDb;
+				if(!!db_uuid)
+					entity.ScopeIdent.Z().Cat(db_uuid);
+				else
+					entity.ScopeIdent = db_symb;
+				entity.ObjType = PPOBJ_GOODS;
+				tra = db->BeginTransaction();
+				THROW(tra);
+				for(v_goods.InitIteration(PPViewGoods::OrdByDefault); v_goods.NextIteration(&vitem) > 0;) {
+					entity.ObjId = vitem.ID;
+					current_word_id_list.Z();
+					text_analyzer2.Reset(STokenizer::coClearSymbTab);
+					{
+						text_resource_ident.Z().CatChar('#').CatLongZ(vitem.ID, 8);
+						(text_buf = vitem.Name).Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower();
+						if(text_buf.C(0) == '\"' && text_buf.Last() == '\"') {
+							text_buf.TrimRightChr('\"');
+							text_buf.ShiftLeftChr('\"');
+							text_buf.ReplaceStr("\"\"", "\"", 0);
+						}
+						{
+							uint   idx_first = 0;
+							uint   idx_count = 0;
+							PROFILE(THROW_SL(text_analyzer2.Write(text_resource_ident, 0, text_buf, text_buf.Len()+1)));
+							PROFILE(THROW_SL(text_analyzer2.Run(&idx_first, &idx_count)));
+							//
+							doc_tokens.Z();
+							for(uint j = 0; j < idx_count; j++) {
+								if(text_analyzer2.Get(idx_first+j, text_analyzer_item)) {
+									if(text_analyzer_item.Token == STokenizer::tokWord) {
+										doc_tokens.add(text_analyzer_item.Text);
+										if(do_read_test) {
+											uint   word_id = 0;
+											if(word_list.Search(text_analyzer_item.Text, &word_id, 0)) {
+												current_word_id_list.add(static_cast<long>(word_id));
+											}
+											else {
+												word_id = ++last_word_id;
+												word_list.Add(text_analyzer_item.Text, word_id);
+												current_word_id_list.add(static_cast<long>(word_id));
+											}
+										}
+									}
+								}
+							}
+							{
+								goods_obj.P_Tbl->ReadBarcodes(vitem.ID, bc_list);
+								for(uint bcidx = 0; bcidx < bc_list.getCount(); bcidx++) {
+									text_buf = bc_list.at(bcidx).Code;
+									text_buf.Transf(CTRANSF_INNER_TO_UTF8);
+									doc_tokens.add(text_buf);
+									//
+									if(do_read_test) {
+										uint   word_id = 0;
+										if(word_list.Search(text_buf, &word_id, 0)) {
+											current_word_id_list.add(static_cast<long>(word_id));
+										}
+										else {
+											word_id = ++last_word_id;
+											word_list.Add(text_buf, word_id);
+											current_word_id_list.add(static_cast<long>(word_id));
+										}
+									}
+								}
+							}
+							{
+								uint64 result_doc_id = db->PutEntity(tra, entity, doc_tokens);
+								THROW(result_doc_id);
+								//
+								if(do_read_test) {
+									for(uint cwidx = 0; cwidx < current_word_id_list.getCount(); cwidx++) {
+										word_to_doc_assoc.Add(current_word_id_list.get(cwidx), static_cast<long>(result_doc_id));
+									}
+								}
+								total_count++;
+								if(total_count > 0 && (total_count % 1000) == 0) {
+									THROW(db->CommitTransaction(tra));
+									tra = db->BeginTransaction();
+									THROW(tra);
+								}
+								// 
+								//if(v_goods.P_Tbl->GetBarcode)
+								//f_out_name.WriteLine(msg_buf.CR());
+							}
+							PPWaitPercent(v_goods.GetCounter());
+						}
+					}
+				}
+				THROW(db->CommitTransaction(tra));
+			}
+		}
+	}
+	if(do_read_test) {
 		//
 		// Теперь проверяем поиск
 		//
-		PPFtsDatabase db(false);
-		word_to_doc_assoc.SortByKeyVal();
-		SymbHashTable::Iter iter;
-		SymbHashTable::Stat hts;
-		word_list.CalcStat(hts);
-		uint   iter_no = 0;
-		if(word_list.InitIteration(&iter)) {
-			uint word_id = 0;
-			SString word_buf;
-			LongArray expected_doc_id_list;
-			while(word_list.NextIteration(&iter, &word_id, 0, &word_buf)) {
-				bool expected_doc_presents = false;
-				TSCollection <PPFtsDatabase::SearchResultEntry> result_list;
-				expected_doc_id_list.Z();
-				word_to_doc_assoc.GetListByKey(word_id, expected_doc_id_list);
-				int sr = db.Search(word_buf, result_list);
-				if(sr > 0) {
-					assert(result_list.getCount());
-					for(uint rlidx = 0; rlidx < result_list.getCount(); rlidx++) {
-						const PPFtsDatabase::SearchResultEntry * p_re = result_list.at(rlidx);
-						if(p_re) {
-							const long found_doc_id = static_cast<long>(p_re->DocId);
-							if(expected_doc_id_list.lsearch(found_doc_id))
-								expected_doc_presents = true;
+		PPFtsDatabase::Ptr db(false);
+		if(!!db) {
+			word_to_doc_assoc.SortByKeyVal();
+			SymbHashTable::Iter iter;
+			SymbHashTable::Stat hts;
+			word_list.CalcStat(hts);
+			uint   iter_no = 0;
+			if(word_list.InitIteration(&iter)) {
+				uint word_id = 0;
+				SString word_buf;
+				LongArray expected_doc_id_list;
+				while(word_list.NextIteration(&iter, &word_id, 0, &word_buf)) {
+					bool expected_doc_presents = false;
+					TSCollection <PPFtsDatabase::SearchResultEntry> result_list;
+					expected_doc_id_list.Z();
+					word_to_doc_assoc.GetListByKey(word_id, expected_doc_id_list);
+					int sr = db->Search(word_buf, result_list);
+					if(sr > 0) {
+						assert(result_list.getCount());
+						for(uint rlidx = 0; rlidx < result_list.getCount(); rlidx++) {
+							const PPFtsDatabase::SearchResultEntry * p_re = result_list.at(rlidx);
+							if(p_re) {
+								const long found_doc_id = static_cast<long>(p_re->DocId);
+								if(expected_doc_id_list.lsearch(found_doc_id))
+									expected_doc_presents = true;
+							}
 						}
 					}
+					if(!expected_doc_presents)
+						search_err_count++;
+					//
+					iter_no++;
+					PPWaitPercent(iter_no, hts.NumEntries);
 				}
-				if(!expected_doc_presents)
-					search_err_count++;
-				//
-				iter_no++;
-				PPWaitPercent(iter_no, hts.NumEntries);
 			}
 		}
 	}
-#endif // } 0
 	CATCH
 		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO);
 		ok = 0;

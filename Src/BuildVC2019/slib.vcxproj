@@ -1008,8 +1008,8 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Db\bdb.cpp" />
-    <ClCompile Include="..\Db\Bextins.cpp">
+    <ClCompile Include="..\SLib\bdb.cpp" />
+    <ClCompile Include="..\SLib\Bextins.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
       </PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
@@ -1039,7 +1039,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\Db\Bextqry.cpp">
+    <ClCompile Include="..\SLib\Bextqry.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
       </PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
@@ -1069,7 +1069,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\Db\Bnkey.cpp">
+    <ClCompile Include="..\SLib\Bnkey.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
       </PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
@@ -1099,7 +1099,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\Db\Btrv.cpp">
+    <ClCompile Include="..\SLib\Btrv.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
       </PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
@@ -1129,7 +1129,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\Db\Dbbackup.cpp">
+    <ClCompile Include="..\SLib\Dbbackup.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
       </PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
@@ -1159,7 +1159,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\Db\Dbdict.cpp">
+    <ClCompile Include="..\SLib\Dbdict.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
       </PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
@@ -1189,7 +1189,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\Db\Dbeop.cpp">
+    <ClCompile Include="..\SLib\Dbeop.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
       </PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
@@ -1219,7 +1219,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\Db\Dbf.cpp">
+    <ClCompile Include="..\SLib\Dbf.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
       </PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
@@ -1249,10 +1249,10 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\Db\dbkv-lmdb.cpp" />
-    <ClCompile Include="..\Db\dboci.cpp" />
-    <ClCompile Include="..\Db\dbprvdr.cpp" />
-    <ClCompile Include="..\Db\Dbq.cpp">
+    <ClCompile Include="..\SLib\dbkv-lmdb.cpp" />
+    <ClCompile Include="..\SLib\dboci.cpp" />
+    <ClCompile Include="..\SLib\dbprvdr.cpp" />
+    <ClCompile Include="..\SLib\Dbq.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
       </PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
@@ -1282,8 +1282,8 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\Db\Dbqbrdef.cpp" />
-    <ClCompile Include="..\Db\Dbquery.cpp">
+    <ClCompile Include="..\SLib\Dbqbrdef.cpp" />
+    <ClCompile Include="..\SLib\Dbquery.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
       </PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
@@ -1313,7 +1313,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\Db\dbsess.cpp">
+    <ClCompile Include="..\SLib\dbsess.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
       </PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
@@ -1343,10 +1343,10 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\Db\dbsql-mysql.cpp" />
-    <ClCompile Include="..\Db\dbsql-sqlite.cpp" />
-    <ClCompile Include="..\Db\dbsql.cpp" />
-    <ClCompile Include="..\Db\Dbtable.cpp">
+    <ClCompile Include="..\SLib\dbsql-mysql.cpp" />
+    <ClCompile Include="..\SLib\dbsql-sqlite.cpp" />
+    <ClCompile Include="..\SLib\dbsql.cpp" />
+    <ClCompile Include="..\SLib\Dbtable.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
       </PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
@@ -1376,8 +1376,8 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\Db\dbtablec.cpp" />
-    <ClCompile Include="..\Db\dti.cpp">
+    <ClCompile Include="..\SLib\dbtablec.cpp" />
+    <ClCompile Include="..\SLib\dti.cpp">
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">1Byte</StructMemberAlignment>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">1Byte</StructMemberAlignment>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">1Byte</StructMemberAlignment>
@@ -1421,8 +1421,8 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\Db\gensql.cpp" />
-    <ClCompile Include="..\Db\Kr.cpp">
+    <ClCompile Include="..\SLib\gensql.cpp" />
+    <ClCompile Include="..\SLib\Kr.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
       </PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
@@ -1452,11 +1452,11 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\Db\sdrecord.cpp" />
-    <ClCompile Include="..\Db\soapdbt.cpp" />
-    <ClCompile Include="..\Db\txttable.cpp" />
-    <ClCompile Include="..\Db\xlstable.cpp" />
-    <ClCompile Include="..\Db\xmltable.cpp" />
+    <ClCompile Include="..\SLib\sdrecord.cpp" />
+    <ClCompile Include="..\SLib\soapdbt.cpp" />
+    <ClCompile Include="..\SLib\txttable.cpp" />
+    <ClCompile Include="..\SLib\xlstable.cpp" />
+    <ClCompile Include="..\SLib\xmltable.cpp" />
     <ClCompile Include="..\SLib\Arma.cpp" />
     <ClCompile Include="..\SLib\base64.cpp" />
     <ClCompile Include="..\SLib\Bist.cpp" />

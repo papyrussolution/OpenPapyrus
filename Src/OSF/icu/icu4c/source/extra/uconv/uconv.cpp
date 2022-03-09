@@ -57,20 +57,18 @@ U_NAMESPACE_USE
 #define UCONVMSG "uconvmsg"
 
 static UResourceBundle *gBundle = 0; /* Bundle containing messages. */
-/*
- * Initialize the message bundle so that message strings can be fetched
- * by u_wmsg().
- *
-*/
+// 
+// Initialize the message bundle so that message strings can be fetched by u_wmsg().
+// 
 static void initMsg(const char * pname) 
 {
 	static int ps = 0;
 	if(!ps) {
-		char dataPath[2048]; /* XXX Sloppy: should be PATH_MAX. */
+		char dataPath[2048]; // XXX Sloppy: should be PATH_MAX.
 		UErrorCode err = U_ZERO_ERROR;
 		ps = 1;
-		/* Set up our static data - if any */
-#if defined(UCONVMSG_LINK) && U_PLATFORM != U_PF_OS390 /* On z/OS, this is failing. */
+		// Set up our static data - if any 
+#if defined(UCONVMSG_LINK) && U_PLATFORM != U_PF_OS390 // On z/OS, this is failing. 
 		udata_setAppData(UCONVMSG, (const void *)uconvmsg_dat, &err);
 		if(U_FAILURE(err)) {
 			slfprintf_stderr("%s: warning, problem installing our static resource bundle data uconvmsg: %s - trying anyways.\n",
@@ -98,10 +96,9 @@ static void initMsg(const char * pname)
 		}
 	}
 }
-
-/* Mapping of callback names to the callbacks passed to the converter
-   API. */
-
+//
+// Mapping of callback names to the callbacks passed to the converter API.
+//
 static struct callback_ent {
 	const char * name;
 	UConverterFromUCallback fromu;
@@ -109,55 +106,30 @@ static struct callback_ent {
 	UConverterToUCallback tou;
 	const void * touctxt;
 } transcode_callbacks[] = {
-	{ "substitute",
-	  UCNV_FROM_U_CALLBACK_SUBSTITUTE, 0,
-	  UCNV_TO_U_CALLBACK_SUBSTITUTE, 0 },
-	{ "skip",
-	  UCNV_FROM_U_CALLBACK_SKIP, 0,
-	  UCNV_TO_U_CALLBACK_SKIP, 0 },
-	{ "stop",
-	  UCNV_FROM_U_CALLBACK_STOP, 0,
-	  UCNV_TO_U_CALLBACK_STOP, 0 },
-	{ "escape",
-	  UCNV_FROM_U_CALLBACK_ESCAPE, 0,
-	  UCNV_TO_U_CALLBACK_ESCAPE, 0},
-	{ "escape-icu",
-	  UCNV_FROM_U_CALLBACK_ESCAPE, UCNV_ESCAPE_ICU,
-	  UCNV_TO_U_CALLBACK_ESCAPE, UCNV_ESCAPE_ICU },
-	{ "escape-java",
-	  UCNV_FROM_U_CALLBACK_ESCAPE, UCNV_ESCAPE_JAVA,
-	  UCNV_TO_U_CALLBACK_ESCAPE, UCNV_ESCAPE_JAVA },
-	{ "escape-c",
-	  UCNV_FROM_U_CALLBACK_ESCAPE, UCNV_ESCAPE_C,
-	  UCNV_TO_U_CALLBACK_ESCAPE, UCNV_ESCAPE_C },
-	{ "escape-xml",
-	  UCNV_FROM_U_CALLBACK_ESCAPE, UCNV_ESCAPE_XML_HEX,
-	  UCNV_TO_U_CALLBACK_ESCAPE, UCNV_ESCAPE_XML_HEX },
-	{ "escape-xml-hex",
-	  UCNV_FROM_U_CALLBACK_ESCAPE, UCNV_ESCAPE_XML_HEX,
-	  UCNV_TO_U_CALLBACK_ESCAPE, UCNV_ESCAPE_XML_HEX },
-	{ "escape-xml-dec",
-	  UCNV_FROM_U_CALLBACK_ESCAPE, UCNV_ESCAPE_XML_DEC,
-	  UCNV_TO_U_CALLBACK_ESCAPE, UCNV_ESCAPE_XML_DEC },
-	{ "escape-unicode", UCNV_FROM_U_CALLBACK_ESCAPE, UCNV_ESCAPE_UNICODE,
-	  UCNV_TO_U_CALLBACK_ESCAPE, UCNV_ESCAPE_UNICODE }
+	{ "substitute", UCNV_FROM_U_CALLBACK_SUBSTITUTE, 0, UCNV_TO_U_CALLBACK_SUBSTITUTE, 0 },
+	{ "skip", UCNV_FROM_U_CALLBACK_SKIP, 0, UCNV_TO_U_CALLBACK_SKIP, 0 },
+	{ "stop", UCNV_FROM_U_CALLBACK_STOP, 0, UCNV_TO_U_CALLBACK_STOP, 0 },
+	{ "escape", UCNV_FROM_U_CALLBACK_ESCAPE, 0, UCNV_TO_U_CALLBACK_ESCAPE, 0},
+	{ "escape-icu", UCNV_FROM_U_CALLBACK_ESCAPE, UCNV_ESCAPE_ICU, UCNV_TO_U_CALLBACK_ESCAPE, UCNV_ESCAPE_ICU },
+	{ "escape-java", UCNV_FROM_U_CALLBACK_ESCAPE, UCNV_ESCAPE_JAVA, UCNV_TO_U_CALLBACK_ESCAPE, UCNV_ESCAPE_JAVA },
+	{ "escape-c", UCNV_FROM_U_CALLBACK_ESCAPE, UCNV_ESCAPE_C, UCNV_TO_U_CALLBACK_ESCAPE, UCNV_ESCAPE_C },
+	{ "escape-xml", UCNV_FROM_U_CALLBACK_ESCAPE, UCNV_ESCAPE_XML_HEX, UCNV_TO_U_CALLBACK_ESCAPE, UCNV_ESCAPE_XML_HEX },
+	{ "escape-xml-hex", UCNV_FROM_U_CALLBACK_ESCAPE, UCNV_ESCAPE_XML_HEX, UCNV_TO_U_CALLBACK_ESCAPE, UCNV_ESCAPE_XML_HEX },
+	{ "escape-xml-dec", UCNV_FROM_U_CALLBACK_ESCAPE, UCNV_ESCAPE_XML_DEC, UCNV_TO_U_CALLBACK_ESCAPE, UCNV_ESCAPE_XML_DEC },
+	{ "escape-unicode", UCNV_FROM_U_CALLBACK_ESCAPE, UCNV_ESCAPE_UNICODE, UCNV_TO_U_CALLBACK_ESCAPE, UCNV_ESCAPE_UNICODE }
 };
 
 /* Return a pointer to a callback record given its name. */
 
-static const struct callback_ent * findCallback(const char * name) {
-	int i, count =
-	    UPRV_LENGTHOF(transcode_callbacks);
-
-	/* We'll do a linear search, there aren't many of them and bsearch()
-	   may not be that portable. */
-
-	for(i = 0; i < count; ++i) {
+static const struct callback_ent * findCallback(const char * name) 
+{
+	const int count = UPRV_LENGTHOF(transcode_callbacks);
+	// We'll do a linear search, there aren't many of them and bsearch() may not be that portable. 
+	for(int i = 0; i < count; ++i) {
 		if(!uprv_stricmp(name, transcode_callbacks[i].name)) {
 			return &transcode_callbacks[i];
 		}
 	}
-
 	return 0;
 }
 
@@ -166,16 +138,13 @@ static const struct callback_ent * findCallback(const char * name) {
    zero, tags and aliases for each converter are printed too, in the format
    expected for convrters.txt(5). */
 
-static int printConverters(const char * pname, const char * lookfor,
-    bool canon)
+static int printConverters(const char * pname, const char * lookfor, bool canon)
 {
 	UErrorCode err = U_ZERO_ERROR;
 	int32_t num;
 	uint16_t num_stds;
 	const char ** stds;
-
-	/* If there is a specified name, just handle that now. */
-
+	// If there is a specified name, just handle that now. 
 	if(lookfor) {
 		if(!canon) {
 			printf("%s\n", lookfor);
@@ -190,7 +159,6 @@ static int printConverters(const char * pname, const char * lookfor,
 			    point if we have the default name or something else, we
 			    need to normalize again to the canonical converter
 			    name. */
-
 			const char * truename = ucnv_getAlias(lookfor, 0, &err);
 			if(U_SUCCESS(err)) {
 				lookfor = truename;
@@ -200,12 +168,10 @@ static int printConverters(const char * pname, const char * lookfor,
 			}
 		}
 	}
-
 	/* Print converter names. We come here for one of two reasons: we
 	   are printing all the names (lookfor was null), or we have a
 	   single converter to print but in canon mode, hence we need to
 	   get to it in order to print everything. */
-
 	num = ucnv_countAvailable();
 	if(num <= 0) {
 		initMsg(pname);
@@ -215,7 +181,6 @@ static int printConverters(const char * pname, const char * lookfor,
 	if(lookfor) {
 		num = 1; /* We know where we want to be. */
 	}
-
 	num_stds = ucnv_countStandards();
 	stds = (const char **)uprv_malloc(num_stds * sizeof(*stds));
 	if(!stds) {
@@ -224,7 +189,6 @@ static int printConverters(const char * pname, const char * lookfor,
 	}
 	else {
 		uint16_t s;
-
 		if(canon) {
 			printf("{ ");
 		}
@@ -242,57 +206,40 @@ static int printConverters(const char * pname, const char * lookfor,
 			puts("}");
 		}
 	}
-
 	for(int32_t i = 0; i < num; i++) {
 		const char * name;
 		uint16_t num_aliases;
-
-		/* Set the name either to what we are looking for, or
-		   to the current converter name. */
-
+		// Set the name either to what we are looking for, or to the current converter name. 
 		if(lookfor) {
 			name = lookfor;
 		}
 		else {
 			name = ucnv_getAvailableName(i);
 		}
-
-		/* Get all the aliases associated to the name. */
-
+		// Get all the aliases associated to the name. 
 		err = U_ZERO_ERROR;
 		num_aliases = ucnv_countAliases(name, &err);
 		if(U_FAILURE(err)) {
 			printf("%s", name);
-
 			UnicodeString str(name, "");
 			putchar('\t');
-			u_wmsg(stderr, "cantGetAliases", str.getTerminatedBuffer(),
-			    u_wmsg_errorName(err));
+			u_wmsg(stderr, "cantGetAliases", str.getTerminatedBuffer(), u_wmsg_errorName(err));
 			goto error_cleanup;
 		}
 		else {
 			uint16_t a, s, t;
-
-			/* Write all the aliases and their tags. */
-
+			// Write all the aliases and their tags. 
 			for(a = 0; a < num_aliases; ++a) {
 				const char * alias = ucnv_getAlias(name, a, &err);
-
 				if(U_FAILURE(err)) {
 					UnicodeString str(name, "");
 					putchar('\t');
-					u_wmsg(stderr, "cantGetAliases", str.getTerminatedBuffer(),
-					    u_wmsg_errorName(err));
+					u_wmsg(stderr, "cantGetAliases", str.getTerminatedBuffer(), u_wmsg_errorName(err));
 					goto error_cleanup;
 				}
-
-				/* Print the current alias so that it looks right. */
-				printf("%s%s%s", (canon ? (a == 0 ? "" : "\t" ) : ""),
-				    alias,
-				    (canon ? "" : " "));
-
-				/* Look (slowly, linear searching) for a tag. */
-
+				// Print the current alias so that it looks right. 
+				printf("%s%s%s", (canon ? (a == 0 ? "" : "\t" ) : ""), alias, (canon ? "" : " "));
+				// Look (slowly, linear searching) for a tag. 
 				if(canon) {
 					/* -1 to skip the last standard */
 					for(s = t = 0; s < num_stds-1; ++s) {
@@ -324,7 +271,6 @@ static int printConverters(const char * pname, const char * lookfor,
 				if(canon) {
 					puts("");
 				}
-
 				/* Move on. */
 			}
 			/* Terminate this entry. */
@@ -333,22 +279,16 @@ static int printConverters(const char * pname, const char * lookfor,
 			}
 		}
 	}
-
 	/* Free temporary data. */
-
 	uprv_free(stds);
-
-	/* Success. */
-
-	return 0;
+	return 0; // Success
 error_cleanup:
 	uprv_free(stds);
 	return -1;
 }
-
-/* Print all available transliterators. If canon is non zero, print
-   one transliterator per line. */
-
+//
+// Print all available transliterators. If canon is non zero, print one transliterator per line.
+//
 static int printTransliterators(bool canon)
 {
 #if UCONFIG_NO_TRANSLITERATION
@@ -358,30 +298,21 @@ static int printTransliterators(bool canon)
 	UErrorCode status = U_ZERO_ERROR;
 	UEnumeration * ids = utrans_openIDs(&status);
 	int32_t i, numtrans = uenum_count(ids, &status);
-
 	char sepchar = canon ? '\n' : ' ';
-
 	for(i = 0; U_SUCCESS(status)&& (i < numtrans); ++i) {
 		int32_t len;
 		const char * nextTrans = uenum_next(ids, &len, &status);
-
 		printf("%s", nextTrans);
 		if(i < numtrans - 1) {
 			putchar(sepchar);
 		}
 	}
-
 	uenum_close(ids);
-
-	/* Add a terminating newline if needed. */
-
+	// Add a terminating newline if needed.
 	if(sepchar != '\n') {
 		putchar('\n');
 	}
-
-	/* Success. */
-
-	return 0;
+	return 0; // Success
 #endif
 }
 
@@ -409,7 +340,6 @@ static inline int32_t getChunkLimit(const UnicodeString & prev, const UnicodeStr
 	enum {
 		iCR, iLF, iNL, iLS, iPS, iCount
 	};
-
 	// first, see if there is a CRLF split between prev and s
 	if(prev.endsWith(paraEnds + iCR, 1)) {
 		if(s.startsWith(paraEnds + iLF, 1)) {
@@ -422,10 +352,8 @@ static inline int32_t getChunkLimit(const UnicodeString & prev, const UnicodeStr
 			return -1; // wait for actual further contents to arrive
 		}
 	}
-
 	const UChar * u = s.getBuffer(), * limit = u + s.length();
 	UChar c;
-
 	while(u < limit) {
 		c = *u++;
 		if(
@@ -445,7 +373,6 @@ static inline int32_t getChunkLimit(const UnicodeString & prev, const UnicodeStr
 			return (int32_t)(u - s.getBuffer());
 		}
 	}
-
 	return -1; // continue collecting the chunk
 }
 
@@ -455,21 +382,19 @@ enum {
 	CNV_ADDS_FEFF // automatically adds/detects the U+FEFF signature character
 };
 
-static inline UChar nibbleToHex(uint8_t n) {
+static inline UChar nibbleToHex(uint8_t n) 
+{
 	n &= 0xf;
-	return
-		n <= 9 ?
-		(UChar)(0x30 + n) :
-		(UChar)((0x61 - 10) + n);
+	return (n <= 9) ? (UChar)(0x30 + n) : (UChar)((0x61 - 10) + n);
 }
 
 // check the converter's Unicode signature properties;
 // the fromUnicode side of the converter must be in its initial state
 // and will be reset again if it was used
-static int32_t cnvSigType(UConverter * cnv) {
+static int32_t cnvSigType(UConverter * cnv) 
+{
 	UErrorCode err;
 	int32_t result;
-
 	// test if the output charset can convert U+FEFF
 	USet * set = uset_open(1, 0);
 	err = U_ZERO_ERROR;

@@ -465,13 +465,13 @@
 				RelativePath="..\SLib\base64.cpp">
 			</File>
 			<File
-				RelativePath="..\Db\bdb.cpp">
+				RelativePath="..\SLib\bdb.cpp">
 			</File>
 			<File
-				RelativePath="..\Db\Bextins.cpp">
+				RelativePath="..\SLib\Bextins.cpp">
 			</File>
 			<File
-				RelativePath="..\Db\Bextqry.cpp">
+				RelativePath="..\SLib\Bextqry.cpp">
 			</File>
 			<File
 				RelativePath="..\SLib\Bist.cpp">
@@ -486,10 +486,10 @@
 				RelativePath="..\SLib\Bnfldlst.cpp">
 			</File>
 			<File
-				RelativePath="..\Db\Bnkey.cpp">
+				RelativePath="..\SLib\Bnkey.cpp">
 			</File>
 			<File
-				RelativePath="..\Db\Btrv.cpp">
+				RelativePath="..\SLib\Btrv.cpp">
 			</File>
 			<File
 				RelativePath="..\Slib\chksyscr.cpp">
@@ -540,46 +540,46 @@
 				RelativePath="..\SLib\curl-parsedate.cpp">
 			</File>
 			<File
-				RelativePath="..\Db\Dbbackup.cpp">
+				RelativePath="..\SLib\Dbbackup.cpp">
 			</File>
 			<File
-				RelativePath="..\Db\Dbdict.cpp">
+				RelativePath="..\SLib\Dbdict.cpp">
 			</File>
 			<File
-				RelativePath="..\Db\Dbeop.cpp">
+				RelativePath="..\SLib\Dbeop.cpp">
 			</File>
 			<File
-				RelativePath="..\Db\Dbf.cpp">
+				RelativePath="..\SLib\Dbf.cpp">
 			</File>
 			<File
-				RelativePath="..\Db\dboci.cpp">
+				RelativePath="..\SLib\dboci.cpp">
 			</File>
 			<File
-				RelativePath="..\Db\dbprvdr.cpp">
+				RelativePath="..\SLib\dbprvdr.cpp">
 			</File>
 			<File
-				RelativePath="..\Db\Dbq.cpp">
+				RelativePath="..\SLib\Dbq.cpp">
 			</File>
 			<File
-				RelativePath="..\Db\Dbqbrdef.cpp">
+				RelativePath="..\SLib\Dbqbrdef.cpp">
 			</File>
 			<File
-				RelativePath="..\Db\Dbquery.cpp">
+				RelativePath="..\SLib\Dbquery.cpp">
 			</File>
 			<File
-				RelativePath="..\Db\dbsess.cpp">
+				RelativePath="..\SLib\dbsess.cpp">
 			</File>
 			<File
-				RelativePath="..\Db\dbsql-mysql.cpp">
+				RelativePath="..\SLib\dbsql-mysql.cpp">
 			</File>
 			<File
-				RelativePath="..\Db\dbsql.cpp">
+				RelativePath="..\SLib\dbsql.cpp">
 			</File>
 			<File
-				RelativePath="..\Db\Dbtable.cpp">
+				RelativePath="..\SLib\Dbtable.cpp">
 			</File>
 			<File
-				RelativePath="..\Db\dbtablec.cpp">
+				RelativePath="..\SLib\dbtablec.cpp">
 			</File>
 			<File
 				RelativePath="..\SLib\dconvstr.c">
@@ -594,7 +594,7 @@
 				RelativePath="..\SLib\Dlgprocs.cpp">
 			</File>
 			<File
-				RelativePath="..\Db\dti.cpp">
+				RelativePath="..\SLib\dti.cpp">
 			</File>
 			<File
 				RelativePath="..\Slib\findfile.cpp">
@@ -642,7 +642,7 @@
 				RelativePath="..\SLib\gencpp.cpp">
 			</File>
 			<File
-				RelativePath="..\Db\gensql.cpp">
+				RelativePath="..\SLib\gensql.cpp">
 			</File>
 			<File
 				RelativePath="..\SLib\hashfunc.cpp">
@@ -660,7 +660,7 @@
 				RelativePath="..\SLib\json.cpp">
 			</File>
 			<File
-				RelativePath="..\Db\Kr.cpp">
+				RelativePath="..\SLib\Kr.cpp">
 			</File>
 			<File
 				RelativePath="..\SLib\layout-flex.cpp">
@@ -849,7 +849,7 @@
 				RelativePath="..\SLib\sdraw.cpp">
 			</File>
 			<File
-				RelativePath="..\Db\sdrecord.cpp">
+				RelativePath="..\SLib\sdrecord.cpp">
 			</File>
 			<File
 				RelativePath="..\SLib\sextprc.cpp">
@@ -1033,7 +1033,7 @@
 				RelativePath="..\SLib\Smrtlbx.cpp">
 			</File>
 			<File
-				RelativePath="..\Db\soapdbt.cpp">
+				RelativePath="..\SLib\soapdbt.cpp">
 			</File>
 			<File
 				RelativePath="..\SLib\sossl.cpp">
@@ -1288,7 +1288,7 @@
 				RelativePath="..\SLib\Twindow.cpp">
 			</File>
 			<File
-				RelativePath="..\Db\txttable.cpp">
+				RelativePath="..\SLib\txttable.cpp">
 			</File>
 			<File
 				RelativePath="..\SLib\uchardet.cpp">
@@ -1351,10 +1351,10 @@
 				RelativePath="..\SLib\wmi.cpp">
 			</File>
 			<File
-				RelativePath="..\Db\xlstable.cpp">
+				RelativePath="..\SLib\xlstable.cpp">
 			</File>
 			<File
-				RelativePath="..\Db\xmltable.cpp">
+				RelativePath="..\SLib\xmltable.cpp">
 			</File>
 			<File
 				RelativePath="..\SLib\xxhash.c">
