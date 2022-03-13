@@ -63,7 +63,7 @@
 #include <wctype.h>
 
 #ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN 1
+	#define WIN32_LEAN_AND_MEAN 1
 #endif
 
 #include <windows.h>
@@ -76,90 +76,62 @@ namespace {
 using std::string;
 using std::wstring;
 
-template <typename char_type>
-struct CharTraits {
+template <typename char_type> struct CharTraits {
 	static bool is_alpha(char_type ch);
 };
 
-template <>
-struct CharTraits<char> {
-	static bool is_alpha(char ch) {
-		return isalpha(ch);
-	}
+template <> struct CharTraits<char> {
+	static bool is_alpha(char ch) { return isalpha(ch); }
 };
 
-template <>
-struct CharTraits<wchar_t> {
-	static bool is_alpha(wchar_t ch) {
-		return iswalpha(ch);
-	}
+template <> struct CharTraits<wchar_t> {
+	static bool is_alpha(wchar_t ch) { return iswalpha(ch); }
 };
 
-template <typename char_type>
-bool null_or_empty(const char_type* s) {
-	return s == nullptr || *s == 0;
-}
+template <typename char_type> bool null_or_empty(const char_type* s) { return s == nullptr || *s == 0; }
 
 // Returns true if the path starts with a drive letter, e.g. "c:".
 // Note that this won't check for the "\" after the drive letter, so this also
 // returns true for "c:foo" (which is "c:\${PWD}\foo").
 // This check requires that a path not have a longpath prefix ("\\?\").
-template <typename char_type>
-bool has_drive_letter(const char_type* ch) {
-	return CharTraits<char_type>::is_alpha(ch[0]) && ch[1] == ':';
-}
+template <typename char_type> bool has_drive_letter(const char_type* ch) { return CharTraits<char_type>::is_alpha(ch[0]) && ch[1] == ':'; }
 
 // Returns true if the path starts with a longpath prefix ("\\?\").
-template <typename char_type>
-bool has_longpath_prefix(const char_type* path) {
-	return path[0] == '\\' && path[1] == '\\' && path[2] == '?' &&
-	       path[3] == '\\';
+template <typename char_type> bool has_longpath_prefix(const char_type* path) 
+{
+	return path[0] == '\\' && path[1] == '\\' && path[2] == '?' && path[3] == '\\';
 }
 
-template <typename char_type>
-bool is_separator(char_type c) {
-	return c == '/' || c == '\\';
-}
+template <typename char_type> bool is_separator(char_type c) { return c == '/' || c == '\\'; }
 
 // Returns true if the path starts with a drive specifier (e.g. "c:\").
-template <typename char_type>
-bool is_path_absolute(const char_type* path) {
-	return has_drive_letter(path) && is_separator(path[2]);
-}
+template <typename char_type> bool is_path_absolute(const char_type* path) { return has_drive_letter(path) && is_separator(path[2]); }
+template <typename char_type> bool is_drive_relative(const char_type* path) { return has_drive_letter(path) && (path[2] == 0 || !is_separator(path[2])); }
 
-template <typename char_type>
-bool is_drive_relative(const char_type* path) {
-	return has_drive_letter(path) && (path[2] == 0 || !is_separator(path[2]));
-}
-
-wstring join_paths(const wstring& path1, const wstring& path2) {
-	if(path1.empty() || is_path_absolute(path2.c_str()) ||
-	    has_longpath_prefix(path2.c_str())) {
+wstring join_paths(const wstring& path1, const wstring& path2) 
+{
+	if(path1.empty() || is_path_absolute(path2.c_str()) || has_longpath_prefix(path2.c_str())) {
 		return path2;
 	}
 	if(path2.empty()) {
 		return path1;
 	}
-
 	if(is_separator(path1[path1.size() - 1])) {
-		return is_separator(path2[0]) ? (path1 + path2.substr(1))
-		       : (path1 + path2);
+		return is_separator(path2[0]) ? (path1 + path2.substr(1)) : (path1 + path2);
 	}
 	else {
-		return is_separator(path2[0]) ? (path1 + path2)
-		       : (path1 + L'\\' + path2);
+		return is_separator(path2[0]) ? (path1 + path2) : (path1 + L'\\' + path2);
 	}
 }
 
-wstring normalize(wstring path) {
+wstring normalize(wstring path) 
+{
 	if(has_longpath_prefix(path.c_str())) {
 		path = path.substr(4);
 	}
-
 	static const wstring dot(L".");
 	static const wstring dotdot(L"..");
 	const WCHAR* p = path.c_str();
-
 	std::vector<wstring> segments;
 	int segment_start = -1;
 	// Find the path segments in `path` (separated by "/").
@@ -442,32 +414,25 @@ bool wcs_to_mbs(const WCHAR* s, string* out, bool outUtf8) {
 	return true;
 }
 
-bool mbs_to_wcs(const char* s, wstring* out, bool inUtf8) {
+bool mbs_to_wcs(const char* s, wstring* out, bool inUtf8) 
+{
 	if(null_or_empty(s)) {
 		out->clear();
 		return true;
 	}
-
 	SetLastError(0);
-	int size =
-	    MultiByteToWideChar(inUtf8 ? CP_UTF8 : CP_ACP, 0, s, -1, nullptr, 0);
+	int size = MultiByteToWideChar(inUtf8 ? CP_UTF8 : CP_ACP, 0, s, -1, nullptr, 0);
 	if(size == 0 && GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
 		return false;
 	}
 	std::unique_ptr<WCHAR[]> wstr(new WCHAR[size]);
-	MultiByteToWideChar(
-		inUtf8 ? CP_UTF8 : CP_ACP, 0, s, -1, wstr.get(), size + 1);
+	MultiByteToWideChar(inUtf8 ? CP_UTF8 : CP_ACP, 0, s, -1, wstr.get(), size + 1);
 	out->assign(wstr.get());
 	return true;
 }
 
-bool utf8_to_wcs(const char* input, wstring* out) {
-	return mbs_to_wcs(input, out, true);
-}
-
-bool wcs_to_utf8(const wchar_t * input, string* out) {
-	return wcs_to_mbs(input, out, true);
-}
+bool utf8_to_wcs(const char* input, wstring* out) { return mbs_to_wcs(input, out, true); }
+bool wcs_to_utf8(const wchar_t * input, string* out) { return wcs_to_mbs(input, out, true); }
 }  // namespace strings
 }  // namespace win32
 }  // namespace io

@@ -16,12 +16,8 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
 
-#include "archive.h"
-#include "archive_private.h"
-
 /* A table that maps names to functions. */
-static const
-struct { const char * name; int (* setter)(struct archive *); } names[] =
+static const struct { const char * name; int (* setter)(struct archive *); } names[] =
 {
 	{ "b64encode",          archive_write_add_filter_b64encode },
 	{ "bzip2",              archive_write_add_filter_bzip2 },
@@ -41,13 +37,10 @@ struct { const char * name; int (* setter)(struct archive *); } names[] =
 
 int archive_write_add_filter_by_name(struct archive * a, const char * name)
 {
-	int i;
-
-	for(i = 0; names[i].name != NULL; i++) {
+	for(int i = 0; names[i].name != NULL; i++) {
 		if(strcmp(name, names[i].name) == 0)
 			return ((names[i].setter)(a));
 	}
-
 	archive_set_error(a, EINVAL, "No such filter '%s'", name);
 	a->state = ARCHIVE_STATE_FATAL;
 	return ARCHIVE_FATAL;

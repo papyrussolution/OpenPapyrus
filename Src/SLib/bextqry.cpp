@@ -85,7 +85,7 @@ int BExtQuery::CreateSqlExpr(Generator_SQL * pSg, int reverse, const char * pIni
 {
 	int    ok = 1;
 	Generator_SQL sg(sqlstORA, 0);
-	pSg->Reset().Tok(Generator_SQL::tokSelect).HintBegin().HintIndex(*P_Tbl, 0, Index_, BIN(reverse)).HintEnd();
+	pSg->Z().Tok(Generator_SQL::tokSelect).HintBegin().HintIndex(*P_Tbl, 0, Index_, BIN(reverse)).HintEnd();
 	const uint c = Fields.GetCount();
 	if(c) {
 		for(uint i = 0; i < c; i++) {

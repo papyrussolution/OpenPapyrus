@@ -105,7 +105,7 @@ public:
 	~DbfRecord();
 	SCodepage getCodePage() const;
 	int    copy(DbfRecord * toRec);
-	int    empty();
+	void   empty();
 	//
 	// Для параметра fldN во всех следующих функциях диапазон [1..]
 	//

@@ -1,5 +1,5 @@
 // STHREAD.CPP
-// Copyright (c) A.Sobolev 2003, 2005, 2007, 2008, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2003, 2005, 2007, 2008, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -32,11 +32,7 @@ SWaitableObject::~SWaitableObject()
 		CloseHandle(H);
 }
 
-int FASTCALL SWaitableObject::operator == (const SWaitableObject & s) const
-{
-	return BIN(H == s.H);
-}
-
+bool FASTCALL SWaitableObject::operator == (const SWaitableObject & s) const { return (H == s.H); }
 bool SWaitableObject::IsValid() const { return LOGIC(H); }
 
 int FASTCALL SWaitableObject::Wait(long timeout)
@@ -285,15 +281,8 @@ Evnt::Evnt(int mode) : SWaitableObject()
 	H = CreateEvent(0, (mode == modeCreateAutoReset) ? 0 : 1, 0, 0);
 }
 
-int Evnt::Signal()
-{
-	return BIN(SetEvent(H));
-}
-
-int Evnt::Reset()
-{
-	return BIN(ResetEvent(H));
-}
+int Evnt::Signal() { return BIN(SetEvent(H)); }
+int Evnt::Reset() { return BIN(ResetEvent(H)); }
 //
 //
 //
@@ -778,20 +767,9 @@ void SlThread::SetStopState()
 	EvLocalStop.Signal();
 }
 
-int SlThread::IsRunning() const
-{
-	return BIN(State_Slt & stRunning);
-}
-
-int SlThread::IsIdle() const
-{
-	return BIN(State_Slt & stIdle);
-}
-
-int SlThread::IsStopping() const
-{
-	return BIN(State_Slt & stLocalStop);
-}
+bool SlThread::IsRunning() const { return LOGIC(State_Slt & stRunning); }
+bool SlThread::IsIdle() const { return LOGIC(State_Slt & stIdle); }
+bool SlThread::IsStopping() const { return LOGIC(State_Slt & stLocalStop); }
 //
 // This method is invoked on behalf of the new thread before Run()
 //
@@ -893,16 +871,15 @@ void SLockStack::ToStr(SString & rBuf) const
 			default: rBuf.Cat("UNKN"); break;
 		}
 		rBuf.Space().Cat(r_entry.TimeCount);
+		rBuf.Space();
         if(r_entry.SrcFileSymbId > 0) {
-			if(SLS.GetGlobalSymbol(0, r_entry.SrcFileSymbId, &temp_buf) > 0) {
-				rBuf.Space().Cat(temp_buf);
-			}
-			else {
-				rBuf.Space().CatEq("unkn-file", r_entry.SrcFileSymbId);
-			}
+			if(SLS.GetGlobalSymbol(0, r_entry.SrcFileSymbId, &temp_buf) > 0)
+				rBuf.Cat(temp_buf);
+			else
+				rBuf.CatEq("unkn-file", r_entry.SrcFileSymbId);
         }
         else
-			rBuf.Space().CatEq("unkn-file", r_entry.SrcFileSymbId);
+			rBuf.CatEq("unkn-file", r_entry.SrcFileSymbId);
 		if(r_entry.SrcLineNo >= 0) {
 			rBuf.Space().Cat(r_entry.SrcLineNo);
 		}

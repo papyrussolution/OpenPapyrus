@@ -1614,7 +1614,7 @@ SColor & FASTCALL SColor::operator = (const SColorBase & rS)
 SColor FASTCALL SColor::Lighten(float factor) const
 {
 	SColor col = *this;
-	if(factor > 0.0f && factor <= 1.0f){
+	if(factor > 0.0f && factor <= 1.0f) {
 		uint8  x = col.R;
 		col.R = (uint8)((factor*(255-x)) + x);
 		x = col.G;
@@ -1654,7 +1654,7 @@ COLORREF FASTCALL GetGrayColorRef(float whitePart)
 
 COLORREF FASTCALL LightenColor(COLORREF col, float factor)
 {
-	if(factor > 0.0f && factor <= 1.0f){
+	if(factor > 0.0f && factor <= 1.0f) {
 		uint8  x = GetRValue(col);
 		uint8  r = (uint8)((factor*(255-x)) + x);
 		x = GetGValue(col);

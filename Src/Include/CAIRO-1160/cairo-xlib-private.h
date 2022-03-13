@@ -21,32 +21,18 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is Red Hat, Inc.
  *
- * Contributors(s):
- *	Chris Wilson <chris@chris-wilson.co.uk>
- *	Karl Tomlinson <karlt+@karlt.net>, Mozilla Corporation
+ * Contributors(s): Chris Wilson <chris@chris-wilson.co.uk> Karl Tomlinson <karlt+@karlt.net>, Mozilla Corporation
  */
-
 #ifndef CAIRO_XLIB_PRIVATE_H
 #define CAIRO_XLIB_PRIVATE_H
 
 #include "cairo-xlib-xrender-private.h"
 #include "cairo-xlib.h"
-
-//#include "cairo-compiler-private.h"
-//#include "cairo-device-private.h"
 #include "cairo-freelist-type-private.h"
 #include "cairo-list-private.h"
-//#include "cairo-reference-count-private.h"
-//#include "cairo-types-private.h"
-//#include "cairo-scaled-font-private.h"
 #include "cairo-surface-private.h"
 #include <pixman.h>
 #include <string.h>
@@ -67,23 +53,16 @@ typedef struct _cairo_xlib_surface cairo_xlib_surface_t;
 
 struct _cairo_xlib_display {
 	cairo_device_t base;
-
 	cairo_xlib_display_t * next;
-
 	Display * display;
 	cairo_list_t screens;
 	cairo_list_t fonts;
-
 	cairo_xlib_shm_display_t * shm;
-
 	const cairo_compositor_t * compositor;
-
 	int render_major;
 	int render_minor;
 	XRenderPictFormat * cached_xrender_formats[CAIRO_FORMAT_RGB30 + 1];
-
 	int force_precision;
-
 	cairo_surface_t * white;
 	cairo_surface_t * alpha[256];
 	cairo_surface_t * solid[32];

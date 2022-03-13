@@ -327,7 +327,7 @@ int TDateCalendar::OnTodaySelection()
 					MoveWindow(hWnd, rect.left, y, this_rect.right - this_rect.left, sizey, 0);
 				}
 			}
-			TView::PreprocessWindowCtrlText(hWnd); // @v9.1.1
+			TView::PreprocessWindowCtrlText(hWnd);
 			break;
 		case WM_CREATE:
 			dc = static_cast<TDateCalendar *>(TView::GetWindowUserData(hWnd));
@@ -351,11 +351,11 @@ int TDateCalendar::OnTodaySelection()
 					wc.style = CS_DBLCLKS;
 					wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 					wc.hbrBackground = static_cast<HBRUSH>(GetStockObject(LTGRAY_BRUSH));
-					::RegisterClassEx(&wc); // @unicodeproblem
+					::RegisterClassEx(&wc);
 				}
 				::GetClientRect(hWnd, &r);
 				dc->c_hWnd = ::CreateWindowEx(0, p_classname, NULL, WS_VISIBLE | WS_CHILD | WS_TABSTOP | WS_GROUP,
-					left, top, r.right - from_right, r.bottom - from_bottom, hWnd, NULL, TProgram::GetInst(), dc); // @unicodeproblem
+					left, top, r.right - from_right, r.bottom - from_bottom, hWnd, NULL, TProgram::GetInst(), dc);
 				::ShowWindow(dc->c_hWnd, SW_SHOWNORMAL);
 				::SetFocus(dc->c_hWnd);
 			}
@@ -1501,7 +1501,7 @@ static INT_PTR CALLBACK PeriodWndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 			if(!pc->P_Inner) {
 				pc->P_Inner = new TCalendarP(pc->D1, pc->D2);
 				if(pc->P_Inner) {
-					switch(pc->SelType){
+					switch(pc->SelType) {
 						case CTL_CALENDAR_DAYS:     pc->P_Inner->seltype = SEL_DAYS;     break;
 						case CTL_CALENDAR_WEEKS:    pc->P_Inner->seltype = SEL_WEEKS;    break;
 						case CTL_CALENDAR_MONTHS:   pc->P_Inner->seltype = SEL_MONTHS;   break;
@@ -3293,7 +3293,14 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 				if(h_ctl) {
 					RECT rect;
 					GetWindowRect(h_ctl, &rect);
-					b.move(rect.left, rect.bottom);
+					int y = rect.bottom;
+					// @v11.3.4 {
+					const int sizey = b.height();
+					const int sy = GetSystemMetrics(SM_CYFULLSCREEN);
+					if((y + sizey) > sy)
+						y = ((rect.top < sizey) ? sy : rect.top) - sizey;
+					// } @v11.3.4
+					b.move(rect.left, y);
 				}
 			}
 			SlBreakpointCondition[0] = true; // @debug

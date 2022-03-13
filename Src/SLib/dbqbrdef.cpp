@@ -1,12 +1,10 @@
 // DBQBRO.CPP
-// Copyright (c) Sobolev A. 1996, 1997-2000, 2003, 2005, 2008, 2010, 2011, 2013, 2018, 2019, 2020
+// Copyright (c) Sobolev A. 1996, 1997-2000, 2003, 2005, 2008, 2010, 2011, 2013, 2018, 2019, 2020, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <db.h>
 
-DBQBrowserDef::DBQBrowserDef(DBQuery & rQuery, int captionHight, uint aOptions, uint aBufSize) :
-	BrowserDef(captionHight, aOptions), query(0)
+DBQBrowserDef::DBQBrowserDef(DBQuery & rQuery, int captionHight, uint aOptions, uint aBufSize) : BrowserDef(captionHight, aOptions), query(0)
 {
 	setQuery(rQuery, aBufSize);
 }
@@ -87,8 +85,8 @@ void DBQBrowserDef::setupView()
 {
 	topItem = query->P_Frame->top;
 	curItem = query->P_Frame->cur;
-	isBOQ = query->P_Frame->state & DBQuery::Frame::Top;
-	isEOQ = query->P_Frame->state & DBQuery::Frame::Bottom;
+	isBOQ = LOGIC(query->P_Frame->state & DBQuery::Frame::Top);
+	isEOQ = LOGIC(query->P_Frame->state & DBQuery::Frame::Bottom);
 }
 
 int FASTCALL DBQBrowserDef::step(long d)

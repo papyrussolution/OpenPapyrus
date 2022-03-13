@@ -8,13 +8,7 @@
  *
  * The SSH Library is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2.1 of the License, or (at your
- * option) any later version.
- *
- * The SSH Library is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
- * License for more details.
+ * the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version.
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the SSH Library; see the file COPYING.  If not, write to
@@ -39,24 +33,19 @@
 #ifdef HAVE_SYS_TIME_H
 	//#include <sys/time.h>
 #endif /* HAVE_SYS_TIME_H */
-
 #ifdef _WIN32
+	#ifndef _WIN32_IE
+		#define _WIN32_IE 0x0501 // SHGetSpecialFolderPath
+	#endif
 
-#ifndef _WIN32_IE
-#define _WIN32_IE 0x0501 // SHGetSpecialFolderPath
-#endif
-
-#include <winsock2.h> // Must be the first to include
-#include <ws2tcpip.h>
-#include <shlobj.h>
-#include <direct.h>
-
-#ifdef HAVE_IO_H
-#include <io.h>
-#endif /* HAVE_IO_H */
-
+	#include <winsock2.h> // Must be the first to include
+	#include <ws2tcpip.h>
+	#include <shlobj.h>
+	#include <direct.h>
+	#ifdef HAVE_IO_H
+		#include <io.h>
+	#endif /* HAVE_IO_H */
 #endif /* _WIN32 */
-
 #ifdef HAVE_LIBGCRYPT
 	#define GCRYPT_STRING "/gnutls"
 #else
@@ -67,19 +56,16 @@
 #else
 	#define CRYPTO_STRING ""
 #endif
-
 #ifdef HAVE_LIBMBEDCRYPTO
-#define MBED_STRING "/mbedtls"
+	#define MBED_STRING "/mbedtls"
 #else
-#define MBED_STRING ""
+	#define MBED_STRING ""
 #endif
-
 #ifdef WITH_ZLIB
-#define ZLIB_STRING "/zlib"
+	#define ZLIB_STRING "/zlib"
 #else
-#define ZLIB_STRING ""
+	#define ZLIB_STRING ""
 #endif
-
 /**
  * @defgroup libssh_misc The SSH helper functions.
  * @ingroup libssh

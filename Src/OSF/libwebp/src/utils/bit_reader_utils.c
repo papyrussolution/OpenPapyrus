@@ -41,7 +41,8 @@ void VP8InitBitReader(VP8BitReader* const br, const uint8* const start, size_t s
 	VP8LoadNewBytes(br);
 }
 
-void VP8RemapBitReader(VP8BitReader* const br, ptrdiff_t offset) {
+void VP8RemapBitReader(VP8BitReader* const br, ptrdiff_t offset) 
+{
 	if(br->buf_ != NULL) {
 		br->buf_ += offset;
 		br->buf_end_ += offset;
@@ -81,7 +82,8 @@ const uint8 kVP8NewRange[128] = {
 	241, 243, 245, 247, 249, 251, 253, 127
 };
 
-void VP8LoadFinalBytes(VP8BitReader* const br) {
+void VP8LoadFinalBytes(VP8BitReader* const br) 
+{
 	assert(br != NULL && br->buf_ != NULL);
 	// Only read 8bits at a time
 	if(br->buf_ < br->buf_end_) {
@@ -101,7 +103,8 @@ void VP8LoadFinalBytes(VP8BitReader* const br) {
 //------------------------------------------------------------------------------
 // Higher-level calls
 
-uint32_t VP8GetValue(VP8BitReader* const br, int bits, const char label[]) {
+uint32_t VP8GetValue(VP8BitReader* const br, int bits, const char label[]) 
+{
 	uint32_t v = 0;
 	while(bits-- > 0) {
 		v |= VP8GetBit(br, 0x80, label) << bits;
@@ -109,8 +112,8 @@ uint32_t VP8GetValue(VP8BitReader* const br, int bits, const char label[]) {
 	return v;
 }
 
-int32_t VP8GetSignedValue(VP8BitReader* const br, int bits,
-    const char label[]) {
+int32_t VP8GetSignedValue(VP8BitReader* const br, int bits, const char label[]) 
+{
 	const int value = VP8GetValue(br, bits, label);
 	return VP8Get(br, label) ? -value : value;
 }
@@ -120,10 +123,8 @@ int32_t VP8GetSignedValue(VP8BitReader* const br, int bits,
 
 #define VP8L_LOG8_WBITS 4  // Number of bytes needed to store VP8L_WBITS bits.
 
-#if defined(__arm__) || defined(_M_ARM) || defined(__aarch64__) || \
-	defined(__i386__) || defined(_M_IX86) || \
-	defined(__x86_64__) || defined(_M_X64)
-#define VP8L_USE_FAST_LOAD
+#if defined(__arm__) || defined(_M_ARM) || defined(__aarch64__) || defined(__i386__) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
+	#define VP8L_USE_FAST_LOAD
 #endif
 
 static const uint32_t kBitMask[VP8L_MAX_NUM_BIT_READ + 1] = {
@@ -143,12 +144,10 @@ void VP8LInitBitReader(VP8LBitReader* const br, const uint8* const start,
 	assert(br != NULL);
 	assert(start != NULL);
 	assert(length < 0xfffffff8u); // can't happen with a RIFF chunk.
-
 	br->len_ = length;
 	br->val_ = 0;
 	br->bit_pos_ = 0;
 	br->eos_ = 0;
-
 	if(length > sizeof(br->val_)) {
 		length = sizeof(br->val_);
 	}
@@ -160,8 +159,8 @@ void VP8LInitBitReader(VP8LBitReader* const br, const uint8* const start,
 	br->buf_ = start;
 }
 
-void VP8LBitReaderSetBuffer(VP8LBitReader* const br,
-    const uint8* const buf, size_t len) {
+void VP8LBitReaderSetBuffer(VP8LBitReader* const br, const uint8* const buf, size_t len) 
+{
 	assert(br != NULL);
 	assert(buf != NULL);
 	assert(len < 0xfffffff8u); // can't happen with a RIFF chunk.
@@ -171,13 +170,15 @@ void VP8LBitReaderSetBuffer(VP8LBitReader* const br,
 	br->eos_ = (br->pos_ > br->len_) || VP8LIsEndOfStream(br);
 }
 
-static void VP8LSetEndOfStream(VP8LBitReader* const br) {
+static void FASTCALL VP8LSetEndOfStream(VP8LBitReader* const br) 
+{
 	br->eos_ = 1;
 	br->bit_pos_ = 0; // To avoid undefined behaviour with shifts.
 }
 
 // If not at EOS, reload up to VP8L_LBITS byte-by-byte
-static void ShiftBytes(VP8LBitReader* const br) {
+static void FASTCALL ShiftBytes(VP8LBitReader* const br) 
+{
 	while(br->bit_pos_ >= 8 && br->pos_ < br->len_) {
 		br->val_ >>= 8;
 		br->val_ |= ((vp8l_val_t)br->buf_[br->pos_]) << (VP8L_LBITS - 8);
@@ -189,14 +190,14 @@ static void ShiftBytes(VP8LBitReader* const br) {
 	}
 }
 
-void VP8LDoFillBitWindow(VP8LBitReader* const br) {
+void FASTCALL VP8LDoFillBitWindow(VP8LBitReader * const br) 
+{
 	assert(br->bit_pos_ >= VP8L_WBITS);
 #if defined(VP8L_USE_FAST_LOAD)
 	if(br->pos_ + sizeof(br->val_) < br->len_) {
 		br->val_ >>= VP8L_WBITS;
 		br->bit_pos_ -= VP8L_WBITS;
-		br->val_ |= (vp8l_val_t)HToLE32(WebPMemToUint32(br->buf_ + br->pos_)) <<
-		    (VP8L_LBITS - VP8L_WBITS);
+		br->val_ |= (vp8l_val_t)HToLE32(WebPMemToUint32(br->buf_ + br->pos_)) << (VP8L_LBITS - VP8L_WBITS);
 		br->pos_ += VP8L_LOG8_WBITS;
 		return;
 	}
@@ -204,7 +205,8 @@ void VP8LDoFillBitWindow(VP8LBitReader* const br) {
 	ShiftBytes(br); // Slow path.
 }
 
-uint32_t VP8LReadBits(VP8LBitReader* const br, int n_bits) {
+uint32_t FASTCALL VP8LReadBits(VP8LBitReader* const br, int n_bits) 
+{
 	assert(n_bits >= 0);
 	// Flag an error if end_of_stream or n_bits is more than allowed limit.
 	if(!br->eos_ && n_bits <= VP8L_MAX_NUM_BIT_READ) {

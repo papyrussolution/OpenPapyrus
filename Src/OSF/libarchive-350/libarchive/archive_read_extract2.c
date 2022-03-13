@@ -23,7 +23,8 @@ static int archive_read_extract_cleanup(struct archive_read *);
 /* Retrieve an extract object without initialising the associated
  * archive_write_disk object.
  */
-struct archive_read_extract * __archive_read_get_extract(struct archive_read * a)                               {
+struct archive_read_extract * __archive_read_get_extract(struct archive_read * a)                               
+{
 	if(a->extract == NULL) {
 		a->extract = (struct archive_read_extract *)SAlloc::C(1, sizeof(*a->extract));
 		if(a->extract == NULL) {
@@ -34,14 +35,12 @@ struct archive_read_extract * __archive_read_get_extract(struct archive_read * a
 	}
 	return (a->extract);
 }
-
 /*
  * Cleanup function for archive_extract.
  */
 static int archive_read_extract_cleanup(struct archive_read * a)
 {
 	int ret = ARCHIVE_OK;
-
 	if(a->extract->ad != NULL) {
 		ret = archive_write_free(a->extract->ad);
 	}
@@ -50,16 +49,13 @@ static int archive_read_extract_cleanup(struct archive_read * a)
 	return ret;
 }
 
-int archive_read_extract2(struct archive * _a, struct archive_entry * entry,
-    struct archive * ad)
+int archive_read_extract2(struct archive * _a, struct archive_entry * entry, struct archive * ad)
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	int r, r2;
-
 	/* Set up for this particular entry. */
 	if(a->skip_file_set)
-		archive_write_disk_set_skip_file(ad,
-		    a->skip_file_dev, a->skip_file_ino);
+		archive_write_disk_set_skip_file(ad, a->skip_file_dev, a->skip_file_ino);
 	r = archive_write_header(ad, entry);
 	if(r < ARCHIVE_WARN)
 		r = ARCHIVE_WARN;
@@ -81,8 +77,7 @@ int archive_read_extract2(struct archive * _a, struct archive_entry * entry,
 	return r;
 }
 
-void archive_read_extract_set_progress_callback(struct archive * _a,
-    void (*progress_func)(void *), void * user_data)
+void archive_read_extract_set_progress_callback(struct archive * _a, void (*progress_func)(void *), void * user_data)
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	struct archive_read_extract * extract = __archive_read_get_extract(a);

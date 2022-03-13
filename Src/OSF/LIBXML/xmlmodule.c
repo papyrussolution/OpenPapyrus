@@ -230,13 +230,11 @@ static int xmlModulePlatformSymbol(void * handle, const char * name, void ** sym
 
 #ifdef _WIN32
 
-#include <windows.h>
-
+//#include <windows.h>
 /*
  * xmlModulePlatformOpen:
  * returns a handle on success, and zero on error.
  */
-
 static void * xmlModulePlatformOpen(const char * name)
 {
 	return LoadLibraryA(name);

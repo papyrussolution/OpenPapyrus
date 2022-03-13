@@ -1317,6 +1317,7 @@ struct VetisVetDocument : public VetisDocument {
 			// строка представляет предварительную запись для формирования недостач по инвентаризации
 		fManufIncome     = 0x04000000, // @v10.6.9 Партия выхода из производства
 		fManufExpense    = 0x08000000, // @v10.6.9 Партия расхода на производство
+		fInSendingQueue  = 0x10000000  // @v11.3.4 Запись находится в очереди на отправку. Это означает, что пытаться отправлять (снова) ее не следует
 	};
 	long   Flags;
 	LDATETIME LastUpdateDate;
@@ -2662,6 +2663,29 @@ int VetisEntityCore::Put(PPID * pID, const S_GUID & rBusEntGuid, const S_GUID & 
 	return ok;
 }
 
+int VetisEntityCore::SetOutgoingDocInQueueFlag(PPID id, int use_ta)
+{
+	int    ok = 1;
+	{
+		VetisDocumentTbl::Key0 k0;
+		VetisDocumentTbl::Rec rec;
+		k0.EntityID = id;
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		THROW_DB(DT.searchForUpdate(0, &k0, spEq));
+		DT.copyBufTo(&rec);
+		if(!(rec.Flags & VetisVetDocument::fInSendingQueue)) {
+			rec.Flags |= VetisVetDocument::fInSendingQueue;
+			THROW_DB(DT.updateRecBuf(&rec)); // @sfu
+		}
+		else
+			ok = -1;
+		THROW(tra.Commit());
+	}
+	CATCHZOK
+	return ok;
+}
+
 int VetisEntityCore::SetOutgoingDocApplicationIdent(PPID id, const S_GUID & rAppId, int use_ta)
 {
 	int    ok = 1;
@@ -3916,6 +3940,12 @@ int PPVetisInterface::ParsePackage(const xmlNode * pParentNode, VetisPackage & r
 			rResult.Quantity = temp_buf.ToLong();
 		else if(SXml::GetContentByName(p_a, "productMarks", temp_buf)) {
 			if(temp_buf.NotEmptyS() && temp_buf.IsLegalUtf8()) { // @v11.2.4 (&& temp_buf.IsLegalUtf8())
+				// @v11.3.4 {
+				SStringU temp_buf_u;
+				temp_buf_u.CopyFromUtf8(temp_buf); 
+				temp_buf_u.ReplaceChar(0x2022, L'.');
+				temp_buf_u.CopyToUtf8(temp_buf, 1);
+				// } @v11.3.4 
 				VetisProductMarks * p_new_mark = rResult.ProductMarks.CreateNewItem();
 				p_new_mark->Item = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 				p_new_mark->Cls = vpmcUNDEFINED;
@@ -11594,7 +11624,11 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 	is_locked = true;
 	for(InitIteration(); NextIteration(&vi) > 0;) {
 		if(vi.VetisDocStatus == vetisdocstOUTGOING_PREPARING) {
-			if(vi.Flags & VetisVetDocument::fManufExpense) {
+			if(vi.Flags & VetisVetDocument::fInSendingQueue) { // @v11.3.4
+				PPLoadText(PPTXT_VETIS_OUTCERTREJALREADYINQ, temp_buf);
+				logger.Log(temp_buf);
+			}
+			else if(vi.Flags & VetisVetDocument::fManufExpense) {
 				if(vi.DepDocEntityID)
 					manuf_assoc_list.Add(vi.DepDocEntityID, vi.EntityID);
 			}
@@ -11716,36 +11750,45 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 									p_region_rules = &p_rrl_item->R13RulesList;
 							}
 						}
-						// } @v11.0.11 
-						if(oneof2(use_alg2, 1, 100)) {
-							if(!ifc.InitOutgoingEntry(entity_id, p_region_rules, work_list))
-								logger.LogLastError();
+						// } @v11.0.11
+						// @v11.3.4 {
+						const int sodiqfr = EC.SetOutgoingDocInQueueFlag(entity_id, 1); 
+						THROW(sodiqfr);
+						if(sodiqfr < 0) {
+							PPLoadText(PPTXT_VETIS_OUTCERTREJALREADYINQ, temp_buf);
+							logger.Log(temp_buf);
 						}
-						else {
-							{
-								PPLoadText(PPTXT_VETISOUTGSENDING, fmt_buf);
-								TransferTbl::Rec trfr_rec;
-								addendum_msg_buf.Z();
-								if(vd_rec.LinkBillID && p_bobj->Fetch(vd_rec.LinkBillID, &link_bill_rec) > 0) {
-									PPObjBill::MakeCodeString(&link_bill_rec, PPObjBill::mcsAddObjName|PPObjBill::mcsAddObjName, temp_buf);
-									addendum_msg_buf.Cat(temp_buf).Space().CatChar('#').Cat(vd_rec.LinkBillRow);
-									if(vd_rec.LinkBillRow && trfr->SearchByBill(vd_rec.LinkBillID, 0, vd_rec.LinkBillRow, &trfr_rec) > 0 && trfr_rec.LotID) {
-										addendum_msg_buf.Space().Cat(fabs(trfr_rec.Quantity), MKSFMTD(0, 3, NMBF_NOTRAILZ));
-										GetGoodsName(trfr_rec.GoodsID, temp_buf);
-										addendum_msg_buf.Space().Cat(temp_buf);
-									}
-								}
-								else
-									addendum_msg_buf.CatEq("BillID", vd_rec.LinkBillID).Space().CatChar('#').Cat(vd_rec.LinkBillRow);
-								msg_buf.Printf(fmt_buf, addendum_msg_buf.cptr());
-								logger.Log(msg_buf);
+						else { // } @v11.3.4 
+							if(oneof2(use_alg2, 1, 100)) {
+								if(!ifc.InitOutgoingEntry(entity_id, p_region_rules, work_list))
+									logger.LogLastError();
 							}
-							int cr = ifc.PrepareOutgoingConsignment(entity_id, p_region_rules, &ure_list, reply);
-							if(cr > 0)
-								ok = 1;
-							else if(!cr)
-								logger.LogLastError();
-							PPWaitPercent(i+1, entity_id_list.getCount(), wait_msg);
+							else {
+								{
+									PPLoadText(PPTXT_VETISOUTGSENDING, fmt_buf);
+									TransferTbl::Rec trfr_rec;
+									addendum_msg_buf.Z();
+									if(vd_rec.LinkBillID && p_bobj->Fetch(vd_rec.LinkBillID, &link_bill_rec) > 0) {
+										PPObjBill::MakeCodeString(&link_bill_rec, PPObjBill::mcsAddObjName|PPObjBill::mcsAddObjName, temp_buf);
+										addendum_msg_buf.Cat(temp_buf).Space().CatChar('#').Cat(vd_rec.LinkBillRow);
+										if(vd_rec.LinkBillRow && trfr->SearchByBill(vd_rec.LinkBillID, 0, vd_rec.LinkBillRow, &trfr_rec) > 0 && trfr_rec.LotID) {
+											addendum_msg_buf.Space().Cat(fabs(trfr_rec.Quantity), MKSFMTD(0, 3, NMBF_NOTRAILZ));
+											GetGoodsName(trfr_rec.GoodsID, temp_buf);
+											addendum_msg_buf.Space().Cat(temp_buf);
+										}
+									}
+									else
+										addendum_msg_buf.CatEq("BillID", vd_rec.LinkBillID).Space().CatChar('#').Cat(vd_rec.LinkBillRow);
+									msg_buf.Printf(fmt_buf, addendum_msg_buf.cptr());
+									logger.Log(msg_buf);
+								}
+								int cr = ifc.PrepareOutgoingConsignment(entity_id, p_region_rules, &ure_list, reply);
+								if(cr > 0)
+									ok = 1;
+								else if(!cr)
+									logger.LogLastError();
+								PPWaitPercent(i+1, entity_id_list.getCount(), wait_msg);
+							}
 						}
 					}
 				}
@@ -12666,7 +12709,6 @@ int PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, int obj
 							{
 								const size_t way_bill_code_len = WayBillNumber.Len();
 								if(way_bill_code_len) {
-									//BillCore::GetCode(temp_buf = bill_rec.Code);
 									const size_t min_code_len = MIN(rCode.Len(), way_bill_code_len);
 									for(size_t cl = 1; cl <= min_code_len; cl++) {
 										const char * p1 = rCode.cptr() + rCode.Len() - cl;

@@ -16,10 +16,8 @@
 __FBSDID("$FreeBSD: src/lib/libarchive/archive_read_data_into_fd.c,v 1.16 2008/05/23 05:01:29 cperciva Exp $");
 
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
+	#include <unistd.h>
 #endif
-#include "archive.h"
-#include "archive_private.h"
 
 /* Maximum amount of data to write at one time. */
 #define MAX_WRITE       (1024 * 1024)
@@ -27,16 +25,12 @@ __FBSDID("$FreeBSD: src/lib/libarchive/archive_read_data_into_fd.c,v 1.16 2008/0
 /*
  * This implementation minimizes copying of data and is sparse-file aware.
  */
-static int pad_to(struct archive * a, int fd, int can_lseek,
-    size_t nulls_size, const char * nulls,
-    int64 target_offset, int64 actual_offset)
+static int pad_to(struct archive * a, int fd, int can_lseek, size_t nulls_size, const char * nulls, int64 target_offset, int64 actual_offset)
 {
 	size_t to_write;
 	ssize_t bytes_written;
-
 	if(can_lseek) {
-		actual_offset = lseek(fd,
-			target_offset - actual_offset, SEEK_CUR);
+		actual_offset = lseek(fd, target_offset - actual_offset, SEEK_CUR);
 		if(actual_offset != target_offset) {
 			archive_set_error(a, errno, "Seek error");
 			return ARCHIVE_FATAL;

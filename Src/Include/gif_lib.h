@@ -27,7 +27,7 @@ extern "C" {
 
 typedef uint8 GifPixelType;
 typedef uint8 * GifRowType;
-typedef uint8 GifByteType;
+//typedef uint8 GifByteType__Removed;
 typedef uint GifPrefixType;
 //typedef int GifWord_Removed;
 
@@ -52,21 +52,23 @@ struct ColorMapObject {
 	int    ColorCount;
 	int    BitsPerPixel;
 	bool   SortFlag;
-	SColorRGB * Colors; /* on SAlloc::M(3) heap */
+	uint8  Reserve[3]; // @v11.3.4 @alignment
+	SColorRGB * Colors; // on SAlloc::M(3) heap 
 };
 
 struct GifImageDesc {
 	int    Left;
 	int    Top;
 	int    Width;
-	int    Height; /* Current image dimensions. */
-	bool   Interlace;                 /* Sequential/Interlaced lines. */
-	ColorMapObject * ColorMap;      /* The local color map */
+	int    Height; // Current image dimensions
+	bool   Interlace; // Sequential/Interlaced lines
+	uint8  Reserve[3]; // @v11.3.4 @alignment
+	ColorMapObject * ColorMap; // The local color map
 };
 
 struct ExtensionBlock {
 	int    ByteCount;
-	GifByteType * Bytes; /* on SAlloc::M(3) heap */
+	uint8 * Bytes; /* on SAlloc::M(3) heap */
 	int    Function;   /* The block function code */
 #define CONTINUE_EXT_FUNC_CODE    0x00    /* continuation subblock */
 #define COMMENT_EXT_FUNC_CODE     0xfe    /* comment */
@@ -77,26 +79,27 @@ struct ExtensionBlock {
 
 struct GifSavedImage {
 	GifImageDesc ImageDesc;
-	GifByteType * RasterBits;    /* on SAlloc::M(3) heap */
+	uint8 * RasterBits;    /* on SAlloc::M(3) heap */
 	int    ExtensionBlockCount;     /* Count of extensions before image */
 	ExtensionBlock * ExtensionBlocks; /* Extensions before image */
 };
 
 struct GifFileType {
 	int    SWidth;
-	int    SHeight;     /* Size of virtual canvas */
-	int    SColorResolution;    /* How many colors can we generate? */
-	int    SBackGroundColor;    /* Background color for virtual canvas */
-	GifByteType AspectByte;      /* Used to compute pixel aspect ratio */
-	ColorMapObject * SColorMap;  /* Global colormap, NULL if nonexistent. */
-	int    ImageCount;              /* Number of current image (both APIs) */
-	GifImageDesc Image;          /* Current image (low-level API) */
-	GifSavedImage * SavedImages;    /* Image sequence (high-level API) */
-	int    ExtensionBlockCount;     /* Count extensions past last image */
-	ExtensionBlock * ExtensionBlocks; /* Extensions past last image */
-	int    Error;                   /* Last error condition reported */
-	void * UserData;             /* hook to attach user data (TVT) */
-	void * Private;              /* Don't mess with this! */
+	int    SHeight; // Size of virtual canvas 
+	int    SColorResolution; // How many colors can we generate? 
+	int    SBackGroundColor; // Background color for virtual canvas 
+	uint8  AspectByte; // Used to compute pixel aspect ratio
+	uint8  Reserve[3]; // @v11.3.4 @aligment
+	ColorMapObject * SColorMap; // Global colormap, NULL if nonexistent
+	int    ImageCount;          // Number of current image (both APIs) 
+	GifImageDesc Image;         // Current image (low-level API)
+	GifSavedImage * SavedImages; // Image sequence (high-level API) 
+	int    ExtensionBlockCount;  // Count extensions past last image 
+	ExtensionBlock * ExtensionBlocks; // Extensions past last image
+	int    Error;    // Last error condition reported
+	void * UserData; // hook to attach user data (TVT) 
+	void * Private;  // Don't mess with this! 
 };
 
 #define GIF_ASPECT_RATIO(n)     ((n)+15.0/64.0)
@@ -111,24 +114,25 @@ enum GifRecordType {
 //
 // func type to read gif data from arbitrary sources (TVT)
 //
-typedef int (*InputFunc)(GifFileType *, GifByteType *, int);
+typedef int (*InputFunc)(GifFileType *, uint8 *, int);
 //
 // func type to write gif data to arbitrary targets.
 // Returns count of bytes written. (MRB)
 //
-typedef int (*OutputFunc)(GifFileType *, const GifByteType *, int);
+typedef int (*OutputFunc)(GifFileType *, const uint8 *, int);
 // 
 // GIF89 structures
 // 
 typedef struct GraphicsControlBlock {
-	int DisposalMode;
-#define DISPOSAL_UNSPECIFIED      0       /* No disposal specified. */
-#define DISPOSE_DO_NOT            1       /* Leave image in place */
-#define DISPOSE_BACKGROUND        2       /* Set area too background color */
-#define DISPOSE_PREVIOUS          3       /* Restore to previous content */
-	bool UserInputFlag;  /* User confirmation required before disposal */
-	int DelayTime;       /* pre-display delay in 0.01sec units */
-	int TransparentColor; /* Palette index for transparency, -1 if none */
+	int    DisposalMode;
+#define DISPOSAL_UNSPECIFIED      0 // No disposal specified
+#define DISPOSE_DO_NOT            1 // Leave image in place 
+#define DISPOSE_BACKGROUND        2 // Set area too background color 
+#define DISPOSE_PREVIOUS          3 // Restore to previous content 
+	bool   UserInputFlag;    // User confirmation required before disposal 
+	uint8  Reserve[3];       // @v11.3.4 @alignment 
+	int    DelayTime;        // pre-display delay in 0.01sec units 
+	int    TransparentColor; // Palette index for transparency, -1 if none 
 #define NO_TRANSPARENT_COLOR    -1
 } GraphicsControlBlock;
 // 
@@ -154,8 +158,7 @@ int EGifCloseFile(GifFileType * GifFile);
 #define E_GIF_ERR_NOT_WRITEABLE  10
 
 // These are legacy.  You probably do not want to call them directly 
-int EGifPutScreenDesc(GifFileType * GifFile,
-    const int GifWidth, const int GifHeight, const int GifColorRes, const int GifBackGround, const ColorMapObject * GifColorMap);
+int EGifPutScreenDesc(GifFileType * GifFile, const int GifWidth, const int GifHeight, const int GifColorRes, const int GifBackGround, const ColorMapObject * GifColorMap);
 int EGifPutImageDesc(GifFileType * GifFile, const int GifLeft, const int GifTop, const int GifWidth, const int GifHeight, const bool GifInterlace, const ColorMapObject * GifColorMap);
 int EGifSetGifVersion(GifFileType * GifFile, const bool gif89);
 int EGifPutLine(GifFileType * GifFile, GifPixelType * GifLine, int GifLineLen);
@@ -165,8 +168,8 @@ int EGifPutExtensionLeader(GifFileType * GifFile, const int GifExtCode);
 int EGifPutExtensionBlock(GifFileType * GifFile, const int GifExtLen, const void * GifExtension);
 int EGifPutExtensionTrailer(GifFileType * GifFile);
 int EGifPutExtension(GifFileType * GifFile, const int GifExtCode, const int GifExtLen, const void * GifExtension);
-int EGifPutCode(GifFileType * GifFile, int GifCodeSize, const GifByteType * GifCodeBlock);
-int EGifPutCodeNext(GifFileType * GifFile, const GifByteType * GifCodeBlock);
+int EGifPutCode(GifFileType * GifFile, int GifCodeSize, const uint8 * GifCodeBlock);
+int EGifPutCodeNext(GifFileType * GifFile, const uint8 * GifCodeBlock);
 // 
 // GIF decoding routines
 // 
@@ -201,16 +204,16 @@ int DGifGetImageDesc(GifFileType * GifFile);
 int DGifGetLine(GifFileType * GifFile, GifPixelType * GifLine, int GifLineLen);
 int DGifGetPixel(GifFileType * GifFile, GifPixelType GifPixel);
 int DGifGetComment(GifFileType * GifFile, char * GifComment);
-int DGifGetExtension(GifFileType * GifFile, int * GifExtCode, GifByteType ** GifExtension);
-int DGifGetExtensionNext(GifFileType * GifFile, GifByteType ** GifExtension);
-int DGifGetCode(GifFileType * GifFile, int * GifCodeSize, GifByteType ** GifCodeBlock);
-int DGifGetCodeNext(GifFileType * GifFile, GifByteType ** GifCodeBlock);
+int DGifGetExtension(GifFileType * GifFile, int * GifExtCode, uint8 ** GifExtension);
+int DGifGetExtensionNext(GifFileType * GifFile, uint8 ** GifExtension);
+int DGifGetCode(GifFileType * GifFile, int * GifCodeSize, uint8 ** GifCodeBlock);
+int DGifGetCodeNext(GifFileType * GifFile, uint8 ** GifCodeBlock);
 int DGifGetLZCodes(GifFileType * GifFile, int * GifCode);
 // 
 // Color table quantization (deprecated)
 // 
-int GifQuantizeBuffer(uint Width, uint Height, int * ColorMapSize, GifByteType * RedInput,
-    GifByteType * GreenInput, GifByteType * BlueInput, GifByteType * OutputBuffer, SColorRGB * OutputColorMap);
+int GifQuantizeBuffer(uint Width, uint Height, int * ColorMapSize, uint8 * RedInput,
+    uint8 * GreenInput, uint8 * BlueInput, uint8 * OutputBuffer, SColorRGB * OutputColorMap);
 // 
 // Error handling and reporting.
 // 
@@ -237,8 +240,8 @@ extern void GifFreeSavedImages(GifFileType * GifFile);
 // 
 // 5.x functions for GIF89 graphics control blocks
 // 
-int DGifExtensionToGCB(const size_t GifExtensionLength, const GifByteType * GifExtension, GraphicsControlBlock * GCB);
-size_t EGifGCBToExtension(const GraphicsControlBlock * GCB, GifByteType * GifExtension);
+int DGifExtensionToGCB(const size_t GifExtensionLength, const uint8 * GifExtension, GraphicsControlBlock * GCB);
+size_t EGifGCBToExtension(const GraphicsControlBlock * GCB, uint8 * GifExtension);
 int DGifSavedExtensionToGCB(GifFileType * GifFile, int ImageIndex, GraphicsControlBlock * GCB);
 int EGifGCBToSavedExtension(const GraphicsControlBlock * GCB, GifFileType * GifFile, int ImageIndex);
 // 

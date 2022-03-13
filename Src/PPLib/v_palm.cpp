@@ -1,5 +1,5 @@
 // V_PALM.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2015, 2016, 2018
+// Copyright (c) A.Starodub 2009, 2010, 2015, 2016, 2018, 2022
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -151,8 +151,6 @@ int PPViewPalm::EditBaseFilt(PPBaseFilt * pFilt)
 	return ok;
 }
 
-// @v8.6.6 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempPalm);
-
 int PPViewPalm::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
@@ -281,8 +279,6 @@ DBQuery * PPViewPalm::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	return q;
 }
 
-int _Construction_MakeRsrvPriceListResponse(PPID styloPalmID); // @construction
-
 int PPViewPalm::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = (ppvCmd != PPVCMD_ADDITEM) ? PPView::ProcessCommand(ppvCmd, pHdr, pBrw) : -2;
@@ -312,13 +308,6 @@ int PPViewPalm::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * p
 				break;
 			case PPVCMD_TEST: // @v11.2.6
 				ok = -1;
-#ifndef NDEBUG				
-				{
-					id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
-					if(id)
-						_Construction_MakeRsrvPriceListResponse(id);
-				}
-#endif // NDEBUG
 				break;
 		}
 	}

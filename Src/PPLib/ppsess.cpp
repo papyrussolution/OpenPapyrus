@@ -5150,6 +5150,7 @@ int PPSession::GetObjectTypeSymb(PPID objType, SString & rBuf)
 			case PPOBJ_TSESSION:  val = PPHS_TSESSION; break;
 			case PPOBJ_STYLOPALM: val = PPHS_STYLOPALM; break;
 			case PPOBJ_GEOTRACKING: val = PPHS_GEOTRACKING; break; // @v10.1.5
+			case PPOBJ_STYLOQBINDERY: val = PPHS_STYLOQBINDERY; break; // @v11.3.4
 		}
 		if(val)
 			ok = P_ObjIdentBlk->P_ShT->GetByAssoc(val, rBuf);
@@ -5320,12 +5321,10 @@ int    PPSession::SetPrivateBasket(PPBasketPacket * pPack, int use_ta) { return 
 PPBasketPacket * PPSession::GetPrivateBasket() { return GetTLA().Cart.Get(); }
 int    PPSession::StopThread(ThreadID tId) { return ThreadList.StopThread(tId); }
 
-int PPSession::IsThreadStopped()
+bool PPSession::IsThreadStopped()
 {
-	int    ok = 0;
 	const PPThread * p_thread = ThreadList.SearchById(GetConstTLA().GetThreadID());
-	ok = BIN(p_thread && p_thread->IsStopping());
-	return ok;
+	return (p_thread && p_thread->IsStopping());
 }
 
 void PPAdviseEvent::Clear()

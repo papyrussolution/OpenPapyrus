@@ -21,36 +21,19 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is Intel Corporation
  *
- * Contributor(s):
- *	Chris Wilson <chris@chris-wilson.co.uk>
+ * Contributor(s): Chris Wilson <chris@chris-wilson.co.uk>
  */
-
 #ifndef TEST_COMPOSITOR_SURFACE_PRIVATE_H
 #define TEST_COMPOSITOR_SURFACE_PRIVATE_H
 
 #include "cairo.h"
-
 #include "test-compositor-surface.h"
 
-//#include "cairo-compiler-private.h"
-//#include "cairo-compositor-private.h"
-
 CAIRO_BEGIN_DECLS
-
-cairo_private cairo_surface_t *
-test_compositor_surface_create (const cairo_compositor_t *compositor,
-				cairo_content_t	content,
-				int		width,
-				int		height);
-
+	cairo_private cairo_surface_t * test_compositor_surface_create(const cairo_compositor_t * compositor, cairo_content_t content, int width, int height);
 CAIRO_END_DECLS
 
 #endif /* TEST_COMPOSITOR_SURFACE_PRIVATE H */

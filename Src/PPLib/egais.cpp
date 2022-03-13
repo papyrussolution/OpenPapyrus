@@ -246,6 +246,7 @@ PPEgaisProcessor::Packet::Packet(int docType) : DocType(docType), Flags(0), Intr
 		case PPEDIOP_EGAIS_REPLYCLIENT: P_Data = new TSCollection <PPPersonPacket>; break;
 		case PPEDIOP_EGAIS_REPLYAP: P_Data = new TSCollection <PPGoodsPacket>; break;
 		case PPEDIOP_EGAIS_REPLYFORMA:
+		case PPEDIOP_EGAIS_REPLYFORM1: // @v11.3.4
 			P_Data = new EgaisRefATbl::Rec;
 			memzero(P_Data, sizeof(EgaisRefATbl::Rec));
 			break;
@@ -300,7 +301,9 @@ PPEgaisProcessor::Packet::~Packet()
 		case PPEDIOP_EGAIS_TTNINFORMF2REG: delete static_cast<InformB *>(P_Data); break;
 		case PPEDIOP_EGAIS_REPLYCLIENT: delete static_cast<TSCollection <PPPersonPacket> *>(P_Data); break;
 		case PPEDIOP_EGAIS_REPLYAP: delete static_cast<TSCollection <PPGoodsPacket> *>(P_Data); break;
-		case PPEDIOP_EGAIS_REPLYFORMA: delete static_cast<EgaisRefATbl::Rec *>(P_Data); break;
+		case PPEDIOP_EGAIS_REPLYFORMA: 
+		case PPEDIOP_EGAIS_REPLYFORM1: // @v11.3.4
+			delete static_cast<EgaisRefATbl::Rec *>(P_Data); break;
 		case PPEDIOP_EGAIS_WAYBILL:
 		case PPEDIOP_EGAIS_WAYBILL_V2:
 		case PPEDIOP_EGAIS_WAYBILL_V3:
@@ -1340,6 +1343,8 @@ static const SIntToSymbTabEntry _EgaisDocTypes[] = {
 	{ PPEDIOP_EGAIS_REPLYRESTSSHOP,   "ReplyRestsShop_v2" },
 	{ PPEDIOP_EGAIS_REPLYFORMA,       "ReplyFormA" },
 	{ PPEDIOP_EGAIS_REPLYFORMB,       "ReplyFormB" },
+	{ PPEDIOP_EGAIS_REPLYFORM1,       "ReplyForm1" }, // @v11.3.4
+	{ PPEDIOP_EGAIS_REPLYFORM2,       "ReplyForm2" }, // @v11.3.4
 	{ PPEDIOP_EGAIS_ACTCHARGEON,      "ActChargeOn" },
 	{ PPEDIOP_EGAIS_ACTCHARGEON_V2,   "ActChargeOn_v2" },
 	{ PPEDIOP_EGAIS_ACTWRITEOFF,      "ActWriteOff" },
@@ -2610,7 +2615,8 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 						n_dt.PutInner(SXml::nst("qp", "ClientId"), EncText(fsrar_ident));
 						n_dt.PutInner(SXml::nst("qp", "WBTypeUsed"), EncText(temp_buf = "WayBill_v4"));
 					}
-					else if(oneof4(doc_type, PPEDIOP_EGAIS_QUERYFORMA, PPEDIOP_EGAIS_REPLYFORMB, PPEDIOP_EGAIS_QUERYFORMF1, PPEDIOP_EGAIS_QUERYFORMF2)) { // @v11.2.12 PPEDIOP_EGAIS_QUERYFORMF1, PPEDIOP_EGAIS_QUERYFORMF2
+					else if(oneof4(doc_type, PPEDIOP_EGAIS_QUERYFORMA, PPEDIOP_EGAIS_QUERYFORMB, PPEDIOP_EGAIS_QUERYFORMF1, PPEDIOP_EGAIS_QUERYFORMF2)) { 
+						// @v11.2.12 PPEDIOP_EGAIS_QUERYFORMF1, PPEDIOP_EGAIS_QUERYFORMF2 // @v11.3.4 @fix PPEDIOP_EGAIS_REPLYFORMB-->PPEDIOP_EGAIS_QUERYFORMB
 						const SString * p_formab_regid = static_cast<const SString *>(rPack.P_Data);
                         if(p_formab_regid->NotEmpty()) {
 							n_dt.PutInner(SXml::nst("qf", "FormRegId"), EncText(temp_buf = *p_formab_regid));
@@ -4234,10 +4240,11 @@ int PPEgaisProcessor::Read_IformA(xmlNode * pFirstNode, Packet * pPack, PrcssrAl
 	int    consignee_refc_pos = -1;
 	PPPersonPacket psn_shipper;
 	PPPersonPacket psn_consignee;
+	PPPersonPacket psn_org_client; // @v11.3.4
     SString temp_buf;
     EgaisRefATbl::Rec * p_data = static_cast<EgaisRefATbl::Rec *>(pPack->P_Data);
     for(const xmlNode * p_n = pFirstNode; p_n; p_n = p_n->next) {
-		if(SXml::GetContentByName(p_n, "InformARegId", temp_buf)) {
+		if(SXml::GetContentByName(p_n, "InformARegId", temp_buf) || SXml::GetContentByName(p_n, "InformF1RegId", temp_buf)) {
 			temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 			STRNSCPY(p_data->RefACode, temp_buf);
 		}
@@ -4276,12 +4283,28 @@ int PPEgaisProcessor::Read_IformA(xmlNode * pFirstNode, Packet * pPack, PrcssrAl
 			}
 		}
 		// } @v10.9.5 
+		else if(SXml::IsName(p_n, "OriginalClient")) { // @v11.3.4
+			Read_OrgInfo(p_n->children, PPPRK_MANUF, EgaisPersonCore::rolefManuf, pPack ? &psn_org_client : 0, pRefC, 0);
+			if(pRefC && pRefC->LastPersonP >= 0) {
+				const EgaisPersonCore::Item * p_person = pRefC->PersonList.at(pRefC->LastPersonP);
+				if(p_person)
+					STRNSCPY(p_data->ImporterRarIdent, p_person->RarIdent);
+			}
+		}
+		else if(SXml::GetContentByName(p_n, "OriginalDocNumber", temp_buf)) { // @v11.3.4
+		}
+		else if(SXml::GetContentByName(p_n, "OriginalDocDate", temp_buf)) { // @v11.3.4
+		}
+		else if(SXml::GetContentByName(p_n, "GTDNUMBER", temp_buf)) { // @v11.3.4
+		}
+		else if(SXml::GetContentByName(p_n, "GTDDate", temp_buf)) { // @v11.3.4
+		}
 		else if(SXml::IsName(p_n, "Product")) {
 			PrcssrAlcReport::GoodsItem agi;
 			Read_ProductInfo(p_n->children, 0, &agi, pRefC, 0);
 			STRNSCPY(p_data->AlcCode, agi.EgaisCode);
 			STRNSCPY(p_data->ManufRarIdent, agi.RefcManufCode);
-			STRNSCPY(p_data->ImporterRarIdent, agi.RefcImporterCode);
+			// @v11.3.4 STRNSCPY(p_data->ImporterRarIdent, agi.RefcImporterCode);
 			p_data->Volume = static_cast<long>(agi.Volume * 100000);
 			p_data->CountryCode = agi.CountryCode;
 			p_data->Flags |= EgaisRefACore::fVerified;
@@ -6554,7 +6577,7 @@ int PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, long flag
 							ok = 1;
 						}
 					}
-					else if(doc_type == PPEDIOP_EGAIS_REPLYFORMA) {
+					else if(oneof2(doc_type, PPEDIOP_EGAIS_REPLYFORMA, PPEDIOP_EGAIS_REPLYFORM1)) { // @v11.3.4 PPEDIOP_EGAIS_REPLYFORM1
 						THROW(Helper_InitNewPack(doc_type, pPackList, &p_new_pack));
 						THROW(Read_IformA(p_nd->children, p_new_pack, pRefC));
 						THROW(Helper_FinalizeNewPack(&p_new_pack, srcReplyPos, pPackList));
@@ -7243,8 +7266,8 @@ int PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, long flag
 		LongArray ediop_list;
 		ediop_list.addzlist(PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3, PPEDIOP_EGAIS_WAYBILL_V4, PPEDIOP_EGAIS_TTNINFORMBREG, PPEDIOP_EGAIS_TTNINFORMF2REG,
 			PPEDIOP_EGAIS_TICKET, PPEDIOP_EGAIS_REPLYCLIENT, PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTS_V2, PPEDIOP_EGAIS_REPLYRESTSSHOP,
-			PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG, PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_REPLYAP,
-			PPEDIOP_EGAIS_REPLYFORMA, PPEDIOP_EGAIS_REPLYRESTSSHOP, PPEDIOP_EGAIS_REPLYBARCODE, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3, PPEDIOP_EGAIS_WAYBILLACT_V4,
+			PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG, PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_REPLYAP, PPEDIOP_EGAIS_REPLYFORMA, PPEDIOP_EGAIS_REPLYFORM1,
+			PPEDIOP_EGAIS_REPLYRESTSSHOP, PPEDIOP_EGAIS_REPLYBARCODE, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3, PPEDIOP_EGAIS_WAYBILLACT_V4,
 			PPEDIOP_EGAIS_REQUESTREPEALWB, PPEDIOP_EGAIS_REPLYRESTBCODE, 0);
 		ediop_list.sortAndUndup();
 		THROW_MEM(SETIFZ(P_RefC, new RefCollection));
@@ -7268,7 +7291,8 @@ int PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, long flag
 					adr = AcceptDoc(*p_reply, temp_buf);
 				}
 				if(adr && Helper_Read(p_ctx, p_reply->AcceptedFileName, 0, locID, pPeriod, (i+1), &pack_list, P_RefC)) {
-					if(oneof5(doc_type, PPEDIOP_EGAIS_REPLYCLIENT, PPEDIOP_EGAIS_REPLYAP, PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTS_V2, PPEDIOP_EGAIS_REPLYFORMA)) {
+					if(oneof6(doc_type, PPEDIOP_EGAIS_REPLYCLIENT, PPEDIOP_EGAIS_REPLYAP, PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTS_V2, 
+						PPEDIOP_EGAIS_REPLYFORMA, PPEDIOP_EGAIS_REPLYFORM1)) { // @v11.3.4 PPEDIOP_EGAIS_REPLYFORM1
 						if(!DeleteDoc(*p_reply))
 							LogLastError();
 					}
@@ -7414,11 +7438,10 @@ int PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, long flag
 					if(!(flags & rifOffline) && diffdate(_curdtm.d, p_tick->TicketTime.d) > 1)
 						DeleteSrcPacket(p_pack, reply_list);
 				}
-				else if(p_pack->DocType == PPEDIOP_EGAIS_REPLYFORMA) {
+				else if(oneof2(p_pack->DocType, PPEDIOP_EGAIS_REPLYFORMA, PPEDIOP_EGAIS_REPLYFORM1)) { // @v11.3.4 PPEDIOP_EGAIS_REPLYFORM1
 					const EgaisRefATbl::Rec * p_ref_a = static_cast<const EgaisRefATbl::Rec *>(p_pack->P_Data);
 					if(P_RefC) {
 						EgaisRefATbl::Rec refai;
-						// @v10.6.4 MEMSZERO(refai);
 						STRNSCPY(refai.RefACode, p_ref_a->RefACode);
 						STRNSCPY(refai.AlcCode,  p_ref_a->AlcCode);
 						STRNSCPY(refai.ManufRarIdent, p_ref_a->ManufRarIdent);

@@ -469,9 +469,8 @@ static void AddGreenToBlueAndRed_SSE2(const uint32_t* const src, int num_pixels,
 //------------------------------------------------------------------------------
 // Color Transform
 
-static void TransformColorInverse_SSE2(const VP8LMultipliers* const m,
-    const uint32_t* const src,
-    int num_pixels, uint32_t* dst) {
+static void TransformColorInverse_SSE2(const VP8LMultipliers* const m, const uint32_t* const src, int num_pixels, uint32_t* dst) 
+{
 // sign-extended multiplying constants, pre-shifted by 5.
 #define CST(X)  (((int16_t)(m->X << 8)) >> 5)   // sign-extend
 #define MK_CST_16(HI, LO) \

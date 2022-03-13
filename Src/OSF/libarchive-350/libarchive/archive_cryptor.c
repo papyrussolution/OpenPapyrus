@@ -13,7 +13,6 @@
  */
 #include "archive_platform.h"
 #pragma hdrstop
-#include "archive.h"
 #include "archive_cryptor_private.h"
 /*
  * On systems that do not support any recognized crypto libraries,

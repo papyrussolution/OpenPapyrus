@@ -1,4 +1,4 @@
-// 
+// DCONVSTR.C
 // Bijective, heapless and bignumless conversion of IEEE 754 double to string and vice versa http://www.gurucoding.com/en/dconvstr/
 // 
 // Copyright (c) 2014 Mikhail Kupchik <Mikhail.Kupchik@prime-expert.com> All rights reserved.
@@ -6,20 +6,9 @@
 // Redistribution and use in source and binary forms, with or without modification, are permitted
 // provided that the following conditions are met:
 // 
-// 1. Redistributions of source code must retain the above copyright notice, this list of conditions
-// and the following disclaimer.
-// 
+// 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions
 // and the following disclaimer in the documentation and/or other materials provided with the distribution.
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
-// IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
-// FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-// IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
-// OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
 #include <slib-internal.h>
 #pragma hdrstop
@@ -1541,7 +1530,7 @@ static int FASTCALL convert_extended_decimal_to_binary_and_round(uint64 a, int32
 		return 0;
 	// 2. Convert (a * 10^b) -> (mantissa * 2^exponent)
 	uint64 mantissa = powers_of_ten_[b - powers_of_ten_[0].decimal_exponent].binary_mantissa;
-	int32 exponent = powers_of_ten_[b - powers_of_ten_[0].decimal_exponent].binary_exponent;
+	int32  exponent = powers_of_ten_[b - powers_of_ten_[0].decimal_exponent].binary_exponent;
 	uint64 long_mantissa[2];
 	multiply_128(a, mantissa, long_mantissa);
 	if(long_mantissa[1] != 0) { // high half
@@ -1583,11 +1572,11 @@ static int FASTCALL convert_extended_decimal_to_binary_and_round(uint64 a, int32
 // @returns  1  if there's a match in conversion  (a * 10^b) ----------> (expected_c * 2^expected_d)
 // @returns  0  if there's no match or computation error
 // 
-static int FASTCALL does_extended_decimal_round_to_given_binary(uint64 a, int32 b, uint64 expected_c, int32 expected_d)
+static bool FASTCALL does_extended_decimal_round_to_given_binary(uint64 a, int32 b, uint64 expected_c, int32 expected_d)
 {
 	// 1. Check/normalize binary (expected_c * 2^expected_d)
 	if(expected_c == 0)
-		return 0;
+		return false;
 	uint lz = count_leading_zeros(expected_c);
 	expected_c <<= lz;
 	expected_d  -= lz;
@@ -1595,9 +1584,9 @@ static int FASTCALL does_extended_decimal_round_to_given_binary(uint64 a, int32 
 	uint64 actual_c = 0;
 	int32 actual_d = 0;
 	if(!convert_extended_decimal_to_binary_and_round(a, b, &actual_c, &actual_d) )
-		return 0;
+		return false;
 	// 3. Compare and compute result of this function
-	return ((actual_c == expected_c) && (actual_d == expected_d));
+	return (actual_c == expected_c && actual_d == expected_d);
 }
 // 
 // Descr: Convert extended-precision binary to extended-precision decimal (first approximation)
@@ -1608,11 +1597,11 @@ static int FASTCALL does_extended_decimal_round_to_given_binary(uint64 a, int32 
 // @returns  1  Exited normally, no errors.
 //   0  Invalid argument or internal error.
 // 
-static int FASTCALL convert_binary_to_decimal_1st_approx(uint64 a, int32 b, uint64 * c, int32 * d)
+static bool FASTCALL convert_binary_to_decimal_1st_approx(uint64 a, int32 b, uint64 * c, int32 * d)
 {
 	// 1. Check/normalize input mantissa.
 	if(a == 0)
-		return 0;
+		return false;
 	uint lz = count_leading_zeros(a);
 	a <<= lz;
 	b  -= lz;
@@ -1620,10 +1609,10 @@ static int FASTCALL convert_binary_to_decimal_1st_approx(uint64 a, int32 b, uint
 	//    Do bounds check of the input exponent.
 	b -= 63;
 	if((b < powers_of_two_[0].binary_exponent) || (b > powers_of_two_[sizeof(powers_of_two_)/sizeof(powers_of_two_[0]) - 1].binary_exponent))
-		return 0;
+		return false;
 	// 3. Convert (a * 2^b) -> (long_mantissa * 10^exponent)
 	uint64 mantissa = powers_of_two_[ b - powers_of_two_[0].binary_exponent ].decimal_mantissa;
-	int32 exponent = powers_of_two_[ b - powers_of_two_[0].binary_exponent ].decimal_exponent;
+	int32  exponent = powers_of_two_[ b - powers_of_two_[0].binary_exponent ].decimal_exponent;
 	uint64 long_mantissa[2];
 	multiply_128(a, mantissa, long_mantissa);
 	// invariant: 2^63*(0.1*2^64) < long_mantissa < 2^64*(1*2^64)
@@ -1643,7 +1632,7 @@ static int FASTCALL convert_binary_to_decimal_1st_approx(uint64 a, int32 b, uint
 	// 5. Save computation results and exit
 	(*c) = mantissa;
 	(*d) = exponent;
-	return 1;
+	return true;
 }
 // 
 // Descr: Convert double-precision binary to extended-precision decimal
@@ -1659,13 +1648,13 @@ static int FASTCALL convert_binary_to_decimal_1st_approx(uint64 a, int32 b, uint
 // @returns  1  Exited normally, no errors.
 //   0  Invalid argument or internal error.
 // 
-static int FASTCALL convert_binary_to_extended_decimal(uint64 a, int32 b, uint64 * c, int32 * d)
+static bool FASTCALL convert_binary_to_extended_decimal(uint64 a, int32 b, uint64 * c, int32 * d)
 {
 	// 1. Check input parameters and convert binary mantissa in such way that
 	//    its most significant bits are 01. Zero out least significant bits of
 	//    mantissa, which are not representable in IEEE 754 double precision format.
 	if(a == 0)
-		return 0;
+		return false;
 	uint lz = count_leading_zeros(a);
 	a <<= lz;
 	a >>= 1;
@@ -1679,10 +1668,9 @@ static int FASTCALL convert_binary_to_extended_decimal(uint64 a, int32 b, uint64
 	int32  base_d = 0;
 	uint64 next_c = 0;  
 	int32  next_d = 0;
-	if((!convert_binary_to_decimal_1st_approx(a - 0x0400ULL, b, &prev_c, &prev_d) )||
-	    (!convert_binary_to_decimal_1st_approx(a, b, &base_c, &base_d) )||
-	    (!convert_binary_to_decimal_1st_approx(a + 0x0400ULL, b, &next_c, &next_d) ))
-		return 0;
+	if(!convert_binary_to_decimal_1st_approx(a - 0x0400ULL, b, &prev_c, &prev_d) || !convert_binary_to_decimal_1st_approx(a, b, &base_c, &base_d) ||
+	    !convert_binary_to_decimal_1st_approx(a + 0x0400ULL, b, &next_c, &next_d))
+		return false;
 	if(prev_d < next_d) {
 		prev_c /= 10ULL;
 		++prev_d;
@@ -1692,10 +1680,8 @@ static int FASTCALL convert_binary_to_extended_decimal(uint64 a, int32 b, uint64
 		++base_d;
 	}
 	// 3. Check invariants before starting the binary search
-	if((prev_c >= base_c) || (base_c >= next_c) ||
-	    (!does_extended_decimal_round_to_given_binary(prev_c, prev_d, a - 0x0400ULL, b) )||
-	    (!does_extended_decimal_round_to_given_binary(base_c, base_d, a,             b) )||
-	    (!does_extended_decimal_round_to_given_binary(next_c, next_d, a + 0x0400ULL, b) ))
+	if((prev_c >= base_c) || (base_c >= next_c) || !does_extended_decimal_round_to_given_binary(prev_c, prev_d, a - 0x0400ULL, b) ||
+	    !does_extended_decimal_round_to_given_binary(base_c, base_d, a, b) || !does_extended_decimal_round_to_given_binary(next_c, next_d, a + 0x0400ULL, b))
 		return 0;
 	// 4. Using binary search, compute range of attraction: range of decimals
 	//    around (base_c * 10^base_d) such that every number within it is mapped to
@@ -1706,13 +1692,13 @@ static int FASTCALL convert_binary_to_extended_decimal(uint64 a, int32 b, uint64
 	uint64 negative_extent = 0, negative_search_space = base_c - prev_c;
 	uint64 positive_extent = 0, positive_search_space = next_c - base_c;
 	for(uint64 bit = 1ULL << (63 - count_leading_zeros(negative_search_space)); bit != 0; bit >>= 1) {
-		if((bit <= negative_search_space) && (does_extended_decimal_round_to_given_binary(base_c - negative_extent - bit, base_d, a, b))) {
+		if((bit <= negative_search_space) && does_extended_decimal_round_to_given_binary(base_c - negative_extent - bit, base_d, a, b)) {
 			negative_extent       += bit;
 			negative_search_space -= bit;
 		}
 	}
 	for(uint64 bit = 1ULL << (63 - count_leading_zeros(positive_search_space)); bit != 0; bit >>= 1) {
-		if((bit <= positive_search_space) && (does_extended_decimal_round_to_given_binary(base_c + positive_extent + bit, base_d, a, b))) {
+		if((bit <= positive_search_space) && does_extended_decimal_round_to_given_binary(base_c + positive_extent + bit, base_d, a, b)) {
 			positive_extent       += bit;
 			positive_search_space -= bit;
 		}
@@ -1732,7 +1718,7 @@ static int FASTCALL convert_binary_to_extended_decimal(uint64 a, int32 b, uint64
 	}
 	(*c) = new_mantissa;
 	(*d) = base_d;
-	return 1;
+	return true;
 }
 // 
 // Descr: Unpack floating-point double precision binary value according to IEEE 754

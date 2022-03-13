@@ -11,9 +11,9 @@
 // When set, we replace calls to ldexp() with manual bit packing, which is
 // faster and is unaffected by floating point environment.
 #ifdef ABSL_BIT_PACK_FLOATS
-#error ABSL_BIT_PACK_FLOATS cannot be directly set
+	#error ABSL_BIT_PACK_FLOATS cannot be directly set
 #elif defined(__x86_64__) || defined(_M_X64)
-#define ABSL_BIT_PACK_FLOATS 1
+	#define ABSL_BIT_PACK_FLOATS 1
 #endif
 
 // A note about subnormals:
@@ -41,8 +41,7 @@ namespace {
 template <typename FloatType>
 struct FloatTraits;
 
-template <>
-struct FloatTraits<double> {
+template <> struct FloatTraits<double> {
 	// The number of mantissa bits in the given float type.  This includes the
 	// implied high bit.
 	static constexpr int kTargetMantissaBits = 53;
@@ -61,7 +60,8 @@ struct FloatTraits<double> {
 	// m * 2**kMinNormalExponent is exactly equal to DBL_MIN.
 	static constexpr int kMinNormalExponent = -1074;
 
-	static double MakeNan(const char* tagp) {
+	static double MakeNan(const char* tagp) 
+	{
 		// Support nan no matter which namespace it's in.  Some platforms
 		// incorrectly don't put it in namespace std.
 		using namespace std; // NOLINT
@@ -81,15 +81,15 @@ struct FloatTraits<double> {
 	// a normal value is made, or it must be less narrow than that, in which case
 	// `exponent` must be exactly kMinNormalExponent, and a subnormal value is
 	// made.
-	static double Make(uint64_t mantissa, int exponent, bool sign) {
+	static double Make(uint64_t mantissa, int exponent, bool sign) 
+	{
 #ifndef ABSL_BIT_PACK_FLOATS
 		// Support ldexp no matter which namespace it's in.  Some platforms
 		// incorrectly don't put it in namespace std.
 		using namespace std; // NOLINT
 		return sign ? -ldexp(mantissa, exponent) : ldexp(mantissa, exponent);
 #else
-		constexpr uint64_t kMantissaMask =
-		    (uint64_t{1} << (kTargetMantissaBits - 1)) - 1;
+		constexpr uint64_t kMantissaMask = (uint64_t{1} << (kTargetMantissaBits - 1)) - 1;
 		uint64_t dbl = static_cast<uint64_t>(sign) << 63;
 		if(mantissa > kMantissaMask) {
 			// Normal value.
@@ -167,7 +167,7 @@ template <> struct FloatTraits<float> {
 // Indexes into these tables are biased by -kPower10TableMin, and the table has
 // values in the range [kPower10TableMin, kPower10TableMax].
 extern const uint64_t kPower10MantissaTable[];
-extern const int16_t kPower10ExponentTable[];
+extern const int16_t  kPower10ExponentTable[];
 
 // The smallest allowed value for use with the Power10Mantissa() and
 // Power10Exponent() functions below.  (If a smaller exponent is needed in
@@ -233,12 +233,10 @@ unsigned BitWidth(uint128 value)
 //
 // This accounts for subnormal values, and will return a larger-than-normal
 // shift if binary_exponent would otherwise be too low.
-template <typename FloatType>
-int NormalizedShiftSize(int mantissa_width, int binary_exponent) {
-	const int normal_shift =
-	    mantissa_width - FloatTraits<FloatType>::kTargetMantissaBits;
-	const int minimum_shift =
-	    FloatTraits<FloatType>::kMinNormalExponent - binary_exponent;
+template <typename FloatType> int NormalizedShiftSize(int mantissa_width, int binary_exponent) 
+{
+	const int normal_shift = mantissa_width - FloatTraits<FloatType>::kTargetMantissaBits;
+	const int minimum_shift = FloatTraits<FloatType>::kMinNormalExponent - binary_exponent;
 	return std::max(normal_shift, minimum_shift);
 }
 
@@ -247,7 +245,8 @@ int NormalizedShiftSize(int mantissa_width, int binary_exponent) {
 // `value` must be wider than the requested bit width.
 //
 // Returns the number of bits shifted.
-int TruncateToBitWidth(int bit_width, uint128* value) {
+int TruncateToBitWidth(int bit_width, uint128* value) 
+{
 	const int current_bit_width = BitWidth(*value);
 	const int shift = current_bit_width - bit_width;
 	*value >>= shift;
@@ -257,9 +256,8 @@ int TruncateToBitWidth(int bit_width, uint128* value) {
 // Checks if the given ParsedFloat represents one of the edge cases that are
 // not dependent on number base: zero, infinity, or NaN.  If so, sets *value
 // the appropriate double, and returns true.
-template <typename FloatType>
-bool HandleEdgeCase(const strings_internal::ParsedFloat& input, bool negative,
-    FloatType* value) {
+template <typename FloatType> bool HandleEdgeCase(const strings_internal::ParsedFloat& input, bool negative, FloatType* value) 
+{
 	if(input.type == strings_internal::FloatType::kNan) {
 		// A bug in both clang and gcc would cause the compiler to optimize away the
 		// buffer we are building below.  Declaring the buffer volatile avoids the
@@ -284,8 +282,7 @@ bool HandleEdgeCase(const strings_internal::ParsedFloat& input, bool negative,
 		return true;
 	}
 	if(input.type == strings_internal::FloatType::kInfinity) {
-		*value = negative ? -std::numeric_limits<FloatType>::infinity()
-		    : std::numeric_limits<FloatType>::infinity();
+		*value = negative ? -std::numeric_limits<FloatType>::infinity() : std::numeric_limits<FloatType>::infinity();
 		return true;
 	}
 	if(input.mantissa == 0) {
@@ -344,8 +341,8 @@ template <typename FloatType> void EncodeResult(const CalculatedFloat& calculate
 //
 // Zero and negative values of `shift` are accepted, in which case the word is
 // shifted left, as necessary.
-uint64_t ShiftRightAndRound(uint128 value, int shift, bool input_exact,
-    bool* output_exact) {
+uint64_t ShiftRightAndRound(uint128 value, int shift, bool input_exact, bool* output_exact) 
+{
 	if(shift <= 0) {
 		*output_exact = input_exact;
 		return static_cast<uint64_t>(value << -shift);
@@ -357,11 +354,9 @@ uint64_t ShiftRightAndRound(uint128 value, int shift, bool input_exact,
 		*output_exact = true;
 		return 0;
 	}
-
 	*output_exact = true;
 	const uint128 shift_mask = (uint128(1) << shift) - 1;
 	const uint128 halfway_point = uint128(1) << (shift - 1);
-
 	const uint128 shifted_bits = value & shift_mask;
 	value >>= shift;
 	if(shifted_bits > halfway_point) {
@@ -496,8 +491,8 @@ CalculatedFloat CalculatedFloatFromRawValues(uint64_t mantissa, int exponent) {
 	return result;
 }
 
-template <typename FloatType>
-CalculatedFloat CalculateFromParsedHexadecimal(const strings_internal::ParsedFloat& parsed_hex) {
+template <typename FloatType> CalculatedFloat CalculateFromParsedHexadecimal(const strings_internal::ParsedFloat& parsed_hex) 
+{
 	uint64_t mantissa = parsed_hex.mantissa;
 	int exponent = parsed_hex.exponent;
 	auto mantissa_width = static_cast<unsigned>(bit_width(mantissa));
@@ -511,10 +506,9 @@ CalculatedFloat CalculateFromParsedHexadecimal(const strings_internal::ParsedFlo
 	return CalculatedFloatFromRawValues<FloatType>(mantissa, exponent);
 }
 
-template <typename FloatType>
-CalculatedFloat CalculateFromParsedDecimal(const strings_internal::ParsedFloat& parsed_decimal) {
+template <typename FloatType> CalculatedFloat CalculateFromParsedDecimal(const strings_internal::ParsedFloat& parsed_decimal) 
+{
 	CalculatedFloat result;
-
 	// Large or small enough decimal exponents will always result in overflow
 	// or underflow.
 	if(Power10Underflow(parsed_decimal.exponent)) {
@@ -525,7 +519,6 @@ CalculatedFloat CalculateFromParsedDecimal(const strings_internal::ParsedFloat& 
 		result.exponent = kOverflow;
 		return result;
 	}
-
 	// Otherwise convert our power of 10 into a power of 2 times an integer
 	// mantissa, and multiply this by our parsed decimal mantissa.
 	uint128 wide_binary_mantissa = parsed_decimal.mantissa;
@@ -573,9 +566,7 @@ CalculatedFloat CalculateFromParsedDecimal(const strings_internal::ParsedFloat& 
 			binary_mantissa += 1;
 		}
 	}
-
-	return CalculatedFloatFromRawValues<FloatType>(binary_mantissa,
-		   binary_exponent);
+	return CalculatedFloatFromRawValues<FloatType>(binary_mantissa, binary_exponent);
 }
 
 template <typename FloatType> from_chars_result FromCharsImpl(const char* first, const char* last, FloatType& value, chars_format fmt_flags) 
@@ -591,7 +582,7 @@ template <typename FloatType> from_chars_result FromCharsImpl(const char* first,
 	// If the `hex` flag is *not* set, then we will accept a 0x prefix and try
 	// to parse a hexadecimal float.
 	if((fmt_flags & chars_format::hex) == chars_format{} && last - first >= 2 && *first == '0' && (first[1] == 'x' || first[1] == 'X')) {
-		const char* hex_first = first + 2;
+		const char * hex_first = first + 2;
 		strings_internal::ParsedFloat hex_parse = strings_internal::ParseFloat<16>(hex_first, last, fmt_flags);
 		if(hex_parse.end == nullptr || hex_parse.type != strings_internal::FloatType::kNumber) {
 			// Either we failed to parse a hex float after the "0x", or we read
@@ -630,14 +621,12 @@ template <typename FloatType> from_chars_result FromCharsImpl(const char* first,
 		if(HandleEdgeCase(hex_parse, negative, &value)) {
 			return result;
 		}
-		CalculatedFloat calculated =
-		    CalculateFromParsedHexadecimal<FloatType>(hex_parse);
+		CalculatedFloat calculated = CalculateFromParsedHexadecimal<FloatType>(hex_parse);
 		EncodeResult(calculated, negative, &result, &value);
 		return result;
 	}
 	else {
-		strings_internal::ParsedFloat decimal_parse =
-		    strings_internal::ParseFloat<10>(first, last, fmt_flags);
+		strings_internal::ParsedFloat decimal_parse = strings_internal::ParseFloat<10>(first, last, fmt_flags);
 		if(decimal_parse.end == nullptr) {
 			result.ec = std::errc::invalid_argument;
 			return result;
@@ -646,21 +635,20 @@ template <typename FloatType> from_chars_result FromCharsImpl(const char* first,
 		if(HandleEdgeCase(decimal_parse, negative, &value)) {
 			return result;
 		}
-		CalculatedFloat calculated =
-		    CalculateFromParsedDecimal<FloatType>(decimal_parse);
+		CalculatedFloat calculated = CalculateFromParsedDecimal<FloatType>(decimal_parse);
 		EncodeResult(calculated, negative, &result, &value);
 		return result;
 	}
 }
 }  // namespace
 
-from_chars_result from_chars(const char* first, const char* last, double& value,
-    chars_format fmt) {
+from_chars_result from_chars(const char* first, const char* last, double& value, chars_format fmt) 
+{
 	return FromCharsImpl(first, last, value, fmt);
 }
 
-from_chars_result from_chars(const char* first, const char* last, float& value,
-    chars_format fmt) {
+from_chars_result from_chars(const char* first, const char* last, float& value, chars_format fmt) 
+{
 	return FromCharsImpl(first, last, value, fmt);
 }
 

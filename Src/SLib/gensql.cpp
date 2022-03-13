@@ -1,14 +1,13 @@
 // GENSQL.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2017, 2018, 2019, 2020, 2022
+// @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <db.h>
 
-Generator_SQL::Generator_SQL(SqlServerType sqlst, long flags) : Sqlst(sqlst), Flags(flags)
+Generator_SQL::Generator_SQL(SqlServerType sqlst, long flags) : 
+	Sqlst(oneof6(sqlst, sqlstGeneric, sqlstORA, sqlstMSS, sqlstFB, sqlstMySQL, sqlstSQLite) ? sqlst : sqlstGeneric), Flags(flags)
 {
-	if(!oneof6(Sqlst, sqlstGeneric, sqlstORA, sqlstMSS, sqlstFB, sqlstMySQL, sqlstSQLite))
-		Sqlst = sqlstGeneric;
 }
 
 Generator_SQL & FASTCALL Generator_SQL::Tok(int tok)
@@ -17,7 +16,7 @@ Generator_SQL & FASTCALL Generator_SQL::Tok(int tok)
 	return *this;
 }
 
-Generator_SQL & Generator_SQL::Reset()
+Generator_SQL & Generator_SQL::Z()
 {
 	Buf.Z();
 	return *this;
@@ -325,8 +324,8 @@ int Generator_SQL::CreateIndex(const DBTable & rTbl, const char * pFileName, uin
 		for(int i = 0; i < ns; i++) {
 			if(Sqlst == sqlstORA && key.getFlags(i) & XIF_ACS) {
 				//
-				// Äëÿ ORACLE íå÷óâñòâèòåëüíîñòü ê ðåãèñòðó ñèìâîëîâ
-				// ðåàëèçóåòñÿ ôóíêöèîíàëüíûì ñåãìåíòîì èíäåêñà nls_lower(fld)
+				// Ð”Ð»Ñ ORACLE Ð½ÐµÑ‡ÑƒÐ²ÑÑ‚Ð²Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ð¾ÑÑ‚ÑŒ Ðº Ñ€ÐµÐ³Ð¸ÑÑ‚Ñ€Ñƒ ÑÐ¸Ð¼Ð²Ð¾Ð»Ð¾Ð²
+				// Ñ€ÐµÐ°Ð»Ð¸Ð·ÑƒÐµÑ‚ÑÑ Ñ„ÑƒÐ½ÐºÑ†Ð¸Ð¾Ð½Ð°Ð»ÑŒÐ½Ñ‹Ð¼ ÑÐµÐ³Ð¼ÐµÐ½Ñ‚Ð¾Ð¼ Ð¸Ð½Ð´ÐµÐºÑÐ° nls_lower(fld)
 				//
 				Buf.Cat("nls_lower(").Cat(rTbl.GetIndices().field(n, i).Name).CatChar(')');
 			}

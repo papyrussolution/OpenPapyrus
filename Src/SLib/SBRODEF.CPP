@@ -1,5 +1,5 @@
 // SBRODEF.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -26,7 +26,7 @@ uint BroGroup::NextColumn() const { return (First+Count); }
 //
 BrowserDef::BrowserDef(int captionHight, uint aOptions, void * extraPtr /*=0*/) : SArray(sizeof(BroColumn), aryDataOwner|aryEachItem),
 	capHight(captionHight), options(aOptions), NumGroups(0), P_Groups(0), viewHight(1), topItem(0), curItem(0), scrollDelta(0), P_CtList(0),
-	ExtraPtr(extraPtr), UserProc(0), isBOQ(0), isEOQ(0)
+	ExtraPtr(extraPtr), UserProc(0), isBOQ(false), isEOQ(false)
 {
 }
 
@@ -181,8 +181,8 @@ void BrowserDef::ClearGroupIndexies()
 }
 
 uint * BrowserDef::GetGroupIndexPtr(uint grpN) { return (grpN < NumGroups) ? &P_Groups[grpN].Index : 0; }
-int    BrowserDef::IsBOQ() const { return isBOQ; }
-int    BrowserDef::IsEOQ() const { return isEOQ; }
+bool   BrowserDef::IsBOQ() const { return isBOQ; }
+bool   BrowserDef::IsEOQ() const { return isEOQ; }
 bool   BrowserDef::CheckFlag(uint f) const { return LOGIC(options & f); }
 
 void BrowserDef::SetUserProc(SBrowserDataProc proc, void * extraPtr)

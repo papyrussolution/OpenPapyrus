@@ -13,8 +13,8 @@
 #include <wininet.h>
 
 #define EXPORT	extern "C" __declspec (dllexport)
-#define THROWERR(expr,val) { if(!(expr)){ SetError(val, ""); goto __scatch; } }
-#define THROWERR_STR(expr,val,str) { if(!(expr)){ SetError(val, str); goto __scatch; } }
+#define THROWERR(expr,val) { if(!(expr)) { SetError(val, ""); goto __scatch; } }
+#define THROWERR_STR(expr,val,str) { if(!(expr)) { SetError(val, str); goto __scatch; } }
 
 #define UNIT_NAME_KG			"КГ"
 #define UNIT_NAME_PIECE			"Штука"

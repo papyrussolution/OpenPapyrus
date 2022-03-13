@@ -19,17 +19,6 @@
  *      This product includes software developed by Niels Provos.
  * 4. The name of the author may not be used to endorse or promote products
  *    derived from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include <libssh-internal.h>
 #pragma hdrstop
@@ -63,10 +52,8 @@ void Blowfish_encipher(ssh_blf_ctx * c, uint32_t * xl, uint32_t * xr)
 	uint32_t Xr;
 	uint32_t * s = c->S[0];
 	uint32_t * p = c->P;
-
 	Xl = *xl;
 	Xr = *xr;
-
 	Xl ^= p[0];
 	BLFRND(s, p, Xr, Xl, 1); BLFRND(s, p, Xl, Xr, 2);
 	BLFRND(s, p, Xr, Xl, 3); BLFRND(s, p, Xl, Xr, 4);
@@ -76,7 +63,6 @@ void Blowfish_encipher(ssh_blf_ctx * c, uint32_t * xl, uint32_t * xr)
 	BLFRND(s, p, Xr, Xl, 11); BLFRND(s, p, Xl, Xr, 12);
 	BLFRND(s, p, Xr, Xl, 13); BLFRND(s, p, Xl, Xr, 14);
 	BLFRND(s, p, Xr, Xl, 15); BLFRND(s, p, Xl, Xr, 16);
-
 	*xl = Xr ^ p[17];
 	*xr = Xl;
 }
@@ -87,10 +73,8 @@ void Blowfish_decipher(ssh_blf_ctx * c, uint32_t * xl, uint32_t * xr)
 	uint32_t Xr;
 	uint32_t * s = c->S[0];
 	uint32_t * p = c->P;
-
 	Xl = *xl;
 	Xr = *xr;
-
 	Xl ^= p[17];
 	BLFRND(s, p, Xr, Xl, 16); BLFRND(s, p, Xl, Xr, 15);
 	BLFRND(s, p, Xr, Xl, 14); BLFRND(s, p, Xl, Xr, 13);

@@ -1403,7 +1403,6 @@ int  TestAddressRecognition();
 int  TestTsDensityMap(); // @debug
 int  TestUdsInterface();
 int  SrpTest();
-int  Test_PPStyloQInterchange();
 int  Test_StyloQInvitation();
 // @construction finished int  Test_Launch_SCalendarPicker();
 int  Test_StrAssocTree();
@@ -1524,7 +1523,6 @@ int DoConstructionTest()
 	Test_Fts();
 #endif
 	Test_LibPhoneNumber();
-	Test_PPStyloQInterchange();
 	//Test_StyloQInvitation();
 	//Test_StrAssocTree();
 	// @construction finished Test_Launch_SCalendarPicker();

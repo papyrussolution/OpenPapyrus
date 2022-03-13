@@ -1,11 +1,8 @@
 // DTI.CPP
-// Copyright (c) V.Antonov 2004, 2005, 2008, 2010, 2015, 2017, 2018, 2020, 2021
-//
-// DTI
+// Copyright (c) V.Antonov 2004, 2005, 2008, 2010, 2015, 2017, 2018, 2020, 2021, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <db.h>
 #define BTI_WIN_32
 #include <psql\dticonst.h>
 /*

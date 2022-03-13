@@ -16,17 +16,14 @@
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_open_filename.c 191165 2009-04-17 00:39:35Z kientzle $");
 
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
+	#include <unistd.h>
 #endif
-#include "archive.h"
-#include "archive_private.h"
-#include "archive_string.h"
 
 #ifndef O_BINARY
-#define O_BINARY 0
+	#define O_BINARY 0
 #endif
 #ifndef O_CLOEXEC
-#define O_CLOEXEC       0
+	#define O_CLOEXEC       0
 #endif
 
 struct write_file_data {

@@ -1,10 +1,9 @@
 // KR.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 2003, 2004, 2008, 2009, 2010, 2013, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 2003, 2004, 2008, 2009, 2010, 2013, 2016, 2017, 2018, 2019, 2020, 2022
 // @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <db.h>
 
 KR::KR() : P_b(0)
 {

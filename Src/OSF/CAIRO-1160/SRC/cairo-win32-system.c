@@ -22,18 +22,10 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is Red Hat, Inc.
  *
- * Contributor(s):
- *	Owen Taylor <otaylor@redhat.com>
- *	Stuart Parmenter <stuart@mozilla.com>
- *	Vladimir Vukicevic <vladimir@pobox.com>
+ * Contributor(s): Owen Taylor <otaylor@redhat.com> Stuart Parmenter <stuart@mozilla.com> Vladimir Vukicevic <vladimir@pobox.com>
  */
 
 /* This file should include code that is system-specific, not
@@ -60,18 +52,13 @@
 
 //#include <windows.h>
 
-/* declare to avoid "no previous prototype for 'DllMain'" warning */
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved);
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved); // declare to avoid "no previous prototype for 'DllMain'" warning 
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
 	switch(fdwReason) {
-		case DLL_PROCESS_ATTACH:
-		    CAIRO_MUTEX_INITIALIZE();
-		    break;
-		case DLL_PROCESS_DETACH:
-		    CAIRO_MUTEX_FINALIZE();
-		    break;
+		case DLL_PROCESS_ATTACH: CAIRO_MUTEX_INITIALIZE(); break;
+		case DLL_PROCESS_DETACH: CAIRO_MUTEX_FINALIZE(); break;
 	}
 	return TRUE;
 }

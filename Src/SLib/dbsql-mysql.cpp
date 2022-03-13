@@ -5,7 +5,6 @@
 #include <slib-internal.h>
 #pragma hdrstop
 #include <snet.h>
-#include <db.h>
 
 #if 1 // @construction {
 
@@ -121,14 +120,14 @@ int FASTCALL SMySqlDbProvider::ProcessError(int status)
 {
 	int    ok = 1;
 	// @construction {
-	THROW(SqlGen.Reset().CreateTable(*pTbl, 0));
+	THROW(SqlGen.Z().CreateTable(*pTbl, 0));
 	{
 		SSqlStmt stmt(this, (const SString &)SqlGen);
 		THROW(stmt.Exec(1, OCI_DEFAULT));
 	}
 	uint j;
 	for(j = 0; j < pTbl->indexes.getNumKeys(); j++) {
-		THROW(SqlGen.Reset().CreateIndex(*pTbl, pFileName, j));
+		THROW(SqlGen.Z().CreateIndex(*pTbl, pFileName, j));
 		{
 			SSqlStmt stmt(this, (const SString &)SqlGen);
 			THROW(stmt.Exec(1, OCI_DEFAULT));
@@ -137,7 +136,7 @@ int FASTCALL SMySqlDbProvider::ProcessError(int status)
 	for(j = 0; j < pTbl->fields.getCount(); j++) {
 		TYPEID _t = pTbl->fields[j].T;
 		if(GETSTYPE(_t) == S_AUTOINC) {
-			THROW(SqlGen.Reset().CreateSequenceOnField(*pTbl, pFileName, j, 0));
+			THROW(SqlGen.Z().CreateSequenceOnField(*pTbl, pFileName, j, 0));
 			{
 				SSqlStmt stmt(this, (const SString &)SqlGen);
 				THROW(stmt.Exec(1, OCI_DEFAULT));
@@ -237,7 +236,7 @@ int SMySqlDbProvider::GetFileStat(const char * pFileName, long reqItems, DbTable
 	fld_list.addField("CHECK_TIME", MKSTYPE(S_DATETIME, 8));
 	fld_list.addField("TABLE_COLLATION", MKSTYPE(S_ZSTRING, 32));
 	fld_list.addField("TEMPORARY", MKSTYPE(S_ZSTRING, 8));
-	SqlGen.Reset().Select(&fld_list).From("information_schema.tables").Sp().Tok(Generator_SQL::tokWhere).Sp().Eq("TABLE_NAME", name);
+	SqlGen.Z().Select(&fld_list).From("information_schema.tables").Sp().Tok(Generator_SQL::tokWhere).Sp().Eq("TABLE_NAME", name);
 	SSqlStmt stmt(this, (const SString &)SqlGen);
 	THROW(stmt.Exec(0, 0));
 	THROW(stmt.BindData(+1, 1, fld_list, &rec_buf, 0));
@@ -382,7 +381,7 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 		void * p_key_data = pKey;
 		BNKey  key = pTbl->indexes[idx];
 		const  int ns = key.getNumSeg();
-		SqlGen.Reset().Tok(Generator_SQL::tokSelect);
+		SqlGen.Z().Tok(Generator_SQL::tokSelect);
 		if(!(sf & DBTable::sfDirect)) {
 			SqlGen.HintBegin().
 			HintIndex(*pTbl, p_alias, idx, BIN(oneof3(srchMode, spLt, spLe, spLast))).
@@ -553,7 +552,7 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 		if(r > 0)
 			do_process_lob = 1;
 	}
-	SqlGen.Reset().Tok(Generator_SQL::tokInsert).Sp().Tok(Generator_SQL::tokInto).Sp().Text(pTbl->fileName).Sp();
+	SqlGen.Z().Tok(Generator_SQL::tokInsert).Sp().Tok(Generator_SQL::tokInto).Sp().Text(pTbl->fileName).Sp();
 	SqlGen.Tok(Generator_SQL::tokValues).Sp().LPar();
 	stmt.BL.Dim = 1;
 	stmt.BL.P_Lob = pTbl->getLobBlock();

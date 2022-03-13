@@ -421,6 +421,8 @@ class  PPNamedFilt;
 struct bignum_st; // OpenSSL
 struct DBDivPack;
 struct PPCommSyncID;
+class  PPFtsDatabase;
+class  PPTextAnalyzer;
 typedef struct bignum_st BIGNUM; // OpenSSL
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -7521,7 +7523,7 @@ public:
 	//
 	// Descr: Возвращает !0 если текущий поток получил требование остановиться.
 	//
-	int    IsThreadStopped();
+	bool   IsThreadStopped();
 	int    DispatchNgxRequest(void * pReq, const void * pCfg); // @cs // @construction
 
 	enum {
@@ -21645,7 +21647,6 @@ public:
 	int    LockingFRR(int lock, int * pFRRL_Tag, int use_ta);
 	int    IsFRRLocked();
 	int    RevalCurRests(const CurRevalParam *);
-
 	int    SortGenAccList(ObjRestrictArray *);
 	int    ReplaceArticle(PPID dest, PPID src);
 	int    SearchAccRef(PPID accID, int removeUnusedRel);
@@ -21660,14 +21661,12 @@ private:
 	int    _ProcessAcct(int side, PPID curID, const AcctID &, PPID * pAccRelID, AccTurnParam *);
 	int    _RollbackTurn(int side, LDATE date, long oprNo, PPID bal, PPID rel, double);
 	int    _UpdateTurn(PPID billID, short rByBill, double newAmt, double cRate, int use_ta);
-
 	int    _RecalcBalance(PPID, const RecoverBalanceParam *, PPLogger &);
 	int    _CheckBalance(PPID, LDATE, double, double, char *, int correct, PPLogger &, int use_ta);
 	int    LockFRR(PPID accRelID, LDATE dt);
 	int    RevalCurRest(const CurRevalParam & rParam, const Acct * pAcc, const PPIDArray * pCurList, int use_ta);
 	int    UpdateItemInExtGenAccList(PPID objID, long f, PPID accID, ObjRestrictArray *, PPIDArray *);
-	int    Helper_Repair(long flags, int reverse, int (*MsgProc)(int msgCode, PPID accID,
-		PPID billID, LDATE dt, long oprno, void * paramPtr), void * paramPtr);
+	int    Helper_Repair(long flags, int reverse, int (*MsgProc)(int msgCode, PPID accID, PPID billID, LDATE dt, long oprno, void * paramPtr), void * paramPtr);
 
 	struct FrrlData {
 		int    Counter;
@@ -21701,11 +21700,11 @@ struct SlipLineParam {
 	// Descr: Вид данного элемента
 	//
 	enum {
-		lkRegister   = 1, // Регистрация продажи
-		lkText,           // Просто текст
-		lkPict,           // Изображение
-		lkBarcode,        // Штрихкод на элемент чека
-		lkSignBarcode     // Подписывающий штрихкод для всего чека
+		lkRegister    = 1, // Регистрация продажи
+		lkText        = 2, // Просто текст
+		lkPict        = 3, // Изображение
+		lkBarcode     = 4, // Штрихкод на элемент чека
+		lkSignBarcode = 5  // Подписывающий штрихкод для всего чека
 	};
 	int    Font;          // для подкладного документа - номер шрифта подкладного документа; для ленты: 1 - обычный шрифт, >1 - широкий шрифт
 	int    Kind;          // lkXXX
@@ -21726,8 +21725,8 @@ struct SlipLineParam {
 	CCheckPacket::PreprocessChZnCodeResult PpChZnR; // @v11.1.11 Результат препроцессинга марки честный знак. Если PpChZnR.LineIdx == 0, то препроцессинга не было.
 	SString FontName;     // Наименование гарнитуры шрифта (для обычного принтера)
 	SString PictPath;     // Путь к файлу изображения
-	SString Text;         // @v9.5.7
-	SString Code;         // @v9.5.7
+	SString Text;         // 
+	SString Code;         // 
 	SString ChZnCode;     // @v10.6.8 Маркировка товара маркой честный знак
 	SString ChZnGTIN;     // @v10.7.2
 	SString ChZnSerial;   // @v10.7.2
@@ -46174,6 +46173,83 @@ private:
 	TempPriceAnlzTbl * P_TempTbl;
 };
 //
+// Descr: Фасадный класс для управления полнотекстовым поиском
+//
+class PPFtsIterface {
+public:
+	enum { // @persistent
+		scopeUndef     = 0, // Не определен
+		scopePPDb      = 1, // База данных Papyrus 
+		scopeStyloQSvc = 2, // Сервис Stylo-Q
+	};
+	struct Entity {
+		Entity();
+		Entity(const Entity & rS);
+		Entity & FASTCALL operator = (const Entity & rS);
+		bool   FASTCALL operator == (const Entity & rS) const { return IsEq(rS); }
+		Entity & Z();
+
+		bool   FASTCALL IsEq(const Entity & rS) const;
+		bool   IsValid() const;
+		//int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+		int    MakeSurrogateScopeIdent(SBinaryChunk & rSsi) const;
+		int    SetSurrogateScopeIdent(const SBinaryChunk & rSsi);
+
+		uint32 Scope;
+		uint32 ObjType;
+		uint64 ObjId;
+		SString ScopeIdent;
+	};
+	struct SearchResultEntry : public Entity {
+		SearchResultEntry() : Entity(), DocId(0), Rank(0), Weight(0.0)
+		{
+		}
+		uint64 DocId;
+		uint64 Rank;
+		double Weight;
+		SString Text; // Текст, ассоциированный с найденным документом
+	};
+	class TransactionHandle {
+	public:
+		explicit TransactionHandle(PPFtsIterface & rS);
+		~TransactionHandle();
+		bool   operator !() const;
+		int    Commit();
+		int    Abort();
+		int    Restart();
+		//
+		// Returns:
+		//   >0 - идентификатор документа в базе данных
+		//    0 - ошибка
+		//
+		uint64 PutEntity(PPFtsIterface::Entity & rEnt, StringSet & rSsUtf8, const char * pOpaqueData);
+	private:
+		SHandle H;
+		PPFtsIterface & R_Ifc;
+	};
+
+	explicit PPFtsIterface(bool writer);
+	~PPFtsIterface();
+	bool   operator !() const;
+	bool   IsWriter() const;
+	int    Search(const char * pQueryUtf8, uint maxItems, TSCollection <PPFtsIterface::SearchResultEntry> & rResult);
+private:
+	class Ptr {
+	public:
+		explicit Ptr(bool writer);
+		~Ptr();
+		bool operator !() const { return (P == 0); }
+		bool IsWriter() const { return Writer; }
+		operator PPFtsDatabase *() { return P; }
+		PPFtsDatabase * operator ->() { return P; }
+	private:
+		PPFtsDatabase * P;
+		bool   Writer;
+		uint8  Reserve[3]; // @alignment
+	};
+	PPFtsIterface::Ptr H;
+};
+//
 //
 //
 class StyloQConfig {
@@ -46443,8 +46519,8 @@ public:
 	};
 
 	static PPIDArray & MakeLinkObjTypeList(PPIDArray & rList);
-	static int BuildSvcDbSymbMap();
-	static int ReadIgnitionServerList(TSCollection <IgnitionServerEntry> & rList);
+	static int  BuildSvcDbSymbMap();
+	static int  ReadIgnitionServerList(TSCollection <IgnitionServerEntry> & rList);
 	static bool GetDbMapBySvcIdent(const SBinaryChunk & rIdent, SString * pDbSymb, uint * pFlags);
 	//
 	// Descr: Возвращает копию ассоциаций идентификаторов сервисов с символами баз данных.
@@ -46456,7 +46532,11 @@ public:
 	int    GetPeerEntry(PPID id, StoragePacket * pPack);
 	int    SearchSession(const SBinaryChunk & rOtherPublic, StoragePacket * pPack);
 	int    PutDocument(PPID * pID, const SBinaryChunk & rContractorIdent, int direction, int docType, const SBinaryChunk & rIdent, SSecretTagPool & rPool, int use_ta);
-	int    GetDocIdListByType(int direction, int docType, const SBinaryChunk & rIdent, LongArray & rIdList);
+	int    GetDocIdListByType(int direction, int docType, const SBinaryChunk * pIdent, LongArray & rIdList);
+	//
+	// Descr: Возвращает список идентификаторов входящих документов с контентом для индексации, которые еще не были обработаны (Flags & fUnprocessedDoc).
+	//
+	int    GetUnprocessedIndexindDocIdList(LongArray & rIdList);
 	int    GetMediatorIdList(LongArray & rIdList);
 	//
 	// OwnPeerEntry содержит следующие теги:
@@ -46483,6 +46563,8 @@ public:
 	int    ReadCurrentPacket(StoragePacket * pPack);
 	int    MakeTextHashForCounterparty(const StoragePacket & rOtherPack, uint len, SString & rBuf);
 	int    MakeDocumentStorageIdent(const SBinaryChunk & rOtherIdent, const S_GUID & rCmdUuid, SBinaryChunk & rDocIdent) const;
+	int    IndexingContent();
+	int    IndexingContent_Json(PPFtsIterface::TransactionHandle * pFtsTra, PPTextAnalyzer * pTa, const char * pJsText);
 private:
 	static ReadWriteLock _SvcDbMapRwl; // Блокировка для защиты _SvcDbMap
 	static SvcDbSymbMap _SvcDbMap;
@@ -46899,6 +46981,7 @@ private:
 	//    0 - ошибка
 	//
 	PPID   ProcessCommand_IndexingContent(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument, SString & rResult);
+	int    ProcessCommand_Search(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument, SString & rResult);
 	int    FetchPersonFromClientPacket(const StyloQCore::StoragePacket & rCliPack, PPID * pPersonID);
 	int    AcceptStyloQClientAsPerson(const StyloQCore::StoragePacket & rCliPack, PPID personKind, PPID * pPersonID, int use_ta);
 	int    QueryConfigIfNeeded(RoundTripBlock & rB);
@@ -49428,14 +49511,14 @@ private:
 //
 //
 enum VetisDocStatus {
-	vetisdocstCREATED = 0,
-	vetisdocstCONFIRMED = 1,
-	vetisdocstWITHDRAWN = 2,
-	vetisdocstUTILIZED = 3,
-	vetisdocstFINALIZED = 4,
+	vetisdocstCREATED            = 0,
+	vetisdocstCONFIRMED          = 1,
+	vetisdocstWITHDRAWN          = 2,
+	vetisdocstUTILIZED           = 3,
+	vetisdocstFINALIZED          = 4,
 	vetisdocstOUTGOING_PREPARING = 8, // Специальный статус, обозначающий строку внутреннего расходного документа, на которую
 		// необходимо получить исходящий сертификат
-	vetisdocstSTOCK      = 9, // Специальный статус, обозначающий строку остатков, полученных из ВЕТИС
+	vetisdocstSTOCK              = 9, // Специальный статус, обозначающий строку остатков, полученных из ВЕТИС
 };
 
 class VetisEntityCore {
@@ -49532,6 +49615,10 @@ public:
 	//int    Get(PPID id, VetisProduct & rItem);
 	//int    Get(PPID id, VetisSubProduct & rItem);
 	int    SetOutgoingDocApplicationIdent(PPID id, const S_GUID & rAppId, int use_ta);
+	//
+	// Descr: Устанавливает у документа с идентификатором id флаг VetisVetDocument::fInSendingQueue
+	//
+	int    SetOutgoingDocInQueueFlag(PPID id, int use_ta);
 	int    SearchPerson(PPID id, VetisPersonTbl::Rec * pRec);
 	int    SearchDocument(PPID id, VetisDocumentTbl::Rec * pRec);
 	int    MatchPersonInDocument(PPID docEntityID, int side /*0 - from, 1 - to*/, PPID personID, PPID dlvrLocID, int use_ta);

@@ -13,8 +13,6 @@
 #include <dbkv-lmdb.h>
 
 //int  Test_Fts() { return 1; }
-#if 1 // {
-
 #include <xapian.h>
 #include <unicode\uclean.h>
 #include <unicode\brkiter.h>
@@ -26,51 +24,8 @@ using namespace U_ICU_NAMESPACE;
 // Descr: Класс, управляющий базой данных полнотекстового поиска
 //
 class PPFtsDatabase {
+	friend class PPFtsIterface;
 public:
-	enum { // @persistent
-		scopeUndef     = 0, // Не определен
-		scopePPDb      = 1, // База данных Papyrus 
-		scopeStyloQSvc = 2, // Сервис Stylo-Q
-	};
-	struct Entity {
-		Entity();
-		Entity(const Entity & rS);
-		Entity & FASTCALL operator = (const Entity & rS);
-		bool   FASTCALL operator == (const Entity & rS) const { return IsEq(rS); }
-		Entity & Z();
-
-		bool   FASTCALL IsEq(const Entity & rS) const;
-		bool   IsValid() const;
-		//int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
-		int    MakeSurrogateScopeIdent(SBinaryChunk & rSsi) const;
-		int    SetSurrogateScopeIdent(const SBinaryChunk & rSsi);
-
-		uint32 Scope;
-		uint32 ObjType;
-		uint64 ObjId;
-		SString ScopeIdent;
-	};
-	struct SearchResultEntry : public Entity {
-		SearchResultEntry() : Entity(), DocId(0), Rank(0), Weight(0.0)
-		{
-		}
-		uint64 DocId;
-		uint64 Rank;
-		double Weight;
-	};
-	class Ptr {
-	public:
-		explicit Ptr(bool writer);
-		~Ptr();
-		bool operator !() { return (P == 0); }
-		operator PPFtsDatabase *() { return P; }
-		PPFtsDatabase * operator ->() { return P; }
-	private:
-		PPFtsDatabase * P;
-		bool   Writer;
-		uint8  Reserve[3]; // @alignment
-	};
-
 	~PPFtsDatabase();
 	//
 	// Примерный сценарий индексации:
@@ -80,7 +35,7 @@ public:
 	//    for(uint i = 0; i < doc_count; i++) {
 	//       PPFtsDatabase::Entity entity = ...; // Расширенный идентификатор документа
 	//       StringSet ss = ...; // Набор термов документа в кодировке UTF8
-	//       db.PutEntry(tra, entity, ss);
+	//       db.PutEntity(tra, entity, ss);
 	//    }
 	//    db.CommitTransaction(tra);
 	// }
@@ -93,15 +48,15 @@ public:
 	//   >0 - идентификатор документа в базе данных
 	//    0 - ошибка
 	//
-	uint64 PutEntity(SHandle transation, Entity & rEnt, StringSet & rSsUtf8);
-	int    Search(const char * pQueryUtf8, TSCollection <SearchResultEntry> & rResult);
+	uint64 PutEntity(SHandle transaction, PPFtsIterface::Entity & rEnt, StringSet & rSsUtf8, const char * pOpaqueData);
+	int    Search(const char * pQueryUtf8, uint maxItems, TSCollection <PPFtsIterface::SearchResultEntry> & rResult);
 private:
 	static ReadWriteLock RwL; // Блокировка, управляющая синхронизацией читателей/писателей
 
 	explicit PPFtsDatabase(bool forUpdate);
-	int    GetEntityKey(Entity & rEnt, uint64 * pSurrogateScopeIdent, SBuffer & rEntityBuf, uint64 * pKey);
+	int    GetEntityKey(PPFtsIterface::Entity & rEnt, uint64 * pSurrogateScopeIdent, SBuffer & rEntityBuf, uint64 * pKey);
 	int    StoreEntityKey(uint64 surrogateScopeIdent, const SBuffer & rEntityBuf, uint64 key);
-	int    SearchEntityKey(uint64 key, Entity & rEnt, uint64 * pSurrogateScopeIdent);
+	int    SearchEntityKey(uint64 key, PPFtsIterface::Entity & rEnt, uint64 * pSurrogateScopeIdent);
 	//
 	// Descr: Класс, управляющий комбинированной транзакцией изменения индекса.
 	//
@@ -157,7 +112,7 @@ private:
 
 static const long FtsDatabaseLockTimeout = 500;
 
-PPFtsDatabase::Ptr::Ptr(bool writer) : P(0), Writer(writer)
+PPFtsIterface::Ptr::Ptr(bool writer) : P(0), Writer(writer)
 {
 	if(Writer) {
 		if(PPFtsDatabase::RwL.WriteLockT_(FtsDatabaseLockTimeout) > 0) {
@@ -171,7 +126,7 @@ PPFtsDatabase::Ptr::Ptr(bool writer) : P(0), Writer(writer)
 	}
 }
 
-PPFtsDatabase::Ptr::~Ptr()
+PPFtsIterface::Ptr::~Ptr()
 {
 	if(P) {
 		ZDELETE(P);
@@ -179,7 +134,7 @@ PPFtsDatabase::Ptr::~Ptr()
 	}
 }
 
-int PPFtsDatabase::Search(const char * pQueryUtf8, TSCollection <SearchResultEntry> & rResult)
+int PPFtsDatabase::Search(const char * pQueryUtf8, uint maxItems, TSCollection <PPFtsIterface::SearchResultEntry> & rResult)
 {
 	int    ok = -1;
 	SHandle tra;
@@ -209,20 +164,26 @@ int PPFtsDatabase::Search(const char * pQueryUtf8, TSCollection <SearchResultEnt
 				std::string qdescr = q.get_description();
 				//
 				enq.set_query(q);
-				Xapian::MSet ms = enq.get_mset(0, 10);
+				Xapian::MSet ms = enq.get_mset(0, NZOR(maxItems, 32));
 				for(Xapian::MSetIterator i = ms.begin(); i != ms.end(); ++i) {
 					//Xapian::doccount rank = i.get_rank();
 					//double wt = i.get_weight();
 					//Xapian::docid did = *i;
-					found_doc_text = i.get_document().get_data();
 					//cout << i.get_rank() + 1 << ": " << i.get_weight() << " docid=" << *i << " [" << i.get_document().get_data() << "]\n\n";			
 					uint64 surrogate_scope_id = 0;
-					SearchResultEntry * p_re = rResult.CreateNewItem();
+					PPFtsIterface::SearchResultEntry * p_re = rResult.CreateNewItem();
 					p_re->DocId = *i;
 					p_re->Rank = i.get_rank();
 					p_re->Weight = i.get_weight();
-
-					int sekr = SearchEntityKey(p_re->DocId, *static_cast<Entity *>(p_re), &surrogate_scope_id);
+					{
+						Xapian::Document doc = i.get_document();
+						std::string doc_opaque = doc.get_data();
+						p_re->Text.Z();
+						if(!doc_opaque.empty()) {
+							p_re->Text.CatN(doc_opaque.data(), doc_opaque.length());
+						}
+					}
+					int sekr = SearchEntityKey(p_re->DocId, *static_cast<PPFtsIterface::Entity *>(p_re), &surrogate_scope_id);
 					if(sekr > 0) {
 						;
 					}
@@ -239,15 +200,15 @@ int PPFtsDatabase::Search(const char * pQueryUtf8, TSCollection <SearchResultEnt
 	return ok;
 }
 
-PPFtsDatabase::Entity::Entity() : Scope(scopeUndef), ObjType(0), ObjId(0)
+PPFtsIterface::Entity::Entity() : Scope(scopeUndef), ObjType(0), ObjId(0)
 {
 }
 
-PPFtsDatabase::Entity::Entity(const Entity & rS) : Scope(rS.Scope), ObjType(rS.ObjType), ObjId(rS.ObjId), ScopeIdent(rS.ScopeIdent)
+PPFtsIterface::Entity::Entity(const Entity & rS) : Scope(rS.Scope), ObjType(rS.ObjType), ObjId(rS.ObjId), ScopeIdent(rS.ScopeIdent)
 {
 }
 
-PPFtsDatabase::Entity & FASTCALL PPFtsDatabase::Entity::operator = (const Entity & rS)
+PPFtsIterface::Entity & FASTCALL PPFtsIterface::Entity::operator = (const Entity & rS)
 {
 	Scope = rS.Scope;
 	ObjType = rS.ObjType;
@@ -256,7 +217,7 @@ PPFtsDatabase::Entity & FASTCALL PPFtsDatabase::Entity::operator = (const Entity
 	return *this;
 }
 
-PPFtsDatabase::Entity & PPFtsDatabase::Entity::Z()
+PPFtsIterface::Entity & PPFtsIterface::Entity::Z()
 {
 	Scope = 0;
 	ObjType = 0;
@@ -265,7 +226,7 @@ PPFtsDatabase::Entity & PPFtsDatabase::Entity::Z()
 	return *this;
 }
 
-bool PPFtsDatabase::Entity::IsValid() const
+bool PPFtsIterface::Entity::IsValid() const
 {
 	bool   ok = true;
 	THROW_PP(oneof2(Scope, scopePPDb, scopeStyloQSvc), PPERR_FTS_INVSCOPEIDENT);
@@ -276,7 +237,7 @@ bool PPFtsDatabase::Entity::IsValid() const
 	return ok;
 }
 
-bool FASTCALL PPFtsDatabase::Entity::IsEq(const Entity & rS) const
+bool FASTCALL PPFtsIterface::Entity::IsEq(const Entity & rS) const
 {
 	return (Scope == rS.Scope && ObjType == rS.ObjType && ObjId == rS.ObjId && ScopeIdent == rS.ScopeIdent);
 }
@@ -294,7 +255,7 @@ bool FASTCALL PPFtsDatabase::Entity::IsEq(const Entity & rS) const
 	return ok;
 }*/
 
-int PPFtsDatabase::Entity::MakeSurrogateScopeIdent(SBinaryChunk & rSsi) const
+int PPFtsIterface::Entity::MakeSurrogateScopeIdent(SBinaryChunk & rSsi) const
 {
 	int    ok = 1;
 	rSsi.Z();
@@ -304,12 +265,12 @@ int PPFtsDatabase::Entity::MakeSurrogateScopeIdent(SBinaryChunk & rSsi) const
 	return ok;
 }
 
-int PPFtsDatabase::Entity::SetSurrogateScopeIdent(const SBinaryChunk & rSsi)
+int PPFtsIterface::Entity::SetSurrogateScopeIdent(const SBinaryChunk & rSsi)
 {
 	int    ok = 1;
 	THROW_PP(rSsi.Len() >= sizeof(Scope), PPERR_FTS_INVSURROGATESCOPEIDENT);
 	memcpy(&Scope, rSsi.PtrC(), sizeof(Scope));
-	ScopeIdent.Z().CatN(PTRCHRC(rSsi.PtrC()), rSsi.Len()-sizeof(Scope));
+	ScopeIdent.Z().CatN(PTRCHRC(rSsi.PtrC())+sizeof(Scope), rSsi.Len()-sizeof(Scope));
 	CATCHZOK
 	return ok;
 }
@@ -514,7 +475,7 @@ int PPFtsDatabase::AbortTransaction(SHandle tra)
 	return ok;
 }
 
-int PPFtsDatabase::SearchEntityKey(uint64 key, Entity & rEnt, uint64 * pSurrogateScopeIdent)
+int PPFtsDatabase::SearchEntityKey(uint64 key, PPFtsIterface::Entity & rEnt, uint64 * pSurrogateScopeIdent)
 {
 	int    ok = 1;
 	uint64 ssi_db_id = 0;
@@ -557,11 +518,11 @@ int PPFtsDatabase::SearchEntityKey(uint64 key, Entity & rEnt, uint64 * pSurrogat
 	return ok;
 }
 
-int PPFtsDatabase::GetEntityKey(Entity & rEnt, uint64 * pSurrogateScopeIdent, SBuffer & rEntityBuf, uint64 * pKey)
+int PPFtsDatabase::GetEntityKey(PPFtsIterface::Entity & rEnt, uint64 * pSurrogateScopeIdent, SBuffer & rEntityBuf, uint64 * pKey)
 {
 	rEntityBuf.Z();
 	int    ok = 1;
-	const  Entity org_ent(rEnt); // @proof-of-immutability
+	const  PPFtsIterface::Entity org_ent(rEnt); // @proof-of-immutability
 	uint64 ssi_db_id = 0;
 	uint64 key = 0;
 	SSerializeContext sctx;
@@ -656,7 +617,7 @@ int PPFtsDatabase::StoreEntityKey(uint64 surrogateScopeIdent, const SBuffer & rE
 	return ok;
 }
 
-uint64 PPFtsDatabase::PutEntity(SHandle tra, Entity & rEnt, StringSet & rSsUtf8)
+uint64 PPFtsDatabase::PutEntity(SHandle tra, PPFtsIterface::Entity & rEnt, StringSet & rSsUtf8, const char * pOpaqueData)
 {
 	uint64  result = 0;
 	SString temp_buf;
@@ -687,6 +648,10 @@ uint64 PPFtsDatabase::PutEntity(SHandle tra, Entity & rEnt, StringSet & rSsUtf8)
 				//
 				//doc.add_posting();
 			}
+			if(!isempty(pOpaqueData)) {
+				std::string opaque_data(pOpaqueData);
+				doc.set_data(opaque_data);
+			}
 			{
 				Xapian::WritableDatabase * p_db = static_cast<Xapian::WritableDatabase *>(P_XDb);
 				if(doc_id > 0) {
@@ -710,11 +675,94 @@ uint64 PPFtsDatabase::PutEntity(SHandle tra, Entity & rEnt, StringSet & rSsUtf8)
 	ENDCATCH
 	return result;
 }
+//
+//
+//
+PPFtsIterface::PPFtsIterface(bool writer) : H(writer)
+{
+}
+
+PPFtsIterface::~PPFtsIterface()
+{
+}
+
+bool PPFtsIterface::operator !() const
+{
+	return !H;
+}
+
+bool PPFtsIterface::IsWriter() const
+{
+	return (!!H && H.IsWriter());
+}
+
+PPFtsIterface::TransactionHandle::TransactionHandle(PPFtsIterface & rS) : R_Ifc(rS)
+{
+	if(R_Ifc.IsWriter()) {
+		H = R_Ifc.H->BeginTransaction();
+	}
+}
+
+PPFtsIterface::TransactionHandle::~TransactionHandle()
+{
+	if(H) {
+		R_Ifc.H->AbortTransaction(H);
+	}
+}
+
+bool PPFtsIterface::TransactionHandle::operator !() const
+{
+	return !H;
+}
+		
+int PPFtsIterface::TransactionHandle::Commit()
+{
+	int    ok = -1;
+	if(H) {
+		ok = R_Ifc.H->CommitTransaction(H);
+		H = 0;
+	}
+	return ok;
+}
+
+int PPFtsIterface::TransactionHandle::Restart()
+{
+	int    ok = 0;
+	if(H) {
+		if(R_Ifc.H->CommitTransaction(H)) {
+			H = R_Ifc.H->BeginTransaction();
+			ok = 1;
+		}
+		else
+			H = 0;
+	}
+	return ok;
+}
+		
+int PPFtsIterface::TransactionHandle::Abort()
+{
+	int    ok = -1;
+	if(H) {
+		ok = R_Ifc.H->AbortTransaction(H);
+		H = 0;
+	}
+	return ok;
+}
+
+uint64 PPFtsIterface::TransactionHandle::PutEntity(PPFtsIterface::Entity & rEnt, StringSet & rSsUtf8, const char * pOpaqueData)
+{
+	return H ? R_Ifc.H->PutEntity(H, rEnt, rSsUtf8, pOpaqueData) : 0;
+}
+
+int PPFtsIterface::Search(const char * pQueryUtf8, uint maxItems, TSCollection <PPFtsIterface::SearchResultEntry> & rResult)
+{
+	return H ? H->Search(pQueryUtf8, maxItems, rResult) : 0;
+}
 
 static int Test_Fts2()
 {
 	int    ok = 1;
-	const  bool do_read_test = true;
+	const  bool do_read_test = false;
 	uint   search_err_count = 0;
 	uint   last_word_id = 0;
 	SymbHashTable word_list(SKILOBYTE(1024), 0);
@@ -723,28 +771,28 @@ static int Test_Fts2()
 	THROW(p_dict);
 	{
 		{
-			PPFtsDatabase::Ptr db1(true/*forUpdate*/);
+			PPFtsIterface db1(true/*forUpdate*/);
 			assert(!!db1);
-			PPFtsDatabase::Ptr db2(true/*forUpdate*/);
+			PPFtsIterface db2(true/*forUpdate*/);
 			assert(!db2);
-			PPFtsDatabase::Ptr db3(false/*forUpdate*/);
+			PPFtsIterface db3(false/*forUpdate*/);
 			assert(!db3);
 		}
 		{
-			PPFtsDatabase::Ptr db4(false/*forUpdate*/);
+			PPFtsIterface db4(false/*forUpdate*/);
 			assert(!!db4);
-			PPFtsDatabase::Ptr db5(false/*forUpdate*/);
+			PPFtsIterface db5(false/*forUpdate*/);
 			assert(!!db5);
-			PPFtsDatabase::Ptr db6(false/*forUpdate*/);
+			PPFtsIterface db6(false/*forUpdate*/);
 			assert(!!db6);
-			PPFtsDatabase::Ptr db7(true/*forUpdate*/);
+			PPFtsIterface db7(true/*forUpdate*/);
 			assert(!db7);
 		}
 	}
 	{
-		PPFtsDatabase::Ptr db(true/*forUpdate*/);
+		PPFtsIterface db(true/*forUpdate*/);
 		if(!!db) {
-			SHandle tra;
+			//SHandle tra;
 			PPObjGoods goods_obj;
 			PPViewGoods v_goods;
 			GoodsFilt f_goods;
@@ -769,15 +817,16 @@ static int Test_Fts2()
 				GoodsViewItem vitem;
 				BarcodeArray bc_list;
 				StringSet doc_tokens;
-				PPFtsDatabase::Entity entity;
+				PPFtsIterface::Entity entity;
 				LongArray current_word_id_list;
-				entity.Scope = PPFtsDatabase::scopePPDb;
+				entity.Scope = PPFtsIterface::scopePPDb;
 				if(!!db_uuid)
 					entity.ScopeIdent.Z().Cat(db_uuid);
 				else
 					entity.ScopeIdent = db_symb;
 				entity.ObjType = PPOBJ_GOODS;
-				tra = db->BeginTransaction();
+				//tra = db->BeginTransaction();
+				PPFtsIterface::TransactionHandle tra(db);
 				THROW(tra);
 				for(v_goods.InitIteration(PPViewGoods::OrdByDefault); v_goods.NextIteration(&vitem) > 0;) {
 					entity.ObjId = vitem.ID;
@@ -837,7 +886,7 @@ static int Test_Fts2()
 								}
 							}
 							{
-								uint64 result_doc_id = db->PutEntity(tra, entity, doc_tokens);
+								uint64 result_doc_id = tra.PutEntity(entity, doc_tokens, 0);
 								THROW(result_doc_id);
 								//
 								if(do_read_test) {
@@ -847,9 +896,7 @@ static int Test_Fts2()
 								}
 								total_count++;
 								if(total_count > 0 && (total_count % 1000) == 0) {
-									THROW(db->CommitTransaction(tra));
-									tra = db->BeginTransaction();
-									THROW(tra);
+									THROW(tra.Restart());
 								}
 								// 
 								//if(v_goods.P_Tbl->GetBarcode)
@@ -859,7 +906,8 @@ static int Test_Fts2()
 						}
 					}
 				}
-				THROW(db->CommitTransaction(tra));
+				//THROW(db->CommitTransaction(tra));
+				THROW(tra.Commit());
 			}
 		}
 	}
@@ -867,7 +915,7 @@ static int Test_Fts2()
 		//
 		// Теперь проверяем поиск
 		//
-		PPFtsDatabase::Ptr db(false);
+		PPFtsIterface db(false);
 		if(!!db) {
 			word_to_doc_assoc.SortByKeyVal();
 			SymbHashTable::Iter iter;
@@ -880,14 +928,14 @@ static int Test_Fts2()
 				LongArray expected_doc_id_list;
 				while(word_list.NextIteration(&iter, &word_id, 0, &word_buf)) {
 					bool expected_doc_presents = false;
-					TSCollection <PPFtsDatabase::SearchResultEntry> result_list;
+					TSCollection <PPFtsIterface::SearchResultEntry> result_list;
 					expected_doc_id_list.Z();
 					word_to_doc_assoc.GetListByKey(word_id, expected_doc_id_list);
-					int sr = db->Search(word_buf, result_list);
+					int sr = db.Search(word_buf, 30, result_list);
 					if(sr > 0) {
 						assert(result_list.getCount());
 						for(uint rlidx = 0; rlidx < result_list.getCount(); rlidx++) {
-							const PPFtsDatabase::SearchResultEntry * p_re = result_list.at(rlidx);
+							const PPFtsIterface::SearchResultEntry * p_re = result_list.at(rlidx);
 							if(p_re) {
 								const long found_doc_id = static_cast<long>(p_re->DocId);
 								if(expected_doc_id_list.lsearch(found_doc_id))
@@ -1091,5 +1139,3 @@ int  Test_Fts()
 	ENDCATCH
 	return ok;
 }
-
-#endif // } 0

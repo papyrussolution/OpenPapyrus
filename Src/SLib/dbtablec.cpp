@@ -5,7 +5,6 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <db.h>
 //
 //
 //

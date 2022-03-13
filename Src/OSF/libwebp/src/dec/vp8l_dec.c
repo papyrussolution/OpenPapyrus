@@ -109,15 +109,13 @@ static int DecodeImageStream(int xsize, int ysize,
 
 //------------------------------------------------------------------------------
 
-int VP8LCheckSignature(const uint8* const data, size_t size) {
-	return (size >= VP8L_FRAME_HEADER_SIZE &&
-	       data[0] == VP8L_MAGIC_BYTE &&
-	       (data[4] >> 5) == 0); // version
+int FASTCALL VP8LCheckSignature(const uint8* const data, size_t size) 
+{
+	return (size >= VP8L_FRAME_HEADER_SIZE && data[0] == VP8L_MAGIC_BYTE && (data[4] >> 5) == 0); // version
 }
 
-static int ReadImageInfo(VP8LBitReader* const br,
-    int* const width, int* const height,
-    int* const has_alpha) {
+static int ReadImageInfo(VP8LBitReader* const br, int* const width, int* const height, int* const has_alpha) 
+{
 	if(VP8LReadBits(br, 8) != VP8L_MAGIC_BYTE) return 0;
 	*width = VP8LReadBits(br, VP8L_IMAGE_SIZE_BITS) + 1;
 	*height = VP8LReadBits(br, VP8L_IMAGE_SIZE_BITS) + 1;
@@ -126,8 +124,8 @@ static int ReadImageInfo(VP8LBitReader* const br,
 	return !br->eos_;
 }
 
-int VP8LGetInfo(const uint8* data, size_t data_size,
-    int* const width, int* const height, int* const has_alpha) {
+int VP8LGetInfo(const uint8* data, size_t data_size, int* const width, int* const height, int* const has_alpha) 
+{
 	if(data == NULL || data_size < VP8L_FRAME_HEADER_SIZE) {
 		return 0; // not enough data
 	}
@@ -141,17 +139,15 @@ int VP8LGetInfo(const uint8* data, size_t data_size,
 		if(!ReadImageInfo(&br, &w, &h, &a)) {
 			return 0;
 		}
-		if(width != NULL) *width = w;
-		if(height != NULL) *height = h;
-		if(has_alpha != NULL) *has_alpha = a;
+		ASSIGN_PTR(width, w);
+		ASSIGN_PTR(height, h);
+		ASSIGN_PTR(has_alpha, a);
 		return 1;
 	}
 }
 
-//------------------------------------------------------------------------------
-
-static FORCEINLINE int GetCopyDistance(int distance_symbol,
-    VP8LBitReader* const br) {
+static FORCEINLINE int GetCopyDistance(int distance_symbol, VP8LBitReader* const br) 
+{
 	int extra_bits, offset;
 	if(distance_symbol < 4) {
 		return distance_symbol + 1;
@@ -161,13 +157,14 @@ static FORCEINLINE int GetCopyDistance(int distance_symbol,
 	return offset + VP8LReadBits(br, extra_bits) + 1;
 }
 
-static FORCEINLINE int GetCopyLength(int length_symbol,
-    VP8LBitReader* const br) {
+static FORCEINLINE int GetCopyLength(int length_symbol, VP8LBitReader* const br) 
+{
 	// Length and distance prefixes are encoded the same way.
 	return GetCopyDistance(length_symbol, br);
 }
 
-static FORCEINLINE int PlaneCodeToDistance(int xsize, int plane_code) {
+static FORCEINLINE int PlaneCodeToDistance(int xsize, int plane_code) 
+{
 	if(plane_code > CODE_TO_PLANE_CODES) {
 		return plane_code - CODE_TO_PLANE_CODES;
 	}
@@ -184,8 +181,8 @@ static FORCEINLINE int PlaneCodeToDistance(int xsize, int plane_code) {
 // Decodes the next Huffman code from bit-stream.
 // FillBitWindow(br) needs to be called at minimum every second call
 // to ReadSymbol, in order to pre-fetch enough bits.
-static FORCEINLINE int ReadSymbol(const HuffmanCode* table,
-    VP8LBitReader* const br) {
+static FORCEINLINE int ReadSymbol(const HuffmanCode* table, VP8LBitReader* const br) 
+{
 	int nbits;
 	uint32_t val = VP8LPrefetchBits(br);
 	table += val & HUFFMAN_TABLE_MASK;
@@ -203,9 +200,8 @@ static FORCEINLINE int ReadSymbol(const HuffmanCode* table,
 // Reads packed symbol depending on GREEN channel
 #define BITS_SPECIAL_MARKER 0x100  // something large enough (and a bit-mask)
 #define PACKED_NON_LITERAL_CODE 0  // must be < NUM_LITERAL_CODES
-static FORCEINLINE int ReadPackedSymbols(const HTreeGroup* group,
-    VP8LBitReader* const br,
-    uint32_t* const dst) {
+static FORCEINLINE int ReadPackedSymbols(const HTreeGroup* group, VP8LBitReader* const br, uint32_t* const dst) 
+{
 	const uint32_t val = VP8LPrefetchBits(br) & (HUFFMAN_PACKED_TABLE_SIZE - 1);
 	const HuffmanCode32 code = group->packed_table[val];
 	assert(group->use_packed_table);
@@ -221,17 +217,17 @@ static FORCEINLINE int ReadPackedSymbols(const HTreeGroup* group,
 	}
 }
 
-static int AccumulateHCode(HuffmanCode hcode, int shift,
-    HuffmanCode32* const huff) {
+static int AccumulateHCode(HuffmanCode hcode, int shift, HuffmanCode32* const huff) 
+{
 	huff->bits += hcode.bits;
 	huff->value |= (uint32_t)hcode.value << shift;
 	assert(huff->bits <= HUFFMAN_TABLE_BITS);
 	return hcode.bits;
 }
 
-static void BuildPackedTable(HTreeGroup* const htree_group) {
-	uint32_t code;
-	for(code = 0; code < HUFFMAN_PACKED_TABLE_SIZE; ++code) {
+static void BuildPackedTable(HTreeGroup * const htree_group) 
+{
+	for(uint32_t code = 0; code < HUFFMAN_PACKED_TABLE_SIZE; ++code) {
 		uint32_t bits = code;
 		HuffmanCode32* const huff = &htree_group->packed_table[bits];
 		HuffmanCode hcode = htree_group->htrees[GREEN][bits];
@@ -251,15 +247,14 @@ static void BuildPackedTable(HTreeGroup* const htree_group) {
 	}
 }
 
-static int ReadHuffmanCodeLengths(VP8LDecoder* const dec, const int* const code_length_code_lengths,
-    int num_symbols, int* const code_lengths) {
+static int ReadHuffmanCodeLengths(VP8LDecoder* const dec, const int* const code_length_code_lengths, int num_symbols, int* const code_lengths) 
+{
 	int ok = 0;
 	VP8LBitReader* const br = &dec->br_;
 	int symbol;
 	int max_symbol;
 	int prev_code_len = DEFAULT_CODE_LENGTH;
 	HuffmanCode table[1 << LENGTHS_TABLE_BITS];
-
 	if(!VP8LBuildHuffmanTable(table, LENGTHS_TABLE_BITS,
 	    code_length_code_lengths,
 	    NUM_CODE_LENGTH_CODES)) {
@@ -362,8 +357,8 @@ static int ReadHuffmanCode(int alphabet_size, VP8LDecoder* const dec, int* const
 	return size;
 }
 
-static int ReadHuffmanCodes(VP8LDecoder* const dec, int xsize, int ysize,
-    int color_cache_bits, int allow_recursion) {
+static int ReadHuffmanCodes(VP8LDecoder* const dec, int xsize, int ysize, int color_cache_bits, int allow_recursion) 
+{
 	int i, j;
 	VP8LBitReader* const br = &dec->br_;
 	VP8LMetadata* const hdr = &dec->hdr_;
@@ -417,8 +412,9 @@ static int ReadHuffmanCodes(VP8LDecoder* const dec, int xsize, int ysize,
 			memset(mapping, 0xff, num_htree_groups_max * sizeof(*mapping));
 			for(num_htree_groups = 0, i = 0; i < huffman_pixs; ++i) {
 				// Get the current mapping for the group and remap the Huffman image.
-				int* const mapped_group = &mapping[huffman_image[i]];
-				if(*mapped_group == -1) *mapped_group = num_htree_groups++;
+				int * const mapped_group = &mapping[huffman_image[i]];
+				if(*mapped_group == -1) 
+					*mapped_group = num_htree_groups++;
 				huffman_image[i] = *mapped_group;
 			}
 		}
@@ -426,9 +422,8 @@ static int ReadHuffmanCodes(VP8LDecoder* const dec, int xsize, int ysize,
 			num_htree_groups = num_htree_groups_max;
 		}
 	}
-
-	if(br->eos_) goto Error;
-
+	if(br->eos_) 
+		goto Error;
 	// Find maximum alphabet size for the htree group.
 	for(j = 0; j < HUFFMAN_CODES_PER_META_CODE; ++j) {
 		int alphabet_size = kAlphabetSize[j];
@@ -439,18 +434,13 @@ static int ReadHuffmanCodes(VP8LDecoder* const dec, int xsize, int ysize,
 			max_alphabet_size = alphabet_size;
 		}
 	}
-
-	code_lengths = (int*)WebPSafeCalloc((uint64_t)max_alphabet_size,
-		sizeof(*code_lengths));
-	huffman_tables = (HuffmanCode*)WebPSafeMalloc(num_htree_groups * table_size,
-		sizeof(*huffman_tables));
+	code_lengths = (int*)WebPSafeCalloc((uint64_t)max_alphabet_size, sizeof(*code_lengths));
+	huffman_tables = (HuffmanCode*)WebPSafeMalloc(num_htree_groups * table_size, sizeof(*huffman_tables));
 	htree_groups = VP8LHtreeGroupsNew(num_htree_groups);
-
 	if(htree_groups == NULL || code_lengths == NULL || huffman_tables == NULL) {
 		dec->status_ = VP8_STATUS_OUT_OF_MEMORY;
 		goto Error;
 	}
-
 	huffman_table = huffman_tables;
 	for(i = 0; i < num_htree_groups_max; ++i) {
 		// If the index "i" is unused in the Huffman image, just make sure the
@@ -468,8 +458,7 @@ static int ReadHuffmanCodes(VP8LDecoder* const dec, int xsize, int ysize,
 			}
 		}
 		else {
-			HTreeGroup* const htree_group =
-			    &htree_groups[(mapping == NULL) ? i : mapping[i]];
+			HTreeGroup* const htree_group = &htree_groups[(mapping == NULL) ? i : mapping[i]];
 			HuffmanCode** const htrees = htree_group->htrees;
 			int size;
 			int total_size = 0;
@@ -492,11 +481,9 @@ static int ReadHuffmanCodes(VP8LDecoder* const dec, int xsize, int ysize,
 				huffman_table += size;
 				if(j <= ALPHA) {
 					int local_max_bits = code_lengths[0];
-					int k;
-					for(k = 1; k < alphabet_size; ++k) {
-						if(code_lengths[k] > local_max_bits) {
+					for(int k = 1; k < alphabet_size; ++k) {
+						if(code_lengths[k] > local_max_bits)
 							local_max_bits = code_lengths[k];
-						}
 					}
 					max_bits += local_max_bits;
 				}
@@ -513,19 +500,16 @@ static int ReadHuffmanCodes(VP8LDecoder* const dec, int xsize, int ysize,
 					htree_group->literal_arb |= htrees[GREEN][0].value << 8;
 				}
 			}
-			htree_group->use_packed_table =
-			    !htree_group->is_trivial_code && (max_bits < HUFFMAN_PACKED_BITS);
+			htree_group->use_packed_table = !htree_group->is_trivial_code && (max_bits < HUFFMAN_PACKED_BITS);
 			if(htree_group->use_packed_table) BuildPackedTable(htree_group);
 		}
 	}
 	ok = 1;
-
 	// All OK. Finalize pointers.
 	hdr->huffman_image_ = huffman_image;
 	hdr->num_htree_groups_ = num_htree_groups;
 	hdr->htree_groups_ = htree_groups;
 	hdr->huffman_tables_ = huffman_tables;
-
 Error:
 	WebPSafeFree(code_lengths);
 	WebPSafeFree(mapping);

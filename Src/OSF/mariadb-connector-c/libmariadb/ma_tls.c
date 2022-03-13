@@ -6,11 +6,6 @@
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
 
-   This library is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
-
    You should have received a copy of the GNU Library General Public
    License along with this library; if not see <http://www.gnu.org/licenses>
    or write to the Free Software Foundation, Inc.,
@@ -34,14 +29,7 @@
 
 #ifdef HAVE_TLS
 
-//#include <ma_sys.h>
-//#include <ma_common.h>
-//#include <string.h>
-//#include <errmsg.h>
-//#include <ma_pvio.h>
 #include <ma_tls.h>
-//#include <mysql/client_plugin.h>
-//#include <mariadb/ma_io.h>
 #ifdef HAVE_NONBLOCK
 	//#include <mariadb_async.h>
 	//#include <ma_context.h>
@@ -51,20 +39,16 @@
 bool ma_tls_initialized = FALSE;
 unsigned int mariadb_deinitialize_ssl = 1;
 
-const char * tls_protocol_version[] =
-{"SSLv3", "TLSv1.0", "TLSv1.1", "TLSv1.2", "TLSv1.3", "Unknown"};
+const char * tls_protocol_version[] = {"SSLv3", "TLSv1.0", "TLSv1.1", "TLSv1.2", "TLSv1.3", "Unknown"};
 
 MARIADB_TLS * ma_pvio_tls_init(MYSQL * mysql)
 {
 	MARIADB_TLS * ctls = NULL;
-
 	if(!ma_tls_initialized)
 		ma_tls_start(mysql->net.last_error, MYSQL_ERRMSG_SIZE);
-
 	if(!(ctls = (MARIADB_TLS*)SAlloc::C(1, sizeof(MARIADB_TLS)))) {
 		return NULL;
 	}
-
 	/* register error routine and methods */
 	ctls->pvio = mysql->net.pvio;
 	if(!(ctls->ssl = ma_tls_init(mysql))) {
@@ -77,7 +61,6 @@ MARIADB_TLS * ma_pvio_tls_init(MYSQL * mysql)
 bool ma_pvio_tls_connect(MARIADB_TLS * ctls)
 {
 	bool rc;
-
 	if((rc = ma_tls_connect(ctls)))
 		ma_tls_close(ctls);
 	return rc;

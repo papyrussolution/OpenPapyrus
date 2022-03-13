@@ -16,9 +16,8 @@
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_open_file.c 201093 2009-12-28 02:28:44Z kientzle $");
 
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
+	#include <unistd.h>
 #endif
-#include "archive.h"
 
 struct read_FILE_data {
 	FILE    * f;

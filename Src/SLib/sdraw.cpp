@@ -3130,7 +3130,7 @@ int SImageBuffer::StorePng(const StoreParam & rP, SFile & rF) const
 //#include <..\osf\giflib\gif_lib.h>
 #include <gif_lib.h>
 
-static int GifReadFunc(GifFileType * pF, GifByteType * pData, int size)
+static int GifReadFunc(GifFileType * pF, uint8 * pData, int size)
 {
 	size_t actual_size = 0;
 	SFile * p_f = static_cast<SFile *>(pF->UserData);
@@ -3201,7 +3201,7 @@ int SImageBuffer::LoadGif(SFile & rF)
 			case EXTENSION_RECORD_TYPE:
 				// Skip any p_extension blocks in file:
 				{
-					GifByteType * p_extension = 0;
+					uint8 * p_extension = 0;
 					THROW(DGifGetExtension(p_gf, &ext_code, &p_extension));
 					while(p_extension) {
 						THROW(DGifGetExtensionNext(p_gf, &p_extension));

@@ -288,8 +288,7 @@ static void _cairo_sub_font_pluck(void * entry, void * closure)
 	_cairo_sub_font_destroy(sub_font);
 }
 
-/* Characters 0x80 to 0x9f in the winansi encoding.
- * All other characters in the range 0x00 to 0xff map 1:1 to unicode */
+// Characters 0x80 to 0x9f in the winansi encoding. All other characters in the range 0x00 to 0xff map 1:1 to unicode 
 static uint _winansi_0x80_to_0x9f[] = {
 	0x20ac, 0x0000, 0x201a, 0x0192, 0x201e, 0x2026, 0x2020, 0x2021,
 	0x02c6, 0x2030, 0x0160, 0x2039, 0x0152, 0x0000, 0x017d, 0x0000,
@@ -300,7 +299,7 @@ static uint _winansi_0x80_to_0x9f[] = {
 int FASTCALL _cairo_unicode_to_winansi(ulong uni)
 {
 	int i;
-	/* exclude the extra "hyphen" at 0xad to avoid duplicate glyphnames */
+	// exclude the extra "hyphen" at 0xad to avoid duplicate glyphnames 
 	if((uni >= 0x20 && uni <= 0x7e) || (uni >= 0xa1 && uni <= 0xff && uni != 0xad) || uni == 0)
 		return uni;
 	for(i = 0; i < 32; i++)
@@ -314,8 +313,7 @@ static cairo_status_t _cairo_sub_font_glyph_lookup_unicode(cairo_scaled_font_t *
 {
 	char buf[8];
 	int len;
-	/* Do a reverse lookup on the glyph index. unicode is -1 if the
-	 * index could not be mapped to a unicode character. */
+	// Do a reverse lookup on the glyph index. unicode is -1 if the index could not be mapped to a unicode character.
 	uint32 unicode = -1;
 	cairo_status_t status = _cairo_truetype_index_to_ucs4(scaled_font, scaled_font_glyph_index, &unicode);
 	if(_cairo_status_is_error(status))
@@ -325,7 +323,6 @@ static cairo_status_t _cairo_sub_font_glyph_lookup_unicode(cairo_scaled_font_t *
 		if(UNLIKELY(status))
 			return status;
 	}
-
 	*unicode_out = unicode;
 	*utf8_out = NULL;
 	*utf8_len_out = 0;
@@ -335,13 +332,11 @@ static cairo_status_t _cairo_sub_font_glyph_lookup_unicode(cairo_scaled_font_t *
 			*utf8_out = (char *)_cairo_malloc(len+1);
 			if(UNLIKELY(*utf8_out == NULL))
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 			memcpy(*utf8_out, buf, len);
 			(*utf8_out)[len] = 0;
 			*utf8_len_out = len;
 		}
 	}
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -383,10 +378,7 @@ static cairo_int_status_t _cairo_sub_font_lookup_glyph(cairo_sub_font_t * sub_fo
 	if(sub_font_glyph != NULL) {
 		subset_glyph->font_id = sub_font->font_id;
 		subset_glyph->subset_id = sub_font_glyph->subset_id;
-		if(sub_font_glyph->is_latin)
-			subset_glyph->subset_glyph_index = sub_font_glyph->latin_character;
-		else
-			subset_glyph->subset_glyph_index = sub_font_glyph->subset_glyph_index;
+		subset_glyph->subset_glyph_index = sub_font_glyph->is_latin ? sub_font_glyph->latin_character : sub_font_glyph->subset_glyph_index;
 		subset_glyph->is_scaled = sub_font->is_scaled;
 		subset_glyph->is_composite = sub_font->is_composite;
 		subset_glyph->is_latin = sub_font_glyph->is_latin;
@@ -428,16 +420,8 @@ static cairo_status_t _cairo_sub_font_add_glyph(cairo_sub_font_t * sub_font, ulo
 		num_glyphs_in_subset_ptr = &sub_font->num_glyphs_in_current_subset;
 	if((*num_glyphs_in_subset_ptr == 0) && sub_font->reserve_notdef)
 		(*num_glyphs_in_subset_ptr)++;
-	sub_font_glyph = _cairo_sub_font_glyph_create(scaled_font_glyph_index,
-		is_latin ? 0 : sub_font->current_subset,
-		*num_glyphs_in_subset_ptr,
-		x_advance,
-		y_advance,
-		is_latin ? latin_character : -1,
-		unicode,
-		utf8,
-		utf8_len);
-
+	sub_font_glyph = _cairo_sub_font_glyph_create(scaled_font_glyph_index, is_latin ? 0 : sub_font->current_subset,
+		*num_glyphs_in_subset_ptr, x_advance, y_advance, is_latin ? latin_character : -1, unicode, utf8, utf8_len);
 	if(UNLIKELY(sub_font_glyph == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	status = _cairo_hash_table_insert(sub_font->sub_font_glyphs, &sub_font_glyph->base);

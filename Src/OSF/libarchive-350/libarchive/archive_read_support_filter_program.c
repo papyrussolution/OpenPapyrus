@@ -25,9 +25,6 @@ __FBSDID("$FreeBSD$");
 #ifdef HAVE_UNISTD_H
 	#include <unistd.h>
 #endif
-#include "archive.h"
-#include "archive_private.h"
-#include "archive_string.h"
 #include "archive_read_private.h"
 #include "filter_fork.h"
 

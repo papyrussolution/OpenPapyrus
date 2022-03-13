@@ -14,11 +14,9 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_open_fd.c 201093 2009-12-28 02:28:44Z kientzle $");
-
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
+	#include <unistd.h>
 #endif
-#include "archive.h"
 
 struct write_fd_data {
 	int fd;

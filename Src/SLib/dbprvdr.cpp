@@ -4,8 +4,6 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <db.h>
-#include <snet.h>
 
 /*enum SqlServerType {
 	sqlstNone    = 0, // Неопределенное значение

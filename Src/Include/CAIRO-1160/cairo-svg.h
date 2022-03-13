@@ -22,17 +22,10 @@
  * Version 1.1 (the "License"); you may not use this file except in
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
- *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  */
 
 #ifndef CAIRO_SVG_H
 #define CAIRO_SVG_H
-
-//#include "cairo.h"
 
 #if CAIRO_HAS_SVG_SURFACE
 

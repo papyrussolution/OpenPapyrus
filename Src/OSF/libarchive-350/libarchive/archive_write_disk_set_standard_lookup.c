@@ -14,15 +14,12 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_disk_set_standard_lookup.c 201083 2009-12-28 02:09:57Z kientzle $");
-
 #ifdef HAVE_GRP_H
-#include <grp.h>
+	#include <grp.h>
 #endif
 #ifdef HAVE_PWD_H
-#include <pwd.h>
+	#include <pwd.h>
 #endif
-#include "archive.h"
-#include "archive_private.h"
 #include "archive_read_private.h"
 #include "archive_write_disk_private.h"
 

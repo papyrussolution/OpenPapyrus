@@ -30,15 +30,11 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_open_filename.c 201093 2009
 #include <sys/diskslice.h>
 #endif
 
-#include "archive.h"
-#include "archive_private.h"
-#include "archive_string.h"
-
 #ifndef O_BINARY
-#define O_BINARY 0
+	#define O_BINARY 0
 #endif
 #ifndef O_CLOEXEC
-#define O_CLOEXEC       0
+	#define O_CLOEXEC       0
 #endif
 
 struct read_file_data {

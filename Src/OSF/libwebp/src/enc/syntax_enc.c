@@ -315,7 +315,8 @@ void VP8EncFreeBitWriters(VP8Encoder* const enc) {
 	}
 }
 
-int VP8EncWrite(VP8Encoder* const enc) {
+int VP8EncWrite(VP8Encoder* const enc) 
+{
 	WebPPicture* const pic = enc->pic_;
 	VP8BitWriter* const bw = &enc->bw_;
 	const int task_percent = 19;

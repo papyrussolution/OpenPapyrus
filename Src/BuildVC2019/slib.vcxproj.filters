@@ -359,6 +359,9 @@
     <ClInclude Include="..\SLib\LMDB\midl.h">
       <Filter>LMDB</Filter>
     </ClInclude>
+    <ClInclude Include="..\Include\gif_lib.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\Osf\Asmlib\cachesize32.asm">

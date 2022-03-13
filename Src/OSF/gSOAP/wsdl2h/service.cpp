@@ -1314,9 +1314,9 @@ void Definitions::generate()
 			comment("Fault", (*fault).first, "WSDL", (*fault).second->ext_documentation);
 			comment("Fault", (*fault).first, "SOAP", (*fault).second->documentation);
 			if(cflag)
-				fprintf(stream, "struct %s\n{", (*fault).first);
+				fprintf(stream, "struct %s {\n", (*fault).first);
 			else
-				fprintf(stream, "class %s\n{ public:", (*fault).first);
+				fprintf(stream, "class %s {\npublic:", (*fault).first);
 			(*fault).second->generate(types, ";", false, true, false);
 			if(!cflag) {
 				fprintf(stream, "\n");

@@ -125,23 +125,20 @@ static int android_fprintf(FILE * file, const char * fmt, ...)
 
 /* _WIN64 defined implies _WIN32 will be */
 #ifdef _WIN32
-#include <windows.h>
+//#include <windows.h>
 
 static int windows_fprintf(FILE * file, const char * fmt, ...)
 {
 	va_list args;
 	char text[4096];
 	int ret;
-
 	va_start(args, fmt);
 	ret = vfprintf(file, fmt, args);
 	va_end(args);
-
 	va_start(args, fmt);
 	vsnprintf(text, 4096, fmt, args);
 	OutputDebugStringA(text);
 	va_end(args);
-
 	return ret;
 }
 

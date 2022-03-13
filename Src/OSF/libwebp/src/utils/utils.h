@@ -46,13 +46,13 @@
 // somewhere (like: malloc(num_pixels * sizeof(*something))). That's why this
 // safe malloc() borrows the signature from calloc(), pointing at the dangerous
 // underlying multiply involved.
-WEBP_EXTERN void * WebPSafeMalloc(uint64_t nmemb, size_t size);
+WEBP_EXTERN void * FASTCALL WebPSafeMalloc(uint64_t nmemb, size_t size);
 // Note that WebPSafeCalloc() expects the second argument type to be 'size_t'
 // in order to favor the "calloc(num_foo, sizeof(foo))" pattern.
-WEBP_EXTERN void * WebPSafeCalloc(uint64_t nmemb, size_t size);
+WEBP_EXTERN void * FASTCALL WebPSafeCalloc(uint64_t nmemb, size_t size);
 
 // Companion deallocation function to the above allocations.
-WEBP_EXTERN void WebPSafeFree(void* const ptr);
+WEBP_EXTERN void FASTCALL WebPSafeFree(void* const ptr);
 
 //------------------------------------------------------------------------------
 // Alignment

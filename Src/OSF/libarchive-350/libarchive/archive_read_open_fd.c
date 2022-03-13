@@ -16,9 +16,8 @@
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_open_fd.c 201103 2009-12-28 03:13:49Z kientzle $");
 
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
+	#include <unistd.h>
 #endif
-#include "archive.h"
 
 struct read_fd_data {
 	int fd;
@@ -37,13 +36,11 @@ int archive_read_open_fd(struct archive * a, int fd, size_t block_size)
 	struct stat st;
 	struct read_fd_data * mine;
 	void * b;
-
 	archive_clear_error(a);
 	if(fstat(fd, &st) != 0) {
 		archive_set_error(a, errno, "Can't stat fd %d", fd);
 		return ARCHIVE_FATAL;
 	}
-
 	mine = (struct read_fd_data *)SAlloc::C(1, sizeof(*mine));
 	b = SAlloc::M(block_size);
 	if(mine == NULL || b == NULL) {

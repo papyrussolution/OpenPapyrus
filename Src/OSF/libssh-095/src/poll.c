@@ -12,11 +12,6 @@
  * the Free Software Foundation; either version 2.1 of the License, or (at your
  * option) any later version.
  *
- * The SSH Library is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
- * License for more details.
- *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the SSH Library; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
@@ -26,7 +21,7 @@
 #pragma hdrstop
 
 #ifndef SSH_POLL_CTX_CHUNK
-#define SSH_POLL_CTX_CHUNK                      5
+	#define SSH_POLL_CTX_CHUNK 5
 #endif
 
 /**
@@ -167,16 +162,12 @@ static short bsd_socket_compute_revents(int fd, short events)
 #ifdef _WIN32
 	WSASetLastError(0);
 #endif
-
 	ret = recv(fd, data, 64, flags);
-
 	errno = save_errno;
-
 #ifdef _WIN32
 	sock_errno = WSAGetLastError();
 	WSASetLastError(0);
 #endif
-
 	if(ret > 0 || bsd_socket_not_connected(sock_errno)) {
 		revents = (POLLIN | POLLRDNORM) & events;
 	}
@@ -187,7 +178,6 @@ static short bsd_socket_compute_revents(int fd, short events)
 	else {
 		revents = POLLERR;
 	}
-
 	return revents;
 }
 
@@ -207,19 +197,16 @@ static int bsd_poll(ssh_pollfd_t * fds, nfds_t nfds, int timeout)
 	socket_t max_fd;
 	int rc;
 	nfds_t i;
-
 	if(fds == NULL) {
 		errno = EFAULT;
 		return -1;
 	}
-
 	ZERO_STRUCT(readfds);
 	FD_ZERO(&readfds);
 	ZERO_STRUCT(writefds);
 	FD_ZERO(&writefds);
 	ZERO_STRUCT(exceptfds);
 	FD_ZERO(&exceptfds);
-
 	/* compute fd_sets and find largest descriptor */
 	for(rc = -1, max_fd = 0, i = 0; i < nfds; i++) {
 		if(fds[i].fd == SSH_INVALID_SOCKET) {
@@ -231,7 +218,6 @@ static int bsd_poll(ssh_pollfd_t * fds, nfds_t nfds, int timeout)
 			break;
 		}
 #endif
-
 		if(fds[i].events & (POLLIN | POLLRDNORM)) {
 			FD_SET(fds[i].fd, &readfds);
 		}
@@ -241,20 +227,15 @@ static int bsd_poll(ssh_pollfd_t * fds, nfds_t nfds, int timeout)
 		if(fds[i].events & (POLLPRI | POLLRDBAND)) {
 			FD_SET(fds[i].fd, &exceptfds);
 		}
-		if(fds[i].fd > max_fd &&
-		    (fds[i].events & (POLLIN | POLLOUT | POLLPRI |
-		    POLLRDNORM | POLLRDBAND |
-		    POLLWRNORM | POLLWRBAND))) {
+		if(fds[i].fd > max_fd && (fds[i].events & (POLLIN|POLLOUT|POLLPRI|POLLRDNORM|POLLRDBAND|POLLWRNORM|POLLWRBAND))) {
 			max_fd = fds[i].fd;
 			rc = 0;
 		}
 	}
-
 	if(max_fd == SSH_INVALID_SOCKET || rc == -1) {
 		errno = EINVAL;
 		return -1;
 	}
-
 	if(timeout < 0) {
 		ptv = NULL;
 	}
@@ -269,7 +250,6 @@ static int bsd_poll(ssh_pollfd_t * fds, nfds_t nfds, int timeout)
 			tv.tv_usec = (timeout % 1000) * 1000;
 		}
 	}
-
 	rc = select(max_fd + 1, &readfds, &writefds, &exceptfds, ptv);
 	if(rc < 0) {
 		return -1;
@@ -278,23 +258,18 @@ static int bsd_poll(ssh_pollfd_t * fds, nfds_t nfds, int timeout)
 	if(rc == 0) {
 		return 0;
 	}
-
 	for(rc = 0, i = 0; i < nfds; i++) {
 		if(fds[i].fd >= 0) {
 			fds[i].revents = 0;
-
 			if(FD_ISSET(fds[i].fd, &readfds)) {
-				fds[i].revents = bsd_socket_compute_revents(fds[i].fd,
-					fds[i].events);
+				fds[i].revents = bsd_socket_compute_revents(fds[i].fd, fds[i].events);
 			}
 			if(FD_ISSET(fds[i].fd, &writefds)) {
 				fds[i].revents |= fds[i].events & (POLLOUT | POLLWRNORM | POLLWRBAND);
 			}
-
 			if(FD_ISSET(fds[i].fd, &exceptfds)) {
 				fds[i].revents |= fds[i].events & (POLLPRI | POLLRDBAND);
 			}
-
 			if(fds[i].revents != 0) {
 				rc++;
 			}
@@ -303,22 +278,23 @@ static int bsd_poll(ssh_pollfd_t * fds, nfds_t nfds, int timeout)
 			fds[i].revents = POLLNVAL;
 		}
 	}
-
 	return rc;
 }
 
-void ssh_poll_init(void) {
+void ssh_poll_init()
+{
 	ssh_poll_emu = bsd_poll;
 }
 
-void ssh_poll_cleanup(void) {
+void ssh_poll_cleanup()
+{
 	ssh_poll_emu = bsd_poll;
 }
 
-int ssh_poll(ssh_pollfd_t * fds, nfds_t nfds, int timeout) {
+int ssh_poll(ssh_pollfd_t * fds, nfds_t nfds, int timeout)
+{
 	return (ssh_poll_emu)(fds, nfds, timeout);
 }
-
 #endif /* HAVE_POLL */
 
 /**
@@ -340,14 +316,13 @@ int ssh_poll(ssh_pollfd_t * fds, nfds_t nfds, int timeout) {
 ssh_poll_handle ssh_poll_new(socket_t fd, short events, ssh_poll_callback cb, void * userdata) 
 {
 	ssh_poll_handle p = (ssh_poll_handle)SAlloc::M(sizeof(struct ssh_poll_handle_struct));
-	if(p == NULL) {
-		return NULL;
+	if(p) {
+		ZERO_STRUCTP(p);
+		p->x.fd = fd;
+		p->events = events;
+		p->cb = cb;
+		p->cb_data = userdata;
 	}
-	ZERO_STRUCTP(p);
-	p->x.fd = fd;
-	p->events = events;
-	p->cb = cb;
-	p->cb_data = userdata;
 	return p;
 }
 /**
@@ -422,10 +397,10 @@ void ssh_poll_set_fd(ssh_poll_handle p, socket_t fd) {
  * @param  p            Pointer to an already allocated poll object.
  * @param  events       Poll events.
  */
-void ssh_poll_add_events(ssh_poll_handle p, short events) {
+void ssh_poll_add_events(ssh_poll_handle p, short events) 
+{
 	ssh_poll_set_events(p, ssh_poll_get_events(p) | events);
 }
-
 /**
  * @brief  Remove events from a poll object. Non-existent are ignored.
  *   The events will also be propagated to an associated poll context.
@@ -433,10 +408,10 @@ void ssh_poll_add_events(ssh_poll_handle p, short events) {
  * @param  p            Pointer to an already allocated poll object.
  * @param  events       Poll events.
  */
-void ssh_poll_remove_events(ssh_poll_handle p, short events) {
+void ssh_poll_remove_events(ssh_poll_handle p, short events) 
+{
 	ssh_poll_set_events(p, ssh_poll_get_events(p) & ~events);
 }
-
 /**
  * @brief  Get the raw socket of a poll object.
  *
@@ -444,15 +419,10 @@ void ssh_poll_remove_events(ssh_poll_handle p, short events) {
  *
  * @return              Raw socket.
  */
-
-socket_t ssh_poll_get_fd(ssh_poll_handle p) {
-	if(p->ctx != NULL) {
-		return p->ctx->pollfds[p->x.idx].fd;
-	}
-
-	return p->x.fd;
+socket_t ssh_poll_get_fd(ssh_poll_handle p) 
+{
+	return p->ctx ? p->ctx->pollfds[p->x.idx].fd : p->x.fd;
 }
-
 /**
  * @brief  Set the callback of a poll object.
  *
@@ -461,13 +431,13 @@ socket_t ssh_poll_get_fd(ssh_poll_handle p) {
  * @param  userdata     Userdata to be passed to the callback function. NULL if
  *                not needed.
  */
-void ssh_poll_set_callback(ssh_poll_handle p, ssh_poll_callback cb, void * userdata) {
-	if(cb != NULL) {
+void ssh_poll_set_callback(ssh_poll_handle p, ssh_poll_callback cb, void * userdata) 
+{
+	if(cb) {
 		p->cb = cb;
 		p->cb_data = userdata;
 	}
 }
-
 /**
  * @brief  Create a new poll context. It could be associated with many poll object
  *   which are going to be polled at the same time as the poll context. You
@@ -482,38 +452,32 @@ void ssh_poll_set_callback(ssh_poll_handle p, ssh_poll_callback cb, void * userd
 ssh_poll_ctx ssh_poll_ctx_new(size_t chunk_size) 
 {
 	ssh_poll_ctx ctx = (ssh_poll_ctx)SAlloc::M(sizeof(struct ssh_poll_ctx_struct));
-	if(ctx == NULL) {
-		return NULL;
+	if(ctx) {
+		ZERO_STRUCTP(ctx);
+		SETIFZQ(chunk_size, SSH_POLL_CTX_CHUNK);
+		ctx->chunk_size = chunk_size;
 	}
-	ZERO_STRUCTP(ctx);
-	if(chunk_size == 0) {
-		chunk_size = SSH_POLL_CTX_CHUNK;
-	}
-	ctx->chunk_size = chunk_size;
 	return ctx;
 }
-
 /**
  * @brief  Free a poll context.
  *
  * @param  ctx          Pointer to an already allocated poll context.
  */
-void ssh_poll_ctx_free(ssh_poll_ctx ctx) {
-	if(ctx->polls_allocated > 0) {
-		while(ctx->polls_used > 0) {
-			ssh_poll_handle p = ctx->pollptrs[0];
-			/*
-			 * The free function calls ssh_poll_ctx_remove() and decrements
-			 * ctx->polls_used
-			 */
-			ssh_poll_free(p);
+void ssh_poll_ctx_free(ssh_poll_ctx ctx) 
+{
+	if(ctx) {
+		if(ctx->polls_allocated > 0) {
+			while(ctx->polls_used > 0) {
+				ssh_poll_handle p = ctx->pollptrs[0];
+				// The free function calls ssh_poll_ctx_remove() and decrements ctx->polls_used
+				ssh_poll_free(p);
+			}
+			ZFREE(ctx->pollptrs);
+			ZFREE(ctx->pollfds);
 		}
-
-		ZFREE(ctx->pollptrs);
-		ZFREE(ctx->pollfds);
+		ZFREE(ctx);
 	}
-
-	ZFREE(ctx);
 }
 
 static int ssh_poll_ctx_resize(ssh_poll_ctx ctx, size_t new_size) 
@@ -546,19 +510,16 @@ static int ssh_poll_ctx_resize(ssh_poll_ctx ctx, size_t new_size)
  *
  * @return              0 on success, < 0 on error
  */
-int ssh_poll_ctx_add(ssh_poll_ctx ctx, ssh_poll_handle p) {
+int ssh_poll_ctx_add(ssh_poll_ctx ctx, ssh_poll_handle p) 
+{
 	socket_t fd;
-
 	if(p->ctx != NULL) {
 		/* already attached to a context */
 		return -1;
 	}
-
-	if(ctx->polls_used == ctx->polls_allocated &&
-	    ssh_poll_ctx_resize(ctx, ctx->polls_allocated + ctx->chunk_size) < 0) {
+	if(ctx->polls_used == ctx->polls_allocated && ssh_poll_ctx_resize(ctx, ctx->polls_allocated + ctx->chunk_size) < 0) {
 		return -1;
 	}
-
 	fd = p->x.fd;
 	p->x.idx = ctx->polls_used++;
 	ctx->pollptrs[p->x.idx] = p;
@@ -580,10 +541,8 @@ int ssh_poll_ctx_add(ssh_poll_ctx ctx, ssh_poll_handle p) {
  */
 int ssh_poll_ctx_add_socket(ssh_poll_ctx ctx, ssh_socket s)
 {
-	ssh_poll_handle p;
 	int ret;
-
-	p = ssh_socket_get_poll_handle(s);
+	ssh_poll_handle p = ssh_socket_get_poll_handle(s);
 	if(p == NULL) {
 		return -1;
 	}
@@ -597,22 +556,18 @@ int ssh_poll_ctx_add_socket(ssh_poll_ctx ctx, ssh_socket s)
  * @param  ctx          Pointer to an already allocated poll context.
  * @param  p            Pointer to an already allocated poll object.
  */
-void ssh_poll_ctx_remove(ssh_poll_ctx ctx, ssh_poll_handle p) {
-	size_t i;
-
-	i = p->x.idx;
+void ssh_poll_ctx_remove(ssh_poll_ctx ctx, ssh_poll_handle p) 
+{
+	size_t i = p->x.idx;
 	p->x.fd = ctx->pollfds[i].fd;
 	p->ctx = NULL;
-
 	ctx->polls_used--;
-
 	/* fill the empty poll slot with the last one */
 	if(ctx->polls_used > 0 && ctx->polls_used != i) {
 		ctx->pollfds[i] = ctx->pollfds[ctx->polls_used];
 		ctx->pollptrs[i] = ctx->pollptrs[ctx->polls_used];
 		ctx->pollptrs[i]->x.idx = i;
 	}
-
 	/* this will always leave at least chunk_size polls allocated */
 	if(ctx->polls_allocated - ctx->polls_used > ctx->chunk_size) {
 		ssh_poll_ctx_resize(ctx, ctx->polls_allocated - ctx->chunk_size);
@@ -634,7 +589,6 @@ void ssh_poll_ctx_remove(ssh_poll_ctx ctx, ssh_poll_handle p) {
  *    SSH_ERROR   Error happened during the poll.
  *    SSH_AGAIN   Timeout occured
  */
-
 int ssh_poll_ctx_dopoll(ssh_poll_ctx ctx, int timeout)
 {
 	int rc;
@@ -643,11 +597,9 @@ int ssh_poll_ctx_dopoll(ssh_poll_ctx ctx, int timeout)
 	socket_t fd;
 	int revents;
 	struct ssh_timestamp ts;
-
 	if(ctx->polls_used == 0) {
 		return SSH_ERROR;
 	}
-
 	ssh_timestamp_init(&ts);
 	do {
 		int tm = ssh_timeout_update(&ts, timeout);
@@ -660,7 +612,6 @@ int ssh_poll_ctx_dopoll(ssh_poll_ctx ctx, int timeout)
 	if(rc == 0) {
 		return SSH_AGAIN;
 	}
-
 	used = ctx->polls_used;
 	for(i = 0; i < used && rc > 0;) {
 		if(!ctx->pollfds[i].revents || ctx->pollptrs[i]->lock) {
@@ -668,7 +619,6 @@ int ssh_poll_ctx_dopoll(ssh_poll_ctx ctx, int timeout)
 		}
 		else {
 			int ret;
-
 			p = ctx->pollptrs[i];
 			fd = ctx->pollfds[i].fd;
 			revents = ctx->pollfds[i].revents;
@@ -689,11 +639,9 @@ int ssh_poll_ctx_dopoll(ssh_poll_ctx ctx, int timeout)
 				p->lock = 0;
 				i++;
 			}
-
 			rc--;
 		}
 	}
-
 	return rc;
 }
 
@@ -704,7 +652,8 @@ int ssh_poll_ctx_dopoll(ssh_poll_ctx ctx, int timeout)
  * @param session SSH session
  * @returns the default ssh_poll_ctx
  */
-ssh_poll_ctx ssh_poll_get_default_ctx(ssh_session session){
+ssh_poll_ctx ssh_poll_get_default_ctx(ssh_session session)
+{
 	if(session->default_poll_ctx != NULL)
 		return session->default_poll_ctx;
 	/* 2 is enough for the default one */
@@ -758,10 +707,9 @@ ssh_event ssh_event_new(void)
 	return event;
 }
 
-static int ssh_event_fd_wrapper_callback(ssh_poll_handle p, socket_t fd, int revents,
-    void * userdata) {
+static int ssh_event_fd_wrapper_callback(ssh_poll_handle p, socket_t fd, int revents, void * userdata) 
+{
 	struct ssh_event_fd_wrapper * pw = (struct ssh_event_fd_wrapper *)userdata;
-
 	(void)p;
 	if(pw->cb != NULL) {
 		return pw->cb(fd, revents, pw->userdata);
@@ -850,12 +798,12 @@ void ssh_event_remove_poll(ssh_event event, ssh_poll_handle p)
  * @returns SSH_OK      on success
  *    SSH_ERROR   on failure
  */
-int ssh_event_add_session(ssh_event event, ssh_session session) {
+int ssh_event_add_session(ssh_event event, ssh_session session) 
+{
 	ssh_poll_handle p;
 #ifdef WITH_SERVER
 	struct ssh_iterator * iterator;
 #endif
-
 	if(event == NULL || event->ctx == NULL || session == NULL) {
 		return SSH_ERROR;
 	}
@@ -876,13 +824,11 @@ int ssh_event_add_session(ssh_event event, ssh_session session) {
 		p->session = session;
 	}
 #ifdef WITH_SERVER
-	iterator = ssh_list_get_iterator(event->sessions);
-	while(iterator != NULL) {
+	for(iterator = ssh_list_get_iterator(event->sessions); iterator; iterator = iterator->next) {
 		if((ssh_session)iterator->data == session) {
-			/* allow only one instance of this session */
+			// allow only one instance of this session 
 			return SSH_OK;
 		}
-		iterator = iterator->next;
 	}
 	if(ssh_list_append(event->sessions, session) == SSH_ERROR) {
 		return SSH_ERROR;
@@ -923,16 +869,16 @@ int ssh_event_add_connector(ssh_event event, ssh_connector connector){
  *    SSH_ERROR   Error happened during the poll.
  *    SSH_AGAIN   Timeout occured
  */
-int ssh_event_dopoll(ssh_event event, int timeout) {
-	int rc;
-
+int ssh_event_dopoll(ssh_event event, int timeout) 
+{
 	if(event == NULL || event->ctx == NULL) {
 		return SSH_ERROR;
 	}
-	rc = ssh_poll_ctx_dopoll(event->ctx, timeout);
-	return rc;
+	else {
+		int rc = ssh_poll_ctx_dopoll(event->ctx, timeout);
+		return rc;
+	}
 }
-
 /**
  * @brief  Remove a socket fd from an event context.
  *
@@ -984,34 +930,27 @@ int ssh_event_remove_fd(ssh_event event, socket_t fd)
  * @returns SSH_OK      on success
  *    SSH_ERROR   on failure
  */
-int ssh_event_remove_session(ssh_event event, ssh_session session) {
+int ssh_event_remove_session(ssh_event event, ssh_session session) 
+{
 	ssh_poll_handle p;
 	register size_t i, used;
 	int rc = SSH_ERROR;
 #ifdef WITH_SERVER
 	struct ssh_iterator * iterator;
 #endif
-
 	if(event == NULL || event->ctx == NULL || session == NULL) {
 		return SSH_ERROR;
 	}
-
 	used = event->ctx->polls_used;
 	for(i = 0; i < used; i++) {
 		p = event->ctx->pollptrs[i];
 		if(p->session == session) {
-			/*
-			 * ssh_poll_ctx_remove() decrements
-			 * event->ctx->polls_used
-			 */
+			// ssh_poll_ctx_remove() decrements event->ctx->polls_used
 			ssh_poll_ctx_remove(event->ctx, p);
 			p->session = NULL;
 			ssh_poll_ctx_add(session->default_poll_ctx, p);
 			rc = SSH_OK;
-			/*
-			 * Restart the loop!
-			 * A session can initially have two pollhandlers.
-			 */
+			// Restart the loop! A session can initially have two pollhandlers.
 			used = event->ctx->polls_used;
 			i = 0;
 		}
@@ -1037,11 +976,11 @@ int ssh_event_remove_session(ssh_event event, ssh_session session) {
  * @return SSH_OK on success
  * @return SSH_ERROR on failure
  */
-int ssh_event_remove_connector(ssh_event event, ssh_connector connector){
+int ssh_event_remove_connector(ssh_event event, ssh_connector connector)
+{
 	(void)event;
 	return ssh_connector_remove_event(connector);
 }
-
 /**
  * @brief  Free an event context.
  *

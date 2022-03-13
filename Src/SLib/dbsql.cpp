@@ -4,7 +4,6 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <db.h>
 #include <pp.h> // @test
 //
 // @example: SELECT employees_seq.nextval FROM DUAL;
@@ -1009,7 +1008,7 @@ int SOraDbProvider::PostProcessAfterUndump(const DBTable * pTbl)
 				Generator_SQL sg(sqlstORA, 0);
 				sg.GetSequenceNameOnField(*pTbl, i, seq_name);
 				{
-					sg.Reset().Tok(Generator_SQL::tokSelect).Sp().Text(seq_name).Dot().Text("nextval").Sp().From("DUAL");
+					sg.Z().Tok(Generator_SQL::tokSelect).Sp().Text(seq_name).Dot().Text("nextval").Sp().From("DUAL");
 					SSqlStmt stmt(this, static_cast<const SString &>(sg));
 					THROW(stmt.Exec(0, OCI_DEFAULT));
 					THROW(stmt.BindItem(+1, 1, T_INT32, &seq));
@@ -1019,8 +1018,7 @@ int SOraDbProvider::PostProcessAfterUndump(const DBTable * pTbl)
 				}
 				{
 					// select max(ID) from tbl
-					sg.Reset().Tok(Generator_SQL::tokSelect).Sp().
-						Func(Generator_SQL::tokMax, r_fld.Name).Sp().From(pTbl->fileName);
+					sg.Z().Tok(Generator_SQL::tokSelect).Sp().Func(Generator_SQL::tokMax, r_fld.Name).Sp().From(pTbl->fileName);
 					SSqlStmt stmt(this, static_cast<const SString &>(sg));
 					THROW(stmt.Exec(0, OCI_DEFAULT));
 					THROW(stmt.BindItem(+1, 1, T_INT32, &max_val));
@@ -1030,7 +1028,7 @@ int SOraDbProvider::PostProcessAfterUndump(const DBTable * pTbl)
 				}
 				if(max_val > seq) {
 					{
-						sg.Reset().Tok(Generator_SQL::tokDrop).Sp().Tok(Generator_SQL::tokSequence).Sp().Text(seq_name);
+						sg.Z().Tok(Generator_SQL::tokDrop).Sp().Tok(Generator_SQL::tokSequence).Sp().Text(seq_name);
 						SSqlStmt stmt(this, static_cast<const SString &>(sg));
 						THROW(stmt.Exec(1, OCI_DEFAULT));
 					}
@@ -1038,7 +1036,7 @@ int SOraDbProvider::PostProcessAfterUndump(const DBTable * pTbl)
 					//
 					//
 					{
-						sg.Reset().CreateSequenceOnField(*pTbl, pTbl->fileName, i, max_val+1);
+						sg.Z().CreateSequenceOnField(*pTbl, pTbl->fileName, i, max_val+1);
 						SSqlStmt stmt(this, static_cast<const SString &>(sg));
 						THROW(stmt.Exec(1, OCI_DEFAULT));
 					}
@@ -1062,7 +1060,7 @@ int SOraDbProvider::GetAutolongVal(const DBTable & rTbl, uint fldN, long * pVal)
 	// SELECT secXXX.nextval FROM DUAL;
 	sg.GetSequenceNameOnField(rTbl, fldN, seq_name);
 	seq_name.DotCat("nextval");
-	sg.Reset().Tok(Generator_SQL::tokSelect).Sp().Text(seq_name).Sp().From("DUAL");
+	sg.Z().Tok(Generator_SQL::tokSelect).Sp().Text(seq_name).Sp().From("DUAL");
 	SSqlStmt stmt(this, static_cast<const SString &>(sg));
 	THROW(stmt.Exec(0, OCI_DEFAULT));
 	THROW(stmt.BindItem(+1, 1, T_INT32, &val));
@@ -1081,8 +1079,7 @@ int SOraDbProvider::GetDirect(DBTable & rTbl, const DBRowId & rPos, int forUpdat
 	SString temp_buf;
 	THROW(rPos.IsLong());
 	rPos.ToStr(temp_buf);
-	SqlGen.Reset().Tok(Generator_SQL::tokSelect).Sp().Aster().Sp().From(rTbl.fileName).Sp().
-		Tok(Generator_SQL::tokWhere).Sp().Tok(Generator_SQL::tokRowId)._Symb(_EQ_).QText(temp_buf);
+	SqlGen.Z().Tok(Generator_SQL::tokSelect).Sp().Aster().Sp().From(rTbl.fileName).Sp().Tok(Generator_SQL::tokWhere).Sp().Tok(Generator_SQL::tokRowId)._Symb(_EQ_).QText(temp_buf);
 	if(forUpdate)
 		SqlGen.Tok(Generator_SQL::tokFor).Sp().Tok(Generator_SQL::tokUpdate);
 	{
@@ -1531,7 +1528,7 @@ int SOraDbProvider::GetFileStat(const char * pFileName, long reqItems, DbTableSt
 	fld_list.addField("TABLESPACE_NAME", MKSTYPE(S_ZSTRING, 32));
 	fld_list.addField("NUM_ROWS", T_INT32);
 	fld_list.addField("TEMPORARY", MKSTYPE(S_ZSTRING, 8));
-	SqlGen.Reset().Select(&fld_list).From("ALL_TABLES").Sp().Tok(Generator_SQL::tokWhere).Sp().Eq("TABLE_NAME", name);
+	SqlGen.Z().Select(&fld_list).From("ALL_TABLES").Sp().Tok(Generator_SQL::tokWhere).Sp().Eq("TABLE_NAME", name);
 	SSqlStmt stmt(this, (const SString &)SqlGen);
 	THROW(stmt.Exec(0, OCI_DEFAULT));
 	THROW(stmt.BindData(+1, 1, fld_list, &rec_buf, 0));
@@ -1579,14 +1576,14 @@ SString & SOraDbProvider::GetTemporaryFileName(SString & rFileNameBuf, long * pS
 int SOraDbProvider::CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode)
 {
 	int    ok = 1;
-	THROW(SqlGen.Reset().CreateTable(*pTbl, 0));
+	THROW(SqlGen.Z().CreateTable(*pTbl, 0));
 	{
 		SSqlStmt stmt(this, (const SString &)SqlGen);
 		THROW(stmt.Exec(1, OCI_DEFAULT));
 	}
 	uint j;
 	for(j = 0; j < pTbl->indexes.getNumKeys(); j++) {
-		THROW(SqlGen.Reset().CreateIndex(*pTbl, pFileName, j));
+		THROW(SqlGen.Z().CreateIndex(*pTbl, pFileName, j));
 		{
 			SSqlStmt stmt(this, (const SString &)SqlGen);
 			THROW(stmt.Exec(1, OCI_DEFAULT));
@@ -1595,7 +1592,7 @@ int SOraDbProvider::CreateDataFile(const DBTable * pTbl, const char * pFileName,
 	for(j = 0; j < pTbl->fields.getCount(); j++) {
 		TYPEID _t = pTbl->fields[j].T;
 		if(GETSTYPE(_t) == S_AUTOINC) {
-			THROW(SqlGen.Reset().CreateSequenceOnField(*pTbl, pFileName, j, 0));
+			THROW(SqlGen.Z().CreateSequenceOnField(*pTbl, pFileName, j, 0));
 			{
 				SSqlStmt stmt(this, (const SString &)SqlGen);
 				THROW(stmt.Exec(1, OCI_DEFAULT));
@@ -1616,7 +1613,7 @@ int SOraDbProvider::DropFile(const char * pFileName)
 {
 	int    ok = 1;
 	if(IsFileExists_(pFileName) > 0) {
-		SqlGen.Reset().Tok(Generator_SQL::tokDrop).Sp().Tok(Generator_SQL::tokTable).Sp().Text(pFileName);
+		SqlGen.Z().Tok(Generator_SQL::tokDrop).Sp().Tok(Generator_SQL::tokTable).Sp().Text(pFileName);
 			//Sp().Text("PURGE");
 		SSqlStmt stmt(this, (const SString &)SqlGen);
 		THROW(stmt.Exec(1, OCI_DEFAULT));
@@ -1634,9 +1631,7 @@ int SOraDbProvider::DropFile(const char * pFileName)
 			BNFieldList fld_list;
 			(q_pfx = "upper(substr(sequence_name,0,").Cat(seq_prefix.Len()).CatCharN(')', 2);
 			fld_list.addField("sequence_name", MKSTYPE(S_ZSTRING, 64));
-			SqlGen.Reset().Select(&fld_list).From("all_sequences").Sp().Tok(Generator_SQL::tokWhere).Sp().
-				Eq(q_pfx, seq_prefix);
-
+			SqlGen.Z().Select(&fld_list).From("all_sequences").Sp().Tok(Generator_SQL::tokWhere).Sp().Eq(q_pfx, seq_prefix);
 			SSqlStmt stmt(this, (const SString &)SqlGen);
 			THROW(stmt.Exec(0, OCI_DEFAULT));
 			THROW(stmt.BindData(+1, 1, fld_list, seq_name, 0));
@@ -1646,7 +1641,7 @@ int SOraDbProvider::DropFile(const char * pFileName)
 				seq_list.Add(seq_list.getCount()+1, seq_name);
 			}
 			for(uint i = 0; i < seq_list.getCount(); i++) {
-				SqlGen.Reset().Tok(Generator_SQL::tokDrop).Sp().Tok(Generator_SQL::tokSequence).Sp().Text(seq_list.Get(i).Txt);
+				SqlGen.Z().Tok(Generator_SQL::tokDrop).Sp().Tok(Generator_SQL::tokSequence).Sp().Text(seq_list.Get(i).Txt);
 				SSqlStmt stmt(this, (const SString &)SqlGen);
 				THROW(stmt.Exec(1, OCI_DEFAULT));
 			}
@@ -1780,7 +1775,7 @@ int SOraDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey, int s
 		BNKey  key = pTbl->indexes[idx];
 		const  int ns = key.getNumSeg();
 
-		SqlGen.Reset().Tok(Generator_SQL::tokSelect);
+		SqlGen.Z().Tok(Generator_SQL::tokSelect);
 		if(!(sf & DBTable::sfDirect)) {
 			SqlGen.HintBegin().
 			HintIndex(*pTbl, p_alias, idx, BIN(oneof3(srchMode, spLt, spLe, spLast))).
@@ -1952,10 +1947,8 @@ int SOraDbProvider::Implement_InsertRec(DBTable * pTbl, int idx, void * pKeyBuf,
 		if(r > 0)
 			do_process_lob = 1;
 	}
-
-	SqlGen.Reset().Tok(Generator_SQL::tokInsert).Sp().Tok(Generator_SQL::tokInto).Sp().Text(pTbl->fileName).Sp();
+	SqlGen.Z().Tok(Generator_SQL::tokInsert).Sp().Tok(Generator_SQL::tokInto).Sp().Text(pTbl->fileName).Sp();
 	SqlGen.Tok(Generator_SQL::tokValues).Sp().LPar();
-
 	stmt.BL.Dim = 1;
 	stmt.BL.P_Lob = pTbl->getLobBlock();
 	for(i = 0; i < fld_count; i++) {
@@ -2027,8 +2020,7 @@ int SOraDbProvider::Implement_UpdateRec(DBTable * pTbl, const void * pDataBuf, i
 	SString temp_buf;
 	if(pDataBuf)
 		pTbl->copyBufFrom(pDataBuf);
-	SqlGen.Reset().Tok(Generator_SQL::tokUpdate).Sp().Text(pTbl->fileName).Sp().
-		Tok(Generator_SQL::tokSet).Sp();
+	SqlGen.Z().Tok(Generator_SQL::tokUpdate).Sp().Text(pTbl->fileName).Sp().Tok(Generator_SQL::tokSet).Sp();
 	for(i = 0; i < fld_count; i++) {
 		if(i)
 			SqlGen.Com();
@@ -2053,7 +2045,7 @@ int SOraDbProvider::Implement_DeleteRec(DBTable * pTbl)
 	int    ok = 1;
 	const  uint fld_count = pTbl->fields.getCount();
 	SString temp_buf;
-	SqlGen.Reset().Tok(Generator_SQL::tokDelete).Sp().From(pTbl->fileName, 0).Sp();
+	SqlGen.Z().Tok(Generator_SQL::tokDelete).Sp().From(pTbl->fileName, 0).Sp();
 	THROW(pTbl->getCurRowIdPtr()->IsLong());
 	pTbl->getCurRowIdPtr()->ToStr(temp_buf);
 	SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp().Tok(Generator_SQL::tokRowId)._Symb(_EQ_).QText(temp_buf);
@@ -2072,7 +2064,7 @@ int SOraDbProvider::Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & rQ)
 		THROW(StartTransaction());
 		ta = 1;
 	}
-	SqlGen.Reset().Tok(Generator_SQL::tokDelete).Sp().From(pTbl->fileName, 0);
+	SqlGen.Z().Tok(Generator_SQL::tokDelete).Sp().From(pTbl->fileName, 0);
 	if(&rQ && rQ.tree) {
 		SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp();
 		rQ.tree->CreateSqlExpr(&SqlGen, -1);
@@ -2110,7 +2102,7 @@ int SOraDbProvider::Implement_BExtInsert(BExtInsert * pBei)
 		DBTable * p_tbl = pBei->getTable();
 		const  uint fld_count = p_tbl->fields.getCount();
 		SString temp_buf;
-		SqlGen.Reset().Tok(Generator_SQL::tokInsert).Sp().Tok(Generator_SQL::tokInto).Sp().Text(p_tbl->fileName).Sp();
+		SqlGen.Z().Tok(Generator_SQL::tokInsert).Sp().Tok(Generator_SQL::tokInto).Sp().Text(p_tbl->fileName).Sp();
 		SqlGen.Tok(Generator_SQL::tokValues).Sp().LPar();
 		for(i = 0; i < fld_count; i++) {
 			if(i)

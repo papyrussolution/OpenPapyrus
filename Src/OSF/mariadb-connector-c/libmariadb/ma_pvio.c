@@ -6,11 +6,6 @@
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
 
-   This library is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
-
    You should have received a copy of the GNU Library General Public
    License along with this library; if not see <http://www.gnu.org/licenses>
    or write to the Free Software Foundation, Inc.,
@@ -27,32 +22,15 @@
 
    Interface function description:
 
-   ma_pvio_init          allocates a new PVIO object which will be used
-                        for the current connection
-
-   ma_pvio_close         frees all resources of previously allocated PVIO object
-                        and closes open connections
-
+   ma_pvio_init          allocates a new PVIO object which will be used for the current connection
+   ma_pvio_close         frees all resources of previously allocated PVIO object and closes open connections
    ma_pvio_read          reads data from server
-
    ma_pvio_write         sends data to server
-
    ma_pvio_set_timeout   sets timeout for connection, read and write
-
-   ma_pvio_register_callback
-                        register callback functions for read and write
+   ma_pvio_register_callback register callback functions for read and write
  */
 #include <ma_global.h>
 #pragma hdrstop
-//#include <ma_sys.h>
-//#include <mysql.h>
-//#include <errmsg.h>
-//#include <mysql/client_plugin.h>
-//#include <string.h>
-//#include <ma_common.h>
-//#include <ma_pvio.h>
-//#include <mariadb_async.h>
-//#include <ma_context.h>
 
 LIST * pvio_callback = NULL; /* callback functions for read/write */
 

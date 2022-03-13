@@ -1,6 +1,5 @@
 /*-
- * Copyright (c) 2003-2007 Tim Kientzle
- * All rights reserved.
+ * Copyright (c) 2003-2007 Tim Kientzle All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -14,26 +13,20 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-#include "archive.h"
-#include "archive_private.h"
 
 #if ARCHIVE_VERSION_NUMBER < 4000000
-/* Deprecated; remove in libarchive 4.0 */
+// Deprecated; remove in libarchive 4.0 
 int archive_read_support_compression_none(struct archive * a)
 {
 	return archive_read_support_filter_none(a);
 }
-
 #endif
-
 /*
  * Uncompressed streams are handled implicitly by the read core,
  * so this is now a no-op.
  */
 int archive_read_support_filter_none(struct archive * a)
 {
-	archive_check_magic(a, ARCHIVE_READ_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_read_support_filter_none");
-
+	archive_check_magic(a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_none");
 	return ARCHIVE_OK;
 }

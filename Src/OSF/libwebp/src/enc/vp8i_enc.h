@@ -456,9 +456,8 @@ int VP8EncTokenLoop(VP8Encoder* const enc);
 
 // in webpenc.c
 // Assign an error code to a picture. Return false for convenience.
-int WebPEncodingSetError(const WebPPicture* const pic, WebPEncodingError error);
-int WebPReportProgress(const WebPPicture* const pic,
-    int percent, int* const percent_store);
+int FASTCALL WebPEncodingSetError(const WebPPicture* const pic, WebPEncodingError error);
+int WebPReportProgress(const WebPPicture* const pic, int percent, int* const percent_store);
 
 // in analysis.c
 // Main analysis loop. Decides the segmentations and complexity.

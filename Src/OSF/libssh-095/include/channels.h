@@ -8,16 +8,10 @@
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-
 #ifndef CHANNELS_H_
 #define CHANNELS_H_
 
@@ -26,16 +20,11 @@
  * outgoing (client) channel request
  */
 enum ssh_channel_request_state_e {
-	/** No request has been made */
-	SSH_CHANNEL_REQ_STATE_NONE = 0,
-	/** A request has been made and answer is pending */
-	SSH_CHANNEL_REQ_STATE_PENDING,
-	/** A request has been replied and accepted */
-	SSH_CHANNEL_REQ_STATE_ACCEPTED,
-	/** A request has been replied and refused */
-	SSH_CHANNEL_REQ_STATE_DENIED,
-	/** A request has been replied and an error happend */
-	SSH_CHANNEL_REQ_STATE_ERROR
+	SSH_CHANNEL_REQ_STATE_NONE = 0, /** No request has been made */
+	SSH_CHANNEL_REQ_STATE_PENDING, /** A request has been made and answer is pending */
+	SSH_CHANNEL_REQ_STATE_ACCEPTED, /** A request has been replied and accepted */
+	SSH_CHANNEL_REQ_STATE_DENIED, /** A request has been replied and refused */
+	SSH_CHANNEL_REQ_STATE_ERROR /** A request has been replied and an error happend */
 };
 
 enum ssh_channel_state_e {

@@ -45,7 +45,7 @@ static void ColouriseConfDoc(Sci_PositionU startPos, Sci_Position length, int, W
 		}
 		switch(state) {
 			case SCE_CONF_DEFAULT:
-			    if(oneof4(ch, '\n', '\r', '\t', ' ')) {
+			    if(oneof4(ch, '\n', '\r', ' ', '\t')) {
 				    // whitespace is simply ignored here...
 				    styler.ColourTo(i, SCE_CONF_DEFAULT);
 				    break;

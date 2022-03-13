@@ -1606,6 +1606,8 @@
 #define PPEDIOP_EGAIS_WAYBILLACT_V4           78 // @v11.0.12 version 4 of PPEDIOP_EGAIS_WAYBILLACT
 #define PPEDIOP_EGAIS_QUERYFORMF1             79 // @v11.2.12 Новая версия PPEDIOP_EGAIS_QUERYFORMA
 #define PPEDIOP_EGAIS_QUERYFORMF2             80 // @v11.2.12 Новая версия PPEDIOP_EGAIS_QUERYFORMB
+#define PPEDIOP_EGAIS_REPLYFORM1              81 // @v11.3.4
+#define PPEDIOP_EGAIS_REPLYFORM2              82 // @v11.3.4
 //
 // Descr: Статусы ответа (RECADV) на уведомление об отгрузке (DESADV)
 //
@@ -11016,6 +11018,8 @@
 #define DLG_QUOT_RB               1374 // @erik v10.5.8
     #define CTL_QUOTROLLBACK_DATE     (1 + WINDOWS_ID_BIAS)
     #define CTL_QUOTROLLBACK_TIME     (2 + WINDOWS_ID_BIAS)
+    #define CTLCAL_QUOTROLLBACK_DATE  (3 + WINDOWS_ID_BIAS)
+    #define CTLTM_QUOTROLLBACK_TIME   (4 + WINDOWS_ID_BIAS)
 #define DLG_DIAGPOSNODE           1375
 	#define CTL_DIAGPOSNODE_RESULT    (1 + WINDOWS_ID_BIAS)
 #define DLG_CHZNIX                1376
@@ -11280,6 +11284,7 @@
 	#define CTLSEL_STQCLITEST_FUNC           (3  + WINDOWS_ID_BIAS)
 	#define CTL_STQCLITEST_INFO              (5  + WINDOWS_ID_BIAS)
 	#define CTL_STQCLITEST_RESULT            (4  + WINDOWS_ID_BIAS)
+	#define CTL_STQCLITEST_INPUT             (6  + WINDOWS_ID_BIAS)
 #define DLG_STQIDXCPARAM          1413 // @v11.3.4
 	#define cmPrcList                        101
 	#define CTL_STQIDXCPARAM_GGRP            (1  + WINDOWS_ID_BIAS)

@@ -4463,6 +4463,7 @@ public:
 	SStringU & FASTCALL Trim(size_t n);
 	SStringU & ToUpper();
 	SStringU & ToLower();
+	SStringU & ReplaceChar(wchar_t patternChr, wchar_t replaceChr);
 
 	enum {
 		tcEmpty = 0,
@@ -14329,7 +14330,7 @@ public:
 	virtual ~SWaitableObject();
 	bool   IsValid() const;
 	operator HANDLE() const { return H; }
-	int    FASTCALL operator == (const SWaitableObject &) const;
+	bool   FASTCALL operator == (const SWaitableObject &) const;
 	//
 	// Descr: If the object is in a signaled state, cosume it without waiting.
 	//   If the event is in a reset state, wait timeout millisec (-1 - infinitely).
@@ -14863,13 +14864,13 @@ public:
 	void   FASTCALL Sleep(uint milliseconds);
 	void   SetStopState();
 	ThreadID GetThreadID() const { return ID; }
-	int    IsRunning() const;
-	int    IsIdle() const;
+	bool   IsRunning() const;
+	bool   IsIdle() const;
 	//
 	// Descr: Если поток находится в состоянии остановки, то возвращает !0,
 	//   в противном случае - 0.
 	//
-	int    IsStopping() const;
+	bool   IsStopping() const;
 protected:
 	//
 	// Descr: This method is invoked on behalf of the new thread before Run()

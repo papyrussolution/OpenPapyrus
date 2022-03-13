@@ -803,7 +803,8 @@ int VP8EncLoop(VP8Encoder* const enc) {
 
 #define MIN_COUNT 96  // minimum number of macroblocks before updating stats
 
-int VP8EncTokenLoop(VP8Encoder* const enc) {
+int VP8EncTokenLoop(VP8Encoder* const enc) 
+{
 	// Roughly refresh the proba eight times per pass
 	int max_count = (enc->mb_w_ * enc->mb_h_) >> 3;
 	int num_pass_left = enc->config_->pass;
@@ -914,7 +915,8 @@ int VP8EncTokenLoop(VP8Encoder* const enc) {
 
 #else
 
-int VP8EncTokenLoop(VP8Encoder* const enc) {
+int VP8EncTokenLoop(VP8Encoder* const enc) 
+{
 	(void)enc;
 	return 0; // we shouldn't be here.
 }

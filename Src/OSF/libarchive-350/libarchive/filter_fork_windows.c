@@ -16,8 +16,6 @@
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 #include "archive_cmdline_private.h"
-#include "archive_string.h"
-
 #include "filter_fork.h"
 
 int __archive_create_child(const char * cmd, int * child_stdin, int * child_stdout, HANDLE * out_child)

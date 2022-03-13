@@ -26,13 +26,7 @@ _cmsAdaptationStateChunkType _cmsAdaptationStateChunk = { DEFAULT_OBSERVER_ADAPT
 void _cmsAllocAdaptationStateChunk(struct _cmsContext_struct* ctx, const struct _cmsContext_struct* src)
 {
 	static _cmsAdaptationStateChunkType AdaptationStateChunk = { DEFAULT_OBSERVER_ADAPTATION_STATE };
-	void * from;
-	if(src != NULL) {
-		from = src->chunks[AdaptationStateContext];
-	}
-	else {
-		from = &AdaptationStateChunk;
-	}
+	void * from = src ? src->chunks[AdaptationStateContext] : &AdaptationStateChunk;
 	ctx->chunks[AdaptationStateContext] = _cmsSubAllocDup(ctx->MemPool, from, sizeof(_cmsAdaptationStateChunkType));
 }
 
@@ -126,34 +120,26 @@ void CMSEXPORT cmsDeleteTransform(cmsHTRANSFORM hTransform)
 	_cmsFree(p->ContextID, (void *)p);
 }
 
-static
-cmsUInt32Number PixelSize(cmsUInt32Number Format)
+static cmsUInt32Number PixelSize(cmsUInt32Number Format)
 {
 	cmsUInt32Number fmt_bytes = T_BYTES(Format);
-
 	// For double, the T_BYTES field is zero
 	if(fmt_bytes == 0)
 		return sizeof(cmsUInt64Number);
-
 	// Otherwise, it is already correct for all formats
 	return fmt_bytes;
 }
 
 // Apply transform.
-void CMSEXPORT cmsDoTransform(cmsHTRANSFORM Transform,
-    const void * InputBuffer,
-    void * OutputBuffer,
-    cmsUInt32Number Size)
+void CMSEXPORT cmsDoTransform(cmsHTRANSFORM Transform, const void * InputBuffer, void * OutputBuffer, cmsUInt32Number Size)
 
 {
 	_cmsTRANSFORM* p = (_cmsTRANSFORM*)Transform;
 	cmsStride stride;
-
 	stride.BytesPerLineIn = 0; // Not used
 	stride.BytesPerLineOut = 0;
 	stride.BytesPerPlaneIn = Size * PixelSize(p->InputFormat);
 	stride.BytesPerPlaneOut = Size * PixelSize(p->OutputFormat);
-
 	p->xform(p, InputBuffer, OutputBuffer, Size, 1, &stride);
 }
 
@@ -1009,8 +995,7 @@ cmsHTRANSFORM CMSEXPORT cmsCreateProofingTransform(cmsHPROFILE InputProfile, cms
 cmsContext CMSEXPORT cmsGetTransformContextID(cmsHTRANSFORM hTransform)
 {
 	_cmsTRANSFORM* xform = (_cmsTRANSFORM*)hTransform;
-	if(xform == NULL) return NULL;
-	return xform->ContextID;
+	return xform ? xform->ContextID : NULL;
 }
 
 // Grab the input/output formats

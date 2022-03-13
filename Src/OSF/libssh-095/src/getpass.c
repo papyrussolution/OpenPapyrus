@@ -7,13 +7,7 @@
  *
  * The SSH Library is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2.1 of the License, or (at your
- * option) any later version.
- *
- * The SSH Library is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
- * License for more details.
+ * the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version.
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the SSH Library; see the file COPYING.  If not, write to
@@ -39,10 +33,9 @@
  */
 static int ssh_gets(const char * prompt, char * buf, size_t len, int verify)
 {
-	char * tmp;
 	char * ptr = NULL;
 	int ok = 0;
-	tmp = (char *)SAlloc::C(1, len);
+	char * tmp = (char *)SAlloc::C(1, len);
 	if(tmp == NULL) {
 		return 0;
 	}
@@ -59,23 +52,18 @@ static int ssh_gets(const char * prompt, char * buf, size_t len, int verify)
 			SAlloc::F(tmp);
 			return 0;
 		}
-
 		if((ptr = strchr(tmp, '\n'))) {
 			*ptr = '\0';
 		}
 		fprintf(stdout, "\n");
-
 		if(*tmp) {
 			strncpy(buf, tmp, len);
 		}
-
 		if(verify) {
-			char * key_string;
-			key_string = (char *)SAlloc::C(1, len);
+			char * key_string = (char *)SAlloc::C(1, len);
 			if(key_string == NULL) {
 				break;
 			}
-
 			fprintf(stdout, "\nVerifying, please re-enter. %s", prompt);
 			fflush(stdout);
 			if(!fgets(key_string, len, stdin)) {
@@ -102,27 +90,21 @@ static int ssh_gets(const char * prompt, char * buf, size_t len, int verify)
 	}
 	memzero(tmp, len);
 	SAlloc::F(tmp);
-
 	return ok;
 }
 
 #ifdef _WIN32
-#include <windows.h>
+//#include <windows.h>
 
-int ssh_getpass(const char * prompt,
-    char * buf,
-    size_t len,
-    int echo,
-    int verify) {
+int ssh_getpass(const char * prompt, char * buf, size_t len, int echo, int verify) 
+{
 	HANDLE h;
 	DWORD mode = 0;
 	int ok;
-
 	/* fgets needs at least len - 1 */
 	if(prompt == NULL || buf == NULL || len < 2) {
 		return -1;
 	}
-
 	/* get stdin and mode */
 	h = GetStdHandle(STD_INPUT_HANDLE);
 	if(!GetConsoleMode(h, &mode)) {

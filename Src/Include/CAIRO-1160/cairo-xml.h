@@ -21,18 +21,11 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is Chris Wilson
  *
- * Contributor(s):
- *	Chris Wilson <chris@chris-wilson.co.uk>
+ * Contributor(s): Chris Wilson <chris@chris-wilson.co.uk>
  */
-
 #ifndef CAIRO_XML_H
 #define CAIRO_XML_H
 
@@ -42,26 +35,15 @@
 
 CAIRO_BEGIN_DECLS
 
-cairo_public cairo_device_t *
-cairo_xml_create (const char *filename);
-
-cairo_public cairo_device_t *
-cairo_xml_create_for_stream (cairo_write_func_t	 write_func,
-			     void		*closure);
-
-cairo_public cairo_surface_t *
-cairo_xml_surface_create (cairo_device_t *xml,
-			  cairo_content_t content,
-			  double width, double height);
-
-cairo_public cairo_status_t
-cairo_xml_for_recording_surface (cairo_device_t *xml,
-				 cairo_surface_t *surface);
+cairo_public cairo_device_t * cairo_xml_create(const char * filename);
+cairo_public cairo_device_t * cairo_xml_create_for_stream(cairo_write_func_t write_func, void * closure);
+cairo_public cairo_surface_t * cairo_xml_surface_create(cairo_device_t * xml, cairo_content_t content, double width, double height);
+cairo_public cairo_status_t cairo_xml_for_recording_surface(cairo_device_t * xml, cairo_surface_t * surface);
 
 CAIRO_END_DECLS
 
 #else  /*CAIRO_HAS_XML_SURFACE*/
-#error Cairo was not compiled with support for the XML backend
+	#error Cairo was not compiled with support for the XML backend
 #endif /*CAIRO_HAS_XML_SURFACE*/
 
 #endif /*CAIRO_XML_H*/

@@ -14,7 +14,6 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: src/lib/libarchive/archive_read_open_memory.c,v 1.6 2007/07/06 15:51:59 kientzle Exp $");
-#include "archive.h"
 /*
  * Glue to read an archive from a block of memory.
  *

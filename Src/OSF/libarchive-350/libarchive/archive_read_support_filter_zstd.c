@@ -16,14 +16,12 @@
 __FBSDID("$FreeBSD$");
 
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
+	#include <unistd.h>
 #endif
 #if HAVE_ZSTD_H
-#include <zstd.h>
+	#include <zstd.h>
 #endif
-#include "archive.h"
 #include "archive_endian.h"
-#include "archive_private.h"
 #include "archive_read_private.h"
 
 #if HAVE_ZSTD_H && HAVE_LIBZSTD

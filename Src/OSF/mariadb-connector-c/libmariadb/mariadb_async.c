@@ -6,11 +6,6 @@
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
 
-   This library is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
-
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -21,28 +16,18 @@
  */
 #include <ma_global.h>
 #pragma hdrstop
-//#include "ma_sys.h"
-//#include "mysql.h"
-//#include "errmsg.h"
 #ifndef LIBMARIADB
 	#include "sql_common.h"
 #else
 	//#include "ma_common.h"
 #endif
-//#include "ma_context.h"
-//#include "ma_pvio.h"
-//#include "mariadb_async.h"
-//#include <string.h>
 
 #ifdef _WIN32
 /*
    Windows does not support MSG_DONTWAIT for send()/recv(). So we need to ensure
    that the socket is non-blocking at the start of every operation.
  */
-#define WIN_SET_NONBLOCKING(mysql) do { \
-		bool old_mode; \
-		if((mysql)->net.pvio) ma_pvio_blocking((mysql)->net.pvio, FALSE, &old_mode); \
-} while(0);
+#define WIN_SET_NONBLOCKING(mysql) do { bool old_mode; if((mysql)->net.pvio) ma_pvio_blocking((mysql)->net.pvio, FALSE, &old_mode); } while(0);
 #else
 #define WIN_SET_NONBLOCKING(mysql)
 #endif

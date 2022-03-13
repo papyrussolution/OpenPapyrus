@@ -15,12 +15,8 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
 
-#include "archive.h"
-#include "archive_private.h"
-
 /* A table that maps filter codes to functions. */
-static const
-struct { int code; int (* setter)(struct archive *); } codes[] =
+static const struct { int code; int (* setter)(struct archive *); } codes[] =
 {
 	{ ARCHIVE_FILTER_NONE,          archive_write_add_filter_none },
 	{ ARCHIVE_FILTER_GZIP,          archive_write_add_filter_gzip },
@@ -40,8 +36,7 @@ struct { int code; int (* setter)(struct archive *); } codes[] =
 
 int archive_write_add_filter(struct archive * a, int code)
 {
-	int i;
-	for(i = 0; codes[i].code != -1; i++) {
+	for(int i = 0; codes[i].code != -1; i++) {
 		if(code == codes[i].code)
 			return ((codes[i].setter)(a));
 	}

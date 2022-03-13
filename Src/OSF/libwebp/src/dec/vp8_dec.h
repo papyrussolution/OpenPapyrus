@@ -110,11 +110,7 @@ int VP8InitIoInternal(VP8Io* const, int);
 // Set the custom IO function pointers and user-data. The setter for IO hooks
 // should be called before initiating incremental decoding. Returns true if
 // WebPIDecoder object is successfully modified, false otherwise.
-int WebPISetIOHooks(WebPIDecoder* const idec,
-    VP8IoPutHook put,
-    VP8IoSetupHook setup,
-    VP8IoTeardownHook teardown,
-    void* user_data);
+int WebPISetIOHooks(WebPIDecoder* const idec, VP8IoPutHook put, VP8IoSetupHook setup, VP8IoTeardownHook teardown, void* user_data);
 
 // Main decoding object. This is an opaque structure.
 typedef struct VP8Decoder VP8Decoder;
@@ -125,9 +121,7 @@ VP8Decoder* VP8New(void);
 // Must be called to make sure 'io' is initialized properly.
 // Returns false in case of version mismatch. Upon such failure, no other
 // decoding function should be called (VP8Decode, VP8GetHeaders, ...)
-static FORCEINLINE int VP8InitIo(VP8Io* const io) {
-	return VP8InitIoInternal(io, WEBP_DECODER_ABI_VERSION);
-}
+static FORCEINLINE int VP8InitIo(VP8Io* const io) { return VP8InitIoInternal(io, WEBP_DECODER_ABI_VERSION); }
 
 // Decode the VP8 frame header. Returns true if ok.
 // Note: 'io->data' must be pointing to the start of the VP8 frame header.
@@ -145,16 +139,16 @@ const char* VP8StatusMessage(VP8Decoder* const dec);
 
 // Resets the decoder in its initial state, reclaiming memory.
 // Not a mandatory call between calls to VP8Decode().
-void VP8Clear(VP8Decoder* const dec);
+void FASTCALL VP8Clear(VP8Decoder* const dec);
 
 // Destroy the decoder object.
-void VP8Delete(VP8Decoder* const dec);
+void FASTCALL VP8Delete(VP8Decoder* const dec);
 
 //------------------------------------------------------------------------------
 // Miscellaneous VP8/VP8L bitstream probing functions.
 
 // Returns true if the next 3 bytes in data contain the VP8 signature.
-WEBP_EXTERN int VP8CheckSignature(const uint8* const data, size_t data_size);
+WEBP_EXTERN int FASTCALL VP8CheckSignature(const uint8* const data, size_t data_size);
 
 // Validates the VP8 data-header and retrieves basic header information viz
 // width and height. Returns 0 in case of formatting error. *width/*height
@@ -165,7 +159,7 @@ WEBP_EXTERN int VP8GetInfo(const uint8* data,
     int* const width, int* const height);
 
 // Returns true if the next byte(s) in data is a VP8L signature.
-WEBP_EXTERN int VP8LCheckSignature(const uint8* const data, size_t size);
+WEBP_EXTERN int FASTCALL VP8LCheckSignature(const uint8* const data, size_t size);
 
 // Validates the VP8L data-header and retrieves basic header information viz
 // width, height and alpha. Returns 0 in case of formatting error.

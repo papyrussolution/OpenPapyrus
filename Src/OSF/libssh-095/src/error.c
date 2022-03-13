@@ -7,13 +7,7 @@
  *
  * The SSH Library is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2.1 of the License, or (at your
- * option) any later version.
- *
- * The SSH Library is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
- * License for more details.
+ * the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version.
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the SSH Library; see the file COPYING.  If not, write to
@@ -30,18 +24,14 @@
  *
  * @{
  */
-
 /**
  * @internal
  *
  * @brief Registers an error with a description.
  *
  * @param  error       The place to store the error.
- *
  * @param  code        The class of error.
- *
  * @param  descr       The description, which can be a format string.
- *
  * @param  ...         The arguments for the format string.
  */
 void _ssh_set_error(void * error, int code, const char * function, const char * descr, ...)

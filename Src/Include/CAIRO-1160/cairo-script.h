@@ -21,22 +21,13 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is Chris Wilson
  *
- * Contributor(s):
- *	Chris Wilson <chris@chris-wilson.co.uk>
+ * Contributor(s): Chris Wilson <chris@chris-wilson.co.uk>
  */
-
 #ifndef CAIRO_SCRIPT_H
 #define CAIRO_SCRIPT_H
-
-//#include "cairo.h"
 
 #if CAIRO_HAS_SCRIPT_SURFACE
 	CAIRO_BEGIN_DECLS

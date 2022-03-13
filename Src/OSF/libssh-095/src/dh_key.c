@@ -10,13 +10,7 @@
  *
  * The SSH Library is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2.1 of the License, or (at your
- * option) any later version.
- *
- * The SSH Library is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
- * License for more details.
+ * the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version.
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the SSH Library; see the file COPYING.  If not, write to
@@ -74,23 +68,20 @@ void ssh_dh_debug_crypto(struct ssh_crypto_struct * c)
 
 static void ssh_dh_free_modulus(struct dh_ctx * ctx)
 {
-	if((ctx->modulus != ssh_dh_group1) &&
-	    (ctx->modulus != ssh_dh_group14) &&
-	    (ctx->modulus != ssh_dh_group16) &&
-	    (ctx->modulus != ssh_dh_group18)) {
+	if((ctx->modulus != ssh_dh_group1) && (ctx->modulus != ssh_dh_group14) && (ctx->modulus != ssh_dh_group16) && (ctx->modulus != ssh_dh_group18)) {
 		bignum_safe_free(ctx->modulus);
 	}
 	ctx->modulus = NULL;
 }
 
-static void ssh_dh_free_generator(struct dh_ctx * ctx)
+static void FASTCALL ssh_dh_free_generator(struct dh_ctx * ctx)
 {
 	if(ctx->generator != ssh_dh_generator) {
 		bignum_safe_free(ctx->generator);
 	}
 }
 
-static void ssh_dh_free_dh_keypair(struct dh_keypair * keypair)
+static void FASTCALL ssh_dh_free_dh_keypair(struct dh_keypair * keypair)
 {
 	bignum_safe_free(keypair->priv_key);
 	bignum_safe_free(keypair->pub_key);
@@ -99,7 +90,6 @@ static void ssh_dh_free_dh_keypair(struct dh_keypair * keypair)
 static int ssh_dh_init_dh_keypair(struct dh_keypair * keypair)
 {
 	int rc;
-
 	keypair->priv_key = bignum_new();
 	if(keypair->priv_key == NULL) {
 		rc = SSH_ERROR;
@@ -110,7 +100,6 @@ static int ssh_dh_init_dh_keypair(struct dh_keypair * keypair)
 		rc = SSH_ERROR;
 		goto done;
 	}
-
 	rc = SSH_OK;
 done:
 	if(rc != SSH_OK) {
@@ -119,14 +108,11 @@ done:
 	return rc;
 }
 
-int ssh_dh_keypair_get_keys(struct dh_ctx * ctx, int peer,
-    const_bignum * priv, const_bignum * pub)
+int ssh_dh_keypair_get_keys(struct dh_ctx * ctx, int peer, const_bignum * priv, const_bignum * pub)
 {
-	if(((peer != DH_CLIENT_KEYPAIR) && (peer != DH_SERVER_KEYPAIR)) ||
-	    ((priv == NULL) && (pub == NULL)) || (ctx == NULL)) {
+	if(((peer != DH_CLIENT_KEYPAIR) && (peer != DH_SERVER_KEYPAIR)) || ((priv == NULL) && (pub == NULL)) || (ctx == NULL)) {
 		return SSH_ERROR;
 	}
-
 	if(priv) {
 		/* check that we have something in it */
 		if(bignum_num_bits(ctx->keypair[peer].priv_key)) {
@@ -136,7 +122,6 @@ int ssh_dh_keypair_get_keys(struct dh_ctx * ctx, int peer,
 			return SSH_ERROR;
 		}
 	}
-
 	if(pub) {
 		/* check that we have something in it */
 		if(bignum_num_bits(ctx->keypair[peer].pub_key)) {
@@ -146,18 +131,14 @@ int ssh_dh_keypair_get_keys(struct dh_ctx * ctx, int peer,
 			return SSH_ERROR;
 		}
 	}
-
 	return SSH_OK;
 }
 
-int ssh_dh_keypair_set_keys(struct dh_ctx * ctx, int peer,
-    bignum priv, bignum pub)
+int ssh_dh_keypair_set_keys(struct dh_ctx * ctx, int peer, bignum priv, bignum pub)
 {
-	if(((peer != DH_CLIENT_KEYPAIR) && (peer != DH_SERVER_KEYPAIR)) ||
-	    ((priv == NULL) && (pub == NULL)) || (ctx == NULL)) {
+	if(((peer != DH_CLIENT_KEYPAIR) && (peer != DH_SERVER_KEYPAIR)) || ((priv == NULL) && (pub == NULL)) || (ctx == NULL)) {
 		return SSH_ERROR;
 	}
-
 	if(priv) {
 		bignum_safe_free(ctx->keypair[peer].priv_key);
 		ctx->keypair[peer].priv_key = priv;
@@ -185,11 +166,9 @@ int ssh_dh_get_parameters(struct dh_ctx * ctx,
 	return SSH_OK;
 }
 
-int ssh_dh_set_parameters(struct dh_ctx * ctx,
-    bignum modulus, bignum generator)
+int ssh_dh_set_parameters(struct dh_ctx * ctx, bignum modulus, bignum generator)
 {
 	int rc;
-
 	if((ctx == NULL) || ((modulus == NULL) && (generator == NULL))) {
 		return SSH_ERROR;
 	}
@@ -197,7 +176,6 @@ int ssh_dh_set_parameters(struct dh_ctx * ctx,
 	 * make sure to invalidate existing keys */
 	ssh_dh_free_dh_keypair(&ctx->keypair[DH_CLIENT_KEYPAIR]);
 	ssh_dh_free_dh_keypair(&ctx->keypair[DH_SERVER_KEYPAIR]);
-
 	rc = ssh_dh_init_dh_keypair(&ctx->keypair[DH_CLIENT_KEYPAIR]);
 	if(rc != SSH_OK) {
 		goto done;
@@ -249,9 +227,7 @@ int ssh_dh_init_common(struct ssh_crypto_struct * crypto)
 		    rc = SSH_OK;
 		    break;
 	}
-
 	crypto->dh_ctx = ctx;
-
 	if(rc != SSH_OK) {
 		ssh_dh_cleanup(crypto);
 	}
@@ -261,18 +237,14 @@ int ssh_dh_init_common(struct ssh_crypto_struct * crypto)
 void ssh_dh_cleanup(struct ssh_crypto_struct * crypto)
 {
 	struct dh_ctx * ctx = crypto->dh_ctx;
-
-	if(ctx == NULL) {
-		return;
+	if(ctx) {
+		ssh_dh_free_dh_keypair(&ctx->keypair[DH_CLIENT_KEYPAIR]);
+		ssh_dh_free_dh_keypair(&ctx->keypair[DH_SERVER_KEYPAIR]);
+		ssh_dh_free_modulus(ctx);
+		ssh_dh_free_generator(ctx);
+		SAlloc::F(ctx);
+		crypto->dh_ctx = NULL;
 	}
-
-	ssh_dh_free_dh_keypair(&ctx->keypair[DH_CLIENT_KEYPAIR]);
-	ssh_dh_free_dh_keypair(&ctx->keypair[DH_SERVER_KEYPAIR]);
-
-	ssh_dh_free_modulus(ctx);
-	ssh_dh_free_generator(ctx);
-	SAlloc::F(ctx);
-	crypto->dh_ctx = NULL;
 }
 
 /** @internal
@@ -335,15 +307,13 @@ error:
  * @param[out] dest a preallocated bignum where to store parameter
  * @return SSH_OK on success, SSH_ERROR on error
  */
-int ssh_dh_compute_shared_secret(struct dh_ctx * dh_ctx, int local, int remote,
-    bignum * dest)
+int ssh_dh_compute_shared_secret(struct dh_ctx * dh_ctx, int local, int remote, bignum * dest)
 {
 	int rc;
 	bignum_CTX ctx = bignum_ctx_new();
 	if(bignum_ctx_invalid(ctx)) {
 		return -1;
 	}
-
 	if(*dest == NULL) {
 		*dest = bignum_new();
 		if(*dest == NULL) {
@@ -351,11 +321,7 @@ int ssh_dh_compute_shared_secret(struct dh_ctx * dh_ctx, int local, int remote,
 			goto done;
 		}
 	}
-
-	rc = bignum_mod_exp(*dest, dh_ctx->keypair[remote].pub_key,
-		dh_ctx->keypair[local].priv_key,
-		dh_ctx->modulus, ctx);
-
+	rc = bignum_mod_exp(*dest, dh_ctx->keypair[remote].pub_key, dh_ctx->keypair[local].priv_key, dh_ctx->modulus, ctx);
 done:
 	bignum_ctx_free(ctx);
 	if(rc != 1) {

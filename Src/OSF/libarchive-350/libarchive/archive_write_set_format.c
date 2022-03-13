@@ -14,14 +14,10 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format.c 201168 2009-12-29 06:15:32Z kientzle $");
-
-#include "archive.h"
-#include "archive_private.h"
 #include "archive_write_set_format_private.h"
 
 /* A table that maps format codes to functions. */
-static const
-struct { int code; int (* setter)(struct archive *); } codes[] =
+static const struct { int code; int (* setter)(struct archive *); } codes[] =
 {
 	{ ARCHIVE_FORMAT_7ZIP,          archive_write_set_format_7zip },
 	{ ARCHIVE_FORMAT_CPIO,          archive_write_set_format_cpio },
@@ -47,22 +43,17 @@ struct { int code; int (* setter)(struct archive *); } codes[] =
 
 int archive_write_set_format(struct archive * a, int code)
 {
-	int i;
-
-	for(i = 0; codes[i].code != 0; i++) {
+	for(int i = 0; codes[i].code != 0; i++) {
 		if(code == codes[i].code)
 			return ((codes[i].setter)(a));
 	}
-
 	archive_set_error(a, EINVAL, "No such format");
 	return ARCHIVE_FATAL;
 }
 
-void __archive_write_entry_filetype_unsupported(struct archive * a,
-    struct archive_entry * entry, const char * format)
+void __archive_write_entry_filetype_unsupported(struct archive * a, struct archive_entry * entry, const char * format)
 {
 	const char * name = NULL;
-
 	switch(archive_entry_filetype(entry)) {
 		/*
 		 * All formats should be able to archive regular files (AE_IFREG)
@@ -88,16 +79,10 @@ void __archive_write_entry_filetype_unsupported(struct archive * a,
 		default:
 		    break;
 	}
-
 	if(name != NULL) {
-		archive_set_error(a, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "%s: %s format cannot archive %s",
-		    archive_entry_pathname(entry), format, name);
+		archive_set_error(a, ARCHIVE_ERRNO_FILE_FORMAT, "%s: %s format cannot archive %s", archive_entry_pathname(entry), format, name);
 	}
 	else {
-		archive_set_error(a, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "%s: %s format cannot archive files with mode 0%lo",
-		    archive_entry_pathname(entry), format,
-		    (ulong)archive_entry_mode(entry));
+		archive_set_error(a, ARCHIVE_ERRNO_FILE_FORMAT, "%s: %s format cannot archive files with mode 0%lo", archive_entry_pathname(entry), format, (ulong)archive_entry_mode(entry));
 	}
 }

@@ -155,11 +155,7 @@ void Enquire::set_time_limit(double time_limit)
 	internal->time_limit = time_limit;
 }
 
-MSet Enquire::get_mset(doccount first,
-    doccount maxitems,
-    doccount checkatleast,
-    const RSet* rset,
-    const MatchDecider* mdecider) const
+MSet Enquire::get_mset(doccount first, doccount maxitems, doccount checkatleast, const RSet* rset, const MatchDecider* mdecider) const
 {
 	return internal->get_mset(first, maxitems, checkatleast, rset, mdecider);
 }

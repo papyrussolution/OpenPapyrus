@@ -1,5 +1,5 @@
 // QUOT.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1192,17 +1192,16 @@ int UpdateQuots(const QuotUpdFilt * pFilt)
 }
 
 int EditQuotUpdDialog(QuotUpdFilt * pFilt) { DIALOG_PROC_BODY(QuotUpdDialog, pFilt); }
-
-
-//v10.5.8 @erik{
 //
-//
+// v10.5.8 @erik{
 //
 class QuotRollbackDialog : public TDialog {
 	DECL_DIALOG_DATA(LDATETIME);
 public:
 	QuotRollbackDialog() : TDialog(DLG_QUOT_RB)/*, P_Data(pViewDef)*/, Data(ZERODATETIME)
 	{
+		SetupCalDate(CTLCAL_QUOTROLLBACK_DATE, CTL_QUOTROLLBACK_DATE); // @v11.3.4
+		SetupTimePicker(this, CTL_QUOTROLLBACK_TIME, CTLTM_QUOTROLLBACK_TIME); // @v11.3.4
 	}
 	DECL_DIALOG_SETDTS()
 	{
@@ -1243,7 +1242,6 @@ public:
 };
 
 int EditQuotRollbackDialog(LDATETIME *pDateTime) { DIALOG_PROC_BODY(QuotRollbackDialog, pDateTime); }
-
 //
 int RollbackQuots(const LDATETIME * pDateTime)
 {	

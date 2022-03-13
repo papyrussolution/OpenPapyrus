@@ -195,7 +195,7 @@ static int CheckSizeArgumentsOverflow(uint64_t nmemb, size_t size) {
 	return 1;
 }
 
-void* WebPSafeMalloc(uint64_t nmemb, size_t size) 
+void * FASTCALL WebPSafeMalloc(uint64_t nmemb, size_t size) 
 {
 	void* ptr;
 	Increment(&num_malloc_calls);
@@ -207,9 +207,9 @@ void* WebPSafeMalloc(uint64_t nmemb, size_t size)
 	return ptr;
 }
 
-void* WebPSafeCalloc(uint64_t nmemb, size_t size) 
+void * FASTCALL WebPSafeCalloc(uint64_t nmemb, size_t size) 
 {
-	void* ptr;
+	void * ptr;
 	Increment(&num_calloc_calls);
 	if(!CheckSizeArgumentsOverflow(nmemb, size)) 
 		return NULL;
@@ -219,7 +219,7 @@ void* WebPSafeCalloc(uint64_t nmemb, size_t size)
 	return ptr;
 }
 
-void WebPSafeFree(void* const ptr) 
+void FASTCALL WebPSafeFree(void* const ptr) 
 {
 	if(ptr != NULL) {
 		Increment(&num_free_calls);

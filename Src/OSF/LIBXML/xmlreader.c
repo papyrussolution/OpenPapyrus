@@ -1,14 +1,9 @@
-/*
- * xmlreader.c: implements the xmlTextReader streaming node API
- *
- * NOTE:
- * XmlTextReader.Normalization Property won't be supported, since
- *   it makes the parser non compliant to the XML recommendation
- *
- * See Copyright for the status of this software.
- *
- * daniel@veillard.com
- */
+// xmlreader.c
+// implements the xmlTextReader streaming node API
+// NOTE: XmlTextReader.Normalization Property won't be supported, since it makes the parser non compliant to the XML recommendation
+// See Copyright for the status of this software.
+// daniel@veillard.com
+// 
 /*
  * TODOs:
  * - XML Schemas validation
@@ -49,10 +44,8 @@
     #endif
   #endif
 #endif
-
 /* #define DEBUG_CALLBACKS */
 /* #define DEBUG_READER */
-
 /**
  * @todo 
  *
@@ -1050,17 +1043,13 @@ static xmlChar * xmlTextReaderCollectSiblings(xmlNode * P_Node)
 	xmlBufferFree(buffer);
 	return ret;
 }
-
-/**
- * xmlTextReaderRead:
- * @reader:  the (xmlTextReader *) used
- *
- *  Moves the position of the current instance to the next node in
- *  the stream, exposing its properties.
- *
- *  Returns 1 if the node was read successfully, 0 if there is no more
- *     nodes to read, or -1 in case of error
- */
+// 
+// xmlTextReaderRead:
+// @reader:  the (xmlTextReader *) used
+// Moves the position of the current instance to the next node in
+// the stream, exposing its properties.
+// Returns 1 if the node was read successfully, 0 if there is no more nodes to read, or -1 in case of error
+// 
 int FASTCALL xmlTextReaderRead(xmlTextReader * reader)
 {
 	int val, olddepth = 0;
@@ -1170,15 +1159,14 @@ get_next_node:
 #endif
 		    (reader->entNr == 0) && reader->P_Node->prev && (reader->P_Node->prev->type != XML_DTD_NODE)) {
 			xmlNode * tmp = reader->P_Node->prev;
-			if((tmp->extra & NODE_IS_PRESERVED) == 0) {
+			if(!(tmp->extra & NODE_IS_PRESERVED)) {
 				xmlUnlinkNode(tmp);
 				xmlTextReaderFreeNode(reader, tmp);
 			}
 		}
 		goto node_found;
 	}
-	if((oldstate == XML_TEXTREADER_ELEMENT) && (reader->P_Node->type == XML_ELEMENT_NODE) &&
-	    !reader->P_Node->children && ((reader->P_Node->extra & NODE_IS_EMPTY) == 0)) {
+	if((oldstate == XML_TEXTREADER_ELEMENT) && (reader->P_Node->type == XML_ELEMENT_NODE) && !reader->P_Node->children && ((reader->P_Node->extra & NODE_IS_EMPTY) == 0)) {
 		;
 		reader->state = XML_TEXTREADER_END;
 		goto node_found;
@@ -1203,9 +1191,9 @@ get_next_node:
 		}
 		reader->P_Node = NULL;
 		reader->depth = -1;
-		/*
-		 * Cleanup of the old node
-		 */
+		// 
+		// Cleanup of the old node
+		// 
 		if(oldnode && (reader->preserves == 0) &&
 #ifdef LIBXML_XINCLUDE_ENABLED
 		    (reader->in_xinclude == 0) &&
@@ -1214,7 +1202,6 @@ get_next_node:
 			xmlUnlinkNode(oldnode);
 			xmlTextReaderFreeNode(reader, oldnode);
 		}
-
 		goto node_end;
 	}
 	if((reader->preserves == 0) &&
@@ -1230,26 +1217,26 @@ get_next_node:
 	reader->state = XML_TEXTREADER_BACKTRACK;
 node_found:
 	DUMP_READER
-	/*
-	 * If we are in the middle of a piece of CDATA make sure it's finished
-	 */
+	// 
+	// If we are in the middle of a piece of CDATA make sure it's finished
+	// 
 	if(reader->P_Node && !reader->P_Node->next && ((reader->P_Node->type == XML_TEXT_NODE) || (reader->P_Node->type == XML_CDATA_SECTION_NODE))) {
 		if(!xmlTextReaderExpand(reader))
 			return -1;
 	}
 #ifdef LIBXML_XINCLUDE_ENABLED
-	/*
-	 * Handle XInclude if asked for
-	 */
+	// 
+	// Handle XInclude if asked for
+	// 
 	if(reader->xinclude && reader->P_Node && (reader->P_Node->type == XML_ELEMENT_NODE) && reader->P_Node->ns &&
 	    (sstreq(reader->P_Node->ns->href, XINCLUDE_NS) || sstreq(reader->P_Node->ns->href, XINCLUDE_OLD_NS))) {
 		if(!reader->xincctxt) {
 			reader->xincctxt = xmlXIncludeNewContext(reader->ctxt->myDoc);
 			xmlXIncludeSetFlags(reader->xincctxt, reader->parserFlags & (~XML_PARSE_NOXINCNODE));
 		}
-		/*
-		 * expand that node and process it
-		 */
+		// 
+		// expand that node and process it
+		// 
 		if(!xmlTextReaderExpand(reader))
 			return -1;
 		xmlXIncludeProcessNode(reader->xincctxt, reader->P_Node);
@@ -1263,9 +1250,9 @@ node_found:
 		goto get_next_node;
 	}
 #endif
-	/*
-	 * Handle entities enter and exit when in entity replacement mode
-	 */
+	// 
+	// Handle entities enter and exit when in entity replacement mode
+	// 
 	if(reader->P_Node && (reader->P_Node->type == XML_ENTITY_REF_NODE) && reader->ctxt && (reader->ctxt->replaceEntities == 1)) {
 		// 
 		// Case where the underlying tree is not availble, lookup the entity and walk it.
@@ -1353,7 +1340,6 @@ xmlNode * xmlTextReaderExpand(xmlTextReader * reader)
 		return 0;
 	return (reader->P_Node);
 }
-
 /**
  * xmlTextReaderNext:
  * @reader:  the (xmlTextReader *) used
@@ -1668,7 +1654,6 @@ found_node:
 		goto next_node;
 	return 1;
 }
-
 /**
  * xmlTextReaderNextSibling:
  * @reader:  the (xmlTextReader *) used
@@ -1902,12 +1887,9 @@ void xmlFreeTextReader(xmlTextReader * reader)
 		SAlloc::F(reader);
 	}
 }
-
-/************************************************************************
-*									*
-*			Methods for XmlTextReader			*
-*									*
-************************************************************************/
+// 
+// Methods for XmlTextReader
+// 
 /**
  * xmlTextReaderClose:
  * @reader:  the (xmlTextReader *) used
@@ -1940,7 +1922,6 @@ int xmlTextReaderClose(xmlTextReader * reader)
 		return 0;
 	}
 }
-
 /**
  * xmlTextReaderGetAttributeNo:
  * @reader:  the (xmlTextReader *) used
@@ -1983,7 +1964,6 @@ xmlChar * xmlTextReaderGetAttributeNo(xmlTextReader * reader, int no)
 	ret = xmlNodeListGetString(reader->P_Node->doc, cur->children, 1);
 	return NZOR(ret, sstrdup((xmlChar *)""));
 }
-
 /**
  * xmlTextReaderGetAttribute:
  * @reader:  the (xmlTextReader *) used
@@ -2126,7 +2106,6 @@ xmlParserInputBuffer * xmlTextReaderGetRemainder(xmlTextReader * reader)
 	}
 	return ret;
 }
-
 /**
  * xmlTextReaderLookupNamespace:
  * @reader:  the (xmlTextReader *) used
@@ -2289,21 +2268,21 @@ found:
 int xmlTextReaderMoveToAttributeNs(xmlTextReader * reader, const xmlChar * localName, const xmlChar * namespaceURI) 
 {
 	xmlAttr * prop;
-	xmlNode * P_Node;
+	xmlNode * p_node;
 	xmlNs * ns;
 	xmlChar * prefix = NULL;
 	if(!reader || !localName || !namespaceURI || !reader->P_Node)
 		return -1;
 	if(reader->P_Node->type != XML_ELEMENT_NODE)
 		return 0;
-	P_Node = reader->P_Node;
+	p_node = reader->P_Node;
 	if(sstreq(namespaceURI, "http://www.w3.org/2000/xmlns/")) {
 		if(!sstreq(localName, "xmlns")) {
 			prefix = BAD_CAST localName;
 		}
 		ns = reader->P_Node->nsDef;
 		while(ns) {
-			if((prefix == NULL && ns->prefix == NULL) || (ns->prefix && sstreq(ns->prefix, localName))) {
+			if((!prefix && !ns->prefix) || (ns->prefix && sstreq(ns->prefix, localName))) {
 				reader->curnode = (xmlNode *)ns;
 				return 1;
 			}
@@ -2311,7 +2290,7 @@ int xmlTextReaderMoveToAttributeNs(xmlTextReader * reader, const xmlChar * local
 		}
 		return 0;
 	}
-	prop = P_Node->properties;
+	prop = p_node->properties;
 	while(prop) {
 		/*
 		 * One need to have
@@ -2326,7 +2305,6 @@ int xmlTextReaderMoveToAttributeNs(xmlTextReader * reader, const xmlChar * local
 	}
 	return 0;
 }
-
 /**
  * xmlTextReaderMoveToFirstAttribute:
  * @reader:  the (xmlTextReader *) used
@@ -2352,7 +2330,6 @@ int xmlTextReaderMoveToFirstAttribute(xmlTextReader * reader)
 	}
 	return 0;
 }
-
 /**
  * xmlTextReaderMoveToNextAttribute:
  * @reader:  the (xmlTextReader *) used
@@ -2411,7 +2388,6 @@ int xmlTextReaderMoveToElement(xmlTextReader * reader)
 	}
 	return 0;
 }
-
 /**
  * xmlTextReaderReadAttributeValue:
  * @reader:  the (xmlTextReader *) used
@@ -2452,7 +2428,6 @@ int xmlTextReaderReadAttributeValue(xmlTextReader * reader)
 	}
 	return 1;
 }
-
 /**
  * xmlTextReaderConstEncoding:
  * @reader:  the (xmlTextReader *) used
@@ -2473,12 +2448,9 @@ const xmlChar * xmlTextReaderConstEncoding(xmlTextReader * reader)
 		doc = reader->ctxt->myDoc;
 	return (doc && doc->encoding) ? CONSTSTR(doc->encoding) : 0;
 }
-
-/************************************************************************
-*									*
-*			Acces API to the current node			*
-*									*
-************************************************************************/
+// 
+// Acces API to the current node
+// 
 /**
  * xmlTextReaderAttributeCount:
  * @reader:  the (xmlTextReader *) used
@@ -2561,7 +2533,6 @@ int xmlTextReaderNodeType(xmlTextReader * reader)
 	}
 	return -1;
 }
-
 /**
  * xmlTextReaderIsEmptyElement:
  * @reader:  the (xmlTextReader *) used
@@ -2590,7 +2561,6 @@ int xmlTextReaderIsEmptyElement(xmlTextReader * reader)
 #endif
 	return ((reader->P_Node->extra & NODE_IS_EMPTY) != 0);
 }
-
 /**
  * xmlTextReaderLocalName:
  * @reader:  the (xmlTextReader *) used
@@ -2708,7 +2678,6 @@ xmlChar * xmlTextReaderName(xmlTextReader * reader)
 	}
 	return 0;
 }
-
 /**
  * xmlTextReaderConstName:
  * @reader:  the (xmlTextReader *) used
@@ -3220,7 +3189,6 @@ int xmlTextReaderGetParserColumnNumber(xmlTextReader * reader)
 {
 	return (reader && reader->ctxt && reader->ctxt->input) ? (reader->ctxt->input->col) : 0;
 }
-
 /**
  * xmlTextReaderCurrentNode:
  * @reader:  the (xmlTextReader *) used
@@ -3235,7 +3203,6 @@ xmlNode * xmlTextReaderCurrentNode(xmlTextReader * reader)
 {
 	return reader ? (reader->curnode ? reader->curnode : reader->P_Node) : 0;
 }
-
 /**
  * xmlTextReaderPreserve:
  * @reader:  the (xmlTextReader *) used
@@ -3819,7 +3786,6 @@ int xmlTextReaderIsNamespaceDecl(xmlTextReader * reader)
 		return (XML_NAMESPACE_DECL == P_Node->type) ? 1 : 0;
 	}
 }
-
 /**
  * xmlTextReaderConstXmlVersion:
  * @reader:  the (xmlTextReader *) used
@@ -3840,7 +3806,6 @@ const xmlChar * xmlTextReaderConstXmlVersion(xmlTextReader * reader)
 		doc = reader->ctxt->myDoc;
 	return (doc && doc->version) ? CONSTSTR(doc->version) : 0;
 }
-
 /**
  * xmlTextReaderStandalone:
  * @reader:  the (xmlTextReader *) used
@@ -4065,7 +4030,6 @@ void xmlTextReaderSetErrorHandler(xmlTextReader * reader, xmlTextReaderErrorFunc
 #endif
 	}
 }
-
 /**
  * xmlTextReaderSetStructuredErrorHandler:
  * @reader:  the (xmlTextReader *) used
@@ -4120,7 +4084,6 @@ void xmlTextReaderSetStructuredErrorHandler(xmlTextReader * reader, xmlStructure
 #endif
 	}
 }
-
 /**
  * xmlTextReaderIsValid:
  * @reader:  the (xmlTextReader *) used
@@ -4141,7 +4104,6 @@ int xmlTextReaderIsValid(xmlTextReader * reader)
 #endif
 	return (reader->ctxt && (reader->ctxt->validate == 1)) ? (reader->ctxt->valid) : 0;
 }
-
 /**
  * xmlTextReaderGetErrorHandler:
  * @reader:  the (xmlTextReader *) used
@@ -4155,13 +4117,9 @@ void xmlTextReaderGetErrorHandler(xmlTextReader * reader, xmlTextReaderErrorFunc
 	ASSIGN_PTR(f, reader->errorFunc);
 	ASSIGN_PTR(arg, reader->errorFuncArg);
 }
-
-/************************************************************************
-*									*
-*	New set (2.6.0) of simpler and more flexible APIs		*
-*									*
-************************************************************************/
-
+// 
+// New set (2.6.0) of simpler and more flexible APIs
+// 
 /**
  * xmlTextReaderSetup:
  * @reader:  an XML reader
@@ -4338,7 +4296,6 @@ else {
 	reader->doc = NULL;
 	return 0;
 }
-
 /**
  * xmlTextReaderByteConsumed:
  * @reader: an XML reader

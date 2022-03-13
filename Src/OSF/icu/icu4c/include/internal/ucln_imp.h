@@ -128,7 +128,7 @@ U_CAPI void U_EXPORT2 UCLN_FINI()
 #define NOSERVICE
 #define NOIME
 #define NOMCX
-#   include <windows.h>
+#include <windows.h>
 /*
  * This is a stub DllMain function with icu specific process handling code.
  */

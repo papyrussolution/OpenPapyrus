@@ -15,8 +15,6 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: src/lib/libarchive/archive_write_open_memory.c,v 1.3 2007/01/09 08:05:56 kientzle Exp $");
 
-#include "archive.h"
-
 struct write_memory_data {
 	size_t used;
 	size_t size;

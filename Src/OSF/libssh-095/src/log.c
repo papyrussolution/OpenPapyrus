@@ -7,13 +7,7 @@
  *
  * The SSH Library is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2.1 of the License, or (at your
- * option) any later version.
- *
- * The SSH Library is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
- * License for more details.
+ * the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version.
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the SSH Library; see the file COPYING.  If not, write to
@@ -62,31 +56,23 @@ static int current_timestring(int hires, char * buf, size_t len)
 		strftime(tbuf, sizeof(tbuf) - 1, "%Y/%m/%d %H:%M:%S", tm);
 		snprintf(buf, len, "%s", tbuf);
 	}
-
 	return 0;
 }
 
-static void ssh_log_stderr(int verbosity,
-    const char * function,
-    const char * buffer)
+static void ssh_log_stderr(int verbosity, const char * function, const char * buffer)
 {
 	char date[128] = {0};
-	int rc;
-
-	rc = current_timestring(1, date, sizeof(date));
+	int rc = current_timestring(1, date, sizeof(date));
 	if(rc == 0) {
 		slfprintf_stderr("[%s, %d] %s:", date, verbosity, function);
 	}
 	else {
 		slfprintf_stderr("[%d] %s", verbosity, function);
 	}
-
 	slfprintf_stderr("  %s\n", buffer);
 }
 
-void ssh_log_function(int verbosity,
-    const char * function,
-    const char * buffer)
+void ssh_log_function(int verbosity, const char * function, const char * buffer)
 {
 	ssh_logging_callback log_fn = ssh_get_log_callback();
 	if(log_fn) {

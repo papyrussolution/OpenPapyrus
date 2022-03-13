@@ -21,26 +21,15 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is Red Hat, Inc.
  *
- * Contributor(s):
- *	Owen Taylor <otaylor@redhat.com>
+ * Contributor(s): Owen Taylor <otaylor@redhat.com>
  */
-
 #ifndef CAIRO_WIN32_PRIVATE_H
 #define CAIRO_WIN32_PRIVATE_H
 
 #include "cairo-win32.h"
-//#include "cairoint.h"
-//#include "cairo-device-private.h"
-//#include "cairo-surface-clipper-private.h"
-//#include "cairo-surface-private.h"
 
 #ifndef SHADEBLENDCAPS
 	#define SHADEBLENDCAPS 120

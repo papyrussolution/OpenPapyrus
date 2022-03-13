@@ -6,7 +6,6 @@
 #include <slib-internal.h>
 #pragma hdrstop
 #include <snet.h>
-#include <db.h>
 #include <..\OSF\SQLite\sqlite3.h>
 
 #ifndef NDEBUG

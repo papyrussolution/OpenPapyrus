@@ -7,13 +7,7 @@
  *
  * The SSH Library is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2.1 of the License, or (at your
- * option) any later version.
- *
- * The SSH Library is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
- * License for more details.
+ * the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version.
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the SSH Library; see the file COPYING.  If not, write to
@@ -27,14 +21,12 @@ char * ssh_config_get_cmd(char ** str)
 {
 	char * c;
 	char * r;
-
 	/* Ignore leading spaces */
 	for(c = *str; *c; c++) {
 		if(!isblank(*c)) {
 			break;
 		}
 	}
-
 	if(*c == '\"') {
 		for(r = ++c; *c; c++) {
 			if(*c == '\"') {
@@ -43,7 +35,6 @@ char * ssh_config_get_cmd(char ** str)
 			}
 		}
 	}
-
 	for(r = c; *c; c++) {
 		if(*c == '\n') {
 			*c = '\0';
@@ -59,30 +50,24 @@ out:
 
 char * ssh_config_get_token(char ** str)
 {
-	register char * c;
 	char * r;
-
-	c = ssh_config_get_cmd(str);
-
+	char * c = ssh_config_get_cmd(str);
 	for(r = c; *c; c++) {
 		if(isblank(*c) || *c == '=') {
 			*c = '\0';
 			goto out;
 		}
 	}
-
 out:
 	*str = c + 1;
-
 	return r;
 }
 
 long ssh_config_get_long(char ** str, long notfound)
 {
-	char * p, * endp;
+	char * endp;
 	long i;
-
-	p = ssh_config_get_token(str);
+	char * p = ssh_config_get_token(str);
 	if(p && *p) {
 		i = strtol(p, &endp, 10);
 		if(p == endp) {
@@ -90,38 +75,30 @@ long ssh_config_get_long(char ** str, long notfound)
 		}
 		return i;
 	}
-
 	return notfound;
 }
 
 const char * ssh_config_get_str_tok(char ** str, const char * def)
 {
-	char * p;
-
-	p = ssh_config_get_token(str);
+	char * p = ssh_config_get_token(str);
 	if(p && *p) {
 		return p;
 	}
-
 	return def;
 }
 
 int ssh_config_get_yesno(char ** str, int notfound)
 {
-	const char * p;
-
-	p = ssh_config_get_str_tok(str, NULL);
+	const char * p = ssh_config_get_str_tok(str, NULL);
 	if(p == NULL) {
 		return notfound;
 	}
-
 	if(strncasecmp(p, "yes", 3) == 0) {
 		return 1;
 	}
 	else if(strncasecmp(p, "no", 2) == 0) {
 		return 0;
 	}
-
 	return notfound;
 }
 

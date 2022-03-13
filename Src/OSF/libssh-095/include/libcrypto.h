@@ -8,16 +8,10 @@
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-
 #ifndef LIBCRYPTO_H_
 #define LIBCRYPTO_H_
 
@@ -66,12 +60,7 @@ typedef const BIGNUM* const_bignum;
 typedef BN_CTX* bignum_CTX;
 
 #define bignum_new() BN_new()
-#define bignum_safe_free(num) do { \
-    if((num) != NULL) { \
-        BN_clear_free((num)); \
-        (num)=NULL; \
-    } \
-    } while(0)
+#define bignum_safe_free(num) do { if((num) != NULL) { BN_clear_free((num)); (num)=NULL; } } while(0)
 #define bignum_set_word(bn,n) BN_set_word(bn,n)
 #define bignum_bin2bn(data, datalen, dest)   \
     do {                                     \

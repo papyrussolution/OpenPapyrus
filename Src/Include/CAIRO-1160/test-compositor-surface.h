@@ -21,18 +21,11 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is Intel Corporation
  *
- * Contributor(s):
- *	Chris Wilson <chris@chris-wilson.co.uk>
+ * Contributor(s): Chris Wilson <chris@chris-wilson.co.uk>
  */
-
 #ifndef TEST_COMPOSITOR_SURFACE_H
 #define TEST_COMPOSITOR_SURFACE_H
 
@@ -40,31 +33,11 @@
 
 CAIRO_BEGIN_DECLS
 
-cairo_surface_t *
-_cairo_test_fallback_compositor_surface_create (cairo_content_t	content,
-						int		width,
-						int		height);
-
-
-cairo_surface_t *
-_cairo_test_mask_compositor_surface_create (cairo_content_t	content,
-					     int		width,
-					     int		height);
-
-cairo_surface_t *
-_cairo_test_traps_compositor_surface_create (cairo_content_t	content,
-					     int		width,
-					     int		height);
-
-cairo_surface_t *
-_cairo_test_spans_compositor_surface_create (cairo_content_t	content,
-					     int		width,
-					     int		height);
-
-cairo_surface_t *
-_cairo_test_base_compositor_surface_create (cairo_content_t	content,
-					    int			width,
-					    int			height);
+cairo_surface_t * _cairo_test_fallback_compositor_surface_create(cairo_content_t content, int width, int height);
+cairo_surface_t * _cairo_test_mask_compositor_surface_create(cairo_content_t content, int width, int height);
+cairo_surface_t * _cairo_test_traps_compositor_surface_create(cairo_content_t content, int width, int height);
+cairo_surface_t * _cairo_test_spans_compositor_surface_create(cairo_content_t content, int width, int height);
+cairo_surface_t * _cairo_test_base_compositor_surface_create(cairo_content_t content, int width, int height);
 
 CAIRO_END_DECLS
 

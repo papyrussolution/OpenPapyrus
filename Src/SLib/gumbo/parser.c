@@ -3237,8 +3237,7 @@ static bool handle_in_table(GumboParser * parser, GumboToken* token)
 			else {
 				GumboTagSet _ts;
 				_ts.Append(_TAG(STYLE)).Append(_TAG(SCRIPT)).Append(_TAG(TEMPLATE));
-				if(tag_in(token, kStartTag, _ts/*(gumbo_tagset){TAG(STYLE), TAG(SCRIPT), TAG(TEMPLATE)}*/) ||
-					(tag_is(token, kEndTag, GUMBO_TAG_TEMPLATE))) {
+				if(tag_in(token, kStartTag, _ts/*(gumbo_tagset){TAG(STYLE), TAG(SCRIPT), TAG(TEMPLATE)}*/) || (tag_is(token, kEndTag, GUMBO_TAG_TEMPLATE))) {
 					return handle_in_head(parser, token);
 				}
 				else if(tag_is(token, kStartTag, GUMBO_TAG_INPUT) && attribute_matches(&token->v.start_tag.attributes, "type", "hidden")) {

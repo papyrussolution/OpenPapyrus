@@ -54,14 +54,12 @@ __FBSDID("$FreeBSD: head/lib/libarchive/filter_fork.c 182958 2008-09-12 05:33:00
 #ifdef HAVE_UNISTD_H
 #  include <unistd.h>
 #endif
-
-#include "archive.h"
+//#include "archive.h"
 #include "archive_cmdline_private.h"
 
 #include "filter_fork.h"
 
-int __archive_create_child(const char * cmd, int * child_stdin, int * child_stdout,
-    pid_t * out_child)
+int __archive_create_child(const char * cmd, int * child_stdin, int * child_stdout, pid_t * out_child)
 {
 	pid_t child;
 	int stdin_pipe[2], stdout_pipe[2], tmp;

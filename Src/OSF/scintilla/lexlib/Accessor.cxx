@@ -223,7 +223,7 @@ int Accessor::IndentAmount(Sci_Position line, int * flags, PFNIsCommentLeader pf
 	*flags = spaceFlags;
 	indent += SC_FOLDLEVELBASE;
 	// if completely empty line or the start of a comment...
-	if((LineStart(line) == Length()) || oneof4(ch, ' ', '\t', '\n', '\r') || (pfnIsCommentLeader && (*pfnIsCommentLeader)(*this, pos, end-pos)))
+	if(LineStart(line) == Length() || oneof4(ch, ' ', '\t', '\n', '\r') || (pfnIsCommentLeader && (*pfnIsCommentLeader)(*this, pos, end-pos)))
 		return indent | SC_FOLDLEVELWHITEFLAG;
 	else
 		return indent;

@@ -1567,7 +1567,7 @@ table VetisDocument {
 	int16  TranspStrgType;    // Тип траснпортного хранения
 	int16  TranspType;        // Тип транспорта
 	int16  Reserve;           // @alignment
-	long   Flags;
+	long   Flags;             // @flags VetisVetDocument::fXXX
 	double Volume;
 	int64  ManufDateFrom;     // SUniTime
 	int64  ManufDateTo;       // SUniTime

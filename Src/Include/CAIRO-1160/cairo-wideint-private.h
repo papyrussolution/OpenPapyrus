@@ -21,24 +21,13 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is Keith Packard
  *
- * Contributor(s):
- *	Keith R. Packard <keithp@keithp.com>
- *
+ * Contributor(s): Keith R. Packard <keithp@keithp.com>
  */
-
 #ifndef CAIRO_WIDEINT_H
 #define CAIRO_WIDEINT_H
-
-//#include "cairo-wideint-type-private.h"
-//#include "cairo-compiler-private.h"
 /*
  * 64-bit datatypes.  Two separate implementations, one using
  * built-in 64-bit signed/unsigned types another implemented

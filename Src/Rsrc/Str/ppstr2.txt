@@ -2170,6 +2170,10 @@ PPERR_SQ_SVCACCSPTREQFAULT          "StyloQ: не удалось определ�
 PPERR_SQ_CLIRECORDFAULT             "StyloQ: сбой в идентификационной записи клиента"
 PPERR_SQ_SVCREPLYFAULT              "StyloQ: ошибка на стороне сервиса: %s"
 PPERR_SQ_CORRESPONDOBJNFOUND        "StyloQ: не найден корреспондирующий объект StyloQ-bindery %s"
+PPERR_SQ_EMPTYINDEXINGJS            "StyloQ: пустой json-документ для индексации"
+PPERR_SQ_MALFORMEDINDEXINGJS        "StyloQ: ошибка в json-документе для индексации (не объект, либо не содержит правильного кода команды)"
+PPERR_SQ_INDEXINGJSHASNTSVCIDENT    "StyloQ: json-документ для индексации не содержит идентификатора сервиса"
+PPERR_SQ_MALFORMEDSVCIDENTTEXT      "StyloQ: недопустимое текстовое представление идентификатора сервиса"
 PPERR_SQPROT_RDHDRSIZE              "Ошибка протокола StyloQ: инвалидный размер заголовка фрейма"
 PPERR_SQPROT_RDVERSION              "Ошибка протокола StyloQ: инвалидная версия фрейма"
 PPERR_SQPROT_INVHDR                 "Ошибка протокола StyloQ: инвалидный заголовок"
@@ -4829,6 +4833,7 @@ PPTXT_VETIS_SPCMARK_SRCWARENAME     "Наименования согласно �
 PPTXT_VETIS_DOCSTATUS               "0,@{vetisdocstcreated};1,@{vetisdocstconfirmed};2,@{vetisdocstwithdrawn};3,@{vetisdocstutilized};4,@{vetisdocstfinalized};8,@{vetisdocstoutgoing_preparing};9,@{vetisdocststock}"
 PPTXT_VETIS_OUTCERTSENDING          "Отправка исходящих документов"
 PPTXT_VETIS_OUTCERTREJNOLINKBILL    "Сертификат не отправляется поскольку не имеет ссылки на документ"
+PPTXT_VETIS_OUTCERTREJALREADYINQ    "Сертификат не отправляется поскольку уже находится в очереди на отправку"
 PPTXT_VETIS_OUTCERTREPLGETTING      "Получение ответов на отправку исходящих документов"
 PPTXT_VETIS_OUTCERTRGCYCLEEXIT      "Аварийный выход из цикла получения ответов на отправку исходящих документов по достижению максимума холостых итераций"
 PPTXT_PPPP_UNBLRESOLVEGOODS         "Невозможно сопоставить переданную ссылку на товар '%s'"
@@ -4871,6 +4876,7 @@ PPTXT_SQ_GOODBYE                    "До свидания!"
 PPTXT_MALFORMEDCMDFILEMOVED         "Сбойный командный файл перенесен в отдельный каталог: %s"
 PPTXT_STQCLITESTCMD_ECHO        /!/ "Echo"
 PPTXT_STQCLITESTCMD_INDEXING        "Отправка медиатору данных для индексации"
+PPTXT_STQCLITESTCMD_SEARCH          "Поиск"
 //
 // LastText
 
@@ -8970,6 +8976,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @job_sendnotifiesbyrecentscops_since      "Начиная с даты и времени"
 @job_vetissetupoutgoing                   "Подготовка расходных документов для отправки в @{brand_vetis}"
 @job_exportprjtasks                       "@{exportprjtasks}"
+@job_ftsindexing                          "Индексация данных для поиска"
 
 @jobitem                                  "Задание Job-сервера"
 @jobitem_id                               "@{id}"
@@ -17708,6 +17715,7 @@ PPHS_SETTIMESERIES               "settimeseries" // @v10.2.3
 PPHS_GETREQQUOTES                "getreqquotes"  // @v10.2.4
 PPHS_SETTIMESERIESPROP           "settimeseriesprop" // @v10.2.5
 PPHS_SETTIMESERIESSTKENV         "settimeseriesstkenv" // @v10.2.10
+PPHS_STYLOQBINDERY               "styloqbindery" // @v11.3.4
 PPHS_TIMSER_PROP_PRECISION       "time-series-precision"       // точность представления значений
 PPHS_TIMSER_PROP_MARGIN_BUY      "time-series-margin-buy"      //  маржина при покупке инструмента, представленного символом
 PPHS_TIMSER_PROP_MARGIN_SELL     "time-series-margin-sell"     // маржина при продаже инструмента, представленного символом

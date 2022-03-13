@@ -256,7 +256,6 @@ static int CostManagerInit(CostManager* const manager, uint16_t* const dist_arra
 	manager->count_ = 0;
 	manager->dist_array_ = dist_array;
 	CostManagerInitFreeList(manager);
-
 	// Fill in the cost_cache_.
 	manager->cache_intervals_size_ = 1;
 	manager->cost_cache_[0] = GetLengthCost(cost_model, 0);
@@ -267,23 +266,19 @@ static int CostManagerInit(CostManager* const manager, uint16_t* const dist_arra
 			++manager->cache_intervals_size_;
 		}
 	}
-
 	// With the current cost model, we usually have below 20 intervals.
 	// The worst case scenario with a cost model would be if every length has a
 	// different cost, hence MAX_LENGTH but that is impossible with the current
 	// implementation that spirals around a pixel.
 	assert(manager->cache_intervals_size_ <= MAX_LENGTH);
-	manager->cache_intervals_ = (CostCacheInterval*)WebPSafeMalloc(
-		manager->cache_intervals_size_, sizeof(*manager->cache_intervals_));
+	manager->cache_intervals_ = (CostCacheInterval *)WebPSafeMalloc(manager->cache_intervals_size_, sizeof(*manager->cache_intervals_));
 	if(manager->cache_intervals_ == NULL) {
 		CostManagerClear(manager);
 		return 0;
 	}
-
 	// Fill in the cache_intervals_.
 	{
-		CostCacheInterval* cur = manager->cache_intervals_;
-
+		CostCacheInterval * cur = manager->cache_intervals_;
 		// Consecutive values in cost_cache_ are compared and if a big enough
 		// difference is found, a new interval is created and bounded.
 		cur->start_ = 0;
@@ -300,25 +295,23 @@ static int CostManagerInit(CostManager* const manager, uint16_t* const dist_arra
 			cur->end_ = i + 1;
 		}
 	}
-
 	manager->costs_ = (float*)WebPSafeMalloc(pix_count, sizeof(*manager->costs_));
 	if(manager->costs_ == NULL) {
 		CostManagerClear(manager);
 		return 0;
 	}
 	// Set the initial costs_ high for every pixel as we will keep the minimum.
-	for(i = 0; i < pix_count; ++i) manager->costs_[i] = 1e38f;
-
+	for(i = 0; i < pix_count; ++i) 
+		manager->costs_[i] = 1e38f;
 	return 1;
 }
 
 // Given the cost and the position that define an interval, update the cost at
 // pixel 'i' if it is smaller than the previously computed value.
-static FORCEINLINE void UpdateCost(CostManager* const manager, int i,
-    int position, float cost) {
+static FORCEINLINE void UpdateCost(CostManager* const manager, int i, int position, float cost) 
+{
 	const int k = i - position;
 	assert(k >= 0 && k < MAX_LENGTH);
-
 	if(manager->costs_[i] > cost) {
 		manager->costs_[i] = cost;
 		manager->dist_array_[i] = k + 1;

@@ -21,9 +21,9 @@
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
-#ifdef USE_WINDOWS_MESSAGEBOX
-	#include <windows.h>
-#endif
+//#ifdef USE_WINDOWS_MESSAGEBOX
+	//#include <windows.h>
+//#endif
 #include "jversion.h"
 #ifndef EXIT_FAILURE /* define exit() codes if not provided */
 	#define EXIT_FAILURE  1

@@ -1238,7 +1238,7 @@ int SMailMessage::ReadFromFile(SFile & rF)
 	while(rF.ReadLine(line_buf)) {
 		blk.LineNo++;
 		line_buf.Chomp();
-		if(line_buf.Len() && oneof2(line_buf[0], '\t', ' ')) {
+		if(line_buf.Len() && oneof2(line_buf[0], ' ', '\t')) {
 			if(line_buf[0] == '\t')
 				full_line./*Space().*/Cat(line_buf.cptr()+1);
 			else

@@ -7,13 +7,7 @@
  *
  * The SSH Library is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2.1 of the License, or (at your
- * option) any later version.
- *
- * The SSH Library is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
- * License for more details.
+ * the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version.
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the SSH Library; see the file COPYING.  If not, write to
@@ -205,7 +199,6 @@ static int secure_memcmp(const void * s1, const void * s2, size_t n)
 	}
 	return (rc != 0);
 }
-
 /**
  * @internal
  *
@@ -219,40 +212,29 @@ static int secure_memcmp(const void * s1, const void * s2, size_t n)
  * @return              0 if hmac and mac are equal, < 0 if not or an error
  *                occurred.
  */
-int ssh_packet_hmac_verify(ssh_session session,
-    const void * data,
-    size_t len,
-    uint8 * mac,
-    enum ssh_hmac_e type)
+int ssh_packet_hmac_verify(ssh_session session, const void * data, size_t len, uint8 * mac, enum ssh_hmac_e type)
 {
 	struct ssh_crypto_struct * crypto = NULL;
 	uchar hmacbuf[DIGEST_MAX_LEN] = {0};
 	HMACCTX ctx;
 	uint hmaclen;
 	uint32_t seq;
-
 	/* AEAD types have no mac checking */
-	if(type == SSH_HMAC_AEAD_POLY1305 ||
-	    type == SSH_HMAC_AEAD_GCM) {
+	if(type == SSH_HMAC_AEAD_POLY1305 || type == SSH_HMAC_AEAD_GCM) {
 		return SSH_OK;
 	}
-
 	crypto = ssh_packet_get_current_crypto(session, SSH_DIRECTION_IN);
 	if(crypto == NULL) {
 		return SSH_ERROR;
 	}
-
 	ctx = hmac_init(crypto->decryptMAC, hmac_digest_len(type), type);
 	if(ctx == NULL) {
 		return -1;
 	}
-
 	seq = htonl(session->recv_seq);
-
 	hmac_update(ctx, (uchar *)&seq, sizeof(uint32_t));
 	hmac_update(ctx, data, len);
 	hmac_final(ctx, hmacbuf, &hmaclen);
-
 #ifdef DEBUG_CRYPTO
 	ssh_log_hexdump("received mac", mac, hmaclen);
 	ssh_log_hexdump("Computed mac", hmacbuf, hmaclen);
@@ -261,6 +243,5 @@ int ssh_packet_hmac_verify(ssh_session session,
 	if(secure_memcmp(mac, hmacbuf, hmaclen) == 0) {
 		return 0;
 	}
-
 	return -1;
 }

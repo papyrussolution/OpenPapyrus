@@ -16,8 +16,7 @@
 using namespace Scintilla;
 #endif
 
-static void ColouriseNncrontabDoc(Sci_PositionU startPos, Sci_Position length, int, WordList
-    * keywordLists[], Accessor & styler)
+static void ColouriseNncrontabDoc(Sci_PositionU startPos, Sci_Position length, int, WordList * keywordLists[], Accessor & styler)
 {
 	int state = SCE_NNCRONTAB_DEFAULT;
 	char chNext = styler[startPos];
@@ -47,7 +46,7 @@ static void ColouriseNncrontabDoc(Sci_PositionU startPos, Sci_Position length, i
 		}
 		switch(state) {
 			case SCE_NNCRONTAB_DEFAULT:
-			    if(oneof4(ch, '\n', '\r', '\t', ' ')) {
+			    if(oneof4(ch, '\n', '\r', ' ', '\t')) {
 				    // whitespace is simply ignored here...
 				    styler.ColourTo(i, SCE_NNCRONTAB_DEFAULT);
 				    break;
@@ -57,8 +56,7 @@ static void ColouriseNncrontabDoc(Sci_PositionU startPos, Sci_Position length, i
 				    state = SCE_NNCRONTAB_TASK;
 				    styler.ColourTo(i, SCE_NNCRONTAB_TASK);
 			    }
-			    else if(ch == '\\' && (styler.SafeGetCharAt(i+1) == ' ' ||
-				    styler.SafeGetCharAt(i+1) == '\t')) {
+			    else if(ch == '\\' && oneof2(styler.SafeGetCharAt(i+1), ' ', '\t')) {
 				    // signals the start of an extended comment...
 				    state = SCE_NNCRONTAB_COMMENT;
 				    styler.ColourTo(i, SCE_NNCRONTAB_COMMENT);

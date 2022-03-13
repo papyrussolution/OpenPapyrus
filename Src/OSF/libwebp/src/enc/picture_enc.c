@@ -218,23 +218,22 @@ int WebPMemoryWrite(const uint8* data, size_t data_size,
 	return 1;
 }
 
-void WebPMemoryWriterClear(WebPMemoryWriter* writer) {
-	if(writer != NULL) {
+void WebPMemoryWriterClear(WebPMemoryWriter* writer) 
+{
+	if(writer) {
 		WebPSafeFree(writer->mem);
 		writer->mem = NULL;
 		writer->size = 0;
 		writer->max_size = 0;
 	}
 }
-
-//------------------------------------------------------------------------------
+//
 // Simplest high-level calls:
-
+//
 typedef int (* Importer)(WebPPicture* const, const uint8* const, int);
 
-static size_t Encode(const uint8* rgba, int width, int height, int stride,
-    Importer import, float quality_factor, int lossless,
-    uint8** output) {
+static size_t Encode(const uint8* rgba, int width, int height, int stride, Importer import, float quality_factor, int lossless, uint8** output) 
+{
 	WebPPicture pic;
 	WebPConfig config;
 	WebPMemoryWriter wrt;
@@ -266,17 +265,13 @@ static size_t Encode(const uint8* rgba, int width, int height, int stride,
 	return wrt.size;
 }
 
-#define ENCODE_FUNC(NAME, IMPORTER)                                     \
-	size_t NAME(const uint8* in, int w, int h, int bps, float q,          \
-	    uint8**out) {                                            \
-		return Encode(in, w, h, bps, IMPORTER, q, 0, out);                    \
-	}
+#define ENCODE_FUNC(NAME, IMPORTER) size_t NAME(const uint8* in, int w, int h, int bps, float q, uint8**out) { return Encode(in, w, h, bps, IMPORTER, q, 0, out); }
 
 ENCODE_FUNC(WebPEncodeRGB, WebPPictureImportRGB)
 ENCODE_FUNC(WebPEncodeRGBA, WebPPictureImportRGBA)
 #if !defined(WEBP_REDUCE_CSP)
-ENCODE_FUNC(WebPEncodeBGR, WebPPictureImportBGR)
-ENCODE_FUNC(WebPEncodeBGRA, WebPPictureImportBGRA)
+	ENCODE_FUNC(WebPEncodeBGR, WebPPictureImportBGR)
+	ENCODE_FUNC(WebPEncodeBGRA, WebPPictureImportBGRA)
 #endif  // WEBP_REDUCE_CSP
 
 #undef ENCODE_FUNC

@@ -5311,118 +5311,79 @@ static int CheckRGBPrimaries(void)
 
 	cmsSetAdaptationState(0);
 	hsRGB = cmsCreate_sRGBProfileTHR(DbgThread());
-	if(!hsRGB) return 0;
-
-	result = GetProfileRGBPrimaries(hsRGB, &tripXYZ,
-		INTENT_ABSOLUTE_COLORIMETRIC);
-
+	if(!hsRGB) 
+		return 0;
+	result = GetProfileRGBPrimaries(hsRGB, &tripXYZ, INTENT_ABSOLUTE_COLORIMETRIC);
 	cmsCloseProfile(hsRGB);
-	if(!result) return 0;
-
+	if(!result) 
+		return 0;
 	cmsXYZ2xyY(&tripxyY.Red, &tripXYZ.Red);
 	cmsXYZ2xyY(&tripxyY.Green, &tripXYZ.Green);
 	cmsXYZ2xyY(&tripxyY.Blue, &tripXYZ.Blue);
-
-	/* valus were taken from
-	   http://en.wikipedia.org/wiki/RGB_color_spaces#Specifications */
-
-	if(!IsGoodFixed15_16("xRed", tripxyY.Red.x, 0.64) ||
-	    !IsGoodFixed15_16("yRed", tripxyY.Red.y, 0.33) ||
-	    !IsGoodFixed15_16("xGreen", tripxyY.Green.x, 0.30) ||
-	    !IsGoodFixed15_16("yGreen", tripxyY.Green.y, 0.60) ||
-	    !IsGoodFixed15_16("xBlue", tripxyY.Blue.x, 0.15) ||
-	    !IsGoodFixed15_16("yBlue", tripxyY.Blue.y, 0.06)) {
+	// valus were taken from http://en.wikipedia.org/wiki/RGB_color_spaces#Specifications 
+	if(!IsGoodFixed15_16("xRed", tripxyY.Red.x, 0.64) || !IsGoodFixed15_16("yRed", tripxyY.Red.y, 0.33) || !IsGoodFixed15_16("xGreen", tripxyY.Green.x, 0.30) ||
+	    !IsGoodFixed15_16("yGreen", tripxyY.Green.y, 0.60) || !IsGoodFixed15_16("xBlue", tripxyY.Blue.x, 0.15) || !IsGoodFixed15_16("yBlue", tripxyY.Blue.y, 0.06)) {
 		Fail("One or more primaries are wrong.");
 		return FALSE;
 	}
-
 	return TRUE;
 }
-
-// -----------------------------------------------------------------------------------------------------------------
-
+//
 // This function will check CMYK -> CMYK transforms. It uses FOGRA29 and SWOP ICC profiles
-
+//
 static cmsInt32Number CheckCMYK(cmsInt32Number Intent, const char * Profile1, const char * Profile2)
 {
 	cmsHPROFILE hSWOP  = cmsOpenProfileFromFileTHR(DbgThread(), Profile1, "r");
 	cmsHPROFILE hFOGRA = cmsOpenProfileFromFileTHR(DbgThread(), Profile2, "r");
-	cmsHTRANSFORM xform, swop_lab, fogra_lab;
 	float CMYK1[4], CMYK2[4];
 	cmsCIELab Lab1, Lab2;
-	cmsHPROFILE hLab;
-	double DeltaL, Max;
+	double DeltaL;
 	cmsInt32Number i;
-
-	hLab = cmsCreateLab4ProfileTHR(DbgThread(), NULL);
-
-	xform = cmsCreateTransformTHR(DbgThread(), hSWOP, TYPE_CMYK_FLT, hFOGRA, TYPE_CMYK_FLT, Intent, 0);
-
-	swop_lab = cmsCreateTransformTHR(DbgThread(), hSWOP,   TYPE_CMYK_FLT, hLab, TYPE_Lab_DBL, Intent, 0);
-	fogra_lab = cmsCreateTransformTHR(DbgThread(), hFOGRA, TYPE_CMYK_FLT, hLab, TYPE_Lab_DBL, Intent, 0);
-
-	Max = 0;
+	cmsHPROFILE hLab = cmsCreateLab4ProfileTHR(DbgThread(), NULL);
+	cmsHTRANSFORM xform = cmsCreateTransformTHR(DbgThread(), hSWOP, TYPE_CMYK_FLT, hFOGRA, TYPE_CMYK_FLT, Intent, 0);
+	cmsHTRANSFORM swop_lab = cmsCreateTransformTHR(DbgThread(), hSWOP,   TYPE_CMYK_FLT, hLab, TYPE_Lab_DBL, Intent, 0);
+	cmsHTRANSFORM fogra_lab = cmsCreateTransformTHR(DbgThread(), hFOGRA, TYPE_CMYK_FLT, hLab, TYPE_Lab_DBL, Intent, 0);
+	double Max = 0.0;
 	for(i = 0; i <= 100; i++) {
 		CMYK1[0] = 10;
 		CMYK1[1] = 20;
 		CMYK1[2] = 30;
 		CMYK1[3] = (float)i;
-
 		cmsDoTransform(swop_lab, CMYK1, &Lab1, 1);
 		cmsDoTransform(xform, CMYK1, CMYK2, 1);
 		cmsDoTransform(fogra_lab, CMYK2, &Lab2, 1);
-
 		DeltaL = fabs(Lab1.L - Lab2.L);
-
-		if(DeltaL > Max) Max = DeltaL;
+		if(DeltaL > Max) 
+			Max = DeltaL;
 	}
-
 	cmsDeleteTransform(xform);
-
 	xform = cmsCreateTransformTHR(DbgThread(),  hFOGRA, TYPE_CMYK_FLT, hSWOP, TYPE_CMYK_FLT, Intent, 0);
-
 	for(i = 0; i <= 100; i++) {
 		CMYK1[0] = 10;
 		CMYK1[1] = 20;
 		CMYK1[2] = 30;
 		CMYK1[3] = (float)i;
-
 		cmsDoTransform(fogra_lab, CMYK1, &Lab1, 1);
 		cmsDoTransform(xform, CMYK1, CMYK2, 1);
 		cmsDoTransform(swop_lab, CMYK2, &Lab2, 1);
-
 		DeltaL = fabs(Lab1.L - Lab2.L);
-
-		if(DeltaL > Max) Max = DeltaL;
+		if(DeltaL > Max) 
+			Max = DeltaL;
 	}
-
 	cmsCloseProfile(hSWOP);
 	cmsCloseProfile(hFOGRA);
 	cmsCloseProfile(hLab);
-
 	cmsDeleteTransform(xform);
 	cmsDeleteTransform(swop_lab);
 	cmsDeleteTransform(fogra_lab);
-
 	return Max < 3.0;
 }
 
-static cmsInt32Number CheckCMYKRoundtrip(void)
-{
-	return CheckCMYK(INTENT_RELATIVE_COLORIMETRIC, "test1.icc", "test1.icc");
-}
+static cmsInt32Number CheckCMYKRoundtrip() { return CheckCMYK(INTENT_RELATIVE_COLORIMETRIC, "test1.icc", "test1.icc"); }
+static cmsInt32Number CheckCMYKPerceptual() { return CheckCMYK(INTENT_PERCEPTUAL, "test1.icc", "test2.icc"); }
+static cmsInt32Number CheckCMYKRelCol() { return CheckCMYK(INTENT_RELATIVE_COLORIMETRIC, "test1.icc", "test2.icc"); }
 
-static cmsInt32Number CheckCMYKPerceptual(void)
-{
-	return CheckCMYK(INTENT_PERCEPTUAL, "test1.icc", "test2.icc");
-}
-
-static cmsInt32Number CheckCMYKRelCol(void)
-{
-	return CheckCMYK(INTENT_RELATIVE_COLORIMETRIC, "test1.icc", "test2.icc");
-}
-
-static cmsInt32Number CheckKOnlyBlackPreserving(void)
+static cmsInt32Number CheckKOnlyBlackPreserving()
 {
 	cmsHPROFILE hSWOP  = cmsOpenProfileFromFileTHR(DbgThread(), "test1.icc", "r");
 	cmsHPROFILE hFOGRA = cmsOpenProfileFromFileTHR(DbgThread(), "test2.icc", "r");
@@ -5483,72 +5444,51 @@ static cmsInt32Number CheckKPlaneBlackPreserving(void)
 	cmsHPROFILE hLab;
 	double DeltaE, Max;
 	cmsInt32Number i;
-
 	hLab = cmsCreateLab4ProfileTHR(DbgThread(), NULL);
-
 	xform = cmsCreateTransformTHR(DbgThread(), hSWOP, TYPE_CMYK_FLT, hFOGRA, TYPE_CMYK_FLT, INTENT_PERCEPTUAL, 0);
-
 	swop_lab = cmsCreateTransformTHR(DbgThread(), hSWOP,  TYPE_CMYK_FLT, hLab, TYPE_Lab_DBL, INTENT_PERCEPTUAL, 0);
 	fogra_lab = cmsCreateTransformTHR(DbgThread(), hFOGRA, TYPE_CMYK_FLT, hLab, TYPE_Lab_DBL, INTENT_PERCEPTUAL, 0);
-
 	Max = 0;
-
 	for(i = 0; i <= 100; i++) {
 		CMYK1[0] = 0;
 		CMYK1[1] = 0;
 		CMYK1[2] = 0;
 		CMYK1[3] = (float)i;
-
 		cmsDoTransform(swop_lab, CMYK1, &Lab1, 1);
 		cmsDoTransform(xform, CMYK1, CMYK2, 1);
 		cmsDoTransform(fogra_lab, CMYK2, &Lab2, 1);
-
 		DeltaE = cmsDeltaE(&Lab1, &Lab2);
-
-		if(DeltaE > Max) Max = DeltaE;
+		if(DeltaE > Max) 
+			Max = DeltaE;
 	}
-
 	cmsDeleteTransform(xform);
-
 	xform = cmsCreateTransformTHR(DbgThread(),  hFOGRA, TYPE_CMYK_FLT, hSWOP, TYPE_CMYK_FLT, INTENT_PRESERVE_K_PLANE_PERCEPTUAL, 0);
-
 	for(i = 0; i <= 100; i++) {
 		CMYK1[0] = 30;
 		CMYK1[1] = 20;
 		CMYK1[2] = 10;
 		CMYK1[3] = (float)i;
-
 		cmsDoTransform(fogra_lab, CMYK1, &Lab1, 1);
 		cmsDoTransform(xform, CMYK1, CMYK2, 1);
 		cmsDoTransform(swop_lab, CMYK2, &Lab2, 1);
-
 		DeltaE = cmsDeltaE(&Lab1, &Lab2);
-
-		if(DeltaE > Max) Max = DeltaE;
+		if(DeltaE > Max) 
+			Max = DeltaE;
 	}
-
 	cmsDeleteTransform(xform);
-
 	cmsCloseProfile(hSWOP);
 	cmsCloseProfile(hFOGRA);
 	cmsCloseProfile(hLab);
-
 	cmsDeleteTransform(swop_lab);
 	cmsDeleteTransform(fogra_lab);
-
 	return Max < 30.0;
 }
 
-// ------------------------------------------------------------------------------------------------------
-
 static cmsInt32Number CheckProofingXFORMFloat(void)
 {
-	cmsHPROFILE hAbove;
-	cmsHTRANSFORM xform;
 	cmsInt32Number rc;
-	hAbove = Create_AboveRGB();
-	xform =  cmsCreateProofingTransformTHR(DbgThread(), hAbove, TYPE_RGB_FLT, hAbove, TYPE_RGB_FLT, hAbove,
-		INTENT_RELATIVE_COLORIMETRIC, INTENT_RELATIVE_COLORIMETRIC, cmsFLAGS_SOFTPROOFING);
+	cmsHPROFILE hAbove = Create_AboveRGB();
+	cmsHTRANSFORM xform =  cmsCreateProofingTransformTHR(DbgThread(), hAbove, TYPE_RGB_FLT, hAbove, TYPE_RGB_FLT, hAbove, INTENT_RELATIVE_COLORIMETRIC, INTENT_RELATIVE_COLORIMETRIC, cmsFLAGS_SOFTPROOFING);
 	cmsCloseProfile(hAbove);
 	rc = CheckFloatlinearXFORM(xform, 3);
 	cmsDeleteTransform(xform);
@@ -5557,13 +5497,9 @@ static cmsInt32Number CheckProofingXFORMFloat(void)
 
 static cmsInt32Number CheckProofingXFORM16(void)
 {
-	cmsHPROFILE hAbove;
-	cmsHTRANSFORM xform;
 	cmsInt32Number rc;
-
-	hAbove = Create_AboveRGB();
-	xform =  cmsCreateProofingTransformTHR(DbgThread(), hAbove, TYPE_RGB_16, hAbove, TYPE_RGB_16, hAbove,
-		INTENT_RELATIVE_COLORIMETRIC, INTENT_RELATIVE_COLORIMETRIC, cmsFLAGS_SOFTPROOFING|cmsFLAGS_NOCACHE);
+	cmsHPROFILE hAbove = Create_AboveRGB();
+	cmsHTRANSFORM xform =  cmsCreateProofingTransformTHR(DbgThread(), hAbove, TYPE_RGB_16, hAbove, TYPE_RGB_16, hAbove, INTENT_RELATIVE_COLORIMETRIC, INTENT_RELATIVE_COLORIMETRIC, cmsFLAGS_SOFTPROOFING|cmsFLAGS_NOCACHE);
 	cmsCloseProfile(hAbove);
 	rc = Check16linearXFORM(xform, 3);
 	cmsDeleteTransform(xform);
@@ -5576,22 +5512,17 @@ static cmsInt32Number CheckGamutCheck(void)
 	cmsHTRANSFORM xform;
 	cmsInt32Number rc;
 	uint16 Alarm[16] = { 0xDEAD, 0xBABE, 0xFACE };
-
 	// Set alarm codes to fancy values so we could check the out of gamut condition
 	cmsSetAlarmCodes(Alarm);
-
 	// Create the profiles
 	hSRGB  = cmsCreate_sRGBProfileTHR(DbgThread());
 	hAbove = Create_AboveRGB();
-
-	if(hSRGB == NULL || hAbove == NULL) return 0;   // Failed
-
+	if(hSRGB == NULL || hAbove == NULL) 
+		return 0;   // Failed
 	SubTest("Gamut check on floating point");
-
 	// Create a gamut checker in the same space. No value should be out of gamut
 	xform = cmsCreateProofingTransformTHR(DbgThread(), hAbove, TYPE_RGB_FLT, hAbove, TYPE_RGB_FLT, hAbove,
 		INTENT_RELATIVE_COLORIMETRIC, INTENT_RELATIVE_COLORIMETRIC, cmsFLAGS_GAMUTCHECK);
-
 	if(!CheckFloatlinearXFORM(xform, 3)) {
 		cmsCloseProfile(hSRGB);
 		cmsCloseProfile(hAbove);
@@ -5599,25 +5530,16 @@ static cmsInt32Number CheckGamutCheck(void)
 		Fail("Gamut check on same profile failed");
 		return 0;
 	}
-
 	cmsDeleteTransform(xform);
-
 	SubTest("Gamut check on 16 bits");
-
 	xform = cmsCreateProofingTransformTHR(DbgThread(), hAbove, TYPE_RGB_16, hAbove, TYPE_RGB_16, hSRGB,
 		INTENT_RELATIVE_COLORIMETRIC, INTENT_RELATIVE_COLORIMETRIC, cmsFLAGS_GAMUTCHECK);
-
 	cmsCloseProfile(hSRGB);
 	cmsCloseProfile(hAbove);
-
 	rc = Check16linearXFORM(xform, 3);
-
 	cmsDeleteTransform(xform);
-
 	return rc;
 }
-
-// -------------------------------------------------------------------------------------------------------------------
 
 static cmsInt32Number CheckBlackPoint(void)
 {
@@ -5654,21 +5576,16 @@ static cmsInt32Number CheckBlackPoint(void)
 
 static cmsInt32Number CheckOneTAC(double InkLimit)
 {
-	cmsHPROFILE h;
 	double d;
-
-	h = CreateFakeCMYK(InkLimit, TRUE);
+	cmsHPROFILE h = CreateFakeCMYK(InkLimit, TRUE);
 	cmsSaveProfileToFile(h, "lcmstac.icc");
 	cmsCloseProfile(h);
-
 	h = cmsOpenProfileFromFile("lcmstac.icc", "r");
 	d = cmsDetectTAC(h);
 	cmsCloseProfile(h);
-
 	remove("lcmstac.icc");
-
-	if(fabs(d - InkLimit) > 5) return 0;
-
+	if(fabs(d - InkLimit) > 5) 
+		return 0;
 	return 1;
 }
 
@@ -5679,11 +5596,8 @@ static cmsInt32Number CheckTAC(void)
 	if(!CheckOneTAC(286)) return 0;
 	if(!CheckOneTAC(310)) return 0;
 	if(!CheckOneTAC(330)) return 0;
-
 	return 1;
 }
-
-// -------------------------------------------------------------------------------------------------------
 
 #define NPOINTS_IT8 10  // (17*17*17*17)
 
@@ -5691,7 +5605,6 @@ static cmsInt32Number CheckCGATS(void)
 {
 	cmsHANDLE it8;
 	cmsInt32Number i;
-
 	SubTest("IT8 creation");
 	it8 = cmsIT8Alloc(DbgThread());
 	if(it8 == NULL) return 0;

@@ -1,10 +1,9 @@
 // DBQ.CPP
-// Copyright (c) Sobolev A. 1996-2001, 2002, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2018, 2019, 2020
+// Copyright (c) Sobolev A. 1996-2001, 2002, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2018, 2019, 2020, 2022
 // @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <db.h>
 //
 // DBItem
 //

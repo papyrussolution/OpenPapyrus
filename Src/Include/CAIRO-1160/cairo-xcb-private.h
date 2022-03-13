@@ -22,18 +22,11 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is Red Hat, Inc.
  *
- * Contributors(s):
- *	Chris Wilson <chris@chris-wilson.co.uk>
+ * Contributors(s): Chris Wilson <chris@chris-wilson.co.uk>
  */
-
 #ifndef CAIRO_XCB_PRIVATE_H
 #define CAIRO_XCB_PRIVATE_H
 
@@ -53,9 +46,7 @@
 /* maximum number of cached GC's */
 #define GC_CACHE_SIZE 4
 
-#define CAIRO_XCB_RENDER_AT_LEAST(major, minor) \
-	((XCB_RENDER_MAJOR_VERSION > major) ||  \
-	((XCB_RENDER_MAJOR_VERSION == major) && (XCB_RENDER_MINOR_VERSION >= minor)))
+#define CAIRO_XCB_RENDER_AT_LEAST(major, minor) ((XCB_RENDER_MAJOR_VERSION > major) || ((XCB_RENDER_MAJOR_VERSION == major) && (XCB_RENDER_MINOR_VERSION >= minor)))
 
 typedef struct _cairo_xcb_connection cairo_xcb_connection_t;
 typedef struct _cairo_xcb_font cairo_xcb_font_t;

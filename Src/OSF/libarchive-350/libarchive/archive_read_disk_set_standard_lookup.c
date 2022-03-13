@@ -21,7 +21,6 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_disk_set_standard_lookup.c 
 #ifdef HAVE_PWD_H
 #include <pwd.h>
 #endif
-#include "archive.h"
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 int archive_read_disk_set_standard_lookup(struct archive * a)

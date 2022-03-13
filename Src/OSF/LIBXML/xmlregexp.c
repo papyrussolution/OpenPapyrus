@@ -2407,7 +2407,7 @@ static int FASTCALL xmlRegCheckCharacterRange(xmlRegAtomType type, int codepoint
 		case XML_REGEXP_CHARVAL: ret = ((codepoint >= start) && (codepoint <= end)); break;
 		case XML_REGEXP_NOTSPACE:
 		    neg = !neg;
-		case XML_REGEXP_ANYSPACE: ret = oneof4(codepoint, '\n', '\r', '\t', ' '); break;
+		case XML_REGEXP_ANYSPACE: ret = oneof4(codepoint, '\n', '\r', ' ', '\t'); break;
 		case XML_REGEXP_NOTINITNAME:
 		    neg = !neg;
 		case XML_REGEXP_INITNAME: ret = (IS_LETTER(codepoint) || (codepoint == '_') || (codepoint == ':')); break;

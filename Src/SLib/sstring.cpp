@@ -4524,6 +4524,15 @@ SStringU & SStringU::ToLower()
 	return *this;
 }
 
+SStringU & SStringU::ReplaceChar(wchar_t patternChr, wchar_t replaceChr)
+{
+	if(L > 1 && replaceChr != 0 && patternChr != 0)
+		for(size_t i = 0; i < L-1; i++)
+			if(P_Buf[i] == patternChr)
+				P_Buf[i] = replaceChr;
+	return *this;
+}
+
 int SStringU::AnalyzeCase() const
 {
 	int    tc = tcEmpty;

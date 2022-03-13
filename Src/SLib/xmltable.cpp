@@ -4,7 +4,6 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <db.h>
 #include <..\osf\libxml\libxml.h>
 
 const int __EnableEmptyRoot = 1;

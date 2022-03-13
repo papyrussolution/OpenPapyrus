@@ -9,18 +9,6 @@
  * above copyright notice and the following two paragraphs appear in
  * all copies of this software.
  *
- * IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE TO ANY PARTY FOR
- * DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES
- * ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN
- * IF THE COPYRIGHT HOLDER HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
- *
- * THE COPYRIGHT HOLDER SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING,
- * BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
- * FITNESS FOR A PARTICULAR PURPOSE.  THE SOFTWARE PROVIDED HEREUNDER IS
- * ON AN "AS IS" BASIS, AND THE COPYRIGHT HOLDER HAS NO OBLIGATION TO
- * PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
- *
  * Google Author(s): Behdad Esfahbod
  */
 #include "harfbuzz-internal.h"
@@ -35,11 +23,9 @@
 /* Same order as the feature array below */
 enum {
 	_JMO,
-
 	LJMO,
 	VJMO,
 	TJMO,
-
 	FIRST_HANGUL_FEATURE = LJMO,
 	HANGUL_FEATURE_COUNT = TJMO + 1
 };
@@ -346,16 +332,13 @@ static void preprocess_text_hangul(const hb_ot_shape_plan_t * plan CXX_UNUSED_PA
 					info[i++].hangul_shaping_feature() = VJMO;
 					if(i < end)
 						info[i++].hangul_shaping_feature() = TJMO;
-
 					if(buffer->cluster_level == HB_BUFFER_CLUSTER_LEVEL_MONOTONE_GRAPHEMES)
 						buffer->merge_out_clusters(start, end);
 					continue;
 				}
 				else if((!tindex && buffer->idx + 1 < count && isT(buffer->cur(+1).codepoint)))
-					buffer->unsafe_to_break(buffer->idx, buffer->idx + 2); /* Mark unsafe between LV
-				                                                                  and T. */
+					buffer->unsafe_to_break(buffer->idx, buffer->idx + 2); /* Mark unsafe between LV and T. */
 			}
-
 			if(has_glyph) {
 				/* We didn't decompose the S, so just advance past it. */
 				end = start + 1;
@@ -363,7 +346,6 @@ static void preprocess_text_hangul(const hb_ot_shape_plan_t * plan CXX_UNUSED_PA
 				continue;
 			}
 		}
-
 		/* Didn't find a recognizable syllable, so we leave end <= start;
 		 * this will prevent tone-mark reordering happening.
 		 */
@@ -372,19 +354,15 @@ static void preprocess_text_hangul(const hb_ot_shape_plan_t * plan CXX_UNUSED_PA
 	buffer->swap_buffers();
 }
 
-static void setup_masks_hangul(const hb_ot_shape_plan_t * plan,
-    hb_buffer_t * buffer,
-    hb_font_t * font CXX_UNUSED_PARAM)
+static void setup_masks_hangul(const hb_ot_shape_plan_t * plan, hb_buffer_t * buffer, hb_font_t * font CXX_UNUSED_PARAM)
 {
 	const hangul_shape_plan_t * hangul_plan = (const hangul_shape_plan_t*)plan->data;
-
 	if(LIKELY(hangul_plan)) {
 		uint count = buffer->len;
 		hb_glyph_info_t * info = buffer->info;
 		for(uint i = 0; i < count; i++, info++)
 			info->mask |= hangul_plan->mask_array[info->hangul_shaping_feature()];
 	}
-
 	HB_BUFFER_DEALLOCATE_VAR(buffer, hangul_shaping_feature);
 }
 

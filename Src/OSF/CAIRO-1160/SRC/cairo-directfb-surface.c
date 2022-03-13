@@ -21,30 +21,16 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is Chris Wilson
  *
- * Contributor(s):
- * Chris Wilson <chris@chris-wilson.co.uk>
+ * Contributor(s): Chris Wilson <chris@chris-wilson.co.uk>
  */
 #include "cairoint.h"
 #pragma hdrstop
 
 #if CAIRO_HAS_DIRECTFB_SURFACE // {
 #include "cairo-directfb.h"
-//#include "cairo-clip-private.h"
-//#include "cairo-compositor-private.h"
-//#include "cairo-default-context-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-image-surface-inline.h"
-//#include "cairo-pattern-private.h"
-//#include "cairo-surface-backend-private.h"
-//#include "cairo-surface-fallback-private.h"
 #include <pixman.h>
 #include <directfb.h>
 #include <direct/types.h>
@@ -56,10 +42,8 @@ slim_hidden_proto(cairo_directfb_surface_create);
 
 typedef struct _cairo_dfb_surface {
 	cairo_image_surface_t image;
-
 	IDirectFB * dfb;
 	IDirectFBSurface * dfb_surface;
-
 	unsigned blit_premultiplied : 1;
 } cairo_dfb_surface_t;
 

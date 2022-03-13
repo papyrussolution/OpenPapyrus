@@ -16,12 +16,8 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_by_name.c 201168 2009-12-29 06:15:32Z kientzle $");
 
-#include "archive.h"
-#include "archive_private.h"
-
 /* A table that maps names to functions. */
-static const
-struct { const char * name; int (* format)(struct archive *); int (* filter)(struct archive *);  } names[] =
+static const struct { const char * name; int (* format)(struct archive *); int (* filter)(struct archive *);  } names[] =
 {
 	{ ".7z",        archive_write_set_format_7zip,            archive_write_add_filter_none},
 	{ ".zip",       archive_write_set_format_zip,             archive_write_add_filter_none},

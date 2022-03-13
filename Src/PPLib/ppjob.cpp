@@ -5,7 +5,6 @@
 //
 #include <pp.h>
 #pragma hdrstop
-// @v10.9.3 #include <process.h>
 #include <comdef.h>		// COM для WMI
 #include <wbemidl.h>	// WMI для удаленного запуска процессов
 #include <charry.h>
@@ -4268,3 +4267,44 @@ public:
 };
 
 IMPLEMENT_JOB_HDL_FACTORY(EXPORTPRJTASKS);
+//
+//
+//
+class JOB_HDL_CLS(FTSINDEXING) : public PPJobHandler {
+public:
+	JOB_HDL_CLS(FTSINDEXING)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	{
+	}
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
+	{
+		int    ok = -1;
+		return ok;
+	}
+	virtual int Run(SBuffer * pParam, void * extraPtr)
+	{
+		int    ok = -1;
+		{
+			//
+			// Индексация данных Stylo-Q (собственно, ради нее задача и была сделана)
+			//
+			SString temp_buf;
+			StyloQCore::SvcDbSymbMap dbmap;
+			if(StyloQCore::GetDbMap(dbmap)) {
+				TSCollection <SBinaryChunk> reckoned_svc_id_list;
+				for(uint i = 0; i < dbmap.getCount(); i++) {
+					const StyloQCore::SvcDbSymbMapEntry * p_map_entry = dbmap.at(i);
+					if(p_map_entry && p_map_entry->DbSymb.NotEmpty() && p_map_entry->SvcIdent.Len()) {
+						PPSession::LimitedDatabaseBlock * p_ldb = DS.LimitedOpenDatabase(p_map_entry->DbSymb, PPSession::lodfReference|PPSession::lodfStyloQCore|PPSession::lodfSysJournal);
+						if(p_ldb && p_ldb->P_Sqc) {
+							p_ldb->P_Sqc->IndexingContent();
+						}
+					}
+				}
+			}
+		}
+		CATCHZOKPPERR
+		return ok;
+	}
+};
+
+IMPLEMENT_JOB_HDL_FACTORY(FTSINDEXING);

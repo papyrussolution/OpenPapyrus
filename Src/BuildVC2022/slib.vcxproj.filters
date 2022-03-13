@@ -374,6 +374,9 @@
     <ClInclude Include="..\Include\dbkv-lmdb.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="..\Include\gif_lib.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\Osf\Asmlib\cachesize32.asm">

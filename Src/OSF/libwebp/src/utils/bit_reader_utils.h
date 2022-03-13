@@ -101,11 +101,9 @@ struct VP8BitReader {
 };
 
 // Initialize the bit reader and the boolean decoder.
-void VP8InitBitReader(VP8BitReader* const br,
-    const uint8* const start, size_t size);
+void VP8InitBitReader(VP8BitReader* const br, const uint8* const start, size_t size);
 // Sets the working read buffer.
-void VP8BitReaderSetBuffer(VP8BitReader* const br,
-    const uint8* const start, size_t size);
+void VP8BitReaderSetBuffer(VP8BitReader* const br, const uint8* const start, size_t size);
 
 // Update internal pointers to displace the byte buffer by the
 // relative offset 'offset'.
@@ -115,8 +113,7 @@ void VP8RemapBitReader(VP8BitReader* const br, ptrdiff_t offset);
 uint32_t VP8GetValue(VP8BitReader* const br, int num_bits, const char label[]);
 
 // return the next value with sign-extension.
-int32_t VP8GetSignedValue(VP8BitReader* const br, int num_bits,
-    const char label[]);
+int32_t VP8GetSignedValue(VP8BitReader* const br, int num_bits, const char label[]);
 
 // bit_reader_inl.h will implement the following methods:
 //   static FORCEINLINE int VP8GetBit(VP8BitReader* const br, int prob, ...)
@@ -145,19 +142,15 @@ typedef struct {
 	int eos_;             // true if a bit was read past the end of buffer
 } VP8LBitReader;
 
-void VP8LInitBitReader(VP8LBitReader* const br,
-    const uint8* const start,
-    size_t length);
-
+void VP8LInitBitReader(VP8LBitReader* const br, const uint8* const start, size_t length);
 //  Sets a new data buffer.
-void VP8LBitReaderSetBuffer(VP8LBitReader* const br,
-    const uint8* const buffer, size_t length);
+void VP8LBitReaderSetBuffer(VP8LBitReader* const br, const uint8* const buffer, size_t length);
 
 // Reads the specified number of bits from read buffer.
 // Flags an error in case end_of_stream or n_bits is more than the allowed limit
 // of VP8L_MAX_NUM_BIT_READ (inclusive).
 // Flags eos_ if this read attempt is going to cross the read buffer.
-uint32_t VP8LReadBits(VP8LBitReader* const br, int n_bits);
+uint32_t FASTCALL VP8LReadBits(VP8LBitReader* const br, int n_bits);
 
 // Return the prefetched bits, so they can be looked up.
 static FORCEINLINE uint32_t VP8LPrefetchBits(VP8LBitReader* const br) {
@@ -166,7 +159,8 @@ static FORCEINLINE uint32_t VP8LPrefetchBits(VP8LBitReader* const br) {
 
 // Returns true if there was an attempt at reading bit past the end of
 // the buffer. Doesn't set br->eos_ flag.
-static FORCEINLINE int VP8LIsEndOfStream(const VP8LBitReader* const br) {
+static FORCEINLINE int VP8LIsEndOfStream(const VP8LBitReader* const br) 
+{
 	assert(br->pos_ <= br->len_);
 	return br->eos_ || ((br->pos_ == br->len_) && (br->bit_pos_ > VP8L_LBITS));
 }
@@ -179,7 +173,7 @@ static FORCEINLINE void VP8LSetBitPos(VP8LBitReader* const br, int val) { br->bi
 
 // Advances the read buffer by 4 bytes to make room for reading next 32 bits.
 // Speed critical, but infrequent part of the code can be non-inlined.
-extern void VP8LDoFillBitWindow(VP8LBitReader* const br);
+extern void FASTCALL VP8LDoFillBitWindow(VP8LBitReader* const br);
 static FORCEINLINE void VP8LFillBitWindow(VP8LBitReader* const br) { if(br->bit_pos_ >= VP8L_WBITS) VP8LDoFillBitWindow(br); }
 
 //#ifdef __cplusplus

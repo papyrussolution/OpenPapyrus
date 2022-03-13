@@ -1,5 +1,6 @@
 // OBJSCALE.CPP
 // Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -10,13 +11,13 @@
 //
 static const SVerT __MinPrepFileVer(7, 1, 11);
 //
-// @todo Заменить использования SplitString на SString::Wrap
+// @todo Р—Р°РјРµРЅРёС‚СЊ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ SplitString РЅР° SString::Wrap
 //
-// Descr: Функция SplitStr разбивает строку pStr на count подстрок, в соответствии
-//   с параметром pItem. Каждая подстрока имеет длину не более pItem->len и записывается //
-//   по указателю pItem->ptr. По возможности, SplitStr пытается разбивать стоку между
-//   словами (по пробелам). Вызывающая функция должна присвоить указателям pItem->ptr
-//   достаточные по размеру области памяти.
+// Descr: Р¤СѓРЅРєС†РёСЏ SplitStr СЂР°Р·Р±РёРІР°РµС‚ СЃС‚СЂРѕРєСѓ pStr РЅР° count РїРѕРґСЃС‚СЂРѕРє, РІ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРё
+//   СЃ РїР°СЂР°РјРµС‚СЂРѕРј pItem. РљР°Р¶РґР°СЏ РїРѕРґСЃС‚СЂРѕРєР° РёРјРµРµС‚ РґР»РёРЅСѓ РЅРµ Р±РѕР»РµРµ pItem->len Рё Р·Р°РїРёСЃС‹РІР°РµС‚СЃСЏ //
+//   РїРѕ СѓРєР°Р·Р°С‚РµР»СЋ pItem->ptr. РџРѕ РІРѕР·РјРѕР¶РЅРѕСЃС‚Рё, SplitStr РїС‹С‚Р°РµС‚СЃСЏ СЂР°Р·Р±РёРІР°С‚СЊ СЃС‚РѕРєСѓ РјРµР¶РґСѓ
+//   СЃР»РѕРІР°РјРё (РїРѕ РїСЂРѕР±РµР»Р°Рј). Р’С‹Р·С‹РІР°СЋС‰Р°СЏ С„СѓРЅРєС†РёСЏ РґРѕР»Р¶РЅР° РїСЂРёСЃРІРѕРёС‚СЊ СѓРєР°Р·Р°С‚РµР»СЏРј pItem->ptr
+//   РґРѕСЃС‚Р°С‚РѕС‡РЅС‹Рµ РїРѕ СЂР°Р·РјРµСЂСѓ РѕР±Р»Р°СЃС‚Рё РїР°РјСЏС‚Рё.
 // Return:
 //   1
 //
@@ -70,7 +71,7 @@ struct ScalePLU { // @transient
 		return BIN(AddMsgBuf.NotEmpty());
 	}
 	enum {
-		fCountable = 0x0001 // Счетный товар
+		fCountable = 0x0001 // РЎС‡РµС‚РЅС‹Р№ С‚РѕРІР°СЂ
 	};
 	PPID   GoodsID;
 	long   GoodsNo;
@@ -221,8 +222,8 @@ protected:
 	int    GetAddedMsgLines(const ScalePLU * pPlu, uint maxLineLen, uint maxLineCount, long flags, StringSet & rLines);
 
 	int     PortNo;
-	int     ReadCycleCount; // Количество попыток чтения из COM-порта
-	int     ReadCycleDelay; // Задержка между попытками чтения из COM-порта
+	int     ReadCycleCount; // РљРѕР»РёС‡РµСЃС‚РІРѕ РїРѕРїС‹С‚РѕРє С‡С‚РµРЅРёСЏ РёР· COM-РїРѕСЂС‚Р°
+	int     ReadCycleDelay; // Р—Р°РґРµСЂР¶РєР° РјРµР¶РґСѓ РїРѕРїС‹С‚РєР°РјРё С‡С‚РµРЅРёСЏ РёР· COM-РїРѕСЂС‚Р°
 	HANDLE  H_Port;
 	PPScalePacket Data;
 	//SString ExpPaths;
@@ -399,11 +400,11 @@ int PPScaleDevice::InitPort(int portNo)
 	if(H_Port != INVALID_HANDLE_VALUE) {
 		DCB    dcb;
 		GetCommState(H_Port, &dcb);
-		dcb.BaudRate = CBR_9600;	// скорость передачи данных
-		dcb.fParity  = FALSE;		// отключить проверку четности
-		dcb.Parity   = NOPARITY;	// 0,1,2,3,4 = нет, до нечетности, до четности, всегда 1, всегда 0
-		dcb.ByteSize = 8;			// 4-8 (определяет число информационных бит в передаваемых и принимаемых байтах.)
-		dcb.StopBits = ONESTOPBIT;	// 0,1,2 = 1 стоповый бит, 1.5 стоповых бита , 2 стоповых бита
+		dcb.BaudRate = CBR_9600;	// СЃРєРѕСЂРѕСЃС‚СЊ РїРµСЂРµРґР°С‡Рё РґР°РЅРЅС‹С…
+		dcb.fParity  = FALSE;		// РѕС‚РєР»СЋС‡РёС‚СЊ РїСЂРѕРІРµСЂРєСѓ С‡РµС‚РЅРѕСЃС‚Рё
+		dcb.Parity   = NOPARITY;	// 0,1,2,3,4 = РЅРµС‚, РґРѕ РЅРµС‡РµС‚РЅРѕСЃС‚Рё, РґРѕ С‡РµС‚РЅРѕСЃС‚Рё, РІСЃРµРіРґР° 1, РІСЃРµРіРґР° 0
+		dcb.ByteSize = 8;			// 4-8 (РѕРїСЂРµРґРµР»СЏРµС‚ С‡РёСЃР»Рѕ РёРЅС„РѕСЂРјР°С†РёРѕРЅРЅС‹С… Р±РёС‚ РІ РїРµСЂРµРґР°РІР°РµРјС‹С… Рё РїСЂРёРЅРёРјР°РµРјС‹С… Р±Р°Р№С‚Р°С….)
+		dcb.StopBits = ONESTOPBIT;	// 0,1,2 = 1 СЃС‚РѕРїРѕРІС‹Р№ Р±РёС‚, 1.5 СЃС‚РѕРїРѕРІС‹С… Р±РёС‚Р° , 2 СЃС‚РѕРїРѕРІС‹С… Р±РёС‚Р°
 		ok = BIN(SetCommState(H_Port, &dcb));
 
 		COMMTIMEOUTS cto;
@@ -416,8 +417,8 @@ int PPScaleDevice::InitPort(int portNo)
 		ok = 1;                                  // ???
 
 		// @paul {
-		//PurgeComm(H_Port, PURGE_RXCLEAR); // очищает очередь приема в драйвере COM порта
-		//PurgeComm(H_Port, PURGE_TXCLEAR); // очищает очередь передачи в драйвере COM порта
+		//PurgeComm(H_Port, PURGE_RXCLEAR); // РѕС‡РёС‰Р°РµС‚ РѕС‡РµСЂРµРґСЊ РїСЂРёРµРјР° РІ РґСЂР°Р№РІРµСЂРµ COM РїРѕСЂС‚Р°
+		//PurgeComm(H_Port, PURGE_TXCLEAR); // РѕС‡РёС‰Р°РµС‚ РѕС‡РµСЂРµРґСЊ РїРµСЂРµРґР°С‡Рё РІ РґСЂР°Р№РІРµСЂРµ COM РїРѕСЂС‚Р°
 		// }@paul
 	}
 	else {
@@ -620,8 +621,8 @@ int CommLP15::CheckSync_16()
 		ret[1] = static_cast<uint8>(GetChr());
 	}
 	PPSetAddedMsgString(0);
-	THROW_PP(ret[0] == (uint8)Data.Rec.LogNum, PPERR_SCALE_NOTREADY); // Весы не отвечают
-	THROW_PP(ret[1] == (uint8)0x80, PPERR_SCALE_NOTREADY);        // Весы не отвечают
+	THROW_PP(ret[0] == (uint8)Data.Rec.LogNum, PPERR_SCALE_NOTREADY); // Р’РµСЃС‹ РЅРµ РѕС‚РІРµС‡Р°СЋС‚
+	THROW_PP(ret[1] == (uint8)0x80, PPERR_SCALE_NOTREADY);        // Р’РµСЃС‹ РЅРµ РѕС‚РІРµС‡Р°СЋС‚
 	CATCHZOK
 	return ok;
 }
@@ -661,7 +662,7 @@ int CommLP15::SetConnection()
 			if(Data.Rec.ProtocolVer == 0) {
 				THROW(PutChr((uint8)(Data.Rec.LogNum << 4)));
 				PPSetAddedMsgString(0);
-				THROW_PP(GetChr() == 6, PPERR_SCALE_NOTREADY); // Весы не отвечают
+				THROW_PP(GetChr() == 6, PPERR_SCALE_NOTREADY); // Р’РµСЃС‹ РЅРµ РѕС‚РІРµС‡Р°СЋС‚
 			}
 			else if(Data.Rec.ProtocolVer == 1) {
 				uint8 r0 = (uint8)0xff;
@@ -673,7 +674,7 @@ int CommLP15::SetConnection()
 				if(r0 != 0xff || !(r1 == 0x40 || r1 == 0x4b)) {
 					char add_msg[32];
 					sprintf(add_msg, "0x%x", ((((int)r0) << 8) | r1));
-					CALLEXCEPT_PP_S(PPERR_SCALE_NOTREADY, add_msg); // Весы не отвечают
+					CALLEXCEPT_PP_S(PPERR_SCALE_NOTREADY, add_msg); // Р’РµСЃС‹ РЅРµ РѕС‚РІРµС‡Р°СЋС‚
 				}
 			}
 			else if(Is_v16()) {
@@ -687,7 +688,7 @@ int CommLP15::SetConnection()
 					if(r0 != 0xff || !(r1 == 0x40 || r1 == 0x4b)) {
 						char add_msg[32];
 						sprintf(add_msg, "0x%x", ((((int)r0) << 8) | r1));
-						CALLEXCEPT_PP_S(PPERR_SCALE_NOTREADY, add_msg); // Весы не отвечают
+						CALLEXCEPT_PP_S(PPERR_SCALE_NOTREADY, add_msg); // Р’РµСЃС‹ РЅРµ РѕС‚РІРµС‡Р°СЋС‚
 					}
 				}
 				THROW(CheckSync_16());
@@ -846,12 +847,12 @@ int CommLP15::SendPLU_16(const ScalePLU * pPLU)
 		SplitString(pPLU->GoodsName, name_items_count, name_items);
 		for(int i = 0; i < name_items_count; i++) {
 			size_t j = 0;
-			// Этот блок следует удалить после проверки следующего ниже блока (закомментированного) {
+			// Р­С‚РѕС‚ Р±Р»РѕРє СЃР»РµРґСѓРµС‚ СѓРґР°Р»РёС‚СЊ РїРѕСЃР»Рµ РїСЂРѕРІРµСЂРєРё СЃР»РµРґСѓСЋС‰РµРіРѕ РЅРёР¶Рµ Р±Р»РѕРєР° (Р·Р°РєРѕРјРјРµРЅС‚РёСЂРѕРІР°РЅРЅРѕРіРѕ) {
 			//alignstr(name_items[i].ptr, name_items[i].len, ALIGN_CENTER);
 			for(j = sstrlen(name_items[i].P_Buf); ((int)j) < name_items[i].Size; j++)
 	   	    	name_items[i].P_Buf[j] = 0; // ' '
 			// }
-			/* Комментирую до проверки
+			/* РљРѕРјРјРµРЅС‚РёСЂСѓСЋ РґРѕ РїСЂРѕРІРµСЂРєРё
 			alignstr(name_items[i].ptr, name_items[i].len, ALIGN_CENTER);
 			// @v5.7.8 VADIM {
 			//for(j = sstrlen(name_items[i].ptr); j < name_items[i].len; j++)
@@ -970,11 +971,11 @@ int CommLP15::SendPLU(const ScalePLU * pPLU)
 			SplitString(pPLU->GoodsName, name_items_count, name_items);
 			for(i = 0; i < name_items_count; i++) {
 				alignstr(name_items[i].P_Buf, name_items[i].Size, ALIGN_CENTER);
-				// Этот блок следует удалить после проверки следующего ниже блока (закомментированного) {
+				// Р­С‚РѕС‚ Р±Р»РѕРє СЃР»РµРґСѓРµС‚ СѓРґР°Р»РёС‚СЊ РїРѕСЃР»Рµ РїСЂРѕРІРµСЂРєРё СЃР»РµРґСѓСЋС‰РµРіРѕ РЅРёР¶Рµ Р±Р»РѕРєР° (Р·Р°РєРѕРјРјРµРЅС‚РёСЂРѕРІР°РЅРЅРѕРіРѕ) {
 				for(size_t j = sstrlen(name_items[i].P_Buf); ((int)j) < name_items[i].Size; j++)
 	   	    		name_items[i].P_Buf[j] = ' ';
 				// }
-				/* Комментирую до проверки
+				/* РљРѕРјРјРµРЅС‚РёСЂСѓСЋ РґРѕ РїСЂРѕРІРµСЂРєРё
 				// @v5.7.8 VADIM {
 				//for(j = sstrlen(name_items[i].ptr); j < name_items[i].len; j++)
 				for(j = sstrlen(name_items[i].ptr); j >= 0 && name_items[i].ptr[j] == ' '; j--)
@@ -1030,28 +1031,28 @@ int CommLP15::GetData(int * pGdsNo, double * pWeight)
 
 	struct _ScaleStatus {
 		uchar  Status;
-		// бит 0 = 1 - перегрузка
-		// бит 1 = 0 - всегда
-		// бит 2 = 1 - включен режим выбора тары
-		// бит 3 = 1 - нулевой вес
-		// бит 4 = 0 - всегда
-		// бит 5 = 1 - включен двухдиапазонный режим
-		// бит 6 = 1 - вес стабильный
-		// бит 7 = 1 - знак величины веса отрицательный
-		uint16 Weight;    // в граммах
-		long   Price;     // в копейках
-		long   Sum;       // в копейках
+		// Р±РёС‚ 0 = 1 - РїРµСЂРµРіСЂСѓР·РєР°
+		// Р±РёС‚ 1 = 0 - РІСЃРµРіРґР°
+		// Р±РёС‚ 2 = 1 - РІРєР»СЋС‡РµРЅ СЂРµР¶РёРј РІС‹Р±РѕСЂР° С‚Р°СЂС‹
+		// Р±РёС‚ 3 = 1 - РЅСѓР»РµРІРѕР№ РІРµСЃ
+		// Р±РёС‚ 4 = 0 - РІСЃРµРіРґР°
+		// Р±РёС‚ 5 = 1 - РІРєР»СЋС‡РµРЅ РґРІСѓС…РґРёР°РїР°Р·РѕРЅРЅС‹Р№ СЂРµР¶РёРј
+		// Р±РёС‚ 6 = 1 - РІРµСЃ СЃС‚Р°Р±РёР»СЊРЅС‹Р№
+		// Р±РёС‚ 7 = 1 - Р·РЅР°Рє РІРµР»РёС‡РёРЅС‹ РІРµСЃР° РѕС‚СЂРёС†Р°С‚РµР»СЊРЅС‹Р№
+		uint16 Weight;    // РІ РіСЂР°РјРјР°С…
+		long   Price;     // РІ РєРѕРїРµР№РєР°С…
+		long   Sum;       // РІ РєРѕРїРµР№РєР°С…
 		long   PLUNumber;
 	} sc_st;
 
 	// @paul {
-	if(Data.Rec.ProtocolVer == 20) { // Весы CAS AP, CAS ER JR
+	if(Data.Rec.ProtocolVer == 20) { // Р’РµСЃС‹ CAS AP, CAS ER JR
 		const uchar ask_apweight = 0x11;
 		const uchar ask_apall = 0x12;
 		//
-		// Контрольная сумма (bcc) – младший байт результата арифметического суммировани
-		// символов (байтов), начиная с символа, непосредственно следующего за первым SOH
-		// или STX – символом и до байта контрольной суммы bcc (невключительно)
+		// РљРѕРЅС‚СЂРѕР»СЊРЅР°СЏ СЃСѓРјРјР° (bcc) вЂ“ РјР»Р°РґС€РёР№ Р±Р°Р№С‚ СЂРµР·СѓР»СЊС‚Р°С‚Р° Р°СЂРёС„РјРµС‚РёС‡РµСЃРєРѕРіРѕ СЃСѓРјРјРёСЂРѕРІР°РЅРё
+		// СЃРёРјРІРѕР»РѕРІ (Р±Р°Р№С‚РѕРІ), РЅР°С‡РёРЅР°СЏ СЃ СЃРёРјРІРѕР»Р°, РЅРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅРѕ СЃР»РµРґСѓСЋС‰РµРіРѕ Р·Р° РїРµСЂРІС‹Рј SOH
+		// РёР»Рё STX вЂ“ СЃРёРјРІРѕР»РѕРј Рё РґРѕ Р±Р°Р№С‚Р° РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ СЃСѓРјРјС‹ bcc (РЅРµРІРєР»СЋС‡РёС‚РµР»СЊРЅРѕ)
 		//
 		char   bcc = 0;
 		uchar  c = 0;
@@ -1060,18 +1061,18 @@ int CommLP15::GetData(int * pGdsNo, double * pWeight)
 		uint8 r0 = 0;
 		THROW(SetConnection()); // @v9.0.0
 		r0 = (uint8)0x05;
-		THROW_PP(PutChr(r0, 1, 1), PPERR_SCALE_NOSYNC); // Посылаем запрос к весам на установку соединения (0x05)
-		THROW_PP(r0 = GetChr(), PPERR_SCALE_NOSYNC); // Получаем ответ весов
+		THROW_PP(PutChr(r0, 1, 1), PPERR_SCALE_NOSYNC); // РџРѕСЃС‹Р»Р°РµРј Р·Р°РїСЂРѕСЃ Рє РІРµСЃР°Рј РЅР° СѓСЃС‚Р°РЅРѕРІРєСѓ СЃРѕРµРґРёРЅРµРЅРёСЏ (0x05)
+		THROW_PP(r0 = GetChr(), PPERR_SCALE_NOSYNC); // РџРѕР»СѓС‡Р°РµРј РѕС‚РІРµС‚ РІРµСЃРѕРІ
 		if(r0 != 0x06) {
 			char   add_msg[32];
 			sprintf(add_msg, "0x%x", ((((int)r0) << 8)));
-			CALLEXCEPT_PP_S(PPERR_SCALE_NOTREADY, add_msg); // Весы не отвечают
+			CALLEXCEPT_PP_S(PPERR_SCALE_NOTREADY, add_msg); // Р’РµСЃС‹ РЅРµ РѕС‚РІРµС‡Р°СЋС‚
 		}
-		// Если в течении 3х секунд после отсылки весами 0x06 от компьютера не приходит ответ (0x11 или 0x12), запрос аннулируетс
-		THROW_PP(PutChr(ask_apall), PPERR_SCALE_NOSYNC); // Посылаем ответ на получение данных
+		// Р•СЃР»Рё РІ С‚РµС‡РµРЅРёРё 3С… СЃРµРєСѓРЅРґ РїРѕСЃР»Рµ РѕС‚СЃС‹Р»РєРё РІРµСЃР°РјРё 0x06 РѕС‚ РєРѕРјРїСЊСЋС‚РµСЂР° РЅРµ РїСЂРёС…РѕРґРёС‚ РѕС‚РІРµС‚ (0x11 РёР»Рё 0x12), Р·Р°РїСЂРѕСЃ Р°РЅРЅСѓР»РёСЂСѓРµС‚СЃ
+		THROW_PP(PutChr(ask_apall), PPERR_SCALE_NOSYNC); // РџРѕСЃС‹Р»Р°РµРј РѕС‚РІРµС‚ РЅР° РїРѕР»СѓС‡РµРЅРёРµ РґР°РЅРЅС‹С…
 
 		buf = 0;
-		// Получаем 37 байт ответа
+		// РџРѕР»СѓС‡Р°РµРј 37 Р±Р°Р№С‚ РѕС‚РІРµС‚Р°
 		for(pos = 0; pos < 37; pos++) {
 			THROW_PP(c = GetChr(), PPERR_SCALE_RCV);
 			buf.CatChar(c);
@@ -1088,54 +1089,54 @@ int CommLP15::GetData(int * pGdsNo, double * pWeight)
 
 		sc_st.Status = 0;
 		if(buf[14] == 0x46) {
-			sc_st.Status |= (1<<0); // 1 - перегрузка
+			sc_st.Status |= (1<<0); // 1 - РїРµСЂРµРіСЂСѓР·РєР°
 		}
 		if(buf[13] == 0x53) {
-			sc_st.Status |= (1<<6); // 1 - вес стабильный
+			sc_st.Status |= (1<<6); // 1 - РІРµСЃ СЃС‚Р°Р±РёР»СЊРЅС‹Р№
 		}
 		if(buf[14] == 0x2d) {
-			sc_st.Status |= (1<<7); // 1 - отрицательный вес
+			sc_st.Status |= (1<<7); // 1 - РѕС‚СЂРёС†Р°С‚РµР»СЊРЅС‹Р№ РІРµСЃ
 		}
 
-		THROW_PP(buf[13] == 0x53, PPERR_SCALE_RCV); // Признак стабильности веса: 0x53 ("S") - стабилен, 0x55 ("U") - нестабилен
-		THROW_PP(buf[14] == 0x20, PPERR_SCALE_RCV); // Знак веса: отрицательный вес: 0x2d ("-"), нулевой или положительный вес: 0x20 (" "), перегрузка: 0x46 ("F")
+		THROW_PP(buf[13] == 0x53, PPERR_SCALE_RCV); // РџСЂРёР·РЅР°Рє СЃС‚Р°Р±РёР»СЊРЅРѕСЃС‚Рё РІРµСЃР°: 0x53 ("S") - СЃС‚Р°Р±РёР»РµРЅ, 0x55 ("U") - РЅРµСЃС‚Р°Р±РёР»РµРЅ
+		THROW_PP(buf[14] == 0x20, PPERR_SCALE_RCV); // Р—РЅР°Рє РІРµСЃР°: РѕС‚СЂРёС†Р°С‚РµР»СЊРЅС‹Р№ РІРµСЃ: 0x2d ("-"), РЅСѓР»РµРІРѕР№ РёР»Рё РїРѕР»РѕР¶РёС‚РµР»СЊРЅС‹Р№ РІРµСЃ: 0x20 (" "), РїРµСЂРµРіСЂСѓР·РєР°: 0x46 ("F")
 
-		// 2 байта единицы измерения: kg или lb
+		// 2 Р±Р°Р№С‚Р° РµРґРёРЅРёС†С‹ РёР·РјРµСЂРµРЅРёСЏ: kg РёР»Рё lb
 		THROW_PP(buf[21] == 0x6b, PPERR_SCALE_RCV); // 0x6b ("k")
 		THROW_PP(buf[22] == 0x67, PPERR_SCALE_RCV); // 0x67 ("g")
 
-		buf.Sub(2,8,temp_buf); // Выделяем байты отвечающие за стоимость
+		buf.Sub(2,8,temp_buf); // Р’С‹РґРµР»СЏРµРј Р±Р°Р№С‚С‹ РѕС‚РІРµС‡Р°СЋС‰РёРµ Р·Р° СЃС‚РѕРёРјРѕСЃС‚СЊ
 		bcc = 0;
 		for(pos = 0; pos < temp_buf.Len(); pos++) {
 			bcc ^= temp_buf[pos];
 		}
-		THROW_PP(bcc == buf[10], PPERR_SCALE_RCV); // Контрольный байт
-		sc_st.Sum = R0i(temp_buf.ToReal() * 100.0); // Стоимость
+		THROW_PP(bcc == buf[10], PPERR_SCALE_RCV); // РљРѕРЅС‚СЂРѕР»СЊРЅС‹Р№ Р±Р°Р№С‚
+		sc_st.Sum = R0i(temp_buf.ToReal() * 100.0); // РЎС‚РѕРёРјРѕСЃС‚СЊ
 		buf.Sub(13, 10, temp_buf);
 		bcc = 0;
 		for(pos = 0; pos < temp_buf.Len(); pos++) {
 			bcc ^= temp_buf[pos];
 		}
-		THROW_PP(bcc == buf[23], PPERR_SCALE_RCV); // Контрольный байт
-		buf.Sub(15, 6, temp_buf); // Выделяем байты отвечающие за вес
-		sc_st.Weight = static_cast<uint16>(round(temp_buf.ToReal() * 1000.0, 0)); // Вес
+		THROW_PP(bcc == buf[23], PPERR_SCALE_RCV); // РљРѕРЅС‚СЂРѕР»СЊРЅС‹Р№ Р±Р°Р№С‚
+		buf.Sub(15, 6, temp_buf); // Р’С‹РґРµР»СЏРµРј Р±Р°Р№С‚С‹ РѕС‚РІРµС‡Р°СЋС‰РёРµ Р·Р° РІРµСЃ
+		sc_st.Weight = static_cast<uint16>(round(temp_buf.ToReal() * 1000.0, 0)); // Р’РµСЃ
 		if(sc_st.Weight == 0) {
-			sc_st.Status |= (1<<3); // 1 - нулевой вес
+			sc_st.Status |= (1<<3); // 1 - РЅСѓР»РµРІРѕР№ РІРµСЃ
 		}
-		buf.Sub(26, 8, temp_buf); // Выделяем байты отвечающие за цену
+		buf.Sub(26, 8, temp_buf); // Р’С‹РґРµР»СЏРµРј Р±Р°Р№С‚С‹ РѕС‚РІРµС‡Р°СЋС‰РёРµ Р·Р° С†РµРЅСѓ
 		bcc = 0;
 		for(pos = 0; pos < temp_buf.Len(); pos++) {
 			bcc ^= temp_buf[pos];
 		}
-		THROW_PP(bcc == buf[34], PPERR_SCALE_RCV); // Контрольный байт
-		sc_st.Price = static_cast<long>(round(temp_buf.ToReal() * 100.0, 0)); // Цена
+		THROW_PP(bcc == buf[34], PPERR_SCALE_RCV); // РљРѕРЅС‚СЂРѕР»СЊРЅС‹Р№ Р±Р°Р№С‚
+		sc_st.Price = static_cast<long>(round(temp_buf.ToReal() * 100.0, 0)); // Р¦РµРЅР°
 		weight = static_cast<double>(sc_st.Weight) / 1000.0;
 		ok = 1;
 	}
 	// } @paul
 	else {
 		THROW(SetConnection());
-		// Проверено только для TCP/IP !!!
+		// РџСЂРѕРІРµСЂРµРЅРѕ С‚РѕР»СЊРєРѕ РґР»СЏ TCP/IP !!!
 		if(Data.Rec.Flags & SCALF_TCPIP) {
 			THROW_PP(send(SocketHandle, (const char *)&ask, 1, 0) != SOCKET_ERROR, PPERR_SCALE_SEND);
 		}
@@ -1152,8 +1153,8 @@ int CommLP15::GetData(int * pGdsNo, double * pWeight)
 			sc_st.Sum       = GetLong();
 			sc_st.PLUNumber = GetLong();
 		}
-		// Выставляем код ошибки приема данных с весов,
-		// т.к. в некоторых случаях ok = -1 тоже указывает на ошибку
+		// Р’С‹СЃС‚Р°РІР»СЏРµРј РєРѕРґ РѕС€РёР±РєРё РїСЂРёРµРјР° РґР°РЅРЅС‹С… СЃ РІРµСЃРѕРІ,
+		// С‚.Рє. РІ РЅРµРєРѕС‚РѕСЂС‹С… СЃР»СѓС‡Р°СЏС… ok = -1 С‚РѕР¶Рµ СѓРєР°Р·С‹РІР°РµС‚ РЅР° РѕС€РёР±РєСѓ
 		PPSetError(PPERR_SCALE_RCV);
 		//
 		if((sc_st.Status & 0x40) && !(sc_st.Status & 0x8D)) {
@@ -1243,8 +1244,8 @@ int CasCL5000J::CheckSync()
 		}
 	}
 	PPSetAddedMsgString(0);
-	THROW_PP(ret[0] == (uint8)Data.LogNum, PPERR_SCALE_NOTREADY); // Весы не отвечают
-	THROW_PP(ret[1] == (uint8)0x80, PPERR_SCALE_NOTREADY);        // Весы не отвечают
+	THROW_PP(ret[0] == (uint8)Data.LogNum, PPERR_SCALE_NOTREADY); // Р’РµСЃС‹ РЅРµ РѕС‚РІРµС‡Р°СЋС‚
+	THROW_PP(ret[1] == (uint8)0x80, PPERR_SCALE_NOTREADY);        // Р’РµСЃС‹ РЅРµ РѕС‚РІРµС‡Р°СЋС‚
 	CATCHZOK
 	return ok;
 	*/
@@ -1398,7 +1399,7 @@ int CasCL5000J::SendPLU(const ScalePLU * pPLU)
 	const  size_t direct_message_max_size = 300;
 	int    ok = 1;
 	char   data_buf[1024], buf[8];
-	char   direct_message[direct_message_max_size*2]; // *2 - страховка
+	char   direct_message[direct_message_max_size*2]; // *2 - СЃС‚СЂР°С…РѕРІРєР°
 	const  uint16 data_size = 147;
 	SString barcode;
 	size_t p = 0;
@@ -1812,7 +1813,7 @@ int COMMassaK::SendPLU(const ScalePLU * pScalePLU)
 		SString temp_buf;
 		LDATE  expiry = pScalePLU->Expiry;
 		THROW(SetParam(pScalePLU->GoodsNo)); // PLU
-		THROW(SetParam(0L));                 // Kind (0 - весовой, 1 - штучный)
+		THROW(SetParam(0L));                 // Kind (0 - РІРµСЃРѕРІРѕР№, 1 - С€С‚СѓС‡РЅС‹Р№)
 		SETIFZ(wght_prefix, 20 + pScalePLU->Barcode / 100000);
 		THROW(SetParam(wght_prefix));        // GrpNo (use as WeightPrefix)
 		THROW(SetParam(pScalePLU->Barcode)); // Barcode
@@ -1889,7 +1890,7 @@ int COMMassaKVPN::SetConnection()
 	if(Data.Rec.ProtocolVer == 11) {
 		/*
 		PLU;TYPE;LABEL_NUMBER;BARCODE_NUMBER;BARCODE_PREFIX;PRICE;TARE;CODE;BEST_BEFORE;SHELF_LIFE;CERTIFICATE;GROUP;CENTERING;NAME;CONTENT;INFO_TYPE;INFO
-		00000110;1;1;1;0;11050;0;00000110;25.11.2011 16:30:00;0;;0;0;Грильяж в шоколаде;;1;2000001914014
+		00000110;1;1;1;0;11050;0;00000110;25.11.2011 16:30:00;0;;0;0;Р“СЂРёР»СЊСЏР¶ РІ С€РѕРєРѕР»Р°РґРµ;;1;2000001914014
 		*/
 		SString line_buf;
 		PPGetFilePath(PPPATH_OUT, "masakvpn.csv", path);
@@ -1984,11 +1985,11 @@ int COMMassaKVPN::SendPLU(const ScalePLU * pScalePLU)
 		else if(P_Csv) {
 		/*
 		PLU     ;TYPE;LABEL_NUMBER;BARCODE_NUMBER;BARCODE_PREFIX;PRICE;TARE;    CODE;        BEST_BEFORE;SHELF_LIFE;CERTIFICATE;GROUP;CENTERING;              NAME;CONTENT;INFO_TYPE;INFO
-		00000110;   1;           1;             1;             0;11050;   0;00000110;25.11.2011 16:30:00;         0;           ;    0;        0;Грильяж в шоколаде;       ;        1;2000001914014
+		00000110;   1;           1;             1;             0;11050;   0;00000110;25.11.2011 16:30:00;         0;           ;    0;        0;Р“СЂРёР»СЊСЏР¶ РІ С€РѕРєРѕР»Р°РґРµ;       ;        1;2000001914014
 		*/
 			SString line_buf;
 			line_buf.Cat(pScalePLU->GoodsNo).Semicol();
-			line_buf.CatChar('1').Semicol(); // type 1 - весовой, 0 - штучный
+			line_buf.CatChar('1').Semicol(); // type 1 - РІРµСЃРѕРІРѕР№, 0 - С€С‚СѓС‡РЅС‹Р№
 			line_buf.CatChar('1').Semicol(); // label_number
 			line_buf.CatChar('1').Semicol(); // barcode_number
 			line_buf.Cat(wght_prefix).Semicol(); // barcode_prefix
@@ -2100,8 +2101,8 @@ int COMMassaKVer1::ExecMKOper(PPID id)
 	if(P_DrvMassaK) {
 		ok = P_DrvMassaK->CallMethod(id);
 		//if(!ok) {
-		// В библиотеке нет параметра, отвечающего за код ошибки, который можно прочитать
-		// Упоминается ERROR, но он не обнаруживается при инициализации
+		// Р’ Р±РёР±Р»РёРѕС‚РµРєРµ РЅРµС‚ РїР°СЂР°РјРµС‚СЂР°, РѕС‚РІРµС‡Р°СЋС‰РµРіРѕ Р·Р° РєРѕРґ РѕС€РёР±РєРё, РєРѕС‚РѕСЂС‹Р№ РјРѕР¶РЅРѕ РїСЂРѕС‡РёС‚Р°С‚СЊ
+		// РЈРїРѕРјРёРЅР°РµС‚СЃСЏ ERROR, РЅРѕ РѕРЅ РЅРµ РѕР±РЅР°СЂСѓР¶РёРІР°РµС‚СЃСЏ РїСЂРё РёРЅРёС†РёР°Р»РёР·Р°С†РёРё
 		//if(ResCode != mkErrOK) {
 			//if(ResCode == mkErrSynk)
 			//	PPSetError(PPERR_SCALE_NOSYNC);
@@ -2112,8 +2113,8 @@ int COMMassaKVer1::ExecMKOper(PPID id)
 			//ok = 0;
 		//}
 
-		// Заренее выставим ошибку, потому что даже при отсутствии соединения мы получим ok = 1,
-		// и леве описание ошибки в будущем, которая обязательно отобразится при вызове весов через F5
+		// Р—Р°СЂРµРЅРµРµ РІС‹СЃС‚Р°РІРёРј РѕС€РёР±РєСѓ, РїРѕС‚РѕРјСѓ С‡С‚Рѕ РґР°Р¶Рµ РїСЂРё РѕС‚СЃСѓС‚СЃС‚РІРёРё СЃРѕРµРґРёРЅРµРЅРёСЏ РјС‹ РїРѕР»СѓС‡РёРј ok = 1,
+		// Рё Р»РµРІРµ РѕРїРёСЃР°РЅРёРµ РѕС€РёР±РєРё РІ Р±СѓРґСѓС‰РµРј, РєРѕС‚РѕСЂР°СЏ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ РѕС‚РѕР±СЂР°Р·РёС‚СЃСЏ РїСЂРё РІС‹Р·РѕРІРµ РІРµСЃРѕРІ С‡РµСЂРµР· F5
 		PPSetError(PPERR_SCALE_NOTREADY);
 	}
 	//else
@@ -2154,8 +2155,8 @@ int COMMassaKVer1::GetData(int * pGdsNo, double * pWeight)
 	THROW(SetMKProp(Connection, port_buf));
 	THROW(ExecMKOper(ReadWeight));
 	THROW(GetMKProp(Weight, weight)); //
-	THROW(GetMKProp(Division, division)); // 0 - мг, 1 - г, 2 - кг
-	THROW(GetMKProp(Stable, stable)); // 0 - не стабилен, 1 - стабилен
+	THROW(GetMKProp(Division, division)); // 0 - РјРі, 1 - Рі, 2 - РєРі
+	THROW(GetMKProp(Stable, stable)); // 0 - РЅРµ СЃС‚Р°Р±РёР»РµРЅ, 1 - СЃС‚Р°Р±РёР»РµРЅ
 	if(division == 0) {
 		ASSIGN_PTR(pWeight, weight / 1000000);
 	}
@@ -2707,7 +2708,7 @@ int TCPIPMToledo::ExecMTOper(PPID id)
 	return ok;
 }
 //
-//	Кассовый сервер Кристалл
+//	РљР°СЃСЃРѕРІС‹Р№ СЃРµСЂРІРµСЂ РљСЂРёСЃС‚Р°Р»Р»
 //
 class CrystalCashServer : public PPScaleDevice {
 public:
@@ -2793,8 +2794,8 @@ int CrystalCashServer::SendPLU(const ScalePLU * pScalePLU)
 			if(expiry > 0)
 				dbfrS.put(9, expiry);
 		}
-		dbfrS.put(10, 1);      // Номер секции (всегда 1)
-		dbfrS.put(11, 1);      // Признак весового товара
+		dbfrS.put(10, 1);      // РќРѕРјРµСЂ СЃРµРєС†РёРё (РІСЃРµРіРґР° 1)
+		dbfrS.put(11, 1);      // РџСЂРёР·РЅР°Рє РІРµСЃРѕРІРѕРіРѕ С‚РѕРІР°СЂР°
 		THROW_PP(P_OutTblScale->appendRec(&dbfrS), PPERR_DBFWRFAULT);
 		if(is_msg) {
 			const size_t max_text = 255;
@@ -2818,9 +2819,9 @@ int CrystalCashServer::CloseConnection()
 	SString add_msg_path;
 	DbfTable * p_msg_tbl = 0;
 	//
-	// Загрузка доп. информации по товару
+	// Р—Р°РіСЂСѓР·РєР° РґРѕРї. РёРЅС„РѕСЂРјР°С†РёРё РїРѕ С‚РѕРІР°СЂСѓ
 	//
-	/* Пока непонятно как грузить
+	/* РџРѕРєР° РЅРµРїРѕРЅСЏС‚РЅРѕ РєР°Рє РіСЂСѓР·РёС‚СЊ
 	if(P_AddStrAry) {
 		THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_CS_SCALE_ADDMSGDBF, add_msg_path, sizeof(add_msg_path)));
 		THROW(p_msg_tbl = CreateDbfTable(DBFS_CRCS_SCALE_EXPORT, add_msg_path, 1));
@@ -2836,7 +2837,7 @@ int CrystalCashServer::CloseConnection()
 	*/
 	THROW(DistributeFile(FlagPath,  0));
 	THROW(DistributeFile(ScalePath, 0));
-	/* Пока непонятно как грузить
+	/* РџРѕРєР° РЅРµРїРѕРЅСЏС‚РЅРѕ РєР°Рє РіСЂСѓР·РёС‚СЊ
 	if(add_msg_path.Len())
 		THROW(DistributeFile(add_msg_path, 0));
 	*/
@@ -3045,18 +3046,18 @@ void DIGI::ConvertDIGI_Text(const char * pSrcName, uchar fontSize, uint lineLen,
 		}
 		SplitString(org_goods_name, name_items_count, name_items);
 		for(j = 0; j < name_items_count; j++) {
-			rDestName.CatChar(fontSize); // Размер шрифта
+			rDestName.CatChar(fontSize); // Р Р°Р·РјРµСЂ С€СЂРёС„С‚Р°
 			const long len = sstrleni(name_items[j].P_Buf);
 			LongToHexBytesStr(len, 1, str_len);
-			rDestName.CatChar(str_len.C(0)); // Длина строки без заголовков и терминаторов
+			rDestName.CatChar(str_len.C(0)); // Р”Р»РёРЅР° СЃС‚СЂРѕРєРё Р±РµР· Р·Р°РіРѕР»РѕРІРєРѕРІ Рё С‚РµСЂРјРёРЅР°С‚РѕСЂРѕРІ
 			rDestName.Cat(name_items[j].P_Buf).CatChar((j < (name_items_count-1)) ? 13 : 12);
 		}
 	}
 	else {
-		rDestName.CatChar(fontSize); // Размер шрифта
+		rDestName.CatChar(fontSize); // Р Р°Р·РјРµСЂ С€СЂРёС„С‚Р°
 		long   len = sstrleni(org_goods_name);
 		LongToHexBytesStr(len, 1, str_len);
-		rDestName.CatChar(str_len.C(0)); // Длина строки без заголовков и терминаторов
+		rDestName.CatChar(str_len.C(0)); // Р”Р»РёРЅР° СЃС‚СЂРѕРєРё Р±РµР· Р·Р°РіРѕР»РѕРІРєРѕРІ Рё С‚РµСЂРјРёРЅР°С‚РѕСЂРѕРІ
 		rDestName.Cat(org_goods_name).CatChar(12);
 	}
 	rDestName.ReplaceChar((char)239, (char)159);
@@ -3073,17 +3074,17 @@ int DIGI::SendPLU(const ScalePLU * pScalePLU)
 	if(!(Data.Rec.Flags & SCALF_TCPIP)) {
 		SString out_rec;
 		struct _DIGI_Imp_Fmt {
-			char HeaderA;      // Заголовок "A" - признак описания товара
-			char Barcode[12];  // Штрихкод - 2CCCCCC00000
-			char PLU[15];      // PLU (или GoodsID), слева - нули
-			char Div[4];       // Номер отдела - 0000
-			char GdsGrp[4];    // Номер товарной группы - 0000
-			char GdsType;      // Тип товара - 0 - весовой
-			char PriceBase;    // Ценовая база - 0 - 1Кг, 1 - 100г
-			char Price[8];     // Отпускная цена - CCCCC.CC
-			char Expiry[3];    // Срок годности, дни - CCC
-			char TareNo[4];    // Номер тары - 0000
-			char GdsName[81];  // Наименование товара (обязательно 80 символов) + 0x00
+			char HeaderA;      // Р—Р°РіРѕР»РѕРІРѕРє "A" - РїСЂРёР·РЅР°Рє РѕРїРёСЃР°РЅРёСЏ С‚РѕРІР°СЂР°
+			char Barcode[12];  // РЁС‚СЂРёС…РєРѕРґ - 2CCCCCC00000
+			char PLU[15];      // PLU (РёР»Рё GoodsID), СЃР»РµРІР° - РЅСѓР»Рё
+			char Div[4];       // РќРѕРјРµСЂ РѕС‚РґРµР»Р° - 0000
+			char GdsGrp[4];    // РќРѕРјРµСЂ С‚РѕРІР°СЂРЅРѕР№ РіСЂСѓРїРїС‹ - 0000
+			char GdsType;      // РўРёРї С‚РѕРІР°СЂР° - 0 - РІРµСЃРѕРІРѕР№
+			char PriceBase;    // Р¦РµРЅРѕРІР°СЏ Р±Р°Р·Р° - 0 - 1РљРі, 1 - 100Рі
+			char Price[8];     // РћС‚РїСѓСЃРєРЅР°СЏ С†РµРЅР° - CCCCC.CC
+			char Expiry[3];    // РЎСЂРѕРє РіРѕРґРЅРѕСЃС‚Рё, РґРЅРё - CCC
+			char TareNo[4];    // РќРѕРјРµСЂ С‚Р°СЂС‹ - 0000
+			char GdsName[81];  // РќР°РёРјРµРЅРѕРІР°РЅРёРµ С‚РѕРІР°СЂР° (РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ 80 СЃРёРјРІРѕР»РѕРІ) + 0x00
 		} /*dif*/;
 		if(P_ScaleData && pScalePLU) {
 			out_rec.Printf("A%-07ld00000%015ld0001%04ld00%08.2lf%03ld0000%-80s\n",
@@ -3130,9 +3131,9 @@ int DIGI::SendPLU(const ScalePLU * pScalePLU)
 			ext_text_buf.Z();
 			if(GetAddedMsgLines(pScalePLU, line_len_limit, max_added_lines, 0, ss) > 0) {
 				for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-					ext_text_buf.CatChar(3); // Размер шрифта
+					ext_text_buf.CatChar(3); // Р Р°Р·РјРµСЂ С€СЂРёС„С‚Р°
 					LongToHexBytesStr(static_cast<long>(temp_buf.Len()), 1, str_len);
-					ext_text_buf.CatChar(str_len.C(0)); // Длина строки без заголовков и терминаторов
+					ext_text_buf.CatChar(str_len.C(0)); // Р”Р»РёРЅР° СЃС‚СЂРѕРєРё Р±РµР· Р·Р°РіРѕР»РѕРІРєРѕРІ Рё С‚РµСЂРјРёРЅР°С‚РѕСЂРѕРІ
 					ext_text_buf.Cat(temp_buf).CatChar(13);
 				}
 				if(ext_text_buf.Last() == 13)
@@ -3159,86 +3160,86 @@ int DIGI::SendPLU(const ScalePLU * pScalePLU)
 		memzero(out_rec, sizeof(out_rec));
 		size_t len = 0;
 		out_rec[len++] = (char)0xF1; // #1
-		out_rec[len++] = 0x25;       // #2 признак того, что грузим товар
+		out_rec[len++] = 0x25;       // #2 РїСЂРёР·РЅР°Рє С‚РѕРіРѕ, С‡С‚Рѕ РіСЂСѓР·РёРј С‚РѕРІР°СЂ
 		for(j = 0; j < 4; j++)
-			out_rec[len++] = ((const char *)goods_no)[j]; // #6 Номер PLU
-		size_offs = len; // По этому смещению в конце процедуры запишем размер записи
+			out_rec[len++] = ((const char *)goods_no)[j]; // #6 РќРѕРјРµСЂ PLU
+		size_offs = len; // РџРѕ СЌС‚РѕРјСѓ СЃРјРµС‰РµРЅРёСЋ РІ РєРѕРЅС†Рµ РїСЂРѕС†РµРґСѓСЂС‹ Р·Р°РїРёС€РµРј СЂР°Р·РјРµСЂ Р·Р°РїРёСЃРё
 
-		out_rec[len++] = 0; // Два байта длины записи
-		out_rec[len++] = 0; // Это поле мы заполним позже
-		// весовой товар, печатать даты упаковки и продажи, время упаковки
+		out_rec[len++] = 0; // Р”РІР° Р±Р°Р№С‚Р° РґР»РёРЅС‹ Р·Р°РїРёСЃРё
+		out_rec[len++] = 0; // Р­С‚Рѕ РїРѕР»Рµ РјС‹ Р·Р°РїРѕР»РЅРёРј РїРѕР·Р¶Рµ
+		// РІРµСЃРѕРІРѕР№ С‚РѕРІР°СЂ, РїРµС‡Р°С‚Р°С‚СЊ РґР°С‚С‹ СѓРїР°РєРѕРІРєРё Рё РїСЂРѕРґР°Р¶Рё, РІСЂРµРјСЏ СѓРїР°РєРѕРІРєРё
 		/*
-			Байт 1
-			Бит 0 Тип товара (0 - Весовой; 1 - Штучный)
-			Бит 1 Цена за единицу веса (0 - 1-я цена; 1 - 2-я цена)
-			Бит 2 Печатать дату продажи (0 - Нет; 1- Да)
-			Бит 3 Печатать дату использования (0 - Нет; 1 - Да)
-			Бит 4 Печатать дату упаковки (0 - Нет; 1 - Да)
-			Бит 5 Печатать время продажи (0 - Нет; 1 - Да)
-			Бит 6 Печатать время упаковки (0 - Нет; 1 - Да)
-			Бит 7 Источник времени упаковки (0 - часы; 1 - ввод с клавиатуры)
-			Байт 2
-			Бит 0 Источник времени продажи (0 - часы; 1 - ввод с клавиатуры)
-			Бит 1 База цены (0 - Цена за Кг; 1 - **Цена за 100 г)
-			Бит 3 Печатать питательность (0 - Нет; 1 - Да)
-			Бит 4 Аннулирование цены за единицу веса (0 - Нет; 1 - Да)
-			Бит 5 Источник даты продажи (0 - Часы; 1 - Дата упаковки)
-			Бит 6 Условие установки флага безопасности (0 - Порог; 1 - Это PLU)
-			Бит 7 Приложенные данные PLU (0 - Нет; 1 - Да)
+			Р‘Р°Р№С‚ 1
+			Р‘РёС‚ 0 РўРёРї С‚РѕРІР°СЂР° (0 - Р’РµСЃРѕРІРѕР№; 1 - РЁС‚СѓС‡РЅС‹Р№)
+			Р‘РёС‚ 1 Р¦РµРЅР° Р·Р° РµРґРёРЅРёС†Сѓ РІРµСЃР° (0 - 1-СЏ С†РµРЅР°; 1 - 2-СЏ С†РµРЅР°)
+			Р‘РёС‚ 2 РџРµС‡Р°С‚Р°С‚СЊ РґР°С‚Сѓ РїСЂРѕРґР°Р¶Рё (0 - РќРµС‚; 1- Р”Р°)
+			Р‘РёС‚ 3 РџРµС‡Р°С‚Р°С‚СЊ РґР°С‚Сѓ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ (0 - РќРµС‚; 1 - Р”Р°)
+			Р‘РёС‚ 4 РџРµС‡Р°С‚Р°С‚СЊ РґР°С‚Сѓ СѓРїР°РєРѕРІРєРё (0 - РќРµС‚; 1 - Р”Р°)
+			Р‘РёС‚ 5 РџРµС‡Р°С‚Р°С‚СЊ РІСЂРµРјСЏ РїСЂРѕРґР°Р¶Рё (0 - РќРµС‚; 1 - Р”Р°)
+			Р‘РёС‚ 6 РџРµС‡Р°С‚Р°С‚СЊ РІСЂРµРјСЏ СѓРїР°РєРѕРІРєРё (0 - РќРµС‚; 1 - Р”Р°)
+			Р‘РёС‚ 7 РСЃС‚РѕС‡РЅРёРє РІСЂРµРјРµРЅРё СѓРїР°РєРѕРІРєРё (0 - С‡Р°СЃС‹; 1 - РІРІРѕРґ СЃ РєР»Р°РІРёР°С‚СѓСЂС‹)
+			Р‘Р°Р№С‚ 2
+			Р‘РёС‚ 0 РСЃС‚РѕС‡РЅРёРє РІСЂРµРјРµРЅРё РїСЂРѕРґР°Р¶Рё (0 - С‡Р°СЃС‹; 1 - РІРІРѕРґ СЃ РєР»Р°РІРёР°С‚СѓСЂС‹)
+			Р‘РёС‚ 1 Р‘Р°Р·Р° С†РµРЅС‹ (0 - Р¦РµРЅР° Р·Р° РљРі; 1 - **Р¦РµРЅР° Р·Р° 100 Рі)
+			Р‘РёС‚ 3 РџРµС‡Р°С‚Р°С‚СЊ РїРёС‚Р°С‚РµР»СЊРЅРѕСЃС‚СЊ (0 - РќРµС‚; 1 - Р”Р°)
+			Р‘РёС‚ 4 РђРЅРЅСѓР»РёСЂРѕРІР°РЅРёРµ С†РµРЅС‹ Р·Р° РµРґРёРЅРёС†Сѓ РІРµСЃР° (0 - РќРµС‚; 1 - Р”Р°)
+			Р‘РёС‚ 5 РСЃС‚РѕС‡РЅРёРє РґР°С‚С‹ РїСЂРѕРґР°Р¶Рё (0 - Р§Р°СЃС‹; 1 - Р”Р°С‚Р° СѓРїР°РєРѕРІРєРё)
+			Р‘РёС‚ 6 РЈСЃР»РѕРІРёРµ СѓСЃС‚Р°РЅРѕРІРєРё С„Р»Р°РіР° Р±РµР·РѕРїР°СЃРЅРѕСЃС‚Рё (0 - РџРѕСЂРѕРі; 1 - Р­С‚Рѕ PLU)
+			Р‘РёС‚ 7 РџСЂРёР»РѕР¶РµРЅРЅС‹Рµ РґР°РЅРЅС‹Рµ PLU (0 - РќРµС‚; 1 - Р”Р°)
 		*/
 		char status1_flags = 0x04 | 0x10 | 0x40; // 0x54
 		if(pScalePLU->Flags & pScalePLU->fCountable) { // @v10.0.0
 			status1_flags |= 0x01;
 		}
-		out_rec[len++] = status1_flags; // #9 PLU статус 1
-		// время упаковки – из встроенных весов, цена за 1 Кг
-		out_rec[len++] = 0x00;                           // #10 PLU статус 1
+		out_rec[len++] = status1_flags; // #9 PLU СЃС‚Р°С‚СѓСЃ 1
+		// РІСЂРµРјСЏ СѓРїР°РєРѕРІРєРё вЂ“ РёР· РІСЃС‚СЂРѕРµРЅРЅС‹С… РІРµСЃРѕРІ, С†РµРЅР° Р·Р° 1 РљРі
+		out_rec[len++] = 0x00;                           // #10 PLU СЃС‚Р°С‚СѓСЃ 1
 		/*
-		Бит  0: Формат 1-й этикетки	(0-По умолчанию (из SPEC); 1-Указан явно)
-		Бит  1: Формат 2-й этикетки (0-Нет; 1-Указан)
-		Бит  2: Формат штрихкода    (0-По умолчанию (из SPEC); 1-Указан явно)
-		Бит  3: Артикул товара (данные ШК) (0-Нет; 1-Указан явно)
-		Бит  4: Номер основной группы (0-По умолчанию (997); 1-Указан явно)
-		Бит  5: Поле «Себестоимость» (0-Нет; 1-Есть)
-		Бит  6: Поле «Вес тары»	(0-Нет; 1-Есть)
-		Бит  7: Поле «Количество в одной упаковке» (0-Нет; 1-Есть)
+		Р‘РёС‚  0: Р¤РѕСЂРјР°С‚ 1-Р№ СЌС‚РёРєРµС‚РєРё	(0-РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ (РёР· SPEC); 1-РЈРєР°Р·Р°РЅ СЏРІРЅРѕ)
+		Р‘РёС‚  1: Р¤РѕСЂРјР°С‚ 2-Р№ СЌС‚РёРєРµС‚РєРё (0-РќРµС‚; 1-РЈРєР°Р·Р°РЅ)
+		Р‘РёС‚  2: Р¤РѕСЂРјР°С‚ С€С‚СЂРёС…РєРѕРґР°    (0-РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ (РёР· SPEC); 1-РЈРєР°Р·Р°РЅ СЏРІРЅРѕ)
+		Р‘РёС‚  3: РђСЂС‚РёРєСѓР» С‚РѕРІР°СЂР° (РґР°РЅРЅС‹Рµ РЁРљ) (0-РќРµС‚; 1-РЈРєР°Р·Р°РЅ СЏРІРЅРѕ)
+		Р‘РёС‚  4: РќРѕРјРµСЂ РѕСЃРЅРѕРІРЅРѕР№ РіСЂСѓРїРїС‹ (0-РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ (997); 1-РЈРєР°Р·Р°РЅ СЏРІРЅРѕ)
+		Р‘РёС‚  5: РџРѕР»Рµ В«РЎРµР±РµСЃС‚РѕРёРјРѕСЃС‚СЊВ» (0-РќРµС‚; 1-Р•СЃС‚СЊ)
+		Р‘РёС‚  6: РџРѕР»Рµ В«Р’РµСЃ С‚Р°СЂС‹В»	(0-РќРµС‚; 1-Р•СЃС‚СЊ)
+		Р‘РёС‚  7: РџРѕР»Рµ В«РљРѕР»РёС‡РµСЃС‚РІРѕ РІ РѕРґРЅРѕР№ СѓРїР°РєРѕРІРєРµВ» (0-РќРµС‚; 1-Р•СЃС‚СЊ)
 		*/
-		// Основная группа указана явно. Нет полей тары, количества,
-		// себестоимости. Есть поля артикула штрихкода, формата
-		// штрихкода и формата 1-й этикетки. Вторая этикетка не печатается.
-		out_rec[len++] = 0x1D;                           // #11 PLU статус 2
-		/* Наличие полей в структуре (0-нет; 1-есть)
-		Бит  0: Поле «Символа количества»
-		Бит  1: Поле «Номера спец. сообщения»
-		Бит  2: Поле «Номер ингредиента»
-		Бит  3: Поле «Скидка»
-		Бит  4: Поле «Питательность»
-		Бит  5: Поле «Название товара»
-		Бит  6: Поле «Текст встроенного в PLU спец. сообщения»
-		Бит  7: Поле «Текст встроенного в PLU ингредиента»
+		// РћСЃРЅРѕРІРЅР°СЏ РіСЂСѓРїРїР° СѓРєР°Р·Р°РЅР° СЏРІРЅРѕ. РќРµС‚ РїРѕР»РµР№ С‚Р°СЂС‹, РєРѕР»РёС‡РµСЃС‚РІР°,
+		// СЃРµР±РµСЃС‚РѕРёРјРѕСЃС‚Рё. Р•СЃС‚СЊ РїРѕР»СЏ Р°СЂС‚РёРєСѓР»Р° С€С‚СЂРёС…РєРѕРґР°, С„РѕСЂРјР°С‚Р°
+		// С€С‚СЂРёС…РєРѕРґР° Рё С„РѕСЂРјР°С‚Р° 1-Р№ СЌС‚РёРєРµС‚РєРё. Р’С‚РѕСЂР°СЏ СЌС‚РёРєРµС‚РєР° РЅРµ РїРµС‡Р°С‚Р°РµС‚СЃСЏ.
+		out_rec[len++] = 0x1D;                           // #11 PLU СЃС‚Р°С‚СѓСЃ 2
+		/* РќР°Р»РёС‡РёРµ РїРѕР»РµР№ РІ СЃС‚СЂСѓРєС‚СѓСЂРµ (0-РЅРµС‚; 1-РµСЃС‚СЊ)
+		Р‘РёС‚  0: РџРѕР»Рµ В«РЎРёРјРІРѕР»Р° РєРѕР»РёС‡РµСЃС‚РІР°В»
+		Р‘РёС‚  1: РџРѕР»Рµ В«РќРѕРјРµСЂР° СЃРїРµС†. СЃРѕРѕР±С‰РµРЅРёСЏВ»
+		Р‘РёС‚  2: РџРѕР»Рµ В«РќРѕРјРµСЂ РёРЅРіСЂРµРґРёРµРЅС‚Р°В»
+		Р‘РёС‚  3: РџРѕР»Рµ В«РЎРєРёРґРєР°В»
+		Р‘РёС‚  4: РџРѕР»Рµ В«РџРёС‚Р°С‚РµР»СЊРЅРѕСЃС‚СЊВ»
+		Р‘РёС‚  5: РџРѕР»Рµ В«РќР°Р·РІР°РЅРёРµ С‚РѕРІР°СЂР°В»
+		Р‘РёС‚  6: РџРѕР»Рµ В«РўРµРєСЃС‚ РІСЃС‚СЂРѕРµРЅРЅРѕРіРѕ РІ PLU СЃРїРµС†. СЃРѕРѕР±С‰РµРЅРёСЏВ»
+		Р‘РёС‚  7: РџРѕР»Рµ В«РўРµРєСЃС‚ РІСЃС‚СЂРѕРµРЅРЅРѕРіРѕ РІ PLU РёРЅРіСЂРµРґРёРµРЅС‚Р°В»
 		*/
-		// В записи PLU присутствует название товара,
-		// ингредиенты и спец. сообщения, Разделы ссылок и питательности отсутствуют
-		// @v7.9.2 out_rec[len++] = 0x20;                           // #12 PLU статус 2
-		out_rec[len++] = ext_text_buf.NotEmpty() ? (0x80|0x20) : (0x20); // #12 PLU статус 2
-		/* Наличие полей в структуре (0-нет; 1-есть)
-		Бит  0:	Поле «Срок продажи в днях»
-		Бит  1:	Поле «Срок продажи в часах и минутах»
-		Бит  2: Поле «Срок использования в днях»
-		Бит  3: Поле «Дата упаковки – дата из часов»
-		Бит  4: Поле «Время упаковки»
-		Бит  5: Поле «Номер места»
-		Бит  6: Поле «Номер картинки»
-		*Бит 7: Поля «PLU статус В» и «PLU статус 2В»
+		// Р’ Р·Р°РїРёСЃРё PLU РїСЂРёСЃСѓС‚СЃС‚РІСѓРµС‚ РЅР°Р·РІР°РЅРёРµ С‚РѕРІР°СЂР°,
+		// РёРЅРіСЂРµРґРёРµРЅС‚С‹ Рё СЃРїРµС†. СЃРѕРѕР±С‰РµРЅРёСЏ, Р Р°Р·РґРµР»С‹ СЃСЃС‹Р»РѕРє Рё РїРёС‚Р°С‚РµР»СЊРЅРѕСЃС‚Рё РѕС‚СЃСѓС‚СЃС‚РІСѓСЋС‚
+		// @v7.9.2 out_rec[len++] = 0x20;                           // #12 PLU СЃС‚Р°С‚СѓСЃ 2
+		out_rec[len++] = ext_text_buf.NotEmpty() ? (0x80|0x20) : (0x20); // #12 PLU СЃС‚Р°С‚СѓСЃ 2
+		/* РќР°Р»РёС‡РёРµ РїРѕР»РµР№ РІ СЃС‚СЂСѓРєС‚СѓСЂРµ (0-РЅРµС‚; 1-РµСЃС‚СЊ)
+		Р‘РёС‚  0:	РџРѕР»Рµ В«РЎСЂРѕРє РїСЂРѕРґР°Р¶Рё РІ РґРЅСЏС…В»
+		Р‘РёС‚  1:	РџРѕР»Рµ В«РЎСЂРѕРє РїСЂРѕРґР°Р¶Рё РІ С‡Р°СЃР°С… Рё РјРёРЅСѓС‚Р°С…В»
+		Р‘РёС‚  2: РџРѕР»Рµ В«РЎСЂРѕРє РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ РІ РґРЅСЏС…В»
+		Р‘РёС‚  3: РџРѕР»Рµ В«Р”Р°С‚Р° СѓРїР°РєРѕРІРєРё вЂ“ РґР°С‚Р° РёР· С‡Р°СЃРѕРІВ»
+		Р‘РёС‚  4: РџРѕР»Рµ В«Р’СЂРµРјСЏ СѓРїР°РєРѕРІРєРёВ»
+		Р‘РёС‚  5: РџРѕР»Рµ В«РќРѕРјРµСЂ РјРµСЃС‚Р°В»
+		Р‘РёС‚  6: РџРѕР»Рµ В«РќРѕРјРµСЂ РєР°СЂС‚РёРЅРєРёВ»
+		*Р‘РёС‚ 7: РџРѕР»СЏ В«PLU СЃС‚Р°С‚СѓСЃ Р’В» Рё В«PLU СЃС‚Р°С‚СѓСЃ 2Р’В»
 		*/
-		// Есть поле для срока продажи в днях. Поля срока использования,
-		// срока  продажи в часах и срока упаковки в днях. Нет полей бонуса и номера места хранения.
-		out_rec[len++] = 0x01;                          // #13 PLU статус 2
+		// Р•СЃС‚СЊ РїРѕР»Рµ РґР»СЏ СЃСЂРѕРєР° РїСЂРѕРґР°Р¶Рё РІ РґРЅСЏС…. РџРѕР»СЏ СЃСЂРѕРєР° РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ,
+		// СЃСЂРѕРєР°  РїСЂРѕРґР°Р¶Рё РІ С‡Р°СЃР°С… Рё СЃСЂРѕРєР° СѓРїР°РєРѕРІРєРё РІ РґРЅСЏС…. РќРµС‚ РїРѕР»РµР№ Р±РѕРЅСѓСЃР° Рё РЅРѕРјРµСЂР° РјРµСЃС‚Р° С…СЂР°РЅРµРЅРёСЏ.
+		out_rec[len++] = 0x01;                          // #13 PLU СЃС‚Р°С‚СѓСЃ 2
 		for(j = 0; j < 3; j++)
 			out_rec[len++] = rub.C(j);      // #15
 		out_rec[len++] = kop.C(0);          // #16
-		out_rec[len++] = 0x11; // #17 номер формата этикетки – будет использоваться свободный формат F1
-		out_rec[len++] = 0x05; // #18 формат штрихкода (2 цифры флага, 5 артикула и 5 веса)
+		out_rec[len++] = 0x11; // #17 РЅРѕРјРµСЂ С„РѕСЂРјР°С‚Р° СЌС‚РёРєРµС‚РєРё вЂ“ Р±СѓРґРµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ СЃРІРѕР±РѕРґРЅС‹Р№ С„РѕСЂРјР°С‚ F1
+		out_rec[len++] = 0x05; // #18 С„РѕСЂРјР°С‚ С€С‚СЂРёС…РєРѕРґР° (2 С†РёС„СЂС‹ С„Р»Р°РіР°, 5 Р°СЂС‚РёРєСѓР»Р° Рё 5 РІРµСЃР°)
 		for(j = 0; j < 7; j++)
 			out_rec[len++] = barcode.C(j); // #25
 		for(j = 0; j < 2; j++)
@@ -3253,11 +3254,11 @@ int DIGI::SendPLU(const ScalePLU * pScalePLU)
 				out_rec[len++] = ext_text_buf.C(j); // #29 + goods_name.Len() + ext_text_buf.Len()
 			}
 		}
-		out_rec[len++] = 0x00; // контрольная сумма (должна быть 0x00) // #29 + goods_name.Len() + ext_text_buf.Len() + 1
+		out_rec[len++] = 0x00; // РєРѕРЅС‚СЂРѕР»СЊРЅР°СЏ СЃСѓРјРјР° (РґРѕР»Р¶РЅР° Р±С‹С‚СЊ 0x00) // #29 + goods_name.Len() + ext_text_buf.Len() + 1
 		//
-		// Теперь, точно зная размер записи, заносим его в буфер по смещению size_offs
+		// РўРµРїРµСЂСЊ, С‚РѕС‡РЅРѕ Р·РЅР°СЏ СЂР°Р·РјРµСЂ Р·Р°РїРёСЃРё, Р·Р°РЅРѕСЃРёРј РµРіРѕ РІ Р±СѓС„РµСЂ РїРѕ СЃРјРµС‰РµРЅРёСЋ size_offs
 		//
-		LongToHexBytesStr((long)(len - 2), 2, data_len); // -2 - размер заголовка записи
+		LongToHexBytesStr((long)(len - 2), 2, data_len); // -2 - СЂР°Р·РјРµСЂ Р·Р°РіРѕР»РѕРІРєР° Р·Р°РїРёСЃРё
 		for(j = 0; j < 2; j++)
 			out_rec[size_offs+j] = data_len.C(j); // #8
 
@@ -3266,7 +3267,7 @@ int DIGI::SendPLU(const ScalePLU * pScalePLU)
 			0x84, 0x39, 0x11, 0x05, 0x22, 0x00, 0x01, 0x40, 0x00, 0x00, 0x00, 0x00, 0x03, 0x01, 0x01, 0x07, 0x07, 0x8A,
 			0x8E, 0x8B, 0x81, 0x80, 0x91, 0x80, 0x0D, 0x03, 0x11, 0x22, 0x91, 0xAE, 0xA1, 0xA0, 0xE7, 0xEC, 0xEF, 0x20,
 			0xE0, 0xA0, 0xA4, 0xAE, 0xE1, 0xE2, 0xEC, 0x22, 0x0C, 0x00
-		}; - это точно загружается, длина 61 символ
+		}; - СЌС‚Рѕ С‚РѕС‡РЅРѕ Р·Р°РіСЂСѓР¶Р°РµС‚СЃСЏ, РґР»РёРЅР° 61 СЃРёРјРІРѕР»
 		*/
 		THROW_PP(send(SocketHandle, (const char *)out_rec, (int)len, 0) != SOCKET_ERROR, PPERR_SCALE_SEND);
 		memzero(result, sizeof(result));
@@ -3665,7 +3666,7 @@ int Bizerba::CloseConnection()
 //	ShtrihPrint
 //
 #define RESCODE_NO_ERROR   0x0000
-#define DEF_BAUD_RATE_NO   2L // для 9600 бод
+#define DEF_BAUD_RATE_NO   2L // РґР»СЏ 9600 Р±РѕРґ
 #define DEF_REMOTE_PORT    1111L
 #define DEF_LOCAL_PORT     2000L
 
@@ -3727,10 +3728,10 @@ private:
 		StringsCountInMessage,    //
 		StringNumber,             //
 		MessageString,            //
-		SetPLUData,               // Функция загрузки информации о товара
-		SetPLUDataEx,             // Функция расширенной загрузки информации о товара
-		GetStringsCountInMessage, // Функция получения количества строк в сообщении
-		SetMessageData            // Функция записи сообщений к товару
+		SetPLUData,               // Р¤СѓРЅРєС†РёСЏ Р·Р°РіСЂСѓР·РєРё РёРЅС„РѕСЂРјР°С†РёРё Рѕ С‚РѕРІР°СЂР°
+		SetPLUDataEx,             // Р¤СѓРЅРєС†РёСЏ СЂР°СЃС€РёСЂРµРЅРЅРѕР№ Р·Р°РіСЂСѓР·РєРё РёРЅС„РѕСЂРјР°С†РёРё Рѕ С‚РѕРІР°СЂР°
+		GetStringsCountInMessage, // Р¤СѓРЅРєС†РёСЏ РїРѕР»СѓС‡РµРЅРёСЏ РєРѕР»РёС‡РµСЃС‚РІР° СЃС‚СЂРѕРє РІ СЃРѕРѕР±С‰РµРЅРёРё
+		SetMessageData            // Р¤СѓРЅРєС†РёСЏ Р·Р°РїРёСЃРё СЃРѕРѕР±С‰РµРЅРёР№ Рє С‚РѕРІР°СЂСѓ
 	};
 	ComDispInterface * InitDriver();
 	int    GetSPProp(PPID id, long & rVal);
@@ -3744,8 +3745,8 @@ private:
 	int    ResCode;
 	long   WghtPrefix;
 	long   WghtCntPrefix;
-	long   StrCountInMsg; // Максимальное количество строк в сообщении к товару
-	long   MsgN;          // Номер сообщения. Увеличивается после каждой новой загрузки сообщения.
+	long   StrCountInMsg; // РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚СЂРѕРє РІ СЃРѕРѕР±С‰РµРЅРёРё Рє С‚РѕРІР°СЂСѓ
+	long   MsgN;          // РќРѕРјРµСЂ СЃРѕРѕР±С‰РµРЅРёСЏ. РЈРІРµР»РёС‡РёРІР°РµС‚СЃСЏ РїРѕСЃР»Рµ РєР°Р¶РґРѕР№ РЅРѕРІРѕР№ Р·Р°РіСЂСѓР·РєРё СЃРѕРѕР±С‰РµРЅРёСЏ.
 };
 
 ComDispInterface * ShtrihPrint::InitDriver()
@@ -3866,7 +3867,7 @@ int ShtrihPrint::SendPLU(const ScalePLU * pScalePLU)
 	int    ok = -1;
 	if(pScalePLU) {
 		long   wght_prefix = WghtPrefix;
-		int    is_msg = pScalePLU->HasAddedMsg(); //(Есть проблемы с загрузкой сообщений)
+		int    is_msg = pScalePLU->HasAddedMsg(); //(Р•СЃС‚СЊ РїСЂРѕР±Р»РµРјС‹ СЃ Р·Р°РіСЂСѓР·РєРѕР№ СЃРѕРѕР±С‰РµРЅРёР№)
 		SString temp_buf;
 		THROW(SetSPProp(PLUNumber, pScalePLU->GoodsNo));
 		THROW(SetSPProp(Price, pScalePLU->Price ));
@@ -3912,7 +3913,7 @@ int ShtrihPrint::SendPLU(const ScalePLU * pScalePLU)
 			GetAddedMsgLines(pScalePLU, MIN(labs(Data.Rec.MaxAddedLn), 50), StrCountInMsg, 0, add_str);
 			for(uint p = 0, strn = 0; (long)strn < StrCountInMsg && add_str.get(&p, temp_buf); strn++) {
 				THROW(SetSPProp(MessageNumber, MsgN));
-				// Это свойство не отрабатывает: драйвер ругается как на неизвестное (???) THROW(SetSPProp(StringNumber, (long)(strn+1)));
+				// Р­С‚Рѕ СЃРІРѕР№СЃС‚РІРѕ РЅРµ РѕС‚СЂР°Р±Р°С‚С‹РІР°РµС‚: РґСЂР°Р№РІРµСЂ СЂСѓРіР°РµС‚СЃСЏ РєР°Рє РЅР° РЅРµРёР·РІРµСЃС‚РЅРѕРµ (???) THROW(SetSPProp(StringNumber, (long)(strn+1)));
 				THROW(SetSPProp(StringNumber, (long)(strn+1), 1));
 				THROW(SetSPProp(MessageString, temp_buf.Transf(CTRANSF_INNER_TO_OUTER)));
 				THROW(ExecSPOper(SetMessageData));
@@ -3947,7 +3948,7 @@ public:
 	{
 	}
 private:
-	long   FixedMsgResID; // Фиксированный идентификатор ресурса текстовых сообщений
+	long   FixedMsgResID; // Р¤РёРєСЃРёСЂРѕРІР°РЅРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЂРµСЃСѓСЂСЃР° С‚РµРєСЃС‚РѕРІС‹С… СЃРѕРѕР±С‰РµРЅРёР№
 	StrAssocArray MsgResLines;
 	PPObjGoods GObj;
 	SFile * P_FOut;
@@ -4008,38 +4009,38 @@ int ShtrihCE::SendPLU(const ScalePLU * pScalePLU)
 @
         0                           1          2                                                     3
         12            3 4      567890123 45678901                                      23456789      01     2
-<D 11271;;ассорти ГОСТ;0;539.00;;;;;;;;;0;;;;;;;;"сертификат есть его не может не быть";;;;;;;;111271;;211271
-<R 111271;1;;;;;;;;;;;;;;;;;;;;"что=то очень и очень хорошее а так же вкусное"
+<D 11271;;Р°СЃСЃРѕСЂС‚Рё Р“РћРЎРў;0;539.00;;;;;;;;;0;;;;;;;;"СЃРµСЂС‚РёС„РёРєР°С‚ РµСЃС‚СЊ РµРіРѕ РЅРµ РјРѕР¶РµС‚ РЅРµ Р±С‹С‚СЊ";;;;;;;;111271;;211271
+<R 111271;1;;;;;;;;;;;;;;;;;;;;"С‡С‚Рѕ=С‚Рѕ РѕС‡РµРЅСЊ Рё РѕС‡РµРЅСЊ С…РѕСЂРѕС€РµРµ Р° С‚Р°Рє Р¶Рµ РІРєСѓСЃРЅРѕРµ"
 <R 211271;2;;;;;;;;;;;;;;;;;;;;2811271.txt
 $$$RPL
 
 
-1 Код (товара / группы товаров); Целое 1..999999
-2 Штрих-код; Целое 13 знаков 1
-3 Наименование товара; Строка 255 символов
-4 Тип товара; Целое 0 – весовой товар, 1 – штучный товар, 2 – группа товаров
-5 Цена; Дробное 0..9999.99
-6 Код группы-владельца товара 1-ого уровня иерархии; Целое 0..999999 (0 – нет группы-владельца 1-ого уровня иерархии)
-7 Код группы-владельца товара 2-ого уровня иерархии; Целое 0..999999 (0 – нет группы-владельца 2-ого уровня иерархии)
-8 Код группы-владельца товара 3-его уровня иерархии; Целое 0..999999 (0 – нет группы-владельца 3-его уровня иерархии)
-9 Код группы-владельца товара 4-ого уровня иерархии; Целое 0..999999 (0 – нет группы-владельца 4-ого уровня иерархии)
-12 Срок годности; Целое 0..9999 (в днях) 2
-13 Дата реализации; Дата Формат: ДД.ММ.ГГГГ 2
-22 Сертификат товара; Строка 255 символов
-23 Масса тары; Дробное 0..Максимальное значение тары
-30 Код сообщения (код ресурса, тип ресурса – текст); Целое 4 байта 3
-31 Код файла картинки (код ресурса, тип ресурса – файл картинки); Целое 4 байта 4
-32 Код файла сообщения (код ресурса, тип ресурса – текстовый файл); Целое 4 байта 5
+1 РљРѕРґ (С‚РѕРІР°СЂР° / РіСЂСѓРїРїС‹ С‚РѕРІР°СЂРѕРІ); Р¦РµР»РѕРµ 1..999999
+2 РЁС‚СЂРёС…-РєРѕРґ; Р¦РµР»РѕРµ 13 Р·РЅР°РєРѕРІ 1
+3 РќР°РёРјРµРЅРѕРІР°РЅРёРµ С‚РѕРІР°СЂР°; РЎС‚СЂРѕРєР° 255 СЃРёРјРІРѕР»РѕРІ
+4 РўРёРї С‚РѕРІР°СЂР°; Р¦РµР»РѕРµ 0 вЂ“ РІРµСЃРѕРІРѕР№ С‚РѕРІР°СЂ, 1 вЂ“ С€С‚СѓС‡РЅС‹Р№ С‚РѕРІР°СЂ, 2 вЂ“ РіСЂСѓРїРїР° С‚РѕРІР°СЂРѕРІ
+5 Р¦РµРЅР°; Р”СЂРѕР±РЅРѕРµ 0..9999.99
+6 РљРѕРґ РіСЂСѓРїРїС‹-РІР»Р°РґРµР»СЊС†Р° С‚РѕРІР°СЂР° 1-РѕРіРѕ СѓСЂРѕРІРЅСЏ РёРµСЂР°СЂС…РёРё; Р¦РµР»РѕРµ 0..999999 (0 вЂ“ РЅРµС‚ РіСЂСѓРїРїС‹-РІР»Р°РґРµР»СЊС†Р° 1-РѕРіРѕ СѓСЂРѕРІРЅСЏ РёРµСЂР°СЂС…РёРё)
+7 РљРѕРґ РіСЂСѓРїРїС‹-РІР»Р°РґРµР»СЊС†Р° С‚РѕРІР°СЂР° 2-РѕРіРѕ СѓСЂРѕРІРЅСЏ РёРµСЂР°СЂС…РёРё; Р¦РµР»РѕРµ 0..999999 (0 вЂ“ РЅРµС‚ РіСЂСѓРїРїС‹-РІР»Р°РґРµР»СЊС†Р° 2-РѕРіРѕ СѓСЂРѕРІРЅСЏ РёРµСЂР°СЂС…РёРё)
+8 РљРѕРґ РіСЂСѓРїРїС‹-РІР»Р°РґРµР»СЊС†Р° С‚РѕРІР°СЂР° 3-РµРіРѕ СѓСЂРѕРІРЅСЏ РёРµСЂР°СЂС…РёРё; Р¦РµР»РѕРµ 0..999999 (0 вЂ“ РЅРµС‚ РіСЂСѓРїРїС‹-РІР»Р°РґРµР»СЊС†Р° 3-РµРіРѕ СѓСЂРѕРІРЅСЏ РёРµСЂР°СЂС…РёРё)
+9 РљРѕРґ РіСЂСѓРїРїС‹-РІР»Р°РґРµР»СЊС†Р° С‚РѕРІР°СЂР° 4-РѕРіРѕ СѓСЂРѕРІРЅСЏ РёРµСЂР°СЂС…РёРё; Р¦РµР»РѕРµ 0..999999 (0 вЂ“ РЅРµС‚ РіСЂСѓРїРїС‹-РІР»Р°РґРµР»СЊС†Р° 4-РѕРіРѕ СѓСЂРѕРІРЅСЏ РёРµСЂР°СЂС…РёРё)
+12 РЎСЂРѕРє РіРѕРґРЅРѕСЃС‚Рё; Р¦РµР»РѕРµ 0..9999 (РІ РґРЅСЏС…) 2
+13 Р”Р°С‚Р° СЂРµР°Р»РёР·Р°С†РёРё; Р”Р°С‚Р° Р¤РѕСЂРјР°С‚: Р”Р”.РњРњ.Р“Р“Р“Р“ 2
+22 РЎРµСЂС‚РёС„РёРєР°С‚ С‚РѕРІР°СЂР°; РЎС‚СЂРѕРєР° 255 СЃРёРјРІРѕР»РѕРІ
+23 РњР°СЃСЃР° С‚Р°СЂС‹; Р”СЂРѕР±РЅРѕРµ 0..РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ С‚Р°СЂС‹
+30 РљРѕРґ СЃРѕРѕР±С‰РµРЅРёСЏ (РєРѕРґ СЂРµСЃСѓСЂСЃР°, С‚РёРї СЂРµСЃСѓСЂСЃР° вЂ“ С‚РµРєСЃС‚); Р¦РµР»РѕРµ 4 Р±Р°Р№С‚Р° 3
+31 РљРѕРґ С„Р°Р№Р»Р° РєР°СЂС‚РёРЅРєРё (РєРѕРґ СЂРµСЃСѓСЂСЃР°, С‚РёРї СЂРµСЃСѓСЂСЃР° вЂ“ С„Р°Р№Р» РєР°СЂС‚РёРЅРєРё); Р¦РµР»РѕРµ 4 Р±Р°Р№С‚Р° 4
+32 РљРѕРґ С„Р°Р№Р»Р° СЃРѕРѕР±С‰РµРЅРёСЏ (РєРѕРґ СЂРµСЃСѓСЂСЃР°, С‚РёРї СЂРµСЃСѓСЂСЃР° вЂ“ С‚РµРєСЃС‚РѕРІС‹Р№ С„Р°Р№Р»); Р¦РµР»РѕРµ 4 Р±Р°Р№С‚Р° 5
 */
 /*
 ##@@&&
 #
---заголовок
-<D [4 столбец без первого символа];;[8 столбец];[7];[столбец 5 формат xx.00];;;;;;;;;[0 всегда];;;;;;;;;;;;;;;;[4 столбец вместо первого символа стоит 1];;[4 столбец вместо первого символа стоит 2]
---описание строка 1
-<R [4 столбец вместо первого символа стоит 1];[всегда 1];;;;;;;;;;;;;;;;;;;;[9 столбец, первые 255 символов]
---описание строка 2
-<R [4 столбец вместо первого символа стоит 2];[всегда 2];;;;;;;;;;;;;;;;;;;;[4 столбец, 2 вначале, .txt вконце]
+--Р·Р°РіРѕР»РѕРІРѕРє
+<D [4 СЃС‚РѕР»Р±РµС† Р±РµР· РїРµСЂРІРѕРіРѕ СЃРёРјРІРѕР»Р°];;[8 СЃС‚РѕР»Р±РµС†];[7];[СЃС‚РѕР»Р±РµС† 5 С„РѕСЂРјР°С‚ xx.00];;;;;;;;;[0 РІСЃРµРіРґР°];;;;;;;;;;;;;;;;[4 СЃС‚РѕР»Р±РµС† РІРјРµСЃС‚Рѕ РїРµСЂРІРѕРіРѕ СЃРёРјРІРѕР»Р° СЃС‚РѕРёС‚ 1];;[4 СЃС‚РѕР»Р±РµС† РІРјРµСЃС‚Рѕ РїРµСЂРІРѕРіРѕ СЃРёРјРІРѕР»Р° СЃС‚РѕРёС‚ 2]
+--РѕРїРёСЃР°РЅРёРµ СЃС‚СЂРѕРєР° 1
+<R [4 СЃС‚РѕР»Р±РµС† РІРјРµСЃС‚Рѕ РїРµСЂРІРѕРіРѕ СЃРёРјРІРѕР»Р° СЃС‚РѕРёС‚ 1];[РІСЃРµРіРґР° 1];;;;;;;;;;;;;;;;;;;;[9 СЃС‚РѕР»Р±РµС†, РїРµСЂРІС‹Рµ 255 СЃРёРјРІРѕР»РѕРІ]
+--РѕРїРёСЃР°РЅРёРµ СЃС‚СЂРѕРєР° 2
+<R [4 СЃС‚РѕР»Р±РµС† РІРјРµСЃС‚Рѕ РїРµСЂРІРѕРіРѕ СЃРёРјРІРѕР»Р° СЃС‚РѕРёС‚ 2];[РІСЃРµРіРґР° 2];;;;;;;;;;;;;;;;;;;;[4 СЃС‚РѕР»Р±РµС†, 2 РІРЅР°С‡Р°Р»Рµ, .txt РІРєРѕРЅС†Рµ]
 
 $$$RPL
 */
@@ -4062,10 +4063,10 @@ $$$RPL
 		if(checkirange(numdays, 1L, 366L))
 			line_buf.Cat(numdays);
 		line_buf.Semicol();                                            // #12
-		line_buf.Semicol();                                            // #13 Дата реализации
+		line_buf.Semicol();                                            // #13 Р”Р°С‚Р° СЂРµР°Р»РёР·Р°С†РёРё
 		line_buf.CatCharN(';', 8);                                        // #14-#21
-		line_buf.Semicol();                                            // #22 Сертификат
-		line_buf.Semicol();                                            // #23 Масса тары
+		line_buf.Semicol();                                            // #22 РЎРµСЂС‚РёС„РёРєР°С‚
+		line_buf.Semicol();                                            // #23 РњР°СЃСЃР° С‚Р°СЂС‹
 		line_buf.CatCharN(';', 6);                                        // #24-#29
 		if(GetAddedMsgLines(pScalePLU, 255, 1, 0, ext_lines) > 0) {
             ext_lines.get(0U, temp_buf);
@@ -4075,9 +4076,9 @@ $$$RPL
 				line_buf.Cat(pScalePLU->GoodsID);
 			}
 		}
-		line_buf.Semicol();                                            // #30 Номер сообщения
-		line_buf.Semicol();                                            // #31 Код файла картинки
-		// none line_buf.Cat(FixedMsgResID);                           // #32 Идентификатор ресурса сообщений
+		line_buf.Semicol();                                            // #30 РќРѕРјРµСЂ СЃРѕРѕР±С‰РµРЅРёСЏ
+		line_buf.Semicol();                                            // #31 РљРѕРґ С„Р°Р№Р»Р° РєР°СЂС‚РёРЅРєРё
+		// none line_buf.Cat(FixedMsgResID);                           // #32 РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЂРµСЃСѓСЂСЃР° СЃРѕРѕР±С‰РµРЅРёР№
 		P_FOut->WriteLine(line_buf.CR());
 	}
 	return ok;
@@ -4587,7 +4588,7 @@ int PPObjScale::PutPacket(PPID * pID, PPScalePacket * pPack, int use_ta)
 	int    ok = 1;
 	int    do_dirty = 0;
 	PPID   id = DEREFPTRORZ(pID);
-	PPID   hid = 0; // Версионный идентификатор для сохранения в системном журнале (пока не используется)
+	PPID   hid = 0; // Р’РµСЂСЃРёРѕРЅРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ РІ СЃРёСЃС‚РµРјРЅРѕРј Р¶СѓСЂРЅР°Р»Рµ (РїРѕРєР° РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ)
 	SString temp_buf;
 	PPID   log_action_id = 0;
 	PPScalePacket org_pack;
@@ -4599,7 +4600,7 @@ int PPObjScale::PutPacket(PPID * pID, PPScalePacket * pPack, int use_ta)
 			THROW(GetPacket(id, &org_pack) > 0);
 			if(pPack == 0) {
 				//
-				// Удаление пакета
+				// РЈРґР°Р»РµРЅРёРµ РїР°РєРµС‚Р°
 				//
 				THROW(CheckRights(PPR_DEL));
 				THROW(P_Ref->RemoveItem(Obj, *pID, 0));
@@ -4607,11 +4608,11 @@ int PPObjScale::PutPacket(PPID * pID, PPScalePacket * pPack, int use_ta)
 			}
 			else {
 				//
-				// Изменение пакета
+				// РР·РјРµРЅРµРЅРёРµ РїР°РєРµС‚Р°
 				//
 				if(IsPacketEq(*pPack, org_pack, 0)) {
 					//
-					// Ничего не изменилось
+					// РќРёС‡РµРіРѕ РЅРµ РёР·РјРµРЅРёР»РѕСЃСЊ
 					//
 					log_action_id = 0;
 				}
@@ -4630,7 +4631,7 @@ int PPObjScale::PutPacket(PPID * pID, PPScalePacket * pPack, int use_ta)
 		}
 		else if(pPack) {
 			//
-			// Вставка нового пакета
+			// Р’СЃС‚Р°РІРєР° РЅРѕРІРѕРіРѕ РїР°РєРµС‚Р°
 			//
 			THROW(CheckRights(PPR_INS));
 			pPack->Rec.Ver_Signature = DS.GetVersion();
@@ -4965,7 +4966,7 @@ int PPObjScale::PrepareData(PPID id, long flags, PPLogger * pLogger)
 			flt.Flags     |= GoodsRestFilt::fBarCode;
 			if(!(pack.Rec.Flags & SCALF_EXSGOODS))
 				flt.Flags |= GoodsRestFilt::fNullRest;
-			flt.AmtType    = 2; // В ценах реализации
+			flt.AmtType    = 2; // Р’ С†РµРЅР°С… СЂРµР°Р»РёР·Р°С†РёРё
 			flt.CalcMethod = GoodsRestParam::pcmMostRecent; // (LConfig.RealizeOrder == RLZORD_FIFO) ? 1 : 2;
 			flt.LocList.Add(pack.Rec.Location);
 			flt.GoodsGrpID = pack.Rec.AltGoodsGrp;
@@ -5267,14 +5268,14 @@ int PPObjScale::TransmitData(PPID id, long flags, PPLogger * pLogger)
 				LDATETIME mt;
 				if(!SFile::GetTime(fname, 0, 0, &mt) || diffdatetimesec(getcurdatetime_(), mt) > 3600) {
 					//
-					// Если файл старше текущего момента более чем на час, то он может быть устаревшим - готовим снова.
+					// Р•СЃР»Рё С„Р°Р№Р» СЃС‚Р°СЂС€Рµ С‚РµРєСѓС‰РµРіРѕ РјРѕРјРµРЅС‚Р° Р±РѕР»РµРµ С‡РµРј РЅР° С‡Р°СЃ, С‚Рѕ РѕРЅ РјРѕР¶РµС‚ Р±С‹С‚СЊ СѓСЃС‚Р°СЂРµРІС€РёРј - РіРѕС‚РѕРІРёРј СЃРЅРѕРІР°.
 					//
 					do_prepare = 1;
 				}
 				else {
 					//
-					// Если файл уже существует, то необходимо проверить его на совместимость
-					// с минимальной версией __MinPrepFileVer.
+					// Р•СЃР»Рё С„Р°Р№Р» СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚, С‚Рѕ РЅРµРѕР±С…РѕРґРёРјРѕ РїСЂРѕРІРµСЂРёС‚СЊ РµРіРѕ РЅР° СЃРѕРІРјРµСЃС‚РёРјРѕСЃС‚СЊ
+					// СЃ РјРёРЅРёРјР°Р»СЊРЅРѕР№ РІРµСЂСЃРёРµР№ __MinPrepFileVer.
 					//
 					SFile in_stream(fname, SFile::mRead);
 					THROW_PP(in_stream.IsValid(), PPERR_SCALE_FOPEN);
@@ -5360,7 +5361,7 @@ static PPScaleDevice * GetScaleDevice(const PPScalePacket * pScaleData)
 				p_comm = new COMMassaKVPN(port, pScaleData);
 			else if(pScaleData->Rec.LogNum)
 				p_comm = new COMMassaK(port, pScaleData);
-			else if(pScaleData->Rec.ProtocolVer == 20) // @vmiller Число от балды
+			else if(pScaleData->Rec.ProtocolVer == 20) // @vmiller Р§РёСЃР»Рѕ РѕС‚ Р±Р°Р»РґС‹
 				p_comm = new COMMassaKVer1(port, pScaleData);
 			else
 				p_comm = new CommMassaK(port, pScaleData);
@@ -5573,7 +5574,7 @@ int GetScaleData(PPID scaleID, TIDlgInitData * pData)
 			}
 		}
 		else
-			ok = -2; // прием данных с весов такого типа не предусмотрен
+			ok = -2; // РїСЂРёРµРј РґР°РЅРЅС‹С… СЃ РІРµСЃРѕРІ С‚Р°РєРѕРіРѕ С‚РёРїР° РЅРµ РїСЂРµРґСѓСЃРјРѕС‚СЂРµРЅ
 	}
 	CATCHZOK
 	ASSIGN_PTR(pData, tidi);
@@ -5709,4 +5710,3 @@ int FASTCALL PPObjScale::Fetch(PPID id, PPScalePacket * pRec)
 	ScaleCache * p_cache = GetDbLocalCachePtr <ScaleCache> (Obj);
 	return p_cache ? p_cache->Get(id, pRec) : GetPacket(id, pRec);
 }
-

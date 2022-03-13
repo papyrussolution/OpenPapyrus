@@ -13,9 +13,7 @@
  */
 #include "archive_platform.h"
 #pragma hdrstop
-#include "archive.h"
 #include "archive_endian.h"
-#include "archive_private.h"
 #include "archive_read_private.h"
 
 struct rpm {
@@ -25,25 +23,19 @@ struct rpm {
 	uchar header[16];
 	enum {
 		ST_LEAD,        /* Skipping 'Lead' section. */
-		ST_HEADER,      /* Reading 'Header' section;
-		                 * first 16 bytes. */
+		ST_HEADER,      /* Reading 'Header' section; first 16 bytes. */
 		ST_HEADER_DATA, /* Skipping 'Header' section. */
-		ST_PADDING,     /* Skipping padding data after the
-		                 * 'Header' section. */
+		ST_PADDING,     /* Skipping padding data after the 'Header' section. */
 		ST_ARCHIVE      /* Reading 'Archive' section. */
-	}                state;
-
+	} state;
 	int first_header;
 };
 
 #define RPM_LEAD_SIZE   96      /* Size of 'Lead' section. */
 
-static int rpm_bidder_bid(struct archive_read_filter_bidder *,
-    struct archive_read_filter *);
+static int rpm_bidder_bid(struct archive_read_filter_bidder *, struct archive_read_filter *);
 static int rpm_bidder_init(struct archive_read_filter *);
-
-static ssize_t  rpm_filter_read(struct archive_read_filter *,
-    const void **);
+static ssize_t  rpm_filter_read(struct archive_read_filter *, const void **);
 static int rpm_filter_close(struct archive_read_filter *);
 
 #if ARCHIVE_VERSION_NUMBER < 4000000

@@ -21,15 +21,9 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is Red Hat, Inc.
  */
-
 #ifndef CAIRO_XLIB_SURFACE_PRIVATE_H
 #define CAIRO_XLIB_SURFACE_PRIVATE_H
 
@@ -37,7 +31,5 @@
 #include "cairo-xlib.h"
 #include "cairo-xlib-private.h"
 #include "cairo-surface-private.h"
-//#include "cairo-surface-backend-private.h"
-
 
 #endif /* CAIRO_XLIB_SURFACE_PRIVATE_H */

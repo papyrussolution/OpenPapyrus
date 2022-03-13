@@ -1380,7 +1380,21 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(CCheckPacket * pPack, uint flags) // @v11.3
 	SJson * p_result = 0;
 	if(pPack) {
 		SString temp_buf;
+		SString debug_log_buf;
 		PPID   tax_sys_id = 0;
+		double amt = fabs(R2(MONEYTOLDBL(pPack->Rec.Amount)));
+		double sum = fabs(pPack->_Cash);
+		double running_total = 0.0;
+		const  bool is_vat_free = (CnObj.IsVatFree(NodeID) > 0);
+		double real_fiscal = 0.0;
+		double real_nonfiscal = 0.0;
+		pPack->HasNonFiscalAmount(&real_fiscal, &real_nonfiscal);
+		const double _fiscal = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? real_fiscal : (real_fiscal + real_nonfiscal);
+		const CcAmountList & r_al = pPack->AL_Const();
+		const bool   is_al = (r_al.getCount() > 0);
+		const double amt_bnk = is_al ? r_al.Get(CCAMTTYP_BANK) : ((pPack->Rec.Flags & CCHKF_BANKING) ? _fiscal : 0.0);
+		const double amt_cash = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
+		const double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal);
 		CnObj.GetTaxSystem(NodeID, pPack->Rec.Dt, &tax_sys_id);
 		p_result = new SJson(SJson::tOBJECT);
 		p_result->InsertString("type", (pPack->Rec.Flags & CCHKF_RETURN) ? "sellReturn" : "sell");
@@ -1416,24 +1430,53 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(CCheckPacket * pPack, uint flags) // @v11.3
 				SJson * p_inner = new SJson(SJson::tARRAY);
 				for(P_SlipFmt->InitIteration(pPack); P_SlipFmt->NextIteration(line_buf, &sl_param) > 0;) {
 					if(sl_param.Flags & SlipLineParam::fRegFiscal) {
+						const  double _q = sl_param.Qtty;
+						const  double _p = fabs(sl_param.Price);
+						running_total += (_q * _p);
+						const double pq = R3(_q);
+						const double pp = R2(_p);
+						debug_log_buf.CatChar('[').CatEq("QTY", pq).Space().CatEq("PRICE", pp, MKSFMTD(0, 10, 0)).CatChar(']');
+
 						SJson * p_js_item = new SJson(SJson::tOBJECT);
 						p_js_item->InsertString("type", "position");
 						{
-							(temp_buf = sl_param.Text).Strip().SetIfEmpty("WARE").Transf(CTRANSF_INNER_TO_UTF8);
+							(temp_buf = sl_param.Text).Strip().SetIfEmpty("WARE").Transf(CTRANSF_INNER_TO_UTF8).Escape();
 							p_js_item->InsertString("name", temp_buf);
 						}
-						p_js_item->InsertDouble("price", 0.0, MKSFMTD(0, 2, 0));
-						p_js_item->InsertDouble("quantity", 0.0, MKSFMTD(0, 1, 0));
-						p_js_item->InsertDouble("amount", 0.0, MKSFMTD(0, 2, 0));
+						p_js_item->InsertDouble("price", pp, MKSFMTD(0, 2, 0));
+						p_js_item->InsertDouble("quantity", pq, MKSFMTD(0, 6, NMBF_OMITEPS));
+						p_js_item->InsertDouble("amount", pp * pq, MKSFMTD(0, 2, 0));
 						p_js_item->InsertDouble("infoDiscountAmount", 0.0, MKSFMTD(0, 1, 0));
-						p_js_item->InsertInt("department", 1);
+						p_js_item->InsertInt("department", inrangeordefault(sl_param.DivID, 0, 16, 0));
 						p_js_item->InsertString("measurementUnit", "");
 						p_js_item->InsertString("paymentMethod", ""); // "advance" etc
 						p_js_item->InsertString("paymentObject", ""); // "commodity" etc
-						p_js_item->InsertString("nomenclatureCode", ""); // chzn mark
 						{
+							uint8 fptr10_mark_buf[512];
+							int   mark_buf_data_len = 0;
+							if(sl_param.ChZnProductType && sl_param.ChZnGTIN.NotEmpty() && sl_param.ChZnSerial.NotEmpty()) {
+								p_js_item->InsertString("nomenclatureCode", ""); // chzn mark
+							}
+						}
+						{
+							const char * p_tax_type = 0;
+							if(is_vat_free)
+								p_tax_type = "none";
+							else {
+								const double vatrate = fabs(sl_param.VatRate);
+								if(vatrate == 18.0)
+									p_tax_type = "vat18";
+								else if(vatrate == 20.0)
+									p_tax_type = "vat20";
+								else if(vatrate == 10.0)
+									p_tax_type = "vat10";
+								else if(vatrate == 0.0)
+									p_tax_type = "vat0";
+								else
+									p_tax_type = "vat20"; // @default
+							}
 							SJson * p_js_tax = new SJson(SJson::tOBJECT);
-							p_js_tax->InsertString("type", ""); // "vat18" etc
+							p_js_tax->InsertString("type", p_tax_type); // "vat18" etc
 							p_js_item->Insert("tax", p_js_tax);
 						}
 						{
@@ -1484,11 +1527,65 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(CCheckPacket * pPack, uint flags) // @v11.3
 						//
 						p_inner->InsertChild(p_js_item);
 					}
+					else if(sl_param.Kind == sl_param.lkBarcode) {
+						;
+					}
+					else if(sl_param.Kind == sl_param.lkSignBarcode) {
+						;
+					}
+					else { // Просто текст
+						/*
+						   {
+							   "type": "text",
+							   "text": "--------------------------------",
+							   "alignment": "left",
+							   "font": 0,
+							   "doubleWidth": false,
+							   "doubleHeight": false
+						   },
+						*/
+						SJson * p_js_item = new SJson(SJson::tOBJECT);
+						p_js_item->InsertString("type", "text");
+						p_js_item->InsertString("text", sl_param.Text.Transf(CTRANSF_INNER_TO_UTF8).Escape());
+						p_js_item->InsertString("alignment", "left");
+						p_js_item->InsertInt("font", 0);
+						p_js_item->InsertBool("doubleWidth", false);
+						p_js_item->InsertBool("doubleHeight", false);
+						p_inner->InsertChild(p_js_item);
+					}
 				}
 				p_result->Insert("items", p_inner);
+				{
+					SJson * p_paym_list = new SJson(SJson::tARRAY);
+					{
+						const double __amt_bnk = R2(fabs(amt_bnk));
+						const double __amt_ccrd = R2(fabs(amt_ccrd));
+						const double __amt_cash = R2(fabs(sum - __amt_bnk - __amt_ccrd));
+						debug_log_buf.Space().CatEq("PAYMBANK", __amt_bnk, MKSFMTD(0, 10, 0)).
+							Space().CatEq("PAYMCASH", __amt_cash, MKSFMTD(0, 10, 0)).
+							Space().CatEq("PAYMCRDCARD", __amt_ccrd, MKSFMTD(0, 10, 0));
+						if(__amt_cash > 0.0) {
+							SJson * p_paym_item = new SJson(SJson::tOBJECT);
+							p_paym_item->InsertString("type", "cash");
+							p_paym_item->InsertDouble("sum", __amt_cash, MKSFMTD(0, 2, 0));
+							p_paym_list->InsertChild(p_paym_item);
+						}
+						if(__amt_bnk > 0.0) {
+							SJson * p_paym_item = new SJson(SJson::tOBJECT);
+							p_paym_item->InsertString("type", "electronically");
+							p_paym_item->InsertDouble("sum", __amt_bnk, MKSFMTD(0, 2, 0));
+							p_paym_list->InsertChild(p_paym_item);
+						}
+						if(__amt_ccrd > 0.0) {
+							SJson * p_paym_item = new SJson(SJson::tOBJECT);
+							p_paym_item->InsertString("type", "other");
+							p_paym_item->InsertDouble("sum", __amt_ccrd, MKSFMTD(0, 2, 0));
+							p_paym_list->InsertChild(p_paym_item);
+						}
+					}
+					p_result->Insert("payments", p_paym_list);
+				}
 			}
-		}
-		else {
 		}
 	}
 	CATCH
@@ -1518,12 +1615,10 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 		double amt = fabs(R2(MONEYTOLDBL(pPack->Rec.Amount)));
 		double sum = fabs(pPack->_Cash);
 		double running_total = 0.0;
-		double fiscal = 0.0;
-		double nonfiscal = 0.0;
 		SString operator_name;
 		SString goods_name;
 		SString chzn_sid; // @v11.0.0
-		const  int is_vat_free = BIN(CnObj.IsVatFree(NodeID) > 0); // @v10.0.03
+		const  bool is_vat_free = (CnObj.IsVatFree(NodeID) > 0);
 		StateBlock stb;
 		// @v10.9.0 {
 		double real_fiscal = 0.0;
@@ -1531,7 +1626,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 		pPack->HasNonFiscalAmount(&real_fiscal, &real_nonfiscal);
 		const double _fiscal = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? real_fiscal : (real_fiscal + real_nonfiscal);
 		const CcAmountList & r_al = pPack->AL_Const();
-		const int is_al = BIN(r_al.getCount());
+		const bool   is_al = (r_al.getCount() > 0);
 		const double amt_bnk = is_al ? r_al.Get(CCAMTTYP_BANK) : ((pPack->Rec.Flags & CCHKF_BANKING) ? _fiscal : 0.0);
 		const double amt_cash = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
 		const double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal);
@@ -1553,7 +1648,6 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 			THROW(is_cash = CheckForCash(amt));
 			THROW_PP(is_cash > 0, PPERR_SYNCCASH_NO_CASH);
 		}
-		// @v10.2.5 {
 		//
 		// Имя кассира
 		//
@@ -1561,7 +1655,6 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 		operator_name.Transf(CTRANSF_INNER_TO_OUTER);
 		if(P_Disp) {
 			THROW(SetProp(OperatorName, operator_name));
-			// } @v10.2.5 
 			THROW(SetProp(Mode, MODE_REGISTER));
 			THROW(ExecOper(NewDocument));
 			//THROW(GetProp(CharLineLength, &CheckStrLen));
@@ -1571,8 +1664,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 			int    prn_total_sale = 1;
 			int    r = 0;
 			SString line_buf;
-			// @v10.3.9 const SString format_name = (flags & PRNCHK_RETURN) ? "CCheckRet" : "CCheck";
-			const SString format_name("CCheck"); // @v10.3.9 
+			const SString format_name("CCheck");
 			SlipLineParam sl_param;
 			THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 			if(r > 0) {
@@ -1893,23 +1985,6 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 						Flags |= sfOpenCheck;
 						running_total += amt;
 					}
-					else if(fiscal) {
-						const double pq = 1.0;
-						const double pp = fabs(fiscal);
-						debug_log_buf.CatChar('[').CatEq("QTY", pq).Space().CatEq("PRICE", pp, MKSFMTD(0, 10, 0)).CatChar(']');
-						if(P_Fptr10) {
-							P_Fptr10->SetParamDoubleProc(fph, LIBFPTR_PARAM_PRICE, pp);
-							P_Fptr10->SetParamDoubleProc(fph, LIBFPTR_PARAM_QUANTITY, pq);
-							THROW(P_Fptr10->RegistrationProc(fph) == 0);
-						}
-						else if(P_Disp) {
-							THROW(SetProp(Quantity, pq));
-							THROW(SetProp(Price, pp));
-							THROW(ExecOper((flags & PRNCHK_RETURN) ? Return : Registration));
-						}
-						Flags |= sfOpenCheck;
-						running_total += fiscal;
-					}
 				}
 				else if(running_total > amt) {
 					SString fmt_buf, msg_buf, added_buf;
@@ -1955,7 +2030,6 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 		if(!feqeps(running_total, sum, 1E-5)) // @v10.3.1 (running_total > sum)-->feqeps(running_total, sum, 1E-5)
 			sum = running_total;
 		{
-			// @v10.9.0 {
 			const double __amt_bnk = R2(fabs(amt_bnk));
 			const double __amt_ccrd = R2(fabs(amt_ccrd));
 			const double __amt_cash = R2(fabs(sum - __amt_bnk - __amt_ccrd));
@@ -1971,58 +2045,6 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 			if(__amt_ccrd > 0.0) {
 				THROW(RegisterPayment(__amt_ccrd, LIBFPTR_PT_OTHER));
 			}
-			// } @v10.9.0 
-			/* @v10.9.0
-			{
-				double _paym_bnk = 0.0;
-				double _paym_credit = 0.0;
-				if(r_al.getCount()) {
-					_paym_bnk = R2(fabs(r_al.Get(CCAMTTYP_BANK)));
-					_paym_credit = R2(fabs(r_al.Get(CCAMTTYP_CRDCARD)));
-				}
-				else if(pPack->Rec.Flags & CCHKF_BANKING) {
-					if(nonfiscal > 0.0) {
-						if(fiscal > 0.0)
-							_paym_bnk = R2(fiscal);
-					}
-					else
-						_paym_bnk = R2(sum);
-				}
-				{
-					if(nonfiscal > 0.0) {
-						if(fiscal > 0.0) {
-							const double _paym_cash = R2(fiscal - _paym_bnk);
-							debug_log_buf.Space().CatEq("PAYMBANK", _paym_bnk, MKSFMTD(0, 10, 0)).Space().CatEq("PAYMCASH", _paym_cash, MKSFMTD(0, 10, 0));
-							if(_paym_cash > 0.0) {
-								THROW(RegisterPayment(R2(_paym_cash), LIBFPTR_PT_CASH));
-							}
-							if(_paym_bnk > 0.0) {
-								THROW(RegisterPayment(R2(_paym_bnk), LIBFPTR_PT_ELECTRONICALLY));
-							}
-						}
-					}
-					else {
-						// @v10.3.1 {
-						if(_paym_bnk != 0.0 && feqeps(sum, _paym_bnk, 1E-5)) // @v10.3.3 (_paym_bnk != 0.0)
-							_paym_bnk = sum;
-						// } @v10.3.1
-						// @v10.9.0 const double _paym_cash = R2(sum - _paym_bnk);
-						const double _paym_cash = R2(sum - _paym_bnk - _paym_credit); // @v10.9.0
-						debug_log_buf.Space().CatEq("PAYMBANK", _paym_bnk, MKSFMTD(0, 10, 0)).
-							Space().CatEq("PAYMCASH", _paym_cash, MKSFMTD(0, 10, 0)).
-							Space().CatEq("PAYMCRDCARD", _paym_credit, MKSFMTD(0, 10, 0));
-						if(_paym_cash > 0.0) {
-							THROW(RegisterPayment(_paym_cash, LIBFPTR_PT_CASH));
-						}
-						if(_paym_bnk > 0.0) {
-							THROW(RegisterPayment(_paym_bnk, LIBFPTR_PT_ELECTRONICALLY));
-						}
-						if(_paym_credit > 0.0) {
-							THROW(RegisterPayment(_paym_credit, LIBFPTR_PT_OTHER));
-						}
-					}
-				}
-			}*/
 		}
 		if(P_Fptr10) {
 			THROW(AllowPrintOper_Fptr10());

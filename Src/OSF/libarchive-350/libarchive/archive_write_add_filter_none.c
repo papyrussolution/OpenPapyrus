@@ -15,8 +15,6 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_compression_none.c 201080 2009-12-28 02:03:54Z kientzle $");
 
-#include "archive.h"
-
 int archive_write_set_compression_none(struct archive * a)
 {
 	CXX_UNUSED(a);

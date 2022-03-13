@@ -126,9 +126,7 @@ static lua_CFunction lsys_sym(lua_State * L, void * lib, const char * sym) {
 ** This is an implementation of loadlib for Windows using native functions.
 ** =======================================================================
 */
-
-#include <windows.h>
-
+//#include <windows.h>
 /*
 ** optional flags for LoadLibraryEx
 */

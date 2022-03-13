@@ -3,12 +3,10 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <db.h>
 #include <dbf.h>
 //
 //
 //
-#ifndef _WIN32_WCE // @v5.1.7 AHTOXA
 int DBFF::GetSType(TYPEID * pTyp, long * pFmt) const
 {
 	// Тип поля (C,L,N,M,F,D)
@@ -22,8 +20,7 @@ int DBFF::GetSType(TYPEID * pTyp, long * pFmt) const
 			SETSFMTFLAG(fmt, SFMTFLAG(fmt) | ALIGN_LEFT);
 			break;
 		case 'L':
-			// @v8.1.2 typ = MKSTYPE(S_INT, 2);
-			typ = T_BOOL; // @v8.1.2
+			typ = T_BOOL;
 			fmt = MKSFMT(fsize, ALIGN_LEFT);
 			break;
 		case 'N':
@@ -55,7 +52,6 @@ int DBFF::GetSType(TYPEID * pTyp, long * pFmt) const
 	ASSIGN_PTR(pFmt, fmt);
 	return ok;
 }
-#endif
 //
 //
 //
@@ -90,11 +86,10 @@ SCodepage DbfRecord::getCodePage() const
 	return P_Tbl ? P_Tbl->getCodePage() : cpUndef;
 }
 
-int DbfRecord::empty()
+void DbfRecord::empty()
 {
 	memzero(P_Buffer, BufSize);
 	P_Buffer[0] = ' ';
-	return 1;
 }
 
 #ifndef _WIN32_WCE // {

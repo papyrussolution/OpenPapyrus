@@ -5025,8 +5025,8 @@ public:
 	uint   GetCrosstabCount() const;
 	const  BroCrosstab * GetCrosstab(uint) const;
 	int    FreeAllCrosstab();
-	int    IsBOQ() const;
-	int    IsEOQ() const;
+	bool   IsBOQ() const;
+	bool   IsEOQ() const;
 	bool   CheckFlag(uint f) const;
 	void   SetUserProc(SBrowserDataProc proc, void * extraPtr);
 protected:
@@ -5037,8 +5037,9 @@ protected:
 	BroGroup * P_Groups;
 	int    viewHight;
 	long   scrollDelta;
-	int    isBOQ;
-	int    isEOQ;
+	bool   isBOQ; // @v11.3.4 int-->bool
+	bool   isEOQ; // @v11.3.4 int-->bool
+	uint8  Reserve[2]; // @v11.3.4 @alignment
 	long   topItem;
 	long   curItem;
 private:

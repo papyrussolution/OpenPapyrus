@@ -110,11 +110,9 @@ xb 1 INT
 xc 1 PREP             
 xd 1 PART             
 xf 1 ARTICLE
-xi 1 NUMERAL
 xp 1 ORDNUM              
 yc 1 POSS plsq
 yd 1 POSS plsgs
- //Специальное существительное заглушка, номер кода используется!
 xx 1 NOUN prop sg pl
 
 // type ancodes 

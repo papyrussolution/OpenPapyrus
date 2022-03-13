@@ -8798,7 +8798,7 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 			AcceptRow();
 		}
 	}
-	else if(Flags & fTouchScreen){
+	else if(Flags & fTouchScreen) {
 		if(mode == sgmByPrice)
 			UpdateGList(-2, 0);
 	}

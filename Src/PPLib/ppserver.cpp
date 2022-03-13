@@ -7,6 +7,9 @@
 #include <crpe.h>
 #include <StyloConduit.h>
 #include <ppds.h>
+
+int  RunNginxServer(); // @prototype(ppngx.cpp)
+void RunStyloQMqbServer(); // @prototype(styloq.cpp)
 //
 // Пустая функция, используемая для насильственной линковки данного модуля.
 //
@@ -188,7 +191,7 @@ int PPTextCommandBlock::GetWord(const char * pBuf, size_t * pPos)
 				c = pBuf[++p];
 			}
 		}
-		while(pBuf[p] == ' ' || pBuf[p] == '\t')
+		while(oneof2(pBuf[p], ' ', '\t'))
 			p++;
 	}
 	else
@@ -4298,7 +4301,7 @@ void PPServerSession::Run()
 int CheckVersion()
 {
 	int    ok = 1;
-	SVerT ppws_ver = DS.GetVersion();
+	const  SVerT ppws_ver = DS.GetVersion();
 	SVerT ppw_ver;
 	{
 		const char * p_ppw_fname = "ppw.exe";
@@ -4307,14 +4310,14 @@ int CheckVersion()
 		DWORD set_to_zero = 0;
 		DS.GetPath(PPPATH_BIN, path);
 		path.SetLastSlash().Cat(p_ppw_fname);
-		info_size = GetFileVersionInfoSize(SUcSwitch(path), &set_to_zero); // @unicodeproblem
+		info_size = GetFileVersionInfoSize(SUcSwitch(path), &set_to_zero);
 		if(info_size) {
 			char * p_buf = new char[info_size];
-			if(GetFileVersionInfo(SUcSwitch(path), 0, info_size, p_buf)) { // @unicodeproblem
+			if(GetFileVersionInfo(SUcSwitch(path), 0, info_size, p_buf)) {
 				uint   value_size = 0;
 				char * p_ver_buf = 0;
-				if(VerQueryValue(p_buf, _T("\\"), (LPVOID *)&p_ver_buf, &value_size)) { // @unicodeproblem
-					VS_FIXEDFILEINFO * p_file_info = (VS_FIXEDFILEINFO *)p_ver_buf;
+				if(VerQueryValue(p_buf, _T("\\"), (LPVOID *)&p_ver_buf, &value_size)) {
+					const VS_FIXEDFILEINFO * p_file_info = reinterpret_cast<const VS_FIXEDFILEINFO *>(p_ver_buf);
 					ppw_ver.Set(HIWORD(p_file_info->dwProductVersionMS), LOWORD(p_file_info->dwProductVersionMS), HIWORD(p_file_info->dwProductVersionLS));
 				}
 			}
@@ -4330,9 +4333,6 @@ int CheckVersion()
 //
 //
 //
-int  RunNginxServer(); // @prototype(ppngx.cpp)
-void RunStyloQMqbServer(); // @prototype(styloq.cpp)
-
 int run_server()
 {
 	DS.SetExtFlag(ECF_SYSSERVICE, 1);
@@ -4852,8 +4852,7 @@ SLTEST_R(PapyrusTcpClient)
 }
 
 #if 0 // Реализовать для UhttSoap конфигурацию ServerDebug
-// @prototype
-int TestUhttSoapClient(const char * pAddress, const char * pLoginName, const char * pPassword);
+int TestUhttSoapClient(const char * pAddress, const char * pLoginName, const char * pPassword); // @prototype
 
 SLTEST_R(UhttSoap)
 {

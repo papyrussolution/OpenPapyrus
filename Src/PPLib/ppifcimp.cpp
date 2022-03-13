@@ -765,7 +765,8 @@ DL6_IC_DESTRUCTOR(PPDbfRecord) { delete static_cast<DbfRecord *>(ExtraPtr); }
 int32 DL6ICLS_PPDbfRecord::Empty()
 {
 	DbfRecord * p_rec = static_cast<DbfRecord *>(ExtraPtr);
-	return (p_rec) ? p_rec->empty() : -1;
+	CALLPTRMEMB(p_rec, empty());
+	return p_rec ? 1 : -1;
 }
 
 int32 DL6ICLS_PPDbfRecord::PutString(int32 fldN, SString & val)

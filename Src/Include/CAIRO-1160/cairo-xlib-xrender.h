@@ -21,12 +21,7 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is University of Southern * California.
  *
  * Contributor(s): Carl D. Worth <cworth@cworth.org>
@@ -43,21 +38,12 @@
 
 CAIRO_BEGIN_DECLS
 
-cairo_public cairo_surface_t *
-cairo_xlib_surface_create_with_xrender_format (Display		 *dpy,
-                                               Drawable		  drawable,
-					       Screen		 *screen,
-                                               XRenderPictFormat *format,
-                                               int		  width,
-                                               int		  height);
-
-cairo_public XRenderPictFormat *
-cairo_xlib_surface_get_xrender_format (cairo_surface_t *surface);
+cairo_public cairo_surface_t * cairo_xlib_surface_create_with_xrender_format(Display * dpy, Drawable drawable, Screen * screen, XRenderPictFormat * format, int width, int height);
+cairo_public XRenderPictFormat * cairo_xlib_surface_get_xrender_format(cairo_surface_t * surface);
 
 CAIRO_END_DECLS
-
 #else  /* CAIRO_HAS_XLIB_XRENDER_SURFACE */
-#error Cairo was not compiled with support for the xlib XRender backend
+	#error Cairo was not compiled with support for the xlib XRender backend
 #endif /* CAIRO_HAS_XLIB_XRENDER_SURFACE */
 
 #endif /* CAIRO_XLIB_XRENDER_H */

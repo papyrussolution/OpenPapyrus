@@ -2561,7 +2561,7 @@ public:
 	int    GetIndexName(const DBTable & rTbl, uint n, SString & rBuf);
 	int    CreateSequenceOnField(const DBTable & rTbl, const char * pFileName, uint fldN, long newVal);
 	int    GetSequenceNameOnField(const DBTable & rTbl, uint fldN, SString & rBuf);
-	Generator_SQL & Reset();
+	Generator_SQL & Z();
 	Generator_SQL & Cr();
 	Generator_SQL & FASTCALL Tok(int);
 	Generator_SQL & Tab();
@@ -2592,7 +2592,7 @@ public:
 	SString & GetType(TYPEID typ, SString & rBuf);
 private:
 	static const char * P_Tokens[];
-	SqlServerType Sqlst;
+	const  SqlServerType Sqlst;
 	long   Flags;
 	SString Buf;
 	SString Temp;

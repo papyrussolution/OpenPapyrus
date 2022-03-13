@@ -23,10 +23,8 @@
 #define NUM_CHANNELS 4
 
 typedef void (* BlendRowFunc)(uint32_t* const, const uint32_t* const, int);
-static void BlendPixelRowNonPremult(uint32_t* const src,
-    const uint32_t* const dst, int num_pixels);
-static void BlendPixelRowPremult(uint32_t* const src, const uint32_t* const dst,
-    int num_pixels);
+static void BlendPixelRowNonPremult(uint32_t* const src, const uint32_t* const dst, int num_pixels);
+static void BlendPixelRowPremult(uint32_t* const src, const uint32_t* const dst, int num_pixels);
 
 struct WebPAnimDecoder {
 	WebPDemuxer* demux_;       // Demuxer created from given WebP bitstream.
@@ -65,13 +63,10 @@ static int ApplyDecoderOptions(const WebPAnimDecoderOptions* const dec_options, 
 	WebPDecoderConfig* config = &dec->config_;
 	assert(dec_options != NULL);
 	mode = dec_options->color_mode;
-	if(mode != MODE_RGBA && mode != MODE_BGRA &&
-	    mode != MODE_rgbA && mode != MODE_bgrA) {
+	if(mode != MODE_RGBA && mode != MODE_BGRA && mode != MODE_rgbA && mode != MODE_bgrA) {
 		return 0;
 	}
-	dec->blend_func_ = (mode == MODE_RGBA || mode == MODE_BGRA)
-	    ? &BlendPixelRowNonPremult
-	    : &BlendPixelRowPremult;
+	dec->blend_func_ = (mode == MODE_RGBA || mode == MODE_BGRA) ? &BlendPixelRowNonPremult : &BlendPixelRowPremult;
 	WebPInitDecoderConfig(config);
 	config->output.colorspace = mode;
 	config->output.is_external_memory = 1;
@@ -80,20 +75,17 @@ static int ApplyDecoderOptions(const WebPAnimDecoderOptions* const dec_options, 
 	return 1;
 }
 
-WebPAnimDecoder* WebPAnimDecoderNewInternal(const WebPData* webp_data, const WebPAnimDecoderOptions* dec_options,
-    int abi_version) {
+WebPAnimDecoder* WebPAnimDecoderNewInternal(const WebPData* webp_data, const WebPAnimDecoderOptions* dec_options, int abi_version) 
+{
 	WebPAnimDecoderOptions options;
 	WebPAnimDecoder* dec = NULL;
 	WebPBitstreamFeatures features;
-	if(webp_data == NULL ||
-	    WEBP_ABI_IS_INCOMPATIBLE(abi_version, WEBP_DEMUX_ABI_VERSION)) {
+	if(webp_data == NULL || WEBP_ABI_IS_INCOMPATIBLE(abi_version, WEBP_DEMUX_ABI_VERSION)) {
 		return NULL;
 	}
-
 	// Validate the bitstream before doing expensive allocations. The demuxer may
 	// be more tolerant than the decoder.
-	if(WebPGetFeatures(webp_data->bytes, webp_data->size, &features) !=
-	    VP8_STATUS_OK) {
+	if(WebPGetFeatures(webp_data->bytes, webp_data->size, &features) != VP8_STATUS_OK) {
 		return NULL;
 	}
 
@@ -119,30 +111,29 @@ WebPAnimDecoder* WebPAnimDecoderNewInternal(const WebPData* webp_data, const Web
 	dec->info_.frame_count = WebPDemuxGetI(dec->demux_, WEBP_FF_FRAME_COUNT);
 
 	// Note: calloc() because we fill frame with zeroes as well.
-	dec->curr_frame_ = (uint8*)WebPSafeCalloc(
-		dec->info_.canvas_width * NUM_CHANNELS, dec->info_.canvas_height);
+	dec->curr_frame_ = (uint8*)WebPSafeCalloc(dec->info_.canvas_width * NUM_CHANNELS, dec->info_.canvas_height);
 	if(dec->curr_frame_ == NULL) goto Error;
-	dec->prev_frame_disposed_ = (uint8*)WebPSafeCalloc(
-		dec->info_.canvas_width * NUM_CHANNELS, dec->info_.canvas_height);
-	if(dec->prev_frame_disposed_ == NULL) goto Error;
-
+	dec->prev_frame_disposed_ = (uint8*)WebPSafeCalloc(dec->info_.canvas_width * NUM_CHANNELS, dec->info_.canvas_height);
+	if(dec->prev_frame_disposed_ == NULL) 
+		goto Error;
 	WebPAnimDecoderReset(dec);
 	return dec;
-
 Error:
 	WebPAnimDecoderDelete(dec);
 	return NULL;
 }
 
-int WebPAnimDecoderGetInfo(const WebPAnimDecoder* dec, WebPAnimInfo* info) {
-	if(dec == NULL || info == NULL) return 0;
+int WebPAnimDecoderGetInfo(const WebPAnimDecoder* dec, WebPAnimInfo* info) 
+{
+	if(dec == NULL || info == NULL) 
+		return 0;
 	*info = dec->info_;
 	return 1;
 }
 
 // Returns true if the frame covers the full canvas.
-static int IsFullFrame(int width, int height, int canvas_width,
-    int canvas_height) {
+static int IsFullFrame(int width, int height, int canvas_width, int canvas_height) 
+{
 	return (width == canvas_width && height == canvas_height);
 }
 
@@ -150,7 +141,8 @@ static int IsFullFrame(int width, int height, int canvas_width,
 static int ZeroFillCanvas(uint8* buf, uint32_t canvas_width, uint32_t canvas_height) 
 {
 	const uint64_t size = (uint64_t)canvas_width * canvas_height * NUM_CHANNELS * sizeof(*buf);
-	if(!CheckSizeOverflow(size)) return 0;
+	if(!CheckSizeOverflow(size)) 
+		return 0;
 	memzero(buf, (size_t)size);
 	return 1;
 }
@@ -168,41 +160,34 @@ static void ZeroFillFrameRect(uint8* buf, int buf_stride, int x_offset, int y_of
 }
 
 // Copy width * height pixels from 'src' to 'dst'.
-static int CopyCanvas(const uint8* src, uint8* dst,
-    uint32_t width, uint32_t height) {
+static int CopyCanvas(const uint8* src, uint8* dst, uint32_t width, uint32_t height) 
+{
 	const uint64_t size = (uint64_t)width * height * NUM_CHANNELS;
-	if(!CheckSizeOverflow(size)) return 0;
+	if(!CheckSizeOverflow(size)) 
+		return 0;
 	assert(src != NULL && dst != NULL);
 	memcpy(dst, src, (size_t)size);
 	return 1;
 }
 
 // Returns true if the current frame is a key-frame.
-static int IsKeyFrame(const WebPIterator* const curr,
-    const WebPIterator* const prev,
-    int prev_frame_was_key_frame,
-    int canvas_width, int canvas_height) {
+static int IsKeyFrame(const WebPIterator* const curr, const WebPIterator* const prev, int prev_frame_was_key_frame, int canvas_width, int canvas_height) 
+{
 	if(curr->frame_num == 1) {
 		return 1;
 	}
-	else if((!curr->has_alpha || curr->blend_method == WEBP_MUX_NO_BLEND) &&
-	    IsFullFrame(curr->width, curr->height,
-	    canvas_width, canvas_height)) {
+	else if((!curr->has_alpha || curr->blend_method == WEBP_MUX_NO_BLEND) && IsFullFrame(curr->width, curr->height, canvas_width, canvas_height)) {
 		return 1;
 	}
 	else {
-		return (prev->dispose_method == WEBP_MUX_DISPOSE_BACKGROUND) &&
-		       (IsFullFrame(prev->width, prev->height, canvas_width,
-		       canvas_height) ||
-		       prev_frame_was_key_frame);
+		return (prev->dispose_method == WEBP_MUX_DISPOSE_BACKGROUND) && (IsFullFrame(prev->width, prev->height, canvas_width, canvas_height) || prev_frame_was_key_frame);
 	}
 }
 
 // Blend a single channel of 'src' over 'dst', given their alpha channel values.
 // 'src' and 'dst' are assumed to be NOT pre-multiplied by alpha.
-static uint8 BlendChannelNonPremult(uint32_t src, uint8 src_a,
-    uint32_t dst, uint8 dst_a,
-    uint32_t scale, int shift) {
+static uint8 BlendChannelNonPremult(uint32_t src, uint8 src_a, uint32_t dst, uint8 dst_a, uint32_t scale, int shift) 
+{
 	const uint8 src_channel = (src >> shift) & 0xff;
 	const uint8 dst_channel = (dst >> shift) & 0xff;
 	const uint32_t blend_unscaled = src_channel * src_a + dst_channel * dst_a;
@@ -211,9 +196,9 @@ static uint8 BlendChannelNonPremult(uint32_t src, uint8 src_a,
 }
 
 // Blend 'src' over 'dst' assuming they are NOT pre-multiplied by alpha.
-static uint32_t BlendPixelNonPremult(uint32_t src, uint32_t dst) {
+static uint32_t FASTCALL BlendPixelNonPremult(uint32_t src, uint32_t dst) 
+{
 	const uint8 src_a = (src >> 24) & 0xff;
-
 	if(src_a == 0) {
 		return dst;
 	}
@@ -224,28 +209,19 @@ static uint32_t BlendPixelNonPremult(uint32_t src, uint32_t dst) {
 		const uint8 dst_factor_a = (dst_a * (256 - src_a)) >> 8;
 		const uint8 blend_a = src_a + dst_factor_a;
 		const uint32_t scale = (1UL << 24) / blend_a;
-
-		const uint8 blend_r =
-		    BlendChannelNonPremult(src, src_a, dst, dst_factor_a, scale, 0);
-		const uint8 blend_g =
-		    BlendChannelNonPremult(src, src_a, dst, dst_factor_a, scale, 8);
-		const uint8 blend_b =
-		    BlendChannelNonPremult(src, src_a, dst, dst_factor_a, scale, 16);
+		const uint8 blend_r = BlendChannelNonPremult(src, src_a, dst, dst_factor_a, scale, 0);
+		const uint8 blend_g = BlendChannelNonPremult(src, src_a, dst, dst_factor_a, scale, 8);
+		const uint8 blend_b = BlendChannelNonPremult(src, src_a, dst, dst_factor_a, scale, 16);
 		assert(src_a + dst_factor_a < 256);
-
-		return (blend_r << 0) |
-		       (blend_g << 8) |
-		       (blend_b << 16) |
-		       ((uint32_t)blend_a << 24);
+		return (blend_r << 0) | (blend_g << 8) | (blend_b << 16) | ((uint32_t)blend_a << 24);
 	}
 }
 
 // Blend 'num_pixels' in 'src' over 'dst' assuming they are NOT pre-multiplied
 // by alpha.
-static void BlendPixelRowNonPremult(uint32_t* const src,
-    const uint32_t* const dst, int num_pixels) {
-	int i;
-	for(i = 0; i < num_pixels; ++i) {
+static void BlendPixelRowNonPremult(uint32_t* const src, const uint32_t* const dst, int num_pixels) 
+{
+	for(int i = 0; i < num_pixels; ++i) {
 		const uint8 src_alpha = (src[i] >> 24) & 0xff;
 		if(src_alpha != 0xff) {
 			src[i] = BlendPixelNonPremult(src[i], dst[i]);
@@ -254,7 +230,8 @@ static void BlendPixelRowNonPremult(uint32_t* const src,
 }
 
 // Individually multiply each channel in 'pix' by 'scale'.
-static FORCEINLINE uint32_t ChannelwiseMultiply(uint32_t pix, uint32_t scale) {
+static FORCEINLINE uint32_t ChannelwiseMultiply(uint32_t pix, uint32_t scale) 
+{
 	uint32_t mask = 0x00FF00FF;
 	uint32_t rb = ((pix & mask) * scale) >> 8;
 	uint32_t ag = ((pix >> 8) & mask) * scale;

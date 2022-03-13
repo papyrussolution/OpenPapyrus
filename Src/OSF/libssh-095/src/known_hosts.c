@@ -8,13 +8,7 @@
  *
  * The SSH Library is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2.1 of the License, or (at your
- * option) any later version.
- *
- * The SSH Library is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
- * License for more details.
+ * the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version.
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the SSH Library; see the file COPYING.  If not, write to
@@ -27,13 +21,11 @@
 	#include <netinet/in.h>
 	#include <arpa/inet.h>
 #endif
-
 /**
  * @addtogroup libssh_session
  *
  * @{
  */
-
 /**
  * @internal
  *
@@ -53,63 +45,48 @@
  *                free that value. NULL if no match was found or the file
  *                was not found.
  */
-static struct ssh_tokens_st * ssh_get_knownhost_line(FILE ** file,
-    const char * filename,
-    const char ** found_type){
+static struct ssh_tokens_st * ssh_get_knownhost_line(FILE ** file, const char * filename, const char ** found_type)
+{
 	char buffer[4096] = {0};
 	char * ptr;
 	struct ssh_tokens_st * tokens;
-
 	if(*file == NULL) {
 		*file = fopen(filename, "r");
 		if(*file == NULL) {
 			return NULL;
 		}
 	}
-
 	while(fgets(buffer, sizeof(buffer), *file)) {
 		ptr = strchr(buffer, '\n');
 		if(ptr) {
 			*ptr =  '\0';
 		}
-
 		ptr = strchr(buffer, '\r');
 		if(ptr) {
 			*ptr = '\0';
 		}
-
 		if(buffer[0] == '\0' || buffer[0] == '#') {
 			continue; /* skip empty lines */
 		}
-
 		tokens = ssh_tokenize(buffer, ' ');
 		if(tokens == NULL) {
 			fclose(*file);
 			*file = NULL;
-
 			return NULL;
 		}
-
-		if(tokens->tokens[0] == NULL ||
-		    tokens->tokens[1] == NULL ||
-		    tokens->tokens[2] == NULL) {
+		if(tokens->tokens[0] == NULL || tokens->tokens[1] == NULL || tokens->tokens[2] == NULL) {
 			/* it should have at least 3 tokens */
 			ssh_tokens_free(tokens);
 			continue;
 		}
-
 		*found_type = tokens->tokens[1];
-
 		return tokens;
 	}
-
 	fclose(*file);
 	*file = NULL;
-
 	/* we did not find anything, end of file*/
 	return NULL;
 }
-
 /**
  * @internal
  *
@@ -123,34 +100,29 @@ static struct ssh_tokens_st * ssh_get_knownhost_line(FILE ** file,
  * @returns             1 if the key matches, 0 if the key doesn't match and -1
  *                on error.
  */
-static int check_public_key(ssh_session session, char ** tokens) {
+static int check_public_key(ssh_session session, char ** tokens) 
+{
 	ssh_string pubkey_blob = NULL;
 	ssh_buffer pubkey_buffer;
 	char * pubkey_64;
 	int rc;
-
 	/* ssh-dss or ssh-rsa */
 	pubkey_64 = tokens[2];
 	pubkey_buffer = base64_to_bin(pubkey_64);
-
 	if(pubkey_buffer == NULL) {
-		ssh_set_error(session, SSH_FATAL,
-		    "Verifying that server is a known host: base64 error");
+		ssh_set_error(session, SSH_FATAL, "Verifying that server is a known host: base64 error");
 		return -1;
 	}
-
 	rc = ssh_dh_get_current_server_publickey_blob(session, &pubkey_blob);
 	if(rc != 0) {
 		ssh_buffer_free(pubkey_buffer);
 		return -1;
 	}
-
 	if(ssh_buffer_get_len(pubkey_buffer) != ssh_string_len(pubkey_blob)) {
 		ssh_string_free(pubkey_blob);
 		ssh_buffer_free(pubkey_buffer);
 		return 0;
 	}
-
 	/* now test that they are identical */
 	if(memcmp(ssh_buffer_get(pubkey_buffer), ssh_string_data(pubkey_blob),
 	    ssh_buffer_get_len(pubkey_buffer)) != 0) {
@@ -158,7 +130,6 @@ static int check_public_key(ssh_session session, char ** tokens) {
 		ssh_buffer_free(pubkey_buffer);
 		return 0;
 	}
-
 	ssh_string_free(pubkey_blob);
 	ssh_buffer_free(pubkey_buffer);
 	return 1;

@@ -1,8 +1,6 @@
 /*
  * bind_config.c - Parse the SSH server configuration file
- *
  * This file is part of the SSH Library
- *
  * Copyright (c) 2019 by Red Hat, Inc.
  *
  * Author: Anderson Toshiyuki Sasaki <ansasaki@redhat.com>
@@ -11,11 +9,6 @@
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation; either version 2.1 of the License, or (at your
  * option) any later version.
- *
- * The SSH Library is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
- * License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the SSH Library; see the file COPYING.  If not, write to
@@ -40,8 +33,7 @@ struct ssh_bind_config_keyword_table_s {
 	bool allowed_in_match;
 };
 
-static struct ssh_bind_config_keyword_table_s
-    ssh_bind_config_keyword_table[] = {
+static struct ssh_bind_config_keyword_table_s ssh_bind_config_keyword_table[] = {
 	{ "include", BIND_CFG_INCLUDE, false },
 	{ "hostkey", BIND_CFG_HOSTKEY, false },
 	{ "listenaddress", BIND_CFG_LISTENADDRESS, false },
@@ -73,8 +65,7 @@ struct ssh_bind_config_match_keyword_table_s {
 	enum ssh_bind_config_match_e opcode;
 };
 
-static struct ssh_bind_config_match_keyword_table_s
-    ssh_bind_config_match_keyword_table[] = {
+static struct ssh_bind_config_match_keyword_table_s ssh_bind_config_match_keyword_table[] = {
 	{ "all", BIND_MATCH_ALL },
 	{ "user", BIND_MATCH_USER },
 	{ "group", BIND_MATCH_GROUP },
@@ -226,9 +217,7 @@ static int ssh_bind_config_parse_line(ssh_bind bind, const char * line, uint cou
 		    if(p && (*parser_flags & PARSING)) {
 			    rc = ssh_bind_options_set(bind, SSH_BIND_OPTIONS_BINDADDR, p);
 			    if(rc != 0) {
-				    SSH_LOG(SSH_LOG_WARN,
-					"line %d: Failed to set ListenAddress value '%s'",
-					count, p);
+				    SSH_LOG(SSH_LOG_WARN, "line %d: Failed to set ListenAddress value '%s'", count, p);
 			    }
 		    }
 		    break;
@@ -237,9 +226,7 @@ static int ssh_bind_config_parse_line(ssh_bind bind, const char * line, uint cou
 		    if(p && (*parser_flags & PARSING)) {
 			    rc = ssh_bind_options_set(bind, SSH_BIND_OPTIONS_BINDPORT_STR, p);
 			    if(rc != 0) {
-				    SSH_LOG(SSH_LOG_WARN,
-					"line %d: Failed to set Port value '%s'",
-					count, p);
+				    SSH_LOG(SSH_LOG_WARN, "line %d: Failed to set Port value '%s'", count, p);
 			    }
 		    }
 		    break;
@@ -248,17 +235,13 @@ static int ssh_bind_config_parse_line(ssh_bind bind, const char * line, uint cou
 		    if(p && (*parser_flags & PARSING)) {
 			    rc = ssh_bind_options_set(bind, SSH_BIND_OPTIONS_CIPHERS_C_S, p);
 			    if(rc != 0) {
-				    SSH_LOG(SSH_LOG_WARN,
-					"line %d: Failed to set C->S Ciphers value '%s'",
-					count, p);
+				    SSH_LOG(SSH_LOG_WARN, "line %d: Failed to set C->S Ciphers value '%s'", count, p);
 				    break;
 			    }
 
 			    rc = ssh_bind_options_set(bind, SSH_BIND_OPTIONS_CIPHERS_S_C, p);
 			    if(rc != 0) {
-				    SSH_LOG(SSH_LOG_WARN,
-					"line %d: Failed to set S->C Ciphers value '%s'",
-					count, p);
+				    SSH_LOG(SSH_LOG_WARN, "line %d: Failed to set S->C Ciphers value '%s'", count, p);
 			    }
 		    }
 		    break;
@@ -267,17 +250,12 @@ static int ssh_bind_config_parse_line(ssh_bind bind, const char * line, uint cou
 		    if(p && (*parser_flags & PARSING)) {
 			    rc = ssh_bind_options_set(bind, SSH_BIND_OPTIONS_HMAC_C_S, p);
 			    if(rc != 0) {
-				    SSH_LOG(SSH_LOG_WARN,
-					"line %d: Failed to set C->S MAC value '%s'",
-					count, p);
+				    SSH_LOG(SSH_LOG_WARN, "line %d: Failed to set C->S MAC value '%s'", count, p);
 				    break;
 			    }
-
 			    rc = ssh_bind_options_set(bind, SSH_BIND_OPTIONS_HMAC_S_C, p);
 			    if(rc != 0) {
-				    SSH_LOG(SSH_LOG_WARN,
-					"line %d: Failed to set S->C MAC value '%s'",
-					count, p);
+				    SSH_LOG(SSH_LOG_WARN, "line %d: Failed to set S->C MAC value '%s'", count, p);
 			    }
 		    }
 		    break;
@@ -383,22 +361,17 @@ static int ssh_bind_config_parse_line(ssh_bind bind, const char * line, uint cou
 					/* Skip one argument */
 					p = ssh_config_get_str_tok(&s, NULL);
 					if(isempty(p)) {
-						SSH_LOG(SSH_LOG_WARN, "line %d: Match keyword "
-						    "'%s' requires argument\n", count, p2);
+						SSH_LOG(SSH_LOG_WARN, "line %d: Match keyword '%s' requires argument\n", count, p2);
 						ZFREE(x);
 						return -1;
 					}
 					args++;
-					SSH_LOG(SSH_LOG_WARN,
-					    "line %d: Unsupported Match keyword '%s', ignoring\n",
-					    count,
-					    p2);
+					SSH_LOG(SSH_LOG_WARN, "line %d: Unsupported Match keyword '%s', ignoring\n", count, p2);
 					result = 0;
 					break;
 				    case BIND_MATCH_UNKNOWN:
 				    default:
-					ssh_set_error(bind, SSH_FATAL,
-					    "ERROR - Unknown argument '%s' for Match keyword", p);
+					ssh_set_error(bind, SSH_FATAL, "ERROR - Unknown argument '%s' for Match keyword", p);
 					ZFREE(x);
 					return -1;
 			    }
@@ -425,39 +398,30 @@ static int ssh_bind_config_parse_line(ssh_bind bind, const char * line, uint cou
 		case BIND_CFG_HOSTKEY_ALGORITHMS:
 		    p = ssh_config_get_str_tok(&s, NULL);
 		    if(p && (*parser_flags & PARSING)) {
-			    rc = ssh_bind_options_set(bind,
-				    SSH_BIND_OPTIONS_HOSTKEY_ALGORITHMS, p);
+			    rc = ssh_bind_options_set(bind, SSH_BIND_OPTIONS_HOSTKEY_ALGORITHMS, p);
 			    if(rc != 0) {
-				    SSH_LOG(SSH_LOG_WARN,
-					"line %d: Failed to set HostkeyAlgorithms value '%s'",
-					count, p);
+				    SSH_LOG(SSH_LOG_WARN, "line %d: Failed to set HostkeyAlgorithms value '%s'", count, p);
 			    }
 		    }
 		    break;
 		case BIND_CFG_NOT_ALLOWED_IN_MATCH:
-		    SSH_LOG(SSH_LOG_WARN, "Option not allowed in Match block: %s, line: %d",
-			keyword, count);
+		    SSH_LOG(SSH_LOG_WARN, "Option not allowed in Match block: %s, line: %d", keyword, count);
 		    break;
 		case BIND_CFG_UNKNOWN:
-		    SSH_LOG(SSH_LOG_WARN, "Unknown option: %s, line: %d",
-			keyword, count);
+		    SSH_LOG(SSH_LOG_WARN, "Unknown option: %s, line: %d", keyword, count);
 		    break;
 		case BIND_CFG_UNSUPPORTED:
-		    SSH_LOG(SSH_LOG_WARN, "Unsupported option: %s, line: %d",
-			keyword, count);
+		    SSH_LOG(SSH_LOG_WARN, "Unsupported option: %s, line: %d", keyword, count);
 		    break;
 		case BIND_CFG_NA:
-		    SSH_LOG(SSH_LOG_WARN, "Option not applicable: %s, line: %d",
-			keyword, count);
+		    SSH_LOG(SSH_LOG_WARN, "Option not applicable: %s, line: %d", keyword, count);
 		    break;
 		default:
-		    ssh_set_error(bind, SSH_FATAL, "ERROR - unimplemented opcode: %d",
-			opcode);
+		    ssh_set_error(bind, SSH_FATAL, "ERROR - unimplemented opcode: %d", opcode);
 		    ZFREE(x);
 		    return -1;
 		    break;
 	}
-
 	ZFREE(x);
 	return rc;
 }
@@ -466,33 +430,26 @@ int ssh_bind_config_parse_file(ssh_bind bind, const char * filename)
 {
 	char line[MAX_LINE_SIZE] = {0};
 	uint count = 0;
-	FILE * f;
 	uint32_t parser_flags;
 	int rv;
-
 	/* This local table is used during the parsing of the current file (and
 	 * files included recursively in this file) to prevent an option to be
 	 * redefined, i.e. the first value set is kept. But this DO NOT prevent the
 	 * option to be redefined later by another file. */
 	uint8 seen[BIND_CFG_MAX] = {0};
-
-	f = fopen(filename, "r");
-	if(f == NULL) {
-		return 0;
-	}
-
-	SSH_LOG(SSH_LOG_PACKET, "Reading configuration data from %s", filename);
-
-	parser_flags = PARSING;
-	while(fgets(line, sizeof(line), f)) {
-		count++;
-		rv = ssh_bind_config_parse_line(bind, line, count, &parser_flags, seen);
-		if(rv) {
-			fclose(f);
-			return -1;
+	FILE * f = fopen(filename, "r");
+	if(f) {
+		SSH_LOG(SSH_LOG_PACKET, "Reading configuration data from %s", filename);
+		parser_flags = PARSING;
+		while(fgets(line, sizeof(line), f)) {
+			count++;
+			rv = ssh_bind_config_parse_line(bind, line, count, &parser_flags, seen);
+			if(rv) {
+				fclose(f);
+				return -1;
+			}
 		}
+		fclose(f);
 	}
-
-	fclose(f);
 	return 0;
 }

@@ -51,7 +51,8 @@ static void ResetFilterHeader(VP8Encoder* const enc) {
 	hdr->i4x4_lf_delta_ = 0;
 }
 
-static void ResetBoundaryPredictions(VP8Encoder* const enc) {
+static void ResetBoundaryPredictions(VP8Encoder* const enc) 
+{
 	// init boundary values once for all
 	// Note: actually, initializing the preds_[] is only needed for intra4.
 	int i;
@@ -91,25 +92,17 @@ static void ResetBoundaryPredictions(VP8Encoder* const enc) {
 // full-SNS          |   |   |   |   | x | x | x |
 //-------------------+---+---+---+---+---+---+---+
 
-static void MapConfigToTools(VP8Encoder* const enc) {
+static void MapConfigToTools(VP8Encoder* const enc) 
+{
 	const WebPConfig* const config = enc->config_;
 	const int method = config->method;
 	const int limit = 100 - config->partition_limit;
 	enc->method_ = method;
-	enc->rd_opt_level_ = (method >= 6) ? RD_OPT_TRELLIS_ALL
-	    : (method >= 5) ? RD_OPT_TRELLIS
-	    : (method >= 3) ? RD_OPT_BASIC
-	    : RD_OPT_NONE;
-	enc->max_i4_header_bits_ =
-	    256 * 16 * 16 *           // upper bound: up to 16bit per 4x4 block
-	    (limit * limit) / (100 * 100); // ... modulated with a quadratic curve.
-
+	enc->rd_opt_level_ = (method >= 6) ? RD_OPT_TRELLIS_ALL : (method >= 5) ? RD_OPT_TRELLIS : (method >= 3) ? RD_OPT_BASIC : RD_OPT_NONE;
+	enc->max_i4_header_bits_ = 256 * 16 * 16 * /*upper bound: up to 16bit per 4x4 block*/ (limit * limit) / (100 * 100)/*... modulated with a quadratic curve */;
 	// partition0 = 512k max.
-	enc->mb_header_limit_ =
-	    (score_t)256 * 510 * 8 * 1024 / (enc->mb_w_ * enc->mb_h_);
-
+	enc->mb_header_limit_ = (score_t)256 * 510 * 8 * 1024 / (enc->mb_w_ * enc->mb_h_);
 	enc->thread_level_ = config->thread_level;
-
 	enc->do_search_ = (config->target_size > 0 || config->target_PSNR > 0);
 	if(!config->low_memory) {
 #if !defined(DISABLE_TOKEN_BUFFER)
@@ -140,11 +133,10 @@ static void MapConfigToTools(VP8Encoder* const enc) {
 //              LFStats: 2048
 // Picture size (yuv): 419328
 
-static VP8Encoder* InitVP8Encoder(const WebPConfig* const config,
-    WebPPicture* const picture) {
+static VP8Encoder* InitVP8Encoder(const WebPConfig* const config, WebPPicture* const picture) 
+{
 	VP8Encoder* enc;
-	const int use_filter =
-	    (config->filter_strength > 0) || (config->autofilter > 0);
+	const int use_filter = (config->filter_strength > 0) || (config->autofilter > 0);
 	const int mb_w = (picture->width + 15) >> 4;
 	const int mb_h = (picture->height + 15) >> 4;
 	const int preds_w = 4 * mb_w + 1;
@@ -153,14 +145,10 @@ static VP8Encoder* InitVP8Encoder(const WebPConfig* const config,
 	const int top_stride = mb_w * 16;
 	const size_t nz_size = (mb_w + 1) * sizeof(*enc->nz_) + WEBP_ALIGN_CST;
 	const size_t info_size = mb_w * mb_h * sizeof(*enc->mb_info_);
-	const size_t samples_size =
-	    2 * top_stride * sizeof(*enc->y_top_) // top-luma/u/v
-	    + WEBP_ALIGN_CST;                // align all
-	const size_t lf_stats_size =
-	    config->autofilter ? sizeof(*enc->lf_stats_) + WEBP_ALIGN_CST : 0;
-	const size_t top_derr_size =
-	    (config->quality <= ERROR_DIFFUSION_QUALITY || config->pass > 1) ?
-	    mb_w * sizeof(*enc->top_derr_) : 0;
+	const size_t samples_size = 2 * top_stride * sizeof(*enc->y_top_) // top-luma/u/v
+	    + WEBP_ALIGN_CST; // align all
+	const size_t lf_stats_size = config->autofilter ? sizeof(*enc->lf_stats_) + WEBP_ALIGN_CST : 0;
+	const size_t top_derr_size = (config->quality <= ERROR_DIFFUSION_QUALITY || config->pass > 1) ? mb_w * sizeof(*enc->top_derr_) : 0;
 	uint8* mem;
 	const uint64_t size = (uint64_t)sizeof(*enc) // main struct
 	    + WEBP_ALIGN_CST                     // cache alignment
@@ -250,9 +238,10 @@ static VP8Encoder* InitVP8Encoder(const WebPConfig* const config,
 	return enc;
 }
 
-static int DeleteVP8Encoder(VP8Encoder* enc) {
+static int DeleteVP8Encoder(VP8Encoder* enc) 
+{
 	int ok = 1;
-	if(enc != NULL) {
+	if(enc) {
 		ok = VP8EncDeleteAlpha(enc);
 		VP8TBufferClear(&enc->tokens_);
 		WebPSafeFree(enc);
@@ -306,16 +295,16 @@ static void StoreStats(VP8Encoder* const enc)
 #endif  // !defined(WEBP_DISABLE_STATS)
 }
 
-int WebPEncodingSetError(const WebPPicture* const pic,
-    WebPEncodingError error) {
+int FASTCALL WebPEncodingSetError(const WebPPicture* const pic, WebPEncodingError error) 
+{
 	assert((int)error < VP8_ENC_ERROR_LAST);
 	assert((int)error >= VP8_ENC_OK);
 	((WebPPicture*)pic)->error_code = error;
 	return 0;
 }
 
-int WebPReportProgress(const WebPPicture* const pic,
-    int percent, int* const percent_store) {
+int WebPReportProgress(const WebPPicture* const pic, int percent, int* const percent_store) 
+{
 	if(percent_store != NULL && percent != *percent_store) {
 		*percent_store = percent;
 		if(pic->progress_hook && !pic->progress_hook(percent, pic)) {

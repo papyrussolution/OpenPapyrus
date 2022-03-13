@@ -18,15 +18,12 @@ __FBSDID("$FreeBSD$");
 #ifdef HAVE_UNISTD_H
 	#include <unistd.h>
 #endif
-#include "archive.h"
-#include "archive_private.h"
 #include "archive_read_private.h"
 
 #define LRZIP_HEADER_MAGIC "LRZI"
 #define LRZIP_HEADER_MAGIC_LEN 4
 
-static int lrzip_bidder_bid(struct archive_read_filter_bidder *,
-    struct archive_read_filter *);
+static int lrzip_bidder_bid(struct archive_read_filter_bidder *, struct archive_read_filter *);
 static int lrzip_bidder_init(struct archive_read_filter *);
 
 static int lrzip_reader_free(struct archive_read_filter_bidder * self)

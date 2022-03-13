@@ -81,8 +81,9 @@ const char* VP8StatusMessage(VP8Decoder* const dec) {
 	return dec->error_msg_;
 }
 
-void VP8Delete(VP8Decoder* const dec) {
-	if(dec != NULL) {
+void FASTCALL VP8Delete(VP8Decoder* const dec) 
+{
+	if(dec) {
 		VP8Clear(dec);
 		WebPSafeFree(dec);
 	}
@@ -101,13 +102,13 @@ int VP8SetError(VP8Decoder* const dec,
 
 //------------------------------------------------------------------------------
 
-int VP8CheckSignature(const uint8* const data, size_t data_size) {
-	return (data_size >= 3 &&
-	       data[0] == 0x9d && data[1] == 0x01 && data[2] == 0x2a);
+int FASTCALL VP8CheckSignature(const uint8* const data, size_t data_size) 
+{
+	return (data_size >= 3 && data[0] == 0x9d && data[1] == 0x01 && data[2] == 0x2a);
 }
 
-int VP8GetInfo(const uint8* data, size_t data_size, size_t chunk_size,
-    int* const width, int* const height) {
+int VP8GetInfo(const uint8* data, size_t data_size, size_t chunk_size, int* const width, int* const height) 
+{
 	if(data == NULL || data_size < VP8_FRAME_HEADER_SIZE) {
 		return 0; // not enough data
 	}
@@ -721,7 +722,7 @@ int VP8Decode(VP8Decoder* const dec, VP8Io* const io) {
 	return ok;
 }
 
-void VP8Clear(VP8Decoder* const dec) 
+void FASTCALL VP8Clear(VP8Decoder* const dec) 
 {
 	if(dec) {
 		WebPGetWorkerInterface()->End(&dec->worker_);
