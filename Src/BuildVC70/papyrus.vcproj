@@ -2305,6 +2305,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\PPLib\ppfts.cpp">
+			</File>
+			<File
 				RelativePath="..\PPLib\ppgeo.cpp">
 			</File>
 			<File
@@ -3920,10 +3923,10 @@
 				RelativePath="..\Rsrc\Bitmap\banking.bmp">
 			</File>
 			<File
-				RelativePath="..\Rsrc\Bitmap\Tbbutton\barcode.bmp">
+				RelativePath="..\Rsrc\Bitmap\BARCODE.bmp">
 			</File>
 			<File
-				RelativePath="..\Rsrc\Bitmap\BARCODE.bmp">
+				RelativePath="..\Rsrc\Bitmap\Tbbutton\barcode.bmp">
 			</File>
 			<File
 				RelativePath="..\Rsrc\Bitmap\barcodeprinter.bmp">
@@ -4550,10 +4553,10 @@
 				RelativePath="..\Rsrc\Bitmap\Tbbutton\mark.bmp">
 			</File>
 			<File
-				RelativePath="..\Rsrc\Bitmap\matrix.bmp">
+				RelativePath="..\Rsrc\Bitmap\Tbbutton\matrix.bmp">
 			</File>
 			<File
-				RelativePath="..\Rsrc\Bitmap\Tbbutton\matrix.bmp">
+				RelativePath="..\Rsrc\Bitmap\matrix.bmp">
 			</File>
 			<File
 				RelativePath="..\Rsrc\Bitmap\Tbbutton\membership.bmp">

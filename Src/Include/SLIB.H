@@ -1696,7 +1696,7 @@ public:
 		P = ptr;
 		return *this;
 	}
-	int operator !() const { return (P == 0); }
+	bool operator !() const { return (P == 0); }
 	operator void * () const { return P; }
 private:
 	void * P;

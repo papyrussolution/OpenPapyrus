@@ -8,6 +8,67 @@
 #include <pp.h>
 #pragma hdrstop
 
+bool PPFtsIterface::TransactionHandle::operator !() const { return !H; }
+
+PPFtsIterface::Entity::Entity() : Scope(scopeUndef), ObjType(0), ObjId(0)
+{
+}
+
+PPFtsIterface::Entity::Entity(const Entity & rS) : Scope(rS.Scope), ObjType(rS.ObjType), ObjId(rS.ObjId), ScopeIdent(rS.ScopeIdent)
+{
+}
+
+PPFtsIterface::Entity & FASTCALL PPFtsIterface::Entity::operator = (const Entity & rS)
+{
+	Scope = rS.Scope;
+	ObjType = rS.ObjType;
+	ObjId = rS.ObjId;
+	ScopeIdent = rS.ScopeIdent;
+	return *this;
+}
+
+PPFtsIterface::Entity & PPFtsIterface::Entity::Z()
+{
+	Scope = 0;
+	ObjType = 0;
+	ObjId = 0;
+	ScopeIdent.Z();
+	return *this;
+}
+
+bool PPFtsIterface::Entity::IsValid() const
+{
+	bool   ok = true;
+	THROW_PP(oneof2(Scope, scopePPDb, scopeStyloQSvc), PPERR_FTS_INVSCOPEIDENT);
+	THROW_PP(ScopeIdent.NotEmpty(), PPERR_FTS_INVSCOPEIDENT);
+	THROW_PP(ScopeIdent.Len() <= 256, PPERR_FTS_INVSCOPEIDENT);
+	THROW_PP(ScopeIdent.IsLegalUtf8(), PPERR_FTS_INVSCOPEIDENT);
+	CATCHZOK
+	return ok;
+}
+
+bool FASTCALL PPFtsIterface::Entity::IsEq(const Entity & rS) const
+{
+	return (Scope == rS.Scope && ObjType == rS.ObjType && ObjId == rS.ObjId && ScopeIdent == rS.ScopeIdent);
+}
+
+PPFtsIterface::SearchResultEntry::SearchResultEntry() : Entity(), DocId(0), Rank(0), Weight(0.0)
+{
+}
+
+PPFtsIterface::PPFtsIterface(bool writer) : H(writer)
+{
+}
+
+PPFtsIterface::~PPFtsIterface()
+{
+}
+
+bool PPFtsIterface::operator !() const { return !H; }
+bool PPFtsIterface::IsWriter() const { return (!!H && H.IsWriter()); }
+
+#if (_MSC_VER >= 1900) // {
+
 #include <unordered_map>
 #include <unordered_set>
 #include <dbkv-lmdb.h>
@@ -198,48 +259,6 @@ int PPFtsDatabase::Search(const char * pQueryUtf8, uint maxItems, TSCollection <
 	CATCHZOK
 	CommitTransaction(tra);
 	return ok;
-}
-
-PPFtsIterface::Entity::Entity() : Scope(scopeUndef), ObjType(0), ObjId(0)
-{
-}
-
-PPFtsIterface::Entity::Entity(const Entity & rS) : Scope(rS.Scope), ObjType(rS.ObjType), ObjId(rS.ObjId), ScopeIdent(rS.ScopeIdent)
-{
-}
-
-PPFtsIterface::Entity & FASTCALL PPFtsIterface::Entity::operator = (const Entity & rS)
-{
-	Scope = rS.Scope;
-	ObjType = rS.ObjType;
-	ObjId = rS.ObjId;
-	ScopeIdent = rS.ScopeIdent;
-	return *this;
-}
-
-PPFtsIterface::Entity & PPFtsIterface::Entity::Z()
-{
-	Scope = 0;
-	ObjType = 0;
-	ObjId = 0;
-	ScopeIdent.Z();
-	return *this;
-}
-
-bool PPFtsIterface::Entity::IsValid() const
-{
-	bool   ok = true;
-	THROW_PP(oneof2(Scope, scopePPDb, scopeStyloQSvc), PPERR_FTS_INVSCOPEIDENT);
-	THROW_PP(ScopeIdent.NotEmpty(), PPERR_FTS_INVSCOPEIDENT);
-	THROW_PP(ScopeIdent.Len() <= 256, PPERR_FTS_INVSCOPEIDENT);
-	THROW_PP(ScopeIdent.IsLegalUtf8(), PPERR_FTS_INVSCOPEIDENT);
-	CATCHZOK
-	return ok;
-}
-
-bool FASTCALL PPFtsIterface::Entity::IsEq(const Entity & rS) const
-{
-	return (Scope == rS.Scope && ObjType == rS.ObjType && ObjId == rS.ObjId && ScopeIdent == rS.ScopeIdent);
 }
 
 /*int PPFtsDatabase::Entity::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
@@ -678,24 +697,6 @@ uint64 PPFtsDatabase::PutEntity(SHandle tra, PPFtsIterface::Entity & rEnt, Strin
 //
 //
 //
-PPFtsIterface::PPFtsIterface(bool writer) : H(writer)
-{
-}
-
-PPFtsIterface::~PPFtsIterface()
-{
-}
-
-bool PPFtsIterface::operator !() const
-{
-	return !H;
-}
-
-bool PPFtsIterface::IsWriter() const
-{
-	return (!!H && H.IsWriter());
-}
-
 PPFtsIterface::TransactionHandle::TransactionHandle(PPFtsIterface & rS) : R_Ifc(rS)
 {
 	if(R_Ifc.IsWriter()) {
@@ -710,11 +711,6 @@ PPFtsIterface::TransactionHandle::~TransactionHandle()
 	}
 }
 
-bool PPFtsIterface::TransactionHandle::operator !() const
-{
-	return !H;
-}
-		
 int PPFtsIterface::TransactionHandle::Commit()
 {
 	int    ok = -1;
@@ -1139,3 +1135,16 @@ int  Test_Fts()
 	ENDCATCH
 	return ok;
 }
+#else
+//
+// @stub for VC 7.1
+//
+PPFtsIterface::Ptr::Ptr(bool writer) : P(0), Writer(writer) {} // @stub
+PPFtsIterface::Ptr::~Ptr() {} // @stub
+PPFtsIterface::TransactionHandle::TransactionHandle(PPFtsIterface & rS) : R_Ifc(rS) {} // @stub
+PPFtsIterface::TransactionHandle::~TransactionHandle() {} // @stub
+uint64 PPFtsIterface::TransactionHandle::PutEntity(PPFtsIterface::Entity & rEnt, StringSet & rSsUtf8, const char * pOpaqueData) { return 0; } // @stub
+int PPFtsIterface::Search(const char * pQueryUtf8, uint maxItems, TSCollection <PPFtsIterface::SearchResultEntry> & rResult) { return 0; } // @stub
+int PPFtsIterface::TransactionHandle::Commit() { return -1; } // @stub
+
+#endif // (_MSC_VER >= 1900)

@@ -46201,9 +46201,7 @@ public:
 		SString ScopeIdent;
 	};
 	struct SearchResultEntry : public Entity {
-		SearchResultEntry() : Entity(), DocId(0), Rank(0), Weight(0.0)
-		{
-		}
+		SearchResultEntry();
 		uint64 DocId;
 		uint64 Rank;
 		double Weight;
