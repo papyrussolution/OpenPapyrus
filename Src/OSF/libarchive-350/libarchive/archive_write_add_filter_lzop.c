@@ -16,14 +16,12 @@
 __FBSDID("$FreeBSD$");
 //#undef HAVE_LZO_LZOCONF_H
 //#undef HAVE_LZO_LZO1X_H
-
 #ifdef HAVE_LZO_LZOCONF_H
-#include <lzo/lzoconf.h>
+	#include <lzo/lzoconf.h>
 #endif
 #ifdef HAVE_LZO_LZO1X_H
-#include <lzo/lzo1x.h>
+	#include <lzo/lzo1x.h>
 #endif
-#include "archive_endian.h"
 
 enum lzo_method {
 	METHOD_LZO1X_1 = 1,

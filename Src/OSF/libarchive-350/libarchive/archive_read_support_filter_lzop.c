@@ -31,7 +31,6 @@ __FBSDID("$FreeBSD$");
 #if !defined(HAVE_ZLIB_H) && defined(HAVE_LZO_LZOCONF_H) && defined(HAVE_LZO_LZO1X_H)
 	#include "archive_crc32.h"
 #endif
-#include "archive_endian.h"
 #include "archive_read_private.h"
 
 #ifndef HAVE_ZLIB_H

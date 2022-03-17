@@ -15,7 +15,6 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
 #include "archive_digest_private.h"
-#include "archive_endian.h"
 #include "archive_entry_locale.h"
 #include "archive_rb.h"
 /*

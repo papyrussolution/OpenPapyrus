@@ -254,23 +254,16 @@ typedef int grid_scaled_y_t;
 
 #define UNROLL3(x) x x x
 
-struct quorem {
+/* @sobolev (replaced with Quorem_3232) struct quorem {
 	int32 quo;
 	int32 rem;
-};
+};*/
 
 /* Header for a chunk of memory in a memory pool. */
 struct _pool_chunk {
-	/* # bytes used in this chunk. */
-	size_t size;
-
-	/* # bytes total in this chunk */
-	size_t capacity;
-
-	/* Pointer to the previous chunk or %NULL if this is the sentinel
-	 * chunk in the pool header. */
-	struct _pool_chunk * prev_chunk;
-
+	size_t size; /* # bytes used in this chunk. */
+	size_t capacity; /* # bytes total in this chunk */
+	struct _pool_chunk * prev_chunk; // Pointer to the previous chunk or %NULL if this is the sentinel chunk in the pool header.
 	/* Actual data starts here.	 Well aligned for pointers. */
 };
 
@@ -279,69 +272,48 @@ struct _pool_chunk {
  * embedded array from which requests are fulfilled until
  * malloc needs to be called to allocate a first real chunk. */
 struct pool {
-	/* Chunk we're allocating from. */
-	struct _pool_chunk * current;
-
+	struct _pool_chunk * current; /* Chunk we're allocating from. */
 	jmp_buf * jmp;
-
-	/* Free list of previously allocated chunks.  All have >= default
-	 * capacity. */
-	struct _pool_chunk * first_free;
-
-	/* The default capacity of a chunk. */
-	size_t default_capacity;
-
+	struct _pool_chunk * first_free; /* Free list of previously allocated chunks.  All have >= default capacity. */
+	size_t default_capacity; /* The default capacity of a chunk. */
 	/* Header for the sentinel chunk.  Directly following the pool
 	 * struct should be some space for embedded elements from which
 	 * the sentinel chunk allocates from. */
 	struct _pool_chunk sentinel[1];
 };
-
-/* A polygon edge. */
+//
+// A polygon edge. 
+//
 struct edge {
-	/* Next in y-bucket or active list. */
-	struct edge * next, * prev;
-
-	/* Number of subsample rows remaining to scan convert of this
-	 * edge. */
-	grid_scaled_y_t height_left;
-
-	/* Original sign of the edge: +1 for downwards, -1 for upwards
-	 * edges.  */
-	int dir;
+	struct edge * next; // Next in y-bucket or active list
+	struct edge * prev;
+	grid_scaled_y_t height_left; // Number of subsample rows remaining to scan convert of this edge.
+	int dir; // Original sign of the edge: +1 for downwards, -1 for upwards edges
 	int vertical;
-
 	/* Current x coordinate while the edge is on the active
 	 * list. Initialised to the x coordinate of the top of the
 	 * edge. The quotient is in grid_scaled_x_t units and the
 	 * remainder is mod dy in grid_scaled_y_t units.*/
-	struct quorem x;
-
-	/* Advance of the current x when moving down a subsample line. */
-	struct quorem dxdy;
-
-	/* The clipped y of the top of the edge. */
-	grid_scaled_y_t ytop;
-
-	/* y2-y1 after orienting the edge downwards.  */
-	grid_scaled_y_t dy;
+	Quorem_3232 x;
+	Quorem_3232 dxdy; // Advance of the current x when moving down a subsample line
+	grid_scaled_y_t ytop; // The clipped y of the top of the edge
+	grid_scaled_y_t dy; // y2-y1 after orienting the edge downwards
 };
 
 #define EDGE_Y_BUCKET_INDEX(y, ymin) (((y) - (ymin))/GRID_Y)
-
-/* A collection of sorted and vertically clipped edges of the polygon.
- * Edges are moved from the polygon to an active list while scan
- * converting. */
+// 
+// A collection of sorted and vertically clipped edges of the polygon.
+// Edges are moved from the polygon to an active list while scan converting.
+// 
 struct polygon {
-	/* The vertical clip extents. */
-	grid_scaled_y_t ymin, ymax;
-
-	/* Array of edges all starting in the same bucket.	An edge is put
-	 * into bucket EDGE_BUCKET_INDEX(edge->ytop, polygon->ymin) when
-	 * it is added to the polygon. */
+	// The vertical clip extents. 
+	grid_scaled_y_t ymin;
+	grid_scaled_y_t ymax;
+	// Array of edges all starting in the same bucket.	An edge is put
+	// into bucket EDGE_BUCKET_INDEX(edge->ytop, polygon->ymin) when
+	// it is added to the polygon. 
 	struct edge ** y_buckets;
 	struct edge * y_buckets_embedded[64];
-
 	struct {
 		struct pool base[1];
 		struct edge embedded[32];
@@ -400,14 +372,9 @@ struct cell {
  * ascending x.  It is geared towards scanning the cells in order
  * using an internal cursor. */
 struct cell_list {
-	/* Sentinel nodes */
-	struct cell head, tail;
-
-	/* Cursor state for iterating through the cell list. */
-	struct cell * cursor, * rewind;
-
-	/* Cells in the cell list are owned by the cell list and are
-	 * allocated from this pool.  */
+	struct cell head, tail; /* Sentinel nodes */
+	struct cell * cursor, * rewind; /* Cursor state for iterating through the cell list. */
+	// Cells in the cell list are owned by the cell list and are allocated from this pool.  
 	struct {
 		struct pool base[1];
 		struct cell embedded[32];
@@ -442,12 +409,13 @@ struct glitter_scan_converter {
 	grid_scaled_x_t xmin, xmax;
 	grid_scaled_y_t ymin, ymax;
 };
+/* @sobolev (moved to cairoint.h)
 // 
 // Compute the floored division a/b. Assumes / and % perform symmetric division. 
 // 
-inline static struct quorem floored_divrem(int a, int b)                            
+inline static Quorem_3232 floored_divrem(int a, int b)                            
 {
-	struct quorem qr;
+	Quorem_3232 qr;
 	qr.quo = a/b;
 	qr.rem = a%b;
 	if((a^b) < 0 && qr.rem) {
@@ -455,13 +423,13 @@ inline static struct quorem floored_divrem(int a, int b)
 		qr.rem += b;
 	}
 	return qr;
-}
+}*/
 // 
 // Compute the floored division (x*a)/b. Assumes / and % perform symmetric division. 
 // 
-static struct quorem floored_muldivrem(int x, int a, int b)                     
+static Quorem_3232 floored_muldivrem(int x, int a, int b)                     
 {
-	struct quorem qr;
+	Quorem_3232 qr;
 	long long xa = (long long)x*a;
 	qr.quo = static_cast<int32>(xa/b);
 	qr.rem = xa%b;
@@ -501,7 +469,7 @@ static void pool_fini(struct pool * pool)
 {
 	struct _pool_chunk * p = pool->current;
 	do {
-		while(NULL != p) {
+		while(p) {
 			struct _pool_chunk * prev = p->prev_chunk;
 			if(p != pool->sentinel)
 				SAlloc::F(p);
@@ -509,7 +477,7 @@ static void pool_fini(struct pool * pool)
 		}
 		p = pool->first_free;
 		pool->first_free = NULL;
-	} while(NULL != p);
+	} while(p);
 }
 
 /* Satisfy an allocation by first allocating a new large enough chunk
@@ -519,9 +487,9 @@ static void pool_fini(struct pool * pool)
 static void * _pool_alloc_from_new_chunk(struct pool * pool, size_t size)
 {
 	void * obj;
-	/* If the allocation is smaller than the default chunk size then
-	 * try getting a chunk off the free list.  Force alloc of a new
-	 * chunk for large requests. */
+	// If the allocation is smaller than the default chunk size then
+	// try getting a chunk off the free list.  Force alloc of a new
+	// chunk for large requests. 
 	size_t capacity = size;
 	struct _pool_chunk * chunk = NULL;
 	if(size < pool->default_capacity) {
@@ -532,8 +500,7 @@ static void * _pool_alloc_from_new_chunk(struct pool * pool, size_t size)
 			_pool_chunk_init(chunk, pool->current, chunk->capacity);
 		}
 	}
-	if(!chunk)
-		chunk = _pool_chunk_create(pool, capacity);
+	SETIFZQ(chunk, _pool_chunk_create(pool, capacity));
 	pool->current = chunk;
 	obj = ((uchar *)chunk + sizeof(*chunk) + chunk->size);
 	chunk->size += size;
@@ -753,14 +720,14 @@ static void polygon_fini(struct polygon * polygon)
 		SAlloc::F(polygon->y_buckets);
 	pool_fini(polygon->edge_pool.base);
 }
-
-/* Empties the polygon of all edges. The polygon is then prepared to
- * receive new edges and clip them to the vertical range
- * [ymin,ymax). */
+// 
+// Empties the polygon of all edges. The polygon is then prepared to
+// receive new edges and clip them to the vertical range [ymin,ymax).
+// 
 static glitter_status_t polygon_reset(struct polygon * polygon, grid_scaled_y_t ymin, grid_scaled_y_t ymax)
 {
-	unsigned h = ymax - ymin;
-	unsigned num_buckets = EDGE_Y_BUCKET_INDEX(ymax + GRID_Y-1, ymin);
+	const  uint h = ymax - ymin;
+	const  uint num_buckets = EDGE_Y_BUCKET_INDEX(ymax + GRID_Y-1, ymin);
 	pool_reset(polygon->edge_pool.base);
 	if(UNLIKELY(h > 0x7FFFFFFFU - GRID_Y))
 		goto bail_no_mem; /* even if you could, you wouldn't want to. */
@@ -784,7 +751,7 @@ bail_no_mem:
 
 static void _polygon_insert_edge_into_its_y_bucket(struct polygon * polygon, struct edge * e)
 {
-	unsigned ix = EDGE_Y_BUCKET_INDEX(e->ytop, polygon->ymin);
+	const uint ix = EDGE_Y_BUCKET_INDEX(e->ytop, polygon->ymin);
 	struct edge ** ptail = &polygon->y_buckets[ix];
 	e->next = *ptail;
 	*ptail = e;
@@ -1193,27 +1160,21 @@ I glitter_status_t glitter_scan_converter_reset(glitter_scan_converter_t * conve
  * 2**GLITTER_PIXEL_BITS.  If this function fails then the scan
  * converter should be reset or destroyed.  Dir must be +1 or -1,
  * with the latter reversing the orientation of the edge. */
-I void glitter_scan_converter_add_edge(glitter_scan_converter_t * converter,
-    const cairo_edge_t * edge)
+I void glitter_scan_converter_add_edge(glitter_scan_converter_t * converter, const cairo_edge_t * edge)
 {
 	cairo_edge_t e;
-
 	INPUT_TO_GRID_Y(edge->top, e.top);
 	INPUT_TO_GRID_Y(edge->bottom, e.bottom);
 	if(e.top >= e.bottom)
 		return;
-
 	/* XXX: possible overflows if GRID_X/Y > 2**GLITTER_INPUT_BITS */
 	INPUT_TO_GRID_Y(edge->line.p1.y, e.line.p1.y);
 	INPUT_TO_GRID_Y(edge->line.p2.y, e.line.p2.y);
 	if(e.line.p1.y == e.line.p2.y)
 		e.line.p2.y++; /* Fudge to prevent div-by-zero */
-
 	INPUT_TO_GRID_X(edge->line.p1.x, e.line.p1.x);
 	INPUT_TO_GRID_X(edge->line.p2.x, e.line.p2.x);
-
 	e.dir = edge->dir;
-
 	polygon_add_edge(converter->polygon, &e);
 }
 
@@ -1229,13 +1190,12 @@ static void step_edges(struct active_list * active, int count)
 	}
 }
 
-static glitter_status_t blit_a8(struct cell_list * cells, cairo_span_renderer_t * renderer, cairo_half_open_span_t * spans,
-    int y, int height, int xmin, int xmax)
+static glitter_status_t blit_a8(struct cell_list * cells, cairo_span_renderer_t * renderer, cairo_half_open_span_t * spans, int y, int height, int xmin, int xmax)
 {
 	struct cell * cell = cells->head.next;
 	int prev_x = xmin, last_x = -1;
 	int16 cover = 0, last_cover = 0;
-	unsigned num_spans;
+	uint  num_spans;
 	if(cell == &cells->tail)
 		return CAIRO_STATUS_SUCCESS;
 	/* Skip cells to the left of the clip region. */
@@ -1284,23 +1244,22 @@ static glitter_status_t blit_a8(struct cell_list * cells, cairo_span_renderer_t 
 }
 
 #define GRID_AREA_TO_A1(A)  ((GRID_AREA_TO_ALPHA(A) > 127) ? 255 : 0)
-static glitter_status_t blit_a1(struct cell_list * cells, cairo_span_renderer_t * renderer, cairo_half_open_span_t * spans,
-    int y, int height, int xmin, int xmax)
+static glitter_status_t blit_a1(struct cell_list * cells, cairo_span_renderer_t * renderer, cairo_half_open_span_t * spans, int y, int height, int xmin, int xmax)
 {
 	struct cell * cell = cells->head.next;
 	int prev_x = xmin, last_x = -1;
 	int16 cover = 0;
 	uint8 coverage, last_cover = 0;
-	unsigned num_spans;
+	uint  num_spans;
 	if(cell == &cells->tail)
 		return CAIRO_STATUS_SUCCESS;
-	/* Skip cells to the left of the clip region. */
+	// Skip cells to the left of the clip region
 	while(cell->x < xmin) {
 		cover += cell->covered_height;
 		cell = cell->next;
 	}
 	cover *= GRID_X*2;
-	/* Form the spans from the coverages and areas. */
+	// Form the spans from the coverages and areas
 	num_spans = 0;
 	for(; cell->x < xmax; cell = cell->next) {
 		int x = cell->x;
@@ -1334,7 +1293,7 @@ static glitter_status_t blit_a1(struct cell_list * cells, cairo_span_renderer_t 
 	}
 	if(num_spans == 1)
 		return CAIRO_STATUS_SUCCESS;
-	/* Dump them into the renderer. */
+	// Dump them into the renderer
 	return renderer->render_rows(renderer, y, height, spans, num_spans);
 }
 
@@ -1352,7 +1311,7 @@ I void glitter_scan_converter_render(glitter_scan_converter_t * converter, uint 
 	int xmax_i = converter->xmax / GRID_X;
 	if(xmin_i >= xmax_i)
 		return;
-	/* Render each pixel row. */
+	// Render each pixel row
 	for(i = 0; i < h; i = j) {
 		int do_full_row = 0;
 		j = i + 1;
@@ -1365,11 +1324,10 @@ I void glitter_scan_converter_render(glitter_scan_converter_t * converter, uint 
 					;
 				continue;
 			}
-
 			do_full_row = can_do_full_row(active);
 		}
 		if(do_full_row) {
-			/* Step by a full pixel row's worth. */
+			// Step by a full pixel row's worth
 			full_row(active, coverages, winding_mask);
 			if(active->is_vertical) {
 				while(j < h && polygon->y_buckets[j] == NULL && active->min_height >= 2*GRID_Y) {
@@ -1383,7 +1341,7 @@ I void glitter_scan_converter_render(glitter_scan_converter_t * converter, uint 
 		else {
 			int sub;
 			polygon_fill_buckets(active, polygon->y_buckets[i], (i+ymin_i)*GRID_Y, buckets);
-			/* Subsample this row. */
+			// Subsample this row
 			for(sub = 0; sub < GRID_Y; sub++) {
 				if(buckets[sub]) {
 					active_list_merge_edges_from_bucket(active, buckets[sub]);
@@ -1406,7 +1364,6 @@ struct _cairo_tor22_scan_converter {
 	glitter_scan_converter_t converter[1];
 	cairo_fill_rule_t fill_rule;
 	cairo_antialias_t antialias;
-
 	jmp_buf jmp;
 };
 
@@ -1415,11 +1372,10 @@ typedef struct _cairo_tor22_scan_converter cairo_tor22_scan_converter_t;
 static void _cairo_tor22_scan_converter_destroy(void * converter)
 {
 	cairo_tor22_scan_converter_t * self = (cairo_tor22_scan_converter_t *)converter;
-	if(self == NULL) {
-		return;
+	if(self) {
+		_glitter_scan_converter_fini(self->converter);
+		SAlloc::F(self);
 	}
-	_glitter_scan_converter_fini(self->converter);
-	SAlloc::F(self);
 }
 
 cairo_status_t _cairo_tor22_scan_converter_add_polygon(void * converter, const cairo_polygon_t * polygon)
@@ -1431,10 +1387,8 @@ cairo_status_t _cairo_tor22_scan_converter_add_polygon(void * converter, const c
 	_cairo_debug_print_polygon(file, polygon);
 	fclose(file);
 #endif
-
 	for(i = 0; i < polygon->num_edges; i++)
 		glitter_scan_converter_add_edge(self->converter, &polygon->edges[i]);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 

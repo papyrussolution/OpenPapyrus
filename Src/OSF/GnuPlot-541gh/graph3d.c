@@ -175,14 +175,14 @@ void GnuPlot::Boundary3D(GpTermEntry * pTerm, const GpSurfacePoints * plots, int
 		}
 	if(key->visible) {
 		if(oneof2(key->region, GPKEY_AUTO_EXTERIOR_LRTBC, GPKEY_AUTO_EXTERIOR_MARGIN) && key->margin == GPKEY_RMARGIN) {
-			int key_width = _3DBlk.KeyColWth * _3DBlk.KeyCols - 2 * pTerm->CH();
+			const int key_width = _3DBlk.KeyColWth * _3DBlk.KeyCols - 2 * pTerm->CH();
 			if(V.MarginR.scalex != screen)
 				V.BbPlot.xright -= key_width;
 		}
 	}
 	if(key->visible)
 		if(oneof2(key->region, GPKEY_AUTO_EXTERIOR_LRTBC, GPKEY_AUTO_EXTERIOR_MARGIN) && key->margin == GPKEY_LMARGIN) {
-			int key_width = _3DBlk.KeyColWth * _3DBlk.KeyCols - 2 * pTerm->CH();
+			const int key_width = _3DBlk.KeyColWth * _3DBlk.KeyCols - 2 * pTerm->CH();
 			if(V.MarginL.scalex != screen)
 				V.BbPlot.xleft += key_width;
 		}
@@ -282,20 +282,20 @@ void GnuPlot::PlaceLabels3D(GpTermEntry * pTerm, text_label * pListHead, int lay
 	int x, y;
 	pTerm->pointsize(pTerm, Gg.PointSize);
 	for(text_label * p_label = pListHead; p_label; p_label = p_label->next) {
-		if(p_label->layer != layer)
-			continue;
-		if(layer == LAYER_PLOTLABELS) {
-			double xx, yy;
-			Map3D_XY_double(p_label->place.x, p_label->place.y, p_label->place.z, &xx, &yy);
-			x = static_cast<int>(xx);
-			y = static_cast<int>(yy);
-			// Only clip in 2D 
-			if(_3DBlk.splot_map && V.ClipPoint(x, y))
-				continue;
+		if(p_label->layer == layer) {
+			if(layer == LAYER_PLOTLABELS) {
+				double xx, yy;
+				Map3D_XY_double(p_label->place.x, p_label->place.y, p_label->place.z, &xx, &yy);
+				x = static_cast<int>(xx);
+				y = static_cast<int>(yy);
+				// Only clip in 2D 
+				if(_3DBlk.splot_map && V.ClipPoint(x, y))
+					continue;
+			}
+			else
+				Map3DPosition(pTerm, &p_label->place, &x, &y, "label");
+			WriteLabel(pTerm, x, y, p_label);
 		}
-		else
-			Map3DPosition(pTerm, &p_label->place, &x, &y, "label");
-		WriteLabel(pTerm, x, y, p_label);
 	}
 }
 
@@ -305,16 +305,16 @@ void GnuPlot::PlaceArrows3D(GpTermEntry * pTerm, int layer)
 	// Allow arrows to run off the plot, so long as they are still on the canvas 
 	V.P_ClipArea = pTerm->CheckFlag(TERM_CAN_CLIP) ? NULL : &V.BbCanvas;
 	for(arrow_def * this_arrow = Gg.P_FirstArrow; this_arrow; this_arrow = this_arrow->next) {
-		double dsx, dsy, dex, dey;
-		if(this_arrow->arrow_properties.layer != layer)
-			continue;
-		if(GetArrow3D(pTerm, this_arrow, &dsx, &dsy, &dex, &dey)) {
-			TermApplyLpProperties(pTerm, &(this_arrow->arrow_properties.lp_properties));
-			ApplyHeadProperties(pTerm, &this_arrow->arrow_properties);
-			DrawClipArrow(pTerm, dsx, dsy, dex, dey, this_arrow->arrow_properties.head);
-		}
-		else {
-			FPRINTF((stderr, "place_arrows3d: skipping out-of-bounds arrow\n"));
+		if(this_arrow->arrow_properties.layer == layer) {
+			double dsx, dsy, dex, dey;
+			if(GetArrow3D(pTerm, this_arrow, &dsx, &dsy, &dex, &dey)) {
+				TermApplyLpProperties(pTerm, &(this_arrow->arrow_properties.lp_properties));
+				ApplyHeadProperties(pTerm, &this_arrow->arrow_properties);
+				DrawClipArrow(pTerm, dsx, dsy, dex, dey, this_arrow->arrow_properties.head);
+			}
+			else {
+				FPRINTF((stderr, "place_arrows3d: skipping out-of-bounds arrow\n"));
+			}
 		}
 	}
 	V.P_ClipArea = clip_save;
@@ -535,37 +535,31 @@ void GnuPlot::Do3DPlot(GpTermEntry * pTerm, GpSurfacePoints * plots, int pcount/
 	}
 	// PLACE TITLE 
 	if(Gg.LblTitle.text != 0) {
-		int x, y;
+		SPoint2I _pt;
 		if(_3DBlk.splot_map) { /* case 'set view map' */
 			int map_x1, map_y1, map_x2, map_y2;
 			int tics_len = 0;
 			if(AxS.__X().ticmode & TICS_MIRROR) {
 				tics_len = (int)pTerm->MulTicV(AxS.__X().ticscale * (AxS.__X().TicIn ? -1 : 1));
-				if(tics_len < 0) tics_len = 0; /* take care only about upward tics */
+				SETMAX(tics_len, 0); // take care only about upward tics 
 			}
 			Map3D_XY(AxS.__X().min, AxS.__Y().min, _3DBlk.base_z, &map_x1, &map_y1);
 			Map3D_XY(AxS.__X().max, AxS.__Y().max, _3DBlk.base_z, &map_x2, &map_y2);
 			// Distance between the title base line and graph top line or the upper part of
 			// tics is as given by character height: 
-			x = ((map_x1 + map_x2) / 2);
-			y = static_cast<int>(map_y1 + tics_len + (_3DBlk.TitleLin + 0.5) * (pTerm->CV()));
+			_pt.Set((map_x1 + map_x2) / 2, static_cast<int>(map_y1 + tics_len + (_3DBlk.TitleLin + 0.5) * pTerm->CV()));
 		}
 		else { // usual 3d set view ... 
-			x = (V.BbPlot.xleft + V.BbPlot.xright) / 2;
-			y = (V.BbPlot.ytop + _3DBlk.TitleLin * (pTerm->CH()));
+			_pt.Set((V.BbPlot.xleft + V.BbPlot.xright) / 2, V.BbPlot.ytop + _3DBlk.TitleLin * pTerm->CH());
 		}
-		// Save title position for later 
-		title_pos.x = x;
-		title_pos.y = y;
+		title_pos = _pt; // Save title position for later 
 	}
 	// PLACE TIMELABEL 
 	if(Gg.LblTime.text) {
-		int x = pTerm->CV();
-		int y = Gg.TimeLabelBottom ? static_cast<int>(V.Offset.y * AxS.__Y().max + pTerm->CV()) : (V.BbPlot.ytop - pTerm->CV());
-		DoTimeLabel(pTerm, x, y);
+		DoTimeLabel(pTerm, SPoint2I(pTerm->CV(), Gg.TimeLabelBottom ? static_cast<int>(V.Offset.y * AxS.__Y().max + pTerm->CV()) : (V.BbPlot.ytop - pTerm->CV())));
 	}
 	// Add 'back' color box 
-	if((replot_mode != AXIS_ONLY_ROTATE) && _3DBlk.CanPm3D && IsPlotWithColorbox() && Gg.ColorBox.layer == LAYER_BACK)
+	if(replot_mode != AXIS_ONLY_ROTATE && _3DBlk.CanPm3D && IsPlotWithColorbox() && Gg.ColorBox.layer == LAYER_BACK)
 		DrawColorSmoothBox(pTerm, MODE_SPLOT);
 	PlaceObjects(pTerm, Gg.GridWall, LAYER_BACK, 3); /* Grid walls */
 	PlacePixmaps(pTerm, LAYER_BACK, 3); /* pixmaps before objects so that a rectangle can be used as a border */
@@ -682,7 +676,7 @@ SECOND_KEY_PASS:
 				}
 			}
 			if(lkey && (!this_plot->title_position || this_plot->title_position->scalex != character)) {
-				char * title = this_plot->title;
+				const char * title = this_plot->title;
 				if(this_plot->title_is_automated && pTerm->CheckFlag(TERM_IS_LATEX))
 					title = texify_title(title, this_plot->plot_type);
 				if(key->textcolor.type != TC_DEFAULT)
@@ -873,7 +867,7 @@ SECOND_KEY_PASS:
 					    break;
 
 					case LABELPOINTS:
-					    if((this_plot->labels->lp_properties.flags & LP_SHOW_POINTS)) {
+					    if(this_plot->labels->lp_properties.flags & LP_SHOW_POINTS) {
 						    TermApplyLpProperties(pTerm, &this_plot->labels->lp_properties);
 						    KeySamplePoint(pTerm, this_plot, xl, yl, this_plot->labels->lp_properties.PtType);
 					    }
@@ -927,7 +921,7 @@ SECOND_KEY_PASS:
 				NEXT_KEY_LINE();
 			// Draw contours for previous surface 
 			if(_3DBlk.draw_contour && this_plot->contours) {
-				gnuplot_contours * cntrs = this_plot->contours;
+				const gnuplot_contours * cntrs = this_plot->contours;
 				lp_style_type thiscontour_lp_properties;
 				static char * thiscontour_label = NULL;
 				bool save_hidden3d;
@@ -1478,7 +1472,7 @@ void GnuPlot::Plot3DPoints(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 // cntr3d_impulses:
 // Plot a surface contour in IMPULSES style
 // 
-void GnuPlot::Cntr3DImpulses(GpTermEntry * pTerm, gnuplot_contours * cntr, lp_style_type * lp)
+void GnuPlot::Cntr3DImpulses(GpTermEntry * pTerm, const gnuplot_contours * cntr, lp_style_type * lp)
 {
 	GpVertex vertex_on_surface;
 	GpVertex vertex_on_base;
@@ -1498,7 +1492,7 @@ void GnuPlot::Cntr3DImpulses(GpTermEntry * pTerm, gnuplot_contours * cntr, lp_st
 // cntr3d_lines:
 // Plot a surface contour in LINES style
 //
-void GnuPlot::Cntr3DLines(GpTermEntry * pTerm, gnuplot_contours * cntr, lp_style_type * lp)
+void GnuPlot::Cntr3DLines(GpTermEntry * pTerm, const gnuplot_contours * cntr, lp_style_type * lp)
 {
 	int i; // point index 
 	GpVertex this_vertex;
@@ -1540,7 +1534,7 @@ void GnuPlot::Cntr3DLines(GpTermEntry * pTerm, gnuplot_contours * cntr, lp_style
 // cntr3d_points:
 // Plot a surface contour in POINTSTYLE style
 //
-void GnuPlot::Cntr3DPoints(GpTermEntry * pTerm, gnuplot_contours * cntr, lp_style_type * lp)
+void GnuPlot::Cntr3DPoints(GpTermEntry * pTerm, const gnuplot_contours * cntr, lp_style_type * lp)
 {
 	GpVertex v;
 	if(_3DBlk.draw_contour & CONTOUR_SRF) {
@@ -1570,7 +1564,7 @@ void GnuPlot::Cntr3DPoints(GpTermEntry * pTerm, gnuplot_contours * cntr, lp_styl
 // The label density is controlled by the point interval property
 //   splot FOO with labels point pi 20 nosurface
 // 
-void GnuPlot::Cntr3DLabels(GpTermEntry * pTerm, gnuplot_contours * cntr, char * pLevelText, text_label * pLabel)
+void GnuPlot::Cntr3DLabels(GpTermEntry * pTerm, const gnuplot_contours * cntr, char * pLevelText, text_label * pLabel)
 {
 	int i;
 	int x, y;
@@ -2637,7 +2631,7 @@ void GnuPlot::Map3DPositionRDouble(const GpTermEntry * pTerm, GpPosition * pPos,
 // 
 // these code blocks were moved to functions, to make the code simpler
 // 
-void GnuPlot::KeyText(GpTermEntry * pTerm, int xl, int yl, char * pText)
+void GnuPlot::KeyText(GpTermEntry * pTerm, int xl, int yl, const char * pText)
 {
 	legend_key * key = &Gg.KeyT;
 	pTerm->Layer_(TERM_LAYER_BEGIN_KEYSAMPLE);
@@ -2737,7 +2731,7 @@ static void get_surface_cbminmax(const GpSurfacePoints * pPlot, double * cbmin, 
 	*cbmax = -VERYLARGE;
 	for(int curve = 0; icrvs && curve < pPlot->num_iso_read;) {
 		// fprintf(stderr, "**** NEW ISOCURVE - nb of pts: %i ****\n", icrvs->p_count); 
-		GpCoordinate * points = icrvs->points;
+		const GpCoordinate * points = icrvs->points;
 		for(int i = 0; i < icrvs->p_count; i++) {
 			// fprintf(stderr, "  point i=%i => x=%4g y=%4g z=%4lg cb=%4lg\n",i, points[i].x,points[i].y,points[i].z,points[i].CRD_COLOR); 
 			if(points[i].type == INRANGE) {

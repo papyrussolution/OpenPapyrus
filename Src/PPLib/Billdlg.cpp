@@ -1722,7 +1722,7 @@ int BillDialog::sendItem(long pos, long id)
 		getCtrlData(CTLSEL_BILL_OBJECT, &ar_id);
 		{
 			PPELinkArray addr_list;
-			PersonCore::GetELinks(ObjectToPerson(ar_id), &addr_list);
+			PersonCore::GetELinks(ObjectToPerson(ar_id), addr_list);
 			if(addr_list.GetPhones(1, addr, ELNKRT_EMAIL) > 0)
 				data.AddrList.Add(1, addr);
 		}
@@ -2191,7 +2191,7 @@ void BillDialog::setupDebtText()
 				if(psn_id) {
 					PPELinkArray elink_ary;
 					PPObjPerson psn_obj;
-					if(psn_obj.P_Tbl->GetELinks(psn_id, &elink_ary)) {
+					if(psn_obj.P_Tbl->GetELinks(psn_id, elink_ary)) {
 						const int buf_len = 128;
 						SString phone_list, fax_list;
 						elink_ary.GetPhones(2, phone_list, ELNKRT_PHONE);

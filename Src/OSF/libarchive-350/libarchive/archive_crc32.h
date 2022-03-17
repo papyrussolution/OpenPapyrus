@@ -19,28 +19,27 @@
 #ifndef __LIBARCHIVE_BUILD
 	#error This header is only to be used internally to libarchive.
 #endif
-
-/*
- * When zlib is unavailable, we should still be able to validate
- * uncompressed zip archives.  That requires us to be able to compute
- * the CRC32 check value.  This is a drop-in compatible replacement
- * for crc32() from zlib.  It's slower than the zlib implementation,
- * but still pretty fast: This runs about 300MB/s on my 3GHz P4
- * compared to about 800MB/s for the zlib implementation.
- */
-static ulong crc32(ulong crc, const void *_p, size_t len)
+// 
+// When zlib is unavailable, we should still be able to validate
+// uncompressed zip archives.  That requires us to be able to compute
+// the CRC32 check value.  This is a drop-in compatible replacement
+// for crc32() from zlib.  It's slower than the zlib implementation,
+// but still pretty fast: This runs about 300MB/s on my 3GHz P4
+// compared to about 800MB/s for the zlib implementation.
+// 
+static ulong crc32(ulong crc, const void * _p, size_t len)
 {
 	ulong crc2, b, i;
 	const uchar * p = _p;
 	static volatile int crc_tbl_inited = 0;
 	static ulong crc_tbl[256];
-	if (!crc_tbl_inited) {
-		for (b = 0; b < 256; ++b) {
+	if(!crc_tbl_inited) {
+		for(b = 0; b < 256; ++b) {
 			crc2 = b;
-			for (i = 8; i > 0; --i) {
-				if (crc2 & 1)
+			for(i = 8; i > 0; --i) {
+				if(crc2 & 1)
 					crc2 = (crc2 >> 1) ^ 0xedb88320UL;
-				else    
+				else
 					crc2 = (crc2 >> 1);
 			}
 			crc_tbl[b] = crc2;
@@ -49,7 +48,7 @@ static ulong crc32(ulong crc, const void *_p, size_t len)
 	}
 	crc = crc ^ 0xffffffffUL;
 	// A use of this loop is about 20% - 30% faster than no use version in any optimization option of gcc.
-	for (;len >= 8; len -= 8) {
+	for(; len >= 8; len -= 8) {
 		crc = crc_tbl[(crc ^ *p++) & 0xff] ^ (crc >> 8);
 		crc = crc_tbl[(crc ^ *p++) & 0xff] ^ (crc >> 8);
 		crc = crc_tbl[(crc ^ *p++) & 0xff] ^ (crc >> 8);
@@ -59,7 +58,7 @@ static ulong crc32(ulong crc, const void *_p, size_t len)
 		crc = crc_tbl[(crc ^ *p++) & 0xff] ^ (crc >> 8);
 		crc = crc_tbl[(crc ^ *p++) & 0xff] ^ (crc >> 8);
 	}
-	while (len--)
+	while(len--)
 		crc = crc_tbl[(crc ^ *p++) & 0xff] ^ (crc >> 8);
 	return (crc ^ 0xffffffffUL);
 }

@@ -10,7 +10,7 @@ void Command::extractArgs(TCHAR* cmd2Exec, size_t cmd2ExecLen, TCHAR* args, size
 	size_t i = 0;
 	bool quoted = false;
 	size_t cmdEntierLen = lstrlen(cmdEntier);
-	size_t shortest = min(cmd2ExecLen, argsLen);
+	size_t shortest = MIN(cmd2ExecLen, argsLen);
 	if(cmdEntierLen > shortest)
 		cmdEntierLen = shortest - 1;
 	for(; i < cmdEntierLen; ++i) {

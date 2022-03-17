@@ -29,11 +29,10 @@ void SmartHighlighter::highlightViewWithWord(ScintillaEditView * pHighlightView,
 	// save target locations for other search functions
 	auto originalStartPos = pHighlightView->execute(SCI_GETTARGETSTART);
 	auto originalEndPos = pHighlightView->execute(SCI_GETTARGETEND);
-
 	// Get the range of text visible and highlight everything in it
 	auto firstLine = static_cast<int>(pHighlightView->execute(SCI_GETFIRSTVISIBLELINE));
 	auto nbLineOnScreen = pHighlightView->execute(SCI_LINESONSCREEN);
-	auto nbLines = min(nbLineOnScreen, MAXLINEHIGHLIGHT) + 1;
+	auto nbLines = MIN(nbLineOnScreen, MAXLINEHIGHLIGHT) + 1;
 	auto lastLine = firstLine + nbLines;
 	int startPos = 0;
 	int endPos = 0;

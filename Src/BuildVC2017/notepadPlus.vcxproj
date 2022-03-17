@@ -374,8 +374,8 @@
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <AdditionalIncludeDirectories>..\include;..\osf\npp-gh20210917\scintilla\include;..\OSF\npp-gh20210917\PowerEditor\include;..\OSF\npp-gh20210917\PowerEditor\src;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml;..\OSF\npp-gh20210917\PowerEditor\src\Win32Explr;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml\tinyXmlA;..\OSF\npp-gh20210917\PowerEditor\src\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ExceptionHandling>Async</ExceptionHandling>
-      <BasicRuntimeChecks>UninitializedLocalUsageCheck</BasicRuntimeChecks>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
@@ -391,6 +391,11 @@
       <PrecompiledHeaderFile />
       <BrowseInformationFile />
       <CompileAsManaged>false</CompileAsManaged>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <AdditionalOptions>/fixed:no %(AdditionalOptions)</AdditionalOptions>
@@ -430,8 +435,8 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <AdditionalIncludeDirectories>..\include;..\osf\npp-gh20210917\scintilla\include;..\OSF\npp-gh20210917\PowerEditor\include;..\OSF\npp-gh20210917\PowerEditor\src;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml;..\OSF\npp-gh20210917\PowerEditor\src\Win32Explr;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml\tinyXmlA;..\OSF\npp-gh20210917\PowerEditor\src\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ExceptionHandling>Async</ExceptionHandling>
-      <BasicRuntimeChecks>UninitializedLocalUsageCheck</BasicRuntimeChecks>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
@@ -449,6 +454,11 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <BrowseInformationFile>
       </BrowseInformationFile>
       <CompileAsManaged>false</CompileAsManaged>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <AdditionalOptions>/fixed:no %(AdditionalOptions)</AdditionalOptions>
@@ -488,8 +498,8 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <AdditionalIncludeDirectories>..\include;..\osf\npp-gh20210917\scintilla\include;..\OSF\npp-gh20210917\PowerEditor\include;..\OSF\npp-gh20210917\PowerEditor\src;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml;..\OSF\npp-gh20210917\PowerEditor\src\Win32Explr;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml\tinyXmlA;..\OSF\npp-gh20210917\PowerEditor\src\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ExceptionHandling>Async</ExceptionHandling>
-      <BasicRuntimeChecks>UninitializedLocalUsageCheck</BasicRuntimeChecks>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
@@ -507,6 +517,11 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <BrowseInformationFile>
       </BrowseInformationFile>
       <CompileAsManaged>false</CompileAsManaged>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <AdditionalOptions>/fixed:no %(AdditionalOptions)</AdditionalOptions>
@@ -546,8 +561,8 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <AdditionalIncludeDirectories>..\include;..\osf\npp-gh20210917\scintilla\include;..\OSF\npp-gh20210917\PowerEditor\include;..\OSF\npp-gh20210917\PowerEditor\src;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml;..\OSF\npp-gh20210917\PowerEditor\src\Win32Explr;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml\tinyXmlA;..\OSF\npp-gh20210917\PowerEditor\src\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ExceptionHandling>Async</ExceptionHandling>
-      <BasicRuntimeChecks>UninitializedLocalUsageCheck</BasicRuntimeChecks>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
@@ -562,6 +577,11 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <PrecompiledHeaderFile />
       <BrowseInformationFile />
       <CompileAsManaged>false</CompileAsManaged>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <AdditionalOptions>/fixed:no %(AdditionalOptions)</AdditionalOptions>
@@ -597,8 +617,8 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <AdditionalIncludeDirectories>..\include;..\osf\npp-gh20210917\scintilla\include;..\OSF\npp-gh20210917\PowerEditor\include;..\OSF\npp-gh20210917\PowerEditor\src;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml;..\OSF\npp-gh20210917\PowerEditor\src\Win32Explr;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml\tinyXmlA;..\OSF\npp-gh20210917\PowerEditor\src\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ExceptionHandling>Async</ExceptionHandling>
-      <BasicRuntimeChecks>UninitializedLocalUsageCheck</BasicRuntimeChecks>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
@@ -615,6 +635,11 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <BrowseInformationFile>
       </BrowseInformationFile>
       <CompileAsManaged>false</CompileAsManaged>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <AdditionalOptions>/fixed:no %(AdditionalOptions)</AdditionalOptions>
@@ -650,8 +675,8 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <AdditionalIncludeDirectories>..\include;..\osf\npp-gh20210917\scintilla\include;..\OSF\npp-gh20210917\PowerEditor\include;..\OSF\npp-gh20210917\PowerEditor\src;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml;..\OSF\npp-gh20210917\PowerEditor\src\Win32Explr;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml\tinyXmlA;..\OSF\npp-gh20210917\PowerEditor\src\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ExceptionHandling>Async</ExceptionHandling>
-      <BasicRuntimeChecks>UninitializedLocalUsageCheck</BasicRuntimeChecks>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
@@ -668,6 +693,11 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <BrowseInformationFile>
       </BrowseInformationFile>
       <CompileAsManaged>false</CompileAsManaged>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <AdditionalOptions>/fixed:no %(AdditionalOptions)</AdditionalOptions>
@@ -703,8 +733,8 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <AdditionalIncludeDirectories>..\include;..\osf\npp-gh20210917\scintilla\include;..\OSF\npp-gh20210917\PowerEditor\include;..\OSF\npp-gh20210917\PowerEditor\src;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml;..\OSF\npp-gh20210917\PowerEditor\src\Win32Explr;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml\tinyXmlA;..\OSF\npp-gh20210917\PowerEditor\src\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ExceptionHandling>Async</ExceptionHandling>
-      <BasicRuntimeChecks>UninitializedLocalUsageCheck</BasicRuntimeChecks>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
@@ -717,6 +747,11 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <StringPooling>true</StringPooling>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <AdditionalOptions>/fixed:no %(AdditionalOptions)</AdditionalOptions>
@@ -751,8 +786,8 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <AdditionalIncludeDirectories>..\include;..\osf\npp-gh20210917\scintilla\include;..\OSF\npp-gh20210917\PowerEditor\include;..\OSF\npp-gh20210917\PowerEditor\src;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml;..\OSF\npp-gh20210917\PowerEditor\src\Win32Explr;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml\tinyXmlA;..\OSF\npp-gh20210917\PowerEditor\src\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ExceptionHandling>Async</ExceptionHandling>
-      <BasicRuntimeChecks>UninitializedLocalUsageCheck</BasicRuntimeChecks>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
@@ -766,6 +801,11 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <AdditionalOptions>/fixed:no %(AdditionalOptions)</AdditionalOptions>
@@ -800,8 +840,8 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <AdditionalIncludeDirectories>..\include;..\osf\npp-gh20210917\scintilla\include;..\OSF\npp-gh20210917\PowerEditor\include;..\OSF\npp-gh20210917\PowerEditor\src;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml;..\OSF\npp-gh20210917\PowerEditor\src\Win32Explr;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml\tinyXmlA;..\OSF\npp-gh20210917\PowerEditor\src\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ExceptionHandling>Async</ExceptionHandling>
-      <BasicRuntimeChecks>UninitializedLocalUsageCheck</BasicRuntimeChecks>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
@@ -815,6 +855,11 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <AdditionalOptions>/fixed:no %(AdditionalOptions)</AdditionalOptions>
@@ -855,13 +900,13 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <PreprocessToFile>false</PreprocessToFile>
       <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
       <StringPooling>true</StringPooling>
-      <ExceptionHandling>Async</ExceptionHandling>
+      <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
       <DebugInformationFormat>None</DebugInformationFormat>
-      <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4091;4456;4457;4459</DisableSpecificWarnings>
       <AdditionalOptions>/Zc:strictStrings %(AdditionalOptions)</AdditionalOptions>
@@ -870,6 +915,9 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <PrecompiledHeaderFile />
       <BrowseInformationFile />
       <CompileAsManaged>false</CompileAsManaged>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;shlwapi.lib;shell32.lib;Oleacc.lib;Dbghelp.lib;Version.lib;Crypt32.lib;wintrust.lib;Sensapi.lib;wininet.lib;imm32.lib;msimg32.lib;wsock32.lib;Ws2_32.lib;mpr.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -914,13 +962,13 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <PreprocessToFile>false</PreprocessToFile>
       <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
       <StringPooling>true</StringPooling>
-      <ExceptionHandling>Async</ExceptionHandling>
+      <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
       <DebugInformationFormat>None</DebugInformationFormat>
-      <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4091;4456;4457;4459</DisableSpecificWarnings>
       <AdditionalOptions>/Zc:strictStrings %(AdditionalOptions)</AdditionalOptions>
@@ -931,6 +979,9 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <BrowseInformationFile>
       </BrowseInformationFile>
       <CompileAsManaged>false</CompileAsManaged>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;shlwapi.lib;shell32.lib;Oleacc.lib;Dbghelp.lib;Version.lib;Crypt32.lib;wintrust.lib;Sensapi.lib;wininet.lib;imm32.lib;msimg32.lib;wsock32.lib;Ws2_32.lib;mpr.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -976,13 +1027,13 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <PreprocessToFile>false</PreprocessToFile>
       <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
       <StringPooling>true</StringPooling>
-      <ExceptionHandling>Async</ExceptionHandling>
+      <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
       <DebugInformationFormat>None</DebugInformationFormat>
-      <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4091;4456;4457;4459</DisableSpecificWarnings>
       <AdditionalOptions>/Zc:strictStrings %(AdditionalOptions)</AdditionalOptions>
@@ -991,6 +1042,9 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <CompileAsManaged>false</CompileAsManaged>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;shlwapi.lib;shell32.lib;Oleacc.lib;Dbghelp.lib;Version.lib;Crypt32.lib;wintrust.lib;Sensapi.lib;wininet.lib;imm32.lib;msimg32.lib;wsock32.lib;Ws2_32.lib;mpr.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -1036,9 +1090,9 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <PreprocessToFile>false</PreprocessToFile>
       <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
       <StringPooling>true</StringPooling>
-      <ExceptionHandling>Async</ExceptionHandling>
+      <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
       <DebugInformationFormat>None</DebugInformationFormat>
@@ -1050,6 +1104,10 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <PrecompiledHeaderFile />
       <BrowseInformationFile />
       <CompileAsManaged>false</CompileAsManaged>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;shlwapi.lib;shell32.lib;Oleacc.lib;Dbghelp.lib;Version.lib;Crypt32.lib;wintrust.lib;Sensapi.lib;wininet.lib;imm32.lib;msimg32.lib;wsock32.lib;Ws2_32.lib;mpr.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -1094,9 +1152,9 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <PreprocessToFile>false</PreprocessToFile>
       <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
       <StringPooling>true</StringPooling>
-      <ExceptionHandling>Async</ExceptionHandling>
+      <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
       <DebugInformationFormat>None</DebugInformationFormat>
@@ -1110,6 +1168,10 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <BrowseInformationFile>
       </BrowseInformationFile>
       <CompileAsManaged>false</CompileAsManaged>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;shlwapi.lib;shell32.lib;Oleacc.lib;Dbghelp.lib;Version.lib;Crypt32.lib;wintrust.lib;Sensapi.lib;wininet.lib;imm32.lib;msimg32.lib;wsock32.lib;Ws2_32.lib;mpr.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -1154,9 +1216,9 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <PreprocessToFile>false</PreprocessToFile>
       <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
       <StringPooling>true</StringPooling>
-      <ExceptionHandling>Async</ExceptionHandling>
+      <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
       <DebugInformationFormat>None</DebugInformationFormat>
@@ -1168,6 +1230,10 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <CompileAsManaged>false</CompileAsManaged>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;shlwapi.lib;shell32.lib;Oleacc.lib;Dbghelp.lib;Version.lib;Crypt32.lib;wintrust.lib;Sensapi.lib;wininet.lib;imm32.lib;msimg32.lib;wsock32.lib;Ws2_32.lib;mpr.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -1212,9 +1278,9 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <PreprocessToFile>false</PreprocessToFile>
       <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
       <StringPooling>true</StringPooling>
-      <ExceptionHandling>Async</ExceptionHandling>
+      <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
       <DebugInformationFormat>None</DebugInformationFormat>
@@ -1224,6 +1290,10 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;shlwapi.lib;shell32.lib;Oleacc.lib;Dbghelp.lib;Version.lib;Crypt32.lib;wintrust.lib;Sensapi.lib;wininet.lib;imm32.lib;msimg32.lib;wsock32.lib;Ws2_32.lib;mpr.lib;gdiplus.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -1267,9 +1337,9 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <PreprocessToFile>false</PreprocessToFile>
       <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
       <StringPooling>true</StringPooling>
-      <ExceptionHandling>Async</ExceptionHandling>
+      <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
       <DebugInformationFormat>None</DebugInformationFormat>
@@ -1280,6 +1350,10 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;shlwapi.lib;shell32.lib;Oleacc.lib;Dbghelp.lib;Version.lib;Crypt32.lib;wintrust.lib;Sensapi.lib;wininet.lib;imm32.lib;msimg32.lib;wsock32.lib;Ws2_32.lib;mpr.lib;gdiplus.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -1323,9 +1397,9 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <PreprocessToFile>false</PreprocessToFile>
       <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
       <StringPooling>true</StringPooling>
-      <ExceptionHandling>Async</ExceptionHandling>
+      <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
       <DebugInformationFormat>None</DebugInformationFormat>
@@ -1336,6 +1410,10 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;shlwapi.lib;shell32.lib;Oleacc.lib;Dbghelp.lib;Version.lib;Crypt32.lib;wintrust.lib;Sensapi.lib;wininet.lib;imm32.lib;msimg32.lib;wsock32.lib;Ws2_32.lib;mpr.lib;gdiplus.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>

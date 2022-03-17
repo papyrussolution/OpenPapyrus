@@ -17,8 +17,6 @@
 
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_compression_xz.c 201108 2009-12-28 03:28:21Z kientzle $");
 
-#include "archive_endian.h"
-
 #if ARCHIVE_VERSION_NUMBER < 4000000
 int archive_write_set_compression_lzip(struct archive * a)
 {

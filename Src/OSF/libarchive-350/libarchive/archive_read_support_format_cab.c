@@ -15,7 +15,6 @@
 #pragma hdrstop
 #include "archive_entry_locale.h"
 #include "archive_read_private.h"
-#include "archive_endian.h"
 
 struct lzx_dec {
 	int state; /* Decoding status. */

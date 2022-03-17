@@ -825,18 +825,18 @@ static bool _serialize_cff1(hb_serialize_context_t * c,
 	cff->version.minor = 0x00;
 	cff->nameIndex = cff->min_size;
 	cff->offSize = 4; /* unused? */
-
 	/* name INDEX */
-	if(UNLIKELY(!(*acc.nameIndex).copy(c))) return false;
-
+	if(UNLIKELY(!(*acc.nameIndex).copy(c))) 
+		return false;
 	/* top dict INDEX */
 	{
 		/* serialize singleton TopDict */
 		TopDict * top = c->start_embed<TopDict> ();
-		if(!top) return false;
+		if(!top) 
+			return false;
 		c->push();
 		cff1_top_dict_op_serializer_t topSzr;
-		unsigned top_size = 0;
+		uint top_size = 0;
 		top_dict_modifiers_t modifier(plan.info, plan.topDictModSIDs);
 		if(LIKELY(top->serialize(c, plan.topdict_mod, topSzr, modifier))) {
 			top_size = c->length();
@@ -853,19 +853,15 @@ static bool _serialize_cff1(hb_serialize_context_t * c,
 	}
 }
 
-static bool _hb_subset_cff1(const OT::cff1::accelerator_subset_t  &acc,
-    hb_subset_context_t * c)
+static bool _hb_subset_cff1(const OT::cff1::accelerator_subset_t  &acc, hb_subset_context_t * c)
 {
 	cff_subset_plan cff_plan;
-
 	if(UNLIKELY(!cff_plan.create(acc, c->plan))) {
 		DEBUG_MSG(SUBSET, nullptr, "Failed to generate a cff subsetting plan.");
 		return false;
 	}
-
 	return _serialize_cff1(c->serializer, cff_plan, acc, c->plan->num_output_glyphs());
 }
-
 /**
  * hb_subset_cff1:
  * Subsets the CFF table according to a provided plan.
@@ -878,8 +874,6 @@ bool hb_subset_cff1(hb_subset_context_t * c)
 	acc.init(c->plan->source);
 	bool result = LIKELY(acc.is_valid()) && _hb_subset_cff1(acc, c);
 	acc.fini();
-
 	return result;
 }
-
 #endif

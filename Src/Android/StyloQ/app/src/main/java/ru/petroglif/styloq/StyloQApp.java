@@ -663,6 +663,8 @@ public class StyloQApp extends SLib.App {
 			if(original_cmd_item != null || subj_text.equalsIgnoreCase("Command")) {
 				Class intent_cls = null;
 				String svc_doc_json = null;
+				GlobalSearchActivity gs_activity = null; // Если мы получили ответ на поисковый запрос, то результат надо будет передать в
+					// существующию GlobalSearchActivity. Если таковая отсутствует,
 				StyloQCommand.DocReference doc_ref = null;
 				Intent intent = null;
 				if(reply != null) {
@@ -680,11 +682,27 @@ public class StyloQApp extends SLib.App {
 									intent_cls = CmdROrderPrereqActivity.class;
 								else if(doc_decl.DisplayMethod.equalsIgnoreCase("attendanceprereq"))
 									intent_cls = CmdRAttendancePrereqActivity.class;
+								else if(doc_decl.DisplayMethod.equalsIgnoreCase("search")) {
+									//intent_cls = CmdRAttendancePrereqActivity.class;
+									//public MainActivity FindMainActivity()
+									{
+										List<Activity> al = ActivityUtils.getActivityList();
+										if(al != null) {
+											for(int i = 0; gs_activity == null && i < al.size(); i++) {
+												Activity a = al.get(i);
+												if(a != null && a instanceof GlobalSearchActivity)
+													gs_activity = (GlobalSearchActivity)a;
+											}
+										}
+									}
+									if(gs_activity == null)
+										intent_cls = GlobalSearchActivity.class;
+								}
 								if(doc_decl.Format.equalsIgnoreCase("json"))
 									svc_doc_json = new String(stp_reply.Get(SecretTagPool.tagRawData));
 							}
 						}
-						if(intent_cls == null)
+						if(intent_cls == null && gs_activity == null)
 							intent_cls = CmdRSimpleActivity.class;
 					}
 					else if(reply instanceof StyloQCommand.DocReference) { // В качестве ответа передана ссылка на сохраненный документ
@@ -700,7 +718,24 @@ public class StyloQApp extends SLib.App {
 							intent_cls = CmdRSimpleActivity.class;
 					}
 				}
-				if(intent_cls != null) {
+				if(gs_activity != null) {
+					class SendSearchResultToActivity implements Runnable {
+						private GlobalSearchActivity A;
+						private String Result;
+						SendSearchResultToActivity(GlobalSearchActivity ctx, String result)
+						{
+							A = ctx;
+							Result = result;
+						}
+						@Override public void run() { A.SetQueryResult(Result); }
+					}
+					Looper lpr = gs_activity.getMainLooper();
+					if(lpr != null) {
+						new Handler(lpr).post(new SendSearchResultToActivity(gs_activity, svc_doc_json));
+					}
+					//gs_activity.SetQueryResult(svc_doc_json);
+				}
+				else if(intent_cls != null) {
 					intent = new Intent(main_activity, intent_cls);
 					if(SLib.GetLen(subj.SvcIdent) > 0)
 						intent.putExtra("SvcIdent", subj.SvcIdent);

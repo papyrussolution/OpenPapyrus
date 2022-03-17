@@ -16,18 +16,6 @@
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
 //
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 #include <protobuf-internal.h>
 #pragma hdrstop
 #include <google/protobuf/generated_message_table_driven.h>
@@ -39,62 +27,47 @@
 namespace google {
 namespace protobuf {
 namespace internal {
-
 namespace {
-
 UnknownFieldSet* MutableUnknownFields(MessageLite* msg, int64_t arena_offset) {
-  return Raw<InternalMetadata>(msg, arena_offset)
-      ->mutable_unknown_fields<UnknownFieldSet>();
+	return Raw<InternalMetadata>(msg, arena_offset)
+	       ->mutable_unknown_fields<UnknownFieldSet>();
 }
 
 struct UnknownFieldHandler {
-  // TODO(mvels): consider renaming UnknownFieldHandler to (TableDrivenTraits?),
-  // and conflating InternalMetaData into it, simplifying the template.
-  static constexpr bool IsLite() { return false; }
+	// TODO(mvels): consider renaming UnknownFieldHandler to (TableDrivenTraits?),
+	// and conflating InternalMetaData into it, simplifying the template.
+	static constexpr bool IsLite() { return false; }
+	static bool Skip(MessageLite* msg, const ParseTable& table, io::CodedInputStream* input, int tag) 
+	{
+		GOOGLE_DCHECK(table.unknown_field_set);
+		return WireFormat::SkipField(input, tag, MutableUnknownFields(msg, table.arena_offset));
+	}
 
-  static bool Skip(MessageLite* msg, const ParseTable& table,
-                   io::CodedInputStream* input, int tag) {
-    GOOGLE_DCHECK(table.unknown_field_set);
+	static void Varint(MessageLite* msg, const ParseTable& table, int tag, int value) 
+	{
+		GOOGLE_DCHECK(table.unknown_field_set);
+		MutableUnknownFields(msg, table.arena_offset)->AddVarint(WireFormatLite::GetTagFieldNumber(tag), value);
+	}
 
-    return WireFormat::SkipField(input, tag,
-                                 MutableUnknownFields(msg, table.arena_offset));
-  }
-
-  static void Varint(MessageLite* msg, const ParseTable& table, int tag,
-                     int value) {
-    GOOGLE_DCHECK(table.unknown_field_set);
-
-    MutableUnknownFields(msg, table.arena_offset)
-        ->AddVarint(WireFormatLite::GetTagFieldNumber(tag), value);
-  }
-
-  static bool ParseExtension(MessageLite* msg, const ParseTable& table,
-                             io::CodedInputStream* input, int tag) {
-    ExtensionSet* extensions = GetExtensionSet(msg, table.extension_offset);
-    if (extensions == nullptr) {
-      return false;
-    }
-
-    const Message* prototype =
-        down_cast<const Message*>(table.default_instance());
-
-    GOOGLE_DCHECK(prototype != nullptr);
-    GOOGLE_DCHECK(table.unknown_field_set);
-    UnknownFieldSet* unknown_fields =
-        MutableUnknownFields(msg, table.arena_offset);
-
-    return extensions->ParseField(tag, input, prototype, unknown_fields);
-  }
+	static bool ParseExtension(MessageLite* msg, const ParseTable& table,
+	    io::CodedInputStream* input, int tag) {
+		ExtensionSet* extensions = GetExtensionSet(msg, table.extension_offset);
+		if(extensions == nullptr) {
+			return false;
+		}
+		const Message* prototype = down_cast<const Message*>(table.default_instance());
+		GOOGLE_DCHECK(prototype != nullptr);
+		GOOGLE_DCHECK(table.unknown_field_set);
+		UnknownFieldSet* unknown_fields = MutableUnknownFields(msg, table.arena_offset);
+		return extensions->ParseField(tag, input, prototype, unknown_fields);
+	}
 };
-
 }  // namespace
 
-bool MergePartialFromCodedStream(MessageLite* msg, const ParseTable& table,
-                                 io::CodedInputStream* input) {
-  return MergePartialFromCodedStreamImpl<UnknownFieldHandler>(msg, table,
-                                                              input);
+bool MergePartialFromCodedStream(MessageLite* msg, const ParseTable& table, io::CodedInputStream* input) 
+{
+	return MergePartialFromCodedStreamImpl<UnknownFieldHandler>(msg, table, input);
 }
-
 }  // namespace internal
 }  // namespace protobuf
 }  // namespace google

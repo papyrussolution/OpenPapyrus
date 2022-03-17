@@ -16,21 +16,18 @@
 #define ARCHIVE_PRIVATE_H_INCLUDED
 
 #ifndef __LIBARCHIVE_BUILD
-#error This header is only to be used internally to libarchive.
+	#error This header is only to be used internally to libarchive.
 #endif
-
 #if HAVE_ICONV_H
-#include <iconv.h>
+	#include <iconv.h>
 #endif
-
 #include "archive.h"
 #include "archive_string.h"
 
-#if defined(__GNUC__) && (__GNUC__ > 2 || \
-	(__GNUC__ == 2 && __GNUC_MINOR__ >= 5))
-#define __LA_DEAD       __attribute__((__noreturn__))
+#if defined(__GNUC__) && (__GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 5))
+	#define __LA_DEAD       __attribute__((__noreturn__))
 #else
-#define __LA_DEAD
+	#define __LA_DEAD
 #endif
 
 #define ARCHIVE_WRITE_MAGIC     (0xb0c5c0deU)
@@ -50,21 +47,13 @@
 struct archive_vtable {
 	int (* archive_close)(struct archive *);
 	int (* archive_free)(struct archive *);
-	int (* archive_write_header)(struct archive *,
-	    struct archive_entry *);
+	int (* archive_write_header)(struct archive *, struct archive_entry *);
 	int (* archive_write_finish_entry)(struct archive *);
-	ssize_t (* archive_write_data)(struct archive *,
-	    const void *, size_t);
-	ssize_t (* archive_write_data_block)(struct archive *,
-	    const void *, size_t, int64);
-
-	int (* archive_read_next_header)(struct archive *,
-	    struct archive_entry **);
-	int (* archive_read_next_header2)(struct archive *,
-	    struct archive_entry *);
-	int (* archive_read_data_block)(struct archive *,
-	    const void **, size_t *, int64 *);
-
+	ssize_t (* archive_write_data)(struct archive *, const void *, size_t);
+	ssize_t (* archive_write_data_block)(struct archive *, const void *, size_t, int64);
+	int (* archive_read_next_header)(struct archive *, struct archive_entry **);
+	int (* archive_read_next_header2)(struct archive *, struct archive_entry *);
+	int (* archive_read_data_block)(struct archive *, const void **, size_t *, int64 *);
 	int (* archive_filter_count)(struct archive *);
 	int64 (* archive_filter_bytes)(struct archive *, int);
 	int (* archive_filter_code)(struct archive *, int);
@@ -82,36 +71,29 @@ struct archive {
 	 */
 	uint magic;
 	uint state;
-
 	/*
 	 * Some public API functions depend on the "real" type of the
 	 * archive object.
 	 */
 	struct archive_vtable * vtable;
-
 	int archive_format;
-	const char       * archive_format_name;
-
+	const char * archive_format_name;
 	int compression_code; /* Currently active compression. */
 	const char * compression_name;
-
 	/* Number of file entries processed. */
 	int file_count;
-
 	int archive_error_number;
-	const char       * error;
+	const char * error;
 	struct archive_string error_string;
-
 	char * current_code;
-	unsigned current_codepage; /* Current ACP(ANSI CodePage). */
-	unsigned current_oemcp; /* Current OEMCP(OEM CodePage). */
+	uint   current_codepage; /* Current ACP(ANSI CodePage). */
+	uint   current_oemcp; /* Current OEMCP(OEM CodePage). */
 	struct archive_string_conv * sconv;
-
 	/*
 	 * Used by archive_read_data() to track blocks and copy
 	 * data to client buffers, filling gaps with zero bytes.
 	 */
-	const char       * read_data_block;
+	const char * read_data_block;
 	int64 read_data_offset;
 	int64 read_data_output_offset;
 	size_t read_data_remaining;
@@ -135,17 +117,14 @@ int STDCALL __archive_check_magic(struct archive *, uint magic, uint state, cons
 	} while(0)
 
 void    __archive_errx(int retvalue, const char * msg) __LA_DEAD;
-
 void    __archive_ensure_cloexec_flag(int fd);
 int     __archive_mktemp(const char * tmpdir);
 #if defined(_WIN32) && !defined(__CYGWIN__)
-int __archive_mkstemp(wchar_t * p_template);
+	int __archive_mkstemp(wchar_t * p_template);
 #else
-int __archive_mkstemp(char * p_template);
+	int __archive_mkstemp(char * p_template);
 #endif
-
 int     __archive_clean(struct archive *);
-
 void __archive_reset_read_data(struct archive *);
 
 #define err_combine(a, b)        ((a) < (b) ? (a) : (b))

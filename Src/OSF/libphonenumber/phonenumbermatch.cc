@@ -14,11 +14,9 @@ namespace i18n {
 		PhoneNumberMatch::PhoneNumberMatch(int start, const string & raw_string, const PhoneNumber& number) : start_(start), raw_string_(raw_string), number_(number) 
 		{
 		}
-
 		PhoneNumberMatch::PhoneNumberMatch() : start_(-1), raw_string_(""), number_(PhoneNumber::default_instance()) 
 		{
 		}
-
 		const PhoneNumber& PhoneNumberMatch::number() const { return number_; }
 		int PhoneNumberMatch::start() const { return start_; }
 		int PhoneNumberMatch::end() const { return static_cast<int>(start_ + raw_string_.length()); }
@@ -32,7 +30,6 @@ namespace i18n {
 		{
 			return ExactlySameAs(match.number_, number_) && match.raw_string_.compare(raw_string_) == 0 && match.start_ == start_;
 		}
-
 		void PhoneNumberMatch::CopyFrom(const PhoneNumberMatch& match) 
 		{
 			raw_string_ = match.raw_string();

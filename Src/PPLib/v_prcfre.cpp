@@ -1,5 +1,5 @@
 // V_PRCFRE.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -892,7 +892,7 @@ int PPViewPrcBusy::PrcBusyTimeChunkGrid::GetText(int item, long id, SString & rB
 					const PPID psn_id = ObjectToPerson(ar_rec.ID, 0);
 					if(psn_id) {
 						PPELinkArray elnk_list;
-						PersonCore::GetELinks(psn_id, &elnk_list);
+						PersonCore::GetELinks(psn_id, elnk_list);
 						if(elnk_list.GetSinglePhone(temp_buf.Z(), 0) > 0)
 							rBuf.Space().Cat(temp_buf);
 					}

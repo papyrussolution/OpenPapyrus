@@ -1,5 +1,5 @@
 // V_DEBT.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Implementation of PPViewDebtTrnovr
 //
@@ -2229,7 +2229,7 @@ int PPViewDebtTrnovr::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 						int r = 0;
 						SString buf;
 						PPELinkArray phones_ary;
-						PersonCore::GetELinks(ObjectToPerson(hdr.ArID, 0), &phones_ary);
+						PersonCore::GetELinks(ObjectToPerson(hdr.ArID, 0), phones_ary);
 						for(uint i = 0; i < phones_ary.getCount(); i++) {
 							GetObjectName(PPOBJ_ELINKKIND, phones_ary.at(i).KindID, buf, 1);
 							buf.CatDiv(':', 2).Cat(phones_ary.at(i).Addr).CR();

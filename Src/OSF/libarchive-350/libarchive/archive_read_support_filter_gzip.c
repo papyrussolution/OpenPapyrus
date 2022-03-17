@@ -18,7 +18,6 @@ __FBSDID("$FreeBSD$");
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#include "archive_endian.h"
 #include "archive_read_private.h"
 
 #ifdef HAVE_ZLIB_H

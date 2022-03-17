@@ -5,6 +5,22 @@
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllDebug|Win32">
+      <Configuration>MtDllDebug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllDebug|x64">
+      <Configuration>MtDllDebug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllRelease|Win32">
+      <Configuration>MtDllRelease</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllRelease|x64">
+      <Configuration>MtDllRelease</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
@@ -15,6 +31,22 @@
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerDebug|Win32">
+      <Configuration>ServerDebug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerDebug|x64">
+      <Configuration>ServerDebug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerRelease|Win32">
+      <Configuration>ServerRelease</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerRelease|x64">
+      <Configuration>ServerRelease</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
@@ -31,7 +63,33 @@
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
@@ -44,7 +102,33 @@
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
@@ -59,17 +143,53 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName>ag</TargetName>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName>ag</TargetName>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
     <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <TargetName>ag</TargetName>
@@ -81,13 +201,49 @@
     <TargetName>ag</TargetName>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName>ag</TargetName>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName>ag</TargetName>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <TargetName>ag</TargetName>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName>ag</TargetName>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName>ag</TargetName>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName>ag</TargetName>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName>ag</TargetName>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
     <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <TargetName>ag</TargetName>
@@ -115,6 +271,72 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>comctl32.lib;Rpcrt4.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>
+      </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <AdditionalIncludeDirectories>..\include;..\OSF\pcre-8.41</AdditionalIncludeDirectories>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <PreprocessorDefinitions>PCRE_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ProgramDataBaseFileName>..\..\ppy\bin\$(TargetName).pdb</ProgramDataBaseFileName>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>comctl32.lib;Rpcrt4.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>
+      </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <AdditionalIncludeDirectories>..\include;..\OSF\pcre-8.41</AdditionalIncludeDirectories>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <PreprocessorDefinitions>PCRE_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ProgramDataBaseFileName>..\..\ppy\bin\$(TargetName).pdb</ProgramDataBaseFileName>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -155,6 +377,68 @@
       <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>
+      </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <AdditionalIncludeDirectories>..\include;..\OSF\pcre-8.41</AdditionalIncludeDirectories>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <PreprocessorDefinitions>PCRE_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ProgramDataBaseFileName>..\..\ppy\bin\$(TargetName).pdb</ProgramDataBaseFileName>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>comctl32.lib;Rpcrt4.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>
+      </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <AdditionalIncludeDirectories>..\include;..\OSF\pcre-8.41</AdditionalIncludeDirectories>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <PreprocessorDefinitions>PCRE_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ProgramDataBaseFileName>..\..\ppy\bin\$(TargetName).pdb</ProgramDataBaseFileName>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>comctl32.lib;Rpcrt4.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -178,6 +462,68 @@
       <SupportJustMyCode>false</SupportJustMyCode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>comctl32.lib;Rpcrt4.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>
+      </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <AdditionalIncludeDirectories>..\include;..\OSF\pcre-8.41</AdditionalIncludeDirectories>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <PreprocessorDefinitions>PCRE_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ProgramDataBaseFileName>..\..\ppy\bin\$(TargetName).pdb</ProgramDataBaseFileName>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>comctl32.lib;Rpcrt4.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>
+      </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <AdditionalIncludeDirectories>..\include;..\OSF\pcre-8.41</AdditionalIncludeDirectories>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <PreprocessorDefinitions>PCRE_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ProgramDataBaseFileName>..\..\ppy\bin\$(TargetName).pdb</ProgramDataBaseFileName>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -217,12 +563,86 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>
+      </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <AdditionalIncludeDirectories>..\include;..\OSF\pcre-8.41</AdditionalIncludeDirectories>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <PreprocessorDefinitions>PCRE_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ProgramDataBaseFileName>..\..\ppy\bin\$(TargetName).pdb</ProgramDataBaseFileName>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>comctl32.lib;Rpcrt4.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>
+      </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <AdditionalIncludeDirectories>..\include;..\OSF\pcre-8.41</AdditionalIncludeDirectories>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <PreprocessorDefinitions>PCRE_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ProgramDataBaseFileName>..\..\ppy\bin\$(TargetName).pdb</ProgramDataBaseFileName>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>comctl32.lib;Rpcrt4.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\OSF\the_silver_searcher-win32\ag\src\ag-pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\OSF\the_silver_searcher-win32\ag\src\decompress.c" />
     <ClCompile Include="..\OSF\the_silver_searcher-win32\ag\src\ignore.c" />

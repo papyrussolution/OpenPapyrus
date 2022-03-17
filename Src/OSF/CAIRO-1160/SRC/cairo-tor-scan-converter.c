@@ -249,25 +249,17 @@ typedef int grid_scaled_y_t;
 
 #define UNROLL3(x) x x x
 
-struct quorem {
+/* @sobolev (replaced with Quorem_3264) struct quorem {
 	int32 quo;
 	int64 rem;
-};
+};*/
 
 /* Header for a chunk of memory in a memory pool. */
 struct _pool_chunk {
-	/* # bytes used in this chunk. */
-	size_t size;
-
-	/* # bytes total in this chunk */
-	size_t capacity;
-
-	/* Pointer to the previous chunk or %NULL if this is the sentinel
-	 * chunk in the pool header. */
-	struct _pool_chunk * prev_chunk;
-
-	/* Actual data starts here. Well aligned even for 64 bit types. */
-	int64 data;
+	size_t size; /* # bytes used in this chunk. */
+	size_t capacity; /* # bytes total in this chunk */
+	struct _pool_chunk * prev_chunk; // Pointer to the previous chunk or %NULL if this is the sentinel chunk in the pool header. 
+	int64 data; // Actual data starts here. Well aligned even for 64 bit types. 
 };
 
 /* The int64 data member of _pool_chunk just exists to enforce alignment,
@@ -279,18 +271,10 @@ struct _pool_chunk {
  * embedded array from which requests are fulfilled until
  * malloc needs to be called to allocate a first real chunk. */
 struct pool {
-	/* Chunk we're allocating from. */
-	struct _pool_chunk * current;
-
+	struct _pool_chunk * current; // Chunk we're allocating from. 
 	jmp_buf * jmp;
-
-	/* Free list of previously allocated chunks.  All have >= default
-	 * capacity. */
-	struct _pool_chunk * first_free;
-
-	/* The default capacity of a chunk. */
-	size_t default_capacity;
-
+	struct _pool_chunk * first_free; // Free list of previously allocated chunks.  All have >= default capacity. 
+	size_t default_capacity; // The default capacity of a chunk. 
 	/* Header for the sentinel chunk.  Directly following the pool
 	 * struct should be some space for embedded elements from which
 	 * the sentinel chunk allocates from. This is expressed as a char
@@ -304,36 +288,23 @@ struct pool {
 struct edge {
 	/* Next in y-bucket or active list. */
 	struct edge * next, * prev;
-
 	/* The clipped y of the top of the edge. */
 	grid_scaled_y_t ytop;
-
-	/* Number of subsample rows remaining to scan convert of this
-	 * edge. */
-	grid_scaled_y_t height_left;
-
-	/* Original sign of the edge: +1 for downwards, -1 for upwards
-	 * edges.  */
-	int dir;
+	grid_scaled_y_t height_left; // Number of subsample rows remaining to scan convert of this edge. 
+	int dir; // Original sign of the edge: +1 for downwards, -1 for upwards edges. 
 	int cell;
-
 	/* Current x coordinate while the edge is on the active
 	 * list. Initialised to the x coordinate of the top of the
 	 * edge. The quotient is in grid_scaled_x_t units and the
 	 * remainder is mod dy in grid_scaled_y_t units.*/
-	struct quorem x;
-
-	/* Advance of the current x when moving down a subsample line. */
-	struct quorem dxdy;
-
+	Quorem_3264 x;
+	Quorem_3264 dxdy; // Advance of the current x when moving down a subsample line. 
 	/* Advance of the current x when moving down a full pixel
 	 * row. Only initialised when the height of the edge is large
 	 * enough that there's a chance the edge could be stepped by a
 	 * full row's worth of subsample rows at a time. */
-	struct quorem dxdy_full;
-
-	/* y2-y1 after orienting the edge downwards.  */
-	int64 dy;
+	Quorem_3264 dxdy_full;
+	int64 dy; // y2-y1 after orienting the edge downwards
 };
 
 #define EDGE_Y_BUCKET_INDEX(y, ymin) (((y) - (ymin))/GRID_Y)
@@ -674,30 +645,24 @@ inline static struct cell_pair cell_list_find_pair(struct cell_list * cells, int
 }
 
 /* Add a subpixel span covering [x1, x2) to the coverage cells. */
-inline static void cell_list_add_subspan(struct cell_list * cells,
-    grid_scaled_x_t x1,
-    grid_scaled_x_t x2)
+inline static void cell_list_add_subspan(struct cell_list * cells, grid_scaled_x_t x1, grid_scaled_x_t x2)
 {
-	int ix1, fx1;
-	int ix2, fx2;
-
-	if(x1 == x2)
-		return;
-
-	GRID_X_TO_INT_FRAC(x1, ix1, fx1);
-	GRID_X_TO_INT_FRAC(x2, ix2, fx2);
-
-	if(ix1 != ix2) {
-		struct cell_pair p;
-		p = cell_list_find_pair(cells, ix1, ix2);
-		p.cell1->uncovered_area += 2*fx1;
-		++p.cell1->covered_height;
-		p.cell2->uncovered_area -= 2*fx2;
-		--p.cell2->covered_height;
-	}
-	else {
-		struct cell * cell = cell_list_find(cells, ix1);
-		cell->uncovered_area += 2*(fx1-fx2);
+	if(x1 != x2) {
+		int ix1, fx1;
+		int ix2, fx2;
+		GRID_X_TO_INT_FRAC(x1, ix1, fx1);
+		GRID_X_TO_INT_FRAC(x2, ix2, fx2);
+		if(ix1 != ix2) {
+			struct cell_pair p = cell_list_find_pair(cells, ix1, ix2);
+			p.cell1->uncovered_area += 2*fx1;
+			++p.cell1->covered_height;
+			p.cell2->uncovered_area -= 2*fx2;
+			--p.cell2->covered_height;
+		}
+		else {
+			struct cell * cell = cell_list_find(cells, ix1);
+			cell->uncovered_area += 2*(fx1-fx2);
+		}
 	}
 }
 
@@ -705,7 +670,6 @@ inline static void full_step(struct edge * e)
 {
 	if(e->dy == 0)
 		return;
-
 	e->x.quo += e->dxdy_full.quo;
 	e->x.rem += e->dxdy_full.rem;
 	if(e->x.rem < 0) {
@@ -716,7 +680,6 @@ inline static void full_step(struct edge * e)
 		++e->x.quo;
 		e->x.rem -= e->dy;
 	}
-
 	e->cell = e->x.quo + (e->x.rem >= e->dy/2);
 }
 
@@ -739,7 +702,8 @@ inline static void full_step(struct edge * e)
  * non-decreasing x-coordinate.)  */
 static void cell_list_render_edge(struct cell_list * cells, struct edge * edge, int sign)
 {
-	struct quorem x1, x2;
+	Quorem_3264 x1;
+	Quorem_3264 x2;
 	grid_scaled_x_t fx1, fx2;
 	int ix1, ix2;
 	x1 = edge->x;
@@ -783,7 +747,7 @@ static void cell_list_render_edge(struct cell_list * cells, struct edge * edge, 
 	}
 	/* Orient the edge left-to-right. */
 	if(ix2 < ix1) {
-		struct quorem tx;
+		Quorem_3264 tx;
 		int t = ix1;
 		ix1 = ix2;
 		ix2 = t;
@@ -797,7 +761,7 @@ static void cell_list_render_edge(struct cell_list * cells, struct edge * edge, 
 	// Add coverage for all pixels [ix1,ix2] on this row crossed by the edge.
 	{
 		struct cell_pair pair;
-		struct quorem y;
+		Quorem_3264 y;
 		int64 tmp, dx;
 		int y_last;
 		dx = (x2.quo - x1.quo) * edge->dy + (x2.rem - x1.rem);
@@ -829,7 +793,7 @@ static void cell_list_render_edge(struct cell_list * cells, struct edge * edge, 
 		y_last = y.quo;
 		if(ix1+1 < ix2) {
 			struct cell * cell = pair.cell2;
-			struct quorem dydx_full;
+			Quorem_3264 dydx_full;
 			dydx_full.quo = static_cast<int32>(GRID_Y * GRID_X * edge->dy / dx);
 			dydx_full.rem = GRID_Y * GRID_X * edge->dy % dx;
 			++ix1;
@@ -1049,25 +1013,22 @@ inline static int can_do_full_row(struct active_list * active)
 		int is_vertical = 1;
 
 		e = active->head.next;
-		while(NULL != e) {
+		while(e) {
 			if(e->height_left < min_height)
 				min_height = e->height_left;
 			is_vertical &= e->dy == 0;
 			e = e->next;
 		}
-
 		active->is_vertical = is_vertical;
 		active->min_height = min_height;
 	}
-
 	if(active->min_height < GRID_Y)
 		return 0;
-
-	/* Check for intersections as no edges end during the next row. */
+	// Check for intersections as no edges end during the next row. 
 	for(e = active->head.next; e != &active->tail; e = e->next) {
 		int cell;
 		if(e->dy) {
-			struct quorem x = e->x;
+			Quorem_3264 x = e->x;
 			x.quo += e->dxdy_full.quo;
 			x.rem += e->dxdy_full.rem;
 			if(x.rem < 0) {

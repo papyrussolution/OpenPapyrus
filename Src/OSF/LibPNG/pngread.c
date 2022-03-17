@@ -75,7 +75,7 @@ void PNGAPI png_read_info(png_structrp png_ptr, png_inforp info_ptr)
 #ifdef PNG_HANDLE_AS_UNKNOWN_SUPPORTED
 	int keep;
 #endif
-	png_debug(1, "in png_read_info");
+	png_debug(1, "in " __FUNCTION__);
 	if(png_ptr == NULL || info_ptr == NULL)
 		return;
 	/* Read and check the PNG file signature. */
@@ -199,7 +199,7 @@ void PNGAPI png_read_info(png_structrp png_ptr, png_inforp info_ptr)
 /* Optional call to update the users info_ptr structure */
 void PNGAPI png_read_update_info(png_structrp png_ptr, png_inforp info_ptr)
 {
-	png_debug(1, "in png_read_update_info");
+	png_debug(1, "in " __FUNCTION__);
 	if(png_ptr) {
 		if((png_ptr->flags & PNG_FLAG_ROW_INIT) == 0) {
 			png_read_start_row(png_ptr);
@@ -223,7 +223,7 @@ void PNGAPI png_read_update_info(png_structrp png_ptr, png_inforp info_ptr)
  */
 void PNGAPI png_start_read_image(png_structrp png_ptr)
 {
-	png_debug(1, "in png_start_read_image");
+	png_debug(1, "in " __FUNCTION__);
 	if(png_ptr) {
 		if((png_ptr->flags & PNG_FLAG_ROW_INIT) == 0)
 			png_read_start_row(png_ptr);
@@ -242,7 +242,7 @@ void PNGAPI png_start_read_image(png_structrp png_ptr)
  */
 static void png_do_read_intrapixel(png_row_infop row_info, png_bytep row)
 {
-	png_debug(1, "in png_do_read_intrapixel");
+	png_debug(1, "in " __FUNCTION__);
 	if((row_info->color_type & PNG_COLOR_MASK_COLOR) != 0) {
 		int bytes_per_pixel;
 		uint32 row_width = row_info->width;
@@ -291,7 +291,7 @@ void PNGAPI png_read_row(png_structrp png_ptr, png_bytep row, png_bytep dsp_row)
 	png_row_info row_info;
 	if(!png_ptr)
 		return;
-	png_debug2(1, "in png_read_row (row %lu, pass %d)", (ulong)png_ptr->row_number, png_ptr->pass);
+	png_debug2(1, "in " __FUNCTION__ "(row %lu, pass %d)", (ulong)png_ptr->row_number, png_ptr->pass);
 	/* png_read_start_row sets the information (in particular iwidth) for this
 	 * interlace pass.
 	 */
@@ -496,7 +496,7 @@ void PNGAPI png_read_row(png_structrp png_ptr, png_bytep row, png_bytep dsp_row)
 void PNGAPI png_read_rows(png_structrp png_ptr, png_bytepp row, png_bytepp display_row, uint32 num_rows)
 {
 	uint32 i;
-	png_debug(1, "in png_read_rows");
+	png_debug(1, "in " __FUNCTION__);
 	if(png_ptr) {
 		png_bytepp rp = row;
 		png_bytepp dp = display_row;
@@ -541,7 +541,7 @@ void PNGAPI png_read_image(png_structrp png_ptr, png_bytepp image)
 	uint32 i, image_height;
 	int pass, j;
 	png_bytepp rp;
-	png_debug(1, "in png_read_image");
+	png_debug(1, "in " __FUNCTION__);
 	if(!png_ptr)
 		return;
 #ifdef PNG_READ_INTERLACING_SUPPORTED
@@ -592,7 +592,7 @@ void PNGAPI png_read_end(png_structrp png_ptr, png_inforp info_ptr)
 #ifdef PNG_HANDLE_AS_UNKNOWN_SUPPORTED
 	int keep;
 #endif
-	png_debug(1, "in png_read_end");
+	png_debug(1, "in " __FUNCTION__);
 	if(!png_ptr)
 		return;
 	/* If png_read_end is called in the middle of reading the rows there may
@@ -720,7 +720,7 @@ void PNGAPI png_read_end(png_structrp png_ptr, png_inforp info_ptr)
 /* Free all memory used in the read struct */
 static void png_read_destroy(png_structrp png_ptr)
 {
-	png_debug(1, "in png_read_destroy");
+	png_debug(1, "in " __FUNCTION__);
 #ifdef PNG_READ_GAMMA_SUPPORTED
 	png_destroy_gamma_table(png_ptr);
 #endif
@@ -771,7 +771,7 @@ static void png_read_destroy(png_structrp png_ptr)
 void PNGAPI png_destroy_read_struct(png_structpp png_ptr_ptr, png_infopp info_ptr_ptr, png_infopp end_info_ptr_ptr)
 {
 	png_structrp png_ptr = NULL;
-	png_debug(1, "in png_destroy_read_struct");
+	png_debug(1, "in " __FUNCTION__);
 	if(png_ptr_ptr != NULL)
 		png_ptr = *png_ptr_ptr;
 	if(!png_ptr)
@@ -1043,16 +1043,14 @@ static int png_image_read_init(png_imagep image)
 {
 	if(image->opaque == NULL) {
 		png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, image, png_safe_error, png_safe_warning);
-		/* And set the rest of the structure to NULL to ensure that the various
-		 * fields are consistent.
-		 */
+		// And set the rest of the structure to NULL to ensure that the various fields are consistent.
 		memzero(image, (sizeof *image));
 		image->version = PNG_IMAGE_VERSION;
 		if(png_ptr) {
 			png_infop info_ptr = png_create_info_struct(png_ptr);
-			if(info_ptr != NULL) {
+			if(info_ptr) {
 				png_controlp control = png_voidcast(png_controlp, png_malloc_warn(png_ptr, (sizeof *control)));
-				if(control != NULL) {
+				if(control) {
 					memzero(control, (sizeof *control));
 					control->png_ptr = png_ptr;
 					control->info_ptr = info_ptr;
@@ -1065,9 +1063,9 @@ static int png_image_read_init(png_imagep image)
 			}
 			png_destroy_read_struct(&png_ptr, 0, 0);
 		}
-		return png_image_error(image, "png_image_read: out of memory");
+		return png_image_error(image, __FUNCTION__ ": out of memory");
 	}
-	return png_image_error(image, "png_image_read: opaque pointer not NULL");
+	return png_image_error(image, __FUNCTION__ ": opaque pointer not NULL");
 }
 
 /* Utility to find the base format of a PNG file from a png_struct. */
@@ -1085,16 +1083,12 @@ static uint32 png_image_format(png_structrp png_ptr)
 	 */
 	else if(png_ptr->num_trans > 0)
 		format |= PNG_FORMAT_FLAG_ALPHA;
-
 	if(png_ptr->bit_depth == 16)
 		format |= PNG_FORMAT_FLAG_LINEAR;
-
 	if((png_ptr->color_type & PNG_COLOR_MASK_PALETTE) != 0)
 		format |= PNG_FORMAT_FLAG_COLORMAP;
-
 	return format;
 }
-
 /* Is the given gamma significantly different from sRGB?  The test is the same
  * one used in pngrtran.c when deciding whether to do gamma correction.  The
  * arithmetic optimizes the division by using the fact that the inverse of the
@@ -1103,13 +1097,9 @@ static uint32 png_image_format(png_structrp png_ptr)
 static int png_gamma_not_sRGB(png_fixed_point g)
 {
 	if(g < PNG_FP_1) {
-		/* An uninitialized gamma is assumed to be sRGB for the simplified API. */
-		if(g == 0)
-			return 0;
-
-		return png_gamma_significant((g * 11 + 2)/5 /* i.e. *2.2, rounded */);
+		// An uninitialized gamma is assumed to be sRGB for the simplified API. 
+		return (g == 0) ? 0 : png_gamma_significant((g * 11 + 2)/5 /* i.e. *2.2, rounded */);
 	}
-
 	return 1;
 }
 
@@ -1138,9 +1128,8 @@ static int png_image_read_header(void * argument)
 		 * 'ENDPOINTS_MATCHP_sRGB' colorspace flag to have been set.  If the
 		 * colorspace has been determined to be invalid ignore it.
 		 */
-		if((format & PNG_FORMAT_FLAG_COLOR) != 0 && ((png_ptr->colorspace.flags
-				    & (PNG_COLORSPACE_HAVE_ENDPOINTS|PNG_COLORSPACE_ENDPOINTS_MATCH_sRGB|
-					    PNG_COLORSPACE_INVALID)) == PNG_COLORSPACE_HAVE_ENDPOINTS))
+		if((format & PNG_FORMAT_FLAG_COLOR) != 0 && ((png_ptr->colorspace.flags & 
+			(PNG_COLORSPACE_HAVE_ENDPOINTS|PNG_COLORSPACE_ENDPOINTS_MATCH_sRGB|PNG_COLORSPACE_INVALID)) == PNG_COLORSPACE_HAVE_ENDPOINTS))
 			image->flags |= PNG_IMAGE_FLAG_COLORSPACE_NOT_sRGB;
 #endif
 	}
@@ -1155,8 +1144,7 @@ static int png_image_read_header(void * argument)
 			case PNG_COLOR_TYPE_PALETTE: cmap_entries = (uint32)png_ptr->num_palette; break;
 			default: cmap_entries = 256; break;
 		}
-		if(cmap_entries > 256)
-			cmap_entries = 256;
+		SETMIN(cmap_entries, 256);
 		image->colormap_entries = cmap_entries;
 	}
 	return 1;
@@ -1165,22 +1153,21 @@ static int png_image_read_header(void * argument)
 #ifdef PNG_STDIO_SUPPORTED
 int PNGAPI png_image_begin_read_from_stdio(png_imagep image, FILE* file)
 {
-	if(image != NULL && image->version == PNG_IMAGE_VERSION) {
-		if(file != NULL) {
+	if(image && image->version == PNG_IMAGE_VERSION) {
+		if(file) {
 			if(png_image_read_init(image) != 0) {
-				/* This is slightly evil, but png_init_io doesn't do anything other
-				 * than this and we haven't changed the standard IO functions so
-				 * this saves a 'safe' function.
-				 */
+				// This is slightly evil, but png_init_io doesn't do anything other
+				// than this and we haven't changed the standard IO functions so
+				// this saves a 'safe' function.
 				image->opaque->png_ptr->io_ptr = file;
 				return png_safe_execute(image, png_image_read_header, image);
 			}
 		}
 		else
-			return png_image_error(image, "png_image_begin_read_from_stdio: invalid argument");
+			return png_image_error(image, __FUNCTION__ ": invalid argument");
 	}
 	else if(image)
-		return png_image_error(image, "png_image_begin_read_from_stdio: incorrect PNG_IMAGE_VERSION");
+		return png_image_error(image, __FUNCTION__ ": incorrect PNG_IMAGE_VERSION");
 	return 0;
 }
 
@@ -1202,10 +1189,10 @@ int PNGAPI png_image_begin_read_from_file(png_imagep image, const char * file_na
 				return png_image_error(image, strerror(errno));
 		}
 		else
-			return png_image_error(image, "png_image_begin_read_from_file: invalid argument");
+			return png_image_error(image, __FUNCTION__ ": invalid argument");
 	}
 	else if(image)
-		return png_image_error(image, "png_image_begin_read_from_file: incorrect PNG_IMAGE_VERSION");
+		return png_image_error(image, __FUNCTION__ ": incorrect PNG_IMAGE_VERSION");
 	return 0;
 }
 
@@ -1235,13 +1222,12 @@ static void PNGCBAPI png_image_memory_read(png_structp png_ptr, png_bytep out, s
 
 int PNGAPI png_image_begin_read_from_memory(png_imagep image, const void * memory, size_t size)
 {
-	if(image != NULL && image->version == PNG_IMAGE_VERSION) {
-		if(memory != NULL && size > 0) {
+	if(image && image->version == PNG_IMAGE_VERSION) {
+		if(memory && size > 0) {
 			if(png_image_read_init(image) != 0) {
-				/* Now set the IO functions to read from the memory buffer and
-				 * store it into io_ptr.  Again do this in-place to avoid calling a
-				 * libpng function that requires error handling.
-				 */
+				// Now set the IO functions to read from the memory buffer and
+				// store it into io_ptr.  Again do this in-place to avoid calling a
+				// libpng function that requires error handling.
 				image->opaque->memory = png_voidcast(png_const_bytep, memory);
 				image->opaque->size = size;
 				image->opaque->png_ptr->io_ptr = image;
@@ -1250,16 +1236,16 @@ int PNGAPI png_image_begin_read_from_memory(png_imagep image, const void * memor
 			}
 		}
 		else
-			return png_image_error(image, "png_image_begin_read_from_memory: invalid argument");
+			return png_image_error(image, __FUNCTION__ ": invalid argument");
 	}
 	else if(image)
-		return png_image_error(image, "png_image_begin_read_from_memory: incorrect PNG_IMAGE_VERSION");
+		return png_image_error(image, __FUNCTION__ ": incorrect PNG_IMAGE_VERSION");
 	return 0;
 }
-
-/* Utility function to skip chunks that are not used by the simplified image
- * read functions and an appropriate macro to call it.
- */
+// 
+// Utility function to skip chunks that are not used by the simplified image
+// read functions and an appropriate macro to call it.
+// 
 #ifdef PNG_HANDLE_AS_UNKNOWN_SUPPORTED
 static void png_image_skip_unused_chunks(png_structrp png_ptr)
 {
@@ -1292,22 +1278,18 @@ static void png_image_skip_unused_chunks(png_structrp png_ptr)
 			115,  66,  73,  84, '\0', /* sBIT */
 			115,  82,  71,  66, '\0', /* sRGB */
 		};
-
 		/* Ignore unknown chunks and all other chunks except for the
 		 * IHDR, PLTE, tRNS, IDAT, and IEND chunks.
 		 */
-		png_set_keep_unknown_chunks(png_ptr, PNG_HANDLE_CHUNK_NEVER,
-		    NULL, -1);
-
+		png_set_keep_unknown_chunks(png_ptr, PNG_HANDLE_CHUNK_NEVER, NULL, -1);
 		/* But do not ignore image data handling chunks */
-		png_set_keep_unknown_chunks(png_ptr, PNG_HANDLE_CHUNK_AS_DEFAULT,
-		    chunks_to_process, (int)/*SAFE*/ (sizeof chunks_to_process)/5);
+		png_set_keep_unknown_chunks(png_ptr, PNG_HANDLE_CHUNK_AS_DEFAULT, chunks_to_process, (int)/*SAFE*/ (sizeof chunks_to_process)/5);
 	}
 }
 
 #define PNG_SKIP_CHUNKS(p) png_image_skip_unused_chunks(p)
 #else
-#define PNG_SKIP_CHUNKS(p) ((void)0)
+	#define PNG_SKIP_CHUNKS(p) ((void)0)
 #endif /* HANDLE_AS_UNKNOWN */
 
 /* The following macro gives the exact rounded answer for all values in the
@@ -1329,7 +1311,6 @@ static void set_file_encoding(png_image_read_control * display)
 		else
 			display->file_encoding = P_sRGB;
 	}
-
 	else
 		display->file_encoding = P_LINEAR8;
 }
@@ -1363,9 +1344,7 @@ static uint decode_gamma(png_image_read_control * display, uint32 value, int enc
 	return value;
 }
 
-static uint32 png_colormap_compose(png_image_read_control * display,
-    uint32 foreground, int foreground_encoding, uint32 alpha,
-    uint32 background, int encoding)
+static uint32 png_colormap_compose(png_image_read_control * display, uint32 foreground, int foreground_encoding, uint32 alpha, uint32 background, int encoding)
 {
 	/* The file value is composed on the background, the background has the given
 	 * encoding and so does the result, the file is encoded with P_FILE and the
@@ -1374,12 +1353,10 @@ static uint32 png_colormap_compose(png_image_read_control * display,
 	 */
 	uint32 f = decode_gamma(display, foreground, foreground_encoding);
 	uint32 b = decode_gamma(display, background, encoding);
-
 	/* The alpha is always an 8-bit value (it comes from the palette), the value
 	 * scaled by 255 is what PNG_sRGB_FROM_LINEAR requires.
 	 */
 	f = f * alpha + b * (255-alpha);
-
 	if(encoding == P_LINEAR) {
 		/* Scale to 65535; divide by 255, approximately (in fact this is extremely
 		 * accurate, it divides by 255.00000005937181414556, with no overflow.)
@@ -1388,29 +1365,20 @@ static uint32 png_colormap_compose(png_image_read_control * display,
 		f += f >> 16;
 		f = (f+32768) >> 16;
 	}
-
 	else /* P_sRGB */
 		f = PNG_sRGB_FROM_LINEAR(f);
-
 	return f;
 }
-
 /* NOTE: P_LINEAR values to this routine must be 16-bit, but P_FILE values must
  * be 8-bit.
  */
-static void png_create_colormap_entry(png_image_read_control * display,
-    uint32 ip, uint32 red, uint32 green, uint32 blue,
-    uint32 alpha, int encoding)
+static void png_create_colormap_entry(png_image_read_control * display, uint32 ip, uint32 red, uint32 green, uint32 blue, uint32 alpha, int encoding)
 {
 	png_imagep image = display->image;
-	const int output_encoding = (image->format & PNG_FORMAT_FLAG_LINEAR) != 0 ?
-	    P_LINEAR : P_sRGB;
-	const int convert_to_Y = (image->format & PNG_FORMAT_FLAG_COLOR) == 0 &&
-	    (red != green || green != blue);
-
+	const int output_encoding = (image->format & PNG_FORMAT_FLAG_LINEAR) != 0 ? P_LINEAR : P_sRGB;
+	const int convert_to_Y = (image->format & PNG_FORMAT_FLAG_COLOR) == 0 && (red != green || green != blue);
 	if(ip > 255)
 		png_error(image->opaque->png_ptr, "color-map index out of range");
-
 	/* Update the cache with whether the file gamma is significantly different
 	 * from sRGB.
 	 */
@@ -1423,19 +1391,15 @@ static void png_create_colormap_entry(png_image_read_control * display,
 		 */
 		encoding = display->file_encoding;
 	}
-
 	if(encoding == P_FILE) {
 		png_fixed_point g = display->gamma_to_linear;
-
 		red = png_gamma_16bit_correct(red*257, g);
 		green = png_gamma_16bit_correct(green*257, g);
 		blue = png_gamma_16bit_correct(blue*257, g);
-
 		if(convert_to_Y != 0 || output_encoding == P_LINEAR) {
 			alpha *= 257;
 			encoding = P_LINEAR;
 		}
-
 		else {
 			red = PNG_sRGB_FROM_LINEAR(red * 255);
 			green = PNG_sRGB_FROM_LINEAR(green * 255);
@@ -1443,52 +1407,39 @@ static void png_create_colormap_entry(png_image_read_control * display,
 			encoding = P_sRGB;
 		}
 	}
-
 	else if(encoding == P_LINEAR8) {
-		/* This encoding occurs quite frequently in test cases because PngSuite
-		 * includes a gAMA 1.0 chunk with most images.
-		 */
+		// This encoding occurs quite frequently in test cases because PngSuite includes a gAMA 1.0 chunk with most images.
 		red *= 257;
 		green *= 257;
 		blue *= 257;
 		alpha *= 257;
 		encoding = P_LINEAR;
 	}
-
-	else if(encoding == P_sRGB &&
-	    (convert_to_Y  != 0 || output_encoding == P_LINEAR)) {
-		/* The values are 8-bit sRGB values, but must be converted to 16-bit
-		 * linear.
-		 */
+	else if(encoding == P_sRGB && (convert_to_Y  != 0 || output_encoding == P_LINEAR)) {
+		// The values are 8-bit sRGB values, but must be converted to 16-bit linear.
 		red = png_sRGB_table[red];
 		green = png_sRGB_table[green];
 		blue = png_sRGB_table[blue];
 		alpha *= 257;
 		encoding = P_LINEAR;
 	}
-
-	/* This is set if the color isn't gray but the output is. */
+	// This is set if the color isn't gray but the output is.
 	if(encoding == P_LINEAR) {
 		if(convert_to_Y != 0) {
-			/* NOTE: these values are copied from png_do_rgb_to_gray */
-			uint32 y = (uint32)6968 * red  + (uint32)23434 * green +
-			    (uint32)2366 * blue;
-
+			// NOTE: these values are copied from png_do_rgb_to_gray 
+			uint32 y = (uint32)6968 * red  + (uint32)23434 * green + (uint32)2366 * blue;
 			if(output_encoding == P_LINEAR)
 				y = (y + 16384) >> 15;
-
 			else {
-				/* y is scaled by 32768, we need it scaled by 255: */
+				// y is scaled by 32768, we need it scaled by 255:
 				y = (y + 128) >> 8;
 				y *= 255;
 				y = PNG_sRGB_FROM_LINEAR((y + 64) >> 7);
 				alpha = PNG_DIV257(alpha);
 				encoding = P_sRGB;
 			}
-
 			blue = red = green = y;
 		}
-
 		else if(output_encoding == P_sRGB) {
 			red = PNG_sRGB_FROM_LINEAR(red * 255);
 			green = PNG_sRGB_FROM_LINEAR(green * 255);
@@ -1497,15 +1448,12 @@ static void png_create_colormap_entry(png_image_read_control * display,
 			encoding = P_sRGB;
 		}
 	}
-
 	if(encoding != output_encoding)
 		png_error(image->opaque->png_ptr, "bad encoding (internal error)");
-
-	/* Store the value. */
+	// Store the value
 	{
 #ifdef PNG_FORMAT_AFIRST_SUPPORTED
-		const int afirst = (image->format & PNG_FORMAT_FLAG_AFIRST) != 0 &&
-		    (image->format & PNG_FORMAT_FLAG_ALPHA) != 0;
+		const int afirst = (image->format & PNG_FORMAT_FLAG_AFIRST) != 0 && (image->format & PNG_FORMAT_FLAG_ALPHA) != 0;
 #else
 #define afirst 0
 #endif
@@ -1514,21 +1462,16 @@ static void png_create_colormap_entry(png_image_read_control * display,
 #else
 #define bgr 0
 #endif
-
 		if(output_encoding == P_LINEAR) {
 			png_uint_16p entry = png_voidcast(png_uint_16p, display->colormap);
-
 			entry += ip * PNG_IMAGE_SAMPLE_CHANNELS(image->format);
-
-			/* The linear 16-bit values must be pre-multiplied by the alpha channel
-			 * value, if less than 65535 (this is, effectively, composite on black
-			 * if the alpha channel is removed.)
-			 */
+			// The linear 16-bit values must be pre-multiplied by the alpha channel
+			// value, if less than 65535 (this is, effectively, composite on black
+			// if the alpha channel is removed.)
 			switch(PNG_IMAGE_SAMPLE_CHANNELS(image->format)) {
 				case 4:
 				    entry[afirst ? 0 : 3] = (png_uint_16)alpha;
 				// @fallthrough
-
 				case 3:
 				    if(alpha < 65535) {
 					    if(alpha > 0) {
@@ -1536,7 +1479,6 @@ static void png_create_colormap_entry(png_image_read_control * display,
 						    green = (green * alpha + 32767U)/65535U;
 						    red = (red * alpha + 32767U)/65535U;
 					    }
-
 					    else
 						    red = green = blue = 0;
 				    }
@@ -1544,22 +1486,18 @@ static void png_create_colormap_entry(png_image_read_control * display,
 				    entry[afirst + 1] = (png_uint_16)green;
 				    entry[afirst + bgr] = (png_uint_16)red;
 				    break;
-
 				case 2:
 				    entry[1 ^ afirst] = (png_uint_16)alpha;
 				// @fallthrough
-
 				case 1:
 				    if(alpha < 65535) {
 					    if(alpha > 0)
 						    green = (green * alpha + 32767U)/65535U;
-
 					    else
 						    green = 0;
 				    }
 				    entry[afirst] = (png_uint_16)green;
 				    break;
-
 				default:
 				    break;
 			}
@@ -1575,7 +1513,6 @@ static void png_create_colormap_entry(png_image_read_control * display,
 				    entry[afirst + 1] = (uint8)green;
 				    entry[afirst + bgr] = (uint8)red;
 				    break;
-
 				case 2:
 				    entry[1 ^ afirst] = (uint8)alpha;
 				case 1:
@@ -1586,7 +1523,6 @@ static void png_create_colormap_entry(png_image_read_control * display,
 				    break;
 			}
 		}
-
 #ifdef afirst
 #undef afirst
 #endif
@@ -1616,7 +1552,7 @@ static int make_gray_colormap(png_image_read_control * display)
 
 static int make_ga_colormap(png_image_read_control * display)
 {
-	uint i, a;
+	uint a;
 	/* Alpha is retained, the output will be a color-map with entries
 	 * selected by six levels of alpha.  One transparent entry, 6 gray
 	 * levels for all the intermediate alpha values, leaving 230 entries
@@ -1624,24 +1560,21 @@ static int make_ga_colormap(png_image_read_control * display)
 	 * [0..5]*51, the GA processing uses PNG_DIV51(value) to find the
 	 * relevant entry.
 	 *
-	 * if(alpha > 229) // opaque
-	 * {
+	 * if(alpha > 229) { // opaque
 	 *  // The 231 entries are selected to make the math below work:
 	 *  base = 0;
 	 *  entry = (231 * gray + 128) >> 8;
 	 * }
-	 * else if(alpha < 26) // transparent
-	 * {
+	 * else if(alpha < 26) { // transparent
 	 *  base = 231;
 	 *  entry = 0;
 	 * }
-	 * else // partially opaque
-	 * {
+	 * else { // partially opaque
 	 *  base = 226 + 6 * PNG_DIV51(alpha);
 	 *  entry = PNG_DIV51(gray);
 	 * }
 	 */
-	i = 0;
+	uint i = 0;
 	while(i < 231) {
 		uint   gray = (i * 256 + 115) / 231;
 		png_create_colormap_entry(display, i++, gray, gray, gray, 255, P_sRGB);
@@ -1650,8 +1583,7 @@ static int make_ga_colormap(png_image_read_control * display)
 	// that undoes premultiplication in pngwrite.c.
 	png_create_colormap_entry(display, i++, 255, 255, 255, 0, P_sRGB);
 	for(a = 1; a<5; ++a) {
-		uint   g;
-		for(g = 0; g<6; ++g)
+		for(uint g = 0; g<6; ++g)
 			png_create_colormap_entry(display, i++, g*51, g*51, g*51, a*51, P_sRGB);
 	}
 	return static_cast<int>(i);
@@ -1675,10 +1607,8 @@ static int make_rgb_colormap(png_image_read_control * display)
 }
 
 #define PNG_RGB_COLORMAP_ENTRIES 216
-
-/* Return a palette index to the above palette given three 8-bit sRGB values. */
-#define PNG_RGB_INDEX(r, g, b) \
-	((uint8)(6 * (6 * PNG_DIV51(r) + PNG_DIV51(g)) + PNG_DIV51(b)))
+// Return a palette index to the above palette given three 8-bit sRGB values
+#define PNG_RGB_INDEX(r, g, b) ((uint8)(6 * (6 * PNG_DIV51(r) + PNG_DIV51(g)) + PNG_DIV51(b)))
 
 static int png_image_read_colormap(void * argument)
 {
@@ -1765,48 +1695,36 @@ static int png_image_read_colormap(void * argument)
 			     */
 			    if(png_ptr->num_trans > 0) {
 				    trans = png_ptr->trans_color.gray;
-
 				    if((output_format & PNG_FORMAT_FLAG_ALPHA) == 0)
 					    back_alpha = output_encoding == P_LINEAR ? 65535 : 255;
 			    }
-
-			    /* png_create_colormap_entry just takes an RGBA and writes the
-			 * corresponding color-map entry using the format from 'image',
-			 * including the required conversion to sRGB or linear as
-			 * appropriate.  The input values are always either sRGB (if the
-			 * gamma correction flag is 0) or 0..255 scaled file encoded values
-			 * (if the function must gamma correct them).
-			     */
+				// png_create_colormap_entry just takes an RGBA and writes the
+				// corresponding color-map entry using the format from 'image',
+				// including the required conversion to sRGB or linear as
+				// appropriate.  The input values are always either sRGB (if the
+				// gamma correction flag is 0) or 0..255 scaled file encoded values
+				// (if the function must gamma correct them).
 			    for(i = val = 0; i<cmap_entries; ++i, val += step) {
-				    /* 'i' is a file value.  While this will result in duplicated
-				 * entries for 8-bit non-sRGB encoded files it is necessary to
-				 * have non-gamma corrected values to do tRNS handling.
-				     */
+					// 'i' is a file value.  While this will result in duplicated
+					// entries for 8-bit non-sRGB encoded files it is necessary to
+					// have non-gamma corrected values to do tRNS handling.
 				    if(i != trans)
-					    png_create_colormap_entry(display, i, val, val, val, 255,
-					    P_FILE /*8-bit with file gamma*/);
-
-				    /* Else this entry is transparent.  The colors don't matter if
-				 * there is an alpha channel (back_alpha == 0), but it does no
-				 * harm to pass them in; the values are not set above so this
-				 * passes in white.
-				     *
-				 * NOTE: this preserves the full precision of the application
-				 * supplied background color when it is used.
-				     */
+					    png_create_colormap_entry(display, i, val, val, val, 255, P_FILE /*8-bit with file gamma*/);
+					// Else this entry is transparent.  The colors don't matter if
+					// there is an alpha channel (back_alpha == 0), but it does no
+					// harm to pass them in; the values are not set above so this passes in white.
+					// 
+					// NOTE: this preserves the full precision of the application supplied background color when it is used.
+					// 
 				    else
-					    png_create_colormap_entry(display, i, back_r, back_g, back_b,
-					    back_alpha, output_encoding);
+					    png_create_colormap_entry(display, i, back_r, back_g, back_b, back_alpha, output_encoding);
 			    }
-
-			    /* We need libpng to preserve the original encoding. */
+				// We need libpng to preserve the original encoding.
 			    data_encoding = P_FILE;
-
-			    /* The rows from libpng, while technically gray values, are now also
-			 * color-map indices; however, they may need to be expanded to 1
-			 * byte per pixel.  This is what png_set_packing does (i.e., it
-			 * unpacks the bit values into bytes.)
-			     */
+				// The rows from libpng, while technically gray values, are now also
+				// color-map indices; however, they may need to be expanded to 1
+				// byte per pixel.  This is what png_set_packing does (i.e., it
+				// unpacks the bit values into bytes.)
 			    if(png_ptr->bit_depth < 8)
 				    png_set_packing(png_ptr);
 		    }
@@ -3367,19 +3285,19 @@ int PNGAPI png_image_finish_read(png_imagep image, png_const_colorp background, 
 						return result;
 					}
 					else
-						return png_image_error(image, "png_image_finish_read[color-map]: no color-map");
+						return png_image_error(image, __FUNCTION__ "[color-map]: no color-map");
 				}
 				else
-					return png_image_error(image, "png_image_finish_read: image too large");
+					return png_image_error(image, __FUNCTION__ ": image too large");
 			}
 			else
-				return png_image_error(image, "png_image_finish_read: invalid argument");
+				return png_image_error(image, __FUNCTION__ ": invalid argument");
 		}
 		else
-			return png_image_error(image, "png_image_finish_read: row_stride too large");
+			return png_image_error(image, __FUNCTION__ ": row_stride too large");
 	}
 	else if(image)
-		return png_image_error(image, "png_image_finish_read: damaged PNG_IMAGE_VERSION");
+		return png_image_error(image, __FUNCTION__ ": damaged PNG_IMAGE_VERSION");
 	return 0;
 }
 

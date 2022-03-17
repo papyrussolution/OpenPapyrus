@@ -7,7 +7,6 @@
  *
  *  Lars Hecking  15-02-1999
  */
-
 /*
  *      Matrix algebra, part of
  *
@@ -29,15 +28,9 @@
 #define Swap(a, b)   {double _temp = (a); (a) = (b); (b) = _temp;}
 /* HBB 20010424: unused: */
 /* #define WINZIG	      1e-30 */
-
-/*****************************************************************
-    internal prototypes
-*****************************************************************/
-
-/*****************************************************************
-    first straightforward vector and matrix allocation functions
-*****************************************************************/
-
+// 
+// first straightforward vector and matrix allocation functions
+// 
 /* allocates a double vector with n elements */
 double * vec(int n)
 {
@@ -269,14 +262,12 @@ void lu_backsubst(double ** a, int n, int * indx, double * b)
 }
 
 /*****************************************************************
-
     Sum up squared components of a vector
     In order to reduce rounding errors in summing up the entries
     of a vector, we employ the Neumaier variant of the Kahan and
     Babuska algorithm:
     A. Neumaier, Rundungsfehleranalyse einiger Verfahren zur
     Summation endlicher Summen, Z. angew. Math. Mechanik, 54:39-51, 1974
-
 *****************************************************************/
 double sumsq_vec(int n, const double * x)
 {

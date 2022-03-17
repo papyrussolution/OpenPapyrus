@@ -16,18 +16,6 @@
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
 //
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 // Adapted from the patch of kenton@google.com (Kenton Varda)
 // See https://github.com/protocolbuffers/protobuf/pull/710 for details.
 
@@ -39,14 +27,14 @@
 namespace google {
 namespace protobuf {
 namespace util {
-bool SerializeDelimitedToFileDescriptor(const MessageLite& message,
-    int file_descriptor) {
+bool SerializeDelimitedToFileDescriptor(const MessageLite& message, int file_descriptor) 
+{
 	io::FileOutputStream output(file_descriptor);
 	return SerializeDelimitedToZeroCopyStream(message, &output);
 }
 
-bool SerializeDelimitedToOstream(const MessageLite& message,
-    std::ostream* output) {
+bool SerializeDelimitedToOstream(const MessageLite& message, std::ostream* output) 
+{
 	{
 		io::OstreamOutputStream zero_copy_output(output);
 		if(!SerializeDelimitedToZeroCopyStream(message, &zero_copy_output))
@@ -55,19 +43,17 @@ bool SerializeDelimitedToOstream(const MessageLite& message,
 	return output->good();
 }
 
-bool ParseDelimitedFromZeroCopyStream(MessageLite* message,
-    io::ZeroCopyInputStream* input,
-    bool* clean_eof) {
+bool ParseDelimitedFromZeroCopyStream(MessageLite* message, io::ZeroCopyInputStream* input, bool* clean_eof) 
+{
 	io::CodedInputStream coded_input(input);
 	return ParseDelimitedFromCodedStream(message, &coded_input, clean_eof);
 }
 
-bool ParseDelimitedFromCodedStream(MessageLite* message,
-    io::CodedInputStream* input,
-    bool* clean_eof) {
-	if(clean_eof != NULL) *clean_eof = false;
+bool ParseDelimitedFromCodedStream(MessageLite* message, io::CodedInputStream* input, bool* clean_eof) 
+{
+	if(clean_eof != NULL) 
+		*clean_eof = false;
 	int start = input->CurrentPosition();
-
 	// Read the size.
 	uint32 size;
 	if(!input->ReadVarint32(&size)) {

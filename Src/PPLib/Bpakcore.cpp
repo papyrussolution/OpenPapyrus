@@ -2364,8 +2364,9 @@ int PPBillPacket::GetContextEmailAddr(SString & rBuf) const
 			StringSet ss;
 			PPObjPerson psn_obj;
 			PPELinkArray elink_list;
-			psn_obj.P_Tbl->GetELinks(psn_id, &elink_list);
+			psn_obj.P_Tbl->GetELinks(psn_id, elink_list);
 			if(elink_list.GetListByType(ELNKRT_EMAIL, ss) > 0) {
+				assert(ss.getCount()); // @v11.3.5
 				ss.get(0U, rBuf);
 				ok = 1;
 			}

@@ -38,9 +38,7 @@ namespace i18n {
 			int prefix_language_code_pairs_size, prefix_descriptions_getter get_prefix_descriptions) 
 		{
 			phone_util_ = PhoneNumberUtil::GetInstance();
-			provider_.reset(new MappingFileProvider(country_calling_codes,
-				country_calling_codes_size,
-				get_country_languages));
+			provider_.reset(new MappingFileProvider(country_calling_codes, country_calling_codes_size, get_country_languages));
 			prefix_language_code_pairs_ = prefix_language_code_pairs;
 			prefix_language_code_pairs_size_ = prefix_language_code_pairs_size;
 			get_prefix_descriptions_ = get_prefix_descriptions;
@@ -78,13 +76,12 @@ namespace i18n {
 			}
 			return available_maps_.end();
 		}
-
-		string PhoneNumberOfflineGeocoder::GetCountryNameForNumber(const PhoneNumber& number, const Locale& language) const {
+		string PhoneNumberOfflineGeocoder::GetCountryNameForNumber(const PhoneNumber& number, const Locale& language) const 
+		{
 			string region_code;
 			phone_util_->GetRegionCodeForNumber(number, &region_code);
 			return GetRegionDisplayName(&region_code, language);
 		}
-
 		string PhoneNumberOfflineGeocoder::GetRegionDisplayName(const string* region_code, const Locale& language) const 
 		{
 			if(region_code == NULL || region_code->compare("ZZ") == 0 ||
@@ -97,7 +94,6 @@ namespace i18n {
 			udisplay_country.toUTF8String(display_country);
 			return display_country;
 		}
-
 		string PhoneNumberOfflineGeocoder::GetDescriptionForValidNumber(const PhoneNumber& number, const Locale& language) const 
 		{
 			const char* const description = GetAreaDescription(number, language.getLanguage(), "", language.getCountry());
@@ -129,8 +125,7 @@ namespace i18n {
 			}
 			return GetDescriptionForValidNumber(number, locale);
 		}
-		string PhoneNumberOfflineGeocoder::GetDescriptionForNumber(const PhoneNumber& number, const Locale& language,
-			const string & user_region) const 
+		string PhoneNumberOfflineGeocoder::GetDescriptionForNumber(const PhoneNumber& number, const Locale& language, const string & user_region) const 
 		{
 			PhoneNumberUtil::PhoneNumberType number_type = phone_util_->GetNumberType(number);
 			if(number_type == PhoneNumberUtil::UNKNOWN) {
@@ -142,21 +137,18 @@ namespace i18n {
 			}
 			return GetDescriptionForValidNumber(number, language, user_region);
 		}
-		const char* PhoneNumberOfflineGeocoder::GetAreaDescription(const PhoneNumber& number, const string & lang, const string & script,
-			const string & region) const 
+		const char* PhoneNumberOfflineGeocoder::GetAreaDescription(const PhoneNumber& number, const string & lang, const string & script, const string & region) const 
 		{
 			const int country_calling_code = number.country_code();
 			// NANPA area is not split in C++ code.
 			const int phone_prefix = country_calling_code;
 			absl::MutexLock l(&mu_);
-			const AreaCodeMap* const descriptions = GetPhonePrefixDescriptions(
-				phone_prefix, lang, script, region);
+			const AreaCodeMap* const descriptions = GetPhonePrefixDescriptions(phone_prefix, lang, script, region);
 			const char* description = descriptions ? descriptions->Lookup(number) : NULL;
 			// When a location is not available in the requested language, fall back to
 			// English.
 			if((!description || *description == '\0') && MayFallBackToEnglish(lang)) {
-				const AreaCodeMap* default_descriptions = GetPhonePrefixDescriptions(
-					phone_prefix, "en", "", "");
+				const AreaCodeMap* default_descriptions = GetPhonePrefixDescriptions(phone_prefix, "en", "", "");
 				if(!default_descriptions) {
 					return "";
 				}

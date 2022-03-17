@@ -181,9 +181,8 @@ LRESULT Gripper::runProc(UINT message, WPARAM wParam, LPARAM lParam)
 
 void Gripper::create()
 {
-	RECT rc      = {0};
-	POINT pt      = {0};
-
+	RECT   rc = {0};
+	POINT  pt = {0};
 	// start hooking
 	::SetWindowPos(_pCont->getHSelf(), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 	::SetCapture(_hSelf);
@@ -236,64 +235,46 @@ void Gripper::onMove()
 
 void Gripper::onButtonUp()
 {
-	POINT pt              = {0, 0};
-	POINT ptBuf   = {0, 0};
-	RECT rc              = {0};
-	RECT rcCorr  = {0};
-
+	POINT pt = {0, 0};
+	POINT ptBuf = {0, 0};
+	RECT rc = {0};
+	RECT rcCorr = {0};
 	::GetCursorPos(&pt);
 	getMousePoints(&pt, &ptBuf);
-
 	// do nothing, when old point is not valid
 	if(_bPtOldValid == FALSE)
 		return;
-
 	// erase last drawn rectangle
 	drawRectangle(NULL);
-
 	// look if current position is within dockable area
-	DockingCont*    pDockCont = contHitTest(pt);
-
-	if(pDockCont == NULL) {
-		pDockCont = workHitTest(pt);
-	}
-
+	DockingCont * pDockCont = contHitTest(pt);
+	SETIFZQ(pDockCont, workHitTest(pt));
 	/* add dependency to other container class */
 	if(pDockCont == NULL) {
 		/* calculate new position */
 		rc = _pCont->getDataOfActiveTb()->rcFloat;
 		_pCont->getClientRect(rcCorr);
-
 		CalcRectToScreen(_dockData.hWnd, &rc);
 		CalcRectToScreen(_dockData.hWnd, &rcCorr);
-
 		rc.left    = pt.x - _ptOffset.x;
 		rc.top     = pt.y - _ptOffset.y;
-
 		/* correct rectangle position when mouse is not within */
 		DoCalcGripperRect(&rc, rcCorr, pt);
-
 		DockingCont* pContMove  = NULL;
-
 		/* change location of toolbars */
 		if(_startMovingFromTab == TRUE) {
 			/* when tab is moved */
-			if((!_pCont->isFloating()) ||
-			    ((_pCont->isFloating()) && (::SendMessage(_hTabSource, TCM_GETITEMCOUNT, 0, 0) > 1))) {
+			if((!_pCont->isFloating()) || ((_pCont->isFloating()) && (::SendMessage(_hTabSource, TCM_GETITEMCOUNT, 0, 0) > 1))) {
 				pContMove = _pDockMgr->toggleActiveTb(_pCont, DMM_FLOAT, TRUE, &rc);
 			}
 		}
 		else if(!_pCont->isFloating()) {
-			/* when all windows are moved */
+			// when all windows are moved 
 			pContMove = _pDockMgr->toggleVisTb(_pCont, DMM_FLOAT, &rc);
 		}
-
-		/* set moving container */
-		if(pContMove == NULL) {
-			pContMove = _pCont;
-		}
-
-		/* update window position */
+		// set moving container 
+		SETIFZQ(pContMove, _pCont);
+		// update window position 
 		::MoveWindow(pContMove->getHSelf(), rc.left, rc.top, rc.right, rc.bottom, TRUE);
 		::SendMessage(pContMove->getHSelf(), WM_SIZE, 0, 0);
 	}
@@ -317,60 +298,48 @@ void Gripper::doTabReordering(POINT pt)
 	HWND hTab    = NULL;
 	HWND hTabOld = _hTab;
 	int iItemOld        = _iItem;
-
 	/* search for every tab entry */
 	for(size_t iCont = 0, len = vCont.size(); iCont < len; ++iCont) {
 		hTab = vCont[iCont]->getTabWnd();
-
 		/* search only if container is visible */
 		if(::IsWindowVisible(hTab) == TRUE) {
 			RECT rc      = {0};
-
 			::GetWindowRect(hTab, &rc);
-
 			/* test if cursor points in tab window */
 			if(::PtInRect(&rc, pt) == TRUE) {
 				TCHITTESTINFO info    = {0};
-
 				if(_hTab == NULL) {
 					initTabInformation();
 					hTabOld  = _hTab;
 					iItemOld = _iItem;
 				}
-
 				// get pointed tab item
 				info.pt = pt;
 				::ScreenToClient(hTab, &info.pt);
 				auto iItem = ::SendMessage(hTab, TCM_HITTEST, 0, reinterpret_cast<LPARAM>(&info));
-
 				if(iItem != -1) {
 					// prevent flickering of tabs with different sizes
 					::SendMessage(hTab, TCM_GETITEMRECT, iItem, reinterpret_cast<LPARAM>(&rc));
 					ClientRectToScreenRect(hTab, &rc);
-
 					if((rc.left + (_rcItem.right  - _rcItem.left)) < pt.x) {
 						return;
 					}
-
 					_iItem = static_cast<int32_t>(iItem);
 				}
 				else if(_hTab && ((hTab != _hTab) || (_iItem == -1))) {
 					// test if cusor points after last tab
 					auto iLastItem = ::SendMessage(hTab, TCM_GETITEMCOUNT, 0, 0) - 1;
-
 					::SendMessage(hTab, TCM_GETITEMRECT, iLastItem, reinterpret_cast<LPARAM>(&rc));
 					if((rc.left + rc.right) < pt.x) {
 						_iItem = static_cast<int32_t>(iLastItem) + 1;
 					}
 				}
-
 				_hTab = hTab;
 				inTab = TRUE;
 				break;
 			}
 		}
 	}
-
 	// set and remove tabs correct
 	if((inTab == TRUE) && (iItemOld != _iItem)) {
 		if(_hTab == _hTabSource) {
@@ -389,25 +358,21 @@ void Gripper::doTabReordering(POINT pt)
 		}
 		_iItem = -1;
 	}
-
 	// insert new entry when mouse doesn't point to current hovered tab
 	if(_hTab && ((_hTab != hTabOld) || (_iItem != iItemOld))) {
 		_tcItem.mask    = TCIF_PARAM | (_hTab == _hTabSource ? TCIF_TEXT : 0);
 		::SendMessage(_hTab, TCM_INSERTITEM, _iItem, reinterpret_cast<LPARAM>(&_tcItem));
 	}
-
 	// select the tab only in source tab window
 	if((_hTab != nullptr && _hTab == _hTabSource) && (_iItem != -1)) {
 		::SendMessage(_hTab, TCM_SETCURSEL, _iItem, 0);
 	}
-
 #if 0
 	extern HWND g_hMainWnd;
 	TCHAR str[128];
 	wsprintf(str, TEXT("Size: %i"), vCont.size());
 	::SetWindowText(g_hMainWnd, str);
 #endif
-
 	::UpdateWindow(_hParent);
 }
 
@@ -483,10 +448,10 @@ void Gripper::drawRectangle(const POINT* pPt)
 			//
 			if(rcOld.left==rcNew.left && rcOld.right==rcNew.right && rcOld.top== rcNew.top && rcOld.bottom==rcNew.bottom)
 				return;
-			rc.left   = min(rcOld.left, rcNew.left);
-			rc.top    = min(rcOld.top,  rcNew.top);
-			rc.right  = max(rcOld.left + rcOld.right,  rcNew.left + rcNew.right);
-			rc.bottom = max(rcOld.top  + rcOld.bottom, rcNew.top  + rcNew.bottom);
+			rc.left   = MIN(rcOld.left, rcNew.left);
+			rc.top    = MIN(rcOld.top,  rcNew.top);
+			rc.right  = MAX(rcOld.left + rcOld.right,  rcNew.left + rcNew.right);
+			rc.bottom = MAX(rcOld.top  + rcOld.bottom, rcNew.top  + rcNew.bottom);
 			rc.right -= rc.left;
 			rc.bottom -= rc.top;
 		}
@@ -685,8 +650,7 @@ DockingCont* Gripper::workHitTest(POINT pt, RECT * rc)
 			}
 		}
 	}
-
-	/* no docking area found */
+	// no docking area found 
 	return NULL;
 }
 
@@ -698,7 +662,7 @@ void Gripper::initTabInformation()
 	_startMovingFromTab     = _pCont->startMovingFromTab();
 	if((_startMovingFromTab == FALSE) && (::SendMessage(_hTabSource, TCM_GETITEMCOUNT, 0, 0) == 1)) {
 		_startMovingFromTab = TRUE;
-		_iItem                  = 0;
+		_iItem = 0;
 	}
 	else {
 		// get active tab item

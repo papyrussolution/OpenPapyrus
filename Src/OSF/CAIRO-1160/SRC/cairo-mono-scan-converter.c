@@ -26,10 +26,10 @@
 #include "cairoint.h"
 #pragma hdrstop
 
-struct quorem {
+/* @sobolev (replaced with Quorem_3232) struct quorem {
 	int32 quo;
 	int32 rem;
-};
+};*/
 
 struct edge {
 	struct edge * next, * prev;
@@ -37,8 +37,8 @@ struct edge {
 	int32 dir;
 	int32 vertical;
 	int32 dy;
-	struct quorem x;
-	struct quorem dxdy;
+	Quorem_3232 x;
+	Quorem_3232 dxdy;
 };
 
 /* A collection of sorted and vertically clipped edges of the polygon.
@@ -71,12 +71,13 @@ struct mono_scan_converter {
 };
 
 #define I(x) _cairo_fixed_integer_round_down(x)
-
-/* Compute the floored division a/b. Assumes / and % perform symmetric
- * division. */
-inline static struct quorem floored_divrem(int a, int b)                            
+/* @sobolev (moved to cairoint.h)
+//
+// Compute the floored division a/b. Assumes / and % perform symmetric division. 
+//
+inline static Quorem_3232 floored_divrem(int a, int b)                            
 {
-	struct quorem qr;
+	Quorem_3232 qr;
 	qr.quo = a/b;
 	qr.rem = a%b;
 	if((a^b) < 0 && qr.rem) {
@@ -84,13 +85,13 @@ inline static struct quorem floored_divrem(int a, int b)
 		qr.rem += b;
 	}
 	return qr;
-}
+}*/
 //
 // Compute the floored division (x*a)/b. Assumes / and % perform symmetric division. 
 //
-static struct quorem floored_muldivrem(int x, int a, int b)                     
+static Quorem_3232 floored_muldivrem(int x, int a, int b)                     
 {
-	struct quorem qr;
+	Quorem_3232 qr;
 	long long xa = (long long)x*a;
 	qr.quo = static_cast<int32>(xa/b);
 	qr.rem = xa%b;
@@ -103,7 +104,7 @@ static struct quorem floored_muldivrem(int x, int a, int b)
 
 static cairo_status_t polygon_init(struct polygon * polygon, int ymin, int ymax)
 {
-	unsigned h = ymax - ymin + 1;
+	uint   h = ymax - ymin + 1;
 	polygon->y_buckets = polygon->y_buckets_embedded;
 	if(h > ARRAY_LENGTH(polygon->y_buckets_embedded)) {
 		polygon->y_buckets = static_cast<struct edge **>(_cairo_malloc_ab(h, sizeof(struct edge *)));

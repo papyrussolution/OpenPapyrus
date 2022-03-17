@@ -1,4 +1,3 @@
-
 /* pngwutil.c - utilities to write a PNG file
  *
  * Last changed in libpng 1.6.22 [May 26, 2016]
@@ -10,7 +9,6 @@
  * For conditions of distribution and use, see the disclaimer
  * and license in png.h
  */
-
 #include "pngpriv.h"
 #pragma hdrstop
 
@@ -68,39 +66,30 @@ void PNGAPI png_write_sig(png_structrp png_ptr)
  * The total_length is the sum of the lengths of all the data you will be
  * passing in png_write_chunk_data().
  */
-static void png_write_chunk_header(png_structrp png_ptr, uint32 chunk_name,
-    uint32 length)
+static void png_write_chunk_header(png_structrp png_ptr, uint32 chunk_name, uint32 length)
 {
 	uint8 buf[8];
-
 #if defined(PNG_DEBUG) && (PNG_DEBUG > 0)
 	PNG_CSTRING_FROM_CHUNK(buf, chunk_name);
 	png_debug2(0, "Writing %s chunk, length = %lu", buf, (ulong)length);
 #endif
-
 	if(!png_ptr)
 		return;
-
 #ifdef PNG_IO_STATE_SUPPORTED
 	/* Inform the I/O callback that the chunk header is being written.
 	 * PNG_IO_CHUNK_HDR requires a single I/O call.
 	 */
 	png_ptr->io_state = PNG_IO_WRITING | PNG_IO_CHUNK_HDR;
 #endif
-
 	/* Write the length and the chunk name */
 	png_save_uint_32(buf, length);
 	png_save_uint_32(buf + 4, chunk_name);
 	png_write_data(png_ptr, buf, 8);
-
 	/* Put the chunk name into png_ptr->chunk_name */
 	png_ptr->chunk_name = chunk_name;
-
 	/* Reset the crc and run it over the chunk name */
 	png_reset_crc(png_ptr);
-
 	png_calculate_crc(png_ptr, buf + 4, 4);
-
 #ifdef PNG_IO_STATE_SUPPORTED
 	/* Inform the I/O callback that chunk data will (possibly) be written.
 	 * PNG_IO_CHUNK_DATA does NOT require a specific number of I/O calls.
@@ -109,8 +98,7 @@ static void png_write_chunk_header(png_structrp png_ptr, uint32 chunk_name,
 #endif
 }
 
-void PNGAPI png_write_chunk_start(png_structrp png_ptr, png_const_bytep chunk_string,
-    uint32 length)
+void PNGAPI png_write_chunk_start(png_structrp png_ptr, png_const_bytep chunk_string, uint32 length)
 {
 	png_write_chunk_header(png_ptr, PNG_CHUNK_FROM_STRING(chunk_string), length);
 }
@@ -609,7 +597,7 @@ void /* PRIVATE */ png_write_IHDR(png_structrp png_ptr, uint32 width, uint32 hei
     int bit_depth, int color_type, int compression_type, int filter_type, int interlace_type)
 {
 	uint8 buf[13]; /* Buffer to store the IHDR info */
-	png_debug(1, "in png_write_IHDR");
+	png_debug(1, "in " __FUNCTION__);
 	/* Check that we have valid input data from the application info */
 	switch(color_type) {
 		case PNG_COLOR_TYPE_GRAY:
@@ -763,7 +751,7 @@ void /* PRIVATE */ png_write_PLTE(png_structrp png_ptr, png_const_colorp palette
 	uint32 max_palette_length, i;
 	png_const_colorp pal_ptr;
 	uint8 buf[3];
-	png_debug(1, "in png_write_PLTE");
+	png_debug(1, "in " __FUNCTION__);
 	max_palette_length = (png_ptr->color_type == PNG_COLOR_TYPE_PALETTE) ? (1 << png_ptr->bit_depth) : PNG_MAX_PALETTE_LENGTH;
 	if((
 #ifdef PNG_MNG_FEATURES_SUPPORTED
@@ -934,22 +922,21 @@ void /* PRIVATE */ png_compress_IDAT(png_structrp png_ptr, png_const_bytep input
 /* Write an IEND chunk */
 void /* PRIVATE */ png_write_IEND(png_structrp png_ptr)
 {
-	png_debug(1, "in png_write_IEND");
+	png_debug(1, "in " __FUNCTION__);
 	png_write_complete_chunk(png_ptr, png_IEND, NULL, (size_t)0);
 	png_ptr->mode |= PNG_HAVE_IEND;
 }
 
 #ifdef PNG_WRITE_gAMA_SUPPORTED
-/* Write a gAMA chunk */
-void /* PRIVATE */ png_write_gAMA_fixed(png_structrp png_ptr, png_fixed_point file_gamma)
-{
-	uint8 buf[4];
-	png_debug(1, "in png_write_gAMA");
-	/* file_gamma is saved in 1/100,000ths */
-	png_save_uint_32(buf, (uint32)file_gamma);
-	png_write_complete_chunk(png_ptr, png_gAMA, buf, (size_t)4);
-}
-
+	/* Write a gAMA chunk */
+	void /* PRIVATE */ png_write_gAMA_fixed(png_structrp png_ptr, png_fixed_point file_gamma)
+	{
+		uint8 buf[4];
+		png_debug(1, "in " __FUNCTION__);
+		/* file_gamma is saved in 1/100,000ths */
+		png_save_uint_32(buf, (uint32)file_gamma);
+		png_write_complete_chunk(png_ptr, png_gAMA, buf, (size_t)4);
+	}
 #endif
 
 #ifdef PNG_WRITE_sRGB_SUPPORTED
@@ -957,7 +944,7 @@ void /* PRIVATE */ png_write_gAMA_fixed(png_structrp png_ptr, png_fixed_point fi
 void /* PRIVATE */ png_write_sRGB(png_structrp png_ptr, int srgb_intent)
 {
 	uint8 buf[1];
-	png_debug(1, "in png_write_sRGB");
+	png_debug(1, "in " __FUNCTION__);
 	if(srgb_intent >= PNG_sRGB_INTENT_LAST)
 		png_warning(png_ptr, "Invalid sRGB rendering intent specified");
 	buf[0] = (uint8)srgb_intent;
@@ -975,7 +962,7 @@ void /* PRIVATE */ png_write_iCCP(png_structrp png_ptr, const char * name, png_c
 	uint8 new_name[81]; /* 1 byte for the compression byte */
 	compression_state comp;
 	uint32 temp;
-	png_debug(1, "in png_write_iCCP");
+	png_debug(1, "in " __FUNCTION__);
 	/* These are all internal problems: the profile should have been checked
 	 * before when it was stored.
 	 */
@@ -984,40 +971,27 @@ void /* PRIVATE */ png_write_iCCP(png_structrp png_ptr, const char * name, png_c
 	profile_len = png_get_uint_32(profile);
 	if(profile_len < 132)
 		png_error(png_ptr, "ICC profile too short");
-
 	temp = (uint32)(*(profile+8));
 	if(temp > 3 && (profile_len & 0x03))
 		png_error(png_ptr, "ICC profile length invalid (not a multiple of 4)");
-
 	{
 		uint32 embedded_profile_len = png_get_uint_32(profile);
-
 		if(profile_len != embedded_profile_len)
 			png_error(png_ptr, "Profile length does not match profile");
 	}
-
 	name_len = png_check_keyword(png_ptr, name, new_name);
-
 	if(name_len == 0)
 		png_error(png_ptr, "iCCP: invalid keyword");
-
 	new_name[++name_len] = PNG_COMPRESSION_TYPE_BASE;
-
 	/* Make sure we include the NULL after the name and the compression type */
 	++name_len;
-
 	png_text_compress_init(&comp, profile, profile_len);
-
 	/* Allow for keyword terminator and compression byte */
 	if(png_text_compress(png_ptr, png_iCCP, &comp, name_len) != Z_OK)
 		png_error(png_ptr, png_ptr->zstream.msg);
-
 	png_write_chunk_header(png_ptr, png_iCCP, name_len + comp.output_len);
-
 	png_write_chunk_data(png_ptr, new_name, name_len);
-
 	png_write_compressed_data_out(png_ptr, &comp);
-
 	png_write_chunk_end(png_ptr);
 }
 
@@ -1036,20 +1010,14 @@ void /* PRIVATE */ png_write_sPLT(png_structrp png_ptr, png_const_sPLT_tp spalet
 #ifndef PNG_POINTER_INDEXING_SUPPORTED
 	int i;
 #endif
-	png_debug(1, "in png_write_sPLT");
+	png_debug(1, "in " __FUNCTION__);
 	name_len = png_check_keyword(png_ptr, spalette->name, new_name);
 	if(name_len == 0)
 		png_error(png_ptr, "sPLT: invalid keyword");
-
 	/* Make sure we include the NULL after the name */
-	png_write_chunk_header(png_ptr, png_sPLT,
-	    (uint32)(name_len + 2 + palette_size));
-
-	png_write_chunk_data(png_ptr, (png_bytep)new_name,
-	    (size_t)(name_len + 1));
-
+	png_write_chunk_header(png_ptr, png_sPLT, (uint32)(name_len + 2 + palette_size));
+	png_write_chunk_data(png_ptr, (png_bytep)new_name, (size_t)(name_len + 1));
 	png_write_chunk_data(png_ptr, &spalette->depth, (size_t)1);
-
 	/* Loop through each palette entry, writing appropriately */
 #ifdef PNG_POINTER_INDEXING_SUPPORTED
 	for(ep = spalette->entries; ep<spalette->entries + spalette->nentries; ep++) {
@@ -1060,7 +1028,6 @@ void /* PRIVATE */ png_write_sPLT(png_structrp png_ptr, png_const_sPLT_tp spalet
 			entrybuf[3] = (uint8)ep->alpha;
 			png_save_uint_16(entrybuf + 4, ep->frequency);
 		}
-
 		else {
 			png_save_uint_16(entrybuf + 0, ep->red);
 			png_save_uint_16(entrybuf + 2, ep->green);
@@ -1068,7 +1035,6 @@ void /* PRIVATE */ png_write_sPLT(png_structrp png_ptr, png_const_sPLT_tp spalet
 			png_save_uint_16(entrybuf + 6, ep->alpha);
 			png_save_uint_16(entrybuf + 8, ep->frequency);
 		}
-
 		png_write_chunk_data(png_ptr, entrybuf, entry_size);
 	}
 #else
@@ -1081,7 +1047,6 @@ void /* PRIVATE */ png_write_sPLT(png_structrp png_ptr, png_const_sPLT_tp spalet
 			entrybuf[3] = (uint8)ep[i].alpha;
 			png_save_uint_16(entrybuf + 4, ep[i].frequency);
 		}
-
 		else {
 			png_save_uint_16(entrybuf + 0, ep[i].red);
 			png_save_uint_16(entrybuf + 2, ep[i].green);
@@ -1089,11 +1054,9 @@ void /* PRIVATE */ png_write_sPLT(png_structrp png_ptr, png_const_sPLT_tp spalet
 			png_save_uint_16(entrybuf + 6, ep[i].alpha);
 			png_save_uint_16(entrybuf + 8, ep[i].frequency);
 		}
-
 		png_write_chunk_data(png_ptr, entrybuf, entry_size);
 	}
 #endif
-
 	png_write_chunk_end(png_ptr);
 }
 
@@ -1105,7 +1068,7 @@ void /* PRIVATE */ png_write_sBIT(png_structrp png_ptr, png_const_color_8p sbit,
 {
 	uint8 buf[4];
 	size_t size;
-	png_debug(1, "in png_write_sBIT");
+	png_debug(1, "in " __FUNCTION__);
 	/* Make sure we don't depend upon the order of PNG_COLOR_8 */
 	if((color_type & PNG_COLOR_MASK_COLOR) != 0) {
 		uint8 maxbits = (uint8)(color_type==PNG_COLOR_TYPE_PALETTE ? 8 : png_ptr->usr_bit_depth);
@@ -1141,61 +1104,47 @@ void /* PRIVATE */ png_write_sBIT(png_structrp png_ptr, png_const_color_8p sbit,
 #endif
 
 #ifdef PNG_WRITE_cHRM_SUPPORTED
-/* Write the cHRM chunk */
-void /* PRIVATE */ png_write_cHRM_fixed(png_structrp png_ptr, const png_xy * xy)
-{
-	uint8 buf[32];
-	png_debug(1, "in png_write_cHRM");
-	/* Each value is saved in 1/100,000ths */
-	png_save_int_32(buf,      xy->whitex);
-	png_save_int_32(buf +  4, xy->whitey);
-
-	png_save_int_32(buf +  8, xy->redx);
-	png_save_int_32(buf + 12, xy->redy);
-
-	png_save_int_32(buf + 16, xy->greenx);
-	png_save_int_32(buf + 20, xy->greeny);
-
-	png_save_int_32(buf + 24, xy->bluex);
-	png_save_int_32(buf + 28, xy->bluey);
-
-	png_write_complete_chunk(png_ptr, png_cHRM, buf, 32);
-}
-
+	/* Write the cHRM chunk */
+	void /* PRIVATE */ png_write_cHRM_fixed(png_structrp png_ptr, const png_xy * xy)
+	{
+		uint8 buf[32];
+		png_debug(1, "in " __FUNCTION__);
+		/* Each value is saved in 1/100,000ths */
+		png_save_int_32(buf,      xy->whitex);
+		png_save_int_32(buf +  4, xy->whitey);
+		png_save_int_32(buf +  8, xy->redx);
+		png_save_int_32(buf + 12, xy->redy);
+		png_save_int_32(buf + 16, xy->greenx);
+		png_save_int_32(buf + 20, xy->greeny);
+		png_save_int_32(buf + 24, xy->bluex);
+		png_save_int_32(buf + 28, xy->bluey);
+		png_write_complete_chunk(png_ptr, png_cHRM, buf, 32);
+	}
 #endif
 
 #ifdef PNG_WRITE_tRNS_SUPPORTED
 /* Write the tRNS chunk */
-void /* PRIVATE */ png_write_tRNS(png_structrp png_ptr, png_const_bytep trans_alpha,
-    png_const_color_16p tran, int num_trans, int color_type)
+void /* PRIVATE */ png_write_tRNS(png_structrp png_ptr, png_const_bytep trans_alpha, png_const_color_16p tran, int num_trans, int color_type)
 {
 	uint8 buf[6];
-	png_debug(1, "in png_write_tRNS");
+	png_debug(1, "in " __FUNCTION__);
 	if(color_type == PNG_COLOR_TYPE_PALETTE) {
 		if(num_trans <= 0 || num_trans > (int)png_ptr->num_palette) {
-			png_app_warning(png_ptr,
-			    "Invalid number of transparent colors specified");
+			png_app_warning(png_ptr, "Invalid number of transparent colors specified");
 			return;
 		}
-
 		/* Write the chunk out as it is */
-		png_write_complete_chunk(png_ptr, png_tRNS, trans_alpha,
-		    (size_t)num_trans);
+		png_write_complete_chunk(png_ptr, png_tRNS, trans_alpha, (size_t)num_trans);
 	}
-
 	else if(color_type == PNG_COLOR_TYPE_GRAY) {
 		/* One 16-bit value */
 		if(tran->gray >= (1 << png_ptr->bit_depth)) {
-			png_app_warning(png_ptr,
-			    "Ignoring attempt to write tRNS chunk out-of-range for bit_depth");
-
+			png_app_warning(png_ptr, "Ignoring attempt to write tRNS chunk out-of-range for bit_depth");
 			return;
 		}
-
 		png_save_uint_16(buf, tran->gray);
 		png_write_complete_chunk(png_ptr, png_tRNS, buf, (size_t)2);
 	}
-
 	else if(color_type == PNG_COLOR_TYPE_RGB) {
 		/* Three 16-bit values */
 		png_save_uint_16(buf, tran->red);
@@ -1207,14 +1156,11 @@ void /* PRIVATE */ png_write_tRNS(png_structrp png_ptr, png_const_bytep trans_al
 		if((buf[0] | buf[2] | buf[4]) != 0)
 #endif
 		{
-			png_app_warning(png_ptr,
-			    "Ignoring attempt to write 16-bit tRNS chunk when bit_depth is 8");
+			png_app_warning(png_ptr, "Ignoring attempt to write 16-bit tRNS chunk when bit_depth is 8");
 			return;
 		}
-
 		png_write_complete_chunk(png_ptr, png_tRNS, buf, (size_t)6);
 	}
-
 	else {
 		png_app_warning(png_ptr, "Can't write tRNS with an alpha channel");
 	}
@@ -1227,7 +1173,7 @@ void /* PRIVATE */ png_write_tRNS(png_structrp png_ptr, png_const_bytep trans_al
 void /* PRIVATE */ png_write_bKGD(png_structrp png_ptr, png_const_color_16p back, int color_type)
 {
 	uint8 buf[6];
-	png_debug(1, "in png_write_bKGD");
+	png_debug(1, "in " __FUNCTION__);
 	if(color_type == PNG_COLOR_TYPE_PALETTE) {
 		if(
 #ifdef PNG_MNG_FEATURES_SUPPORTED
@@ -1253,28 +1199,20 @@ void /* PRIVATE */ png_write_bKGD(png_structrp png_ptr, png_const_color_16p back
 		if((buf[0] | buf[2] | buf[4]) != 0)
 #endif
 		{
-			png_warning(png_ptr,
-			    "Ignoring attempt to write 16-bit bKGD chunk when bit_depth is 8");
-
+			png_warning(png_ptr, "Ignoring attempt to write 16-bit bKGD chunk when bit_depth is 8");
 			return;
 		}
-
 		png_write_complete_chunk(png_ptr, png_bKGD, buf, (size_t)6);
 	}
-
 	else {
 		if(back->gray >= (1 << png_ptr->bit_depth)) {
-			png_warning(png_ptr,
-			    "Ignoring attempt to write bKGD chunk out-of-range for bit_depth");
-
+			png_warning(png_ptr, "Ignoring attempt to write bKGD chunk out-of-range for bit_depth");
 			return;
 		}
-
 		png_save_uint_16(buf, back->gray);
 		png_write_complete_chunk(png_ptr, png_bKGD, buf, (size_t)2);
 	}
 }
-
 #endif
 
 #ifdef PNG_WRITE_hIST_SUPPORTED
@@ -1283,25 +1221,19 @@ void /* PRIVATE */ png_write_hIST(png_structrp png_ptr, png_const_uint_16p hist,
 {
 	int i;
 	uint8 buf[3];
-	png_debug(1, "in png_write_hIST");
+	png_debug(1, "in " __FUNCTION__);
 	if(num_hist > (int)png_ptr->num_palette) {
-		png_debug2(3, "num_hist = %d, num_palette = %d", num_hist,
-		    png_ptr->num_palette);
-
+		png_debug2(3, "num_hist = %d, num_palette = %d", num_hist, png_ptr->num_palette);
 		png_warning(png_ptr, "Invalid number of histogram entries specified");
 		return;
 	}
-
 	png_write_chunk_header(png_ptr, png_hIST, (uint32)(num_hist * 2));
-
 	for(i = 0; i < num_hist; i++) {
 		png_save_uint_16(buf, hist[i]);
 		png_write_chunk_data(png_ptr, buf, (size_t)2);
 	}
-
 	png_write_chunk_end(png_ptr);
 }
-
 #endif
 
 #ifdef PNG_WRITE_tEXt_SUPPORTED
@@ -1310,17 +1242,14 @@ void /* PRIVATE */ png_write_tEXt(png_structrp png_ptr, const char * key, const 
 {
 	uint32 key_len;
 	uint8 new_key[80];
-	png_debug(1, "in png_write_tEXt");
+	png_debug(1, "in " __FUNCTION__);
 	key_len = png_check_keyword(png_ptr, key, new_key);
 	if(key_len == 0)
 		png_error(png_ptr, "tEXt: invalid keyword");
-	if(text == NULL || *text == '\0')
-		text_len = 0;
-	else
-		text_len = strlen(text);
+	text_len = sstrlen(text);
 	if(text_len > PNG_UINT_31_MAX - (key_len+1))
 		png_error(png_ptr, "tEXt: text too long");
-	/* Make sure we include the 0 after the key */
+	// Make sure we include the 0 after the key 
 	png_write_chunk_header(png_ptr, png_tEXt, (uint32)/*checked above*/ (key_len + text_len + 1));
 	/*
 	 * We leave it to the application to meet PNG-1.0 requirements on the
@@ -1329,13 +1258,10 @@ void /* PRIVATE */ png_write_tEXt(png_structrp png_ptr, const char * key, const 
 	 * The NUL character is forbidden by PNG-1.0 through PNG-1.2 and ISO PNG.
 	 */
 	png_write_chunk_data(png_ptr, new_key, key_len + 1);
-
 	if(text_len != 0)
 		png_write_chunk_data(png_ptr, (png_const_bytep)text, text_len);
-
 	png_write_chunk_end(png_ptr);
 }
-
 #endif
 
 #ifdef PNG_WRITE_zTXt_SUPPORTED
@@ -1345,39 +1271,28 @@ void /* PRIVATE */ png_write_zTXt(png_structrp png_ptr, const char * key, const 
 	uint32 key_len;
 	uint8 new_key[81];
 	compression_state comp;
-	png_debug(1, "in png_write_zTXt");
+	png_debug(1, "in " __FUNCTION__);
 	if(compression == PNG_TEXT_COMPRESSION_NONE) {
 		png_write_tEXt(png_ptr, key, text, 0);
-		return;
 	}
-	if(compression != PNG_TEXT_COMPRESSION_zTXt)
-		png_error(png_ptr, "zTXt: invalid compression type");
-	key_len = png_check_keyword(png_ptr, key, new_key);
-	if(key_len == 0)
-		png_error(png_ptr, "zTXt: invalid keyword");
-
-	/* Add the compression method and 1 for the keyword separator. */
-	new_key[++key_len] = PNG_COMPRESSION_TYPE_BASE;
-	++key_len;
-
-	/* Compute the compressed data; do it now for the length */
-	png_text_compress_init(&comp, (png_const_bytep)text,
-	    text == NULL ? 0 : strlen(text));
-
-	if(png_text_compress(png_ptr, png_zTXt, &comp, key_len) != Z_OK)
-		png_error(png_ptr, png_ptr->zstream.msg);
-
-	/* Write start of chunk */
-	png_write_chunk_header(png_ptr, png_zTXt, key_len + comp.output_len);
-
-	/* Write key */
-	png_write_chunk_data(png_ptr, new_key, key_len);
-
-	/* Write the compressed data */
-	png_write_compressed_data_out(png_ptr, &comp);
-
-	/* Close the chunk */
-	png_write_chunk_end(png_ptr);
+	else {
+		if(compression != PNG_TEXT_COMPRESSION_zTXt)
+			png_error(png_ptr, "zTXt: invalid compression type");
+		key_len = png_check_keyword(png_ptr, key, new_key);
+		if(key_len == 0)
+			png_error(png_ptr, "zTXt: invalid keyword");
+		/* Add the compression method and 1 for the keyword separator. */
+		new_key[++key_len] = PNG_COMPRESSION_TYPE_BASE;
+		++key_len;
+		/* Compute the compressed data; do it now for the length */
+		png_text_compress_init(&comp, (png_const_bytep)text, text == NULL ? 0 : strlen(text));
+		if(png_text_compress(png_ptr, png_zTXt, &comp, key_len) != Z_OK)
+			png_error(png_ptr, png_ptr->zstream.msg);
+		png_write_chunk_header(png_ptr, png_zTXt, key_len + comp.output_len); /* Write start of chunk */
+		png_write_chunk_data(png_ptr, new_key, key_len); /* Write key */
+		png_write_compressed_data_out(png_ptr, &comp); /* Write the compressed data */
+		png_write_chunk_end(png_ptr); /* Close the chunk */
+	}
 }
 
 #endif
@@ -1390,11 +1305,10 @@ void /* PRIVATE */ png_write_iTXt(png_structrp png_ptr, int compression, const c
 	size_t lang_len, lang_key_len;
 	uint8 new_key[82];
 	compression_state comp;
-	png_debug(1, "in png_write_iTXt");
+	png_debug(1, "in " __FUNCTION__);
 	key_len = png_check_keyword(png_ptr, key, new_key);
 	if(key_len == 0)
 		png_error(png_ptr, "iTXt: invalid keyword");
-
 	/* Set the compression flag */
 	switch(compression) {
 		case PNG_ITXT_COMPRESSION_NONE:
@@ -1420,14 +1334,11 @@ void /* PRIVATE */ png_write_iTXt(png_structrp png_ptr, int compression, const c
 	 *
 	 * @todo validate the language tag correctly (see the spec.)
 	 */
-	if(lang == NULL) 
-		lang = ""; /* empty language is valid */
+	SETIFZQ(lang, ""); /* empty language is valid */
 	lang_len = strlen(lang)+1;
-	if(lang_key == NULL) 
-		lang_key = ""; /* may be empty */
+	SETIFZQ(lang_key, ""); /* may be empty */
 	lang_key_len = strlen(lang_key)+1;
-	if(text == NULL) 
-		text = ""; /* may be empty */
+	SETIFZQ(text, ""); /* may be empty */
 	prefix_len = key_len;
 	if(lang_len > PNG_UINT_31_MAX-prefix_len)
 		prefix_len = PNG_UINT_31_MAX;
@@ -1466,7 +1377,7 @@ void /* PRIVATE */ png_write_iTXt(png_structrp png_ptr, int compression, const c
 void /* PRIVATE */ png_write_oFFs(png_structrp png_ptr, png_int_32 x_offset, png_int_32 y_offset, int unit_type)
 {
 	uint8 buf[9];
-	png_debug(1, "in png_write_oFFs");
+	png_debug(1, "in " __FUNCTION__);
 	if(unit_type >= PNG_OFFSET_LAST)
 		png_warning(png_ptr, "Unrecognized unit type for oFFs chunk");
 	png_save_int_32(buf, x_offset);
@@ -1474,7 +1385,6 @@ void /* PRIVATE */ png_write_oFFs(png_structrp png_ptr, png_int_32 x_offset, png
 	buf[8] = (uint8)unit_type;
 	png_write_complete_chunk(png_ptr, png_oFFs, buf, (size_t)9);
 }
-
 #endif
 #ifdef PNG_WRITE_pCAL_SUPPORTED
 /* Write the pCAL chunk (described in the PNG extensions document) */
@@ -1487,37 +1397,26 @@ void /* PRIVATE */ png_write_pCAL(png_structrp png_ptr, char * purpose, png_int_
 	uint8 buf[10];
 	uint8 new_purpose[80];
 	int i;
-
 	png_debug1(1, "in png_write_pCAL (%d parameters)", nparams);
-
 	if(type >= PNG_EQUATION_LAST)
 		png_error(png_ptr, "Unrecognized equation type for pCAL chunk");
-
 	purpose_len = png_check_keyword(png_ptr, purpose, new_purpose);
-
 	if(purpose_len == 0)
 		png_error(png_ptr, "pCAL: invalid keyword");
-
 	++purpose_len; /* terminator */
-
 	png_debug1(3, "pCAL purpose length = %d", (int)purpose_len);
 	units_len = strlen(units) + (nparams == 0 ? 0 : 1);
 	png_debug1(3, "pCAL units length = %d", (int)units_len);
 	total_len = purpose_len + units_len + 10;
-
-	params_len = (png_size_tp)png_malloc(png_ptr,
-	    (png_alloc_size_t)(nparams * (sizeof(size_t))));
-
+	params_len = (png_size_tp)png_malloc(png_ptr, (png_alloc_size_t)(nparams * (sizeof(size_t))));
 	/* Find the length of each parameter, making sure we don't count the
 	 * null terminator for the last parameter.
 	 */
 	for(i = 0; i < nparams; i++) {
 		params_len[i] = strlen(params[i]) + (i == nparams - 1 ? 0 : 1);
-		png_debug2(3, "pCAL parameter %d length = %lu", i,
-		    (ulong)params_len[i]);
+		png_debug2(3, "pCAL parameter %d length = %lu", i, (ulong)params_len[i]);
 		total_len += params_len[i];
 	}
-
 	png_debug1(3, "pCAL total length = %d", (int)total_len);
 	png_write_chunk_header(png_ptr, png_pCAL, (uint32)total_len);
 	png_write_chunk_data(png_ptr, new_purpose, purpose_len);
@@ -1527,15 +1426,12 @@ void /* PRIVATE */ png_write_pCAL(png_structrp png_ptr, char * purpose, png_int_
 	buf[9] = (uint8)nparams;
 	png_write_chunk_data(png_ptr, buf, (size_t)10);
 	png_write_chunk_data(png_ptr, (png_const_bytep)units, (size_t)units_len);
-
 	for(i = 0; i < nparams; i++) {
 		png_write_chunk_data(png_ptr, (png_const_bytep)params[i], params_len[i]);
 	}
-
 	png_free(png_ptr, params_len);
 	png_write_chunk_end(png_ptr);
 }
-
 #endif
 
 #ifdef PNG_WRITE_sCAL_SUPPORTED
@@ -1544,33 +1440,29 @@ void /* PRIVATE */ png_write_sCAL_s(png_structrp png_ptr, int unit, const char *
 {
 	uint8 buf[64];
 	size_t wlen, hlen, total_len;
-	png_debug(1, "in png_write_sCAL_s");
+	png_debug(1, "in " __FUNCTION__);
 	wlen = strlen(width);
 	hlen = strlen(height);
 	total_len = wlen + hlen + 2;
-
 	if(total_len > 64) {
 		png_warning(png_ptr, "Can't write sCAL (buffer too small)");
-		return;
 	}
-
-	buf[0] = (uint8)unit;
-	memcpy(buf + 1, width, wlen + 1); /* Append the '\0' here */
-	memcpy(buf + wlen + 2, height, hlen); /* Do NOT append the '\0' here */
-
-	png_debug1(3, "sCAL total length = %u", (uint)total_len);
-	png_write_complete_chunk(png_ptr, png_sCAL, buf, total_len);
+	else {
+		buf[0] = (uint8)unit;
+		memcpy(buf + 1, width, wlen + 1); /* Append the '\0' here */
+		memcpy(buf + wlen + 2, height, hlen); /* Do NOT append the '\0' here */
+		png_debug1(3, "sCAL total length = %u", (uint)total_len);
+		png_write_complete_chunk(png_ptr, png_sCAL, buf, total_len);
+	}
 }
-
 #endif
 
 #ifdef PNG_WRITE_pHYs_SUPPORTED
 /* Write the pHYs chunk */
-void /* PRIVATE */ png_write_pHYs(png_structrp png_ptr, uint32 x_pixels_per_unit,
-    uint32 y_pixels_per_unit, int unit_type)
+void /* PRIVATE */ png_write_pHYs(png_structrp png_ptr, uint32 x_pixels_per_unit, uint32 y_pixels_per_unit, int unit_type)
 {
 	uint8 buf[9];
-	png_debug(1, "in png_write_pHYs");
+	png_debug(1, "in " __FUNCTION__);
 	if(unit_type >= PNG_RESOLUTION_LAST)
 		png_warning(png_ptr, "Unrecognized unit type for pHYs chunk");
 	png_save_uint_32(buf, x_pixels_per_unit);
@@ -1578,7 +1470,6 @@ void /* PRIVATE */ png_write_pHYs(png_structrp png_ptr, uint32 x_pixels_per_unit
 	buf[8] = (uint8)unit_type;
 	png_write_complete_chunk(png_ptr, png_pHYs, buf, (size_t)9);
 }
-
 #endif
 
 #ifdef PNG_WRITE_tIME_SUPPORTED
@@ -1588,24 +1479,20 @@ void /* PRIVATE */ png_write_pHYs(png_structrp png_ptr, uint32 x_pixels_per_unit
 void /* PRIVATE */ png_write_tIME(png_structrp png_ptr, png_const_timep mod_time)
 {
 	uint8 buf[7];
-	png_debug(1, "in png_write_tIME");
-	if(mod_time->month  > 12 || mod_time->month  < 1 ||
-	    mod_time->day    > 31 || mod_time->day    < 1 ||
-	    mod_time->hour   > 23 || mod_time->second > 60) {
+	png_debug(1, "in " __FUNCTION__);
+	if(mod_time->month  > 12 || mod_time->month  < 1 || mod_time->day    > 31 || mod_time->day    < 1 || mod_time->hour   > 23 || mod_time->second > 60) {
 		png_warning(png_ptr, "Invalid time specified for tIME chunk");
-		return;
 	}
-
-	png_save_uint_16(buf, mod_time->year);
-	buf[2] = mod_time->month;
-	buf[3] = mod_time->day;
-	buf[4] = mod_time->hour;
-	buf[5] = mod_time->minute;
-	buf[6] = mod_time->second;
-
-	png_write_complete_chunk(png_ptr, png_tIME, buf, (size_t)7);
+	else {
+		png_save_uint_16(buf, mod_time->year);
+		buf[2] = mod_time->month;
+		buf[3] = mod_time->day;
+		buf[4] = mod_time->hour;
+		buf[5] = mod_time->minute;
+		buf[6] = mod_time->second;
+		png_write_complete_chunk(png_ptr, png_tIME, buf, (size_t)7);
+	}
 }
-
 #endif
 
 /* Initializes the row writing capability of libpng */
@@ -1613,103 +1500,65 @@ void /* PRIVATE */ png_write_start_row(png_structrp png_ptr)
 {
 #ifdef PNG_WRITE_INTERLACING_SUPPORTED
 	/* Arrays to facilitate easy interlacing - use pass (0 - 6) as index */
-
-	/* Start of interlace block */
-	static const uint8 png_pass_start[7] = {0, 4, 0, 2, 0, 1, 0};
-
-	/* Offset to next interlace block */
-	static const uint8 png_pass_inc[7] = {8, 8, 4, 4, 2, 2, 1};
-
-	/* Start of interlace block in the y direction */
-	static const uint8 png_pass_ystart[7] = {0, 0, 4, 0, 2, 0, 1};
-
-	/* Offset to next interlace block in the y direction */
-	static const uint8 png_pass_yinc[7] = {8, 8, 8, 4, 4, 2, 2};
+	static const uint8 png_pass_start[7] = {0, 4, 0, 2, 0, 1, 0}; /* Start of interlace block */
+	static const uint8 png_pass_inc[7] = {8, 8, 4, 4, 2, 2, 1}; /* Offset to next interlace block */
+	static const uint8 png_pass_ystart[7] = {0, 0, 4, 0, 2, 0, 1}; /* Start of interlace block in the y direction */
+	static const uint8 png_pass_yinc[7] = {8, 8, 8, 4, 4, 2, 2}; /* Offset to next interlace block in the y direction */
 #endif
-
 	png_alloc_size_t buf_size;
 	int usr_pixel_depth;
-
 #ifdef PNG_WRITE_FILTER_SUPPORTED
 	uint8 filters;
 #endif
-
-	png_debug(1, "in png_write_start_row");
-
+	png_debug(1, "in " __FUNCTION__);
 	usr_pixel_depth = png_ptr->usr_channels * png_ptr->usr_bit_depth;
 	buf_size = PNG_ROWBYTES(usr_pixel_depth, png_ptr->width) + 1;
-
 	/* 1.5.6: added to allow checking in the row write code. */
 	png_ptr->transformed_pixel_depth = png_ptr->pixel_depth;
 	png_ptr->maximum_pixel_depth = (uint8)usr_pixel_depth;
-
 	/* Set up row buffer */
 	png_ptr->row_buf = png_voidcast(png_bytep, png_malloc(png_ptr, buf_size));
-
 	png_ptr->row_buf[0] = PNG_FILTER_VALUE_NONE;
-
 #ifdef PNG_WRITE_FILTER_SUPPORTED
 	filters = png_ptr->do_filter;
-
 	if(png_ptr->height == 1)
 		filters &= 0xff & ~(PNG_FILTER_UP|PNG_FILTER_AVG|PNG_FILTER_PAETH);
-
 	if(png_ptr->width == 1)
 		filters &= 0xff & ~(PNG_FILTER_SUB|PNG_FILTER_AVG|PNG_FILTER_PAETH);
-
 	if(filters == 0)
 		filters = PNG_FILTER_NONE;
-
 	png_ptr->do_filter = filters;
-
-	if(((filters & (PNG_FILTER_SUB | PNG_FILTER_UP | PNG_FILTER_AVG |
-				    PNG_FILTER_PAETH)) != 0) && png_ptr->try_row == NULL) {
+	if(((filters & (PNG_FILTER_SUB | PNG_FILTER_UP | PNG_FILTER_AVG | PNG_FILTER_PAETH)) != 0) && png_ptr->try_row == NULL) {
 		int num_filters = 0;
-
 		png_ptr->try_row = png_voidcast(png_bytep, png_malloc(png_ptr, buf_size));
-
 		if(filters & PNG_FILTER_SUB)
 			num_filters++;
-
 		if(filters & PNG_FILTER_UP)
 			num_filters++;
-
 		if(filters & PNG_FILTER_AVG)
 			num_filters++;
-
 		if(filters & PNG_FILTER_PAETH)
 			num_filters++;
-
 		if(num_filters > 1)
-			png_ptr->tst_row = png_voidcast(png_bytep, png_malloc(png_ptr,
-				    buf_size));
+			png_ptr->tst_row = png_voidcast(png_bytep, png_malloc(png_ptr, buf_size));
 	}
-
-	/* We only need to keep the previous row if we are using one of the following
-	 * filters.
-	 */
+	// We only need to keep the previous row if we are using one of the following filters.
 	if((filters & (PNG_FILTER_AVG | PNG_FILTER_UP | PNG_FILTER_PAETH)) != 0)
-		png_ptr->prev_row = png_voidcast(png_bytep,
-		    png_calloc(png_ptr, buf_size));
+		png_ptr->prev_row = png_voidcast(png_bytep, png_calloc(png_ptr, buf_size));
 #endif /* WRITE_FILTER */
 
 #ifdef PNG_WRITE_INTERLACING_SUPPORTED
 	/* If interlaced, we need to set up width and height of pass */
 	if(png_ptr->interlaced != 0) {
 		if((png_ptr->transformations & PNG_INTERLACE) == 0) {
-			png_ptr->num_rows = (png_ptr->height + png_pass_yinc[0] - 1 -
-			    png_pass_ystart[0]) / png_pass_yinc[0];
-
-			png_ptr->usr_width = (png_ptr->width + png_pass_inc[0] - 1 -
-			    png_pass_start[0]) / png_pass_inc[0];
+			png_ptr->num_rows = (png_ptr->height + png_pass_yinc[0] - 1 - png_pass_ystart[0]) / png_pass_yinc[0];
+			png_ptr->usr_width = (png_ptr->width + png_pass_inc[0] - 1 - png_pass_start[0]) / png_pass_inc[0];
 		}
-
 		else {
 			png_ptr->num_rows = png_ptr->height;
 			png_ptr->usr_width = png_ptr->width;
 		}
 	}
-
 	else
 #endif
 	{
@@ -1723,13 +1572,12 @@ void /* PRIVATE */ png_write_finish_row(png_structrp png_ptr)
 {
 #ifdef PNG_WRITE_INTERLACING_SUPPORTED
 	/* Arrays to facilitate easy interlacing - use pass (0 - 6) as index */
-
 	static const uint8 png_pass_start[7] = {0, 4, 0, 2, 0, 1, 0}; /* Start of interlace block */
 	static const uint8 png_pass_inc[7] = {8, 8, 4, 4, 2, 2, 1}; /* Offset to next interlace block */
 	static const uint8 png_pass_ystart[7] = {0, 0, 4, 0, 2, 0, 1}; /* Start of interlace block in the y direction */
 	static const uint8 png_pass_yinc[7] = {8, 8, 8, 4, 4, 2, 2}; /* Offset to next interlace block in the y direction */
 #endif
-	png_debug(1, "in png_write_finish_row");
+	png_debug(1, "in " __FUNCTION__);
 	/* Next row */
 	png_ptr->row_number++;
 	/* See if we are done */
@@ -1777,11 +1625,9 @@ void /* PRIVATE */ png_write_finish_row(png_structrp png_ptr)
 void /* PRIVATE */ png_do_write_interlace(png_row_infop row_info, png_bytep row, int pass)
 {
 	/* Arrays to facilitate easy interlacing - use pass (0 - 6) as index */
-	/* Start of interlace block */
-	static const uint8 png_pass_start[7] = {0, 4, 0, 2, 0, 1, 0};
-	/* Offset to next interlace block */
-	static const uint8 png_pass_inc[7] = {8, 8, 4, 4, 2, 2, 1};
-	png_debug(1, "in png_do_write_interlace");
+	static const uint8 png_pass_start[7] = {0, 4, 0, 2, 0, 1, 0}; /* Start of interlace block */
+	static const uint8 png_pass_inc[7] = {8, 8, 4, 4, 2, 2, 1}; /* Offset to next interlace block */
+	png_debug(1, "in " __FUNCTION__);
 	/* We don't have to do anything on the last pass (6) */
 	if(pass < 6) {
 		/* Each pixel depth is handled separately */
@@ -1816,7 +1662,6 @@ void /* PRIVATE */ png_do_write_interlace(png_row_infop row_info, png_bytep row,
 
 			    break;
 		    }
-
 			case 2:
 		    {
 			    png_bytep sp;
@@ -1838,16 +1683,13 @@ void /* PRIVATE */ png_do_write_interlace(png_row_infop row_info, png_bytep row,
 					    *dp++ = (uint8)d;
 					    d = 0;
 				    }
-
 				    else
 					    shift -= 2;
 			    }
 			    if(shift != 6)
 				    *dp = (uint8)d;
-
 			    break;
 		    }
-
 			case 4:
 		    {
 			    png_bytep sp;
@@ -2026,7 +1868,7 @@ void /* PRIVATE */ png_write_find_filter(png_structrp png_ptr, png_row_infop row
 	uint32 bpp;
 	size_t mins;
 	size_t row_bytes = row_info->rowbytes;
-	png_debug(1, "in png_write_find_filter");
+	png_debug(1, "in " __FUNCTION__);
 	/* Find out how many bytes offset each pixel is */
 	bpp = (row_info->pixel_depth + 7) >> 3;
 	row_buf = png_ptr->row_buf;
@@ -2158,7 +2000,7 @@ void /* PRIVATE */ png_write_find_filter(png_structrp png_ptr, png_row_infop row
 /* Do the actual writing of a previously filtered row. */
 static void png_write_filtered_row(png_structrp png_ptr, png_bytep filtered_row, size_t full_row_length /*includes filter byte*/)
 {
-	png_debug(1, "in png_write_filtered_row");
+	png_debug(1, "in " __FUNCTION__);
 	png_debug1(2, "filter = %d", filtered_row[0]);
 	png_compress_IDAT(png_ptr, filtered_row, full_row_length, Z_NO_FLUSH);
 #ifdef PNG_WRITE_FILTER_SUPPORTED

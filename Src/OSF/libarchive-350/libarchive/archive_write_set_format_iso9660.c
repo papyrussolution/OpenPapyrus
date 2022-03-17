@@ -19,7 +19,6 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#include "archive_endian.h"
 #include "archive_entry_locale.h"
 #include "archive_rb.h"
 

@@ -45,11 +45,9 @@
 #include "allheaders.h"
 #pragma hdrstop
 
-/* --------------------------------------------*/
-#if  HAVE_LIBWEBP   /* defined in environ.h */
-/* --------------------------------------------*/
-#include "webp/decode.h"
-#include "webp/encode.h"
+#if HAVE_LIBWEBP   /* defined in environ.h */
+#include <../osf/libwebp/src/webp/decode.h>
+#include <../osf/libwebp/src/webp/encode.h>
 
 /*---------------------------------------------------------------------*
 *                             Reading WebP                            *
@@ -65,9 +63,7 @@ PIX * pixReadStreamWebP(FILE * fp)
 	uint8  * filedata;
 	size_t filesize;
 	PIX * pix;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!fp)
 		return (PIX *)ERROR_PTR("fp not defined", procName, NULL);
 

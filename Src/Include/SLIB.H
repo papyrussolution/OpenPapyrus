@@ -7876,13 +7876,13 @@ public:
 	Int64Array();
 	Int64Array(const Int64Array & s);
 	Int64Array & FASTCALL operator = (const Int64Array & s);
-	int    FASTCALL operator == (const Int64Array & rS) const;
-	int    FASTCALL operator != (const Int64Array & rS) const;
-	int    FASTCALL IsEq(const Int64Array * pS) const;
+	bool   FASTCALL operator == (const Int64Array & rS) const;
+	bool   FASTCALL operator != (const Int64Array & rS) const;
+	bool   FASTCALL IsEq(const Int64Array * pS) const;
 	int64  FASTCALL get(uint pos) const;
-	int    lsearch(int64 key, uint * pPos) const;
-	int    FASTCALL lsearch(int64 key) const;
-	int    FASTCALL bsearch(int64 key) const;
+	bool   lsearch(int64 key, uint * pPos) const;
+	bool   FASTCALL lsearch(int64 key) const;
+	bool   FASTCALL bsearch(int64 key) const;
 	int    FASTCALL add(int64);
 	int    FASTCALL add(int32);
 	int    FASTCALL addUnique(int64);
@@ -7936,13 +7936,13 @@ public:
 	LAssocArray();
 	LAssocArray(const LAssocArray &);
 	LAssocArray & FASTCALL operator = (const LAssocArray &);
-	int    FASTCALL operator == (const LAssocArray &) const;
+	bool   FASTCALL operator == (const LAssocArray &) const;
 	//
 	// Returns:
 	//   0  - в массиве уже есть элемент с идентификатором id
 	//   !0 - в массиве элемент с таким идентификатором отсутствует.
 	//
-	int    CheckUnique(long key, int binary = 0) const;
+	bool   CheckUnique(long key, int binary = 0) const;
 	//
 	// Descr: Считает количество элементов, соответствующих ключу key
 	//

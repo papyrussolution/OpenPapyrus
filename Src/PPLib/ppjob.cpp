@@ -4277,8 +4277,7 @@ public:
 	}
 	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
-		int    ok = -1;
-		return ok;
+		return -1;
 	}
 	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
@@ -4296,7 +4295,7 @@ public:
 					if(p_map_entry && p_map_entry->DbSymb.NotEmpty() && p_map_entry->SvcIdent.Len()) {
 						PPSession::LimitedDatabaseBlock * p_ldb = DS.LimitedOpenDatabase(p_map_entry->DbSymb, PPSession::lodfReference|PPSession::lodfStyloQCore|PPSession::lodfSysJournal);
 						if(p_ldb && p_ldb->P_Sqc) {
-							p_ldb->P_Sqc->IndexingContent();
+							ok = p_ldb->P_Sqc->IndexingContent();
 						}
 					}
 				}
@@ -4308,3 +4307,22 @@ public:
 };
 
 IMPLEMENT_JOB_HDL_FACTORY(FTSINDEXING);
+//
+//
+//
+class JOB_HDL_CLS(STYLOQSENDINDEXINGCONTENT) : public PPJobHandler {
+public:
+	JOB_HDL_CLS(STYLOQSENDINDEXINGCONTENT)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	{
+	}
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
+	{
+		return -1;
+	}
+	virtual int Run(SBuffer * pParam, void * extraPtr)
+	{
+		return PPStyloQInterchange::ExecuteIndexingRequest();
+	}
+};
+
+IMPLEMENT_JOB_HDL_FACTORY(STYLOQSENDINDEXINGCONTENT);

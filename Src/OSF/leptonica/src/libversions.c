@@ -57,7 +57,7 @@
 	#include "zlib.h"
 #endif
 #if HAVE_LIBWEBP
-	#include "webp/encode.h"
+	#include <../osf/libwebp/src/webp/encode.h>
 #endif
 #if HAVE_LIBJP2K
 	#ifdef LIBJP2K_HEADER

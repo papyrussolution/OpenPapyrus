@@ -1553,6 +1553,7 @@
 #define PPJOB_TIMESERIESSA                            43
 #define PPJOB_EXPORTPRJTASKS                          44
 #define PPJOB_FTSINDEXING                             45
+#define PPJOB_STYLOQSENDINDEXINGCONTENT               46
 //
 // PPVIEW definitions
 //

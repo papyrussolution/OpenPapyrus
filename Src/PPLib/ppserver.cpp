@@ -1319,7 +1319,7 @@ void PPJobServer::Run()
 			}
 			else {
 				do {
-					PPID   job_id = plan.at(cur_plan_pos++).Val;
+					const  PPID  job_id = plan.at(cur_plan_pos++).Val;
 					const  PPJob * p_job = pool.GetJobItem(job_id);
 					if(p_job) {
 						if(!(p_job->Flags & PPJob::fDisable)) { // @paranoic

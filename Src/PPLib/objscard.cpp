@@ -13,7 +13,6 @@
 
 PPSCardPacket::PPSCardPacket() : PPExtStrContainer()
 {
-	// @v10.7.3 @ctr Z();
 }
 
 PPSCardPacket & PPSCardPacket::Z()
@@ -339,7 +338,7 @@ int TrnovrRngDis::GetResult(double currentValue, double * pResult) const
 //
 PPSCardSerRule::PPSCardSerRule() : TSVector <TrnovrRngDis>()
 {
-	Init();
+	Z();
 }
 
 PPSCardSerRule & FASTCALL PPSCardSerRule::operator = (const PPSCardSerRule & s)
@@ -412,12 +411,13 @@ bool FASTCALL PPSCardSerRule::IsEq(const PPSCardSerRule & rS) const
 	return eq;
 }
 
-void PPSCardSerRule::Init()
+PPSCardSerRule & PPSCardSerRule::Z()
 {
-	freeAll();
+	clear();
 	Ver = 1;
 	MEMSZERO(Fb);
 	TrnovrPeriod = 0;
+	return *this;
 }
 
 int PPSCardSerRule::IsList() const
@@ -492,17 +492,18 @@ bool FASTCALL PPSCardSerPacket::Ext::IsEq(const Ext & rS) const
 
 PPSCardSerPacket::PPSCardSerPacket()
 {
-	Init();
+	Z();
 }
 
-void PPSCardSerPacket::Init()
+PPSCardSerPacket & PPSCardSerPacket::Z()
 {
 	UpdFlags = 0;
 	MEMSZERO(Rec);
-	Rule.Init();
-	CcAmtDisRule.Init();
+	Rule.Z();
+	CcAmtDisRule.Z();
 	QuotKindList_.clear();
 	Eb.Init();
+	return *this;
 }
 
 int PPSCardSerPacket::Normalize()
@@ -539,21 +540,21 @@ int PPSCardSerPacket::Normalize()
 	return ok;
 }
 
-int FASTCALL PPSCardSerPacket::IsEq(const PPSCardSerPacket & rS) const
+bool FASTCALL PPSCardSerPacket::IsEq(const PPSCardSerPacket & rS) const
 {
-	int    eq = 1;
+	bool   eq = true;
 	if(!Rec.IsEq(rS.Rec))
-		eq = 0;
+		eq = false;
 	else if(!Rule.IsEq(rS.Rule))
-		eq = 0;
+		eq = false;
 	else if(!CcAmtDisRule.IsEq(rS.CcAmtDisRule))
-		eq = 0;
+		eq = false;
 	else if(!BonusRule.IsEq(rS.BonusRule))
-		eq = 0;
+		eq = false;
 	else if(!QuotKindList_.IsEq(&rS.QuotKindList_))
-		eq = 0;
+		eq = false;
 	else if(!Eb.IsEq(rS.Eb))
-		eq = 0;
+		eq = false;
 	return eq;
 }
 
@@ -1029,7 +1030,7 @@ int PPObjSCardSeries::GetPacket(PPID id, PPSCardSerPacket * pPack)
 		ok = 1;
 	}
 	else
-		pack.Init();
+		pack.Z();
 	ASSIGN_PTR(pPack, pack);
 	CATCHZOK
 	SAlloc::F(p_rec);
@@ -1180,28 +1181,132 @@ int PPObjSCardSeries::GetSeriesWithSpecialTreatment(LAssocArray & rList)
 
 SCardChargeRule::SCardChargeRule() : SerID(0), Period(0)
 {
+	Ap.Z(); // @v11.3.5
 }
 
 /*static*/int PPObjSCardSeries::SelectRule(SCardChargeRule * pSelRule)
 {
-	int    ok = -1;
-	SCardChargeRule scs_rule;
-	TDialog * p_dlg = new TDialog(DLG_SSAUTODIS);
-	THROW_MEM(p_dlg);
-	RVALUEPTR(scs_rule, pSelRule);
-	SetupPPObjCombo(p_dlg, CTLSEL_SSAUTODIS_SSER, PPOBJ_SCARDSERIES, scs_rule.SerID, 0, 0);
-	p_dlg->AddClusterAssoc(CTL_SSAUTODIS_PRD,  0, SCARDSER_AUTODIS_PREVPRD);
-	p_dlg->AddClusterAssocDef(CTL_SSAUTODIS_PRD,  1, SCARDSER_AUTODIS_THISPRD);
-	p_dlg->SetClusterData(CTL_SSAUTODIS_PRD, scs_rule.Period);
-	if(ExecView(p_dlg) == cmOK) {
-		p_dlg->getCtrlData(CTLSEL_SSAUTODIS_SSER, &scs_rule.SerID);
-		p_dlg->GetClusterData(CTL_SSAUTODIS_PRD, &scs_rule.Period);
-		ASSIGN_PTR(pSelRule, scs_rule);
-		ok = 1;
-	}
-	CATCHZOK
-	delete p_dlg;
-	return ok;
+	class SCardChargeRuleDialog : public TDialog {
+		DECL_DIALOG_DATA(SCardChargeRule);
+	public:
+		SCardChargeRuleDialog() : TDialog(DLG_SSAUTODIS)
+		{
+			SetupCalPeriod(CTLCAL_SSAUTODIS_AP, CTL_SSAUTODIS_AP);
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			int    ok = 1;
+			RVALUEPTR(Data, pData);
+			SetupPPObjCombo(this, CTLSEL_SSAUTODIS_SSER, PPOBJ_SCARDSERIES, Data.SerID, 0, 0);
+			AddClusterAssoc(CTL_SSAUTODIS_PRD,  0, SCARDSER_AUTODIS_PREVPRD);
+			AddClusterAssocDef(CTL_SSAUTODIS_PRD,  1, SCARDSER_AUTODIS_THISPRD);
+			AddClusterAssoc(CTL_SSAUTODIS_PRD,  2, SCARDSER_AUTODIS_ARBITRARYPRD); // @v11.3.5
+			SetClusterData(CTL_SSAUTODIS_PRD, Data.Period);
+			SetPeriodInput(this, CTL_SSAUTODIS_AP, &Data.Ap);
+			Setup();
+			return ok;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			uint   sel = 0;
+			PPSCardSerPacket scs_pack;
+			getCtrlData(sel = CTLSEL_SSAUTODIS_SSER, &Data.SerID);
+			THROW_PP(Data.SerID, PPERR_SCARDSERNEEDED);
+			THROW(ScsObj.GetPacket(Data.SerID, &scs_pack) > 0);
+			{
+				const PPSCardSerRule & r_rule = (scs_pack.Rec.GetType() == scstBonus) ? scs_pack.BonusRule : scs_pack.Rule;
+				GetClusterData(CTL_SSAUTODIS_PRD, &Data.Period);
+				GetPeriodInput(this, CTL_SSAUTODIS_AP, &Data.Ap);
+				if(Data.Period == SCARDSER_AUTODIS_ARBITRARYPRD) {
+					DateRange temp_range(Data.Ap);
+					temp_range.Actualize(ZERODATE);
+					sel = CTL_SSAUTODIS_AP;
+					THROW_SL(checkdate(temp_range.low) && checkdate(temp_range.upp));
+					THROW(temp_range.low <= temp_range.upp);
+				}
+				else {
+					sel = CTL_SSAUTODIS_PRD;
+					THROW(oneof2(Data.Period, SCARDSER_AUTODIS_PREVPRD, SCARDSER_AUTODIS_THISPRD));
+					THROW(oneof6(r_rule.TrnovrPeriod, PRD_DAY, PRD_WEEK, PRD_MONTH, PRD_QUART, PRD_SEMIAN, PRD_ANNUAL));
+				}
+			}
+			ASSIGN_PTR(pData, Data);
+			CATCHZOKPPERRBYDLG
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isCbSelected(CTLSEL_SSAUTODIS_SSER))
+				Setup();
+			else if(event.isClusterClk(CTL_SSAUTODIS_PRD))
+				Setup();
+			else
+				return;
+			clearEvent(event);
+		}
+		void    Setup()
+		{
+			PPSCardSerPacket scs_pack;
+			SString info_buf;
+			SString temp_buf;
+			getCtrlData(CTLSEL_SSAUTODIS_SSER, &Data.SerID);
+			GetClusterData(CTL_SSAUTODIS_PRD, &Data.Period);
+			if(Data.SerID && ScsObj.GetPacket(Data.SerID, &scs_pack) > 0) {
+				const PPSCardSerRule & r_rule = (scs_pack.Rec.GetType() == scstBonus) ? scs_pack.BonusRule : scs_pack.Rule;
+				const long prev_p = GetClusterData(CTL_SSAUTODIS_PRD);
+				long _p = prev_p;
+				PPLoadString("scardserrule_trnovrperiod", info_buf);
+				if(r_rule.TrnovrPeriod > 0) {
+					setCtrlReadOnly(CTL_SSAUTODIS_AP, 1);
+					DisableClusterItem(CTL_SSAUTODIS_PRD, 0, false);
+					DisableClusterItem(CTL_SSAUTODIS_PRD, 1, false);
+					DisableClusterItem(CTL_SSAUTODIS_PRD, 2, true);
+					if(prev_p == SCARDSER_AUTODIS_ARBITRARYPRD)
+						_p = SCARDSER_AUTODIS_PREVPRD;
+					PPGetSubStrById(PPTXT_CYCLELIST, r_rule.TrnovrPeriod, temp_buf);
+					info_buf.CatDiv(':', 2).Cat(temp_buf);
+					{
+						char b[128];
+						DateRange dr;
+						dr.SetPeriod(getcurdate_(), r_rule.TrnovrPeriod);
+						if(_p == SCARDSER_AUTODIS_PREVPRD)
+							dr.SetPeriod(plusdate(dr.low, -1), r_rule.TrnovrPeriod);
+						temp_buf = periodfmt(&dr, b);
+						setCtrlString(CTL_SSAUTODIS_AP, temp_buf);
+					}
+				}
+				else {
+					setCtrlReadOnly(CTL_SSAUTODIS_AP, 0);
+					DisableClusterItem(CTL_SSAUTODIS_PRD, 0, true);
+					DisableClusterItem(CTL_SSAUTODIS_PRD, 1, true);
+					DisableClusterItem(CTL_SSAUTODIS_PRD, 2, false);
+					if(oneof2(prev_p, SCARDSER_AUTODIS_PREVPRD, SCARDSER_AUTODIS_THISPRD)) {
+						_p = SCARDSER_AUTODIS_ARBITRARYPRD;
+					}
+					info_buf.CatDiv(':', 2).Cat(PPLoadStringS("undefined", temp_buf));
+					{
+						char b[128];
+						temp_buf = periodfmt(&Data.Ap, b);
+						setCtrlString(CTL_SSAUTODIS_AP, temp_buf);
+					}
+				}
+				if(_p != prev_p)
+					SetClusterData(CTL_SSAUTODIS_PRD, _p);
+			}
+			else {
+				DisableClusterItem(CTL_SSAUTODIS_PRD, 0, true);
+				DisableClusterItem(CTL_SSAUTODIS_PRD, 1, true);
+				DisableClusterItem(CTL_SSAUTODIS_PRD, 2, true);
+				info_buf.Z();
+			}
+			setStaticText(CTL_SSAUTODIS_ST_INFO, info_buf);
+		}
+		PPObjSCardSeries ScsObj;
+	};
+	DIALOG_PROC_BODY(SCardChargeRuleDialog, pSelRule);
 }
 
 /*static*/int PPObjSCardSeries::SetSCardsByRule(const SCardChargeRule * pSelRule)
@@ -1222,7 +1327,7 @@ SCardChargeRule::SCardChargeRule() : SerID(0), Period(0)
 		PPObjSCard sc_obj;
 		for(PPID id = 0; scs_rule.SerID || scs_obj.EnumItems(&id) > 0;) {
 			id = NZOR(scs_rule.SerID, id);
-			THROW(sc_obj.UpdateBySeriesRule2(id, BIN(scs_rule.Period == SCARDSER_AUTODIS_PREVPRD), &logger, 1)); // @v8.1.6 UpdateBySeriesRule-->UpdateBySeriesRule2
+			THROW(sc_obj.UpdateBySeriesRule2(id, /*BIN(scs_rule.Period == SCARDSER_AUTODIS_PREVPRD)*/scs_rule, &logger, 1));
 			ok = 1;
 			if(scs_rule.SerID)
 				break;
@@ -1246,25 +1351,23 @@ int PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 		int    setDTS(const PPSCardSerPacket * pData)
 		{
 			if(!RVALUEPTR(Data, pData))
-				Data.Init();
+				Data.Z();
 			long   _type = Data.Rec.GetType();
 			{
 				SCardSeriesFilt scs_filt;
 				scs_filt.Flags = scs_filt.fOnlyGroups;
 				SetupPPObjCombo(this, CTLSEL_SCARDSER_PARENT, PPOBJ_SCARDSERIES, Data.Rec.ParentID, 0, &scs_filt);
 			}
-			// @v10.2.8 {
 			{
 				SCardSeriesFilt scs_filt;
 				scs_filt.Flags = scs_filt.fOnlyReal;
 				SetupPPObjCombo(this, CTLSEL_SCARDSER_RPDEST, PPOBJ_SCARDSERIES, Data.Rec.RsrvPoolDestSerID, 0, &scs_filt);
 			}
-			// } @v10.2.8
 			AddClusterAssocDef(CTL_SCARDSER_TYPE, 0, scstDiscount);
 			AddClusterAssoc(CTL_SCARDSER_TYPE, 1, scstCredit);
 			AddClusterAssoc(CTL_SCARDSER_TYPE, 2, scstBonus);
 			AddClusterAssoc(CTL_SCARDSER_TYPE, 3, scstGroup);
-			AddClusterAssoc(CTL_SCARDSER_TYPE, 4, scstRsrvPool); // @v10.2.7
+			AddClusterAssoc(CTL_SCARDSER_TYPE, 4, scstRsrvPool);
 			SetClusterData(CTL_SCARDSER_TYPE, _type);
 			setCtrlData(CTL_SCARDSER_NAME, Data.Rec.Name);
 			setCtrlData(CTL_SCARDSER_SYMB, Data.Rec.Symb);
@@ -2310,7 +2413,7 @@ struct _SCardTrnovrItem {
 	double DscntTrnovr;
 };
 
-int PPObjSCard::UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLogger * pLog, int use_ta)
+int PPObjSCard::UpdateBySeriesRule2(PPID seriesID, /*int prevTrnovrPrd*/const SCardChargeRule & rRule, PPLogger * pLog, int use_ta)
 {
 	int    ok = 1;
 	int    prd_delta = 0;
@@ -2338,6 +2441,17 @@ int PPObjSCard::UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLogger *
 		bonus_period.Z();
 		dscnt_period.Z();
 		if(pack.Rec.GetType() == scstBonus && pack.BonusRule.getCount()) {
+			if(oneof6(pack.BonusRule.TrnovrPeriod, PRD_DAY, PRD_WEEK, PRD_MONTH, PRD_QUART, PRD_SEMIAN, PRD_ANNUAL)) {
+				THROW_SL(bonus_period.SetPeriod(_cur_date, pack.BonusRule.TrnovrPeriod));
+				if(rRule.Period == SCARDSER_AUTODIS_PREVPRD) {
+					THROW_SL(bonus_period.SetPeriod(plusdate(bonus_period.low, -1), pack.BonusRule.TrnovrPeriod));
+				}
+			}
+			else {
+				bonus_period = rRule.Ap;
+				bonus_period.Actualize(ZERODATE);
+			}
+			/* @v11.3.5 
 			if(pack.BonusRule.TrnovrPeriod) {
 				THROW_SL(bonus_period.SetPeriod(_cur_date, pack.BonusRule.TrnovrPeriod));
 				if(prevTrnovrPrd) {
@@ -2347,15 +2461,28 @@ int PPObjSCard::UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLogger *
 			}
 			else
 				bonus_period.Set(ZERODATE, MAXDATEVALID);
+			*/
 			case_flags |= _cfBonusRule;
 		}
 		if(pack.Rule.getCount()) {
+			if(oneof6(pack.Rule.TrnovrPeriod, PRD_DAY, PRD_WEEK, PRD_MONTH, PRD_QUART, PRD_SEMIAN, PRD_ANNUAL)) {
+				THROW_SL(dscnt_period.SetPeriod(_cur_date, pack.Rule.TrnovrPeriod));
+				if(rRule.Period == SCARDSER_AUTODIS_PREVPRD) {
+					THROW_SL(dscnt_period.SetPeriod(plusdate(dscnt_period.low, -1), pack.Rule.TrnovrPeriod));
+				}
+			}
+			else {
+				dscnt_period = rRule.Ap;
+				dscnt_period.Actualize(ZERODATE);
+			}
+			/* @v11.3.5 
 			if(pack.Rule.TrnovrPeriod) {
 				THROW_SL(dscnt_period.SetPeriod(_cur_date, pack.Rule.TrnovrPeriod));
 				if(prevTrnovrPrd) {
 					THROW_SL(dscnt_period.SetPeriod(plusdate(dscnt_period.low, -1), pack.Rule.TrnovrPeriod));
 				}
 			}
+			*/
 			case_flags |= _cfDiscountRule;
 		}
 		if(case_flags) {
@@ -3159,7 +3286,7 @@ int SCardDialog::setDTS(const PPSCardPacket * pData, const PPSCardSerPacket * pS
 {
 	Data = *pData;
 	if(!RVALUEPTR(ScsPack, pScsPack))
-		ScsPack.Init();
+		ScsPack.Z();
 	int    ok = 1;
 	SString temp_buf;
 	ScObj.SetInheritance(&ScsPack, &Data.Rec);

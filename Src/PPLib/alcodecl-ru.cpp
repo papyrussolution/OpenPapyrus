@@ -1384,7 +1384,7 @@ int PPViewAlcoDeclRu::Export()
 						n3.PutAttrib(g.GetToken_Ansi(PPHSC_RU_APPEL), temp_buf);
 						{
 							PPELinkArray elink_list;
-							Arp.PsnObj.P_Tbl->GetELinks(main_org_id, &elink_list);
+							Arp.PsnObj.P_Tbl->GetELinks(main_org_id, elink_list);
 							elink_list.GetSinglePhone(temp_buf, 0);
 							n3.PutAttrib(g.GetToken_Ansi(PPHSC_RU_ORGPHN), temp_buf);
 							{

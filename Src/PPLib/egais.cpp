@@ -4582,6 +4582,7 @@ struct EgaisWayBillRowTags { // @flat
 	char    InformB[24];
 	char    Serial[24];
 	char    OrgLineIdent[64]; // @v10.3.4
+	char    GoodsCategory[8]; // @v11.3.5 Код категории алкогольной продукции
 	PPID    ManufID;
 };
 
@@ -4626,10 +4627,8 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
     SString memo_base; // <base>
     SString memo_note; // <note>
     SString temp_buf;
-    //BillTbl::Rec bhdr__;
-	SString bill_code; // @v11.0.12
-	LDATE  bill_date = ZERODATE; // @v11.0.12
-    // @v10.6.4 MEMSZERO(bhdr);
+	SString bill_code;
+	LDATE  bill_date = ZERODATE;
 	TSVector <EgaisWayBillRowTags> row_tags;
 	const PPID manuf_tag_id = Cfg.LotManufTagList.getCount() ? Cfg.LotManufTagList.get(0) : 0;
 	TSCollection <ExtCodeSetEntry> ext_code_set_list;
@@ -4643,9 +4642,7 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 			was_header_accepted = 1;
             for(const xmlNode * p_h = p_n->children; ok > 0 && p_h; p_h = p_h->next) {
                 if(SXml::GetContentByName(p_h, "NUMBER", temp_buf)) {
-					temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-                    // @v11.0.12 STRNSCPY(bhdr.Code, temp_buf);
-					bill_code = temp_buf; // @v11.0.12
+					bill_code = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
                 }
                 else if(SXml::GetContentByName(p_h, "Date", temp_buf))
                     strtodate(temp_buf, DATF_ISO8601, &bill_date);
@@ -4704,8 +4701,7 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 			else if(intr_expend_bill_id > 0) {
 				BillTbl::Rec intr_bill_rec;
 				if(P_BObj->Fetch(intr_expend_bill_id, &intr_bill_rec) > 0 && IsIntrExpndOp(intr_bill_rec.OpID)) {
-					// @v11.0.12 if(BillCore::GetCode(temp_buf = intr_bill_rec.Code) == bill_code)
-					if(Egais_GetBillCode(intr_bill_rec, temp_buf) == bill_code) // @v11.0.12				
+					if(Egais_GetBillCode(intr_bill_rec, temp_buf) == bill_code)
 						pPack->IntrBillID = intr_expend_bill_id;
 				}
 				if(!pPack->IntrBillID) {
@@ -4717,8 +4713,7 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 							if(P_BObj->Fetch(test_bill_id, &intr_bill_rec) > 0) {
 								const int intr = IsIntrOp(intr_bill_rec.OpID);
 								if(oneof2(intr, INTREXPND, INTRRCPT)) {
-									// @v11.0.12 if(BillCore::GetCode(temp_buf = intr_bill_rec.Code) == bill_code)
-									if(Egais_GetBillCode(intr_bill_rec, temp_buf) == bill_code) // @v11.0.12
+									if(Egais_GetBillCode(intr_bill_rec, temp_buf) == bill_code)
 										pPack->IntrBillID = test_bill_id;
 								}
 							}
@@ -4747,18 +4742,14 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 					THROW(p_bp->CreateBlank_WithoutCode(op_id, 0, loc_id, 1));
 					p_bp->Rec.Dt = bill_date;
 					STRNSCPY(p_bp->Rec.Code, bill_code);
-					// @v11.0.12 {
 					if(bill_code.Len() > (sizeof(p_bp->Rec.Code)-1)) {
 						p_bp->BTagL.PutItemStr(PPTAG_BILL_LONGCODE, bill_code);
 					}
-					// } @v11.0.12 
 					if(memo_note.NotEmptyS()) {
-						// @v11.1.12 STRNSCPY(p_bp->Rec.Memo, memo_note);
-						p_bp->SMemo = memo_note; // @v11.1.12
+						p_bp->SMemo = memo_note;
 					}
 					else if(memo_base.NotEmptyS()) {
-						// @v11.1.12 STRNSCPY(p_bp->Rec.Memo, memo_base);
-						p_bp->SMemo = memo_base; // @v11.1.12
+						p_bp->SMemo = memo_base;
 					}
 					//
 					// Приоритет применения контрагента в качестве поставщика:
@@ -4787,18 +4778,14 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 					THROW(p_bp->CreateBlank_WithoutCode(op_id, 0, loc_id, 1));
 					p_bp->Rec.Dt = bill_date;
 					STRNSCPY(p_bp->Rec.Code, bill_code);
-					// @v11.0.12 {
 					if(bill_code.Len() > (sizeof(p_bp->Rec.Code)-1)) {
 						p_bp->BTagL.PutItemStr(PPTAG_BILL_LONGCODE, bill_code);
 					}
-					// } @v11.0.12 
 					if(memo_note.NotEmptyS()) {
-						// @v11.1.12 STRNSCPY(p_bp->Rec.Memo, memo_note);
-						p_bp->SMemo = memo_note; // @v11.1.12
+						p_bp->SMemo = memo_note;
 					}
 					else if(memo_base.NotEmptyS()) {
-						// @v11.1.12 STRNSCPY(p_bp->Rec.Memo, memo_base);
-						p_bp->SMemo = memo_base; // @v11.1.12
+						p_bp->SMemo = memo_base;
 					}
 					//
 					// @v9.2.10 Изменен приоритет идентификации контрагента: сначала по грузоотправителю, потом - по поставщику,
@@ -4839,13 +4826,11 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 			else {
 				SString serial;
 				SString box_number;
-				//PPLotExtCodeContainer::MarkSet ext_codes_set;
 				int    surrogate_line_ident = _PPConst.EgaisInRowIdentDivider;
 				SString org_line_ident;
 				for(const xmlNode * p_c = p_n->children; p_c; p_c = p_c->next) {
 					PPTransferItem ti;
 					serial.Z();
-					//ext_codes_set.Clear();
 					if(p_bp) {
 						THROW(ti.Init(&p_bp->Rec, 0, 0));
 					}
@@ -4859,7 +4844,6 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 						org_line_ident.Z();
 						for(const xmlNode * p_pos = p_c->children; p_pos; p_pos = p_pos->next) {
 							if(SXml::GetContentByName(p_pos, "Identity", temp_buf)) {
-								// @v10.3.4 {
 								if(temp_buf.IsDigit()) {
 									const long dec_id = temp_buf.ToLong();
 									if(temp_buf == "0") {
@@ -4876,13 +4860,6 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 									ti.RByBill = ++surrogate_line_ident;
 									org_line_ident = temp_buf;
 								}
-								// } @v10.3.4
-								/* @v10.3.4
-								if(temp_buf == "0")
-									ti.RByBill = RowIdentDivider; // @v9.2.9 // @v9.8.9 10000-->RowIdentDivider
-								else
-									ti.RByBill = static_cast<int16>(temp_buf.ToLong() % RowIdentDivider); // @v9.6.9 (% 10000) // @v9.8.9 10000-->RowIdentDivider
-								*/
 							}
 							else if(SXml::IsName(p_pos, "Product")) {
 								int   rs = 0;
@@ -4958,7 +4935,6 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 						}
 						if(pRefC) {
 							EgaisRefATbl::Rec refai;
-							// @v10.6.4 MEMSZERO(refai);
 							STRNSCPY(refai.RefACode, alc_ext.InformA);
 							if(product_refc_pos >= 0) {
 								const EgaisProductCore::Item * p_product = pRefC->ProductList.at(product_refc_pos);
@@ -4991,16 +4967,9 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 							}
 							uint   new_pos = p_bp->GetTCount();
 							THROW(p_bp->LoadTItem(&ti, 0, 0/*serial*/));
-							// @v9.9.5 {
-							/* @v10.3.9 if(ext_codes_set.GetCount()) {
-								p_bp->XcL.Set_2(new_pos+1, &ext_codes_set);
-							}*/
-							// } @v9.9.5
-							// @v10.3.9 {
 							if(p_ecs_entry) {
 								p_ecs_entry->RByBill = ti.RByBill;
 							}
-							// } @v10.3.9
 							{
 								EgaisWayBillRowTags rt;
 								MEMSZERO(rt);
@@ -5014,6 +4983,7 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 								rt.ManufID = alc_ext.MnfOrImpPsnID;
 								STRNSCPY(rt.Serial, serial.Strip());
 								STRNSCPY(rt.OrgLineIdent, org_line_ident); // @v10.3.4
+								STRNSCPY(rt.GoodsCategory, alc_ext.CategoryCode); // @v11.3.5
 								row_tags.insert(&rt);
 							}
 						}
@@ -5026,7 +4996,6 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 		SString bill_text;
 		PPObjBill::MakeCodeString(&p_bp->Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
 		p_bp->SortTI(); // Обязательно отсортировать строки по RByBill (могут прийти в перепутанном порядке)
-		// @v10.3.9 {
 		if(ext_code_set_list.getCount()) {
 			for(uint ecsidx = 0; ecsidx < ext_code_set_list.getCount(); ecsidx++) {
 				const ExtCodeSetEntry * p_ecs_entry = ext_code_set_list.at(ecsidx);
@@ -5035,7 +5004,6 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 					p_bp->XcL.Set_2(tipos+1, &p_ecs_entry->Set);
 			}
 		}
-		// } @v10.3.9
 		{
 			//
 			// Проверка на наличие дубликатов в номерах строк документа
@@ -5064,8 +5032,7 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 		else {
 			int    do_skip = 0;
 			if(!bill_ident.NotEmptyS()) {
-				// @v11.0.12 bill_ident = p_bp->Rec.Code;
-				bill_ident = bill_code; // @v11.0.12
+				bill_ident = bill_code;
 			}
 			{
 				ObjTagItem tag_item;
@@ -5079,6 +5046,11 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 							tag_list.PutItemStrNE(PPTAG_LOT_FSRARINFA, r_rt.InformA);
 							tag_list.PutItemStrNE(PPTAG_LOT_FSRARINFB, r_rt.InformB);
 							tag_list.PutItemStrNE(PPTAG_LOT_ORGLINEIDENT, r_rt.OrgLineIdent); // @v10.3.4
+							// @v11.3.5 {
+							if(Cfg.CategoryTagID && r_rt.GoodsCategory[0]) {
+								tag_list.PutItemStrNE(Cfg.CategoryTagID, r_rt.GoodsCategory);
+							}
+							// } @v11.3.5
 							if(r_rt.ManufID && manuf_tag_id) {
 								tag_item.SetInt(manuf_tag_id, r_rt.ManufID);
 								tag_list.PutItem(manuf_tag_id, &tag_item);

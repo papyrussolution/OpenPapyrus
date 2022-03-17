@@ -598,7 +598,7 @@ int AddrBookDialog::getSelection(PPID * pPersonID, SString & rMailAddr)
 	if(Selection) {
 		PPELinkArray el_list;
 		StringSet ss(SLBColumnDelim);
-		PsnObj.P_Tbl->GetELinks(Selection, &el_list);
+		PsnObj.P_Tbl->GetELinks(Selection, el_list);
 		el_list.GetPhones(1, rMailAddr, ELNKRT_EMAIL);
 		ok = 1;
 	}
@@ -677,7 +677,7 @@ int AddrBookDialog::setupList()
 			PPELinkArray el_list;
 			StringSet ss(SLBColumnDelim);
 			ss.add(psn_rec.Name);
-			PsnObj.P_Tbl->GetELinks(psn_id, &el_list);
+			PsnObj.P_Tbl->GetELinks(psn_id, el_list);
 			el_list.GetPhones(1, sub, ELNKRT_EMAIL);
 			ss.add(sub);
 			el_list.GetPhones(1, sub, ELNKRT_PHONE);

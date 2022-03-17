@@ -300,7 +300,7 @@ int ACS_SETSTART::ExportData(int updOnly)
 						f_str.Cat(NZOR(info.Rec.Expiry, encodedate(1, 1, 3000)), DATF_GERMAN | DATF_CENTURY).Semicol(); // #10 Конечная дата действия сертификата
 						f_str.Semicol();                       // #11 Не используется //
 						f_str.Cat(R0i(info.Rest)).Semicol(); // #12 Конец диапазона длин сертификатов
-						f_str.Cat(info.IsClosed ? 0 : 1).Semicol();  // #13 Passive | Active
+						f_str.Cat((info.Flags & AsyncCashSCardInfo::fClosed) ? 0 : 1).Semicol(); // #13 Passive | Active
 						f_str.CR();
 						fputs(f_str, p_file);
 						iter.SetStat();

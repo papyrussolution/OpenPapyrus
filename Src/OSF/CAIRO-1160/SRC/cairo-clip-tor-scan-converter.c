@@ -204,10 +204,10 @@ typedef int grid_area_t;
 
 #define UNROLL3(x) x x x
 
-struct quorem {
+/* @sobolev (replaced with Quorem_3232) struct quorem {
 	int32 quo;
 	int32 rem;
-};
+};*/
 
 /* Header for a chunk of memory in a memory pool. */
 struct _pool_chunk {
@@ -234,22 +234,23 @@ struct pool {
 	 * the sentinel chunk allocates from. */
 	struct _pool_chunk sentinel[1];
 };
-
-/* A polygon edge. */
+//
+// A polygon edge. 
+//
 struct edge {
 	struct edge * next; // Next in y-bucket or active list. 
 	/* Current x coordinate while the edge is on the active
 	 * list. Initialised to the x coordinate of the top of the
 	 * edge. The quotient is in grid_scaled_x_t units and the
 	 * remainder is mod dy in grid_scaled_y_t units.*/
-	struct quorem x;
+	Quorem_3232 x;
 	/* Advance of the current x when moving down a subsample line. */
-	struct quorem dxdy;
+	Quorem_3232 dxdy;
 	/* Advance of the current x when moving down a full pixel
 	 * row. Only initialised when the height of the edge is large
 	 * enough that there's a chance the edge could be stepped by a
 	 * full row's worth of subsample rows at a time. */
-	struct quorem dxdy_full;
+	Quorem_3232 dxdy_full;
 	grid_scaled_y_t ytop; // The clipped y of the top of the edge. 
 	grid_scaled_y_t dy; // y2-y1 after orienting the edge downwards.
 	// Number of subsample rows remaining to scan convert of this edge.
@@ -262,69 +263,64 @@ struct edge {
 
 /* Number of subsample rows per y-bucket. Must be GRID_Y. */
 #define EDGE_Y_BUCKET_HEIGHT GRID_Y
-
 #define EDGE_Y_BUCKET_INDEX(y, ymin) (((y) - (ymin))/EDGE_Y_BUCKET_HEIGHT)
-
-/* A collection of sorted and vertically clipped edges of the polygon.
- * Edges are moved from the polygon to an active list while scan
- * converting. */
+// 
+// A collection of sorted and vertically clipped edges of the polygon.
+// Edges are moved from the polygon to an active list while scan converting.
+// 
 struct polygon {
-	/* The vertical clip extents. */
-	grid_scaled_y_t ymin, ymax;
-
-	/* Array of edges all starting in the same bucket.	An edge is put
-	 * into bucket EDGE_BUCKET_INDEX(edge->ytop, polygon->ymin) when
-	 * it is added to the polygon. */
+	grid_scaled_y_t ymin, ymax; // The vertical clip extents
+	// Array of edges all starting in the same bucket.	An edge is put
+	// into bucket EDGE_BUCKET_INDEX(edge->ytop, polygon->ymin) when
+	// it is added to the polygon. 
 	struct edge ** y_buckets;
 	struct edge * y_buckets_embedded[64];
-
 	struct {
 		struct pool base[1];
 		struct edge embedded[32];
 	} edge_pool;
 };
-
-/* A cell records the effect on pixel coverage of polygon edges
- * passing through a pixel.  It contains two accumulators of pixel
- * coverage.
- *
- * Consider the effects of a polygon edge on the coverage of a pixel
- * it intersects and that of the following one.  The coverage of the
- * following pixel is the height of the edge multiplied by the width
- * of the pixel, and the coverage of the pixel itself is the area of
- * the trapezoid formed by the edge and the right side of the pixel.
- *
- * +-----------------------+-----------------------+
- * |                       |                       |
- * |                       |                       |
- * |_______________________|_______________________|
- * |   \...................|.......................|\
- * |    \..................|.......................| |
- * |     \.................|.......................| |
- * |      \....covered.....|.......................| |
- * |       \....area.......|.......................| } covered height
- * |        \..............|.......................| |
- * |uncovered\.............|.......................| |
- * |  area    \............|.......................| |
- * |___________\...........|.......................|/
- * |                       |                       |
- * |                       |                       |
- * |                       |                       |
- * +-----------------------+-----------------------+
- *
- * Since the coverage of the following pixel will always be a multiple
- * of the width of the pixel, we can store the height of the covered
- * area instead.  The coverage of the pixel itself is the total
- * coverage minus the area of the uncovered area to the left of the
- * edge.  As it's faster to compute the uncovered area we only store
- * that and subtract it from the total coverage later when forming
- * spans to blit.
- *
- * The heights and areas are signed, with left edges of the polygon
- * having positive sign and right edges having negative sign.  When
- * two edges intersect they swap their left/rightness so their
- * contribution above and below the intersection point must be
- * computed separately. */
+// 
+// A cell records the effect on pixel coverage of polygon edges
+// passing through a pixel.  It contains two accumulators of pixel coverage.
+// 
+// Consider the effects of a polygon edge on the coverage of a pixel
+// it intersects and that of the following one.  The coverage of the
+// following pixel is the height of the edge multiplied by the width
+// of the pixel, and the coverage of the pixel itself is the area of
+// the trapezoid formed by the edge and the right side of the pixel.
+// 
+// +-----------------------+-----------------------+
+// |                       |                       |
+// |                       |                       |
+// |_______________________|_______________________|
+// |   \...................|.......................|\
+// |    \..................|.......................| |
+// |     \.................|.......................| |
+// |      \....covered.....|.......................| |
+// |       \....area.......|.......................| } covered height
+// |        \..............|.......................| |
+// |uncovered\.............|.......................| |
+// |  area    \............|.......................| |
+// |___________\...........|.......................|/
+// |                       |                       |
+// |                       |                       |
+// |                       |                       |
+// +-----------------------+-----------------------+
+// 
+// Since the coverage of the following pixel will always be a multiple
+// of the width of the pixel, we can store the height of the covered
+// area instead.  The coverage of the pixel itself is the total
+// coverage minus the area of the uncovered area to the left of the
+// edge.  As it's faster to compute the uncovered area we only store
+// that and subtract it from the total coverage later when forming
+// spans to blit.
+// 
+// The heights and areas are signed, with left edges of the polygon
+// having positive sign and right edges having negative sign.  When
+// two edges intersect they swap their left/rightness so their
+// contribution above and below the intersection point must be computed separately. 
+// 
 struct cell {
 	struct cell * next;
 	int x;
@@ -368,16 +364,16 @@ struct glitter_scan_converter {
 	struct polygon polygon[1];
 	struct active_list active[1];
 	struct cell_list coverages[1];
-
 	/* Clip box. */
 	grid_scaled_y_t ymin, ymax;
 };
-
-/* Compute the floored division a/b. Assumes / and % perform symmetric
- * division. */
-inline static struct quorem floored_divrem(int a, int b)                            
+/* @sobolev (moved to cairoint.h)
+//
+// Compute the floored division a/b. Assumes / and % perform symmetric division. 
+//
+inline static Quorem_3232 floored_divrem(int a, int b)                            
 {
-	struct quorem qr;
+	Quorem_3232 qr;
 	qr.quo = a/b;
 	qr.rem = a%b;
 	if((a^b) < 0 && qr.rem) {
@@ -385,13 +381,13 @@ inline static struct quorem floored_divrem(int a, int b)
 		qr.rem += b;
 	}
 	return qr;
-}
+}*/
 //
 // Compute the floored division (x*a)/b. Assumes / and % perform symmetric division. 
 //
-static struct quorem FASTCALL floored_muldivrem(int x, int a, int b)                     
+static Quorem_3232 floored_muldivrem(int x, int a, int b)                     
 {
-	struct quorem qr;
+	Quorem_3232 qr;
 	long long xa = (long long)x*a;
 	qr.quo = static_cast<int32>(xa/b);
 	qr.rem = xa%b;
@@ -674,8 +670,8 @@ static void cell_list_render_edge(struct cell_list * cells, struct edge * edge, 
 	grid_scaled_x_t dx;
 	int ix1, ix2;
 	grid_scaled_x_t fx1, fx2;
-	struct quorem x1 = edge->x;
-	struct quorem x2 = x1;
+	Quorem_3232 x1 = edge->x;
+	Quorem_3232 x2 = x1;
 	if(!edge->vertical) {
 		x2.quo += edge->dxdy_full.quo;
 		x2.rem += edge->dxdy_full.rem;
@@ -715,7 +711,7 @@ static void cell_list_render_edge(struct cell_list * cells, struct edge * edge, 
 	// Add coverage for all pixels [ix1,ix2] on this row crossed by the edge.
 	{
 		struct cell_pair pair;
-		struct quorem y = floored_divrem((GRID_X - fx1)*dy, dx);
+		Quorem_3232 y = floored_divrem((GRID_X - fx1)*dy, dx);
 		/* When rendering a previous edge on the active list we may
 		* advance the cell list cursor past the leftmost pixel of the
 		* current edge even though the two edges don't intersect.
@@ -740,7 +736,7 @@ static void cell_list_render_edge(struct cell_list * cells, struct edge * edge, 
 		pair.cell1->covered_height += sign*y.quo;
 		y.quo += y1;
 		if(ix1+1 < ix2) {
-			struct quorem dydx_full = floored_divrem(GRID_X*dy, dx);
+			Quorem_3232 dydx_full = floored_divrem(GRID_X*dy, dx);
 			struct cell * cell = pair.cell2;
 			++ix1;
 			do {
@@ -1013,8 +1009,8 @@ inline static int active_list_can_step_full_row(struct active_list * active)
 		return 0;
 	/* Check for intersections as no edges end during the next row. */
 	e = active->head;
-	while(NULL != e) {
-		struct quorem x = e->x;
+	while(e) {
+		Quorem_3232 x = e->x;
 		if(!e->vertical) {
 			x.quo += e->dxdy_full.quo;
 			x.rem += e->dxdy_full.rem;

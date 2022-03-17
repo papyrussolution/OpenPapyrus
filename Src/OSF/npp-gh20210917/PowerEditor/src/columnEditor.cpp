@@ -199,7 +199,7 @@ INT_PTR CALLBACK ColumnEditorDlg::run_dlgProc(UINT message, WPARAM wParam, LPARA
 						int endNumber = *numbers.rbegin();
 						int nbEnd = getNbDigits(endNumber, base);
 						int nbInit = getNbDigits(initialNumber, base);
-						int nb = max(nbInit, nbEnd);
+						int nb = MAX(nbInit, nbEnd);
 
 						for(size_t i = cursorLine; i <= size_t(endLine); ++i) {
 							auto lineBegin = (*_ppEditView)->execute(SCI_POSITIONFROMLINE, i);

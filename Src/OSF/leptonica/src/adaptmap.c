@@ -10,18 +10,6 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
 
 /*!
@@ -631,25 +619,12 @@ l_ok pixBackgroundNormGrayArray(PIX * pixs,
  *        of each component of the input pixs.
  * </pre>
  */
-l_ok pixBackgroundNormRGBArrays(PIX * pixs,
-    PIX * pixim,
-    PIX * pixg,
-    l_int32 sx,
-    l_int32 sy,
-    l_int32 thresh,
-    l_int32 mincount,
-    l_int32 bgval,
-    l_int32 smoothx,
-    l_int32 smoothy,
-    PIX    ** ppixr,
-    PIX    ** ppixg,
-    PIX    ** ppixb)
+l_ok pixBackgroundNormRGBArrays(PIX * pixs, PIX * pixim, PIX * pixg, l_int32 sx, l_int32 sy, l_int32 thresh, l_int32 mincount,
+    l_int32 bgval, l_int32 smoothx, l_int32 smoothy, PIX    ** ppixr, PIX    ** ppixg, PIX    ** ppixb)
 {
+	PROCNAME(__FUNCTION__);
 	l_int32 allfg;
 	PIX * pixmr, * pixmg, * pixmb;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!ppixr || !ppixg || !ppixb)
 		return ERROR_INT("&pixr, &pixg, &pixb not all defined", procName, 1);
 	*ppixr = *ppixg = *ppixb = NULL;
@@ -665,7 +640,6 @@ l_ok pixBackgroundNormRGBArrays(PIX * pixs,
 		L_WARNING("mincount too large for tile size\n", procName);
 		mincount = (sx * sy) / 3;
 	}
-
 	/* If pixim exists, verify that it is not all foreground. */
 	if(pixim) {
 		pixInvert(pixim, pixim);
@@ -712,18 +686,11 @@ l_ok pixBackgroundNormRGBArrays(PIX * pixs,
  *        of the input pixs.
  * </pre>
  */
-l_ok pixBackgroundNormGrayArrayMorph(PIX * pixs,
-    PIX * pixim,
-    l_int32 reduction,
-    l_int32 size,
-    l_int32 bgval,
-    PIX    ** ppixd)
+l_ok pixBackgroundNormGrayArrayMorph(PIX * pixs, PIX * pixim, l_int32 reduction, l_int32 size, l_int32 bgval, PIX    ** ppixd)
 {
+	PROCNAME(__FUNCTION__);
 	l_int32 allfg;
 	PIX * pixm;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!ppixd)
 		return ERROR_INT("&pixd not defined", procName, 1);
 	*ppixd = NULL;
@@ -735,7 +702,6 @@ l_ok pixBackgroundNormGrayArrayMorph(PIX * pixs,
 		return ERROR_INT("pixim not 1 bpp", procName, 1);
 	if(reduction < 2 || reduction > 16)
 		return ERROR_INT("reduction must be between 2 and 16", procName, 1);
-
 	/* If pixim exists, verify that it is not all foreground. */
 	if(pixim) {
 		pixInvert(pixim, pixim);
@@ -744,7 +710,6 @@ l_ok pixBackgroundNormGrayArrayMorph(PIX * pixs,
 		if(allfg)
 			return ERROR_INT("pixim all foreground", procName, 1);
 	}
-
 	pixGetBackgroundGrayMapMorph(pixs, pixim, reduction, size, &pixm);
 	if(!pixm)
 		return ERROR_INT("pixm not made", procName, 1);
@@ -775,20 +740,11 @@ l_ok pixBackgroundNormGrayArrayMorph(PIX * pixs,
  *        of each component of the input pixs.
  * </pre>
  */
-l_ok pixBackgroundNormRGBArraysMorph(PIX * pixs,
-    PIX * pixim,
-    l_int32 reduction,
-    l_int32 size,
-    l_int32 bgval,
-    PIX    ** ppixr,
-    PIX    ** ppixg,
-    PIX    ** ppixb)
+l_ok pixBackgroundNormRGBArraysMorph(PIX * pixs, PIX * pixim, l_int32 reduction, l_int32 size, l_int32 bgval, PIX    ** ppixr, PIX    ** ppixg, PIX    ** ppixb)
 {
+	PROCNAME(__FUNCTION__);
 	l_int32 allfg;
 	PIX * pixmr, * pixmg, * pixmb;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!ppixr || !ppixg || !ppixb)
 		return ERROR_INT("&pixr, &pixg, &pixb not all defined", procName, 1);
 	*ppixr = *ppixg = *ppixb = NULL;
@@ -809,9 +765,7 @@ l_ok pixBackgroundNormRGBArraysMorph(PIX * pixs,
 		if(allfg)
 			return ERROR_INT("pixim all foreground", procName, 1);
 	}
-
-	pixGetBackgroundRGBMapMorph(pixs, pixim, reduction, size,
-	    &pixmr, &pixmg, &pixmb);
+	pixGetBackgroundRGBMapMorph(pixs, pixim, reduction, size, &pixmr, &pixmg, &pixmb);
 	if(!pixmr || !pixmg || !pixmb) {
 		pixDestroy(&pixmr);
 		pixDestroy(&pixmg);
@@ -850,14 +804,9 @@ l_ok pixBackgroundNormRGBArraysMorph(PIX * pixs,
  *          and finally smoothed in each image region.
  * </pre>
  */
-l_ok pixGetBackgroundGrayMap(PIX * pixs,
-    PIX * pixim,
-    l_int32 sx,
-    l_int32 sy,
-    l_int32 thresh,
-    l_int32 mincount,
-    PIX    ** ppixd)
+l_ok pixGetBackgroundGrayMap(PIX * pixs, PIX * pixim, l_int32 sx, l_int32 sy, l_int32 thresh, l_int32 mincount, PIX    ** ppixd)
 {
+	PROCNAME(__FUNCTION__);
 	l_int32 w, h, wd, hd, wim, him, wpls, wplim, wpld, wplf;
 	l_int32 xim, yim, delx, nx, ny, i, j, k, m;
 	l_int32 count, sum, val8;
@@ -865,9 +814,6 @@ l_ok pixGetBackgroundGrayMap(PIX * pixs,
 	l_uint32 * datas, * dataim, * datad, * dataf, * lines, * lineim, * lined, * linef;
 	float scalex, scaley;
 	PIX * pixd, * piximi, * pixb, * pixf, * pixims;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!ppixd)
 		return ERROR_INT("&pixd not defined", procName, 1);
 	*ppixd = NULL;
@@ -1029,17 +975,9 @@ l_ok pixGetBackgroundGrayMap(PIX * pixs,
  *          from the green component only, used, and destroyed.
  * </pre>
  */
-l_ok pixGetBackgroundRGBMap(PIX * pixs,
-    PIX * pixim,
-    PIX * pixg,
-    l_int32 sx,
-    l_int32 sy,
-    l_int32 thresh,
-    l_int32 mincount,
-    PIX    ** ppixmr,
-    PIX    ** ppixmg,
-    PIX    ** ppixmb)
+l_ok pixGetBackgroundRGBMap(PIX * pixs, PIX * pixim, PIX * pixg, l_int32 sx, l_int32 sy, l_int32 thresh, l_int32 mincount, PIX    ** ppixmr, PIX    ** ppixmg, PIX    ** ppixmb)
 {
+	PROCNAME(__FUNCTION__);
 	l_int32 w, h, wm, hm, wim, him, wpls, wplim, wplf;
 	l_int32 xim, yim, delx, nx, ny, i, j, k, m;
 	l_int32 count, rsum, gsum, bsum, rval, gval, bval;
@@ -1049,9 +987,6 @@ l_ok pixGetBackgroundRGBMap(PIX * pixs,
 	float scalex, scaley;
 	PIX * piximi, * pixgc, * pixb, * pixf, * pixims;
 	PIX * pixmr, * pixmg, * pixmb;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!ppixmr || !ppixmg || !ppixmb)
 		return ERROR_INT("&pixm* not all defined", procName, 1);
 	*ppixmr = *ppixmg = *ppixmb = NULL;
@@ -1212,18 +1147,12 @@ l_ok pixGetBackgroundRGBMap(PIX * pixs,
  * \param[out]   ppixm       grayscale map
  * \return  0 if OK, 1 on error
  */
-l_ok pixGetBackgroundGrayMapMorph(PIX * pixs,
-    PIX * pixim,
-    l_int32 reduction,
-    l_int32 size,
-    PIX    ** ppixm)
+l_ok pixGetBackgroundGrayMapMorph(PIX * pixs, PIX * pixim, l_int32 reduction, l_int32 size, PIX    ** ppixm)
 {
+	PROCNAME(__FUNCTION__);
 	l_int32 nx, ny, empty, fgpixels;
 	float scale;
 	PIX * pixm, * pix1, * pix2, * pix3, * pixims;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!ppixm)
 		return ERROR_INT("&pixm not defined", procName, 1);
 	*ppixm = NULL;
@@ -1233,7 +1162,6 @@ l_ok pixGetBackgroundGrayMapMorph(PIX * pixs,
 		return ERROR_INT("pixs is colormapped", procName, 1);
 	if(pixim && pixGetDepth(pixim) != 1)
 		return ERROR_INT("pixim not 1 bpp", procName, 1);
-
 	/* Evaluate the mask pixim and make sure it is not all foreground. */
 	fgpixels = 0; /* boolean for existence of fg mask pixels */
 	if(pixim) {
@@ -1301,20 +1229,12 @@ l_ok pixGetBackgroundGrayMapMorph(PIX * pixs,
  * \param[out]   ppixmb      blue component map
  * \return  0 if OK, 1 on error
  */
-l_ok pixGetBackgroundRGBMapMorph(PIX * pixs,
-    PIX * pixim,
-    l_int32 reduction,
-    l_int32 size,
-    PIX    ** ppixmr,
-    PIX    ** ppixmg,
-    PIX    ** ppixmb)
+l_ok pixGetBackgroundRGBMapMorph(PIX * pixs, PIX * pixim, l_int32 reduction, l_int32 size, PIX    ** ppixmr, PIX    ** ppixmg, PIX    ** ppixmb)
 {
+	PROCNAME(__FUNCTION__);
 	l_int32 nx, ny, empty, fgpixels;
 	float scale;
 	PIX * pixm, * pixmr, * pixmg, * pixmb, * pix1, * pix2, * pix3, * pixims;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!ppixmr || !ppixmg || !ppixmb)
 		return ERROR_INT("&pixm* not all defined", procName, 1);
 	*ppixmr = *ppixmg = *ppixmb = NULL;
@@ -1451,17 +1371,12 @@ l_ok pixGetBackgroundRGBMapMorph(PIX * pixs,
  *      (4) If w is the map width, nx = w or nx = w - 1; ditto for h and ny.
  * </pre>
  */
-l_ok pixFillMapHoles(PIX * pix,
-    l_int32 nx,
-    l_int32 ny,
-    l_int32 filltype)
+l_ok pixFillMapHoles(PIX * pix, l_int32 nx, l_int32 ny, l_int32 filltype)
 {
+	PROCNAME(__FUNCTION__);
 	l_int32 w, h, y, nmiss, goodcol, i, j, found, ival, valtest;
 	l_uint32 val, lastval;
 	NUMA     * na; /* indicates if there is any data in the column */
-
-	PROCNAME(__FUNCTION__);
-
 	if(!pix || pixGetDepth(pix) != 8)
 		return ERROR_INT("pix not defined or not 8 bpp", procName, 1);
 	if(pixGetColormap(pix))
@@ -1551,16 +1466,12 @@ l_ok pixFillMapHoles(PIX * pix,
  *      (1) The pixel values are extended to the left and down, as required.
  * </pre>
  */
-PIX * pixExtendByReplication(PIX * pixs,
-    l_int32 addw,
-    l_int32 addh)
+PIX * pixExtendByReplication(PIX * pixs, l_int32 addw, l_int32 addh)
 {
+	PROCNAME(__FUNCTION__);
 	l_int32 w, h, i, j;
 	l_uint32 val;
 	PIX * pixd;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!pixs || pixGetDepth(pixs) != 8)
 		return (PIX *)ERROR_PTR("pixs undefined or not 8 bpp", procName, NULL);
 
@@ -1612,18 +1523,14 @@ PIX * pixExtendByReplication(PIX * pixs,
  *          be inefficient if used where there are many small components.
  * </pre>
  */
-l_ok pixSmoothConnectedRegions(PIX * pixs,
-    PIX * pixm,
-    l_int32 factor)
+l_ok pixSmoothConnectedRegions(PIX * pixs, PIX * pixm, l_int32 factor)
 {
+	PROCNAME(__FUNCTION__);
 	l_int32 empty, i, n, x, y;
 	float aveval;
 	BOXA      * boxa;
 	PIX * pixmc;
 	PIXA      * pixa;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!pixs || pixGetDepth(pixs) != 8)
 		return ERROR_INT("pixs not defined or not 8 bpp", procName, 1);
 	if(pixGetColormap(pixs))
@@ -1699,19 +1606,12 @@ l_ok pixSmoothConnectedRegions(PIX * pixs,
  *            ~ paint the 'image' regions black
  * </pre>
  */
-l_ok pixGetForegroundGrayMap(PIX * pixs,
-    PIX * pixim,
-    l_int32 sx,
-    l_int32 sy,
-    l_int32 thresh,
-    PIX    ** ppixd)
+l_ok pixGetForegroundGrayMap(PIX * pixs, PIX * pixim, l_int32 sx, l_int32 sy, l_int32 thresh, PIX    ** ppixd)
 {
+	PROCNAME(__FUNCTION__);
 	l_int32 w, h, d, wd, hd;
 	l_int32 empty, fgpixels;
 	PIX * pixd, * piximi, * pixim2, * pixims, * pixs2, * pixb, * pixt1, * pixt2, * pixt3;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!ppixd)
 		return ERROR_INT("&pixd not defined", procName, 1);
 	*ppixd = NULL;
@@ -1810,18 +1710,13 @@ l_ok pixGetForegroundGrayMap(PIX * pixs,
  *       multiplied by pixd and the result is divided by 256.
  * </pre>
  */
-PIX * pixGetInvBackgroundMap(PIX * pixs,
-    l_int32 bgval,
-    l_int32 smoothx,
-    l_int32 smoothy)
+PIX * pixGetInvBackgroundMap(PIX * pixs, l_int32 bgval, l_int32 smoothx, l_int32 smoothy)
 {
+	PROCNAME(__FUNCTION__);
 	l_int32 w, h, wplsm, wpld, i, j;
 	l_int32 val, val16;
 	l_uint32 * datasm, * datad, * linesm, * lined;
 	PIX * pixsm, * pixd;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!pixs || pixGetDepth(pixs) != 8)
 		return (PIX *)ERROR_PTR("pixs undefined or not 8 bpp", procName, NULL);
 	if(pixGetColormap(pixs))
@@ -1871,19 +1766,14 @@ PIX * pixGetInvBackgroundMap(PIX * pixs,
  * \param[in]    sy      tile height in pixels
  * \return  pixd 8 bpp, or NULL on error
  */
-PIX * pixApplyInvBackgroundGrayMap(PIX * pixs,
-    PIX * pixm,
-    l_int32 sx,
-    l_int32 sy)
+PIX * pixApplyInvBackgroundGrayMap(PIX * pixs, PIX * pixm, l_int32 sx, l_int32 sy)
 {
+	PROCNAME(__FUNCTION__);
 	l_int32 w, h, wm, hm, wpls, wpld, i, j, k, m, xoff, yoff;
 	l_int32 vals, vald;
 	l_uint32 val16;
 	l_uint32 * datas, * datad, * lines, * lined, * flines, * flined;
 	PIX * pixd;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!pixs || pixGetDepth(pixs) != 8)
 		return (PIX *)ERROR_PTR("pixs undefined or not 8 bpp", procName, NULL);
 	if(pixGetColormap(pixs))
@@ -1935,22 +1825,15 @@ PIX * pixApplyInvBackgroundGrayMap(PIX * pixs,
  * \param[in]    sy      tile height in pixels
  * \return  pixd 32 bpp rbg, or NULL on error
  */
-PIX * pixApplyInvBackgroundRGBMap(PIX * pixs,
-    PIX * pixmr,
-    PIX * pixmg,
-    PIX * pixmb,
-    l_int32 sx,
-    l_int32 sy)
+PIX * pixApplyInvBackgroundRGBMap(PIX * pixs, PIX * pixmr, PIX * pixmg, PIX * pixmb, l_int32 sx, l_int32 sy)
 {
+	PROCNAME(__FUNCTION__);
 	l_int32 w, h, wm, hm, wpls, wpld, i, j, k, m, xoff, yoff;
 	l_int32 rvald, gvald, bvald;
 	l_uint32 vals;
 	l_uint32 rval16, gval16, bval16;
 	l_uint32 * datas, * datad, * lines, * lined, * flines, * flined;
 	PIX * pixd;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(pixGetDepth(pixs) != 32)

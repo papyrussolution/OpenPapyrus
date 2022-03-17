@@ -54,10 +54,10 @@ typedef struct _cairo_bo_intersect_point {
 	cairo_bo_intersect_ordinate_t y;
 } cairo_bo_intersect_point_t;
 
-struct quorem {
+/* @sobolev (replaced with Quorem_CFx) struct quorem {
 	cairo_fixed_t quo;
 	cairo_fixed_t rem;
-};
+};*/
 
 struct run {
 	struct run * next;
@@ -74,9 +74,9 @@ struct edge_t {
 	 * remainder is mod dy in cairo_fixed_t units.
 	 */
 	cairo_fixed_t dy;
-	struct quorem x;
-	struct quorem dxdy;
-	struct quorem dxdy_full;
+	Quorem_CFx x;
+	Quorem_CFx dxdy;
+	Quorem_CFx dxdy_full;
 	boolint vertical;
 	uint flags;
 	int current_sign;
@@ -138,10 +138,8 @@ typedef struct _sweep_line {
 	cairo_list_t stopped;
 	cairo_list_t * insert_cursor;
 	boolint is_vertical;
-
 	cairo_fixed_t current_row;
 	cairo_fixed_t current_subrow;
-
 	struct coverage {
 		struct cell head;
 		struct cell tail;
@@ -149,33 +147,18 @@ typedef struct _sweep_line {
 		int count;
 		cairo_freepool_t pool;
 	} coverage;
-
 	struct event_queue {
 		pqueue_t pq;
 		event_t ** start_events;
 		cairo_freepool_t pool;
 	} queue;
-
 	cairo_freepool_t runs;
-
 	jmp_buf unwind;
 } sweep_line_t;
 
-cairo_always_inline static struct quorem floored_divrem(int a, int b)                                         
+static Quorem_CFx FASTCALL floored_muldivrem(int x, int a, int b)                     
 {
-	struct quorem qr;
-	qr.quo = a/b;
-	qr.rem = a%b;
-	if((a^b) < 0 && qr.rem) {
-		qr.quo--;
-		qr.rem += b;
-	}
-	return qr;
-}
-
-static struct quorem FASTCALL floored_muldivrem(int x, int a, int b)                     
-{
-	struct quorem qr;
+	Quorem_CFx qr;
 	long long xa = (long long)x*a;
 	qr.quo = static_cast<cairo_fixed_t>(xa/b);
 	qr.rem = xa%b;
@@ -193,15 +176,11 @@ static cairo_fixed_t line_compute_intersection_x_for_y(const cairo_line_t * line
 		return line->p1.x;
 	if(y == line->p2.y)
 		return line->p2.x;
-
 	x = line->p1.x;
 	dy = line->p2.y - line->p1.y;
 	if(dy != 0) {
-		x += _cairo_fixed_mul_div_floor(y - line->p1.y,
-			line->p2.x - line->p1.x,
-			dy);
+		x += _cairo_fixed_mul_div_floor(y - line->p1.y, line->p2.x - line->p1.x, dy);
 	}
-
 	return x;
 }
 
@@ -502,11 +481,9 @@ static inline cairo_int128_t det64x32_128(cairo_int64_t a, int32 b, cairo_int64_
  * Returns %CAIRO_BO_STATUS_INTERSECTION if there is an intersection or
  * %CAIRO_BO_STATUS_PARALLEL if the two lines are exactly parallel.
  */
-static boolint intersect_lines(const edge_t * a, const edge_t * b,
-    cairo_bo_intersect_point_t * intersection)
+static boolint intersect_lines(const edge_t * a, const edge_t * b, cairo_bo_intersect_point_t * intersection)
 {
 	cairo_int64_t a_det, b_det;
-
 	/* XXX: We're assuming here that dx and dy will still fit in 32
 	 * bits. That's not true in general as there could be overflow. We
 	 * should prevent that before the tessellation algorithm begins.
@@ -954,7 +931,7 @@ static void coverage_render_cells(sweep_line_t * sweep_line, cairo_fixed_t left,
 	}
 	// Add coverage for all pixels [ix1,ix2] on this row crossed by the edge. 
 	{
-		struct quorem y = floored_divrem((STEP_X - fx1)*dy, dx);
+		Quorem_CFx y = floored_divrem_CFx((STEP_X - fx1)*dy, dx);
 		struct cell * cell = sweep_line->coverage.cursor;
 		if(cell->x != ix1) {
 			if(UNLIKELY(cell->x > ix1)) {
@@ -983,7 +960,7 @@ static void coverage_render_cells(sweep_line_t * sweep_line, cairo_fixed_t left,
 		if(cell->x != ++ix1)
 			cell = coverage_alloc(sweep_line, cell, ix1);
 		if(ix1 < ix2) {
-			struct quorem dydx_full = floored_divrem(STEP_X*dy, dx);
+			Quorem_CFx dydx_full = floored_divrem_CFx(STEP_X*dy, dx);
 			do {
 				cairo_fixed_t y_skip = dydx_full.quo;
 				y.rem += dydx_full.rem;
@@ -1199,15 +1176,10 @@ static void full_reset(sweep_line_t * sweep)
 	edge->current_sign = 0;
 }
 
-static void full_step(cairo_botor_scan_converter_t * self,
-    sweep_line_t * sweep_line,
-    cairo_fixed_t row,
-    cairo_span_renderer_t * renderer)
+static void full_step(cairo_botor_scan_converter_t * self, sweep_line_t * sweep_line, cairo_fixed_t row, cairo_span_renderer_t * renderer)
 {
-	int top, bottom;
-
-	top = _cairo_fixed_integer_part(sweep_line->current_row);
-	bottom = _cairo_fixed_integer_part(row);
+	int top = _cairo_fixed_integer_part(sweep_line->current_row);
+	int bottom = _cairo_fixed_integer_part(row);
 	if(cairo_list_is_empty(&sweep_line->active)) {
 		cairo_status_t status;
 
@@ -1217,18 +1189,15 @@ static void full_step(cairo_botor_scan_converter_t * self,
 
 		return;
 	}
-
 	if(self->fill_rule == CAIRO_FILL_RULE_WINDING)
 		full_nonzero(sweep_line);
 	else
 		full_evenodd(sweep_line);
-
 	if(sweep_line->is_vertical || bottom == top + 1) {
 		render_rows(self, sweep_line, top, bottom - top, renderer);
 		full_reset(sweep_line);
 		return;
 	}
-
 	render_rows(self, sweep_line, top++, 1, renderer);
 	do {
 		full_repeat(sweep_line);
@@ -1238,8 +1207,7 @@ static void full_step(cairo_botor_scan_converter_t * self,
 	full_reset(sweep_line);
 }
 
-cairo_always_inline static void sub_inc_edge(edge_t * edge,
-    cairo_fixed_t height)
+FORCEINLINE static void sub_inc_edge(edge_t * edge, cairo_fixed_t height)
 {
 	if(height == 1) {
 		edge->x.quo += edge->dxdy.quo;
@@ -1360,7 +1328,7 @@ static void sub_evenodd(sweep_line_t * sweep_line)
 	} while(pos != &sweep_line->active);
 }
 
-cairo_always_inline static void sub_step(cairo_botor_scan_converter_t * self, sweep_line_t * sweep_line)
+FORCEINLINE static void sub_step(cairo_botor_scan_converter_t * self, sweep_line_t * sweep_line)
 {
 	if(cairo_list_is_empty(&sweep_line->active))
 		return;
@@ -1427,17 +1395,16 @@ static void coverage_render_vertical_runs(sweep_line_t * sweep, edge_t * edge, c
 	cell->uncovered_area += 2 * _cairo_fixed_fractional_part(edge->x.quo) * height;
 }
 
-cairo_always_inline static void sub_emit(cairo_botor_scan_converter_t * self, sweep_line_t * sweep, cairo_span_renderer_t * renderer)
+FORCEINLINE static void sub_emit(cairo_botor_scan_converter_t * self, sweep_line_t * sweep, cairo_span_renderer_t * renderer)
 {
 	edge_t * edge;
 	sub_step(self, sweep);
-	/* convert the runs into coverages */
+	// convert the runs into coverages 
 	cairo_list_foreach_entry(edge, edge_t, &sweep->active, link) {
 		if(edge->runs == NULL) {
 			if(!edge->vertical) {
 				if(edge->flags & START) {
-					sub_inc_edge(edge,
-					    STEP_Y - _cairo_fixed_fractional_part(edge->edge.top));
+					sub_inc_edge(edge, STEP_Y - _cairo_fixed_fractional_part(edge->edge.top));
 					edge->flags &= ~START;
 				}
 				else
@@ -1460,7 +1427,6 @@ cairo_always_inline static void sub_emit(cairo_botor_scan_converter_t * self, sw
 		edge->current_sign = 0;
 		edge->runs = NULL;
 	}
-
 	cairo_list_foreach_entry(edge, edge_t, &sweep->stopped, link) {
 		int y2 = _cairo_fixed_fractional_part(edge->edge.bottom);
 		if(edge->vertical) {
@@ -1552,53 +1518,35 @@ static cairo_status_t botor_generate(cairo_botor_scan_converter_t * self, event_
 				sub_step(self, &sweep_line);
 				sweep_line.current_subrow = event->y;
 			}
-
 			do {
 				/* Update the active list using Bentley-Ottmann */
 				switch(event->type) {
 					case EVENT_TYPE_START:
 					    e1 = ((start_event_t*)event)->edge;
-
 					    sweep_line_insert(&sweep_line, e1);
 					    event_insert_stop(&sweep_line, e1);
-
 					    left = e1->link.prev;
 					    right = e1->link.next;
-
 					    if(left != &sweep_line.active) {
-						    event_insert_if_intersect_below_current_y(&sweep_line,
-							link_to_edge(left), e1);
+						    event_insert_if_intersect_below_current_y(&sweep_line, link_to_edge(left), e1);
 					    }
-
 					    if(right != &sweep_line.active) {
-						    event_insert_if_intersect_below_current_y(&sweep_line,
-							e1, link_to_edge(right));
+						    event_insert_if_intersect_below_current_y(&sweep_line, e1, link_to_edge(right));
 					    }
-
 					    break;
-
 					case EVENT_TYPE_STOP:
 					    e1 = ((queue_event_t*)event)->e1;
 					    event_delete(&sweep_line, event);
-
 					    left = e1->link.prev;
 					    right = e1->link.next;
-
 					    sweep_line_delete(&sweep_line, e1);
-
-					    if(left != &sweep_line.active &&
-						right != &sweep_line.active) {
-						    event_insert_if_intersect_below_current_y(&sweep_line,
-							link_to_edge(left),
-							link_to_edge(right));
+					    if(left != &sweep_line.active && right != &sweep_line.active) {
+						    event_insert_if_intersect_below_current_y(&sweep_line, link_to_edge(left), link_to_edge(right));
 					    }
-
 					    break;
-
 					case EVENT_TYPE_INTERSECTION:
 					    e1 = ((queue_event_t*)event)->e1;
 					    e2 = ((queue_event_t*)event)->e2;
-
 					    event_delete(&sweep_line, event);
 					    if(e1->flags & STOP)
 						    break;
@@ -1627,7 +1575,6 @@ static cairo_status_t botor_generate(cairo_botor_scan_converter_t * self, event_
 
 					    break;
 				}
-
 				event = event_next(&sweep_line);
 				if(event == NULL)
 					goto end;
@@ -1650,14 +1597,10 @@ end:
 	/* clear the rest */
 	if(sweep_line.current_subrow < ybot) {
 		bottom = _cairo_fixed_integer_part(sweep_line.current_row);
-		status = renderer->render_rows(renderer,
-			bottom, _cairo_fixed_integer_ceil(ybot) - bottom,
-			NULL, 0);
+		status = renderer->render_rows(renderer, bottom, _cairo_fixed_integer_ceil(ybot) - bottom, NULL, 0);
 	}
-
 unwind:
 	sweep_line_fini(&sweep_line);
-
 	return status;
 }
 
@@ -1741,17 +1684,15 @@ static cairo_status_t botor_add_edge(cairo_botor_scan_converter_t * self, const 
 	}
 	else {
 		e->vertical = FALSE;
-		e->dxdy = floored_divrem(dx, dy);
+		e->dxdy = floored_divrem_CFx(dx, dy);
 		if(edge->top == edge->line.p1.y) {
 			e->x.quo = edge->line.p1.x;
 			e->x.rem = 0;
 		}
 		else {
-			e->x = floored_muldivrem(edge->top - edge->line.p1.y,
-				dx, dy);
+			e->x = floored_muldivrem(edge->top - edge->line.p1.y, dx, dy);
 			e->x.quo += edge->line.p1.x;
 		}
-
 		if(_cairo_fixed_integer_part(edge->bottom) - _cairo_fixed_integer_part(edge->top) > 1) {
 			e->dxdy_full = floored_muldivrem(STEP_Y, dx, dy);
 		}
@@ -1760,7 +1701,6 @@ static cairo_status_t botor_add_edge(cairo_botor_scan_converter_t * self, const 
 			e->dxdy_full.rem = 0;
 		}
 	}
-
 	e->x.rem = -e->dy;
 	e->current_sign = 0;
 	e->runs = NULL;

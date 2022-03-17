@@ -82,10 +82,9 @@ static const l_int32 ZLIB_COMPRESSION_LEVEL = 6;
  *          compressing L_BUF_SIZE bytes of input data at a time.
  * </pre>
  */
-uint8 * zlibCompress(const uint8  * datain,
-    size_t nin,
-    size_t         * pnout)
+uint8 * zlibCompress(const uint8  * datain, size_t nin, size_t         * pnout)
 {
+	PROCNAME(__FUNCTION__);
 	uint8    * dataout;
 	l_int32 status, success;
 	l_int32 flush;
@@ -93,27 +92,20 @@ uint8 * zlibCompress(const uint8  * datain,
 	uint8    * bufferin, * bufferout;
 	L_BBUFFER  * bbin, * bbout;
 	z_stream z;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!datain)
 		return (uint8 *)ERROR_PTR("datain not defined", procName, NULL);
-
 	/* Set up fixed size buffers used in z_stream */
 	bufferin = (uint8 *)SAlloc::C(L_BUF_SIZE, sizeof(uint8));
 	bufferout = (uint8 *)SAlloc::C(L_BUF_SIZE, sizeof(uint8));
-
 	/* Set up bbuffers and load bbin with the data */
 	bbin = bbufferCreate(datain, nin);
 	bbout = bbufferCreate(NULL, 0);
-
 	success = TRUE;
 	if(!bufferin || !bufferout || !bbin || !bbout) {
 		L_ERROR("calloc fail for buffer\n", procName);
 		success = FALSE;
 		goto cleanup_arrays;
 	}
-
 	z.zalloc = (alloc_func)0;
 	z.zfree = (free_func)0;
 	z.opaque = (voidpf)0;
@@ -185,19 +177,15 @@ cleanup_arrays:
  *      (1) See zlibCompress().
  * </pre>
  */
-uint8 * zlibUncompress(const uint8  * datain,
-    size_t nin,
-    size_t         * pnout)
+uint8 * zlibUncompress(const uint8  * datain, size_t nin, size_t         * pnout)
 {
+	PROCNAME(__FUNCTION__);
 	uint8    * dataout;
 	uint8    * bufferin, * bufferout;
 	l_int32 status, success;
 	size_t nbytes;
 	L_BBUFFER  * bbin, * bbout;
 	z_stream z;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!datain)
 		return (uint8 *)ERROR_PTR("datain not defined", procName, NULL);
 

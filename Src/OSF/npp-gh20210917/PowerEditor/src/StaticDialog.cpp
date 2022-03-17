@@ -1,6 +1,6 @@
 // This file is part of Notepad++ project
 // Copyright (C)2021 Don HO <don.h@free.fr>
-
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
@@ -37,10 +37,7 @@ POINT StaticDialog::getTopPoint(HWND hwnd, bool isLeft) const
 	RECT rc;
 	::GetWindowRect(hwnd, &rc);
 	POINT p;
-	if(isLeft)
-		p.x = rc.left;
-	else
-		p.x = rc.right;
+	p.x = isLeft ? rc.left : rc.right;
 	p.y = rc.top;
 	::ScreenToClient(_hSelf, &p);
 	return p;
@@ -64,10 +61,8 @@ void StaticDialog::goToCenter()
 	center.x = rc.left + (rc.right - rc.left)/2;
 	center.y = rc.top + (rc.bottom - rc.top)/2;
 	::ClientToScreen(_hParent, &center);
-
-	int x = center.x - (_rc.right - _rc.left)/2;
-	int y = center.y - (_rc.bottom - _rc.top)/2;
-
+	const int x = center.x - (_rc.right - _rc.left)/2;
+	const int y = center.y - (_rc.bottom - _rc.top)/2;
 	::SetWindowPos(_hSelf, HWND_TOP, x, y, _rc.right - _rc.left, _rc.bottom - _rc.top, SWP_SHOWWINDOW);
 }
 
@@ -76,14 +71,10 @@ void StaticDialog::display(bool toShow, bool enhancedPositioningCheckWhenShowing
 	if(toShow) {
 		if(enhancedPositioningCheckWhenShowing) {
 			RECT testPositionRc, candidateRc;
-
 			getWindowRect(testPositionRc);
-
 			candidateRc = getViewablePositionRect(testPositionRc);
-
 			if((testPositionRc.left != candidateRc.left) || (testPositionRc.top != candidateRc.top)) {
-				::MoveWindow(_hSelf, candidateRc.left, candidateRc.top,
-				    candidateRc.right - candidateRc.left, candidateRc.bottom - candidateRc.top, TRUE);
+				::MoveWindow(_hSelf, candidateRc.left, candidateRc.top, candidateRc.right - candidateRc.left, candidateRc.bottom - candidateRc.top, TRUE);
 			}
 		}
 		else {
@@ -96,7 +87,6 @@ void StaticDialog::display(bool toShow, bool enhancedPositioningCheckWhenShowing
 			int newLeft = rc.left;
 			int newTop = rc.top;
 			int margin = ::GetSystemMetrics(SM_CYSMCAPTION);
-
 			if(newLeft > ::GetSystemMetrics(SM_CXVIRTUALSCREEN) - margin)
 				newLeft -= rc.right - workAreaRect.right;
 			if(newLeft + (rc.right - rc.left) < ::GetSystemMetrics(SM_XVIRTUALSCREEN) + margin)
@@ -175,18 +165,16 @@ HGLOBAL StaticDialog::makeRTLResource(int dialogID, DLGTEMPLATE ** ppMyDlgTempla
 	if(!hMyDlgTemplate) return nullptr;
 
 	*ppMyDlgTemplate = static_cast<DLGTEMPLATE *>(::GlobalLock(hMyDlgTemplate));
-	if(!*ppMyDlgTemplate) return nullptr;
-
+	if(!*ppMyDlgTemplate) 
+		return nullptr;
 	::memcpy(*ppMyDlgTemplate, pDlgTemplate, sizeDlg);
-
 	DLGTEMPLATEEX* pMyDlgTemplateEx = reinterpret_cast<DLGTEMPLATEEX *>(*ppMyDlgTemplate);
-	if(!pMyDlgTemplateEx) return nullptr;
-
+	if(!pMyDlgTemplateEx) 
+		return nullptr;
 	if(pMyDlgTemplateEx->signature == 0xFFFF)
 		pMyDlgTemplateEx->exStyle |= WS_EX_LAYOUTRTL;
 	else
 		(*ppMyDlgTemplate)->dwExtendedStyle |= WS_EX_LAYOUTRTL;
-
 	return hMyDlgTemplate;
 }
 
@@ -209,7 +197,6 @@ void StaticDialog::create(int dialogID, bool isRTL, bool msgDestParent)
 	}
 
 	NppDarkMode::setDarkTitleBar(_hSelf);
-
 	// if the destination of message NPPM_MODELESSDIALOG is not its parent, then it's the grand-parent
 	::SendMessage(msgDestParent ? _hParent : (::GetParent(_hParent)), NPPM_MODELESSDIALOG, MODELESSDIALOGADD,
 	    reinterpret_cast<WPARAM>(_hSelf));
@@ -217,21 +204,17 @@ void StaticDialog::create(int dialogID, bool isRTL, bool msgDestParent)
 
 INT_PTR CALLBACK StaticDialog::dlgProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch(message)
-	{
+	switch(message) {
 		case WM_INITDIALOG:
 	    {
 		    NppDarkMode::setDarkTitleBar(hwnd);
-
 		    StaticDialog * pStaticDlg = reinterpret_cast<StaticDialog *>(lParam);
 		    pStaticDlg->_hSelf = hwnd;
 		    ::SetWindowLongPtr(hwnd, GWLP_USERDATA, static_cast<LONG_PTR>(lParam));
 		    ::GetWindowRect(hwnd, &(pStaticDlg->_rc));
 		    pStaticDlg->run_dlgProc(message, wParam, lParam);
-
 		    return TRUE;
 	    }
-
 		default:
 	    {
 		    StaticDialog * pStaticDlg = reinterpret_cast<StaticDialog *>(::GetWindowLongPtr(hwnd, GWLP_USERDATA));

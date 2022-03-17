@@ -352,8 +352,10 @@
 /* #undef HAVE_LSTAT */ /* Define to 1 if you have the `lstat' function. */
 /* #undef HAVE_LSTAT_EMPTY_STRING_BUG */ /* Define to 1 if `lstat' has the bug that it succeeds when given the zero-length file name argument. */
 /* #undef HAVE_LUTIMES */ /* Define to 1 if you have the `lutimes' function. */
-/* #undef HAVE_LZ4HC_H */ /* Define to 1 if you have the <lz4hc.h> header file. */
-/* #undef HAVE_LZ4_H */ /* Define to 1 if you have the <lz4.h> header file. */
+/* #undef HAVE_LZ4HC_H */ 
+/* #undef HAVE_LZ4_H */ 
+#define HAVE_LZ4HC_H 1 // Define to 1 if you have the <lz4hc.h> header file
+#define HAVE_LZ4_H   1 // Define to 1 if you have the <lz4.h> header file
 /* #undef HAVE_LZMADEC_H */ /* Define to 1 if you have the <lzmadec.h> header file. */
 #define HAVE_LZMA_H 1 /* Define to 1 if you have the <lzma.h> header file. */
 /* #undef HAVE_LZMA_STREAM_ENCODER_MT */ /* Define to 1 if you have a working `lzma_stream_encoder_mt' function. */

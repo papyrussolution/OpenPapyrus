@@ -43,11 +43,11 @@ int __libarchive_cryptor_build_hack(void);
 
 typedef struct {
 	CCCryptorRef ctx;
-	uint8 key[AES_MAX_KEY_SIZE];
-	unsigned key_len;
-	uint8 nonce[AES_BLOCK_SIZE];
-	uint8 encr_buf[AES_BLOCK_SIZE];
-	unsigned encr_pos;
+	uint8  key[AES_MAX_KEY_SIZE];
+	uint   key_len;
+	uint8  nonce[AES_BLOCK_SIZE];
+	uint8  encr_buf[AES_BLOCK_SIZE];
+	uint   encr_pos;
 } archive_crypto_ctx;
 
 #elif defined(_WIN32) && !defined(__CYGWIN__) && defined(HAVE_BCRYPT_H)
@@ -63,11 +63,11 @@ typedef struct {
 typedef struct {
 	BCRYPT_ALG_HANDLE hAlg;
 	BCRYPT_KEY_HANDLE hKey;
-	PBYTE keyObj;
-	DWORD keyObj_len;
-	uint8 nonce[AES_BLOCK_SIZE];
-	uint8 encr_buf[AES_BLOCK_SIZE];
-	unsigned encr_pos;
+	PBYTE  keyObj;
+	DWORD  keyObj_len;
+	uint8  nonce[AES_BLOCK_SIZE];
+	uint8  encr_buf[AES_BLOCK_SIZE];
+	uint   encr_pos;
 } archive_crypto_ctx;
 
 #elif defined(HAVE_LIBMBEDCRYPTO) && defined(HAVE_MBEDTLS_AES_H)
@@ -80,11 +80,11 @@ typedef struct {
 
 typedef struct {
 	mbedtls_aes_context ctx;
-	uint8 key[AES_MAX_KEY_SIZE];
-	unsigned key_len;
-	uint8 nonce[AES_BLOCK_SIZE];
-	uint8 encr_buf[AES_BLOCK_SIZE];
-	unsigned encr_pos;
+	uint8  key[AES_MAX_KEY_SIZE];
+	uint   key_len;
+	uint8  nonce[AES_BLOCK_SIZE];
+	uint8  encr_buf[AES_BLOCK_SIZE];
+	uint   encr_pos;
 } archive_crypto_ctx;
 
 #elif defined(HAVE_LIBNETTLE) && defined(HAVE_NETTLE_AES_H)
@@ -104,11 +104,11 @@ typedef struct {
 		struct aes256_ctx c256;
 	} ctx;
 #endif
-	uint8 key[AES_MAX_KEY_SIZE];
-	unsigned key_len;
-	uint8 nonce[AES_BLOCK_SIZE];
-	uint8 encr_buf[AES_BLOCK_SIZE];
-	unsigned encr_pos;
+	uint8  key[AES_MAX_KEY_SIZE];
+	uint   key_len;
+	uint8  nonce[AES_BLOCK_SIZE];
+	uint8  encr_buf[AES_BLOCK_SIZE];
+	uint   encr_pos;
 } archive_crypto_ctx;
 
 #elif defined(HAVE_LIBCRYPTO)
@@ -118,12 +118,12 @@ typedef struct {
 
 typedef struct {
 	EVP_CIPHER_CTX  * ctx;
-	const EVP_CIPHER * type;
-	uint8 key[AES_MAX_KEY_SIZE];
-	unsigned key_len;
-	uint8 nonce[AES_BLOCK_SIZE];
-	uint8 encr_buf[AES_BLOCK_SIZE];
-	unsigned encr_pos;
+	const  EVP_CIPHER * type;
+	uint8  key[AES_MAX_KEY_SIZE];
+	uint   key_len;
+	uint8  nonce[AES_BLOCK_SIZE];
+	uint8  encr_buf[AES_BLOCK_SIZE];
+	uint   encr_pos;
 } archive_crypto_ctx;
 
 #else

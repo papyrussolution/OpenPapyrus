@@ -473,7 +473,8 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 					startActivity(intent);
 				}
 				else if(view_id == R.id.tbButtonSearch) {
-
+					Intent intent = new Intent(this, GlobalSearchActivity.class);
+					startActivity(intent);
 				}
 				else if(view_id == R.id.tbButtonTest) {
 					StyloQApp app_ctx = (StyloQApp)getApplication();

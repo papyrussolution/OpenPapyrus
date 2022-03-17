@@ -6359,10 +6359,10 @@ private:
 	void   DoKeyBounds(GpTermEntry * pTerm, legend_key * pKey);
 	void   DoKeyLayout(GpTermEntry * pTerm, legend_key * pKey);
 	void   Do3DKeyLayout(GpTermEntry * pTerm, legend_key * pKey, int * xinkey, int * yinkey);
-	void   DoTimeLabel(GpTermEntry * pTerm, int x, int y);
+	void   DoTimeLabel(GpTermEntry * pTerm, SPoint2I pt);
 	void   SPlotMapActivate();
 	void   SPlotMapDeactivate();
-	void   KeyText(GpTermEntry * pTerm, int xl, int yl, char * pText);
+	void   KeyText(GpTermEntry * pTerm, int xl, int yl, const char * pText);
 	void   BoxPlotRangeFiddling(GpTermEntry * pTerm, curve_points * pPlot);
 	void   PlotBorder(GpTermEntry * pTerm);
 	void   PlotSteps(GpTermEntry * pTerm, curve_points * plot);
@@ -6430,10 +6430,10 @@ private:
 	void   Plot3DHidden(GpTermEntry * pTerm, GpSurfacePoints * plots, int pcount);
 	bool   CheckForVariableColor(GpTermEntry * pTerm, const curve_points * pPlot, const double * pColorValue);
 	void   Check3DForVariableColor(GpTermEntry * pTerm, GpSurfacePoints * pPlot, const GpCoordinate * pPoint);
-	void   Cntr3DLabels(GpTermEntry * pTerm, gnuplot_contours * cntr, char * pLevelText, text_label * pLabel);
-	void   Cntr3DImpulses(GpTermEntry * pTerm, gnuplot_contours * cntr, lp_style_type * lp);
-	void   Cntr3DPoints(GpTermEntry * pTerm, gnuplot_contours * cntr, lp_style_type * lp);
-	void   Cntr3DLines(GpTermEntry * pTerm, gnuplot_contours * cntr, struct lp_style_type * lp);
+	void   Cntr3DLabels(GpTermEntry * pTerm, const gnuplot_contours * cntr, char * pLevelText, text_label * pLabel);
+	void   Cntr3DImpulses(GpTermEntry * pTerm, const gnuplot_contours * cntr, lp_style_type * lp);
+	void   Cntr3DPoints(GpTermEntry * pTerm, const gnuplot_contours * cntr, lp_style_type * lp);
+	void   Cntr3DLines(GpTermEntry * pTerm, const gnuplot_contours * cntr, struct lp_style_type * lp);
 	void   Polyline3DStart(GpTermEntry * pTerm, GpVertex * v1);
 	void   Polyline3DNext(GpTermEntry * pTerm, GpVertex * v2, lp_style_type * lp);
 	void   GetArrow(GpTermEntry * pTerm, arrow_def * pArrow, double * pSx, double * pSy, double * pEx, double * pEy);

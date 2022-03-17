@@ -881,17 +881,17 @@ int GnuPlot::LabelWidth(const char * pStr, int * pLines)
 // Here so that it can be shared by the 2D and 3D code
 //
 //void do_timelabel(int x, int y)
-void GnuPlot::DoTimeLabel(GpTermEntry * pTerm, int x, int y)
+void GnuPlot::DoTimeLabel(GpTermEntry * pTerm, SPoint2I pt)
 {
 	text_label temp = Gg.LblTime;
 	char str[MAX_LINE_LEN+1];
 	time_t now;
 	if(Gg.LblTime.rotate == 0 && !Gg.TimeLabelBottom)
-		y -= pTerm->CV();
+		pt.y -= pTerm->CV();
 	time(&now);
 	strftime(str, MAX_LINE_LEN, Gg.LblTime.text, localtime(&now));
 	temp.text = str;
-	WriteLabel(pTerm, x, y, &temp);
+	WriteLabel(pTerm, pt.x, pt.y, &temp);
 }
 
 //void init_gadgets()

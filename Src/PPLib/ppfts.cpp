@@ -67,6 +67,30 @@ PPFtsIterface::~PPFtsIterface()
 bool PPFtsIterface::operator !() const { return !H; }
 bool PPFtsIterface::IsWriter() const { return (!!H && H.IsWriter()); }
 
+PPFtsIterface::SurrogateScopeList::SurrogateScopeList() : TSCollection <SBinaryChunk>()
+{
+}
+
+bool PPFtsIterface::SurrogateScopeList::Search(const SBinaryChunk & rKey, uint * pPos) const
+{
+	bool   ok = false;
+	for(uint i = 0; !ok && i < getCount(); i++) {
+		const SBinaryChunk * p_item = at(i);
+		ok = (p_item && *p_item == rKey);
+	}
+	return ok;
+}
+
+int PPFtsIterface::Entity::MakeSurrogateScopeIdent(SBinaryChunk & rSsi) const
+{
+	int    ok = 1;
+	rSsi.Z();
+	THROW_SL(rSsi.Cat(&Scope, sizeof(Scope)));
+	THROW_SL(rSsi.Cat(ScopeIdent.cptr(), ScopeIdent.Len()));
+	CATCHZOK
+	return ok;
+}
+
 #if (_MSC_VER >= 1900) // {
 
 #include <unordered_map>
@@ -273,17 +297,6 @@ int PPFtsDatabase::Search(const char * pQueryUtf8, uint maxItems, TSCollection <
 	CATCHZOK
 	return ok;
 }*/
-
-int PPFtsIterface::Entity::MakeSurrogateScopeIdent(SBinaryChunk & rSsi) const
-{
-	int    ok = 1;
-	rSsi.Z();
-	THROW_SL(rSsi.Cat(&Scope, sizeof(Scope)));
-	THROW_SL(rSsi.Cat(ScopeIdent.cptr(), ScopeIdent.Len()));
-	CATCHZOK
-	return ok;
-}
-
 int PPFtsIterface::Entity::SetSurrogateScopeIdent(const SBinaryChunk & rSsi)
 {
 	int    ok = 1;

@@ -312,7 +312,7 @@ int ACS_FRONTOL::ExportData(int updOnly)
 					f_str.Cat(info.Rec.Code).Semicol(); // Code
 					f_str.Cat(NZOR(info.Rec.Dt, encodedate(1, 1, 2000)), DATF_GERMAN|DATF_CENTURY).Semicol();
 					f_str.Cat(NZOR(info.Rec.Expiry, encodedate(1, 1, 3000)), DATF_GERMAN|DATF_CENTURY).Semicol();
-					f_str.Cat(info.IsClosed ? 0 : 1).Semicol();  // Passive | Active
+					f_str.Cat((info.Flags & AsyncCashSCardInfo::fClosed) ? 0 : 1).Semicol();  // Passive | Active
 					f_str.Cat(0L).Semicol();                     // Скидка уменьшающая цену в процентах (0)
 					f_str.Cat(fdiv100i(info.Rec.PDis), MKSFMTD(0, 2, NMBF_NOTRAILZ)).Semicol();
 					f_str.Cat(1L).Semicol();                     // Скидка на сумму чека
@@ -417,7 +417,7 @@ int ACS_FRONTOL::ExportData(int updOnly)
 						f_str.Cat(NZOR(info.Rec.Expiry, encodedate(1, 1, 3000)), DATF_GERMAN | DATF_CENTURY).Semicol(); // #10 Конечная дата действия сертификата
 						f_str.Semicol();                       // #11 Не используется //
 						f_str.Cat(R0i(info.Rest)).Semicol(); // #12 Конец диапазона длин сертификатов
-						f_str.Cat(info.IsClosed ? 0 : 1).Semicol();  // #13 Passive | Active
+						f_str.Cat((info.Flags & AsyncCashSCardInfo::fClosed) ? 0 : 1).Semicol();  // #13 Passive | Active
 						f_str.CR();
 						fputs(f_str, p_file);
 						iter.SetStat();
@@ -639,8 +639,9 @@ int ACS_FRONTOL::ExportData(int updOnly)
 									case GTCHZNPT_CARTIRE: mark_type = 10; break;
 									case GTCHZNPT_PERFUMERY: mark_type = 9; break;
 									case GTCHZNPT_TOBACCO: mark_type = 4; break;
-									case GTCHZNPT_MEDICINE: mark_type = 7; break; // 7–иная маркированная продукция
-									case GTCHZNPT_FUR: mark_type = 7; break; // 7–иная маркированная продукция
+									case GTCHZNPT_MEDICINE: mark_type = 3; break;
+									case GTCHZNPT_FUR: mark_type = 2; break;
+									case GTCHZNPT_MILK: mark_type = 13; break; // @v11.3.5
 									default:
 										if(gds_info.ChZnProdType)
 											mark_type = 7; // 7–иная маркированная продукция

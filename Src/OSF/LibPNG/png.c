@@ -1,15 +1,12 @@
-
-/* png.c - location for general purpose libpng functions
- *
- * Last changed in libpng 1.6.19 [November 12, 2015]
- * Copyright (c) 1998-2002,2004,2006-2015 Glenn Randers-Pehrson
- * (Version 0.96 Copyright (c) 1996, 1997 Andreas Dilger)
- * (Version 0.88 Copyright (c) 1995, 1996 Guy Eric Schalnat, Group 42, Inc.)
- *
- * This code is released under the libpng license.
- * For conditions of distribution and use, see the disclaimer
- * and license in png.h
- */
+// png.c - location for general purpose libpng functions
+// Last changed in libpng 1.6.19 [November 12, 2015]
+// Copyright (c) 1998-2002,2004,2006-2015 Glenn Randers-Pehrson
+// (Version 0.96 Copyright (c) 1996, 1997 Andreas Dilger)
+// (Version 0.88 Copyright (c) 1995, 1996 Guy Eric Schalnat, Group 42, Inc.)
+// 
+// This code is released under the libpng license.
+// For conditions of distribution and use, see the disclaimer and license in png.h
+// 
 #include "pngpriv.h"
 #pragma hdrstop
 
@@ -21,12 +18,11 @@ typedef png_libpng_version_1_6_23 Your_png_h_is_not_version_1_6_23;
  * stream we can set num_bytes = 8 so that libpng will not attempt to read
  * or write any of the magic bytes before it starts on the IHDR.
  */
-
 #ifdef PNG_READ_SUPPORTED
 void PNGAPI png_set_sig_bytes(png_structrp png_ptr, int num_bytes)
 {
 	uint nb = (uint)num_bytes;
-	png_debug(1, "in png_set_sig_bytes");
+	png_debug(1, "in " __FUNCTION__);
 	if(png_ptr) {
 		if(num_bytes < 0)
 			nb = 0;
@@ -126,24 +122,22 @@ void /* PRIVATE */ png_calculate_crc(png_structrp png_ptr, png_const_bytep ptr, 
 			 */
 			ptr += safe_length;
 			length -= safe_length;
-		}
-		while(length > 0);
-
-		/* And the following is always safe because the crc is only 32 bits. */
+		} while(length > 0);
+		// And the following is always safe because the crc is only 32 bits. 
 		png_ptr->crc = (uint32)crc;
 	}
 }
-
-/* Check a user supplied version number, called from both read and write
- * functions that create a png_struct.
- */
+// 
+// Check a user supplied version number, called from both read and write
+// functions that create a png_struct.
+// 
 int png_user_version_check(png_structrp png_ptr, const char * user_png_ver)
 {
 	/* Libpng versions 1.0.0 and later are binary compatible if the version
 	 * string matches through the second '.'; we must recompile any
 	 * applications that use any older library version.
 	 */
-	if(user_png_ver != NULL) {
+	if(user_png_ver) {
 		int i = -1;
 		int found_dots = 0;
 		do {
@@ -156,7 +150,7 @@ int png_user_version_check(png_structrp png_ptr, const char * user_png_ver)
 	}
 	else
 		png_ptr->flags |= PNG_FLAG_LIBRARY_MISMATCH;
-	if((png_ptr->flags & PNG_FLAG_LIBRARY_MISMATCH) != 0) {
+	if(png_ptr->flags & PNG_FLAG_LIBRARY_MISMATCH) {
 #ifdef PNG_WARNINGS_SUPPORTED
 		size_t pos = 0;
 		char m[128];
@@ -194,12 +188,10 @@ PNG_ALLOCATED png_structp /* PRIVATE */ png_create_png_struct(const char * user_
 #ifdef PNG_USER_LIMITS_SUPPORTED
 	create_struct.user_width_max = PNG_USER_WIDTH_MAX;
 	create_struct.user_height_max = PNG_USER_HEIGHT_MAX;
-
 #ifdef PNG_USER_CHUNK_CACHE_MAX
 	/* Added at libpng-1.2.43 and 1.4.0 */
 	create_struct.user_chunk_cache_max = PNG_USER_CHUNK_CACHE_MAX;
 #endif
-
 #ifdef PNG_USER_CHUNK_MALLOC_MAX
 	/* Added at libpng-1.2.43 and 1.4.1, required only for read but exists
 	 * in png_struct regardless.
@@ -207,7 +199,6 @@ PNG_ALLOCATED png_structp /* PRIVATE */ png_create_png_struct(const char * user_
 	create_struct.user_chunk_malloc_max = PNG_USER_CHUNK_MALLOC_MAX;
 #endif
 #endif
-
 	/* The following two API calls simply set fields in png_struct, so it is safe
 	 * to do them now even though error handling is not yet set up.
 	 */
@@ -224,7 +215,6 @@ PNG_ALLOCATED png_structp /* PRIVATE */ png_create_png_struct(const char * user_
 	 * API.
 	 */
 	png_set_error_fn(&create_struct, error_ptr, error_fn, warn_fn);
-
 #ifdef PNG_SETJMP_SUPPORTED
 	if(!setjmp(create_jmp_buf))
 #endif
@@ -250,30 +240,29 @@ PNG_ALLOCATED png_structp /* PRIVATE */ png_create_png_struct(const char * user_
 				create_struct.zstream.zalloc = png_zalloc;
 				create_struct.zstream.zfree = png_zfree;
 				create_struct.zstream.opaque = png_ptr;
-#              ifdef PNG_SETJMP_SUPPORTED
+#ifdef PNG_SETJMP_SUPPORTED
 				/* Eliminate the local error handling: */
 				create_struct.jmp_buf_ptr = NULL;
 				create_struct.jmp_buf_size = 0;
 				create_struct.longjmp_fn = 0;
-#              endif
+#endif
 				*png_ptr = create_struct;
 				/* This is the successful return point */
 				return png_ptr;
 			}
 		}
 	}
-
-	/* A longjmp because of a bug in the application storage allocator or a
-	 * simple failure to allocate the png_struct.
-	 */
+	// A longjmp because of a bug in the application storage allocator or a
+	// simple failure to allocate the png_struct.
 	return NULL;
 }
-
-/* Allocate the memory for an info_struct for the application. */
+//
+// Allocate the memory for an info_struct for the application. 
+//
 PNG_ALLOCATED png_infop PNGAPI png_create_info_struct(png_const_structrp png_ptr)
 {
 	png_inforp info_ptr;
-	png_debug(1, "in png_create_info_struct");
+	png_debug(1, "in " __FUNCTION__);
 	if(!png_ptr)
 		return NULL;
 	/* Use the internal API that does not (or at least should not) error out, so
@@ -297,7 +286,7 @@ PNG_ALLOCATED png_infop PNGAPI png_create_info_struct(png_const_structrp png_ptr
 void PNGAPI png_destroy_info_struct(png_const_structrp png_ptr, png_infopp info_ptr_ptr)
 {
 	png_inforp info_ptr = NULL;
-	png_debug(1, "in png_destroy_info_struct");
+	png_debug(1, "in " __FUNCTION__);
 	if(png_ptr) {
 		if(info_ptr_ptr != NULL)
 			info_ptr = *info_ptr_ptr;
@@ -328,7 +317,7 @@ void PNGAPI png_destroy_info_struct(png_const_structrp png_ptr, png_infopp info_
 PNG_DEPRECATED void PNGAPI png_info_init_3(png_infopp ptr_ptr, size_t png_info_struct_size)
 {
 	png_inforp info_ptr = *ptr_ptr;
-	png_debug(1, "in png_info_init_3");
+	png_debug(1, "in " __FUNCTION__);
 	if(info_ptr) {
 		if((sizeof(png_info)) > png_info_struct_size) {
 			*ptr_ptr = NULL;
@@ -347,7 +336,7 @@ PNG_DEPRECATED void PNGAPI png_info_init_3(png_infopp ptr_ptr, size_t png_info_s
 /* The following API is not called internally */
 void PNGAPI png_data_freer(png_const_structrp png_ptr, png_inforp info_ptr, int freer, uint32 mask)
 {
-	png_debug(1, "in png_data_freer");
+	png_debug(1, "in " __FUNCTION__);
 	if(png_ptr == NULL || info_ptr == NULL)
 		return;
 	if(freer == PNG_DESTROY_WILL_FREE_DATA)
@@ -360,7 +349,7 @@ void PNGAPI png_data_freer(png_const_structrp png_ptr, png_inforp info_ptr, int 
 
 void PNGAPI png_free_data(png_const_structrp png_ptr, png_inforp info_ptr, uint32 mask, int num)
 {
-	png_debug(1, "in png_free_data");
+	png_debug(1, "in " __FUNCTION__);
 	if(png_ptr == NULL || info_ptr == NULL)
 		return;
 #ifdef PNG_TEXT_SUPPORTED
@@ -525,7 +514,7 @@ void * PNGAPI png_get_io_ptr(png_const_structrp png_ptr)
  */
 void PNGAPI png_init_io(png_structrp png_ptr, png_FILE_p fp)
 {
-	png_debug(1, "in png_init_io");
+	png_debug(1, "in " __FUNCTION__);
 	if(png_ptr)
 		png_ptr->io_ptr = (void *)fp;
 }
@@ -683,37 +672,35 @@ const char * PNGAPI png_get_header_version(png_const_structrp png_ptr)
  */
 void PNGAPI png_build_grayscale_palette(int bit_depth, png_colorp palette)
 {
-	int num_palette;
-	int color_inc;
-	int i;
-	int v;
-	png_debug(1, "in png_do_build_grayscale_palette");
-	if(palette == NULL)
-		return;
-	switch(bit_depth) {
-		case 1:
-		    num_palette = 2;
-		    color_inc = 0xff;
-		    break;
-		case 2:
-		    num_palette = 4;
-		    color_inc = 0x55;
-		    break;
-		case 4:
-		    num_palette = 16;
-		    color_inc = 0x11;
-		    break;
-		case 8:
-		    num_palette = 256;
-		    color_inc = 1;
-		    break;
-		default:
-		    num_palette = 0;
-		    color_inc = 0;
-		    break;
-	}
-	for(i = 0, v = 0; i < num_palette; i++, v += color_inc) {
-		palette[i].Set((uint8)(v & 0xff));
+	png_debug(1, "in " __FUNCTION__);
+	if(palette) {
+		int num_palette;
+		int color_inc;
+		switch(bit_depth) {
+			case 1:
+				num_palette = 2;
+				color_inc = 0xff;
+				break;
+			case 2:
+				num_palette = 4;
+				color_inc = 0x55;
+				break;
+			case 4:
+				num_palette = 16;
+				color_inc = 0x11;
+				break;
+			case 8:
+				num_palette = 256;
+				color_inc = 1;
+				break;
+			default:
+				num_palette = 0;
+				color_inc = 0;
+				break;
+		}
+		for(int i = 0, v = 0; i < num_palette; i++, v += color_inc) {
+			palette[i].Set((uint8)(v & 0xff));
+		}
 	}
 }
 
@@ -734,7 +721,6 @@ int PNGAPI png_handle_as_unknown(png_const_structrp png_ptr, png_const_bytep chu
 	 */
 	do { /* num_chunk_list > 0, so at least one */
 		p -= 5;
-
 		if(memcmp(chunk_name, p, 4) == 0)
 			return p[4];
 	} while(p > p_end);
@@ -839,8 +825,7 @@ void /* PRIVATE */ png_zstream_error(png_structrp png_ptr, int ret)
 
 /* Added at libpng version 1.2.34 and 1.4.0 (moved from pngset.c) */
 #ifdef PNG_GAMMA_SUPPORTED /* always set if COLORSPACE */
-static int png_colorspace_check_gamma(png_const_structrp png_ptr,
-    png_colorspacerp colorspace, png_fixed_point gAMA, int from)
+static int png_colorspace_check_gamma(png_const_structrp png_ptr, png_colorspacerp colorspace, png_fixed_point gAMA, int from)
 /* This is called to check a new gamma value against an existing one.  The
  * routine returns false if the new gamma value should not be written.
  *
@@ -864,7 +849,6 @@ static int png_colorspace_check_gamma(png_const_structrp png_ptr,
 			/* Do not overwrite an sRGB value */
 			return from == 2;
 		}
-
 		else { /* sRGB tag not involved */
 			png_chunk_report(png_ptr, "gamma value does not match libpng estimate", PNG_CHUNK_WARNING);
 			return from == 1;
@@ -894,7 +878,6 @@ void /* PRIVATE */ png_colorspace_set_gamma(png_const_structrp png_ptr, png_colo
 	else if((png_ptr->mode & PNG_IS_READ_STRUCT) != 0 && (colorspace->flags & PNG_COLORSPACE_FROM_gAMA) != 0)
 		errmsg = "duplicate";
 #endif
-
 	/* Do nothing if the colorspace is already invalid */
 	else if((colorspace->flags & PNG_COLORSPACE_INVALID) != 0)
 		return;
@@ -919,10 +902,10 @@ void /* PRIVATE */ png_colorspace_set_gamma(png_const_structrp png_ptr, png_colo
 void /* PRIVATE */ png_colorspace_sync_info(png_const_structrp png_ptr, png_inforp info_ptr)
 {
 	if((info_ptr->colorspace.flags & PNG_COLORSPACE_INVALID) != 0) {
-		/* Everything is invalid */
+		// Everything is invalid 
 		info_ptr->valid &= ~(PNG_INFO_gAMA|PNG_INFO_cHRM|PNG_INFO_sRGB|PNG_INFO_iCCP);
 #ifdef PNG_COLORSPACE_SUPPORTED
-		/* Clean up the iCCP profile now if it won't be used. */
+		// Clean up the iCCP profile now if it won't be used. 
 		png_free_data(png_ptr, info_ptr, PNG_FREE_ICCP, -1 /*not used*/);
 #else
 		CXX_UNUSED(png_ptr);
@@ -930,35 +913,24 @@ void /* PRIVATE */ png_colorspace_sync_info(png_const_structrp png_ptr, png_info
 	}
 	else {
 #ifdef PNG_COLORSPACE_SUPPORTED
-		/* Leave the INFO_iCCP flag set if the pngset.c code has already set
-		 * it; this allows a PNG to contain a profile which matches sRGB and
-		 * yet still have that profile retrievable by the application.
-		 */
-		if((info_ptr->colorspace.flags & PNG_COLORSPACE_MATCHES_sRGB) != 0)
-			info_ptr->valid |= PNG_INFO_sRGB;
-		else
-			info_ptr->valid &= ~PNG_INFO_sRGB;
-		if((info_ptr->colorspace.flags & PNG_COLORSPACE_HAVE_ENDPOINTS) != 0)
-			info_ptr->valid |= PNG_INFO_cHRM;
-		else
-			info_ptr->valid &= ~PNG_INFO_cHRM;
+		// Leave the INFO_iCCP flag set if the pngset.c code has already set
+		// it; this allows a PNG to contain a profile which matches sRGB and
+		// yet still have that profile retrievable by the application.
+		SETFLAG(info_ptr->valid, PNG_INFO_sRGB, (info_ptr->colorspace.flags & PNG_COLORSPACE_MATCHES_sRGB));
+		SETFLAG(info_ptr->valid, PNG_INFO_cHRM, (info_ptr->colorspace.flags & PNG_COLORSPACE_HAVE_ENDPOINTS));
 #endif
-		if((info_ptr->colorspace.flags & PNG_COLORSPACE_HAVE_GAMMA) != 0)
-			info_ptr->valid |= PNG_INFO_gAMA;
-		else
-			info_ptr->valid &= ~PNG_INFO_gAMA;
+		SETFLAG(info_ptr->valid, PNG_INFO_gAMA, (info_ptr->colorspace.flags & PNG_COLORSPACE_HAVE_GAMMA));
 	}
 }
 
 #ifdef PNG_READ_SUPPORTED
-void /* PRIVATE */ png_colorspace_sync(png_const_structrp png_ptr, png_inforp info_ptr)
-{
-	if(info_ptr) { // reduce code size; check here not in the caller
-		info_ptr->colorspace = png_ptr->colorspace;
-		png_colorspace_sync_info(png_ptr, info_ptr);
+	void /* PRIVATE */ png_colorspace_sync(png_const_structrp png_ptr, png_inforp info_ptr)
+	{
+		if(info_ptr) { // reduce code size; check here not in the caller
+			info_ptr->colorspace = png_ptr->colorspace;
+			png_colorspace_sync_info(png_ptr, info_ptr);
+		}
 	}
-}
-
 #endif
 #endif /* GAMMA */
 
@@ -979,7 +951,6 @@ static int png_xy_from_XYZ(png_xy * xy, const png_XYZ * XYZ)
 	dwhite = d;
 	whiteX = XYZ->red_X;
 	whiteY = XYZ->red_Y;
-
 	d = XYZ->green_X + XYZ->green_Y + XYZ->green_Z;
 	if(png_muldiv(&xy->greenx, XYZ->green_X, PNG_FP_1, d) == 0)
 		return 1;
@@ -988,7 +959,6 @@ static int png_xy_from_XYZ(png_xy * xy, const png_XYZ * XYZ)
 	dwhite += d;
 	whiteX += XYZ->green_X;
 	whiteY += XYZ->green_Y;
-
 	d = XYZ->blue_X + XYZ->blue_Y + XYZ->blue_Z;
 	if(png_muldiv(&xy->bluex, XYZ->blue_X, PNG_FP_1, d) == 0)
 		return 1;
@@ -1005,7 +975,6 @@ static int png_xy_from_XYZ(png_xy * xy, const png_XYZ * XYZ)
 		return 1;
 	if(png_muldiv(&xy->whitey, whiteY, PNG_FP_1, dwhite) == 0)
 		return 1;
-
 	return 0;
 }
 
@@ -1013,7 +982,6 @@ static int png_XYZ_from_xy(png_XYZ * XYZ, const png_xy * xy)
 {
 	png_fixed_point red_inverse, green_inverse, blue_scale;
 	png_fixed_point left, right, denominator;
-
 	/* Check xy and, implicitly, z.  Note that wide gamut color spaces typically
 	 * have end points with 0 tristimulus values (these are impossible end
 	 * points, but they are used to cover the possible colors).  We check
@@ -1212,7 +1180,6 @@ static int png_XYZ_from_xy(png_XYZ * XYZ, const png_xy * xy)
 	if(png_muldiv(&right, xy->greeny-xy->bluey, xy->redx - xy->bluex, 7) == 0)
 		return 2;
 	denominator = left - right;
-
 	/* Now find the red numerator. */
 	if(png_muldiv(&left, xy->greenx-xy->bluex, xy->whitey-xy->bluey, 7) == 0)
 		return 2;
@@ -2723,9 +2690,9 @@ png_fixed_point png_fixed(png_const_structrp png_ptr, double fp, const char * te
  * the nearest .00001).  Overflow and divide by zero are signalled in
  * the result, a boolean - true on success, false on overflow.
  */
-int png_muldiv(png_fixed_point_p res, png_fixed_point a, png_int_32 times, png_int_32 divisor)
+int STDCALL png_muldiv(png_fixed_point_p res, png_fixed_point a, png_int_32 times, png_int_32 divisor)
 {
-	/* Return a * times / divisor, rounded. */
+	// Return a * times / divisor, rounded
 	if(divisor != 0) {
 		if(a == 0 || times == 0) {
 			*res = 0;
@@ -2736,9 +2703,9 @@ int png_muldiv(png_fixed_point_p res, png_fixed_point a, png_int_32 times, png_i
 			double r = a;
 			r *= times;
 			r /= divisor;
-			r = floor(r+.5);
+			r = floor(r+0.5);
 			// A png_fixed_point is a 32-bit integer.
-			if(r <= 2147483647. && r >= -2147483648.) {
+			if(r <= 2147483647.0 && r >= -2147483648.0) {
 				*res = (png_fixed_point)r;
 				return 1;
 			}
@@ -2808,18 +2775,17 @@ int png_muldiv(png_fixed_point_p res, png_fixed_point a, png_int_32 times, png_i
 #endif /* READ_GAMMA || INCH_CONVERSIONS */
 
 #if defined(PNG_READ_GAMMA_SUPPORTED) || defined(PNG_INCH_CONVERSIONS_SUPPORTED)
-/* The following is for when the caller doesn't much care about the
- * result.
- */
-png_fixed_point png_muldiv_warn(png_const_structrp png_ptr, png_fixed_point a, png_int_32 times, png_int_32 divisor)
-{
-	png_fixed_point result;
-	if(png_muldiv(&result, a, times, divisor) != 0)
-		return result;
-	png_warning(png_ptr, "fixed point overflow ignored");
-	return 0;
-}
-
+	// The following is for when the caller doesn't much care about the result.
+	png_fixed_point png_muldiv_warn(png_const_structrp png_ptr, png_fixed_point a, png_int_32 times, png_int_32 divisor)
+	{
+		png_fixed_point result;
+		if(png_muldiv(&result, a, times, divisor) != 0)
+			return result;
+		else {
+			png_warning(png_ptr, "fixed point overflow ignored");
+			return 0;
+		}
+	}
 #endif
 
 #ifdef PNG_GAMMA_SUPPORTED /* more fixed point functions for gamma */
@@ -2827,8 +2793,8 @@ png_fixed_point png_muldiv_warn(png_const_structrp png_ptr, png_fixed_point a, p
 png_fixed_point png_reciprocal(png_fixed_point a)
 {
 #ifdef PNG_FLOATING_ARITHMETIC_SUPPORTED
-	double r = floor(1E10/a+.5);
-	if(r <= 2147483647. && r >= -2147483648.)
+	double r = floor(1E10/a+0.5);
+	if(r <= 2147483647.0 && r >= -2147483648.0)
 		return (png_fixed_point)r;
 #else
 	png_fixed_point res;
@@ -3462,8 +3428,7 @@ void /* PRIVATE */ png_destroy_gamma_table(png_structrp png_ptr)
  */
 void /* PRIVATE */ png_build_gamma_table(png_structrp png_ptr, int bit_depth)
 {
-	png_debug(1, "in png_build_gamma_table");
-
+	png_debug(1, "in " __FUNCTION__);
 	/* Remove any existing table; this copes with multiple calls to
 	 * png_read_update_info.  The warning is because building the gamma tables
 	 * multiple times is a performance hit - it's harmless but the ability to call
@@ -3497,7 +3462,6 @@ void /* PRIVATE */ png_build_gamma_table(png_structrp png_ptr, int bit_depth)
 		}
 		else
 			sig_bit = png_ptr->sig_bit.gray;
-
 		/* 16-bit gamma code uses this equation:
 		 *
 		 * ov = table[(iv & 0xff) >> gamma_shift][iv >> 8]
@@ -3517,55 +3481,36 @@ void /* PRIVATE */ png_build_gamma_table(png_structrp png_ptr, int bit_depth)
 		 *
 		 */
 		if(sig_bit > 0 && sig_bit < 16U)
-			/* shift == insignificant bits */
-			shift = (uint8)((16U - sig_bit) & 0xff);
-
+			shift = (uint8)((16U - sig_bit) & 0xff); /* shift == insignificant bits */
 		else
 			shift = 0; /* keep all 16 bits */
-
 		if((png_ptr->transformations & (PNG_16_TO_8 | PNG_SCALE_16_TO_8)) != 0) {
 			/* PNG_MAX_GAMMA_8 is the number of bits to keep - effectively
 			 * the significant bits in the *input* when the output will
 			 * eventually be 8 bits.  By default it is 11.
 			 */
-			if(shift < (16U - PNG_MAX_GAMMA_8))
-				shift = (16U - PNG_MAX_GAMMA_8);
+			SETMAX(shift, (16U - PNG_MAX_GAMMA_8));
 		}
-
-		if(shift > 8U)
-			shift = 8U; /* Guarantees at least one table! */
-
+		SETMIN(shift, 8U); // Guarantees at least one table! 
 		png_ptr->gamma_shift = shift;
-
 		/* NOTE: prior to 1.5.4 this test used to include PNG_BACKGROUND (now
 		 * PNG_COMPOSE).  This effectively smashed the background calculation for
 		 * 16-bit output because the 8-bit table assumes the result will be reduced
 		 * to 8 bits.
 		 */
 		if((png_ptr->transformations & (PNG_16_TO_8 | PNG_SCALE_16_TO_8)) != 0)
-			png_build_16to8_table(png_ptr, &png_ptr->gamma_16_table, shift,
-			    png_ptr->screen_gamma > 0 ? png_product2(png_ptr->colorspace.gamma,
-				    png_ptr->screen_gamma) : PNG_FP_1);
-
+			png_build_16to8_table(png_ptr, &png_ptr->gamma_16_table, shift, png_ptr->screen_gamma > 0 ? png_product2(png_ptr->colorspace.gamma, png_ptr->screen_gamma) : PNG_FP_1);
 		else
-			png_build_16bit_table(png_ptr, &png_ptr->gamma_16_table, shift,
-			    png_ptr->screen_gamma > 0 ? png_reciprocal2(png_ptr->colorspace.gamma,
-				    png_ptr->screen_gamma) : PNG_FP_1);
-
-#if defined(PNG_READ_BACKGROUND_SUPPORTED) || \
-		defined(PNG_READ_ALPHA_MODE_SUPPORTED) || \
-		defined(PNG_READ_RGB_TO_GRAY_SUPPORTED)
+			png_build_16bit_table(png_ptr, &png_ptr->gamma_16_table, shift, png_ptr->screen_gamma > 0 ? png_reciprocal2(png_ptr->colorspace.gamma, png_ptr->screen_gamma) : PNG_FP_1);
+#if defined(PNG_READ_BACKGROUND_SUPPORTED) || defined(PNG_READ_ALPHA_MODE_SUPPORTED) || defined(PNG_READ_RGB_TO_GRAY_SUPPORTED)
 		if((png_ptr->transformations & (PNG_COMPOSE | PNG_RGB_TO_GRAY)) != 0) {
-			png_build_16bit_table(png_ptr, &png_ptr->gamma_16_to_1, shift,
-			    png_reciprocal(png_ptr->colorspace.gamma));
-
+			png_build_16bit_table(png_ptr, &png_ptr->gamma_16_to_1, shift, png_reciprocal(png_ptr->colorspace.gamma));
 			/* Notice that the '16 from 1' table should be full precision, however
 			 * the lookup on this table still uses gamma_shift, so it can't be.
 			 * @todo fix this.
 			 */
 			png_build_16bit_table(png_ptr, &png_ptr->gamma_16_from_1, shift,
-			    png_ptr->screen_gamma > 0 ? png_reciprocal(png_ptr->screen_gamma) :
-			    png_ptr->colorspace.gamma /* Probably doing rgb_to_gray */);
+			    png_ptr->screen_gamma > 0 ? png_reciprocal(png_ptr->screen_gamma) : png_ptr->colorspace.gamma /* Probably doing rgb_to_gray */);
 		}
 #endif /* READ_BACKGROUND || READ_ALPHA_MODE || RGB_TO_GRAY */
 	}
@@ -3773,7 +3718,6 @@ static int png_image_free_function(void * argument)
 	if(cp->owned_file != 0) {
 		FILE * fp = png_voidcast(FILE*, cp->png_ptr->io_ptr);
 		cp->owned_file = 0;
-
 		/* Ignore errors here. */
 		if(fp != NULL) {
 			cp->png_ptr->io_ptr = NULL;
@@ -3781,7 +3725,6 @@ static int png_image_free_function(void * argument)
 		}
 	}
 #endif
-
 	/* Copy the control structure so that the original, allocated, version can be
 	 * safely freed.  Notice that a png_error here stops the remainder of the
 	 * cleanup, but this is probably fine because that would indicate bad memory
@@ -3790,7 +3733,6 @@ static int png_image_free_function(void * argument)
 	c = *cp;
 	image->opaque = &c;
 	png_free(c.png_ptr, cp);
-
 	/* Then the structures, calling the correct API. */
 	if(c.for_write != 0) {
 #ifdef PNG_SIMPLIFIED_WRITE_SUPPORTED

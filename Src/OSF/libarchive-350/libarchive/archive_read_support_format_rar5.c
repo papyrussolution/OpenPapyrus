@@ -13,7 +13,6 @@
  */
 #include "archive_platform.h"
 #pragma hdrstop
-#include "archive_endian.h"
 #ifndef HAVE_ZLIB_H
 	#include "archive_crc32.h"
 #endif

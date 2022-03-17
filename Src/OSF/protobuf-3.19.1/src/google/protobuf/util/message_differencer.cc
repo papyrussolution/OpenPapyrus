@@ -40,7 +40,6 @@
 #include <google/protobuf/descriptor.pb.h>
 #include <google/protobuf/generated_enum_reflection.h>
 #include <google/protobuf/map_field.h>
-#include <google/protobuf/message.h>
 #include <google/protobuf/text_format.h>
 #include <google/protobuf/util/field_comparator.h>
 // Always include as last one, otherwise it can break compilation

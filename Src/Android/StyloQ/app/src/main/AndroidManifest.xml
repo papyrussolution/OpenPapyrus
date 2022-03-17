@@ -21,6 +21,9 @@
         android:theme="@style/Theme.StyloQ"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".GlobalSearchActivity"
+            android:exported="true" />
+        <activity
             android:name=".CmdRAttendancePrereqActivity"
             android:exported="true" />
         <activity

@@ -39,12 +39,9 @@ void PNGFAPI png_set_cHRM_fixed(png_const_structrp png_ptr, png_inforp info_ptr,
     png_fixed_point blue_x, png_fixed_point blue_y)
 {
 	png_xy xy;
-
 	png_debug1(1, "in %s storage function", "cHRM fixed");
-
 	if(png_ptr == NULL || info_ptr == NULL)
 		return;
-
 	xy.redx = red_x;
 	xy.redy = red_y;
 	xy.greenx = green_x;
@@ -53,11 +50,8 @@ void PNGFAPI png_set_cHRM_fixed(png_const_structrp png_ptr, png_inforp info_ptr,
 	xy.bluey = blue_y;
 	xy.whitex = white_x;
 	xy.whitey = white_y;
-
-	if(png_colorspace_set_chromaticities(png_ptr, &info_ptr->colorspace, &xy,
-		    2 /* override with app values*/) != 0)
+	if(png_colorspace_set_chromaticities(png_ptr, &info_ptr->colorspace, &xy, 2 /* override with app values*/) != 0)
 		info_ptr->colorspace.flags |= PNG_COLORSPACE_FROM_cHRM;
-
 	png_colorspace_sync_info(png_ptr, info_ptr);
 }
 
@@ -69,12 +63,9 @@ void PNGFAPI png_set_cHRM_XYZ_fixed(png_const_structrp png_ptr, png_inforp info_
     png_fixed_point int_blue_Z)
 {
 	png_XYZ XYZ;
-
 	png_debug1(1, "in %s storage function", "cHRM XYZ fixed");
-
 	if(png_ptr == NULL || info_ptr == NULL)
 		return;
-
 	XYZ.red_X = int_red_X;
 	XYZ.red_Y = int_red_Y;
 	XYZ.red_Z = int_red_Z;
@@ -147,58 +138,38 @@ void PNGFAPI png_set_gAMA_fixed(png_const_structrp png_ptr, png_inforp info_ptr,
 #endif
 
 #ifdef PNG_hIST_SUPPORTED
-void PNGAPI png_set_hIST(png_const_structrp png_ptr, png_inforp info_ptr,
-    png_const_uint_16p hist)
+void PNGAPI png_set_hIST(png_const_structrp png_ptr, png_inforp info_ptr, png_const_uint_16p hist)
 {
 	int i;
-
 	png_debug1(1, "in %s storage function", "hIST");
-
 	if(png_ptr == NULL || info_ptr == NULL)
 		return;
-
-	if(info_ptr->num_palette == 0 || info_ptr->num_palette
-	    > PNG_MAX_PALETTE_LENGTH) {
-		png_warning(png_ptr,
-		    "Invalid palette size, hIST allocation skipped");
-
+	if(info_ptr->num_palette == 0 || info_ptr->num_palette > PNG_MAX_PALETTE_LENGTH) {
+		png_warning(png_ptr, "Invalid palette size, hIST allocation skipped");
 		return;
 	}
-
 	png_free_data(png_ptr, info_ptr, PNG_FREE_HIST, 0);
-
 	/* Changed from info->num_palette to PNG_MAX_PALETTE_LENGTH in
 	 * version 1.2.1
 	 */
-	info_ptr->hist = png_voidcast(png_uint_16p, png_malloc_warn(png_ptr,
-		    PNG_MAX_PALETTE_LENGTH * (sizeof(png_uint_16))));
-
+	info_ptr->hist = png_voidcast(png_uint_16p, png_malloc_warn(png_ptr, PNG_MAX_PALETTE_LENGTH * (sizeof(png_uint_16))));
 	if(info_ptr->hist == NULL) {
 		png_warning(png_ptr, "Insufficient memory for hIST chunk data");
-
 		return;
 	}
-
 	info_ptr->free_me |= PNG_FREE_HIST;
-
 	for(i = 0; i < info_ptr->num_palette; i++)
 		info_ptr->hist[i] = hist[i];
-
 	info_ptr->valid |= PNG_INFO_hIST;
 }
-
 #endif
 
-void PNGAPI png_set_IHDR(png_const_structrp png_ptr, png_inforp info_ptr,
-    uint32 width, uint32 height, int bit_depth,
-    int color_type, int interlace_type, int compression_type,
-    int filter_type)
+void PNGAPI png_set_IHDR(png_const_structrp png_ptr, png_inforp info_ptr, uint32 width, uint32 height, int bit_depth,
+    int color_type, int interlace_type, int compression_type, int filter_type)
 {
 	png_debug1(1, "in %s storage function", "IHDR");
-
 	if(png_ptr == NULL || info_ptr == NULL)
 		return;
-
 	info_ptr->width = width;
 	info_ptr->height = height;
 	info_ptr->bit_depth = (uint8)bit_depth;
@@ -206,96 +177,64 @@ void PNGAPI png_set_IHDR(png_const_structrp png_ptr, png_inforp info_ptr,
 	info_ptr->compression_type = (uint8)compression_type;
 	info_ptr->filter_type = (uint8)filter_type;
 	info_ptr->interlace_type = (uint8)interlace_type;
-
-	png_check_IHDR(png_ptr, info_ptr->width, info_ptr->height,
-	    info_ptr->bit_depth, info_ptr->color_type, info_ptr->interlace_type,
-	    info_ptr->compression_type, info_ptr->filter_type);
-
+	png_check_IHDR(png_ptr, info_ptr->width, info_ptr->height, info_ptr->bit_depth, info_ptr->color_type, info_ptr->interlace_type, info_ptr->compression_type, info_ptr->filter_type);
 	if(info_ptr->color_type == PNG_COLOR_TYPE_PALETTE)
 		info_ptr->channels = 1;
-
 	else if((info_ptr->color_type & PNG_COLOR_MASK_COLOR) != 0)
 		info_ptr->channels = 3;
-
 	else
 		info_ptr->channels = 1;
-
 	if((info_ptr->color_type & PNG_COLOR_MASK_ALPHA) != 0)
 		info_ptr->channels++;
-
 	info_ptr->pixel_depth = (uint8)(info_ptr->channels * info_ptr->bit_depth);
-
 	info_ptr->rowbytes = PNG_ROWBYTES(info_ptr->pixel_depth, width);
 }
 
 #ifdef PNG_oFFs_SUPPORTED
-void PNGAPI png_set_oFFs(png_const_structrp png_ptr, png_inforp info_ptr,
-    png_int_32 offset_x, png_int_32 offset_y, int unit_type)
+void PNGAPI png_set_oFFs(png_const_structrp png_ptr, png_inforp info_ptr, png_int_32 offset_x, png_int_32 offset_y, int unit_type)
 {
 	png_debug1(1, "in %s storage function", "oFFs");
-
-	if(png_ptr == NULL || info_ptr == NULL)
-		return;
-
-	info_ptr->x_offset = offset_x;
-	info_ptr->y_offset = offset_y;
-	info_ptr->offset_unit_type = (uint8)unit_type;
-	info_ptr->valid |= PNG_INFO_oFFs;
+	if(png_ptr && info_ptr) {
+		info_ptr->x_offset = offset_x;
+		info_ptr->y_offset = offset_y;
+		info_ptr->offset_unit_type = (uint8)unit_type;
+		info_ptr->valid |= PNG_INFO_oFFs;
+	}
 }
-
 #endif
 
 #ifdef PNG_pCAL_SUPPORTED
-void PNGAPI png_set_pCAL(png_const_structrp png_ptr, png_inforp info_ptr,
-    const char * purpose, png_int_32 X0, png_int_32 X1, int type,
-    int nparams, const char * units, png_charpp params)
+void PNGAPI png_set_pCAL(png_const_structrp png_ptr, png_inforp info_ptr, const char * purpose, png_int_32 X0, png_int_32 X1, int type, int nparams, const char * units, png_charpp params)
 {
 	size_t length;
 	int i;
-
 	png_debug1(1, "in %s storage function", "pCAL");
-
-	if(png_ptr == NULL || info_ptr == NULL || purpose == NULL || units == NULL
-	   || (nparams > 0 && params == NULL))
+	if(png_ptr == NULL || info_ptr == NULL || purpose == NULL || units == NULL || (nparams > 0 && params == NULL))
 		return;
-
 	length = strlen(purpose) + 1;
-	png_debug1(3, "allocating purpose for info (%lu bytes)",
-	    (ulong)length);
-
+	png_debug1(3, "allocating purpose for info (%lu bytes)", (ulong)length);
 	/* @todo validate format of calibration name and unit name */
-
 	/* Check that the type matches the specification. */
 	if(type < 0 || type > 3)
 		png_error(png_ptr, "Invalid pCAL equation type");
-
 	if(nparams < 0 || nparams > 255)
 		png_error(png_ptr, "Invalid pCAL parameter count");
-
 	/* Validate params[nparams] */
 	for(i = 0; i<nparams; ++i) {
-		if(params[i] == NULL ||
-		    !png_check_fp_string(params[i], strlen(params[i])))
+		if(params[i] == NULL || !png_check_fp_string(params[i], strlen(params[i])))
 			png_error(png_ptr, "Invalid format for pCAL parameter");
 	}
-
-	info_ptr->pcal_purpose = png_voidcast(char *,
-	    png_malloc_warn(png_ptr, length));
-
+	info_ptr->pcal_purpose = png_voidcast(char *, png_malloc_warn(png_ptr, length));
 	if(info_ptr->pcal_purpose == NULL) {
 		png_warning(png_ptr, "Insufficient memory for pCAL purpose");
-
 		return;
 	}
-
 	memcpy(info_ptr->pcal_purpose, purpose, length);
-
 	png_debug(3, "storing X0, X1, type, and nparams in info");
 	info_ptr->pcal_X0 = X0;
 	info_ptr->pcal_X1 = X1;
 	info_ptr->pcal_type = (uint8)type;
 	info_ptr->pcal_nparams = (uint8)nparams;
-
 	length = strlen(units) + 1;
 	png_debug1(3, "allocating units for info (%lu bytes)", (ulong)length);
 	info_ptr->pcal_units = png_voidcast(char *, png_malloc_warn(png_ptr, length));
@@ -327,8 +266,7 @@ void PNGAPI png_set_pCAL(png_const_structrp png_ptr, png_inforp info_ptr,
 #endif
 
 #ifdef PNG_sCAL_SUPPORTED
-void PNGAPI png_set_sCAL_s(png_const_structrp png_ptr, png_inforp info_ptr,
-    int unit, const char * swidth, const char * sheight)
+void PNGAPI png_set_sCAL_s(png_const_structrp png_ptr, png_inforp info_ptr, int unit, const char * swidth, const char * sheight)
 {
 	size_t lengthw = 0, lengthh = 0;
 	png_debug1(1, "in %s storage function", "sCAL");
@@ -339,77 +277,48 @@ void PNGAPI png_set_sCAL_s(png_const_structrp png_ptr, png_inforp info_ptr,
 	 */
 	if(unit != 1 && unit != 2)
 		png_error(png_ptr, "Invalid sCAL unit");
-
-	if(swidth == NULL || (lengthw = strlen(swidth)) == 0 ||
-	    swidth[0] == 45 /* '-' */ || !png_check_fp_string(swidth, lengthw))
+	if(swidth == NULL || (lengthw = strlen(swidth)) == 0 || swidth[0] == 45 /* '-' */ || !png_check_fp_string(swidth, lengthw))
 		png_error(png_ptr, "Invalid sCAL width");
-
-	if(sheight == NULL || (lengthh = strlen(sheight)) == 0 ||
-	    sheight[0] == 45 /* '-' */ || !png_check_fp_string(sheight, lengthh))
+	if(sheight == NULL || (lengthh = strlen(sheight)) == 0 || sheight[0] == 45 /* '-' */ || !png_check_fp_string(sheight, lengthh))
 		png_error(png_ptr, "Invalid sCAL height");
-
 	info_ptr->scal_unit = (uint8)unit;
-
 	++lengthw;
-
 	png_debug1(3, "allocating unit for info (%u bytes)", (uint)lengthw);
-
-	info_ptr->scal_s_width = png_voidcast(char *,
-	    png_malloc_warn(png_ptr, lengthw));
-
+	info_ptr->scal_s_width = png_voidcast(char *, png_malloc_warn(png_ptr, lengthw));
 	if(info_ptr->scal_s_width == NULL) {
 		png_warning(png_ptr, "Memory allocation failed while processing sCAL");
-
 		return;
 	}
-
 	memcpy(info_ptr->scal_s_width, swidth, lengthw);
-
 	++lengthh;
-
 	png_debug1(3, "allocating unit for info (%u bytes)", (uint)lengthh);
-
-	info_ptr->scal_s_height = png_voidcast(char *,
-	    png_malloc_warn(png_ptr, lengthh));
-
+	info_ptr->scal_s_height = png_voidcast(char *, png_malloc_warn(png_ptr, lengthh));
 	if(info_ptr->scal_s_height == NULL) {
 		png_free(png_ptr, info_ptr->scal_s_width);
 		info_ptr->scal_s_width = NULL;
-
 		png_warning(png_ptr, "Memory allocation failed while processing sCAL");
-
 		return;
 	}
-
 	memcpy(info_ptr->scal_s_height, sheight, lengthh);
-
 	info_ptr->valid |= PNG_INFO_sCAL;
 	info_ptr->free_me |= PNG_FREE_SCAL;
 }
 
 #ifdef PNG_FLOATING_POINT_SUPPORTED
-void PNGAPI png_set_sCAL(png_const_structrp png_ptr, png_inforp info_ptr, int unit,
-    double width, double height)
+void PNGAPI png_set_sCAL(png_const_structrp png_ptr, png_inforp info_ptr, int unit, double width, double height)
 {
 	png_debug1(1, "in %s storage function", "sCAL");
-
 	/* Check the arguments. */
 	if(width <= 0)
 		png_warning(png_ptr, "Invalid sCAL width ignored");
-
 	else if(height <= 0)
 		png_warning(png_ptr, "Invalid sCAL height ignored");
-
 	else {
 		/* Convert 'width' and 'height' to ASCII. */
 		char swidth[PNG_sCAL_MAX_DIGITS+1];
 		char sheight[PNG_sCAL_MAX_DIGITS+1];
-
-		png_ascii_from_fp(png_ptr, swidth, (sizeof swidth), width,
-		    PNG_sCAL_PRECISION);
-		png_ascii_from_fp(png_ptr, sheight, (sizeof sheight), height,
-		    PNG_sCAL_PRECISION);
-
+		png_ascii_from_fp(png_ptr, swidth, (sizeof swidth), width, PNG_sCAL_PRECISION);
+		png_ascii_from_fp(png_ptr, sheight, (sizeof sheight), height, PNG_sCAL_PRECISION);
 		png_set_sCAL_s(png_ptr, info_ptr, unit, swidth, sheight);
 	}
 }
@@ -417,45 +326,36 @@ void PNGAPI png_set_sCAL(png_const_structrp png_ptr, png_inforp info_ptr, int un
 #endif
 
 #ifdef PNG_FIXED_POINT_SUPPORTED
-void PNGAPI png_set_sCAL_fixed(png_const_structrp png_ptr, png_inforp info_ptr, int unit,
-    png_fixed_point width, png_fixed_point height)
-{
-	png_debug1(1, "in %s storage function", "sCAL");
-
-	/* Check the arguments. */
-	if(width <= 0)
-		png_warning(png_ptr, "Invalid sCAL width ignored");
-
-	else if(height <= 0)
-		png_warning(png_ptr, "Invalid sCAL height ignored");
-
-	else {
-		/* Convert 'width' and 'height' to ASCII. */
-		char swidth[PNG_sCAL_MAX_DIGITS+1];
-		char sheight[PNG_sCAL_MAX_DIGITS+1];
-
-		png_ascii_from_fixed(png_ptr, swidth, (sizeof swidth), width);
-		png_ascii_from_fixed(png_ptr, sheight, (sizeof sheight), height);
-
-		png_set_sCAL_s(png_ptr, info_ptr, unit, swidth, sheight);
+	void PNGAPI png_set_sCAL_fixed(png_const_structrp png_ptr, png_inforp info_ptr, int unit, png_fixed_point width, png_fixed_point height)
+	{
+		png_debug1(1, "in %s storage function", "sCAL");
+		/* Check the arguments. */
+		if(width <= 0)
+			png_warning(png_ptr, "Invalid sCAL width ignored");
+		else if(height <= 0)
+			png_warning(png_ptr, "Invalid sCAL height ignored");
+		else {
+			/* Convert 'width' and 'height' to ASCII. */
+			char swidth[PNG_sCAL_MAX_DIGITS+1];
+			char sheight[PNG_sCAL_MAX_DIGITS+1];
+			png_ascii_from_fixed(png_ptr, swidth, (sizeof swidth), width);
+			png_ascii_from_fixed(png_ptr, sheight, (sizeof sheight), height);
+			png_set_sCAL_s(png_ptr, info_ptr, unit, swidth, sheight);
+		}
 	}
-}
-
 #endif
 #endif
-
 #ifdef PNG_pHYs_SUPPORTED
-void PNGAPI png_set_pHYs(png_const_structrp png_ptr, png_inforp info_ptr, uint32 res_x, uint32 res_y, int unit_type)
-{
-	png_debug1(1, "in %s storage function", "pHYs");
-	if(png_ptr && info_ptr) {
-		info_ptr->x_pixels_per_unit = res_x;
-		info_ptr->y_pixels_per_unit = res_y;
-		info_ptr->phys_unit_type = (uint8)unit_type;
-		info_ptr->valid |= PNG_INFO_pHYs;
+	void PNGAPI png_set_pHYs(png_const_structrp png_ptr, png_inforp info_ptr, uint32 res_x, uint32 res_y, int unit_type)
+	{
+		png_debug1(1, "in %s storage function", "pHYs");
+		if(png_ptr && info_ptr) {
+			info_ptr->x_pixels_per_unit = res_x;
+			info_ptr->y_pixels_per_unit = res_y;
+			info_ptr->phys_unit_type = (uint8)unit_type;
+			info_ptr->valid |= PNG_INFO_pHYs;
+		}
 	}
-}
-
 #endif
 
 void PNGAPI png_set_PLTE(png_structrp png_ptr, png_inforp info_ptr, png_const_colorp palette, int num_palette)
@@ -1056,7 +956,7 @@ void PNGAPI png_set_unknown_chunk_location(png_const_structrp png_ptr, png_infor
 #ifdef PNG_MNG_FEATURES_SUPPORTED
 uint32 PNGAPI png_permit_mng_features(png_structrp png_ptr, uint32 mng_features)
 {
-	png_debug(1, "in png_permit_mng_features");
+	png_debug(1, "in " __FUNCTION__);
 	if(!png_ptr)
 		return 0;
 	png_ptr->mng_features_permitted = mng_features & PNG_ALL_MNG_FEATURES;
@@ -1192,13 +1092,10 @@ void PNGAPI png_set_keep_unknown_chunks(png_structrp png_ptr, int keep, png_cons
 
 	else
 		num_chunks = 0;
-
 	png_ptr->num_chunk_list = num_chunks;
-
 	if(png_ptr->chunk_list != new_list) {
 		if(png_ptr->chunk_list != NULL)
 			png_free(png_ptr, png_ptr->chunk_list);
-
 		png_ptr->chunk_list = new_list;
 	}
 }
@@ -1206,14 +1103,11 @@ void PNGAPI png_set_keep_unknown_chunks(png_structrp png_ptr, int keep, png_cons
 #endif
 
 #ifdef PNG_READ_USER_CHUNKS_SUPPORTED
-void PNGAPI png_set_read_user_chunk_fn(png_structrp png_ptr, void * user_chunk_ptr,
-    png_user_chunk_ptr read_user_chunk_fn)
+void PNGAPI png_set_read_user_chunk_fn(png_structrp png_ptr, void * user_chunk_ptr, png_user_chunk_ptr read_user_chunk_fn)
 {
-	png_debug(1, "in png_set_read_user_chunk_fn");
-
+	png_debug(1, "in " __FUNCTION__);
 	if(!png_ptr)
 		return;
-
 	png_ptr->read_user_chunk_fn = read_user_chunk_fn;
 	png_ptr->user_chunk_ptr = user_chunk_ptr;
 }
@@ -1250,33 +1144,25 @@ void PNGAPI png_set_compression_buffer_size(png_structrp png_ptr, size_t size)
 #ifdef PNG_WRITE_SUPPORTED
 	if((png_ptr->mode & PNG_IS_READ_STRUCT) == 0) {
 		if(png_ptr->zowner != 0) {
-			png_warning(png_ptr,
-			    "Compression buffer size cannot be changed because it is in use");
-
+			png_warning(png_ptr, "Compression buffer size cannot be changed because it is in use");
 			return;
 		}
-
 #ifndef __COVERITY__
 		/* Some compilers complain that this is always false.  However, it
 		 * can be true when integer overflow happens.
 		 */
 		if(size > ZLIB_IO_MAX) {
-			png_warning(png_ptr,
-			    "Compression buffer size limited to system maximum");
+			png_warning(png_ptr, "Compression buffer size limited to system maximum");
 			size = ZLIB_IO_MAX; /* must fit */
 		}
 #endif
-
 		if(size < 6) {
 			/* Deflate will potentially go into an infinite loop on a SYNC_FLUSH
 			 * if this is permitted.
 			 */
-			png_warning(png_ptr,
-			    "Compression buffer size cannot be reduced below 6");
-
+			png_warning(png_ptr, "Compression buffer size cannot be reduced below 6");
 			return;
 		}
-
 		if(png_ptr->zbuffer_size != size) {
 			png_free_buffer_list(png_ptr, &png_ptr->zbuffer_list);
 			png_ptr->zbuffer_size = (uInt)size;
@@ -1324,7 +1210,7 @@ void PNGAPI png_set_chunk_malloc_max(png_structrp png_ptr, png_alloc_size_t user
 #ifdef PNG_BENIGN_ERRORS_SUPPORTED
 void PNGAPI png_set_benign_errors(png_structrp png_ptr, int allowed)
 {
-	png_debug(1, "in png_set_benign_errors");
+	png_debug(1, "in " __FUNCTION__);
 	/* If allowed is 1, png_benign_error() is treated as a warning.
 	 *
 	 * If allowed is 0, png_benign_error() is treated as an error (which
@@ -1349,13 +1235,12 @@ void PNGAPI png_set_benign_errors(png_structrp png_ptr, int allowed)
  */
 void PNGAPI png_set_check_for_invalid_index(png_structrp png_ptr, int allowed)
 {
-	png_debug(1, "in png_set_check_for_invalid_index");
+	png_debug(1, "in " __FUNCTION__);
 	if(allowed > 0)
 		png_ptr->num_palette_max = 0;
 	else
 		png_ptr->num_palette_max = -1;
 }
-
 #endif
 
 #if defined(PNG_TEXT_SUPPORTED) || defined(PNG_pCAL_SUPPORTED) || defined(PNG_iCCP_SUPPORTED) || defined(PNG_sPLT_SUPPORTED)
@@ -1375,7 +1260,7 @@ uint32 /* PRIVATE */ png_check_keyword(png_structrp png_ptr, const char * key, p
 	uint32 key_len = 0;
 	int bad_character = 0;
 	int space = 1;
-	png_debug(1, "in png_check_keyword");
+	png_debug(1, "in " __FUNCTION__);
 	if(key == NULL) {
 		*new_key = 0;
 		return 0;

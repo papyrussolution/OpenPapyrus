@@ -416,7 +416,7 @@ generic_string intToString(int val)
 {
 	std::vector<TCHAR> vt;
 	bool isNegative = val < 0;
-	// can't use abs here because std::numeric_limits<int>::min() has no positive representation
+	// can't use abs here because std::numeric_limits<int>::MIN() has no positive representation
 	//val = std::abs(val);
 
 	vt.push_back('0' + static_cast<TCHAR>(std::abs(val % 10)));

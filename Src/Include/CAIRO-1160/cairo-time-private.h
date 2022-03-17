@@ -48,18 +48,18 @@ cairo_private double _cairo_time_to_s(cairo_time_t t);
 cairo_private cairo_time_t _cairo_time_from_s(double t);
 cairo_private cairo_time_t _cairo_time_get();
 
-static cairo_always_inline cairo_time_t _cairo_time_get_delta(cairo_time_t t)
+static FORCEINLINE cairo_time_t _cairo_time_get_delta(cairo_time_t t)
 {
 	cairo_time_t now = _cairo_time_get();
 	return _cairo_time_sub(now, t);
 }
 
-static cairo_always_inline double _cairo_time_to_ns(cairo_time_t t)
+static FORCEINLINE double _cairo_time_to_ns(cairo_time_t t)
 {
 	return 1.e9 * _cairo_time_to_s(t);
 }
 
-static cairo_always_inline cairo_time_t _cairo_time_max(cairo_time_t a, cairo_time_t b)
+static FORCEINLINE cairo_time_t _cairo_time_max(cairo_time_t a, cairo_time_t b)
 {
 	if(_cairo_int64_gt(a, b))
 		return a;
@@ -67,7 +67,7 @@ static cairo_always_inline cairo_time_t _cairo_time_max(cairo_time_t a, cairo_ti
 		return b;
 }
 
-static cairo_always_inline cairo_time_t _cairo_time_min(cairo_time_t a, cairo_time_t b)
+static FORCEINLINE cairo_time_t _cairo_time_min(cairo_time_t a, cairo_time_t b)
 {
 	if(_cairo_int64_lt(a, b))
 		return a;

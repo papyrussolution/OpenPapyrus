@@ -137,7 +137,7 @@ CAIRO_BEGIN_DECLS
  * in libgcc in case a target does not have one, which should be just as
  * good as the open-coded solution below, (which is "HACKMEM 169").
  */
-static inline int cairo_const _cairo_popcount(uint32 mask)
+inline int cairo_const _cairo_popcount(uint32 mask)
 {
 #if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4)
 	return __builtin_popcount(mask);
@@ -149,7 +149,7 @@ static inline int cairo_const _cairo_popcount(uint32 mask)
 #endif
 }
 
-static cairo_always_inline boolint _cairo_is_little_endian(void)
+FORCEINLINE boolint _cairo_is_little_endian()
 {
 	static const int i = 1;
 	return *reinterpret_cast<const char *>(&i) == 0x01;
@@ -166,37 +166,36 @@ static cairo_always_inline boolint _cairo_is_little_endian(void)
 	#define cpu_to_be32(v) (v)
 	#define be32_to_cpu(v) (v)
 #else
-	static inline uint16 cairo_const cpu_to_be16(uint16 v) { return (v << 8) | (v >> 8); }
-	static inline uint16 cairo_const be16_to_cpu(uint16 v) { return cpu_to_be16(v); }
-	static inline uint32 cairo_const cpu_to_be32(uint32 v) { return (v >> 24) | ((v >> 8) & 0xff00) | ((v << 8) & 0xff0000) | (v << 24); }
-	static inline uint32 cairo_const be32_to_cpu(uint32 v) { return cpu_to_be32(v); }
+	inline uint16 cairo_const cpu_to_be16(uint16 v) { return (v << 8) | (v >> 8); }
+	inline uint16 cairo_const be16_to_cpu(uint16 v) { return cpu_to_be16(v); }
+	inline uint32 cairo_const cpu_to_be32(uint32 v) { return (v >> 24) | ((v >> 8) & 0xff00) | ((v << 8) & 0xff0000) | (v << 24); }
+	inline uint32 cairo_const be32_to_cpu(uint32 v) { return cpu_to_be32(v); }
 #endif
+//
+// Unaligned big endian access
+//
+inline uint16 get_unaligned_be16(const uchar * p) { return p[0] << 8 | p[1]; }
+inline uint32 get_unaligned_be32(const uchar * p) { return p[0] << 24 | p[1] << 16 | p[2] << 8 | p[3]; }
 
-/* Unaligned big endian access
- */
-static inline uint16 get_unaligned_be16(const uchar * p) { return p[0] << 8 | p[1]; }
-static inline uint32 get_unaligned_be32(const uchar * p) { return p[0] << 24 | p[1] << 16 | p[2] << 8 | p[3]; }
-
-static inline void put_unaligned_be16(uint16 v, uchar * p)
+inline void put_unaligned_be16(uint16 v, uchar * p)
 {
 	p[0] = (v >> 8) & 0xff;
 	p[1] = v & 0xff;
 }
 
-static inline void put_unaligned_be32(uint32 v, uchar * p)
+inline void put_unaligned_be32(uint32 v, uchar * p)
 {
 	p[0] = (v >> 24) & 0xff;
 	p[1] = (v >> 16) & 0xff;
 	p[2] = (v >> 8)  & 0xff;
 	p[3] = v & 0xff;
 }
-
-/* The glibc versions of ispace() and isdigit() are slow in UTF-8 locales.
- */
-
-static inline int cairo_const _cairo_isspace(int c) { return (c == 0x20 || (c >= 0x09 && c <= 0x0d)); }
-static inline int cairo_const _cairo_isdigit(int c) { return (c >= '0' && c <= '9'); }
-static inline int cairo_const _cairo_isalpha(int c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); }
+//
+// The glibc versions of ispace() and isdigit() are slow in UTF-8 locales.
+//
+inline int cairo_const _cairo_isspace(int c) { return (c == 0x20 || (c >= 0x09 && c <= 0x0d)); }
+inline int cairo_const _cairo_isdigit(int c) { return (c >= '0' && c <= '9'); }
+inline int cairo_const _cairo_isalpha(int c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); }
 
 #include "cairo-atomic-private.h"
 #include "cairo-reference-count-private.h"
@@ -227,19 +226,14 @@ cairo_private void _cairo_boxes_get_extents(const cairo_box_t * boxes, int num_b
 cairo_private extern const cairo_rectangle_int_t _cairo_empty_rectangle;
 cairo_private extern const cairo_rectangle_int_t _cairo_unbounded_rectangle;
 
-static inline void _cairo_unbounded_rectangle_init(cairo_rectangle_int_t * rect)
-{
-	*rect = _cairo_unbounded_rectangle;
-}
-
+inline void _cairo_unbounded_rectangle_init(cairo_rectangle_int_t * rect) { *rect = _cairo_unbounded_rectangle; }
 cairo_private_no_warn boolint FASTCALL _cairo_rectangle_intersect(cairo_rectangle_int_t * dst, const cairo_rectangle_int_t * src);
-
-static inline boolint _cairo_rectangle_intersects(const cairo_rectangle_int_t * dst, const cairo_rectangle_int_t * src)
+inline boolint _cairo_rectangle_intersects(const cairo_rectangle_int_t * dst, const cairo_rectangle_int_t * src)
 {
 	return !(src->x >= dst->x + dst->width || src->x + src->width <= dst->x || src->y >= dst->y + dst->height || src->y + src->height <= dst->y);
 }
 
-static inline boolint _cairo_rectangle_contains_rectangle(const cairo_rectangle_int_t * a, const cairo_rectangle_int_t * b)
+inline boolint _cairo_rectangle_contains_rectangle(const cairo_rectangle_int_t * a, const cairo_rectangle_int_t * b)
 {
 	return (a->x <= b->x && a->x + a->width >= b->x + b->width && a->y <= b->y && a->y + a->height >= b->y + b->height);
 }
@@ -290,20 +284,19 @@ cairo_private void _cairo_default_context_reset_static_data();
 cairo_private void _cairo_toy_font_face_reset_static_data();
 cairo_private void _cairo_ft_font_reset_static_data();
 cairo_private void _cairo_win32_font_reset_static_data();
-
 #if CAIRO_HAS_COGL_SURFACE
-void _cairo_cogl_context_reset_static_data();
+	void _cairo_cogl_context_reset_static_data();
 #endif
-
-/* the font backend interface */
-
+//
+// the font backend interface 
+//
 struct _cairo_unscaled_font_backend {
 	boolint (* destroy) (void * unscaled_font);
 };
-
-/* #cairo_toy_font_face_t - simple family/slant/weight font faces used for
- * the built-in font API
- */
+//
+// #cairo_toy_font_face_t - simple family/slant/weight font faces used for
+// the built-in font API
+//
 typedef struct _cairo_toy_font_face {
 	cairo_font_face_t base;
 	const char * family;
@@ -327,10 +320,8 @@ typedef struct _cairo_scaled_font_subset {
 	cairo_scaled_font_t * scaled_font;
 	uint font_id;
 	uint subset_id;
-
-	/* Index of glyphs array is subset_glyph_index.
-	 * Value of glyphs array is scaled_font_glyph_index.
-	 */
+	// Index of glyphs array is subset_glyph_index.
+	// Value of glyphs array is scaled_font_glyph_index.
 	ulong * glyphs;
 	char ** utf8;
 	char ** glyph_names;
@@ -509,15 +500,12 @@ typedef struct _cairo_stroke_face {
 /* C99 round() rounds to the nearest integral value with halfway cases rounded
  * away from 0. _cairo_round rounds halfway cases toward positive infinity.
  * This matches the rounding behaviour of _cairo_lround. */
-static inline double cairo_const _cairo_round(double r)
-{
-	return floor(r + 0.5);
-}
+inline double cairo_const _cairo_round(double r) { return floor(r + 0.5); }
 
 #if DISABLE_SOME_FLOATING_POINT
 	cairo_private int _cairo_lround(double d) cairo_const;
 #else
-	static inline int cairo_const _cairo_lround(double r) { return static_cast<int>(_cairo_round(r)); }
+	inline int cairo_const _cairo_lround(double r) { return static_cast<int>(_cairo_round(r)); }
 #endif
 
 cairo_private uint16 _cairo_half_from_float(float f) cairo_const;
@@ -661,46 +649,18 @@ cairo_private cairo_int_status_t _cairo_path_fixed_stroke_to_tristrip(const cair
     double tolerance,
     cairo_tristrip_t * strip);
 
-cairo_private cairo_status_t _cairo_path_fixed_stroke_dashed_to_polygon(const cairo_path_fixed_t * path,
-    const cairo_stroke_style_t * stroke_style,
-    const cairo_matrix_t * ctm,
-    const cairo_matrix_t * ctm_inverse,
-    double tolerance,
-    cairo_polygon_t * polygon);
-
-cairo_private cairo_int_status_t _cairo_path_fixed_stroke_rectilinear_to_boxes(const cairo_path_fixed_t * path,
-    const cairo_stroke_style_t * stroke_style,
-    const cairo_matrix_t * ctm,
-    cairo_antialias_t antialias,
-    cairo_boxes_t * boxes);
-
-cairo_private cairo_int_status_t _cairo_path_fixed_stroke_to_traps(const cairo_path_fixed_t * path,
-    const cairo_stroke_style_t * stroke_style,
-    const cairo_matrix_t * ctm,
-    const cairo_matrix_t * ctm_inverse,
-    double tolerance,
-    cairo_traps_t * traps);
-
-cairo_private cairo_int_status_t _cairo_path_fixed_stroke_polygon_to_traps(const cairo_path_fixed_t * path,
-    const cairo_stroke_style_t * stroke_style,
-    const cairo_matrix_t * ctm,
-    const cairo_matrix_t * ctm_inverse,
-    double tolerance,
-    cairo_traps_t * traps);
-
-cairo_private cairo_status_t _cairo_path_fixed_stroke_to_shaper(cairo_path_fixed_t * path,
-    const cairo_stroke_style_t * stroke_style,
-    const cairo_matrix_t * ctm,
-    const cairo_matrix_t * ctm_inverse,
-    double tolerance,
-    cairo_status_t (* add_triangle)(void * closure,
-    const cairo_point_t triangle[3]),
-    cairo_status_t (* add_triangle_fan)(void * closure,
-    const cairo_point_t * midpt,
-    const cairo_point_t * points,
-    int npoints),
-    cairo_status_t (* add_quad)(void * closure,
-    const cairo_point_t quad[4]),
+cairo_private cairo_status_t _cairo_path_fixed_stroke_dashed_to_polygon(const cairo_path_fixed_t * path, const cairo_stroke_style_t * stroke_style,
+    const cairo_matrix_t * ctm, const cairo_matrix_t * ctm_inverse, double tolerance, cairo_polygon_t * polygon);
+cairo_private cairo_int_status_t _cairo_path_fixed_stroke_rectilinear_to_boxes(const cairo_path_fixed_t * path, const cairo_stroke_style_t * stroke_style,
+    const cairo_matrix_t * ctm, cairo_antialias_t antialias, cairo_boxes_t * boxes);
+cairo_private cairo_int_status_t _cairo_path_fixed_stroke_to_traps(const cairo_path_fixed_t * path, const cairo_stroke_style_t * stroke_style,
+    const cairo_matrix_t * ctm, const cairo_matrix_t * ctm_inverse, double tolerance, cairo_traps_t * traps);
+cairo_private cairo_int_status_t _cairo_path_fixed_stroke_polygon_to_traps(const cairo_path_fixed_t * path, const cairo_stroke_style_t * stroke_style,
+    const cairo_matrix_t * ctm, const cairo_matrix_t * ctm_inverse, double tolerance, cairo_traps_t * traps);
+cairo_private cairo_status_t _cairo_path_fixed_stroke_to_shaper(cairo_path_fixed_t * path, const cairo_stroke_style_t * stroke_style,
+    const cairo_matrix_t * ctm, const cairo_matrix_t * ctm_inverse, double tolerance, cairo_status_t (* add_triangle)(void * closure, const cairo_point_t triangle[3]),
+    cairo_status_t (* add_triangle_fan)(void * closure, const cairo_point_t * midpt, const cairo_point_t * points, int npoints),
+    cairo_status_t (* add_quad)(void * closure, const cairo_point_t quad[4]),
     void * closure);
 
 /* cairo-scaled-font.c */
@@ -926,8 +886,7 @@ cairo_private cairo_status_t _cairo_polygon_reduce(cairo_polygon_t * polygon, ca
 cairo_private cairo_status_t _cairo_polygon_intersect(cairo_polygon_t * a, int winding_a, cairo_polygon_t * b, int winding_b);
 cairo_private cairo_status_t _cairo_polygon_intersect_with_boxes(cairo_polygon_t * polygon, cairo_fill_rule_t * winding, cairo_box_t * boxes, int num_boxes);
 
-static inline boolint _cairo_polygon_is_empty(const cairo_polygon_t * polygon)
-	{ return polygon->num_edges == 0 || polygon->extents.p2.x <= polygon->extents.p1.x; }
+inline boolint _cairo_polygon_is_empty(const cairo_polygon_t * polygon) { return polygon->num_edges == 0 || polygon->extents.p2.x <= polygon->extents.p1.x; }
 
 #define _cairo_polygon_status(P) ((cairo_polygon_t*)(P))->status
 
@@ -947,13 +906,12 @@ cairo_private boolint FASTCALL _cairo_matrix_is_scale_0(const cairo_matrix_t * m
 cairo_private double FASTCALL _cairo_matrix_compute_determinant(const cairo_matrix_t * matrix) cairo_pure;
 cairo_private cairo_status_t _cairo_matrix_compute_basis_scale_factors(const cairo_matrix_t * matrix, double * sx, double * sy, int x_major);
 
-static inline boolint _cairo_matrix_is_identity(const cairo_matrix_t * matrix)
+inline boolint _cairo_matrix_is_identity(const cairo_matrix_t * matrix)
 	{ return (matrix->xx == 1.0 && matrix->yx == 0.0 && matrix->xy == 0.0 && matrix->yy == 1.0 && matrix->x0 == 0.0 && matrix->y0 == 0.0); }
-static inline boolint _cairo_matrix_is_translation(const cairo_matrix_t * matrix)
+inline boolint _cairo_matrix_is_translation(const cairo_matrix_t * matrix)
 	{ return (matrix->xx == 1.0 && matrix->yx == 0.0 && matrix->xy == 0.0 && matrix->yy == 1.0); }
-static inline boolint _cairo_matrix_is_scale(const cairo_matrix_t * matrix)
+inline boolint _cairo_matrix_is_scale(const cairo_matrix_t * matrix)
 	{ return matrix->yx == 0.0 && matrix->xy == 0.0; }
-
 cairo_private boolint FASTCALL _cairo_matrix_is_integer_translation(const cairo_matrix_t * matrix, int * itx, int * ity);
 cairo_private boolint FASTCALL _cairo_matrix_has_unity_scale(const cairo_matrix_t * matrix);
 cairo_private boolint _cairo_matrix_is_pixel_exact(const cairo_matrix_t * matrix) cairo_pure;
@@ -1239,6 +1197,47 @@ cairo_private void _cairo_debug_print_path(FILE * stream, const cairo_path_fixed
 cairo_private void _cairo_debug_print_polygon(FILE * stream, cairo_polygon_t * polygon);
 cairo_private void _cairo_debug_print_traps(FILE * file, const cairo_traps_t * traps);
 cairo_private void _cairo_debug_print_clip(FILE * stream, const cairo_clip_t * clip);
+
+struct Quorem_3232 {
+	int32 quo;
+	int32 rem;
+};
+// 
+// Compute the floored division a/b. Assumes / and % perform symmetric division. 
+// 
+inline Quorem_3232 floored_divrem(int a, int b)                            
+{
+	Quorem_3232 qr;
+	qr.quo = a/b;
+	qr.rem = a%b;
+	if((a^b) < 0 && qr.rem) {
+		qr.quo -= 1;
+		qr.rem += b;
+	}
+	return qr;
+}
+
+struct Quorem_3264 {
+	int32 quo;
+	int64 rem;
+};
+
+struct Quorem_CFx {
+	cairo_fixed_t quo;
+	cairo_fixed_t rem;
+};
+
+FORCEINLINE Quorem_CFx floored_divrem_CFx(int a, int b)
+{
+	Quorem_CFx qr;
+	qr.quo = a/b;
+	qr.rem = a%b;
+	if((a^b) < 0 && qr.rem) {
+		qr.quo--;
+		qr.rem += b;
+	}
+	return qr;
+}
 
 #if 0
 	#define TRACE(x) slfprintf_stderr("%s: ", __FILE__), fprintf x

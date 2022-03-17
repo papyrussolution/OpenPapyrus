@@ -18,7 +18,6 @@
 #include "bzlib_private.h"
 #pragma hdrstop
 
-/*---------------------------------------------------*/
 #define WEIGHTOF(zz0)  ((zz0) & 0xffffff00)
 #define DEPTHOF(zz1)   ((zz1) & 0x000000ff)
 #define MYMAX(zz2, zz3) ((zz2) > (zz3) ? (zz2) : (zz3))
@@ -52,7 +51,6 @@
 		heap[zz] = tmp;					   \
 	}
 
-/*---------------------------------------------------*/
 void BZ2_hbMakeCodeLengths(uchar * len, int32 * freq, int32 alphaSize, int32 maxLen)
 {
 	/*--

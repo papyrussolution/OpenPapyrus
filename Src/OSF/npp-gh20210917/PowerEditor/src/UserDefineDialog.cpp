@@ -1525,7 +1525,7 @@ INT_PTR CALLBACK UserDefineDialog::run_dlgProc(UINT message, WPARAM wParam, LPAR
 		    //si.nPos = 0;
 		    ::SetScrollInfo(_hSelf, SB_VERT, &si, TRUE);
 		    if((_yScrollPos >= maxPos) && (_currentHight < originalHight)) {
-			    //int nDelta = min(max(maxPos/10,5), maxPos - _yScrollPos);
+			    //int nDelta = MIN(MAX(maxPos/10,5), maxPos - _yScrollPos);
 			    if(_yScrollPos > 0) {
 				    _yScrollPos -= diff;
 				    ::SetScrollPos(_hSelf, SB_VERT, _yScrollPos, TRUE);

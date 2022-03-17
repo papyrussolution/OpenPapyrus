@@ -124,7 +124,6 @@ __FBSDID("$FreeBSD$");
  * should investigate ways to support this generically. */
 
 #include "archive_acl_private.h"
-#include "archive_endian.h"
 #include "archive_write_disk_private.h"
 
 #ifndef O_BINARY

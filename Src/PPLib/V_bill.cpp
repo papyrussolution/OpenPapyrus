@@ -4776,7 +4776,7 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 							if(user_id && sec_obj.Fetch(user_id, &sec_rec) > 0 && sec_rec.PersonID) {
 								StringSet ss_elink;
 								PPELinkArray elink_list;
-								PsnObj.P_Tbl->GetELinks(sec_rec.PersonID, &elink_list);
+								PsnObj.P_Tbl->GetELinks(sec_rec.PersonID, elink_list);
 								if(elink_list.GetListByType(ELNKRT_EMAIL, ss_elink) > 0) {
 									for(uint sselp = 0; ss_elink.get(&sselp, temp_buf);) {
 										if(temp_buf.NotEmptyS()) {

@@ -1,3 +1,7 @@
+# RC_CONV.PL
+# Copyright (c) Osolotkin Alexey, Antonov Valery, A.Sobolev 1998-2022
+# Part of the project Papyrus
+#
 sub intersect;
 sub down;
 
@@ -332,7 +336,7 @@ without_brain:;
 	print $dialog_name, ' DIALOG DISCARDABLE ',  $ax, ', ',$ay, ', ',$bx-$ax, ', ',$max_y+10,"\n";
 	print "STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU\n";
 	print "CAPTION",$title;
-	print "FONT 8, \"MS Sans Serif\"\n";
+	print "FONT 8, TEXT(\"MS Shell Dlg\")\n";
 	print "BEGIN\n";
 line:
 	for($i = 0; ; $i++)  {

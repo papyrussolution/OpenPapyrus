@@ -557,16 +557,17 @@ int FASTCALL PPViewStyloQCommand::GetDataForBrowser(SBrowserDataProcBlock * pBlk
 	return -1;
 }
 
-int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData)
+int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, const StyloQCommandList & rWholeList)
 {
 	class StyloQCommandDialog : public TDialog {
 		DECL_DIALOG_DATA(StyloQCommandList::Item);
 		PPNamedFiltMngr * P_NfMgr;
+		const StyloQCommandList & R_WholeList;
 		StrAssocArray CmdSymbList; // Список ассоциаций для обьектов PPView {id, символ}
 		StrAssocArray CmdTextList; // Список ассоциаций для обьектов PPView {id, описание} (упорядоченный по возрастанию)
 		PPObjPersonEvent PsnEvObj;
 	public:
-		StyloQCommandDialog(PPNamedFiltMngr * pNfMgr) : TDialog(DLG_STQCMD), P_NfMgr(pNfMgr)
+		StyloQCommandDialog(PPNamedFiltMngr * pNfMgr, const StyloQCommandList & rWholeList) : TDialog(DLG_STQCMD), P_NfMgr(pNfMgr), R_WholeList(rWholeList)
 		{
 			CALLPTRMEMB(P_NfMgr, GetResourceLists(&CmdSymbList, &CmdTextList));
 			//SetupStrAssocCombo(this, CTLSEL_STQCMD_VCMD, CmdTextList, 0, 0);
@@ -581,11 +582,16 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData)
 			setCtrlString(CTL_STQCMD_UUID, temp_buf.Z().Cat(Data.Uuid));
 			setCtrlLong(CTL_STQCMD_REXPRTM, Data.ResultExpiryTimeSec); // @v11.2.5
 			{
-				const long base_cmd_id_list[] = {StyloQCommandList::sqbcPersonEvent, StyloQCommandList::sqbcReport, StyloQCommandList::sqbcRsrvOrderPrereq,
-					StyloQCommandList::sqbcRsrvAttendancePrereq, StyloQCommandList::sqbcRsrvPushIndexContent};
+				LongArray base_cmd_id_list;
+				base_cmd_id_list.add(StyloQCommandList::sqbcPersonEvent);
+				base_cmd_id_list.add(StyloQCommandList::sqbcReport);
+				base_cmd_id_list.add(StyloQCommandList::sqbcRsrvOrderPrereq);
+				base_cmd_id_list.add(StyloQCommandList::sqbcRsrvAttendancePrereq);
+				base_cmd_id_list.add(StyloQCommandList::sqbcRsrvPushIndexContent);
 				StrAssocArray basecmd_list;
-				for(uint i = 0; i < SIZEOFARRAY(base_cmd_id_list); i++) {
-					basecmd_list.Add(base_cmd_id_list[i], StyloQCommandList::GetBaseCommandName(base_cmd_id_list[i], temp_buf));
+				for(uint i = 0; i < base_cmd_id_list.getCount(); i++) {
+					const long base_cmd_id = base_cmd_id_list.get(i);
+					basecmd_list.Add(base_cmd_id, StyloQCommandList::GetBaseCommandName(base_cmd_id, temp_buf));
 				}
 				SetupStrAssocCombo(this, CTLSEL_STQCMD_BASECMD, basecmd_list, Data.BaseCmdId, 0, 0, 0);
 			}
@@ -600,7 +606,10 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData)
 		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
+			StyloQCommandList::Item preserve_data;
 			SString temp_buf;
+			if(pData)
+				preserve_data = *pData;
 			getCtrlString(CTL_STQCMD_NAME, temp_buf.Z());
 			Data.Name = temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 			getCtrlString(CTL_STQCMD_DESCR, temp_buf.Z());
@@ -621,6 +630,10 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData)
 				Data.Param.Z().Write(&stylopalm_id, sizeof(stylopalm_id));
 			}
 			ASSIGN_PTR(pData, Data);
+			if(!R_WholeList.Validate(pData)) {
+				ASSIGN_PTR(pData, preserve_data);
+				ok = PPErrorZ();
+			}
 			return ok;
 		}
 	private:
@@ -874,7 +887,7 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData)
 			}
 		}
 	};
-	DIALOG_PROC_BODY_P1(StyloQCommandDialog, &NfMgr, pData);
+	DIALOG_PROC_BODY_P2(StyloQCommandDialog, &NfMgr, rWholeList, pData);
 }
 
 int PPViewStyloQCommand::AddItem(uint * pIdx)
@@ -883,7 +896,7 @@ int PPViewStyloQCommand::AddItem(uint * pIdx)
 	uint   new_item_idx = 0;
 	StyloQCommandList::Item * p_new_item = List.CreateNewItem(&new_item_idx);
 	if(p_new_item) {
-		if(EditStyloQCommand(p_new_item) > 0) {
+		if(EditStyloQCommand(p_new_item, List) > 0) {
 			ok = 1;
 		}
 		else
@@ -897,7 +910,7 @@ int PPViewStyloQCommand::EditItem(uint idx)
 	int    ok = -1;
 	StyloQCommandList::Item * p_item = idx ? List.Get(idx-1) : 0;
 	if(p_item) {
-		if(EditStyloQCommand(p_item) > 0) {
+		if(EditStyloQCommand(p_item, List) > 0) {
 			ok = 1;
 		}
 	}
@@ -909,7 +922,8 @@ int PPViewStyloQCommand::DeleteItem(uint idx)
 	int    ok = -1;
 	StyloQCommandList::Item * p_item = idx ? List.Get(idx-1) : 0;
 	if(p_item && CONFIRM(PPCFM_DELETE)) {
-		List.Set(idx, 0);
+		if(List.Set(idx-1, 0))
+			ok = 1;
 	}
 	return ok;
 }

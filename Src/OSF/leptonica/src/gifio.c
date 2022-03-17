@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file gifio.c
  * <pre>
@@ -87,11 +74,9 @@ typedef struct GifReadBuffer {
 } GifReadBuffer;
 
 /*! Low-level callback for in-memory decoding */
-static l_int32  gifReadFunc(GifFileType * gif, GifByteType * dest,
-    l_int32 bytesToRead);
+static l_int32  gifReadFunc(GifFileType * gif, uint8 * dest, l_int32 bytesToRead);
 /*! Low-level callback for in-memory encoding */
-static l_int32  gifWriteFunc(GifFileType * gif, const GifByteType * src,
-    l_int32 bytesToWrite);
+static l_int32  gifWriteFunc(GifFileType * gif, const uint8 * src, l_int32 bytesToWrite);
 
 /*---------------------------------------------------------------------*
 *                            Reading gif                              *
@@ -174,7 +159,7 @@ PIX * pixReadMemGif(const uint8  * cdata,
 	return gifToPix(gif);
 }
 
-static l_int32 gifReadFunc(GifFileType  * gif, GifByteType  * dest, l_int32 bytesToRead)
+static l_int32 gifReadFunc(GifFileType  * gif, uint8 * dest, l_int32 bytesToRead)
 {
 	GifReadBuffer  * buffer;
 	l_int32 bytesRead;
@@ -378,17 +363,13 @@ l_ok pixWriteStreamGif(FILE * fp,
  *      (1) See comments in pixReadMemGif()
  * </pre>
  */
-l_ok pixWriteMemGif(uint8  ** pdata,
-    size_t * psize,
-    PIX * pix)
+l_ok pixWriteMemGif(uint8  ** pdata, size_t * psize, PIX * pix)
 {
 	int giferr;
 	l_int32 result;
 	GifFileType  * gif;
 	L_BBUFFER    * buffer;
-
 	PROCNAME(__FUNCTION__);
-
 	/* 5.1+ and not 5.1.2 */
 #if (GIFLIB_MAJOR < 5 || (GIFLIB_MAJOR == 5 && GIFLIB_MINOR == 0))
 	L_ERROR("Require giflib-5.1 or later\n", procName);
@@ -423,7 +404,7 @@ l_ok pixWriteMemGif(uint8  ** pdata,
 	return result;
 }
 
-static l_int32 gifWriteFunc(GifFileType * gif, const GifByteType  * src, l_int32 bytesToWrite)
+static l_int32 gifWriteFunc(GifFileType * gif, const uint8 * src, l_int32 bytesToWrite)
 {
 	L_BBUFFER  * buffer;
 	PROCNAME(__FUNCTION__);
@@ -448,20 +429,17 @@ static l_int32 gifWriteFunc(GifFileType * gif, const GifByteType  * src, l_int32
  *      (2) It is static to make this function private.
  * </pre>
  */
-static l_int32 pixToGif(PIX          * pix,
-    GifFileType  * gif)
+static l_int32 pixToGif(PIX * pix, GifFileType  * gif)
 {
-	char            * text;
+	char * text;
 	l_int32 wpl, i, j, w, h, d, ncolor, rval, gval, bval, valid;
 	l_int32 gif_ncolor = 0;
-	l_uint32        * data, * line;
-	PIX             * pixd;
-	PIXCMAP         * cmap;
+	l_uint32 * data, * line;
+	PIX * pixd;
+	PIXCMAP * cmap;
 	ColorMapObject  * gif_cmap;
-	GifByteType     * gif_line;
-
+	uint8 * gif_line;
 	PROCNAME(__FUNCTION__);
-
 	if(!pix)
 		return ERROR_INT("pix not defined", procName, 1);
 	if(!gif)
@@ -542,20 +520,16 @@ static l_int32 pixToGif(PIX          * pix,
 		pixDestroy(&pixd);
 		return ERROR_INT("failed to image screen description", procName, 1);
 	}
-
 	data = pixGetData(pixd);
 	wpl = pixGetWpl(pixd);
 	if(d != 1 && d != 2 && d != 4 && d != 8) {
 		pixDestroy(&pixd);
 		return ERROR_INT("image depth is not in {1, 2, 4, 8}", procName, 1);
 	}
-
-	if((gif_line = (GifByteType*)SAlloc::C(sizeof(GifByteType), w))
-	    == NULL) {
+	if((gif_line = (uint8 *)SAlloc::C(sizeof(uint8), w)) == NULL) {
 		pixDestroy(&pixd);
 		return ERROR_INT("mem alloc fail for data line", procName, 1);
 	}
-
 	for(i = 0; i < h; i++) {
 		line = data + i * wpl;
 		/* Gif's way of setting the raster line up for compression */

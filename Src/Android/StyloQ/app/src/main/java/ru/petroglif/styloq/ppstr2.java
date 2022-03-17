@@ -2122,6 +2122,20 @@ class ppstr2 {
 	public static final int PPERR_SQ_SVCREPLYFAULT = 12103;
 	public static final int PPERR_SQ_CORRESPONDOBJNFOUND = 12104;
 	public static final int PPERR_SQ_UNDEFOWNCFG = 12105;
+	public static final int PPERR_VETISICFUNCLOCKED = 12106;
+	public static final int PPERR_FTS_DBINRDONLYMODE = 12107;
+	public static final int PPERR_FTS_DBINERRORSTATE = 12108;
+	public static final int PPERR_FTS_BEGINTRANSACTIONFAULT = 12109;
+	public static final int PPERR_FTS_COMMITTRANSACTIONFAULT = 12110;
+	public static final int PPERR_FTS_ABORTTRANSACTIONFAULT = 12111;
+	public static final int PPERR_FTS_INVALIDTRANSACTION = 12112;
+	public static final int PPERR_FTS_PUTDOCFAULT = 12113;
+	public static final int PPERR_FTS_INVSURROGATESCOPEIDENT = 12114;
+	public static final int PPERR_FTS_INVSCOPEIDENT = 12115;
+	public static final int PPERR_SQ_EMPTYINDEXINGJS = 12116;
+	public static final int PPERR_SQ_MALFORMEDINDEXINGJS = 12117;
+	public static final int PPERR_SQ_INDEXINGJSHASNTSVCIDENT = 12118;
+	public static final int PPERR_SQ_MALFORMEDSVCIDENTTEXT = 12119;
 	//
 	// .N.
 	//
@@ -4393,6 +4407,11 @@ class ppstr2 {
 	public static final int PPTXT_LOG_CCTAXSYSTEMSET = 12016;
 	public static final int PPTXT_MALFORMEDCMDFILEMOVED = 12017;
 	public static final int PPTXT_LOG_GOODSHASNTUOM = 12018;
+	public static final int PPTXT_SELPRCLIST = 12019;
+	public static final int PPTXT_STQCLITESTCMD_ECHO = 12020;
+	public static final int PPTXT_STQCLITESTCMD_INDEXING = 12021;
+	public static final int PPTXT_VETIS_OUTCERTREJALREADYINQ = 12022;
+	public static final int PPTXT_STQCLITESTCMD_SEARCH = 12023;
 	//
 	// .N.
 	//
@@ -4862,6 +4881,7 @@ class ppstr2 {
 	public static final int PPHS_CHZNPRODTYPE_TEXTILE = 10308;
 	public static final int PPHS_CHZNPRODTYPE_PERFUMERY = 10309;
 	public static final int PPHS_CHZNPRODTYPE_MILK = 10310;
+	public static final int PPHS_STYLOQBINDERY = 10311;
 	//
 	// .N.
 	//
@@ -5095,4 +5115,9 @@ class ppstr2 {
 	public static final int PPHSC_RU_PERSONINFO_PHS = 10228;
 	public static final int PPHSC_RU_PERSONINFO_JUR = 10229;
 	public static final int PPHSC_RU_OKV = 10230;
+	public static final int PPHSC_RU_PURCHASELEDGER = 10231;
+	public static final int PPHSC_RU_SALESLEDGER = 10232;
+	public static final int PPHSC_RU_PURCHASELEDGERLN = 10233;
+	public static final int PPHSC_RU_SALESLEDGERLN = 10234;
+	public static final int PPHSC_RU_CORRECTIONNO_ = 10235;
 }

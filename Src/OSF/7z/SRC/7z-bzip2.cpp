@@ -17,7 +17,7 @@ using namespace NWindows;
 // BZip2Crc.cpp
 uint32 CBZip2Crc::Table[256];
 
-static const uint32 kBZip2CrcPoly = 0x04c11db7; /* AUTODIN II, Ethernet, & FDDI */
+static const uint32 kBZip2CrcPoly = 0x04c11db7; // AUTODIN II, Ethernet, & FDDI
 
 void CBZip2Crc::InitTable()
 {
@@ -29,7 +29,10 @@ void CBZip2Crc::InitTable()
 	}
 }
 
-class CBZip2CrcTableInit { public: CBZip2CrcTableInit() { CBZip2Crc::InitTable(); } } g_BZip2CrcTableInit;
+class CBZip2CrcTableInit { 
+public: 
+	CBZip2CrcTableInit() { CBZip2Crc::InitTable(); } 
+} g_BZip2CrcTableInit;
 //
 // BZip2Encoder.cpp BZip2Decoder.cpp
 namespace NCompress {
@@ -208,12 +211,10 @@ namespace NCompress {
 		{
 			if(level < 0) level = 5;
 			if(level > 9) level = 9;
-
 			if(NumPasses == (uint32)(int32)-1)
 				NumPasses = (level >= 9 ? 7 : (level >= 7 ? 2 : 1));
 			if(NumPasses < 1) NumPasses = 1;
 			if(NumPasses > kNumPassesMax) NumPasses = kNumPassesMax;
-
 			if(BlockSizeMult == (uint32)(int32)-1)
 				BlockSizeMult = (level >= 5 ? 9 : (level >= 1 ? level * 2 - 1 : 1));
 			if(BlockSizeMult < kBlockSizeMultMin) BlockSizeMult = kBlockSizeMultMin;

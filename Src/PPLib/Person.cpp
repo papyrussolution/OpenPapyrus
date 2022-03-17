@@ -653,7 +653,7 @@ int PPELinkArray::GetSinglePhone(SString & rBuf, uint * pPos) const
 				ok = 1;
 				break; // Предпочтительный номер однозначно нас устраивает. Выходим из цикла.
 			}
-			else if(oneof3(r_item.KindID, PPELK_WORKPHONE, PPELK_HOMEPHONE, PPELK_ALTPHONE)) {
+			else if(oneof4(r_item.KindID, PPELK_WORKPHONE, PPELK_HOMEPHONE, PPELK_ALTPHONE, PPELK_MOBILE)) { // @v11.3.5 PPELK_MOBILE
 				kind_id = r_item.KindID;
 				pos = c;
 				ok = 1;
@@ -1449,13 +1449,13 @@ int PersonCore::GetELinkList(int elnkrt, PPID personKindID, StrAssocArray & rLis
 		return GENDER_UNDEF;
 }
 
-/*static*/int PersonCore::GetELinks(PPID id, PPELinkArray * ary)
+/*static*/int PersonCore::GetELinks(PPID id, PPELinkArray & rEla)
 {
 	int    ok = 1, r;
 	Reference * p_ref = PPRef;
 	size_t sz = SKILOBYTE(4);
 	PropertyTbl::Rec * p_buf = 0;
-	ary->clear();
+	rEla.clear();
 	THROW_MEM(p_buf = static_cast<PropertyTbl::Rec *>(SAlloc::M(sz)));
 	THROW(r = p_ref->GetProperty(PPOBJ_PERSON, id, PSNPRP_ELINK, p_buf, sz));
 	if(r > 0) {
@@ -1465,7 +1465,7 @@ int PersonCore::GetELinkList(int elnkrt, PPID personKindID, StrAssocArray & rLis
 			THROW_MEM(p_buf = static_cast<PropertyTbl::Rec *>(SAlloc::R(p_buf, sz)));
 			THROW(p_ref->GetProperty(PPOBJ_PERSON, id, PSNPRP_ELINK, p_buf, sz) > 0);
 		}
-		THROW(Helper_GetELinksFromPropRec(p_buf, sz, ary));
+		THROW(Helper_GetELinksFromPropRec(p_buf, sz, &rEla));
 	}
 	THROW(r);
 	CATCHZOK

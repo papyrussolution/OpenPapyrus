@@ -41,7 +41,7 @@ typedef struct {
 	cairo_atomic_int_t top;
 } freed_pool_t;
 
-static cairo_always_inline void * _atomic_fetch(void ** slot)
+static FORCEINLINE void * _atomic_fetch(void ** slot)
 {
 	void * ptr;
 	do {
@@ -50,7 +50,7 @@ static cairo_always_inline void * _atomic_fetch(void ** slot)
 	return ptr;
 }
 
-static cairo_always_inline boolint _atomic_store(void ** slot, void * ptr)
+static FORCEINLINE boolint _atomic_store(void ** slot, void * ptr)
 {
 	return _cairo_atomic_ptr_cmpxchg(slot, NULL, ptr);
 }

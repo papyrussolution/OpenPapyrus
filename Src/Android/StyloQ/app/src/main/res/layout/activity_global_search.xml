@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:orientation="vertical"
+tools:context=".GlobalSearchActivity">
+<LinearLayout
+    android:id="@+id/LAYOUT_ACTIVITYROOT"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="4dp"
+    >
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbarGlobalSearch"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/Primary"
+        >
+        <!--
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableRight="@drawable/ic_search"
+            android:hint="@{dosearch}" />
+            -->
+        <SearchView
+            android:id="@+id/CTL_GLOBALSEARCH_INPUT"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:background="@color/White"
+            android:hint="@{dosearch}">
+        </SearchView>
+    </androidx.appcompat.widget.Toolbar>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/CTL_GLOBALSEARCH_RESULTLIST"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="4dp"
+        app:layoutManager="LinearLayoutManager">
+    </androidx.recyclerview.widget.RecyclerView>
+</LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

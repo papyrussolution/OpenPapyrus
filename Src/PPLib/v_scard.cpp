@@ -629,7 +629,7 @@ int PPViewSCard::PreprocessTempRec(const SCardTbl::Rec * pSrcRec, TempSCardTbl::
 			SString temp_buf, temp_buf2, result_buf;
 			{
 				PPELinkArray ela;
-				PsnObj.P_Tbl->GetELinks(psn_rec.ID, &ela);
+				PsnObj.P_Tbl->GetELinks(psn_rec.ID, ela);
 				ela.GetPhones(3, result_buf.Z());
 				StrPool.AddS(result_buf, &pDestRec->PhoneP);
 			}

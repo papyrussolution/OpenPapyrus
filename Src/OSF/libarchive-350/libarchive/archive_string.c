@@ -36,7 +36,6 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_string.c 201095 2009-12-28 02:33
 //#include <windows.h>
 #include <locale.h>
 #endif
-#include "archive_endian.h"
 #include "archive_string_composition.h"
 #if !defined(HAVE_WMEMCPY) && !defined(wmemcpy)
 	#define wmemcpy(a, b, i)  (wchar_t *)memcpy((a), (b), (i) * sizeof(wchar_t))

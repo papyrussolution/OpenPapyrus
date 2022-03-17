@@ -25,13 +25,8 @@
  * use predefined compiler and/or platform macros.
  */
 #include <sys/types.h>
-#include <stddef.h>  /* for wchar_t */
-//#include <stdint.h>
-//#include <time.h>
-//#if defined(_WIN32) && !defined(__CYGWIN__)
-//#include <windows.h>
-//#endif
-/* Get a suitable 64-bit integer type. */
+#include <stddef.h> // for wchar_t 
+// Get a suitable 64-bit integer type
 #if !defined(__LA_INT64_T_DEFINED)
 #if ARCHIVE_VERSION_NUMBER < 4000000
 #define __LA_INT64_T la_int64_t

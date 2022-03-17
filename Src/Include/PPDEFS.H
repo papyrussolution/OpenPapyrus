@@ -7782,6 +7782,9 @@
 	#define CTL_SSAUTODIS_SSER        (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SSAUTODIS_SSER     (2 + WINDOWS_ID_BIAS)
 	#define CTL_SSAUTODIS_PRD         (3 + WINDOWS_ID_BIAS)
+	#define CTL_SSAUTODIS_ST_INFO     (4 + WINDOWS_ID_BIAS) // @v11.3.5
+	#define CTL_SSAUTODIS_AP          (5 + WINDOWS_ID_BIAS) // @v11.3.5 arbitrary period
+	#define CTLCAL_SSAUTODIS_AP       (6 + WINDOWS_ID_BIAS) // @v11.3.5 arbitrary period
 #define DLG_RTQUOTK              848
 #define DLG_PSNKIND              849
 	#define CTL_PSNKIND_ID            (1 + WINDOWS_ID_BIAS)

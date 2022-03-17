@@ -944,28 +944,27 @@ void PNGCBAPI png_default_write_data(png_structp png_ptr, png_bytep data, size_t
 #endif
 #endif
 /* Reset the CRC variable */
-PNG_INTERNAL_FUNCTION(void, png_reset_crc, (png_structrp png_ptr), PNG_EMPTY);
+void png_reset_crc(png_structrp png_ptr);
 /* Write the "data" buffer to whatever output you are using */
-PNG_INTERNAL_FUNCTION(void, png_write_data, (png_structrp png_ptr, png_const_bytep data, size_t length), PNG_EMPTY);
+void png_write_data(png_structrp png_ptr, png_const_bytep data, size_t length);
 /* Read and check the PNG file signature */
-PNG_INTERNAL_FUNCTION(void, png_read_sig, (png_structrp png_ptr, png_inforp info_ptr), PNG_EMPTY);
+void png_read_sig(png_structrp png_ptr, png_inforp info_ptr);
 /* Read the chunk header (length + type name) */
-PNG_INTERNAL_FUNCTION(uint32, png_read_chunk_header, (png_structrp png_ptr), PNG_EMPTY);
+uint32 png_read_chunk_header(png_structrp png_ptr);
 /* Read data from whatever input you are using into the "data" buffer */
-PNG_INTERNAL_FUNCTION(void, png_read_data, (png_structrp png_ptr, png_bytep data, size_t length), PNG_EMPTY);
+void png_read_data(png_structrp png_ptr, png_bytep data, size_t length);
 /* Read bytes into buf, and update png_ptr->crc */
-PNG_INTERNAL_FUNCTION(void, png_crc_read, (png_structrp png_ptr, png_bytep buf, uint32 length), PNG_EMPTY);
+void png_crc_read(png_structrp png_ptr, png_bytep buf, uint32 length);
 /* Read "skip" bytes, read the file crc, and (optionally) verify png_ptr->crc */
-PNG_INTERNAL_FUNCTION(int, png_crc_finish, (png_structrp png_ptr, uint32 skip), PNG_EMPTY);
+int png_crc_finish(png_structrp png_ptr, uint32 skip);
 /* Read the CRC from the file and compare it to the libpng calculated CRC */
-PNG_INTERNAL_FUNCTION(int, png_crc_error, (png_structrp png_ptr), PNG_EMPTY);
+int png_crc_error(png_structrp png_ptr);
 
 /* Calculate the CRC over a section of data.  Note that we are only
  * passing a maximum of 64K on systems that have this as a memory limit,
  * since this is the maximum buffer size we can specify.
  */
-PNG_INTERNAL_FUNCTION(void, png_calculate_crc, (png_structrp png_ptr, png_const_bytep ptr, size_t length), PNG_EMPTY);
-
+void png_calculate_crc(png_structrp png_ptr, png_const_bytep ptr, size_t length);
 #ifdef PNG_WRITE_FLUSH_SUPPORTED
 	void png_flush(png_structrp png_ptr);
 #endif
@@ -1070,29 +1069,26 @@ void png_write_start_row(png_structrp png_ptr);
 #ifndef PNG_USE_COMPILE_TIME_MASKS
 	#define PNG_USE_COMPILE_TIME_MASKS 1
 #endif
-PNG_INTERNAL_FUNCTION(void, png_combine_row, (png_const_structrp png_ptr, png_bytep row, int display), PNG_EMPTY);
-
+void png_combine_row(png_const_structrp png_ptr, png_bytep row, int display);
 #ifdef PNG_READ_INTERLACING_SUPPORTED
-/* Expand an interlaced row: the 'row_info' describes the pass data that has
- * been read in and must correspond to the pixels in 'row', the pixels are
- * expanded (moved apart) in 'row' to match the final layout, when doing this
- * the pixels are *replicated* to the intervening space.  This is essential for
- * the correct operation of png_combine_row, above.
- */
-PNG_INTERNAL_FUNCTION(void, png_do_read_interlace, (png_row_infop row_info, png_bytep row, int pass, uint32 transformations), PNG_EMPTY);
+	/* Expand an interlaced row: the 'row_info' describes the pass data that has
+	 * been read in and must correspond to the pixels in 'row', the pixels are
+	 * expanded (moved apart) in 'row' to match the final layout, when doing this
+	 * the pixels are *replicated* to the intervening space.  This is essential for
+	 * the correct operation of png_combine_row, above.
+	 */
+	void png_do_read_interlace(png_row_infop row_info, png_bytep row, int pass, uint32 transformations);
 #endif
-
 /* GRR TO DO (2.0 or whenever):  simplify other internal calling interfaces */
-
 #ifdef PNG_WRITE_INTERLACING_SUPPORTED
-/* Grab pixels out of a row for an interlaced pass */
-PNG_INTERNAL_FUNCTION(void, png_do_write_interlace, (png_row_infop row_info, png_bytep row, int pass), PNG_EMPTY);
+	/* Grab pixels out of a row for an interlaced pass */
+	void png_do_write_interlace(png_row_infop row_info, png_bytep row, int pass);
 #endif
 
 /* Unfilter a row: check the filter value before calling this, there is no point
  * calling it for PNG_FILTER_VALUE_NONE.
  */
-PNG_INTERNAL_FUNCTION(void, png_read_filter_row, (png_structrp pp, png_row_infop row_info, png_bytep row, png_const_bytep prev_row, int filter), PNG_EMPTY);
+void png_read_filter_row(png_structrp pp, png_row_infop row_info, png_bytep row, png_const_bytep prev_row, int filter);
 #if PNG_ARM_NEON_OPT > 0
 	PNG_INTERNAL_FUNCTION(void, png_read_filter_row_up_neon, (png_row_infop row_info, png_bytep row, png_const_bytep prev_row), PNG_EMPTY);
 	PNG_INTERNAL_FUNCTION(void, png_read_filter_row_sub3_neon, (png_row_infop row_info, png_bytep row, png_const_bytep prev_row), PNG_EMPTY);
@@ -1184,62 +1180,62 @@ PNG_INTERNAL_FUNCTION(int, png_zlib_inflate, (png_structrp png_ptr, int flush), 
  */
 
 /* Decode the IHDR chunk */
-PNG_INTERNAL_FUNCTION(void, png_handle_IHDR, (png_structrp png_ptr, png_inforp info_ptr, uint32 length), PNG_EMPTY);
-PNG_INTERNAL_FUNCTION(void, png_handle_PLTE, (png_structrp png_ptr, png_inforp info_ptr, uint32 length), PNG_EMPTY);
-PNG_INTERNAL_FUNCTION(void, png_handle_IEND, (png_structrp png_ptr, png_inforp info_ptr, uint32 length), PNG_EMPTY);
+void png_handle_IHDR(png_structrp png_ptr, png_inforp info_ptr, uint32 length);
+void png_handle_PLTE(png_structrp png_ptr, png_inforp info_ptr, uint32 length);
+void png_handle_IEND(png_structrp png_ptr, png_inforp info_ptr, uint32 length);
 #ifdef PNG_READ_bKGD_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_handle_bKGD, (png_structrp png_ptr, png_inforp info_ptr, uint32 length), PNG_EMPTY);
+void png_handle_bKGD(png_structrp png_ptr, png_inforp info_ptr, uint32 length);
 #endif
 #ifdef PNG_READ_cHRM_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_handle_cHRM, (png_structrp png_ptr, png_inforp info_ptr, uint32 length), PNG_EMPTY);
+void png_handle_cHRM(png_structrp png_ptr, png_inforp info_ptr, uint32 length);
 #endif
 #ifdef PNG_READ_gAMA_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_handle_gAMA, (png_structrp png_ptr, png_inforp info_ptr, uint32 length), PNG_EMPTY);
+void png_handle_gAMA(png_structrp png_ptr, png_inforp info_ptr, uint32 length);
 #endif
 #ifdef PNG_READ_hIST_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_handle_hIST, (png_structrp png_ptr, png_inforp info_ptr, uint32 length), PNG_EMPTY);
+void png_handle_hIST(png_structrp png_ptr, png_inforp info_ptr, uint32 length);
 #endif
 #ifdef PNG_READ_iCCP_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_handle_iCCP, (png_structrp png_ptr, png_inforp info_ptr, uint32 length), PNG_EMPTY);
+void png_handle_iCCP(png_structrp png_ptr, png_inforp info_ptr, uint32 length);
 #endif /* READ_iCCP */
 #ifdef PNG_READ_iTXt_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_handle_iTXt, (png_structrp png_ptr, png_inforp info_ptr, uint32 length), PNG_EMPTY);
+void png_handle_iTXt(png_structrp png_ptr, png_inforp info_ptr, uint32 length);
 #endif
 #ifdef PNG_READ_oFFs_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_handle_oFFs, (png_structrp png_ptr, png_inforp info_ptr, uint32 length), PNG_EMPTY);
+void png_handle_oFFs(png_structrp png_ptr, png_inforp info_ptr, uint32 length);
 #endif
 #ifdef PNG_READ_pCAL_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_handle_pCAL, (png_structrp png_ptr, png_inforp info_ptr, uint32 length), PNG_EMPTY);
+void png_handle_pCAL(png_structrp png_ptr, png_inforp info_ptr, uint32 length);
 #endif
 #ifdef PNG_READ_pHYs_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_handle_pHYs, (png_structrp png_ptr, png_inforp info_ptr, uint32 length), PNG_EMPTY);
+void png_handle_pHYs(png_structrp png_ptr, png_inforp info_ptr, uint32 length);
 #endif
 #ifdef PNG_READ_sBIT_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_handle_sBIT, (png_structrp png_ptr, png_inforp info_ptr, uint32 length), PNG_EMPTY);
+void png_handle_sBIT(png_structrp png_ptr, png_inforp info_ptr, uint32 length);
 #endif
 #ifdef PNG_READ_sCAL_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_handle_sCAL, (png_structrp png_ptr, png_inforp info_ptr, uint32 length), PNG_EMPTY);
+void png_handle_sCAL(png_structrp png_ptr, png_inforp info_ptr, uint32 length);
 #endif
 #ifdef PNG_READ_sPLT_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_handle_sPLT, (png_structrp png_ptr, png_inforp info_ptr, uint32 length), PNG_EMPTY);
+void png_handle_sPLT(png_structrp png_ptr, png_inforp info_ptr, uint32 length);
 #endif /* READ_sPLT */
 #ifdef PNG_READ_sRGB_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_handle_sRGB, (png_structrp png_ptr, png_inforp info_ptr, uint32 length), PNG_EMPTY);
+void png_handle_sRGB(png_structrp png_ptr, png_inforp info_ptr, uint32 length);
 #endif
 #ifdef PNG_READ_tEXt_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_handle_tEXt, (png_structrp png_ptr, png_inforp info_ptr, uint32 length), PNG_EMPTY);
+void png_handle_tEXt(png_structrp png_ptr, png_inforp info_ptr, uint32 length);
 #endif
 #ifdef PNG_READ_tIME_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_handle_tIME, (png_structrp png_ptr, png_inforp info_ptr, uint32 length), PNG_EMPTY);
+void png_handle_tIME(png_structrp png_ptr, png_inforp info_ptr, uint32 length);
 #endif
 #ifdef PNG_READ_tRNS_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_handle_tRNS, (png_structrp png_ptr, png_inforp info_ptr, uint32 length), PNG_EMPTY);
+void png_handle_tRNS(png_structrp png_ptr, png_inforp info_ptr, uint32 length);
 #endif
 #ifdef PNG_READ_zTXt_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_handle_zTXt, (png_structrp png_ptr, png_inforp info_ptr, uint32 length), PNG_EMPTY);
+void png_handle_zTXt(png_structrp png_ptr, png_inforp info_ptr, uint32 length);
 #endif
-PNG_INTERNAL_FUNCTION(void, png_check_chunk_name, (png_structrp png_ptr, uint32 chunk_name), PNG_EMPTY);
-PNG_INTERNAL_FUNCTION(void, png_handle_unknown, (png_structrp png_ptr, png_inforp info_ptr, uint32 length, int keep), PNG_EMPTY);
+void png_check_chunk_name(png_structrp png_ptr, uint32 chunk_name);
+void png_handle_unknown(png_structrp png_ptr, png_inforp info_ptr, uint32 length, int keep);
 /* This is the function that gets called for unknown chunks.  The 'keep'
  * argument is either non-zero for a known chunk that has been set to be
  * handled as unknown or zero for an unknown chunk.  By default the function
@@ -1255,41 +1251,41 @@ PNG_INTERNAL_FUNCTION(int, png_chunk_unknown_handling, (png_const_structrp png_p
 
 /* Handle the transformations for reading and writing */
 #ifdef PNG_READ_TRANSFORMS_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_do_read_transformations, (png_structrp png_ptr, png_row_infop row_info), PNG_EMPTY);
+void   png_do_read_transformations(png_structrp png_ptr, png_row_infop row_info);
 #endif
 #ifdef PNG_WRITE_TRANSFORMS_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_do_write_transformations, (png_structrp png_ptr, png_row_infop row_info), PNG_EMPTY);
+void   png_do_write_transformations(png_structrp png_ptr, png_row_infop row_info);
 #endif
 #ifdef PNG_READ_TRANSFORMS_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_init_read_transformations, (png_structrp png_ptr), PNG_EMPTY);
+void   png_init_read_transformations(png_structrp png_ptr);
 #endif
 #ifdef PNG_PROGRESSIVE_READ_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_push_read_chunk, (png_structrp png_ptr, png_inforp info_ptr), PNG_EMPTY);
-PNG_INTERNAL_FUNCTION(void, png_push_read_sig, (png_structrp png_ptr, png_inforp info_ptr), PNG_EMPTY);
-PNG_INTERNAL_FUNCTION(void, png_push_check_crc, (png_structrp png_ptr), PNG_EMPTY);
-PNG_INTERNAL_FUNCTION(void, png_push_save_buffer, (png_structrp png_ptr), PNG_EMPTY);
-PNG_INTERNAL_FUNCTION(void, png_push_restore_buffer, (png_structrp png_ptr, png_bytep buffer, size_t buffer_length), PNG_EMPTY);
-PNG_INTERNAL_FUNCTION(void, png_push_read_IDAT, (png_structrp png_ptr), PNG_EMPTY);
-PNG_INTERNAL_FUNCTION(void, png_process_IDAT_data, (png_structrp png_ptr, png_bytep buffer, size_t buffer_length), PNG_EMPTY);
-PNG_INTERNAL_FUNCTION(void, png_push_process_row, (png_structrp png_ptr), PNG_EMPTY);
-PNG_INTERNAL_FUNCTION(void, png_push_handle_unknown, (png_structrp png_ptr, png_inforp info_ptr, uint32 length), PNG_EMPTY);
-PNG_INTERNAL_FUNCTION(void, png_push_have_info, (png_structrp png_ptr, png_inforp info_ptr), PNG_EMPTY);
-PNG_INTERNAL_FUNCTION(void, png_push_have_end, (png_structrp png_ptr, png_inforp info_ptr), PNG_EMPTY);
-PNG_INTERNAL_FUNCTION(void, png_push_have_row, (png_structrp png_ptr, png_bytep row), PNG_EMPTY);
-PNG_INTERNAL_FUNCTION(void, png_push_read_end, (png_structrp png_ptr, png_inforp info_ptr), PNG_EMPTY);
-PNG_INTERNAL_FUNCTION(void, png_process_some_data, (png_structrp png_ptr, png_inforp info_ptr), PNG_EMPTY);
-PNG_INTERNAL_FUNCTION(void, png_read_push_finish_row, (png_structrp png_ptr), PNG_EMPTY);
+void   png_push_read_chunk(png_structrp png_ptr, png_inforp info_ptr);
+void   png_push_read_sig(png_structrp png_ptr, png_inforp info_ptr);
+void   png_push_check_crc(png_structrp png_ptr);
+void   png_push_save_buffer(png_structrp png_ptr);
+void   png_push_restore_buffer(png_structrp png_ptr, png_bytep buffer, size_t buffer_length);
+void   png_push_read_IDAT(png_structrp png_ptr);
+void   png_process_IDAT_data(png_structrp png_ptr, png_bytep buffer, size_t buffer_length);
+void   png_push_process_row(png_structrp png_ptr);
+void   png_push_handle_unknown(png_structrp png_ptr, png_inforp info_ptr, uint32 length);
+void   png_push_have_info(png_structrp png_ptr, png_inforp info_ptr);
+void   png_push_have_end(png_structrp png_ptr, png_inforp info_ptr);
+void   FASTCALL png_push_have_row(png_structrp png_ptr, png_bytep row);
+void   png_push_read_end(png_structrp png_ptr, png_inforp info_ptr);
+void   png_process_some_data(png_structrp png_ptr, png_inforp info_ptr);
+void   FASTCALL png_read_push_finish_row(png_structrp png_ptr);
 #ifdef PNG_READ_tEXt_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_push_handle_tEXt, (png_structrp png_ptr, png_inforp info_ptr, uint32 length), PNG_EMPTY);
-PNG_INTERNAL_FUNCTION(void, png_push_read_tEXt, (png_structrp png_ptr, png_inforp info_ptr), PNG_EMPTY);
+void   png_push_handle_tEXt(png_structrp png_ptr, png_inforp info_ptr, uint32 length);
+void   png_push_read_tEXt(png_structrp png_ptr, png_inforp info_ptr);
 #endif
 #ifdef PNG_READ_zTXt_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_push_handle_zTXt, (png_structrp png_ptr, png_inforp info_ptr, uint32 length), PNG_EMPTY);
-PNG_INTERNAL_FUNCTION(void, png_push_read_zTXt, (png_structrp png_ptr, png_inforp info_ptr), PNG_EMPTY);
+void   png_push_handle_zTXt(png_structrp png_ptr, png_inforp info_ptr, uint32 length);
+void   png_push_read_zTXt(png_structrp png_ptr, png_inforp info_ptr);
 #endif
 #ifdef PNG_READ_iTXt_SUPPORTED
-PNG_INTERNAL_FUNCTION(void, png_push_handle_iTXt, (png_structrp png_ptr, png_inforp info_ptr, uint32 length), PNG_EMPTY);
-PNG_INTERNAL_FUNCTION(void, png_push_read_iTXt, (png_structrp png_ptr, png_inforp info_ptr), PNG_EMPTY);
+void   png_push_handle_iTXt(png_structrp png_ptr, png_inforp info_ptr, uint32 length);
+void   png_push_read_iTXt(png_structrp png_ptr, png_inforp info_ptr);
 #endif
 
 #endif /* PROGRESSIVE_READ */
@@ -1575,52 +1571,48 @@ PNG_INTERNAL_FUNCTION(int, png_check_fp_string, (const char * string, size_t siz
 #endif /* pCAL || sCAL */
 
 #if defined(PNG_GAMMA_SUPPORTED) || defined(PNG_INCH_CONVERSIONS_SUPPORTED) || defined(PNG_READ_pHYs_SUPPORTED)
-/* Added at libpng version 1.5.0 */
-/* This is a utility to provide a*times/div (rounded) and indicate
- * if there is an overflow.  The result is a boolean - false (0)
- * for overflow, true (1) if no overflow, in which case *res
- * holds the result.
- */
-PNG_INTERNAL_FUNCTION(int, png_muldiv, (png_fixed_point_p res, png_fixed_point a, png_int_32 multiplied_by, png_int_32 divided_by), PNG_EMPTY);
+	/* Added at libpng version 1.5.0 */
+	/* This is a utility to provide a*times/div (rounded) and indicate
+	 * if there is an overflow.  The result is a boolean - false (0)
+	 * for overflow, true (1) if no overflow, in which case *res
+	 * holds the result.
+	 */
+	int STDCALL png_muldiv(png_fixed_point_p res, png_fixed_point a, png_int_32 multiplied_by, png_int_32 divided_by);
 #endif
-
 #if defined(PNG_READ_GAMMA_SUPPORTED) || defined(PNG_INCH_CONVERSIONS_SUPPORTED)
-/* Same deal, but issue a warning on overflow and return 0. */
-PNG_INTERNAL_FUNCTION(png_fixed_point, png_muldiv_warn, (png_const_structrp png_ptr, png_fixed_point a, png_int_32 multiplied_by, png_int_32 divided_by), PNG_EMPTY);
+	// Same deal, but issue a warning on overflow and return 0
+	png_fixed_point png_muldiv_warn(png_const_structrp png_ptr, png_fixed_point a, png_int_32 multiplied_by, png_int_32 divided_by);
 #endif
-
 #ifdef PNG_GAMMA_SUPPORTED
 /* Calculate a reciprocal - used for gamma values.  This returns
  * 0 if the argument is 0 in order to maintain an undefined value;
  * there are no warnings.
  */
-PNG_INTERNAL_FUNCTION(png_fixed_point, png_reciprocal, (png_fixed_point a), PNG_EMPTY);
+png_fixed_point png_reciprocal(png_fixed_point a);
 
 #ifdef PNG_READ_GAMMA_SUPPORTED
-/* The same but gives a reciprocal of the product of two fixed point
- * values.  Accuracy is suitable for gamma calculations but this is
- * not exact - use png_muldiv for that.  Only required at present on read.
- */
-PNG_INTERNAL_FUNCTION(png_fixed_point, png_reciprocal2, (png_fixed_point a, png_fixed_point b), PNG_EMPTY);
+	/* The same but gives a reciprocal of the product of two fixed point
+	 * values.  Accuracy is suitable for gamma calculations but this is
+	 * not exact - use png_muldiv for that.  Only required at present on read.
+	 */
+	png_fixed_point png_reciprocal2(png_fixed_point a, png_fixed_point b);
 #endif
-
 /* Return true if the gamma value is significantly different from 1.0 */
-PNG_INTERNAL_FUNCTION(int, png_gamma_significant, (png_fixed_point gamma_value), PNG_EMPTY);
+int png_gamma_significant(png_fixed_point gamma_value);
 #endif
-
 #ifdef PNG_READ_GAMMA_SUPPORTED
-/* Internal fixed point gamma correction.  These APIs are called as
- * required to convert single values - they don't need to be fast,
- * they are not used when processing image pixel values.
- *
- * While the input is an 'unsigned' value it must actually be the
- * correct bit value - 0..255 or 0..65535 as required.
- */
-PNG_INTERNAL_FUNCTION(png_uint_16, png_gamma_correct, (png_structrp png_ptr, uint value, png_fixed_point gamma_value), PNG_EMPTY);
-PNG_INTERNAL_FUNCTION(png_uint_16, png_gamma_16bit_correct, (uint value, png_fixed_point gamma_value), PNG_EMPTY);
-PNG_INTERNAL_FUNCTION(uint8, png_gamma_8bit_correct, (uint value, png_fixed_point gamma_value), PNG_EMPTY);
-PNG_INTERNAL_FUNCTION(void, png_destroy_gamma_table, (png_structrp png_ptr), PNG_EMPTY);
-PNG_INTERNAL_FUNCTION(void, png_build_gamma_table, (png_structrp png_ptr, int bit_depth), PNG_EMPTY);
+	/* Internal fixed point gamma correction.  These APIs are called as
+	 * required to convert single values - they don't need to be fast,
+	 * they are not used when processing image pixel values.
+	 *
+	 * While the input is an 'unsigned' value it must actually be the
+	 * correct bit value - 0..255 or 0..65535 as required.
+	 */
+	png_uint_16 png_gamma_correct(png_structrp png_ptr, uint value, png_fixed_point gamma_value);
+	png_uint_16 png_gamma_16bit_correct(uint value, png_fixed_point gamma_value);
+	uint8 png_gamma_8bit_correct(uint value, png_fixed_point gamma_value);
+	void png_destroy_gamma_table(png_structrp png_ptr);
+	void png_build_gamma_table(png_structrp png_ptr, int bit_depth);
 #endif
 // 
 // SIMPLIFIED READ/WRITE SUPPORT 

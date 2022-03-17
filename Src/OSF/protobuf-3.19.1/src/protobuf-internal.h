@@ -100,5 +100,7 @@
 #include <google/protobuf/stubs/once.h>
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/dynamic_message.h>
+#include <google/protobuf/generated_message_reflection.h>
+#include <google/protobuf/message.h>
 
 #endif // PROTOBUF_INTERNAL_H

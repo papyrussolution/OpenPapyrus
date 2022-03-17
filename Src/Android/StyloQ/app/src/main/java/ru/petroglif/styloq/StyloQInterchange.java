@@ -1761,8 +1761,7 @@ public class StyloQInterchange {
 			ClientInterchangeThreadEngine()
 			{
 			}
-			@Override
-			public void run()
+			@Override public void run()
 			{
 				Helper_DoInterchange(appCtx, param);
 			}
@@ -1782,8 +1781,7 @@ public class StyloQInterchange {
 			//ConnFactory.setHost("213.166.70.221");
 			ConnFactory.setUri("amqp://Admin:CX8U3kM9wTQb@213.166.70.221/styloq");
 			Thread thr = new Thread(new Runnable() {
-				@Override
-				public void run()
+				@Override public void run()
 				{
 					try {
 						Connection conn = ConnFactory.newConnection();

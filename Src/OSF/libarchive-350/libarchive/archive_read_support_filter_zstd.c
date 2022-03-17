@@ -21,7 +21,6 @@ __FBSDID("$FreeBSD$");
 #if HAVE_ZSTD_H
 	#include <zstd.h>
 #endif
-#include "archive_endian.h"
 #include "archive_read_private.h"
 
 #if HAVE_ZSTD_H && HAVE_LIBZSTD

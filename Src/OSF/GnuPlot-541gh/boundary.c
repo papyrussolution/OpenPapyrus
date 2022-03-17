@@ -1216,7 +1216,7 @@ void GnuPlot::DrawTitles(GpTermEntry * pTerm)
 	}
 	// PLACE TIMELABEL 
 	if(Gg.LblTime.text)
-		DoTimeLabel(pTerm, _Bry.TmP.x, _Bry.TmP.y);
+		DoTimeLabel(pTerm, _Bry.TmP);
 }
 //
 // advance current position in the key in preparation for next key entry 

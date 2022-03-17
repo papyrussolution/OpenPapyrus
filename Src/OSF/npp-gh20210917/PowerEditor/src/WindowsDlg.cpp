@@ -123,18 +123,15 @@ struct BufferEquivalent {
 	DocTabView * _pTab;
 	int _iColumn;
 	bool _reverse;
-	BufferEquivalent(DocTabView * pTab, int iColumn, bool reverse)
-		: _pTab(pTab), _iColumn(iColumn), _reverse(reverse)
+	BufferEquivalent(DocTabView * pTab, int iColumn, bool reverse) : _pTab(pTab), _iColumn(iColumn), _reverse(reverse)
 	{
 	}
-
 	bool operator()(int i1, int i2) const
 	{
 		if(i1 == i2) return false;  // equivalence test not equality
 		if(_reverse) std::swap(i1, i2);
 		return compare(i1, i2);
 	}
-
 	bool compare(int i1, int i2) const
 	{
 		if(_iColumn >= 0 && _iColumn <= 3) {
@@ -247,110 +244,81 @@ void WindowsDlg::init(HINSTANCE hInst, HWND parent)
 
 INT_PTR CALLBACK WindowsDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch(message)
-	{
+	switch(message) {
 		case WM_INITDIALOG:
-	    {
-		    NativeLangSpeaker * pNativeSpeaker = (NppParameters::getInstance()).getNativeLangSpeaker();
-		    pNativeSpeaker->changeDlgLang(_hSelf, "Window");
-
-		    NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
-
-		    return MyBaseClass::run_dlgProc(message, wParam, lParam);
-	    }
-
+			{
+				NativeLangSpeaker * pNativeSpeaker = (NppParameters::getInstance()).getNativeLangSpeaker();
+				pNativeSpeaker->changeDlgLang(_hSelf, "Window");
+				NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
+				return MyBaseClass::run_dlgProc(message, wParam, lParam);
+			}
 		case WM_CTLCOLORDLG:
 		case WM_CTLCOLORSTATIC:
-	    {
 		    if(NppDarkMode::isEnabled()) {
 			    return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
 		    }
 		    break;
-	    }
-
 		case WM_PRINTCLIENT:
-	    {
 		    if(NppDarkMode::isEnabled()) {
 			    return TRUE;
 		    }
 		    break;
-	    }
-
 		case NPPM_INTERNAL_REFRESHDARKMODE:
-	    {
 		    NppDarkMode::autoThemeChildControls(getHSelf());
 		    NppDarkMode::setDarkListView(_hList);
 		    return TRUE;
-	    }
-
 		case WM_COMMAND:
 	    {
-		    switch(wParam)
-		    {
+		    switch(wParam) {
 			    case IDOK:
-			{
-				activateCurrent();
-				return TRUE;
-			}
+					activateCurrent();
+					return TRUE;
 			    case IDCANCEL:
-			{
-				::GetWindowRect(_hSelf, &_lastKnownLocation);
-				EndDialog(_hSelf, IDCANCEL);
-				return TRUE;
-			}
-			    case IDC_WINDOWS_SAVE:
-			{
-				doSave();
-				return TRUE;
-			}
-			    case IDC_WINDOWS_CLOSE:
-			{
-				doClose();
-				return TRUE;
-			}
-			    case IDC_WINDOWS_SORT:
-			{
-				// they never set a column to sort by, so assume they wanted filename
-				if(_currentColumn == -1) {
-					_currentColumn = 0;
-					_reverseSort = false;
-					_lastSort = _currentColumn;
-
-					updateColumnNames();
-					doColumnSort();
-				}
-
-				doSortToTabs();
-
-				// must re-sort because tab indexes changed
-				doColumnSort();
-				break;
-			}
-
-			    default:
-				if(HIWORD(wParam) == 0) {
-					// Menu
-					switch(LOWORD(wParam))
 					{
-						case IDM_WINDOW_COPY_NAME:
-						    putItemsToClipboard(false);
-						    break;
-						case IDM_WINDOW_COPY_PATH:
-						    putItemsToClipboard(true);
-						    break;
+						::GetWindowRect(_hSelf, &_lastKnownLocation);
+						EndDialog(_hSelf, IDCANCEL);
+						return TRUE;
 					}
-				}
-				break;
+			    case IDC_WINDOWS_SAVE:
+					doSave();
+					return TRUE;
+			    case IDC_WINDOWS_CLOSE:
+					doClose();
+					return TRUE;
+			    case IDC_WINDOWS_SORT:
+					{
+						// they never set a column to sort by, so assume they wanted filename
+						if(_currentColumn == -1) {
+							_currentColumn = 0;
+							_reverseSort = false;
+							_lastSort = _currentColumn;
+							updateColumnNames();
+							doColumnSort();
+						}
+						doSortToTabs();
+						// must re-sort because tab indexes changed
+						doColumnSort();
+					}
+					break;
+			    default:
+					if(HIWORD(wParam) == 0) {
+						// Menu
+						switch(LOWORD(wParam)) {
+							case IDM_WINDOW_COPY_NAME:
+								putItemsToClipboard(false);
+								break;
+							case IDM_WINDOW_COPY_PATH:
+								putItemsToClipboard(true);
+								break;
+						}
+					}
+					break;
 		    }
 		    break;
 	    }
-
 		case WM_DESTROY:
-	    {
 		    //destroy();
 		    return TRUE;
-	    }
-
 		case WM_NOTIFY:
 	    {
 		    if(wParam == IDC_WINDOWS_LIST) {
@@ -421,8 +389,7 @@ INT_PTR CALLBACK WindowsDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lPa
 				    }
 				    return TRUE;
 			    }
-			    else if(pNMHDR->code == LVN_ITEMACTIVATE || pNMHDR->code == LVN_ITEMCHANGED ||
-				pNMHDR->code == LVN_ODSTATECHANGED) {
+			    else if(oneof3(pNMHDR->code, LVN_ITEMACTIVATE, LVN_ITEMCHANGED, LVN_ODSTATECHANGED)) {
 				    updateButtonState();
 				    return TRUE;
 			    }
@@ -450,7 +417,6 @@ INT_PTR CALLBACK WindowsDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lPa
 		    }
 		    break;
 	    }
-
 		case WM_CONTEXTMENU:
 	    {
 		    if(!_listMenu.isCreated()) {
@@ -465,38 +431,33 @@ INT_PTR CALLBACK WindowsDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lPa
 			    };
 			    _listMenu.create(_hSelf, itemUnitArray);
 		    }
-
 		    const bool enableMenu = ListView_GetSelectedCount(_hList) != 0;
 		    _listMenu.enableItem(IDM_WINDOW_COPY_NAME, enableMenu);
 		    _listMenu.enableItem(IDM_WINDOW_COPY_PATH, enableMenu);
-
 		    POINT p = {};
 		    ::GetCursorPos(&p);
 		    _listMenu.display(p);
 	    }
-		    return TRUE;
+	    return TRUE;
 	}
 	return MyBaseClass::run_dlgProc(message, wParam, lParam);
 }
 
 void WindowsDlg::doColumnSort()
 {
-	if(_currentColumn == -1)
-		return;
-
-	size_t i;
-	size_t n = _idxMap.size();
-	vector<int> sortMap;
-	sortMap.resize(n);
-	for(i = 0; i < n; ++i)
-		sortMap[_idxMap[i]] = ListView_GetItemState(_hList, i, LVIS_SELECTED);
-
-	stable_sort(_idxMap.begin(), _idxMap.end(), BufferEquivalent(_pTab, _currentColumn, _reverseSort));
-	for(i = 0; i < n; ++i)
-		ListView_SetItemState(_hList, i, sortMap[_idxMap[i]] ? LVIS_SELECTED : 0, LVIS_SELECTED);
-
-	::InvalidateRect(_hList, &_rc, FALSE);
-	updateButtonState();
+	if(_currentColumn != -1) {
+		size_t i;
+		size_t n = _idxMap.size();
+		vector<int> sortMap;
+		sortMap.resize(n);
+		for(i = 0; i < n; ++i)
+			sortMap[_idxMap[i]] = ListView_GetItemState(_hList, i, LVIS_SELECTED);
+		stable_sort(_idxMap.begin(), _idxMap.end(), BufferEquivalent(_pTab, _currentColumn, _reverseSort));
+		for(i = 0; i < n; ++i)
+			ListView_SetItemState(_hList, i, sortMap[_idxMap[i]] ? LVIS_SELECTED : 0, LVIS_SELECTED);
+		::InvalidateRect(_hList, &_rc, FALSE);
+		updateButtonState();
+	}
 }
 
 void WindowsDlg::updateButtonState()
@@ -521,23 +482,20 @@ void WindowsDlg::updateButtonState()
 int WindowsDlg::doDialog()
 {
 	return static_cast<int>(DialogBoxParam(_hInst, MAKEINTRESOURCE(IDD_WINDOWS), _hParent, dlgProc, reinterpret_cast<LPARAM>(this)));
-};
+}
 
 BOOL WindowsDlg::onInitDialog()
 {
 	_winMgr.InitToFitSizeFromCurrent(_hSelf);
-
 	// save min size for OK/Cancel buttons
 	_szMinButton = RectToSize(_winMgr.GetRect(IDOK));
 	_szMinListCtrl = RectToSize(_winMgr.GetRect(IDC_WINDOWS_LIST));
 	_currentColumn = -1;
 	_lastSort = -1;
 	_reverseSort = false;
-
 	_winMgr.CalcLayout(_hSelf);
 	_winMgr.SetWindowPositions(_hSelf);
 	getClientRect(_rc);
-
 	_hList = ::GetDlgItem(_hSelf, IDC_WINDOWS_LIST);
 	DWORD exStyle = ListView_GetExtendedListViewStyle(_hList);
 	exStyle |= LVS_EX_HEADERDRAGDROP|LVS_EX_FULLROWSELECT|LVS_EX_DOUBLEBUFFER;
@@ -949,37 +907,28 @@ Buffer* WindowsDlg::getBuffer(int index) const
 
 LRESULT CALLBACK WindowsDlg::listViewProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
-	switch(Message)
-	{
+	switch(Message) {
 		case WM_NOTIFY:
-	    {
-		    switch(reinterpret_cast<LPNMHDR>(lParam)->code)
-		    {
+		    switch(reinterpret_cast<LPNMHDR>(lParam)->code) {
 			    case NM_CUSTOMDRAW:
-			{
-				LPNMCUSTOMDRAW nmcd = reinterpret_cast<LPNMCUSTOMDRAW>(lParam);
-				switch(nmcd->dwDrawStage)
-				{
-					case CDDS_PREPAINT:
-				    {
-					    return CDRF_NOTIFYITEMDRAW;
-				    }
-
-					case CDDS_ITEMPREPAINT:
-				    {
-					    bool isDarkModeSupported = NppDarkMode::isEnabled() && NppDarkMode::isExperimentalSupported();
-					    ::SetTextColor(nmcd->hdc,
-						isDarkModeSupported ? NppDarkMode::getDarkerTextColor() : GetSysColor(
-							COLOR_BTNTEXT));
-					    return CDRF_DODEFAULT;
-				    }
-				    break;
-				}
-			}
-			break;
+					{
+						LPNMCUSTOMDRAW nmcd = reinterpret_cast<LPNMCUSTOMDRAW>(lParam);
+						switch(nmcd->dwDrawStage) {
+							case CDDS_PREPAINT:
+								return CDRF_NOTIFYITEMDRAW;
+							case CDDS_ITEMPREPAINT:
+								{
+									bool isDarkModeSupported = NppDarkMode::isEnabled() && NppDarkMode::isExperimentalSupported();
+									::SetTextColor(nmcd->hdc,
+									isDarkModeSupported ? NppDarkMode::getDarkerTextColor() : GetSysColor(COLOR_BTNTEXT));
+									return CDRF_DODEFAULT;
+								}
+								break;
+						}
+					}
+					break;
 		    }
-	    }
-	    break;
+		    break;
 	}
 	return CallWindowProc(reinterpret_cast<WNDPROC>(originalListViewProc), hwnd, Message, wParam, lParam);
 }
@@ -1024,7 +973,7 @@ void WindowsMenu::initPopupMenu(HMENU hMenu, DocTabView * pTab)
 		auto curDoc = pTab->getCurrentTabIndex();
 		size_t nMaxDoc = IDM_WINDOW_MRU_LIMIT - IDM_WINDOW_MRU_FIRST + 1;
 		size_t nDoc = pTab->nbItem();
-		nDoc = min(nDoc, nMaxDoc);
+		nDoc = MIN(nDoc, nMaxDoc);
 		int id;
 		size_t pos;
 		for(id = IDM_WINDOW_MRU_FIRST, pos = 0; id < IDM_WINDOW_MRU_FIRST + static_cast<int32_t>(nDoc); ++id, ++pos) {

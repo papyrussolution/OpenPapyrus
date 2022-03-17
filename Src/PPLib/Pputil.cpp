@@ -92,12 +92,12 @@ SString & VatRateStr(double rate, SString & rBuf)
 	return rBuf.Space().Cat(R0i(rate)).CatChar('%');
 }
 
-int FASTCALL PPGetSubStr(const char * pStr, int idx, SString & rDest)
+int PPGetSubStr(const char * pStr, int idx, SString & rDest)
 {
 	return rDest.GetSubFrom(pStr, ';', idx);
 }
 
-int FASTCALL PPGetSubStr(const char * pStr, int idx, char * pBuf, size_t bufLen)
+int PPGetSubStr(const char * pStr, int idx, char * pBuf, size_t bufLen)
 {
 	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v10.6.8
 	int    ok = r_temp_buf.GetSubFrom(pStr, ';', idx);
@@ -105,7 +105,7 @@ int FASTCALL PPGetSubStr(const char * pStr, int idx, char * pBuf, size_t bufLen)
 	return ok;
 }
 
-int FASTCALL PPGetSubStrById(int strId, int subId, SString & rBuf)
+int PPGetSubStrById(int strId, int subId, SString & rBuf)
 {
 	int    ok = 0;
 	rBuf.Z();
@@ -148,7 +148,7 @@ static int FASTCALL __CompareStrings(const char * pStr, const char * pTest, size
 	return 0;
 }
 
-int FASTCALL PPSearchSubStr(const char * pStr, int * pIdx, const char * pTestStr, int ignoreCase)
+int PPSearchSubStr(const char * pStr, int * pIdx, const char * pTestStr, int ignoreCase)
 {
 	int    idx = -1;
 	uint   pos = 0;
@@ -161,7 +161,7 @@ int FASTCALL PPSearchSubStr(const char * pStr, int * pIdx, const char * pTestStr
 	return (idx < 0) ? 0 : 1;
 }
 
-int FASTCALL PPCmpSubStr(const char * pStr, int idx, const char * pTestStr, int ignoreCase)
+int PPCmpSubStr(const char * pStr, int idx, const char * pTestStr, int ignoreCase)
 {
 	SString temp;
 	if(PPGetSubStr(pStr, idx, temp))
@@ -170,7 +170,7 @@ int FASTCALL PPCmpSubStr(const char * pStr, int idx, const char * pTestStr, int 
 	return 0;
 }
 
-int FASTCALL PPGetSubStr(uint strID, int idx, SString & rDest)
+int PPGetSubStr(uint strID, int idx, SString & rDest)
 {
 	SString temp;
 	int    ok = PPLoadText(strID, temp) ? PPGetSubStr(temp, idx, rDest) : 0;
@@ -179,7 +179,7 @@ int FASTCALL PPGetSubStr(uint strID, int idx, SString & rDest)
 	return ok;
 }
 
-int FASTCALL PPGetSubStr(uint strID, int idx, char * pBuf, size_t bufLen)
+int PPGetSubStr(uint strID, int idx, char * pBuf, size_t bufLen)
 {
 	SString temp;
 	int    ok = PPLoadText(strID, temp) ? PPGetSubStr(temp, idx, pBuf, bufLen) : 0;
@@ -188,7 +188,7 @@ int FASTCALL PPGetSubStr(uint strID, int idx, char * pBuf, size_t bufLen)
 	return ok;
 }
 
-char * FASTCALL PPGetWord(uint wordId /* PPWORD_XXX */, int ansiCoding, char * pBuf, size_t bufLen)
+char * PPGetWord(uint wordId /* PPWORD_XXX */, int ansiCoding, char * pBuf, size_t bufLen)
 {
 	SString temp_buf;
 	PPLoadText(wordId, temp_buf);
@@ -198,7 +198,7 @@ char * FASTCALL PPGetWord(uint wordId /* PPWORD_XXX */, int ansiCoding, char * p
 	return pBuf;
 }
 
-SString & FASTCALL PPGetWord(uint wordId /* PPWORD_XXX */, int ansiCoding, SString & rBuf)
+SString & PPGetWord(uint wordId /* PPWORD_XXX */, int ansiCoding, SString & rBuf)
 {
 	PPLoadText(wordId, rBuf);
 	if(ansiCoding)

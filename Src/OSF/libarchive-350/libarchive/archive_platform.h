@@ -197,7 +197,8 @@
 #endif
 #include "archive.h"
 #include "archive_entry.h"
-#include "archive_private.h"
 #include "archive_string.h"
+#include "archive_private.h"
 #include "archive_write_private.h"
+#include "archive_endian.h"
 #endif /* !ARCHIVE_PLATFORM_H_INCLUDED */

@@ -22,7 +22,6 @@ __FBSDID("$FreeBSD$");
 #if defined(HAVE_LIBLZ4) // @sobolev
 	#include <lz4.h>
 #endif
-#include "archive_endian.h"
 #include "archive_read_private.h"
 #include "archive_xxhash.h"
 
@@ -40,14 +39,13 @@ struct private_data {
 		READ_LEGACY_BLOCK, 
 	} stage;
 	struct {
-		unsigned block_independence : 1;
-		unsigned block_checksum : 3;
-		unsigned stream_size : 1;
-		unsigned stream_checksum : 1;
-		unsigned preset_dictionary : 1;
-		int block_maximum_size;
+		uint   block_independence : 1;
+		uint   block_checksum : 3;
+		uint   stream_size : 1;
+		uint   stream_checksum : 1;
+		uint   preset_dictionary : 1;
+		int    block_maximum_size;
 	} flags;
-
 	int64 stream_size;
 	uint32 dict_id;
 	char * out_block;

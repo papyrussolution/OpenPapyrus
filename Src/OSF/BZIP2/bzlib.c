@@ -22,15 +22,11 @@
      wrong parameter order in call to bzDecompressInit in
      bzBuffToBuffDecompress.  Fixed.
  */
-
 #include "bzlib_private.h"
 #pragma hdrstop
-
-/*---------------------------------------------------*/
-/*--- Compression stuff                           ---*/
-/*---------------------------------------------------*/
-
-/*---------------------------------------------------*/
+// 
+// Compression stuff
+// 
 #ifndef BZ_NO_STDIO
 void BZ2_bz__AssertH__fail(int errcode)
 {
@@ -195,7 +191,6 @@ static void flush_RL(EState* s)
 	init_RL(s);
 }
 
-/*---------------------------------------------------*/
 #define ADD_CHAR_TO_BLOCK(zs, zchh0)		   \
 	{						  \
 		uint32 zchh = static_cast<uint32>(zchh0);		       \
@@ -220,7 +215,6 @@ static void flush_RL(EState* s)
 		}					       \
 	}
 
-/*---------------------------------------------------*/
 static bool copy_input_until_stop(EState* s)
 {
 	bool progress_in = false;
@@ -260,7 +254,6 @@ static bool copy_input_until_stop(EState* s)
 	return progress_in;
 }
 
-/*---------------------------------------------------*/
 static bool copy_output_until_stop(EState* s)
 {
 	bool progress_out = false;
@@ -388,12 +381,9 @@ int BZ2_bzCompressEnd(bz_stream *strm)
 		return BZ_PARAM_ERROR;
 	if(s->strm != strm) 
 		return BZ_PARAM_ERROR;
-	if(s->arr1 != NULL) 
-		SAlloc::F(s->arr1);
-	if(s->arr2 != NULL) 
-		SAlloc::F(s->arr2);
-	if(s->ftab != NULL) 
-		SAlloc::F(s->ftab);
+	SAlloc::F(s->arr1);
+	SAlloc::F(s->arr2);
+	SAlloc::F(s->ftab);
 	SAlloc::F(strm->state);
 	strm->state = NULL;
 	return BZ_OK;
@@ -411,7 +401,8 @@ int BZ2_bzDecompressInit(bz_stream* strm, int verbosity, int small)
 	//if(strm->bzalloc == NULL) strm->bzalloc = default_bzalloc;
 	//if(strm->bzfree == NULL) strm->bzfree = default_bzfree;
 	s = (DState *)SAlloc::M(sizeof(DState));
-	if(s == NULL) return BZ_MEM_ERROR;
+	if(s == NULL) 
+		return BZ_MEM_ERROR;
 	s->strm          = strm;
 	strm->state      = s;
 	s->state         = BZ_X_MAGIC_1;
@@ -613,11 +604,10 @@ __inline__ int32 BZ2_indexIntoF(int32 indx, int32 * cftab)
 	} while((na - nb) != 1);
 	return nb;
 }
-
-/*---------------------------------------------------*/
-/* Return  true iff data corruption is discovered.
-   Returns false if there is no problem.
- */
+// 
+// Return  true iff data corruption is discovered.
+// Returns false if there is no problem.
+// 
 static bool unRLE_obuf_to_output_SMALL(DState* s)
 {
 	uchar k1;
@@ -821,11 +811,7 @@ int BZ2_bzDecompressEnd(bz_stream *strm)
 // 
 // File I/O stuff
 // 
-#define BZ_SETERR(eee)			  \
-	{					  \
-		ASSIGN_PTR(bzerror, eee);   \
-		if(bzf) bzf->lastErr = eee;   \
-	}
+#define BZ_SETERR(eee) { ASSIGN_PTR(bzerror, eee); if(bzf) bzf->lastErr = eee; }
 
 typedef struct {
 	FILE * handle;
@@ -986,7 +972,6 @@ void BZ2_bzWriteClose64(int * bzerror, BZFILE * b, int abandon, uint* nbytes_in_
 	SAlloc::F(bzf);
 }
 
-/*---------------------------------------------------*/
 BZFILE* BZ2_bzReadOpen(int*  bzerror, FILE* f, int verbosity, int small, void * unused, int nUnused)
 {
 	bzFile* bzf = NULL;
@@ -1032,7 +1017,6 @@ BZFILE* BZ2_bzReadOpen(int*  bzerror, FILE* f, int verbosity, int small, void * 
 	return bzf;
 }
 
-/*---------------------------------------------------*/
 void BZ2_bzReadClose(int * bzerror, BZFILE *b)
 {
 	bzFile * bzf = (bzFile *)b;
@@ -1048,7 +1032,6 @@ void BZ2_bzReadClose(int * bzerror, BZFILE *b)
 	SAlloc::F(bzf);
 }
 
-/*---------------------------------------------------*/
 int BZ2_bzRead(int * bzerror, BZFILE* b, void *   buf, int len)
 {
 	int32 n, ret;
@@ -1096,7 +1079,6 @@ int BZ2_bzRead(int * bzerror, BZFILE* b, void *   buf, int len)
 	return 0; /*not reached*/
 }
 
-/*---------------------------------------------------*/
 void BZ2_bzReadGetUnused(int*    bzerror, BZFILE* b, void**  unused, int*    nUnused)
 {
 	bzFile* bzf = (bzFile*)b;
@@ -1114,12 +1096,9 @@ void BZ2_bzReadGetUnused(int*    bzerror, BZFILE* b, void**  unused, int*    nUn
 	*unused = bzf->strm.next_in;
 }
 #endif
-
-/*---------------------------------------------------*/
-/*--- Misc convenience stuff                      ---*/
-/*---------------------------------------------------*/
-
-/*---------------------------------------------------*/
+// 
+// Misc convenience stuff
+// 
 int BZ2_bzBuffToBuffCompress(char * dest, uint * destLen, char * source, uint sourceLen, int blockSize100k, int verbosity, int workFactor)
 {
 	bz_stream strm;
@@ -1151,7 +1130,6 @@ errhandler:
 	return ret;
 }
 
-/*---------------------------------------------------*/
 int BZ2_bzBuffToBuffDecompress(char * dest, uint* destLen, char* source, uint sourceLen, int small, int verbosity)
 {
 	bz_stream strm;
@@ -1191,29 +1169,23 @@ errhandler:
 	return ret;
 }
 
-/*---------------------------------------------------*/
-/*--
-   Code contributed by Yoshioka Tsuneo (tsuneo@rr.iij4u.or.jp)
-   to support better zlib compatibility.
-   This code is not _officially_ part of libbzip2 (yet);
-   I haven't tested it, documented it, or considered the
-   threading-safeness of it.
-   If this code breaks, please contact both Yoshioka and me.
-   --*/
-/*---------------------------------------------------*/
-
-/*---------------------------------------------------*/
-/*--
-   return version like "0.9.5d, 4-Sept-1999".
-   --*/
+// 
+// Code contributed by Yoshioka Tsuneo (tsuneo@rr.iij4u.or.jp)
+// to support better zlib compatibility.
+// This code is not _officially_ part of libbzip2 (yet);
+// I haven't tested it, documented it, or considered the
+// threading-safeness of it.
+// If this code breaks, please contact both Yoshioka and me.
+// 
+// 
+// return version like "0.9.5d, 4-Sept-1999".
+// 
 const char * BZ2_bzlibVersion(void)
 {
 	return BZ_VERSION;
 }
 
 #ifndef BZ_NO_STDIO
-/*---------------------------------------------------*/
-
 #if defined(_WIN32) || defined(OS2) || defined(MSDOS)
 	//#include <fcntl.h>
 	//#include <io.h>
@@ -1340,11 +1312,9 @@ void BZ2_bzclose(BZFILE * b)
 		}
 	}
 }
-
-/*---------------------------------------------------*/
-/*--
-   return last error code
-   --*/
+// 
+// return last error code
+// 
 static const char * bzerrorstrings[] = {
 	"OK", 
 	"SEQUENCE_ERROR", 

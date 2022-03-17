@@ -1105,8 +1105,8 @@ int PPViewPerson::CreateTempRec(PersonTbl::Rec * pPsnRec, PPID tabID, PsnAttrVie
 	//
 	if(Filt.AttribType == PPPSNATTR_PHONEADDR) {
 		PPELinkArray elink_ary;
-		if(PsnObj.P_Tbl->GetELinks(pPsnRec->ID, &elink_ary)) {
-			const int buf_len = 128; // @v9.8.4 sizeof(item.Phone);
+		if(PsnObj.P_Tbl->GetELinks(pPsnRec->ID, elink_ary)) {
+			const int buf_len = 128;
 			SString phone_list, fax_list;
 			elink_ary.GetPhones(5, phone_list, ELNKRT_PHONE);
 			elink_ary.GetPhones(2, fax_list, ELNKRT_FAX);
@@ -1133,7 +1133,7 @@ int PPViewPerson::CreateTempRec(PersonTbl::Rec * pPsnRec, PPID tabID, PsnAttrVie
 	}
 	else if(Filt.AttribType == PPPSNATTR_EMAIL) {
 		PPELinkArray elink_ary;
-		if(PsnObj.P_Tbl->GetELinks(pPsnRec->ID, &elink_ary)) {
+		if(PsnObj.P_Tbl->GetELinks(pPsnRec->ID, elink_ary)) {
 			SString email_list;
 			elink_ary.GetPhones(1, email_list, ELNKRT_EMAIL);
 			//email_list.CopyTo(item.Phone, sizeof(item.Phone));
@@ -2937,7 +2937,7 @@ int PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 						int r = 0;
 						SString buf;
 						PPELinkArray phones_ary;
-						PersonCore::GetELinks(hdr.ID, &phones_ary);
+						PersonCore::GetELinks(hdr.ID, phones_ary);
 						for(uint i = 0; i < phones_ary.getCount(); i++) {
 							if(i != 0)
 								buf.CR();
@@ -3073,7 +3073,7 @@ int PPViewPerson::GetSmsLists(StrAssocArray & rPsnList, StrAssocArray & rPhoneLi
 	PersonViewItem item;
  	for(InitIteration(); NextIteration(&item) > 0;) {
 		PPELinkArray elink_list;
-		if(PersonCore::GetELinks(item.ID, &elink_list) > 0) {
+		if(PersonCore::GetELinks(item.ID, elink_list) > 0) {
 			if(what > 0)
 				elink_list.GetPhones(1, phone = 0, ELNKRT_EMAIL);
 			else {

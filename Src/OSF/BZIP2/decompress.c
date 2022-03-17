@@ -43,7 +43,6 @@ static void makeMaps_d(DState* s)
 #define GET_UCHAR(lll, uuu) GET_BITS(lll, uuu, 8)
 #define GET_BIT(lll, uuu)   GET_BITS(lll, uuu, 1)
 
-/*---------------------------------------------------*/
 #define GET_MTF_VAL(label1, label2, lval)	    \
 	{						  \
 		if(groupPos == 0) {			      \
@@ -73,7 +72,6 @@ static void makeMaps_d(DState* s)
 		lval = gPerm[zvec - gBase[zn]];		       \
 	}
 
-/*---------------------------------------------------*/
 int32 BZ2_decompress(DState * s)
 {
 	uchar uc;

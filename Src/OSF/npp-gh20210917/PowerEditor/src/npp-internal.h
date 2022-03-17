@@ -1252,7 +1252,8 @@ struct Session {
 	size_t _activeView = 0;
 	size_t _activeMainIndex = 0;
 	size_t _activeSubIndex = 0;
-	bool _includeFileBrowser = false;
+	bool   _includeFileBrowser = false;
+	uint8  Reserve[3]; // @alignment
 	generic_string _fileBrowserSelectedItem;
 	std::vector<sessionFileInfo> _mainViewFiles;
 	std::vector<sessionFileInfo> _subViewFiles;
@@ -1260,28 +1261,29 @@ struct Session {
 };
 
 struct CmdLineParams {
-	bool _isNoPlugin = false;
-	bool _isReadOnly = false;
-	bool _isNoSession = false;
-	bool _isNoTab = false;
-	bool _isPreLaunch = false;
-	bool _showLoadingTime = false;
-	bool _alwaysOnTop = false;
-	int _line2go   = -1;
-	int _column2go = -1;
-	int _pos2go = -1;
-	POINT _point = { 0 };
-	bool _isPointXValid = false;
-	bool _isPointYValid = false;
-	bool _isSessionFile = false;
-	bool _isRecursive = false;
-	bool _openFoldersAsWorkspace = false;
+	bool   _isNoPlugin = false;
+	bool   _isReadOnly = false;
+	bool   _isNoSession = false;
+	bool   _isNoTab = false;
+	bool   _isPreLaunch = false;
+	bool   _showLoadingTime = false;
+	bool   _alwaysOnTop = false;
+	bool   _isPointXValid = false;
+	bool   _isPointYValid = false;
+	bool   _isSessionFile = false;
+	bool   _isRecursive = false;
+	bool   _openFoldersAsWorkspace = false;
+	uchar  _quoteType = 0;
+	uint8  Reserve[3]; // @alignment
+	int    _line2go   = -1;
+	int    _column2go = -1;
+	int    _pos2go = -1;
+	POINT  _point = { 0 };
 	LangType _langType = L_EXTERNAL;
 	generic_string _localizationPath;
 	generic_string _udlName;
 	generic_string _easterEggName;
-	uchar _quoteType = 0;
-	int _ghostTypingSpeed = -1; // -1: initial value  1: slow  2: fast  3: speed of light
+	int    _ghostTypingSpeed = -1; // -1: initial value  1: slow  2: fast  3: speed of light
 	CmdLineParams()
 	{
 		_point.x = 0;

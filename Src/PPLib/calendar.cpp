@@ -896,14 +896,13 @@ void TDateCalendar::SelectDay(HWND hWnd, int x, int y)
 		temp_date.setday(D.dayspermonth());
 		setDTS(plusdate(temp_date, j-c_maxlast));
 	}
-	else if(((i && i < (c_maxrow-1)) || (!i && j >= c_minfirst) || (i == (c_maxrow-1) && j <= c_maxlast)) &&
-		(!PeriodSelect || (satoi(C[i+1][j]) + hashd(D) != D2.day() + hashd(D2)))) { // @unicodeproblem
+	else if(((i && i < (c_maxrow-1)) || (!i && j >= c_minfirst) || (i == (c_maxrow-1) && j <= c_maxlast)) && (!PeriodSelect || (satoi(C[i+1][j]) + hashd(D) != D2.day() + hashd(D2)))) {
 		//
 		// Move the selection
 		//
 		HDC    hdc = ::GetDC(hWnd);
 		HFONT  hf = CreateFont(IsLarge ? 24 : 8, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
-			DEFAULT_QUALITY, DEFAULT_PITCH | FW_DONTCARE, _T("MS Sans Serif")); // @unicodeproblem
+			DEFAULT_QUALITY, DEFAULT_PITCH | FW_DONTCARE, _T("MS Sans Serif"));
 		HFONT  hf_old = static_cast<HFONT>(SelectObject(hdc, hf));
 		::SetBkMode(hdc, TRANSPARENT);
 		::SetTextColor(hdc, RGB(0, 0, 0));

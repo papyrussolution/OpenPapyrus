@@ -40,16 +40,16 @@ static void gpe_push(gpe_fifo_t ** base, GpEvent * ge)
 {
 	buffered_output_pending++;
 	if((*base)->prev) {
-		gpe_fifo_t * new = SAlloc::M(sizeof(gpe_fifo_t));
+		gpe_fifo_t * p_new = SAlloc::M(sizeof(gpe_fifo_t));
 		/* fprintf(stderr, "(gpe_push) \n"); */
-		assert(new);
-		(*base)->prev->next = new;
-		new->prev = (*base)->prev;
-		(*base)->prev = new;
-		new->next = (gpe_fifo_t*)0;
+		assert(p_new);
+		(*base)->prev->next = p_new;
+		p_new->prev = (*base)->prev;
+		(*base)->prev = p_new;
+		p_new->next = (gpe_fifo_t*)0;
 	}
 	else {
-		/* first element, this is the case, if the pipe isn't clogged */
+		// first element, this is the case, if the pipe isn't clogged 
 		(*base)->next = (gpe_fifo_t*)0; /* tail */
 		(*base)->prev = (*base); /* points to itself */
 	}

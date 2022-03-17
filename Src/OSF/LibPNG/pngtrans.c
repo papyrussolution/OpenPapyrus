@@ -20,7 +20,7 @@
 /* Turn on BGR-to-RGB mapping */
 void PNGAPI png_set_bgr(png_structrp png_ptr)
 {
-	png_debug(1, "in png_set_bgr");
+	png_debug(1, "in " __FUNCTION__);
 	if(png_ptr)
 		png_ptr->transformations |= PNG_BGR;
 }
@@ -31,7 +31,7 @@ void PNGAPI png_set_bgr(png_structrp png_ptr)
 /* Turn on 16-bit byte swapping */
 void PNGAPI png_set_swap(png_structrp png_ptr)
 {
-	png_debug(1, "in png_set_swap");
+	png_debug(1, "in " __FUNCTION__);
 	if(!png_ptr)
 		return;
 	if(png_ptr->bit_depth == 16)
@@ -44,7 +44,7 @@ void PNGAPI png_set_swap(png_structrp png_ptr)
 /* Turn on pixel packing */
 void PNGAPI png_set_packing(png_structrp png_ptr)
 {
-	png_debug(1, "in png_set_packing");
+	png_debug(1, "in " __FUNCTION__);
 	if(!png_ptr)
 		return;
 	if(png_ptr->bit_depth < 8) {
@@ -61,21 +61,18 @@ void PNGAPI png_set_packing(png_structrp png_ptr)
 /* Turn on packed pixel swapping */
 void PNGAPI png_set_packswap(png_structrp png_ptr)
 {
-	png_debug(1, "in png_set_packswap");
-
+	png_debug(1, "in " __FUNCTION__);
 	if(!png_ptr)
 		return;
-
 	if(png_ptr->bit_depth < 8)
 		png_ptr->transformations |= PNG_PACKSWAP;
 }
-
 #endif
 
 #if defined(PNG_READ_SHIFT_SUPPORTED) || defined(PNG_WRITE_SHIFT_SUPPORTED)
 void PNGAPI png_set_shift(png_structrp png_ptr, png_const_color_8p true_bits)
 {
-	png_debug(1, "in png_set_shift");
+	png_debug(1, "in " __FUNCTION__);
 	if(!png_ptr)
 		return;
 	png_ptr->transformations |= PNG_SHIFT;
@@ -87,7 +84,7 @@ void PNGAPI png_set_shift(png_structrp png_ptr, png_const_color_8p true_bits)
 #if defined(PNG_READ_INTERLACING_SUPPORTED) || defined(PNG_WRITE_INTERLACING_SUPPORTED)
 int PNGAPI png_set_interlace_handling(png_structrp png_ptr)
 {
-	png_debug(1, "in png_set_interlace handling");
+	png_debug(1, "in " __FUNCTION__);
 	if(png_ptr != 0 && png_ptr->interlaced != 0) {
 		png_ptr->transformations |= PNG_INTERLACE;
 		return (7);
@@ -105,7 +102,7 @@ int PNGAPI png_set_interlace_handling(png_structrp png_ptr)
  */
 void PNGAPI png_set_filler(png_structrp png_ptr, uint32 filler, int filler_loc)
 {
-	png_debug(1, "in png_set_filler");
+	png_debug(1, "in " __FUNCTION__);
 	if(!png_ptr)
 		return;
 	/* In libpng 1.6 it is possible to determine whether this is a read or write
@@ -176,7 +173,7 @@ void PNGAPI png_set_filler(png_structrp png_ptr, uint32 filler, int filler_loc)
 /* Added to libpng-1.2.7 */
 void PNGAPI png_set_add_alpha(png_structrp png_ptr, uint32 filler, int filler_loc)
 {
-	png_debug(1, "in png_set_add_alpha");
+	png_debug(1, "in " __FUNCTION__);
 	if(!png_ptr)
 		return;
 	png_set_filler(png_ptr, filler, filler_loc);
@@ -190,7 +187,7 @@ void PNGAPI png_set_add_alpha(png_structrp png_ptr, uint32 filler, int filler_lo
 #if defined(PNG_READ_SWAP_ALPHA_SUPPORTED) || defined(PNG_WRITE_SWAP_ALPHA_SUPPORTED)
 void PNGAPI png_set_swap_alpha(png_structrp png_ptr)
 {
-	png_debug(1, "in png_set_swap_alpha");
+	png_debug(1, "in " __FUNCTION__);
 	if(png_ptr)
 		png_ptr->transformations |= PNG_SWAP_ALPHA;
 }
@@ -200,7 +197,7 @@ void PNGAPI png_set_swap_alpha(png_structrp png_ptr)
 #if defined(PNG_READ_INVERT_ALPHA_SUPPORTED) ||	defined(PNG_WRITE_INVERT_ALPHA_SUPPORTED)
 void PNGAPI png_set_invert_alpha(png_structrp png_ptr)
 {
-	png_debug(1, "in png_set_invert_alpha");
+	png_debug(1, "in " __FUNCTION__);
 	if(png_ptr)
 		png_ptr->transformations |= PNG_INVERT_ALPHA;
 }
@@ -209,7 +206,7 @@ void PNGAPI png_set_invert_alpha(png_structrp png_ptr)
 #if defined(PNG_READ_INVERT_SUPPORTED) || defined(PNG_WRITE_INVERT_SUPPORTED)
 void PNGAPI png_set_invert_mono(png_structrp png_ptr)
 {
-	png_debug(1, "in png_set_invert_mono");
+	png_debug(1, "in " __FUNCTION__);
 	if(png_ptr)
 		png_ptr->transformations |= PNG_INVERT_MONO;
 }
@@ -217,7 +214,7 @@ void PNGAPI png_set_invert_mono(png_structrp png_ptr)
 /* Invert monochrome grayscale data */
 void /* PRIVATE */ png_do_invert(png_row_infop row_info, png_bytep row)
 {
-	png_debug(1, "in png_do_invert");
+	png_debug(1, "in " __FUNCTION__);
 	/* This test removed from libpng version 1.0.13 and 1.2.0:
 	 * if(row_info->bit_depth == 1 &&
 	 */
@@ -261,7 +258,7 @@ void /* PRIVATE */ png_do_invert(png_row_infop row_info, png_bytep row)
 /* Swaps byte order on 16-bit depth images */
 void /* PRIVATE */ png_do_swap(png_row_infop row_info, png_bytep row)
 {
-	png_debug(1, "in png_do_swap");
+	png_debug(1, "in " __FUNCTION__);
 	if(row_info->bit_depth == 16) {
 		png_bytep rp = row;
 		uint32 i;
@@ -391,25 +388,19 @@ static const uint8 fourbppswaptable[256] = {
 /* Swaps pixel packing order within bytes */
 void /* PRIVATE */ png_do_packswap(png_row_infop row_info, png_bytep row)
 {
-	png_debug(1, "in png_do_packswap");
+	png_debug(1, "in " __FUNCTION__);
 	if(row_info->bit_depth < 8) {
 		png_bytep rp;
 		png_const_bytep end, table;
-
 		end = row + row_info->rowbytes;
-
 		if(row_info->bit_depth == 1)
 			table = onebppswaptable;
-
 		else if(row_info->bit_depth == 2)
 			table = twobppswaptable;
-
 		else if(row_info->bit_depth == 4)
 			table = fourbppswaptable;
-
 		else
 			return;
-
 		for(rp = row; rp < end; rp++)
 			*rp = table[*rp];
 	}
@@ -532,25 +523,22 @@ void /* PRIVATE */ png_do_strip_channel(png_row_infop row_info, png_bytep row, i
 /* Swaps red and blue bytes within a pixel */
 void /* PRIVATE */ png_do_bgr(png_row_infop row_info, png_bytep row)
 {
-	png_debug(1, "in png_do_bgr");
+	png_debug(1, "in " __FUNCTION__);
 	if((row_info->color_type & PNG_COLOR_MASK_COLOR) != 0) {
 		uint32 row_width = row_info->width;
 		if(row_info->bit_depth == 8) {
 			if(row_info->color_type == PNG_COLOR_TYPE_RGB) {
 				png_bytep rp;
 				uint32 i;
-
 				for(i = 0, rp = row; i < row_width; i++, rp += 3) {
 					uint8 save = *rp;
 					*rp = *(rp + 2);
 					*(rp + 2) = save;
 				}
 			}
-
 			else if(row_info->color_type == PNG_COLOR_TYPE_RGB_ALPHA) {
 				png_bytep rp;
 				uint32 i;
-
 				for(i = 0, rp = row; i < row_width; i++, rp += 4) {
 					uint8 save = *rp;
 					*rp = *(rp + 2);
@@ -558,7 +546,6 @@ void /* PRIVATE */ png_do_bgr(png_row_infop row_info, png_bytep row)
 				}
 			}
 		}
-
 #ifdef PNG_16BIT_SUPPORTED
 		else if(row_info->bit_depth == 16) {
 			if(row_info->color_type == PNG_COLOR_TYPE_RGB) {
@@ -573,7 +560,6 @@ void /* PRIVATE */ png_do_bgr(png_row_infop row_info, png_bytep row)
 					*(rp + 5) = save;
 				}
 			}
-
 			else if(row_info->color_type == PNG_COLOR_TYPE_RGB_ALPHA) {
 				png_bytep rp;
 				uint32 i;
@@ -593,13 +579,11 @@ void /* PRIVATE */ png_do_bgr(png_row_infop row_info, png_bytep row)
 
 #endif /* READ_BGR || WRITE_BGR */
 
-#if defined(PNG_READ_CHECK_FOR_INVALID_INDEX_SUPPORTED) || \
-	defined(PNG_WRITE_CHECK_FOR_INVALID_INDEX_SUPPORTED)
+#if defined(PNG_READ_CHECK_FOR_INVALID_INDEX_SUPPORTED) || defined(PNG_WRITE_CHECK_FOR_INVALID_INDEX_SUPPORTED)
 /* Added at libpng-1.5.10 */
 void /* PRIVATE */ png_do_check_palette_indexes(png_structrp png_ptr, png_row_infop row_info)
 {
-	if(png_ptr->num_palette < (1 << row_info->bit_depth) &&
-	    png_ptr->num_palette > 0) { /* num_palette can be 0 in MNG files */
+	if(png_ptr->num_palette < (1 << row_info->bit_depth) && png_ptr->num_palette > 0) { /* num_palette can be 0 in MNG files */
 		/* Calculations moved outside switch in an attempt to stop different
 		 * compiler warnings.  'padding' is in *bits* within the last byte, it is
 		 * an 'int' because pixel_depth becomes an 'int' in the expression below,
@@ -673,7 +657,7 @@ void /* PRIVATE */ png_do_check_palette_indexes(png_structrp png_ptr, png_row_in
 #ifdef PNG_USER_TRANSFORM_PTR_SUPPORTED
 void PNGAPI png_set_user_transform_info(png_structrp png_ptr, void * user_transform_ptr, int user_transform_depth, int user_transform_channels)
 {
-	png_debug(1, "in png_set_user_transform_info");
+	png_debug(1, "in " __FUNCTION__);
 	if(png_ptr) {
 #ifdef PNG_READ_USER_TRANSFORM_SUPPORTED
 		if((png_ptr->mode & PNG_IS_READ_STRUCT) != 0 && (png_ptr->flags & PNG_FLAG_ROW_INIT) != 0) {

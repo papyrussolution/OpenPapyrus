@@ -357,7 +357,7 @@ COLORREF invertLightnessSofter(COLORREF c)
 	WORD l = 0;
 	ColorRGBToHLS(c, &h, &l, &s);
 
-	l = min(240 - l, 211);
+	l = MIN(240 - l, 211);
 
 	COLORREF invert_c = ColorHLSToRGB(h, l, s);
 

@@ -16,31 +16,17 @@
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
 //
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 // Author: kenton@google.com (Kenton Varda)
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
 
 #include <protobuf-internal.h>
 #pragma hdrstop
-#include <google/protobuf/message.h>
 #include <google/protobuf/descriptor.pb.h>
 #include <google/protobuf/parse_context.h>
 #include <google/protobuf/reflection_internal.h>
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
-#include <google/protobuf/generated_message_reflection.h>
 #include <google/protobuf/generated_message_util.h>
 #include <google/protobuf/map_field.h>
 #include <google/protobuf/map_field_inl.h>
@@ -63,7 +49,8 @@ using internal::ReflectionOps;
 using internal::WireFormat;
 using internal::WireFormatLite;
 
-void Message::MergeFrom(const Message& from) {
+void Message::MergeFrom(const Message& from) 
+{
 	auto* class_to = GetClassData();
 	auto* class_from = from.GetClassData();
 	auto* merge_to_from = class_to ? class_to->merge_to_from : nullptr;

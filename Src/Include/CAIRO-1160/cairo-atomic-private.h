@@ -52,22 +52,22 @@ CAIRO_BEGIN_DECLS
 
 typedef int cairo_atomic_int_t;
 
-static cairo_always_inline cairo_atomic_int_t _cairo_atomic_int_get(cairo_atomic_int_t * x)
+static FORCEINLINE cairo_atomic_int_t _cairo_atomic_int_get(cairo_atomic_int_t * x)
 {
 	return __atomic_load_n(x, __ATOMIC_SEQ_CST);
 }
 
-static cairo_always_inline cairo_atomic_int_t _cairo_atomic_int_get_relaxed(cairo_atomic_int_t * x)
+static FORCEINLINE cairo_atomic_int_t _cairo_atomic_int_get_relaxed(cairo_atomic_int_t * x)
 {
 	return __atomic_load_n(x, __ATOMIC_RELAXED);
 }
 
-static cairo_always_inline void _cairo_atomic_int_set_relaxed(cairo_atomic_int_t * x, cairo_atomic_int_t val)
+static FORCEINLINE void _cairo_atomic_int_set_relaxed(cairo_atomic_int_t * x, cairo_atomic_int_t val)
 {
 	__atomic_store_n(x, val, __ATOMIC_RELAXED);
 }
 
-static cairo_always_inline void * _cairo_atomic_ptr_get(void ** x)
+static FORCEINLINE void * _cairo_atomic_ptr_get(void ** x)
 {
 	return __atomic_load_n(x, __ATOMIC_SEQ_CST);
 }
@@ -85,7 +85,7 @@ static cairo_always_inline void * _cairo_atomic_ptr_get(void ** x)
 	#error No matching integer pointer type
 #endif
 
-static cairo_always_inline boolint _cairo_atomic_int_cmpxchg_impl(cairo_atomic_int_t * x, cairo_atomic_int_t oldv, cairo_atomic_int_t newv)
+static FORCEINLINE boolint _cairo_atomic_int_cmpxchg_impl(cairo_atomic_int_t * x, cairo_atomic_int_t oldv, cairo_atomic_int_t newv)
 {
 	cairo_atomic_int_t expected = oldv;
 	return __atomic_compare_exchange_n(x, &expected, newv, 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
@@ -93,7 +93,7 @@ static cairo_always_inline boolint _cairo_atomic_int_cmpxchg_impl(cairo_atomic_i
 
 #define _cairo_atomic_int_cmpxchg(x, oldv, newv) _cairo_atomic_int_cmpxchg_impl(x, oldv, newv)
 
-static cairo_always_inline cairo_atomic_int_t _cairo_atomic_int_cmpxchg_return_old_impl(cairo_atomic_int_t * x, cairo_atomic_int_t oldv, cairo_atomic_int_t newv)
+static FORCEINLINE cairo_atomic_int_t _cairo_atomic_int_cmpxchg_return_old_impl(cairo_atomic_int_t * x, cairo_atomic_int_t oldv, cairo_atomic_int_t newv)
 {
 	cairo_atomic_int_t expected = oldv;
 	(void)__atomic_compare_exchange_n(x, &expected, newv, 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
@@ -102,7 +102,7 @@ static cairo_always_inline cairo_atomic_int_t _cairo_atomic_int_cmpxchg_return_o
 
 #define _cairo_atomic_int_cmpxchg_return_old(x, oldv, newv) _cairo_atomic_int_cmpxchg_return_old_impl(x, oldv, newv)
 
-static cairo_always_inline boolint _cairo_atomic_ptr_cmpxchg_impl(void ** x, void * oldv, void * newv)
+static FORCEINLINE boolint _cairo_atomic_ptr_cmpxchg_impl(void ** x, void * oldv, void * newv)
 {
 	void * expected = oldv;
 	return __atomic_compare_exchange_n(x, &expected, newv, 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
@@ -110,7 +110,7 @@ static cairo_always_inline boolint _cairo_atomic_ptr_cmpxchg_impl(void ** x, voi
 
 #define _cairo_atomic_ptr_cmpxchg(x, oldv, newv) _cairo_atomic_ptr_cmpxchg_impl(x, oldv, newv)
 
-static cairo_always_inline void * _cairo_atomic_ptr_cmpxchg_return_old_impl(void ** x, void * oldv, void * newv)
+static FORCEINLINE void * _cairo_atomic_ptr_cmpxchg_return_old_impl(void ** x, void * oldv, void * newv)
 {
 	void * expected = oldv;
 	(void)__atomic_compare_exchange_n(x, &expected, newv, 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
@@ -127,23 +127,23 @@ static cairo_always_inline void * _cairo_atomic_ptr_cmpxchg_return_old_impl(void
 
 typedef int cairo_atomic_int_t;
 
-static cairo_always_inline cairo_atomic_int_t _cairo_atomic_int_get(cairo_atomic_int_t * x)
+static FORCEINLINE cairo_atomic_int_t _cairo_atomic_int_get(cairo_atomic_int_t * x)
 {
 	__sync_synchronize();
 	return *x;
 }
 
-static cairo_always_inline cairo_atomic_int_t _cairo_atomic_int_get_relaxed(cairo_atomic_int_t * x)
+static FORCEINLINE cairo_atomic_int_t _cairo_atomic_int_get_relaxed(cairo_atomic_int_t * x)
 {
 	return *x;
 }
 
-static cairo_always_inline void _cairo_atomic_int_set_relaxed(cairo_atomic_int_t * x, cairo_atomic_int_t val)
+static FORCEINLINE void _cairo_atomic_int_set_relaxed(cairo_atomic_int_t * x, cairo_atomic_int_t val)
 {
 	*x = val;
 }
 
-static cairo_always_inline void * _cairo_atomic_ptr_get(void ** x)
+static FORCEINLINE void * _cairo_atomic_ptr_get(void ** x)
 {
 	__sync_synchronize();
 	return *x;
@@ -268,12 +268,12 @@ cairo_private void * _cairo_atomic_ptr_cmpxchg_return_old_impl(void ** x, void *
 #else
 
 /* Workaround GCC complaining about casts */
-static cairo_always_inline void * _cairo_atomic_intptr_to_voidptr(cairo_atomic_intptr_t x)
+static FORCEINLINE void * _cairo_atomic_intptr_to_voidptr(cairo_atomic_intptr_t x)
 {
 	return (void *)x;
 }
 
-static cairo_always_inline cairo_atomic_int_t _cairo_atomic_int_cmpxchg_return_old_fallback(cairo_atomic_int_t * x, cairo_atomic_int_t oldv, cairo_atomic_int_t newv)
+static FORCEINLINE cairo_atomic_int_t _cairo_atomic_int_cmpxchg_return_old_fallback(cairo_atomic_int_t * x, cairo_atomic_int_t oldv, cairo_atomic_int_t newv)
 {
 	cairo_atomic_int_t curr;
 	do {
@@ -282,7 +282,7 @@ static cairo_always_inline cairo_atomic_int_t _cairo_atomic_int_cmpxchg_return_o
 	return curr;
 }
 
-static cairo_always_inline void * _cairo_atomic_ptr_cmpxchg_return_old_fallback(void ** x, void * oldv, void * newv)
+static FORCEINLINE void * _cairo_atomic_ptr_cmpxchg_return_old_fallback(void ** x, void * oldv, void * newv)
 {
 	void * curr;
 	do {
@@ -324,7 +324,7 @@ typedef cairo_atomic_int_t cairo_atomic_once_t;
 #define CAIRO_ATOMIC_ONCE_INITIALIZED   (2)
 #define CAIRO_ATOMIC_ONCE_INIT          CAIRO_ATOMIC_ONCE_UNINITIALIZED
 
-static cairo_always_inline boolint _cairo_atomic_init_once_enter(cairo_atomic_once_t * once)
+static FORCEINLINE boolint _cairo_atomic_init_once_enter(cairo_atomic_once_t * once)
 {
 	if(LIKELY(_cairo_atomic_int_get(once) == CAIRO_ATOMIC_ONCE_INITIALIZED))
 		return 0;
@@ -335,7 +335,7 @@ static cairo_always_inline boolint _cairo_atomic_init_once_enter(cairo_atomic_on
 	return 0;
 }
 
-static cairo_always_inline void _cairo_atomic_init_once_leave(cairo_atomic_once_t * once)
+static FORCEINLINE void _cairo_atomic_init_once_leave(cairo_atomic_once_t * once)
 {
 	if(UNLIKELY(!_cairo_atomic_int_cmpxchg(once, CAIRO_ATOMIC_ONCE_INITIALIZING, CAIRO_ATOMIC_ONCE_INITIALIZED)))
 		assert(0 && "incorrect use of _cairo_atomic_init_once API (once != CAIRO_ATOMIC_ONCE_INITIALIZING)");

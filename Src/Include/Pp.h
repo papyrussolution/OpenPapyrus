@@ -9239,13 +9239,14 @@ private:
 #define PSNF_NONOTIFICATIONS      0x00000008L // Запрет на рассылку для этой персоналии
 #define PSNF_GENDER_MALE          0x00000010L // @v10.9.0 Физическое лицо мужского пола
 #define PSNF_GENDER_FEMALE        0x00000020L // @v10.9.0 Физическое лицо женского пола
+#define PSNF_DONTSENDCCHECK       0x00000040L // @v11.3.5 Запрет на отправку чека по электронной почте или SMS
 
 #define MAXSAMEPSNREL  4 // Максимальное число отношений между одинаковыми персоналиями
 
 class PersonCore : public PersonTbl {
 public:
 	static int    PutELinks(PPID id, PPELinkArray *, int use_ta);
-	static int    GetELinks(PPID id, PPELinkArray *);
+	static int    GetELinks(PPID id, PPELinkArray &);
 	static void   SetGender(PersonTbl::Rec & rRec, int gender);
 	static int    GetGender(const PersonTbl::Rec & rRec);
 	PersonCore();
@@ -35507,14 +35508,15 @@ struct TrnovrRngDis {      // @persistent @flat
 	long   Flags;          // @flags
 };
 
-#define SCARDSER_AUTODIS_PREVPRD 1L
-#define SCARDSER_AUTODIS_THISPRD 2L
+#define SCARDSER_AUTODIS_PREVPRD      1L // Предшествующий период
+#define SCARDSER_AUTODIS_THISPRD      2L // Текущий период 
+#define SCARDSER_AUTODIS_ARBITRARYPRD 3L // @v11.3.5 Произвольный период (вводится пользователем)
 
 class PPSCardSerRule : public TSVector <TrnovrRngDis> { // @persistent @store(PropertyTbl)
 public:
 	PPSCardSerRule();
 	PPSCardSerRule & FASTCALL operator = (const PPSCardSerRule & s);
-	void   Init();
+	PPSCardSerRule & Z();
 	bool   FASTCALL IsEq(const PPSCardSerRule & rS) const;
 	int    ValidateItem(int ruleType, const TrnovrRngDis & rItem, long pos) const;
 	int    IsList() const;
@@ -35544,13 +35546,13 @@ public:
 
 struct PPSCardSerPacket {
 	PPSCardSerPacket();
-	void   Init();
+	PPSCardSerPacket & Z();
 	//
 	// Descr: Реализует операции по нормализации внутреннего состояния пакета.
 	//   В частности, согласовывает поле Rec.QuotKindID_s со списком QuotKindList и флагом SCRDSF_USEQUOTKINDLIST.
 	//
 	int    Normalize();
-	int    FASTCALL IsEq(const PPSCardSerPacket & rS) const;
+	bool   FASTCALL IsEq(const PPSCardSerPacket & rS) const;
 	int    GetDisByRule(double trnovr, TrnovrRngDis & rEntry) const;
 
 	enum {
@@ -35563,9 +35565,9 @@ struct PPSCardSerPacket {
 	};
 	long   UpdFlags;          // @transient Флаги, определяющие правила изменения некоторых полей
 	PPSCardSeries2 Rec;
-	PPSCardSerRule Rule;
-	PPSCardSerRule CcAmtDisRule;
-	PPSCardSerRule BonusRule;    //
+	PPSCardSerRule Rule;         // Правила пересчета скидок  
+	PPSCardSerRule CcAmtDisRule; // Правила предоставления скидки по чеку
+	PPSCardSerRule BonusRule;    // Правила пересчета бонусов
 	PPIDArray QuotKindList_;     // Список видов котировок, применимых для карт этой серии.
 		// Конкретный вид котировки выбирается в соответствии с рангом и ограничениями.
 	struct Ext {
@@ -35587,6 +35589,7 @@ struct SCardChargeRule {
 
 	PPID   SerID;
 	long   Period;
+	DateRange Ap; // @v11.3.5
 };
 
 struct PPSCardConfig {         // @persistent @store(PropertyTbl)
@@ -36003,7 +36006,7 @@ public:
 	int    SetInheritance(const PPSCardSerPacket * pSerRec, SCardTbl::Rec * pRec);
 	int    AutoFill(PPID seriesID, int use_ta);
 	int    UpdateBySeries(PPID seriesID, int use_ta);
-	int    UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLogger * pLog, int use_ta);
+	int    UpdateBySeriesRule2(PPID seriesID, /*int prevTrnovrPrd*/const SCardChargeRule & rRule, PPLogger * pLog, int use_ta);
 	int    PutUhttOp(PPID cardID, double amount);
 	//
 	// Descr: Устанавливает параметры карты в состояние активности: Flags &= ~(SCRDF_CLOSED|SCRDF_NEEDACTIVATION),
@@ -36184,10 +36187,18 @@ struct AsyncCashSCardInfo {
 	AsyncCashSCardInfo & Z();
 
 	SCardTbl::Rec Rec;
-	int    IsClosed;
+	//int    IsClosed;
+	enum {
+		fClosed = 0x0001,
+		fDisableSendPaperlassCCheck = 0x0002
+	};
+	long   Flags;
+	LDATE  PsnDOB;   // @v11.3.5 День рождения персоналии 
 	double Rest;     // Остаток по кредитной карте
 	SString PsnName; // Наименование персоналии-владельца // @v10.6.3 char[128]-->SString
 	SString Phone;   // @V10.6.3 Номер телефона, ассоциированный с картой (не с персоналией)
+	SString PsnPhone; // @v11.3.5 Номер телефона персоналии
+	SString Email;    // @v11.3.5 Электронная почта персоналии
 };
 
 class AsyncCashSCardsIterator {
@@ -46200,6 +46211,11 @@ public:
 		uint64 ObjId;
 		SString ScopeIdent;
 	};
+	class SurrogateScopeList : public TSCollection <SBinaryChunk> {
+	public:
+		SurrogateScopeList();
+		bool   Search(const SBinaryChunk & rKey, uint * pPos) const;
+	};
 	struct SearchResultEntry : public Entity {
 		SearchResultEntry();
 		uint64 DocId;
@@ -46508,6 +46524,7 @@ public:
 	};
 	struct StoragePacket {
 		bool   FASTCALL IsEq(const StoragePacket & rS) const;
+		int    GetFace(int tag, StyloQFace & rF) const;
 		StyloQSecTbl::Rec Rec;
 		SSecretTagPool Pool;
 	};
@@ -46563,6 +46580,7 @@ public:
 	int    MakeDocumentStorageIdent(const SBinaryChunk & rOtherIdent, const S_GUID & rCmdUuid, SBinaryChunk & rDocIdent) const;
 	int    IndexingContent();
 	int    IndexingContent_Json(PPFtsIterface::TransactionHandle * pFtsTra, PPTextAnalyzer * pTa, const char * pJsText);
+	int    GetMediatorList(TSCollection <StyloQCore::IgnitionServerEntry> & rList);
 private:
 	static ReadWriteLock _SvcDbMapRwl; // Блокировка для защиты _SvcDbMap
 	static SvcDbSymbMap _SvcDbMap;
@@ -46682,9 +46700,19 @@ public:
 	const  Item * GetC(uint idx) const;
 	const  Item * GetByUuid(const S_GUID & rUuid) const;
 	int    Set(uint idx, const Item * pItem);
+	//
+	// Descr: Верифицирует список команд на предмет логических ошибок.
+	//   Если pSelectedItem != 0, то фокусирует проверку на этом элементе.
+	//   Кроме того, проверяется принадлежность элемента pSelectedItem списку.
+	// Returns:
+	//   0 - ошибка
+	//  !0 - проверка пройдена успешно
+	//
+	int    Validate(const Item * pSelectedItem) const;
 	int    Store(const char * pFileName) const;
 	int    Load(const char * pDbSymb, const char * pFileName);
 	StyloQCommandList * CreateSubListByContext(PPObjID oid) const;
+	StyloQCommandList * CreateSubListByDbSymb(const char * pDbSymb, int baseCmdId) const;
 	//
 	// Descr: Формирует json-объект по списку команд для передачи клиенту.
 	//   Если pParent == 0, то формирует автономный безымянный json-объект,
@@ -46955,6 +46983,7 @@ public:
 	static void  SetupMqbReplyProps(const RoundTripBlock & rB, PPMqbClient::MessageProperties & rProps);
 	static int   Edit_RsrvAttendancePrereqParam(StyloQAttendancePrereqParam & rParam);
 	static int   Edit_IndexingParam(StyloQIndexingParam & rParam);
+	static int   ExecuteIndexingRequest();
 	//
 	void   Debug_Command(const StyloQCommandList::Item * pCmd); // @debug
 private:
@@ -46979,7 +47008,7 @@ private:
 	//    0 - ошибка
 	//
 	PPID   ProcessCommand_IndexingContent(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument, SString & rResult);
-	int    ProcessCommand_Search(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument, SString & rResult);
+	int    ProcessCommand_Search(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument, SString & rResult, SString & rDocDeclaration);
 	int    FetchPersonFromClientPacket(const StyloQCore::StoragePacket & rCliPack, PPID * pPersonID);
 	int    AcceptStyloQClientAsPerson(const StyloQCore::StoragePacket & rCliPack, PPID personKind, PPID * pPersonID, int use_ta);
 	int    QueryConfigIfNeeded(RoundTripBlock & rB);
@@ -47143,7 +47172,10 @@ private:
 	int    AddItem(uint * pIdx);
 	int    EditItem(uint idx);
 	int    DeleteItem(uint idx);
-	int    EditStyloQCommand(StyloQCommandList::Item * pData);
+	//
+	// ARG(pData INOUT): Команда подлежащая редактированию
+	//
+	int    EditStyloQCommand(StyloQCommandList::Item * pData, const StyloQCommandList & rWholeList);
 
 	StyloQCommandFilt Filt;
 	StyloQCommandList List; // list in utf8 encoding
@@ -55757,16 +55789,16 @@ int    FASTCALL PPLoadError(int code, SString & s, const char * pAddInfo);
 // Descr: Загружает строку категории PPSTR_TEXT в буфер s и перекодирует ее функцией s.Transf(CTRANSF_INNER_TO_OUTER)
 //
 int    FASTCALL PPLoadTextWin(int code, SString & s);
-int    FASTCALL PPGetSubStr(const char * pStr, int idx, SString &);
-int    FASTCALL PPGetSubStr(const char * pStr, int idx /* 0.. */, char * pBuf, size_t bufLen);
+int    PPGetSubStr(const char * pStr, int idx, SString &);
+int    PPGetSubStr(const char * pStr, int idx /* 0.. */, char * pBuf, size_t bufLen);
 	// @>>PPGetSubStr(const char *, int, SString &)
-int    FASTCALL PPGetSubStr(uint strID, int idx, SString &);
-int    FASTCALL PPGetSubStr(uint strID, int idx /* 0.. */, char * buf, size_t buflen);
-int    FASTCALL PPCmpSubStr(const char * pStr, int idx /* 0.. */, const char * pTestStr, int ignoreCase);
-int    FASTCALL PPSearchSubStr(const char * pStr, int * pIdx, const char * pTestStr, int ignoreCase);
+int    PPGetSubStr(uint strID, int idx, SString &);
+int    PPGetSubStr(uint strID, int idx /* 0.. */, char * buf, size_t buflen);
+int    PPCmpSubStr(const char * pStr, int idx /* 0.. */, const char * pTestStr, int ignoreCase);
+int    PPSearchSubStr(const char * pStr, int * pIdx, const char * pTestStr, int ignoreCase);
 char * numbertotext(double nmb, long fmt, char * pBuf);
-char * FASTCALL PPGetWord(uint wordId /* PPWORD_XXX */, int ansiCoding, char * pBuf, size_t bufLen); // @obsolete
-SString & FASTCALL PPGetWord(uint wordId /* PPWORD_XXX */, int ansiCoding, SString & rBuf);
+char * PPGetWord(uint wordId /* PPWORD_XXX */, int ansiCoding, char * pBuf, size_t bufLen); // @obsolete
+SString & PPGetWord(uint wordId /* PPWORD_XXX */, int ansiCoding, SString & rBuf);
 //
 // Descr: Извлекает подстроку из строки вида "1,str1;2,str2;3,str3;.." по номеру
 //   предшествующему собственно подстроке (subId)
@@ -55774,7 +55806,7 @@ SString & FASTCALL PPGetWord(uint wordId /* PPWORD_XXX */, int ansiCoding, SStri
 //   1 - подстрока обнаружена и присвоена буферу rBuf
 //   0 - подстрока не обнаружена либо не удалось загрузить всю строку по идентификатору strId.
 //
-int    FASTCALL PPGetSubStrById(int strId, int subId, SString & rBuf);
+int    PPGetSubStrById(int strId, int subId, SString & rBuf);
 //
 // Функция ideqvalstr прописывает в буфер pBuf текст "ID=id"
 //

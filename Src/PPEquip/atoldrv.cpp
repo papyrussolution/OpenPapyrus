@@ -1054,8 +1054,9 @@ int	SCS_ATOLDRV::PrintDiscountInfo(const CCheckPacket * pPack, uint flags)
 	if(flags & PRNCHK_RETURN)
 		dscnt = -dscnt;
 	if(dscnt > 0.0) {
-		double  pcnt = round(dscnt * 100.0 / (amt + dscnt), 1);
-		SString prn_str, temp_str;
+		const double pcnt = round(dscnt * 100.0 / (amt + dscnt), 1);
+		SString prn_str;
+		SString temp_str;
 		SCardCore scc;
 		THROW(PrintText(prn_str.Z().CatCharN('-', CheckStrLen), 0, 0));
 		temp_str.Z().Cat(amt + dscnt, SFMT_MONEY);
@@ -1092,7 +1093,10 @@ void SCS_ATOLDRV::WriteLogFile(PPID id)
 	if(P_Disp && (CConfig.Flags & CCFLG_DEBUG)) {
 		long   mode = 0, adv_mode = 0;
 		size_t pos = 0;
-		SString msg_fmt, msg, oper_name, mode_descr;
+		SString msg_fmt;
+		SString msg;
+		SString oper_name;
+		SString mode_descr;
 		SString err_msg = DS.GetConstTLA().AddedMsgString;
 		PPLoadText(PPTXT_LOG_SHTRIH, msg_fmt);
 		P_Disp->GetNameByID(id, oper_name);
@@ -1597,8 +1601,10 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(CCheckPacket * pPack, uint flags) // @v11.3
 int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 {
 	int    ok = 1;
+	bool   use_json_cmd = true; // @v11.3.5 @debug
 	bool   is_format = false;
 	bool   enabled = true;
+	int    jsproc_result = 0;
 	SString temp_buf;
 	SStringU temp_buf_u;
 	SString buf;
@@ -1610,6 +1616,12 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 	debug_log_buf.CatEq("CCID", pPack->Rec.ID).CatDiv(';', 2).CatEq("CCCode", pPack->Rec.Code);
 	if(pPack->GetCount() == 0)
 		ok = -1;
+	else if(use_json_cmd && !P_Disp && P_SlipFmt) {
+		SJson * p_js_cc = MakeJson_CCheck(pPack, 0);
+		if(p_js_cc) {
+			jsproc_result = CallJsonProc(p_js_cc, temp_buf);
+		}
+	}
 	else {
 		SlipDocCommonParam sdc_param;
 		double amt = fabs(R2(MONEYTOLDBL(pPack->Rec.Amount)));

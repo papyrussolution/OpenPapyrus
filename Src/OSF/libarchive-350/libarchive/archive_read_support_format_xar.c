@@ -15,21 +15,17 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
 #if HAVE_LIBXML_XMLREADER_H
-#include <libxml/xmlreader.h>
+	#include <libxml/xmlreader.h>
 #elif HAVE_BSDXML_H
-#include <bsdxml.h>
+	#include <bsdxml.h>
 #elif HAVE_EXPAT_H
-#include <expat.h>
+	#include <expat.h>
 #endif
 #include "archive_digest_private.h"
-#include "archive_endian.h"
 #include "archive_entry_locale.h"
 #include "archive_read_private.h"
 
-#if (!defined(HAVE_LIBXML_XMLREADER_H) && \
-	!defined(HAVE_BSDXML_H) && !defined(HAVE_EXPAT_H)) || \
-	!defined(HAVE_ZLIB_H) || \
-	!defined(ARCHIVE_HAS_MD5) || !defined(ARCHIVE_HAS_SHA1)
+#if (!defined(HAVE_LIBXML_XMLREADER_H) && !defined(HAVE_BSDXML_H) && !defined(HAVE_EXPAT_H)) || !defined(HAVE_ZLIB_H) || !defined(ARCHIVE_HAS_MD5) || !defined(ARCHIVE_HAS_SHA1)
 /*
  * xar needs several external libraries.
  *   o libxml2 or expat --- XML parser

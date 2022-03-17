@@ -16,18 +16,6 @@
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
 //
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 #include <protobuf-internal.h>
 #pragma hdrstop
 #include <google/protobuf/implicit_weak_message.h>
@@ -39,26 +27,24 @@
 namespace google {
 namespace protobuf {
 namespace internal {
-
-const char* ImplicitWeakMessage::_InternalParse(const char* ptr,
-                                                ParseContext* ctx) {
-  return ctx->AppendString(ptr, &data_);
+const char* ImplicitWeakMessage::_InternalParse(const char* ptr, ParseContext* ctx) 
+{
+	return ctx->AppendString(ptr, &data_);
 }
 
-ExplicitlyConstructed<ImplicitWeakMessage>
-    implicit_weak_message_default_instance;
+ExplicitlyConstructed<ImplicitWeakMessage> implicit_weak_message_default_instance;
 internal::once_flag implicit_weak_message_once_init_;
 
-void InitImplicitWeakMessageDefaultInstance() {
-  implicit_weak_message_default_instance.DefaultConstruct();
+void InitImplicitWeakMessageDefaultInstance() 
+{
+	implicit_weak_message_default_instance.DefaultConstruct();
 }
 
-const ImplicitWeakMessage* ImplicitWeakMessage::default_instance() {
-  internal::call_once(implicit_weak_message_once_init_,
-                      InitImplicitWeakMessageDefaultInstance);
-  return &implicit_weak_message_default_instance.get();
+const ImplicitWeakMessage* ImplicitWeakMessage::default_instance() 
+{
+	internal::call_once(implicit_weak_message_once_init_, InitImplicitWeakMessageDefaultInstance);
+	return &implicit_weak_message_default_instance.get();
 }
-
 }  // namespace internal
 }  // namespace protobuf
 }  // namespace google

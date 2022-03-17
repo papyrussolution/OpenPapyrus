@@ -4557,7 +4557,7 @@ int PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 				SCardSeriesBlock & r_blk = RdB.ScsBlkList.at(i);
 				long   native_id = 0;
 				if(!(r_blk.Flags_ & ObjectBlock::fRefItem)) {
-					scs_pack.Init();
+					scs_pack.Z();
 					RdB.GetS(r_blk.CodeP, code_buf);
 					code_buf.Transf(CTRANSF_UTF8_TO_INNER);
 					RdB.GetS(r_blk.NameP, name_buf);
@@ -4670,7 +4670,7 @@ int PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 				{
 					ScObj.ReadConfig(&sc_cfg);
 					if(!def_dcard_ser_id) {
-						scs_pack.Init();
+						scs_pack.Z();
 						STRNSCPY(scs_pack.Rec.Name, def_dcard_ser_name);
 						scs_pack.Rec.SetType(scstDiscount);
 						scs_pack.Rec.PersonKindID = PPPRK_CLIENT;
@@ -4678,7 +4678,7 @@ int PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 						sc_cfg.DefSerID = def_dcard_ser_id;
 					}
 					if(!def_ccard_ser_id) {
-						scs_pack.Init();
+						scs_pack.Z();
 						STRNSCPY(scs_pack.Rec.Name, def_ccard_ser_name);
 						scs_pack.Rec.SetType(scstCredit);
 						scs_pack.Rec.PersonKindID = PPPRK_CLIENT;

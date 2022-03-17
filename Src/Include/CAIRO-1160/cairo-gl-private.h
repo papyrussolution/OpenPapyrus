@@ -362,7 +362,7 @@ typedef struct _cairo_gl_font {
 	cairo_list_t link;
 } cairo_gl_font_t;
 
-static cairo_always_inline GLenum _cairo_gl_get_error(void)
+static FORCEINLINE GLenum _cairo_gl_get_error(void)
 {
 	GLenum err = glGetError();
 	if(UNLIKELY(err))
@@ -378,7 +378,7 @@ static inline cairo_device_t * _cairo_gl_context_create_in_error(cairo_status_t 
 cairo_private cairo_status_t _cairo_gl_context_init(cairo_gl_context_t * ctx);
 cairo_private void _cairo_gl_surface_init(cairo_device_t * device, cairo_gl_surface_t * surface, cairo_content_t content, int width, int height);
 
-static cairo_always_inline boolint cairo_warn _cairo_gl_surface_is_texture(cairo_gl_surface_t * surface)
+static FORCEINLINE boolint cairo_warn _cairo_gl_surface_is_texture(cairo_gl_surface_t * surface)
 {
 	return surface->tex != 0;
 }
@@ -387,17 +387,17 @@ cairo_private cairo_status_t _cairo_gl_surface_draw_image(cairo_gl_surface_t * d
     int src_x, int src_y, int width, int height, int dst_x, int dst_y, boolint force_flush);
 cairo_private cairo_int_status_t _cairo_gl_surface_resolve_multisampling(cairo_gl_surface_t * surface);
 
-static cairo_always_inline boolint _cairo_gl_device_has_glsl(cairo_device_t * device)
+static FORCEINLINE boolint _cairo_gl_device_has_glsl(cairo_device_t * device)
 {
 	return ((cairo_gl_context_t*)device)->has_shader_support;
 }
 
-static cairo_always_inline boolint _cairo_gl_device_requires_power_of_two_textures(cairo_device_t * device)
+static FORCEINLINE boolint _cairo_gl_device_requires_power_of_two_textures(cairo_device_t * device)
 {
 	return ((cairo_gl_context_t*)device)->tex_target == GL_TEXTURE_RECTANGLE;
 }
 
-static cairo_always_inline cairo_status_t cairo_warn _cairo_gl_context_acquire(cairo_device_t * device, cairo_gl_context_t ** ctx)
+static FORCEINLINE cairo_status_t cairo_warn _cairo_gl_context_acquire(cairo_device_t * device, cairo_gl_context_t ** ctx)
 {
 	cairo_status_t status = cairo_device_acquire(device);
 	if(UNLIKELY(status))
@@ -408,7 +408,7 @@ static cairo_always_inline cairo_status_t cairo_warn _cairo_gl_context_acquire(c
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_always_inline cairo_warn cairo_status_t _cairo_gl_context_release(cairo_gl_context_t * ctx, cairo_status_t status)
+static FORCEINLINE cairo_warn cairo_status_t _cairo_gl_context_release(cairo_gl_context_t * ctx, cairo_status_t status)
 {
 	GLenum err = _cairo_gl_get_error();
 	if(UNLIKELY(err)) {
@@ -458,7 +458,7 @@ cairo_private cairo_int_status_t _cairo_gl_surface_show_glyphs(void * abstract_d
     const cairo_pattern_t * source, cairo_glyph_t * glyphs, int num_glyphs, cairo_scaled_font_t * scaled_font, const cairo_clip_t * clip, int * remaining_glyphs);
 cairo_private cairo_status_t _cairo_gl_context_init_shaders(cairo_gl_context_t * ctx);
 cairo_private void _cairo_gl_context_fini_shaders(cairo_gl_context_t * ctx);
-static cairo_always_inline boolint _cairo_gl_context_is_flushed(cairo_gl_context_t * ctx) { return ctx->vb_offset == 0; }
+static FORCEINLINE boolint _cairo_gl_context_is_flushed(cairo_gl_context_t * ctx) { return ctx->vb_offset == 0; }
 cairo_private cairo_status_t _cairo_gl_get_shader_by_type(cairo_gl_context_t * ctx, cairo_gl_operand_t * source, cairo_gl_operand_t * mask,
     boolint use_coverage, cairo_gl_shader_in_t in, cairo_gl_shader_t ** shader);
 cairo_private void _cairo_gl_shader_bind_float(cairo_gl_context_t * ctx, GLint location, float value);

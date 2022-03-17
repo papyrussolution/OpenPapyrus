@@ -1326,22 +1326,22 @@ LAssocArray & FASTCALL LAssocArray::operator = (const LAssocArray & s)
 	return *this;
 }
 
-int FASTCALL LAssocArray::operator == (const LAssocArray & s) const
+bool FASTCALL LAssocArray::operator == (const LAssocArray & s) const
 {
 	if(count != s.count)
-		return 0;
+		return false;
 	else {
 		for(uint i = 0; i < count; i++)
 			if(!(at(i) == s.at(i)))
-				return 0;
-		return 1;
+				return false;
+		return true;
 	}
 }
 
-int LAssocArray::CheckUnique(long key, int binary) const
+bool LAssocArray::CheckUnique(long key, int binary) const
 {
-	const int is_found = binary ? BSearch(key, 0, 0) : Search(key, 0, 0);
-	return is_found ? 0 : 1;
+	const bool is_found = binary ? BSearch(key, 0, 0) : Search(key, 0, 0);
+	return !is_found;
 }
 
 long FASTCALL LAssocArray::Count(long key) const
@@ -4001,26 +4001,26 @@ Int64Array & FASTCALL Int64Array::operator = (const Int64Array & rS)
 	return *this;
 }
 
-int FASTCALL Int64Array::IsEq(const Int64Array * pS) const
+bool FASTCALL Int64Array::IsEq(const Int64Array * pS) const
 {
 	if(pS) {
 		const uint c = getCount();
 		if(pS->getCount() == c) {
 			for(uint i = 0; i < c; i++)
 				if(pS->at(i) != at(i))
-					return 0;
-			return 1;
+					return false;
+			return true;
 		}
 	}
-	return 0;
+	return false;
 }
 
-int    FASTCALL Int64Array::operator == (const Int64Array & rS) const { return IsEq(&rS); }
-int    FASTCALL Int64Array::operator != (const Int64Array & rS) const { return BIN(!IsEq(&rS)); }
+bool   FASTCALL Int64Array::operator == (const Int64Array & rS) const { return IsEq(&rS); }
+bool   FASTCALL Int64Array::operator != (const Int64Array & rS) const { return !IsEq(&rS); }
 int64  FASTCALL Int64Array::get(uint pos) const { return at(pos); }
-int    Int64Array::lsearch(int64 k, uint * pIdx) const { return SVector::lsearch(&k, pIdx, PTR_CMPFUNC(int64)); }
-int    FASTCALL Int64Array::lsearch(int64 key) const { return SVector::lsearch(&key, 0, PTR_CMPFUNC(int64)); }
-int    FASTCALL Int64Array::bsearch(int64 key) const { return SVector::bsearch(&key, 0, PTR_CMPFUNC(int64)); }
+bool   Int64Array::lsearch(int64 k, uint * pIdx) const { return SVector::lsearch(&k, pIdx, PTR_CMPFUNC(int64)); }
+bool   FASTCALL Int64Array::lsearch(int64 key) const { return SVector::lsearch(&key, 0, PTR_CMPFUNC(int64)); }
+bool   FASTCALL Int64Array::bsearch(int64 key) const { return SVector::bsearch(&key, 0, PTR_CMPFUNC(int64)); }
 int    FASTCALL Int64Array::addUnique(int64 v) { return lsearch(v) ? -1 : add(v); }
 int    FASTCALL Int64Array::add(int64 v) { return insert(&v); }
 void   Int64Array::sort() { SVector::sort(CMPF_INT64); }

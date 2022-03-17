@@ -1375,6 +1375,7 @@ public class SLib {
 		// родительскому Activity для предварительной установки
 	public static final int EV_IADATADELETECOMMIT   = 16; // После подтверждения пользователем факта интерактивного удаления данных
 	public static final int EV_DESTROY              = 17; // Посылается функцией onDestroy
+	public static final int EV_ACTIVITYSTART        = 18; // Посылается в SlActivity функцией onStart
 	//
 	public static final int cmOK                    = 10; // Значение эквивалентно тому же в tvdefs.h
 	public static final int cmCancel                = 11; // Значение эквивалентно тому же в tvdefs.h
@@ -4098,8 +4099,7 @@ public class SLib {
 			if(StartForResult != null)
 				StartForResult.launch(intent);
 		}
-		@Override
-		protected void onCreate(Bundle savedInstanceState)
+		@Override protected void onCreate(Bundle savedInstanceState)
 		{
 			super.onCreate(savedInstanceState);
 			{
@@ -4114,8 +4114,12 @@ public class SLib {
 			}
 			HandleEvent(EV_CREATE, this, savedInstanceState);
 		}
-		@Override
-		protected void onDestroy()
+		@Override protected void onStart()
+		{
+			super.onStart();
+			HandleEvent(EV_ACTIVITYSTART, this, null);
+		}
+		@Override protected void onDestroy()
 		{
 			super.onDestroy();
 			HandleEvent(EV_DESTROY, this, null);
@@ -4255,13 +4259,7 @@ public class SLib {
 	public static void RequestRecyclerListViewPosition(RecyclerView view, int idx)
 	{
 		if(view != null && idx >= 0) {
-			view.postDelayed(new Runnable() {
-				@Override
-				public void run()
-				{
-					view.scrollToPosition(idx);
-				}
-			}, 500);
+			view.postDelayed(new Runnable() { @Override public void run() { view.scrollToPosition(idx); } }, 500);
 		}
 	}
 	static class StrAssocSpinnerAdapter implements SpinnerAdapter {

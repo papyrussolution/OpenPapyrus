@@ -9,12 +9,44 @@
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllDebug|Win32">
+      <Configuration>MtDllDebug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllDebug|x64">
+      <Configuration>MtDllDebug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllRelease|Win32">
+      <Configuration>MtDllRelease</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllRelease|x64">
+      <Configuration>MtDllRelease</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerDebug|Win32">
+      <Configuration>ServerDebug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerDebug|x64">
+      <Configuration>ServerDebug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerRelease|Win32">
+      <Configuration>ServerRelease</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerRelease|x64">
+      <Configuration>ServerRelease</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
@@ -32,7 +64,27 @@
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v142</PlatformToolset>
@@ -42,7 +94,27 @@
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v142</PlatformToolset>
@@ -57,23 +129,63 @@
   <PropertyGroup>
     <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">$(ProjectName)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">$(ProjectName)</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectName)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">$(ProjectName)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">$(ProjectName)</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.lib</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">.lib</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">.lib</TargetExt>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.lib</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">.lib</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">.lib</TargetExt>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectName)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">$(ProjectName)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">$(ProjectName)</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectName)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">$(ProjectName)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">$(ProjectName)</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.lib</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">.lib</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">.lib</TargetExt>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.lib</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">.lib</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">.lib</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
     <OutDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
@@ -115,7 +227,161 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Lib>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4018;4065;4146;4244;4251;4267;4305;4307;4309;4334;4355;4506;4800;4996</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86 /ignore:4221</AdditionalOptions>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4018;4065;4146;4244;4251;4267;4305;4307;4309;4334;4355;4506;4800;4996</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86 /ignore:4221</AdditionalOptions>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4018;4065;4146;4244;4251;4267;4305;4307;4309;4334;4355;4506;4800;4996</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86 /ignore:4221</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4018;4065;4146;4244;4251;4267;4305;4307;4309;4334;4355;4506;4800;4996</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86 /ignore:4221</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj</AdditionalOptions>
@@ -190,7 +456,157 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Lib>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DisableSpecificWarnings>4018;4065;4146;4244;4251;4267;4305;4307;4309;4334;4355;4506;4800;4996</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86 /ignore:4221</AdditionalOptions>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DisableSpecificWarnings>4018;4065;4146;4244;4251;4267;4305;4307;4309;4334;4355;4506;4800;4996</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86 /ignore:4221</AdditionalOptions>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DisableSpecificWarnings>4018;4065;4146;4244;4251;4267;4305;4307;4309;4334;4355;4506;4800;4996</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86 /ignore:4221</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DisableSpecificWarnings>4018;4065;4146;4244;4251;4267;4305;4307;4309;4334;4355;4506;4800;4996</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86 /ignore:4221</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj</AdditionalOptions>
@@ -249,9 +665,17 @@
     <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\parse_context.cc" />
     <ClCompile Include="..\OSF\protobuf-3.19.1\src\google\protobuf\protobuf-pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\repeated_field.cc" />
     <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\repeated_ptr_field.cc" />
@@ -269,45 +693,93 @@
     <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\any.cc" />
     <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\any.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\api.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\importer.cc" />
     <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\parser.cc" />
     <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\descriptor.cc" />
     <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\descriptor.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\descriptor_database.cc" />
     <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\duration.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\dynamic_message.cc" />
     <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\empty.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\extension_set_heavy.cc" />
     <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\field_mask.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\generated_message_bases.cc" />
     <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\generated_message_reflection.cc" />
@@ -322,29 +794,61 @@
     <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\service.cc" />
     <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\source_context.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\struct.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\stubs\substitute.cc" />
     <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\text_format.cc" />
     <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\timestamp.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\type.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unknown_field_set.cc" />
     <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\delimited_message_util.cc" />
@@ -370,9 +874,17 @@
     <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\wire_format.cc" />
     <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\wrappers.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\any.pb.h" />
     <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\api.pb.h" />

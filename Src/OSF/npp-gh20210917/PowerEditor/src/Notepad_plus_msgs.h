@@ -1,37 +1,106 @@
 // This file is part of Notepad++ project
 // Copyright (C)2021 Don HO <don.h@free.fr>
-
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // at your option any later version.
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
+//
 #pragma once
 
-enum LangType {L_TEXT, L_PHP, L_C, L_CPP, L_CS, L_OBJC, L_JAVA, L_RC, \
-	       L_HTML, L_XML, L_MAKEFILE, L_PASCAL, L_BATCH, L_INI, L_ASCII, L_USER, \
-	       L_ASP, L_SQL, L_VB, L_JS, L_CSS, L_PERL, L_PYTHON, L_LUA, \
-	       L_TEX, L_FORTRAN, L_BASH, L_FLASH, L_NSIS, L_TCL, L_LISP, L_SCHEME, \
-	       L_ASM, L_DIFF, L_PROPS, L_PS, L_RUBY, L_SMALLTALK, L_VHDL, L_KIX, L_AU3, \
-	       L_CAML, L_ADA, L_VERILOG, L_MATLAB, L_HASKELL, L_INNO, L_SEARCHRESULT, \
-	       L_CMAKE, L_YAML, L_COBOL, L_GUI4CLI, L_D, L_POWERSHELL, L_R, L_JSP, \
-	       L_COFFEESCRIPT, L_JSON, L_JAVASCRIPT, L_FORTRAN_77, L_BAANC, L_SREC, \
-	       L_IHEX, L_TEHEX, L_SWIFT, \
-	       L_ASN1, L_AVS, L_BLITZBASIC, L_PUREBASIC, L_FREEBASIC, \
-	       L_CSOUND, L_ERLANG, L_ESCRIPT, L_FORTH, L_LATEX, \
-	       L_MMIXAL, L_NIM, L_NNCRONTAB, L_OSCRIPT, L_REBOL, \
-	       L_REGISTRY, L_RUST, L_SPICE, L_TXT2TAGS, L_VISUALPROLOG, L_TYPESCRIPT, \
-	       // Don't use L_JS, use L_JAVASCRIPT instead
-	       // The end of enumated language type, so it should be always at the end
-	       L_EXTERNAL};
+enum LangType {
+	L_TEXT, 
+	L_PHP, 
+	L_C, 
+	L_CPP, 
+	L_CS, 
+	L_OBJC, 
+	L_JAVA, 
+	L_RC,
+	L_HTML, 
+	L_XML, 
+	L_MAKEFILE, 
+	L_PASCAL, 
+	L_BATCH, 
+	L_INI, 
+	L_ASCII, 
+	L_USER,
+	L_ASP, 
+	L_SQL, 
+	L_VB, 
+	L_JS, 
+	L_CSS, 
+	L_PERL, 
+	L_PYTHON, 
+	L_LUA,
+	L_TEX, 
+	L_FORTRAN, 
+	L_BASH, 
+	L_FLASH, 
+	L_NSIS, 
+	L_TCL, 
+	L_LISP, 
+	L_SCHEME,
+	L_ASM, 
+	L_DIFF, 
+	L_PROPS, 
+	L_PS, 
+	L_RUBY, 
+	L_SMALLTALK, 
+	L_VHDL, 
+	L_KIX, 
+	L_AU3,
+	L_CAML, 
+	L_ADA, 
+	L_VERILOG, 
+	L_MATLAB, 
+	L_HASKELL, 
+	L_INNO, 
+	L_SEARCHRESULT,
+	L_CMAKE, 
+	L_YAML, 
+	L_COBOL, 
+	L_GUI4CLI, 
+	L_D, 
+	L_POWERSHELL, 
+	L_R, 
+	L_JSP,
+	L_COFFEESCRIPT, 
+	L_JSON, 
+	L_JAVASCRIPT, 
+	L_FORTRAN_77, 
+	L_BAANC, 
+	L_SREC,
+	L_IHEX, 
+	L_TEHEX, 
+	L_SWIFT,
+	L_ASN1, 
+	L_AVS, 
+	L_BLITZBASIC, 
+	L_PUREBASIC, 
+	L_FREEBASIC,
+	L_CSOUND, 
+	L_ERLANG, 
+	L_ESCRIPT, 
+	L_FORTH, 
+	L_LATEX,
+	L_MMIXAL, 
+	L_NIM, 
+	L_NNCRONTAB, 
+	L_OSCRIPT, 
+	L_REBOL,
+	L_REGISTRY, 
+	L_RUST, 
+	L_SPICE, 
+	L_TXT2TAGS, 
+	L_VISUALPROLOG, 
+	L_TYPESCRIPT,
+	// Don't use L_JS, use L_JAVASCRIPT instead
+	L_EXTERNAL // The end of enumated language type, so it should be always at the end
+};
 
 enum winVer { 
 	WV_UNKNOWN, 

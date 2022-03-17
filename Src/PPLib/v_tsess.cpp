@@ -1,5 +1,5 @@
 // V_TSESS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1323,7 +1323,7 @@ int PPViewTSession::GetSmsLists(StrAssocArray & rPsnList, StrAssocArray & rPhone
 	for(InitIteration(ordByDefault); NextIteration(&item) > 0;) {
 		PPELinkArray elink_list;
 		PPID pers_id = ObjectToPerson(item.ArID);
-		if(PersonCore::GetELinks(pers_id, &elink_list) > 0) {
+		if(PersonCore::GetELinks(pers_id, elink_list) > 0) {
 			buf.Z().Cat(item.ID);
 			rTSessIdArr.Add(i, buf);
 			elink_list.GetItem(PPELK_MOBILE, phone.Z());

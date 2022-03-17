@@ -2157,18 +2157,21 @@ int AsyncCashGoodsInfo::AdjustBarcode(int chkDig)
 //
 // AsyncCashSCardsIterator
 //
-AsyncCashSCardInfo::AsyncCashSCardInfo() : IsClosed(0), Rest(0.0)
+AsyncCashSCardInfo::AsyncCashSCardInfo() : Flags(0), Rest(0.0), PsnDOB(ZERODATE)
 {
-	// @v10.6.4 MEMSZERO(Rec);
 }
 
 AsyncCashSCardInfo & AsyncCashSCardInfo::Z()
 {
 	MEMSZERO(Rec);
-	IsClosed = 0;
+	//IsClosed = 0;
+	Flags = 0;
 	Rest = 0.0;
+	PsnDOB = ZERODATE;
 	PsnName.Z();
 	Phone.Z();
+	PsnPhone.Z();
+	Email.Z();
 	return *this;
 }
 
@@ -2251,8 +2254,10 @@ int AsyncCashSCardsIterator::Next(AsyncCashSCardInfo * pInfo)
 	int    ok = -1;
 	if(pInfo) {
 		pInfo->Z();
+		Reference * p_ref = PPRef; // @v11.3.5
 		PersonTbl::Rec psn_rec;
 		PPSCardPacket sc_pack; // @v10.6.3
+		PPELinkArray ela;
 		while(ok < 0 && P_IterQuery && P_IterQuery->nextIteration() > 0) {
 			Counter.Increment();
 			const PPID sc_id = SCObj.P_Tbl->data.ID;
@@ -2269,10 +2274,27 @@ int AsyncCashSCardsIterator::Next(AsyncCashSCardInfo * pInfo)
 					if(pInfo->Rec.PersonID) {
 						if(pInfo->Rec.PersonID == DefSCardPersonID)
 							pInfo->PsnName = DefPersonName;
-						else if(PsnObj.Fetch(pInfo->Rec.PersonID, &psn_rec) > 0)
+						else if(PsnObj.Fetch(pInfo->Rec.PersonID, &psn_rec) > 0) {
 							pInfo->PsnName = psn_rec.Name;
+							ObjTagItem tag_item;
+							StringSet ss;
+							LDATE   dob = ZERODATE;
+							if(p_ref->Ot.GetTag(PPOBJ_PERSON, psn_rec.ID, PPTAG_PERSON_DOB, &tag_item) > 0 && tag_item.GetDate(&dob) && checkdate(dob)) {
+								pInfo->PsnDOB = dob;
+							}
+							PersonCore::GetELinks(psn_rec.ID, ela);
+							ela.GetSinglePhone(pInfo->PsnPhone, 0);
+							if(ela.GetListByType(ELNKRT_EMAIL, ss) > 0) {
+								assert(ss.getCount());
+								ss.get(0U, pInfo->Email);
+							}
+							// @v11.3.5 {
+							if(psn_rec.Flags & PSNF_DONTSENDCCHECK)
+								pInfo->Flags |= AsyncCashSCardInfo::fDisableSendPaperlassCCheck;
+							// } @v11.3.5 
+						}
 					}
-					pInfo->IsClosed = BIN((Rec.Flags & SCRDF_CLOSED) || (Rec.Expiry && diffdate(Rec.Expiry, getcurdate_()) < 0)); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+					SETFLAG(pInfo->Flags, AsyncCashSCardInfo::fClosed, ((Rec.Flags & SCRDF_CLOSED) || (Rec.Expiry && diffdate(Rec.Expiry, getcurdate_()) < 0))); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 					{
 						int    scst = ScsPack.Rec.GetType();
 						if(oneof2(scst, scstCredit, scstBonus)) {

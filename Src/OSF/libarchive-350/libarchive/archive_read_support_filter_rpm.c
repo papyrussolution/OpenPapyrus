@@ -13,7 +13,6 @@
  */
 #include "archive_platform.h"
 #pragma hdrstop
-#include "archive_endian.h"
 #include "archive_read_private.h"
 
 struct rpm {

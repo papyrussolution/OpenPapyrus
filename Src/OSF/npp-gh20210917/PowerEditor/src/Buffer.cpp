@@ -908,16 +908,13 @@ size_t FileManager::nextUntitledNewNumber() const
 			// if untitled document is invisible, then don't put its number into array (so its number is
 			// available to be used)
 			if((buf->_referees[0])->isVisible()) {
-				generic_string newTitle = ((NppParameters::getInstance()).getNativeLangSpeaker())->getLocalizedStrFromID(
-					"tab-untitled-string",
-					UNTITLED_STR);
+				generic_string newTitle = ((NppParameters::getInstance()).getNativeLangSpeaker())->getLocalizedStrFromID("tab-untitled-string", UNTITLED_STR);
 				TCHAR * numberStr = buf->_fileName + newTitle.length();
 				int usedNumber = generic_atoi(numberStr);
 				usedNumbers.push_back(usedNumber);
 			}
 		}
 	}
-
 	size_t newNumber = 1;
 	bool numberAvailable = true;
 	bool found = false;
@@ -933,25 +930,19 @@ size_t FileManager::nextUntitledNewNumber() const
 		}
 		if(!numberAvailable)
 			newNumber++;
-
 		if(!found)
 			break;
 	} while(!numberAvailable);
-
 	return newNumber;
 }
 
 BufferID FileManager::newEmptyDocument()
 {
-	generic_string newTitle = ((NppParameters::getInstance()).getNativeLangSpeaker())->getLocalizedStrFromID("tab-untitled-string",
-		UNTITLED_STR);
-
+	generic_string newTitle = ((NppParameters::getInstance()).getNativeLangSpeaker())->getLocalizedStrFromID("tab-untitled-string", UNTITLED_STR);
 	TCHAR nb[10];
 	wsprintf(nb, TEXT("%d"), static_cast<int>(nextUntitledNewNumber()));
 	newTitle += nb;
-
-	Document doc = (Document)_pscratchTilla->execute(SCI_CREATEDOCUMENT);   //this already sets a reference for
-	                                                                        // filemanager
+	Document doc = (Document)_pscratchTilla->execute(SCI_CREATEDOCUMENT);   //this already sets a reference for filemanager
 	Buffer* newBuf = new Buffer(this, _nextBufferID, doc, DOC_UNNAMED, newTitle.c_str());
 	BufferID id = static_cast<BufferID>(newBuf);
 	newBuf->_id = id;
@@ -1024,7 +1015,7 @@ LangType FileManager::detectLanguageFromTextBegining(const uchar * data, size_t 
 	// Is there a \r or \n in the buffer? If so, truncate it
 	auto cr = buf2Test.find("\r");
 	auto nl = buf2Test.find("\n");
-	auto crnl = min(cr, nl);
+	auto crnl = MIN(cr, nl);
 	if(crnl != std::string::npos && crnl < longestLength)
 		buf2Test = std::string((const char *)data + i, crnl);
 
@@ -1051,11 +1042,9 @@ LangType FileManager::detectLanguageFromTextBegining(const uchar * data, size_t 
 				return ShebangLangs[i].lang;
 			}
 		}
-
 		// Unrecognized shebang (there is always room for improvement ;-)
 		return L_TEXT;
 	}
-
 	// Are there any other patterns we know off?
 	const size_t NB_FIRST_LINE_LANGUAGES = 5;
 	FirstLineLanguages languages[NB_FIRST_LINE_LANGUAGES] = {
@@ -1066,14 +1055,12 @@ LangType FileManager::detectLanguageFromTextBegining(const uchar * data, size_t 
 		{ "<?",                         L_PHP } // MUST be after "<?php" and "<?xml" to get the result as
 		                                        // accurate as possible
 	};
-
 	for(i = 0; i < NB_FIRST_LINE_LANGUAGES; ++i) {
 		foundPos = buf2Test.find(languages[i].pattern);
 		if(foundPos == 0) {
 			return languages[i].lang;
 		}
 	}
-
 	// Unrecognized first line, we assume it is a text file for now
 	return L_TEXT;
 }
@@ -1089,7 +1076,7 @@ bool FileManager::loadFileData(Document doc, const TCHAR * filename, char * data
 	rewind(fp);
 	// size/6 is the normal room Scintilla keeps for editing, but here we limit it to 1MiB when loading (maybe we
 	// want to load big files without editing them too much)
-	unsigned __int64 bufferSizeRequested = fileSize + min(1<<20, fileSize/6);
+	unsigned __int64 bufferSizeRequested = fileSize + MIN(1<<20, fileSize/6);
 	// As a 32bit application, we cannot allocate 2 buffer of more than INT_MAX size (it takes the whole address
 	// space)
 	if(bufferSizeRequested > INT_MAX) {

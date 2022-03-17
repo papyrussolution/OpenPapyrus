@@ -21,19 +21,15 @@
  */
 #include "bzlib_private.h"
 #pragma hdrstop
-
-/*---------------------------------------------------*/
-/*--- Bit stream I/O                              ---*/
-/*---------------------------------------------------*/
-
-/*---------------------------------------------------*/
+// 
+// Bit stream I/O
+// 
 void BZ2_bsInitWrite(EState* s)
 {
 	s->bsLive = 0;
 	s->bsBuff = 0;
 }
 
-/*---------------------------------------------------*/
 static void bsFinishWrite(EState* s)
 {
 	while(s->bsLive > 0) {
@@ -44,7 +40,6 @@ static void bsFinishWrite(EState* s)
 	}
 }
 
-/*---------------------------------------------------*/
 #define bsNEEDW(nz)			      \
 	{					      \
 		while(s->bsLive >= 8) {			  \
@@ -55,7 +50,6 @@ static void bsFinishWrite(EState* s)
 		}					   \
 	}
 
-/*---------------------------------------------------*/
 static __inline__ void bsW(EState* s, int32 n, uint32 v)
 {
 	bsNEEDW(n);
@@ -63,7 +57,6 @@ static __inline__ void bsW(EState* s, int32 n, uint32 v)
 	s->bsLive += n;
 }
 
-/*---------------------------------------------------*/
 static void FASTCALL bsPutUInt32(EState* s, uint32 u)
 {
 	bsW(s, 8, (u >> 24) & 0xffL);
@@ -72,16 +65,13 @@ static void FASTCALL bsPutUInt32(EState* s, uint32 u)
 	bsW(s, 8,  u        & 0xffL);
 }
 
-/*---------------------------------------------------*/
 static void FASTCALL bsPutUChar(EState* s, uchar c)
 {
 	bsW(s, 8, (uint32)c);
 }
-
-/*---------------------------------------------------*/
-/*--- The back end proper                         ---*/
-/*---------------------------------------------------*/
-
+// 
+// The back end proper
+// 
 static void makeMaps_e(EState* s)
 {
 	s->nInUse = 0;
@@ -208,7 +198,6 @@ static void generateMTFValues(EState* s)
 	s->nMTF = wr;
 }
 
-/*---------------------------------------------------*/
 #define BZ_LESSER_ICOST  0
 #define BZ_GREATER_ICOST 15
 

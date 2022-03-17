@@ -35,11 +35,10 @@
 #include <google/protobuf/stubs/once.h>
 #include <google/protobuf/port.h>
 #include <google/protobuf/unknown_field_set.h>
-
 #include <google/protobuf/port_def.inc>
 
 #ifdef SWIG
-#error "You cannot SWIG proto headers"
+	#error "You cannot SWIG proto headers"
 #endif
 
 namespace google {

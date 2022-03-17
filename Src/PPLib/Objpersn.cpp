@@ -2305,7 +2305,7 @@ int PPObjPerson::ReplyPersonELinkDel(PPID eLinkID)
 	for(P_Tbl->search(0, &k0, spFirst); P_Tbl->search(0, &k0, spNext);) {
 		PPELinkArray ela_list;
 		const PPID psn_id = P_Tbl->data.ID;
-		THROW(P_Tbl->GetELinks(psn_id, &ela_list));
+		THROW(P_Tbl->GetELinks(psn_id, ela_list));
 		if(ela_list.GetItem(eLinkID, ela_buf) > 0) {
 			ok = RetRefsExistsErr(Obj, psn_id);
 			break;
@@ -3016,7 +3016,7 @@ int PPObjPerson::GetPacket(PPID id, PPPersonPacket * pPack, uint flags)
 		for(i = 0; i < dlvr_loc_list.getCount(); i++)
 			if(LocObj.GetPacket(dlvr_loc_list.at(i), &loc_pack) > 0)
 				pPack->AddDlvrLoc(loc_pack);
-		THROW(P_Tbl->GetELinks(id, &pPack->ELA));
+		THROW(P_Tbl->GetELinks(id, pPack->ELA));
 		THROW(GetExtName(id, ext_str_buf));
 		pPack->SetExtName(ext_str_buf);
 		THROW(p_ref->Ot.GetList(Obj, id, &pPack->TagL));
@@ -3458,7 +3458,7 @@ int PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 				if(do_index_phones) {
 					PPELinkArray ela;
 					StringSet phone_list;
-					THROW(P_Tbl->GetELinks(id, &ela));
+					THROW(P_Tbl->GetELinks(id, ela));
 					ela.GetListByType(ELNKRT_PHONE, phone_list);
 					ela.GetListByType(ELNKRT_INTERNALEXTEN, phone_list); // @v10.0.0
 					PPObjID objid(Obj, id);
@@ -3992,6 +3992,7 @@ public:
 		//
 		AddClusterAssoc(CTL_PERSON_FLAGS, 0, PSNF_NOVATAX);
 		AddClusterAssoc(CTL_PERSON_FLAGS, 1, PSNF_NONOTIFICATIONS);
+		AddClusterAssoc(CTL_PERSON_FLAGS, 2, PSNF_DONTSENDCCHECK); // @v11.3.5
 		SetClusterData(CTL_PERSON_FLAGS, Data.Rec.Flags);
 		//
 		// @v11.1.12 setCtrlData(CTL_PERSON_MEMO, Data.Rec.Memo);
@@ -6217,7 +6218,7 @@ int PPObjPerson::SearchEmail(const char * pEmail, long flags, PPIDArray * pPsnLi
 			for(uint j = 0; j < psn_id_list.getCount(); j++) {
 				const PPID psn_id = psn_id_list.get(j);
 				PersonTbl::Rec psn_rec;
-				P_Tbl->GetELinks(psn_id, &ela);
+				P_Tbl->GetELinks(psn_id, ela);
 				for(uint i = 0; i < ela.getCount(); i++) {
 					const PPELink & r_item = ela.at(i);
 					if(elk_obj.Fetch(r_item.KindID, &elk_rec) > 0 && elk_rec.Type == ELNKRT_EMAIL) {
@@ -6302,7 +6303,7 @@ int PPObjPerson::IndexPhones(PPLogger * pLogger, int use_ta)
 				if(LocObj.FetchCityByAddr(city_addr_id, &city_rec) > 0 && city_rec.Phone[0])
 					PPEAddr::Phone::NormalizeStr(city_rec.Phone, 0, city_prefix);
 				city_prefix.SetIfEmpty(main_city_prefix);
-				P_Tbl->GetELinks(objid.Id, &ela);
+				P_Tbl->GetELinks(objid.Id, ela);
 				for(uint i = 0; i < ela.getCount(); i++) {
 					const PPELink & r_item = ela.at(i);
 					if(elk_obj.Fetch(r_item.KindID, &elk_rec) > 0) {
@@ -7142,7 +7143,7 @@ void PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 		PPObjPerson * p_obj = static_cast<PPObjPerson *>(Extra[0].Ptr);
 		if(p_obj) {
 			PPELinkArray ela;
-			p_obj->P_Tbl->GetELinks(H.ID, &ela);
+			p_obj->P_Tbl->GetELinks(H.ID, ela);
 			if(ela.getCount()) {
 				StringSet ss;
 				if(ela.GetListByType(ELNKRT_EMAIL, ss) > 0)
@@ -7642,7 +7643,7 @@ int PPALDD_Global::InitData(PPFilt & rFilt, long rsrv)
 		PPELinkArray el;
 		STRNSCPY(H.Address, req.Addr);
 		STRNSCPY(H.RAddress, req.RAddr);
-		psnobj.P_Tbl->GetELinks(H.ID, &el);
+		psnobj.P_Tbl->GetELinks(H.ID, el);
 		el.GetPhones(1, temp_buf); temp_buf.CopyTo(H.Phone, sizeof(H.Phone));
 		ok = DlRtm::InitData(rFilt, rsrv);
 	}
@@ -7770,7 +7771,7 @@ void PPALDD_Global::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 					if(psn_obj.Search(psn_id, &psn_rec) > 0) {
                         msg_buf.Z().CatEq("PersonID", psn_id).CatDiv('-', 1).CatEq("Name", psn_rec.Name);
                         PPELinkArray ela;
-						psn_obj.P_Tbl->GetELinks(psn_id, &ela);
+						psn_obj.P_Tbl->GetELinks(psn_id, ela);
 						ss_email.clear();
 						ela.GetListByType(PPELK_EMAIL, ss_email);
 						for(uint j = 0; ss_email.get(&j, temp_buf);) {

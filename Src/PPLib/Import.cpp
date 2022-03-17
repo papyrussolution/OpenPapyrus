@@ -293,7 +293,7 @@ int PPObjSCard::Import(int use_ta)
 				THROW(scs_obj.GetPacket(scs_rec_.ID, &scs_pack) > 0);
 			}
 			else {
-				scs_pack.Init();
+				scs_pack.Z();
 				STRNSCPY(scs_pack.Rec.Name, "default");
 				scser_id = 0;
 				THROW(scs_obj.PutPacket(&scser_id, &scs_pack, 0))
@@ -329,7 +329,7 @@ int PPObjSCard::Import(int use_ta)
 								if(scs_obj.SearchByName(temp_buf, &s_id, &scs_rec_) > 0) {
 								}
 								else {
-									scs_pack.Init();
+									scs_pack.Z();
 									STRNSCPY(scs_pack.Rec.Name, temp_buf);
 									s_id = 0;
 									THROW(scs_obj.PutPacket(&s_id, &scs_pack, 0))

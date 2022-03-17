@@ -72,7 +72,7 @@ std::vector<generic_string> NaturalSorter::sort(std::vector<generic_string> line
 			size_t i = 0;
 			while(compareResult == 0) {
 				if(i >= a.length() || i >= b.length()) {
-					compareResult = a.compare(min(i, a.length()), generic_string::npos, b, min(i, b.length()), generic_string::npos);
+					compareResult = a.compare(MIN(i, a.length()), generic_string::npos, b, MIN(i, b.length()), generic_string::npos);
 					break;
 				}
 				bool aChunkIsNum = a[i] >= L'0' && a[i] <= L'9';
@@ -112,7 +112,7 @@ std::vector<generic_string> NaturalSorter::sort(std::vector<generic_string> line
 			size_t i = 0;
 			while(compareResult == 0) {
 				if(i >= a.length() || i >= b.length()) {
-					compareResult = a.compare(min(i, a.length()), generic_string::npos, b, min(i, b.length()), generic_string::npos);
+					compareResult = a.compare(MIN(i, a.length()), generic_string::npos, b, MIN(i, b.length()), generic_string::npos);
 					break;
 				}
 				bool aChunkIsNum = a[i] >= L'0' && a[i] <= L'9';

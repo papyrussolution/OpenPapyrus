@@ -1,5 +1,5 @@
 // CRCSHSRV.CPP
-// Copyright (c) V.Nasonov 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) V.Nasonov, A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Интерфейс (асинхронный) к драйверу кассового сервера (ООО Кристалл Сервис)
 //
@@ -1189,7 +1189,9 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		PPID   ser_id = 0;
 		long   idx = 0;
 		SString name, series_word;
-		SString ser_name, fmt_buf, msg_buf;
+		SString ser_name;
+		SString fmt_buf;
+		SString msg_buf;
 		SString ser_ident;
 		LDATETIME cur_dtm;
 		SPathStruc sp;
@@ -1202,11 +1204,8 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		scard_quot_ary.clear();
 		sp.Split(path_cards);
 		getcurdatetime(&cur_dtm);
-		// @v9.0.9 name.Printf("%s_%02d-%02d-%04d_%02d-%02d-%02d", (const char *)sp.Nam, cur_dtm.d.day(), cur_dtm.d.month(), cur_dtm.d.year(), cur_dtm.t.hour(), cur_dtm.t.minut(), cur_dtm.t.sec());
-		// @v9.0.9 {
 		(name = sp.Nam).CatChar('_').CatLongZ(cur_dtm.d.day(), 2).CatChar('-').CatLongZ(cur_dtm.d.month(), 2).CatChar('-').CatLongZ(cur_dtm.d.year(), 4).
 			CatChar('_').CatLongZ(cur_dtm.t.hour(), 2).CatChar('-').CatLongZ(cur_dtm.t.minut(), 2).CatChar('-').CatLongZ(cur_dtm.t.sec(), 2);
-		// } @v9.0.9
 		sp.Nam = name;
 		sp.Merge(path_cards);
 		THROW_MEM(p_writer = new XmlWriter(path_cards, 1));
@@ -1231,10 +1230,7 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 							p_writer->AddAttrib("deleted", false);
 							p_writer->AddAttrib("guid", ser_ident);
 							p_writer->AddAttrib("name", ser_name);
-							p_writer->AddAttrib("percentage-discount", temp_buf.Z().Cat(fdiv100i(ser_rec.PDis), MKSFMTD(0, 2, NMBF_EXPLFLOAT))); // @v9.4.3
-							// @v9.3.2 p_writer->AddAttrib("personalized", (info.Rec.PersonID != 0) ? true : false);
-							// p_writer->AddAttrib("workPeriodStart", info.Rec.UsageTmStart.d);
-							// p_writer->AddAttrib("workPeriodEnd", info.Rec.UsageTmEnd.d);
+							p_writer->AddAttrib("percentage-discount", temp_buf.Z().Cat(fdiv100i(ser_rec.PDis), MKSFMTD(0, 2, NMBF_EXPLFLOAT)));
 						p_writer->EndElement();
 					}
 				}
@@ -1267,14 +1263,27 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 							}
 							p_writer->AddAttrib("status", 0L);
 							if(info.Rec.PersonID != 0) {
-								ObjTagItem tag_item;
-								LDATE   dob = ZERODATE;
 								p_writer->StartElement("client");
+								{
 									p_writer->AddAttrib("deleted", false);
 									p_writer->AddAttrib("guid", info.Rec.PersonID);
-									p_writer->AddAttrib("last-name", info.PsnName); // @v9.3.2 lastName-->last-name
-									if(p_ref->Ot.GetTag(PPOBJ_PERSON, info.Rec.PersonID, PPTAG_PERSON_DOB, &tag_item) > 0 && tag_item.GetDate(&dob) && checkdate(dob))
-										p_writer->AddAttrib("birth-date", info.PsnName);
+									p_writer->AddAttrib("last-name", info.PsnName);
+									if(checkdate(info.PsnDOB)) {
+										temp_buf.Z().Cat(info.PsnDOB, DATF_ISO8601|DATF_CENTURY);
+										p_writer->AddAttrib("birth-date", temp_buf);
+									}
+									if(info.Email.NotEmpty()) {
+										p_writer->AddAttrib("email", info.Email);
+									}
+									if(info.Phone.NotEmpty()) {
+										p_writer->AddAttrib("phone", info.Phone);
+									}
+									else if(info.PsnPhone.NotEmpty()) {
+										p_writer->AddAttrib("phone", info.PsnPhone);
+									}
+									p_writer->AddAttrib("send-by-sms", (info.Flags & AsyncCashSCardInfo::fDisableSendPaperlassCCheck) ? false : true);
+									p_writer->AddAttrib("send-by-email", (info.Flags & AsyncCashSCardInfo::fDisableSendPaperlassCCheck) ? false : true);
+								}
 								p_writer->EndElement();
 							}
 						p_writer->EndElement();
@@ -1304,6 +1313,23 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 								p_writer->AddAttrib("deleted", false);
 								p_writer->AddAttrib("guid", info.Rec.PersonID);
 								p_writer->AddAttrib("lastName", info.PsnName);
+								// @v11.3.5 {
+								if(checkdate(info.PsnDOB)) {
+									temp_buf.Z().Cat(info.PsnDOB, DATF_ISO8601|DATF_CENTURY);
+									p_writer->AddAttrib("birth-date", temp_buf);
+								}
+								if(info.Email.NotEmpty()) {
+									p_writer->AddAttrib("email", info.Email);
+								}
+								if(info.Phone.NotEmpty()) {
+									p_writer->AddAttrib("phone", info.Phone);
+								}
+								else if(info.PsnPhone.NotEmpty()) {
+									p_writer->AddAttrib("phone", info.PsnPhone);
+								}
+								p_writer->AddAttrib("send-by-sms", (info.Flags & AsyncCashSCardInfo::fDisableSendPaperlassCCheck) ? false : true);
+								p_writer->AddAttrib("send-by-email", (info.Flags & AsyncCashSCardInfo::fDisableSendPaperlassCCheck) ? false : true);
+								// } @v11.3.5 
 							}
 							ser_name = ser_rec.Name;
 							p_writer->StartElement("internal-card-type");
@@ -1627,7 +1653,7 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 				(msg_buf = fmt_buf).CatDiv(':', 2).Cat(ser_rec.Name);
 				for(iter.Init(&scs_pack); iter.Next(&info) > 0;) {
 					PPWaitPercent(iter.GetCounter(), msg_buf);
-					const char * p_mode = info.IsClosed ? "-" : "+";
+					const char * p_mode = (info.Flags & AsyncCashSCardInfo::fClosed) ? "-" : "+";
 					DbfRecord dbfrC(p_tbl);
 					dbfrC.empty();
 					dbfrC.put(1,  p_mode);                         // Тип действия //
@@ -2180,7 +2206,7 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 					THROW(scs_obj.GetPacket(ser_id, &scs_pack) > 0);
 					THROW_SL(scard_quot_ary.Add(ser_rec.ID, ser_rec.QuotKindID_s, 0));
 					for(iter.Init(&scs_pack); iter.Next(&info) > 0;) {
-						const char * p_mode = info.IsClosed ? "-" : "+";
+						const char * p_mode = (info.Flags & AsyncCashSCardInfo::fClosed) ? "-" : "+";
 						DbfRecord dbfrC(p_out_tbl_cards);
 						dbfrC.empty();
 						dbfrC.put(1,  p_mode);                         // Тип действия //

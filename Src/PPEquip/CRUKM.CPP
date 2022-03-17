@@ -163,7 +163,7 @@ int ACS_CRUKM::ExportSCard(Cr_PosLoadTbl * pOutTbl, Cr_CredoPayTbl * pScCrdTbl, 
 	int    ok = 1;
 	PPID   ser_id = 0;
 	PPSCardSeries ser_rec;
-	AsyncCashSCardInfo  info;
+	AsyncCashSCardInfo info;
 	AsyncCashSCardsIterator * p_iter = 0;
 	THROW_MEM(p_iter = new AsyncCashSCardsIterator(NodeID, updOnly, P_Dls, StatID));
 	{
@@ -176,7 +176,7 @@ int ACS_CRUKM::ExportSCard(Cr_PosLoadTbl * pOutTbl, Cr_CredoPayTbl * pScCrdTbl, 
 			THROW(p_iter->Init(&scs_pack));
 			while(p_iter->Next(&info) > 0) {
 				AdjustSCardCode(info.Rec.Code);
-				if(ser_rec.Flags & SCRDSF_CREDIT && !info.IsClosed)
+				if(ser_rec.Flags & SCRDSF_CREDIT && !(info.Flags & AsyncCashSCardInfo::fClosed))
 					THROW(ExportOpByCrdCard(SCrdObj.P_Tbl, info.Rec.ID, info.Rec.Code, pScCrdTbl));
 				for(uint i = 0; i < pLogNumList->getCount(); i++) {
 					char   tempbuf[80];
@@ -189,7 +189,7 @@ int ACS_CRUKM::ExportSCard(Cr_PosLoadTbl * pOutTbl, Cr_CredoPayTbl * pScCrdTbl, 
 					// 0 - discount card, -1 - credit card
 					rec.KeyLongint = (ser_rec.Flags & SCRDSF_CREDIT) ? -1 : 0;
 					ZStrToLStr(rec.KeyString, info.Rec.Code, sizeof(rec.KeyString));
-					tempbuf[0] = info.IsClosed ? '-' : '+';
+					tempbuf[0] = (info.Flags & AsyncCashSCardInfo::fClosed) ? '-' : '+';
 					tempbuf[1] = 0;
 					ZStrToLStr(rec.F_MODE, tempbuf, sizeof(rec.F_MODE));
 					ZStrToLStr(rec.F_ARTIKL, info.Rec.Code, sizeof(rec.F_ARTIKL));

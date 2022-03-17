@@ -156,11 +156,11 @@
 #if __GNUC__ >= 3
 	#define cairo_pure __attribute__((pure))
 	#define cairo_const __attribute__((const))
-	#define cairo_always_inline inline __attribute__((always_inline))
+	// @sobolev #define cairo_always_inline_Removed inline __attribute__((always_inline))
 #else
 	#define cairo_pure
 	#define cairo_const
-	#define cairo_always_inline inline
+	// @sobolev #define cairo_always_inline_Removed inline
 #endif
 /* о@v11.0.4
 #if defined(__GNUC__) && (__GNUC__ > 2) && defined(__OPTIMIZE__)

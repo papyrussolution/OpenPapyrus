@@ -42,14 +42,14 @@
 #if defined(__APPLE__)
 #include <mach/mach_time.h>
 
-static cairo_always_inline double _cairo_time_1s(void)
+static FORCEINLINE double _cairo_time_1s()
 {
 	mach_timebase_info_data_t freq;
 	mach_timebase_info(&freq);
 	return 1000000000. * freq.denom / freq.numer;
 }
 
-cairo_time_t _cairo_time_get(void)
+cairo_time_t _cairo_time_get()
 {
 	return mach_absolute_time();
 }
@@ -58,14 +58,14 @@ cairo_time_t _cairo_time_get(void)
 #define INCL_BASE
 #include <os2.h>
 
-static cairo_always_inline double _cairo_time_1s(void)
+static FORCEINLINE double _cairo_time_1s()
 {
 	ULONG freq;
 	DosTmrQueryFreq(&freq);
 	return freq;
 }
 
-cairo_time_t _cairo_time_get(void)
+cairo_time_t _cairo_time_get()
 {
 	QWORD t;
 	cairo_int64_t r;
@@ -79,7 +79,7 @@ cairo_time_t _cairo_time_get(void)
 #define WIN32_LEAN_AND_MEAN
 //#include <windows.h>
 
-static cairo_always_inline double _cairo_time_1s(void)
+static FORCEINLINE double _cairo_time_1s()
 {
 	LARGE_INTEGER freq;
 	QueryPerformanceFrequency(&freq);
@@ -87,7 +87,7 @@ static cairo_always_inline double _cairo_time_1s(void)
 }
 
 #ifndef HAVE_UINT64_T
-static cairo_always_inline cairo_time_t _cairo_time_from_large_integer(LARGE_INTEGER t)
+static FORCEINLINE cairo_time_t _cairo_time_from_large_integer(LARGE_INTEGER t)
 {
 	cairo_int64_t r;
 	r = _cairo_int64_lsl(_cairo_int32_to_int64(t.HighPart), 32);
@@ -95,13 +95,13 @@ static cairo_always_inline cairo_time_t _cairo_time_from_large_integer(LARGE_INT
 	return r;
 }
 #else
-static cairo_always_inline cairo_time_t _cairo_time_from_large_integer(LARGE_INTEGER t)
+static FORCEINLINE cairo_time_t _cairo_time_from_large_integer(LARGE_INTEGER t)
 {
 	return t.QuadPart;
 }
 #endif
 
-cairo_time_t _cairo_time_get(void)
+cairo_time_t _cairo_time_get()
 {
 	LARGE_INTEGER t;
 	QueryPerformanceCounter(&t);
@@ -111,12 +111,12 @@ cairo_time_t _cairo_time_get(void)
 #elif defined(CAIRO_CLOCK)
 #include <time.h>
 
-static cairo_always_inline double _cairo_time_1s(void)
+static FORCEINLINE double _cairo_time_1s()
 {
 	return 1000000000;
 }
 
-cairo_time_t _cairo_time_get(void)
+cairo_time_t _cairo_time_get()
 {
 	struct timespec t;
 	cairo_time_t r;
@@ -130,7 +130,7 @@ cairo_time_t _cairo_time_get(void)
 #else
 #include <sys/time.h>
 
-static cairo_always_inline double _cairo_time_1s(void)
+static FORCEINLINE double _cairo_time_1s(void)
 {
 	return 1000000;
 }

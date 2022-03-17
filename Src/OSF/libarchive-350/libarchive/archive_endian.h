@@ -21,7 +21,7 @@
 /* Do not use this outside of libarchive internal code! */
 
 #ifndef __LIBARCHIVE_BUILD
-#error This header is only to be used internally to libarchive.
+	#error This header is only to be used internally to libarchive.
 #endif
 
 /*
@@ -44,25 +44,20 @@
 
 /* Alignment-agnostic encode/decode bytestream to/from little/big endian. */
 
-static inline uint16
-archive_be16dec(const void *pp)
+static inline uint16 archive_be16dec(const void *pp)
 {
 	uchar const * p = (uchar const *)pp;
-
 	/* Store into unsigned temporaries before left shifting, to avoid
 	promotion to signed int and then left shifting into the sign bit,
 	which is undefined behaviour. */
 	uint p1 = p[1];
 	uint p0 = p[0];
-
 	return ((p0 << 8) | p1);
 }
 
-static inline uint32
-archive_be32dec(const void *pp)
+static inline uint32 archive_be32dec(const void *pp)
 {
 	uchar const * p = (uchar const *)pp;
-
 	/* Store into unsigned temporaries before left shifting, to avoid
 	promotion to signed int and then left shifting into the sign bit,
 	which is undefined behaviour. */

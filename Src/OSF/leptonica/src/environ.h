@@ -10,18 +10,6 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
 
 #ifndef  LEPTONICA_ENVIRON_H
@@ -120,10 +108,10 @@ typedef uintptr_t l_uintptr_t;
 	#define  HAVE_LIBUNGIF      0
   #endif
   #if !defined(HAVE_LIBWEBP)
-	#define  HAVE_LIBWEBP       0
+	#define  HAVE_LIBWEBP       1 // @sobolev 0-->1
   #endif
   #if !defined(HAVE_LIBWEBP_ANIM)
-	#define  HAVE_LIBWEBP_ANIM  0
+	#define  HAVE_LIBWEBP_ANIM  1 // @sobolev 0-->1
   #endif
   #if !defined(HAVE_LIBJP2K)
 	#define  HAVE_LIBJP2K       1
